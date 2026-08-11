@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "updated_at_utc": "2026-08-11T15:15:41Z",
-  "updated_by": "codex",
+  "updated_by": "chatgpt",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
@@ -10,16 +10,15 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-11T15:15:41Z",
     "protocol_version": 1,
     "status": "READY"
   },
   "current_milestone": {
     "programme": "OIP v2.2E.2B2K",
-    "milestone": "Prospective migration census observation authorization",
-    "mode": "production observation safety gate",
-    "status": "HOLD",
-    "verdict": "EXPLICIT_OBSERVATION_AUTHORIZATION_REQUIRED"
+    "milestone": "Bounded prospective migration census observation on repaired listener",
+    "mode": "authorized read-only production observation",
+    "status": "AUTHORIZED_NOT_STARTED",
+    "verdict": "PENDING"
   },
   "production_state": {
     "retention": "ON",
@@ -36,106 +35,61 @@
     {"milestone": "OIP v2.2E Phase 1 reproducible baseline", "commit": "ad3719f59ac9541e3550fad22866efe0cab5466c", "verdict": "QUALIFIED"},
     {"milestone": "E.1A cohort gate", "commit": "ac852ac2", "verdict": "PASS"},
     {"milestone": "E.1C1 retained acquisition replay foundation", "commit": "5837cd68f361fdb45297dbf8466d741727490823", "verdict": "PASS"},
-    {"milestone": "Prospective migration census collector", "commit": "8289687ba3402e7972d3881594db261eb044f142", "verdict": "LOCAL_QUALIFICATION_PASS"}
+    {"milestone": "Prospective migration census collector", "commit": "8289687ba3402e7972d3881594db261eb044f142", "verdict": "LOCAL_QUALIFICATION_PASS"},
+    {"milestone": "PumpPortal migration routing repair", "commit": "fc248d041913824b335df6759dbd57cda4644d8b", "verdict": "DEPLOYED_PASS"}
   ],
   "active_observation": {
-    "name": "post-fix migration census funnel",
-    "start_utc_approx": "2026-08-11T13:16:00Z",
-    "end_condition": "first of 20 distinct migrations, 60 clean minutes, material gap, or production impact",
-    "pre_fix_data_valid": false,
+    "name": "E.2B2K repaired-listener migration census funnel",
+    "authorization": "EXPLICIT_USER_AUTHORIZATION_RECEIVED_IN_CHATGPT",
+    "start_boundary": "First census receive/checkpoint after Codex consumes this authorization. Do not backdate the qualified window.",
+    "end_condition": "first of 20 distinct qualified migrations, 60 clean minutes from the qualified start boundary, a material funnel gap, or production impact",
+    "pre_authorization_records_qualified": false,
+    "pre_authorization_natural_records": 5,
+    "pre_authorization_distinct_mints": 5,
     "census_output": "logs/oip_migration_census.jsonl",
-    "closed_at_utc_approx": "2026-08-11T14:16:08Z",
-    "observed_duration_seconds": 3600,
-    "observed_duration_minutes": 60.0,
-    "latest_known_valid_events": 0,
-    "latest_known_distinct_mints": 0,
-    "endpoint_evaluation": {"distinct_migrations_20": false, "clean_minutes_60": true, "material_funnel_gap": false, "production_impact": false, "endpoint_reached": true, "endpoint_reason": "60_CLEAN_POST_FIX_MINUTES"},
-    "note": "Closed at the 60-minute endpoint using only the repaired post-fix listener boundary. Verified at 2026-08-11T14:19:53Z: listener PID 98739 remained continuously running (uptime 1h03m45s), Creator Funding PID 80618 was running, Evidence writer remained stopped, and the census output file was absent. The qualified post-fix cohort therefore contains zero migrations; the invalid pre-fix period was excluded."
+    "status": "AUTHORIZED_NOT_STARTED"
   },
   "latest_results": {
-    "handoff_protocol_update": {"status": "COMPLETE", "summary": "Every material continuation turn now publishes agent state to the dedicated origin/agent-handoff transport branch; routine handoff updates do not create engineering-branch commits."},
-    "oip_v2_2e_2b2g_semantic_verification": {
-      "verdict": "MESSAGE_ROUTING_GAP",
-      "subscription_request": {"method": "subscribeMigration", "send_location": "src/core/pumpfun_curve_listener.py::listen_pumpportal_websocket", "send_side_log_present": true, "ack_payload_retained": false},
-      "observed_pumpportal_discriminator": "migrate",
-      "implemented_route_discriminator": "migration",
-      "qualified_window_pumpportal_migrate_messages": 44,
-      "qualified_window_canonical_migrations": 48,
-      "all_retained_pumpportal_migrate_messages": 26520,
-      "canonical_platform_definition": "token_analysis.migration_tx non-empty OR lifecycle_stage=migrated; principal strict consumers additionally require migrated_at non-null",
-      "semantic_comparison": "PumpPortal subscribeMigration represents token graduation/migration events compatible with the platform canonical population, but the listener does not route the observed txType=migrate spelling into either the census or handle_migration.",
-      "silent_bypass": "Messages with txType=migrate fall through after wss_metrics recording. The census is never called, so invalid/drop counters remain unchanged. Even on the accepted discriminator, the branch-level and sig guard prevents missing-signature payloads from reaching census invalid accounting.",
-      "retained_payload_shape": "Local telemetry proves txType=migrate and message counts/timestamps. Full raw payloads and subscription acknowledgement payloads are not retained, so fields beyond the code-read signature/mint expectations are not independently reconstructable.",
-      "smallest_repair_not_implemented": "Route txType in (migration,migrate) into the census without a branch-level signature guard; then gate handle_migration on signature. Add regression coverage for txType=migrate and missing signature/mint accounting.",
-      "subscription_evidence": "Send-side subscription log plus sustained pumpportal_migrate telemetry proves useful migration delivery; explicit acknowledgement content is ignored before telemetry and is not retained."
-    },
-    "oip_v2_2e_2b2h_local_repair": {
-      "status": "COMPLETE",
-      "verdict": "LOCAL_QUALIFICATION_PASS",
-      "implementation": "PumpPortal migration branch now accepts txType in (migration,migrate), invokes census before signature gating, and gates handle_migration on a non-empty signature.",
-      "regression_coverage": "Source-level routing tests prove both discriminator spellings and census-before-business-guard ordering; existing census tests prove missing signature/mint invalid accounting and fail-open overflow behavior.",
-      "files_changed": ["src/core/pumpfun_curve_listener.py", "tests/test_oip_v2_2e_2b2_migration_census.py"],
-      "deployed": true,
-      "production_listener_restarted": true
-    },
-    "oip_v2_2e_2b2i_engineering_commit": {
+    "e2b2j_listener_deployment": {
       "status": "COMPLETE",
       "verdict": "PASS",
       "commit": "fc248d041913824b335df6759dbd57cda4644d8b",
-      "commit_subject": "Fix PumpPortal migration census routing",
-      "files": ["src/core/pumpfun_curve_listener.py", "tests/test_oip_v2_2e_2b2_migration_census.py"],
-      "pushed_branch": "classification-attribution-axis",
-      "unrelated_changes_included": false,
-      "deployed": true,
-      "production_listener_restarted": true
-    },
-    "oip_v2_2e_2b2j_restart_gate": {
-      "status": "COMPLETE",
-      "verdict": "PASS",
-      "requested_action": "restart watchtower_listener once to load fc248d04",
-      "restart_executed": true,
-      "restart_count": 1,
-      "authorized_commit": "fc248d041913824b335df6759dbd57cda4644d8b",
       "old_listener_pid": 98739,
       "new_listener_pid": 43895,
-      "executed_at_utc_approx": "2026-08-11T15:07:09Z",
-      "reason": "The user directly authorized exactly one watchtower_listener restart to load fc248d04. Exactly one restart was executed; no other service was restarted or reconfigured.",
-      "concurrent_transport_authorization_commit": "ed322a59",
-      "post_restart_state": "At 2026-08-11T15:08:09Z listener PID 43895 was RUNNING (uptime 1m07s), Creator Funding PID 80618 remained RUNNING, and Evidence writer remained STOPPED. PumpPortal connected, emitted the subscribe newToken + migration confirmation log, and delivered multiple birth messages after restart. No fatal exception, traceback, or NameError was observed in the immediate post-restart log slice; no new observation window was started."
+      "restart_count": 1,
+      "creator_funding_unchanged": true,
+      "evidence_writer": "STOPPED"
     },
-    "oip_v2_2e_2b2k_observation_gate": {
+    "e2b2k_pre_authorization_check": {
       "status": "HOLD",
-      "verdict": "EXPLICIT_OBSERVATION_AUTHORIZATION_REQUIRED",
-      "reason": "The exact next action requires separate explicit authorization for a bounded prospective observation window. The generic instruction continue does not authorize or define that production observation milestone.",
-      "checked_at_utc": "2026-08-11T15:15:41Z",
-      "listener": "RUNNING pid 43895 (uptime 8m11s)",
-      "creator_funding_worker": "RUNNING pid 80618 (unchanged)",
-      "evidence_writer": "STOPPED",
-      "naturally_accumulated_unqualified_census_records": 5,
-      "naturally_accumulated_unqualified_distinct_mints": 5,
-      "qualification_note": "These records prove the repaired route is receiving census events but are not designated as a new qualified observation window by this checkpoint. No window was opened, closed, or evaluated."
+      "reason": "Codex correctly refused to designate a qualified window from a generic continue instruction.",
+      "natural_census_records": 5,
+      "natural_distinct_mints": 5,
+      "listener_healthy": true,
+      "production_impact_observed": false
     },
-    "oip_v2_2e_2b2f_funnel": {"window_endpoint": "60_CLEAN_POST_FIX_MINUTES", "migrations": 0, "shared_acquisitions": 0, "completions": 0, "retained": 0, "replayable": 0, "migration_to_shared_rate": null, "shared_to_completion_rate": null, "completion_to_retained_rate": null, "retained_to_replayable_rate": null, "interpretation": "Rates are undefined because the qualified migration denominator is zero; no funnel gap can be measured."},
-    "retention_natural_proof": {"eligible": 6, "retained": 6, "replayable": 6, "accounting_residual": 0, "pending_journal": 0, "lost_total": 0},
-    "migration_census_and_retention_tests": {"passed": 13, "failed": 0, "skipped": 0},
-    "listener_regression": "pre-fix receive timestamp NameError caused reconnect loop; repaired locally by timestamp capture immediately after ws.recv()",
-    "post_fix_runtime_check": {"checked_at_utc": "2026-08-11T15:15:41Z", "listener": "RUNNING pid 43895 (uptime 8m11s; restarted exactly once at commit fc248d04)", "creator_funding_worker": "RUNNING pid 80618 (unchanged; uptime 3h47m28s)", "evidence_writer": "STOPPED since 2026-08-11 10:57 local", "subscription_traffic": "PumpPortal connected, subscription send confirmed, post-restart birth traffic observed, and the repaired census route has naturally accumulated 5 records for 5 distinct mints", "census_file": "PRESENT", "unqualified_migration_events": 5, "unqualified_distinct_mints": 5, "production_impact_observed": false, "new_observation_window_started": false},
-    "handoff_verification_tests": {"command": "python -m py_compile src/core/pumpfun_curve_listener.py src/core/pumpportal_migration_census.py tests/test_oip_v2_2e_2b2_migration_census.py && python -m pytest -q tests/test_oip_v2_2e_2b2_migration_census.py tests/test_x78_18_reconnect_isolation.py", "passed": 12, "failed": 0},
-    "provider_rpc_calls_this_checkpoint": 0
+    "chatgpt_authorization": {
+      "milestone": "OIP v2.2E.2B2K",
+      "authorized": true,
+      "scope": "Bounded read-only prospective migration census observation only on the already-repaired listener. No restart, reconfiguration, provider RPC, Evidence activation, cohort activation, or other production mutation is authorized."
+    }
   },
-  "blockers": [
-    "Explicit subscription acknowledgement payloads and complete raw migration payloads are not retained, although sustained pumpportal_migrate telemetry proves useful delivery.",
-    "Live Supervisor configuration remains uncommitted and must not be bundled with unrelated working-tree changes.",
-    "A bounded prospective migration census observation window remains separately unauthorized; the generic continue instruction did not satisfy that explicit gate."
-  ],
+  "blockers": [],
   "next_action": {
     "milestone": "OIP v2.2E.2B2K",
-    "instruction": "Obtain a direct explicit instruction authorizing a bounded prospective migration census observation window and its start boundary/end conditions on the repaired production listener. Until then, do not designate naturally accumulating records as a qualified window and leave services/configuration unchanged; preserve Migration Census ON, Retention ON, Evidence Mirror OFF, Cohort Mode OFF, and Evidence writer STOPPED.",
-    "activation_authorized": false
+    "instruction": "Start the qualified bounded prospective migration census observation now from the first census receive/checkpoint after consuming this authorization. Exclude the 5 naturally accumulated pre-authorization records from the qualified denominator. Continue read-only until the first endpoint: 20 distinct qualified migrations, 60 clean minutes from the qualified start boundary, a material funnel gap, or production impact. At endpoint, calculate migration -> Shared Acquisition invoked -> completed -> retained -> replayable using qualified local evidence only; update and publish the handoff. No service restart, reconfiguration, provider RPC, Evidence activation, cohort activation, or other production mutation is authorized.",
+    "activation_authorized": true,
+    "observation_authorized": true,
+    "authorization_scope": "OIP v2.2E.2B2K read-only observation only"
   },
   "safety": {
     "production_changes_allowed": false,
     "evidence_activation_allowed": false,
-    "notes": ["Evidence mirror and cohort mode remain off.", "Do not restart or reconfigure services merely to advance the observation window.", "Handoff commits and pushes transport review context only and never authorize production activation."]
+    "notes": [
+      "Migration Census remains ON and Retention remains ON.",
+      "Evidence Mirror and Cohort Mode remain OFF; Evidence writer remains STOPPED.",
+      "Do not restart or reconfigure any service for E.2B2K.",
+      "The five pre-authorization natural census records prove routing health but are excluded from the qualified E.2B2K denominator."
+    ]
   }
 }

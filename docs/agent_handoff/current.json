@@ -38,6 +38,8 @@
     "run_id": null,
     "attempt": 0,
     "approved_action": null,
+    "safe_local_enabled": true,
+    "approved_programme": {"approved": false, "active_milestone": null, "actions": [], "human_start_manifest": [{"milestone":"OIP v2.2E.2B2M", "state":"READY_FOR_HUMAN_START", "authorization_class":"PROVIDER_WORK_INCREASE", "executed":false}]},
     "reviewer_callback": {"available": false, "reason": "V1.3 default loop is no-API; historic API reviewer is isolated and not invoked."},
     "authorization_policy": {
       "autonomous": [
@@ -103,6 +105,7 @@
     "note": "Closed at the twentieth distinct post-authorization census receive. The first 20 qualifying records were one-to-one with 20 mints; later census records are outside this fixed cohort. No service/configuration changes or Codex-initiated provider RPC calls occurred."
   },
   "latest_results": {
+    "agent_orchestrator_v1_3_enablement": {"status":"COMPLETE","verdict":"SAFE_LOCAL_ENABLED","base_commit":"c33af800","commit":"99f2b989","tests":{"passed":18,"failed":0},"host_command":"python scripts/agent_orchestrator.py --enable run","production_changes":false,"provider_rpc_calls":0,"e2b2m_executed":false},
     "agent_orchestrator_v1_3": {"status":"COMPLETE","verdict":"LOCAL_QUALIFICATION_PASS","commit":"c33af8000ed741cc542aa8be70be2400a7bc58e6","api_reviewer_default":false,"api_key_required":false,"tests":{"passed":17,"failed":0},"production_changes":false,"provider_rpc_calls":0,"daemon_enabled":false},
     "handoff_protocol_update": {
       "status": "COMPLETE",

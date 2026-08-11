@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-11T15:09:14Z",
+  "updated_at_utc": "2026-08-11T15:15:41Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-11T15:09:14Z",
+    "published_at_utc": "2026-08-11T15:15:41Z",
     "protocol_version": 1,
     "status": "READY"
   },
   "current_milestone": {
-    "programme": "OIP v2.2E.2B2J",
-    "milestone": "Controlled production listener restart",
-    "mode": "authorized production deployment verification",
-    "status": "COMPLETE",
-    "verdict": "PASS"
+    "programme": "OIP v2.2E.2B2K",
+    "milestone": "Prospective migration census observation authorization",
+    "mode": "production observation safety gate",
+    "status": "HOLD",
+    "verdict": "EXPLICIT_OBSERVATION_AUTHORIZATION_REQUIRED"
   },
   "production_state": {
     "retention": "ON",
@@ -103,22 +103,34 @@
       "concurrent_transport_authorization_commit": "ed322a59",
       "post_restart_state": "At 2026-08-11T15:08:09Z listener PID 43895 was RUNNING (uptime 1m07s), Creator Funding PID 80618 remained RUNNING, and Evidence writer remained STOPPED. PumpPortal connected, emitted the subscribe newToken + migration confirmation log, and delivered multiple birth messages after restart. No fatal exception, traceback, or NameError was observed in the immediate post-restart log slice; no new observation window was started."
     },
+    "oip_v2_2e_2b2k_observation_gate": {
+      "status": "HOLD",
+      "verdict": "EXPLICIT_OBSERVATION_AUTHORIZATION_REQUIRED",
+      "reason": "The exact next action requires separate explicit authorization for a bounded prospective observation window. The generic instruction continue does not authorize or define that production observation milestone.",
+      "checked_at_utc": "2026-08-11T15:15:41Z",
+      "listener": "RUNNING pid 43895 (uptime 8m11s)",
+      "creator_funding_worker": "RUNNING pid 80618 (unchanged)",
+      "evidence_writer": "STOPPED",
+      "naturally_accumulated_unqualified_census_records": 5,
+      "naturally_accumulated_unqualified_distinct_mints": 5,
+      "qualification_note": "These records prove the repaired route is receiving census events but are not designated as a new qualified observation window by this checkpoint. No window was opened, closed, or evaluated."
+    },
     "oip_v2_2e_2b2f_funnel": {"window_endpoint": "60_CLEAN_POST_FIX_MINUTES", "migrations": 0, "shared_acquisitions": 0, "completions": 0, "retained": 0, "replayable": 0, "migration_to_shared_rate": null, "shared_to_completion_rate": null, "completion_to_retained_rate": null, "retained_to_replayable_rate": null, "interpretation": "Rates are undefined because the qualified migration denominator is zero; no funnel gap can be measured."},
     "retention_natural_proof": {"eligible": 6, "retained": 6, "replayable": 6, "accounting_residual": 0, "pending_journal": 0, "lost_total": 0},
     "migration_census_and_retention_tests": {"passed": 13, "failed": 0, "skipped": 0},
     "listener_regression": "pre-fix receive timestamp NameError caused reconnect loop; repaired locally by timestamp capture immediately after ws.recv()",
-    "post_fix_runtime_check": {"checked_at_utc": "2026-08-11T15:08:09Z", "listener": "RUNNING pid 43895 (uptime 1m07s; restarted exactly once at commit fc248d04)", "creator_funding_worker": "RUNNING pid 80618 (unchanged; uptime 3h40m24s)", "evidence_writer": "STOPPED since 2026-08-11 10:57 local", "subscription_traffic": "PumpPortal connected, subscription send confirmed, and post-restart birth traffic observed", "census_file": "ABSENT at immediate check", "migration_events": 0, "distinct_mints": 0, "production_impact_observed": false, "new_observation_window_started": false},
+    "post_fix_runtime_check": {"checked_at_utc": "2026-08-11T15:15:41Z", "listener": "RUNNING pid 43895 (uptime 8m11s; restarted exactly once at commit fc248d04)", "creator_funding_worker": "RUNNING pid 80618 (unchanged; uptime 3h47m28s)", "evidence_writer": "STOPPED since 2026-08-11 10:57 local", "subscription_traffic": "PumpPortal connected, subscription send confirmed, post-restart birth traffic observed, and the repaired census route has naturally accumulated 5 records for 5 distinct mints", "census_file": "PRESENT", "unqualified_migration_events": 5, "unqualified_distinct_mints": 5, "production_impact_observed": false, "new_observation_window_started": false},
     "handoff_verification_tests": {"command": "python -m py_compile src/core/pumpfun_curve_listener.py src/core/pumpportal_migration_census.py tests/test_oip_v2_2e_2b2_migration_census.py && python -m pytest -q tests/test_oip_v2_2e_2b2_migration_census.py tests/test_x78_18_reconnect_isolation.py", "passed": 12, "failed": 0},
     "provider_rpc_calls_this_checkpoint": 0
   },
   "blockers": [
     "Explicit subscription acknowledgement payloads and complete raw migration payloads are not retained, although sustained pumpportal_migrate telemetry proves useful delivery.",
     "Live Supervisor configuration remains uncommitted and must not be bundled with unrelated working-tree changes.",
-    "A new prospective migration census observation window is not authorized by this milestone."
+    "A bounded prospective migration census observation window remains separately unauthorized; the generic continue instruction did not satisfy that explicit gate."
   ],
   "next_action": {
     "milestone": "OIP v2.2E.2B2K",
-    "instruction": "Obtain separate explicit authorization before starting a bounded prospective migration census observation window on the repaired production listener. Until then, leave services and configuration unchanged; preserve Migration Census ON, Retention ON, Evidence Mirror OFF, Cohort Mode OFF, and Evidence writer STOPPED.",
+    "instruction": "Obtain a direct explicit instruction authorizing a bounded prospective migration census observation window and its start boundary/end conditions on the repaired production listener. Until then, do not designate naturally accumulating records as a qualified window and leave services/configuration unchanged; preserve Migration Census ON, Retention ON, Evidence Mirror OFF, Cohort Mode OFF, and Evidence writer STOPPED.",
     "activation_authorized": false
   },
   "safety": {

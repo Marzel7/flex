@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-11T21:32:33Z",
+  "updated_at_utc": "2026-08-11T22:48:34Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-11T21:32:33Z",
+    "published_at_utc": "2026-08-11T22:48:34Z",
     "protocol_version": 1,
     "status": "PENDING_PUBLICATION"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2N bounded Helius qualification preflight",
+    "milestone": "OIP v2.2E.2B2N local qualification preflight",
     "mode": "safe-local orchestration",
-    "status": "HOLD",
-    "verdict": "PREFLIGHT_REQUIRED_BEFORE_PROVIDER_REQUEST"
+    "status": "AUTHORIZED",
+    "verdict": "SAFE_LOCAL_PREFLIGHT_AUTHORIZED"
   },
   "production_state": {
     "retention": "ON",
@@ -34,80 +34,67 @@
   },
   "orchestration": {
     "schema_version": 3,
-    "state": "PROGRAMME_COMPLETE",
+    "state": "IDLE",
     "run_id": null,
-    "attempt": 4,
-    "approved_action": {
-      "approved": true,
-      "milestone": "OIP v2.2E.2B2N",
-      "authorization_class": "LOCAL_COMMIT",
-      "instruction": "Create a narrow local commit containing only the qualified B2N design/validation documentation; do not deploy or push production changes.",
-      "success_criteria": "A narrow B2N design commit is created or an exact safe-local blocker is recorded.",
-      "stop_conditions": [
-        "unrelated dirty-tree overlap",
-        "provider/RPC work needed",
-        "production interaction needed",
-        "architectural expansion needed"
-      ],
-      "source_handoff_revision": "cccf49479bf55b4e83effdb5fdf72c617e00ca6c"
-    },
+    "attempt": 0,
+    "approved_action": null,
     "safe_local_enabled": true,
     "approved_programme": {
       "approved": true,
-      "active_milestone": "OIP v2.2E.2B2N",
+      "active_milestone": "OIP v2.2E.2B2N PREFLIGHT",
       "actions": [
         {
           "approved": true,
-          "milestone": "OIP v2.2E.2B2N",
+          "milestone": "OIP v2.2E.2B2N PREFLIGHT",
           "authorization_class": "LOCAL_READ_ONLY",
-          "instruction": "Inspect only local B2M evidence, existing provider controls, and prior qualification records to define B2N's bounded provider-qualification contract; make no provider calls or production changes.",
-          "success_criteria": "A proposed B2N contract is grounded in qualified local evidence and identifies exact provider/production gates.",
+          "instruction": "Inspect local B2K census evidence and existing code to determine whether an immutable 20-mint cohort manifest, physical-request ledger, and isolated executor can be prepared without provider or production access.",
+          "success_criteria": "The B2N preflight prerequisites are either proven from local evidence or stopped with a named fail-closed blocker.",
           "stop_conditions": [
             "provider/RPC work needed",
             "production interaction needed",
             "architectural expansion needed"
           ],
-          "source_handoff_revision": "d7d14a4096a99bf5c80937120a46269bcc54d94e"
+          "source_handoff_revision": "845ee7df44eb06d3ec5e83949026fe852c1c0b21"
         },
         {
           "approved": true,
-          "milestone": "OIP v2.2E.2B2N",
+          "milestone": "OIP v2.2E.2B2N PREFLIGHT",
           "authorization_class": "LOCAL_IMPLEMENTATION",
-          "instruction": "Write only the B2N provider-qualification design/contract document, including sample, request budget, field/timestamp semantics, success criteria, fail-closed stops, and no-production boundary.",
-          "success_criteria": "The B2N design is reviewable, bounded, and explicitly requires later human authorization before provider work.",
+          "instruction": "Implement only local preflight artifacts or tests required to verify the frozen cohort, attempt ledger, and isolated no-production boundary. Do not construct or invoke a provider client.",
+          "success_criteria": "The preflight can prove eligibility without provider traffic or records an exact safe-local blocker.",
           "stop_conditions": [
             "provider/RPC work needed",
             "production interaction needed",
             "architectural expansion needed"
           ],
-          "source_handoff_revision": "06d6e0481f63091faedfbc0ae05d08a38f47067c"
+          "source_handoff_revision": "845ee7df44eb06d3ec5e83949026fe852c1c0b21"
         },
         {
           "approved": true,
-          "milestone": "OIP v2.2E.2B2N",
+          "milestone": "OIP v2.2E.2B2N PREFLIGHT",
           "authorization_class": "LOCAL_TEST",
-          "instruction": "Validate the B2N design against local evidence and verify it contains no executable provider or production action; bounded documentation repair/retest only.",
-          "success_criteria": "The B2N design passes local consistency review or records an exact safe-local blocker.",
+          "instruction": "Run local-only validation of the B2N preflight artifacts and prove no provider, production database, queue, service, or configuration access.",
+          "success_criteria": "Local preflight validation passes or reports an exact fail-closed blocker.",
           "stop_conditions": [
             "provider/RPC work needed",
             "production interaction needed",
             "architectural expansion needed"
           ],
-          "source_handoff_revision": "0487435639cb34766fc2dc48bd99d22f2ad22a90"
+          "source_handoff_revision": "845ee7df44eb06d3ec5e83949026fe852c1c0b21"
         },
         {
           "approved": true,
-          "milestone": "OIP v2.2E.2B2N",
+          "milestone": "OIP v2.2E.2B2N PREFLIGHT",
           "authorization_class": "LOCAL_COMMIT",
-          "instruction": "Create a narrow local commit containing only the qualified B2N design/validation documentation; do not deploy or push production changes.",
-          "success_criteria": "A narrow B2N design commit is created or an exact safe-local blocker is recorded.",
+          "instruction": "Create a narrow local commit containing only qualified B2N preflight artifacts/tests/documentation. Do not deploy or push production changes.",
+          "success_criteria": "A narrow B2N preflight commit is created or an exact safe-local blocker is recorded.",
           "stop_conditions": [
             "unrelated dirty-tree overlap",
             "provider/RPC work needed",
             "production interaction needed",
             "architectural expansion needed"
           ],
-          "source_handoff_revision": "cccf49479bf55b4e83effdb5fdf72c617e00ca6c"
+          "source_handoff_revision": "845ee7df44eb06d3ec5e83949026fe852c1c0b21"
         }
       ],
       "human_start_manifest": [
@@ -127,6 +114,15 @@
           "scope": "DESIGN_ONLY_NO_PROVIDER_OR_PRODUCTION_ACTION",
           "authorization_consumed": true,
           "executed": true,
+          "later_provider_or_production_activation": "HUMAN_APPROVAL_REQUIRED"
+        },
+        {
+          "milestone": "OIP v2.2E.2B2N PREFLIGHT",
+          "state": "HUMAN_START_AUTHORIZATION_CONSUMED",
+          "authorization_class": "LOCAL_IMPLEMENTATION",
+          "scope": "LOCAL_ONLY_PREFLIGHT_NO_PROVIDER_OR_PRODUCTION_ACCESS",
+          "authorization_consumed": true,
+          "executed": false,
           "later_provider_or_production_activation": "HUMAN_APPROVAL_REQUIRED"
         }
       ]
@@ -224,6 +220,13 @@
     "note": "Closed at the twentieth distinct post-authorization census receive. The first 20 qualifying records were one-to-one with 20 mints; later census records are outside this fixed cohort. No service/configuration changes or Codex-initiated provider RPC calls occurred."
   },
   "latest_results": {
+    "oip_v2_2e_2b2n_preflight_manifest_authorization": {
+      "status": "COMPLETE",
+      "verdict": "SAFE_LOCAL_PREFLIGHT_AUTHORIZED",
+      "provider_rpc_calls": 0,
+      "production_changes": false,
+      "scope": "Local-only cohort, ledger, and isolated-executor preflight; no provider client invocation."
+    },
     "oip_v2_2e_2b2n_helius_authorization": {
       "status": "AUTHORIZED",
       "provider": "Helius RPC",
@@ -638,8 +641,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2N bounded provider qualification",
-    "instruction": "Run and record the fail-closed local preflight for the authorized Helius 20-request B2N contract. Do not issue a provider request unless the immutable cohort, request ledger, and isolated non-production executor are all verified.",
+    "milestone": "OIP v2.2E.2B2N PREFLIGHT",
+    "instruction": "Run the approved B2N safe-local preflight sequence. Do not issue any provider request.",
     "activation_authorized": true,
     "production_activation_authorized": false
   },

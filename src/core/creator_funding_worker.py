@@ -549,6 +549,10 @@ def _recover_stale_rows(now: int) -> tuple[int, int]:
         cur = conn.cursor()
         columns = {str(row[1]) for row in conn.execute("PRAGMA table_info(creator_funding_queue)")}
         source_select = "source" if "source" in columns else "NULL AS source"
+        observation_predicate = (
+            "COALESCE(q.observation_required, 0) = 0"
+            if "observation_required" in columns else "1 = 1"
+        )
         # Capture the exact finite cohort before changing it.  These rows may
         # be completed by reconciliation without ever passing through
         # ``_process_job``; they therefore own their own terminal telemetry.
@@ -563,6 +567,7 @@ def _recover_stale_rows(now: int) -> tuple[int, int]:
                       SELECT 1 FROM creator_funders cf
                       WHERE cf.creator_address = q.creator_address LIMIT 1
                   )
+                  AND {observation_predicate}
                 ORDER BY q.created_at ASC LIMIT ?""",
             (now, SATISFIED_RECONCILE_LIMIT),
         ).fetchall()
@@ -635,6 +640,10 @@ def _select_ready_rows(
         # to preserve the original work class wherever it exists.
         columns = {str(row[1]) for row in conn.execute("PRAGMA table_info(creator_funding_queue)")}
         source_select = "source," if "source" in columns else "NULL AS source,"
+        observation_select = (
+            "COALESCE(observation_required, 0) AS observation_required,"
+            if "observation_required" in columns else "0 AS observation_required,"
+        )
         # X78.30: live selection is freshness-first and bounded to the
         # operational usefulness window. Historical age promotion remains a
         # documented X78.16 predecessor policy, but stale rows now expire
@@ -654,7 +663,7 @@ def _select_ready_rows(
         rows = conn.execute(
             f"""
             WITH eligible AS (
-                SELECT creator_address, mint, {source_select} migration_timestamp,
+                SELECT creator_address, mint, {source_select} {observation_select} migration_timestamp,
                        create_tx_signature, attempts,
                        COALESCE(job_priority, 0) AS job_priority,
                        COALESCE(priority_reason, 'unknown') AS priority_reason,
@@ -670,7 +679,7 @@ def _select_ready_rows(
                   AND created_at >= ?
                   {exclusion_sql}
             )
-            SELECT creator_address, mint, source, migration_timestamp,
+            SELECT creator_address, mint, source, observation_required, migration_timestamp,
                    create_tx_signature, attempts, job_priority,
                    priority_reason, job_priority AS effective_priority,
                    created_at
@@ -1266,9 +1275,17 @@ async def _process_job(row: dict) -> str:
         # period, AFTER the timeout fires -- so extraction_conn's own
         # finally-block cleanup is guaranteed to have actually completed
         # before this function returns and the next job is claimed.
-        _extraction_task = asyncio.ensure_future(
-            extract_funding_for_new_token(creator, migration_timestamp, create_tx_signature, mint)
+        extraction_call = (
+            extract_funding_for_new_token(
+                creator, migration_timestamp, create_tx_signature, mint,
+                observation_required=True,
+            )
+            if bool(row.get("observation_required", 0))
+            else extract_funding_for_new_token(
+                creator, migration_timestamp, create_tx_signature, mint,
+            )
         )
+        _extraction_task = asyncio.ensure_future(extraction_call)
         try:
             extraction_result = await asyncio.wait_for(
                 asyncio.shield(_extraction_task),

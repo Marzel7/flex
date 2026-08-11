@@ -4689,6 +4689,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 locked_until INTEGER DEFAULT 0,
                 attempts INTEGER DEFAULT 0,
                 last_error TEXT,
+                observation_required INTEGER NOT NULL DEFAULT 0,
                 created_at INTEGER DEFAULT (strftime('%s','now')),
                 updated_at INTEGER DEFAULT (strftime('%s','now')),
                 PRIMARY KEY (creator_address, mint)
@@ -4729,6 +4730,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
             if "priority_reason" not in cfq_cols:
                 cursor.execute("ALTER TABLE creator_funding_queue ADD COLUMN priority_reason TEXT")
                 log_print("[DB] ✅ Added priority_reason column to creator_funding_queue", flush=True)
+            if "observation_required" not in cfq_cols:
+                cursor.execute("ALTER TABLE creator_funding_queue ADD COLUMN observation_required INTEGER NOT NULL DEFAULT 0")
+                log_print("[DB] ✅ Added observation_required column to creator_funding_queue", flush=True)
         except Exception:
             pass
 
@@ -4962,6 +4966,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         source: Optional[str] = None,
         curve_completed_slot: Optional[int] = None,
         pre_migration: bool = False,
+        observation_required: bool = False,
     ) -> bool:
         """Persist creator funding extraction so it survives restarts."""
         if not creator or not mint:
@@ -5006,7 +5011,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 else:
                     _cache_prior_source = "creator_funders_fully_analyzed"
 
-                if _cache_fresh and not pre_migration:
+                if _cache_fresh and not pre_migration and not observation_required:
                     return ("cache_hit", _cache_prior_source or "unknown")
 
                 if pre_migration:
@@ -5050,12 +5055,14 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         creator_address, mint, migration_timestamp, create_tx_signature,
                         status, source, next_attempt_at, locked_until, attempts, last_error,
                         funding_enqueued_at, curve_completed_slot, enqueued_slot,
-                        job_priority, priority_reason, created_at, updated_at
-                    ) VALUES (?, ?, ?, ?, 'pending', ?, ?, 0, 0, NULL, ?, ?, ?, ?, ?, ?, ?)
+                        job_priority, priority_reason, observation_required,
+                        created_at, updated_at
+                    ) VALUES (?, ?, ?, ?, 'pending', ?, ?, 0, 0, NULL, ?, ?, ?, ?, ?, ?, ?, ?)
                     ON CONFLICT(creator_address, mint) DO NOTHING
                     """,
                     (creator, mint, migration_timestamp, create_tx_signature, source, next_attempt_at,
-                     now, curve_completed_slot, curve_completed_slot, _job_priority, _priority_reason, now, now),
+                     now, curve_completed_slot, curve_completed_slot, _job_priority, _priority_reason,
+                     int(observation_required), now, now),
                 )
                 conn.commit()
                 conn2 = None
@@ -5343,6 +5350,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                   WHERE cf.creator_address = creator_funding_queue.creator_address
                                   LIMIT 1
                               )
+                              AND COALESCE(observation_required, 0) = 0
                             """,
                             (_now, _now, _now),
                         )
@@ -5383,7 +5391,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             """
                             SELECT creator_address, mint, migration_timestamp, create_tx_signature, attempts,
                                    COALESCE(job_priority, 0) as job_priority,
-                                   COALESCE(priority_reason, 'unknown') as priority_reason
+                                   COALESCE(priority_reason, 'unknown') as priority_reason,
+                                   COALESCE(observation_required, 0) as observation_required
                             FROM creator_funding_queue
                             WHERE status IN ('pending', 'retry')
                               AND locked_until < ?
@@ -5455,13 +5464,24 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             flush=True,
                         )
                         try:
-                            _extraction_result = await asyncio.wait_for(
+                            _extraction_call = (
                                 extract_funding_for_new_token(
                                     creator,
                                     migration_timestamp,
                                     create_tx_signature,
                                     mint,
-                                ),
+                                    observation_required=True,
+                                )
+                                if bool(row.get("observation_required", 0))
+                                else extract_funding_for_new_token(
+                                    creator,
+                                    migration_timestamp,
+                                    create_tx_signature,
+                                    mint,
+                                )
+                            )
+                            _extraction_result = await asyncio.wait_for(
+                                _extraction_call,
                                 timeout=self.CREATOR_FUNDING_JOB_TIMEOUT_SECONDS,
                             )
                         except asyncio.TimeoutError as timeout_exc:
@@ -6327,6 +6347,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     create_tx_signature=create_tx_signature,
                     delay_seconds=0,
                     source=enqueue_source,
+                    observation_required=_at_migration,
                 )
             return existing_pf_ws_creator
 
@@ -6353,6 +6374,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 create_tx_signature=create_tx_signature,
                 delay_seconds=0,
                 source="pf_ws_creator_migration",
+                observation_required=True,
             )
             return portal_creator
 
@@ -6462,6 +6484,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 create_tx_signature=create_tx_signature,
                 delay_seconds=0,
                 source=enqueue_source,
+                observation_required=_at_migration,
             )
         else:
             log_print(

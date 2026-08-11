@@ -2829,7 +2829,14 @@ async def get_extractor() -> RealTimeCreatorFundingExtractor:
     return _extractor
 
 
-async def extract_funding_for_new_token(creator: str, migration_timestamp_str: str, create_tx_signature: str = None, mint: str = None):
+async def extract_funding_for_new_token(
+    creator: str,
+    migration_timestamp_str: str,
+    create_tx_signature: str = None,
+    mint: str = None,
+    *,
+    observation_required: bool = False,
+):
     """
     Public function to extract funding when new token detected.
 
@@ -2889,7 +2896,7 @@ async def extract_funding_for_new_token(creator: str, migration_timestamp_str: s
         except Exception as _e:
             print(f"[REALTIME_FUNDING] ⚠ Profile cache check failed: {_e}", flush=True)
 
-    if _skip:
+    if _skip and not observation_required:
         print(f"[REALTIME_FUNDING] ⚡ Skip extraction creator={creator[:16]}... "
               f"reason={_skip_reason} funders={_cached_funders}", flush=True)
         try:

@@ -34,10 +34,22 @@
   },
   "orchestration": {
     "schema_version": 3,
-    "state": "IDLE",
-    "run_id": null,
-    "attempt": 0,
-    "approved_action": null,
+    "state": "READY_FOR_REVIEW",
+    "run_id": "0e8f0ebb-f455-499c-8762-e5d9735088af",
+    "attempt": 1,
+    "approved_action": {
+      "approved": true,
+      "milestone": "OIP v2.2E.2B2N",
+      "authorization_class": "LOCAL_READ_ONLY",
+      "instruction": "Inspect only local B2M evidence, existing provider controls, and prior qualification records to define B2N's bounded provider-qualification contract; make no provider calls or production changes.",
+      "success_criteria": "A proposed B2N contract is grounded in qualified local evidence and identifies exact provider/production gates.",
+      "stop_conditions": [
+        "provider/RPC work needed",
+        "production interaction needed",
+        "architectural expansion needed"
+      ],
+      "source_handoff_revision": "d7d14a4096a99bf5c80937120a46269bcc54d94e"
+    },
     "safe_local_enabled": true,
     "approved_programme": {
       "approved": true,
@@ -54,7 +66,7 @@
             "production interaction needed",
             "architectural expansion needed"
           ],
-          "source_handoff_revision": "e1f5e8831c567c2269bf357a13e04180236b6f7c"
+          "source_handoff_revision": "d7d14a4096a99bf5c80937120a46269bcc54d94e"
         },
         {
           "approved": true,
@@ -137,33 +149,26 @@
       ]
     },
     "last_child_result": {
-      "status": "BLOCKED",
-      "verdict": "SAFE_LOCAL_COMMIT_BLOCKED",
-      "files_changed": [
-        "src/core/creator_funding_worker.py",
-        "src/core/pumpfun_curve_listener.py",
-        "src/extractors/realtime_creator_funding_extractor.py",
-        "tests/test_oip_v2_2e_2b2m_observation_required.py",
-        "docs/evidence_platform/oip_v2_2e_2b2m_local_qualification.md"
-      ],
+      "status": "COMPLETE",
+      "verdict": "BOUNDED_B2N_PROVIDER_QUALIFICATION_CONTRACT_PROPOSED",
+      "files_changed": [],
       "tests": [
-        "51 targeted tests passed",
-        "Python compilation passed for all changed Python files",
-        "git diff --check passed"
+        "Read-only consistency inspection of B2M qualification, implementation controls, B2K/B2L records, and v2.1B-v2.1G provider qualifications; no executable tests run."
       ],
       "blockers": [
-        "Git staging failed because the sandbox prohibits creating .git/index.lock: Operation not permitted. Permissions were not changed and no commit was created."
+        "Executing B2N requires separate human authorization for PROVIDER_WORK_INCREASE.",
+        "Any live-service cohort observation requires separate PRODUCTION_OBSERVATION authorization; deployment, restart, configuration, Evidence Mirror, Cohort Mode, or mutation requires explicit production authorization."
       ],
       "production_impact": false,
       "provider_impact": false,
       "commits": [],
-      "recommended_next_action": "Create the narrow B2M engineering commit in an environment where repository Git metadata is writable, staging only the five listed files; do not stage unrelated dirty-tree files."
+      "recommended_next_action": "Draft the approved local B2N contract around the immutable five B2K/B2L cache-short-circuit mints: require observation_required=true and preserve each recorded migration timestamp/current mint; use only the existing Helius/SharedTransactionAcquisition path, one extraction slot, no new provider, failover, retry policy, endpoint, or architecture; impose a hard aggregate ceiling of 750 provider credits (the existing 150-credit full-extraction estimate per target), ledger every physical request before downstream processing with target, provider, method, page/cursor, request start/finish UTC, status/error taxonomy, latency, credit cost, acquisition ID, creator, mint, and migration timestamp, and stop before any request exceeding the ceiling. PASS requires 5/5 current-mint jobs to emit EXTRACTION_STARTED, enter purpose=creator_funding acquisition scope with the correct mint, terminate durably, retain at least one acquisition observation, and reconstruct a canonical replay envelope with complete lineage; any budget breach, unledgered attempt, timestamp/mint mismatch, rate limit, provider error, timeout, production impact, missing retention/replay field, or need for schema/provider/architectural expansion fails closed. Before execution, obtain explicit PROVIDER_WORK_INCREASE authorization and, if live services or production data are involved, explicit PRODUCTION_OBSERVATION authorization; separately authorize every deployment, restart, configuration change, Evidence Mirror/Cohort activation, or production mutation."
     },
-    "source_handoff_revision": "b8f59b1640f075ee3e487c709296ca486a5808fa",
+    "source_handoff_revision": "d7d14a4096a99bf5c80937120a46269bcc54d94e",
     "deterministic_policy": {
-      "decision": "HUMAN_APPROVAL_REQUIRED",
+      "decision": "READY_FOR_CODEX",
       "api_reviewer_used": false,
-      "iteration": 4
+      "iteration": 1
     }
   },
   "qualified_baselines": [
@@ -219,15 +224,30 @@
       "status": "COMPLETE",
       "verdict": "SAFE_LOCAL_DESIGN_AUTHORIZED",
       "scope": "B2N contract design only; no provider/RPC call, production observation/mutation, deployment, restart, or Evidence/Cohort activation.",
-      "authorized_classes": ["LOCAL_READ_ONLY", "LOCAL_IMPLEMENTATION", "LOCAL_TEST", "LOCAL_COMMIT"],
+      "authorized_classes": [
+        "LOCAL_READ_ONLY",
+        "LOCAL_IMPLEMENTATION",
+        "LOCAL_TEST",
+        "LOCAL_COMMIT"
+      ],
       "provider_work_authorized": false,
       "production_changes": false
     },
     "oip_v2_2e_2b2m_local_implementation_and_test": {
       "status": "COMPLETE",
       "verdict": "LOCAL_QUALIFICATION_PASS",
-      "files_changed": ["src/core/creator_funding_worker.py", "src/core/pumpfun_curve_listener.py", "src/extractors/realtime_creator_funding_extractor.py", "tests/test_oip_v2_2e_2b2m_observation_required.py", "docs/evidence_platform/oip_v2_2e_2b2m_local_qualification.md"],
-      "tests": {"targeted_passed": 51, "python_compilation": "PASS", "git_diff_check": "PASS"},
+      "files_changed": [
+        "src/core/creator_funding_worker.py",
+        "src/core/pumpfun_curve_listener.py",
+        "src/extractors/realtime_creator_funding_extractor.py",
+        "tests/test_oip_v2_2e_2b2m_observation_required.py",
+        "docs/evidence_platform/oip_v2_2e_2b2m_local_qualification.md"
+      ],
+      "tests": {
+        "targeted_passed": 51,
+        "python_compilation": "PASS",
+        "git_diff_check": "PASS"
+      },
       "production_changes": false,
       "provider_rpc_calls": 0,
       "service_restarts": 0,

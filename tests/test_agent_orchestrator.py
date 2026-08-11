@@ -83,11 +83,15 @@ def test_synthetic_host_smoke_never_invokes_child(monkeypatch):
 
 def test_no_api_loop_never_constructs_reviewer_and_completes_manifest():
     a = action(); a["instruction"] = "one"
-    data = {"orchestration": {"schema_version": 3, "state": "IDLE", "run_id": None, "approved_action": a, "approved_programme": {"approved": True, "actions": [a]}}}
+    data = {"orchestration": {"schema_version": 3, "state": "IDLE", "run_id": None, "approved_action": a, "approved_programme": {"approved": True, "active_milestone": "SCOPE", "actions": [a]}}}
     assert mod.run_no_api_loop(data, 1, 2, lambda a,t: child(), lambda *x: "rev") == "PROGRAMME_COMPLETE"
     assert data["orchestration"]["deterministic_policy"]["api_reviewer_used"] is False
 def test_no_api_child_policy_hard_stops_impacts_and_scope_change():
     bad = child(); bad["provider_impact"] = True
     assert mod.child_policy(bad, "SCOPE") == "HUMAN_APPROVAL_REQUIRED"
+
+def test_safe_local_manifest_requires_exact_active_milestone():
+    a=action(); d={"orchestration":{"state":"IDLE","run_id":None,"approved_action":a,"approved_programme":{"approved":True,"active_milestone":"OTHER","actions":[a]}}}
+    with pytest.raises(mod.Rejected,match="ACTIVE_MILESTONE_MISMATCH"): mod.run_no_api_loop(d,1,1,lambda a,t: child(),lambda *x:"r")
     bad = child(); bad["recommended_next_action"] = "other"
     assert mod.child_policy(bad, "SCOPE") == "HUMAN_APPROVAL_REQUIRED"

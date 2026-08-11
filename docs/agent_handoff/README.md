@@ -41,6 +41,8 @@ The orchestrator is disabled by default and requires `--enable`. Only `LOCAL_REA
 
 V1.3's default path is `no-api-run`: it consumes a finite explicitly approved programme manifest. It never requires `OPENAI_API_KEY`, `ORCHESTRATOR_REVIEW_MODEL`, Responses API access, or an external reviewer. The historical V1.1/V1.2 API reviewer remains isolated for audit only and is not called by this path.
 
+Safe-local execution remains opt-in: `python scripts/agent_orchestrator.py --enable run`. It requires an approved finite manifest and an exact `active_milestone`; human-gated actions are rejected before a Codex child starts.
+
 ```sh
 OPENAI_API_KEY="$OPENAI_API_KEY" ORCHESTRATOR_REVIEW_MODEL="$ORCHESTRATOR_REVIEW_MODEL" python scripts/agent_orchestrator.py --enable host-smoke-live
 ```

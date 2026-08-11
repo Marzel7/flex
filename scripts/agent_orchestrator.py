@@ -229,10 +229,11 @@ def run_host_loop(data, timeout, max_iterations, reviewer=None, child_runner=run
 def run_no_api_loop(data, timeout, max_iterations, child_runner=run_child, publisher=publish_handoff):
     """V1.3 default. A preapproved manifest, not a reviewer, supplies next work."""
     o = orchestration(data); manifest = o.get("approved_programme")
-    if not isinstance(manifest, dict) or manifest.get("approved") is not True or not isinstance(manifest.get("actions"), list):
+    if not isinstance(manifest, dict) or manifest.get("approved") is not True or not isinstance(manifest.get("actions"), list) or not manifest.get("active_milestone"):
         raise Rejected("PROGRAMME_MANIFEST_NOT_APPROVED")
     expected = o.get("approved_action", {}).get("source_handoff_revision")
     for index, action in enumerate(manifest["actions"]):
+        if action.get("milestone") != manifest["active_milestone"]: raise Rejected("ACTIVE_MILESTONE_MISMATCH")
         if index >= max_iterations: raise Rejected("ITERATION_CAP_REACHED")
         o["approved_action"] = action; o["run_id"] = None; o["state"] = "READY_FOR_CODEX"
         child = execute_one(data, timeout, max_iterations, child_runner)
@@ -259,7 +260,7 @@ def main(argv=None):
             try: fcntl.flock(lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
             except BlockingIOError as exc: raise Rejected("CONCURRENT_RUN") from exc
             if args.command == "host-smoke-live": print(synthetic_host_smoke(ResponsesReviewer())); return 0
-            data = load(); final_state = run_no_api_loop(data, 1800, 5) if args.command == "no-api-run" else run_host_loop(data, args.timeout, args.max_iterations); save(data); print(final_state); return 0
+            data = load(); final_state = run_no_api_loop(data, args.timeout, args.max_iterations) if args.command in {"run", "no-api-run"} else run_host_loop(data, args.timeout, args.max_iterations); save(data); print(final_state); return 0
     except (Rejected, subprocess.SubprocessError, OSError) as exc: print(f"ORCHESTRATOR_BLOCKED: {exc}", file=sys.stderr); return 2
 
 if __name__ == "__main__": raise SystemExit(main())

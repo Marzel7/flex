@@ -1,5 +1,9 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
+import sqlite3
+import time
+
+import pytest
 
 from src.acquisition.retained_observations import RetainedAcquisitionStore
 from src.acquisition.transaction import AcquisitionMetadata, AcquisitionResponse
@@ -52,3 +56,15 @@ def test_reopen_is_deterministic_and_missing_input_is_explicit():
         for field in ("schema_version", "http_method", "url", "request_payload", "response_status", "response_data", "response_text", "response_headers", "raw_body_base64", "artifact_representation", "artifact_digest", "artifact_size_bytes", "artifact_compressed_bytes", "content_type"):
             object.__setattr__(broken, field, getattr(observation, field))
         assert reopened.dry_run_envelope(broken)["state"] == "NOT_REPLAYABLE"
+
+
+def test_retention_store_busy_wait_is_explicitly_bounded():
+    with TemporaryDirectory() as path:
+        root = Path(path); value = store(root); value.retain(response(), http_method="POST", url="https://rpc.test", request_payload={})
+        lock = sqlite3.connect(root / "retained.db"); lock.execute("BEGIN EXCLUSIVE")
+        started = time.monotonic()
+        with pytest.raises(sqlite3.OperationalError):
+            value.retain(response(correlation="locked"), http_method="POST", url="https://rpc.test", request_payload={})
+        assert time.monotonic() - started < 0.25
+        lock.rollback(); lock.close()
+        value.retain(response(correlation="after-lock"), http_method="POST", url="https://rpc.test", request_payload={})

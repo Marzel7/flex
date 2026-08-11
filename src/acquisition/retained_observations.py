@@ -23,6 +23,7 @@ from src.acquisition.transaction import AcquisitionMetadata, AcquisitionResponse
 
 
 SCHEMA_VERSION = 1
+BUSY_TIMEOUT_MS = 50
 
 
 def canonical(value: Any) -> bytes:
@@ -63,7 +64,10 @@ class RetainedAcquisitionStore:
 
     def _connect(self) -> sqlite3.Connection:
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        connection = sqlite3.connect(self.path)
+        # Retention is optional and synchronous at acquisition completion: it
+        # gets one short local-store attempt, never SQLite's default 5 seconds.
+        connection = sqlite3.connect(self.path, timeout=BUSY_TIMEOUT_MS / 1000)
+        connection.execute(f"PRAGMA busy_timeout={BUSY_TIMEOUT_MS}")
         connection.execute("PRAGMA journal_mode=WAL")
         connection.execute("PRAGMA synchronous=FULL")
         connection.execute("CREATE TABLE IF NOT EXISTS retained_acquisition_observations (observation_id TEXT PRIMARY KEY, schema_version INTEGER NOT NULL, launch_mint TEXT, acquisition_id TEXT NOT NULL, correlation_id TEXT NOT NULL, payload_json TEXT NOT NULL, retained_at INTEGER NOT NULL)")

@@ -1,7 +1,7 @@
 {
   "milestone": "OIP v2.2E.1A — Deterministic Bounded Evidence Mirror Cohort Gate",
   "baseline_commit": "ad3719f59ac9541e3550fad22866efe0cab5466c",
-  "implementation_commit": "bbf8b0dc42f9b5da22047e954603b2f28f819e61",
+  "implementation_commit": "ac852ac2 (core E.1A implementation; this audit-record correction is deliberately a separate documentation-only commit)",
   "implementation": {
     "paths": ["src/evidence/cohort_gate.py", "src/evidence/config.py", "src/evidence/mirror.py"],
     "admission_boundary": "EvidenceMirrorPublisher.publish_nowait, before mirror handoff/spool and after a completed production acquisition response",

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-11T22:48:34Z",
+  "updated_at_utc": "2026-08-11T22:55:58Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-11T22:48:34Z",
+    "published_at_utc": "2026-08-11T22:55:58Z",
     "protocol_version": 1,
     "status": "PENDING_PUBLICATION"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2N local qualification preflight",
+    "milestone": "OIP v2.2E.2B2O prospective marked-cohort observation preflight",
     "mode": "safe-local orchestration",
-    "status": "AUTHORIZED",
-    "verdict": "SAFE_LOCAL_PREFLIGHT_AUTHORIZED"
+    "status": "HOLD",
+    "verdict": "B2M_MARKER_NOT_LOADED"
   },
   "production_state": {
     "retention": "ON",
@@ -34,10 +34,22 @@
   },
   "orchestration": {
     "schema_version": 3,
-    "state": "IDLE",
-    "run_id": null,
-    "attempt": 0,
-    "approved_action": null,
+    "state": "HUMAN_APPROVAL_REQUIRED",
+    "run_id": "aa6d944d-204c-4d28-8543-c8053f1584ae",
+    "attempt": 1,
+    "approved_action": {
+      "approved": true,
+      "milestone": "OIP v2.2E.2B2N PREFLIGHT",
+      "authorization_class": "LOCAL_READ_ONLY",
+      "instruction": "Inspect local B2K census evidence and existing code to determine whether an immutable 20-mint cohort manifest, physical-request ledger, and isolated executor can be prepared without provider or production access.",
+      "success_criteria": "The B2N preflight prerequisites are either proven from local evidence or stopped with a named fail-closed blocker.",
+      "stop_conditions": [
+        "provider/RPC work needed",
+        "production interaction needed",
+        "architectural expansion needed"
+      ],
+      "source_handoff_revision": "9bd501e2288c3465b0df569a7e77c90d87218d13"
+    },
     "safe_local_enabled": true,
     "approved_programme": {
       "approved": true,
@@ -54,7 +66,7 @@
             "production interaction needed",
             "architectural expansion needed"
           ],
-          "source_handoff_revision": "845ee7df44eb06d3ec5e83949026fe852c1c0b21"
+          "source_handoff_revision": "9bd501e2288c3465b0df569a7e77c90d87218d13"
         },
         {
           "approved": true,
@@ -147,28 +159,29 @@
     },
     "last_child_result": {
       "status": "BLOCKED",
-      "verdict": "SAFE_LOCAL_COMMIT_BLOCKED",
-      "files_changed": [
-        "docs/evidence_platform/oip_v2_2e_2b2n_provider_qualification_contract.md"
-      ],
+      "verdict": "HOLD_SAFE_LOCAL_PREFLIGHT",
+      "files_changed": [],
       "tests": [
-        "Required B2N contract sections present",
-        "Documentation whitespace validation passed",
-        "Exact-path status confirmed as untracked"
+        "Local census window check: exactly 20 records, 20 distinct mints, signatures, and event IDs; zero malformed records",
+        "Deterministic canonical cohort projection produced SHA-256 067013a2404a1e983cb90b44c789161537bd8797f6ee1d5bc62f7b9ed66377c1",
+        "Static code inspection confirmed an existing durable physical-attempt ledger and fail-closed budget primitive",
+        "Static isolation inspection confirmed the current extraction entry point initializes HTTP/provider clients and accesses DB_PATH"
       ],
       "blockers": [
-        "Git staging failed because the sandbox prohibits creating .git/index.lock: Operation not permitted. Permissions were not changed and no commit was created."
+        "B2N_COHORT_ELIGIBILITY_PROVENANCE_MISSING: the B2K census proves the ordered 20-mint cohort but contains no reviewed-migration origin or observation_required field, so contract eligibility cannot be established from approved local evidence.",
+        "B2N_ISOLATED_EXECUTOR_ABSENT: the existing creator-funding extraction path is coupled to database access, global provider sessions, caching, pagination, and multiple RPC paths; it cannot prove one-request-per-mint or no-production isolation without new implementation or architectural adaptation.",
+        "B2N_LEDGER_NOT_CONTRACT_SPECIFIC: reusable attempt-budget and append-only ledger primitives exist, but their checkpoint identity and schema target OIP v2.1C and do not implement the B2N manifest digest, per-mint outcome schema, or client-instrumentation reconciliation."
       ],
       "production_impact": false,
       "provider_impact": false,
       "commits": [],
-      "recommended_next_action": "Create the narrow B2N commit in an environment where repository Git metadata is writable, staging only docs/evidence_platform/oip_v2_2e_2b2n_provider_qualification_contract.md; do not stage unrelated dirty-tree files, deploy, or push."
+      "recommended_next_action": "Fail closed and obtain an architectural decision or additional immutable local provenance that links every frozen B2K mint to a reviewed migration with observation_required=true; then separately authorize local implementation of a B2N-specific manifest, ledger, and dependency-injected fake-client executor before any provider work."
     },
-    "source_handoff_revision": "cccf49479bf55b4e83effdb5fdf72c617e00ca6c",
+    "source_handoff_revision": "9bd501e2288c3465b0df569a7e77c90d87218d13",
     "deterministic_policy": {
       "decision": "HUMAN_APPROVAL_REQUIRED",
       "api_reviewer_used": false,
-      "iteration": 4
+      "iteration": 1
     }
   },
   "qualified_baselines": [
@@ -220,6 +233,15 @@
     "note": "Closed at the twentieth distinct post-authorization census receive. The first 20 qualifying records were one-to-one with 20 mints; later census records are outside this fixed cohort. No service/configuration changes or Codex-initiated provider RPC calls occurred."
   },
   "latest_results": {
+    "oip_v2_2e_2b2o_observation_authorization_preflight": {
+      "status": "HOLD",
+      "verdict": "B2M_MARKER_NOT_LOADED",
+      "contract": "First B2M observation_required=true migration enqueue after authorization; end at first of 20 distinct marked migrations, 60 clean minutes, or production impact; read-only with no provider calls/restart/configuration/Evidence/Cohort action.",
+      "listener": "RUNNING pid 43895, uptime 7:48:49 at verification; started before B2M commit 5e2d1b26.",
+      "provider_rpc_calls": 0,
+      "production_changes": false,
+      "blocker": "The running listener predates B2M and has not loaded its observation_required marker. The authorized observation explicitly prohibits the restart required to load that code."
+    },
     "oip_v2_2e_2b2n_preflight_manifest_authorization": {
       "status": "COMPLETE",
       "verdict": "SAFE_LOCAL_PREFLIGHT_AUTHORIZED",
@@ -236,14 +258,23 @@
       "execution_environment": "isolated non-production qualification environment only",
       "provider_rpc_calls_executed": 0,
       "production_changes": false,
-      "preflight_required": ["immutable 20-mint cohort manifest and digest", "one-request-per-mint physical attempt ledger", "isolated executor proven not to access production databases, queues, or services"]
+      "preflight_required": [
+        "immutable 20-mint cohort manifest and digest",
+        "one-request-per-mint physical attempt ledger",
+        "isolated executor proven not to access production databases, queues, or services"
+      ]
     },
     "oip_v2_2e_2b2n_local_commit": {
       "status": "COMPLETE",
       "verdict": "LOCAL_QUALIFICATION_PASS",
       "commit": "74b330838f4b4aa982233a76225d1155c223f6d4",
-      "files": ["docs/evidence_platform/oip_v2_2e_2b2n_provider_qualification_contract.md"],
-      "validation": ["Required B2N contract sections present", "Documentation whitespace validation passed"],
+      "files": [
+        "docs/evidence_platform/oip_v2_2e_2b2n_provider_qualification_contract.md"
+      ],
+      "validation": [
+        "Required B2N contract sections present",
+        "Documentation whitespace validation passed"
+      ],
       "provider_rpc_calls": 0,
       "production_changes": false
     },
@@ -641,9 +672,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2N PREFLIGHT",
-    "instruction": "Run the approved B2N safe-local preflight sequence. Do not issue any provider request.",
-    "activation_authorized": true,
+    "milestone": "OIP v2.2E.2B2O deployment/restart gate",
+    "instruction": "Await a separate explicit authorization to deploy/load B2M commit 5e2d1b26 on watchtower_listener through a bounded restart, including rollback/health conditions. Do not start the marked-cohort observation without the marker loaded.",
+    "activation_authorized": false,
     "production_activation_authorized": false
   },
   "safety": {

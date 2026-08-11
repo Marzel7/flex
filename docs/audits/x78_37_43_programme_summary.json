@@ -1,0 +1,28 @@
+{
+  "programme": "X78.37–X78.43 Creator Funding Capacity & Evidence Integrity",
+  "last_milestone_attempted": "X78.43",
+  "last_successfully_implemented": "X78.37 conservative coverage contract",
+  "skipped_or_blocked": {"X78.38": "no deep coverage/equivalence", "X78.39": "measurement insufficient for admission change", "X78.40": "no class-separated qualification window", "X78.41": "durable outgoing contract absent", "X78.42": "X78.41 dependency blocked"},
+  "production_changes": ["opt-in coverage ledger only; disabled by default; no service restart"],
+  "tests": "17 focused tests passed",
+  "health": {"creator_funding": "fresh heartbeat", "creator_resolution": "fresh heartbeat", "database": "readable", "wal_mb": 12.3, "global_health": "stale legacy heartbeats"},
+  "answers": {
+    "deterministic_history_contract": "yes, conservatively; deep contiguous coverage is not yet proven",
+    "repeat_creator_reuse": "no",
+    "rpc_or_slot_cost_removed": 0,
+    "organic_live_demand": "not measured in a qualifying window",
+    "recovery_admission": "not measured as a separate class",
+    "two_slots_sufficient_organic": "not measurable",
+    "two_slots_sufficient_total": "not measurable",
+    "backlog_genuinely_draining": "unknown; expiries preclude inference",
+    "outgoing_inside_barrier": true,
+    "pending_can_be_misread": "not proven safe; no separated pending contract exists",
+    "watchtower_correctness": "preserved because no semantic change was released",
+    "database_consistent_with_x78_35a": "no regression observed; not fully requalified",
+    "rpc_ceiling_sufficient": "not measurable",
+    "additional_capacity_required": "not proven",
+    "evidence_activation": "HOLD",
+    "acquisition": "HOLD_ACQUISITION"
+  },
+  "recommended_next_milestone": "X78.38A — overlap-backed history continuation and exact shadow equivalence corpus"
+}

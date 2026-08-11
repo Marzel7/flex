@@ -546,7 +546,6 @@
             operational_intelligence: 'Operational Intelligence',
             watchtower: 'WATCHTOWER',
             infrastructure: 'Infrastructure',
-            price_tracking: 'Price Tracking',
         };
         // MC1.1C Phase F — WATCHTOWER is not a platform capability for
         // navigation purposes (it becomes an Operation surfaced inside
@@ -827,17 +826,6 @@
                     <div class="mc-metrics-block">
                         ${row('DB write p99', db.p99_wait_ms != null ? db.p99_wait_ms + 'ms' : '—')}
                         ${row('Serializer queue depth', db.serializer_queue_depth != null ? db.serializer_queue_depth : '—')}
-                        ${genericTrendHtml}
-                    </div>`;
-            }
-
-            if (name === 'price_tracking') {
-                const pw = (subsystems && subsystems.price_worker) || {};
-                return `
-                    <div class="mc-metrics-block">
-                        ${row('Active tokens', pw.active_tokens != null ? pw.active_tokens : '—')}
-                        ${row('Last peak update', mcFormatAgo(pw.last_peak_update_age_secs))}
-                        ${row('Last snapshot', mcFormatAgo(pw.last_snapshot_write_age_secs))}
                         ${genericTrendHtml}
                     </div>`;
             }
@@ -1224,18 +1212,12 @@
 
         function renderWatchtowerSubsystemPills(ss) {
             const ing  = ss.ingestion || {};
-            const pw   = ss.price_worker || {};
             const ci   = ss.cascade_infrastructure || {};
             const db   = ss.database || {};
             const api  = ss.api || {};
             const intel = ss.intelligence || {};
             const pills = [
                 _wtPill('Listener',     ing.status,  ing.pumpportal ? `PP:${ing.pumpportal} · PS:${ing.pumpswap}` : null),
-                // worker_alive=false in PEAK-ONLY mode is expected (the worker
-                // intentionally isn't running a live price loop) -- show the
-                // real status so the pill's color matches its actual (neutral)
-                // classification instead of implying an unflagged fault.
-                _wtPill('Price Worker', pw.status || (pw.worker_alive === false ? 'DOWN' : 'UNKNOWN'), null),
                 _wtPill('Cascade',      ci.status,   ci.subs_total != null ? `${ci.subs_total} subs · hb ${_fmtAge(ci.heartbeat_age_secs)}` : null),
                 _wtPill('Database',     db.status,   db.p99_wait_ms != null ? `p99 ${Math.round(db.p99_wait_ms)}ms` : null),
                 _wtPill('API',          api.status,  api.gunicorn_alive === false ? 'gunicorn dead' : null),

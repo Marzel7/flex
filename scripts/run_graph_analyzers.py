@@ -368,12 +368,6 @@ def run_analyzer(name: str, db_path: str) -> dict:
             from src.core.prediction_decision_context import PredictionDecisionContextAnalyzer
             result = PredictionDecisionContextAnalyzer(db_path).run()
 
-        elif name == 'TokenPredictionBuilder':
-            from src.core.token_prediction_builder import TokenPredictionBuilder
-            result = TokenPredictionBuilder(db_path).run()
-            result.setdefault('status', 'success')
-            result['edges_written'] = result.get('tokens_scored', 0)
-
         elif name == 'IntelligenceRefreshCandidateBuilder':
             from src.core.intelligence_refresh import (
                 IntelligenceRefreshCandidateBuilder, apply_migration
@@ -451,7 +445,6 @@ ANALYZERS = [
     'UpstreamExpansionBuilder',              # DB-only: enqueues funders around significant hubs
     'NetworksReleaseBuilder',
     'RiskScoringBuilder',
-    'TokenPredictionBuilder',
     'CreatorProfitabilityAnalyzer',
     'NetworkProfitabilityAnalyzer',
     'FunderProfitabilityAnalyzer',

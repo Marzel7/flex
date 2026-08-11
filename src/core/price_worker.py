@@ -25,6 +25,10 @@ from typing import List, Dict, Optional
 from src.core.price_service import get_price_service, TokenPrice
 from src.core.price_fetch_queue import get_price_queue, FetchTask, start_price_queue_worker
 
+# X78.26 — permanent production boundary. Historical registry/data remain,
+# while broad continuous population processing is no longer executable.
+BROAD_PRICE_TRACKING_RUNTIME_ENABLED = False
+
 logger = logging.getLogger(__name__)
 
 # Track which mints have had their first price broadcast logged
@@ -591,6 +595,13 @@ class BackgroundPriceWorker:
 
     def start(self) -> None:
         """Start the background worker."""
+        if not BROAD_PRICE_TRACKING_RUNTIME_ENABLED:
+            logger.info(
+                "[PRICE_WORKER] Broad continuous price tracking is decommissioned; "
+                "worker start suppressed"
+            )
+            self.running = False
+            return
         if self.running:
             logger.warning("Worker already running")
             return

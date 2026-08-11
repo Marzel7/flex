@@ -51,7 +51,6 @@ CAPABILITY_NAMES = (
     "operational_intelligence",
     "watchtower",
     "infrastructure",
-    "price_tracking",
 )
 
 # MC1.0 Section 3 -- degradation propagation: a downstream capability's
@@ -745,15 +744,20 @@ def _compute_creator_funding(subsystems: Dict[str, Any]) -> Dict[str, Any]:
     intelligence = subsystems.get("intelligence") or {}
 
     worker_status = intelligence.get("funding_worker_status") or "UNKNOWN"
+    progress_status = intelligence.get("funding_progress_status") or worker_status
     hb_age = intelligence.get("funding_worker_heartbeat_age_secs")
-    oldest_age = intelligence.get("funding_queue_oldest_pending_age_secs")
-    pending = intelligence.get("funding_queue_pending") or 0
+    oldest_age = intelligence.get("funding_oldest_hot_age_secs")
+    if oldest_age is None:
+        oldest_age = intelligence.get("funding_queue_oldest_pending_age_secs")
+    pending = intelligence.get("funding_hot_pending")
+    if pending is None:
+        pending = intelligence.get("funding_queue_pending") or 0
 
     signals = [
         _signal(
             "worker_status",
             worker_status not in ("RUNNING",),
-            worker_status,
+            progress_status,
         ),
         _signal(
             "heartbeat_freshness",
@@ -761,7 +765,7 @@ def _compute_creator_funding(subsystems: Dict[str, Any]) -> Dict[str, Any]:
             f"{hb_age}s (threshold 120s)" if hb_age is not None else "unknown",
         ),
         _signal(
-            "oldest_eligible_age",
+            "oldest_hot_age",
             oldest_age is not None and oldest_age > 3600,
             f"{oldest_age}s (threshold 3600s)" if oldest_age is not None else "unknown",
         ),
@@ -792,20 +796,33 @@ def _compute_operational_intelligence(subsystems: Dict[str, Any]) -> Dict[str, A
 
     wp_age = intelligence.get("watch_pipeline_age_secs")
     wp_interval = intelligence.get("watch_pipeline_interval_secs") or 300
+    wp_lifecycle = intelligence.get("watch_pipeline_lifecycle") or "ACTIVE"
+    snapshot_health = intelligence.get("operational_snapshot_health")
+    snapshot_age = intelligence.get("operational_snapshot_age_secs")
     cp_age = intelligence.get("crq_worker_age_secs")
+    cp_threshold = intelligence.get("crq_heartbeat_threshold_secs") or 120
     crq_failed = intelligence.get("creator_queue_failed") or 0
     missing = intelligence.get("missing_creators_1h") or 0
 
     signals = [
         _signal(
             "watch_pipeline_freshness",
-            wp_age is not None and wp_age > wp_interval * 2,
-            f"{wp_age}s (interval {wp_interval}s)" if wp_age is not None else "unknown",
+            wp_lifecycle == "ACTIVE" and wp_age is not None and wp_age > wp_interval * 2,
+            (
+                "RETIRED (legacy Flask worker disabled)"
+                if wp_lifecycle == "RETIRED"
+                else (f"{wp_age}s (interval {wp_interval}s)" if wp_age is not None else "unknown")
+            ),
+        ),
+        _signal(
+            "operational_snapshot_freshness",
+            snapshot_health in ("STALE_FAILED", "NO_SNAPSHOT", "UNKNOWN"),
+            f"{snapshot_health} age={snapshot_age}s",
         ),
         _signal(
             "creator_resolution_freshness",
-            cp_age is not None and cp_age > 120,
-            f"{cp_age}s (threshold 120s)" if cp_age is not None else "unknown",
+            cp_age is not None and cp_age > cp_threshold,
+            f"{cp_age}s (threshold {cp_threshold}s)" if cp_age is not None else "unknown",
         ),
         _signal(
             "resolution_failures",
@@ -822,9 +839,9 @@ def _compute_operational_intelligence(subsystems: Dict[str, Any]) -> Dict[str, A
     status = "HEALTHY"
     if crq_failed > 5:
         status = "WARNING"
-    elif wp_age is not None and wp_age > wp_interval * 2:
+    elif snapshot_health in ("STALE_FAILED", "NO_SNAPSHOT", "UNKNOWN"):
         status = "WARNING"
-    elif cp_age is not None and cp_age > 120:
+    elif cp_age is not None and cp_age > cp_threshold:
         status = "WARNING"
 
     return _capability_result(status, signals)
@@ -921,7 +938,6 @@ _COMPUTE_FN = {
     "operational_intelligence": _compute_operational_intelligence,
     "watchtower": _compute_watchtower,
     "infrastructure": _compute_infrastructure,
-    "price_tracking": _compute_price_tracking,
 }
 
 
@@ -1036,7 +1052,6 @@ _TITLE_LABELS = {
     "operational_intelligence": "Operational intelligence degraded",
     "watchtower": "WATCHTOWER degraded",
     "infrastructure": "Infrastructure degraded",
-    "price_tracking": "Price tracking degraded",
 }
 
 

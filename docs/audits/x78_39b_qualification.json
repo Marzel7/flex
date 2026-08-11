@@ -1,0 +1,14 @@
+{
+  "milestone": "X78.39B — Append-Only Creator Funding Lifecycle Telemetry",
+  "baseline_revision": "cb1fc110e105436c4baa9fe15f956628f80db3ce",
+  "implementation": {"ledger": "src/core/creator_funding_lifecycle.py", "identity": "sha256('creator-funding-v1' + creator_address + mint)", "original_class_mapping": {"LIVE": ["pf_ws_*", "creator_discovery", "migration_already_known"], "RECOVERY": ["creator_resolution_*", "crq_worker", "approval_queue*"], "BACKFILL": ["*coverage_sweep*", "*backfill*"], "OTHER_PROVEN_SOURCE": "all remaining explicit sources"}, "events": ["CREATED", "CLAIMED", "COMPLETED", "RETRY"]},
+  "atomicity": "Queue mutations commit before a secondary event attempt. Telemetry failure returns false and logs a coverage gap; it cannot roll back or block Creator Funding.",
+  "instrumented_paths": ["PumpFun listener creation", "Creator Resolution handoff", "funding coverage/backfill handoff", "Creator Funding claim", "Creator Funding completion", "Creator Funding retry"],
+  "not_yet_instrumented": ["FAILED terminal event", "EXPIRED event", "STALE_RECOVERED event", "EXTRACTION_STARTED event", "explicit event-gap persistence"],
+  "deployment": {"services_restarted": ["watchtower_listener", "creator_funding_worker", "creator_resolution_worker"], "post_restart": "all three RUNNING with fresh heartbeats", "healthz": "database ok; global healthy=false due pre-existing stale legacy heartbeat rows", "wal_mb": 0.0},
+  "clean_window": {"status": "NOT_STARTED", "reason": "No post-deployment lifecycle transition had yet created the lazy ledger table at verification time. A clean >=60-minute window cannot be claimed."},
+  "validation": {"command": "pytest -q tests/test_x78_39b_lifecycle_telemetry.py tests/test_x78_32_creator_keyed_deduplication.py tests/test_x78_29_creator_funding_accounting.py tests/test_x78_30_creator_funding_freshness.py tests/test_x78_34_long_tail_slot_utilization.py tests/test_x78_17_creator_funding_read_boundary.py tests/test_x78_14_creator_funding_cancellation_cleanup.py", "result": "29 passed"},
+  "verdicts": {"lifecycle_coverage": "C — MATERIAL_GAP", "demand_classification": "C — MATERIAL_AMBIGUITY", "completion_accounting": "D — NOT_RELIABLE", "expiry_accounting": "D — NOT_RELIABLE", "production_health": "B — HEALTHY_WITH_MINOR_RESIDUAL"},
+  "gate_to_x78_40": "BLOCKED — lifecycle instrumentation is incomplete and no representative reconciled window exists",
+  "invariants": {"queue_selection_changed": false, "recovery_admission_changed": false, "expiry_changed": false, "slots": 2, "rpc_ceiling": 8, "outgoing_barrier": "unchanged", "acquisition": "HOLD_ACQUISITION"}
+}

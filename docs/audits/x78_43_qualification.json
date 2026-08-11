@@ -1,0 +1,36 @@
+{
+  "milestone": "X78.43 — End-to-End Capacity, Evidence & Acquisition Release Gate",
+  "timestamp_utc": "2026-08-10T00:00:00Z",
+  "baseline_revision": "cb1fc110e105436c4baa9fe15f956628f80db3ce",
+  "qualification_window": "not run: no 60-minute class-separated demand/capacity window",
+  "production_observation": {
+    "supervisor_running": ["creator_funding_worker", "creator_resolution_worker", "watchtower_listener", "watchtower_api", "walkback_worker", "intelligence_snapshot_scheduler"],
+    "healthz": {"db": "ok", "wal_mb": 12.3, "healthy": false, "cause": "stale legacy worker heartbeat records; active creator-funding and creator-resolution heartbeats were fresh"}
+  },
+  "milestone_results": {
+    "x78_37": "PASS_CONTRACT_ONLY",
+    "x78_38": "BLOCKED — no deep contiguous coverage or exact equivalence corpus",
+    "x78_39": "NOT_MEASURABLE — no class-separated admission/demand time series",
+    "x78_40": "D — NOT_MEASURABLE",
+    "x78_41": "BLOCKED — no durable outgoing ownership/pending consumer contract",
+    "x78_42": "SKIPPED_DEPENDENCY"
+  },
+  "final_verdicts": {
+    "history_coverage": "B — PROVEN_WITH_MINOR_LIMITATION (contract is safe; deep continuity is unproven)",
+    "history_acquisition": "D — NOT_PROVEN",
+    "recovery_admission": "D — UNSAFE_OR_UNKNOWN for a policy change; current scheduler remains unchanged",
+    "funding_capacity": "D — NOT_MEASURABLE",
+    "outgoing_ownership": "C — STILL_SYNCHRONOUS_OR_BLOCKED",
+    "outgoing_capacity": "D — NOT_APPLICABLE_OR_NOT_MEASURABLE",
+    "watchtower_correctness": "A — PRESERVED (no semantic change)",
+    "database": "B — HEALTHY_WITH_MINOR_RESIDUAL (DB read probe is OK; health endpoint has stale legacy heartbeat records)",
+    "rpc": "D — NOT_MEASURABLE in this qualification",
+    "backlog": "D — EXPIRY_MASKED_OR_UNKNOWN",
+    "production_health": "C — HEALTHY_SERVICES_CAPACITY_NOT_READY",
+    "evidence_activation": "HOLD",
+    "acquisition": "HOLD_ACQUISITION"
+  },
+  "release_gate": {"verdict": "FAIL", "failed_requirements": ["no exact history reuse equivalence", "recovery admission not measurable", "funding capacity not measurable", "outgoing durable ownership absent", "outgoing pending semantics absent", "no full representative qualification window"]},
+  "production_changes": ["X78.37 opt-in conservative coverage ledger; disabled by default; no services restarted"],
+  "tests": {"focused": "17 passed", "full_regression": "not run; intentionally avoided because no authoritative production behaviour was enabled"}
+}

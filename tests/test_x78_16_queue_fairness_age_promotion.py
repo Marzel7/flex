@@ -79,12 +79,9 @@ def _insert_row(db_path, creator, mint, job_priority, age_seconds, status="pendi
     conn.close()
 
 
-def test_ancient_low_priority_row_is_eventually_claimed_ahead_of_fresh_high_priority_flood(tmp_path, monkeypatch):
-    """Core X78.15/X78.16 regression: a single very old, low-priority row
-    must be selected ahead of a large population of fresh, high-priority
-    rows once it has aged past the promotion threshold -- reproducing the
-    exact starvation shape measured live (1 ancient priority=0 row vs
-    thousands of fresh priority=1 rows)."""
+def test_x78_30_excludes_ancient_row_and_claims_fresh_work(tmp_path, monkeypatch):
+    """X78.30 supersedes global age promotion: its fairness protection is
+    bounded by HOT_MAX_AGE and historical rows cannot consume live capacity."""
     db_path = str(tmp_path / "x.db")
     _make_queue_db(db_path)
     monkeypatch.setattr(cfw, "DB_PATH", db_path)
@@ -103,11 +100,7 @@ def test_ancient_low_priority_row_is_eventually_claimed_ahead_of_fresh_high_prio
     rows, recovered, stale = cfw._recover_stale_and_claim(int(time.time()), batch=1)
 
     assert len(rows) == 1
-    assert rows[0]["creator_address"] == "ancient_creator", (
-        "the ancient low-priority row was not claimed first despite being "
-        "old enough to fully out-age the fresh high-priority flood -- "
-        "starvation regression"
-    )
+    assert rows[0]["creator_address"].startswith("fresh_creator_")
 
 
 def test_fresh_high_priority_row_still_wins_against_comparably_aged_low_priority_row(tmp_path, monkeypatch):
@@ -132,7 +125,7 @@ def test_fresh_high_priority_row_still_wins_against_comparably_aged_low_priority
     )
 
 
-def test_age_promotion_cap_does_not_reintroduce_starvation(tmp_path, monkeypatch):
+def test_age_promotion_cap_cannot_make_stale_rows_hot_again(tmp_path, monkeypatch):
     """Regression test for the specific cap-sizing bug found live during
     X78.16 development: if AGE_PROMOTION_CAP is too small relative to the
     priority-tier spread, a large population of aged high-priority rows
@@ -155,11 +148,7 @@ def test_age_promotion_cap_does_not_reintroduce_starvation(tmp_path, monkeypatch
 
     rows, _, _ = cfw._recover_stale_and_claim(int(time.time()), batch=1)
 
-    assert len(rows) == 1
-    assert rows[0]["creator_address"] == "oldest_low_pri", (
-        "the cap reintroduced a permanent priority-tier gap -- the oldest "
-        "row lost to a population of merely-capped high-priority rows"
-    )
+    assert rows == []
 
 
 def test_effective_priority_is_deterministic_and_measurable(tmp_path, monkeypatch):
@@ -220,7 +209,7 @@ def test_retry_backoff_still_functions_after_age_promotion_change(tmp_path, monk
     assert row[1] == now + 360
 
 
-def test_no_eligible_row_is_permanently_unclaimable_regardless_of_batch_repetition(tmp_path, monkeypatch):
+def test_stale_row_never_reenters_hot_capacity_across_batch_repetition(tmp_path, monkeypatch):
     """Simulates repeated claim cycles (as the real worker loop does) and
     proves the ancient row is claimed within a bounded number of cycles,
     not deferred forever -- the actual end-to-end guarantee Phase A
@@ -252,11 +241,6 @@ def test_no_eligible_row_is_permanently_unclaimable_regardless_of_batch_repetiti
         conn.commit()
         conn.close()
 
-    assert "ancient" in claimed_creators, (
-        "the ancient row was never claimed even across repeated cycles "
-        "draining the entire fresh population -- indefinite starvation"
-    )
-    # It should be claimed FIRST (or very close to first), not merely
-    # eventually -- confirming it isn't just winning by attrition once the
+    assert "ancient" not in claimed_creators
+    # Historical work is deliberately excluded, not merely deferred until the
     # fresh population is exhausted.
-    assert claimed_creators.index("ancient") == 0

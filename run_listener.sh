@@ -5,12 +5,13 @@ cd "$(dirname "$0")"
 # hundreds of RPC pages on stubborn tokens and starves LIVE migration capture. Parked so
 # migrations keep flowing. Set to 1 to re-enable once the live path is confirmed healthy.
 export CREATOR_BACKFILL_ENABLED=0
-# PARK listener-local price worker bootstrap: it can block startup on DB locks before the
-# critical migration websocket is even scheduled. Flask/other workers can still handle UI pricing.
+# X78.26 — broad continuous price tracking is decommissioned. Historical rows
+# and point-in-time/selective price services remain available.
 export LISTENER_PRICE_WORKER_ENABLED=0
 # PARK nonessential listener background jobs while live websocket capture is being restored.
 # These jobs can synchronously wait on SQLite locks and starve the asyncio loop before sockets connect.
 export LISTENER_CREATOR_ACTIVITY_ENABLED=0
+# The legacy broad live updater is retired with the worker.
 export LISTENER_LIVE_PRICE_UPDATER_ENABLED=0
 # X73.2 — permanently 0, not a temporary park. creator_funding_queue's sole
 # canonical consumer is now the standalone src.core.creator_funding_worker
@@ -53,5 +54,6 @@ export LISTENER_WEBHOOK_BIRTH_DRAINER_ENABLED=1
 # means 2 attempts total (15s→2s max per sig) — reconciler backstop covers any misses.
 export LISTENER_DISCOVERY_RPC_CONCURRENCY=3
 export LISTENER_GETTX_RETRY_DELAYS=1
+export DB_CONNECTION_LIFECYCLE_DIAGNOSTICS_PATH="logs/diagnostics/x78_19_listener_connections.jsonl"
 echo "[LISTENER] $(date -u +%Y-%m-%dT%H:%M:%SZ) Starting listener (exec — supervisord owns the Python process)..."
 exec python -u -m src.core.pumpfun_curve_listener

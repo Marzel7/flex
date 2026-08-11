@@ -418,6 +418,56 @@ class OperatorIdentityGovernanceService:
             (operator_id, status, "ACTIVE", now),
         )
 
+    @staticmethod
+    def _transition(
+        conn: sqlite3.Connection, operator_id: str, event_type: str,
+        analyst: str, revision: str, reason: str, payload: dict[str, Any], *,
+        identity_state: dict[str, Any] | None = None,
+        operators: dict[str, Any] | None = None,
+        ensure_state: bool = True,
+    ) -> tuple[str, int]:
+        """The single choke point every identity-status change passes through:
+        validate (via the caller's own precondition checks, made just before
+        calling this), write the immutable lifecycle event, apply the
+        `operator_identity_state` update, apply the mirrored `operators`
+        update, and return (event_id, now) for the caller's response.
+
+        `identity_state`/`operators` are column->value dicts for their
+        respective UPDATE statements (identity_state's `updated_at` and
+        operators' `updated_at` are always included even if the caller
+        supplies no other columns for that table, so every transition
+        touches both tables' timestamps exactly as every existing call site
+        already did before this helper existed -- no behaviour change).
+
+        Cache invalidation is NOT done here (it happens once, in
+        OperatorIdentityGovernanceService._mutate(), which wraps every
+        governance-service call). Callers outside this class (i.e.
+        promotion_service._approve(), which runs its own transaction and does
+        not go through _mutate()) must invalidate the cache themselves after
+        the transaction commits -- see that call site's own comment.
+        """
+        if ensure_state:
+            OperatorIdentityGovernanceService._ensure_state(conn, operator_id)
+        event_id, now = OperatorIdentityGovernanceService._event(
+            conn, operator_id, event_type, analyst, revision, reason, payload)
+
+        identity_state = dict(identity_state or {})
+        identity_state.setdefault("updated_at", now)
+        id_cols = ",".join(f"{col}=?" for col in identity_state)
+        conn.execute(
+            f"UPDATE operator_identity_state SET {id_cols} WHERE operator_id=?",
+            (*identity_state.values(), operator_id),
+        )
+
+        operators = dict(operators or {})
+        operators.setdefault("updated_at", now)
+        op_cols = ",".join(f"{col}=?" for col in operators)
+        conn.execute(
+            f"UPDATE operators SET {op_cols} WHERE operator_id=?",
+            (*operators.values(), operator_id),
+        )
+        return event_id, now
+
     def _mutate(self, command: str, operation):
         def transaction(conn):
             conn.row_factory = sqlite3.Row

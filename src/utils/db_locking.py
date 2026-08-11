@@ -8,7 +8,9 @@ in concurrent scenarios (token launches, clustering, extractors, etc.)
 
 import contextlib
 import contextvars
+import hashlib
 import inspect
+import json
 import logging
 import os
 import sqlite3
@@ -72,6 +74,74 @@ def get_lock_error_metrics() -> dict:
 _db_logger = logging.getLogger("db_locking")
 _open_connections = {}
 _open_connections_lock = threading.Lock()
+_connection_lifecycle_lock = threading.Lock()
+_last_snapshot_connection_ids: set[str] = set()
+
+
+def _connection_diagnostics_path() -> Optional[str]:
+    return os.environ.get("DB_CONNECTION_LIFECYCLE_DIAGNOSTICS_PATH") or None
+
+
+def _connection_purpose(caller: str) -> str:
+    value = caller.lower()
+    for needle, purpose in (
+        ("handle_birth", "birth_persistence"),
+        ("migration", "migration_persistence"),
+        ("price", "price_callback"),
+        ("symbol", "symbol_write"),
+        ("subscription", "subscription_seed"),
+        ("rpc_metrics", "metrics"),
+        ("heartbeat", "heartbeat"),
+        ("queue", "queue_worker"),
+        ("cache", "cache"),
+        ("ensure", "schema_bootstrap"),
+        ("startup", "schema_bootstrap"),
+    ):
+        if needle in value:
+            return purpose
+    return "other"
+
+
+def _connection_lifecycle_intent(purpose: str) -> str:
+    if purpose == "schema_bootstrap":
+        return "STARTUP_SCOPED"
+    if purpose in {"birth_persistence", "migration_persistence", "price_callback", "symbol_write"}:
+        return "EVENT_SCOPED"
+    if purpose in {"heartbeat", "metrics"}:
+        return "REQUEST_SCOPED"
+    if purpose in {"queue_worker"}:
+        return "THREAD_LOCAL"
+    if purpose == "cache":
+        return "LONG_LIVED_INTENTIONAL"
+    return "UNKNOWN"
+
+
+def _async_task_identity() -> tuple[Optional[int], Optional[str]]:
+    try:
+        import asyncio
+        task = asyncio.current_task()
+        if task is not None:
+            return id(task), task.get_name()
+    except (RuntimeError, ImportError):
+        pass
+    return None, None
+
+
+def _append_connection_lifecycle(event: dict) -> None:
+    """Append bounded diagnostic metadata; never affect DB behavior."""
+    path = _connection_diagnostics_path()
+    if not path:
+        return
+    payload = {"schema": "x78.19.connection_lifecycle.v1", **event}
+    try:
+        os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+        line = json.dumps(payload, sort_keys=True, default=str) + "\n"
+        with _connection_lifecycle_lock:
+            with open(path, "a", encoding="utf-8") as handle:
+                handle.write(line)
+    except Exception:
+        # Diagnostics are strictly fail-open.
+        pass
 
 # Process-wide write serializer (the single write lane). Plain Lock (not RLock): releasable from
 # any thread, which the async adapter needs; write transactions are short and never nest it.
@@ -234,6 +304,144 @@ def serializer_metrics() -> dict:
 _DB_WRITE_SERIALIZE = os.environ.get("DB_WRITE_SERIALIZE", "1") == "1"
 _WRITE_SQL_PREFIXES = ("INSERT", "UPDATE", "DELETE", "REPLACE", "CREATE", "ALTER", "DROP", "UPSERT")
 
+_CF_SQL_DIAGNOSTICS_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+    "logs", "diagnostics", "x78_22_creator_funding_sql.jsonl",
+)
+_TOKEN_PREDICTION_SQL_DIAGNOSTICS_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+    "logs", "diagnostics", "x78_23_token_prediction_sql.jsonl",
+)
+_CF_SQL_DIAGNOSTICS_LOCK = threading.Lock()
+
+
+def _cf_sql_diagnostics_enabled(connection) -> bool:
+    caller = str(getattr(connection, "_db_caller", "") or "")
+    return (
+        "realtime_creator_funding_extractor.py" in caller
+        or "token_prediction_builder.py" in caller
+    )
+
+
+def _sql_diagnostics_path(connection) -> str:
+    caller = str(getattr(connection, "_db_caller", "") or "")
+    if "token_prediction_builder.py" in caller:
+        return _TOKEN_PREDICTION_SQL_DIAGNOSTICS_PATH
+    return _CF_SQL_DIAGNOSTICS_PATH
+
+
+def _normalized_sql(sql) -> tuple[str, str, str]:
+    text = " ".join(str(sql or "").split())
+    operation = text.split(" ", 1)[0].upper() if text else "UNKNOWN"
+    return operation, hashlib.sha256(text.encode("utf-8")).hexdigest()[:20], text[:500]
+
+
+def _append_cf_sql_diagnostic(payload: dict, connection=None) -> None:
+    try:
+        path = _sql_diagnostics_path(connection) if connection is not None else _CF_SQL_DIAGNOSTICS_PATH
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with _CF_SQL_DIAGNOSTICS_LOCK:
+            with open(path, "a", encoding="utf-8") as handle:
+                handle.write(json.dumps(payload, sort_keys=True, default=str) + "\n")
+    except Exception:
+        pass
+
+
+def record_token_prediction_phase(connection, phase: str, event: str, **fields) -> None:
+    """Record an operation-neutral phase marker for X78.23 attribution.
+
+    Diagnostics are deliberately fail-open and contain no SQL parameters.  A
+    current phase is also attached to the physical write lease, when one is
+    held, so a kernel-flock probe can identify non-SQL time between statements.
+    """
+    payload = {
+        "event": f"phase_{event}",
+        "timestamp": time.time(),
+        "pid": os.getpid(),
+        "thread": threading.current_thread().name,
+        "connection_id": getattr(connection, "_db_connection_id", None),
+        "transaction_id": getattr(connection, "_write_transaction_id", None),
+        "phase": str(phase),
+        "write_lane_owned": bool(getattr(connection, "_holds_write_lock", False)),
+        "transaction_open": bool(connection.in_transaction),
+        **fields,
+    }
+    try:
+        os.makedirs(os.path.dirname(_TOKEN_PREDICTION_SQL_DIAGNOSTICS_PATH), exist_ok=True)
+        with _CF_SQL_DIAGNOSTICS_LOCK:
+            with open(_TOKEN_PREDICTION_SQL_DIAGNOSTICS_PATH, "a", encoding="utf-8") as handle:
+                handle.write(json.dumps(payload, sort_keys=True, default=str) + "\n")
+    except Exception:
+        pass
+    lease = getattr(connection, "_cross_process_lease", None)
+    if lease is not None:
+        try:
+            from src.core.database_write_service import update_write_lease_diagnostics
+            update_write_lease_diagnostics(
+                lease,
+                current_phase=str(phase) if event == "start" else None,
+                current_phase_started_at=payload["timestamp"] if event == "start" else None,
+            )
+        except Exception:
+            pass
+
+
+def _cf_statement_start(connection, sql, *, many: bool = False) -> dict | None:
+    if not _cf_sql_diagnostics_enabled(connection):
+        return None
+    operation, fingerprint, preview = _normalized_sql(sql)
+    statement_id = str(uuid.uuid4())
+    payload = {
+        "event": "statement_start", "timestamp": time.time(),
+        "pid": os.getpid(), "thread": threading.current_thread().name,
+        "connection_id": getattr(connection, "_db_connection_id", None),
+        "transaction_id": getattr(connection, "_write_transaction_id", None),
+        "statement_id": statement_id, "operation": operation,
+        "fingerprint": fingerprint, "sql": preview, "executemany": many,
+        "write_lane_owned": bool(getattr(connection, "_holds_write_lock", False)),
+        "transaction_open": bool(connection.in_transaction),
+    }
+    _append_cf_sql_diagnostic(payload, connection)
+    lease = getattr(connection, "_cross_process_lease", None)
+    if lease is not None:
+        try:
+            from src.core.database_write_service import update_write_lease_diagnostics
+            update_write_lease_diagnostics(
+                lease, current_statement_id=statement_id,
+                current_sql_operation=operation, current_sql_fingerprint=fingerprint,
+                current_sql_preview=preview,
+                current_statement_started_at=payload["timestamp"],
+            )
+        except Exception:
+            pass
+    return {"payload": payload, "started": time.monotonic()}
+
+
+def _cf_statement_end(connection, state: dict | None, *, success: bool, rowcount=None) -> None:
+    if state is None:
+        return
+    payload = dict(state["payload"])
+    payload.update({
+        "event": "statement_end", "ended_at": time.time(),
+        "duration_ms": round((time.monotonic() - state["started"]) * 1000.0, 3),
+        "success": bool(success), "rowcount": rowcount,
+        "write_lane_owned": bool(getattr(connection, "_holds_write_lock", False)),
+        "transaction_open": bool(connection.in_transaction),
+    })
+    _append_cf_sql_diagnostic(payload, connection)
+    lease = getattr(connection, "_cross_process_lease", None)
+    if lease is not None:
+        try:
+            from src.core.database_write_service import update_write_lease_diagnostics
+            update_write_lease_diagnostics(
+                lease, current_statement_id=None, current_sql_operation=None,
+                current_sql_fingerprint=None, current_sql_preview=None,
+                current_statement_started_at=None,
+                last_statement_duration_ms=payload["duration_ms"],
+            )
+        except Exception:
+            pass
+
 
 def _is_write_sql(sql) -> bool:
     try:
@@ -250,9 +458,17 @@ class TrackedCursor(sqlite3.Cursor):
         is_write = _DB_WRITE_SERIALIZE and _is_write_sql(sql)
         if is_write:
             self.connection._acquire_write_lane()
+        diagnostic = _cf_statement_start(self.connection, sql)
+        success = False
         try:
-            return super().execute(sql, parameters)
+            result = super().execute(sql, parameters)
+            success = True
+            return result
         finally:
+            _cf_statement_end(
+                self.connection, diagnostic, success=success,
+                rowcount=getattr(self, "rowcount", None),
+            )
             # PRAGMA and no-op DDL may complete without opening a SQLite
             # transaction.  In that case commit() will never be responsible
             # for releasing the lane, so retaining it poisons the thread-local
@@ -264,7 +480,17 @@ class TrackedCursor(sqlite3.Cursor):
     def executemany(self, sql, parameters):
         if _DB_WRITE_SERIALIZE and _is_write_sql(sql):
             self.connection._acquire_write_lane()
-        return super().executemany(sql, parameters)
+        diagnostic = _cf_statement_start(self.connection, sql, many=True)
+        success = False
+        try:
+            result = super().executemany(sql, parameters)
+            success = True
+            return result
+        finally:
+            _cf_statement_end(
+                self.connection, diagnostic, success=success,
+                rowcount=getattr(self, "rowcount", None),
+            )
 
 
 class TrackedConnection(sqlite3.Connection):
@@ -428,13 +654,21 @@ class TrackedConnection(sqlite3.Connection):
         is_write = _DB_WRITE_SERIALIZE and _is_write_sql(sql)
         if is_write:
             self._acquire_write_lane()
+        diagnostic = _cf_statement_start(self, sql)
+        success = False
         try:
-            return super().execute(sql, parameters)
+            result = super().execute(sql, parameters)
+            success = True
+            return result
         except sqlite3.OperationalError as e:
             if "locked" in str(e).lower():
                 record_lock_error(getattr(self, "_db_caller", None))
             raise
         finally:
+            _cf_statement_end(
+                self, diagnostic, success=success,
+                rowcount=None,
+            )
             if is_write and not self.in_transaction:
                 self._release_write_lane()
 
@@ -451,12 +685,18 @@ class TrackedConnection(sqlite3.Connection):
     def executemany(self, sql, parameters):
         if _DB_WRITE_SERIALIZE and _is_write_sql(sql):
             self._acquire_write_lane()
+        diagnostic = _cf_statement_start(self, sql, many=True)
+        success = False
         try:
-            return super().executemany(sql, parameters)
+            result = super().executemany(sql, parameters)
+            success = True
+            return result
         except sqlite3.OperationalError as e:
             if "locked" in str(e).lower():
                 record_lock_error(getattr(self, "_db_caller", None))
             raise
+        finally:
+            _cf_statement_end(self, diagnostic, success=success, rowcount=None)
 
     def commit(self):
         # Acquire the lane at commit too: writes done via cursor.execute() (not conn.execute)
@@ -488,9 +728,83 @@ class TrackedConnection(sqlite3.Connection):
             self._release_write_lane()
 
     def close(self):
+        # SQLite's native connection is thread-affine.  A foreign-thread
+        # reaper must not release the serializer/flock first and only then
+        # discover that native close is illegal: that leaves an open native
+        # connection but clears its ownership diagnostics.  Preserve the
+        # resource and registry for cooperative owner-thread cleanup.
+        owner_thread_id = getattr(self, "_db_owner_thread_id", None)
+        if owner_thread_id is not None and owner_thread_id != threading.get_ident():
+            tracking_id = getattr(self, "_db_tracking_id", None)
+            with _open_connections_lock:
+                record = _open_connections.get(tracking_id) if tracking_id is not None else None
+                if record is not None:
+                    record["native_close_state"] = "CLOSE_FAILED_WRONG_THREAD"
+                    record["close_requested_at"] = time.time()
+                    record["close_request_thread_id"] = threading.get_ident()
+            exc = sqlite3.ProgrammingError(
+                "SQLite objects created in a thread can only be used in that same thread"
+            )
+            _append_connection_lifecycle({
+                "event": "close_failed",
+                "native_close_state": "CLOSE_FAILED_WRONG_THREAD",
+                "connection_id": record.get("connection_id") if record else None,
+                "pid": os.getpid(),
+                "owner_thread_id": owner_thread_id,
+                "thread_id": threading.get_ident(),
+                "thread": threading.current_thread().name,
+                "write_lane_owned": bool(getattr(self, "_holds_write_lock", False)),
+                "error_type": type(exc).__name__,
+                "error": str(exc),
+                "timestamp": time.time(),
+            })
+            raise exc
         # release the write lane if a transaction was abandoned without commit/rollback
-        self._release_write_lane()
+        close_caller = None
+        if _connection_diagnostics_path():
+            close_frame = inspect.stack()[1]
+            close_caller = (
+                f"{close_frame.filename.split('/')[-1]}:{close_frame.lineno} "
+                f"in {close_frame.function}"
+            )
+        try:
+            transaction_open = bool(self.in_transaction)
+        except sqlite3.ProgrammingError:
+            # sqlite3 close is idempotent.  Preserve that production contract
+            # when another cleanup path (notably the diagnostic reaper) got
+            # there first.
+            transaction_open = False
+        write_lane_owned = bool(getattr(self, "_holds_write_lock", False))
         tracking_id = getattr(self, "_db_tracking_id", None)
+        record = None
+        if tracking_id is not None:
+            with _open_connections_lock:
+                record = _open_connections.get(tracking_id)
+        self._release_write_lane()
+        try:
+            result = super().close()
+        except Exception as exc:
+            _append_connection_lifecycle({
+                "event": "close_failed",
+                "connection_id": record.get("connection_id") if record else None,
+                "pid": os.getpid(),
+                "thread_id": threading.get_ident(),
+                "thread": threading.current_thread().name,
+                "close_caller": close_caller,
+                "age_ms": round(
+                    (time.time() - record["opened_at"]) * 1000.0, 3
+                ) if record else None,
+                "transaction_open": transaction_open,
+                "write_lane_owned": write_lane_owned,
+                "error_type": type(exc).__name__,
+                "error": str(exc)[:500],
+                "timestamp": time.time(),
+            })
+            # Keep the registry entry: the native connection did not close.
+            if record is not None:
+                with _open_connections_lock:
+                    record["native_close_state"] = "CLOSE_FAILED"
+            raise
         if tracking_id is not None:
             with _open_connections_lock:
                 _open_connections.pop(tracking_id, None)
@@ -498,7 +812,22 @@ class TrackedConnection(sqlite3.Connection):
                 self._db_tracking_id = None
             except Exception:
                 pass
-        return super().close()
+        _append_connection_lifecycle({
+            "event": "close",
+            "native_close_state": "CLOSED",
+            "connection_id": record.get("connection_id") if record else None,
+            "pid": os.getpid(),
+            "thread_id": threading.get_ident(),
+            "thread": threading.current_thread().name,
+            "close_caller": close_caller,
+            "age_ms": round(
+                (time.time() - record["opened_at"]) * 1000.0, 3
+            ) if record else None,
+            "transaction_open": transaction_open,
+            "write_lane_owned": write_lane_owned,
+            "timestamp": time.time(),
+        })
+        return result
 
     def __enter__(self):
         return self
@@ -514,23 +843,51 @@ class TrackedConnection(sqlite3.Connection):
         return False
 
 
-def _register_connection(conn: sqlite3.Connection, path: str, caller: str) -> None:
+def _register_connection(
+    conn: sqlite3.Connection, path: str, caller: str, *, read_only: bool = False
+) -> None:
     global _reaper_db_path
     tracking_id = id(conn)
     try:
         conn._db_tracking_id = tracking_id
+        conn._db_owner_thread_id = threading.get_ident()
     except Exception:
         return
     if _reaper_db_path is None:
         _reaper_db_path = path
+    connection_id = str(uuid.uuid4())
+    task_id, task_name = _async_task_identity()
+    mode = "read_only" if read_only else "read_write"
+    record = {
+        "connection_id": connection_id,
+        "path": path,
+        "caller": caller,
+        "purpose": _connection_purpose(caller),
+        "mode": mode,
+        "opened_at": time.time(),
+        "thread_id": threading.get_ident(),
+        "thread": threading.current_thread().name,
+        "task_id": task_id,
+        "task_name": task_name,
+        "stack_fingerprint": caller,
+        "native_close_state": "OPEN",
+        "conn_ref": weakref.ref(conn),
+    }
+    record["lifecycle_intent"] = _connection_lifecycle_intent(record["purpose"])
+    try:
+        conn._db_connection_id = connection_id
+    except Exception:
+        pass
     with _open_connections_lock:
         _open_connections[tracking_id] = {
-            "path": path,
-            "caller": caller,
-            "opened_at": time.time(),
-            "thread": threading.current_thread().name,
-            "conn_ref": weakref.ref(conn),
+            **record,
         }
+    _append_connection_lifecycle({
+        "event": "open",
+        **{key: value for key, value in record.items() if key != "conn_ref"},
+        "pid": os.getpid(),
+        "timestamp": record["opened_at"],
+    })
 
 
 def get_open_connection_summary(limit: int = 25) -> dict:
@@ -540,19 +897,63 @@ def get_open_connection_summary(limit: int = 25) -> dict:
         records = list(_open_connections.values())
     by_caller = Counter(record["caller"] for record in records)
     by_thread = Counter(record["thread"] for record in records)
+    by_purpose = Counter(record.get("purpose", "unknown") for record in records)
     oldest = sorted(records, key=lambda record: record["opened_at"])[:limit]
+    def _open_state(record: dict) -> tuple[bool, bool]:
+        connection = record["conn_ref"]()
+        if connection is None:
+            return False, False
+        try:
+            return bool(connection.in_transaction), bool(
+                getattr(connection, "_holds_write_lock", False)
+            )
+        except Exception:
+            return False, False
+
     return {
         "open_count": len(records),
         "by_caller": by_caller.most_common(limit),
         "by_thread": by_thread.most_common(limit),
+        "by_purpose": by_purpose.most_common(limit),
         "oldest": [
-            {
-                **record,
+            dict({
+                **{key: value for key, value in record.items() if key != "conn_ref"},
                 "age_seconds": round(now - record["opened_at"], 1),
-            }
+            }, **dict(zip(("transaction_open", "write_lane_owned"), _open_state(record))))
             for record in oldest
         ],
     }
+
+
+def record_connection_snapshot(*, primary_fd_count: int, extra: Optional[dict] = None) -> dict:
+    """Persist one bounded process-local registry/OS-FD correlation sample."""
+    global _last_snapshot_connection_ids
+    summary = get_open_connection_summary(limit=100)
+    current_ids = {row["connection_id"] for row in summary["oldest"]}
+    ages = [float(row["age_seconds"]) for row in summary["oldest"]]
+    event = {
+        "event": "snapshot",
+        "pid": os.getpid(),
+        "timestamp": time.time(),
+        "primary_fd_count": int(primary_fd_count),
+        "registry_count": summary["open_count"],
+        "registry_fd_delta": int(primary_fd_count) - summary["open_count"],
+        "by_caller": summary["by_caller"],
+        "by_thread": summary["by_thread"],
+        "by_purpose": summary["by_purpose"],
+        "oldest": summary["oldest"],
+        "connection_ids": sorted(current_ids),
+        "new_connection_ids": sorted(current_ids - _last_snapshot_connection_ids),
+        "closed_connection_ids": sorted(_last_snapshot_connection_ids - current_ids),
+        "age_buckets": {
+            f"gt_{threshold}s": sum(1 for age in ages if age > threshold)
+            for threshold in (1, 5, 15, 30, 60, 180)
+        },
+        "extra": extra or {},
+    }
+    _last_snapshot_connection_ids = current_ids
+    _append_connection_lifecycle(event)
+    return event
 
 
 def db_connect(path: str, timeout: int = 30, row_factory=None,
@@ -606,7 +1007,7 @@ def db_connect(path: str, timeout: int = 30, row_factory=None,
             conn.execute("PRAGMA busy_timeout=%d" % int(timeout * 1000))
             if row_factory is not None:
                 conn.row_factory = row_factory
-            _register_connection(conn, path, caller)
+            _register_connection(conn, path, caller, read_only=True)
             try:
                 conn._db_caller = caller
                 conn._read_only = True   # lets callers skip write-only setup
@@ -763,6 +1164,12 @@ def _reap_stale_connections() -> int:
         caller = record.get("caller", "unknown")
         if conn is not None:
             try:
+                # A connection waiting for or holding the serialized write
+                # lane is active even before SQLite reports in_transaction.
+                # Reaping it from this foreign thread cannot be safe and was
+                # the source of repeated CLOSE_FAILED_WRONG_THREAD events.
+                if bool(getattr(conn, "_holds_write_lock", False)):
+                    continue
                 if conn.in_transaction:
                     # Active write — normally leave it alone. But a transaction held
                     # this long is abandoned (the WAL-hang failure mode), not active:

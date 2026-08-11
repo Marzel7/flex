@@ -1,0 +1,9 @@
+{
+  "milestone": "X78.41 — Outgoing Transfer Durable Ownership & Completeness",
+  "baseline_revision": "cb1fc110e105436c4baa9fe15f956628f80db3ce",
+  "prior_evidence": "X78.35 mapped outgoing transfer scanning as part of the Creator Funding completion barrier and found no atomic durable handoff/completeness/recomputation contract.",
+  "current_status": {"outgoing_ownership": "synchronous within Creator Funding", "durable_outgoing_obligation": false, "pending_state_for_consumers": false, "consumer_completeness_audit": "not complete"},
+  "implementation": "none",
+  "advancement_gate": {"verdict": "BLOCKED", "reason": "Required outgoing work can neither be durably handed off nor represented as pending to all consumers. Separating it would permit missing outgoing evidence to look negative."},
+  "invariants": {"outgoing_completion_barrier": "preserved", "watchtower_semantics_changed": false, "discovery_semantics_changed": false, "rpc_ceiling": 8}
+}

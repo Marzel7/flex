@@ -1,0 +1,91 @@
+{
+  "milestone": "OIP v2.2E.0A — Reproducible Deployment Baseline Consolidation",
+  "parent_head": "cb1fc110e105436c4baa9fe15f956628f80db3ce",
+  "capture": {
+    "working_tree_entries": 141,
+    "tracked_diff_stat": "27 files changed, 2572 insertions(+), 531 deletions(-)",
+    "production_pids": {
+      "creator_funding_worker": 37231,
+      "creator_resolution_worker": 25512,
+      "watchtower_listener": 25475,
+      "watchtower_api": 77110,
+      "intelligence_snapshot_scheduler": 41768
+    },
+    "frozen_configuration": {
+      "extraction_slots": 2,
+      "rpc_ceiling": 8,
+      "history_reuse": "DISABLED",
+      "outgoing": "synchronous",
+      "evidence_flags": "all OFF"
+    },
+    "qualification_artifacts": {
+      "x78_40": {"path": "docs/audits/x78_40_qualification.json", "sha256": "d7c6b5f1072764caeb6ece54d02b171a03af770f54a368c66d1288c26b57e23e"},
+      "x78_44": {"path": "docs/audits/x78_44_e_series_release_gate.json", "sha256": "efe547d9b3440ff3702d65fb79a4a01faaf67a56ea05e142e449e37cd226a0d2"},
+      "oip_v2_2e0": {"path": "docs/evidence_platform/oip_v2_2e0_requalification.json", "sha256": "18f030a7ce08ca1ff06902301e156862df9326d75b7083da29cf8f8cf49c9258"}
+    }
+  },
+  "classification": {
+    "A_REQUIRED_DEPLOYED_X78": [
+      "config/supervisor/supervisord.conf",
+      "run_listener.sh",
+      "src/core/{creator_funding_worker,creator_resolution_queue,creator_resolution_worker,database_write_service,infra_sync_scheduler,main,network_membership_builder,price_worker,pumpfun_curve_listener,second_hop_builder,token_prediction_builder}.py",
+      "src/extractors/realtime_creator_funding_extractor.py",
+      "src/ops/{mission_control_capabilities,operator_identity_governance}.py",
+      "src/utils/{db_locking,infra_mapping}.py",
+      "templates/{partials/sidebar,system_health_dashboard}.html",
+      "src/core/{creator_funding_lifecycle,creator_history_coverage,creator_history_overlap}.py"
+    ],
+    "B_REQUIRED_EVIDENCE_OIP_IMPLEMENTATION": [
+      "Existing tracked src/evidence and src/acquisition implementation is already at parent baseline; no uncommitted Evidence source file is staged.",
+      "docs/evidence_platform/oip_v2_2e0_{production_authority_readiness,readiness_checkpoint,requalification}.json/.md"
+    ],
+    "C_TEST_AUDIT_QUALIFICATION": [
+      "tests/test_x78_*.py listed by the staged pathspec",
+      "scripts/qualify_x78_{34,35a,38a1,38a2,40}.py",
+      "docs/audits/x78_*.json/.md",
+      "docs/audits/oip_v2_2e_phase1_preflight.json",
+      "docs/audits/oip_v2_2e_0a_deployment_baseline.json"
+    ],
+    "D_DOCUMENTATION": [],
+    "E_GENERATED_RUNTIME_EXCLUDED": [
+      "docs/.DS_Store",
+      "operation_scheduler.lock",
+      "database/*.write.lock.owner.guard",
+      "database/infra_sync_scheduler.lock",
+      "flex_complete_database.db.write.lock.owner.guard"
+    ],
+    "F_SECRETS_LOCAL_CONFIG_EXCLUDED": [
+      ".env and all credentials are excluded; no secret is staged"
+    ],
+    "G_UNRELATED_USER_WORK_EXCLUDED": [
+      "docs/audits/eb0_*",
+      "scripts/audit_eb0_*",
+      "src/core/pumpportal_birth_audit.py",
+      "tests/test_eb0_*",
+      "docs/audits/x67_*",
+      "docs/audits/mc1_*"
+    ],
+    "H_UNKNOWN_EXCLUDED": [
+      ".agents/",
+      "skills-lock.json"
+    ]
+  },
+  "deployed_tested_mapping": {
+    "creator_funding_worker": "PID 37231; source included; X78 lifecycle/accounting/capacity tests passed",
+    "creator_resolution_worker": "PID 25512; source included; queue/freshness/read-boundary tests passed",
+    "pumpfun_listener": "PID 25475; source included; production path preserved; not restarted",
+    "db_locking_checkpoint": "source included; checkpoint isolation tests passed",
+    "shared_acquisition": "tracked baseline retained; shared acquisition/mirror contract tests passed",
+    "evidence_flags": "all OFF; no Evidence process is introduced by this baseline commit"
+  },
+  "test_results": {
+    "x78_release_gate_focused": "81 passed",
+    "evidence_contract_boundaries": "71 passed"
+  },
+  "runtime_exclusions": "No database, WAL, SHM, queue, spool, log, PID, lock, credential, or local agent state is included.",
+  "deferred_work": [
+    "Phase 1 supervised Evidence activation remains dormant/HOLD",
+    "EB market-data research remains separate",
+    "X78 outgoing separation and deterministic history reuse remain deferred"
+  }
+}

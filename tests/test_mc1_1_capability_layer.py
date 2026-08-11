@@ -231,14 +231,17 @@ def test_independent_concurrent_capability_failures_remain_separate_incidents():
     assert capabilities_with_incidents == {"live_ingestion", "infrastructure"}
 
 
-def test_price_tracking_peak_only_is_not_alarming():
-    """MC1.0 Section 3: PEAK-ONLY is an intentionally-degraded,
-    non-alarming state and must not classify as WARNING/CRITICAL."""
+def test_decommissioned_price_tracking_is_not_a_capability_or_incident():
+    """X78.26: intentional retirement is absent, not unhealthy."""
     subsystems = _healthy_subsystems()
-    subsystems["price_worker"]["status"] = "PEAK-ONLY"
+    subsystems["price_worker"]["status"] = "DOWN"
 
     caps = mc.compute_capabilities(subsystems)
-    assert caps["price_tracking"]["status"] == "HEALTHY"
+    assert "price_tracking" not in caps
+    assert all(
+        row["capability"] != "price_tracking"
+        for row in mc.compute_incidents(caps)
+    )
 
 
 def test_incident_first_detected_at_persists_across_polls_until_recovery():
@@ -639,7 +642,7 @@ def test_compute_capabilities_attaches_trend_to_every_capability():
     assert "births" in caps["live_ingestion"]["trend"]
     assert "migrations" in caps["live_ingestion"]["trend"]
 
-    for name in ("creator_funding", "operational_intelligence", "watchtower", "infrastructure", "price_tracking"):
+    for name in ("creator_funding", "operational_intelligence", "watchtower", "infrastructure"):
         assert "trend" in caps[name]
         assert "direction" in caps[name]["trend"]
 

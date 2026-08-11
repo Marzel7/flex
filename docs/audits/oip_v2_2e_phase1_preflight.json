@@ -1,0 +1,73 @@
+{
+  "milestone": "OIP v2.2E — Controlled Production Migration Preflight, Phase 1",
+  "mode": "preflight stopped before activation",
+  "decision": "HOLD",
+  "blocker": {
+    "title": "BLOCKED — DEPLOYMENT BASELINE NOT REPRODUCIBLE",
+    "subsystem": "Production deployment / supervised Evidence writer introduction",
+    "evidence": {
+      "git_head": "cb1fc110e105436c4baa9fe15f956628f80db3ce",
+      "working_tree_entries": 141,
+      "tracked_diff_stat": "27 files changed, 2572 insertions(+), 531 deletions(-)",
+      "relevant_uncommitted_paths": [
+        "config/supervisor/supervisord.conf",
+        "src/core/creator_funding_worker.py",
+        "src/core/creator_resolution_worker.py",
+        "src/core/pumpfun_curve_listener.py",
+        "src/extractors/realtime_creator_funding_extractor.py",
+        "src/utils/db_locking.py",
+        "src/evidence and X78 audit/tooling paths"
+      ],
+      "supervised_evidence_writer": "Not configured",
+      "production_evidence_db": "database/evidence_platform/evidence.db is absent",
+      "evidence_flags": "All OFF",
+      "running_services": {
+        "creator_funding_worker": {"pid": 37231, "status": "RUNNING"},
+        "creator_resolution_worker": {"pid": 25512, "status": "RUNNING"},
+        "watchtower_listener": {"pid": 25475, "status": "RUNNING"},
+        "watchtower_api": {"pid": 77110, "status": "RUNNING"},
+        "intelligence_snapshot_scheduler": {"pid": 41768, "status": "RUNNING"}
+      }
+    },
+    "next_e_impact": "Phase 1 requires an Evidence writer service/config deployment. Restarting or adding supervision against a large uncommitted baseline would make the writer and current production implementation non-reproducible, invalidating rollback and equivalence evidence.",
+    "minimum_remediation": "Create a reviewed consolidation commit/tag that captures the currently tested X78/OIP implementation and Supervisor configuration; record the deployed revision. Re-run this Phase 1 preflight before enabling any Evidence flag or writer."
+  },
+  "frozen_healthy_baseline": {
+    "x78_44": "E-Series released; no X78 correctness, stability, or observed LIVE-capacity blocker",
+    "x78_40": "Qualified clean/reconciled 69m42s window; two slots sufficient for observed LIVE demand",
+    "oip_v2_2e0": "Ready for canonical v2.2E Phase 1 precheck, but Evidence remains intentionally dormant"
+  },
+  "not_performed": [
+    "No Evidence DB/schema was created",
+    "No Evidence writer was added or restarted",
+    "No Evidence feature flag was enabled",
+    "No cohort was selected or mirrored",
+    "No production/Evidence equivalence comparison was attempted",
+    "No production RPC, database, queue, Creator Funding, listener, or governance behaviour was changed"
+  ],
+  "required_phase_1_artifacts": {
+    "cohort": "NOT_CREATED — activation did not begin",
+    "equivalence": "NOT_CREATED — activation did not begin",
+    "load": "NOT_CREATED — activation did not begin"
+  },
+  "tests": {
+    "prior_evidence_contract_boundaries": "71 passed",
+    "prior_x78_release_gate": "81 passed",
+    "phase_1_live_tests": "Not run: blocked before a reproducible deployment baseline existed"
+  },
+  "final_verdicts": {
+    "production_evidence_authority": "D — FAILED (not configured; Phase 1 has not established it)",
+    "writer_supervision": "D — FAILED (not configured)",
+    "fail_open_isolation": "B — PROVEN_BY_PRIOR_CONTRACT_TESTS_ONLY; no live activation performed",
+    "production_to_evidence_equivalence": "D — NOT_PROVEN",
+    "silent_loss": "D — NOT_PROVEN",
+    "replay_idempotency": "A — DETERMINISTIC in prior contract tests",
+    "rpc_isolation": "A — ZERO_ADDITIONAL_ACQUISITION in dormant state",
+    "production_db_impact": "A — NEGLIGIBLE in dormant state",
+    "evidence_backlog": "A — DRAINED_OR_BOUNDED (no live intake)",
+    "production_health": "B — HEALTHY_WITH_MINOR_RESIDUAL",
+    "phase_1": "HOLD",
+    "evidence_activation": "HOLD_BROAD_ACTIVATION",
+    "acquisition": "HOLD_ACQUISITION"
+  }
+}

@@ -1,0 +1,141 @@
+{
+  "milestone": "X78.38A1",
+  "mode": "shadow_only",
+  "provider": "helius_enhanced_addresses_transactions",
+  "request_budget": 9,
+  "requests_issued": 9,
+  "rows": [
+    {
+      "classification": "CONTIGUOUS_PROVEN",
+      "creator": "bwamJzztZsepfkteWRChggmXuiiCQvpLqPietdNfSXa",
+      "first": {
+        "artifact": {
+          "bytes": 758456,
+          "path": "docs/audits/x78_38a1_provider_artifacts/c35310f4ffc89691c221a982be4d4cc7ce2b21a14c9684515c02495450c414cb.json.gz",
+          "sha256": "c35310f4ffc89691c221a982be4d4cc7ce2b21a14c9684515c02495450c414cb"
+        },
+        "count": 100,
+        "status": 200
+      },
+      "ordinary": {
+        "artifact": {
+          "bytes": 888270,
+          "path": "docs/audits/x78_38a1_provider_artifacts/bc42a2c6a3c794545dba2a854dd346e9ed8454835c6b622bca73cdd7bdf28dc3.json.gz",
+          "sha256": "bc42a2c6a3c794545dba2a854dd346e9ed8454835c6b622bca73cdd7bdf28dc3"
+        },
+        "count": 100,
+        "status": 200
+      },
+      "overlap": {
+        "artifact": {
+          "bytes": 897773,
+          "path": "docs/audits/x78_38a1_provider_artifacts/048d301025b683e8ffd8b458803705cea6842c52cad17091f9d60c4e5748e9da.json.gz",
+          "sha256": "048d301025b683e8ffd8b458803705cea6842c52cad17091f9d60c4e5748e9da"
+        },
+        "count": 100,
+        "status": 200
+      },
+      "protocol": {
+        "before_signature": "2UVAMMvMWXtRgfD7Ve6YaByDRFD7A8t6d73pXDzpzhtJCZpK23HbFeu32x6fYeeZnue3kxMsBA7w8JmvJUSyDsMs",
+        "expected_overlap_signature": "joCnkqRhsqxbxFKgpAs3zHhq2GCg9N7tL7XU97GNEX49QuznF1TxURe7ojdnGCTd4XEg5Q57qakmeZ9eRY5dLaa",
+        "expected_overlap_slot": 438526817,
+        "verdict": {
+          "contiguous": true,
+          "duplicate_signatures": 0,
+          "gap": false,
+          "overlap_signature": "joCnkqRhsqxbxFKgpAs3zHhq2GCg9N7tL7XU97GNEX49QuznF1TxURe7ojdnGCTd4XEg5Q57qakmeZ9eRY5dLaa",
+          "overlap_slot": 438526817,
+          "reason": "ordered_signature_overlap"
+        }
+      }
+    },
+    {
+      "classification": "EXPECTED_OVERLAP_NOT_FIRST_RESULT",
+      "creator": "Gygj9QQby4j2jryqyqBHvLP7ctv2SaANgh4sCb69BUpA",
+      "first": {
+        "artifact": {
+          "bytes": 787799,
+          "path": "docs/audits/x78_38a1_provider_artifacts/7929565477ccf06d9f0d6e745f2a801bd37734d1124210d53dd066d96a791c55.json.gz",
+          "sha256": "7929565477ccf06d9f0d6e745f2a801bd37734d1124210d53dd066d96a791c55"
+        },
+        "count": 100,
+        "status": 200
+      },
+      "ordinary": {
+        "artifact": {
+          "bytes": 789325,
+          "path": "docs/audits/x78_38a1_provider_artifacts/670d5c327b24766c321f2d4c9b25d2f8b4f4bac9809ad7ffb1a0f9b86791b3be.json.gz",
+          "sha256": "670d5c327b24766c321f2d4c9b25d2f8b4f4bac9809ad7ffb1a0f9b86791b3be"
+        },
+        "count": 100,
+        "status": 200
+      },
+      "overlap": {
+        "artifact": {
+          "bytes": 788589,
+          "path": "docs/audits/x78_38a1_provider_artifacts/cfe0eb55695322f082a8911841524c56553e9a8ec553526bcd4a9475885064b9.json.gz",
+          "sha256": "cfe0eb55695322f082a8911841524c56553e9a8ec553526bcd4a9475885064b9"
+        },
+        "count": 100,
+        "status": 200
+      },
+      "protocol": {
+        "before_signature": "4HuJ6TBxVuqzy8b2KW72uGturp5sX4EKngyDqwTpTKE83j1upPoW72wbkfGzbztWdt4zyCN2So66BMWTxYV9e2Sw",
+        "expected_overlap_signature": "wuSjmqyhFP1dn4zw9urQy3raCfagsBcRTQ44aeaX51AeS2N4JQeQuMiyDvzjMFeyEuug8kH6xVHwdBuNzgyn1wd",
+        "expected_overlap_slot": 438549064,
+        "verdict": {
+          "contiguous": false,
+          "duplicate_signatures": 0,
+          "gap": true,
+          "overlap_signature": "3CEeBsKEMWZm465Acy4fF6HwaRAgfpXjYgQQ7BRatVme3xqkF2dPDUcdo3pUuQXcRJtj6aRuZGnhEnUE17w2J4jS",
+          "overlap_slot": 438549064,
+          "reason": "expected_overlap_not_first_result"
+        }
+      }
+    },
+    {
+      "classification": "CONTIGUOUS_PROVEN",
+      "creator": "3ct4z3q2XHEGTb4Noe3Wh5iySA8e5UZawUXkWAnkfh5J",
+      "first": {
+        "artifact": {
+          "bytes": 766350,
+          "path": "docs/audits/x78_38a1_provider_artifacts/449c6af3aeb8808b6143751cbceb2efd90b542c26b7614280725193d236df1f6.json.gz",
+          "sha256": "449c6af3aeb8808b6143751cbceb2efd90b542c26b7614280725193d236df1f6"
+        },
+        "count": 100,
+        "status": 200
+      },
+      "ordinary": {
+        "artifact": {
+          "bytes": 562325,
+          "path": "docs/audits/x78_38a1_provider_artifacts/f951779c35a950d798f96fc79360cbd97025f1c99c993c3202b4e8c7b6988462.json.gz",
+          "sha256": "f951779c35a950d798f96fc79360cbd97025f1c99c993c3202b4e8c7b6988462"
+        },
+        "count": 100,
+        "status": 200
+      },
+      "overlap": {
+        "artifact": {
+          "bytes": 564300,
+          "path": "docs/audits/x78_38a1_provider_artifacts/38d54906db176f18b2b315c20af3a099c6f020145573f74329fab0c3825547fd.json.gz",
+          "sha256": "38d54906db176f18b2b315c20af3a099c6f020145573f74329fab0c3825547fd"
+        },
+        "count": 100,
+        "status": 200
+      },
+      "protocol": {
+        "before_signature": "3NAYvhzWra4rhWrZ18gQJynsy4Msrn1C4xTRFCC4xiRAAqRdPtVfmwkAWn5JwEx3eJewJB5rAyfWVNgfedfNp4ay",
+        "expected_overlap_signature": "3VMm9HVZCRHaBiUAFoxchUz6g461Fg7yxBmdHbSiQZzBD2A3Bwv2ekjjc1TEcfsNmrhiEZcrtnAMQHiL7SU1eebv",
+        "expected_overlap_slot": 438549070,
+        "verdict": {
+          "contiguous": true,
+          "duplicate_signatures": 0,
+          "gap": false,
+          "overlap_signature": "3VMm9HVZCRHaBiUAFoxchUz6g461Fg7yxBmdHbSiQZzBD2A3Bwv2ekjjc1TEcfsNmrhiEZcrtnAMQHiL7SU1eebv",
+          "overlap_slot": 438549070,
+          "reason": "ordered_signature_overlap"
+        }
+      }
+    }
+  ]
+}

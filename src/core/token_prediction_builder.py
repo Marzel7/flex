@@ -14,7 +14,7 @@ import json
 import logging
 import os
 import sqlite3
-from src.utils.db_locking import db_connect
+from src.utils.db_locking import db_connect, record_token_prediction_phase
 import time
 from collections import defaultdict
 from dataclasses import dataclass, field
@@ -396,7 +396,7 @@ class TokenPredictionBuilder:
                     c = db_connect(self.db_path, timeout=30)
                     c.row_factory = sqlite3.Row
                     c.execute("PRAGMA journal_mode=WAL")
-                    self._resolve_outcomes(c)
+                    self._resolve_outcomes(c, commit_batches=True)
                     c.commit()
                 except Exception as e:
                     logger.warning(f"[PREDICTION] outcome check failed for {m[:16]}: {e}")
@@ -1361,9 +1361,17 @@ class TokenPredictionBuilder:
             for s in to_insert
         ])
 
-    def _resolve_outcomes(self, conn: sqlite3.Connection) -> None:
+    def _resolve_outcomes(
+        self,
+        conn: sqlite3.Connection,
+        *,
+        commit_batches: bool = False,
+        batch_size: int = 200,
+    ) -> None:
         """Resolve outcomes for tokens that have enough data to judge."""
         now = int(time.time())
+        phase_started = time.monotonic()
+        record_token_prediction_phase(conn, "outcome_source_load", "start")
         rows = conn.execute("""
             SELECT
                 tps.mint, tps.prediction_score, tps.prediction_label, tps.risk_level,
@@ -1386,7 +1394,14 @@ class TokenPredictionBuilder:
                   WHERE event_type IN ('BIRTH', 'MIGRATED')
               )
         """).fetchall()
+        record_token_prediction_phase(
+            conn, "outcome_source_load", "end",
+            duration_ms=round((time.monotonic() - phase_started) * 1000.0, 3),
+            rows_read=len(rows),
+        )
 
+        phase_started = time.monotonic()
+        record_token_prediction_phase(conn, "outcome_materialization", "start", rows_read=len(rows))
         outcomes = []
         for r in rows:
             migrated_at = r["migrated_at"]
@@ -1458,8 +1473,14 @@ class TokenPredictionBuilder:
                 peak_mc, current_mc, correct, now,
             ))
 
+        record_token_prediction_phase(
+            conn, "outcome_materialization", "end",
+            duration_ms=round((time.monotonic() - phase_started) * 1000.0, 3),
+            output_count=len(outcomes),
+        )
+
         if outcomes:
-            conn.executemany("""
+            sql = """
                 INSERT INTO token_prediction_outcomes (
                     mint, prediction_score, prediction_label, predicted_risk_level,
                     actual_outcome, actual_g_level,
@@ -1478,7 +1499,26 @@ class TokenPredictionBuilder:
                     final_market_cap=excluded.final_market_cap,
                     prediction_correct=excluded.prediction_correct,
                     resolved_at=excluded.resolved_at
-            """, outcomes)
+            """
+            batches = (
+                [outcomes]
+                if not commit_batches
+                else [outcomes[i:i + max(1, batch_size)] for i in range(0, len(outcomes), max(1, batch_size))]
+            )
+            for batch_number, batch in enumerate(batches, start=1):
+                phase_started = time.monotonic()
+                record_token_prediction_phase(
+                    conn, "outcome_persistence", "start",
+                    batch_number=batch_number, batch_count=len(batches), rows=len(batch),
+                )
+                conn.executemany(sql, batch)
+                if commit_batches:
+                    conn.commit()
+                record_token_prediction_phase(
+                    conn, "outcome_persistence", "end",
+                    duration_ms=round((time.monotonic() - phase_started) * 1000.0, 3),
+                    batch_number=batch_number, batch_count=len(batches), rows=len(batch),
+                )
 
 
 class TokenPredictionRescoreWorker:

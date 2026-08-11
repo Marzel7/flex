@@ -58,7 +58,10 @@ _REPO_ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."
 if _REPO_ROOT not in sys.path:
     sys.path.insert(0, _REPO_ROOT)
 
-from src.utils.infra_mapping import sync_infra_wallets  # noqa: E402
+from src.utils.infra_mapping import (  # noqa: E402
+    collect_infra_wallet_rows,
+    write_infra_wallet_deltas,
+)
 
 DB_PATH = os.environ.get(
     "DB_PATH", os.path.join(_REPO_ROOT, "database", "flex_complete_database.db"))
@@ -184,43 +187,66 @@ def _record_status(conn: sqlite3.Connection, *, attempt_at: int, success: bool,
 
 
 def run_once() -> dict:
-    """Perform exactly one infra_wallets refresh. Failure does NOT raise --
-    per Phase 17's explicit requirement, a failed refresh must never
-    crash creator scoring (or any other consumer); it is recorded and the
-    caller (score_creator_now etc.) simply continues using whatever state
-    is already persisted from the last success."""
+    """Perform exactly one infra_wallets refresh, split into a read phase
+    (no write lease, runs on a read-only connection for the full ~2min
+    scan) and a short write phase (only actual deltas, separate
+    connection). Failure does NOT raise -- per Phase 17's explicit
+    requirement, a failed refresh must never crash creator scoring (or any
+    other consumer); it is recorded and the caller (score_creator_now etc.)
+    simply continues using whatever state is already persisted from the
+    last success."""
     attempt_at = int(time.time())
     t0 = time.monotonic()
-    conn = None
     result = {"status": "error", "rows_processed": 0, "duration_ms": 0}
+    scan_ms = 0
+    write_ms = 0
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=90)
-        conn.row_factory = sqlite3.Row
-        conn.execute("PRAGMA journal_mode=WAL")
-        rows_processed = sync_infra_wallets(conn)
-        conn.commit()
-        duration_ms = int((time.monotonic() - t0) * 1000)
-        _record_status(conn, attempt_at=attempt_at, success=True,
-                        duration_ms=duration_ms, rows_processed=rows_processed, error=None)
-        result = {"status": "success", "rows_processed": rows_processed, "duration_ms": duration_ms}
-        _log.info("infra_wallets sync succeeded: %d rows in %dms", rows_processed, duration_ms)
+        read_conn = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True, timeout=30)
+        try:
+            t_scan0 = time.monotonic()
+            rows = collect_infra_wallet_rows(read_conn)
+            scan_ms = int((time.monotonic() - t_scan0) * 1000)
+        finally:
+            read_conn.close()
+
+        write_conn = sqlite3.connect(DB_PATH, timeout=90)
+        try:
+            write_conn.row_factory = sqlite3.Row
+            write_conn.execute("PRAGMA journal_mode=WAL")
+            t_write0 = time.monotonic()
+            rows_processed = write_infra_wallet_deltas(write_conn, rows)
+            write_conn.commit()
+            write_ms = int((time.monotonic() - t_write0) * 1000)
+            duration_ms = int((time.monotonic() - t0) * 1000)
+            _record_status(write_conn, attempt_at=attempt_at, success=True,
+                            duration_ms=duration_ms, rows_processed=rows_processed, error=None)
+            result = {
+                "status": "success",
+                "rows_processed": rows_processed,
+                "duration_ms": duration_ms,
+                "scan_ms": scan_ms,
+                "write_ms": write_ms,
+            }
+            _log.info(
+                "infra_wallets sync succeeded: %d rows changed (scan=%dms write=%dms total=%dms)",
+                rows_processed, scan_ms, write_ms, duration_ms,
+            )
+        finally:
+            write_conn.close()
     except Exception as exc:
         duration_ms = int((time.monotonic() - t0) * 1000)
         _log.exception("infra_wallets sync failed after %dms", duration_ms)
         try:
-            if conn is not None:
-                conn.rollback()
-                _record_status(conn, attempt_at=attempt_at, success=False,
+            status_conn = sqlite3.connect(DB_PATH, timeout=30)
+            try:
+                _record_status(status_conn, attempt_at=attempt_at, success=False,
                                 duration_ms=duration_ms, rows_processed=0, error=str(exc))
+            finally:
+                status_conn.close()
         except Exception:
             _log.exception("failed to record infra_wallets sync failure status")
-        result = {"status": "error", "error": str(exc), "duration_ms": duration_ms}
-    finally:
-        if conn is not None:
-            try:
-                conn.close()
-            except Exception:
-                pass
+        result = {"status": "error", "error": str(exc), "duration_ms": duration_ms,
+                  "scan_ms": scan_ms, "write_ms": write_ms}
     return result
 
 

@@ -10,9 +10,9 @@ Three-layer connection safety:
   1. Every DB open goes through db_connect() and closes in a finally block.
   2. Self-kill guard: exits via os._exit(1) if open handles exceed threshold
      or if uptime exceeds MAX_UPTIME_HOURS while the queue is idle.
-  3. WAL watchdog thread: checks WAL size + checkpoint status every 60s; if
-     WAL is pinned for N cycles or exceeds WAL_ALERT_MB, logs CRITICAL and
-     triggers a self-restart so supervisord brings up a clean process.
+  3. WAL watchdog thread: checks WAL size + checkpoint frame progress every
+     60s; only a large WAL with a positive, repeatedly stagnant frame gap logs
+     CRITICAL and triggers a supervised restart.
 
 Run:
     python -m src.core.creator_resolution_worker          # continuous loop
@@ -148,19 +148,65 @@ def _wal_size_mb() -> float:
         return 0.0
 
 
-def _wal_busy() -> int:
-    """Return busy frame count from PASSIVE checkpoint, or -1 on error."""
+def _wal_checkpoint_sample() -> Dict[str, int]:
+    """Return the complete PASSIVE checkpoint result.
+
+    SQLite returns ``(busy, log_frames, checkpointed_frames)``.  ``busy`` by
+    itself is not evidence of a pinned reader: another checkpoint may own the
+    checkpoint lock, and RESTART can report busy even after every frame was
+    copied.  A negative frame count is an unavailable/contended sample, not a
+    reader pin.
+    """
     conn = None
     try:
         import sqlite3
         conn = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True, timeout=3)
         r = conn.execute("PRAGMA wal_checkpoint(PASSIVE)").fetchone()
-        return r[0] if r else -1
+        if not r:
+            return {"busy": -1, "log_frames": -1, "checkpointed_frames": -1}
+        return {
+            "busy": int(r[0]),
+            "log_frames": int(r[1]),
+            "checkpointed_frames": int(r[2]),
+        }
     except Exception:
-        return -1
+        return {"busy": -1, "log_frames": -1, "checkpointed_frames": -1}
     finally:
         if conn:
             conn.close()
+
+
+def _wal_sample_is_stalled(sample: Dict[str, int], previous: Dict[str, int] | None) -> bool:
+    """True only when a positive checkpoint gap made no progress.
+
+    WAL file size is deliberately absent from this predicate.  A large file
+    whose frames are already checkpointed is reusable SQLite state, not a pin.
+    """
+    if previous is None:
+        return False
+    log_frames = sample.get("log_frames", -1)
+    checkpointed = sample.get("checkpointed_frames", -1)
+    previous_log = previous.get("log_frames", -1)
+    previous_checkpointed = previous.get("checkpointed_frames", -1)
+    if min(log_frames, checkpointed, previous_log, previous_checkpointed) < 0:
+        return False
+    if log_frames <= checkpointed or previous_log <= previous_checkpointed:
+        return False
+    return checkpointed <= previous_checkpointed and log_frames >= previous_log
+
+
+def _wal_is_critically_pinned(size_mb: float, stalled_cycles: int) -> bool:
+    """A critical pin requires both the existing size threshold and stagnation."""
+    return size_mb >= WAL_ALERT_MB and stalled_cycles >= WAL_BUSY_CYCLES
+
+
+def _self_connection_summary() -> Dict[str, Any]:
+    """Best-effort process-local attribution included with watchdog samples."""
+    try:
+        from src.utils.db_locking import get_open_connection_summary
+        return get_open_connection_summary(limit=25)
+    except Exception as exc:
+        return {"error": str(exc)[:160]}
 
 
 def _identify_wal_holders() -> str:
@@ -179,26 +225,44 @@ def _identify_wal_holders() -> str:
 
 
 def _wal_watchdog() -> None:
-    busy_cycles = 0
+    stalled_cycles = 0
+    previous = None
     while not _STOP:
         time.sleep(WAL_CHECK_INTERVAL)
         if _STOP:
             break
         try:
             mb = _wal_size_mb()
-            busy = _wal_busy()
-
-            if busy > 0:
-                busy_cycles += 1
-                _log(f"WAL: {mb:.1f}MB busy={busy} (cycle {busy_cycles}/{WAL_BUSY_CYCLES})")
+            sample = _wal_checkpoint_sample()
+            stalled = _wal_sample_is_stalled(sample, previous)
+            if stalled:
+                stalled_cycles += 1
             else:
-                busy_cycles = 0
+                stalled_cycles = 0
 
-            if mb >= WAL_ALERT_MB or busy_cycles >= WAL_BUSY_CYCLES:
+            log_frames = sample["log_frames"]
+            checkpointed = sample["checkpointed_frames"]
+            gap = log_frames - checkpointed if min(log_frames, checkpointed) >= 0 else -1
+            _log(
+                f"WAL: {mb:.1f}MB busy={sample['busy']} log={log_frames} "
+                f"checkpointed={checkpointed} uncheckpointed={gap} "
+                f"stalled_cycles={stalled_cycles}/{WAL_BUSY_CYCLES}"
+            )
+
+            if _wal_is_critically_pinned(mb, stalled_cycles):
                 holders = _identify_wal_holders()
-                _log(f"CRITICAL_WAL_PINNED: WAL={mb:.1f}MB busy_cycles={busy_cycles} "
-                     f"holders={holders} — this worker exiting for clean restart")
+                self_connections = _self_connection_summary()
+                _log(
+                    f"CRITICAL_WAL_PINNED: WAL={mb:.1f}MB "
+                    f"stalled_cycles={stalled_cycles} log={log_frames} "
+                    f"checkpointed={checkpointed} uncheckpointed={gap} "
+                    f"holders={holders} self_connections="
+                    f"{json.dumps(self_connections, sort_keys=True, default=str)} "
+                    "— this worker exiting for clean restart"
+                )
                 os._exit(1)
+
+            previous = sample
 
         except Exception as e:
             _log(f"WAL watchdog error: {e}")
@@ -276,6 +340,7 @@ def run_loop(once: bool = False) -> None:
         process_queue,
         enqueue_missing_migrated_tokens,
         enqueue_missing_funding_jobs,
+        promote_recent_missing_creators,
     )
 
     _log(f"Starting pid={os.getpid()} "
@@ -313,6 +378,10 @@ def run_loop(once: bool = False) -> None:
             )
             if new_funding:
                 _log(f"auto-enqueued {new_funding} missing funding jobs")
+
+            promoted_recent = promote_recent_missing_creators(DB_PATH)
+            if promoted_recent:
+                _log(f"elevated {promoted_recent} recent missing-creator tokens")
 
             pending = _pending_count()
             batch   = _adaptive_batch(pending)
@@ -355,6 +424,7 @@ def run_loop(once: bool = False) -> None:
                 "total_failed":       total_failed,
                 "total_skipped":      total_skipped,
                 "total_enqueued":     total_enqueued,
+                "recent_promoted":    promoted_recent,
                 "resolution_eff_pct": eff_pct,
                 "uptime_s":           int(time.time()) - _started_at,
                 "batch_size":         batch,

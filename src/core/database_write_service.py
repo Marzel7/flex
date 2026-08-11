@@ -17,6 +17,7 @@ import json
 import logging
 import os
 import queue
+import subprocess
 import sqlite3
 import threading
 import time
@@ -268,6 +269,7 @@ _thread_write_lease = threading.local()
 # shared registry is touched cross-thread, which is safe under its lock.
 _active_lease_lock = threading.Lock()
 _active_lease_by_thread_ident: dict[int, Any] = {}  # thread ident -> lease token (opaque object)
+_active_lease_details_by_thread_ident: dict[int, dict[str, Any]] = {}
 
 
 @dataclass
@@ -290,6 +292,135 @@ def _read_owner_metadata(owner_path: str) -> dict[str, Any] | None:
             return json.load(owner_file)
     except (FileNotFoundError, json.JSONDecodeError, OSError):
         return None
+
+
+def _owner_metadata_guard(owner_path: str):
+    """Open and exclusively lock the sidecar guard.
+
+    The guard serializes metadata publication/removal across the physical
+    unlock boundary.  Without it an old releaser can unlink a new holder's
+    sidecar after the new holder wins flock().
+    """
+    guard_path = f"{owner_path}.guard"
+    Path(guard_path).touch(exist_ok=True)
+    guard = open(guard_path, "a+")
+    fcntl.flock(guard.fileno(), fcntl.LOCK_EX)
+    return guard
+
+
+def _write_owner_metadata(owner_path: str, owner: dict[str, Any]) -> None:
+    temporary = f"{owner_path}.{os.getpid()}.{threading.get_ident()}.tmp"
+    with open(temporary, "w", encoding="utf-8") as owner_file:
+        json.dump(owner, owner_file, sort_keys=True)
+        owner_file.flush()
+        os.fsync(owner_file.fileno())
+    os.replace(temporary, owner_path)
+
+
+def _write_lock_bound_owner(lock_file: Any, owner: dict[str, Any]) -> None:
+    """Publish owner identity in the file description protected by flock.
+
+    Unlike the diagnostic sidecar this record cannot be independently removed
+    by another cleanup path.  A reader only trusts it when a separate LOCK_NB
+    probe proves the kernel flock is currently busy.
+    """
+    payload = json.dumps(owner, sort_keys=True, default=str).encode("utf-8")
+    lock_file.seek(0)
+    lock_file.truncate(0)
+    lock_file.write(payload.decode("utf-8"))
+    lock_file.flush()
+    os.fsync(lock_file.fileno())
+
+
+def probe_kernel_flock(lock_path: str) -> dict[str, Any]:
+    """Non-mutating attribution probe for the production advisory flock.
+
+    When LOCK_NB succeeds there is no holder; the probe immediately unlocks.
+    When it fails with EAGAIN/EACCES, the kernel proves a holder exists and the
+    lock-bound record identifies the acquisition that wrote while holding it.
+    """
+    Path(lock_path).touch(exist_ok=True)
+    probe = open(lock_path, "a+")
+    try:
+        try:
+            fcntl.flock(probe.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError as exc:
+            if exc.errno not in (errno.EAGAIN, errno.EACCES):
+                raise
+            probe.seek(0)
+            try:
+                bound_owner = json.loads(probe.read() or "null")
+            except json.JSONDecodeError:
+                bound_owner = None
+            stat = os.fstat(probe.fileno())
+            return {
+                "state": "HELD",
+                "device": stat.st_dev,
+                "inode": stat.st_ino,
+                "lock_bound_owner": bound_owner,
+            }
+        else:
+            stat = os.fstat(probe.fileno())
+            fcntl.flock(probe.fileno(), fcntl.LOCK_UN)
+            return {
+                "state": "FREE",
+                "device": stat.st_dev,
+                "inode": stat.st_ino,
+                "lock_bound_owner": None,
+            }
+    finally:
+        probe.close()
+
+
+def _capture_null_owner_episode(*, database: str, lock_path: str, owner_path: str,
+                                command: str, wait_seconds: float,
+                                blocked_episode_id: str) -> None:
+    """Persist one bounded diagnostic bundle for a null-owner flock wait."""
+    output_path = os.environ.get(
+        "DB_NULL_OWNER_DIAGNOSTICS_PATH",
+        "logs/diagnostics/x78_20_null_owner_episodes.jsonl",
+    )
+    try:
+        os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
+        # Capture the ephemeral physical state first. Everything below is
+        # slower enrichment and must not be allowed to obscure a short hold.
+        physical = probe_kernel_flock(lock_path)
+        with _active_lease_lock:
+            leases = [dict(row) for row in _active_lease_details_by_thread_ident.values()]
+        try:
+            lsof = subprocess.run(
+                ["lsof", "-F", "pftl", lock_path], capture_output=True, text=True,
+                timeout=2, check=False,
+            ).stdout.splitlines()
+        except Exception:
+            lsof = []
+        try:
+            from src.utils.db_locking import get_open_connection_summary
+            connections = get_open_connection_summary(limit=50)
+        except Exception as exc:
+            connections = {"unavailable": type(exc).__name__}
+        wal_path = f"{os.path.realpath(database)}-wal"
+        bundle = {
+            "blocked_episode_id": blocked_episode_id,
+            "timestamp": time.time(),
+            "database": os.path.realpath(database),
+            "lock_path": lock_path,
+            "waiting_pid": os.getpid(),
+            "waiting_thread_id": threading.get_ident(),
+            "waiting_thread": threading.current_thread().name,
+            "caller": command,
+            "wait_seconds": round(wait_seconds, 3),
+            "application_owner": _read_owner_metadata(owner_path),
+            "process_thread_leases": leases,
+            "kernel_flock": physical,
+            "os_lock_file_openers": lsof[:100],
+            "tracked_connections": connections,
+            "wal_bytes": os.path.getsize(wal_path) if os.path.exists(wal_path) else 0,
+        }
+        with open(output_path, "a", encoding="utf-8") as output:
+            output.write(json.dumps(bundle, sort_keys=True, default=str) + "\n")
+    except Exception:
+        _log.exception("failed to persist null-owner diagnostic episode")
 
 
 # X78.20 -- per-priority acquisition telemetry (Phase I). In-memory only,
@@ -592,6 +723,8 @@ def acquire_write_lease(
     waiting_pid = os.getpid()
     waiting_thread = threading.current_thread().name
     acquired = False
+    null_owner_episode_captured = False
+    blocked_episode_id = str(uuid.uuid4())
     blocked_by_lower_priority = False
     my_ticket = _register_waiter_ticket(lock_path, priority, command)
     try:
@@ -627,6 +760,16 @@ def acquire_write_lease(
                     lock_file.close()
                     raise
                 remaining = deadline - time.monotonic()
+                waited = time.monotonic() - (deadline - timeout)
+                if (not null_owner_episode_captured and waited > 1.0
+                        and _read_owner_metadata(owner_path) is None):
+                    _capture_null_owner_episode(
+                        database=real_path, lock_path=lock_path,
+                        owner_path=owner_path, command=command,
+                        wait_seconds=waited,
+                        blocked_episode_id=blocked_episode_id,
+                    )
+                    null_owner_episode_captured = True
                 if remaining <= 0:
                     break
                 time.sleep(min(_LOCK_POLL_INTERVAL_SEC, remaining))
@@ -674,11 +817,18 @@ def acquire_write_lease(
         "priority": priority,
         "acquired_at": time.time(),
         "acquired_at_monotonic": time.monotonic(),
+        "state": "ACTIVE",
     }
-    with open(owner_path, "w", encoding="utf-8") as owner_file:
-        json.dump(owner, owner_file, sort_keys=True)
+    _write_lock_bound_owner(lock_file, owner)
+    guard = _owner_metadata_guard(owner_path)
+    try:
+        _write_owner_metadata(owner_path, owner)
+    finally:
+        fcntl.flock(guard.fileno(), fcntl.LOCK_UN)
+        guard.close()
     with _active_lease_lock:
         _active_lease_by_thread_ident[this_thread_ident] = token
+        _active_lease_details_by_thread_ident[this_thread_ident] = dict(owner)
     _thread_write_lease.owner = owner
     _thread_write_lease.token = token
     return WriteLease(lock_file, owner_path, owner, owner_thread_ident=this_thread_ident, token=token)
@@ -701,17 +851,47 @@ def release_write_lease(lease: WriteLease) -> None:
             )
     except Exception:
         pass
+    guard = None
+    release_error = None
     try:
+        if getattr(lease.file, "closed", False):
+            return
+        guard = _owner_metadata_guard(lease.owner_path)
+        current = _read_owner_metadata(lease.owner_path)
+        owns_metadata = bool(
+            current and current.get("transaction_id") == lease.owner.get("transaction_id")
+        )
+        if owns_metadata:
+            pending = dict(lease.owner, state="RELEASE_PENDING", release_requested_at=time.time())
+            _write_owner_metadata(lease.owner_path, pending)
+            _write_lock_bound_owner(lease.file, pending)
         try:
-            os.unlink(lease.owner_path)
-        except FileNotFoundError:
-            pass
-        finally:
+            # Physical ownership is released before diagnostic ownership is
+            # cleared.  The metadata guard prevents a successor publishing
+            # ACTIVE until this release has completed its sidecar transition.
+            fcntl.flock(lease.file.fileno(), fcntl.LOCK_UN)
+            lease.file.close()
+        except Exception as exc:
+            release_error = exc
+            if owns_metadata:
+                failed = dict(
+                    lease.owner, state="RELEASE_FAILED",
+                    release_failed_at=time.time(), error_type=type(exc).__name__,
+                    error=str(exc)[:500],
+                )
+                _write_owner_metadata(lease.owner_path, failed)
+            raise
+        if owns_metadata:
             try:
-                fcntl.flock(lease.file.fileno(), fcntl.LOCK_UN)
-            finally:
-                lease.file.close()
+                os.unlink(lease.owner_path)
+            except FileNotFoundError:
+                pass
     finally:
+        if guard is not None:
+            try:
+                fcntl.flock(guard.fileno(), fcntl.LOCK_UN)
+            finally:
+                guard.close()
         # X78.11b -- this call may run on a DIFFERENT thread than the one
         # that acquired the lease (the db-conn-reaper force-closing a
         # long-running connection on another thread's behalf). The shared
@@ -723,6 +903,7 @@ def release_write_lease(lease: WriteLease) -> None:
         with _active_lease_lock:
             if _active_lease_by_thread_ident.get(lease.owner_thread_ident) is lease.token:
                 del _active_lease_by_thread_ident[lease.owner_thread_ident]
+                _active_lease_details_by_thread_ident.pop(lease.owner_thread_ident, None)
         # If we happen to be running ON the owning thread (the common case:
         # normal same-thread commit/rollback/close), clear its local
         # reference immediately too -- purely an optimization so the
@@ -735,6 +916,29 @@ def release_write_lease(lease: WriteLease) -> None:
                 del _thread_write_lease.owner
             if getattr(_thread_write_lease, "token", None) is lease.token:
                 del _thread_write_lease.token
+
+
+def update_write_lease_diagnostics(lease: WriteLease | None, **fields: Any) -> bool:
+    """Publish bounded diagnostics on an already-held physical lease.
+
+    This is observational only: it never acquires a lane or changes transaction
+    semantics.  The lock-bound record remains the authority; sidecar publication
+    is intentionally not on the SQL hot path.
+    """
+    if lease is None or getattr(lease.file, "closed", False):
+        return False
+    try:
+        current = dict(lease.owner)
+        current.update(fields)
+        current["diagnostic_updated_at"] = time.time()
+        lease.owner.update(current)
+        _write_lock_bound_owner(lease.file, current)
+        with _active_lease_lock:
+            if _active_lease_by_thread_ident.get(lease.owner_thread_ident) is lease.token:
+                _active_lease_details_by_thread_ident[lease.owner_thread_ident] = dict(current)
+        return True
+    except Exception:
+        return False
 
 
 @dataclass

@@ -24,6 +24,7 @@ import threading
 import websockets
 import aiohttp
 import requests
+from src.core.pumpportal_birth_audit import configured_birth_audit
 from datetime import datetime
 from src.core import runtime_budget as _budget
 from enum import Enum
@@ -36,6 +37,11 @@ from src.core.fast_candidate_retry import PendingCandidateShortlist, score_candi
 from src.core.fast_lane_discovery import FastLaneDiscovery
 from src.core.ws_price_tracer import trace as _wstrace
 from dotenv import load_dotenv
+
+# X78.24: legacy token-level prediction is permanently removed from live
+# execution. Historical tables remain queryable; this constant is deliberately
+# not an environment toggle so a missing env var cannot reactivate producers.
+TOKEN_PREDICTION_RUNTIME_ENABLED = False
 
 class RegisterResult(str, Enum):
     SUCCESS    = "success"
@@ -1317,6 +1323,10 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
     def __init__(self):
         super().__init__()  # Initialize FastLaneDiscovery
+        # EB0.1: default-off, bounded timing collector. It does no RPC or DB
+        # work and records receive timing immediately after ws.recv(), before
+        # JSON parsing or ingestion work.
+        self._eb_birth_audit = configured_birth_audit()
         # MC1.4 -- explicit window anchor for birth_persistence_telemetry()'s
         # in-memory counters, so a consumer of the snapshot file always knows
         # exactly what population "received" etc. cover (this process's
@@ -1501,7 +1511,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
         # === Initialize price worker with WebSocket for pool price streaming ===
         import os as _os_pw
-        if _os_pw.environ.get("LISTENER_PRICE_WORKER_ENABLED", "1") != "0":
+        from src.core.price_worker import BROAD_PRICE_TRACKING_RUNTIME_ENABLED
+        if (BROAD_PRICE_TRACKING_RUNTIME_ENABLED
+                and _os_pw.environ.get("LISTENER_PRICE_WORKER_ENABLED", "0") != "0"):
             try:
                 from src.core.price_worker import get_price_worker
                 import os as _os_init
@@ -1521,7 +1533,11 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 log_print(f"[INIT] ⚠️  Price worker initialization failed: {e}", flush=True)
                 self.price_worker = None
         else:
-            log_print("[STARTUP] Skipping price worker due to LISTENER_PRICE_WORKER_ENABLED=0", flush=True)
+            log_print(
+                "[STARTUP] Broad price tracking decommissioned "
+                "(historical data retained; selective price access remains)",
+                flush=True,
+            )
             self.price_worker = None
 
         log_print(f"[INIT] ✅ Phase 2 critical-path protection initialized", flush=True)
@@ -2446,7 +2462,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
             source="mark_token_migrated",
         )
 
-        if __import__('os').environ.get("LISTENER_PREDICTION_SCORING_ENABLED", "1") != "0":
+        if TOKEN_PREDICTION_RUNTIME_ENABLED:
             def _score():
                 try:
                     from src.core.token_prediction_builder import TokenPredictionBuilder
@@ -2455,6 +2471,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     try:
                         TokenPredictionBuilder(DB_PATH).score_single(conn2, mint, 'MIGRATED')
                     finally:
+                        receive_utc_ns = time.time_ns()
+                        receive_monotonic_ns = time.monotonic_ns()
                         try:
                             conn2.close()
                         except Exception:
@@ -4371,9 +4389,10 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 helius_deleted = cur.rowcount
                 conn.commit()
 
-                # 4. WAL checkpoint — RESTART resets the write position without
-                # requiring exclusive access (TRUNCATE would block on open readers)
-                ckpt = conn.execute("PRAGMA wal_checkpoint(RESTART)").fetchone()
+                # 4. Routine maintenance must not wait for readers.  The
+                # threshold watchdog owns bounded heavy TRUNCATE maintenance.
+                conn.execute("PRAGMA busy_timeout=0")
+                ckpt = conn.execute("PRAGMA wal_checkpoint(PASSIVE)").fetchone()
                 wal_pages = ckpt[2] if ckpt else 0
 
                 # 5. NO full VACUUM. VACUUM rewrites the ENTIRE database into the WAL
@@ -4953,6 +4972,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         # Pre-migration jobs use priority=-1 so migration-triggered jobs always win.
         def _enqueue_sync():
             # Priority check + creator-level cache check
+            _check = None
             try:
                 _check = db_connect(DB_PATH, timeout=3)
                 _funder_row = _check.execute(
@@ -4984,8 +5004,6 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 else:
                     _cache_prior_source = "creator_funders_fully_analyzed"
 
-                _check.close()
-
                 if _cache_fresh and not pre_migration:
                     return ("cache_hit", _cache_prior_source or "unknown")
 
@@ -4999,6 +5017,13 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 _job_priority = 0
                 _priority_reason = "unknown"
                 _cache_fresh = False
+            finally:
+                # The cache/priority query can time out while the listener is
+                # under write-lane pressure.  Closing only on the success path
+                # leaked the thread-local SQLite handle, which the listener FD
+                # watchdog cannot safely close from its own thread.
+                if _check is not None:
+                    _check.close()
 
             conn = None
             try:
@@ -5031,6 +5056,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                      now, curve_completed_slot, curve_completed_slot, _job_priority, _priority_reason, now, now),
                 )
                 conn.commit()
+                conn2 = None
                 try:
                     conn2 = db_connect(DB_PATH, timeout=10)
                     conn2.execute(
@@ -5038,9 +5064,11 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         (now, mint),
                     )
                     conn2.commit()
-                    conn2.close()
                 except Exception:
                     pass
+                finally:
+                    if conn2 is not None:
+                        conn2.close()
                 return ("ok", _job_priority, _priority_reason)
             except Exception as e:
                 return ("error", str(e))
@@ -5067,6 +5095,20 @@ class PumpFunCurveListener(FastLaneDiscovery):
             return False
         elif result[0] == "ok":
             _, job_priority, priority_reason = result
+            # X78.39B: queue persistence is already committed above.  The
+            # lifecycle event is deliberately fail-open and cannot alter the
+            # enqueue outcome if telemetry storage is unavailable.
+            try:
+                from src.core.creator_funding_lifecycle import record_event_fail_open
+                telemetry_ok = await asyncio.to_thread(
+                    record_event_fail_open, DB_PATH, creator=creator, mint=mint,
+                    source=source, event="CREATED", occurred_at=now,
+                    previous_status=None, new_status="pending",
+                )
+                if not telemetry_ok:
+                    log_print("[CFQ_LIFECYCLE] telemetry gap on CREATED", flush=True)
+            except Exception:
+                log_print("[CFQ_LIFECYCLE] telemetry gap on CREATED", flush=True)
             log_print(
                 f"[FUNDING_QUEUE] 📥 Enqueued creator funding for {creator[:8]}... mint={mint[:8]} next={next_attempt_at} priority={'HIGH' if job_priority > 0 else ('PRE_MIG' if job_priority < 0 else 'normal')} reason={priority_reason}",
                 flush=True,
@@ -5304,19 +5346,6 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         )
                         _recovered_completed = int(cursor.rowcount or 0)
                         if _recovered_completed:
-                            cursor.execute(
-                                """
-                                INSERT OR IGNORE INTO token_rescore_queue (mint, reason, created_at)
-                                SELECT mint, 'funding_extracted_recovered', ?
-                                FROM creator_funding_queue
-                                JOIN token_analysis USING (mint)
-                                WHERE status = 'complete'
-                                  AND creator_funding_queue.updated_at = ?
-                                  AND COALESCE(token_analysis.lifecycle_stage, '') = 'migrated'
-                                  AND token_analysis.migrated_at IS NOT NULL
-                                """,
-                                (_now, _now),
-                            )
                             log_print(f"[FUNDING_QUEUE] ✅ Recovered {_recovered_completed} stale running job(s) with extracted funders", flush=True)
                         cursor.execute(
                             """
@@ -5499,7 +5528,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             _cf_count = await asyncio.to_thread(_count_funders)
                             if _cf_count == 0:
                                 log_print(f"[FRESH_CREATOR] ⏳ No funders found — scanning immediately: {creator[:8]}", flush=True)
-                                def _scan_and_rescore(_creator, _mint):
+                                def _scan_funders(_creator, _mint):
                                     try:
                                         # Use extract_funder_transfers (sync) which already knows DB_PATH
                                         from src.extractors.funder_incoming_extractor import extract_for_creator as _extract
@@ -5507,15 +5536,11 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                         _os.environ.setdefault('DB_PATH', DB_PATH)
                                         _extract(_creator)
                                         log_print(f"[FRESH_CREATOR] ✅ Funder extraction complete: {_creator[:8]}", flush=True)
-                                        with db_connect(DB_PATH, timeout=30) as _pc:
-                                            from src.core.token_prediction_builder import TokenPredictionBuilder as _TPB
-                                            _TPB(DB_PATH).score_single(_pc, _mint, 'FUNDING_COMPLETE')
-                                        log_print(f"[FRESH_CREATOR] ✅ Rescored after scan: {_mint[:16]}", flush=True)
                                     except Exception as _e:
-                                        log_print(f"[FRESH_CREATOR] ⚠ Scan/rescore failed: {_e}", flush=True)
+                                        log_print(f"[FRESH_CREATOR] ⚠ Funder scan failed: {_e}", flush=True)
                                 # BOUNDED pool, not a fresh per-creator thread — these block on the DB
                                 # (timeout=30) under lock contention and accumulated unbounded.
-                                _TOKEN_WORK_POOL.submit(_scan_and_rescore, creator, mint)
+                                _TOKEN_WORK_POOL.submit(_scan_funders, creator, mint)
                         except Exception as _fc_e:
                             log_print(f"[FRESH_CREATOR] ⚠ Failed to start scan thread: {_fc_e}", flush=True)
                         if get_migration_setting('auto_extract_funders', False):
@@ -5533,16 +5558,6 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             log_print(f"[RISK_SCORE] ✅ Creator scored mint={mint[:16]} creator={creator[:8]}", flush=True)
                         except Exception as _rs_e:
                             log_print(f"[RISK_SCORE] ⚠ Creator score failed: {_rs_e}", flush=True)
-                        try:
-                            def _rescore_prediction(_m=mint):
-                                from src.core.token_prediction_builder import TokenPredictionBuilder as _TPB
-                                with db_connect(DB_PATH, timeout=60) as _pred_conn:
-                                    _TPB(DB_PATH).score_single(_pred_conn, _m, 'FUNDING_COMPLETE')
-                            await asyncio.to_thread(_rescore_prediction)
-                            log_print(f"[PREDICTION] ✅ Re-scored after funding complete mint={mint[:16]}", flush=True)
-                        except Exception as _pred_e:
-                            log_print(f"[PREDICTION] ⚠ Re-score after funding failed mint={mint[:16]}: {_pred_e}", flush=True)
-
                         # Cluster rebuild is now scheduled periodically — skip per-extraction
                         # trigger to avoid long write locks on every funding completion.
 
@@ -5597,19 +5612,6 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                           AND mint = ?
                                         """,
                                         (attempts + 1, _now, _now, creator, mint),
-                                    ),
-                                    (
-                                        """
-                                        INSERT OR REPLACE INTO token_rescore_queue (mint, reason, created_at)
-                                        SELECT ?, 'funding_complete', ?
-                                        WHERE EXISTS (
-                                            SELECT 1 FROM token_analysis
-                                            WHERE mint = ?
-                                              AND COALESCE(lifecycle_stage, '') = 'migrated'
-                                              AND migrated_at IS NOT NULL
-                                        )
-                                        """,
-                                        (mint, _now, mint),
                                     ),
                                     (
                                         "UPDATE token_analysis SET funding_extracted_slot = ? WHERE mint = ?",
@@ -6235,7 +6237,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
         await self._upsert_birth_metadata_cache(mint, symbol, name)
 
-        if __import__('os').environ.get("LISTENER_PREDICTION_SCORING_ENABLED", "1") != "0":
+        if TOKEN_PREDICTION_RUNTIME_ENABLED:
             def _score_birth():
                 try:
                     from src.core.token_prediction_builder import TokenPredictionBuilder
@@ -8616,7 +8618,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 source="fast_path_register",
             )
 
-            if __import__('os').environ.get("LISTENER_PREDICTION_SCORING_ENABLED", "1") != "0":
+            if TOKEN_PREDICTION_RUNTIME_ENABLED:
                 def _score_migrated_fast(m=mint):
                     try:
                         from src.core.token_prediction_builder import TokenPredictionBuilder
@@ -8781,7 +8783,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 )
             # Always ensure pf_ws_creator is set — returns early if already resolved.
             asyncio.create_task(self._ensure_pf_ws_creator(mint, reason="migration:pre_tracked"))
-            if __import__('os').environ.get("LISTENER_PREDICTION_SCORING_ENABLED", "1") != "0":
+            if TOKEN_PREDICTION_RUNTIME_ENABLED:
                 def _score_already_known(m=mint):
                     try:
                         from src.core.token_prediction_builder import TokenPredictionBuilder
@@ -8942,13 +8944,19 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 _tp_db2 = time.monotonic()
                 log_print(f"[TIMING_PROBE] DB_CONNECT_START stage=enrich_det_event mint={mint[:16]} total_ms={int((time.monotonic()-_tp_t0)*1000)}", flush=True)
                 def _enrich_read(_m=mint):
-                    _conn = db_connect(DB_PATH, timeout=15)
-                    _row = _conn.execute(
-                        "SELECT symbol, earliest_tx_creator, pool_address FROM token_analysis WHERE mint = ?",
-                        (_m,)
-                    ).fetchone()
-                    _conn.close()
-                    return _row
+                    # X78.21: this callback previously closed only after a
+                    # successful execute/fetch.  A timeout/exception escaped
+                    # first, leaving the executor-thread connection open
+                    # indefinitely; production recorded the exact two leaked
+                    # IDs from this line at >167s.  Owner-scoped read-only
+                    # cleanup keeps native close on the creation thread.
+                    with managed_db_connect(
+                        DB_PATH, timeout=15, read_only=True
+                    ) as _conn:
+                        return _conn.execute(
+                            "SELECT symbol, earliest_tx_creator, pool_address FROM token_analysis WHERE mint = ?",
+                            (_m,)
+                        ).fetchone()
                 _row = await asyncio.to_thread(_enrich_read)
                 log_print(f"[TIMING_PROBE] DB_QUERY_DONE stage=enrich_det_event mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_db2)*1000)}", flush=True)
                 if _row:
@@ -8992,7 +9000,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     migration_tx=signature,
                     source="migration_tx_store",
                 )
-                if __import__('os').environ.get("LISTENER_PREDICTION_SCORING_ENABLED", "1") != "0":
+                if TOKEN_PREDICTION_RUNTIME_ENABLED:
                     def _score_migrated_tx(m=mint):
                         try:
                             from src.core.token_prediction_builder import TokenPredictionBuilder
@@ -11283,6 +11291,13 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             name = data.get("name")
                             v_sol = float(data.get("vSolInBondingCurve") or 0)
                             mc_sol = float(data.get("marketCapSol") or 0)
+                            self._eb_birth_audit.record(
+                                receive_utc_ns=receive_utc_ns,
+                                receive_monotonic_ns=receive_monotonic_ns,
+                                parser_utc_ns=time.time_ns(), signature=sig,
+                                mint=mint, creator=creator, market_cap_sol=mc_sol,
+                                virtual_sol_reserves=v_sol, bonding_curve=bonding_curve_pda,
+                            )
 
                             if mint:
                                 self._portal_vsol[mint] = {
@@ -12317,6 +12332,16 @@ class PumpFunCurveListener(PumpFunCurveListener):  # type: ignore[no-redef]
                 # connections made normal concurrent ingestion trip the fatal
                 # threshold and caused a deterministic restart loop.
                 n = _primary_db_fd_count(open_files, _DB)
+                from src.utils.db_locking import record_connection_snapshot
+                record_connection_snapshot(
+                    primary_fd_count=n,
+                    extra={
+                        "watchdog": "listener_primary_db_fd",
+                        "warn_threshold": _WARN_FDS,
+                        "fatal_threshold": _FATAL_FDS,
+                        "high_cycles_before_sample": _high_cycles,
+                    },
+                )
                 _high_cycles = _next_fd_high_cycle(
                     n, threshold=_FATAL_FDS, previous=_high_cycles
                 )
@@ -12614,38 +12639,89 @@ def cleanup_and_restart():
         log_print(f"[CLEANUP] ⚠️ Could not restart Flask: {e}", flush=True)
 
 
-def _start_wal_checkpoint_worker(db_path: str, interval_seconds: int = 300) -> None:
+def _run_routine_wal_checkpoint(db_path: str) -> dict:
+    """Run the routine WAL checkpoint without entering the application write lane.
+
+    PASSIVE is deliberately paired with a zero busy timeout: an active reader is
+    reported in the result and retried on the next cadence instead of turning
+    routine maintenance into a reader-dependent wait.  This connection performs
+    no application mutation and intentionally does not use ``db_connect``.
     """
-    Background daemon that runs a RESTART checkpoint every interval_seconds.
-    RESTART flushes WAL pages back to the main DB and resets the WAL write
-    position to zero (preventing unbounded growth). It requires a brief
-    exclusive lock — if one can't be obtained within 10s it skips and retries
-    next cycle rather than blocking writes.
+    started_at = time.time()
+    started = time.monotonic()
+    wal_path = db_path + "-wal"
+    wal_bytes_before = os.path.getsize(wal_path) if os.path.exists(wal_path) else 0
+    conn = None
+    try:
+        conn = sqlite3.connect(db_path, timeout=0, isolation_level=None)
+        conn.execute("PRAGMA busy_timeout=0")
+        result = conn.execute("PRAGMA wal_checkpoint(PASSIVE)").fetchone()
+        busy, log_frames, checkpointed_frames = result or (0, 0, 0)
+        status = "busy" if int(busy or 0) else "ok"
+        error = None
+    except Exception as exc:
+        busy, log_frames, checkpointed_frames = None, None, None
+        status = "failed"
+        error = str(exc)
+    finally:
+        if conn is not None:
+            conn.close()
+
+    ended_at = time.time()
+    duration_ms = round((time.monotonic() - started) * 1000.0, 3)
+    wal_bytes_after = os.path.getsize(wal_path) if os.path.exists(wal_path) else 0
+    remaining_frames = (
+        max(0, int(log_frames) - int(checkpointed_frames))
+        if log_frames is not None and checkpointed_frames is not None else None
+    )
+    telemetry = {
+        "event": "wal_checkpoint",
+        "caller": "pumpfun_curve_listener",
+        "reason": "routine",
+        "mode": "PASSIVE",
+        "started_at": started_at,
+        "ended_at": ended_at,
+        "duration_ms": duration_ms,
+        "status": status,
+        "busy": busy,
+        "wal_frames": log_frames,
+        "checkpointed_frames": checkpointed_frames,
+        "remaining_frames": remaining_frames,
+        "wal_bytes_before": wal_bytes_before,
+        "wal_bytes_after": wal_bytes_after,
+        "application_write_lease_held": False,
+        "application_write_lease_max_ms": 0.0,
+    }
+    if error is not None:
+        telemetry["error"] = error
+    log_print(f"[WAL_CHECKPOINT] {json.dumps(telemetry, sort_keys=True)}", flush=True)
+    return telemetry
+
+
+def _start_wal_checkpoint_worker(
+    db_path: str,
+    interval_seconds: int = 300,
+    stop_event: Optional[threading.Event] = None,
+) -> threading.Thread:
+    """
+    Background daemon for non-blocking routine PASSIVE checkpoints.
+
+    Threshold/emergency TRUNCATE ownership remains with db_locking's WAL
+    watchdog; routine maintenance never escalates its own mode.
     """
     def _run():
-        while True:
-            time.sleep(interval_seconds)
-            try:
-                conn = db_connect(db_path, timeout=30)
-                result = conn.execute("PRAGMA wal_checkpoint(RESTART)").fetchone()
-                conn.close()
-                # result: (busy, log, checkpointed)
-                if result:
-                    busy, log, ckpt = result
-                    wal_mb = (log * 4096) / (1024 * 1024)
-                    log_print(
-                        f"[WAL_CHECKPOINT] RESTART: busy={busy} log={log} ckpt={ckpt} "
-                        f"WAL≈{wal_mb:.0f}MB",
-                        flush=True,
-                    )
-                    if busy > 0:
-                        log_print("[WAL_CHECKPOINT] ⚠️  Some frames blocked by active readers — will retry next cycle", flush=True)
-            except Exception as exc:
-                log_print(f"[WAL_CHECKPOINT] ⚠️  Checkpoint failed: {exc}", flush=True)
+        stopper = stop_event or threading.Event()
+        while not stopper.wait(interval_seconds):
+            _run_routine_wal_checkpoint(db_path)
 
     t = threading.Thread(target=_run, daemon=True, name="wal-checkpoint")
     t.start()
-    log_print(f"[WAL_CHECKPOINT] Daemon started — checkpointing every {interval_seconds}s", flush=True)
+    log_print(
+        f"[WAL_CHECKPOINT] Daemon started — PASSIVE every {interval_seconds}s; "
+        "heavy checkpoints remain threshold-driven",
+        flush=True,
+    )
+    return t
 
 
 def start_rpc_metrics_api():

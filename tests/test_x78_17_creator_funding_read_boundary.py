@@ -12,9 +12,10 @@ from src.utils.db_locking import db_connect
 
 
 def _make_db(path: str) -> None:
+    now = int(time.time())
     conn = sqlite3.connect(path)
     conn.executescript(
-        """
+        f"""
         CREATE TABLE creator_funding_queue (
             creator_address TEXT NOT NULL,
             mint TEXT NOT NULL,
@@ -40,7 +41,7 @@ def _make_db(path: str) -> None:
         INSERT INTO creator_funding_queue
             (creator_address, mint, status, next_attempt_at, locked_until,
              created_at, updated_at)
-        VALUES ('creator', 'mint', 'pending', 0, 0, 1, 1);
+        VALUES ('creator', 'mint', 'pending', 0, 0, {now}, {now});
         """
     )
     conn.commit()

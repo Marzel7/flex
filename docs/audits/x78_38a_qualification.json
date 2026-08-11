@@ -1,0 +1,18 @@
+{
+  "milestone": "X78.38A — Overlap-Backed History Continuation & Frozen Exact-Equivalence Corpus",
+  "baseline_revision": "cb1fc110e105436c4baa9fe15f956628f80db3ce",
+  "implementation": {"file": "src/core/creator_history_overlap.py", "mode": "pure shadow verifier; no RPC, no database writes, no acquisition or coverage-state control"},
+  "provider_contract": {
+    "production_request": "Helius enhanced address history, sort-order=desc, limit=100, exclusive before cursor assumed by existing implementation but not experimentally qualified",
+    "overlap_protocol": "use prior page penultimate signature as before; require prior oldest signature to be the first unique response on the continuation page and require matching slot when both responses expose slots",
+    "head_mutation": "cannot affect a continuation anchored below the mutable head if exclusive-before semantics hold",
+    "failure_policy": "empty/reordered/duplicate/missing/mismatched overlap is never continuity"
+  },
+  "coverage_safety": "no coverage state is advanced by this verifier; X78.37 remains the only conservative ledger",
+  "frozen_corpus": {"status": "NOT_VALID", "reason": "No retained representative provider page corpus exists; synthetic tests prove verifier mechanics only and cannot prove production funding equivalence."},
+  "equivalence": {"status": "NOT_PROVEN", "reason": "No frozen full acquisition inputs or live shadow provider experiment were available; no funder/amount/provenance comparison was run."},
+  "validation": {"command": "pytest -q tests/test_x78_38a_history_overlap.py tests/test_x78_37_creator_history_coverage.py tests/test_x78_36_pagination_instrumentation.py", "result": "16 passed", "cases": ["ordered overlap", "mutable head isolation", "reordered overlap", "duplicate overlap", "slot mismatch", "one-row boundary", "provider exhaustion"]},
+  "verdicts": {"pagination_continuity": "D — NOT_PROVEN", "coverage_safety": "B — SAFE_WITH_LIMITATION", "funding_equivalence": "D — NOT_PROVEN", "frozen_corpus": "D — NOT_VALID"},
+  "gate_to_x78_38b": "SKIPPED — X78.38A gate not satisfied",
+  "invariants": {"slots": 2, "rpc_ceiling": 8, "coverage_observation_enabled": false, "history_skip": false, "creator_funders_changed": false, "acquisition": "HOLD_ACQUISITION"}
+}

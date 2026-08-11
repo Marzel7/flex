@@ -1,0 +1,15 @@
+{
+  "milestone": "X78.38A1 — Real Helius Pagination Semantics & Frozen Exact-Equivalence Corpus",
+  "baseline_revision": "cb1fc110e105436c4baa9fe15f956628f80db3ce",
+  "mode": "shadow_only",
+  "provider_experiment": {"provider": "helius_enhanced_addresses_transactions", "request_budget": 9, "requests_issued": 9, "creators": 3, "raw_artifact_directory": "docs/audits/x78_38a1_provider_artifacts", "raw_artifacts": 9, "report": "docs/audits/x78_38a1_provider_experiment.json"},
+  "boundary_results": {"CONTIGUOUS_PROVEN": 2, "EXPECTED_OVERLAP_NOT_FIRST_RESULT": 1},
+  "material_observation": "For Gygj9QQby4j2jryqyqBHvLP7ctv2SaANgh4sCb69BUpA, the overlap request returned a different signature in the same slot before the expected prior boundary. Within-slot ordering is therefore not established by the tested signature protocol.",
+  "protocol_result": "The penultimate-before protocol succeeds for two sampled deep creators, but the third result proves it is not universally sufficient to establish an ordered contiguous boundary.",
+  "frozen_corpus": {"status": "C — MATERIAL_GAP", "reason": "Nine raw provider pages are retained for a bounded provider experiment, not a representative corpus covering full reconstruction and every required creator class."},
+  "funding_equivalence": {"status": "D — NOT_PROVEN", "reason": "No per-creator full versus overlap-backed funding reconstruction was run after the ambiguous provider result."},
+  "verdicts": {"helius_pagination_semantics": "C — MATERIAL_AMBIGUITY", "deep_continuity": "C — MATERIAL_GAP", "frozen_corpus": "C — MATERIAL_GAP", "funding_equivalence": "D — NOT_PROVEN"},
+  "gate_to_x78_38b": "SKIPPED — X78.38A1 gate not satisfied",
+  "validation": {"tests": "16 passed: X78.38A/X78.37/X78.36 focused suite", "production_changes": false},
+  "safety": {"shared_acquisition": true, "max_requests": 9, "rpc_ceiling_changed": false, "coverage_influenced_acquisition": false, "history_reuse_enabled": false, "acquisition": "HOLD_ACQUISITION"}
+}

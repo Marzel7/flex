@@ -1695,14 +1695,14 @@ def ensure_infra_wallets_table(db_conn) -> None:
     """)
 
 
-def sync_infra_wallets(db_conn, include_cex: bool = True) -> int:
+def collect_infra_wallet_rows(db_conn, include_cex: bool = True) -> list:
     """
-    Seed/update infra_wallets from static registries and observed DB tables.
-
-    Raw transfer tables remain untouched. This table is the interpretation-layer
-    exclusion list used by network, coordination, 2H, and fingerprint builders.
+    Read-only scan: gather the full desired (address, type, label) state from
+    static registries and observed DB tables (including the three full
+    token_analysis SELECT DISTINCT scans). Performs no writes and does not
+    require a write lease -- callers should run this on a read-only
+    connection so the ~2min scan never blocks concurrent writers.
     """
-    ensure_infra_wallets_table(db_conn)
     rows = []
 
     for address, info in INFRASTRUCTURE_ACCOUNTS.items():
@@ -1756,9 +1756,27 @@ def sync_infra_wallets(db_conn, include_cex: bool = True) -> int:
         except Exception:
             pass
 
+    return [(address, wallet_type, label) for address, wallet_type, label in rows if address]
+
+
+def write_infra_wallet_deltas(db_conn, rows: list) -> int:
+    """
+    Short write phase: given the desired state from collect_infra_wallet_rows,
+    diff against what's currently persisted and upsert only changed rows.
+    Callers should open the write connection immediately before this call
+    and commit/close immediately after, so the write lease is held only for
+    the handful of actual changes, not the full scan.
+    """
+    ensure_infra_wallets_table(db_conn)
+
+    current = {
+        row[0]: (row[1], row[2])
+        for row in db_conn.execute("SELECT address, type, label FROM infra_wallets").fetchall()
+    }
+
     written = 0
     for address, wallet_type, label in rows:
-        if not address:
+        if current.get(address) == (wallet_type, label):
             continue
         db_conn.execute("""
             INSERT INTO infra_wallets (address, type, label, updated_at)
@@ -1772,7 +1790,28 @@ def sync_infra_wallets(db_conn, include_cex: bool = True) -> int:
     return written
 
 
-def build_excluded_set(db_conn=None) -> frozenset:
+def sync_infra_wallets(db_conn, include_cex: bool = True) -> int:
+    """
+    Seed/update infra_wallets from static registries and observed DB tables.
+
+    Raw transfer tables remain untouched. This table is the interpretation-layer
+    exclusion list used by network, coordination, 2H, and fingerprint builders.
+
+    Kept as a single-connection convenience wrapper for existing callers that
+    don't care about read/write lease separation (e.g. one-off scripts). The
+    scheduler path (infra_sync_scheduler.run_once) uses
+    collect_infra_wallet_rows + write_infra_wallet_deltas directly on
+    separate connections instead, since it's the caller whose ~2min scan
+    duration actually matters for write-lease contention.
+    """
+    ensure_infra_wallets_table(db_conn)
+    rows = collect_infra_wallet_rows(db_conn, include_cex=include_cex)
+    return write_infra_wallet_deltas(db_conn, rows)
+
+
+def build_excluded_set(
+    db_conn=None, candidate_addresses=None, include_token_analysis: bool = True
+) -> frozenset:
     """
     Build a complete set of all CEX + infra addresses for bulk exclusion.
     Combines static registry with the live cex_wallets table.
@@ -1797,13 +1836,26 @@ def build_excluded_set(db_conn=None) -> frozenset:
             excluded.update(r[0] for r in rows)
         except Exception:
             pass
-        for column in ("bonding_curve_pda", "pool_address", "pumpswap_pool_address"):
+        candidates = tuple(dict.fromkeys(candidate_addresses or ()))
+        dynamic_columns = (
+            ("bonding_curve_pda", "pool_address", "pumpswap_pool_address")
+            if include_token_analysis else ()
+        )
+        for column in dynamic_columns:
             try:
-                rows = db_conn.execute(f"""
-                    SELECT DISTINCT {column}
-                    FROM token_analysis
-                    WHERE {column} IS NOT NULL AND {column} != ''
-                """).fetchall()
+                if candidates:
+                    placeholders = ",".join("?" for _ in candidates)
+                    rows = db_conn.execute(
+                        f"SELECT DISTINCT {column} FROM token_analysis "
+                        f"WHERE {column} IN ({placeholders})",
+                        candidates,
+                    ).fetchall()
+                else:
+                    rows = db_conn.execute(f"""
+                        SELECT DISTINCT {column}
+                        FROM token_analysis
+                        WHERE {column} IS NOT NULL AND {column} != ''
+                    """).fetchall()
                 excluded.update(r[0] for r in rows)
             except Exception:
                 pass

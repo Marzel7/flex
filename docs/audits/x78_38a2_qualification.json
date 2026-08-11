@@ -1,0 +1,12 @@
+{
+  "milestone": "X78.38A2 — Same-Slot Ordering & Stronger Pagination Boundary Proof",
+  "baseline_revision": "cb1fc110e105436c4baa9fe15f956628f80db3ce",
+  "counterexample_creator": "Gygj9QQby4j2jryqyqBHvLP7ctv2SaANgh4sCb69BUpA",
+  "experiment": {"requests": 2, "transport": "Shared Transaction Acquisition", "anchor": "taken six signatures above the prior page tail", "artifact_report": "docs/audits/x78_38a2_provider_experiment.json"},
+  "results": {"membership_stable": true, "order_stable": false, "expected_window_present_each": true, "observation": "Identical anchored continuation requests shuffled same-slot signatures while retaining the same membership."},
+  "ordering_signals": {"slot": "available but insufficient to order transactions", "block_time": "same for the ambiguous same-slot records", "signature_lexical_order": "not a chain ordering invariant", "transaction_index": "not available in the enhanced responses"},
+  "candidate_models": {"ordered_signature_overlap": "rejected by X78.38A1/A2", "boundary_slot_set": "insufficient: a page can cut through a slot and enhanced responses do not expose complete slot membership or transaction position", "multi_signature_window": "membership stable in this probe but cannot prove no omitted same-slot signature", "larger_overlap": "does not resolve missing complete-slot boundary"},
+  "verdicts": {"same_slot_semantics": "A — FULLY_CHARACTERIZED for the tested counterexample: membership stable, provider-local order unstable", "boundary_protocol": "D — NO_SAFE_PROTOCOL", "funding_equivalence": "D — NOT_PROVEN", "history_reuse_gate": "BLOCK_HISTORY_REUSE"},
+  "stop_condition": "X78.38A2 BLOCKED — provider pagination does not support proven safe continuation under the current enhanced-history acquisition contract",
+  "safety": {"history_reuse_enabled": false, "coverage_influences_acquisition": false, "rpc_ceiling_changed": false, "acquisition": "HOLD_ACQUISITION"}
+}

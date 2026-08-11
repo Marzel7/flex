@@ -1,0 +1,54 @@
+{
+  "milestone": "X78.37 — Creator History Coverage & Completeness Contract",
+  "timestamp_utc": "2026-08-10T00:00:00Z",
+  "baseline": {
+    "revision": "cb1fc110e105436c4baa9fe15f956628f80db3ce",
+    "worktree": "pre-existing dirty worktree preserved; X78.37 adds an opt-in conservative coverage ledger",
+    "artifact_hashes": {
+      "x78_34_qualification": "f697665fb7be105f3c40f05ae967ac3999af3879d0d180a8b4aade3f18c43205",
+      "x78_35_qualification": "886aa9469ee961d7108f91150438f9dd9a2ceea48c5f48d4f4d38c004f5790f8",
+      "x78_35a_qualification": "b9c2cfa4c4af224e17826c3b5b81d71f10e4fad310a9699fe016853dc39f8293",
+      "x78_36_pagination_audit": "12772e1119471cf491cd19d6e2438bf70effaa5cedb01b2b8d4980011a4afe83"
+    }
+  },
+  "current_coverage_audit": {
+    "address_scan_state_rows": 6448,
+    "address_scan_state_last_signature_values": [["v1_migration_start", 6448]],
+    "conclusion": "address_scan_state is a scheduler marker, not a creator-history coverage cursor"
+  },
+  "termination_classification": {
+    "provider_history_exhausted": "A — provider exhaustion only; deep-page contiguity remains unproven without overlap",
+    "missing_continuation_signature": "E — UNKNOWN",
+    "legacy_pagination_complete": "E — UNKNOWN",
+    "legacy_thirty_day_cutoff": "C — OPERATIONAL_LIMIT",
+    "legacy_eight_page_cap": "C — OPERATIONAL_LIMIT",
+    "legacy_first_tx_three_page_cap": "C — OPERATIONAL_LIMIT",
+    "legacy_five_empty_pages_after_five_funders": "C — OPERATIONAL_LIMIT",
+    "legacy_fifty_funders_cap": "C — OPERATIONAL_LIMIT",
+    "provider_timeout_incomplete": "D — FAILURE",
+    "provider_or_parser_error_incomplete": "D — FAILURE",
+    "provider_rate_limited": "D — FAILURE",
+    "oldest_transaction_bootstrap": "E — UNKNOWN"
+  },
+  "implementation": {
+    "files": ["src/core/creator_history_coverage.py", "src/extractors/realtime_creator_funding_extractor.py", "tests/test_x78_37_creator_history_coverage.py"],
+    "feature_flag": "CREATOR_HISTORY_COVERAGE_ENABLED=0 by default",
+    "model": "append-only runs and pages plus an explicit conservative current state",
+    "ordering": "existing page facts commit before coverage observation; a crash can understate coverage but cannot overstate it",
+    "states": ["COMPLETE_EXHAUSTED", "EXHAUSTED_UNVERIFIED_CONTIGUITY", "PARTIAL", "FAILED", "UNKNOWN"],
+    "not_used_for": ["cursor selection", "history skipping", "negative evidence", "funder inference"]
+  },
+  "mutable_head_and_continuation": {
+    "newest_page": "mutable by design",
+    "deep_page_cursor_stability": "not proven by retained local evidence or provider contract",
+    "overlap_requirement": "required before a deep multi-page range can be marked contiguous",
+    "duplicate_handling": "recorded per durable page; duplicates never prove continuity"
+  },
+  "validation": {
+    "command": "pytest -q tests/test_x78_37_creator_history_coverage.py tests/test_x78_36_pagination_instrumentation.py tests/test_x78_35a_nonblocking_wal_checkpoint.py",
+    "result": "17 passed",
+    "coverage_cases": ["exhausted", "partial", "mutable head", "restart", "duplicate overlap", "crash under-statement", "timeout/failure", "parser version mismatch"]
+  },
+  "safety_invariants": {"slots": 2, "rpc_ceiling": 8, "provider_policy_changed": false, "acquisition_changed": false, "outgoing_barrier_changed": false, "coverage_enabled_in_production": false, "evidence_activation": "HOLD", "acquisition": "HOLD_ACQUISITION"},
+  "advancement_gate": {"verdict": "PASS_CONTRACT_ONLY", "reason": "The ledger durably distinguishes complete/exhausted, unverified exhaustion, partial, failed and unknown states and can represent a proven boundary. Existing deep scans have no overlap proof, so they are intentionally not reusable yet."}
+}

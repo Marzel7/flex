@@ -17756,7 +17756,23 @@ def api_risk_scoring_run():
 
 @app.route('/predictions')
 def predictions_page():
-    return render_template('predictions.html', active_page='predictions')
+    return jsonify({
+        "status": "decommissioned",
+        "feature": "legacy_token_prediction",
+        "historical_data_retained": True,
+    }), 410
+
+
+@app.before_request
+def _retire_legacy_token_prediction_http():
+    """Retire mutation/read surfaces without fabricating empty prediction data."""
+    path = request.path.rstrip("/")
+    if path.startswith("/api/predictions") or path == "/api/trading-sim/auto-buy-predictions":
+        return jsonify({
+            "status": "decommissioned",
+            "feature": "legacy_token_prediction",
+            "historical_data_retained": True,
+        }), 410
 
 
 @app.route('/trading-sim')
@@ -19317,33 +19333,20 @@ def api_predictions_accuracy():
 
 @app.route('/api/predictions/run', methods=['POST'])
 def api_predictions_run():
-    try:
-        from src.core.token_prediction_builder import TokenPredictionBuilder
-        result = TokenPredictionBuilder(DB_PATH).run()
-        return jsonify(result)
-    except Exception as exc:
-        return jsonify({"status": "failed", "error": str(exc)}), 500
+    return jsonify({
+        "status": "decommissioned",
+        "feature": "legacy_token_prediction",
+        "historical_data_retained": True,
+    }), 410
 
 
 @app.route('/api/predictions/reset', methods=['POST'])
 def api_predictions_reset():
-    """Queue generated prediction-data reset without touching token stats/history."""
-    with _prediction_reset_lock:
-        if _prediction_reset_state.get("status") in {"queued", "running"}:
-            return jsonify({"ok": True, "queued": True, "status": dict(_prediction_reset_state)})
-        now = int(time.time())
-        _prediction_reset_state.update({
-            "status": "queued",
-            "requested_at": now,
-            "started_at": None,
-            "finished_at": None,
-            "deleted": {},
-            "error": None,
-        })
-
-    thread = threading.Thread(target=_run_prediction_reset_job, daemon=True)
-    thread.start()
-    return jsonify({"ok": True, "queued": True, "status": dict(_prediction_reset_state)})
+    return jsonify({
+        "status": "decommissioned",
+        "feature": "legacy_token_prediction",
+        "historical_data_retained": True,
+    }), 410
 
 
 @app.route('/api/predictions/reset/status')
@@ -19353,6 +19356,9 @@ def api_predictions_reset_status():
 
 
 def _run_prediction_reset_job() -> None:
+    raise RuntimeError("legacy token prediction is decommissioned; historical data is retained")
+    # Historical implementation intentionally remains below for audit history;
+    # the unconditional guard prevents deletion if called outside HTTP routing.
     prediction_tables = [
         'token_prediction_events',
         'token_prediction_outcomes',
@@ -25213,8 +25219,11 @@ def api_health_full():
             pw_status = "DEGRADED"
 
         price_worker = {
-            "status":                       pw_status,
-            "worker_alive":                 worker_alive,
+            # X78.26: these counters are retained historical telemetry, not a
+            # live capability. Intentional shutdown must never become DOWN.
+            "status":                       "DECOMMISSIONED",
+            "worker_alive":                 False,
+            "runtime_enabled":              False,
             "last_peak_update_age_secs":    peak_age,
             "last_peak_update_at":          int(_peak_ts) if _peak_ts else None,
             "last_peak_update_at_utc":      _ts(_peak_ts) if _peak_ts else None,
@@ -25421,12 +25430,29 @@ def api_health_full():
         _fq = _idb.execute(
             "SELECT COUNT(*) FROM creator_funding_queue WHERE status IN ('pending','retry','running','in_progress')"
         ).fetchone()[0]
-        # X73.2 — funding worker health: oldest ready-to-claim row's age (the
-        # real signal for "is the consumer keeping up", not just raw pending
-        # count) plus the standalone worker's own heartbeat.
+        _fq_hot_max_age = int(os.environ.get("CFQ_HOT_MAX_AGE_SECONDS", str(6 * 3600)))
+        _fq_hot = _idb.execute(
+            "SELECT COUNT(*) FROM creator_funding_queue "
+            "WHERE status IN ('pending','retry') AND locked_until < ? AND next_attempt_at <= ? "
+            "AND created_at >= ?",
+            (now, now, now - _fq_hot_max_age),
+        ).fetchone()[0]
+        _fq_stale_retained = _idb.execute(
+            "SELECT COUNT(*) FROM creator_funding_queue "
+            "WHERE status IN ('pending','retry') AND created_at < ?",
+            (now - _fq_hot_max_age,),
+        ).fetchone()[0]
+        _fq_expired = _idb.execute(
+            "SELECT COUNT(*) FROM creator_funding_queue WHERE status='expired' "
+            "AND last_error='STALE_OUTSIDE_OPERATIONAL_WINDOW'"
+        ).fetchone()[0]
+        # X78.30 — health follows the oldest HOT ready-to-claim row, never a
+        # retained historical row which cannot consume live worker capacity.
         _fq_oldest_row = _idb.execute(
-            "SELECT MIN(COALESCE(next_attempt_at, created_at)) FROM creator_funding_queue "
-            "WHERE status IN ('pending','retry')"
+            "SELECT MIN(created_at) FROM creator_funding_queue "
+            "WHERE status IN ('pending','retry') AND locked_until < ? AND next_attempt_at <= ? "
+            "AND created_at >= ?",
+            (now, now, now - _fq_hot_max_age),
         ).fetchone()
         _fq_oldest_age = (now - int(_fq_oldest_row[0])) if _fq_oldest_row and _fq_oldest_row[0] else None
         _fq_worker_hb = _idb.execute(
@@ -25452,8 +25478,14 @@ def api_health_full():
         ).fetchone()[0]
         _idb.close()
 
-        # Watch pipeline heartbeat from hot DB
+        # The historical ``watch-pipeline`` heartbeat belongs to an optional
+        # in-Gunicorn candidate processor. Production deliberately suppresses
+        # all Flask background workers; canonical WATCHTOWER monitoring is the
+        # supervised WS cascade, while Operational Intelligence snapshots are
+        # owned by intelligence_snapshot_scheduler. Do not report a retired
+        # legacy heartbeat as a current Operational Intelligence failure.
         wp_age = None
+        wp_legacy_age = None
         cp_age = None
         pending_attr = 0
         try:
@@ -25469,7 +25501,7 @@ def api_health_full():
             ).fetchone()
             _wdb.close()
             if _wp:
-                wp_age = now - int(_wp[0])
+                wp_legacy_age = now - int(_wp[0])
                 try:
                     _wpm = _json.loads(_wp[1]) if _wp[1] else {}
                     wp_interval = int(_wpm.get("interval_s", 300))
@@ -25500,6 +25532,43 @@ def api_health_full():
         except Exception:
             wp_interval = 300
 
+        watch_pipeline_lifecycle = (
+            "ACTIVE"
+            if os.environ.get("FLEX_ENABLE_FLASK_BACKGROUND_WORKERS", "0") == "1"
+            else "RETIRED"
+        )
+        if watch_pipeline_lifecycle == "ACTIVE":
+            wp_age = wp_legacy_age
+
+        operational_snapshot = {}
+        try:
+            from src.core.snapshot_health import classify_snapshot_health
+            operational_snapshot = classify_snapshot_health(
+                "operational_intelligence", 86400
+            )
+        except Exception as _snapshot_exc:
+            operational_snapshot = {
+                "health": "UNKNOWN",
+                "error": str(_snapshot_exc)[:120],
+            }
+
+        cp_stale_threshold = 120
+        try:
+            _cp_batch = max(1, int(cp_meta.get("batch_size") or 1))
+            _cp_avg = max(0.0, float(_crq_rt_avg or 0.0))
+            _cp_p95 = max(
+                _cp_avg,
+                float(_crq_rt_p95r[0]) if _crq_rt_p95r else 0.0,
+            )
+            # The worker heartbeats at the end of each batch.  A mean-based
+            # threshold still reports a healthy in-flight batch as stale when
+            # one or more bounded RPC resolutions run near p95.  Size the
+            # liveness window from observed p95 without changing worker or RPC
+            # semantics.
+            cp_stale_threshold = max(120, int(_cp_batch * _cp_p95 + 60))
+        except Exception:
+            cp_stale_threshold = 120
+
         crq_pending  = crq_counts.get("pending", 0) + crq_counts.get("retry", 0)
         crq_running  = crq_counts.get("running", 0)
         crq_failed   = crq_counts.get("failed", 0)
@@ -25526,12 +25595,31 @@ def api_health_full():
             else:
                 fq_worker_status = "STALLED"
 
+        _fq_last_completed_at = _fq_worker_meta.get("last_completed_at")
+        _fq_last_completed_age = (
+            now - int(_fq_last_completed_at)
+            if _fq_last_completed_at not in (None, "")
+            else None
+        )
+        if fq_worker_status != "RUNNING":
+            fq_progress_status = fq_worker_status
+        elif _fq_last_completed_age is not None and _fq_last_completed_age <= 600:
+            fq_progress_status = (
+                "BACKLOGGED_BUT_PROGRESSING"
+                if _fq_oldest_age is not None and _fq_oldest_age > _FQ_OLDEST_AGE_ALERT_SEC
+                else "RUNNING_AND_COMPLETING"
+            )
+        elif int(_fq_worker_meta.get("total_claimed") or 0) > 0:
+            fq_progress_status = "RUNNING_BUT_NO_RECENT_COMPLETION"
+        else:
+            fq_progress_status = "RUNNING"
+
         int_status = "HEALTHY"
         if crq_failed > 5:
             int_status = "DEGRADED"
-        elif wp_age is not None and wp_age > wp_interval * 2:
+        elif operational_snapshot.get("health") in ("STALE_FAILED", "NO_SNAPSHOT", "UNKNOWN"):
             int_status = "DEGRADED"
-        elif cp_age is not None and cp_age > 120:
+        elif cp_age is not None and cp_age > cp_stale_threshold:
             int_status = "DEGRADED"
         elif fq_worker_status != "RUNNING" and int(_fq) > 0:
             int_status = "DEGRADED"
@@ -25551,15 +25639,31 @@ def api_health_full():
             "crq_avg_pages":                round(float(_crq_pg_avg), 1) if _crq_pg_avg else None,
             "crq_max_pages":                int(_crq_pg_max) if _crq_pg_max else None,
             "funding_queue_pending":        int(_fq),
+            "funding_hot_pending":          int(_fq_hot),
+            "funding_oldest_hot_age_secs":  _fq_oldest_age,
+            "funding_hot_max_age_secs":     _fq_hot_max_age,
+            "funding_stale_retained":       int(_fq_stale_retained),
+            "funding_expired":              int(_fq_expired),
             "funding_worker_status":        fq_worker_status,
             "funding_worker_heartbeat_age_secs": _fq_worker_age,
             "funding_worker_meta":          _fq_worker_meta,
+            "funding_progress_status":      fq_progress_status,
+            "funding_last_completed_age_secs": _fq_last_completed_age,
+            # Compatibility key now intentionally means oldest HOT eligible.
             "funding_queue_oldest_pending_age_secs": _fq_oldest_age,
             "crq_worker_age_secs":          cp_age,
             "crq_worker_meta":              cp_meta,
             "missing_creators_1h":          int(_miss),
             "watch_pipeline_age_secs":      wp_age,
             "watch_pipeline_interval_secs": wp_interval,
+            "watch_pipeline_lifecycle":     watch_pipeline_lifecycle,
+            "watch_pipeline_legacy_age_secs": wp_legacy_age,
+            "operational_snapshot_health": operational_snapshot.get("health"),
+            "operational_snapshot_age_secs": operational_snapshot.get("snapshot_age_seconds"),
+            "operational_snapshot_last_update": operational_snapshot.get("last_successful_refresh"),
+            "operational_snapshot_version": operational_snapshot.get("snapshot_version"),
+            "operational_snapshot_worker_id": operational_snapshot.get("worker_id"),
+            "crq_heartbeat_threshold_secs": cp_stale_threshold,
             "candidate_processor_age_secs": cp_age,
             "pending_attribution":          pending_attr,
         }
@@ -40281,7 +40385,7 @@ _full_rescore_running = False
 
 @app.route('/api/run-full-rescore', methods=['POST'])
 def api_run_full_rescore():
-    """Run graph suite -> RiskScoringBuilder -> TokenPredictionBuilder in sequence."""
+    """Run graph suite then shared creator/network risk scoring."""
     global _full_rescore_running
     if _full_rescore_running:
         return jsonify({"ok": False, "error": "Already running"}), 409
@@ -40311,9 +40415,6 @@ def api_run_full_rescore():
             from src.core.risk_scoring_builder import RiskScoringBuilder
             RiskScoringBuilder(DB_PATH).run()
 
-            # Step 4: token predictions
-            from src.core.token_prediction_builder import TokenPredictionBuilder
-            TokenPredictionBuilder(DB_PATH).run()
         except Exception as exc:
             logger.exception(f"full_rescore error: {exc}")
         finally:
@@ -41771,7 +41872,10 @@ def api_funder_intelligence_network(network_name):
 # =========================================================================
 
 def _sync_validated_tokens_to_tracker():
-    """Register all validated token_pool_accounts into tracked_tokens on startup."""
+    """Legacy broad-tracker population sync (decommissioned by X78.26)."""
+    print("[PRICE_WORKER] Broad tracked-token sync decommissioned; no registry writes", flush=True)
+    return
+    # Historical implementation retained below for audit compatibility.
     try:
         import sqlite3 as _sq
         from src.core.price_worker import PriceWorkerRegistry
@@ -41819,27 +41923,18 @@ def _sync_validated_tokens_to_tracker():
 
 
 def start_background_workers():
-    """Start price and liquidity workers in background threads"""
+    """Start retained selective workers; broad price tracking remains off."""
     print("[STARTUP_DIAG] start_background_workers: begin", flush=True)
     import os
     if os.environ.get('FLEX_ENABLE_FLASK_BACKGROUND_WORKERS', '0') != '1':
         print("[STARTUP_DIAG] optional Flask background workers skipped (set FLEX_ENABLE_FLASK_BACKGROUND_WORKERS=1 to enable)")
         return
 
-    _sync_validated_tokens_to_tracker()
-    print("[STARTUP_DIAG] _sync_validated_tokens_to_tracker: done", flush=True)
-
-    if os.environ.get('FLEX_ENABLE_FLASK_PRICE_WORKER', '0') != '1':
-        print("[PRICE_WORKER] Skipping worker start — listener process owns pricing (set FLEX_ENABLE_FLASK_PRICE_WORKER=1 to run it in Flask)")
-    else:
-        try:
-            print("[STARTUP_DIAG] importing price_worker...", flush=True)
-            from src.core.price_worker import start_price_worker
-            print("[STARTUP_DIAG] starting price_worker...", flush=True)
-            price_worker = start_price_worker(db_path=DB_PATH)
-            print(f"[PRICE_WORKER] Background price worker started pid={os.getpid()}", flush=True)
-        except Exception as e:
-            print(f"[WARNING] Price worker failed to start: {e}")
+    print(
+        "[PRICE_WORKER] Broad continuous worker decommissioned; "
+        "historical data and selective/on-demand services retained",
+        flush=True,
+    )
 
     print("[STARTUP_DIAG] importing liquidity_worker...", flush=True)
     try:
@@ -42322,29 +42417,7 @@ if __name__ == '__main__':
     print("[FLASK] Dashboard available at http://localhost:5002")
     print(f"[FLASK] Database: {_os.path.abspath(DB_PATH)}")
 
-    # Prediction builder daemon — score new migrations and drain rescore queue
-    # Gated by PREDICTION_DAEMON_ENABLED (default true). Set false during listener recovery
-    # to avoid competing for the write lane with WATCHTOWER pipeline workers.
-    if _os.environ.get("PREDICTION_DAEMON_ENABLED", "true").lower() not in ("false", "0", "no"):
-        def _prediction_daemon():
-            import time as _t
-            _t.sleep(2)  # let DB settle after startup
-            while True:
-                try:
-                    from src.core.token_prediction_builder import TokenPredictionBuilder
-                    TokenPredictionBuilder(DB_PATH).run()
-                except Exception as _e:
-                    if "database is locked" in str(_e):
-                        print(f"[PREDICTION_DAEMON] DB locked, retrying in 15s", flush=True)
-                        _t.sleep(15)
-                        continue
-                    print(f"[PREDICTION_DAEMON] error: {_e}", flush=True)
-                _t.sleep(120)  # run every 2 minutes
-
-        threading.Thread(target=_prediction_daemon, daemon=True, name="prediction-daemon").start()
-        print("[PREDICTION_DAEMON] Token prediction daemon started (2 min loop)", flush=True)
-    else:
-        print("[PREDICTION_DAEMON] PARKED — PREDICTION_DAEMON_ENABLED=false (re-enable after recovery)", flush=True)
+    print("[PREDICTION_DAEMON] DECOMMISSIONED — historical tables retained read-only", flush=True)
 
 
     # Creator resolution queue is now a standalone supervised worker (creator_resolution_worker.py).

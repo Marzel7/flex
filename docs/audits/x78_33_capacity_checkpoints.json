@@ -1,0 +1,160 @@
+{
+  "milestone": "X78.33",
+  "qualification_started_at": 1786379303,
+  "qualification_pid": 87504,
+  "slots": 2,
+  "t0": {
+    "epoch": 1786379303,
+    "log_line": 68842,
+    "rpc_id": 4114639,
+    "queue_updated_at": 1786379304,
+    "expired_total": 3622,
+    "hot_ready": 1133,
+    "distinct_hot_creators": 948,
+    "duplicate_hot_rows": 185,
+    "max_rows_per_creator": 86,
+    "oldest_hot_age_s": 21591,
+    "age_bands": {
+      "under_15m": 32,
+      "15_to_60m": 166,
+      "1_to_3h": 614,
+      "3_to_6h": 321
+    },
+    "worker": {
+      "claimed": 70,
+      "completed": 62,
+      "complete_fast": 10,
+      "retried": 3,
+      "failed": 0,
+      "expired": 1400,
+      "active_slots": 2
+    },
+    "database": {
+      "p50_wait_ms": 0.0,
+      "p95_wait_ms": 1.6,
+      "p99_wait_ms": 95.88,
+      "p95_commit_ms": 0.62,
+      "p99_commit_ms": 4.82,
+      "serializer_depth": 0,
+      "max_serializer_depth": 3,
+      "wal_bytes": 453232
+    },
+    "processes": {
+      "creator_funding": 87504,
+      "creator_resolution": 69682,
+      "listener": 69765,
+      "api_master": 77110
+    }
+  },
+  "checkpoints": [
+    {
+      "label": "T15",
+      "epoch": 1786380289,
+      "elapsed_s": 986,
+      "hot_ready": 1141,
+      "distinct_hot_creators": 950,
+      "oldest_hot_age_s": 21181,
+      "age_bands": {
+        "under_15m": 27,
+        "15_to_60m": 117,
+        "1_to_3h": 618,
+        "3_to_6h": 379
+      },
+      "arrivals": 80,
+      "worker_completed": 58,
+      "full_completed": 43,
+      "complete_fast": 15,
+      "retried": 2,
+      "failed": 0,
+      "durable_funding_transitions": 358,
+      "satisfied_reconciliation_inferred": 300,
+      "expired": 1200,
+      "completion_rate_per_hour": 211.76,
+      "arrival_rate_per_hour": 292.09,
+      "capacity_ratio": 0.725,
+      "rpc": {
+        "calls": 6048,
+        "credits": 65750,
+        "http_429": 0,
+        "http_5xx": 0,
+        "other_http_4xx": 0,
+        "transport_retries": 0,
+        "average_latency_ms": 89.62,
+        "maximum_latency_ms": 15468.95
+      },
+      "database": {
+        "p50_wait_ms": 0.0,
+        "p95_wait_ms": 1.94,
+        "p99_wait_ms": 95.88,
+        "p95_commit_ms": 0.51,
+        "p99_commit_ms": 4.74,
+        "serializer_depth": 1,
+        "max_serializer_depth": 3,
+        "wal_bytes": 37360192
+      },
+      "telemetry_notes": [
+        "The heartbeat completion delta exactly reconciles to the durable transition remainder after bounded satisfied-row reconciliation.",
+        "Supervisor rotated the worker log during the window, so the original line-offset runtime decomposition is unavailable and is not reconstructed speculatively."
+      ]
+    },
+    {
+      "label": "T30",
+      "epoch": 1786381210,
+      "elapsed_s": 1907,
+      "hot_ready": 1131,
+      "distinct_hot_creators": 943,
+      "oldest_hot_age_s": 21577,
+      "age_bands": {
+        "under_15m": 13,
+        "15_to_60m": 85,
+        "1_to_3h": 620,
+        "3_to_6h": 413
+      },
+      "arrivals": 153,
+      "worker_completed": 119,
+      "full_completed": 89,
+      "complete_fast": 30,
+      "retried": 6,
+      "failed": 0,
+      "durable_funding_transitions": 741,
+      "satisfied_reconciliation": 625,
+      "expired": 2500,
+      "new_arrivals_expired": 0,
+      "completion_rate_per_hour": 224.646,
+      "arrival_rate_per_hour": 288.831,
+      "capacity_ratio": 0.7778,
+      "service": {
+        "full_extraction_p50_s": 17.5,
+        "full_extraction_p95_s": 74.6,
+        "full_extraction_max_s": 84.8,
+        "full_over_30s": 22,
+        "full_over_60s": 8,
+        "timeouts_90s": 6,
+        "timeout_slot_loss_s": 540,
+        "post_extraction_p50_s": 5.526,
+        "post_extraction_p95_s": 11.41,
+        "post_extraction_max_s": 26.175
+      },
+      "rpc": {
+        "calls": 12559,
+        "credits": 131810,
+        "http_429": 0,
+        "http_5xx": 0,
+        "other_http_4xx": 1,
+        "transport_retries": 0,
+        "average_latency_ms": 84.82,
+        "maximum_latency_ms": 15468.95
+      },
+      "database": {
+        "p50_wait_ms": 0.0,
+        "p95_wait_ms": 1.59,
+        "p99_wait_ms": 62.24,
+        "p95_commit_ms": 0.37,
+        "p99_commit_ms": 2.61,
+        "serializer_depth": 0,
+        "max_serializer_depth": 3,
+        "wal_bytes": 19343432
+      }
+    }
+  ]
+}

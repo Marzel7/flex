@@ -15,10 +15,13 @@ The builder applies them at runtime; missing columns are tolerated.
 """
 
 import json
+import inspect
 import logging
 import os
 import sqlite3
+import threading
 import time
+import uuid
 from collections import defaultdict
 from typing import Dict, List, Set
 
@@ -39,6 +42,33 @@ MAX_UPSTREAM_FUNDERS = 50   # upstream reaching >50 known funders → infra, exc
 BURST_WINDOW_HOURS   = 4    # funders activated within this window → burst
 CONFIDENCE_STORE_MIN = 15   # don't write bridges below this score
 CONFIDENCE_UI_FLOOR  = 35   # documented; enforced in API layer not here
+_metrics_lock = threading.Lock()
+
+
+def _metrics_path() -> str:
+    return os.getenv(
+        "SECOND_HOP_BUILD_METRICS_PATH",
+        "logs/diagnostics/x78_19_second_hop_builds.jsonl",
+    )
+
+
+def _append_build_metric(payload: dict) -> None:
+    """Best-effort diagnostics; a metrics failure cannot fail a build."""
+    path = _metrics_path()
+    if not path:
+        return
+    try:
+        os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+        line = json.dumps(
+            {"schema": "x78.19.second_hop_build.v1", **payload},
+            sort_keys=True,
+            default=str,
+        ) + "\n"
+        with _metrics_lock:
+            with open(path, "a", encoding="utf-8") as handle:
+                handle.write(line)
+    except Exception:
+        logger.debug("[SecondHop] metrics append failed", exc_info=True)
 
 
 class SecondHopExpansionBuilder:
@@ -76,9 +106,22 @@ class SecondHopExpansionBuilder:
         return os.getenv("SECOND_HOP_SQL_ENABLED", "false").lower() == "true"
 
     def build(self) -> dict:
+        build_id = str(uuid.uuid4())
+        metric = {
+            "event": "build",
+            "build_id": build_id,
+            "pid": os.getpid(),
+            "thread": threading.current_thread().name,
+            "started_at": time.time(),
+            "lookback_days": LOOKBACK_DAYS,
+        }
+        caller = inspect.stack()[1]
+        metric["trigger_source"] = (
+            f"{os.path.basename(caller.filename)}:{caller.lineno} in {caller.function}"
+        )
         if not self._is_enabled():
             logger.info("[SecondHop] SECOND_HOP_SQL_ENABLED=false — skipping")
-            return {
+            result = {
                 "status": "skipped",
                 "reason": "SECOND_HOP_SQL_ENABLED=false",
                 "links_written": 0,
@@ -86,10 +129,15 @@ class SecondHopExpansionBuilder:
                 "creator_second_hops": 0,
                 "duration_seconds": 0,
             }
+            _append_build_metric({**metric, **result, "finished_at": time.time()})
+            return result
 
         t0 = time.time()
         try:
+            self._active_build_metric = metric
+            phase_started = time.monotonic()
             self._ensure_schema()
+            metric["schema_guard_seconds"] = round(time.monotonic() - phase_started, 6)
             materialize_started = time.monotonic()
             materialized = self._materialize_read_snapshot()
             materialize_seconds = time.monotonic() - materialize_started
@@ -104,7 +152,7 @@ class SecondHopExpansionBuilder:
                 f"materialize_seconds={materialize_seconds:.3f} "
                 f"write_seconds={write_seconds:.3f}"
             )
-            return {
+            result = {
                 "status": "success",
                 "links_written": links,
                 "bridges_written": bridges,
@@ -113,10 +161,12 @@ class SecondHopExpansionBuilder:
                 "materialize_seconds": round(materialize_seconds, 3),
                 "write_seconds": round(write_seconds, 3),
             }
+            _append_build_metric({**metric, **result, "finished_at": time.time()})
+            return result
 
         except Exception as exc:
             logger.error(f"[SecondHop] FAILED: {exc}", exc_info=True)
-            return {
+            result = {
                 "status": "failed",
                 "error": str(exc),
                 "links_written": 0,
@@ -124,6 +174,13 @@ class SecondHopExpansionBuilder:
                 "creator_second_hops": 0,
                 "duration_seconds": round(time.time() - t0, 2),
             }
+            _append_build_metric({
+                **metric,
+                **result,
+                "error_type": type(exc).__name__,
+                "finished_at": time.time(),
+            })
+            return result
 
     def _ensure_schema(self) -> None:
         """Apply idempotent schema guards in their own short transaction."""
@@ -145,7 +202,7 @@ class SecondHopExpansionBuilder:
     def _table_columns(conn, table: str) -> List[str]:
         return [row[1] for row in conn.execute(f"PRAGMA table_info({table})")]
 
-    def _materialize_read_snapshot(self) -> dict:
+    def _materialize_read_snapshot(self, metric: dict | None = None) -> dict:
         """Build a complete replacement from one read snapshot.
 
         TEMP tables shadow the production destination names.  SQLite permits
@@ -155,12 +212,31 @@ class SecondHopExpansionBuilder:
         consistent even while live writers continue.
         """
         from src.utils.db_locking import _sqlite3_connect_orig
+        if metric is None:
+            metric = getattr(self, "_active_build_metric", None)
 
         uri = f"file:{os.path.abspath(self.db_path)}?mode=ro"
+        open_started = time.monotonic()
         conn = _sqlite3_connect_orig(uri, uri=True, timeout=60)
         conn.row_factory = sqlite3.Row
+        if metric is not None:
+            metric["read_snapshot_open_seconds"] = round(
+                time.monotonic() - open_started, 6
+            )
         try:
             conn.execute("BEGIN")
+            phase_started = time.monotonic()
+            source_counts = {}
+            for table in ("transfer_index", "creator_funders", "funder_network_map"):
+                source_counts[table] = conn.execute(
+                    f"SELECT COUNT(*) FROM main.{table}"
+                ).fetchone()[0]
+            if metric is not None:
+                metric["source_rows"] = source_counts
+                metric["source_census_seconds"] = round(
+                    time.monotonic() - phase_started, 6
+                )
+            phase_started = time.monotonic()
             for table in (
                 "funder_upstream_links",
                 "upstream_network_bridge",
@@ -170,6 +246,20 @@ class SecondHopExpansionBuilder:
                 conn.execute(
                     f"CREATE TEMP TABLE {table} AS SELECT * FROM main.{table}"
                 )
+            if metric is not None:
+                metric["temp_shadow_copy_seconds"] = round(
+                    time.monotonic() - phase_started, 6
+                )
+                metric["existing_output_rows"] = {
+                    table: conn.execute(
+                        f"SELECT COUNT(*) FROM temp.{table}"
+                    ).fetchone()[0]
+                    for table in (
+                        "funder_upstream_links",
+                        "upstream_network_bridge",
+                        "creator_second_hop",
+                    )
+                }
             # CREATE TABLE AS does not copy constraints.  Preserve the four
             # production identities so INSERT OR REPLACE during materializing
             # behaves exactly like the authoritative tables.
@@ -190,12 +280,25 @@ class SecondHopExpansionBuilder:
                 ON creator_second_hop(creator_address, upstream_address, via_funder)
             """)
 
+            phase_started = time.monotonic()
             excluded = build_excluded_set(conn)
+            if metric is not None:
+                metric["exclusion_seconds"] = round(time.monotonic() - phase_started, 6)
+                metric["excluded_addresses"] = len(excluded)
             logger.info(f"[SecondHop] Exclusion set: {len(excluded)} addresses")
             self._exclude_infra_links(conn)
+            phase_started = time.monotonic()
             links = self._build_upstream_links(conn, excluded)
+            if metric is not None:
+                metric["upstream_link_seconds"] = round(time.monotonic() - phase_started, 6)
+            phase_started = time.monotonic()
             bridges = self._build_network_bridges(conn, excluded)
+            if metric is not None:
+                metric["network_bridge_seconds"] = round(time.monotonic() - phase_started, 6)
+            phase_started = time.monotonic()
             hops = self._build_creator_second_hop(conn)
+            if metric is not None:
+                metric["creator_second_hop_seconds"] = round(time.monotonic() - phase_started, 6)
 
             significant = [
                 row[0]
@@ -234,6 +337,24 @@ class SecondHopExpansionBuilder:
                 "hubs": rows("monitored_upstream_hubs", hubs_where, hubs_params),
                 "counts": (links, bridges, hops),
             }
+            if metric is not None:
+                metric["output_rows"] = {
+                    "funder_upstream_links": links,
+                    "upstream_network_bridge": bridges,
+                    "creator_second_hop": hops,
+                    "significant_hubs": len(significant),
+                }
+                metric["output_delta"] = {
+                    name: metric["output_rows"][name] - metric["existing_output_rows"][name]
+                    for name in (
+                        "funder_upstream_links",
+                        "upstream_network_bridge",
+                        "creator_second_hop",
+                    )
+                }
+                metric["temp_pages"] = conn.execute("PRAGMA temp.page_count").fetchone()[0]
+                metric["temp_page_size"] = conn.execute("PRAGMA temp.page_size").fetchone()[0]
+                metric["read_snapshot_write_lane_owned"] = False
             conn.rollback()
             return result
         finally:
@@ -250,7 +371,9 @@ class SecondHopExpansionBuilder:
             rows,
         )
 
-    def _replace_materialized(self, materialized: dict) -> tuple[int, int, int]:
+    def _replace_materialized(
+        self, materialized: dict, metric: dict | None = None
+    ) -> tuple[int, int, int]:
         """Atomically publish the already-computed snapshot.
 
         RPC-backfill upstream rows remain untouched, matching the historical
@@ -259,6 +382,8 @@ class SecondHopExpansionBuilder:
         state and a write failure rolls the whole replacement back.
         """
         from src.core.database_write_service import PRIORITY_P2_BACKGROUND
+        if metric is None:
+            metric = getattr(self, "_active_build_metric", None)
 
         conn = None
         try:
@@ -266,15 +391,53 @@ class SecondHopExpansionBuilder:
                 self.db_path, timeout=60, priority=PRIORITY_P2_BACKGROUND
             )
             conn.row_factory = sqlite3.Row
+            wait_started = time.monotonic()
+            if hasattr(conn, "_acquire_write_lane"):
+                conn._acquire_write_lane()
+                hold_started = time.monotonic()
+                wait_seconds = hold_started - wait_started
+            else:
+                # Serialization may be disabled in isolated tests.  The first
+                # mutation below is then the publication boundary.
+                hold_started = wait_started
+                wait_seconds = 0.0
+            if metric is not None:
+                metric["publication_write_lane_wait_seconds"] = round(
+                    wait_seconds, 6
+                )
+            phase_started = time.monotonic()
             conn.execute("DELETE FROM funder_upstream_links WHERE source='transfer_index'")
-            self._bulk_insert(conn, "funder_upstream_links", *materialized["links"])
             conn.execute("DELETE FROM upstream_network_bridge")
-            self._bulk_insert(conn, "upstream_network_bridge", *materialized["bridges"])
             conn.execute("DELETE FROM creator_second_hop")
+            if metric is not None:
+                metric["publication_delete_seconds"] = round(
+                    time.monotonic() - phase_started, 6
+                )
+            phase_started = time.monotonic()
+            self._bulk_insert(conn, "funder_upstream_links", *materialized["links"])
+            self._bulk_insert(conn, "upstream_network_bridge", *materialized["bridges"])
             self._bulk_insert(conn, "creator_second_hop", *materialized["hops"])
             self._bulk_insert(conn, "monitored_upstream_hubs", *materialized["hubs"])
+            if metric is not None:
+                metric["publication_insert_seconds"] = round(
+                    time.monotonic() - phase_started, 6
+                )
+            phase_started = time.monotonic()
             self._exclude_infra_links(conn)
+            if metric is not None:
+                metric["publication_exclusion_seconds"] = round(
+                    time.monotonic() - phase_started, 6
+                )
+            phase_started = time.monotonic()
             conn.commit()
+            if metric is not None:
+                metric["publication_commit_seconds"] = round(
+                    time.monotonic() - phase_started, 6
+                )
+                metric["publication_write_lane_hold_seconds"] = round(
+                    time.monotonic() - hold_started, 6
+                )
+                metric["rows_changed"] = conn.total_changes
             return materialized["counts"]
         finally:
             if conn is not None:
@@ -417,7 +580,9 @@ class SecondHopExpansionBuilder:
         """
         conn.execute("DELETE FROM upstream_network_bridge")
 
+        metric = getattr(self, "_active_build_metric", None)
         # Pull upstream → (network, per-funder rows) in one query
+        phase_started = time.monotonic()
         rows = conn.execute("""
             SELECT
                 ful.upstream_address,
@@ -444,8 +609,12 @@ class SecondHopExpansionBuilder:
               AND ful.funder_address NOT IN (SELECT address FROM infra_wallets)
             GROUP BY ful.upstream_address, fnm.network_name
         """).fetchall()
+        if metric is not None:
+            metric["network_map_read_seconds"] = round(time.monotonic() - phase_started, 6)
+            metric["network_map_rows"] = len(rows)
 
         # Also pull individual avg_transfer_sol per (upstream, funder) for stddev
+        phase_started = time.monotonic()
         funder_amounts: Dict[str, List[float]] = defaultdict(list)
         for r in conn.execute("""
             SELECT ful.upstream_address, ful.avg_transfer_sol
@@ -465,8 +634,11 @@ class SecondHopExpansionBuilder:
               AND ful.funder_address NOT IN (SELECT address FROM infra_wallets)
         """).fetchall():
             funder_amounts[r["upstream_address"]].append(r["avg_transfer_sol"])
+        if metric is not None:
+            metric["funder_amount_read_seconds"] = round(time.monotonic() - phase_started, 6)
 
         # Cluster lookup caches (avoid per-row DB hits)
+        phase_started = time.monotonic()
         wc_upstreams: Set[str] = {
             r[0] for r in conn.execute(
                 "SELECT DISTINCT funder_wallet FROM wallet_clusters"
@@ -477,6 +649,10 @@ class SecondHopExpansionBuilder:
                 "SELECT DISTINCT wallet_address FROM farm_cluster_members"
             ).fetchall()
         }
+        if metric is not None:
+            metric["cluster_read_seconds"] = round(time.monotonic() - phase_started, 6)
+            metric["wallet_cluster_nodes"] = len(wc_upstreams)
+            metric["farm_cluster_nodes"] = len(fc_upstreams)
 
         # Group rows by upstream
         upstream_map: Dict[str, List[dict]] = defaultdict(list)
@@ -484,6 +660,8 @@ class SecondHopExpansionBuilder:
             upstream_map[r["upstream_address"]].append(dict(r))
 
         written = 0
+        candidate_pairs = 0
+        python_started = time.monotonic()
         for upstream, nets in upstream_map.items():
             if len(nets) < 2:
                 continue  # must bridge ≥2 networks
@@ -511,6 +689,7 @@ class SecondHopExpansionBuilder:
             # Score every pair
             for i, na in enumerate(nets):
                 for nb in nets[i + 1:]:
+                    candidate_pairs += 1
                     score = score_upstream_bridge(
                         upstream_address=upstream,
                         funders_bridged=na["funders_bridged"] + nb["funders_bridged"],
@@ -550,6 +729,16 @@ class SecondHopExpansionBuilder:
                         na["funders_bridged"] + nb["funders_bridged"],
                     ))
                     written += 1
+
+        if metric is not None:
+            metric["graph_python_compute_seconds"] = round(
+                time.monotonic() - python_started, 6
+            )
+            metric["unique_upstream_wallets"] = len(upstream_map)
+            metric["unique_funders"] = sum(len(values) for values in funder_amounts.values())
+            metric["network_nodes"] = len({row["network_name"] for row in rows})
+            metric["candidate_graph_pairs"] = candidate_pairs
+            metric["accepted_graph_pairs"] = written
 
         logger.info(f"[SecondHop] Network bridges written: {written}")
         self._exclude_infra_links(conn)

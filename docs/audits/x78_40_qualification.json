@@ -1,0 +1,196 @@
+{
+  "db_health": {
+    "source": "creator-funding worker heartbeat current db_p99 only; no interval histogram",
+    "verdict": "B \u2014 HEALTHY_WITH_MINOR_RESIDUAL"
+  },
+  "execution": {
+    "fast_jobs": 0,
+    "full_jobs": 21,
+    "full_latency_seconds": {
+      "max": 90.001037,
+      "p50": 6.879,
+      "p95": 16.132
+    },
+    "phases": {
+      "authoritative_state_check": {
+        "count": 21,
+        "max": 0.013661,
+        "p50": 0.006,
+        "p95": 0.01,
+        "total": 0.153
+      },
+      "axiom": {
+        "count": 21,
+        "max": 0.037277,
+        "p50": 0.006,
+        "p95": 0.023,
+        "total": 0.179
+      },
+      "creator_history_and_funding": {
+        "count": 21,
+        "max": 22.665672,
+        "p50": 2.141,
+        "p95": 13.528,
+        "total": 105.595
+      },
+      "debridge": {
+        "count": 21,
+        "max": 0.03738,
+        "p50": 0.006,
+        "p95": 0.03,
+        "total": 0.199
+      },
+      "jito": {
+        "count": 20,
+        "max": 0.700969,
+        "p50": 0.268,
+        "p95": 0.683,
+        "total": 6.817
+      },
+      "outgoing_transfer_scan": {
+        "count": 21,
+        "max": 66.979281,
+        "p50": 0.138,
+        "p95": 4.491,
+        "total": 81.662
+      }
+    },
+    "rpc": {
+      "calls": 459,
+      "calls_per_full_job": 21.857,
+      "semaphore_wait_max_ms": 0.57,
+      "semaphore_wait_p95_ms": 0.523
+    },
+    "slot_utilization": {
+      "aggregate_lower_bound_pct": 2.767,
+      "both_slots_busy": "not observed in lifecycle event timestamps; low demand did not exercise simultaneous occupancy",
+      "lower_bound_busy_seconds": 231.416,
+      "slots": 2
+    }
+  },
+  "frozen": {
+    "acquisition": "HOLD_ACQUISITION",
+    "evidence": "HOLD",
+    "extraction_slots": 2,
+    "history_reuse": "DISABLED \u2014 FULL ACQUISITION BASELINE",
+    "outgoing": "synchronous",
+    "rpc_ceiling": 8
+  },
+  "gates": {
+    "capacity_representative": true,
+    "clean_window": true,
+    "telemetry_accounting_complete": true,
+    "x78_40": "QUALIFIED"
+  },
+  "generated_at": 1786438900,
+  "milestone": "X78.40 \u2014 Definitive Two-Slot Creator Funding Capacity Qualification",
+  "next_milestone": "Return to the release/stability gate; no production capacity change.",
+  "queue_end": {
+    "actionable_by_class": {},
+    "all_window_rows": 23
+  },
+  "reconciliation": {
+    "aggregate_actual_end": 0,
+    "aggregate_expected_end": 0,
+    "by_class": {
+      "LIVE": {
+        "actual_end": 0,
+        "expected_end": 0,
+        "expired": 0,
+        "new": 20,
+        "residual": 0,
+        "start": 0,
+        "terminal_completed": 20,
+        "terminal_failed": 0
+      },
+      "RECOVERY": {
+        "actual_end": 0,
+        "expected_end": 0,
+        "expired": 0,
+        "new": 2,
+        "residual": 0,
+        "start": 0,
+        "terminal_completed": 2,
+        "terminal_failed": 0
+      }
+    },
+    "clean": true,
+    "start_actionable_depth": "durable qualification snapshot"
+  },
+  "telemetry": {
+    "classes": {
+      "LIVE": {
+        "claimed": 20,
+        "events": 80,
+        "expired": 0,
+        "extraction_started": 20,
+        "failed": 0,
+        "retry_events": 0,
+        "run_seconds": {
+          "max": 16,
+          "p50": 4,
+          "p95": 16
+        },
+        "stale_recovered": 0,
+        "unique_completed": 20,
+        "unique_created": 20,
+        "wait_seconds": {
+          "max": 2,
+          "p50": 1,
+          "p95": 2
+        }
+      },
+      "RECOVERY": {
+        "claimed": 1,
+        "events": 7,
+        "expired": 0,
+        "extraction_started": 1,
+        "failed": 0,
+        "retry_events": 1,
+        "run_seconds": {
+          "max": 90,
+          "p50": 90,
+          "p95": 90
+        },
+        "stale_recovered": 0,
+        "unique_completed": 2,
+        "unique_created": 2,
+        "wait_seconds": {
+          "max": 1,
+          "p50": 1,
+          "p95": 1
+        }
+      }
+    },
+    "events": 87,
+    "gap_count": 0,
+    "gap_rows": [],
+    "logical_obligations": 22,
+    "transition_errors": []
+  },
+  "verdicts": {
+    "acquisition": "HOLD_ACQUISITION",
+    "backlog_recovery": "D \u2014 EXPIRY_MASKED_OR_NOT_MEASURABLE",
+    "database_health": "B \u2014 HEALTHY_WITH_MINOR_RESIDUAL",
+    "evidence": "HOLD",
+    "history_reuse": "DISABLED",
+    "organic_demand": "B \u2014 RELIABLE_WITH_MINOR_LIMITATION",
+    "outgoing_barrier": "D \u2014 NOT_MEASURABLE",
+    "rpc_health": "A \u2014 HEALTHY_HEADROOM",
+    "telemetry_window": "A \u2014 CLEAN_AND_RECONCILED",
+    "two_slot_organic_capacity": "A \u2014 SUFFICIENT_WITH_HEADROOM",
+    "two_slot_total_active_capacity": "D \u2014 NOT_MEASURABLE"
+  },
+  "window": {
+    "duration_seconds": 4182,
+    "end_snapshot_id": "53e3784d9ca69158769c7ade2a614fd0b3d08414e7aa584e43f1b4def9ae3d37",
+    "end_utc_epoch": 1786438900,
+    "event_boundaries": {
+      "end_inclusive": 326,
+      "start_exclusive": 239
+    },
+    "first_post_x78_39c_event": 1786434811,
+    "start_snapshot_id": "96a35471d14a5b1bfca531d6bf7a0de9fb3743f664dfb091e7e8716b5ea5e21e",
+    "start_utc_epoch": 1786434718
+  }
+}

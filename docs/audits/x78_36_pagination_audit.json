@@ -1,0 +1,109 @@
+{
+  "milestone": "X78.36",
+  "baseline": {
+    "head": "cb1fc110e105436c4baa9fe15f956628f80db3ce",
+    "branch": "classification-attribution-axis",
+    "worktree_contains_uncommitted_x78_34_x78_35_x78_35a": true,
+    "x78_34_qualification_sha256": "f697665fb7be105f3c40f05ae967ac3999af3879d0d180a8b4aade3f18c43205",
+    "x78_35_qualification_sha256": "886aa9469ee961d7108f91150438f9dd9a2ceea48c5f48d4f4d38c004f5790f8",
+    "x78_35a_qualification_sha256": "b9c2cfa4c4af224e17826c3b5b81d71f10e4fad310a9699fe016853dc39f8293",
+    "extraction_slots": 2,
+    "rpc_ceiling": 8
+  },
+  "live_census": {
+    "token_rows": 1639613,
+    "distinct_creators": 325363,
+    "repeat_creators": 93441,
+    "launches_owned_by_repeat_creators": 1374451,
+    "funded_creators": 15927,
+    "creator_funder_rows": 98545,
+    "creator_funding_queue_rows": 27011,
+    "queue_status": {"complete": 9983, "expired": 17027, "failed": 1},
+    "queued_repeat_creators": 2318,
+    "queue_rows_for_repeat_creators": 12185,
+    "address_scan_state_rows": 6435,
+    "address_scan_state_literal_v1_migration_start_rows": 6435
+  },
+  "authoritative_history_contract": {
+    "result_shape": "set-valued accumulation of every accepted inbound funder plus aggregate amounts",
+    "qualifying_fact": "Helius native transfer with creator as recipient, amount >= 0.001 SOL, sender not dust and not creator-specific exclusion",
+    "ranking_or_disambiguation": false,
+    "earliest_funder_authoritative": false,
+    "latest_funder_authoritative": false,
+    "history_before_migration_only": false,
+    "reason": "implementation explicitly captures all transfers regardless of pre/post migration",
+    "creator_global": true,
+    "launch_specific_facts": ["create transaction Jito inspection", "migration-timestamp-bounded outgoing scan"],
+    "existing_positive_reuse": "creator_funders COUNT > 0 skips later extraction",
+    "negative_reuse_safe": false,
+    "complete_history_proven": false
+  },
+  "instrumentation": {
+    "schema_version": "x78.36-v1",
+    "scope": "FULL extractions only; task-local ContextVar; emitted inside existing CFQ_PHASE_LEDGER",
+    "semantic_changes": false,
+    "fields": ["creator", "mint", "migration_timestamp", "pages_requested", "returned_per_page", "duplicate_signatures", "funding_relevant_transfers", "new_funders", "oldest_timestamp", "page_wall_ms", "first_candidate_page", "deepest_page_changing_funding", "termination_reason", "history_complete", "oldest-probe requests/results"],
+    "known_unavailable_fields": {
+      "final_authoritative_page": "not defined without proven history completion because later pages may add funders or amounts",
+      "migration_slot": "not carried by the current creator_funding_queue/extractor interface; migration timestamp and mint are recorded without fabricating a slot",
+      "provider_fallback_count_for_enhanced_pages": "request_once has no multi-provider Enhanced API fallback",
+      "transaction_cache_hits_for_enhanced_pages": "enhanced pages are returned already parsed and this path does not use RPCCache"
+    }
+  },
+  "initial_observations": [
+    {
+      "population": "post-deployment FULL extraction",
+      "pages_requested": 2,
+      "pages_with_data": 1,
+      "transactions_returned": 10,
+      "first_candidate_page": 1,
+      "deepest_page_changing_funding": 1,
+      "termination": "provider_history_exhausted",
+      "history_complete": true,
+      "history_wall_seconds": 2.599925
+    },
+    {
+      "population": "pre-correction instrumentation observation retained as counterexample",
+      "pages_with_data": 3,
+      "transactions_returned": 300,
+      "funding_relevant_transfers_by_page": [4, 3, 0],
+      "first_candidate_page": 1,
+      "deepest_page_changing_funding_corrected": 2,
+      "termination": "legacy_thirty_day_cutoff",
+      "history_complete": false,
+      "history_wall_seconds": 12.854341,
+      "proof": "page 2 changed authoritative aggregate funding after page 1 had already found a candidate"
+    }
+  ],
+  "deep_pagination_classification": {
+    "proven": ["F_DUPLICATE_RESCAN_OF_KNOWN_HISTORY_RISK", "G_REPEATED_CREATOR_REACQUISITION_RISK", "I_CACHE_POLICY", "K_TOKEN_SPECIFIC_REQUIREMENT_OUTGOING_ONLY"],
+    "not_yet_quantifiable": ["percentage by category", "RPC and slot seconds by category"],
+    "reason": "legacy logs did not carry creator-tagged per-page effects; x78.36-v1 begins that corpus without reconstructing ambiguous interleaved logs"
+  },
+  "candidate_gates": {
+    "A_stop_when_funding_proven": "REJECTED: no single final funder and page 2 changed authoritative amounts after page 1 candidate",
+    "B_stop_at_coverage_boundary": "BLOCKED: no contiguous coverage proof",
+    "C_reuse_existing_authoritative_funding": "ALREADY_PRESENT_FOR_POSITIVE_ROWS; expansion blocked because absence/incompleteness is not reusable",
+    "D_repeat_creator_incremental_history": "BLOCKED: all 6435 cursors contain a literal marker, not a chain signature boundary",
+    "E_shared_transaction_reuse": "PARTIAL_EXISTING; enhanced creator-history pages are not persistently cached and no equivalence corpus yet proves a safe freshness contract",
+    "F_reuse_parsed_transactions": "BLOCKED: no parser-version-compatible parsed-fact coverage contract on this path",
+    "G_migration_slot_bound": "REJECTED: current authoritative creator funding deliberately includes pre- and post-migration transfers"
+  },
+  "optimization_gate": {
+    "status": "BLOCKED",
+    "reason": "No candidate has both a deterministic completeness invariant and a frozen equivalence corpus. Existing stop boundaries already produce incomplete results and must not be mistaken for proof that deeper pages are irrelevant.",
+    "production_extraction_optimization_applied": false
+  },
+  "tests": {
+    "targeted": "76 passed",
+    "instrumentation_after_page_effect_correction": "5 passed"
+  },
+  "verdicts": {
+    "authoritative_contract": "PROVEN_WITH_INCOMPLETE_HISTORY_SEMANTICS",
+    "coverage_checkpoint": "NOT_PROVEN",
+    "early_termination": "BLOCKED",
+    "duplicate_acquisition_reduction": "NOT_YET_PROVEN",
+    "two_slot_capacity": "NOT_REQUALIFIED_BECAUSE_NO_OPTIMIZATION_PASSED",
+    "final": "INSTRUMENTATION_ACTIVE_OPTIMIZATION_BLOCKED"
+  }
+}

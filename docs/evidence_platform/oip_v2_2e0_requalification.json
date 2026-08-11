@@ -1,0 +1,104 @@
+{
+  "milestone": "OIP v2.2E.0 — Production Evidence Authority & Migration Health Readiness Requalification",
+  "mode": "read-only",
+  "baseline": {
+    "x78_44": "B — COMPLETE_WITH_DEFERRED_WORK; RELEASE_TO_E_SERIES",
+    "x78_40": {
+      "start_snapshot": "96a35471d14a5b1bfca531d6bf7a0de9fb3743f664dfb091e7e8716b5ea5e21e",
+      "end_snapshot": "53e3784d9ca69158769c7ade2a614fd0b3d08414e7aa584e43f1b4def9ae3d37",
+      "live_capacity": "A — SUFFICIENT_WITH_HEADROOM",
+      "telemetry_and_reconciliation": "clean; zero gaps and residuals"
+    }
+  },
+  "roadmap": {
+    "canonical_next_identity": "OIP v2.2E — Controlled Production Migration Preflight",
+    "canonical_status": "Restart at Phase 1: no production migration state was created by the earlier failed-closed preflight.",
+    "required_precondition": "Production Evidence activation/authority must be explicitly configured and supervised before a migration can begin.",
+    "five_thousand_scale": "Not authorized. The canonical 5,000-attempt expansion remains downstream of bounded production authority activation, measured Evidence write load, and rollback qualification."
+  },
+  "production_health": {
+    "creator_funding_worker": {"status": "RUNNING", "pid": 37231},
+    "creator_resolution_worker": {"status": "RUNNING", "pid": 25512},
+    "pumpfun_listener": {"status": "RUNNING", "pid": 25475},
+    "watchtower_api": {"status": "RUNNING", "pid": 77110},
+    "intelligence_scheduler": {"status": "RUNNING", "pid": 41768},
+    "queue": "No actionable Creator Funding rows observed after a freshly completed LIVE item.",
+    "lifecycle_gaps": 0,
+    "database": "Current Creator Funding heartbeat DB p99 is 3–4ms; this is a point health signal, not an interval percentile.",
+    "regression_from_x78_40": "No material regression located."
+  },
+  "production_authority_map": {
+    "migration_identity": {
+      "class": "A — AUTHORITATIVE_PRODUCTION_FACT",
+      "producer": "Pump.fun listener migration observation",
+      "store": "token_analysis.mint, migration_tx, migrated_at, lifecycle_stage",
+      "identity": "mint plus non-null migration signature; persistence uses idempotent token/migration checks",
+      "consumer": "Creator Funding, operational projections and downstream intelligence"
+    },
+    "creator_identity": {
+      "class": "B — AUTHORITATIVE_WITH_COMPLETENESS_STATE",
+      "store": "token_analysis.pf_ws_creator, earliest_tx_creator, create_tx_signature",
+      "precedence": "earliest_tx_creator is the resolved transaction-derived creator when present; pf_ws_creator remains separately preserved as listener provenance. A disagreement is not silently merged."
+    },
+    "creator_funding": {
+      "class": "B — AUTHORITATIVE_WITH_COMPLETENESS_STATE",
+      "store": "creator_funders",
+      "semantics": "creator-global, set-valued and amount-accumulating positive funding evidence. No row is not proof of NO_FUNDING; pending, partial, failed and timeout states remain distinct."
+    },
+    "outgoing": {
+      "class": "B — AUTHORITATIVE_WITH_COMPLETENESS_STATE",
+      "semantics": "outgoing acquisition remains synchronous before Creator Funding terminal completion. Zero rows must not be normalized as proven zero outgoing transfers without completeness evidence."
+    },
+    "jito_debridge_axiom_second_hop_network": {
+      "class": "C — RECOMPUTABLE_DERIVED_FACT",
+      "semantics": "derived projections must retain their authoritative input and completeness state."
+    },
+    "presentation_and_caches": {"class": "D — PRESENTATION / CACHE"}
+  },
+  "evidence_platform": {
+    "default_paths": {
+      "database": "database/evidence_platform/evidence.db",
+      "queue": "database/evidence_platform/intake",
+      "artifact_store": "database/evidence_platform/artifacts",
+      "mirror_spool": "database/evidence_platform/mirror_spool"
+    },
+    "live_authority": "NONE — default Evidence database is absent and all discovered candidates are pilot/staged/frozen/shadow corpora.",
+    "flags": {
+      "EVIDENCE_PLATFORM_ENABLED": false,
+      "EVIDENCE_WRITER_ENABLED": false,
+      "EVIDENCE_QUEUE_ENABLED": false,
+      "EVIDENCE_ARTIFACT_STORE_ENABLED": false,
+      "EVIDENCE_HEALTH_ENABLED": false,
+      "EVIDENCE_MIRROR_ENABLED": false,
+      "EVIDENCE_NORMALIZATION_ENABLED": false,
+      "EVIDENCE_PRIMITIVE_ENGINE_ENABLED": false
+    },
+    "mirror_contract": "Optional shared-acquisition observer; passive and non-waiting. It mirrors completed responses only, performs no RPC, spools bounded handoff failures, and is disabled in production.",
+    "writer_contract": "Single controlled Evidence writer with bounded batches, idempotent envelopes, commit-before-ack and isolated Evidence paths; no live supervised owner is configured."
+  },
+  "equivalence_and_semantics": {
+    "live_sample": "NOT_RUN — there is no live Evidence authority and activating one is outside E.0. This is an explicit bounded pre-activation exclusion, not a silent loss claim.",
+    "zero_silent_loss": "PASS at contract-test level; mirror, normalization, identity/raw-artifact, primitive and runtime boundary regressions passed.",
+    "false_negative_rule": "PASS at contract level: Evidence is append-only and records provenance/quality; production missing funding or outgoing data is not permitted to become a negative fact. Live proof is an activation acceptance gate.",
+    "provider_disagreement": "Preservation is covered by immutable normalization tests; no new provider calls were made."
+  },
+  "coverage_baseline": {
+    "eligible_migrated_launches": 32042,
+    "note": "Existing OIP coverage is staged/shadow, not production authority. Migration, creator, funding, normalized Evidence, primitive and operation-evaluation coverage remain separate denominators; no single percentage is asserted."
+  },
+  "tests": {
+    "evidence_foundation_to_runtime_boundaries": "71 passed",
+    "creator_funding_x78_release_gate": "81 passed",
+    "production_changes": "none"
+  },
+  "worktree_reproducibility": "B — IDENTIFIED_WITH_MINOR_AMBIGUITY. The live Creator Funding worker is healthy but the implementation/audits are uncommitted. Consolidate before a restart or any deployment-bearing activation.",
+  "blockers": [],
+  "decisions": {
+    "migration_authority_health": "PASS for bounded activation readiness; no existing production Evidence authority is claimed.",
+    "creator_funding_dependency": "PASS — X78.40 remains authoritative and healthy.",
+    "database_and_rpc_dependency": "PASS for the next bounded activation gate.",
+    "broad_migration_or_5000_scale": "HOLD — requires first bounded production Evidence authority activation and measured write/load qualification.",
+    "e0_verdict": "PASS — READY_FOR_CANONICAL_V2_2E_PHASE_1_PRECHECK"
+  },
+  "next_milestone": "OIP v2.2E — Controlled Production Migration Preflight, Phase 1: explicitly configure a separate production Evidence authority, supervise its writer lifecycle, and run bounded default-off-to-shadow activation with fail-open rollback before any migration or 5,000-scale work."
+}

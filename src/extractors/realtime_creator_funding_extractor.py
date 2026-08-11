@@ -22,6 +22,7 @@ import sqlite3
 import asyncio
 import aiohttp
 import contextvars
+import json
 import os
 import time
 from src.utils.db_locking import db_connect, managed_db_connect
@@ -36,6 +37,7 @@ from src.analysis.automatic_cex_detection import classify_addresses_from_funding
 from src.analysis.post_launch_automation import run_post_launch_automation
 from src.acquisition.transaction import SharedTransactionAcquisition, acquisition_scope
 from src.acquisition.factory import build_transaction_acquisition
+from src.core.creator_history_coverage import CreatorHistoryCoverageStore
 
 # Import RPC metrics recorder for monitoring
 try:
@@ -88,6 +90,82 @@ MAX_PAGES = 8
 MAX_RETRIES = 5
 RPC_TIMEOUT = 30
 FAST_FIRST_TX_PAGE_CAP = 3
+CREATOR_HISTORY_COVERAGE_ENABLED = os.getenv(
+    "CREATOR_HISTORY_COVERAGE_ENABLED", "0"
+).strip().lower() in {"1", "true", "yes", "on"}
+
+_ACTIVE_PHASE_LEDGER: contextvars.ContextVar[Optional[dict]] = contextvars.ContextVar(
+    "creator_funding_phase_ledger", default=None
+)
+
+
+def _pagination_ledger() -> Optional[dict]:
+    """Return this task's bounded X78.36 observation ledger, if active."""
+    ledger = _ACTIVE_PHASE_LEDGER.get()
+    if ledger is None:
+        return None
+    return ledger.setdefault(
+        "pagination",
+        {
+            "schema_version": "x78.36-v1",
+            "pages_requested": 0,
+            "pages": [],
+            "signatures_or_transactions_returned": 0,
+            "duplicate_signatures": 0,
+            "enhanced_oldest_requests": 0,
+            "enhanced_oldest_found": 0,
+            "first_candidate_page": None,
+            "deepest_page_changing_funder_set": None,
+            "final_authoritative_page": None,
+            "final_authoritative_page_unavailable_reason": (
+                "set_valued_accumulation_has_no_final_page_without_proven_history_completion"
+            ),
+            "termination_reason": None,
+            "history_complete": False,
+        },
+    )
+
+
+class _TimedRPCSemaphore:
+    """Drop-in Semaphore wrapper recording wait without changing its ceiling."""
+
+    def __init__(self, value: int):
+        self._semaphore = asyncio.Semaphore(value)
+
+    async def acquire(self):
+        started = time.monotonic()
+        acquired = await self._semaphore.acquire()
+        ledger = _ACTIVE_PHASE_LEDGER.get()
+        if ledger is not None:
+            wait_ms = (time.monotonic() - started) * 1000.0
+            ledger["rpc_calls"] = int(ledger.get("rpc_calls", 0)) + 1
+            ledger["rpc_sem_wait_ms"] = float(ledger.get("rpc_sem_wait_ms", 0.0)) + wait_ms
+            ledger["rpc_sem_wait_max_ms"] = max(
+                float(ledger.get("rpc_sem_wait_max_ms", 0.0)), wait_ms
+            )
+        return acquired
+
+    def release(self):
+        return self._semaphore.release()
+
+    async def __aenter__(self):
+        await self.acquire()
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        self.release()
+
+
+async def _timed_phase(ledger: dict, name: str, awaitable):
+    started = time.monotonic()
+    ledger["active_phase"] = name
+    try:
+        return await awaitable
+    finally:
+        ledger.setdefault("phases", {})[name] = (
+            ledger.setdefault("phases", {}).get(name, 0.0)
+            + (time.monotonic() - started)
+        )
 
 
 class ExtractionWorkScope:
@@ -366,7 +444,7 @@ class RealTimeCreatorFundingExtractor:
         self.session = None
         self.domain_resolver: Optional[DomainResolver] = None
         self.seen_bonding_curves: Set[str] = set()  # Cache bonding curves to skip trading noise
-        self._rpc_sem = asyncio.Semaphore(MAX_CONCURRENT_RPC)
+        self._rpc_sem = _TimedRPCSemaphore(MAX_CONCURRENT_RPC)
         self.transaction_acquisition: Optional[SharedTransactionAcquisition] = None
         # Phase 1: Initialize CursorManager for incremental extraction
         self.cursor_mgr = None
@@ -659,6 +737,9 @@ class RealTimeCreatorFundingExtractor:
             f"https://api-mainnet.helius-rpc.com/v0/addresses/{address}/transactions"
             f"?api-key={_RPC_KEY}&limit=1&sort-order=asc&commitment=finalized"
         )
+        pagination = _pagination_ledger()
+        if pagination is not None:
+            pagination["enhanced_oldest_requests"] += 1
         try:
             response = await self._transaction_client().request_once(
                 http_method="GET",
@@ -687,6 +768,8 @@ class RealTimeCreatorFundingExtractor:
                 return None
             page = response.data
             if isinstance(page, list) and page:
+                if pagination is not None:
+                    pagination["enhanced_oldest_found"] += 1
                 return page[0]
         except Exception as e:
             print(f"[REALTIME_FUNDING]    ⚠ Oldest-tx probe failed: {e}", flush=True)
@@ -1264,7 +1347,7 @@ class RealTimeCreatorFundingExtractor:
                 return {
                     "status": "cached",
                     "creator": creator,
-                    "funders": cached_result.get("funders", []),
+                    "funders": list(cached_result.keys()),
                     "cache_action": cache_action,
                 }
 
@@ -1308,6 +1391,28 @@ class RealTimeCreatorFundingExtractor:
             # FIX #4: Open one shared connection for entire extraction run + ensure schema
             extraction_conn = db_connect(DB_PATH, timeout=90)
             extraction_cursor = extraction_conn.cursor()
+            # X78.37: this ledger is intentionally opt-in until it has a
+            # production qualification.  It does not participate in cursor
+            # selection or history skipping; its only job is to conservatively
+            # record already-durable page coverage.
+            history_coverage = None
+            history_coverage_run_id = None
+            if CREATOR_HISTORY_COVERAGE_ENABLED:
+                try:
+                    history_coverage = CreatorHistoryCoverageStore()
+                    history_coverage_run_id = history_coverage.begin_run(
+                        extraction_conn,
+                        creator,
+                        provider="helius_enhanced",
+                        method="helius_enhanced_addresses_transactions",
+                        mutable_head=True,
+                    )
+                except Exception as coverage_error:
+                    # Coverage telemetry is non-authoritative at this stage.
+                    # Failing to write it must never interrupt funding work.
+                    history_coverage = None
+                    history_coverage_run_id = None
+                    print(f"[HISTORY_COVERAGE] ⚠ start unavailable: {coverage_error}", flush=True)
 
             # Build exclusion set: token mints + bonding curves created by this creator
             exclude_set = set()
@@ -1436,6 +1541,16 @@ class RealTimeCreatorFundingExtractor:
                 empty_inbound_pages = 0
                 oldest_tx_seeded_funders = 0
                 page_limit_for_scan = MAX_PAGES
+                seen_history_signatures: Set[str] = set()
+                pagination = _pagination_ledger()
+                if pagination is not None:
+                    pagination.update({
+                        "creator": creator,
+                        "migration_timestamp": migration_timestamp,
+                        "page_size": 100,
+                        "configured_max_pages": MAX_PAGES,
+                        "configured_history_cutoff_seconds": 30 * 24 * 60 * 60,
+                    })
 
                 # Phase 1: Load cursor if available (enables incremental extraction)
                 cursor_for_creator = None
@@ -1524,6 +1639,9 @@ class RealTimeCreatorFundingExtractor:
                     try:
                         # Log the RPC call
                         print(f"[REALTIME_FUNDING]    [PAGE {page_num}] RPC CALL #{page_num}...", flush=True)
+                        page_started = time.monotonic()
+                        if pagination is not None:
+                            pagination["pages_requested"] += 1
 
                         acquisition_response = await self._transaction_client().request_once(
                             http_method="GET",
@@ -1551,21 +1669,37 @@ class RealTimeCreatorFundingExtractor:
                         if status is not None:  # Preserve legacy page-processing scope.
 
                                 if status == 429:
+                                    if pagination is not None:
+                                        pagination["termination_reason"] = "provider_rate_limited"
                                     print(f"[REALTIME_FUNDING]    ⚠ Rate limited (429) on page {page_num}", flush=True)
                                     break
 
                                 if status != 200:
+                                    if pagination is not None:
+                                        pagination["termination_reason"] = f"provider_http_{status}"
                                     txt = acquisition_response.text
                                     print(f"[REALTIME_FUNDING]    ⚠ Helius HTTP {status} on page {page_num}", flush=True)
                                     break
 
                                 page = acquisition_response.data
                                 if not isinstance(page, list) or len(page) == 0:
+                                    if pagination is not None:
+                                        pagination["termination_reason"] = "provider_history_exhausted"
+                                        pagination["history_complete"] = True
                                     print(f"[REALTIME_FUNDING]    [PAGE {page_num}] No more transactions", flush=True)
                                     break
 
                                 print(f"[REALTIME_FUNDING]    [PAGE {page_num}] fetched={len(page)} txs", flush=True)
                                 total_fetched += len(page)
+                                page_signatures = [
+                                    str(tx.get("signature")) for tx in page
+                                    if isinstance(tx, dict) and tx.get("signature")
+                                ]
+                                duplicates = sum(1 for sig in page_signatures if sig in seen_history_signatures)
+                                seen_history_signatures.update(page_signatures)
+                                if pagination is not None:
+                                    pagination["signatures_or_transactions_returned"] += len(page)
+                                    pagination["duplicate_signatures"] += duplicates
 
                                 # FIX #1: Initialize per-page state for batch accumulation
                                 page_funders_delta: Dict[str, dict] = {}   # addr -> {amount, is_cex, cex_exchange, ...}
@@ -1578,6 +1712,7 @@ class RealTimeCreatorFundingExtractor:
                                 page_has_pre_migration = False
                                 earliest_tx_timestamp = None
                                 page_funders_found = 0
+                                page_funding_relevant_transfers = 0
                                 page_dust_filtered = 0
                                 page_excluded_filtered = 0
                                 page_token_transfers_filtered = 0
@@ -1754,6 +1889,7 @@ class RealTimeCreatorFundingExtractor:
                                                 page_excluded_filtered += 1
                                                 continue
 
+                                            page_funding_relevant_transfers += 1
                                             if frm not in funders:
                                                 funders[frm] = 0
                                                 page_funders_found += 1
@@ -1784,6 +1920,45 @@ class RealTimeCreatorFundingExtractor:
                                 # FIX #1: Flush accumulated page data in batch
                                 await self._flush_page_batch(extraction_conn, creator, page_funders_delta, page_recipients_delta, page_domain_addrs, page_jito_events, page_transfer_index_rows)
 
+                                # The page facts have committed before this
+                                # coverage observation is written.  A crash in
+                                # either direction can therefore understate
+                                # coverage but cannot claim unseen evidence.
+                                if history_coverage and history_coverage_run_id:
+                                    try:
+                                        history_coverage.record_durable_page(
+                                            extraction_conn,
+                                            history_coverage_run_id,
+                                            page_num,
+                                            before_signature,
+                                            page,
+                                        )
+                                    except Exception as coverage_error:
+                                        print(f"[HISTORY_COVERAGE] ⚠ page observation unavailable: {coverage_error}", flush=True)
+
+                                if pagination is not None:
+                                    if page_funding_relevant_transfers > 0:
+                                        effect = "A_CHANGED_AUTHORITATIVE_FUNDING"
+                                        if pagination["first_candidate_page"] is None:
+                                            pagination["first_candidate_page"] = page_num
+                                        pagination["deepest_page_changing_funder_set"] = page_num
+                                    elif page_transfer_index_rows or page_recipients_delta or page_jito_events:
+                                        effect = "C_ADDED_PROVENANCE_ONLY"
+                                    else:
+                                        effect = "E_NO_AUTHORITATIVE_EFFECT"
+                                    pagination["pages"].append({
+                                        "page": page_num,
+                                        "cursor": before_signature,
+                                        "returned": len(page),
+                                        "duplicate_signatures": duplicates,
+                                        "new_funders": page_funders_found,
+                                        "funding_relevant_transfers": page_funding_relevant_transfers,
+                                        "provenance_transfers": len(page_transfer_index_rows),
+                                        "oldest_timestamp": earliest_tx_timestamp,
+                                        "effect": effect,
+                                        "wall_ms": round((time.monotonic() - page_started) * 1000.0, 3),
+                                    })
+
                                 # Log page summary
                                 if page_funders_found > 0 or page_dust_filtered > 0 or page_excluded_filtered > 0 or page_token_transfers_filtered > 0:
                                     details = []
@@ -1805,9 +1980,13 @@ class RealTimeCreatorFundingExtractor:
 
                                     # Stop if we've found enough funding or hit empty pages
                                     if empty_inbound_pages >= 5 and len(funders) >= 5:
+                                        if pagination is not None:
+                                            pagination["termination_reason"] = "legacy_five_empty_pages_after_five_funders"
                                         print(f"[REALTIME_FUNDING] ✅ EARLY STOP: {len(funders)} funders found + {empty_inbound_pages} empty pages", flush=True)
                                         break
                                     elif len(funders) >= 50:
+                                        if pagination is not None:
+                                            pagination["termination_reason"] = "legacy_fifty_funders_cap"
                                         print(f"[REALTIME_FUNDING] ✅ EARLY STOP: {len(funders)} funders found (sufficient coverage)", flush=True)
                                         break
 
@@ -1816,11 +1995,19 @@ class RealTimeCreatorFundingExtractor:
                                 if page:
                                     # Check if we've reached the 1-month cutoff
                                     if earliest_tx_timestamp and earliest_tx_timestamp < one_month_cutoff:
+                                        if pagination is not None:
+                                            pagination["termination_reason"] = "legacy_thirty_day_cutoff"
                                         print(f"[REALTIME_FUNDING]    [PAGE {page_num}] Reached 1-month cutoff", flush=True)
                                         break
 
                                     # FIX #2: Check if we've reached MAX_PAGES limit
                                     if page_num >= page_limit_for_scan:
+                                        if pagination is not None:
+                                            pagination["termination_reason"] = (
+                                                "legacy_first_tx_three_page_cap"
+                                                if page_limit_for_scan == FAST_FIRST_TX_PAGE_CAP
+                                                else "legacy_eight_page_cap"
+                                            )
                                         print(f"[REALTIME_FUNDING]    [PAGE {page_num}] Reached {page_limit_for_scan} page limit", flush=True)
                                         break
 
@@ -1837,22 +2024,60 @@ class RealTimeCreatorFundingExtractor:
                                         if before_signature:
                                             await asyncio.sleep(0.5)  # Rate limit delay
                                         else:
+                                            if pagination is not None:
+                                                pagination["termination_reason"] = "missing_continuation_signature"
                                             print(f"[REALTIME_FUNDING]    No more signatures available", flush=True)
                                             break
                                     else:
+                                        if pagination is not None:
+                                            pagination["termination_reason"] = "legacy_pagination_complete"
                                         print(f"[REALTIME_FUNDING]    Pagination complete (reached end)", flush=True)
                                         break
                                 else:
                                     break
 
                     except asyncio.TimeoutError:
+                        if pagination is not None:
+                            pagination["termination_reason"] = "provider_timeout_incomplete"
                         print(f"[REALTIME_FUNDING]    ⚠ Timeout on page {page_num}", flush=True)
                         break
                     except Exception as e:
+                        if pagination is not None:
+                            pagination["termination_reason"] = "provider_or_parser_error_incomplete"
                         print(f"[REALTIME_FUNDING]    ⚠ Error on page {page_num}: {e}", flush=True)
                         break
 
                     print(f"[REALTIME_FUNDING]    Total transactions fetched: {total_fetched}", flush=True)
+
+                if history_coverage and history_coverage_run_id:
+                    # Existing pagination has no overlap proof across deep
+                    # pages.  Only a one-page run followed by an empty provider
+                    # response can state a contiguous boundary here.  Every
+                    # legacy cap/cutoff/error remains partial or failed.
+                    reason = (pagination or {}).get("termination_reason") or "unknown_termination"
+                    try:
+                        if reason == "provider_history_exhausted":
+                            one_page = page_num <= 2 and total_fetched > 0
+                            history_coverage.finish_run(
+                                extraction_conn,
+                                history_coverage_run_id,
+                                state="COMPLETE_EXHAUSTED" if one_page else "EXHAUSTED_UNVERIFIED_CONTIGUITY",
+                                reason=reason,
+                                provider_exhausted=True,
+                                contiguous_boundary_proven=one_page,
+                            )
+                        elif reason.startswith("provider_"):
+                            history_coverage.finish_run(
+                                extraction_conn, history_coverage_run_id,
+                                state="FAILED", reason=reason,
+                            )
+                        else:
+                            history_coverage.finish_run(
+                                extraction_conn, history_coverage_run_id,
+                                state="PARTIAL", reason=reason,
+                            )
+                    except Exception as coverage_error:
+                        print(f"[HISTORY_COVERAGE] ⚠ terminal observation unavailable: {coverage_error}", flush=True)
 
             except Exception as e:
                 print(f"[REALTIME_FUNDING]    ⚠ Error: {e}", flush=True)
@@ -1899,12 +2124,13 @@ class RealTimeCreatorFundingExtractor:
             # Cache creator funding results (Layer 6 optimization)
             if CREATOR_CACHE is not None and funders:
                 try:
-                    CREATOR_CACHE.store_funders(creator, {
-                        "funders": list(funders.keys()),
-                        "funder_count": len(funders),
-                        "total_sol": total_inbound,
-                        "timestamp": int(time.time()),
-                    })
+                    CREATOR_CACHE.store_funders(
+                        creator,
+                        {
+                            address: {"sol": amount, "tx_count": 1}
+                            for address, amount in funders.items()
+                        },
+                    )
                     print(f"[REALTIME_FUNDING] ✅ Cached creator funding for {creator[:16]}...", flush=True)
                 except Exception as cache_err:
                     print(f"[REALTIME_FUNDING] ⚠ Could not cache creator: {cache_err}", flush=True)
@@ -2612,41 +2838,56 @@ async def extract_funding_for_new_token(creator: str, migration_timestamp_str: s
 
     RPC metrics are automatically recorded for all RPC calls in this flow.
     """
-    # Skip full extraction if we already have analyzed funding data for this creator.
-    # Phase 2: check creator_profile.history_status first (creator-centric cache).
-    # Phase 1 fallback: COUNT(creator_funders) if profile cache is not active.
+    ledger = {
+        "creator": creator,
+        "mint": mint,
+        "started": time.time(),
+        "phases": {},
+        "rpc_calls": 0,
+        "rpc_sem_wait_ms": 0.0,
+        "rpc_sem_wait_max_ms": 0.0,
+        "active_phase": "authoritative_state_check",
+    }
+    ledger_token = _ACTIVE_PHASE_LEDGER.set(ledger)
+    authoritative_started = time.monotonic()
+    # Check the cheapest authoritative predicate before the optional Phase-2
+    # profile bridge. Production currently has no Phase-2 tables, and the old
+    # bridge adapter passed a synchronous RLock into an async context manager.
     _skip = False
     _skip_reason = None
     _cached_funders = 0
     try:
-        from src.creators.migration_bridge import should_skip_legacy_extraction
-        from src.creators.repository import CreatorRepository
-        from src.utils.db_locking import DB_WRITE_LOCK
-        _repo = CreatorRepository(DB_PATH, DB_WRITE_LOCK)
-        _profile = await _repo.get_creator_profile(creator)
-        if await should_skip_legacy_extraction(_profile, _repo):
+        with managed_db_connect(DB_PATH, timeout=15) as _conn:
+            _row = _conn.execute(
+                "SELECT COUNT(*) FROM creator_funders WHERE creator_address = ?",
+                (creator,),
+            ).fetchone()
+        if _row and _row[0] > 0:
             _skip = True
-            _skip_reason = "creator_profile_cache"
+            _cached_funders = int(_row[0])
+            _skip_reason = "creator_funders_count"
     except Exception as _e:
-        print(f"[REALTIME_FUNDING] ⚠ Profile cache check failed: {_e}", flush=True)
+        print(f"[REALTIME_FUNDING] ⚠ Count cache check failed: {_e}", flush=True)
+    ledger["phases"]["authoritative_state_check"] = time.monotonic() - authoritative_started
 
     if not _skip:
-        # Phase 1 fallback: legacy COUNT(*) check
+        # Optional Phase-2 bridge. Absent schema means inactive, not failure.
         try:
-            import os as _os
-            _db_path = _os.getenv("DB_PATH") or _os.path.join(_os.path.dirname(__file__), "../../database/flex_complete_database.db")
-            # X76.3 -- managed_db_connect guarantees close() on exception.
-            with managed_db_connect(_db_path, timeout=15) as _conn:
-                _row = _conn.execute(
-                    "SELECT COUNT(*) FROM creator_funders WHERE creator_address = ?",
-                    (creator,)
-                ).fetchone()
-            if _row and _row[0] > 0:
-                _cached_funders = _row[0]
-                _skip = True
-                _skip_reason = "creator_funders_count"
+            with managed_db_connect(DB_PATH, timeout=15) as _conn:
+                _phase2_schema = int(_conn.execute(
+                    "SELECT COUNT(*) FROM sqlite_master WHERE type='table' "
+                    "AND name IN ('creator_profile','system_config')"
+                ).fetchone()[0]) == 2
+            if _phase2_schema:
+                from src.creators.migration_bridge import should_skip_legacy_extraction
+                from src.creators.repository import CreatorRepository
+                _repo = CreatorRepository(DB_PATH, asyncio.Lock())
+                _profile = await _repo.get_creator_profile(creator)
+                if await should_skip_legacy_extraction(_profile, _repo):
+                    _skip = True
+                    _skip_reason = "creator_profile_cache"
         except Exception as _e:
-            print(f"[REALTIME_FUNDING] ⚠ Count cache check failed: {_e}", flush=True)
+            print(f"[REALTIME_FUNDING] ⚠ Profile cache check failed: {_e}", flush=True)
 
     if _skip:
         print(f"[REALTIME_FUNDING] ⚡ Skip extraction creator={creator[:16]}... "
@@ -2664,6 +2905,8 @@ async def extract_funding_for_new_token(creator: str, migration_timestamp_str: s
             )
         except Exception:
             pass
+        ledger["result"] = "known_creator_fast"
+        _ACTIVE_PHASE_LEDGER.reset(ledger_token)
         return {"skipped": True, "reason": _skip_reason, "cached_funders": _cached_funders}
 
     print(f"[REALTIME_FUNDING] 📊 Recording RPC metrics for creator funding extraction: {creator[:16]}...", flush=True)
@@ -2683,27 +2926,37 @@ async def extract_funding_for_new_token(creator: str, migration_timestamp_str: s
             purpose="creator_funding", creator=creator, launch=mint
         ):
             # Main funding scan — must complete first (populates creator_funders)
-            result = await extractor.process_new_token(creator, migration_timestamp_str)
+            result = await _timed_phase(
+                ledger,
+                "creator_history_and_funding",
+                extractor.process_new_token(creator, migration_timestamp_str),
+            )
 
             # All remaining checks are independent — run concurrently
             async def _jitotip():
                 if create_tx_signature:
-                    await extractor.check_create_tx_for_jitotip(creator, create_tx_signature, mint)
+                    await _timed_phase(
+                        ledger, "jito",
+                        extractor.check_create_tx_for_jitotip(creator, create_tx_signature, mint),
+                    )
 
             async def _outgoing():
                 try:
                     from datetime import datetime
                     migration_dt = datetime.fromisoformat(migration_timestamp_str.replace('Z', '+00:00'))
                     migration_timestamp = int(migration_dt.timestamp())
-                    await extractor.extract_outgoing_transfers(creator, migration_timestamp)
+                    await _timed_phase(
+                        ledger, "outgoing_transfer_scan",
+                        extractor.extract_outgoing_transfers(creator, migration_timestamp),
+                    )
                     print(f"[REALTIME_FUNDING] ✅ Extracted outgoing transfers for {creator[:16]}...", flush=True)
                 except Exception as e:
                     print(f"[REALTIME_FUNDING] ⚠ Error extracting outgoing transfers: {e}", flush=True)
 
             await asyncio.gather(
                 _jitotip(),
-                extractor.check_transfers_for_debridge(creator),
-                extractor.check_transfers_for_axiom(creator),
+                _timed_phase(ledger, "debridge", extractor.check_transfers_for_debridge(creator)),
+                _timed_phase(ledger, "axiom", extractor.check_transfers_for_axiom(creator)),
                 _outgoing(),
                 return_exceptions=True,
             )
@@ -2731,6 +2984,14 @@ async def extract_funding_for_new_token(creator: str, migration_timestamp_str: s
         raise
     finally:
         _ACTIVE_EXTRACTION_SCOPE.reset(scope_token)
+        ledger["elapsed_s"] = round(time.time() - ledger["started"], 6)
+        ledger["rpc_sem_wait_ms"] = round(float(ledger["rpc_sem_wait_ms"]), 3)
+        ledger["rpc_sem_wait_max_ms"] = round(float(ledger["rpc_sem_wait_max_ms"]), 3)
+        ledger["phases"] = {
+            key: round(value, 6) for key, value in sorted(ledger["phases"].items())
+        }
+        print("[CFQ_PHASE_LEDGER] " + json.dumps(ledger, sort_keys=True), flush=True)
+        _ACTIVE_PHASE_LEDGER.reset(ledger_token)
 
 
 if __name__ == "__main__":

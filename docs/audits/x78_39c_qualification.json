@@ -1,0 +1,28 @@
+{
+  "milestone": "X78.39C — Lifecycle Telemetry Completion Gate",
+  "status": "IMPLEMENTED_PENDING_PRODUCTION_WINDOW",
+  "lifecycle_events": ["CREATED", "CLAIMED", "EXTRACTION_STARTED", "RETRY", "COMPLETED", "FAILED", "EXPIRED", "STALE_RECOVERED"],
+  "non_events": {
+    "ELIGIBLE": "derived when next_attempt_at becomes due; CLAIMED is the durable observation",
+    "REQUEUED": "represented by distinct RETRY or STALE_RECOVERED queue transitions"
+  },
+  "logical_identity": "sha256('creator-funding-v1' + creator_address + mint)",
+  "class_preservation": "source is carried from queue rows where schema supports it; unknown source remains OTHER_PROVEN_SOURCE",
+  "gap_accounting": "event failure is fail-open and best-effort appended to creator_funding_lifecycle_gaps; an unpersisted gap disqualifies a clean window",
+  "validation": {
+    "targeted_tests": "30 passed",
+    "deployment": "2026-08-11T06:40Z: watchtower_listener, creator_funding_worker and creator_resolution_worker restarted; all RUNNING",
+    "initial_health": "creator-funding and creator-resolution heartbeats status=ok; /healthz remains globally false only because unrelated legacy heartbeat rows are stale",
+    "initial_ledger": "23 CREATED, 23 CLAIMED and 23 COMPLETED historical observations; no post-restart terminal/extraction transition yet",
+    "production_window": "PENDING >=60 minutes of observed reconciliation after the restart"
+  },
+  "invariants": {
+    "slots": 2,
+    "rpc_ceiling": 8,
+    "history_reuse": "BLOCKED by X78.38A2 same-slot ordering result",
+    "outgoing_barrier": "unchanged",
+    "acquisition": "HOLD_ACQUISITION",
+    "evidence": "HOLD_EVIDENCE"
+  },
+  "gate_to_x78_40": "BLOCKED until the bounded clean window is observed and reconciled"
+}

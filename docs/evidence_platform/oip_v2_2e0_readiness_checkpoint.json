@@ -1,0 +1,50 @@
+{
+  "audit": "OIP_V2_2E_0",
+  "audit_date": "2026-08-10",
+  "acquisition": "HOLD_ACQUISITION",
+  "authority": {
+    "authoritative_db": null,
+    "evidence_consumers": [],
+    "evidence_platform_live": false,
+    "evidence_writer": null,
+    "feature_flags": "ALL_DISABLED",
+    "verdict": "B — EVIDENCE_PLATFORM_NOT_CURRENTLY_ACTIVE_IN_PRODUCTION"
+  },
+  "constraints_observed": {
+    "acquisition_performed": false,
+    "compact_migration_started": false,
+    "production_evidence_mutated": false,
+    "rpc_performed": false,
+    "services_restarted": false
+  },
+  "health": {
+    "creator_funding": {
+      "completed": 0,
+      "heartbeat_age_seconds": 990,
+      "oldest_pending_age_seconds": 3560105,
+      "pending": 17434,
+      "status": "STALLED"
+    },
+    "database": {
+      "recent_p99_ms": 22904.38,
+      "status_at_final_sample": "HEALTHY",
+      "wal_mb_at_final_sample": 0.6
+    },
+    "live_ingestion": {
+      "births_expected_per_min": 17.9333,
+      "births_observed_per_min": 2.0,
+      "status": "WARNING"
+    },
+    "operational_intelligence": {
+      "status": "WARNING",
+      "watch_pipeline_age_seconds": 4110546
+    },
+    "overall": "WARNING",
+    "verdict": "D — NEW_BLOCKER_FOUND"
+  },
+  "head": "a4f030a63378df7af65713d7eae6c0d58be20035",
+  "branch": "classification-attribution-axis",
+  "migration_state": "NOT_CREATED_PRECHECK_FAILED",
+  "stability_window": "NOT_STARTED",
+  "v2_2e_disposition": "PRODUCTION_EVIDENCE_ACTIVATION_REQUIRED_INSTEAD_OF_MIGRATION"
+}

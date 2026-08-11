@@ -409,14 +409,7 @@ def assign_live_network_for_creator(db_path: str, creator_address: str) -> dict:
     try:
         read_conn = db_connect(db_path, timeout=15, row_factory=sqlite3.Row, read_only=True)
 
-        # --- 1. Load exclusion set (CEX + infra) -- read-only, no inline sync
-        try:
-            from src.utils.infra_mapping import build_excluded_set
-            excluded = build_excluded_set(read_conn)
-        except Exception:
-            excluded = set()
-
-        # --- 2. Find non-CEX funders of this creator who also fund >= 1 other creator
+        # --- 1. Find non-CEX funders of this creator who also fund >= 1 other creator
         #        (total distinct creators >= 2, counting the new one)
         rows = read_conn.execute("""
             SELECT cf.funder_address,
@@ -433,6 +426,24 @@ def assign_live_network_for_creator(db_path: str, creator_address: str) -> dict:
             HAVING creator_count >= 2
             ORDER BY creator_count DESC
         """, (creator_address,)).fetchall()
+
+        # --- 2. Apply the exact exclusion contract to this tiny candidate
+        # set. The old call built the global set first, including three
+        # SELECT DISTINCT scans across token_analysis (~118s observed). This
+        # candidate-bounded lookup preserves the same exclusions without a
+        # global scan in the per-creator hot path.
+        try:
+            from src.utils.infra_mapping import build_excluded_set
+            excluded = build_excluded_set(
+                read_conn,
+                candidate_addresses=[r["funder_address"] for r in rows],
+                # The supervised infra_sync_scheduler materializes these
+                # protocol accounts into infra_wallets. Re-scanning the source
+                # token table here duplicates its ownership and cost.
+                include_token_analysis=False,
+            )
+        except Exception:
+            excluded = set()
 
         # Filter excluded addresses
         qualifying = [r for r in rows if r["funder_address"] not in excluded]

@@ -1,0 +1,57 @@
+{
+  "milestone": "X78.39C1 — Recovery Terminal Telemetry Repair",
+  "status": "DEPLOYED_OBSERVATION_IN_PROGRESS",
+  "root_cause": {
+    "owner": "src/core/creator_funding_worker.py::_recover_stale_rows",
+    "mechanism": "The bounded satisfied-row reconciliation changed pending/retry or expired-running queue rows to complete after observing existing creator_funders output, but emitted no COMPLETED lifecycle event and no telemetry-gap record.",
+    "affected_obligations": [
+      {
+        "created_at_utc": "2026-08-11T07:03:32Z",
+        "creator": "3dtGUdA8n2Cxisz7apxAgpqSPgaGDuyqd7PYzt9d1byD",
+        "mint": "FVWq3wM2GAChMmrwJ3qs3ZEMuP8Vv79rrAtSgQ2Rpump",
+        "logical_obligation_id": "8cd2d03057a471a73e80709e1dc87fd1e7e092ccec712e5067053990ca2add62",
+        "final_authoritative_status": "complete"
+      },
+      {
+        "created_at_utc": "2026-08-11T07:38:45Z",
+        "creator": "BZT7iGrDBvwUhEwKFgCa5xMCFqvuW7pW1edUJgXKizmn",
+        "mint": "9xj3QkdDM7Zdj9BHKFeeHEwUbRD7VwAMMEiu3d4opump",
+        "logical_obligation_id": "f9df88201ce011af86a24afe26cc4d12ef601ceabfe3fed192710f31bd950f77",
+        "final_authoritative_status": "complete"
+      }
+    ]
+  },
+  "repair": {
+    "boundary": "The worker now captures the exact satisfied-row cohort before its authoritative update, commits the queue transition, then appends one idempotent COMPLETED event per row. A failed telemetry append retains fail-open queue correctness and writes durable gap evidence through record_event_fail_open.",
+    "terminal_contract": "Every active Creator Funding worker terminal mutation must produce a terminal ledger event or durable telemetry-gap evidence. Queue state remains authoritative.",
+    "duplicate_safety": "Lifecycle event identity includes obligation, transition, timestamp, attempt, provenance and correlation; identical retries are INSERT OR IGNORE."
+  },
+  "writer_census": {
+    "active_creator_funding_worker_complete_writers": 2,
+    "active_creator_funding_worker_complete_writers_instrumented": 2,
+    "active_creator_funding_worker_failed_writers_instrumented": 1,
+    "active_creator_funding_worker_expired_writers_instrumented": 1,
+    "active_creator_funding_worker_retry_writers_instrumented": 2,
+    "legacy_listener_writer": "Present but disabled by LISTENER_CREATOR_FUNDING_QUEUE_ENABLED=0; it is not an active production consumer and was not restarted."
+  },
+  "qualification_snapshot_contract": {
+    "table": "creator_funding_qualification_snapshots",
+    "consistency": "A short SQLite read snapshot captures actionable queue state and event rowid high-water together. The snapshot record is appended afterward and describes that immutable read boundary.",
+    "event_boundary": "Qualification reads lifecycle event rowids strictly greater than START high-water and less than or equal to END high-water."
+  },
+  "deployment": {
+    "creator_funding_worker": {"old_pid": 25503, "new_pid": 37231},
+    "unrestarted": ["watchtower_listener", "creator_resolution_worker", "watchtower_api"],
+    "start_snapshot": {
+      "snapshot_id": "96a35471d14a5b1bfca531d6bf7a0de9fb3743f664dfb091e7e8716b5ea5e21e",
+      "captured_at_utc": "2026-08-11T07:51:58Z",
+      "event_high_water": 239,
+      "actionable_counts_by_class": {}
+    }
+  },
+  "validation": {
+    "targeted_tests": "14 passed: test_x78_39b_lifecycle_telemetry, test_x78_32_creator_keyed_deduplication, test_x78_29_creator_funding_accounting",
+    "focused_new_coverage": ["reconciliation completion emits COMPLETED", "snapshot event high-water and state", "existing idempotency and durable-gap coverage"]
+  },
+  "next_step": "Observe a new uninterrupted >=60 minute window beginning at the durable start snapshot, then capture END and run X78.40 against the two snapshot boundaries."
+}

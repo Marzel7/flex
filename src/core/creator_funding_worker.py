@@ -51,6 +51,7 @@ import time
 import traceback
 from datetime import datetime, timezone
 from typing import Any, Dict
+from src.core.creator_funding_lifecycle import record_event_fail_open
 
 # ── config ────────────────────────────────────────────────────────────────────
 _REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -67,6 +68,16 @@ BACKLOG_THRESHOLD  = int(os.environ.get("CFQ_BACKLOG_THRESHOLD",    "10"))
 LOCK_SECONDS       = int(os.environ.get("CFQ_LOCK_SECONDS",        "180"))
 MAX_ATTEMPTS       = int(os.environ.get("CFQ_MAX_ATTEMPTS",          "5"))
 JOB_TIMEOUT_SECONDS = int(os.environ.get("CFQ_JOB_TIMEOUT_SECONDS",  "90"))
+EXTRACTION_SLOTS = max(1, min(2, int(os.environ.get("CFQ_EXTRACTION_SLOTS", "1"))))
+SATISFIED_RECONCILE_LIMIT = int(os.environ.get("CFQ_SATISFIED_RECONCILE_LIMIT", "25"))
+# Creator Funding is a live operational-intelligence input. Downstream current
+# views are most valuable in the first hour and remain useful for bounded
+# network/relationship refresh through the same operating shift. Beyond six
+# hours an unprocessed row is retained for audit but no longer consumes RPC on
+# the live worker.
+HOT_MAX_AGE_SECONDS = int(os.environ.get("CFQ_HOT_MAX_AGE_SECONDS", str(6 * 3600)))
+STALE_EXPIRY_LIMIT = int(os.environ.get("CFQ_STALE_EXPIRY_LIMIT", "100"))
+STALE_EXPIRY_REASON = "STALE_OUTSIDE_OPERATIONAL_WINDOW"
 # X78.0 -- bounded wait for a timed-out extraction task's own cancellation
 # cleanup (its finally: extraction_conn.close()) to actually complete
 # before the next job is claimed on the same reused event-loop thread. See
@@ -86,7 +97,9 @@ INTEL_REFRESH_DEBOUNCE_SEC = int(os.environ.get("CFQ_INTEL_REFRESH_DEBOUNCE_SEC"
 # a new constraint on it.
 INTEL_REFRESH_TIMEOUT_SECONDS = int(os.environ.get("CFQ_INTEL_REFRESH_TIMEOUT_SECONDS", "30"))
 
-# X78.16 Phase A/B -- age promotion, the queue fairness mechanism.
+# X78.16 Phase A/B -- legacy age-promotion constants retained for audit and
+# compatibility reporting. X78.30 supersedes their use in live selection:
+# fairness now applies only inside HOT_MAX_AGE_SECONDS; older work expires.
 #
 # X78.15 measured direct, live evidence of indefinite starvation: the claim
 # query (_recover_stale_and_claim below) ordered strictly by
@@ -174,6 +187,8 @@ _started_at = int(time.time())
 # to satisfy.
 _intel_refresh_timeout_count = 0
 _intel_refresh_last_run = 0.0
+_intel_refresh_singleflight_lock = threading.Lock()
+_intel_refresh_singleflight_skips = 0
 
 
 def _log(msg: str) -> None:
@@ -205,6 +220,90 @@ def _db_connect(readonly: bool = False, timeout: int = 10):
         conn = sqlite3.connect(DB_PATH, timeout=timeout)
         conn.row_factory = sqlite3.Row
         return conn
+
+
+_LEGACY_FUNDING_TRIGGER_MARKER = (
+    "COALESCE(earliest_tx_creator, pf_ws_creator) = NEW.creator_address"
+)
+_OPTIMIZED_FUNDING_TRIGGER_SQL = """
+CREATE TRIGGER trg_token_prediction_funding_inserted
+AFTER INSERT ON creator_funders
+BEGIN
+    INSERT OR REPLACE INTO token_rescore_queue (mint, reason, created_at)
+    SELECT mint, 'funding_extracted', strftime('%s','now')
+    FROM token_analysis INDEXED BY idx_token_analysis_earliest_creator
+    WHERE earliest_tx_creator = NEW.creator_address
+      AND lifecycle_stage = 'migrated'
+      AND migrated_at IS NOT NULL;
+
+    INSERT OR REPLACE INTO token_rescore_queue (mint, reason, created_at)
+    SELECT mint, 'funding_extracted', strftime('%s','now')
+    FROM token_analysis INDEXED BY idx_ta_pf_ws_creator
+    WHERE earliest_tx_creator IS NULL
+      AND pf_ws_creator = NEW.creator_address
+      AND lifecycle_stage = 'migrated'
+      AND migrated_at IS NOT NULL;
+END
+"""
+
+_TOKEN_PREDICTION_TRIGGER_CONTRACT = {
+    "trg_token_prediction_creator_resolved": ("token_rescore_queue", "creator_resolved"),
+    "trg_token_prediction_funding_inserted": ("token_rescore_queue", "funding_extracted"),
+    "trg_token_prediction_creator_risk_inserted": ("token_rescore_queue", "creator_risk_updated"),
+    "trg_token_prediction_creator_risk_updated": ("token_rescore_queue", "creator_risk_updated"),
+    "trg_token_prediction_network_assigned": ("token_rescore_queue", "network_assigned"),
+}
+
+
+def _decommission_token_prediction_triggers(db_path: str = DB_PATH) -> str:
+    """Drop only the five known prediction-exclusive rescore triggers.
+
+    Historical tables and rows remain untouched.  A trigger with one of the
+    legacy names but an unknown/custom body fails closed: it is never dropped.
+    """
+    from src.utils.db_locking import db_connect
+
+    with db_connect(db_path, timeout=60) as conn:
+        rows = conn.execute(
+            "SELECT name, sql FROM sqlite_master WHERE type='trigger' "
+            "AND name LIKE 'trg_token_prediction_%' ORDER BY name"
+        ).fetchall()
+        found = {str(row[0]): str(row[1] or "") for row in rows}
+        unexpected = sorted(set(found) - set(_TOKEN_PREDICTION_TRIGGER_CONTRACT))
+        if unexpected:
+            raise RuntimeError(f"unknown token-prediction triggers: {unexpected}")
+        for name, sql in found.items():
+            required = _TOKEN_PREDICTION_TRIGGER_CONTRACT[name]
+            if not all(fragment in sql for fragment in required):
+                raise RuntimeError(f"custom token-prediction trigger refused: {name}")
+        for name in found:
+            conn.execute(f'DROP TRIGGER "{name}"')
+        conn.commit()
+        return f"decommissioned:{len(found)}"
+
+
+def _ensure_creator_funding_rescore_trigger(db_path: str = DB_PATH) -> str:
+    """Replace only the proven legacy full-scan trigger, preserving semantics.
+
+    X78.22 attributed 13-49 second Creator Funding statements to the legacy
+    trigger's COALESCE predicate scanning all of token_analysis once per inserted
+    funder.  The two branches below are mutually exclusive and use existing
+    creator indexes; no new index or attribution behaviour is introduced.
+    """
+    from src.utils.db_locking import db_connect
+
+    with db_connect(db_path, timeout=60) as conn:
+        row = conn.execute(
+            "SELECT sql FROM sqlite_master WHERE type='trigger' AND name=?",
+            ("trg_token_prediction_funding_inserted",),
+        ).fetchone()
+        current_sql = str(row[0] or "") if row else ""
+        if current_sql and _LEGACY_FUNDING_TRIGGER_MARKER not in current_sql:
+            return "unchanged"
+        conn.execute("DROP TRIGGER IF EXISTS trg_token_prediction_funding_inserted")
+        conn.execute(_OPTIMIZED_FUNDING_TRIGGER_SQL)
+        conn.commit()
+        return "optimized"
 
 
 # X78.4 -- bounded retry for a specific, proven-transient failure mode.
@@ -437,24 +536,61 @@ def _funder_count(creator: str) -> int:
 
 
 def _recover_stale_rows(now: int) -> tuple[int, int]:
-    """Apply only crash-recovery mutations and release the write lane."""
+    """Apply bounded, evidence-backed queue reconciliation and crash recovery.
+
+    A creator_funders row is the worker's authoritative satisfaction predicate.
+    Pending rows with that output used to remain eligible forever because the
+    recovery predicate covered only retry and expired-running rows.  Reconcile
+    a bounded oldest-first cohort per cycle; never delete queue history.
+    """
     conn = _db_connect(readonly=False, timeout=30)
     try:
         conn.execute("PRAGMA busy_timeout=30000")
         cur = conn.cursor()
-        cur.execute(
-            """
+        columns = {str(row[1]) for row in conn.execute("PRAGMA table_info(creator_funding_queue)")}
+        source_select = "source" if "source" in columns else "NULL AS source"
+        # Capture the exact finite cohort before changing it.  These rows may
+        # be completed by reconciliation without ever passing through
+        # ``_process_job``; they therefore own their own terminal telemetry.
+        satisfied_rows = conn.execute(
+            f"""SELECT rowid, creator_address, mint, {source_select}, attempts, status
+                FROM creator_funding_queue q
+                WHERE (
+                      q.status IN ('pending','retry')
+                   OR (q.status = 'running' AND q.locked_until > 0 AND q.locked_until < ?)
+                )
+                  AND EXISTS (
+                      SELECT 1 FROM creator_funders cf
+                      WHERE cf.creator_address = q.creator_address LIMIT 1
+                  )
+                ORDER BY q.created_at ASC LIMIT ?""",
+            (now, SATISFIED_RECONCILE_LIMIT),
+        ).fetchall()
+        stale_rows = conn.execute(
+            f"""SELECT creator_address, mint, {source_select}, attempts
+                FROM creator_funding_queue q
+                WHERE status='running' AND locked_until > 0 AND locked_until < ?
+                  AND NOT EXISTS (
+                      SELECT 1 FROM creator_funders cf
+                      WHERE cf.creator_address = q.creator_address LIMIT 1
+                  )""",
+            (now,),
+        ).fetchall()
+        if satisfied_rows:
+            placeholders = ",".join("?" for _ in satisfied_rows)
+            cur.execute(
+            f"""
             UPDATE creator_funding_queue
             SET status = 'complete', locked_until = 0, attempts = attempts + 1,
                 last_error = NULL, funding_extracted_at = COALESCE(funding_extracted_at, ?),
                 updated_at = ?
-            WHERE ((status = 'running' AND locked_until > 0 AND locked_until < ?) OR status = 'retry')
-              AND EXISTS (SELECT 1 FROM creator_funders cf
-                          WHERE cf.creator_address = creator_funding_queue.creator_address LIMIT 1)
+            WHERE rowid IN ({placeholders})
             """,
-            (now, now, now),
+            (now, now, *[int(row[0]) for row in satisfied_rows]),
         )
-        recovered = int(cur.rowcount or 0)
+        else:
+            recovered = 0
+        recovered = int(cur.rowcount or 0) if satisfied_rows else 0
         cur.execute(
             """
             UPDATE creator_funding_queue
@@ -466,44 +602,85 @@ def _recover_stale_rows(now: int) -> tuple[int, int]:
         )
         stale = int(cur.rowcount or 0)
         conn.commit()
+        for row in satisfied_rows:
+            if not record_event_fail_open(
+                DB_PATH, creator=str(row[1]), mint=str(row[2]), source=row[3],
+                event="COMPLETED", occurred_at=now, attempt=int(row[4] or 0) + 1,
+                previous_status=str(row[5]), new_status="complete",
+            ):
+                _log("CFQ_LIFECYCLE telemetry gap on reconciliation COMPLETED")
+        for row in stale_rows:
+            if not record_event_fail_open(
+                DB_PATH, creator=str(row[0]), mint=str(row[1]), source=row[2],
+                event="STALE_RECOVERED", occurred_at=now, attempt=int(row[3] or 0),
+                previous_status="running", new_status="retry",
+            ):
+                _log("CFQ_LIFECYCLE telemetry gap on STALE_RECOVERED")
         return recovered, stale
     finally:
         conn.close()
 
 
-def _select_ready_rows(now: int, batch: int) -> list[dict[str, Any]]:
+def _select_ready_rows(
+    now: int,
+    batch: int,
+    exclude_creators: set[str] | None = None,
+) -> list[dict[str, Any]]:
     """Select the next queue candidates through a genuine mode=ro snapshot."""
     conn = _db_connect(readonly=True, timeout=30)
     try:
-        # X78.16 Phase A/B -- age promotion. effective_priority adds one
-        # promotion point per AGE_PROMOTION_INTERVAL_SEC of wait time
-        # (measured from created_at, the row's true original queue-entry
-        # time -- NOT next_attempt_at, so a retried row's age isn't reset
-        # by its own retry scheduling), capped at AGE_PROMOTION_CAP points
-        # so an extremely old row's contribution stays bounded rather than
-        # growing without limit. This guarantees any single row reaches
-        # and exceeds a fresh higher-priority row's effective priority
-        # within AGE_PROMOTION_INTERVAL_SEC * priority_gap seconds of
-        # waiting, closing the indefinite-starvation gap X78.15 measured
-        # (a 1005.93-hour-old job_priority=0 row perpetually outranked by
-        # a continuously-replenished job_priority=1 population) without
-        # removing priority itself: two comparably-aged rows still order
-        # by their raw job_priority exactly as before.
+        # Some historical test fixtures predate the provenance column.  The
+        # production schema has it; retaining this compatibility branch keeps
+        # queue selection semantics unchanged while allowing lifecycle events
+        # to preserve the original work class wherever it exists.
+        columns = {str(row[1]) for row in conn.execute("PRAGMA table_info(creator_funding_queue)")}
+        source_select = "source," if "source" in columns else "NULL AS source,"
+        # X78.30: live selection is freshness-first and bounded to the
+        # operational usefulness window. Historical age promotion remains a
+        # documented X78.16 predecessor policy, but stale rows now expire
+        # instead of gaining hot-path priority. Within HOT, recency is primary;
+        # explicit priority deterministically breaks equal-age ties.
+        excluded = sorted(exclude_creators or ())
+        exclusion_sql = ""
+        params: list[Any] = [now, now, now - HOT_MAX_AGE_SECONDS]
+        if excluded:
+            exclusion_sql = (
+                " AND creator_address NOT IN ("
+                + ",".join("?" for _ in excluded)
+                + ")"
+            )
+            params.extend(excluded)
+        params.append(batch)
         rows = conn.execute(
             f"""
-            SELECT creator_address, mint, migration_timestamp, create_tx_signature, attempts,
-                   COALESCE(job_priority, 0) AS job_priority,
-                   COALESCE(priority_reason, 'unknown') AS priority_reason,
-                   (COALESCE(job_priority, 0) + MIN(
-                       CAST((? - created_at) AS REAL) / {AGE_PROMOTION_INTERVAL_SEC},
-                       {AGE_PROMOTION_CAP}
-                   )) AS effective_priority
-            FROM creator_funding_queue
-            WHERE status IN ('pending', 'retry') AND locked_until < ? AND next_attempt_at <= ?
-            ORDER BY effective_priority DESC, next_attempt_at ASC, created_at ASC
+            WITH eligible AS (
+                SELECT creator_address, mint, {source_select} migration_timestamp,
+                       create_tx_signature, attempts,
+                       COALESCE(job_priority, 0) AS job_priority,
+                       COALESCE(priority_reason, 'unknown') AS priority_reason,
+                       created_at, next_attempt_at,
+                       ROW_NUMBER() OVER (
+                           PARTITION BY creator_address
+                           ORDER BY created_at DESC, job_priority DESC,
+                                    attempts ASC, next_attempt_at ASC, mint ASC
+                       ) AS creator_rank
+                FROM creator_funding_queue
+                WHERE status IN ('pending', 'retry')
+                  AND locked_until < ? AND next_attempt_at <= ?
+                  AND created_at >= ?
+                  {exclusion_sql}
+            )
+            SELECT creator_address, mint, source, migration_timestamp,
+                   create_tx_signature, attempts, job_priority,
+                   priority_reason, job_priority AS effective_priority,
+                   created_at
+            FROM eligible
+            WHERE creator_rank = 1
+            ORDER BY created_at DESC, job_priority DESC, attempts ASC,
+                     next_attempt_at ASC, mint ASC
             LIMIT ?
             """,
-            (now, now, now, batch),
+            params,
         ).fetchall()
         return [dict(r) for r in rows]
     finally:
@@ -531,21 +708,89 @@ def _claim_selected_rows(now: int, rows: list[dict[str, Any]]) -> list[dict[str,
                 WHERE creator_address=? AND mint=?
                   AND status IN ('pending', 'retry')
                   AND locked_until < ? AND next_attempt_at <= ?
+                  AND created_at >= ?
                 """,
                 (
                     lock_until, now, row["creator_address"], row["mint"],
-                    now, now,
+                    now, now, now - HOT_MAX_AGE_SECONDS,
                 ),
             )
             if int(cur.rowcount or 0) == 1:
                 claimed.append(row)
         conn.commit()
+        for row in claimed:
+            if not record_event_fail_open(
+                DB_PATH, creator=str(row["creator_address"]), mint=str(row["mint"]),
+                source=row.get("source"), event="CLAIMED", occurred_at=now,
+                attempt=int(row.get("attempts") or 0), previous_status="pending_or_retry",
+                new_status="running",
+            ):
+                _log("CFQ_LIFECYCLE telemetry gap on CLAIMED")
         return claimed
     finally:
         conn.close()
 
 
-def _recover_stale_and_claim(now: int, batch: int):
+def _expire_stale_rows(now: int, limit: int = STALE_EXPIRY_LIMIT) -> int:
+    """Terminally retain a bounded cohort outside the live usefulness window.
+
+    Satisfied rows are deliberately excluded so the cheap reconciliation path
+    can preserve their stronger `complete` outcome. This function performs no
+    RPC and is idempotent across restarts.
+    """
+    conn = _db_connect(readonly=False, timeout=30)
+    try:
+        columns = {str(row[1]) for row in conn.execute("PRAGMA table_info(creator_funding_queue)")}
+        source_select = "source" if "source" in columns else "NULL AS source"
+        expiring = conn.execute(
+            f"""SELECT creator_address, mint, {source_select}, attempts, status
+                FROM creator_funding_queue q
+                WHERE q.status IN ('pending','retry')
+                  AND q.created_at < ?
+                  AND NOT EXISTS (
+                      SELECT 1 FROM creator_funders cf
+                      WHERE cf.creator_address=q.creator_address LIMIT 1
+                  )
+                ORDER BY q.created_at ASC LIMIT ?""",
+            (now - HOT_MAX_AGE_SECONDS, int(limit)),
+        ).fetchall()
+        cur = conn.execute(
+            """
+            UPDATE creator_funding_queue
+            SET status='expired', locked_until=0, last_error=?, updated_at=?
+            WHERE rowid IN (
+                SELECT q.rowid
+                FROM creator_funding_queue q
+                WHERE q.status IN ('pending','retry')
+                  AND q.created_at < ?
+                  AND NOT EXISTS (
+                      SELECT 1 FROM creator_funders cf
+                      WHERE cf.creator_address=q.creator_address LIMIT 1
+                  )
+                ORDER BY q.created_at ASC
+                LIMIT ?
+            )
+            """,
+            (STALE_EXPIRY_REASON, now, now - HOT_MAX_AGE_SECONDS, int(limit)),
+        )
+        conn.commit()
+        for row in expiring:
+            if not record_event_fail_open(
+                DB_PATH, creator=str(row[0]), mint=str(row[1]), source=row[2],
+                event="EXPIRED", occurred_at=now, attempt=int(row[3] or 0),
+                previous_status=str(row[4]), new_status="expired",
+            ):
+                _log("CFQ_LIFECYCLE telemetry gap on EXPIRED")
+        return int(cur.rowcount or 0)
+    finally:
+        conn.close()
+
+
+def _recover_stale_and_claim(
+    now: int,
+    batch: int,
+    exclude_creators: set[str] | None = None,
+):
     """Recover, read-select, and claim without scanning under a write lease.
 
     X78.17: X78.16 captured this caller holding the global write lane while
@@ -556,15 +801,35 @@ def _recover_stale_and_claim(now: int, batch: int):
     predicate rechecked for atomicity.
     """
     recovered, stale = _recover_stale_rows(now)
-    candidates = _select_ready_rows(now, batch)
+    # Preserve the historical two-argument seam used by diagnostics/tests;
+    # rolling refill supplies the third argument only when exclusions exist.
+    if exclude_creators:
+        candidates = _select_ready_rows(now, batch, exclude_creators)
+    else:
+        candidates = _select_ready_rows(now, batch)
     rows = _claim_selected_rows(now, candidates)
     return rows, recovered, stale
 
 
+def _queue_source_status(conn, creator: str, mint: str):
+    """Read queue provenance without making old test schemas a runtime risk."""
+    columns = {str(row[1]) for row in conn.execute("PRAGMA table_info(creator_funding_queue)")}
+    source_select = "source" if "source" in columns else "NULL AS source"
+    return conn.execute(
+        f"SELECT {source_select}, status FROM creator_funding_queue WHERE creator_address=? AND mint=?",
+        (creator, mint),
+    ).fetchone()
+
+
 def _mark_complete(creator: str, mint: str, attempts: int, now: int, timeout: int = 30) -> None:
     conn = _db_connect(readonly=False, timeout=timeout)
+    source = None
+    previous_status = None
     try:
         conn.execute(f"PRAGMA busy_timeout={int(timeout * 1000)}")
+        before = _queue_source_status(conn, creator, mint)
+        if before:
+            source, previous_status = before[0], before[1]
         conn.execute(
             """
             UPDATE creator_funding_queue
@@ -586,6 +851,8 @@ def _mark_complete(creator: str, mint: str, attempts: int, now: int, timeout: in
         )
         conn.execute("UPDATE token_analysis SET funding_extracted_slot=? WHERE mint=?", (now, mint))
         conn.commit()
+        if not record_event_fail_open(DB_PATH, creator=creator, mint=mint, source=source, event="COMPLETED", occurred_at=now, attempt=attempts + 1, previous_status=previous_status, new_status="complete"):
+            _log("CFQ_LIFECYCLE telemetry gap on COMPLETED")
     finally:
         conn.close()
 
@@ -594,8 +861,13 @@ def _mark_retry(creator: str, mint: str, attempts: int, error: str, now: int,
                 delay: int | None = None, timeout: int = 30) -> None:
     backoff = delay if delay is not None else min(900, 120 * (attempts + 1))
     conn = _db_connect(readonly=False, timeout=timeout)
+    source = None
+    previous_status = None
     try:
         conn.execute(f"PRAGMA busy_timeout={int(timeout * 1000)}")
+        before = _queue_source_status(conn, creator, mint)
+        if before:
+            source, previous_status = before[0], before[1]
         conn.execute(
             """
             UPDATE creator_funding_queue
@@ -605,6 +877,8 @@ def _mark_retry(creator: str, mint: str, attempts: int, error: str, now: int,
             (attempts + 1, now + backoff, error[:500], now, creator, mint),
         )
         conn.commit()
+        if not record_event_fail_open(DB_PATH, creator=creator, mint=mint, source=source, event="RETRY", occurred_at=now, attempt=attempts + 1, previous_status=previous_status, new_status="retry"):
+            _log("CFQ_LIFECYCLE telemetry gap on RETRY")
     finally:
         conn.close()
 
@@ -612,8 +886,13 @@ def _mark_retry(creator: str, mint: str, attempts: int, error: str, now: int,
 def _mark_failed(creator: str, mint: str, attempts: int, error: str, now: int,
                  timeout: int = 30) -> None:
     conn = _db_connect(readonly=False, timeout=timeout)
+    source = None
+    previous_status = None
     try:
         conn.execute(f"PRAGMA busy_timeout={int(timeout * 1000)}")
+        before = _queue_source_status(conn, creator, mint)
+        if before:
+            source, previous_status = before[0], before[1]
         conn.execute(
             """
             UPDATE creator_funding_queue
@@ -623,6 +902,8 @@ def _mark_failed(creator: str, mint: str, attempts: int, error: str, now: int,
             (attempts + 1, error[:500], now, creator, mint),
         )
         conn.commit()
+        if not record_event_fail_open(DB_PATH, creator=creator, mint=mint, source=source, event="FAILED", occurred_at=now, attempt=attempts + 1, previous_status=previous_status, new_status="failed"):
+            _log("CFQ_LIFECYCLE telemetry gap on FAILED")
     finally:
         conn.close()
 
@@ -673,6 +954,32 @@ def _enqueue_second_hop_lite(creator: str) -> int:
 
 
 def _post_extraction_intelligence_refresh(creator: str) -> None:
+    """Run at most one post-extraction rebuild in this process.
+
+    ``asyncio.wait_for(asyncio.to_thread(...))`` only stops waiting; it cannot
+    cancel the synchronous executor function.  Before X78.27, the 30-second
+    timeout therefore let the queue advance and start another full refresh
+    while the first one was still using SQLite.  Live attribution showed those
+    overlapping refreshes retaining the oldest WAL snapshot and starving
+    Creator Resolution.  This non-blocking single-flight gate preserves the
+    existing best-effort contract: the in-flight refresh completes normally,
+    while redundant callers skip immediately.
+    """
+    global _intel_refresh_singleflight_skips
+    if not _intel_refresh_singleflight_lock.acquire(blocking=False):
+        _intel_refresh_singleflight_skips += 1
+        _log(
+            f"[INTEL_REFRESH] skipped overlapping refresh creator={creator[:8]} "
+            f"skips={_intel_refresh_singleflight_skips}"
+        )
+        return
+    try:
+        _post_extraction_intelligence_refresh_once(creator)
+    finally:
+        _intel_refresh_singleflight_lock.release()
+
+
+def _post_extraction_intelligence_refresh_once(creator: str) -> None:
     """Synchronous port of pumpfun_curve_listener.py's
     _post_extraction_intelligence_refresh — same debounce contract, same three
     signals (IRC watchlist upsert, NetworksReleaseBuilder, relationship-events
@@ -685,13 +992,6 @@ def _post_extraction_intelligence_refresh(creator: str) -> None:
     _intel_refresh_last_run = now
 
     t0 = time.time()
-    try:
-        from src.core.relationship_events import take_snapshot
-        before = take_snapshot(DB_PATH)
-    except Exception as e:
-        _log(f"[INTEL_REFRESH] snapshot error: {e}")
-        before = None
-
     # X78.0 -- found live during the X78.0 soak: irc_conn.close() was only
     # reached on the success path (the last line inside this try block). Any
     # exception from an earlier statement (the SELECT/INSERT/UPDATE calls
@@ -771,18 +1071,15 @@ def _post_extraction_intelligence_refresh(creator: str) -> None:
             except Exception:
                 pass
 
-    try:
-        from src.utils.build_networks_release import build_networks_release
-        build_networks_release(DB_PATH)
-    except Exception as e:
-        _log(f"[INTEL_REFRESH] NetworksRelease error: {e}")
-
-    if before is not None:
-        try:
-            from src.core.relationship_events import rebuild_after_scan
-            rebuild_after_scan(DB_PATH, before=before)
-        except Exception as e:
-            _log(f"[INTEL_REFRESH] Relationship events error: {e}")
+    # Global graph/network rebuilds are deliberately not run from this
+    # per-creator hot path. They already have a lifecycle owner:
+    # scripts/run_graph_analyzers.py, invoked by cron every four hours. Live
+    # X78.27 attribution showed the relationship rebuild holding the production
+    # SQLite snapshot/write transaction for minutes after this coroutine's
+    # 30-second wait timed out, pinning WAL and blocking Creator Resolution.
+    # Creator Funding still publishes its durable extraction, queue handoff,
+    # risk score, live membership, and lightweight IRC candidate update; the
+    # global derived projection catches up through its existing owner.
 
     _log(f"[INTEL_REFRESH] Done in {time.time()-t0:.1f}s creator={creator[:8]}")
 
@@ -893,7 +1190,7 @@ async def _await_orphaned_tasks(tasks_before: set) -> None:
         _STRAGGLER_TASKS.update(pending)
 
 
-async def _process_job(row: dict) -> None:
+async def _process_job(row: dict) -> str:
     """Claim -> extract -> enrich -> mark. Same attribution-relevant call
     (extract_funding_for_new_token) as both retired consumers; identical
     retry/fail semantics to the listener's retired loop (retry on
@@ -943,6 +1240,13 @@ async def _process_job(row: dict) -> None:
     # inherit a prior job's cleanup latency.
 
     job_started = time.time()
+    extraction_started_at = int(job_started)
+    if not record_event_fail_open(
+        DB_PATH, creator=creator, mint=mint, source=row.get("source"),
+        event="EXTRACTION_STARTED", occurred_at=extraction_started_at,
+        attempt=attempts, previous_status="running", new_status="running",
+    ):
+        _log("CFQ_LIFECYCLE telemetry gap on EXTRACTION_STARTED")
 
     try:
         # X78.0 -- root cause of a recurring NestedDatabaseWriteError pattern
@@ -1006,6 +1310,13 @@ async def _process_job(row: dict) -> None:
             pass
 
         extraction_errored = bool(isinstance(extraction_result, dict) and extraction_result.get("error"))
+        fast_path = bool(
+            isinstance(extraction_result, dict)
+            and (
+                extraction_result.get("skipped")
+                or extraction_result.get("status") in ("cached", "already_processed")
+            )
+        )
         funders = await asyncio.to_thread(_funder_count, creator)
         now = int(time.time())
 
@@ -1014,57 +1325,14 @@ async def _process_job(row: dict) -> None:
             _log(f"retry creator={creator[:12]} mint={mint[:16]} reason=no_funders_written "
                  f"attempt={attempts+1} elapsed={time.time()-job_started:.1f}s "
                  f"claim_slot={time.time()-claim_occupancy_started:.1f}s")
-            return
+            return "retry"
 
         await asyncio.to_thread(_retry_on_nested_write, _mark_complete, creator, mint, attempts, now)
         _log(f"complete creator={creator[:12]} mint={mint[:16]} funders={funders} "
+             f"path={'KNOWN_CREATOR_FAST' if fast_path else 'FULL_EXTRACTION'} "
              f"elapsed={time.time()-job_started:.1f}s "
              f"claim_slot={time.time()-claim_occupancy_started:.1f}s")
-
-        # Post-extraction enrichment — best-effort, never blocks queue progress.
-        try:
-            shl_count = await asyncio.to_thread(_enqueue_second_hop_lite, creator)
-            if shl_count:
-                _log(f"second-hop-lite enqueued={shl_count} creator={creator[:12]}")
-        except Exception as e:
-            _log(f"second-hop-lite enqueue failed creator={creator[:12]}: {e}")
-
-        try:
-            from src.core.risk_scoring_builder import RiskScoringBuilder
-            await asyncio.to_thread(lambda: RiskScoringBuilder(DB_PATH).score_creator_now(creator))
-        except Exception as e:
-            _log(f"risk score failed creator={creator[:12]}: {e}")
-
-        try:
-            def _rescore():
-                from src.core.token_prediction_builder import TokenPredictionBuilder
-                conn = _db_connect(readonly=False, timeout=60)
-                try:
-                    TokenPredictionBuilder(DB_PATH).score_single(conn, mint, "FUNDING_COMPLETE")
-                finally:
-                    conn.close()
-            await asyncio.to_thread(_rescore)
-        except Exception as e:
-            _log(f"prediction rescore failed mint={mint[:16]}: {e}")
-
-        try:
-            from src.core.network_membership_builder import assign_live_network_for_creator
-            await asyncio.to_thread(assign_live_network_for_creator, DB_PATH, creator)
-        except Exception as e:
-            _log(f"live network assignment failed creator={creator[:12]}: {e}")
-
-        try:
-            await asyncio.wait_for(
-                asyncio.to_thread(_post_extraction_intelligence_refresh, creator),
-                timeout=INTEL_REFRESH_TIMEOUT_SECONDS,
-            )
-        except asyncio.TimeoutError:
-            global _intel_refresh_timeout_count
-            _intel_refresh_timeout_count += 1
-            _log(f"intelligence refresh deferred (timeout={INTEL_REFRESH_TIMEOUT_SECONDS}s) "
-                 f"creator={creator[:12]} -- worker continuing, refresh is best-effort")
-        except Exception as e:
-            _log(f"intelligence refresh failed creator={creator[:12]}: {e}")
+        return "complete_fast" if fast_path else "complete"
 
     except Exception as e:
         now = int(time.time())
@@ -1093,12 +1361,13 @@ async def _process_job(row: dict) -> None:
                 # cancellation stall it is recording.
                 _log(f"timeout state persistence deferred creator={creator[:12]} "
                      f"mint={mint[:16]} error={terminal_exc}; stale reaper owns recovery")
-            return
+            return "failed" if terminal_failed else "retry"
         if attempts + 1 >= MAX_ATTEMPTS:
             await asyncio.to_thread(_retry_on_nested_write, _mark_failed, creator, mint, attempts, str(e), now)
             _log(f"failed creator={creator[:12]} mint={mint[:16]} error={str(e)[:160]} "
                  f"elapsed={time.time()-job_started:.1f}s "
                  f"claim_slot={time.time()-claim_occupancy_started:.1f}s")
+            return "failed"
         else:
             # X78.16 Phase C -- retry_delay was already a real, growing
             # backoff (120s * attempt, capped at 900s) before this
@@ -1120,6 +1389,197 @@ async def _process_job(row: dict) -> None:
             _log(f"retry creator={creator[:12]} mint={mint[:16]} error={str(e)[:160]} "
                  f"attempt={attempts+1} elapsed={time.time()-job_started:.1f}s "
                  f"claim_slot={time.time()-claim_occupancy_started:.1f}s")
+            return "retry"
+
+
+async def _run_post_extraction_enrichment(creator: str) -> None:
+    """Run existing best-effort enrichment after terminal accounting.
+
+    Funding completion is durable before this work begins. Keeping enrichment
+    serial preserves the existing execution contract, while moving it outside
+    `_process_job` lets the worker publish the real terminal outcome first.
+    """
+    enrichment_started = time.monotonic()
+    stage_started = enrichment_started
+    try:
+        shl_count = await asyncio.to_thread(_enqueue_second_hop_lite, creator)
+        if shl_count:
+            _log(f"second-hop-lite enqueued={shl_count} creator={creator[:12]}")
+    except Exception as e:
+        _log(f"second-hop-lite enqueue failed creator={creator[:12]}: {e}")
+    second_hop_s = time.monotonic() - stage_started
+
+    stage_started = time.monotonic()
+    try:
+        from src.core.risk_scoring_builder import RiskScoringBuilder
+        await asyncio.to_thread(lambda: RiskScoringBuilder(DB_PATH).score_creator_now(creator))
+    except Exception as e:
+        _log(f"risk score failed creator={creator[:12]}: {e}")
+    risk_s = time.monotonic() - stage_started
+
+    stage_started = time.monotonic()
+    try:
+        from src.core.network_membership_builder import assign_live_network_for_creator
+        await asyncio.to_thread(assign_live_network_for_creator, DB_PATH, creator)
+    except Exception as e:
+        _log(f"live network assignment failed creator={creator[:12]}: {e}")
+    network_s = time.monotonic() - stage_started
+
+    stage_started = time.monotonic()
+    try:
+        await asyncio.wait_for(
+            asyncio.to_thread(_post_extraction_intelligence_refresh, creator),
+            timeout=INTEL_REFRESH_TIMEOUT_SECONDS,
+        )
+    except asyncio.TimeoutError:
+        global _intel_refresh_timeout_count
+        _intel_refresh_timeout_count += 1
+        _log(f"intelligence refresh deferred (timeout={INTEL_REFRESH_TIMEOUT_SECONDS}s) "
+             f"creator={creator[:12]} -- worker continuing, refresh is best-effort")
+    except Exception as e:
+        _log(f"intelligence refresh failed creator={creator[:12]}: {e}")
+    refresh_s = time.monotonic() - stage_started
+    _log(
+        f"enrichment complete creator={creator[:12]} "
+        f"second_hop={second_hop_s:.3f}s risk={risk_s:.3f}s "
+        f"network={network_s:.3f}s refresh={refresh_s:.3f}s "
+        f"total={time.monotonic()-enrichment_started:.3f}s"
+    )
+
+
+async def _run_creator_scoped_row(
+    row: dict[str, Any],
+    slot_semaphore: asyncio.Semaphore,
+    creator_flights: dict[str, asyncio.Future],
+    active_creators: dict[str, str],
+) -> tuple[dict[str, Any], str]:
+    """Run one row with a creator-keyed single-flight and a bounded slot.
+
+    The central claimant normally selects one row per creator.  The flight is
+    a second, process-local safety boundary: if a future caller supplies two
+    sibling rows, the follower waits *outside* the scarce extraction slots and
+    only proceeds after the leader has published its durable result.  It then
+    naturally uses the authoritative known-creator fast path when appropriate.
+    """
+    creator = str(row["creator_address"])
+    while True:
+        incumbent = creator_flights.get(creator)
+        if incumbent is None:
+            flight = asyncio.get_running_loop().create_future()
+            creator_flights[creator] = flight
+            break
+        # Shield the leader's lifecycle from cancellation of this follower.
+        await asyncio.shield(incumbent)
+
+    try:
+        async with slot_semaphore:
+            active_creators[creator] = str(row.get("mint") or "")
+            try:
+                outcome = await _process_job(row)
+            finally:
+                # X78.34: the scarce slot protects authoritative extraction,
+                # not best-effort downstream enrichment.  _process_job has
+                # already persisted creator funding and the terminal queue
+                # transition before returning.  Keep creator single-flight
+                # until enrichment finishes, but let another creator use the
+                # freed extraction slot immediately.
+                active_creators.pop(creator, None)
+        if outcome == "complete":
+            await _run_post_extraction_enrichment(creator)
+        return row, outcome
+    finally:
+        active_creators.pop(creator, None)
+        if not flight.done():
+            flight.set_result(None)
+        if creator_flights.get(creator) is flight:
+            creator_flights.pop(creator, None)
+
+
+async def _run_claimed_rows(
+    rows: list[dict[str, Any]],
+    *,
+    slots: int,
+    active_creators: dict[str, str],
+) -> list[tuple[dict[str, Any], str]]:
+    """Execute a claimed batch with at most two independent creator slots."""
+    slot_semaphore = asyncio.Semaphore(max(1, min(2, int(slots))))
+    creator_flights: dict[str, asyncio.Future] = {}
+    tasks = [
+        asyncio.create_task(
+            _run_creator_scoped_row(
+                row, slot_semaphore, creator_flights, active_creators
+            ),
+            name=f"creator-funding:{str(row['creator_address'])[:12]}",
+        )
+        for row in rows
+    ]
+    try:
+        return list(await asyncio.gather(*tasks))
+    except BaseException:
+        for task in tasks:
+            if not task.done():
+                task.cancel()
+        await asyncio.gather(*tasks, return_exceptions=True)
+        raise
+
+
+async def _run_rolling_claim_window(
+    initial_rows: list[dict[str, Any]],
+    *,
+    slots: int,
+    max_jobs: int,
+    claim_more,
+    active_creators: dict[str, str],
+) -> list[tuple[dict[str, Any], str]]:
+    """Run bounded rolling claims without a fixed-batch completion barrier.
+
+    A reserve of exactly ``slots`` rows keeps extraction occupied while the
+    preceding rows finish creator-protected enrichment.  Thus at most four
+    rows are owned for the production two-slot configuration: two extracting
+    and two bounded ready/enriching. ``max_jobs`` bounds one accounting window.
+    """
+    limit = max(1, int(max_jobs))
+    slot_limit = max(1, min(2, int(slots)))
+    owned_limit = min(limit, slot_limit * 2)
+    creator_flights: dict[str, asyncio.Future] = {}
+    active: set[asyncio.Task] = set()
+    results: list[tuple[dict[str, Any], str]] = []
+    admitted = 0
+
+    def admit(row: dict[str, Any]) -> None:
+        nonlocal admitted
+        task = asyncio.create_task(
+            _run_creator_scoped_row(
+                row, slot_semaphore, creator_flights, active_creators
+            ),
+            name=f"creator-funding:{str(row['creator_address'])[:12]}",
+        )
+        active.add(task)
+        admitted += 1
+
+    slot_semaphore = asyncio.Semaphore(slot_limit)
+    for row in initial_rows[:owned_limit]:
+        admit(row)
+
+    try:
+        while active:
+            done, active = await asyncio.wait(
+                active, return_when=asyncio.FIRST_COMPLETED
+            )
+            for task in done:
+                results.append(task.result())
+            free = min(owned_limit - len(active), limit - admitted)
+            if free > 0 and not _STOP:
+                excluded = set(active_creators) | set(creator_flights)
+                new_rows = await claim_more(free, excluded)
+                for row in new_rows[:free]:
+                    admit(row)
+        return results
+    except BaseException:
+        for task in active:
+            task.cancel()
+        await asyncio.gather(*active, return_exceptions=True)
+        raise
 
 
 def _adaptive_batch(pending: int) -> int:
@@ -1131,9 +1591,26 @@ def _adaptive_batch(pending: int) -> int:
     return BATCH_SIZE_IDLE
 
 
+def _outcome_deltas(outcome: str) -> tuple[int, int, int]:
+    """Return exact (completed, retried, failed) counter deltas."""
+    return (
+        1 if outcome in ("complete", "complete_fast") else 0,
+        1 if outcome == "retry" else 0,
+        1 if outcome == "failed" else 0,
+    )
+
+
 # ── main loop ─────────────────────────────────────────────────────────────────
 async def _run_loop_async(once: bool = False) -> None:
+    try:
+        trigger_state = await asyncio.to_thread(_decommission_token_prediction_triggers)
+    except Exception as exc:
+        # A schema lock must not turn an optional, idempotent optimization into
+        # a worker crash loop.  The bounded deployment migration can retry it.
+        trigger_state = f"deferred:{type(exc).__name__}"
+    _log(f"token prediction triggers={trigger_state}")
     _log(f"Starting pid={os.getpid()} batch_max={BATCH_SIZE_MAX} idle_batch={BATCH_SIZE_IDLE} "
+         f"extraction_slots={EXTRACTION_SLOTS} "
          f"interval={INTERVAL_SEC}s idle={INTERVAL_IDLE_SEC}s max_handles={MAX_OPEN_HANDLES} "
          f"max_uptime={MAX_UPTIME_HOURS}h wal_alert={WAL_ALERT_MB}MB wal_busy_cycles={WAL_BUSY_CYCLES}")
 
@@ -1141,9 +1618,10 @@ async def _run_loop_async(once: bool = False) -> None:
         t = threading.Thread(target=_wal_watchdog, daemon=True, name="wal-watchdog")
         t.start()
 
-    total_claimed = total_completed = total_retried = total_failed = 0
+    total_claimed = total_completed = total_retried = total_failed = total_expired = total_fast_path = 0
     cycles = 0
     last_completed_cycle_at = 0
+    last_completed_at = 0
 
     while not _STOP:
         cycle_start = time.time()
@@ -1155,54 +1633,104 @@ async def _run_loop_async(once: bool = False) -> None:
 
         try:
             batch = _adaptive_batch(pending)
-            rows, recovered, stale = await asyncio.to_thread(_retry_on_nested_write, _recover_stale_and_claim, now, batch)
+            # X78.30: terminally retain a bounded stale cohort before live
+            # selection. Satisfied rows are excluded here and remain eligible
+            # for X78.29's cheap evidence-backed reconciliation. No RPC occurs.
+            expired = await asyncio.to_thread(
+                _retry_on_nested_write, _expire_stale_rows, now
+            )
+            total_expired += expired
+            if expired:
+                _log(f"expired {expired} stale queue row(s) reason={STALE_EXPIRY_REASON}")
+            # X78.34: claim only work that can start now.  Refill one-for-one
+            # as slots finish; do not lock an unused reserve behind slow jobs.
+            rows, recovered, stale = await asyncio.to_thread(
+                _retry_on_nested_write,
+                _recover_stale_and_claim,
+                now,
+                EXTRACTION_SLOTS * 2,
+            )
             if recovered:
                 _log(f"recovered {recovered} stale running job(s) with extracted funders")
             if stale:
                 _log(f"reaped {stale} stale running job(s) to retry")
 
             claimed = len(rows)
-            total_claimed += claimed
             cycle_completed = cycle_retried = cycle_failed = 0
 
-            for row in rows:
-                # A single job (large funding history, many RPC pages) can run
-                # far longer than the outer cycle's own heartbeat cadence --
-                # write one before starting the job too, so a slow-but-healthy
-                # job is never misreported as a stalled/dead worker.
-                # X78.4 -- dispatched via to_thread + retry-on-nested-write
-                # (was a direct synchronous call): a straggling cancelled
-                # extraction's write lease can still be held here; retrying
-                # off the event-loop thread avoids blocking the whole loop
-                # (including that same extraction task) while it clears.
-                await asyncio.to_thread(_retry_on_nested_write, _write_heartbeat, {
-                    "cycles": cycles,
-                    "status": "processing",
-                    "processing_mint": str(row.get("mint") or "")[:16],
-                    "uptime_s": int(time.time()) - _started_at,
-                    "open_handles": _open_handle_count(),
-                    # Carry the last known cumulative totals so dashboards
-                    # reading this mid-job heartbeat (a long single job can
-                    # run for minutes) still show a real processing rate and
-                    # last-cycle time instead of blanking out while healthy.
-                    "total_claimed": total_claimed,
-                    "total_completed": total_completed,
-                    "total_retried": total_retried,
-                    "total_failed": total_failed,
-                    "last_cycle_at": last_completed_cycle_at or None,
-                })
-                before_pending = await asyncio.to_thread(_pending_count)
-                await _process_job(row)
-                after_pending = await asyncio.to_thread(_pending_count)
-                # Coarse per-row outcome inference for cycle-level counters only
-                # (exact outcome already logged per-row inside _process_job).
-                if after_pending < before_pending:
-                    cycle_completed += 1
-                elif after_pending > before_pending:
-                    cycle_retried += 1
+            # X78.32: the claimant has already deduplicated by creator.  A
+            # process-local single-flight remains inside this runner as a
+            # defensive invariant, while the semaphore permits at most two
+            # *different* creators to overlap in RPC/read work.  With the
+            # default slots=1 this is the dedupe-only deployment phase.
+            active_creators: dict[str, str] = {}
+            async def _claim_refill(free: int, excluded: set[str]):
+                refill_rows, _recovered, _stale = await asyncio.to_thread(
+                    _retry_on_nested_write,
+                    _recover_stale_and_claim,
+                    int(time.time()),
+                    free,
+                    excluded,
+                )
+                return refill_rows
+
+            batch_task = asyncio.create_task(
+                _run_rolling_claim_window(
+                    rows,
+                    slots=EXTRACTION_SLOTS,
+                    # Twenty is an accounting/health window. Claim-ahead is
+                    # independently bounded to two active + two reserve rows.
+                    max_jobs=max(20, batch),
+                    claim_more=_claim_refill,
+                    active_creators=active_creators,
+                ),
+                name="creator-funding-batch",
+            )
+            while not batch_task.done():
+                try:
+                    await asyncio.wait_for(
+                        asyncio.shield(batch_task), timeout=15.0
+                    )
+                except asyncio.TimeoutError:
+                    # Keep liveness truthful for a multi-wave claimed batch.
+                    await asyncio.to_thread(
+                        _retry_on_nested_write, _write_heartbeat, {
+                            "cycles": cycles,
+                            "status": "processing",
+                            "active_extraction_slots": len(active_creators),
+                            "active_creators": sorted(active_creators),
+                            "extraction_slots": EXTRACTION_SLOTS,
+                            "uptime_s": int(time.time()) - _started_at,
+                            "open_handles": _open_handle_count(),
+                            "total_claimed": total_claimed,
+                            "total_completed": total_completed,
+                            "total_retried": total_retried,
+                            "total_failed": total_failed,
+                            "total_expired": total_expired,
+                            "total_fast_path": total_fast_path,
+                            "hot_max_age_seconds": HOT_MAX_AGE_SECONDS,
+                            "last_cycle_at": last_completed_cycle_at or None,
+                            "last_completed_at": last_completed_at or None,
+                        },
+                    )
+            results = await batch_task
+            claimed = len(results)
+            total_claimed += claimed
+            slot_outcomes: dict[str, int] = {}
+            for row, outcome in results:
+                completed_delta, retried_delta, failed_delta = _outcome_deltas(outcome)
+                cycle_completed += completed_delta
+                cycle_retried += retried_delta
+                cycle_failed += failed_delta
+                slot_outcomes[outcome] = slot_outcomes.get(outcome, 0) + 1
+                if completed_delta:
+                    last_completed_at = int(time.time())
+                if outcome == "complete_fast":
+                    total_fast_path += 1
 
             total_completed += cycle_completed
             total_retried += cycle_retried
+            total_failed += cycle_failed
 
             p99 = _read_serializer_p99()
             pending_after = await asyncio.to_thread(_pending_count)
@@ -1220,12 +1748,20 @@ async def _run_loop_async(once: bool = False) -> None:
                 "total_completed": total_completed,
                 "total_retried": total_retried,
                 "total_failed": total_failed,
+                "total_expired": total_expired,
+                "total_fast_path": total_fast_path,
+                "active_extraction_slots": 0,
+                "active_creators": [],
+                "extraction_slots": EXTRACTION_SLOTS,
+                "slot_outcomes": slot_outcomes,
+                "hot_max_age_seconds": HOT_MAX_AGE_SECONDS,
                 "uptime_s": int(time.time()) - _started_at,
                 "batch_size": batch,
                 "db_p99_ms": p99,
                 "open_handles": _open_handle_count(),
                 "wal_mb": round(_wal_size_mb(), 1),
                 "last_cycle_at": now,
+                "last_completed_at": last_completed_at or None,
                 "intel_refresh_timeout_count": _intel_refresh_timeout_count,
             })
             last_completed_cycle_at = now
@@ -1255,7 +1791,7 @@ async def _run_loop_async(once: bool = False) -> None:
             await asyncio.sleep(wait)
 
     _log(f"Stopped. total_claimed={total_claimed} completed={total_completed} "
-         f"retried={total_retried} failed={total_failed} cycles={cycles}")
+         f"retried={total_retried} failed={total_failed} expired={total_expired} cycles={cycles}")
 
 
 def run_loop(once: bool = False) -> None:

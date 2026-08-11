@@ -1,0 +1,8 @@
+{
+  "milestone": "X78.38B — Incremental History Reuse Production Qualification",
+  "status": "SKIPPED_DEPENDENCY",
+  "dependency": "X78.38A",
+  "reason": "Pagination continuity, frozen corpus, and exact funding equivalence are not proven. Enabling reuse could omit creator-global funders or accumulated amounts.",
+  "production_change": false,
+  "acquisition": "HOLD_ACQUISITION"
+}

@@ -1,0 +1,7 @@
+{
+  "milestone": "X78.42 — Outgoing Completion-Barrier Separation",
+  "status": "SKIPPED_DEPENDENCY",
+  "dependency": "X78.41",
+  "reason": "X78.41 durable ownership and pending-consumer semantics are BLOCKED. Moving outgoing acquisition would risk lost required work or false-negative downstream interpretation.",
+  "production_change": false
+}

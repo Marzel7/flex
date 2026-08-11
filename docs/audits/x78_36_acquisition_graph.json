@@ -1,0 +1,39 @@
+{
+  "milestone": "X78.36",
+  "graph_version": "1",
+  "authoritative_path": [
+    {"order": 1, "module": "src/core/creator_funding_worker.py", "function": "_recover_stale_and_claim", "operation": "recover/select/atomically claim", "rpc": false},
+    {"order": 2, "module": "src/core/creator_funding_worker.py", "function": "_run_rolling_claim_window", "operation": "two-slot rolling admission", "rpc": false},
+    {"order": 3, "module": "src/core/creator_funding_worker.py", "function": "_run_creator_scoped_row", "operation": "creator-keyed single-flight", "rpc": false},
+    {"order": 4, "module": "src/core/creator_funding_worker.py", "function": "_process_job", "operation": "90-second supervised extraction", "rpc": false},
+    {"order": 5, "module": "src/extractors/realtime_creator_funding_extractor.py", "function": "extract_funding_for_new_token", "operation": "positive creator_funders fast path", "persistence": "creator_funders", "creator_global": true},
+    {"order": 6, "module": "src/extractors/realtime_creator_funding_extractor.py", "function": "RealTimeCreatorFundingExtractor.process_new_token", "operation": "delegate to extract_for_creator"},
+    {"order": 7, "module": "src/extractors/realtime_creator_funding_extractor.py", "function": "extract_for_creator", "operation": "load token exclusions and existing fully-analysed funders", "creator_global": true},
+    {"order": 8, "module": "src/extractors/realtime_creator_funding_extractor.py", "function": "get_oldest_enhanced_transaction", "provider": "Helius Enhanced", "method": "GET /v0/addresses/{creator}/transactions?limit=1&sort-order=asc", "timeout_seconds": 15, "cache": "none", "purpose": "oldest-transaction bootstrap", "creator_global": true},
+    {"order": 9, "module": "src/extractors/realtime_creator_funding_extractor.py", "function": "extract_for_creator pagination loop", "provider": "Helius Enhanced", "method": "GET /v0/addresses/{creator}/transactions", "page_size": 100, "cursor": "before=oldest signature in preceding page", "timeout_seconds": 30, "max_pages": 8, "history_cutoff_days": 30, "cache": "not applied on this path", "creator_global": true},
+    {"order": 10, "module": "src/extractors/realtime_creator_funding_extractor.py", "function": "_flush_page_batch", "operation": "append/aggregate accepted inbound funders, recipients and transfer provenance", "persistence": ["creator_funders", "creator_receivers", "transfer_index"], "creator_global": true},
+    {"order": 11, "module": "src/core/cursor_manager.py", "function": "update_cursor", "operation": "stores literal v1_migration_start", "persistence": "address_scan_state", "coverage_proof": false}
+  ],
+  "parallel_launch_specific_path": [
+    {"module": "src/extractors/realtime_creator_funding_extractor.py", "function": "check_create_tx_for_jitotip", "input": "create_tx_signature", "launch_specific": true},
+    {"module": "src/extractors/realtime_creator_funding_extractor.py", "function": "extract_outgoing_transfers", "provider": "JSON-RPC via SharedTransactionAcquisition", "methods": ["getSignaturesForAddress", "getTransaction"], "cache": "RPC response cache for getTransaction", "launch_specific_boundary": "migration timestamp", "note": "frozen inside completion barrier by X78.35"}
+  ],
+  "termination_conditions": [
+    "provider history exhausted",
+    "HTTP error or 429",
+    "timeout or parser error",
+    "30-day cutoff",
+    "8-page cap",
+    "3-page cap after oldest-transaction bootstrap finds funding",
+    "5 empty inbound pages after at least 5 funders",
+    "50 funders"
+  ],
+  "shared_acquisition": {
+    "transport": true,
+    "retry_failover": "SharedTransactionAcquisition for JSON-RPC; request_once for Enhanced API",
+    "enhanced_history_persistent_cache_used": false,
+    "json_rpc_transaction_cache": true,
+    "creator_single_flight": true,
+    "cross_restart_creator_history_coverage": false
+  }
+}

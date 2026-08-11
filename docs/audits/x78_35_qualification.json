@@ -1,0 +1,227 @@
+{
+  "schema": "X78_35_QUALIFICATION_V1",
+  "audit_date": "2026-08-10",
+  "branch": "classification-attribution-axis",
+  "baseline_head": "cb1fc110e105436c4baa9fe15f956628f80db3ce",
+  "baseline_note": "X78.34 is present in the working tree but is not contained in baseline_head.",
+  "implementation_occurred": false,
+  "production_qualification_occurred": false,
+  "separation_gate": {
+    "verdict": "BLOCKED",
+    "reason": "Required consumers interpret absent outgoing rows as negative evidence, while no atomic durable handoff, explicit completeness state, semantically equivalent worker, or deterministic recomputation notification currently exists.",
+    "gates": {
+      "all_consumers_classified": true,
+      "no_unproven_dependency": true,
+      "durable_independent_ownership": false,
+      "no_crash_loss_window": false,
+      "duplicate_scans_bounded": false,
+      "watchtower_correctness_preserved": false,
+      "discovery_correctness_preserved": false,
+      "relationship_correctness_preserved": false,
+      "pending_not_negative": false,
+      "funding_semantics_explicit": false,
+      "global_rpc_ceiling_preserved": false,
+      "sqlite_safety_proven": false,
+      "deterministic_shutdown_recovery": false,
+      "transition_testable_without_new_contract": false
+    }
+  },
+  "current_completion_contract": {
+    "terminal_transition": "creator_funding_queue.status=complete",
+    "required_before_transition": [
+      "extract_funding_for_new_token returns",
+      "creator_funders authoritative count checked",
+      "concurrent Jito/deBridge/Axiom/outgoing gather returns",
+      "token_rescore_queue funding_complete handoff",
+      "token_analysis.funding_extracted_slot update"
+    ],
+    "outgoing_attempt_before_terminal": true,
+    "outgoing_completeness_proven_by_terminal": false,
+    "reason": "extract_outgoing_transfers catches errors and returns partial rows; no scan status/provenance is attached to creator_funding_queue complete.",
+    "explicit_outgoing_quality_state": false,
+    "absence_distinguishable_from_zero": false
+  },
+  "producer": {
+    "function": "RealTimeCreatorFundingExtractor.extract_outgoing_transfers",
+    "module": "src/extractors/realtime_creator_funding_extractor.py",
+    "input_identity": ["creator_address", "migration_timestamp"],
+    "output_identity": ["creator_address", "recipient_address", "transaction_signature"],
+    "provider_methods": ["getSignaturesForAddress", "getTransaction"],
+    "persistence": "creator_outgoing_transfers",
+    "transaction_boundary": "one managed connection and commit per saved transfer",
+    "provenance": ["transaction_signature", "block_time", "first_detected_at"],
+    "retry": "shared acquisition retry policy per RPC",
+    "timeout": "inside 90-second Creator Funding job budget",
+    "idempotency": "table primary key creator+recipient+signature with INSERT OR REPLACE",
+    "failure_semantics": "exception logged and partial recipients returned; parent may still become complete"
+  },
+  "existing_outbound_worker_assessment": {
+    "module": "src/core/creator_outbound_worker.py",
+    "usable_as_equivalent_owner": false,
+    "reasons": [
+      "disabled by default",
+      "not supervised as an independent process; optional API daemon skips while disabled",
+      "uses requests directly rather than SharedTransactionAcquisition",
+      "does not participate in the existing global asyncio RPC semaphore",
+      "different temporal semantics: recent lookback rather than strictly post-migration",
+      "different amount semantics: minimum 0.1 SOL",
+      "different recipient exclusions and parser",
+      "marks empty RPC result done",
+      "scanning state has no stale-running recovery",
+      "queue handoff is not atomic with funding terminal transition",
+      "enqueue is gated to pre-existing classifications or WATCH-specific callers",
+      "no explicit pending state is exposed to all readers",
+      "no deterministic downstream recomputation contract"
+    ],
+    "live_queue_snapshot": {"pending": 312, "done": 233}
+  },
+  "dependency_graph": [
+    {
+      "consumer": "WATCHTOWER detector and lifecycle",
+      "modules": ["src/analysis/watchtower_detector.py"],
+      "classification": "C_RECOMPUTABLE_DERIVED_DEPENDENCY",
+      "invariant": "profit-relay routing can add strong WATCHTOWER evidence",
+      "absence_today": "has_profit_relay remains false",
+      "stale_or_failure": "no pending distinction",
+      "recompute": "only when detector is invoked again",
+      "blocks_current_separation": true
+    },
+    {
+      "consumer": "Discovery value and cluster integrity",
+      "modules": ["src/analysis/discovery_value.py", "src/analysis/cluster_snapshots.py"],
+      "classification": "C_RECOMPUTABLE_DERIVED_DEPENDENCY",
+      "invariant": "recipient frontier and shared payout structure affect coverage/yield",
+      "absence_today": "zero counterparties may be reported as coverage=1.0 and fully mapped",
+      "stale_or_failure": "no pending distinction",
+      "recompute": "only on later snapshot/build",
+      "blocks_current_separation": true
+    },
+    {
+      "consumer": "Creator-to-creator edge projection",
+      "modules": ["src/core/c2c_edge_builder.py"],
+      "classification": "C_RECOMPUTABLE_DERIVED_DEPENDENCY",
+      "invariant": "outgoing transfers generate directional C2C edges",
+      "absence_today": "incremental build deletes source edges then writes zero",
+      "stale_or_failure": "no pending distinction",
+      "recompute": "build_for_sources exists but has no completion notification",
+      "blocks_current_separation": true
+    },
+    {
+      "consumer": "Creator outbound classifications",
+      "modules": ["src/core/creator_outbound_builder.py"],
+      "classification": "C_RECOMPUTABLE_DERIVED_DEPENDENCY",
+      "invariant": "return-to-funder, shared-payout, upstream-hub and large-outbound classifications derive from complete rows",
+      "absence_today": "zero classifications",
+      "stale_or_failure": "no pending distinction",
+      "recompute": "incremental builder exists but no durable completion notification",
+      "blocks_current_separation": true
+    },
+    {
+      "consumer": "Risk and enhanced launch scoring",
+      "modules": ["src/core/enhanced_launch_score.py", "src/core/risk_scoring_builder.py"],
+      "classification": "C_RECOMPUTABLE_DERIVED_DEPENDENCY",
+      "invariant": "outgoing relationships contribute to derived score inputs",
+      "absence_today": "provisional score omits signal without pending state",
+      "recompute": "current funding post-enrichment runs only after synchronous outgoing attempt",
+      "blocks_current_separation": true
+    },
+    {
+      "consumer": "Network assignment and operational intelligence",
+      "modules": ["src/core/network_membership_builder.py", "src/core/intelligence_refresh.py"],
+      "classification": "C_RECOMPUTABLE_DERIVED_DEPENDENCY",
+      "invariant": "relationship/classification projections feed network and intelligence refresh",
+      "absence_today": "refresh can publish an incomplete projection as current",
+      "recompute": "no outgoing-complete event contract",
+      "blocks_current_separation": true
+    },
+    {
+      "consumer": "Evidence reconciliation / settlement",
+      "modules": ["src/ops/evidence_reconciliation.py"],
+      "classification": "B_DURABLE_EVENTUAL_DEPENDENCY",
+      "invariant": "outgoing rows support settlement evidence",
+      "absence_today": "reported as settlement unavailable, indistinguishable from pending scan",
+      "recompute": "possible on later revision but no handoff notification",
+      "blocks_current_separation": true
+    },
+    {
+      "consumer": "Second-hop enqueue",
+      "modules": ["src/core/creator_funding_worker.py"],
+      "classification": "D_OPTIONAL_ENRICHMENT",
+      "invariant": "operates from creator_funders, not creator_outgoing_transfers",
+      "absence_today": "unchanged",
+      "blocks_current_separation": false
+    },
+    {
+      "consumer": "API/UI outgoing and CEX views",
+      "modules": ["src/core/main.py", "src/extractors/realtime_creator_funding_extractor.py"],
+      "classification": "B_DURABLE_EVENTUAL_DEPENDENCY",
+      "invariant": "rows are displayed as observed outbound evidence",
+      "absence_today": "empty list/count; no pending quality state",
+      "blocks_current_separation": true
+    },
+    {
+      "consumer": "Monitoring and health",
+      "modules": ["src/core/intelligence_refresh.py", "src/core/internal_api.py"],
+      "classification": "B_DURABLE_EVENTUAL_DEPENDENCY",
+      "invariant": "outbound queue status is visible only for selectively enqueued candidates",
+      "absence_today": "Creator Funding complete does not expose outgoing completeness",
+      "blocks_current_separation": true
+    }
+  ],
+  "capacity_model": {
+    "source": "117 X78.34 per-job ledgers",
+    "current_slot_seconds": {"mean": 26.864837, "p50": 22.03432, "p95": 65.153485},
+    "modeled_without_outgoing_barrier_seconds": {"mean": 9.385158, "p50": 6.470159, "p95": 28.035319},
+    "outgoing_critical_contribution_seconds": {"mean": 17.479679, "p50": 12.88316, "p95": 58.288062},
+    "current_measured_completions_per_hour": 222,
+    "modeled_two_slot_jobs_per_hour": 767.17,
+    "modeled_ratio_vs_all_hot_state_entries": 2.7796,
+    "warning": "Capacity model is counterfactual only; it does not authorize separation and excludes independent outgoing-worker RPC capacity.",
+    "x78_34_window_accounting": {
+      "organic_live_migration_source_obligations_per_hour": 42,
+      "creator_resolution_source_obligations_per_hour": 234,
+      "all_unique_hot_state_entries_per_hour": 276,
+      "retry_events_per_hour": 12,
+      "unique_logged_terminal_completions_per_hour": 222,
+      "expiries_per_hour": 1000
+    }
+  },
+  "tests": {
+    "implementation_tests_required": false,
+    "reason": "Stop condition reached before implementation.",
+    "focused_regression_tests_passed": 61,
+    "covered": [
+      "X78.34 refill and timing",
+      "X78.32 creator dedupe",
+      "X78.31 fast paths",
+      "X78.30 freshness",
+      "X78.29 accounting",
+      "X78.17 read boundary",
+      "X78.14 cancellation cleanup",
+      "X76.3 extractor concurrency",
+      "risk scoring",
+      "evidence semantics",
+      "intelligence refresh single-flight"
+    ]
+  },
+  "safety_invariants": {
+    "extraction_slots": 2,
+    "rpc_ceiling": 8,
+    "provider_policy_changed": false,
+    "outgoing_work_skipped": false,
+    "production_changed": false,
+    "evidence_activation": "HOLD",
+    "acquisition": "HOLD_ACQUISITION"
+  },
+  "final_verdicts": {
+    "outgoing_ownership": "A_FULLY_MAPPED",
+    "completion_barrier_separation": "D_BLOCKED_BY_UNPROVEN_SEMANTICS",
+    "durability": "C_MATERIAL_GAP",
+    "watchtower_correctness": "C_MATERIAL_RISK",
+    "two_slot_capacity": "D_NOT_MEASURABLE",
+    "production_health": "C_HEALTHY_SERVICES_CAPACITY_NOT_READY",
+    "evidence_activation": "HOLD",
+    "acquisition": "HOLD_ACQUISITION"
+  },
+  "next_investigation": "DEEP_HISTORY_PAGINATION"
+}

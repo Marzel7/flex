@@ -1,0 +1,10 @@
+{
+  "milestone": "X78.38 — Incremental History & Repeat-Creator Reuse",
+  "baseline_revision": "cb1fc110e105436c4baa9fe15f956628f80db3ce",
+  "dependency": "X78.37 contract gate passed; existing deep coverage remains unverified",
+  "observations": {"creator_funders_semantics": "creator-global, set-valued and amount-accumulating", "known_page_two_effect": "X78.36 observed qualifying inbound transfers after a page that already found funding", "existing_deep_contiguous_boundaries": 0, "frozen_equivalence_corpus": "not materialized", "provider_cursor_contract": "not proven stable and no overlap is acquired"},
+  "implementation": "none",
+  "tests": "X78.37/36 focused suite passed; no incremental algorithm was enabled",
+  "advancement_gate": {"verdict": "BLOCKED", "reason": "No deep proven contiguous boundary and no frozen full-scan versus incremental equivalence corpus exist. Enabling reuse would allow omitted historical funders or amounts."},
+  "invariants": {"slots": 2, "rpc_ceiling": 8, "history_skip": false, "funding_semantics_changed": false, "acquisition": "HOLD_ACQUISITION"}
+}

@@ -18,7 +18,8 @@ from typing import Any, Dict, Iterable, List, Optional
 
 TERMINAL_STATUSES = {"complete", "ignored", "skipped"}
 ACTIVE_STATUSES = {"pending", "retry", "running"}
-P0_PRIORITY = 100
+P0_PRIORITY = 200
+RECENT_MIGRATION_WINDOW_SECONDS = 3600
 
 # ── runtime budget config ──────────────────────────────────────────────────────
 _GENERIC_MAX_RUNTIME  = float(os.environ.get("CREATOR_RESOLUTION_MAX_RUNTIME_SECS",              "15"))
@@ -57,6 +58,7 @@ def connect(db_path: str, timeout: int = 30) -> sqlite3.Connection:
 
 
 from contextlib import contextmanager
+from src.core.creator_funding_lifecycle import record_event_fail_open
 
 @contextmanager
 def _db(db_path: str, timeout: int = 30):
@@ -265,6 +267,46 @@ def enqueue_missing_migrated_tokens(
         return count
 
 
+def promote_recent_missing_creators(
+    db_path: str,
+    *,
+    now: Optional[int] = None,
+    window_seconds: int = RECENT_MIGRATION_WINDOW_SECONDS,
+) -> int:
+    """Elevate only the live health cohort ahead of the historical backlog.
+
+    Priority 200 enters the queue's elevated scheduling bucket (``>100``) but
+    deliberately remains below the ``>200`` threshold that grants the much
+    larger high-priority RPC history budget.  The update is bounded to recent,
+    still-unresolved migrated rows and is idempotent.
+    """
+    cutoff = int(now if now is not None else time.time()) - max(1, int(window_seconds))
+    with _db(db_path) as conn:
+        ensure_schema(conn)
+        cur = conn.execute(
+            """
+            UPDATE creator_resolution_queue
+            SET priority = MAX(priority, ?),
+                updated_at = strftime('%s','now')
+            WHERE status IN ('pending','retry')
+              AND priority < ?
+              AND mint IN (
+                  SELECT mint
+                  FROM token_analysis
+                  WHERE lifecycle_stage='migrated'
+                    AND migrated_at >= ?
+                    AND COALESCE(
+                        NULLIF(TRIM(earliest_tx_creator), ''),
+                        NULLIF(TRIM(pf_ws_creator), '')
+                    ) IS NULL
+              )
+            """,
+            (P0_PRIORITY, P0_PRIORITY, cutoff),
+        )
+        conn.commit()
+        return int(cur.rowcount or 0)
+
+
 def _iso_from_epoch(value: Any) -> str:
     try:
         if value:
@@ -334,6 +376,7 @@ def enqueue_missing_funding_jobs(
     """Backfill migrated tokens that already have a creator but no funding job."""
     now = int(time.time())
     enqueued = 0
+    telemetry_rows = []
     with _db(db_path) as conn:
         ensure_schema(conn)
         conn.commit()
@@ -382,7 +425,14 @@ def enqueue_missing_funding_jobs(
                     (source, now, row["mint"]),
                 )
                 enqueued += 1
+                telemetry_rows.append((str(row["creator"]), str(row["mint"])))
         conn.commit()
+    for creator, mint in telemetry_rows:
+        if not record_event_fail_open(
+            db_path, creator=creator, mint=mint, source=source, event="CREATED",
+            occurred_at=now, previous_status=None, new_status="pending",
+        ):
+            print("[CFQ_LIFECYCLE] telemetry gap on BACKFILL CREATED", flush=True)
     return enqueued
 
 
@@ -584,6 +634,7 @@ def process_queue(db_path: str, *, limit: int = 3, lock_seconds: int = 180) -> D
             data    = _resolve_creator_rpc(mint, max_runtime_secs=max_runtime, max_pages=max_pages_v, tier=tier)
             creator = data["creator"]
 
+            did_enqueue = False
             with _db(db_path) as conn:
                 ensure_schema(conn)
                 token = conn.execute(
@@ -628,6 +679,11 @@ def process_queue(db_path: str, *, limit: int = 3, lock_seconds: int = 180) -> D
                 )
                 conn.commit()
                 resolved += 1
+            if did_enqueue and not record_event_fail_open(
+                db_path, creator=creator, mint=mint, source="creator_resolution_queue",
+                event="CREATED", previous_status=None, new_status="pending",
+            ):
+                print("[CFQ_LIFECYCLE] telemetry gap on RECOVERY CREATED", flush=True)
 
         except _BudgetExceeded as bx:
             # Budget hit — move to offline queue (status='skipped'), not a failure, no retry.

@@ -1,0 +1,20 @@
+{
+  "milestone": "X78.39 — Creator Resolution Recovery Admission & Backlog Control",
+  "baseline_revision": "cb1fc110e105436c4baa9fe15f956628f80db3ce",
+  "read_only_observations": {
+    "creator_funding_queue_total": 27027,
+    "current_pending_or_retry": 0,
+    "completed_by_source": {"pf_ws_creator_existing_migration": 4382, "creator_resolution_queue": 3254, "pf_ws_creator_migration": 1756, "crq_worker": 80},
+    "expired_by_source": {"pf_ws_creator_existing_migration": 12878, "creator_resolution_queue": 3553, "crq_worker": 446},
+    "recent_one_hour_completions": {"pf_ws_creator_existing_migration": 28, "creator_resolution_queue": 4},
+    "scheduler": "freshness-first unified HOT selection; rows older than CFQ_HOT_MAX_AGE_SECONDS expire; source is not an admission class"
+  },
+  "current_arbitration": {
+    "live_and_recovery_isolation": "not implemented",
+    "source_measurement": "persisted source labels exist but no per-class claim/admission/completion time series exists",
+    "fairness": "creator-level single-flight and two-slot bound are preserved; no evidence proves live/recovery fairness under a sustained mixed load"
+  },
+  "implementation": "none; changing admission would alter queue semantics without the required demand window",
+  "advancement_gate": {"verdict": "NOT_MEASURABLE", "reason": "A point-in-time queue snapshot cannot distinguish organic arrivals, recovery admission, retries, expiries and terminal outcomes. Current zero ready work makes a fairness change both unjustified and unqualifiable."},
+  "invariants": {"slots": 2, "rpc_ceiling": 8, "creator_single_flight": true, "production_change": false}
+}

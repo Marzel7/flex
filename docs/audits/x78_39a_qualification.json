@@ -1,0 +1,17 @@
+{
+  "milestone": "X78.39A — Class-Separated Creator Funding Queue Telemetry",
+  "baseline_revision": "cb1fc110e105436c4baa9fe15f956628f80db3ce",
+  "producer_census": {
+    "live_listener": {"entry": "PumpFunCurveListener._enqueue_creator_funding_job", "source_examples": ["pf_ws_creator_migration", "pf_ws_creator_existing_migration", "creator_discovery", "migration_already_known"], "identity": "creator_address + mint primary key", "duplicate_policy": "existing mint is skipped"},
+    "creator_resolution": {"entry": "creator_resolution_queue._enqueue_funding_handoff", "source": "creator_resolution_queue", "identity": "creator_address + mint primary key", "duplicate_policy": "ON CONFLICT DO NOTHING"},
+    "backfill": {"entry": "creator_resolution_queue.enqueue_missing_funding_jobs", "source_examples": ["funding_coverage_sweep", "crq_worker"], "identity": "same queue primary key", "duplicate_policy": "NOT EXISTS followed by handoff conflict protection"},
+    "retry": {"entry": "creator_funding_worker._mark_retry", "status": "retry", "identity": "same logical primary key; not a new organic obligation"},
+    "stale_running": {"entry": "creator_funding_worker._recover_stale_rows", "status": "retry", "identity": "same logical primary key; not a new obligation"},
+    "expiry": {"entry": "creator_funding_worker._expire_stale_rows", "status": "expired", "identity": "same logical primary key"}
+  },
+  "current_metric_limitation": "source is mutable and retry/status transitions are not event-sourced. Existing cumulative queue rows cannot reconstruct class-created, claimed, completed, retried, reactivated and expired event counts per interval.",
+  "implementation": "none; no telemetry schema was deployed because it would require atomic producer/consumer event writes and an audited deployment window",
+  "verdicts": {"demand_classification": "C — MATERIAL_UNCLASSIFIED_WORK", "obligation_identity": "B — STABLE_WITH_LIMITATION", "completion_accounting": "D — NOT_RELIABLE", "expiry_accounting": "C — EXPIRY_MASKING_REMAINS"},
+  "gate_to_x78_40": "BLOCKED — CAPACITY INPUTS NOT RELIABLE",
+  "production_change": false
+}

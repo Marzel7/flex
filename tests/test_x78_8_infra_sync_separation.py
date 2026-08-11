@@ -166,10 +166,10 @@ def test_infra_sync_scheduler_status_reflects_failure(tmp_path, monkeypatch):
     first_success_rows = status1["rows_processed"]
 
     # Second: force a failure.
-    def failing_sync(conn):
+    def failing_collect(conn):
         raise RuntimeError("simulated sync failure")
 
-    monkeypatch.setattr(scheduler, "sync_infra_wallets", failing_sync)
+    monkeypatch.setattr(scheduler, "collect_infra_wallet_rows", failing_collect)
     result2 = scheduler.run_once()
     assert result2["status"] == "error"
 

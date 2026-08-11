@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-11T16:08:30Z",
+  "updated_at_utc": "2026-08-11T19:13:29Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "4599d821",
-    "working_tree": "dirty: live retention/census Supervisor configuration and unrelated audit/runtime files remain uncommitted; Agent Orchestrator V1 implementation is committed separately and no unrelated changes were included"
+    "git_head": "c33af8000ed741cc542aa8be70be2400a7bc58e6",
+    "working_tree": "dirty: unrelated live Supervisor, audit, and runtime changes remain present and were not staged; V1.2/V1.3 orchestrator work is committed locally"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-11T16:08:30Z",
+    "published_at_utc": "2026-08-11T19:13:29Z",
     "protocol_version": 1,
-    "status": "READY"
+    "status": "HANDOFF_TRANSPORT_DEGRADED"
   },
   "current_milestone": {
-    "programme": "Agent Orchestrator V1.1",
-    "milestone": "Direct Responses API reviewer local qualification",
+    "programme": "Agent Orchestrator V1.3",
+    "milestone": "No-API autonomous local loop qualification",
     "mode": "local-only engineering",
-    "status": "HOLD",
-    "verdict": "OPENAI_API_KEY_NOT_VISIBLE_TO_ORCHESTRATOR"
+    "status": "COMPLETE",
+    "verdict": "LOCAL_QUALIFICATION_PASS"
   },
   "production_state": {
     "retention": "ON",
@@ -33,19 +33,48 @@
     "creator_funding_pid_last_verified": 80618
   },
   "orchestration": {
-    "schema_version": 1,
+    "schema_version": 3,
     "state": "IDLE",
     "run_id": null,
     "attempt": 0,
     "approved_action": null,
-    "reviewer_callback": {"available": false, "reason": "No supported local ChatGPT/planner daemon callback discovered; V1 stops at READY_FOR_REVIEW."},
-    "authorization_policy": {"autonomous": ["LOCAL_READ_ONLY", "LOCAL_IMPLEMENTATION", "LOCAL_TEST", "LOCAL_COMMIT"], "human_approval_required": ["PRODUCTION_OBSERVATION", "PRODUCTION_MUTATION", "PROVIDER_WORK_INCREASE", "ARCHITECTURAL_DECISION"]}
+    "reviewer_callback": {"available": false, "reason": "V1.3 default loop is no-API; historic API reviewer is isolated and not invoked."},
+    "authorization_policy": {
+      "autonomous": [
+        "LOCAL_READ_ONLY",
+        "LOCAL_IMPLEMENTATION",
+        "LOCAL_TEST",
+        "LOCAL_COMMIT"
+      ],
+      "human_approval_required": [
+        "PRODUCTION_OBSERVATION",
+        "PRODUCTION_MUTATION",
+        "PROVIDER_WORK_INCREASE",
+        "ARCHITECTURAL_DECISION"
+      ]
+    }
   },
   "qualified_baselines": [
-    {"milestone": "OIP v2.2E Phase 1 reproducible baseline", "commit": "ad3719f59ac9541e3550fad22866efe0cab5466c", "verdict": "QUALIFIED"},
-    {"milestone": "E.1A cohort gate", "commit": "ac852ac2", "verdict": "PASS"},
-    {"milestone": "E.1C1 retained acquisition replay foundation", "commit": "5837cd68f361fdb45297dbf8466d741727490823", "verdict": "PASS"},
-    {"milestone": "Prospective migration census collector", "commit": "8289687ba3402e7972d3881594db261eb044f142", "verdict": "LOCAL_QUALIFICATION_PASS"}
+    {
+      "milestone": "OIP v2.2E Phase 1 reproducible baseline",
+      "commit": "ad3719f59ac9541e3550fad22866efe0cab5466c",
+      "verdict": "QUALIFIED"
+    },
+    {
+      "milestone": "E.1A cohort gate",
+      "commit": "ac852ac2",
+      "verdict": "PASS"
+    },
+    {
+      "milestone": "E.1C1 retained acquisition replay foundation",
+      "commit": "5837cd68f361fdb45297dbf8466d741727490823",
+      "verdict": "PASS"
+    },
+    {
+      "milestone": "Prospective migration census collector",
+      "commit": "8289687ba3402e7972d3881594db261eb044f142",
+      "verdict": "LOCAL_QUALIFICATION_PASS"
+    }
   ],
   "active_observation": {
     "name": "OIP v2.2E.2B2K repaired-route prospective migration census funnel",
@@ -63,14 +92,30 @@
     "observed_duration_minutes": 23.67,
     "qualified_events": 20,
     "qualified_distinct_mints": 20,
-    "endpoint_evaluation": {"distinct_migrations_20": true, "clean_minutes_60": false, "material_funnel_gap": true, "production_impact": false, "endpoint_reached": true, "endpoint_reason": "20_DISTINCT_QUALIFIED_MIGRATIONS"},
+    "endpoint_evaluation": {
+      "distinct_migrations_20": true,
+      "clean_minutes_60": false,
+      "material_funnel_gap": true,
+      "production_impact": false,
+      "endpoint_reached": true,
+      "endpoint_reason": "20_DISTINCT_QUALIFIED_MIGRATIONS"
+    },
     "note": "Closed at the twentieth distinct post-authorization census receive. The first 20 qualifying records were one-to-one with 20 mints; later census records are outside this fixed cohort. No service/configuration changes or Codex-initiated provider RPC calls occurred."
   },
   "latest_results": {
-    "handoff_protocol_update": {"status": "COMPLETE", "summary": "Every material continuation turn now publishes agent state to the dedicated origin/agent-handoff transport branch; routine handoff updates do not create engineering-branch commits."},
+    "agent_orchestrator_v1_3": {"status":"COMPLETE","verdict":"LOCAL_QUALIFICATION_PASS","commit":"c33af8000ed741cc542aa8be70be2400a7bc58e6","api_reviewer_default":false,"api_key_required":false,"tests":{"passed":17,"failed":0},"production_changes":false,"provider_rpc_calls":0,"daemon_enabled":false},
+    "handoff_protocol_update": {
+      "status": "COMPLETE",
+      "summary": "Every material continuation turn now publishes agent state to the dedicated origin/agent-handoff transport branch; routine handoff updates do not create engineering-branch commits."
+    },
     "oip_v2_2e_2b2g_semantic_verification": {
       "verdict": "MESSAGE_ROUTING_GAP",
-      "subscription_request": {"method": "subscribeMigration", "send_location": "src/core/pumpfun_curve_listener.py::listen_pumpportal_websocket", "send_side_log_present": true, "ack_payload_retained": false},
+      "subscription_request": {
+        "method": "subscribeMigration",
+        "send_location": "src/core/pumpfun_curve_listener.py::listen_pumpportal_websocket",
+        "send_side_log_present": true,
+        "ack_payload_retained": false
+      },
       "observed_pumpportal_discriminator": "migrate",
       "implemented_route_discriminator": "migration",
       "qualified_window_pumpportal_migrate_messages": 44,
@@ -88,7 +133,10 @@
       "verdict": "LOCAL_QUALIFICATION_PASS",
       "implementation": "PumpPortal migration branch now accepts txType in (migration,migrate), invokes census before signature gating, and gates handle_migration on a non-empty signature.",
       "regression_coverage": "Source-level routing tests prove both discriminator spellings and census-before-business-guard ordering; existing census tests prove missing signature/mint invalid accounting and fail-open overflow behavior.",
-      "files_changed": ["src/core/pumpfun_curve_listener.py", "tests/test_oip_v2_2e_2b2_migration_census.py"],
+      "files_changed": [
+        "src/core/pumpfun_curve_listener.py",
+        "tests/test_oip_v2_2e_2b2_migration_census.py"
+      ],
       "deployed": true,
       "production_listener_restarted": true
     },
@@ -97,7 +145,10 @@
       "verdict": "PASS",
       "commit": "fc248d041913824b335df6759dbd57cda4644d8b",
       "commit_subject": "Fix PumpPortal migration census routing",
-      "files": ["src/core/pumpfun_curve_listener.py", "tests/test_oip_v2_2e_2b2_migration_census.py"],
+      "files": [
+        "src/core/pumpfun_curve_listener.py",
+        "tests/test_oip_v2_2e_2b2_migration_census.py"
+      ],
       "pushed_branch": "classification-attribution-axis",
       "unrelated_changes_included": false,
       "deployed": true,
@@ -142,7 +193,7 @@
       "methodology": "Shared Acquisition is evidenced by cohort-mint EXTRACTION_STARTED lifecycle telemetry. Completion is the intersection of those started mints with COMPLETED queue lifecycle/state. Retained requires at least one RETAINED acquisition observation for the mint. Replayable requires a retained observation with every canonical dry-run envelope input present.",
       "gap_analysis": "Five of 20 migrations did not enter Shared Acquisition. Four had canonical migrated token rows and resolved creator data but no creator_funding_queue row. One additional migration had a complete queue row satisfied by existing creator-funder state and therefore bypassed Shared Acquisition; it is not counted as a downstream completion in the linear acquisition funnel. All 15 actual Shared Acquisition mints completed, retained, and were replayable.",
       "material_gap": true,
-      "verdict": "B — MATERIAL_MIGRATION_TO_SHARED_ACQUISITION_GAP"
+      "verdict": "B \u2014 MATERIAL_MIGRATION_TO_SHARED_ACQUISITION_GAP"
     },
     "oip_v2_2e_2b2l_root_cause": {
       "status": "COMPLETE",
@@ -167,38 +218,154 @@
       "status": "COMPLETE",
       "verdict": "LOCAL_QUALIFICATION_PASS",
       "commit": "7d1430a2e267d103fb2df2b3004093c46945c909",
-      "files": ["scripts/agent_orchestrator.py", "tests/test_agent_orchestrator.py", "docs/agent_handoff/README.md"],
-      "capability_discovery": {"executable": "/Applications/ChatGPT.app/Contents/Resources/codex", "version": "codex-cli 0.147.0-alpha.6.6", "headless_interface": "codex exec with explicit workdir, stdin prompt, JSONL output, final-message file, sandbox, and bounded subprocess timeout", "desktop_session_required": false, "authentication": "stored ChatGPT CLI auth is configured", "current_availability": "provider endpoints unreachable in local doctor check; no execution attempted"},
+      "files": [
+        "scripts/agent_orchestrator.py",
+        "tests/test_agent_orchestrator.py",
+        "docs/agent_handoff/README.md"
+      ],
+      "capability_discovery": {
+        "executable": "/Applications/ChatGPT.app/Contents/Resources/codex",
+        "version": "codex-cli 0.147.0-alpha.6.6",
+        "headless_interface": "codex exec with explicit workdir, stdin prompt, JSONL output, final-message file, sandbox, and bounded subprocess timeout",
+        "desktop_session_required": false,
+        "authentication": "stored ChatGPT CLI auth is configured",
+        "current_availability": "provider endpoints unreachable in local doctor check; no execution attempted"
+      },
       "execution_controls": "fcntl single-run lock; fetch and source transport revision verification; explicit action/schema validation; safe-class allowlist; bounded subprocess timeout; final state READY_FOR_REVIEW or BLOCKED; publish-and-hash verification.",
       "reviewer_automation": "No supported callback into this interactive ChatGPT/planner conversation was discovered. V1 truthfully stops at READY_FOR_REVIEW.",
-      "tests": {"command": "python -m py_compile scripts/agent_orchestrator.py && python -m pytest -q tests/test_agent_orchestrator.py", "passed": 3, "failed": 0},
+      "tests": {
+        "command": "python -m py_compile scripts/agent_orchestrator.py && python -m pytest -q tests/test_agent_orchestrator.py",
+        "passed": 3,
+        "failed": 0
+      },
       "production_changes": false,
       "provider_rpc_calls_initiated": 0
     },
-    "agent_orchestrator_v1_1": {"status":"HOLD","verdict":"OPENAI_API_KEY_NOT_VISIBLE_TO_ORCHESTRATOR","commit":"4599d821","responses_api":"stdlib HTTPS client; OPENAI_API_KEY read only from process environment; store=false; strict closed JSON schema","model":"ORCHESTRATOR_REVIEW_MODEL required (no undocumented default)","policy":"model advisory; local safe classes only; production mutation/provider increase/architecture expansion hard-stop","mocked_tests":{"passed":18,"failed":0},"live_reviewer_calls":0,"live_smoke":"NOT_RUN_KEY_NOT_VISIBLE","secrets_logged":false,"production_changes":false,"provider_rpc_calls":0},
-    "oip_v2_2e_2b2f_funnel": {"window_endpoint": "60_CLEAN_POST_FIX_MINUTES", "migrations": 0, "shared_acquisitions": 0, "completions": 0, "retained": 0, "replayable": 0, "migration_to_shared_rate": null, "shared_to_completion_rate": null, "completion_to_retained_rate": null, "retained_to_replayable_rate": null, "interpretation": "Rates are undefined because the qualified migration denominator is zero; no funnel gap can be measured."},
-    "retention_natural_proof": {"eligible": 6, "retained": 6, "replayable": 6, "accounting_residual": 0, "pending_journal": 0, "lost_total": 0},
-    "migration_census_and_retention_tests": {"passed": 13, "failed": 0, "skipped": 0},
+    "agent_orchestrator_v1_1": {
+      "status": "HOLD",
+      "verdict": "REVIEW_API_DNS_UNREACHABLE",
+      "commit": "4599d821",
+      "responses_api": "stdlib HTTPS client; OPENAI_API_KEY read only from process environment; store=false; strict closed JSON schema",
+      "model": "ORCHESTRATOR_REVIEW_MODEL required (no undocumented default) and present in the resumed process environment; value was not printed or persisted",
+      "policy": "model advisory; local safe classes only; production mutation/provider increase/architecture expansion hard-stop",
+      "mocked_tests": {
+        "passed": 18,
+        "failed": 0
+      },
+      "live_reviewer_calls": 2,
+      "additional_authorized_live_reviewer_calls_this_turn": 1,
+      "live_smoke": "HOLD_API_HOSTNAME_DNS_UNREACHABLE_BEFORE_HTTP_RESPONSE",
+      "openai_api_key_present": true,
+      "orchestrator_review_model_present": true,
+      "secrets_logged": false,
+      "http_response_received": false,
+      "strict_structured_output_validated_live": false,
+      "policy_transition_validated_live": false,
+      "synthetic_next_codex_action_executed": false,
+      "one_call_allowance_exhausted": true,
+      "latest_live_smoke_at_utc": "2026-08-11T18:31:24Z",
+      "latest_live_smoke_error": "HOLD_API_HOSTNAME_DNS_UNREACHABLE_BEFORE_HTTP_RESPONSE_ERRNO_8",
+      "ready_for_review_proven": true,
+      "review_running_entered_in_memory": true,
+      "ready_for_codex_reached_live": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "provider_rpc_calls": 0,
+      "resumed_local_tests": {
+        "command": "python -m py_compile scripts/agent_orchestrator.py && python -m pytest -q tests/test_agent_orchestrator.py",
+        "passed": 18,
+        "failed": 0
+      },
+      "e2b2m_touched": false,
+      "evidence_mirror_changed": false,
+      "cohort_mode_changed": false
+    },
+    "agent_orchestrator_v1_2": {
+      "status": "PARTIAL",
+      "verdict": "LOCAL_QUALIFICATION_PASS_COMMIT_AND_TRANSPORT_PENDING_HOST",
+      "architecture": "Normal host Python process owns Responses API review, deterministic policy, orchestration state, locks, bounds, and agent-handoff Git transport. Sandboxed Codex child performs only approved repository-local work and returns strict structured JSON.",
+      "files": [
+        "scripts/agent_orchestrator.py",
+        "tests/test_agent_orchestrator.py",
+        "docs/agent_handoff/README.md"
+      ],
+      "tests": {
+        "command": "python -m py_compile scripts/agent_orchestrator.py && python -m pytest -q tests/test_agent_orchestrator.py",
+        "passed": 14,
+        "failed": 0
+      },
+      "commit": null,
+      "commit_blocker": "Codex sandbox denied creation of .git/index.lock; host must make the narrow engineering commit.",
+      "handoff_transport": "pending host publication; Codex child did not fetch, update the dedicated worktree, or push",
+      "live_api_smoke_run": false,
+      "production_changes": false,
+      "provider_rpc_calls": 0,
+      "e2b2m_touched": false,
+      "orchestrator_enabled": false
+    },
+    "oip_v2_2e_2b2f_funnel": {
+      "window_endpoint": "60_CLEAN_POST_FIX_MINUTES",
+      "migrations": 0,
+      "shared_acquisitions": 0,
+      "completions": 0,
+      "retained": 0,
+      "replayable": 0,
+      "migration_to_shared_rate": null,
+      "shared_to_completion_rate": null,
+      "completion_to_retained_rate": null,
+      "retained_to_replayable_rate": null,
+      "interpretation": "Rates are undefined because the qualified migration denominator is zero; no funnel gap can be measured."
+    },
+    "retention_natural_proof": {
+      "eligible": 6,
+      "retained": 6,
+      "replayable": 6,
+      "accounting_residual": 0,
+      "pending_journal": 0,
+      "lost_total": 0
+    },
+    "migration_census_and_retention_tests": {
+      "passed": 13,
+      "failed": 0,
+      "skipped": 0
+    },
     "listener_regression": "pre-fix receive timestamp NameError caused reconnect loop; repaired locally by timestamp capture immediately after ws.recv()",
-    "post_fix_runtime_check": {"checked_at_utc": "2026-08-11T15:57:08Z", "listener": "RUNNING pid 43895 (uptime 49m59s)", "creator_funding_worker": "RUNNING pid 80618 (unchanged; uptime 4h29m16s)", "evidence_writer": "STOPPED since 2026-08-11 10:57 local", "subscription_traffic": "B2K endpoint remains closed at its immutable 20-mint high-water", "production_impact_observed": false, "observation_window_closed": true},
-    "handoff_verification_tests": {"command": "python -m py_compile src/core/pumpfun_curve_listener.py src/core/pumpportal_migration_census.py tests/test_oip_v2_2e_2b2_migration_census.py && python -m pytest -q tests/test_oip_v2_2e_2b2_migration_census.py tests/test_x78_18_reconnect_isolation.py", "passed": 12, "failed": 0},
+    "post_fix_runtime_check": {
+      "checked_at_utc": "2026-08-11T15:57:08Z",
+      "listener": "RUNNING pid 43895 (uptime 49m59s)",
+      "creator_funding_worker": "RUNNING pid 80618 (unchanged; uptime 4h29m16s)",
+      "evidence_writer": "STOPPED since 2026-08-11 10:57 local",
+      "subscription_traffic": "B2K endpoint remains closed at its immutable 20-mint high-water",
+      "production_impact_observed": false,
+      "observation_window_closed": true
+    },
+    "handoff_verification_tests": {
+      "command": "python -m py_compile src/core/pumpfun_curve_listener.py src/core/pumpportal_migration_census.py tests/test_oip_v2_2e_2b2_migration_census.py && python -m pytest -q tests/test_oip_v2_2e_2b2_migration_census.py tests/test_x78_18_reconnect_isolation.py",
+      "passed": 12,
+      "failed": 0
+    },
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
     "Explicit subscription acknowledgement payloads and complete raw migration payloads are not retained, although sustained pumpportal_migrate telemetry proves useful delivery.",
     "Live Supervisor configuration remains uncommitted and must not be bundled with unrelated working-tree changes.",
     "Closing the current-mint evidence gap requires an explicitly reviewed cache-bypass/evidence-lineage design; a force-fresh path would create provider work and is not authorized.",
-    "Agent Orchestrator V1 cannot execute until a planner publishes an explicit approved_action with a matching source handoff revision; current local Codex provider reachability is unavailable.",
-    "OPENAI_API_KEY_NOT_VISIBLE_TO_ORCHESTRATOR: live direct-API smoke qualification was not run."
+    "Agent Orchestrator V1.2 is disabled by default and requires an explicit --enable invocation from a normal host terminal.",
+    "ENGINEERING_COMMIT_PENDING_HOST: local qualification passed, but the Codex sandbox cannot create .git/index.lock; the narrow V1.2 commit must be created by the host.",
+    "HANDOFF_TRANSPORT_DEGRADED: V1.2 intentionally leaves handoff fetch/update/push to the host process; origin/agent-handoff was not updated during this Codex child turn."
   ],
   "next_action": {
-    "milestone": "Agent Orchestrator V1.1 live smoke",
-    "instruction": "Run the qualifying process from the same Terminal session that exported the key, e.g. cd /Users/kevinkeaveney/Dev/claude/flex && OPENAI_API_KEY=\"$OPENAI_API_KEY\" ORCHESTRATOR_REVIEW_MODEL=\"<supported-model>\" python -c 'import os; print(\"OPENAI_API_KEY_PRESENT=\" + str(bool(os.environ.get(\"OPENAI_API_KEY\"))))'. Do not paste or persist the key. After visibility is confirmed, authorize a single synthetic LOCAL_TEST smoke invocation; E.2B2M remains paused.",
+    "milestone": "Agent Orchestrator V1.2 host completion",
+    "instruction": "From the normal host terminal, make the narrow three-file engineering commit, update this handoff with that engineering revision, publish it through the dedicated agent-handoff worktree, then optionally run the documented host-only live smoke. Do not invoke another Codex child for the smoke. E.2B2M remains paused.",
     "activation_authorized": false
   },
   "safety": {
     "production_changes_allowed": false,
     "evidence_activation_allowed": false,
-    "notes": ["Evidence mirror and cohort mode remain off.", "Do not restart or reconfigure services merely to advance the observation window.", "Handoff commits and pushes transport review context only and never authorize production activation."]
+    "notes": [
+      "Evidence mirror and cohort mode remain off.",
+      "Do not restart or reconfigure services merely to advance the observation window.",
+      "Handoff commits and pushes transport review context only and never authorize production activation."
+    ]
   }
 }

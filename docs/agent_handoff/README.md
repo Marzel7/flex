@@ -31,3 +31,8 @@ ChatGPT should retrieve the latest Codex state from:
 When code inspection is needed, use the engineering branch and `project.git_head` named inside that file. `project.git_head` is the engineering source/runtime revision; it is never the handoff transport commit. `handoff_transport` describes the separate publication channel without attempting a self-referential transport hash.
 
 This protocol records and transports review context only. It does not authorize production activation, service restarts, configuration changes, provider calls, or any other production-changing work. All existing safety gates remain in force, and production changes require their own explicitly authorized milestone.
+# Agent Orchestrator V1
+
+`scripts/agent_orchestrator.py` is a local, fail-closed executor for this handoff. Its persisted `orchestration` object has states `IDLE`, `READY_FOR_CODEX`, `CODEX_RUNNING`, `READY_FOR_REVIEW`, `HUMAN_APPROVAL_REQUIRED`, `BLOCKED`, and `PROGRAMME_COMPLETE`.
+
+An action is executable only when `approved_action.approved` is `true`, has a matching `source_handoff_revision`, and names one of `LOCAL_READ_ONLY`, `LOCAL_IMPLEMENTATION`, `LOCAL_TEST`, or `LOCAL_COMMIT`. Production mutation, provider-work increase, production observation, and architectural decision classes remain human gates. Completion always stops at `READY_FOR_REVIEW`; V1 has no planner callback.

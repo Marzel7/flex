@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-11T22:55:58Z",
+  "updated_at_utc": "2026-08-11T22:59:41Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-11T22:55:58Z",
+    "published_at_utc": null,
     "protocol_version": 1,
     "status": "PENDING_PUBLICATION"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2O prospective marked-cohort observation preflight",
-    "mode": "safe-local orchestration",
-    "status": "HOLD",
-    "verdict": "B2M_MARKER_NOT_LOADED"
+    "milestone": "OIP v2.2E.2B2O listener marker-load gate",
+    "mode": "authorized bounded production restart verification",
+    "status": "COMPLETE",
+    "verdict": "B2M_MARKER_LOADED_NO_OBSERVATION_STARTED"
   },
   "production_state": {
     "retention": "ON",
@@ -28,9 +28,9 @@
     "cohort_mode": "OFF",
     "evidence_writer": "STOPPED",
     "listener_service": "watchtower_listener",
-    "listener_pid_last_verified": 43895,
+    "listener_pid_last_verified": 85256,
     "creator_funding_service": "creator_funding_worker",
-    "creator_funding_pid_last_verified": 80618
+    "creator_funding_pid_last_verified": 89882
   },
   "orchestration": {
     "schema_version": 3,
@@ -235,12 +235,20 @@
   "latest_results": {
     "oip_v2_2e_2b2o_observation_authorization_preflight": {
       "status": "HOLD",
-      "verdict": "B2M_MARKER_NOT_LOADED",
+      "verdict": "B2M_MARKER_LOADED_NO_OBSERVATION_STARTED",
       "contract": "First B2M observation_required=true migration enqueue after authorization; end at first of 20 distinct marked migrations, 60 clean minutes, or production impact; read-only with no provider calls/restart/configuration/Evidence/Cohort action.",
-      "listener": "RUNNING pid 43895, uptime 7:48:49 at verification; started before B2M commit 5e2d1b26.",
+      "listener": "RUNNING pid 85256, uptime 1m28s at verification; source HEAD 74b33083 includes B2M commit 5e2d1b26.",
       "provider_rpc_calls": 0,
-      "production_changes": false,
-      "blocker": "The running listener predates B2M and has not loaded its observation_required marker. The authorized observation explicitly prohibits the restart required to load that code."
+      "production_changes": true,
+      "blocker": null,
+      "authorized_restart": {
+        "restart_count": 1,
+        "authorized_commit": "5e2d1b2623392e01231673236041f906a6e03844",
+        "old_listener_pid": 43895,
+        "new_listener_pid": 85256,
+        "result": "Listener running; PumpPortal connected; PumpSwap migration-account subscription confirmed; live birth and migration-account traffic observed."
+      },
+      "observation_window_started": false
     },
     "oip_v2_2e_2b2n_preflight_manifest_authorization": {
       "status": "COMPLETE",
@@ -672,8 +680,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2O deployment/restart gate",
-    "instruction": "Await a separate explicit authorization to deploy/load B2M commit 5e2d1b26 on watchtower_listener through a bounded restart, including rollback/health conditions. Do not start the marked-cohort observation without the marker loaded.",
+    "milestone": "OIP v2.2E.2B2O prospective marked-cohort observation",
+    "instruction": "Await separate explicit authorization to start the bounded read-only marked-cohort observation from the first B2M observation_required=true migration enqueue after authorization; end at first of 20 distinct marked migrations, 60 clean minutes, or production impact. No provider calls, restart, reconfiguration, Evidence Mirror, Cohort Mode, or Evidence writer change is authorized by this restart gate.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },
@@ -682,6 +690,7 @@
     "evidence_activation_allowed": false,
     "notes": [
       "Evidence mirror and cohort mode remain off.",
+      "Exactly one authorized watchtower_listener restart loaded B2M commit 5e2d1b26; no observation window was started.",
       "Do not restart or reconfigure services merely to advance the observation window.",
       "Handoff commits and pushes transport review context only and never authorize production activation."
     ]

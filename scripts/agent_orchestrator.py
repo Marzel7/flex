@@ -94,6 +94,13 @@ def child_policy(result, approved_scope):
         return "HUMAN_APPROVAL_REQUIRED"
     return "READY_FOR_CODEX"
 
+def manifest_child_policy(result):
+    """V1.3 progression is authorized solely by the ordered approved manifest."""
+    result = validate_child_result(result)
+    if result["status"] != "COMPLETE" or result["production_impact"] or result["provider_impact"]:
+        return "HUMAN_APPROVAL_REQUIRED"
+    return "READY_FOR_CODEX"
+
 def child_prompt(action):
     return "\n".join([
         "You are the sandboxed Codex engineering child. Perform only this approved repository-local action:",
@@ -254,7 +261,7 @@ def run_no_api_loop(data, timeout, max_iterations, child_runner=run_child, publi
         if index != start_index: o["approved_action"] = action
         o["run_id"] = None; o["state"] = "READY_FOR_CODEX"
         child = execute_one(data, timeout, max_iterations, child_runner)
-        target = child_policy(child, action["milestone"])
+        target = manifest_child_policy(child)
         o["deterministic_policy"] = {"decision": target, "api_reviewer_used": False, "iteration": index + 1}
         if target != "READY_FOR_CODEX":
             o["state"] = target; return target

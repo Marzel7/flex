@@ -89,6 +89,16 @@ def test_no_api_loop_never_constructs_reviewer_and_completes_manifest():
 def test_no_api_child_policy_hard_stops_impacts_and_scope_change():
     bad = child(); bad["provider_impact"] = True
     assert mod.child_policy(bad, "SCOPE") == "HUMAN_APPROVAL_REQUIRED"
+    assert mod.manifest_child_policy(bad) == "HUMAN_APPROVAL_REQUIRED"
+
+def test_no_api_manifest_not_child_prose_controls_ordered_progression():
+    a = action("LOCAL_READ_ONLY"); a["instruction"] = "read"
+    b = action("LOCAL_IMPLEMENTATION"); b["instruction"] = "implement"
+    result = child(); result["recommended_next_action"] = "unstructured advisory prose"
+    seen = []
+    data = programme([a, b], None)
+    assert mod.run_no_api_loop(data, 1, 2, lambda current, _t: seen.append(current["authorization_class"]) or result, lambda *x: "rev") == "PROGRAMME_COMPLETE"
+    assert seen == ["LOCAL_READ_ONLY", "LOCAL_IMPLEMENTATION"]
 
 def test_safe_local_manifest_requires_exact_active_milestone():
     a=action(); d={"orchestration":{"state":"IDLE","run_id":None,"approved_action":a,"approved_programme":{"approved":True,"active_milestone":"OTHER","actions":[a]}}}

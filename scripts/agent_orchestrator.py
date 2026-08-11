@@ -6,7 +6,7 @@ programme beyond READY_FOR_REVIEW.  It accepts only explicit local approvals.
 """
 from __future__ import annotations
 
-import argparse, fcntl, hashlib, json, os, shutil, subprocess, sys, tempfile, time, uuid
+import argparse, fcntl, hashlib, json, os, shutil, subprocess, sys, tempfile, time, uuid, urllib.error, urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -15,8 +15,10 @@ TRANSPORT = Path(os.environ.get("AGENT_HANDOFF_WORKTREE", ROOT.parent / "flex-ag
 LOCK = ROOT / ".agent_orchestrator.lock"
 SAFE = {"LOCAL_READ_ONLY", "LOCAL_IMPLEMENTATION", "LOCAL_TEST", "LOCAL_COMMIT"}
 ALL = SAFE | {"PRODUCTION_OBSERVATION", "PRODUCTION_MUTATION", "PROVIDER_WORK_INCREASE", "ARCHITECTURAL_DECISION"}
-STATES = {"IDLE", "READY_FOR_CODEX", "CODEX_RUNNING", "READY_FOR_REVIEW", "HUMAN_APPROVAL_REQUIRED", "BLOCKED", "PROGRAMME_COMPLETE"}
-TRANSITIONS = {"IDLE": {"READY_FOR_CODEX", "BLOCKED"}, "READY_FOR_CODEX": {"CODEX_RUNNING", "HUMAN_APPROVAL_REQUIRED", "BLOCKED"}, "CODEX_RUNNING": {"READY_FOR_REVIEW", "BLOCKED"}, "READY_FOR_REVIEW": {"IDLE", "PROGRAMME_COMPLETE"}, "HUMAN_APPROVAL_REQUIRED": {"READY_FOR_CODEX", "IDLE"}, "BLOCKED": {"IDLE"}, "PROGRAMME_COMPLETE": set()}
+STATES = {"IDLE", "READY_FOR_CODEX", "CODEX_RUNNING", "READY_FOR_REVIEW", "REVIEW_RUNNING", "HUMAN_APPROVAL_REQUIRED", "BLOCKED", "PROGRAMME_COMPLETE"}
+TRANSITIONS = {"IDLE": {"READY_FOR_CODEX", "BLOCKED"}, "READY_FOR_CODEX": {"CODEX_RUNNING", "HUMAN_APPROVAL_REQUIRED", "BLOCKED"}, "CODEX_RUNNING": {"READY_FOR_REVIEW", "BLOCKED"}, "READY_FOR_REVIEW": {"REVIEW_RUNNING", "HUMAN_APPROVAL_REQUIRED", "BLOCKED", "PROGRAMME_COMPLETE"}, "REVIEW_RUNNING": {"READY_FOR_CODEX", "HUMAN_APPROVAL_REQUIRED", "BLOCKED", "PROGRAMME_COMPLETE"}, "HUMAN_APPROVAL_REQUIRED": {"READY_FOR_CODEX", "IDLE"}, "BLOCKED": {"IDLE"}, "PROGRAMME_COMPLETE": set()}
+DECISIONS={"APPROVE_NEXT_LOCAL_ACTION", "HUMAN_APPROVAL_REQUIRED", "PROGRAMME_COMPLETE", "BLOCKED"}
+REVIEW_SCHEMA={"type":"object","additionalProperties":False,"required":["decision","authorization_class","next_action","reason","human_question","scope_change","production_change","provider_work_increase"],"properties":{"decision":{"type":"string","enum":sorted(DECISIONS)},"authorization_class":{"type":"string","enum":sorted(ALL)},"next_action":{"type":"string"},"reason":{"type":"string"},"human_question":{"type":"string"},"scope_change":{"type":"boolean"},"production_change":{"type":"boolean"},"provider_work_increase":{"type":"boolean"}}}
 
 class Rejected(ValueError): pass
 
@@ -66,6 +68,54 @@ def capability():
     exe = shutil.which("codex") or "/Applications/ChatGPT.app/Contents/Resources/codex"
     result = subprocess.run([exe, "--version"], text=True, capture_output=True)
     return {"executable": exe, "version": (result.stdout + result.stderr).strip(), "headless": "codex exec [PROMPT] with -C, stdin, --json, -o, --sandbox", "desktop_required": False, "auth": "Codex CLI stored ChatGPT auth; provider reachability must be checked at execution"}
+
+def review_context(data):
+    """Bounded public handoff facts only; never environment, prompts, or logs."""
+    return {k:data.get(k) for k in ("current_milestone","production_state","blockers","next_action","orchestration")}
+
+def validate_review(value):
+    if not isinstance(value, dict) or set(value) != set(REVIEW_SCHEMA["required"]): raise Rejected("REVIEW_SCHEMA_INVALID")
+    if value["decision"] not in DECISIONS or value["authorization_class"] not in ALL: raise Rejected("REVIEW_SCHEMA_INVALID")
+    if not all(isinstance(value[k], str) for k in ("next_action","reason","human_question")): raise Rejected("REVIEW_SCHEMA_INVALID")
+    if not all(isinstance(value[k], bool) for k in ("scope_change","production_change","provider_work_increase")): raise Rejected("REVIEW_SCHEMA_INVALID")
+    return value
+
+def policy(value, approved_scope):
+    """Advisory model output cannot widen authority."""
+    value=validate_review(value); kind=value["authorization_class"]
+    risky=value["scope_change"] or value["production_change"] or value["provider_work_increase"]
+    words=(value["next_action"]+" "+value["reason"]).lower()
+    risky = risky or any(x in words for x in ("restart", "supervisor", "config", "production", "provider", "rpc", "dependency", "schema migration", "delete"))
+    if value["decision"] == "PROGRAMME_COMPLETE": return "PROGRAMME_COMPLETE"
+    if value["decision"] != "APPROVE_NEXT_LOCAL_ACTION" or kind not in SAFE or risky or not value["next_action"].startswith(approved_scope): return "HUMAN_APPROVAL_REQUIRED"
+    return "READY_FOR_CODEX"
+
+class ResponsesReviewer:
+    """Minimal official Responses API client; key is read only from environment."""
+    def __init__(self, model=None, timeout=30):
+        self.model=model or os.environ.get("ORCHESTRATOR_REVIEW_MODEL")
+        self.timeout=timeout
+        if not self.model: raise Rejected("REVIEW_MODEL_UNAVAILABLE")
+    def review(self, context):
+        key=os.environ.get("OPENAI_API_KEY")
+        if not key: raise Rejected("OPENAI_API_KEY_NOT_VISIBLE_TO_ORCHESTRATOR")
+        body={"model":self.model,"store":False,"max_output_tokens":800,"input":[{"role":"system","content":"Return only the required JSON schema. You propose; deterministic policy authorizes."},{"role":"user","content":json.dumps(context, separators=(",",":"))}],"text":{"format":{"type":"json_schema","name":"orchestrator_review","strict":True,"schema":REVIEW_SCHEMA}}}
+        req=urllib.request.Request("https://api.openai.com/v1/responses", data=json.dumps(body).encode(), headers={"Authorization":"Bearer "+key,"Content-Type":"application/json"})
+        try:
+            with urllib.request.urlopen(req, timeout=self.timeout) as r: payload=json.loads(r.read()); status=r.status
+        except urllib.error.HTTPError as e:
+            raise Rejected({401:"REVIEW_AUTH_FAILED",429:"REVIEW_RATE_LIMITED"}.get(e.code,"REVIEW_API_UNAVAILABLE"))
+        except TimeoutError: raise Rejected("REVIEW_TIMEOUT")
+        text=payload.get("output_text")
+        if not isinstance(text,str): raise Rejected("REVIEW_SCHEMA_INVALID")
+        return validate_review(json.loads(text)), {"response_status":status,"model":self.model,"usage":payload.get("usage"),"store":False}
+
+def review_once(data, client, source_revision):
+    o=orchestration(data)
+    if o["state"] != "READY_FOR_REVIEW" or source_revision != o.get("source_handoff_revision", source_revision): raise Rejected("HANDOFF_CONFLICT")
+    if o.get("review_id"): raise Rejected("duplicate review_id")
+    transition(data,"REVIEW_RUNNING"); o["review_id"]=str(uuid.uuid4()); started=time.monotonic()
+    decision,meta=client.review(review_context(data)); target=policy(decision, data.get("next_action",{}).get("milestone", "")); o["review"]={"review_id":o["review_id"],"source_handoff_revision":source_revision,"structured_decision":decision,"policy_decision":target,"metadata":{**meta,"latency_ms":round((time.monotonic()-started)*1000)}}; o["state"]=target; return target
 
 def execute(timeout):
     with LOCK.open("a+") as lock:

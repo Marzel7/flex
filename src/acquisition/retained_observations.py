@@ -76,6 +76,10 @@ class RetainedAcquisitionStore:
         connection.execute("CREATE TABLE IF NOT EXISTS retained_acquisition_outcomes (acquisition_id TEXT PRIMARY KEY, outcome TEXT NOT NULL CHECK(outcome IN ('RETAINED','FAILED_WITH_GAP','NOT_RETAINABLE','FAILED_GAP_WRITE_FAILED')), recorded_at INTEGER NOT NULL)")
         return connection
 
+    def _read_connect(self) -> sqlite3.Connection:
+        """Open the isolated store strictly read-only for health/reconstruction."""
+        return sqlite3.connect(f"file:{self.path.resolve()}?mode=ro", uri=True)
+
     def retain(self, response: AcquisitionResponse, *, http_method: str, url: str, request_payload: Any) -> RetainedObservation:
         metadata = asdict(response.metadata)
         raw = response.raw_body
@@ -102,13 +106,40 @@ class RetainedAcquisitionStore:
         finally: connection.close()
 
     def health(self) -> dict[str, Any]:
-        connection = self._connect()
+        connection = self._read_connect()
         try:
             outcomes = dict(connection.execute("SELECT outcome,count(*) FROM retained_acquisition_outcomes GROUP BY outcome"))
+            last_retained = connection.execute("SELECT max(retained_at) FROM retained_acquisition_observations").fetchone()[0]
             eligible = sum(outcomes.values()); retained = outcomes.get("RETAINED", 0)
             failed_gap = outcomes.get("FAILED_WITH_GAP", 0); not_retainable = outcomes.get("NOT_RETAINABLE", 0); gap_failed = outcomes.get("FAILED_GAP_WRITE_FAILED", 0)
-            return {"retention_store_healthy": True, "eligible_total": eligible, "retained_total": retained, "failed_with_gap_total": failed_gap, "not_retainable_total": not_retainable, "failed_gap_write_failed_total": gap_failed, "accounting_residual": eligible - retained - failed_gap - not_retainable - gap_failed}
+            return {"retention_store_healthy": True, "eligible_total": eligible, "retained_total": retained, "failed_with_gap_total": failed_gap, "not_retainable_total": not_retainable, "failed_gap_write_failed_total": gap_failed, "accounting_residual": eligible - retained - failed_gap - not_retainable - gap_failed, "last_retained_at": last_retained}
         finally: connection.close()
+
+    def combined_accounting(self, journal: Any) -> dict[str, int]:
+        """Main outcomes win; journal-only acquisition identities are catastrophic failures."""
+        connection = self._read_connect()
+        try:
+            main = dict(connection.execute("SELECT acquisition_id,outcome FROM retained_acquisition_outcomes"))
+        finally: connection.close()
+        outcomes = dict(main)
+        invalid_journal_event_total = 0
+        # Treat the journal as an independent durable boundary.  A corrupt or
+        # partial file must not prevent reconstruction of its valid neighbours.
+        journal_dir = Path(journal.path).parent
+        for path in sorted(journal_dir.glob("*.json")) if journal_dir.exists() else ():
+            try:
+                event = json.loads(path.read_text())
+                acquisition_id = event.get("acquisition_identity")
+                if not isinstance(acquisition_id, str) or not acquisition_id:
+                    invalid_journal_event_total += 1
+                    continue
+            except (OSError, ValueError, TypeError):
+                invalid_journal_event_total += 1
+                continue
+            if acquisition_id not in outcomes:
+                outcomes[acquisition_id] = "FAILED_GAP_WRITE_FAILED"
+        counts = {key: list(outcomes.values()).count(key) for key in ("RETAINED", "FAILED_WITH_GAP", "NOT_RETAINABLE", "FAILED_GAP_WRITE_FAILED")}
+        return {"eligible_total": len(outcomes), "retained_total": counts["RETAINED"], "failed_with_gap_total": counts["FAILED_WITH_GAP"], "not_retainable_total": counts["NOT_RETAINABLE"], "failed_gap_write_failed_total": counts["FAILED_GAP_WRITE_FAILED"], "unresolved_durable_total": 0, "invalid_journal_event_total": invalid_journal_event_total, "accounting_residual": 0}
 
     def record_gap(self, response: AcquisitionResponse, reason: str) -> None:
         metadata = asdict(response.metadata)

@@ -36,6 +36,8 @@ class EvidenceConfig:
     mirror_cohort_manifest_path: Path | None = None
     retained_acquisition_observations_enabled: bool = False
     retained_acquisition_database_path: Path = Path("database/evidence_platform/production/retained_acquisition.db")
+    retained_acquisition_degraded_path: Path = Path("database/evidence_platform/production/retention_degraded")
+    retained_acquisition_journal_buffer_size: int = 128
 
     @classmethod
     def from_env(cls, env: dict[str, str] | None = None) -> "EvidenceConfig":
@@ -73,6 +75,10 @@ class EvidenceConfig:
             retained_acquisition_database_path=Path(values.get(
                 "RETAINED_ACQUISITION_DATABASE_PATH", "database/evidence_platform/production/retained_acquisition.db"
             )),
+            retained_acquisition_degraded_path=Path(values.get(
+                "RETAINED_ACQUISITION_DEGRADED_PATH", "database/evidence_platform/production/retention_degraded"
+            )),
+            retained_acquisition_journal_buffer_size=int(values.get("RETAINED_ACQUISITION_JOURNAL_BUFFER_SIZE", "128")),
         )
 
     @property

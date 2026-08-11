@@ -35,20 +35,20 @@
   "orchestration": {
     "schema_version": 3,
     "state": "READY_FOR_REVIEW",
-    "run_id": "421421d5-dad3-453f-9eb3-5c86d7fc1192",
-    "attempt": 2,
+    "run_id": "db1cad80-1de3-4502-8999-a4c4d3aeb806",
+    "attempt": 3,
     "approved_action": {
       "approved": true,
       "milestone": "OIP v2.2E.2B2N",
-      "authorization_class": "LOCAL_IMPLEMENTATION",
-      "instruction": "Write only the B2N provider-qualification design/contract document, including sample, request budget, field/timestamp semantics, success criteria, fail-closed stops, and no-production boundary.",
-      "success_criteria": "The B2N design is reviewable, bounded, and explicitly requires later human authorization before provider work.",
+      "authorization_class": "LOCAL_TEST",
+      "instruction": "Validate the B2N design against local evidence and verify it contains no executable provider or production action; bounded documentation repair/retest only.",
+      "success_criteria": "The B2N design passes local consistency review or records an exact safe-local blocker.",
       "stop_conditions": [
         "provider/RPC work needed",
         "production interaction needed",
         "architectural expansion needed"
       ],
-      "source_handoff_revision": "06d6e0481f63091faedfbc0ae05d08a38f47067c"
+      "source_handoff_revision": "0487435639cb34766fc2dc48bd99d22f2ad22a90"
     },
     "safe_local_enabled": true,
     "approved_programme": {
@@ -92,7 +92,7 @@
             "production interaction needed",
             "architectural expansion needed"
           ],
-          "source_handoff_revision": "e1f5e8831c567c2269bf357a13e04180236b6f7c"
+          "source_handoff_revision": "0487435639cb34766fc2dc48bd99d22f2ad22a90"
         },
         {
           "approved": true,
@@ -150,25 +150,26 @@
     },
     "last_child_result": {
       "status": "COMPLETE",
-      "verdict": "PASS",
-      "files_changed": [
-        "docs/evidence_platform/oip_v2_2e_2b2n_provider_qualification_contract.md"
-      ],
+      "verdict": "LOCAL_CONSISTENCY_PASS",
+      "files_changed": [],
       "tests": [
-        "Required-section and boundary-term checks passed",
-        "git diff --check passed"
+        "B2N contract structure and no-executable-content boundary check passed",
+        "4 targeted B2M fixture tests passed",
+        "Agent handoff JSON validation passed",
+        "B2N documentation git diff check passed",
+        "B2N document confirmed non-executable"
       ],
       "blockers": [],
       "production_impact": false,
       "provider_impact": false,
       "commits": [],
-      "recommended_next_action": "Human review of the B2N contract, followed by separate explicit authorization before any provider/RPC work; production work remains separately gated."
+      "recommended_next_action": "Retain the untracked B2N contract for the separately authorized LOCAL_COMMIT milestone; require new explicit human authorization before any provider/RPC or production work."
     },
-    "source_handoff_revision": "06d6e0481f63091faedfbc0ae05d08a38f47067c",
+    "source_handoff_revision": "0487435639cb34766fc2dc48bd99d22f2ad22a90",
     "deterministic_policy": {
       "decision": "READY_FOR_CODEX",
       "api_reviewer_used": false,
-      "iteration": 2
+      "iteration": 3
     }
   },
   "qualified_baselines": [

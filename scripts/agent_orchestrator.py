@@ -231,11 +231,28 @@ def run_no_api_loop(data, timeout, max_iterations, child_runner=run_child, publi
     o = orchestration(data); manifest = o.get("approved_programme")
     if not isinstance(manifest, dict) or manifest.get("approved") is not True or not isinstance(manifest.get("actions"), list) or not manifest.get("active_milestone"):
         raise Rejected("PROGRAMME_MANIFEST_NOT_APPROVED")
-    expected = o.get("approved_action", {}).get("source_handoff_revision")
-    for index, action in enumerate(manifest["actions"]):
+    actions = manifest["actions"]
+    if not actions: raise Rejected("PROGRAMME_ACTIONS_EMPTY")
+    active = o.get("approved_action")
+    if active is None:
+        active = actions[0]
+        o["approved_action"] = active
+        start_index = 0
+    elif not isinstance(active, dict):
+        raise Rejected("APPROVED_ACTION_MALFORMED")
+    else:
+        try: start_index = actions.index(active)
+        except ValueError as exc: raise Rejected("APPROVED_ACTION_NOT_IN_PROGRAMME") from exc
+    if not isinstance(active, dict): raise Rejected("PROGRAMME_ACTION_MALFORMED")
+    expected = active.get("source_handoff_revision")
+    if not expected: raise Rejected("ACTION_MISSING:source_handoff_revision")
+    for index in range(start_index, len(actions)):
+        action = actions[index]
+        if not isinstance(action, dict): raise Rejected("PROGRAMME_ACTION_MALFORMED")
         if action.get("milestone") != manifest["active_milestone"]: raise Rejected("ACTIVE_MILESTONE_MISMATCH")
-        if index >= max_iterations: raise Rejected("ITERATION_CAP_REACHED")
-        o["approved_action"] = action; o["run_id"] = None; o["state"] = "READY_FOR_CODEX"
+        if index - start_index >= max_iterations: raise Rejected("ITERATION_CAP_REACHED")
+        if index != start_index: o["approved_action"] = action
+        o["run_id"] = None; o["state"] = "READY_FOR_CODEX"
         child = execute_one(data, timeout, max_iterations, child_runner)
         target = child_policy(child, action["milestone"])
         o["deterministic_policy"] = {"decision": target, "api_reviewer_used": False, "iteration": index + 1}

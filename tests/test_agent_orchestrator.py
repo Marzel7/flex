@@ -95,3 +95,36 @@ def test_safe_local_manifest_requires_exact_active_milestone():
     with pytest.raises(mod.Rejected,match="ACTIVE_MILESTONE_MISMATCH"): mod.run_no_api_loop(d,1,1,lambda a,t: child(),lambda *x:"r")
     bad = child(); bad["recommended_next_action"] = "other"
     assert mod.child_policy(bad, "SCOPE") == "HUMAN_APPROVAL_REQUIRED"
+
+def programme(actions, approved_action=None, approved=True):
+    return {"orchestration": {"schema_version": 3, "state": "IDLE", "run_id": None,
+            "approved_action": approved_action, "approved_programme": {"approved": approved,
+            "active_milestone": "SCOPE", "actions": actions}}}
+
+def test_null_approved_action_activates_first_programme_action_without_attribute_error():
+    first = action("LOCAL_READ_ONLY"); first["instruction"] = "first"
+    data = programme([first], None)
+    seen = []
+    assert mod.run_no_api_loop(data, 1, 1, lambda a, t: seen.append(a) or child(), lambda *x: "rev") == "PROGRAMME_COMPLETE"
+    assert seen == [first] and data["orchestration"]["approved_action"] == first
+
+def test_empty_programme_actions_fail_closed():
+    with pytest.raises(mod.Rejected, match="PROGRAMME_ACTIONS_EMPTY"):
+        mod.run_no_api_loop(programme([], None), 1, 1, lambda a, t: child(), lambda *x: "rev")
+
+def test_unapproved_programme_still_blocks_before_child():
+    with pytest.raises(mod.Rejected, match="PROGRAMME_MANIFEST_NOT_APPROVED"):
+        mod.run_no_api_loop(programme([action()], None, approved=False), 1, 1, lambda a, t: child(), lambda *x: "rev")
+
+def test_existing_valid_approved_action_is_preserved_as_start_position():
+    first = action("LOCAL_READ_ONLY"); second = action("LOCAL_IMPLEMENTATION"); second["instruction"] = "second"
+    data = programme([first, second], second)
+    seen = []
+    assert mod.run_no_api_loop(data, 1, 2, lambda a, t: seen.append(a) or child(), lambda *x: "rev") == "PROGRAMME_COMPLETE"
+    assert seen == [second]
+
+def test_programme_action_order_is_deterministic():
+    actions = [action(kind) for kind in ("LOCAL_READ_ONLY", "LOCAL_IMPLEMENTATION", "LOCAL_TEST", "LOCAL_COMMIT")]
+    data = programme(actions, None); seen = []
+    assert mod.run_no_api_loop(data, 1, 4, lambda a, t: seen.append(a["authorization_class"]) or child(), lambda *x: "rev") == "PROGRAMME_COMPLETE"
+    assert seen == ["LOCAL_READ_ONLY", "LOCAL_IMPLEMENTATION", "LOCAL_TEST", "LOCAL_COMMIT"]

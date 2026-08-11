@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-11T16:03:38Z",
+  "updated_at_utc": "2026-08-11T16:08:30Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "7d1430a2e267d103fb2df2b3004093c46945c909",
+    "git_head": "4599d821",
     "working_tree": "dirty: live retention/census Supervisor configuration and unrelated audit/runtime files remain uncommitted; Agent Orchestrator V1 implementation is committed separately and no unrelated changes were included"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-11T16:03:38Z",
+    "published_at_utc": "2026-08-11T16:08:30Z",
     "protocol_version": 1,
     "status": "READY"
   },
   "current_milestone": {
-    "programme": "Agent Orchestrator V1",
-    "milestone": "Local implementation and qualification",
+    "programme": "Agent Orchestrator V1.1",
+    "milestone": "Direct Responses API reviewer local qualification",
     "mode": "local-only engineering",
-    "status": "COMPLETE",
-    "verdict": "LOCAL_QUALIFICATION_PASS"
+    "status": "HOLD",
+    "verdict": "OPENAI_API_KEY_NOT_VISIBLE_TO_ORCHESTRATOR"
   },
   "production_state": {
     "retention": "ON",
@@ -175,6 +175,7 @@
       "production_changes": false,
       "provider_rpc_calls_initiated": 0
     },
+    "agent_orchestrator_v1_1": {"status":"HOLD","verdict":"OPENAI_API_KEY_NOT_VISIBLE_TO_ORCHESTRATOR","commit":"4599d821","responses_api":"stdlib HTTPS client; OPENAI_API_KEY read only from process environment; store=false; strict closed JSON schema","model":"ORCHESTRATOR_REVIEW_MODEL required (no undocumented default)","policy":"model advisory; local safe classes only; production mutation/provider increase/architecture expansion hard-stop","mocked_tests":{"passed":18,"failed":0},"live_reviewer_calls":0,"live_smoke":"NOT_RUN_KEY_NOT_VISIBLE","secrets_logged":false,"production_changes":false,"provider_rpc_calls":0},
     "oip_v2_2e_2b2f_funnel": {"window_endpoint": "60_CLEAN_POST_FIX_MINUTES", "migrations": 0, "shared_acquisitions": 0, "completions": 0, "retained": 0, "replayable": 0, "migration_to_shared_rate": null, "shared_to_completion_rate": null, "completion_to_retained_rate": null, "retained_to_replayable_rate": null, "interpretation": "Rates are undefined because the qualified migration denominator is zero; no funnel gap can be measured."},
     "retention_natural_proof": {"eligible": 6, "retained": 6, "replayable": 6, "accounting_residual": 0, "pending_journal": 0, "lost_total": 0},
     "migration_census_and_retention_tests": {"passed": 13, "failed": 0, "skipped": 0},
@@ -187,11 +188,12 @@
     "Explicit subscription acknowledgement payloads and complete raw migration payloads are not retained, although sustained pumpportal_migrate telemetry proves useful delivery.",
     "Live Supervisor configuration remains uncommitted and must not be bundled with unrelated working-tree changes.",
     "Closing the current-mint evidence gap requires an explicitly reviewed cache-bypass/evidence-lineage design; a force-fresh path would create provider work and is not authorized.",
-    "Agent Orchestrator V1 cannot execute until a planner publishes an explicit approved_action with a matching source handoff revision; current local Codex provider reachability is unavailable."
+    "Agent Orchestrator V1 cannot execute until a planner publishes an explicit approved_action with a matching source handoff revision; current local Codex provider reachability is unavailable.",
+    "OPENAI_API_KEY_NOT_VISIBLE_TO_ORCHESTRATOR: live direct-API smoke qualification was not run."
   ],
   "next_action": {
-    "milestone": "PAUSED_OIP_E_SERIES",
-    "instruction": "Pause OIP E-series at completed E.2B2L. Before any orchestrator execution, a planner must publish an explicit machine-consumable approved_action at READY_FOR_CODEX with a matching source_handoff_revision. E.2B2M remains unimplemented and requires separate explicit authorization.",
+    "milestone": "Agent Orchestrator V1.1 live smoke",
+    "instruction": "Run the qualifying process from the same Terminal session that exported the key, e.g. cd /Users/kevinkeaveney/Dev/claude/flex && OPENAI_API_KEY=\"$OPENAI_API_KEY\" ORCHESTRATOR_REVIEW_MODEL=\"<supported-model>\" python -c 'import os; print(\"OPENAI_API_KEY_PRESENT=\" + str(bool(os.environ.get(\"OPENAI_API_KEY\"))))'. Do not paste or persist the key. After visibility is confirmed, authorize a single synthetic LOCAL_TEST smoke invocation; E.2B2M remains paused.",
     "activation_authorized": false
   },
   "safety": {

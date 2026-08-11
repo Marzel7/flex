@@ -1,6 +1,9 @@
 import hashlib
 import time
+from pathlib import Path
 from src.core.pumpportal_migration_census import PumpPortalMigrationCensus
+
+LISTENER_SOURCE = Path(__file__).resolve().parents[1] / "src/core/pumpfun_curve_listener.py"
 
 def wait(census):
     deadline=time.time()+1
@@ -37,3 +40,13 @@ def test_overflow_is_explicit_and_fail_open(tmp_path):
     c.record(receive_utc_ns=1,receive_monotonic_ns=1,signature='a',mint='m')
     c.record(receive_utc_ns=1,receive_monotonic_ns=1,signature='b',mint='m')
     assert c.health()['dropped']==1
+
+def test_listener_routes_observed_migrate_and_legacy_migration_spellings():
+    source = LISTENER_SOURCE.read_text()
+    assert 'elif tx_type in ("migration", "migrate"):' in source
+
+def test_listener_census_runs_before_business_signature_guard():
+    source = LISTENER_SOURCE.read_text()
+    branch = source.split('elif tx_type in ("migration", "migrate"):', 1)[1]
+    branch = branch.split('\n            except Exception as e:', 1)[0]
+    assert branch.index("self._migration_census.record") < branch.index("if sig and sig not in self.completed_migrations")

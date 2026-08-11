@@ -25,6 +25,7 @@ import websockets
 import aiohttp
 import requests
 from src.core.pumpportal_birth_audit import configured_birth_audit
+from src.core.pumpportal_migration_census import configured_migration_census
 from datetime import datetime
 from src.core import runtime_budget as _budget
 from enum import Enum
@@ -1327,6 +1328,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         # work and records receive timing immediately after ws.recv(), before
         # JSON parsing or ingestion work.
         self._eb_birth_audit = configured_birth_audit()
+        self._migration_census = configured_migration_census()
         # MC1.4 -- explicit window anchor for birth_persistence_telemetry()'s
         # in-memory counters, so a consumer of the snapshot file always knows
         # exactly what population "received" etc. cover (this process's
@@ -11370,6 +11372,11 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                 await ws.send(json.dumps({"method": "subscribeTokenTrade", "keys": [mint]}))
 
                         elif tx_type == "migration" and sig:
+                            # Shadow-only receive observation; fail-open and no RPC/DB work.
+                            try:
+                                self._migration_census.record(receive_utc_ns=receive_utc_ns, receive_monotonic_ns=receive_monotonic_ns, signature=sig, mint=mint, creator=data.get("traderPublicKey"))
+                            except Exception:
+                                pass
                             if sig not in self.completed_migrations:
                                 log_print(f"[PUMPPORTAL] 🚀 Migration: {mint[:16]}... sig={sig[:16]}", flush=True)
                                 asyncio.create_task(self.handle_migration(sig, []))

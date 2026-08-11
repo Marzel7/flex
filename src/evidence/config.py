@@ -34,6 +34,8 @@ class EvidenceConfig:
     mirror_retry_seconds: float = 1.0
     mirror_cohort_enabled: bool = False
     mirror_cohort_manifest_path: Path | None = None
+    retained_acquisition_observations_enabled: bool = False
+    retained_acquisition_database_path: Path = Path("database/evidence_platform/production/retained_acquisition.db")
 
     @classmethod
     def from_env(cls, env: dict[str, str] | None = None) -> "EvidenceConfig":
@@ -67,6 +69,10 @@ class EvidenceConfig:
                 Path(values["EVIDENCE_MIRROR_COHORT_MANIFEST"])
                 if values.get("EVIDENCE_MIRROR_COHORT_MANIFEST") else None
             ),
+            retained_acquisition_observations_enabled=_flag(values, "RETAINED_ACQUISITION_OBSERVATIONS_ENABLED"),
+            retained_acquisition_database_path=Path(values.get(
+                "RETAINED_ACQUISITION_DATABASE_PATH", "database/evidence_platform/production/retained_acquisition.db"
+            )),
         )
 
     @property
@@ -82,6 +88,7 @@ class EvidenceConfig:
             "evidence queue": self.queue_path.resolve(),
             "evidence artifacts": self.artifact_path.resolve(),
             "evidence mirror spool": self.mirror_spool_path.resolve(),
+            "retained acquisition observations": self.retained_acquisition_database_path.resolve(),
         }
         if len(set(targets.values())) != len(targets):
             raise IsolationError(

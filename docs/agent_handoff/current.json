@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-11T19:13:29Z",
+  "updated_at_utc": "2026-08-11T19:24:34Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "c33af8000ed741cc542aa8be70be2400a7bc58e6",
+    "git_head": "99f2b98913edb890cc5a5398ecec8451fe65484a",
     "working_tree": "dirty: unrelated live Supervisor, audit, and runtime changes remain present and were not staged; V1.2/V1.3 orchestrator work is committed locally"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-11T19:13:29Z",
+    "published_at_utc": "2026-08-11T19:24:34Z",
     "protocol_version": 1,
-    "status": "HANDOFF_TRANSPORT_DEGRADED"
+    "status": "PENDING_PUBLICATION"
   },
   "current_milestone": {
-    "programme": "Agent Orchestrator V1.3",
-    "milestone": "No-API autonomous local loop qualification",
-    "mode": "local-only engineering",
+    "programme": "OIP v2.2E",
+    "milestone": "OIP v2.2E.2B2M design/local qualification authorization",
+    "mode": "safe-local authorization control-plane",
     "status": "COMPLETE",
-    "verdict": "LOCAL_QUALIFICATION_PASS"
+    "verdict": "B2M_MANIFEST_APPROVAL_RECORDED"
   },
   "production_state": {
     "retention": "ON",
@@ -39,7 +39,59 @@
     "attempt": 0,
     "approved_action": null,
     "safe_local_enabled": true,
-    "approved_programme": {"approved": false, "active_milestone": null, "actions": [], "human_start_manifest": [{"milestone":"OIP v2.2E.2B2M", "state":"READY_FOR_HUMAN_START", "authorization_class":"PROVIDER_WORK_INCREASE", "executed":false}]},
+    "approved_programme": {
+      "approved": true,
+      "active_milestone": "OIP v2.2E.2B2M",
+      "actions": [
+        {
+          "approved": true,
+          "milestone": "OIP v2.2E.2B2M",
+          "authorization_class": "LOCAL_READ_ONLY",
+          "instruction": "Inspect the existing B2M cache-bypass/evidence-lineage contract and local implementation/test boundaries only; do not make provider calls or production changes.",
+          "success_criteria": "A bounded B2M local design/qualification plan is grounded in existing repository evidence.",
+          "stop_conditions": ["provider/RPC work needed", "production interaction needed", "architectural expansion needed"],
+          "source_handoff_revision": "984afe279566767299bc15d8bd4b7adaf43a19e7"
+        },
+        {
+          "approved": true,
+          "milestone": "OIP v2.2E.2B2M",
+          "authorization_class": "LOCAL_IMPLEMENTATION",
+          "instruction": "Implement only the approved B2M design/local qualification changes, with no live execution, provider call, configuration change, or production deployment.",
+          "success_criteria": "The bounded local B2M implementation is complete and remains within the existing contract.",
+          "stop_conditions": ["provider/RPC work needed", "production interaction needed", "architectural expansion needed"],
+          "source_handoff_revision": "984afe279566767299bc15d8bd4b7adaf43a19e7"
+        },
+        {
+          "approved": true,
+          "milestone": "OIP v2.2E.2B2M",
+          "authorization_class": "LOCAL_TEST",
+          "instruction": "Run local tests and bounded diagnose/repair/retest only for the B2M implementation; use fixtures, mocks, and local evidence only.",
+          "success_criteria": "B2M local qualification passes or records an exact local blocker without external work.",
+          "stop_conditions": ["provider/RPC work needed", "production interaction needed", "architectural expansion needed"],
+          "source_handoff_revision": "984afe279566767299bc15d8bd4b7adaf43a19e7"
+        },
+        {
+          "approved": true,
+          "milestone": "OIP v2.2E.2B2M",
+          "authorization_class": "LOCAL_COMMIT",
+          "instruction": "Create a narrow engineering commit containing only qualified B2M local implementation, tests, and documentation; do not deploy or push production changes.",
+          "success_criteria": "A narrow local B2M engineering commit is created, or an exact safe-local blocker is recorded.",
+          "stop_conditions": ["unrelated dirty-tree overlap", "provider/RPC work needed", "production interaction needed", "architectural expansion needed"],
+          "source_handoff_revision": "984afe279566767299bc15d8bd4b7adaf43a19e7"
+        }
+      ],
+      "human_start_manifest": [
+        {
+          "milestone": "OIP v2.2E.2B2M",
+          "state": "HUMAN_START_AUTHORIZATION_CONSUMED",
+          "authorization_class": "LOCAL_IMPLEMENTATION",
+          "scope": "DESIGN_LOCAL_QUALIFICATION_ONLY",
+          "authorization_consumed": true,
+          "executed": false,
+          "later_provider_or_production_activation": "HUMAN_APPROVAL_REQUIRED"
+        }
+      ]
+    },
     "reviewer_callback": {"available": false, "reason": "V1.3 default loop is no-API; historic API reviewer is isolated and not invoked."},
     "authorization_policy": {
       "autonomous": [
@@ -105,6 +157,18 @@
     "note": "Closed at the twentieth distinct post-authorization census receive. The first 20 qualifying records were one-to-one with 20 mints; later census records are outside this fixed cohort. No service/configuration changes or Codex-initiated provider RPC calls occurred."
   },
   "latest_results": {
+    "oip_v2_2e_2b2m_manifest_authorization": {
+      "status": "COMPLETE",
+      "verdict": "B2M_MANIFEST_APPROVAL_RECORDED",
+      "authorization": "DESIGN_LOCAL_QUALIFICATION_ONLY",
+      "authorized_classes": ["LOCAL_READ_ONLY", "LOCAL_IMPLEMENTATION", "LOCAL_TEST", "LOCAL_COMMIT"],
+      "bounded_repair": "diagnose/repair/retest within B2M scope only",
+      "explicitly_not_authorized": ["PROVIDER_WORK_INCREASE", "PRODUCTION_DEPLOYMENT", "PRODUCTION_OBSERVATION", "PRODUCTION_MUTATION", "SERVICE_RESTART", "EVIDENCE_MIRROR_ACTIVATION", "COHORT_MODE_ACTIVATION", "ARCHITECTURAL_DECISION"],
+      "executed_this_turn": false,
+      "production_changes": false,
+      "provider_rpc_calls": 0,
+      "host_command": "python scripts/agent_orchestrator.py --enable run"
+    },
     "agent_orchestrator_v1_3_enablement": {"status":"COMPLETE","verdict":"SAFE_LOCAL_ENABLED","base_commit":"c33af800","commit":"99f2b989","tests":{"passed":18,"failed":0},"host_command":"python scripts/agent_orchestrator.py --enable run","production_changes":false,"provider_rpc_calls":0,"e2b2m_executed":false},
     "agent_orchestrator_v1_3": {"status":"COMPLETE","verdict":"LOCAL_QUALIFICATION_PASS","commit":"c33af8000ed741cc542aa8be70be2400a7bc58e6","api_reviewer_default":false,"api_key_required":false,"tests":{"passed":17,"failed":0},"production_changes":false,"provider_rpc_calls":0,"daemon_enabled":false},
     "handoff_protocol_update": {
@@ -355,12 +419,13 @@
     "Closing the current-mint evidence gap requires an explicitly reviewed cache-bypass/evidence-lineage design; a force-fresh path would create provider work and is not authorized.",
     "Agent Orchestrator V1.2 is disabled by default and requires an explicit --enable invocation from a normal host terminal.",
     "ENGINEERING_COMMIT_PENDING_HOST: local qualification passed, but the Codex sandbox cannot create .git/index.lock; the narrow V1.2 commit must be created by the host.",
-    "HANDOFF_TRANSPORT_DEGRADED: V1.2 intentionally leaves handoff fetch/update/push to the host process; origin/agent-handoff was not updated during this Codex child turn."
+    "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "Agent Orchestrator V1.2 host completion",
-    "instruction": "From the normal host terminal, make the narrow three-file engineering commit, update this handoff with that engineering revision, publish it through the dedicated agent-handoff worktree, then optionally run the documented host-only live smoke. Do not invoke another Codex child for the smoke. E.2B2M remains paused.",
-    "activation_authorized": false
+    "milestone": "OIP v2.2E.2B2M",
+    "instruction": "Start the approved safe-local B2M loop from a normal host terminal with: python scripts/agent_orchestrator.py --enable run. Stop for human approval before any provider work, production interaction, restart, Evidence/Cohort activation, or architectural expansion.",
+    "activation_authorized": true,
+    "production_activation_authorized": false
   },
   "safety": {
     "production_changes_allowed": false,

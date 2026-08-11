@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-11T21:09:10Z",
+  "updated_at_utc": "2026-08-11T21:23:34Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "5e2d1b2623392e01231673236041f906a6e03844",
+    "git_head": "74b330838f4b4aa982233a76225d1155c223f6d4",
     "working_tree": "dirty: unrelated live Supervisor, audit, and runtime changes remain present and were not staged; V1.2/V1.3 orchestrator work is committed locally"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-11T21:09:10Z",
+    "published_at_utc": "2026-08-11T21:23:34Z",
     "protocol_version": 1,
     "status": "PENDING_PUBLICATION"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2N design-only local qualification",
+    "milestone": "OIP v2.2E.2B2N provider qualification contract",
     "mode": "safe-local orchestration",
-    "status": "AUTHORIZED",
-    "verdict": "SAFE_LOCAL_DESIGN_AUTHORIZED"
+    "status": "COMPLETE",
+    "verdict": "LOCAL_QUALIFICATION_PASS"
   },
   "production_state": {
     "retention": "ON",
@@ -34,21 +34,22 @@
   },
   "orchestration": {
     "schema_version": 3,
-    "state": "READY_FOR_REVIEW",
-    "run_id": "db1cad80-1de3-4502-8999-a4c4d3aeb806",
-    "attempt": 3,
+    "state": "PROGRAMME_COMPLETE",
+    "run_id": null,
+    "attempt": 4,
     "approved_action": {
       "approved": true,
       "milestone": "OIP v2.2E.2B2N",
-      "authorization_class": "LOCAL_TEST",
-      "instruction": "Validate the B2N design against local evidence and verify it contains no executable provider or production action; bounded documentation repair/retest only.",
-      "success_criteria": "The B2N design passes local consistency review or records an exact safe-local blocker.",
+      "authorization_class": "LOCAL_COMMIT",
+      "instruction": "Create a narrow local commit containing only the qualified B2N design/validation documentation; do not deploy or push production changes.",
+      "success_criteria": "A narrow B2N design commit is created or an exact safe-local blocker is recorded.",
       "stop_conditions": [
+        "unrelated dirty-tree overlap",
         "provider/RPC work needed",
         "production interaction needed",
         "architectural expansion needed"
       ],
-      "source_handoff_revision": "0487435639cb34766fc2dc48bd99d22f2ad22a90"
+      "source_handoff_revision": "cccf49479bf55b4e83effdb5fdf72c617e00ca6c"
     },
     "safe_local_enabled": true,
     "approved_programme": {
@@ -106,7 +107,7 @@
             "production interaction needed",
             "architectural expansion needed"
           ],
-          "source_handoff_revision": "e1f5e8831c567c2269bf357a13e04180236b6f7c"
+          "source_handoff_revision": "cccf49479bf55b4e83effdb5fdf72c617e00ca6c"
         }
       ],
       "human_start_manifest": [
@@ -125,7 +126,7 @@
           "authorization_class": "LOCAL_IMPLEMENTATION",
           "scope": "DESIGN_ONLY_NO_PROVIDER_OR_PRODUCTION_ACTION",
           "authorization_consumed": true,
-          "executed": false,
+          "executed": true,
           "later_provider_or_production_activation": "HUMAN_APPROVAL_REQUIRED"
         }
       ]
@@ -149,27 +150,29 @@
       ]
     },
     "last_child_result": {
-      "status": "COMPLETE",
-      "verdict": "LOCAL_CONSISTENCY_PASS",
-      "files_changed": [],
-      "tests": [
-        "B2N contract structure and no-executable-content boundary check passed",
-        "4 targeted B2M fixture tests passed",
-        "Agent handoff JSON validation passed",
-        "B2N documentation git diff check passed",
-        "B2N document confirmed non-executable"
+      "status": "BLOCKED",
+      "verdict": "SAFE_LOCAL_COMMIT_BLOCKED",
+      "files_changed": [
+        "docs/evidence_platform/oip_v2_2e_2b2n_provider_qualification_contract.md"
       ],
-      "blockers": [],
+      "tests": [
+        "Required B2N contract sections present",
+        "Documentation whitespace validation passed",
+        "Exact-path status confirmed as untracked"
+      ],
+      "blockers": [
+        "Git staging failed because the sandbox prohibits creating .git/index.lock: Operation not permitted. Permissions were not changed and no commit was created."
+      ],
       "production_impact": false,
       "provider_impact": false,
       "commits": [],
-      "recommended_next_action": "Retain the untracked B2N contract for the separately authorized LOCAL_COMMIT milestone; require new explicit human authorization before any provider/RPC or production work."
+      "recommended_next_action": "Create the narrow B2N commit in an environment where repository Git metadata is writable, staging only docs/evidence_platform/oip_v2_2e_2b2n_provider_qualification_contract.md; do not stage unrelated dirty-tree files, deploy, or push."
     },
-    "source_handoff_revision": "0487435639cb34766fc2dc48bd99d22f2ad22a90",
+    "source_handoff_revision": "cccf49479bf55b4e83effdb5fdf72c617e00ca6c",
     "deterministic_policy": {
-      "decision": "READY_FOR_CODEX",
+      "decision": "HUMAN_APPROVAL_REQUIRED",
       "api_reviewer_used": false,
-      "iteration": 3
+      "iteration": 4
     }
   },
   "qualified_baselines": [
@@ -221,6 +224,15 @@
     "note": "Closed at the twentieth distinct post-authorization census receive. The first 20 qualifying records were one-to-one with 20 mints; later census records are outside this fixed cohort. No service/configuration changes or Codex-initiated provider RPC calls occurred."
   },
   "latest_results": {
+    "oip_v2_2e_2b2n_local_commit": {
+      "status": "COMPLETE",
+      "verdict": "LOCAL_QUALIFICATION_PASS",
+      "commit": "74b330838f4b4aa982233a76225d1155c223f6d4",
+      "files": ["docs/evidence_platform/oip_v2_2e_2b2n_provider_qualification_contract.md"],
+      "validation": ["Required B2N contract sections present", "Documentation whitespace validation passed"],
+      "provider_rpc_calls": 0,
+      "production_changes": false
+    },
     "oip_v2_2e_2b2n_manifest_authorization": {
       "status": "COMPLETE",
       "verdict": "SAFE_LOCAL_DESIGN_AUTHORIZED",
@@ -615,9 +627,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2N design-only local qualification",
-    "instruction": "Run the approved B2N safe-local design sequence. Stop before any provider/RPC or production action.",
-    "activation_authorized": true,
+    "milestone": "OIP v2.2E.2B2N bounded provider qualification",
+    "instruction": "Await a separate explicit authorization for the B2N contract's bounded provider/RPC qualification. Do not make any provider call, deployment, production observation/mutation, restart, or Evidence/Cohort activation without that authorization.",
+    "activation_authorized": false,
     "production_activation_authorized": false
   },
   "safety": {

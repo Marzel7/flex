@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-11T14:44:19Z",
-  "updated_by": "codex",
+  "updated_at_utc": "2026-08-11T14:49:03Z",
+  "updated_by": "chatgpt",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
@@ -10,7 +10,7 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-11T14:44:19Z",
+    "published_at_utc": "2026-08-11T14:49:03Z",
     "protocol_version": 1,
     "status": "READY"
   },
@@ -104,12 +104,13 @@
   ],
   "next_action": {
     "milestone": "OIP v2.2E.2B2J",
-    "instruction": "Obtain explicit production authorization for a controlled watchtower_listener restart that loads engineering commit fc248d04 while preserving Migration Census ON, Retention ON, Evidence Mirror OFF, Cohort Mode OFF, and Evidence writer STOPPED. Verify immediate health and subscription traffic after restart. Do not start a new prospective observation window unless that milestone is also explicitly authorized.",
-    "activation_authorized": false
+    "instruction": "Controlled watchtower_listener restart is explicitly authorized to load engineering commit fc248d04 while preserving Migration Census ON, Retention ON, Evidence Mirror OFF, Cohort Mode OFF, and Evidence writer STOPPED. Restart only watchtower_listener, verify immediate health and subscription traffic, update/publish the handoff, and stop. Do not start a new prospective observation window in this milestone.",
+    "activation_authorized": true,
+    "authorization_scope": "OIP v2.2E.2B2J only: restart watchtower_listener to load fc248d04 and perform immediate post-restart health/subscription verification. No other service restart, configuration change, Evidence activation, cohort activation, or new observation window is authorized."
   },
   "safety": {
-    "production_changes_allowed": false,
+    "production_changes_allowed": true,
     "evidence_activation_allowed": false,
-    "notes": ["Evidence mirror and cohort mode remain off.", "Do not restart or reconfigure services merely to advance the observation window.", "Handoff commits and pushes transport review context only and never authorize production activation."]
+    "notes": ["Production authorization is narrowly scoped to OIP v2.2E.2B2J watchtower_listener restart only.", "Evidence mirror and cohort mode remain off.", "Do not restart or reconfigure any other service.", "Do not start a new prospective observation window until separately authorized.", "Handoff commits and pushes transport review context only and never broaden production authorization."]
   }
 }

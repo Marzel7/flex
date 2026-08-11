@@ -35,20 +35,20 @@
   "orchestration": {
     "schema_version": 3,
     "state": "READY_FOR_REVIEW",
-    "run_id": "0e8f0ebb-f455-499c-8762-e5d9735088af",
-    "attempt": 1,
+    "run_id": "421421d5-dad3-453f-9eb3-5c86d7fc1192",
+    "attempt": 2,
     "approved_action": {
       "approved": true,
       "milestone": "OIP v2.2E.2B2N",
-      "authorization_class": "LOCAL_READ_ONLY",
-      "instruction": "Inspect only local B2M evidence, existing provider controls, and prior qualification records to define B2N's bounded provider-qualification contract; make no provider calls or production changes.",
-      "success_criteria": "A proposed B2N contract is grounded in qualified local evidence and identifies exact provider/production gates.",
+      "authorization_class": "LOCAL_IMPLEMENTATION",
+      "instruction": "Write only the B2N provider-qualification design/contract document, including sample, request budget, field/timestamp semantics, success criteria, fail-closed stops, and no-production boundary.",
+      "success_criteria": "The B2N design is reviewable, bounded, and explicitly requires later human authorization before provider work.",
       "stop_conditions": [
         "provider/RPC work needed",
         "production interaction needed",
         "architectural expansion needed"
       ],
-      "source_handoff_revision": "d7d14a4096a99bf5c80937120a46269bcc54d94e"
+      "source_handoff_revision": "06d6e0481f63091faedfbc0ae05d08a38f47067c"
     },
     "safe_local_enabled": true,
     "approved_programme": {
@@ -79,7 +79,7 @@
             "production interaction needed",
             "architectural expansion needed"
           ],
-          "source_handoff_revision": "e1f5e8831c567c2269bf357a13e04180236b6f7c"
+          "source_handoff_revision": "06d6e0481f63091faedfbc0ae05d08a38f47067c"
         },
         {
           "approved": true,
@@ -150,25 +150,25 @@
     },
     "last_child_result": {
       "status": "COMPLETE",
-      "verdict": "BOUNDED_B2N_PROVIDER_QUALIFICATION_CONTRACT_PROPOSED",
-      "files_changed": [],
+      "verdict": "PASS",
+      "files_changed": [
+        "docs/evidence_platform/oip_v2_2e_2b2n_provider_qualification_contract.md"
+      ],
       "tests": [
-        "Read-only consistency inspection of B2M qualification, implementation controls, B2K/B2L records, and v2.1B-v2.1G provider qualifications; no executable tests run."
+        "Required-section and boundary-term checks passed",
+        "git diff --check passed"
       ],
-      "blockers": [
-        "Executing B2N requires separate human authorization for PROVIDER_WORK_INCREASE.",
-        "Any live-service cohort observation requires separate PRODUCTION_OBSERVATION authorization; deployment, restart, configuration, Evidence Mirror, Cohort Mode, or mutation requires explicit production authorization."
-      ],
+      "blockers": [],
       "production_impact": false,
       "provider_impact": false,
       "commits": [],
-      "recommended_next_action": "Draft the approved local B2N contract around the immutable five B2K/B2L cache-short-circuit mints: require observation_required=true and preserve each recorded migration timestamp/current mint; use only the existing Helius/SharedTransactionAcquisition path, one extraction slot, no new provider, failover, retry policy, endpoint, or architecture; impose a hard aggregate ceiling of 750 provider credits (the existing 150-credit full-extraction estimate per target), ledger every physical request before downstream processing with target, provider, method, page/cursor, request start/finish UTC, status/error taxonomy, latency, credit cost, acquisition ID, creator, mint, and migration timestamp, and stop before any request exceeding the ceiling. PASS requires 5/5 current-mint jobs to emit EXTRACTION_STARTED, enter purpose=creator_funding acquisition scope with the correct mint, terminate durably, retain at least one acquisition observation, and reconstruct a canonical replay envelope with complete lineage; any budget breach, unledgered attempt, timestamp/mint mismatch, rate limit, provider error, timeout, production impact, missing retention/replay field, or need for schema/provider/architectural expansion fails closed. Before execution, obtain explicit PROVIDER_WORK_INCREASE authorization and, if live services or production data are involved, explicit PRODUCTION_OBSERVATION authorization; separately authorize every deployment, restart, configuration change, Evidence Mirror/Cohort activation, or production mutation."
+      "recommended_next_action": "Human review of the B2N contract, followed by separate explicit authorization before any provider/RPC work; production work remains separately gated."
     },
-    "source_handoff_revision": "d7d14a4096a99bf5c80937120a46269bcc54d94e",
+    "source_handoff_revision": "06d6e0481f63091faedfbc0ae05d08a38f47067c",
     "deterministic_policy": {
       "decision": "READY_FOR_CODEX",
       "api_reviewer_used": false,
-      "iteration": 1
+      "iteration": 2
     }
   },
   "qualified_baselines": [

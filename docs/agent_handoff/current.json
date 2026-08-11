@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-11T22:59:41Z",
+  "updated_at_utc": "2026-08-11T23:03:53Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2O listener marker-load gate",
-    "mode": "authorized bounded production restart verification",
-    "status": "COMPLETE",
-    "verdict": "B2M_MARKER_LOADED_NO_OBSERVATION_STARTED"
+    "milestone": "OIP v2.2E.2B2O prospective marked-cohort observation",
+    "mode": "authorized bounded read-only production observation",
+    "status": "IN_PROGRESS",
+    "verdict": "OBSERVATION_IN_PROGRESS"
   },
   "production_state": {
     "retention": "ON",
@@ -207,35 +207,31 @@
     }
   ],
   "active_observation": {
-    "name": "OIP v2.2E.2B2K repaired-route prospective migration census funnel",
-    "qualified_start_checkpoint_utc": "2026-08-11T15:23:01Z",
-    "qualified_start_receive_utc_ns_exclusive": 1786461781000000000,
-    "pre_authorization_file_high_water_records": 12,
-    "pre_authorization_records_excluded": 12,
-    "authorization_discrepancy_note": "The authorization referenced 5 pre-authorization records, but 7 more arrived before the instruction was consumed. All 12 records at the qualified checkpoint were excluded so the denominator begins strictly after authorization.",
-    "end_condition": "first of 20 distinct qualified migrations, 60 clean minutes, material funnel gap, or production impact",
+    "name": "OIP v2.2E.2B2O prospective marked-cohort migration census",
+    "authorization_consumed_at_utc": "2026-08-11T23:03:53Z",
+    "qualified_start_checkpoint_utc": "2026-08-11T23:03:53Z",
+    "qualified_start_receive_utc_ns_exclusive": 1786489407363746000,
+    "pre_authorization_file_high_water_records": 375,
+    "pre_authorization_records_excluded": 375,
+    "qualification_requirement": "Count only post-boundary migrations whose current-mint queue/envelope is marked observation_required=true; do not use B2K or pre-boundary records.",
+    "end_condition": "first of 20 distinct marked migrations, 60 clean minutes, or production impact",
     "census_output": "logs/oip_migration_census.jsonl",
-    "closed_at_receive_utc_ns": 1786463201192574000,
-    "closed_at_utc": "2026-08-11T15:46:41.192574Z",
-    "endpoint_detected_at_utc": "2026-08-11T15:46:47Z",
-    "observed_duration_seconds": 1420.193,
-    "observed_duration_minutes": 23.67,
-    "qualified_events": 20,
-    "qualified_distinct_mints": 20,
+    "observed_duration_seconds": 0,
+    "observed_duration_minutes": 0,
+    "qualified_events": 0,
+    "qualified_distinct_mints": 0,
     "endpoint_evaluation": {
-      "distinct_migrations_20": true,
+      "distinct_migrations_20": false,
       "clean_minutes_60": false,
-      "material_funnel_gap": true,
       "production_impact": false,
-      "endpoint_reached": true,
-      "endpoint_reason": "20_DISTINCT_QUALIFIED_MIGRATIONS"
+      "endpoint_reached": false
     },
-    "note": "Closed at the twentieth distinct post-authorization census receive. The first 20 qualifying records were one-to-one with 20 mints; later census records are outside this fixed cohort. No service/configuration changes or Codex-initiated provider RPC calls occurred."
+    "note": "Authorized read-only observation began after the fresh 375-record census high-water. Listener PID 85256 is healthy; no service/configuration/provider/Evidence/Cohort action occurred."
   },
   "latest_results": {
     "oip_v2_2e_2b2o_observation_authorization_preflight": {
-      "status": "HOLD",
-      "verdict": "B2M_MARKER_LOADED_NO_OBSERVATION_STARTED",
+      "status": "IN_PROGRESS",
+      "verdict": "OBSERVATION_IN_PROGRESS",
       "contract": "First B2M observation_required=true migration enqueue after authorization; end at first of 20 distinct marked migrations, 60 clean minutes, or production impact; read-only with no provider calls/restart/configuration/Evidence/Cohort action.",
       "listener": "RUNNING pid 85256, uptime 1m28s at verification; source HEAD 74b33083 includes B2M commit 5e2d1b26.",
       "provider_rpc_calls": 0,
@@ -248,7 +244,12 @@
         "new_listener_pid": 85256,
         "result": "Listener running; PumpPortal connected; PumpSwap migration-account subscription confirmed; live birth and migration-account traffic observed."
       },
-      "observation_window_started": false
+      "observation_window_started": true,
+      "qualified_start_checkpoint_utc": "2026-08-11T23:03:53Z",
+      "qualified_start_receive_utc_ns_exclusive": 1786489407363746000,
+      "pre_authorization_records_excluded": 375,
+      "provider_rpc_calls_this_observation": 0,
+      "production_impact_observed": false
     },
     "oip_v2_2e_2b2n_preflight_manifest_authorization": {
       "status": "COMPLETE",
@@ -681,8 +682,8 @@
   ],
   "next_action": {
     "milestone": "OIP v2.2E.2B2O prospective marked-cohort observation",
-    "instruction": "Await separate explicit authorization to start the bounded read-only marked-cohort observation from the first B2M observation_required=true migration enqueue after authorization; end at first of 20 distinct marked migrations, 60 clean minutes, or production impact. No provider calls, restart, reconfiguration, Evidence Mirror, Cohort Mode, or Evidence writer change is authorized by this restart gate.",
-    "activation_authorized": false,
+    "instruction": "Continue the authorized read-only observation from the recorded 375-record high-water, counting only post-boundary current-mint observation_required=true evidence. Stop at the first endpoint: 20 distinct marked migrations, 60 clean minutes, or production impact; then calculate the qualified funnel, update/publish the handoff, and stop.",
+    "activation_authorized": true,
     "production_activation_authorized": false
   },
   "safety": {

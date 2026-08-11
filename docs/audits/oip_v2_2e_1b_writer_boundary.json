@@ -1,0 +1,51 @@
+{
+  "milestone": "OIP v2.2E.1B — Supervised Evidence Writer Production Boundary",
+  "baseline_revision": "ad3719f59ac9541e3550fad22866efe0cab5466c",
+  "implementation_commit": "3f23f85a",
+  "supervisor_program": "evidence_writer",
+  "paths": {
+    "database": "database/evidence_platform/production/evidence.db",
+    "intake": "database/evidence_platform/production/intake",
+    "artifacts": "database/evidence_platform/production/artifacts",
+    "spool": "database/evidence_platform/production/mirror_spool",
+    "logs": "logs/supervisor/evidence_writer{,_err}.log"
+  },
+  "flags": {
+    "EVIDENCE_PLATFORM_ENABLED": true,
+    "EVIDENCE_WRITER_ENABLED": true,
+    "EVIDENCE_QUEUE_ENABLED": true,
+    "EVIDENCE_ARTIFACT_STORE_ENABLED": true,
+    "EVIDENCE_MIRROR_ENABLED": false,
+    "EVIDENCE_MIRROR_COHORT_ENABLED": false,
+    "EVIDENCE_NORMALIZATION_ENABLED": false,
+    "EVIDENCE_PRIMITIVE_ENGINE_ENABLED": false
+  },
+  "live_qualification": {
+    "initial_writer_pid": 63767,
+    "restart_writer_pid": 63887,
+    "schema_versions": [1, 2, 3, 4],
+    "idle_intake": {"pending": 0, "processing": 0, "retry": 0, "dead_letter": 0},
+    "second_writer": "REJECTED_BY_WRITER_OWNERSHIP_LOCK",
+    "restart": "SUPERVISED_WRITER_RESTARTED_AND_REOPENED_SAME_ISOLATED_SCHEMA",
+    "rollback": "WRITER_STOPPED_ONLY; production services remained running; isolated DB retained",
+    "post_rollback_production": {"status": "HEALTHY", "database_p99_wait_ms": 8.31, "database_wal_mb": 19.7, "lock_errors": 0, "creator_funding_pending": 1}
+  },
+  "isolation": {
+    "production_db_writes_by_writer": 0,
+    "evidence_rpc_calls": 0,
+    "mirror_enabled": false,
+    "cohort_mode_enabled": false,
+    "normalization_enabled": false,
+    "primitive_engine_enabled": false
+  },
+  "tests": "41 passed: EP1.0 foundation, EP1.2 mirror, E.1A cohort gate",
+  "verdicts": {
+    "production_evidence_db": "A — SEPARATE_AND_READY",
+    "writer_supervision": "A — HEALTHY_SINGLE_WRITER",
+    "idle_production_isolation": "A — PROVEN",
+    "writer_restart": "A — PROVEN",
+    "writer_rollback": "A — PROVEN",
+    "e_1b": "PASS"
+  },
+  "final_state": "Evidence writer stopped after rollback proof; mirror and cohort admission remain OFF."
+}

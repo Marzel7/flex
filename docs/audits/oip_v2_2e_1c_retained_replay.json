@@ -1,0 +1,42 @@
+{
+  "milestone": "OIP v2.2E.1C — Generic Retained-Acquisition Replay Producer",
+  "implementation_commit": null,
+  "decision": "HOLD",
+  "retained_sources_audited": [
+    {
+      "source": "rpc_response_cache",
+      "location": "src/core/rpc_cache.py",
+      "retains": ["cache_key", "response_json", "method", "cached_at", "ttl_seconds", "hit_count"],
+      "missing_for_canonical_envelope": ["acquisition_id", "correlation_id", "purpose", "creator-to-launch binding", "launch mint", "original request metadata", "response headers", "raw provider bytes"]
+    },
+    {
+      "source": "live mirror spool",
+      "location": "src/evidence/mirror.py::replay_spool",
+      "retains": "canonical mirror items only after prior mirror admission",
+      "limitation": "cannot replay completed production acquisitions that occurred while mirror was OFF"
+    },
+    {
+      "source": "WATCHTOWER shadow corpus helper",
+      "location": "src/ops/watchtower_shadow_corpus.py::_publish_cache",
+      "limitation": "shadow-only, corpus-specific helper; not a generic production retained-acquisition producer"
+    }
+  ],
+  "canonical_live_contract": "src/evidence/mirror.py::EvidenceMirrorPublisher.item_from_response and _acquisition_envelope",
+  "finding": "No retained production source can reconstruct a schema-equivalent canonical acquisition envelope with deterministic mint/correlation/provenance binding. Creating one from current facts would require a new retention producer or a prohibited bespoke/reacquisition path.",
+  "safety": {
+    "new_provider_rpc": 0,
+    "production_db_writes": 0,
+    "cohort_gate_bypassed": false,
+    "silent_replay_omission": "prevented by HOLD; no replay attempted"
+  },
+  "verdicts": {
+    "retained_input_availability": "D — INSUFFICIENT",
+    "canonical_envelope_equivalence": "D — FAILED (no valid generic source)",
+    "zero_rpc": "A — PROVEN for this audit; no replay implementation executed",
+    "replay_idempotency": "C — MATERIAL_GAP",
+    "cohort_gate_integration": "C — MATERIAL_GAP",
+    "missing_input_handling": "A — EXPLICIT_NO_SILENT_LOSS",
+    "e_1c": "HOLD"
+  },
+  "required_next_work": "Introduce and qualify operation-neutral retained acquisition observations at acquisition completion, preserving the exact canonical envelope inputs without changing production authority. Then build replay through EvidenceMirrorPublisher and the existing cohort gate."
+}

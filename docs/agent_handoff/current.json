@@ -35,20 +35,20 @@
   "orchestration": {
     "schema_version": 3,
     "state": "READY_FOR_REVIEW",
-    "run_id": "883b13bf-0ce3-4021-aeb5-c4ad033e850b",
-    "attempt": 2,
+    "run_id": "2b1a1fe3-3744-4e6b-b135-50af43b0a9f4",
+    "attempt": 3,
     "approved_action": {
       "approved": true,
       "milestone": "OIP v2.2E.2B2M",
-      "authorization_class": "LOCAL_IMPLEMENTATION",
-      "instruction": "Implement only the approved B2M design/local qualification changes, with no live execution, provider call, configuration change, or production deployment.",
-      "success_criteria": "The bounded local B2M implementation is complete and remains within the existing contract.",
+      "authorization_class": "LOCAL_TEST",
+      "instruction": "Run local tests and bounded diagnose/repair/retest only for the B2M implementation; use fixtures, mocks, and local evidence only.",
+      "success_criteria": "B2M local qualification passes or records an exact local blocker without external work.",
       "stop_conditions": [
         "provider/RPC work needed",
         "production interaction needed",
         "architectural expansion needed"
       ],
-      "source_handoff_revision": "4f2fd0e5987d6b77704337e1e1f67ae75b9ec347"
+      "source_handoff_revision": "52c8879a905794f072aa66ef484dced4a83a50fe"
     },
     "safe_local_enabled": true,
     "approved_programme": {
@@ -92,7 +92,7 @@
             "production interaction needed",
             "architectural expansion needed"
           ],
-          "source_handoff_revision": "d55975233268f5a81d3efdd900f9862e1c206247"
+          "source_handoff_revision": "52c8879a905794f072aa66ef484dced4a83a50fe"
         },
         {
           "approved": true,
@@ -141,29 +141,25 @@
     },
     "last_child_result": {
       "status": "COMPLETE",
-      "verdict": "BOUNDED_B2M_LOCAL_QUALIFICATION_PASS",
-      "files_changed": [
-        "src/core/creator_funding_worker.py",
-        "src/core/pumpfun_curve_listener.py",
-        "src/extractors/realtime_creator_funding_extractor.py",
-        "tests/test_oip_v2_2e_2b2m_observation_required.py"
-      ],
+      "verdict": "LOCAL_QUALIFICATION_PASS",
+      "files_changed": [],
       "tests": [
-        "40 targeted tests passed",
-        "Python compilation passed for changed Python files",
-        "git diff --check passed"
+        "B2M focused qualification: 4 passed in 0.86s",
+        "Related creator-funding regression suite: 29 passed in 1.05s",
+        "Python compilation passed for all three B2M source modules and focused test module",
+        "git diff --check passed for B2M files"
       ],
       "blockers": [],
       "production_impact": false,
       "provider_impact": false,
       "commits": [],
-      "recommended_next_action": "Authorize the separate LOCAL_COMMIT action to create a narrow engineering commit; retain human gates for deployment, activation, and provider/RPC work."
+      "recommended_next_action": "OIP v2.2E.2B2M: proceed under separate LOCAL_COMMIT authorization with a narrow commit containing only the qualified B2M implementation and tests."
     },
-    "source_handoff_revision": "4f2fd0e5987d6b77704337e1e1f67ae75b9ec347",
+    "source_handoff_revision": "52c8879a905794f072aa66ef484dced4a83a50fe",
     "deterministic_policy": {
       "decision": "READY_FOR_CODEX",
       "api_reviewer_used": false,
-      "iteration": 2
+      "iteration": 3
     }
   },
   "qualified_baselines": [

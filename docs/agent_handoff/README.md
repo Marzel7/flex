@@ -31,8 +31,16 @@ ChatGPT should retrieve the latest Codex state from:
 When code inspection is needed, use the engineering branch and `project.git_head` named inside that file. `project.git_head` is the engineering source/runtime revision; it is never the handoff transport commit. `handoff_transport` describes the separate publication channel without attempting a self-referential transport hash.
 
 This protocol records and transports review context only. It does not authorize production activation, service restarts, configuration changes, provider calls, or any other production-changing work. All existing safety gates remain in force, and production changes require their own explicitly authorized milestone.
-# Agent Orchestrator V1
+# Agent Orchestrator V1.3
 
 `scripts/agent_orchestrator.py` is a local, fail-closed executor for this handoff. Its persisted `orchestration` object has states `IDLE`, `READY_FOR_CODEX`, `CODEX_RUNNING`, `READY_FOR_REVIEW`, `HUMAN_APPROVAL_REQUIRED`, `BLOCKED`, and `PROGRAMME_COMPLETE`.
 
-An action is executable only when `approved_action.approved` is `true`, has a matching `source_handoff_revision`, and names one of `LOCAL_READ_ONLY`, `LOCAL_IMPLEMENTATION`, `LOCAL_TEST`, or `LOCAL_COMMIT`. Production mutation, provider-work increase, production observation, and architectural decision classes remain human gates. Completion always stops at `READY_FOR_REVIEW`; V1 has no planner callback.
+The script is a **host process**, run from the user's normal terminal. It owns orchestration state, locks, limits, deterministic policy, and fetch/update/push of the dedicated handoff worktree. Its bounded `codex exec` child is sandboxed and performs repository-local engineering only. The child receives no API key, must not use network or publish handoff state, and returns a strict structured result for host policy.
+
+The orchestrator is disabled by default and requires `--enable`. Only `LOCAL_READ_ONLY`, `LOCAL_IMPLEMENTATION`, `LOCAL_TEST`, and `LOCAL_COMMIT` may continue autonomously. Production mutation, provider-work increase, unapproved production observation, and architecture expansion always stop for a human; reviewer output is advisory and cannot expand authority.
+
+V1.3's default path is `no-api-run`: it consumes a finite explicitly approved programme manifest. It never requires `OPENAI_API_KEY`, `ORCHESTRATOR_REVIEW_MODEL`, Responses API access, or an external reviewer. The historical V1.1/V1.2 API reviewer remains isolated for audit only and is not called by this path.
+
+```sh
+OPENAI_API_KEY="$OPENAI_API_KEY" ORCHESTRATOR_REVIEW_MODEL="$ORCHESTRATOR_REVIEW_MODEL" python scripts/agent_orchestrator.py --enable host-smoke-live
+```

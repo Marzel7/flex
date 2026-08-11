@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-11T20:17:36Z",
+  "updated_at_utc": "2026-08-11T20:54:14Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "1d462fd1a8c94aeac411d918512772609038556a",
+    "git_head": "5e2d1b2623392e01231673236041f906a6e03844",
     "working_tree": "dirty: unrelated live Supervisor, audit, and runtime changes remain present and were not staged; V1.2/V1.3 orchestrator work is committed locally"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-11T20:17:36Z",
+    "published_at_utc": "2026-08-11T20:54:14Z",
     "protocol_version": 1,
     "status": "PENDING_PUBLICATION"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2M LOCAL_COMMIT",
+    "milestone": "OIP v2.2E.2B2M safe-local qualification",
     "mode": "safe-local orchestration",
-    "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "SAFE_LOCAL_COMMIT_BLOCKED"
+    "status": "COMPLETE",
+    "verdict": "LOCAL_QUALIFICATION_PASS"
   },
   "production_state": {
     "retention": "ON",
@@ -34,8 +34,8 @@
   },
   "orchestration": {
     "schema_version": 3,
-    "state": "HUMAN_APPROVAL_REQUIRED",
-    "run_id": "eba4915c-f196-4ca3-ae12-9afa8daee57d",
+    "state": "PROGRAMME_COMPLETE",
+    "run_id": null,
     "attempt": 4,
     "approved_action": {
       "approved": true,
@@ -117,7 +117,7 @@
           "authorization_class": "LOCAL_IMPLEMENTATION",
           "scope": "DESIGN_LOCAL_QUALIFICATION_ONLY",
           "authorization_consumed": true,
-          "executed": false,
+          "executed": true,
           "later_provider_or_production_activation": "HUMAN_APPROVAL_REQUIRED"
         }
       ]
@@ -231,10 +231,11 @@
       "cohort_mode": "OFF"
     },
     "oip_v2_2e_2b2m_local_commit": {
-      "status": "HOLD",
-      "verdict": "SAFE_LOCAL_COMMIT_BLOCKED",
-      "blocker": "The sandboxed Codex child cannot create .git/index.lock. No permission change or commit was made.",
-      "required_host_action": "Stage only the five B2M implementation/test/documentation files and create the narrow engineering commit from a Git-metadata-writable host environment.",
+      "status": "COMPLETE",
+      "verdict": "LOCAL_QUALIFICATION_PASS",
+      "commit": "5e2d1b2623392e01231673236041f906a6e03844",
+      "commit_subject": "Qualify migration current-mint acquisition",
+      "scope": "Only the five qualified B2M implementation, test, and documentation files were staged.",
       "production_changes": false,
       "provider_rpc_calls": 0
     },
@@ -589,8 +590,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2M LOCAL_COMMIT",
-    "instruction": "Await explicit confirmation to perform the already-approved narrow B2M local commit from a Git-metadata-writable host environment, staging only the five qualified B2M files. Do not deploy, call a provider, or change production.",
+    "milestone": "OIP v2.2E.2B2N provider qualification design",
+    "instruction": "Await a separate explicit authorization for the proposed B2N provider/RPC qualification design. B2M is complete locally; do not deploy, observe production, call a provider, restart a service, or activate Evidence Mirror/Cohort Mode.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

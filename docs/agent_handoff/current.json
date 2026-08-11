@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-11T15:57:08Z",
+  "updated_at_utc": "2026-08-11T16:03:38Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "fc248d041913824b335df6759dbd57cda4644d8b",
-    "working_tree": "dirty: live retention/census Supervisor configuration and unrelated audit/runtime files remain uncommitted; no unrelated working-tree changes were included in the deployed engineering commit or handoff transport"
+    "git_head": "7d1430a2e267d103fb2df2b3004093c46945c909",
+    "working_tree": "dirty: live retention/census Supervisor configuration and unrelated audit/runtime files remain uncommitted; Agent Orchestrator V1 implementation is committed separately and no unrelated changes were included"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-11T15:57:08Z",
+    "published_at_utc": "2026-08-11T16:03:38Z",
     "protocol_version": 1,
     "status": "READY"
   },
   "current_milestone": {
-    "programme": "OIP v2.2E.2B2L",
-    "milestone": "Migration-to-acquisition gap root-cause audit",
-    "mode": "read-only local evidence audit",
+    "programme": "Agent Orchestrator V1",
+    "milestone": "Local implementation and qualification",
+    "mode": "local-only engineering",
     "status": "COMPLETE",
-    "verdict": "ROOT_CAUSE_CONFIRMED_CACHE_SHORT_CIRCUIT"
+    "verdict": "LOCAL_QUALIFICATION_PASS"
   },
   "production_state": {
     "retention": "ON",
@@ -31,6 +31,15 @@
     "listener_pid_last_verified": 43895,
     "creator_funding_service": "creator_funding_worker",
     "creator_funding_pid_last_verified": 80618
+  },
+  "orchestration": {
+    "schema_version": 1,
+    "state": "IDLE",
+    "run_id": null,
+    "attempt": 0,
+    "approved_action": null,
+    "reviewer_callback": {"available": false, "reason": "No supported local ChatGPT/planner daemon callback discovered; V1 stops at READY_FOR_REVIEW."},
+    "authorization_policy": {"autonomous": ["LOCAL_READ_ONLY", "LOCAL_IMPLEMENTATION", "LOCAL_TEST", "LOCAL_COMMIT"], "human_approval_required": ["PRODUCTION_OBSERVATION", "PRODUCTION_MUTATION", "PROVIDER_WORK_INCREASE", "ARCHITECTURAL_DECISION"]}
   },
   "qualified_baselines": [
     {"milestone": "OIP v2.2E Phase 1 reproducible baseline", "commit": "ad3719f59ac9541e3550fad22866efe0cab5466c", "verdict": "QUALIFIED"},
@@ -154,6 +163,18 @@
       "smallest_coherent_repair_not_implemented": "Introduce an explicit per-queue observation_required/force_fresh_acquisition marker for the reviewed migration evidence cohort, set it on migration enqueue, and honor it across all three cache boundaries so the job reaches acquisition_scope and SharedTransactionAcquisition. This deliberately creates provider work and requires separate RPC-budget, schema, local-qualification, and production-activation authorization. Merely inserting cache-hit queue rows or relabeling cache satisfaction would not create a current-mint retained replayable envelope.",
       "provider_free_alternative_rejected": "Linking a prior mint's retained response to the current mint would require a new cache-lineage evidence contract; rewriting retained metadata would fabricate launch provenance and is not acceptable."
     },
+    "agent_orchestrator_v1": {
+      "status": "COMPLETE",
+      "verdict": "LOCAL_QUALIFICATION_PASS",
+      "commit": "7d1430a2e267d103fb2df2b3004093c46945c909",
+      "files": ["scripts/agent_orchestrator.py", "tests/test_agent_orchestrator.py", "docs/agent_handoff/README.md"],
+      "capability_discovery": {"executable": "/Applications/ChatGPT.app/Contents/Resources/codex", "version": "codex-cli 0.147.0-alpha.6.6", "headless_interface": "codex exec with explicit workdir, stdin prompt, JSONL output, final-message file, sandbox, and bounded subprocess timeout", "desktop_session_required": false, "authentication": "stored ChatGPT CLI auth is configured", "current_availability": "provider endpoints unreachable in local doctor check; no execution attempted"},
+      "execution_controls": "fcntl single-run lock; fetch and source transport revision verification; explicit action/schema validation; safe-class allowlist; bounded subprocess timeout; final state READY_FOR_REVIEW or BLOCKED; publish-and-hash verification.",
+      "reviewer_automation": "No supported callback into this interactive ChatGPT/planner conversation was discovered. V1 truthfully stops at READY_FOR_REVIEW.",
+      "tests": {"command": "python -m py_compile scripts/agent_orchestrator.py && python -m pytest -q tests/test_agent_orchestrator.py", "passed": 3, "failed": 0},
+      "production_changes": false,
+      "provider_rpc_calls_initiated": 0
+    },
     "oip_v2_2e_2b2f_funnel": {"window_endpoint": "60_CLEAN_POST_FIX_MINUTES", "migrations": 0, "shared_acquisitions": 0, "completions": 0, "retained": 0, "replayable": 0, "migration_to_shared_rate": null, "shared_to_completion_rate": null, "completion_to_retained_rate": null, "retained_to_replayable_rate": null, "interpretation": "Rates are undefined because the qualified migration denominator is zero; no funnel gap can be measured."},
     "retention_natural_proof": {"eligible": 6, "retained": 6, "replayable": 6, "accounting_residual": 0, "pending_journal": 0, "lost_total": 0},
     "migration_census_and_retention_tests": {"passed": 13, "failed": 0, "skipped": 0},
@@ -165,11 +186,12 @@
   "blockers": [
     "Explicit subscription acknowledgement payloads and complete raw migration payloads are not retained, although sustained pumpportal_migrate telemetry proves useful delivery.",
     "Live Supervisor configuration remains uncommitted and must not be bundled with unrelated working-tree changes.",
-    "Closing the current-mint evidence gap requires an explicitly reviewed cache-bypass/evidence-lineage design; a force-fresh path would create provider work and is not authorized."
+    "Closing the current-mint evidence gap requires an explicitly reviewed cache-bypass/evidence-lineage design; a force-fresh path would create provider work and is not authorized.",
+    "Agent Orchestrator V1 cannot execute until a planner publishes an explicit approved_action with a matching source handoff revision; current local Codex provider reachability is unavailable."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2M",
-    "instruction": "Obtain explicit authorization to design and locally qualify, without deployment, the smallest coherent observation-required cache-bypass contract across listener enqueue, worker satisfied reconciliation, and extractor authoritative-state skip. The design must include schema compatibility, bounded provider/RPC budget, tests proving ordinary cache semantics remain unchanged, and rollback. Do not implement production activation, restart/reconfigure services, or make live provider RPC calls under the handoff.",
+    "milestone": "PAUSED_OIP_E_SERIES",
+    "instruction": "Pause OIP E-series at completed E.2B2L. Before any orchestrator execution, a planner must publish an explicit machine-consumable approved_action at READY_FOR_CODEX with a matching source_handoff_revision. E.2B2M remains unimplemented and requires separate explicit authorization.",
     "activation_authorized": false
   },
   "safety": {

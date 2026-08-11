@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-11T20:54:14Z",
+  "updated_at_utc": "2026-08-11T21:09:10Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-11T20:54:14Z",
+    "published_at_utc": "2026-08-11T21:09:10Z",
     "protocol_version": 1,
     "status": "PENDING_PUBLICATION"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2M safe-local qualification",
+    "milestone": "OIP v2.2E.2B2N design-only local qualification",
     "mode": "safe-local orchestration",
-    "status": "COMPLETE",
-    "verdict": "LOCAL_QUALIFICATION_PASS"
+    "status": "AUTHORIZED",
+    "verdict": "SAFE_LOCAL_DESIGN_AUTHORIZED"
   },
   "production_state": {
     "retention": "ON",
@@ -34,80 +34,67 @@
   },
   "orchestration": {
     "schema_version": 3,
-    "state": "PROGRAMME_COMPLETE",
+    "state": "IDLE",
     "run_id": null,
-    "attempt": 4,
-    "approved_action": {
-      "approved": true,
-      "milestone": "OIP v2.2E.2B2M",
-      "authorization_class": "LOCAL_COMMIT",
-      "instruction": "Create a narrow engineering commit containing only qualified B2M local implementation, tests, and documentation; do not deploy or push production changes.",
-      "success_criteria": "A narrow local B2M engineering commit is created, or an exact safe-local blocker is recorded.",
-      "stop_conditions": [
-        "unrelated dirty-tree overlap",
-        "provider/RPC work needed",
-        "production interaction needed",
-        "architectural expansion needed"
-      ],
-      "source_handoff_revision": "b8f59b1640f075ee3e487c709296ca486a5808fa"
-    },
+    "attempt": 0,
+    "approved_action": null,
     "safe_local_enabled": true,
     "approved_programme": {
       "approved": true,
-      "active_milestone": "OIP v2.2E.2B2M",
+      "active_milestone": "OIP v2.2E.2B2N",
       "actions": [
         {
           "approved": true,
-          "milestone": "OIP v2.2E.2B2M",
+          "milestone": "OIP v2.2E.2B2N",
           "authorization_class": "LOCAL_READ_ONLY",
-          "instruction": "Inspect the existing B2M cache-bypass/evidence-lineage contract and local implementation/test boundaries only; do not make provider calls or production changes.",
-          "success_criteria": "A bounded B2M local design/qualification plan is grounded in existing repository evidence.",
+          "instruction": "Inspect only local B2M evidence, existing provider controls, and prior qualification records to define B2N's bounded provider-qualification contract; make no provider calls or production changes.",
+          "success_criteria": "A proposed B2N contract is grounded in qualified local evidence and identifies exact provider/production gates.",
           "stop_conditions": [
             "provider/RPC work needed",
             "production interaction needed",
             "architectural expansion needed"
           ],
-          "source_handoff_revision": "4f2fd0e5987d6b77704337e1e1f67ae75b9ec347"
+          "source_handoff_revision": "e1f5e8831c567c2269bf357a13e04180236b6f7c"
         },
         {
           "approved": true,
-          "milestone": "OIP v2.2E.2B2M",
+          "milestone": "OIP v2.2E.2B2N",
           "authorization_class": "LOCAL_IMPLEMENTATION",
-          "instruction": "Implement only the approved B2M design/local qualification changes, with no live execution, provider call, configuration change, or production deployment.",
-          "success_criteria": "The bounded local B2M implementation is complete and remains within the existing contract.",
+          "instruction": "Write only the B2N provider-qualification design/contract document, including sample, request budget, field/timestamp semantics, success criteria, fail-closed stops, and no-production boundary.",
+          "success_criteria": "The B2N design is reviewable, bounded, and explicitly requires later human authorization before provider work.",
           "stop_conditions": [
             "provider/RPC work needed",
             "production interaction needed",
             "architectural expansion needed"
           ],
-          "source_handoff_revision": "4f2fd0e5987d6b77704337e1e1f67ae75b9ec347"
+          "source_handoff_revision": "e1f5e8831c567c2269bf357a13e04180236b6f7c"
         },
         {
           "approved": true,
-          "milestone": "OIP v2.2E.2B2M",
+          "milestone": "OIP v2.2E.2B2N",
           "authorization_class": "LOCAL_TEST",
-          "instruction": "Run local tests and bounded diagnose/repair/retest only for the B2M implementation; use fixtures, mocks, and local evidence only.",
-          "success_criteria": "B2M local qualification passes or records an exact local blocker without external work.",
+          "instruction": "Validate the B2N design against local evidence and verify it contains no executable provider or production action; bounded documentation repair/retest only.",
+          "success_criteria": "The B2N design passes local consistency review or records an exact safe-local blocker.",
           "stop_conditions": [
             "provider/RPC work needed",
             "production interaction needed",
             "architectural expansion needed"
           ],
-          "source_handoff_revision": "52c8879a905794f072aa66ef484dced4a83a50fe"
+          "source_handoff_revision": "e1f5e8831c567c2269bf357a13e04180236b6f7c"
         },
         {
           "approved": true,
-          "milestone": "OIP v2.2E.2B2M",
+          "milestone": "OIP v2.2E.2B2N",
           "authorization_class": "LOCAL_COMMIT",
-          "instruction": "Create a narrow engineering commit containing only qualified B2M local implementation, tests, and documentation; do not deploy or push production changes.",
-          "success_criteria": "A narrow local B2M engineering commit is created, or an exact safe-local blocker is recorded.",
+          "instruction": "Create a narrow local commit containing only the qualified B2N design/validation documentation; do not deploy or push production changes.",
+          "success_criteria": "A narrow B2N design commit is created or an exact safe-local blocker is recorded.",
           "stop_conditions": [
             "unrelated dirty-tree overlap",
             "provider/RPC work needed",
             "production interaction needed",
             "architectural expansion needed"
           ],
-          "source_handoff_revision": "b8f59b1640f075ee3e487c709296ca486a5808fa"
+          "source_handoff_revision": "e1f5e8831c567c2269bf357a13e04180236b6f7c"
         }
       ],
       "human_start_manifest": [
@@ -118,6 +105,15 @@
           "scope": "DESIGN_LOCAL_QUALIFICATION_ONLY",
           "authorization_consumed": true,
           "executed": true,
+          "later_provider_or_production_activation": "HUMAN_APPROVAL_REQUIRED"
+        },
+        {
+          "milestone": "OIP v2.2E.2B2N",
+          "state": "HUMAN_START_AUTHORIZATION_CONSUMED",
+          "authorization_class": "LOCAL_IMPLEMENTATION",
+          "scope": "DESIGN_ONLY_NO_PROVIDER_OR_PRODUCTION_ACTION",
+          "authorization_consumed": true,
+          "executed": false,
           "later_provider_or_production_activation": "HUMAN_APPROVAL_REQUIRED"
         }
       ]
@@ -219,6 +215,14 @@
     "note": "Closed at the twentieth distinct post-authorization census receive. The first 20 qualifying records were one-to-one with 20 mints; later census records are outside this fixed cohort. No service/configuration changes or Codex-initiated provider RPC calls occurred."
   },
   "latest_results": {
+    "oip_v2_2e_2b2n_manifest_authorization": {
+      "status": "COMPLETE",
+      "verdict": "SAFE_LOCAL_DESIGN_AUTHORIZED",
+      "scope": "B2N contract design only; no provider/RPC call, production observation/mutation, deployment, restart, or Evidence/Cohort activation.",
+      "authorized_classes": ["LOCAL_READ_ONLY", "LOCAL_IMPLEMENTATION", "LOCAL_TEST", "LOCAL_COMMIT"],
+      "provider_work_authorized": false,
+      "production_changes": false
+    },
     "oip_v2_2e_2b2m_local_implementation_and_test": {
       "status": "COMPLETE",
       "verdict": "LOCAL_QUALIFICATION_PASS",
@@ -590,9 +594,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2N provider qualification design",
-    "instruction": "Await a separate explicit authorization for the proposed B2N provider/RPC qualification design. B2M is complete locally; do not deploy, observe production, call a provider, restart a service, or activate Evidence Mirror/Cohort Mode.",
-    "activation_authorized": false,
+    "milestone": "OIP v2.2E.2B2N design-only local qualification",
+    "instruction": "Run the approved B2N safe-local design sequence. Stop before any provider/RPC or production action.",
+    "activation_authorized": true,
     "production_activation_authorized": false
   },
   "safety": {

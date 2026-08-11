@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-11T20:04:54Z",
+  "updated_at_utc": "2026-08-11T20:08:02Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "040ec91c69a04fe4c5bfacd19a91396b6708818f",
+    "git_head": "1d462fd1a8c94aeac411d918512772609038556a",
     "working_tree": "dirty: unrelated live Supervisor, audit, and runtime changes remain present and were not staged; V1.2/V1.3 orchestrator work is committed locally"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-11T20:04:54Z",
+    "published_at_utc": "2026-08-11T20:08:02Z",
     "protocol_version": 1,
     "status": "PENDING_PUBLICATION"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2M LOCAL_READ_ONLY",
+    "milestone": "OIP v2.2E.2B2M safe-local continuation prepared",
     "mode": "safe-local orchestration",
-    "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "BOUNDED_B2M_LOCAL_PLAN_READY"
+    "status": "READY_FOR_CODEX",
+    "verdict": "MANIFEST_GOVERNED_RESUME_AUTHORIZED"
   },
   "production_state": {
     "retention": "ON",
@@ -34,21 +34,21 @@
   },
   "orchestration": {
     "schema_version": 3,
-    "state": "HUMAN_APPROVAL_REQUIRED",
-    "run_id": "b631fd8d-7f47-4488-9b87-3d41d99b86f9",
+    "state": "READY_FOR_CODEX",
+    "run_id": null,
     "attempt": 1,
     "approved_action": {
       "approved": true,
       "milestone": "OIP v2.2E.2B2M",
-      "authorization_class": "LOCAL_READ_ONLY",
-      "instruction": "Inspect the existing B2M cache-bypass/evidence-lineage contract and local implementation/test boundaries only; do not make provider calls or production changes.",
-      "success_criteria": "A bounded B2M local design/qualification plan is grounded in existing repository evidence.",
+      "authorization_class": "LOCAL_IMPLEMENTATION",
+      "instruction": "Implement only the approved B2M design/local qualification changes, with no live execution, provider call, configuration change, or production deployment.",
+      "success_criteria": "The bounded local B2M implementation is complete and remains within the existing contract.",
       "stop_conditions": [
         "provider/RPC work needed",
         "production interaction needed",
         "architectural expansion needed"
       ],
-      "source_handoff_revision": "984afe279566767299bc15d8bd4b7adaf43a19e7"
+      "source_handoff_revision": "d55975233268f5a81d3efdd900f9862e1c206247"
     },
     "safe_local_enabled": true,
     "approved_programme": {
@@ -66,7 +66,7 @@
             "production interaction needed",
             "architectural expansion needed"
           ],
-          "source_handoff_revision": "984afe279566767299bc15d8bd4b7adaf43a19e7"
+          "source_handoff_revision": "d55975233268f5a81d3efdd900f9862e1c206247"
         },
         {
           "approved": true,
@@ -79,7 +79,7 @@
             "production interaction needed",
             "architectural expansion needed"
           ],
-          "source_handoff_revision": "984afe279566767299bc15d8bd4b7adaf43a19e7"
+          "source_handoff_revision": "d55975233268f5a81d3efdd900f9862e1c206247"
         },
         {
           "approved": true,
@@ -92,7 +92,7 @@
             "production interaction needed",
             "architectural expansion needed"
           ],
-          "source_handoff_revision": "984afe279566767299bc15d8bd4b7adaf43a19e7"
+          "source_handoff_revision": "d55975233268f5a81d3efdd900f9862e1c206247"
         },
         {
           "approved": true,
@@ -106,7 +106,7 @@
             "production interaction needed",
             "architectural expansion needed"
           ],
-          "source_handoff_revision": "984afe279566767299bc15d8bd4b7adaf43a19e7"
+          "source_handoff_revision": "d55975233268f5a81d3efdd900f9862e1c206247"
         }
       ],
       "human_start_manifest": [
@@ -155,7 +155,7 @@
       "commits": [],
       "recommended_next_action": "Under LOCAL_IMPLEMENTATION, add a default-false per-queue observation_required marker for reviewed migration jobs; persist it during migration enqueue; exempt marked rows from listener cache short-circuit and worker satisfied-row reconciliation; pass it into extract_funding_for_new_token so only marked jobs bypass the known-creator fast path and enter acquisition_scope with the current mint. Preserve evidence lineage through AcquisitionContext.launch, acquisition_id/correlation_id, and retained_acquisition_observations.launch_mint; never relabel or reuse a prior mint's retained artifact. Add fixture-only tests for default cache behavior, marked enqueue persistence, all three bypass boundaries, current-mint retained-envelope lineage, deduplication, reconciliation, and no-network mocks. Stop before live RPC or production activation."
     },
-    "source_handoff_revision": "984afe279566767299bc15d8bd4b7adaf43a19e7",
+    "source_handoff_revision": "d55975233268f5a81d3efdd900f9862e1c206247",
     "deterministic_policy": {
       "decision": "HUMAN_APPROVAL_REQUIRED",
       "api_reviewer_used": false,
@@ -211,6 +211,17 @@
     "note": "Closed at the twentieth distinct post-authorization census receive. The first 20 qualifying records were one-to-one with 20 mints; later census records are outside this fixed cohort. No service/configuration changes or Codex-initiated provider RPC calls occurred."
   },
   "latest_results": {
+    "agent_orchestrator_v1_3_manifest_progression_repair": {
+      "status": "COMPLETE",
+      "verdict": "LOCAL_QUALIFICATION_PASS",
+      "commit": "1d462fd1a8c94aeac411d918512772609038556a",
+      "repair": "The no-API loop now uses only the ordered approved manifest for local progression; child free-text recommendation does not confer or block authority. Child status and production/provider impact flags remain deterministic human stops.",
+      "tests": {"passed": 24, "failed": 0},
+      "b2m_resumption_authorized": true,
+      "b2m_executed_in_repair": false,
+      "production_changes": false,
+      "provider_rpc_calls": 0
+    },
     "oip_v2_2e_2b2m_local_read_only": {
       "status": "COMPLETE",
       "verdict": "BOUNDED_B2M_LOCAL_PLAN_READY",
@@ -549,8 +560,8 @@
   ],
   "next_action": {
     "milestone": "OIP v2.2E.2B2M safe-local continuation",
-    "instruction": "Review the deterministic HUMAN_APPROVAL_REQUIRED stop caused by the child recommendation's non-canonical milestone prefix. Do not resume B2M or change authorization scope until the exact safe-local continuation is explicitly authorized or the host policy repair is separately authorized.",
-    "activation_authorized": false,
+    "instruction": "Resume the already approved LOCAL_IMPLEMENTATION -> LOCAL_TEST -> LOCAL_COMMIT B2M sequence from the normal host terminal. Stop at any deterministic human gate.",
+    "activation_authorized": true,
     "production_activation_authorized": false
   },
   "safety": {

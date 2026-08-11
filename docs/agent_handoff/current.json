@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-11T14:38:14Z",
+  "updated_at_utc": "2026-08-11T14:44:19Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "98439ad3857407dfe9ce68c44c278bc51e7f55b2",
-    "working_tree": "dirty: locally-qualified listener receive-boundary/routing repair and migration-census tests are uncommitted; live retention/census configuration and unrelated audit/runtime files also exist"
+    "git_head": "fc248d041913824b335df6759dbd57cda4644d8b",
+    "working_tree": "dirty: live retention/census Supervisor configuration and unrelated audit/runtime files remain uncommitted; the listener receive-boundary/routing repair and census tests are committed"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-11T14:38:14Z",
+    "published_at_utc": "2026-08-11T14:44:19Z",
     "protocol_version": 1,
     "status": "READY"
   },
   "current_milestone": {
-    "programme": "OIP v2.2E.2B2H",
-    "milestone": "PumpPortal migration routing repair and local qualification",
-    "mode": "local implementation and qualification",
+    "programme": "OIP v2.2E.2B2I",
+    "milestone": "Narrow engineering commit for PumpPortal migration routing repair",
+    "mode": "engineering commit and push",
     "status": "COMPLETE",
-    "verdict": "LOCAL_QUALIFICATION_PASS"
+    "verdict": "PASS"
   },
   "production_state": {
     "retention": "ON",
@@ -78,22 +78,33 @@
       "deployed": false,
       "production_listener_restarted": false
     },
+    "oip_v2_2e_2b2i_engineering_commit": {
+      "status": "COMPLETE",
+      "verdict": "PASS",
+      "commit": "fc248d041913824b335df6759dbd57cda4644d8b",
+      "commit_subject": "Fix PumpPortal migration census routing",
+      "files": ["src/core/pumpfun_curve_listener.py", "tests/test_oip_v2_2e_2b2_migration_census.py"],
+      "pushed_branch": "classification-attribution-axis",
+      "unrelated_changes_included": false,
+      "deployed": false,
+      "production_listener_restarted": false
+    },
     "oip_v2_2e_2b2f_funnel": {"window_endpoint": "60_CLEAN_POST_FIX_MINUTES", "migrations": 0, "shared_acquisitions": 0, "completions": 0, "retained": 0, "replayable": 0, "migration_to_shared_rate": null, "shared_to_completion_rate": null, "completion_to_retained_rate": null, "retained_to_replayable_rate": null, "interpretation": "Rates are undefined because the qualified migration denominator is zero; no funnel gap can be measured."},
     "retention_natural_proof": {"eligible": 6, "retained": 6, "replayable": 6, "accounting_residual": 0, "pending_journal": 0, "lost_total": 0},
     "migration_census_and_retention_tests": {"passed": 13, "failed": 0, "skipped": 0},
     "listener_regression": "pre-fix receive timestamp NameError caused reconnect loop; repaired locally by timestamp capture immediately after ws.recv()",
-    "post_fix_runtime_check": {"checked_at_utc": "2026-08-11T14:38:14Z", "listener": "RUNNING pid 98739 (uptime 1h22m06s; unchanged, local repair not loaded)", "creator_funding_worker": "RUNNING pid 80618 (uptime 3h10m22s)", "evidence_writer": "STOPPED since 2026-08-11 10:57 local", "census_file": "ABSENT", "migration_events": 0, "distinct_mints": 0, "production_impact_observed": false},
+    "post_fix_runtime_check": {"checked_at_utc": "2026-08-11T14:44:19Z", "listener": "RUNNING pid 98739 (uptime 1h28m12s; unchanged, commit fc248d04 not loaded)", "creator_funding_worker": "RUNNING pid 80618 (uptime 3h16m28s)", "evidence_writer": "STOPPED since 2026-08-11 10:57 local", "census_file": "ABSENT", "migration_events": 0, "distinct_mints": 0, "production_impact_observed": false},
     "handoff_verification_tests": {"command": "python -m py_compile src/core/pumpfun_curve_listener.py src/core/pumpportal_migration_census.py tests/test_oip_v2_2e_2b2_migration_census.py && python -m pytest -q tests/test_oip_v2_2e_2b2_migration_census.py tests/test_x78_18_reconnect_isolation.py", "passed": 12, "failed": 0},
     "provider_rpc_calls_this_checkpoint": 0
   },
   "blockers": [
-    "The routing repair is locally qualified but uncommitted and not loaded by the unchanged production listener PID 98739.",
+    "Commit fc248d04 is pushed but not loaded by the unchanged production listener PID 98739.",
     "Explicit subscription acknowledgement payloads and complete raw migration payloads are not retained, although sustained pumpportal_migrate telemetry proves useful delivery.",
-    "Listener receive-boundary/routing repair, census regression tests, and live Supervisor configuration are uncommitted; isolate them carefully from unrelated working-tree changes."
+    "Live Supervisor configuration remains uncommitted and must not be bundled with unrelated working-tree changes."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2I",
-    "instruction": "Review and authorize a narrow engineering commit containing only the listener receive-boundary/routing repair and migration-census regression tests. Production deployment, listener restart, configuration changes, and a new prospective observation window remain separately unauthorized.",
+    "milestone": "OIP v2.2E.2B2J",
+    "instruction": "Obtain explicit production authorization for a controlled watchtower_listener restart that loads engineering commit fc248d04 while preserving Migration Census ON, Retention ON, Evidence Mirror OFF, Cohort Mode OFF, and Evidence writer STOPPED. Verify immediate health and subscription traffic after restart. Do not start a new prospective observation window unless that milestone is also explicitly authorized.",
     "activation_authorized": false
   },
   "safety": {

@@ -25,8 +25,11 @@ class MirroringTransactionAcquisition(SharedTransactionAcquisition):
             try:
                 self._retained_store.retain(response, http_method=str(kwargs["http_method"]),
                                             url=str(kwargs["url"]), request_payload=kwargs.get("json_payload"))
-            except Exception:
-                pass
+            except Exception as exc:
+                try:
+                    self._retained_store.record_gap(response, str(exc))
+                except Exception:
+                    pass
         self._mirror.publish_nowait(
             response,
             http_method=str(kwargs["http_method"]),
@@ -48,9 +51,12 @@ class RetainingTransactionAcquisition(SharedTransactionAcquisition):
             try:
                 self._retained_store.retain(response, http_method=str(kwargs["http_method"]),
                                             url=str(kwargs["url"]), request_payload=kwargs.get("json_payload"))
-            except Exception:
+            except Exception as exc:
                 # Retention is observability only: never alter acquisition semantics.
-                pass
+                try:
+                    self._retained_store.record_gap(response, str(exc))
+                except Exception:
+                    pass
         return response
 
 

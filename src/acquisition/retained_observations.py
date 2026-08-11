@@ -17,6 +17,9 @@ from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from src.acquisition.transaction import AcquisitionResponse
 from src.evidence.artifacts import ArtifactStore
+from src.evidence.artifacts import ArtifactReference
+from src.evidence.mirror import EvidenceMirrorPublisher
+from src.acquisition.transaction import AcquisitionMetadata, AcquisitionResponse
 
 
 SCHEMA_VERSION = 1
@@ -65,6 +68,7 @@ class RetainedAcquisitionStore:
         connection.execute("PRAGMA synchronous=FULL")
         connection.execute("CREATE TABLE IF NOT EXISTS retained_acquisition_observations (observation_id TEXT PRIMARY KEY, schema_version INTEGER NOT NULL, launch_mint TEXT, acquisition_id TEXT NOT NULL, correlation_id TEXT NOT NULL, payload_json TEXT NOT NULL, retained_at INTEGER NOT NULL)")
         connection.execute("CREATE INDEX IF NOT EXISTS retained_acquisition_by_mint ON retained_acquisition_observations(launch_mint)")
+        connection.execute("CREATE TABLE IF NOT EXISTS retained_acquisition_gaps (gap_id TEXT PRIMARY KEY, acquisition_id TEXT, launch_mint TEXT, correlation_id TEXT, purpose TEXT, provider TEXT, method TEXT, reason TEXT NOT NULL, recorded_at INTEGER NOT NULL)")
         return connection
 
     def retain(self, response: AcquisitionResponse, *, http_method: str, url: str, request_payload: Any) -> RetainedObservation:
@@ -85,6 +89,15 @@ class RetainedAcquisitionStore:
             connection.close()
         return value
 
+    def record_gap(self, response: AcquisitionResponse, reason: str) -> None:
+        metadata = asdict(response.metadata)
+        identity = {"acquisition_id": metadata["acquisition_id"], "correlation_id": metadata["correlation_id"], "reason": str(reason)}
+        connection = self._connect()
+        try:
+            connection.execute("INSERT OR IGNORE INTO retained_acquisition_gaps VALUES(?,?,?,?,?,?,?,?,?)", (hashlib.sha256(canonical(identity)).hexdigest(), metadata["acquisition_id"], metadata.get("launch"), metadata["correlation_id"], metadata["purpose"], metadata["provider"], metadata["method"], str(reason)[:500], int(time.time())))
+            connection.commit()
+        finally: connection.close()
+
     def get(self, *, mints: Iterable[str] | None = None, observation_ids: Iterable[str] | None = None) -> list[RetainedObservation]:
         connection = self._connect()
         try:
@@ -96,3 +109,14 @@ class RetainedAcquisitionStore:
             query = "SELECT payload_json FROM retained_acquisition_observations" + (" WHERE " + " AND ".join(clauses) if clauses else "") + " ORDER BY observation_id"
             return [RetainedObservation(**json.loads(row[0])) for row in connection.execute(query, params)]
         finally: connection.close()
+
+    def dry_run_envelope(self, observation: RetainedObservation) -> dict[str, Any]:
+        required = ("acquisition_id", "correlation_id", "purpose", "provider", "method", "launch", "timestamp")
+        missing = [key for key in required if not observation.metadata.get(key)]
+        if missing:
+            return {"observation_id": observation.observation_id, "state": "NOT_REPLAYABLE", "reason": "MISSING_RETAINED_INPUT:" + ",".join(missing)}
+        response = AcquisitionResponse(observation.response_status, observation.response_data, observation.response_text, observation.response_headers, AcquisitionMetadata(**observation.metadata), 0.0, base64.b64decode(observation.raw_body_base64) if observation.raw_body_base64 else None, observation.artifact_representation)
+        item = EvidenceMirrorPublisher.item_from_response(response, http_method=observation.http_method, url=observation.url, request_payload=observation.request_payload, handoff_at=float(observation.metadata["timestamp"]))
+        artifact = ArtifactReference(observation.artifact_digest, observation.artifact_size_bytes, observation.artifact_compressed_bytes, observation.content_type)
+        envelope = EvidenceMirrorPublisher._acquisition_envelope(None, item, artifact)  # type: ignore[arg-type]
+        return {"observation_id": observation.observation_id, "state": "REPLAYABLE", "envelope": envelope}

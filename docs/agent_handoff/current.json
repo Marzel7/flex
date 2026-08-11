@@ -34,9 +34,9 @@
   },
   "orchestration": {
     "schema_version": 3,
-    "state": "READY_FOR_CODEX",
-    "run_id": null,
-    "attempt": 1,
+    "state": "READY_FOR_REVIEW",
+    "run_id": "883b13bf-0ce3-4021-aeb5-c4ad033e850b",
+    "attempt": 2,
     "approved_action": {
       "approved": true,
       "milestone": "OIP v2.2E.2B2M",
@@ -48,7 +48,7 @@
         "production interaction needed",
         "architectural expansion needed"
       ],
-      "source_handoff_revision": "d55975233268f5a81d3efdd900f9862e1c206247"
+      "source_handoff_revision": "4f2fd0e5987d6b77704337e1e1f67ae75b9ec347"
     },
     "safe_local_enabled": true,
     "approved_programme": {
@@ -66,7 +66,7 @@
             "production interaction needed",
             "architectural expansion needed"
           ],
-          "source_handoff_revision": "d55975233268f5a81d3efdd900f9862e1c206247"
+          "source_handoff_revision": "4f2fd0e5987d6b77704337e1e1f67ae75b9ec347"
         },
         {
           "approved": true,
@@ -79,7 +79,7 @@
             "production interaction needed",
             "architectural expansion needed"
           ],
-          "source_handoff_revision": "d55975233268f5a81d3efdd900f9862e1c206247"
+          "source_handoff_revision": "4f2fd0e5987d6b77704337e1e1f67ae75b9ec347"
         },
         {
           "approved": true,
@@ -141,25 +141,29 @@
     },
     "last_child_result": {
       "status": "COMPLETE",
-      "verdict": "BOUNDED_B2M_LOCAL_PLAN_READY",
-      "files_changed": [],
+      "verdict": "BOUNDED_B2M_LOCAL_QUALIFICATION_PASS",
+      "files_changed": [
+        "src/core/creator_funding_worker.py",
+        "src/core/pumpfun_curve_listener.py",
+        "src/extractors/realtime_creator_funding_extractor.py",
+        "tests/test_oip_v2_2e_2b2m_observation_required.py"
+      ],
       "tests": [
-        "Not run; LOCAL_READ_ONLY inspection only."
+        "40 targeted tests passed",
+        "Python compilation passed for changed Python files",
+        "git diff --check passed"
       ],
-      "blockers": [
-        "Live qualification would create provider/RPC work and requires separate authorization.",
-        "Production activation, configuration changes, deployment, and service restart remain unauthorized."
-      ],
+      "blockers": [],
       "production_impact": false,
       "provider_impact": false,
       "commits": [],
-      "recommended_next_action": "Under LOCAL_IMPLEMENTATION, add a default-false per-queue observation_required marker for reviewed migration jobs; persist it during migration enqueue; exempt marked rows from listener cache short-circuit and worker satisfied-row reconciliation; pass it into extract_funding_for_new_token so only marked jobs bypass the known-creator fast path and enter acquisition_scope with the current mint. Preserve evidence lineage through AcquisitionContext.launch, acquisition_id/correlation_id, and retained_acquisition_observations.launch_mint; never relabel or reuse a prior mint's retained artifact. Add fixture-only tests for default cache behavior, marked enqueue persistence, all three bypass boundaries, current-mint retained-envelope lineage, deduplication, reconciliation, and no-network mocks. Stop before live RPC or production activation."
+      "recommended_next_action": "Authorize the separate LOCAL_COMMIT action to create a narrow engineering commit; retain human gates for deployment, activation, and provider/RPC work."
     },
-    "source_handoff_revision": "d55975233268f5a81d3efdd900f9862e1c206247",
+    "source_handoff_revision": "4f2fd0e5987d6b77704337e1e1f67ae75b9ec347",
     "deterministic_policy": {
-      "decision": "HUMAN_APPROVAL_REQUIRED",
+      "decision": "READY_FOR_CODEX",
       "api_reviewer_used": false,
-      "iteration": 1
+      "iteration": 2
     }
   },
   "qualified_baselines": [
@@ -216,7 +220,10 @@
       "verdict": "LOCAL_QUALIFICATION_PASS",
       "commit": "1d462fd1a8c94aeac411d918512772609038556a",
       "repair": "The no-API loop now uses only the ordered approved manifest for local progression; child free-text recommendation does not confer or block authority. Child status and production/provider impact flags remain deterministic human stops.",
-      "tests": {"passed": 24, "failed": 0},
+      "tests": {
+        "passed": 24,
+        "failed": 0
+      },
       "b2m_resumption_authorized": true,
       "b2m_executed_in_repair": false,
       "production_changes": false,

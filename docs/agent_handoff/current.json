@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "updated_at_utc": "2026-08-11T14:12:55Z",
+  "updated_by": "codex",
+  "project": {
+    "name": "flex",
+    "branch": "classification-attribution-axis",
+    "git_head": "98439ad3857407dfe9ce68c44c278bc51e7f55b2",
+    "working_tree": "dirty: live retention/census configuration and listener timestamp repair are uncommitted; unrelated audit/runtime files also exist"
+  },
+  "handoff_transport": {
+    "branch": "agent-handoff",
+    "published_at_utc": "2026-08-11T14:12:55Z",
+    "protocol_version": 1,
+    "status": "READY"
+  },
+  "current_milestone": {
+    "programme": "OIP v2.2E.2B2",
+    "milestone": "Post-fix prospective migration census observation",
+    "mode": "production observation",
+    "status": "IN_PROGRESS",
+    "verdict": "NOT_MEASURABLE_YET"
+  },
+  "production_state": {
+    "retention": "ON",
+    "migration_census": "ON",
+    "evidence_mirror": "OFF",
+    "cohort_mode": "OFF",
+    "evidence_writer": "STOPPED",
+    "listener_service": "watchtower_listener",
+    "listener_pid_last_verified": 98739,
+    "creator_funding_service": "creator_funding_worker",
+    "creator_funding_pid_last_verified": 80618
+  },
+  "qualified_baselines": [
+    {"milestone": "OIP v2.2E Phase 1 reproducible baseline", "commit": "ad3719f59ac9541e3550fad22866efe0cab5466c", "verdict": "QUALIFIED"},
+    {"milestone": "E.1A cohort gate", "commit": "ac852ac2", "verdict": "PASS"},
+    {"milestone": "E.1C1 retained acquisition replay foundation", "commit": "5837cd68f361fdb45297dbf8466d741727490823", "verdict": "PASS"},
+    {"milestone": "Prospective migration census collector", "commit": "8289687ba3402e7972d3881594db261eb044f142", "verdict": "LOCAL_QUALIFICATION_PASS"}
+  ],
+  "active_observation": {
+    "name": "post-fix migration census funnel",
+    "start_utc_approx": "2026-08-11T13:16:00Z",
+    "end_condition": "first of 20 distinct migrations, 60 clean minutes, material gap, or production impact",
+    "pre_fix_data_valid": false,
+    "census_output": "logs/oip_migration_census.jsonl",
+    "observed_duration_seconds": 1902,
+    "observed_duration_minutes": 31.7,
+    "latest_known_valid_events": 0,
+    "latest_known_distinct_mints": 0,
+    "endpoint_evaluation": {"distinct_migrations_20": false, "clean_minutes_60": false, "material_funnel_gap": false, "production_impact": false, "endpoint_reached": false},
+    "note": "Verified at 2026-08-11T13:47:50Z using only the repaired post-fix listener boundary. Listener PID 98739 was running continuously for 31m42s and current logs showed live birth traffic. Creator Funding PID 80618 was running and Evidence writer remained stopped. The census output file was absent, so no valid post-fix migration event has been captured. No endpoint has been reached."
+  },
+  "latest_results": {
+    "handoff_protocol_update": {"status": "COMPLETE", "summary": "Every material continuation turn now publishes agent state to the dedicated origin/agent-handoff transport branch; routine handoff updates do not create engineering-branch commits."},
+    "retention_natural_proof": {"eligible": 6, "retained": 6, "replayable": 6, "accounting_residual": 0, "pending_journal": 0, "lost_total": 0},
+    "migration_census_local_tests": {"passed": 15, "failed": 0, "skipped": 0},
+    "listener_regression": "pre-fix receive timestamp NameError caused reconnect loop; repaired locally by timestamp capture immediately after ws.recv()",
+    "post_fix_runtime_check": {"checked_at_utc": "2026-08-11T13:47:50Z", "listener": "RUNNING pid 98739 (uptime 31m42s)", "creator_funding_worker": "RUNNING pid 80618 (uptime 2h19m58s)", "evidence_writer": "STOPPED since 2026-08-11 10:57 local", "census_file": "ABSENT", "migration_events": 0, "distinct_mints": 0, "production_impact_observed": false},
+    "handoff_verification_tests": {"command": "python -m pytest -q tests/test_oip_v2_2e_2b2_migration_census.py", "passed": 4, "failed": 0}
+  },
+  "blockers": [
+    "Post-fix observation window is still open at 31m42s; do not use pre-fix zero-event data and do not calculate a zero-event funnel before an endpoint.",
+    "Listener timestamp repair and live Supervisor configuration are uncommitted; review separately from runtime data."
+  ],
+  "next_action": {
+    "milestone": "OIP v2.2E.2B2F",
+    "instruction": "Continue read-only observation from the repaired listener boundary. Re-check the first endpoint at 20 distinct post-fix migrations, 60 continuous clean minutes (approximately 2026-08-11T14:16:00Z), a material funnel gap, or production impact; only then close the window and calculate the funnel from qualified local evidence with zero new provider RPC calls.",
+    "activation_authorized": false
+  },
+  "safety": {
+    "production_changes_allowed": false,
+    "evidence_activation_allowed": false,
+    "notes": ["Evidence mirror and cohort mode remain off.", "Do not restart or reconfigure services merely to advance the observation window.", "Handoff commits and pushes transport review context only and never authorize production activation."]
+  }
+}

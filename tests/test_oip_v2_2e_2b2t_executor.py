@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 import pytest
 
@@ -46,3 +47,12 @@ def test_existing_ledger_fails_closed(tmp_path):
     ledger.append({"sample_ordinal": 1})
     with pytest.raises(RuntimeError, match="MUST_BE_EMPTY"):
         B2NExecutor(manifest=manifest(), ledger=ledger, client=Client(), provider="helius").run()
+
+
+def test_frozen_b2r_manifest_has_stable_digest_and_qualifies_with_fake_client(tmp_path):
+    payload = json.loads(Path("docs/evidence_platform/oip_v2_2e_2b2u_b2r_frozen_manifest.json").read_text())
+    frozen = B2NManifest(tuple(B2NMember(**member) for member in payload["members"]))
+    assert frozen.digest() == payload["manifest_digest"]
+    client = Client()
+    entries = B2NExecutor(manifest=frozen, ledger=AppendOnlyLedger(tmp_path / "ledger.jsonl"), client=client, provider="fake-helius").run()
+    assert len(entries) == len(client.calls) == 20

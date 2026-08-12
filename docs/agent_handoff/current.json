@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-12T22:23:00Z",
+  "updated_at_utc": "2026-08-12T22:28:00Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "fdb6154cffbc898178c6a0cc764f7dcf57e65f7d",
+    "git_head": "7b99e4015870fe63c1e9d0dbdae590f813c477e7",
     "working_tree": "dirty: unrelated live Supervisor, audit, and runtime changes remain present and were not staged; V1.2/V1.3 orchestrator work is committed locally"
   },
   "handoff_transport": {
@@ -16,8 +16,8 @@
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2U frozen-cohort materialization preflight",
-    "mode": "completed safe-local materialization and fake-client qualification",
+    "milestone": "OIP v2.2E.2B2V B2R cohort contract amendment",
+    "mode": "completed safe-local contract amendment",
     "status": "COMPLETE",
     "verdict": "LOCAL_QUALIFICATION_PASS"
   },
@@ -380,6 +380,26 @@
         "passed": 5,
         "failed": 0
       },
+      "provider_rpc_calls": 0,
+      "production_changes": false,
+      "service_restarts": 0,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF"
+    },
+    "oip_v2_2e_2b2v_contract_amendment": {
+      "status": "COMPLETE",
+      "verdict": "LOCAL_QUALIFICATION_PASS",
+      "commit": "7b99e4015870fe63c1e9d0dbdae590f813c477e7",
+      "contract": "docs/evidence_platform/oip_v2_2e_2b2n_provider_qualification_contract.md",
+      "amendment": "The B2N contract now selects only the frozen B2R 20-member manifest digest 82bbda32d25a9951a8d8475528d7db3a92b675aae90ce2d55e13391a6b69eedc and explicitly excludes the prior B2K cohort.",
+      "constraints_preserved": [
+        "exactly 20 physical Helius requests maximum",
+        "at most one request per mint",
+        "no retry or failover",
+        "isolated non-production environment only",
+        "no production DB, queue, service, restart, configuration, Evidence Mirror, or Cohort Mode action"
+      ],
+      "validation": "B2V contract validation PASS; whitespace validation PASS.",
       "provider_rpc_calls": 0,
       "production_changes": false,
       "service_restarts": 0,
@@ -821,8 +841,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2V B2R cohort contract amendment",
-    "instruction": "Await explicit authorization for a bounded safe-local B2N contract amendment selecting the frozen B2R manifest digest 82bbda32d25a9951a8d8475528d7db3a92b675aae90ce2d55e13391a6b69eedc in place of B2K, preserving exactly 20 physical Helius requests, no retry/failover, and no production access. No provider call is authorized by the amendment.",
+    "milestone": "OIP v2.2E.2B2W isolated Helius provider qualification",
+    "instruction": "Await explicit authorization to run the isolated B2N executor once against Helius for the frozen B2R manifest digest 82bbda32d25a9951a8d8475528d7db3a92b675aae90ce2d55e13391a6b69eedc: exactly 20 physical requests maximum, at most one per mint, no retry/failover, stop on first non-success, and no production DB/queue/service/configuration/Evidence/Cohort action.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

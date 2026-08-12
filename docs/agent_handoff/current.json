@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-11T23:49:59Z",
+  "updated_at_utc": "2026-08-12T01:16:00Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2O prospective marked-cohort observation",
-    "mode": "completed bounded read-only production observation",
+    "milestone": "OIP v2.2E.2B2P marked-cohort gap diagnosis",
+    "mode": "completed bounded local read-only diagnosis",
     "status": "COMPLETE",
-    "verdict": "PARTIAL_CURRENT_MINT_EVIDENCE_PROOF"
+    "verdict": "B2M_WORKER_MARKER_NOT_LOADED_AT_B2O_START"
   },
   "production_state": {
     "retention": "ON",
@@ -269,6 +269,23 @@
       },
       "local_evidence_notes": "Two marked cohort mints have no EXTRACTION_STARTED lifecycle event despite queue evidence; one started mint is retry rather than complete. Two complete rows lack a start event and one retained/replayable row lacks a completion event, so funnel stages are counted only on their strict intersections.",
       "verdict_reason": "B2M materially improved current-mint evidence (17 of 20 complete-retained-replayable), but the 20/20 provider-qualification eligibility criterion is not proven."
+    },
+    "oip_v2_2e_2b2p_gap_diagnosis": {
+      "status": "COMPLETE",
+      "verdict": "B2M_WORKER_MARKER_NOT_LOADED_AT_B2O_START",
+      "scope": "Read-only diagnosis of the B2O two no-start mints and one retry mint.",
+      "findings": {
+        "no_start_mints": 2,
+        "no_start_state": "Both had CREATED then reconciliation COMPLETED lifecycle events, observation_required=1 queue rows, existing creator_funders data, and no EXTRACTION_STARTED event.",
+        "cause": "At B2O start, creator_funding_worker PID 89882 predated B2M commit 5e2d1b26. The authorized B2M load restart covered only watchtower_listener, leaving the worker's pre-B2M reconciliation path live; that path completed satisfied rows without the B2M observation_required exemption. The later worker PID 8246 started after B2M and is configured from the current source revision.",
+        "retry_mint": "The one B2O endpoint retry later completed after the worker restart; its endpoint-time retry remains a valid fixed-window result and is not retroactively counted as completed."
+      },
+      "smallest_repair_not_implemented": "One explicitly authorized restart of creator_funding_worker to load B2M commit 5e2d1b26, with immediate health verification. A fresh separately authorized marked-cohort observation is then required; do not reuse the mixed-load B2O cohort for B2N eligibility.",
+      "provider_rpc_calls": 0,
+      "production_changes": false,
+      "service_restarts": 0,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF"
     },
     "oip_v2_2e_2b2n_preflight_manifest_authorization": {
       "status": "COMPLETE",
@@ -692,6 +709,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "B2O is a mixed-load cohort: the standalone creator_funding_worker had not loaded B2M at observation start, causing two marked rows to reconcile without Shared Acquisition. It cannot establish the 20/20 current-mint eligibility required by B2N.",
     "B2O closed at 20 marked migrations but proves only 17 strict current-mint Shared Acquisition -> completion -> retained -> replayable paths. Two marked mints lack EXTRACTION_STARTED and one started mint remains retry; B2N provider qualification requires all 20 eligible current-mint paths and remains blocked.",
     "Explicit subscription acknowledgement payloads and complete raw migration payloads are not retained, although sustained pumpportal_migrate telemetry proves useful delivery.",
     "Live Supervisor configuration remains uncommitted and must not be bundled with unrelated working-tree changes.",
@@ -701,8 +719,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2P marked-cohort gap diagnosis",
-    "instruction": "Await explicit authorization for a bounded local read-only diagnosis of the two marked mints without EXTRACTION_STARTED and the one started mint still in retry. Do not begin B2N provider work: its 20/20 current-mint eligibility criterion is not yet proven.",
+    "milestone": "OIP v2.2E.2B2Q creator_funding_worker B2M load gate",
+    "instruction": "Await explicit authorization for exactly one creator_funding_worker restart to load B2M commit 5e2d1b26, preserving all flags and without starting an observation. Verify immediate worker/listener health afterward. A fresh prospective marked-cohort observation requires its own subsequent authorization.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

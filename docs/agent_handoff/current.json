@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-12T22:28:00Z",
+  "updated_at_utc": "2026-08-12T22:32:00Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2V B2R cohort contract amendment",
-    "mode": "completed safe-local contract amendment",
-    "status": "COMPLETE",
-    "verdict": "LOCAL_QUALIFICATION_PASS"
+    "milestone": "OIP v2.2E.2B2W isolated Helius provider qualification",
+    "mode": "authorized isolated-provider preflight",
+    "status": "HOLD",
+    "verdict": "B2W_PROVIDER_TARGET_AND_ADAPTER_NOT_FROZEN"
   },
   "production_state": {
     "retention": "ON",
@@ -405,6 +405,24 @@
       "service_restarts": 0,
       "evidence_mirror": "OFF",
       "cohort_mode": "OFF"
+    },
+    "oip_v2_2e_2b2w_isolated_helius_preflight": {
+      "status": "HOLD",
+      "verdict": "B2W_PROVIDER_TARGET_AND_ADAPTER_NOT_FROZEN",
+      "authorization": "Helius-only isolated qualification for the frozen B2R cohort; maximum 20 physical requests, one per mint, no retry/failover, stop on first non-success, and no production changes.",
+      "cohort_manifest": "docs/evidence_platform/oip_v2_2e_2b2u_b2r_frozen_manifest.json",
+      "manifest_members": 20,
+      "manifest_digest": "82bbda32d25a9951a8d8475528d7db3a92b675aae90ce2d55e13391a6b69eedc",
+      "manifest_digest_match": true,
+      "frozen_provider_signature_fields": 0,
+      "frozen_creator_fields": 0,
+      "isolated_real_provider_adapter_present": false,
+      "provider_rpc_calls_executed": 0,
+      "production_changes": false,
+      "service_restarts": 0,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "blocker": "The reviewed B2N contract requires an unambiguous named endpoint family, frozen/request-resolvable provider target, and required instrumentation before request 1. The B2R manifest intentionally contains only ordinal, mint, census event ID, and observation flag; the isolated B2T executor intentionally accepts an injected test client and has no real Helius adapter. Selecting an RPC method or deriving a signature/creator now would invent unreviewed request semantics, so execution stops before request 1."
     },
     "oip_v2_2e_2b2n_preflight_manifest_authorization": {
       "status": "COMPLETE",
@@ -841,8 +859,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2W isolated Helius provider qualification",
-    "instruction": "Await explicit authorization to run the isolated B2N executor once against Helius for the frozen B2R manifest digest 82bbda32d25a9951a8d8475528d7db3a92b675aae90ce2d55e13391a6b69eedc: exactly 20 physical requests maximum, at most one per mint, no retry/failover, stop on first non-success, and no production DB/queue/service/configuration/Evidence/Cohort action.",
+    "milestone": "OIP v2.2E.2B2X B2W provider-target and adapter contract design",
+    "instruction": "Await explicit authorization for bounded safe-local design and fake-client qualification of the B2W input projection and one-request Helius adapter. It must freeze per-mint request target semantics, preserve the B2R manifest identity/digest, reconcile exactly one outbound attempt per mint to the ledger, and prohibit provider calls, production access, service/configuration change, and Evidence/Cohort activation. After review, a new explicit provider-execution authorization is required.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

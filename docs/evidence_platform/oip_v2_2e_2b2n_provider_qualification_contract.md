@@ -18,8 +18,9 @@ retry policy, change acquisition architecture, or establish production fitness.
 - B2M preserves `observation_required` from reviewed migration enqueue paths to
   `extract_funding_for_new_token`, bypassing only the known-creator fast path and
   retaining current-mint acquisition lineage.
-- The preceding prospective census closed at 20 distinct qualified migrations;
-  those first 20 qualifying records were a fixed, one-to-one mint cohort.
+- B2R closed at 20 distinct marked migrations after both B2M load gates. Its
+  frozen manifest is `oip_v2_2e_2b2u_b2r_frozen_manifest.json`, with digest
+  `82bbda32d25a9951a8d8475528d7db3a92b675aae90ce2d55e13391a6b69eedc`.
 - OIP v2.1C demonstrated a tested physical-attempt budget guard and successful
   first-attempt historical acquisition, but it does not prove current provider
   behavior or authorize new requests.
@@ -31,12 +32,11 @@ These facts bound the experiment; they do not imply that it may be run.
 
 ## Proposed sample contract
 
-After separate human authorization, qualification would use exactly the first
-20 distinct post-checkpoint migration mints from the already closed B2K census.
-The cohort must be materialized locally before the first request as an ordered,
-immutable manifest containing only `sample_ordinal`, `mint`, and the census
-identity fields needed to prove membership. Its digest and source checkpoint
-must be recorded before execution.
+After separate human authorization, qualification may use exactly the frozen
+20-member B2R manifest named above—no B2K member is eligible for this amended
+contract. Its recorded digest and B2R source checkpoint must match before the
+first request. No replacement, reordering, backfill, cherry-picking, or cohort
+growth is permitted.
 
 Eligibility requires a valid mint, a unique mint within the cohort, a B2M
 reviewed-migration origin, and `observation_required = true`. No replacement,
@@ -72,7 +72,7 @@ logical fields:
 | `contract_version` | Literal version of this reviewed contract. |
 | `run_id` | Identifier unique to the separately authorized run. |
 | `sample_ordinal` | Frozen 1-based position in the 20-member manifest. |
-| `mint` | Exact mint from the frozen B2K cohort; never provider-derived. |
+| `mint` | Exact mint from the frozen B2R cohort; never provider-derived. |
 | `observation_required` | Must be boolean `true`; otherwise stop. |
 | `provider` | Human-authorized provider identifier actually addressed. |
 | `request_count` | Physical requests attributable to this member: only `0` or `1`. |

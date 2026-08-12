@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-12T01:16:00Z",
+  "updated_at_utc": "2026-08-12T04:48:29Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2P marked-cohort gap diagnosis",
-    "mode": "completed bounded local read-only diagnosis",
+    "milestone": "OIP v2.2E.2B2Q creator_funding_worker B2M load gate",
+    "mode": "authorized bounded production restart verification",
     "status": "COMPLETE",
-    "verdict": "B2M_WORKER_MARKER_NOT_LOADED_AT_B2O_START"
+    "verdict": "B2M_WORKER_MARKER_LOADED_NO_OBSERVATION_STARTED"
   },
   "production_state": {
     "retention": "ON",
@@ -30,7 +30,7 @@
     "listener_service": "watchtower_listener",
     "listener_pid_last_verified": 85256,
     "creator_funding_service": "creator_funding_worker",
-    "creator_funding_pid_last_verified": 8246
+    "creator_funding_pid_last_verified": 58829
   },
   "orchestration": {
     "schema_version": 3,
@@ -284,6 +284,21 @@
       "provider_rpc_calls": 0,
       "production_changes": false,
       "service_restarts": 0,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF"
+    },
+    "oip_v2_2e_2b2q_worker_restart_gate": {
+      "status": "COMPLETE",
+      "verdict": "B2M_WORKER_MARKER_LOADED_NO_OBSERVATION_STARTED",
+      "authorized_commit": "5e2d1b2623392e01231673236041f906a6e03844",
+      "restart_count": 1,
+      "old_worker_pid": 8246,
+      "new_worker_pid": 58829,
+      "post_restart": "creator_funding_worker RUNNING; watchtower_listener remained RUNNING; Evidence writer remained STOPPED. Worker command and configured working directory point to the engineering checkout at HEAD 74b33083 containing B2M.",
+      "provider_rpc_calls_attributed_to_new_worker": 0,
+      "provider_metric_check": "PID-scoped read-only rpc_metrics check returned zero rows for PID 58829; apparent RPC lines in an initial tail were historical pre-start log content.",
+      "observation_window_started": false,
+      "production_changes": true,
       "evidence_mirror": "OFF",
       "cohort_mode": "OFF"
     },
@@ -719,8 +734,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2Q creator_funding_worker B2M load gate",
-    "instruction": "Await explicit authorization for exactly one creator_funding_worker restart to load B2M commit 5e2d1b26, preserving all flags and without starting an observation. Verify immediate worker/listener health afterward. A fresh prospective marked-cohort observation requires its own subsequent authorization.",
+    "milestone": "OIP v2.2E.2B2R fresh marked-cohort observation",
+    "instruction": "Await separate explicit authorization to start a fresh bounded read-only marked-cohort observation now that both watchtower_listener and creator_funding_worker have B2M loaded. Establish a new post-authorization receive boundary; stop at first of 20 distinct marked migrations, 60 clean minutes, or production impact. No provider calls, restart, reconfiguration, Evidence Mirror, Cohort Mode, or Evidence writer change is authorized by the restart gate.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

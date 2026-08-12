@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-12T22:09:59Z",
+  "updated_at_utc": "2026-08-12T22:13:00Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2R fresh marked-cohort observation",
-    "mode": "completed bounded read-only production observation",
+    "milestone": "OIP v2.2E.2B2S terminal-failure diagnosis",
+    "mode": "completed bounded local read-only diagnosis",
     "status": "COMPLETE",
-    "verdict": "PARTIAL_CURRENT_MINT_ACQUISITION_PROOF"
+    "verdict": "OUTGOING_TRANSFER_SCAN_TIMEOUTS"
   },
   "production_state": {
     "retention": "ON",
@@ -329,6 +329,22 @@
       },
       "local_evidence_notes": "All 20 marked current-mint rows emitted EXTRACTION_STARTED after both B2M load gates. Seventeen completed and were retained/replayable; three terminally failed within the fixed cohort. There are no completion-without-start reconciliation artifacts.",
       "verdict_reason": "B2M current-mint routing and cache-boundary proof is complete (20/20 Shared Acquisition); the remaining 3/20 terminal failures prevent B2N's all-20 provider-qualification eligibility result."
+    },
+    "oip_v2_2e_2b2s_terminal_failure_diagnosis": {
+      "status": "COMPLETE",
+      "verdict": "OUTGOING_TRANSFER_SCAN_TIMEOUTS",
+      "scope": "Read-only diagnosis of the three B2R fixed-cohort terminal failures.",
+      "failures": 3,
+      "common_terminal_state": "Each row emitted CREATED, five CLAIMED/EXTRACTION_STARTED attempts, four RETRY events, then FAILED after the fifth 90-second execution timeout.",
+      "common_bottleneck": "Every captured phase ledger attributes essentially the full job budget to outgoing_transfer_scan; no meaningful semaphore waiting was observed.",
+      "per_attempt_provider_work": "Local phase ledgers show hundreds of RPC calls per timed-out attempt (observed range 229-502), so this live acquisition path is incompatible with B2N's proposed one physical request per mint / 20-request total contract.",
+      "root_cause": "The current-mint marker correctly bypasses cache satisfaction and reaches Shared Acquisition, but then invokes the existing broad creator extraction workflow whose outgoing scan exceeds the fixed 90-second job budget.",
+      "smallest_repair_not_implemented": "Design and locally qualify an isolated B2N executor that performs exactly one bounded provider request per frozen mint and emits the required current-mint evidence, without invoking the live broad outgoing-transfer scan. This is an architectural/provider-work decision and needs separate authorization.",
+      "provider_rpc_calls_initiated_by_codex": 0,
+      "production_changes": false,
+      "service_restarts": 0,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF"
     },
     "oip_v2_2e_2b2n_preflight_manifest_authorization": {
       "status": "COMPLETE",
@@ -752,6 +768,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "B2S confirms that the live broad creator extraction path makes hundreds of provider RPC calls per attempt and times out at 90 seconds. It cannot satisfy B2N's 20 total / one-request-per-mint qualification contract; a separate isolated-executor architecture decision is required.",
     "B2R proves all 20 marked migrations reached current-mint Shared Acquisition after both B2M load gates, but 3/20 terminally failed before retained/replayable completion. B2N's all-20 eligibility criterion is not met.",
     "B2O is a mixed-load cohort: the standalone creator_funding_worker had not loaded B2M at observation start, causing two marked rows to reconcile without Shared Acquisition. It cannot establish the 20/20 current-mint eligibility required by B2N.",
     "B2O closed at 20 marked migrations but proves only 17 strict current-mint Shared Acquisition -> completion -> retained -> replayable paths. Two marked mints lack EXTRACTION_STARTED and one started mint remains retry; B2N provider qualification requires all 20 eligible current-mint paths and remains blocked.",
@@ -763,8 +780,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2S terminal-failure diagnosis",
-    "instruction": "Await explicit authorization for a bounded local read-only diagnosis of the three B2R terminal failures. Do not begin B2N provider work, restart/reconfigure services, change Evidence/Cohort state, or make provider calls.",
+    "milestone": "OIP v2.2E.2B2T isolated one-request executor design",
+    "instruction": "Await explicit authorization for bounded safe-local design/qualification of an isolated B2N executor and ledger that can prove one physical provider request per frozen mint without production DB, queue, service, or live broad-extraction access. This does not authorize any provider call or production change.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

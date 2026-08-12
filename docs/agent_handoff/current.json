@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-12T04:48:29Z",
+  "updated_at_utc": "2026-08-12T20:55:26Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2Q creator_funding_worker B2M load gate",
-    "mode": "authorized bounded production restart verification",
-    "status": "COMPLETE",
-    "verdict": "B2M_WORKER_MARKER_LOADED_NO_OBSERVATION_STARTED"
+    "milestone": "OIP v2.2E.2B2R fresh marked-cohort observation",
+    "mode": "authorized bounded read-only production observation",
+    "status": "IN_PROGRESS",
+    "verdict": "OBSERVATION_IN_PROGRESS"
   },
   "production_state": {
     "retention": "ON",
@@ -30,7 +30,7 @@
     "listener_service": "watchtower_listener",
     "listener_pid_last_verified": 85256,
     "creator_funding_service": "creator_funding_worker",
-    "creator_funding_pid_last_verified": 58829
+    "creator_funding_pid_last_verified": 45895
   },
   "orchestration": {
     "schema_version": 3,
@@ -207,12 +207,12 @@
     }
   ],
   "active_observation": {
-    "name": "OIP v2.2E.2B2O prospective marked-cohort migration census",
-    "authorization_consumed_at_utc": "2026-08-11T23:03:53Z",
-    "qualified_start_checkpoint_utc": "2026-08-11T23:03:53Z",
-    "qualified_start_receive_utc_ns_exclusive": 1786489407363746000,
-    "pre_authorization_file_high_water_records": 375,
-    "pre_authorization_records_excluded": 375,
+    "name": "OIP v2.2E.2B2R fresh marked-cohort migration census",
+    "authorization_consumed_at_utc": "2026-08-12T20:55:26Z",
+    "qualified_start_checkpoint_utc": "2026-08-12T20:55:26Z",
+    "qualified_start_receive_utc_ns_exclusive": 1786568002689241000,
+    "pre_authorization_file_high_water_records": 1389,
+    "pre_authorization_records_excluded": 1389,
     "qualification_requirement": "Count only post-boundary migrations whose current-mint queue/envelope is marked observation_required=true; do not use B2K or pre-boundary records.",
     "end_condition": "first of 20 distinct marked migrations, 60 clean minutes, or production impact",
     "census_output": "logs/oip_migration_census.jsonl",
@@ -230,7 +230,7 @@
       "endpoint_reached": true,
       "endpoint_reason": "20_DISTINCT_MARKED_MIGRATIONS"
     },
-    "note": "Closed at the twentieth post-boundary current-mint observation_required=true migration. Listener remained healthy; no service/configuration/provider/Evidence/Cohort action occurred."
+    "note": "Authorized B2R observation begins after the 1,389-record census high-water, following confirmed B2M load gates for both listener and worker. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
     "oip_v2_2e_2b2o_observation_authorization_preflight": {
@@ -299,6 +299,19 @@
       "provider_metric_check": "PID-scoped read-only rpc_metrics check returned zero rows for PID 58829; apparent RPC lines in an initial tail were historical pre-start log content.",
       "observation_window_started": false,
       "production_changes": true,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF"
+    },
+    "oip_v2_2e_2b2r_observation_gate": {
+      "status": "IN_PROGRESS",
+      "verdict": "OBSERVATION_IN_PROGRESS",
+      "authorization_consumed_at_utc": "2026-08-12T20:55:26Z",
+      "qualified_start_receive_utc_ns_exclusive": 1786568002689241000,
+      "pre_authorization_records_excluded": 1389,
+      "end_condition": "first of 20 distinct marked migrations, 60 clean minutes, or production impact",
+      "provider_rpc_calls_initiated_by_codex": 0,
+      "production_changes_initiated_by_codex": false,
+      "service_restarts_initiated_by_codex": 0,
       "evidence_mirror": "OFF",
       "cohort_mode": "OFF"
     },
@@ -735,8 +748,8 @@
   ],
   "next_action": {
     "milestone": "OIP v2.2E.2B2R fresh marked-cohort observation",
-    "instruction": "Await separate explicit authorization to start a fresh bounded read-only marked-cohort observation now that both watchtower_listener and creator_funding_worker have B2M loaded. Establish a new post-authorization receive boundary; stop at first of 20 distinct marked migrations, 60 clean minutes, or production impact. No provider calls, restart, reconfiguration, Evidence Mirror, Cohort Mode, or Evidence writer change is authorized by the restart gate.",
-    "activation_authorized": false,
+    "instruction": "Continue the authorized B2R read-only observation from the 1,389-record high-water. Stop at the first endpoint: 20 distinct marked migrations, 60 clean minutes, or production impact; calculate the strict local funnel, update/publish the handoff, and stop.",
+    "activation_authorized": true,
     "production_activation_authorized": false
   },
   "safety": {

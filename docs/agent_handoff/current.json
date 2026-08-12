@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-12T22:13:00Z",
+  "updated_at_utc": "2026-08-12T22:18:00Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "74b330838f4b4aa982233a76225d1155c223f6d4",
+    "git_head": "defba671f2dfc98e47ad41817188a948d0af1a9e",
     "working_tree": "dirty: unrelated live Supervisor, audit, and runtime changes remain present and were not staged; V1.2/V1.3 orchestrator work is committed locally"
   },
   "handoff_transport": {
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2S terminal-failure diagnosis",
-    "mode": "completed bounded local read-only diagnosis",
+    "milestone": "OIP v2.2E.2B2T isolated one-request executor design",
+    "mode": "completed safe-local implementation and qualification",
     "status": "COMPLETE",
-    "verdict": "OUTGOING_TRANSFER_SCAN_TIMEOUTS"
+    "verdict": "LOCAL_QUALIFICATION_PASS"
   },
   "production_state": {
     "retention": "ON",
@@ -341,6 +341,27 @@
       "root_cause": "The current-mint marker correctly bypasses cache satisfaction and reaches Shared Acquisition, but then invokes the existing broad creator extraction workflow whose outgoing scan exceeds the fixed 90-second job budget.",
       "smallest_repair_not_implemented": "Design and locally qualify an isolated B2N executor that performs exactly one bounded provider request per frozen mint and emits the required current-mint evidence, without invoking the live broad outgoing-transfer scan. This is an architectural/provider-work decision and needs separate authorization.",
       "provider_rpc_calls_initiated_by_codex": 0,
+      "production_changes": false,
+      "service_restarts": 0,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF"
+    },
+    "oip_v2_2e_2b2t_isolated_executor": {
+      "status": "COMPLETE",
+      "verdict": "LOCAL_QUALIFICATION_PASS",
+      "commit": "defba671f2dfc98e47ad41817188a948d0af1a9e",
+      "files": [
+        "src/acquisition/b2n_qualification.py",
+        "tests/test_oip_v2_2e_2b2t_executor.py",
+        "docs/evidence_platform/oip_v2_2e_2b2t_isolated_executor.md"
+      ],
+      "controls": "Exact 20-member marked manifest validation; dependency-injected one-shot client; exactly one call per ordinal; append-only JSONL ledger; empty-ledger start guard; stop on first non-success/incomplete evidence; no provider, HTTP, production DB, queue, or service import/dependency.",
+      "tests": {
+        "command": "python -m py_compile src/acquisition/b2n_qualification.py && python -m pytest -q tests/test_oip_v2_2e_2b2t_executor.py && git diff --check",
+        "passed": 4,
+        "failed": 0
+      },
+      "provider_rpc_calls": 0,
       "production_changes": false,
       "service_restarts": 0,
       "evidence_mirror": "OFF",
@@ -780,8 +801,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2T isolated one-request executor design",
-    "instruction": "Await explicit authorization for bounded safe-local design/qualification of an isolated B2N executor and ledger that can prove one physical provider request per frozen mint without production DB, queue, service, or live broad-extraction access. This does not authorize any provider call or production change.",
+    "milestone": "OIP v2.2E.2B2U frozen-cohort materialization preflight",
+    "instruction": "Await explicit authorization for bounded local-only materialization of an immutable 20-mint B2N manifest from a qualifying marked cohort and local fake-client qualification of the isolated executor. No provider calls, production DB/queue/service access, restart, configuration, or Evidence/Cohort change is authorized.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

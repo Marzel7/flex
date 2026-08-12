@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-12T22:26:44Z",
+  "updated_at_utc": "2026-08-12T22:29:59Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "7b99e4015870fe63c1e9d0dbdae590f813c477e7",
+    "git_head": "e4f112a699b0c3a95829b132dddd9cc66b7b2722",
     "working_tree": "dirty: unrelated live Supervisor, audit, and runtime changes remain present and were not staged; V1.2/V1.3 orchestrator work is committed locally"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-12T22:26:44Z",
+    "published_at_utc": null,
     "protocol_version": 1,
-    "status": "PUBLISHED"
+    "status": "PENDING_PUBLICATION"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2W isolated Helius provider qualification",
-    "mode": "authorized isolated-provider preflight",
-    "status": "HOLD",
-    "verdict": "B2W_PROVIDER_TARGET_AND_ADAPTER_NOT_FROZEN"
+    "milestone": "OIP v2.2E.2B2X B2W provider-target and adapter contract design",
+    "mode": "completed safe-local design and fake-client qualification",
+    "status": "COMPLETE",
+    "verdict": "LOCAL_QUALIFICATION_PASS_SEMANTIC_LIMIT"
   },
   "production_state": {
     "retention": "ON",
@@ -423,6 +423,27 @@
       "evidence_mirror": "OFF",
       "cohort_mode": "OFF",
       "blocker": "The reviewed B2N contract requires an unambiguous named endpoint family, frozen/request-resolvable provider target, and required instrumentation before request 1. The B2R manifest intentionally contains only ordinal, mint, census event ID, and observation flag; the isolated B2T executor intentionally accepts an injected test client and has no real Helius adapter. Selecting an RPC method or deriving a signature/creator now would invent unreviewed request semantics, so execution stops before request 1."
+    },
+    "oip_v2_2e_2b2x_one_request_projection": {
+      "status": "COMPLETE",
+      "verdict": "LOCAL_QUALIFICATION_PASS_SEMANTIC_LIMIT",
+      "commit": "e4f112a699b0c3a95829b132dddd9cc66b7b2722",
+      "files": [
+        "src/acquisition/b2w_projection.py",
+        "tests/test_oip_v2_2e_2b2x_projection.py",
+        "docs/evidence_platform/oip_v2_2e_2b2x_projection_design.md"
+      ],
+      "qualified_input": "All 20 frozen B2R members resolved locally and uniquely to their PumpPortal subscribeMigration signature; no provider request was made.",
+      "adapter": "Dependency-injected one-shot getTransaction request builder with no HTTP client, endpoint, credentials, environment lookup, database, queue, service, or configuration dependency.",
+      "tests": {
+        "command": "python -m py_compile src/acquisition/b2w_projection.py && python -m pytest -q tests/test_oip_v2_2e_2b2t_executor.py tests/test_oip_v2_2e_2b2x_projection.py && git diff --check",
+        "passed": 8,
+        "failed": 0
+      },
+      "provider_rpc_calls": 0,
+      "production_changes": false,
+      "service_restarts": 0,
+      "semantic_limit": "One migration getTransaction response can prove only migration signature/mint lineage. It cannot establish a creator-funding edge, so it must set evidence_observed=false and cannot satisfy B2N's all-20 creator-funding success criterion."
     },
     "oip_v2_2e_2b2n_preflight_manifest_authorization": {
       "status": "COMPLETE",
@@ -859,8 +880,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2X B2W provider-target and adapter contract design",
-    "instruction": "Await explicit authorization for bounded safe-local design and fake-client qualification of the B2W input projection and one-request Helius adapter. It must freeze per-mint request target semantics, preserve the B2R manifest identity/digest, reconcile exactly one outbound attempt per mint to the ledger, and prohibit provider calls, production access, service/configuration change, and Evidence/Cohort activation. After review, a new explicit provider-execution authorization is required.",
+    "milestone": "OIP v2.2E.2B2Y B2N evidence-contract decision",
+    "instruction": "Await explicit human decision: (A) amend the objective to migration-lineage qualification and separately authorize a bounded B2W Helius run, which will not qualify creator funding; or (B) approve a new reviewed creator-funding evidence contract with its endpoint sequence and request budget. No provider call may occur until that decision and a new explicit provider-execution authorization.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

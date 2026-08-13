@@ -169,6 +169,52 @@ def test_duplicate_mint_uses_latest_eligible_row_once(tmp_path):
     assert any(item.price_or_market_cap_value == "24000" for item in selected_market)
 
 
+def test_launch_facts_are_filtered_to_selected_mints(tmp_path):
+    path = tmp_path / "frozen.sqlite"
+    _database(path)
+    db = sqlite3.connect(path)
+    for ordinal in range(100):
+        payload = {"mint": f"Unselected{ordinal}", "creation_signature": f"u-{ordinal}",
+                   "creation_timestamp": 100, "creation_slot": 10,
+                   "program_id": "pump", "source_platform": "pumpfun"}
+        db.execute("INSERT INTO normalized_evidence_records VALUES(?,?,?,?,?,?,?)",
+                   ("LaunchFact", json.dumps(payload), f"unselected-{ordinal:03d}", 110,
+                    "fixture", "1", "VERIFIED"))
+    db.commit()
+    db.close()
+    result = extract_birth_valuation_census(path, high_water_migrated_at=250)
+    assert result.corpora[0].manifest.event_counts["CHAIN_BIRTH"] == 1
+
+
+def test_more_than_two_launch_facts_for_selected_mint_fails_closed(tmp_path):
+    path = tmp_path / "frozen.sqlite"
+    _database(path)
+    db = sqlite3.connect(path)
+    for ordinal in (2, 3):
+        payload = {"mint": MINT, "creation_signature": f"sig-{ordinal}",
+                   "creation_timestamp": 100 + ordinal, "creation_slot": 10 + ordinal,
+                   "program_id": "pump", "source_platform": "pumpfun"}
+        db.execute("INSERT INTO normalized_evidence_records VALUES(?,?,?,?,?,?,?)",
+                   ("LaunchFact", json.dumps(payload), f"launch-{ordinal}", 120,
+                    "fixture", "1", "VERIFIED"))
+    db.commit()
+    db.close()
+    with pytest.raises(BirthValuationCensusError, match="LAUNCH_FACT_OVERFLOW"):
+        extract_birth_valuation_census(path, high_water_migrated_at=250)
+
+
+def test_malformed_launch_payload_fails_closed(tmp_path):
+    path = tmp_path / "frozen.sqlite"
+    _database(path)
+    db = sqlite3.connect(path)
+    db.execute("INSERT INTO normalized_evidence_records VALUES(?,?,?,?,?,?,?)",
+               ("LaunchFact", "{malformed", "bad-launch", 120, "fixture", "1", "VERIFIED"))
+    db.commit()
+    db.close()
+    with pytest.raises(BirthValuationCensusError, match="INVALID_LAUNCH_PAYLOAD"):
+        extract_birth_valuation_census(path, high_water_migrated_at=250)
+
+
 def test_missing_or_malformed_schema_fails_closed(tmp_path):
     missing = tmp_path / "missing.sqlite"
     sqlite3.connect(missing).close()

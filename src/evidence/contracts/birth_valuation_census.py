@@ -21,9 +21,11 @@ from .birth_valuation_adapters import (
 from .birth_valuation_corpus import MintCorpus, assemble_birth_valuation_corpora
 
 
-CENSUS_SCHEMA_VERSION = "eb0.1k.v1"
+CENSUS_SCHEMA_VERSION = "eb0.1l.v1"
 DEFAULT_MINT_LIMIT = 5_000
 MAX_QUERY_SECONDS = 30.0
+MAX_LAUNCH_FACTS_PER_MINT = 2
+MAX_SELECTED_LAUNCH_FACTS = DEFAULT_MINT_LIMIT * MAX_LAUNCH_FACTS_PER_MINT
 
 
 class BirthValuationCensusError(RuntimeError):
@@ -269,20 +271,43 @@ def extract_birth_valuation_census(
                 continue
             observations.append(adapted)
 
-        launch_rows = _timed(
+        malformed_launch = _timed(
             evidence,
-            "SELECT payload_json,raw_artifact_digest,acquired_at,source_id,source_version,"
-            "verification_state FROM normalized_evidence_records "
-            "WHERE fact_family='LaunchFact' ORDER BY raw_artifact_digest",
+            "SELECT 1 FROM normalized_evidence_records WHERE fact_family='LaunchFact' "
+            "AND NOT json_valid(payload_json) LIMIT 1",
             (), clock=clock, max_query_seconds=max_query_seconds,
         )
+        if malformed_launch:
+            raise BirthValuationCensusError("EB0_1G_INVALID_LAUNCH_PAYLOAD")
+        launch_rows = _timed(
+            evidence,
+            "WITH selected(value) AS (SELECT value FROM json_each(?)), ranked AS ("
+            "SELECT payload_json,raw_artifact_digest,acquired_at,source_id,source_version,"
+            "verification_state,json_extract(payload_json,'$.mint') AS payload_mint,"
+            "ROW_NUMBER() OVER (PARTITION BY json_extract(payload_json,'$.mint') "
+            "ORDER BY raw_artifact_digest) AS mint_rank FROM normalized_evidence_records "
+            "WHERE fact_family='LaunchFact' AND json_valid(payload_json) "
+            "AND json_extract(payload_json,'$.mint') IN (SELECT value FROM selected)) "
+            "SELECT * FROM ranked WHERE mint_rank<=? ORDER BY payload_mint,raw_artifact_digest "
+            "LIMIT ?",
+            (json.dumps(mints), MAX_LAUNCH_FACTS_PER_MINT + 1,
+             MAX_SELECTED_LAUNCH_FACTS + 1),
+            clock=clock, max_query_seconds=max_query_seconds,
+        )
+        if (len(launch_rows) > MAX_SELECTED_LAUNCH_FACTS
+                or any(row["mint_rank"] > MAX_LAUNCH_FACTS_PER_MINT for row in launch_rows)):
+            raise BirthValuationCensusError("EB0_1L_LAUNCH_FACT_OVERFLOW")
         for row in launch_rows:
             try:
                 payload = json.loads(row["payload_json"])
             except (TypeError, json.JSONDecodeError) as exc:
                 raise BirthValuationCensusError("EB0_1G_INVALID_LAUNCH_PAYLOAD") from exc
-            if isinstance(payload, dict) and payload.get("mint") in mint_set:
-                observations.append(adapt_launch_fact({**dict(row), "fact_family": "LaunchFact", "payload": payload}))
+            if not isinstance(payload, dict) or payload.get("mint") not in mint_set:
+                raise BirthValuationCensusError("EB0_1L_LAUNCH_FACT_PREDICATE_MISMATCH")
+            source_row = {key: row[key] for key in (
+                "payload_json", "raw_artifact_digest", "acquired_at", "source_id",
+                "source_version", "verification_state")}
+            observations.append(adapt_launch_fact({**source_row, "fact_family": "LaunchFact", "payload": payload}))
 
         observed_pairs = {(str(item["mint"]), str(item["event_kind"])) for item in observations}
         missing_counts = {

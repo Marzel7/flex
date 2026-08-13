@@ -912,6 +912,7 @@ def _check_watchtower_migration(mint: str, migrated_at: int, migration_tx: str |
     """
     import threading as _th
     def _run(mint=mint, migrated_at=migrated_at, migration_tx=migration_tx, source=source):
+        conn = None
         try:
             import sqlite3 as _sq, json as _json
             conn = _sq.connect(DB_PATH, timeout=15)
@@ -980,7 +981,6 @@ def _check_watchtower_migration(mint: str, migrated_at: int, migration_tx: str |
                         log_print(f"[WATCHTOWER] walkback enqueued mint={mint[:20]} cls={_cls} creator={(_creator_for_wb or '')[:20]}", flush=True)
                 except Exception as _wb_e:
                     log_print(f"[WATCHTOWER] walkback enqueue error: {_wb_e}", flush=True)
-                conn.close()
                 return
 
             # Update launch record: mark as migrated
@@ -1005,7 +1005,11 @@ def _check_watchtower_migration(mint: str, migrated_at: int, migration_tx: str |
             })))
 
             conn.commit()
+            # Release the primary database before best-effort derived-lifecycle
+            # work.  The outer finally remains the exception/early-return
+            # backstop; clearing the reference prevents a double close.
             conn.close()
+            conn = None
             log_print(f"[WATCHTOWER] 🔴 CREATOR MIGRATED — creator={creator_wallet[:20]}... mint={mint[:20]}...", flush=True)
             # Advance derived lifecycle table (wt_ops_v2.db), best-effort
             try:
@@ -1029,6 +1033,15 @@ def _check_watchtower_migration(mint: str, migrated_at: int, migration_tx: str |
                 log_print(f"[LIFECYCLE] advance_lifecycle_migrated error: {_lc_e}", flush=True)
         except Exception as _e:
             log_print(f"[WATCHTOWER] _check_watchtower_migration error: {_e}", flush=True)
+        finally:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception as _close_e:
+                    log_print(
+                        f"[WATCHTOWER] _check_watchtower_migration close error: {_close_e}",
+                        flush=True,
+                    )
 
     # route through the BOUNDED pool, not a fresh per-migration thread — under DB lock contention
     # these blocked on db_connect and accumulated unbounded (the recurring 17→300 thread leak).

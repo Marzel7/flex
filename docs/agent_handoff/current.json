@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T21:54:24Z",
+  "updated_at_utc": "2026-08-13T22:00:28Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "9457bb576d91c0c96a8b2850476175bc4db1d8ec",
-    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths; EB1.2A engineering commit contains only its contract, tests and documentation; all unrelated paths preserved"
+    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths; post-EB1.2A reconciliation made no engineering changes and preserved all unrelated paths"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-      "milestone": "EB1.2A non-executable requirement-review disposition contract",
-      "mode": "safe-local frozen-fixture design, implementation, test and narrow commit",
+      "milestone": "Post-EB1.2A roadmap reconciliation",
+      "mode": "bounded local read-only committed-artifact reconciliation",
       "status": "COMPLETE",
-      "verdict": "NON_EXECUTABLE_REQUIREMENT_REVIEW_DISPOSITION_QUALIFIED"
+      "verdict": "ROADMAP_RECONCILED_SEPARATE_NON_EXECUTABLE_PLANNING_PROPOSAL_BOUNDARY_NEXT"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,34 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "post_eb1_2a_roadmap_reconciliation": {
+      "status": "COMPLETE",
+      "verdict": "ROADMAP_RECONCILED_SEPARATE_NON_EXECUTABLE_PLANNING_PROPOSAL_BOUNDARY_NEXT",
+      "engineering_commit": "9457bb576d91c0c96a8b2850476175bc4db1d8ec",
+      "verification_utc": "2026-08-13T22:00:28Z",
+      "canonical_roadmap_finding": "EB1.2A is an append-only human review ledger and must remain frozen after recording disposition. Planning proposals have different identity, lifecycle and review semantics, so adding them to the disposition history would conflate READY_FOR_SEPARATE_PLANNING with permission to plan or execute. The next safe-local layer should therefore be a separate non-executable planning-proposal boundary, not an extension of EB1.2A and not an EB2 namespace.",
+      "next_stage": {
+        "milestone": "EB1.3A non-executable evidence-fulfillment planning-proposal contract",
+        "authorization_class": "SAFE_LOCAL_DESIGN_IMPLEMENTATION_TEST_COMMIT",
+        "objective": "Define a pure deterministic proposal envelope over immutable EB1.1 requirements whose latest valid EB1.2A disposition is READY_FOR_SEPARATE_PLANNING, without selecting a preferred source, authorizing acquisition or executing fulfillment.",
+        "required_semantics": [
+          "bind exact EB1.1 requirement/projection/manifest/corpus identity and exact EB1.2A disposition/history identity",
+          "preserve originating authority lane, cohort/window scope, reason codes, completeness, conflicts and provenance",
+          "accept only caller-supplied descriptive candidate evidence classes and bounded planning assumptions; preserve alternatives without choosing or ranking them",
+          "mark every record NON_EXECUTABLE_PLANNING_PROPOSAL with grants_planning_authority=false and grants_execution_authority=false",
+          "reject endpoints, credentials, commands, production targets, executable request instructions, cross-authority substitution, linkage, ranking, scoring, policy and activation content",
+          "emit deterministic proposal identity, counts, immutable history/replay identity and explicit supersession without mutating EB1.1 or EB1.2A"
+        ],
+        "qualification": "frozen synthetic EB1.1 requirements and EB1.2A histories only, including ineligible dispositions, stale/superseded READY dispositions, authority-lane mismatch, executable-content injection, alternative preservation and replay mutation",
+        "explicitly_deferred": "actual source selection, acquisition plan or request budget, runtime/provider/production access, evidence fulfillment, linkage, analytics, policy and activation"
+      },
+      "implementation_performed": false,
+      "provider_calls": 0,
+      "production_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "activation": false
+    },
     "eb1_2a_requirement_review_disposition": {
       "status": "COMPLETE",
       "verdict": "NON_EXECUTABLE_REQUIREMENT_REVIEW_DISPOSITION_QUALIFIED",
@@ -4140,6 +4168,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "The next justified layer is a separate EB1.3A non-executable planning-proposal contract. It is not implemented or authorized. No disposition, proposal or handoff grants source selection, acquisition budgets, provider/runtime/production access, evidence fulfillment, policy or activation authority.",
     "EB1.2A is qualified only as a frozen non-executable review-disposition contract. READY_FOR_SEPARATE_PLANNING grants no planning, source selection, acquisition budget, runtime/provider/production access, evidence fulfillment, policy or activation authority. The committed roadmap still defines no EB2 namespace or subsequent contract; roadmap reconciliation requires separate authorization.",
     "EB1.1 is closed only as a frozen non-executable requirement stack. Source selection, acquisition planning/budgets, runtime compatibility, live execution, evidence fulfillment, linkage, analytics, identity/attribution, policy and activation require a separately reconciled and explicitly authorized roadmap.",
     "The committed roadmap defines no EB2 or post-EB1 sequence. EB1.1A is a recommended new descriptive requirement contract, not yet implemented or authorized; it cannot select sources, authorize acquisition, or become a work plan.",
@@ -4205,9 +4234,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "Post-EB1.2A roadmap reconciliation",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Reconcile the committed roadmap after EB1.2A and identify the next safe-local evidence contract without implementing it or assigning an EB2 namespace.",
-    "approval_text": "Authorize a bounded local read-only post-EB1.2A roadmap reconciliation using committed artifacts only; determine whether the next safe-local layer should extend the frozen review-disposition stack or define a separate non-executable planning-proposal boundary, but do not implement it or assign an EB2 namespace. No source selection, acquisition plan or request budget, production/runtime access, live extraction or census, provider/RPC calls, production writes, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, evidence fulfillment, cross-entity linkage, rates, profiles, ranking, scoring, policy activation, profitability/cashflow inference, operator identity/attribution, or activation.",
+    "milestone": "EB1.3A non-executable evidence-fulfillment planning-proposal contract",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize a frozen-fixture pure planning-proposal boundary over immutable EB1.1 requirements with a latest valid EB1.2A READY_FOR_SEPARATE_PLANNING disposition. Proposals remain descriptive, preserve alternatives, and grant no planning or execution authority.",
+    "approval_text": "Authorize safe-local design, implementation, frozen-fixture tests, regression tests, documentation, and one narrow commit for EB1.3A non-executable evidence-fulfillment planning-proposal contract. Accept only immutable EB1.1 requirements whose latest valid EB1.2A disposition is READY_FOR_SEPARATE_PLANNING; bind exact EB1.1 requirement/projection/manifest/corpus identity, EB1.2A disposition/history identity, originating authority lane and cohort/window scope. Preserve caller-supplied descriptive candidate evidence classes and bounded planning assumptions as unordered alternatives without choosing, ranking, acquiring, or fulfilling them. Require deterministic proposal sequence, reason code, rationale digest and supersedes link; preserve append-only history and exact replay. Every record must be NON_EXECUTABLE_PLANNING_PROPOSAL with grants_planning_authority=false and grants_execution_authority=false. Reject endpoints, provider names, credentials, commands, executable request instructions, production targets, cross-authority substitution, entity-linkage assertions, rankings, scores, profitability/cashflow, operator identity/attribution, policy and activation content. Frozen fixtures only. No source selection, acquisition plan or request budget, production/runtime access, live extraction or census, provider/RPC calls, production writes, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, evidence fulfillment, or activation. Do not assign or enter an EB2 namespace.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

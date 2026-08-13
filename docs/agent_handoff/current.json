@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T13:42:21Z",
+  "updated_at_utc": "2026-08-13T13:46:20Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "f274141279c317c8ae5d78bf15597b3f77a780e0",
-    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, handoff, and user paths remain present; EB0.1G committed exactly the authorized extractor, focused tests, and documentation"
+    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, handoff, and user paths remain present; EB0.1H was read-only and changed no engineering files"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T13:42:21Z",
+    "published_at_utc": "2026-08-13T13:46:20Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.1G isolated query-only canonical census extractor qualification",
-    "mode": "safe-local implementation and frozen SQLite-fixture qualification",
+    "milestone": "EB0.1H bounded production schema and high-water compatibility preflight",
+    "mode": "bounded query-only production SQLite schema and aggregate preflight",
     "status": "COMPLETE",
-    "verdict": "LOCAL_QUALIFICATION_PASS"
+    "verdict": "SCHEMA_INCOMPATIBLE_SAFE_LOCAL_REPAIR_REQUIRED"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,43 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_1h_production_schema_compatibility_preflight": {
+      "status": "COMPLETE",
+      "verdict": "SCHEMA_INCOMPATIBLE_SAFE_LOCAL_REPAIR_REQUIRED",
+      "engineering_head": "f274141279c317c8ae5d78bf15597b3f77a780e0",
+      "sources": {
+        "primary": "database/flex_complete_database.db",
+        "evidence": "database/evidence_platform/production/evidence.db"
+      },
+      "query_only_verified": true,
+      "schema_results": {
+        "primary_token_analysis": "PASS",
+        "primary_token_price_snapshots": "PASS",
+        "evidence_normalized_evidence_records": "PASS",
+        "primary_eb0_platform_receive_evidence": "ABSENT",
+        "primary_eb0_migration_receive_evidence": "ABSENT",
+        "single_source_extractor_compatibility": "FAIL_SPLIT_DATABASES"
+      },
+      "migration_high_water": 1786628758,
+      "eligible_migrated_count": 35606,
+      "timing_ms": {
+        "primary_schema": 9.833,
+        "evidence_schema": 3.165,
+        "migration_aggregate": 95.09
+      },
+      "canonical_rows_extracted": 0,
+      "full_census_executed": false,
+      "smallest_safe_local_repair": "Amend EB0.1G to accept separately injected query-only primary and evidence database paths, treat explicit receive-evidence inputs as optional provenance sources rather than synthetic required production tables, and account deterministically for mints/event kinds with no qualified evidence instead of inventing timestamps or failing the whole cohort.",
+      "provider_calls": 0,
+      "production_writes": 0,
+      "production_changes": false,
+      "service_access": false,
+      "service_restarts": 0,
+      "gmgn_integration": false,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb0_1g_query_only_census_extractor": {
       "status": "COMPLETE",
       "verdict": "LOCAL_QUALIFICATION_PASS",
@@ -2407,7 +2444,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "EB0.1G locally qualifies the query-only extractor at f2741412, but production schema compatibility and live population metrics remain unverified. EB0.1H requires separate explicit authorization for bounded read-only production schema/high-water preflight; full census execution remains separately gated if compatibility passes.",
+    "EB0.1H found that primary token/snapshot and Evidence LaunchFact schemas are individually compatible but live across two SQLite files, while EB0.1G expects one file and requires two receive-evidence tables that do not exist. A safe-local EB0.1I multi-source/explicit-missingness repair is required before any live census; no timestamp substitution or production schema change is justified.",
     "OIP v2.2E is qualified complete, but production activation remains explicitly unauthorized. Any Evidence authority, Evidence Mirror, Cohort Mode, provider expansion, or production deployment requires its own future milestone. Post-E work must begin with roadmap reconciliation rather than implicit activation.",
     "B2BX fully passes the isolated provider qualification at 20/20 with exactly 60 authorized requests. The remaining step is a bounded local-only E-series closure assessment that combines this provider result with the previously qualified B2R acquisition/retention funnel; no production activation is implied or authorized.",
     "B2BW is locally qualified at f08db5b1 with fresh empty ledgers. Provider execution remains HUMAN_APPROVAL_REQUIRED and must explicitly acknowledge the higher-cost oldest enhanced request and the unchanged 60-request stop-safe ceiling.",
@@ -2453,8 +2490,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.1H bounded production schema and high-water compatibility preflight",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize EB0.1H bounded read-only production schema and high-water compatibility preflight for commit f274141279c317c8ae5d78bf15597b3f77a780e0. Open only the explicitly identified local production SQLite evidence sources using mode=ro and PRAGMA query_only=ON; inspect sqlite_schema/PRAGMA table_info and compute one migration high-water plus bounded eligible-count metadata only. Do not extract canonical rows or execute the 5000-mint census. Stop on any schema mismatch, lock contention, query over 30 seconds, service or database degradation, or other production impact. No provider calls, production writes, service restarts or stops, configuration changes, GMGN integration, rankings, operator attribution, Evidence Mirror, Cohort Mode, activation, or full census execution. If compatible, record the exact separately authorized EB0.1I live-census contract; if incompatible, identify the smallest safe-local adapter repair without implementing it.",
+    "milestone": "EB0.1I multi-source query-only extractor compatibility repair",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize safe-local design, implementation, frozen/ephemeral multi-SQLite tests, regression tests, documentation, and one narrow commit for EB0.1I compatibility repair. Amend the EB0.1G extractor to accept separately injected primary and Evidence database paths, enforce mode=ro/query_only and independent schema/time bounds on both, make explicit platform/migration receive evidence optional inputs rather than required synthetic production tables, and deterministically account for absent event kinds and mints with no qualified evidence without substituting created_at, analyzed_at, migrated_at, or later valuation. Preserve the exact 5000-mint/high-water ceiling and EB0.1A-E provenance/replay semantics. Frozen and ephemeral fixtures only; no production/runtime access, provider calls, production changes, GMGN integration, rankings, operator attribution, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, activation, or live census execution.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

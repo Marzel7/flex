@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T18:04:26Z",
+  "updated_at_utc": "2026-08-13T18:12:07Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "7e1b3533c53683ed0fbc7b484b373637a6e77fa9",
-    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, user, and handoff paths remain present; EB0.2R made no engineering or production changes"
+    "git_head": "0e82705650165f20132a05c0f8040e5c3470469e",
+    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, user, and handoff paths remain present; EB0.3A commit contains only the evidence contract, frozen fixture, tests, and documentation"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T18:04:26Z",
+    "published_at_utc": "2026-08-13T18:12:07Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.2R final health-gate reassessment and closure",
-    "mode": "bounded read-only production health corroboration and local closure assessment",
+    "milestone": "EB0.3A supplemental historical market observation contract",
+    "mode": "safe-local pure contract and frozen-fixture qualification",
     "status": "COMPLETE",
-    "verdict": "EB0_2_COMPLETE_WITH_ZERO_QUALIFIED_COVERAGE_AND_MONITORING_PATH_DEGRADATION"
+    "verdict": "LOCAL_QUALIFICATION_PASS_NO_PROVIDER_OR_LIVE_COMPATIBILITY_CLAIM"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,42 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_3a_historical_market_observation_contract": {
+      "status": "COMPLETE",
+      "verdict": "LOCAL_QUALIFICATION_PASS_NO_PROVIDER_OR_LIVE_COMPATIBILITY_CLAIM",
+      "engineering_commit": "0e82705650165f20132a05c0f8040e5c3470469e",
+      "verification_utc": "2026-08-13T18:12:07Z",
+      "qualified_semantics": [
+        "every observation is bound to a caller-supplied platform-owned mint and permanently classified SUPPLEMENTAL_NON_AUTHORITATIVE",
+        "provider, provider version, endpoint/version, candle interval and bounds, observation time, OHLCV, optional market cap, quote unit, quality, completeness, conflicts, and source digest are preserved",
+        "physical request run ID, sequence, and request cost units are bound into content-derived provenance and observation identity",
+        "OHLC ranges, decimal strings, interval timing, quality/completeness states, and conflict-group consistency fail closed",
+        "earliest observation is limited to NOT_ASSERTED, PROVIDER_WINDOW_EARLIEST, or PAGE_EARLIEST_NOT_HISTORY and never asserts chain-global earliest history",
+        "conflicting provider facts remain separate and are never silently merged",
+        "provider evidence cannot define creator identity, chain birth, migration, canonical birth market cap, rankings, scores, profitability/cashflow, operator attribution, or policy"
+      ],
+      "tests": {
+        "passed": 32,
+        "failed": 0
+      },
+      "files": [
+        "src/evidence/contracts/historical_market_observation.py",
+        "tests/fixtures/eb0_3a_historical_market_observations.json",
+        "tests/test_eb0_3a_historical_market_observation_contract.py",
+        "docs/evidence_platform/eb0_3a_historical_market_observation_contract.md"
+      ],
+      "provider_calls": 0,
+      "gmgn_integration": false,
+      "production_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "configuration_changes": false,
+      "rankings": false,
+      "operator_attribution": false,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb0_2r_final_health_gate_and_closure": {
       "status": "COMPLETE",
       "verdict": "EB0_2_COMPLETE_WITH_ZERO_QUALIFIED_COVERAGE_AND_MONITORING_PATH_DEGRADATION",
@@ -3469,6 +3505,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "EB0.3A qualifies only the frozen non-authoritative evidence contract. No provider endpoint, response shape, interval coverage, request cost, earliest-observation behavior, rate limit, or live mint compatibility has been audited. Provider integration and execution remain human-gated.",
     "EB0.2 is closed, but the authorized latest-5,000 cohort yields zero qualified creator historical outcome facts because canonical corpus and qualified creator-identity coverage do not overlap. Monitoring remains degraded: /api/health/full times out and /healthz reports stale retired-worker heartbeats despite corroborated healthy database, ingestion, queues, websockets, serializer, and current services. Neither limitation may be silently converted into outcome evidence.",
     "EB0.2P bound and replay-verified the authorized 5,000-mint EB0.1P cohort, then accounted for every mint under both authorized 24-hour policies. Zero mints qualified because 2,558 lack canonical corpus evidence and all remaining 2,442 lack a qualified creator identity. The isolated candidate bundle then failed exact replay because EB0.2H invokes the EB0.2E corpus assembler with an empty manifest set, which raises EB0_2E_EMPTY_INPUT. The programme stopped before closure; a safe-local empty-result replay repair requires separate authorization.",
     "EB0.2O deployed and verified both authorized mint-leading indexes without production impact. The next query-only extraction is fail-closed because neither current.json nor the committed EB0.2 contracts bind the exact immutable cohort artifact, horizon duration, or market-cap threshold. Choosing them would be a new analytical policy decision outside the staged authorization.",
@@ -3518,8 +3555,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.3A supplemental historical market observation contract",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize EB0.3A safe-local design, implementation, frozen-fixture tests, regression tests, documentation, and one narrow commit for a versioned non-authoritative historical market observation evidence contract. Bind observations to platform-owned mint identity; preserve provider, endpoint/version, interval, timestamps, OHLCV/market fields, quality, completeness, conflicts, provenance, request accounting, and explicit earliest-observation limitations. Provider evidence must never define creator identity, chain birth, migration, canonical birth market cap, rankings, scores, profitability/cashflow, operator attribution, or policy. Frozen fixtures only. No provider calls, GMGN integration or execution, production/runtime access or changes, deployment, service restarts or stops, configuration changes, Evidence Mirror, Cohort Mode, activation, or production activation.",
+    "milestone": "EB0.3B historical market source-mapping audit",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize EB0.3B bounded local read-only source-mapping audit using committed schemas, code, documentation, EB0.3A contract, existing local GMGN feasibility artifacts, and frozen fixtures only. Map available provider/endpoint/version, interval, time, OHLCV/market-cap, pagination/window, earliest-observation, quality/completeness/conflict, request-cost/accounting, provenance, and platform-mint binding fields; identify unsupported or ambiguous mappings and define the smallest safe-local adapter milestone and bounded provider qualification contract. Do not implement adapters or call any provider. No GMGN integration or execution, production/runtime access or changes, provider calls, deployment, service restarts or stops, configuration changes, rankings, scoring, policy, profitability/cashflow inference, creator/operator attribution, Evidence Mirror, Cohort Mode, activation, or production activation.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

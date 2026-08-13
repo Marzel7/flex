@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T08:14:32Z",
+  "updated_at_utc": "2026-08-13T08:19:19Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T08:15:36Z",
+    "published_at_utc": null,
     "protocol_version": 1,
-    "status": "PUBLISHED"
+    "status": "PENDING_PUBLICATION"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2AP creator-resolution one-time schema initialization deployment",
-    "mode": "completed explicitly authorized single-service restart and immediate local verification",
-    "status": "PARTIAL",
-    "verdict": "RESTART_COMPLETE_HEALTH_NOT_RECOVERED"
+    "milestone": "OIP v2.2E.2B2AQ creator-resolution startup and residual contention diagnosis",
+    "mode": "completed bounded local read-only diagnosis",
+    "status": "COMPLETE",
+    "verdict": "STARTUP_SCHEMA_WAIT_CONFIRMED_STEADY_STATE_RECOVERED"
   },
   "production_state": {
     "retention": "ON",
@@ -852,6 +852,25 @@
       "production_changes": "one explicitly authorized creator_resolution_worker restart only",
       "blocker": "Immediate health did not recover: the new worker remained alive but had not refreshed its heartbeat, and database write latency remained critical. No second restart or observation is authorized."
     },
+    "oip_v2_2e_2b2aq_startup_and_residual_contention_diagnosis": {
+      "status": "COMPLETE",
+      "verdict": "STARTUP_SCHEMA_WAIT_CONFIRMED_STEADY_STATE_RECOVERED",
+      "verification_utc": "2026-08-13T08:19:19Z",
+      "scope": "Bounded local read-only source, process, filtered telemetry, health, and mode=ro database diagnosis only. No implementation, provider call, production write, restart, configuration change, Evidence Mirror/Cohort Mode action, or B2Z observation.",
+      "findings": [
+        "The restarted worker spent approximately six minutes before its first heartbeat because initialize_schema runs before the loop and enters the shared SQLite write lane.",
+        "A live process sample placed the main thread inside sqlite3_step during startup schema work; the process remained alive and CPU-active rather than crashed or deadlocked.",
+        "The schema was already current: creator_resolution_queue had 7981 rows, all three backfill predicates matched zero rows, and both expected indexes existed. Nevertheless ensure_schema issued three unconditional UPDATE statements and other write-classified schema statements.",
+        "The first steady-state cycle then completed naturally: heartbeat age 5 seconds, one processed/resolved row, zero failures, zero skipped, queue pending zero, and WAL 0.4MB.",
+        "The health endpoint remained CRITICAL because listener serializer p99 is cumulative over its current process lifetime and retained the earlier approximately 31-second wait samples. Current queue depth was zero, p50 wait 0.01ms, p95 wait 332.68ms, and commit p99 4.48ms, so the headline p99 did not represent an active 31-second commit at the final checkpoint.",
+        "The current write-lane owner at the final checkpoint was the existing creator-funding worker RPC metrics flusher, not creator_resolution_worker."
+      ],
+      "smallest_repair": "Add a read-only schema-ready fast path before initialize_schema acquires the write lane: verify required table columns and indexes and confirm the three backfill predicates have no matches; return immediately when ready, otherwise execute the existing migration under the managed write connection. Preserve fail-closed migration behavior for genuinely incomplete schemas and add regressions proving restart on a ready schema performs zero writes.",
+      "provider_rpc_calls_initiated_by_codex": 0,
+      "production_changes": false,
+      "service_restarts": 0,
+      "blocker": "The worker has recovered, but every future restart can repeat the multi-minute ready-schema write-lane delay until a read-only schema-ready fast path is designed and locally qualified. No implementation is authorized in B2AQ."
+    },
     "oip_v2_2e_incident_causal_assessment": {
       "status": "COMPLETE",
       "verdict": "LATENT_DEFECT_REACTIVATED_BY_WORKER_RECOVERY",
@@ -1284,6 +1303,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "B2AQ confirms creator_resolution_worker recovered naturally after an approximately six-minute startup schema write-lane delay. The schema was already ready, so future restarts can repeat the delay until a read-only schema-ready fast path is locally designed and qualified; no implementation is authorized in B2AQ.",
     "B2AP completed the single authorized creator_resolution_worker restart, but immediate health did not recover: PID 21886 remained RUNNING without a refreshed heartbeat and database write p99 remained approximately 31 seconds. A new bounded diagnosis milestone is required; no second restart or B2Z action is authorized.",
     "B2AO passed local qualification and is committed at b44f953ca867ab8b674bb03d27663a4351f03b75, but is not deployed. Exactly one creator_resolution_worker restart plus immediate local health verification requires explicit authorization; B2Z remains held.",
     "The existing B2N provider contract names the old B2K census cohort, while B2U correctly freezes the new fully B2M-loaded B2R cohort. Provider execution therefore requires an explicit reviewed contract amendment that selects B2R and retains the 20-request/no-retry/no-production constraints.",
@@ -1299,8 +1319,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2AQ creator-resolution startup and residual contention diagnosis",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize bounded local read-only diagnosis of why creator_resolution_worker PID 21886 has not refreshed its heartbeat after loading B2AO and why database p99 remains critical. No implementation, provider call, production write, restart, configuration change, Evidence Mirror, Cohort Mode, or B2Z observation.",
+    "milestone": "OIP v2.2E.2B2AR creator-resolution schema-ready startup fast-path qualification",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize safe-local design, implementation, tests, and narrow commit for a read-only schema-ready startup fast path that skips creator-resolution migration writes when required columns, indexes, and backfills are already complete, while retaining fail-closed migration for incomplete schemas. No deployment, provider call, production write, restart, configuration change, Evidence Mirror, Cohort Mode, or B2Z observation.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

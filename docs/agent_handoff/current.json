@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T10:27:00Z",
+  "updated_at_utc": "2026-08-13T10:26:36Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,9 +10,9 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": null,
+    "published_at_utc": "2026-08-13T10:26:36Z",
     "protocol_version": 1,
-    "status": "PENDING"
+    "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",

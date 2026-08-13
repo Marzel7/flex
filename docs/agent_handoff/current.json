@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T18:12:07Z",
+  "updated_at_utc": "2026-08-13T18:14:31Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "0e82705650165f20132a05c0f8040e5c3470469e",
-    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, user, and handoff paths remain present; EB0.3A commit contains only the evidence contract, frozen fixture, tests, and documentation"
+    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, user, and handoff paths remain present; EB0.3B made no engineering or production changes"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T18:12:07Z",
+    "published_at_utc": "2026-08-13T18:14:31Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.3A supplemental historical market observation contract",
-    "mode": "safe-local pure contract and frozen-fixture qualification",
+    "milestone": "EB0.3B historical market source-mapping audit",
+    "mode": "bounded local read-only static artifact and frozen-fixture audit",
     "status": "COMPLETE",
-    "verdict": "LOCAL_QUALIFICATION_PASS_NO_PROVIDER_OR_LIVE_COMPATIBILITY_CLAIM"
+    "verdict": "SOURCE_MAPPING_PARTIAL_EXACT_PROVIDER_SHAPE_UNPROVEN"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,69 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_3b_historical_market_source_mapping": {
+      "status": "COMPLETE",
+      "verdict": "SOURCE_MAPPING_PARTIAL_EXACT_PROVIDER_SHAPE_UNPROVEN",
+      "engineering_commit": "0e82705650165f20132a05c0f8040e5c3470469e",
+      "verification_utc": "2026-08-13T18:14:31Z",
+      "authority_boundary": {
+        "canonical": "EB0.3A contract, committed roadmap, code, documentation, and frozen fixtures",
+        "context_only": "untracked local GMGN feasibility and prior authorized-qualification summaries; no raw payload was treated as canonical evidence"
+      },
+      "mapped_fields": {
+        "provider": "GMGN is proven by local qualification metadata",
+        "provider_version": "UNSUPPORTED",
+        "endpoint_id": "conceptual market kline endpoint only; exact stable identifier is not retained",
+        "endpoint_version": "UNSUPPORTED",
+        "platform_mint_binding": "one explicit Solana mint was retained and platform mint authority remains external to GMGN",
+        "interval": "1m proven for one successful probe",
+        "request_time_units": "Unix milliseconds accepted; Unix seconds rejected",
+        "response_time_units_and_field_name": "UNPROVEN from retained aggregate metadata",
+        "ohlcv": "structured OHLCV availability proven, but exact response field names/types are not retained",
+        "historical_market_cap": "not directly available in the measured response",
+        "historical_liquidity": "not directly available in the measured response",
+        "pagination_cursor": "UNPROVEN",
+        "maximum_page_size": "UNPROVEN",
+        "maximum_lookback": "UNPROVEN",
+        "non_migrated_coverage": "UNPROVEN",
+        "pre_migration_coverage": "not demonstrated",
+        "earliest_observation_semantics": "PAGE_EARLIEST_NOT_HISTORY only",
+        "quality": "one observed structured response; broader sample degraded by provider rate limiting",
+        "completeness": "PARTIAL_INTERVAL; no full-history assertion is permitted",
+        "conflicts": "not measurable from one successful response",
+        "request_accounting": "aggregate counts exist, but no immutable per-attempt run ID/sequence/cost/source-digest ledger is retained",
+        "credentials": "configured out of band in the historic attempt and not recorded; no secret was inspected or persisted"
+      },
+      "historical_attempt": {
+        "successful_token_detail_probes": 1,
+        "successful_kline_probes": 1,
+        "invalid_seconds_parameter_attempts": 40,
+        "millisecond_retry_attempts": 40,
+        "rate_limited_responses": 40,
+        "authorized_ceiling": 200,
+        "sample_results_completed": 0,
+        "earliest_successful_candle_after_creation_days": 17.1094,
+        "interpretation": "proves structured 1m OHLCV only; does not prove birth-window, pre-migration, page completeness, or history-start coverage"
+      },
+      "smallest_safe_local_adapter_milestone": "Define a dependency-injected fake-transport adapter over an explicit credential-free bounded market-kline response projection, preserving request metadata and mapping the page only to EB0.3A supplemental observations. It must make no exact live GMGN compatibility claim until a separately authorized one-request shape qualification supplies a retained redacted projection.",
+      "future_bounded_provider_qualification": {
+        "sample": "one platform-owned mint first",
+        "budget": "one sequential market-kline physical request, zero retry/failover/pagination",
+        "required_preflight": "exact endpoint identifier, request parameter names and milliseconds, interval=1m, redaction rules, empty ledger/output directory, run ID, response-size ceiling, timeout, and stop conditions",
+        "stop_conditions": "first non-success, rate limit, schema mismatch, unexpected pagination, counter mismatch, credential exposure, or safety impact",
+        "expansion": "any second mint, retry, pagination, or larger sample requires separate authorization after the one-request result"
+      },
+      "provider_calls": 0,
+      "gmgn_integration": false,
+      "production_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "rankings": false,
+      "operator_attribution": false,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb0_3a_historical_market_observation_contract": {
       "status": "COMPLETE",
       "verdict": "LOCAL_QUALIFICATION_PASS_NO_PROVIDER_OR_LIVE_COMPATIBILITY_CLAIM",
@@ -3505,6 +3568,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "EB0.3B proves only one prior structured 1m GMGN OHLCV response and aggregate rate-limit metadata. The exact endpoint/version, retained response field projection, pagination/lookback semantics, response timestamp units, market-cap derivation, and per-attempt ledger are absent. Safe-local adapter work may target only an explicit fake response projection and cannot claim live compatibility; any provider shape qualification is separately human-gated.",
     "EB0.3A qualifies only the frozen non-authoritative evidence contract. No provider endpoint, response shape, interval coverage, request cost, earliest-observation behavior, rate limit, or live mint compatibility has been audited. Provider integration and execution remain human-gated.",
     "EB0.2 is closed, but the authorized latest-5,000 cohort yields zero qualified creator historical outcome facts because canonical corpus and qualified creator-identity coverage do not overlap. Monitoring remains degraded: /api/health/full times out and /healthz reports stale retired-worker heartbeats despite corroborated healthy database, ingestion, queues, websockets, serializer, and current services. Neither limitation may be silently converted into outcome evidence.",
     "EB0.2P bound and replay-verified the authorized 5,000-mint EB0.1P cohort, then accounted for every mint under both authorized 24-hour policies. Zero mints qualified because 2,558 lack canonical corpus evidence and all remaining 2,442 lack a qualified creator identity. The isolated candidate bundle then failed exact replay because EB0.2H invokes the EB0.2E corpus assembler with an empty manifest set, which raises EB0_2E_EMPTY_INPUT. The programme stopped before closure; a safe-local empty-result replay repair requires separate authorization.",
@@ -3555,8 +3619,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.3B historical market source-mapping audit",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize EB0.3B bounded local read-only source-mapping audit using committed schemas, code, documentation, EB0.3A contract, existing local GMGN feasibility artifacts, and frozen fixtures only. Map available provider/endpoint/version, interval, time, OHLCV/market-cap, pagination/window, earliest-observation, quality/completeness/conflict, request-cost/accounting, provenance, and platform-mint binding fields; identify unsupported or ambiguous mappings and define the smallest safe-local adapter milestone and bounded provider qualification contract. Do not implement adapters or call any provider. No GMGN integration or execution, production/runtime access or changes, provider calls, deployment, service restarts or stops, configuration changes, rankings, scoring, policy, profitability/cashflow inference, creator/operator attribution, Evidence Mirror, Cohort Mode, activation, or production activation.",
+    "milestone": "EB0.3C frozen market-kline response adapter boundary",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize EB0.3C safe-local design, implementation, fake-transport/frozen-projection tests, regression tests, documentation, and one narrow commit for a dependency-injected bounded market-kline response adapter into EB0.3A. Accept only an explicit credential-free projection containing platform mint, provider and endpoint identifiers/versions, 1m interval, millisecond request bounds, bounded candle rows with timestamps and OHLCV, request run ID/physical sequence/cost, response digest, quality/completeness, and PAGE_EARLIEST_NOT_HISTORY semantics. Preserve conflicts and reject schema drift, invalid OHLC, unbounded rows, missing accounting, credential-bearing fields, authority promotion, market-cap inference, pagination, retry, ranking, scoring, profitability/cashflow, creator/operator attribution, or policy. Fake transport and frozen fixtures only; make no live GMGN compatibility claim. No provider calls, GMGN execution, production/runtime access or changes, deployment, service restarts or stops, configuration changes, Evidence Mirror, Cohort Mode, activation, or production activation.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

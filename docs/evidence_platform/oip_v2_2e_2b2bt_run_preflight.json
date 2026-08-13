@@ -1,0 +1,22 @@
+{
+  "contract_version": "OIP_v2.2E.2B2BT.preflight.v1",
+  "status": "READY_FOR_SEPARATE_PROVIDER_EXECUTION_AUTHORIZATION",
+  "run_id": "a3721658-f6ef-4b20-8f87-7c631551a80c",
+  "implementation_commit_required": "B2BS ae646212 plus this B2BT commit",
+  "frozen_manifest_path": "docs/evidence_platform/oip_v2_2e_2b2u_b2r_frozen_manifest.json",
+  "frozen_manifest_digest": "82bbda32d25a9951a8d8475528d7db3a92b675aae90ce2d55e13391a6b69eedc",
+  "projection_path": "docs/evidence_platform/oip_v2_2e_2b2bq_b2z_frozen_projection.json",
+  "projection_digest": "eb2713e3f0ff01f122c0e962a7c67e7f1ea80337fa8894163892a47c17dd32bc",
+  "member_count": 20,
+  "endpoints": [
+    {"identifier":"helius-mainnet-json-rpc","redacted_fingerprint_sha256":"a5936a33f0b37036636ed361e5211a6b7798208c8e5d040a6674137e5143801a"},
+    {"identifier":"helius-enhanced-address-transactions","redacted_fingerprint_sha256":"b8c40259f3fb34f20832a595f1c7d55cfa712994235b6b5a64860f523fd07e7a"}
+  ],
+  "isolated_output_directory": "/private/tmp/flex-oip-v2-2e-b2bt/a3721658-f6ef-4b20-8f87-7c631551a80c",
+  "attempt_ledger_path": "/private/tmp/flex-oip-v2-2e-b2bt/a3721658-f6ef-4b20-8f87-7c631551a80c/physical_attempts.jsonl",
+  "projection_ledger_path": "/private/tmp/flex-oip-v2-2e-b2bt/a3721658-f6ef-4b20-8f87-7c631551a80c/response_projections.jsonl",
+  "results_path": "/private/tmp/flex-oip-v2-2e-b2bt/a3721658-f6ef-4b20-8f87-7c631551a80c/results.jsonl",
+  "initial_state": {"output_directory_exists":false,"attempt_ledger":"ABSENT_EMPTY","projection_ledger":"ABSENT_EMPTY","transport_physical_request_count":0},
+  "execution_contract": {"global_physical_request_ceiling":60,"per_member_request_ceiling":3,"enhanced_limit":100,"retry":false,"failover":false,"pagination":false,"concurrency":false,"cache":false,"stop_on_first_non_success":true},
+  "qualification": {"construction_inert":true,"provider_requests":0,"prior_run_preserved":true,"credentials_recorded":false}
+}

@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T19:30:36Z",
+  "updated_at_utc": "2026-08-13T19:33:18Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "4c69f1b7fc3a8208bd1a250c971ee74f029b1621",
-    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths; EB0.4F committed only its scoped frozen-stack/extractor preflight document"
+    "git_head": "57ead756160456ea083aed1bebba3aea53d6a8cb",
+    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths; EB0.4G committed only its scoped fixture-only extractor, tests and documentation"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.4F frozen contract-stack closure and query-only extractor preflight",
-    "mode": "bounded local read-only committed-stack assessment",
+    "milestone": "EB0.4G fixture-only query extractor qualification",
+    "mode": "safe-local frozen/ephemeral SQLite qualification",
     "status": "COMPLETE",
-    "verdict": "FROZEN_CONTRACT_STACK_COMPLETE_EXTRACTOR_BOUNDARY_DEFINED"
+    "verdict": "QUERY_ONLY_FIXTURE_EXTRACTOR_QUALIFIED"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,20 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_4g_operational_family_extractor": {
+      "status": "COMPLETE",
+      "verdict": "QUERY_ONLY_FIXTURE_EXTRACTOR_QUALIFIED",
+      "engineering_commit": "57ead756160456ea083aed1bebba3aea53d6a8cb",
+      "verification_utc": "2026-08-13T19:33:18Z",
+      "qualified_semantics": "dependency-injected fixture SQLite only; exact schema objects; mode=ro and verified query_only; active deadline and hard cohort/evidence/group/membership ceilings; explicit qualification/exclusion accounting; deterministic EB0.4C-E outputs and digests",
+      "tests": "33 passed",
+      "production_compatibility_claim": false,
+      "provider_calls": 0,
+      "production_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "activation": false
+    },
     "eb0_4f_frozen_stack_extractor_preflight": {
       "status": "COMPLETE",
       "verdict": "FROZEN_CONTRACT_STACK_COMPLETE_EXTRACTOR_BOUNDARY_DEFINED",
@@ -3929,8 +3943,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.4G fixture-only query extractor qualification",
-    "instruction": "AUTHORIZED_STAGED_SAFE_LOCAL: Implement and qualify the dependency-injected query-only SQLite extractor under the exact EB0.4F schema, immutable cohort/candidate grouping, mode=ro/query_only, allow-list, deadline, ceiling, accounting and EB0.4C-E deterministic replay boundaries. Frozen/ephemeral fixtures only; no production/runtime/provider/GMGN access or changes, deployment, restarts, configuration, Evidence Mirror, Cohort Mode, ranking, scoring, policy, profitability/cashflow, operator attribution or activation.",
+    "milestone": "EB0.4H immutable output-bundle qualification and frozen closure",
+    "instruction": "AUTHORIZED_STAGED_SAFE_LOCAL: Implement and qualify a write-once immutable output bundle for EB0.4G extraction results in an explicitly supplied new empty directory. Canonically serialize run manifest, extraction accounting, EB0.4D manifests and EB0.4E corpora; bind caller-supplied engineering revision, source fingerprint, per-file hashes and one bundle digest; exact replay must reject overwrite, missing, extra or altered files. Then close EB0.4 frozen contract stack and stop. Frozen/ephemeral fixtures only; no production/runtime/provider/GMGN access or changes, live census, deployment, restarts, configuration, Evidence Mirror, Cohort Mode, ranking, scoring, policy, profitability/cashflow, operator attribution or activation.",
     "safe_local_stage_authorized": true,
     "activation_authorized": false,
     "production_activation_authorized": false

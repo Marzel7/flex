@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T09:09:12Z",
+  "updated_at_utc": "2026-08-13T09:13:47Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T09:10:15Z",
+    "published_at_utc": null,
     "protocol_version": 1,
-    "status": "PUBLISHED"
+    "status": "PENDING_PUBLICATION"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2AT creator-resolution schema-ready fast-path deployment",
-    "mode": "completed explicitly authorized single-service restart and immediate local verification",
-    "status": "PARTIAL",
-    "verdict": "SCHEMA_FAST_PATH_LOADED_HEARTBEAT_STILL_LATE"
+    "milestone": "OIP v2.2E.2B2AU creator-resolution first-cycle heartbeat ordering diagnosis",
+    "mode": "completed bounded local read-only diagnosis",
+    "status": "COMPLETE",
+    "verdict": "UNINDEXED_FUNDING_COVERAGE_SCAN_CONFIRMED"
   },
   "production_state": {
     "retention": "ON",
@@ -936,6 +936,26 @@
       "production_changes": "one explicitly authorized creator_resolution_worker restart only",
       "blocker": "Ready-schema startup is fixed, but health still marks the worker stale while its first population scan runs because no startup heartbeat is emitted before first-cycle work. No second restart or implementation is authorized."
     },
+    "oip_v2_2e_2b2au_heartbeat_ordering_and_population_scan_diagnosis": {
+      "status": "COMPLETE",
+      "verdict": "UNINDEXED_FUNDING_COVERAGE_SCAN_CONFIRMED",
+      "verification_utc": "2026-08-13T09:13:47Z",
+      "scope": "Bounded local read-only source, process, mode=ro query-plan, cardinality, filtered telemetry, and health diagnosis only. No implementation, provider call, production write, restart, configuration change, Evidence Mirror/Cohort Mode action, or B2Z observation.",
+      "findings": [
+        "The B2AT worker emitted its first new heartbeat after 130 seconds with cycle=1, confirming eventual recovery and proving the schema fast path removed the previous startup migration delay.",
+        "Heartbeat is emitted only after enqueue_missing_migrated_tokens, enqueue_missing_funding_jobs, promote_recent_missing_creators, and process_queue all complete; there is no startup or cycle-start heartbeat.",
+        "The missing-creator scan completed first and logged auto-enqueued 50. The subsequent missing-funding scan is the dominant long operation.",
+        "EXPLAIN QUERY PLAN shows the missing-funding NOT EXISTS predicate on cfq.mint performs a correlated full scan of creator_funding_queue's (creator_address, mint) primary-key index for each candidate token; there is no mint-leading funding-queue index.",
+        "Observed cardinalities were 1,733,242 token_analysis rows, 29,364 creator_funding_queue rows, and 111,124 creator_funders rows. The query also builds a temporary B-tree for its COALESCE order.",
+        "A bounded direct mode=ro execution exceeded 30 seconds. The same scan runs every cycle, so the issue is recurring rather than first-cycle-only; at the final health snapshot the heartbeat had again aged to 243 seconds.",
+        "Final platform health was WARNING; database itself was HEALTHY with p99 376.53ms, ingestion was HEALTHY, and PumpPortal/PumpSwap remained CONNECTED."
+      ],
+      "smallest_repair": "Add and schema-manage a creator_funding_queue(mint) index used by the coverage NOT EXISTS predicate, add a startup/cycle-start heartbeat before population scans, and qualify query plans plus heartbeat ordering locally. Keep the existing post-cycle heartbeat for outcome metrics.",
+      "provider_rpc_calls_initiated_by_codex": 0,
+      "production_changes": false,
+      "service_restarts": 0,
+      "blocker": "The recurring unindexed funding-coverage scan can keep the heartbeat stale even though the process is alive. Safe-local implementation and tests require a new explicit milestone; no production action is authorized."
+    },
     "oip_v2_2e_incident_causal_assessment": {
       "status": "COMPLETE",
       "verdict": "LATENT_DEFECT_REACTIVATED_BY_WORKER_RECOVERY",
@@ -1368,6 +1388,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "B2AU confirms the recurring creator-resolution heartbeat staleness is caused by an unindexed correlated creator_funding_queue.mint coverage scan executed before heartbeat emission on every cycle. Safe-local index/schema and heartbeat-ordering implementation is not yet authorized.",
     "B2AT proves the ready-schema startup fast path loaded, but creator-resolution heartbeat is still emitted only after the first long population cycle. PID 64872 remained RUNNING while the prior heartbeat aged beyond the 143-second health threshold. A bounded read-only ordering diagnosis is required; no second restart or implementation is authorized.",
     "B2AS committed the qualified schema-ready startup fast path at 438d6496a9651dba1f4ee2f4895aa5ac1986f5fc. The running creator_resolution_worker has not loaded it; exactly one restart and immediate verification require explicit authorization.",
     "B2AQ confirms creator_resolution_worker recovered naturally after an approximately six-minute startup schema write-lane delay. The schema was already ready, so future restarts can repeat the delay until a read-only schema-ready fast path is locally designed and qualified; no implementation is authorized in B2AQ.",
@@ -1386,8 +1407,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2AU creator-resolution first-cycle heartbeat ordering diagnosis",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize bounded local read-only diagnosis of the creator-resolution first-cycle heartbeat ordering and long population scan after B2AT. No implementation, provider call, production write, restart, configuration change, Evidence Mirror, Cohort Mode, or B2Z observation.",
+    "milestone": "OIP v2.2E.2B2AV creator-resolution funding-coverage index and heartbeat-ordering qualification",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize safe-local design, implementation, tests, and narrow commit for a schema-managed creator_funding_queue(mint) index plus creator-resolution startup/cycle-start heartbeat before population scans, retaining the existing post-cycle outcome heartbeat. No deployment, provider call, production write, restart, configuration change, Evidence Mirror, Cohort Mode, or B2Z observation.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

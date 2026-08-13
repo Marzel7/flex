@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T19:36:09Z",
+  "updated_at_utc": "2026-08-13T20:08:20Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "a7d851abbe14bc43b2bef2df071f3c06bf29cf52",
-    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths; EB0.4H committed only its scoped immutable bundle implementation, tests and documentation; all unrelated paths preserved"
+    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths; post-EB0.4 reconciliation made no engineering changes and preserved all unrelated paths"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.4 frozen contract-stack closure",
-    "mode": "safe-local frozen/ephemeral evidence-stack closure",
+    "milestone": "Post-EB0.4 roadmap reconciliation",
+    "mode": "bounded local read-only committed-artifact reconciliation",
     "status": "COMPLETE",
-    "verdict": "EB0_4_COMPLETE_FROZEN_STACK_QUALIFIED"
+    "verdict": "ROADMAP_RECONCILED_EB1_0A_ELIGIBILITY_CONTRACT_NEXT"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,42 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "post_eb0_4_roadmap_reconciliation": {
+      "status": "COMPLETE",
+      "verdict": "ROADMAP_RECONCILED_EB1_0A_ELIGIBILITY_CONTRACT_NEXT",
+      "engineering_commit": "a7d851abbe14bc43b2bef2df071f3c06bf29cf52",
+      "verification_utc": "2026-08-13T20:08:20Z",
+      "canonical_roadmap_finding": "The committed Post-E EB0 roadmap terminates at EB0.4. No committed EB0.5 or post-EB0.4 implementation sequence exists, so scoring, ranking, policy, attribution, activation or production compatibility work cannot be inferred as authorized next work.",
+      "closure_evidence": {
+        "eb0_1": "canonical birth/valuation stack closed with measured source gaps; strict birth/first-seen/migration evidence remains sparse and market-first coverage was 2442/5000",
+        "eb0_2": "creator historical-outcome stack closed, but the bound latest-5000 cohort produced zero qualified creator outcome facts because canonical corpus and qualified creator identity did not overlap",
+        "eb0_3": "supplemental historical market stack closed with one qualified live mint/window and explicit provider coverage limitations",
+        "eb0_4": "shared-behaviour operational-family stack closed only over frozen/ephemeral normalized evidence; no production compatibility, live census or operator identity claim"
+      },
+      "next_stage": {
+        "milestone": "EB1.0A cross-stage evidence eligibility contract",
+        "authorization_class": "SAFE_LOCAL_DESIGN_IMPLEMENTATION_TEST_COMMIT",
+        "objective": "Define a pure deterministic local contract over caller-supplied immutable EB0.1, EB0.2, EB0.3 and EB0.4 bundle summaries that emits per-input evidence eligibility, coverage, missingness, conflict and provenance states without entity linkage or analytical conclusions.",
+        "required_semantics": [
+          "bind exact upstream bundle schema versions, bundle digests, cohort or window identities and engineering revisions",
+          "preserve each EB0 stage as a separate authority lane; supplemental EB0.3 evidence never promotes canonical EB0.1 or EB0.2 authority",
+          "represent missing, incomplete, conflicting and not-observed evidence explicitly and never convert it to a negative outcome",
+          "emit only ELIGIBLE, INELIGIBLE_MISSING, INELIGIBLE_CONFLICTING and NOT_APPLICABLE readiness states with deterministic reasons and counts",
+          "make no mint-to-creator, creator-to-operation, wallet-to-operator or family-to-identity linkage unless an exact future provenance contract separately supplies it",
+          "provide deterministic canonical JSON identity and replay digest with input-order independence"
+        ],
+        "qualification": "frozen synthetic bundle-summary fixtures only, including full eligibility, each measured EB0 coverage gap, conflicts, supplemental-only evidence, schema/version drift and replay ordering",
+        "explicitly_deferred": "cross-entity joins, rates, profiles, rankings, scores, policy decisions, profitability/cashflow, operator identity/attribution, live extraction, provider expansion and activation"
+      },
+      "implementation_performed": false,
+      "provider_calls": 0,
+      "production_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb0_4h_immutable_bundle_and_closure": {
       "status": "COMPLETE",
       "verdict": "EB0_4_COMPLETE_FROZEN_STACK_QUALIFIED",
@@ -3911,6 +3947,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "The canonical committed EB0 roadmap ends at EB0.4. EB1.0A is a recommended new safe-local bridge contract, not yet implemented or authorized; any broader cross-stage entity linkage would require its own explicit provenance contract and architectural review.",
     "EB0.4 is closed only as a frozen safe-local contract stack. Production/runtime source compatibility, any live census or provider evidence, and every identity/attribution, ranking/scoring, policy or activation path remain unqualified and require a new explicitly authorized post-EB0.4 milestone.",
     "EB0.4A qualifies only the frozen nomination contract. Existing committed operational/discovery sources have not yet been mapped into its strict operation-role-edge-mechanism-temporal provenance fields; adapters, corpus assembly, profiles, ranking, attribution and activation remain unqualified or prohibited.",
     "EB0.3 is closed with measured provider coverage limits, not broad historical coverage. Any empty-page contract change, multi-mint GMGN qualification, additional provider request, or EB0.3 activation remains separately human-gated and must not delay the safe-local EB0.4 contract stage.",
@@ -3970,9 +4007,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "Post-EB0.4 roadmap transition",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Stop at EB0.4 frozen closure. Before any further work, authorize a separately bounded post-EB0.4 roadmap reconciliation or name the exact next milestone and scope. No production/runtime access, live census, provider calls, production writes, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, ranking, scoring, policy, profitability/cashflow, operator attribution or activation is authorized.",
-    "approval_text": "Authorize a bounded local read-only post-EB0.4 roadmap reconciliation using committed artifacts only; identify the next safe-local milestone and evidence contract but do not implement it. No production/runtime access, live census, provider calls, production writes, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, ranking, scoring, policy activation, profitability/cashflow inference, operator identity/attribution, or activation.",
+    "milestone": "EB1.0A cross-stage evidence eligibility contract",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize safe-local design, implementation, frozen-fixture tests, regression tests, documentation and one narrow commit for a pure deterministic EB1.0A cross-stage evidence eligibility contract over caller-supplied immutable EB0.1-EB0.4 bundle summaries. Preserve separate authority lanes, exact upstream versions/digests/cohort identities, coverage, missingness, conflicts and provenance; emit readiness states and counts only. No cross-entity linkage, rates, profiles, rankings, scoring, policy, profitability/cashflow, operator identity/attribution or activation.",
+    "approval_text": "Authorize safe-local design, implementation, frozen-fixture tests, regression tests, documentation, and one narrow commit for EB1.0A cross-stage evidence eligibility contract over caller-supplied immutable EB0.1-EB0.4 bundle summaries. Bind exact upstream versions, digests, cohort/window identities and engineering revisions; preserve separate authority lanes, coverage, missingness, conflicts and provenance; emit only deterministic eligibility states, reasons, counts and replay identity. Do not perform cross-entity linkage, calculate rates or profiles, rank, score, make policy decisions, infer profitability/cashflow, or assert operator identity/attribution. Frozen fixtures only. No production/runtime access, live census, provider calls, production writes, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, or activation.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

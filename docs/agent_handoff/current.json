@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T08:31:00Z",
+  "updated_at_utc": "2026-08-13T08:34:00Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T08:31:00Z",
+    "published_at_utc": null,
     "protocol_version": 1,
-    "status": "PUBLISHED"
+    "status": "PENDING_PUBLICATION"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2AG creator-funding worker read-only stall diagnosis",
-    "mode": "completed bounded read-only verification",
+    "milestone": "OIP v2.2E.2B2AH creator-funding worker B2AD runtime reload",
+    "mode": "completed authorized production restart and immediate verification",
     "status": "HOLD",
-    "verdict": "STALE_PRE_B2AD_WORKER_RELOAD_REQUIRED"
+    "verdict": "WORKER_RECOVERED_INFRASTRUCTURE_AT_RISK"
   },
   "production_state": {
     "retention": "ON",
@@ -654,6 +654,30 @@
       "service_restarts": 0,
       "blocker": "A creator_funding_worker reload is a production service restart and may resume its pre-existing normal provider-backed workload; neither is authorized by B2AG. B2Z remains held."
     },
+    "oip_v2_2e_2b2ah_creator_funding_worker_reload": {
+      "status": "PARTIAL",
+      "verdict": "WORKER_RECOVERED_INFRASTRUCTURE_AT_RISK",
+      "verification_utc": "2026-08-13T08:34:00Z",
+      "authorization": "One explicitly authorized creator_funding_worker restart to load engineering commit 1b147ee8264b5bc4d24c55817e1584cad378b63b.",
+      "restart": {
+        "service": "creator_funding_worker",
+        "old_pid": 45895,
+        "new_pid": 4940,
+        "other_services": "watchtower_listener remained RUNNING pid 886; evidence_writer remained STOPPED"
+      },
+      "immediate_health": {
+        "local_health_endpoint": "HTTP 200",
+        "creator_funding": "RUNNING with fresh heartbeat and two active extraction slots; immediate completed-job evidence observed",
+        "live_ingestion": "HEALTHY; PumpPortal and PumpSwap CONNECTED; queues 0",
+        "infrastructure": "WARNING / database AT_RISK; write p99 26971.68ms; serializer queue depth 0; listener lock_errors_since_start 4",
+        "creator_funding_remaining_warning": "oldest hot age 20287s exceeds 3600s threshold"
+      },
+      "flags": "retention ON; migration census ON; Evidence Mirror OFF; Cohort Mode OFF; evidence_writer STOPPED",
+      "provider_qualification_calls_initiated_by_codex": 0,
+      "provider_note": "The restarted production worker resumed its pre-existing normal creator-funding workload and its own logged provider traffic; this was not a B2Z qualification invocation.",
+      "production_changes": "one explicitly authorized creator_funding_worker restart only",
+      "blocker": "Worker liveness recovered, but database pressure and listener lock errors reappeared. B2Z remains held pending bounded read-only diagnosis and a stable health determination."
+    },
     "oip_v2_2e_2b2n_preflight_manifest_authorization": {
       "status": "COMPLETE",
       "verdict": "SAFE_LOCAL_PREFLIGHT_AUTHORIZED",
@@ -1089,8 +1113,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2AH creator-funding worker B2AD runtime reload",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize exactly one named creator_funding_worker restart to load engineering commit 1b147ee8264b5bc4d24c55817e1584cad378b63b, then perform immediate local Supervisor/log/health verification. Preserve retention ON, migration census ON, Evidence Mirror OFF, Cohort Mode OFF, and evidence_writer STOPPED. Do not restart any other service, alter configuration, run a provider qualification, or start B2Z. The restarted live worker may resume its existing normal creator-funding provider-backed workload; authorize that consequence explicitly if intended.",
+    "milestone": "OIP v2.2E.2B2AI database-pressure and listener-lock read-only diagnosis",
+    "instruction": "Automatically proceed with bounded local read-only diagnosis of post-reload database pressure and listener lock errors using health telemetry, local logs, process metadata, and source inspection only. Do not restart/reconfigure services, run provider qualification calls, make production writes, activate Evidence Mirror/Cohort Mode, or start B2Z. Any repair or additional production action remains HUMAN_APPROVAL_REQUIRED.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

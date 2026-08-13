@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T10:36:40Z",
+  "updated_at_utc": "2026-08-13T10:51:14Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2BD listener price-boundary deployment",
-    "mode": "completed exactly one authorized listener restart and immediate verification; stopped after automatic restart",
-    "status": "PARTIAL",
-    "verdict": "PRICE_BOUNDARY_HEALTHY_LISTENER_FD_WATCHDOG_RESTART"
+    "milestone": "OIP v2.2E.2B2BE listener descriptor-watchdog diagnosis",
+    "mode": "bounded local read-only incident diagnosis",
+    "status": "COMPLETE",
+    "verdict": "UNGUARDED_MIGRATION_CONNECTIONS_PLUS_TRANSIENT_CONCURRENCY"
   },
   "production_state": {
     "retention": "ON",
@@ -28,7 +28,7 @@
     "cohort_mode": "OFF",
     "evidence_writer": "STOPPED",
     "listener_service": "watchtower_listener",
-    "listener_pid_last_verified": 73552,
+    "listener_pid_last_verified": 9267,
     "creator_funding_service": "creator_funding_worker",
     "creator_funding_pid_last_verified": 80211,
     "creator_resolution_service": "creator_resolution_worker",
@@ -1147,6 +1147,25 @@
       "other_service_restarts_or_stops": 0,
       "blocker": "The price-boundary repair appears effective, but deployment cannot pass because listener DB primary descriptor count reached the fatal 12 threshold for three consecutive watchdog samples. No second manual restart or repair is authorized. B2Z remains held."
     },
+    "oip_v2_2e_2b2be_listener_descriptor_diagnosis": {
+      "status": "COMPLETE",
+      "verdict": "UNGUARDED_MIGRATION_CONNECTIONS_PLUS_TRANSIENT_CONCURRENCY",
+      "verification_utc": "2026-08-13T10:51:14Z",
+      "scope": "Read-only Supervisor status, connection-lifecycle telemetry, source, and open-descriptor inspection only; no implementation, provider request, production write, service restart/stop, lock manipulation, configuration change, Evidence Mirror, Cohort Mode, or B2Z action.",
+      "services": "watchtower_listener RUNNING pid 9267; creator_funding_worker RUNNING pid 80211; creator_resolution_worker RUNNING pid 72488; evidence_writer STOPPED.",
+      "restart_evidence": "After the one authorized B2BD restart, listener PIDs 5947 and 7207 each reached the fatal descriptor threshold and exited for Supervisor recovery. No manual restart was performed in B2BE.",
+      "descriptor_evidence": "PID 5947 held 12 primary-DB descriptors for three samples with registry counts 4, 4, then 1; PID 7207 held 15 descriptors for three samples with registry counts 8, 5, then 4. PID 9267 later showed numerous simultaneous main DB and WAL descriptors in lsof.",
+      "caller_evidence": "The dominant retained tracked caller in both failed processes was pumpfun_curve_listener.py:917 _check_watchtower_migration._run on tok_work threads, reaching 83.3-87.9 seconds. The function opens sqlite3.connect directly and closes only selected success/early-return paths; its outer exception path has no finally, so any intervening exception leaves the connection open. Other scoped reconciler, seed-read, usage-tracker, birth-write, and WAL-watchdog connections overlapped transiently and raised the instantaneous descriptor population.",
+      "price_boundary": "The B2BC _sync_price_db_work read-only analysis connection and separate minimal write connection both closed promptly in lifecycle telemetry and were absent from fatal snapshots; the price repair is not the descriptor-watchdog cause.",
+      "watchdog_interpretation": "This is not merely a false threshold: unguarded migration connections are structurally leak-capable and remained open across fatal samples. The raw FD-to-registry delta also includes SQLite main/WAL/SHM descriptor multiplicity and untracked/baseline handles, so registry_count must not be interpreted as a one-to-one FD count.",
+      "smallest_repair_not_implemented": "Make _check_watchtower_migration._run own its main-DB connection with a guaranteed finally/context-manager close on every exception and return, then add focused exception-path lifecycle tests. Preserve existing bounded pool and behavior; do not raise the watchdog threshold as the repair.",
+      "provider_calls": 0,
+      "production_writes": 0,
+      "production_changes": false,
+      "service_restarts_or_stops_initiated_by_codex": 0,
+      "flags": "retention ON; migration census ON; Evidence Mirror OFF; Cohort Mode OFF; evidence_writer STOPPED",
+      "blocker": "The listener remains exposed to repeated automatic recovery restarts until the guaranteed-close repair is separately authorized, locally qualified, committed, and explicitly deployed. B2Z remains held."
+    },
     "oip_v2_2e_incident_causal_assessment": {
       "status": "COMPLETE",
       "verdict": "LATENT_DEFECT_REACTIVATED_BY_WORKER_RECOVERY",
@@ -1579,6 +1598,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "B2BE confirms the listener watchdog restarts are caused by structurally unguarded _check_watchtower_migration database connections accumulating alongside legitimate transient connection concurrency. The price path is healthy. A safe-local guaranteed-close repair is not yet authorized, and B2Z remains held.",
     "B2BD loaded dbbec888 and immediately restored database p99 to 42-65ms with no price-path long hold, but listener PID 5947 automatically restarted after three fd_count=12 watchdog samples. B2Z remains held pending read-only diagnosis of the descriptor population.",
     "B2AX confirms creator_funding_lifecycle.record_event_fail_open repeats schema DDL/index assurance on every concurrent event and repeats it again on gap fallback, causing prolonged write-lane ownership and lock-error bursts. The incident recovered naturally, but recurrence remains possible until a safe-local one-time lifecycle schema initialization repair is qualified.",
     "B2AW is blocked with production impact: creator_funding_worker PID 9399 holds the shared database write lease in RELEASE_PENDING state, preventing idx_creator_funding_queue_mint creation and causing creator_resolution_worker to exit and Supervisor to autorestart it. No lock manipulation, funding-worker restart, configuration change, or further creator-resolution restart is authorized.",
@@ -1602,8 +1622,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2BE listener descriptor-watchdog diagnosis",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize bounded local read-only diagnosis of watchtower_listener PID 7207 primary database descriptors and connection-registry lifecycle after the B2BD automatic fd_count=12 watchdog restart, including exact caller/thread/age attribution and whether the threshold reflects a leak or legitimate transient concurrency; no implementation, provider calls, production writes, service restarts or stops, lock manipulation, configuration changes, Evidence Mirror, Cohort Mode, or B2Z execution.",
+    "milestone": "OIP v2.2E.2B2BF listener migration-connection guaranteed-close repair",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize safe-local design, implementation, focused exception-path lifecycle tests, regression tests, and one narrow commit making _check_watchtower_migration._run guarantee closure of its main-database connection on every return and exception path; preserve the bounded worker pool and existing behavior; no deployment, provider calls, production writes, service restarts or stops, lock manipulation, configuration changes, watchdog-threshold change, Evidence Mirror, Cohort Mode, or B2Z execution.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

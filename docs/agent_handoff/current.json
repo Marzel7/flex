@@ -1,23 +1,23 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T15:11:34Z",
+  "updated_at_utc": "2026-08-13T15:14:08Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "84f181f3969b78171702256b9a9bf15119697b58",
-    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, and user paths remain present; the narrow EB0.2E commit contains only the authorized corpus assembler, tests, and documentation"
+    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, and user paths remain present; EB0.2F was read-only and changed no engineering files"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T15:11:34Z",
+    "published_at_utc": "2026-08-13T15:14:08Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.2E deterministic per-creator outcome corpus assembly",
-    "mode": "safe-local frozen deterministic corpus qualification",
+    "milestone": "EB0.2F closure and query-only extractor preflight",
+    "mode": "bounded local read-only committed-stack preflight",
     "status": "COMPLETE",
     "verdict": "LOCAL_QUALIFICATION_PASS"
   },
@@ -235,6 +235,54 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_2f_closure_and_extractor_preflight": {
+      "status": "COMPLETE",
+      "verdict": "FROZEN_STACK_COMPLETE_QUERY_ONLY_FIXTURE_QUALIFICATION_READY",
+      "engineering_commit": "84f181f3969b78171702256b9a9bf15119697b58",
+      "frozen_stack_complete": true,
+      "minimum_qualified_inputs": [
+        "an immutable explicitly bounded mint cohort with cohort digest and event-kind policy",
+        "verified EB0.1 MintCorpus evidence for each selected mint",
+        "one provenance-bound CreatorIdentityFact using PF_WS_CREATOR_VERIFIED or CANONICAL_CREATE_PROOF; raw earliest_tx_creator is not accepted",
+        "one provenance-bound ObservationWindowFact per mint with immutable observed-through cutoff and explicit full-horizon completeness boolean",
+        "fixed outcome kinds, horizons, and explicit market-cap thresholds",
+        "source/schema/contract/adapter versions and source record digests"
+      ],
+      "query_only_boundary": [
+        "all SQLite paths are dependency-injected with no production default",
+        "open mode=ro, enable and verify PRAGMA query_only=ON, exact table/column allow-lists, short connection timeout, active progress-handler query deadline, and bounded row/cohort ceilings",
+        "select only the immutable cohort and never scan or materialize unselected creator history",
+        "emit EB0.2C facts then EB0.2D manifests and EB0.2E corpora without database writes or output publication",
+        "record selected, excluded, unsupported, ambiguous, UNKNOWN, NOT_OBSERVED, conflict, and denominator accounting plus input/result digests"
+      ],
+      "source_blockers": [
+        "general runtime token_analysis does not provenance-bind pf_ws_creator resolution method per row; competing code paths use incompatible earliest_tx_creator fallback rules",
+        "legacy migrated_at is a useful population proxy but EB0.1 strict semantics do not treat it as an explicit observed MIGRATION fact",
+        "first_observed market data can prove a threshold positive at that event only; it cannot prove a fixed-horizon negative",
+        "legacy market_cap_highest has sparse coverage and no fixed observation window and is prohibited as an EB0.2 horizon outcome",
+        "no general committed source asserts full-horizon market/migration completeness; absence must remain UNKNOWN",
+        "the existing historical_performance implementation aggregates rates, scores, peaks, and fallback creator identities and is not a qualified EB0.2 source"
+      ],
+      "cohort_requirements": [
+        "immutable selected mint list and digest",
+        "one explicit cohort event kind shared by the extraction contract or recorded per mint",
+        "fixed horizon/threshold matrix declared before extraction",
+        "no survivorship selection by observed outcome",
+        "every selected mint remains accounted for even when identity, event, or completeness evidence is missing"
+      ],
+      "smallest_next_milestone": "EB0.2G safe-local query-only extractor qualification against frozen/ephemeral SQLite fixtures containing explicit normalized creator_identity_facts and observation_window_facts plus frozen EB0.1 corpus evidence; no production compatibility claim.",
+      "engineering_changes": false,
+      "provider_calls": 0,
+      "production_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "gmgn_integration": false,
+      "rankings": false,
+      "operator_attribution": false,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb0_2e_creator_outcome_corpora": {
       "status": "COMPLETE",
       "verdict": "LOCAL_QUALIFICATION_PASS",
@@ -2873,7 +2921,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "EB0.2A-E now qualify the frozen creator outcome contract, adapters, manifests, and per-creator corpora. EB0.2F must perform a local read-only closure and extraction-readiness assessment before any query-only extractor or use of production/runtime evidence is designed or authorized.",
+    "EB0.2A-E form a complete frozen contract stack, but current general runtime schemas do not provide provenance-qualified creator identity or full-horizon completeness. EB0.2G may qualify a dependency-injected query-only extractor against explicit normalized ephemeral fixtures only; production compatibility and live extraction remain separate gates.",
     "OIP v2.2E is qualified complete, but production activation remains explicitly unauthorized. Any Evidence authority, Evidence Mirror, Cohort Mode, provider expansion, or production deployment requires its own future milestone. Post-E work must begin with roadmap reconciliation rather than implicit activation.",
     "B2BX fully passes the isolated provider qualification at 20/20 with exactly 60 authorized requests. The remaining step is a bounded local-only E-series closure assessment that combines this provider result with the previously qualified B2R acquisition/retention funnel; no production activation is implied or authorized.",
     "B2BW is locally qualified at f08db5b1 with fresh empty ledgers. Provider execution remains HUMAN_APPROVAL_REQUIRED and must explicitly acknowledge the higher-cost oldest enhanced request and the unchanged 60-request stop-safe ceiling.",
@@ -2919,8 +2967,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.2F closure and query-only extractor preflight",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize a bounded local read-only EB0.2F closure and query-only extractor preflight using committed EB0.2A-E code, tests, documentation, schemas, and frozen fixtures only. Determine whether the frozen contract stack is complete, define the exact minimum qualified inputs and query-only boundaries for a future creator historical outcome extractor, identify source/completeness blockers and cohort requirements, and specify the next safe-local milestone. Do not implement or execute an extractor, access production/runtime databases or services, aggregate rates or profiles, rank, score, make policy decisions, infer profitability/cashflow, or attribute operators. No provider calls, GMGN integration, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, or activation.",
+    "milestone": "EB0.2G query-only creator outcome extractor qualification",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize safe-local design, implementation, frozen/ephemeral SQLite tests, regression tests, documentation, and one narrow commit for EB0.2G dependency-injected query-only creator historical outcome extractor qualification. Require an immutable explicit mint cohort; normalized provenance-bound creator_identity_facts and observation_window_facts; frozen EB0.1 canonical corpus evidence; fixed predeclared cohort-event, horizon, outcome-kind, and threshold policy; mode=ro plus verified PRAGMA query_only; exact schema allow-lists; active query deadlines; strict row/cohort ceilings; complete selected/excluded/UNKNOWN/conflict/denominator accounting; and deterministic EB0.2C-E outputs/digests. Qualification uses frozen/ephemeral fixtures only and makes no production compatibility claim. Do not read legacy historical_performance aggregates or infer earliest_tx_creator identity, migration completeness, market-window negatives, rates, profiles, rankings, scores, policy, profitability/cashflow, or operator attribution. No production/runtime access, provider calls, GMGN integration, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, or activation.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

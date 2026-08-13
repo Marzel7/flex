@@ -50,6 +50,16 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
     conn.execute("CREATE INDEX IF NOT EXISTS idx_cfq_qualification_snapshots_time ON creator_funding_qualification_snapshots(captured_at)")
 
 
+def initialize_schema(db_path: str) -> None:
+    """Initialize lifecycle telemetry once before concurrent worker activity."""
+    conn = sqlite3.connect(db_path, timeout=30)
+    try:
+        ensure_schema(conn)
+        conn.commit()
+    finally:
+        conn.close()
+
+
 def capture_qualification_snapshot(
     db_path: str, *, label: str, configuration: dict[str, object] | None = None,
     captured_at: int | None = None,
@@ -116,6 +126,7 @@ def capture_qualification_snapshot(
 
 def _record_gap_best_effort(
     db_path: str, *, creator: str, mint: str, event: str, occurred_at: int, error: Exception,
+    schema_ready: bool = False,
 ) -> None:
     """Persist a telemetry-write failure when SQLite is available again.
 
@@ -133,7 +144,8 @@ def _record_gap_best_effort(
     conn = None
     try:
         conn = sqlite3.connect(db_path, timeout=0.2)
-        ensure_schema(conn)
+        if not schema_ready:
+            ensure_schema(conn)
         conn.execute(
             """INSERT OR IGNORE INTO creator_funding_lifecycle_gaps
                (gap_id, occurred_at, obligation_id, creator_address, mint,
@@ -154,6 +166,7 @@ def record_event_fail_open(
     occurred_at: Optional[int] = None, attempt: Optional[int] = None,
     previous_status: Optional[str] = None, new_status: Optional[str] = None,
     correlation_id: Optional[str] = None,
+    schema_ready: bool = False,
 ) -> bool:
     """Append one idempotent event after the authoritative mutation committed."""
     timestamp = int(time.time()) if occurred_at is None else int(occurred_at)
@@ -163,7 +176,8 @@ def record_event_fail_open(
     conn = None
     try:
         conn = sqlite3.connect(db_path, timeout=1)
-        ensure_schema(conn)
+        if not schema_ready:
+            ensure_schema(conn)
         conn.execute(
             """INSERT OR IGNORE INTO creator_funding_lifecycle_events
                (event_id, occurred_at, obligation_id, creator_address, mint,
@@ -178,7 +192,7 @@ def record_event_fail_open(
     except Exception as exc:
         _record_gap_best_effort(
             db_path, creator=creator, mint=mint, event=event,
-            occurred_at=timestamp, error=exc,
+            occurred_at=timestamp, error=exc, schema_ready=schema_ready,
         )
         return False
     finally:

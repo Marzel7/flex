@@ -51,7 +51,18 @@ import time
 import traceback
 from datetime import datetime, timezone
 from typing import Any, Dict
-from src.core.creator_funding_lifecycle import record_event_fail_open
+from src.core.creator_funding_lifecycle import (
+    initialize_schema,
+    record_event_fail_open as _record_event_fail_open,
+)
+
+_LIFECYCLE_SCHEMA_READY = False
+
+
+def record_event_fail_open(*args, **kwargs):
+    """Worker-owned steady-state lifecycle writes use startup-ready schema."""
+    kwargs.setdefault("schema_ready", _LIFECYCLE_SCHEMA_READY)
+    return _record_event_fail_open(*args, **kwargs)
 
 # ── config ────────────────────────────────────────────────────────────────────
 _REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -1619,6 +1630,9 @@ def _outcome_deltas(outcome: str) -> tuple[int, int, int]:
 
 # ── main loop ─────────────────────────────────────────────────────────────────
 async def _run_loop_async(once: bool = False) -> None:
+    global _LIFECYCLE_SCHEMA_READY
+    await asyncio.to_thread(initialize_schema, DB_PATH)
+    _LIFECYCLE_SCHEMA_READY = True
     try:
         trigger_state = await asyncio.to_thread(_decommission_token_prediction_triggers)
     except Exception as exc:

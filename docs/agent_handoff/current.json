@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T20:14:09Z",
+  "updated_at_utc": "2026-08-13T20:17:01Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB1.0A cross-stage evidence eligibility contract",
-    "mode": "safe-local frozen-summary implementation and qualification",
+    "milestone": "EB1.0B immutable EB0 bundle-summary source-mapping audit",
+    "mode": "bounded local read-only committed-source audit",
     "status": "COMPLETE",
-    "verdict": "CROSS_STAGE_ELIGIBILITY_CONTRACT_QUALIFIED"
+    "verdict": "SOURCE_MAPPING_PARTIAL_EXPLICIT_EB0_1_REVISION_REQUIRED"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,30 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb1_0b_bundle_summary_source_mapping": {
+      "status": "COMPLETE",
+      "verdict": "SOURCE_MAPPING_PARTIAL_EXPLICIT_EB0_1_REVISION_REQUIRED",
+      "engineering_commit": "cebe6c732f7a912026b167f802a257044a833104",
+      "verification_utc": "2026-08-13T20:17:01Z",
+      "safe_mappings": {
+        "EB0.1": "eb0.1j run high-water/mint-limit plus aggregate selected/corpus/missing/conflict/completeness and verified hashes bundle digest; engineering revision is absent and must be supplied explicitly by the caller",
+        "EB0.2": "eb0.2h run engineering revision/input fingerprint plus accounting selected/qualified/excluded/conflicting and verified hashes bundle digest",
+        "EB0.3": "eb0.3g exact request metadata window/run, engineering revision, manifest observation/quality/completeness/limitation counts and verified hashes bundle digest; scope is the request window, not a broader population denominator",
+        "EB0.4": "eb0.4h run engineering revision/input fingerprint plus accounting selected/qualified/excluded/conflict and verified hashes bundle digest"
+      },
+      "ambiguous_or_unsupported": [
+        "EB0.1J contains no engineering_revision field; it cannot be inferred from bundle digest, run ID or high-water",
+        "EB0.3G has no general cohort missing-population denominator; applicability must remain the exact bounded request window",
+        "no bundle supplies cross-stage entity linkage and none may be inferred",
+        "completeness must be derived only from explicit aggregate/accounting fields and verified manifest contents, never from bundle presence alone"
+      ],
+      "smallest_adapter": "exact frozen document adapters for verified EB0.1J, EB0.2H, EB0.3G and EB0.4H summary projections, requiring an explicit caller-bound EB0.1 engineering revision and retaining EB0.3 request-window scope",
+      "implementation_performed": false,
+      "provider_calls": 0,
+      "production_access": false,
+      "production_changes": false,
+      "activation": false
+    },
     "eb1_0a_cross_stage_evidence_eligibility": {
       "status": "COMPLETE",
       "verdict": "CROSS_STAGE_ELIGIBILITY_CONTRACT_QUALIFIED",
@@ -4038,9 +4062,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB1.0B immutable EB0 bundle-summary source-mapping audit",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Audit committed EB0.1-EB0.4 bundle schemas, code, documentation and frozen fixtures only against EB1.0A. Map exact upstream versions/digests, cohort/window identities, engineering revisions, authority lanes, total/observed/missing/conflicting counts, completeness and provenance; identify unsupported or ambiguous mappings and the smallest deterministic adapter milestone. Do not implement adapters or perform cross-entity linkage or analytics.",
-    "approval_text": "Authorize a bounded local read-only EB1.0B immutable EB0 bundle-summary source-mapping audit using committed EB0.1-EB0.4 schemas, code, documentation, and frozen fixtures only. Map exact upstream schema versions, bundle digests, cohort/window identities, engineering revisions, authority lanes, total/observed/missing/conflicting counts, completeness, and provenance into EB1.0A; identify unsupported or ambiguous mappings and the smallest safe-local adapter milestone. Do not implement adapters, perform cross-entity linkage, calculate rates or profiles, rank, score, make policy decisions, infer profitability/cashflow, or assert operator identity/attribution. No production/runtime access, live census, provider calls, production writes, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, or activation.",
+    "milestone": "EB1.0C deterministic verified-bundle summary adapters",
+    "instruction": "AUTHORIZED_STAGED_SAFE_LOCAL: Implement exact frozen-document adapters for EB0.1J/EB0.2H/EB0.3G/EB0.4H verified bundle summaries into EB1.0A; require explicit caller-bound EB0.1 engineering revision, preserve EB0.3 exact request-window scope, authority, missingness, completeness, conflicts and provenance. Frozen fixtures only; no cross-entity linkage or analytics.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

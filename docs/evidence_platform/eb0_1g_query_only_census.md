@@ -10,4 +10,6 @@ EB0.1L restricts returned `LaunchFact` rows to the selected mint set with a JSON
 
 EB0.1M makes the query deadline active rather than retrospective. Every bounded statement installs a monotonic SQLite progress handler that interrupts execution at the configured deadline (never above 30 seconds), classifies its own interruption as `EB0_1G_QUERY_TIMEOUT`, preserves unrelated SQLite errors, and clears the handler on success, timeout, and exception paths.
 
+EB0.1O canonicalizes `token_analysis` REAL-affinity first-observed market-cap and price values through the same positive finite Decimal representation used for snapshot evidence before EB0.1C adaptation. Integral REAL values lose trailing `.0`, exponent forms expand deterministically, and zero, negative, or non-finite values stop with `EB0_1O_INVALID_MARKET_VALUE`.
+
 The result contains source/high-water fingerprints, deterministic EB0.1D manifests, EB0.1E corpora, observation/exclusion/missingness accounting, and a replay digest. EB0.1I performs no writes or output publication itself. Qualification uses only ephemeral SQLite fixtures. Production census execution remains a separate explicitly authorized milestone.

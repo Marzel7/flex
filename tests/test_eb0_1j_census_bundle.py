@@ -19,9 +19,9 @@ SCHEMA_DIGESTS = {"primary": "a" * 64, "evidence": "b" * 64}
 def _result(path: Path):
     db = sqlite3.connect(path)
     db.executescript("""
-    CREATE TABLE token_analysis(mint TEXT,migrated_at INTEGER,first_observed_mc TEXT,
-      first_observed_price TEXT,first_observed_at INTEGER,first_observed_source TEXT,
-      first_observed_confidence TEXT);
+    CREATE TABLE token_analysis(mint TEXT,migrated_at INTEGER,first_observed_mc REAL,
+      first_observed_price REAL,first_observed_at INTEGER,first_observed_source TEXT,
+      first_observed_confidence REAL);
     CREATE TABLE token_price_snapshots(snapshot_id INTEGER,mint TEXT,price_usd REAL,
       market_cap REAL,source TEXT,captured_at INTEGER,created_at INTEGER);
     CREATE TABLE normalized_evidence_records(fact_family TEXT,payload_json TEXT,
@@ -29,7 +29,7 @@ def _result(path: Path):
       verification_state TEXT);
     """)
     db.execute("INSERT INTO token_analysis VALUES(?,?,?,?,?,?,?)",
-               (MINT, 200, "12000", "0.00012", 150, "fixture", "HIGH"))
+               (MINT, 200, 12000.0, 0.00012, 150, "fixture", 0.95))
     payload = {"mint": MINT, "creation_signature": "sig", "creation_timestamp": 100,
                "creation_slot": 10, "program_id": "pump", "source_platform": "pumpfun"}
     db.execute("INSERT INTO normalized_evidence_records VALUES(?,?,?,?,?,?,?)",

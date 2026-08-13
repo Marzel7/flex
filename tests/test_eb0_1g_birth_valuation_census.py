@@ -216,6 +216,38 @@ def test_malformed_launch_payload_fails_closed(tmp_path):
         extract_birth_valuation_census(path, high_water_migrated_at=250)
 
 
+@pytest.mark.parametrize(
+    ("market_cap", "price", "expected"),
+    [(12000.0, 0.00012, {"12000", "0.00012"}),
+     (1.25e6, 2.5e-7, {"1250000", "0.00000025"})],
+)
+def test_token_analysis_real_affinity_values_are_canonical(tmp_path, market_cap, price, expected):
+    path = tmp_path / "real.sqlite"
+    _database(path)
+    db = sqlite3.connect(path)
+    db.execute("UPDATE token_analysis SET first_observed_mc=?,first_observed_price=?",
+               (market_cap, price))
+    db.commit()
+    db.close()
+    result = extract_birth_valuation_census(path, high_water_migrated_at=250)
+    values = {item.price_or_market_cap_value for item in result.corpora[0].manifest.observations
+              if item.event_kind == "MARKET_FIRST_OBSERVED"
+              and item.event_time_utc_ns == 150_000_000_000}
+    assert values == expected
+
+
+@pytest.mark.parametrize("invalid", [0.0, -1.0, float("inf")])
+def test_token_analysis_invalid_real_value_fails_closed(tmp_path, invalid):
+    path = tmp_path / "invalid-real.sqlite"
+    _database(path)
+    db = sqlite3.connect(path)
+    db.execute("UPDATE token_analysis SET first_observed_mc=?", (invalid,))
+    db.commit()
+    db.close()
+    with pytest.raises(BirthValuationCensusError, match="INVALID_MARKET_VALUE"):
+        extract_birth_valuation_census(path, high_water_migrated_at=250)
+
+
 def test_missing_or_malformed_schema_fails_closed(tmp_path):
     missing = tmp_path / "missing.sqlite"
     sqlite3.connect(missing).close()

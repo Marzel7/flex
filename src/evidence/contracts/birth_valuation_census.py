@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from hashlib import sha256
 import json
 from pathlib import Path
@@ -21,7 +21,7 @@ from .birth_valuation_adapters import (
 from .birth_valuation_corpus import MintCorpus, assemble_birth_valuation_corpora
 
 
-CENSUS_SCHEMA_VERSION = "eb0.1m.v1"
+CENSUS_SCHEMA_VERSION = "eb0.1o.v1"
 DEFAULT_MINT_LIMIT = 5_000
 MAX_QUERY_SECONDS = 30.0
 MAX_LAUNCH_FACTS_PER_MINT = 2
@@ -76,7 +76,13 @@ def _digest(value: object) -> str:
 
 
 def _decimal_text(value: object) -> str:
-    normalised = format(Decimal(str(value)).normalize(), "f")
+    try:
+        decimal = Decimal(str(value))
+    except (InvalidOperation, ValueError) as exc:
+        raise BirthValuationCensusError("EB0_1O_INVALID_MARKET_VALUE") from exc
+    if not decimal.is_finite() or decimal <= 0:
+        raise BirthValuationCensusError("EB0_1O_INVALID_MARKET_VALUE")
+    normalised = format(decimal.normalize(), "f")
     return normalised.rstrip("0").rstrip(".") if "." in normalised else normalised
 
 
@@ -157,17 +163,18 @@ def _market_records(row: Mapping[str, object]) -> list[dict[str, object]]:
         value = row[column]
         if value is None:
             continue
+        canonical_value = _decimal_text(value)
         raw = {
             "mint": row["mint"],
             "captured_at": captured,
             "observed_at": captured,
             "value_kind": kind,
-            "value": str(value),
+            "value": canonical_value,
             "source": source,
             "source_schema_version": "token-analysis-first-observed-v1",
             "source_record_digest": _digest({
                 "mint": row["mint"], "column": column, "captured_at": captured,
-                "value": str(value), "source": source,
+                "value": canonical_value, "source": source,
                 "confidence": row["first_observed_confidence"],
             }),
         }

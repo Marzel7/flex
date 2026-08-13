@@ -8,4 +8,6 @@ Only explicit evidence is adapted. Verified `LaunchFact` rows from the separatel
 
 EB0.1L restricts returned `LaunchFact` rows to the selected mint set with a JSON predicate. Deterministic ranking returns at most a two-row allowance per selected mint and 10,000 rows globally, plus one overflow sentinel; overflow or malformed JSON stops the run. Launch facts for unselected mints are not materialized into the extractor.
 
+EB0.1M makes the query deadline active rather than retrospective. Every bounded statement installs a monotonic SQLite progress handler that interrupts execution at the configured deadline (never above 30 seconds), classifies its own interruption as `EB0_1G_QUERY_TIMEOUT`, preserves unrelated SQLite errors, and clears the handler on success, timeout, and exception paths.
+
 The result contains source/high-water fingerprints, deterministic EB0.1D manifests, EB0.1E corpora, observation/exclusion/missingness accounting, and a replay digest. EB0.1I performs no writes or output publication itself. Qualification uses only ephemeral SQLite fixtures. Production census execution remains a separate explicitly authorized milestone.

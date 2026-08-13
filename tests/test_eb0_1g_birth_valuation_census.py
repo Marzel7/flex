@@ -6,6 +6,7 @@ import pytest
 
 from src.evidence.contracts.birth_valuation_census import (
     BirthValuationCensusError,
+    _timed,
     extract_birth_valuation_census,
 )
 
@@ -239,4 +240,27 @@ def test_read_only_uri_rejects_source_mutation(tmp_path):
     db.execute("PRAGMA query_only=ON")
     with pytest.raises(sqlite3.OperationalError):
         db.execute("UPDATE token_analysis SET migrated_at=0")
+    db.close()
+
+
+def test_progress_handler_interrupts_at_deadline_and_is_cleared():
+    db = sqlite3.connect(":memory:")
+    ticks = iter([0.0, 0.5, 1.0, 1.1])
+    with pytest.raises(BirthValuationCensusError, match="QUERY_TIMEOUT"):
+        _timed(
+            db,
+            "WITH RECURSIVE n(x) AS (VALUES(1) UNION ALL SELECT x+1 FROM n WHERE x<100000) "
+            "SELECT sum(x) FROM n",
+            (), clock=lambda: next(ticks, 1.1), max_query_seconds=1.0,
+        )
+    assert db.execute("SELECT 1").fetchone()[0] == 1
+    db.close()
+
+
+def test_progress_handler_is_cleared_after_unrelated_sqlite_error():
+    db = sqlite3.connect(":memory:")
+    with pytest.raises(sqlite3.OperationalError, match="no such table"):
+        _timed(db, "SELECT * FROM absent_table", (), clock=lambda: 0.0,
+               max_query_seconds=1.0)
+    assert db.execute("SELECT 1").fetchone()[0] == 1
     db.close()

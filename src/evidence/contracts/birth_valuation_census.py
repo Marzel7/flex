@@ -21,7 +21,7 @@ from .birth_valuation_adapters import (
 from .birth_valuation_corpus import MintCorpus, assemble_birth_valuation_corpora
 
 
-CENSUS_SCHEMA_VERSION = "eb0.1l.v1"
+CENSUS_SCHEMA_VERSION = "eb0.1m.v1"
 DEFAULT_MINT_LIMIT = 5_000
 MAX_QUERY_SECONDS = 30.0
 MAX_LAUNCH_FACTS_PER_MINT = 2
@@ -119,10 +119,28 @@ def _timed(
     max_query_seconds: float,
 ) -> list[sqlite3.Row]:
     started = clock()
-    rows = connection.execute(sql, parameters).fetchall()
-    if clock() - started > max_query_seconds:
-        raise BirthValuationCensusError("EB0_1G_QUERY_TIMEOUT")
-    return rows
+    deadline = started + max_query_seconds
+    deadline_reached = False
+
+    def interrupt_at_deadline() -> int:
+        nonlocal deadline_reached
+        if clock() >= deadline:
+            deadline_reached = True
+            return 1
+        return 0
+
+    connection.set_progress_handler(interrupt_at_deadline, 1_000)
+    try:
+        rows = connection.execute(sql, parameters).fetchall()
+        if clock() >= deadline:
+            raise BirthValuationCensusError("EB0_1G_QUERY_TIMEOUT")
+        return rows
+    except sqlite3.OperationalError as exc:
+        if deadline_reached and "interrupted" in str(exc).lower():
+            raise BirthValuationCensusError("EB0_1G_QUERY_TIMEOUT") from exc
+        raise
+    finally:
+        connection.set_progress_handler(None, 0)
 
 
 def _market_records(row: Mapping[str, object]) -> list[dict[str, object]]:

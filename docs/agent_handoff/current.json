@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T15:56:44Z",
+  "updated_at_utc": "2026-08-13T16:05:26Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "81dc2878c10c52a875012a08d8148930af65ac53",
-    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, and user paths remain present; EB0.2N made no engineering or production changes"
+    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, and user paths remain present; EB0.2O made no engineering-file changes and created only the two explicitly authorized production SQLite indexes"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T15:56:44Z",
+    "published_at_utc": "2026-08-13T16:05:26Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.2N production compatibility reassessment",
-    "mode": "bounded read-only production compatibility reassessment",
-    "status": "COMPLETE",
-    "verdict": "PRODUCTION_COMPATIBLE_WITH_MEASURED_COVERAGE_GAPS_INDEX_DEPLOYMENT_REQUIRED"
+    "milestone": "EB0.2O bounded production mint-index deployment",
+    "mode": "bounded two-index production SQLite mutation and immediate verification",
+    "status": "PARTIAL",
+    "verdict": "INDEX_DEPLOYMENT_PASS_EXTRACTION_POLICY_BINDING_REQUIRED"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,58 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_2o_production_mint_index_deployment": {
+      "status": "COMPLETE",
+      "verdict": "PASS",
+      "engineering_commit": "81dc2878c10c52a875012a08d8148930af65ac53",
+      "verification_utc": "2026-08-13T16:05:26Z",
+      "authorized_programme_scope": "EB0.2O through EB0.2 closure, staged with fail-closed safety and contract gates",
+      "production_indexes": [
+        {
+          "database": "database/wt_ops_v2.db",
+          "table": "wt_watchtower_launches",
+          "index": "ix_launches_mint",
+          "definition": "CREATE INDEX ix_launches_mint ON wt_watchtower_launches(mint)",
+          "elapsed_ms": 16.45,
+          "selected_mint_plan": "SEARCH USING INDEX ix_launches_mint"
+        },
+        {
+          "database": "pumpswap_tokens.db",
+          "table": "creator_tokens",
+          "index": "idx_creator_tokens_mint",
+          "definition": "CREATE INDEX idx_creator_tokens_mint ON creator_tokens(mint)",
+          "elapsed_ms": 253.78,
+          "selected_mint_plan": "SEARCH USING INDEX idx_creator_tokens_mint"
+        }
+      ],
+      "post_deployment_health": {
+        "platform": "HEALTHY",
+        "database": "HEALTHY",
+        "database_write_p99_ms": 58.28,
+        "serializer_queue_depth": 0,
+        "ingestion": "HEALTHY",
+        "pumpportal": "CONNECTED",
+        "pumpswap": "CONNECTED",
+        "birth_queue_pending": 0,
+        "migration_queue_pending": 0,
+        "lock_errors_since_start": 0
+      },
+      "services": {
+        "watchtower_listener": "RUNNING pid 85993",
+        "creator_funding_worker": "RUNNING pid 80211",
+        "creator_resolution_worker": "RUNNING pid 12770",
+        "ws_cascade": "RUNNING pid 41781",
+        "evidence_writer": "STOPPED"
+      },
+      "policy_gate": "The approved staged sequence cannot start live query-only extraction because current.json and the committed EB0.2 contracts do not bind an exact cohort artifact, fixed horizon duration, or market-cap threshold. Selecting those values would be an unauthorized analytical policy decision.",
+      "provider_calls": 0,
+      "production_writes": "exactly two authorized CREATE INDEX IF NOT EXISTS transactions",
+      "service_restarts": 0,
+      "configuration_changes": false,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb0_2n_production_compatibility_reassessment": {
       "status": "COMPLETE",
       "verdict": "PRODUCTION_COMPATIBLE_WITH_MEASURED_COVERAGE_GAPS_INDEX_DEPLOYMENT_REQUIRED",
@@ -3228,6 +3280,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "EB0.2O deployed and verified both authorized mint-leading indexes without production impact. The next query-only extraction is fail-closed because neither current.json nor the committed EB0.2 contracts bind the exact immutable cohort artifact, horizon duration, or market-cap threshold. Choosing them would be a new analytical policy decision outside the staged authorization.",
     "EB0.2N finds 41 coherent canonical-create proofs with 36/36 pf_ws_creator agreement and zero mismatches, but creator_tokens membership evidence is absent for all 41 and remains a measured coverage gap. Both EB0.2M mint-leading indexes remain absent in production and selected-mint plans still scan; any index creation is a separately authorized production mutation.",
     "OIP v2.2E is qualified complete, but production activation remains explicitly unauthorized. Any Evidence authority, Evidence Mirror, Cohort Mode, provider expansion, or production deployment requires its own future milestone. Post-E work must begin with roadmap reconciliation rather than implicit activation.",
     "B2BX fully passes the isolated provider qualification at 20/20 with exactly 60 authorized requests. The remaining step is a bounded local-only E-series closure assessment that combines this provider result with the previously qualified B2R acquisition/retention funnel; no production activation is implied or authorized.",
@@ -3274,8 +3327,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.2O bounded production mint-index deployment",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize EB0.2O bounded production SQLite index deployment for commit 81dc2878c10c52a875012a08d8148930af65ac53: create only ix_launches_mint on database/wt_ops_v2.db wt_watchtower_launches(mint) and idx_creator_tokens_mint on pumpswap_tokens.db creator_tokens(mint), using CREATE INDEX IF NOT EXISTS under bounded lock and query deadlines; stop on database pressure, lock contention, service degradation, or other production impact; then verify exact index definitions, selected-mint EXPLAIN plans, database/ingestion health, service PIDs, and unchanged flags. No normalization, extraction, cohort or bundle materialization, provider calls, GMGN integration, service restarts or stops, configuration changes, unrestricted payload reads, rankings, scoring, policy decisions, profitability/cashflow inference, operator attribution, Evidence Mirror, Cohort Mode, deployment beyond these two indexes, or activation.",
+    "milestone": "EB0.2P immutable cohort and outcome-policy binding",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize EB0.2P to bind the immutable EB0.1P selected 5,000-mint cohort from verified bundle digest 2c07d41b9c243f8f0c8ca52e0c54c0b184f28a1ed855e98de2a975f936a688e5 as the EB0.2 extraction cohort, and bind exactly two descriptive outcome policies from CHAIN_BIRTH: MIGRATION_BY_HORIZON within 24 hours and MARKET_CAP_AT_LEAST_BY_HORIZON within 24 hours at 100,000 market-cap units. Then continue the already authorized bounded query-only normalization/extraction, immutable isolated bundle materialization and replay verification, and local read-only EB0.2 closure assessment. Missing or incomplete evidence must remain UNKNOWN/NOT_OBSERVED and denominator-ineligible. Stop on any schema, deadline, ceiling, evidence, replay, health, or scope failure. No provider calls, GMGN integration, service restarts or stops, configuration changes, further production database mutations, unrestricted reads, rankings, scoring, policy activation, profitability/cashflow inference, operator attribution, Evidence Mirror, Cohort Mode, production activation, or EB0.3 work.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

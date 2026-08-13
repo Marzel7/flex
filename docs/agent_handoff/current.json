@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T14:22:16Z",
+  "updated_at_utc": "2026-08-13T14:26:08Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "153cb464bff52893450a5f10efa0030d591df882",
-    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, handoff, and user paths remain present; EB0.1O committed exactly the authorized normalization, tests, and documentation"
+    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, handoff, and user paths remain present; EB0.1P was execution-only and changed no engineering files"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T14:22:16Z",
+    "published_at_utc": "2026-08-13T14:26:08Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.1O token-analysis REAL numeric normalization repair",
-    "mode": "safe-local canonical numeric repair and frozen/ephemeral qualification",
+    "milestone": "EB0.1P bounded read-only live canonical census retry",
+    "mode": "single bounded query-only live census and immutable bundle",
     "status": "COMPLETE",
-    "verdict": "LOCAL_QUALIFICATION_PASS_READY_FOR_SEPARATE_LIVE_RETRY_AUTHORIZATION"
+    "verdict": "LIVE_CENSUS_COMPLETE_BASELINE_GAPS_MEASURED"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,70 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_1p_live_canonical_census": {
+      "status": "COMPLETE",
+      "verdict": "LIVE_CENSUS_COMPLETE_BASELINE_GAPS_MEASURED",
+      "engineering_commit": "153cb464bff52893450a5f10efa0030d591df882",
+      "execution_count": 1,
+      "run_id": "eb0-1p-20260813T1424Z",
+      "high_water": 1786631116,
+      "eligible_mint_count": 35638,
+      "selected_mint_count": 5000,
+      "excluded_by_cohort_bound_count": 30638,
+      "corpus_count": 2442,
+      "mints_without_canonical_evidence_count": 2558,
+      "market_first_observed_coverage": "2442/5000 (48.84%)",
+      "missing_event_kind_counts": {
+        "CHAIN_BIRTH": 5000,
+        "PLATFORM_FIRST_SEEN": 5000,
+        "MIGRATION": 5000,
+        "MARKET_FIRST_OBSERVED": 2558
+      },
+      "selected_manifest_event_counts": {
+        "MARKET_FIRST_OBSERVED": 9770
+      },
+      "quality_counts": {
+        "OBSERVED": 9770
+      },
+      "completeness_counts": {
+        "COMPLETE": 9770
+      },
+      "conflicting_observation_count": 0,
+      "missing_valuation_count_in_selected_manifests": 0,
+      "observation_count_before_earliest_boundary_selection": 14296,
+      "excluded_later_observation_count": 4526,
+      "ignored_explicit_record_count": 0,
+      "explicit_receive_records_used": false,
+      "bundle": {
+        "directory": "/private/tmp/flex-eb0-1p-4qJYQD",
+        "size": "approximately 10 MiB",
+        "digest": "2c07d41b9c243f8f0c8ca52e0c54c0b184f28a1ed855e98de2a975f936a688e5",
+        "run_json_sha256": "94b60d49cb3ccad68e385fc604d1c5a77125f359dca1e37e664a6afa21f6ff7d",
+        "aggregate_json_sha256": "643d47f94659010f582e5c63539195ebeb8446dfa1aabdc8cf40327609e77d86",
+        "corpora_json_sha256": "3ba7592afdf5ed510134fe238de1d42115604b1267c9ff41f4f66f799db7e078",
+        "verified": true
+      },
+      "input_fingerprint": "ec67fa256a1577dee9828e8f36352912f264e6113d164089973dbee88e248f17",
+      "result_digest": "1a3ccdeedbf80972faa603a935d583add03a5ffc484a82546be674308bd7972e",
+      "provider_calls": 0,
+      "production_writes": 0,
+      "production_changes": false,
+      "post_run_health": {
+        "watchtower_listener": "RUNNING pid 26185",
+        "creator_funding_worker": "RUNNING pid 80211",
+        "creator_resolution_worker": "RUNNING pid 72488",
+        "evidence_writer": "STOPPED",
+        "serializer_queue_depth": 0,
+        "serializer_p95_commit_ms": 1.34,
+        "serializer_p99_commit_ms": 12.74,
+        "lock_errors_24h": 0
+      },
+      "service_restarts": 0,
+      "gmgn_integration": false,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb0_1o_real_numeric_normalization": {
       "status": "COMPLETE",
       "verdict": "LOCAL_QUALIFICATION_PASS_READY_FOR_SEPARATE_LIVE_RETRY_AUTHORIZATION",
@@ -2635,7 +2699,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "EB0.1O repairs and qualifies the EB0.1N numeric-normalization stop at 153cb464. A fresh live census is still production read access and requires a new run ID, new empty isolated output directory, freshly captured high-water, and separate explicit authorization; the stopped EB0.1N run and empty directory must not be reused.",
+    "EB0.1P completed and verified the bounded 5000-mint live census. It measures market-first-observed coverage at 2442/5000 but finds no qualified CHAIN_BIRTH, explicit PLATFORM_FIRST_SEEN, or explicit MIGRATION facts under the strict committed source contract. EB0.1Q must interpret these measured gaps and close EB0.1 before EB0.2 begins; no source broadening or production activation is implied.",
     "OIP v2.2E is qualified complete, but production activation remains explicitly unauthorized. Any Evidence authority, Evidence Mirror, Cohort Mode, provider expansion, or production deployment requires its own future milestone. Post-E work must begin with roadmap reconciliation rather than implicit activation.",
     "B2BX fully passes the isolated provider qualification at 20/20 with exactly 60 authorized requests. The remaining step is a bounded local-only E-series closure assessment that combines this provider result with the previously qualified B2R acquisition/retention funnel; no production activation is implied or authorized.",
     "B2BW is locally qualified at f08db5b1 with fresh empty ledgers. Provider execution remains HUMAN_APPROVAL_REQUIRED and must explicitly acknowledge the higher-cost oldest enhanced request and the unchanged 60-request stop-safe ceiling.",
@@ -2681,8 +2745,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.1P bounded read-only live canonical census retry",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize exactly one fresh EB0.1P bounded read-only live canonical census using engineering commit 153cb464bff52893450a5f10efa0030d591df882 under the EB0.1N contract recorded in current.json. Assign a new run ID and new empty isolated output directory; capture a fresh migration high-water at the first query-only checkpoint; do not reuse or alter the stopped EB0.1N directory. Open only database/flex_complete_database.db and database/evidence_platform/production/evidence.db with mode=ro/query_only; use no explicit receive records. Preserve the exact latest-5000 selection, older-remainder accounting, 250ms lock timeout, active 30-second per-statement deadlines, maximum two LaunchFacts per selected mint / 10000 total, numeric canonicalization, immutable bundle/digest verification, and first-error/impact stop. Record aggregate metrics only and stop. No provider calls, production writes, service restarts or stops, configuration changes, GMGN integration, rankings, operator attribution, deployment, Evidence Mirror, Cohort Mode, activation, or additional retry.",
+    "milestone": "EB0.1Q canonical baseline closure assessment",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize bounded local read-only EB0.1Q closure assessment using only committed EB0.1A-O code/docs/tests, the verified EB0.1P immutable bundle at /private/tmp/flex-eb0-1p-4qJYQD, and current.json. Verify bundle digests, interpret the 5000-mint coverage/conflict/missingness results, determine the final EB0.1 verdict and limitations, and define the exact EB0.2 creator historical outcome intelligence entry milestone. Update and publish the handoff; create a narrow closure artifact/commit only if required. No production/runtime database or service access, provider calls, production changes, GMGN integration, rankings, operator attribution, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, activation, or additional census execution.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

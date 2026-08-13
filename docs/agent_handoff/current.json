@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T18:34:45Z",
+  "updated_at_utc": "2026-08-13T18:39:44Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "a419bd273e999a7cbc0ab57911a89b514d92dc5a",
-    "working_tree": "dirty: 34 paths including unrelated live Supervisor, audit, runtime, user, handoff, and the isolated uncommitted EB0.3D run directory; EB0.3E committed only its four authorized engineering files"
+    "git_head": "f39f934e2d0fe8ee608695e950dbf02c65bf0d22",
+    "working_tree": "dirty: 34 paths including unrelated live Supervisor, audit, runtime, user, handoff, and the isolated uncommitted EB0.3D run directory; EB0.3F committed only its four authorized engineering files"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T18:34:45Z",
+    "published_at_utc": "2026-08-13T18:39:44Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.3E exact GMGN live-shape normalizer qualification",
-    "mode": "safe-local frozen live-shape and fake-transport qualification",
+    "milestone": "EB0.3F immutable supplemental market-observation manifest qualification",
+    "mode": "safe-local frozen deterministic manifest and replay qualification",
     "status": "COMPLETE",
-    "verdict": "EXACT_LIVE_SHAPE_NORMALIZER_QUALIFIED"
+    "verdict": "IMMUTABLE_MANIFEST_REPLAY_QUALIFIED"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,40 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_3f_historical_market_observation_manifest": {
+      "status": "COMPLETE",
+      "verdict": "IMMUTABLE_MANIFEST_REPLAY_QUALIFIED",
+      "engineering_commit": "f39f934e2d0fe8ee608695e950dbf02c65bf0d22",
+      "verification_utc": "2026-08-13T18:39:44Z",
+      "files": [
+        "src/evidence/contracts/historical_market_observation_manifest.py",
+        "tests/fixtures/eb0_3f_market_observation_file_hashes.json",
+        "tests/test_eb0_3f_historical_market_observation_manifest.py",
+        "docs/evidence_platform/eb0_3f_historical_market_observation_manifest.md"
+      ],
+      "qualified_boundary": "pure immutable manifest replay over EB0.3A/C/E frozen evidence with exact two-file hash set, version/accounting/window/digest binding, deterministic observations and explicit limitation counts",
+      "bound_evidence": [
+        "contract, adapter, normalizer and manifest versions",
+        "platform mint, 1m request window, run ID, physical sequence and request cost",
+        "raw envelope, response projection, observation projection and per-file hashes",
+        "row, quality, completeness, conflict, market-cap presence and earliest-semantics counts",
+        "deterministic observations and manifest digest"
+      ],
+      "fail_closed": "missing/extra/malformed/altered hashes, envelope, metadata, versions or manifest content fail exact replay; upstream normalizer excludes credentials, pagination, inferred valuation, ranking, scoring, attribution and policy",
+      "tests": {
+        "direct_eb0_3": "45 passed",
+        "adjacent_eb0_1_eb0_2": "33 passed",
+        "total": "78 passed"
+      },
+      "provider_calls": 0,
+      "live_gmgn_execution": false,
+      "production_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb0_3e_gmgn_market_kline_normalizer": {
       "status": "COMPLETE",
       "verdict": "EXACT_LIVE_SHAPE_NORMALIZER_QUALIFIED",
@@ -3610,6 +3644,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "EB0.3F qualifies an in-memory immutable manifest and exact replay, but no write-once isolated output-bundle boundary exists. Live extraction, broader provider sampling, history completeness and any activation remain separately human-gated.",
     "EB0.3E qualifies deterministic normalization and EB0.3C replay for the single frozen EB0.3D live shape, but no immutable multi-page/run manifest or output-bundle replay contract exists. Broader provider history, mint coverage, and pagination remain separately human-gated.",
     "EB0.3D proves the exact live GMGN kline envelope and candle field encodings for one platform mint and one known historical hour only. It does not establish birth-window/pre-migration availability, full-history or page completeness, broader mint coverage, pagination, sustained rate limits, or historical market cap/liquidity. Further provider sampling requires separate authorization.",
     "EB0.3C qualifies only the frozen credential-free adapter boundary. Exact live GMGN endpoint/version, response shape, request cost, time-unit conversion, lookback/page behavior, and mint compatibility remain unproven. Any live shape qualification is provider work and requires separate explicit authorization.",
@@ -3664,8 +3699,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.3F immutable supplemental market-observation manifest qualification",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize EB0.3F safe-local design, implementation, frozen-fixture tests, regression tests, documentation, and one narrow commit for immutable supplemental historical-market observation manifests over EB0.3A/C/E frozen evidence only. Bind exact contract/adapter/normalizer versions, platform mint, request window and accounting, raw-envelope and projection digests, deterministic EB0.3A observations, row/quality/completeness/conflict counts, per-file hashes, manifest digest, and exact replay verification. Preserve separate facts and PAGE_EARLIEST_NOT_HISTORY limitations; fail closed on missing, extra, altered, overwritten, credential-bearing, authority-promoting, market-cap/liquidity-inferred, pagination, ranking, scoring, profitability/cashflow, creator/operator attribution, or policy content. Frozen fixtures only. No provider calls, live GMGN execution, production/runtime access or changes, deployment, service restarts or stops, configuration changes, Evidence Mirror, Cohort Mode, activation, or production activation.",
+    "milestone": "EB0.3G immutable supplemental market-observation output-bundle qualification",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize EB0.3G safe-local design, implementation, frozen/ephemeral filesystem tests, regression tests, documentation, and one narrow commit for an immutable EB0.3F output-bundle boundary. Write only to an explicitly supplied new empty directory; serialize canonical run metadata, credential-free normalized projection, EB0.3F manifest and observations; bind engineering revision supplied by the caller, exact file set, per-file hashes and one bundle digest; verify exact replay; and fail closed on overwrite, missing, extra, altered, credential-bearing, authority-promoting, market-cap/liquidity-inferred, pagination, ranking, scoring, profitability/cashflow, creator/operator attribution, or policy content. Frozen/ephemeral fixtures only. No provider calls, live GMGN execution, production/runtime access or changes, publication outside the local test directory, deployment, service restarts or stops, configuration changes, Evidence Mirror, Cohort Mode, activation, or production activation.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

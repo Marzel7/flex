@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T07:39:01Z",
+  "updated_at_utc": "2026-08-13T07:42:36Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T07:39:01Z",
+    "published_at_utc": null,
     "protocol_version": 1,
-    "status": "PUBLISHED"
+    "status": "PENDING_PUBLICATION"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2AJ post-reload production stability observation",
-    "mode": "completed bounded read-only production observation",
+    "milestone": "OIP v2.2E.2B2AK database writer-contention local root-cause diagnosis",
+    "mode": "completed bounded local read-only diagnosis",
     "status": "HOLD",
-    "verdict": "PRODUCTION_IMPACT_AT_START_BOUNDARY"
+    "verdict": "MULTI_WRITER_CONTENTION_REPAIR_REQUIRED"
   },
   "production_state": {
     "retention": "ON",
@@ -719,6 +719,28 @@
       "service_restarts": 0,
       "blocker": "The clean stability prerequisite failed at the qualified start boundary. B2Z remains held; no provider qualification is permitted."
     },
+    "oip_v2_2e_2b2ak_database_writer_contention_diagnosis": {
+      "status": "COMPLETE",
+      "verdict": "MULTI_WRITER_CONTENTION_REPAIR_REQUIRED",
+      "verification_utc": "2026-08-13T07:42:36Z",
+      "scope": "Local read-only health, logs, process metadata, and source inspection only; no Codex-initiated provider call, production write, restart, configuration change, Evidence Mirror/Cohort Mode action, or B2Z observation.",
+      "impact": {
+        "database": "CRITICAL; p99_wait_ms 30992.42; WAL 64.3MB",
+        "listener": "HEALTHY transport but lock_errors_since_start increased to 5; local logs show repeated birth persistence retries and event-loop lag",
+        "creator_funding": "RUNNING with fresh heartbeat, but long extraction/timeout cleanup continues"
+      },
+      "root_cause_evidence": [
+        "Creator-funding runs two live extraction slots, each capable of long history scans followed by post-launch automation with multiple writes to the shared tracked database.",
+        "The observed active cross-process writer lease was creator_resolution_queue.py:52 in connect; its hot path opens the same DB with a write-capable connection and runs WAL PRAGMAs before its independently scheduled queue write scopes.",
+        "Worker logs show post-launch writes waiting behind that creator-resolution lease and failing/retrying, while listener logs show database-lock birth retries and long event-loop stalls.",
+        "No single owner-thread handle leak is proven from this bounded local evidence; the failure is concurrent, broad writer scope under live workload."
+      ],
+      "smallest_repair_proposal": "Safe-local design and qualification only: refactor creator_resolution_queue connection ownership so read selection uses the existing read-only connector, each mutation uses a short managed/tracked write scope, and journal-mode configuration is not executed on every hot connection open. Add focused contention tests against two creator-funding slots plus resolution work. Do not deploy or restart under this proposal.",
+      "provider_rpc_calls_initiated_by_codex": 0,
+      "production_changes": false,
+      "service_restarts": 0,
+      "blocker": "The proposed repair requires a separate safe-local engineering milestone; B2Z remains held pending repair, authorized deployment, and a new clean stability observation."
+    },
     "oip_v2_2e_2b2n_preflight_manifest_authorization": {
       "status": "COMPLETE",
       "verdict": "SAFE_LOCAL_PREFLIGHT_AUTHORIZED",
@@ -1154,8 +1176,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2AK database writer-contention local root-cause diagnosis",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize bounded local read-only diagnosis of the recurring database writer contention using existing health telemetry, local logs, process metadata, and source only. Do not restart/reconfigure services, invoke provider qualification calls, write production data, activate Evidence Mirror/Cohort Mode, or start B2Z. Record and publish the root-cause verdict and smallest repair proposal, then stop.",
+    "milestone": "OIP v2.2E.2B2AL creator-resolution connection-scope safe-local qualification",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize safe-local design, implementation, and test qualification of the creator-resolution connection-scope repair described in B2AK. No deployment, service restart, configuration change, provider call, production write, Evidence Mirror/Cohort Mode activation, or B2Z observation. Commit only narrow engineering changes if tests pass; record and publish the result, then stop.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

@@ -1,0 +1,119 @@
+import json
+from pathlib import Path
+import sqlite3
+
+import pytest
+
+from src.evidence.contracts.birth_valuation_census import (
+    BirthValuationCensusError,
+    extract_birth_valuation_census,
+)
+
+
+MINT = "MintCensus111111111111111111111111111111"
+
+
+def _database(path: Path, *, members: int = 1) -> None:
+    db = sqlite3.connect(path)
+    db.executescript("""
+    CREATE TABLE token_analysis(
+      mint TEXT, migrated_at INTEGER, first_observed_mc TEXT, first_observed_price TEXT,
+      first_observed_at INTEGER, first_observed_source TEXT, first_observed_confidence TEXT);
+    CREATE TABLE normalized_evidence_records(
+      fact_family TEXT, payload_json TEXT, raw_artifact_digest TEXT, acquired_at INTEGER,
+      source_id TEXT, source_version TEXT, verification_state TEXT);
+    CREATE TABLE token_price_snapshots(
+      snapshot_id INTEGER PRIMARY KEY, mint TEXT, price_usd REAL, market_cap REAL,
+      source TEXT, captured_at INTEGER, created_at INTEGER);
+    CREATE TABLE eb0_platform_receive_evidence(
+      mint TEXT, receive_utc_ns INTEGER, source TEXT, source_schema_version TEXT,
+      source_record_digest TEXT);
+    CREATE TABLE eb0_migration_receive_evidence(
+      mint TEXT, receive_utc_ns INTEGER, signature TEXT, source TEXT,
+      source_schema_version TEXT, source_record_digest TEXT);
+    """)
+    for ordinal in range(members):
+        mint = MINT if ordinal == 0 else f"Mint{ordinal:04d}"
+        db.execute("INSERT INTO token_analysis VALUES(?,?,?,?,?,?,?)",
+                   (mint, 200 + ordinal, "12000", "0.00012", 150, "local-fixture", "HIGH"))
+        db.execute("INSERT INTO token_price_snapshots VALUES(?,?,?,?,?,?,?)",
+                   (ordinal + 1, mint, 0.0002, 20000, "snapshot-fixture", 160, 161))
+        payload = {"mint": mint, "creation_signature": f"sig-{ordinal}",
+                   "creation_timestamp": 100, "creation_slot": 10,
+                   "program_id": "pump", "source_platform": "pumpfun"}
+        db.execute("INSERT INTO normalized_evidence_records VALUES(?,?,?,?,?,?,?)",
+                   ("LaunchFact", json.dumps(payload), f"launch-{ordinal}", 110,
+                    "fixture", "1", "VERIFIED"))
+        db.execute("INSERT INTO eb0_platform_receive_evidence VALUES(?,?,?,?,?)",
+                   (mint, 120_000_000_000, "fixture", "1", f"receive-{ordinal}"))
+        db.execute("INSERT INTO eb0_migration_receive_evidence VALUES(?,?,?,?,?,?)",
+                   (mint, (200 + ordinal) * 1_000_000_000, f"migration-{ordinal}",
+                    "fixture", "1", f"migration-digest-{ordinal}"))
+    db.commit()
+    db.close()
+
+
+def test_query_only_extraction_is_deterministic_and_preserves_four_kinds(tmp_path):
+    path = tmp_path / "frozen.sqlite"
+    _database(path)
+    before = path.read_bytes()
+    first = extract_birth_valuation_census(path, high_water_migrated_at=250)
+    second = extract_birth_valuation_census(path, high_water_migrated_at=250)
+    assert first == second
+    assert path.read_bytes() == before
+    assert first.selected_mints == (MINT,)
+    assert first.corpora[0].manifest.event_counts == {
+        "CHAIN_BIRTH": 1, "MARKET_FIRST_OBSERVED": 2,
+        "MIGRATION": 1, "PLATFORM_FIRST_SEEN": 1,
+    }
+    assert first.excluded_observation_count == 2
+
+
+def test_high_water_excludes_later_rows(tmp_path):
+    path = tmp_path / "frozen.sqlite"
+    _database(path, members=2)
+    result = extract_birth_valuation_census(path, high_water_migrated_at=200)
+    assert result.selected_mints == (MINT,)
+
+
+def test_noncanonical_limit_and_timeout_bound_fail_closed(tmp_path):
+    path = tmp_path / "frozen.sqlite"
+    _database(path)
+    with pytest.raises(BirthValuationCensusError, match="MINT_LIMIT_MUST_BE_5000"):
+        extract_birth_valuation_census(path, high_water_migrated_at=250, mint_limit=4_999)
+    with pytest.raises(BirthValuationCensusError, match="INVALID_QUERY_BOUND"):
+        extract_birth_valuation_census(path, high_water_migrated_at=250, max_query_seconds=31)
+
+
+def test_more_than_5000_members_stops_without_projection(tmp_path):
+    path = tmp_path / "frozen.sqlite"
+    _database(path, members=5_001)
+    with pytest.raises(BirthValuationCensusError, match="COHORT_EXCEEDS_5000"):
+        extract_birth_valuation_census(path, high_water_migrated_at=10_000)
+
+
+def test_missing_or_malformed_schema_fails_closed(tmp_path):
+    missing = tmp_path / "missing.sqlite"
+    sqlite3.connect(missing).close()
+    with pytest.raises(BirthValuationCensusError, match="MISSING_TABLE_TOKEN_ANALYSIS"):
+        extract_birth_valuation_census(missing, high_water_migrated_at=1)
+
+    malformed = tmp_path / "malformed.sqlite"
+    _database(malformed)
+    db = sqlite3.connect(malformed)
+    db.execute("ALTER TABLE token_analysis RENAME TO wrong_token_analysis")
+    db.commit()
+    db.close()
+    with pytest.raises(BirthValuationCensusError, match="MISSING_TABLE_TOKEN_ANALYSIS"):
+        extract_birth_valuation_census(malformed, high_water_migrated_at=250)
+
+
+def test_read_only_uri_rejects_source_mutation(tmp_path):
+    path = tmp_path / "frozen.sqlite"
+    _database(path)
+    uri = f"file:{path.resolve()}?mode=ro"
+    db = sqlite3.connect(uri, uri=True)
+    db.execute("PRAGMA query_only=ON")
+    with pytest.raises(sqlite3.OperationalError):
+        db.execute("UPDATE token_analysis SET migrated_at=0")
+    db.close()

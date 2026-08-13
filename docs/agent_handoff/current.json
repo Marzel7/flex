@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T08:09:46Z",
+  "updated_at_utc": "2026-08-13T08:14:32Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T08:11:00Z",
+    "published_at_utc": null,
     "protocol_version": 1,
-    "status": "PUBLISHED"
+    "status": "PENDING_PUBLICATION"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2AO creator-resolution one-time schema initialization qualification",
-    "mode": "completed bounded safe-local design, implementation, test, and narrow commit",
-    "status": "COMPLETE",
-    "verdict": "LOCAL_QUALIFICATION_PASS"
+    "milestone": "OIP v2.2E.2B2AP creator-resolution one-time schema initialization deployment",
+    "mode": "completed explicitly authorized single-service restart and immediate local verification",
+    "status": "PARTIAL",
+    "verdict": "RESTART_COMPLETE_HEALTH_NOT_RECOVERED"
   },
   "production_state": {
     "retention": "ON",
@@ -28,11 +28,11 @@
     "cohort_mode": "OFF",
     "evidence_writer": "STOPPED",
     "listener_service": "watchtower_listener",
-    "listener_pid_last_verified": 886,
+    "listener_pid_last_verified": 18284,
     "creator_funding_service": "creator_funding_worker",
     "creator_funding_pid_last_verified": 9399,
     "creator_resolution_service": "creator_resolution_worker",
-    "creator_resolution_pid_last_verified": 15065
+    "creator_resolution_pid_last_verified": 21886
   },
   "orchestration": {
     "schema_version": 3,
@@ -829,6 +829,29 @@
       "service_restarts": 0,
       "blocker": "The qualified repair is not deployed. Loading it requires an explicitly authorized creator_resolution_worker restart; B2Z remains held."
     },
+    "oip_v2_2e_2b2ap_creator_resolution_worker_deployment": {
+      "status": "PARTIAL",
+      "verdict": "RESTART_COMPLETE_HEALTH_NOT_RECOVERED",
+      "verification_utc": "2026-08-13T08:14:32Z",
+      "authorization": "Exactly one creator_resolution_worker restart to load engineering commit b44f953ca867ab8b674bb03d27663a4351f03b75 with immediate local health verification.",
+      "restart": {
+        "service": "creator_resolution_worker",
+        "old_pid": 15065,
+        "new_pid": 21886,
+        "other_services": "watchtower_listener remained RUNNING pid 18284; creator_funding_worker remained RUNNING pid 9399; evidence_writer remained STOPPED"
+      },
+      "immediate_health": {
+        "worker": "Supervisor RUNNING after 1m58s, but creator-resolution heartbeat remained stale and had not advanced from the pre-restart cycle during the bounded check.",
+        "healthz": "HTTP 503; database reachable; WAL 25.3MB below warning; creator-resolution heartbeat stale.",
+        "full_health": "HTTP 200 payload with overall CRITICAL; database p99_wait_ms 31018.51; serializer queue depth 0; ingestion HEALTHY with PumpPortal and PumpSwap CONNECTED and fresh birth/migration traffic.",
+        "listener": "RUNNING pid 18284 with one lock error since its current start; no listener restart was initiated in B2AP."
+      },
+      "flags": "retention ON; migration census ON; Evidence Mirror OFF; Cohort Mode OFF; evidence_writer STOPPED",
+      "provider_qualification_calls_initiated_by_codex": 0,
+      "provider_note": "No B2Z or bounded provider qualification was invoked. The restarted worker is permitted to resume only its pre-existing normal workload as an inherent consequence of the authorized restart.",
+      "production_changes": "one explicitly authorized creator_resolution_worker restart only",
+      "blocker": "Immediate health did not recover: the new worker remained alive but had not refreshed its heartbeat, and database write latency remained critical. No second restart or observation is authorized."
+    },
     "oip_v2_2e_incident_causal_assessment": {
       "status": "COMPLETE",
       "verdict": "LATENT_DEFECT_REACTIVATED_BY_WORKER_RECOVERY",
@@ -1261,6 +1284,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "B2AP completed the single authorized creator_resolution_worker restart, but immediate health did not recover: PID 21886 remained RUNNING without a refreshed heartbeat and database write p99 remained approximately 31 seconds. A new bounded diagnosis milestone is required; no second restart or B2Z action is authorized.",
     "B2AO passed local qualification and is committed at b44f953ca867ab8b674bb03d27663a4351f03b75, but is not deployed. Exactly one creator_resolution_worker restart plus immediate local health verification requires explicit authorization; B2Z remains held.",
     "The existing B2N provider contract names the old B2K census cohort, while B2U correctly freezes the new fully B2M-loaded B2R cohort. Provider execution therefore requires an explicit reviewed contract amendment that selects B2R and retains the 20-request/no-retry/no-production constraints.",
     "B2S confirms that the live broad creator extraction path makes hundreds of provider RPC calls per attempt and times out at 90 seconds. It cannot satisfy B2N's 20 total / one-request-per-mint qualification contract; a separate isolated-executor architecture decision is required.",
@@ -1275,8 +1299,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2AP creator-resolution one-time schema initialization deployment",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize exactly one creator_resolution_worker restart to load commit b44f953ca867ab8b674bb03d27663a4351f03b75, with immediate local health verification; preserve all production flags and evidence_writer STOPPED; no other restart, configuration change, provider qualification, Evidence Mirror, Cohort Mode, or B2Z observation. The restarted worker may resume its existing normal provider workload as an inherent consequence of the authorized restart.",
+    "milestone": "OIP v2.2E.2B2AQ creator-resolution startup and residual contention diagnosis",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize bounded local read-only diagnosis of why creator_resolution_worker PID 21886 has not refreshed its heartbeat after loading B2AO and why database p99 remains critical. No implementation, provider call, production write, restart, configuration change, Evidence Mirror, Cohort Mode, or B2Z observation.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

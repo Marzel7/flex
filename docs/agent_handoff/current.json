@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T11:20:28Z",
+  "updated_at_utc": "2026-08-13T11:23:47Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2BL post-B2BJ listener stability observation",
-    "mode": "bounded read-only production observation stopped at first endpoint",
-    "status": "HOLD",
-    "verdict": "HEALTH_ENDPOINT_TIMEOUT"
+    "milestone": "OIP v2.2E.2B2BM full-health timeout diagnosis",
+    "mode": "bounded local read-only diagnosis",
+    "status": "COMPLETE",
+    "verdict": "MONITORING_PATH_DB_LATENCY_NOT_ACTIVE_INGESTION_IMPACT"
   },
   "production_state": {
     "retention": "ON",
@@ -1310,6 +1310,25 @@
       "flags": "Migration Census ON; Retention ON; Evidence Mirror OFF; Cohort Mode OFF; evidence_writer STOPPED.",
       "blocker": "The B2BJ descriptor repair remained clean for the entire 237-second window, but the contract cannot pass because the full-health endpoint timed out once. The timeout/status provenance requires separate read-only diagnosis before deciding whether to repeat the stability window. B2Z remains held."
     },
+    "oip_v2_2e_2b2bm_full_health_timeout_diagnosis": {
+      "status": "COMPLETE",
+      "verdict": "MONITORING_PATH_DB_LATENCY_NOT_ACTIVE_INGESTION_IMPACT",
+      "verification_utc": "2026-08-13T11:23:47Z",
+      "scope": "Read-only health implementation, API logs, bounded local endpoint timing, Supervisor status, and existing telemetry inspection only; no implementation, provider request, production write, service restart/stop, lock manipulation, configuration change, Evidence Mirror, Cohort Mode, observation restart, or B2Z action.",
+      "endpoint_provenance": "/api/health/full synchronously performs multiple direct read-only queries against the approximately 10GB main database and wt_ops_v2.db, including several grouped/count/aggregate intelligence queries. Its fail-soft blocks catch query errors but have no whole-request deadline or cached snapshot boundary, so connection/query stalls accumulate into request latency.",
+      "timing_evidence": "The lightweight /healthz route responded in 9-35ms, proving Gunicorn remained responsive. DB-backed /api/db-health timed out in three bounded attempts (one at 15s and two at 10s). Subsequent /api/health/full calls completed variably in 6.934s and 1.932s after the B2BL 12s timeout. API logs independently recorded DB_CONNECT_SLOW delays of approximately 7.82-7.92s in DB-health/funding reads.",
+      "active_health_separation": "Whenever /api/health/full completed, database was HEALTHY with low p99 and queue depth zero, while ingestion was HEALTHY with PumpPortal/PumpSwap connected, fresh births, empty queues, and zero listener lock errors. Listener PID 26185 and API PID 77110 remained stable. This does not support active listener/database-write production impact at the B2BL timeout.",
+      "warning_provenance": "The platform WARNING/healthz 503 is independently caused by stale legacy or operational heartbeat rows, including retired watch-pipeline and long-stale wt-infra/candidate/corridor components. It is not derived from current database or ingestion degradation and predates B2BL.",
+      "assessment": "The B2BL timeout was real monitoring-path latency and correctly stopped the strict contract, but it is not evidence that the B2BJ descriptor repair failed or that live ingestion/database writes degraded. /api/health/full and /api/db-health are unsuitable as sole stop sensors for the repeat descriptor window until their DB-read latency is accounted for.",
+      "recommended_observation_contract": "Repeat the bounded descriptor stability window using Supervisor PID, listener lifecycle/watchdog snapshots, db_serializer_metrics.json, listener log freshness/connections, queues, and websocket traffic as primary local signals. Treat /api/health/full as advisory; a timeout alone is monitoring-path degradation, while corroborated serializer, queue, websocket, PID, or descriptor degradation remains an immediate production-impact stop.",
+      "runtime": "watchtower_listener RUNNING pid 26185; watchtower_api RUNNING pid 77110; creator_funding_worker RUNNING pid 80211; creator_resolution_worker RUNNING pid 72488; evidence_writer STOPPED.",
+      "provider_calls": 0,
+      "production_writes": 0,
+      "production_changes": false,
+      "service_restarts_or_stops": 0,
+      "flags": "Migration Census ON; Retention ON; Evidence Mirror OFF; Cohort Mode OFF; evidence_writer STOPPED.",
+      "blocker": "The original B2BL window remains failed closed. A revised bounded observation contract and new start boundary require explicit authorization; B2Z remains held."
+    },
     "oip_v2_2e_incident_causal_assessment": {
       "status": "COMPLETE",
       "verdict": "LATENT_DEFECT_REACTIVATED_BY_WORKER_RECOVERY",
@@ -1742,6 +1761,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "B2BM confirms B2BL stopped on monitoring-path DB latency, not corroborated live ingestion/database-write impact: /healthz is fast, DB-backed health routes are variably 2s to >15s, and completed snapshots show database/ingestion healthy. A revised observation contract needs explicit authorization; B2Z remains held.",
     "B2BL descriptor behavior stayed clean for 237 seconds (max fd=7, latest 0, no 20-second watchtower connection), but the observation stopped on a 12-second /api/health/full timeout. A retry showed database and ingestion healthy while platform WARNING reflected stale retired/operational workers. Timeout provenance requires explicit read-only diagnosis; B2Z remains held.",
     "B2BK immediate verification passes on a live migration: watchtower main connections closed in 14-32ms before operations work, watchdog fd_count peaked at 7 then returned to zero, and database/ingestion stayed healthy. A bounded stability observation remains required; B2Z stays held.",
     "B2BJ locally qualified close-before-cross-database-submit ordering and committed it narrowly at 03aa9959, but the running listener has not loaded it. One explicit listener deployment/restart authorization is required; B2Z remains held.",
@@ -1773,8 +1793,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2BM full-health timeout diagnosis",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize bounded local read-only diagnosis of the B2BL /api/health/full timeout and subsequent platform WARNING, including endpoint timing/provenance, database/ingestion versus stale retired-worker contributions, and whether the timeout represents current production impact or monitoring-path latency; no implementation, provider calls, production writes, service restarts or stops, lock manipulation, configuration changes, Evidence Mirror, Cohort Mode, stability-window restart, or B2Z execution.",
+    "milestone": "OIP v2.2E.2B2BN revised listener stability observation",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize a new bounded 15-minute read-only production stability observation starting at the first Supervisor/lifecycle/serializer/ingestion checkpoint after authorization and ending at the first of: 15 clean minutes, primary_fd_count reaching 8, any watchtower migration main-DB connection reaching 20 seconds, CRITICAL_LISTENER_DB_HANDLE, listener PID change, serializer database pressure, queue or websocket degradation, stale listener traffic, or other corroborated production impact. Use Supervisor, connection-lifecycle/watchdog telemetry, db_serializer_metrics.json, listener log/queue/websocket evidence as primary signals; /api/health/full is advisory and an isolated timeout is monitoring-path degradation, not by itself production impact. No provider qualification, production writes, service restarts or stops, lock manipulation, configuration changes, Evidence Mirror, Cohort Mode, or B2Z execution.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

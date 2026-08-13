@@ -1,23 +1,23 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T13:24:16Z",
+  "updated_at_utc": "2026-08-13T13:28:31Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "a53e0a9d82f708b7a334429f8d89a16dd26ee537",
-    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, handoff, and user paths remain present; EB0.1D committed exactly three authorized manifest, test, and documentation files"
+    "git_head": "e7dcab4a2be055fceccc991a86f556e410690e7a",
+    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, handoff, and user paths remain present; EB0.1E committed exactly three authorized corpus, test, and documentation files"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T13:24:16Z",
+    "published_at_utc": "2026-08-13T13:28:31Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.1D frozen canonical projection manifest",
-    "mode": "safe-local immutable manifest implementation and frozen replay qualification",
+    "milestone": "EB0.1E frozen canonical corpus assembly",
+    "mode": "safe-local deterministic per-mint corpus implementation and frozen qualification",
     "status": "COMPLETE",
     "verdict": "LOCAL_QUALIFICATION_PASS"
   },
@@ -235,6 +235,31 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_1e_canonical_corpus_assembly": {
+      "status": "COMPLETE",
+      "verdict": "LOCAL_QUALIFICATION_PASS",
+      "commit": "e7dcab4a2be055fceccc991a86f556e410690e7a",
+      "assembler": "src/evidence/contracts/birth_valuation_corpus.py",
+      "documentation": "docs/evidence_platform/eb0_1e_canonical_corpus.md",
+      "selection": "earliest event_time boundary independently per mint and event kind",
+      "tied_conflicts_preserved": true,
+      "later_observations_accounted": true,
+      "exclusion_reason": "LATER_THAN_EARLIEST_EVENT_KIND_BOUNDARY",
+      "missingness_retained": true,
+      "frozen_corpus_digest": "6be5dc1c24cfbb61de983ee5d18c42abd3d7b48294af67672ceed0909f6188da",
+      "tests": {
+        "focused_eb0_1a_to_1e": "33 passed, 0 failed",
+        "evidence_contract_regression": "52 passed, 0 failed"
+      },
+      "provider_calls": 0,
+      "production_or_runtime_database_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "gmgn_integration": false,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb0_1d_canonical_projection_manifest": {
       "status": "COMPLETE",
       "verdict": "LOCAL_QUALIFICATION_PASS",
@@ -2297,7 +2322,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "EB0.1D locally qualifies immutable manifests, but heterogeneous canonical facts are not yet assembled into per-mint frozen corpora with deterministic earliest-boundary selection and exclusion accounting. Production/runtime data remains unread and real-population coverage remains unknown. EB0.1E frozen corpus assembly must be qualified before any production-read contract is proposed.",
+    "EB0.1E locally qualifies deterministic frozen per-mint corpus assembly. Real-population coverage, timestamp-quality distribution, conflict rate, and missing-valuation denominator remain unknown because production/runtime data has not been read. A read-only closure/preflight must define the exact bounded production snapshot contract before any live census authorization.",
     "OIP v2.2E is qualified complete, but production activation remains explicitly unauthorized. Any Evidence authority, Evidence Mirror, Cohort Mode, provider expansion, or production deployment requires its own future milestone. Post-E work must begin with roadmap reconciliation rather than implicit activation.",
     "B2BX fully passes the isolated provider qualification at 20/20 with exactly 60 authorized requests. The remaining step is a bounded local-only E-series closure assessment that combines this provider result with the previously qualified B2R acquisition/retention funnel; no production activation is implied or authorized.",
     "B2BW is locally qualified at f08db5b1 with fresh empty ledgers. Provider execution remains HUMAN_APPROVAL_REQUIRED and must explicitly acknowledge the higher-cost oldest enhanced request and the unchanged 60-request stop-safe ceiling.",
@@ -2343,8 +2368,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.1E frozen canonical corpus assembly",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize safe-local design, implementation, frozen-fixture tests, regression tests, documentation, and one narrow commit for EB0.1E deterministic per-mint canonical corpus assembly over EB0.1A-D frozen evidence only. Define and qualify earliest-boundary selection separately for CHAIN_BIRTH, PLATFORM_FIRST_SEEN, MIGRATION, and MARKET_FIRST_OBSERVED; preserve tied/conflicting facts, record excluded later-observation counts and reasons, retain explicit missingness, and emit EB0.1D manifests reproducibly. Frozen fixtures only. No production/runtime database access, provider calls, GMGN integration, rankings, operator attribution, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, or activation.",
+    "milestone": "EB0.1F canonical baseline closure and live-census preflight",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize a bounded local read-only EB0.1F closure and live-census preflight using committed EB0.1A-E code, tests, documentation, schemas, and frozen fixtures only. Determine whether the canonical birth/valuation baseline is locally complete; specify the exact future read-only production snapshot inputs, row/time bounds, query-only isolation, output manifest, coverage/conflict/missingness metrics, and stop conditions; identify blockers and the smallest separately authorized live census. Do not implement or execute the extractor and do not access production/runtime databases or services. No provider calls, GMGN integration, rankings, operator attribution, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, or activation.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

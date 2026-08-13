@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T09:13:47Z",
+  "updated_at_utc": "2026-08-13T09:17:59Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "438d6496a9651dba1f4ee2f4895aa5ac1986f5fc",
-    "working_tree": "dirty: unrelated live Supervisor, audit, runtime, and user files remain present and were not staged; B2AR/B2AS engineering changes are committed narrowly"
+    "git_head": "b0487d205e0c47c5b9b4d021a1d0ffe44a436759",
+    "working_tree": "dirty: unrelated live Supervisor, audit, runtime, and user files remain present and were not staged; B2AV engineering changes are committed narrowly"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T09:14:58Z",
+    "published_at_utc": null,
     "protocol_version": 1,
-    "status": "PUBLISHED"
+    "status": "PENDING_PUBLICATION"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2AU creator-resolution first-cycle heartbeat ordering diagnosis",
-    "mode": "completed bounded local read-only diagnosis",
+    "milestone": "OIP v2.2E.2B2AV creator-resolution funding-coverage index and heartbeat-ordering qualification",
+    "mode": "completed safe-local design, implementation, tests, and narrow commit",
     "status": "COMPLETE",
-    "verdict": "UNINDEXED_FUNDING_COVERAGE_SCAN_CONFIRMED"
+    "verdict": "LOCAL_QUALIFICATION_PASS"
   },
   "production_state": {
     "retention": "ON",
@@ -956,6 +956,29 @@
       "service_restarts": 0,
       "blocker": "The recurring unindexed funding-coverage scan can keep the heartbeat stale even though the process is alive. Safe-local implementation and tests require a new explicit milestone; no production action is authorized."
     },
+    "oip_v2_2e_2b2av_funding_index_and_heartbeat_ordering": {
+      "status": "COMPLETE",
+      "verdict": "LOCAL_QUALIFICATION_PASS",
+      "verification_utc": "2026-08-13T09:17:59Z",
+      "scope": "Safe-local design, implementation, tests, and narrow commit only. No deployment, provider call, production write, restart, configuration change, Evidence Mirror/Cohort Mode action, or B2Z observation.",
+      "engineering_commit": "b0487d205e0c47c5b9b4d021a1d0ffe44a436759",
+      "files": [
+        "src/core/creator_resolution_queue.py",
+        "src/core/creator_resolution_worker.py",
+        "tests/test_b2av_creator_resolution_funding_index_heartbeat.py"
+      ],
+      "implementation": [
+        "Creator-resolution schema readiness now requires a mint-leading creator_funding_queue index when that table exists.",
+        "The managed migration path creates idx_creator_funding_queue_mint without claiming ownership of creator_funding_queue table creation.",
+        "A startup-ready heartbeat is emitted immediately after schema readiness and a cycle-start heartbeat is emitted before population scans.",
+        "The existing post-cycle heartbeat remains authoritative for outcome and efficiency metrics."
+      ],
+      "tests": "28 passed: mint index creation/readiness, EXPLAIN plan uses idx_creator_funding_queue_mint, startup/cycle heartbeat ordering, B2AR/B2AO/B2AL/X78.13/X78.28/X78.39B regressions; py_compile and diff check passed.",
+      "provider_rpc_calls": 0,
+      "production_changes": false,
+      "service_restarts": 0,
+      "blocker": "Commit b0487d20 is not deployed. Exactly one creator_resolution_worker restart and immediate index/heartbeat verification require explicit authorization."
+    },
     "oip_v2_2e_incident_causal_assessment": {
       "status": "COMPLETE",
       "verdict": "LATENT_DEFECT_REACTIVATED_BY_WORKER_RECOVERY",
@@ -1388,6 +1411,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "B2AV passed 28 focused tests and is committed at b0487d205e0c47c5b9b4d021a1d0ffe44a436759, but the running creator_resolution_worker has not loaded the funding mint index and pre-work heartbeat changes. Deployment requires one explicitly authorized restart.",
     "B2AU confirms the recurring creator-resolution heartbeat staleness is caused by an unindexed correlated creator_funding_queue.mint coverage scan executed before heartbeat emission on every cycle. Safe-local index/schema and heartbeat-ordering implementation is not yet authorized.",
     "B2AT proves the ready-schema startup fast path loaded, but creator-resolution heartbeat is still emitted only after the first long population cycle. PID 64872 remained RUNNING while the prior heartbeat aged beyond the 143-second health threshold. A bounded read-only ordering diagnosis is required; no second restart or implementation is authorized.",
     "B2AS committed the qualified schema-ready startup fast path at 438d6496a9651dba1f4ee2f4895aa5ac1986f5fc. The running creator_resolution_worker has not loaded it; exactly one restart and immediate verification require explicit authorization.",
@@ -1407,8 +1431,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2AV creator-resolution funding-coverage index and heartbeat-ordering qualification",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize safe-local design, implementation, tests, and narrow commit for a schema-managed creator_funding_queue(mint) index plus creator-resolution startup/cycle-start heartbeat before population scans, retaining the existing post-cycle outcome heartbeat. No deployment, provider call, production write, restart, configuration change, Evidence Mirror, Cohort Mode, or B2Z observation.",
+    "milestone": "OIP v2.2E.2B2AW creator-resolution funding-index and heartbeat deployment",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize exactly one creator_resolution_worker restart to load commit b0487d205e0c47c5b9b4d021a1d0ffe44a436759, with immediate local verification that idx_creator_funding_queue_mint is created, startup/cycle-start heartbeat refreshes promptly, and the funding coverage scan uses the index; preserve all production flags and evidence_writer STOPPED; no other restart, configuration change, provider qualification, Evidence Mirror, Cohort Mode, or B2Z observation. The restarted worker may resume its existing normal provider workload as an inherent consequence of the authorized restart.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

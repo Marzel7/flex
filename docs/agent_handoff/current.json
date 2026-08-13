@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T15:50:53Z",
+  "updated_at_utc": "2026-08-13T15:56:44Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "81dc2878c10c52a875012a08d8148930af65ac53",
-    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, and user paths remain present; the narrow EB0.2M commit contains only the authorized proof mapping, local schema indexes, frozen/ephemeral tests, and documentation"
+    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, and user paths remain present; EB0.2N made no engineering or production changes"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T15:50:53Z",
+    "published_at_utc": "2026-08-13T15:56:44Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.2M live-cascade proof and mint-index safe-local repair",
-    "mode": "safe-local frozen and ephemeral multi-database qualification",
+    "milestone": "EB0.2N production compatibility reassessment",
+    "mode": "bounded read-only production compatibility reassessment",
     "status": "COMPLETE",
-    "verdict": "LOCAL_QUALIFICATION_PASS_NOT_DEPLOYED"
+    "verdict": "PRODUCTION_COMPATIBLE_WITH_MEASURED_COVERAGE_GAPS_INDEX_DEPLOYMENT_REQUIRED"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,47 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_2n_production_compatibility_reassessment": {
+      "status": "COMPLETE",
+      "verdict": "PRODUCTION_COMPATIBLE_WITH_MEASURED_COVERAGE_GAPS_INDEX_DEPLOYMENT_REQUIRED",
+      "engineering_commit": "81dc2878c10c52a875012a08d8148930af65ac53",
+      "verification_utc": "2026-08-13T15:56:44Z",
+      "source_high_waters": {
+        "wt_watchtower_launches_rowid": 178,
+        "token_analysis_rowid": 1744830,
+        "creator_tokens_rowid": 53700
+      },
+      "coherent_proof": {
+        "rows": 41,
+        "distinct_mints": 41,
+        "pf_ws_creator_present": 36,
+        "pf_ws_creator_agree": 36,
+        "pf_ws_creator_mismatch": 0,
+        "creator_membership_absent": 41,
+        "creator_membership_agree": 0,
+        "creator_membership_mismatch": 0,
+        "creator_membership_ambiguous": 0
+      },
+      "live_index_state": {
+        "ix_launches_mint_present": false,
+        "idx_creator_tokens_mint_present": false,
+        "wt_watchtower_launches_selected_mint_plan": "TABLE_SCAN",
+        "creator_tokens_selected_mint_plan": "TABLE_SCAN"
+      },
+      "interpretation": [
+        "Live production contains 41 coherent CLOSE_ACCOUNT_DESTINATION+STRICT canonical-create proofs.",
+        "All 36 proofs with independent pf_ws_creator evidence agree and none mismatch.",
+        "No selected proof has creator_tokens membership evidence, so membership agreement is not measurable and remains an explicit coverage gap rather than a contradiction.",
+        "The EB0.2M mint-leading indexes are absent from production and both selected-mint query plans remain table scans; no index was created in this read-only milestone."
+      ],
+      "provider_calls": 0,
+      "production_reads": true,
+      "production_changes": false,
+      "service_restarts": 0,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb0_2m_live_cascade_proof_and_indexes": {
       "status": "COMPLETE",
       "verdict": "LOCAL_QUALIFICATION_PASS_NOT_DEPLOYED",
@@ -468,7 +509,10 @@
         "deterministic EB0.2C facts, EB0.2D manifests, EB0.2E corpora, input fingerprint, and result digest",
         "rejects ambiguous identity, earliest_tx_creator fallback, schema drift, invalid cohorts, duplicate policies, and deadline overruns"
       ],
-      "tests": {"passed": 63, "failed": 0},
+      "tests": {
+        "passed": 63,
+        "failed": 0
+      },
       "provider_calls": 0,
       "production_access": false,
       "production_changes": false,
@@ -540,7 +584,10 @@
         "replay reassembles all corpora and requires exact equality",
         "contains no rate, profile, trend, rank, score, policy, profitability, cashflow, or operator attribution field"
       ],
-      "tests": {"passed": 57, "failed": 0},
+      "tests": {
+        "passed": 57,
+        "failed": 0
+      },
       "provider_calls": 0,
       "production_access": false,
       "production_changes": false,
@@ -564,7 +611,10 @@
         "rejects duplicates, derived-field tampering, version mismatch, and replay mismatch",
         "calculates no profile rates, rankings, scores, profitability, or operator attribution"
       ],
-      "tests": {"passed": 52, "failed": 0},
+      "tests": {
+        "passed": 52,
+        "failed": 0
+      },
       "provider_calls": 0,
       "production_access": false,
       "production_changes": false,
@@ -1122,9 +1172,21 @@
       },
       "manifest_accounting": {
         "observations": 5,
-        "event_counts": {"CHAIN_BIRTH": 1, "PLATFORM_FIRST_SEEN": 1, "MIGRATION": 1, "MARKET_FIRST_OBSERVED": 2},
-        "quality_counts": {"VERIFIED": 1, "OBSERVED": 2, "CONFLICTING": 2},
-        "completeness_counts": {"COMPLETE": 2, "NOT_OBSERVED": 3},
+        "event_counts": {
+          "CHAIN_BIRTH": 1,
+          "PLATFORM_FIRST_SEEN": 1,
+          "MIGRATION": 1,
+          "MARKET_FIRST_OBSERVED": 2
+        },
+        "quality_counts": {
+          "VERIFIED": 1,
+          "OBSERVED": 2,
+          "CONFLICTING": 2
+        },
+        "completeness_counts": {
+          "COMPLETE": 2,
+          "NOT_OBSERVED": 3
+        },
         "conflicting_observations": 2,
         "missing_valuations": 3
       },
@@ -3166,7 +3228,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "EB0.2M locally qualifies the strict live-cascade CANONICAL_CREATE_PROOF mapping and both mint-leading schema indexes at 81dc2878, but nothing is deployed and production indexes remain absent. A bounded read-only compatibility reassessment must measure coherent accepted-proof availability and current live query plans before any separate index deployment or live normalization milestone.",
+    "EB0.2N finds 41 coherent canonical-create proofs with 36/36 pf_ws_creator agreement and zero mismatches, but creator_tokens membership evidence is absent for all 41 and remains a measured coverage gap. Both EB0.2M mint-leading indexes remain absent in production and selected-mint plans still scan; any index creation is a separately authorized production mutation.",
     "OIP v2.2E is qualified complete, but production activation remains explicitly unauthorized. Any Evidence authority, Evidence Mirror, Cohort Mode, provider expansion, or production deployment requires its own future milestone. Post-E work must begin with roadmap reconciliation rather than implicit activation.",
     "B2BX fully passes the isolated provider qualification at 20/20 with exactly 60 authorized requests. The remaining step is a bounded local-only E-series closure assessment that combines this provider result with the previously qualified B2R acquisition/retention funnel; no production activation is implied or authorized.",
     "B2BW is locally qualified at f08db5b1 with fresh empty ledgers. Provider execution remains HUMAN_APPROVAL_REQUIRED and must explicitly acknowledge the higher-cost oldest enhanced request and the unchanged 60-request stop-safe ceiling.",
@@ -3212,8 +3274,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.2N production compatibility reassessment",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize EB0.2N bounded read-only production compatibility reassessment for commit 81dc2878c10c52a875012a08d8148930af65ac53. Verify only bounded coherent CLOSE_ACCOUNT_DESTINATION+STRICT proof availability, non-mismatched pf_ws_creator agreement feasibility, creator-membership ambiguity, fresh source rowid high-waters, and current selected-mint query plans/index presence. Do not deploy or create indexes, execute normalization or extraction, materialize a cohort, normalized database, or bundle, read unrestricted payloads, write, aggregate rates or profiles, rank, score, make policy decisions, infer profitability or cashflow, attribute operators, or activate anything. No provider calls, GMGN integration, restarts, configuration changes, Evidence Mirror, Cohort Mode, or activation.",
+    "milestone": "EB0.2O bounded production mint-index deployment",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize EB0.2O bounded production SQLite index deployment for commit 81dc2878c10c52a875012a08d8148930af65ac53: create only ix_launches_mint on database/wt_ops_v2.db wt_watchtower_launches(mint) and idx_creator_tokens_mint on pumpswap_tokens.db creator_tokens(mint), using CREATE INDEX IF NOT EXISTS under bounded lock and query deadlines; stop on database pressure, lock contention, service degradation, or other production impact; then verify exact index definitions, selected-mint EXPLAIN plans, database/ingestion health, service PIDs, and unchanged flags. No normalization, extraction, cohort or bundle materialization, provider calls, GMGN integration, service restarts or stops, configuration changes, unrestricted payload reads, rankings, scoring, policy decisions, profitability/cashflow inference, operator attribution, Evidence Mirror, Cohort Mode, deployment beyond these two indexes, or activation.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

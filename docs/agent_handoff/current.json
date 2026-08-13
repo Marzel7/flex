@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T06:56:34Z",
+  "updated_at_utc": "2026-08-13T06:58:20Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T06:56:34Z",
+    "published_at_utc": null,
     "protocol_version": 1,
-    "status": "PUBLISHED"
+    "status": "PENDING_PUBLICATION"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2Y creator-funding evidence contract",
-    "mode": "completed safe-local contract design and fake-client qualification",
-    "status": "COMPLETE",
-    "verdict": "LOCAL_QUALIFICATION_PASS_AWAITING_PROVIDER_EXECUTION_AUTHORIZATION"
+    "milestone": "OIP v2.2E.2B2Z isolated creator-funding provider qualification",
+    "mode": "authorized provider execution; fail-closed production-health preflight",
+    "status": "HOLD",
+    "verdict": "HOLD_PRODUCTION_IMPACT_PRECONDITION"
   },
   "production_state": {
     "retention": "ON",
@@ -469,6 +469,35 @@
       "cohort_mode": "OFF",
       "execution_gate": "A separate explicit authorization must name B2Z, Helius RPC, the 60-request maximum, isolated non-production execution, and the no-retry/first-non-success stop rule."
     },
+    "oip_v2_2e_2b2z_execution_preflight": {
+      "status": "HOLD",
+      "verdict": "HOLD_PRODUCTION_IMPACT_PRECONDITION",
+      "authorization_received": "User explicitly authorized B2Z isolated Helius execution under the reviewed B2Y contract.",
+      "provider_rpc_calls_executed": 0,
+      "physical_request_budget": 60,
+      "production_changes_initiated_by_codex": false,
+      "service_restarts_initiated_by_codex": 0,
+      "verification_utc": "2026-08-13T06:58:20Z",
+      "runtime": {
+        "watchtower_listener": "RUNNING pid 24788",
+        "creator_funding_worker": "RUNNING pid 45895",
+        "evidence_writer": "STOPPED",
+        "evidence_mirror": "OFF",
+        "cohort_mode": "OFF"
+      },
+      "mission_control": {
+        "platform_status": "CRITICAL",
+        "infrastructure_status": "CRITICAL",
+        "database_status": "CRITICAL",
+        "database_write_p99_ms": 21140.47,
+        "creator_funding_status": "WARNING",
+        "creator_funding_progress": "STALLED",
+        "creator_funding_pending": 149,
+        "creator_funding_oldest_hot_age_seconds": 18161,
+        "creator_funding_heartbeat_age_seconds": 592
+      },
+      "blocker": "The B2Y/B2Z contract requires a whole-run stop on any production impact. Live local health reports critical database pressure and elevated write latency with creator-funding stalled; B2Z stopped before request 1 despite the execution authorization."
+    },
     "oip_v2_2e_2b2n_preflight_manifest_authorization": {
       "status": "COMPLETE",
       "verdict": "SAFE_LOCAL_PREFLIGHT_AUTHORIZED",
@@ -905,8 +934,8 @@
   ],
   "next_action": {
     "milestone": "OIP v2.2E.2B2Z isolated creator-funding provider qualification",
-    "instruction": "Await explicit authorization to execute the reviewed B2Y contract against Helius in an isolated non-production environment: maximum 60 physical requests (at most three per frozen B2R member), exact endpoint sequence, no retry/failover/pagination/cache interaction/concurrency/replacement, stop the whole run on first non-success, and no production DB/queue/service/configuration/Evidence/Cohort action.",
-    "activation_authorized": false,
+    "instruction": "HOLD pending independently verified recovery from Mission Control CRITICAL infrastructure/database pressure and creator-funding STALLED state. Do not make a Helius request, restart service, change configuration, or modify production while held. After recovery, re-verify health and confirm whether the existing B2Z authorization remains current before request 1.",
+    "activation_authorized": true,
     "production_activation_authorized": false
   },
   "safety": {

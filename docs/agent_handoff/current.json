@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T21:05:51Z",
+  "updated_at_utc": "2026-08-13T21:13:38Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "2e9156a0f4958f7e98ff65808f04340c3c83bd93",
-    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths; EB1.1A committed only its contract, tests and documentation; unrelated paths preserved"
+    "git_head": "dd8ed1e9a0a64878758cb819e12a368aea84f299",
+    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths; EB1.1B-H committed only scoped audit/adapter/manifest/corpus/preflight/extractor/bundle work; unrelated paths preserved"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB1.1A evidence-gap requirement contract",
-    "mode": "safe-local frozen-fixture implementation and qualification",
+    "milestone": "EB1.1 frozen contract-stack closure",
+    "mode": "safe-local frozen/ephemeral non-executable requirement-stack closure",
     "status": "COMPLETE",
-    "verdict": "NON_EXECUTABLE_GAP_REQUIREMENT_CONTRACT_QUALIFIED"
+    "verdict": "EB1_1_COMPLETE_FROZEN_NON_EXECUTABLE_STACK_QUALIFIED"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,32 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb1_1_frozen_stack_closure": {
+      "status": "COMPLETE",
+      "verdict": "EB1_1_COMPLETE_FROZEN_NON_EXECUTABLE_STACK_QUALIFIED",
+      "engineering_commit": "dd8ed1e9a0a64878758cb819e12a368aea84f299",
+      "verification_utc": "2026-08-13T21:13:38Z",
+      "qualified_stack": [
+        "EB1.1A immutable non-executable evidence-gap requirement contract",
+        "EB1.1B verified EB1.0 source-mapping audit",
+        "EB1.1C verified-manifest requirement adapter",
+        "EB1.1D immutable requirement manifest",
+        "EB1.1E per-authority-lane requirement corpus",
+        "EB1.1F frozen extractor boundary",
+        "EB1.1G fixture-only query extractor",
+        "EB1.1H immutable write-once non-executable output bundle"
+      ],
+      "engineering_commits": ["2e9156a0","926c0930","dec6447e","dd8ed1e9"],
+      "tests": "37 passed including EB1.0 eligibility, EB1.1A/C/D/E/G/H and operator-neutrality regression",
+      "authority_guarantee": "every output remains NON_EXECUTABLE_EVIDENCE_REQUIREMENT and bound to its originating authority lane; no source selection, acquisition authority, conflict resolution, cross-entity linkage or interpretation",
+      "provider_calls": 0,
+      "production_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb1_1a_evidence_gap_requirement": {
       "status": "COMPLETE",
       "verdict": "NON_EXECUTABLE_GAP_REQUIREMENT_CONTRACT_QUALIFIED",
@@ -4070,6 +4096,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "EB1.1 is closed only as a frozen non-executable requirement stack. Source selection, acquisition planning/budgets, runtime compatibility, live execution, evidence fulfillment, linkage, analytics, identity/attribution, policy and activation require a separately reconciled and explicitly authorized roadmap.",
     "The committed roadmap defines no EB2 or post-EB1 sequence. EB1.1A is a recommended new descriptive requirement contract, not yet implemented or authorized; it cannot select sources, authorize acquisition, or become a work plan.",
     "EB1.0 is closed only as a frozen safe-local stack. Actual bundle-directory compatibility, production/runtime access, live extraction, cross-entity linkage, analytical interpretation, identity/attribution and activation are unqualified and require separate explicit authorization.",
     "EB1.0A qualifies only a pure contract over caller-supplied frozen bundle summaries. No committed source mapping yet proves how actual EB0.1-EB0.4 bundle artifacts populate its exact summary fields; adapters, manifests, corpus/extractor work, cross-entity linkage, analytics and activation remain unqualified or prohibited.",
@@ -4133,9 +4160,10 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB1.1B committed EB1.0 requirement source-mapping audit",
-    "instruction": "AUTHORIZED_STAGED_SAFE_LOCAL: Audit committed EB1.0 projection/manifest/corpus/bundle schemas into EB1.1A fields; identify exact safe mappings, ambiguities and smallest adapter. No implementation in this checkpoint, source selection, acquisition or analytics.",
-    "safe_local_stage_authorized": true,
+    "milestone": "Post-EB1.1 roadmap transition",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Stop at EB1.1 frozen closure. Reconcile committed artifacts before defining any later stage. Do not assign EB2 or authorize executable remediation implicitly.",
+    "approval_text": "Authorize a bounded local read-only post-EB1.1 roadmap reconciliation using committed artifacts only; identify the next safe-local milestone and evidence contract but do not implement it or assign an EB2 namespace. No source selection, acquisition plan or request budget, production/runtime access, live extraction or census, provider/RPC calls, production writes, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, evidence fulfillment, cross-entity linkage, rates, profiles, ranking, scoring, policy activation, profitability/cashflow inference, operator identity/attribution, or activation.",
+    "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false
   },

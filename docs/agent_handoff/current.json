@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T18:14:31Z",
+  "updated_at_utc": "2026-08-13T18:23:58Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "0e82705650165f20132a05c0f8040e5c3470469e",
-    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, user, and handoff paths remain present; EB0.3B made no engineering or production changes"
+    "git_head": "df829a7d8ddf4347bd9ae26d3c9f769eea22365f",
+    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, user, and handoff paths remain present; EB0.3C committed only its four authorized engineering files"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T18:14:31Z",
+    "published_at_utc": "2026-08-13T18:23:58Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.3B historical market source-mapping audit",
-    "mode": "bounded local read-only static artifact and frozen-fixture audit",
+    "milestone": "EB0.3C frozen market-kline response adapter boundary",
+    "mode": "safe-local implementation and frozen fake-transport qualification",
     "status": "COMPLETE",
-    "verdict": "SOURCE_MAPPING_PARTIAL_EXACT_PROVIDER_SHAPE_UNPROVEN"
+    "verdict": "SAFE_LOCAL_ADAPTER_QUALIFIED_LIVE_SHAPE_UNPROVEN"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,38 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_3c_market_kline_adapter": {
+      "status": "COMPLETE",
+      "verdict": "SAFE_LOCAL_ADAPTER_QUALIFIED_LIVE_SHAPE_UNPROVEN",
+      "engineering_commit": "df829a7d8ddf4347bd9ae26d3c9f769eea22365f",
+      "verification_utc": "2026-08-13T18:23:58Z",
+      "files": [
+        "src/evidence/contracts/historical_market_observation_adapters.py",
+        "tests/test_eb0_3c_historical_market_observation_adapters.py",
+        "tests/fixtures/eb0_3c_market_kline_projection.json",
+        "docs/evidence_platform/eb0_3c_market_kline_adapter.md"
+      ],
+      "qualified_boundary": "exact credential-free frozen 1m page projection; one injected fake-transport invocation; 1000-row ceiling; millisecond request bounds; canonical response digest; physical sequence/cost accounting; EB0.3A supplemental-only mapping",
+      "fail_closed_guards": [
+        "schema drift and credential-bearing fields",
+        "non-1m interval, invalid request bounds, unordered/duplicate/out-of-window candles, invalid OHLC, and row-ceiling breach",
+        "missing accounting, response-digest mismatch, unsupported completeness or earliest-history promotion",
+        "market-cap/liquidity inference, pagination/cursor, ranking, scoring, policy, profitability/cashflow, and creator/operator attribution fields"
+      ],
+      "tests": {
+        "focused_and_adjacent": "53 passed",
+        "full_suite": "collection blocked by 3 pre-existing import-path errors: analyze_creator_wallet and legacy main modules"
+      },
+      "provider_calls": 0,
+      "live_gmgn_execution": false,
+      "live_compatibility_claim": false,
+      "production_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb0_3b_historical_market_source_mapping": {
       "status": "COMPLETE",
       "verdict": "SOURCE_MAPPING_PARTIAL_EXACT_PROVIDER_SHAPE_UNPROVEN",
@@ -849,10 +881,7 @@
         "deterministic EB0.2C facts, EB0.2D manifests, EB0.2E corpora, input fingerprint, and result digest",
         "rejects ambiguous identity, earliest_tx_creator fallback, schema drift, invalid cohorts, duplicate policies, and deadline overruns"
       ],
-      "tests": {
-        "passed": 63,
-        "failed": 0
-      },
+      "tests": {"passed": 63, "failed": 0},
       "provider_calls": 0,
       "production_access": false,
       "production_changes": false,
@@ -924,10 +953,7 @@
         "replay reassembles all corpora and requires exact equality",
         "contains no rate, profile, trend, rank, score, policy, profitability, cashflow, or operator attribution field"
       ],
-      "tests": {
-        "passed": 57,
-        "failed": 0
-      },
+      "tests": {"passed": 57, "failed": 0},
       "provider_calls": 0,
       "production_access": false,
       "production_changes": false,
@@ -951,10 +977,7 @@
         "rejects duplicates, derived-field tampering, version mismatch, and replay mismatch",
         "calculates no profile rates, rankings, scores, profitability, or operator attribution"
       ],
-      "tests": {
-        "passed": 52,
-        "failed": 0
-      },
+      "tests": {"passed": 52, "failed": 0},
       "provider_calls": 0,
       "production_access": false,
       "production_changes": false,
@@ -1512,21 +1535,9 @@
       },
       "manifest_accounting": {
         "observations": 5,
-        "event_counts": {
-          "CHAIN_BIRTH": 1,
-          "PLATFORM_FIRST_SEEN": 1,
-          "MIGRATION": 1,
-          "MARKET_FIRST_OBSERVED": 2
-        },
-        "quality_counts": {
-          "VERIFIED": 1,
-          "OBSERVED": 2,
-          "CONFLICTING": 2
-        },
-        "completeness_counts": {
-          "COMPLETE": 2,
-          "NOT_OBSERVED": 3
-        },
+        "event_counts": {"CHAIN_BIRTH": 1, "PLATFORM_FIRST_SEEN": 1, "MIGRATION": 1, "MARKET_FIRST_OBSERVED": 2},
+        "quality_counts": {"VERIFIED": 1, "OBSERVED": 2, "CONFLICTING": 2},
+        "completeness_counts": {"COMPLETE": 2, "NOT_OBSERVED": 3},
         "conflicting_observations": 2,
         "missing_valuations": 3
       },
@@ -1658,113 +1669,79 @@
       "activation": false
     },
     "post_e_eb0_canonical_roadmap": {
-      "status": "COMPLETE",
-      "verdict": "ROADMAP_RATIFIED_FIRST_IMPLEMENTATION_HUMAN_GATED",
-      "commit": "cccdceb667c3f54507211f73af5ccc82cc5af871",
-      "artifact": "docs/evidence_platform/post_e_eb0_canonical_roadmap.json",
-      "authority_note": "Only committed artifacts were authoritative; untracked EB0 scripts/audits were explicitly excluded.",
-      "sequence": [
-        "EB0.1 canonical birth and valuation baseline",
-        "EB0.2 creator historical outcome intelligence",
-        "EB0.3 supplemental GMGN historical market observations",
-        "EB0.4 shared-behaviour operational-family discovery"
-      ],
-      "first_safe_local_implementation": "EB0.1A canonical birth/valuation evidence contract",
-      "provider_calls": 0,
-      "production_access_or_changes": false,
-      "service_restarts": 0,
-      "evidence_mirror": "OFF",
-      "cohort_mode": "OFF",
-      "production_activation_authorized": false
+      "status":"COMPLETE",
+      "verdict":"ROADMAP_RATIFIED_FIRST_IMPLEMENTATION_HUMAN_GATED",
+      "commit":"cccdceb667c3f54507211f73af5ccc82cc5af871",
+      "artifact":"docs/evidence_platform/post_e_eb0_canonical_roadmap.json",
+      "authority_note":"Only committed artifacts were authoritative; untracked EB0 scripts/audits were explicitly excluded.",
+      "sequence":["EB0.1 canonical birth and valuation baseline","EB0.2 creator historical outcome intelligence","EB0.3 supplemental GMGN historical market observations","EB0.4 shared-behaviour operational-family discovery"],
+      "first_safe_local_implementation":"EB0.1A canonical birth/valuation evidence contract",
+      "provider_calls":0,
+      "production_access_or_changes":false,
+      "service_restarts":0,
+      "evidence_mirror":"OFF",
+      "cohort_mode":"OFF",
+      "production_activation_authorized":false
     },
     "oip_v2_2e_2b2by_e_series_closure": {
-      "status": "COMPLETE",
-      "verdict": "OIP_V2_2E_QUALIFIED_COMPLETE_NO_PRODUCTION_ACTIVATION",
-      "commit": "dd9d6be376ee08fbbd471b88ecd8b0f14bdce0c6",
-      "closure_artifact": "docs/evidence_platform/oip_v2_2e_2b2by_e_series_closure.json",
-      "fixed_production_funnel": {
-        "marked_migrations": 20,
-        "shared_acquisitions": 20,
-        "completions": 17,
-        "retained": 17,
-        "replayable": 17
-      },
-      "isolated_provider_qualification": {
-        "members": 20,
-        "validated_creator_funding_edges": 20,
-        "physical_requests": 60,
-        "response_projections": 60
-      },
-      "interpretation": "E-series engineering and bounded provider qualification objectives are complete. The isolated 20/20 proof supplements but does not rewrite the fixed 17/20 production completion result.",
-      "production_activation_authorized": false,
-      "provider_calls_in_closure": 0,
-      "production_reads_or_writes": 0,
-      "service_restarts": 0,
-      "evidence_mirror": "OFF",
-      "cohort_mode": "OFF"
+      "status":"COMPLETE",
+      "verdict":"OIP_V2_2E_QUALIFIED_COMPLETE_NO_PRODUCTION_ACTIVATION",
+      "commit":"dd9d6be376ee08fbbd471b88ecd8b0f14bdce0c6",
+      "closure_artifact":"docs/evidence_platform/oip_v2_2e_2b2by_e_series_closure.json",
+      "fixed_production_funnel":{"marked_migrations":20,"shared_acquisitions":20,"completions":17,"retained":17,"replayable":17},
+      "isolated_provider_qualification":{"members":20,"validated_creator_funding_edges":20,"physical_requests":60,"response_projections":60},
+      "interpretation":"E-series engineering and bounded provider qualification objectives are complete. The isolated 20/20 proof supplements but does not rewrite the fixed 17/20 production completion result.",
+      "production_activation_authorized":false,
+      "provider_calls_in_closure":0,
+      "production_reads_or_writes":0,
+      "service_restarts":0,
+      "evidence_mirror":"OFF",
+      "cohort_mode":"OFF"
     },
     "oip_v2_2e_2b2bx_oldest_transaction_execution": {
-      "status": "COMPLETE",
-      "verdict": "PROVIDER_QUALIFICATION_PASS_20_OF_20",
-      "run_id": "5aa7c580-2861-4149-8d6e-6a582b07f61c",
-      "engineering_commit": "f08db5b11a616daa500e71d1c7add225cee54522",
-      "members_completed": 20,
-      "validated_creator_funding_edges": 20,
-      "physical_requests": 60,
-      "request_budget": 60,
-      "response_projections": 60,
-      "transport_outcomes": {
-        "success": 60,
-        "non_success": 0
-      },
-      "request_sequence": [
-        "JSON-RPC migration proof",
-        "Helius Enhanced oldest transaction limit=1 sort-order=asc commitment=finalized",
-        "JSON-RPC exact transfer proof"
-      ],
-      "retry_pagination_or_extra_requests": false,
-      "all_projection_lineage_valid": true,
-      "attempt_ledger_sha256": "267f63595babec7c0b04a4636520b92bdef2e447f2a3fe93d28a2441292b8efc",
-      "projection_ledger_sha256": "b1d6251e4067d414650093a210826e24d266200762c131e57c85750fe4c4fd4b",
-      "results_sha256": "464245639636e3ed9408e1723f010e4a97ae243298608d1ec600e5e0e63f2856",
-      "isolated_output_directory": "/private/tmp/flex-oip-v2-2e-b2bw/5aa7c580-2861-4149-8d6e-6a582b07f61c",
-      "prior_sealed_runs_preserved": true,
-      "post_execution_tests": {
-        "passed": 12,
-        "failed": 1,
-        "failure_reason": "The one-time B2BW preflight test correctly detects that the formerly absent run directory now exists after successful execution; no code or artifact was changed in this execution-only milestone."
-      },
-      "production_database_access": false,
-      "live_queue_or_service_access": false,
-      "production_changes": false,
-      "service_restarts": 0,
-      "evidence_mirror": "OFF",
-      "cohort_mode": "OFF"
+      "status":"COMPLETE",
+      "verdict":"PROVIDER_QUALIFICATION_PASS_20_OF_20",
+      "run_id":"5aa7c580-2861-4149-8d6e-6a582b07f61c",
+      "engineering_commit":"f08db5b11a616daa500e71d1c7add225cee54522",
+      "members_completed":20,
+      "validated_creator_funding_edges":20,
+      "physical_requests":60,
+      "request_budget":60,
+      "response_projections":60,
+      "transport_outcomes":{"success":60,"non_success":0},
+      "request_sequence":["JSON-RPC migration proof","Helius Enhanced oldest transaction limit=1 sort-order=asc commitment=finalized","JSON-RPC exact transfer proof"],
+      "retry_pagination_or_extra_requests":false,
+      "all_projection_lineage_valid":true,
+      "attempt_ledger_sha256":"267f63595babec7c0b04a4636520b92bdef2e447f2a3fe93d28a2441292b8efc",
+      "projection_ledger_sha256":"b1d6251e4067d414650093a210826e24d266200762c131e57c85750fe4c4fd4b",
+      "results_sha256":"464245639636e3ed9408e1723f010e4a97ae243298608d1ec600e5e0e63f2856",
+      "isolated_output_directory":"/private/tmp/flex-oip-v2-2e-b2bw/5aa7c580-2861-4149-8d6e-6a582b07f61c",
+      "prior_sealed_runs_preserved":true,
+      "post_execution_tests":{"passed":12,"failed":1,"failure_reason":"The one-time B2BW preflight test correctly detects that the formerly absent run directory now exists after successful execution; no code or artifact was changed in this execution-only milestone."},
+      "production_database_access":false,
+      "live_queue_or_service_access":false,
+      "production_changes":false,
+      "service_restarts":0,
+      "evidence_mirror":"OFF",
+      "cohort_mode":"OFF"
     },
     "oip_v2_2e_2b2bw_oldest_transaction_sentinel": {
-      "status": "COMPLETE",
-      "verdict": "READY_FOR_SEPARATE_PROVIDER_EXECUTION_AUTHORIZATION",
-      "commit": "f08db5b11a616daa500e71d1c7add225cee54522",
-      "run_id": "5aa7c580-2861-4149-8d6e-6a582b07f61c",
-      "enhanced_contract": {
-        "limit": 1,
-        "sort_order": "asc",
-        "commitment": "finalized"
-      },
-      "request_ceiling": 60,
-      "attempt_ledger": "ABSENT_EMPTY",
-      "projection_ledger": "ABSENT_EMPTY",
-      "bounded_page_shape": "page_row_count retained; raw response and credentials excluded",
-      "sealed_prior_runs_preserved": true,
-      "tests": {
-        "passed": 26,
-        "failed": 0
-      },
-      "provider_rpc_calls": 0,
-      "execution_performed": false,
-      "production_changes": false,
-      "evidence_mirror": "OFF",
-      "cohort_mode": "OFF"
+      "status":"COMPLETE",
+      "verdict":"READY_FOR_SEPARATE_PROVIDER_EXECUTION_AUTHORIZATION",
+      "commit":"f08db5b11a616daa500e71d1c7add225cee54522",
+      "run_id":"5aa7c580-2861-4149-8d6e-6a582b07f61c",
+      "enhanced_contract":{"limit":1,"sort_order":"asc","commitment":"finalized"},
+      "request_ceiling":60,
+      "attempt_ledger":"ABSENT_EMPTY",
+      "projection_ledger":"ABSENT_EMPTY",
+      "bounded_page_shape":"page_row_count retained; raw response and credentials excluded",
+      "sealed_prior_runs_preserved":true,
+      "tests":{"passed":26,"failed":0},
+      "provider_rpc_calls":0,
+      "execution_performed":false,
+      "production_changes":false,
+      "evidence_mirror":"OFF",
+      "cohort_mode":"OFF"
     },
     "oip_v2_2e_2b2bv_enhanced_history_coverage_diagnosis": {
       "status": "COMPLETE",
@@ -1797,14 +1774,8 @@
       "request_budget": 60,
       "members_completed": 0,
       "stop_member_ordinal": 1,
-      "request_sequence": [
-        "JSON-RPC getTransaction migration proof",
-        "Helius Enhanced Address Transactions limit=100"
-      ],
-      "transport_outcomes": [
-        "SUCCESS",
-        "SUCCESS"
-      ],
+      "request_sequence": ["JSON-RPC getTransaction migration proof", "Helius Enhanced Address Transactions limit=100"],
+      "transport_outcomes": ["SUCCESS", "SUCCESS"],
       "semantic_stop": "The single permitted enhanced-history page contained no transaction strictly before migration with a positive nativeTransfers SOL transfer from another account to the resolved creator.",
       "third_request_performed": false,
       "retry_pagination_or_additional_request_performed": false,
@@ -1815,10 +1786,7 @@
       "results_sha256": "26cdceeac2357d7711cbfc8d6d0a4c9bf4ab20b37ef2ed5f1b0b2cea68cb2f13",
       "isolated_output_directory": "/private/tmp/flex-oip-v2-2e-b2bt/a3721658-f6ef-4b20-8f87-7c631551a80c",
       "prior_b2z_run_preserved": true,
-      "post_execution_tests": {
-        "passed": 12,
-        "failed": 0
-      },
+      "post_execution_tests": {"passed":12,"failed":0},
       "production_database_access": false,
       "live_queue_or_service_access": false,
       "production_changes": false,
@@ -1833,11 +1801,7 @@
       "run_id": "a3721658-f6ef-4b20-8f87-7c631551a80c",
       "frozen_manifest_digest": "82bbda32d25a9951a8d8475528d7db3a92b675aae90ce2d55e13391a6b69eedc",
       "projection_digest": "eb2713e3f0ff01f122c0e962a7c67e7f1ea80337fa8894163892a47c17dd32bc",
-      "sequence": [
-        "JSON-RPC migration proof",
-        "one Helius Enhanced Address Transactions page limit=100",
-        "JSON-RPC exact transfer proof after transfer-aware selection"
-      ],
+      "sequence": ["JSON-RPC migration proof", "one Helius Enhanced Address Transactions page limit=100", "JSON-RPC exact transfer proof after transfer-aware selection"],
       "request_ceiling": 60,
       "attempt_ledger": "ABSENT_EMPTY",
       "projection_ledger": "ABSENT_EMPTY",
@@ -1912,16 +1876,8 @@
       "request_budget": 60,
       "members_completed": 0,
       "stop_member_ordinal": 1,
-      "request_sequence": [
-        "getTransaction",
-        "getSignaturesForAddress",
-        "getTransaction"
-      ],
-      "transport_outcomes": [
-        "SUCCESS",
-        "SUCCESS",
-        "SUCCESS"
-      ],
+      "request_sequence": ["getTransaction", "getSignaturesForAddress", "getTransaction"],
+      "transport_outcomes": ["SUCCESS", "SUCCESS", "SUCCESS"],
       "semantic_stop": "The selected pre-migration candidate transaction did not contain an exact positive inbound System Program SOL transfer to the resolved creator.",
       "retry_or_additional_request_performed": false,
       "attempt_ledger_rows": 3,
@@ -3568,6 +3524,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "EB0.3C qualifies only the frozen credential-free adapter boundary. Exact live GMGN endpoint/version, response shape, request cost, time-unit conversion, lookback/page behavior, and mint compatibility remain unproven. Any live shape qualification is provider work and requires separate explicit authorization.",
     "EB0.3B proves only one prior structured 1m GMGN OHLCV response and aggregate rate-limit metadata. The exact endpoint/version, retained response field projection, pagination/lookback semantics, response timestamp units, market-cap derivation, and per-attempt ledger are absent. Safe-local adapter work may target only an explicit fake response projection and cannot claim live compatibility; any provider shape qualification is separately human-gated.",
     "EB0.3A qualifies only the frozen non-authoritative evidence contract. No provider endpoint, response shape, interval coverage, request cost, earliest-observation behavior, rate limit, or live mint compatibility has been audited. Provider integration and execution remain human-gated.",
     "EB0.2 is closed, but the authorized latest-5,000 cohort yields zero qualified creator historical outcome facts because canonical corpus and qualified creator-identity coverage do not overlap. Monitoring remains degraded: /api/health/full times out and /healthz reports stale retired-worker heartbeats despite corroborated healthy database, ingestion, queues, websockets, serializer, and current services. Neither limitation may be silently converted into outcome evidence.",
@@ -3619,8 +3576,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.3C frozen market-kline response adapter boundary",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize EB0.3C safe-local design, implementation, fake-transport/frozen-projection tests, regression tests, documentation, and one narrow commit for a dependency-injected bounded market-kline response adapter into EB0.3A. Accept only an explicit credential-free projection containing platform mint, provider and endpoint identifiers/versions, 1m interval, millisecond request bounds, bounded candle rows with timestamps and OHLCV, request run ID/physical sequence/cost, response digest, quality/completeness, and PAGE_EARLIEST_NOT_HISTORY semantics. Preserve conflicts and reject schema drift, invalid OHLC, unbounded rows, missing accounting, credential-bearing fields, authority promotion, market-cap inference, pagination, retry, ranking, scoring, profitability/cashflow, creator/operator attribution, or policy. Fake transport and frozen fixtures only; make no live GMGN compatibility claim. No provider calls, GMGN execution, production/runtime access or changes, deployment, service restarts or stops, configuration changes, Evidence Mirror, Cohort Mode, activation, or production activation.",
+    "milestone": "EB0.3D one-request GMGN market-kline live shape qualification",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize EB0.3D isolated GMGN market-kline live shape qualification for exactly one platform-owned Solana mint and exactly one sequential physical request, interval=1m, under a predeclared bounded millisecond window and the EB0.3C projection boundary. Use a fresh run ID, empty isolated output directory and append-only attempt ledger; retain only a credential-free bounded response projection and hashes. Stop on first non-success, rate limit, timeout, schema mismatch, unexpected pagination/cursor, row/size ceiling breach, counter mismatch, credential exposure, or safety impact. No retry, failover, pagination, second mint, ranking, scoring, attribution, production/runtime access or changes, deployment, service restarts or stops, configuration changes, Evidence Mirror, Cohort Mode, activation, or production activation.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

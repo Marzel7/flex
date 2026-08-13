@@ -1,0 +1,19 @@
+{
+  "schema_version": "eb0.4c.normalized-runtime.v1",
+  "identity_basis": "PLATFORM_OPERATION_ID",
+  "operation_id": "operation-alpha",
+  "primary_role": "PROVISIONING_OPERATION",
+  "contract_id": "watchtower_v1",
+  "contract_version": "1.0.0",
+  "module_id": "funding_behaviour",
+  "module_version": "1.0.0",
+  "topology_revision_id": "topology-alpha",
+  "behaviour_observation_id": "behaviour-alpha",
+  "input_digest": "input-alpha",
+  "edge_features": ["TREASURY->ECONOMIC_FUNDING->SUBPROVIDER", "SUBPROVIDER->DIRECT_COUNTERPARTY->CREATOR"],
+  "mechanism_features": ["WSOL_WRAP_CLOSE"],
+  "temporal_features": ["BURST_THEN_DORMANT"],
+  "quality_state": "OBSERVED",
+  "completeness_state": "COMPLETE",
+  "conflict_group_id": null
+}

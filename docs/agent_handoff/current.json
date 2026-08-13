@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T09:36:27Z",
+  "updated_at_utc": "2026-08-13T09:41:39Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T09:37:27Z",
+    "published_at_utc": null,
     "protocol_version": 1,
-    "status": "PUBLISHED"
+    "status": "PENDING_PUBLICATION"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2AY creator-funding lifecycle one-time schema initialization qualification",
-    "mode": "completed safe-local design, implementation, tests, and narrow commit",
+    "milestone": "OIP v2.2E.2B2AZ creator-funding lifecycle schema repair deployment",
+    "mode": "completed explicitly authorized single-service restart and immediate local verification",
     "status": "COMPLETE",
-    "verdict": "LOCAL_QUALIFICATION_PASS"
+    "verdict": "DEPLOYMENT_PASS_WITH_EXISTING_GLOBAL_WARNINGS"
   },
   "production_state": {
     "retention": "ON",
@@ -30,7 +30,7 @@
     "listener_service": "watchtower_listener",
     "listener_pid_last_verified": 73552,
     "creator_funding_service": "creator_funding_worker",
-    "creator_funding_pid_last_verified": 9399,
+    "creator_funding_pid_last_verified": 80211,
     "creator_resolution_service": "creator_resolution_worker",
     "creator_resolution_pid_last_verified": 72488
   },
@@ -1050,6 +1050,30 @@
       "service_restarts_or_stops": 0,
       "blocker": "Commit 9ef08e7a is not deployed. Exactly one creator_funding_worker restart and immediate lifecycle/lock/health verification require explicit authorization."
     },
+    "oip_v2_2e_2b2az_funding_lifecycle_schema_repair_deployment": {
+      "status": "COMPLETE",
+      "verdict": "DEPLOYMENT_PASS_WITH_EXISTING_GLOBAL_WARNINGS",
+      "verification_utc": "2026-08-13T09:41:39Z",
+      "authorization": "Exactly one creator_funding_worker restart to load engineering commit 9ef08e7ac1b0ab3ba3fb0f4058faa6519ca30061 with immediate lifecycle, lease, continuity, and health verification.",
+      "restart": {
+        "service": "creator_funding_worker",
+        "old_pid": 9399,
+        "new_pid": 80211,
+        "other_services": "watchtower_listener remained RUNNING pid 73552; creator_resolution_worker remained RUNNING pid 72488; evidence_writer remained STOPPED"
+      },
+      "immediate_verification": {
+        "funding_worker": "RUNNING with fresh heartbeat age 12 seconds, status processing, two active extraction slots, and zero leaked open handles in the final sample.",
+        "lifecycle": "Event high-water advanced from 10692 to 10712; gap high-water remained 3, proving new event progress without new recorded gaps.",
+        "write_lane": "Three sub-second samples rotated among rpc_metrics, listener, and rpc_cache owners. RELEASE_PENDING transitions changed within 250ms rather than remaining stuck for minutes.",
+        "creator_resolution": "Continuity preserved; heartbeat age 59 seconds and cycle_start metadata advanced to cycle 15.",
+        "health": "Full health timed out once after 20 seconds. Lightweight /healthz responded with database ok, WAL 34.9MB below warning, creator-funding and creator-resolution both non-stale; HTTP 503 was caused by unrelated legacy stale worker entries."
+      },
+      "flags": "retention ON; migration census ON; Evidence Mirror OFF; Cohort Mode OFF; evidence_writer STOPPED",
+      "provider_qualification_calls_initiated_by_codex": 0,
+      "provider_note": "No B2Z or bounded provider qualification was invoked. The restarted worker resumed its pre-existing normal workload as an inherent consequence of the authorized restart.",
+      "production_changes": "one explicitly authorized creator_funding_worker restart only",
+      "blocker": "No scoped lifecycle/lease blocker remains. Global health still contains unrelated legacy stale-worker warnings, and the full health endpoint had one bounded timeout; B2Z remains held."
+    },
     "oip_v2_2e_incident_causal_assessment": {
       "status": "COMPLETE",
       "verdict": "LATENT_DEFECT_REACTIVATED_BY_WORKER_RECOVERY",
@@ -1482,6 +1506,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "B2AZ loaded the lifecycle schema repair successfully and no scoped lease blocker remains, but only immediate verification has been completed. A bounded read-only stability observation is required before reconsidering B2Z; it needs explicit authorization and start/end conditions.",
     "B2AY passed 33 focused tests and is committed at 9ef08e7ac1b0ab3ba3fb0f4058faa6519ca30061, but the running creator_funding_worker has not loaded the one-time lifecycle schema initialization repair. Deployment requires one explicitly authorized restart.",
     "B2AX confirms creator_funding_lifecycle.record_event_fail_open repeats schema DDL/index assurance on every concurrent event and repeats it again on gap fallback, causing prolonged write-lane ownership and lock-error bursts. The incident recovered naturally, but recurrence remains possible until a safe-local one-time lifecycle schema initialization repair is qualified.",
     "B2AW is blocked with production impact: creator_funding_worker PID 9399 holds the shared database write lease in RELEASE_PENDING state, preventing idx_creator_funding_queue_mint creation and causing creator_resolution_worker to exit and Supervisor to autorestart it. No lock manipulation, funding-worker restart, configuration change, or further creator-resolution restart is authorized.",
@@ -1505,8 +1530,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2AZ creator-funding lifecycle schema repair deployment",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize exactly one creator_funding_worker restart to load commit 9ef08e7ac1b0ab3ba3fb0f4058faa6519ca30061, with immediate local verification of startup, heartbeat, lifecycle event/gap behavior, write-lane release, creator-resolution continuity, and platform health; preserve all production flags and evidence_writer STOPPED; no other restart/stop, lock manipulation, configuration change, provider qualification, Evidence Mirror, Cohort Mode, or B2Z observation. The restarted worker may resume its existing normal provider workload as an inherent consequence of the authorized restart.",
+    "milestone": "OIP v2.2E.2B2BA post-lifecycle-repair stability observation",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize a bounded 15-minute read-only production stability observation starting at the first health/lease checkpoint after authorization and ending at the first of 15 clean minutes, a lifecycle gap increase, a creator-funding or creator-resolution stale heartbeat, a write lease held or RELEASE_PENDING for more than 60 seconds, an automatic service restart, or other production impact. No provider qualification, production write, service restart/stop, lock manipulation, configuration change, Evidence Mirror, Cohort Mode, or B2Z observation.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

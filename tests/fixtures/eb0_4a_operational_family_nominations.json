@@ -1,0 +1,30 @@
+{
+  "records": [
+    {
+      "operation_id": "operation-alpha",
+      "role": "PROVISIONING_OPERATION",
+      "edge_features": ["TREASURY_TO_SUBPROVIDER", "SUBPROVIDER_TO_CREATOR"],
+      "mechanism_features": ["WSOL_WRAP_CLOSE"],
+      "temporal_features": ["BURST_THEN_DORMANT"],
+      "source": "frozen_edges",
+      "source_version": "v1",
+      "source_record_digest": "alpha-edges",
+      "quality_state": "OBSERVED",
+      "completeness_state": "COMPLETE",
+      "conflict_group_id": null
+    },
+    {
+      "operation_id": "operation-beta",
+      "role": "PROVISIONING_OPERATION",
+      "edge_features": ["TREASURY_TO_SUBPROVIDER", "SUBPROVIDER_TO_CREATOR"],
+      "mechanism_features": ["WSOL_WRAP_CLOSE"],
+      "temporal_features": ["BURST_THEN_DORMANT"],
+      "source": "frozen_temporal",
+      "source_version": "v1",
+      "source_record_digest": "beta-temporal",
+      "quality_state": "OBSERVED",
+      "completeness_state": "COMPLETE",
+      "conflict_group_id": null
+    }
+  ]
+}

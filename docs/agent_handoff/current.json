@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T22:21:21Z",
+  "updated_at_utc": "2026-08-13T22:27:31Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "010cf389a82b34f9719b410d7ac5cca8f5ff5904",
-    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths; EB1.3C engineering commit contains only its adapter, tests and documentation; all unrelated paths preserved"
+    "git_head": "ac9bb0c01c37bfaf2a5685354710a11e4d18380a",
+    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths; EB1.3D engineering commit contains only the verified-output envelope extension, manifest, tests and documentation; all unrelated paths preserved"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-      "milestone": "EB1.3C fixture-only deterministic verified-lineage adapter",
+      "milestone": "EB1.3D immutable non-executable planning-proposal manifests",
       "mode": "safe-local frozen-fixture design, implementation, test and narrow commit",
       "status": "COMPLETE",
-      "verdict": "VERIFIED_LINEAGE_ADAPTER_QUALIFIED"
+      "verdict": "IMMUTABLE_PLANNING_PROPOSAL_MANIFEST_QUALIFIED"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,21 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb1_3d_immutable_planning_proposal_manifest": {
+      "status": "COMPLETE",
+      "verdict": "IMMUTABLE_PLANNING_PROPOSAL_MANIFEST_QUALIFIED",
+      "engineering_commit": "ac9bb0c01c37bfaf2a5685354710a11e4d18380a",
+      "verification_utc": "2026-08-13T22:27:31Z",
+      "qualified_semantics": "EB1.3C now emits a provenance-bearing verified projection; EB1.3D binds the verified EB1.1H bundle digest, authoritative EB1.1 lineage, EB1.2A history, EB1.3A proposal history and EB1.3C adapter version with exact proposals, counts, lanes, scopes, alternatives, assumptions, supersession, authority flags and deterministic replay",
+      "tests": "62 passed across EB1.0, EB1.1, EB1.2A, EB1.3A/C/D and operator-neutrality regressions",
+      "provider_calls": 0,
+      "production_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb1_3c_verified_lineage_adapter": {
       "status": "COMPLETE",
       "verdict": "VERIFIED_LINEAGE_ADAPTER_QUALIFIED",
@@ -4250,6 +4265,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "EB1.3D qualifies immutable individual proposal manifests only. No per-authority-lane proposal corpus, extractor boundary or immutable output bundle exists. Proposal alternatives remain unselected and both planning and execution authority remain false.",
     "EB1.3C qualifies deterministic verified-lineage projection only. No immutable EB1.3 proposal manifest, corpus, extractor or output-bundle boundary exists yet. Candidate alternatives and assumptions remain explicit caller inputs, and no artifact grants planning or execution authority.",
     "EB1.3B found that EB1.2A lineage digests are syntactically validated but not independently matched to verified EB1.1H projection/manifest/corpus digests. Until a fixture-only verified-lineage adapter enforces that match, EB1.3A proposals cannot claim committed bundle lineage. Candidate alternatives, assumptions and proposal-history fields remain explicit caller inputs and may not be derived or selected.",
     "EB1.3A is not yet a frozen artifact stack. No committed mapping audit proves how EB1.1 bundles and EB1.2A review histories populate every EB1.3A input, and candidate alternatives/assumptions remain explicitly caller-supplied. EB1.3B must remain read-only and cannot select or approve them.",
@@ -4319,9 +4335,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB1.3D immutable planning-proposal manifests",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Build immutable manifests only over verified EB1.3C outputs, binding exact EB1.1H, EB1.2A, EB1.3A and EB1.3C versions and identities without reviewing, selecting or executing proposals.",
-    "approval_text": "Authorize safe-local design, implementation, frozen-fixture tests, regression tests, documentation, and one narrow commit for EB1.3D immutable non-executable planning-proposal manifests over verified EB1.3C outputs only. Bind exact EB1.1H bundle and authoritative projection/manifest/corpus digests, EB1.2A review-history identity, EB1.3A contract version and proposal-history digest, EB1.3C adapter version, deterministic proposal records and counts, authority lanes, scopes, alternatives, assumptions, supersession and replay identity. Preserve NON_EXECUTABLE_PLANNING_PROPOSAL, grants_planning_authority=false and grants_execution_authority=false. Do not review, approve, derive, choose, rank, acquire or fulfill alternatives. Frozen fixtures only. No source selection, acquisition plan or request budget, production/runtime access, live extraction or census, provider/RPC calls, production writes, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, cross-entity linkage, rates, profiles, ranking, scoring, policy activation, profitability/cashflow inference, operator identity/attribution, or activation. Do not assign or enter an EB2 namespace.",
+    "milestone": "EB1.3E deterministic per-authority-lane planning-proposal corpus",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Assemble only replay-verified EB1.3D manifests into an immutable per-authority-lane proposal corpus without merging lanes, choosing alternatives or granting authority.",
+    "approval_text": "Authorize safe-local design, implementation, frozen-fixture tests, regression tests, documentation, and one narrow commit for EB1.3E deterministic per-authority-lane non-executable planning-proposal corpus assembly over replay-verified EB1.3D manifests only. Group by originating stage and authority lane while preserving every distinct requirement, review, proposal, cohort/window scope, candidate alternative, assumption, sequence, reason, rationale, supersession and source-manifest identity; expose only proposal and coverage counts, immutable lineage digests and exact replay. Reject collisions and any cross-lane merge or substitution. Preserve NON_EXECUTABLE_PLANNING_PROPOSAL, grants_planning_authority=false and grants_execution_authority=false. Do not review, approve, derive, choose, rank, acquire or fulfill alternatives. Frozen fixtures only. No source selection, acquisition plan or request budget, production/runtime access, live extraction or census, provider/RPC calls, production writes, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, cross-entity linkage, rates, profiles, ranking, scoring, policy activation, profitability/cashflow inference, operator identity/attribution, or activation. Do not assign or enter an EB2 namespace.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

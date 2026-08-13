@@ -8418,22 +8418,27 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
         def _update_creator_write(_m=mint, _cr=creator, _cat=created_at, _bcp=bonding_curve_pda, _cts=create_tx_signature, _cid=cluster_id, _cn=cluster_name, _crm=cluster_risk_multiplier):
             _conn = db_connect(DB_PATH, timeout=30)
-            _conn.execute("PRAGMA journal_mode=WAL")
-            _conn.execute("PRAGMA synchronous=NORMAL")
-            _conn.execute("PRAGMA busy_timeout=30000")
-            # X65.9 -- COALESCE guard: never let a NULL create_tx_signature
-            # (e.g. migration-time re-validation failing to reconfirm the
-            # CREATE tx) overwrite an already-persisted, correctly-captured
-            # signature. Validated safe in production via X65.3's live
-            # instrumentation (107/107 real overwrite attempts would have
-            # been prevented by this exact change; zero legitimate writes
-            # would have been blocked).
-            _conn.execute(
-                "UPDATE token_analysis SET earliest_tx_creator=?, created_at=?, bonding_curve_pda=?, create_tx_signature=COALESCE(?, create_tx_signature), cluster_id=?, cluster_name=?, cluster_risk_multiplier=? WHERE mint=?",
-                (_cr, _cat, _bcp, _cts, _cid, _cn, _crm, _m),
-            )
-            _conn.commit()
-            _conn.close()
+            try:
+                _conn.execute("PRAGMA journal_mode=WAL")
+                _conn.execute("PRAGMA synchronous=NORMAL")
+                _conn.execute("PRAGMA busy_timeout=30000")
+                # X65.9 -- COALESCE guard: never let a NULL create_tx_signature
+                # (e.g. migration-time re-validation failing to reconfirm the
+                # CREATE tx) overwrite an already-persisted, correctly-captured
+                # signature. Validated safe in production via X65.3's live
+                # instrumentation (107/107 real overwrite attempts would have
+                # been prevented by this exact change; zero legitimate writes
+                # would have been blocked).
+                _conn.execute(
+                    "UPDATE token_analysis SET earliest_tx_creator=?, created_at=?, bonding_curve_pda=?, create_tx_signature=COALESCE(?, create_tx_signature), cluster_id=?, cluster_name=?, cluster_risk_multiplier=? WHERE mint=?",
+                    (_cr, _cat, _bcp, _cts, _cid, _cn, _crm, _m),
+                )
+                _conn.commit()
+            finally:
+                # This closure runs entirely in its asyncio.to_thread owner.
+                # Never leave a failed writer for the foreign-thread reaper:
+                # SQLite close is thread-affine and the reaper must fail closed.
+                _conn.close()
 
         for attempt in range(max_retries):
             try:

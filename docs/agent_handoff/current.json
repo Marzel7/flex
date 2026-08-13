@@ -1,23 +1,23 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T13:19:29Z",
+  "updated_at_utc": "2026-08-13T13:24:16Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "8de329be6f4a5164e553f32c64a4eff019e3b90b",
-    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, handoff, and user paths remain present; EB0.1C committed exactly six authorized contract, adapter, fixture, test, and documentation files"
+    "git_head": "a53e0a9d82f708b7a334429f8d89a16dd26ee537",
+    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, handoff, and user paths remain present; EB0.1D committed exactly three authorized manifest, test, and documentation files"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T13:19:29Z",
+    "published_at_utc": "2026-08-13T13:24:16Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.1C frozen source-adapter qualification",
-    "mode": "safe-local pure deterministic adapter implementation and frozen-fixture qualification",
+    "milestone": "EB0.1D frozen canonical projection manifest",
+    "mode": "safe-local immutable manifest implementation and frozen replay qualification",
     "status": "COMPLETE",
     "verdict": "LOCAL_QUALIFICATION_PASS"
   },
@@ -235,6 +235,51 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_1d_canonical_projection_manifest": {
+      "status": "COMPLETE",
+      "verdict": "LOCAL_QUALIFICATION_PASS",
+      "commit": "a53e0a9d82f708b7a334429f8d89a16dd26ee537",
+      "manifest": "src/evidence/contracts/birth_valuation_manifest.py",
+      "documentation": "docs/evidence_platform/eb0_1d_projection_manifest.md",
+      "bindings": {
+        "manifest_schema": "eb0.1d.v1",
+        "contract": "eb0.1a.v1",
+        "adapter": "eb0.1c.v1"
+      },
+      "frozen_digests": {
+        "manifest": "1728039343e52cf2a32ea5dac89643013d44ebf23bc1c93059821a8382e40afc",
+        "input": "4a4ef56bcc17849692a38371b219628b210d7d48c6b09db52b0550b81797959f",
+        "projection": "e2d30e12fb697a791331e560182d67900f72f4775feae36efa5b35dcb1f97e4b"
+      },
+      "manifest_accounting": {
+        "observations": 5,
+        "event_counts": {"CHAIN_BIRTH": 1, "PLATFORM_FIRST_SEEN": 1, "MIGRATION": 1, "MARKET_FIRST_OBSERVED": 2},
+        "quality_counts": {"VERIFIED": 1, "OBSERVED": 2, "CONFLICTING": 2},
+        "completeness_counts": {"COMPLETE": 2, "NOT_OBSERVED": 3},
+        "conflicting_observations": 2,
+        "missing_valuations": 3
+      },
+      "fail_closed": [
+        "empty or duplicate inputs",
+        "extra/missing canonical fields",
+        "non-normalized values",
+        "projection identity collision",
+        "schema/contract/adapter version mismatch",
+        "manifest or input replay mismatch"
+      ],
+      "tests": {
+        "focused_eb0_1a_to_1d": "27 passed, 0 failed",
+        "evidence_contract_regression": "46 passed, 0 failed"
+      },
+      "provider_calls": 0,
+      "production_or_runtime_database_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "gmgn_integration": false,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb0_1c_frozen_source_adapters": {
       "status": "COMPLETE",
       "verdict": "LOCAL_QUALIFICATION_PASS",
@@ -2252,7 +2297,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "EB0.1C locally qualifies deterministic frozen source adapters, but no immutable projection-manifest/materializer has been authorized. Production/local-database reads remain prohibited, so coverage and real-population completeness are not yet measured. The next safe-local milestone must prove only frozen-corpus serialization, digesting, replay, conflict accounting, and explicit missingness.",
+    "EB0.1D locally qualifies immutable manifests, but heterogeneous canonical facts are not yet assembled into per-mint frozen corpora with deterministic earliest-boundary selection and exclusion accounting. Production/runtime data remains unread and real-population coverage remains unknown. EB0.1E frozen corpus assembly must be qualified before any production-read contract is proposed.",
     "OIP v2.2E is qualified complete, but production activation remains explicitly unauthorized. Any Evidence authority, Evidence Mirror, Cohort Mode, provider expansion, or production deployment requires its own future milestone. Post-E work must begin with roadmap reconciliation rather than implicit activation.",
     "B2BX fully passes the isolated provider qualification at 20/20 with exactly 60 authorized requests. The remaining step is a bounded local-only E-series closure assessment that combines this provider result with the previously qualified B2R acquisition/retention funnel; no production activation is implied or authorized.",
     "B2BW is locally qualified at f08db5b1 with fresh empty ledgers. Provider execution remains HUMAN_APPROVAL_REQUIRED and must explicitly acknowledge the higher-cost oldest enhanced request and the unchanged 60-request stop-safe ceiling.",
@@ -2298,8 +2343,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.1D frozen canonical projection manifest",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize safe-local design, implementation, frozen-fixture tests, regression tests, documentation, and one narrow commit for EB0.1D immutable canonical projection manifests over EB0.1A/EB0.1C frozen evidence only. Implement deterministic JSON serialization, schema/version binding, input and projection digests, replay verification, per-event/quality/completeness/conflict counts, and fail-closed rejection of noncanonical or ambiguous inputs. Do not read or materialize production/local runtime databases. No provider calls, GMGN integration, rankings, operator attribution, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, or activation.",
+    "milestone": "EB0.1E frozen canonical corpus assembly",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize safe-local design, implementation, frozen-fixture tests, regression tests, documentation, and one narrow commit for EB0.1E deterministic per-mint canonical corpus assembly over EB0.1A-D frozen evidence only. Define and qualify earliest-boundary selection separately for CHAIN_BIRTH, PLATFORM_FIRST_SEEN, MIGRATION, and MARKET_FIRST_OBSERVED; preserve tied/conflicting facts, record excluded later-observation counts and reasons, retain explicit missingness, and emit EB0.1D manifests reproducibly. Frozen fixtures only. No production/runtime database access, provider calls, GMGN integration, rankings, operator attribution, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, or activation.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

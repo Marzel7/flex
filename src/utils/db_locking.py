@@ -957,7 +957,8 @@ def record_connection_snapshot(*, primary_fd_count: int, extra: Optional[dict] =
 
 
 def db_connect(path: str, timeout: int = 30, row_factory=None,
-               read_only: bool = False, priority: int | None = None) -> sqlite3.Connection:
+               read_only: bool = False, priority: int | None = None,
+               _caller: str | None = None) -> sqlite3.Connection:
     """
     Open a SQLite connection with safe defaults for concurrent access.
 
@@ -991,12 +992,15 @@ def db_connect(path: str, timeout: int = 30, row_factory=None,
     # unactionable without separate stack-walking instrumentation (see
     # X78.5's investigation docs). Walk one frame further in that specific
     # case so the tag identifies the real caller going forward.
-    frame = inspect.stack()[1]
-    if frame.function == "_patched_connect":
-        outer_frames = inspect.stack()
-        if len(outer_frames) > 2:
-            frame = outer_frames[2]
-    caller = f"{frame.filename.split('/')[-1]}:{frame.lineno} in {frame.function}"
+    if _caller is not None:
+        caller = _caller
+    else:
+        frame = inspect.stack()[1]
+        if frame.function == "_patched_connect":
+            outer_frames = inspect.stack()
+            if len(outer_frames) > 2:
+                frame = outer_frames[2]
+        caller = f"{frame.filename.split('/')[-1]}:{frame.lineno} in {frame.function}"
 
     t0 = time.monotonic()
     try:
@@ -1055,7 +1059,29 @@ def managed_db_connect(path: str, timeout: int = 30, row_factory=None,
     PRIORITY_P2_BACKGROUND/PRIORITY_P3_HOUSEKEEPING for background/housekeeping
     writers so they defer to P0/P1 at acquisition boundaries.
     """
-    conn = db_connect(path, timeout=timeout, row_factory=row_factory, read_only=read_only, priority=priority)
+    # ``@contextmanager`` resumes this generator through
+    # contextlib._GeneratorContextManager.__enter__, so frame 1 is not the
+    # application caller.  Walk past our own module and contextlib to retain
+    # the real operation in connection, lease-owner, and timeout diagnostics.
+    frames = inspect.stack()
+    frame = next(
+        (
+            candidate
+            for candidate in frames[1:]
+            if candidate.filename != __file__
+            and candidate.filename.split("/")[-1] != "contextlib.py"
+        ),
+        frames[-1],
+    )
+    caller = f"{frame.filename.split('/')[-1]}:{frame.lineno} in {frame.function}"
+    conn = db_connect(
+        path,
+        timeout=timeout,
+        row_factory=row_factory,
+        read_only=read_only,
+        priority=priority,
+        _caller=caller,
+    )
     try:
         yield conn
     finally:

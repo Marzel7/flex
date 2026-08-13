@@ -8202,9 +8202,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
             _mint=token_mint, _cur_price=current_price, _cur_mc=current_market_cap,
             _src=source, _liq=liquidity_usd,
         ):
-            conn = db_connect(DB_PATH, timeout=15)
+            # B2BC: all analysis is read-only and must not enter the shared
+            # write lane.  Open the write-capable connection only after the
+            # reads and in-memory rug/peak calculations are complete.
+            read_conn = db_connect(DB_PATH, timeout=15, read_only=True)
             try:
-                cursor = conn.cursor()
+                cursor = read_conn.cursor()
                 cursor.execute(
                     """
                     SELECT price_highest, rug_indicator, created_at, lifecycle_stage,
@@ -8263,8 +8266,15 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     except Exception as _e:
                         log_print(f"[RUG_CHECK] ⚠ Could not analyze rug pattern for {_mint}: {_e}", flush=True)
 
-                # Fallback price write (canonical path skipped here; handled async after return)
-                cursor.execute("""
+            finally:
+                read_conn.close()
+
+            # Fallback price write (canonical path skipped here; handled
+            # async after return).  This is intentionally the entire
+            # write-capable scope: one UPDATE and one commit.
+            write_conn = db_connect(DB_PATH, timeout=15)
+            try:
+                write_conn.execute("""
                     UPDATE token_analysis
                     SET price_current = ?,
                         market_cap_current = ?,
@@ -8273,7 +8283,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         rug_indicator = ?
                     WHERE mint = ?
                 """, (_cur_price, _cur_mc, _src, _price_highest, _rug_indicator, _mint))
-                conn.commit()
+                write_conn.commit()
                 return {
                     'price_highest': _price_highest,
                     'rug_indicator': _rug_indicator,
@@ -8287,7 +8297,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     'bonding_curve_pda': _bc_pda,
                 }
             finally:
-                conn.close()
+                write_conn.close()
 
         async with self.db_lock:
             try:

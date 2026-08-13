@@ -1,23 +1,23 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T14:42:40Z",
+  "updated_at_utc": "2026-08-13T14:47:55Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "158ab0344b2d756e08ee39612ef8b1c858be214c",
-    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, handoff, and user paths remain present; the narrow EB0.2A commit contains only the authorized contract, fixture, tests, and documentation"
+    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, handoff, and user paths remain present; EB0.2B was read-only and changed no engineering files"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T14:42:40Z",
+    "published_at_utc": "2026-08-13T14:47:55Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.2A canonical creator historical outcome evidence contract",
-    "mode": "safe-local deterministic contract and frozen-fixture qualification",
+    "milestone": "EB0.2B creator historical outcome source-mapping audit",
+    "mode": "bounded local read-only committed-source audit",
     "status": "COMPLETE",
     "verdict": "LOCAL_QUALIFICATION_PASS"
   },
@@ -235,6 +235,41 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_2b_creator_outcome_source_mapping": {
+      "status": "COMPLETE",
+      "verdict": "PARTIAL_SAFE_MAPPING_NEGATIVE_COMPLETENESS_UNSUPPORTED",
+      "engineering_commit": "158ab0344b2d756e08ee39612ef8b1c858be214c",
+      "safe_mappings": {
+        "mint_membership": "EB0.1E MintCorpus.mint with corpus and manifest digests",
+        "positive_migration_event": "qualified EB0.1 MIGRATION observation event_time_utc_ns, source lineage, quality, completeness, and observation identity",
+        "positive_market_threshold_event": "qualified EB0.1 market observation at or above an explicit threshold when its event time is inside the fixed horizon",
+        "quality_conflict_provenance": "EB0.1D manifest observations and counts preserve quality, completeness, source version, source record digest, provenance digest, and conflicts"
+      },
+      "conditional_mapping": {
+        "creator_identity": "pf_ws_creator is the committed preferred authority when explicitly present and qualified. earliest_tx_creator is historically treated inconsistently and may be a shared transaction authority, so it cannot be silently substituted; the adapter must receive an explicit qualified creator identity fact and resolution method.",
+        "cohort_event_time": "must be supplied by an explicit qualified EB0.1 event kind selected by the contract; created_at is not a safe general birth boundary and MARKET_FIRST_OBSERVED must not be relabelled as birth",
+        "observation_cutoff": "must be an explicit frozen boundary whose source guarantees are bound into provenance; wall-clock age or extraction time alone is insufficient"
+      },
+      "unsupported_mappings": {
+        "negative_migration_by_horizon": "absence of a migration observation does not prove a complete negative without a source-completeness guarantee through the horizon",
+        "negative_market_threshold_by_horizon": "first_observed and market_cap_highest do not provide continuous fixed-window coverage; sparse or missing observations cannot prove the threshold was never reached",
+        "historical_peak_window": "market_cap_highest is a legacy observed maximum with sparse coverage and no fixed 1m/5m/15m/1h window",
+        "birth_market_cap": "later MARKET_FIRST_OBSERVED valuation cannot be promoted to birth valuation without EB0.1 equivalence proof",
+        "profitability_cashflow_rank_or_operator": "no committed mapping supports these claims in EB0.2B"
+      },
+      "smallest_next_milestone": "EB0.2C frozen deterministic source adapters accepting EB0.1 canonical MintCorpus evidence plus explicit qualified CreatorIdentityFact and ObservationWindowFact inputs; emit proven positives and UNKNOWN for incomplete evidence, and emit OBSERVED_FALSE only when an explicit full-horizon completeness assertion is supplied and provenance-bound.",
+      "engineering_changes": false,
+      "provider_calls": 0,
+      "production_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "gmgn_integration": false,
+      "rankings": false,
+      "operator_attribution": false,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb0_2a_creator_historical_outcome_contract": {
       "status": "COMPLETE",
       "verdict": "LOCAL_QUALIFICATION_PASS",
@@ -2763,7 +2798,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "EB0.2A qualifies the creator historical outcome contract, but no committed source mapping has yet proven which existing frozen/local fields can supply creator identity, cohort membership, fixed-horizon outcomes, cutoffs, and completeness without future leakage. EB0.2B must audit mappings before adapters or corpus assembly; production access and source broadening remain prohibited.",
+    "EB0.2B proves safe positive mappings but finds no general committed source for full-horizon negative completeness. Creator identity fallback is also ambiguous: earliest_tx_creator can be a shared authority and must not be silently substituted. EB0.2C must require explicit provenance-bound creator identity and observation-window facts and preserve incomplete outcomes as UNKNOWN.",
     "OIP v2.2E is qualified complete, but production activation remains explicitly unauthorized. Any Evidence authority, Evidence Mirror, Cohort Mode, provider expansion, or production deployment requires its own future milestone. Post-E work must begin with roadmap reconciliation rather than implicit activation.",
     "B2BX fully passes the isolated provider qualification at 20/20 with exactly 60 authorized requests. The remaining step is a bounded local-only E-series closure assessment that combines this provider result with the previously qualified B2R acquisition/retention funnel; no production activation is implied or authorized.",
     "B2BW is locally qualified at f08db5b1 with fresh empty ledgers. Provider execution remains HUMAN_APPROVAL_REQUIRED and must explicitly acknowledge the higher-cost oldest enhanced request and the unchanged 60-request stop-safe ceiling.",
@@ -2809,8 +2844,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.2B creator historical outcome source-mapping audit",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize a bounded local read-only EB0.2B source-mapping audit using committed schemas, code, EB0.1/EB0.2A documentation, and frozen fixtures only. Map qualified creator identity, cohort membership, outcome event, fixed-horizon cutoff, completeness, quality, conflict, and provenance fields; identify unsupported or ambiguous mappings and the smallest safe-local adapter milestone. Do not implement adapters or aggregate creator profiles. No production/runtime access, provider calls, GMGN integration, rankings, scoring, operator attribution, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, or activation.",
+    "milestone": "EB0.2C deterministic creator outcome source adapters",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize safe-local design, implementation, frozen-fixture tests, regression tests, documentation, and one narrow commit for EB0.2C deterministic source adapters into the EB0.2A contract. Accept only EB0.1 canonical MintCorpus evidence plus explicit provenance-bound qualified CreatorIdentityFact and ObservationWindowFact inputs; map proven in-horizon migration and market-threshold positives, preserve incomplete or absent evidence as UNKNOWN/NOT_OBSERVED, and permit OBSERVED_FALSE only with an explicit full-horizon completeness assertion. Do not infer creator identity from ambiguous earliest_tx_creator, relabel MARKET_FIRST_OBSERVED as birth, use market_cap_highest as a fixed-window outcome, aggregate profiles, rank, score, or attribute operators. Frozen fixtures only. No production/runtime access, provider calls, GMGN integration, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, or activation.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

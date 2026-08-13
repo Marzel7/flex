@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-12T22:30:52Z",
+  "updated_at_utc": "2026-08-13T06:55:40Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "e4f112a699b0c3a95829b132dddd9cc66b7b2722",
+    "git_head": "64e72d4523a8e99d7bb523e80dac995c0817cc7b",
     "working_tree": "dirty: unrelated live Supervisor, audit, and runtime changes remain present and were not staged; V1.2/V1.3 orchestrator work is committed locally"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-12T22:30:52Z",
+    "published_at_utc": null,
     "protocol_version": 1,
-    "status": "PUBLISHED"
+    "status": "PENDING_PUBLICATION"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2X B2W provider-target and adapter contract design",
-    "mode": "completed safe-local design and fake-client qualification",
+    "milestone": "OIP v2.2E.2B2Y creator-funding evidence contract",
+    "mode": "completed safe-local contract design and fake-client qualification",
     "status": "COMPLETE",
-    "verdict": "LOCAL_QUALIFICATION_PASS_SEMANTIC_LIMIT"
+    "verdict": "LOCAL_QUALIFICATION_PASS_AWAITING_PROVIDER_EXECUTION_AUTHORIZATION"
   },
   "production_state": {
     "retention": "ON",
@@ -28,7 +28,7 @@
     "cohort_mode": "OFF",
     "evidence_writer": "STOPPED",
     "listener_service": "watchtower_listener",
-    "listener_pid_last_verified": 85256,
+    "listener_pid_last_verified": 24788,
     "creator_funding_service": "creator_funding_worker",
     "creator_funding_pid_last_verified": 45895
   },
@@ -444,6 +444,30 @@
       "production_changes": false,
       "service_restarts": 0,
       "semantic_limit": "One migration getTransaction response can prove only migration signature/mint lineage. It cannot establish a creator-funding edge, so it must set evidence_observed=false and cannot satisfy B2N's all-20 creator-funding success criterion."
+    },
+    "oip_v2_2e_2b2y_creator_funding_evidence_contract": {
+      "status": "COMPLETE",
+      "verdict": "LOCAL_QUALIFICATION_PASS_AWAITING_PROVIDER_EXECUTION_AUTHORIZATION",
+      "commit": "64e72d4523a8e99d7bb523e80dac995c0817cc7b",
+      "contract": "docs/evidence_platform/oip_v2_2e_2b2y_creator_funding_contract.md",
+      "endpoint_sequence": [
+        "getTransaction(frozen migration signature, jsonParsed)",
+        "getSignaturesForAddress(resolved creator, limit=1000, exactly one page)",
+        "getTransaction(first returned signature strictly pre-migration, jsonParsed)"
+      ],
+      "budget": "At most 3 physical Helius RPC requests per frozen B2R member; 60 total maximum for 20 members. No retry, failover, pagination, cache interaction, concurrency, replacement, or supplementary lookup; stop the whole run on the first non-success.",
+      "tests": {
+        "command": "python -m py_compile src/acquisition/b2y_creator_funding_contract.py && python -m pytest -q tests/test_oip_v2_2e_2b2t_executor.py tests/test_oip_v2_2e_2b2x_projection.py tests/test_oip_v2_2e_2b2y_contract.py && git diff --check",
+        "passed": 10,
+        "failed": 0
+      },
+      "provider_rpc_calls": 0,
+      "production_changes_initiated_by_codex": false,
+      "service_restarts_initiated_by_codex": 0,
+      "runtime_verification": "2026-08-13T06:55:40Z: watchtower_listener RUNNING pid 24788; creator_funding_worker RUNNING pid 45895; evidence_writer STOPPED. Listener PID differs from the last handoff verification (85256); no restart was initiated by Codex in B2Y.",
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "execution_gate": "A separate explicit authorization must name B2Z, Helius RPC, the 60-request maximum, isolated non-production execution, and the no-retry/first-non-success stop rule."
     },
     "oip_v2_2e_2b2n_preflight_manifest_authorization": {
       "status": "COMPLETE",
@@ -880,8 +904,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2Y B2N evidence-contract decision",
-    "instruction": "Await explicit human decision: (A) amend the objective to migration-lineage qualification and separately authorize a bounded B2W Helius run, which will not qualify creator funding; or (B) approve a new reviewed creator-funding evidence contract with its endpoint sequence and request budget. No provider call may occur until that decision and a new explicit provider-execution authorization.",
+    "milestone": "OIP v2.2E.2B2Z isolated creator-funding provider qualification",
+    "instruction": "Await explicit authorization to execute the reviewed B2Y contract against Helius in an isolated non-production environment: maximum 60 physical requests (at most three per frozen B2R member), exact endpoint sequence, no retry/failover/pagination/cache interaction/concurrency/replacement, stop the whole run on first non-success, and no production DB/queue/service/configuration/Evidence/Cohort action.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

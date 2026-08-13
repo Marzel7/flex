@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T08:00:09Z",
+  "updated_at_utc": "2026-08-13T08:02:37Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,9 +10,9 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T08:00:09Z",
+    "published_at_utc": null,
     "protocol_version": 1,
-    "status": "PUBLISHED"
+    "status": "PENDING_PUBLICATION"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
@@ -804,6 +804,16 @@
       "production_changes": false,
       "service_restarts": 0,
       "blocker": "The safe-local repair is not yet authorized or implemented. Production remains CRITICAL/unstable and B2Z remains held."
+    },
+    "oip_v2_2e_incident_causal_assessment": {
+      "status": "COMPLETE",
+      "verdict": "LATENT_DEFECT_REACTIVATED_BY_WORKER_RECOVERY",
+      "verification_utc": "2026-08-13T08:02:37Z",
+      "assessment": "The recent B2AL change did not introduce the repeated ensure_schema pattern: blame traces the core calls to May-July 2026. The apparent multi-day stability coincided with creator-funding stalled or ineffective and creator-resolution making limited progress. B2AH and B2AM restarted those workers, restored two-slot funding and resolution backlog processing, and exposed/amplified the pre-existing shared-SQLite contention. B2AD changed unsafe foreign-thread cleanup to fail closed, which made owner cleanup gaps visible rather than silently cross-thread closing them, but it did not create the hot-path schema writes.",
+      "recent_change_effect": "Recent deployments were the trigger for renewed workload and better visibility; they were not the origin of the core schema-write defect. B2AL partially reduced connection scope but deliberately did not yet remove repeated schema initialization, which B2AN identified.",
+      "provider_rpc_calls": 0,
+      "production_changes": false,
+      "service_restarts": 0
     },
     "oip_v2_2e_2b2n_preflight_manifest_authorization": {
       "status": "COMPLETE",

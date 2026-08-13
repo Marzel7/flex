@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T14:14:18Z",
+  "updated_at_utc": "2026-08-13T14:22:16Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "992383c9a29c8eb2c1dbcbffea309cbcaff589cb",
-    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, handoff, and user paths remain present; EB0.1N was execution-only and changed no engineering files"
+    "git_head": "153cb464bff52893450a5f10efa0030d591df882",
+    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, handoff, and user paths remain present; EB0.1O committed exactly the authorized normalization, tests, and documentation"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T14:14:18Z",
+    "published_at_utc": "2026-08-13T14:22:16Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.1N bounded read-only live canonical census",
-    "mode": "single bounded query-only live execution",
-    "status": "HOLD",
-    "verdict": "STOPPED_CANONICAL_NUMERIC_NORMALIZATION_MISMATCH"
+    "milestone": "EB0.1O token-analysis REAL numeric normalization repair",
+    "mode": "safe-local canonical numeric repair and frozen/ephemeral qualification",
+    "status": "COMPLETE",
+    "verdict": "LOCAL_QUALIFICATION_PASS_READY_FOR_SEPARATE_LIVE_RETRY_AUTHORIZATION"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,30 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_1o_real_numeric_normalization": {
+      "status": "COMPLETE",
+      "verdict": "LOCAL_QUALIFICATION_PASS_READY_FOR_SEPARATE_LIVE_RETRY_AUTHORIZATION",
+      "commit": "153cb464bff52893450a5f10efa0030d591df882",
+      "qualified_behavior": [
+        "token_analysis first_observed_mc and first_observed_price canonicalized before EB0.1C adaptation",
+        "integral REAL values remove trailing decimal zeros",
+        "fractional and exponent-form REAL values expand deterministically",
+        "zero, negative, and non-finite values stop with EB0_1O_INVALID_MARKET_VALUE",
+        "EB0.1D manifest canonicality, EB0.1E corpus assembly, and EB0.1J bundle replay pass with REAL-affinity fixtures"
+      ],
+      "tests": {
+        "focused_eb0_1a_to_1o": "57 passed, 0 failed",
+        "broader_evidence_regression": "22 passed, 0 failed"
+      },
+      "provider_calls": 0,
+      "production_or_runtime_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "gmgn_integration": false,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb0_1n_live_canonical_census": {
       "status": "HOLD",
       "verdict": "STOPPED_CANONICAL_NUMERIC_NORMALIZATION_MISMATCH",
@@ -2611,7 +2635,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "EB0.1N stopped before bundle creation because token_analysis REAL values can produce noncanonical decimal strings with a trailing .0. The output directory is empty and no retry is authorized. EB0.1O must locally repair and qualify numeric normalization; any fresh live census requires a new run ID, empty output directory, high-water, and separate authorization.",
+    "EB0.1O repairs and qualifies the EB0.1N numeric-normalization stop at 153cb464. A fresh live census is still production read access and requires a new run ID, new empty isolated output directory, freshly captured high-water, and separate explicit authorization; the stopped EB0.1N run and empty directory must not be reused.",
     "OIP v2.2E is qualified complete, but production activation remains explicitly unauthorized. Any Evidence authority, Evidence Mirror, Cohort Mode, provider expansion, or production deployment requires its own future milestone. Post-E work must begin with roadmap reconciliation rather than implicit activation.",
     "B2BX fully passes the isolated provider qualification at 20/20 with exactly 60 authorized requests. The remaining step is a bounded local-only E-series closure assessment that combines this provider result with the previously qualified B2R acquisition/retention funnel; no production activation is implied or authorized.",
     "B2BW is locally qualified at f08db5b1 with fresh empty ledgers. Provider execution remains HUMAN_APPROVAL_REQUIRED and must explicitly acknowledge the higher-cost oldest enhanced request and the unchanged 60-request stop-safe ceiling.",
@@ -2657,8 +2681,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.1O token-analysis REAL numeric normalization repair",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize safe-local design, implementation, frozen/ephemeral SQLite REAL-affinity tests, regression tests, documentation, and one narrow commit for EB0.1O canonical numeric normalization repair. Apply the existing deterministic _decimal_text normalization to token_analysis first_observed_mc and first_observed_price before EB0.1C adaptation; prove integral REAL, fractional REAL, exponent-form, zero/invalid, manifest canonicality, corpus assembly, and bundle replay behavior. Preserve all EB0.1A-M bounds and semantics. No production/runtime access, provider calls, production changes, deployment, restarts, configuration changes, GMGN integration, rankings, operator attribution, Evidence Mirror, Cohort Mode, activation, or live census retry. A new live census run remains separately HUMAN_APPROVAL_REQUIRED.",
+    "milestone": "EB0.1P bounded read-only live canonical census retry",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize exactly one fresh EB0.1P bounded read-only live canonical census using engineering commit 153cb464bff52893450a5f10efa0030d591df882 under the EB0.1N contract recorded in current.json. Assign a new run ID and new empty isolated output directory; capture a fresh migration high-water at the first query-only checkpoint; do not reuse or alter the stopped EB0.1N directory. Open only database/flex_complete_database.db and database/evidence_platform/production/evidence.db with mode=ro/query_only; use no explicit receive records. Preserve the exact latest-5000 selection, older-remainder accounting, 250ms lock timeout, active 30-second per-statement deadlines, maximum two LaunchFacts per selected mint / 10000 total, numeric canonicalization, immutable bundle/digest verification, and first-error/impact stop. Record aggregate metrics only and stop. No provider calls, production writes, service restarts or stops, configuration changes, GMGN integration, rankings, operator attribution, deployment, Evidence Mirror, Cohort Mode, activation, or additional retry.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

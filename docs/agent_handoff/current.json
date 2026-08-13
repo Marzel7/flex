@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T07:23:24Z",
+  "updated_at_utc": "2026-08-13T07:26:31Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T07:23:24Z",
+    "published_at_utc": null,
     "protocol_version": 1,
-    "status": "PUBLISHED"
+    "status": "PENDING_PUBLICATION"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2AE owner-thread reaper policy production load",
-    "mode": "one authorized listener restart and immediate verification",
+    "milestone": "OIP v2.2E.2B2AF production health read-only recovery verification",
+    "mode": "completed bounded read-only verification",
     "status": "PARTIAL",
-    "verdict": "PARTIAL_REAPER_POLICY_LOADED_HEALTH_UNRESPONSIVE"
+    "verdict": "DATABASE_RECOVERED_CREATOR_FUNDING_STALLED"
   },
   "production_state": {
     "retention": "ON",
@@ -603,6 +603,34 @@
       "cohort_mode": "OFF",
       "blocker": "B2AD's safety policy is loaded, but local health remains unresponsive. B2Z provider qualification remains held until a healthy Mission Control verification is available."
     },
+    "oip_v2_2e_2b2af_health_recovery_verification": {
+      "status": "COMPLETE",
+      "verdict": "DATABASE_RECOVERED_CREATOR_FUNDING_STALLED",
+      "verification_utc": "2026-08-13T07:26:31Z",
+      "scope": "Read-only local Supervisor, health endpoint, and listener diagnostics verification; no provider qualification call, production write, restart, configuration change, Evidence Mirror, or Cohort Mode action.",
+      "recovered": {
+        "local_health_endpoint": "HTTP 200",
+        "platform_status": "WARNING (was CRITICAL)",
+        "infrastructure_status": "HEALTHY",
+        "database_status": "HEALTHY",
+        "database_write_p99_ms": 5.44,
+        "serializer_queue_depth": 1,
+        "listener_lock_errors_since_start": 0,
+        "listener_diagnostics": "5 OWNER_THREAD_CLEANUP_REQUIRED events and 0 post-load CLOSE_FAILED_WRONG_THREAD events in the inspected listener slice"
+      },
+      "remaining_blocker": {
+        "creator_funding_worker_process": "RUNNING pid 45895",
+        "creator_funding_progress": "STALLED",
+        "creator_funding_pending": 160,
+        "creator_funding_heartbeat_age_seconds": 219,
+        "creator_funding_oldest_hot_age_seconds": 19852,
+        "creator_funding_last_completed_age_seconds": 17083
+      },
+      "provider_rpc_calls": 0,
+      "production_changes": false,
+      "service_restarts": 0,
+      "blocker": "Database pressure is recovered, but creator-funding remains stalled; B2Z cannot begin until its production-impact precondition is cleared."
+    },
     "oip_v2_2e_2b2n_preflight_manifest_authorization": {
       "status": "COMPLETE",
       "verdict": "SAFE_LOCAL_PREFLIGHT_AUTHORIZED",
@@ -1038,8 +1066,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2AF production health read-only recovery verification",
-    "instruction": "Await explicit authorization for a bounded read-only verification of local Mission Control/API responsiveness, database pressure, and creator-funding progress after B2AD load. No provider qualification call, production write, restart, configuration change, Evidence Mirror, or Cohort Mode action. B2Z remains held unless the verified state is healthy.",
+    "milestone": "OIP v2.2E.2B2AG creator-funding worker read-only stall diagnosis",
+    "instruction": "Automatically proceed with bounded read-only diagnosis of the live creator-funding worker stall: inspect local worker status/logs/heartbeats and source paths only. No provider qualification call, production write, restart, configuration change, Evidence Mirror, or Cohort Mode action. Any worker repair or restart remains separately human-gated.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

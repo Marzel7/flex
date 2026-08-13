@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T15:30:52Z",
+  "updated_at_utc": "2026-08-13T15:37:38Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "c559bd370d11041b2855e25e47356c3a8992ea27",
-    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, and user paths remain present; EB0.2I was read-only and made no engineering changes"
+    "git_head": "b3cc4195823b1a23c89ae96ef683409ae8812624",
+    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, and user paths remain present; the narrow EB0.2J commit contains only the authorized normalization adapter, frozen/ephemeral tests, and documentation"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T15:30:52Z",
+    "published_at_utc": "2026-08-13T15:37:38Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.2I production schema and high-water compatibility preflight",
-    "mode": "bounded read-only production compatibility preflight",
+    "milestone": "EB0.2J safe-local multi-source normalization adapter qualification",
+    "mode": "safe-local frozen and ephemeral multi-database SQLite qualification",
     "status": "COMPLETE",
-    "verdict": "HOLD_NORMALIZED_PRODUCTION_INPUTS_ABSENT"
+    "verdict": "LOCAL_QUALIFICATION_PASS_NO_PRODUCTION_COMPATIBILITY_CLAIM"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,34 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_2j_multi_source_normalization": {
+      "status": "COMPLETE",
+      "verdict": "LOCAL_QUALIFICATION_PASS_NO_PRODUCTION_COMPATIBILITY_CLAIM",
+      "engineering_commit": "b3cc4195823b1a23c89ae96ef683409ae8812624",
+      "qualified_semantics": [
+        "opens three dependency-injected frozen SQLite sources with mode=ro and verified PRAGMA query_only",
+        "requires caller-supplied immutable cohort, per-source rowid high-waters, observation cutoff, schema subsets, selected-mint queries, and active deadlines",
+        "maps only one coherent verified create proof to CHAIN_BIRTH and preserves market evidence as MARKET_FIRST_OBSERVED",
+        "qualifies PF_WS_CREATOR_VERIFIED identity only when non-mismatched main, verified ops, and any legacy membership evidence agree",
+        "emits every observation window with full_horizon_complete=false so missing outcomes remain UNKNOWN/NOT_OBSERVED and negative denominators remain ineligible",
+        "never reads creator_historical_performance aggregates and rejects ambiguous identity, schema drift, invalid bounds, deadlines, and output overwrite",
+        "materializes the exact EB0.2G input schema only at a caller-supplied nonexistent path and produces deterministic EB0.2G outputs"
+      ],
+      "tests": {
+        "passed": 98,
+        "failed": 0
+      },
+      "provider_calls": 0,
+      "production_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "gmgn_integration": false,
+      "rankings": false,
+      "operator_attribution": false,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb0_2i_production_compatibility_preflight": {
       "status": "COMPLETE",
       "verdict": "HOLD_NORMALIZED_PRODUCTION_INPUTS_ABSENT",
@@ -3026,7 +3054,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "EB0.2I confirms indexed/rowid source high-waters and immutable caller-supplied cohorts are feasible, but all inspected production databases lack the exact normalized EB0.2G tables. Creator identity is split and not provenance-bound to the EB0.2C fact contract, and no full-horizon observation-window assertion exists. Live extraction remains blocked pending a safe-local multi-source normalization adapter qualified on frozen/ephemeral schema replicas.",
+    "EB0.2J qualifies the split-source normalization boundary on frozen/ephemeral replicas at b3cc4195, but makes no production compatibility claim. A separately authorized bounded read-only preflight must verify required live schema subsets, accepted identity/proof value availability, indexed selected-mint query plans, and fresh high-water feasibility before any live cohort or extraction authorization.",
     "OIP v2.2E is qualified complete, but production activation remains explicitly unauthorized. Any Evidence authority, Evidence Mirror, Cohort Mode, provider expansion, or production deployment requires its own future milestone. Post-E work must begin with roadmap reconciliation rather than implicit activation.",
     "B2BX fully passes the isolated provider qualification at 20/20 with exactly 60 authorized requests. The remaining step is a bounded local-only E-series closure assessment that combines this provider result with the previously qualified B2R acquisition/retention funnel; no production activation is implied or authorized.",
     "B2BW is locally qualified at f08db5b1 with fresh empty ledgers. Provider execution remains HUMAN_APPROVAL_REQUIRED and must explicitly acknowledge the higher-cost oldest enhanced request and the unchanged 60-request stop-safe ceiling.",
@@ -3072,8 +3100,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.2J safe-local multi-source normalization adapter qualification",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize safe-local design, implementation, frozen/ephemeral multi-database SQLite tests, regression tests, documentation, and one narrow commit for EB0.2J deterministic multi-source normalization adapters feeding EB0.2G/H. Use only frozen schema replicas and explicit caller-supplied immutable cohort/high-waters; preserve source-file provenance and emit normalized canonical observations, qualified creator identity facts, and observation-window facts. Treat missing or unproven full-horizon completeness as UNKNOWN/NOT_OBSERVED, reject ambiguous or mismatched creator identity, and do not consume creator_historical_performance aggregates. Do not access production/runtime sources, execute a live extraction, materialize a live cohort or bundle, aggregate rates or profiles, rank, score, make policy decisions, infer profitability or cashflow, or attribute operators. No provider calls, GMGN integration, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, or activation.",
+    "milestone": "EB0.2K production normalization compatibility preflight",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize EB0.2K bounded read-only production compatibility preflight for commit b3cc4195823b1a23c89ae96ef683409ae8812624. Verify only the EB0.2J required live table/column/index subsets, bounded accepted identity/create-proof value availability, selected-mint query-plan indexability, source-file separation, and fresh rowid/high-water feasibility. Do not execute normalization or EB0.2G extraction, materialize a cohort, normalized database, or bundle, read unrestricted row payloads, write, aggregate rates or profiles, rank, score, make policy decisions, infer profitability or cashflow, attribute operators, or activate anything. No provider calls, GMGN integration, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, or activation.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

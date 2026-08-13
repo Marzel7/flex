@@ -1,12 +1,13 @@
 """EB1.3C verified-lineage adapters into the EB1.3A proposal contract."""
 
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
 import json
 from pathlib import Path
 from typing import Iterable
 
 from .evidence_fulfillment_planning_proposal import (
     EvidenceFulfillmentPlanningProposalError,
+    EvidenceFulfillmentPlanningProposalHistory,
     project_evidence_fulfillment_planning_proposals,
 )
 from .evidence_gap_requirement_bundle import verify_evidence_gap_requirement_bundle
@@ -30,6 +31,17 @@ ADAPTER_VERSION = "eb1.3c.v1"
 
 class EvidenceFulfillmentPlanningProposalAdapterError(ValueError):
     pass
+
+
+@dataclass(frozen=True)
+class VerifiedPlanningProposalProjection:
+    adapter_version: str
+    eb1_1h_bundle_digest: str
+    requirement_projection_digest: str
+    requirement_manifest_digest: str
+    requirement_corpus_digest: str
+    review_history_digest: str
+    proposal_history: EvidenceFulfillmentPlanningProposalHistory
 
 
 def _load_verified_bundle(bundle_directory: Path):
@@ -86,13 +98,13 @@ def _load_verified_bundle(bundle_directory: Path):
     return verified, manifest, corpus, requirements
 
 
-def adapt_verified_lineage_to_planning_proposals(
+def adapt_verified_lineage_to_planning_proposal_projection(
     bundle_directory: Path,
     review_history: RequirementReviewHistory,
     proposal_inputs: Iterable[dict],
 ):
     """Bind verified EB1.1H lineage to EB1.2A and project explicit EB1.3A inputs."""
-    _, manifest, corpus, requirements = _load_verified_bundle(bundle_directory)
+    verified, manifest, corpus, requirements = _load_verified_bundle(bundle_directory)
     requirement_by_id = {item.requirement_id: item for item in requirements}
     if len(requirement_by_id) != len(requirements):
         raise EvidenceFulfillmentPlanningProposalAdapterError("EB1_3C_DUPLICATE_REQUIREMENT")
@@ -150,6 +162,26 @@ def adapt_verified_lineage_to_planning_proposals(
             }
         )
     try:
-        return project_evidence_fulfillment_planning_proposals(records, requirements, review_history)
+        history = project_evidence_fulfillment_planning_proposals(records, requirements, review_history)
     except EvidenceFulfillmentPlanningProposalError as exc:
         raise EvidenceFulfillmentPlanningProposalAdapterError("EB1_3C_EB1_3A_REJECTED") from exc
+    return VerifiedPlanningProposalProjection(
+        ADAPTER_VERSION,
+        verified.bundle_digest,
+        authoritative[0],
+        authoritative[1],
+        authoritative[2],
+        review_history.history_digest,
+        history,
+    )
+
+
+def adapt_verified_lineage_to_planning_proposals(
+    bundle_directory: Path,
+    review_history: RequirementReviewHistory,
+    proposal_inputs: Iterable[dict],
+):
+    """Backward-compatible EB1.3C projection returning the EB1.3A history."""
+    return adapt_verified_lineage_to_planning_proposal_projection(
+        bundle_directory, review_history, proposal_inputs
+    ).proposal_history

@@ -22,7 +22,7 @@ These event kinds remain separate facts. The projection never collapses one into
 
 ## Provenance and conflicts
 
-`provenance_digest` hashes mint, event kind/time, source/version, observation time, and the caller-supplied source-record digest. `observation_id` additionally covers valuation, quality, completeness, and equivalence proof. Exact replays are idempotently deduplicated; different sources, versions, or values remain separate immutable facts. Projection ordering and its aggregate digest are independent of input order.
+`source_record_digest` is retained on the projected fact. `provenance_digest` hashes mint, event kind/time, source/version, observation time, and that source-record digest. `observation_id` additionally covers valuation, quality, completeness, and equivalence proof. Exact replays are idempotently deduplicated; different sources, versions, or values remain separate immutable facts. Projection ordering and its aggregate digest are independent of input order.
 
 ## Qualification scope
 

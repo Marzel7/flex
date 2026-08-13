@@ -39,6 +39,7 @@ class BirthValuationObservation:
     valuation_semantics: str
     quality_state: str
     completeness_state: str
+    source_record_digest: str
     provenance_digest: str
     observation_id: str
 
@@ -157,6 +158,7 @@ def _project_one(record: Mapping[str, object]) -> BirthValuationObservation:
         valuation_semantics=semantics,
         quality_state=quality,
         completeness_state=completeness,
+        source_record_digest=source_record_digest,
         provenance_digest=provenance_digest,
         observation_id=observation_id,
     )

@@ -1,0 +1,57 @@
+{
+  "launch_fact": {
+    "fact_family": "LaunchFact",
+    "verification_state": "VERIFIED",
+    "source_id": "frozen-transaction-normalizer",
+    "source_version": "normalizer-v3",
+    "acquired_at": 1710000010,
+    "raw_artifact_digest": "sha256:frozen-launch-artifact",
+    "payload": {
+      "mint": "MintAdapter11111111111111111111111111111",
+      "creation_signature": "FrozenCreateSignature",
+      "creation_timestamp": 1710000000,
+      "creation_slot": 300000000,
+      "program_id": "FrozenPumpProgram",
+      "source_platform": "pumpfun"
+    }
+  },
+  "platform_receive": {
+    "mint": "MintAdapter11111111111111111111111111111",
+    "receive_utc_ns": 1710000011000000000,
+    "source": "pumpportal_receive",
+    "source_schema_version": "1",
+    "source_record_digest": "sha256:frozen-platform-receive"
+  },
+  "migration_receive": {
+    "mint": "MintAdapter11111111111111111111111111111",
+    "signature": "FrozenMigrationSignature",
+    "receive_utc_ns": 1710001000000000000,
+    "source": "pumpportal_subscribeMigration",
+    "source_schema_version": "1",
+    "source_record_digest": "sha256:frozen-migration-receive"
+  },
+  "market_conflicts": [
+    {
+      "mint": "MintAdapter11111111111111111111111111111",
+      "captured_at": 1710001010,
+      "observed_at": 1710001012,
+      "source": "frozen_pool_a",
+      "source_schema_version": "snapshot-v1",
+      "source_record_digest": "sha256:frozen-market-a",
+      "value_kind": "MARKET_CAP",
+      "value": "25000",
+      "conflicting": true
+    },
+    {
+      "mint": "MintAdapter11111111111111111111111111111",
+      "captured_at": 1710001010,
+      "observed_at": 1710001012,
+      "source": "frozen_pool_b",
+      "source_schema_version": "snapshot-v1",
+      "source_record_digest": "sha256:frozen-market-b",
+      "value_kind": "MARKET_CAP",
+      "value": "25500",
+      "conflicting": true
+    }
+  ]
+}

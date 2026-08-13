@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T12:05:57Z",
+  "updated_at_utc": "2026-08-13T12:08:25Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T12:05:57Z",
+    "published_at_utc": "2026-08-13T12:08:25Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2Z isolated Helius execution",
-    "mode": "authorized isolated sequential provider execution under the immutable B2BQ contract",
-    "status": "HOLD",
-    "verdict": "STOPPED_FIRST_NON_SUCCESS_NO_FUNDING_EDGE"
+    "milestone": "OIP v2.2E.2B2BR B2Z first-stop diagnosis",
+    "mode": "bounded local read-only diagnosis using committed code and sealed metadata only",
+    "status": "COMPLETE",
+    "verdict": "CANDIDATE_SELECTION_CONTRACT_GAP_RESPONSE_PROJECTION_ABSENT"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,25 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "oip_v2_2e_2b2br_b2z_first_stop_diagnosis": {
+      "status": "COMPLETE",
+      "verdict": "CANDIDATE_SELECTION_CONTRACT_GAP_RESPONSE_PROJECTION_ABSENT",
+      "run_id": "102f6376-9f63-476f-a07e-77c578a44c4d",
+      "definite_contract_cause": "The reviewed B2Y contract and B2Z implementation select candidates[0], the first signature strictly before migration. getSignaturesForAddress supplies temporal ordering but no transfer semantics, so the selected transaction is not thereby a creator-funding candidate.",
+      "parser_assessment": "The committed parser enforces the reviewed rule: a parsed top-level or inner System Program transfer/transferWithSeed with positive integer lamports and destination equal to the resolved creator. The sealed evidence does not prove a parser defect.",
+      "measurement_limit": "B2Z did not preserve the documented bounded response projections. Its sealed ledger records method/target/outcome metadata but not the third response's parsed transfer projection, so ordinary non-funding content cannot be distinguished from an unsupported message shape without another provider read.",
+      "smallest_coherent_repair": "Amend and locally qualify the evidence contract before any re-execution: preserve credential-free bounded response projections; remove the unsupported first-pre-migration-signature-is-funding assumption; and adopt a reviewed endpoint/selection sequence whose response can identify an inbound SOL transfer before selecting the transaction proof. Do not merely loosen the exact parser or retry the existing run.",
+      "existing_three_request_contract_repairable_without_redesign": false,
+      "provider_rpc_calls": 0,
+      "production_database_access": false,
+      "live_queue_or_service_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "artifact_reset_or_deletion": false,
+      "b2z_reexecution": false,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF"
+    },
     "oip_v2_2e_2b2z_isolated_helius_execution": {
       "status": "HOLD",
       "verdict": "STOPPED_FIRST_NON_SUCCESS_NO_FUNDING_EDGE",
@@ -1901,6 +1920,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "B2BR proves the B2Y/B2Z first-pre-migration candidate rule has no funding semantic: address-signature chronology cannot identify an inbound SOL funding edge. B2Z also omitted the contractually requested bounded response projections, preventing sealed-artifact discrimination between a normal non-funding transaction and an unsupported parsed shape. A new reviewed evidence contract is required; parser loosening or re-execution under the old contract is not justified.",
     "B2Z consumed exactly 3 of the authorized 60-request ceiling and stopped on member 1 because the selected candidate transaction did not prove an inbound System Program SOL funding edge. The contract forbids retry, pagination, or another request, so the run cannot continue. The immutable ledger/results remain sealed in the isolated output directory.",
     "B2BQ fully materializes and locally validates the immutable B2Z execution preflight, but B2Z provider execution remains HUMAN_APPROVAL_REQUIRED. No provider request may occur until the exact run ID, frozen digests, 60-request ceiling, and stop contract are separately authorized.",
     "B2BP locally qualifies the real execution boundary at c7622435 with exactly 60 fake requests/ledger rows and strict funding parsing, but no immutable 20-signature execution projection, run ID, empty ledger path, endpoint binding, or isolated output location has been materialized. A separate zero-provider preflight is required before B2Z execution authorization.",
@@ -1938,8 +1958,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2BR B2Z first-stop diagnosis",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize bounded local read-only diagnosis of the sealed B2Z run 102f6376-9f63-476f-a07e-77c578a44c4d and its first-member NO_FUNDING_EDGE stop, including the candidate-selection and exact inbound-SOL parsing contract, using only committed code and the sealed attempt/result metadata. Identify the smallest contract or implementation repair, but do not implement it. No provider calls, retries, pagination, production database reads/writes, live queue/service access, service restarts or stops, lock manipulation, configuration or credential changes, Evidence Mirror, Cohort Mode, artifact deletion/reset, or B2Z re-execution.",
+    "milestone": "OIP v2.2E.2B2BS creator-funding evidence contract redesign",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize safe-local design, implementation, fake-transport tests, regression tests, and one narrow commit for an amended isolated creator-funding evidence contract that preserves credential-free bounded response projections, removes the unsupported assumption that the first pre-migration address signature is a funding candidate, and defines a reviewed deterministic endpoint/selection sequence capable of identifying an inbound SOL funding transfer before selecting its transaction proof. Perform zero provider calls and no B2Z re-execution. Preserve the frozen B2R cohort and sealed B2Z artifacts. No production database reads/writes, live queue/service access, service restarts or stops, lock manipulation, configuration or credential changes, Evidence Mirror, or Cohort Mode.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

@@ -352,6 +352,11 @@ def run_loop(once: bool = False) -> None:
 
     # Schema migration is a startup boundary, never steady-state queue work.
     initialize_schema(DB_PATH)
+    _write_heartbeat({
+        "phase": "startup_ready",
+        "cycles": 0,
+        "uptime_s": int(time.time()) - _started_at,
+    })
 
     # Start WAL watchdog thread (layer 3)
     if not once:
@@ -364,6 +369,12 @@ def run_loop(once: bool = False) -> None:
     while not _STOP:
         cycle_start = time.time()
         cycles += 1
+
+        _write_heartbeat({
+            "phase": "cycle_start",
+            "cycles": cycles,
+            "uptime_s": int(time.time()) - _started_at,
+        })
 
         pending = _pending_count()
 

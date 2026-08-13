@@ -34,6 +34,7 @@ _SCHEMA_INDEXES = {
     "idx_creator_resolution_queue_status",
     "idx_creator_resolution_queue_updated",
 }
+_FUNDING_QUEUE_INDEXES = {"idx_creator_funding_queue_mint"}
 
 # ── runtime budget config ──────────────────────────────────────────────────────
 _GENERIC_MAX_RUNTIME  = float(os.environ.get("CREATOR_RESOLUTION_MAX_RUNTIME_SECS",              "15"))
@@ -155,6 +156,19 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
         ON creator_resolution_queue(updated_at DESC)
         """
     )
+    funding_queue_exists = conn.execute(
+        """
+        SELECT 1 FROM sqlite_master
+        WHERE type='table' AND name='creator_funding_queue'
+        """
+    ).fetchone()
+    if funding_queue_exists:
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_creator_funding_queue_mint
+            ON creator_funding_queue(mint)
+            """
+        )
 
 
 def schema_ready(db_path: str) -> bool:
@@ -178,6 +192,22 @@ def schema_ready(db_path: str) -> bool:
             }
             if not _SCHEMA_INDEXES.issubset(indexes):
                 return False
+
+            funding_queue_exists = conn.execute(
+                """
+                SELECT 1 FROM sqlite_master
+                WHERE type='table' AND name='creator_funding_queue'
+                """
+            ).fetchone()
+            if funding_queue_exists:
+                funding_indexes = {
+                    row["name"]
+                    for row in conn.execute(
+                        "PRAGMA index_list(creator_funding_queue)"
+                    ).fetchall()
+                }
+                if not _FUNDING_QUEUE_INDEXES.issubset(funding_indexes):
+                    return False
 
             needs_backfill = conn.execute(
                 """

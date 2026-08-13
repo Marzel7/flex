@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T10:51:14Z",
+  "updated_at_utc": "2026-08-13T10:56:31Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "dbbec888e373c6bf8571fdfd6c5d150ea2fc416e",
-    "working_tree": "dirty: unrelated live Supervisor, audit, runtime, and user files remain present and were not staged; B2BC engineering changes are committed narrowly"
+    "git_head": "8e435510cf2efe446617fa78eabdd78fda3d6609",
+    "working_tree": "dirty: unrelated live Supervisor, audit, runtime, and user files remain present and were not staged; B2BF engineering changes are committed narrowly"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2BE listener descriptor-watchdog diagnosis",
-    "mode": "bounded local read-only incident diagnosis",
+    "milestone": "OIP v2.2E.2B2BF listener migration-connection guaranteed-close repair",
+    "mode": "safe-local implementation, tests, and narrow commit; not deployed",
     "status": "COMPLETE",
-    "verdict": "UNGUARDED_MIGRATION_CONNECTIONS_PLUS_TRANSIENT_CONCURRENCY"
+    "verdict": "LOCAL_QUALIFICATION_PASS"
   },
   "production_state": {
     "retention": "ON",
@@ -28,7 +28,7 @@
     "cohort_mode": "OFF",
     "evidence_writer": "STOPPED",
     "listener_service": "watchtower_listener",
-    "listener_pid_last_verified": 9267,
+    "listener_pid_last_verified": 11725,
     "creator_funding_service": "creator_funding_worker",
     "creator_funding_pid_last_verified": 80211,
     "creator_resolution_service": "creator_resolution_worker",
@@ -1166,6 +1166,29 @@
       "flags": "retention ON; migration census ON; Evidence Mirror OFF; Cohort Mode OFF; evidence_writer STOPPED",
       "blocker": "The listener remains exposed to repeated automatic recovery restarts until the guaranteed-close repair is separately authorized, locally qualified, committed, and explicitly deployed. B2Z remains held."
     },
+    "oip_v2_2e_2b2bf_listener_migration_connection_repair": {
+      "status": "COMPLETE",
+      "verdict": "LOCAL_QUALIFICATION_PASS",
+      "verification_utc": "2026-08-13T10:56:31Z",
+      "commit": "8e435510cf2efe446617fa78eabdd78fda3d6609",
+      "files": [
+        "src/core/pumpfun_curve_listener.py",
+        "tests/test_b2bf_watchtower_migration_connection_close.py"
+      ],
+      "implementation": "_check_watchtower_migration._run initializes its connection defensively and closes it from an outer finally on every exception and early-return path. The successful path still closes and clears the main-DB connection before best-effort derived-lifecycle work, preserving the narrow connection scope and avoiding double close.",
+      "tests": "19 passed: 4 focused B2BF query-exception, commit-exception, success, and AST finalizer tests; B2BC long-holder boundaries; X78.18 reconnect isolation; usage-tracker connection lifecycle. py_compile and diff check passed.",
+      "initial_test_command_issue": "The first regression command named a historical test file that is absent, so pytest collected zero tests. The corrected existing test selection then passed all 19 tests; this was not a code failure.",
+      "deployment": "NOT_DEPLOYED",
+      "runtime": "watchtower_listener RUNNING pid 11725 after another Supervisor automatic recovery restart from the pre-B2BF listener; creator_funding_worker RUNNING pid 80211; creator_resolution_worker RUNNING pid 72488; evidence_writer STOPPED. No restart was initiated by Codex in B2BF.",
+      "provider_calls": 0,
+      "production_writes": 0,
+      "production_changes": false,
+      "service_restarts_or_stops_initiated_by_codex": 0,
+      "configuration_changes": 0,
+      "watchdog_threshold_changes": 0,
+      "flags": "retention ON; migration census ON; Evidence Mirror OFF; Cohort Mode OFF; evidence_writer STOPPED",
+      "blocker": "Commit 8e435510 is not loaded by the running listener. Exactly one named watchtower_listener restart and immediate descriptor/ingestion/health verification require separate explicit authorization. B2Z remains held."
+    },
     "oip_v2_2e_incident_causal_assessment": {
       "status": "COMPLETE",
       "verdict": "LATENT_DEFECT_REACTIVATED_BY_WORKER_RECOVERY",
@@ -1598,6 +1621,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "B2BF locally qualified the guaranteed-close repair and committed it narrowly at 8e435510, but it is not deployed. The pre-B2BF listener automatically restarted again and is now PID 11725. One explicit watchtower_listener deployment/restart authorization is required; B2Z remains held.",
     "B2BE confirms the listener watchdog restarts are caused by structurally unguarded _check_watchtower_migration database connections accumulating alongside legitimate transient connection concurrency. The price path is healthy. A safe-local guaranteed-close repair is not yet authorized, and B2Z remains held.",
     "B2BD loaded dbbec888 and immediately restored database p99 to 42-65ms with no price-path long hold, but listener PID 5947 automatically restarted after three fd_count=12 watchdog samples. B2Z remains held pending read-only diagnosis of the descriptor population.",
     "B2AX confirms creator_funding_lifecycle.record_event_fail_open repeats schema DDL/index assurance on every concurrent event and repeats it again on gap fallback, causing prolonged write-lane ownership and lock-error bursts. The incident recovered naturally, but recurrence remains possible until a safe-local one-time lifecycle schema initialization repair is qualified.",
@@ -1622,8 +1646,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2BF listener migration-connection guaranteed-close repair",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize safe-local design, implementation, focused exception-path lifecycle tests, regression tests, and one narrow commit making _check_watchtower_migration._run guarantee closure of its main-database connection on every return and exception path; preserve the bounded worker pool and existing behavior; no deployment, provider calls, production writes, service restarts or stops, lock manipulation, configuration changes, watchdog-threshold change, Evidence Mirror, Cohort Mode, or B2Z execution.",
+    "milestone": "OIP v2.2E.2B2BG listener guaranteed-close deployment",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize exactly one watchtower_listener restart to load commit 8e435510cf2efe446617fa78eabdd78fda3d6609, with immediate verification of listener, PumpPortal, PumpSwap, primary-database descriptor lifecycle/watchdog state, database pressure, and unchanged flags; no other service restart or stop, provider qualification, configuration or watchdog-threshold change, lock manipulation, Evidence Mirror, Cohort Mode, or B2Z execution.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T13:01:48Z",
+  "updated_at_utc": "2026-08-13T13:04:02Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "dd9d6be376ee08fbbd471b88ecd8b0f14bdce0c6",
+    "git_head": "cccdceb667c3f54507211f73af5ccc82cc5af871",
     "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, handoff, and user paths remain present; B2BU created only its authorized isolated /private/tmp artifacts and made no engineering-tree change"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T13:01:48Z",
+    "published_at_utc": "2026-08-13T13:04:02Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
-    "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2BY E-series closure assessment",
-    "mode": "bounded local read-only closure reconciliation and narrow durable artifact",
+    "programme": "Post-E Evidence and Outcome Intelligence",
+    "milestone": "Post-E EB0 roadmap reconciliation and canonical baseline",
+    "mode": "bounded local read-only committed-artifact reconciliation and roadmap decision record",
     "status": "COMPLETE",
-    "verdict": "OIP_V2_2E_QUALIFIED_COMPLETE_NO_PRODUCTION_ACTIVATION"
+    "verdict": "ROADMAP_RATIFIED_FIRST_IMPLEMENTATION_HUMAN_GATED"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,26 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "post_e_eb0_canonical_roadmap": {
+      "status": "COMPLETE",
+      "verdict": "ROADMAP_RATIFIED_FIRST_IMPLEMENTATION_HUMAN_GATED",
+      "commit": "cccdceb667c3f54507211f73af5ccc82cc5af871",
+      "artifact": "docs/evidence_platform/post_e_eb0_canonical_roadmap.json",
+      "authority_note": "Only committed artifacts were authoritative; untracked EB0 scripts/audits were explicitly excluded.",
+      "sequence": [
+        "EB0.1 canonical birth and valuation baseline",
+        "EB0.2 creator historical outcome intelligence",
+        "EB0.3 supplemental GMGN historical market observations",
+        "EB0.4 shared-behaviour operational-family discovery"
+      ],
+      "first_safe_local_implementation": "EB0.1A canonical birth/valuation evidence contract",
+      "provider_calls": 0,
+      "production_access_or_changes": false,
+      "service_restarts": 0,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "production_activation_authorized": false
+    },
     "oip_v2_2e_2b2by_e_series_closure": {
       "status": "COMPLETE",
       "verdict": "OIP_V2_2E_QUALIFIED_COMPLETE_NO_PRODUCTION_ACTIVATION",
@@ -2126,6 +2146,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "The post-E sequence is ratified, but EB0.1A implementation is not authorized. Its next milestone must remain fixture-only and local, with no inference that later first-observed valuation equals birth market cap and no missing-evidence-to-negative conversion.",
     "OIP v2.2E is qualified complete, but production activation remains explicitly unauthorized. Any Evidence authority, Evidence Mirror, Cohort Mode, provider expansion, or production deployment requires its own future milestone. Post-E work must begin with roadmap reconciliation rather than implicit activation.",
     "B2BX fully passes the isolated provider qualification at 20/20 with exactly 60 authorized requests. The remaining step is a bounded local-only E-series closure assessment that combines this provider result with the previously qualified B2R acquisition/retention funnel; no production activation is implied or authorized.",
     "B2BW is locally qualified at f08db5b1 with fresh empty ledgers. Provider execution remains HUMAN_APPROVAL_REQUIRED and must explicitly acknowledge the higher-cost oldest enhanced request and the unchanged 60-request stop-safe ceiling.",
@@ -2171,8 +2192,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "Post-E EB0 roadmap reconciliation and canonical baseline",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize bounded local read-only post-E roadmap reconciliation using committed roadmap/evidence artifacts only. Ratify the canonical staged sequence for: birth and valuation baselines; creator historical outcome intelligence; GMGN historical market observations as a non-authoritative external supplement; and shared-behaviour operational-family discovery. Identify the first safe-local implementation milestone and its evidence contract, but do not implement it. Zero provider calls, production access or changes, service restarts, configuration changes, Evidence Mirror, Cohort Mode, or production activation.",
+    "milestone": "EB0.1A canonical birth/valuation evidence contract",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize safe-local design, implementation, frozen-fixture tests, regression tests, documentation, and one narrow commit for EB0.1A canonical birth/valuation evidence contract as defined in docs/evidence_platform/post_e_eb0_canonical_roadmap.json. Implement only a pure local deterministic projection that distinguishes CHAIN_BIRTH, PLATFORM_FIRST_SEEN, MIGRATION, and MARKET_FIRST_OBSERVED; records source/version, event and observation times, valuation semantics, quality/completeness state, and provenance digest; never relabels later first-observed valuation as birth market cap without proof; preserves conflicting observations; and represents missing valuation as UNKNOWN/NOT_OBSERVED rather than a negative outcome. Use frozen local fixtures only. Zero provider calls, production database/service access, writes, deployment, restarts, configuration changes, GMGN integration, historical ranking, operator attribution, Evidence Mirror, Cohort Mode, or production activation.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

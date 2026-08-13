@@ -1,0 +1,89 @@
+{
+  "records": [
+    {
+      "case": "exact_birth",
+      "mint": "MintExactBirth111111111111111111111111111",
+      "event_kind": "CHAIN_BIRTH",
+      "event_time_utc_ns": 1000000000,
+      "source": "frozen_chain_fixture",
+      "source_version": "v1",
+      "observed_at_utc_ns": 1000000000,
+      "price_or_market_cap_value": "12500.000",
+      "valuation_semantics": "BIRTH_MARKET_CAP",
+      "quality_state": "VERIFIED",
+      "completeness_state": "COMPLETE",
+      "birth_equivalence_proven": true,
+      "source_record_digest": "fixture-chain-birth-001"
+    },
+    {
+      "case": "platform_first_seen",
+      "mint": "MintDelayedObserved11111111111111111111111",
+      "event_kind": "PLATFORM_FIRST_SEEN",
+      "event_time_utc_ns": 2100000000,
+      "source": "frozen_platform_fixture",
+      "source_version": "v1",
+      "observed_at_utc_ns": 2200000000,
+      "price_or_market_cap_value": null,
+      "valuation_semantics": "UNKNOWN",
+      "quality_state": "OBSERVED",
+      "completeness_state": "NOT_OBSERVED",
+      "source_record_digest": "fixture-platform-first-001"
+    },
+    {
+      "case": "delayed_first_observation",
+      "mint": "MintDelayedObserved11111111111111111111111",
+      "event_kind": "MARKET_FIRST_OBSERVED",
+      "event_time_utc_ns": 5000000000,
+      "source": "frozen_market_fixture",
+      "source_version": "v1",
+      "observed_at_utc_ns": 5100000000,
+      "price_or_market_cap_value": "22000",
+      "valuation_semantics": "MARKET_CAP_AT_EVENT",
+      "quality_state": "OBSERVED",
+      "completeness_state": "COMPLETE",
+      "source_record_digest": "fixture-market-delayed-001"
+    },
+    {
+      "case": "missing_valuation",
+      "mint": "MintMissingValue1111111111111111111111111",
+      "event_kind": "MIGRATION",
+      "event_time_utc_ns": 7000000000,
+      "source": "frozen_migration_fixture",
+      "source_version": "v1",
+      "observed_at_utc_ns": 7100000000,
+      "price_or_market_cap_value": null,
+      "valuation_semantics": "UNKNOWN",
+      "quality_state": "VERIFIED",
+      "completeness_state": "NOT_OBSERVED",
+      "source_record_digest": "fixture-migration-missing-001"
+    },
+    {
+      "case": "conflict_a",
+      "mint": "MintConflict1111111111111111111111111111",
+      "event_kind": "MARKET_FIRST_OBSERVED",
+      "event_time_utc_ns": 9000000000,
+      "source": "frozen_provider_a",
+      "source_version": "2026-08-v1",
+      "observed_at_utc_ns": 9100000000,
+      "price_or_market_cap_value": "30000",
+      "valuation_semantics": "MARKET_CAP_AT_EVENT",
+      "quality_state": "CONFLICTING",
+      "completeness_state": "COMPLETE",
+      "source_record_digest": "fixture-conflict-a-001"
+    },
+    {
+      "case": "conflict_b",
+      "mint": "MintConflict1111111111111111111111111111",
+      "event_kind": "MARKET_FIRST_OBSERVED",
+      "event_time_utc_ns": 9000000000,
+      "source": "frozen_provider_b",
+      "source_version": "2026-08-v2",
+      "observed_at_utc_ns": 9100000000,
+      "price_or_market_cap_value": "31500",
+      "valuation_semantics": "MARKET_CAP_AT_EVENT",
+      "quality_state": "CONFLICTING",
+      "completeness_state": "COMPLETE",
+      "source_record_digest": "fixture-conflict-b-001"
+    }
+  ]
+}

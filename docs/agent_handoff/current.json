@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T10:21:48Z",
+  "updated_at_utc": "2026-08-13T10:27:00Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,9 +10,9 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T10:23:16Z",
+    "published_at_utc": null,
     "protocol_version": 1,
-    "status": "PUBLISHED"
+    "status": "PENDING"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
@@ -1101,6 +1101,7 @@
       "trend": "Active degradation, not stale history: p99 rose from 1184.12ms to 2975.86ms, 3188.86ms, 3298.50ms, 12792.92ms, and 15442.47ms as total writes advanced. Queue depth peaked at 5 and lock_errors_24h increased from 4 to 5. Commit p99 remained approximately 10.68ms.",
       "writer_correlation": "watchtower_listener PID 73552 held the lane in pumpfun_curve_listener._sync_price_db_work for more than 30 seconds. creator_resolution_worker PID 72488 held it through managed_db_connect for more than 20 seconds, but wrapper-level caller attribution hides the exact queue operation. creator_funding_worker PID 80211 also produced shorter holds. usage_tracker accumulated 649841.9ms total wait at 1867.36ms average.",
       "lifecycle_repair_assessment": "The B2AY lifecycle repair is not the active cause: creator_funding_lifecycle completed 196 writes at 4.02ms average wait and 0.05ms average commit.",
+      "commit_history_assessment": "This is a recurrence of the previously documented LONG_WRITE_HOLDER / transaction-boundary defect class, not proof that an earlier repair regressed. X78.13-X78.16 repaired specific symbol, schema, risk-scoring, subscription-seed, and creator-resolution scan holders but explicitly ended with database VOLATILE / READINESS_BLOCKED and observed p99 up to approximately 24.7 seconds. The confirmed listener _sync_price_db_work connection scope was introduced by bdb0e6c7 in June 2026 and was not split by those repairs. Recent worker recovery increased real concurrent workload and exposed the still-live path.",
       "smallest_repair": "Safe-locally split listener _sync_price_db_work so all reads occur on a read-only connection and the write-capable scope contains only the final bounded UPDATE/commit; preserve the originating caller through managed_db_connect so the creator-resolution >20-second holder is attributable, then add focused hold-scope regressions before any deployment.",
       "services": "watchtower_listener RUNNING pid 73552; creator_funding_worker RUNNING pid 80211; creator_resolution_worker RUNNING pid 72488; evidence_writer STOPPED.",
       "provider_calls": 0,

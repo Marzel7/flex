@@ -53,6 +53,8 @@ def _counts(result: CensusResult) -> dict[str, object]:
         missing_values += corpus.manifest.missing_valuation_count
     return {
         "selected_mint_count": len(result.selected_mints),
+        "eligible_mint_count": result.eligible_mint_count,
+        "excluded_by_cohort_bound_count": result.excluded_by_cohort_bound_count,
         "corpus_count": len(result.corpora),
         "mints_without_canonical_evidence_count": len(result.mints_without_canonical_evidence),
         "observation_count": result.observation_count,

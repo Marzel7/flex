@@ -21,7 +21,7 @@ from .birth_valuation_adapters import (
 from .birth_valuation_corpus import MintCorpus, assemble_birth_valuation_corpora
 
 
-CENSUS_SCHEMA_VERSION = "eb0.1i.v1"
+CENSUS_SCHEMA_VERSION = "eb0.1k.v1"
 DEFAULT_MINT_LIMIT = 5_000
 MAX_QUERY_SECONDS = 30.0
 
@@ -36,6 +36,8 @@ class CensusResult:
     high_water_migrated_at: int
     mint_limit: int
     selected_mints: Tuple[str, ...]
+    eligible_mint_count: int
+    excluded_by_cohort_bound_count: int
     corpora: Tuple[MintCorpus, ...]
     observation_count: int
     excluded_observation_count: int
@@ -197,17 +199,26 @@ def extract_birth_valuation_census(
         evidence = _open_query_only(evidence_path)
         _validate_schema(primary, _PRIMARY_REQUIRED_COLUMNS)
         _validate_schema(evidence, _EVIDENCE_REQUIRED_COLUMNS)
-        cohort = _timed(
+        eligible_rows = _timed(
             primary,
-            "SELECT mint,migrated_at,first_observed_mc,first_observed_price,"
-            "first_observed_at,first_observed_source,first_observed_confidence "
-            "FROM token_analysis WHERE migrated_at IS NOT NULL AND migrated_at<=? "
-            "ORDER BY migrated_at DESC,mint ASC LIMIT ?",
-            (high_water_migrated_at, mint_limit + 1), clock=clock,
+            "SELECT COUNT(DISTINCT mint) AS eligible_count FROM token_analysis "
+            "WHERE migrated_at IS NOT NULL AND migrated_at<=?",
+            (high_water_migrated_at,), clock=clock,
             max_query_seconds=max_query_seconds,
         )
-        if len(cohort) > mint_limit:
-            raise BirthValuationCensusError("EB0_1G_COHORT_EXCEEDS_5000")
+        eligible_mint_count = int(eligible_rows[0]["eligible_count"])
+        cohort = _timed(
+            primary,
+            "WITH ranked AS (SELECT mint,migrated_at,first_observed_mc,first_observed_price,"
+            "first_observed_at,first_observed_source,first_observed_confidence,"
+            "ROW_NUMBER() OVER (PARTITION BY mint ORDER BY migrated_at DESC,rowid DESC) AS rn "
+            "FROM token_analysis WHERE migrated_at IS NOT NULL AND migrated_at<=?) "
+            "SELECT mint,migrated_at,first_observed_mc,first_observed_price,first_observed_at,"
+            "first_observed_source,first_observed_confidence FROM ranked WHERE rn=1 "
+            "ORDER BY migrated_at DESC,mint ASC LIMIT ?",
+            (high_water_migrated_at, mint_limit), clock=clock,
+            max_query_seconds=max_query_seconds,
+        )
         mints = tuple(str(row["mint"]).strip() for row in cohort)
         if not mints or any(not mint for mint in mints) or len(set(mints)) != len(mints):
             raise BirthValuationCensusError("EB0_1G_INVALID_COHORT")
@@ -295,6 +306,8 @@ def extract_birth_valuation_census(
             "high_water_migrated_at": high_water_migrated_at,
             "mint_limit": mint_limit,
             "selected_mints": mints,
+            "eligible_mint_count": eligible_mint_count,
+            "excluded_by_cohort_bound_count": eligible_mint_count - len(mints),
             "corpus_digests": [item.corpus_digest for item in corpora],
             "missing_event_kind_counts": missing_counts,
             "mints_without_canonical_evidence": mints_without_evidence,
@@ -306,6 +319,8 @@ def extract_birth_valuation_census(
             high_water_migrated_at=high_water_migrated_at,
             mint_limit=mint_limit,
             selected_mints=mints,
+            eligible_mint_count=eligible_mint_count,
+            excluded_by_cohort_bound_count=eligible_mint_count - len(mints),
             corpora=corpora,
             observation_count=len(observations),
             excluded_observation_count=sum(len(item.excluded) for item in corpora),

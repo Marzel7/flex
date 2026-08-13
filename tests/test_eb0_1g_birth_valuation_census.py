@@ -142,11 +142,31 @@ def test_noncanonical_limit_and_timeout_bound_fail_closed(tmp_path):
         extract_birth_valuation_census(path, high_water_migrated_at=250, max_query_seconds=31)
 
 
-def test_more_than_5000_members_stops_without_projection(tmp_path):
+def test_more_than_5000_members_selects_latest_5000_and_accounts_for_remainder(tmp_path):
     path = tmp_path / "frozen.sqlite"
     _database(path, members=5_001)
-    with pytest.raises(BirthValuationCensusError, match="COHORT_EXCEEDS_5000"):
-        extract_birth_valuation_census(path, high_water_migrated_at=10_000)
+    result = extract_birth_valuation_census(path, high_water_migrated_at=10_000)
+    assert result.eligible_mint_count == 5_001
+    assert len(result.selected_mints) == 5_000
+    assert result.excluded_by_cohort_bound_count == 1
+    assert MINT not in result.selected_mints
+    assert result.selected_mints[:2] == ("Mint5000", "Mint4999")
+
+
+def test_duplicate_mint_uses_latest_eligible_row_once(tmp_path):
+    path = tmp_path / "frozen.sqlite"
+    _database(path)
+    db = sqlite3.connect(path)
+    db.execute("INSERT INTO token_analysis VALUES(?,?,?,?,?,?,?)",
+               (MINT, 240, "24000", "0.00024", 140, "latest-fixture", "HIGH"))
+    db.commit()
+    db.close()
+    result = extract_birth_valuation_census(path, high_water_migrated_at=250)
+    assert result.eligible_mint_count == 1
+    assert result.selected_mints == (MINT,)
+    selected_market = [item for item in result.corpora[0].manifest.observations
+                       if item.event_kind == "MARKET_FIRST_OBSERVED"]
+    assert any(item.price_or_market_cap_value == "24000" for item in selected_market)
 
 
 def test_missing_or_malformed_schema_fails_closed(tmp_path):

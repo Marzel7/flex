@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T19:20:32Z",
+  "updated_at_utc": "2026-08-13T19:24:45Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "28140ada78bdf6d23c1882485c6f86e2531b969d",
-    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths including the isolated uncommitted EB0.3D run directory; EB0.4B made no engineering or production changes"
+    "git_head": "58e84c224c9a5aba6cb41ac473efd6bda4587d13",
+    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths; EB0.4C committed only its four scoped adapter, fixture-test and documentation files"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.4B operational-family source-mapping audit",
-    "mode": "bounded local read-only committed-source audit",
+    "milestone": "EB0.4C deterministic normalized runtime source adapters",
+    "mode": "safe-local frozen-fixture implementation and qualification",
     "status": "COMPLETE",
-    "verdict": "SOURCE_MAPPING_PARTIAL_EXPLICIT_BINDING_REQUIRED"
+    "verdict": "NORMALIZED_RUNTIME_ADAPTER_QUALIFIED"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,35 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_4c_operational_family_adapters": {
+      "status": "COMPLETE",
+      "verdict": "NORMALIZED_RUNTIME_ADAPTER_QUALIFIED",
+      "engineering_commit": "58e84c224c9a5aba6cb41ac473efd6bda4587d13",
+      "verification_utc": "2026-08-13T19:24:45Z",
+      "files": [
+        "src/evidence/contracts/operational_family_adapters.py",
+        "tests/fixtures/eb0_4c_normalized_operation_runtime.json",
+        "tests/test_eb0_4c_operational_family_adapters.py",
+        "docs/evidence_platform/eb0_4c_operational_family_adapters.md"
+      ],
+      "qualified_semantics": [
+        "exact eb0.4c.normalized-runtime.v1 source schema with explicit PLATFORM_OPERATION_ID identity basis",
+        "explicit platform operation ID and primary role plus versioned contract, module, topology, behaviour and input bindings",
+        "allow-listed edge, mechanism and temporal evidence with explicit provenance, quality, completeness and conflict",
+        "deterministic projection into EB0.4A behaviour facts and family nominations"
+      ],
+      "fail_closed": "schema drift, wallet/subject/operator/owner identity, confidence/rank/score/policy fields, topology-only support, missing shared behaviour and authority promotion",
+      "tests": {
+        "focused_and_adjacent": "61 passed"
+      },
+      "provider_calls": 0,
+      "production_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb0_4b_operational_family_source_mapping": {
       "status": "COMPLETE",
       "verdict": "SOURCE_MAPPING_PARTIAL_EXPLICIT_BINDING_REQUIRED",
@@ -3860,8 +3889,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.4C deterministic normalized runtime source adapters",
-    "instruction": "AUTHORIZED_STAGED_SAFE_LOCAL: Implement and qualify exact frozen normalized runtime-export adapters into EB0.4A using explicit platform operation ID/primary-role bindings, versioned contract/module/topology source IDs and digests, allow-listed edge/mechanism/temporal arrays, and explicit quality/completeness/conflict. Reject wallet/subject identity inference, generic measured-value discovery, confidence/rank/score/operator/owner fields, topology-only support and authority promotion. Frozen fixtures only; no production/runtime/provider/GMGN access or changes, deployment, restarts, configuration, Evidence Mirror, Cohort Mode, attribution, policy or activation.",
+    "milestone": "EB0.4D immutable operational-family nomination manifests",
+    "instruction": "AUTHORIZED_STAGED_SAFE_LOCAL: Implement and qualify immutable manifests over EB0.4A/EB0.4C frozen evidence. Bind exact contract and adapter versions, canonical input/fact/nomination digests, deterministic counts by nomination authority, role, quality, completeness and conflict, and exact replay verification. Preserve separate operations and conflicting facts; do not aggregate profiles, rank, score, infer profitability/cashflow, attribute operators or activate policy. Frozen fixtures only; no production/runtime/provider/GMGN access or changes, deployment, restarts, configuration, Evidence Mirror, Cohort Mode or activation.",
     "safe_local_stage_authorized": true,
     "activation_authorized": false,
     "production_activation_authorized": false

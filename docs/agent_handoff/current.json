@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T14:09:15Z",
+  "updated_at_utc": "2026-08-13T14:14:18Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "992383c9a29c8eb2c1dbcbffea309cbcaff589cb",
-    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, handoff, and user paths remain present; EB0.1M committed exactly the authorized query-deadline repair, tests, and documentation"
+    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, handoff, and user paths remain present; EB0.1N was execution-only and changed no engineering files"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T14:09:15Z",
+    "published_at_utc": "2026-08-13T14:14:18Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.1M interruptible SQLite query-deadline repair",
-    "mode": "safe-local active-deadline implementation and ephemeral qualification",
-    "status": "COMPLETE",
-    "verdict": "LOCAL_QUALIFICATION_PASS"
+    "milestone": "EB0.1N bounded read-only live canonical census",
+    "mode": "single bounded query-only live execution",
+    "status": "HOLD",
+    "verdict": "STOPPED_CANONICAL_NUMERIC_NORMALIZATION_MISMATCH"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,41 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_1n_live_canonical_census": {
+      "status": "HOLD",
+      "verdict": "STOPPED_CANONICAL_NUMERIC_NORMALIZATION_MISMATCH",
+      "engineering_commit": "992383c9a29c8eb2c1dbcbffea309cbcaff589cb",
+      "execution_count": 1,
+      "run_id": "eb0-1n-20260813T1413Z",
+      "high_water": "captured in the stopped process but not durably emitted before failure",
+      "stop_stage": "EB0.1E manifest canonical-input verification during corpus assembly",
+      "stop_error": "EB0_1D_INPUT_NOT_CANONICALLY_NORMALISED",
+      "root_cause": "token_analysis first-observed REAL values are adapted with str(value), which can retain a trailing .0; EB0.1A canonical Decimal normalization removes that suffix, so EB0.1D correctly rejects the adapter output as noncanonical",
+      "smallest_repair": "Use the existing deterministic _decimal_text normalization for token_analysis first_observed_mc and first_observed_price before adapt_market_observation, and add REAL-affinity regression fixtures proving integral and fractional values are canonical before manifest assembly.",
+      "output_directory": "/private/tmp/flex-eb0-1n-cxHqDb",
+      "output_directory_state": "EMPTY; no bundle files were written",
+      "canonical_bundle_written": false,
+      "retry_performed": false,
+      "provider_calls": 0,
+      "production_reads": "one authorized bounded census attempt",
+      "production_writes": 0,
+      "production_changes": false,
+      "post_stop_health": {
+        "watchtower_listener": "RUNNING pid 26185",
+        "creator_funding_worker": "RUNNING pid 80211",
+        "creator_resolution_worker": "RUNNING pid 72488",
+        "evidence_writer": "STOPPED",
+        "serializer_queue_depth": 0,
+        "serializer_p95_commit_ms": 1.74,
+        "serializer_p99_commit_ms": 16.93,
+        "lock_errors_24h": 0
+      },
+      "service_restarts": 0,
+      "gmgn_integration": false,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb0_1m_interruptible_query_deadlines": {
       "status": "COMPLETE",
       "verdict": "LOCAL_QUALIFICATION_PASS_READY_FOR_SEPARATE_LIVE_CENSUS_AUTHORIZATION",
@@ -2576,7 +2611,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "EB0.1M completes the safe-local live-census boundary at 992383c9. EB0.1N is production read access plus an isolated local output write and therefore remains HUMAN_APPROVAL_REQUIRED. No live census, source read, or bundle materialization may occur without that exact bounded authorization.",
+    "EB0.1N stopped before bundle creation because token_analysis REAL values can produce noncanonical decimal strings with a trailing .0. The output directory is empty and no retry is authorized. EB0.1O must locally repair and qualify numeric normalization; any fresh live census requires a new run ID, empty output directory, high-water, and separate authorization.",
     "OIP v2.2E is qualified complete, but production activation remains explicitly unauthorized. Any Evidence authority, Evidence Mirror, Cohort Mode, provider expansion, or production deployment requires its own future milestone. Post-E work must begin with roadmap reconciliation rather than implicit activation.",
     "B2BX fully passes the isolated provider qualification at 20/20 with exactly 60 authorized requests. The remaining step is a bounded local-only E-series closure assessment that combines this provider result with the previously qualified B2R acquisition/retention funnel; no production activation is implied or authorized.",
     "B2BW is locally qualified at f08db5b1 with fresh empty ledgers. Provider execution remains HUMAN_APPROVAL_REQUIRED and must explicitly acknowledge the higher-cost oldest enhanced request and the unchanged 60-request stop-safe ceiling.",
@@ -2622,8 +2657,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.1N bounded read-only live canonical census",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize exactly one EB0.1N bounded read-only live canonical census using engineering commit 992383c9a29c8eb2c1dbcbffea309cbcaff589cb. At the first query-only checkpoint, capture one migration high-water from database/flex_complete_database.db; select exactly the latest 5000 distinct eligible mints at or below it and account for the older remainder. Open that primary database and database/evidence_platform/production/evidence.db only with SQLite mode=ro and PRAGMA query_only=ON; use no explicit receive records unless a separately committed bounded local artifact is identified before execution. Enforce 250ms lock timeout, active 30-second per-statement deadlines, maximum two LaunchFacts per selected mint / 10000 total, and stop on timeout, lock/schema/overflow/digest error, database or ingestion degradation, or other production impact. Write only one credential-free immutable EB0.1J bundle to a new empty isolated local directory, verify all bundle digests, record aggregate coverage/conflict/missingness/exclusion metrics in the handoff without raw rows, and stop. No provider calls, production database writes, service restarts or stops, configuration changes, GMGN integration, rankings, operator attribution, deployment, Evidence Mirror, Cohort Mode, activation, or repeated census execution.",
+    "milestone": "EB0.1O token-analysis REAL numeric normalization repair",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize safe-local design, implementation, frozen/ephemeral SQLite REAL-affinity tests, regression tests, documentation, and one narrow commit for EB0.1O canonical numeric normalization repair. Apply the existing deterministic _decimal_text normalization to token_analysis first_observed_mc and first_observed_price before EB0.1C adaptation; prove integral REAL, fractional REAL, exponent-form, zero/invalid, manifest canonicality, corpus assembly, and bundle replay behavior. Preserve all EB0.1A-M bounds and semantics. No production/runtime access, provider calls, production changes, deployment, restarts, configuration changes, GMGN integration, rankings, operator attribution, Evidence Mirror, Cohort Mode, activation, or live census retry. A new live census run remains separately HUMAN_APPROVAL_REQUIRED.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

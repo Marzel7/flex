@@ -45,6 +45,36 @@ def _result(path):
     return extract_creator_historical_outcomes(path, policies=POLICIES)
 
 
+def _empty_result(path):
+    db = sqlite3.connect(path)
+    db.executescript("""
+      CREATE TABLE cohort_mints(position INTEGER,mint TEXT);
+      CREATE TABLE eb0_1_canonical_observations(mint TEXT,event_kind TEXT,
+        event_time_utc_ns INTEGER,source TEXT,source_version TEXT,
+        observed_at_utc_ns INTEGER,price_or_market_cap_value TEXT,
+        valuation_semantics TEXT,quality_state TEXT,completeness_state TEXT,
+        source_record_digest TEXT);
+      CREATE TABLE creator_identity_facts(mint TEXT,creator TEXT,resolution_method TEXT,
+        source TEXT,source_version TEXT,source_record_digest TEXT);
+      CREATE TABLE observation_window_facts(mint TEXT,observed_through_utc_ns INTEGER,
+        full_horizon_complete INTEGER,source TEXT,source_version TEXT,source_record_digest TEXT);
+      INSERT INTO cohort_mints VALUES(0,'MintWithoutEvidence');
+    """)
+    db.commit(); db.close()
+    return extract_creator_historical_outcomes(path, policies=POLICIES)
+
+
+def _rehash_bundle(output):
+    canonical = lambda value: json.dumps(
+        value, sort_keys=True, separators=(",", ":")
+    ).encode() + b"\n"
+    hashes = json.loads((output / "hashes.json").read_text())
+    for name in hashes["files"]:
+        hashes["files"][name] = sha256((output / name).read_bytes()).hexdigest()
+    hashes["bundle_digest"] = sha256(canonical(hashes["files"])).hexdigest()
+    (output / "hashes.json").write_bytes(canonical(hashes))
+
+
 def test_bundle_is_canonical_complete_and_replayable(tmp_path):
     result = _result(tmp_path / "fixture.db")
     output = tmp_path / "bundle"
@@ -55,6 +85,31 @@ def test_bundle_is_canonical_complete_and_replayable(tmp_path):
     assert {item.name for item in output.iterdir()} == {
         "run.json", "accounting.json", "manifests.json", "corpora.json", "hashes.json"
     }
+
+
+def test_fully_accounted_empty_result_is_replayable(tmp_path):
+    result = _empty_result(tmp_path / "empty.db")
+    assert result.qualified_mints == ()
+    output = tmp_path / "empty-bundle"
+    bundle = write_creator_historical_outcome_bundle(
+        result, output, run_id="empty-run", engineering_revision=REVISION, policies=POLICIES
+    )
+    assert verify_creator_historical_outcome_bundle(output) == bundle
+
+
+def test_empty_result_with_inconsistent_accounting_fails_closed(tmp_path):
+    result = _empty_result(tmp_path / "empty.db")
+    output = tmp_path / "empty-bundle"
+    write_creator_historical_outcome_bundle(
+        result, output, run_id="empty-run", engineering_revision=REVISION, policies=POLICIES
+    )
+    accounting = json.loads((output / "accounting.json").read_text())
+    accounting["qualified_mints"] = ["MintWithoutEvidence"]
+    canonical = json.dumps(accounting, sort_keys=True, separators=(",", ":")) + "\n"
+    (output / "accounting.json").write_text(canonical)
+    _rehash_bundle(output)
+    with pytest.raises(CreatorHistoricalOutcomeBundleError, match="ACCOUNTING_MISMATCH"):
+        verify_creator_historical_outcome_bundle(output)
 
 
 def test_same_inputs_produce_identical_bundle_bytes(tmp_path):

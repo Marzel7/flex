@@ -244,12 +244,29 @@ def verify_creator_historical_outcome_bundle(
         corpora = tuple(_corpus(item) for item in documents["corpora.json"]["corpora"])
         for manifest in manifests:
             verify_creator_historical_outcome_manifest(manifest, manifest.facts)
-        verify_creator_historical_outcome_corpora(corpora, manifests)
+        if manifests:
+            verify_creator_historical_outcome_corpora(corpora, manifests)
+        elif corpora:
+            raise CreatorHistoricalOutcomeBundleError("EB0_2H_EMPTY_MANIFEST_CORPUS_MISMATCH")
         all_facts = [fact for manifest in manifests for fact in manifest.facts]
+        selected = accounting.get("selected_mints")
+        qualified = accounting.get("qualified_mints")
+        excluded = accounting.get("excluded_mints")
+        if (
+            not isinstance(selected, list)
+            or not isinstance(qualified, list)
+            or not isinstance(excluded, dict)
+            or len(set(selected)) != len(selected)
+            or len(set(qualified)) != len(qualified)
+            or set(qualified) & set(excluded)
+            or set(qualified) | set(excluded) != set(selected)
+            or {fact.mint for fact in all_facts} != set(qualified)
+        ):
+            raise CreatorHistoricalOutcomeBundleError("EB0_2H_ACCOUNTING_MISMATCH")
         if accounting != {
-            "selected_mints": accounting["selected_mints"],
-            "qualified_mints": accounting["qualified_mints"],
-            "excluded_mints": dict(sorted(accounting["excluded_mints"].items())),
+            "selected_mints": selected,
+            "qualified_mints": qualified,
+            "excluded_mints": dict(sorted(excluded.items())),
             "policy_count": len(run["policies"]),
             "fact_count": len(all_facts),
             "eligible_denominator_count": sum(item.denominator_eligible for item in all_facts),

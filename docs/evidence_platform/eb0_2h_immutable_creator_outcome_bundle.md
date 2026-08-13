@@ -17,3 +17,9 @@ digest from the bundled content. Missing, extra, altered, inconsistent, or
 noncanonical content fails closed. Qualification uses ephemeral fixtures only;
 live extraction, external publication, aggregation, ranking, and activation are
 separate milestones.
+
+A fully accounted extraction with no qualified mints is a valid measured result:
+it contains no manifests or corpora, every selected mint has an explicit
+exclusion reason, and exact replay still binds the policies, source fingerprint,
+accounting, and result digest. Empty manifests with non-empty corpora, qualified
+mints, missing exclusions, or otherwise inconsistent accounting fail closed.

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T08:25:14Z",
+  "updated_at_utc": "2026-08-13T09:09:12Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T08:26:15Z",
+    "published_at_utc": null,
     "protocol_version": 1,
-    "status": "PUBLISHED"
+    "status": "PENDING_PUBLICATION"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2AS creator-resolution schema-ready startup fast-path narrow commit",
-    "mode": "completed explicitly authorized narrow local commit",
-    "status": "COMPLETE",
-    "verdict": "LOCAL_COMMIT_COMPLETE"
+    "milestone": "OIP v2.2E.2B2AT creator-resolution schema-ready fast-path deployment",
+    "mode": "completed explicitly authorized single-service restart and immediate local verification",
+    "status": "PARTIAL",
+    "verdict": "SCHEMA_FAST_PATH_LOADED_HEARTBEAT_STILL_LATE"
   },
   "production_state": {
     "retention": "ON",
@@ -32,7 +32,7 @@
     "creator_funding_service": "creator_funding_worker",
     "creator_funding_pid_last_verified": 9399,
     "creator_resolution_service": "creator_resolution_worker",
-    "creator_resolution_pid_last_verified": 21886
+    "creator_resolution_pid_last_verified": 64872
   },
   "orchestration": {
     "schema_version": 3,
@@ -913,6 +913,29 @@
       "service_restarts": 0,
       "blocker": "Commit 438d6496 is not loaded by the running creator_resolution_worker. Deployment/restart requires explicit authorization."
     },
+    "oip_v2_2e_2b2at_schema_ready_fast_path_deployment": {
+      "status": "PARTIAL",
+      "verdict": "SCHEMA_FAST_PATH_LOADED_HEARTBEAT_STILL_LATE",
+      "verification_utc": "2026-08-13T09:09:12Z",
+      "authorization": "Exactly one creator_resolution_worker restart to load engineering commit 438d6496a9651dba1f4ee2f4895aa5ac1986f5fc with immediate ready-schema and heartbeat verification.",
+      "restart": {
+        "service": "creator_resolution_worker",
+        "old_pid": 21886,
+        "new_pid": 64872,
+        "other_services": "watchtower_listener remained RUNNING pid 18284; creator_funding_worker remained RUNNING pid 9399; evidence_writer remained STOPPED"
+      },
+      "immediate_verification": {
+        "schema_fast_path": "PASS: the new worker logged normal first-cycle auto-enqueue work within seconds instead of spending approximately six minutes in startup schema migration.",
+        "process_sample": "Main thread was in ordinary SQLite population-scan work after startup, not the schema initialization write path.",
+        "heartbeat": "FAIL: the prior heartbeat remained unchanged and reached age 174 seconds; the new PID had not emitted its first heartbeat before the bounded check closed. Heartbeat is written only after all first-cycle enqueue/promote/process operations finish.",
+        "health": "HTTP 200; overall WARNING rather than CRITICAL; database p99_wait_ms 1051.49 with queue depth 0; ingestion HEALTHY; PumpPortal and PumpSwap CONNECTED."
+      },
+      "flags": "retention ON; migration census ON; Evidence Mirror OFF; Cohort Mode OFF; evidence_writer STOPPED",
+      "provider_qualification_calls_initiated_by_codex": 0,
+      "provider_note": "No B2Z or bounded provider qualification was invoked. The restarted worker resumed only its pre-existing normal workload as an inherent consequence of the authorized restart.",
+      "production_changes": "one explicitly authorized creator_resolution_worker restart only",
+      "blocker": "Ready-schema startup is fixed, but health still marks the worker stale while its first population scan runs because no startup heartbeat is emitted before first-cycle work. No second restart or implementation is authorized."
+    },
     "oip_v2_2e_incident_causal_assessment": {
       "status": "COMPLETE",
       "verdict": "LATENT_DEFECT_REACTIVATED_BY_WORKER_RECOVERY",
@@ -1345,6 +1368,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "B2AT proves the ready-schema startup fast path loaded, but creator-resolution heartbeat is still emitted only after the first long population cycle. PID 64872 remained RUNNING while the prior heartbeat aged beyond the 143-second health threshold. A bounded read-only ordering diagnosis is required; no second restart or implementation is authorized.",
     "B2AS committed the qualified schema-ready startup fast path at 438d6496a9651dba1f4ee2f4895aa5ac1986f5fc. The running creator_resolution_worker has not loaded it; exactly one restart and immediate verification require explicit authorization.",
     "B2AQ confirms creator_resolution_worker recovered naturally after an approximately six-minute startup schema write-lane delay. The schema was already ready, so future restarts can repeat the delay until a read-only schema-ready fast path is locally designed and qualified; no implementation is authorized in B2AQ.",
     "B2AP completed the single authorized creator_resolution_worker restart, but immediate health did not recover: PID 21886 remained RUNNING without a refreshed heartbeat and database write p99 remained approximately 31 seconds. A new bounded diagnosis milestone is required; no second restart or B2Z action is authorized.",
@@ -1362,8 +1386,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2AT creator-resolution schema-ready fast-path deployment",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize exactly one creator_resolution_worker restart to load commit 438d6496a9651dba1f4ee2f4895aa5ac1986f5fc, with immediate local verification that the ready-schema startup bypasses the write lane and refreshes its heartbeat promptly; preserve all production flags and evidence_writer STOPPED; no other restart, configuration change, provider qualification, Evidence Mirror, Cohort Mode, or B2Z observation. The restarted worker may resume its existing normal provider workload as an inherent consequence of the authorized restart.",
+    "milestone": "OIP v2.2E.2B2AU creator-resolution first-cycle heartbeat ordering diagnosis",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize bounded local read-only diagnosis of the creator-resolution first-cycle heartbeat ordering and long population scan after B2AT. No implementation, provider call, production write, restart, configuration change, Evidence Mirror, Cohort Mode, or B2Z observation.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

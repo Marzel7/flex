@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T19:13:58Z",
+  "updated_at_utc": "2026-08-13T19:20:32Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "28140ada78bdf6d23c1882485c6f86e2531b969d",
-    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths including the isolated uncommitted EB0.3D run directory; EB0.4A committed only its four authorized engineering files"
+    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths including the isolated uncommitted EB0.3D run directory; EB0.4B made no engineering or production changes"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T19:13:58Z",
+    "published_at_utc": "2026-08-13T19:20:32Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.4A shared-behaviour operational-family nomination evidence contract",
-    "mode": "safe-local frozen deterministic contract qualification",
+    "milestone": "EB0.4B operational-family source-mapping audit",
+    "mode": "bounded local read-only committed-source audit",
     "status": "COMPLETE",
-    "verdict": "NOMINATION_CONTRACT_QUALIFIED"
+    "verdict": "SOURCE_MAPPING_PARTIAL_EXPLICIT_BINDING_REQUIRED"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,36 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_4b_operational_family_source_mapping": {
+      "status": "COMPLETE",
+      "verdict": "SOURCE_MAPPING_PARTIAL_EXPLICIT_BINDING_REQUIRED",
+      "engineering_commit": "28140ada78bdf6d23c1882485c6f86e2531b969d",
+      "verification_utc": "2026-08-13T19:20:32Z",
+      "safe_mappings": {
+        "operation_identity": "explicit platform operation binding only; never infer from BehaviourObservation subjects, wallets or heuristic family services",
+        "primary_role": "explicit role bound to the platform operation plus TopologyNode.local_role consistency",
+        "edge_topology": "TopologyRevision edges mapped as source local role, primitive type and destination local role; relationship metadata only",
+        "mechanism": "only allow-listed normalized BehaviourObservation measured-value fields",
+        "temporal": "only allow-listed normalized temporal fields plus explicit observation window",
+        "provenance": "contract/module/topology versions, observation/revision/input digests and evidence/primitive refs",
+        "quality_completeness": "BehaviourObservation quality_state and explicit missing_inputs; TopologyRevision alone supplies no completeness assertion",
+        "conflict": "no generic native conflict group; conflicts must remain explicit separate normalized records"
+      },
+      "unsupported_or_ambiguous": [
+        "wallet/subject equals operation or real-world operator",
+        "generic measured_values keys without a versioned allow-list",
+        "derived operational-role labels without an explicit platform operation binding",
+        "topology fingerprint as family support without shared behaviour",
+        "confidence, ranking, operator/owner identity and canonical merge fields",
+        "complete evidence inferred merely from presence of a topology revision"
+      ],
+      "smallest_adapter": "exact frozen normalized runtime-export adapter requiring explicit PLATFORM_OPERATION_ID binding and primary role, versioned source IDs/digests, allow-listed edge/mechanism/temporal arrays and explicit quality/completeness/conflict",
+      "provider_calls": 0,
+      "production_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "activation": false
+    },
     "eb0_4a_operational_family_nomination_contract": {
       "status": "COMPLETE",
       "verdict": "NOMINATION_CONTRACT_QUALIFIED",
@@ -3830,8 +3860,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.4B operational-family source-mapping audit",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize a bounded local read-only EB0.4B source-mapping audit using committed operational/discovery schemas, code, documentation, audits and frozen fixtures only. Map platform-owned operation identity, primary role, relationship edge/topology metadata, mechanism and temporal features, source/version/digest provenance, quality, completeness and conflict into the EB0.4A contract; identify unsupported or ambiguous mappings, sources that risk operator-identity or confidence promotion, and the smallest safe-local adapter milestone. Do not implement adapters, create nominations from live data, aggregate profiles, rank, score, infer profitability/cashflow, identify or attribute operators, or activate policy. No production/runtime access or changes, provider calls, GMGN execution, deployment, service restarts or stops, configuration changes, Evidence Mirror, Cohort Mode, activation, or production activation.",
+    "milestone": "EB0.4C deterministic normalized runtime source adapters",
+    "instruction": "AUTHORIZED_STAGED_SAFE_LOCAL: Implement and qualify exact frozen normalized runtime-export adapters into EB0.4A using explicit platform operation ID/primary-role bindings, versioned contract/module/topology source IDs and digests, allow-listed edge/mechanism/temporal arrays, and explicit quality/completeness/conflict. Reject wallet/subject identity inference, generic measured-value discovery, confidence/rank/score/operator/owner fields, topology-only support and authority promotion. Frozen fixtures only; no production/runtime/provider/GMGN access or changes, deployment, restarts, configuration, Evidence Mirror, Cohort Mode, attribution, policy or activation.",
+    "safe_local_stage_authorized": true,
     "activation_authorized": false,
     "production_activation_authorized": false
   },

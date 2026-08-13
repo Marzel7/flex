@@ -13,6 +13,17 @@ from src.evidence.contracts.birth_valuation_census import (
 MINT = "MintCensus111111111111111111111111111111"
 
 
+def _platform_receive(mint=MINT):
+    return {"mint": mint, "receive_utc_ns": 120_000_000_000, "source": "fixture",
+            "source_schema_version": "1", "source_record_digest": f"receive-{mint}"}
+
+
+def _migration_receive(mint=MINT):
+    return {"mint": mint, "receive_utc_ns": 200_000_000_000,
+            "signature": f"migration-{mint}", "source": "fixture",
+            "source_schema_version": "1", "source_record_digest": f"migration-digest-{mint}"}
+
+
 def _database(path: Path, *, members: int = 1) -> None:
     db = sqlite3.connect(path)
     db.executescript("""
@@ -57,8 +68,11 @@ def test_query_only_extraction_is_deterministic_and_preserves_four_kinds(tmp_pat
     path = tmp_path / "frozen.sqlite"
     _database(path)
     before = path.read_bytes()
-    first = extract_birth_valuation_census(path, high_water_migrated_at=250)
-    second = extract_birth_valuation_census(path, high_water_migrated_at=250)
+    kwargs = {"high_water_migrated_at": 250,
+              "platform_receive_records": [_platform_receive()],
+              "migration_receive_records": [_migration_receive()]}
+    first = extract_birth_valuation_census(path, **kwargs)
+    second = extract_birth_valuation_census(path, **kwargs)
     assert first == second
     assert path.read_bytes() == before
     assert first.selected_mints == (MINT,)
@@ -74,6 +88,49 @@ def test_high_water_excludes_later_rows(tmp_path):
     _database(path, members=2)
     result = extract_birth_valuation_census(path, high_water_migrated_at=200)
     assert result.selected_mints == (MINT,)
+
+
+def test_split_primary_and_evidence_sources_are_supported(tmp_path):
+    primary = tmp_path / "primary.sqlite"
+    evidence = tmp_path / "evidence.sqlite"
+    _database(primary)
+    source = sqlite3.connect(primary)
+    row = source.execute("SELECT * FROM normalized_evidence_records").fetchone()
+    source.close()
+    db = sqlite3.connect(evidence)
+    db.execute("CREATE TABLE normalized_evidence_records(fact_family TEXT,payload_json TEXT,"
+               "raw_artifact_digest TEXT,acquired_at INTEGER,source_id TEXT,source_version TEXT,"
+               "verification_state TEXT)")
+    db.execute("INSERT INTO normalized_evidence_records VALUES(?,?,?,?,?,?,?)", row)
+    db.commit()
+    db.close()
+
+    result = extract_birth_valuation_census(
+        primary, evidence_source_path=evidence, high_water_migrated_at=250
+    )
+    assert result.corpora[0].manifest.event_counts == {
+        "CHAIN_BIRTH": 1, "MARKET_FIRST_OBSERVED": 2,
+    }
+    assert result.missing_event_kind_counts == {
+        "CHAIN_BIRTH": 0, "PLATFORM_FIRST_SEEN": 1,
+        "MIGRATION": 1, "MARKET_FIRST_OBSERVED": 0,
+    }
+
+
+def test_missing_all_qualified_evidence_is_accounted_without_timestamp_substitution(tmp_path):
+    path = tmp_path / "frozen.sqlite"
+    _database(path)
+    db = sqlite3.connect(path)
+    db.execute("UPDATE token_analysis SET first_observed_at=NULL,first_observed_mc=NULL,first_observed_price=NULL")
+    db.execute("DELETE FROM token_price_snapshots")
+    db.execute("DELETE FROM normalized_evidence_records")
+    db.commit()
+    db.close()
+    result = extract_birth_valuation_census(path, high_water_migrated_at=250)
+    assert result.corpora == ()
+    assert result.mints_without_canonical_evidence == (MINT,)
+    assert result.missing_event_kind_counts == {kind: 1 for kind in (
+        "CHAIN_BIRTH", "PLATFORM_FIRST_SEEN", "MIGRATION", "MARKET_FIRST_OBSERVED")}
 
 
 def test_noncanonical_limit_and_timeout_bound_fail_closed(tmp_path):

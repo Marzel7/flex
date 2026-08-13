@@ -1,4 +1,4 @@
-"""EB0.1G bounded query-only SQLite extraction into EB0.1A-E corpora."""
+"""EB0.1I bounded multi-source query-only extraction into EB0.1A-E corpora."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ import json
 from pathlib import Path
 import sqlite3
 import time
-from typing import Callable, Mapping, Tuple
+from typing import Callable, Iterable, Mapping, Tuple
 from urllib.parse import quote
 
 from .birth_valuation_adapters import (
@@ -21,7 +21,7 @@ from .birth_valuation_adapters import (
 from .birth_valuation_corpus import MintCorpus, assemble_birth_valuation_corpora
 
 
-CENSUS_SCHEMA_VERSION = "eb0.1g.v1"
+CENSUS_SCHEMA_VERSION = "eb0.1i.v1"
 DEFAULT_MINT_LIMIT = 5_000
 MAX_QUERY_SECONDS = 30.0
 
@@ -39,32 +39,31 @@ class CensusResult:
     corpora: Tuple[MintCorpus, ...]
     observation_count: int
     excluded_observation_count: int
+    missing_event_kind_counts: Mapping[str, int]
+    mints_without_canonical_evidence: Tuple[str, ...]
+    ignored_explicit_record_count: int
     input_fingerprint: str
     result_digest: str
 
 
-_REQUIRED_COLUMNS = {
+_PRIMARY_REQUIRED_COLUMNS = {
     "token_analysis": {
         "mint", "migrated_at", "first_observed_mc", "first_observed_price",
         "first_observed_at", "first_observed_source", "first_observed_confidence",
-    },
-    "normalized_evidence_records": {
-        "fact_family", "payload_json", "raw_artifact_digest", "acquired_at",
-        "source_id", "source_version", "verification_state",
     },
     "token_price_snapshots": {
         "snapshot_id", "mint", "price_usd", "market_cap", "source", "captured_at",
         "created_at",
     },
-    "eb0_platform_receive_evidence": {
-        "mint", "receive_utc_ns", "source", "source_schema_version",
-        "source_record_digest",
-    },
-    "eb0_migration_receive_evidence": {
-        "mint", "receive_utc_ns", "signature", "source", "source_schema_version",
-        "source_record_digest",
+}
+_EVIDENCE_REQUIRED_COLUMNS = {
+    "normalized_evidence_records": {
+        "fact_family", "payload_json", "raw_artifact_digest", "acquired_at",
+        "source_id", "source_version", "verification_state",
     },
 }
+_EVENT_KINDS = ("CHAIN_BIRTH", "PLATFORM_FIRST_SEEN", "MIGRATION", "MARKET_FIRST_OBSERVED")
+_MAX_EXPLICIT_RECORDS = 10_000
 
 
 def _digest(value: object) -> str:
@@ -90,13 +89,16 @@ def _open_query_only(path: Path) -> sqlite3.Connection:
     return connection
 
 
-def _validate_schema(connection: sqlite3.Connection) -> None:
+def _validate_schema(
+    connection: sqlite3.Connection,
+    required_columns: Mapping[str, set[str]],
+) -> None:
     tables = {
         row[0] for row in connection.execute(
             "SELECT name FROM sqlite_schema WHERE type='table'"
         )
     }
-    for table, required in _REQUIRED_COLUMNS.items():
+    for table, required in required_columns.items():
         if table not in tables:
             raise BirthValuationCensusError(f"EB0_1G_MISSING_TABLE_{table.upper()}")
         columns = {row[1] for row in connection.execute(f"PRAGMA table_info({table})")}
@@ -151,15 +153,29 @@ def _market_records(row: Mapping[str, object]) -> list[dict[str, object]]:
     return records
 
 
+def _bounded_records(
+    records: Iterable[Mapping[str, object]],
+) -> list[dict[str, object]]:
+    material = []
+    for record in records:
+        if len(material) >= _MAX_EXPLICIT_RECORDS:
+            raise BirthValuationCensusError("EB0_1I_EXPLICIT_RECORD_LIMIT")
+        material.append(dict(record))
+    return material
+
+
 def extract_birth_valuation_census(
-    source_path: Path,
+    primary_source_path: Path,
     *,
+    evidence_source_path: Path | None = None,
     high_water_migrated_at: int,
+    platform_receive_records: Iterable[Mapping[str, object]] = (),
+    migration_receive_records: Iterable[Mapping[str, object]] = (),
     mint_limit: int = DEFAULT_MINT_LIMIT,
     max_query_seconds: float = MAX_QUERY_SECONDS,
     clock: Callable[[], float] = time.monotonic,
 ) -> CensusResult:
-    """Read one immutable high-water cohort and emit deterministic EB0.1E corpora."""
+    """Read independently injected sources and emit deterministic EB0.1E corpora."""
 
     if isinstance(high_water_migrated_at, bool) or not isinstance(high_water_migrated_at, int):
         raise BirthValuationCensusError("EB0_1G_INVALID_HIGH_WATER")
@@ -168,11 +184,21 @@ def extract_birth_valuation_census(
     if max_query_seconds <= 0 or max_query_seconds > MAX_QUERY_SECONDS:
         raise BirthValuationCensusError("EB0_1G_INVALID_QUERY_BOUND")
 
-    connection = _open_query_only(Path(source_path))
+    platform_material = _bounded_records(platform_receive_records)
+    migration_material = _bounded_records(migration_receive_records)
+    if len(platform_material) + len(migration_material) > _MAX_EXPLICIT_RECORDS:
+        raise BirthValuationCensusError("EB0_1I_EXPLICIT_RECORD_LIMIT")
+
+    primary_path = Path(primary_source_path)
+    evidence_path = Path(evidence_source_path) if evidence_source_path is not None else primary_path
+    primary = _open_query_only(primary_path)
+    evidence = None
     try:
-        _validate_schema(connection)
+        evidence = _open_query_only(evidence_path)
+        _validate_schema(primary, _PRIMARY_REQUIRED_COLUMNS)
+        _validate_schema(evidence, _EVIDENCE_REQUIRED_COLUMNS)
         cohort = _timed(
-            connection,
+            primary,
             "SELECT mint,migrated_at,first_observed_mc,first_observed_price,"
             "first_observed_at,first_observed_source,first_observed_confidence "
             "FROM token_analysis WHERE migrated_at IS NOT NULL AND migrated_at<=? "
@@ -192,7 +218,7 @@ def extract_birth_valuation_census(
             observations.extend(_market_records(row))
 
         snapshot_rows = _timed(
-            connection,
+            primary,
             f"SELECT snapshot_id,mint,price_usd,market_cap,source,captured_at,created_at "
             f"FROM token_price_snapshots WHERE mint IN ({placeholders}) AND captured_at<=? "
             "ORDER BY mint,captured_at,snapshot_id",
@@ -216,32 +242,29 @@ def extract_birth_valuation_census(
                     }),
                 }))
 
-        platform_rows = _timed(
-            connection,
-            f"SELECT * FROM eb0_platform_receive_evidence WHERE mint IN ({placeholders}) "
-            "AND receive_utc_ns<=? ORDER BY mint,receive_utc_ns,source_record_digest",
-            (*mints, high_water_migrated_at * 1_000_000_000), clock=clock,
-            max_query_seconds=max_query_seconds,
-        )
-        observations.extend(adapt_platform_receive(dict(row)) for row in platform_rows)
-
-        migration_rows = _timed(
-            connection,
-            f"SELECT * FROM eb0_migration_receive_evidence WHERE mint IN ({placeholders}) "
-            "AND receive_utc_ns<=? ORDER BY mint,receive_utc_ns,source_record_digest",
-            (*mints, high_water_migrated_at * 1_000_000_000), clock=clock,
-            max_query_seconds=max_query_seconds,
-        )
-        observations.extend(adapt_observed_migration(dict(row)) for row in migration_rows)
+        mint_set = set(mints)
+        receive_high_water = high_water_migrated_at * 1_000_000_000
+        ignored_explicit = 0
+        for record in platform_material:
+            adapted = adapt_platform_receive(record)
+            if adapted["mint"] not in mint_set or adapted["event_time_utc_ns"] > receive_high_water:
+                ignored_explicit += 1
+                continue
+            observations.append(adapted)
+        for record in migration_material:
+            adapted = adapt_observed_migration(record)
+            if adapted["mint"] not in mint_set or adapted["event_time_utc_ns"] > receive_high_water:
+                ignored_explicit += 1
+                continue
+            observations.append(adapted)
 
         launch_rows = _timed(
-            connection,
+            evidence,
             "SELECT payload_json,raw_artifact_digest,acquired_at,source_id,source_version,"
             "verification_state FROM normalized_evidence_records "
             "WHERE fact_family='LaunchFact' ORDER BY raw_artifact_digest",
             (), clock=clock, max_query_seconds=max_query_seconds,
         )
-        mint_set = set(mints)
         for row in launch_rows:
             try:
                 payload = json.loads(row["payload_json"])
@@ -250,19 +273,32 @@ def extract_birth_valuation_census(
             if isinstance(payload, dict) and payload.get("mint") in mint_set:
                 observations.append(adapt_launch_fact({**dict(row), "fact_family": "LaunchFact", "payload": payload}))
 
-        covered = {str(item["mint"]) for item in observations}
-        for mint in mints:
-            if mint not in covered:
-                raise BirthValuationCensusError("EB0_1G_MINT_WITHOUT_CANONICAL_EVIDENCE")
-        corpora = assemble_birth_valuation_corpora(observations)
-        fingerprint = _digest({"path_name": Path(source_path).name, "high_water": high_water_migrated_at,
-                               "mint_limit": mint_limit, "mints": mints})
+        observed_pairs = {(str(item["mint"]), str(item["event_kind"])) for item in observations}
+        missing_counts = {
+            kind: sum((mint, kind) not in observed_pairs for mint in mints)
+            for kind in _EVENT_KINDS
+        }
+        covered = {mint for mint, _ in observed_pairs}
+        mints_without_evidence = tuple(mint for mint in mints if mint not in covered)
+        corpora = assemble_birth_valuation_corpora(observations) if observations else ()
+        fingerprint = _digest({
+            "primary_path_name": primary_path.name,
+            "evidence_path_name": evidence_path.name,
+            "high_water": high_water_migrated_at,
+            "mint_limit": mint_limit,
+            "mints": mints,
+            "platform_receive_digest": _digest(platform_material),
+            "migration_receive_digest": _digest(migration_material),
+        })
         body = {
             "schema_version": CENSUS_SCHEMA_VERSION,
             "high_water_migrated_at": high_water_migrated_at,
             "mint_limit": mint_limit,
             "selected_mints": mints,
             "corpus_digests": [item.corpus_digest for item in corpora],
+            "missing_event_kind_counts": missing_counts,
+            "mints_without_canonical_evidence": mints_without_evidence,
+            "ignored_explicit_record_count": ignored_explicit,
             "input_fingerprint": fingerprint,
         }
         return CensusResult(
@@ -273,10 +309,15 @@ def extract_birth_valuation_census(
             corpora=corpora,
             observation_count=len(observations),
             excluded_observation_count=sum(len(item.excluded) for item in corpora),
+            missing_event_kind_counts=missing_counts,
+            mints_without_canonical_evidence=mints_without_evidence,
+            ignored_explicit_record_count=ignored_explicit,
             input_fingerprint=fingerprint,
             result_digest=_digest(body),
         )
     except sqlite3.Error as exc:
         raise BirthValuationCensusError("EB0_1G_SQLITE_READ_FAILED") from exc
     finally:
-        connection.close()
+        if evidence is not None:
+            evidence.close()
+        primary.close()

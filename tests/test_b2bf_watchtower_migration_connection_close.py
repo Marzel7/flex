@@ -14,11 +14,12 @@ class _InlinePool:
 
 
 class _Connection:
-    def __init__(self, *, fail_execute=False, creator_known=True, fail_commit=False):
+    def __init__(self, *, fail_execute=False, creator_known=True, fail_commit=False, events=None):
         self.fail_execute = fail_execute
         self.creator_known = creator_known
         self.fail_commit = fail_commit
         self.closed = 0
+        self.events = events
 
     def execute(self, statement, parameters=()):
         if self.fail_execute:
@@ -35,6 +36,8 @@ class _Connection:
 
     def close(self):
         self.closed += 1
+        if self.events is not None:
+            self.events.append("main_close")
 
 
 class _Result:
@@ -54,6 +57,7 @@ def _load_function():
     )
     module = ast.Module(body=[node], type_ignores=[])
     namespace = {
+        "__file__": str(SOURCE),
         "DB_PATH": "/not-production/test.db",
         "_TOKEN_WORK_POOL": _InlinePool(),
         "log_print": lambda *args, **kwargs: None,
@@ -62,15 +66,26 @@ def _load_function():
     return namespace["_check_watchtower_migration"]
 
 
-def _isolate_derived_lifecycle(monkeypatch):
+def _isolate_derived_lifecycle(monkeypatch, *, events=None, submit_error=None):
     cascade = types.ModuleType("src.core.ws_cascade_store")
     cascade.advance_lifecycle_migrated = lambda *args, **kwargs: None
+    walkback = types.ModuleType("src.core.walkback_queue")
+    walkback.enqueue_migration = lambda *args, **kwargs: "FULL_WALKBACK"
+
+    def submit(*args, **kwargs):
+        if events is not None:
+            events.append("ops_submit")
+        if submit_error is not None:
+            raise submit_error
+        return "FULL_WALKBACK"
+
     write_service_module = types.ModuleType("src.core.database_write_service")
     write_service_module.database_write_service = types.SimpleNamespace(
         register_database=lambda *args, **kwargs: None,
-        submit=lambda *args, **kwargs: None,
+        submit=submit,
     )
     monkeypatch.setitem(sys.modules, "src.core.ws_cascade_store", cascade)
+    monkeypatch.setitem(sys.modules, "src.core.walkback_queue", walkback)
     monkeypatch.setitem(sys.modules, "src.core.database_write_service", write_service_module)
 
 
@@ -101,6 +116,42 @@ def test_connection_closes_once_on_success(monkeypatch):
 
     _load_function()("mint", 1, "signature", "test")
 
+    assert connection.closed == 1
+
+
+def test_unknown_creator_closes_main_db_before_operations_submit(monkeypatch):
+    events = []
+    connection = _Connection(creator_known=False, events=events)
+    _isolate_derived_lifecycle(monkeypatch, events=events)
+    monkeypatch.setattr(sqlite3, "connect", lambda *args, **kwargs: connection)
+
+    _load_function()("mint", 1, "signature", "test")
+
+    assert events == ["main_close", "ops_submit"]
+    assert connection.closed == 1
+
+
+def test_unknown_creator_submit_exception_keeps_close_before_submit(monkeypatch):
+    events = []
+    connection = _Connection(creator_known=False, events=events)
+    _isolate_derived_lifecycle(monkeypatch, events=events, submit_error=RuntimeError("injected submit failure"))
+    monkeypatch.setattr(sqlite3, "connect", lambda *args, **kwargs: connection)
+
+    _load_function()("mint", 1, "signature", "test")
+
+    assert events == ["main_close", "ops_submit"]
+    assert connection.closed == 1
+
+
+def test_unknown_creator_submit_timeout_keeps_close_before_wait_failure(monkeypatch):
+    events = []
+    connection = _Connection(creator_known=False, events=events)
+    _isolate_derived_lifecycle(monkeypatch, events=events, submit_error=TimeoutError("injected timeout"))
+    monkeypatch.setattr(sqlite3, "connect", lambda *args, **kwargs: connection)
+
+    _load_function()("mint", 1, "signature", "test")
+
+    assert events == ["main_close", "ops_submit"]
     assert connection.closed == 1
 
 

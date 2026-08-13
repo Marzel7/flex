@@ -962,6 +962,13 @@ def _check_watchtower_migration(mint: str, migrated_at: int, migration_tx: str |
                         "SELECT earliest_tx_creator FROM token_analysis WHERE mint=?", (mint,)
                     ).fetchone()
                     _creator_for_wb = ta2['earliest_tx_creator'] if ta2 else None
+                    # The walkback enqueue below targets the separate operations
+                    # database and waits synchronously for its writer.  The main
+                    # Flex DB is no longer needed, so release it before that
+                    # potentially long cross-database wait.  The outer finally
+                    # remains the backstop if this local read or close fails.
+                    conn.close()
+                    conn = None
                     _ops_path = __import__('os').environ.get(
                             "WT_OPS_DB_PATH",
                             __import__('os').path.join(

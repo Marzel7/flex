@@ -15,6 +15,8 @@ import time
 from datetime import datetime
 from typing import Any, Dict, Iterable, List, Optional
 
+from src.utils.db_locking import db_connect, managed_db_connect
+
 
 TERMINAL_STATUSES = {"complete", "ignored", "skipped"}
 ACTIVE_STATUSES = {"pending", "retry", "running"}
@@ -49,12 +51,13 @@ class _BudgetExceeded(Exception):
 
 
 def connect(db_path: str, timeout: int = 30) -> sqlite3.Connection:
-    conn = sqlite3.connect(db_path, timeout=timeout)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA journal_mode=WAL")
-    conn.execute("PRAGMA synchronous=NORMAL")
-    conn.execute("PRAGMA busy_timeout=30000")
-    return conn
+    """Compatibility opener using the shared tracked connection policy.
+
+    Persistent journal configuration belongs to deployment/schema setup, not
+    a hot queue connection.  ``db_connect`` applies connection-local safety
+    defaults and participates in the shared write-lane diagnostics.
+    """
+    return db_connect(db_path, timeout=timeout, row_factory=sqlite3.Row)
 
 
 from contextlib import contextmanager
@@ -63,23 +66,19 @@ from src.core.creator_funding_lifecycle import record_event_fail_open
 @contextmanager
 def _db(db_path: str, timeout: int = 30):
     """Context manager that opens, yields, and always closes a DB connection."""
-    conn = connect(db_path, timeout=timeout)
-    try:
+    with managed_db_connect(
+        db_path, timeout=timeout, row_factory=sqlite3.Row
+    ) as conn:
         yield conn
-    finally:
-        conn.close()
 
 
 @contextmanager
 def _read_db(db_path: str, timeout: int = 30):
     """Open a genuine read-only connection that never owns the write lane."""
-    conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True, timeout=timeout)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA busy_timeout=30000")
-    try:
+    with managed_db_connect(
+        db_path, timeout=timeout, row_factory=sqlite3.Row, read_only=True
+    ) as conn:
         yield conn
-    finally:
-        conn.close()
 
 
 def ensure_schema(conn: sqlite3.Connection) -> None:
@@ -565,11 +564,10 @@ def process_queue(db_path: str, *, limit: int = 3, lock_seconds: int = 180) -> D
 
     with _db(db_path) as conn:
         ensure_schema(conn)
-        # Claim selection is read-only and may scan a deep backlog.  Do not
-        # retain the schema-maintenance write lease while selecting work.
         conn.commit()
 
-        # STALE-RUNNING REAPER: reclaim 'running' rows whose locks expired (crashed/restarted worker).
+    # STALE-RUNNING REAPER: a separate, short mutation scope.
+    with _db(db_path) as conn:
         _MAX_ATTEMPTS = 5
         reaped = conn.execute(
             """
@@ -581,10 +579,11 @@ def process_queue(db_path: str, *, limit: int = 3, lock_seconds: int = 180) -> D
             """,
             (_MAX_ATTEMPTS, now),
         ).rowcount
-        if reaped:
-            conn.commit()
+        conn.commit()
 
-        # Priority-ordered claim: manual/elevated first, then by age.
+    # Priority selection can scan a deep backlog, so it must never retain a
+    # write-capable connection or the shared write lane while scanning.
+    with _read_db(db_path) as conn:
         rows = conn.execute(
             """
             SELECT mint, attempts, source, priority
@@ -604,16 +603,27 @@ def process_queue(db_path: str, *, limit: int = 3, lock_seconds: int = 180) -> D
             """,
             (now, now, max(1, int(limit))),
         ).fetchall()
+
+    # Claim only the selected rows in a fresh, short write scope.  Recheck
+    # eligibility so selection and mutation remain deterministic under races.
+    claimed_rows = []
+    with _db(db_path) as conn:
         for row in rows:
-            conn.execute(
+            cur = conn.execute(
                 """
                 UPDATE creator_resolution_queue
                 SET status='running', locked_until=?, updated_at=?
                 WHERE mint=?
+                  AND status IN ('pending','retry')
+                  AND locked_until < ?
+                  AND next_attempt_at <= ?
                 """,
-                (now + lock_seconds, now, row["mint"]),
+                (now + lock_seconds, now, row["mint"], now, now),
             )
+            if int(cur.rowcount or 0) == 1:
+                claimed_rows.append(row)
         conn.commit()
+    rows = claimed_rows
 
     for row in rows:
         mint     = row["mint"]
@@ -623,7 +633,7 @@ def process_queue(db_path: str, *, limit: int = 3, lock_seconds: int = 180) -> D
         processed += 1
 
         # Determine tier with one cheap DB read + fail-open ops-DB read
-        with _db(db_path) as _pc:
+        with _read_db(db_path) as _pc:
             high_pri = _is_high_priority(_pc, mint, source, priority)
 
         tier        = "HIGH_PRIORITY" if high_pri else "GENERIC"

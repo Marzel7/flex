@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T15:46:08Z",
+  "updated_at_utc": "2026-08-13T15:50:53Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "b3cc4195823b1a23c89ae96ef683409ae8812624",
-    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, and user paths remain present; EB0.2L was local read-only and made no engineering changes"
+    "git_head": "81dc2878c10c52a875012a08d8148930af65ac53",
+    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, and user paths remain present; the narrow EB0.2M commit contains only the authorized proof mapping, local schema indexes, frozen/ephemeral tests, and documentation"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T15:46:08Z",
+    "published_at_utc": "2026-08-13T15:50:53Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.2L watchtower provenance semantic audit",
-    "mode": "bounded local read-only committed-artifact audit",
+    "milestone": "EB0.2M live-cascade proof and mint-index safe-local repair",
+    "mode": "safe-local frozen and ephemeral multi-database qualification",
     "status": "COMPLETE",
-    "verdict": "SEMANTICS_PARTIAL_LIVE_CASCADE_ONLY"
+    "verdict": "LOCAL_QUALIFICATION_PASS_NOT_DEPLOYED"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,36 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_2m_live_cascade_proof_and_indexes": {
+      "status": "COMPLETE",
+      "verdict": "LOCAL_QUALIFICATION_PASS_NOT_DEPLOYED",
+      "engineering_commit": "81dc2878c10c52a875012a08d8148930af65ac53",
+      "qualified_semantics": [
+        "maps only coherent CLOSE_ACCOUNT_DESTINATION+STRICT rows with non-null creator, signature, slot, create time, and coherent recorded time to CANONICAL_CREATE_PROOF",
+        "requires agreement with non-mismatched pf_ws_creator when present and with any creator_tokens membership evidence",
+        "never relabels live-cascade proof as PF_WS_CREATOR_VERIFIED",
+        "rejects WALKBACK_RECOVERED/WALKBACK, POST_MIG_BACKFILL/BACKFILL, MANUAL_ATTESTATION, incomplete proof, ambiguity, and creator mismatch",
+        "adds mint-leading schema indexes for wt_watchtower_launches(mint) and creator_tokens(mint)",
+        "ephemeral EXPLAIN QUERY PLAN verifies both selected-mint queries use the new indexes",
+        "missing horizon coverage remains UNKNOWN/NOT_OBSERVED and denominator-ineligible"
+      ],
+      "tests": {
+        "passed": 142,
+        "failed": 0
+      },
+      "deployed": false,
+      "production_indexes_created": false,
+      "provider_calls": 0,
+      "production_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "gmgn_integration": false,
+      "rankings": false,
+      "operator_attribution": false,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb0_2l_watchtower_provenance_semantics": {
       "status": "COMPLETE",
       "verdict": "SEMANTICS_PARTIAL_LIVE_CASCADE_ONLY",
@@ -3136,7 +3166,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "EB0.2L proves only the live CLOSE_ACCOUNT_DESTINATION+STRICT path can support EB0.2 CANONICAL_CREATE_PROOF, subject to complete coherent transaction fields and creator agreement. WALKBACK, BACKFILL, and MANUAL_ATTESTATION remain insufficient standalone proof. EB0.2J still needs a safe-local contract amendment and mint-index qualification before production compatibility can be reassessed.",
+    "EB0.2M locally qualifies the strict live-cascade CANONICAL_CREATE_PROOF mapping and both mint-leading schema indexes at 81dc2878, but nothing is deployed and production indexes remain absent. A bounded read-only compatibility reassessment must measure coherent accepted-proof availability and current live query plans before any separate index deployment or live normalization milestone.",
     "OIP v2.2E is qualified complete, but production activation remains explicitly unauthorized. Any Evidence authority, Evidence Mirror, Cohort Mode, provider expansion, or production deployment requires its own future milestone. Post-E work must begin with roadmap reconciliation rather than implicit activation.",
     "B2BX fully passes the isolated provider qualification at 20/20 with exactly 60 authorized requests. The remaining step is a bounded local-only E-series closure assessment that combines this provider result with the previously qualified B2R acquisition/retention funnel; no production activation is implied or authorized.",
     "B2BW is locally qualified at f08db5b1 with fresh empty ledgers. Provider execution remains HUMAN_APPROVAL_REQUIRED and must explicitly acknowledge the higher-cost oldest enhanced request and the unchanged 60-request stop-safe ceiling.",
@@ -3182,8 +3212,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.2M live-cascade proof and mint-index safe-local repair",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize safe-local design, implementation, frozen/ephemeral multi-database SQLite tests, regression tests, documentation, and one narrow commit for EB0.2M. Amend EB0.2J so only coherent CLOSE_ACCOUNT_DESTINATION+STRICT launch rows with non-null create signature, slot, create time, recorded time, and creator map to EB0.2C CANONICAL_CREATE_PROOF; require agreement with non-mismatched pf_ws_creator when present; continue rejecting WALKBACK_RECOVERED/WALKBACK, POST_MIG_BACKFILL/BACKFILL, MANUAL_ATTESTATION, ambiguous membership, and creator mismatches. Add and locally qualify mint-leading schema indexes for wt_watchtower_launches(mint) and creator_tokens(mint), but do not deploy or create indexes in production. Frozen/ephemeral fixtures only. No production/runtime access or writes, provider calls, live normalization/extraction, cohort or bundle materialization, deployment, restarts, configuration changes, GMGN integration, rankings, scoring, policy decisions, profitability/cashflow inference, operator attribution, Evidence Mirror, Cohort Mode, or activation.",
+    "milestone": "EB0.2N production compatibility reassessment",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize EB0.2N bounded read-only production compatibility reassessment for commit 81dc2878c10c52a875012a08d8148930af65ac53. Verify only bounded coherent CLOSE_ACCOUNT_DESTINATION+STRICT proof availability, non-mismatched pf_ws_creator agreement feasibility, creator-membership ambiguity, fresh source rowid high-waters, and current selected-mint query plans/index presence. Do not deploy or create indexes, execute normalization or extraction, materialize a cohort, normalized database, or bundle, read unrestricted payloads, write, aggregate rates or profiles, rank, score, make policy decisions, infer profitability or cashflow, attribute operators, or activate anything. No provider calls, GMGN integration, restarts, configuration changes, Evidence Mirror, Cohort Mode, or activation.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T19:24:45Z",
+  "updated_at_utc": "2026-08-13T19:27:31Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "58e84c224c9a5aba6cb41ac473efd6bda4587d13",
-    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths; EB0.4C committed only its four scoped adapter, fixture-test and documentation files"
+    "git_head": "3911094d0bd8421cc8f32b8cbe2217705ee4a64a",
+    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths; EB0.4D committed only its scoped manifest implementation, tests and documentation"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.4C deterministic normalized runtime source adapters",
+    "milestone": "EB0.4D immutable operational-family nomination manifests",
     "mode": "safe-local frozen-fixture implementation and qualification",
     "status": "COMPLETE",
-    "verdict": "NORMALIZED_RUNTIME_ADAPTER_QUALIFIED"
+    "verdict": "IMMUTABLE_NOMINATION_MANIFEST_QUALIFIED"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,19 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_4d_operational_family_manifest": {
+      "status": "COMPLETE",
+      "verdict": "IMMUTABLE_NOMINATION_MANIFEST_QUALIFIED",
+      "engineering_commit": "3911094d0bd8421cc8f32b8cbe2217705ee4a64a",
+      "verification_utc": "2026-08-13T19:27:31Z",
+      "qualified_semantics": "immutable exact-version and canonical input/fact/nomination digests with authority, role, quality, completeness and conflict counts plus fail-closed exact replay",
+      "tests": "26 passed",
+      "provider_calls": 0,
+      "production_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "activation": false
+    },
     "eb0_4c_operational_family_adapters": {
       "status": "COMPLETE",
       "verdict": "NORMALIZED_RUNTIME_ADAPTER_QUALIFIED",
@@ -3889,8 +3902,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.4D immutable operational-family nomination manifests",
-    "instruction": "AUTHORIZED_STAGED_SAFE_LOCAL: Implement and qualify immutable manifests over EB0.4A/EB0.4C frozen evidence. Bind exact contract and adapter versions, canonical input/fact/nomination digests, deterministic counts by nomination authority, role, quality, completeness and conflict, and exact replay verification. Preserve separate operations and conflicting facts; do not aggregate profiles, rank, score, infer profitability/cashflow, attribute operators or activate policy. Frozen fixtures only; no production/runtime/provider/GMGN access or changes, deployment, restarts, configuration, Evidence Mirror, Cohort Mode or activation.",
+    "milestone": "EB0.4E deterministic operational-family corpus assembly",
+    "instruction": "AUTHORIZED_STAGED_SAFE_LOCAL: Assemble deterministic per-primary-role nomination corpora over verified EB0.4D manifests only. Preserve every distinct operation, fact, nomination, source, shared feature, authority, quality, completeness and conflict; expose only evidence counts, immutable lineage digests and exact replay. Do not calculate rates or profiles, rank, score, infer profitability/cashflow, attribute operators or activate policy. Frozen fixtures only; no production/runtime/provider/GMGN access or changes, deployment, restarts, configuration, Evidence Mirror, Cohort Mode or activation.",
     "safe_local_stage_authorized": true,
     "activation_authorized": false,
     "production_activation_authorized": false

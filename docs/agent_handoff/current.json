@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T10:26:36Z",
+  "updated_at_utc": "2026-08-13T10:32:05Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "9ef08e7ac1b0ab3ba3fb0f4058faa6519ca30061",
-    "working_tree": "dirty: unrelated live Supervisor, audit, runtime, and user files remain present and were not staged; B2AY engineering changes are committed narrowly"
+    "git_head": "dbbec888e373c6bf8571fdfd6c5d150ea2fc416e",
+    "working_tree": "dirty: unrelated live Supervisor, audit, runtime, and user files remain present and were not staged; B2BC engineering changes are committed narrowly"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T10:26:36Z",
+    "published_at_utc": null,
     "protocol_version": 1,
-    "status": "PUBLISHED"
+    "status": "PENDING"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2BB residual database-pressure diagnosis",
-    "mode": "completed bounded local read-only metric provenance, writer correlation, and trend diagnosis",
+    "milestone": "OIP v2.2E.2B2BC long-holder safe-local repair qualification",
+    "mode": "completed safe-local design, implementation, focused tests, and narrow engineering commit",
     "status": "COMPLETE",
-    "verdict": "ACTIVE_MULTI_WRITER_CONTENTION_CONFIRMED"
+    "verdict": "LOCAL_QUALIFICATION_PASS"
   },
   "production_state": {
     "retention": "ON",
@@ -1111,6 +1111,26 @@
       "flags": "retention ON; migration census ON; Evidence Mirror OFF; Cohort Mode OFF; evidence_writer STOPPED",
       "blocker": "Production write-lane pressure is actively worsening. B2Z remains held until the long-holder repair is locally qualified, separately authorized for deployment, and re-observed cleanly."
     },
+    "oip_v2_2e_2b2bc_long_holder_safe_local_repair": {
+      "status": "COMPLETE",
+      "verdict": "LOCAL_QUALIFICATION_PASS",
+      "verification_utc": "2026-08-13T10:32:05Z",
+      "commit": "dbbec888",
+      "files": [
+        "src/core/pumpfun_curve_listener.py",
+        "src/utils/db_locking.py",
+        "tests/test_b2bc_long_holder_boundaries.py"
+      ],
+      "implementation": "Listener price/rug analysis now uses a read-only connection that closes before a separate write connection performs exactly one token_analysis UPDATE and commit. managed_db_connect now carries the external application caller through contextlib into connection and lease diagnostics.",
+      "tests": "42 passed: B2BC boundaries and attribution, B2AL creator-resolution scopes, X78.5 caller attribution, X78.13 creator-resolution/autocommit/price-service boundaries, X78.15 health, X76.3 connection lifecycle, and X78.18 reconnect isolation. py_compile and diff check passed.",
+      "failed_initially": "2 focused caller tests exposed contextlib.__enter__ attribution; repaired locally by skipping db_locking/contextlib frames, then all 42 passed.",
+      "provider_calls": 0,
+      "production_writes": 0,
+      "production_changes": false,
+      "service_restarts_or_stops": 0,
+      "flags": "retention ON; migration census ON; Evidence Mirror OFF; Cohort Mode OFF; evidence_writer STOPPED",
+      "blocker": "Commit dbbec888 is not deployed. Loading the listener price-boundary repair requires one explicitly authorized watchtower_listener restart; B2Z remains held."
+    },
     "oip_v2_2e_incident_causal_assessment": {
       "status": "COMPLETE",
       "verdict": "LATENT_DEFECT_REACTIVATED_BY_WORKER_RECOVERY",
@@ -1543,7 +1563,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "B2BB confirms active multi-writer contention: listener p99 rose to 15442.47ms, with a >30-second listener price-write hold and a >20-second creator-resolution hold. B2Z remains held pending safe-local repair qualification, separately authorized deployment, and a clean re-observation.",
+    "B2BC passed 42 focused tests and is committed at dbbec888, but it is not deployed. B2Z remains held pending separately authorized listener deployment and production-safe verification.",
     "B2AX confirms creator_funding_lifecycle.record_event_fail_open repeats schema DDL/index assurance on every concurrent event and repeats it again on gap fallback, causing prolonged write-lane ownership and lock-error bursts. The incident recovered naturally, but recurrence remains possible until a safe-local one-time lifecycle schema initialization repair is qualified.",
     "B2AW is blocked with production impact: creator_funding_worker PID 9399 holds the shared database write lease in RELEASE_PENDING state, preventing idx_creator_funding_queue_mint creation and causing creator_resolution_worker to exit and Supervisor to autorestart it. No lock manipulation, funding-worker restart, configuration change, or further creator-resolution restart is authorized.",
     "B2AV passed 28 focused tests and is committed at b0487d205e0c47c5b9b4d021a1d0ffe44a436759, but the running creator_resolution_worker has not loaded the funding mint index and pre-work heartbeat changes. Deployment requires one explicitly authorized restart.",
@@ -1566,8 +1586,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2BC long-holder safe-local repair qualification",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize safe-local design, implementation, tests, and narrow commit to bound watchtower_listener _sync_price_db_work to read-only analysis plus a minimal final write transaction, and preserve the originating caller through creator-resolution managed_db_connect for precise long-holder attribution; no deployment, provider calls, production writes, service restarts or stops, lock manipulation, configuration changes, Evidence Mirror, Cohort Mode, or B2Z execution.",
+    "milestone": "OIP v2.2E.2B2BD listener price-boundary deployment",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize exactly one watchtower_listener restart to load commit dbbec888, with immediate verification of listener/PumpPortal/PumpSwap health, unchanged flags, price-update write-lane scope, lease release, and database pressure; no other service restart or stop, provider qualification, configuration change, lock manipulation, Evidence Mirror, Cohort Mode, or B2Z execution.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

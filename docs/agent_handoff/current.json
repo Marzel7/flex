@@ -10,9 +10,9 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": null,
+    "published_at_utc": "2026-08-13T08:34:00Z",
     "protocol_version": 1,
-    "status": "PENDING_PUBLICATION"
+    "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",

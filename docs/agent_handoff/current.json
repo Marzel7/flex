@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T09:41:39Z",
+  "updated_at_utc": "2026-08-13T10:06:54Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T09:42:56Z",
+    "published_at_utc": null,
     "protocol_version": 1,
-    "status": "PUBLISHED"
+    "status": "PENDING"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2AZ creator-funding lifecycle schema repair deployment",
-    "mode": "completed explicitly authorized single-service restart and immediate local verification",
+    "milestone": "OIP v2.2E.2B2BA post-lifecycle-repair stability observation",
+    "mode": "completed bounded read-only production stability observation",
     "status": "COMPLETE",
-    "verdict": "DEPLOYMENT_PASS_WITH_EXISTING_GLOBAL_WARNINGS"
+    "verdict": "15_CLEAN_MINUTES_PASS"
   },
   "production_state": {
     "retention": "ON",
@@ -1074,6 +1074,25 @@
       "production_changes": "one explicitly authorized creator_funding_worker restart only",
       "blocker": "No scoped lifecycle/lease blocker remains. Global health still contains unrelated legacy stale-worker warnings, and the full health endpoint had one bounded timeout; B2Z remains held."
     },
+    "oip_v2_2e_2b2ba_post_lifecycle_repair_stability_observation": {
+      "status": "COMPLETE",
+      "verdict": "15_CLEAN_MINUTES_PASS",
+      "qualified_start_utc": "2026-08-13T09:44:37Z",
+      "endpoint_utc": "2026-08-13T10:00:05Z",
+      "verification_utc": "2026-08-13T10:06:54Z",
+      "duration_seconds": 928,
+      "endpoint": "15 clean minutes",
+      "lifecycle": "Gap high-water remained 3; event high-water advanced to 10829.",
+      "heartbeats": "creator-funding and creator-resolution remained non-stale throughout sampled checkpoints.",
+      "write_lane": "No sampled ACTIVE or RELEASE_PENDING lease exceeded 60 seconds; maximum sampled age was 31.3 seconds.",
+      "services": "PIDs unchanged throughout and at final verification: watchtower_listener 73552, creator_funding_worker 80211, creator_resolution_worker 72488; evidence_writer STOPPED.",
+      "production_impact": false,
+      "automatic_service_restarts": 0,
+      "provider_qualification_calls": 0,
+      "production_changes": false,
+      "flags": "retention ON; migration census ON; Evidence Mirror OFF; Cohort Mode OFF; evidence_writer STOPPED",
+      "blocker": "No scoped stability blocker remains. B2Z provider qualification is a separate human-gated milestone and was not started."
+    },
     "oip_v2_2e_incident_causal_assessment": {
       "status": "COMPLETE",
       "verdict": "LATENT_DEFECT_REACTIVATED_BY_WORKER_RECOVERY",
@@ -1506,8 +1525,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "B2AZ loaded the lifecycle schema repair successfully and no scoped lease blocker remains, but only immediate verification has been completed. A bounded read-only stability observation is required before reconsidering B2Z; it needs explicit authorization and start/end conditions.",
-    "B2AY passed 33 focused tests and is committed at 9ef08e7ac1b0ab3ba3fb0f4058faa6519ca30061, but the running creator_funding_worker has not loaded the one-time lifecycle schema initialization repair. Deployment requires one explicitly authorized restart.",
+    "B2BA completed 15 clean post-repair minutes with no new lifecycle gap, stale scoped heartbeat, lease over 60 seconds, automatic restart, or scoped production impact. B2Z remains HUMAN_APPROVAL_REQUIRED because it invokes bounded provider work.",
     "B2AX confirms creator_funding_lifecycle.record_event_fail_open repeats schema DDL/index assurance on every concurrent event and repeats it again on gap fallback, causing prolonged write-lane ownership and lock-error bursts. The incident recovered naturally, but recurrence remains possible until a safe-local one-time lifecycle schema initialization repair is qualified.",
     "B2AW is blocked with production impact: creator_funding_worker PID 9399 holds the shared database write lease in RELEASE_PENDING state, preventing idx_creator_funding_queue_mint creation and causing creator_resolution_worker to exit and Supervisor to autorestart it. No lock manipulation, funding-worker restart, configuration change, or further creator-resolution restart is authorized.",
     "B2AV passed 28 focused tests and is committed at b0487d205e0c47c5b9b4d021a1d0ffe44a436759, but the running creator_resolution_worker has not loaded the funding mint index and pre-work heartbeat changes. Deployment requires one explicitly authorized restart.",
@@ -1530,8 +1548,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2BA post-lifecycle-repair stability observation",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize a bounded 15-minute read-only production stability observation starting at the first health/lease checkpoint after authorization and ending at the first of 15 clean minutes, a lifecycle gap increase, a creator-funding or creator-resolution stale heartbeat, a write lease held or RELEASE_PENDING for more than 60 seconds, an automatic service restart, or other production impact. No provider qualification, production write, service restart/stop, lock manipulation, configuration change, Evidence Mirror, Cohort Mode, or B2Z observation.",
+    "milestone": "OIP v2.2E.2B2Z isolated Helius qualification",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize B2Z isolated Helius qualification for the frozen reviewed cohort under the recorded endpoint sequence and a maximum of 60 physical requests; no retries or failover beyond the contract, stop on the first contract-defined non-success, and make no production changes, service restarts, configuration changes, Evidence Mirror activation, or Cohort Mode activation.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

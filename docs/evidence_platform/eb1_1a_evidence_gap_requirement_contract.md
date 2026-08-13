@@ -1,0 +1,3 @@
+# EB1.1A Evidence-Gap Requirement Contract
+
+EB1.1A deterministically translates immutable EB1.0 ineligibility into descriptive `NON_EXECUTABLE_EVIDENCE_REQUIREMENT` records. Eligible and not-applicable lanes emit nothing. Missing/incomplete lanes emit missing and completeness requirements; conflicts emit conflict-resolution evidence requirements without choosing or merging facts. Every record remains bound to its originating authority lane, bundle, scope, eligibility identity, counts, reasons and provenance. It cannot select sources, authorize acquisition, define budgets, link entities, analyse outcomes, attribute identity, make policy or activate anything.

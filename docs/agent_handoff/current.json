@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T07:26:31Z",
+  "updated_at_utc": "2026-08-13T08:31:00Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T07:26:31Z",
+    "published_at_utc": null,
     "protocol_version": 1,
-    "status": "PUBLISHED"
+    "status": "PENDING_PUBLICATION"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2AF production health read-only recovery verification",
+    "milestone": "OIP v2.2E.2B2AG creator-funding worker read-only stall diagnosis",
     "mode": "completed bounded read-only verification",
-    "status": "PARTIAL",
-    "verdict": "DATABASE_RECOVERED_CREATOR_FUNDING_STALLED"
+    "status": "HOLD",
+    "verdict": "STALE_PRE_B2AD_WORKER_RELOAD_REQUIRED"
   },
   "production_state": {
     "retention": "ON",
@@ -631,6 +631,29 @@
       "service_restarts": 0,
       "blocker": "Database pressure is recovered, but creator-funding remains stalled; B2Z cannot begin until its production-impact precondition is cleared."
     },
+    "oip_v2_2e_2b2ag_creator_funding_stall_diagnosis": {
+      "status": "COMPLETE",
+      "verdict": "STALE_PRE_B2AD_WORKER_RELOAD_REQUIRED",
+      "verification_utc": "2026-08-13T08:31:00Z",
+      "scope": "Read-only local process metadata, Supervisor configuration, source, and worker-log diagnosis. No Codex-initiated provider call, production write, restart, configuration change, Evidence Mirror, or Cohort Mode action.",
+      "runtime": {
+        "creator_funding_worker": "RUNNING pid 45895; started 2026-08-12T12:06:02 local; elapsed approximately 20h24m",
+        "watchtower_listener": "RUNNING pid 886",
+        "evidence_writer": "STOPPED",
+        "flags": "retention ON; migration census ON; Evidence Mirror OFF; Cohort Mode OFF"
+      },
+      "evidence": [
+        "The worker predates the B2AD owner-thread cleanup deployment and was not included in the explicitly authorized listener-only restart.",
+        "Current worker logs record repeated 'heartbeat write failed: database is locked', deferred timeout persistence, and extractor cancellation cleanup that may leave a connection open.",
+        "The live configuration keeps the worker as the sole queue consumer with two extraction slots and 90-second job timeout; it also shows the inherited process can make normal creator-funding provider traffic, which B2AG did not initiate.",
+        "The local full-health endpoint timed out after 20 seconds during B2AG, so healthy recovery cannot be claimed."
+      ],
+      "root_cause": "The creator-funding process remains the old pre-B2AD runtime and continues the timeout/SQLite-lock failure loop. The B2AD owner-thread policy cannot take effect in that already-running process until it is restarted.",
+      "provider_rpc_calls_initiated_by_codex": 0,
+      "production_changes": false,
+      "service_restarts": 0,
+      "blocker": "A creator_funding_worker reload is a production service restart and may resume its pre-existing normal provider-backed workload; neither is authorized by B2AG. B2Z remains held."
+    },
     "oip_v2_2e_2b2n_preflight_manifest_authorization": {
       "status": "COMPLETE",
       "verdict": "SAFE_LOCAL_PREFLIGHT_AUTHORIZED",
@@ -1066,8 +1089,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2AG creator-funding worker read-only stall diagnosis",
-    "instruction": "Automatically proceed with bounded read-only diagnosis of the live creator-funding worker stall: inspect local worker status/logs/heartbeats and source paths only. No provider qualification call, production write, restart, configuration change, Evidence Mirror, or Cohort Mode action. Any worker repair or restart remains separately human-gated.",
+    "milestone": "OIP v2.2E.2B2AH creator-funding worker B2AD runtime reload",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize exactly one named creator_funding_worker restart to load engineering commit 1b147ee8264b5bc4d24c55817e1584cad378b63b, then perform immediate local Supervisor/log/health verification. Preserve retention ON, migration census ON, Evidence Mirror OFF, Cohort Mode OFF, and evidence_writer STOPPED. Do not restart any other service, alter configuration, run a provider qualification, or start B2Z. The restarted live worker may resume its existing normal creator-funding provider-backed workload; authorize that consequence explicitly if intended.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

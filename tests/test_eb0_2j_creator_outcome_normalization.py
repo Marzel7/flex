@@ -1,6 +1,7 @@
 import hashlib
 from pathlib import Path
 import sqlite3
+import asyncio
 
 import pytest
 
@@ -11,6 +12,8 @@ from src.evidence.contracts.creator_historical_outcome_normalization import (
     materialize_normalized_fixture,
     normalize_creator_outcome_sources,
 )
+from src.core.ws_cascade_store import ensure_cascade_schema
+from src.creators.repository import CreatorRepository
 
 
 def _sources(root: Path):
@@ -23,9 +26,9 @@ def _sources(root: Path):
     """); c.commit(); c.close()
     c = sqlite3.connect(ops); c.executescript("""
       CREATE TABLE wt_watchtower_launches(mint TEXT,creator_wallet TEXT,create_signature TEXT,create_time INTEGER,create_slot INTEGER,creator_extraction_method TEXT,confidence TEXT,recorded_at INTEGER);
-      INSERT INTO wt_watchtower_launches VALUES('MintA','CreatorA','SigA',1000,50,'PF_WS_CREATOR_VERIFIED','VERIFIED',1001);
-      INSERT INTO wt_watchtower_launches VALUES('MintB','OtherCreator','SigB',1000,51,'PF_WS_CREATOR_VERIFIED','VERIFIED',1001);
-      INSERT INTO wt_watchtower_launches VALUES('Outside','OutsideCreator','SigO',1000,52,'PF_WS_CREATOR_VERIFIED','VERIFIED',1001);
+      INSERT INTO wt_watchtower_launches VALUES('MintA','CreatorA','SigA',1000,50,'CLOSE_ACCOUNT_DESTINATION','STRICT',1001);
+      INSERT INTO wt_watchtower_launches VALUES('MintB','OtherCreator','SigB',1000,51,'CLOSE_ACCOUNT_DESTINATION','STRICT',1001);
+      INSERT INTO wt_watchtower_launches VALUES('Outside','OutsideCreator','SigO',1000,52,'CLOSE_ACCOUNT_DESTINATION','STRICT',1001);
     """); c.commit(); c.close()
     c = sqlite3.connect(creator); c.executescript("""
       CREATE TABLE creator_tokens(creator_address TEXT,mint TEXT,created_at INTEGER);
@@ -51,6 +54,7 @@ def test_split_sources_normalize_and_feed_eb0_2g_without_complete_negative_claim
     assert [row["event_kind"] for row in normalized.canonical_observations].count("CHAIN_BIRTH") == 2
     assert [row["event_kind"] for row in normalized.canonical_observations].count("MARKET_FIRST_OBSERVED") == 2
     assert [row["mint"] for row in normalized.creator_identity_facts] == ["MintA"]
+    assert normalized.creator_identity_facts[0]["resolution_method"] == "CANONICAL_CREATE_PROOF"
     assert all(row["full_horizon_complete"] == 0 for row in normalized.observation_window_facts)
     assert normalized.excluded_mints == {"MintB": "MISSING_AMBIGUOUS_OR_MISMATCHED_CREATOR_IDENTITY"}
     assert _hashes(paths) == before
@@ -98,6 +102,25 @@ def test_mismatch_and_ambiguous_membership_fail_identity_closed(tmp_path):
     assert set(normalized.excluded_mints) == {"MintA", "MintB"}
 
 
+def test_weaker_registry_provenance_never_becomes_identity_or_create_proof(tmp_path):
+    paths = _sources(tmp_path)
+    c = sqlite3.connect(paths[1])
+    c.execute("DELETE FROM wt_watchtower_launches WHERE mint='MintA'")
+    c.executemany("INSERT INTO wt_watchtower_launches VALUES(?,?,?,?,?,?,?,?)", [
+        ("MintA","CreatorA",None,1000,None,"WALKBACK_RECOVERED","WALKBACK",1001),
+        ("MintA","CreatorA",None,1000,None,"POST_MIG_BACKFILL","BACKFILL",1001),
+        ("MintA","CreatorA","ManualSig",1000,50,"MANUAL","MANUAL_ATTESTATION",1001),
+    ])
+    c.commit(); c.close()
+    normalized = normalize_creator_outcome_sources(
+        *paths, cohort_mints=("MintA",),
+        high_waters=SourceHighWaters(3, 5, 3, 2_000_000_000_000),
+    )
+    assert normalized.creator_identity_facts == ()
+    assert not any(row["event_kind"] == "CHAIN_BIRTH" for row in normalized.canonical_observations)
+    assert normalized.excluded_mints == {"MintA": "MISSING_AMBIGUOUS_OR_MISMATCHED_CREATOR_IDENTITY"}
+
+
 def test_schema_deadline_invalid_bounds_and_existing_output_fail_closed(tmp_path):
     paths = _sources(tmp_path)
     with pytest.raises(CreatorOutcomeNormalizationError, match="INVALID_COHORT"):
@@ -109,3 +132,26 @@ def test_schema_deadline_invalid_bounds_and_existing_output_fail_closed(tmp_path
     output = tmp_path / "exists.db"; output.write_text("no")
     with pytest.raises(CreatorOutcomeNormalizationError, match="OUTPUT_EXISTS"):
         materialize_normalized_fixture(normalized, output)
+
+
+def test_schema_initializers_create_mint_leading_indexes_and_query_plans(tmp_path):
+    ops = sqlite3.connect(tmp_path / "ops-index.db")
+    ensure_cascade_schema(ops)
+    ops_plan = ops.execute(
+        "EXPLAIN QUERY PLAN SELECT rowid,mint FROM wt_watchtower_launches "
+        "WHERE rowid<=? AND mint IN (?) ORDER BY mint,rowid",
+        (100, "MintA"),
+    ).fetchall()
+    assert any("ix_launches_mint" in row[3] for row in ops_plan)
+    ops.close()
+
+    creator_path = tmp_path / "creator-index.db"
+    asyncio.run(CreatorRepository(str(creator_path), asyncio.Lock()).ensure_schema())
+    creator = sqlite3.connect(creator_path)
+    creator_plan = creator.execute(
+        "EXPLAIN QUERY PLAN SELECT rowid,creator_address,mint FROM creator_tokens "
+        "WHERE rowid<=? AND mint IN (?) ORDER BY mint,rowid",
+        (100, "MintA"),
+    ).fetchall()
+    assert any("idx_creator_tokens_mint" in row[3] for row in creator_plan)
+    creator.close()

@@ -170,7 +170,8 @@ def normalize_creator_outcome_sources(
         row = by_main.get(mint)
         verified_launches = [
             launch for launch in by_ops.get(mint, [])
-            if launch["confidence"] == "VERIFIED"
+            if launch["creator_extraction_method"] == "CLOSE_ACCOUNT_DESTINATION"
+            and launch["confidence"] == "STRICT"
             and launch["create_signature"] and launch["create_slot"] is not None
             and launch["create_time"] is not None
             and launch["recorded_at"] is not None
@@ -207,14 +208,33 @@ def normalize_creator_outcome_sources(
                 })
 
         candidates = []
-        if row is not None and row["pf_ws_creator"] and row["creator_mismatch"] in (None, 0):
-            for launch in by_ops.get(mint, []):
-                if launch["creator_wallet"] == row["pf_ws_creator"] and launch["creator_extraction_method"] == "PF_WS_CREATOR_VERIFIED" and launch["confidence"] == "VERIFIED":
-                    if not by_creator.get(mint) or by_creator[mint] == {row["pf_ws_creator"]}:
-                        candidates.append((row, launch))
+        for launch in by_ops.get(mint, []):
+            creator = str(launch["creator_wallet"] or "").strip()
+            coherent_live_proof = (
+                launch["creator_extraction_method"] == "CLOSE_ACCOUNT_DESTINATION"
+                and launch["confidence"] == "STRICT"
+                and creator
+                and launch["create_signature"]
+                and launch["create_slot"] is not None
+                and launch["create_time"] is not None
+                and launch["recorded_at"] is not None
+                and int(launch["recorded_at"]) >= int(launch["create_time"])
+            )
+            pf_ws_agrees = (
+                row is None
+                or not row["pf_ws_creator"]
+                or (
+                    row["creator_mismatch"] in (None, 0)
+                    and str(row["pf_ws_creator"]).strip() == creator
+                )
+            )
+            membership_agrees = not by_creator.get(mint) or by_creator[mint] == {creator}
+            if coherent_live_proof and pf_ws_agrees and membership_agrees:
+                candidates.append((row, launch))
         if len(candidates) == 1:
-            identity_source = {"main": dict(candidates[0][0]), "ops": dict(candidates[0][1]), "creator_membership": sorted(by_creator.get(mint, set())), "high_waters": high_waters.__dict__}
-            identities.append({"mint": mint, "creator": str(row["pf_ws_creator"]), "resolution_method": "PF_WS_CREATOR_VERIFIED", "source": "main.token_analysis+ops.wt_watchtower_launches", "source_version": NORMALIZER_VERSION, "source_record_digest": _digest(identity_source)})
+            main_row, launch = candidates[0]
+            identity_source = {"main": dict(main_row) if main_row is not None else None, "ops": dict(launch), "creator_membership": sorted(by_creator.get(mint, set())), "high_waters": high_waters.__dict__}
+            identities.append({"mint": mint, "creator": str(launch["creator_wallet"]), "resolution_method": "CANONICAL_CREATE_PROOF", "source": "ops.wt_watchtower_launches:live_cascade_create", "source_version": NORMALIZER_VERSION, "source_record_digest": _digest(identity_source)})
         else:
             excluded[mint] = "MISSING_AMBIGUOUS_OR_MISMATCHED_CREATOR_IDENTITY"
 

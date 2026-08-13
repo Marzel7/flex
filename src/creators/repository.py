@@ -128,6 +128,9 @@ class CreatorRepository:
                 CREATE INDEX IF NOT EXISTS idx_creator_tokens_creator
                     ON creator_tokens(creator_address);
 
+                CREATE INDEX IF NOT EXISTS idx_creator_tokens_mint
+                    ON creator_tokens(mint);
+
                 CREATE TABLE IF NOT EXISTS system_config (
                     key        TEXT PRIMARY KEY,
                     value      TEXT NOT NULL,

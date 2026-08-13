@@ -187,6 +187,7 @@ def ensure_cascade_schema(conn) -> None:
     conn.execute("CREATE INDEX IF NOT EXISTS ix_cand_watch_state ON wt_candidate_websocket_watches(state)")
     conn.execute("CREATE INDEX IF NOT EXISTS ix_cand_watch_subprov ON wt_candidate_websocket_watches(subprov_wallet)")
     conn.execute("CREATE INDEX IF NOT EXISTS ix_launches_creator ON wt_watchtower_launches(creator_wallet)")
+    conn.execute("CREATE INDEX IF NOT EXISTS ix_launches_mint ON wt_watchtower_launches(mint)")
     # X67.31 -- treasury_wallet is filtered/joined on in confirmed-treasuries and
     # launch-audit's sibling-wallet lookup (WHERE treasury_wallet IN (...), JOIN ... ON
     # treasury_wallet=...); EXPLAIN QUERY PLAN showed a full-table SCAN here before this

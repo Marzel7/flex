@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T12:59:12Z",
+  "updated_at_utc": "2026-08-13T13:01:48Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "f08db5b11a616daa500e71d1c7add225cee54522",
+    "git_head": "dd9d6be376ee08fbbd471b88ecd8b0f14bdce0c6",
     "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, handoff, and user paths remain present; B2BU created only its authorized isolated /private/tmp artifacts and made no engineering-tree change"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T12:59:12Z",
+    "published_at_utc": "2026-08-13T13:01:48Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2BX oldest-transaction isolated execution",
-    "mode": "authorized isolated sequential provider qualification",
+    "milestone": "OIP v2.2E.2B2BY E-series closure assessment",
+    "mode": "bounded local read-only closure reconciliation and narrow durable artifact",
     "status": "COMPLETE",
-    "verdict": "PROVIDER_QUALIFICATION_PASS_20_OF_20"
+    "verdict": "OIP_V2_2E_QUALIFIED_COMPLETE_NO_PRODUCTION_ACTIVATION"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,32 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "oip_v2_2e_2b2by_e_series_closure": {
+      "status": "COMPLETE",
+      "verdict": "OIP_V2_2E_QUALIFIED_COMPLETE_NO_PRODUCTION_ACTIVATION",
+      "commit": "dd9d6be376ee08fbbd471b88ecd8b0f14bdce0c6",
+      "closure_artifact": "docs/evidence_platform/oip_v2_2e_2b2by_e_series_closure.json",
+      "fixed_production_funnel": {
+        "marked_migrations": 20,
+        "shared_acquisitions": 20,
+        "completions": 17,
+        "retained": 17,
+        "replayable": 17
+      },
+      "isolated_provider_qualification": {
+        "members": 20,
+        "validated_creator_funding_edges": 20,
+        "physical_requests": 60,
+        "response_projections": 60
+      },
+      "interpretation": "E-series engineering and bounded provider qualification objectives are complete. The isolated 20/20 proof supplements but does not rewrite the fixed 17/20 production completion result.",
+      "production_activation_authorized": false,
+      "provider_calls_in_closure": 0,
+      "production_reads_or_writes": 0,
+      "service_restarts": 0,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF"
+    },
     "oip_v2_2e_2b2bx_oldest_transaction_execution": {
       "status": "COMPLETE",
       "verdict": "PROVIDER_QUALIFICATION_PASS_20_OF_20",
@@ -2100,6 +2126,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "OIP v2.2E is qualified complete, but production activation remains explicitly unauthorized. Any Evidence authority, Evidence Mirror, Cohort Mode, provider expansion, or production deployment requires its own future milestone. Post-E work must begin with roadmap reconciliation rather than implicit activation.",
     "B2BX fully passes the isolated provider qualification at 20/20 with exactly 60 authorized requests. The remaining step is a bounded local-only E-series closure assessment that combines this provider result with the previously qualified B2R acquisition/retention funnel; no production activation is implied or authorized.",
     "B2BW is locally qualified at f08db5b1 with fresh empty ledgers. Provider execution remains HUMAN_APPROVAL_REQUIRED and must explicitly acknowledge the higher-cost oldest enhanced request and the unchanged 60-request stop-safe ceiling.",
     "B2BV classifies B2BU as a valid bounded-sentinel negative, not a parser failure. Its sealed projection cannot measure newest-page coverage. Existing local logic supports an explicit oldest-transaction enhanced request as the smallest three-request-preserving alternative, but that contract change and any later provider execution remain separately human-gated.",
@@ -2144,8 +2171,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2BY E-series closure assessment",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize bounded local read-only E-series closure assessment using only committed artifacts, docs/agent_handoff/current.json, the qualified B2R migration/Shared Acquisition/retention/replayability evidence, and sealed B2BX run 5aa7c580-2861-4149-8d6e-6a582b07f61c. Reconcile the complete migration \u2192 Shared Acquisition \u2192 completion \u2192 retained \u2192 replayable funnel with the 20/20 isolated creator-funding provider qualification; determine the final OIP v2.2E verdict, remaining limitations, and exact post-E roadmap transition; update/publish the handoff and create a narrow closure artifact/commit only if required. Zero provider calls, production reads/writes, service or configuration changes, artifact reset/deletion, Evidence Mirror, Cohort Mode, or production activation.",
+    "milestone": "Post-E EB0 roadmap reconciliation and canonical baseline",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize bounded local read-only post-E roadmap reconciliation using committed roadmap/evidence artifacts only. Ratify the canonical staged sequence for: birth and valuation baselines; creator historical outcome intelligence; GMGN historical market observations as a non-authoritative external supplement; and shared-behaviour operational-family discovery. Identify the first safe-local implementation milestone and its evidence contract, but do not implement it. Zero provider calls, production access or changes, service restarts, configuration changes, Evidence Mirror, Cohort Mode, or production activation.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

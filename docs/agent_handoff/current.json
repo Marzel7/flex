@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T19:00:21Z",
+  "updated_at_utc": "2026-08-13T19:05:13Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "a81cce7e616e928088934f25e25aaed75e50c520",
-    "working_tree": "dirty: 34 paths including unrelated live Supervisor, audit, runtime, user, handoff, and the isolated uncommitted EB0.3D run directory; EB0.3G committed only its three authorized engineering files"
+    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths including the isolated uncommitted EB0.3D run directory; EB0.3H made no engineering or production changes"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T19:00:21Z",
+    "published_at_utc": "2026-08-13T19:05:13Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.3G immutable supplemental market-observation output-bundle qualification",
-    "mode": "safe-local frozen and ephemeral filesystem bundle qualification",
+    "milestone": "EB0.3H closure and bounded cohort evidence-contract preflight",
+    "mode": "bounded local read-only committed-artifact and sealed-run assessment",
     "status": "COMPLETE",
-    "verdict": "IMMUTABLE_OUTPUT_BUNDLE_QUALIFIED"
+    "verdict": "EB0_3_COMPLETE_WITH_MEASURED_PROVIDER_COVERAGE_LIMITS"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,68 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_3h_closure_and_cohort_preflight": {
+      "status": "COMPLETE",
+      "verdict": "EB0_3_COMPLETE_WITH_MEASURED_PROVIDER_COVERAGE_LIMITS",
+      "engineering_commit": "a81cce7e616e928088934f25e25aaed75e50c520",
+      "verification_utc": "2026-08-13T19:05:13Z",
+      "contract_stack": {
+        "status": "COMPLETE",
+        "components": [
+          "EB0.3A supplemental non-authoritative observation contract",
+          "EB0.3C bounded credential-free projection adapter",
+          "EB0.3D one-request live shape qualification",
+          "EB0.3E exact GMGN v1 normalizer",
+          "EB0.3F immutable manifest and exact replay",
+          "EB0.3G write-once canonical output bundle"
+        ],
+        "reverification": "53 EB0.3 tests passed"
+      },
+      "proven_provider_evidence": {
+        "provider": "GMGN via gmgn-cli 1.5.6",
+        "endpoint": "v1 market-kline",
+        "mints": 1,
+        "windows": 1,
+        "window_duration_minutes": 60,
+        "interval": "1m",
+        "physical_requests": 1,
+        "request_cost_units": 2,
+        "returned_candles": 4,
+        "shape": "top-level list; integer millisecond time; decimal-string open/close/high/low/volume/source/amount",
+        "retained": "time and OHLCV only; source and amount validated then discarded"
+      },
+      "unproven_or_unsupported": [
+        "birth-window and pre-migration availability",
+        "full-history, page-completeness, pagination/cursor and maximum-lookback semantics",
+        "coverage across platform mints and token-age strata",
+        "sustained safe request rate beyond the single request",
+        "historical market cap and historical liquidity; neither may be inferred from candles",
+        "empty-list semantics in the current EB0.3E normalizer"
+      ],
+      "future_cohort_evidence_contract_not_authorized": {
+        "cohort": "five immutable platform-owned Solana mints with canonical CHAIN_BIRTH and MIGRATION boundaries, including the already qualified control mint plus four deterministic age-stratified members",
+        "windows_per_mint": [
+          "CHAIN_BIRTH through CHAIN_BIRTH plus 60 minutes",
+          "MIGRATION minus 60 minutes through MIGRATION"
+        ],
+        "interval": "1m",
+        "request_budget": "maximum 10 sequential physical market-kline requests, cost ceiling 20, one request per mint/window",
+        "execution": "no retry, failover, pagination, concurrency or cache; conservative spacing; stop whole run on first non-success, rate limit, timeout, schema/accounting mismatch, credential exposure or safety impact",
+        "prerequisite": "safe-local explicit EMPTY_PAGE/NOT_OBSERVED representation must be qualified before execution because an empty provider list is coverage evidence, not transport failure",
+        "ledger": "fresh run ID, immutable cohort/window manifest, empty isolated directory, append-only physical-attempt ledger with sequence/timestamps/outcome/cost/row count and client-counter reconciliation",
+        "output": "one EB0.3G bundle per attempted window plus run-level exact file hashes, bundle digests and sealed partial result on stop",
+        "coverage_accounting": "selected/attempted/success/empty/not-attempted counts; candles and first/last time by mint/window; birth-window and pre-migration availability; schema/quality/conflict/completeness states; request/cost totals; no negative market outcome inferred from empty or partial pages",
+        "authorization": "HUMAN_APPROVAL_REQUIRED before any implementation expansion or provider execution"
+      },
+      "roadmap_transition": "EB0.4 shared-behaviour operational-family discovery may begin safe-locally with a pure nomination evidence contract; EB0.3 provider expansion remains optional and separately gated",
+      "provider_calls": 0,
+      "production_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb0_3g_historical_market_observation_bundle": {
       "status": "COMPLETE",
       "verdict": "IMMUTABLE_OUTPUT_BUNDLE_QUALIFIED",
@@ -3677,6 +3739,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "EB0.3 is closed with measured provider coverage limits, not broad historical coverage. Any empty-page contract change, multi-mint GMGN qualification, additional provider request, or EB0.3 activation remains separately human-gated and must not delay the safe-local EB0.4 contract stage.",
     "EB0.3G completes the frozen contract/normalizer/manifest/bundle stack, but EB0.3 has only one qualified live mint/window. A closure assessment must define whether that measured coverage is sufficient for contract-stage closure and specify any future cohort/provider evidence contract without executing it.",
     "EB0.3F qualifies an in-memory immutable manifest and exact replay, but no write-once isolated output-bundle boundary exists. Live extraction, broader provider sampling, history completeness and any activation remain separately human-gated.",
     "EB0.3E qualifies deterministic normalization and EB0.3C replay for the single frozen EB0.3D live shape, but no immutable multi-page/run manifest or output-bundle replay contract exists. Broader provider history, mint coverage, and pagination remain separately human-gated.",
@@ -3733,8 +3796,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.3H closure and bounded cohort evidence-contract preflight",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize a bounded local read-only EB0.3H closure and future cohort evidence-contract preflight using committed EB0.3A-G code, tests, documentation, the sealed EB0.3D one-request metadata/projection, and committed roadmap artifacts only. Determine whether the frozen supplemental historical-market contract stack is complete; reconcile proven versus unproven GMGN shape, interval, history, mint coverage, rate/cost and market-cap/liquidity semantics; define the minimum immutable cohort, time windows, request budget, ledger, stop conditions, output bundle and coverage accounting for any future separately authorized provider qualification; and state the EB0.3 verdict and exact next roadmap transition. Do not implement or execute a cohort extractor, make provider calls, access production/runtime state, rank, score, infer profitability/cashflow, attribute creators/operators, activate policy, deploy, restart or reconfigure services, enable Evidence Mirror or Cohort Mode, or activate production.",
+    "milestone": "EB0.4A shared-behaviour operational-family nomination evidence contract",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize EB0.4A safe-local design, implementation, frozen-fixture tests, regression tests, documentation, and one narrow commit for a pure deterministic shared-behaviour operational-family nomination evidence contract. Represent platform-owned operation identity, role, edge, mechanism and temporal features; versioned source/provenance, quality, completeness and conflict; explicit similarity/nominating evidence; and immutable fact identity. Behavioural similarity may produce only PROPOSED or SUPPORTED family nominations and must never confirm common real-world operator identity. Preserve topology as relationship metadata and role as the primary axis. Do not aggregate profiles, rank, score, activate policy, infer profitability/cashflow, identify or attribute operators, merge conflicting facts, or promote nomination to authority. Frozen fixtures only. No provider calls, GMGN execution, production/runtime access or changes, deployment, service restarts or stops, configuration changes, Evidence Mirror, Cohort Mode, activation, or production activation.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

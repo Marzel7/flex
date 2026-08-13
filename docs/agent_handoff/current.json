@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T11:45:39Z",
+  "updated_at_utc": "2026-08-13T11:51:26Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "03aa99592b2086eee7532a1a5a53d25c50bb75ec",
-    "working_tree": "dirty: unrelated live Supervisor, audit, runtime, and user files remain present and were not staged; B2BJ engineering changes are committed narrowly"
+    "git_head": "c762243599bdf42a6416c22cd01b9b8e353edba9",
+    "working_tree": "dirty: unrelated live Supervisor, audit, runtime, and user files remain present and were not staged; B2BP engineering changes are committed narrowly"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2BO post-stability B2Z gate reassessment",
-    "mode": "bounded local read-only reassessment; zero provider calls",
-    "status": "HOLD",
-    "verdict": "B2Z_EXECUTION_BOUNDARY_INCOMPLETE"
+    "milestone": "OIP v2.2E.2B2BP B2Z isolated execution-boundary implementation",
+    "mode": "safe-local implementation, fake-transport tests, and narrow commit; zero provider calls",
+    "status": "COMPLETE",
+    "verdict": "LOCAL_QUALIFICATION_PASS"
   },
   "production_state": {
     "retention": "ON",
@@ -1380,6 +1380,30 @@
       "flags": "Migration Census ON; Retention ON; Evidence Mirror OFF; Cohort Mode OFF; evidence_writer STOPPED.",
       "blocker": "A safe-local B2Z execution-boundary implementation and fake-transport qualification must be separately authorized, completed, and reviewed before any new 60-request Helius execution authorization."
     },
+    "oip_v2_2e_2b2bp_b2z_isolated_execution_boundary": {
+      "status": "COMPLETE",
+      "verdict": "LOCAL_QUALIFICATION_PASS",
+      "verification_utc": "2026-08-13T11:51:26Z",
+      "commit": "c762243599bdf42a6416c22cd01b9b8e353edba9",
+      "files": [
+        "src/acquisition/b2z_execution_boundary.py",
+        "tests/test_oip_v2_2e_2b2bp_execution_boundary.py",
+        "docs/evidence_platform/oip_v2_2e_2b2bp_execution_boundary.md"
+      ],
+      "implementation": "Added an inert explicit-HTTPS Helius JSON-RPC transport with no environment lookup or construction-time request; a sequential frozen-cohort runner enforcing getTransaction(migration), one-page getSignaturesForAddress(limit=1000), getTransaction(candidate), no retry/failover/pagination/cache/concurrency, first-non-success whole-run stop, and hard 60-request ceiling; append-only empty-start attempt ledger with run/digest/member/physical ordinals, method/target, timestamps, outcomes, errors, and one-for-one transport counter reconciliation; strict parsed System Program positive-lamport inbound transfer proof including inner instructions.",
+      "stop_safety": "Request errors, missing candidates, invalid funding time, and absent funding edges stop immediately while preserving all physical-attempt rows already written. Existing ledger or non-zero transport counter stops before request 1.",
+      "tests": "17 passed: 7 B2BP boundary tests plus B2T/B2X/B2Y regressions. A full fake cohort produced exactly 60 ordered requests and 60 reconciled ledger rows; missing candidate stopped at 2, injected timeout preserved 2 rows with no retry, and missing funding edge stopped at 3. py_compile and diff check passed.",
+      "provider_calls": 0,
+      "production_database_reads": 0,
+      "runtime_read_only_verification": "Supervisor status only; no production database, queue, log, provider, or live traffic read was used by the B2BP implementation/tests.",
+      "production_writes": 0,
+      "production_changes": false,
+      "service_restarts_or_stops": 0,
+      "configuration_changes": 0,
+      "runtime": "watchtower_listener RUNNING pid 26185; watchtower_api RUNNING pid 77110; creator_funding_worker RUNNING pid 80211; creator_resolution_worker RUNNING pid 72488; evidence_writer STOPPED.",
+      "flags": "Migration Census ON; Retention ON; Evidence Mirror OFF; Cohort Mode OFF; evidence_writer STOPPED.",
+      "blocker": "B2BP intentionally did not read runtime census evidence, create a real run projection/configuration, select an endpoint credential, or execute a provider request. The 20 frozen migration signatures, run ID, empty attempt-ledger path, and isolated output location must be materialized and reviewed under a separate local-only preflight before any B2Z provider authorization."
+    },
     "oip_v2_2e_incident_causal_assessment": {
       "status": "COMPLETE",
       "verdict": "LATENT_DEFECT_REACTIVATED_BY_WORKER_RECOVERY",
@@ -1812,6 +1836,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "B2BP locally qualifies the real execution boundary at c7622435 with exactly 60 fake requests/ledger rows and strict funding parsing, but no immutable 20-signature execution projection, run ID, empty ledger path, endpoint binding, or isolated output location has been materialized. A separate zero-provider preflight is required before B2Z execution authorization.",
     "B2BO clears the production-health precondition but holds B2Z because the real isolated transport, 60-attempt ledger/counter reconciliation, exact funding-transfer parser, and frozen run artifacts do not exist. Provider execution remains prohibited pending a separately authorized safe-local boundary milestone.",
     "B2BN closes the listener descriptor incident with 15 qualified clean minutes: max observer fd=4, watchtower connections <=48.434ms, serializer p99 <9ms, queues empty, feeds connected, and PID stable. B2Z remains separately human-gated and held until explicitly reauthorized with fresh precondition verification.",
     "B2BM confirms B2BL stopped on monitoring-path DB latency, not corroborated live ingestion/database-write impact: /healthz is fast, DB-backed health routes are variably 2s to >15s, and completed snapshots show database/ingestion healthy. A revised observation contract needs explicit authorization; B2Z remains held.",
@@ -1846,8 +1871,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2BP B2Z isolated execution-boundary implementation",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize safe-local design, implementation, fake-transport tests, regression tests, and one narrow commit for the B2Z isolated execution boundary: a Helius JSON-RPC transport adapter with no request performed in this milestone; exact ordered per-member 3/2-request enforcement and 60-request global ceiling; append-only physical-attempt ledger with empty-start, run-id, frozen digest, per-attempt timestamps/outcomes, and client-counter reconciliation; stop-safe partial results; and exact inbound SOL funding-transfer parsing to the resolved creator. Preserve the frozen B2R cohort, reviewed B2Y endpoint sequence, no retry/failover/pagination/concurrency/cache, and first-non-success whole-run stop. No provider calls, production reads/writes, service restarts or stops, lock manipulation, configuration changes, Evidence Mirror, Cohort Mode, or B2Z execution.",
+    "milestone": "OIP v2.2E.2B2BQ B2Z immutable run preflight",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize bounded local read-only materialization and validation of an immutable B2Z run preflight from existing qualified local evidence only: bind the frozen B2R manifest digest to exactly 20 locally recorded migration signatures; assign one run ID, explicit isolated output directory, and empty append-only attempt-ledger path; record only an endpoint identifier/fingerprint with credentials redacted; validate B2BP construction without invoking transport.post_json; and produce a reviewable preflight artifact plus tests/one narrow commit if implementation is required. No provider calls, production database reads/writes, live queue/service access, service restarts or stops, lock manipulation, configuration or credential changes, Evidence Mirror, Cohort Mode, or B2Z execution.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

@@ -1,0 +1,84 @@
+{
+  "milestone": "Post-E EB0 roadmap reconciliation and canonical baseline",
+  "status": "COMPLETE",
+  "verdict": "ROADMAP_RATIFIED_FIRST_IMPLEMENTATION_HUMAN_GATED",
+  "authority_boundary": {
+    "included": "Committed repository roadmap, Evidence Platform, data-reference, and operational-semantics artifacts at engineering HEAD dd9d6be376ee08fbbd471b88ecd8b0f14bdce0c6.",
+    "excluded": "All untracked EB0 scripts and audit outputs; they are working-tree context only and are not canonical evidence for this roadmap.",
+    "production_activation": false
+  },
+  "ratified_sequence": [
+    {
+      "order": 1,
+      "stage": "EB0.1 canonical birth and valuation baseline",
+      "purpose": "Establish immutable event-time birth identity, first-observation valuation semantics, source precedence, completeness states, and reproducible frozen fixtures before historical scoring.",
+      "dependency_reason": "Committed data references state that durable first-observed market-cap coverage is recent and historically thin. Later observations must not be relabeled as birth valuation."
+    },
+    {
+      "order": 2,
+      "stage": "EB0.2 creator historical outcome intelligence",
+      "purpose": "Compute coverage-aware creator outcomes over canonical mint membership and qualified valuation windows, separating missing evidence from poor outcomes.",
+      "dependency_reason": "Creator rankings require stable birth/valuation denominators and explicit missingness; otherwise older or sparsely observed creators are systematically misclassified."
+    },
+    {
+      "order": 3,
+      "stage": "EB0.3 GMGN historical market observations",
+      "purpose": "Ingest bounded external OHLCV/market observations as versioned, non-authoritative supplements joined by platform-owned mint identity.",
+      "dependency_reason": "External observations can enrich outcome windows but cannot define creator identity, chain birth, migration, or canonical birth market cap. Provider access, rate/cost, resolution, and earliest-observation semantics require separate qualification."
+    },
+    {
+      "order": 4,
+      "stage": "EB0.4 shared-behaviour operational-family discovery",
+      "purpose": "Discover recurring role/edge/mechanism/temporal patterns across operations using canonical outcome context, while keeping topology attached to roles and treating behavioural similarity as nomination evidence only.",
+      "dependency_reason": "Committed operational audits show topology is relationship metadata, role must be primary, and shared behavioural fingerprints cannot independently prove common real-world operator identity."
+    }
+  ],
+  "cross_stage_rules": [
+    "Platform migration and creator identity remain authoritative; provider data is supplemental and versioned.",
+    "No observation is converted into a negative fact without an explicit completeness state.",
+    "Historical outcome scores expose numerator, denominator, coverage, observation window, and source quality.",
+    "Shared behaviour may create PROPOSED or SUPPORTED family candidates, never CONFIRMED operator identity without human review.",
+    "Every stage is local/default-off until separately qualified; no roadmap artifact authorizes production activation."
+  ],
+  "first_safe_local_implementation": {
+    "milestone": "EB0.1A canonical birth/valuation evidence contract",
+    "authorization_class": "LOCAL_IMPLEMENTATION",
+    "objective": "Define and fixture-qualify a pure local contract that projects existing committed/local fixture evidence into immutable birth and valuation observations without reading production state.",
+    "required_fields": [
+      "mint",
+      "event_kind",
+      "event_time_utc_ns",
+      "source",
+      "source_version",
+      "observed_at_utc_ns",
+      "price_or_market_cap_value",
+      "valuation_semantics",
+      "quality_state",
+      "completeness_state",
+      "provenance_digest"
+    ],
+    "required_semantics": [
+      "CHAIN_BIRTH, PLATFORM_FIRST_SEEN, MIGRATION, and MARKET_FIRST_OBSERVED are distinct event kinds.",
+      "MARKET_FIRST_OBSERVED is never called BIRTH_MARKET_CAP unless event-time and valuation semantics prove equivalence.",
+      "Missing valuation is UNKNOWN/NOT_OBSERVED, never zero, dead, rug, or poor outcome.",
+      "Conflicting provider observations remain separate versioned facts and are not silently merged.",
+      "Projection identity is deterministic and input-order independent."
+    ],
+    "qualification": [
+      "Frozen local fixtures for exact birth, delayed first observation, missing valuation, conflicting sources, and replay ordering.",
+      "Schema/contract tests proving deterministic identity, explicit missingness, and no authority promotion.",
+      "One narrow engineering commit containing only the contract, fixtures, tests, and documentation."
+    ],
+    "prohibited": [
+      "provider calls",
+      "production database or service access",
+      "production writes or deployment",
+      "service restart or configuration change",
+      "Evidence Mirror or Cohort Mode activation",
+      "historical ranking or policy decisions",
+      "GMGN integration",
+      "operator attribution"
+    ]
+  },
+  "next_gate": "Explicit human authorization for EB0.1A local implementation and fixture qualification."
+}

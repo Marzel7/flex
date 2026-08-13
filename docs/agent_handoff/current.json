@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T09:29:06Z",
+  "updated_at_utc": "2026-08-13T09:36:27Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "b0487d205e0c47c5b9b4d021a1d0ffe44a436759",
-    "working_tree": "dirty: unrelated live Supervisor, audit, runtime, and user files remain present and were not staged; B2AV engineering changes are committed narrowly"
+    "git_head": "9ef08e7ac1b0ab3ba3fb0f4058faa6519ca30061",
+    "working_tree": "dirty: unrelated live Supervisor, audit, runtime, and user files remain present and were not staged; B2AY engineering changes are committed narrowly"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T09:30:20Z",
+    "published_at_utc": null,
     "protocol_version": 1,
-    "status": "PUBLISHED"
+    "status": "PENDING_PUBLICATION"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2AX creator-funding stuck write-lease diagnosis",
-    "mode": "completed bounded local read-only incident diagnosis",
+    "milestone": "OIP v2.2E.2B2AY creator-funding lifecycle one-time schema initialization qualification",
+    "mode": "completed safe-local design, implementation, tests, and narrow commit",
     "status": "COMPLETE",
-    "verdict": "REPEATED_CONCURRENT_LIFECYCLE_SCHEMA_WRITES_CONFIRMED"
+    "verdict": "LOCAL_QUALIFICATION_PASS"
   },
   "production_state": {
     "retention": "ON",
@@ -1027,6 +1027,29 @@
       "service_restarts_or_stops_initiated_by_codex": 0,
       "blocker": "The incident is currently recovered, but the repeated concurrent lifecycle schema-write defect remains live and can recur. Safe-local repair is not yet authorized."
     },
+    "oip_v2_2e_2b2ay_funding_lifecycle_one_time_schema_initialization": {
+      "status": "COMPLETE",
+      "verdict": "LOCAL_QUALIFICATION_PASS",
+      "verification_utc": "2026-08-13T09:36:27Z",
+      "scope": "Safe-local design, implementation, tests, and narrow commit only. No deployment, lock manipulation, provider call, production write, service restart/stop, configuration change, Evidence Mirror/Cohort Mode action, or B2Z observation.",
+      "engineering_commit": "9ef08e7ac1b0ab3ba3fb0f4058faa6519ca30061",
+      "files": [
+        "src/core/creator_funding_lifecycle.py",
+        "src/core/creator_funding_worker.py",
+        "tests/test_b2ay_creator_funding_lifecycle_schema_ready.py"
+      ],
+      "implementation": [
+        "Creator-funding lifecycle schema is initialized once before the asynchronous worker loop begins.",
+        "Worker-owned steady-state event writes skip lifecycle DDL only after startup initialization has completed.",
+        "Gap fallback inherits the same schema-ready contract and no longer repeats DDL during an event-write failure.",
+        "Direct worker helper calls before startup and external lifecycle callers retain default schema assurance."
+      ],
+      "tests": "33 passed: worker startup ordering, schema-ready event/gap paths, eight concurrent event writes with zero schema calls, external caller assurance, X78.39B lifecycle telemetry, B2AV/B2AR/B2AO/B2AL/X78.13/X78.28 regressions; py_compile and diff check passed.",
+      "provider_rpc_calls": 0,
+      "production_changes": false,
+      "service_restarts_or_stops": 0,
+      "blocker": "Commit 9ef08e7a is not deployed. Exactly one creator_funding_worker restart and immediate lifecycle/lock/health verification require explicit authorization."
+    },
     "oip_v2_2e_incident_causal_assessment": {
       "status": "COMPLETE",
       "verdict": "LATENT_DEFECT_REACTIVATED_BY_WORKER_RECOVERY",
@@ -1459,6 +1482,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "B2AY passed 33 focused tests and is committed at 9ef08e7ac1b0ab3ba3fb0f4058faa6519ca30061, but the running creator_funding_worker has not loaded the one-time lifecycle schema initialization repair. Deployment requires one explicitly authorized restart.",
     "B2AX confirms creator_funding_lifecycle.record_event_fail_open repeats schema DDL/index assurance on every concurrent event and repeats it again on gap fallback, causing prolonged write-lane ownership and lock-error bursts. The incident recovered naturally, but recurrence remains possible until a safe-local one-time lifecycle schema initialization repair is qualified.",
     "B2AW is blocked with production impact: creator_funding_worker PID 9399 holds the shared database write lease in RELEASE_PENDING state, preventing idx_creator_funding_queue_mint creation and causing creator_resolution_worker to exit and Supervisor to autorestart it. No lock manipulation, funding-worker restart, configuration change, or further creator-resolution restart is authorized.",
     "B2AV passed 28 focused tests and is committed at b0487d205e0c47c5b9b4d021a1d0ffe44a436759, but the running creator_resolution_worker has not loaded the funding mint index and pre-work heartbeat changes. Deployment requires one explicitly authorized restart.",
@@ -1481,8 +1505,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2AY creator-funding lifecycle one-time schema initialization qualification",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize safe-local design, implementation, tests, and narrow commit for one-time creator-funding lifecycle schema initialization at worker startup plus schema-ready steady-state event and gap writes that perform no repeated DDL, while preserving default schema assurance for external callers. No deployment, lock manipulation, provider call, production write, service restart/stop, configuration change, Evidence Mirror, Cohort Mode, or B2Z observation.",
+    "milestone": "OIP v2.2E.2B2AZ creator-funding lifecycle schema repair deployment",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize exactly one creator_funding_worker restart to load commit 9ef08e7ac1b0ab3ba3fb0f4058faa6519ca30061, with immediate local verification of startup, heartbeat, lifecycle event/gap behavior, write-lane release, creator-resolution continuity, and platform health; preserve all production flags and evidence_writer STOPPED; no other restart/stop, lock manipulation, configuration change, provider qualification, Evidence Mirror, Cohort Mode, or B2Z observation. The restarted worker may resume its existing normal provider workload as an inherent consequence of the authorized restart.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

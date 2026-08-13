@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T18:23:58Z",
+  "updated_at_utc": "2026-08-13T18:30:10Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "df829a7d8ddf4347bd9ae26d3c9f769eea22365f",
-    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, user, and handoff paths remain present; EB0.3C committed only its four authorized engineering files"
+    "working_tree": "dirty: 34 paths including unrelated live Supervisor, audit, runtime, user, handoff, and the isolated uncommitted EB0.3D run directory; EB0.3D made no engineering commit"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T18:23:58Z",
+    "published_at_utc": "2026-08-13T18:30:10Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.3C frozen market-kline response adapter boundary",
-    "mode": "safe-local implementation and frozen fake-transport qualification",
+    "milestone": "EB0.3D one-request GMGN market-kline live shape qualification",
+    "mode": "isolated single-provider-request live shape qualification",
     "status": "COMPLETE",
-    "verdict": "SAFE_LOCAL_ADAPTER_QUALIFIED_LIVE_SHAPE_UNPROVEN"
+    "verdict": "LIVE_SHAPE_QUALIFIED_ONE_MINT_ONE_WINDOW"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,57 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_3d_gmgn_market_kline_live_shape": {
+      "status": "COMPLETE",
+      "verdict": "LIVE_SHAPE_QUALIFIED_ONE_MINT_ONE_WINDOW",
+      "engineering_commit": "df829a7d8ddf4347bd9ae26d3c9f769eea22365f",
+      "verification_utc": "2026-08-13T18:30:10Z",
+      "run_id": "b3bae299-8b7c-414c-accc-cbbaf85bac38",
+      "isolated_output_directory": "docs/audits/eb0_3d_runs/b3bae299-8b7c-414c-accc-cbbaf85bac38",
+      "platform_mint": "8TQAPEgP8jcWPeLTiQhFCFtPYwKhpjRvTngoPAmjpump",
+      "request": {
+        "provider": "gmgn",
+        "provider_version": "gmgn-cli-1.5.6",
+        "endpoint_id": "market-kline",
+        "endpoint_version": "v1",
+        "interval": "1m",
+        "from_ms": 1785699480000,
+        "to_ms": 1785703080000,
+        "physical_requests": 1,
+        "request_cost_units": 2,
+        "retry": false,
+        "failover": false,
+        "pagination": false
+      },
+      "live_shape": {
+        "top_level": "object containing list array",
+        "candle_fields": ["time", "open", "close", "high", "low", "volume", "source", "amount"],
+        "time_unit": "Unix milliseconds",
+        "ohlcv_numeric_encoding": "decimal strings except time integer",
+        "returned_rows": 4,
+        "bounded_projection_bytes": 1430,
+        "response_projection_digest": "25259fd1f8321e5d719571aea68cd88c106b2af272f48dee235158a7032c7754",
+        "unexpected_pagination_or_cursor": false,
+        "credentials_retained": false
+      },
+      "eb0_3c_replay": {
+        "observations": 4,
+        "market_cap_values": "all None",
+        "earliest_semantics": "PAGE_EARLIEST_NOT_HISTORY",
+        "focused_tests": "20 passed"
+      },
+      "limitations": [
+        "one platform mint and one known one-hour historical window only",
+        "no full-history, birth-window, pre-migration, page-completeness, rate-limit, or broad mint-coverage claim",
+        "historical market cap and liquidity remain unobserved and must not be inferred"
+      ],
+      "production_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb0_3c_market_kline_adapter": {
       "status": "COMPLETE",
       "verdict": "SAFE_LOCAL_ADAPTER_QUALIFIED_LIVE_SHAPE_UNPROVEN",
@@ -3524,6 +3575,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "EB0.3D proves the exact live GMGN kline envelope and candle field encodings for one platform mint and one known historical hour only. It does not establish birth-window/pre-migration availability, full-history or page completeness, broader mint coverage, pagination, sustained rate limits, or historical market cap/liquidity. Further provider sampling requires separate authorization.",
     "EB0.3C qualifies only the frozen credential-free adapter boundary. Exact live GMGN endpoint/version, response shape, request cost, time-unit conversion, lookback/page behavior, and mint compatibility remain unproven. Any live shape qualification is provider work and requires separate explicit authorization.",
     "EB0.3B proves only one prior structured 1m GMGN OHLCV response and aggregate rate-limit metadata. The exact endpoint/version, retained response field projection, pagination/lookback semantics, response timestamp units, market-cap derivation, and per-attempt ledger are absent. Safe-local adapter work may target only an explicit fake response projection and cannot claim live compatibility; any provider shape qualification is separately human-gated.",
     "EB0.3A qualifies only the frozen non-authoritative evidence contract. No provider endpoint, response shape, interval coverage, request cost, earliest-observation behavior, rate limit, or live mint compatibility has been audited. Provider integration and execution remain human-gated.",
@@ -3576,8 +3628,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.3D one-request GMGN market-kline live shape qualification",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize EB0.3D isolated GMGN market-kline live shape qualification for exactly one platform-owned Solana mint and exactly one sequential physical request, interval=1m, under a predeclared bounded millisecond window and the EB0.3C projection boundary. Use a fresh run ID, empty isolated output directory and append-only attempt ledger; retain only a credential-free bounded response projection and hashes. Stop on first non-success, rate limit, timeout, schema mismatch, unexpected pagination/cursor, row/size ceiling breach, counter mismatch, credential exposure, or safety impact. No retry, failover, pagination, second mint, ranking, scoring, attribution, production/runtime access or changes, deployment, service restarts or stops, configuration changes, Evidence Mirror, Cohort Mode, activation, or production activation.",
+    "milestone": "EB0.3E exact GMGN live-shape normalizer qualification",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize EB0.3E safe-local design, implementation, frozen live-shape fixture tests, fake-transport tests, regression tests, documentation, and one narrow commit for an exact GMGN v1 market-kline envelope normalizer into the EB0.3C credential-free projection. Accept only the proven top-level list and candle fields time/open/close/high/low/volume/source/amount; map time to time_ms, retain OHLCV only, discard source/amount explicitly, bind caller-supplied request/accounting metadata, enforce the existing 1m, millisecond-bound, row/size, digest, supplemental authority and PAGE_EARLIEST_NOT_HISTORY constraints, and fail closed on schema drift, credentials, pagination/cursor, accounting mismatch, or authority/completeness promotion. Frozen artifacts/fake transport only. No provider calls, live GMGN execution, production/runtime access or changes, deployment, service restarts or stops, configuration changes, ranking, scoring, profitability/cashflow, creator/operator attribution, policy, Evidence Mirror, Cohort Mode, activation, or production activation.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

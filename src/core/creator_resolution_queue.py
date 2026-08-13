@@ -145,6 +145,13 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
     )
 
 
+def initialize_schema(db_path: str) -> None:
+    """Run creator-resolution schema migration once at process startup."""
+    with _db(db_path) as conn:
+        ensure_schema(conn)
+        conn.commit()
+
+
 def _creator_missing(row: sqlite3.Row) -> bool:
     return not ((row["earliest_tx_creator"] or "").strip() or (row["pf_ws_creator"] or "").strip())
 
@@ -228,13 +235,13 @@ def enqueue_missing_migrated_tokens(
     limit: int = 50,
     source: str = "approval_queue",
     max_age_seconds: int = None,
+    schema_ready: bool = False,
 ) -> int:
-    with _db(db_path) as conn:
-        ensure_schema(conn)
-        conn.commit()
+    if not schema_ready:
+        initialize_schema(db_path)
 
-    # Closing the schema connection releases the cross-process write lease;
-    # commit alone does not.  Run the deep population scan without that lease.
+    # Startup/external schema work is complete before this deep read scan, so
+    # steady-state population discovery never owns the write lane.
     with _read_db(db_path) as conn:
         rows = conn.execute(
             """
@@ -271,6 +278,7 @@ def promote_recent_missing_creators(
     *,
     now: Optional[int] = None,
     window_seconds: int = RECENT_MIGRATION_WINDOW_SECONDS,
+    schema_ready: bool = False,
 ) -> int:
     """Elevate only the live health cohort ahead of the historical backlog.
 
@@ -281,7 +289,8 @@ def promote_recent_missing_creators(
     """
     cutoff = int(now if now is not None else time.time()) - max(1, int(window_seconds))
     with _db(db_path) as conn:
-        ensure_schema(conn)
+        if not schema_ready:
+            ensure_schema(conn)
         cur = conn.execute(
             """
             UPDATE creator_resolution_queue
@@ -371,16 +380,16 @@ def enqueue_missing_funding_jobs(
     *,
     limit: int = 50,
     source: str = "funding_coverage_sweep",
+    schema_ready: bool = False,
 ) -> int:
     """Backfill migrated tokens that already have a creator but no funding job."""
     now = int(time.time())
     enqueued = 0
     telemetry_rows = []
-    with _db(db_path) as conn:
-        ensure_schema(conn)
-        conn.commit()
+    if not schema_ready:
+        initialize_schema(db_path)
 
-    # The write lease follows the connection lifetime, not the transaction.
+    # Startup/external schema work is complete before this deep read scan.
     with _read_db(db_path) as conn:
         rows = conn.execute(
             """
@@ -557,14 +566,19 @@ def _resolve_creator_rpc(
     }
 
 
-def process_queue(db_path: str, *, limit: int = 3, lock_seconds: int = 180) -> Dict[str, Any]:
+def process_queue(
+    db_path: str,
+    *,
+    limit: int = 3,
+    lock_seconds: int = 180,
+    schema_ready: bool = False,
+) -> Dict[str, Any]:
     now = int(time.time())
     processed = resolved = failed = skipped = funding_enqueued = 0
     errors: List[Dict[str, str]] = []
 
-    with _db(db_path) as conn:
-        ensure_schema(conn)
-        conn.commit()
+    if not schema_ready:
+        initialize_schema(db_path)
 
     # STALE-RUNNING REAPER: a separate, short mutation scope.
     with _db(db_path) as conn:
@@ -646,7 +660,6 @@ def process_queue(db_path: str, *, limit: int = 3, lock_seconds: int = 180) -> D
 
             did_enqueue = False
             with _db(db_path) as conn:
-                ensure_schema(conn)
                 token = conn.execute(
                     "SELECT migrated_at, created_at, create_tx_signature FROM token_analysis WHERE mint=?",
                     (mint,),
@@ -699,7 +712,6 @@ def process_queue(db_path: str, *, limit: int = 3, lock_seconds: int = 180) -> D
             # Budget hit — move to offline queue (status='skipped'), not a failure, no retry.
             skipped += 1
             with _db(db_path) as conn:
-                ensure_schema(conn)
                 conn.execute(
                     """
                     UPDATE creator_resolution_queue
@@ -720,7 +732,6 @@ def process_queue(db_path: str, *, limit: int = 3, lock_seconds: int = 180) -> D
             error = str(exc)[:500]
             retry_at = int(time.time()) + min(900, 30 * (attempts + 1))
             with _db(db_path) as conn:
-                ensure_schema(conn)
                 conn.execute(
                     """
                     UPDATE creator_resolution_queue

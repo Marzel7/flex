@@ -337,6 +337,7 @@ def _pending_count() -> int:
 # ── main loop ─────────────────────────────────────────────────────────────────
 def run_loop(once: bool = False) -> None:
     from src.core.creator_resolution_queue import (
+        initialize_schema,
         process_queue,
         enqueue_missing_migrated_tokens,
         enqueue_missing_funding_jobs,
@@ -348,6 +349,9 @@ def run_loop(once: bool = False) -> None:
          f"interval={INTERVAL_SEC}s idle={INTERVAL_IDLE_SEC}s "
          f"max_handles={MAX_OPEN_HANDLES} max_uptime={MAX_UPTIME_HOURS}h "
          f"wal_alert={WAL_ALERT_MB}MB wal_busy_cycles={WAL_BUSY_CYCLES}")
+
+    # Schema migration is a startup boundary, never steady-state queue work.
+    initialize_schema(DB_PATH)
 
     # Start WAL watchdog thread (layer 3)
     if not once:
@@ -368,18 +372,18 @@ def run_loop(once: bool = False) -> None:
 
         try:
             new_enqueued = enqueue_missing_migrated_tokens(
-                DB_PATH, limit=ENQUEUE_LIMIT, source="crq_worker"
+                DB_PATH, limit=ENQUEUE_LIMIT, source="crq_worker", schema_ready=True
             )
             if new_enqueued:
                 _log(f"auto-enqueued {new_enqueued} missing-creator tokens")
 
             new_funding = enqueue_missing_funding_jobs(
-                DB_PATH, limit=ENQUEUE_LIMIT, source="crq_worker"
+                DB_PATH, limit=ENQUEUE_LIMIT, source="crq_worker", schema_ready=True
             )
             if new_funding:
                 _log(f"auto-enqueued {new_funding} missing funding jobs")
 
-            promoted_recent = promote_recent_missing_creators(DB_PATH)
+            promoted_recent = promote_recent_missing_creators(DB_PATH, schema_ready=True)
             if promoted_recent:
                 _log(f"elevated {promoted_recent} recent missing-creator tokens")
 
@@ -387,7 +391,7 @@ def run_loop(once: bool = False) -> None:
             batch   = _adaptive_batch(pending)
             p99     = _read_serializer_p99()
 
-            result = process_queue(DB_PATH, limit=batch)
+            result = process_queue(DB_PATH, limit=batch, schema_ready=True)
 
             proc  = result.get("processed",        0)
             res   = result.get("resolved",         0)

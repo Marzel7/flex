@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T14:38:02Z",
+  "updated_at_utc": "2026-08-13T14:42:40Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "153cb464bff52893450a5f10efa0030d591df882",
-    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, handoff, and user paths remain present; EB0.1Q was read-only and changed no engineering files"
+    "git_head": "158ab0344b2d756e08ee39612ef8b1c858be214c",
+    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, handoff, and user paths remain present; the narrow EB0.2A commit contains only the authorized contract, fixture, tests, and documentation"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T14:38:02Z",
+    "published_at_utc": "2026-08-13T14:42:40Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.1Q canonical baseline closure assessment",
-    "mode": "bounded local read-only closure assessment",
+    "milestone": "EB0.2A canonical creator historical outcome evidence contract",
+    "mode": "safe-local deterministic contract and frozen-fixture qualification",
     "status": "COMPLETE",
-    "verdict": "EB0_1_COMPLETE_WITH_MEASURED_SOURCE_COVERAGE_GAPS"
+    "verdict": "LOCAL_QUALIFICATION_PASS"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,34 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_2a_creator_historical_outcome_contract": {
+      "status": "COMPLETE",
+      "verdict": "LOCAL_QUALIFICATION_PASS",
+      "engineering_commit": "158ab0344b2d756e08ee39612ef8b1c858be214c",
+      "qualified_semantics": [
+        "immutable per-creator, per-mint, per-outcome-kind, fixed-horizon facts",
+        "denominator eligibility only for complete observation horizons",
+        "partial or absent evidence cannot become OBSERVED_FALSE",
+        "positive events must occur inside the horizon and no later than the evidence cutoff",
+        "explicit threshold semantics without birth-market-cap, profit, cashflow, score, rank, or attribution claims",
+        "source conflicts remain distinct and projection identity is deterministic and replay-idempotent"
+      ],
+      "tests": {
+        "command": "python -m py_compile src/evidence/contracts/creator_historical_outcome.py && python -m pytest -q tests/test_eb0_2a_creator_historical_outcome_contract.py tests/test_eb0_1a_birth_valuation_contract.py tests/test_eb0_1c_birth_valuation_adapters.py tests/test_eb0_1d_birth_valuation_manifest.py tests/test_eb0_1e_birth_valuation_corpus.py",
+        "passed": 40,
+        "failed": 0
+      },
+      "provider_calls": 0,
+      "production_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "gmgn_integration": false,
+      "rankings": false,
+      "operator_attribution": false,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb0_1q_canonical_baseline_closure": {
       "status": "COMPLETE",
       "verdict": "EB0_1_COMPLETE_WITH_MEASURED_SOURCE_COVERAGE_GAPS",
@@ -2735,7 +2763,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "EB0.1 is complete, but its verified latest-5000 census has qualified MARKET_FIRST_OBSERVED evidence for only 2442 mints and no qualified CHAIN_BIRTH, explicit PLATFORM_FIRST_SEEN, or explicit MIGRATION facts. These measured source-retention gaps must remain explicit through EB0.2; source broadening, backfill, GMGN use, ranking, attribution, and activation remain separately human-gated.",
+    "EB0.2A qualifies the creator historical outcome contract, but no committed source mapping has yet proven which existing frozen/local fields can supply creator identity, cohort membership, fixed-horizon outcomes, cutoffs, and completeness without future leakage. EB0.2B must audit mappings before adapters or corpus assembly; production access and source broadening remain prohibited.",
     "OIP v2.2E is qualified complete, but production activation remains explicitly unauthorized. Any Evidence authority, Evidence Mirror, Cohort Mode, provider expansion, or production deployment requires its own future milestone. Post-E work must begin with roadmap reconciliation rather than implicit activation.",
     "B2BX fully passes the isolated provider qualification at 20/20 with exactly 60 authorized requests. The remaining step is a bounded local-only E-series closure assessment that combines this provider result with the previously qualified B2R acquisition/retention funnel; no production activation is implied or authorized.",
     "B2BW is locally qualified at f08db5b1 with fresh empty ledgers. Provider execution remains HUMAN_APPROVAL_REQUIRED and must explicitly acknowledge the higher-cost oldest enhanced request and the unchanged 60-request stop-safe ceiling.",
@@ -2781,8 +2809,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.2A canonical creator historical outcome evidence contract",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize safe-local design, implementation, frozen-fixture tests, regression tests, documentation, and one narrow commit for EB0.2A canonical creator historical outcome evidence contract. Implement only a pure deterministic local projection over EB0.1 canonical corpus facts and explicitly supplied qualified creator identity/outcome facts; define fixed observation horizons, censoring, denominator eligibility, UNKNOWN/NOT_OBSERVED, provenance, quality, completeness, and conflict retention; prohibit future leakage, birth-market-cap inference, profitability/cashflow claims, rankings, scoring, operator attribution, or source broadening. Frozen fixtures only. No production/runtime access, provider calls, GMGN integration, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, or activation.",
+    "milestone": "EB0.2B creator historical outcome source-mapping audit",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize a bounded local read-only EB0.2B source-mapping audit using committed schemas, code, EB0.1/EB0.2A documentation, and frozen fixtures only. Map qualified creator identity, cohort membership, outcome event, fixed-horizon cutoff, completeness, quality, conflict, and provenance fields; identify unsupported or ambiguous mappings and the smallest safe-local adapter milestone. Do not implement adapters or aggregate creator profiles. No production/runtime access, provider calls, GMGN integration, rankings, scoring, operator attribution, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, or activation.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

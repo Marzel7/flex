@@ -1,0 +1,9 @@
+"""EB1.1C verified EB1.0 manifest adapter."""
+from .cross_stage_eligibility_manifest import CrossStageEligibilityManifest,verify_cross_stage_eligibility_manifest
+from .evidence_gap_requirement import EvidenceGapRequirementProjection,project_evidence_gap_requirements
+ADAPTER_VERSION="eb1.1c.v1"
+class EvidenceGapRequirementAdapterError(ValueError):pass
+def adapt_verified_eligibility_manifest(manifest:CrossStageEligibilityManifest)->EvidenceGapRequirementProjection:
+ try:verify_cross_stage_eligibility_manifest(manifest,manifest.projection.stages)
+ except Exception as e:raise EvidenceGapRequirementAdapterError("EB1_1C_UNVERIFIED_EB1_0_MANIFEST") from e
+ return project_evidence_gap_requirements(manifest.projection)

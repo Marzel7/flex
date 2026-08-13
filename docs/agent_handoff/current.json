@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T15:37:38Z",
+  "updated_at_utc": "2026-08-13T15:42:30Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "b3cc4195823b1a23c89ae96ef683409ae8812624",
-    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, and user paths remain present; the narrow EB0.2J commit contains only the authorized normalization adapter, frozen/ephemeral tests, and documentation"
+    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, and user paths remain present; EB0.2K was read-only and made no engineering changes"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T15:37:38Z",
+    "published_at_utc": "2026-08-13T15:42:30Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.2J safe-local multi-source normalization adapter qualification",
-    "mode": "safe-local frozen and ephemeral multi-database SQLite qualification",
+    "milestone": "EB0.2K production normalization compatibility preflight",
+    "mode": "bounded read-only production compatibility preflight",
     "status": "COMPLETE",
-    "verdict": "LOCAL_QUALIFICATION_PASS_NO_PRODUCTION_COMPATIBILITY_CLAIM"
+    "verdict": "HOLD_PROVENANCE_ENUM_AND_INDEX_GAPS"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,60 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_2k_production_normalization_compatibility": {
+      "status": "COMPLETE",
+      "verdict": "HOLD_PROVENANCE_ENUM_AND_INDEX_GAPS",
+      "engineering_commit": "b3cc4195823b1a23c89ae96ef683409ae8812624",
+      "schema_subsets": {
+        "main_token_analysis": "PASS",
+        "ops_wt_watchtower_launches": "PASS",
+        "creator_creator_tokens": "PASS"
+      },
+      "accepted_value_availability": {
+        "main_non_mismatched_pf_ws_creator_exists": true,
+        "main_market_first_observation_exists": true,
+        "ops_eb0_2j_identity_proof_exists": false,
+        "ops_eb0_2j_create_proof_exists": false,
+        "observed_ops_creator_extraction_methods": [
+          "CLOSE_ACCOUNT_DESTINATION",
+          "WALKBACK_RECOVERED"
+        ],
+        "observed_ops_confidence_values": [
+          "STRICT",
+          "BACKFILL",
+          "MANUAL_ATTESTATION",
+          "WALKBACK"
+        ]
+      },
+      "selected_mint_query_plans": {
+        "main_token_analysis": "mint primary-key index search",
+        "ops_wt_watchtower_launches": "rowid-bounded scan; no mint-leading index",
+        "creator_creator_tokens": "rowid-bounded scan; existing indexes are creator-leading, not mint-leading"
+      },
+      "fresh_high_waters": {
+        "main_token_analysis_rowid": 1744357,
+        "ops_watchtower_launches_rowid": 178,
+        "creator_tokens_rowid": 53700
+      },
+      "compatibility_interpretation": "EB0.2J cannot produce live qualified creator/create-proof facts under its frozen accepted enums, and two selected-mint source queries are not mint-indexable. Mapping STRICT/WALKBACK or CLOSE_ACCOUNT_DESTINATION/WALKBACK_RECOVERED to canonical proof semantics without a committed semantic audit would broaden the contract and is prohibited.",
+      "services": {
+        "watchtower_listener": "RUNNING pid 85993",
+        "creator_funding_worker": "RUNNING pid 80211",
+        "creator_resolution_worker": "RUNNING pid 12770",
+        "evidence_writer": "STOPPED"
+      },
+      "provider_calls": 0,
+      "production_reads": "bounded schema, index, query-plan, enum-category, existence, and rowid high-water probes only",
+      "production_writes": 0,
+      "production_changes": false,
+      "service_restarts": 0,
+      "gmgn_integration": false,
+      "rankings": false,
+      "operator_attribution": false,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb0_2j_multi_source_normalization": {
       "status": "COMPLETE",
       "verdict": "LOCAL_QUALIFICATION_PASS_NO_PRODUCTION_COMPATIBILITY_CLAIM",
@@ -3054,7 +3108,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "EB0.2J qualifies the split-source normalization boundary on frozen/ephemeral replicas at b3cc4195, but makes no production compatibility claim. A separately authorized bounded read-only preflight must verify required live schema subsets, accepted identity/proof value availability, indexed selected-mint query plans, and fresh high-water feasibility before any live cohort or extraction authorization.",
+    "EB0.2K confirms the required live columns and fresh rowid high-waters, but the watchtower provenance enums do not match EB0.2J's qualified creator/create-proof values, so accepted proof availability is zero. Ops and creator-membership selected-mint queries also lack mint-leading indexes. Live normalization remains blocked pending a committed-code semantic audit; no enum remapping or index change is authorized.",
     "OIP v2.2E is qualified complete, but production activation remains explicitly unauthorized. Any Evidence authority, Evidence Mirror, Cohort Mode, provider expansion, or production deployment requires its own future milestone. Post-E work must begin with roadmap reconciliation rather than implicit activation.",
     "B2BX fully passes the isolated provider qualification at 20/20 with exactly 60 authorized requests. The remaining step is a bounded local-only E-series closure assessment that combines this provider result with the previously qualified B2R acquisition/retention funnel; no production activation is implied or authorized.",
     "B2BW is locally qualified at f08db5b1 with fresh empty ledgers. Provider execution remains HUMAN_APPROVAL_REQUIRED and must explicitly acknowledge the higher-cost oldest enhanced request and the unchanged 60-request stop-safe ceiling.",
@@ -3100,8 +3154,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.2K production normalization compatibility preflight",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize EB0.2K bounded read-only production compatibility preflight for commit b3cc4195823b1a23c89ae96ef683409ae8812624. Verify only the EB0.2J required live table/column/index subsets, bounded accepted identity/create-proof value availability, selected-mint query-plan indexability, source-file separation, and fresh rowid/high-water feasibility. Do not execute normalization or EB0.2G extraction, materialize a cohort, normalized database, or bundle, read unrestricted row payloads, write, aggregate rates or profiles, rank, score, make policy decisions, infer profitability or cashflow, attribute operators, or activate anything. No provider calls, GMGN integration, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, or activation.",
+    "milestone": "EB0.2L watchtower provenance semantic audit",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize a bounded local read-only EB0.2L semantic audit using committed code, schemas, tests, and documentation only. Determine the exact meaning and production lineage of wt_watchtower_launches creator_extraction_method values CLOSE_ACCOUNT_DESTINATION and WALKBACK_RECOVERED and confidence values STRICT, BACKFILL, MANUAL_ATTESTATION, and WALKBACK; decide whether any can safely map to EB0.2C PF_WS_CREATOR_VERIFIED or canonical create proof; and define the smallest safe-local contract/index repair. Do not implement, access production/runtime databases or services, execute normalization or extraction, materialize a cohort or bundle, aggregate rates or profiles, rank, score, make policy decisions, infer profitability or cashflow, or attribute operators. No provider calls, GMGN integration, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, or activation.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

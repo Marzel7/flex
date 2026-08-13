@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T20:24:13Z",
+  "updated_at_utc": "2026-08-13T21:01:12Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "91941173ed05960962a11c3d79b95e6615ee8e7b",
-    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths; EB1.0B-H commits contain only scoped audit/adapters/manifests/corpus/preflight/extractor/bundle work; all unrelated paths preserved"
+    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths; post-EB1.0 reconciliation made no engineering changes and preserved all unrelated paths"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB1.0 frozen contract-stack closure",
-    "mode": "safe-local frozen/ephemeral evidence-stack closure",
+    "milestone": "Post-EB1.0 roadmap reconciliation",
+    "mode": "bounded local read-only committed-artifact reconciliation",
     "status": "COMPLETE",
-    "verdict": "EB1_0_COMPLETE_FROZEN_STACK_QUALIFIED"
+    "verdict": "ROADMAP_RECONCILED_EB1_1A_GAP_REQUIREMENT_CONTRACT_NEXT"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,34 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "post_eb1_0_roadmap_reconciliation": {
+      "status": "COMPLETE",
+      "verdict": "ROADMAP_RECONCILED_EB1_1A_GAP_REQUIREMENT_CONTRACT_NEXT",
+      "engineering_commit": "91941173ed05960962a11c3d79b95e6615ee8e7b",
+      "verification_utc": "2026-08-13T21:01:12Z",
+      "canonical_roadmap_finding": "No committed EB2 or post-EB1 implementation sequence exists. EB1.0 closes deterministic readiness accounting but intentionally does not specify how missing or conflicting evidence should be described for future remediation. Cross-entity linkage, analytics and activation cannot be inferred as next work.",
+      "next_stage": {
+        "milestone": "EB1.1A evidence-gap requirement contract",
+        "authorization_class": "SAFE_LOCAL_DESIGN_IMPLEMENTATION_TEST_COMMIT",
+        "objective": "Define a pure deterministic local contract over caller-supplied immutable EB1.0 eligibility projections that emits descriptive, non-executable evidence requirements for ineligible lanes while preserving authority, scope, counts, reason codes and provenance.",
+        "required_semantics": [
+          "ELIGIBLE and NOT_APPLICABLE lanes emit no remediation requirement",
+          "INELIGIBLE_MISSING emits only explicit MISSING_EVIDENCE or COMPLETENESS_EVIDENCE requirements bound to the same upstream stage and cohort/window",
+          "INELIGIBLE_CONFLICTING emits a CONFLICT_RESOLUTION_EVIDENCE requirement without choosing a winner or merging facts",
+          "requirements bind EB1.0 contract/projection identity, upstream bundle digest, authority lane, scope identity, counts, reason codes and provenance",
+          "requirements are descriptive NON_EXECUTABLE_EVIDENCE_REQUIREMENT records and never authorize provider work, production access, collection, deployment, policy or activation",
+          "deterministic order-independent identities, aggregate requirement counts and exact replay"
+        ],
+        "qualification": "frozen EB1.0 projection fixtures only, covering eligible, not-applicable, missing, partial, not-observed, conflicting, authority drift, unsupported reason codes and replay mutation",
+        "explicitly_deferred": "source selection, acquisition plans, provider/request budgets, production compatibility, entity linkage, rates, profiles, ranking, scoring, policy, profitability/cashflow, identity/attribution and activation"
+      },
+      "implementation_performed": false,
+      "provider_calls": 0,
+      "production_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "activation": false
+    },
     "eb1_0_frozen_stack_closure": {
       "status": "COMPLETE",
       "verdict": "EB1_0_COMPLETE_FROZEN_STACK_QUALIFIED",
@@ -4031,6 +4059,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "The committed roadmap defines no EB2 or post-EB1 sequence. EB1.1A is a recommended new descriptive requirement contract, not yet implemented or authorized; it cannot select sources, authorize acquisition, or become a work plan.",
     "EB1.0 is closed only as a frozen safe-local stack. Actual bundle-directory compatibility, production/runtime access, live extraction, cross-entity linkage, analytical interpretation, identity/attribution and activation are unqualified and require separate explicit authorization.",
     "EB1.0A qualifies only a pure contract over caller-supplied frozen bundle summaries. No committed source mapping yet proves how actual EB0.1-EB0.4 bundle artifacts populate its exact summary fields; adapters, manifests, corpus/extractor work, cross-entity linkage, analytics and activation remain unqualified or prohibited.",
     "The canonical committed EB0 roadmap ends at EB0.4. EB1.0A is a recommended new safe-local bridge contract, not yet implemented or authorized; any broader cross-stage entity linkage would require its own explicit provenance contract and architectural review.",
@@ -4093,9 +4122,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "Post-EB1.0 roadmap transition",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Stop at EB1.0 frozen closure. Authorize a bounded local read-only post-EB1.0 roadmap reconciliation before defining further work. No production/runtime access, live extraction, provider calls, production writes, deployment, restarts, configuration, Evidence Mirror, Cohort Mode, cross-entity linkage, rates, profiles, ranking, scoring, policy, profitability/cashflow, operator identity/attribution or activation.",
-    "approval_text": "Authorize a bounded local read-only post-EB1.0 roadmap reconciliation using committed artifacts only; identify the next safe-local milestone and evidence contract but do not implement it. No production/runtime access, live extraction or census, provider calls, production writes, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, cross-entity linkage, rates, profiles, ranking, scoring, policy activation, profitability/cashflow inference, operator identity/attribution, or activation.",
+    "milestone": "EB1.1A evidence-gap requirement contract",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize a pure safe-local frozen-fixture contract translating immutable EB1.0 ineligibility states into descriptive non-executable evidence requirements. No source selection, acquisition execution, provider budgets, production/runtime access, entity linkage, analytics, attribution, policy or activation.",
+    "approval_text": "Authorize safe-local design, implementation, frozen-fixture tests, regression tests, documentation, and one narrow commit for EB1.1A evidence-gap requirement contract over caller-supplied immutable EB1.0 eligibility projections. Emit descriptive NON_EXECUTABLE_EVIDENCE_REQUIREMENT records only: no requirement for ELIGIBLE or NOT_APPLICABLE lanes; explicit MISSING_EVIDENCE or COMPLETENESS_EVIDENCE requirements for missing/incomplete lanes; and CONFLICT_RESOLUTION_EVIDENCE requirements for conflicting lanes without choosing or merging evidence. Bind exact EB1.0 projection identity, upstream bundle digest, authority lane, cohort/window scope, counts, reason codes, provenance, deterministic requirement counts, and replay identity. Do not select sources, create acquisition plans or request budgets, perform cross-entity linkage, calculate rates or profiles, rank, score, make policy decisions, infer profitability/cashflow, or assert operator identity/attribution. Frozen fixtures only. No production/runtime access, live extraction or census, provider calls, production writes, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, or activation.",
     "safe_local_stage_authorized": false,
     "safe_local_stage_authorized": false,
     "activation_authorized": false,

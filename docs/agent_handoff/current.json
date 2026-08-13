@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T08:36:00Z",
+  "updated_at_utc": "2026-08-13T07:39:01Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T08:36:00Z",
+    "published_at_utc": null,
     "protocol_version": 1,
-    "status": "PUBLISHED"
+    "status": "PENDING_PUBLICATION"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2AI database-pressure and listener-lock read-only diagnosis",
-    "mode": "completed bounded read-only diagnosis",
+    "milestone": "OIP v2.2E.2B2AJ post-reload production stability observation",
+    "mode": "completed bounded read-only production observation",
     "status": "HOLD",
-    "verdict": "TRANSIENT_PRESSURE_RECOVERED_STABILITY_NOT_PROVEN"
+    "verdict": "PRODUCTION_IMPACT_AT_START_BOUNDARY"
   },
   "production_state": {
     "retention": "ON",
@@ -697,6 +697,28 @@
       "service_restarts": 0,
       "blocker": "No exact bounded production observation contract is authorized. B2Z remains held."
     },
+    "oip_v2_2e_2b2aj_post_reload_stability_observation": {
+      "status": "COMPLETE",
+      "verdict": "PRODUCTION_IMPACT_AT_START_BOUNDARY",
+      "verification_utc": "2026-08-13T07:39:01Z",
+      "authorization": "Bounded 15-minute read-only production stability observation; first qualified health sample after authorization was the start boundary and the window ends early on non-HEALTHY infrastructure/database status or production impact.",
+      "qualified_start_boundary": "2026-08-13T07:38:06Z (first successful HTTP 200 health sample after authorization)",
+      "observation_duration_seconds": 0,
+      "endpoint": "Immediate endpoint: infrastructure/database non-HEALTHY",
+      "health": {
+        "platform_status": "WARNING",
+        "infrastructure_status": "WARNING",
+        "database_status": "AT_RISK",
+        "database_write_p99_ms": 28853.56,
+        "serializer_queue_depth": 2,
+        "listener": "HEALTHY; PumpPortal and PumpSwap CONNECTED; queues 0; listener lock_errors_since_start remained 4"
+      },
+      "production_flags": "retention ON; migration census ON; Evidence Mirror OFF; Cohort Mode OFF; evidence_writer STOPPED",
+      "provider_qualification_calls_initiated_by_codex": 0,
+      "production_changes": false,
+      "service_restarts": 0,
+      "blocker": "The clean stability prerequisite failed at the qualified start boundary. B2Z remains held; no provider qualification is permitted."
+    },
     "oip_v2_2e_2b2n_preflight_manifest_authorization": {
       "status": "COMPLETE",
       "verdict": "SAFE_LOCAL_PREFLIGHT_AUTHORIZED",
@@ -1132,8 +1154,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2AJ post-reload production stability observation",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize a bounded 15-minute read-only production stability observation beginning at the first health sample after authorization. End early on any listener lock-error increase, infrastructure/database non-HEALTHY status, health endpoint failure, or other production impact; otherwise end after 15 clean minutes. Do not restart/reconfigure services, invoke provider qualification calls, change production data/configuration, activate Evidence Mirror/Cohort Mode, or start B2Z. Record and publish the result, then stop.",
+    "milestone": "OIP v2.2E.2B2AK database writer-contention local root-cause diagnosis",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize bounded local read-only diagnosis of the recurring database writer contention using existing health telemetry, local logs, process metadata, and source only. Do not restart/reconfigure services, invoke provider qualification calls, write production data, activate Evidence Mirror/Cohort Mode, or start B2Z. Record and publish the root-cause verdict and smallest repair proposal, then stop.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

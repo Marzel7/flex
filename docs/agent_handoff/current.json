@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T14:26:08Z",
+  "updated_at_utc": "2026-08-13T14:38:02Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "153cb464bff52893450a5f10efa0030d591df882",
-    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, handoff, and user paths remain present; EB0.1P was execution-only and changed no engineering files"
+    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, handoff, and user paths remain present; EB0.1Q was read-only and changed no engineering files"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T14:26:08Z",
+    "published_at_utc": "2026-08-13T14:38:02Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.1P bounded read-only live canonical census retry",
-    "mode": "single bounded query-only live census and immutable bundle",
+    "milestone": "EB0.1Q canonical baseline closure assessment",
+    "mode": "bounded local read-only closure assessment",
     "status": "COMPLETE",
-    "verdict": "LIVE_CENSUS_COMPLETE_BASELINE_GAPS_MEASURED"
+    "verdict": "EB0_1_COMPLETE_WITH_MEASURED_SOURCE_COVERAGE_GAPS"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,42 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_1q_canonical_baseline_closure": {
+      "status": "COMPLETE",
+      "verdict": "EB0_1_COMPLETE_WITH_MEASURED_SOURCE_COVERAGE_GAPS",
+      "engineering_commit": "153cb464bff52893450a5f10efa0030d591df882",
+      "evidence_bundle_run_id": "eb0-1p-20260813T1424Z",
+      "evidence_bundle_digest": "2c07d41b9c243f8f0c8ca52e0c54c0b184f28a1ed855e98de2a975f936a688e5",
+      "evidence_bundle_verified": true,
+      "selected_mint_count": 5000,
+      "market_first_observed_coverage": "2442/5000 (48.84%)",
+      "strict_source_coverage": {
+        "CHAIN_BIRTH": "0/5000",
+        "PLATFORM_FIRST_SEEN": "0/5000",
+        "MIGRATION": "0/5000",
+        "MARKET_FIRST_OBSERVED": "2442/5000"
+      },
+      "conflicting_observation_count": 0,
+      "interpretation": "EB0.1A-P completes and live-qualifies the canonical event/valuation contract, adapters, immutable manifests, corpus, bounded query-only extractor, immutable bundle, latest-5000 cohort rule, deadline enforcement, numeric normalization, and one verified live census. Zero strict coverage for CHAIN_BIRTH, PLATFORM_FIRST_SEEN, and MIGRATION is a qualified-source retention gap, not evidence that those events did not occur.",
+      "limitations": [
+        "MARKET_FIRST_OBSERVED is not CHAIN_BIRTH and later valuation must never be relabelled as birth market cap without proof.",
+        "Missing facts remain UNKNOWN or NOT_OBSERVED and must not be converted into negative outcomes.",
+        "Zero conflicts means no conflict among selected qualified observations; it does not prove universal source agreement.",
+        "EB0.2 must preserve cohort denominators, source lineage, observation horizons, censoring, quality, completeness, conflicts, and the measured EB0.1 missingness."
+      ],
+      "closure_artifact_required": false,
+      "engineering_changes": false,
+      "provider_calls": 0,
+      "production_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "gmgn_integration": false,
+      "rankings": false,
+      "operator_attribution": false,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb0_1p_live_canonical_census": {
       "status": "COMPLETE",
       "verdict": "LIVE_CENSUS_COMPLETE_BASELINE_GAPS_MEASURED",
@@ -2699,7 +2735,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "EB0.1P completed and verified the bounded 5000-mint live census. It measures market-first-observed coverage at 2442/5000 but finds no qualified CHAIN_BIRTH, explicit PLATFORM_FIRST_SEEN, or explicit MIGRATION facts under the strict committed source contract. EB0.1Q must interpret these measured gaps and close EB0.1 before EB0.2 begins; no source broadening or production activation is implied.",
+    "EB0.1 is complete, but its verified latest-5000 census has qualified MARKET_FIRST_OBSERVED evidence for only 2442 mints and no qualified CHAIN_BIRTH, explicit PLATFORM_FIRST_SEEN, or explicit MIGRATION facts. These measured source-retention gaps must remain explicit through EB0.2; source broadening, backfill, GMGN use, ranking, attribution, and activation remain separately human-gated.",
     "OIP v2.2E is qualified complete, but production activation remains explicitly unauthorized. Any Evidence authority, Evidence Mirror, Cohort Mode, provider expansion, or production deployment requires its own future milestone. Post-E work must begin with roadmap reconciliation rather than implicit activation.",
     "B2BX fully passes the isolated provider qualification at 20/20 with exactly 60 authorized requests. The remaining step is a bounded local-only E-series closure assessment that combines this provider result with the previously qualified B2R acquisition/retention funnel; no production activation is implied or authorized.",
     "B2BW is locally qualified at f08db5b1 with fresh empty ledgers. Provider execution remains HUMAN_APPROVAL_REQUIRED and must explicitly acknowledge the higher-cost oldest enhanced request and the unchanged 60-request stop-safe ceiling.",
@@ -2745,8 +2781,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.1Q canonical baseline closure assessment",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize bounded local read-only EB0.1Q closure assessment using only committed EB0.1A-O code/docs/tests, the verified EB0.1P immutable bundle at /private/tmp/flex-eb0-1p-4qJYQD, and current.json. Verify bundle digests, interpret the 5000-mint coverage/conflict/missingness results, determine the final EB0.1 verdict and limitations, and define the exact EB0.2 creator historical outcome intelligence entry milestone. Update and publish the handoff; create a narrow closure artifact/commit only if required. No production/runtime database or service access, provider calls, production changes, GMGN integration, rankings, operator attribution, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, activation, or additional census execution.",
+    "milestone": "EB0.2A canonical creator historical outcome evidence contract",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize safe-local design, implementation, frozen-fixture tests, regression tests, documentation, and one narrow commit for EB0.2A canonical creator historical outcome evidence contract. Implement only a pure deterministic local projection over EB0.1 canonical corpus facts and explicitly supplied qualified creator identity/outcome facts; define fixed observation horizons, censoring, denominator eligibility, UNKNOWN/NOT_OBSERVED, provenance, quality, completeness, and conflict retention; prohibit future leakage, birth-market-cap inference, profitability/cashflow claims, rankings, scoring, operator attribution, or source broadening. Frozen fixtures only. No production/runtime access, provider calls, GMGN integration, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, or activation.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

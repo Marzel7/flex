@@ -31,7 +31,7 @@ class B2BTTransport(Protocol):
     physical_request_count: int
 
     def get_transaction(self, signature: str) -> dict[str, Any]: ...
-    def get_enhanced_transactions(self, address: str, *, limit: int) -> list[dict[str, Any]]: ...
+    def get_oldest_enhanced_transaction(self, address: str) -> list[dict[str, Any]]: ...
 
 
 class HeliusB2BTTransport:
@@ -59,10 +59,9 @@ class HeliusB2BTTransport:
         with urllib.request.urlopen(request, timeout=self.timeout_seconds) as response:
             return json.loads(response.read())
 
-    def get_enhanced_transactions(self, address: str, *, limit: int) -> list[dict[str, Any]]:
-        if limit != 100:
-            raise ValueError("B2BT_ENHANCED_LIMIT_INVALID")
-        query = urllib.parse.urlencode({"api-key": self._api_key, "limit": 100})
+    def get_oldest_enhanced_transaction(self, address: str) -> list[dict[str, Any]]:
+        query = urllib.parse.urlencode({"api-key": self._api_key, "limit": 1,
+                                        "sort-order": "asc", "commitment": "finalized"})
         url = f"{self.enhanced_base}/{urllib.parse.quote(address, safe='')}/transactions?{query}"
         self.physical_request_count += 1
         with urllib.request.urlopen(url, timeout=self.timeout_seconds) as response:
@@ -144,11 +143,9 @@ class LedgerTransport:
     def get_transaction(self, signature: str) -> dict[str, Any]:
         return self._call("getTransaction", "HELIUS_JSON_RPC", lambda: self.inner.get_transaction(signature))
 
-    def get_enhanced_transactions(self, address: str, *, limit: int) -> list[dict[str, Any]]:
-        if limit != 100:
-            raise RuntimeError("B2BT_ENHANCED_LIMIT_INVALID")
-        return self._call("getEnhancedAddressTransactions", "HELIUS_ENHANCED_REST",
-                          lambda: self.inner.get_enhanced_transactions(address, limit=limit))
+    def get_oldest_enhanced_transaction(self, address: str) -> list[dict[str, Any]]:
+        return self._call("getOldestEnhancedAddressTransaction", "HELIUS_ENHANCED_REST",
+                          lambda: self.inner.get_oldest_enhanced_transaction(address))
 
 
 class B2BTRunner:

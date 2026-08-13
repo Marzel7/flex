@@ -11,7 +11,7 @@ from typing import Any, Protocol
 
 class B2YTransport(Protocol):
     def get_transaction(self, signature: str) -> dict[str, Any]: ...
-    def get_enhanced_transactions(self, address: str, *, limit: int) -> list[dict[str, Any]]: ...
+    def get_oldest_enhanced_transaction(self, address: str) -> list[dict[str, Any]]: ...
 
 
 @dataclass(frozen=True)
@@ -31,6 +31,7 @@ class ResponseProjection:
     destination: str | None
     lamports: int | None
     lineage_valid: bool
+    page_row_count: int | None
 
 
 @dataclass(frozen=True)
@@ -123,11 +124,8 @@ def _parsed_inbound_transfer(transaction: dict[str, Any], creator: str) -> tuple
 class B2YCreatorFundingProbe:
     """Exactly three ordered calls maximum; transfer semantics precede proof selection."""
 
-    def __init__(self, transport: B2YTransport, *, enhanced_limit: int = 100) -> None:
-        if enhanced_limit != 100:
-            raise ValueError("B2Y_ENHANCED_LIMIT_MUST_BE_100")
+    def __init__(self, transport: B2YTransport) -> None:
         self.transport = transport
-        self.enhanced_limit = enhanced_limit
 
     def probe_once(self, member: B2YMember) -> B2YResult:
         projections: list[ResponseProjection] = []
@@ -137,25 +135,25 @@ class B2YCreatorFundingProbe:
         projections.append(ResponseProjection(
             1, "MIGRATION_LINEAGE", member.migration_signature,
             migration_time if isinstance(migration_time, int) else None,
-            creator, None, None, None, isinstance(migration_time, int),
+            creator, None, None, None, isinstance(migration_time, int), None,
         ))
         if not isinstance(migration_time, int):
             return B2YResult(1, "MALFORMED_RESPONSE", creator, None, tuple(projections))
 
-        enhanced = self.transport.get_enhanced_transactions(creator, limit=self.enhanced_limit)
+        enhanced = self.transport.get_oldest_enhanced_transaction(creator)
         if not isinstance(enhanced, list):
             projections.append(ResponseProjection(2, "ENHANCED_HISTORY", None, None, creator,
-                                                  None, None, None, False))
+                                                  None, None, None, False, None))
             return B2YResult(2, "MALFORMED_RESPONSE", creator, None, tuple(projections))
         candidate = _enhanced_inbound_candidate(enhanced, creator, migration_time)
         if candidate is None:
             projections.append(ResponseProjection(2, "ENHANCED_INBOUND_SOL", None, None, creator,
-                                                  None, creator, None, False))
+                                                  None, creator, None, False, len(enhanced)))
             return B2YResult(2, "NO_PRE_MIGRATION_INBOUND_SOL_CANDIDATE", creator, None, tuple(projections))
         signature, candidate_time, source, amount = candidate
         projections.append(ResponseProjection(
             2, "ENHANCED_INBOUND_SOL", signature, candidate_time, creator,
-            source, creator, amount, True,
+            source, creator, amount, True, len(enhanced),
         ))
 
         proof = _transaction_result(self.transport.get_transaction(signature))
@@ -167,7 +165,7 @@ class B2YCreatorFundingProbe:
         projections.append(ResponseProjection(
             3, "PARSED_TRANSACTION_PROOF", signature,
             proof_time if isinstance(proof_time, int) else None, creator,
-            source_proof, creator, amount_proof, valid,
+            source_proof, creator, amount_proof, valid, None,
         ))
         outcome = "SUCCESS" if valid else "CANDIDATE_PROOF_MISMATCH"
         return B2YResult(3, outcome, creator, signature, tuple(projections))

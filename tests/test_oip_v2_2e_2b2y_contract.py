@@ -33,8 +33,8 @@ class FakeTransport:
         self.calls.append(("getTransaction", signature))
         return migration() if signature == "migration" else self.funding
 
-    def get_enhanced_transactions(self, address, *, limit):
-        self.calls.append(("getEnhancedAddressTransactions", address, limit))
+    def get_oldest_enhanced_transaction(self, address):
+        self.calls.append(("getOldestEnhancedAddressTransaction", address, 1, "asc", "finalized"))
         return self.rows
 
 
@@ -44,23 +44,19 @@ def test_transfer_aware_three_request_sequence_and_bounded_projections():
     assert result.outcome == "SUCCESS"
     assert result.request_count == len(transport.calls) == len(result.projections) == 3
     assert [call[0] for call in transport.calls] == [
-        "getTransaction", "getEnhancedAddressTransactions", "getTransaction",
+        "getTransaction", "getOldestEnhancedAddressTransaction", "getTransaction",
     ]
-    assert transport.calls[1][2] == 100
+    assert transport.calls[1][2:] == (1, "asc", "finalized")
     assert result.candidate_signature == "funding"
     assert result.projections[1].response_kind == "ENHANCED_INBOUND_SOL"
     assert result.projections[1].source == "funder"
     assert result.projections[1].destination == "creator"
-    assert result.projections[1].lamports == 10
+    assert result.projections[1].lamports == 10 and result.projections[1].page_row_count == 1
     assert all(projection.lineage_valid for projection in result.projections)
 
 
-def test_first_chronological_row_is_skipped_when_not_inbound_funding():
-    rows = [
-        {"signature": "ordinary", "timestamp": 19, "nativeTransfers": []},
-        *enhanced(signature="actual-funding", timestamp=18),
-    ]
-    transport = FakeTransport(rows=rows, funding=proof(block_time=18))
+def test_oldest_row_must_itself_be_inbound_funding():
+    transport = FakeTransport(rows=enhanced(signature="actual-funding", timestamp=18), funding=proof(block_time=18))
     result = B2YCreatorFundingProbe(transport).probe_once(B2YMember("mint", "migration"))
     assert result.outcome == "SUCCESS"
     assert result.candidate_signature == "actual-funding"
@@ -90,6 +86,6 @@ def test_exact_transaction_proof_must_match_transfer_aware_projection(funding):
     assert result.projections[-1].lineage_valid is False
 
 
-def test_contract_has_no_credential_or_endpoint_and_fixed_page_limit():
-    with pytest.raises(ValueError, match="LIMIT_MUST_BE_100"):
-        B2YCreatorFundingProbe(FakeTransport(), enhanced_limit=99)
+def test_empty_oldest_response_preserves_page_shape():
+    result = B2YCreatorFundingProbe(FakeTransport(rows=[])).probe_once(B2YMember("mint", "migration"))
+    assert result.projections[-1].page_row_count == 0

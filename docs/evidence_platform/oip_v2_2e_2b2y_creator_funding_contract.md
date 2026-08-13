@@ -20,15 +20,16 @@ Each member uses at most three sequential physical requests:
 1. `getTransaction(migration_signature, jsonParsed)` resolves and validates
    the unique creator and migration time.
 2. One Helius Enhanced Address Transactions request for the creator with
-   `limit=100`, no cursor or pagination. Scan that one provider-ordered page
-   for the first transaction strictly before migration containing a positive
-   `nativeTransfers` SOL transfer from another account to the creator.
+   `limit=1`, `sort-order=asc`, and `commitment=finalized`, with no cursor or
+   pagination. Accept the returned oldest transaction only when it is strictly
+   before migration and contains a positive `nativeTransfers` SOL transfer
+   from another account to the creator.
 3. Only after step 2 identifies that transfer-aware candidate,
    `getTransaction(candidate_signature, jsonParsed)` verifies an exact parsed
    System Program transfer with matching source, destination and lamports.
 
-The first chronological pre-migration signature is no longer presumed to be
-funding. No transfer-aware candidate stops after request 2. Any mismatch in
+The oldest transaction is a bounded sentinel, not presumed funding. No
+transfer-aware candidate stops after request 2. Any mismatch in
 request 3 stops after request 3. The contract remains a bounded sentinel: a
 single 100-item page is not claimed to cover all historical funding.
 
@@ -36,7 +37,7 @@ single 100-item page is not claimed to cover all historical funding.
 
 Every response produces only a bounded projection: request number, response
 kind, signature, block time, resolved creator, transfer source/destination,
-lamports and lineage-valid flag. Raw provider responses, descriptions,
+lamports, lineage-valid flag, and bounded page row count. Raw provider responses, descriptions,
 credentials, endpoint URLs, account arrays and unrelated transfers are not
 retained. A later execution boundary must durably append these projections
 alongside physical-attempt metadata before any re-execution is authorized.

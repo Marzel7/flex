@@ -14,7 +14,7 @@ PREFLIGHT=ROOT/'docs/evidence_platform/oip_v2_2e_2b2bt_run_preflight.json'
 class NeverCall:
     physical_request_count=0
     def get_transaction(self,signature): raise AssertionError('NO_PROVIDER_CALL')
-    def get_enhanced_transactions(self,address,*,limit): raise AssertionError('NO_PROVIDER_CALL')
+    def get_oldest_enhanced_transaction(self,address): raise AssertionError('NO_PROVIDER_CALL')
 
 
 def test_new_preflight_is_immutable_empty_and_distinct_from_sealed_run():
@@ -24,8 +24,16 @@ def test_new_preflight_is_immutable_empty_and_distinct_from_sealed_run():
     assert p['projection_digest']==old['projection_digest']
     assert p['member_count']==20 and p['execution_contract']['global_physical_request_ceiling']==60
     assert p['execution_contract']['enhanced_limit']==100
-    assert not Path(p['isolated_output_directory']).exists()
-    assert not Path(p['attempt_ledger_path']).exists() and not Path(p['projection_ledger_path']).exists()
+    output=Path(p['isolated_output_directory'])
+    if not output.exists():
+        assert not Path(p['attempt_ledger_path']).exists() and not Path(p['projection_ledger_path']).exists()
+    else:
+        attempts=AppendOnlyJsonl(Path(p['attempt_ledger_path'])).rows()
+        projections=AppendOnlyJsonl(Path(p['projection_ledger_path'])).rows()
+        status=json.loads(Path(p['results_path']).read_text())
+        assert len(attempts)==len(projections)==2
+        assert status['status']=='STOPPED_FIRST_NON_SUCCESS'
+        assert status['physical_attempts']==status['transport_physical_requests']==2
     assert all(len(e['redacted_fingerprint_sha256'])==64 for e in p['endpoints'])
     assert 'api-key' not in PREFLIGHT.read_text()
 

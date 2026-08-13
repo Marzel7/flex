@@ -29,8 +29,8 @@ class FakeTransport:
         return {"result":{"blockTime":19,"transaction":{"message":{"instructions":[{
             "program":"system","parsed":{"type":"transfer","info":{"source":"funder","destination":signature.replace("funding","creator"),"lamports":10}}}]}}}}
 
-    def get_enhanced_transactions(self, address, *, limit):
-        self.physical_request_count += 1; self.calls.append(("enhanced", address, limit))
+    def get_oldest_enhanced_transaction(self, address):
+        self.physical_request_count += 1; self.calls.append(("oldest-enhanced", address, 1, "asc", "finalized"))
         if self.no_candidate: return []
         return [{"signature":address.replace("creator","funding"),"timestamp":19,"nativeTransfers":[{
             "fromUserAccount":"funder","toUserAccount":address,"amount":10}]}]
@@ -45,7 +45,7 @@ def test_full_fake_run_is_60_ordered_attempts_and_projections(tmp_path):
     transport=FakeTransport(); results=runner(tmp_path,transport).run()
     attempts=AppendOnlyJsonl(tmp_path/'attempts.jsonl').rows(); projections=AppendOnlyJsonl(tmp_path/'projections.jsonl').rows()
     assert len(results)==20 and len(attempts)==len(projections)==transport.physical_request_count==60
-    assert [row['request_kind'] for row in attempts[:3]]==['getTransaction','getEnhancedAddressTransactions','getTransaction']
+    assert [row['request_kind'] for row in attempts[:3]]==['getTransaction','getOldestEnhancedAddressTransaction','getTransaction']
     assert all('endpoint' not in row and 'credential' not in row and 'raw' not in row for row in projections)
     assert projections[1]['source']=='funder' and projections[1]['destination']=='creator-1'
 

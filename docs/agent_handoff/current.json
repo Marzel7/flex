@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T11:05:19Z",
+  "updated_at_utc": "2026-08-13T11:08:04Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2BH listener descriptor stability observation",
-    "mode": "bounded read-only production observation stopped at first endpoint",
-    "status": "HOLD",
-    "verdict": "PRIMARY_FD_WARNING_THRESHOLD_REACHED"
+    "milestone": "OIP v2.2E.2B2BI watchtower migration long-scope diagnosis",
+    "mode": "bounded local read-only diagnosis",
+    "status": "COMPLETE",
+    "verdict": "SYNCHRONOUS_CROSS_DATABASE_WAIT_INSIDE_MAIN_CONNECTION_SCOPE"
   },
   "production_state": {
     "retention": "ON",
@@ -1229,6 +1229,25 @@
       "flags": "Migration Census ON; Retention ON; Evidence Mirror OFF; Cohort Mode OFF; evidence_writer STOPPED.",
       "blocker": "B2BF prevents missing close-on-exception, but the migration/watchtower routine still keeps a main-DB connection open during a long owner-thread operation and reaches the descriptor warning threshold under concurrent migrations. The recurrent descriptor incident is not closed, and B2Z remains held."
     },
+    "oip_v2_2e_2b2bi_watchtower_migration_long_scope_diagnosis": {
+      "status": "COMPLETE",
+      "verdict": "SYNCHRONOUS_CROSS_DATABASE_WAIT_INSIDE_MAIN_CONNECTION_SCOPE",
+      "verification_utc": "2026-08-13T11:08:04Z",
+      "scope": "Read-only source, lifecycle telemetry, log, query-plan, descriptor, and service inspection only; no implementation, provider request, production write, service restart/stop, lock manipulation, configuration/watchdog change, Evidence Mirror, Cohort Mode, or B2Z action.",
+      "exact_cause": "When no watchtower creator is found, _check_watchtower_migration._run keeps its main flex_complete_database.db connection open and synchronously calls database_write_service.submit for listener-walkback-enqueue on the separate wt_ops_v2.db. submit blocks on item.event.wait until the operations writer finishes or fails. The main connection is unused during that wait but remains registered/open.",
+      "timing_evidence": "Eight post-B2BF watchtower-migration main connections were observed: six completed with lifetimes 18.169s, 27.836s, 41.033s, 42.172s, 42.825s, and 76.576s; five crossed the 20-second reaper threshold. Listener logs independently attributed walkback-enqueue waits/failures at 16.283s, 18.152s, 27.801s, 42.132s, and one 60.004s cross-process timeout.",
+      "owner_cleanup_ordering": "The foreign reaper does not close thread-affine SQLite connections. At age >20s it marks OWNER_THREAD_CLEANUP_REQUIRED and leaves the connection intact. After the synchronous operations submit returns, the original tok_work owner reaches B2BF's finally and closes it. B2BF therefore fixed permanent exception leakage, but cannot shorten this legitimate-yet-unnecessary main-connection hold.",
+      "main_query_evidence": "All main-DB lookup predicates are indexed in the live schema: wt_creator_launches.mint_address uses idx_wt_creator_launches_mint, token_analysis.mint uses its primary-key index, and wt_staged_wallets.wallet_address uses its primary-key index. No evidence attributes the 16-76s lifetime to those reads.",
+      "scope_evidence": "The successful creator-known path already closes the main connection before derived wt_ops lifecycle work. The unnecessary cross-database wait occurs specifically in the unknown-creator walkback branch before its return. The same bounded 40-thread token pool can receive calls from both fast_path_register and migration_tx_store, allowing migration bursts and potentially two invocations for one migration to overlap.",
+      "smallest_repair_not_implemented": "In the unknown-creator branch, copy the locally derived creator value, close and clear the main-DB connection before registering/submitting listener-walkback-enqueue to wt_ops_v2.db, while retaining the outer finally as the exception backstop. Add focused ordering tests proving main close precedes cross-database submit on success, timeout, and exception paths. Do not change watchdog thresholds or make the operations submit asynchronous in this smallest repair.",
+      "runtime": "watchtower_listener remained RUNNING pid 14922 at 8m31s; max watchdog primary_fd_count remained 8 with zero fatal samples; creator_funding_worker pid 80211 and creator_resolution_worker pid 72488 remained RUNNING; evidence_writer STOPPED.",
+      "provider_calls": 0,
+      "production_writes_initiated_by_codex": 0,
+      "production_changes": false,
+      "service_restarts_or_stops_initiated_by_codex": 0,
+      "flags": "Migration Census ON; Retention ON; Evidence Mirror OFF; Cohort Mode OFF; evidence_writer STOPPED.",
+      "blocker": "The exact long-scope defect is identified but not repaired. B2BH remains failed at the warning threshold and B2Z remains held."
+    },
     "oip_v2_2e_incident_causal_assessment": {
       "status": "COMPLETE",
       "verdict": "LATENT_DEFECT_REACTIVATED_BY_WORKER_RECOVERY",
@@ -1661,6 +1680,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "B2BI proves the post-B2BF warning is caused by synchronous listener-walkback-enqueue waits on wt_ops_v2.db occurring while the unused main-DB connection remains open. Owner-thread cleanup eventually closes it, but only after 16-76 seconds. Safe-local close-before-submit implementation requires explicit authorization; B2Z remains held.",
     "B2BH stopped after 70 seconds because primary_fd_count reached warning threshold 8 (the bounded monitor saw 10 matching main-DB/WAL descriptors). Database and ingestion remained healthy, but _check_watchtower_migration still held an owner-thread connection for 31.2 seconds. Further bounded read-only diagnosis requires explicit authorization; B2Z remains held.",
     "B2BG immediate verification passes after loading 8e435510: four watchdog samples peaked at fd_count=5 and returned to zero, ingestion is healthy, and database p99 is 0.04ms. A bounded stability observation is still required before declaring the recurrent descriptor incident closed; B2Z remains held.",
     "B2BF locally qualified the guaranteed-close repair and committed it narrowly at 8e435510, but it is not deployed. The pre-B2BF listener automatically restarted again and is now PID 11725. One explicit watchtower_listener deployment/restart authorization is required; B2Z remains held.",
@@ -1688,8 +1708,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2BI watchtower migration long-scope diagnosis",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize bounded local read-only diagnosis of _check_watchtower_migration._run after B2BF, including exact query/branch timing, owner-cleanup ordering, concurrent migration fan-out, and whether read analysis or derived-lifecycle work unnecessarily remains inside the main-DB connection scope; no implementation, provider calls, production writes, service restarts or stops, lock manipulation, configuration or watchdog-threshold changes, Evidence Mirror, Cohort Mode, or B2Z execution.",
+    "milestone": "OIP v2.2E.2B2BJ watchtower cross-database scope repair",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize safe-local design, implementation, focused ordering/exception/timeout tests, regression tests, and one narrow commit changing only the unknown-creator branch of _check_watchtower_migration._run so its main Flex database connection is closed and cleared before synchronous listener-walkback-enqueue work on wt_ops_v2.db, while preserving the B2BF finally backstop, bounded pool, and existing behavior; no deployment, provider calls, production writes, service restarts or stops, lock manipulation, configuration or watchdog-threshold changes, Evidence Mirror, Cohort Mode, or B2Z execution.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

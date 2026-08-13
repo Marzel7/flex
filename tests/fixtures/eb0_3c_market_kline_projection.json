@@ -1,0 +1,24 @@
+{
+  "schema_version": "eb0.3c.market-kline-projection.v1",
+  "platform_mint": "FrozenMint111111111111111111111111111111111",
+  "provider": "gmgn",
+  "provider_version": "shape-unqualified",
+  "endpoint_id": "market-kline",
+  "endpoint_version": "shape-unqualified",
+  "interval": "1m",
+  "request_from_ms": 1700000000000,
+  "request_to_ms": 1700000120000,
+  "observed_at_ms": 1700000180000,
+  "request_run_id": "frozen-eb0-3c-run",
+  "physical_request_sequence": 1,
+  "request_cost_units": 2,
+  "response_digest": "6b95798ab79188d8c420d9354cdee4aad66cfdba28ab83e69f056936688ff68a",
+  "quality_state": "OBSERVED",
+  "completeness_state": "PARTIAL_INTERVAL",
+  "conflict_group_id": null,
+  "earliest_observation_semantics": "PAGE_EARLIEST_NOT_HISTORY",
+  "candles": [
+    {"time_ms": 1700000000000, "open": "0.0010", "high": "0.0014", "low": "0.0009", "close": "0.0012", "volume": "2500.00"},
+    {"time_ms": 1700000060000, "open": "0.0012", "high": "0.0015", "low": "0.0011", "close": "0.0013", "volume": "3000.00"}
+  ]
+}

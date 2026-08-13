@@ -1,22 +1,22 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T15:18:45Z",
+  "updated_at_utc": "2026-08-13T15:24:42Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "1d91db846c7d4362d8086df6182b5fa5276d7955",
-    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, and user paths remain present; the narrow EB0.2G commit contains only the authorized query-only extractor, tests, and documentation"
+    "git_head": "c559bd370d11041b2855e25e47356c3a8992ea27",
+    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, and user paths remain present; the narrow EB0.2H commit contains only the authorized immutable bundle module, frozen/ephemeral tests, and documentation"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T15:18:45Z",
+    "published_at_utc": "2026-08-13T15:24:42Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.2G query-only creator outcome extractor qualification",
+    "milestone": "EB0.2H immutable creator outcome extraction bundle qualification",
     "mode": "safe-local frozen and ephemeral SQLite qualification",
     "status": "COMPLETE",
     "verdict": "LOCAL_QUALIFICATION_PASS"
@@ -235,6 +235,32 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_2h_immutable_creator_outcome_bundle": {
+      "status": "COMPLETE",
+      "verdict": "LOCAL_QUALIFICATION_PASS_NO_PRODUCTION_COMPATIBILITY_CLAIM",
+      "engineering_commit": "c559bd370d11041b2855e25e47356c3a8992ea27",
+      "qualified_semantics": [
+        "writes only to a caller-supplied new or empty isolated directory using exclusive file creation",
+        "serializes canonical run, accounting, EB0.2D manifest, and EB0.2E corpus JSON",
+        "binds caller-supplied engineering revision, source fingerprint, fixed policies, extraction result digest, per-file hashes, and one bundle digest",
+        "reconstructs manifests and corpora and verifies exact EB0.2D, EB0.2E, accounting, and EB0.2G digest replay",
+        "rejects overwrite, missing, extra, altered, noncanonical, malformed, or internally inconsistent bundle content"
+      ],
+      "tests": {
+        "passed": 93,
+        "failed": 0
+      },
+      "provider_calls": 0,
+      "production_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "gmgn_integration": false,
+      "rankings": false,
+      "operator_attribution": false,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb0_2g_query_only_creator_outcome_extractor": {
       "status": "COMPLETE",
       "verdict": "LOCAL_QUALIFICATION_PASS_NO_PRODUCTION_COMPATIBILITY_CLAIM",
@@ -2947,7 +2973,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "EB0.2G qualifies the query-only extractor against frozen/ephemeral normalized sources, but no immutable output-bundle writer/verifier exists. EB0.2H must qualify isolated empty-directory publication, per-file digests, bundle digest, replay verification, and fail-closed overwrite behavior before any production compatibility or live extraction milestone.",
+    "EB0.2H qualifies immutable extraction bundles against frozen/ephemeral sources, but production schema/high-water compatibility and the availability of provenance-qualified creator identity and full-horizon observation-window facts remain unverified. A separately authorized bounded read-only compatibility preflight is required before any live extraction milestone.",
     "OIP v2.2E is qualified complete, but production activation remains explicitly unauthorized. Any Evidence authority, Evidence Mirror, Cohort Mode, provider expansion, or production deployment requires its own future milestone. Post-E work must begin with roadmap reconciliation rather than implicit activation.",
     "B2BX fully passes the isolated provider qualification at 20/20 with exactly 60 authorized requests. The remaining step is a bounded local-only E-series closure assessment that combines this provider result with the previously qualified B2R acquisition/retention funnel; no production activation is implied or authorized.",
     "B2BW is locally qualified at f08db5b1 with fresh empty ledgers. Provider execution remains HUMAN_APPROVAL_REQUIRED and must explicitly acknowledge the higher-cost oldest enhanced request and the unchanged 60-request stop-safe ceiling.",
@@ -2993,8 +3019,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.2H immutable creator outcome extraction bundle qualification",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize safe-local design, implementation, frozen/ephemeral SQLite tests, regression tests, documentation, and one narrow commit for EB0.2H immutable EB0.2G extraction output-bundle qualification. Write only to an explicitly supplied new empty directory; serialize a run manifest, extraction accounting, EB0.2D manifests, and EB0.2E corpora with canonical JSON; bind source fingerprint, fixed policies, engineering revision supplied by the caller, per-file hashes, and one bundle digest; verify exact replay and fail closed on overwrite, missing, extra, or altered files. Frozen/ephemeral fixtures only. Do not access production/runtime sources, execute a live extraction, publish externally, aggregate rates or profiles, rank, score, make policy decisions, infer profitability/cashflow, or attribute operators. No provider calls, GMGN integration, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, or activation.",
+    "milestone": "EB0.2I production schema and high-water compatibility preflight",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize EB0.2I bounded read-only production schema and high-water compatibility preflight for commit c559bd370d11041b2855e25e47356c3a8992ea27. Inspect only table, column, and index presence; source-file separation; immutable cohort and high-water feasibility; and availability of provenance-qualified creator identity and full-horizon observation-window facts required by EB0.2G/H. Do not execute extraction, materialize a cohort or bundle, read row payloads beyond bounded schema/high-water probes, write, aggregate rates or profiles, rank, score, make policy decisions, infer profitability or cashflow, attribute operators, or activate anything. No provider calls, GMGN integration, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, or activation.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T11:08:04Z",
+  "updated_at_utc": "2026-08-13T11:10:52Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "8e435510cf2efe446617fa78eabdd78fda3d6609",
-    "working_tree": "dirty: unrelated live Supervisor, audit, runtime, and user files remain present and were not staged; B2BF engineering changes are committed narrowly"
+    "git_head": "03aa99592b2086eee7532a1a5a53d25c50bb75ec",
+    "working_tree": "dirty: unrelated live Supervisor, audit, runtime, and user files remain present and were not staged; B2BJ engineering changes are committed narrowly"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2BI watchtower migration long-scope diagnosis",
-    "mode": "bounded local read-only diagnosis",
+    "milestone": "OIP v2.2E.2B2BJ watchtower cross-database scope repair",
+    "mode": "safe-local implementation, tests, and narrow commit; not deployed",
     "status": "COMPLETE",
-    "verdict": "SYNCHRONOUS_CROSS_DATABASE_WAIT_INSIDE_MAIN_CONNECTION_SCOPE"
+    "verdict": "LOCAL_QUALIFICATION_PASS"
   },
   "production_state": {
     "retention": "ON",
@@ -1248,6 +1248,28 @@
       "flags": "Migration Census ON; Retention ON; Evidence Mirror OFF; Cohort Mode OFF; evidence_writer STOPPED.",
       "blocker": "The exact long-scope defect is identified but not repaired. B2BH remains failed at the warning threshold and B2Z remains held."
     },
+    "oip_v2_2e_2b2bj_watchtower_cross_database_scope_repair": {
+      "status": "COMPLETE",
+      "verdict": "LOCAL_QUALIFICATION_PASS",
+      "verification_utc": "2026-08-13T11:10:52Z",
+      "commit": "03aa99592b2086eee7532a1a5a53d25c50bb75ec",
+      "files": [
+        "src/core/pumpfun_curve_listener.py",
+        "tests/test_b2bf_watchtower_migration_connection_close.py"
+      ],
+      "implementation": "The unknown-creator branch now copies its local creator value, closes and clears the main Flex database connection, and only then registers/submits synchronous listener-walkback-enqueue work on wt_ops_v2.db. B2BF's outer finally remains the exception/early-return backstop; the bounded token pool and functional behavior are unchanged.",
+      "tests": "22 passed: 7 focused B2BF/B2BJ tests covering query exception, commit exception, known-creator success, guaranteed finally, and unknown-creator submit success/exception/timeout ordering; B2BC long-holder boundaries; X78.18 reconnect isolation; usage-tracker connection lifecycle. py_compile and diff check passed.",
+      "initial_test_failure": "Three new ordering tests initially stopped before fake submit because the extracted-function test namespace omitted __file__. The isolated fixture was corrected to use the real source path; all 22 tests then passed. Production logic was not implicated.",
+      "deployment": "NOT_DEPLOYED",
+      "runtime": "watchtower_listener remains RUNNING pid 14922 on pre-B2BJ loaded code; creator_funding_worker RUNNING pid 80211; creator_resolution_worker RUNNING pid 72488; evidence_writer STOPPED. No service action occurred in B2BJ.",
+      "provider_calls": 0,
+      "production_writes": 0,
+      "production_changes": false,
+      "service_restarts_or_stops": 0,
+      "configuration_or_watchdog_changes": 0,
+      "flags": "Migration Census ON; Retention ON; Evidence Mirror OFF; Cohort Mode OFF; evidence_writer STOPPED.",
+      "blocker": "Commit 03aa9959 is not loaded by the listener. Exactly one named watchtower_listener restart and immediate scoped verification require separate explicit authorization. B2Z remains held."
+    },
     "oip_v2_2e_incident_causal_assessment": {
       "status": "COMPLETE",
       "verdict": "LATENT_DEFECT_REACTIVATED_BY_WORKER_RECOVERY",
@@ -1680,6 +1702,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "B2BJ locally qualified close-before-cross-database-submit ordering and committed it narrowly at 03aa9959, but the running listener has not loaded it. One explicit listener deployment/restart authorization is required; B2Z remains held.",
     "B2BI proves the post-B2BF warning is caused by synchronous listener-walkback-enqueue waits on wt_ops_v2.db occurring while the unused main-DB connection remains open. Owner-thread cleanup eventually closes it, but only after 16-76 seconds. Safe-local close-before-submit implementation requires explicit authorization; B2Z remains held.",
     "B2BH stopped after 70 seconds because primary_fd_count reached warning threshold 8 (the bounded monitor saw 10 matching main-DB/WAL descriptors). Database and ingestion remained healthy, but _check_watchtower_migration still held an owner-thread connection for 31.2 seconds. Further bounded read-only diagnosis requires explicit authorization; B2Z remains held.",
     "B2BG immediate verification passes after loading 8e435510: four watchdog samples peaked at fd_count=5 and returned to zero, ingestion is healthy, and database p99 is 0.04ms. A bounded stability observation is still required before declaring the recurrent descriptor incident closed; B2Z remains held.",
@@ -1708,8 +1731,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2BJ watchtower cross-database scope repair",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize safe-local design, implementation, focused ordering/exception/timeout tests, regression tests, and one narrow commit changing only the unknown-creator branch of _check_watchtower_migration._run so its main Flex database connection is closed and cleared before synchronous listener-walkback-enqueue work on wt_ops_v2.db, while preserving the B2BF finally backstop, bounded pool, and existing behavior; no deployment, provider calls, production writes, service restarts or stops, lock manipulation, configuration or watchdog-threshold changes, Evidence Mirror, Cohort Mode, or B2Z execution.",
+    "milestone": "OIP v2.2E.2B2BK watchtower cross-database scope deployment",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize exactly one watchtower_listener restart to load commit 03aa99592b2086eee7532a1a5a53d25c50bb75ec, with immediate verification of listener, PumpPortal, PumpSwap, walkback-enqueue/main-DB close ordering from lifecycle evidence, descriptor/watchdog state, database pressure, and unchanged flags; no other service restart or stop, provider qualification, configuration or watchdog-threshold change, lock manipulation, Evidence Mirror, Cohort Mode, or B2Z execution.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T19:29:20Z",
+  "updated_at_utc": "2026-08-13T19:30:36Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "0a7bf0ebbb7666c0c0acb6a13705d776436027cf",
-    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths; EB0.4E committed only its scoped corpus implementation, tests and documentation"
+    "git_head": "4c69f1b7fc3a8208bd1a250c971ee74f029b1621",
+    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths; EB0.4F committed only its scoped frozen-stack/extractor preflight document"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.4E deterministic operational-family corpus assembly",
-    "mode": "safe-local frozen-fixture implementation and qualification",
+    "milestone": "EB0.4F frozen contract-stack closure and query-only extractor preflight",
+    "mode": "bounded local read-only committed-stack assessment",
     "status": "COMPLETE",
-    "verdict": "PER_ROLE_NOMINATION_CORPUS_QUALIFIED"
+    "verdict": "FROZEN_CONTRACT_STACK_COMPLETE_EXTRACTOR_BOUNDARY_DEFINED"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,20 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_4f_frozen_stack_extractor_preflight": {
+      "status": "COMPLETE",
+      "verdict": "FROZEN_CONTRACT_STACK_COMPLETE_EXTRACTOR_BOUNDARY_DEFINED",
+      "engineering_commit": "4c69f1b7fc3a8208bd1a250c971ee74f029b1621",
+      "verification_utc": "2026-08-13T19:30:36Z",
+      "minimum_source": "explicit injected SQLite fixture containing exact operation_cohort, normalized_operation_runtime and nomination_candidates tables",
+      "bounds": "mode=ro plus verified query_only; exact schema allow-list; active <=30s deadlines; <=5000 operations, <=10000 evidence rows, <=5000 groups and <=50000 memberships; complete accounting and deterministic EB0.4C-E replay",
+      "production_compatibility_claim": false,
+      "provider_calls": 0,
+      "production_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "activation": false
+    },
     "eb0_4e_operational_family_corpus": {
       "status": "COMPLETE",
       "verdict": "PER_ROLE_NOMINATION_CORPUS_QUALIFIED",
@@ -3915,8 +3929,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.4F frozen contract-stack closure and query-only extractor preflight",
-    "instruction": "AUTHORIZED_STAGED_SAFE_LOCAL: Assess EB0.4A-E committed code/tests/docs/frozen fixtures only; define the exact minimum normalized operation source, immutable cohort, query-only schema, allow-lists, deadlines, ceilings, accounting and fail-closed boundaries for a fixture-only extractor. Do not implement the extractor in this checkpoint. No production/runtime/provider/GMGN access or changes, deployment, restarts, configuration, Evidence Mirror, Cohort Mode, ranking, scoring, policy, profitability/cashflow, operator attribution or activation.",
+    "milestone": "EB0.4G fixture-only query extractor qualification",
+    "instruction": "AUTHORIZED_STAGED_SAFE_LOCAL: Implement and qualify the dependency-injected query-only SQLite extractor under the exact EB0.4F schema, immutable cohort/candidate grouping, mode=ro/query_only, allow-list, deadline, ceiling, accounting and EB0.4C-E deterministic replay boundaries. Frozen/ephemeral fixtures only; no production/runtime/provider/GMGN access or changes, deployment, restarts, configuration, Evidence Mirror, Cohort Mode, ranking, scoring, policy, profitability/cashflow, operator attribution or activation.",
     "safe_local_stage_authorized": true,
     "activation_authorized": false,
     "production_activation_authorized": false

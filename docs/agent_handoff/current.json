@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T11:23:47Z",
+  "updated_at_utc": "2026-08-13T11:41:06Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2BM full-health timeout diagnosis",
-    "mode": "bounded local read-only diagnosis",
+    "milestone": "OIP v2.2E.2B2BN revised listener stability observation",
+    "mode": "completed bounded read-only production stability observation",
     "status": "COMPLETE",
-    "verdict": "MONITORING_PATH_DB_LATENCY_NOT_ACTIVE_INGESTION_IMPACT"
+    "verdict": "15_CLEAN_MINUTES_PASS"
   },
   "production_state": {
     "retention": "ON",
@@ -1329,6 +1329,28 @@
       "flags": "Migration Census ON; Retention ON; Evidence Mirror OFF; Cohort Mode OFF; evidence_writer STOPPED.",
       "blocker": "The original B2BL window remains failed closed. A revised bounded observation contract and new start boundary require explicit authorization; B2Z remains held."
     },
+    "oip_v2_2e_2b2bn_revised_listener_stability_observation": {
+      "status": "COMPLETE",
+      "verdict": "15_CLEAN_MINUTES_PASS",
+      "authorization_consumed_at_utc": "2026-08-13T11:25:44Z",
+      "qualified_start_checkpoint_utc": "2026-08-13T11:25:44Z",
+      "closed_at_utc": "2026-08-13T11:40:50Z",
+      "observed_duration_seconds": 906,
+      "contract": "Primary signals were Supervisor PID, listener connection lifecycle/watchdog telemetry, db_serializer_metrics.json, direct read-only queue checks, and listener-log websocket/traffic freshness. End at first of 15 clean minutes or any named corroborated degradation; DB-backed full-health endpoints were advisory only.",
+      "endpoint": "15_CLEAN_MINUTES",
+      "descriptor_result": "Observer maximum primary_fd_count was 4; the complete post-B2BJ listener lifecycle history contained 57 watchdog snapshots with maximum fd_count=7 and no fatal samples. Thirty-five watchtower migration main-DB connections closed, maximum lifetime 48.434ms, with zero active at final verification.",
+      "serializer_result": "Serializer queue depth peaked at 1 and ended without pressure; p99_wait_ms remained below 9ms with observed maximum 8.57ms.",
+      "ingestion_result": "PumpPortal and PumpSwap remained connected throughout; listener traffic remained fresh, direct birth and migration persistence queue counts remained zero, and no stale-traffic or websocket endpoint fired.",
+      "service_result": "Listener PID 26185 remained unchanged and RUNNING; watchtower_api PID 77110, creator_funding_worker PID 80211, and creator_resolution_worker PID 72488 remained RUNNING; evidence_writer remained STOPPED. No automatic or Codex-initiated service action occurred.",
+      "provider_qualification_calls": 0,
+      "production_writes_initiated_by_codex": 0,
+      "production_changes": false,
+      "service_restarts_or_stops": 0,
+      "configuration_changes": 0,
+      "flags": "Migration Census ON; Retention ON; Evidence Mirror OFF; Cohort Mode OFF; evidence_writer STOPPED.",
+      "verdict_reason": "The B2BJ close-before-cross-database-submit repair sustained live migration traffic for the full qualified window without descriptor accumulation, long watchtower main connections, serializer pressure, ingestion degradation, or listener restart. The listener descriptor incident is closed for this bounded qualification.",
+      "blocker": "B2Z is still not authorized to resume merely because listener stability passed. The next provider execution or other production/provider milestone requires its own explicit authorization and re-verification of all contract preconditions."
+    },
     "oip_v2_2e_incident_causal_assessment": {
       "status": "COMPLETE",
       "verdict": "LATENT_DEFECT_REACTIVATED_BY_WORKER_RECOVERY",
@@ -1761,6 +1783,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "B2BN closes the listener descriptor incident with 15 qualified clean minutes: max observer fd=4, watchtower connections <=48.434ms, serializer p99 <9ms, queues empty, feeds connected, and PID stable. B2Z remains separately human-gated and held until explicitly reauthorized with fresh precondition verification.",
     "B2BM confirms B2BL stopped on monitoring-path DB latency, not corroborated live ingestion/database-write impact: /healthz is fast, DB-backed health routes are variably 2s to >15s, and completed snapshots show database/ingestion healthy. A revised observation contract needs explicit authorization; B2Z remains held.",
     "B2BL descriptor behavior stayed clean for 237 seconds (max fd=7, latest 0, no 20-second watchtower connection), but the observation stopped on a 12-second /api/health/full timeout. A retry showed database and ingestion healthy while platform WARNING reflected stale retired/operational workers. Timeout provenance requires explicit read-only diagnosis; B2Z remains held.",
     "B2BK immediate verification passes on a live migration: watchtower main connections closed in 14-32ms before operations work, watchdog fd_count peaked at 7 then returned to zero, and database/ingestion stayed healthy. A bounded stability observation remains required; B2Z stays held.",
@@ -1793,8 +1816,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2BN revised listener stability observation",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize a new bounded 15-minute read-only production stability observation starting at the first Supervisor/lifecycle/serializer/ingestion checkpoint after authorization and ending at the first of: 15 clean minutes, primary_fd_count reaching 8, any watchtower migration main-DB connection reaching 20 seconds, CRITICAL_LISTENER_DB_HANDLE, listener PID change, serializer database pressure, queue or websocket degradation, stale listener traffic, or other corroborated production impact. Use Supervisor, connection-lifecycle/watchdog telemetry, db_serializer_metrics.json, listener log/queue/websocket evidence as primary signals; /api/health/full is advisory and an isolated timeout is monitoring-path degradation, not by itself production impact. No provider qualification, production writes, service restarts or stops, lock manipulation, configuration changes, Evidence Mirror, Cohort Mode, or B2Z execution.",
+    "milestone": "OIP v2.2E.2B2BO post-stability B2Z gate reassessment",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize bounded local read-only reassessment of the existing B2Z isolated 60-request Helius contract preconditions after B2BN, using the frozen B2R cohort, existing local ledger/contract artifacts, current service/serializer/ingestion health, and zero provider calls, to determine whether B2Z execution may be separately reauthorized or remains blocked; no provider execution, production writes, service restarts or stops, lock manipulation, configuration changes, Evidence Mirror, Cohort Mode, or B2Z execution in the reassessment turn.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

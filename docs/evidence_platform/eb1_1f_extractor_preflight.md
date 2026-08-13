@@ -1,0 +1,3 @@
+# EB1.1F Frozen Stack and Extractor Boundary
+
+EB1.1A–E are complete for frozen inputs. EB1.1G may read only one injected fixture SQLite database containing exactly `eligibility_records(position, canonical_json)`: four contiguous rows encoding the exact EB1.0A input records. It must use `mode=ro`, verified `query_only`, exact schema, canonical JSON, an active deadline no greater than 30 seconds, four rows, and 256 KiB total input. It replays EB1.0A then EB1.1A/D/E and fails closed on drift, duplicates, malformed data, limits, or replay errors. No production compatibility or executable remediation is implied.

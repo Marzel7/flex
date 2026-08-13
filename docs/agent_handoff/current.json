@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T12:49:18Z",
+  "updated_at_utc": "2026-08-13T12:52:41Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T12:49:18Z",
+    "published_at_utc": "2026-08-13T12:52:41Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2BU transfer-aware isolated Helius execution",
-    "mode": "authorized isolated sequential dual-endpoint provider execution",
-    "status": "HOLD",
-    "verdict": "STOPPED_NO_PRE_MIGRATION_INBOUND_SOL_CANDIDATE"
+    "milestone": "OIP v2.2E.2B2BV enhanced-history coverage diagnosis",
+    "mode": "bounded local read-only diagnosis using committed code and sealed metadata",
+    "status": "COMPLETE",
+    "verdict": "VALID_BOUNDED_SENTINEL_NEGATIVE_COVERAGE_NOT_MEASURABLE"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,28 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "oip_v2_2e_2b2bv_enhanced_history_coverage_diagnosis": {
+      "status": "COMPLETE",
+      "verdict": "VALID_BOUNDED_SENTINEL_NEGATIVE_COVERAGE_NOT_MEASURABLE",
+      "run_id": "a3721658-f6ef-4b20-8f87-7c631551a80c",
+      "proven": [
+        "Both authorized requests completed successfully and the migration projection resolved a valid unique creator and integer migration block time.",
+        "The enhanced selector uses integer timestamp/blockTime plus nativeTransfers fromUserAccount/toUserAccount/amount semantics consistent with existing local creator-funding extractors.",
+        "The one permitted page produced no qualified pre-migration inbound SOL candidate under the exact B2BS rule."
+      ],
+      "not_measurable_from_sealed_projection": "The bounded absence projection retains no page row count, oldest/newest page timestamps, or native-transfer rejection counts, so it cannot prove whether the page contained only post-migration rows, contained pre-migration non-funding rows, or omitted the funding event beyond its 100-row boundary.",
+      "leading_explanation": "INSUFFICIENT_NEWEST_FIRST_ONE_PAGE_COVERAGE",
+      "evidence_for_leading_explanation": "Existing production creator-funding code explicitly requests ordinary pages with sort-order=desc and separately uses limit=1&sort-order=asc as an oldest-transaction bootstrap because the first-ever transaction often contains initial creator funding.",
+      "timestamp_or_native_transfer_interpretation_gap_proven": false,
+      "smallest_coherent_next_contract": "Replace the newest 100-row enhanced sentinel with one explicit oldest enhanced transaction request using limit=1&sort-order=asc&commitment=finalized; require that returned row itself contains a positive inbound native SOL transfer strictly before migration, then use the third JSON-RPC request for exact parsed proof. Preserve the three-request/60-total ceiling and add bounded page-shape metadata without raw response retention.",
+      "provider_rpc_calls": 0,
+      "production_changes": false,
+      "artifact_reset_or_deletion": false,
+      "b2bu_reexecution": false,
+      "sealed_runs_preserved": true,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF"
+    },
     "oip_v2_2e_2b2bu_transfer_aware_execution": {
       "status": "HOLD",
       "verdict": "STOPPED_NO_PRE_MIGRATION_INBOUND_SOL_CANDIDATE",
@@ -2015,6 +2037,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "B2BV classifies B2BU as a valid bounded-sentinel negative, not a parser failure. Its sealed projection cannot measure newest-page coverage. Existing local logic supports an explicit oldest-transaction enhanced request as the smallest three-request-preserving alternative, but that contract change and any later provider execution remain separately human-gated.",
     "B2BU consumed exactly 2 of 60 authorized requests and stopped on member 1 because the one permitted 100-row enhanced page contained no qualified pre-migration inbound SOL transfer. The contract prohibits pagination or supplementary lookup, so execution cannot continue. The sealed bounded projection proves the absence outcome but intentionally retains no raw page rows; further diagnosis or contract expansion requires separate authorization.",
     "B2BT is locally qualified at d121b6cc with a fresh immutable run and empty ledgers. Provider execution remains HUMAN_APPROVAL_REQUIRED and must name the new run ID, dual endpoint classes, enhanced-page credit cost, exact 60-request ceiling, and stop contract.",
     "B2BS qualifies the amended transfer-aware contract at ae646212, but the B2Z execution boundary still implements the consumed chronology-only JSON-RPC sequence and must not be reused. A new safe-local adapter/ledger/preflight milestone is required before any separately authorized provider execution.",
@@ -2056,8 +2079,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2BV enhanced-history coverage diagnosis",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize bounded local read-only diagnosis of sealed B2BU run a3721658-f6ef-4b20-8f87-7c631551a80c and its first-member NO_PRE_MIGRATION_INBOUND_SOL_CANDIDATE stop using only committed code, the immutable preflight, and sealed attempt/projection/result metadata. Determine whether the stop is an expected bounded-sentinel negative, a timestamp/nativeTransfers interpretation gap, or evidence that one enhanced page cannot cover the funding event; identify the smallest coherent next contract, but do not implement it. Zero provider calls, retries, pagination, production access, configuration changes, artifact reset/deletion, or re-execution; preserve both sealed runs, Evidence Mirror OFF, and Cohort Mode OFF.",
+    "milestone": "OIP v2.2E.2B2BW oldest-transaction sentinel contract",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize safe-local design, implementation, fake-transport tests, regression tests, and one narrow commit amending the isolated creator-funding boundary to use exactly one Helius Enhanced oldest-transaction request per member with limit=1, sort-order=asc, and commitment=finalized instead of the newest 100-row page; accept a candidate only when that row itself contains a positive inbound native SOL transfer to the resolved creator strictly before migration; use the third JSON-RPC request for exact parsed transfer proof; retain the three-request-per-member and 60-request-total ceilings; and preserve bounded page-shape/projection metadata without raw responses or credentials. Also create a fresh immutable run preflight with new empty isolated ledgers while preserving both sealed prior runs. Zero provider calls and no execution or production changes, service access, restarts, configuration changes, Evidence Mirror, or Cohort Mode.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

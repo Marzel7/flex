@@ -1,23 +1,23 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T14:00:10Z",
+  "updated_at_utc": "2026-08-13T14:06:20Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "7d4b7b19834e20cf5535b0a86d9b2cc858757acc",
-    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, handoff, and user paths remain present; EB0.1K committed exactly the authorized cohort repair, tests, and documentation"
+    "git_head": "da08b69bcc23dfae3dd310db1aaaeecf60b7346e",
+    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, handoff, and user paths remain present; EB0.1L committed exactly the authorized LaunchFact retrieval repair, tests, and documentation"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T14:00:10Z",
+    "published_at_utc": "2026-08-13T14:06:20Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.1K exact-latest-5000 cohort truncation repair",
-    "mode": "safe-local bounded-cohort implementation and ephemeral qualification",
+    "milestone": "EB0.1L bounded selected-cohort LaunchFact retrieval",
+    "mode": "safe-local bounded evidence-query implementation and ephemeral qualification",
     "status": "COMPLETE",
     "verdict": "LOCAL_QUALIFICATION_PASS"
   },
@@ -235,6 +235,31 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_1l_bounded_launch_fact_retrieval": {
+      "status": "COMPLETE",
+      "verdict": "LOCAL_QUALIFICATION_PASS",
+      "commit": "da08b69bcc23dfae3dd310db1aaaeecf60b7346e",
+      "qualified_behavior": [
+        "selected-mint JSON predicate on the query-only Evidence source",
+        "deterministic LaunchFact ordering by mint and raw artifact digest",
+        "maximum two LaunchFact rows per selected mint",
+        "maximum 10000 selected LaunchFact rows plus one overflow sentinel",
+        "fail-closed selected-mint overflow and malformed LaunchFact payload handling",
+        "unselected LaunchFact rows excluded from extractor materialization"
+      ],
+      "tests": {
+        "focused_eb0_1a_to_1l": "50 passed, 0 failed",
+        "broader_evidence_regression": "22 passed, 0 failed"
+      },
+      "provider_calls": 0,
+      "production_or_runtime_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "gmgn_integration": false,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb0_1k_latest_5000_cohort_repair": {
       "status": "COMPLETE",
       "verdict": "LOCAL_QUALIFICATION_PASS",
@@ -2526,7 +2551,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "EB0.1K qualifies exact latest-5000 selection at 7d4b7b19. One pre-live bound remains: the Evidence LaunchFact query currently materializes every LaunchFact before local cohort filtering. EB0.1L must constrain returned LaunchFact rows to selected cohort mints with an explicit ceiling and overflow stop before any live census.",
+    "EB0.1L qualifies bounded selected-cohort LaunchFact retrieval at da08b69b. One final safety defect remains before live execution: the extractor's 30-second query check occurs only after fetchall returns and therefore detects but cannot interrupt an overlong SQLite query. EB0.1M must add a monotonic SQLite progress-handler deadline and reliably classify interruption before any live census.",
     "OIP v2.2E is qualified complete, but production activation remains explicitly unauthorized. Any Evidence authority, Evidence Mirror, Cohort Mode, provider expansion, or production deployment requires its own future milestone. Post-E work must begin with roadmap reconciliation rather than implicit activation.",
     "B2BX fully passes the isolated provider qualification at 20/20 with exactly 60 authorized requests. The remaining step is a bounded local-only E-series closure assessment that combines this provider result with the previously qualified B2R acquisition/retention funnel; no production activation is implied or authorized.",
     "B2BW is locally qualified at f08db5b1 with fresh empty ledgers. Provider execution remains HUMAN_APPROVAL_REQUIRED and must explicitly acknowledge the higher-cost oldest enhanced request and the unchanged 60-request stop-safe ceiling.",
@@ -2572,8 +2597,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.1L bounded selected-cohort LaunchFact retrieval",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize safe-local design, implementation, frozen/ephemeral multi-SQLite tests, regression tests, documentation, and one narrow commit for EB0.1L bounded selected-cohort LaunchFact retrieval. Replace all-LaunchFact materialization with a query-only selected-mint predicate, deterministic ordering, and an explicit maximum of two LaunchFact rows per selected mint / 10000 rows total plus one overflow sentinel; stop fail-closed on overflow, malformed payload, query over 30 seconds, or schema mismatch. Preserve exact latest-5000 selection, independent mode=ro/query_only sources, EB0.1A-K provenance/missingness/bundle/replay semantics, and no timestamp substitution. Frozen and ephemeral fixtures only; no production/runtime access, provider calls, production changes, GMGN integration, rankings, operator attribution, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, activation, or live census execution. A later EB0.1M bounded live census remains separately HUMAN_APPROVAL_REQUIRED.",
+    "milestone": "EB0.1M interruptible SQLite query-deadline repair",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize safe-local design, implementation, frozen/ephemeral SQLite tests, regression tests, documentation, and one narrow commit for EB0.1M interruptible query deadlines. Amend the query-only extractor so each bounded SQLite statement installs a monotonic progress handler that interrupts execution at its maximum 30-second deadline, always clears the handler, and maps deadline interruption to EB0_1G_QUERY_TIMEOUT while preserving other SQLite failures. Prove timeout, handler cleanup, normal query, and exception paths with injected clocks/ephemeral fixtures. Preserve exact latest-5000 selection, selected-cohort evidence ceilings, independent mode=ro/query_only sources, and EB0.1A-L provenance/missingness/bundle/replay semantics. No production/runtime access, provider calls, production changes, GMGN integration, rankings, operator attribution, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, activation, or live census execution. If qualified, EB0.1N bounded live census is the exact next separately HUMAN_APPROVAL_REQUIRED milestone.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

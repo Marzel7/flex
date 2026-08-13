@@ -1,0 +1,62 @@
+[
+  {
+    "upstream_stage": "EB0.1",
+    "bundle_schema_version": "eb0.1j.v1",
+    "bundle_digest": "1111111111111111111111111111111111111111111111111111111111111111",
+    "cohort_or_window_identity": "latest-5000-high-water-a",
+    "engineering_revision": "153cb464bff52893450a5f10efa0030d591df882",
+    "authority_lane": "CANONICAL_BIRTH_VALUATION",
+    "applicable": true,
+    "total_count": 5000,
+    "observed_count": 2442,
+    "missing_count": 2558,
+    "conflicting_count": 0,
+    "completeness_state": "PARTIAL",
+    "provenance_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  {
+    "upstream_stage": "EB0.2",
+    "bundle_schema_version": "eb0.2h.v1",
+    "bundle_digest": "2222222222222222222222222222222222222222222222222222222222222222",
+    "cohort_or_window_identity": "latest-5000-creator-outcomes",
+    "engineering_revision": "c559bd370d11041b2855e25e47356c3a8992ea27",
+    "authority_lane": "CANONICAL_CREATOR_OUTCOME",
+    "applicable": true,
+    "total_count": 5000,
+    "observed_count": 0,
+    "missing_count": 5000,
+    "conflicting_count": 0,
+    "completeness_state": "NOT_OBSERVED",
+    "provenance_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  {
+    "upstream_stage": "EB0.3",
+    "bundle_schema_version": "eb0.3g.v1",
+    "bundle_digest": "3333333333333333333333333333333333333333333333333333333333333333",
+    "cohort_or_window_identity": "qualified-one-mint-window",
+    "engineering_revision": "d121b6cc00000000000000000000000000000000",
+    "authority_lane": "SUPPLEMENTAL_MARKET_NON_AUTHORITATIVE",
+    "applicable": true,
+    "total_count": 1,
+    "observed_count": 1,
+    "missing_count": 0,
+    "conflicting_count": 0,
+    "completeness_state": "COMPLETE",
+    "provenance_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+  },
+  {
+    "upstream_stage": "EB0.4",
+    "bundle_schema_version": "eb0.4h.v1",
+    "bundle_digest": "4444444444444444444444444444444444444444444444444444444444444444",
+    "cohort_or_window_identity": "frozen-operational-family-fixture",
+    "engineering_revision": "a7d851abbe14bc43b2bef2df071f3c06bf29cf52",
+    "authority_lane": "NOMINATION_NON_AUTHORITATIVE",
+    "applicable": true,
+    "total_count": 2,
+    "observed_count": 2,
+    "missing_count": 0,
+    "conflicting_count": 0,
+    "completeness_state": "COMPLETE",
+    "provenance_digest": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+  }
+]

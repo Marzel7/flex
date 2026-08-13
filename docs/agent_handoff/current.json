@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T19:33:18Z",
+  "updated_at_utc": "2026-08-13T19:36:09Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "57ead756160456ea083aed1bebba3aea53d6a8cb",
-    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths; EB0.4G committed only its scoped fixture-only extractor, tests and documentation"
+    "git_head": "a7d851abbe14bc43b2bef2df071f3c06bf29cf52",
+    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths; EB0.4H committed only its scoped immutable bundle implementation, tests and documentation; all unrelated paths preserved"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.4G fixture-only query extractor qualification",
-    "mode": "safe-local frozen/ephemeral SQLite qualification",
+    "milestone": "EB0.4 frozen contract-stack closure",
+    "mode": "safe-local frozen/ephemeral evidence-stack closure",
     "status": "COMPLETE",
-    "verdict": "QUERY_ONLY_FIXTURE_EXTRACTOR_QUALIFIED"
+    "verdict": "EB0_4_COMPLETE_FROZEN_STACK_QUALIFIED"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,32 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_4h_immutable_bundle_and_closure": {
+      "status": "COMPLETE",
+      "verdict": "EB0_4_COMPLETE_FROZEN_STACK_QUALIFIED",
+      "engineering_commit": "a7d851abbe14bc43b2bef2df071f3c06bf29cf52",
+      "verification_utc": "2026-08-13T19:36:09Z",
+      "qualified_stack": [
+        "EB0.4A non-authoritative shared-behaviour operational-family nomination contract",
+        "EB0.4B explicit-binding source-mapping audit",
+        "EB0.4C deterministic normalized-runtime adapters",
+        "EB0.4D immutable nomination manifests",
+        "EB0.4E deterministic per-primary-role corpora",
+        "EB0.4F frozen-stack closure and query-only extractor boundary",
+        "EB0.4G dependency-injected fixture-only query extractor",
+        "EB0.4H immutable write-once output bundle and exact replay"
+      ],
+      "bundle_guarantees": "new empty output directory; canonical run/accounting/manifest/corpus JSON; engineering revision and source fingerprint binding; exact file set, per-file hashes, bundle digest and content replay; overwrite/missing/extra/altered content fails closed",
+      "tests": "74 passed including focused EB0.4A/C/D/E/G/H and adjacent discovery, relationship, role and operator-neutrality regressions",
+      "limitations": "frozen/ephemeral fixtures only; no production/runtime compatibility claim, live census, provider evidence, operator identity/attribution, profiles, rankings, scores, policy, profitability/cashflow or activation",
+      "provider_calls": 0,
+      "production_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb0_4g_operational_family_extractor": {
       "status": "COMPLETE",
       "verdict": "QUERY_ONLY_FIXTURE_EXTRACTOR_QUALIFIED",
@@ -3885,6 +3911,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "EB0.4 is closed only as a frozen safe-local contract stack. Production/runtime source compatibility, any live census or provider evidence, and every identity/attribution, ranking/scoring, policy or activation path remain unqualified and require a new explicitly authorized post-EB0.4 milestone.",
     "EB0.4A qualifies only the frozen nomination contract. Existing committed operational/discovery sources have not yet been mapped into its strict operation-role-edge-mechanism-temporal provenance fields; adapters, corpus assembly, profiles, ranking, attribution and activation remain unqualified or prohibited.",
     "EB0.3 is closed with measured provider coverage limits, not broad historical coverage. Any empty-page contract change, multi-mint GMGN qualification, additional provider request, or EB0.3 activation remains separately human-gated and must not delay the safe-local EB0.4 contract stage.",
     "EB0.3G completes the frozen contract/normalizer/manifest/bundle stack, but EB0.3 has only one qualified live mint/window. A closure assessment must define whether that measured coverage is sufficient for contract-stage closure and specify any future cohort/provider evidence contract without executing it.",
@@ -3943,9 +3970,10 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.4H immutable output-bundle qualification and frozen closure",
-    "instruction": "AUTHORIZED_STAGED_SAFE_LOCAL: Implement and qualify a write-once immutable output bundle for EB0.4G extraction results in an explicitly supplied new empty directory. Canonically serialize run manifest, extraction accounting, EB0.4D manifests and EB0.4E corpora; bind caller-supplied engineering revision, source fingerprint, per-file hashes and one bundle digest; exact replay must reject overwrite, missing, extra or altered files. Then close EB0.4 frozen contract stack and stop. Frozen/ephemeral fixtures only; no production/runtime/provider/GMGN access or changes, live census, deployment, restarts, configuration, Evidence Mirror, Cohort Mode, ranking, scoring, policy, profitability/cashflow, operator attribution or activation.",
-    "safe_local_stage_authorized": true,
+    "milestone": "Post-EB0.4 roadmap transition",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Stop at EB0.4 frozen closure. Before any further work, authorize a separately bounded post-EB0.4 roadmap reconciliation or name the exact next milestone and scope. No production/runtime access, live census, provider calls, production writes, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, ranking, scoring, policy, profitability/cashflow, operator attribution or activation is authorized.",
+    "approval_text": "Authorize a bounded local read-only post-EB0.4 roadmap reconciliation using committed artifacts only; identify the next safe-local milestone and evidence contract but do not implement it. No production/runtime access, live census, provider calls, production writes, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, ranking, scoring, policy activation, profitability/cashflow inference, operator identity/attribution, or activation.",
+    "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false
   },

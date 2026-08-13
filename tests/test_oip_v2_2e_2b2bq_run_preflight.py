@@ -56,13 +56,24 @@ def test_preflight_is_credential_free_isolated_and_empty():
     ).hexdigest()
     assert "api-key=<redacted>" in serialized
     assert preflight["isolated_output_directory"].startswith("/private/tmp/flex-oip-v2-2e-b2z/")
-    assert not Path(preflight["isolated_output_directory"]).exists()
-    assert not Path(preflight["attempt_ledger_path"]).exists()
     assert preflight["initial_state"]["attempt_ledger"] == "ABSENT_EMPTY"
     assert preflight["qualification"]["provider_requests"] == 0
+    output = Path(preflight["isolated_output_directory"])
+    ledger = Path(preflight["attempt_ledger_path"])
+    if not output.exists():
+        assert not ledger.exists()
+    else:
+        # B2BQ's empty-start assertion is immutable historical preflight state.
+        # Once consumed, validate the sealed stop without resetting it.
+        rows = [json.loads(line) for line in ledger.read_text().splitlines() if line.strip()]
+        status = json.loads(Path(preflight["results_path"]).read_text())
+        assert [row["physical_attempt_number"] for row in rows] == [1, 2, 3]
+        assert {row["run_id"] for row in rows} == {preflight["run_id"]}
+        assert status["status"] == "STOPPED_FIRST_NON_SUCCESS"
+        assert status["physical_attempts"] == status["transport_physical_requests"] == 3
 
 
-def test_b2bp_construction_is_inert_and_uses_bound_run_id():
+def test_b2bp_construction_is_inert_and_uses_bound_run_id(tmp_path):
     manifest_json = json.loads(MANIFEST_PATH.read_text())
     projection_json = json.loads(PROJECTION_PATH.read_text())
     preflight = json.loads(PREFLIGHT_PATH.read_text())
@@ -73,13 +84,13 @@ def test_b2bp_construction_is_inert_and_uses_bound_run_id():
         manifest=manifest,
         projection=projection,
         transport=transport,
-        ledger=PhysicalAttemptLedger(Path(preflight["attempt_ledger_path"])),
+        ledger=PhysicalAttemptLedger(tmp_path / "unconsumed-attempts.jsonl"),
         run_id=preflight["run_id"],
     )
     assert runner.run_id == preflight["run_id"]
     assert runner.digest == preflight["frozen_manifest_digest"]
     assert runner.physical_count == transport.physical_request_count == transport.calls == 0
-    assert not Path(preflight["attempt_ledger_path"]).exists()
+    assert not (tmp_path / "unconsumed-attempts.jsonl").exists()
 
 
 def test_request_contract_is_exact_and_stop_safe():

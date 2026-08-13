@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T07:46:53Z",
+  "updated_at_utc": "2026-08-13T07:58:38Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T07:46:53Z",
+    "published_at_utc": null,
     "protocol_version": 1,
-    "status": "PUBLISHED"
+    "status": "PENDING_PUBLICATION"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2AL creator-resolution connection-scope safe-local qualification",
-    "mode": "completed safe-local implementation and test qualification",
-    "status": "PASS",
-    "verdict": "LOCAL_QUALIFICATION_PASS"
+    "milestone": "OIP v2.2E.2B2AM creator-resolution worker repair deployment",
+    "mode": "completed authorized production restart and immediate verification",
+    "status": "PARTIAL",
+    "verdict": "REPAIR_LOADED_CONTENTION_PERSISTS"
   },
   "production_state": {
     "retention": "ON",
@@ -30,7 +30,9 @@
     "listener_service": "watchtower_listener",
     "listener_pid_last_verified": 886,
     "creator_funding_service": "creator_funding_worker",
-    "creator_funding_pid_last_verified": 45895
+    "creator_funding_pid_last_verified": 9399,
+    "creator_resolution_service": "creator_resolution_worker",
+    "creator_resolution_pid_last_verified": 15065
   },
   "orchestration": {
     "schema_version": 3,
@@ -763,6 +765,29 @@
       "service_restarts": 0,
       "blocker": "The repair is not deployed. Any creator_resolution_worker deployment/restart and subsequent production stability observation require explicit authorization; B2Z remains held."
     },
+    "oip_v2_2e_2b2am_creator_resolution_worker_deployment": {
+      "status": "PARTIAL",
+      "verdict": "REPAIR_LOADED_CONTENTION_PERSISTS",
+      "verification_utc": "2026-08-13T07:58:38Z",
+      "authorization": "Exactly one creator_resolution_worker restart to load engineering commit fe3335fdf449778de42cdb7527c6cabccd062d5d with immediate local verification.",
+      "restart": {
+        "service": "creator_resolution_worker",
+        "old_pid": 84205,
+        "new_pid": 15065,
+        "other_services": "watchtower_listener remained RUNNING pid 886; creator_funding_worker remained RUNNING pid 9399; evidence_writer remained STOPPED"
+      },
+      "immediate_health": {
+        "first_health_request": "HTTP 200; platform and infrastructure CRITICAL; database p99_wait_ms 31253.11; listener lock_errors_since_start 10",
+        "second_health_request": "timed out after 20 seconds with no response",
+        "new_worker": "RUNNING; startup confirmed; WAL checkpoint showed busy=0 with 2426 uncheckpointed frames",
+        "listener": "PumpPortal and PumpSwap CONNECTED with fresh birth and migration traffic in the first sample"
+      },
+      "flags": "retention ON; migration census ON; Evidence Mirror OFF; Cohort Mode OFF; evidence_writer STOPPED",
+      "provider_qualification_calls_initiated_by_codex": 0,
+      "provider_note": "The restarted production worker resumed its pre-existing normal creator-resolution workload; no B2Z qualification was invoked.",
+      "production_changes": "one explicitly authorized creator_resolution_worker restart only",
+      "blocker": "The connection-scope repair is loaded but immediate production health did not recover. Existing hot-path ensure_schema calls still execute write-capable DDL/backfill statements each cycle and require safe-local diagnosis before another production action."
+    },
     "oip_v2_2e_2b2n_preflight_manifest_authorization": {
       "status": "COMPLETE",
       "verdict": "SAFE_LOCAL_PREFLIGHT_AUTHORIZED",
@@ -1198,8 +1223,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2AM creator-resolution worker repair deployment",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize exactly one creator_resolution_worker restart to load engineering commit fe3335fdf449778de42cdb7527c6cabccd062d5d, with immediate local Supervisor/log/health verification. Preserve all production flags and evidence_writer STOPPED. Do not restart any other service, change configuration, invoke provider qualification calls, activate Evidence Mirror/Cohort Mode, or start B2Z. The restarted worker may resume its existing normal creator-resolution provider workload; authorize that consequence explicitly if intended.",
+    "milestone": "OIP v2.2E.2B2AN creator-resolution hot-path schema-write diagnosis",
+    "instruction": "Automatically proceed with bounded safe-local read-only diagnosis of repeated ensure_schema calls and hot-path schema/backfill writes in creator-resolution queue/worker code. Inspect source, tests, and existing local logs only. Do not implement, deploy, restart/reconfigure services, invoke provider qualification calls, write production data, activate Evidence Mirror/Cohort Mode, or start B2Z. Record the exact smallest repair and publish the handoff.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

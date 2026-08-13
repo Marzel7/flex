@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T11:51:26Z",
+  "updated_at_utc": "2026-08-13T11:57:26Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "c762243599bdf42a6416c22cd01b9b8e353edba9",
-    "working_tree": "dirty: unrelated live Supervisor, audit, runtime, and user files remain present and were not staged; B2BP engineering changes are committed narrowly"
+    "git_head": "c05a2e993c86a3e8187059c6389ac79b6e2adb3a",
+    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, handoff, and user paths remain present and were not staged; B2BQ engineering changes were committed narrowly"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T10:38:02Z",
+    "published_at_utc": "2026-08-13T11:57:26Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2BP B2Z isolated execution-boundary implementation",
-    "mode": "safe-local implementation, fake-transport tests, and narrow commit; zero provider calls",
+    "milestone": "OIP v2.2E.2B2BQ B2Z immutable run preflight",
+    "mode": "bounded local-only immutable preflight materialization and validation; zero provider or runtime access",
     "status": "COMPLETE",
-    "verdict": "LOCAL_QUALIFICATION_PASS"
+    "verdict": "READY_FOR_SEPARATE_B2Z_EXECUTION_AUTHORIZATION"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,33 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "oip_v2_2e_2b2bq_b2z_run_preflight": {
+      "status": "COMPLETE",
+      "verdict": "READY_FOR_SEPARATE_B2Z_EXECUTION_AUTHORIZATION",
+      "commit": "c05a2e993c86a3e8187059c6389ac79b6e2adb3a",
+      "run_id": "102f6376-9f63-476f-a07e-77c578a44c4d",
+      "frozen_manifest_digest": "82bbda32d25a9951a8d8475528d7db3a92b675aae90ce2d55e13391a6b69eedc",
+      "projection_digest": "eb2713e3f0ff01f122c0e962a7c67e7f1ea80337fa8894163892a47c17dd32bc",
+      "members": 20,
+      "migration_signatures": 20,
+      "isolated_output_directory": "/private/tmp/flex-oip-v2-2e-b2z/102f6376-9f63-476f-a07e-77c578a44c4d",
+      "attempt_ledger": "ABSENT_EMPTY",
+      "endpoint_identifier": "helius-mainnet-json-rpc",
+      "endpoint_credentials_recorded": false,
+      "b2bp_construction": "PASS_INERT_NO_TRANSPORT_INVOCATION",
+      "tests": {
+        "command": "pytest -q tests/test_oip_v2_2e_2b2bq_run_preflight.py tests/test_oip_v2_2e_2b2bp_execution_boundary.py",
+        "passed": 11,
+        "failed": 0
+      },
+      "provider_rpc_calls": 0,
+      "production_database_access": false,
+      "live_queue_or_service_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF"
+    },
     "oip_v2_2e_2b2o_observation_authorization_preflight": {
       "status": "COMPLETE",
       "verdict": "PARTIAL_CURRENT_MINT_EVIDENCE_PROOF",
@@ -1836,6 +1863,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "B2BQ fully materializes and locally validates the immutable B2Z execution preflight, but B2Z provider execution remains HUMAN_APPROVAL_REQUIRED. No provider request may occur until the exact run ID, frozen digests, 60-request ceiling, and stop contract are separately authorized.",
     "B2BP locally qualifies the real execution boundary at c7622435 with exactly 60 fake requests/ledger rows and strict funding parsing, but no immutable 20-signature execution projection, run ID, empty ledger path, endpoint binding, or isolated output location has been materialized. A separate zero-provider preflight is required before B2Z execution authorization.",
     "B2BO clears the production-health precondition but holds B2Z because the real isolated transport, 60-attempt ledger/counter reconciliation, exact funding-transfer parser, and frozen run artifacts do not exist. Provider execution remains prohibited pending a separately authorized safe-local boundary milestone.",
     "B2BN closes the listener descriptor incident with 15 qualified clean minutes: max observer fd=4, watchtower connections <=48.434ms, serializer p99 <9ms, queues empty, feeds connected, and PID stable. B2Z remains separately human-gated and held until explicitly reauthorized with fresh precondition verification.",
@@ -1871,8 +1899,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2BQ B2Z immutable run preflight",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize bounded local read-only materialization and validation of an immutable B2Z run preflight from existing qualified local evidence only: bind the frozen B2R manifest digest to exactly 20 locally recorded migration signatures; assign one run ID, explicit isolated output directory, and empty append-only attempt-ledger path; record only an endpoint identifier/fingerprint with credentials redacted; validate B2BP construction without invoking transport.post_json; and produce a reviewable preflight artifact plus tests/one narrow commit if implementation is required. No provider calls, production database reads/writes, live queue/service access, service restarts or stops, lock manipulation, configuration or credential changes, Evidence Mirror, Cohort Mode, or B2Z execution.",
+    "milestone": "OIP v2.2E.2B2Z isolated Helius execution",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize B2Z isolated Helius execution for run_id 102f6376-9f63-476f-a07e-77c578a44c4d using preflight docs/evidence_platform/oip_v2_2e_2b2bq_b2z_run_preflight.json, frozen manifest digest 82bbda32d25a9951a8d8475528d7db3a92b675aae90ce2d55e13391a6b69eedc, and projection digest eb2713e3f0ff01f122c0e962a7c67e7f1ea80337fa8894163892a47c17dd32bc; permit at most 60 sequential physical Helius requests under the exact 3-request-per-member sequence, with no retry, failover, pagination, concurrency, or cache, and stop the whole run on first non-success, counter mismatch, or safety impact. Write only the append-only attempt ledger and stop-safe results beneath the recorded isolated output directory. No production database reads/writes, live queue/service access, service restarts or stops, lock manipulation, configuration or credential changes, Evidence Mirror, or Cohort Mode.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T13:04:02Z",
+  "updated_at_utc": "2026-08-13T13:08:44Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "cccdceb667c3f54507211f73af5ccc82cc5af871",
-    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, handoff, and user paths remain present; B2BU created only its authorized isolated /private/tmp artifacts and made no engineering-tree change"
+    "git_head": "4e51a7af193099bbb760350c2cc8e571c164626e",
+    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, handoff, and user paths remain present; EB0.1A committed exactly four authorized contract, fixture, test, and documentation files without touching unrelated paths"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "Post-E EB0 roadmap reconciliation and canonical baseline",
-    "mode": "bounded local read-only committed-artifact reconciliation and roadmap decision record",
+    "milestone": "EB0.1A canonical birth/valuation evidence contract",
+    "mode": "safe-local pure deterministic projection implementation and frozen-fixture qualification",
     "status": "COMPLETE",
-    "verdict": "ROADMAP_RATIFIED_FIRST_IMPLEMENTATION_HUMAN_GATED"
+    "verdict": "LOCAL_QUALIFICATION_PASS"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,31 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_1a_birth_valuation_contract": {
+      "status": "COMPLETE",
+      "verdict": "LOCAL_QUALIFICATION_PASS",
+      "commit": "4e51a7af193099bbb760350c2cc8e571c164626e",
+      "contract": "src/evidence/contracts/birth_valuation.py",
+      "fixture": "tests/fixtures/eb0_1a_birth_valuation.json",
+      "documentation": "docs/evidence_platform/eb0_1a_birth_valuation_contract.md",
+      "semantics": [
+        "CHAIN_BIRTH, PLATFORM_FIRST_SEEN, MIGRATION, and MARKET_FIRST_OBSERVED remain distinct immutable facts",
+        "BIRTH_MARKET_CAP requires explicit equivalence proof, matching event/observation time, VERIFIED quality, and COMPLETE evidence",
+        "missing valuation is null plus UNKNOWN/NOT_OBSERVED and zero is rejected as a missing-value encoding",
+        "conflicting source/version observations remain distinct; exact replays are idempotent; projection identity is input-order independent"
+      ],
+      "tests": {
+        "focused": "8 passed, 0 failed",
+        "evidence_contract_regression": "27 passed, 0 failed"
+      },
+      "provider_calls": 0,
+      "production_access_or_changes": false,
+      "service_restarts": 0,
+      "gmgn_integration": false,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "post_e_eb0_canonical_roadmap": {
       "status": "COMPLETE",
       "verdict": "ROADMAP_RATIFIED_FIRST_IMPLEMENTATION_HUMAN_GATED",
@@ -2146,7 +2171,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "The post-E sequence is ratified, but EB0.1A implementation is not authorized. Its next milestone must remain fixture-only and local, with no inference that later first-observed valuation equals birth market cap and no missing-evidence-to-negative conversion.",
+    "EB0.1A is locally qualified and committed, but no committed-source mapping or evidence materialization has been authorized. The next milestone must remain a bounded local read-only mapping audit over committed schemas/code and frozen fixtures only; production/provider access and activation remain prohibited.",
     "OIP v2.2E is qualified complete, but production activation remains explicitly unauthorized. Any Evidence authority, Evidence Mirror, Cohort Mode, provider expansion, or production deployment requires its own future milestone. Post-E work must begin with roadmap reconciliation rather than implicit activation.",
     "B2BX fully passes the isolated provider qualification at 20/20 with exactly 60 authorized requests. The remaining step is a bounded local-only E-series closure assessment that combines this provider result with the previously qualified B2R acquisition/retention funnel; no production activation is implied or authorized.",
     "B2BW is locally qualified at f08db5b1 with fresh empty ledgers. Provider execution remains HUMAN_APPROVAL_REQUIRED and must explicitly acknowledge the higher-cost oldest enhanced request and the unchanged 60-request stop-safe ceiling.",
@@ -2192,8 +2217,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.1A canonical birth/valuation evidence contract",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize safe-local design, implementation, frozen-fixture tests, regression tests, documentation, and one narrow commit for EB0.1A canonical birth/valuation evidence contract as defined in docs/evidence_platform/post_e_eb0_canonical_roadmap.json. Implement only a pure local deterministic projection that distinguishes CHAIN_BIRTH, PLATFORM_FIRST_SEEN, MIGRATION, and MARKET_FIRST_OBSERVED; records source/version, event and observation times, valuation semantics, quality/completeness state, and provenance digest; never relabels later first-observed valuation as birth market cap without proof; preserves conflicting observations; and represents missing valuation as UNKNOWN/NOT_OBSERVED rather than a negative outcome. Use frozen local fixtures only. Zero provider calls, production database/service access, writes, deployment, restarts, configuration changes, GMGN integration, historical ranking, operator attribution, Evidence Mirror, Cohort Mode, or production activation.",
+    "milestone": "EB0.1B canonical local-source mapping audit",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize a bounded local read-only EB0.1B mapping audit using committed schemas, code, documentation, and frozen fixtures only. Map which existing local fields can populate CHAIN_BIRTH, PLATFORM_FIRST_SEEN, MIGRATION, and MARKET_FIRST_OBSERVED under the EB0.1A contract; record source authority, timestamp semantics, valuation semantics, quality/completeness, conflicts, and exact gaps; recommend the smallest safe-local materialization milestone but do not implement it. Zero provider calls, production database/service access, production reads or writes, deployment, restarts, configuration changes, GMGN integration, rankings, operator attribution, Evidence Mirror, Cohort Mode, or activation.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

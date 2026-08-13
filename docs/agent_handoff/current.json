@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T09:24:33Z",
+  "updated_at_utc": "2026-08-13T09:29:06Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T09:25:42Z",
+    "published_at_utc": null,
     "protocol_version": 1,
-    "status": "PUBLISHED"
+    "status": "PENDING_PUBLICATION"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2AW creator-resolution funding-index and heartbeat deployment",
-    "mode": "explicitly authorized single-service restart and immediate local verification",
-    "status": "PARTIAL",
-    "verdict": "DEPLOYMENT_BLOCKED_BY_STUCK_FUNDING_WRITE_LEASE"
+    "milestone": "OIP v2.2E.2B2AX creator-funding stuck write-lease diagnosis",
+    "mode": "completed bounded local read-only incident diagnosis",
+    "status": "COMPLETE",
+    "verdict": "REPEATED_CONCURRENT_LIFECYCLE_SCHEMA_WRITES_CONFIRMED"
   },
   "production_state": {
     "retention": "ON",
@@ -28,7 +28,7 @@
     "cohort_mode": "OFF",
     "evidence_writer": "STOPPED",
     "listener_service": "watchtower_listener",
-    "listener_pid_last_verified": 18284,
+    "listener_pid_last_verified": 73552,
     "creator_funding_service": "creator_funding_worker",
     "creator_funding_pid_last_verified": 9399,
     "creator_resolution_service": "creator_resolution_worker",
@@ -1005,6 +1005,28 @@
       "production_impact": true,
       "blocker": "A stuck creator_funding_worker write lease prevents creator-resolution startup migration and causes an automatic restart loop. No creator_funding_worker restart, configuration change, lock manipulation, or further creator-resolution restart is authorized."
     },
+    "oip_v2_2e_2b2ax_stuck_funding_write_lease_diagnosis": {
+      "status": "COMPLETE",
+      "verdict": "REPEATED_CONCURRENT_LIFECYCLE_SCHEMA_WRITES_CONFIRMED",
+      "verification_utc": "2026-08-13T09:29:06Z",
+      "scope": "Bounded local read-only source, process-stack, lease-metadata, filtered-log, query-plan, service, and health diagnosis only. No implementation, lock manipulation, provider call, production write, service restart/stop, configuration change, Evidence Mirror/Cohort Mode action, or B2Z observation.",
+      "findings": [
+        "The B2AW blocking lease cleared naturally without Codex intervention. The next creator-resolution autorestart created idx_creator_funding_queue_mint, and the live query plan now searches that index by mint.",
+        "creator_resolution_worker PID 72488 recovered: cycle-start heartbeat age 2 seconds at the final checkpoint and normal resolution cycles were observed.",
+        "The blocking creator-funding lease was physically effective, not merely stale sidecar metadata: creator-resolution write acquisition timed out until the funding-worker owner transitioned through RELEASE_PENDING and released.",
+        "creator_funding_lifecycle.record_event_fail_open opens a tracked write connection and executes six CREATE TABLE/CREATE INDEX IF NOT EXISTS schema statements on every individual event before its single INSERT.",
+        "The funding worker invokes record_event_fail_open from many concurrent asyncio worker threads. Logs contain a dense burst of lock errors attributed to creator_funding_lifecycle.py:165, and the live stack sample showed concurrent SQLite schema/PRAGMA work.",
+        "On event failure, the fail-open path immediately attempts a second connection and repeats ensure_schema to record a gap, multiplying contention during the exact failure interval.",
+        "The observed RELEASE_PENDING state was a delayed release transition after prolonged ownership; it later cleared naturally. No evidence supports manually deleting the lock or treating it as orphaned while PID 9399 remained alive.",
+        "During the incident watchtower_listener changed autonomously from PID 18284 to PID 73552 under existing supervision. Codex issued no listener restart."
+      ],
+      "current_health": "Recovered to WARNING: database HEALTHY p99_wait_ms 53.98, serializer queue depth 0, ingestion HEALTHY, PumpPortal/PumpSwap CONNECTED, listener lock errors since current start 0.",
+      "smallest_repair": "Initialize creator-funding lifecycle schema once at creator_funding_worker startup, add a schema-ready event-write path that performs only the INSERT, and make gap recording reuse the ready contract rather than rerunning DDL. Preserve default schema assurance for external/one-shot callers and add concurrent regressions proving zero schema statements per steady-state event/gap write.",
+      "provider_rpc_calls_initiated_by_codex": 0,
+      "production_changes": false,
+      "service_restarts_or_stops_initiated_by_codex": 0,
+      "blocker": "The incident is currently recovered, but the repeated concurrent lifecycle schema-write defect remains live and can recur. Safe-local repair is not yet authorized."
+    },
     "oip_v2_2e_incident_causal_assessment": {
       "status": "COMPLETE",
       "verdict": "LATENT_DEFECT_REACTIVATED_BY_WORKER_RECOVERY",
@@ -1437,6 +1459,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "B2AX confirms creator_funding_lifecycle.record_event_fail_open repeats schema DDL/index assurance on every concurrent event and repeats it again on gap fallback, causing prolonged write-lane ownership and lock-error bursts. The incident recovered naturally, but recurrence remains possible until a safe-local one-time lifecycle schema initialization repair is qualified.",
     "B2AW is blocked with production impact: creator_funding_worker PID 9399 holds the shared database write lease in RELEASE_PENDING state, preventing idx_creator_funding_queue_mint creation and causing creator_resolution_worker to exit and Supervisor to autorestart it. No lock manipulation, funding-worker restart, configuration change, or further creator-resolution restart is authorized.",
     "B2AV passed 28 focused tests and is committed at b0487d205e0c47c5b9b4d021a1d0ffe44a436759, but the running creator_resolution_worker has not loaded the funding mint index and pre-work heartbeat changes. Deployment requires one explicitly authorized restart.",
     "B2AU confirms the recurring creator-resolution heartbeat staleness is caused by an unindexed correlated creator_funding_queue.mint coverage scan executed before heartbeat emission on every cycle. Safe-local index/schema and heartbeat-ordering implementation is not yet authorized.",
@@ -1458,8 +1481,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2AX creator-funding stuck write-lease diagnosis",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize bounded local read-only incident diagnosis of creator_funding_worker PID 9399's RELEASE_PENDING write lease and the creator_resolution_worker automatic restart loop. No implementation, lock manipulation, provider call, production write, service restart, stop, configuration change, Evidence Mirror, Cohort Mode, or B2Z observation.",
+    "milestone": "OIP v2.2E.2B2AY creator-funding lifecycle one-time schema initialization qualification",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize safe-local design, implementation, tests, and narrow commit for one-time creator-funding lifecycle schema initialization at worker startup plus schema-ready steady-state event and gap writes that perform no repeated DDL, while preserving default schema assurance for external callers. No deployment, lock manipulation, provider call, production write, service restart/stop, configuration change, Evidence Mirror, Cohort Mode, or B2Z observation.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

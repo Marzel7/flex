@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T07:05:10Z",
+  "updated_at_utc": "2026-08-13T07:10:53Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T07:05:10Z",
+    "published_at_utc": null,
     "protocol_version": 1,
-    "status": "PUBLISHED"
+    "status": "PENDING_PUBLICATION"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2AB production database connection-lifecycle repair",
-    "mode": "one authorized listener restart and immediate verification",
-    "status": "PARTIAL",
-    "verdict": "PARTIAL_TARGETED_CLEANUP_LOADED_HEALTH_NOT_RECOVERED"
+    "milestone": "OIP v2.2E.2B2AC listener connection-reaper read-only root-cause analysis",
+    "mode": "completed bounded read-only analysis",
+    "status": "HOLD",
+    "verdict": "HOLD_FOREIGN_THREAD_REAPER_DESIGN"
   },
   "production_state": {
     "retention": "ON",
@@ -541,6 +541,23 @@
       "post_restart_health": "PARTIAL: the local /api/health/full request timed out after 10 seconds. Listener diagnostics after restart still show foreign-thread db-conn-reaper close failures for other owner-thread connections; current broad database lock errors remain visible. No second restart was attempted.",
       "blocker": "The targeted _update_creator_write leak is repaired, but the broad cross-thread reaper design and production database pressure are not proven recovered. B2Z remains unsafe and must not start."
     },
+    "oip_v2_2e_2b2ac_reaper_root_cause_analysis": {
+      "status": "COMPLETE",
+      "verdict": "HOLD_FOREIGN_THREAD_REAPER_DESIGN",
+      "verification_utc": "2026-08-13T07:10:53Z",
+      "scope": "Read-only inspection of service status, listener lifecycle diagnostics, local health endpoint, and source; no provider call, production write, restart, configuration change, Evidence Mirror, or Cohort Mode action.",
+      "findings": [
+        "Post-restart listener diagnostics recorded 127 CLOSE_FAILED_WRONG_THREAD events across many owner threads. The failures were overwhelmingly non-write-lane connections, so they are not the repaired _update_creator_write path.",
+        "The generic reaper selects connections older than 20 seconds and calls close from db-conn-reaper. SQLite connections are thread-affine, so every foreign close fails by design and repeats on later reaper cycles.",
+        "Snapshots show managed_db_connect-labelled owners accumulating CLOSE_FAILED_WRONG_THREAD state; some snapshots also contain in-transaction/write-lane work, including usage_tracker and price synchronization paths. Owner cleanup must remain on the owner thread.",
+        "The local API health endpoint timed out again after 10 seconds, so recovery cannot be claimed."
+      ],
+      "root_cause": "The reaper's foreign-thread close policy is incompatible with SQLite thread affinity. The B2AB finally repair removes one leaked creator writer, but cannot resolve the generic lifecycle-policy mismatch or establish database recovery.",
+      "provider_rpc_calls": 0,
+      "production_changes": false,
+      "service_restarts": 0,
+      "blocker": "A change to generic reaper selection/cleanup semantics is an architectural production repair and requires explicit authorization, local qualification, then a separately named deployment/restart plan."
+    },
     "oip_v2_2e_2b2n_preflight_manifest_authorization": {
       "status": "COMPLETE",
       "verdict": "SAFE_LOCAL_PREFLIGHT_AUTHORIZED",
@@ -976,8 +993,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2AC listener connection-reaper read-only root-cause analysis",
-    "instruction": "Await explicit authorization for bounded read-only analysis of remaining cross-thread reaper connection owners and database lock sources. No provider calls, production writes, restarts, configuration changes, Evidence Mirror, or Cohort Mode action. A broader repair/deployment remains separately human-gated.",
+    "milestone": "OIP v2.2E.2B2AD generic SQLite reaper policy design and local qualification",
+    "instruction": "Await explicit authorization for safe-local design and fake-client/test qualification of an owner-thread-only SQLite connection cleanup policy. No provider calls, production writes, deployment, restart, configuration changes, Evidence Mirror, or Cohort Mode action. Any production load of that repair remains separately human-gated.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

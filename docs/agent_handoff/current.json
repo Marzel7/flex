@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T22:13:29Z",
+  "updated_at_utc": "2026-08-13T22:16:37Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "bb7c068f628cf0d122ada877f04406e82d7cfd6b",
-    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths; post-EB1.3A reconciliation made no engineering changes and preserved all unrelated paths"
+    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths; EB1.3B audit made no engineering changes and preserved all unrelated paths"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-      "milestone": "Post-EB1.3A roadmap reconciliation",
+      "milestone": "EB1.3B committed-source mapping audit",
       "mode": "bounded local read-only committed-artifact reconciliation",
       "status": "COMPLETE",
-      "verdict": "ROADMAP_RECONCILED_EB1_3B_COMMITTED_SOURCE_MAPPING_AUDIT_NEXT"
+      "verdict": "SOURCE_MAPPING_AUDITED_VERIFIED_LINEAGE_ADAPTER_REQUIRED"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,31 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb1_3b_committed_source_mapping_audit": {
+      "status": "COMPLETE",
+      "verdict": "SOURCE_MAPPING_AUDITED_VERIFIED_LINEAGE_ADAPTER_REQUIRED",
+      "engineering_commit": "bb7c068f628cf0d122ada877f04406e82d7cfd6b",
+      "verification_utc": "2026-08-13T22:16:37Z",
+      "mapping": {
+        "requirement_id": "SUPPORTED from replay-verified EB1.1H corpus lane requirements",
+        "requirement_projection_digest": "SUPPORTED from EB1.1H manifest.projection.projection_digest, but EB1.2A currently validates caller-supplied values only syntactically",
+        "requirement_manifest_digest": "SUPPORTED from EB1.1H manifest.manifest_digest, but EB1.2A currently validates caller-supplied values only syntactically",
+        "requirement_corpus_digest": "SUPPORTED from EB1.1H corpus.corpus_digest, but EB1.2A currently validates caller-supplied values only syntactically",
+        "latest_valid_disposition_and_history": "DERIVABLE from an internally digest-valid EB1.2A RequirementReviewHistory by maximum per-requirement review_sequence; no immutable EB1.2A bundle boundary exists",
+        "authority_lane_and_scope": "SUPPORTED from EB1.1 requirement and duplicated in EB1.2A disposition; adapter must require exact agreement",
+        "candidate_evidence_classes": "CALLER_SUPPLIED_ONLY; no committed source and no derivation, selection or ranking permitted",
+        "planning_assumptions": "CALLER_SUPPLIED_ONLY; no committed source and no derivation or policy interpretation permitted",
+        "proposal_sequence_reason_rationale_supersession": "CALLER_SUPPLIED_PROPOSAL_HISTORY_FIELDS; must be validated but cannot be inferred from EB1.1 or EB1.2A"
+      },
+      "smallest_next_stage": "EB1.3C fixture-only deterministic verified-lineage adapter",
+      "adapter_boundary": "consume a replay-verified EB1.1H bundle projection plus an internally digest-valid EB1.2A history and explicit caller-supplied proposal fields; replace caller lineage digests with authoritative EB1.1 values, require EB1.2A values match them exactly, require latest READY_FOR_SEPARATE_PLANNING and exact authority/scope agreement, then invoke EB1.3A without selecting or interpreting alternatives",
+      "implementation_performed": false,
+      "provider_calls": 0,
+      "production_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "activation": false
+    },
     "post_eb1_3a_roadmap_reconciliation": {
       "status": "COMPLETE",
       "verdict": "ROADMAP_RECONCILED_EB1_3B_COMMITTED_SOURCE_MAPPING_AUDIT_NEXT",
@@ -4210,6 +4235,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "EB1.3B found that EB1.2A lineage digests are syntactically validated but not independently matched to verified EB1.1H projection/manifest/corpus digests. Until a fixture-only verified-lineage adapter enforces that match, EB1.3A proposals cannot claim committed bundle lineage. Candidate alternatives, assumptions and proposal-history fields remain explicit caller inputs and may not be derived or selected.",
     "EB1.3A is not yet a frozen artifact stack. No committed mapping audit proves how EB1.1 bundles and EB1.2A review histories populate every EB1.3A input, and candidate alternatives/assumptions remain explicitly caller-supplied. EB1.3B must remain read-only and cannot select or approve them.",
     "EB1.3A is qualified only as a frozen non-executable planning-proposal contract. No proposal or handoff grants planning authority, source selection, acquisition budgets, provider/runtime/production access, evidence fulfillment, policy or activation authority. The committed roadmap defines no next layer or EB2 namespace; further roadmap reconciliation requires separate authorization.",
     "EB1.2A is qualified only as a frozen non-executable review-disposition contract. READY_FOR_SEPARATE_PLANNING grants no planning, source selection, acquisition budget, runtime/provider/production access, evidence fulfillment, policy or activation authority. The committed roadmap still defines no EB2 namespace or subsequent contract; roadmap reconciliation requires separate authorization.",
@@ -4277,9 +4303,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB1.3B committed-source mapping audit",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Audit only committed replay-verified EB1.1 and EB1.2A artifacts against EB1.3A's exact inputs, identify unsupported mappings, and define the minimum fixture-only adapter milestone without implementation or proposal selection.",
-    "approval_text": "Authorize a bounded local read-only EB1.3B committed-source mapping audit using committed EB1.1 requirement bundle, EB1.2A review-disposition, and EB1.3A contract artifacts only. Map exact requirement/projection/manifest/corpus identity, latest valid disposition/history identity, originating authority lane, cohort/window scope, candidate evidence classes, bounded planning assumptions, proposal sequence, reason, rationale and supersession fields; identify unsupported or ambiguous mappings and the smallest fixture-only deterministic adapter milestone. Do not implement adapters, review or approve proposals, choose or rank alternatives, select sources, define an acquisition plan or request budget, or fulfill evidence. No production/runtime access, live extraction or census, provider/RPC calls, production writes, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, cross-entity linkage, rates, profiles, ranking, scoring, policy activation, profitability/cashflow inference, operator identity/attribution, or activation. Do not assign or enter an EB2 namespace.",
+    "milestone": "EB1.3C fixture-only deterministic verified-lineage adapter",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Implement only the fixture-bound adapter that verifies EB1.1H authoritative lineage against EB1.2A history before projecting explicit caller-supplied EB1.3A proposal fields; it must not derive, choose or execute alternatives.",
+    "approval_text": "Authorize safe-local design, implementation, frozen-fixture tests, regression tests, documentation, and one narrow commit for EB1.3C deterministic verified-lineage adapters into EB1.3A. Accept only a replay-verified EB1.1H requirement bundle projection plus an internally digest-valid EB1.2A review history and explicit caller-supplied EB1.3A proposal fields. Bind authoritative requirement projection, manifest and corpus digests from EB1.1H; require every EB1.2A lineage value, requirement identity, authority lane and cohort/window scope to match exactly; require the latest valid disposition to be READY_FOR_SEPARATE_PLANNING; then invoke EB1.3A. Preserve candidate evidence classes and planning assumptions as unordered caller-supplied alternatives and proposal sequence, reason, rationale and supersession as caller-supplied history fields. Do not derive, choose, rank, review, approve, acquire or fulfill alternatives. Frozen fixtures only. No source selection, acquisition plan or request budget, production/runtime access, live extraction or census, provider/RPC calls, production writes, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, cross-entity linkage, rates, profiles, ranking, scoring, policy activation, profitability/cashflow inference, operator identity/attribution, or activation. Do not assign or enter an EB2 namespace.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T13:08:44Z",
+  "updated_at_utc": "2026-08-13T13:14:00Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "4e51a7af193099bbb760350c2cc8e571c164626e",
-    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, handoff, and user paths remain present; EB0.1A committed exactly four authorized contract, fixture, test, and documentation files without touching unrelated paths"
+    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, handoff, and user paths remain present; EB0.1B was read-only and changed no engineering files"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T13:04:02Z",
+    "published_at_utc": "2026-08-13T13:14:00Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.1A canonical birth/valuation evidence contract",
-    "mode": "safe-local pure deterministic projection implementation and frozen-fixture qualification",
+    "milestone": "EB0.1B canonical local-source mapping audit",
+    "mode": "bounded local read-only committed-code/schema/documentation and frozen-fixture audit",
     "status": "COMPLETE",
-    "verdict": "LOCAL_QUALIFICATION_PASS"
+    "verdict": "MAPPING_AUDIT_PASS_WITH_GAPS"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,52 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_1b_canonical_local_source_mapping": {
+      "status": "COMPLETE",
+      "verdict": "MAPPING_AUDIT_PASS_WITH_GAPS",
+      "engineering_head": "4e51a7af193099bbb760350c2cc8e571c164626e",
+      "mapping": {
+        "CHAIN_BIRTH": {
+          "qualified_source": "EvidenceRecord LaunchFact: mint, creation_signature, creation_timestamp, creation_slot, program_id, source_platform, evidence/raw-artifact digests",
+          "authority": "chain transaction fact when decoder verification and transaction blockTime are present",
+          "valuation": "UNKNOWN/NOT_OBSERVED; no committed source proves a birth market cap at the same chain event",
+          "gap": "legacy token_analysis.created_at is mixed chain/ingestion time and cannot be used without create-signature lineage"
+        },
+        "PLATFORM_FIRST_SEEN": {
+          "qualified_source": "EvidenceRecord acquired_at can express source-specific first acquisition when earliest-observation selection is explicit",
+          "authority": "platform observation only, never chain birth",
+          "valuation": "UNKNOWN/NOT_OBSERVED unless a separately qualified price observation shares that boundary",
+          "gap": "no universal committed durable receive-time field covers all direct births; token_analysis.analyzed_at is mutable and created_at has mixed semantics"
+        },
+        "MIGRATION": {
+          "qualified_source": "token_analysis migrated_at/migration_tx/migration_slot/migration_source, pumpfun_migration_verification, or migration-census receive_utc_ns/signature/mint/source",
+          "authority": "observed migration/detection fact; migrated_at is an ingestion-time near-chain proxy, not exact block time",
+          "valuation": "UNKNOWN/NOT_OBSERVED unless linked to a separate valuation observation",
+          "gap": "exact chain event time requires transaction blockTime lineage; current legacy rows do not consistently retain source version/provenance digest"
+        },
+        "MARKET_FIRST_OBSERVED": {
+          "qualified_source": "write-once token_analysis first_observed_mc/price/at/source/confidence plus token_price_snapshots captured_at/created_at/source",
+          "authority": "first valid platform-retained market observation, not birth market cap",
+          "valuation": "MARKET_CAP_AT_EVENT or PRICE_AT_EVENT with explicit quality/completeness",
+          "gap": "token_analysis retains one winner and cannot preserve conflicting first observations; snapshot history is prunable and legacy sources lack source_version"
+        }
+      },
+      "cross_cutting_gaps": [
+        "source_version and stable source-record digest must be supplied by a deterministic adapter for legacy rows",
+        "mixed timestamp columns require field-specific adapters; no generic created_at fallback is safe",
+        "conflicting same-boundary market observations must remain separate facts rather than first-write-wins",
+        "missing valuation must project as null UNKNOWN/NOT_OBSERVED"
+      ],
+      "tests_run": "none; read-only mapping audit",
+      "engineering_files_changed": 0,
+      "provider_calls": 0,
+      "production_access_or_changes": false,
+      "service_restarts": 0,
+      "gmgn_integration": false,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb0_1a_birth_valuation_contract": {
       "status": "COMPLETE",
       "verdict": "LOCAL_QUALIFICATION_PASS",
@@ -2171,7 +2217,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "EB0.1A is locally qualified and committed, but no committed-source mapping or evidence materialization has been authorized. The next milestone must remain a bounded local read-only mapping audit over committed schemas/code and frozen fixtures only; production/provider access and activation remain prohibited.",
+    "EB0.1B maps the committed source fields but confirms that direct materialization is unsafe without deterministic field-specific adapters: legacy created_at is mixed, migrated_at is an observation-time proxy, source_version is absent from legacy rows, first-write-wins market anchors lose conflicts, and no committed source proves birth market cap. EB0.1C adapter implementation remains separately human-gated.",
     "OIP v2.2E is qualified complete, but production activation remains explicitly unauthorized. Any Evidence authority, Evidence Mirror, Cohort Mode, provider expansion, or production deployment requires its own future milestone. Post-E work must begin with roadmap reconciliation rather than implicit activation.",
     "B2BX fully passes the isolated provider qualification at 20/20 with exactly 60 authorized requests. The remaining step is a bounded local-only E-series closure assessment that combines this provider result with the previously qualified B2R acquisition/retention funnel; no production activation is implied or authorized.",
     "B2BW is locally qualified at f08db5b1 with fresh empty ledgers. Provider execution remains HUMAN_APPROVAL_REQUIRED and must explicitly acknowledge the higher-cost oldest enhanced request and the unchanged 60-request stop-safe ceiling.",
@@ -2217,8 +2263,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.1B canonical local-source mapping audit",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize a bounded local read-only EB0.1B mapping audit using committed schemas, code, documentation, and frozen fixtures only. Map which existing local fields can populate CHAIN_BIRTH, PLATFORM_FIRST_SEEN, MIGRATION, and MARKET_FIRST_OBSERVED under the EB0.1A contract; record source authority, timestamp semantics, valuation semantics, quality/completeness, conflicts, and exact gaps; recommend the smallest safe-local materialization milestone but do not implement it. Zero provider calls, production database/service access, production reads or writes, deployment, restarts, configuration changes, GMGN integration, rankings, operator attribution, Evidence Mirror, Cohort Mode, or activation.",
+    "milestone": "EB0.1C frozen source-adapter qualification",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize safe-local design, implementation, frozen-fixture tests, regression tests, documentation, and one narrow commit for EB0.1C deterministic source adapters into the EB0.1A contract. Implement only pure adapters for committed LaunchFact, explicit platform-receive evidence, observed migration evidence, and first market observations; fail closed on mixed/ambiguous timestamps, synthesize a documented adapter source_version, preserve source-record digests and conflicting facts, and emit null UNKNOWN/NOT_OBSERVED for absent valuation. Frozen fixtures only. No production database/service access, provider calls, GMGN integration, rankings, operator attribution, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, or activation.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

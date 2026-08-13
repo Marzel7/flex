@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T08:02:37Z",
+  "updated_at_utc": "2026-08-13T08:09:46Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "fe3335fdf449778de42cdb7527c6cabccd062d5d",
-    "working_tree": "dirty: unrelated live Supervisor, audit, runtime, and user files remain present and were not staged; B2AL engineering changes are committed narrowly"
+    "git_head": "b44f953ca867ab8b674bb03d27663a4351f03b75",
+    "working_tree": "dirty: unrelated live Supervisor, audit, runtime, and user files remain present and were not staged; B2AO engineering changes are committed narrowly"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T08:02:37Z",
+    "published_at_utc": null,
     "protocol_version": 1,
-    "status": "PUBLISHED"
+    "status": "PENDING_PUBLICATION"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2AN creator-resolution hot-path schema-write diagnosis",
-    "mode": "completed bounded safe-local read-only diagnosis",
+    "milestone": "OIP v2.2E.2B2AO creator-resolution one-time schema initialization qualification",
+    "mode": "completed bounded safe-local design, implementation, test, and narrow commit",
     "status": "COMPLETE",
-    "verdict": "REPEATED_SCHEMA_WRITES_CONFIRMED"
+    "verdict": "LOCAL_QUALIFICATION_PASS"
   },
   "production_state": {
     "retention": "ON",
@@ -805,6 +805,30 @@
       "service_restarts": 0,
       "blocker": "The safe-local repair is not yet authorized or implemented. Production remains CRITICAL/unstable and B2Z remains held."
     },
+    "oip_v2_2e_2b2ao_one_time_schema_initialization": {
+      "status": "COMPLETE",
+      "verdict": "LOCAL_QUALIFICATION_PASS",
+      "verification_utc": "2026-08-13T08:09:46Z",
+      "scope": "Safe-local design, implementation, tests, and narrow commit only. No deployment, service restart, configuration change, provider call, production write, Evidence Mirror/Cohort Mode action, or B2Z observation.",
+      "engineering_commit": "b44f953ca867ab8b674bb03d27663a4351f03b75",
+      "files": [
+        "src/core/creator_resolution_queue.py",
+        "src/core/creator_resolution_worker.py",
+        "tests/test_b2ao_creator_resolution_schema_initialization.py",
+        "tests/test_x78_13_creator_resolution_write_boundary.py"
+      ],
+      "repair": [
+        "Creator-resolution schema initialization now runs once at worker startup before the steady-state loop.",
+        "All four worker-owned queue paths explicitly use schema_ready=true and skip repeated ensure_schema work.",
+        "External and one-shot callers retain default schema assurance.",
+        "Success and error mutation branches no longer repeat schema initialization."
+      ],
+      "tests": "20 passed: B2AO schema-initialization regressions, B2AL connection-scope regressions, X78.13 write boundary, X78.28 freshness, and X78.39B lifecycle telemetry; py_compile and diff check passed.",
+      "provider_rpc_calls": 0,
+      "production_changes": false,
+      "service_restarts": 0,
+      "blocker": "The qualified repair is not deployed. Loading it requires an explicitly authorized creator_resolution_worker restart; B2Z remains held."
+    },
     "oip_v2_2e_incident_causal_assessment": {
       "status": "COMPLETE",
       "verdict": "LATENT_DEFECT_REACTIVATED_BY_WORKER_RECOVERY",
@@ -1237,6 +1261,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "B2AO passed local qualification and is committed at b44f953ca867ab8b674bb03d27663a4351f03b75, but is not deployed. Exactly one creator_resolution_worker restart plus immediate local health verification requires explicit authorization; B2Z remains held.",
     "The existing B2N provider contract names the old B2K census cohort, while B2U correctly freezes the new fully B2M-loaded B2R cohort. Provider execution therefore requires an explicit reviewed contract amendment that selects B2R and retains the 20-request/no-retry/no-production constraints.",
     "B2S confirms that the live broad creator extraction path makes hundreds of provider RPC calls per attempt and times out at 90 seconds. It cannot satisfy B2N's 20 total / one-request-per-mint qualification contract; a separate isolated-executor architecture decision is required.",
     "B2R proves all 20 marked migrations reached current-mint Shared Acquisition after both B2M load gates, but 3/20 terminally failed before retained/replayable completion. B2N's all-20 eligibility criterion is not met.",
@@ -1250,8 +1275,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2AO creator-resolution one-time schema initialization qualification",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize safe-local design, implementation, tests, and narrow commit for one-time creator-resolution schema initialization plus schema-ready steady-state hot paths described in B2AN. No deployment, service restart, configuration change, provider call, production write, Evidence Mirror/Cohort Mode activation, or B2Z observation. Record and publish the result, then stop.",
+    "milestone": "OIP v2.2E.2B2AP creator-resolution one-time schema initialization deployment",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize exactly one creator_resolution_worker restart to load commit b44f953ca867ab8b674bb03d27663a4351f03b75, with immediate local health verification; preserve all production flags and evidence_writer STOPPED; no other restart, configuration change, provider qualification, Evidence Mirror, Cohort Mode, or B2Z observation. The restarted worker may resume its existing normal provider workload as an inherent consequence of the authorized restart.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

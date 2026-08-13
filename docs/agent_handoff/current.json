@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T17:56:41Z",
+  "updated_at_utc": "2026-08-13T18:01:21Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "81dc2878c10c52a875012a08d8148930af65ac53",
-    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, and user paths remain present; EB0.2O made no engineering-file changes and created only the two explicitly authorized production SQLite indexes"
+    "git_head": "7e1b3533c53683ed0fbc7b484b373637a6e77fa9",
+    "working_tree": "dirty: 34 unrelated live Supervisor, audit, runtime, user, and handoff paths remain present; EB0.2Q engineering commit is narrow to verifier, tests, and documentation"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T17:56:41Z",
+    "published_at_utc": "2026-08-13T18:01:21Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.2P immutable cohort and outcome-policy binding plus bounded extraction",
-    "mode": "bounded query-only live normalization/extraction and isolated immutable bundle verification",
+    "milestone": "EB0.2Q empty-result immutable bundle replay repair and closure attempt",
+    "mode": "safe-local repair, bounded query-only rerun, exact replay, and fail-closed closure assessment",
     "status": "HOLD",
-    "verdict": "MEASURED_ZERO_QUALIFIED_COVERAGE_BUNDLE_REPLAY_GAP"
+    "verdict": "BUNDLE_VERIFIED_ZERO_QUALIFIED_COVERAGE_CLOSURE_HEALTH_GATE_BLOCKED"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,64 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_2q_empty_bundle_replay_and_closure_attempt": {
+      "status": "HOLD",
+      "verdict": "BUNDLE_VERIFIED_ZERO_QUALIFIED_COVERAGE_CLOSURE_HEALTH_GATE_BLOCKED",
+      "engineering_commit": "7e1b3533c53683ed0fbc7b484b373637a6e77fa9",
+      "verification_utc": "2026-08-13T18:01:21Z",
+      "repair": [
+        "EB0.2H now accepts a structurally valid fully accounted extraction with zero manifests and zero corpora.",
+        "Selected, qualified, and excluded sets must be unique, disjoint where required, exactly exhaustive, and match fact mints.",
+        "Empty manifests with non-empty corpora or inconsistent accounting fail closed."
+      ],
+      "tests": {
+        "focused_and_regression_passed": 24,
+        "full_eb0_2_passed": 45,
+        "failed": 0
+      },
+      "fresh_extraction": {
+        "run_id": "eb0-2q-20260813T180005Z-0dadad69",
+        "source_high_waters": {
+          "token_analysis_rowid": 1749116,
+          "wt_watchtower_launches_rowid": 178,
+          "creator_tokens_rowid": 53700,
+          "observed_through_utc_ns": 1786644005768574000
+        },
+        "selected": 5000,
+        "qualified": 0,
+        "excluded": 5000,
+        "excluded_no_canonical_corpus": 2558,
+        "excluded_missing_or_ambiguous_creator_identity": 2442,
+        "fact_count": 0,
+        "eligible_denominator_count": 0,
+        "conflicting_fact_count": 0,
+        "result_digest": "efe6a26b314a6941d45e0ab98bf05b7cccb82586702b6595d15f52089625ef92"
+      },
+      "bundle": {
+        "directory": "/var/folders/k9/zjkbhj_54cd2h_j_z69jy0hc0000gn/T/flex-eb0-2q-17ru31ws/bundle",
+        "digest": "03d8072930dd2648797fdf6714dcbe3fb29ef4a5497e1838aa46610dc47e989f",
+        "exact_replay_verified": true,
+        "prior_failed_candidate_preserved": true
+      },
+      "closure_interpretation": "The EB0.2 contract, normalization, extraction, immutable accounting, and replay stack are qualified, but this bound latest-5,000 cohort produces zero qualified creator outcome facts. That is measured source/cohort non-overlap, not a negative creator outcome. Final closure was not claimed because both /api/health/full and /healthz timed out at the final health gate.",
+      "final_health_gate": {
+        "api_health_full": "TIMEOUT after 12 seconds",
+        "healthz": "TIMEOUT after 5 seconds",
+        "watchtower_api": "RUNNING pid 77110",
+        "watchtower_listener": "RUNNING pid 85993",
+        "creator_funding_worker": "RUNNING pid 80211",
+        "creator_resolution_worker": "RUNNING pid 12770",
+        "ws_cascade": "RUNNING pid 41781",
+        "evidence_writer": "STOPPED"
+      },
+      "provider_calls": 0,
+      "production_writes": 0,
+      "production_changes": false,
+      "service_restarts": 0,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb0_2p_bound_live_extraction": {
       "status": "HOLD",
       "verdict": "MEASURED_ZERO_QUALIFIED_COVERAGE_BUNDLE_REPLAY_GAP",
@@ -3357,6 +3415,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "EB0.2Q qualifies and commits the empty-result replay repair, and a fresh isolated bundle exactly replay-verifies all 5,000 exclusions with zero qualified creator outcomes. Final EB0.2 closure remains HOLD because both /api/health/full (12 seconds) and /healthz (5 seconds) timed out while Supervisor still reported all relevant services RUNNING. A bounded read-only API/production health reassessment is required; no restart or configuration change is authorized.",
     "EB0.2P bound and replay-verified the authorized 5,000-mint EB0.1P cohort, then accounted for every mint under both authorized 24-hour policies. Zero mints qualified because 2,558 lack canonical corpus evidence and all remaining 2,442 lack a qualified creator identity. The isolated candidate bundle then failed exact replay because EB0.2H invokes the EB0.2E corpus assembler with an empty manifest set, which raises EB0_2E_EMPTY_INPUT. The programme stopped before closure; a safe-local empty-result replay repair requires separate authorization.",
     "EB0.2O deployed and verified both authorized mint-leading indexes without production impact. The next query-only extraction is fail-closed because neither current.json nor the committed EB0.2 contracts bind the exact immutable cohort artifact, horizon duration, or market-cap threshold. Choosing them would be a new analytical policy decision outside the staged authorization.",
     "EB0.2N finds 41 coherent canonical-create proofs with 36/36 pf_ws_creator agreement and zero mismatches, but creator_tokens membership evidence is absent for all 41 and remains a measured coverage gap. Both EB0.2M mint-leading indexes remain absent in production and selected-mint plans still scan; any index creation is a separately authorized production mutation.",
@@ -3405,8 +3464,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.2Q empty-result immutable bundle replay repair",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize EB0.2Q safe-local design, implementation, focused empty-result and non-empty regression tests, documentation, and one narrow commit so EB0.2H exact replay accepts a structurally valid fully accounted extraction with zero manifests/corpora while continuing to fail closed on inconsistent accounting, altered files, or unexpected empty/non-empty combinations. Preserve the sealed failed EB0.2P candidate unchanged. After local qualification, create one fresh isolated bundle from the already authorized cohort and policies using bounded query-only reads, verify exact replay, and complete a local read-only EB0.2 closure assessment. Stop on any test, schema, deadline, evidence, replay, health, or scope failure. No provider calls, GMGN integration, service restarts or stops, configuration changes, production database mutations, unrestricted reads, rankings, scoring, policy activation, profitability/cashflow inference, operator attribution, Evidence Mirror, Cohort Mode, production activation, or EB0.3 work.",
+    "milestone": "EB0.2R final health-gate reassessment and closure",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize EB0.2R bounded read-only final health-gate reassessment and EB0.2 closure using Supervisor status, listener/websocket/queue telemetry, database serializer metrics, and bounded local API probes. Treat the verified EB0.2Q bundle digest 03d8072930dd2648797fdf6714dcbe3fb29ef4a5497e1838aa46610dc47e989f as immutable and do not rerun extraction. If production health is corroborated, close EB0.2 with the explicit limitation that the authorized latest-5,000 cohort has zero qualified creator outcome facts; otherwise stop with the exact health blocker. No implementation, provider calls, GMGN integration, production writes, service restarts or stops, configuration changes, unrestricted reads, rankings, scoring, policy activation, profitability/cashflow inference, operator attribution, Evidence Mirror, Cohort Mode, production activation, or EB0.3 work.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

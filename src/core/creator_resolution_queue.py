@@ -23,6 +23,18 @@ ACTIVE_STATUSES = {"pending", "retry", "running"}
 P0_PRIORITY = 200
 RECENT_MIGRATION_WINDOW_SECONDS = 3600
 
+_SCHEMA_COLUMNS = {
+    "mint", "status", "priority", "reason", "source", "attempts",
+    "next_attempt_at", "locked_until", "last_error", "resolved_creator",
+    "create_tx_signature", "migrated_at", "created_at", "updated_at",
+    "resolved_at", "sigs_examined", "pages_examined", "runtime_secs",
+    "skip_reason", "resolution_tier",
+}
+_SCHEMA_INDEXES = {
+    "idx_creator_resolution_queue_status",
+    "idx_creator_resolution_queue_updated",
+}
+
 # ── runtime budget config ──────────────────────────────────────────────────────
 _GENERIC_MAX_RUNTIME  = float(os.environ.get("CREATOR_RESOLUTION_MAX_RUNTIME_SECS",              "15"))
 _GENERIC_MAX_PAGES    = int(os.environ.get("CREATOR_RESOLUTION_MAX_PAGES",                        "1"))
@@ -145,8 +157,49 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
     )
 
 
+def schema_ready(db_path: str) -> bool:
+    """Check schema readiness without entering the shared write lane."""
+    try:
+        with _read_db(db_path) as conn:
+            columns = {
+                row["name"]
+                for row in conn.execute(
+                    "PRAGMA table_info(creator_resolution_queue)"
+                ).fetchall()
+            }
+            if not _SCHEMA_COLUMNS.issubset(columns):
+                return False
+
+            indexes = {
+                row["name"]
+                for row in conn.execute(
+                    "PRAGMA index_list(creator_resolution_queue)"
+                ).fetchall()
+            }
+            if not _SCHEMA_INDEXES.issubset(indexes):
+                return False
+
+            needs_backfill = conn.execute(
+                """
+                SELECT EXISTS(
+                    SELECT 1
+                    FROM creator_resolution_queue
+                    WHERE COALESCE(next_attempt_at, 0) = 0
+                       OR COALESCE(created_at, 0) = 0
+                       OR COALESCE(updated_at, 0) = 0
+                    LIMIT 1
+                )
+                """
+            ).fetchone()[0]
+            return not bool(needs_backfill)
+    except sqlite3.Error:
+        return False
+
+
 def initialize_schema(db_path: str) -> None:
-    """Run creator-resolution schema migration once at process startup."""
+    """Migrate only when the read-only startup check finds incomplete schema."""
+    if schema_ready(db_path):
+        return
     with _db(db_path) as conn:
         ensure_schema(conn)
         conn.commit()

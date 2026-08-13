@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T06:58:20Z",
+  "updated_at_utc": "2026-08-13T07:00:49Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T06:58:20Z",
+    "published_at_utc": null,
     "protocol_version": 1,
-    "status": "PUBLISHED"
+    "status": "PENDING_PUBLICATION"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2Z isolated creator-funding provider qualification",
-    "mode": "authorized provider execution; fail-closed production-health preflight",
+    "milestone": "OIP v2.2E.2B2AA production-health read-only diagnosis",
+    "mode": "completed bounded read-only diagnosis",
     "status": "HOLD",
-    "verdict": "HOLD_PRODUCTION_IMPACT_PRECONDITION"
+    "verdict": "HOLD_DATABASE_THREAD_AFFINITY_AND_LONG_WRITER"
   },
   "production_state": {
     "retention": "ON",
@@ -498,6 +498,23 @@
       },
       "blocker": "The B2Y/B2Z contract requires a whole-run stop on any production impact. Live local health reports critical database pressure and elevated write latency with creator-funding stalled; B2Z stopped before request 1 despite the execution authorization."
     },
+    "oip_v2_2e_2b2aa_read_only_diagnosis": {
+      "status": "COMPLETE",
+      "verdict": "HOLD_DATABASE_THREAD_AFFINITY_AND_LONG_WRITER",
+      "verification_utc": "2026-08-13T07:00:49Z",
+      "scope": "Read-only service, local health endpoint, and diagnostic-log inspection only; no provider request, production write, restart, configuration change, Evidence Mirror, or Cohort Mode action.",
+      "observations": [
+        "Supervisor reports listener RUNNING pid 24788, creator_funding_worker RUNNING pid 45895, watchtower_api RUNNING pid 77110, and evidence_writer STOPPED.",
+        "Mission Control local health reports platform CRITICAL: database status CRITICAL with write p99 21140.47 ms and serializer queue depth 3; creator-funding remains STALLED with 149 pending and 18161-second oldest hot work.",
+        "Listener diagnostics repeatedly record db-conn-reaper close failures: SQLite objects created in a thread can only be used in that same thread.",
+        "A diagnostic snapshot recorded pumpfun_curve_listener.py:_update_creator_write holding an open write-lane transaction for 237.6 seconds; other incorrectly reaped writer connections remained open for more than 100 seconds."
+      ],
+      "root_cause_hypothesis": "Cross-thread connection reaping fails under SQLite thread affinity, leaving writer connections/transactions open long enough to inflate write-lane latency and stall downstream creator-funding progress. This is evidence-backed diagnosis, not a repair proof.",
+      "provider_rpc_calls": 0,
+      "production_changes": false,
+      "service_restarts": 0,
+      "blocker": "Repairing connection ownership/reaping and clearing or recovering the production stall requires a separate explicitly authorized production-safe repair milestone; no repair was attempted."
+    },
     "oip_v2_2e_2b2n_preflight_manifest_authorization": {
       "status": "COMPLETE",
       "verdict": "SAFE_LOCAL_PREFLIGHT_AUTHORIZED",
@@ -933,9 +950,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2Z isolated creator-funding provider qualification",
-    "instruction": "HOLD pending independently verified recovery from Mission Control CRITICAL infrastructure/database pressure and creator-funding STALLED state. Do not make a Helius request, restart service, change configuration, or modify production while held. After recovery, re-verify health and confirm whether the existing B2Z authorization remains current before request 1.",
-    "activation_authorized": true,
+    "milestone": "OIP v2.2E.2B2AB production database connection-lifecycle repair",
+    "instruction": "Await explicit authorization for a bounded production-safe repair of listener SQLite connection ownership/reaping, with a named deployment/restart plan and immediate health verification. Scope must exclude provider calls, Evidence/Cohort activation, and unrelated configuration changes. B2Z remains held until Mission Control is no longer CRITICAL and creator-funding is no longer STALLED.",
+    "activation_authorized": false,
     "production_activation_authorized": false
   },
   "safety": {

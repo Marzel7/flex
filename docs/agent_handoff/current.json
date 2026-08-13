@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T07:19:37Z",
+  "updated_at_utc": "2026-08-13T07:23:24Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T07:19:37Z",
+    "published_at_utc": null,
     "protocol_version": 1,
-    "status": "PUBLISHED"
+    "status": "PENDING_PUBLICATION"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2AD generic SQLite reaper policy design and local qualification",
-    "mode": "completed safe-local design and regression qualification",
-    "status": "COMPLETE",
-    "verdict": "LOCAL_QUALIFICATION_PASS_AWAITING_DEPLOYMENT_AUTHORIZATION"
+    "milestone": "OIP v2.2E.2B2AE owner-thread reaper policy production load",
+    "mode": "one authorized listener restart and immediate verification",
+    "status": "PARTIAL",
+    "verdict": "PARTIAL_REAPER_POLICY_LOADED_HEALTH_UNRESPONSIVE"
   },
   "production_state": {
     "retention": "ON",
@@ -28,7 +28,7 @@
     "cohort_mode": "OFF",
     "evidence_writer": "STOPPED",
     "listener_service": "watchtower_listener",
-    "listener_pid_last_verified": 97457,
+    "listener_pid_last_verified": 886,
     "creator_funding_service": "creator_funding_worker",
     "creator_funding_pid_last_verified": 45895
   },
@@ -582,6 +582,27 @@
       "runtime_verification": "2026-08-13T07:19:37Z: listener RUNNING pid 97457; creator_funding_worker RUNNING pid 45895; evidence_writer STOPPED. Listener PID changed from B2AB's 93788 without a Codex-initiated B2AD restart; no health recovery is claimed.",
       "deployment_gate": "Loading this commit requires a separate explicit production authorization naming one listener restart and immediate health verification. B2Z remains held until Mission Control recovers."
     },
+    "oip_v2_2e_2b2ae_reaper_policy_load": {
+      "status": "PARTIAL",
+      "verdict": "PARTIAL_REAPER_POLICY_LOADED_HEALTH_UNRESPONSIVE",
+      "authorization": "Exactly one watchtower_listener restart to load B2AD with immediate subscription and local-health verification; no provider qualification call, Evidence/Cohort activation, configuration change, or other service restart.",
+      "commit_loaded": "1b147ee8264b5bc4d24c55817e1584cad378b63b",
+      "authorized_restart": {
+        "service": "watchtower_listener",
+        "count": 1,
+        "old_pid": 97457,
+        "new_pid": 886,
+        "result": "RUNNING; creator_funding_worker remained RUNNING pid 45895; evidence_writer remained STOPPED."
+      },
+      "listener_health": "PumpPortal connected and subscribed to newToken + migration; PumpSwap connected and migration-account subscription confirmed; live births observed after restart.",
+      "reaper_evidence": "Post-load diagnostics emitted OWNER_THREAD_CLEANUP_REQUIRED for a stale foreign-owned connection. No post-load CLOSE_FAILED_WRONG_THREAD record was observed in the immediate verification slice.",
+      "local_health_endpoint": "Timed out after 10 seconds with no response; platform/database and creator-funding recovery cannot be claimed.",
+      "provider_qualification_calls": 0,
+      "production_changes": "one explicitly authorized watchtower_listener restart only",
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "blocker": "B2AD's safety policy is loaded, but local health remains unresponsive. B2Z provider qualification remains held until a healthy Mission Control verification is available."
+    },
     "oip_v2_2e_2b2n_preflight_manifest_authorization": {
       "status": "COMPLETE",
       "verdict": "SAFE_LOCAL_PREFLIGHT_AUTHORIZED",
@@ -1017,8 +1038,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2AE owner-thread reaper policy production load",
-    "instruction": "Await explicit authorization for exactly one watchtower_listener restart to load B2AD commit 1b147ee8, with immediate listener/PumpPortal/PumpSwap and local health verification. Preserve all flags; make no provider qualification call, Evidence/Cohort activation, configuration change, or restart of another service. B2Z remains held regardless of restart result until Mission Control is demonstrably recovered.",
+    "milestone": "OIP v2.2E.2B2AF production health read-only recovery verification",
+    "instruction": "Await explicit authorization for a bounded read-only verification of local Mission Control/API responsiveness, database pressure, and creator-funding progress after B2AD load. No provider qualification call, production write, restart, configuration change, Evidence Mirror, or Cohort Mode action. B2Z remains held unless the verified state is healthy.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

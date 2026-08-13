@@ -1163,6 +1163,37 @@ def _reap_stale_connections() -> int:
         age = round(now - record["opened_at"])
         caller = record.get("caller", "unknown")
         if conn is not None:
+            # SQLite connections are thread-affine.  The reaper is a
+            # dedicated foreign thread for every tracked application
+            # connection, so it must not inspect transaction state, rollback,
+            # or close the native connection.  Those operations are legal
+            # only in the owner thread.  Mark once for diagnostics and leave
+            # cooperative owner-thread contexts to perform their own finally
+            # cleanup; weakref-dead records are still removed below.
+            owner_thread_id = record.get("thread_id")
+            if owner_thread_id is not None and owner_thread_id != threading.get_ident():
+                emit_cleanup_request = False
+                with _open_connections_lock:
+                    current = _open_connections.get(tracking_id)
+                    if current is not None and current.get("native_close_state") != "OWNER_THREAD_CLEANUP_REQUIRED":
+                        current["native_close_state"] = "OWNER_THREAD_CLEANUP_REQUIRED"
+                        current["cleanup_requested_at"] = now
+                        current["cleanup_request_thread_id"] = threading.get_ident()
+                        emit_cleanup_request = True
+                if emit_cleanup_request:
+                    _append_connection_lifecycle({
+                        "event": "owner_thread_cleanup_required",
+                        "native_close_state": "OWNER_THREAD_CLEANUP_REQUIRED",
+                        "connection_id": record.get("connection_id"),
+                        "pid": os.getpid(),
+                        "owner_thread_id": owner_thread_id,
+                        "thread_id": threading.get_ident(),
+                        "thread": threading.current_thread().name,
+                        "age_seconds": age,
+                        "caller": caller,
+                        "timestamp": now,
+                    })
+                continue
             try:
                 # A connection waiting for or holding the serialized write
                 # lane is active even before SQLite reports in_transaction.

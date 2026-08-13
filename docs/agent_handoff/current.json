@@ -1,23 +1,23 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T14:52:52Z",
+  "updated_at_utc": "2026-08-13T15:07:14Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "7f7e57c0a323d36d4fa618abecf6c5b8d3319e6b",
-    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, handoff, and user paths remain present; the narrow EB0.2C commit contains only the authorized adapters, tests, and documentation"
+    "git_head": "124dde7d0b8e94dce468a44e96b7d807e9a53b43",
+    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, handoff, and user paths remain present; the narrow EB0.2D commit contains only the authorized version binding, manifest, tests, and documentation"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T14:52:52Z",
+    "published_at_utc": "2026-08-13T15:07:14Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB0.2C deterministic creator outcome source adapters",
-    "mode": "safe-local frozen deterministic adapter qualification",
+    "milestone": "EB0.2D immutable creator outcome projection manifests",
+    "mode": "safe-local frozen immutable manifest qualification",
     "status": "COMPLETE",
     "verdict": "LOCAL_QUALIFICATION_PASS"
   },
@@ -235,6 +235,30 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb0_2d_creator_outcome_manifests": {
+      "status": "COMPLETE",
+      "verdict": "LOCAL_QUALIFICATION_PASS",
+      "engineering_commit": "124dde7d0b8e94dce468a44e96b7d807e9a53b43",
+      "qualified_semantics": [
+        "binds eb0.2a contract, eb0.2c adapter, and eb0.2d schema versions",
+        "binds canonical input, projection, ordered facts, and manifest digests",
+        "reports eligible denominator, UNKNOWN, NOT_OBSERVED, outcome, quality, completeness, and conflict counts",
+        "preserves distinct creator, mint, horizon, threshold, and source facts",
+        "rejects duplicates, derived-field tampering, version mismatch, and replay mismatch",
+        "calculates no profile rates, rankings, scores, profitability, or operator attribution"
+      ],
+      "tests": {"passed": 52, "failed": 0},
+      "provider_calls": 0,
+      "production_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "gmgn_integration": false,
+      "rankings": false,
+      "operator_attribution": false,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb0_2c_creator_outcome_adapters": {
       "status": "COMPLETE",
       "verdict": "LOCAL_QUALIFICATION_PASS",
@@ -2825,7 +2849,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "EB0.2C qualifies deterministic source adapters, but immutable multi-fact outcome manifests and replay verification do not yet exist. EB0.2D must bind versions, inputs, facts, denominators, missingness, quality, conflicts, and digests without aggregating creator profiles or rankings.",
+    "EB0.2D qualifies immutable multi-fact manifests and replay verification. EB0.2E must assemble deterministic per-creator corpora while retaining every mint/horizon/threshold/source fact and exposing coverage counts only; rates, rankings, scores, policy, profitability, and attribution remain prohibited.",
     "OIP v2.2E is qualified complete, but production activation remains explicitly unauthorized. Any Evidence authority, Evidence Mirror, Cohort Mode, provider expansion, or production deployment requires its own future milestone. Post-E work must begin with roadmap reconciliation rather than implicit activation.",
     "B2BX fully passes the isolated provider qualification at 20/20 with exactly 60 authorized requests. The remaining step is a bounded local-only E-series closure assessment that combines this provider result with the previously qualified B2R acquisition/retention funnel; no production activation is implied or authorized.",
     "B2BW is locally qualified at f08db5b1 with fresh empty ledgers. Provider execution remains HUMAN_APPROVAL_REQUIRED and must explicitly acknowledge the higher-cost oldest enhanced request and the unchanged 60-request stop-safe ceiling.",
@@ -2871,8 +2895,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB0.2D immutable creator outcome projection manifests",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize safe-local design, implementation, frozen-fixture tests, regression tests, documentation, and one narrow commit for EB0.2D immutable creator historical outcome projection manifests over EB0.2A/EB0.2C frozen evidence only. Bind exact contract and adapter versions, canonical input digests, deterministic outcome facts, eligible-denominator counts, UNKNOWN/NOT_OBSERVED counts, quality/completeness/conflict counts, and replay verification. Preserve separate facts across creators, mints, horizons, thresholds, and conflicting sources; do not aggregate creator profiles, calculate rates, rank, score, infer profitability, or attribute operators. Frozen fixtures only. No production/runtime access, provider calls, GMGN integration, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, or activation.",
+    "milestone": "EB0.2E deterministic per-creator outcome corpus assembly",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize safe-local design, implementation, frozen-fixture tests, regression tests, documentation, and one narrow commit for EB0.2E deterministic per-creator historical outcome corpus assembly over verified EB0.2D manifests only. Group by explicit creator identity while preserving every distinct mint, cohort boundary, horizon, threshold, outcome state, quality/completeness state, conflict, source, and fact identity; expose only fact and coverage counts plus immutable corpus digests and replay verification. Do not calculate success rates, profiles, trends, rankings, scores, policy decisions, profitability, cashflow, or operator attribution. Frozen fixtures only. No production/runtime access, provider calls, GMGN integration, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, or activation.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

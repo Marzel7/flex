@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T12:56:02Z",
+  "updated_at_utc": "2026-08-13T12:59:12Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T12:56:02Z",
+    "published_at_utc": "2026-08-13T12:59:12Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2BW oldest-transaction sentinel contract",
-    "mode": "safe-local design, implementation, tests, immutable preflight, and narrow commit",
+    "milestone": "OIP v2.2E.2B2BX oldest-transaction isolated execution",
+    "mode": "authorized isolated sequential provider qualification",
     "status": "COMPLETE",
-    "verdict": "READY_FOR_SEPARATE_PROVIDER_EXECUTION_AUTHORIZATION"
+    "verdict": "PROVIDER_QUALIFICATION_PASS_20_OF_20"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,44 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "oip_v2_2e_2b2bx_oldest_transaction_execution": {
+      "status": "COMPLETE",
+      "verdict": "PROVIDER_QUALIFICATION_PASS_20_OF_20",
+      "run_id": "5aa7c580-2861-4149-8d6e-6a582b07f61c",
+      "engineering_commit": "f08db5b11a616daa500e71d1c7add225cee54522",
+      "members_completed": 20,
+      "validated_creator_funding_edges": 20,
+      "physical_requests": 60,
+      "request_budget": 60,
+      "response_projections": 60,
+      "transport_outcomes": {
+        "success": 60,
+        "non_success": 0
+      },
+      "request_sequence": [
+        "JSON-RPC migration proof",
+        "Helius Enhanced oldest transaction limit=1 sort-order=asc commitment=finalized",
+        "JSON-RPC exact transfer proof"
+      ],
+      "retry_pagination_or_extra_requests": false,
+      "all_projection_lineage_valid": true,
+      "attempt_ledger_sha256": "267f63595babec7c0b04a4636520b92bdef2e447f2a3fe93d28a2441292b8efc",
+      "projection_ledger_sha256": "b1d6251e4067d414650093a210826e24d266200762c131e57c85750fe4c4fd4b",
+      "results_sha256": "464245639636e3ed9408e1723f010e4a97ae243298608d1ec600e5e0e63f2856",
+      "isolated_output_directory": "/private/tmp/flex-oip-v2-2e-b2bw/5aa7c580-2861-4149-8d6e-6a582b07f61c",
+      "prior_sealed_runs_preserved": true,
+      "post_execution_tests": {
+        "passed": 12,
+        "failed": 1,
+        "failure_reason": "The one-time B2BW preflight test correctly detects that the formerly absent run directory now exists after successful execution; no code or artifact was changed in this execution-only milestone."
+      },
+      "production_database_access": false,
+      "live_queue_or_service_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF"
+    },
     "oip_v2_2e_2b2bw_oldest_transaction_sentinel": {
       "status": "COMPLETE",
       "verdict": "READY_FOR_SEPARATE_PROVIDER_EXECUTION_AUTHORIZATION",
@@ -2062,6 +2100,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "B2BX fully passes the isolated provider qualification at 20/20 with exactly 60 authorized requests. The remaining step is a bounded local-only E-series closure assessment that combines this provider result with the previously qualified B2R acquisition/retention funnel; no production activation is implied or authorized.",
     "B2BW is locally qualified at f08db5b1 with fresh empty ledgers. Provider execution remains HUMAN_APPROVAL_REQUIRED and must explicitly acknowledge the higher-cost oldest enhanced request and the unchanged 60-request stop-safe ceiling.",
     "B2BV classifies B2BU as a valid bounded-sentinel negative, not a parser failure. Its sealed projection cannot measure newest-page coverage. Existing local logic supports an explicit oldest-transaction enhanced request as the smallest three-request-preserving alternative, but that contract change and any later provider execution remain separately human-gated.",
     "B2BU consumed exactly 2 of 60 authorized requests and stopped on member 1 because the one permitted 100-row enhanced page contained no qualified pre-migration inbound SOL transfer. The contract prohibits pagination or supplementary lookup, so execution cannot continue. The sealed bounded projection proves the absence outcome but intentionally retains no raw page rows; further diagnosis or contract expansion requires separate authorization.",
@@ -2105,8 +2144,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2BX oldest-transaction isolated execution",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize isolated Helius execution for B2BW run_id 5aa7c580-2861-4149-8d6e-6a582b07f61c under docs/evidence_platform/oip_v2_2e_2b2bw_run_preflight.json and commit f08db5b1: at most 60 sequential physical requests across the frozen 20-member B2R cohort, comprising per member one JSON-RPC migration proof, one higher-cost Helius Enhanced oldest-transaction request with limit=1, sort-order=asc, commitment=finalized and no cursor, and one JSON-RPC exact transaction proof only when the oldest row itself proves a positive inbound native SOL transfer strictly before migration. Stop on first non-success, absent candidate, proof mismatch, counter mismatch, or safety impact; no retry, failover, pagination, concurrency, or cache. Write only the isolated append-only attempt, bounded projection, and stop-safe result artifacts; preserve both prior sealed runs. No production access, service changes, configuration changes, Evidence Mirror, or Cohort Mode.",
+    "milestone": "OIP v2.2E.2B2BY E-series closure assessment",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize bounded local read-only E-series closure assessment using only committed artifacts, docs/agent_handoff/current.json, the qualified B2R migration/Shared Acquisition/retention/replayability evidence, and sealed B2BX run 5aa7c580-2861-4149-8d6e-6a582b07f61c. Reconcile the complete migration \u2192 Shared Acquisition \u2192 completion \u2192 retained \u2192 replayable funnel with the 20/20 isolated creator-funding provider qualification; determine the final OIP v2.2E verdict, remaining limitations, and exact post-E roadmap transition; update/publish the handoff and create a narrow closure artifact/commit only if required. Zero provider calls, production reads/writes, service or configuration changes, artifact reset/deletion, Evidence Mirror, Cohort Mode, or production activation.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

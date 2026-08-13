@@ -1,23 +1,23 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T12:41:52Z",
+  "updated_at_utc": "2026-08-13T12:46:06Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "ae646212377e127d3a52d5a5e2dcd5ffced3fc4e",
-    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, handoff, and user paths remain present and were not staged; B2BS engineering changes were committed narrowly"
+    "git_head": "d121b6cc36900b7d7dc82d2fa008639140ab1ac8",
+    "working_tree": "dirty: 33 unrelated live Supervisor, audit, runtime, handoff, and user paths remain present and were not staged; B2BT engineering changes were committed narrowly"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T12:41:52Z",
+    "published_at_utc": "2026-08-13T12:46:06Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2BS creator-funding evidence contract amendment",
-    "mode": "safe-local design, implementation, fake-transport tests, regressions, and narrow commit",
+    "milestone": "OIP v2.2E.2B2BT amended execution boundary and immutable preflight",
+    "mode": "safe-local implementation, fake-transport tests, immutable preflight, and narrow commit",
     "status": "COMPLETE",
     "verdict": "LOCAL_QUALIFICATION_PASS"
   },
@@ -235,6 +235,35 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "oip_v2_2e_2b2bt_execution_boundary_preflight": {
+      "status": "COMPLETE",
+      "verdict": "READY_FOR_SEPARATE_PROVIDER_EXECUTION_AUTHORIZATION",
+      "commit": "d121b6cc36900b7d7dc82d2fa008639140ab1ac8",
+      "run_id": "a3721658-f6ef-4b20-8f87-7c631551a80c",
+      "frozen_manifest_digest": "82bbda32d25a9951a8d8475528d7db3a92b675aae90ce2d55e13391a6b69eedc",
+      "projection_digest": "eb2713e3f0ff01f122c0e962a7c67e7f1ea80337fa8894163892a47c17dd32bc",
+      "sequence": [
+        "JSON-RPC migration proof",
+        "one Helius Enhanced Address Transactions page limit=100",
+        "JSON-RPC exact transfer proof after transfer-aware selection"
+      ],
+      "request_ceiling": 60,
+      "attempt_ledger": "ABSENT_EMPTY",
+      "projection_ledger": "ABSENT_EMPTY",
+      "isolated_output_directory": "/private/tmp/flex-oip-v2-2e-b2bt/a3721658-f6ef-4b20-8f87-7c631551a80c",
+      "prior_b2z_run_preserved": true,
+      "tests": {
+        "command": "pytest -q tests/test_oip_v2_2e_2b2bt_execution_boundary.py tests/test_oip_v2_2e_2b2bt_preflight.py tests/test_oip_v2_2e_2b2y_contract.py tests/test_oip_v2_2e_2b2bp_execution_boundary.py tests/test_oip_v2_2e_2b2bq_run_preflight.py",
+        "passed": 25,
+        "failed": 0
+      },
+      "provider_rpc_calls": 0,
+      "execution_performed": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF"
+    },
     "oip_v2_2e_2b2bs_creator_funding_contract_amendment": {
       "status": "COMPLETE",
       "verdict": "LOCAL_QUALIFICATION_PASS",
@@ -1948,6 +1977,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "B2BT is locally qualified at d121b6cc with a fresh immutable run and empty ledgers. Provider execution remains HUMAN_APPROVAL_REQUIRED and must name the new run ID, dual endpoint classes, enhanced-page credit cost, exact 60-request ceiling, and stop contract.",
     "B2BS qualifies the amended transfer-aware contract at ae646212, but the B2Z execution boundary still implements the consumed chronology-only JSON-RPC sequence and must not be reused. A new safe-local adapter/ledger/preflight milestone is required before any separately authorized provider execution.",
     "B2BR proves the B2Y/B2Z first-pre-migration candidate rule has no funding semantic: address-signature chronology cannot identify an inbound SOL funding edge. B2Z also omitted the contractually requested bounded response projections, preventing sealed-artifact discrimination between a normal non-funding transaction and an unsupported parsed shape. A new reviewed evidence contract is required; parser loosening or re-execution under the old contract is not justified.",
     "B2Z consumed exactly 3 of the authorized 60-request ceiling and stopped on member 1 because the selected candidate transaction did not prove an inbound System Program SOL funding edge. The contract forbids retry, pagination, or another request, so the run cannot continue. The immutable ledger/results remain sealed in the isolated output directory.",
@@ -1987,8 +2017,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2BT amended execution boundary and immutable preflight",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize safe-local design, implementation, fake-transport tests, regression tests, and one narrow commit for a new isolated execution boundary and immutable preflight implementing B2BS commit ae646212: one JSON-RPC migration proof, one Helius Enhanced Address Transactions request with limit=100 and no cursor, and one JSON-RPC exact transaction proof only after transfer-aware selection; durably append credential-free bounded response projections alongside physical-attempt metadata; assign a new run ID, isolated empty output directory and ledger; retain the frozen B2R cohort and 60-request ceiling; and preserve the sealed prior B2Z run unchanged. Perform zero provider calls and no execution. No production database reads/writes, live queue/service access, service restarts or stops, lock manipulation, configuration or credential changes, Evidence Mirror, or Cohort Mode.",
+    "milestone": "OIP v2.2E.2B2BU transfer-aware isolated Helius execution",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize isolated Helius execution for B2BT run_id a3721658-f6ef-4b20-8f87-7c631551a80c under docs/evidence_platform/oip_v2_2e_2b2bt_run_preflight.json and commit d121b6cc: at most 60 sequential physical requests across the frozen 20-member B2R cohort, comprising per member one JSON-RPC migration proof, one Helius Enhanced Address Transactions request with limit=100 and no cursor, and one JSON-RPC exact transaction proof only after transfer-aware selection. Acknowledge that each Enhanced request is the higher-cost Helius endpoint. Stop the whole run on first non-success, absent transfer-aware candidate, proof mismatch, counter mismatch, or safety impact; no retry, failover, pagination, concurrency, or cache. Write only the append-only physical-attempt ledger, credential-free bounded projection ledger, and stop-safe results in the recorded isolated directory. Preserve the prior sealed B2Z run. No production database reads/writes, live queue/service access, service restarts or stops, lock manipulation, configuration changes, Evidence Mirror, or Cohort Mode.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

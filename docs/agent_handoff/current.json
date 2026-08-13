@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T11:01:32Z",
+  "updated_at_utc": "2026-08-13T11:05:19Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2BG listener guaranteed-close deployment",
-    "mode": "completed exactly one authorized listener restart and immediate verification",
-    "status": "COMPLETE",
-    "verdict": "IMMEDIATE_DEPLOYMENT_VERIFICATION_PASS"
+    "milestone": "OIP v2.2E.2B2BH listener descriptor stability observation",
+    "mode": "bounded read-only production observation stopped at first endpoint",
+    "status": "HOLD",
+    "verdict": "PRIMARY_FD_WARNING_THRESHOLD_REACHED"
   },
   "production_state": {
     "retention": "ON",
@@ -1208,6 +1208,27 @@
       "watchdog_threshold_changes": 0,
       "blocker": "Immediate deployment verification passes, but the prior failure mode was recurrent over several minutes. A separately authorized bounded read-only stability observation is required before clearing the descriptor incident or reconsidering B2Z. Existing unrelated operational-intelligence/cascade warnings remain outside B2BG scope."
     },
+    "oip_v2_2e_2b2bh_listener_descriptor_stability_observation": {
+      "status": "HOLD",
+      "verdict": "PRIMARY_FD_WARNING_THRESHOLD_REACHED",
+      "authorization_consumed_at_utc": "2026-08-13T11:03:53Z",
+      "qualified_start_checkpoint_utc": "2026-08-13T11:03:53Z",
+      "closed_at_utc": "2026-08-13T11:05:04Z",
+      "observed_duration_seconds": 70,
+      "contract": "End at first of 15 clean minutes, primary_fd_count reaching warning threshold 8, CRITICAL_LISTENER_DB_HANDLE, automatic listener restart, database pressure degradation, ingestion degradation, or other production impact.",
+      "endpoint": "PRIMARY_FD_WARNING_THRESHOLD_REACHED",
+      "endpoint_evidence": "The bounded monitor observed 10 matching main-DB/WAL descriptors, and listener watchdog telemetry independently recorded max primary_fd_count=8, exactly the configured warning threshold. The observation stopped immediately.",
+      "caller_evidence": "The warning-period snapshots were again dominated by pumpfun_curve_listener.py:918 _check_watchtower_migration._run. One tok_work connection remained open for 31.2 seconds with transaction_open=false, write_lane_owned=false, and native_close_state=OWNER_THREAD_CLEANUP_REQUIRED. Two such migration connections and one reconciler connection overlapped in the preceding snapshot.",
+      "runtime_at_endpoint": "watchtower_listener remained RUNNING pid 14922; creator_funding_worker remained pid 80211; creator_resolution_worker remained pid 72488; evidence_writer remained STOPPED. No automatic restart had occurred at the endpoint checkpoint.",
+      "health_at_endpoint": "Database remained HEALTHY with p99_wait_ms=1.36, serializer queue depth 0, and no listener lock errors. Ingestion remained HEALTHY with PumpPortal and PumpSwap CONNECTED, fresh births/migrations, and empty birth/migration queues.",
+      "provider_qualification_calls": 0,
+      "production_writes_initiated_by_codex": 0,
+      "production_changes_initiated_by_codex": false,
+      "service_restarts_or_stops_initiated_by_codex": 0,
+      "configuration_or_watchdog_changes": 0,
+      "flags": "Migration Census ON; Retention ON; Evidence Mirror OFF; Cohort Mode OFF; evidence_writer STOPPED.",
+      "blocker": "B2BF prevents missing close-on-exception, but the migration/watchtower routine still keeps a main-DB connection open during a long owner-thread operation and reaches the descriptor warning threshold under concurrent migrations. The recurrent descriptor incident is not closed, and B2Z remains held."
+    },
     "oip_v2_2e_incident_causal_assessment": {
       "status": "COMPLETE",
       "verdict": "LATENT_DEFECT_REACTIVATED_BY_WORKER_RECOVERY",
@@ -1640,6 +1661,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "B2BH stopped after 70 seconds because primary_fd_count reached warning threshold 8 (the bounded monitor saw 10 matching main-DB/WAL descriptors). Database and ingestion remained healthy, but _check_watchtower_migration still held an owner-thread connection for 31.2 seconds. Further bounded read-only diagnosis requires explicit authorization; B2Z remains held.",
     "B2BG immediate verification passes after loading 8e435510: four watchdog samples peaked at fd_count=5 and returned to zero, ingestion is healthy, and database p99 is 0.04ms. A bounded stability observation is still required before declaring the recurrent descriptor incident closed; B2Z remains held.",
     "B2BF locally qualified the guaranteed-close repair and committed it narrowly at 8e435510, but it is not deployed. The pre-B2BF listener automatically restarted again and is now PID 11725. One explicit watchtower_listener deployment/restart authorization is required; B2Z remains held.",
     "B2BE confirms the listener watchdog restarts are caused by structurally unguarded _check_watchtower_migration database connections accumulating alongside legitimate transient connection concurrency. The price path is healthy. A safe-local guaranteed-close repair is not yet authorized, and B2Z remains held.",
@@ -1666,8 +1688,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2BH listener descriptor stability observation",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize a bounded 15-minute read-only production stability observation starting at the first descriptor/health checkpoint after authorization and ending at the first of: 15 clean minutes, primary_fd_count reaching warning threshold 8, any CRITICAL_LISTENER_DB_HANDLE event, an automatic listener restart, database pressure degradation, ingestion degradation, or other production impact; no provider qualification, production writes, service restarts or stops, lock manipulation, configuration or watchdog-threshold changes, Evidence Mirror, Cohort Mode, or B2Z execution.",
+    "milestone": "OIP v2.2E.2B2BI watchtower migration long-scope diagnosis",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize bounded local read-only diagnosis of _check_watchtower_migration._run after B2BF, including exact query/branch timing, owner-cleanup ordering, concurrent migration fan-out, and whether read analysis or derived-lifecycle work unnecessarily remains inside the main-DB connection scope; no implementation, provider calls, production writes, service restarts or stops, lock manipulation, configuration or watchdog-threshold changes, Evidence Mirror, Cohort Mode, or B2Z execution.",
     "activation_authorized": false,
     "production_activation_authorized": false
   },

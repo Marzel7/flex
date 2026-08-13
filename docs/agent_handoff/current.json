@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T22:09:53Z",
+  "updated_at_utc": "2026-08-13T22:13:29Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "bb7c068f628cf0d122ada877f04406e82d7cfd6b",
-    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths; EB1.3A engineering commit contains only its contract, tests and documentation; all unrelated paths preserved"
+    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths; post-EB1.3A reconciliation made no engineering changes and preserved all unrelated paths"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-      "milestone": "EB1.3A non-executable evidence-fulfillment planning-proposal contract",
-      "mode": "safe-local frozen-fixture design, implementation, test and narrow commit",
+      "milestone": "Post-EB1.3A roadmap reconciliation",
+      "mode": "bounded local read-only committed-artifact reconciliation",
       "status": "COMPLETE",
-      "verdict": "NON_EXECUTABLE_PLANNING_PROPOSAL_CONTRACT_QUALIFIED"
+      "verdict": "ROADMAP_RECONCILED_EB1_3B_COMMITTED_SOURCE_MAPPING_AUDIT_NEXT"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,33 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "post_eb1_3a_roadmap_reconciliation": {
+      "status": "COMPLETE",
+      "verdict": "ROADMAP_RECONCILED_EB1_3B_COMMITTED_SOURCE_MAPPING_AUDIT_NEXT",
+      "engineering_commit": "bb7c068f628cf0d122ada877f04406e82d7cfd6b",
+      "verification_utc": "2026-08-13T22:13:29Z",
+      "canonical_roadmap_finding": "EB1.3A defines only the pure in-memory proposal projection. The smallest missing governance proof is how replay-verified committed EB1.1 requirement artifacts and immutable EB1.2A review histories map into EB1.3A's exact lineage, latest-disposition, authority, scope, alternative and assumption fields. This is a source-mapping question, not permission to review, choose, rank, plan, acquire or fulfill a proposal.",
+      "next_stage": {
+        "milestone": "EB1.3B committed-source mapping audit",
+        "authorization_class": "LOCAL_READ_ONLY",
+        "objective": "Map committed replay-verified EB1.1 requirement bundle fields and EB1.2A review-history fields into the EB1.3A contract, identify unsupported or ambiguous fields, and specify the smallest safe-local adapter milestone without implementation.",
+        "required_semantics": [
+          "prove exact EB1.1 requirement, projection, manifest and corpus identity sources",
+          "prove exact EB1.2A latest valid disposition and review-history identity sources",
+          "map originating authority lane and cohort/window scope without substitution",
+          "classify candidate evidence classes and planning assumptions as caller-supplied, unsupported or derivable without selecting or ranking alternatives",
+          "preserve proposal non-executability and both false authority grants",
+          "name every missing, ambiguous or uncommitted source field and the minimum fixture-only adapter boundary"
+        ],
+        "explicitly_deferred": "proposal review or acceptance, source selection, acquisition planning/budgets, provider/runtime/production access, evidence fulfillment, linkage, analytics, policy and activation"
+      },
+      "implementation_performed": false,
+      "provider_calls": 0,
+      "production_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "activation": false
+    },
     "eb1_3a_evidence_fulfillment_planning_proposal": {
       "status": "COMPLETE",
       "verdict": "NON_EXECUTABLE_PLANNING_PROPOSAL_CONTRACT_QUALIFIED",
@@ -4183,6 +4210,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "EB1.3A is not yet a frozen artifact stack. No committed mapping audit proves how EB1.1 bundles and EB1.2A review histories populate every EB1.3A input, and candidate alternatives/assumptions remain explicitly caller-supplied. EB1.3B must remain read-only and cannot select or approve them.",
     "EB1.3A is qualified only as a frozen non-executable planning-proposal contract. No proposal or handoff grants planning authority, source selection, acquisition budgets, provider/runtime/production access, evidence fulfillment, policy or activation authority. The committed roadmap defines no next layer or EB2 namespace; further roadmap reconciliation requires separate authorization.",
     "EB1.2A is qualified only as a frozen non-executable review-disposition contract. READY_FOR_SEPARATE_PLANNING grants no planning, source selection, acquisition budget, runtime/provider/production access, evidence fulfillment, policy or activation authority. The committed roadmap still defines no EB2 namespace or subsequent contract; roadmap reconciliation requires separate authorization.",
     "EB1.1 is closed only as a frozen non-executable requirement stack. Source selection, acquisition planning/budgets, runtime compatibility, live execution, evidence fulfillment, linkage, analytics, identity/attribution, policy and activation require a separately reconciled and explicitly authorized roadmap.",
@@ -4249,9 +4277,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "Post-EB1.3A roadmap reconciliation",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Reconcile the committed roadmap after EB1.3A and identify the smallest next safe-local evidence-governance contract without implementing it or assigning an EB2 namespace.",
-    "approval_text": "Authorize a bounded local read-only post-EB1.3A roadmap reconciliation using committed artifacts only; identify the smallest next safe-local evidence-governance milestone and contract, but do not implement it or assign an EB2 namespace. No source selection, acquisition plan or request budget, production/runtime access, live extraction or census, provider/RPC calls, production writes, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, evidence fulfillment, cross-entity linkage, rates, profiles, ranking, scoring, policy activation, profitability/cashflow inference, operator identity/attribution, or activation.",
+    "milestone": "EB1.3B committed-source mapping audit",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Audit only committed replay-verified EB1.1 and EB1.2A artifacts against EB1.3A's exact inputs, identify unsupported mappings, and define the minimum fixture-only adapter milestone without implementation or proposal selection.",
+    "approval_text": "Authorize a bounded local read-only EB1.3B committed-source mapping audit using committed EB1.1 requirement bundle, EB1.2A review-disposition, and EB1.3A contract artifacts only. Map exact requirement/projection/manifest/corpus identity, latest valid disposition/history identity, originating authority lane, cohort/window scope, candidate evidence classes, bounded planning assumptions, proposal sequence, reason, rationale and supersession fields; identify unsupported or ambiguous mappings and the smallest fixture-only deterministic adapter milestone. Do not implement adapters, review or approve proposals, choose or rank alternatives, select sources, define an acquisition plan or request budget, or fulfill evidence. No production/runtime access, live extraction or census, provider/RPC calls, production writes, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, cross-entity linkage, rates, profiles, ranking, scoring, policy activation, profitability/cashflow inference, operator identity/attribution, or activation. Do not assign or enter an EB2 namespace.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

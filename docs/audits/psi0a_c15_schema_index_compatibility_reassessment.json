@@ -1,0 +1,108 @@
+{
+  "milestone": "PSI0A-C15",
+  "status": "COMPLETE",
+  "verdict": "PASS_SCHEMA_INDEX_COMPATIBLE_HEALTH_GATES_CLEAN",
+  "engineering_revision": "4d797344a455f440e1be2a1155789305d0d91bb0",
+  "completed_at_utc": "2026-08-14T09:28:21Z",
+  "inputs": {
+    "canonical_manifest_digest": "d956bc24c1cd160162acaaad5bc466a2dece78ea34fc1f5238bc80728d4283f5",
+    "c9_audit_digest": "08642b6ca525a01f029e60029798afc16351162869ab80cc8831d7c212a55c31",
+    "c14_ledger_digest": "c28ccb28396fd7824a68bce6f87e8653a0c6407308dde47bee5497f3aa36f4cf",
+    "c15b3_verdict": "PASS_15_CLEAN_MINUTES_RECOVERY_PROVEN"
+  },
+  "findings": [
+    {
+      "database_id": "creator",
+      "relation_name": "creator_tokens",
+      "compatible": true,
+      "schema_digest": "34d4de8b020fef4eb7df41e94777d9c42f6b86d185cfa57028c3e89226d14992",
+      "query_plan": [
+        "SEARCH creator_tokens USING INDEX idx_creator_tokens_mint (mint=?)"
+      ]
+    },
+    {
+      "database_id": "evidence",
+      "relation_name": "normalized_evidence_records",
+      "compatible": true,
+      "schema_digest": "9e200ab6b52ff93a274462e27ce5d09f4b03191cecb032405fbc7f3c7a0f607d",
+      "query_plan": [
+        "SEARCH normalized_evidence_records USING COVERING INDEX idx_psi0a_normalized_evidence_fact_family (fact_family=?)"
+      ]
+    },
+    {
+      "database_id": "main",
+      "relation_name": "token_analysis",
+      "compatible": true,
+      "schema_digest": "a3aee742a9987f889e84046358d2eb2de5726a961746bc5cbfd2dca68da02815",
+      "query_plan": [
+        "SEARCH token_analysis USING COVERING INDEX idx_psi0a_token_analysis_migrated_mint (migrated_at>? AND migrated_at<?)",
+        "USE TEMP B-TREE FOR RIGHT PART OF ORDER BY"
+      ]
+    },
+    {
+      "database_id": "main",
+      "relation_name": "token_price_snapshots",
+      "compatible": true,
+      "schema_digest": "c00807be7f0d6cd9e29cc80f01abbdaf0192eb4273dd3415f54b70293c88d39f",
+      "query_plan": [
+        "SEARCH token_price_snapshots USING COVERING INDEX idx_tps_mint_captured (mint=? AND captured_at<?)",
+        "USE TEMP B-TREE FOR RIGHT PART OF ORDER BY"
+      ]
+    },
+    {
+      "database_id": "ops",
+      "relation_name": "wt_watchtower_launches",
+      "compatible": true,
+      "schema_digest": "0659a2899cfbee9dbad3c352bc14192576e6f2a187eccbccdaaa76f684553c21",
+      "query_plan": [
+        "SEARCH wt_watchtower_launches USING INDEX ix_launches_mint (mint=?)"
+      ]
+    }
+  ],
+  "summary": {
+    "compatible_relation_count": 5,
+    "incompatible_relation_count": 0,
+    "both_psi0a_indexes_present": true,
+    "both_psi0a_indexes_selected_by_planner": true,
+    "query_plan_observation": "The two range queries use their qualified covering indexes and retain a bounded right-part ORDER BY temporary B-tree; acceptability at frozen PSI0A resource ceilings remains a PSI0A-D qualification question, not a C15 incompatibility.",
+    "replay_verified": true
+  },
+  "safety": {
+    "uri_mode": "ro",
+    "query_only_verified": true,
+    "lock_timeout_ms": 250,
+    "maximum_query_deadline_seconds": 2,
+    "elapsed_ms": 50.733,
+    "metadata_only": true,
+    "production_rows_read": 0,
+    "high_waters_captured": 0,
+    "production_writes": 0,
+    "ddl_statements": 0,
+    "evidence_extractions": 0,
+    "shadow_outputs_created": 0,
+    "provider_calls": 0,
+    "service_restarts_or_stops": 0
+  },
+  "health": {
+    "listener_pid_before": 9069,
+    "listener_pid_after": 9069,
+    "listener_pid_stable": true,
+    "latest_primary_fd_count_before": 0,
+    "serializer_p99_wait_ms_before": 19.81,
+    "serializer_p99_wait_ms_after": 16.67,
+    "serializer_queue_depth_before": 0,
+    "serializer_queue_depth_after": 0,
+    "lock_errors_24h_after": 0,
+    "services_healthy_after": true,
+    "evidence_writer_stopped": true,
+    "production_impact_observed": false
+  },
+  "authority": {
+    "grants_high_water_capture_authority": false,
+    "grants_extraction_authority": false,
+    "grants_activation_authority": false,
+    "psi0a_d_or_later_authorized": false,
+    "psi0b_authorized": false
+  },
+  "result_digest": "8a5f6d92204d4a151c9c5d0d689a7303ed7d7b9a3a6dc3f8fce852c2d768bf64"
+}

@@ -1,0 +1,68 @@
+{
+  "milestone": "PSI0A-C9",
+  "verdict": "SCHEMA_INCOMPATIBLE",
+  "reader_revision": "89631f1df4d3db47666cb68866722b715ef69e39",
+  "manifest_engineering_revision": "bd0d9447",
+  "manifest_digest": "d956bc24c1cd160162acaaad5bc466a2dece78ea34fc1f5238bc80728d4283f5",
+  "boundary_digest": "6b0005bfcd063ba38d2eefe33557e334a5b90e3f83474a7d4db3a0033f4cabfb",
+  "audit_digest": "08642b6ca525a01f029e60029798afc16351162869ab80cc8831d7c212a55c31",
+  "replay_verified": true,
+  "compatible_relation_count": 3,
+  "incompatible_relation_count": 2,
+  "findings": [
+    {
+      "database_id": "creator",
+      "relation_name": "creator_tokens",
+      "compatible": true,
+      "schema_digest": "34d4de8b020fef4eb7df41e94777d9c42f6b86d185cfa57028c3e89226d14992"
+    },
+    {
+      "database_id": "evidence",
+      "relation_name": "normalized_evidence_records",
+      "compatible": false,
+      "missing_index_prefixes": [["fact_family"]],
+      "schema_digest": "e3e30fcc0a85aaaadc2b2629cf7ca39e0e4af6f699faa44c8e7651f698377125"
+    },
+    {
+      "database_id": "main",
+      "relation_name": "token_analysis",
+      "compatible": false,
+      "missing_index_prefixes": [["migrated_at", "mint"]],
+      "schema_digest": "31b1f121df39cf41c0b0f8c5c9f5c4713437f367e40b13827d064552b50448d7"
+    },
+    {
+      "database_id": "main",
+      "relation_name": "token_price_snapshots",
+      "compatible": true,
+      "schema_digest": "c00807be7f0d6cd9e29cc80f01abbdaf0192eb4273dd3415f54b70293c88d39f"
+    },
+    {
+      "database_id": "ops",
+      "relation_name": "wt_watchtower_launches",
+      "compatible": true,
+      "schema_digest": "0659a2899cfbee9dbad3c352bc14192576e6f2a187eccbccdaaa76f684553c21"
+    }
+  ],
+  "safety": {
+    "uri_mode": "ro",
+    "query_only_verified": true,
+    "lock_timeout_ms": 250,
+    "maximum_query_deadline_seconds": 2,
+    "elapsed_ms": 31.272,
+    "metadata_only": true,
+    "production_rows_read": 0,
+    "high_waters_captured": 0,
+    "evidence_extractions": 0,
+    "shadow_outputs_created": 0,
+    "production_writes": 0,
+    "ddl_statements": 0
+  },
+  "health": {
+    "pre_audit_p99_wait_ms": 48.23,
+    "post_audit_p99_wait_ms": 51.38,
+    "post_audit_queue_depth": 0,
+    "worker_pid_changes": 0,
+    "production_impact_observed": false
+  },
+  "stop_reason": "SCHEMA_TYPE_INDEX_DRIFT"
+}

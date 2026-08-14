@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T09:25:00Z",
+  "updated_at_utc": "2026-08-14T09:28:21Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "4d797344a455f440e1be2a1155789305d0d91bb0",
-    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0A-C15B3 clean recovery artifact committed narrowly"
+    "git_head": "1215979dc7ce2fd82b500bf7c39f212049ab5d71",
+    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0A-C15 compatibility reassessment artifact committed narrowly"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-14T09:25:00Z",
+    "published_at_utc": "2026-08-14T09:28:21Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0A-C15B3 telemetry-only recovery observation",
-    "mode": "15-minute clean production-telemetry observation; zero database connections",
+    "milestone": "PSI0A-C15 five-surface compatibility reassessment",
+    "mode": "bounded production metadata-only read-only schema/index/query-plan reassessment",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "PSI0A_C15B3_PASS_RECOVERY_PROVEN_C15_REAUTHORIZATION_READY"
+    "verdict": "PSI0A_C15_PASS_SCHEMA_INDEX_COMPATIBLE_HEALTH_GATES_CLEAN"
   },
   "production_state": {
     "retention": "ON",
@@ -32,7 +32,7 @@
     "creator_funding_service": "creator_funding_worker",
     "creator_funding_pid_last_verified": 80211,
     "creator_resolution_service": "creator_resolution_worker",
-    "creator_resolution_pid_last_verified": 24853
+    "creator_resolution_pid_last_verified": 69111
   },
   "orchestration": {
     "schema_version": 3,
@@ -328,23 +328,9 @@
       "engineering_commit": "7b58517afe2fc8a1a3f3f65bb7c5546aca13db14",
       "verification_utc": "2026-08-14T06:15:00Z",
       "completed_stages": {
-        "PSI0A-A": {
-          "verdict": "PRODUCTION_SHADOW_BOUNDARY_QUALIFIED",
-          "commit": "491aa4ce",
-          "tests": "36 focused regressions passed"
-        },
-        "PSI0A-B": {
-          "verdict": "SCHEMA_COMPATIBLE",
-          "commit": "c1f7513d",
-          "relations": "5/5 compatible",
-          "production_rows_read": 0,
-          "evidence_extractions": 0
-        },
-        "PSI0A-C_local": {
-          "verdict": "FAIL_CLOSED_HIGH_WATER_CONTRACT_QUALIFIED",
-          "commit": "7b58517a",
-          "tests": "46 focused and EB0 boundary regressions passed"
-        }
+        "PSI0A-A": {"verdict": "PRODUCTION_SHADOW_BOUNDARY_QUALIFIED", "commit": "491aa4ce", "tests": "36 focused regressions passed"},
+        "PSI0A-B": {"verdict": "SCHEMA_COMPATIBLE", "commit": "c1f7513d", "relations": "5/5 compatible", "production_rows_read": 0, "evidence_extractions": 0},
+        "PSI0A-C_local": {"verdict": "FAIL_CLOSED_HIGH_WATER_CONTRACT_QUALIFIED", "commit": "7b58517a", "tests": "46 focused and EB0 boundary regressions passed"}
       },
       "production_stop": {
         "error": "PSI0A_C_NON_INTEGER_HIGH_WATER",
@@ -354,13 +340,7 @@
         "deterministic_capture_order_finding": "creator.creator_tokens.created_at is evaluated before evidence.normalized_evidence_records.acquired_at and is therefore the earliest possible source of the observed text maximum; runtime confirmation is outside PSI0A-C1",
         "finding": "PSI0A-C remains fail-closed. Evidence acquired_at is cleared as the source of the prior exception, but an empty evidence table cannot provide a populated event high-water and the creator timestamp semantics require separately authorized diagnosis."
       },
-      "not_started": [
-        "PSI0A-D",
-        "PSI0A-E",
-        "PSI0A-F",
-        "PSI0A-G",
-        "PSI0A-H"
-      ],
+      "not_started": ["PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H"],
       "provider_calls": 0,
       "production_access": "bounded metadata and MAX aggregate reads only",
       "production_rows_materialized": 0,
@@ -404,14 +384,7 @@
       "service_restarts": 0,
       "configuration_changes": 0,
       "evidence_extractions": 0,
-      "not_started": [
-        "PSI0A-D",
-        "PSI0A-E",
-        "PSI0A-F",
-        "PSI0A-G",
-        "PSI0A-H",
-        "PSI0B"
-      ]
+      "not_started": ["PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
     },
     "psi0a_c2_creator_created_at_diagnosis": {
       "status": "COMPLETE",
@@ -464,14 +437,7 @@
       "service_restarts": 0,
       "configuration_changes": 0,
       "evidence_extractions": 0,
-      "not_started": [
-        "PSI0A-D",
-        "PSI0A-E",
-        "PSI0A-F",
-        "PSI0A-G",
-        "PSI0A-H",
-        "PSI0B"
-      ]
+      "not_started": ["PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
     },
     "psi0a_c3_creator_cursor_only_high_water_repair": {
       "status": "COMPLETE",
@@ -504,15 +470,7 @@
       "service_restarts": 0,
       "configuration_changes": 0,
       "evidence_extractions": 0,
-      "not_started": [
-        "PSI0A-C production recapture",
-        "PSI0A-D",
-        "PSI0A-E",
-        "PSI0A-F",
-        "PSI0A-G",
-        "PSI0A-H",
-        "PSI0B"
-      ]
+      "not_started": ["PSI0A-C production recapture", "PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
     },
     "psi0a_c4_production_recapture_preflight": {
       "status": "HOLD",
@@ -537,15 +495,7 @@
       "service_restarts": 0,
       "configuration_changes": 0,
       "evidence_extractions": 0,
-      "not_started": [
-        "PSI0A-C production recapture",
-        "PSI0A-D",
-        "PSI0A-E",
-        "PSI0A-F",
-        "PSI0A-G",
-        "PSI0A-H",
-        "PSI0B"
-      ]
+      "not_started": ["PSI0A-C production recapture", "PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
     },
     "psi0a_c5_active_query_deadline_repair": {
       "status": "COMPLETE",
@@ -585,15 +535,7 @@
       "service_restarts": 0,
       "configuration_changes": 0,
       "evidence_extractions": 0,
-      "not_started": [
-        "PSI0A-C production recapture",
-        "PSI0A-D",
-        "PSI0A-E",
-        "PSI0A-F",
-        "PSI0A-G",
-        "PSI0A-H",
-        "PSI0B"
-      ]
+      "not_started": ["PSI0A-C production recapture", "PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
     },
     "psi0a_c6_production_recapture_preflight": {
       "status": "HOLD",
@@ -622,15 +564,7 @@
       "service_restarts": 0,
       "configuration_changes": 0,
       "evidence_extractions": 0,
-      "not_started": [
-        "PSI0A-C production recapture",
-        "PSI0A-D",
-        "PSI0A-E",
-        "PSI0A-F",
-        "PSI0A-G",
-        "PSI0A-H",
-        "PSI0B"
-      ]
+      "not_started": ["PSI0A-C production recapture", "PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
     },
     "psi0a_c7_capture_input_manifest_preflight": {
       "status": "HOLD",
@@ -662,15 +596,7 @@
       "service_restarts": 0,
       "configuration_changes": 0,
       "evidence_extractions": 0,
-      "not_started": [
-        "PSI0A-C production recapture",
-        "PSI0A-D",
-        "PSI0A-E",
-        "PSI0A-F",
-        "PSI0A-G",
-        "PSI0A-H",
-        "PSI0B"
-      ]
+      "not_started": ["PSI0A-C production recapture", "PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
     },
     "psi0a_c8_canonical_capture_input_manifest": {
       "status": "COMPLETE",
@@ -706,15 +632,7 @@
       "service_restarts": 0,
       "configuration_changes": 0,
       "evidence_extractions": 0,
-      "not_started": [
-        "PSI0A-C production recapture",
-        "PSI0A-D",
-        "PSI0A-E",
-        "PSI0A-F",
-        "PSI0A-G",
-        "PSI0A-H",
-        "PSI0B"
-      ]
+      "not_started": ["PSI0A-C production recapture", "PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
     },
     "psi0a_c9_schema_index_compatibility_audit": {
       "status": "HOLD",
@@ -759,15 +677,7 @@
       "service_restarts": 0,
       "configuration_changes": 0,
       "stop_reason": "SCHEMA_TYPE_INDEX_DRIFT",
-      "not_started": [
-        "PSI0A-C production recapture",
-        "PSI0A-D",
-        "PSI0A-E",
-        "PSI0A-F",
-        "PSI0A-G",
-        "PSI0A-H",
-        "PSI0B"
-      ]
+      "not_started": ["PSI0A-C production recapture", "PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
     },
     "psi0a_c10_additive_index_repair_qualification": {
       "status": "COMPLETE",
@@ -782,18 +692,13 @@
           "database_id": "evidence",
           "relation": "normalized_evidence_records",
           "index_name": "idx_psi0a_normalized_evidence_fact_family",
-          "leading_prefix": [
-            "fact_family"
-          ]
+          "leading_prefix": ["fact_family"]
         },
         {
           "database_id": "main",
           "relation": "token_analysis",
           "index_name": "idx_psi0a_token_analysis_migrated_mint",
-          "leading_prefix": [
-            "migrated_at",
-            "mint"
-          ]
+          "leading_prefix": ["migrated_at", "mint"]
         }
       ],
       "qualification": {
@@ -819,16 +724,7 @@
       "configuration_changes": 0,
       "evidence_extractions": 0,
       "activation_authority": false,
-      "not_started": [
-        "PSI0A-C production index deployment",
-        "PSI0A-C production recapture",
-        "PSI0A-D",
-        "PSI0A-E",
-        "PSI0A-F",
-        "PSI0A-G",
-        "PSI0A-H",
-        "PSI0B"
-      ]
+      "not_started": ["PSI0A-C production index deployment", "PSI0A-C production recapture", "PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
     },
     "psi0a_c11_additive_index_deployment": {
       "status": "PARTIAL",
@@ -845,19 +741,14 @@
       },
       "evidence_index": {
         "index_name": "idx_psi0a_normalized_evidence_fact_family",
-        "columns": [
-          "fact_family"
-        ],
+        "columns": ["fact_family"],
         "created": true,
         "elapsed_ms": 7.826,
         "query_plan_uses_index": true
       },
       "main_index": {
         "index_name": "idx_psi0a_token_analysis_migrated_mint",
-        "columns": [
-          "migrated_at",
-          "mint"
-        ],
+        "columns": ["migrated_at", "mint"],
         "created": false,
         "postcondition_verified_absent": true,
         "execution_transcript_available": false,
@@ -882,16 +773,7 @@
       "configuration_changes": 0,
       "stop_reason": "MAIN_INDEX_POSTCONDITION_ABSENT_WITHOUT_EXECUTION_TRANSCRIPT",
       "artifact": "docs/audits/psi0a_c11_additive_index_deployment.json",
-      "not_started": [
-        "PSI0A-C main-index diagnosis or retry",
-        "PSI0A-C production recapture",
-        "PSI0A-D",
-        "PSI0A-E",
-        "PSI0A-F",
-        "PSI0A-G",
-        "PSI0A-H",
-        "PSI0B"
-      ]
+      "not_started": ["PSI0A-C main-index diagnosis or retry", "PSI0A-C production recapture", "PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
     },
     "psi0a_c12_main_index_attempt_diagnosis": {
       "status": "COMPLETE",
@@ -935,17 +817,7 @@
       "provider_calls": 0,
       "service_restarts": 0,
       "configuration_changes": 0,
-      "not_started": [
-        "PSI0A-C durable runner qualification",
-        "PSI0A-C main-index retry",
-        "PSI0A-C production recapture",
-        "PSI0A-D",
-        "PSI0A-E",
-        "PSI0A-F",
-        "PSI0A-G",
-        "PSI0A-H",
-        "PSI0B"
-      ]
+      "not_started": ["PSI0A-C durable runner qualification", "PSI0A-C main-index retry", "PSI0A-C production recapture", "PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
     },
     "psi0a_c13_durable_index_runner_qualification": {
       "status": "COMPLETE",
@@ -964,19 +836,10 @@
         "incomplete_external_termination_detection": true
       },
       "recorded_phases": [
-        "STARTED",
-        "SCHEMA_PRECONDITION_VERIFIED",
-        "LOCK_ACQUIRED",
-        "DDL_STARTED",
-        "DEADLINE_CALLBACK",
-        "DDL_SUCCEEDED",
-        "EXCEPTION",
-        "ROLLBACK_SUCCEEDED",
-        "ROLLBACK_ALREADY_AUTOMATIC",
-        "PROGRESS_HANDLER_REMOVED",
-        "CONNECTION_CLOSED",
-        "POSTCONDITION_VERIFIED",
-        "TERMINAL"
+        "STARTED", "SCHEMA_PRECONDITION_VERIFIED", "LOCK_ACQUIRED", "DDL_STARTED",
+        "DEADLINE_CALLBACK", "DDL_SUCCEEDED", "EXCEPTION", "ROLLBACK_SUCCEEDED",
+        "ROLLBACK_ALREADY_AUTOMATIC", "PROGRESS_HANDLER_REMOVED", "CONNECTION_CLOSED",
+        "POSTCONDITION_VERIFIED", "TERMINAL"
       ],
       "qualified_paths": {
         "success": true,
@@ -1010,16 +873,7 @@
       "provider_calls": 0,
       "service_restarts": 0,
       "configuration_changes": 0,
-      "not_started": [
-        "PSI0A-C durable main-index retry",
-        "PSI0A-C production recapture",
-        "PSI0A-D",
-        "PSI0A-E",
-        "PSI0A-F",
-        "PSI0A-G",
-        "PSI0A-H",
-        "PSI0B"
-      ]
+      "not_started": ["PSI0A-C durable main-index retry", "PSI0A-C production recapture", "PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
     },
     "psi0a_c14_durable_main_index_deployment": {
       "status": "COMPLETE",
@@ -1037,24 +891,14 @@
       "retries": 0,
       "deployed_index": {
         "index_name": "idx_psi0a_token_analysis_migrated_mint",
-        "columns": [
-          "migrated_at",
-          "mint"
-        ],
+        "columns": ["migrated_at", "mint"],
         "postcondition_verified": true,
         "query_plan": "SEARCH token_analysis USING COVERING INDEX idx_psi0a_token_analysis_migrated_mint (migrated_at<?)"
       },
       "durable_events": [
-        "STARTED",
-        "SCHEMA_PRECONDITION_VERIFIED",
-        "LOCK_ACQUIRED",
-        "DDL_STARTED",
-        "DDL_SUCCEEDED",
-        "COMMIT_SUCCEEDED",
-        "PROGRESS_HANDLER_REMOVED",
-        "CONNECTION_CLOSED",
-        "POSTCONDITION_VERIFIED",
-        "TERMINAL"
+        "STARTED", "SCHEMA_PRECONDITION_VERIFIED", "LOCK_ACQUIRED", "DDL_STARTED",
+        "DDL_SUCCEEDED", "COMMIT_SUCCEEDED", "PROGRESS_HANDLER_REMOVED",
+        "CONNECTION_CLOSED", "POSTCONDITION_VERIFIED", "TERMINAL"
       ],
       "measured_impact": {
         "lock_errors_24h_before": 9,
@@ -1081,16 +925,7 @@
       "provider_calls": 0,
       "service_restarts": 0,
       "configuration_changes": 0,
-      "not_started": [
-        "PSI0A-C full compatibility reassessment",
-        "PSI0A-C production recapture",
-        "PSI0A-D",
-        "PSI0A-E",
-        "PSI0A-F",
-        "PSI0A-G",
-        "PSI0A-H",
-        "PSI0B"
-      ]
+      "not_started": ["PSI0A-C full compatibility reassessment", "PSI0A-C production recapture", "PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
     },
     "psi0a_c15_compatibility_reassessment_preflight": {
       "status": "HOLD",
@@ -1122,16 +957,47 @@
       "configuration_changes": 0,
       "stop_reason": "HEALTH_DEGRADATION_AND_AUTOMATIC_LISTENER_RESTART",
       "artifact": "docs/audits/psi0a_c15_compatibility_reassessment_preflight_stop.json",
-      "not_started": [
-        "PSI0A-C15 metadata audit",
-        "PSI0A-C production recapture",
-        "PSI0A-D",
-        "PSI0A-E",
-        "PSI0A-F",
-        "PSI0A-G",
-        "PSI0A-H",
-        "PSI0B"
-      ]
+      "not_started": ["PSI0A-C15 metadata audit", "PSI0A-C production recapture", "PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
+    },
+    "psi0a_c15_compatibility_reassessment": {
+      "status": "COMPLETE",
+      "verdict": "PASS_SCHEMA_INDEX_COMPATIBLE_HEALTH_GATES_CLEAN",
+      "engineering_commit": "1215979dc7ce2fd82b500bf7c39f212049ab5d71",
+      "verification_utc": "2026-08-14T09:28:21Z",
+      "manifest_digest": "d956bc24c1cd160162acaaad5bc466a2dece78ea34fc1f5238bc80728d4283f5",
+      "c9_audit_digest": "08642b6ca525a01f029e60029798afc16351162869ab80cc8831d7c212a55c31",
+      "result_digest": "8a5f6d92204d4a151c9c5d0d689a7303ed7d7b9a3a6dc3f8fce852c2d768bf64",
+      "compatible_relation_count": 5,
+      "incompatible_relation_count": 0,
+      "both_deployed_indexes_present": true,
+      "both_deployed_indexes_selected_by_planner": true,
+      "query_plan_observation": "Qualified covering indexes are selected; token-analysis and price-snapshot range queries retain bounded right-part ORDER BY temporary B-trees whose resource acceptability remains for PSI0A-D.",
+      "safety": {
+        "uri_mode": "ro",
+        "query_only_verified": true,
+        "lock_timeout_ms": 250,
+        "maximum_query_deadline_seconds": 2,
+        "elapsed_ms": 50.733,
+        "production_rows_read": 0,
+        "high_waters_captured": 0,
+        "production_writes": 0,
+        "ddl_statements": 0,
+        "evidence_extractions": 0,
+        "provider_calls": 0,
+        "service_restarts_or_stops": 0
+      },
+      "health": {
+        "listener_pid_before": 9069,
+        "listener_pid_after": 9069,
+        "primary_fd_count_before": 0,
+        "serializer_p99_wait_ms_before": 19.81,
+        "serializer_p99_wait_ms_after": 16.67,
+        "serializer_queue_depth_after": 0,
+        "lock_errors_24h_after": 0,
+        "production_impact_observed": false
+      },
+      "artifact": "docs/audits/psi0a_c15_schema_index_compatibility_reassessment.json",
+      "not_started": ["PSI0A-C16 production high-water capture", "PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
     },
     "psi0a_pre_extraction_roadmap_ratification": {
       "status": "COMPLETE",
@@ -1140,46 +1006,14 @@
       "verification_utc": "2026-08-14T05:58:43Z",
       "purpose": "bridge the frozen laboratory-qualified EB stack to a qualified stop-safe method for one later production query-only shadow extraction without performing any EB evidence extraction during PSI0A",
       "stages": [
-        {
-          "milestone": "PSI0A-A",
-          "name": "Production boundary contract",
-          "result": "freeze exact permitted read-only production surfaces, transaction semantics, prohibitions and stop conditions"
-        },
-        {
-          "milestone": "PSI0A-B",
-          "name": "Schema compatibility audit",
-          "result": "inspect production schema against EB0-EB1.3 assumptions without evidence extraction"
-        },
-        {
-          "milestone": "PSI0A-C",
-          "name": "High-water/read-boundary contract",
-          "result": "freeze a stable immutable upper read boundary so future membership cannot drift during execution"
-        },
-        {
-          "milestone": "PSI0A-D",
-          "name": "Query-plan qualification",
-          "result": "review exact future read queries and plans without executing the evidence extraction"
-        },
-        {
-          "milestone": "PSI0A-E",
-          "name": "Resource ceilings",
-          "result": "freeze hard row, byte, duration, connection, transaction, memory and temporary-space ceilings with no silent widening"
-        },
-        {
-          "milestone": "PSI0A-F",
-          "name": "Production health gates",
-          "result": "define deterministic do-not-start and stop gates for database, locks, workers, queues and service health"
-        },
-        {
-          "milestone": "PSI0A-G",
-          "name": "Stop/abort semantics and isolation proof",
-          "result": "prove deterministic termination without writes, retries, failover, configuration changes or worker interference"
-        },
-        {
-          "milestone": "PSI0A-H",
-          "name": "Immutable preflight bundle and closure",
-          "result": "seal and replay the complete preflight; only its PASS may permit PSI0B to be separately proposed"
-        }
+        {"milestone": "PSI0A-A", "name": "Production boundary contract", "result": "freeze exact permitted read-only production surfaces, transaction semantics, prohibitions and stop conditions"},
+        {"milestone": "PSI0A-B", "name": "Schema compatibility audit", "result": "inspect production schema against EB0-EB1.3 assumptions without evidence extraction"},
+        {"milestone": "PSI0A-C", "name": "High-water/read-boundary contract", "result": "freeze a stable immutable upper read boundary so future membership cannot drift during execution"},
+        {"milestone": "PSI0A-D", "name": "Query-plan qualification", "result": "review exact future read queries and plans without executing the evidence extraction"},
+        {"milestone": "PSI0A-E", "name": "Resource ceilings", "result": "freeze hard row, byte, duration, connection, transaction, memory and temporary-space ceilings with no silent widening"},
+        {"milestone": "PSI0A-F", "name": "Production health gates", "result": "define deterministic do-not-start and stop gates for database, locks, workers, queues and service health"},
+        {"milestone": "PSI0A-G", "name": "Stop/abort semantics and isolation proof", "result": "prove deterministic termination without writes, retries, failover, configuration changes or worker interference"},
+        {"milestone": "PSI0A-H", "name": "Immutable preflight bundle and closure", "result": "seal and replay the complete preflight; only its PASS may permit PSI0B to be separately proposed"}
       ],
       "pass_meaning": "The EB evidence machinery has a qualified bounded stop-safe method for performing one subsequent read-only shadow extraction against production.",
       "pass_does_not_mean": "production integration, evidence extraction, Evidence Mirror/Cohort Mode, feature activation, policy use or user-facing functionality is activated",
@@ -1503,12 +1337,7 @@
         "EB1.1G fixture-only query extractor",
         "EB1.1H immutable write-once non-executable output bundle"
       ],
-      "engineering_commits": [
-        "2e9156a0",
-        "926c0930",
-        "dec6447e",
-        "dd8ed1e9"
-      ],
+      "engineering_commits": ["2e9156a0","926c0930","dec6447e","dd8ed1e9"],
       "tests": "37 passed including EB1.0 eligibility, EB1.1A/C/D/E/G/H and operator-neutrality regression",
       "authority_guarantee": "every output remains NON_EXECUTABLE_EVIDENCE_REQUIREMENT and bound to its originating authority lane; no source selection, acquisition authority, conflict resolution, cross-entity linkage or interpretation",
       "provider_calls": 0,
@@ -1573,13 +1402,7 @@
         "EB1.0G dependency-injected fixture-only query extractor",
         "EB1.0H immutable write-once output bundle"
       ],
-      "engineering_commits": [
-        "9b0626e4",
-        "38761849",
-        "d7f60e00",
-        "7dbb3a46",
-        "91941173"
-      ],
+      "engineering_commits": ["9b0626e4","38761849","d7f60e00","7dbb3a46","91941173"],
       "repairs": [
         "EB1.0D canonical input digest made input-order independent after focused test failure",
         "EB1.0G tuple-key source fingerprint projection replaced with canonical ordered document records after focused test failure"
@@ -1929,13 +1752,7 @@
         "docs/evidence_platform/eb0_3g_historical_market_observation_bundle.md"
       ],
       "qualified_boundary": "write-once canonical five-file output bundle in an explicitly supplied new or empty directory with caller-bound engineering revision, per-file hashes, bundle digest and full frozen EB0.3E/C/A/F replay",
-      "bundle_files": [
-        "run.json",
-        "projection.json",
-        "manifest.json",
-        "observations.json",
-        "hashes.json"
-      ],
+      "bundle_files": ["run.json", "projection.json", "manifest.json", "observations.json", "hashes.json"],
       "fail_closed_guards": [
         "exclusive creation and nonempty-directory rejection",
         "exact file set, canonical JSON, per-file hashes and bundle digest",
@@ -2003,18 +1820,8 @@
         "docs/evidence_platform/eb0_3e_gmgn_market_kline_normalizer.md"
       ],
       "qualified_boundary": "exact GMGN v1 object/list envelope normalizer over the EB0.3D frozen credential-free response shape, with one injected fake-transport invocation and EB0.3C replay",
-      "retained_fields": [
-        "time as time_ms",
-        "open",
-        "high",
-        "low",
-        "close",
-        "volume"
-      ],
-      "validated_then_discarded_fields": [
-        "source",
-        "amount"
-      ],
+      "retained_fields": ["time as time_ms", "open", "high", "low", "close", "volume"],
+      "validated_then_discarded_fields": ["source", "amount"],
       "guards": [
         "exact envelope and candle schema",
         "1 MiB response and 1000-row ceilings",
@@ -2060,16 +1867,7 @@
       },
       "live_shape": {
         "top_level": "object containing list array",
-        "candle_fields": [
-          "time",
-          "open",
-          "close",
-          "high",
-          "low",
-          "volume",
-          "source",
-          "amount"
-        ],
+        "candle_fields": ["time", "open", "close", "high", "low", "volume", "source", "amount"],
         "time_unit": "Unix milliseconds",
         "ohlcv_numeric_encoding": "decimal strings except time integer",
         "returned_rows": 4,
@@ -2742,10 +2540,7 @@
         "deterministic EB0.2C facts, EB0.2D manifests, EB0.2E corpora, input fingerprint, and result digest",
         "rejects ambiguous identity, earliest_tx_creator fallback, schema drift, invalid cohorts, duplicate policies, and deadline overruns"
       ],
-      "tests": {
-        "passed": 63,
-        "failed": 0
-      },
+      "tests": {"passed": 63, "failed": 0},
       "provider_calls": 0,
       "production_access": false,
       "production_changes": false,
@@ -2817,10 +2612,7 @@
         "replay reassembles all corpora and requires exact equality",
         "contains no rate, profile, trend, rank, score, policy, profitability, cashflow, or operator attribution field"
       ],
-      "tests": {
-        "passed": 57,
-        "failed": 0
-      },
+      "tests": {"passed": 57, "failed": 0},
       "provider_calls": 0,
       "production_access": false,
       "production_changes": false,
@@ -2844,10 +2636,7 @@
         "rejects duplicates, derived-field tampering, version mismatch, and replay mismatch",
         "calculates no profile rates, rankings, scores, profitability, or operator attribution"
       ],
-      "tests": {
-        "passed": 52,
-        "failed": 0
-      },
+      "tests": {"passed": 52, "failed": 0},
       "provider_calls": 0,
       "production_access": false,
       "production_changes": false,
@@ -3405,21 +3194,9 @@
       },
       "manifest_accounting": {
         "observations": 5,
-        "event_counts": {
-          "CHAIN_BIRTH": 1,
-          "PLATFORM_FIRST_SEEN": 1,
-          "MIGRATION": 1,
-          "MARKET_FIRST_OBSERVED": 2
-        },
-        "quality_counts": {
-          "VERIFIED": 1,
-          "OBSERVED": 2,
-          "CONFLICTING": 2
-        },
-        "completeness_counts": {
-          "COMPLETE": 2,
-          "NOT_OBSERVED": 3
-        },
+        "event_counts": {"CHAIN_BIRTH": 1, "PLATFORM_FIRST_SEEN": 1, "MIGRATION": 1, "MARKET_FIRST_OBSERVED": 2},
+        "quality_counts": {"VERIFIED": 1, "OBSERVED": 2, "CONFLICTING": 2},
+        "completeness_counts": {"COMPLETE": 2, "NOT_OBSERVED": 3},
         "conflicting_observations": 2,
         "missing_valuations": 3
       },
@@ -3551,113 +3328,79 @@
       "activation": false
     },
     "post_e_eb0_canonical_roadmap": {
-      "status": "COMPLETE",
-      "verdict": "ROADMAP_RATIFIED_FIRST_IMPLEMENTATION_HUMAN_GATED",
-      "commit": "cccdceb667c3f54507211f73af5ccc82cc5af871",
-      "artifact": "docs/evidence_platform/post_e_eb0_canonical_roadmap.json",
-      "authority_note": "Only committed artifacts were authoritative; untracked EB0 scripts/audits were explicitly excluded.",
-      "sequence": [
-        "EB0.1 canonical birth and valuation baseline",
-        "EB0.2 creator historical outcome intelligence",
-        "EB0.3 supplemental GMGN historical market observations",
-        "EB0.4 shared-behaviour operational-family discovery"
-      ],
-      "first_safe_local_implementation": "EB0.1A canonical birth/valuation evidence contract",
-      "provider_calls": 0,
-      "production_access_or_changes": false,
-      "service_restarts": 0,
-      "evidence_mirror": "OFF",
-      "cohort_mode": "OFF",
-      "production_activation_authorized": false
+      "status":"COMPLETE",
+      "verdict":"ROADMAP_RATIFIED_FIRST_IMPLEMENTATION_HUMAN_GATED",
+      "commit":"cccdceb667c3f54507211f73af5ccc82cc5af871",
+      "artifact":"docs/evidence_platform/post_e_eb0_canonical_roadmap.json",
+      "authority_note":"Only committed artifacts were authoritative; untracked EB0 scripts/audits were explicitly excluded.",
+      "sequence":["EB0.1 canonical birth and valuation baseline","EB0.2 creator historical outcome intelligence","EB0.3 supplemental GMGN historical market observations","EB0.4 shared-behaviour operational-family discovery"],
+      "first_safe_local_implementation":"EB0.1A canonical birth/valuation evidence contract",
+      "provider_calls":0,
+      "production_access_or_changes":false,
+      "service_restarts":0,
+      "evidence_mirror":"OFF",
+      "cohort_mode":"OFF",
+      "production_activation_authorized":false
     },
     "oip_v2_2e_2b2by_e_series_closure": {
-      "status": "COMPLETE",
-      "verdict": "OIP_V2_2E_QUALIFIED_COMPLETE_NO_PRODUCTION_ACTIVATION",
-      "commit": "dd9d6be376ee08fbbd471b88ecd8b0f14bdce0c6",
-      "closure_artifact": "docs/evidence_platform/oip_v2_2e_2b2by_e_series_closure.json",
-      "fixed_production_funnel": {
-        "marked_migrations": 20,
-        "shared_acquisitions": 20,
-        "completions": 17,
-        "retained": 17,
-        "replayable": 17
-      },
-      "isolated_provider_qualification": {
-        "members": 20,
-        "validated_creator_funding_edges": 20,
-        "physical_requests": 60,
-        "response_projections": 60
-      },
-      "interpretation": "E-series engineering and bounded provider qualification objectives are complete. The isolated 20/20 proof supplements but does not rewrite the fixed 17/20 production completion result.",
-      "production_activation_authorized": false,
-      "provider_calls_in_closure": 0,
-      "production_reads_or_writes": 0,
-      "service_restarts": 0,
-      "evidence_mirror": "OFF",
-      "cohort_mode": "OFF"
+      "status":"COMPLETE",
+      "verdict":"OIP_V2_2E_QUALIFIED_COMPLETE_NO_PRODUCTION_ACTIVATION",
+      "commit":"dd9d6be376ee08fbbd471b88ecd8b0f14bdce0c6",
+      "closure_artifact":"docs/evidence_platform/oip_v2_2e_2b2by_e_series_closure.json",
+      "fixed_production_funnel":{"marked_migrations":20,"shared_acquisitions":20,"completions":17,"retained":17,"replayable":17},
+      "isolated_provider_qualification":{"members":20,"validated_creator_funding_edges":20,"physical_requests":60,"response_projections":60},
+      "interpretation":"E-series engineering and bounded provider qualification objectives are complete. The isolated 20/20 proof supplements but does not rewrite the fixed 17/20 production completion result.",
+      "production_activation_authorized":false,
+      "provider_calls_in_closure":0,
+      "production_reads_or_writes":0,
+      "service_restarts":0,
+      "evidence_mirror":"OFF",
+      "cohort_mode":"OFF"
     },
     "oip_v2_2e_2b2bx_oldest_transaction_execution": {
-      "status": "COMPLETE",
-      "verdict": "PROVIDER_QUALIFICATION_PASS_20_OF_20",
-      "run_id": "5aa7c580-2861-4149-8d6e-6a582b07f61c",
-      "engineering_commit": "f08db5b11a616daa500e71d1c7add225cee54522",
-      "members_completed": 20,
-      "validated_creator_funding_edges": 20,
-      "physical_requests": 60,
-      "request_budget": 60,
-      "response_projections": 60,
-      "transport_outcomes": {
-        "success": 60,
-        "non_success": 0
-      },
-      "request_sequence": [
-        "JSON-RPC migration proof",
-        "Helius Enhanced oldest transaction limit=1 sort-order=asc commitment=finalized",
-        "JSON-RPC exact transfer proof"
-      ],
-      "retry_pagination_or_extra_requests": false,
-      "all_projection_lineage_valid": true,
-      "attempt_ledger_sha256": "267f63595babec7c0b04a4636520b92bdef2e447f2a3fe93d28a2441292b8efc",
-      "projection_ledger_sha256": "b1d6251e4067d414650093a210826e24d266200762c131e57c85750fe4c4fd4b",
-      "results_sha256": "464245639636e3ed9408e1723f010e4a97ae243298608d1ec600e5e0e63f2856",
-      "isolated_output_directory": "/private/tmp/flex-oip-v2-2e-b2bw/5aa7c580-2861-4149-8d6e-6a582b07f61c",
-      "prior_sealed_runs_preserved": true,
-      "post_execution_tests": {
-        "passed": 12,
-        "failed": 1,
-        "failure_reason": "The one-time B2BW preflight test correctly detects that the formerly absent run directory now exists after successful execution; no code or artifact was changed in this execution-only milestone."
-      },
-      "production_database_access": false,
-      "live_queue_or_service_access": false,
-      "production_changes": false,
-      "service_restarts": 0,
-      "evidence_mirror": "OFF",
-      "cohort_mode": "OFF"
+      "status":"COMPLETE",
+      "verdict":"PROVIDER_QUALIFICATION_PASS_20_OF_20",
+      "run_id":"5aa7c580-2861-4149-8d6e-6a582b07f61c",
+      "engineering_commit":"f08db5b11a616daa500e71d1c7add225cee54522",
+      "members_completed":20,
+      "validated_creator_funding_edges":20,
+      "physical_requests":60,
+      "request_budget":60,
+      "response_projections":60,
+      "transport_outcomes":{"success":60,"non_success":0},
+      "request_sequence":["JSON-RPC migration proof","Helius Enhanced oldest transaction limit=1 sort-order=asc commitment=finalized","JSON-RPC exact transfer proof"],
+      "retry_pagination_or_extra_requests":false,
+      "all_projection_lineage_valid":true,
+      "attempt_ledger_sha256":"267f63595babec7c0b04a4636520b92bdef2e447f2a3fe93d28a2441292b8efc",
+      "projection_ledger_sha256":"b1d6251e4067d414650093a210826e24d266200762c131e57c85750fe4c4fd4b",
+      "results_sha256":"464245639636e3ed9408e1723f010e4a97ae243298608d1ec600e5e0e63f2856",
+      "isolated_output_directory":"/private/tmp/flex-oip-v2-2e-b2bw/5aa7c580-2861-4149-8d6e-6a582b07f61c",
+      "prior_sealed_runs_preserved":true,
+      "post_execution_tests":{"passed":12,"failed":1,"failure_reason":"The one-time B2BW preflight test correctly detects that the formerly absent run directory now exists after successful execution; no code or artifact was changed in this execution-only milestone."},
+      "production_database_access":false,
+      "live_queue_or_service_access":false,
+      "production_changes":false,
+      "service_restarts":0,
+      "evidence_mirror":"OFF",
+      "cohort_mode":"OFF"
     },
     "oip_v2_2e_2b2bw_oldest_transaction_sentinel": {
-      "status": "COMPLETE",
-      "verdict": "READY_FOR_SEPARATE_PROVIDER_EXECUTION_AUTHORIZATION",
-      "commit": "f08db5b11a616daa500e71d1c7add225cee54522",
-      "run_id": "5aa7c580-2861-4149-8d6e-6a582b07f61c",
-      "enhanced_contract": {
-        "limit": 1,
-        "sort_order": "asc",
-        "commitment": "finalized"
-      },
-      "request_ceiling": 60,
-      "attempt_ledger": "ABSENT_EMPTY",
-      "projection_ledger": "ABSENT_EMPTY",
-      "bounded_page_shape": "page_row_count retained; raw response and credentials excluded",
-      "sealed_prior_runs_preserved": true,
-      "tests": {
-        "passed": 26,
-        "failed": 0
-      },
-      "provider_rpc_calls": 0,
-      "execution_performed": false,
-      "production_changes": false,
-      "evidence_mirror": "OFF",
-      "cohort_mode": "OFF"
+      "status":"COMPLETE",
+      "verdict":"READY_FOR_SEPARATE_PROVIDER_EXECUTION_AUTHORIZATION",
+      "commit":"f08db5b11a616daa500e71d1c7add225cee54522",
+      "run_id":"5aa7c580-2861-4149-8d6e-6a582b07f61c",
+      "enhanced_contract":{"limit":1,"sort_order":"asc","commitment":"finalized"},
+      "request_ceiling":60,
+      "attempt_ledger":"ABSENT_EMPTY",
+      "projection_ledger":"ABSENT_EMPTY",
+      "bounded_page_shape":"page_row_count retained; raw response and credentials excluded",
+      "sealed_prior_runs_preserved":true,
+      "tests":{"passed":26,"failed":0},
+      "provider_rpc_calls":0,
+      "execution_performed":false,
+      "production_changes":false,
+      "evidence_mirror":"OFF",
+      "cohort_mode":"OFF"
     },
     "oip_v2_2e_2b2bv_enhanced_history_coverage_diagnosis": {
       "status": "COMPLETE",
@@ -3690,14 +3433,8 @@
       "request_budget": 60,
       "members_completed": 0,
       "stop_member_ordinal": 1,
-      "request_sequence": [
-        "JSON-RPC getTransaction migration proof",
-        "Helius Enhanced Address Transactions limit=100"
-      ],
-      "transport_outcomes": [
-        "SUCCESS",
-        "SUCCESS"
-      ],
+      "request_sequence": ["JSON-RPC getTransaction migration proof", "Helius Enhanced Address Transactions limit=100"],
+      "transport_outcomes": ["SUCCESS", "SUCCESS"],
       "semantic_stop": "The single permitted enhanced-history page contained no transaction strictly before migration with a positive nativeTransfers SOL transfer from another account to the resolved creator.",
       "third_request_performed": false,
       "retry_pagination_or_additional_request_performed": false,
@@ -3708,10 +3445,7 @@
       "results_sha256": "26cdceeac2357d7711cbfc8d6d0a4c9bf4ab20b37ef2ed5f1b0b2cea68cb2f13",
       "isolated_output_directory": "/private/tmp/flex-oip-v2-2e-b2bt/a3721658-f6ef-4b20-8f87-7c631551a80c",
       "prior_b2z_run_preserved": true,
-      "post_execution_tests": {
-        "passed": 12,
-        "failed": 0
-      },
+      "post_execution_tests": {"passed":12,"failed":0},
       "production_database_access": false,
       "live_queue_or_service_access": false,
       "production_changes": false,
@@ -3726,11 +3460,7 @@
       "run_id": "a3721658-f6ef-4b20-8f87-7c631551a80c",
       "frozen_manifest_digest": "82bbda32d25a9951a8d8475528d7db3a92b675aae90ce2d55e13391a6b69eedc",
       "projection_digest": "eb2713e3f0ff01f122c0e962a7c67e7f1ea80337fa8894163892a47c17dd32bc",
-      "sequence": [
-        "JSON-RPC migration proof",
-        "one Helius Enhanced Address Transactions page limit=100",
-        "JSON-RPC exact transfer proof after transfer-aware selection"
-      ],
+      "sequence": ["JSON-RPC migration proof", "one Helius Enhanced Address Transactions page limit=100", "JSON-RPC exact transfer proof after transfer-aware selection"],
       "request_ceiling": 60,
       "attempt_ledger": "ABSENT_EMPTY",
       "projection_ledger": "ABSENT_EMPTY",
@@ -3805,16 +3535,8 @@
       "request_budget": 60,
       "members_completed": 0,
       "stop_member_ordinal": 1,
-      "request_sequence": [
-        "getTransaction",
-        "getSignaturesForAddress",
-        "getTransaction"
-      ],
-      "transport_outcomes": [
-        "SUCCESS",
-        "SUCCESS",
-        "SUCCESS"
-      ],
+      "request_sequence": ["getTransaction", "getSignaturesForAddress", "getTransaction"],
+      "transport_outcomes": ["SUCCESS", "SUCCESS", "SUCCESS"],
       "semantic_stop": "The selected pre-migration candidate transaction did not contain an exact positive inbound System Program SOL transfer to the resolved creator.",
       "retry_or_additional_request_performed": false,
       "attempt_ledger_rows": 3,
@@ -5461,7 +5183,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "PSI0A-C15 stopped before opening any production database because its do-not-start gate found watchtower_listener PID changed from 8661 to 9069 after C14 and serializer p99 rose to 1688.6 ms. The restart is temporally correlated with C14 but causation is not established. A separately authorized read-only incident diagnosis is required before the five-surface compatibility audit can be re-proposed. PSI0A-C remains incomplete, PSI0A-D through H remain not started, and PSI0B remains prohibited.",
+    "PSI0A-C15 passed: all five allow-listed relations are schema/index compatible, both deployed PSI0A indexes are selected by non-executing plans, listener PID 9069 remained stable, serializer p99 fell from 19.81 ms to 16.67 ms, queue depth remained zero, and no production impact occurred. PSI0A-C still requires one separately authorized immutable high-water capture; PSI0A-D through H remain not started and PSI0B remains prohibited.",
     "PSI0A is ratified but not yet authorized for execution. PSI0A-A must first freeze the production boundary. All PSI0A stages prohibit actual EB evidence extraction, and PSI0B remains separately human-gated even after a PSI0A PASS.",
     "EB1.4A is intentionally deferred. The production shadow-integration track is not yet authorized and must begin with a no-extraction read-only schema/high-water compatibility preflight. Any real query-only extraction or production activation requires a later separate authorization.",
     "The post-EB1.3 reconciliation identifies EB1.4A as the next safe-local contract, but implementation is not authorized by the read-only reconciliation milestone. Any proposal disposition must remain non-executable and may not choose sources or alternatives, define acquisition, grant planning/execution authority, or enter EB2.",
@@ -5539,9 +5261,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0A-C15 five-surface compatibility reassessment",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Reauthorize the bounded read-only five-surface schema/index and query-plan reassessment now that C15B3 proved 15 clean recovery minutes.",
-    "approval_text": "Authorize PSI0A-C15 as one bounded read-only production schema/index compatibility reassessment using commit 4d797344a455f440e1be2a1155789305d0d91bb0, canonical manifest digest d956bc24c1cd160162acaaad5bc466a2dece78ea34fc1f5238bc80728d4283f5, C9 audit digest 08642b6ca525a01f029e60029798afc16351162869ab80cc8831d7c212a55c31, the immutable C14 deployment artifacts and the C15B3 clean-recovery artifact. Inspect only the five allow-listed relations with URI mode=ro, verified PRAGMA query_only, 250 ms lock timeout, active maximum two-second deadlines and sqlite_schema/table_info/index_list/index_info plus non-executing EXPLAIN QUERY PLAN metadata. Compare exact relation types, required column affinities and required index prefixes, bind fresh observed schema digests, verify both deployed indexes and their query plans, assess current serializer/queue/ingestion/service health, and produce a replayable compatibility result. Stop on schema/type/index drift, listener PID change, primary_fd_count reaching 8, serializer p99 reaching 1000 ms, database pressure, lock contention, deadline breach, health degradation, production impact or scope expansion. Do not read evidence rows, capture high-waters, execute DDL or any production write, extract canonical evidence or shadow output, make provider/RPC calls, deploy, restart or stop services, change configuration, manipulate locks, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D through H or PSI0B, activate production, or enter EB2.",
+    "milestone": "PSI0A-C16 immutable production high-water capture",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize exactly one bounded read-only five-surface production high-water capture now that C15 proves schema/index compatibility and clean health gates.",
+    "approval_text": "Authorize PSI0A-C16 as exactly one bounded read-only production high-water capture using commit 1215979dc7ce2fd82b500bf7c39f212049ab5d71, canonical manifest digest d956bc24c1cd160162acaaad5bc466a2dece78ea34fc1f5238bc80728d4283f5 and replay-verified C15 result digest 8a5f6d92204d4a151c9c5d0d689a7303ed7d7b9a3a6dc3f8fce852c2d768bf64. Capture only the stable inclusive rowid cursor for each of the five allow-listed relations, with no event-time boundary, using URI mode=ro, verified PRAGMA query_only, 250 ms lock timeout, explicit bounded read transactions, active maximum two-second monotonic deadlines enforced by SQLite progress handlers, aggregate MAX(rowid) queries only, and unconditional progress-handler removal, rollback and close. Bind the exact C15 schema digests, replay-verify one immutable boundary artifact, and stop immediately on schema or manifest drift, non-integer high-water, listener PID change, primary_fd_count reaching 8, serializer p99 reaching 1000 ms, database pressure, lock contention, deadline breach, health degradation, replay failure, production impact or scope expansion. Do not materialize evidence rows, execute canonical evidence extraction or shadow output, make provider/RPC calls, execute DDL or production writes, deploy, restart or stop services, change configuration, manipulate locks, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D through H or PSI0B, activate production, or enter EB2.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

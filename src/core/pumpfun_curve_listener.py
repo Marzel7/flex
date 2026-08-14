@@ -8141,29 +8141,31 @@ class PumpFunCurveListener(FastLaneDiscovery):
         try:
             def _blocklist_write(_creator=earliest_tx_creator, _mint=token_mint):
                 _conn = db_connect(DB_PATH, timeout=15)
-                _row = _conn.execute("SELECT rug_count, rugged_tokens FROM creator_blocklist WHERE creator_address = ?", (_creator,)).fetchone()
-                if _row:
-                    _rug_count = _row[0] + 1
-                    try:
-                        _rugged = json.loads(_row[1]) if _row[1] else []
-                    except Exception:
-                        _rugged = []
-                    if _mint not in _rugged:
-                        _rugged.append(_mint)
-                    _rep = "MALICIOUS" if _rug_count >= 2 else "SUSPICIOUS"
-                    _conn.execute(
-                        "UPDATE creator_blocklist SET rug_count=?, rugged_tokens=?, reputation=?, last_rug_detected_at=datetime('now'), updated_at=datetime('now') WHERE creator_address=?",
-                        (_rug_count, json.dumps(_rugged), _rep, _creator),
-                    )
-                else:
-                    _rug_count = 1
-                    _conn.execute(
-                        "INSERT INTO creator_blocklist (creator_address, rug_count, rugged_tokens, reputation, first_rug_detected_at, last_rug_detected_at) VALUES (?, 1, ?, 'SUSPICIOUS', datetime('now'), datetime('now'))",
-                        (_creator, json.dumps([_mint])),
-                    )
-                _conn.commit()
-                _conn.close()
-                return _rug_count
+                try:
+                    _row = _conn.execute("SELECT rug_count, rugged_tokens FROM creator_blocklist WHERE creator_address = ?", (_creator,)).fetchone()
+                    if _row:
+                        _rug_count = _row[0] + 1
+                        try:
+                            _rugged = json.loads(_row[1]) if _row[1] else []
+                        except Exception:
+                            _rugged = []
+                        if _mint not in _rugged:
+                            _rugged.append(_mint)
+                        _rep = "MALICIOUS" if _rug_count >= 2 else "SUSPICIOUS"
+                        _conn.execute(
+                            "UPDATE creator_blocklist SET rug_count=?, rugged_tokens=?, reputation=?, last_rug_detected_at=datetime('now'), updated_at=datetime('now') WHERE creator_address=?",
+                            (_rug_count, json.dumps(_rugged), _rep, _creator),
+                        )
+                    else:
+                        _rug_count = 1
+                        _conn.execute(
+                            "INSERT INTO creator_blocklist (creator_address, rug_count, rugged_tokens, reputation, first_rug_detected_at, last_rug_detected_at) VALUES (?, 1, ?, 'SUSPICIOUS', datetime('now'), datetime('now'))",
+                            (_creator, json.dumps([_mint])),
+                        )
+                    _conn.commit()
+                    return _rug_count
+                finally:
+                    _conn.close()
             rug_count = await asyncio.to_thread(_blocklist_write)
             if rug_count >= 2:
                 log_print(f"[BLOCKLIST] 🚨 SERIAL RUGGER: {earliest_tx_creator} | {rug_count} rugs detected", flush=True)

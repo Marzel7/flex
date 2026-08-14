@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D6H",
+  "status": "COMPLETE",
+  "verdict": "PASS_BLOCKLIST_CONNECTION_GUARANTEED_CLOSE_QUALIFIED",
+  "engineering_base_revision": "c604b6f02a20dd711e334f5921dbd2dfd65a7be5",
+  "changed_runtime_scope": "pumpfun_curve_listener._add_rug_creator_to_blocklist._blocklist_write",
+  "repair": {
+    "guaranteed_finally_close": true,
+    "queries_changed": 0,
+    "transaction_semantics_changed": false,
+    "retry_added": false,
+    "schema_or_index_change": false,
+    "outer_fail_open_behavior_preserved": true
+  },
+  "qualification": {
+    "focused_tests_passed": 9,
+    "focused_tests_failed": 0,
+    "focused_plus_regression_tests_passed": 46,
+    "focused_plus_regression_tests_failed": 0,
+    "success_update_and_insert_proven": true,
+    "malformed_stored_json_fallback_proven": true,
+    "select_exception_close_proven": true,
+    "json_exception_close_proven": true,
+    "update_exception_close_proven": true,
+    "insert_exception_close_proven": true,
+    "commit_exception_close_proven": true,
+    "missing_creator_noop_proven": true,
+    "connection_ownership_regressions_passed": true,
+    "reconnect_isolation_regressions_passed": true
+  },
+  "scope": {
+    "fixtures_only": true,
+    "production_or_runtime_access": 0,
+    "production_writes_or_ddl": 0,
+    "service_stops_or_restarts": 0,
+    "provider_calls": 0,
+    "configuration_or_threshold_changes": 0,
+    "grants_extraction_authority": false,
+    "grants_activation_authority": false
+  },
+  "next_action": "Separately authorize exactly one watchtower_listener restart to load the D6H commit and immediate connection-lifecycle and production-health verification."
+}

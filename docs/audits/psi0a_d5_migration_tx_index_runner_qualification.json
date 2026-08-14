@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D5",
+  "status": "COMPLETE",
+  "verdict": "PASS_FIXTURE_ONLY_DURABLE_D4_RUNNER_QUALIFIED",
+  "engineering_base_revision": "cfd97133fe9306d7af0553c660244edda8901686",
+  "runner_version": "psi0a-d5.v1",
+  "accepted_contract_version": "psi0a-d4.v1",
+  "accepted_contract_digest": "a160398c3130dbacf2314bb4046b9bac4865cd9dd421311f2fd999058c0ab9f2",
+  "accepted_index": "idx_psi0a_token_analysis_migration_tx",
+  "qualification": {
+    "initial_test_harness_failures": 3,
+    "initial_failure_cause": "Eager evaluation of a fixture-helper default recreated an explicitly supplied fixture.",
+    "runner_defects_found": 0,
+    "final_tests_passed": 54,
+    "final_tests_failed": 0,
+    "success_and_compatible_noop_proven": true,
+    "lock_failure_proven": true,
+    "deadline_callback_and_interruption_proven": true,
+    "ddl_exception_and_rollback_proven": true,
+    "progress_handler_removal_and_connection_close_proven": true,
+    "row_preservation_and_indexed_plan_postcondition_proven": true,
+    "schema_and_conflict_rejection_proven": true,
+    "canonical_fsynced_phase_ledger_proven": true,
+    "incomplete_external_termination_detection_proven": true,
+    "tamper_and_output_reuse_rejection_proven": true,
+    "exact_terminal_replay_proven": true
+  },
+  "execution_contract": {
+    "maximum_statements": 1,
+    "lock_timeout_ms": 250,
+    "deadline": "CALLER_SUPPLIED_POSITIVE_MONOTONIC",
+    "retry_count": 0,
+    "output_directory": "CALLER_SUPPLIED_NEW_EMPTY",
+    "ledger": "APPEND_ONLY_CANONICAL_JSONL_FSYNC_EACH_TRANSITION"
+  },
+  "scope": {
+    "fixtures_only": true,
+    "production_or_runtime_access": 0,
+    "production_indexes_created": 0,
+    "production_writes_or_ddl": 0,
+    "listener_runtime_code_modified": false,
+    "provider_calls": 0,
+    "service_or_configuration_changes": 0,
+    "grants_extraction_authority": false,
+    "grants_activation_authority": false
+  },
+  "next_action": "Separately authorize a bounded production health/schema preflight and exactly one durable no-retry D4 index attempt; no production deployment is authorized by PSI0A-D5."
+}

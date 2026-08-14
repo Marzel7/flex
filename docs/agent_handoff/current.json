@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T12:40:27Z",
+  "updated_at_utc": "2026-08-14T12:45:00Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-        "published_at_utc": "2026-08-14T12:40:27Z",
+        "published_at_utc": "2026-08-14T12:45:00Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-        "milestone": "PSI0A-D6I second restart authorization",
-        "mode": "fail-closed preflight; no restart performed",
+        "milestone": "PSI0A-D6K active serializer pressure diagnosis",
+        "mode": "telemetry-only diagnosis stopped on listener PID change",
         "status": "HUMAN_APPROVAL_REQUIRED",
-        "verdict": "STOP_SERIALIZER_P99_AND_LOCK_GATE_FAILED"
+        "verdict": "STOP_LISTENER_PID_CHANGED_BEFORE_ATTRIBUTION"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,22 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0a_d6k_listener_pid_change_stop": {
+      "status": "STOPPED",
+      "verdict": "STOP_LISTENER_PID_CHANGED_BEFORE_ATTRIBUTION",
+      "engineering_revision": "e7544005b69595ae041129892b4c906a63759de6",
+      "listener_pid_prior": 76939,
+      "listener_pid_observed": 82095,
+      "codex_initiated_restart_or_stop": 0,
+      "fresh_window_uptime_min": 1.2,
+      "fresh_window_p99_wait_ms": 115.03,
+      "fresh_window_p95_wait_ms": 9.16,
+      "fresh_window_queue_depth": 0,
+      "fresh_window_lock_errors_24h": 0,
+      "evidence_writer_stopped": true,
+      "production_database_queries": 0,
+      "artifact": "docs/audits/psi0a_d6k_listener_pid_change_stop.json"
+    },
     "psi0a_d6i_third_authorization_do_not_start": {
       "status": "DO_NOT_START",
       "verdict": "STOP_SERIALIZER_P99_AND_LOCK_GATE_FAILED",
@@ -5861,9 +5877,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-        "milestone": "PSI0A-D6K active serializer pressure diagnosis",
-        "instruction": "HUMAN_APPROVAL_REQUIRED: diagnose active serializer, queue and lock pressure before any further listener restart or PSI0A-D6J work.",
-        "approval_text": "Authorize PSI0A-D6K as a bounded production-telemetry read-only diagnosis of the active serializer pressure currently showing p99_wait_ms=3753.89 and lock_errors_24h=4 after PSI0A-D6I. Use only db_serializer_metrics.json current/history snapshots, serializer writer/wait/commit and write-lease telemetry, Supervisor state/logs, listener connection-lifecycle/watchdog evidence, queue/websocket/ingestion health and database/WAL file metadata to identify the active or recent long holder, correlate it with the descriptor episode, distinguish current contention from rolling-history residue, quantify recovery and define the smallest safe condition for reauthorizing PSI0A-D6J. Stop on listener PID change, CRITICAL_LISTENER_DB_HANDLE, sustained queue growth, feed/ingestion/service degradation, production impact, need to open a production database or scope expansion. Do not open production databases, read rows or schema, execute DDL or production writes, deploy, signal, restart or stop services, change configuration or thresholds, reset metrics, manipulate locks, recapture high-waters, extract canonical evidence or shadow output, make provider/RPC calls, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D2 or PSI0A-E through H or PSI0B, activate production, or enter EB2.",
+        "milestone": "PSI0A-D6L automatic listener restart boundary diagnosis",
+        "instruction": "HUMAN_APPROVAL_REQUIRED: diagnose the automatic PID transition before relying on the reset serializer window or attempting another restart.",
+        "approval_text": "Authorize PSI0A-D6L as a bounded local and production-telemetry read-only diagnosis of the automatic watchtower_listener PID transition from 76939 to 82095 that stopped PSI0A-D6K and reset the serializer metrics window. Use Supervisor state/events and logs, listener lifecycle/watchdog and connection-lifecycle telemetry, retained db_serializer_metrics.json history if available, serializer writer/wait/commit and write-lease summaries, queue/websocket/ingestion health, read-only process timing, and database/WAL file metadata only to establish the restart time and cause, correlate it with the prior p99=3753.89/lock_errors=4/descriptor episode, determine whether the new healthy window represents genuine recovery, and define the smallest safe telemetry gate for resuming PSI0A-D6J. Stop on another listener PID change, CRITICAL_LISTENER_DB_HANDLE, serializer p99 reaching 1000 ms, sustained nonzero queue depth, feed/ingestion/service degradation, production impact, need to open a production database or scope expansion. Do not open production databases, read rows or schema, execute DDL or production writes, deploy, signal, restart or stop services, change configuration or watchdog thresholds, reset metrics, manipulate locks, recapture high-waters, extract canonical evidence or shadow output, make provider/RPC calls, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D2 or PSI0A-E through H or PSI0B, activate production, or enter EB2.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

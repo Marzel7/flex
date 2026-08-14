@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T06:47:43Z",
+  "updated_at_utc": "2026-08-14T06:52:25Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "7b58517afe2fc8a1a3f3f65bb7c5546aca13db14",
-    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths preserved; PSI0A-C2 was diagnosis-only and made no engineering change"
+    "git_head": "387ba6865c6a95bae7e42637c24193c2bac8469e",
+    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths preserved; PSI0A-C3 engineering commit is narrow"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-14T06:47:43Z",
+    "published_at_utc": "2026-08-14T06:52:25Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0A-C2 creator created-at runtime encoding diagnosis",
-    "mode": "bounded read-only aggregate/type diagnosis only",
+    "milestone": "PSI0A-C3 creator cursor-only high-water repair",
+    "mode": "safe-local design, implementation, tests, documentation and narrow commit",
     "status": "HOLD",
-    "verdict": "PSI0A_C2_MIXED_CREATOR_TIMESTAMP_ENCODINGS_CURSOR_ONLY_REPAIR_REQUIRED"
+    "verdict": "PSI0A_C3_CURSOR_ONLY_REPAIR_QUALIFIED_PRODUCTION_RECAPTURE_REQUIRED"
   },
   "production_state": {
     "retention": "ON",
@@ -351,6 +351,39 @@
       "configuration_changes": 0,
       "evidence_extractions": 0,
       "not_started": ["PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
+    },
+    "psi0a_c3_creator_cursor_only_high_water_repair": {
+      "status": "COMPLETE",
+      "verdict": "CREATOR_CURSOR_ONLY_HIGH_WATER_REPAIR_QUALIFIED",
+      "engineering_commit": "387ba6865c6a95bae7e42637c24193c2bac8469e",
+      "verification_utc": "2026-08-14T06:52:25Z",
+      "files_changed": [
+        "src/evidence/contracts/production_shadow_high_water.py",
+        "tests/test_psi0a_c_production_shadow_high_water.py",
+        "docs/evidence_platform/psi0a_c_high_water_boundary.md"
+      ],
+      "repair": "creator.creator_tokens uses stable inclusive rowid only and deliberately records no created_at event boundary",
+      "preserved_contracts": [
+        "generic non-negative integer cursor validation remains fail closed",
+        "non-integer configured event high-waters still fail with PSI0A_C_NON_INTEGER_HIGH_WATER",
+        "explicit read-only transaction and unconditional rollback/close semantics unchanged",
+        "all non-creator relation specifications unchanged",
+        "exact replay and zero extraction/activation authority unchanged"
+      ],
+      "tests": {
+        "passed": 37,
+        "failed": 0,
+        "command": "python -m pytest -q tests/test_psi0a_a_production_shadow_boundary.py tests/test_psi0a_b_production_schema_audit.py tests/test_psi0a_c_production_shadow_high_water.py tests/test_eb0_1a_birth_valuation_contract.py tests/test_eb0_2a_creator_historical_outcome_contract.py",
+        "note": "An earlier command used two outdated test filenames and collected zero tests; the corrected suite passed completely."
+      },
+      "fixture_only": true,
+      "production_access": false,
+      "provider_calls": 0,
+      "production_changes": false,
+      "service_restarts": 0,
+      "configuration_changes": 0,
+      "evidence_extractions": 0,
+      "not_started": ["PSI0A-C production recapture", "PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
     },
     "psi0a_pre_extraction_roadmap_ratification": {
       "status": "COMPLETE",
@@ -4536,7 +4569,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "PSI0A-C2 confirmed creator.creator_tokens.created_at has mixed runtime encodings: 53,192 integer, 278 real and 230 ISO-8601 text values. The smallest deterministic repair is a rowid-only creator high-water with no event timestamp boundary; implementation and PSI0A-C resumption remain separately gated. PSI0A-D through H remain not started, and PSI0B remains prohibited.",
+    "PSI0A-C3 qualifies the rowid-only creator high-water repair at 387ba686, but no repaired production boundary has been captured. PSI0A-C remains incomplete pending separately authorized bounded recapture. PSI0A-D through H remain not started, and PSI0B remains prohibited.",
     "PSI0A is ratified but not yet authorized for execution. PSI0A-A must first freeze the production boundary. All PSI0A stages prohibit actual EB evidence extraction, and PSI0B remains separately human-gated even after a PSI0A PASS.",
     "EB1.4A is intentionally deferred. The production shadow-integration track is not yet authorized and must begin with a no-extraction read-only schema/high-water compatibility preflight. Any real query-only extraction or production activation requires a later separate authorization.",
     "The post-EB1.3 reconciliation identifies EB1.4A as the next safe-local contract, but implementation is not authorized by the read-only reconciliation milestone. Any proposal disposition must remain non-executable and may not choose sources or alternatives, define acquisition, grant planning/execution authority, or enter EB2.",
@@ -4614,9 +4647,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0A-C3 creator cursor-only high-water repair",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Implement and locally qualify only the deterministic creator_tokens rowid-only high-water repair; do not capture a new production boundary or proceed to PSI0A-D.",
-    "approval_text": "Authorize PSI0A-C3 safe-local design, implementation, focused tests, regression tests, documentation, and one narrow commit amending the PSI0A-C creator.creator_tokens high-water specification to use only the stable inclusive rowid cursor and no created_at event boundary. Preserve all other qualified PSI0A-A-C contracts, fail-closed integer cursor validation, exact replay, explicit read-only transaction semantics, and zero extraction/activation authority. Frozen or ephemeral fixtures only. Do not access production/runtime databases or services, capture or resume the production PSI0A-C boundary, normalize or mutate creator timestamps, perform canonical evidence extraction or shadow output, make provider/RPC calls, production writes or DDL, deploy, restart or stop services, change configuration, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D through H or PSI0B, activate production, or enter EB2.",
+    "milestone": "PSI0A-C4 repaired production high-water recapture",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Capture and replay-verify exactly one repaired bounded read-only PSI0A-C production boundary using commit 387ba686, stopping before PSI0A-D.",
+    "approval_text": "Authorize PSI0A-C4 as exactly one bounded read-only production high-water recapture using commit 387ba6865c6a95bae7e42637c24193c2bac8469e and the PSI0A-A/B allow-listed surfaces. Use URI mode=ro, verified PRAGMA query_only, 250 ms lock timeout, explicit bounded read transactions, active deadlines, aggregate MAX queries only, and unconditional rollback/close. For creator.creator_tokens use only the inclusive rowid cursor with no created_at event boundary; preserve every other existing PSI0A-C relation specification unchanged. Replay-verify the immutable boundary and stop immediately on database pressure, lock contention, schema or specification drift, non-integer configured high-water, deadline breach, health degradation, replay failure, production impact, or scope expansion. Do not materialize evidence rows, execute canonical evidence extraction or shadow output, make provider/RPC calls, production writes or DDL, deploy, restart or stop services, change configuration, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D through H or PSI0B, activate production, or enter EB2.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

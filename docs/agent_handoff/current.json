@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T07:25:37Z",
+  "updated_at_utc": "2026-08-14T07:33:34Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "c699548998a5e47aad9213941914ffed524399eb",
-    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0A-C10 engineering commit contains only contract, tests and documentation"
+    "git_head": "d1b0450dce81499d7b151b7b1ce021d605420c1a",
+    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0A-C11 audit commit contains only the partial deployment artifact"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-14T07:25:37Z",
+    "published_at_utc": "2026-08-14T07:33:34Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0A-C10 safe-local additive-index repair qualification",
-    "mode": "safe-local contract implementation, fixture tests, documentation and narrow commit",
-    "status": "COMPLETE",
-    "verdict": "PSI0A_C10_FIXTURE_ONLY_ADDITIVE_INDEX_REPAIR_QUALIFIED"
+    "milestone": "PSI0A-C11 bounded production additive-index deployment",
+    "mode": "bounded sequential production DDL with health and postcondition gates",
+    "status": "PARTIAL",
+    "verdict": "PSI0A_C11_FIRST_INDEX_DEPLOYED_SECOND_INDEX_ABSENT_STOPPED_FAIL_CLOSED"
   },
   "production_state": {
     "retention": "ON",
@@ -638,6 +638,55 @@
       "evidence_extractions": 0,
       "activation_authority": false,
       "not_started": ["PSI0A-C production index deployment", "PSI0A-C production recapture", "PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
+    },
+    "psi0a_c11_additive_index_deployment": {
+      "status": "PARTIAL",
+      "verdict": "FIRST_INDEX_DEPLOYED_SECOND_INDEX_ABSENT_STOPPED_FAIL_CLOSED",
+      "engineering_revision": "c699548998a5e47aad9213941914ffed524399eb",
+      "audit_commit": "d1b0450dce81499d7b151b7b1ce021d605420c1a",
+      "verification_utc": "2026-08-14T07:33:34Z",
+      "contract_digest": "0c3759789ffe761f48fd9aa925c182652df36f853ae70b85a9d79c17f5c9db41",
+      "preconditions": {
+        "c9_schema_digests_matched": true,
+        "pre_p99_wait_ms": 68.82,
+        "pre_queue_depth": 0,
+        "services_healthy": true
+      },
+      "evidence_index": {
+        "index_name": "idx_psi0a_normalized_evidence_fact_family",
+        "columns": ["fact_family"],
+        "created": true,
+        "elapsed_ms": 7.826,
+        "query_plan_uses_index": true
+      },
+      "main_index": {
+        "index_name": "idx_psi0a_token_analysis_migrated_mint",
+        "columns": ["migrated_at", "mint"],
+        "created": false,
+        "postcondition_verified_absent": true,
+        "execution_transcript_available": false,
+        "retry_attempted": false,
+        "query_plan_still_uses_temporary_b_tree": true
+      },
+      "final_health": {
+        "p95_wait_ms": 4.5,
+        "p99_wait_ms": 90.11,
+        "queue_depth": 0,
+        "lock_errors_24h": 9,
+        "worker_pid_changes": 0,
+        "services_healthy": true,
+        "ongoing_production_impact_observed": false
+      },
+      "production_indexes_created": 1,
+      "production_rows_altered": 0,
+      "high_waters_captured": 0,
+      "evidence_extractions": 0,
+      "provider_calls": 0,
+      "service_restarts": 0,
+      "configuration_changes": 0,
+      "stop_reason": "MAIN_INDEX_POSTCONDITION_ABSENT_WITHOUT_EXECUTION_TRANSCRIPT",
+      "artifact": "docs/audits/psi0a_c11_additive_index_deployment.json",
+      "not_started": ["PSI0A-C main-index diagnosis or retry", "PSI0A-C production recapture", "PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
     },
     "psi0a_pre_extraction_roadmap_ratification": {
       "status": "COMPLETE",
@@ -4823,7 +4872,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "PSI0A-C10 qualifies the exact two-index additive repair contract on fixtures only at c6995489/0c375978. Neither production index has been created, so the C9 schema incompatibility remains live and production high-water recapture is still prohibited. Any production DDL requires separate explicit authorization, PSI0A-C remains incomplete, PSI0A-D through H remain not started, and PSI0B remains prohibited.",
+    "PSI0A-C11 is partial: idx_psi0a_normalized_evidence_fact_family was created and verified in 7.826 ms, but the bounded main token_analysis index attempt returned without a transcript and postcondition verification proves idx_psi0a_token_analysis_migrated_mint is absent. No retry was attempted; queues cleared, services and PIDs remained healthy, and no ongoing production impact is observed. The failure provenance requires separate read-only diagnosis before any retry. PSI0A-C remains incomplete, PSI0A-D through H remain not started, and PSI0B remains prohibited.",
     "PSI0A is ratified but not yet authorized for execution. PSI0A-A must first freeze the production boundary. All PSI0A stages prohibit actual EB evidence extraction, and PSI0B remains separately human-gated even after a PSI0A PASS.",
     "EB1.4A is intentionally deferred. The production shadow-integration track is not yet authorized and must begin with a no-extraction read-only schema/high-water compatibility preflight. Any real query-only extraction or production activation requires a later separate authorization.",
     "The post-EB1.3 reconciliation identifies EB1.4A as the next safe-local contract, but implementation is not authorized by the read-only reconciliation milestone. Any proposal disposition must remain non-executable and may not choose sources or alternatives, define acquisition, grant planning/execution authority, or enter EB2.",
@@ -4901,9 +4950,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0A-C11 bounded production additive-index deployment",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Deploy only the two fixture-qualified additive indexes under strict pre/post health gates; stop before high-water recapture.",
-    "approval_text": "Authorize PSI0A-C11 as one bounded production additive-index deployment using commit c699548998a5e47aad9213941914ffed524399eb and contract digest 0c3759789ffe761f48fd9aa925c182652df36f853ae70b85a9d79c17f5c9db41. After verifying the exact C9 schema digests and healthy database, lease, queue, ingestion and service gates, create only idx_psi0a_normalized_evidence_fact_family on evidence.normalized_evidence_records(fact_family) and idx_psi0a_token_analysis_migrated_mint on main.token_analysis(migrated_at,mint), sequentially and idempotently, with a 250 ms lock timeout, an active maximum 60-second monotonic deadline per statement, rollback and close on every failure path, and immediate index-prefix, query-plan and production-health verification after each statement. Stop before the second index if the first causes database pressure, lock contention, deadline breach, schema/digest drift, conflicting index definition, lease/queue/ingestion/service degradation, production impact or scope expansion. Do not create any other index or DDL, alter rows, capture high-waters, execute canonical evidence extraction or shadow output, make provider/RPC calls, deploy code, restart or stop services, change configuration, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D through H or PSI0B, activate production, or enter EB2.",
+    "milestone": "PSI0A-C12 bounded read-only main-index attempt diagnosis",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Diagnose why the authorized main token_analysis index attempt produced no transcript and no index; do not retry or perform DDL.",
+    "approval_text": "Authorize PSI0A-C12 as a bounded local and production-metadata read-only diagnosis of the absent idx_psi0a_token_analysis_migrated_mint postcondition after PSI0A-C11. Use committed code, the C10/C11 artifacts, SQLite sqlite_schema/index_list/index_info metadata, database/WAL/journal file metadata, serializer/lease/service telemetry and available local execution diagnostics only to determine whether the attempt ended through lock acquisition failure, active deadline interruption and rollback, external process termination, or another fail-closed path, and define the smallest coherent separately authorized retry contract. Use URI mode=ro, verified PRAGMA query_only, 250 ms lock timeout and active maximum two-second metadata-query deadlines. Do not read token_analysis rows, retry CREATE INDEX, execute any DDL or production write, capture high-waters, extract canonical evidence or shadow output, make provider/RPC calls, deploy code, restart or stop services, change configuration, manipulate locks, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D through H or PSI0B, activate production, or enter EB2.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T15:30:00Z",
+  "updated_at_utc": "2026-08-14T15:55:00Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "a624ad478a4effbb3c7ad6b951d7dbb85c7947c6",
-    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0A-F committed narrowly in four files"
+    "git_head": "903ce9d13702339d3500c0498d4cc259a9e90934",
+    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0A-G committed narrowly in four files"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,7 +16,7 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0A-F production health-gate contract",
+    "milestone": "PSI0A-G deterministic stop/abort and isolation proof",
     "mode": "safe-local immutable contract, fixture tests and regressions complete",
     "status": "HUMAN_APPROVAL_REQUIRED",
     "verdict": "LOCAL_QUALIFICATION_PASS"
@@ -6074,6 +6074,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "PSI0A-G is qualified at engineering commit 903ce9d13702339d3500c0498d4cc259a9e90934 with immutable abort/isolation contract digest c9ff90b6cbfb332bc00691c87528abf5f6b6158b54072bfb48c60d9f920e5bab and 212 passing PSI0A regressions. All eleven frozen stop triggers deterministically produce DO_NOT_START or clean ABORTED only with conditional resource cleanup and zero mutations, retries, widening or partial publication; violations fail as ISOLATION_FAILURE. No production/runtime access, live observation or extraction occurred. PSI0A-H immutable preflight bundle and closure remains separately human-gated.",
     "PSI0A-F is qualified at engineering commit a624ad478a4effbb3c7ad6b951d7dbb85c7947c6 with immutable health-gate contract digest 8c92231a76c9daad4305bd3859760bc6f1d1ef31249b255b471c213f1ce1c3bf and 166 passing PSI0A regressions. It freezes exact pre-start and active-run health checks, stale/missing/unknown rejection, 30-second two-sample queue semantics, named do-not-start/stop reasons, no retry or degraded bypass, and false extraction/activation authority. No production/runtime access or live health observation occurred. PSI0A-G isolation/abort proof remains separately human-gated.",
     "PSI0A-E is qualified at engineering commit 86ed505e8314270b3667218b58fbdd84b72b28b0 with contract digest f5eea8b9f8ba6b102f57e4ae59eb35eb8f0e23d3f8ac0f493f35671f8271f736 and 145 passing PSI0A regressions. It freezes five-query row/byte/time/connection/transaction/memory/temp ceilings and confines the snapshot right-part ORDER BY temporary B-tree to 5,000 rows and 32 MiB. It grants no extraction or activation authority. PSI0A-F health-gate qualification remains separately human-gated.",
     "PSI0A-D2D proves the single terminal primary_fd_count=8 sample was unrelated transient listener-local fan-out: two pool_discovery._check_sync connections plus six concurrent physical descriptors, with no transaction or write lane held; the tracked connections closed in about 700 ms and the next sample was zero. D2 ran in a separate process, so its five sequential read-only descriptors could not enter listener PID 15357's count. The 5/5 replay-verified D2 plan evidence is accepted and D2 must not be repeated. PSI0A-E remains separately human-gated.",
@@ -6167,9 +6168,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0A-G deterministic stop/abort and isolation proof",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: qualify fixture-only deterministic stop, cleanup and production-isolation semantics over the frozen PSI0A-A through PSI0A-F contracts before PSI0A-H closure.",
-    "approval_text": "Authorize PSI0A-G safe-local design, implementation, frozen/ephemeral-fixture and fault-injection tests, regression tests, documentation and one narrow commit for an immutable deterministic stop/abort semantics and production-isolation proof contract over PSI0A-A through PSI0A-F. Bind engineering commit a624ad478a4effbb3c7ad6b951d7dbb85c7947c6, PSI0A-F health-gate contract digest 8c92231a76c9daad4305bd3859760bc6f1d1ef31249b255b471c213f1ce1c3bf, PSI0A-E resource-ceiling contract digest f5eea8b9f8ba6b102f57e4ae59eb35eb8f0e23d3f8ac0f493f35671f8271f736, PSI0A-D plan qualification digest 38d0605e77e1503e9d5e952d13a3e1501aacf6c84db7a3debc334bca8fc484ce, canonical manifest digest d956bc24c1cd160162acaaad5bc466a2dece78ea34fc1f5238bc80728d4283f5 and C16 boundary digest fdf11dc5e29c176d3724a4ccd1e3ff56584727512853bfb58a71fb3979c246f8. Define deterministic do-not-start and active abort state transitions for health-gate failure, deadline or resource-ceiling breach, schema/path/boundary/contract drift, SQLite interruption or exception, replay failure and observer insufficiency; require no retry, pagination, failover, degraded bypass or limit widening, and prove unconditional progress-handler removal, rollback, connection/transaction closure, temporary-artifact cleanup, zero production writes or DDL, no service/configuration/lock/metric mutation, no partial shadow bundle publication, false extraction/activation authority and exact replay. Frozen/ephemeral fixtures only. Do not access production/runtime databases or services, perform a live health observation or extraction, execute EXPLAIN or SELECT against production, read production rows, create production-derived shadow output, make provider/RPC calls, execute production DDL or writes, deploy, restart or stop services, change configuration or thresholds, manipulate locks or metrics, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-H or PSI0B, activate production, or enter EB2.",
+    "milestone": "PSI0A-H immutable preflight bundle and closure",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: assemble and replay-qualify the immutable PSI0A-A through PSI0A-G preflight bundle and issue the bounded PSI0A closure verdict without executing PSI0B.",
+    "approval_text": "Authorize PSI0A-H safe-local design, implementation, frozen/ephemeral-fixture tests, regression tests, documentation and one narrow commit for an immutable replay-verified PSI0A preflight bundle and closure assessment over committed PSI0A-A through PSI0A-G artifacts only. Bind engineering commit 903ce9d13702339d3500c0498d4cc259a9e90934, PSI0A-G abort/isolation contract digest c9ff90b6cbfb332bc00691c87528abf5f6b6158b54072bfb48c60d9f920e5bab, PSI0A-F health-gate contract digest 8c92231a76c9daad4305bd3859760bc6f1d1ef31249b255b471c213f1ce1c3bf, PSI0A-E resource-ceiling contract digest f5eea8b9f8ba6b102f57e4ae59eb35eb8f0e23d3f8ac0f493f35671f8271f736, PSI0A-D plan qualification digest 38d0605e77e1503e9d5e952d13a3e1501aacf6c84db7a3debc334bca8fc484ce, canonical manifest digest d956bc24c1cd160162acaaad5bc466a2dece78ea34fc1f5238bc80728d4283f5 and C16 boundary digest fdf11dc5e29c176d3724a4ccd1e3ff56584727512853bfb58a71fb3979c246f8. Write only to explicitly supplied new empty fixture output directories; serialize canonical contract identities, schema/path/high-water observations, frozen query identities and plans, resource ceilings, health gates, abort/isolation semantics, authority flags, per-file hashes and one bundle digest; verify exact status-dependent file sets, canonical bytes, lineage, hashes, accounting and replay; fail closed on overwrite, missing, extra, altered, stale, conflicting or authority-changing content. The closure verdict may state only whether one separately authorized bounded PSI0B query-only production shadow extraction may be proposed; it must grant no extraction, integration or activation authority. Frozen/ephemeral fixtures and committed artifacts only. Do not access production/runtime databases or services, perform a live health observation or extraction, execute EXPLAIN or SELECT against production, read production rows, create production-derived shadow output, make provider/RPC calls, execute production DDL or writes, deploy, restart or stop services, change configuration or thresholds, manipulate locks or metrics, activate Evidence Mirror or Cohort Mode, execute PSI0B, activate production, or enter EB2. Stop after PSI0A-H closure and request separate explicit authorization for PSI0B.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

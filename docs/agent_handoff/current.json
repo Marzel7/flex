@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T05:52:54Z",
+  "updated_at_utc": "2026-08-14T05:58:43Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-14T05:52:54Z",
+    "published_at_utc": "2026-08-14T05:58:43Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "Post-EB1.3 production-readiness track decision",
-    "mode": "roadmap boundary decision only",
+    "milestone": "PSI0A pre-extraction roadmap ratification",
+    "mode": "roadmap definition only",
     "status": "COMPLETE",
-    "verdict": "EB1_4A_DEFERRED_PRODUCTION_SHADOW_PREFLIGHT_NEXT"
+    "verdict": "PSI0A_A_THROUGH_H_CANONICAL_PRE_EXTRACTION_SEQUENCE_RATIFIED"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,33 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0a_pre_extraction_roadmap_ratification": {
+      "status": "COMPLETE",
+      "verdict": "PSI0A_A_THROUGH_H_CANONICAL_PRE_EXTRACTION_SEQUENCE_RATIFIED",
+      "engineering_commit": "eeaa1eccc5d77a0e4cff6c70cf39db3e14e35baf",
+      "verification_utc": "2026-08-14T05:58:43Z",
+      "purpose": "bridge the frozen laboratory-qualified EB stack to a qualified stop-safe method for one later production query-only shadow extraction without performing any EB evidence extraction during PSI0A",
+      "stages": [
+        {"milestone": "PSI0A-A", "name": "Production boundary contract", "result": "freeze exact permitted read-only production surfaces, transaction semantics, prohibitions and stop conditions"},
+        {"milestone": "PSI0A-B", "name": "Schema compatibility audit", "result": "inspect production schema against EB0-EB1.3 assumptions without evidence extraction"},
+        {"milestone": "PSI0A-C", "name": "High-water/read-boundary contract", "result": "freeze a stable immutable upper read boundary so future membership cannot drift during execution"},
+        {"milestone": "PSI0A-D", "name": "Query-plan qualification", "result": "review exact future read queries and plans without executing the evidence extraction"},
+        {"milestone": "PSI0A-E", "name": "Resource ceilings", "result": "freeze hard row, byte, duration, connection, transaction, memory and temporary-space ceilings with no silent widening"},
+        {"milestone": "PSI0A-F", "name": "Production health gates", "result": "define deterministic do-not-start and stop gates for database, locks, workers, queues and service health"},
+        {"milestone": "PSI0A-G", "name": "Stop/abort semantics and isolation proof", "result": "prove deterministic termination without writes, retries, failover, configuration changes or worker interference"},
+        {"milestone": "PSI0A-H", "name": "Immutable preflight bundle and closure", "result": "seal and replay the complete preflight; only its PASS may permit PSI0B to be separately proposed"}
+      ],
+      "pass_meaning": "The EB evidence machinery has a qualified bounded stop-safe method for performing one subsequent read-only shadow extraction against production.",
+      "pass_does_not_mean": "production integration, evidence extraction, Evidence Mirror/Cohort Mode, feature activation, policy use or user-facing functionality is activated",
+      "psi0b": "separately authorized one bounded query-only production shadow extraction into isolated immutable artifacts with exact replay and production-impact assessment",
+      "implementation_performed": false,
+      "production_access": false,
+      "provider_calls": 0,
+      "production_changes": false,
+      "service_restarts": 0,
+      "evidence_extractions": 0,
+      "activation": false
+    },
     "post_eb1_3_production_readiness_track_decision": {
       "status": "COMPLETE",
       "verdict": "EB1_4A_DEFERRED_PRODUCTION_SHADOW_PREFLIGHT_NEXT",
@@ -4392,6 +4419,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "PSI0A is ratified but not yet authorized for execution. PSI0A-A must first freeze the production boundary. All PSI0A stages prohibit actual EB evidence extraction, and PSI0B remains separately human-gated even after a PSI0A PASS.",
     "EB1.4A is intentionally deferred. The production shadow-integration track is not yet authorized and must begin with a no-extraction read-only schema/high-water compatibility preflight. Any real query-only extraction or production activation requires a later separate authorization.",
     "The post-EB1.3 reconciliation identifies EB1.4A as the next safe-local contract, but implementation is not authorized by the read-only reconciliation milestone. Any proposal disposition must remain non-executable and may not choose sources or alternatives, define acquisition, grant planning/execution authority, or enter EB2.",
     "EB1.3 is closed as a frozen fixture-only non-executable planning-proposal stack. No live/runtime compatibility, proposal review, source selection, acquisition planning or execution authority is established. The next milestone requires a separate committed roadmap reconciliation; no EB2 namespace is assigned.",
@@ -4468,9 +4496,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "Production Shadow Integration 0A schema and high-water compatibility preflight",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Perform only a bounded read-only production schema, high-water, query-plan and health-gate preflight. Do not execute the canonical extractor or write a shadow bundle.",
-    "approval_text": "Authorize Production Shadow Integration 0A as a bounded read-only production schema and high-water compatibility preflight for the committed EB0/EB1 evidence stack at engineering commit eeaa1eccc5d77a0e4cff6c70cf39db3e14e35baf. Inspect only exact schema/table/index/type compatibility, immutable high-water identities, candidate query plans without executing the canonical extraction, enforceable query deadlines and row/byte ceilings, read-only/query-only connection semantics, baseline database/service/ingestion health gates, and explicit stop conditions. Produce a local reviewable preflight artifact and update/publish the handoff; make no engineering change unless a separately authorized safe-local compatibility repair is required. Stop on schema incompatibility, database pressure, lock contention, query-plan regression, inability to prove read-only/query-only behavior, health degradation, or required scope expansion. No canonical or full census extraction, shadow output bundle, provider/RPC call, production write, deployment, service restart or stop, configuration change, Evidence Mirror, Cohort Mode, proposal review or disposition, source/alternative selection, acquisition plan or request budget, evidence fulfillment, cross-entity linkage, rates, profiles, ranking, scoring, policy decision or activation, profitability/cashflow inference, operator identity/attribution, user-facing feature, production consumer, or EB2 namespace.",
+    "milestone": "PSI0A-A production boundary contract",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Define and locally qualify only the immutable production read-only shadow boundary contract. Do not access production or perform evidence extraction.",
+    "approval_text": "Authorize safe-local design, implementation, frozen-fixture tests, regression tests, documentation, and one narrow commit for PSI0A-A production boundary contract. Define exactly what read-only shadow integration permits and prohibits: explicit caller-supplied database/table/view allow-lists; read-only URI and verified query-only transaction semantics; no writes, DDL, attach, temporary production objects, provider/RPC access, service or configuration changes, Evidence Mirror, Cohort Mode, proposal disposition, policy use, feature activation or user-facing consumption; immutable engineering/schema boundary identity; explicit database-pressure, lock-contention, deadline, schema-drift, query-plan, health-degradation and scope-expansion stop conditions; and grants_extraction_authority=false plus grants_activation_authority=false. Qualification must use frozen/ephemeral fixtures only and fail closed on unknown surfaces, write-capable statements, multi-statement input, authority-changing content or replay drift. No production/runtime access, schema inspection, high-water read, canonical evidence extraction, shadow output, provider/RPC call, production write, deployment, service restart or stop, configuration change, Evidence Mirror, Cohort Mode, ranking, scoring, policy decision, profitability/cashflow inference, operator identity/attribution, feature rollout, PSI0B execution, activation or EB2 namespace. Do not proceed beyond PSI0A-A in this authorization.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

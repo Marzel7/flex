@@ -1,0 +1,50 @@
+{
+  "artifact": "PSI0A-D6V",
+  "created_at": "2026-08-14T13:44:47Z",
+  "engineering_base_revision": "c449b221c4e5cf4916b38f41251a7b193ffecd71",
+  "scope": "safe-local startup seed-read active-deadline repair",
+  "verdict": "PASS",
+  "change": {
+    "function": "PumpFunCurveListener._seed_trade_subscriptions._seed_read",
+    "deadline_seconds": 2.0,
+    "clock": "monotonic",
+    "enforcement": "SQLite progress handler every 1000 virtual-machine instructions",
+    "named_condition": "PSI0A_D6V_SEED_READ_DEADLINE_EXCEEDED",
+    "cleanup": "progress handler removed unconditionally before managed read-only connection closure"
+  },
+  "preserved": [
+    "exact SELECT, predicates, CASE/analyzed_at ordering and LIMIT 200",
+    "asyncio.to_thread boundary",
+    "deferred fail-open outer behavior",
+    "PumpPortal batches of at most 100 keys",
+    "subscription and tracked-mint semantics",
+    "listener concurrency and production flags"
+  ],
+  "tests": {
+    "focused_and_reconnect": {
+      "paths": [
+        "tests/test_psi0a_d6v_seed_read_deadline.py",
+        "tests/test_x78_18_reconnect_isolation.py"
+      ],
+      "passed": 10
+    },
+    "connection_scope_regression": {
+      "paths": [
+        "tests/test_psi0a_d6q_vault_discovery_connection_scope.py",
+        "tests/test_psi0a_d6r_usage_tracker_flush_scope.py",
+        "tests/test_usage_tracker_connection_lifecycle.py",
+        "tests/test_psi0a_d6m_pool_discovery_connection_cleanup.py",
+        "tests/test_psi0a_d6h_blocklist_connection_cleanup.py"
+      ],
+      "passed": 40
+    },
+    "total_passed": 50,
+    "compile": "PASS",
+    "diff_check": "PASS"
+  },
+  "production_access": false,
+  "production_mutations": 0,
+  "provider_calls": 0,
+  "service_actions": 0,
+  "activation_authority": false
+}

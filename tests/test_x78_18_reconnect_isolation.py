@@ -162,6 +162,9 @@ async def test_seed_trade_subscriptions_never_acquires_write_lane(monkeypatch):
     calls = []
 
     class _Rows:
+        def set_progress_handler(self, *_args, **_kwargs):
+            return None
+
         def execute(self, *_args, **_kwargs):
             return self
 

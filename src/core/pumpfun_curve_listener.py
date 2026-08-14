@@ -11238,17 +11238,42 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 # This can scan a large active-token population.  It is
                 # strictly observational and must not own the global write
                 # lane for the duration of that scan.
+                class PSI0A_D6V_SEED_READ_DEADLINE_EXCEEDED(RuntimeError):
+                    pass
+
+                deadline = time.monotonic() + 2.0
+                deadline_exceeded = False
+
+                def _progress_handler():
+                    nonlocal deadline_exceeded
+                    if time.monotonic() >= deadline:
+                        deadline_exceeded = True
+                        return 1
+                    return 0
+
                 with managed_db_connect(DB_PATH, timeout=5, read_only=True) as _c:
-                    _rows = _c.execute("""
-                        SELECT mint FROM token_analysis
-                        WHERE source_platform = 'pumpfun'
-                          AND lifecycle_stage = 'bonding_curve'
-                        ORDER BY
-                            CASE WHEN (pf_ws_creator IS NULL OR pf_ws_creator = '') THEN 0 ELSE 1 END ASC,
-                            analyzed_at DESC
-                        LIMIT 200
-                    """).fetchall()
-                    return [r[0] for r in _rows]
+                    _c.set_progress_handler(_progress_handler, 1000)
+                    try:
+                        try:
+                            _rows = _c.execute("""
+                                SELECT mint FROM token_analysis
+                                WHERE source_platform = 'pumpfun'
+                                  AND lifecycle_stage = 'bonding_curve'
+                                ORDER BY
+                                    CASE WHEN (pf_ws_creator IS NULL OR pf_ws_creator = '') THEN 0 ELSE 1 END ASC,
+                                    analyzed_at DESC
+                                LIMIT 200
+                            """).fetchall()
+                        except sqlite3.OperationalError as exc:
+                            if deadline_exceeded:
+                                raise PSI0A_D6V_SEED_READ_DEADLINE_EXCEEDED(
+                                    "PSI0A_D6V_SEED_READ_DEADLINE_EXCEEDED: "
+                                    "startup seed read exceeded two-second deadline"
+                                ) from exc
+                            raise
+                        return [r[0] for r in _rows]
+                    finally:
+                        _c.set_progress_handler(None, 0)
             seed_mints = await asyncio.to_thread(_seed_read)
             if seed_mints:
                 # PumpPortal accepts up to 100 keys per message — batch if needed

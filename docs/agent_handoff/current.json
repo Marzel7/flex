@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T10:04:49Z",
+  "updated_at_utc": "2026-08-14T10:09:56Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "7a9c0c2bca9d3936dad482092a9aa2f236cb2303",
-        "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0A-D1A telemetry diagnosis and corrected D1 measurement artifacts are local"
+        "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0A-D2 do-not-start artifact and prior telemetry artifacts are local"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-        "published_at_utc": "2026-08-14T10:04:49Z",
+        "published_at_utc": "2026-08-14T10:09:56Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-        "milestone": "PSI0A-D1A listener descriptor-warning telemetry diagnosis",
-        "mode": "production-telemetry read-only diagnosis complete; PSI0A-D remains separately gated",
+        "milestone": "PSI0A-D2 production metadata-only query-plan qualification",
+        "mode": "do-not-start gate failed before production database access",
     "status": "HUMAN_APPROVAL_REQUIRED",
-        "verdict": "TRANSIENT_DESCRIPTOR_FANOUT_RECOVERED"
+        "verdict": "DO_NOT_START_RECURRENT_DESCRIPTOR_WARNING"
   },
   "production_state": {
     "retention": "ON",
@@ -1138,6 +1138,32 @@
         "service_or_configuration_changes": 0
       },
       "artifact": "docs/audits/psi0a_d1a_listener_descriptor_warning_diagnosis.json",
+      "not_started": ["PSI0A-D production plan inspection", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
+    },
+    "psi0a_d2_query_plan_do_not_start": {
+      "status": "STOPPED",
+      "verdict": "DO_NOT_START_RECURRENT_DESCRIPTOR_WARNING",
+      "engineering_revision": "7a9c0c2bca9d3936dad482092a9aa2f236cb2303",
+      "verification_utc": "2026-08-14T10:09:56Z",
+      "preflight": {
+        "listener_pid": 9069,
+        "latest_three_primary_fd_counts": [0, 5, 9],
+        "warning_threshold": 8,
+        "serializer_p99_wait_ms": 360.08,
+        "serializer_queue_depth": 0,
+        "lock_errors_24h": 1,
+        "failed_gate": "RECURRENT_DESCRIPTOR_WARNING"
+      },
+      "scope_evidence": {
+        "production_database_connections_opened": 0,
+        "production_explain_queries": 0,
+        "select_templates_executed": 0,
+        "production_rows_read": 0,
+        "production_writes_or_ddl": 0,
+        "provider_calls": 0,
+        "service_or_configuration_changes": 0
+      },
+      "artifact": "docs/audits/psi0a_d2_query_plan_do_not_start_stop.json",
       "not_started": ["PSI0A-D production plan inspection", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
     },
     "psi0a_pre_extraction_roadmap_ratification": {
@@ -5324,6 +5350,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "PSI0A-D2 stopped before opening any database because the latest three listener watchdog samples were 0, 5 and 9 primary descriptors; the terminal value exceeded warning threshold 8. PID 9069, p99 360.08 ms, queue depth zero and lock_errors_24h=1 were otherwise stable. The descriptor warning has therefore recurred after D1A and requires separate telemetry-only diagnosis; no PSI0A-D retry is authorized.",
     "PSI0A-D1A corrected the prior composite-descriptor miscount and proved recovery from the real single watchdog sample at primary_fd_count=8. The sample contained one tracked 37.6-second vault-discovery connection plus a registry delta of seven whose individual owners cannot be proven. All later watchdog samples were below 8 and the latest three were zero; PID, serializer, queue, ingestion and services are healthy. PSI0A-D still requires separate authorization.",
     "PSI0A-D safe-local contract qualification passed 91 tests and froze five bounded non-executing query templates, but the production plan inspection stopped before opening any database because serializer lock_errors_24h increased from 0 at C16 to 1. Current p99 was 65.28 ms, queue depth 0, descriptor count 0 and listener PID 9069 stable, but the explicit lock-contention stop condition applies. PSI0A-E through H remain not started and PSI0B remains prohibited.",
     "PSI0A is ratified but not yet authorized for execution. PSI0A-A must first freeze the production boundary. All PSI0A stages prohibit actual EB evidence extraction, and PSI0B remains separately human-gated even after a PSI0A PASS.",
@@ -5403,9 +5430,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0A-D2 production metadata-only query-plan qualification",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize the previously qualified non-executing PSI0A-D production query-plan inspection after the D1A recovery gate.",
-    "approval_text": "Authorize PSI0A-D2 as exactly one bounded production metadata-only non-executing query-plan qualification using commit 7a9c0c2bca9d3936dad482092a9aa2f236cb2303, PSI0A-D contract digest 5d35498800f5c3d65ab972fd3fa593ca768eeaf79be2e2813a9c0d7192d718df, canonical manifest digest d956bc24c1cd160162acaaad5bc466a2dece78ea34fc1f5238bc80728d4283f5, immutable C16 boundary digest fdf11dc5e29c176d3724a4ccd1e3ff56584727512853bfb58a71fb3979c246f8 and the PSI0A-D1A recovered telemetry artifact. Inspect only the five frozen single-statement SELECT templates through non-executing EXPLAIN QUERY PLAN using URI mode=ro, verified PRAGMA query_only, 250 ms lock timeout, active maximum two-second monotonic deadlines, explicit allow-lists and unconditional cleanup. Bind deterministic query identities, plan details, index use, scan/join/sort/temp-structure findings and exact replay in one immutable PSI0A-D result. Stop before opening a database unless listener PID remains 9069, the latest three watchdog primary_fd_count samples remain below 8, no CRITICAL_LISTENER_DB_HANDLE or new serializer lock-error increment exists, serializer p99 remains below 1000 ms, queue depth is zero, and queue/websocket/ingestion/services remain healthy; stop thereafter on any schema/boundary drift, unknown or write-capable SQL, full-scan or unacceptable temporary-work plan, descriptor/serializer/lock/health gate failure, deadline breach, replay failure, production impact or scope expansion. Do not execute the SELECT templates, read or materialize evidence rows, recapture high-waters, create shadow output, make provider/RPC calls, execute DDL or production writes, deploy, restart or stop services, change configuration, manipulate locks, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-E through H or PSI0B, activate production, or enter EB2.",
+    "milestone": "PSI0A-D3 recurrent listener descriptor-fanout diagnosis",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Diagnose the recurrent descriptor warning that stopped PSI0A-D2; do not retry the plan inspection.",
+    "approval_text": "Authorize PSI0A-D3 as a bounded local and production-telemetry read-only diagnosis of the recurrent watchtower_listener primary_fd_count warning that stopped PSI0A-D2 at 9 after PSI0A-D1A had observed recovery. Use committed source, Supervisor state and logs, listener connection-lifecycle/watchdog snapshots, read-only process descriptor metadata, db_serializer_metrics.json snapshots, queue/websocket/ingestion health and database/WAL file metadata only to compare all post-D1A descriptor cycles, identify tracked callers, owner-thread-cleanup states, lifetimes and registry_fd_delta patterns, determine whether one specific path or concurrent fan-out dominates, and identify the smallest coherent safe-local repair or bounded recovery-observation contract without implementing it. Stop on listener PID change, any CRITICAL_LISTENER_DB_HANDLE event, serializer p99 reaching 1000 ms, sustained nonzero serializer queue depth, queue/websocket/ingestion or service degradation, production impact, need to open a production database, or scope expansion. Do not open production databases, read rows or schema, execute EXPLAIN or any PSI0A-D SELECT template, retry PSI0A-D2, execute DDL or production writes, recapture high-waters, create shadow output, make provider/RPC calls, deploy, restart or stop services, change configuration or watchdog thresholds, reset metrics, manipulate locks, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-E through H or PSI0B, activate production, or enter EB2.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

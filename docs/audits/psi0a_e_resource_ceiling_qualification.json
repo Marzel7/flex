@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-E",
+  "completed_at_utc": "2026-08-14T15:01:06Z",
+  "status": "COMPLETE",
+  "verdict": "LOCAL_QUALIFICATION_PASS",
+  "engineering_revision_bound": "91fddb0cfb55e30e55164b83f67135ef6bda571a",
+  "psi0a_d_contract_digest": "8ba0259d356c3fd6300f22dbf08b6ca3ea96fd836f94221d4f2499949de4577c",
+  "psi0a_d_qualification_digest": "38d0605e77e1503e9d5e952d13a3e1501aacf6c84db7a3debc334bca8fc484ce",
+  "canonical_manifest_digest": "d956bc24c1cd160162acaaad5bc466a2dece78ea34fc1f5238bc80728d4283f5",
+  "read_boundary_digest": "fdf11dc5e29c176d3724a4ccd1e3ff56584727512853bfb58a71fb3979c246f8",
+  "resource_ceiling_contract_digest": "f5eea8b9f8ba6b102f57e4ae59eb35eb8f0e23d3f8ac0f493f35671f8271f736",
+  "query_count": 5,
+  "resource_ceilings": {
+    "maximum_rows_per_query": 5000,
+    "maximum_total_rows": 25000,
+    "maximum_total_canonical_bytes": 50331648,
+    "maximum_query_seconds": 5,
+    "maximum_transaction_seconds": 6,
+    "maximum_wall_seconds": 30,
+    "maximum_connections_opened": 5,
+    "maximum_concurrent_connections": 1,
+    "maximum_process_rss_delta_bytes": 134217728,
+    "maximum_sqlite_temporary_bytes": 33554432
+  },
+  "snapshot_temporary_ordering": {
+    "query_id": "snapshot_selected_cohort",
+    "plan_shape": "INDEXED_MINT_CAPTURED_SEARCH_WITH_RIGHT_PART_ORDER_BY_TEMP_B_TREE",
+    "maximum_rows": 5000,
+    "maximum_canonical_bytes": 16777216,
+    "maximum_temporary_bytes": 33554432,
+    "assessment": "BOUNDED_BY_SIMULTANEOUS_ROW_BYTE_TIME_MEMORY_AND_TEMPORARY_CEILINGS"
+  },
+  "prohibited": [
+    "pagination",
+    "retry",
+    "failover",
+    "adaptive_widening",
+    "limit_changes"
+  ],
+  "grants_extraction_authority": false,
+  "grants_activation_authority": false,
+  "production_access": false,
+  "provider_calls": 0,
+  "production_writes": 0,
+  "tests": {
+    "focused_and_regression_passed": 145,
+    "failed": 0,
+    "status": "PASS"
+  }
+}

@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T07:04:01Z",
+  "updated_at_utc": "2026-08-14T07:07:19Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "bd0d944721d9822f7f513d5d2dba2ad964e14952",
-    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths preserved; PSI0A-C6 stopped before production and made no engineering change"
+    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths preserved; PSI0A-C7 stopped on committed-source ambiguity and made no engineering change"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-14T07:04:01Z",
+    "published_at_utc": "2026-08-14T07:07:19Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0A-C6 repaired production high-water recapture preflight",
-    "mode": "committed-input replay preflight before bounded production read",
+    "milestone": "PSI0A-C7 immutable capture-input manifest qualification",
+    "mode": "safe-local committed-source mapping and fail-closed manifest preflight",
     "status": "HOLD",
-    "verdict": "PSI0A_C6_CANONICAL_CAPTURE_INPUT_MANIFEST_MISSING"
+    "verdict": "PSI0A_C7_PRIOR_SPECIFICATIONS_NOT_DERIVABLE_WITHOUT_POLICY_CHOICE"
   },
   "production_state": {
     "retention": "ON",
@@ -472,6 +472,38 @@
       "stop_reason": "Guessing or regenerating unrecorded specifications would violate the authorization to preserve every non-creator specification unchanged and would make the boundary non-replayable.",
       "production_access": false,
       "production_queries": 0,
+      "provider_calls": 0,
+      "production_changes": false,
+      "service_restarts": 0,
+      "configuration_changes": 0,
+      "evidence_extractions": 0,
+      "not_started": ["PSI0A-C production recapture", "PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
+    },
+    "psi0a_c7_capture_input_manifest_preflight": {
+      "status": "HOLD",
+      "verdict": "PSI0A_C7_PRIOR_SPECIFICATIONS_NOT_DERIVABLE_WITHOUT_POLICY_CHOICE",
+      "engineering_commit": "bd0d944721d9822f7f513d5d2dba2ad964e14952",
+      "verification_utc": "2026-08-14T07:07:19Z",
+      "unambiguous_committed_mappings": [
+        "five logical database/relation/type surfaces from the PSI0A-B audit summary",
+        "expected database filenames without host paths",
+        "creator.creator_tokens rowid-only exception from commit 387ba686",
+        "PSI0A-A boundary digest and PSI0A-B audit digest",
+        "EB0.1 and EB0.2 query-required column name sets"
+      ],
+      "ambiguous_or_unsupported_mappings": [
+        "no committed exact PSI0A-B RequiredRelation tuple exists; the audit summary omits columns, affinities and index-prefix requirements",
+        "no committed exact non-creator HighWaterSpec tuple exists",
+        "EB0.1 uses token_analysis.migrated_at and token_price_snapshots.captured_at temporal bounds while EB0.2 freezes token_analysis, wt_watchtower_launches and creator_tokens by rowid",
+        "normalized_evidence_records queries use acquired_at as provenance but the committed EB0.1 query contract does not define it as the cohort high-water",
+        "committed query column allow-lists do not consistently declare SQLite affinities or a single authoritative required-index policy"
+      ],
+      "stop_reason": "The C7 authorization requires derivation from committed artifacts and prohibits guessing. Selecting one temporal/cursor/index interpretation would be a new policy choice and could not be described as preserving the undocumented prior tuple.",
+      "manifest_created": false,
+      "files_changed": [],
+      "tests_run": 0,
+      "engineering_commit_created": false,
+      "production_access": false,
       "provider_calls": 0,
       "production_changes": false,
       "service_restarts": 0,
@@ -4663,7 +4695,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "PSI0A-C6 stopped before production access because the committed PSI0A-B summary omits the exact RequiredRelation definitions and the four non-creator HighWaterSpec values, and no canonical capture-input manifest exists. Guessing them would violate unchanged-specification and replay requirements. PSI0A-C remains incomplete; PSI0A-D through H remain not started, and PSI0B remains prohibited.",
+    "PSI0A-C7 could not derive an unchanged canonical input manifest: the prior RequiredRelation and four non-creator HighWaterSpec tuples were never committed, while EB0.1 temporal boundaries and EB0.2 rowid boundaries encode different legitimate purposes. Choosing a replacement requires an explicit contract amendment. PSI0A-C remains incomplete; PSI0A-D through H remain not started, and PSI0B remains prohibited.",
     "PSI0A is ratified but not yet authorized for execution. PSI0A-A must first freeze the production boundary. All PSI0A stages prohibit actual EB evidence extraction, and PSI0B remains separately human-gated even after a PSI0A PASS.",
     "EB1.4A is intentionally deferred. The production shadow-integration track is not yet authorized and must begin with a no-extraction read-only schema/high-water compatibility preflight. Any real query-only extraction or production activation requires a later separate authorization.",
     "The post-EB1.3 reconciliation identifies EB1.4A as the next safe-local contract, but implementation is not authorized by the read-only reconciliation milestone. Any proposal disposition must remain non-executable and may not choose sources or alternatives, define acquisition, grant planning/execution authority, or enter EB2.",
@@ -4741,9 +4773,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0A-C7 immutable capture-input manifest qualification",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Materialize and locally replay-qualify the exact PSI0A-A/B/C capture inputs before any further production recapture attempt.",
-    "approval_text": "Authorize PSI0A-C7 safe-local design, implementation, frozen-fixture tests, regression tests, documentation, and one narrow commit for an immutable canonical PSI0A capture-input manifest. Bind the exact five allow-listed database/relation/type surfaces; logical source identifiers and expected database filenames without host paths; complete PSI0A-B RequiredRelation column/type and index-prefix requirements; complete PSI0A-C HighWaterSpec values; the creator.creator_tokens rowid-only exception; the existing PSI0A-A boundary digest and PSI0A-B audit digest; engineering revision; canonical JSON digest; and exact replay verification. Derive values only from committed PSI0A/EB schemas, query contracts, tests, documentation and audit artifacts; fail closed on any unsupported or ambiguous surface, column, type, index, cursor or event mapping rather than guessing. Preserve zero extraction/activation authority. Frozen fixtures only. Do not access production/runtime databases or services, resume PSI0A-C6, capture a production boundary, perform canonical evidence extraction or shadow output, make provider/RPC calls, production writes or DDL, deploy, restart or stop services, change configuration, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D through H or PSI0B, activate production, or enter EB2.",
+    "milestone": "PSI0A-C8 canonical cursor-policy amendment and manifest qualification",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Explicitly supersede the undocumented prior high-water tuple with a committed row-membership policy and qualify the immutable capture-input manifest locally.",
+    "approval_text": "Authorize PSI0A-C8 safe-local contract amendment, design, implementation, frozen-fixture tests, regression tests, documentation, and one narrow commit establishing a new canonical PSI0A capture-input manifest because the prior ad-hoc RequiredRelation and non-creator HighWaterSpec tuples were never committed. Use a stable inclusive rowid cursor and no event-time high-water for each of the five allow-listed relations, explicitly superseding rather than claiming to preserve the undocumented prior tuple; bind exact database/relation/type surfaces, logical source identifiers, expected filenames without host paths, query-required columns and their committed schema affinities, index-prefix requirements directly justified by committed EB query predicates/orderings, the existing PSI0A-A boundary digest and PSI0A-B audit digest as historical inputs, engineering revision, canonical manifest digest, zero extraction/activation authority, and exact replay. Fail closed if any required column affinity or index prefix is not explicitly supported by committed schema/query artifacts. Frozen fixtures only. Do not access production/runtime databases or services, resume PSI0A-C6, capture a production boundary, perform canonical evidence extraction or shadow output, make provider/RPC calls, production writes or DDL, deploy, restart or stop services, change configuration, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D through H or PSI0B, activate production, or enter EB2.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

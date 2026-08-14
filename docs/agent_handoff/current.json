@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T14:32:41Z",
+  "updated_at_utc": "2026-08-14T14:36:09Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-14T14:32:41Z",
+    "published_at_utc": "2026-08-14T14:36:09Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0A-D2 metadata-only query-plan qualification",
-    "mode": "single production metadata-only attempt stopped on first plan; no retry",
+    "milestone": "PSI0A-D2B creator source-path provenance diagnosis",
+    "mode": "bounded local read-only diagnosis complete",
         "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "HOLD_CREATOR_SOURCE_PATH_BINDING_AMBIGUOUS"
+    "verdict": "CALLER_PATH_CORRECTION_ONLY"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,21 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0a_d2b_creator_source_path_provenance": {
+      "status": "COMPLETE",
+      "verdict": "CALLER_PATH_CORRECTION_ONLY",
+      "authoritative_creator_path": "/Users/kevinkeaveney/Dev/claude/flex/pumpswap_tokens.db",
+      "path_binding_digest": "e0f28444336d5b744dbeedf0474b33a9bee1f0c7877477bc069db8b35c12ee4c",
+      "observed_file_identity_digest": "352fb18c6f77b9ccc65e213135a37c3cb875734bd50ff82b164bf291abb16bcb",
+      "incorrect_path": "/Users/kevinkeaveney/Dev/claude/flex/database/pumpswap_tokens.db",
+      "incorrect_path_size_bytes": 0,
+      "capture_manifest_amendment_required": false,
+      "caller_correction_required": true,
+      "database_connections_opened": 0,
+      "d2_retried": false,
+      "production_impact": false,
+      "artifact": "docs/audits/psi0a_d2b_creator_source_path_provenance.json"
+    },
     "psi0a_d2_creator_source_path_stop": {
       "status": "STOPPED_FIRST_PLAN_NO_RETRY",
       "verdict": "HOLD_CREATOR_SOURCE_PATH_BINDING_AMBIGUOUS",
@@ -6134,9 +6149,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-        "milestone": "PSI0A-D2B creator source-path provenance diagnosis",
-        "instruction": "HUMAN_APPROVAL_REQUIRED: diagnose and bind the exact creator source path before any D2 retry.",
-        "approval_text": "Authorize PSI0A-D2B as a bounded local read-only source-path provenance diagnosis for the creator database after the D2 first-plan stop. Use committed PSI0A-A through D2A contracts, C8/C15/C16 artifacts, application database-path configuration and writer/reader source code, and filesystem path/file-name/fingerprint metadata only to determine which pumpswap_tokens.db is the authoritative production creator source and why database/pumpswap_tokens.db lacked creator_tokens. Bind one exact logical-source-to-path fingerprint recommendation and identify whether the smallest repair is a capture-input manifest path-binding amendment or caller correction, but do not implement it or retry D2. Do not open any database, inspect schema or rows, execute EXPLAIN or SELECT, access providers, write production data or DDL, deploy, restart or stop services, change configuration, manipulate locks, recapture high-waters, create shadow output, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D2 or PSI0A-E through H or PSI0B, activate production, or enter EB2.",
+        "milestone": "PSI0A-D2 metadata-only query-plan qualification",
+        "instruction": "HUMAN_APPROVAL_REQUIRED: authorize one fresh bounded D2 attempt with the corrected root creator path binding.",
+        "approval_text": "Authorize PSI0A-D2 as exactly one fresh bounded production metadata-only non-executing query-plan qualification using engineering commit 91fddb0cfb55e30e55164b83f67135ef6bda571a, replay-verified contract digest 8ba0259d356c3fd6300f22dbf08b6ca3ea96fd836f94221d4f2499949de4577c and corrected creator source /Users/kevinkeaveney/Dev/claude/flex/pumpswap_tokens.db with path-binding digest e0f28444336d5b744dbeedf0474b33a9bee1f0c7877477bc069db8b35c12ee4c. Preserve the canonical manifest digest d956bc24c1cd160162acaaad5bc466a2dece78ea34fc1f5238bc80728d4283f5, C16 boundary digest fdf11dc5e29c176d3724a4ccd1e3ff56584727512853bfb58a71fb3979c246f8 and all other previously authorized source paths. Inspect only the five frozen single-statement SELECT templates through non-executing EXPLAIN QUERY PLAN using URI mode=ro, verified PRAGMA query_only, 250 ms lock timeout, active maximum two-second monotonic deadlines, explicit allow-lists and unconditional cleanup. Stop before opening a database unless the listener PID is stable, the latest three primary_fd_count samples are below 8, no critical descriptor or lock-error increment exists, serializer p99 is below 1000 ms, queue depth is zero and PumpPortal/PumpSwap/ingestion/services are healthy; stop thereafter on path/fingerprint/schema/boundary/contract drift, unknown or write-capable SQL, full-scan or unacceptable temporary-work plan, health-gate failure, deadline breach, replay failure, production impact or scope expansion. No retry, SELECT-template execution, evidence-row materialization, high-water recapture, shadow output, provider/RPC calls, DDL, production writes, deployment, restart, configuration change, lock manipulation, Evidence Mirror, Cohort Mode, PSI0A-E through H, PSI0B, activation or EB2 work.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

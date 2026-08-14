@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-F",
+  "status": "COMPLETE",
+  "verdict": "PASS",
+  "qualified_at": "2026-08-14",
+  "health_gate_contract_digest": "8c92231a76c9daad4305bd3859760bc6f1d1ef31249b255b471c213f1ce1c3bf",
+  "engineering_revision_bound": "86ed505e8314270b3667218b58fbdd84b72b28b0",
+  "resource_ceiling_contract_digest": "f5eea8b9f8ba6b102f57e4ae59eb35eb8f0e23d3f8ac0f493f35671f8271f736",
+  "plan_qualification_digest": "38d0605e77e1503e9d5e952d13a3e1501aacf6c84db7a3debc334bca8fc484ce",
+  "canonical_manifest_digest": "d956bc24c1cd160162acaaad5bc466a2dece78ea34fc1f5238bc80728d4283f5",
+  "read_boundary_digest": "fdf11dc5e29c176d3724a4ccd1e3ff56584727512853bfb58a71fb3979c246f8",
+  "prestart": {
+    "checkpoint_count": 3,
+    "spacing_seconds": 30,
+    "spacing_tolerance_seconds": 2,
+    "maximum_age_seconds": 45
+  },
+  "thresholds": {
+    "primary_fd_count_exclusive": 8,
+    "serializer_p99_wait_ms_exclusive": 1000,
+    "critical_listener_db_handle_count": 0,
+    "lock_error_increment": 0,
+    "sustained_queue_checkpoints": 2
+  },
+  "unknown_or_stale_telemetry": "FAIL_CLOSED",
+  "retry_allowed": false,
+  "degraded_mode_bypass_allowed": false,
+  "grants_extraction_authority": false,
+  "grants_activation_authority": false,
+  "live_observation_performed": false,
+  "production_access": false,
+  "provider_calls": 0,
+  "production_writes": 0,
+  "tests": {
+    "status": "PASS",
+    "focused_and_adjacent_passed": 36,
+    "psi0a_regression_passed": 166
+  }
+}

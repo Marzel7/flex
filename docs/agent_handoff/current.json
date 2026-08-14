@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T05:44:25Z",
+  "updated_at_utc": "2026-08-14T05:47:18Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-14T05:44:25Z",
+    "published_at_utc": "2026-08-14T05:47:18Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "EB1.3H immutable extraction bundle qualification and frozen-stack closure",
-    "mode": "safe-local frozen/ephemeral fixture implementation, test, documentation and narrow commit",
+    "milestone": "Post-EB1.3 roadmap reconciliation",
+    "mode": "bounded local read-only committed-artifact assessment",
     "status": "COMPLETE",
-    "verdict": "EB1_3_COMPLETE_FROZEN_NON_EXECUTABLE_STACK_QUALIFIED"
+    "verdict": "ROADMAP_RECONCILED_EB1_4A_NON_EXECUTABLE_PROPOSAL_REVIEW_DISPOSITION_NEXT"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,39 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "post_eb1_3_roadmap_reconciliation": {
+      "status": "COMPLETE",
+      "verdict": "ROADMAP_RECONCILED_EB1_4A_NON_EXECUTABLE_PROPOSAL_REVIEW_DISPOSITION_NEXT",
+      "engineering_commit": "eeaa1eccc5d77a0e4cff6c70cf39db3e14e35baf",
+      "verification_utc": "2026-08-14T05:47:18Z",
+      "canonical_roadmap_finding": "EB1.3 is closed as a frozen fixture-only stack producing immutable non-executable planning proposals with both authority grants false. The smallest missing governance layer is an append-only human review disposition over exact replay-verified EB1.3H proposals. It must not select an alternative, define acquisition, grant planning or execution authority, or enter EB2.",
+      "next_stage": {
+        "milestone": "EB1.4A non-executable planning-proposal review disposition contract",
+        "authorization_class": "SAFE_LOCAL_DESIGN_IMPLEMENTATION_TEST_COMMIT",
+        "objective": "Record deterministic append-only human dispositions over immutable EB1.3H proposal identities while preserving all upstream lineage, alternatives, assumptions, authority lanes and false authority grants.",
+        "allowed_dispositions": [
+          "ACKNOWLEDGED",
+          "DEFERRED",
+          "REJECTED_AS_INVALID",
+          "READY_FOR_SEPARATE_DECISION_CONTRACT"
+        ],
+        "required_semantics": [
+          "bind exact EB1.3H bundle, EB1.3D manifest, EB1.3E corpus, proposal-history and proposal identities",
+          "bind exact EB1.1 requirement and EB1.2A review lineage plus originating authority lane and cohort/window scope",
+          "require reviewer identity token, deterministic review sequence, reason code, rationale digest and supersedes link",
+          "preserve append-only history, alternatives and assumptions without choosing, ranking, merging or substituting them",
+          "mark every record NON_EXECUTABLE_PROPOSAL_REVIEW_DISPOSITION with grants_planning_authority=false and grants_execution_authority=false",
+          "treat READY_FOR_SEPARATE_DECISION_CONTRACT only as eligibility for a later separately authorized contract, never as permission to select, plan, acquire or execute"
+        ],
+        "explicitly_deferred": "source or alternative selection, acquisition design/budget, provider/runtime/production access, evidence fulfillment, linkage, analytics, policy, attribution, activation and any EB2 namespace"
+      },
+      "implementation_performed": false,
+      "provider_calls": 0,
+      "production_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "activation": false
+    },
     "eb1_3h_immutable_extraction_bundle_and_closure": {
       "status": "COMPLETE",
       "verdict": "EB1_3_COMPLETE_FROZEN_NON_EXECUTABLE_STACK_QUALIFIED",
@@ -4334,6 +4367,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "The post-EB1.3 reconciliation identifies EB1.4A as the next safe-local contract, but implementation is not authorized by the read-only reconciliation milestone. Any proposal disposition must remain non-executable and may not choose sources or alternatives, define acquisition, grant planning/execution authority, or enter EB2.",
     "EB1.3 is closed as a frozen fixture-only non-executable planning-proposal stack. No live/runtime compatibility, proposal review, source selection, acquisition planning or execution authority is established. The next milestone requires a separate committed roadmap reconciliation; no EB2 namespace is assigned.",
     "EB1.3G qualifies only the fixture extractor and in-memory replay outputs. No immutable write-once EB1.3 extraction bundle exists for either PROJECTED or NO_ELIGIBLE_PROPOSALS status, so EB1.3 frozen-stack closure is not yet complete. No runtime compatibility or authority is implied.",
     "EB1.3A-E is complete only as a frozen in-memory stack. The EB1.3G fixture-only extractor has not been implemented or qualified, zero-selected accounting has no serialized output boundary yet, and no production/runtime compatibility or authority is implied.",
@@ -4408,9 +4442,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "Post-EB1.3 roadmap reconciliation",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Confirm EB1.3 frozen-stack closure and identify the smallest next safe-local evidence-governance milestone from committed artifacts only, without implementation or assigning an EB2 namespace.",
-    "approval_text": "Authorize a bounded local read-only post-EB1.3 roadmap reconciliation using committed artifacts only; confirm EB1.3 frozen-stack closure and identify the smallest next safe-local evidence-governance milestone and contract, but do not implement it or assign an EB2 namespace. No proposal review or approval, source selection, acquisition plan or request budget, production/runtime access, live extraction or census, provider/RPC calls, production writes, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, evidence fulfillment, cross-entity linkage, rates, profiles, ranking, scoring, policy activation, profitability/cashflow inference, operator identity/attribution, or activation.",
+    "milestone": "EB1.4A non-executable planning-proposal review disposition contract",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Implement only the frozen fixture-based append-only review-disposition contract over immutable EB1.3H proposals. No alternative selection, acquisition planning, authority grant or EB2 namespace.",
+    "approval_text": "Authorize safe-local design, implementation, frozen-fixture tests, regression tests, documentation, and one narrow commit for EB1.4A non-executable planning-proposal review disposition contract over replay-verified immutable EB1.3H proposal bundles. Bind exact EB1.3H bundle, EB1.3D manifest, EB1.3E corpus, proposal-history and proposal identities; preserve exact EB1.1 requirement and EB1.2A review lineage, originating authority lane, cohort/window scope, candidate alternatives and assumptions. Allow only ACKNOWLEDGED, DEFERRED, REJECTED_AS_INVALID, and READY_FOR_SEPARATE_DECISION_CONTRACT; require explicit reviewer identity token, deterministic review sequence, reason code, rationale digest and supersedes link; preserve append-only history and exact replay. Every record must be NON_EXECUTABLE_PROPOSAL_REVIEW_DISPOSITION with grants_planning_authority=false and grants_execution_authority=false. READY_FOR_SEPARATE_DECISION_CONTRACT grants no permission to choose or rank alternatives, select sources, define an acquisition plan or request budget, acquire or fulfill evidence, access provider/runtime/production systems, deploy, configure, activate policy, or execute anything. Reject executable content, endpoints, provider names, credentials, commands, production targets, cross-authority substitution, cross-entity linkage, rates, profiles, ranking, scoring, profitability/cashflow, operator identity/attribution, policy and activation content. Frozen fixtures only. No production/runtime access, live extraction or census, provider/RPC calls, production writes, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, evidence fulfillment, activation, or EB2 namespace.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

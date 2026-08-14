@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T16:18:17Z",
+  "updated_at_utc": "2026-08-14T18:37:55Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "894124e2cd9b1dcff9988457e221aa5c13873564",
-    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0B-E3 committed narrowly in ten files"
+    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0B-E stopped before database open and recorded one audit artifact"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-14T14:41:04Z",
+    "published_at_utc": "2026-08-14T18:37:55Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0B-E3 superseding preflight materialization and runner rebind",
-    "mode": "safe-local frozen-artifact implementation and qualification",
+    "milestone": "PSI0B-E fresh bounded production shadow attempt",
+    "mode": "production-telemetry read-only prestart assessment",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "SUPERSEDING_PREFLIGHT_MATERIALIZED_REPLAY_VERIFIED_RUNNER_REBOUND"
+    "verdict": "DO_NOT_START_WRITE_LEASE_HEALTH_UNPROVEN"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,32 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0b_e_02_production_shadow_attempt": {
+      "status": "HOLD",
+      "verdict": "DO_NOT_START_WRITE_LEASE_HEALTH_UNPROVEN",
+      "engineering_commit": "894124e2cd9b1dcff9988457e221aa5c13873564",
+      "authorization_id": "psi0b-shadow-auth-20260814-02",
+      "run_id": "psi0b-shadow-20260814-02",
+      "listener_pid": 15357,
+      "serializer_p99_wait_ms_terminal": 2.68,
+      "serializer_queue_depth_samples": [0, 0, 1],
+      "serializer_lock_errors_24h": 2,
+      "primary_fd_count_samples": [0, 0, 0],
+      "blocking_write_lease_owner_pid": 41735,
+      "blocking_write_lease_command": "walkback_worker.py:482 in _ops_conn",
+      "repeated_listener_walkback_enqueue_lock_timeouts": true,
+      "production_authorization_materialized": false,
+      "production_database_opened": false,
+      "production_queries": 0,
+      "production_rows_read": 0,
+      "production_writes": 0,
+      "shadow_output_exists": false,
+      "retry_performed": false,
+      "production_impact": false,
+      "artifact": "docs/audits/psi0b_e_02_production_shadow_do_not_start.json",
+      "blocker": "PSI0A_F_WRITE_LEASE_UNHEALTHY_OR_UNKNOWN",
+      "exact_next_action": "Obtain separate approval for a telemetry-only diagnosis of the persistent operations write lease and repeated listener walkback-enqueue lock timeouts; do not retry PSI0B-E until a fresh three-checkpoint PSI0A-F gate passes."
+    },
     "psi0b_e3_superseding_preflight_qualification": {
       "status": "COMPLETE",
       "verdict": "SUPERSEDING_PREFLIGHT_MATERIALIZED_REPLAY_VERIFIED_RUNNER_REBOUND",

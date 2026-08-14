@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T14:41:04Z",
+  "updated_at_utc": "2026-08-14T14:44:43Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -17,9 +17,9 @@
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
     "milestone": "PSI0A-D2 metadata-only query-plan qualification",
-    "mode": "fresh attempt stopped at source-path preflight before database open",
-        "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "HOLD_EVIDENCE_SOURCE_PATH_UNRESOLVED"
+    "mode": "bounded local read-only source-path provenance diagnosis complete",
+    "status": "HUMAN_APPROVAL_REQUIRED",
+    "verdict": "CALLER_PATH_CORRECTION_ONLY"
   },
   "production_state": {
     "retention": "ON",
@@ -6074,6 +6074,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "PSI0A-D2C proves the authoritative production evidence source is /Users/kevinkeaveney/Dev/claude/flex/database/evidence_platform/production/evidence.db with path-binding digest 26d0e3847ca99f7a2b6216156adca59e14e40b8d7054d3c33709460a6286aeb7. The absent database/evidence.db path came from incorrectly treating a filename-only manifest field as a database/-relative path. Main and ops bindings are independently unambiguous. D2 was not retried and requires a fresh explicit authorization binding all corrected paths.",
     "PSI0A-D6C proved listener quiescence and clean recovery but could not launch the index attempt: the immutable D4 contract and D5 entry point are explicitly fixture-only and reject production authority. Reusing their fixture marker against production was rejected before execution. PID 31028 is healthy with p99 31.09 ms, queue zero and lock errors zero; no database was opened and the index remains absent. A production-specific durable runner must be locally qualified before a new quiescence/deployment authorization.",
     "PSI0A-D6B proves active recurrent fan-out rather than stale p99 alone. Five _reconciler_unseen_sigs connections averaged 71.3 seconds because the migration_tx IN query remains unindexed; descriptors peaked at 13 and lock errors reached 9. Natural zero-descriptor moments occur but are not durable enough for D6. The smallest coherent deployment boundary is one explicitly authorized watchtower_listener quiescence window around the single D5-ledgered index statement. A separate _blocklist_write guaranteed-close defect was also found but not repaired.",
     "The second PSI0A-D6A observation also failed at its first checkpoint and the active pressure worsened: serializer p99 rose to 1789.67 ms, lock_errors_24h rose from 5 to 9 and listener primary_fd_count reached 11. No database was opened. Further immediate D6A/D6 repetitions are unsafe; PSI0A-D6B diagnosis is required.",
@@ -6162,9 +6163,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-        "milestone": "PSI0A-D2C evidence source-path provenance diagnosis",
-        "instruction": "HUMAN_APPROVAL_REQUIRED: resolve and bind the exact evidence source path before any new D2 attempt.",
-        "approval_text": "Authorize PSI0A-D2C as a bounded local read-only source-path provenance diagnosis for the evidence database after the D2 preflight stop. Use committed PSI0A-A through D2A contracts, C8/C15/C16 artifacts, evidence-writer and evidence-reader configuration/source code, and filesystem path/file-name/fingerprint metadata only to identify the authoritative production evidence.db path, explain why /Users/kevinkeaveney/Dev/claude/flex/database/evidence.db is absent, and bind one exact logical-source-to-path fingerprint recommendation. Also confirm from the same committed and filesystem metadata that the existing main and ops path bindings are unambiguous, but do not implement a change or retry D2. Do not open any database, inspect schema or rows, execute EXPLAIN or SELECT, access providers, write production data or DDL, deploy, restart or stop services, change configuration, manipulate locks, recapture high-waters, create shadow output, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D2 or PSI0A-E through H or PSI0B, activate production, or enter EB2.",
+    "milestone": "PSI0A-D2 metadata-only query-plan qualification",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize one fresh D2 attempt with all four source paths and path-binding digests fixed explicitly.",
+    "approval_text": "Authorize PSI0A-D2 as exactly one fresh bounded production metadata-only non-executing query-plan qualification using engineering commit 91fddb0cfb55e30e55164b83f67135ef6bda571a, replay-verified contract digest 8ba0259d356c3fd6300f22dbf08b6ca3ea96fd836f94221d4f2499949de4577c, canonical manifest digest d956bc24c1cd160162acaaad5bc466a2dece78ea34fc1f5238bc80728d4283f5 and immutable C16 boundary digest fdf11dc5e29c176d3724a4ccd1e3ff56584727512853bfb58a71fb3979c246f8. Bind exactly creator=/Users/kevinkeaveney/Dev/claude/flex/pumpswap_tokens.db with path-binding digest e0f28444336d5b744dbeedf0474b33a9bee1f0c7877477bc069db8b35c12ee4c, evidence=/Users/kevinkeaveney/Dev/claude/flex/database/evidence_platform/production/evidence.db with digest 26d0e3847ca99f7a2b6216156adca59e14e40b8d7054d3c33709460a6286aeb7, main=/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db with digest 47aecc6ad649ba5ec1bbfcba62df30cfc04d0dc97b632df1ce0c153e3612b934, and ops=/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db with digest 13dca5ea3bcc50b135dbbbab61042930ac692cce74a3388705a35e924a0a11a6. Inspect only the five frozen single-statement SELECT templates through non-executing EXPLAIN QUERY PLAN using URI mode=ro, verified PRAGMA query_only, 250 ms lock timeout, active maximum two-second monotonic deadlines, explicit allow-lists and unconditional cleanup. Stop before opening a database unless the listener PID is stable, the latest three primary_fd_count samples are below 8, no critical descriptor or serializer lock-error increment exists, serializer p99 is below 1000 ms, queue depth is zero and PumpPortal/PumpSwap/ingestion/services are healthy; stop thereafter on path/fingerprint/schema/boundary/contract drift, unknown or write-capable SQL, full-scan or unacceptable temporary-work plan, health-gate failure, deadline breach, replay failure, production impact or scope expansion. No retry, SELECT-template execution, evidence-row materialization, high-water recapture, shadow output, provider/RPC calls, DDL, production writes, deployment, restart, configuration change, lock manipulation, Evidence Mirror, Cohort Mode, PSI0A-E through H, PSI0B, activation or EB2 work.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

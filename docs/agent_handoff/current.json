@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T16:20:00Z",
+  "updated_at_utc": "2026-08-14T16:45:00Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "04ac82cef40e0c7dbe8e6a26070ba6bf78719c6f",
-    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0A-H committed narrowly in four files"
+    "git_head": "d6f4cd98bb610bb6178fc2315bc6c88c08aa0587",
+    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0B-A committed narrowly in four files"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0A-H immutable preflight bundle and closure",
+    "milestone": "PSI0B-A run-specific shadow extraction preflight contract",
     "mode": "safe-local immutable contract, fixture tests and regressions complete",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "PSI0A_PASS_PSI0B_MAY_BE_SEPARATELY_PROPOSED"
+    "verdict": "PASS_CONTRACT_QUALIFIED_REAL_RUN_INPUTS_REQUIRED"
   },
   "production_state": {
     "retention": "ON",
@@ -6074,6 +6074,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "PSI0B-A is qualified at engineering commit d6f4cd98bb610bb6178fc2315bc6c88c08aa0587 with run-preflight contract digest 4804184b9a09c33daa07e6c810eded85e23df6de1add0e895e0d60935f25c1a4 and 241 passing PSI regressions. It binds exact C16 rowid ceilings, five query identities, 5,000-row ceilings, corrected four-source fingerprints, execution-time health placeholders and false extraction/integration/activation authority. The contract deliberately did not select a real cohort. The previously verified EB0.1P 5,000-mint bundle digest is known, but its recorded directory was ephemeral and availability has not been established from committed artifacts; therefore an exact production run cannot yet be authorized coherently.",
     "PSI0A-H closes PSI0A at engineering commit 04ac82cef40e0c7dbe8e6a26070ba6bf78719c6f with replay-verified fixture bundle digest 308e1d15b2ca9af74c6f1c6d57455150b5f7efdc64e36b06b4ff4f82ee1bb860 and 224 passing PSI0A regressions. The verdict PSI0A_PASS_PSI0B_MAY_BE_SEPARATELY_PROPOSED grants no extraction, integration or activation authority. No production/runtime access, live observation, production row read or shadow extraction occurred. A run-specific immutable cohort/input/output boundary must be separately qualified before any PSI0B production query is authorized.",
     "PSI0A-G is qualified at engineering commit 903ce9d13702339d3500c0498d4cc259a9e90934 with immutable abort/isolation contract digest c9ff90b6cbfb332bc00691c87528abf5f6b6158b54072bfb48c60d9f920e5bab and 212 passing PSI0A regressions. All eleven frozen stop triggers deterministically produce DO_NOT_START or clean ABORTED only with conditional resource cleanup and zero mutations, retries, widening or partial publication; violations fail as ISOLATION_FAILURE. No production/runtime access, live observation or extraction occurred. PSI0A-H immutable preflight bundle and closure remains separately human-gated.",
     "PSI0A-F is qualified at engineering commit a624ad478a4effbb3c7ad6b951d7dbb85c7947c6 with immutable health-gate contract digest 8c92231a76c9daad4305bd3859760bc6f1d1ef31249b255b471c213f1ce1c3bf and 166 passing PSI0A regressions. It freezes exact pre-start and active-run health checks, stale/missing/unknown rejection, 30-second two-sample queue semantics, named do-not-start/stop reasons, no retry or degraded bypass, and false extraction/activation authority. No production/runtime access or live health observation occurred. PSI0A-G isolation/abort proof remains separately human-gated.",
@@ -6169,9 +6170,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0B-A run-specific shadow extraction preflight",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: qualify a run-specific immutable cohort, parameter, source-path and isolated-output boundary before any PSI0B production query is permitted.",
-    "approval_text": "Authorize PSI0B-A safe-local design, implementation, frozen/ephemeral-fixture tests, regression tests, documentation and one narrow commit for a run-specific immutable query-only production-shadow extraction preflight over the closed PSI0A stack. Bind engineering commit 04ac82cef40e0c7dbe8e6a26070ba6bf78719c6f, PSI0A-H qualification bundle digest 308e1d15b2ca9af74c6f1c6d57455150b5f7efdc64e36b06b4ff4f82ee1bb860, PSI0A-G abort/isolation digest c9ff90b6cbfb332bc00691c87528abf5f6b6158b54072bfb48c60d9f920e5bab, PSI0A-F health-gate digest 8c92231a76c9daad4305bd3859760bc6f1d1ef31249b255b471c213f1ce1c3bf, PSI0A-E resource-ceiling digest f5eea8b9f8ba6b102f57e4ae59eb35eb8f0e23d3f8ac0f493f35671f8271f736, PSI0A-D plan qualification digest 38d0605e77e1503e9d5e952d13a3e1501aacf6c84db7a3debc334bca8fc484ce and C16 boundary digest fdf11dc5e29c176d3724a4ccd1e3ff56584727512853bfb58a71fb3979c246f8. Require an explicit caller-supplied immutable cohort artifact and digest, exact five query parameters within PSI0A-E ceilings, the four already-qualified logical-source path fingerprints, one new run ID, one new empty isolated local output directory, deterministic accounting, fresh PSI0A-F checkpoint placeholders, PSI0A-G stop semantics, false extraction/integration/activation authority and exact replay. Fail closed on missing cohort authority, path/fingerprint drift, parameter or ceiling drift, stale boundary, overwrite, retry/pagination/failover/widening authority or incomplete accounting. Frozen/ephemeral fixtures and committed artifacts only. Do not access production/runtime databases or services, perform a live health observation or extraction, execute EXPLAIN or SELECT against production, read production rows, create production-derived shadow output, make provider/RPC calls, execute production DDL or writes, deploy, restart or stop services, change configuration or thresholds, manipulate locks or metrics, activate Evidence Mirror or Cohort Mode, execute a PSI0B production query, activate production, or enter EB2. Stop after PSI0B-A qualification and request separate explicit authorization for exactly one bounded PSI0B query-only production shadow extraction.",
+    "milestone": "PSI0B-B immutable cohort availability and binding preflight",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: establish an available replay-verified immutable cohort artifact before proposing one production query-only shadow run.",
+    "approval_text": "Authorize PSI0B-B as a bounded local read-only immutable cohort availability and binding preflight using committed artifacts and local immutable bundle metadata only. Determine whether the previously verified EB0.1P 5,000-mint cohort bundle with digest 2c07d41b9c243f8f0c8ca52e0c54c0b184f28a1ed855e98de2a975f936a688e5 remains available and exact-replay verifiable; if available, bind its exact artifact path, selected-mint projection digest and membership count into the PSI0B-A contract together with fact_family=LaunchFact, a proposed new run ID and proposed new empty isolated local output directory. If unavailable, identify the smallest safe-local deterministic rematerialization contract from committed EB0.1 evidence without rematerializing it. Do not select a different cohort, alter membership, implement or execute extraction, open production/runtime databases or services, perform a live health observation, execute EXPLAIN or SELECT, read production rows, create production-derived shadow output, make provider/RPC calls, execute DDL or production writes, deploy, restart or stop services, change configuration or thresholds, manipulate locks or metrics, activate Evidence Mirror or Cohort Mode, authorize or execute a PSI0B production query, activate production, or enter EB2. Stop after the binding verdict and provide the exact separate approval prompt required for one bounded PSI0B query-only production shadow extraction.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

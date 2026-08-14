@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T16:10:08Z",
+  "updated_at_utc": "2026-08-14T16:18:17Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "400f9e88c66534103434c201a7a3f42b15e1358c",
-    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0B-D committed narrowly in five files"
+    "git_head": "894124e2cd9b1dcff9988457e221aa5c13873564",
+    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0B-E3 committed narrowly in ten files"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0B-E2 bound preflight lineage recovery",
-    "mode": "bounded safe-local read-only committed-artifact assessment",
+    "milestone": "PSI0B-E3 superseding preflight materialization and runner rebind",
+    "mode": "safe-local frozen-artifact implementation and qualification",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "EXACT_RECONSTRUCTION_IMPOSSIBLE_SUPERSEDING_PREFLIGHT_REQUIRED"
+    "verdict": "SUPERSEDING_PREFLIGHT_MATERIALIZED_REPLAY_VERIFIED_RUNNER_REBOUND"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,28 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0b_e3_superseding_preflight_qualification": {
+      "status": "COMPLETE",
+      "verdict": "SUPERSEDING_PREFLIGHT_MATERIALIZED_REPLAY_VERIFIED_RUNNER_REBOUND",
+      "engineering_commit": "894124e2cd9b1dcff9988457e221aa5c13873564",
+      "artifact_bundle_digest": "523bd918445801a6ae82d9ed9d955947374852843c19298a2ab64098342fc864",
+      "cohort_digest": "c6069972dddc58fd95cbc3de231e2c4640afbb9dbc0b73475e70964929970722",
+      "preflight_digest": "b2cfd09743c4ba21f7a61a816d8eff8b43e43a1b6e482c4ef9a7f2bd982dcca1",
+      "output_directory_fingerprint": "55ee7ad8c26322c55b828f21c7ab80085688c46ac5e3129bc0d25b88b9c19ff3",
+      "rebound_psi0b_c_contract_digest": "05a40236db5966e8f1d3c575f1863ae9d19b6d364d8b2c323c3e3d4a5af7b348",
+      "rebound_psi0b_d_contract_digest": "c4ab44a29706fa7d8e1d03f5391523059a648beae65b3e183cfcc7878fd23dcc",
+      "selected_mint_count": 5000,
+      "membership_or_order_changed": false,
+      "full_psi_regression_passed": 271,
+      "shadow_output_exists": false,
+      "production_authorization_consumed": false,
+      "production_access": false,
+      "production_queries": 0,
+      "production_rows_read": 0,
+      "production_writes": 0,
+      "provider_calls": 0,
+      "artifact": "docs/audits/psi0b_e3_superseding_preflight_qualification.json"
+    },
     "psi0b_e2_bound_preflight_lineage_recovery": {
       "status": "COMPLETE",
       "verdict": "EXACT_RECONSTRUCTION_IMPOSSIBLE_SUPERSEDING_PREFLIGHT_REQUIRED",
@@ -6275,9 +6297,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0B-E3 superseding preflight materialization and runner rebind",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: materialize and qualify the explicitly superseding immutable cohort/preflight and rebind PSI0B-C/D before another live proposal.",
-    "approval_text": "Authorize PSI0B-E3 safe-local design, implementation, frozen-fixture tests, regression tests, documentation and one narrow commit to explicitly supersede the unreplayable PSI0B-B cohort/preflight identities and rebind PSI0B-C/D. Materialize canonical immutable cohort and preflight artifacts using exactly cohort_version=psi0b-a.cohort.v1, cohort_id=eb0.1p-selected-5000-v1, the 5,000 selected_mints in exact retained array order from replay-verified bundle /private/tmp/flex-eb0-1p-4qJYQD, source_artifact_digest=fd538d454cd10c7f7cd5ce5fa6fe251d2781efc42614ec10cff800a9348952ff, expected cohort digest c6069972dddc58fd95cbc3de231e2c4640afbb9dbc0b73475e70964929970722, run_id=psi0b-shadow-20260814-02, fact_family=LaunchFact, new output directory /Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0b_runs/psi0b-shadow-20260814-02, expected output fingerprint 55ee7ad8c26322c55b828f21c7ab80085688c46ac5e3129bc0d25b88b9c19ff3 and expected preflight digest b2cfd09743c4ba21f7a61a816d8eff8b43e43a1b6e482c4ef9a7f2bd982dcca1. Preserve the existing five query templates, C16 boundaries, PSI0A-E/F/G policies, four production path fingerprints, no-retry/no-pagination/no-failover/no-widening semantics and false integration/activation authority. Mark cohort digest 8f0a54838574e2e82f95030a5981a8b21b13629d493635719a0d23f5013bfbe3 and preflight digest 35aa4d8e2f1519a60e6c3418a800476952e88bb1e44a4529c0ca7b9a90c960a0 explicitly superseded, never replay-verified. Prove canonical serialization, exact replay, membership/order preservation, output nonexistence and fail-closed drift behavior, then rebind the PSI0B-C/D constants and production entry point to only the new identities. Frozen/local artifacts only. Do not open production/runtime databases or services, perform live health observation, materialize or consume a production execution authorization, execute PSI0B-E, execute SELECT or EXPLAIN against production, read production rows, create production-derived shadow output, make provider/RPC calls, execute DDL or production writes, deploy, restart or stop services, change configuration or thresholds, manipulate locks or metrics, activate Evidence Mirror or Cohort Mode, integrate a production consumer, activate production or enter EB2. Stop after qualification and provide the exact separate approval prompt for one fresh bounded PSI0B-E production shadow attempt with a new authorization ID.",
+    "milestone": "PSI0B-E fresh bounded query-only production shadow extraction",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: consume one fresh authorization against the replay-verified superseding preflight after all do-not-start health gates pass.",
+    "approval_text": "Authorize PSI0B-E as exactly one fresh bounded query-only production shadow extraction using engineering commit 894124e2cd9b1dcff9988457e221aa5c13873564, superseding artifact bundle digest 523bd918445801a6ae82d9ed9d955947374852843c19298a2ab64098342fc864, PSI0B-D rebound contract digest c4ab44a29706fa7d8e1d03f5391523059a648beae65b3e183cfcc7878fd23dcc, PSI0B-C rebound contract digest 05a40236db5966e8f1d3c575f1863ae9d19b6d364d8b2c323c3e3d4a5af7b348, cohort digest c6069972dddc58fd95cbc3de231e2c4640afbb9dbc0b73475e70964929970722 and preflight digest b2cfd09743c4ba21f7a61a816d8eff8b43e43a1b6e482c4ef9a7f2bd982dcca1. Materialize and consume exactly one immutable authorization record with authorization_id=psi0b-shadow-auth-20260814-02, run_id=psi0b-shadow-20260814-02 and new empty output directory /Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0b_runs/psi0b-shadow-20260814-02. Bind exactly the committed superseding 5,000-mint cohort in retained order, fact_family=LaunchFact, creator=/Users/kevinkeaveney/Dev/claude/flex/pumpswap_tokens.db, evidence=/Users/kevinkeaveney/Dev/claude/flex/database/evidence_platform/production/evidence.db, main=/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db and ops=/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db with the four PSI0B-A path fingerprints. Before opening any database require fresh passing PSI0A-F checkpoints: stable listener/service identity, latest three primary_fd_count samples below 8, zero CRITICAL_LISTENER_DB_HANDLE events, serializer p99 below 1000 ms, no lock-error increment, queue depth zero and healthy database/WAL, write lease, PumpPortal, PumpSwap, ingestion, workers, queues and services. Execute the five frozen SELECT templates exactly once and sequentially using URI mode=ro, verified PRAGMA query_only, 250 ms lock timeout, exact C16 inclusive rowid boundaries, active progress-handler deadlines and every PSI0A-E row/byte/query/transaction/wall/memory/temp ceiling; perform active health checks and unconditional progress-handler removal, rollback and close after every query. Publish only after all five pass into the exact isolated output directory, verify canonical bytes, accounting, per-file hashes, one bundle digest, authorization lineage and exact replay, then capture immediate post-run health and production-impact evidence. Stop immediately with no retry, pagination, failover, widening or partial publication on any stale/failed health gate, path/fingerprint/schema/boundary/contract drift, lock contention, deadline or ceiling breach, SQLite exception, replay failure, descriptor/serializer/queue/feed/ingestion/service degradation, production impact or scope expansion. Do not make provider/RPC calls, execute DDL or production writes, deploy, restart or stop services, change configuration or thresholds, manipulate locks or metrics, recapture high-waters, activate Evidence Mirror or Cohort Mode, integrate a production consumer, activate production or enter EB2. Stop after this one attempt and request separate approval for PSI0B closure and production-impact assessment.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

@@ -1,0 +1,70 @@
+{
+  "milestone": "PSI0A-C15C",
+  "status": "COMPLETE",
+  "verdict": "ROLLING_HISTORY_PRESSURE_AGED_OUT_RECOVERY_GATE_READY",
+  "engineering_revision": "20a727918f8687226ae6a08904f570d45f2f55c2",
+  "scope": "bounded local and production-telemetry read-only diagnosis; zero production database connections",
+  "metric_semantics": {
+    "wait_sample_window": "deque(maxlen=5000)",
+    "commit_sample_window": "deque(maxlen=5000)",
+    "percentile_method": "nearest rounded index over the sorted current deque",
+    "snapshot_interval_seconds": 15,
+    "reset_semantics": "in-memory samples reset on listener process start; after 5000 acquisitions the window rolls by sample count, not wall-clock time",
+    "writer_aggregate_semantics": "top_writers counters and accumulated wait/commit totals are process-lifetime aggregates and do not independently expose which current-window samples occupy p99"
+  },
+  "pressure_provenance": {
+    "classification": "REAL_HISTORICAL_CONTENTION_IN_ROLLING_SAMPLE_WINDOW_THAT_AGED_OUT",
+    "dominant_recorded_writer_aggregates_during_pressure": [
+      "usage_tracker",
+      "rpc_metrics",
+      "listener",
+      "price_worker"
+    ],
+    "corroborated_wait_episodes": [
+      "listener usage_tracker and rpc_metrics waits reached the 60-second cross-process-lock timeout while creator_resolution_worker or creator_funding_worker owned the tracked database write lane",
+      "listener connection and commit logs recorded multi-second waits during the pre-restart contention interval",
+      "the C14 DDL was temporally adjacent but the long listener connections that drove the descriptor restart existed before the C14 run"
+    ],
+    "interpretation_limit": "The cumulative per-writer averages cannot assign each of the 5000 rolling samples to an exact p99 contributor; attribution is bounded to corroborated log episodes and process-lifetime writer summaries."
+  },
+  "recovery": {
+    "listener_pid": 9069,
+    "listener_uptime_at_terminal_check": "1:10:46",
+    "total_writes": 6681,
+    "writes_per_min": 94.9,
+    "p95_wait_ms": 5.49,
+    "p99_wait_ms": 165.48,
+    "queue_depth": 0,
+    "max_queue_depth": 5,
+    "lock_errors_24h": 0,
+    "snapshot_utc": "2026-08-14T09:01:59Z",
+    "core_services_running": true,
+    "evidence_writer_stopped": true,
+    "assessment": "Current telemetry is below the 1000 ms do-not-start threshold; a new bounded clean-window observation may be proposed, but C15 itself is not yet authorized."
+  },
+  "objective_recovery_gate": {
+    "duration_minutes": 15,
+    "listener_pid_stable": true,
+    "primary_fd_count_each_sample_less_than": 8,
+    "critical_descriptor_events": 0,
+    "serializer_p99_each_checkpoint_less_than_ms": 1000,
+    "terminal_p99_must_not_increase_above_ms": 1000,
+    "serializer_queue_depth_each_checkpoint": 0,
+    "require_websocket_ingestion_and_core_services_healthy": true,
+    "stop_immediately_on_any_failure": true
+  },
+  "actions": {
+    "production_database_connections_opened": 0,
+    "database_queries": 0,
+    "production_writes": 0,
+    "ddl_statements": 0,
+    "service_restarts_or_stops": 0,
+    "configuration_or_metric_resets": 0,
+    "provider_calls": 0,
+    "evidence_extractions": 0
+  },
+  "next": {
+    "c15b_recovery_observation_ready_for_separate_authorization": true,
+    "c15_reassessment_authorized": false
+  }
+}

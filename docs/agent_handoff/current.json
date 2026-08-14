@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T09:28:21Z",
+  "updated_at_utc": "2026-08-14T09:38:54Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "1215979dc7ce2fd82b500bf7c39f212049ab5d71",
-    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0A-C15 compatibility reassessment artifact committed narrowly"
+    "git_head": "0ab2e8e7fc1fc68f5087ade83079a3e53fd66998",
+    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0A-C16 immutable high-water boundary committed narrowly"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-14T09:28:21Z",
+    "published_at_utc": "2026-08-14T09:38:54Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0A-C15 five-surface compatibility reassessment",
-    "mode": "bounded production metadata-only read-only schema/index/query-plan reassessment",
+    "milestone": "PSI0A-C16 immutable production high-water capture",
+    "mode": "one bounded production read-only five-surface MAX(rowid) boundary capture",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "PSI0A_C15_PASS_SCHEMA_INDEX_COMPATIBLE_HEALTH_GATES_CLEAN"
+    "verdict": "PSI0A_C16_PASS_IMMUTABLE_FIVE_SURFACE_ROWID_BOUNDARY_CAPTURED"
   },
   "production_state": {
     "retention": "ON",
@@ -998,6 +998,49 @@
       },
       "artifact": "docs/audits/psi0a_c15_schema_index_compatibility_reassessment.json",
       "not_started": ["PSI0A-C16 production high-water capture", "PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
+    },
+    "psi0a_c16_production_high_water_capture": {
+      "status": "COMPLETE",
+      "verdict": "PASS_IMMUTABLE_FIVE_SURFACE_ROWID_BOUNDARY_CAPTURED",
+      "engineering_commit": "0ab2e8e7fc1fc68f5087ade83079a3e53fd66998",
+      "captured_at_utc_ns": 1786700216427277000,
+      "canonical_manifest_digest": "d956bc24c1cd160162acaaad5bc466a2dece78ea34fc1f5238bc80728d4283f5",
+      "c15_result_digest": "8a5f6d92204d4a151c9c5d0d689a7303ed7d7b9a3a6dc3f8fce852c2d768bf64",
+      "read_boundary_digest": "fdf11dc5e29c176d3724a4ccd1e3ff56584727512853bfb58a71fb3979c246f8",
+      "cursor_policy": "STABLE_INCLUSIVE_ROWID_ONLY_NO_EVENT_TIME_HIGH_WATER",
+      "rowid_high_waters": {
+        "creator.creator_tokens": 53700,
+        "evidence.normalized_evidence_records": 0,
+        "main.token_analysis": 1774740,
+        "main.token_price_snapshots": 32626118,
+        "ops.wt_watchtower_launches": 178
+      },
+      "schema_digest_matches": 5,
+      "cleanup_verified": ["rollback", "progress_handler_removed", "connection_closed"],
+      "safety": {
+        "uri_mode": "ro",
+        "query_only_verified": true,
+        "lock_timeout_ms": 250,
+        "maximum_query_deadline_seconds": 2,
+        "aggregate_max_queries": 5,
+        "evidence_rows_materialized": 0,
+        "production_writes": 0,
+        "ddl_statements": 0,
+        "provider_calls": 0,
+        "evidence_extractions": 0,
+        "service_restarts_or_stops": 0
+      },
+      "health": {
+        "listener_pid_before": 9069,
+        "listener_pid_after": 9069,
+        "serializer_p99_wait_ms_before": 26.84,
+        "serializer_p99_wait_ms_after": 28.43,
+        "serializer_queue_depth_after": 0,
+        "lock_errors_24h_after": 0,
+        "production_impact_observed": false
+      },
+      "artifact": "docs/audits/psi0a_c16_production_high_water_boundary.json",
+      "not_started": ["PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
     },
     "psi0a_pre_extraction_roadmap_ratification": {
       "status": "COMPLETE",
@@ -5183,7 +5226,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "PSI0A-C15 passed: all five allow-listed relations are schema/index compatible, both deployed PSI0A indexes are selected by non-executing plans, listener PID 9069 remained stable, serializer p99 fell from 19.81 ms to 16.67 ms, queue depth remained zero, and no production impact occurred. PSI0A-C still requires one separately authorized immutable high-water capture; PSI0A-D through H remain not started and PSI0B remains prohibited.",
+    "PSI0A-C16 passed and closes PSI0A-C with one immutable five-surface rowid-only boundary. All C15 schema digests matched, rollback/progress-handler removal/close were verified, listener PID 9069 remained stable, serializer p99 stayed below 1000 ms, queue depth remained zero, and no production impact occurred. PSI0A-D through H remain not started and PSI0B remains prohibited.",
     "PSI0A is ratified but not yet authorized for execution. PSI0A-A must first freeze the production boundary. All PSI0A stages prohibit actual EB evidence extraction, and PSI0B remains separately human-gated even after a PSI0A PASS.",
     "EB1.4A is intentionally deferred. The production shadow-integration track is not yet authorized and must begin with a no-extraction read-only schema/high-water compatibility preflight. Any real query-only extraction or production activation requires a later separate authorization.",
     "The post-EB1.3 reconciliation identifies EB1.4A as the next safe-local contract, but implementation is not authorized by the read-only reconciliation milestone. Any proposal disposition must remain non-executable and may not choose sources or alternatives, define acquisition, grant planning/execution authority, or enter EB2.",
@@ -5261,9 +5304,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0A-C16 immutable production high-water capture",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize exactly one bounded read-only five-surface production high-water capture now that C15 proves schema/index compatibility and clean health gates.",
-    "approval_text": "Authorize PSI0A-C16 as exactly one bounded read-only production high-water capture using commit 1215979dc7ce2fd82b500bf7c39f212049ab5d71, canonical manifest digest d956bc24c1cd160162acaaad5bc466a2dece78ea34fc1f5238bc80728d4283f5 and replay-verified C15 result digest 8a5f6d92204d4a151c9c5d0d689a7303ed7d7b9a3a6dc3f8fce852c2d768bf64. Capture only the stable inclusive rowid cursor for each of the five allow-listed relations, with no event-time boundary, using URI mode=ro, verified PRAGMA query_only, 250 ms lock timeout, explicit bounded read transactions, active maximum two-second monotonic deadlines enforced by SQLite progress handlers, aggregate MAX(rowid) queries only, and unconditional progress-handler removal, rollback and close. Bind the exact C15 schema digests, replay-verify one immutable boundary artifact, and stop immediately on schema or manifest drift, non-integer high-water, listener PID change, primary_fd_count reaching 8, serializer p99 reaching 1000 ms, database pressure, lock contention, deadline breach, health degradation, replay failure, production impact or scope expansion. Do not materialize evidence rows, execute canonical evidence extraction or shadow output, make provider/RPC calls, execute DDL or production writes, deploy, restart or stop services, change configuration, manipulate locks, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D through H or PSI0B, activate production, or enter EB2.",
+    "milestone": "PSI0A-D exact future-query and query-plan qualification",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize PSI0A-D to freeze and qualify the exact future bounded shadow-read query set without executing any evidence extraction.",
+    "approval_text": "Authorize PSI0A-D safe-local design, implementation, frozen/ephemeral-fixture tests, regression tests, documentation, one narrow commit, and one bounded production metadata-only query-plan qualification using commit 0ab2e8e7fc1fc68f5087ade83079a3e53fd66998, canonical manifest digest d956bc24c1cd160162acaaad5bc466a2dece78ea34fc1f5238bc80728d4283f5 and immutable C16 read-boundary digest fdf11dc5e29c176d3724a4ccd1e3ff56584727512853bfb58a71fb3979c246f8. Freeze the exact single-statement SELECT templates, parameters and inclusive rowid predicates for the future five-surface shadow extraction, then inspect only their non-executing EXPLAIN QUERY PLAN output against the C15 schema/index digests. Use URI mode=ro, verified PRAGMA query_only, 250 ms lock timeout, active maximum two-second monotonic deadlines, explicit allow-lists and unconditional cleanup; bind deterministic query identities, plan details, index use, scan/join/sort/temp-structure findings and exact replay in one immutable PSI0A-D artifact. Stop on schema or boundary drift, unknown or write-capable SQL, full-scan or unacceptable temporary-work plan, listener PID change, primary_fd_count reaching 8, serializer p99 reaching 1000 ms, database pressure, lock contention, deadline breach, health degradation, replay failure, production impact or scope expansion. Do not execute the SELECT templates, read or materialize evidence rows, recapture high-waters, create shadow output, make provider/RPC calls, execute DDL or production writes, deploy, restart or stop services, change configuration, manipulate locks, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-E through H or PSI0B, activate production, or enter EB2.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

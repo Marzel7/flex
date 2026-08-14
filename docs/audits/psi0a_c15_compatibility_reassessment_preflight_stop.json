@@ -1,0 +1,37 @@
+{
+  "milestone": "PSI0A-C15",
+  "status": "HOLD",
+  "verdict": "DO_NOT_START_HEALTH_GATE_FAILED_LISTENER_PID_CHANGE_AND_DATABASE_PRESSURE",
+  "engineering_revision": "fd36c63575d76e12dc6f0373677d8c430df53b13",
+  "manifest_digest": "d956bc24c1cd160162acaaad5bc466a2dece78ea34fc1f5238bc80728d4283f5",
+  "source_c9_audit_digest": "08642b6ca525a01f029e60029798afc16351162869ab80cc8831d7c212a55c31",
+  "source_c14_ledger_digest": "c28ccb28396fd7824a68bce6f87e8653a0c6407308dde47bee5497f3aa36f4cf",
+  "health_gate": {
+    "expected_listener_pid": 8661,
+    "observed_listener_pid": 9069,
+    "observed_listener_uptime": "0:03:32",
+    "listener_pid_changed": true,
+    "serializer_p95_wait_ms": 75.42,
+    "serializer_p99_wait_ms": 1688.6,
+    "serializer_queue_depth": 0,
+    "serializer_lock_errors_24h": 0,
+    "creator_funding_worker_running": true,
+    "creator_resolution_worker_running": true,
+    "evidence_writer": "STOPPED"
+  },
+  "timing_assessment": "The listener restart occurred after the C14 index deployment and was discovered by the C15 preflight. Temporal correlation is established; causation is not established.",
+  "actions": {
+    "production_database_connections_opened": 0,
+    "schema_metadata_queries": 0,
+    "query_plan_inspections": 0,
+    "evidence_rows_read": 0,
+    "high_waters_captured": 0,
+    "production_writes": 0,
+    "ddl_statements": 0,
+    "provider_calls": 0,
+    "service_restarts_or_stops": 0,
+    "configuration_changes": 0
+  },
+  "stop_reason": "HEALTH_DEGRADATION_AND_AUTOMATIC_LISTENER_RESTART",
+  "required_next_action": "Separately authorize bounded read-only diagnosis of the listener restart and serializer pressure before re-proposing PSI0A-C15."
+}

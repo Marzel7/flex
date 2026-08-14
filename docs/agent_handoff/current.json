@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T05:58:43Z",
+  "updated_at_utc": "2026-08-14T06:15:00Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "eeaa1eccc5d77a0e4cff6c70cf39db3e14e35baf",
-    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths; EB1.3H engineering commit contains only its immutable bundle implementation, tests and documentation; all unrelated paths preserved"
+    "git_head": "7b58517afe2fc8a1a3f3f65bb7c5546aca13db14",
+    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths; PSI0A-A/B/C engineering commits are narrow and all unrelated paths remain preserved"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-14T05:58:43Z",
+    "published_at_utc": "2026-08-14T06:15:00Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0A pre-extraction roadmap ratification",
-    "mode": "roadmap definition only",
-    "status": "COMPLETE",
-    "verdict": "PSI0A_A_THROUGH_H_CANONICAL_PRE_EXTRACTION_SEQUENCE_RATIFIED"
+    "milestone": "PSI0A-C stable high-water/read-boundary qualification",
+    "mode": "staged safe-local implementation plus bounded read-only production aggregate preflight",
+    "status": "HOLD",
+    "verdict": "PSI0A_C_STOPPED_RUNTIME_TYPE_SEMANTIC_MISMATCH"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,36 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0a_a_b_c_staged_preflight": {
+      "status": "HOLD",
+      "verdict": "PSI0A_C_STOPPED_RUNTIME_TYPE_SEMANTIC_MISMATCH",
+      "engineering_commit": "7b58517afe2fc8a1a3f3f65bb7c5546aca13db14",
+      "verification_utc": "2026-08-14T06:15:00Z",
+      "completed_stages": {
+        "PSI0A-A": {"verdict": "PRODUCTION_SHADOW_BOUNDARY_QUALIFIED", "commit": "491aa4ce", "tests": "36 focused regressions passed"},
+        "PSI0A-B": {"verdict": "SCHEMA_COMPATIBLE", "commit": "c1f7513d", "relations": "5/5 compatible", "production_rows_read": 0, "evidence_extractions": 0},
+        "PSI0A-C_local": {"verdict": "FAIL_CLOSED_HIGH_WATER_CONTRACT_QUALIFIED", "commit": "7b58517a", "tests": "46 focused and EB0 boundary regressions passed"}
+      },
+      "production_stop": {
+        "error": "PSI0A_C_NON_INTEGER_HIGH_WATER",
+        "relation": "evidence.normalized_evidence_records",
+        "column": "acquired_at",
+        "declared_affinity": "INTEGER",
+        "observed_max_runtime_type": "text ISO-8601 timestamp",
+        "finding": "The declared numeric affinity is not a reliable ordering semantic because production contains an ISO-8601 text value. The contract refused coercion or an implicit timestamp policy."
+      },
+      "not_started": ["PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H"],
+      "provider_calls": 0,
+      "production_access": "bounded metadata and MAX aggregate reads only",
+      "production_rows_materialized": 0,
+      "evidence_extractions": 0,
+      "production_changes": false,
+      "service_restarts": 0,
+      "configuration_changes": 0,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "psi0a_pre_extraction_roadmap_ratification": {
       "status": "COMPLETE",
       "verdict": "PSI0A_A_THROUGH_H_CANONICAL_PRE_EXTRACTION_SEQUENCE_RATIFIED",
@@ -4419,6 +4449,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "PSI0A-C stopped on PSI0A_C_NON_INTEGER_HIGH_WATER: evidence.normalized_evidence_records.acquired_at is declared INTEGER but its production maximum has text ISO-8601 runtime encoding. No coercion or replacement boundary is authorized. PSI0A-D through H were not started, and PSI0B remains prohibited.",
     "PSI0A is ratified but not yet authorized for execution. PSI0A-A must first freeze the production boundary. All PSI0A stages prohibit actual EB evidence extraction, and PSI0B remains separately human-gated even after a PSI0A PASS.",
     "EB1.4A is intentionally deferred. The production shadow-integration track is not yet authorized and must begin with a no-extraction read-only schema/high-water compatibility preflight. Any real query-only extraction or production activation requires a later separate authorization.",
     "The post-EB1.3 reconciliation identifies EB1.4A as the next safe-local contract, but implementation is not authorized by the read-only reconciliation milestone. Any proposal disposition must remain non-executable and may not choose sources or alternatives, define acquisition, grant planning/execution authority, or enter EB2.",
@@ -4496,9 +4527,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0A-A production boundary contract",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Define and locally qualify only the immutable production read-only shadow boundary contract. Do not access production or perform evidence extraction.",
-    "approval_text": "Authorize safe-local design, implementation, frozen-fixture tests, regression tests, documentation, and one narrow commit for PSI0A-A production boundary contract. Define exactly what read-only shadow integration permits and prohibits: explicit caller-supplied database/table/view allow-lists; read-only URI and verified query-only transaction semantics; no writes, DDL, attach, temporary production objects, provider/RPC access, service or configuration changes, Evidence Mirror, Cohort Mode, proposal disposition, policy use, feature activation or user-facing consumption; immutable engineering/schema boundary identity; explicit database-pressure, lock-contention, deadline, schema-drift, query-plan, health-degradation and scope-expansion stop conditions; and grants_extraction_authority=false plus grants_activation_authority=false. Qualification must use frozen/ephemeral fixtures only and fail closed on unknown surfaces, write-capable statements, multi-statement input, authority-changing content or replay drift. No production/runtime access, schema inspection, high-water read, canonical evidence extraction, shadow output, provider/RPC call, production write, deployment, service restart or stop, configuration change, Evidence Mirror, Cohort Mode, ranking, scoring, policy decision, profitability/cashflow inference, operator identity/attribution, feature rollout, PSI0B execution, activation or EB2 namespace. Do not proceed beyond PSI0A-A in this authorization.",
+    "milestone": "PSI0A-C1 evidence acquired-at semantic diagnosis",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Diagnose only the declared-versus-runtime acquired_at encoding mismatch with bounded read-only aggregate/type inspection, then identify the smallest coherent high-water contract repair without implementing or resuming PSI0A.",
+    "approval_text": "Authorize PSI0A-C1 as a bounded read-only diagnosis of evidence.normalized_evidence_records.acquired_at runtime encodings and ordering semantics. Use URI mode=ro, verified PRAGMA query_only, a 250 ms lock timeout, active deadline, and aggregate/type queries only to measure NULL/integer/real/text/other counts and bounded minimum/maximum representations without reading payload_json, natural keys, provider fields, evidence identities or individual evidence records. Reconcile the observed encodings with committed schema and writer/parser code; identify the smallest deterministic high-water repair—such as a cursor-only boundary or an explicitly normalized timestamp boundary—but do not implement it or resume PSI0A-C. Stop on database pressure, lock contention, deadline breach, health degradation, production impact, need to inspect sensitive row content, or required scope expansion. No canonical evidence extraction, shadow output, provider/RPC call, production write or DDL, deployment, service restart or stop, configuration change, Evidence Mirror, Cohort Mode, proposal disposition, source selection, acquisition planning, ranking, scoring, policy or activation, PSI0A-D through H, PSI0B, or EB2 work.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

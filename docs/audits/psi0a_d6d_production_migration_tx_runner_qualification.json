@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D6D",
+  "status": "COMPLETE",
+  "verdict": "PASS_PRODUCTION_SPECIFIC_D4_RUNNER_BOUNDARY_QUALIFIED_FIXTURES_ONLY",
+  "engineering_base_revision": "ac06c781deddbb968babe6bb7a19d1d88cd9cb53",
+  "runner_version": "psi0a-d6d.v1",
+  "authorization_version": "psi0a-d6-deployment-authorization.v1",
+  "accepted_contract_digest": "a160398c3130dbacf2314bb4046b9bac4865cd9dd421311f2fd999058c0ab9f2",
+  "accepted_database": "main",
+  "accepted_relation": "token_analysis",
+  "accepted_column": ["migration_tx", "TEXT"],
+  "accepted_index": "idx_psi0a_token_analysis_migration_tx",
+  "qualification": {
+    "focused_tests_passed": 7,
+    "focused_tests_failed": 0,
+    "focused_plus_regression_tests_passed": 50,
+    "focused_plus_regression_tests_failed": 0,
+    "authorization_identity_and_path_binding_proven": true,
+    "fixture_authorization_rejection_proven": true,
+    "single_statement_success_and_compatible_noop_proven": true,
+    "lock_failure_proven": true,
+    "deadline_callback_and_interruption_proven": true,
+    "ddl_exception_rollback_and_cleanup_proven": true,
+    "schema_type_and_conflict_rejection_proven": true,
+    "row_preservation_and_indexed_plan_postcondition_proven": true,
+    "canonical_fsynced_phase_ledger_proven": true,
+    "incomplete_external_termination_detection_proven": true,
+    "tamper_and_output_reuse_rejection_proven": true,
+    "exact_terminal_replay_proven": true
+  },
+  "execution_contract": {
+    "maximum_statements": 1,
+    "retry_count": 0,
+    "lock_timeout_ms": 250,
+    "maximum_monotonic_deadline_seconds": 60,
+    "output_directory": "CALLER_SUPPLIED_NEW_EMPTY",
+    "ledger": "APPEND_ONLY_CANONICAL_JSONL_FSYNC_EACH_TRANSITION"
+  },
+  "scope": {
+    "fixtures_only": true,
+    "production_or_runtime_access": 0,
+    "production_indexes_created": 0,
+    "production_writes_or_ddl": 0,
+    "service_stops_or_restarts": 0,
+    "provider_calls": 0,
+    "grants_extraction_authority": false,
+    "grants_activation_authority": false
+  },
+  "next_action": "Separately authorize one controlled watchtower_listener quiescence window and exactly one D6D-bound production index attempt, with mandatory listener restoration and immediate health verification."
+}

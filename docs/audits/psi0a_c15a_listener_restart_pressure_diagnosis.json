@@ -1,0 +1,61 @@
+{
+  "milestone": "PSI0A-C15A",
+  "status": "COMPLETE",
+  "verdict": "LISTENER_WATCHDOG_RESTART_CONFIRMED_PRESSURE_NOT_RECOVERED",
+  "engineering_revision": "167de6813ad272293e516c468a07025aff1bcfb7",
+  "authorization_scope": "bounded local and production-telemetry read-only diagnosis; zero production database connections",
+  "timeline_utc": {
+    "first_precursor_reconciler_connection_opened": "2026-08-14T07:44:37.674571Z",
+    "first_precursor_seed_read_connection_opened": "2026-08-14T07:44:42.757376Z",
+    "c14_run_identity": "psi0a-c14-20260814T074900Z-01",
+    "listener_watchdog_terminal_sample": "2026-08-14T07:51:34.977419Z",
+    "listener_exit": "2026-08-14T07:51:35.115000Z",
+    "replacement_listener_running": "2026-08-14T07:51:45.231000Z"
+  },
+  "restart_cause": {
+    "classification": "CONFIRMED_LISTENER_FD_WATCHDOG_EXIT",
+    "evidence": [
+      "Supervisor recorded PID 8661 exiting unexpectedly with status 1 and spawned PID 9069 immediately afterward.",
+      "The listener log recorded CRITICAL_LISTENER_DB_HANDLE_LEAK with primary_fd_count=12 at cycles=3/3 immediately before exit.",
+      "Lifecycle telemetry identified long owner-cleanup-pending connections from _reconciler_unseen_sigs and _seed_read during the fatal sequence."
+    ],
+    "c14_causality": "C14 was temporally adjacent and may have amplified lock/wait pressure, but it did not originate the two principal long-lived connections: both opened more than four minutes before the C14 run identity boundary. The evidence therefore rejects C14 CREATE INDEX as the sole/root cause and supports a pre-existing listener connection-lifecycle/watchdog condition, potentially compounded by concurrent database contention.",
+    "unrelated_restart": false
+  },
+  "pressure_assessment": {
+    "c14_pre_p99_wait_ms": 137.84,
+    "c14_final_p99_wait_ms": 136.46,
+    "c15_preflight_p99_wait_ms": 1688.6,
+    "c15a_latest_p99_wait_ms": 4369.02,
+    "c15a_latest_p95_wait_ms": 63.78,
+    "c15a_latest_queue_depth": 0,
+    "c15a_latest_lock_errors_24h": 0,
+    "replacement_listener_uptime_minutes_at_latest_metric": 15.4,
+    "replacement_listener_recent_primary_fd_counts": [5, 7, 0, 0, 4, 1, 5, 7],
+    "recovery": "NOT_PROVEN: queue depth and recent descriptor counts remain below the fatal threshold, but rolling p99 increased materially after the C15 stop and the latest descriptor count reached 7, one below the warning threshold."
+  },
+  "production_impact": {
+    "automatic_restart": true,
+    "database_pressure": true,
+    "queue_backlog": false,
+    "replacement_listener_running": true,
+    "other_supervised_core_workers_running": true,
+    "evidence_writer_stopped": true
+  },
+  "actions": {
+    "production_database_connections_opened": 0,
+    "database_queries": 0,
+    "production_writes": 0,
+    "ddl_statements": 0,
+    "service_restarts_or_stops": 0,
+    "configuration_changes": 0,
+    "provider_calls": 0,
+    "high_waters_captured": 0,
+    "evidence_extractions": 0
+  },
+  "c15_reauthorization_gate": {
+    "ready": false,
+    "smallest_safe_condition": "A separately authorized bounded telemetry-only recovery observation must show one stable listener PID, primary_fd_count strictly below 8 at every sample, no CRITICAL_LISTENER_DB_HANDLE event, queue depth zero, continued ingestion/websocket health, and serializer pressure below the C15 do-not-start threshold for a complete clean window before C15 is reauthorized.",
+    "c15_must_not_run_now": true
+  }
+}

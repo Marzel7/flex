@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T05:47:18Z",
+  "updated_at_utc": "2026-08-14T05:52:54Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-14T05:47:18Z",
+    "published_at_utc": "2026-08-14T05:52:54Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "Post-EB1.3 roadmap reconciliation",
-    "mode": "bounded local read-only committed-artifact assessment",
+    "milestone": "Post-EB1.3 production-readiness track decision",
+    "mode": "roadmap boundary decision only",
     "status": "COMPLETE",
-    "verdict": "ROADMAP_RECONCILED_EB1_4A_NON_EXECUTABLE_PROPOSAL_REVIEW_DISPOSITION_NEXT"
+    "verdict": "EB1_4A_DEFERRED_PRODUCTION_SHADOW_PREFLIGHT_NEXT"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,31 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "post_eb1_3_production_readiness_track_decision": {
+      "status": "COMPLETE",
+      "verdict": "EB1_4A_DEFERRED_PRODUCTION_SHADOW_PREFLIGHT_NEXT",
+      "engineering_commit": "eeaa1eccc5d77a0e4cff6c70cf39db3e14e35baf",
+      "verification_utc": "2026-08-14T05:52:54Z",
+      "decision": "EB1.4A proposal disposition is deferred and is not a prerequisite for proving production compatibility of the evidence machinery. A separate shadow-integration track may begin only through an explicitly authorized read-only schema and high-water preflight that performs no canonical extraction.",
+      "track_separation": {
+        "eb1_4_governance": "governs human disposition and any later advancement of non-executable planning proposals",
+        "production_shadow_integration": "governs whether the qualified evidence machinery can safely read production-shaped data and emit isolated non-authoritative artifacts without production impact"
+      },
+      "ordered_shadow_path": [
+        "bounded read-only production schema and high-water compatibility preflight with no extraction",
+        "separately authorized bounded query-only real extraction",
+        "immutable isolated shadow bundle and exact replay verification",
+        "coverage, conflict, missingness and production-impact assessment",
+        "separate decision on limited production consumer or feature rollout"
+      ],
+      "non_authority": "Neither track authorizes the other. Shadow outputs are non-authoritative and cannot drive proposal review, source selection, acquisition, ranking, scoring, policy or activation.",
+      "implementation_performed": false,
+      "production_access": false,
+      "provider_calls": 0,
+      "production_changes": false,
+      "service_restarts": 0,
+      "activation": false
+    },
     "post_eb1_3_roadmap_reconciliation": {
       "status": "COMPLETE",
       "verdict": "ROADMAP_RECONCILED_EB1_4A_NON_EXECUTABLE_PROPOSAL_REVIEW_DISPOSITION_NEXT",
@@ -4367,6 +4392,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "EB1.4A is intentionally deferred. The production shadow-integration track is not yet authorized and must begin with a no-extraction read-only schema/high-water compatibility preflight. Any real query-only extraction or production activation requires a later separate authorization.",
     "The post-EB1.3 reconciliation identifies EB1.4A as the next safe-local contract, but implementation is not authorized by the read-only reconciliation milestone. Any proposal disposition must remain non-executable and may not choose sources or alternatives, define acquisition, grant planning/execution authority, or enter EB2.",
     "EB1.3 is closed as a frozen fixture-only non-executable planning-proposal stack. No live/runtime compatibility, proposal review, source selection, acquisition planning or execution authority is established. The next milestone requires a separate committed roadmap reconciliation; no EB2 namespace is assigned.",
     "EB1.3G qualifies only the fixture extractor and in-memory replay outputs. No immutable write-once EB1.3 extraction bundle exists for either PROJECTED or NO_ELIGIBLE_PROPOSALS status, so EB1.3 frozen-stack closure is not yet complete. No runtime compatibility or authority is implied.",
@@ -4442,9 +4468,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB1.4A non-executable planning-proposal review disposition contract",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Implement only the frozen fixture-based append-only review-disposition contract over immutable EB1.3H proposals. No alternative selection, acquisition planning, authority grant or EB2 namespace.",
-    "approval_text": "Authorize safe-local design, implementation, frozen-fixture tests, regression tests, documentation, and one narrow commit for EB1.4A non-executable planning-proposal review disposition contract over replay-verified immutable EB1.3H proposal bundles. Bind exact EB1.3H bundle, EB1.3D manifest, EB1.3E corpus, proposal-history and proposal identities; preserve exact EB1.1 requirement and EB1.2A review lineage, originating authority lane, cohort/window scope, candidate alternatives and assumptions. Allow only ACKNOWLEDGED, DEFERRED, REJECTED_AS_INVALID, and READY_FOR_SEPARATE_DECISION_CONTRACT; require explicit reviewer identity token, deterministic review sequence, reason code, rationale digest and supersedes link; preserve append-only history and exact replay. Every record must be NON_EXECUTABLE_PROPOSAL_REVIEW_DISPOSITION with grants_planning_authority=false and grants_execution_authority=false. READY_FOR_SEPARATE_DECISION_CONTRACT grants no permission to choose or rank alternatives, select sources, define an acquisition plan or request budget, acquire or fulfill evidence, access provider/runtime/production systems, deploy, configure, activate policy, or execute anything. Reject executable content, endpoints, provider names, credentials, commands, production targets, cross-authority substitution, cross-entity linkage, rates, profiles, ranking, scoring, profitability/cashflow, operator identity/attribution, policy and activation content. Frozen fixtures only. No production/runtime access, live extraction or census, provider/RPC calls, production writes, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, evidence fulfillment, activation, or EB2 namespace.",
+    "milestone": "Production Shadow Integration 0A schema and high-water compatibility preflight",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Perform only a bounded read-only production schema, high-water, query-plan and health-gate preflight. Do not execute the canonical extractor or write a shadow bundle.",
+    "approval_text": "Authorize Production Shadow Integration 0A as a bounded read-only production schema and high-water compatibility preflight for the committed EB0/EB1 evidence stack at engineering commit eeaa1eccc5d77a0e4cff6c70cf39db3e14e35baf. Inspect only exact schema/table/index/type compatibility, immutable high-water identities, candidate query plans without executing the canonical extraction, enforceable query deadlines and row/byte ceilings, read-only/query-only connection semantics, baseline database/service/ingestion health gates, and explicit stop conditions. Produce a local reviewable preflight artifact and update/publish the handoff; make no engineering change unless a separately authorized safe-local compatibility repair is required. Stop on schema incompatibility, database pressure, lock contention, query-plan regression, inability to prove read-only/query-only behavior, health degradation, or required scope expansion. No canonical or full census extraction, shadow output bundle, provider/RPC call, production write, deployment, service restart or stop, configuration change, Evidence Mirror, Cohort Mode, proposal review or disposition, source/alternative selection, acquisition plan or request budget, evidence fulfillment, cross-entity linkage, rates, profiles, ranking, scoring, policy decision or activation, profitability/cashflow inference, operator identity/attribution, user-facing feature, production consumer, or EB2 namespace.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

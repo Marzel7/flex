@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T10:56:05Z",
+  "updated_at_utc": "2026-08-14T11:18:50Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-        "published_at_utc": "2026-08-14T10:56:05Z",
+        "published_at_utc": "2026-08-14T11:18:50Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-        "milestone": "PSI0A-D6B active pressure and deployment-boundary diagnosis",
-        "mode": "local and production-telemetry read-only diagnosis complete; no production database open or runtime change",
+        "milestone": "PSI0A-D6C controlled listener-quiescence index deployment",
+        "mode": "single listener quiescence completed and recovered; production attempt rejected before database open",
     "status": "HUMAN_APPROVAL_REQUIRED",
-        "verdict": "CONTROLLED_LISTENER_QUIESCENCE_REQUIRED_FOR_SINGLE_INDEX_DEPLOYMENT"
+        "verdict": "QUIESCENCE_RECOVERED_PRODUCTION_RUNNER_BOUNDARY_MISSING"
   },
   "production_state": {
     "retention": "ON",
@@ -28,7 +28,7 @@
     "cohort_mode": "OFF",
     "evidence_writer": "STOPPED",
     "listener_service": "watchtower_listener",
-    "listener_pid_last_verified": 9069,
+    "listener_pid_last_verified": 31028,
     "creator_funding_service": "creator_funding_worker",
     "creator_funding_pid_last_verified": 80211,
     "creator_resolution_service": "creator_resolution_worker",
@@ -235,6 +235,33 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0a_d6c_quiescence_runner_boundary_stop": {
+      "status": "PARTIAL_STOP",
+      "verdict": "QUIESCENCE_RECOVERED_PRODUCTION_RUNNER_BOUNDARY_MISSING",
+      "engineering_revision": "ac06c781deddbb968babe6bb7a19d1d88cd9cb53",
+      "listener_pid_before": 9069,
+      "listener_stops": 1,
+      "listener_exit_and_descriptor_release_proven": true,
+      "attempt_launch_rejected_before_execution": true,
+      "rejection_reason": "D4/D5 entry points are fixture-only and reject production authority",
+      "run_id_materialized": false,
+      "output_directory_created": false,
+      "production_database_connections_opened": 0,
+      "ddl_statements_started": 0,
+      "production_writes": 0,
+      "index_created": false,
+      "retry_count": 0,
+      "listener_starts": 1,
+      "listener_pid_after": 31028,
+      "pumpportal_traffic_observed": true,
+      "serializer_p99_wait_ms_after": 31.09,
+      "serializer_p95_wait_ms_after": 4.28,
+      "serializer_queue_depth_after": 0,
+      "serializer_lock_errors_24h_after": 0,
+      "other_services_restarted_or_stopped": 0,
+      "production_flags_changed": false,
+      "artifact": "docs/audits/psi0a_d6c_quiescence_runner_boundary_stop.json"
+    },
     "psi0a_d6b_active_pressure_deployment_boundary_diagnosis": {
       "status": "COMPLETE",
       "verdict": "CONTROLLED_LISTENER_QUIESCENCE_REQUIRED_FOR_SINGLE_INDEX_DEPLOYMENT",
@@ -5550,6 +5577,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "PSI0A-D6C proved listener quiescence and clean recovery but could not launch the index attempt: the immutable D4 contract and D5 entry point are explicitly fixture-only and reject production authority. Reusing their fixture marker against production was rejected before execution. PID 31028 is healthy with p99 31.09 ms, queue zero and lock errors zero; no database was opened and the index remains absent. A production-specific durable runner must be locally qualified before a new quiescence/deployment authorization.",
     "PSI0A-D6B proves active recurrent fan-out rather than stale p99 alone. Five _reconciler_unseen_sigs connections averaged 71.3 seconds because the migration_tx IN query remains unindexed; descriptors peaked at 13 and lock errors reached 9. Natural zero-descriptor moments occur but are not durable enough for D6. The smallest coherent deployment boundary is one explicitly authorized watchtower_listener quiescence window around the single D5-ledgered index statement. A separate _blocklist_write guaranteed-close defect was also found but not repaired.",
     "The second PSI0A-D6A observation also failed at its first checkpoint and the active pressure worsened: serializer p99 rose to 1789.67 ms, lock_errors_24h rose from 5 to 9 and listener primary_fd_count reached 11. No database was opened. Further immediate D6A/D6 repetitions are unsafe; PSI0A-D6B diagnosis is required.",
     "PSI0A-D6A failed at its first checkpoint: serializer p99 was 1476.68 ms, lock_errors_24h increased from 4 to 5, queue depth was 2 and listener primary_fd_count reached 10. The observation stopped immediately without opening a database or retrying. Repeating the same recovery window is not coherent until the active descriptor/serializer/lock episode is diagnosed and a safe deployment-window or controlled-quiescence boundary is reviewed.",
@@ -5637,9 +5665,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0A-D6C controlled listener-quiescence index deployment",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize one controlled watchtower_listener quiescence window around the single durable migration_tx index attempt and immediate restart verification.",
-    "approval_text": "Authorize PSI0A-D6C as exactly one controlled production quiescence window to deploy idx_psi0a_token_analysis_migration_tx on main.token_analysis(migration_tx) using commit ac06c781deddbb968babe6bb7a19d1d88cd9cb53, PSI0A-D4 contract digest a160398c3130dbacf2314bb4046b9bac4865cd9dd421311f2fd999058c0ab9f2 and the PSI0A-D5 durable boundary. Verify current Supervisor, serializer, lease, queue, websocket and ingestion state; stop only watchtower_listener; prove that PID has exited and its main-database descriptors and write lease are released; then launch exactly one new-run-ID/new-empty-output-directory attempt containing only CREATE INDEX idx_psi0a_token_analysis_migration_tx ON token_analysis(migration_tx), with 250 ms lock timeout, active maximum 60-second monotonic deadline, fsynced canonical phase ledger, unconditional rollback/cleanup, no retry and exact replay. Whether the attempt succeeds, no-ops or fails, start watchtower_listener exactly once and immediately verify a new stable PID, PumpPortal/PumpSwap and ingestion continuity, target index/query-plan postcondition when successful, descriptor count below 8, queue recovery, serializer/lock state and unchanged production flags. Stop without retry or additional mutation on schema/contract drift, inability to prove listener quiescence, another writer preventing lock acquisition, deadline, exception, incomplete ledger, restart failure, database pressure, descriptor/serializer/queue/ingestion/service degradation, production impact or scope expansion. Do not stop or restart any other service, execute any other DDL or production write, modify runtime code, change configuration or watchdog thresholds, reset metrics, manipulate locks, recapture high-waters, extract canonical evidence or shadow output, make provider/RPC qualification calls, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D or PSI0A-E through H or PSI0B, activate production, or enter EB2.",
+    "milestone": "PSI0A-D6D production-specific durable index runner qualification",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Qualify a production-specific runner contract instead of reusing the fixture-only D4/D5 authorization marker.",
+    "approval_text": "Authorize PSI0A-D6D safe-local design, implementation, frozen/ephemeral SQLite tests, fault-injection tests, regression tests, documentation and one narrow commit for a production-specific durable single-index deployment runner derived from PSI0A-D5 but accepting only an immutable caller-supplied PSI0A-D6 deployment authorization record bound to the exact D4 contract digest a160398c3130dbacf2314bb4046b9bac4865cd9dd421311f2fd999058c0ab9f2, database identity main, relation token_analysis, column migration_tx, index name idx_psi0a_token_analysis_migration_tx, deterministic single CREATE INDEX statement, engineering revision, run ID, explicit production database-path fingerprint and new empty output directory. Preserve the 250 ms lock timeout, caller-supplied positive maximum 60-second monotonic deadline, one statement/no retry semantics, canonical fsynced phase ledger, schema/conflict drift rejection, rollback, progress-handler removal, connection closure, row-preservation and indexed reconciler-plan postcondition, incomplete external-termination detection, false extraction/activation authority and exact replay. Reject fixture authorization tokens, unbound paths, altered statements, broader DDL, reused outputs and authorization/authority drift. Frozen/ephemeral fixtures only. Do not access production/runtime databases or services, create the production index, execute production DDL or writes, stop or restart services, modify listener runtime logic, change configuration or watchdog thresholds, manipulate locks, recapture high-waters, extract canonical evidence or shadow output, make provider/RPC calls, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D or PSI0A-E through H or PSI0B, activate production, or enter EB2.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

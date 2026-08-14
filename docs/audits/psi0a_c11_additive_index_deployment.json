@@ -1,0 +1,61 @@
+{
+  "milestone": "PSI0A-C11",
+  "status": "PARTIAL",
+  "verdict": "FIRST_INDEX_DEPLOYED_SECOND_INDEX_ABSENT_STOPPED_FAIL_CLOSED",
+  "engineering_revision": "c699548998a5e47aad9213941914ffed524399eb",
+  "contract_digest": "0c3759789ffe761f48fd9aa925c182652df36f853ae70b85a9d79c17f5c9db41",
+  "source_audit_digest": "08642b6ca525a01f029e60029798afc16351162869ab80cc8831d7c212a55c31",
+  "preconditions": {
+    "c9_evidence_schema_digest_matched": true,
+    "c9_main_schema_digest_matched": true,
+    "serializer_p99_wait_ms": 68.82,
+    "serializer_queue_depth": 0,
+    "services_healthy": true
+  },
+  "deployments": [
+    {
+      "database_id": "evidence",
+      "index_name": "idx_psi0a_normalized_evidence_fact_family",
+      "columns": ["fact_family"],
+      "created": true,
+      "elapsed_ms": 7.826,
+      "query_plan_verified": true
+    },
+    {
+      "database_id": "main",
+      "index_name": "idx_psi0a_token_analysis_migrated_mint",
+      "columns": ["migrated_at", "mint"],
+      "created": false,
+      "postcondition_verified_absent": true,
+      "execution_transcript_available": false,
+      "retry_attempted": false,
+      "current_query_plan": [
+        "SEARCH token_analysis USING INDEX idx_ta_migrated_at (migrated_at<?)",
+        "USE TEMP B-TREE FOR RIGHT PART OF ORDER BY"
+      ]
+    }
+  ],
+  "controls": {
+    "lock_timeout_ms": 250,
+    "maximum_statement_deadline_seconds": 60,
+    "sequential": true,
+    "rollback_and_close_required": true,
+    "additional_ddl_attempted": false,
+    "high_waters_captured": 0,
+    "evidence_extractions": 0,
+    "provider_calls": 0,
+    "service_restarts": 0,
+    "configuration_changes": 0
+  },
+  "final_health": {
+    "serializer_p95_wait_ms": 4.5,
+    "serializer_p99_wait_ms": 90.11,
+    "serializer_queue_depth": 0,
+    "lock_errors_24h": 9,
+    "worker_pid_changes": 0,
+    "services_healthy": true,
+    "ongoing_production_impact_observed": false
+  },
+  "stop_reason": "MAIN_INDEX_POSTCONDITION_ABSENT_WITHOUT_EXECUTION_TRANSCRIPT",
+  "prohibited_next_action": "Do not retry or widen the main index deployment without separate diagnosis and authorization."
+}

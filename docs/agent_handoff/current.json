@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T06:59:02Z",
+  "updated_at_utc": "2026-08-14T07:04:01Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "bd0d944721d9822f7f513d5d2dba2ad964e14952",
-    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths preserved; PSI0A-C5 engineering commit is narrow"
+    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths preserved; PSI0A-C6 stopped before production and made no engineering change"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-14T06:59:02Z",
+    "published_at_utc": "2026-08-14T07:04:01Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0A-C5 active query-deadline repair",
-    "mode": "safe-local implementation, focused lifecycle tests, regressions, documentation and narrow commit",
+    "milestone": "PSI0A-C6 repaired production high-water recapture preflight",
+    "mode": "committed-input replay preflight before bounded production read",
     "status": "HOLD",
-    "verdict": "PSI0A_C5_ACTIVE_DEADLINE_QUALIFIED_PRODUCTION_RECAPTURE_REQUIRED"
+    "verdict": "PSI0A_C6_CANONICAL_CAPTURE_INPUT_MANIFEST_MISSING"
   },
   "production_state": {
     "retention": "ON",
@@ -443,6 +443,35 @@
       },
       "fixture_only": true,
       "production_access": false,
+      "provider_calls": 0,
+      "production_changes": false,
+      "service_restarts": 0,
+      "configuration_changes": 0,
+      "evidence_extractions": 0,
+      "not_started": ["PSI0A-C production recapture", "PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
+    },
+    "psi0a_c6_production_recapture_preflight": {
+      "status": "HOLD",
+      "verdict": "PSI0A_C6_CANONICAL_CAPTURE_INPUT_MANIFEST_MISSING",
+      "engineering_commit": "bd0d944721d9822f7f513d5d2dba2ad964e14952",
+      "verification_utc": "2026-08-14T07:04:01Z",
+      "committed_inputs_found": {
+        "psi0a_a_boundary_contract_code": true,
+        "psi0a_b_summary_artifact": true,
+        "psi0a_c_capture_contract_code": true,
+        "creator_cursor_only_specification": true,
+        "active_deadline_and_cleanup": true
+      },
+      "missing_replay_inputs": [
+        "the exact five-surface PSI0A-A boundary instance or canonical surface builder",
+        "the exact PSI0A-B RequiredRelation definitions used to produce the recorded schema digests",
+        "the exact four non-creator HighWaterSpec cursor/event definitions used by the original capture attempt",
+        "one immutable digest binding those inputs to the recorded PSI0A-B audit digest"
+      ],
+      "artifact_limitation": "docs/audits/psi0a_b_production_schema_compatibility.json records relation and schema digests but omits full columns, indexes, RequiredRelation values and HighWaterSpec values, so the verified in-memory ProductionSchemaAudit cannot be reconstructed from committed artifacts.",
+      "stop_reason": "Guessing or regenerating unrecorded specifications would violate the authorization to preserve every non-creator specification unchanged and would make the boundary non-replayable.",
+      "production_access": false,
+      "production_queries": 0,
       "provider_calls": 0,
       "production_changes": false,
       "service_restarts": 0,
@@ -4634,7 +4663,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "PSI0A-C5 qualifies the active interruptible deadline and all cleanup paths at bd0d9447, but no repaired production boundary has been captured. PSI0A-C remains incomplete pending separately authorized bounded recapture. PSI0A-D through H remain not started, and PSI0B remains prohibited.",
+    "PSI0A-C6 stopped before production access because the committed PSI0A-B summary omits the exact RequiredRelation definitions and the four non-creator HighWaterSpec values, and no canonical capture-input manifest exists. Guessing them would violate unchanged-specification and replay requirements. PSI0A-C remains incomplete; PSI0A-D through H remain not started, and PSI0B remains prohibited.",
     "PSI0A is ratified but not yet authorized for execution. PSI0A-A must first freeze the production boundary. All PSI0A stages prohibit actual EB evidence extraction, and PSI0B remains separately human-gated even after a PSI0A PASS.",
     "EB1.4A is intentionally deferred. The production shadow-integration track is not yet authorized and must begin with a no-extraction read-only schema/high-water compatibility preflight. Any real query-only extraction or production activation requires a later separate authorization.",
     "The post-EB1.3 reconciliation identifies EB1.4A as the next safe-local contract, but implementation is not authorized by the read-only reconciliation milestone. Any proposal disposition must remain non-executable and may not choose sources or alternatives, define acquisition, grant planning/execution authority, or enter EB2.",
@@ -4712,9 +4741,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0A-C6 repaired production high-water recapture",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Capture and replay-verify exactly one repaired bounded read-only PSI0A-C production boundary using commit bd0d9447, stopping before PSI0A-D.",
-    "approval_text": "Authorize PSI0A-C6 as exactly one bounded read-only production high-water recapture using commit bd0d944721d9822f7f513d5d2dba2ad964e14952 and the PSI0A-A/B allow-listed surfaces. Use URI mode=ro, verified PRAGMA query_only, 250 ms lock timeout, explicit bounded read transactions, an explicit maximum two-second active monotonic query deadline enforced through SQLite progress handlers, aggregate MAX queries only, and unconditional progress-handler removal, rollback and close. For creator.creator_tokens use only the inclusive rowid cursor with no created_at event boundary; preserve every other existing PSI0A-C relation specification unchanged. Replay-verify the immutable boundary and stop immediately on database pressure, lock contention, schema or specification drift, non-integer configured high-water, deadline breach, health degradation, replay failure, production impact, or scope expansion. Do not materialize evidence rows, execute canonical evidence extraction or shadow output, make provider/RPC calls, production writes or DDL, deploy, restart or stop services, change configuration, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D through H or PSI0B, activate production, or enter EB2.",
+    "milestone": "PSI0A-C7 immutable capture-input manifest qualification",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Materialize and locally replay-qualify the exact PSI0A-A/B/C capture inputs before any further production recapture attempt.",
+    "approval_text": "Authorize PSI0A-C7 safe-local design, implementation, frozen-fixture tests, regression tests, documentation, and one narrow commit for an immutable canonical PSI0A capture-input manifest. Bind the exact five allow-listed database/relation/type surfaces; logical source identifiers and expected database filenames without host paths; complete PSI0A-B RequiredRelation column/type and index-prefix requirements; complete PSI0A-C HighWaterSpec values; the creator.creator_tokens rowid-only exception; the existing PSI0A-A boundary digest and PSI0A-B audit digest; engineering revision; canonical JSON digest; and exact replay verification. Derive values only from committed PSI0A/EB schemas, query contracts, tests, documentation and audit artifacts; fail closed on any unsupported or ambiguous surface, column, type, index, cursor or event mapping rather than guessing. Preserve zero extraction/activation authority. Frozen fixtures only. Do not access production/runtime databases or services, resume PSI0A-C6, capture a production boundary, perform canonical evidence extraction or shadow output, make provider/RPC calls, production writes or DDL, deploy, restart or stop services, change configuration, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D through H or PSI0B, activate production, or enter EB2.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

@@ -1,0 +1,49 @@
+{
+  "milestone": "PSI0A-D",
+  "status": "HOLD",
+  "verdict": "DO_NOT_START_LOCK_CONTENTION_GATE_FAILED",
+  "engineering_revision": "0ab2e8e7fc1fc68f5087ade83079a3e53fd66998",
+  "verification_utc": "2026-08-14T09:50:22Z",
+  "qualified_local_contract": {
+    "module": "src/evidence/contracts/production_shadow_query_plan.py",
+    "test_file": "tests/test_psi0a_d_production_shadow_query_plan.py",
+    "documentation": "docs/evidence_platform/psi0a_d_query_plan_contract.md",
+    "focused_and_regression_tests_passed": 91,
+    "query_templates": 5,
+    "select_templates_executed": 0,
+    "grants_extraction_authority": false,
+    "grants_activation_authority": false
+  },
+  "production_health_gate": {
+    "listener_pid": 9069,
+    "listener_pid_changed": false,
+    "primary_fd_count": 0,
+    "serializer_p95_wait_ms": 2.8,
+    "serializer_p99_wait_ms": 65.28,
+    "serializer_queue_depth": 0,
+    "lock_errors_24h_previous_c16": 0,
+    "lock_errors_24h_observed": 1,
+    "lock_contention_gate_failed": true,
+    "services_running": true,
+    "evidence_writer_stopped": true
+  },
+  "actions": {
+    "production_database_connections_opened": 0,
+    "production_schema_or_row_queries": 0,
+    "production_explain_queries": 0,
+    "select_templates_executed": 0,
+    "production_rows_read": 0,
+    "production_writes": 0,
+    "ddl_statements": 0,
+    "provider_calls": 0,
+    "service_restarts_or_stops": 0,
+    "configuration_changes": 0
+  },
+  "stop_reason": "LOCK_ERRORS_24H_INCREASED_FROM_0_TO_1",
+  "next": {
+    "psi0a_d_production_plan_inspection_authorized": false,
+    "psi0a_e_or_later_authorized": false,
+    "psi0b_authorized": false,
+    "required_action": "Separately authorize telemetry-only diagnosis of the new lock-error signal and an objective clean reauthorization gate."
+  }
+}

@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T07:51:09Z",
+  "updated_at_utc": "2026-08-14T07:55:51Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "fd36c63575d76e12dc6f0373677d8c430df53b13",
-    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0A-C14 audit commit contains only the immutable attempt ledger and deployment audit"
+    "git_head": "167de6813ad272293e516c468a07025aff1bcfb7",
+    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0A-C15 audit commit contains only the health-gate stop artifact"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-14T07:51:09Z",
+    "published_at_utc": "2026-08-14T07:55:51Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0A-C14 one durable bounded main-index retry",
-    "mode": "single production DDL attempt with durable ledger and health gates",
-    "status": "COMPLETE",
-    "verdict": "PSI0A_C14_MAIN_INDEX_DEPLOYED_TRANSIENT_LOCK_SIGNAL_RECOVERED"
+    "milestone": "PSI0A-C15 five-surface compatibility reassessment preflight",
+    "mode": "production health do-not-start gate before read-only metadata audit",
+    "status": "HOLD",
+    "verdict": "PSI0A_C15_DO_NOT_START_LISTENER_PID_CHANGE_AND_DATABASE_PRESSURE"
   },
   "production_state": {
     "retention": "ON",
@@ -28,7 +28,7 @@
     "cohort_mode": "OFF",
     "evidence_writer": "STOPPED",
     "listener_service": "watchtower_listener",
-    "listener_pid_last_verified": 8661,
+    "listener_pid_last_verified": 9069,
     "creator_funding_service": "creator_funding_worker",
     "creator_funding_pid_last_verified": 80211,
     "creator_resolution_service": "creator_resolution_worker",
@@ -839,6 +839,38 @@
       "service_restarts": 0,
       "configuration_changes": 0,
       "not_started": ["PSI0A-C full compatibility reassessment", "PSI0A-C production recapture", "PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
+    },
+    "psi0a_c15_compatibility_reassessment_preflight": {
+      "status": "HOLD",
+      "verdict": "DO_NOT_START_HEALTH_GATE_FAILED_LISTENER_PID_CHANGE_AND_DATABASE_PRESSURE",
+      "engineering_commit": "167de6813ad272293e516c468a07025aff1bcfb7",
+      "verification_utc": "2026-08-14T07:55:51Z",
+      "health_gate": {
+        "expected_listener_pid": 8661,
+        "observed_listener_pid": 9069,
+        "listener_pid_changed": true,
+        "listener_uptime": "0:03:32",
+        "serializer_p95_wait_ms": 75.42,
+        "serializer_p99_wait_ms": 1688.6,
+        "serializer_queue_depth": 0,
+        "creator_funding_worker_running": true,
+        "creator_resolution_worker_running": true,
+        "evidence_writer": "STOPPED"
+      },
+      "timing_assessment": "The automatic listener restart occurred after C14 and before C15. Temporal correlation is established; causation is not established.",
+      "production_database_connections_opened": 0,
+      "schema_metadata_queries": 0,
+      "query_plan_inspections": 0,
+      "production_rows_read": 0,
+      "high_waters_captured": 0,
+      "production_writes": 0,
+      "ddl_statements": 0,
+      "provider_calls": 0,
+      "service_restarts_or_stops": 0,
+      "configuration_changes": 0,
+      "stop_reason": "HEALTH_DEGRADATION_AND_AUTOMATIC_LISTENER_RESTART",
+      "artifact": "docs/audits/psi0a_c15_compatibility_reassessment_preflight_stop.json",
+      "not_started": ["PSI0A-C15 metadata audit", "PSI0A-C production recapture", "PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
     },
     "psi0a_pre_extraction_roadmap_ratification": {
       "status": "COMPLETE",
@@ -5024,7 +5056,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "PSI0A-C14 successfully deployed and verified idx_psi0a_token_analysis_migrated_mint through one durable no-retry attempt. Two additional lock-error observations and immediate queue depth 1 were measured, then queue depth returned to zero with stable service PIDs and no ongoing impact. Both C9-missing indexes now exist, but a fresh five-surface metadata compatibility reassessment is required before any high-water recapture. PSI0A-C remains incomplete, PSI0A-D through H remain not started, and PSI0B remains prohibited.",
+    "PSI0A-C15 stopped before opening any production database because its do-not-start gate found watchtower_listener PID changed from 8661 to 9069 after C14 and serializer p99 rose to 1688.6 ms. The restart is temporally correlated with C14 but causation is not established. A separately authorized read-only incident diagnosis is required before the five-surface compatibility audit can be re-proposed. PSI0A-C remains incomplete, PSI0A-D through H remain not started, and PSI0B remains prohibited.",
     "PSI0A is ratified but not yet authorized for execution. PSI0A-A must first freeze the production boundary. All PSI0A stages prohibit actual EB evidence extraction, and PSI0B remains separately human-gated even after a PSI0A PASS.",
     "EB1.4A is intentionally deferred. The production shadow-integration track is not yet authorized and must begin with a no-extraction read-only schema/high-water compatibility preflight. Any real query-only extraction or production activation requires a later separate authorization.",
     "The post-EB1.3 reconciliation identifies EB1.4A as the next safe-local contract, but implementation is not authorized by the read-only reconciliation milestone. Any proposal disposition must remain non-executable and may not choose sources or alternatives, define acquisition, grant planning/execution authority, or enter EB2.",
@@ -5102,9 +5134,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0A-C15 bounded read-only five-surface compatibility reassessment",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Re-audit all five canonical C8 surfaces after C14 and determine whether schema/index compatibility is now 5/5; do not capture high-waters.",
-    "approval_text": "Authorize PSI0A-C15 as one bounded read-only production schema/index compatibility reassessment using commit fd36c63575d76e12dc6f0373677d8c430df53b13, canonical manifest digest d956bc24c1cd160162acaaad5bc466a2dece78ea34fc1f5238bc80728d4283f5, C9 audit digest 08642b6ca525a01f029e60029798afc16351162869ab80cc8831d7c212a55c31 and the immutable C14 deployment artifacts. Inspect only the five allow-listed relations with URI mode=ro, verified PRAGMA query_only, 250 ms lock timeout, active maximum two-second deadlines and sqlite_schema/table_info/index_list/index_info plus non-executing EXPLAIN QUERY PLAN metadata. Compare exact relation types, required column affinities and required index prefixes, bind fresh observed schema digests, verify both deployed indexes and their query plans, assess current serializer/queue/ingestion/service health, and produce a replayable compatibility result. Stop on schema/type/index drift, database pressure, lock contention, deadline breach, health degradation, production impact or scope expansion. Do not read evidence rows, capture high-waters, execute DDL or any production write, extract canonical evidence or shadow output, make provider/RPC calls, deploy, restart or stop services, change configuration, manipulate locks, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D through H or PSI0B, activate production, or enter EB2.",
+    "milestone": "PSI0A-C15A bounded read-only post-C14 listener restart and pressure diagnosis",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Diagnose the automatic listener restart and serializer pressure discovered by C15; do not rerun C15 or change production.",
+    "approval_text": "Authorize PSI0A-C15A as a bounded local and production-telemetry read-only diagnosis of the watchtower_listener PID change from 8661 to 9069 and serializer p99 increase to 1688.6 ms discovered after PSI0A-C14. Use Supervisor state and logs, listener lifecycle/watchdog and connection-lifecycle telemetry, db_serializer_metrics.json history/current snapshots, queue/websocket/ingestion health evidence, the immutable C14 ledger/audit, database/WAL file metadata and read-only process timing only to determine whether the restart and pressure were caused by the C14 CREATE INDEX lock window, a listener watchdog condition, an unrelated automatic restart, or another production event; quantify recovery and define the smallest safe condition for reauthorizing PSI0A-C15. Do not open production databases for row or schema queries, rerun C15, execute DDL or production writes, capture high-waters, extract canonical evidence or shadow output, make provider/RPC calls, deploy, restart or stop services, change configuration or watchdog thresholds, manipulate locks, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D through H or PSI0B, activate production, or enter EB2.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

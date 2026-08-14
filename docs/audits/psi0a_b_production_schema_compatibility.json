@@ -1,0 +1,58 @@
+{
+  "audit_version": "psi0a-b.v1",
+  "engineering_revision": "491aa4ce",
+  "boundary_digest": "6b0005bfcd063ba38d2eefe33557e334a5b90e3f83474a7d4db3a0033f4cabfb",
+  "audit_digest": "3da006925e29dcaf15fdc3094502521d466390e44f224b86041024b6248c392b",
+  "connection_semantics": {
+    "mode": "SQLITE_URI_MODE_RO",
+    "query_only_verified": true,
+    "timeout_seconds": 0.25
+  },
+  "relations": [
+    {
+      "database_id": "creator",
+      "database_file_name": "pumpswap_tokens.db",
+      "relation_name": "creator_tokens",
+      "compatible": true,
+      "schema_digest": "34d4de8b020fef4eb7df41e94777d9c42f6b86d185cfa57028c3e89226d14992"
+    },
+    {
+      "database_id": "evidence",
+      "database_file_name": "evidence.db",
+      "relation_name": "normalized_evidence_records",
+      "compatible": true,
+      "schema_digest": "e3e30fcc0a85aaaadc2b2629cf7ca39e0e4af6f699faa44c8e7651f698377125"
+    },
+    {
+      "database_id": "main",
+      "database_file_name": "flex_complete_database.db",
+      "relation_name": "token_analysis",
+      "compatible": true,
+      "schema_digest": "31b1f121df39cf41c0b0f8c5c9f5c4713437f367e40b13827d064552b50448d7"
+    },
+    {
+      "database_id": "main",
+      "database_file_name": "flex_complete_database.db",
+      "relation_name": "token_price_snapshots",
+      "compatible": true,
+      "schema_digest": "c00807be7f0d6cd9e29cc80f01abbdaf0192eb4273dd3415f54b70293c88d39f"
+    },
+    {
+      "database_id": "ops",
+      "database_file_name": "wt_ops_v2.db",
+      "relation_name": "wt_watchtower_launches",
+      "compatible": true,
+      "schema_digest": "0659a2899cfbee9dbad3c352bc14192576e6f2a187eccbccdaaa76f684553c21"
+    }
+  ],
+  "compatible_relation_count": 5,
+  "incompatible_relation_count": 0,
+  "production_rows_read": 0,
+  "evidence_extractions": 0,
+  "verdict": "SCHEMA_COMPATIBLE",
+  "notable_mapping": "creator_tokens is read from the root pumpswap_tokens.db, not database/flex_complete_database.db or the zero-byte database/pumpswap_tokens.db placeholder",
+  "authority": {
+    "grants_extraction_authority": false,
+    "grants_activation_authority": false
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "milestone": "PSI0A-C16",
+  "status": "COMPLETE",
+  "verdict": "PASS_IMMUTABLE_FIVE_SURFACE_ROWID_BOUNDARY_CAPTURED",
+  "contract_version": "psi0a-c16.v1",
+  "engineering_revision": "1215979dc7ce2fd82b500bf7c39f212049ab5d71",
+  "canonical_manifest_digest": "d956bc24c1cd160162acaaad5bc466a2dece78ea34fc1f5238bc80728d4283f5",
+  "c15_result_digest": "8a5f6d92204d4a151c9c5d0d689a7303ed7d7b9a3a6dc3f8fce852c2d768bf64",
+  "captured_at_utc_ns": 1786700216427277000,
+  "transaction_mode": "EXPLICIT_BOUNDED_READ_TRANSACTION",
+  "cursor_policy": "STABLE_INCLUSIVE_ROWID_ONLY_NO_EVENT_TIME_HIGH_WATER",
+  "schema_digests": {
+    "creator.creator_tokens": "34d4de8b020fef4eb7df41e94777d9c42f6b86d185cfa57028c3e89226d14992",
+    "evidence.normalized_evidence_records": "9e200ab6b52ff93a274462e27ce5d09f4b03191cecb032405fbc7f3c7a0f607d",
+    "main.token_analysis": "a3aee742a9987f889e84046358d2eb2de5726a961746bc5cbfd2dca68da02815",
+    "main.token_price_snapshots": "c00807be7f0d6cd9e29cc80f01abbdaf0192eb4273dd3415f54b70293c88d39f",
+    "ops.wt_watchtower_launches": "0659a2899cfbee9dbad3c352bc14192576e6f2a187eccbccdaaa76f684553c21"
+  },
+  "relations": [
+    {
+      "database_id": "creator",
+      "database_file_name": "pumpswap_tokens.db",
+      "relation_name": "creator_tokens",
+      "cursor_column": "rowid",
+      "cursor_upper_inclusive": 53700,
+      "event_column": null,
+      "event_upper_inclusive": null
+    },
+    {
+      "database_id": "evidence",
+      "database_file_name": "evidence.db",
+      "relation_name": "normalized_evidence_records",
+      "cursor_column": "rowid",
+      "cursor_upper_inclusive": 0,
+      "event_column": null,
+      "event_upper_inclusive": null
+    },
+    {
+      "database_id": "main",
+      "database_file_name": "flex_complete_database.db",
+      "relation_name": "token_analysis",
+      "cursor_column": "rowid",
+      "cursor_upper_inclusive": 1774740,
+      "event_column": null,
+      "event_upper_inclusive": null
+    },
+    {
+      "database_id": "main",
+      "database_file_name": "flex_complete_database.db",
+      "relation_name": "token_price_snapshots",
+      "cursor_column": "rowid",
+      "cursor_upper_inclusive": 32626118,
+      "event_column": null,
+      "event_upper_inclusive": null
+    },
+    {
+      "database_id": "ops",
+      "database_file_name": "wt_ops_v2.db",
+      "relation_name": "wt_watchtower_launches",
+      "cursor_column": "rowid",
+      "cursor_upper_inclusive": 178,
+      "event_column": null,
+      "event_upper_inclusive": null
+    }
+  ],
+  "cleanup": {
+    "creator": {"rollback": true, "handler_removed": true, "closed": true},
+    "evidence": {"rollback": true, "handler_removed": true, "closed": true},
+    "main": {"rollback": true, "handler_removed": true, "closed": true},
+    "ops": {"rollback": true, "handler_removed": true, "closed": true}
+  },
+  "safety": {
+    "uri_mode": "ro",
+    "query_only_verified": true,
+    "lock_timeout_ms": 250,
+    "maximum_monotonic_deadline_seconds": 2,
+    "aggregate_max_rowid_queries": 5,
+    "evidence_rows_materialized": 0,
+    "production_writes": 0,
+    "ddl_statements": 0,
+    "provider_calls": 0,
+    "evidence_extractions": 0,
+    "shadow_outputs_created": 0,
+    "service_restarts_or_stops": 0
+  },
+  "health": {
+    "listener_pid_before": 9069,
+    "listener_pid_after": 9069,
+    "listener_pid_stable": true,
+    "primary_fd_count_before": 0,
+    "serializer_p99_wait_ms_before": 26.84,
+    "serializer_p99_wait_ms_after": 28.43,
+    "serializer_queue_depth_before": 0,
+    "serializer_queue_depth_after": 0,
+    "lock_errors_24h_after": 0,
+    "services_healthy_after": true,
+    "evidence_writer_stopped": true,
+    "production_impact_observed": false
+  },
+  "authority": {
+    "grants_extraction_authority": false,
+    "grants_activation_authority": false,
+    "psi0a_d_or_later_authorized": false,
+    "psi0b_authorized": false
+  },
+  "read_boundary_digest": "fdf11dc5e29c176d3724a4ccd1e3ff56584727512853bfb58a71fb3979c246f8",
+  "replay_verified": true
+}

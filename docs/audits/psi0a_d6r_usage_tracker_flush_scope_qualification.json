@@ -1,0 +1,64 @@
+{
+  "artifact": "PSI0A-D6R",
+  "created_at": "2026-08-14T13:25:12Z",
+  "engineering_base_revision": "0e5ccd59a98aa691d0257e15d63be64640eaacda",
+  "scope": "safe-local recurring usage-tracker transaction-scope repair",
+  "verdict": "PASS",
+  "change": {
+    "function": "src.metrics.usage_tracker._flush",
+    "removed_from_steady_state": [
+      "PRAGMA journal_mode=WAL",
+      "PRAGMA synchronous=NORMAL"
+    ],
+    "connection_policy": "unchanged shared patched sqlite connection policy",
+    "failure_cleanup": "explicit rollback followed by unconditional close",
+    "outer_behavior": "existing fail-open background loop preserved"
+  },
+  "preserved": [
+    "five-second cadence",
+    "batch capture and ordering",
+    "existing INSERT construction and values",
+    "single successful commit",
+    "priority 3 serializer/write-lane integration",
+    "fail-open retry-loop behavior",
+    "metrics and listener concurrency",
+    "production flags and authority boundaries"
+  ],
+  "tests": {
+    "focused": {
+      "path": "tests/test_psi0a_d6r_usage_tracker_flush_scope.py",
+      "passed": 7,
+      "coverage": [
+        "success insert/commit/close ordering",
+        "empty batch",
+        "insert exception rollback and close",
+        "commit exception rollback and close",
+        "rollback exception close",
+        "queue-lock release before database connection",
+        "absence of recurring journal and synchronous PRAGMAs"
+      ]
+    },
+    "usage_tracker_regression": {
+      "paths": [
+        "tests/test_usage_tracker_connection_lifecycle.py",
+        "tests/test_x78_18_reconnect_isolation.py"
+      ],
+      "passed": 11
+    },
+    "listener_connection_regression": {
+      "paths": [
+        "tests/test_psi0a_d6q_vault_discovery_connection_scope.py",
+        "tests/test_psi0a_d6m_pool_discovery_connection_cleanup.py",
+        "tests/test_psi0a_d6h_blocklist_connection_cleanup.py"
+      ],
+      "passed": 28
+    },
+    "total_passed": 46,
+    "compile": "PASS",
+    "diff_check": "PASS"
+  },
+  "production_actions": [],
+  "provider_calls": 0,
+  "production_access": false,
+  "activation_authority": false
+}

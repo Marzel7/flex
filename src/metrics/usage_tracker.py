@@ -80,14 +80,15 @@ def _flush():
             # never on the critical ingestion path.
             conn = sqlite3.connect(DB_PATH, timeout=10, priority=3)
             try:
-                conn.execute("PRAGMA journal_mode=WAL")
-                conn.execute("PRAGMA synchronous=NORMAL")
                 for item in batch:
                     table = item.pop("_table")
                     cols = ", ".join(item.keys())
                     placeholders = ", ".join("?" for _ in item)
                     conn.execute(f"INSERT INTO {table} ({cols}) VALUES ({placeholders})", list(item.values()))
                 conn.commit()
+            except Exception:
+                conn.rollback()
+                raise
             finally:
                 conn.close()
         except Exception:

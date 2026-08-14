@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T06:52:25Z",
+  "updated_at_utc": "2026-08-14T06:54:41Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "387ba6865c6a95bae7e42637c24193c2bac8469e",
-    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths preserved; PSI0A-C3 engineering commit is narrow"
+    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths preserved; PSI0A-C4 stopped before production and made no engineering change"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-14T06:52:25Z",
+    "published_at_utc": "2026-08-14T06:54:41Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0A-C3 creator cursor-only high-water repair",
-    "mode": "safe-local design, implementation, tests, documentation and narrow commit",
+    "milestone": "PSI0A-C4 repaired production high-water recapture preflight",
+    "mode": "local safety preflight before bounded production read",
     "status": "HOLD",
-    "verdict": "PSI0A_C3_CURSOR_ONLY_REPAIR_QUALIFIED_PRODUCTION_RECAPTURE_REQUIRED"
+    "verdict": "PSI0A_C4_ACTIVE_DEADLINE_NOT_ENFORCED"
   },
   "production_state": {
     "retention": "ON",
@@ -378,6 +378,31 @@
       },
       "fixture_only": true,
       "production_access": false,
+      "provider_calls": 0,
+      "production_changes": false,
+      "service_restarts": 0,
+      "configuration_changes": 0,
+      "evidence_extractions": 0,
+      "not_started": ["PSI0A-C production recapture", "PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
+    },
+    "psi0a_c4_production_recapture_preflight": {
+      "status": "HOLD",
+      "verdict": "PSI0A_C4_ACTIVE_DEADLINE_NOT_ENFORCED",
+      "engineering_commit": "387ba6865c6a95bae7e42637c24193c2bac8469e",
+      "verification_utc": "2026-08-14T06:54:41Z",
+      "qualified_guards_present": [
+        "SQLite URI mode=ro",
+        "verified PRAGMA query_only",
+        "250 ms SQLite connection/lock timeout",
+        "explicit bounded read transactions",
+        "aggregate MAX queries only",
+        "unconditional rollback and connection close",
+        "creator_tokens rowid-only specification"
+      ],
+      "missing_required_guard": "No sqlite3 progress handler, monotonic deadline, max-query-duration argument or named deadline interruption exists in capture_production_shadow_read_boundary.",
+      "stop_reason": "The C4 authorization requires active deadlines. Executing the committed capture path without an interruptible deadline would violate the authorization and the PSI0A stop-safe boundary.",
+      "production_access": false,
+      "production_queries": 0,
       "provider_calls": 0,
       "production_changes": false,
       "service_restarts": 0,
@@ -4569,7 +4594,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "PSI0A-C3 qualifies the rowid-only creator high-water repair at 387ba686, but no repaired production boundary has been captured. PSI0A-C remains incomplete pending separately authorized bounded recapture. PSI0A-D through H remain not started, and PSI0B remains prohibited.",
+    "PSI0A-C4 stopped before production access because commit 387ba686 has no active interruptible query deadline in capture_production_shadow_read_boundary. The other required read-only, query-only, lock-timeout, transaction, aggregate and cleanup guards are present. PSI0A-C remains incomplete; PSI0A-D through H remain not started, and PSI0B remains prohibited.",
     "PSI0A is ratified but not yet authorized for execution. PSI0A-A must first freeze the production boundary. All PSI0A stages prohibit actual EB evidence extraction, and PSI0B remains separately human-gated even after a PSI0A PASS.",
     "EB1.4A is intentionally deferred. The production shadow-integration track is not yet authorized and must begin with a no-extraction read-only schema/high-water compatibility preflight. Any real query-only extraction or production activation requires a later separate authorization.",
     "The post-EB1.3 reconciliation identifies EB1.4A as the next safe-local contract, but implementation is not authorized by the read-only reconciliation milestone. Any proposal disposition must remain non-executable and may not choose sources or alternatives, define acquisition, grant planning/execution authority, or enter EB2.",
@@ -4647,9 +4672,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0A-C4 repaired production high-water recapture",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Capture and replay-verify exactly one repaired bounded read-only PSI0A-C production boundary using commit 387ba686, stopping before PSI0A-D.",
-    "approval_text": "Authorize PSI0A-C4 as exactly one bounded read-only production high-water recapture using commit 387ba6865c6a95bae7e42637c24193c2bac8469e and the PSI0A-A/B allow-listed surfaces. Use URI mode=ro, verified PRAGMA query_only, 250 ms lock timeout, explicit bounded read transactions, active deadlines, aggregate MAX queries only, and unconditional rollback/close. For creator.creator_tokens use only the inclusive rowid cursor with no created_at event boundary; preserve every other existing PSI0A-C relation specification unchanged. Replay-verify the immutable boundary and stop immediately on database pressure, lock contention, schema or specification drift, non-integer configured high-water, deadline breach, health degradation, replay failure, production impact, or scope expansion. Do not materialize evidence rows, execute canonical evidence extraction or shadow output, make provider/RPC calls, production writes or DDL, deploy, restart or stop services, change configuration, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D through H or PSI0B, activate production, or enter EB2.",
+    "milestone": "PSI0A-C5 active query-deadline repair",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Implement and locally qualify an interruptible active deadline for PSI0A-C aggregate capture; do not access production or resume C4.",
+    "approval_text": "Authorize PSI0A-C5 safe-local design, implementation, focused timeout/cleanup tests, regression tests, documentation, and one narrow commit adding an explicit caller-supplied positive query deadline to capture_production_shadow_read_boundary. Enforce it with a monotonic clock and SQLite progress handler on every opened connection; raise a named PSI0A_C_QUERY_DEADLINE_EXCEEDED error; and prove rollback, progress-handler removal, and connection closure on success, deadline, validation failure, and query exception paths. Preserve URI mode=ro, verified PRAGMA query_only, 250 ms lock timeout, aggregate MAX-only reads, creator_tokens rowid-only semantics, all other relation specifications, exact replay, and zero extraction/activation authority. Frozen or ephemeral fixtures only. Do not access production/runtime databases or services, resume PSI0A-C4, capture a production boundary, perform canonical evidence extraction or shadow output, make provider/RPC calls, production writes or DDL, deploy, restart or stop services, change configuration, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D through H or PSI0B, activate production, or enter EB2.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

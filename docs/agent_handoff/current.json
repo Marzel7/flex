@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T07:07:19Z",
+  "updated_at_utc": "2026-08-14T07:12:40Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "bd0d944721d9822f7f513d5d2dba2ad964e14952",
-    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths preserved; PSI0A-C7 stopped on committed-source ambiguity and made no engineering change"
+    "git_head": "89631f1df4d3db47666cb68866722b715ef69e39",
+    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths preserved; PSI0A-C8 engineering commit is narrow"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-14T07:07:19Z",
+    "published_at_utc": "2026-08-14T07:12:40Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0A-C7 immutable capture-input manifest qualification",
-    "mode": "safe-local committed-source mapping and fail-closed manifest preflight",
+    "milestone": "PSI0A-C8 canonical cursor-policy amendment and manifest qualification",
+    "mode": "safe-local contract amendment, implementation, frozen tests, documentation and narrow commit",
     "status": "HOLD",
-    "verdict": "PSI0A_C7_PRIOR_SPECIFICATIONS_NOT_DERIVABLE_WITHOUT_POLICY_CHOICE"
+    "verdict": "PSI0A_C8_CANONICAL_CAPTURE_INPUT_MANIFEST_QUALIFIED_LIVE_COMPATIBILITY_REQUIRED"
   },
   "production_state": {
     "retention": "ON",
@@ -503,6 +503,42 @@
       "files_changed": [],
       "tests_run": 0,
       "engineering_commit_created": false,
+      "production_access": false,
+      "provider_calls": 0,
+      "production_changes": false,
+      "service_restarts": 0,
+      "configuration_changes": 0,
+      "evidence_extractions": 0,
+      "not_started": ["PSI0A-C production recapture", "PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
+    },
+    "psi0a_c8_canonical_capture_input_manifest": {
+      "status": "COMPLETE",
+      "verdict": "CANONICAL_ROWID_ONLY_CAPTURE_INPUT_MANIFEST_QUALIFIED",
+      "engineering_commit": "89631f1df4d3db47666cb68866722b715ef69e39",
+      "verification_utc": "2026-08-14T07:12:40Z",
+      "manifest_version": "psi0a-c8.v1",
+      "manifest_digest": "d956bc24c1cd160162acaaad5bc466a2dece78ea34fc1f5238bc80728d4283f5",
+      "files_changed": [
+        "src/evidence/contracts/production_shadow_capture_manifest.py",
+        "tests/test_psi0a_c8_capture_input_manifest.py",
+        "docs/evidence_platform/psi0a_c8_capture_input_manifest.md"
+      ],
+      "contract_amendment": "explicitly supersedes the undocumented ad-hoc tuple with stable inclusive rowid-only boundaries and no event-time high-water on all five surfaces",
+      "bound_inputs": {
+        "surface_count": 5,
+        "logical_source_count": 4,
+        "historical_boundary_digest": "6b0005bfcd063ba38d2eefe33557e334a5b90e3f83474a7d4db3a0033f4cabfb",
+        "historical_schema_audit_digest": "3da006925e29dcaf15fdc3094502521d466390e44f224b86041024b6248c392b",
+        "creator_cursor": "rowid only",
+        "event_time_high_waters": 0
+      },
+      "new_schema_requirements": "query-justified leading fact_family and migrated_at,mint indexes are required; C8 makes no claim that production currently satisfies them and performs no DDL",
+      "tests": {
+        "passed": 55,
+        "failed": 0,
+        "command": "python -m pytest -q tests/test_psi0a_a_production_shadow_boundary.py tests/test_psi0a_b_production_schema_audit.py tests/test_psi0a_c_production_shadow_high_water.py tests/test_psi0a_c8_capture_input_manifest.py tests/test_eb0_1a_birth_valuation_contract.py tests/test_eb0_2a_creator_historical_outcome_contract.py"
+      },
+      "fixture_only": true,
       "production_access": false,
       "provider_calls": 0,
       "production_changes": false,
@@ -4695,7 +4731,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "PSI0A-C7 could not derive an unchanged canonical input manifest: the prior RequiredRelation and four non-creator HighWaterSpec tuples were never committed, while EB0.1 temporal boundaries and EB0.2 rowid boundaries encode different legitimate purposes. Choosing a replacement requires an explicit contract amendment. PSI0A-C remains incomplete; PSI0A-D through H remain not started, and PSI0B remains prohibited.",
+    "PSI0A-C8 qualifies the superseding immutable rowid-only capture-input manifest at 89631f1d/d956bc24. Its stricter query-justified index requirements have not been checked against production, and no production boundary has been captured. PSI0A-C remains incomplete; PSI0A-D through H remain not started, and PSI0B remains prohibited.",
     "PSI0A is ratified but not yet authorized for execution. PSI0A-A must first freeze the production boundary. All PSI0A stages prohibit actual EB evidence extraction, and PSI0B remains separately human-gated even after a PSI0A PASS.",
     "EB1.4A is intentionally deferred. The production shadow-integration track is not yet authorized and must begin with a no-extraction read-only schema/high-water compatibility preflight. Any real query-only extraction or production activation requires a later separate authorization.",
     "The post-EB1.3 reconciliation identifies EB1.4A as the next safe-local contract, but implementation is not authorized by the read-only reconciliation milestone. Any proposal disposition must remain non-executable and may not choose sources or alternatives, define acquisition, grant planning/execution authority, or enter EB2.",
@@ -4773,9 +4809,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0A-C8 canonical cursor-policy amendment and manifest qualification",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Explicitly supersede the undocumented prior high-water tuple with a committed row-membership policy and qualify the immutable capture-input manifest locally.",
-    "approval_text": "Authorize PSI0A-C8 safe-local contract amendment, design, implementation, frozen-fixture tests, regression tests, documentation, and one narrow commit establishing a new canonical PSI0A capture-input manifest because the prior ad-hoc RequiredRelation and non-creator HighWaterSpec tuples were never committed. Use a stable inclusive rowid cursor and no event-time high-water for each of the five allow-listed relations, explicitly superseding rather than claiming to preserve the undocumented prior tuple; bind exact database/relation/type surfaces, logical source identifiers, expected filenames without host paths, query-required columns and their committed schema affinities, index-prefix requirements directly justified by committed EB query predicates/orderings, the existing PSI0A-A boundary digest and PSI0A-B audit digest as historical inputs, engineering revision, canonical manifest digest, zero extraction/activation authority, and exact replay. Fail closed if any required column affinity or index prefix is not explicitly supported by committed schema/query artifacts. Frozen fixtures only. Do not access production/runtime databases or services, resume PSI0A-C6, capture a production boundary, perform canonical evidence extraction or shadow output, make provider/RPC calls, production writes or DDL, deploy, restart or stop services, change configuration, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D through H or PSI0B, activate production, or enter EB2.",
+    "milestone": "PSI0A-C9 amended production schema compatibility audit",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Audit the five production surfaces against the committed C8 manifest only; do not capture a high-water boundary or create missing indexes.",
+    "approval_text": "Authorize PSI0A-C9 as one bounded read-only production schema/index compatibility audit using commit 89631f1df4d3db47666cb68866722b715ef69e39 and canonical manifest digest d956bc24c1cd160162acaaad5bc466a2dece78ea34fc1f5238bc80728d4283f5. Inspect only the five manifest allow-listed relations with URI mode=ro, verified PRAGMA query_only, 250 ms lock timeout, active maximum two-second deadlines, and sqlite_schema/table_info/index_list/index_info metadata queries. Compare exact relation types, required column affinities and required index prefixes; bind observed schema digests and produce a replayable compatibility result. Stop on database pressure, lock contention, deadline breach, unknown surface, schema/type/index drift, health degradation, production impact or scope expansion. Do not read evidence rows, capture high-waters, execute canonical evidence extraction or shadow output, create indexes or other DDL, make provider/RPC calls, production writes, deployments, service restarts or stops, configuration changes, Evidence Mirror or Cohort Mode activation, PSI0A-D through H, PSI0B, production activation or EB2 work.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

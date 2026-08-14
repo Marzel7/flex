@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T06:42:00Z",
+  "updated_at_utc": "2026-08-14T06:47:43Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "7b58517afe2fc8a1a3f3f65bb7c5546aca13db14",
-    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0A-C1 was diagnosis-only and made no engineering change"
+    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths preserved; PSI0A-C2 was diagnosis-only and made no engineering change"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-14T06:42:00Z",
+    "published_at_utc": "2026-08-14T06:47:43Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0A-C1 evidence acquired-at runtime encoding diagnosis",
+    "milestone": "PSI0A-C2 creator created-at runtime encoding diagnosis",
     "mode": "bounded read-only aggregate/type diagnosis only",
     "status": "HOLD",
-    "verdict": "PSI0A_C1_EVIDENCE_ATTRIBUTION_RETRACTED_CREATOR_DIAGNOSIS_REQUIRED"
+    "verdict": "PSI0A_C2_MIXED_CREATOR_TIMESTAMP_ENCODINGS_CURSOR_ONLY_REPAIR_REQUIRED"
   },
   "production_state": {
     "retention": "ON",
@@ -292,6 +292,59 @@
       "smallest_coherent_repair_assessment": "Do not normalize or coerce evidence acquired_at: no conflicting runtime value exists. A deterministic cursor-only zero boundary is possible for this empty relation, but PSI0A-C cannot resume until the earlier creator.created_at text boundary is diagnosed under separate authorization.",
       "sensitive_rows_read": 0,
       "payload_or_identity_fields_read": 0,
+      "provider_calls": 0,
+      "production_changes": false,
+      "service_restarts": 0,
+      "configuration_changes": 0,
+      "evidence_extractions": 0,
+      "not_started": ["PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
+    },
+    "psi0a_c2_creator_created_at_diagnosis": {
+      "status": "COMPLETE",
+      "verdict": "MIXED_RUNTIME_ENCODINGS_CONFIRMED_CURSOR_ONLY_BOUNDARY_IS_SMALLEST_REPAIR",
+      "engineering_commit": "7b58517afe2fc8a1a3f3f65bb7c5546aca13db14",
+      "verification_utc": "2026-08-14T06:47:43Z",
+      "production_query_boundary": {
+        "database": "pumpswap_tokens.db",
+        "relation": "creator_tokens",
+        "column": "created_at",
+        "connection": "URI mode=ro with PRAGMA query_only verified",
+        "lock_timeout_ms": 250,
+        "deadline_seconds": 2,
+        "query_class": "aggregate/type only",
+        "elapsed_ms": 236.113
+      },
+      "runtime_counts": {
+        "total": 53700,
+        "null": 0,
+        "integer": 53192,
+        "real": 278,
+        "text": 230,
+        "other": 0
+      },
+      "bounded_representations": {
+        "integer_min": 1775924454,
+        "integer_max": 1781784265,
+        "real_min": 1776160145.485386,
+        "real_max": 1776795035.748996,
+        "text_min": "2024-03-26T23:01:54Z",
+        "text_max": "2026-04-21T15:43:38Z",
+        "text_length_min": 20,
+        "text_length_max": 20
+      },
+      "declared_schema": "INTEGER NOT NULL DEFAULT strftime('%s','now')",
+      "committed_writer_reconciliation": "normal repository inserts integer time.time values, but migration_bridge backfill copies token_analysis.created_at without normalization; upstream listener paths intentionally store ISO-8601 text and other sources can retain real seconds, explaining SQLite's mixed storage classes",
+      "smallest_deterministic_repair": "Use creator_tokens.rowid as the sole stable inclusive high-water and set the creator relation event_column to null. A rowid boundary freezes membership without inventing timestamp coercion semantics; explicit timestamp normalization is broader and unnecessary for PSI0A-C.",
+      "post_query_health": {
+        "serializer_snapshot_age_seconds": 5.81,
+        "p99_wait_ms": 18.64,
+        "p99_commit_ms": 6.25,
+        "queue_depth": 0,
+        "services": "listener, creator_funding and creator_resolution RUNNING; evidence_writer expected STOPPED",
+        "production_impact": false
+      },
+      "individual_rows_read": 0,
+      "identity_fields_read": 0,
       "provider_calls": 0,
       "production_changes": false,
       "service_restarts": 0,
@@ -4483,7 +4536,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "PSI0A-C1 retracted the original evidence.acquired_at attribution: normalized_evidence_records is empty and committed evidence writers enforce integer acquired_at. Deterministic capture order places the non-integer failure no later than creator.creator_tokens.created_at; runtime confirmation is outside C1 and requires separate approval. PSI0A-D through H remain not started, and PSI0B remains prohibited.",
+    "PSI0A-C2 confirmed creator.creator_tokens.created_at has mixed runtime encodings: 53,192 integer, 278 real and 230 ISO-8601 text values. The smallest deterministic repair is a rowid-only creator high-water with no event timestamp boundary; implementation and PSI0A-C resumption remain separately gated. PSI0A-D through H remain not started, and PSI0B remains prohibited.",
     "PSI0A is ratified but not yet authorized for execution. PSI0A-A must first freeze the production boundary. All PSI0A stages prohibit actual EB evidence extraction, and PSI0B remains separately human-gated even after a PSI0A PASS.",
     "EB1.4A is intentionally deferred. The production shadow-integration track is not yet authorized and must begin with a no-extraction read-only schema/high-water compatibility preflight. Any real query-only extraction or production activation requires a later separate authorization.",
     "The post-EB1.3 reconciliation identifies EB1.4A as the next safe-local contract, but implementation is not authorized by the read-only reconciliation milestone. Any proposal disposition must remain non-executable and may not choose sources or alternatives, define acquisition, grant planning/execution authority, or enter EB2.",
@@ -4561,9 +4614,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0A-C2 creator created-at semantic diagnosis",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Diagnose only creator.creator_tokens.created_at runtime encodings and ordering semantics, then identify the smallest coherent high-water contract repair without implementing it or resuming PSI0A-C.",
-    "approval_text": "Authorize PSI0A-C2 as a bounded read-only diagnosis of creator.creator_tokens.created_at runtime encodings and ordering semantics. Use URI mode=ro, verified PRAGMA query_only, a 250 ms lock timeout, active deadline, and aggregate/type queries only to measure NULL/integer/real/text/other counts and bounded minimum/maximum representations without reading mint, creator, transaction, provider, evidence-identity, or individual record content. Reconcile the observed encodings with committed schema and writer/parser code; identify the smallest deterministic high-water repair—such as a cursor-only boundary or an explicitly normalized timestamp boundary—but do not implement it or resume PSI0A-C. Stop on database pressure, lock contention, deadline breach, health degradation, production impact, need to inspect sensitive row content, or required scope expansion. No canonical evidence extraction, shadow output, provider/RPC call, production write or DDL, deployment, service restart or stop, configuration change, Evidence Mirror, Cohort Mode, PSI0A-D through H, PSI0B, activation, or EB2 work.",
+    "milestone": "PSI0A-C3 creator cursor-only high-water repair",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Implement and locally qualify only the deterministic creator_tokens rowid-only high-water repair; do not capture a new production boundary or proceed to PSI0A-D.",
+    "approval_text": "Authorize PSI0A-C3 safe-local design, implementation, focused tests, regression tests, documentation, and one narrow commit amending the PSI0A-C creator.creator_tokens high-water specification to use only the stable inclusive rowid cursor and no created_at event boundary. Preserve all other qualified PSI0A-A-C contracts, fail-closed integer cursor validation, exact replay, explicit read-only transaction semantics, and zero extraction/activation authority. Frozen or ephemeral fixtures only. Do not access production/runtime databases or services, capture or resume the production PSI0A-C boundary, normalize or mutate creator timestamps, perform canonical evidence extraction or shadow output, make provider/RPC calls, production writes or DDL, deploy, restart or stop services, change configuration, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D through H or PSI0B, activate production, or enter EB2.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

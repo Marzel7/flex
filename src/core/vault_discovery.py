@@ -26,6 +26,8 @@ from typing import Optional, List, Dict, Tuple
 from dataclasses import dataclass
 from enum import Enum
 
+from src.utils.db_locking import managed_db_connect
+
 # Constants
 SPL_TOKEN_PROGRAM_ID = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
 TOKEN2022_PROGRAM_ID = "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"  # Token2022 extension
@@ -959,22 +961,10 @@ async def discover_and_register_all_pools(
         True if at least one pool registered, False otherwise
     """
     try:
-        import sqlite3
         import time
-        
+
         logger.info(f"[VAULT_DISCOVERY] Starting multi-pool discovery for {token_mint[:16]}...")
-        
-        # Handle both connection object and path string
-        if isinstance(db, str):
-            conn = sqlite3.connect(db, timeout=10)
-            should_close = True
-        else:
-            conn = db
-            should_close = False
-        
-        cursor = conn.cursor()
-        now = int(time.time())
-        
+
         # Get top 20 largest token accounts (potential pools)
         candidates = await get_token_largest_accounts(token_mint, rpc_client, limit=20)
         if not candidates:
@@ -987,9 +977,9 @@ async def discover_and_register_all_pools(
             logger.warning(f"[VAULT_DISCOVERY] No validated accounts for {token_mint[:16]}...")
             return False
         
-        registered_pools = []
-        
-        # Try to discover multiple vault pairs from validated accounts
+        discovered_pools = []
+
+        # Complete all provider discovery and validation before opening SQLite.
         for i, validated_account in enumerate(validated):
             try:
                 logger.info(f"[VAULT_DISCOVERY] Checking validated account {i+1}/{len(validated)}: {validated_account.address[:16]}...")
@@ -1011,7 +1001,8 @@ async def discover_and_register_all_pools(
                     logger.debug(f"[VAULT_DISCOVERY] Quote vault validation failed for {quote_vault_address[:16]}...")
                     continue
                 
-                # This is a valid pool! Register it
+                # This is a valid pool. Retain only the values needed by the
+                # subsequent short database scope.
                 vault_pair = VaultPair(
                     base_vault=validated_account,
                     quote_vault=quote_vault,
@@ -1019,11 +1010,33 @@ async def discover_and_register_all_pools(
                     confidence_score=0.95
                 )
                 
-                # Insert pool (allow multiple per token)
+                discovered_pools.append({
+                    'mint': token_mint,
+                    'base_account': validated_account.address,
+                    'quote_account': quote_vault["address"],
+                    'quote_mint': quote_vault.get("decoded", {}).mint if quote_vault.get("decoded") else WRAPPED_SOL_MINT,
+                    'pool_program': vault_pair.pool_program or "unknown",
+                    'quote_decimals': 9 if quote_vault.get("decoded") and quote_vault["decoded"].mint == WRAPPED_SOL_MINT else 6,
+                })
+                
+            except Exception as e:
+                logger.debug(f"[VAULT_DISCOVERY] Error processing account {i}: {e}")
+                continue
+        
+        if not discovered_pools:
+            logger.error(f"[VAULT_DISCOVERY] ❌ No pools discovered for {token_mint[:16]}...")
+            return False
+
+        now = int(time.time())
+
+        def persist_pools(conn):
+            cursor = conn.cursor()
+            registered_pools = []
+            for pool in discovered_pools:
                 cursor.execute("""
                     INSERT INTO token_pool_accounts
-                    (mint, base_account, quote_account, pool_program, base_token, base_decimals, 
-                     quote_decimals, quote_token, vault_validation_status, discovery_method, 
+                    (mint, base_account, quote_account, pool_program, base_token, base_decimals,
+                     quote_decimals, quote_token, vault_validation_status, discovery_method,
                      created_at, updated_at, is_primary)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     ON CONFLICT(mint, base_account) DO UPDATE SET
@@ -1031,97 +1044,63 @@ async def discover_and_register_all_pools(
                         vault_validation_status = excluded.vault_validation_status,
                         updated_at = excluded.updated_at
                 """, (
-                    token_mint,
-                    validated_account.address,
-                    quote_vault["address"],
-                    vault_pair.pool_program or "unknown",
-                    token_mint,
-                    6,
-                    9 if quote_vault.get("decoded") and quote_vault["decoded"].mint == WRAPPED_SOL_MINT else 6,
-                    quote_vault.get("decoded", {}).mint if quote_vault.get("decoded") else WRAPPED_SOL_MINT,
-                    "validated",
-                    "rpc_multipool_discovery",
-                    now,
-                    now,
-                    0  # Will be updated after scoring
+                    token_mint, pool['base_account'], pool['quote_account'],
+                    pool['pool_program'], token_mint, 6, pool['quote_decimals'],
+                    pool['quote_mint'], "validated", "rpc_multipool_discovery",
+                    now, now, 0,
                 ))
-                
-                registered_pools.append({
-                    'mint': token_mint,
-                    'base_account': validated_account.address,
-                    'quote_account': quote_vault["address"],
-                    'quote_mint': quote_vault.get("decoded", {}).mint if quote_vault.get("decoded") else WRAPPED_SOL_MINT,
-                })
-                
-                logger.info(f"[VAULT_DISCOVERY] ✅ Registered pool: {validated_account.address[:16]}... / {quote_vault['address'][:16]}...")
-                
-            except Exception as e:
-                logger.debug(f"[VAULT_DISCOVERY] Error processing account {i}: {e}")
-                continue
-        
-        if not registered_pools:
-            logger.error(f"[VAULT_DISCOVERY] ❌ No pools discovered for {token_mint[:16]}...")
-            if should_close:
-                conn.close()
-            return False
-        
-        conn.commit()
-        
-        # Score pools: prioritize wSOL, then by other factors
-        # For now, mark wSOL pools as primary
-        primary_updated = False
-        for pool in registered_pools:
-            is_primary = (pool['quote_mint'] == WRAPPED_SOL_MINT) and not primary_updated
-            
-            cursor.execute("""
+                registered_pools.append(pool)
+                logger.info(f"[VAULT_DISCOVERY] ✅ Registered pool: {pool['base_account'][:16]}... / {pool['quote_account'][:16]}...")
+
+            conn.commit()
+
+            # Score pools: prioritize wSOL, then by other factors.
+            primary_updated = False
+            for pool in registered_pools:
+                is_primary = (pool['quote_mint'] == WRAPPED_SOL_MINT) and not primary_updated
+                cursor.execute("""
                 UPDATE token_pool_accounts
                 SET is_primary = ?, 
                     pool_score = ?,
                     updated_at = ?
                 WHERE mint = ? AND base_account = ?
-            """, (
-                1 if is_primary else 0,
-                100.0 if is_primary else 50.0,  # Basic scoring
-                now,
-                pool['mint'],
-                pool['base_account']
-            ))
-            
-            if is_primary:
-                primary_updated = True
-                logger.info(f"[VAULT_DISCOVERY] 🏆 Marked as primary (wSOL pool): {pool['base_account'][:16]}...")
-        
-        conn.commit()
-        
-        logger.info(f"[VAULT_DISCOVERY] ✅ Registered {len(registered_pools)} pools for {token_mint[:16]}...")
+                """, (
+                    1 if is_primary else 0,
+                    100.0 if is_primary else 50.0,
+                    now, pool['mint'], pool['base_account'],
+                ))
+                if is_primary:
+                    primary_updated = True
+                    logger.info(f"[VAULT_DISCOVERY] 🏆 Marked as primary (wSOL pool): {pool['base_account'][:16]}...")
 
-        # Update price_source to 'pool' now that pools are registered
-        cursor.execute("""
-            UPDATE token_analysis
-            SET price_source = 'pool'
-            WHERE mint = ?
-        """, (token_mint,))
-        conn.commit()
-        logger.info(f"[VAULT_DISCOVERY] ✅ Updated price_source to 'pool' for {token_mint[:16]}...")
+            conn.commit()
+            logger.info(f"[VAULT_DISCOVERY] ✅ Registered {len(registered_pools)} pools for {token_mint[:16]}...")
+
+            cursor.execute("""
+                UPDATE token_analysis
+                SET price_source = 'pool'
+                WHERE mint = ?
+            """, (token_mint,))
+            conn.commit()
+            logger.info(f"[VAULT_DISCOVERY] ✅ Updated price_source to 'pool' for {token_mint[:16]}...")
+
+        if isinstance(db, str):
+            with managed_db_connect(db, timeout=10) as conn:
+                persist_pools(conn)
+        else:
+            # Preserve the existing caller-owned connection contract.
+            persist_pools(db)
 
         # Trigger WebSocket refresh
         if price_worker:
             try:
                 price_worker.trigger_pool_refresh()
-                logger.info(f"[VAULT_DISCOVERY] ✅ WebSocket client refreshing with {len(registered_pools)} new pools")
+                logger.info(f"[VAULT_DISCOVERY] ✅ WebSocket client refreshing with {len(discovered_pools)} new pools")
             except Exception as e:
                 logger.warning(f"[VAULT_DISCOVERY] WebSocket refresh failed: {e}")
-
-        if should_close:
-            conn.close()
 
         return True
         
     except Exception as e:
         logger.error(f"[VAULT_DISCOVERY] ❌ Multi-pool discovery failed: {e}")
-        if should_close:
-            try:
-                conn.close()
-            except:
-                pass
         return False

@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T13:38:49Z",
+  "updated_at_utc": "2026-08-14T13:45:27Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-        "git_head": "c449b221c4e5cf4916b38f41251a7b193ffecd71",
-        "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0A-D6R committed narrowly in three files"
+        "git_head": "d0bd5f1d2f0d95cc6026d681bb4c3ee1a619165f",
+        "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0A-D6V committed narrowly in four files"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-        "published_at_utc": "2026-08-14T13:38:49Z",
+        "published_at_utc": "2026-08-14T13:45:27Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-        "milestone": "PSI0A-D6U post-restart serializer-pressure diagnosis",
-        "mode": "bounded local and production-telemetry read-only diagnosis complete",
+        "milestone": "PSI0A-D6V startup seed-read active-deadline repair",
+        "mode": "safe-local implementation and qualification complete",
         "status": "HUMAN_APPROVAL_REQUIRED",
-        "verdict": "RECOVERED_ROLLING_WINDOW_RESIDUE_SEED_READ_DEADLINE_REPAIR_NEXT"
+        "verdict": "LOCAL_QUALIFICATION_PASS"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,19 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0a_d6v_seed_read_deadline_qualification": {
+      "status": "COMPLETE",
+      "verdict": "LOCAL_QUALIFICATION_PASS",
+      "engineering_revision": "d0bd5f1d2f0d95cc6026d681bb4c3ee1a619165f",
+      "deadline_seconds": 2.0,
+      "progress_handler": true,
+      "named_deadline_condition": "PSI0A_D6V_SEED_READ_DEADLINE_EXCEEDED",
+      "handler_removal_and_connection_close_verified": true,
+      "total_tests_passed": 50,
+      "production_access": false,
+      "provider_calls": 0,
+      "artifact": "docs/audits/psi0a_d6v_seed_read_deadline_qualification.json"
+    },
     "psi0a_d6u_post_restart_serializer_pressure_diagnosis": {
       "status": "COMPLETE",
       "verdict": "RECOVERED_ROLLING_WINDOW_RESIDUE_SEED_READ_DEADLINE_REPAIR_NEXT",
@@ -6038,9 +6051,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-        "milestone": "PSI0A-D6V startup seed-read active-deadline repair",
-        "instruction": "HUMAN_APPROVAL_REQUIRED: qualify a safe-local active query deadline for the startup-only _seed_read.",
-        "approval_text": "Authorize PSI0A-D6V safe-local design, implementation, frozen/ephemeral SQLite tests, focused success/deadline/query-exception/progress-handler-removal/connection-close/no-subscription-on-failure and ordering tests, regression tests, documentation and one narrow commit changing only watchtower_listener._seed_trade_subscriptions._seed_read so its existing read-only token_analysis query has an active maximum two-second monotonic deadline enforced by a SQLite progress handler, raises a named internal deadline condition, removes the progress handler unconditionally and closes through managed_db_connect on every success and exception path. Preserve the exact SELECT, predicates, ordering, LIMIT 200, asyncio.to_thread boundary, fail-open outer behavior, PumpPortal batching and subscription semantics, listener concurrency and all production flags; add no retry, new query, index, schema change, provider call, configuration change or authority expansion. Frozen/ephemeral fixtures only. Do not access production/runtime databases or services, deploy, signal, restart or stop services, execute production DDL or writes, change watchdog thresholds, manipulate locks or metrics, recapture high-waters, extract canonical evidence or shadow output, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D2 or PSI0A-E through H or PSI0B, activate production, or enter EB2.",
+        "milestone": "PSI0A-D6W seed-read deadline deployment verification",
+        "instruction": "HUMAN_APPROVAL_REQUIRED: authorize exactly one listener restart to load PSI0A-D6V and verify startup cleanup.",
+        "approval_text": "Authorize exactly one watchtower_listener restart to load PSI0A-D6V commit d0bd5f1d2f0d95cc6026d681bb4c3ee1a619165f, with immediate bounded local verification of a new stable listener PID, PumpPortal/PumpSwap and ingestion continuity, startup _seed_read completing within two seconds or raising PSI0A_D6V_SEED_READ_DEADLINE_EXCEEDED with progress-handler removal and managed connection closure, no subscription send after a deadline, primary_fd_count below 8 at every post-start checkpoint, serializer p99 below 1000 ms, no lock-error increment, no sustained serializer queue depth, continued D6Q vault-discovery and D6R usage-tracker lifecycle behavior when naturally exercised, healthy write-lease/service state, unchanged production flags and evidence_writer STOPPED. Stop without a second restart on startup failure, seed-read connection lifetime exceeding two seconds plus bounded cleanup tolerance, descriptor threshold breach, serializer/queue/lock degradation, feed or ingestion degradation, production impact, observer insufficiency or scope expansion. No other service restart or stop, provider qualification call, production database query, DDL or production write, configuration or watchdog-threshold change, lock or metric manipulation, high-water recapture, canonical evidence extraction, shadow output, Evidence Mirror or Cohort Mode activation, PSI0A-D2 or PSI0A-E through H, PSI0B, production activation or EB2 work.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

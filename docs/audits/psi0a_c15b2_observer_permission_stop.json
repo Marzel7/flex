@@ -1,0 +1,40 @@
+{
+  "milestone": "PSI0A-C15B2",
+  "status": "INCONCLUSIVE_STOP",
+  "verdict": "OBSERVER_PID_PROBE_PERMISSION_FAILURE_NO_PRODUCTION_FAILURE",
+  "engineering_revision": "ca26c0200c91f8d6fd7a803fa6f11215864caa99",
+  "authorized_start_utc": "2026-08-14T09:05:19Z",
+  "observer_stop_utc": "2026-08-14T09:05:38Z",
+  "first_checkpoint": {
+    "listener_pid_from_supervisor": 9069,
+    "listener_uptime": "1:13:44",
+    "serializer_p99_wait_ms": 71.35,
+    "serializer_p95_wait_ms": 1.91,
+    "serializer_queue_depth": 0,
+    "primary_fd_count": 0
+  },
+  "observer_failure": {
+    "probe": "os.kill(pid, 0) from sandboxed monitor",
+    "result": "permission denied was incorrectly collapsed into pid_alive=false",
+    "classification": "OBSERVER_INSTRUMENTATION_FAILURE",
+    "retry_performed": false
+  },
+  "immediate_read_only_verification": {
+    "verified_utc": "2026-08-14T09:05:59Z",
+    "supervisor_state": "RUNNING",
+    "listener_pid": 9069,
+    "listener_uptime": "1:14:24",
+    "process_present": true,
+    "actual_pid_change": false,
+    "production_failure_observed": false
+  },
+  "actions": {
+    "production_database_connections_opened": 0,
+    "database_queries": 0,
+    "production_writes": 0,
+    "service_restarts_or_stops": 0,
+    "provider_calls": 0,
+    "observation_retry": 0
+  },
+  "next": "A separately authorized observation must use Supervisor status or lifecycle snapshot PID identity rather than a sandboxed signal probe."
+}

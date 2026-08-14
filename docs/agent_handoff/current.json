@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-13T22:27:31Z",
+  "updated_at_utc": "2026-08-14T05:27:01Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "ac9bb0c01c37bfaf2a5685354710a11e4d18380a",
-    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths; EB1.3D engineering commit contains only the verified-output envelope extension, manifest, tests and documentation; all unrelated paths preserved"
+    "git_head": "f572cb96936facb1e373976e5a977ce4433fc10f",
+    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths; EB1.3E engineering commit contains only its corpus, tests and documentation; all unrelated paths preserved"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-      "milestone": "EB1.3D immutable non-executable planning-proposal manifests",
+      "milestone": "EB1.3E deterministic per-authority-lane planning-proposal corpus",
       "mode": "safe-local frozen-fixture design, implementation, test and narrow commit",
       "status": "COMPLETE",
-      "verdict": "IMMUTABLE_PLANNING_PROPOSAL_MANIFEST_QUALIFIED"
+      "verdict": "PLANNING_PROPOSAL_CORPUS_QUALIFIED"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,21 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb1_3e_planning_proposal_corpus": {
+      "status": "COMPLETE",
+      "verdict": "PLANNING_PROPOSAL_CORPUS_QUALIFIED",
+      "engineering_commit": "f572cb96936facb1e373976e5a977ce4433fc10f",
+      "verification_utc": "2026-08-14T05:27:01Z",
+      "qualified_semantics": "only exact replay-verified EB1.3D manifest and EB1.3C projection pairs enter the corpus; immutable entries preserve source-manifest identity and complete proposal records within originating stage/authority lanes; duplicate manifests, collisions, unverified inputs and lane substitution fail closed; outputs expose counts and digests only",
+      "tests": "67 passed across EB1.0, EB1.1, EB1.2A, EB1.3A/C/D/E and operator-neutrality regressions",
+      "provider_calls": 0,
+      "production_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb1_3d_immutable_planning_proposal_manifest": {
       "status": "COMPLETE",
       "verdict": "IMMUTABLE_PLANNING_PROPOSAL_MANIFEST_QUALIFIED",
@@ -4265,6 +4280,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "EB1.3A-E now form a frozen in-memory contract/adapter/manifest/corpus stack, but no closure assessment has defined a fixture-only query extractor boundary, input schema, ceilings, deadlines or immutable output-bundle contract. No proposal grants planning or execution authority.",
     "EB1.3D qualifies immutable individual proposal manifests only. No per-authority-lane proposal corpus, extractor boundary or immutable output bundle exists. Proposal alternatives remain unselected and both planning and execution authority remain false.",
     "EB1.3C qualifies deterministic verified-lineage projection only. No immutable EB1.3 proposal manifest, corpus, extractor or output-bundle boundary exists yet. Candidate alternatives and assumptions remain explicit caller inputs, and no artifact grants planning or execution authority.",
     "EB1.3B found that EB1.2A lineage digests are syntactically validated but not independently matched to verified EB1.1H projection/manifest/corpus digests. Until a fixture-only verified-lineage adapter enforces that match, EB1.3A proposals cannot claim committed bundle lineage. Candidate alternatives, assumptions and proposal-history fields remain explicit caller inputs and may not be derived or selected.",
@@ -4335,9 +4351,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB1.3E deterministic per-authority-lane planning-proposal corpus",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Assemble only replay-verified EB1.3D manifests into an immutable per-authority-lane proposal corpus without merging lanes, choosing alternatives or granting authority.",
-    "approval_text": "Authorize safe-local design, implementation, frozen-fixture tests, regression tests, documentation, and one narrow commit for EB1.3E deterministic per-authority-lane non-executable planning-proposal corpus assembly over replay-verified EB1.3D manifests only. Group by originating stage and authority lane while preserving every distinct requirement, review, proposal, cohort/window scope, candidate alternative, assumption, sequence, reason, rationale, supersession and source-manifest identity; expose only proposal and coverage counts, immutable lineage digests and exact replay. Reject collisions and any cross-lane merge or substitution. Preserve NON_EXECUTABLE_PLANNING_PROPOSAL, grants_planning_authority=false and grants_execution_authority=false. Do not review, approve, derive, choose, rank, acquire or fulfill alternatives. Frozen fixtures only. No source selection, acquisition plan or request budget, production/runtime access, live extraction or census, provider/RPC calls, production writes, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, cross-entity linkage, rates, profiles, ranking, scoring, policy activation, profitability/cashflow inference, operator identity/attribution, or activation. Do not assign or enter an EB2 namespace.",
+    "milestone": "EB1.3F frozen-stack closure and query-extractor preflight",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Assess EB1.3A-E closure and define only the fixture-bound query extractor contract, exact inputs, query-only boundaries, deadlines and ceilings without implementing or executing it.",
+    "approval_text": "Authorize a bounded local read-only EB1.3F frozen-stack closure and query-only extractor preflight using committed EB1.3A-E code, tests, documentation, schemas and frozen fixtures only. Determine whether the contract/adapter/manifest/corpus stack is complete; define the exact minimum immutable EB1.1H bundle, EB1.2A review-history and explicit proposal-input records required by a future fixture-only extractor; specify exact schema allow-lists, canonical serialization, mode=ro and verified PRAGMA query_only, active query deadline, row/byte/proposal ceilings, lineage/replay checks, selected/excluded/not-ready/conflict accounting, and the smallest next safe-local milestone. Do not implement or execute an extractor, review or approve proposals, derive, choose, rank, acquire or fulfill alternatives. No source selection, acquisition plan or request budget, production/runtime access, live extraction or census, provider/RPC calls, production writes, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, cross-entity linkage, rates, profiles, ranking, scoring, policy activation, profitability/cashflow inference, operator identity/attribution, or activation. Do not assign or enter an EB2 namespace.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

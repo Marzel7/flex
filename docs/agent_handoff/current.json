@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T13:04:50Z",
+  "updated_at_utc": "2026-08-14T13:08:06Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-        "published_at_utc": "2026-08-14T13:04:50Z",
+        "published_at_utc": "2026-08-14T13:08:06Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-        "milestone": "PSI0A-D6N pool-discovery repair deployment",
-        "mode": "single listener restart completed; immediate verification stopped on new serializer wait episode",
+        "milestone": "PSI0A-D6O startup usage-tracker wait diagnosis",
+        "mode": "read-only diagnosis partially completed; stopped on primary_fd_count=14",
         "status": "HUMAN_APPROVAL_REQUIRED",
-        "verdict": "REPAIR_LOADED_STOP_NEW_SERIALIZER_WAIT_EPISODE"
+        "verdict": "USAGE_TRACKER_ORDERING_IDENTIFIED_STOP_VAULT_DESCRIPTOR_14"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,22 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0a_d6o_usage_tracker_diagnosis_descriptor_stop": {
+      "status": "PARTIAL_STOP",
+      "verdict": "USAGE_TRACKER_ORDERING_IDENTIFIED_STOP_VAULT_DESCRIPTOR_14",
+      "engineering_revision": "718fa6078f264dff36ba741de82413e51e4a3b00",
+      "listener_pid": 88910,
+      "usage_tracker_long_connection_ms": 30838.579,
+      "usage_tracker_later_flush_ms": [28.948, 22.2, 34.024],
+      "usage_tracker_cause": "per-batch journal PRAGMAs overlapped startup read while serializer lane retained",
+      "pool_discovery_d6m_verdict": "REPAIR_BEHAVING_AS_DESIGNED",
+      "primary_fd_count_stop": 14,
+      "descriptor_caller": "vault_discovery.py:969 in discover_and_register_all_pools",
+      "descriptor_age_seconds": 22.0,
+      "registry_fd_delta": 13,
+      "production_database_queries": 0,
+      "artifact": "docs/audits/psi0a_d6o_usage_tracker_diagnosis_descriptor_stop.json"
+    },
     "psi0a_d6n_pool_discovery_deployment_serializer_stop": {
       "status": "PARTIAL_STOP",
       "verdict": "REPAIR_LOADED_STOP_NEW_SERIALIZER_WAIT_EPISODE",
@@ -5930,9 +5946,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-        "milestone": "PSI0A-D6O startup usage-tracker wait diagnosis",
-        "instruction": "HUMAN_APPROVAL_REQUIRED: diagnose the distinct post-D6M usage-tracker/startup wait episode before any further restart or repair.",
-        "approval_text": "Authorize PSI0A-D6O as a bounded local and production-telemetry read-only diagnosis of the new-PID serializer episode that stopped PSI0A-D6N: p99_wait_ms=9192.59, queue_depth=2, a usage_tracker._flush connection lasting 30838.579 ms with an open transaction/write lane, and an overlapping 46.6-second read-only _seed_read connection. Use committed source, Supervisor state/logs, connection-lifecycle/watchdog telemetry, db_serializer_metrics.json current/history, serializer writer/wait/commit and lease summaries, queue/websocket/ingestion health, read-only process timing and database/WAL file metadata only to determine the exact holder/wait ordering, whether usage_tracker is performing work or waiting inside its transaction, whether _seed_read or WAL/checkpoint interaction contributes, confirm that no recurrent pool_discovery long holder appears, and identify the smallest coherent safe-local repair or startup ordering boundary without implementing it. Stop on listener PID change, CRITICAL_LISTENER_DB_HANDLE, primary_fd_count reaching 8, further serializer/queue degradation, feed/ingestion/service degradation, production impact, need to open a production database or scope expansion. Do not open production databases, read rows or schema, execute DDL or production writes, deploy, signal, restart or stop services, change configuration or watchdog thresholds, reset metrics, manipulate locks, recapture high-waters, extract canonical evidence or shadow output, make provider/RPC calls, activate Evidence Mirror or Cohort Mode, retry an observation, proceed to PSI0A-D2 or PSI0A-E through H or PSI0B, activate production, or enter EB2.",
+        "milestone": "PSI0A-D6P vault-discovery descriptor diagnosis",
+        "instruction": "HUMAN_APPROVAL_REQUIRED: diagnose the vault-discovery descriptor amplification before implementing the separately identified usage-tracker repair.",
+        "approval_text": "Authorize PSI0A-D6P as a bounded local and production-telemetry read-only diagnosis of the primary_fd_count=14 event that stopped PSI0A-D6O, dominated by vault_discovery.py:969 in discover_and_register_all_pools with one tracked 22-second connection and registry_fd_delta=13. Use committed source, Supervisor state/logs, listener connection-lifecycle/watchdog telemetry, read-only process descriptor metadata, serializer/lease/queue/websocket/ingestion health and database/WAL file metadata only to identify the 13 untracked descriptors, exact vault-discovery connection and task lifetime, concurrent fan-out and cleanup ordering, determine whether it is a leak, long-held connection or transient descriptor multiplication, and define the smallest safe-local repair or observation boundary without implementing it. Preserve the D6O finding that usage_tracker steady-state journal PRAGMAs require a separate safe-local repair, but do not implement either repair. Stop on listener PID change, CRITICAL_LISTENER_DB_HANDLE, serializer p99 reaching 1000 ms or worsening, sustained nonzero queue depth, feed/ingestion/service degradation, production impact, need to open a production database or scope expansion. Do not open production databases, read rows or schema, execute DDL or production writes, deploy, signal, restart or stop services, change configuration or watchdog thresholds, reset metrics, manipulate locks, recapture high-waters, extract canonical evidence or shadow output, make provider/RPC calls, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D2 or PSI0A-E through H or PSI0B, activate production, or enter EB2.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D4",
+  "status": "COMPLETE",
+  "verdict": "PASS_FIXTURE_ONLY_MIGRATION_TX_INDEX_REPAIR_QUALIFIED",
+  "engineering_base_revision": "7a9c0c2bca9d3936dad482092a9aa2f236cb2303",
+  "source_diagnosis": "PSI0A-D3",
+  "contract_version": "psi0a-d4.v1",
+  "contract_digest": "a160398c3130dbacf2314bb4046b9bac4865cd9dd421311f2fd999058c0ab9f2",
+  "repair": {
+    "database_id": "main",
+    "relation_name": "token_analysis",
+    "required_column": ["migration_tx", "TEXT"],
+    "index_name": "idx_psi0a_token_analysis_migration_tx",
+    "index_columns": ["migration_tx"],
+    "statement": "CREATE INDEX IF NOT EXISTS \"idx_psi0a_token_analysis_migration_tx\" ON \"token_analysis\" (\"migration_tx\")"
+  },
+  "qualification": {
+    "tests_passed": 44,
+    "tests_failed": 0,
+    "idempotence_proven": true,
+    "already_compatible_no_op_proven": true,
+    "row_preservation_proven": true,
+    "conflicting_definition_rejected": true,
+    "column_affinity_drift_rejected": true,
+    "exact_reconciler_query_plan_before": "RELATION_SCAN",
+    "exact_reconciler_query_plan_after": "INDEXED_SEARCH",
+    "contract_and_result_replay_verified": true
+  },
+  "scope": {
+    "fixtures_only": true,
+    "production_or_runtime_access": 0,
+    "production_indexes_created": 0,
+    "production_writes_or_ddl": 0,
+    "listener_runtime_code_modified": false,
+    "provider_calls": 0,
+    "service_or_configuration_changes": 0,
+    "grants_extraction_authority": false,
+    "grants_activation_authority": false
+  },
+  "next_action": "Separately authorize a safe-local durable single-index runner adaptation for the D4 contract before any production deployment is proposed; no deployment is authorized by PSI0A-D4."
+}

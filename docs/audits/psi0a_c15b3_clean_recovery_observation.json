@@ -1,0 +1,54 @@
+{
+  "milestone": "PSI0A-C15B3",
+  "status": "COMPLETE",
+  "verdict": "PASS_15_CLEAN_MINUTES_RECOVERY_PROVEN",
+  "engineering_revision": "37346eed73d0b2ba9eb4498d68e20610a713100e",
+  "observation": {
+    "start_utc": "2026-08-14T09:08:33.501711Z",
+    "terminal_sample_utc": "2026-08-14T09:23:34.504937Z",
+    "terminal_verification_utc": "2026-08-14T09:23:49Z",
+    "duration_seconds": 901.0,
+    "samples": 61,
+    "listener_pid": 9069,
+    "listener_pid_stable": true,
+    "max_primary_fd_count": 7,
+    "fd_warning_threshold": 8,
+    "critical_listener_db_handle_events": 0,
+    "max_serializer_p99_wait_ms": 49.59,
+    "terminal_serializer_p99_wait_ms": 23.04,
+    "terminal_serializer_p95_wait_ms": 0.05,
+    "serializer_queue_depth_each_checkpoint": 0,
+    "terminal_lock_errors_24h": 0,
+    "observer_failures": 0
+  },
+  "terminal_health": {
+    "watchtower_listener": "RUNNING pid 9069 uptime 1:32:14",
+    "watchtower_api": "RUNNING",
+    "creator_funding_worker": "RUNNING",
+    "creator_resolution_worker": "RUNNING",
+    "ws_cascade": "RUNNING",
+    "evidence_writer": "STOPPED",
+    "pumpportal_birth_traffic": true,
+    "pumpportal_migration_traffic": true,
+    "migration_websocket_traffic": true,
+    "feed_degradation_observed": false,
+    "service_degradation_observed": false
+  },
+  "actions": {
+    "production_database_connections_opened": 0,
+    "database_queries": 0,
+    "production_writes": 0,
+    "ddl_statements": 0,
+    "service_restarts_or_stops": 0,
+    "configuration_changes": 0,
+    "provider_calls": 0,
+    "high_waters_captured": 0,
+    "evidence_extractions": 0,
+    "process_signals": 0
+  },
+  "next": {
+    "psi0a_c15_ready_for_separate_reauthorization": true,
+    "psi0a_c15_authorized": false,
+    "psi0a_d_or_later_authorized": false
+  }
+}

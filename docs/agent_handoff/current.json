@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T13:30:43Z",
+  "updated_at_utc": "2026-08-14T13:34:55Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-        "published_at_utc": "2026-08-14T13:30:43Z",
+        "published_at_utc": "2026-08-14T13:34:55Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-        "milestone": "PSI0A-D6S combined connection-scope repair deployment",
-        "mode": "exactly one restart executed; immediate verification stopped on descriptor threshold",
+        "milestone": "PSI0A-D6T startup seed-read descriptor diagnosis",
+        "mode": "bounded diagnosis stopped at initial serializer pressure gate",
         "status": "HUMAN_APPROVAL_REQUIRED",
-        "verdict": "PARTIAL_STOP_DESCRIPTOR_THRESHOLD"
+        "verdict": "PARTIAL_STOP_SERIALIZER_P99"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,20 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0a_d6t_seed_read_diagnosis_serializer_stop": {
+      "status": "PARTIAL_STOP",
+      "verdict": "PARTIAL_STOP_SERIALIZER_P99",
+      "engineering_revision": "c449b221c4e5cf4916b38f41251a7b193ffecd71",
+      "listener_pid": 1595,
+      "serializer_p99_wait_ms": 1075.63,
+      "serializer_queue_depth": 0,
+      "serializer_lock_errors_24h": 0,
+      "seed_read_managed_read_only": true,
+      "seed_read_active_query_deadline": false,
+      "descriptor_attribution_complete": false,
+      "production_database_queries": 0,
+      "artifact": "docs/audits/psi0a_d6t_seed_read_diagnosis_serializer_stop.json"
+    },
     "psi0a_d6s_combined_connection_scope_restart_descriptor_stop": {
       "status": "PARTIAL_STOP",
       "verdict": "PARTIAL_STOP_DESCRIPTOR_THRESHOLD",
@@ -6008,9 +6022,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-        "milestone": "PSI0A-D6T startup seed-read descriptor diagnosis",
-        "instruction": "HUMAN_APPROVAL_REQUIRED: diagnose the _seed_read owner-thread cleanup and physical descriptor multiplication that stopped PSI0A-D6S.",
-        "approval_text": "Authorize PSI0A-D6T as a bounded local and production-telemetry read-only diagnosis of the watchtower_listener PID 1595 startup _seed_read descriptor episode that stopped PSI0A-D6S at primary_fd_count=10, registry_count=1 and registry_fd_delta=9 with the tracked connection in OWNER_THREAD_CLEANUP_REQUIRED state after 43.2 seconds. Use committed source, Supervisor state/logs, listener lifecycle/watchdog telemetry, read-only process descriptor metadata, db_serializer_metrics.json snapshots, serializer/write-lease summaries, queue/websocket/ingestion health and database/WAL file metadata only to determine the exact _seed_read task and connection lifetime, owner-thread cleanup request and completion ordering, the nine untracked physical descriptors or concurrent opens where observable, whether this is startup-only transient work or a recurrent leak/long-held scope, and the smallest coherent safe-local repair or revised verification boundary without implementing it. Preserve the D6Q vault-discovery and D6R usage-tracker findings. Stop on listener PID change, CRITICAL_LISTENER_DB_HANDLE, serializer p99 reaching 1000 ms, sustained nonzero serializer queue depth, feed/ingestion/service degradation, production impact, need to open a production database or scope expansion. Do not open production databases, read rows or schema, execute DDL or production writes, deploy, signal, restart or stop services, change configuration or watchdog thresholds, reset metrics, manipulate locks, recapture high-waters, extract canonical evidence or shadow output, make provider/RPC calls, activate Evidence Mirror or Cohort Mode, retry verification, proceed to PSI0A-D2 or PSI0A-E through H or PSI0B, activate production, or enter EB2.",
+        "milestone": "PSI0A-D6U post-restart serializer-pressure diagnosis",
+        "instruction": "HUMAN_APPROVAL_REQUIRED: diagnose the p99 rise that stopped D6T before resuming seed-read attribution.",
+        "approval_text": "Authorize PSI0A-D6U as a bounded local and production-telemetry read-only diagnosis of the post-restart serializer p99 rise from 0.57 ms to 1075.63 ms that stopped PSI0A-D6T while queue_depth remained 0 and lock_errors_24h remained 0. Use db_serializer_metrics.json current/history snapshots, committed metric-window implementation, serializer writer/wait/commit and write-lease summaries, Supervisor state/logs, listener lifecycle/watchdog telemetry, queue/websocket/ingestion health and database/WAL file metadata only to identify the dominant recorded wait episodes, distinguish active contention from rolling-window residue, correlate the rise with the startup _seed_read descriptor episode where observable, quantify recovery, and define the smallest objective telemetry gate for separately resuming D6T or authorizing a safe-local _seed_read deadline repair. Treat p99=1075.63 ms as the known condition under diagnosis, but stop on listener PID change, CRITICAL_LISTENER_DB_HANDLE, p99 worsening, sustained nonzero queue depth, a lock-error increment, feed/ingestion/service degradation, production impact, need to open a production database or scope expansion. Do not open production databases, read rows or schema, execute DDL or production writes, deploy, signal, restart or stop services, change configuration or watchdog thresholds, reset metrics, manipulate locks, recapture high-waters, extract canonical evidence or shadow output, make provider/RPC calls, activate Evidence Mirror or Cohort Mode, resume D6T, proceed to PSI0A-D2 or PSI0A-E through H or PSI0B, activate production, or enter EB2.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

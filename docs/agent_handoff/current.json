@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T06:15:00Z",
+  "updated_at_utc": "2026-08-14T06:42:00Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "7b58517afe2fc8a1a3f3f65bb7c5546aca13db14",
-    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths; PSI0A-A/B/C engineering commits are narrow and all unrelated paths remain preserved"
+    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0A-C1 was diagnosis-only and made no engineering change"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-14T06:15:00Z",
+    "published_at_utc": "2026-08-14T06:42:00Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0A-C stable high-water/read-boundary qualification",
-    "mode": "staged safe-local implementation plus bounded read-only production aggregate preflight",
+    "milestone": "PSI0A-C1 evidence acquired-at runtime encoding diagnosis",
+    "mode": "bounded read-only aggregate/type diagnosis only",
     "status": "HOLD",
-    "verdict": "PSI0A_C_STOPPED_RUNTIME_TYPE_SEMANTIC_MISMATCH"
+    "verdict": "PSI0A_C1_EVIDENCE_ATTRIBUTION_RETRACTED_CREATOR_DIAGNOSIS_REQUIRED"
   },
   "production_state": {
     "retention": "ON",
@@ -247,11 +247,11 @@
       },
       "production_stop": {
         "error": "PSI0A_C_NON_INTEGER_HIGH_WATER",
-        "relation": "evidence.normalized_evidence_records",
-        "column": "acquired_at",
-        "declared_affinity": "INTEGER",
-        "observed_max_runtime_type": "text ISO-8601 timestamp",
-        "finding": "The declared numeric affinity is not a reliable ordering semantic because production contains an ISO-8601 text value. The contract refused coercion or an implicit timestamp policy."
+        "original_relation_attribution": "RETRACTED",
+        "evidence_relation_result": "normalized_evidence_records contains zero rows; acquired_at has no observed runtime value or type conflict",
+        "committed_evidence_semantics": "schema, record contract, normalizer and writer all require integer acquired_at",
+        "deterministic_capture_order_finding": "creator.creator_tokens.created_at is evaluated before evidence.normalized_evidence_records.acquired_at and is therefore the earliest possible source of the observed text maximum; runtime confirmation is outside PSI0A-C1",
+        "finding": "PSI0A-C remains fail-closed. Evidence acquired_at is cleared as the source of the prior exception, but an empty evidence table cannot provide a populated event high-water and the creator timestamp semantics require separately authorized diagnosis."
       },
       "not_started": ["PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H"],
       "provider_calls": 0,
@@ -264,6 +264,40 @@
       "evidence_mirror": "OFF",
       "cohort_mode": "OFF",
       "activation": false
+    },
+    "psi0a_c1_evidence_acquired_at_diagnosis": {
+      "status": "COMPLETE",
+      "verdict": "EVIDENCE_ACQUIRED_AT_EMPTY_AND_COMMITTED_INTEGER_SEMANTICS_CONFIRMED",
+      "engineering_commit": "7b58517afe2fc8a1a3f3f65bb7c5546aca13db14",
+      "verification_utc": "2026-08-14T06:42:00Z",
+      "production_query_boundary": {
+        "database": "database/evidence_platform/production/evidence.db",
+        "relation": "normalized_evidence_records",
+        "connection": "URI mode=ro with PRAGMA query_only verified",
+        "lock_timeout_ms": 250,
+        "deadline_seconds": 2,
+        "query_class": "aggregate/type only"
+      },
+      "runtime_counts": {
+        "total": 0,
+        "null": 0,
+        "integer": 0,
+        "real": 0,
+        "text": 0,
+        "other": 0
+      },
+      "bounded_minimum_representation": null,
+      "bounded_maximum_representation": null,
+      "committed_semantics": "INTEGER NOT NULL; EvidenceRecord acquired_at is int; normalizer and writer coerce/require int",
+      "smallest_coherent_repair_assessment": "Do not normalize or coerce evidence acquired_at: no conflicting runtime value exists. A deterministic cursor-only zero boundary is possible for this empty relation, but PSI0A-C cannot resume until the earlier creator.created_at text boundary is diagnosed under separate authorization.",
+      "sensitive_rows_read": 0,
+      "payload_or_identity_fields_read": 0,
+      "provider_calls": 0,
+      "production_changes": false,
+      "service_restarts": 0,
+      "configuration_changes": 0,
+      "evidence_extractions": 0,
+      "not_started": ["PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
     },
     "psi0a_pre_extraction_roadmap_ratification": {
       "status": "COMPLETE",
@@ -4449,7 +4483,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "PSI0A-C stopped on PSI0A_C_NON_INTEGER_HIGH_WATER: evidence.normalized_evidence_records.acquired_at is declared INTEGER but its production maximum has text ISO-8601 runtime encoding. No coercion or replacement boundary is authorized. PSI0A-D through H were not started, and PSI0B remains prohibited.",
+    "PSI0A-C1 retracted the original evidence.acquired_at attribution: normalized_evidence_records is empty and committed evidence writers enforce integer acquired_at. Deterministic capture order places the non-integer failure no later than creator.creator_tokens.created_at; runtime confirmation is outside C1 and requires separate approval. PSI0A-D through H remain not started, and PSI0B remains prohibited.",
     "PSI0A is ratified but not yet authorized for execution. PSI0A-A must first freeze the production boundary. All PSI0A stages prohibit actual EB evidence extraction, and PSI0B remains separately human-gated even after a PSI0A PASS.",
     "EB1.4A is intentionally deferred. The production shadow-integration track is not yet authorized and must begin with a no-extraction read-only schema/high-water compatibility preflight. Any real query-only extraction or production activation requires a later separate authorization.",
     "The post-EB1.3 reconciliation identifies EB1.4A as the next safe-local contract, but implementation is not authorized by the read-only reconciliation milestone. Any proposal disposition must remain non-executable and may not choose sources or alternatives, define acquisition, grant planning/execution authority, or enter EB2.",
@@ -4527,9 +4561,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0A-C1 evidence acquired-at semantic diagnosis",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Diagnose only the declared-versus-runtime acquired_at encoding mismatch with bounded read-only aggregate/type inspection, then identify the smallest coherent high-water contract repair without implementing or resuming PSI0A.",
-    "approval_text": "Authorize PSI0A-C1 as a bounded read-only diagnosis of evidence.normalized_evidence_records.acquired_at runtime encodings and ordering semantics. Use URI mode=ro, verified PRAGMA query_only, a 250 ms lock timeout, active deadline, and aggregate/type queries only to measure NULL/integer/real/text/other counts and bounded minimum/maximum representations without reading payload_json, natural keys, provider fields, evidence identities or individual evidence records. Reconcile the observed encodings with committed schema and writer/parser code; identify the smallest deterministic high-water repair—such as a cursor-only boundary or an explicitly normalized timestamp boundary—but do not implement it or resume PSI0A-C. Stop on database pressure, lock contention, deadline breach, health degradation, production impact, need to inspect sensitive row content, or required scope expansion. No canonical evidence extraction, shadow output, provider/RPC call, production write or DDL, deployment, service restart or stop, configuration change, Evidence Mirror, Cohort Mode, proposal disposition, source selection, acquisition planning, ranking, scoring, policy or activation, PSI0A-D through H, PSI0B, or EB2 work.",
+    "milestone": "PSI0A-C2 creator created-at semantic diagnosis",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Diagnose only creator.creator_tokens.created_at runtime encodings and ordering semantics, then identify the smallest coherent high-water contract repair without implementing it or resuming PSI0A-C.",
+    "approval_text": "Authorize PSI0A-C2 as a bounded read-only diagnosis of creator.creator_tokens.created_at runtime encodings and ordering semantics. Use URI mode=ro, verified PRAGMA query_only, a 250 ms lock timeout, active deadline, and aggregate/type queries only to measure NULL/integer/real/text/other counts and bounded minimum/maximum representations without reading mint, creator, transaction, provider, evidence-identity, or individual record content. Reconcile the observed encodings with committed schema and writer/parser code; identify the smallest deterministic high-water repair—such as a cursor-only boundary or an explicitly normalized timestamp boundary—but do not implement it or resume PSI0A-C. Stop on database pressure, lock contention, deadline breach, health degradation, production impact, need to inspect sensitive row content, or required scope expansion. No canonical evidence extraction, shadow output, provider/RPC call, production write or DDL, deployment, service restart or stop, configuration change, Evidence Mirror, Cohort Mode, PSI0A-D through H, PSI0B, activation, or EB2 work.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T12:00:30Z",
+  "updated_at_utc": "2026-08-14T12:14:51Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-        "published_at_utc": "2026-08-14T12:00:30Z",
+        "published_at_utc": "2026-08-14T12:14:51Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-        "milestone": "PSI0A-D6F1 corrected post-deployment stability observation",
-        "mode": "observation stopped at 65.6 seconds when primary_fd_count reached 10",
+        "milestone": "PSI0A-D6G post-index descriptor diagnosis",
+        "mode": "bounded source and production-telemetry diagnosis complete; no database opened or production mutation",
         "status": "HUMAN_APPROVAL_REQUIRED",
-        "verdict": "STOP_PRIMARY_DESCRIPTOR_COUNT_REACHED_10_AFTER_INDEX_DEPLOYMENT"
+        "verdict": "BLOCKLIST_EXCEPTION_PATH_LEAK_DOMINATES_RESIDUAL_STRUCTURAL_RISK"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,36 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0a_d6g_post_index_descriptor_diagnosis": {
+      "status": "COMPLETE",
+      "verdict": "BLOCKLIST_EXCEPTION_PATH_LEAK_DOMINATES_RESIDUAL_STRUCTURAL_RISK",
+      "engineering_revision": "c604b6f02a20dd711e334f5921dbd2dfd65a7be5",
+      "listener_pid": 42483,
+      "listener_pid_stable": true,
+      "telemetry_records": 15668,
+      "watchdog_snapshots": 71,
+      "critical_listener_db_handle_events": 0,
+      "d6f1_primary_fd_count": 10,
+      "d6f1_registry_count": 6,
+      "d6f1_registry_fd_delta": 4,
+      "reconciler_connections": 17,
+      "reconciler_average_age_ms": 61.974,
+      "reconciler_maximum_age_ms": 293.782,
+      "reconciler_connections_over_one_second": 0,
+      "blocklist_unmatched_open_connections": 14,
+      "blocklist_guaranteed_close_missing": true,
+      "seed_read_average_age_ms": 41228.663,
+      "seed_read_present_in_d6f1_threshold_snapshot": false,
+      "pool_shared_check_concurrent_instances_at_threshold": 2,
+      "terminal_serializer_p99_wait_ms": 156.48,
+      "terminal_serializer_queue_depth": 0,
+      "terminal_serializer_lock_errors_24h": 0,
+      "production_database_connections_opened": 0,
+      "ddl_or_production_writes": 0,
+      "service_signals_stops_or_restarts": 0,
+      "provider_calls": 0,
+      "artifact": "docs/audits/psi0a_d6g_post_index_descriptor_diagnosis.json"
+    },
     "psi0a_d6f1_post_deployment_descriptor_stop": {
       "status": "FAILED_GATE_STOP",
       "verdict": "STOP_PRIMARY_DESCRIPTOR_COUNT_REACHED_10_AFTER_INDEX_DEPLOYMENT",
@@ -5759,9 +5789,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-        "milestone": "PSI0A-D6G post-index descriptor diagnosis",
-        "instruction": "HUMAN_APPROVAL_REQUIRED: diagnose the remaining listener descriptor fan-out before any further stability observation or PSI0A-D2 attempt.",
-        "approval_text": "Authorize PSI0A-D6G as a bounded local and production-telemetry read-only diagnosis of the watchtower_listener primary_fd_count rise from 0 to 10 during PSI0A-D6F1 after deployment of idx_psi0a_token_analysis_migration_tx. Use committed source and PSI0A-D3 through D6F1 artifacts, Supervisor state and logs, listener connection-lifecycle/watchdog snapshots, read-only process descriptor metadata, db_serializer_metrics.json snapshots, serializer/write-lease summaries, queue/websocket/ingestion health and database/WAL file metadata only. Compare all post-D6E descriptor cycles; identify tracked callers, purposes, owner-thread cleanup states, lifetimes, registry_fd_delta and concurrent fan-out where observable; determine whether the indexed _reconciler_unseen_sigs path recovered and which remaining path or paths dominate the threshold breach; and identify the smallest coherent safe-local repair or revised observation contract without implementing it. Stop on listener PID change, any CRITICAL_LISTENER_DB_HANDLE event, serializer p99 reaching 1000 ms, sustained nonzero serializer queue depth, queue/websocket/ingestion or service degradation, production impact beyond the existing descriptor warning, need to open a production database, or scope expansion. Do not open production databases, read rows or schema, execute EXPLAIN or any PSI0A-D SELECT template, execute DDL or production writes, recapture high-waters, create shadow output, make provider/RPC calls, deploy, signal, restart or stop services, change configuration or watchdog thresholds, reset metrics, manipulate locks, activate Evidence Mirror or Cohort Mode, retry a stability observation, proceed to PSI0A-D2 or PSI0A-E through H or PSI0B, activate production, or enter EB2.",
+        "milestone": "PSI0A-D6H blocklist connection-lifecycle repair",
+        "instruction": "HUMAN_APPROVAL_REQUIRED: separately authorize the smallest safe-local guaranteed-close repair identified by D6G.",
+        "approval_text": "Authorize PSI0A-D6H safe-local design, implementation, focused success/SELECT/JSON/UPDATE/INSERT/commit exception-path lifecycle tests, regression tests, documentation and one narrow commit changing only _add_rug_creator_to_blocklist._blocklist_write so its main-database connection is guaranteed to close on every return and exception path using managed_db_connect or an explicit finally backstop. Preserve existing creator-blocklist behavior, transaction semantics, fail-open outer error handling, write-serializer/lease integration, listener concurrency and all production flags; add no retry, new query, schema change, index, provider work or authority expansion. Frozen/ephemeral SQLite fixtures only. Do not access production/runtime databases or services, deploy, restart or stop services, execute production DDL or writes, change configuration or watchdog thresholds, manipulate locks or metrics, recapture high-waters, extract canonical evidence or shadow output, make provider/RPC calls, activate Evidence Mirror or Cohort Mode, retry a stability observation, proceed to PSI0A-D2 or PSI0A-E through H or PSI0B, activate production, or enter EB2.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T12:58:07Z",
+  "updated_at_utc": "2026-08-14T13:04:50Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-        "published_at_utc": "2026-08-14T12:58:07Z",
+        "published_at_utc": "2026-08-14T13:04:50Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-        "milestone": "PSI0A-D6M pool-discovery connection-lifecycle repair",
-        "mode": "safe-local implementation and fixture/fault qualification complete; running listener unchanged",
+        "milestone": "PSI0A-D6N pool-discovery repair deployment",
+        "mode": "single listener restart completed; immediate verification stopped on new serializer wait episode",
         "status": "HUMAN_APPROVAL_REQUIRED",
-        "verdict": "POOL_DISCOVERY_WRITE_SCOPE_GUARANTEED_CLOSE_QUALIFIED"
+        "verdict": "REPAIR_LOADED_STOP_NEW_SERIALIZER_WAIT_EPISODE"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,26 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0a_d6n_pool_discovery_deployment_serializer_stop": {
+      "status": "PARTIAL_STOP",
+      "verdict": "REPAIR_LOADED_STOP_NEW_SERIALIZER_WAIT_EPISODE",
+      "engineering_revision": "718fa6078f264dff36ba741de82413e51e4a3b00",
+      "listener_pid_before": 82095,
+      "listener_restarts": 1,
+      "listener_pid_after": 88910,
+      "second_restart_performed": false,
+      "pumpportal_subscribed": true,
+      "pumpswap_subscribed": true,
+      "live_ingestion_observed": true,
+      "p99_wait_ms": 9192.59,
+      "queue_depth": 2,
+      "lock_errors_24h": 0,
+      "maximum_primary_fd_count": 5,
+      "usage_tracker_close_age_ms": 30838.579,
+      "new_pid_pool_discovery_pairing": "NOT_OBSERVED_NO_EVENT",
+      "evidence_writer_stopped": true,
+      "artifact": "docs/audits/psi0a_d6n_pool_discovery_deployment_serializer_stop.json"
+    },
     "psi0a_d6m_pool_discovery_connection_cleanup_qualification": {
       "status": "COMPLETE",
       "verdict": "POOL_DISCOVERY_WRITE_SCOPE_GUARANTEED_CLOSE_QUALIFIED",
@@ -5910,9 +5930,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-        "milestone": "PSI0A-D6N pool-discovery repair deployment",
-        "instruction": "HUMAN_APPROVAL_REQUIRED: separately authorize exactly one watchtower_listener restart to load the D6M repair and verify recovery.",
-        "approval_text": "Authorize exactly one watchtower_listener restart to load PSI0A-D6M commit 718fa6078f264dff36ba741de82413e51e4a3b00, with immediate local verification of a new stable listener PID, PumpPortal/PumpSwap and ingestion continuity, pool_discovery._do_db_write connection open/close pairing with no transaction or write lease retained after completion, primary_fd_count below 8, serializer p99 recovery below 1000 ms, zero sustained queue depth, no new lock-error increment after startup, healthy lease/service state, unchanged production flags and evidence_writer STOPPED. The currently degraded serializer window may be treated as the known condition being remediated, but stop without a second restart on startup failure, feed/ingestion degradation, recurrent pool-discovery long holder, descriptor threshold breach, serializer/queue/lock failure after startup, production impact or scope expansion. No other service restart or stop, provider call, production database query, DDL or production write, configuration or watchdog-threshold change, lock or metric manipulation, high-water recapture, canonical evidence extraction, shadow output, Evidence Mirror or Cohort Mode activation, PSI0A-D2 or PSI0A-E through H, PSI0B, production activation or EB2 work.",
+        "milestone": "PSI0A-D6O startup usage-tracker wait diagnosis",
+        "instruction": "HUMAN_APPROVAL_REQUIRED: diagnose the distinct post-D6M usage-tracker/startup wait episode before any further restart or repair.",
+        "approval_text": "Authorize PSI0A-D6O as a bounded local and production-telemetry read-only diagnosis of the new-PID serializer episode that stopped PSI0A-D6N: p99_wait_ms=9192.59, queue_depth=2, a usage_tracker._flush connection lasting 30838.579 ms with an open transaction/write lane, and an overlapping 46.6-second read-only _seed_read connection. Use committed source, Supervisor state/logs, connection-lifecycle/watchdog telemetry, db_serializer_metrics.json current/history, serializer writer/wait/commit and lease summaries, queue/websocket/ingestion health, read-only process timing and database/WAL file metadata only to determine the exact holder/wait ordering, whether usage_tracker is performing work or waiting inside its transaction, whether _seed_read or WAL/checkpoint interaction contributes, confirm that no recurrent pool_discovery long holder appears, and identify the smallest coherent safe-local repair or startup ordering boundary without implementing it. Stop on listener PID change, CRITICAL_LISTENER_DB_HANDLE, primary_fd_count reaching 8, further serializer/queue degradation, feed/ingestion/service degradation, production impact, need to open a production database or scope expansion. Do not open production databases, read rows or schema, execute DDL or production writes, deploy, signal, restart or stop services, change configuration or watchdog thresholds, reset metrics, manipulate locks, recapture high-waters, extract canonical evidence or shadow output, make provider/RPC calls, activate Evidence Mirror or Cohort Mode, retry an observation, proceed to PSI0A-D2 or PSI0A-E through H or PSI0B, activate production, or enter EB2.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

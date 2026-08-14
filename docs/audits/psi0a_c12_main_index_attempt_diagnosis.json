@@ -1,0 +1,65 @@
+{
+  "milestone": "PSI0A-C12",
+  "status": "COMPLETE",
+  "verdict": "EXTERNAL_RUNNER_TERMINATION_MOST_CONSISTENT_CAUSE_NOT_PROVEN",
+  "source_engineering_revision": "c699548998a5e47aad9213941914ffed524399eb",
+  "source_c11_audit_commit": "d1b0450dce81499d7b151b7b1ce021d605420c1a",
+  "target_index": "idx_psi0a_token_analysis_migrated_mint",
+  "diagnostic_boundary": {
+    "sqlite_uri_mode": "ro",
+    "query_only_verified": true,
+    "lock_timeout_ms": 250,
+    "maximum_metadata_query_deadline_seconds": 2,
+    "token_analysis_rows_read": 0,
+    "ddl_statements": 0,
+    "retry_attempts": 0
+  },
+  "observations": {
+    "target_sqlite_schema_entry": null,
+    "same_prefix_index_count": 0,
+    "token_analysis_index_count": 9,
+    "rollback_journal_present": false,
+    "wal_present": true,
+    "wal_size_bytes_at_final_check": 32774632,
+    "surviving_index_process": false,
+    "python_exception_transcript": false,
+    "contemporaneous_named_index_log_record": false,
+    "macos_external_termination_record": false,
+    "serializer_queue_depth": 0,
+    "serializer_p95_wait_ms": 5.1,
+    "serializer_p99_wait_ms": 90.11,
+    "lock_errors_24h": 9,
+    "ongoing_production_impact_observed": false
+  },
+  "cause_assessment": [
+    {
+      "candidate": "LOCK_ACQUISITION_FAILURE",
+      "assessment": "NOT_SUPPORTED",
+      "reason": "A 250 ms lock failure should have raised a retained Python exception promptly; the attempt instead ran for tens of seconds and emitted no exception transcript."
+    },
+    {
+      "candidate": "ACTIVE_DEADLINE_INTERRUPTION_AND_ROLLBACK",
+      "assessment": "NOT_SUPPORTED",
+      "reason": "The retained tool timing ended before the configured 60-second monotonic deadline and no SQLite interrupted exception was retained."
+    },
+    {
+      "candidate": "EXTERNAL_PROCESS_OR_RUNNER_TERMINATION",
+      "assessment": "MOST_CONSISTENT_NOT_PROVEN",
+      "reason": "The process disappeared without normal output or exception, the index is absent, no rollback journal remains and production recovered cleanly; neither the runner nor OS retained a definitive termination record."
+    },
+    {
+      "candidate": "OTHER_FAIL_CLOSED_PATH",
+      "assessment": "NOT_EXCLUDED",
+      "reason": "The C11 one-off runner did not durably record phase transitions, exception identity, deadline callback, rollback completion or exit status."
+    }
+  ],
+  "smallest_coherent_next_milestone": "Fixture-qualify a durable single-index deployment runner that records append-only phase, deadline, exception, rollback, close and postcondition events before separately authorizing any retry.",
+  "prohibited": {
+    "production_retry": true,
+    "ddl": true,
+    "high_water_capture": true,
+    "evidence_extraction": true,
+    "provider_calls": true,
+    "service_or_configuration_change": true
+  }
+}

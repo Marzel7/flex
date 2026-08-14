@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T12:25:33Z",
+  "updated_at_utc": "2026-08-14T12:30:12Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-        "published_at_utc": "2026-08-14T12:25:33Z",
+        "published_at_utc": "2026-08-14T12:30:12Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-        "milestone": "PSI0A-D6H blocklist connection-lifecycle repair",
-        "mode": "safe-local implementation and fixture/fault qualification complete; running listener unchanged",
+        "milestone": "PSI0A-D6I blocklist repair deployment",
+        "mode": "single listener restart completed; immediate verification stopped when primary_fd_count reached 9",
         "status": "HUMAN_APPROVAL_REQUIRED",
-        "verdict": "PASS_BLOCKLIST_CONNECTION_GUARANTEED_CLOSE_QUALIFIED"
+        "verdict": "REPAIR_LOADED_STOP_STARTUP_DESCRIPTOR_COUNT_REACHED_9"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,33 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0a_d6i_blocklist_repair_restart_descriptor_stop": {
+      "status": "PARTIAL_STOP",
+      "verdict": "REPAIR_LOADED_STOP_STARTUP_DESCRIPTOR_COUNT_REACHED_9",
+      "engineering_revision": "e7544005b69595ae041129892b4c906a63759de6",
+      "listener_pid_before": 42483,
+      "listener_restarts": 1,
+      "listener_pid_after": 76939,
+      "second_restart_performed": false,
+      "primary_fd_count_samples": [4, 9],
+      "maximum_primary_fd_count": 9,
+      "threshold_snapshot_registry_count": 4,
+      "threshold_snapshot_registry_fd_delta": 5,
+      "threshold_snapshot_callers": ["_seed_read", "pool_discovery._check_sync (2)", "_do_write"],
+      "seed_read_age_seconds": 44.7,
+      "pumpportal_connected": true,
+      "pumpswap_connected": true,
+      "live_ingestion_observed": true,
+      "terminal_serializer_p99_wait_ms": 19.05,
+      "terminal_serializer_queue_depth": 0,
+      "terminal_serializer_lock_errors_24h": 0,
+      "evidence_writer_stopped": true,
+      "blocklist_pairing_verdict": "NOT_OBSERVED_NO_NEW_PID_BLOCKLIST_EVENT",
+      "production_database_queries": 0,
+      "ddl_or_production_writes": 0,
+      "provider_calls": 0,
+      "artifact": "docs/audits/psi0a_d6i_blocklist_repair_restart_descriptor_stop.json"
+    },
     "psi0a_d6h_blocklist_connection_cleanup_qualification": {
       "status": "COMPLETE",
       "verdict": "PASS_BLOCKLIST_CONNECTION_GUARANTEED_CLOSE_QUALIFIED",
@@ -5806,9 +5833,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-        "milestone": "PSI0A-D6I blocklist repair deployment",
-        "instruction": "HUMAN_APPROVAL_REQUIRED: separately authorize exactly one watchtower_listener restart to load the D6H repair.",
-        "approval_text": "Authorize exactly one watchtower_listener restart to load PSI0A-D6H commit e7544005b69595ae041129892b4c906a63759de6, with immediate local verification of a new stable listener PID, PumpPortal/PumpSwap and ingestion continuity, idx_psi0a_token_analysis_migration_tx remaining present through metadata-only evidence already recorded, blocklist connection open/close pairing for the new PID, primary_fd_count below 8, serializer p99 below 1000 ms, zero sustained queue depth, no lock-error increment, healthy lease/service state and unchanged production flags. Preserve evidence_writer STOPPED. Stop without a second restart on startup failure, feed or ingestion degradation, descriptor threshold breach, serializer/queue/lock degradation, production impact or scope expansion. No other service restart or stop, provider call, production database query, DDL or production write, configuration or watchdog-threshold change, lock or metric manipulation, high-water recapture, canonical evidence extraction, shadow output, Evidence Mirror or Cohort Mode activation, PSI0A-D2 or PSI0A-E through H, PSI0B, production activation or EB2 work.",
+        "milestone": "PSI0A-D6J startup seed and pool descriptor diagnosis",
+        "instruction": "HUMAN_APPROVAL_REQUIRED: diagnose the post-D6H startup descriptor breach before any further restart or observation.",
+        "approval_text": "Authorize PSI0A-D6J as a bounded local and production-telemetry read-only diagnosis of the new-PID startup primary_fd_count=9 event after PSI0A-D6I. Use committed source and PSI0A-D3 through D6I artifacts, Supervisor state/logs, connection-lifecycle/watchdog snapshots, read-only process descriptor metadata, serializer/lease/queue/websocket/ingestion telemetry and database/WAL file metadata only. Reconcile the 44.7-second _seed_read connection, its query predicates/order, owner-thread cleanup and registry_fd_delta with concurrent pool_discovery._check_sync calls and normal birth writes; identify committed schema/index support and the smallest safe-local repair that reduces startup connection lifetime or fan-out without changing watchdog thresholds, ingestion semantics or provider behavior. Also report any new-PID _blocklist_write open/close evidence if it occurs naturally, but do not trigger a blocklist event. Stop on listener PID change, CRITICAL_LISTENER_DB_HANDLE, serializer p99 reaching 1000 ms, sustained nonzero queue depth, feed/ingestion/service degradation, production impact beyond the existing descriptor warning, need to open a production database or scope expansion. Do not open production databases, read rows or schema, execute EXPLAIN, DDL or production writes, deploy, signal, restart or stop services, change configuration or thresholds, manipulate locks or metrics, recapture high-waters, extract canonical evidence or shadow output, make provider/RPC calls, activate Evidence Mirror or Cohort Mode, retry an observation, proceed to PSI0A-D2 or PSI0A-E through H or PSI0B, activate production, or enter EB2.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

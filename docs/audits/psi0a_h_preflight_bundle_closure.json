@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-H",
+  "status": "COMPLETE",
+  "verdict": "PASS",
+  "qualified_at": "2026-08-14",
+  "qualification_bundle_digest": "308e1d15b2ca9af74c6f1c6d57455150b5f7efdc64e36b06b4ff4f82ee1bb860",
+  "engineering_revision_bound": "903ce9d13702339d3500c0498d4cc259a9e90934",
+  "abort_isolation_contract_digest": "c9ff90b6cbfb332bc00691c87528abf5f6b6158b54072bfb48c60d9f920e5bab",
+  "health_gate_contract_digest": "8c92231a76c9daad4305bd3859760bc6f1d1ef31249b255b471c213f1ce1c3bf",
+  "resource_ceiling_contract_digest": "f5eea8b9f8ba6b102f57e4ae59eb35eb8f0e23d3f8ac0f493f35671f8271f736",
+  "plan_qualification_digest": "38d0605e77e1503e9d5e952d13a3e1501aacf6c84db7a3debc334bca8fc484ce",
+  "canonical_manifest_digest": "d956bc24c1cd160162acaaad5bc466a2dece78ea34fc1f5238bc80728d4283f5",
+  "read_boundary_digest": "fdf11dc5e29c176d3724a4ccd1e3ff56584727512853bfb58a71fb3979c246f8",
+  "closure_verdict": "PSI0A_PASS_PSI0B_MAY_BE_SEPARATELY_PROPOSED",
+  "psi0b_execution_authorized": false,
+  "production_integration_authorized": false,
+  "grants_extraction_authority": false,
+  "grants_activation_authority": false,
+  "production_access": false,
+  "live_observation_performed": false,
+  "provider_calls": 0,
+  "production_rows_read": 0,
+  "production_writes": 0,
+  "tests": {
+    "status": "PASS",
+    "focused_and_adjacent_passed": 94,
+    "psi0a_regression_passed": 224
+  }
+}

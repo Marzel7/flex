@@ -130,21 +130,24 @@ def _normal(value: object) -> object:
     raise ProductionShadowFixtureRunnerError("PSI0B_C_UNSUPPORTED_SQLITE_VALUE")
 
 
-def execute_fixture_shadow(
-    contract: FixtureRunnerContract,
+def _execute_bound_shadow(
     preflight: ProductionShadowRunPreflight,
-    fixture_paths: Mapping[str, Path],
+    source_paths: Mapping[str, Path],
     output_directory: Path,
     *,
     prestart_health: HealthGateDecision,
     active_health_check: Callable[[str], HealthGateDecision],
-    fixture_root: Path,
+    fixture_root: Path | None,
+    authority_class: str,
+    fixture_only: bool,
+    grants_production_execution_authority: bool,
+    execution_authorization_digest: str | None,
+    output_runner_version: str,
     clock: Callable[[], float] = time.monotonic,
     resource_probe: Callable[[], Tuple[int, int]] = lambda: (1, 0),
     lifecycle_event: Callable[[str, str], None] = lambda _query, _event: None,
     progress_steps: int = 1_000,
 ) -> FixtureShadowBundle:
-    verify_fixture_runner_contract(contract)
     verify_production_shadow_run_preflight(preflight)
     verify_health_gate_decision(prestart_health)
     if prestart_health.phase != "PRESTART" or prestart_health.status != "PASS":
@@ -160,12 +163,13 @@ def execute_fixture_shadow(
         raise ProductionShadowFixtureRunnerError("PSI0B_C_OUTPUT_FINGERPRINT_MISMATCH")
     if isinstance(progress_steps, bool) or not isinstance(progress_steps, int) or progress_steps <= 0:
         raise ProductionShadowFixtureRunnerError("PSI0B_C_INVALID_PROGRESS_STEPS")
-    root = Path(fixture_root).resolve()
-    if set(fixture_paths) != {"creator", "evidence", "main", "ops"}:
+    if set(source_paths) != {"creator", "evidence", "main", "ops"}:
         raise ProductionShadowFixtureRunnerError("PSI0B_C_FIXTURE_SOURCE_SET_MISMATCH")
-    resolved = {name: Path(path).resolve() for name, path in fixture_paths.items()}
-    if any(root != path.parent and root not in path.parents for path in resolved.values()):
-        raise ProductionShadowFixtureRunnerError("PSI0B_C_NON_FIXTURE_PATH_REJECTED")
+    resolved = {name: Path(path).resolve() for name, path in source_paths.items()}
+    if fixture_root is not None:
+        root = Path(fixture_root).resolve()
+        if any(root != path.parent and root not in path.parents for path in resolved.values()):
+            raise ProductionShadowFixtureRunnerError("PSI0B_C_NON_FIXTURE_PATH_REJECTED")
     if any(not path.is_file() for path in resolved.values()):
         raise ProductionShadowFixtureRunnerError("PSI0B_C_FIXTURE_SOURCE_MISSING")
 
@@ -263,10 +267,11 @@ def execute_fixture_shadow(
         raise
 
     run = {
-        "runner_version": RUNNER_VERSION, "run_id": preflight.run_id,
+        "runner_version": output_runner_version, "run_id": preflight.run_id,
         "preflight_digest": preflight.preflight_digest,
-        "authority_class": AUTHORITY_CLASS, "fixture_only": True,
-        "grants_production_execution_authority": False,
+        "authority_class": authority_class, "fixture_only": fixture_only,
+        "execution_authorization_digest": execution_authorization_digest,
+        "grants_production_execution_authority": grants_production_execution_authority,
         "grants_integration_authority": False, "grants_activation_authority": False,
     }
     accounting_document = {
@@ -279,7 +284,7 @@ def execute_fixture_shadow(
     payloads = {name: _canonical(value) for name, value in documents.items()}
     digests = {name: _sha(value) for name, value in payloads.items()}
     bundle_digest = _sha(_canonical(digests))
-    hashes = {"runner_version": RUNNER_VERSION, "files": digests, "bundle_digest": bundle_digest}
+    hashes = {"runner_version": output_runner_version, "files": digests, "bundle_digest": bundle_digest}
     staging = output.with_name(f".{output.name}.tmp")
     if staging.exists():
         raise ProductionShadowFixtureRunnerError("PSI0B_C_STAGING_EXISTS")
@@ -292,7 +297,34 @@ def execute_fixture_shadow(
     except Exception as exc:
         if staging.exists(): shutil.rmtree(staging)
         raise ProductionShadowFixtureRunnerError("PSI0B_C_ATOMIC_PUBLICATION_FAILED") from exc
-    return verify_fixture_shadow_bundle(output)
+    return FixtureShadowBundle(output, bundle_digest, digests, total_rows)
+
+
+def execute_fixture_shadow(
+    contract: FixtureRunnerContract,
+    preflight: ProductionShadowRunPreflight,
+    fixture_paths: Mapping[str, Path],
+    output_directory: Path,
+    *,
+    prestart_health: HealthGateDecision,
+    active_health_check: Callable[[str], HealthGateDecision],
+    fixture_root: Path,
+    clock: Callable[[], float] = time.monotonic,
+    resource_probe: Callable[[], Tuple[int, int]] = lambda: (1, 0),
+    lifecycle_event: Callable[[str, str], None] = lambda _query, _event: None,
+    progress_steps: int = 1_000,
+) -> FixtureShadowBundle:
+    verify_fixture_runner_contract(contract)
+    _execute_bound_shadow(
+        preflight, fixture_paths, output_directory,
+        prestart_health=prestart_health, active_health_check=active_health_check,
+        fixture_root=fixture_root, authority_class=AUTHORITY_CLASS, fixture_only=True,
+        grants_production_execution_authority=False,
+        execution_authorization_digest=None, output_runner_version=RUNNER_VERSION,
+        clock=clock, resource_probe=resource_probe, lifecycle_event=lifecycle_event,
+        progress_steps=progress_steps,
+    )
+    return verify_fixture_shadow_bundle(output_directory)
 
 
 def verify_fixture_shadow_bundle(output_directory: Path) -> FixtureShadowBundle:

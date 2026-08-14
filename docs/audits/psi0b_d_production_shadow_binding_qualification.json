@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0B-D",
+  "status": "COMPLETE",
+  "verdict": "PSI0B_D_PRODUCTION_BINDING_QUALIFIED_NO_RUN_CONSUMED",
+  "engineering_revision_bound": "763a07473c7afb6f0f7e4f52dc8d7074632185c7",
+  "psi0b_c_contract_digest": "fb320f28ec0f7fcb5ea2e27248a75fbe3dc024ca309dd2b94c6220be352ad8f7",
+  "psi0b_a_contract_digest": "4804184b9a09c33daa07e6c810eded85e23df6de1add0e895e0d60935f25c1a4",
+  "bound_preflight_digest": "35aa4d8e2f1519a60e6c3418a800476952e88bb1e44a4529c0ca7b9a90c960a0",
+  "eb0_1p_bundle_digest": "2c07d41b9c243f8f0c8ca52e0c54c0b184f28a1ed855e98de2a975f936a688e5",
+  "selected_projection_digest": "fd538d454cd10c7f7cd5ce5fa6fe251d2781efc42614ec10cff800a9348952ff",
+  "cohort_digest": "8f0a54838574e2e82f95030a5981a8b21b13629d493635719a0d23f5013bfbe3",
+  "fact_family": "LaunchFact",
+  "production_binding_contract_digest": "fdca32be1fedac8f80929f157f920e0077d9748ec040347114a6df7ff0aa2413",
+  "production_paths_bound": 4,
+  "query_count": 5,
+  "maximum_attempts": 1,
+  "production_access": false,
+  "live_health_observation": false,
+  "production_rows_read": 0,
+  "production_writes": 0,
+  "provider_calls": 0,
+  "grants_integration_authority": false,
+  "grants_activation_authority": false,
+  "tests": {
+    "status": "PASS",
+    "focused_passed": 41,
+    "full_psi_regression_passed": 266,
+    "fault_injection": [
+      "fixture_or_unknown_authorization",
+      "unbound_or_altered_source_path",
+      "logical_path_fingerprint_drift",
+      "reused_output",
+      "lineage_or_query_identity_drift",
+      "retry_or_multiple-attempt_authority",
+      "integration_or_activation_authority",
+      "invocation_replay_drift",
+      "unbound_preflight_before_source_open"
+    ]
+  }
+}

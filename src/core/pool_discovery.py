@@ -18,6 +18,8 @@ import json
 from typing import Optional, Dict, Tuple
 from base64 import b64decode
 
+from src.utils.db_locking import managed_db_connect
+
 logger = logging.getLogger(__name__)
 
 # Raydium program IDs
@@ -979,47 +981,48 @@ class PoolDiscovery:
             pool_score = quote_pref + validation_bonus
 
             def _do_db_write():
-                conn = sqlite3.connect(self.db_path, timeout=15)
-                cursor = conn.cursor()
-                # Vault addresses were already fetched and verified by extract_pool_reserves
-                # earlier in the pipeline (struct-based extraction confirms vault ownership).
-                # Re-fetching here is redundant and adds 1-3s of unnecessary RPC latency.
-                # Mark as validated immediately; background retry_vault_validation handles
-                # the rare case where a vault fetch previously returned stale data.
-                cursor.execute(
-                    """
-                    INSERT OR REPLACE INTO token_pool_accounts
-                    (mint, base_account, quote_account, base_token, quote_token,
-                     base_decimals, quote_decimals, pool_program, pool_address, is_active,
-                     vault_validation_status, vault_validation_error, vault_validation_attempts,
-                     last_vault_validation_at, discovery_method, pool_score, created_at, updated_at,
-                     authority_account)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                    (
-                        token_mint,
-                        reserves["base_account"],
-                        reserves["quote_account"],
-                        reserves["base_token"],
-                        reserves["quote_token"],
-                        reserves["base_decimals"],
-                        reserves["quote_decimals"],
-                        reserves["pool_program"],
-                        reserves.get("pool_address"),
-                        1,  # is_active
-                        vault_status,
-                        vault_error,
-                        1,  # vault_validation_attempts
-                        int(__import__("time").time()),  # last_vault_validation_at
-                        discovery_method,
-                        pool_score,
-                        int(__import__("time").time()),  # created_at
-                        int(__import__("time").time()),  # updated_at
-                        reserves.get("authority_account"),
-                    ),
-                )
-                conn.commit()
-                conn.close()
+                # The listener write lane must be released on every parameter,
+                # execute and commit exception path, not only after a clean commit.
+                with managed_db_connect(self.db_path, timeout=15) as conn:
+                    cursor = conn.cursor()
+                    # Vault addresses were already fetched and verified by extract_pool_reserves
+                    # earlier in the pipeline (struct-based extraction confirms vault ownership).
+                    # Re-fetching here is redundant and adds 1-3s of unnecessary RPC latency.
+                    # Mark as validated immediately; background retry_vault_validation handles
+                    # the rare case where a vault fetch previously returned stale data.
+                    cursor.execute(
+                        """
+                        INSERT OR REPLACE INTO token_pool_accounts
+                        (mint, base_account, quote_account, base_token, quote_token,
+                         base_decimals, quote_decimals, pool_program, pool_address, is_active,
+                         vault_validation_status, vault_validation_error, vault_validation_attempts,
+                         last_vault_validation_at, discovery_method, pool_score, created_at, updated_at,
+                         authority_account)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                        (
+                            token_mint,
+                            reserves["base_account"],
+                            reserves["quote_account"],
+                            reserves["base_token"],
+                            reserves["quote_token"],
+                            reserves["base_decimals"],
+                            reserves["quote_decimals"],
+                            reserves["pool_program"],
+                            reserves.get("pool_address"),
+                            1,  # is_active
+                            vault_status,
+                            vault_error,
+                            1,  # vault_validation_attempts
+                            int(__import__("time").time()),  # last_vault_validation_at
+                            discovery_method,
+                            pool_score,
+                            int(__import__("time").time()),  # created_at
+                            int(__import__("time").time()),  # updated_at
+                            reserves.get("authority_account"),
+                        ),
+                    )
+                    conn.commit()
                 self._mark_token_migrated(
                     token_mint,
                     reserves.get("pool_address"),

@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D6M pool-discovery connection-lifecycle repair",
+  "qualified_at_utc": "2026-08-14T12:55:00Z",
+  "status": "PASS",
+  "verdict": "POOL_DISCOVERY_WRITE_SCOPE_GUARANTEED_CLOSE_QUALIFIED",
+  "scope": {
+    "implementation": "src/core/pool_discovery.py",
+    "test": "tests/test_psi0a_d6m_pool_discovery_connection_cleanup.py",
+    "changed_function": "PoolDiscovery.register_pool_to_db._do_db_write",
+    "behavior_change": "replace raw sqlite3 connection with managed_db_connect scope",
+    "sql_changes": 0,
+    "retry_changes": 0,
+    "schema_or_index_changes": 0,
+    "provider_changes": 0
+  },
+  "qualification": {
+    "focused_tests": {
+      "command": "pytest -q tests/test_psi0a_d6m_pool_discovery_connection_cleanup.py",
+      "passed": 8,
+      "failed": 0
+    },
+    "regression_tests": {
+      "command": "pytest -q tests/test_psi0a_d6h_blocklist_connection_cleanup.py tests/test_x76_3_extractor_concurrency.py tests/test_b2bc_long_holder_boundaries.py",
+      "passed": 32,
+      "failed": 0
+    },
+    "covered_paths": [
+      "success",
+      "cursor/SELECT setup exception",
+      "projection/JSON-like parameter exception",
+      "write exception",
+      "commit exception",
+      "managed close on every path",
+      "ephemeral SQLite subsequent-writer acquisition",
+      "owner-thread cleanup regression"
+    ]
+  },
+  "production_runtime_access": false,
+  "deployment_or_restart": false,
+  "activation_authority": false
+}

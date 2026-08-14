@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T12:37:10Z",
+  "updated_at_utc": "2026-08-14T12:40:27Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,7 +10,7 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-        "published_at_utc": "2026-08-14T12:37:10Z",
+        "published_at_utc": "2026-08-14T12:40:27Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
@@ -19,7 +19,7 @@
         "milestone": "PSI0A-D6I second restart authorization",
         "mode": "fail-closed preflight; no restart performed",
         "status": "HUMAN_APPROVAL_REQUIRED",
-        "verdict": "STOP_SERIALIZER_QUEUE_LOCK_HEALTH_GATE_FAILED"
+        "verdict": "STOP_SERIALIZER_P99_AND_LOCK_GATE_FAILED"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,20 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0a_d6i_third_authorization_do_not_start": {
+      "status": "DO_NOT_START",
+      "verdict": "STOP_SERIALIZER_P99_AND_LOCK_GATE_FAILED",
+      "engineering_revision": "e7544005b69595ae041129892b4c906a63759de6",
+      "restart_performed": false,
+      "p99_wait_ms": 3753.89,
+      "p95_wait_ms": 49.32,
+      "queue_depth": 0,
+      "lock_errors_24h": 4,
+      "production_database_queries": 0,
+      "ddl_or_production_writes": 0,
+      "provider_calls": 0,
+      "artifact": "docs/audits/psi0a_d6i_third_authorization_do_not_start.json"
+    },
     "psi0a_d6i_second_authorization_do_not_start": {
       "status": "DO_NOT_START",
       "verdict": "STOP_SERIALIZER_QUEUE_LOCK_HEALTH_GATE_FAILED",
@@ -5849,7 +5863,7 @@
   "next_action": {
         "milestone": "PSI0A-D6K active serializer pressure diagnosis",
         "instruction": "HUMAN_APPROVAL_REQUIRED: diagnose active serializer, queue and lock pressure before any further listener restart or PSI0A-D6J work.",
-        "approval_text": "Authorize PSI0A-D6K as a bounded production-telemetry read-only diagnosis of the active serializer pressure currently showing p99_wait_ms=3753.89, queue_depth=2 and lock_errors_24h=3 after PSI0A-D6I. Use only db_serializer_metrics.json current/history snapshots, serializer writer/wait/commit and write-lease telemetry, Supervisor state/logs, listener connection-lifecycle/watchdog evidence, queue/websocket/ingestion health and database/WAL file metadata to identify the active or recent long holder, correlate it with the descriptor episode, distinguish current contention from rolling-history residue, quantify recovery and define the smallest safe condition for reauthorizing PSI0A-D6J. Stop on listener PID change, CRITICAL_LISTENER_DB_HANDLE, sustained queue growth, feed/ingestion/service degradation, production impact, need to open a production database or scope expansion. Do not open production databases, read rows or schema, execute DDL or production writes, deploy, signal, restart or stop services, change configuration or thresholds, reset metrics, manipulate locks, recapture high-waters, extract canonical evidence or shadow output, make provider/RPC calls, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D2 or PSI0A-E through H or PSI0B, activate production, or enter EB2.",
+        "approval_text": "Authorize PSI0A-D6K as a bounded production-telemetry read-only diagnosis of the active serializer pressure currently showing p99_wait_ms=3753.89 and lock_errors_24h=4 after PSI0A-D6I. Use only db_serializer_metrics.json current/history snapshots, serializer writer/wait/commit and write-lease telemetry, Supervisor state/logs, listener connection-lifecycle/watchdog evidence, queue/websocket/ingestion health and database/WAL file metadata to identify the active or recent long holder, correlate it with the descriptor episode, distinguish current contention from rolling-history residue, quantify recovery and define the smallest safe condition for reauthorizing PSI0A-D6J. Stop on listener PID change, CRITICAL_LISTENER_DB_HANDLE, sustained queue growth, feed/ingestion/service degradation, production impact, need to open a production database or scope expansion. Do not open production databases, read rows or schema, execute DDL or production writes, deploy, signal, restart or stop services, change configuration or thresholds, reset metrics, manipulate locks, recapture high-waters, extract canonical evidence or shadow output, make provider/RPC calls, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D2 or PSI0A-E through H or PSI0B, activate production, or enter EB2.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

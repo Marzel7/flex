@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T15:59:37Z",
+  "updated_at_utc": "2026-08-14T16:02:52Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0B-D production-specific authorization, path binding and fail-closed runner qualification",
-    "mode": "safe-local implementation and frozen/ephemeral SQLite qualification",
+    "milestone": "PSI0B-E exactly one bounded query-only production shadow extraction",
+    "mode": "production do-not-start health gate only",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "PSI0B_D_PRODUCTION_BINDING_QUALIFIED_NO_RUN_CONSUMED"
+    "verdict": "DO_NOT_START_SERIALIZER_P99_GATE"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,29 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0b_e_production_shadow_do_not_start": {
+      "status": "STOPPED_BEFORE_DATABASE_OPEN",
+      "verdict": "DO_NOT_START_SERIALIZER_P99_GATE",
+      "engineering_commit": "400f9e88c66534103434c201a7a3f42b15e1358c",
+      "authorization_id": "psi0b-shadow-auth-20260814-01",
+      "run_id": "psi0b-shadow-20260814-01",
+      "authorization_record_materialized": false,
+      "authorization_consumed": false,
+      "attempt_count": 0,
+      "serializer_snapshot_at_utc": "2026-08-14T16:02:20Z",
+      "serializer_p99_wait_ms": 1134.61,
+      "serializer_queue_depth": 0,
+      "serializer_lock_errors_24h": 2,
+      "production_database_connections_opened": 0,
+      "production_selects_executed": 0,
+      "production_rows_read": 0,
+      "production_writes": 0,
+      "provider_calls": 0,
+      "retries": 0,
+      "partial_publication": false,
+      "production_impact": false,
+      "artifact": "docs/audits/psi0b_e_production_shadow_do_not_start.json"
+    },
     "psi0b_d_production_shadow_binding_qualification": {
       "status": "COMPLETE",
       "verdict": "PSI0B_D_PRODUCTION_BINDING_QUALIFIED_NO_RUN_CONSUMED",
@@ -6206,9 +6229,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0B-E exactly one bounded query-only production shadow extraction",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: consume exactly one immutable PSI0B-D production execution authorization after fresh health gates and stop after isolated bundle replay and impact assessment.",
-    "approval_text": "Authorize PSI0B-E as exactly one bounded query-only production shadow extraction using engineering commit 400f9e88c66534103434c201a7a3f42b15e1358c, PSI0B-D production-binding contract digest fdca32be1fedac8f80929f157f920e0077d9748ec040347114a6df7ff0aa2413, PSI0B-C runner contract digest fb320f28ec0f7fcb5ea2e27248a75fbe3dc024ca309dd2b94c6220be352ad8f7, PSI0B-A contract digest 4804184b9a09c33daa07e6c810eded85e23df6de1add0e895e0d60935f25c1a4 and bound preflight digest 35aa4d8e2f1519a60e6c3418a800476952e88bb1e44a4529c0ca7b9a90c960a0. Materialize and consume one immutable authorization record with authorization_id=psi0b-shadow-auth-20260814-01, run_id=psi0b-shadow-20260814-01 and new empty output directory /Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0b_runs/psi0b-shadow-20260814-01. Bind exactly creator=/Users/kevinkeaveney/Dev/claude/flex/pumpswap_tokens.db, evidence=/Users/kevinkeaveney/Dev/claude/flex/database/evidence_platform/production/evidence.db, main=/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db and ops=/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db with the four PSI0B-A fingerprints; EB0.1P bundle digest 2c07d41b9c243f8f0c8ca52e0c54c0b184f28a1ed855e98de2a975f936a688e5, selected projection digest fd538d454cd10c7f7cd5ce5fa6fe251d2781efc42614ec10cff800a9348952ff, cohort digest 8f0a54838574e2e82f95030a5981a8b21b13629d493635719a0d23f5013bfbe3 and fact_family=LaunchFact. Before opening any database require fresh passing PSI0A-F checkpoints: stable listener/service identity, primary_fd_count below 8, zero critical descriptor events, serializer p99 below 1000 ms, no lock-error increment, queue depth zero and healthy database/WAL, write lease, PumpPortal, PumpSwap, ingestion, workers, queues and services. Execute each of the five frozen SELECT templates exactly once and sequentially with URI mode=ro, verified PRAGMA query_only, 250 ms lock timeout, C16 inclusive rowid boundaries, active progress-handler deadlines and all PSI0A-E row/byte/query/transaction/wall/memory/temp ceilings; perform active health checks, unconditional handler removal, rollback and close after every query. Publish only the isolated canonical shadow bundle after all queries pass, bind per-file hashes and one bundle digest, exact-replay verify it and record post-run health and production impact. Stop immediately with no retry, pagination, failover, widening or partial publication on stale or failed health, path/fingerprint/preflight/schema/boundary drift, lock contention, deadline or ceiling breach, SQLite exception, replay failure, descriptor/serializer/queue/feed/ingestion/service degradation, production impact or scope expansion. Do not make provider/RPC calls, execute DDL or any production write, deploy, restart or stop services, change configuration or thresholds, manipulate locks or metrics, recapture high-waters, activate Evidence Mirror or Cohort Mode, integrate a production consumer, activate production or enter EB2. Stop after this one attempt and request separate approval for PSI0B closure and production-impact assessment.",
+    "milestone": "PSI0B-E1 telemetry-only recovery observation",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: prove a clean telemetry window before any fresh PSI0B-E production query proposal.",
+    "approval_text": "Authorize PSI0B-E1 as one bounded 15-minute production-telemetry read-only recovery observation after the PSI0B-E do-not-start stop at serializer p99_wait_ms=1134.61. Start at the first fresh Supervisor, listener-lifecycle, descriptor, serializer, write-lease, queue, PumpPortal, PumpSwap, ingestion, worker and service checkpoint after authorization and stop immediately on: listener PID change, primary_fd_count reaching 8, any CRITICAL_LISTENER_DB_HANDLE event, serializer p99 reaching or exceeding 1000 ms, any serializer lock-error increment from the starting checkpoint, serializer queue depth greater than zero at two consecutive checkpoints sampled 30 seconds apart, stale or missing telemetry, feed/ingestion/worker/service degradation, observer failure or other production impact. Require 15 clean minutes, one stable listener PID, every primary_fd_count sample below 8, zero critical descriptor events, no lock-error increase, no sustained queue episode, serializer p99 below 1000 ms throughout, healthy database/WAL and write lease, continued PumpPortal/PumpSwap/ingestion/worker/queue/service health and complete observer evidence before declaring recovery. Use Supervisor status/logs, listener lifecycle/watchdog telemetry, db_serializer_metrics.json snapshots and database/WAL file metadata only; no retry. Do not open any production database, run schema, EXPLAIN or row queries, materialize or consume a PSI0B authorization, execute PSI0B-E, execute DDL or production writes, make provider/RPC calls, deploy, signal, restart or stop services, change configuration or thresholds, reset metrics, manipulate locks, recapture high-waters, create shadow output, activate Evidence Mirror or Cohort Mode, integrate a production consumer, activate production or enter EB2. Stop after the observation and, only if it passes, provide a fresh separate PSI0B-E approval prompt with a new authorization ID, run ID and empty output directory.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

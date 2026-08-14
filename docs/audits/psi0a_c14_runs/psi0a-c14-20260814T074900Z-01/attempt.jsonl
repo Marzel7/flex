@@ -1,0 +1,10 @@
+{"data":{"contract_digest":"0c3759789ffe761f48fd9aa925c182652df36f853ae70b85a9d79c17f5c9db41","database_id":"main","deadline_seconds":60.0,"fixture_only":true,"grants_activation_authority":false,"grants_extraction_authority":false,"index_columns":["migrated_at","mint"],"index_name":"idx_psi0a_token_analysis_migrated_mint","lock_timeout_ms":250,"relation_name":"token_analysis","run_id":"psi0a-c14-20260814T074900Z-01","runner_version":"psi0a-c13.v1","statement_digest":"af8089d85ee23dffb59a2f9721df956cf3aefb4d8ed6f46bcdfa00a3b4a08d73"},"event":"STARTED","sequence":0}
+{"data":{"schema_verified":true},"event":"SCHEMA_PRECONDITION_VERIFIED","sequence":1}
+{"data":{"transaction":"BEGIN IMMEDIATE"},"event":"LOCK_ACQUIRED","sequence":2}
+{"data":{"statement_digest":"af8089d85ee23dffb59a2f9721df956cf3aefb4d8ed6f46bcdfa00a3b4a08d73"},"event":"DDL_STARTED","sequence":3}
+{"data":{"statements_executed":1},"event":"DDL_SUCCEEDED","sequence":4}
+{"data":{"committed":true},"event":"COMMIT_SUCCEEDED","sequence":5}
+{"data":{"removed":true},"event":"PROGRESS_HANDLER_REMOVED","sequence":6}
+{"data":{"closed":true},"event":"CONNECTION_CLOSED","sequence":7}
+{"data":{"index_present":true},"event":"POSTCONDITION_VERIFIED","sequence":8}
+{"data":{"preterminal_digest":"ca14547c2b993f147baca4f8c5fcc850385d65efa638a1318e89745a38f6e51f","status":"SUCCEEDED"},"event":"TERMINAL","sequence":9}

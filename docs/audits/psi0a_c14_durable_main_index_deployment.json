@@ -1,0 +1,60 @@
+{
+  "milestone": "PSI0A-C14",
+  "status": "COMPLETE",
+  "verdict": "MAIN_INDEX_DEPLOYED_WITH_TRANSIENT_LOCK_SIGNAL_AND_RECOVERY",
+  "engineering_revision": "1ba92e9352159f321535b5056877ffbfacec40d3",
+  "contract_digest": "0c3759789ffe761f48fd9aa925c182652df36f853ae70b85a9d79c17f5c9db41",
+  "runner_version": "psi0a-c13.v1",
+  "run_id": "psi0a-c14-20260814T074900Z-01",
+  "ledger_path": "docs/audits/psi0a_c14_runs/psi0a-c14-20260814T074900Z-01/attempt.jsonl",
+  "ledger_digest": "c28ccb28396fd7824a68bce6f87e8653a0c6407308dde47bee5497f3aa36f4cf",
+  "ledger_replay_verified": true,
+  "terminal_status": "SUCCEEDED",
+  "statements_executed": 1,
+  "retries": 0,
+  "preconditions": {
+    "main_schema_digest": "31b1f121df39cf41c0b0f8c5c9f5c4713437f367e40b13827d064552b50448d7",
+    "c9_schema_digest_matched": true,
+    "target_index_absent": true,
+    "same_prefix_index_absent": true,
+    "serializer_queue_depth": 0,
+    "serializer_p95_wait_ms": 9.74,
+    "serializer_p99_wait_ms": 137.84,
+    "services_healthy": true
+  },
+  "postcondition": {
+    "index_name": "idx_psi0a_token_analysis_migrated_mint",
+    "index_columns": ["migrated_at", "mint"],
+    "index_present": true,
+    "query_plan": "SEARCH token_analysis USING COVERING INDEX idx_psi0a_token_analysis_migrated_mint (migrated_at<?)",
+    "progress_handler_removed": true,
+    "connection_closed": true,
+    "exception": null
+  },
+  "measured_production_impact": {
+    "lock_errors_24h_before": 9,
+    "lock_errors_24h_peak_after": 11,
+    "additional_lock_error_observations": 2,
+    "immediate_queue_depth": 1,
+    "final_queue_depth": 0,
+    "final_serializer_p95_wait_ms": 10.29,
+    "final_serializer_p99_wait_ms": 136.46,
+    "worker_pid_changes": 0,
+    "service_degradation_observed": false,
+    "ongoing_impact_observed": false,
+    "recovery_verified": true
+  },
+  "authority_and_scope": {
+    "production_authorization_source": "explicit PSI0A-C14 human approval",
+    "runner_fixture_only_marker_preserved": true,
+    "runner_fixture_only_marker_interpretation": "The immutable C13 runner retained its non-authorizing fixture-qualified authority marker; the separate C14 approval supplied the bounded production authority and this audit records the actual production environment.",
+    "grants_extraction_authority": false,
+    "grants_activation_authority": false,
+    "high_waters_captured": 0,
+    "evidence_extractions": 0,
+    "provider_calls": 0,
+    "other_ddl_statements": 0,
+    "service_restarts": 0,
+    "configuration_changes": 0
+  }
+}

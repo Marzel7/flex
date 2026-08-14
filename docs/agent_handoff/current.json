@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T05:27:01Z",
+  "updated_at_utc": "2026-08-14T05:33:17Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "f572cb96936facb1e373976e5a977ce4433fc10f",
-    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths; EB1.3E engineering commit contains only its corpus, tests and documentation; all unrelated paths preserved"
+    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths; EB1.3F preflight made no engineering changes and preserved all unrelated paths"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-      "milestone": "EB1.3E deterministic per-authority-lane planning-proposal corpus",
-      "mode": "safe-local frozen-fixture design, implementation, test and narrow commit",
+      "milestone": "EB1.3F frozen-stack closure and query-extractor preflight",
+      "mode": "bounded local read-only committed-artifact and frozen-fixture preflight",
       "status": "COMPLETE",
-      "verdict": "PLANNING_PROPOSAL_CORPUS_QUALIFIED"
+      "verdict": "FROZEN_STACK_COMPLETE_FIXTURE_QUERY_EXTRACTOR_READY"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,30 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb1_3f_frozen_stack_closure_and_extractor_preflight": {
+      "status": "COMPLETE",
+      "verdict": "FROZEN_STACK_COMPLETE_FIXTURE_QUERY_EXTRACTOR_READY",
+      "engineering_commit": "f572cb96936facb1e373976e5a977ce4433fc10f",
+      "verification_utc": "2026-08-14T05:33:17Z",
+      "stack_assessment": "EB1.3A/C/D/E is complete for frozen in-memory evidence: semantic contract, verified-lineage adapter, immutable manifest and per-authority-lane corpus all preserve non-executability and exact replay",
+      "extractor_contract": {
+        "immutable_bundle_input": "one explicitly supplied EB1.1H directory with exactly run.json, manifest.json, corpus.json and hashes.json; canonical bytes, hashes, authority, manifest replay and corpus replay verified; total bundle bytes <= 1048576",
+        "sqlite_input": "one explicitly supplied fixture SQLite file containing exactly review_records(position INTEGER PRIMARY KEY NOT NULL, canonical_json TEXT NOT NULL) and proposal_records(position INTEGER PRIMARY KEY NOT NULL, canonical_json TEXT NOT NULL), with no other user tables",
+        "query_boundary": "URI mode=ro, PRAGMA query_only=ON with readback verification, exact PRAGMA table_info allow-list, deterministic ORDER BY position, contiguous zero-based positions, progress handler every 1000 opcodes and active monotonic deadline >0 and <=30 seconds",
+        "serialization": "every canonical_json value must parse as JSON and byte-for-byte equal canonical JSON with sorted keys and compact separators; no extra fields",
+        "ceilings": "EB1.1 requirements <=8, review rows <=64, proposal rows <=64, combined canonical JSON <=262144 bytes, selected proposals <=64, manifest count=1 and corpus lane count <=8",
+        "lineage_and_replay": "reconstruct EB1.2A only from review_records and verified EB1.1H requirements; require internally valid history and exact authoritative lineage; EB1.3C projection, EB1.3D manifest and EB1.3E corpus must each replay exactly",
+        "accounting": "record input_requirement_count, review_record_count, proposal_input_count, selected_proposal_count, excluded_not_ready_count, unknown_requirement_count, conflict_count and accounting_residual; unknown or conflict nonzero and any residual fail closed; zero selected is explicit NO_ELIGIBLE_PROPOSALS with no fabricated manifest/corpus",
+        "authority": "all outputs remain NON_EXECUTABLE_PLANNING_PROPOSAL with grants_planning_authority=false and grants_execution_authority=false"
+      },
+      "smallest_next_stage": "EB1.3G fixture-only query extractor qualification",
+      "implementation_performed": false,
+      "provider_calls": 0,
+      "production_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "activation": false
+    },
     "eb1_3e_planning_proposal_corpus": {
       "status": "COMPLETE",
       "verdict": "PLANNING_PROPOSAL_CORPUS_QUALIFIED",
@@ -4280,6 +4304,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "EB1.3A-E is complete only as a frozen in-memory stack. The EB1.3G fixture-only extractor has not been implemented or qualified, zero-selected accounting has no serialized output boundary yet, and no production/runtime compatibility or authority is implied.",
     "EB1.3A-E now form a frozen in-memory contract/adapter/manifest/corpus stack, but no closure assessment has defined a fixture-only query extractor boundary, input schema, ceilings, deadlines or immutable output-bundle contract. No proposal grants planning or execution authority.",
     "EB1.3D qualifies immutable individual proposal manifests only. No per-authority-lane proposal corpus, extractor boundary or immutable output bundle exists. Proposal alternatives remain unselected and both planning and execution authority remain false.",
     "EB1.3C qualifies deterministic verified-lineage projection only. No immutable EB1.3 proposal manifest, corpus, extractor or output-bundle boundary exists yet. Candidate alternatives and assumptions remain explicit caller inputs, and no artifact grants planning or execution authority.",
@@ -4351,9 +4376,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB1.3F frozen-stack closure and query-extractor preflight",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Assess EB1.3A-E closure and define only the fixture-bound query extractor contract, exact inputs, query-only boundaries, deadlines and ceilings without implementing or executing it.",
-    "approval_text": "Authorize a bounded local read-only EB1.3F frozen-stack closure and query-only extractor preflight using committed EB1.3A-E code, tests, documentation, schemas and frozen fixtures only. Determine whether the contract/adapter/manifest/corpus stack is complete; define the exact minimum immutable EB1.1H bundle, EB1.2A review-history and explicit proposal-input records required by a future fixture-only extractor; specify exact schema allow-lists, canonical serialization, mode=ro and verified PRAGMA query_only, active query deadline, row/byte/proposal ceilings, lineage/replay checks, selected/excluded/not-ready/conflict accounting, and the smallest next safe-local milestone. Do not implement or execute an extractor, review or approve proposals, derive, choose, rank, acquire or fulfill alternatives. No source selection, acquisition plan or request budget, production/runtime access, live extraction or census, provider/RPC calls, production writes, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, cross-entity linkage, rates, profiles, ranking, scoring, policy activation, profitability/cashflow inference, operator identity/attribution, or activation. Do not assign or enter an EB2 namespace.",
+    "milestone": "EB1.3G fixture-only query extractor qualification",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Implement only the dependency-injected fixture SQLite extractor under the exact EB1.3F schema, deadline, ceilings, accounting, lineage, replay and non-authority contract.",
+    "approval_text": "Authorize safe-local design, implementation, frozen/ephemeral SQLite tests, regression tests, documentation, and one narrow commit for EB1.3G fixture-only query extractor qualification under the exact EB1.3F contract recorded in current.json. Require one verified immutable EB1.1H bundle directory and one injected SQLite fixture with exactly review_records(position, canonical_json) and proposal_records(position, canonical_json); URI mode=ro, verified PRAGMA query_only, exact schema/type/constraint allow-lists, canonical JSON, contiguous ordering, active <=30-second deadline, <=8 requirements, <=64 review rows, <=64 proposal rows, <=262144 combined JSON bytes, <=64 selected proposals, one manifest and <=8 corpus lanes. Reconstruct and validate EB1.2A, project through EB1.3C, build/replay EB1.3D and assemble/replay EB1.3E. Produce complete selected, excluded-not-ready, unknown, conflict and residual accounting; fail closed on unknowns, conflicts, residuals, schema/limit/deadline/lineage/replay drift, and represent zero selected as explicit NO_ELIGIBLE_PROPOSALS without fabricating a manifest or corpus. Preserve NON_EXECUTABLE_PLANNING_PROPOSAL, grants_planning_authority=false and grants_execution_authority=false. Frozen/ephemeral fixtures only. Do not review, approve, derive, choose, rank, acquire or fulfill alternatives. No source selection, acquisition plan or request budget, production/runtime access, live extraction or census, provider/RPC calls, production writes, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, cross-entity linkage, rates, profiles, ranking, scoring, policy activation, profitability/cashflow inference, operator identity/attribution, or activation. Do not assign or enter an EB2 namespace.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

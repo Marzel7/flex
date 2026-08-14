@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T10:34:50Z",
+  "updated_at_utc": "2026-08-14T10:38:23Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-        "published_at_utc": "2026-08-14T10:34:50Z",
+        "published_at_utc": "2026-08-14T10:38:23Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-        "milestone": "PSI0A-D5 durable D4 single-index runner qualification",
-        "mode": "safe-local frozen/ephemeral fixture and fault-injection qualification complete; no production access",
+        "milestone": "PSI0A-D6 single migration_tx production index attempt",
+        "mode": "production preflight stopped before database open; no attempt or retry executed",
     "status": "HUMAN_APPROVAL_REQUIRED",
-        "verdict": "PASS_FIXTURE_ONLY_DURABLE_D4_RUNNER_QUALIFIED"
+        "verdict": "STOP_SERIALIZER_P99_GATE_FAILED_BEFORE_DATABASE_OPEN"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,26 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0a_d6_do_not_start_stop": {
+      "status": "DO_NOT_START_STOP",
+      "verdict": "STOP_SERIALIZER_P99_GATE_FAILED_BEFORE_DATABASE_OPEN",
+      "engineering_revision": "ac06c781deddbb968babe6bb7a19d1d88cd9cb53",
+      "checked_at_utc": "2026-08-14T10:38:23Z",
+      "listener_pid": 9069,
+      "serializer_p99_wait_ms": 1056.39,
+      "serializer_p99_threshold_ms": 1000.0,
+      "serializer_p95_wait_ms": 31.32,
+      "serializer_queue_depth": 0,
+      "serializer_lock_errors_24h": 4,
+      "production_database_connections_opened": 0,
+      "ddl_statements_started": 0,
+      "production_writes": 0,
+      "index_created": false,
+      "retry_count": 0,
+      "provider_calls": 0,
+      "service_restarts_or_stops": 0,
+      "artifact": "docs/audits/psi0a_d6_do_not_start_stop.json"
+    },
     "psi0a_d5_durable_migration_tx_index_runner": {
       "status": "COMPLETE",
       "verdict": "PASS_FIXTURE_ONLY_DURABLE_D4_RUNNER_QUALIFIED",
@@ -5443,6 +5463,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "PSI0A-D6 consumed its single-attempt authorization at the do-not-start preflight and stopped before opening a production database because serializer p99 was 1056.39 ms, above the explicit 1000 ms threshold. No run ID/output directory was created, no DDL began, the migration_tx index remains absent, and no retry is authorized.",
     "PSI0A-D5 qualifies the durable fixture-only D4 runner at ac06c781 with 54 passing tests. It grants no production authority and explicitly rejects production fixture authorization. The production migration_tx index remains absent; one bounded production preflight and durable no-retry attempt require separate explicit authorization, and PSI0A-D2 remains stopped.",
     "PSI0A-D3 identifies a repeatable source of descriptor pressure: _reconciler_unseen_sigs performs a bounded migration_tx IN query every reconciler cycle without a qualified leading migration_tx index. Three post-D1A connections lasted 67.6, 90.1 and 109.2 seconds and entered owner-thread cleanup. A safe-local additive-index contract is the smallest repair, but implementation and any later production deployment require separate authorization.",
     "PSI0A-D2 stopped before opening any database because the latest three listener watchdog samples were 0, 5 and 9 primary descriptors; the terminal value exceeded warning threshold 8. PID 9069, p99 360.08 ms, queue depth zero and lock_errors_24h=1 were otherwise stable. The descriptor warning has therefore recurred after D1A and requires separate telemetry-only diagnosis; no PSI0A-D retry is authorized.",
@@ -5525,9 +5546,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0A-D6 single migration_tx production index attempt",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize one bounded production preflight and exactly one durable no-retry D4 index attempt using the qualified D5 boundary.",
-    "approval_text": "Authorize PSI0A-D6 as exactly one durable bounded production attempt to create idx_psi0a_token_analysis_migration_tx on main.token_analysis(migration_tx) using commit ac06c781deddbb968babe6bb7a19d1d88cd9cb53, PSI0A-D4 contract digest a160398c3130dbacf2314bb4046b9bac4865cd9dd421311f2fd999058c0ab9f2 and the PSI0A-D5 runner boundary. Require a new run ID and new empty isolated local output directory; verify the exact schema/index precondition and healthy listener PID, primary-descriptor, serializer, lease, queue, websocket, ingestion and service gates before launch; execute only the deterministic single CREATE INDEX statement with a 250 ms lock timeout, an active maximum 60-second monotonic deadline, canonical fsynced phase ledger, unconditional rollback/cleanup, row-preservation and indexed _reconciler_unseen_sigs query-plan postcondition, and exact terminal replay. Launch one managed attempt only and stop without retry on lock failure, deadline, exception, incomplete ledger, schema or contract drift, primary_fd_count reaching 8, serializer p99 reaching 1000 ms, a new serializer lock-error increment, queue/websocket/ingestion/service degradation, production impact or scope expansion. Do not execute any other DDL or production write, modify listener runtime code, retry PSI0A-D2, recapture high-waters, extract canonical evidence or shadow output, make provider/RPC calls, deploy code, restart or stop services, change configuration or watchdog thresholds, reset metrics, manipulate locks, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D or PSI0A-E through H or PSI0B, activate production, or enter EB2.",
+    "milestone": "PSI0A-D6A serializer recovery observation",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize a fresh telemetry-only recovery observation before any separately reauthorized production index attempt.",
+    "approval_text": "Authorize PSI0A-D6A as one fresh bounded 15-minute production-telemetry read-only recovery observation starting at the first Supervisor, listener-lifecycle, serializer, lease, queue, websocket and ingestion checkpoint after authorization and ending at the first of: 15 clean minutes, listener PID change, primary_fd_count reaching 8, any CRITICAL_LISTENER_DB_HANDLE event, serializer p99 reaching or exceeding 1000 ms, a new serializer lock-error increment, sustained nonzero serializer queue depth, websocket or ingestion degradation, service degradation, observer failure or other production impact. Require one stable Supervisor/lifecycle listener PID, every primary_fd_count sample below 8, zero critical descriptor events, no lock-error increase, queue depth zero, continued PumpPortal/PumpSwap and ingestion health, serializer p99 below 1000 ms throughout and complete observer evidence before declaring recovery. Use Supervisor/log/lifecycle/watchdog telemetry, db_serializer_metrics.json snapshots and database/WAL file metadata only; stop immediately on the first failed gate with no retry. Do not signal any process, open production databases, run schema or row queries, retry PSI0A-D6, execute DDL or production writes, recapture high-waters, extract canonical evidence or shadow output, make provider/RPC calls, deploy, restart or stop services, change configuration or watchdog thresholds, reset metrics, manipulate locks, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D or PSI0A-E through H or PSI0B, activate production, or enter EB2.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

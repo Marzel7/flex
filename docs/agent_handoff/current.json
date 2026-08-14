@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T09:38:54Z",
+  "updated_at_utc": "2026-08-14T09:50:22Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "0ab2e8e7fc1fc68f5087ade83079a3e53fd66998",
-    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0A-C16 immutable high-water boundary committed narrowly"
+    "git_head": "7a9c0c2bca9d3936dad482092a9aa2f236cb2303",
+    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0A-D fixture contract and fail-closed preflight artifact committed narrowly"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-14T09:38:54Z",
+    "published_at_utc": "2026-08-14T09:50:22Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0A-C16 immutable production high-water capture",
-    "mode": "one bounded production read-only five-surface MAX(rowid) boundary capture",
+    "milestone": "PSI0A-D exact future-query and query-plan qualification",
+    "mode": "safe-local contract qualified; production plan inspection stopped before database access",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "PSI0A_C16_PASS_IMMUTABLE_FIVE_SURFACE_ROWID_BOUNDARY_CAPTURED"
+    "verdict": "PSI0A_D_HOLD_LOCK_CONTENTION_DO_NOT_START_GATE_FAILED"
   },
   "production_state": {
     "retention": "ON",
@@ -1041,6 +1041,38 @@
       },
       "artifact": "docs/audits/psi0a_c16_production_high_water_boundary.json",
       "not_started": ["PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
+    },
+    "psi0a_d_query_plan_qualification": {
+      "status": "HOLD",
+      "verdict": "DO_NOT_START_LOCK_CONTENTION_GATE_FAILED",
+      "engineering_commit": "7a9c0c2bca9d3936dad482092a9aa2f236cb2303",
+      "verification_utc": "2026-08-14T09:50:22Z",
+      "contract_digest": "5d35498800f5c3d65ab972fd3fa593ca768eeaf79be2e2813a9c0d7192d718df",
+      "safe_local_qualification": {
+        "query_templates": 5,
+        "focused_and_regression_tests_passed": 91,
+        "select_templates_executed": 0,
+        "production_rows_read": 0,
+        "grants_extraction_authority": false,
+        "grants_activation_authority": false
+      },
+      "do_not_start_gate": {
+        "listener_pid": 9069,
+        "primary_fd_count": 0,
+        "serializer_p95_wait_ms": 2.8,
+        "serializer_p99_wait_ms": 65.28,
+        "serializer_queue_depth": 0,
+        "lock_errors_24h_previous": 0,
+        "lock_errors_24h_observed": 1,
+        "failed_reason": "LOCK_CONTENTION_SIGNAL_CHANGED"
+      },
+      "production_database_connections_opened": 0,
+      "production_explain_queries": 0,
+      "production_writes": 0,
+      "provider_calls": 0,
+      "service_restarts_or_stops": 0,
+      "artifact": "docs/audits/psi0a_d_query_plan_preflight_stop.json",
+      "not_started": ["PSI0A-D production plan inspection", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
     },
     "psi0a_pre_extraction_roadmap_ratification": {
       "status": "COMPLETE",
@@ -5226,7 +5258,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "PSI0A-C16 passed and closes PSI0A-C with one immutable five-surface rowid-only boundary. All C15 schema digests matched, rollback/progress-handler removal/close were verified, listener PID 9069 remained stable, serializer p99 stayed below 1000 ms, queue depth remained zero, and no production impact occurred. PSI0A-D through H remain not started and PSI0B remains prohibited.",
+    "PSI0A-D safe-local contract qualification passed 91 tests and froze five bounded non-executing query templates, but the production plan inspection stopped before opening any database because serializer lock_errors_24h increased from 0 at C16 to 1. Current p99 was 65.28 ms, queue depth 0, descriptor count 0 and listener PID 9069 stable, but the explicit lock-contention stop condition applies. PSI0A-E through H remain not started and PSI0B remains prohibited.",
     "PSI0A is ratified but not yet authorized for execution. PSI0A-A must first freeze the production boundary. All PSI0A stages prohibit actual EB evidence extraction, and PSI0B remains separately human-gated even after a PSI0A PASS.",
     "EB1.4A is intentionally deferred. The production shadow-integration track is not yet authorized and must begin with a no-extraction read-only schema/high-water compatibility preflight. Any real query-only extraction or production activation requires a later separate authorization.",
     "The post-EB1.3 reconciliation identifies EB1.4A as the next safe-local contract, but implementation is not authorized by the read-only reconciliation milestone. Any proposal disposition must remain non-executable and may not choose sources or alternatives, define acquisition, grant planning/execution authority, or enter EB2.",
@@ -5304,9 +5336,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0A-D exact future-query and query-plan qualification",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize PSI0A-D to freeze and qualify the exact future bounded shadow-read query set without executing any evidence extraction.",
-    "approval_text": "Authorize PSI0A-D safe-local design, implementation, frozen/ephemeral-fixture tests, regression tests, documentation, one narrow commit, and one bounded production metadata-only query-plan qualification using commit 0ab2e8e7fc1fc68f5087ade83079a3e53fd66998, canonical manifest digest d956bc24c1cd160162acaaad5bc466a2dece78ea34fc1f5238bc80728d4283f5 and immutable C16 read-boundary digest fdf11dc5e29c176d3724a4ccd1e3ff56584727512853bfb58a71fb3979c246f8. Freeze the exact single-statement SELECT templates, parameters and inclusive rowid predicates for the future five-surface shadow extraction, then inspect only their non-executing EXPLAIN QUERY PLAN output against the C15 schema/index digests. Use URI mode=ro, verified PRAGMA query_only, 250 ms lock timeout, active maximum two-second monotonic deadlines, explicit allow-lists and unconditional cleanup; bind deterministic query identities, plan details, index use, scan/join/sort/temp-structure findings and exact replay in one immutable PSI0A-D artifact. Stop on schema or boundary drift, unknown or write-capable SQL, full-scan or unacceptable temporary-work plan, listener PID change, primary_fd_count reaching 8, serializer p99 reaching 1000 ms, database pressure, lock contention, deadline breach, health degradation, replay failure, production impact or scope expansion. Do not execute the SELECT templates, read or materialize evidence rows, recapture high-waters, create shadow output, make provider/RPC calls, execute DDL or production writes, deploy, restart or stop services, change configuration, manipulate locks, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-E through H or PSI0B, activate production, or enter EB2.",
+    "milestone": "PSI0A-D1 lock-contention telemetry diagnosis",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Diagnose the new lock-error signal without opening a production database before any PSI0A-D production plan inspection is re-proposed.",
+    "approval_text": "Authorize PSI0A-D1 as a bounded local and production-telemetry read-only diagnosis of the serializer lock_errors_24h increase from 0 at PSI0A-C16 to 1 at the PSI0A-D do-not-start gate. Use db_serializer_metrics.json current/history, committed metric-window implementation, writer/wait/commit summaries, serializer and write-lease telemetry, Supervisor state and logs, listener connection-lifecycle/watchdog evidence, queue/websocket/ingestion health, and database/WAL file metadata only to identify the recorded lock episode, responsible writer or operation where observable, whether it represents current contention or stale rolling history, recovery state, and an objective telemetry-only gate for separately reauthorizing the PSI0A-D non-executing production plan inspection. Stop on listener PID change, primary_fd_count reaching 8, serializer p99 reaching 1000 ms, queue or ingestion degradation, service degradation, production impact, need to open a production database, or scope expansion. Do not open production databases, read rows or schema, execute EXPLAIN or any PSI0A-D SELECT template, execute DDL or production writes, recapture high-waters, create shadow output, make provider/RPC calls, deploy, restart or stop services, change configuration or thresholds, reset metrics, manipulate locks, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-E through H or PSI0B, activate production, or enter EB2.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

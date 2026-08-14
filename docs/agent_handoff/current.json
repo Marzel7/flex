@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T10:09:56Z",
+  "updated_at_utc": "2026-08-14T10:16:08Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "7a9c0c2bca9d3936dad482092a9aa2f236cb2303",
-        "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0A-D2 do-not-start artifact and prior telemetry artifacts are local"
+        "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0A-D3 telemetry diagnosis and prior PSI0A artifacts are local"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-        "published_at_utc": "2026-08-14T10:09:56Z",
+        "published_at_utc": "2026-08-14T10:16:08Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-        "milestone": "PSI0A-D2 production metadata-only query-plan qualification",
-        "mode": "do-not-start gate failed before production database access",
+        "milestone": "PSI0A-D3 recurrent listener descriptor-fanout diagnosis",
+        "mode": "production-telemetry read-only diagnosis complete; no production database access",
     "status": "HUMAN_APPROVAL_REQUIRED",
-        "verdict": "DO_NOT_START_RECURRENT_DESCRIPTOR_WARNING"
+        "verdict": "RECURRENT_RECONCILER_UNINDEXED_MIGRATION_TX_SCAN"
   },
   "production_state": {
     "retention": "ON",
@@ -1164,6 +1164,38 @@
         "service_or_configuration_changes": 0
       },
       "artifact": "docs/audits/psi0a_d2_query_plan_do_not_start_stop.json",
+      "not_started": ["PSI0A-D production plan inspection", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
+    },
+    "psi0a_d3_recurrent_descriptor_fanout_diagnosis": {
+      "status": "COMPLETE",
+      "verdict": "RECURRENT_RECONCILER_UNINDEXED_MIGRATION_TX_SCAN",
+      "engineering_revision": "7a9c0c2bca9d3936dad482092a9aa2f236cb2303",
+      "verification_utc": "2026-08-14T10:16:08Z",
+      "dominant_caller": "pumpfun_curve_listener.py:10815 in _reconciler_unseen_sigs",
+      "observed_connection_lifetimes_ms": [67564.359, 90061.614, 109177.788],
+      "owner_cleanup_requested_after_seconds": [25, 27, 27],
+      "query_shape": "SELECT migration_tx FROM token_analysis WHERE migration_tx IN (<up to 100 bounded placeholders>)",
+      "qualified_migration_tx_leading_index_present": false,
+      "assessment": "The repeating reconciler membership query dominates the long-holder cycles. Short concurrent writers raise instantaneous fan-out but do not explain the recurring 67-109 second connection lifetimes. Registry deltas remain an explicit attribution limitation.",
+      "terminal_health": {
+        "listener_pid": 9069,
+        "serializer_p99_wait_ms": 500.27,
+        "serializer_queue_depth": 0,
+        "lock_errors_24h": 1,
+        "critical_descriptor_events": 0,
+        "services_and_ingestion_healthy": true,
+        "production_impact_observed": false
+      },
+      "smallest_repair_not_implemented": "Safe-local idempotent additive-index contract for main.token_analysis(migration_tx), with fixture query-plan proof and drift/conflict rejection. Production deployment remains separately authorized.",
+      "scope_evidence": {
+        "production_database_connections_opened": 0,
+        "schema_or_row_queries": 0,
+        "production_explain_queries": 0,
+        "production_writes_or_ddl": 0,
+        "provider_calls": 0,
+        "service_or_configuration_changes": 0
+      },
+      "artifact": "docs/audits/psi0a_d3_recurrent_descriptor_fanout_diagnosis.json",
       "not_started": ["PSI0A-D production plan inspection", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
     },
     "psi0a_pre_extraction_roadmap_ratification": {
@@ -5350,6 +5382,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "PSI0A-D3 identifies a repeatable source of descriptor pressure: _reconciler_unseen_sigs performs a bounded migration_tx IN query every reconciler cycle without a qualified leading migration_tx index. Three post-D1A connections lasted 67.6, 90.1 and 109.2 seconds and entered owner-thread cleanup. A safe-local additive-index contract is the smallest repair, but implementation and any later production deployment require separate authorization.",
     "PSI0A-D2 stopped before opening any database because the latest three listener watchdog samples were 0, 5 and 9 primary descriptors; the terminal value exceeded warning threshold 8. PID 9069, p99 360.08 ms, queue depth zero and lock_errors_24h=1 were otherwise stable. The descriptor warning has therefore recurred after D1A and requires separate telemetry-only diagnosis; no PSI0A-D retry is authorized.",
     "PSI0A-D1A corrected the prior composite-descriptor miscount and proved recovery from the real single watchdog sample at primary_fd_count=8. The sample contained one tracked 37.6-second vault-discovery connection plus a registry delta of seven whose individual owners cannot be proven. All later watchdog samples were below 8 and the latest three were zero; PID, serializer, queue, ingestion and services are healthy. PSI0A-D still requires separate authorization.",
     "PSI0A-D safe-local contract qualification passed 91 tests and froze five bounded non-executing query templates, but the production plan inspection stopped before opening any database because serializer lock_errors_24h increased from 0 at C16 to 1. Current p99 was 65.28 ms, queue depth 0, descriptor count 0 and listener PID 9069 stable, but the explicit lock-contention stop condition applies. PSI0A-E through H remain not started and PSI0B remains prohibited.",
@@ -5430,9 +5463,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0A-D3 recurrent listener descriptor-fanout diagnosis",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Diagnose the recurrent descriptor warning that stopped PSI0A-D2; do not retry the plan inspection.",
-    "approval_text": "Authorize PSI0A-D3 as a bounded local and production-telemetry read-only diagnosis of the recurrent watchtower_listener primary_fd_count warning that stopped PSI0A-D2 at 9 after PSI0A-D1A had observed recovery. Use committed source, Supervisor state and logs, listener connection-lifecycle/watchdog snapshots, read-only process descriptor metadata, db_serializer_metrics.json snapshots, queue/websocket/ingestion health and database/WAL file metadata only to compare all post-D1A descriptor cycles, identify tracked callers, owner-thread-cleanup states, lifetimes and registry_fd_delta patterns, determine whether one specific path or concurrent fan-out dominates, and identify the smallest coherent safe-local repair or bounded recovery-observation contract without implementing it. Stop on listener PID change, any CRITICAL_LISTENER_DB_HANDLE event, serializer p99 reaching 1000 ms, sustained nonzero serializer queue depth, queue/websocket/ingestion or service degradation, production impact, need to open a production database, or scope expansion. Do not open production databases, read rows or schema, execute EXPLAIN or any PSI0A-D SELECT template, retry PSI0A-D2, execute DDL or production writes, recapture high-waters, create shadow output, make provider/RPC calls, deploy, restart or stop services, change configuration or watchdog thresholds, reset metrics, manipulate locks, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-E through H or PSI0B, activate production, or enter EB2.",
+    "milestone": "PSI0A-D4 migration_tx additive-index repair qualification",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Qualify the smallest safe-local repair for the recurrent reconciler scan; do not deploy it.",
+    "approval_text": "Authorize PSI0A-D4 safe-local design, implementation, frozen/ephemeral SQLite tests, regression tests, documentation and one narrow commit for an idempotent additive-index repair contract covering exactly main.token_analysis(migration_tx), as identified by PSI0A-D3. Bind the exact database, relation and column identity, deterministic index name idx_psi0a_token_analysis_migration_tx and single CREATE INDEX statement; reject unknown schema, missing or incompatible migration_tx affinity, conflicting index definitions, multi-statement or non-index DDL and authority expansion. Prove on frozen/ephemeral fixtures that the repair is idempotent, preserves all rows, produces the required leading prefix, changes the exact bounded _reconciler_unseen_sigs migration_tx IN query plan from a relation scan to indexed search, performs no work when already compatible, and preserves exact replay. Do not access production/runtime databases or services, create the production index, modify listener runtime code, retry PSI0A-D2, execute production DDL or writes, recapture high-waters, extract canonical evidence or shadow output, make provider/RPC calls, deploy, restart or stop services, change configuration or watchdog thresholds, manipulate locks, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D or PSI0A-E through H or PSI0B, activate production, or enter EB2.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

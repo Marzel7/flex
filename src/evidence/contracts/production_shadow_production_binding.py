@@ -32,7 +32,7 @@ from .production_shadow_run_preflight import (
 
 ADAPTER_VERSION = "psi0b-d.v1"
 ENGINEERING_REVISION = "763a07473c7afb6f0f7e4f52dc8d7074632185c7"
-PSI0B_C_CONTRACT_DIGEST = "fb320f28ec0f7fcb5ea2e27248a75fbe3dc024ca309dd2b94c6220be352ad8f7"
+PSI0B_C_CONTRACT_DIGEST = "05a40236db5966e8f1d3c575f1863ae9d19b6d364d8b2c323c3e3d4a5af7b348"
 AUTHORITY_CLASS = "HUMAN_APPROVED_ONE_RUN_QUERY_ONLY_PRODUCTION_SHADOW"
 PRODUCTION_PATHS = {
     "creator": "/Users/kevinkeaveney/Dev/claude/flex/pumpswap_tokens.db",

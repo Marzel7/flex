@@ -15,6 +15,12 @@ from urllib.parse import quote
 
 CONTRACT_VERSION = "psi0a-d.v1"
 AUTHORITY_CLASS = "NON_EXECUTING_PRODUCTION_SHADOW_QUERY_PLAN"
+PSI0A_D2A_ENGINEERING_REVISION = "d0bd5f1d2f0d95cc6026d681bb4c3ee1a619165f"
+PSI0A_D2A_CANONICAL_MANIFEST_DIGEST = "d956bc24c1cd160162acaaad5bc466a2dece78ea34fc1f5238bc80728d4283f5"
+PSI0A_D2A_READ_BOUNDARY_DIGEST = "fdf11dc5e29c176d3724a4ccd1e3ff56584727512853bfb58a71fb3979c246f8"
+PSI0A_D2A_SUPERSEDED_CONTRACT_DIGEST = "5d35498800f5c3d65ab972fd3fa593ca768eeaf79be2e2813a9c0d7192d718df"
+PSI0A_D2A_TEMPLATE_DIGEST = "1aac9561f9d90e1f7d8eeeb2aac078e2c81096eca19306e3558a1e8632b9856a"
+PSI0A_D2A_CONTRACT_DIGEST = "8ba0259d356c3fd6300f22dbf08b6ca3ea96fd836f94221d4f2499949de4577c"
 _REVISION = re.compile(r"^[0-9a-f]{7,64}$")
 _DIGEST = re.compile(r"^[0-9a-f]{64}$")
 _FORBIDDEN = re.compile(
@@ -182,6 +188,23 @@ def verify_production_shadow_query_contract(contract: ProductionShadowQueryContr
     if contract != expected:
         raise ProductionShadowQueryPlanError("PSI0A_D_CONTRACT_REPLAY_MISMATCH")
     return True
+
+
+def build_psi0a_d2a_rebound_contract() -> ProductionShadowQueryContract:
+    """Return the immutable D2A identity without changing the frozen query surface."""
+    templates = _templates()
+    if _digest([asdict(item) for item in templates]) != PSI0A_D2A_TEMPLATE_DIGEST:
+        raise ProductionShadowQueryPlanError("PSI0A_D2A_TEMPLATE_DRIFT")
+    contract = build_production_shadow_query_contract(
+        engineering_revision=PSI0A_D2A_ENGINEERING_REVISION,
+        canonical_manifest_digest=PSI0A_D2A_CANONICAL_MANIFEST_DIGEST,
+        read_boundary_digest=PSI0A_D2A_READ_BOUNDARY_DIGEST,
+    )
+    if contract.contract_digest != PSI0A_D2A_CONTRACT_DIGEST:
+        raise ProductionShadowQueryPlanError("PSI0A_D2A_CONTRACT_REPLAY_MISMATCH")
+    if contract.contract_digest == PSI0A_D2A_SUPERSEDED_CONTRACT_DIGEST:
+        raise ProductionShadowQueryPlanError("PSI0A_D2A_SUPERSESSION_NOT_APPLIED")
+    return contract
 
 
 def _open(path: Path) -> sqlite3.Connection:

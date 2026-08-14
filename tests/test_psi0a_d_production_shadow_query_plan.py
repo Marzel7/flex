@@ -4,7 +4,11 @@ import sqlite3
 import pytest
 
 from src.evidence.contracts.production_shadow_query_plan import (
+    PSI0A_D2A_CONTRACT_DIGEST,
+    PSI0A_D2A_ENGINEERING_REVISION,
+    PSI0A_D2A_SUPERSEDED_CONTRACT_DIGEST,
     ProductionShadowQueryPlanError,
+    build_psi0a_d2a_rebound_contract,
     build_production_shadow_query_contract,
     qualify_production_shadow_query_plans,
     verify_production_shadow_plan_qualification,
@@ -68,6 +72,23 @@ def test_contract_is_exact_replayable_bounded_and_non_authorizing():
     assert all("rowid<=?" in item.sql and "LIMIT ?" in item.sql for item in contract.templates)
     assert not contract.grants_extraction_authority
     assert not contract.grants_activation_authority
+
+
+def test_d2a_rebind_changes_only_revision_and_contract_identity():
+    previous = _contract()
+    rebound = build_psi0a_d2a_rebound_contract()
+    assert rebound.templates == previous.templates
+    assert rebound.contract_version == previous.contract_version
+    assert rebound.canonical_manifest_digest == previous.canonical_manifest_digest
+    assert rebound.read_boundary_digest == previous.read_boundary_digest
+    assert rebound.authority_class == previous.authority_class
+    assert rebound.grants_extraction_authority is False
+    assert rebound.grants_activation_authority is False
+    assert previous.contract_digest == PSI0A_D2A_SUPERSEDED_CONTRACT_DIGEST
+    assert rebound.engineering_revision == PSI0A_D2A_ENGINEERING_REVISION
+    assert rebound.contract_digest == PSI0A_D2A_CONTRACT_DIGEST
+    assert rebound.contract_digest != previous.contract_digest
+    assert verify_production_shadow_query_contract(rebound)
 
 
 def test_fixture_plans_use_indexes_without_executing_selects(tmp_path):

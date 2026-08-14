@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D2A",
+  "status": "COMPLETE",
+  "verdict": "LOCAL_QUALIFICATION_PASS",
+  "completed_at_utc": "2026-08-14T14:26:00Z",
+  "engineering_revision_bound": "d0bd5f1d2f0d95cc6026d681bb4c3ee1a619165f",
+  "canonical_manifest_digest": "d956bc24c1cd160162acaaad5bc466a2dece78ea34fc1f5238bc80728d4283f5",
+  "read_boundary_digest": "fdf11dc5e29c176d3724a4ccd1e3ff56584727512853bfb58a71fb3979c246f8",
+  "template_digest": "1aac9561f9d90e1f7d8eeeb2aac078e2c81096eca19306e3558a1e8632b9856a",
+  "superseded_contract_digest": "5d35498800f5c3d65ab972fd3fa593ca768eeaf79be2e2813a9c0d7192d718df",
+  "rebound_contract_digest": "8ba0259d356c3fd6300f22dbf08b6ca3ea96fd836f94221d4f2499949de4577c",
+  "query_templates": 5,
+  "templates_changed": false,
+  "parameters_changed": false,
+  "boundaries_changed": false,
+  "authority_changed": false,
+  "grants_extraction_authority": false,
+  "grants_activation_authority": false,
+  "production_access": false,
+  "provider_calls": 0,
+  "production_writes": 0,
+  "production_explain_statements": 0,
+  "tests": {
+    "focused_and_regression_passed": 93,
+    "failed": 0
+  }
+}

@@ -29,6 +29,23 @@ class HighWaterSpec:
     event_column: Optional[str]
 
 
+def creator_tokens_cursor_only_high_water_spec() -> HighWaterSpec:
+    """Return the qualified creator boundary without timestamp coercion.
+
+    ``creator_tokens.created_at`` has historically accepted integer seconds,
+    real seconds, and ISO-8601 text through distinct committed write paths.
+    SQLite ``rowid`` is therefore the only qualified stable ordering boundary
+    for this relation.  The missing event column is deliberate and must not be
+    replaced by implicit timestamp normalization.
+    """
+    return HighWaterSpec(
+        database_id="creator",
+        relation_name="creator_tokens",
+        cursor_column="rowid",
+        event_column=None,
+    )
+
+
 @dataclass(frozen=True)
 class RelationHighWater:
     database_id: str

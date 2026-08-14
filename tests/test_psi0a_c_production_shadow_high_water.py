@@ -7,6 +7,7 @@ from src.evidence.contracts.production_shadow_high_water import (
     HighWaterSpec,
     ProductionShadowHighWaterError,
     capture_production_shadow_read_boundary,
+    creator_tokens_cursor_only_high_water_spec,
     verify_production_shadow_read_boundary,
 )
 from src.evidence.contracts.production_shadow_schema_audit import RequiredRelation, audit_production_schema
@@ -83,3 +84,66 @@ def test_declared_integer_with_text_runtime_high_water_fails_named_and_closed(tm
             boundary, audit, {"main": path},
             (HighWaterSpec("main", "records", "rowid", "event_at"),), captured_at_utc_ns=1,
         )
+
+
+def test_creator_tokens_uses_rowid_only_with_mixed_created_at_encodings(tmp_path):
+    path = tmp_path / "creator.db"
+    connection = sqlite3.connect(path)
+    connection.execute(
+        "CREATE TABLE creator_tokens(creator_address TEXT,mint TEXT,created_at INTEGER NOT NULL)"
+    )
+    connection.execute("CREATE INDEX idx_creator_tokens_mint ON creator_tokens(mint)")
+    connection.executemany(
+        "INSERT INTO creator_tokens VALUES (?,?,?)",
+        (
+            ("creator-a", "mint-a", 1_700_000_000),
+            ("creator-b", "mint-b", 1_700_000_000.5),
+            ("creator-c", "mint-c", "2026-04-21T15:43:38Z"),
+        ),
+    )
+    connection.commit()
+    connection.close()
+    boundary = build_production_shadow_boundary(
+        engineering_revision="c1f7513d",
+        surfaces=(
+            {
+                "database_id": "creator",
+                "relation_name": "creator_tokens",
+                "relation_type": "TABLE",
+            },
+        ),
+    )
+    audit = audit_production_schema(
+        boundary,
+        {"creator": path},
+        (
+            RequiredRelation(
+                "creator",
+                "creator_tokens",
+                "TABLE",
+                (("creator_address", "TEXT"), ("mint", "TEXT"), ("created_at", "INTEGER")),
+                (("mint",),),
+            ),
+        ),
+    )
+
+    result = capture_production_shadow_read_boundary(
+        boundary,
+        audit,
+        {"creator": path},
+        (creator_tokens_cursor_only_high_water_spec(),),
+        captured_at_utc_ns=123,
+    )
+
+    assert result.relations[0].cursor_column == "rowid"
+    assert result.relations[0].cursor_upper_inclusive == 3
+    assert result.relations[0].event_column is None
+    assert result.relations[0].event_upper_inclusive is None
+    assert result.evidence_rows_materialized == 0
+    assert verify_production_shadow_read_boundary(result)
+
+
+def test_creator_tokens_qualified_spec_is_exact_and_non_authorizing():
+    assert creator_tokens_cursor_only_high_water_spec() == HighWaterSpec(
+        "creator", "creator_tokens", "rowid", None
+    )

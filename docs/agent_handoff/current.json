@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T07:12:40Z",
+  "updated_at_utc": "2026-08-14T07:20:14Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "89631f1df4d3db47666cb68866722b715ef69e39",
-    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths preserved; PSI0A-C8 engineering commit is narrow"
+    "git_head": "36d5fc150c0f31f170386bc7880b9bcd0732599b",
+    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0A-C9 audit commit contains only the replayable audit artifact"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-14T07:12:40Z",
+    "published_at_utc": "2026-08-14T07:20:14Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0A-C8 canonical cursor-policy amendment and manifest qualification",
-    "mode": "safe-local contract amendment, implementation, frozen tests, documentation and narrow commit",
+    "milestone": "PSI0A-C9 production schema/index compatibility audit",
+    "mode": "bounded read-only production metadata audit",
     "status": "HOLD",
-    "verdict": "PSI0A_C8_CANONICAL_CAPTURE_INPUT_MANIFEST_QUALIFIED_LIVE_COMPATIBILITY_REQUIRED"
+    "verdict": "PSI0A_C9_SCHEMA_INCOMPATIBLE_TWO_REQUIRED_INDEX_PREFIXES_MISSING"
   },
   "production_state": {
     "retention": "ON",
@@ -28,11 +28,11 @@
     "cohort_mode": "OFF",
     "evidence_writer": "STOPPED",
     "listener_service": "watchtower_listener",
-    "listener_pid_last_verified": 85993,
+    "listener_pid_last_verified": 8661,
     "creator_funding_service": "creator_funding_worker",
     "creator_funding_pid_last_verified": 80211,
     "creator_resolution_service": "creator_resolution_worker",
-    "creator_resolution_pid_last_verified": 12770
+    "creator_resolution_pid_last_verified": 24853
   },
   "orchestration": {
     "schema_version": 3,
@@ -545,6 +545,51 @@
       "service_restarts": 0,
       "configuration_changes": 0,
       "evidence_extractions": 0,
+      "not_started": ["PSI0A-C production recapture", "PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
+    },
+    "psi0a_c9_schema_index_compatibility_audit": {
+      "status": "HOLD",
+      "verdict": "SCHEMA_INCOMPATIBLE",
+      "reader_commit": "89631f1df4d3db47666cb68866722b715ef69e39",
+      "audit_artifact_commit": "36d5fc15",
+      "verification_utc": "2026-08-14T07:20:14Z",
+      "manifest_engineering_revision": "bd0d9447",
+      "manifest_digest": "d956bc24c1cd160162acaaad5bc466a2dece78ea34fc1f5238bc80728d4283f5",
+      "audit_digest": "08642b6ca525a01f029e60029798afc16351162869ab80cc8831d7c212a55c31",
+      "replay_verified": true,
+      "compatible_relations": 3,
+      "incompatible_relations": 2,
+      "missing_required_index_prefixes": [
+        "evidence.normalized_evidence_records(fact_family)",
+        "main.token_analysis(migrated_at,mint)"
+      ],
+      "relation_type_or_column_affinity_drift": false,
+      "production_boundary": {
+        "surface_count": 5,
+        "connection": "URI mode=ro with PRAGMA query_only verified",
+        "lock_timeout_ms": 250,
+        "maximum_query_deadline_seconds": 2,
+        "query_class": "sqlite_schema/table_info/index_list/index_info metadata only",
+        "elapsed_ms": 31.272
+      },
+      "health": {
+        "pre_audit_p99_wait_ms": 48.23,
+        "post_audit_p99_wait_ms": 51.38,
+        "post_audit_queue_depth": 0,
+        "worker_pid_changes": 0,
+        "production_impact_observed": false
+      },
+      "artifact": "docs/audits/psi0a_c9_schema_index_compatibility.json",
+      "production_rows_read": 0,
+      "high_waters_captured": 0,
+      "evidence_extractions": 0,
+      "shadow_outputs_created": 0,
+      "provider_calls": 0,
+      "production_writes": 0,
+      "ddl_statements": 0,
+      "service_restarts": 0,
+      "configuration_changes": 0,
+      "stop_reason": "SCHEMA_TYPE_INDEX_DRIFT",
       "not_started": ["PSI0A-C production recapture", "PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
     },
     "psi0a_pre_extraction_roadmap_ratification": {
@@ -4731,7 +4776,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "PSI0A-C8 qualifies the superseding immutable rowid-only capture-input manifest at 89631f1d/d956bc24. Its stricter query-justified index requirements have not been checked against production, and no production boundary has been captured. PSI0A-C remains incomplete; PSI0A-D through H remain not started, and PSI0B remains prohibited.",
+    "PSI0A-C9 stopped fail-closed after metadata-only production inspection proved that evidence.normalized_evidence_records lacks a leading fact_family index and main.token_analysis lacks a migrated_at,mint index. Three other relations satisfy the canonical C8 manifest. No rows or high-waters were read, no DDL was performed, production health remained stable, PSI0A-C remains incomplete, PSI0A-D through H remain not started, and PSI0B remains prohibited.",
     "PSI0A is ratified but not yet authorized for execution. PSI0A-A must first freeze the production boundary. All PSI0A stages prohibit actual EB evidence extraction, and PSI0B remains separately human-gated even after a PSI0A PASS.",
     "EB1.4A is intentionally deferred. The production shadow-integration track is not yet authorized and must begin with a no-extraction read-only schema/high-water compatibility preflight. Any real query-only extraction or production activation requires a later separate authorization.",
     "The post-EB1.3 reconciliation identifies EB1.4A as the next safe-local contract, but implementation is not authorized by the read-only reconciliation milestone. Any proposal disposition must remain non-executable and may not choose sources or alternatives, define acquisition, grant planning/execution authority, or enter EB2.",
@@ -4809,9 +4854,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0A-C9 amended production schema compatibility audit",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Audit the five production surfaces against the committed C8 manifest only; do not capture a high-water boundary or create missing indexes.",
-    "approval_text": "Authorize PSI0A-C9 as one bounded read-only production schema/index compatibility audit using commit 89631f1df4d3db47666cb68866722b715ef69e39 and canonical manifest digest d956bc24c1cd160162acaaad5bc466a2dece78ea34fc1f5238bc80728d4283f5. Inspect only the five manifest allow-listed relations with URI mode=ro, verified PRAGMA query_only, 250 ms lock timeout, active maximum two-second deadlines, and sqlite_schema/table_info/index_list/index_info metadata queries. Compare exact relation types, required column affinities and required index prefixes; bind observed schema digests and produce a replayable compatibility result. Stop on database pressure, lock contention, deadline breach, unknown surface, schema/type/index drift, health degradation, production impact or scope expansion. Do not read evidence rows, capture high-waters, execute canonical evidence extraction or shadow output, create indexes or other DDL, make provider/RPC calls, production writes, deployments, service restarts or stops, configuration changes, Evidence Mirror or Cohort Mode activation, PSI0A-D through H, PSI0B, production activation or EB2 work.",
+    "milestone": "PSI0A-C10 safe-local additive-index repair qualification",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Qualify, on frozen or ephemeral fixtures only, the two exact additive index definitions required by the C8 manifest and confirmed missing by C9; do not deploy them or resume production capture.",
+    "approval_text": "Authorize PSI0A-C10 safe-local design, implementation, frozen/ephemeral SQLite tests, regression tests, documentation, and one narrow commit for an idempotent additive-index repair contract covering exactly evidence.normalized_evidence_records(fact_family) and main.token_analysis(migrated_at,mint), as identified by replay-verified PSI0A-C9 audit digest 08642b6ca525a01f029e60029798afc16351162869ab80cc8831d7c212a55c31. Bind exact database/relation/column identities, deterministic index names and CREATE INDEX statements; reject unknown schemas, column/type drift, pre-existing conflicting index definitions, multi-statement or non-index DDL, and any authority expansion. Prove on frozen/ephemeral fixtures that the repair is idempotent, produces the required leading prefixes, preserves data and exact replay, and performs no work when already compatible. Do not access production/runtime databases or services, create either production index, capture a high-water boundary, execute canonical evidence extraction or shadow output, make provider/RPC calls, production writes or other DDL, deploy, restart or stop services, change configuration, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D through H or PSI0B, activate production, or enter EB2.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

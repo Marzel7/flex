@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T07:33:34Z",
+  "updated_at_utc": "2026-08-14T07:37:34Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "d1b0450dce81499d7b151b7b1ce021d605420c1a",
-    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0A-C11 audit commit contains only the partial deployment artifact"
+    "git_head": "c1bae04acefa6bcc67e5f3827d2276d952e47383",
+    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0A-C12 audit commit contains only the read-only diagnosis artifact"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-14T07:33:34Z",
+    "published_at_utc": "2026-08-14T07:37:34Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0A-C11 bounded production additive-index deployment",
-    "mode": "bounded sequential production DDL with health and postcondition gates",
-    "status": "PARTIAL",
-    "verdict": "PSI0A_C11_FIRST_INDEX_DEPLOYED_SECOND_INDEX_ABSENT_STOPPED_FAIL_CLOSED"
+    "milestone": "PSI0A-C12 bounded read-only main-index attempt diagnosis",
+    "mode": "bounded local and production-metadata read-only diagnosis",
+    "status": "HOLD",
+    "verdict": "PSI0A_C12_EXTERNAL_RUNNER_TERMINATION_MOST_CONSISTENT_NOT_PROVEN"
   },
   "production_state": {
     "retention": "ON",
@@ -687,6 +687,50 @@
       "stop_reason": "MAIN_INDEX_POSTCONDITION_ABSENT_WITHOUT_EXECUTION_TRANSCRIPT",
       "artifact": "docs/audits/psi0a_c11_additive_index_deployment.json",
       "not_started": ["PSI0A-C main-index diagnosis or retry", "PSI0A-C production recapture", "PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
+    },
+    "psi0a_c12_main_index_attempt_diagnosis": {
+      "status": "COMPLETE",
+      "verdict": "EXTERNAL_RUNNER_TERMINATION_MOST_CONSISTENT_CAUSE_NOT_PROVEN",
+      "engineering_commit": "c1bae04acefa6bcc67e5f3827d2276d952e47383",
+      "verification_utc": "2026-08-14T07:37:34Z",
+      "diagnostic_boundary": {
+        "sqlite_uri_mode": "ro",
+        "query_only_verified": true,
+        "lock_timeout_ms": 250,
+        "maximum_metadata_query_deadline_seconds": 2,
+        "token_analysis_rows_read": 0,
+        "ddl_statements": 0,
+        "retry_attempts": 0
+      },
+      "observations": {
+        "target_index_present": false,
+        "same_prefix_index_count": 0,
+        "rollback_journal_present": false,
+        "surviving_index_process": false,
+        "python_exception_transcript": false,
+        "contemporaneous_named_index_log_record": false,
+        "macos_external_termination_record": false,
+        "serializer_queue_depth": 0,
+        "serializer_p95_wait_ms": 5.1,
+        "serializer_p99_wait_ms": 90.11,
+        "ongoing_production_impact_observed": false
+      },
+      "cause_assessment": {
+        "lock_acquisition_failure": "not supported",
+        "active_60_second_deadline": "not supported by retained timing",
+        "external_process_or_runner_termination": "most consistent but not proven",
+        "other_fail_closed_path": "not excluded because the one-off runner lacked a durable phase ledger"
+      },
+      "smallest_coherent_next_milestone": "Fixture-qualify a durable single-index deployment runner with append-only phase, deadline, exception, rollback, close and postcondition evidence before any separately authorized retry.",
+      "artifact": "docs/audits/psi0a_c12_main_index_attempt_diagnosis.json",
+      "production_retry": false,
+      "production_writes": 0,
+      "high_waters_captured": 0,
+      "evidence_extractions": 0,
+      "provider_calls": 0,
+      "service_restarts": 0,
+      "configuration_changes": 0,
+      "not_started": ["PSI0A-C durable runner qualification", "PSI0A-C main-index retry", "PSI0A-C production recapture", "PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
     },
     "psi0a_pre_extraction_roadmap_ratification": {
       "status": "COMPLETE",
@@ -4872,7 +4916,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "PSI0A-C11 is partial: idx_psi0a_normalized_evidence_fact_family was created and verified in 7.826 ms, but the bounded main token_analysis index attempt returned without a transcript and postcondition verification proves idx_psi0a_token_analysis_migrated_mint is absent. No retry was attempted; queues cleared, services and PIDs remained healthy, and no ongoing production impact is observed. The failure provenance requires separate read-only diagnosis before any retry. PSI0A-C remains incomplete, PSI0A-D through H remain not started, and PSI0B remains prohibited.",
+    "PSI0A-C12 finds external runner/session termination is the most consistent explanation for the absent main index, but retained telemetry cannot prove it: no exception, OS termination event, surviving process, rollback journal or target index exists, and the one-off C11 runner did not durably record phase transitions. A fixture-qualified durable single-index runner is required before any separately authorized retry. PSI0A-C remains incomplete, PSI0A-D through H remain not started, and PSI0B remains prohibited.",
     "PSI0A is ratified but not yet authorized for execution. PSI0A-A must first freeze the production boundary. All PSI0A stages prohibit actual EB evidence extraction, and PSI0B remains separately human-gated even after a PSI0A PASS.",
     "EB1.4A is intentionally deferred. The production shadow-integration track is not yet authorized and must begin with a no-extraction read-only schema/high-water compatibility preflight. Any real query-only extraction or production activation requires a later separate authorization.",
     "The post-EB1.3 reconciliation identifies EB1.4A as the next safe-local contract, but implementation is not authorized by the read-only reconciliation milestone. Any proposal disposition must remain non-executable and may not choose sources or alternatives, define acquisition, grant planning/execution authority, or enter EB2.",
@@ -4950,9 +4994,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0A-C12 bounded read-only main-index attempt diagnosis",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Diagnose why the authorized main token_analysis index attempt produced no transcript and no index; do not retry or perform DDL.",
-    "approval_text": "Authorize PSI0A-C12 as a bounded local and production-metadata read-only diagnosis of the absent idx_psi0a_token_analysis_migrated_mint postcondition after PSI0A-C11. Use committed code, the C10/C11 artifacts, SQLite sqlite_schema/index_list/index_info metadata, database/WAL/journal file metadata, serializer/lease/service telemetry and available local execution diagnostics only to determine whether the attempt ended through lock acquisition failure, active deadline interruption and rollback, external process termination, or another fail-closed path, and define the smallest coherent separately authorized retry contract. Use URI mode=ro, verified PRAGMA query_only, 250 ms lock timeout and active maximum two-second metadata-query deadlines. Do not read token_analysis rows, retry CREATE INDEX, execute any DDL or production write, capture high-waters, extract canonical evidence or shadow output, make provider/RPC calls, deploy code, restart or stop services, change configuration, manipulate locks, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D through H or PSI0B, activate production, or enter EB2.",
+    "milestone": "PSI0A-C13 safe-local durable single-index deployment runner qualification",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Fixture-qualify a durable phase-ledger runner for the one remaining index; do not access production or retry it.",
+    "approval_text": "Authorize PSI0A-C13 safe-local design, implementation, frozen/ephemeral SQLite tests, fault-injection tests, regression tests, documentation, and one narrow commit for a durable single-index deployment runner restricted to the existing PSI0A-C10 repair contract. Require an explicitly supplied new empty local output directory and append-only canonical attempt ledger that durably records run identity, contract/index identity, STARTED, schema/precondition verification, lock acquisition, DDL start, deadline callback, success or exact exception, rollback result, progress-handler removal, connection close, postcondition result and terminal status; fsync each transition and bind a final replay digest when a terminal record is reached. Preserve the exact 250 ms lock timeout, caller-supplied positive monotonic deadline, one statement/no retry semantics, deterministic index SQL, conflict/schema drift rejection and false extraction/activation authority. Prove fixture success, already-compatible no-op, lock failure, deadline interruption, DDL exception, rollback, cleanup, incomplete externally terminated ledger detection and exact replay. Do not access production/runtime databases or services, retry or create idx_psi0a_token_analysis_migrated_mint, execute production DDL or writes, capture high-waters, extract canonical evidence or shadow output, make provider/RPC calls, deploy, restart or stop services, change configuration, manipulate production locks, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D through H or PSI0B, activate production, or enter EB2.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

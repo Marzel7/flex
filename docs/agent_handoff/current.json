@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T09:03:00Z",
+  "updated_at_utc": "2026-08-14T09:07:00Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "ca26c0200c91f8d6fd7a803fa6f11215864caa99",
-    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0A-C15C diagnosis artifact committed narrowly"
+    "git_head": "37346eed73d0b2ba9eb4498d68e20610a713100e",
+    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0A-C15B2 observer stop artifact committed narrowly"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-14T09:03:00Z",
+    "published_at_utc": "2026-08-14T09:07:00Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0A-C15C serializer-pressure provenance diagnosis",
-    "mode": "bounded local and production-telemetry read-only diagnosis; zero database connections",
+    "milestone": "PSI0A-C15B2 telemetry-only recovery observation",
+    "mode": "observer instrumentation stop; zero database connections",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "PSI0A_C15C_ROLLING_HISTORY_AGED_OUT_C15B_REOBSERVATION_READY"
+    "verdict": "PSI0A_C15B2_INCONCLUSIVE_OBSERVER_PERMISSION_FAILURE"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,24 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0a_c15b2_observer_permission_stop": {
+      "status": "INCONCLUSIVE_STOP",
+      "verdict": "OBSERVER_PID_PROBE_PERMISSION_FAILURE_NO_PRODUCTION_FAILURE",
+      "engineering_revision": "37346eed73d0b2ba9eb4498d68e20610a713100e",
+      "authorized_start_utc": "2026-08-14T09:05:19Z",
+      "observer_stop_utc": "2026-08-14T09:05:38Z",
+      "first_checkpoint_p99_wait_ms": 71.35,
+      "first_checkpoint_queue_depth": 0,
+      "first_checkpoint_primary_fd_count": 0,
+      "listener_pid": 9069,
+      "actual_pid_change": false,
+      "immediate_supervisor_verification": "RUNNING pid 9069 uptime 1:14:24",
+      "production_database_connections_opened": 0,
+      "production_writes": 0,
+      "provider_calls": 0,
+      "retry_performed": false,
+      "artifact": "docs/audits/psi0a_c15b2_observer_permission_stop.json"
+    },
     "psi0a_c15c_serializer_pressure_provenance": {
       "status": "COMPLETE",
       "verdict": "ROLLING_HISTORY_PRESSURE_AGED_OUT_RECOVERY_GATE_READY",
@@ -5500,9 +5518,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0A-C15B2 bounded telemetry-only clean recovery observation",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Run one fresh 15-minute telemetry-only clean recovery observation now that serializer p99 is below threshold; do not open a production database or run C15.",
-    "approval_text": "Authorize PSI0A-C15B2 as one fresh bounded 15-minute production-telemetry read-only recovery observation starting at the first Supervisor, listener-lifecycle, serializer, queue, websocket and ingestion checkpoint after authorization and ending at the first of: 15 clean minutes, listener PID change, primary_fd_count reaching warning threshold 8, any CRITICAL_LISTENER_DB_HANDLE event, serializer p99 reaching or exceeding 1000 ms, nonzero sustained serializer queue depth, websocket or ingestion degradation, service degradation, or other production impact. Require one stable listener PID, every primary_fd_count sample below 8, zero critical descriptor events, queue depth zero, continued PumpPortal/PumpSwap and ingestion health, and serializer p99 below 1000 ms throughout before declaring recovery and separately reauthorizing PSI0A-C15. Use Supervisor/log/lifecycle/watchdog telemetry, db_serializer_metrics.json snapshots and database/WAL file metadata only; stop immediately on the first failed gate with no retry. Do not open production databases, run schema or row queries, rerun C15, execute DDL or production writes, capture high-waters, extract canonical evidence or shadow output, make provider/RPC calls, deploy, restart or stop services, change configuration or watchdog thresholds, reset metrics, manipulate locks, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D through H or PSI0B, activate production, or enter EB2.",
+    "milestone": "PSI0A-C15B3 bounded telemetry-only clean recovery observation",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Run one fresh 15-minute telemetry-only recovery observation with PID identity derived from Supervisor/lifecycle evidence, never a sandboxed signal probe.",
+    "approval_text": "Authorize PSI0A-C15B3 as one fresh bounded 15-minute production-telemetry read-only recovery observation using Supervisor status and listener lifecycle snapshots\u2014not os.kill or any signal operation\u2014for PID identity. Start at the first Supervisor, listener-lifecycle, serializer, queue, websocket and ingestion checkpoint after authorization and end at the first of: 15 clean minutes, verified listener PID change, primary_fd_count reaching warning threshold 8, any CRITICAL_LISTENER_DB_HANDLE event, serializer p99 reaching or exceeding 1000 ms, nonzero sustained serializer queue depth, websocket or ingestion degradation, service degradation, observer failure, or other production impact. Require one stable Supervisor/lifecycle listener PID, every primary_fd_count sample below 8, zero critical descriptor events, queue depth zero, continued PumpPortal/PumpSwap and ingestion health, serializer p99 below 1000 ms throughout, and complete observer evidence before declaring recovery and separately reauthorizing PSI0A-C15. Use Supervisor/log/lifecycle/watchdog telemetry, db_serializer_metrics.json snapshots and database/WAL file metadata only; stop immediately on the first failed gate with no retry. Do not signal any process, open production databases, run schema or row queries, rerun C15, execute DDL or production writes, capture high-waters, extract canonical evidence or shadow output, make provider/RPC calls, deploy, restart or stop services, change configuration or watchdog thresholds, reset metrics, manipulate locks, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D through H or PSI0B, activate production, or enter EB2.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

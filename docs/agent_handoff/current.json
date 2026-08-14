@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T05:38:29Z",
+  "updated_at_utc": "2026-08-14T05:44:25Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "70d588955ed1ef01e485e8ee94fa8ea6072c0cfa",
-    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths; EB1.3G engineering commit contains only its extractor, tests and documentation; all unrelated paths preserved"
+    "git_head": "eeaa1eccc5d77a0e4cff6c70cf39db3e14e35baf",
+    "working_tree": "dirty: 34 unrelated/live/runtime/user/handoff paths; EB1.3H engineering commit contains only its immutable bundle implementation, tests and documentation; all unrelated paths preserved"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-13T19:20:32Z",
+    "published_at_utc": "2026-08-14T05:44:25Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-      "milestone": "EB1.3G fixture-only query extractor qualification",
-      "mode": "safe-local frozen/ephemeral SQLite implementation, test and narrow commit",
-      "status": "COMPLETE",
-      "verdict": "FIXTURE_QUERY_EXTRACTOR_QUALIFIED"
+    "milestone": "EB1.3H immutable extraction bundle qualification and frozen-stack closure",
+    "mode": "safe-local frozen/ephemeral fixture implementation, test, documentation and narrow commit",
+    "status": "COMPLETE",
+    "verdict": "EB1_3_COMPLETE_FROZEN_NON_EXECUTABLE_STACK_QUALIFIED"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,21 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "eb1_3h_immutable_extraction_bundle_and_closure": {
+      "status": "COMPLETE",
+      "verdict": "EB1_3_COMPLETE_FROZEN_NON_EXECUTABLE_STACK_QUALIFIED",
+      "engineering_commit": "eeaa1eccc5d77a0e4cff6c70cf39db3e14e35baf",
+      "verification_utc": "2026-08-14T05:44:25Z",
+      "qualified_semantics": "write-once canonical bundles in explicitly supplied new empty directories; PROJECTED results contain run, accounting, EB1.3D manifest, EB1.3E corpus and hashes while NO_ELIGIBLE_PROPOSALS contains only run, accounting and hashes; exact status-dependent file sets, hashes, lineage, authority, accounting and replay fail closed",
+      "tests": "89 passed across EB1.0, EB1.1, EB1.2A, EB1.3A/C/D/E/G/H and operator-neutrality regressions",
+      "provider_calls": 0,
+      "production_access": false,
+      "production_changes": false,
+      "service_restarts": 0,
+      "evidence_mirror": "OFF",
+      "cohort_mode": "OFF",
+      "activation": false
+    },
     "eb1_3g_fixture_query_extractor": {
       "status": "COMPLETE",
       "verdict": "FIXTURE_QUERY_EXTRACTOR_QUALIFIED",
@@ -4319,6 +4334,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "EB1.3 is closed as a frozen fixture-only non-executable planning-proposal stack. No live/runtime compatibility, proposal review, source selection, acquisition planning or execution authority is established. The next milestone requires a separate committed roadmap reconciliation; no EB2 namespace is assigned.",
     "EB1.3G qualifies only the fixture extractor and in-memory replay outputs. No immutable write-once EB1.3 extraction bundle exists for either PROJECTED or NO_ELIGIBLE_PROPOSALS status, so EB1.3 frozen-stack closure is not yet complete. No runtime compatibility or authority is implied.",
     "EB1.3A-E is complete only as a frozen in-memory stack. The EB1.3G fixture-only extractor has not been implemented or qualified, zero-selected accounting has no serialized output boundary yet, and no production/runtime compatibility or authority is implied.",
     "EB1.3A-E now form a frozen in-memory contract/adapter/manifest/corpus stack, but no closure assessment has defined a fixture-only query extractor boundary, input schema, ceilings, deadlines or immutable output-bundle contract. No proposal grants planning or execution authority.",
@@ -4392,9 +4408,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "EB1.3H immutable extraction output-bundle qualification and closure",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Add only a write-once canonical output bundle over EB1.3G results, supporting both PROJECTED and NO_ELIGIBLE_PROPOSALS without fabricating absent artifacts, then assess frozen EB1.3 closure.",
-    "approval_text": "Authorize safe-local design, implementation, frozen/ephemeral fixture tests, regression tests, documentation, and one narrow commit for EB1.3H immutable EB1.3G extraction output-bundle qualification and frozen-stack closure. Write only to an explicitly supplied new empty directory. For PROJECTED results, serialize canonical run, accounting, EB1.3D manifest and EB1.3E corpus files; for NO_ELIGIBLE_PROPOSALS, serialize only canonical run and accounting files and never fabricate manifest or corpus. Bind run ID, caller-supplied engineering revision, EB1.3G schema/status/result digest, input fingerprint, verified EB1.1H bundle digest, exact authority class and false planning/execution grants, per-file hashes and one bundle digest. Verify canonical bytes, exact status-dependent file sets, hashes, lineage, accounting invariants and exact replay; fail closed on overwrite, missing, extra, altered or authority-changing content. Frozen/ephemeral fixtures only. Do not access production/runtime sources, execute a live extraction, publish externally, review or approve proposals, derive, choose, rank, acquire or fulfill alternatives. No source selection, acquisition plan or request budget, provider/RPC calls, production writes, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, cross-entity linkage, rates, profiles, ranking, scoring, policy activation, profitability/cashflow inference, operator identity/attribution, or activation. Do not assign or enter an EB2 namespace.",
+    "milestone": "Post-EB1.3 roadmap reconciliation",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Confirm EB1.3 frozen-stack closure and identify the smallest next safe-local evidence-governance milestone from committed artifacts only, without implementation or assigning an EB2 namespace.",
+    "approval_text": "Authorize a bounded local read-only post-EB1.3 roadmap reconciliation using committed artifacts only; confirm EB1.3 frozen-stack closure and identify the smallest next safe-local evidence-governance milestone and contract, but do not implement it or assign an EB2 namespace. No proposal review or approval, source selection, acquisition plan or request budget, production/runtime access, live extraction or census, provider/RPC calls, production writes, deployment, restarts, configuration changes, Evidence Mirror, Cohort Mode, evidence fulfillment, cross-entity linkage, rates, profiles, ranking, scoring, policy activation, profitability/cashflow inference, operator identity/attribution, or activation.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

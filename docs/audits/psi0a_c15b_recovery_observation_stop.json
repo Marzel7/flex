@@ -1,0 +1,45 @@
+{
+  "milestone": "PSI0A-C15B",
+  "status": "STOPPED",
+  "verdict": "STOP_FIRST_CHECKPOINT_SERIALIZER_P99_ABOVE_THRESHOLD",
+  "engineering_revision": "1d0b8dcf91b43be8154e10e98708edffc0565980",
+  "authorized_at_context": "explicit human authorization for one bounded 15-minute telemetry-only recovery observation",
+  "first_checkpoint_utc": "2026-08-14T08:23:15Z",
+  "terminal_checkpoint_utc": "2026-08-14T08:23:15Z",
+  "elapsed_seconds": 0,
+  "stop_condition": "serializer p99 remaining above 1000 ms",
+  "checkpoint": {
+    "listener_pid": 9069,
+    "listener_uptime": "0:31:40",
+    "listener_running": true,
+    "serializer_snapshot_utc": "2026-08-14T08:23:06Z",
+    "serializer_p95_wait_ms": 60.8,
+    "serializer_p99_wait_ms": 3751.45,
+    "serializer_queue_depth": 0,
+    "serializer_max_queue_depth": 5,
+    "serializer_lock_errors_24h": 0,
+    "creator_funding_worker_running": true,
+    "creator_resolution_worker_running": true,
+    "watchtower_api_running": true,
+    "ws_cascade_running": true,
+    "evidence_writer": "STOPPED"
+  },
+  "recovery_assessment": "FAILED: the first checkpoint exceeded the explicit serializer p99 stop threshold, so the observation terminated immediately without retry or a 15-minute window.",
+  "actions": {
+    "production_database_connections_opened": 0,
+    "database_queries": 0,
+    "production_writes": 0,
+    "ddl_statements": 0,
+    "service_restarts_or_stops": 0,
+    "configuration_changes": 0,
+    "provider_calls": 0,
+    "high_waters_captured": 0,
+    "evidence_extractions": 0,
+    "retries": 0
+  },
+  "c15_reauthorization": {
+    "ready": false,
+    "blocked_by": "SERIALIZER_P99_PRESSURE",
+    "required_next_action": "Separately authorize bounded telemetry-only diagnosis of the rolling serializer p99 provenance and current writer/wait distribution before proposing another recovery observation or C15."
+  }
+}

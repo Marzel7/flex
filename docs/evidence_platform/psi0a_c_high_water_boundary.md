@@ -1,6 +1,6 @@
 # PSI0A-C High-Water and Read Boundary
 
-PSI0A-C binds every allow-listed relation to a non-negative cursor upper bound and, where applicable, an event-time upper bound. Capture uses one explicit read transaction per database, URI `mode=ro`, verified `PRAGMA query_only`, a 250 ms lock timeout, aggregate `MAX` reads only, and unconditional rollback/close. No evidence rows are materialized.
+PSI0A-C binds every allow-listed relation to a non-negative cursor upper bound and, where applicable, an event-time upper bound. Capture uses one explicit read transaction per database, URI `mode=ro`, verified `PRAGMA query_only`, a 250 ms lock timeout, an explicit caller-supplied positive wall-clock deadline enforced by a monotonic clock and SQLite progress handler, aggregate `MAX` reads only, and unconditional progress-handler removal, rollback, and close. Deadline interruption raises `PSI0A_C_QUERY_DEADLINE_EXCEEDED`. No evidence rows are materialized.
 
 Future PSI0B queries must use both the recorded cursor bound and any recorded event bound. Inserts after capture cannot enter the frozen cohort, and an extraction must keep its bounded read transactions open only within the separately qualified PSI0A-E duration. PSI0A-C grants neither extraction nor activation authority.
 

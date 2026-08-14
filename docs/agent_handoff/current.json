@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T14:50:31Z",
+  "updated_at_utc": "2026-08-14T14:54:16Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0A-D2 metadata-only query-plan qualification",
-    "mode": "single metadata-only plan inspection completed; terminal health gate stopped closure",
+    "milestone": "PSI0A-D query-plan qualification",
+    "mode": "terminal descriptor diagnosis complete; replay-verified plan evidence accepted without retry",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "HOLD_TERMINAL_DESCRIPTOR_GATE_REACHED"
+    "verdict": "PSI0A_D_COMPLETE"
   },
   "production_state": {
     "retention": "ON",
@@ -6074,6 +6074,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "PSI0A-D2D proves the single terminal primary_fd_count=8 sample was unrelated transient listener-local fan-out: two pool_discovery._check_sync connections plus six concurrent physical descriptors, with no transaction or write lane held; the tracked connections closed in about 700 ms and the next sample was zero. D2 ran in a separate process, so its five sequential read-only descriptors could not enter listener PID 15357's count. The 5/5 replay-verified D2 plan evidence is accepted and D2 must not be repeated. PSI0A-E remains separately human-gated.",
     "PSI0A-D2 replay-verified all five frozen EXPLAIN QUERY PLAN findings as compatible with no target-relation scans and zero SELECT-template executions or production rows read. Closure nevertheless stopped fail-closed because one terminal watchdog sample reached primary_fd_count=8 before returning to zero. No retry occurred. A telemetry-only diagnosis must determine whether the episode was related to D2's five short read-only metadata connections or unrelated concurrent listener work before accepting the plan evidence or re-proposing D2.",
     "PSI0A-D2C proves the authoritative production evidence source is /Users/kevinkeaveney/Dev/claude/flex/database/evidence_platform/production/evidence.db with path-binding digest 26d0e3847ca99f7a2b6216156adca59e14e40b8d7054d3c33709460a6286aeb7. The absent database/evidence.db path came from incorrectly treating a filename-only manifest field as a database/-relative path. Main and ops bindings are independently unambiguous. D2 was not retried and requires a fresh explicit authorization binding all corrected paths.",
     "PSI0A-D6C proved listener quiescence and clean recovery but could not launch the index attempt: the immutable D4 contract and D5 entry point are explicitly fixture-only and reject production authority. Reusing their fixture marker against production was rejected before execution. PID 31028 is healthy with p99 31.09 ms, queue zero and lock errors zero; no database was opened and the index remains absent. A production-specific durable runner must be locally qualified before a new quiescence/deployment authorization.",
@@ -6164,9 +6165,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0A-D2D terminal descriptor-gate diagnosis",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: diagnose the single primary_fd_count=8 terminal sample without reopening a production database or repeating D2.",
-    "approval_text": "Authorize PSI0A-D2D as a bounded local and production-telemetry read-only diagnosis of the single watchtower_listener primary_fd_count=8 terminal sample that stopped PSI0A-D2 after all five non-executing query plans replay-verified compatible. Use the immutable D2 result digest 38d0605e77e1503e9d5e952d13a3e1501aacf6c84db7a3debc334bca8fc484ce, Supervisor state/logs, listener connection-lifecycle/watchdog snapshots, read-only process descriptor metadata, db_serializer_metrics.json snapshots, serializer/write-lease summaries, queue/PumpPortal/PumpSwap/ingestion health and database/WAL file metadata only to identify the descriptors, callers, lifetimes and cleanup ordering at the threshold sample; determine whether the episode was caused by D2's five short sequential URI mode=ro/query_only EXPLAIN connections or unrelated concurrent listener work; quantify recovery; and decide whether the existing replay-verified D2 plan evidence can close PSI0A-D without another database inspection or whether a separately authorized D2 retry is genuinely required. Stop on listener PID change, CRITICAL_LISTENER_DB_HANDLE, serializer p99 reaching 1000 ms, lock-error increment, sustained nonzero queue depth, feed/ingestion/service degradation, production impact, need to open a production database or scope expansion. Do not open production databases, inspect schema or rows, execute EXPLAIN or SELECT, retry D2, execute DDL or production writes, deploy, signal, restart or stop services, change configuration or thresholds, reset metrics, manipulate locks, recapture high-waters, create shadow output, make provider/RPC calls, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-E through H or PSI0B, activate production, or enter EB2.",
+    "milestone": "PSI0A-E resource-ceiling contract",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: qualify immutable hard resource ceilings safe-locally before any shadow extraction can be proposed.",
+    "approval_text": "Authorize PSI0A-E safe-local design, implementation, frozen/ephemeral-fixture tests, regression tests, documentation and one narrow commit for an immutable production-shadow resource-ceiling contract over the closed PSI0A-D query surface. Bind engineering revision 91fddb0cfb55e30e55164b83f67135ef6bda571a, PSI0A-D contract digest 8ba0259d356c3fd6300f22dbf08b6ca3ea96fd836f94221d4f2499949de4577c, replay-verified plan qualification digest 38d0605e77e1503e9d5e952d13a3e1501aacf6c84db7a3debc334bca8fc484ce, canonical manifest digest d956bc24c1cd160162acaaad5bc466a2dece78ea34fc1f5238bc80728d4283f5 and C16 boundary digest fdf11dc5e29c176d3724a4ccd1e3ff56584727512853bfb58a71fb3979c246f8. Freeze explicit positive hard ceilings for per-query and total rows, canonical output bytes, wall-clock and per-query deadlines, connection count, transaction lifetime, process memory and SQLite temporary work; require exactly the five frozen query identities, no pagination, retries, failover, widening or adaptive limits, deterministic rejection reason codes, false extraction/activation authority and exact replay. Include an explicit bounded assessment for the snapshot_selected_cohort right-part ORDER BY temporary B-tree under its row/byte/memory/temp-space ceilings and fail closed if it cannot be bounded safely. Frozen/ephemeral fixtures only. Do not access production/runtime databases or services, execute EXPLAIN or SELECT against production, read or materialize production rows, create shadow output, make provider/RPC calls, execute production DDL or writes, deploy, restart or stop services, change configuration, manipulate locks or metrics, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-F through H or PSI0B, activate production, or enter EB2.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

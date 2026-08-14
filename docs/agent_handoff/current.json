@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T07:43:57Z",
+  "updated_at_utc": "2026-08-14T07:51:09Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "1ba92e9352159f321535b5056877ffbfacec40d3",
-    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0A-C13 engineering commit contains only the fixture runner, tests and documentation"
+    "git_head": "fd36c63575d76e12dc6f0373677d8c430df53b13",
+    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0A-C14 audit commit contains only the immutable attempt ledger and deployment audit"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-14T07:43:57Z",
+    "published_at_utc": "2026-08-14T07:51:09Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0A-C13 durable single-index deployment runner qualification",
-    "mode": "safe-local implementation, fixture and fault-injection tests, documentation and narrow commit",
+    "milestone": "PSI0A-C14 one durable bounded main-index retry",
+    "mode": "single production DDL attempt with durable ledger and health gates",
     "status": "COMPLETE",
-    "verdict": "PSI0A_C13_DURABLE_FIXTURE_ONLY_SINGLE_INDEX_RUNNER_QUALIFIED"
+    "verdict": "PSI0A_C14_MAIN_INDEX_DEPLOYED_TRANSIENT_LOCK_SIGNAL_RECOVERED"
   },
   "production_state": {
     "retention": "ON",
@@ -787,6 +787,58 @@
       "service_restarts": 0,
       "configuration_changes": 0,
       "not_started": ["PSI0A-C durable main-index retry", "PSI0A-C production recapture", "PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
+    },
+    "psi0a_c14_durable_main_index_deployment": {
+      "status": "COMPLETE",
+      "verdict": "MAIN_INDEX_DEPLOYED_WITH_TRANSIENT_LOCK_SIGNAL_AND_RECOVERY",
+      "engineering_revision": "1ba92e9352159f321535b5056877ffbfacec40d3",
+      "audit_commit": "fd36c63575d76e12dc6f0373677d8c430df53b13",
+      "verification_utc": "2026-08-14T07:51:09Z",
+      "run_id": "psi0a-c14-20260814T074900Z-01",
+      "contract_digest": "0c3759789ffe761f48fd9aa925c182652df36f853ae70b85a9d79c17f5c9db41",
+      "runner_version": "psi0a-c13.v1",
+      "ledger_digest": "c28ccb28396fd7824a68bce6f87e8653a0c6407308dde47bee5497f3aa36f4cf",
+      "ledger_replay_verified": true,
+      "terminal_status": "SUCCEEDED",
+      "statements_executed": 1,
+      "retries": 0,
+      "deployed_index": {
+        "index_name": "idx_psi0a_token_analysis_migrated_mint",
+        "columns": ["migrated_at", "mint"],
+        "postcondition_verified": true,
+        "query_plan": "SEARCH token_analysis USING COVERING INDEX idx_psi0a_token_analysis_migrated_mint (migrated_at<?)"
+      },
+      "durable_events": [
+        "STARTED", "SCHEMA_PRECONDITION_VERIFIED", "LOCK_ACQUIRED", "DDL_STARTED",
+        "DDL_SUCCEEDED", "COMMIT_SUCCEEDED", "PROGRESS_HANDLER_REMOVED",
+        "CONNECTION_CLOSED", "POSTCONDITION_VERIFIED", "TERMINAL"
+      ],
+      "measured_impact": {
+        "lock_errors_24h_before": 9,
+        "lock_errors_24h_after": 11,
+        "immediate_queue_depth": 1,
+        "final_queue_depth": 0,
+        "final_p95_wait_ms": 10.29,
+        "final_p99_wait_ms": 136.46,
+        "worker_pid_changes": 0,
+        "service_degradation_observed": false,
+        "ongoing_impact_observed": false,
+        "recovery_verified": true
+      },
+      "runner_authority_marker_limitation": "The immutable runner ledger retains fixture_only=true from its non-authorizing C13 contract; explicit C14 human approval supplied production authority, and the C14 audit binds actual production provenance without changing the ledger.",
+      "artifacts": [
+        "docs/audits/psi0a_c14_durable_main_index_deployment.json",
+        "docs/audits/psi0a_c14_runs/psi0a-c14-20260814T074900Z-01/attempt.jsonl"
+      ],
+      "production_indexes_created": 1,
+      "production_rows_altered": 0,
+      "other_ddl_statements": 0,
+      "high_waters_captured": 0,
+      "evidence_extractions": 0,
+      "provider_calls": 0,
+      "service_restarts": 0,
+      "configuration_changes": 0,
+      "not_started": ["PSI0A-C full compatibility reassessment", "PSI0A-C production recapture", "PSI0A-D", "PSI0A-E", "PSI0A-F", "PSI0A-G", "PSI0A-H", "PSI0B"]
     },
     "psi0a_pre_extraction_roadmap_ratification": {
       "status": "COMPLETE",
@@ -4972,7 +5024,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "PSI0A-C13 qualifies the durable fixture-only single-index runner at 1ba92e93 with fsynced phase evidence and external-termination detection, but the remaining main index has not been retried or created. Any production use of the runner requires separate authorization, a fresh empty output directory, health/schema gates and exactly one no-retry statement. PSI0A-C remains incomplete, PSI0A-D through H remain not started, and PSI0B remains prohibited.",
+    "PSI0A-C14 successfully deployed and verified idx_psi0a_token_analysis_migrated_mint through one durable no-retry attempt. Two additional lock-error observations and immediate queue depth 1 were measured, then queue depth returned to zero with stable service PIDs and no ongoing impact. Both C9-missing indexes now exist, but a fresh five-surface metadata compatibility reassessment is required before any high-water recapture. PSI0A-C remains incomplete, PSI0A-D through H remain not started, and PSI0B remains prohibited.",
     "PSI0A is ratified but not yet authorized for execution. PSI0A-A must first freeze the production boundary. All PSI0A stages prohibit actual EB evidence extraction, and PSI0B remains separately human-gated even after a PSI0A PASS.",
     "EB1.4A is intentionally deferred. The production shadow-integration track is not yet authorized and must begin with a no-extraction read-only schema/high-water compatibility preflight. Any real query-only extraction or production activation requires a later separate authorization.",
     "The post-EB1.3 reconciliation identifies EB1.4A as the next safe-local contract, but implementation is not authorized by the read-only reconciliation milestone. Any proposal disposition must remain non-executable and may not choose sources or alternatives, define acquisition, grant planning/execution authority, or enter EB2.",
@@ -5050,9 +5102,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0A-C14 one durable bounded main-index retry",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Run exactly one production attempt for the remaining index through the C13 durable runner; never retry within the milestone.",
-    "approval_text": "Authorize PSI0A-C14 as exactly one durable bounded production attempt to create idx_psi0a_token_analysis_migrated_mint on main.token_analysis(migrated_at,mint) using commit 1ba92e9352159f321535b5056877ffbfacec40d3, PSI0A-C10 contract digest 0c3759789ffe761f48fd9aa925c182652df36f853ae70b85a9d79c17f5c9db41 and the PSI0A-C13 runner. Require a new run ID and new empty isolated local output directory; verify the exact remaining schema/index precondition and healthy serializer, lease, queue, ingestion and services before launch; use the exact deterministic single CREATE INDEX statement, 250 ms lock timeout, active maximum 60-second monotonic deadline, canonical fsynced phase ledger, rollback/cleanup/postcondition evidence and exact replay. Launch only one managed attempt and stop on lock failure, deadline, exception, incomplete ledger, schema or contract drift, database pressure, lease/queue/ingestion/service degradation, production impact or scope expansion. Do not retry, recreate the already deployed evidence index, execute any other DDL or production write, capture high-waters, extract canonical evidence or shadow output, make provider/RPC calls, deploy code, restart or stop services, change configuration, manipulate locks, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D through H or PSI0B, activate production, or enter EB2.",
+    "milestone": "PSI0A-C15 bounded read-only five-surface compatibility reassessment",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Re-audit all five canonical C8 surfaces after C14 and determine whether schema/index compatibility is now 5/5; do not capture high-waters.",
+    "approval_text": "Authorize PSI0A-C15 as one bounded read-only production schema/index compatibility reassessment using commit fd36c63575d76e12dc6f0373677d8c430df53b13, canonical manifest digest d956bc24c1cd160162acaaad5bc466a2dece78ea34fc1f5238bc80728d4283f5, C9 audit digest 08642b6ca525a01f029e60029798afc16351162869ab80cc8831d7c212a55c31 and the immutable C14 deployment artifacts. Inspect only the five allow-listed relations with URI mode=ro, verified PRAGMA query_only, 250 ms lock timeout, active maximum two-second deadlines and sqlite_schema/table_info/index_list/index_info plus non-executing EXPLAIN QUERY PLAN metadata. Compare exact relation types, required column affinities and required index prefixes, bind fresh observed schema digests, verify both deployed indexes and their query plans, assess current serializer/queue/ingestion/service health, and produce a replayable compatibility result. Stop on schema/type/index drift, database pressure, lock contention, deadline breach, health degradation, production impact or scope expansion. Do not read evidence rows, capture high-waters, execute DDL or any production write, extract canonical evidence or shadow output, make provider/RPC calls, deploy, restart or stop services, change configuration, manipulate locks, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D through H or PSI0B, activate production, or enter EB2.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

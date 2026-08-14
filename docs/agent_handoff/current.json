@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T11:51:27Z",
+  "updated_at_utc": "2026-08-14T12:00:30Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-        "published_at_utc": "2026-08-14T11:51:27Z",
+        "published_at_utc": "2026-08-14T12:00:30Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-        "milestone": "PSI0A-D6F post-deployment stability observation",
-        "mode": "observation stopped at 96 seconds because temporary observer misclassified one queue sample as sustained",
+        "milestone": "PSI0A-D6F1 corrected post-deployment stability observation",
+        "mode": "observation stopped at 65.6 seconds when primary_fd_count reached 10",
         "status": "HUMAN_APPROVAL_REQUIRED",
-        "verdict": "STOP_OBSERVER_MISCLASSIFIED_SINGLE_TRANSIENT_QUEUE_SAMPLE_AS_SUSTAINED"
+        "verdict": "STOP_PRIMARY_DESCRIPTOR_COUNT_REACHED_10_AFTER_INDEX_DEPLOYMENT"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,29 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0a_d6f1_post_deployment_descriptor_stop": {
+      "status": "FAILED_GATE_STOP",
+      "verdict": "STOP_PRIMARY_DESCRIPTOR_COUNT_REACHED_10_AFTER_INDEX_DEPLOYMENT",
+      "engineering_revision": "c604b6f02a20dd711e334f5921dbd2dfd65a7be5",
+      "observed_duration_seconds": 65.566,
+      "samples_completed": 3,
+      "listener_pid": 42483,
+      "listener_pid_stable": true,
+      "primary_fd_count_samples": [0, 6, 10],
+      "maximum_primary_fd_count": 10,
+      "maximum_serializer_p99_wait_ms": 190.88,
+      "serializer_lock_error_increment": 0,
+      "serializer_queue_depth_samples": [0, 0, 0],
+      "sustained_nonzero_queue_observed": false,
+      "write_lease_guards_empty_throughout": true,
+      "services_running_throughout": true,
+      "production_impact_class": "LISTENER_PRIMARY_DESCRIPTOR_WARNING_GATE",
+      "production_database_connections_opened": 0,
+      "ddl_or_production_writes": 0,
+      "service_signals_stops_or_restarts": 0,
+      "provider_calls": 0,
+      "artifact": "docs/audits/psi0a_d6f1_post_deployment_descriptor_stop.json"
+    },
     "psi0a_d6f_observer_contract_stop": {
       "status": "OBSERVER_FAILURE_STOP",
       "verdict": "STOP_OBSERVER_MISCLASSIFIED_SINGLE_TRANSIENT_QUEUE_SAMPLE_AS_SUSTAINED",
@@ -5736,9 +5759,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-        "milestone": "PSI0A-D6F1 corrected post-deployment stability observation",
-        "instruction": "HUMAN_APPROVAL_REQUIRED: separately authorize one fresh observation with deterministic sustained-queue semantics after the D6F observer failure.",
-        "approval_text": "Authorize PSI0A-D6F1 as one fresh bounded 15-minute production-telemetry read-only post-deployment stability observation for idx_psi0a_token_analysis_migration_tx. Define sustained nonzero serializer queue depth exactly as queue_depth greater than zero at two consecutive checkpoints sampled 30 seconds apart; a single nonzero sample followed by zero is transient and must be recorded but must not stop the observation. Start at the first Supervisor, listener-lifecycle, descriptor, serializer, lease, queue, websocket and ingestion checkpoint after authorization and stop immediately on: listener PID change, primary_fd_count reaching 8, any CRITICAL_LISTENER_DB_HANDLE event, serializer p99 reaching or exceeding 1000 ms, a serializer lock-error increment, sustained queue depth under the exact two-checkpoint definition, PumpPortal/PumpSwap or ingestion degradation, service degradation, observer failure or other production impact. Require 15 clean minutes, one stable listener PID, every primary_fd_count sample below 8, zero critical descriptor events, no lock-error increase, no sustained queue episode, continued PumpPortal/PumpSwap and ingestion health, serializer p99 below 1000 ms throughout and complete observer evidence before declaring the deployment stable and separately reauthorizing PSI0A-D2. Use Supervisor/log/lifecycle/watchdog telemetry, db_serializer_metrics.json snapshots and database/WAL file metadata only; no retry. Do not signal any process, open production databases, run schema or row queries, execute EXPLAIN or any PSI0A-D SELECT template, execute DDL or production writes, recapture high-waters, extract canonical evidence or shadow output, make provider/RPC calls, deploy, restart or stop services, change configuration or watchdog thresholds, reset metrics, manipulate locks, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D2 or PSI0A-E through H or PSI0B, activate production, or enter EB2.",
+        "milestone": "PSI0A-D6G post-index descriptor diagnosis",
+        "instruction": "HUMAN_APPROVAL_REQUIRED: diagnose the remaining listener descriptor fan-out before any further stability observation or PSI0A-D2 attempt.",
+        "approval_text": "Authorize PSI0A-D6G as a bounded local and production-telemetry read-only diagnosis of the watchtower_listener primary_fd_count rise from 0 to 10 during PSI0A-D6F1 after deployment of idx_psi0a_token_analysis_migration_tx. Use committed source and PSI0A-D3 through D6F1 artifacts, Supervisor state and logs, listener connection-lifecycle/watchdog snapshots, read-only process descriptor metadata, db_serializer_metrics.json snapshots, serializer/write-lease summaries, queue/websocket/ingestion health and database/WAL file metadata only. Compare all post-D6E descriptor cycles; identify tracked callers, purposes, owner-thread cleanup states, lifetimes, registry_fd_delta and concurrent fan-out where observable; determine whether the indexed _reconciler_unseen_sigs path recovered and which remaining path or paths dominate the threshold breach; and identify the smallest coherent safe-local repair or revised observation contract without implementing it. Stop on listener PID change, any CRITICAL_LISTENER_DB_HANDLE event, serializer p99 reaching 1000 ms, sustained nonzero serializer queue depth, queue/websocket/ingestion or service degradation, production impact beyond the existing descriptor warning, need to open a production database, or scope expansion. Do not open production databases, read rows or schema, execute EXPLAIN or any PSI0A-D SELECT template, execute DDL or production writes, recapture high-waters, create shadow output, make provider/RPC calls, deploy, signal, restart or stop services, change configuration or watchdog thresholds, reset metrics, manipulate locks, activate Evidence Mirror or Cohort Mode, retry a stability observation, proceed to PSI0A-D2 or PSI0A-E through H or PSI0B, activate production, or enter EB2.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

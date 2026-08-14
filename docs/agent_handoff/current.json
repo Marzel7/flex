@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T10:23:23Z",
+  "updated_at_utc": "2026-08-14T10:34:50Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-        "git_head": "cfd97133fe9306d7af0553c660244edda8901686",
-        "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0A-D4 committed narrowly in four files"
+        "git_head": "ac06c781deddbb968babe6bb7a19d1d88cd9cb53",
+        "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0A-D5 committed narrowly in four files"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-        "published_at_utc": "2026-08-14T10:23:23Z",
+        "published_at_utc": "2026-08-14T10:34:50Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-        "milestone": "PSI0A-D4 migration_tx additive-index repair qualification",
-        "mode": "safe-local frozen/ephemeral fixture qualification complete; no production access",
+        "milestone": "PSI0A-D5 durable D4 single-index runner qualification",
+        "mode": "safe-local frozen/ephemeral fixture and fault-injection qualification complete; no production access",
     "status": "HUMAN_APPROVAL_REQUIRED",
-        "verdict": "PASS_FIXTURE_ONLY_MIGRATION_TX_INDEX_REPAIR_QUALIFIED"
+        "verdict": "PASS_FIXTURE_ONLY_DURABLE_D4_RUNNER_QUALIFIED"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,30 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0a_d5_durable_migration_tx_index_runner": {
+      "status": "COMPLETE",
+      "verdict": "PASS_FIXTURE_ONLY_DURABLE_D4_RUNNER_QUALIFIED",
+      "engineering_revision": "ac06c781deddbb968babe6bb7a19d1d88cd9cb53",
+      "accepted_contract_digest": "a160398c3130dbacf2314bb4046b9bac4865cd9dd421311f2fd999058c0ab9f2",
+      "accepted_index": "idx_psi0a_token_analysis_migration_tx",
+      "tests_passed": 54,
+      "tests_failed": 0,
+      "initial_harness_failures": 3,
+      "runner_defects_found": 0,
+      "qualified_properties": [
+        "new empty output directory and append-only canonical fsynced phase ledger",
+        "exactly one deterministic statement, 250 ms lock timeout and caller-supplied positive monotonic deadline",
+        "success, already-compatible no-op, lock failure, deadline interruption, DDL exception and rollback",
+        "progress-handler removal, connection closure, row preservation and indexed query-plan postcondition",
+        "schema/conflict rejection, incomplete external-termination detection, tamper rejection and exact replay"
+      ],
+      "production_database_access": 0,
+      "production_indexes_created": 0,
+      "production_writes_or_ddl": 0,
+      "provider_calls": 0,
+      "service_or_configuration_changes": 0,
+      "artifact": "docs/audits/psi0a_d5_migration_tx_index_runner_qualification.json"
+    },
     "psi0a_c15b3_clean_recovery_observation": {
       "status": "COMPLETE",
       "verdict": "PASS_15_CLEAN_MINUTES_RECOVERY_PROVEN",
@@ -5419,7 +5443,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
-    "PSI0A-D4 qualifies the exact migration_tx additive-index repair at cfd97133 with 44 passing tests, but the existing durable C13 runner accepts only the earlier C10 two-index contract. A safe-local D4 runner adaptation must be qualified before any production deployment attempt can be proposed. The production migration_tx index is absent and no PSI0A-D retry is authorized.",
+    "PSI0A-D5 qualifies the durable fixture-only D4 runner at ac06c781 with 54 passing tests. It grants no production authority and explicitly rejects production fixture authorization. The production migration_tx index remains absent; one bounded production preflight and durable no-retry attempt require separate explicit authorization, and PSI0A-D2 remains stopped.",
     "PSI0A-D3 identifies a repeatable source of descriptor pressure: _reconciler_unseen_sigs performs a bounded migration_tx IN query every reconciler cycle without a qualified leading migration_tx index. Three post-D1A connections lasted 67.6, 90.1 and 109.2 seconds and entered owner-thread cleanup. A safe-local additive-index contract is the smallest repair, but implementation and any later production deployment require separate authorization.",
     "PSI0A-D2 stopped before opening any database because the latest three listener watchdog samples were 0, 5 and 9 primary descriptors; the terminal value exceeded warning threshold 8. PID 9069, p99 360.08 ms, queue depth zero and lock_errors_24h=1 were otherwise stable. The descriptor warning has therefore recurred after D1A and requires separate telemetry-only diagnosis; no PSI0A-D retry is authorized.",
     "PSI0A-D1A corrected the prior composite-descriptor miscount and proved recovery from the real single watchdog sample at primary_fd_count=8. The sample contained one tracked 37.6-second vault-discovery connection plus a registry delta of seven whose individual owners cannot be proven. All later watchdog samples were below 8 and the latest three were zero; PID, serializer, queue, ingestion and services are healthy. PSI0A-D still requires separate authorization.",
@@ -5501,9 +5525,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0A-D5 durable D4 single-index runner qualification",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: Qualify a durable fixture-only runner for the D4 index contract before production deployment is proposed.",
-    "approval_text": "Authorize PSI0A-D5 safe-local design, implementation, frozen/ephemeral SQLite tests, fault-injection tests, regression tests, documentation and one narrow commit adapting the existing durable single-index attempt boundary to accept only the replay-verified PSI0A-D4 contract for idx_psi0a_token_analysis_migration_tx. Require an explicitly supplied new empty local output directory and append-only canonical fsynced attempt ledger recording run identity, D4 contract/index identity, STARTED, schema/precondition verification, lock acquisition, DDL start, deadline callback, success or exact exception, rollback result, progress-handler removal, connection close, postcondition/query-plan result and terminal replay digest. Preserve exactly one deterministic statement, 250 ms lock timeout, caller-supplied positive monotonic deadline, no retry semantics, conflict/schema drift rejection, row preservation, false extraction/activation authority, and incomplete external-termination detection. Frozen/ephemeral fixtures only. Do not access production/runtime databases or services, create the production migration_tx index, execute production DDL or writes, modify listener runtime code, retry PSI0A-D2, recapture high-waters, extract canonical evidence or shadow output, make provider/RPC calls, deploy, restart or stop services, change configuration or watchdog thresholds, manipulate locks, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D or PSI0A-E through H or PSI0B, activate production, or enter EB2.",
+    "milestone": "PSI0A-D6 single migration_tx production index attempt",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: Authorize one bounded production preflight and exactly one durable no-retry D4 index attempt using the qualified D5 boundary.",
+    "approval_text": "Authorize PSI0A-D6 as exactly one durable bounded production attempt to create idx_psi0a_token_analysis_migration_tx on main.token_analysis(migration_tx) using commit ac06c781deddbb968babe6bb7a19d1d88cd9cb53, PSI0A-D4 contract digest a160398c3130dbacf2314bb4046b9bac4865cd9dd421311f2fd999058c0ab9f2 and the PSI0A-D5 runner boundary. Require a new run ID and new empty isolated local output directory; verify the exact schema/index precondition and healthy listener PID, primary-descriptor, serializer, lease, queue, websocket, ingestion and service gates before launch; execute only the deterministic single CREATE INDEX statement with a 250 ms lock timeout, an active maximum 60-second monotonic deadline, canonical fsynced phase ledger, unconditional rollback/cleanup, row-preservation and indexed _reconciler_unseen_sigs query-plan postcondition, and exact terminal replay. Launch one managed attempt only and stop without retry on lock failure, deadline, exception, incomplete ledger, schema or contract drift, primary_fd_count reaching 8, serializer p99 reaching 1000 ms, a new serializer lock-error increment, queue/websocket/ingestion/service degradation, production impact or scope expansion. Do not execute any other DDL or production write, modify listener runtime code, retry PSI0A-D2, recapture high-waters, extract canonical evidence or shadow output, make provider/RPC calls, deploy code, restart or stop services, change configuration or watchdog thresholds, reset metrics, manipulate locks, activate Evidence Mirror or Cohort Mode, proceed to PSI0A-D or PSI0A-E through H or PSI0B, activate production, or enter EB2.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

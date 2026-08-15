@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-14T18:37:55Z",
+  "updated_at_utc": "2026-08-15T07:37:35Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "894124e2cd9b1dcff9988457e221aa5c13873564",
-    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0B-E stopped before database open and recorded one audit artifact"
+    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0B-E4 diagnosis recorded one audit artifact"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-14T18:37:55Z",
+    "published_at_utc": "2026-08-15T07:37:35Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0B-E fresh bounded production shadow attempt",
-    "mode": "production-telemetry read-only prestart assessment",
+    "milestone": "PSI0B-E4 operations write-lease diagnosis",
+    "mode": "local and production-telemetry read-only diagnosis",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "DO_NOT_START_WRITE_LEASE_HEALTH_UNPROVEN"
+    "verdict": "STALE_RELEASE_PATH_PHYSICAL_LEASE_LEAK_REPAIR_REQUIRED"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,29 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0b_e4_operations_write_lease_diagnosis": {
+      "status": "HOLD",
+      "verdict": "STALE_RELEASE_PATH_PHYSICAL_LEASE_LEAK_REPAIR_REQUIRED",
+      "engineering_commit": "894124e2cd9b1dcff9988457e221aa5c13873564",
+      "owner_pid": 41735,
+      "owner_thread": "MainThread",
+      "transaction_id": "81aa002e-a509-431a-9af6-0d0fad24e352",
+      "acquired_at_utc": "2026-08-14T15:43:00.346399Z",
+      "release_requested_at_utc": "2026-08-14T15:43:00.360591Z",
+      "age_hours_at_diagnosis": 15.901,
+      "walkback_self_timeout_lines": 541,
+      "listener_timeout_lines": 951,
+      "root_cause_class": "DIAGNOSTIC_METADATA_FAILURE_PREVENTED_PHYSICAL_UNLOCK",
+      "current_recovery_state": "NOT_RECOVERED",
+      "production_database_opened": false,
+      "production_queries": 0,
+      "production_writes": 0,
+      "service_actions": 0,
+      "production_impact": true,
+      "artifact": "docs/audits/psi0b_e4_operations_write_lease_diagnosis.json",
+      "blocker": "The live walkback process retains the physical operations write lease; natural telemetry-only recovery is impossible while PID 41735 remains alive.",
+      "exact_next_action": "Authorize PSI0B-E5 safe-local release-path repair and fault-injection qualification; then separately authorize exactly one walkback_worker restart and bounded recovery observation before any fresh PSI0B-E attempt."
+    },
     "psi0b_e_02_production_shadow_attempt": {
       "status": "HOLD",
       "verdict": "DO_NOT_START_WRITE_LEASE_HEALTH_UNPROVEN",

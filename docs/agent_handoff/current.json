@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-15T15:02:00Z",
+  "updated_at_utc": "2026-08-15T15:12:00Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0C-B fixture-only shadow assessment contract qualification",
-    "mode": "safe-local design, implementation, fixture tests, regressions, documentation and narrow commit complete",
+    "milestone": "PSI0C-C immutable PSI0B bundle assessment preflight",
+    "mode": "bounded safe-local read-only do-not-start",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "PSI0C_B_FIXTURE_ONLY_SHADOW_ASSESSMENT_CONTRACT_QUALIFIED"
+    "verdict": "PSI0C_C_DO_NOT_START_OUTPUT_DIRECTORY_NOT_BOUND"
   },
   "production_state": {
     "retention": "ON",
@@ -240,6 +240,22 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0c_c_output_binding_do_not_start": {
+      "status": "HOLD",
+      "verdict": "PSI0C_C_DO_NOT_START_OUTPUT_DIRECTORY_NOT_BOUND",
+      "engineering_commit": "0931cc421cde19835a81082bd0e52aef99050e59",
+      "psi0c_b_contract_digest": "3f2d112ba18b190e7acdf9c0dd9ddf552258b7ed75295ccb7cc470a981cc70e1",
+      "psi0c_b_qualification_digest_verified": true,
+      "psi0b_g_closure_digest_verified": true,
+      "psi0b_bundle_directory_present": true,
+      "caller_supplied_output_directory": null,
+      "bundle_files_opened": 0,
+      "shadow_result_rows_inspected": 0,
+      "assessment_attempts": 0,
+      "output_published": false,
+      "production_runtime_access": 0,
+      "blocker": "The authorization requires a caller-supplied new empty isolated local output directory but supplies no exact path. Selecting or creating one implicitly would drift the run identity and isolation boundary."
+    },
     "psi0c_b_shadow_assessment_contract_qualification": {
       "status": "PASS",
       "verdict": "FIXTURE_ONLY_SHADOW_ASSESSMENT_CONTRACT_QUALIFIED",
@@ -7135,6 +7151,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "PSI0C-C stopped before bundle replay or row access because its authorization required a caller-supplied new empty isolated output directory but did not bind an exact path. The engineering commit, PSI0C-B qualification digest and PSI0B-G closure digest match, and the bundle directory exists. Zero bundle files were opened, zero rows were inspected and no assessment output was created. A corrected fresh authorization must bind one exact absent output path.",
     "PSI0C-B is qualified at engineering commit 0931cc421cde19835a81082bd0e52aef99050e59 with fixture-only assessment contract digest 3f2d112ba18b190e7acdf9c0dd9ddf552258b7ed75295ccb7cc470a981cc70e1 and qualification digest e2ae86f50ae023195da0e94d2c69d8a2ff36831f27309b9476b699f42399a103. It deterministically measures coverage, missingness, preserved conflicts and unmatched keys without negative inference or authority. No PSI0B result rows were inspected. Applying it to the immutable PSI0B bundle requires separate PSI0C-C authorization; integration, Evidence modes, production activation and EB2 remain held.",
     "PSI0C-A reconciled the committed roadmap without inspecting production-derived shadow rows. PSI0A and PSI0B completed preflight, bounded query-only extraction, immutable publication/replay and production-impact assessment. The remaining step-four work is a qualified coverage/conflict/missingness assessment. The smallest coherent next milestone is PSI0C-B, a fixture-only assessment-contract qualification. Real-bundle review, integration qualification, Evidence Mirror/Cohort Mode activation, production activation and EB2 remain separately held and unauthorized.",
     "PSI0B is closed PASS at engineering commit 9bbc4c077ecb189952c900539c8a8d0031b59269 with replay-verified query-only shadow bundle digest 370c815a4bacc640874d798c168ff812c2efd205d6de497fdcfb79b4005351b9 and closure digest efadf9e061529af1fc690a253be4e8e29d7058d06d6a61be6105890b4e5e90cd. Current production health remains clean and no impact was observed. The bundle grants no integration, Evidence Mirror, Cohort Mode, activation or EB2 authority. Any next programme stage requires a separately authorized safe-local roadmap reconciliation.",
@@ -7244,8 +7261,10 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0C-C bounded immutable PSI0B bundle assessment",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: apply the qualified PSI0C-B contract exactly once to the immutable replay-verified PSI0B bundle, locally and read-only, with no integration or activation authority.",
+    "milestone": "PSI0C-C corrected output-path binding",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: provide one exact new absent isolated local output directory and freshly authorize the single PSI0C-C assessment attempt; no bundle file has yet been opened.",
+    "recommended_output_directory": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0c_runs/psi0c-c-assessment-20260815-01",
+    "proposed_psi0c_c_corrected_approval_text": "Authorize PSI0C-C as exactly one fresh bounded safe-local read-only application of the committed PSI0C-B assessment contract to the immutable replay-verified PSI0B shadow bundle, writing only to the exact new absent isolated output directory /Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0c_runs/psi0c-c-assessment-20260815-01. Bind engineering commit 0931cc421cde19835a81082bd0e52aef99050e59, PSI0C-B contract digest 3f2d112ba18b190e7acdf9c0dd9ddf552258b7ed75295ccb7cc470a981cc70e1, qualification artifact docs/audits/psi0c_b_shadow_assessment_contract_qualification.json with digest e2ae86f50ae023195da0e94d2c69d8a2ff36831f27309b9476b699f42399a103, PSI0B-G closure digest efadf9e061529af1fc690a253be4e8e29d7058d06d6a61be6105890b4e5e90cd and immutable PSI0B bundle digest 370c815a4bacc640874d798c168ff812c2efd205d6de497fdcfb79b4005351b9 at docs/audits/psi0b_runs/psi0b-shadow-20260814-02. Require the output directory to remain absent before launch. Replay-verify the exact source bundle file set, hashes, lineage, five query identities, accounting and false integration/activation authority before assessment; then read only its canonical local result files once, enforce PSI0A-E row and byte ceilings, and apply PSI0C-B without changing source rows. Publish only one canonical assessment bundle after complete success, recording coverage, ABSENT_NOT_NEGATIVE missingness, preserved unresolved conflicts, duplicates, orphan and unmatched accounting, deterministic reason codes, hashes, one digest and exact replay. Stop with no retry or partial publication on any drift, malformed input, ceiling breach, output reuse or scope expansion. Do not access production/runtime databases or services, perform live telemetry, execute SELECT or EXPLAIN, alter the source bundle, make provider/RPC calls, execute DDL or production writes, deploy, restart or stop services, change configuration, manipulate locks or metrics, activate Evidence Mirror or Cohort Mode, integrate a consumer, rank entities, activate production or enter EB2. Stop after this one assessment and request separate approval for PSI0C-D closure and disposition.",
     "psi0c_b_engineering_commit": "0931cc421cde19835a81082bd0e52aef99050e59",
     "psi0c_b_contract_digest": "3f2d112ba18b190e7acdf9c0dd9ddf552258b7ed75295ccb7cc470a981cc70e1",
     "psi0c_b_qualification_digest": "e2ae86f50ae023195da0e94d2c69d8a2ff36831f27309b9476b699f42399a103",

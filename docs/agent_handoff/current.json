@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-15T11:39:20Z",
+  "updated_at_utc": "2026-08-15T11:49:39Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "07459e050e2e166f0c0809edf984743d775491a4",
-    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0B-E12 committed narrowly; prior production attempt artifacts remain uncommitted"
+    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0B-E12 committed narrowly; PSI0B-E authorization -08 and fail-closed attempt artifacts remain uncommitted"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0B-E12 production execution entrypoint qualification",
-    "mode": "safe-local injected frozen/ephemeral execution qualification",
+    "milestone": "PSI0B-E authorization -08 prestart WAL gate stop",
+    "mode": "exactly one bounded production attempt stopped before authorization consumption",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "SAFE_LOCAL_PATH_INDEPENDENT_EXECUTION_ENTRYPOINT_QUALIFIED_COMMITTED"
+    "verdict": "STOPPED_AT_PRESTART_CHECKPOINT_3_ON_TRANSIENT_MAIN_WAL_ABSENCE_NO_SOURCE_OPEN"
   },
   "production_state": {
     "retention": "ON",
@@ -240,6 +240,32 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0b_e_08_production_shadow_attempt": {
+      "status": "HOLD",
+      "verdict": "STOPPED_AT_PRESTART_CHECKPOINT_3_ON_TRANSIENT_MAIN_WAL_ABSENCE_NO_SOURCE_OPEN",
+      "engineering_commit": "07459e050e2e166f0c0809edf984743d775491a4",
+      "entrypoint_contract_digest": "bdb671bebd8f58311efc071a34ea67cf95d7d043c1e8b5b235398d78fe55c485",
+      "authorization_id": "psi0b-shadow-auth-20260815-08",
+      "authorization_digest": "840c9d3f0ab87d550ac7ab948348b419d8fe4ac39dbf92fd54f6ecac956511e6",
+      "authorization_consumed": false,
+      "prestart_checkpoints_passed": 2,
+      "prestart_checkpoint_stop": 3,
+      "stop_reason": "PSI0A_F_DATABASE_WAL_UNHEALTHY_OR_UNKNOWN",
+      "observer_terminal_digest": "4dd6b9a026424912223bd0ac05f1156ae33ed2ccfd1560aea843ddaa0111b7fe",
+      "main_wal_absent_at_failed_checkpoint": true,
+      "main_wal_recreated_after_checkpoint": true,
+      "ops_wal_remained_present": true,
+      "production_database_opens": 0,
+      "production_queries": 0,
+      "production_rows_read": 0,
+      "output_published": false,
+      "retry_performed": false,
+      "production_writes_or_ddl": 0,
+      "provider_calls": 0,
+      "service_actions": 0,
+      "artifact": "docs/audits/psi0b_e_08_production_shadow_attempt.json",
+      "observer_artifact": "docs/audits/psi0b_runs/psi0b-shadow-auth-20260815-08-observer"
+    },
     "psi0b_e12_production_entrypoint_qualification": {
       "status": "COMPLETE",
       "verdict": "SAFE_LOCAL_PATH_INDEPENDENT_EXECUTION_ENTRYPOINT_QUALIFIED_COMMITTED",
@@ -6735,9 +6761,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0B-E fresh production shadow attempt through E12",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize exactly one production attempt through the committed entrypoint with a new authorization ID.",
-    "approval_text": "Authorize PSI0B-E as exactly one fresh bounded query-only production shadow extraction through the committed PSI0B-E12 entrypoint using engineering commit 07459e050e2e166f0c0809edf984743d775491a4, E12 entrypoint contract digest bdb671bebd8f58311efc071a34ea67cf95d7d043c1e8b5b235398d78fe55c485, E11 observer contract digest f387dd7ae7f2fdb69e19eaf0e3d2b13188708dbad44b952ef2fb107aeea4b94c, provenance contract digest c4c7b57b6859726cd34e30fb2dc96f896faca1f78cbf75e41ff2c739e353fe77, superseding artifact bundle digest 523bd918445801a6ae82d9ed9d955947374852843c19298a2ab64098342fc864, PSI0B-D rebound contract digest c4ab44a29706fa7d8e1d03f5391523059a648beae65b3e183cfcc7878fd23dcc, PSI0B-C rebound contract digest 05a40236db5966e8f1d3c575f1863ae9d19b6d364d8b2c323c3e3d4a5af7b348, cohort digest c6069972dddc58fd95cbc3de231e2c4640afbb9dbc0b73475e70964929970722 and preflight digest b2cfd09743c4ba21f7a61a816d8eff8b43e43a1b6e482c4ef9a7f2bd982dcca1. Materialize exactly one immutable authorization JSON with authorization_id=psi0b-shadow-auth-20260815-08 and run_id=psi0b-shadow-20260814-02; create new empty consumption directory /Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0b_runs/psi0b-shadow-auth-20260815-08-consumption and observer-attempt directory /Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0b_runs/psi0b-shadow-auth-20260815-08-observer; bind the still-absent output directory /Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0b_runs/psi0b-shadow-20260814-02 and new attempt audit /Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0b_e_08_production_shadow_attempt.json. Invoke only committed scripts/run_psi0b_production_shadow.py --execute from an arbitrary working directory with those exact paths. Replay-verify authorization and superseding cohort/preflight before any source opens; consume authorization at most once only after three replay-valid 30-second PRESTART PASS checkpoints; record every active checkpoint and decision. Treat *.write.lock.owner.*.tmp only as recorded non-authoritative diagnostics and stop on malformed telemetry or authoritative lease evidence. Bind the exact retained 5,000-mint cohort, fact_family=LaunchFact and four PSI0B-A production path fingerprints. Execute the five frozen SELECT templates once sequentially using URI mode=ro, verified PRAGMA query_only, 250 ms lock timeout, C16 boundaries, progress deadlines and every PSI0A-E ceiling, with active health checks and unconditional cleanup. Publish only after all five pass, replay-verify the bundle and require immediate POST_RUN health PASS. Stop immediately with no retry, pagination, failover, widening or partial publication on any bootstrap, provenance, health, path, schema, boundary, lock, deadline, ceiling, SQLite, replay, service or impact failure. Do not reuse authorization IDs -06 or -07, make provider/RPC calls, execute DDL or production writes, deploy, restart or stop services, change configuration or thresholds, manipulate locks, leases, sidecars or metrics, recapture high-waters, activate Evidence Mirror or Cohort Mode, integrate a production consumer, activate production or enter EB2. Stop after this one attempt and request separate approval for PSI0B closure and production-impact assessment.",
+    "milestone": "PSI0B-E13 safe-local WAL metadata gate repair",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: qualify quiescent WAL absence and per-file WAL provenance before another production attempt.",
+    "approval_text": "Authorize PSI0B-E13 safe-local design, implementation, frozen/ephemeral filesystem and telemetry tests, fault-injection tests, regression tests, documentation and one narrow commit amending only the PSI0B-E11 production telemetry observer database/WAL metadata gate identified by the fail-closed PSI0B-E authorization -08 attempt. Bind engineering commit 07459e050e2e166f0c0809edf984743d775491a4, E12 entrypoint contract digest bdb671bebd8f58311efc071a34ea67cf95d7d043c1e8b5b235398d78fe55c485, E11 observer contract digest f387dd7ae7f2fdb69e19eaf0e3d2b13188708dbad44b952ef2fb107aeea4b94c, provenance contract digest c4c7b57b6859726cd34e30fb2dc96f896faca1f78cbf75e41ff2c739e353fe77, attempt artifact docs/audits/psi0b_e_08_production_shadow_attempt.json and observer terminal digest 4dd6b9a026424912223bd0ac05f1156ae33ed2ccfd1560aea843ddaa0111b7fe. Preserve every Supervisor, stable-PID, descriptor, critical-event, serializer, lock-error, queue, authoritative lease, RELEASE_PENDING, feed, ingestion and service gate. Replace the aggregate requirement that both -wal paths must exist with canonical per-database filesystem classification: each bound database file must exist as the expected regular file; its WAL is healthy when absent as a quiescent SQLite state or when present as the expected regular file with nonnegative size; fail closed on missing/nonregular database files, nonregular WAL paths, stat/identity errors, unknown paths or malformed component telemetry. Durably record exact database and WAL existence/type/inode/size/mtime components and their digest at every prestart and active checkpoint, without opening SQLite. Prove WAL absent, create, remove, recreate and inode-rotation sequences remain healthy when the database file remains valid; prove missing database, directory/symlink/unexpected WAL, stat exception, malformed provenance and replay tamper fail closed. Preserve three 30-second prestart checkpoints, active checkpoint fsync before source open, all E12 execution semantics, no retry/pagination/failover/widening and false integration/activation authority. Frozen/ephemeral fixtures only. Do not access production/runtime databases or services, perform live observation or extraction, reuse authorization psi0b-shadow-auth-20260815-08, materialize or consume another production authorization, execute production SELECT or EXPLAIN, read production rows, create production-derived shadow output, make provider/RPC calls, execute production writes or DDL, deploy, signal, restart or stop services, change configuration or thresholds, manipulate locks, leases, sidecars, WAL files or metrics, recapture high-waters, activate Evidence Mirror or Cohort Mode, integrate a production consumer, execute PSI0B-F, activate production or enter EB2. Stop after qualification and provide the exact separate approval prompt for one fresh PSI0B-E attempt with a new authorization ID.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

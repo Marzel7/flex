@@ -19,6 +19,7 @@ from .production_shadow_production_binding import (
     production_binding_contract_digest,
     verify_production_execution_authorization,
 )
+from .production_shadow_observer_provenance import ObserverAttemptRecorder
 from .production_shadow_run_preflight import (
     ProductionShadowRunPreflight,
     build_immutable_cohort_artifact,
@@ -212,5 +213,55 @@ def launch_authorized_shadow(
         raise ProductionShadowLauncherError("PSI0B_E7_OBSERVER_BOOTSTRAP_FAILED") from exc
     if decision.phase != "PRESTART" or decision.status != "PASS":
         raise ProductionShadowLauncherError("PSI0B_E7_PRESTART_DO_NOT_START")
+    _consume_authorization(marker, record, preflight, decision)
+    return executor(record, preflight, decision)
+
+
+def launch_authorized_shadow_with_provenance(
+    authorization_path: Path,
+    preflight_artifact_directory: Path,
+    consumption_directory: Path,
+    observer_attempt_directory: Path,
+    *,
+    observer_bootstrap: Callable[[ObserverAttemptRecorder], HealthGateDecision],
+    executor: Callable[[ProductionExecutionAuthorization, ProductionShadowRunPreflight, HealthGateDecision], object],
+) -> object:
+    """E8: retain exact observer evidence before preserving E7 fail-closed behavior."""
+    record, preflight, marker = validate_bootstrap_inputs(
+        authorization_path, preflight_artifact_directory, consumption_directory,
+    )
+    recorder = ObserverAttemptRecorder(
+        observer_attempt_directory,
+        authorization_id=record.authorization_id,
+        authorization_digest=record.authorization_digest,
+        preflight_digest=preflight.preflight_digest,
+        launcher_contract_digest=launcher_contract_digest(),
+    )
+    try:
+        decision = observer_bootstrap(recorder)
+        verify_health_gate_decision(decision)
+    except Exception as exc:
+        recorder.record_exception(exc)
+        recorder.finalize(
+            terminal_status="OBSERVER_FAILED",
+            terminal_reason_code="PSI0B_E7_OBSERVER_BOOTSTRAP_FAILED",
+            exception=exc,
+        )
+        raise ProductionShadowLauncherError("PSI0B_E7_OBSERVER_BOOTSTRAP_FAILED") from exc
+    recorder.record_decision(
+        status=decision.status,
+        decision_digest=decision.decision_digest,
+        reason_codes=decision.reason_codes,
+    )
+    if decision.phase != "PRESTART" or decision.status != "PASS":
+        recorder.finalize(
+            terminal_status="PRESTART_DO_NOT_START",
+            terminal_reason_code="PSI0B_E7_PRESTART_DO_NOT_START",
+        )
+        raise ProductionShadowLauncherError("PSI0B_E7_PRESTART_DO_NOT_START")
+    recorder.finalize(
+        terminal_status="OBSERVER_PASS",
+        terminal_reason_code="PSI0B_E8_PRESTART_PASS",
+    )
     _consume_authorization(marker, record, preflight, decision)
     return executor(record, preflight, decision)

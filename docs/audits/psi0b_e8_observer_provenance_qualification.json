@@ -1,0 +1,37 @@
+{
+  "authority": {
+    "grants_activation_authority": false,
+    "grants_extraction_authority": false,
+    "grants_integration_authority": false
+  },
+  "bound_e7_engineering_commit": "51d4f2dbe216c8175773e1b1d88d5de0fe4db4ed",
+  "bound_e7_launcher_contract_digest": "e94057239cdacb4c99c3112e5159577194cd2821355ec3106125f88eba465583",
+  "milestone": "PSI0B-E8",
+  "observer_provenance_contract_digest": "64f24fa687f23b5b11ffbeed15cebe1e0bf3d1dd4ea71d46b24cfca0f5d342ca",
+  "provenance_version": "psi0b-e8.v1",
+  "qualification": {
+    "authorization_consumed_on_failure": false,
+    "canonical_append_only_fsynced_transitions": true,
+    "database_opens_on_failure": 0,
+    "exact_exception_retained": true,
+    "failure_classes": [
+      "transient_write_lease",
+      "stale_telemetry",
+      "service_or_pid_drift",
+      "descriptor_threshold",
+      "serializer_pressure",
+      "sustained_queue",
+      "feed_failure",
+      "filesystem_metadata_drift",
+      "observer_exception"
+    ],
+    "focused_tests_failed": 0,
+    "focused_tests_passed": 25,
+    "partial_publication_on_failure": false,
+    "relevant_regression_tests_failed": 0,
+    "relevant_regression_tests_passed": 296,
+    "pre_existing_e5_order_dependent_test": "The E5 module remains 5 passed/1 failed when run as a module because its final cross-thread test encounters the known leaked fault-injection descriptor state; that exact test passes alone and no E8 file participates.",
+    "verdict": "SAFE_LOCAL_DURABLE_OBSERVER_PROVENANCE_QUALIFIED"
+  },
+  "schema_version": "psi0b-e8.qualification.v1"
+}

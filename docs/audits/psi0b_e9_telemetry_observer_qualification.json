@@ -1,0 +1,29 @@
+{
+  "authority": {
+    "grants_activation_authority": false,
+    "grants_extraction_authority": false,
+    "grants_integration_authority": false
+  },
+  "bound_e7_launcher_contract_digest": "e94057239cdacb4c99c3112e5159577194cd2821355ec3106125f88eba465583",
+  "bound_e8_engineering_commit": "0909542f4517fb5e33a7f87d6b1444c552de655a",
+  "bound_e8_provenance_contract_digest": "64f24fa687f23b5b11ffbeed15cebe1e0bf3d1dd4ea71d46b24cfca0f5d342ca",
+  "milestone": "PSI0B-E9",
+  "observer_contract_digest": "01dedd635c763ecd3642604b91d0b607d1bc49532ca288fecd55dc1158a8de5e",
+  "observer_version": "psi0b-e9.v1",
+  "qualification": {
+    "aggregate_supervisor_exit_0": "PASS",
+    "aggregate_supervisor_exit_3": "PASS_WITH_COMPLETE_REQUIRED_SERVICE_PARSE",
+    "checkpoint_recorded_before_failure": true,
+    "focused_tests_failed": 0,
+    "focused_tests_passed": 41,
+    "production_access": false,
+    "production_database_opens": 0,
+    "production_mutations": 0,
+    "provider_calls": 0,
+    "relevant_regression_tests_failed": 0,
+    "relevant_regression_tests_passed": 312,
+    "service_actions": 0,
+    "verdict": "SAFE_LOCAL_COMMITTED_TELEMETRY_OBSERVER_QUALIFIED"
+  },
+  "schema_version": "psi0b-e9.qualification.v1"
+}

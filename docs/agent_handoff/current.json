@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-15T08:16:58Z",
+  "updated_at_utc": "2026-08-15T08:22:30Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "3862e7dfcc2fcc6293a433c14566303124683476",
-    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0B-E6/E6A added uncommitted audit artifacts and updated handoff only"
+    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0B-E6/E6A/E6B added uncommitted audit artifacts and updated handoff only"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0B-E6A null-owner operations-lock diagnosis",
-    "mode": "bounded production telemetry and filesystem-metadata read-only diagnosis",
+    "milestone": "PSI0B-E6B restart-sequence reconciliation",
+    "mode": "bounded production telemetry, committed source and filesystem-metadata read-only reconciliation",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "LISTENER_PID_CHANGE_STOP"
+    "verdict": "RESTART_SEQUENCE_RECONCILED_REMAINING_PRE_REPAIR_WRITER_RELOAD_REQUIRED"
   },
   "production_state": {
     "retention": "ON",
@@ -238,6 +238,31 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0b_e6b_restart_sequence_reconciliation": {
+      "status": "COMPLETE",
+      "verdict": "RESTART_SEQUENCE_RECONCILED_REMAINING_PRE_REPAIR_WRITER_RELOAD_REQUIRED",
+      "engineering_commit": "3862e7dfcc2fcc6293a433c14566303124683476",
+      "walkback_worker_pid": 70136,
+      "listener_pid": 72232,
+      "remaining_pre_repair_operations_writer_service": "ws_cascade",
+      "remaining_pre_repair_operations_writer_pid": 41781,
+      "pid_69361_timeout_physical_contention_proven": true,
+      "pid_69361_exact_holder_identified": false,
+      "lock_file_replacement_evidence": false,
+      "descriptor_inheritance_evidence": false,
+      "listener_15357_exit_cause": "CRITICAL_LISTENER_DB_HANDLE_LEAK at fd_count=59 for three cycles during concurrent main-database symbol/price callback fan-out",
+      "walkback_cycles_recovered": true,
+      "serializer_p99_wait_ms": 3.07,
+      "serializer_queue_depth": 0,
+      "serializer_lock_errors_24h": 0,
+      "psi0b_e_authorized": false,
+      "production_database_opened": false,
+      "production_writes": 0,
+      "service_actions": 0,
+      "provider_rpc_calls": 0,
+      "artifact": "docs/audits/psi0b_e6b_restart_sequence_reconciliation.json",
+      "exact_next_action": "Obtain approval for exactly one ws_cascade restart to load PSI0B-E5, followed by bounded telemetry-only stability verification before PSI0B-E."
+    },
     "psi0b_e6a_null_owner_lock_diagnosis": {
       "status": "HOLD",
       "verdict": "LISTENER_PID_CHANGE_STOP",
@@ -6310,6 +6335,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "PSI0B-E6B reconciled the automatic transitions. PID 69361 encountered a real physical operations flock with absent diagnostic owner metadata; no evidence supports lock-file replacement or descriptor inheritance, but the missing sidecar prevents exact holder attribution. Listener PID 15357 then independently exited when its main-database descriptor watchdog reached 59 descriptors for three cycles during concurrent symbol/price callback fan-out. Replacement PIDs 70136 and 72232 are processing normally with healthy serializer telemetry. However ws_cascade PID 41781 has run for more than four days and remains a pre-PSI0B-E5 operations writer, so the diagnosed release-path recurrence risk is not fully removed and PSI0B-E remains held.",
     "PSI0B-E6A stopped at its first Supervisor checkpoint because watchtower_listener had changed from authorized baseline PID 15357 to PID 72232. Walkback_worker remained PID 70136 with about 30 minutes uptime and serializer telemetry was healthy, but the explicit PID-change stop condition prohibited further lock-owner or restart-cause correlation. No database was opened, no lock was acquired or manipulated and no service action occurred.",
     "PSI0B-E6 stopped before its 15-minute observation began. The one authorized restart changed walkback_worker PID 41735 to PID 69361 and removed the authoritative old owner sidecar, but PID 69361 then timed out after 60.003 seconds acquiring the operations write lease during startup schema assurance while current_owner was null. Supervisor's configured autorestart subsequently produced PID 70136; Codex did not issue a second restart. The physical-lock/null-owner condition requires a bounded telemetry/filesystem-only diagnosis before any further service action or PSI0B-E attempt.",
     "PSI0B-B replay-verified the available EB0.1P bundle at /private/tmp/flex-eb0-1p-4qJYQD with exact digest 2c07d41b9c243f8f0c8ca52e0c54c0b184f28a1ed855e98de2a975f936a688e5, 5,000 selected and 5,000 unique mints. The selected projection digest is fd538d454cd10c7f7cd5ce5fa6fe251d2781efc42614ec10cff800a9348952ff and PSI0B-A cohort digest is 8f0a54838574e2e82f95030a5981a8b21b13629d493635719a0d23f5013bfbe3. Proposed run psi0b-shadow-20260814-01, fact_family=LaunchFact and unused isolated output path produce preflight digest 35aa4d8e2f1519a60e6c3418a800476952e88bb1e44a4529c0ca7b9a90c960a0. No database was opened. A bounded production SELECT/output runner enforcing PSI0A-E/F/G does not exist in committed code, so direct production extraction authorization would require unqualified implementation and is not yet coherent.",
@@ -6409,9 +6435,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0B-E6B restart-sequence reconciliation",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: reconcile the listener and walkback-worker automatic restart sequence from retained telemetry and filesystem metadata only, anchored to the newly observed identities.",
-    "approval_text": "Authorize PSI0B-E6B as a bounded local and production-telemetry read-only reconciliation of the automatic service transitions surrounding PSI0B-E6/E6A, anchored at authorization to current walkback_worker PID 70136 and watchtower_listener PID 72232. Use retained Supervisor state/events/logs, walkback-worker and listener startup/heartbeat/lifecycle/watchdog telemetry, serializer/write-lease summaries, queue/PumpPortal/PumpSwap/ingestion/service health, read-only process timing, and operations database/WAL/lock/owner/temporary-sidecar filesystem metadata only to establish the exact PID timeline and restart causes, determine whether the PID 69361 current_owner=null timeout reflected a physical flock held without authoritative metadata, another process/inode, descriptor inheritance or another fail-closed path, verify whether PID 70136 heartbeats and listener walkback enqueue writes recovered, and define the smallest safe recovery gate before any fresh PSI0B-E attempt. Treat the already-observed transitions to PIDs 70136 and 72232 as historical inputs; stop on any further PID change after the authorization checkpoint, CRITICAL_LISTENER_DB_HANDLE, serializer p99 reaching 1000 ms, sustained nonzero queue depth, feed/ingestion/service degradation, production impact, need to open a production database or scope expansion. Do not open production databases, inspect rows or schema, acquire or manipulate lease/lock/sidecar files, execute DDL or production writes, materialize a PSI0B authorization, execute PSI0B-E, signal, deploy, restart or stop services, change configuration or thresholds, reset metrics, recapture high-waters, create shadow output, make provider/RPC calls, activate Evidence Mirror or Cohort Mode, integrate a production consumer, activate production or enter EB2. Stop after reconciliation and provide the exact separate approval prompt for the smallest safe next action.",
+    "milestone": "PSI0B-E6C ws_cascade E5 reload and stability verification",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: restart only the remaining pre-E5 operations writer once, then verify the repaired shared release boundary and production stability before any PSI0B-E attempt.",
+    "approval_text": "Authorize PSI0B-E6C as exactly one ws_cascade restart to load PSI0B-E5 commit 3862e7dfcc2fcc6293a433c14566303124683476, followed immediately by one bounded 15-minute production-telemetry read-only stability observation. Before restart record Supervisor identities, current operations lock/owner/temporary-sidecar filesystem metadata, serializer, listener descriptors, walkback heartbeats, queue, PumpPortal, PumpSwap, ingestion and service health. Restart only ws_cascade exactly once; verify the old PID 41781 exits, one new stable PID starts, watchtower_listener PID 72232 and walkback_worker PID 70136 remain unchanged, existing WebSocket/ingestion continuity recovers, and the new process loads the E5 physical-release-failsafe boundary. During the following 15 minutes require stable listener, walkback-worker and ws_cascade PIDs, primary_fd_count below 8, zero CRITICAL_LISTENER_DB_HANDLE events, serializer p99 below 1000 ms, no lock-error increment, no sustained nonzero queue depth, successful walkback cycles, zero recurrent 60-second operations lock or listener-walkback-enqueue timeouts, no recurrent orphan RELEASE_PENDING metadata, continued PumpPortal/PumpSwap and ingestion health and no production impact. Stop without a second restart on startup failure, PID change, physical lease retention, timeout, descriptor/serializer/queue/feed/ingestion/service degradation, observer insufficiency, production impact or scope expansion. Do not restart or stop any other service, manipulate lease/lock/sidecar files, open production databases, inspect rows or schema, execute DDL or production writes, change configuration or thresholds, reset metrics, materialize a PSI0B execution authorization, execute PSI0B-E, recapture high-waters, create shadow output, make provider/RPC qualification calls, activate Evidence Mirror or Cohort Mode, integrate a production consumer, activate production or enter EB2. Stop after stability assessment and provide the exact separate approval prompt for one fresh bounded PSI0B-E production shadow attempt only if every gate passes.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

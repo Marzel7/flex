@@ -852,46 +852,96 @@ def release_write_lease(lease: WriteLease) -> None:
     except Exception:
         pass
     guard = None
-    release_error = None
+    release_errors: list[BaseException] = []
+    owns_metadata = False
+    physical_fd = None
+
+    def _record_release_error(exc: BaseException) -> None:
+        release_errors.append(exc)
+
+    def _cleanup_pending_temporary() -> None:
+        temporary = (
+            f"{lease.owner_path}.{lease.owner.get('process_pid', os.getpid())}."
+            f"{threading.get_ident()}.tmp"
+        )
+        try:
+            os.unlink(temporary)
+        except FileNotFoundError:
+            pass
+        except Exception as exc:
+            _record_release_error(exc)
+
     try:
         if getattr(lease.file, "closed", False):
             return
-        guard = _owner_metadata_guard(lease.owner_path)
-        current = _read_owner_metadata(lease.owner_path)
-        owns_metadata = bool(
-            current and current.get("transaction_id") == lease.owner.get("transaction_id")
-        )
-        if owns_metadata:
-            pending = dict(lease.owner, state="RELEASE_PENDING", release_requested_at=time.time())
-            _write_owner_metadata(lease.owner_path, pending)
-            _write_lock_bound_owner(lease.file, pending)
         try:
-            # Physical ownership is released before diagnostic ownership is
-            # cleared.  The metadata guard prevents a successor publishing
-            # ACTIVE until this release has completed its sidecar transition.
-            fcntl.flock(lease.file.fileno(), fcntl.LOCK_UN)
+            physical_fd = lease.file.fileno()
+        except Exception as exc:
+            _record_release_error(exc)
+
+        # Owner metadata is diagnostic only.  Every operation in this block
+        # may fail, but none is allowed to prevent the physical unlock/close
+        # below.  PSI0B-E4 observed exactly that failure mode: a
+        # RELEASE_PENDING temporary file survived while the owning process
+        # retained flock indefinitely.
+        try:
+            guard = _owner_metadata_guard(lease.owner_path)
+            current = _read_owner_metadata(lease.owner_path)
+            owns_metadata = bool(
+                current and current.get("transaction_id") == lease.owner.get("transaction_id")
+            )
+            if owns_metadata:
+                pending = dict(lease.owner, state="RELEASE_PENDING", release_requested_at=time.time())
+                try:
+                    _write_owner_metadata(lease.owner_path, pending)
+                except Exception as exc:
+                    _record_release_error(exc)
+                try:
+                    _write_lock_bound_owner(lease.file, pending)
+                except Exception as exc:
+                    _record_release_error(exc)
+        except Exception as exc:
+            _record_release_error(exc)
+
+        # Physical ownership is the authority and is released regardless of
+        # every diagnostic failure above.  close(2) releases flock even when
+        # explicit LOCK_UN fails; the raw-fd fallback covers wrappers whose
+        # close method raises before closing the descriptor.
+        try:
+            if physical_fd is not None:
+                fcntl.flock(physical_fd, fcntl.LOCK_UN)
+        except Exception as exc:
+            _record_release_error(exc)
+        try:
             lease.file.close()
         except Exception as exc:
-            release_error = exc
-            if owns_metadata:
-                failed = dict(
-                    lease.owner, state="RELEASE_FAILED",
-                    release_failed_at=time.time(), error_type=type(exc).__name__,
-                    error=str(exc)[:500],
-                )
-                _write_owner_metadata(lease.owner_path, failed)
-            raise
+            _record_release_error(exc)
+            if physical_fd is not None:
+                try:
+                    os.close(physical_fd)
+                except OSError as close_exc:
+                    if close_exc.errno != errno.EBADF:
+                        _record_release_error(close_exc)
+
         if owns_metadata:
             try:
                 os.unlink(lease.owner_path)
             except FileNotFoundError:
                 pass
+            except Exception as exc:
+                _record_release_error(exc)
+        _cleanup_pending_temporary()
     finally:
         if guard is not None:
             try:
                 fcntl.flock(guard.fileno(), fcntl.LOCK_UN)
+            except Exception as exc:
+                _record_release_error(exc)
             finally:
-                guard.close()
+                try:
+                    guard.close()
+                except Exception as exc:
+                    _record_release_error(exc)
         # X78.11b -- this call may run on a DIFFERENT thread than the one
         # that acquired the lease (the db-conn-reaper force-closing a
         # long-running connection on another thread's behalf). The shared
@@ -916,6 +966,8 @@ def release_write_lease(lease: WriteLease) -> None:
                 del _thread_write_lease.owner
             if getattr(_thread_write_lease, "token", None) is lease.token:
                 del _thread_write_lease.token
+    if release_errors:
+        raise release_errors[0]
 
 
 def update_write_lease_diagnostics(lease: WriteLease | None, **fields: Any) -> bool:

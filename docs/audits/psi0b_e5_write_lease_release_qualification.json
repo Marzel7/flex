@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0B-E5",
+  "qualified_at_utc": "2026-08-15T07:42:51Z",
+  "base_engineering_revision": "894124e2cd9b1dcff9988457e221aa5c13873564",
+  "verdict": "SAFE_LOCAL_PHYSICAL_RELEASE_FAILSAFE_QUALIFIED",
+  "changed_runtime_file": "src/core/database_write_service.py",
+  "authority": {
+    "safe_local_only": true,
+    "production_access": false,
+    "production_mutation": false,
+    "service_action": false,
+    "deployment": false,
+    "grants_psi0b_execution_authority": false,
+    "grants_integration_authority": false,
+    "grants_activation_authority": false
+  },
+  "qualified_properties": [
+    "RELEASE_PENDING sidecar failure cannot prevent physical unlock or close",
+    "lock-bound diagnostic publication failure cannot prevent physical unlock or close",
+    "owner-sidecar unlink failure is reported only after physical release",
+    "close failure invokes a raw file-descriptor fallback",
+    "pending temporary metadata is cleaned on the release path",
+    "shared registry and owning-thread state are cleared on every path",
+    "same-thread reacquisition succeeds after injected failures",
+    "cross-thread release remains supported",
+    "existing acquisition, priority, timeout and transaction behavior is unchanged"
+  ],
+  "tests": {
+    "focused_release_and_cross_thread": {
+      "passed": 20,
+      "failed": 0
+    },
+    "broader_write_lane_regression": {
+      "passed": 65,
+      "failed": 1,
+      "failure": "tests/test_x77_3_ensure_schema_lease_leak.py::test_failed_alter_table_no_longer_leaks_lease_in_isolation",
+      "assessment": "PRE_EXISTING_OUTDATED_HAZARD_ASSERTION; failure occurs before release_write_lease and expects a failed ALTER TABLE to retain a lease, which current code no longer does"
+    },
+    "psi_regression": {
+      "passed": 277,
+      "failed": 0
+    },
+    "compile_and_diff_checks": "PASS"
+  },
+  "runtime_recovery_state": "NOT_ATTEMPTED_EXISTING_PID_STILL_RETAINS_PRE_REPAIR_DESCRIPTOR",
+  "next_action": "Separately authorize exactly one walkback_worker restart to release the pre-repair descriptor and load the committed repair, followed by bounded telemetry-only recovery verification before any fresh PSI0B-E attempt."
+}

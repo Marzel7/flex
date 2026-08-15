@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-15T13:05:08Z",
+  "updated_at_utc": "2026-08-15T13:18:00Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "da97c0b920a2816ac6205a18a3ce2e264b08383a",
-    "working_tree": "dirty: unrelated live/runtime/user paths preserved; PSI0B-E13 committed; PSI0B-E authorization -09 bootstrap-stop artifacts uncommitted"
+    "git_head": "3cc1dfafd9ff12fba6d6d82b543c2a2c84cdeba9",
+    "working_tree": "dirty: unrelated live/runtime/user paths preserved; PSI0B-E14 committed narrowly"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0B-E authorization -09 direct-entrypoint bootstrap stop",
-    "mode": "exactly one authorized invocation stopped before launcher process start",
+    "milestone": "PSI0B-E14 executable production entrypoint qualification",
+    "mode": "safe-local executable-boundary qualification only",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "HOLD_COMMITTED_ENTRYPOINT_NOT_EXECUTABLE_ZERO_DATABASE_OPENS"
+    "verdict": "PASS_FRESH_PSI0B_E_ATTEMPT_MAY_BE_SEPARATELY_PROPOSED"
   },
   "production_state": {
     "retention": "ON",
@@ -240,6 +240,26 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0b_e14_executable_entrypoint": {
+      "status": "PASS",
+      "verdict": "FRESH_PSI0B_E_ATTEMPT_MAY_BE_SEPARATELY_PROPOSED",
+      "engineering_commit": "3cc1dfafd9ff12fba6d6d82b543c2a2c84cdeba9",
+      "entrypoint_identity_digest": "388d52839d27db40757a0af5a059e7cf4d0423898c0be4a3b12a4a1212574c90",
+      "script_mode": "100755",
+      "script_content_sha256": "684067fd7e7ce75ac0077a84214e59c9f6d447d89822ef024af39e9d0d5b59bb",
+      "script_bytes_changed": false,
+      "focused_tests": "51 passed",
+      "psi0a_psi0b_regressions": "339 passed",
+      "production_database_opens": 0,
+      "production_queries": 0,
+      "production_rows_read": 0,
+      "production_writes_or_ddl": 0,
+      "provider_calls": 0,
+      "service_actions": 0,
+      "grants_production_execution_authority": false,
+      "grants_integration_authority": false,
+      "grants_activation_authority": false
+    },
     "psi0b_e_09_production_shadow_attempt": {
       "status": "HOLD",
       "verdict": "BOOTSTRAP_LAUNCH_STOP_COMMITTED_ENTRYPOINT_NOT_EXECUTABLE",
@@ -6799,9 +6819,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0B-E14 executable production entrypoint qualification",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: qualify direct execution of the committed launcher before any fresh production authorization.",
-    "current_approval_text": "Authorize PSI0B-E14 safe-local design, implementation, frozen/ephemeral invocation tests, regression tests, documentation and one narrow commit changing only scripts/run_psi0b_production_shadow.py to a committed executable entrypoint while preserving its existing shebang, path-independent repository bootstrap, E12/E13 contracts and all no-retry/query-only safety semantics. Prove direct invocation from arbitrary working directories for --help, bootstrap failure and injected fixture success, with zero production access. Do not retry or reuse authorization psi0b-shadow-auth-20260815-09 or execute PSI0B-E. Stop after qualification and provide the exact prompt for one fresh authorization ID.",
+    "milestone": "PSI0B-E fresh bounded production shadow attempt",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize exactly one fresh direct-entrypoint attempt with authorization -10; never reuse -09.",
+    "current_approval_text": "Authorize PSI0B-E as exactly one fresh bounded query-only production shadow extraction through PSI0B-E14 commit 3cc1dfafd9ff12fba6d6d82b543c2a2c84cdeba9 and executable-entrypoint identity digest 388d52839d27db40757a0af5a059e7cf4d0423898c0be4a3b12a4a1212574c90, using new authorization psi0b-shadow-auth-20260815-10, new empty consumption and observer directories, the still-absent bound output directory and a new attempt audit. Invoke the committed executable directly from an arbitrary working directory; preserve all E12/E13 gates and stop after one attempt for separate closure approval.",
     "approval_text": "Authorize PSI0B-E13 safe-local design, implementation, frozen/ephemeral filesystem and telemetry tests, fault-injection tests, regression tests, documentation and one narrow commit amending only the PSI0B-E11 production telemetry observer database/WAL metadata gate identified by the fail-closed PSI0B-E authorization -08 attempt. Bind engineering commit 07459e050e2e166f0c0809edf984743d775491a4, E12 entrypoint contract digest bdb671bebd8f58311efc071a34ea67cf95d7d043c1e8b5b235398d78fe55c485, E11 observer contract digest f387dd7ae7f2fdb69e19eaf0e3d2b13188708dbad44b952ef2fb107aeea4b94c, provenance contract digest c4c7b57b6859726cd34e30fb2dc96f896faca1f78cbf75e41ff2c739e353fe77, attempt artifact docs/audits/psi0b_e_08_production_shadow_attempt.json and observer terminal digest 4dd6b9a026424912223bd0ac05f1156ae33ed2ccfd1560aea843ddaa0111b7fe. Preserve every Supervisor, stable-PID, descriptor, critical-event, serializer, lock-error, queue, authoritative lease, RELEASE_PENDING, feed, ingestion and service gate. Replace the aggregate requirement that both -wal paths must exist with canonical per-database filesystem classification: each bound database file must exist as the expected regular file; its WAL is healthy when absent as a quiescent SQLite state or when present as the expected regular file with nonnegative size; fail closed on missing/nonregular database files, nonregular WAL paths, stat/identity errors, unknown paths or malformed component telemetry. Durably record exact database and WAL existence/type/inode/size/mtime components and their digest at every prestart and active checkpoint, without opening SQLite. Prove WAL absent, create, remove, recreate and inode-rotation sequences remain healthy when the database file remains valid; prove missing database, directory/symlink/unexpected WAL, stat exception, malformed provenance and replay tamper fail closed. Preserve three 30-second prestart checkpoints, active checkpoint fsync before source open, all E12 execution semantics, no retry/pagination/failover/widening and false integration/activation authority. Frozen/ephemeral fixtures only. Do not access production/runtime databases or services, perform live observation or extraction, reuse authorization psi0b-shadow-auth-20260815-08, materialize or consume another production authorization, execute production SELECT or EXPLAIN, read production rows, create production-derived shadow output, make provider/RPC calls, execute production writes or DDL, deploy, signal, restart or stop services, change configuration or thresholds, manipulate locks, leases, sidecars, WAL files or metrics, recapture high-waters, activate Evidence Mirror or Cohort Mode, integrate a production consumer, execute PSI0B-F, activate production or enter EB2. Stop after qualification and provide the exact separate approval prompt for one fresh PSI0B-E attempt with a new authorization ID.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,

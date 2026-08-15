@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-15T09:55:00Z",
+  "updated_at_utc": "2026-08-15T10:06:00Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "0909542f4517fb5e33a7f87d6b1444c552de655a",
-    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0B-E8 committed narrowly; prior production-attempt artifacts and handoff changes remain uncommitted"
+    "git_head": "d8c713e4c20f1958018a25b658f69ef8af4ab91b",
+    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0B-E9 committed narrowly; production authorization -06 and fail-closed attempt artifacts remain uncommitted"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0B-E production shadow attempt authorization -05",
-    "mode": "exactly one bounded query-only production shadow attempt through E8",
+    "milestone": "PSI0B-E production shadow attempt authorization -06",
+    "mode": "exactly one bounded query-only production shadow attempt through committed E9",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "STOPPED_BEFORE_CHECKPOINT_ON_SUPERVISOR_AGGREGATE_STATUS_EXIT_3"
+    "verdict": "STOPPED_AFTER_FOUR_QUERIES_ON_RELEASE_PENDING_METADATA_DRIFT_NO_PUBLICATION"
   },
   "production_state": {
     "retention": "ON",
@@ -240,6 +240,56 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0b_e_06_production_shadow_attempt": {
+      "status": "HOLD",
+      "verdict": "STOPPED_AFTER_FOUR_QUERIES_ON_RELEASE_PENDING_METADATA_DRIFT_NO_PUBLICATION",
+      "engineering_commit": "d8c713e4c20f1958018a25b658f69ef8af4ab91b",
+      "telemetry_observer_contract_digest": "01dedd635c763ecd3642604b91d0b607d1bc49532ca288fecd55dc1158a8de5e",
+      "authorization_id": "psi0b-shadow-auth-20260815-06",
+      "authorization_digest": "d1301fef208ecb705055d7fab46c8c52c87e776722b154cfa5ecb46858e771ae",
+      "run_id": "psi0b-shadow-20260814-02",
+      "prestart_checkpoint_count": 3,
+      "prestart_status": "PASS",
+      "observer_terminal_digest": "b66e6b3956e68bfb6af8f7631ff5c3c12c8b76479c48b87c8c9ad0c52aa82d42",
+      "authorization_consumed": true,
+      "queries_passed": [
+        "creator_selected_cohort",
+        "evidence_launch_facts",
+        "main_selected_cohort",
+        "ops_selected_cohort"
+      ],
+      "queries_not_started": [
+        "snapshot_selected_cohort"
+      ],
+      "stop_reason": "PSI0B_E9_RELEASE_PENDING_METADATA_CHANGED",
+      "production_writes_or_ddl": 0,
+      "provider_calls": 0,
+      "service_actions": 0,
+      "output_published": false,
+      "partial_publication": false,
+      "retry_performed": false,
+      "post_run_health_assessment_permitted": false,
+      "psi0b_f_executed": false,
+      "production_impact_detected": false,
+      "artifact": "docs/audits/psi0b_e_06_production_shadow_attempt.json",
+      "observer_artifact": "docs/audits/psi0b_runs/psi0b-shadow-auth-20260815-06-observer",
+      "consumption_artifact": "docs/audits/psi0b_runs/psi0b-shadow-auth-20260815-06-consumption/psi0b-shadow-auth-20260815-06.consumed.json",
+      "exact_next_action": "Stop the staged programme and obtain separate authorization for a bounded telemetry/filesystem-metadata diagnosis of the RELEASE_PENDING fingerprint change; authorization -06 is consumed and must never be retried."
+    },
+    "psi0b_e9_telemetry_observer_qualification": {
+      "status": "COMPLETE",
+      "verdict": "SAFE_LOCAL_COMMITTED_TELEMETRY_OBSERVER_QUALIFIED",
+      "engineering_commit": "d8c713e4c20f1958018a25b658f69ef8af4ab91b",
+      "observer_version": "psi0b-e9.v1",
+      "observer_contract_digest": "01dedd635c763ecd3642604b91d0b607d1bc49532ca288fecd55dc1158a8de5e",
+      "focused_tests_passed": 41,
+      "focused_tests_failed": 0,
+      "relevant_regression_tests_passed": 312,
+      "relevant_regression_tests_failed": 0,
+      "aggregate_exit_3_supported_with_complete_required_service_parse": true,
+      "production_access": false,
+      "artifact": "docs/audits/psi0b_e9_telemetry_observer_qualification.json"
+    },
     "psi0b_e_05_production_shadow_attempt": {
       "status": "HOLD",
       "verdict": "STOPPED_BEFORE_CHECKPOINT_ON_SUPERVISOR_AGGREGATE_STATUS_EXIT_3",
@@ -6597,9 +6647,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0B-E9 committed production telemetry observer adapter",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: qualify the exact production telemetry observer composition before issuing another production-shadow authorization.",
-    "approval_text": "Authorize PSI0B-E9 safe-local design, implementation, frozen/ephemeral telemetry tests, fault-injection tests, regression tests, documentation and one narrow commit for a committed production telemetry observer adapter over PSI0A-F and PSI0B-E8. Bind engineering commit 0909542f4517fb5e33a7f87d6b1444c552de655a, E8 provenance contract digest 64f24fa687f23b5b11ffbeed15cebe1e0bf3d1dd4ea71d46b24cfca0f5d342ca and E7 launcher contract digest e94057239cdacb4c99c3112e5159577194cd2821355ec3106125f88eba465583. Parse Supervisor aggregate status output before applying required-service gates; treat aggregate exit status 3 only as nonfatal transport when stdout is complete and every required named service can be deterministically parsed, while still failing closed on missing output, malformed lines, unknown required services, transport errors or any required service not RUNNING. Require each checkpoint attempt to be recorded before its gate result, including collection failure, with exact Supervisor return code/stdout digest, required-service identities, descriptor count, serializer snapshot identity and freshness, lock-error baseline, queue depth, authoritative write-lease state, RELEASE_PENDING metadata fingerprint, database/WAL, PumpPortal, PumpSwap and ingestion state, and exact named reason. Preserve three checkpoints at 30-second spacing, active health gates, no authorization consumption before PRESTART PASS, zero source database opens or publication on observer failure, canonical fsynced replay, no retry and false integration/activation authority. Prove aggregate exit 0 and 3 success cases plus missing/malformed output, required-service stop/PID drift, descriptor, serializer, queue, lease, metadata, feed, filesystem and observer failures using frozen/ephemeral fixtures only. Do not access production/runtime databases or services, perform a live health observation or extraction, reuse or retry authorization psi0b-shadow-auth-20260815-05, materialize a production authorization, execute production SELECT or EXPLAIN, read production rows, create production-derived shadow output, make provider/RPC calls, execute production writes or DDL, deploy, restart or stop services, change configuration or thresholds, manipulate locks, leases or metrics, activate Evidence Mirror or Cohort Mode, integrate a production consumer, activate production or enter EB2. Stop after qualification and provide the exact separate approval prompt for one fresh PSI0B-E attempt using a new authorization ID.",
+    "milestone": "PSI0B-E10 RELEASE_PENDING active-gate diagnosis",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: diagnose the active-run RELEASE_PENDING metadata change without retrying extraction.",
+    "approval_text": "Authorize PSI0B-E10 as a bounded local and production-telemetry read-only diagnosis of the RELEASE_PENDING metadata fingerprint change that stopped consumed PSI0B-E authorization psi0b-shadow-auth-20260815-06 after four passing query-only production reads and before snapshot_selected_cohort. Bind engineering commit d8c713e4c20f1958018a25b658f69ef8af4ab91b, E9 observer contract digest 01dedd635c763ecd3642604b91d0b607d1bc49532ca288fecd55dc1158a8de5e, attempt artifact docs/audits/psi0b_e_06_production_shadow_attempt.json, observer terminal digest b66e6b3956e68bfb6af8f7631ff5c3c12c8b76479c48b87c8c9ad0c52aa82d42 and consumption digest 09c17fba2853b98bca91be6786de090776e45aa27146d616702a54369b29e99c. Use only the immutable authorization/observer/attempt artifacts, committed E9 source, Supervisor and write-lease telemetry, read-only process timing, and database/WAL/lock/owner/RELEASE_PENDING temporary-sidecar filesystem metadata to identify the exact before/after fingerprint components, owning process/task where observable, whether the change was a legitimate transient metadata lifecycle or an unsafe recurrent/orphan condition, and whether active health should gate on authoritative lease ownership rather than any non-authoritative temporary metadata change. Determine the smallest safe-local contract repair or recovery gate without implementing it. Do not open production databases, inspect rows or schema, retry or reuse authorization -06, execute SELECT or EXPLAIN, materialize another execution authorization, create shadow output, make provider/RPC calls, execute DDL or production writes, deploy, signal, restart or stop services, change configuration or thresholds, reset metrics, manipulate locks, leases or sidecar files, recapture high-waters, activate Evidence Mirror or Cohort Mode, integrate a production consumer, execute PSI0B-F, activate production or enter EB2. Stop after diagnosis and provide the exact separate approval prompt for the smallest safe next action.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

@@ -11,7 +11,7 @@ import re
 from typing import Mapping
 
 
-PROVENANCE_VERSION = "psi0b-e11.v1"
+PROVENANCE_VERSION = "psi0b-e13.v1"
 AUTHORITY_CLASS = "NON_EXECUTING_OBSERVER_FAILURE_PROVENANCE"
 LEDGER_NAME = "observer_attempt.jsonl"
 TERMINAL_NAME = "observer_attempt.json"
@@ -22,6 +22,7 @@ _CHECKPOINT_KEYS = {
     "primary_fd_count", "serializer_snapshot_digest", "serializer_lock_error_baseline",
     "serializer_queue_depth", "authoritative_write_lease_state",
     "release_pending_metadata_digest", "release_pending_metadata_components",
+    "database_wal_metadata_digest", "database_wal_metadata_components",
     "database_wal_state", "pumpportal_state",
     "pumpswap_state", "ingestion_state", "gate_reason_code",
 }
@@ -139,9 +140,14 @@ class ObserverAttemptRecorder:
             raise ProductionShadowObserverProvenanceError("PSI0B_E11_ACTIVE_QUERY_ID_INVALID")
         if not isinstance(payload["release_pending_metadata_components"], (tuple, list)):
             raise ProductionShadowObserverProvenanceError("PSI0B_E11_RELEASE_PENDING_COMPONENTS_INVALID")
-        for name in ("serializer_snapshot_digest", "release_pending_metadata_digest"):
+        if not isinstance(payload["database_wal_metadata_components"], (tuple, list)):
+            raise ProductionShadowObserverProvenanceError("PSI0B_E13_DATABASE_WAL_COMPONENTS_INVALID")
+        for name in ("serializer_snapshot_digest", "release_pending_metadata_digest", "database_wal_metadata_digest"):
             if not isinstance(payload[name], str) or not _DIGEST.fullmatch(payload[name]):
                 raise ProductionShadowObserverProvenanceError("PSI0B_E8_CHECKPOINT_DIGEST_INVALID")
+        if payload["database_wal_metadata_digest"] != _digest(payload["database_wal_metadata_components"]):
+            if payload["database_wal_metadata_digest"] != "0" * 64 or payload["database_wal_metadata_components"]:
+                raise ProductionShadowObserverProvenanceError("PSI0B_E13_DATABASE_WAL_DIGEST_MISMATCH")
         self._checkpoint_attempt_count += 1
         self._append("CHECKPOINT_ATTEMPT", payload)
 

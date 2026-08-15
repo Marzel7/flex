@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 import re
+import stat
 import subprocess
 import time
 from typing import Callable, Mapping
@@ -20,7 +21,7 @@ from .production_shadow_health_gate import (
 from .production_shadow_observer_provenance import ObserverAttemptRecorder
 
 
-OBSERVER_VERSION = "psi0b-e11.v1"
+OBSERVER_VERSION = "psi0b-e13.v1"
 AUTHORITY_CLASS = "QUERY_FREE_PRODUCTION_TELEMETRY_OBSERVER"
 REQUIRED_SERVICES = ("walkback_worker", "watchtower_listener", "ws_cascade")
 _SUPERVISOR_LINE = re.compile(r"^(?P<name>\S+)\s+(?P<state>[A-Z]+)(?:\s+pid\s+(?P<pid>\d+),)?(?:\s+.*)?$")
@@ -45,7 +46,7 @@ class TelemetryDependencies:
     critical_listener_count: Callable[[], int]
     authoritative_write_lease_present: Callable[[], bool]
     release_pending_metadata: Callable[[], object]
-    database_wal_healthy: Callable[[], bool]
+    database_wal_metadata: Callable[[], object]
     feed_states: Callable[[], Mapping[str, str]]
     clock: Callable[[], float] = time.time
     sleep: Callable[[float], None] = time.sleep
@@ -83,6 +84,56 @@ def _validated_release_pending_components(value: object) -> tuple[tuple[str, int
     return normalized
 
 
+_DATABASE_FILES = {
+    "main": "flex_complete_database.db",
+    "ops": "wt_ops_v2.db",
+}
+_FILESYSTEM_KEYS = {
+    "database_id", "database_path", "database_exists", "database_type",
+    "database_inode", "database_size", "database_mtime_ns", "wal_path",
+    "wal_exists", "wal_type", "wal_inode", "wal_size", "wal_mtime_ns",
+}
+
+
+def _validated_database_wal_components(value: object) -> tuple[dict[str, object], ...]:
+    if not isinstance(value, (tuple, list)) or len(value) != len(_DATABASE_FILES):
+        raise ProductionShadowTelemetryObserverError("PSI0B_E13_DATABASE_WAL_METADATA_MALFORMED")
+    rows: list[dict[str, object]] = []
+    for item in value:
+        if not isinstance(item, Mapping) or set(item) != _FILESYSTEM_KEYS:
+            raise ProductionShadowTelemetryObserverError("PSI0B_E13_DATABASE_WAL_METADATA_MALFORMED")
+        row = dict(item)
+        database_id = row["database_id"]
+        if database_id not in _DATABASE_FILES or any(existing["database_id"] == database_id for existing in rows):
+            raise ProductionShadowTelemetryObserverError("PSI0B_E13_DATABASE_WAL_METADATA_MALFORMED")
+        database_path = row["database_path"]
+        wal_path = row["wal_path"]
+        if (
+            not isinstance(database_path, str) or not Path(database_path).is_absolute()
+            or Path(database_path).name != _DATABASE_FILES[database_id]
+            or not isinstance(wal_path, str) or wal_path != database_path + "-wal"
+        ):
+            raise ProductionShadowTelemetryObserverError("PSI0B_E13_DATABASE_PATH_UNKNOWN")
+        for name in ("database_exists", "wal_exists"):
+            if not isinstance(row[name], bool):
+                raise ProductionShadowTelemetryObserverError("PSI0B_E13_DATABASE_WAL_METADATA_MALFORMED")
+        if not row["database_exists"] or row["database_type"] != "REGULAR":
+            raise ProductionShadowTelemetryObserverError("PSI0B_E13_DATABASE_FILE_INVALID")
+        for name in ("database_inode", "database_size", "database_mtime_ns"):
+            if isinstance(row[name], bool) or not isinstance(row[name], int) or row[name] < (1 if name.endswith("inode") else 0):
+                raise ProductionShadowTelemetryObserverError("PSI0B_E13_DATABASE_WAL_METADATA_MALFORMED")
+        if row["wal_exists"]:
+            if row["wal_type"] != "REGULAR":
+                raise ProductionShadowTelemetryObserverError("PSI0B_E13_WAL_FILE_INVALID")
+            for name in ("wal_inode", "wal_size", "wal_mtime_ns"):
+                if isinstance(row[name], bool) or not isinstance(row[name], int) or row[name] < (1 if name.endswith("inode") else 0):
+                    raise ProductionShadowTelemetryObserverError("PSI0B_E13_DATABASE_WAL_METADATA_MALFORMED")
+        elif row["wal_type"] != "ABSENT" or any(row[name] is not None for name in ("wal_inode", "wal_size", "wal_mtime_ns")):
+            raise ProductionShadowTelemetryObserverError("PSI0B_E13_DATABASE_WAL_METADATA_MALFORMED")
+        rows.append(row)
+    return tuple(sorted(rows, key=lambda row: str(row["database_id"])))
+
+
 def telemetry_observer_contract_digest() -> str:
     return _digest({
         "observer_version": OBSERVER_VERSION,
@@ -93,6 +144,8 @@ def telemetry_observer_contract_digest() -> str:
         "required_prestart_checkpoints": 3,
         "failure_policy": "RECORD_BEFORE_RAISE",
         "release_pending_semantics": "NON_AUTHORITATIVE_COMPONENTS_RECORDED_NOT_GATING",
+        "database_wal_semantics": "PER_DATABASE_REGULAR_DB_AND_ABSENT_OR_REGULAR_WAL",
+        "database_wal_provenance": "EXISTENCE_TYPE_INODE_SIZE_MTIME_AND_CANONICAL_DIGEST",
         "active_checkpoint_provenance": "APPEND_ONLY_FSYNCED_BEFORE_SOURCE_OPEN",
         "authority": (False, False, False),
     })
@@ -163,6 +216,8 @@ class ProductionTelemetryObserver:
             authoritative_write_lease_state="UNKNOWN",
             release_pending_metadata_digest="0" * 64,
             release_pending_metadata_components=(),
+            database_wal_metadata_digest="0" * 64,
+            database_wal_metadata_components=(),
             database_wal_state="UNKNOWN",
             pumpportal_state="UNKNOWN",
             pumpswap_state="UNKNOWN",
@@ -196,6 +251,7 @@ class ProductionTelemetryObserver:
         metrics = {}; now = float(self.dependencies.clock())
         primary_fds = -1; critical = -1; lease_present = False
         release_pending = None; release_digest = "0" * 64
+        wal_components = None; wal_digest = "0" * 64
         wal_ok = False; feeds = {"pumpportal": "UNKNOWN", "pumpswap": "UNKNOWN", "ingestion": "UNKNOWN"}
         try:
             metrics = dict(self.dependencies.serializer_snapshot())
@@ -206,7 +262,11 @@ class ProductionTelemetryObserver:
                 self.dependencies.release_pending_metadata()
             )
             release_digest = _digest(release_pending)
-            wal_ok = bool(self.dependencies.database_wal_healthy())
+            wal_components = _validated_database_wal_components(
+                self.dependencies.database_wal_metadata()
+            )
+            wal_digest = _digest(wal_components)
+            wal_ok = True
             feeds = dict(self.dependencies.feed_states())
         except Exception as exc:
             reason = (
@@ -251,6 +311,8 @@ class ProductionTelemetryObserver:
                 authoritative_write_lease_state="PRESENT" if lease_present else "ABSENT",
                 release_pending_metadata_digest=release_digest,
                 release_pending_metadata_components=release_pending or (),
+                database_wal_metadata_digest=wal_digest,
+                database_wal_metadata_components=wal_components or (),
                 database_wal_state=HEALTHY if wal_ok else "UNKNOWN",
                 pumpportal_state=feeds.get("pumpportal", "UNKNOWN"),
                 pumpswap_state=feeds.get("pumpswap", "UNKNOWN"),
@@ -364,6 +426,33 @@ def production_telemetry_dependencies(root: Path) -> TelemetryDependencies:
             root / "database/wt_ops_v2.db.write.lock.owner",
         ))
 
+    def filesystem_component(database_id: str, database_path: Path) -> dict[str, object]:
+        def metadata(path: Path, *, absent_allowed: bool) -> tuple[bool, str, int | None, int | None, int | None]:
+            try:
+                observed = path.lstat()
+            except FileNotFoundError:
+                if absent_allowed:
+                    return False, "ABSENT", None, None, None
+                return False, "ABSENT", None, None, None
+            kind = "REGULAR" if stat.S_ISREG(observed.st_mode) else "SYMLINK" if stat.S_ISLNK(observed.st_mode) else "NONREGULAR"
+            return True, kind, observed.st_ino, observed.st_size, observed.st_mtime_ns
+
+        wal_path = database_path.with_name(database_path.name + "-wal")
+        db_exists, db_type, db_inode, db_size, db_mtime = metadata(database_path, absent_allowed=False)
+        wal_exists, wal_type, wal_inode, wal_size, wal_mtime = metadata(wal_path, absent_allowed=True)
+        return {
+            "database_id": database_id, "database_path": str(database_path),
+            "database_exists": db_exists, "database_type": db_type,
+            "database_inode": db_inode, "database_size": db_size, "database_mtime_ns": db_mtime,
+            "wal_path": str(wal_path), "wal_exists": wal_exists, "wal_type": wal_type,
+            "wal_inode": wal_inode, "wal_size": wal_size, "wal_mtime_ns": wal_mtime,
+        }
+
+    def database_wal_metadata():
+        return tuple(filesystem_component(database_id, path) for database_id, path in (
+            ("main", main_db), ("ops", ops_db),
+        ))
+
     def feed_states():
         content = tail(); fresh = time.time() - listener_log.stat().st_mtime <= 45.0
         return {
@@ -379,8 +468,6 @@ def production_telemetry_dependencies(root: Path) -> TelemetryDependencies:
         critical_listener_count=lambda: tail().count("CRITICAL_LISTENER_DB_HANDLE"),
         authoritative_write_lease_present=lease_present,
         release_pending_metadata=release_pending_metadata,
-        database_wal_healthy=lambda: all(path.is_file() for path in (
-            main_db, ops_db, main_db.with_name(main_db.name + "-wal"), ops_db.with_name(ops_db.name + "-wal"),
-        )),
+        database_wal_metadata=database_wal_metadata,
         feed_states=feed_states,
     )

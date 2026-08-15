@@ -15,6 +15,7 @@ from src.evidence.contracts.production_shadow_observer_provenance import (
     ProductionShadowObserverProvenanceError, observer_provenance_contract_digest,
     verify_observer_attempt_bundle,
 )
+from hashlib import sha256
 from src.evidence.contracts.production_shadow_production_binding import (
     build_production_execution_authorization, production_binding_contract_digest,
 )
@@ -63,6 +64,7 @@ def _decision(*, primary_fd_count=0):
 
 
 def _checkpoint_payload(sequence=1, *, reason=None, lease="ABSENT"):
+    database_wal_components = ()
     return {
         "checkpoint_sequence": sequence,
         "phase": "PRESTART",
@@ -76,6 +78,8 @@ def _checkpoint_payload(sequence=1, *, reason=None, lease="ABSENT"):
         "authoritative_write_lease_state": lease,
         "release_pending_metadata_digest": "2" * 64,
         "release_pending_metadata_components": (("old.tmp", 1, 2),),
+        "database_wal_metadata_digest": sha256(b"[]").hexdigest(),
+        "database_wal_metadata_components": database_wal_components,
         "database_wal_state": "HEALTHY",
         "pumpportal_state": "HEALTHY",
         "pumpswap_state": "HEALTHY",

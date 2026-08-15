@@ -1,0 +1,37 @@
+{
+  "authority": {
+    "grants_activation_authority": false,
+    "grants_extraction_authority": false,
+    "grants_integration_authority": false
+  },
+  "bound_inputs": {
+    "attempt_artifact": "docs/audits/psi0b_e_08_production_shadow_attempt.json",
+    "e11_observer_contract_digest": "f387dd7ae7f2fdb69e19eaf0e3d2b13188708dbad44b952ef2fb107aeea4b94c",
+    "e12_entrypoint_contract_digest": "bdb671bebd8f58311efc071a34ea67cf95d7d043c1e8b5b235398d78fe55c485",
+    "engineering_commit": "07459e050e2e166f0c0809edf984743d775491a4",
+    "observer_terminal_digest": "4dd6b9a026424912223bd0ac05f1156ae33ed2ccfd1560aea843ddaa0111b7fe",
+    "provenance_contract_digest": "c4c7b57b6859726cd34e30fb2dc96f896faca1f78cbf75e41ff2c739e353fe77"
+  },
+  "contract_digests": {
+    "psi0b_e13_observer": "04c258ba6567d7b01725c040247bc198dcbb01ef395d32bd15cd1b1556984304",
+    "psi0b_e13_provenance": "eddf4c3aad70e1a7ac87163b34c4c03650ef4459812aa0ed46662b2fb905c36e"
+  },
+  "filesystem_policy": {
+    "database": "EXPECTED_REGULAR_FILE_REQUIRED",
+    "metadata": [
+      "existence",
+      "type",
+      "inode",
+      "size",
+      "mtime_ns"
+    ],
+    "wal_absent": "HEALTHY_QUIESCENT",
+    "wal_present": "EXPECTED_REGULAR_FILE_NONNEGATIVE_SIZE_REQUIRED"
+  },
+  "schema_version": "psi0b-e13.qualification.v1",
+  "tests": {
+    "focused": "51 passed",
+    "psi0a_psi0b_regression": "339 passed"
+  },
+  "verdict": "PASS"
+}

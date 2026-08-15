@@ -9,6 +9,7 @@ from src.evidence.contracts.production_shadow_observer_provenance import (
 from src.evidence.contracts.production_shadow_telemetry_observer import (
     HEALTHY, ProductionShadowTelemetryObserverError, ProductionTelemetryObserver,
     SupervisorResult, TelemetryDependencies, parse_supervisor_status,
+    production_telemetry_dependencies,
     telemetry_observer_contract_digest,
 )
 
@@ -27,6 +28,23 @@ class Clock:
     def sleep(self, seconds): self.value += seconds
 
 
+def _filesystem_metadata(*, wal_exists=True, database_type="REGULAR", wal_type="REGULAR"):
+    rows = []
+    for database_id, name, inode in (("main", "flex_complete_database.db", 101), ("ops", "wt_ops_v2.db", 201)):
+        path = f"/qualified/{name}"
+        rows.append({
+            "database_id": database_id, "database_path": path,
+            "database_exists": True, "database_type": database_type,
+            "database_inode": inode, "database_size": 4096, "database_mtime_ns": 123,
+            "wal_path": path + "-wal", "wal_exists": wal_exists,
+            "wal_type": wal_type if wal_exists else "ABSENT",
+            "wal_inode": inode + 1 if wal_exists else None,
+            "wal_size": 0 if wal_exists else None,
+            "wal_mtime_ns": 124 if wal_exists else None,
+        })
+    return tuple(rows)
+
+
 def _deps(clock=None, **overrides):
     clock = clock or Clock()
     values = dict(
@@ -36,7 +54,7 @@ def _deps(clock=None, **overrides):
         critical_listener_count=lambda: 0,
         authoritative_write_lease_present=lambda: False,
         release_pending_metadata=lambda: (("old.tmp", 1, 2),),
-        database_wal_healthy=lambda: True,
+        database_wal_metadata=lambda: _filesystem_metadata(),
         feed_states=lambda: {"pumpportal": HEALTHY, "pumpswap": HEALTHY, "ingestion": HEALTHY},
         clock=clock,
         sleep=clock.sleep,
@@ -94,7 +112,7 @@ def test_three_checkpoint_prestart_pass_records_transport_and_spacing(tmp_path):
     ({"primary_fd_count": lambda _pid: 8}, "PRIMARY_FD_WARNING"),
     ({"serializer_snapshot": lambda: {"_snapshot_at": 1000.0, "p99_wait_ms": 1000.0, "lock_errors_24h": 0, "queue_depth": 0}}, "SERIALIZER_P99"),
     ({"authoritative_write_lease_present": lambda: True}, "AUTHORITATIVE_WRITE_LEASE"),
-    ({"database_wal_healthy": lambda: False}, "DATABASE_WAL"),
+    ({"database_wal_metadata": lambda: _filesystem_metadata(database_type="NONREGULAR")}, "DATABASE_FILE_INVALID"),
     ({"feed_states": lambda: {"pumpportal": "UNKNOWN", "pumpswap": HEALTHY, "ingestion": HEALTHY}}, "FEED_OR_INGESTION"),
 ))
 def test_gate_failures_are_recorded_before_raise(tmp_path, override, reason):
@@ -195,3 +213,60 @@ def test_collection_exception_is_recorded_before_raise(tmp_path):
     rows = [json.loads(line) for line in (attempt / "observer_attempt.jsonl").read_text().splitlines()]
     checkpoint = next(row for row in rows if row["event"] == "CHECKPOINT_ATTEMPT")
     assert checkpoint["payload"]["gate_reason_code"] == "PSI0B_E9_TELEMETRY_COLLECTION_EXCEPTION"
+
+
+def test_database_wal_absent_create_remove_recreate_and_inode_rotation_are_healthy(tmp_path):
+    database = tmp_path / "database"; database.mkdir()
+    main = database / "flex_complete_database.db"
+    ops = database / "wt_ops_v2.db"
+    main.write_bytes(b"main"); ops.write_bytes(b"ops")
+    dependencies = production_telemetry_dependencies(tmp_path)
+
+    absent = dependencies.database_wal_metadata()
+    assert all(row["wal_type"] == "ABSENT" for row in absent)
+    main_wal = main.with_name(main.name + "-wal")
+    main_wal.write_bytes(b"")
+    created = dependencies.database_wal_metadata()
+    first_inode = next(row for row in created if row["database_id"] == "main")["wal_inode"]
+    main_wal.unlink()
+    removed = dependencies.database_wal_metadata()
+    main_wal.write_bytes(b"new")
+    recreated = dependencies.database_wal_metadata()
+    recreated_main = next(row for row in recreated if row["database_id"] == "main")
+
+    for snapshot in (absent, created, removed, recreated):
+        observer = ProductionTelemetryObserver(_deps(database_wal_metadata=lambda snapshot=snapshot: snapshot))
+        assert observer.checkpoint().database_wal_state == HEALTHY
+    assert recreated_main["wal_type"] == "REGULAR"
+    assert recreated_main["wal_size"] == 3
+    assert isinstance(first_inode, int) and isinstance(recreated_main["wal_inode"], int)
+
+
+@pytest.mark.parametrize(("mutator", "reason"), (
+    (lambda rows: ({**rows[0], "database_exists": False, "database_type": "ABSENT", "database_inode": None}, rows[1]), "DATABASE_FILE_INVALID"),
+    (lambda rows: ({**rows[0], "database_type": "SYMLINK"}, rows[1]), "DATABASE_FILE_INVALID"),
+    (lambda rows: ({**rows[0], "wal_type": "SYMLINK"}, rows[1]), "WAL_FILE_INVALID"),
+    (lambda rows: ({**rows[0], "database_path": "/unknown/database.db", "wal_path": "/unknown/database.db-wal"}, rows[1]), "DATABASE_PATH_UNKNOWN"),
+    (lambda rows: ({key: value for key, value in rows[0].items() if key != "wal_inode"}, rows[1]), "METADATA_MALFORMED"),
+))
+def test_database_wal_invalid_components_fail_closed(tmp_path, mutator, reason):
+    rows = _filesystem_metadata()
+    recorder, attempt = _recorder(tmp_path)
+    observer = ProductionTelemetryObserver(_deps(database_wal_metadata=lambda: mutator(rows)))
+    with pytest.raises(ProductionShadowTelemetryObserverError, match=reason):
+        observer.checkpoint(recorder)
+    checkpoint = next(
+        json.loads(line)["payload"] for line in (attempt / "observer_attempt.jsonl").read_text().splitlines()
+        if json.loads(line)["event"] == "CHECKPOINT_ATTEMPT"
+    )
+    assert reason in checkpoint["gate_reason_code"]
+
+
+def test_database_wal_stat_exception_fails_closed(tmp_path, monkeypatch):
+    database = tmp_path / "database"; database.mkdir()
+    (database / "flex_complete_database.db").write_bytes(b"main")
+    (database / "wt_ops_v2.db").write_bytes(b"ops")
+    dependencies = production_telemetry_dependencies(tmp_path)
+    monkeypatch.setattr(Path, "lstat", lambda _self: (_ for _ in ()).throw(PermissionError("stat denied")))
+    with pytest.raises(PermissionError, match="stat denied"):
+        dependencies.database_wal_metadata()

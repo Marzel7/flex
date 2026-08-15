@@ -3,7 +3,6 @@ import json
 from pathlib import Path
 import sqlite3
 import subprocess
-import sys
 
 import pytest
 
@@ -256,6 +255,7 @@ def test_output_drift_and_reused_audit_fail_closed(tmp_path, monkeypatch):
 
 
 def test_script_bootstraps_from_arbitrary_working_directory(tmp_path):
-    result = subprocess.run([sys.executable, str(SCRIPT), "--help"], cwd=tmp_path, capture_output=True, text=True)
+    assert SCRIPT.stat().st_mode & 0o777 == 0o755
+    result = subprocess.run([str(SCRIPT), "--help"], cwd=tmp_path, capture_output=True, text=True)
     assert result.returncode == 0
     assert "--execute" in result.stdout

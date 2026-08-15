@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-15T07:43:33Z",
+  "updated_at_utc": "2026-08-15T07:48:30Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "3862e7dfcc2fcc6293a433c14566303124683476",
-    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0B-E5 committed narrowly in three files"
+    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0B-E6 added one uncommitted audit artifact and updated handoff only"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0B-E5 write-lease release fail-safe repair",
-    "mode": "safe-local implementation and fault-injection qualification",
+    "milestone": "PSI0B-E6 walkback-worker restart and recovery observation",
+    "mode": "one production service restart followed by telemetry-only recovery gate",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "SAFE_LOCAL_PHYSICAL_RELEASE_FAILSAFE_QUALIFIED"
+    "verdict": "RESTART_STARTUP_LEASE_TIMEOUT_STOP"
   },
   "production_state": {
     "retention": "ON",
@@ -32,7 +32,10 @@
     "creator_funding_service": "creator_funding_worker",
     "creator_funding_pid_last_verified": 80211,
     "creator_resolution_service": "creator_resolution_worker",
-    "creator_resolution_pid_last_verified": 69111
+    "creator_resolution_pid_last_verified": 69111,
+    "walkback_worker_service": "walkback_worker",
+    "walkback_worker_pid_first_post_restart": 69361,
+    "walkback_worker_pid_last_observed": 70136
   },
   "orchestration": {
     "schema_version": 3,
@@ -235,6 +238,27 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0b_e6_walkback_restart_recovery": {
+      "status": "HOLD",
+      "verdict": "RESTART_STARTUP_LEASE_TIMEOUT_STOP",
+      "engineering_commit": "3862e7dfcc2fcc6293a433c14566303124683476",
+      "authorized_restart_count": 1,
+      "old_pid": 41735,
+      "first_new_pid": 69361,
+      "supervisor_autorestart_pid_last_observed": 70136,
+      "listener_pid": 15357,
+      "old_transaction_id": "81aa002e-a509-431a-9af6-0d0fad24e352",
+      "old_owner_sidecar_removed": true,
+      "old_release_pending_temporary_metadata_remains_inert": true,
+      "startup_failure": "PID 69361 timed out after 60.003 seconds acquiring the operations write lease during startup schema assurance with current_owner=null.",
+      "observation_started": false,
+      "psi0b_e_executed": false,
+      "production_database_opened_by_codex": false,
+      "production_writes_by_codex": 0,
+      "provider_rpc_calls_by_codex": 0,
+      "artifact": "docs/audits/psi0b_e6_walkback_restart_recovery_stop.json",
+      "exact_next_action": "Obtain approval for a telemetry/filesystem-only diagnosis of the null-owner physical operations-lock timeout and automatic Supervisor restart sequence."
+    },
     "psi0b_e5_write_lease_release_qualification": {
       "status": "COMPLETE",
       "verdict": "SAFE_LOCAL_PHYSICAL_RELEASE_FAILSAFE_QUALIFIED",
@@ -6268,6 +6292,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "PSI0B-E6 stopped before its 15-minute observation began. The one authorized restart changed walkback_worker PID 41735 to PID 69361 and removed the authoritative old owner sidecar, but PID 69361 then timed out after 60.003 seconds acquiring the operations write lease during startup schema assurance while current_owner was null. Supervisor's configured autorestart subsequently produced PID 70136; Codex did not issue a second restart. The physical-lock/null-owner condition requires a bounded telemetry/filesystem-only diagnosis before any further service action or PSI0B-E attempt.",
     "PSI0B-B replay-verified the available EB0.1P bundle at /private/tmp/flex-eb0-1p-4qJYQD with exact digest 2c07d41b9c243f8f0c8ca52e0c54c0b184f28a1ed855e98de2a975f936a688e5, 5,000 selected and 5,000 unique mints. The selected projection digest is fd538d454cd10c7f7cd5ce5fa6fe251d2781efc42614ec10cff800a9348952ff and PSI0B-A cohort digest is 8f0a54838574e2e82f95030a5981a8b21b13629d493635719a0d23f5013bfbe3. Proposed run psi0b-shadow-20260814-01, fact_family=LaunchFact and unused isolated output path produce preflight digest 35aa4d8e2f1519a60e6c3418a800476952e88bb1e44a4529c0ca7b9a90c960a0. No database was opened. A bounded production SELECT/output runner enforcing PSI0A-E/F/G does not exist in committed code, so direct production extraction authorization would require unqualified implementation and is not yet coherent.",
     "PSI0B-A is qualified at engineering commit d6f4cd98bb610bb6178fc2315bc6c88c08aa0587 with run-preflight contract digest 4804184b9a09c33daa07e6c810eded85e23df6de1add0e895e0d60935f25c1a4 and 241 passing PSI regressions. It binds exact C16 rowid ceilings, five query identities, 5,000-row ceilings, corrected four-source fingerprints, execution-time health placeholders and false extraction/integration/activation authority. The contract deliberately did not select a real cohort. The previously verified EB0.1P 5,000-mint bundle digest is known, but its recorded directory was ephemeral and availability has not been established from committed artifacts; therefore an exact production run cannot yet be authorized coherently.",
     "PSI0A-H closes PSI0A at engineering commit 04ac82cef40e0c7dbe8e6a26070ba6bf78719c6f with replay-verified fixture bundle digest 308e1d15b2ca9af74c6f1c6d57455150b5f7efdc64e36b06b4ff4f82ee1bb860 and 224 passing PSI0A regressions. The verdict PSI0A_PASS_PSI0B_MAY_BE_SEPARATELY_PROPOSED grants no extraction, integration or activation authority. No production/runtime access, live observation, production row read or shadow extraction occurred. A run-specific immutable cohort/input/output boundary must be separately qualified before any PSI0B production query is authorized.",
@@ -6365,9 +6390,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0B-E fresh bounded query-only production shadow extraction",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: consume one fresh authorization against the replay-verified superseding preflight after all do-not-start health gates pass.",
-    "approval_text": "Authorize PSI0B-E as exactly one fresh bounded query-only production shadow extraction using engineering commit 894124e2cd9b1dcff9988457e221aa5c13873564, superseding artifact bundle digest 523bd918445801a6ae82d9ed9d955947374852843c19298a2ab64098342fc864, PSI0B-D rebound contract digest c4ab44a29706fa7d8e1d03f5391523059a648beae65b3e183cfcc7878fd23dcc, PSI0B-C rebound contract digest 05a40236db5966e8f1d3c575f1863ae9d19b6d364d8b2c323c3e3d4a5af7b348, cohort digest c6069972dddc58fd95cbc3de231e2c4640afbb9dbc0b73475e70964929970722 and preflight digest b2cfd09743c4ba21f7a61a816d8eff8b43e43a1b6e482c4ef9a7f2bd982dcca1. Materialize and consume exactly one immutable authorization record with authorization_id=psi0b-shadow-auth-20260814-02, run_id=psi0b-shadow-20260814-02 and new empty output directory /Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0b_runs/psi0b-shadow-20260814-02. Bind exactly the committed superseding 5,000-mint cohort in retained order, fact_family=LaunchFact, creator=/Users/kevinkeaveney/Dev/claude/flex/pumpswap_tokens.db, evidence=/Users/kevinkeaveney/Dev/claude/flex/database/evidence_platform/production/evidence.db, main=/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db and ops=/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db with the four PSI0B-A path fingerprints. Before opening any database require fresh passing PSI0A-F checkpoints: stable listener/service identity, latest three primary_fd_count samples below 8, zero CRITICAL_LISTENER_DB_HANDLE events, serializer p99 below 1000 ms, no lock-error increment, queue depth zero and healthy database/WAL, write lease, PumpPortal, PumpSwap, ingestion, workers, queues and services. Execute the five frozen SELECT templates exactly once and sequentially using URI mode=ro, verified PRAGMA query_only, 250 ms lock timeout, exact C16 inclusive rowid boundaries, active progress-handler deadlines and every PSI0A-E row/byte/query/transaction/wall/memory/temp ceiling; perform active health checks and unconditional progress-handler removal, rollback and close after every query. Publish only after all five pass into the exact isolated output directory, verify canonical bytes, accounting, per-file hashes, one bundle digest, authorization lineage and exact replay, then capture immediate post-run health and production-impact evidence. Stop immediately with no retry, pagination, failover, widening or partial publication on any stale/failed health gate, path/fingerprint/schema/boundary/contract drift, lock contention, deadline or ceiling breach, SQLite exception, replay failure, descriptor/serializer/queue/feed/ingestion/service degradation, production impact or scope expansion. Do not make provider/RPC calls, execute DDL or production writes, deploy, restart or stop services, change configuration or thresholds, manipulate locks or metrics, recapture high-waters, activate Evidence Mirror or Cohort Mode, integrate a production consumer, activate production or enter EB2. Stop after this one attempt and request separate approval for PSI0B closure and production-impact assessment.",
+    "milestone": "PSI0B-E6A null-owner operations-lock diagnosis",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: diagnose the post-E6 null-owner physical operations-lock timeout and automatic Supervisor restart sequence using telemetry and filesystem metadata only.",
+    "approval_text": "Authorize PSI0B-E6A as a bounded local and production-telemetry read-only diagnosis of the post-PSI0B-E6 operations write-lease timeout in which first post-restart walkback_worker PID 69361 failed startup after 60.003 seconds with current_owner=null and Supervisor subsequently autorestarted it as PID 70136. Use Supervisor state/events and logs, walkback-worker startup/heartbeat logs, serializer/write-lease telemetry, listener lifecycle/watchdog evidence, queue/PumpPortal/PumpSwap/ingestion/service health, read-only process timing, and operations database/WAL/lock/owner/temporary-sidecar filesystem metadata only to determine whether a physical flock remained held without authoritative owner metadata, another process held the inode, lock-file replacement or descriptor inheritance occurred, or the timeout reflects another fail-closed path; establish the automatic restart sequence, current worker stability, heartbeat recovery and whether 60-second listener-walkback-enqueue timeouts ceased; then define the smallest safe separately authorized recovery boundary. Stop on another listener or walkback-worker PID change, CRITICAL_LISTENER_DB_HANDLE, serializer p99 reaching 1000 ms, sustained nonzero queue depth, feed/ingestion/service degradation, production impact, need to open a production database or scope expansion. Do not open production databases, inspect rows or schema, acquire or manipulate the lease, lock or sidecar files, execute DDL or production writes, materialize a PSI0B execution authorization, execute PSI0B-E, signal, deploy, restart or stop services, change configuration or thresholds, reset metrics, recapture high-waters, create shadow output, make provider/RPC calls, activate Evidence Mirror or Cohort Mode, integrate a production consumer, activate production or enter EB2. Stop after diagnosis and provide the exact separate approval prompt for the smallest safe next action.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

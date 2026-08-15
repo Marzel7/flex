@@ -1,0 +1,72 @@
+{
+  "schema_version": "psi0c-b.qualification.v1",
+  "milestone": "PSI0C-B",
+  "engineering_base_commit": "9bbc4c077ecb189952c900539c8a8d0031b59269",
+  "status": "PASS",
+  "verdict": "FIXTURE_ONLY_SHADOW_ASSESSMENT_CONTRACT_QUALIFIED",
+  "contract_digest": "3f2d112ba18b190e7acdf9c0dd9ddf552258b7ed75295ccb7cc470a981cc70e1",
+  "bound_inputs": {
+    "psi0c_a_reconciliation_digest": "430dbeae5e87f2971e4e29927d2c6b86abc9c70be8fff022c5b724e1e35417b3",
+    "psi0b_g_closure_digest": "efadf9e061529af1fc690a253be4e8e29d7058d06d6a61be6105890b4e5e90cd",
+    "psi0b_shadow_bundle_identity_digest": "370c815a4bacc640874d798c168ff812c2efd205d6de497fdcfb79b4005351b9",
+    "psi0a_d_query_contract_digest": "8ba0259d356c3fd6300f22dbf08b6ca3ea96fd836f94221d4f2499949de4577c",
+    "psi0a_e_resource_ceiling_digest": "f5eea8b9f8ba6b102f57e4ae59eb35eb8f0e23d3f8ac0f493f35671f8271f736",
+    "psi0a_g_abort_isolation_digest": "c9ff90b6cbfb332bc00691c87528abf5f6b6158b54072bfb48c60d9f920e5bab"
+  },
+  "qualified_behavior": {
+    "query_surfaces": 5,
+    "exact_result_schemas": true,
+    "coverage_numerators_and_denominators": true,
+    "missingness_absence_is_not_negative": true,
+    "conflicts_preserved_without_resolution": true,
+    "orphan_and_unmatched_accounting": true,
+    "input_order_independent": true,
+    "canonical_serialization": true,
+    "per_file_hashes": true,
+    "exact_replay": true,
+    "resource_ceilings_enforced": true,
+    "fail_closed_no_partial_publication": true
+  },
+  "focused_tests": {
+    "command": "python -m pytest -q tests/test_psi0c_b_shadow_assessment.py",
+    "passed": 11,
+    "failed": 0
+  },
+  "regression_tests": {
+    "stable_selected_psi0a_psi0b_command": "python -m pytest -q tests/test_psi0a_*.py tests/test_psi0b_a_production_shadow_run_preflight.py tests/test_psi0b_c_production_shadow_fixture_runner.py tests/test_psi0b_d_production_shadow_binding.py tests/test_psi0b_e12_production_entrypoint.py tests/test_psi0b_e15_evidence_import_isolation.py tests/test_psi0b_e9_telemetry_observer.py tests/test_psi0c_b_shadow_assessment.py",
+    "stable_selected_passed": 316,
+    "stable_selected_failed": 0,
+    "release_boundary_isolated_retry_command": "python -m pytest -q tests/test_psi0b_e5_release_boundary.py tests/test_psi0c_b_shadow_assessment.py",
+    "release_boundary_isolated_retry_passed": 17,
+    "release_boundary_isolated_retry_failed": 0,
+    "full_psi_attempt_passed": 326,
+    "full_psi_attempt_failed": 27,
+    "full_psi_environment_note": "The 27 legacy PSI0B E3/E7/E8 failures require the fixed production output path to be absent; it now exists from the successfully closed PSI0B extraction. They failed before exercising PSI0C-B and were not modified. One cross-thread flock test was transient in a combined run and passed in isolated retry."
+  },
+  "authority": {
+    "production_rows_accepted": false,
+    "policy": false,
+    "ranking": false,
+    "integration": false,
+    "evidence_mirror": false,
+    "cohort_mode": false,
+    "production_activation": false,
+    "eb2": false
+  },
+  "actions_performed": {
+    "psi0b_shadow_result_rows_inspected": 0,
+    "production_or_runtime_access": 0,
+    "live_telemetry_observations": 0,
+    "select_or_explain_executed": 0,
+    "provider_rpc_calls": 0,
+    "production_writes_or_ddl": 0,
+    "service_actions": 0
+  },
+  "files": [
+    "src/evidence/contracts/production_shadow_assessment.py",
+    "tests/test_psi0c_b_shadow_assessment.py",
+    "docs/evidence_platform/psi0c_b_shadow_assessment_contract.md",
+    "docs/audits/psi0c_b_shadow_assessment_contract_qualification.json"
+  ],
+  "next_action": "HUMAN_APPROVAL_REQUIRED: separately authorize PSI0C-C for one bounded read-only application of this contract to the immutable PSI0B bundle."
+}

@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-15T13:11:39Z",
+  "updated_at_utc": "2026-08-15T13:27:00Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "3cc1dfafd9ff12fba6d6d82b543c2a2c84cdeba9",
-    "working_tree": "dirty: unrelated live/runtime/user paths preserved; PSI0B-E14 committed; PSI0B-E authorization -10 import-bootstrap stop artifacts uncommitted"
+    "git_head": "9bbc4c077ecb189952c900539c8a8d0031b59269",
+    "working_tree": "dirty: unrelated live/runtime/user paths preserved; PSI0B-E15 committed narrowly"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0B-E authorization -10 import-bootstrap stop",
-    "mode": "one direct invocation stopped before entrypoint main or telemetry",
+    "milestone": "PSI0B-E15 contract-only import isolation qualification",
+    "mode": "safe-local dependency-minimal import qualification only",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "HOLD_EAGER_EVIDENCE_PACKAGE_IMPORT_REQUIRES_MISSING_AIOHTTP_ZERO_DATABASE_OPENS"
+    "verdict": "PASS_FRESH_PSI0B_E_ATTEMPT_MAY_BE_SEPARATELY_PROPOSED"
   },
   "production_state": {
     "retention": "ON",
@@ -240,6 +240,26 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0b_e15_contract_import_isolation": {
+      "status": "PASS",
+      "verdict": "FRESH_PSI0B_E_ATTEMPT_MAY_BE_SEPARATELY_PROPOSED",
+      "engineering_commit": "9bbc4c077ecb189952c900539c8a8d0031b59269",
+      "contract_digest": "ce8fcb92249e340cf689c43e9545d6752a44a2a0f6062c8e22fb752aaf91035f",
+      "src_evidence_init_sha256": "8f6e59d1b0912c23d205b4a6c95c6626195bc04f03ce8c89edc32ce274744d0d",
+      "launcher_content_sha256": "684067fd7e7ce75ac0077a84214e59c9f6d447d89822ef024af39e9d0d5b59bb",
+      "launcher_mode": "100755",
+      "focused_tests": "54 passed",
+      "psi0a_psi0b_regressions": "342 passed",
+      "production_database_opens": 0,
+      "production_queries": 0,
+      "production_rows_read": 0,
+      "production_writes_or_ddl": 0,
+      "provider_calls": 0,
+      "service_actions": 0,
+      "grants_production_execution_authority": false,
+      "grants_integration_authority": false,
+      "grants_activation_authority": false
+    },
     "psi0b_e_10_production_shadow_attempt": {
       "status": "HOLD",
       "verdict": "IMPORT_BOOTSTRAP_STOP_BEFORE_ENTRYPOINT_MAIN",
@@ -6838,9 +6858,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0B-E15 contract-only import isolation qualification",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: remove the eager optional-runtime dependency from contract-only entrypoint imports before any fresh production authorization.",
-    "current_approval_text": "Authorize PSI0B-E15 safe-local design, implementation, frozen import/invocation tests, regression tests, documentation and one narrow commit changing only src/evidence/__init__.py as needed to make EvidencePlatform lazy while preserving public imports, so importing src.evidence.contracts from the direct PSI0B launcher does not eagerly import acquisition/provider dependencies such as aiohttp. Preserve the E14 executable script bytes and all E12/E13 semantics. Prove direct arbitrary-directory --help and fail-closed fixture bootstrap under the same dependency-minimal interpreter, plus existing EvidenceConfig/EvidencePlatform public import compatibility in the configured test environment. Do not retry authorization -10 or access production. Stop after qualification and provide a fresh authorization prompt.",
+    "milestone": "PSI0B-E fresh bounded production shadow attempt",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize exactly one fresh direct-entrypoint attempt with authorization -11; never reuse -10.",
+    "current_approval_text": "Authorize PSI0B-E as exactly one fresh bounded query-only production shadow extraction through PSI0B-E15 commit 9bbc4c077ecb189952c900539c8a8d0031b59269 and import-isolation digest ce8fcb92249e340cf689c43e9545d6752a44a2a0f6062c8e22fb752aaf91035f, using new authorization psi0b-shadow-auth-20260815-11, new empty consumption and observer directories, the still-absent output directory and a new attempt audit. Invoke the executable directly from an arbitrary working directory, preserve all E12-E14 controls, and stop after one attempt for separate closure approval.",
     "approval_text": "Authorize PSI0B-E13 safe-local design, implementation, frozen/ephemeral filesystem and telemetry tests, fault-injection tests, regression tests, documentation and one narrow commit amending only the PSI0B-E11 production telemetry observer database/WAL metadata gate identified by the fail-closed PSI0B-E authorization -08 attempt. Bind engineering commit 07459e050e2e166f0c0809edf984743d775491a4, E12 entrypoint contract digest bdb671bebd8f58311efc071a34ea67cf95d7d043c1e8b5b235398d78fe55c485, E11 observer contract digest f387dd7ae7f2fdb69e19eaf0e3d2b13188708dbad44b952ef2fb107aeea4b94c, provenance contract digest c4c7b57b6859726cd34e30fb2dc96f896faca1f78cbf75e41ff2c739e353fe77, attempt artifact docs/audits/psi0b_e_08_production_shadow_attempt.json and observer terminal digest 4dd6b9a026424912223bd0ac05f1156ae33ed2ccfd1560aea843ddaa0111b7fe. Preserve every Supervisor, stable-PID, descriptor, critical-event, serializer, lock-error, queue, authoritative lease, RELEASE_PENDING, feed, ingestion and service gate. Replace the aggregate requirement that both -wal paths must exist with canonical per-database filesystem classification: each bound database file must exist as the expected regular file; its WAL is healthy when absent as a quiescent SQLite state or when present as the expected regular file with nonnegative size; fail closed on missing/nonregular database files, nonregular WAL paths, stat/identity errors, unknown paths or malformed component telemetry. Durably record exact database and WAL existence/type/inode/size/mtime components and their digest at every prestart and active checkpoint, without opening SQLite. Prove WAL absent, create, remove, recreate and inode-rotation sequences remain healthy when the database file remains valid; prove missing database, directory/symlink/unexpected WAL, stat exception, malformed provenance and replay tamper fail closed. Preserve three 30-second prestart checkpoints, active checkpoint fsync before source open, all E12 execution semantics, no retry/pagination/failover/widening and false integration/activation authority. Frozen/ephemeral fixtures only. Do not access production/runtime databases or services, perform live observation or extraction, reuse authorization psi0b-shadow-auth-20260815-08, materialize or consume another production authorization, execute production SELECT or EXPLAIN, read production rows, create production-derived shadow output, make provider/RPC calls, execute production writes or DDL, deploy, signal, restart or stop services, change configuration or thresholds, manipulate locks, leases, sidecars, WAL files or metrics, recapture high-waters, activate Evidence Mirror or Cohort Mode, integrate a production consumer, execute PSI0B-F, activate production or enter EB2. Stop after qualification and provide the exact separate approval prompt for one fresh PSI0B-E attempt with a new authorization ID.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,

@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-15T13:32:22Z",
+  "updated_at_utc": "2026-08-15T13:37:02Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "9bbc4c077ecb189952c900539c8a8d0031b59269",
-    "working_tree": "dirty: unrelated live/runtime/user paths preserved; PSI0B-E15 committed; PSI0B-E authorization -11 and E16/E16A/E16B artifacts uncommitted"
+    "working_tree": "dirty: unrelated live/runtime/user paths preserved; PSI0B-E15 committed; PSI0B-E authorization -11 and E16 through E16C artifacts uncommitted"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0B-E16B physical lock descriptor diagnosis",
-    "mode": "bounded local and production-telemetry read-only diagnosis complete",
+    "milestone": "PSI0B-E16C corrected write-lease recovery observation",
+    "mode": "three-checkpoint production-telemetry read-only observation complete",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "DIAGNOSIS_PASS_E16A_DESCRIPTOR_GATE_FALSE_POSITIVE"
+    "verdict": "PASS_THREE_CLEAN_CHECKPOINTS_FRESH_PSI0B_E_MAY_BE_PROPOSED"
   },
   "production_state": {
     "retention": "ON",
@@ -240,6 +240,36 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0b_e16c_write_lease_recovery_observation": {
+      "status": "PASS",
+      "verdict": "THREE_CLEAN_CHECKPOINTS_RECOVERY_CONFIRMED",
+      "engineering_commit": "9bbc4c077ecb189952c900539c8a8d0031b59269",
+      "e16b_diagnosis_digest": "b6a5d8f03b901bf8bed149dfe99beae90d2054290ef28314a3f2fbe0f99e7ed1",
+      "observation_artifact_digest": "e6ac0ee486adbdd115ce7df2f6e7d34de64943953efbbe9eb77c234933f74cd6",
+      "checkpoint_digests": [
+        "27cd8f1fee47f1be9d9e3c22ef0f1af9d02488242608540373a4c28aafc30fe4",
+        "6fe30832962c39bde3f110ce67fe2493cc2387166ffb139e52fdf2beb817a750",
+        "26435223845c93453d7bb7fd1d81f1c7f48fd41715b24abfeedc734886749cd0"
+      ],
+      "checkpoints_passed": 3,
+      "stable_pids": true,
+      "maximum_primary_fd_count": 0,
+      "maximum_serializer_p99_wait_ms": 29.96,
+      "serializer_queue_depth": 0,
+      "serializer_lock_errors": 0,
+      "authoritative_lease_present": false,
+      "critical_listener_events": 0,
+      "feeds_ingestion_services_healthy": true,
+      "fresh_psi0b_e_attempt_may_be_separately_proposed": true,
+      "required_new_authorization_id": "psi0b-shadow-auth-20260815-12",
+      "production_database_opens": 0,
+      "production_queries": 0,
+      "production_rows_read": 0,
+      "production_writes_or_ddl": 0,
+      "provider_calls": 0,
+      "service_actions": 0,
+      "artifact": "docs/audits/psi0b_e16c_write_lease_recovery_observation.json"
+    },
     "psi0b_e16b_physical_lock_descriptor_diagnosis": {
       "status": "COMPLETE",
       "verdict": "E16A_DESCRIPTOR_GATE_FALSE_POSITIVE_PHYSICAL_FLOCK_NOT_ESTABLISHED",
@@ -6953,9 +6983,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0B-E16C corrected three-checkpoint write-lease recovery observation",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: repeat the telemetry-only recovery observation with open lock-file descriptors recorded but not misclassified as physical ownership.",
-    "current_approval_text": "Authorize PSI0B-E16C as one fresh bounded production-telemetry read-only authoritative write-lease recovery observation using PSI0B-E16B diagnosis artifact docs/audits/psi0b_e16b_physical_lock_descriptor_diagnosis.json with digest b6a5d8f03b901bf8bed149dfe99beae90d2054290ef28314a3f2fbe0f99e7ed1. Take exactly three checkpoints at 30-second spacing using Supervisor state, listener lifecycle/watchdog telemetry, db_serializer_metrics.json snapshots, queue/PumpPortal/PumpSwap/ingestion/service health and database/WAL/lock/authoritative-owner/RELEASE_PENDING filesystem metadata only. Record open lock-file descriptor path, PID, FD and lock-mode components when observable, but do not treat an open descriptor by itself as physical flock ownership or a failed gate; fail closed on authoritative owner-sidecar presence, malformed or unavailable descriptor/owner telemetry, or evidence independently proving retained physical ownership. Require watchtower_listener PID 72232, walkback_worker PID 70136 and ws_cascade PID 5461 to remain stable; primary_fd_count below 8; zero CRITICAL_LISTENER_DB_HANDLE events; serializer p99_wait_ms below 1000 ms, queue_depth zero and lock_errors_24h unchanged; and healthy database/WAL metadata, PumpPortal, PumpSwap, ingestion, workers, queues and services throughout. Stop immediately on the first failed gate, observer insufficiency, production impact, need to open a database or scope expansion, with no retry. Treat authorization psi0b-shadow-auth-20260815-11 as permanently non-reusable. Do not acquire or manipulate leases, locks, owner or sidecar files, open production databases, inspect rows or schema, materialize or consume a production execution authorization, execute PSI0B-E, SELECT, EXPLAIN, DDL or production writes, deploy, signal, restart or stop services, change configuration or thresholds, reset metrics, recapture high-waters, create shadow output, make provider/RPC calls, activate Evidence Mirror or Cohort Mode, integrate a production consumer, execute PSI0B-F, activate production or enter EB2. Stop after the observation and, only if all three checkpoints pass, provide the exact separate approval prompt for one fresh bounded PSI0B-E attempt with a new authorization ID.",
+    "milestone": "PSI0B-E fresh production shadow attempt authorization -12",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize exactly one fresh bounded PSI0B-E query-only production shadow attempt using a new authorization ID.",
+    "current_approval_text": "Authorize PSI0B-E as exactly one fresh bounded query-only production shadow extraction through the committed executable production entrypoint using engineering commit 9bbc4c077ecb189952c900539c8a8d0031b59269, PSI0B-E15 import-isolation contract digest ce8fcb92249e340cf689c43e9545d6752a44a2a0f6062c8e22fb752aaf91035f, PSI0B-E14 executable-entrypoint identity digest 388d52839d27db40757a0af5a059e7cf4d0423898c0be4a3b12a4a1212574c90, launcher content digest 684067fd7e7ce75ac0077a84214e59c9f6d447d89822ef024af39e9d0d5b59bb, E12 entrypoint contract digest bdb671bebd8f58311efc071a34ea67cf95d7d043c1e8b5b235398d78fe55c485, PSI0B-E13 observer contract digest 04c258ba6567d7b01725c040247bc198dcbb01ef395d32bd15cd1b1556984304, PSI0B-E13 provenance contract digest eddf4c3aad70e1a7ac87163b34c4c03650ef4459812aa0ed46662b2fb905c36e, superseding artifact bundle digest 523bd918445801a6ae82d9ed9d955947374852843c19298a2ab64098342fc864, PSI0B-D rebound contract digest c4ab44a29706fa7d8e1d03f5391523059a648beae65b3e183cfcc7878fd23dcc, PSI0B-C rebound contract digest 05a40236db5966e8f1d3c575f1863ae9d19b6d364d8b2c323c3e3d4a5af7b348, cohort digest c6069972dddc58fd95cbc3de231e2c4640afbb9dbc0b73475e70964929970722, preflight digest b2cfd09743c4ba21f7a61a816d8eff8b43e43a1b6e482c4ef9a7f2bd982dcca1 and PSI0B-E16C clean-recovery artifact docs/audits/psi0b_e16c_write_lease_recovery_observation.json with digest e6ac0ee486adbdd115ce7df2f6e7d34de64943953efbbe9eb77c234933f74cd6. Materialize exactly one immutable authorization JSON with authorization_id=psi0b-shadow-auth-20260815-12 and run_id=psi0b-shadow-20260814-02; create new empty consumption directory /Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0b_runs/psi0b-shadow-auth-20260815-12-consumption and observer-attempt directory /Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0b_runs/psi0b-shadow-auth-20260815-12-observer; bind the still-absent output directory /Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0b_runs/psi0b-shadow-20260814-02 and new attempt audit /Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0b_e_12_production_shadow_attempt.json. Invoke the committed executable /Users/kevinkeaveney/Dev/claude/flex/scripts/run_psi0b_production_shadow.py --execute directly from an arbitrary working directory. Replay-verify authorization and the committed cohort/preflight before any source opens; consume authorization at most once only after three replay-valid 30-second PRESTART PASS checkpoints with stable listener, walkback-worker and ws_cascade PIDs, primary_fd_count below 8, zero critical descriptor events, serializer p99 below 1000 ms, no lock-error increment, queue depth zero, no authoritative owner sidecar, and healthy database/WAL metadata, PumpPortal, PumpSwap, ingestion, workers, queues and services. Open lock-file descriptors are diagnostic only and must not by themselves be treated as physical flock ownership; stop on authoritative owner presence, malformed telemetry or independently proven retained physical ownership. Bind the exact retained 5,000-mint cohort, fact_family=LaunchFact and four PSI0B-A source paths/fingerprints. Execute the five frozen SELECT templates exactly once sequentially using URI mode=ro, verified PRAGMA query_only, 250 ms lock timeout, exact C16 boundaries, progress deadlines and every PSI0A-E ceiling with active health checks and unconditional cleanup. Publish only after all five pass, replay-verify the canonical bundle and require immediate POST_RUN health PASS. Stop immediately with no retry, pagination, failover, widening or partial publication on any bootstrap, provenance, health, path, schema, boundary, lock, deadline, ceiling, SQLite, replay, service or production-impact failure. Do not reuse authorization psi0b-shadow-auth-20260815-11 or any earlier authorization, make provider/RPC calls, execute DDL or production writes, deploy, restart or stop services, change configuration or thresholds, manipulate locks, leases, sidecars, WAL files or metrics, recapture high-waters, activate Evidence Mirror or Cohort Mode, integrate a production consumer, activate production or enter EB2. Stop after this one attempt and request separate approval for PSI0B closure and production-impact assessment.",
     "approval_text": "Authorize PSI0B-E13 safe-local design, implementation, frozen/ephemeral filesystem and telemetry tests, fault-injection tests, regression tests, documentation and one narrow commit amending only the PSI0B-E11 production telemetry observer database/WAL metadata gate identified by the fail-closed PSI0B-E authorization -08 attempt. Bind engineering commit 07459e050e2e166f0c0809edf984743d775491a4, E12 entrypoint contract digest bdb671bebd8f58311efc071a34ea67cf95d7d043c1e8b5b235398d78fe55c485, E11 observer contract digest f387dd7ae7f2fdb69e19eaf0e3d2b13188708dbad44b952ef2fb107aeea4b94c, provenance contract digest c4c7b57b6859726cd34e30fb2dc96f896faca1f78cbf75e41ff2c739e353fe77, attempt artifact docs/audits/psi0b_e_08_production_shadow_attempt.json and observer terminal digest 4dd6b9a026424912223bd0ac05f1156ae33ed2ccfd1560aea843ddaa0111b7fe. Preserve every Supervisor, stable-PID, descriptor, critical-event, serializer, lock-error, queue, authoritative lease, RELEASE_PENDING, feed, ingestion and service gate. Replace the aggregate requirement that both -wal paths must exist with canonical per-database filesystem classification: each bound database file must exist as the expected regular file; its WAL is healthy when absent as a quiescent SQLite state or when present as the expected regular file with nonnegative size; fail closed on missing/nonregular database files, nonregular WAL paths, stat/identity errors, unknown paths or malformed component telemetry. Durably record exact database and WAL existence/type/inode/size/mtime components and their digest at every prestart and active checkpoint, without opening SQLite. Prove WAL absent, create, remove, recreate and inode-rotation sequences remain healthy when the database file remains valid; prove missing database, directory/symlink/unexpected WAL, stat exception, malformed provenance and replay tamper fail closed. Preserve three 30-second prestart checkpoints, active checkpoint fsync before source open, all E12 execution semantics, no retry/pagination/failover/widening and false integration/activation authority. Frozen/ephemeral fixtures only. Do not access production/runtime databases or services, perform live observation or extraction, reuse authorization psi0b-shadow-auth-20260815-08, materialize or consume another production authorization, execute production SELECT or EXPLAIN, read production rows, create production-derived shadow output, make provider/RPC calls, execute production writes or DDL, deploy, signal, restart or stop services, change configuration or thresholds, manipulate locks, leases, sidecars, WAL files or metrics, recapture high-waters, activate Evidence Mirror or Cohort Mode, integrate a production consumer, execute PSI0B-F, activate production or enter EB2. Stop after qualification and provide the exact separate approval prompt for one fresh PSI0B-E attempt with a new authorization ID.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,

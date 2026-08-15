@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-15T08:52:30Z",
+  "updated_at_utc": "2026-08-15T09:02:00Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "3862e7dfcc2fcc6293a433c14566303124683476",
-    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0B-E6 through E6C and PSI0B-E authorization/bootstrap-stop audit artifacts added uncommitted; handoff updated only"
+    "git_head": "51d4f2dbe216c8175773e1b1d88d5de0fe4db4ed",
+    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0B-E7 committed narrowly; prior runtime/audit artifacts and handoff changes remain uncommitted"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0B-E fresh production query-only shadow attempt",
-    "mode": "one explicitly authorized attempt with fail-closed prestart and immutable output boundary",
+    "milestone": "PSI0B-E7 production launcher/bootstrap qualification",
+    "mode": "safe-local implementation, frozen/ephemeral tests, documentation and one narrow commit",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "STOPPED_BEFORE_PRESTART_LAUNCHER_IMPORT_FAILURE"
+    "verdict": "SAFE_LOCAL_LAUNCHER_BOOTSTRAP_QUALIFIED_NO_PRODUCTION_AUTHORITY"
   },
   "production_state": {
     "retention": "ON",
@@ -240,6 +240,33 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0b_e7_launcher_bootstrap_qualification": {
+      "status": "COMPLETE",
+      "verdict": "SAFE_LOCAL_LAUNCHER_BOOTSTRAP_QUALIFIED_NO_PRODUCTION_AUTHORITY",
+      "engineering_commit": "51d4f2dbe216c8175773e1b1d88d5de0fe4db4ed",
+      "launcher_version": "psi0b-e7.v1",
+      "launcher_contract_digest": "e94057239cdacb4c99c3112e5159577194cd2821355ec3106125f88eba465583",
+      "focused_tests_passed": 11,
+      "focused_tests_failed": 0,
+      "relevant_regression_tests_passed": 140,
+      "relevant_regression_tests_failed": 0,
+      "pre_existing_e5_order_dependent_test": "passes alone but fails after preceding E5 fault injection with Bad file descriptor; no E7 overlap",
+      "outside_repository_working_directory_bootstrap": true,
+      "authorization_consumed_only_after_prestart_pass": true,
+      "authorization_consumption_open_exclusive_fsync": true,
+      "authorization_03_reused": false,
+      "production_access": false,
+      "live_health_observation": false,
+      "production_database_connections": 0,
+      "production_queries": 0,
+      "production_rows_read": 0,
+      "production_writes": 0,
+      "provider_calls": 0,
+      "service_actions": 0,
+      "shadow_output_exists": false,
+      "artifact": "docs/audits/psi0b_e7_launcher_bootstrap_qualification.json",
+      "exact_next_action": "Obtain separate explicit authorization for exactly one fresh PSI0B-E attempt using the committed E7 launcher and a new authorization ID; do not reuse authorization psi0b-shadow-auth-20260815-03."
+    },
     "psi0b_e_03_production_shadow_attempt": {
       "status": "HOLD",
       "verdict": "STOPPED_BEFORE_PRESTART_LAUNCHER_IMPORT_FAILURE",
@@ -6491,9 +6518,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0B-E7 production launcher/bootstrap qualification",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: qualify a committed safe-local launch boundary before issuing any new PSI0B production execution authorization.",
-    "approval_text": "Authorize PSI0B-E7 safe-local design, implementation, frozen/ephemeral SQLite tests, fault-injection tests, regression tests, documentation and one narrow commit for a committed PSI0B production-shadow launcher/bootstrap boundary over PSI0B-D. Require invocation from any working directory to bind the repository package root deterministically before importing the existing PSI0B contracts; load and replay-verify one explicitly supplied immutable authorization JSON and the committed superseding cohort/preflight artifacts; fail closed before any source open on missing module path, malformed or stale authorization, authorization ID reuse, run/output drift, contract/digest drift, missing preflight, nonempty output or observer bootstrap failure. Preserve the existing five frozen SELECT templates, four production path bindings, C16 boundaries, PSI0A-E ceilings, PSI0A-F three-checkpoint and active health gates, PSI0A-G abort/cleanup semantics, URI mode=ro, verified PRAGMA query_only, 250 ms lock timeout, sequential single connections, progress deadlines, rollback/handler removal/close, no retry/pagination/failover/widening and false integration/activation authority. Prove from frozen/ephemeral fixtures that imports work outside the repository working directory, authorization is consumed at most once only after all bootstrap and prestart checks pass, and launcher/import failure opens zero databases and publishes nothing. Do not access production/runtime databases or services, perform live health observation or extraction, reuse authorization psi0b-shadow-auth-20260815-03, execute production SELECT or EXPLAIN, read production rows, create production-derived shadow output, make provider/RPC calls, execute production writes or DDL, deploy, restart or stop services, change configuration or thresholds, manipulate locks or metrics, activate Evidence Mirror or Cohort Mode, integrate a production consumer, activate production or enter EB2. Stop after qualification and provide the exact separate approval prompt for one fresh PSI0B-E attempt using a new authorization ID.",
+    "milestone": "PSI0B-E fresh bounded production shadow extraction",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize exactly one fresh bounded PSI0B production shadow attempt through the committed E7 launcher.",
+    "approval_text": "Authorize PSI0B-E as exactly one fresh bounded query-only production shadow extraction through the committed PSI0B-E7 launcher using engineering commit 51d4f2dbe216c8175773e1b1d88d5de0fe4db4ed, PSI0B-E7 launcher contract digest e94057239cdacb4c99c3112e5159577194cd2821355ec3106125f88eba465583, superseding artifact bundle digest 523bd918445801a6ae82d9ed9d955947374852843c19298a2ab64098342fc864, PSI0B-D rebound contract digest c4ab44a29706fa7d8e1d03f5391523059a648beae65b3e183cfcc7878fd23dcc, PSI0B-C rebound contract digest 05a40236db5966e8f1d3c575f1863ae9d19b6d364d8b2c323c3e3d4a5af7b348, cohort digest c6069972dddc58fd95cbc3de231e2c4640afbb9dbc0b73475e70964929970722 and preflight digest b2cfd09743c4ba21f7a61a816d8eff8b43e43a1b6e482c4ef9a7f2bd982dcca1. Materialize and consume exactly one immutable authorization JSON with authorization_id=psi0b-shadow-auth-20260815-04, run_id=psi0b-shadow-20260814-02, a new empty consumption directory /Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0b_runs/psi0b-shadow-auth-20260815-04-consumption and the still-absent output directory /Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0b_runs/psi0b-shadow-20260814-02. Invoke the committed launcher from an arbitrary working directory, require deterministic repository-root bootstrap, replay-verify the authorization and committed superseding cohort/preflight before any source opens, and consume the authorization at most once only after all bootstrap and prestart checks pass. Bind exactly the committed superseding 5,000-mint cohort in retained order, fact_family=LaunchFact, creator=/Users/kevinkeaveney/Dev/claude/flex/pumpswap_tokens.db, evidence=/Users/kevinkeaveney/Dev/claude/flex/database/evidence_platform/production/evidence.db, main=/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db and ops=/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db with the four PSI0B-A path fingerprints. Before opening any database require three fresh passing PSI0A-F checkpoints with stable listener, walkback-worker, ws_cascade and service identities, primary_fd_count below 8, zero CRITICAL_LISTENER_DB_HANDLE events, serializer p99 below 1000 ms, no lock-error increment, queue depth zero, no active or stale authoritative write lease, no recurrent RELEASE_PENDING metadata, and healthy database/WAL, PumpPortal, PumpSwap, ingestion, workers, queues and services. Execute the five frozen SELECT templates exactly once and sequentially using URI mode=ro, verified PRAGMA query_only, 250 ms lock timeout, exact C16 inclusive rowid boundaries, active progress-handler deadlines and every PSI0A-E row/byte/query/transaction/wall/memory/temp ceiling; perform active health checks and unconditional progress-handler removal, rollback and close after every query. Publish only after all five pass into the exact isolated output directory, verify canonical bytes, accounting, per-file hashes, one bundle digest, authorization lineage and exact replay, then capture immediate post-run health and production-impact evidence. Stop immediately with no retry, pagination, failover, widening or partial publication on launcher/import failure, authorization reuse or drift, missing preflight, nonempty output, observer failure, stale or failed health gate, path/fingerprint/schema/boundary/contract drift, lock contention, deadline or ceiling breach, SQLite exception, replay failure, descriptor/serializer/queue/feed/ingestion/service degradation, production impact or scope expansion. Do not reuse authorization psi0b-shadow-auth-20260815-03, make provider/RPC calls, execute DDL or production writes, deploy, restart or stop services, change configuration or thresholds, manipulate locks or metrics, recapture high-waters, activate Evidence Mirror or Cohort Mode, integrate a production consumer, activate production or enter EB2. Stop after this one attempt and request separate approval for PSI0B closure and production-impact assessment.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,
     "production_activation_authorized": false

@@ -20,7 +20,7 @@ from .production_shadow_health_gate import (
 from .production_shadow_observer_provenance import ObserverAttemptRecorder
 
 
-OBSERVER_VERSION = "psi0b-e9.v1"
+OBSERVER_VERSION = "psi0b-e11.v1"
 AUTHORITY_CLASS = "QUERY_FREE_PRODUCTION_TELEMETRY_OBSERVER"
 REQUIRED_SERVICES = ("walkback_worker", "watchtower_listener", "ws_cascade")
 _SUPERVISOR_LINE = re.compile(r"^(?P<name>\S+)\s+(?P<state>[A-Z]+)(?:\s+pid\s+(?P<pid>\d+),)?(?:\s+.*)?$")
@@ -62,6 +62,27 @@ def _digest(value: object) -> str:
     return sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
+def _validated_release_pending_components(value: object) -> tuple[tuple[str, int, int], ...]:
+    if not isinstance(value, (tuple, list)):
+        raise ProductionShadowTelemetryObserverError("PSI0B_E11_RELEASE_PENDING_METADATA_MALFORMED")
+    rows = []
+    for item in value:
+        if not isinstance(item, (tuple, list)) or len(item) != 3:
+            raise ProductionShadowTelemetryObserverError("PSI0B_E11_RELEASE_PENDING_METADATA_MALFORMED")
+        path, mtime_ns, size = item
+        if (
+            not isinstance(path, str) or not path.endswith(".tmp")
+            or isinstance(mtime_ns, bool) or not isinstance(mtime_ns, int) or mtime_ns < 0
+            or isinstance(size, bool) or not isinstance(size, int) or size < 0
+        ):
+            raise ProductionShadowTelemetryObserverError("PSI0B_E11_RELEASE_PENDING_METADATA_MALFORMED")
+        rows.append((path, mtime_ns, size))
+    normalized = tuple(sorted(rows))
+    if len({row[0] for row in normalized}) != len(normalized):
+        raise ProductionShadowTelemetryObserverError("PSI0B_E11_RELEASE_PENDING_METADATA_MALFORMED")
+    return normalized
+
+
 def telemetry_observer_contract_digest() -> str:
     return _digest({
         "observer_version": OBSERVER_VERSION,
@@ -71,6 +92,8 @@ def telemetry_observer_contract_digest() -> str:
         "checkpoint_spacing_seconds": 30.0,
         "required_prestart_checkpoints": 3,
         "failure_policy": "RECORD_BEFORE_RAISE",
+        "release_pending_semantics": "NON_AUTHORITATIVE_COMPONENTS_RECORDED_NOT_GATING",
+        "active_checkpoint_provenance": "APPEND_ONLY_FSYNCED_BEFORE_SOURCE_OPEN",
         "authority": (False, False, False),
     })
 
@@ -115,12 +138,18 @@ class ProductionTelemetryObserver:
         self.baseline_release_pending_digest = None
         self.previous_checkpoint = None
         self.checkpoint_attempts = 0
+        self.recorder = None
 
-    def _record_failure(self, recorder: ObserverAttemptRecorder, reason: str, *, supervisor_result=None) -> None:
+    def _record_failure(
+        self, recorder: ObserverAttemptRecorder, reason: str, *, supervisor_result=None,
+        phase: str = "PRESTART", query_id: str | None = None,
+    ) -> None:
         self.checkpoint_attempts += 1
         result = supervisor_result or SupervisorResult(-1, "", "collection failed")
         recorder.record_checkpoint_attempt(
             checkpoint_sequence=self.checkpoint_attempts,
+            phase=phase,
+            query_id=query_id,
             observed_at_epoch=float(self.dependencies.clock()),
             supervisor_service_identities={"_transport": {
                 "return_code": result.return_code,
@@ -133,6 +162,7 @@ class ProductionTelemetryObserver:
             serializer_queue_depth=-1,
             authoritative_write_lease_state="UNKNOWN",
             release_pending_metadata_digest="0" * 64,
+            release_pending_metadata_components=(),
             database_wal_state="UNKNOWN",
             pumpportal_state="UNKNOWN",
             pumpswap_state="UNKNOWN",
@@ -140,7 +170,10 @@ class ProductionTelemetryObserver:
             gate_reason_code=reason,
         )
 
-    def checkpoint(self, recorder: ObserverAttemptRecorder | None = None) -> HealthCheckpoint:
+    def checkpoint(
+        self, recorder: ObserverAttemptRecorder | None = None, *,
+        phase: str = "PRESTART", query_id: str | None = None,
+    ) -> HealthCheckpoint:
         result = None
         try:
             result = self.dependencies.supervisor_status()
@@ -148,7 +181,9 @@ class ProductionTelemetryObserver:
         except Exception as exc:
             reason = str(exc) if isinstance(exc, ProductionShadowTelemetryObserverError) else "PSI0B_E9_SUPERVISOR_COLLECTION_EXCEPTION"
             if recorder is not None:
-                self._record_failure(recorder, reason, supervisor_result=result)
+                self._record_failure(
+                    recorder, reason, supervisor_result=result, phase=phase, query_id=query_id,
+                )
             raise ProductionShadowTelemetryObserverError(reason) from exc
 
         identities = dict(supervisor.service_identities)
@@ -167,12 +202,17 @@ class ProductionTelemetryObserver:
             primary_fds = int(self.dependencies.primary_fd_count(int(identities["watchtower_listener"]["pid"])))
             critical = int(self.dependencies.critical_listener_count())
             lease_present = bool(self.dependencies.authoritative_write_lease_present())
-            release_pending = self.dependencies.release_pending_metadata()
+            release_pending = _validated_release_pending_components(
+                self.dependencies.release_pending_metadata()
+            )
             release_digest = _digest(release_pending)
             wal_ok = bool(self.dependencies.database_wal_healthy())
             feeds = dict(self.dependencies.feed_states())
         except Exception as exc:
-            reason = "PSI0B_E9_TELEMETRY_COLLECTION_EXCEPTION"
+            reason = (
+                str(exc) if isinstance(exc, ProductionShadowTelemetryObserverError)
+                else "PSI0B_E9_TELEMETRY_COLLECTION_EXCEPTION"
+            )
             collection_exc = exc
         else:
             collection_exc = None
@@ -191,8 +231,6 @@ class ProductionTelemetryObserver:
                 reason = "PSI0A_F_SERIALIZER_LOCK_ERROR_INCREMENT"
             elif lease_present:
                 reason = "PSI0B_E9_AUTHORITATIVE_WRITE_LEASE_PRESENT"
-            elif self.baseline_release_pending_digest is not None and release_digest != self.baseline_release_pending_digest:
-                reason = "PSI0B_E9_RELEASE_PENDING_METADATA_CHANGED"
             elif not wal_ok:
                 reason = "PSI0A_F_DATABASE_WAL_UNHEALTHY_OR_UNKNOWN"
             elif any(feeds.get(name) != HEALTHY for name in ("pumpportal", "pumpswap", "ingestion")):
@@ -202,6 +240,8 @@ class ProductionTelemetryObserver:
         if recorder is not None:
             recorder.record_checkpoint_attempt(
                 checkpoint_sequence=self.checkpoint_attempts,
+                phase=phase,
+                query_id=query_id,
                 observed_at_epoch=now,
                 supervisor_service_identities=identities,
                 primary_fd_count=primary_fds,
@@ -210,6 +250,7 @@ class ProductionTelemetryObserver:
                 serializer_queue_depth=int(metrics.get("queue_depth", -1)),
                 authoritative_write_lease_state="PRESENT" if lease_present else "ABSENT",
                 release_pending_metadata_digest=release_digest,
+                release_pending_metadata_components=release_pending or (),
                 database_wal_state=HEALTHY if wal_ok else "UNKNOWN",
                 pumpportal_state=feeds.get("pumpportal", "UNKNOWN"),
                 pumpswap_state=feeds.get("pumpswap", "UNKNOWN"),
@@ -240,10 +281,11 @@ class ProductionTelemetryObserver:
         return checkpoint
 
     def prestart(self, recorder: ObserverAttemptRecorder) -> HealthGateDecision:
+        self.recorder = recorder
         rows = []
         for position in range(3):
             if position: self.dependencies.sleep(30.0)
-            rows.append(self.checkpoint(recorder))
+            rows.append(self.checkpoint(recorder, phase="PRESTART"))
         decision = evaluate_prestart_health_gate(
             self.contract, tuple(rows), now_epoch=float(self.dependencies.clock()),
             baseline_lock_errors=int(self.baseline_lock_errors),
@@ -251,8 +293,21 @@ class ProductionTelemetryObserver:
         self.previous_checkpoint = rows[-1]
         return decision
 
-    def active(self, _query_id: str) -> HealthGateDecision:
-        current = self.checkpoint()
+    def active(self, query_id: str) -> HealthGateDecision:
+        try:
+            current = self.checkpoint(self.recorder, phase="ACTIVE", query_id=query_id)
+        except ProductionShadowTelemetryObserverError as exc:
+            if self.recorder is not None:
+                reason_codes = (str(exc),)
+                self.recorder.record_decision(
+                    status="STOP",
+                    decision_digest=_digest({
+                        "phase": "ACTIVE", "query_id": query_id,
+                        "status": "STOP", "reason_codes": reason_codes,
+                    }),
+                    reason_codes=reason_codes, phase="ACTIVE", query_id=query_id,
+                )
+            raise
         decision = evaluate_active_health_gate(
             self.contract, self.previous_checkpoint, current,
             now_epoch=float(self.dependencies.clock()),
@@ -260,6 +315,11 @@ class ProductionTelemetryObserver:
             baseline_lock_errors=int(self.baseline_lock_errors),
         )
         self.previous_checkpoint = current
+        if self.recorder is not None:
+            self.recorder.record_decision(
+                status=decision.status, decision_digest=decision.decision_digest,
+                reason_codes=decision.reason_codes, phase="ACTIVE", query_id=query_id,
+            )
         return decision
 
 

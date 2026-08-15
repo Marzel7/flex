@@ -1,0 +1,41 @@
+{
+  "schema_version": "psi0b-e11.qualification.v1",
+  "milestone": "PSI0B-E11",
+  "bound_engineering_commit": "d8c713e4c20f1958018a25b658f69ef8af4ab91b",
+  "superseded_e9_observer_contract_digest": "01dedd635c763ecd3642604b91d0b607d1bc49532ca288fecd55dc1158a8de5e",
+  "e10_diagnosis_artifact": "docs/audits/psi0b_e10_release_pending_metadata_diagnosis.json",
+  "consumed_authorization_id": "psi0b-shadow-auth-20260815-06",
+  "attempt_artifact": "docs/audits/psi0b_e_06_production_shadow_attempt.json",
+  "observer_contract_digest": "f387dd7ae7f2fdb69e19eaf0e3d2b13188708dbad44b952ef2fb107aeea4b94c",
+  "provenance_contract_digest": "c4c7b57b6859726cd34e30fb2dc96f896faca1f78cbf75e41ff2c739e353fe77",
+  "qualification": {
+    "verdict": "SAFE_LOCAL_OBSERVER_ACTIVE_GATE_REPAIR_QUALIFIED",
+    "diagnostic_temporary_metadata_authoritative": false,
+    "temporary_creation_replacement_cleanup_recorded": true,
+    "temporary_change_alone_gates_health": false,
+    "malformed_temporary_metadata_fails_closed": true,
+    "authoritative_lease_gate_preserved": true,
+    "active_checkpoint_attempt_fsynced_before_source_open": true,
+    "active_named_pass_stop_decision_fsynced": true,
+    "prestart_failure_consumes_authorization": false,
+    "active_failure_terminal_replay": true,
+    "focused_tests_passed": 37,
+    "focused_tests_failed": 0,
+    "relevant_regression_tests_passed": 319,
+    "relevant_regression_tests_failed": 0,
+    "known_preexisting_e5_tests_passed": 5,
+    "known_preexisting_e5_tests_failed": 1,
+    "known_preexisting_e5_failure": "test_cross_thread_release_clears_registry_and_physical_lease: Bad file descriptor; outside E11 scope",
+    "production_access": false,
+    "production_database_opens": 0,
+    "production_queries": 0,
+    "production_mutations": 0,
+    "provider_calls": 0,
+    "service_actions": 0
+  },
+  "authority": {
+    "grants_extraction_authority": false,
+    "grants_integration_authority": false,
+    "grants_activation_authority": false
+  }
+}

@@ -11,17 +11,18 @@ import re
 from typing import Mapping
 
 
-PROVENANCE_VERSION = "psi0b-e8.v1"
+PROVENANCE_VERSION = "psi0b-e11.v1"
 AUTHORITY_CLASS = "NON_EXECUTING_OBSERVER_FAILURE_PROVENANCE"
 LEDGER_NAME = "observer_attempt.jsonl"
 TERMINAL_NAME = "observer_attempt.json"
 _DIGEST = re.compile(r"^[0-9a-f]{64}$")
 _TERMINAL = {"OBSERVER_PASS", "OBSERVER_FAILED", "PRESTART_DO_NOT_START"}
 _CHECKPOINT_KEYS = {
-    "checkpoint_sequence", "observed_at_epoch", "supervisor_service_identities",
+    "checkpoint_sequence", "phase", "query_id", "observed_at_epoch", "supervisor_service_identities",
     "primary_fd_count", "serializer_snapshot_digest", "serializer_lock_error_baseline",
     "serializer_queue_depth", "authoritative_write_lease_state",
-    "release_pending_metadata_digest", "database_wal_state", "pumpportal_state",
+    "release_pending_metadata_digest", "release_pending_metadata_components",
+    "database_wal_state", "pumpportal_state",
     "pumpswap_state", "ingestion_state", "gate_reason_code",
 }
 
@@ -130,18 +131,29 @@ class ObserverAttemptRecorder:
             raise ProductionShadowObserverProvenanceError("PSI0B_E8_CHECKPOINT_SEQUENCE_DRIFT")
         if not isinstance(payload["supervisor_service_identities"], dict):
             raise ProductionShadowObserverProvenanceError("PSI0B_E8_SERVICE_IDENTITY_SHAPE_DRIFT")
+        if payload["phase"] not in {"PRESTART", "ACTIVE"}:
+            raise ProductionShadowObserverProvenanceError("PSI0B_E11_CHECKPOINT_PHASE_INVALID")
+        if payload["phase"] == "PRESTART" and payload["query_id"] is not None:
+            raise ProductionShadowObserverProvenanceError("PSI0B_E11_PRESTART_QUERY_ID_INVALID")
+        if payload["phase"] == "ACTIVE" and not isinstance(payload["query_id"], str):
+            raise ProductionShadowObserverProvenanceError("PSI0B_E11_ACTIVE_QUERY_ID_INVALID")
+        if not isinstance(payload["release_pending_metadata_components"], (tuple, list)):
+            raise ProductionShadowObserverProvenanceError("PSI0B_E11_RELEASE_PENDING_COMPONENTS_INVALID")
         for name in ("serializer_snapshot_digest", "release_pending_metadata_digest"):
             if not isinstance(payload[name], str) or not _DIGEST.fullmatch(payload[name]):
                 raise ProductionShadowObserverProvenanceError("PSI0B_E8_CHECKPOINT_DIGEST_INVALID")
         self._checkpoint_attempt_count += 1
         self._append("CHECKPOINT_ATTEMPT", payload)
 
-    def record_decision(self, *, status: str, decision_digest: str, reason_codes: tuple[str, ...]) -> None:
+    def record_decision(
+        self, *, status: str, decision_digest: str, reason_codes: tuple[str, ...],
+        phase: str = "PRESTART", query_id: str | None = None,
+    ) -> None:
         if not _DIGEST.fullmatch(decision_digest):
             raise ProductionShadowObserverProvenanceError("PSI0B_E8_DECISION_DIGEST_INVALID")
         self._append("OBSERVER_DECISION", {
             "status": status, "decision_digest": decision_digest,
-            "reason_codes": tuple(reason_codes),
+            "reason_codes": tuple(reason_codes), "phase": phase, "query_id": query_id,
         })
 
     def record_exception(self, exc: Exception) -> None:

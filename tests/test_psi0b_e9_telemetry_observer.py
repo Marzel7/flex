@@ -125,13 +125,66 @@ def test_supervisor_transport_failure_records_checkpoint_attempt(tmp_path):
     assert checkpoint["payload"]["supervisor_service_identities"]["_transport"]["return_code"] == 7
 
 
-def test_pid_and_release_pending_drift_fail_on_later_checkpoint(tmp_path):
+def test_pid_drift_fails_on_later_checkpoint(tmp_path):
     clock = Clock(); recorder, _ = _recorder(tmp_path)
     outputs = [SUPERVISOR_OK, SUPERVISOR_OK.replace("watchtower_listener RUNNING pid 30", "watchtower_listener RUNNING pid 31")]
     observer = ProductionTelemetryObserver(_deps(clock, supervisor_status=lambda: SupervisorResult(3, outputs.pop(0))))
     observer.checkpoint(recorder); clock.sleep(30)
     with pytest.raises(ProductionShadowTelemetryObserverError, match="PID_DRIFT"):
         observer.checkpoint(recorder)
+
+
+def test_release_pending_creation_and_cleanup_are_recorded_but_not_gating(tmp_path):
+    clock = Clock(); recorder, attempt = _recorder(tmp_path)
+    components = [
+        (("old.tmp", 1, 2),),
+        (("old.tmp", 1, 2), ("new.tmp", 3, 4)),
+        (("old.tmp", 1, 2),),
+        (("old.tmp", 1, 2),),
+    ]
+    observer = ProductionTelemetryObserver(_deps(clock, release_pending_metadata=lambda: components.pop(0)))
+    decision = observer.prestart(recorder)
+    assert decision.status == "PASS"
+    active = observer.active("creator_selected_cohort")
+    assert active.status == "PASS"
+    rows = [json.loads(line) for line in (attempt / "observer_attempt.jsonl").read_text().splitlines()]
+    checkpoints = [row["payload"] for row in rows if row["event"] == "CHECKPOINT_ATTEMPT"]
+    assert checkpoints[-1]["phase"] == "ACTIVE"
+    assert checkpoints[-1]["query_id"] == "creator_selected_cohort"
+    assert checkpoints[-1]["release_pending_metadata_components"] == [["old.tmp", 1, 2]]
+    decisions = [row["payload"] for row in rows if row["event"] == "OBSERVER_DECISION"]
+    assert decisions[-1]["phase"] == "ACTIVE"
+
+
+def test_retained_orphan_baseline_does_not_block_prestart(tmp_path):
+    recorder, _ = _recorder(tmp_path)
+    observer = ProductionTelemetryObserver(_deps(release_pending_metadata=lambda: (("orphan.tmp", 1, 544),)))
+    assert observer.prestart(recorder).status == "PASS"
+
+
+def test_authoritative_lease_active_stop_records_named_decision(tmp_path):
+    recorder, attempt = _recorder(tmp_path)
+    lease = [False, False, False, True]
+    observer = ProductionTelemetryObserver(_deps(authoritative_write_lease_present=lambda: lease.pop(0)))
+    assert observer.prestart(recorder).status == "PASS"
+    with pytest.raises(ProductionShadowTelemetryObserverError, match="AUTHORITATIVE_WRITE_LEASE_PRESENT"):
+        observer.active("evidence_launch_facts")
+    rows = [json.loads(line) for line in (attempt / "observer_attempt.jsonl").read_text().splitlines()]
+    decision = [row["payload"] for row in rows if row["event"] == "OBSERVER_DECISION"][-1]
+    assert decision["status"] == "STOP"
+    assert decision["query_id"] == "evidence_launch_facts"
+    assert decision["reason_codes"] == ["PSI0B_E9_AUTHORITATIVE_WRITE_LEASE_PRESENT"]
+
+
+@pytest.mark.parametrize("malformed", (None, (("bad", 1, 2),), (("dup.tmp", 1, 2), ("dup.tmp", 3, 4))))
+def test_malformed_release_pending_metadata_fails_closed_and_is_recorded(tmp_path, malformed):
+    recorder, attempt = _recorder(tmp_path)
+    observer = ProductionTelemetryObserver(_deps(release_pending_metadata=lambda: malformed))
+    with pytest.raises(ProductionShadowTelemetryObserverError, match="METADATA_MALFORMED"):
+        observer.checkpoint(recorder)
+    rows = [json.loads(line) for line in (attempt / "observer_attempt.jsonl").read_text().splitlines()]
+    checkpoint = next(row for row in rows if row["event"] == "CHECKPOINT_ATTEMPT")
+    assert checkpoint["payload"]["gate_reason_code"] == "PSI0B_E11_RELEASE_PENDING_METADATA_MALFORMED"
 
 
 def test_collection_exception_is_recorded_before_raise(tmp_path):

@@ -259,9 +259,19 @@ def launch_authorized_shadow_with_provenance(
             terminal_reason_code="PSI0B_E7_PRESTART_DO_NOT_START",
         )
         raise ProductionShadowLauncherError("PSI0B_E7_PRESTART_DO_NOT_START")
+    _consume_authorization(marker, record, preflight, decision)
+    try:
+        result = executor(record, preflight, decision)
+    except Exception as exc:
+        recorder.record_exception(exc)
+        recorder.finalize(
+            terminal_status="OBSERVER_FAILED",
+            terminal_reason_code="PSI0B_E11_ACTIVE_OR_EXECUTION_FAILED",
+            exception=exc,
+        )
+        raise
     recorder.finalize(
         terminal_status="OBSERVER_PASS",
-        terminal_reason_code="PSI0B_E8_PRESTART_PASS",
+        terminal_reason_code="PSI0B_E11_EXECUTION_COMPLETE",
     )
-    _consume_authorization(marker, record, preflight, decision)
-    return executor(record, preflight, decision)
+    return result

@@ -65,6 +65,8 @@ def _decision(*, primary_fd_count=0):
 def _checkpoint_payload(sequence=1, *, reason=None, lease="ABSENT"):
     return {
         "checkpoint_sequence": sequence,
+        "phase": "PRESTART",
+        "query_id": None,
         "observed_at_epoch": float(sequence * 30),
         "supervisor_service_identities": {"watchtower_listener": {"pid": 123, "state": "RUNNING"}},
         "primary_fd_count": 0,
@@ -73,6 +75,7 @@ def _checkpoint_payload(sequence=1, *, reason=None, lease="ABSENT"):
         "serializer_queue_depth": 0,
         "authoritative_write_lease_state": lease,
         "release_pending_metadata_digest": "2" * 64,
+        "release_pending_metadata_components": (("old.tmp", 1, 2),),
         "database_wal_state": "HEALTHY",
         "pumpportal_state": "HEALTHY",
         "pumpswap_state": "HEALTHY",
@@ -93,10 +96,10 @@ def test_pass_records_replay_before_consumption_and_execution(tmp_path):
     result = launch_authorized_shadow_with_provenance(
         authorization, ARTIFACT, consumption, attempt,
         observer_bootstrap=observe,
-        executor=lambda *_: calls.append(verify_observer_attempt_bundle(attempt).terminal_status) or "EXECUTED",
+        executor=lambda *_: calls.append((attempt / "observer_attempt.jsonl").is_file()) or "EXECUTED",
     )
     assert result == "EXECUTED"
-    assert calls == ["OBSERVER_PASS"]
+    assert calls == [True]
     assert (consumption / f"{record.authorization_id}.consumed.json").is_file()
     terminal = verify_observer_attempt_bundle(attempt)
     assert terminal.checkpoint_attempt_count == 3
@@ -153,6 +156,28 @@ def test_do_not_start_decision_records_replay_and_does_not_consume(tmp_path):
     terminal = verify_observer_attempt_bundle(attempt)
     assert terminal.terminal_status == "PRESTART_DO_NOT_START"
     assert list(consumption.iterdir()) == []
+
+
+def test_executor_failure_seals_active_provenance_after_consumption(tmp_path):
+    authorization, record, consumption, attempt = _authorization(tmp_path)
+
+    def observe(recorder):
+        for position in range(1, 4):
+            recorder.record_checkpoint_attempt(**_checkpoint_payload(position))
+        return _decision()
+
+    def fail(*_):
+        raise RuntimeError("active stop")
+
+    with pytest.raises(RuntimeError, match="active stop"):
+        launch_authorized_shadow_with_provenance(
+            authorization, ARTIFACT, consumption, attempt,
+            observer_bootstrap=observe, executor=fail,
+        )
+    terminal = verify_observer_attempt_bundle(attempt)
+    assert terminal.terminal_status == "OBSERVER_FAILED"
+    assert terminal.terminal_reason_code == "PSI0B_E11_ACTIVE_OR_EXECUTION_FAILED"
+    assert (consumption / f"{record.authorization_id}.consumed.json").is_file()
 
 
 def test_each_transition_and_terminal_are_fsynced(tmp_path, monkeypatch):

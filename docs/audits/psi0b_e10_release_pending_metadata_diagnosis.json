@@ -1,0 +1,84 @@
+{
+  "schema_version": "psi0b-e10.release-pending-diagnosis.v1",
+  "milestone": "PSI0B-E10",
+  "status": "COMPLETE",
+  "verdict": "NON_AUTHORITATIVE_TRANSIENT_METADATA_FALSE_POSITIVE_EXACT_WRITER_NOT_RETAINED",
+  "engineering_commit": "d8c713e4c20f1958018a25b658f69ef8af4ab91b",
+  "observer_contract_digest": "01dedd635c763ecd3642604b91d0b607d1bc49532ca288fecd55dc1158a8de5e",
+  "attempt_artifact": "docs/audits/psi0b_e_06_production_shadow_attempt.json",
+  "authorization_id": "psi0b-shadow-auth-20260815-06",
+  "authorization_consumed": true,
+  "observer_terminal_digest": "b66e6b3956e68bfb6af8f7631ff5c3c12c8b76479c48b87c8c9ad0c52aa82d42",
+  "consumption_digest": "09c17fba2853b98bca91be6786de090776e45aa27146d616702a54369b29e99c",
+  "stop_reason": "PSI0B_E9_RELEASE_PENDING_METADATA_CHANGED",
+  "observed_fingerprint": {
+    "baseline_digest": "b7314bba3c20c4d90f8e32d9d45bf625e9e87388ac87c7233de4646be3ee06f6",
+    "baseline_components": [
+      {
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db.write.lock.owner.41735.8753196096.tmp",
+        "mtime_ns": 1786722180367491706,
+        "size_bytes": 544,
+        "state": "RELEASE_PENDING",
+        "process_pid": 41735,
+        "transaction_id": "81aa002e-a509-431a-9af6-0d0fad24e352",
+        "release_requested_at": 1786722180.3605912,
+        "classification": "PREEXISTING_ORPHAN_DIAGNOSTIC_TEMPORARY"
+      }
+    ],
+    "current_digest": "b7314bba3c20c4d90f8e32d9d45bf625e9e87388ac87c7233de4646be3ee06f6",
+    "current_components_equal_baseline": true,
+    "failed_checkpoint_digest_retained": false,
+    "exact_changed_component_retained": false
+  },
+  "implementation_findings": {
+    "fingerprinted_glob": "database/*.write.lock.owner.*.tmp",
+    "fingerprinted_fields": [
+      "absolute_path",
+      "mtime_ns",
+      "size_bytes"
+    ],
+    "temporary_file_role": "atomic diagnostic owner-metadata publication",
+    "temporary_file_is_authoritative": false,
+    "physical_flock_is_authoritative": true,
+    "authoritative_owner_sidecar_has_separate_gate": true,
+    "active_checkpoint_attempts_durably_recorded": false,
+    "failure_mechanism": "Any legitimate temporary-file creation, replacement or cleanup changes the tuple digest and is treated as an active health failure even when no authoritative lease exists."
+  },
+  "lineage_assessment": {
+    "before_state_proven": true,
+    "after_recovery_state_proven": true,
+    "exact_transient_writer_proven": false,
+    "reason_exact_writer_not_proven": "ProductionTelemetryObserver.active invokes checkpoint without an ObserverAttemptRecorder, so the failed active checkpoint's component list and digest were not persisted; the temporary file was already removed when diagnosis began.",
+    "unsafe_recurrent_orphan_proven": false,
+    "legitimate_transient_lifecycle_most_consistent_with_evidence": true
+  },
+  "recovery_observation": {
+    "walkback_worker_pid": 70136,
+    "watchtower_listener_pid": 72232,
+    "ws_cascade_pid": 5461,
+    "required_service_pids_stable_from_attempt": true,
+    "serializer_p99_wait_ms": 11.24,
+    "serializer_lock_errors_24h": 0,
+    "serializer_queue_depth": 0,
+    "authoritative_owner_sidecars_present": false,
+    "release_pending_fingerprint_returned_to_baseline": true
+  },
+  "contract_decision": {
+    "active_health_should_stop_on_authoritative_lease_ownership": true,
+    "active_health_should_stop_only_on_non_authoritative_temporary_metadata_change": false,
+    "temporary_metadata_changes_should_be_recorded": true,
+    "future_active_checkpoint_attempts_should_be_durably_recorded": true,
+    "retry_authorization_06": false
+  },
+  "smallest_next_milestone": "PSI0B-E11 safe-local E9 observer contract repair",
+  "production_databases_opened": false,
+  "production_queries_executed": false,
+  "production_writes_or_ddl": 0,
+  "provider_rpc_calls": 0,
+  "service_actions": 0,
+  "shadow_output_created": false,
+  "psi0b_f_executed": false,
+  "grants_extraction_authority": false,
+  "grants_integration_authority": false,
+  "grants_activation_authority": false
+}

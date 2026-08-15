@@ -1,0 +1,46 @@
+{
+  "schema_version": "psi0b-e7.qualification.v1",
+  "milestone": "PSI0B-E7",
+  "verdict": "SAFE_LOCAL_LAUNCHER_BOOTSTRAP_QUALIFIED_NO_PRODUCTION_AUTHORITY",
+  "launcher_version": "psi0b-e7.v1",
+  "launcher_contract_digest": "e94057239cdacb4c99c3112e5159577194cd2821355ec3106125f88eba465583",
+  "upstream_production_binding_contract_digest": "c4ab44a29706fa7d8e1d03f5391523059a648beae65b3e183cfcc7878fd23dcc",
+  "qualified_files": [
+    "src/evidence/contracts/production_shadow_launcher.py",
+    "scripts/run_psi0b_production_shadow.py",
+    "tests/test_psi0b_e7_production_shadow_launcher.py",
+    "docs/evidence_platform/psi0b_e7_production_shadow_launcher.md"
+  ],
+  "focused_tests": {
+    "passed": 11,
+    "failed": 0,
+    "outside_repository_working_directory_bootstrap": "PASS",
+    "authorization_at_most_once": "PASS",
+    "observer_failure_zero_consumption": "PASS",
+    "malformed_stale_reused_or_drifted_input_rejection": "PASS",
+    "nonempty_output_rejection": "PASS"
+  },
+  "regression_tests": {
+    "relevant_psi0a_psi0b_passed": 140,
+    "relevant_psi0a_psi0b_failed": 0,
+    "pre_existing_e5_order_dependent_test": "test_cross_thread_release_clears_registry_and_physical_lease passes alone but fails after earlier E5 fault-injection cases with Bad file descriptor; E7 does not modify the E5 release code or test."
+  },
+  "safety": {
+    "authorization_consumed_only_after_prestart_pass": true,
+    "consumption_marker_open_exclusive_flush_fsync": true,
+    "retry_pagination_failover_widening": false,
+    "grants_integration_authority": false,
+    "grants_activation_authority": false,
+    "production_runtime_access": false,
+    "live_health_observation": false,
+    "production_database_connections": 0,
+    "production_queries": 0,
+    "production_rows_read": 0,
+    "production_writes_or_ddl": 0,
+    "provider_calls": 0,
+    "service_actions": 0,
+    "shadow_output_created": false,
+    "authorization_psi0b_shadow_auth_20260815_03_reused": false
+  },
+  "next_action": "Create one narrow engineering commit, then require a new explicit production authorization ID for any fresh PSI0B-E attempt."
+}

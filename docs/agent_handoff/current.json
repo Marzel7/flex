@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-15T13:27:00Z",
+  "updated_at_utc": "2026-08-15T13:19:32Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "9bbc4c077ecb189952c900539c8a8d0031b59269",
-    "working_tree": "dirty: unrelated live/runtime/user paths preserved; PSI0B-E15 committed narrowly"
+    "working_tree": "dirty: unrelated live/runtime/user paths preserved; PSI0B-E15 committed; PSI0B-E authorization -11 fail-closed attempt artifacts uncommitted"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0B-E15 contract-only import isolation qualification",
-    "mode": "safe-local dependency-minimal import qualification only",
+    "milestone": "PSI0B-E authorization -11 authoritative write-lease prestart stop",
+    "mode": "one bounded production attempt stopped at prestart checkpoint two",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "PASS_FRESH_PSI0B_E_ATTEMPT_MAY_BE_SEPARATELY_PROPOSED"
+    "verdict": "HOLD_AUTHORITATIVE_WRITE_LEASE_PRESENT_ZERO_DATABASE_OPENS"
   },
   "production_state": {
     "retention": "ON",
@@ -240,6 +240,29 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0b_e_11_production_shadow_attempt": {
+      "status": "HOLD",
+      "verdict": "STOPPED_AT_PRESTART_CHECKPOINT_2_AUTHORITATIVE_WRITE_LEASE_PRESENT",
+      "engineering_commit": "9bbc4c077ecb189952c900539c8a8d0031b59269",
+      "authorization_id": "psi0b-shadow-auth-20260815-11",
+      "authorization_digest": "da2ab2d17e630e05e96e290375711310e7501a1b98a5da1ade1c90fe1a95501d",
+      "attempt_digest": "b615e1e77daaa80e1e415c0dcddf804af12949d7de01d61881720eb9d23fd94b",
+      "observer_terminal_digest": "a0c7dc980f8dedc99cded31882178fa8f3a01260e2a4bc1495b6a059095d7f31",
+      "prestart_checkpoints_passed": 1,
+      "prestart_checkpoint_stop": 2,
+      "stop_reason": "PSI0B_E9_AUTHORITATIVE_WRITE_LEASE_PRESENT",
+      "stop_primary_fd_count": 5,
+      "stop_serializer_queue_depth": 0,
+      "authorization_consumed": false,
+      "production_database_opens": 0,
+      "production_queries": 0,
+      "production_rows_read": 0,
+      "output_published": false,
+      "retry_performed": false,
+      "production_writes_or_ddl": 0,
+      "provider_calls": 0,
+      "service_actions": 0
+    },
     "psi0b_e15_contract_import_isolation": {
       "status": "PASS",
       "verdict": "FRESH_PSI0B_E_ATTEMPT_MAY_BE_SEPARATELY_PROPOSED",
@@ -6756,6 +6779,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "PSI0B-E authorization -11 passed the first prestart checkpoint and stopped fail-closed at checkpoint two because authoritative write-lease telemetry reported PRESENT. Serializer queue depth was zero and listener primary_fd_count was 5. Authorization -11 remains unconsumed; zero databases were opened, zero queries or rows occurred and no output was published. No retry is permitted. The owning process/task and whether the lease was a legitimate transient or recurrent unsafe hold require bounded telemetry-only diagnosis before another attempt.",
     "PSI0B-E authorization -10 stopped during direct-entrypoint Python import before main(): /usr/bin/env python3 could import the repository but src.evidence.__init__ eagerly imported EvidencePlatform, which traversed src.acquisition.transaction and required unavailable optional dependency aiohttp. No observer checkpoint ran, authorization -10 remains unconsumed, zero databases were opened and no output was published. The no-retry contract prohibits rerunning under another interpreter. A safe-local package import-isolation repair is separately required.",
     "PSI0B-E authorization -09 stopped before the committed launcher process started because scripts/run_psi0b_production_shadow.py is mode 0644 and direct execution returned permission denied. No observer checkpoint ran, authorization -09 remains unconsumed, zero databases were opened, zero queries or rows occurred, and no output was published. The no-retry contract prohibits invoking the same authorization through Python. A safe-local executable-entrypoint repair and fresh authorization are separately required.",
     "PSI0B-E6B reconciled the automatic transitions. PID 69361 encountered a real physical operations flock with absent diagnostic owner metadata; no evidence supports lock-file replacement or descriptor inheritance, but the missing sidecar prevents exact holder attribution. Listener PID 15357 then independently exited when its main-database descriptor watchdog reached 59 descriptors for three cycles during concurrent symbol/price callback fan-out. Replacement PIDs 70136 and 72232 are processing normally with healthy serializer telemetry. However ws_cascade PID 41781 has run for more than four days and remains a pre-PSI0B-E5 operations writer, so the diagnosed release-path recurrence risk is not fully removed and PSI0B-E remains held.",
@@ -6858,9 +6882,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0B-E fresh bounded production shadow attempt",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize exactly one fresh direct-entrypoint attempt with authorization -11; never reuse -10.",
-    "current_approval_text": "Authorize PSI0B-E as exactly one fresh bounded query-only production shadow extraction through PSI0B-E15 commit 9bbc4c077ecb189952c900539c8a8d0031b59269 and import-isolation digest ce8fcb92249e340cf689c43e9545d6752a44a2a0f6062c8e22fb752aaf91035f, using new authorization psi0b-shadow-auth-20260815-11, new empty consumption and observer directories, the still-absent output directory and a new attempt audit. Invoke the executable directly from an arbitrary working directory, preserve all E12-E14 controls, and stop after one attempt for separate closure approval.",
+    "milestone": "PSI0B-E16 authoritative write-lease telemetry diagnosis",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: diagnose the checkpoint-two authoritative lease without opening a database or retrying -11.",
+    "current_approval_text": "Authorize PSI0B-E16 as a bounded local and production-telemetry read-only diagnosis of the authoritative write lease that stopped authorization psi0b-shadow-auth-20260815-11 at prestart checkpoint two. Bind the -11 attempt and observer artifacts; use Supervisor, write-lease/serializer telemetry, process timing and lock/owner/temporary-sidecar filesystem metadata only to identify the owner and lifecycle, distinguish transient valid ownership from stale or recurrent retention, quantify recovery and define the smallest safe gate for a fresh PSI0B-E attempt. Do not open databases, manipulate leases or retry -11.",
     "approval_text": "Authorize PSI0B-E13 safe-local design, implementation, frozen/ephemeral filesystem and telemetry tests, fault-injection tests, regression tests, documentation and one narrow commit amending only the PSI0B-E11 production telemetry observer database/WAL metadata gate identified by the fail-closed PSI0B-E authorization -08 attempt. Bind engineering commit 07459e050e2e166f0c0809edf984743d775491a4, E12 entrypoint contract digest bdb671bebd8f58311efc071a34ea67cf95d7d043c1e8b5b235398d78fe55c485, E11 observer contract digest f387dd7ae7f2fdb69e19eaf0e3d2b13188708dbad44b952ef2fb107aeea4b94c, provenance contract digest c4c7b57b6859726cd34e30fb2dc96f896faca1f78cbf75e41ff2c739e353fe77, attempt artifact docs/audits/psi0b_e_08_production_shadow_attempt.json and observer terminal digest 4dd6b9a026424912223bd0ac05f1156ae33ed2ccfd1560aea843ddaa0111b7fe. Preserve every Supervisor, stable-PID, descriptor, critical-event, serializer, lock-error, queue, authoritative lease, RELEASE_PENDING, feed, ingestion and service gate. Replace the aggregate requirement that both -wal paths must exist with canonical per-database filesystem classification: each bound database file must exist as the expected regular file; its WAL is healthy when absent as a quiescent SQLite state or when present as the expected regular file with nonnegative size; fail closed on missing/nonregular database files, nonregular WAL paths, stat/identity errors, unknown paths or malformed component telemetry. Durably record exact database and WAL existence/type/inode/size/mtime components and their digest at every prestart and active checkpoint, without opening SQLite. Prove WAL absent, create, remove, recreate and inode-rotation sequences remain healthy when the database file remains valid; prove missing database, directory/symlink/unexpected WAL, stat exception, malformed provenance and replay tamper fail closed. Preserve three 30-second prestart checkpoints, active checkpoint fsync before source open, all E12 execution semantics, no retry/pagination/failover/widening and false integration/activation authority. Frozen/ephemeral fixtures only. Do not access production/runtime databases or services, perform live observation or extraction, reuse authorization psi0b-shadow-auth-20260815-08, materialize or consume another production authorization, execute production SELECT or EXPLAIN, read production rows, create production-derived shadow output, make provider/RPC calls, execute production writes or DDL, deploy, signal, restart or stop services, change configuration or thresholds, manipulate locks, leases, sidecars, WAL files or metrics, recapture high-waters, activate Evidence Mirror or Cohort Mode, integrate a production consumer, execute PSI0B-F, activate production or enter EB2. Stop after qualification and provide the exact separate approval prompt for one fresh PSI0B-E attempt with a new authorization ID.",
     "safe_local_stage_authorized": false,
     "activation_authorized": false,

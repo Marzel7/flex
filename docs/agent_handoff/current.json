@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-15T07:37:35Z",
+  "updated_at_utc": "2026-08-15T07:43:33Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "894124e2cd9b1dcff9988457e221aa5c13873564",
-    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0B-E4 diagnosis recorded one audit artifact"
+    "git_head": "3862e7dfcc2fcc6293a433c14566303124683476",
+    "working_tree": "dirty: unrelated/live/runtime/user/handoff paths preserved; PSI0B-E5 committed narrowly in three files"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-15T07:37:35Z",
+    "published_at_utc": "2026-08-15T07:43:33Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0B-E4 operations write-lease diagnosis",
-    "mode": "local and production-telemetry read-only diagnosis",
+    "milestone": "PSI0B-E5 write-lease release fail-safe repair",
+    "mode": "safe-local implementation and fault-injection qualification",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "STALE_RELEASE_PATH_PHYSICAL_LEASE_LEAK_REPAIR_REQUIRED"
+    "verdict": "SAFE_LOCAL_PHYSICAL_RELEASE_FAILSAFE_QUALIFIED"
   },
   "production_state": {
     "retention": "ON",
@@ -235,6 +235,25 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0b_e5_write_lease_release_qualification": {
+      "status": "COMPLETE",
+      "verdict": "SAFE_LOCAL_PHYSICAL_RELEASE_FAILSAFE_QUALIFIED",
+      "engineering_commit": "3862e7dfcc2fcc6293a433c14566303124683476",
+      "files_committed": 3,
+      "focused_tests_passed": 20,
+      "broader_write_lane_tests_passed": 65,
+      "broader_write_lane_tests_failed": 1,
+      "broader_failure_assessment": "PRE_EXISTING_OUTDATED_HAZARD_ASSERTION_BEFORE_RELEASE_BOUNDARY",
+      "psi_regression_passed": 277,
+      "psi_regression_failed": 0,
+      "production_access": false,
+      "production_writes": 0,
+      "service_actions": 0,
+      "deployment": false,
+      "existing_runtime_lease_recovered": false,
+      "artifact": "docs/audits/psi0b_e5_write_lease_release_qualification.json",
+      "exact_next_action": "Obtain separate approval for exactly one walkback_worker restart to load commit 3862e7dfcc2fcc6293a433c14566303124683476 and release the pre-repair descriptor, followed by bounded telemetry-only recovery verification before any fresh PSI0B-E attempt."
+    },
     "psi0b_e4_operations_write_lease_diagnosis": {
       "status": "HOLD",
       "verdict": "STALE_RELEASE_PATH_PHYSICAL_LEASE_LEAK_REPAIR_REQUIRED",

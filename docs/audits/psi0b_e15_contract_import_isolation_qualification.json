@@ -1,0 +1,41 @@
+{
+  "authority": {
+    "grants_activation_authority": false,
+    "grants_extraction_authority": false,
+    "grants_integration_authority": false,
+    "grants_production_execution_authority": false
+  },
+  "bound_inputs": {
+    "e12_entrypoint_contract_digest": "bdb671bebd8f58311efc071a34ea67cf95d7d043c1e8b5b235398d78fe55c485",
+    "e13_observer_contract_digest": "04c258ba6567d7b01725c040247bc198dcbb01ef395d32bd15cd1b1556984304",
+    "e13_provenance_contract_digest": "eddf4c3aad70e1a7ac87163b34c4c03650ef4459812aa0ed46662b2fb905c36e",
+    "e14_entrypoint_identity_digest": "388d52839d27db40757a0af5a059e7cf4d0423898c0be4a3b12a4a1212574c90",
+    "engineering_commit": "3cc1dfafd9ff12fba6d6d82b543c2a2c84cdeba9",
+    "failed_attempt_artifact": "docs/audits/psi0b_e_10_production_shadow_attempt.json"
+  },
+  "import_boundary": {
+    "contract_digest": "ce8fcb92249e340cf689c43e9545d6752a44a2a0f6062c8e22fb752aaf91035f",
+    "excluded_eager_modules": [
+      "aiohttp",
+      "src.acquisition.transaction",
+      "src.evidence.mirror",
+      "src.evidence.service"
+    ],
+    "public_exports": [
+      "EvidenceConfig",
+      "EvidencePlatform"
+    ],
+    "src_evidence_init_sha256": "8f6e59d1b0912c23d205b4a6c95c6626195bc04f03ce8c89edc32ce274744d0d"
+  },
+  "launcher": {
+    "content_sha256": "684067fd7e7ce75ac0077a84214e59c9f6d447d89822ef024af39e9d0d5b59bb",
+    "file_mode": "100755",
+    "unchanged": true
+  },
+  "schema_version": "psi0b-e15.qualification.v1",
+  "tests": {
+    "focused": "54 passed",
+    "psi0a_psi0b_regression": "342 passed"
+  },
+  "verdict": "PASS_FRESH_PSI0B_E_ATTEMPT_MAY_BE_SEPARATELY_PROPOSED"
+}

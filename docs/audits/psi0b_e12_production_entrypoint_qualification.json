@@ -1,0 +1,43 @@
+{
+  "schema_version": "psi0b-e12.qualification.v1",
+  "milestone": "PSI0B-E12",
+  "bound_engineering_commit": "0d99611452105a42ecc942f5821967ea28af6a93",
+  "observer_contract_digest": "f387dd7ae7f2fdb69e19eaf0e3d2b13188708dbad44b952ef2fb107aeea4b94c",
+  "provenance_contract_digest": "c4c7b57b6859726cd34e30fb2dc96f896faca1f78cbf75e41ff2c739e353fe77",
+  "launcher_contract_digest": "e94057239cdacb4c99c3112e5159577194cd2821355ec3106125f88eba465583",
+  "bootstrap_stop_artifact": "docs/audits/psi0b_e_07_production_shadow_bootstrap_stop.json",
+  "entrypoint_version": "psi0b-e12.v1",
+  "entrypoint_contract_digest": "bdb671bebd8f58311efc071a34ea67cf95d7d043c1e8b5b235398d78fe55c485",
+  "qualification": {
+    "verdict": "SAFE_LOCAL_PATH_INDEPENDENT_EXECUTION_ENTRYPOINT_QUALIFIED",
+    "arbitrary_working_directory_bootstrap": true,
+    "repository_root_inserted_before_src_import": true,
+    "zero_source_open_before_prestart_pass": true,
+    "authorization_consumed_at_most_once": true,
+    "five_query_ephemeral_fixture_success": true,
+    "active_stop_before_source_open": true,
+    "executor_exception_audited": true,
+    "post_run_health_recorded": true,
+    "canonical_bundle_replay": true,
+    "canonical_fsynced_attempt_audit": true,
+    "malformed_missing_reused_input_rejection": true,
+    "no_publication_failure_paths": true,
+    "focused_tests_passed": 55,
+    "focused_tests_failed": 0,
+    "relevant_regression_tests_passed": 326,
+    "relevant_regression_tests_failed": 0,
+    "known_preexisting_e5_tests_passed": 5,
+    "known_preexisting_e5_tests_failed": 1,
+    "production_access": false,
+    "production_database_opens": 0,
+    "production_queries": 0,
+    "production_mutations": 0,
+    "provider_calls": 0,
+    "service_actions": 0
+  },
+  "authority": {
+    "grants_extraction_authority": false,
+    "grants_integration_authority": false,
+    "grants_activation_authority": false
+  }
+}

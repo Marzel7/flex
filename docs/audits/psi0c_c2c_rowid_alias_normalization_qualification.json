@@ -1,0 +1,63 @@
+{
+  "schema_version": "psi0c-c2c.qualification.v1",
+  "milestone": "PSI0C-C2C",
+  "engineering_base_commit": "7351c4bb56fa5d86bc634c60c49f464deda52524",
+  "status": "PASS",
+  "verdict": "EXACT_SQLITE_ROWID_ALIAS_NORMALIZATION_QUALIFIED",
+  "repaired_adapter_contract_digest": "977043b77ef7a97d23b021bbb4b4150b0f9dc6495421e42352662f0ea7285278",
+  "bound_inputs": {
+    "superseded_psi0c_c1_adapter_digest": "37ceac82d73152c4eba8d47f806a2d54d4131a074d1fc1120155e231755a31f9",
+    "psi0c_b_contract_digest": "3f2d112ba18b190e7acdf9c0dd9ddf552258b7ed75295ccb7cc470a981cc70e1",
+    "immutable_psi0b_bundle_identity": "370c815a4bacc640874d798c168ff812c2efd205d6de497fdcfb79b4005351b9"
+  },
+  "qualified_variants": {
+    "ops_selected_cohort": {
+      "physical_identity": "id",
+      "logical_identity": "rowid",
+      "remaining_keys_must_match_exactly": true
+    },
+    "snapshot_selected_cohort": {
+      "physical_identity": "snapshot_id",
+      "logical_identity": "rowid",
+      "rowid_may_be_absent_only_for_exact_variant": true
+    }
+  },
+  "preserved_boundaries": {
+    "frozen_select_templates_unchanged": true,
+    "logical_result_schemas_unchanged": true,
+    "fixture_entry_point_unchanged": true,
+    "production_derived_provenance_preserved": true,
+    "input_order_independent": true,
+    "atomic_no_partial_publication": true,
+    "integration_authority": false,
+    "activation_authority": false
+  },
+  "focused_tests": {
+    "command": "python -m pytest -q tests/test_psi0c_b_shadow_assessment.py tests/test_psi0c_c1_immutable_bundle_adapter.py",
+    "passed": 33,
+    "failed": 0
+  },
+  "regression_tests": {
+    "stable_psi0a_psi0b_psi0c_passed": 338,
+    "failed": 0
+  },
+  "fault_paths": [
+    "ops id and rowid conflict",
+    "missing physical identity",
+    "unexpected additional field",
+    "non-integer physical identity",
+    "unknown serialized variant",
+    "assessment replay tamper",
+    "output reuse and no partial publication"
+  ],
+  "actions_performed": {
+    "real_psi0b_bundle_reopened": false,
+    "production_derived_values_inspected": false,
+    "psi0c_c_retried": false,
+    "assessment_output_created": false,
+    "production_runtime_access": 0,
+    "provider_rpc_calls": 0,
+    "production_writes_or_ddl": 0
+  },
+  "next_action": "HUMAN_APPROVAL_REQUIRED: authorize one fresh PSI0C-C assessment through the repaired adapter into the still-absent bound output directory."
+}

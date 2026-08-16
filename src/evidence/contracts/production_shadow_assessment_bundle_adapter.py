@@ -13,6 +13,7 @@ from .production_shadow_assessment import (
     PSI0B_G_DIGEST,
     PSI0C_A_DIGEST,
     QUERY_IDS,
+    SCHEMAS,
     ShadowAssessmentBundle,
     ShadowAssessmentContract,
     _assess_shadow_rows,
@@ -22,8 +23,8 @@ from .production_shadow_production_binding import ADAPTER_VERSION, AUTHORITY_CLA
 from .production_shadow_resource_ceiling import build_production_shadow_resource_ceiling_contract
 
 
-ADAPTER_CONTRACT_VERSION = "psi0c-c1.v1"
-ENGINEERING_REVISION = "0931cc421cde19835a81082bd0e52aef99050e59"
+ADAPTER_CONTRACT_VERSION = "psi0c-c2c.v1"
+ENGINEERING_REVISION = "7351c4bb56fa5d86bc634c60c49f464deda52524"
 PSI0C_B_CONTRACT_DIGEST = "3f2d112ba18b190e7acdf9c0dd9ddf552258b7ed75295ccb7cc470a981cc70e1"
 PSI0C_B_QUALIFICATION_DIGEST = "e2ae86f50ae023195da0e94d2c69d8a2ff36831f27309b9476b699f42399a103"
 EXPECTED_PREFLIGHT_DIGEST = "b2cfd09743c4ba21f7a61a816d8eff8b43e43a1b6e482c4ef9a7f2bd982dcca1"
@@ -46,6 +47,7 @@ class ImmutableBundleAdapterContract:
     expected_preflight_digest: str
     expected_files: tuple[str, ...]
     provenance_class: str
+    serialized_schema_variants: tuple[tuple[str, tuple[str, ...]], ...]
     retries_allowed: bool
     grants_extraction_authority: bool
     grants_integration_authority: bool
@@ -62,6 +64,10 @@ def _digest(value: object) -> str:
 
 
 def build_immutable_bundle_adapter_contract() -> ImmutableBundleAdapterContract:
+    variants = (
+        ("ops_selected_cohort", tuple(sorted((set(SCHEMAS["ops_selected_cohort"]) - {"rowid"}) | {"id"}))),
+        ("snapshot_selected_cohort", tuple(sorted(set(SCHEMAS["snapshot_selected_cohort"]) - {"rowid"}))),
+    )
     body = {
         "contract_version": ADAPTER_CONTRACT_VERSION,
         "engineering_revision": ENGINEERING_REVISION,
@@ -71,6 +77,7 @@ def build_immutable_bundle_adapter_contract() -> ImmutableBundleAdapterContract:
         "expected_preflight_digest": EXPECTED_PREFLIGHT_DIGEST,
         "expected_files": FILES,
         "provenance_class": PROVENANCE_CLASS,
+        "serialized_schema_variants": variants,
         "retries_allowed": False,
         "grants_extraction_authority": False,
         "grants_integration_authority": False,
@@ -104,6 +111,53 @@ def _parse_canonical(files: Mapping[str, bytes]) -> dict[str, object]:
             raise ImmutableShadowBundleAdapterError("PSI0C_C1_NONCANONICAL_JSON")
         documents[name] = document
     return documents
+
+
+def _positive_identity(value: object) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool) and value > 0
+
+
+def _normalize_serialized_results(
+    contract: ImmutableBundleAdapterContract,
+    results: Mapping[str, object],
+) -> dict[str, list[dict]]:
+    variants = dict(contract.serialized_schema_variants)
+    normalized: dict[str, list[dict]] = {}
+    for query_id in QUERY_IDS:
+        rows = results[query_id]
+        if not isinstance(rows, list):
+            raise ImmutableShadowBundleAdapterError("PSI0C_C2C_RESULT_ROWS_INVALID")
+        logical = set(SCHEMAS[query_id])
+        physical = set(variants.get(query_id, ()))
+        converted = []
+        for row in rows:
+            if not isinstance(row, dict):
+                raise ImmutableShadowBundleAdapterError("PSI0C_C2C_NON_OBJECT_ROW")
+            keys = set(row)
+            if keys == logical:
+                if not _positive_identity(row.get("rowid")):
+                    raise ImmutableShadowBundleAdapterError("PSI0C_C2C_INVALID_LOGICAL_ROW_IDENTITY")
+                converted.append(dict(row))
+                continue
+            if query_id == "ops_selected_cohort" and "id" in keys and "rowid" in keys:
+                raise ImmutableShadowBundleAdapterError("PSI0C_C2C_CONFLICTING_ROW_IDENTITIES")
+            if keys != physical:
+                raise ImmutableShadowBundleAdapterError("PSI0C_C2C_UNKNOWN_SERIALIZED_SCHEMA_VARIANT")
+            copy = dict(row)
+            if query_id == "ops_selected_cohort":
+                identity = copy.pop("id")
+            elif query_id == "snapshot_selected_cohort":
+                identity = copy.get("snapshot_id")
+            else:
+                raise ImmutableShadowBundleAdapterError("PSI0C_C2C_UNAUTHORIZED_SCHEMA_VARIANT")
+            if not _positive_identity(identity):
+                raise ImmutableShadowBundleAdapterError("PSI0C_C2C_INVALID_PHYSICAL_ROW_IDENTITY")
+            copy["rowid"] = identity
+            if set(copy) != logical:
+                raise ImmutableShadowBundleAdapterError("PSI0C_C2C_NORMALIZATION_SCHEMA_DRIFT")
+            converted.append(copy)
+        normalized[query_id] = converted
+    return normalized
 
 
 def assess_immutable_bundle_representation(
@@ -169,10 +223,11 @@ def assess_immutable_bundle_representation(
         "psi0b_g_digest": PSI0B_G_DIGEST,
         "psi0b_bundle_identity_digest": PSI0B_BUNDLE_DIGEST,
     }
+    normalized_results = _normalize_serialized_results(adapter_contract, results)
     return _assess_shadow_rows(
         assessment_contract,
         cohort_mints=cohort_mints,
-        synthetic_results={query_id: results[query_id] for query_id in QUERY_IDS},
+        synthetic_results=normalized_results,
         output_directory=output_directory,
         input_lineage=lineage,
         provenance_class=PROVENANCE_CLASS,

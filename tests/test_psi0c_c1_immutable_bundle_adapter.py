@@ -1,5 +1,6 @@
 import json
 from hashlib import sha256
+import sqlite3
 
 import pytest
 
@@ -82,6 +83,81 @@ def test_valid_bundle_preserves_production_derived_provenance(tmp_path, monkeypa
     assert assessment["fixture_only"] is False
     assert assessment["provenance_class"] == adapter.PROVENANCE_CLASS
     assert not any(assessment["authority"].values())
+
+
+def _physical_alias_rows(tmp_path):
+    database = sqlite3.connect(tmp_path / "aliases.sqlite")
+    database.row_factory = sqlite3.Row
+    database.execute("CREATE TABLE ops(id INTEGER PRIMARY KEY,mint TEXT,creator_wallet TEXT,create_signature TEXT,create_time INTEGER,create_slot INTEGER,creator_extraction_method TEXT,confidence TEXT,recorded_at INTEGER)")
+    database.execute("INSERT INTO ops VALUES(1,'mint-a','creator-a','sig',1,1,'fixture','HIGH',1)")
+    database.execute("CREATE TABLE snapshots(snapshot_id INTEGER PRIMARY KEY,mint TEXT,price_usd REAL,market_cap REAL,source TEXT,captured_at INTEGER,created_at INTEGER)")
+    database.execute("INSERT INTO snapshots VALUES(1,'mint-a',1,1,'fixture',1,1)")
+    ops = [dict(row) for row in database.execute("SELECT rowid,mint,creator_wallet,create_signature,create_time,create_slot,creator_extraction_method,confidence,recorded_at FROM ops")]
+    snapshots = [dict(row) for row in database.execute("SELECT rowid,snapshot_id,mint,price_usd,market_cap,source,captured_at,created_at FROM snapshots")]
+    database.close()
+    return ops, snapshots
+
+
+def test_sqlite_rowid_alias_variants_normalize_to_logical_schema(tmp_path, monkeypatch):
+    ops, snapshots = _physical_alias_rows(tmp_path)
+    assert set(ops[0]) == (set(adapter.SCHEMAS["ops_selected_cohort"]) - {"rowid"}) | {"id"}
+    assert set(snapshots[0]) == set(adapter.SCHEMAS["snapshot_selected_cohort"]) - {"rowid"}
+    results = {query: [row(query)] for query in adapter.QUERY_IDS}
+    results["ops_selected_cohort"] = ops
+    results["snapshot_selected_cohort"] = snapshots
+    files, digest = bundle_documents(results)
+    bundle = execute(tmp_path, monkeypatch, (files, digest), name="aliases")
+    assessment = json.loads((bundle.output_directory / "assessment.json").read_text())
+    assert assessment["membership"]["ops_selected_cohort"]["row_count"] == 1
+    assert assessment["membership"]["snapshot_selected_cohort"]["row_count"] == 1
+    assert verify_fixture_shadow_assessment(bundle.output_directory) == bundle
+
+
+@pytest.mark.parametrize("query,mutation,reason", (
+    ("ops_selected_cohort", "both", "CONFLICTING_ROW_IDENTITIES"),
+    ("ops_selected_cohort", "missing", "UNKNOWN_SERIALIZED_SCHEMA_VARIANT"),
+    ("ops_selected_cohort", "extra", "UNKNOWN_SERIALIZED_SCHEMA_VARIANT"),
+    ("ops_selected_cohort", "type", "INVALID_PHYSICAL_ROW_IDENTITY"),
+    ("snapshot_selected_cohort", "missing", "UNKNOWN_SERIALIZED_SCHEMA_VARIANT"),
+    ("snapshot_selected_cohort", "extra", "UNKNOWN_SERIALIZED_SCHEMA_VARIANT"),
+    ("snapshot_selected_cohort", "type", "INVALID_PHYSICAL_ROW_IDENTITY"),
+))
+def test_alias_variant_faults_fail_closed(tmp_path, monkeypatch, query, mutation, reason):
+    ops, snapshots = _physical_alias_rows(tmp_path)
+    results = {item: [row(item)] for item in adapter.QUERY_IDS}
+    results["ops_selected_cohort"] = ops
+    results["snapshot_selected_cohort"] = snapshots
+    target = results[query][0]
+    identity = "id" if query == "ops_selected_cohort" else "snapshot_id"
+    if mutation == "both":
+        target["rowid"] = target[identity]
+    elif mutation == "missing":
+        target.pop(identity)
+    elif mutation == "extra":
+        target["unexpected"] = None
+    else:
+        target[identity] = "not-an-integer"
+    files, digest = bundle_documents(results)
+    monkeypatch.setattr(adapter, "EXPECTED_BUNDLE_DIGEST", digest)
+    with pytest.raises(adapter.ImmutableShadowBundleAdapterError, match=reason):
+        adapter.assess_immutable_bundle_representation(
+            adapter.build_immutable_bundle_adapter_contract(), build_shadow_assessment_contract(),
+            bundle_files=files, cohort_mints=("mint-a",), output_directory=tmp_path / f"{query}-{mutation}",
+        )
+
+
+def test_alias_normalization_is_input_order_independent(tmp_path, monkeypatch):
+    ops, snapshots = _physical_alias_rows(tmp_path)
+    ops.append({**ops[0], "id": 2})
+    first = {query: [row(query)] for query in adapter.QUERY_IDS}
+    first["ops_selected_cohort"] = ops
+    first["snapshot_selected_cohort"] = snapshots
+    second = {query: list(reversed(rows)) for query, rows in first.items()}
+    files_a, digest_a = bundle_documents(first)
+    bundle_a = execute(tmp_path, monkeypatch, (files_a, digest_a), name="ordered-a")
+    files_b, digest_b = bundle_documents(second)
+    bundle_b = execute(tmp_path, monkeypatch, (files_b, digest_b), name="ordered-b")
+    assert json.loads((bundle_a.output_directory / "assessment.json").read_text()) == json.loads((bundle_b.output_directory / "assessment.json").read_text())
 
 
 @pytest.mark.parametrize("mutation", ("missing", "extra", "altered", "noncanonical"))

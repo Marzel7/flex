@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-16T12:20:05Z",
+  "updated_at_utc": "2026-08-16T18:09:14Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-16T12:20:05Z",
+    "published_at_utc": "2026-08-16T18:09:14Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0F-D immutable-summary input adapter qualification",
-    "mode": "safe-local fixture-only design, implementation and qualification complete",
+    "milestone": "PSI0F-E immutable-summary adapter qualification closure",
+    "mode": "bounded safe-local read-only replay verification complete",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "PSI0F_D_ADAPTERS_QUALIFIED_PSI0F_E_REPLAY_VERIFIED_CLOSURE_REQUIRES_SEPARATE_APPROVAL"
+    "verdict": "PSI0F_D_CLOSED_QUALIFIED_EB0_4_IMMUTABLE_BUNDLE_BINDING_REQUIRED_BEFORE_REAL_ADAPTER_APPLICATION"
   },
   "production_state": {
     "retention": "ON",
@@ -240,6 +240,20 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0f_e_immutable_summary_adapter_qualification_closure": {
+      "status": "PASS",
+      "verdict": "PSI0F_D_CLOSED_QUALIFIED",
+      "engineering_commit": "4215f899b510f7d366c21702ce6cef63c6882878",
+      "adapter_contract_digest": "0d93b35b98c30d55d03ea8c8c787ba213442ab70b43499b989bfe8f2a18f990e",
+      "qualification_digest": "a86dd975dc037f2796d19d187443eb9a9f4c87e297c82900c806304106560a80",
+      "focused_adapter_tests_passed": 15,
+      "combined_psi0d_e_f_tests_passed": 147,
+      "broader_psi0_tests_passed": 495,
+      "historical_state_coupled_psi0b_failures": 27,
+      "real_bundle_application_authorized_or_performed": false,
+      "policy_ranking_attribution_integration_deployment_activation_authority": false,
+      "next_gate": "PSI0F-F safe-local read-only immutable EB0.4 bundle availability and identity binding preflight"
+    },
     "psi0f_d_known_behaviour_operational_surface_adapter_qualification": {
       "status": "PASS",
       "verdict": "FIXTURE_ONLY_IMMUTABLE_SUMMARY_ADAPTERS_QUALIFIED",

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-16T14:45:00Z",
+  "updated_at_utc": "2026-08-16T15:00:00Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0D-J1 output-parent preparation",
-    "mode": "exactly one safe-local empty-directory creation and verification complete",
+    "milestone": "PSI0D-J immutable local descriptive-projection publication",
+    "mode": "exactly one audit reconstruction, atomic publication and built-in exact replay complete",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "PSI0D_J1_EMPTY_OUTPUT_PARENT_PREPARED"
+    "verdict": "PSI0D_J_IMMUTABLE_PROJECTION_BUNDLE_PUBLISHED_REPLAY_VERIFIED"
   },
   "production_state": {
     "retention": "ON",
@@ -7391,6 +7391,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "PSI0D-J completed exactly once at docs/audits/psi0d_runs/psi0d-projection-20260816-01. The publisher replay-verified projection digest 482461d10319e657bbb4df37b4cfa4be526ada21b4dbd3186ce43834ecb2d136, contract file digest 07df4eb91f4bb4e98edb7cab4174ed98d399989c8d85a1319f0f696e7a087c8a and bundle digest 4f208d7cc00e7b451c796ad16b5c28862cd79c30e476f41c22d7b4fa589e9477. The PSI0D-F audit was read once; no PSI0C/PSI0B source bundle was reopened. The output remains non-authoritative and unintegrated. PSI0D-K closure and disposition requires separate authorization.",
     "PSI0D-J1 created exactly /Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0d_runs after verifying the repository audits parent. The directory is empty, is not a symlink and the bound target psi0d-projection-20260816-01 remains absent. No audit was read, no publisher was invoked and no other output was created. A fresh PSI0D-J authorization is required.",
     "PSI0D-J stopped before reading the PSI0D-F audit or invoking the publisher because the exact target docs/audits/psi0d_runs/psi0d-projection-20260816-01 is absent as required but its parent docs/audits/psi0d_runs is also absent. The committed publisher correctly requires an existing parent and authorization prohibited publishing any other output. No staging directory, projection bundle or other output was created. A separately authorized parent-directory preparation boundary and then a fresh PSI0D-J authorization are required.",
     "PSI0D-I closes PSI0D-H as replay-verified and qualified. Closure artifact docs/audits/psi0d_i_atomic_publisher_qualification_closure.json has digest 60e281684fc7a1e940496293f2e17c34f8a62d5df38d874650b3f541652c33da. Exactly one bounded PSI0D-J local projection publication is coherent to the absent path docs/audits/psi0d_runs/psi0d-projection-20260816-01 using only the PSI0D-F aggregate audit and committed lineage. Publication remains separately authorized; integration, deployment, Evidence modes, production activation and EB2 remain unauthorized.",
@@ -7521,8 +7522,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0D-J fresh bounded immutable local projection publication",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize a fresh one-attempt audit reconstruction and atomic publication to the still-absent psi0d-projection-20260816-01 target; do not reuse the stopped authorization implicitly, reopen source bundles, integrate, deploy or activate anything.",
+    "milestone": "PSI0D-K replay-verified publication closure and disposition",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize bounded read-only replay closure of the three-file PSI0D-J bundle and determine the smallest later integration-qualification milestone; do not alter or integrate the bundle, deploy or activate anything.",
     "psi0d_d_engineering_commit": "9ef7467327b74dbf435fc00ddc26c99a77f5b33e",
     "psi0d_d_adapter_contract_digest": "48e4480d741793c78dda8413ce8fa233c849d3781538bc32c0283a436f00bd7d",
     "psi0d_d_qualification_digest": "b918f495bb34858b9dce86b61f657d530e0db47ba1f36f17095e0250d9ec9265",

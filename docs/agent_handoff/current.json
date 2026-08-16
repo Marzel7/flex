@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-16T11:20:30Z",
+  "updated_at_utc": "2026-08-16T11:22:10Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -7391,6 +7391,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "A repeated PSI0E-G1 authorization stopped before mutation because docs/audits/psi0e_runs already exists from the successful first G1 action, which is an explicit repeated-authorization stop condition. The existing directory remains empty and non-symlinked and psi0e-envelope-20260816-01 remains absent. No deletion, recreation, publisher invocation or staging occurred. The next action remains a fresh PSI0E-G publication authorization.",
     "PSI0E-G1 created exactly docs/audits/psi0e_runs after verifying the repository audits parent and PSI0E-F closure digest. The directory is empty, is not a symlink and the bound target psi0e-envelope-20260816-01 remains absent. No envelope input was read, no publisher was invoked and no staging or integration output was created. A fresh PSI0E-G publication authorization is required.",
     "PSI0E-F closes PSI0E-E as replay-verified and qualified. Closure artifact docs/audits/psi0e_f_atomic_envelope_publisher_qualification_closure.json has digest 533ee09789ec52b87350cac49ff5664484d827898cc98b5341c59662a4d35ad1. One bounded local envelope publication is coherent, but docs/audits/psi0e_runs is absent and the publisher requires an existing parent. The smallest next action is separately authorized PSI0E-G1 creation and verification of only that empty parent, followed by a fresh PSI0E-G publication authorization. No real envelope was reconstructed or published and no integration or activation authority exists.",
     "PSI0E-E is qualified at engineering commit 145363100675244dea8f616c4c0af63bc928ceb9 with publication contract digest b893198fed71329c33083176a7ce93d7c86f119ab66b9488dbf9c42db6435cc3 and qualification artifact digest c36797426684302ccffaefe031f5c142ddb2df546fb30b3cafac2ce79b4f0129. Twenty-three publisher tests and 92 combined PSI0D/E focused tests pass. The full PSI0 sweep has 440 passes and 27 historical PSI0B failures caused solely by retained successful shadow output conflicting with pre-publication absence assumptions; that immutable output was preserved. No real envelope was reconstructed or published. PSI0E-F replay-verified qualification closure requires separate authorization.",

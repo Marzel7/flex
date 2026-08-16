@@ -1,0 +1,61 @@
+{
+  "schema_version": "psi0d-h.qualification.v1",
+  "milestone": "PSI0D-H",
+  "qualified_at_utc": "2026-08-16T13:35:00Z",
+  "base_engineering_commit": "9ef7467327b74dbf435fc00ddc26c99a77f5b33e",
+  "status": "PASS",
+  "verdict": "FIXTURE_ONLY_ATOMIC_DESCRIPTIVE_PROJECTION_PUBLICATION_CONTRACT_QUALIFIED",
+  "publication_contract_digest": "b448d37d6f95a6b92bd838f224e98d1f68e0325cdb2e1827a1ef11c27b583770",
+  "bound_inputs": {
+    "psi0d_g_closure_digest": "1ba3574d2caff53c538f3990a86604edc48052e7f9fd926e4b8f1242156e468d",
+    "psi0d_f_audit_digest": "9e755dcc6fceef6ef27664eb8531cff0478b0b6cc252ded22ee84adfefd1efac",
+    "expected_projection_digest": "482461d10319e657bbb4df37b4cfa4be526ada21b4dbd3186ce43834ecb2d136",
+    "psi0d_d_adapter_contract_digest": "48e4480d741793c78dda8413ce8fa233c849d3781538bc32c0283a436f00bd7d",
+    "psi0d_b_consumer_contract_digest": "a9e368cceede689736ca234891394551bda098df3b51ebfebf2e72f32aeb51f6"
+  },
+  "qualified_behavior": {
+    "fixture_only_injected_projection_bytes": true,
+    "exact_projection_schema_lineage_provenance_accounting_and_authority_validation": true,
+    "canonical_projection_bytes_required": true,
+    "exact_three_file_bundle": [
+      "contract.json",
+      "hashes.json",
+      "projection.json"
+    ],
+    "per_file_hashes_and_one_bundle_digest": true,
+    "atomic_sibling_stage_rename": true,
+    "file_and_directory_fsync": true,
+    "post_publication_exact_replay": true,
+    "overwrite_or_output_reuse": false,
+    "retries": false,
+    "source_values_retained": false,
+    "partial_publication_on_failure": false,
+    "grants_policy_ranking_integration_deployment_activation_authority": false
+  },
+  "fault_coverage": [
+    "missing extra malformed and noncanonical projection fields",
+    "projection digest contract lineage and provenance drift",
+    "authority interpretation query schema reason-code and accounting drift",
+    "preexisting output preservation",
+    "file write and file fsync failure",
+    "staging and parent directory fsync failure",
+    "atomic rename failure",
+    "post-rename replay failure cleanup",
+    "published hash and bundle replay tamper",
+    "deterministic replay and input-order independence"
+  ],
+  "tests": {
+    "publisher_tests_passed": 19,
+    "combined_psi0d_focused_tests_passed": 51,
+    "psi0_regressions_passed": 389
+  },
+  "scope_proof": {
+    "real_psi0c_assessment_opened": false,
+    "real_psi0b_bundle_opened": false,
+    "real_psi0d_f_projection_published": false,
+    "production_or_runtime_access": false,
+    "provider_or_rpc_calls": 0,
+    "integration_or_activation": false
+  },
+  "next_action": "HUMAN_APPROVAL_REQUIRED: authorize PSI0D-I replay-verified fixture publication-contract qualification closure only."
+}

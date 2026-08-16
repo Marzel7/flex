@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-16T12:40:00Z",
+  "updated_at_utc": "2026-08-16T13:05:00Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0D-F bounded in-memory immutable-assessment adapter application",
-    "mode": "exactly one safe-local read-only read-once in-memory application and direct canonical replay complete",
+    "milestone": "PSI0D-G in-memory application closure and publication-boundary disposition",
+    "mode": "bounded safe-local read-only audit replay and roadmap disposition complete",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "BOUNDED_IN_MEMORY_DESCRIPTIVE_PROJECTION_REPLAY_VERIFIED"
+    "verdict": "PSI0D_F_CLOSED_FIXTURE_ONLY_ATOMIC_PUBLICATION_CONTRACT_MAY_BE_QUALIFIED"
   },
   "production_state": {
     "retention": "ON",
@@ -7391,6 +7391,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "PSI0D-G closes PSI0D-F as replay-verified. Closure artifact docs/audits/psi0d_g_in_memory_application_closure_publication_disposition.json has digest 1ba3574d2caff53c538f3990a86604edc48052e7f9fd926e4b8f1242156e468d. A fixture-only atomic immutable descriptive-projection publication contract is coherent as PSI0D-H, but no real projection publication, consumer integration, deployment, Evidence mode, production activation or EB2 authority exists.",
     "PSI0D-F completed exactly one read-once in-memory adapter application. Audit artifact docs/audits/psi0d_f_in_memory_adapter_application.json has digest 9e755dcc6fceef6ef27664eb8531cff0478b0b6cc252ded22ee84adfefd1efac and projection digest 482461d10319e657bbb4df37b4cfa4be526ada21b4dbd3186ce43834ecb2d136. The permitted aggregate projection preserves ABSENT_NOT_NEGATIVE, 2,266 snapshot duplicates, zero conflicts and zero unmatched rows. No source values were recorded, no consumer output was published and no integration authority exists. Any publication or integration milestone requires separate qualification and authorization.",
     "PSI0D-E closes PSI0D-D as replay-verified and qualified. Closure artifact docs/audits/psi0d_e_immutable_assessment_adapter_qualification_closure.json has digest 5452c1f3a00e7fceeb0685c8688f5515f98e60e8030fecd6db34071556dd5729 and binds adapter digest 48e4480d741793c78dda8413ce8fa233c849d3781538bc32c0283a436f00bd7d, qualification digest b918f495bb34858b9dce86b61f657d530e0db47ba1f36f17095e0250d9ec9265, 32 focused tests and 370 PSI0 regressions. The real PSI0C assessment and PSI0B bundle remain unopened and no consumer output exists. Exactly one later bounded read-once in-memory adapter application is coherent as PSI0D-F but requires separate authorization; publication, integration, deployment, Evidence modes, production activation and EB2 remain unauthorized.",
     "PSI0D-D is qualified at engineering commit 9ef7467327b74dbf435fc00ddc26c99a77f5b33e with adapter digest 48e4480d741793c78dda8413ce8fa233c849d3781538bc32c0283a436f00bd7d and qualification digest b918f495bb34858b9dce86b61f657d530e0db47ba1f36f17095e0250d9ec9265. It preserves production-derived summary provenance without retaining or emitting source values, while the PSI0D-B fixture entry point remains fail-closed. The real assessment and source bundle remain unopened. PSI0D-E replay-verified adapter qualification closure requires separate authorization.",
@@ -7516,8 +7517,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0D-G in-memory application closure and publication-boundary disposition",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize read-only replay closure of the PSI0D-F audit and determine the smallest fixture-qualified immutable local publication boundary, if coherent; do not publish output, integrate, deploy, activate Evidence modes, activate production or enter EB2.",
+    "milestone": "PSI0D-H fixture-only immutable descriptive-projection publisher qualification",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize safe-local design, implementation and frozen-fixture qualification of an atomic immutable publisher accepting synthetic projection bytes only; do not open the real assessment, publish the real projection, integrate, deploy or activate anything.",
     "psi0d_d_engineering_commit": "9ef7467327b74dbf435fc00ddc26c99a77f5b33e",
     "psi0d_d_adapter_contract_digest": "48e4480d741793c78dda8413ce8fa233c849d3781538bc32c0283a436f00bd7d",
     "psi0d_d_qualification_digest": "b918f495bb34858b9dce86b61f657d530e0db47ba1f36f17095e0250d9ec9265",

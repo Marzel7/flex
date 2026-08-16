@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-16T11:30:07Z",
+  "updated_at_utc": "2026-08-16T11:36:04Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "145363100675244dea8f616c4c0af63bc928ceb9",
+    "git_head": "0b3687fb0b61529034702f6117eb60071c43074f",
     "working_tree": "dirty: unrelated live/runtime/user paths preserved; PSI0E-A committed narrowly; PSI0C/PSI0D closure artifacts plus prior audit/diagnosis artifacts uncommitted"
   },
   "handoff_transport": {
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0E-G2 envelope lineage and deterministic reconstruction diagnosis",
-    "mode": "safe-local read-only audit-schema and committed pure-contract diagnosis complete",
+    "milestone": "PSI0E-G3 deterministic audit-to-envelope reconstruction adapter qualification",
+    "mode": "safe-local fixture-only implementation, fault tests, regression tests, documentation and narrow commit complete",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "EXACT_RECONSTRUCTION_DATA_RETAINED_STRICT_AUDIT_TO_ENVELOPE_ADAPTER_REQUIRED"
+    "verdict": "PURE_STRICT_PSI0D_F_AUDIT_TO_PSI0E_ENVELOPE_ADAPTER_QUALIFIED"
   },
   "production_state": {
     "retention": "ON",
@@ -7391,6 +7391,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "PSI0E-G3 is qualified at engineering commit 0b3687fb0b61529034702f6117eb60071c43074f with adapter contract digest 668ddda9b18f9034bdbc595f27b7fa70acc1d8b1a5b298f24a6af38a25d26814 and qualification artifact digest bda8785637f2e8f900a3653c7e94997dda7003f99c131574773a3376a8d109bf. Nineteen adapter tests and 111 combined PSI0D/E tests pass; 459 broader PSI0 tests pass and the same 27 historic PSI0B output-absence assertions remain state-coupled. The real PSI0D-F audit and upstream bundles were not reopened and no envelope or output was created. PSI0E-G4 replay-verified adapter qualification closure requires separate authorization.",
     "PSI0E-G2 diagnosis artifact docs/audits/psi0e_g2_lineage_reconstruction_diagnosis.json has digest cd05b86b26313152e704bd556454d6d8e620b3ab5cec26a375ff99f6d6826cdb. The PSI0D-F audit retains every aggregate needed by the PSI0E envelope across descriptive_projection and execution, but not the canonical PSI0D projection wrapper expected by the prior publication attempt. All absent wrapper values are deterministic from committed contracts. The smallest repair is a separately authorized strict fixture-qualified PSI0D-F-audit-to-PSI0E-envelope adapter; no new PSI0E-C artifact or superseding evidence input is required.",
     "PSI0E-G stopped fail-closed before publisher invocation. The PSI0D-F audit was read exactly once and matched digest 9e755dcc6fceef6ef27664eb8531cff0478b0b6cc252ded22ee84adfefd1efac and required lineage, but contained zero complete canonical projection documents, so envelope digest c8827678b2137f1aec864f86623514a92affb0c6df092d13b24c160f8fb90a9d could not be reconstructed without guessing. The target remains absent, psi0e_runs remains empty, and no staging exists. This publication attempt is not retryable; a separately authorized safe-local PSI0E-G2 lineage/reconstruction diagnosis is required.",
     "A repeated PSI0E-G1 authorization stopped before mutation because docs/audits/psi0e_runs already exists from the successful first G1 action, which is an explicit repeated-authorization stop condition. The existing directory remains empty and non-symlinked and psi0e-envelope-20260816-01 remains absent. No deletion, recreation, publisher invocation or staging occurred. The next action remains a fresh PSI0E-G publication authorization.",

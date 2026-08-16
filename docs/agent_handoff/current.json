@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-16T09:12:00Z",
+  "updated_at_utc": "2026-08-16T09:22:00Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0C-C immutable PSI0B bundle assessment",
-    "mode": "single bounded safe-local read-only attempt stopped fail-closed",
+    "milestone": "PSI0C-C2 immutable result-schema mismatch diagnosis",
+    "mode": "bounded safe-local read-only diagnosis stopped on scope ambiguity",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "PSI0C_C_STOPPED_UNKNOWN_RESULT_SCHEMA_NO_PUBLICATION"
+    "verdict": "PSI0C_C2_CREATOR_SURFACE_EMPTY_FAILING_SURFACE_UNRESOLVED"
   },
   "production_state": {
     "retention": "ON",
@@ -240,6 +240,20 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0c_c2_result_schema_mismatch_diagnosis": {
+      "status": "HOLD",
+      "verdict": "CREATOR_SURFACE_EMPTY_FAILING_SURFACE_UNRESOLVED_WITHIN_SCOPE",
+      "bundle_digest_replay_verified": "370c815a4bacc640874d798c168ff812c2efd205d6de497fdcfb79b4005351b9",
+      "creator_selected_cohort_array": "EMPTY",
+      "creator_first_row_keys_inspected": 0,
+      "field_values_disclosed_or_recorded": 0,
+      "other_result_surfaces_inspected": 0,
+      "diagnostic_finding": "The creator surface contains no row, so it cannot be the source of PSI0C_B_UNKNOWN_RESULT_SCHEMA. The failing later surface cannot be identified under the authorization prohibition on inspecting other surfaces.",
+      "prior_first_query_attribution_corrected": true,
+      "psi0c_c_retried": false,
+      "assessment_output_created": false,
+      "production_runtime_access": 0
+    },
     "psi0c_c_immutable_bundle_assessment_attempt": {
       "status": "HOLD",
       "verdict": "PSI0C_C_STOPPED_UNKNOWN_RESULT_SCHEMA_NO_PUBLICATION",
@@ -248,7 +262,7 @@
       "source_files_read_once": 4,
       "file_set_replay_lineage_authority_query_accounting_and_ceilings": "PASS",
       "assessment_stop_reason": "PSI0C_B_UNKNOWN_RESULT_SCHEMA",
-      "first_assessed_query": "creator_selected_cohort",
+      "first_assessed_query": "UNRESOLVED_AFTER_EMPTY_CREATOR_SURFACE",
       "output_directory": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0c_runs/psi0c-c-assessment-20260815-01",
       "output_directory_absent_after_stop": true,
       "partial_publication": false,
@@ -7208,6 +7222,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "PSI0C-C2 replay-verified the bundle and proved creator_selected_cohort is an empty array. Therefore the PSI0C_B_UNKNOWN_RESULT_SCHEMA failure occurred on a later surface, and the prior creator attribution is corrected. The authorization prohibited inspecting other surfaces, so exact actual-versus-expected keys remain unresolved. No values were disclosed, no PSI0C-C retry occurred and no output exists. A separately authorized metadata-only diagnosis may inspect only array emptiness in query order and the keys/types of the first row on the first nonempty surface.",
     "The single PSI0C-C attempt replay-verified the four-file bundle identity, lineage, authority, query set, accounting and ceilings, then stopped on PSI0C_B_UNKNOWN_RESULT_SCHEMA while normalizing the first creator_selected_cohort row. All four source files were read exactly once, no retry occurred, and the output directory remains absent. The exact actual-versus-qualified field difference was not retained by the named exception and cannot be obtained without a separately authorized bounded local read-only schema-mismatch diagnosis.",
     "PSI0C-C1 is qualified at engineering commit 7351c4bb56fa5d86bc634c60c49f464deda52524 with adapter contract digest 37ceac82d73152c4eba8d47f806a2d54d4131a074d1fc1120155e231755a31f9 and qualification digest b4ebdbb9cbc8744eeec1c680a021e01d3d1e5a7fb1f130fb230ffd3972efadd9. The adapter preserves PRODUCTION_DERIVED_IMMUTABLE_LOCAL_BUNDLE provenance and leaves the fixture-only entry point fail-closed. No real bundle file was opened. One fresh PSI0C-C assessment remains separately authorized and the bound output path remains absent.",
     "The corrected PSI0C-C authorization bound an absent output path, but execution stopped before opening any bundle file because PSI0C-B explicitly sets accepts_production_rows=false and assess_fixture_shadow requires fixture_only=True. Applying real production-derived bundle rows through that API would falsely relabel provenance as synthetic and violate the qualified authority boundary. The bundle file names were observed only; contents and rows remain unopened. A separately authorized safe-local immutable-bundle input adapter is required.",
@@ -7321,8 +7336,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0C-C2 immutable result-schema mismatch diagnosis",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: diagnose only the creator_selected_cohort canonical row-key mismatch against the frozen PSI0A-D schema; do not retry assessment or publish output.",
+    "milestone": "PSI0C-C2A first-nonempty-surface schema diagnosis",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: identify the first nonempty frozen query surface structurally and compare only its first row keys and JSON types with the frozen schema; disclose no values.",
+    "proposed_psi0c_c2a_approval_text": "Authorize PSI0C-C2A as a bounded safe-local read-only continuation of the PSI0C schema-mismatch diagnosis. Bind engineering commit 7351c4bb56fa5d86bc634c60c49f464deda52524, PSI0C-C1 adapter digest 37ceac82d73152c4eba8d47f806a2d54d4131a074d1fc1120155e231755a31f9, PSI0C-B contract digest 3f2d112ba18b190e7acdf9c0dd9ddf552258b7ed75295ccb7cc470a981cc70e1 and immutable PSI0B bundle digest 370c815a4bacc640874d798c168ff812c2efd205d6de497fdcfb79b4005351b9. Replay-verify the canonical bundle, then inspect only the structural empty/nonempty state of the five result arrays in frozen query order and decode at most the first row of the first nonempty surface. Record only its query identity, sorted key set and primitive JSON type per key; do not disclose or record any field value. Compare those keys exactly with that query's frozen PSI0A-D result schema, identify added, missing, renamed or serialization-only differences, and define the smallest safe-local repair without implementing it. Stop on bundle drift, need to inspect a second row, need to inspect values, ambiguity, output mutation or scope expansion. Do not retry PSI0C-C, create assessment output, inspect any row from later surfaces after the first nonempty row, access production/runtime databases or services, perform live telemetry, execute SELECT or EXPLAIN, alter the bundle, make provider/RPC calls, execute DDL or production writes, deploy, restart or stop services, change configuration, manipulate locks or metrics, activate Evidence Mirror or Cohort Mode, integrate a consumer, rank entities, activate production or enter EB2. Stop after diagnosis and provide the exact separate approval prompt for the smallest safe repair.",
     "proposed_psi0c_c2_approval_text": "Authorize PSI0C-C2 as a bounded safe-local read-only diagnosis of the PSI0C_B_UNKNOWN_RESULT_SCHEMA stop from the single PSI0C-C attempt. Bind engineering commit 7351c4bb56fa5d86bc634c60c49f464deda52524, PSI0C-C1 adapter digest 37ceac82d73152c4eba8d47f806a2d54d4131a074d1fc1120155e231755a31f9, PSI0C-B contract digest 3f2d112ba18b190e7acdf9c0dd9ddf552258b7ed75295ccb7cc470a981cc70e1 and immutable PSI0B bundle digest 370c815a4bacc640874d798c168ff812c2efd205d6de497fdcfb79b4005351b9. Read only the canonical run, hashes and results metadata needed to replay-verify the bundle and inspect the key set and primitive JSON types of at most the first creator_selected_cohort row; do not disclose or record field values. Compare the observed keys exactly with the frozen PSI0A-D creator result schema, identify whether the mismatch is an added, missing, renamed or serialization-only field, and determine the smallest safe-local contract or adapter repair without implementing it. Stop on bundle/hash/lineage drift, need to inspect additional rows or values, ambiguity, output mutation or scope expansion. Do not retry PSI0C-C, create assessment output, inspect other result surfaces, access production/runtime databases or services, perform live telemetry, execute SELECT or EXPLAIN, alter the bundle, make provider/RPC calls, execute DDL or production writes, deploy, restart or stop services, change configuration, manipulate locks or metrics, activate Evidence Mirror or Cohort Mode, integrate a consumer, rank entities, activate production or enter EB2. Stop after diagnosis and provide the exact separate approval prompt for the smallest safe repair.",
     "psi0c_c1_engineering_commit": "7351c4bb56fa5d86bc634c60c49f464deda52524",
     "psi0c_c1_adapter_contract_digest": "37ceac82d73152c4eba8d47f806a2d54d4131a074d1fc1120155e231755a31f9",

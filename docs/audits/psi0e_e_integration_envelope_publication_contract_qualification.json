@@ -1,0 +1,63 @@
+{
+  "schema_version": "psi0e-e.qualification.v1",
+  "milestone": "PSI0E-E",
+  "qualified_at_utc": "2026-08-16T10:49:15Z",
+  "base_engineering_commit": "d2f2c72aa0083bc62950fbfcf2940111d9d8e358",
+  "status": "PASS",
+  "verdict": "FIXTURE_ONLY_ATOMIC_IMMUTABLE_INTEGRATION_ENVELOPE_PUBLISHER_QUALIFIED",
+  "publication_contract_digest": "b893198fed71329c33083176a7ce93d7c86f119ab66b9488dbf9c42db6435cc3",
+  "bound_inputs": {
+    "psi0e_d_closure_digest": "8834859723b64ce18c323cfd0b404f47e888805c05e620afcbb844ec057396a7",
+    "psi0e_c_input_digest": "89c8dee5c976bd587aa6fc7ec3a6194e38caeba5508013c8ddca976489038f35",
+    "expected_envelope_digest": "c8827678b2137f1aec864f86623514a92affb0c6df092d13b24c160f8fb90a9d",
+    "psi0e_a_contract_digest": "2c8b2a296cb55ceb7da59ea4b063557749842041ba35251ec605e3f5f231350f",
+    "psi0e_a_qualification_digest": "69b4133f7d43029bcf08a1ee1143d8704e5a503558b8e2f3bcca6626fc97c57f",
+    "psi0e_b_closure_digest": "5067a9668afd21fcb4f92442ced9ad8726b1ecde9855bd251d291fd9ce7bf8f8"
+  },
+  "qualified_behavior": {
+    "injected_frozen_synthetic_canonical_envelope_only": true,
+    "exact_schema_contract_source_lineage_and_provenance": true,
+    "default_off": true,
+    "consumer_enabled": false,
+    "absent_not_negative_preserved": true,
+    "duplicates_conflicts_and_unmatched_preserved": true,
+    "source_values_retained_or_emitted": false,
+    "exact_files": [
+      "contract.json",
+      "envelope.json",
+      "hashes.json"
+    ],
+    "canonical_bytes_and_deterministic_hashes": true,
+    "atomic_rename_and_file_directory_fsync": true,
+    "output_reuse_rejected": true,
+    "retries": false,
+    "unconditional_failure_cleanup": true,
+    "post_publication_exact_replay": true,
+    "grants_policy_ranking_integration_deployment_activation_authority": false
+  },
+  "fault_coverage": [
+    "missing extra malformed and noncanonical envelope fields",
+    "envelope contract source lineage provenance and default-state drift",
+    "accounting missingness reason interpretation and authority drift",
+    "preexisting output and contract bypass",
+    "file write staging fsync parent fsync and atomic rename exceptions",
+    "post-rename replay failure and published hash tamper",
+    "staging and renamed-output cleanup with no partial publication"
+  ],
+  "tests": {
+    "publisher_tests_passed": 23,
+    "combined_psi0d_psi0e_focused_tests_passed": 92,
+    "psi0_regressions_passed": 440,
+    "state_coupled_legacy_psi0b_failures": 27,
+    "legacy_failure_reason": "Previously published immutable PSI0B output now exists; older E3/E7/E8 tests retain pre-publication absent-output assumptions. The output was preserved and no PSI0E-E change caused these failures."
+  },
+  "scope_proof": {
+    "real_psi0e_c_envelope_reconstructed_or_published": false,
+    "real_psi0d_psi0c_or_psi0b_bundle_opened": false,
+    "real_integration_output_created": false,
+    "production_or_runtime_access": false,
+    "provider_or_rpc_calls": 0,
+    "integration_deployment_or_activation": false
+  },
+  "next_action": "HUMAN_APPROVAL_REQUIRED: authorize PSI0E-F replay-verified fixture publication-contract qualification closure only."
+}

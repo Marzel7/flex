@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-16T17:00:00Z",
+  "updated_at_utc": "2026-08-16T10:49:15Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0E-C bounded in-memory integration-envelope application",
-    "mode": "exactly one read-once injected-bundle application and direct canonical envelope replay complete",
+    "milestone": "PSI0E-D in-memory integration-envelope application closure and disposition",
+    "mode": "safe-local read-only replay verification over committed contract, qualification and PSI0E-C recorded identities",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "PSI0E_C_IN_MEMORY_DEFAULT_OFF_ENVELOPE_REPLAY_VERIFIED"
+    "verdict": "PSI0E_C_CLOSED_FIXTURE_ONLY_ATOMIC_ENVELOPE_PUBLICATION_CONTRACT_MAY_BE_QUALIFIED"
   },
   "production_state": {
     "retention": "ON",
@@ -7391,6 +7391,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "PSI0E-D closes PSI0E-C as replay-verified. Closure artifact docs/audits/psi0e_d_in_memory_envelope_application_closure_disposition.json has digest 8834859723b64ce18c323cfd0b404f47e888805c05e620afcbb844ec057396a7. The in-memory envelope remains default-off, consumer-disabled and non-authoritative, preserving cohort 5,000, 9,709 rows, 2,266 duplicates, zero conflicts and zero unmatched rows under ABSENT_NOT_NEGATIVE. The smallest coherent next milestone is separately authorized PSI0E-E fixture-only qualification of an atomic immutable envelope publication contract; real publication, integration, deployment, Evidence modes, production activation and EB2 remain unauthorized.",
     "PSI0E-C completed exactly once against the immutable PSI0D bundle. Each of the three files was read once, the contract was applied once and the in-memory envelope replay-verified with input digest 89c8dee5c976bd587aa6fc7ec3a6194e38caeba5508013c8ddca976489038f35 and envelope digest c8827678b2137f1aec864f86623514a92affb0c6df092d13b24c160f8fb90a9d. It preserves 9,709 rows, 2,266 duplicates, zero conflicts and zero unmatched rows, is default-off and consumer-disabled, and grants no authority. No integration output was created. PSI0E-D closure and disposition requires separate authorization.",
     "PSI0E-B closes PSI0E-A as replay-verified and qualified. Closure artifact docs/audits/psi0e_b_integration_envelope_qualification_closure.json has digest 5067a9668afd21fcb4f92442ced9ad8726b1ecde9855bd251d291fd9ce7bf8f8. One read-once, in-memory PSI0E-C application to the immutable PSI0D bundle is coherent but requires separate authorization. No integration output, consumer connection, deployment, Evidence mode, production activation or EB2 authority exists.",
     "PSI0E-A is qualified at engineering commit d2f2c72aa0083bc62950fbfcf2940111d9d8e358 with integration-envelope contract digest 2c8b2a296cb55ceb7da59ea4b063557749842041ba35251ec605e3f5f231350f and qualification digest 69b4133f7d43029bcf08a1ee1143d8704e5a503558b8e2f3bcca6626fc97c57f. Eighteen envelope tests, 69 combined PSI0D/E focused tests and 407 PSI0 regressions pass. The real PSI0D bundle was not opened and no integration output or authority exists. PSI0E-B replay-verified qualification closure requires separate authorization.",

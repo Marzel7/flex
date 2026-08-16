@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-16T09:55:00Z",
+  "updated_at_utc": "2026-08-16T10:00:00Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0C-C2C serialized rowid-alias normalization qualification",
-    "mode": "safe-local implementation, frozen SQLite fixtures, fault tests, regressions, documentation and narrow commit complete",
+    "milestone": "PSI0C-C immutable shadow coverage assessment",
+    "mode": "exactly one bounded safe-local read-only assessment complete and replay-verified",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "PSI0C_C2C_EXACT_ROWID_ALIAS_NORMALIZATION_QUALIFIED"
+    "verdict": "PSI0C_C_ASSESSMENT_PASS_REPLAY_VERIFIED"
   },
   "production_state": {
     "retention": "ON",
@@ -240,6 +240,30 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0c_c_immutable_shadow_assessment": {
+      "status": "PASS",
+      "verdict": "IMMUTABLE_SHADOW_ASSESSMENT_REPLAY_VERIFIED",
+      "engineering_commit": "256e9e4cad35a6334578efacb431fd403c4874b9",
+      "adapter_contract_digest": "977043b77ef7a97d23b021bbb4b4150b0f9dc6495421e42352662f0ea7285278",
+      "source_bundle_digest": "370c815a4bacc640874d798c168ff812c2efd205d6de497fdcfb79b4005351b9",
+      "assessment_digest": "b5fb2187ad569b422f1ebbc029b7c619300a153d81b547f178c58769377fc7c4",
+      "assessment_bundle_digest": "6db46939fdfec9a34a63268809609c9a30a1a7dd86f5504b3d063bd0e8045ac3",
+      "cohort_count": 5000,
+      "main_coverage": "5000/5000",
+      "ops_coverage": "1/5000",
+      "snapshot_coverage": "2442/5000",
+      "creator_coverage": "0/5000 ABSENT_NOT_NEGATIVE",
+      "evidence_coverage": "0/5000 ABSENT_NOT_NEGATIVE",
+      "snapshot_duplicate_rows": 2266,
+      "conflict_count": 0,
+      "unmatched_rows": 0,
+      "provenance_class": "PRODUCTION_DERIVED_IMMUTABLE_LOCAL_BUNDLE",
+      "atomic_publication": true,
+      "exact_replay": true,
+      "integration_authorized": false,
+      "activation_authorized": false,
+      "output": "docs/audits/psi0c_runs/psi0c-c-assessment-20260815-01"
+    },
     "psi0c_c2c_rowid_alias_normalization_qualification": {
       "status": "PASS",
       "verdict": "EXACT_SQLITE_ROWID_ALIAS_NORMALIZATION_QUALIFIED",
@@ -7287,6 +7311,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "PSI0C-C completed exactly once through the PSI0C-C2C adapter and replay-verified assessment digest b5fb2187ad569b422f1ebbc029b7c619300a153d81b547f178c58769377fc7c4 with bundle digest 6db46939fdfec9a34a63268809609c9a30a1a7dd86f5504b3d063bd0e8045ac3. The result is non-authoritative: policy, ranking, integration and activation are all false. PSI0C-D closure and disposition requires separate authorization before any later integration qualification or Evidence mode work.",
     "PSI0C-C2C is qualified at engineering commit 256e9e4cad35a6334578efacb431fd403c4874b9 with repaired adapter contract digest 977043b77ef7a97d23b021bbb4b4150b0f9dc6495421e42352662f0ea7285278 and qualification digest 6ce529317e9174e5b86e5ef0b95fbacf4e54c7bd2cc5be3c26871d0e2b28235d. It binds only the exact ops id-to-rowid and snapshot snapshot_id-to-rowid serialized variants, rejects all other variants, and preserves frozen SELECTs, logical schemas and production-derived immutable provenance. The real PSI0B bundle was not reopened, PSI0C-C was not retried, and the target output path remains absent. One fresh PSI0C-C assessment requires separate authorization.",
     "PSI0C-C2B replay-verified and scanned the immutable results without recording values. Main has 5,000 conforming rows. Ops row 0 serializes id instead of rowid; all 4,708 snapshot rows omit rowid while retaining snapshot_id. This is deterministic SQLite INTEGER PRIMARY KEY rowid alias and duplicate-name row-to-dict serialization behavior. The strict PSI0C-B schema validator must remain fail-closed but bind exact per-query serialized schema variants and row-identity mapping before PSI0C-C can be freshly authorized.",
     "PSI0C-C2A replay-verified the bundle, found creator and evidence arrays empty, and decoded exactly the first row of the first nonempty surface main_selected_cohort. Its keys exactly match the frozen schema and only primitive JSON types were recorded; no values were disclosed. The mismatch therefore occurs on a later main row or later surface, outside the one-row authorization. A key-set-only full result-schema census is required before defining a repair.",
@@ -7404,8 +7429,11 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0C-C immutable shadow assessment through repaired rowid-alias adapter",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize exactly one fresh safe-local read-only PSI0C-C assessment through the committed PSI0C-C2C adapter; output remains absent and no integration or activation authority exists.",
+    "milestone": "PSI0C-D replay-verified assessment closure and disposition",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize bounded safe-local read-only closure of the completed PSI0C-C assessment; no integration, ranking, Evidence mode or activation authority is granted.",
+    "psi0c_c_assessment_digest": "b5fb2187ad569b422f1ebbc029b7c619300a153d81b547f178c58769377fc7c4",
+    "psi0c_c_assessment_bundle_digest": "6db46939fdfec9a34a63268809609c9a30a1a7dd86f5504b3d063bd0e8045ac3",
+    "proposed_psi0c_d_approval_text": "Authorize PSI0C-D as a bounded safe-local read-only replay-verified closure and disposition assessment of the completed PSI0C-C immutable shadow assessment. Bind engineering commit 256e9e4cad35a6334578efacb431fd403c4874b9, PSI0C-C2C repaired adapter contract digest 977043b77ef7a97d23b021bbb4b4150b0f9dc6495421e42352662f0ea7285278, PSI0C-C assessment digest b5fb2187ad569b422f1ebbc029b7c619300a153d81b547f178c58769377fc7c4 and assessment bundle digest 6db46939fdfec9a34a63268809609c9a30a1a7dd86f5504b3d063bd0e8045ac3 at /Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0c_runs/psi0c-c-assessment-20260815-01, PSI0C-B contract digest 3f2d112ba18b190e7acdf9c0dd9ddf552258b7ed75295ccb7cc470a981cc70e1, PSI0B-G closure digest efadf9e061529af1fc690a253be4e8e29d7058d06d6a61be6105890b4e5e90cd and source PSI0B bundle digest 370c815a4bacc640874d798c168ff812c2efd205d6de497fdcfb79b4005351b9. Replay-verify the exact three-file assessment bundle, canonical bytes, file hashes, lineage, provenance, false policy/ranking/integration/activation authority, cohort denominator 5,000, per-query coverage, ABSENT_NOT_NEGATIVE missingness, 2,266 snapshot duplicate rows, zero unresolved conflicts, zero unmatched rows, reason codes and accounting without inspecting or disclosing source field values. Determine whether PSI0C can close as a complete non-authoritative shadow assessment and identify only the smallest separately authorized safe-local next roadmap milestone; explicitly distinguish assessment closure from integration qualification, Evidence Mirror or Cohort Mode activation, production activation and EB2, and authorize none of them. Do not alter either bundle, access production/runtime databases or services, perform live telemetry, execute SELECT or EXPLAIN, make provider/RPC calls, execute DDL or production writes, deploy, restart or stop services, change configuration, manipulate locks or metrics, activate Evidence Mirror or Cohort Mode, integrate a consumer, rank entities, activate production or enter EB2. Stop after the PSI0C-D closure and disposition verdict and provide the exact next approval prompt only for the smallest coherent safe-local milestone.",
     "psi0c_c2c_engineering_commit": "256e9e4cad35a6334578efacb431fd403c4874b9",
     "psi0c_c2c_adapter_contract_digest": "977043b77ef7a97d23b021bbb4b4150b0f9dc6495421e42352662f0ea7285278",
     "psi0c_c2c_qualification_digest": "6ce529317e9174e5b86e5ef0b95fbacf4e54c7bd2cc5be3c26871d0e2b28235d",

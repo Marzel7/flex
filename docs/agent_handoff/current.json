@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-16T11:52:20Z",
+  "updated_at_utc": "2026-08-16T11:55:44Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0E-G immutable integration-envelope publication",
-    "mode": "single bounded safe-local atomic publication and replay complete",
+    "milestone": "PSI0E-H integration-envelope publication closure and disposition",
+    "mode": "bounded safe-local read-only single-read replay closure complete",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "PASS_PSI0E_G_IMMUTABLE_ENVELOPE_PUBLISHED_PSI0E_H_CLOSURE_REQUIRED"
+    "verdict": "PSI0E_CLOSED_COMPLETE_NON_AUTHORITATIVE_DEFAULT_OFF_IMMUTABLE_LOCAL_ENVELOPE_PUBLICATION"
   },
   "production_state": {
     "retention": "ON",
@@ -7391,6 +7391,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "PSI0E is closed by PSI0E-H artifact docs/audits/psi0e_h_integration_envelope_publication_closure_disposition.json with digest ae0994f1f3647f53fbcd3cabf0c8e46efa26b504805fecb95e8d2851d9e98c16. The exact three-file PSI0E-G bundle replay-verifies at digest 88c7de3156a4dc07b3c3b2461b4e1e37e85d5bd06d217d904472e4f4bc6f4d9c with cohort 5,000, five surfaces, 2,266 snapshot duplicates, zero conflicts and zero unmatched rows. It remains default-off, consumer-disabled and non-authoritative. No integration, deployment, Evidence mode, activation or EB2 authority exists. The smallest next step is a separately authorized PSI0F-A read-only known-behaviour operational-surfacing roadmap reconciliation.",
     "PSI0E-G published the immutable default-off descriptive integration envelope successfully at docs/audits/psi0e_runs/psi0e-envelope-20260816-01. Bundle digest is 88c7de3156a4dc07b3c3b2461b4e1e37e85d5bd06d217d904472e4f4bc6f4d9c; envelope digest c8827678b2137f1aec864f86623514a92affb0c6df092d13b24c160f8fb90a9d; contract file digest 84cbc69f1d6120624727a5d0faeb3a0d02734eb62d0986d9e70879fa2ca6a748; hashes file digest 26b1d454e295f622bb9d1e6b44ccc2197f5ad01c91f61aa8ad7333678722f56d. Exactly one audit read, adapter invocation and publisher invocation occurred. Atomic publication and internal replay passed; exact three-file output exists with no staging. PSI0E-H replay-verified closure requires separate authorization; integration, deployment and activation remain false.",
     "PSI0E-G6 diagnosis artifact docs/audits/psi0e_g6_canonical_provenance_representation_diagnosis.json has digest cb40eedf134da92ae5f5cb3a6ef874a3dace6587d6e54e13d8c63512c6e6f08f. The stopped publication assertion queried nonexistent provenance; the canonical envelope uses provenance_class=PRODUCTION_DERIVED_IMMUTABLE_LOCAL_DESCRIPTIVE_INTEGRATION_ENVELOPE and source_provenance_class=PRODUCTION_DERIVED_IMMUTABLE_LOCAL_ASSESSMENT_SUMMARY. Constructor, G3 fixtures and publisher agree exactly. This is caller misuse, not a contract defect; no repair is required and one fresh publication may be separately authorized.",
     "The fresh PSI0E-G attempt stopped before publisher invocation on caller-side PSI0E_G_PROVENANCE_DRIFT after the audit, input, envelope and contract digests all verified. Attempt artifact docs/audits/psi0e_g_fresh_publication_provenance_stop.json has digest 01bab18fb128b60ec84b7daaceb4d74a1269a7fd61537a88f742c0b43ae8fe4f. The real audit was read once, the adapter ran once, the publisher ran zero times and no retry occurred. psi0e_runs remains empty with no output, staging or partial publication. This authorization is permanently non-reusable; a separately authorized read-only provenance representation diagnosis is required.",
@@ -7540,8 +7541,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0E-H immutable envelope publication closure and disposition",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize bounded safe-local read-only replay verification of the exact three-file PSI0E-G bundle, its hashes, lineage, provenance, default-off state, accounting and false authority, then determine the smallest later roadmap milestone without integration, deployment or activation.",
+    "milestone": "PSI0F-A known-behaviour operational-surfacing roadmap reconciliation",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: reconcile the closed PSI0E envelope with committed EB0.4 and operational-semantics roadmap artifacts to define the smallest fixture-only default-off descriptive surfacing qualification. Do not read source values, integrate or deploy a consumer, rank or attribute entities, or activate anything.",
     "psi0d_d_engineering_commit": "9ef7467327b74dbf435fc00ddc26c99a77f5b33e",
     "psi0d_d_adapter_contract_digest": "48e4480d741793c78dda8413ce8fa233c849d3781538bc32c0283a436f00bd7d",
     "psi0d_d_qualification_digest": "b918f495bb34858b9dce86b61f657d530e0db47ba1f36f17095e0250d9ec9265",

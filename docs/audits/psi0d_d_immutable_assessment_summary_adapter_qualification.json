@@ -1,0 +1,52 @@
+{
+  "schema_version": "psi0d-d.qualification.v1",
+  "milestone": "PSI0D-D",
+  "qualified_at_utc": "2026-08-16T11:35:00Z",
+  "base_engineering_commit": "3843a0ffca345344f4d914a4ffff16fe12c7fda9",
+  "status": "PASS",
+  "verdict": "PROVENANCE_PRESERVING_IMMUTABLE_ASSESSMENT_SUMMARY_ADAPTER_QUALIFIED",
+  "adapter_contract_digest": "48e4480d741793c78dda8413ce8fa233c849d3781538bc32c0283a436f00bd7d",
+  "consumer_contract_digest_unchanged": "a9e368cceede689736ca234891394551bda098df3b51ebfebf2e72f32aeb51f6",
+  "bound_inputs": {
+    "psi0d_c_closure_digest": "6ee6424e38734ed5624c17ceb20b5ff45d071fa0ba5b754fd0df546d669221b8",
+    "psi0d_b_qualification_digest": "bb05f1b719a518776da4e5b6116ee42c2de32c5149820eec2bb583d4605d4fea",
+    "psi0c_d_closure_digest": "7e8c4ce4c27aa0d235a39cfe49e4dad4443be0bfae0750d61188a73d2cfeffb2",
+    "expected_psi0c_c_assessment_digest": "b5fb2187ad569b422f1ebbc029b7c619300a153d81b547f178c58769377fc7c4",
+    "expected_psi0c_c_assessment_bundle_digest": "6db46939fdfec9a34a63268809609c9a30a1a7dd86f5504b3d063bd0e8045ac3"
+  },
+  "qualified_behavior": {
+    "exact_three_file_schema": true,
+    "canonical_bytes_and_hash_replay": true,
+    "assessment_and_bundle_identity_replay": true,
+    "contract_lineage_provenance_and_authority_replay": true,
+    "source_provenance": "PRODUCTION_DERIVED_IMMUTABLE_LOCAL_BUNDLE",
+    "output_provenance": "PRODUCTION_DERIVED_IMMUTABLE_LOCAL_ASSESSMENT_SUMMARY",
+    "retains_or_emits_source_values": false,
+    "fixture_entry_point_weakened": false,
+    "pure_projection_performs_io": false,
+    "retries": false,
+    "policy_ranking_integration_deployment_activation_authority": false,
+    "real_psi0c_assessment_or_psi0b_bundle_opened": false
+  },
+  "focused_tests": {
+    "adapter_tests_passed": 15,
+    "combined_consumer_and_adapter_tests_passed": 32,
+    "covers": [
+      "valid frozen injected bundle representation",
+      "missing extra altered and noncanonical files",
+      "hash bundle assessment contract lineage provenance and authority drift",
+      "query membership missingness and reason-code structure",
+      "duplicate conflict and unmatched preservation",
+      "source-value non-disclosure",
+      "adapter and fixture-entry-point bypass",
+      "input-order independence",
+      "projection replay tamper",
+      "zero file database network service or configuration I/O"
+    ]
+  },
+  "regression_tests": {
+    "passed": 370,
+    "scope": "PSI0A, stable PSI0B, PSI0C and PSI0D suites"
+  },
+  "next_action": "HUMAN_APPROVAL_REQUIRED: authorize PSI0D-E replay-verified adapter qualification closure only."
+}

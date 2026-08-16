@@ -19,6 +19,7 @@ PSI0C_C_BUNDLE_IDENTITY = "6db46939fdfec9a34a63268809609c9a30a1a7dd86f5504b3d063
 PSI0C_B_DIGEST = "3f2d112ba18b190e7acdf9c0dd9ddf552258b7ed75295ccb7cc470a981cc70e1"
 AUTHORITY_CLASS = "FIXTURE_ONLY_NON_AUTHORITATIVE_ASSESSMENT_SUMMARY_CONSUMER"
 PROVENANCE_CLASS = "FROZEN_SYNTHETIC_ASSESSMENT_SUMMARY"
+PRODUCTION_DERIVED_PROVENANCE_CLASS = "PRODUCTION_DERIVED_IMMUTABLE_LOCAL_ASSESSMENT_SUMMARY"
 REASON_CODES = (
     "PSI0C_B_ABSENCE_IS_NOT_NEGATIVE",
     "PSI0C_B_CONFLICT_PRESERVED_UNRESOLVED",
@@ -148,14 +149,20 @@ def _count(value: object, reason: str) -> int:
     return value
 
 
-def _normalize_summary(summary: object) -> dict:
+def _normalize_summary(
+    summary: object,
+    *,
+    expected_fixture_only: bool = True,
+    expected_provenance_class: str = PROVENANCE_CLASS,
+) -> dict:
     if not isinstance(summary, Mapping) or set(summary) != SUMMARY_KEYS:
         raise AssessmentSummaryConsumerError("PSI0D_B_UNKNOWN_SUMMARY_SCHEMA")
     if summary["schema_version"] != "psi0d-b.synthetic-summary.v1":
         raise AssessmentSummaryConsumerError("PSI0D_B_SUMMARY_VERSION_DRIFT")
     if dict(summary["input_lineage"]) != _lineage():
         raise AssessmentSummaryConsumerError("PSI0D_B_STALE_OR_ALTERED_LINEAGE")
-    if summary["fixture_only"] is not True or summary["provenance_class"] != PROVENANCE_CLASS:
+    if (summary["fixture_only"] is not expected_fixture_only or
+            summary["provenance_class"] != expected_provenance_class):
         raise AssessmentSummaryConsumerError("PSI0D_B_NON_FIXTURE_PROVENANCE")
     authority = summary["authority"]
     if not isinstance(authority, Mapping) or set(authority) != AUTHORITY_KEYS or any(authority.values()):
@@ -198,8 +205,8 @@ def _normalize_summary(summary: object) -> dict:
     return {
         "schema_version": summary["schema_version"],
         "input_lineage": _lineage(),
-        "fixture_only": True,
-        "provenance_class": PROVENANCE_CLASS,
+        "fixture_only": expected_fixture_only,
+        "provenance_class": expected_provenance_class,
         "cohort_count": cohort,
         "membership": normalized_membership,
         "unresolved_conflict_count": conflicts,
@@ -215,6 +222,14 @@ def project_fixture_assessment_summary(
 ) -> AssessmentSummaryProjection:
     verify_assessment_summary_consumer_contract(contract)
     normalized = _normalize_summary(summary)
+    return _project_normalized_summary(contract, normalized)
+
+
+def _project_normalized_summary(
+    contract: AssessmentSummaryConsumerContract,
+    normalized: Mapping[str, object],
+) -> AssessmentSummaryProjection:
+    """Shared pure projection core; callers must validate provenance first."""
     surfaces = {}
     for query_id in QUERY_IDS:
         item = normalized["membership"][query_id]
@@ -231,9 +246,9 @@ def project_fixture_assessment_summary(
         "schema_version": "psi0d-b.descriptive-projection.v1",
         "contract_digest": contract.contract_digest,
         "input_lineage": _lineage(),
-        "fixture_only": True,
+        "fixture_only": normalized["fixture_only"],
         "default_off": True,
-        "provenance_class": PROVENANCE_CLASS,
+        "provenance_class": normalized["provenance_class"],
         "cohort_count": normalized["cohort_count"],
         "surfaces": surfaces,
         "unresolved_conflict_count": normalized["unresolved_conflict_count"],

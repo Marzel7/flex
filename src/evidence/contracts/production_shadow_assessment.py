@@ -188,6 +188,29 @@ def assess_fixture_shadow(
     input_lineage: Mapping[str, str],
     fixture_only: bool = True,
 ) -> ShadowAssessmentBundle:
+    if fixture_only is not True:
+        raise ProductionShadowAssessmentError("PSI0C_B_PRODUCTION_ROWS_PROHIBITED")
+    return _assess_shadow_rows(
+        contract,
+        cohort_mints=cohort_mints,
+        synthetic_results=synthetic_results,
+        output_directory=output_directory,
+        input_lineage=input_lineage,
+        provenance_class="FROZEN_SYNTHETIC_FIXTURE",
+        fixture_only=True,
+    )
+
+
+def _assess_shadow_rows(
+    contract: ShadowAssessmentContract,
+    *,
+    cohort_mints: Sequence[str],
+    synthetic_results: Mapping[str, Sequence[Mapping[str, object]]],
+    output_directory: Path,
+    input_lineage: Mapping[str, str],
+    provenance_class: str,
+    fixture_only: bool,
+) -> ShadowAssessmentBundle:
     verify_shadow_assessment_contract(contract)
     expected_lineage = {
         "psi0c_a_digest": PSI0C_A_DIGEST,
@@ -196,8 +219,6 @@ def assess_fixture_shadow(
     }
     if dict(input_lineage) != expected_lineage:
         raise ProductionShadowAssessmentError("PSI0C_B_STALE_OR_ALTERED_LINEAGE")
-    if fixture_only is not True:
-        raise ProductionShadowAssessmentError("PSI0C_B_PRODUCTION_ROWS_PROHIBITED")
     if tuple(synthetic_results) != QUERY_IDS:
         raise ProductionShadowAssessmentError("PSI0C_B_QUERY_SET_OR_ORDER_DRIFT")
     cohort = tuple(cohort_mints)
@@ -268,7 +289,8 @@ def assess_fixture_shadow(
         "schema_version": "psi0c-b.assessment.v1",
         "contract_digest": contract.contract_digest,
         "input_lineage": expected_lineage,
-        "fixture_only": True,
+        "fixture_only": fixture_only,
+        "provenance_class": provenance_class,
         "cohort_count": len(cohort),
         "membership": membership,
         "missingness": missingness,
@@ -324,6 +346,11 @@ def verify_fixture_shadow_assessment(output_directory: Path) -> ShadowAssessment
     if digest != _digest(assessment):
         raise ProductionShadowAssessmentError("PSI0C_B_ASSESSMENT_REPLAY_MISMATCH")
     assessment["assessment_digest"] = digest
-    if any(assessment["authority"].values()) or not assessment.get("fixture_only"):
+    provenance = assessment.get("provenance_class")
+    valid_provenance = (
+        (assessment.get("fixture_only") is True and provenance == "FROZEN_SYNTHETIC_FIXTURE") or
+        (assessment.get("fixture_only") is False and provenance == "PRODUCTION_DERIVED_IMMUTABLE_LOCAL_BUNDLE")
+    )
+    if any(assessment["authority"].values()) or not valid_provenance:
         raise ProductionShadowAssessmentError("PSI0C_B_AUTHORITY_DRIFT")
     return ShadowAssessmentBundle(output, digest, actual)

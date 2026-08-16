@@ -1,0 +1,74 @@
+{
+  "schema_version": "psi0c-c1.qualification.v1",
+  "milestone": "PSI0C-C1",
+  "engineering_base_commit": "0931cc421cde19835a81082bd0e52aef99050e59",
+  "status": "PASS",
+  "verdict": "PROVENANCE_PRESERVING_IMMUTABLE_BUNDLE_ADAPTER_QUALIFIED",
+  "adapter_contract_digest": "37ceac82d73152c4eba8d47f806a2d54d4131a074d1fc1120155e231755a31f9",
+  "bound_inputs": {
+    "psi0c_b_contract_digest": "3f2d112ba18b190e7acdf9c0dd9ddf552258b7ed75295ccb7cc470a981cc70e1",
+    "psi0c_b_qualification_digest": "e2ae86f50ae023195da0e94d2c69d8a2ff36831f27309b9476b699f42399a103",
+    "psi0b_g_closure_digest": "efadf9e061529af1fc690a253be4e8e29d7058d06d6a61be6105890b4e5e90cd",
+    "expected_psi0b_bundle_digest": "370c815a4bacc640874d798c168ff812c2efd205d6de497fdcfb79b4005351b9"
+  },
+  "qualified_boundary": {
+    "exact_input_files": [
+      "accounting.json",
+      "hashes.json",
+      "results.json",
+      "run.json"
+    ],
+    "canonical_bytes_verified": true,
+    "per_file_hashes_verified": true,
+    "bundle_identity_verified": true,
+    "production_run_lineage_verified": true,
+    "query_and_accounting_verified": true,
+    "psi0a_e_row_and_byte_ceilings_verified": true,
+    "provenance_class": "PRODUCTION_DERIVED_IMMUTABLE_LOCAL_BUNDLE",
+    "fixture_entry_point_weakened": false,
+    "atomic_no_partial_publication": true,
+    "exact_replay": true,
+    "retry_allowed": false
+  },
+  "focused_tests": {
+    "command": "python -m pytest -q tests/test_psi0c_b_shadow_assessment.py tests/test_psi0c_c1_immutable_bundle_adapter.py",
+    "passed": 24,
+    "failed": 0
+  },
+  "regression_tests": {
+    "stable_psi0a_psi0b_psi0c_command": "python -m pytest -q tests/test_psi0a_*.py tests/test_psi0b_a_production_shadow_run_preflight.py tests/test_psi0b_c_production_shadow_fixture_runner.py tests/test_psi0b_d_production_shadow_binding.py tests/test_psi0b_e12_production_entrypoint.py tests/test_psi0b_e15_evidence_import_isolation.py tests/test_psi0b_e9_telemetry_observer.py tests/test_psi0c_b_shadow_assessment.py tests/test_psi0c_c1_immutable_bundle_adapter.py",
+    "passed": 329,
+    "failed": 0
+  },
+  "fault_paths": [
+    "missing, extra and altered files",
+    "noncanonical bytes and digest drift",
+    "preflight lineage and authority drift",
+    "query identity and accounting drift",
+    "row ceiling breach",
+    "malformed evidence payload",
+    "output reuse",
+    "adapter contract tamper",
+    "fixture-entry-point bypass",
+    "assessment replay tamper"
+  ],
+  "authority": {
+    "real_bundle_read_authorized_by_qualification": false,
+    "extraction": false,
+    "integration": false,
+    "policy": false,
+    "ranking": false,
+    "activation": false,
+    "eb2": false
+  },
+  "actions_performed": {
+    "real_psi0b_bundle_files_opened": 0,
+    "production_derived_rows_inspected": 0,
+    "production_runtime_access": 0,
+    "select_or_explain_executed": 0,
+    "provider_rpc_calls": 0,
+    "production_writes_or_ddl": 0,
+    "service_actions": 0
+  },
+  "next_action": "HUMAN_APPROVAL_REQUIRED: authorize one fresh PSI0C-C local immutable-bundle assessment using the committed adapter and the still-absent bound output directory."
+}

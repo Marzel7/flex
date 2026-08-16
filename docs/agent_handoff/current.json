@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-16T10:15:00Z",
+  "updated_at_utc": "2026-08-16T10:30:00Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0C-D replay-verified closure and disposition",
-    "mode": "bounded safe-local read-only closure complete",
+    "milestone": "PSI0D-A limited-consumer integration-boundary roadmap reconciliation",
+    "mode": "bounded safe-local read-only roadmap reconciliation complete",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "PSI0C_CLOSED_NON_AUTHORITATIVE_PSI0D_A_MAY_BE_SEPARATELY_PROPOSED"
+    "verdict": "PSI0D_B_FIXTURE_ONLY_ASSESSMENT_SUMMARY_CONSUMER_CONTRACT_NEXT"
   },
   "production_state": {
     "retention": "ON",
@@ -240,6 +240,21 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0d_a_limited_consumer_integration_boundary_reconciliation": {
+      "status": "PASS",
+      "verdict": "PSI0D_B_FIXTURE_ONLY_ASSESSMENT_SUMMARY_CONSUMER_CONTRACT_NEXT",
+      "engineering_commit": "256e9e4cad35a6334578efacb431fd403c4874b9",
+      "reconciliation_digest": "e19dc0179d292d80535e7aa453a98693d98bb2f0c07e59e7f559aa7d39cb2b76",
+      "psi0c_d_closure_digest": "7e8c4ce4c27aa0d235a39cfe49e4dad4443be0bfae0750d61188a73d2cfeffb2",
+      "next_milestone": "PSI0D-B fixture-only non-authoritative assessment-summary consumer contract",
+      "real_bundles_opened": false,
+      "integration_output_created": false,
+      "consumer_integrated": false,
+      "evidence_modes_activated": false,
+      "production_activated": false,
+      "eb2_entered": false,
+      "artifact": "docs/audits/psi0d_a_limited_consumer_integration_boundary_reconciliation.json"
+    },
     "psi0c_d_replay_verified_closure_disposition": {
       "status": "PASS",
       "verdict": "PSI0C_CLOSED_NON_AUTHORITATIVE_PSI0D_A_MAY_BE_SEPARATELY_PROPOSED",
@@ -7328,6 +7343,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "PSI0D-A reconciled the smallest integration boundary as PSI0D-B: a pure fixture-only non-authoritative assessment-summary consumer contract. It may accept only synthetic aggregate coverage/missingness/accounting fields and must preserve ABSENT_NOT_NEGATIVE, duplicates, conflicts and unmatched counts without thresholds or resolution. Real assessment application, consumer integration/deployment, Evidence modes, production activation and EB2 remain separate and unauthorized.",
     "PSI0C is closed as a complete non-authoritative shadow assessment by PSI0C-D artifact digest 7e8c4ce4c27aa0d235a39cfe49e4dad4443be0bfae0750d61188a73d2cfeffb2. Sparse creator, evidence and ops coverage remains ABSENT_NOT_NEGATIVE. No policy, ranking, integration, Evidence mode, production activation or EB2 authority exists. The smallest safe next step is separately authorized PSI0D-A read-only integration-boundary roadmap reconciliation.",
     "PSI0C-C completed exactly once through the PSI0C-C2C adapter and replay-verified assessment digest b5fb2187ad569b422f1ebbc029b7c619300a153d81b547f178c58769377fc7c4 with bundle digest 6db46939fdfec9a34a63268809609c9a30a1a7dd86f5504b3d063bd0e8045ac3. The result is non-authoritative: policy, ranking, integration and activation are all false. PSI0C-D closure and disposition requires separate authorization before any later integration qualification or Evidence mode work.",
     "PSI0C-C2C is qualified at engineering commit 256e9e4cad35a6334578efacb431fd403c4874b9 with repaired adapter contract digest 977043b77ef7a97d23b021bbb4b4150b0f9dc6495421e42352662f0ea7285278 and qualification digest 6ce529317e9174e5b86e5ef0b95fbacf4e54c7bd2cc5be3c26871d0e2b28235d. It binds only the exact ops id-to-rowid and snapshot snapshot_id-to-rowid serialized variants, rejects all other variants, and preserves frozen SELECTs, logical schemas and production-derived immutable provenance. The real PSI0B bundle was not reopened, PSI0C-C was not retried, and the target output path remains absent. One fresh PSI0C-C assessment requires separate authorization.",
@@ -7447,8 +7463,10 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0D-A limited-consumer integration-boundary roadmap reconciliation",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize only a bounded safe-local read-only reconciliation defining a later fixture-only integration qualification boundary; do not integrate, deploy, activate Evidence modes, enter EB2 or activate production.",
+    "milestone": "PSI0D-B fixture-only non-authoritative assessment-summary consumer contract",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize safe-local pure contract implementation and frozen-fixture qualification only; no real assessment input, integration, deployment, Evidence mode, production activation or EB2 authority.",
+    "psi0d_a_reconciliation_digest": "e19dc0179d292d80535e7aa453a98693d98bb2f0c07e59e7f559aa7d39cb2b76",
+    "proposed_psi0d_b_approval_text": "Authorize PSI0D-B safe-local design, implementation, frozen/ephemeral-fixture tests, fault-injection tests, regression tests, documentation and one narrow commit for a pure fixture-only non-authoritative assessment-summary consumer contract. Bind engineering commit 256e9e4cad35a6334578efacb431fd403c4874b9, PSI0D-A reconciliation artifact docs/audits/psi0d_a_limited_consumer_integration_boundary_reconciliation.json with digest e19dc0179d292d80535e7aa453a98693d98bb2f0c07e59e7f559aa7d39cb2b76, PSI0C-D closure digest 7e8c4ce4c27aa0d235a39cfe49e4dad4443be0bfae0750d61188a73d2cfeffb2, PSI0C-C assessment identity b5fb2187ad569b422f1ebbc029b7c619300a153d81b547f178c58769377fc7c4 and bundle identity 6db46939fdfec9a34a63268809609c9a30a1a7dd86f5504b3d063bd0e8045ac3, PSI0C-B contract digest 3f2d112ba18b190e7acdf9c0dd9ddf552258b7ed75295ccb7cc470a981cc70e1 and the five frozen query identities. Accept only caller-injected frozen synthetic assessment summaries containing exact lineage and provenance identities, fixture-only marker, cohort denominator, per-query row and unique-mint counts, coverage numerators and denominators, duplicate and unmatched-row counts, aggregate unresolved-conflict and orphan/unmatched counts, missingness reason codes including ABSENT_NOT_NEGATIVE, and false policy/ranking/integration/activation authority. Emit only a deterministic canonical descriptive per-surface availability projection that copies coverage fractions without thresholds, preserves duplicate counts without collapse or entity inference, preserves ABSENT_NOT_NEGATIVE without negative inference, preserves conflict and unmatched counts without resolution, records deterministic reason codes, hashes and one replay digest, and grants no policy, ranking, integration, deployment or activation authority. Require a pure no-I/O, read-only, default-off fixture boundary and fail closed on source rows or field values, mint/address/signature/payload content, missing or extra fields, unknown query identity, stale lineage, negative or inconsistent accounting, authority drift, threshold/ranking/policy/selection content, replay tamper or scope expansion. Prove complete, empty and partial coverage, missingness preservation, duplicates, conflicts, unmatched accounting, input-order independence, malformed/stale inputs, authority drift, canonical replay and zero file/database/network/service/configuration access using frozen/ephemeral fixtures only. Do not inspect or apply the contract to the real PSI0C assessment or either immutable bundle, access production/runtime databases or services, perform live telemetry, execute SELECT or EXPLAIN, create production-derived integration output, make provider/RPC calls, execute DDL or production writes, deploy, restart or stop services, change configuration, manipulate locks or metrics, activate Evidence Mirror or Cohort Mode, integrate a consumer, rank entities, activate production or enter EB2. Stop after qualification and provide the exact separate approval prompt for PSI0D-C replay-verified qualification closure only.",
     "psi0c_d_closure_digest": "7e8c4ce4c27aa0d235a39cfe49e4dad4443be0bfae0750d61188a73d2cfeffb2",
     "proposed_psi0d_a_approval_text": "Authorize PSI0D-A as a bounded safe-local read-only limited-consumer integration-boundary roadmap reconciliation over the closed PSI0C stack. Bind engineering commit 256e9e4cad35a6334578efacb431fd403c4874b9, PSI0C-D closure artifact docs/audits/psi0c_d_replay_verified_closure_disposition.json with digest 7e8c4ce4c27aa0d235a39cfe49e4dad4443be0bfae0750d61188a73d2cfeffb2, PSI0C-C assessment digest b5fb2187ad569b422f1ebbc029b7c619300a153d81b547f178c58769377fc7c4 and assessment bundle digest 6db46939fdfec9a34a63268809609c9a30a1a7dd86f5504b3d063bd0e8045ac3, PSI0C-B contract digest 3f2d112ba18b190e7acdf9c0dd9ddf552258b7ed75295ccb7cc470a981cc70e1, PSI0B-G closure digest efadf9e061529af1fc690a253be4e8e29d7058d06d6a61be6105890b4e5e90cd and the committed Post-E/EB integration roadmap artifacts only. Define the smallest coherent safe-local fixture-only limited-consumer integration qualification milestone, including its immutable inputs, accepted aggregate assessment fields, explicit handling of ABSENT_NOT_NEGATIVE missingness and duplicate rows, consumer authority boundary, deterministic outputs, fault and replay tests, stop conditions and separate human-approval sequence. Require the proposed consumer boundary to remain non-authoritative, read-only, default-off and incapable of ranking, policy decisions, evidence acquisition, provider access, production mutation or activation. Explicitly distinguish fixture-only integration qualification from reading or integrating the real PSI0C assessment bundle, deploying a consumer, Evidence Mirror or Cohort Mode activation, production activation and EB2; authorize and implement none of them. Do not inspect or alter source result rows or either immutable bundle, access production/runtime databases or services, perform live telemetry, execute SELECT or EXPLAIN, create integration output, make provider/RPC calls, execute DDL or production writes, deploy, restart or stop services, change configuration, manipulate locks or metrics, activate Evidence Mirror or Cohort Mode, integrate a consumer, rank entities, activate production or enter EB2. Stop after the PSI0D-A roadmap verdict and provide the exact next approval prompt only for the smallest coherent safe-local fixture qualification milestone.",
     "psi0c_c_assessment_digest": "b5fb2187ad569b422f1ebbc029b7c619300a153d81b547f178c58769377fc7c4",

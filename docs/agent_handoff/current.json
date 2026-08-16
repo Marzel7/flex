@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-16T11:58:14Z",
+  "updated_at_utc": "2026-08-16T12:05:08Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "0b3687fb0b61529034702f6117eb60071c43074f",
-    "working_tree": "dirty: unrelated live/runtime/user paths preserved; PSI0E-A committed narrowly; PSI0C/PSI0D closure artifacts plus prior audit/diagnosis artifacts uncommitted"
+    "git_head": "3013be47017a000c1db3c70fbf323102d0fc40d3",
+    "working_tree": "dirty: unrelated live/runtime/user paths preserved; PSI0F-B committed narrowly; PSI0C/PSI0D/PSI0E closure artifacts plus prior audit/diagnosis artifacts uncommitted"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0F-A known-behaviour operational-surfacing roadmap reconciliation",
-    "mode": "bounded safe-local read-only roadmap reconciliation complete",
+    "milestone": "PSI0F-B fixture-only known-behaviour operational-surface qualification",
+    "mode": "safe-local design, implementation, tests, documentation and narrow commit complete",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "NEXT_PSI0F_B_FIXTURE_ONLY_KNOWN_BEHAVIOUR_OPERATIONAL_SURFACE_CONTRACT"
+    "verdict": "FIXTURE_ONLY_DEFAULT_OFF_KNOWN_BEHAVIOUR_OPERATIONAL_SURFACE_QUALIFIED"
   },
   "production_state": {
     "retention": "ON",
@@ -7391,6 +7391,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "PSI0F-B is qualified and committed narrowly at engineering revision 3013be47017a000c1db3c70fbf323102d0fc40d3 with contract digest 042568c68b0eb86ef41bc65037568d65214d02d9d9753988adf88c86c14222ef and qualification artifact digest 9fd40a793285039c0f717ce9d1d4a022b828f22381006aa4d7ed574c73170b2b. Twenty-one focused and 98 combined PSI0D/E/F tests pass. The broader PSI0 sweep has 480 passes and the unchanged 27 retained-output PSI0B failures. No real bundle was read and no output, I/O, integration, attribution or activation authority exists. PSI0F-C replay-verified qualification closure requires separate authorization.",
     "PSI0F-A reconciliation artifact docs/audits/psi0f_a_known_behaviour_operational_surfacing_roadmap_reconciliation.json has digest c68d273ceb8248521b330f7fe06ee6ed21614b07df783496f23f4de36cae0534. PSI0E contains aggregate availability only, while EB0.4 contains operation-level role and non-authoritative behavioural-family nominations; no operation-specific cross-layer join exists. The smallest safe next milestone is PSI0F-B fixture-only known-behaviour operational-surface contract that displays these layers separately and rejects identity, attribution, ranking, policy or negative inference. No implementation or authority was granted by PSI0F-A.",
     "PSI0E is closed by PSI0E-H artifact docs/audits/psi0e_h_integration_envelope_publication_closure_disposition.json with digest ae0994f1f3647f53fbcd3cabf0c8e46efa26b504805fecb95e8d2851d9e98c16. The exact three-file PSI0E-G bundle replay-verifies at digest 88c7de3156a4dc07b3c3b2461b4e1e37e85d5bd06d217d904472e4f4bc6f4d9c with cohort 5,000, five surfaces, 2,266 snapshot duplicates, zero conflicts and zero unmatched rows. It remains default-off, consumer-disabled and non-authoritative. No integration, deployment, Evidence mode, activation or EB2 authority exists. The smallest next step is a separately authorized PSI0F-A read-only known-behaviour operational-surfacing roadmap reconciliation.",
     "PSI0E-G published the immutable default-off descriptive integration envelope successfully at docs/audits/psi0e_runs/psi0e-envelope-20260816-01. Bundle digest is 88c7de3156a4dc07b3c3b2461b4e1e37e85d5bd06d217d904472e4f4bc6f4d9c; envelope digest c8827678b2137f1aec864f86623514a92affb0c6df092d13b24c160f8fb90a9d; contract file digest 84cbc69f1d6120624727a5d0faeb3a0d02734eb62d0986d9e70879fa2ca6a748; hashes file digest 26b1d454e295f622bb9d1e6b44ccc2197f5ad01c91f61aa8ad7333678722f56d. Exactly one audit read, adapter invocation and publisher invocation occurred. Atomic publication and internal replay passed; exact three-file output exists with no staging. PSI0E-H replay-verified closure requires separate authorization; integration, deployment and activation remain false.",
@@ -7542,8 +7543,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0F-B fixture-only known-behaviour operational-surface contract",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize pure fixture-only design, implementation, tests, documentation and one narrow commit for a default-off descriptive surface over separate synthetic PSI0E aggregate availability and EB0.4 operational-family summaries, with no cross-layer join or authority promotion.",
+    "milestone": "PSI0F-C known-behaviour operational-surface qualification closure",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize bounded safe-local read-only replay verification of the committed PSI0F-B contract, qualification artifact, test evidence, separate aggregate/family layers, no-cross-layer-join rule, source-value non-retention and false authority; do not apply it to real bundles or create output.",
     "psi0d_d_engineering_commit": "9ef7467327b74dbf435fc00ddc26c99a77f5b33e",
     "psi0d_d_adapter_contract_digest": "48e4480d741793c78dda8413ce8fa233c849d3781538bc32c0283a436f00bd7d",
     "psi0d_d_qualification_digest": "b918f495bb34858b9dce86b61f657d530e0db47ba1f36f17095e0250d9ec9265",

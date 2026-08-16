@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-16T13:45:00Z",
+  "updated_at_utc": "2026-08-16T14:15:00Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0D-H fixture-only immutable descriptive-projection publisher qualification",
-    "mode": "safe-local implementation, frozen fixture publication, fault tests, regressions, documentation and narrow commit complete",
+    "milestone": "PSI0D-I atomic publisher qualification closure",
+    "mode": "bounded safe-local read-only contract, qualification and regression replay complete",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "FIXTURE_ONLY_ATOMIC_DESCRIPTIVE_PROJECTION_PUBLICATION_CONTRACT_QUALIFIED"
+    "verdict": "PSI0D_H_CLOSED_QUALIFIED_ONE_BOUNDED_LOCAL_PROJECTION_PUBLICATION_MAY_BE_PROPOSED"
   },
   "production_state": {
     "retention": "ON",
@@ -7391,6 +7391,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "PSI0D-I closes PSI0D-H as replay-verified and qualified. Closure artifact docs/audits/psi0d_i_atomic_publisher_qualification_closure.json has digest 60e281684fc7a1e940496293f2e17c34f8a62d5df38d874650b3f541652c33da. Exactly one bounded PSI0D-J local projection publication is coherent to the absent path docs/audits/psi0d_runs/psi0d-projection-20260816-01 using only the PSI0D-F aggregate audit and committed lineage. Publication remains separately authorized; integration, deployment, Evidence modes, production activation and EB2 remain unauthorized.",
     "PSI0D-H is qualified at engineering commit 89dd764be84fa5362c54ef5518c23563dacd79d7 with publication contract digest b448d37d6f95a6b92bd838f224e98d1f68e0325cdb2e1827a1ef11c27b583770 and qualification artifact digest d1396f56f248f5e29f406ba4951cc319d7f051ef60a7fa8dfc42f721c9ddb897. Nineteen publisher tests, 51 combined PSI0D focused tests and 389 PSI0 regressions pass. The real assessment and projection were not opened or published. PSI0D-I replay-verified qualification closure requires separate authorization before any real publication or integration milestone.",
     "PSI0D-G closes PSI0D-F as replay-verified. Closure artifact docs/audits/psi0d_g_in_memory_application_closure_publication_disposition.json has digest 1ba3574d2caff53c538f3990a86604edc48052e7f9fd926e4b8f1242156e468d. A fixture-only atomic immutable descriptive-projection publication contract is coherent as PSI0D-H, but no real projection publication, consumer integration, deployment, Evidence mode, production activation or EB2 authority exists.",
     "PSI0D-F completed exactly one read-once in-memory adapter application. Audit artifact docs/audits/psi0d_f_in_memory_adapter_application.json has digest 9e755dcc6fceef6ef27664eb8531cff0478b0b6cc252ded22ee84adfefd1efac and projection digest 482461d10319e657bbb4df37b4cfa4be526ada21b4dbd3186ce43834ecb2d136. The permitted aggregate projection preserves ABSENT_NOT_NEGATIVE, 2,266 snapshot duplicates, zero conflicts and zero unmatched rows. No source values were recorded, no consumer output was published and no integration authority exists. Any publication or integration milestone requires separate qualification and authorization.",
@@ -7518,8 +7519,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0D-I replay-verified atomic publisher qualification closure",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize bounded read-only replay closure of committed PSI0D-H artifacts only; do not open the real assessment, publish the real projection, integrate, deploy or activate anything.",
+    "milestone": "PSI0D-J one bounded immutable local projection publication",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize exactly one safe-local reconstruction from the PSI0D-F permitted aggregate audit and atomic publication to the bound absent output directory, followed by exact replay only; do not reopen source bundles, integrate, deploy or activate anything.",
     "psi0d_d_engineering_commit": "9ef7467327b74dbf435fc00ddc26c99a77f5b33e",
     "psi0d_d_adapter_contract_digest": "48e4480d741793c78dda8413ce8fa233c849d3781538bc32c0283a436f00bd7d",
     "psi0d_d_qualification_digest": "b918f495bb34858b9dce86b61f657d530e0db47ba1f36f17095e0250d9ec9265",

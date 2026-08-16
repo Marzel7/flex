@@ -1,0 +1,55 @@
+{
+  "schema_version": "psi0f-b.qualification.v1",
+  "milestone": "PSI0F-B",
+  "engineering_base_commit": "0b3687fb0b61529034702f6117eb60071c43074f",
+  "status": "PASS",
+  "verdict": "FIXTURE_ONLY_DEFAULT_OFF_KNOWN_BEHAVIOUR_OPERATIONAL_SURFACE_QUALIFIED",
+  "contract_digest": "042568c68b0eb86ef41bc65037568d65214d02d9d9753988adf88c86c14222ef",
+  "bound_inputs": {
+    "psi0f_a_digest": "c68d273ceb8248521b330f7fe06ee6ed21614b07df783496f23f4de36cae0534",
+    "psi0e_h_digest": "ae0994f1f3647f53fbcd3cabf0c8e46efa26b504805fecb95e8d2851d9e98c16",
+    "psi0e_bundle_identity": "88c7de3156a4dc07b3c3b2461b4e1e37e85d5bd06d217d904472e4f4bc6f4d9c",
+    "psi0e_envelope_identity": "c8827678b2137f1aec864f86623514a92affb0c6df092d13b24c160f8fb90a9d"
+  },
+  "qualification": {
+    "focused_tests_passed": 21,
+    "combined_psi0d_e_f_tests_passed": 98,
+    "broader_psi0_tests_passed": 480,
+    "broader_state_coupled_psi0b_failures": 27,
+    "failures_are_psi0f_b_regressions": false,
+    "complete_partial_and_empty_coverage": true,
+    "proposed_and_supported_preserved": true,
+    "role_edge_mechanism_temporal_preserved": true,
+    "topology_only_rejected": true,
+    "absence_duplicate_conflict_unmatched_preserved": true,
+    "operation_specific_coverage_inference_rejected": true,
+    "operator_identity_ranking_policy_semantics_rejected": true,
+    "input_order_independent": true,
+    "canonical_replay_and_tamper_rejection": true,
+    "source_values_retained": false,
+    "performs_io": false
+  },
+  "output_boundary": {
+    "schema": "DESCRIPTIVE_DEFAULT_OFF_KNOWN_BEHAVIOUR_OPERATIONAL_SURFACE",
+    "psi0e_context": "GLOBAL_AGGREGATE_ONLY",
+    "operation_specific_cross_layer_join": false,
+    "fixture_only": true,
+    "default_off": true,
+    "consumer_enabled": false
+  },
+  "authority": {
+    "policy": false,
+    "ranking": false,
+    "attribution": false,
+    "integration": false,
+    "deployment": false,
+    "activation": false
+  },
+  "scope_proof": {
+    "real_psi0e_or_eb0_4_bundle_read": false,
+    "real_operational_output_created": false,
+    "production_or_runtime_access": false,
+    "provider_or_rpc_calls": 0
+  },
+  "next_action": "HUMAN_APPROVAL_REQUIRED: PSI0F-C replay-verified qualification closure only."
+}

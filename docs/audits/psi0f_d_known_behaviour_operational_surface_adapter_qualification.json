@@ -1,0 +1,61 @@
+{
+  "schema_version": "psi0f-d.qualification.v1",
+  "milestone": "PSI0F-D",
+  "engineering_base_commit": "3013be47017a000c1db3c70fbf323102d0fc40d3",
+  "status": "PASS",
+  "verdict": "FIXTURE_ONLY_IMMUTABLE_SUMMARY_ADAPTERS_QUALIFIED",
+  "adapter_contract_digest": "0d93b35b98c30d55d03ea8c8c787ba213442ab70b43499b989bfe8f2a18f990e",
+  "bound_inputs": {
+    "psi0f_c_digest": "bac68ff658eaeffbc77c09ff4a827a221c60e9b6c20e3e65f7b195299dd76cf0",
+    "psi0f_b_contract_digest": "042568c68b0eb86ef41bc65037568d65214d02d9d9753988adf88c86c14222ef",
+    "psi0f_b_qualification_digest": "9fd40a793285039c0f717ce9d1d4a022b828f22381006aa4d7ed574c73170b2b",
+    "psi0e_h_digest": "ae0994f1f3647f53fbcd3cabf0c8e46efa26b504805fecb95e8d2851d9e98c16",
+    "psi0e_bundle_identity": "88c7de3156a4dc07b3c3b2461b4e1e37e85d5bd06d217d904472e4f4bc6f4d9c",
+    "psi0e_envelope_identity": "c8827678b2137f1aec864f86623514a92affb0c6df092d13b24c160f8fb90a9d"
+  },
+  "qualification": {
+    "focused_adapter_tests_passed": 15,
+    "combined_psi0d_e_f_tests_passed": 147,
+    "broader_psi0_tests_passed": 495,
+    "broader_state_coupled_psi0b_failures": 27,
+    "failures_are_psi0f_d_regressions": false,
+    "exact_file_sets_and_canonical_bytes_verified": true,
+    "hash_bundle_contract_and_lineage_replay_verified": true,
+    "psi0e_global_aggregate_only": true,
+    "eb0_4_operational_semantics_preserved": true,
+    "production_derived_provenance_kept_separate": true,
+    "operation_specific_cross_layer_join": false,
+    "source_values_retained": false,
+    "input_order_independent": true,
+    "performs_io": false,
+    "retries_allowed": false
+  },
+  "fail_closed_paths": [
+    "FILE_SET_OR_CANONICALIZATION_DRIFT",
+    "HASH_DIGEST_CONTRACT_OR_LINEAGE_DRIFT",
+    "PROVENANCE_SCHEMA_ACCOUNTING_OR_AUTHORITY_DRIFT",
+    "UNKNOWN_ROLE_DESCRIPTOR_OR_NOMINATION_STATE",
+    "TOPOLOGY_ONLY_SUPPORT",
+    "PROHIBITED_VALUE_OR_OPERATION_SPECIFIC_LINKAGE",
+    "IDENTITY_ATTRIBUTION_RANKING_POLICY_OR_SELECTION_CONTENT",
+    "NEGATIVE_INFERENCE_OR_IMPLICIT_RESOLUTION",
+    "ADAPTER_BYPASS_OR_REPLAY_TAMPER"
+  ],
+  "authority": {
+    "policy": false,
+    "ranking": false,
+    "attribution": false,
+    "integration": false,
+    "deployment": false,
+    "activation": false
+  },
+  "scope_proof": {
+    "real_psi0e_bundle_read": false,
+    "real_eb0_4_output_read": false,
+    "production_derived_adapter_application": false,
+    "real_operational_surface_created": false,
+    "production_or_runtime_access": false,
+    "provider_or_rpc_calls": 0
+  },
+  "next_action": "HUMAN_APPROVAL_REQUIRED: PSI0F-E replay-verified adapter qualification closure only."
+}

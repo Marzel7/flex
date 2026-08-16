@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-16T11:14:21Z",
+  "updated_at_utc": "2026-08-16T11:17:18Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0E-E immutable atomic integration-envelope publication contract qualification",
-    "mode": "safe-local fixture-only design, implementation, fault tests, regression tests, documentation and narrow commit complete",
+    "milestone": "PSI0E-F atomic integration-envelope publisher qualification closure",
+    "mode": "safe-local read-only replay verification and publication-boundary disposition complete",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "FIXTURE_ONLY_ATOMIC_IMMUTABLE_INTEGRATION_ENVELOPE_PUBLISHER_QUALIFIED"
+    "verdict": "PSI0E_E_CLOSED_QUALIFIED_LOCAL_ENVELOPE_PUBLICATION_COHERENT_AFTER_PARENT_PREPARATION"
   },
   "production_state": {
     "retention": "ON",
@@ -7391,6 +7391,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "PSI0E-F closes PSI0E-E as replay-verified and qualified. Closure artifact docs/audits/psi0e_f_atomic_envelope_publisher_qualification_closure.json has digest 533ee09789ec52b87350cac49ff5664484d827898cc98b5341c59662a4d35ad1. One bounded local envelope publication is coherent, but docs/audits/psi0e_runs is absent and the publisher requires an existing parent. The smallest next action is separately authorized PSI0E-G1 creation and verification of only that empty parent, followed by a fresh PSI0E-G publication authorization. No real envelope was reconstructed or published and no integration or activation authority exists.",
     "PSI0E-E is qualified at engineering commit 145363100675244dea8f616c4c0af63bc928ceb9 with publication contract digest b893198fed71329c33083176a7ce93d7c86f119ab66b9488dbf9c42db6435cc3 and qualification artifact digest c36797426684302ccffaefe031f5c142ddb2df546fb30b3cafac2ce79b4f0129. Twenty-three publisher tests and 92 combined PSI0D/E focused tests pass. The full PSI0 sweep has 440 passes and 27 historical PSI0B failures caused solely by retained successful shadow output conflicting with pre-publication absence assumptions; that immutable output was preserved. No real envelope was reconstructed or published. PSI0E-F replay-verified qualification closure requires separate authorization.",
     "PSI0E-D closes PSI0E-C as replay-verified. Closure artifact docs/audits/psi0e_d_in_memory_envelope_application_closure_disposition.json has digest 8834859723b64ce18c323cfd0b404f47e888805c05e620afcbb844ec057396a7. The in-memory envelope remains default-off, consumer-disabled and non-authoritative, preserving cohort 5,000, 9,709 rows, 2,266 duplicates, zero conflicts and zero unmatched rows under ABSENT_NOT_NEGATIVE. The smallest coherent next milestone is separately authorized PSI0E-E fixture-only qualification of an atomic immutable envelope publication contract; real publication, integration, deployment, Evidence modes, production activation and EB2 remain unauthorized.",
     "PSI0E-C completed exactly once against the immutable PSI0D bundle. Each of the three files was read once, the contract was applied once and the in-memory envelope replay-verified with input digest 89c8dee5c976bd587aa6fc7ec3a6194e38caeba5508013c8ddca976489038f35 and envelope digest c8827678b2137f1aec864f86623514a92affb0c6df092d13b24c160f8fb90a9d. It preserves 9,709 rows, 2,266 duplicates, zero conflicts and zero unmatched rows, is default-off and consumer-disabled, and grants no authority. No integration output was created. PSI0E-D closure and disposition requires separate authorization.",

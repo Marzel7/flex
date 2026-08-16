@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-16T12:10:00Z",
+  "updated_at_utc": "2026-08-16T12:40:00Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0D-E immutable-assessment adapter qualification closure",
-    "mode": "bounded safe-local read-only replay verification of committed PSI0D-D artifacts complete",
+    "milestone": "PSI0D-F bounded in-memory immutable-assessment adapter application",
+    "mode": "exactly one safe-local read-only read-once in-memory application and direct canonical replay complete",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "PSI0D_D_CLOSED_QUALIFIED_ONE_BOUNDED_IN_MEMORY_APPLICATION_MAY_BE_PROPOSED"
+    "verdict": "BOUNDED_IN_MEMORY_DESCRIPTIVE_PROJECTION_REPLAY_VERIFIED"
   },
   "production_state": {
     "retention": "ON",
@@ -7391,6 +7391,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "PSI0D-F completed exactly one read-once in-memory adapter application. Audit artifact docs/audits/psi0d_f_in_memory_adapter_application.json has digest 9e755dcc6fceef6ef27664eb8531cff0478b0b6cc252ded22ee84adfefd1efac and projection digest 482461d10319e657bbb4df37b4cfa4be526ada21b4dbd3186ce43834ecb2d136. The permitted aggregate projection preserves ABSENT_NOT_NEGATIVE, 2,266 snapshot duplicates, zero conflicts and zero unmatched rows. No source values were recorded, no consumer output was published and no integration authority exists. Any publication or integration milestone requires separate qualification and authorization.",
     "PSI0D-E closes PSI0D-D as replay-verified and qualified. Closure artifact docs/audits/psi0d_e_immutable_assessment_adapter_qualification_closure.json has digest 5452c1f3a00e7fceeb0685c8688f5515f98e60e8030fecd6db34071556dd5729 and binds adapter digest 48e4480d741793c78dda8413ce8fa233c849d3781538bc32c0283a436f00bd7d, qualification digest b918f495bb34858b9dce86b61f657d530e0db47ba1f36f17095e0250d9ec9265, 32 focused tests and 370 PSI0 regressions. The real PSI0C assessment and PSI0B bundle remain unopened and no consumer output exists. Exactly one later bounded read-once in-memory adapter application is coherent as PSI0D-F but requires separate authorization; publication, integration, deployment, Evidence modes, production activation and EB2 remain unauthorized.",
     "PSI0D-D is qualified at engineering commit 9ef7467327b74dbf435fc00ddc26c99a77f5b33e with adapter digest 48e4480d741793c78dda8413ce8fa233c849d3781538bc32c0283a436f00bd7d and qualification digest b918f495bb34858b9dce86b61f657d530e0db47ba1f36f17095e0250d9ec9265. It preserves production-derived summary provenance without retaining or emitting source values, while the PSI0D-B fixture entry point remains fail-closed. The real assessment and source bundle remain unopened. PSI0D-E replay-verified adapter qualification closure requires separate authorization.",
     "PSI0D-C closes PSI0D-B as replay-verified and qualified at closure digest 6ee6424e38734ed5624c17ceb20b5ff45d071fa0ba5b754fd0df546d669221b8. A provenance-preserving immutable-assessment summary adapter is coherent as PSI0D-D fixture-only qualification, but the real PSI0C assessment must remain unopened until a later independent authorization. No local consumer output, integration, deployment, Evidence mode, activation or EB2 authority exists.",
@@ -7515,8 +7516,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0D-F bounded in-memory immutable-assessment adapter application",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize exactly one safe-local read-only application to the immutable PSI0C assessment, replay-verifying and projecting permitted aggregates in memory only; publish no consumer output and grant no integration, deployment, Evidence-mode, production-activation or EB2 authority.",
+    "milestone": "PSI0D-G in-memory application closure and publication-boundary disposition",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize read-only replay closure of the PSI0D-F audit and determine the smallest fixture-qualified immutable local publication boundary, if coherent; do not publish output, integrate, deploy, activate Evidence modes, activate production or enter EB2.",
     "psi0d_d_engineering_commit": "9ef7467327b74dbf435fc00ddc26c99a77f5b33e",
     "psi0d_d_adapter_contract_digest": "48e4480d741793c78dda8413ce8fa233c849d3781538bc32c0283a436f00bd7d",
     "psi0d_d_qualification_digest": "b918f495bb34858b9dce86b61f657d530e0db47ba1f36f17095e0250d9ec9265",

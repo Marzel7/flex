@@ -1,0 +1,58 @@
+{
+  "schema_version": "psi0e-a.qualification.v1",
+  "milestone": "PSI0E-A",
+  "qualified_at_utc": "2026-08-16T16:00:00Z",
+  "base_engineering_commit": "89dd764be84fa5362c54ef5518c23563dacd79d7",
+  "status": "PASS",
+  "verdict": "FIXTURE_ONLY_DEFAULT_OFF_NON_AUTHORITATIVE_INTEGRATION_ENVELOPE_QUALIFIED",
+  "integration_envelope_contract_digest": "2c8b2a296cb55ceb7da59ea4b063557749842041ba35251ec605e3f5f231350f",
+  "bound_inputs": {
+    "psi0d_bundle_digest": "4f208d7cc00e7b451c796ad16b5c28862cd79c30e476f41c22d7b4fa589e9477",
+    "psi0d_projection_digest": "482461d10319e657bbb4df37b4cfa4be526ada21b4dbd3186ce43834ecb2d136",
+    "psi0d_hashes_file_digest": "5c3bb6bb162b275c98d699e70543c700adf7b05a32a4044612d52e25bf8e90c8",
+    "psi0d_h_publication_contract_digest": "b448d37d6f95a6b92bd838f224e98d1f68e0325cdb2e1827a1ef11c27b583770",
+    "psi0d_b_consumer_contract_digest": "a9e368cceede689736ca234891394551bda098df3b51ebfebf2e72f32aeb51f6"
+  },
+  "qualified_behavior": {
+    "injected_frozen_synthetic_three_file_bundle_only": true,
+    "canonical_file_hash_projection_bundle_contract_and_lineage_replay": true,
+    "source_provenance": "PRODUCTION_DERIVED_IMMUTABLE_LOCAL_ASSESSMENT_SUMMARY",
+    "output_provenance": "PRODUCTION_DERIVED_IMMUTABLE_LOCAL_DESCRIPTIVE_INTEGRATION_ENVELOPE",
+    "exact_aggregate_schema_and_accounting": true,
+    "absent_not_negative_preserved": true,
+    "duplicates_conflicts_and_unmatched_preserved": true,
+    "source_values_retained_or_emitted": false,
+    "pure_core_performs_io": false,
+    "default_off": true,
+    "consumer_enabled": false,
+    "retries": false,
+    "thresholds_ranking_policy_selection_allowed": false,
+    "grants_policy_ranking_integration_deployment_activation_authority": false,
+    "deterministic_canonical_replay": true
+  },
+  "fault_coverage": [
+    "missing extra altered malformed and noncanonical bundle files",
+    "file projection hashes bundle publication and consumer contract drift",
+    "lineage provenance schema accounting reason-code interpretation and authority drift",
+    "source-value and prohibited-field leakage",
+    "empty partial and full coverage",
+    "duplicate conflict and unmatched preservation",
+    "contract bypass and envelope replay tamper",
+    "input-order independence",
+    "zero file database network service and configuration I/O"
+  ],
+  "tests": {
+    "integration_envelope_tests_passed": 18,
+    "combined_psi0d_psi0e_focused_tests_passed": 69,
+    "psi0_regressions_passed": 407
+  },
+  "scope_proof": {
+    "real_psi0d_bundle_opened": false,
+    "psi0c_assessment_or_psi0b_bundle_opened": false,
+    "real_integration_output_created": false,
+    "production_or_runtime_access": false,
+    "provider_or_rpc_calls": 0,
+    "integration_deployment_or_activation": false
+  },
+  "next_action": "HUMAN_APPROVAL_REQUIRED: authorize PSI0E-B replay-verified fixture integration-envelope qualification closure only."
+}

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-16T11:41:13Z",
+  "updated_at_utc": "2026-08-16T11:44:23Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0E-G immutable envelope publication attempt",
-    "mode": "single authorized safe-local adapter-to-publisher attempt stopped before publication",
+    "milestone": "PSI0E-G5 adapter result-interface diagnosis",
+    "mode": "bounded safe-local read-only committed-interface diagnosis complete",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "HOLD_PSI0E_G_ADAPTER_RESULT_INTERFACE_MISMATCH_NO_RETRY"
+    "verdict": "CALLER_MISUSE_COMMITTED_CONTRACT_INTERFACE_CORRECT_ONE_FRESH_PUBLICATION_MAY_BE_PROPOSED"
   },
   "production_state": {
     "retention": "ON",
@@ -7391,6 +7391,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "PSI0E-G5 diagnosis artifact docs/audits/psi0e_g5_adapter_result_interface_diagnosis.json has digest 8cdaaebed0ce0445524445f33fdc6eecbf5f7c9f69fd1d2bd5d19b407671df27. The stopped G attempt used nonexistent result.canonical_input_digest; the qualified DescriptiveIntegrationEnvelope exposes input_digest, envelope_digest, contract_digest and canonical_envelope. The adapter already verifies all three digests internally and the publisher independently verifies canonical envelope bytes. This is caller misuse, not a contract defect. No repair is required; one fresh separately authorized publication using the exact result interface is coherent.",
     "PSI0E-G consumed its single authorized attempt and stopped before publisher invocation: the committed G3 adapter returned DescriptiveIntegrationEnvelope without the canonical_input_digest attribute expected by the orchestration boundary. The PSI0D-F audit was read exactly once; no retry occurred. docs/audits/psi0e_runs remains empty, psi0e-envelope-20260816-01 remains absent, and no staging or partial publication exists. The prior PSI0E-G authorization is permanently non-reusable; the smallest next action is a separately authorized safe-local read-only adapter result-interface diagnosis.",
     "PSI0E-G4 closes PSI0E-G3 as replay-verified and qualified. Closure artifact docs/audits/psi0e_g4_audit_adapter_qualification_closure.json has digest 0e7cd7786e36b464a4158dda5f8b4d3b7f02311da2747fcde1a8a02fd2bd9757. The prepared psi0e_runs parent remains empty and non-symlinked and target psi0e-envelope-20260816-01 remains absent. One fresh bounded publication through the G3 adapter and E publisher is coherent but requires separate authorization. No real audit was opened and no envelope or output was created.",
     "PSI0E-G3 is qualified at engineering commit 0b3687fb0b61529034702f6117eb60071c43074f with adapter contract digest 668ddda9b18f9034bdbc595f27b7fa70acc1d8b1a5b298f24a6af38a25d26814 and qualification artifact digest bda8785637f2e8f900a3653c7e94997dda7003f99c131574773a3376a8d109bf. Nineteen adapter tests and 111 combined PSI0D/E tests pass; 459 broader PSI0 tests pass and the same 27 historic PSI0B output-absence assertions remain state-coupled. The real PSI0D-F audit and upstream bundles were not reopened and no envelope or output was created. PSI0E-G4 replay-verified adapter qualification closure requires separate authorization.",
@@ -7536,8 +7537,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0E-G5 adapter result-interface diagnosis",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize a bounded safe-local read-only diagnosis of the committed G3 adapter return schema and the stopped G publication orchestration assumption. Do not reread the real PSI0D-F audit, retry publication, reconstruct the real envelope or create output.",
+    "milestone": "PSI0E-G fresh immutable envelope publication",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize exactly one fresh bounded publication using result.input_digest, result.envelope_digest, result.contract_digest and result.canonical_envelope from the committed G3 adapter, followed by one E-publisher invocation. Treat the stopped authorization as non-reusable.",
     "psi0d_d_engineering_commit": "9ef7467327b74dbf435fc00ddc26c99a77f5b33e",
     "psi0d_d_adapter_contract_digest": "48e4480d741793c78dda8413ce8fa233c849d3781538bc32c0283a436f00bd7d",
     "psi0d_d_qualification_digest": "b918f495bb34858b9dce86b61f657d530e0db47ba1f36f17095e0250d9ec9265",

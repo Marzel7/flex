@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-16T11:24:25Z",
+  "updated_at_utc": "2026-08-16T11:30:07Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0E-G bounded local envelope publication attempt",
-    "mode": "single fail-closed audit reconstruction attempt stopped before publisher invocation",
+    "milestone": "PSI0E-G2 envelope lineage and deterministic reconstruction diagnosis",
+    "mode": "safe-local read-only audit-schema and committed pure-contract diagnosis complete",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "HOLD_PSI0E_G_PERMITTED_AUDIT_LACKS_COMPLETE_PROJECTION"
+    "verdict": "EXACT_RECONSTRUCTION_DATA_RETAINED_STRICT_AUDIT_TO_ENVELOPE_ADAPTER_REQUIRED"
   },
   "production_state": {
     "retention": "ON",
@@ -7391,6 +7391,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "PSI0E-G2 diagnosis artifact docs/audits/psi0e_g2_lineage_reconstruction_diagnosis.json has digest cd05b86b26313152e704bd556454d6d8e620b3ab5cec26a375ff99f6d6826cdb. The PSI0D-F audit retains every aggregate needed by the PSI0E envelope across descriptive_projection and execution, but not the canonical PSI0D projection wrapper expected by the prior publication attempt. All absent wrapper values are deterministic from committed contracts. The smallest repair is a separately authorized strict fixture-qualified PSI0D-F-audit-to-PSI0E-envelope adapter; no new PSI0E-C artifact or superseding evidence input is required.",
     "PSI0E-G stopped fail-closed before publisher invocation. The PSI0D-F audit was read exactly once and matched digest 9e755dcc6fceef6ef27664eb8531cff0478b0b6cc252ded22ee84adfefd1efac and required lineage, but contained zero complete canonical projection documents, so envelope digest c8827678b2137f1aec864f86623514a92affb0c6df092d13b24c160f8fb90a9d could not be reconstructed without guessing. The target remains absent, psi0e_runs remains empty, and no staging exists. This publication attempt is not retryable; a separately authorized safe-local PSI0E-G2 lineage/reconstruction diagnosis is required.",
     "A repeated PSI0E-G1 authorization stopped before mutation because docs/audits/psi0e_runs already exists from the successful first G1 action, which is an explicit repeated-authorization stop condition. The existing directory remains empty and non-symlinked and psi0e-envelope-20260816-01 remains absent. No deletion, recreation, publisher invocation or staging occurred. The next action remains a fresh PSI0E-G publication authorization.",
     "PSI0E-G1 created exactly docs/audits/psi0e_runs after verifying the repository audits parent and PSI0E-F closure digest. The directory is empty, is not a symlink and the bound target psi0e-envelope-20260816-01 remains absent. No envelope input was read, no publisher was invoked and no staging or integration output was created. A fresh PSI0E-G publication authorization is required.",

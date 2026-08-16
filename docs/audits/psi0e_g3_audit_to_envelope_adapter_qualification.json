@@ -1,0 +1,63 @@
+{
+  "schema_version": "psi0e-g3.qualification.v1",
+  "milestone": "PSI0E-G3",
+  "qualified_at_utc": "2026-08-16T11:36:04Z",
+  "base_engineering_commit": "145363100675244dea8f616c4c0af63bc928ceb9",
+  "status": "PASS",
+  "verdict": "PURE_STRICT_PSI0D_F_AUDIT_TO_PSI0E_ENVELOPE_ADAPTER_QUALIFIED",
+  "adapter_contract_digest": "668ddda9b18f9034bdbc595f27b7fa70acc1d8b1a5b298f24a6af38a25d26814",
+  "bound_inputs": {
+    "psi0e_g2_diagnosis_digest": "cd05b86b26313152e704bd556454d6d8e620b3ab5cec26a375ff99f6d6826cdb",
+    "psi0e_f_closure_digest": "533ee09789ec52b87350cac49ff5664484d827898cc98b5341c59662a4d35ad1",
+    "psi0e_e_publication_contract_digest": "b893198fed71329c33083176a7ce93d7c86f119ab66b9488dbf9c42db6435cc3",
+    "expected_psi0d_f_audit_digest": "9e755dcc6fceef6ef27664eb8531cff0478b0b6cc252ded22ee84adfefd1efac",
+    "psi0e_c_input_digest": "89c8dee5c976bd587aa6fc7ec3a6194e38caeba5508013c8ddca976489038f35",
+    "expected_envelope_digest": "c8827678b2137f1aec864f86623514a92affb0c6df092d13b24c160f8fb90a9d",
+    "psi0e_a_contract_digest": "2c8b2a296cb55ceb7da59ea4b063557749842041ba35251ec605e3f5f231350f",
+    "psi0d_d_adapter_contract_digest": "48e4480d741793c78dda8413ce8fa233c849d3781538bc32c0283a436f00bd7d",
+    "psi0d_b_consumer_contract_digest": "a9e368cceede689736ca234891394551bda098df3b51ebfebf2e72f32aeb51f6"
+  },
+  "qualified_behavior": {
+    "injected_frozen_synthetic_audit_bytes_only": true,
+    "exact_audit_and_nested_schema_validation": true,
+    "exact_engineering_contract_and_lineage_validation": true,
+    "five_surface_aggregate_and_accounting_validation": true,
+    "single_application_provenance_and_scope_validation": true,
+    "canonical_projection_wrapper_reconstruction": true,
+    "projection_digest_replay": true,
+    "unchanged_psi0e_a_pure_core_invocation": true,
+    "exact_input_and_envelope_digest_replay": true,
+    "default_off": true,
+    "consumer_enabled": false,
+    "source_values_retained_or_emitted": false,
+    "performs_io": false,
+    "retries": false,
+    "grants_policy_ranking_integration_deployment_activation_authority": false
+  },
+  "fault_coverage": [
+    "missing extra malformed and type-invalid audit fields",
+    "audit engineering contract lineage and projection identity drift",
+    "provenance cohort surface accounting and reason-code drift",
+    "authority and no-output scope-proof drift",
+    "adapter and upstream-envelope contract bypass",
+    "envelope digest mismatch",
+    "input-order independence and deterministic replay"
+  ],
+  "tests": {
+    "adapter_tests_passed": 19,
+    "combined_psi0d_psi0e_focused_tests_passed": 111,
+    "psi0_regressions_passed": 459,
+    "state_coupled_legacy_psi0b_failures": 27,
+    "legacy_failure_reason": "Retained successful immutable PSI0B output conflicts with older E3/E7/E8 pre-publication absent-output assumptions; no PSI0E-G3 change caused these failures."
+  },
+  "scope_proof": {
+    "real_psi0d_f_audit_opened_during_implementation_or_tests": false,
+    "real_envelope_reconstructed_or_published": false,
+    "psi0d_psi0c_or_psi0b_bundle_opened": false,
+    "publisher_invoked": false,
+    "integration_output_created": false,
+    "production_or_runtime_access": false,
+    "provider_or_rpc_calls": 0
+  },
+  "next_action": "HUMAN_APPROVAL_REQUIRED: authorize PSI0E-G4 replay-verified adapter qualification closure only."
+}

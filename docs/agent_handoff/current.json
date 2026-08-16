@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-16T09:42:00Z",
+  "updated_at_utc": "2026-08-16T09:55:00Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "7351c4bb56fa5d86bc634c60c49f464deda52524",
-    "working_tree": "dirty: unrelated live/runtime/user paths preserved; PSI0C-C1 committed; PSI0C-A reconciliation, successful PSI0B-E14 bundle, PSI0B-G closure and prior audit/diagnosis artifacts uncommitted"
+    "git_head": "256e9e4cad35a6334578efacb431fd403c4874b9",
+    "working_tree": "dirty: unrelated live/runtime/user paths preserved; PSI0C-C2C committed; PSI0C-A reconciliation, successful PSI0B-E14 bundle, PSI0B-G closure and prior audit/diagnosis artifacts uncommitted"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0C-C2B key-set-only result-schema census",
-    "mode": "bounded safe-local read-only full key/type census complete",
+    "milestone": "PSI0C-C2C serialized rowid-alias normalization qualification",
+    "mode": "safe-local implementation, frozen SQLite fixtures, fault tests, regressions, documentation and narrow commit complete",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "PSI0C_C2B_SQLITE_ROWID_ALIAS_SERIALIZATION_MISMATCH_IDENTIFIED"
+    "verdict": "PSI0C_C2C_EXACT_ROWID_ALIAS_NORMALIZATION_QUALIFIED"
   },
   "production_state": {
     "retention": "ON",
@@ -240,6 +240,25 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0c_c2c_rowid_alias_normalization_qualification": {
+      "status": "PASS",
+      "verdict": "EXACT_SQLITE_ROWID_ALIAS_NORMALIZATION_QUALIFIED",
+      "engineering_commit": "256e9e4cad35a6334578efacb431fd403c4874b9",
+      "repaired_adapter_contract_digest": "977043b77ef7a97d23b021bbb4b4150b0f9dc6495421e42352662f0ea7285278",
+      "qualification_digest": "6ce529317e9174e5b86e5ef0b95fbacf4e54c7bd2cc5be3c26871d0e2b28235d",
+      "focused_tests_passed": 33,
+      "regressions_passed": 338,
+      "ops_id_to_logical_rowid": true,
+      "snapshot_id_to_logical_rowid_when_rowid_absent": true,
+      "unknown_variants_fail_closed": true,
+      "frozen_selects_and_logical_schemas_unchanged": true,
+      "real_bundle_reopened": false,
+      "psi0c_c_retried": false,
+      "output_directory_still_absent": true,
+      "integration_authorized": false,
+      "activation_authorized": false,
+      "artifact": "docs/audits/psi0c_c2c_rowid_alias_normalization_qualification.json"
+    },
     "psi0c_c2b_key_set_primitive_type_schema_census": {
       "status": "PASS",
       "verdict": "SQLITE_ROWID_ALIAS_SERIALIZATION_MISMATCH_IDENTIFIED",
@@ -7268,6 +7287,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "PSI0C-C2C is qualified at engineering commit 256e9e4cad35a6334578efacb431fd403c4874b9 with repaired adapter contract digest 977043b77ef7a97d23b021bbb4b4150b0f9dc6495421e42352662f0ea7285278 and qualification digest 6ce529317e9174e5b86e5ef0b95fbacf4e54c7bd2cc5be3c26871d0e2b28235d. It binds only the exact ops id-to-rowid and snapshot snapshot_id-to-rowid serialized variants, rejects all other variants, and preserves frozen SELECTs, logical schemas and production-derived immutable provenance. The real PSI0B bundle was not reopened, PSI0C-C was not retried, and the target output path remains absent. One fresh PSI0C-C assessment requires separate authorization.",
     "PSI0C-C2B replay-verified and scanned the immutable results without recording values. Main has 5,000 conforming rows. Ops row 0 serializes id instead of rowid; all 4,708 snapshot rows omit rowid while retaining snapshot_id. This is deterministic SQLite INTEGER PRIMARY KEY rowid alias and duplicate-name row-to-dict serialization behavior. The strict PSI0C-B schema validator must remain fail-closed but bind exact per-query serialized schema variants and row-identity mapping before PSI0C-C can be freshly authorized.",
     "PSI0C-C2A replay-verified the bundle, found creator and evidence arrays empty, and decoded exactly the first row of the first nonempty surface main_selected_cohort. Its keys exactly match the frozen schema and only primitive JSON types were recorded; no values were disclosed. The mismatch therefore occurs on a later main row or later surface, outside the one-row authorization. A key-set-only full result-schema census is required before defining a repair.",
     "PSI0C-C2 replay-verified the bundle and proved creator_selected_cohort is an empty array. Therefore the PSI0C_B_UNKNOWN_RESULT_SCHEMA failure occurred on a later surface, and the prior creator attribution is corrected. The authorization prohibited inspecting other surfaces, so exact actual-versus-expected keys remain unresolved. No values were disclosed, no PSI0C-C retry occurred and no output exists. A separately authorized metadata-only diagnosis may inspect only array emptiness in query order and the keys/types of the first row on the first nonempty surface.",
@@ -7384,8 +7404,12 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0C-C2C serialized rowid-alias schema repair qualification",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: safely bind exact ops and snapshot serialized schema variants caused by SQLite rowid aliases; retain strict rejection of all other variants and do not inspect the real bundle.",
+    "milestone": "PSI0C-C immutable shadow assessment through repaired rowid-alias adapter",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize exactly one fresh safe-local read-only PSI0C-C assessment through the committed PSI0C-C2C adapter; output remains absent and no integration or activation authority exists.",
+    "psi0c_c2c_engineering_commit": "256e9e4cad35a6334578efacb431fd403c4874b9",
+    "psi0c_c2c_adapter_contract_digest": "977043b77ef7a97d23b021bbb4b4150b0f9dc6495421e42352662f0ea7285278",
+    "psi0c_c2c_qualification_digest": "6ce529317e9174e5b86e5ef0b95fbacf4e54c7bd2cc5be3c26871d0e2b28235d",
+    "proposed_fresh_psi0c_c_after_c2c_approval_text": "Authorize PSI0C-C as exactly one fresh bounded safe-local read-only assessment of the immutable replay-verified PSI0B shadow bundle through the committed PSI0C-C2C repaired adapter. Bind engineering commit 256e9e4cad35a6334578efacb431fd403c4874b9, repaired adapter contract digest 977043b77ef7a97d23b021bbb4b4150b0f9dc6495421e42352662f0ea7285278, qualification artifact docs/audits/psi0c_c2c_rowid_alias_normalization_qualification.json with digest 6ce529317e9174e5b86e5ef0b95fbacf4e54c7bd2cc5be3c26871d0e2b28235d, PSI0C-B contract digest 3f2d112ba18b190e7acdf9c0dd9ddf552258b7ed75295ccb7cc470a981cc70e1, PSI0B-G closure digest efadf9e061529af1fc690a253be4e8e29d7058d06d6a61be6105890b4e5e90cd and expected PSI0B bundle digest 370c815a4bacc640874d798c168ff812c2efd205d6de497fdcfb79b4005351b9 at /Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0b_runs/psi0b-shadow-20260814-02. Write only to the exact still-absent output directory /Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0c_runs/psi0c-c-assessment-20260815-01. Read each of the four canonical bundle files exactly once into memory; verify the exact file set, canonical bytes, per-file hashes, bundle digest, production-run lineage, false integration/activation authority, five query identities, accounting and PSI0A-E row and byte ceilings before assessment. Preserve provenance as PRODUCTION_DERIVED_IMMUTABLE_LOCAL_BUNDLE; normalize only the exact qualified serialized variants where ops_selected_cohort uses id in place of rowid with all remaining keys exact, or snapshot_selected_cohort omits rowid while retaining the bound INTEGER PRIMARY KEY snapshot_id; reject conflicting, missing, extra, type-invalid or unknown identity variants. Apply the shared PSI0C-B pure assessment core once and publish atomically only after complete success, then exact-replay verify coverage numerators and denominators, ABSENT_NOT_NEGATIVE missingness, preserved unresolved conflicts, duplicates, orphan and unmatched accounting, reason codes, hashes and assessment digest. Stop without retry or partial publication on any file, canonicalization, digest, lineage, authority, query, accounting, ceiling, schema, payload, normalization, output or replay failure. Do not access production/runtime databases or services, perform live telemetry, execute SELECT or EXPLAIN, alter the source bundle, make provider/RPC calls, execute DDL or production writes, deploy, restart or stop services, change configuration, manipulate locks or metrics, activate Evidence Mirror or Cohort Mode, integrate a consumer, rank entities, activate production or enter EB2. Stop after this one assessment and request separate approval for PSI0C-D replay-verified closure and disposition.",
     "proposed_psi0c_c2c_approval_text": "Authorize PSI0C-C2C safe-local design, implementation, frozen/ephemeral SQLite fixture tests, fault-injection tests, regression tests, documentation and one narrow commit amending only the PSI0C-B/C1 result-schema normalization boundary for the deterministic SQLite rowid-alias serialization identified by PSI0C-C2B. Bind engineering commit 7351c4bb56fa5d86bc634c60c49f464deda52524, PSI0C-C1 adapter digest 37ceac82d73152c4eba8d47f806a2d54d4131a074d1fc1120155e231755a31f9, PSI0C-B contract digest 3f2d112ba18b190e7acdf9c0dd9ddf552258b7ed75295ccb7cc470a981cc70e1 and immutable bundle identity 370c815a4bacc640874d798c168ff812c2efd205d6de497fdcfb79b4005351b9 without reopening its result rows. Preserve the frozen SELECT templates and logical result schemas. Add only explicit query-specific serialized representations: ops_selected_cohort may use id as the physical row identity in place of rowid when the exact remaining keys match, and snapshot_selected_cohort may omit rowid only when snapshot_id is present as the bound INTEGER PRIMARY KEY identity. Canonically normalize those exact variants to the logical rowid field before the shared assessment core, preserve all other fields and provenance, and reject rows containing both conflicting identities, missing identity, extra fields, type-invalid identity, unknown variants or authority drift. Prove actual SQLite INTEGER PRIMARY KEY alias behavior, duplicate rowid/snapshot_id serialization, canonical normalized replay, unchanged fixture behavior, conflict and missingness accounting, malformed variants, no partial publication and input-order independence using frozen/ephemeral fixtures only. Do not inspect the real PSI0B bundle or production-derived values, retry PSI0C-C, create assessment output, access production/runtime databases or services, perform live telemetry, execute production SELECT or EXPLAIN, alter the bundle, make provider/RPC calls, execute DDL or production writes, deploy, restart or stop services, change configuration, manipulate locks or metrics, activate Evidence Mirror or Cohort Mode, integrate a consumer, rank entities, activate production or enter EB2. Stop after qualification and provide an exact fresh PSI0C-C approval binding the repaired committed contract and the still-absent output directory /Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0c_runs/psi0c-c-assessment-20260815-01.",
     "proposed_psi0c_c2b_approval_text": "Authorize PSI0C-C2B as a bounded safe-local read-only key-set and primitive-type schema census of the immutable PSI0B results after PSI0C-C2A proved the first main_selected_cohort row matches exactly. Bind engineering commit 7351c4bb56fa5d86bc634c60c49f464deda52524, PSI0C-C1 adapter digest 37ceac82d73152c4eba8d47f806a2d54d4131a074d1fc1120155e231755a31f9, PSI0C-B contract digest 3f2d112ba18b190e7acdf9c0dd9ddf552258b7ed75295ccb7cc470a981cc70e1 and immutable PSI0B bundle digest 370c815a4bacc640874d798c168ff812c2efd205d6de497fdcfb79b4005351b9. Replay-verify the canonical bundle and scan the result arrays once without recording or disclosing field values. For each frozen query identity, record only row count, distinct sorted key sets, primitive JSON type signatures per key, count per signature and the first zero-based row index exhibiting each nonconforming key set. Compare every distinct key set with its frozen PSI0A-D result schema, identify the exact added, missing, renamed or serialization-only mismatch that triggers PSI0C_B_UNKNOWN_RESULT_SCHEMA, and define the smallest safe-local repair without implementing it. Do not retain mints, addresses, signatures, payload contents or any field value. Stop on bundle drift, need for semantic value inspection, ambiguity, output mutation or scope expansion. Do not retry PSI0C-C, create assessment output, access production/runtime databases or services, perform live telemetry, execute SELECT or EXPLAIN, alter the bundle, make provider/RPC calls, execute DDL or production writes, deploy, restart or stop services, change configuration, manipulate locks or metrics, activate Evidence Mirror or Cohort Mode, integrate a consumer, rank entities, activate production or enter EB2. Stop after diagnosis and provide the exact separate approval prompt for the smallest safe repair.",
     "proposed_psi0c_c2a_approval_text": "Authorize PSI0C-C2A as a bounded safe-local read-only continuation of the PSI0C schema-mismatch diagnosis. Bind engineering commit 7351c4bb56fa5d86bc634c60c49f464deda52524, PSI0C-C1 adapter digest 37ceac82d73152c4eba8d47f806a2d54d4131a074d1fc1120155e231755a31f9, PSI0C-B contract digest 3f2d112ba18b190e7acdf9c0dd9ddf552258b7ed75295ccb7cc470a981cc70e1 and immutable PSI0B bundle digest 370c815a4bacc640874d798c168ff812c2efd205d6de497fdcfb79b4005351b9. Replay-verify the canonical bundle, then inspect only the structural empty/nonempty state of the five result arrays in frozen query order and decode at most the first row of the first nonempty surface. Record only its query identity, sorted key set and primitive JSON type per key; do not disclose or record any field value. Compare those keys exactly with that query's frozen PSI0A-D result schema, identify added, missing, renamed or serialization-only differences, and define the smallest safe-local repair without implementing it. Stop on bundle drift, need to inspect a second row, need to inspect values, ambiguity, output mutation or scope expansion. Do not retry PSI0C-C, create assessment output, inspect any row from later surfaces after the first nonempty row, access production/runtime databases or services, perform live telemetry, execute SELECT or EXPLAIN, alter the bundle, make provider/RPC calls, execute DDL or production writes, deploy, restart or stop services, change configuration, manipulate locks or metrics, activate Evidence Mirror or Cohort Mode, integrate a consumer, rank entities, activate production or enter EB2. Stop after diagnosis and provide the exact separate approval prompt for the smallest safe repair.",

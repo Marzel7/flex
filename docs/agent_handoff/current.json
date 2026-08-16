@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-16T15:20:00Z",
+  "updated_at_utc": "2026-08-16T16:10:00Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "89dd764be84fa5362c54ef5518c23563dacd79d7",
-    "working_tree": "dirty: unrelated live/runtime/user paths preserved; PSI0D-H committed narrowly; PSI0C/PSI0D closure and reconciliation artifacts plus prior audit/diagnosis artifacts uncommitted"
+    "git_head": "d2f2c72aa0083bc62950fbfcf2940111d9d8e358",
+    "working_tree": "dirty: unrelated live/runtime/user paths preserved; PSI0E-A committed narrowly; PSI0C/PSI0D closure artifacts plus prior audit/diagnosis artifacts uncommitted"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -16,10 +16,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0D-K publication closure and disposition",
-    "mode": "bounded safe-local one-read-per-file bundle replay and roadmap disposition complete",
+    "milestone": "PSI0E-A fixture-only published-projection integration-envelope qualification",
+    "mode": "safe-local pure contract implementation, frozen injected-byte fixtures, fault tests, regressions, documentation and narrow commit complete",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "PSI0D_CLOSED_COMPLETE_NON_AUTHORITATIVE_IMMUTABLE_LOCAL_PROJECTION_PUBLICATION"
+    "verdict": "FIXTURE_ONLY_DEFAULT_OFF_NON_AUTHORITATIVE_INTEGRATION_ENVELOPE_QUALIFIED"
   },
   "production_state": {
     "retention": "ON",
@@ -7391,6 +7391,7 @@
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
+    "PSI0E-A is qualified at engineering commit d2f2c72aa0083bc62950fbfcf2940111d9d8e358 with integration-envelope contract digest 2c8b2a296cb55ceb7da59ea4b063557749842041ba35251ec605e3f5f231350f and qualification digest 69b4133f7d43029bcf08a1ee1143d8704e5a503558b8e2f3bcca6626fc97c57f. Eighteen envelope tests, 69 combined PSI0D/E focused tests and 407 PSI0 regressions pass. The real PSI0D bundle was not opened and no integration output or authority exists. PSI0E-B replay-verified qualification closure requires separate authorization.",
     "PSI0D-K replay-verified and closes the exact three-file bundle at docs/audits/psi0d_runs/psi0d-projection-20260816-01 with bundle digest 4f208d7cc00e7b451c796ad16b5c28862cd79c30e476f41c22d7b4fa589e9477 and hashes-file digest 5c3bb6bb162b275c98d699e70543c700adf7b05a32a4044612d52e25bf8e90c8. Accounting is 9,709 rows, 2,266 preserved duplicates, zero conflicts and zero unmatched rows under ABSENT_NOT_NEGATIVE. No staging remains and all authority flags are false. PSI0D is closed; real consumer integration, deployment, Evidence modes, production activation and EB2 remain unauthorized.",
     "PSI0D-J completed exactly once at docs/audits/psi0d_runs/psi0d-projection-20260816-01. The publisher replay-verified projection digest 482461d10319e657bbb4df37b4cfa4be526ada21b4dbd3186ce43834ecb2d136, contract file digest 07df4eb91f4bb4e98edb7cab4174ed98d399989c8d85a1319f0f696e7a087c8a and bundle digest 4f208d7cc00e7b451c796ad16b5c28862cd79c30e476f41c22d7b4fa589e9477. The PSI0D-F audit was read once; no PSI0C/PSI0B source bundle was reopened. The output remains non-authoritative and unintegrated. PSI0D-K closure and disposition requires separate authorization.",
     "PSI0D-J1 created exactly /Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0d_runs after verifying the repository audits parent. The directory is empty, is not a symlink and the bound target psi0d-projection-20260816-01 remains absent. No audit was read, no publisher was invoked and no other output was created. A fresh PSI0D-J authorization is required.",
@@ -7523,8 +7524,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0E-A fixture-only published-projection integration-envelope qualification",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize safe-local design and frozen-fixture qualification of a default-off, no-I/O reader/integration-envelope contract over injected synthetic PSI0D bundle bytes only; do not read the real published bundle, integrate or deploy a consumer, rank, decide policy or activate anything.",
+    "milestone": "PSI0E-B replay-verified integration-envelope qualification closure",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize bounded read-only replay closure of committed PSI0E-A artifacts only; do not read the real PSI0D bundle, create integration output, integrate, deploy, rank, decide policy or activate anything.",
     "psi0d_d_engineering_commit": "9ef7467327b74dbf435fc00ddc26c99a77f5b33e",
     "psi0d_d_adapter_contract_digest": "48e4480d741793c78dda8413ce8fa233c849d3781538bc32c0283a436f00bd7d",
     "psi0d_d_qualification_digest": "b918f495bb34858b9dce86b61f657d530e0db47ba1f36f17095e0250d9ec9265",

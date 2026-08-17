@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-17T10:05:38Z",
+  "updated_at_utc": "2026-08-17T10:19:57Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "d347545e44a2b6996818f72265a06523a28ee68d",
-    "working_tree": "dirty: unrelated live/runtime/user paths preserved; PSI0G-A committed narrowly; PSI0C/PSI0D/PSI0E closure artifacts plus prior audit/diagnosis artifacts uncommitted"
+    "git_head": "b87d2df182488a991e052fd1f785b175d120ec61",
+    "working_tree": "dirty: unrelated live/runtime/user paths preserved; PSI0G-B committed narrowly; PSI0C/PSI0D/PSI0E closure artifacts plus prior audit/diagnosis artifacts uncommitted"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -40,10 +40,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0G-A real retained EP3/EP4 source eligibility reconciliation",
-    "mode": "bounded query-only retained-source inspection; production and provider boundaries preserved",
+    "milestone": "PSI0G-B bounded retained-evidence EP3/EP4 derivation",
+    "mode": "single query-only real derivation attempt; fail-closed with no publication",
     "status": "HOLD",
-    "verdict": "EXISTING_RETAINED_EVIDENCE_IS_SUBSTANTIAL_BUT_NOT_A_COMPLETE_REPLAYABLE_PSI0F_INPUT_SET"
+    "verdict": "REAL_WATCHTOWER_TOPOLOGY_EXCEEDS_FROZEN_SINGLE_LOCAL_ROLE_PER_ENTITY_VALIDATION_SEMANTICS"
   },
   "production_state": {
     "retention": "ON",
@@ -264,6 +264,24 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0g_b_retained_evidence_derivation": {
+      "status": "HOLD",
+      "verdict": "REAL_WATCHTOWER_TOPOLOGY_EXCEEDS_FROZEN_SINGLE_LOCAL_ROLE_PER_ENTITY_VALIDATION_SEMANTICS",
+      "engineering_commit": "b87d2df182488a991e052fd1f785b175d120ec61",
+      "artifact": "docs/audits/psi0g_b_retained_evidence_derivation_attempt.json",
+      "artifact_digest": "4225f86cd3d07e0c0a29d1f48e06ae561c259d1da9eaf62c50ff302052253e13",
+      "focused_tests_passed": 12,
+      "attempts": 1,
+      "failed_operation": "watchtower",
+      "multi_role_entities": 1378,
+      "final_output_exists": false,
+      "partial_publication": false,
+      "retry_performed": false,
+      "production_database_reads": 0,
+      "provider_or_rpc_calls": 0,
+      "authority_promotions": 0,
+      "next_gate": "Separately authorize PSI0G-B1 synthetic multi-role topology semantic reconciliation; do not rerun PSI0G-B"
+    },
     "psi0g_a_real_source_eligibility_reconciliation": {
       "status": "HOLD",
       "verdict": "EXISTING_RETAINED_EVIDENCE_IS_SUBSTANTIAL_BUT_NOT_A_COMPLETE_REPLAYABLE_PSI0F_INPUT_SET",
@@ -7925,8 +7943,10 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0G-B bounded retained-evidence EP3/EP4 derivation",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize query-only derivation of complete EP3 runtime and EP4 candidate payloads from only the two PSI0G-A-bound shadow stores through watchtower 1.0.0 and three_sw2 1.0.0 SHADOW contracts, retaining outputs only in a new isolated non-production store. No provider/RPC acquisition, disposition, F13 export, PSI0F publication, monitoring, deployment or activation.",
+    "milestone": "PSI0G-B1 multi-role topology semantic reconciliation",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: reproduce the watchtower producer/validator mismatch using frozen synthetic multi-role transfer fixtures only; determine whether EP3 local roles are node-scoped or entity-unique; implement and qualify the smallest repair only if committed semantics are unambiguous. Do not reread real sources, rerun PSI0G-B, use provider/RPC, disposition candidates, export F13, publish PSI0F, monitor, deploy, or activate.",
+    "psi0g_b_engineering_commit": "b87d2df182488a991e052fd1f785b175d120ec61",
+    "psi0g_b_artifact": "docs/audits/psi0g_b_retained_evidence_derivation_attempt.json",
     "psi0g_a_engineering_commit": "d347545e44a2b6996818f72265a06523a28ee68d",
     "psi0g_a_artifact": "docs/audits/psi0g_a_real_source_eligibility_reconciliation.json",
     "psi0d_d_engineering_commit": "9ef7467327b74dbf435fc00ddc26c99a77f5b33e",

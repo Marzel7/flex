@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-17T10:39:42Z",
+  "updated_at_utc": "2026-08-17T10:53:00Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "a88a15b5f10da670222dcb9f5488e019b2352ba0",
-    "working_tree": "dirty: unrelated live/runtime/user paths and local PSI0G-B2 retained databases preserved; PSI0G-B2/C/D committed narrowly"
+    "git_head": "04e6b9d47194ad02a4d3fc2f419f4962d04f2a96",
+    "working_tree": "dirty: unrelated live/runtime/user paths plus local PSI0G-B2 databases and D1 full projection preserved; D/D1 committed narrowly"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -40,10 +40,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0G-D EP3-to-EB0.4C semantic review boundary",
-    "mode": "real payloads retained; explicit human semantic review required",
-    "status": "HOLD",
-    "verdict": "REAL_EP3_EP4_PAYLOADS_RETAINED_BUT_OPERATION_LEVEL_F5_PROJECTION_AND_REVIEW_CANDIDATE_ARE_ABSENT"
+    "milestone": "PSI0G-D1 real operation-candidate projection",
+    "mode": "approved non-authoritative projection complete; candidate disposition pending",
+    "status": "PASS",
+    "verdict": "APPROVED_NON_AUTHORITATIVE_TWO_OPERATION_CANDIDATE_PROJECTED_AND_REPLAY_VERIFIED"
   },
   "production_state": {
     "retention": "ON",
@@ -264,6 +264,25 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0g_d1_real_operation_candidate_projection": {
+      "status": "PASS",
+      "engineering_commit": "04e6b9d47194ad02a4d3fc2f419f4962d04f2a96",
+      "semantic_review_digest": "47d2f7aaef7bc73d90267b15f94c2e934497afff222ede76abccaf3e6f851cc9",
+      "qualification_digest": "8337034e98d8708f0861cf919a19cabc407f5cb3a2c9644d9a358b7a60414c32",
+      "candidate_id": "95fba7d16194a1b2c03970910b5c737c70da669988fb2c317321318c41814505",
+      "candidate_population": ["watchtower", "three_sw2"],
+      "operations_merged": false,
+      "quality_state": "INCOMPLETE",
+      "complete_operations": 0,
+      "missing_evidence_reasons": 14,
+      "contradictory_evidence": 0,
+      "supported_disposition_available": false,
+      "disposition": null,
+      "same_operation_claim": false,
+      "same_human_or_operator_claim": false,
+      "regression_tests_passed": 110,
+      "next_gate": "Human mark the candidate PROPOSED or reject/hold; SUPPORTED is unavailable"
+    },
     "psi0g_d_ep3_to_eb0_4c_semantic_review": {
       "status": "HUMAN_REVIEW_REQUIRED",
       "engineering_commit": "a88a15b5f10da670222dcb9f5488e019b2352ba0",
@@ -7977,8 +7996,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0G-D human semantic review",
-    "instruction": "HUMAN_DECISION_REQUIRED: approve, revise, or reject every null decision in docs/audits/psi0g_d_ep3_to_eb0_4c_semantic_review_packet.json, including primary role, edge/mechanism/temporal mappings, completeness/conflict semantics, and creation of one two-operation review candidate. This authorization cannot be inferred from a request to implement code. No disposition, F13 export, PSI0F publication, monitoring, deployment, or activation until recorded review exists.",
+    "milestone": "PSI0G-D2 candidate disposition review",
+    "instruction": "HUMAN_DECISION_REQUIRED: review candidate 95fba7d16194a1b2c03970910b5c737c70da669988fb2c317321318c41814505 and choose PROPOSED or REJECT/HOLD. SUPPORTED is unavailable because both operations are PARTIAL under the approved completeness rule. A PROPOSED disposition means evidence-supported investigation continuity only, not same operation, human, or operator. No F13 export, PSI0F publication, monitoring, deployment, or activation before this explicit decision.",
+    "psi0g_d1_engineering_commit": "04e6b9d47194ad02a4d3fc2f419f4962d04f2a96",
     "psi0g_series_engineering_commit": "a88a15b5f10da670222dcb9f5488e019b2352ba0",
     "psi0g_b1_engineering_commit": "a0be224dff2c169847503c5fad29295f524d2453",
     "psi0g_b1_artifact": "docs/audits/psi0g_b1_multi_role_topology_semantic_reconciliation.json",

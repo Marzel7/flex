@@ -1,0 +1,40 @@
+{
+  "schema_version": "psi0g-d4.real-provenance-retention-preflight.audit.v1",
+  "milestone": "PSI0G-D4",
+  "status": "HOLD",
+  "verdict": "REAL_RETENTION_PREFLIGHT_QUALIFIED_EXACT_D3_HUMAN_DISPOSITION_ABSENT",
+  "engineering_base_commit": "e35a2b9b3a1f4becb96e75cfe494933c7e6f2dfe",
+  "real_input_assessment": {
+    "blockers": ["D4_EXACT_HUMAN_DISPOSITION_ABSENT"],
+    "identity": {
+      "candidate_id": "1647cb5804e13ba1f34030eca7dba7abd8454f24f6186cf33d026e9d843672c0",
+      "disposition_digest": null,
+      "projection_digest": "056b3925ccaf97a091b711eb9567026e93add078a9b387535b08cdb35942ab5c",
+      "projection_manifest_digest": "5e5422bf6c276c0d744448a4bb05fafb248dad4a7197f9e2689098fd356d2fa2"
+    },
+    "preflight_digest": "dca44ad826d7f1452b4ed28495e2f6d39362f1c490ca581242fe13e7feb075a0"
+  },
+  "qualification": {
+    "focused_and_f5_f9_f13_tests_passed": 67,
+    "exact_projection_and_manifest_binding": true,
+    "exact_candidate_and_input_binding": true,
+    "exact_fourteen_gap_preservation": true,
+    "contradiction_preservation": true,
+    "identity_guard_preservation": true,
+    "old_candidate_disposition_transfer_rejected": true,
+    "projection_tamper_rejected": true,
+    "authority_drift_rejected": true,
+    "fixture_f13_invoked": false,
+    "store_written": false,
+    "real_retention_write_authorized": false
+  },
+  "authority": {
+    "supported": false,
+    "same_operation": false,
+    "same_human": false,
+    "publication": false,
+    "monitoring": false,
+    "activation": false
+  },
+  "next_action": "Obtain an explicit disposition for corrected D3 candidate 1647cb5804e13ba1f34030eca7dba7abd8454f24f6186cf33d026e9d843672c0. If PROPOSED, bind it through the D4 schema and rerun this preflight. A READY result permits proposing a separately authorized real-retention publisher implementation; it does not itself authorize a write."
+}

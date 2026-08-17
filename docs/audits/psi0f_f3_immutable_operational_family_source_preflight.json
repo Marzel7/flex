@@ -1,0 +1,137 @@
+{
+  "schema_version": "psi0f-f3.immutable-source-preflight.v1",
+  "milestone": "PSI0F-F3",
+  "evaluated_at_utc": "2026-08-17T09:07:21Z",
+  "engineering_commit": "1240c211161023aac0651dc8d551889d3fbbdde0",
+  "status": "HOLD",
+  "verdict": "EB0_4_IMMUTABLE_LOGICAL_SOURCE_UNAVAILABLE_REMATERIALIZATION_NOT_COHERENT",
+  "bound_inputs": {
+    "psi0f_f2_closure_digest": "918aa42bd39791dea52c7f4f4b9dc33a17ef574ef4a0fd0b701f9d3d299ff07d",
+    "psi0f_f1_engineering_commit": "f3073041f6e97cbdc676e528c4dc664d83132058",
+    "psi0f_f1_contract_digest": "074686504842dd2174002f04be83b6f670870a76f32269db3623c0c4e634155a",
+    "psi0f_f1_qualification_digest": "e82e4906d078a06b40aed1121e556370707abdaa171c630b9c4fdad210802ad3",
+    "required_source_schema": "psi0f-f1.logical-source.v1",
+    "required_source_provenance": "FROZEN_SYNTHETIC_IMMUTABLE_OPERATIONAL_FAMILY_LOGICAL_SOURCE",
+    "required_components": [
+      "operation_cohort",
+      "normalized_operation_runtime",
+      "nomination_candidates"
+    ],
+    "required_bundle_schema": "eb0.4h.v1"
+  },
+  "bounded_inventory": {
+    "roots_inspected": [
+      "docs",
+      "src",
+      "tests"
+    ],
+    "repository_history_names_inspected": true,
+    "production_or_runtime_database_opened": false,
+    "candidate_f1_logical_source_files": 0,
+    "candidate_eb0_4h_bundle_directories": 0,
+    "candidate_eb0_4h_exact_file_sets": 0,
+    "proposed_output": {
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/eb0_4h-rematerialization-20260817-01",
+      "parent_exists": true,
+      "parent_is_directory": true,
+      "parent_is_symlink": false,
+      "output_exists": false,
+      "f1_output_path_precondition_satisfied": true
+    },
+    "retained_related_files": [
+      {
+        "path": "tests/fixtures/eb0_4a_operational_family_nominations.json",
+        "tracked": true,
+        "sha256": "8209cec9054683740604cabf156505ff23f97f10f186f1dfb7438add3d24883b",
+        "bytes": 998,
+        "classification": "SYNTHETIC_TEST_FIXTURE_ONLY",
+        "record_count": 2,
+        "canonical_f1_bytes": false,
+        "usable_as_complete_f1_source": false
+      },
+      {
+        "path": "tests/fixtures/eb0_4c_normalized_operation_runtime.json",
+        "tracked": true,
+        "sha256": "288dd9494c7099f76b85a0619f319d0c79161ae10afdf1570ac683ccb4dbf316",
+        "bytes": 734,
+        "classification": "SYNTHETIC_TEST_FIXTURE_ONLY",
+        "record_count": 1,
+        "schema_version": "eb0.4c.normalized-runtime.v1",
+        "identity_basis": "PLATFORM_OPERATION_ID",
+        "canonical_f1_bytes": false,
+        "usable_as_complete_f1_source": false
+      },
+      {
+        "path": "docs/audits/eb0_4_gmgn_market_feasibility.json",
+        "tracked": false,
+        "sha256": "2d2cbe425a3914e6421484027bce8f199d1339b065ab914f4ca10bf8a477fdb4",
+        "classification": "UNRELATED_MARKET_FEASIBILITY_AUDIT",
+        "usable_as_f1_source": false
+      },
+      {
+        "path": "docs/audits/eb0_4a_gmgn_authorized_qualification.json",
+        "tracked": false,
+        "sha256": "a7b8bf15ad8acb88d03cf3fcb59b95335feade4ffd127e0ba2dc6a57c154e39a",
+        "classification": "UNRELATED_PROVIDER_QUALIFICATION_AUDIT",
+        "usable_as_f1_source": false
+      }
+    ]
+  },
+  "requirement_verification": {
+    "ordered_platform_operation_cohort_available": false,
+    "complete_normalized_runtime_component_available": false,
+    "explicit_proposed_or_supported_group_membership_available": false,
+    "closed_role_and_descriptor_vocabulary_available": false,
+    "canonical_combined_source_bytes_available": false,
+    "component_hash_manifest_available": false,
+    "accounting_available": false,
+    "lineage_binding_available": false,
+    "provenance_binding_available": false,
+    "false_authority_binding_available": false,
+    "source_digest_available": false,
+    "new_isolated_output_path_available": true,
+    "rematerialization_preconditions_satisfied": false
+  },
+  "blockers": [
+    {
+      "code": "PSI0F_F3_IMMUTABLE_LOGICAL_SOURCE_ABSENT",
+      "detail": "No exact psi0f-f1.logical-source.v1 document or equivalent complete immutable component set exists in the bounded repository and retained audit inventory."
+    },
+    {
+      "code": "PSI0F_F3_SYNTHETIC_FIXTURES_INCOMPLETE",
+      "detail": "The two tracked EB0.4 test fixtures provide only two nomination records and one normalized runtime record; they do not bind the required ordered cohort, explicit candidate-group membership, closed vocabulary, accounting, lineage, provenance, authority map, component hashes, or source digest."
+    }
+  ],
+  "disposition": {
+    "real_rematerialization_is_coherent": false,
+    "rematerialization_approval_prompt_emitted": false,
+    "missing_evidence_constructed_or_inferred": false,
+    "required_next_prerequisite": "Obtain an explicit architectural and evidence-acquisition decision identifying an authoritative, immutable, locally retainable source for the ordered operation cohort, normalized runtime records, and explicit PROPOSED or SUPPORTED group membership, including lineage, provenance, accounting, vocabulary and false-authority binding. Qualify that source-materialization boundary separately before repeating F3.",
+    "production_read_or_provider_work_may_be_required": true,
+    "separate_human_authorization_required": true
+  },
+  "authority": {
+    "operator_identity": false,
+    "policy": false,
+    "ranking": false,
+    "attribution": false,
+    "integration": false,
+    "deployment": false,
+    "activation": false,
+    "evidence_mirror": false,
+    "cohort_mode": false,
+    "eb2": false
+  },
+  "scope_proof": {
+    "f1_rematerializer_invoked": false,
+    "real_eb0_4_logical_source_opened": false,
+    "real_eb0_4_bundle_materialized": false,
+    "real_psi0e_bundle_opened": false,
+    "psi0f_adapter_or_projection_invoked": false,
+    "operational_surface_created": false,
+    "production_or_runtime_access": false,
+    "provider_or_rpc_calls": 0,
+    "services_or_configuration_changed": false
+  },
+  "next_action": "HUMAN_APPROVAL_REQUIRED: architectural and evidence-acquisition decision for an authoritative immutable EB0.4 logical source; do not authorize rematerialization yet."
+}

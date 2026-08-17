@@ -1,0 +1,16 @@
+{
+  "schema_version": "psi0g-d5.local-retention-authorization.v1",
+  "status": "AUTHORIZED",
+  "candidate_id": "1647cb5804e13ba1f34030eca7dba7abd8454f24f6186cf33d026e9d843672c0",
+  "preflight_digest": "22c268910a963710f004e3fda67c92cf970a3d24018aeab09b4fc678b6d6d361",
+  "action": "LOCAL_IMMUTABLE_PROVENANCE_RETENTION",
+  "authorization_basis": "Human confirmed PROPOSED and explicitly instructed that the candidate be retained for further evidence-supported investigation.",
+  "authority": {
+    "supported": false,
+    "same_operation": false,
+    "same_human": false,
+    "publication": false,
+    "monitoring": false,
+    "activation": false
+  }
+}

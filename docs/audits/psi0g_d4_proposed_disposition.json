@@ -1,0 +1,46 @@
+{
+  "schema_version": "psi0g-d4.human-disposition.v1",
+  "status": "PASS",
+  "candidate_id": "1647cb5804e13ba1f34030eca7dba7abd8454f24f6186cf33d026e9d843672c0",
+  "candidate_input_digest": "4893bf250eb4652bf7fb4da350b5f48207a54aa2d8772d03fb81a82377858721",
+  "group_id": "0c6b5fc4a6a147cfabcdcba8c42ef89908a4013b854105dab4e90bd63a898529",
+  "review_id": "d95e77f86cdefe1bef36ce1c22e20edeed8c18ec6b543fd07d7aadc20be7182a",
+  "reviewer_class": "HUMAN_REVIEW",
+  "reviewed_sequence": 0,
+  "nomination_state": "PROPOSED",
+  "operation_ids": ["watchtower", "three_sw2"],
+  "reason_codes": ["EVIDENCE_INCOMPLETE", "RECURRING_BEHAVIOUR"],
+  "unresolved_missing_evidence": [
+    "three_sw2:DIRECT_COUNTERPARTY:NO_PROVEN_OBSERVATION",
+    "three_sw2:REPEATED_COUNTERPARTY:NO_PROVEN_OBSERVATION",
+    "three_sw2:WALLET_FRESH_AT_EVENT:AddressHistoryObservation",
+    "three_sw2:WALLET_FRESH_AT_EVENT:NO_PROVEN_OBSERVATION",
+    "watchtower:DIRECT_COUNTERPARTY:AccountParticipationFact",
+    "watchtower:DIRECT_COUNTERPARTY:NO_PROVEN_OBSERVATION",
+    "watchtower:ECONOMIC_FUNDING:AccountParticipationFact",
+    "watchtower:ECONOMIC_FUNDING:NO_PROVEN_OBSERVATION",
+    "watchtower:LAUNCH_ACTIVATION:AccountParticipationFact",
+    "watchtower:LAUNCH_ACTIVATION:NO_PROVEN_OBSERVATION",
+    "watchtower:SYSTEM_TRANSFER:AccountParticipationFact",
+    "watchtower:SYSTEM_TRANSFER:NO_PROVEN_OBSERVATION",
+    "watchtower:WALLET_FRESH_AT_EVENT:AddressHistoryObservation",
+    "watchtower:WALLET_FRESH_AT_EVENT:NO_PROVEN_OBSERVATION"
+  ],
+  "contradictory_evidence": [],
+  "authority": {
+    "proposed": false,
+    "supported": false,
+    "same_operation": false,
+    "same_human": false,
+    "operator_identity": false,
+    "publication": false,
+    "monitoring": false,
+    "activation": false
+  },
+  "semantic_guards": {
+    "operations_remain_separate": true,
+    "same_operation_claim": false,
+    "same_person_or_operator_claim": false,
+    "missing_evidence_is_negative_evidence": false
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "schema_version": "psi0g-d5.real-provenance-retention.audit.v1",
+  "milestone": "PSI0G-D5",
+  "status": "PASS",
+  "verdict": "EXACT_REVIEWED_REAL_CANDIDATE_PROVENANCE_RETAINED_AND_REPLAY_VERIFIED",
+  "candidate_id": "1647cb5804e13ba1f34030eca7dba7abd8454f24f6186cf33d026e9d843672c0",
+  "retained_path": "docs/audits/psi0g_runs/psi0g-d5-real-provenance-retention-20260817-02",
+  "retention_id": "68f0dfcf24aac66637f397b189adc3ef999f3740c1accfa5469d2ceccd6581e6",
+  "manifest_digest": "fee97b177531af821040d1a10469065466b8b373a31f46ca3085cfc1d120c651",
+  "preflight_digest": "22c268910a963710f004e3fda67c92cf970a3d24018aeab09b4fc678b6d6d361",
+  "qualification": {
+    "focused_f5_f9_f13_d4_d5_tests_passed": 73,
+    "new_destination_required": true,
+    "atomic_directory_publication": true,
+    "file_and_directory_fsync": true,
+    "exact_local_retention_authorization_required": true,
+    "canonical_payloads": true,
+    "complete_file_set_replay": true,
+    "hash_and_size_replay": true,
+    "semantic_preflight_replay": true,
+    "cross_candidate_disposition_rejected": true,
+    "tamper_rejected": true,
+    "symlink_rejected": true,
+    "replay_verified": true
+  },
+  "retained_provenance": [
+    "D3 real operation projection",
+    "D3 projection source manifest",
+    "D4 human PROPOSED disposition",
+    "D5 local retention authorization",
+    "D4 READY preflight"
+  ],
+  "fixture_f13_invoked": false,
+  "f13_input_store_created": false,
+  "authority": {
+    "supported": false,
+    "same_operation": false,
+    "same_human": false,
+    "publication": false,
+    "monitoring": false,
+    "activation": false
+  },
+  "next_boundary": "A later adapter from the retained D5 provenance package into an F13-compatible real input store requires its own contract and decision; this retention does not authorize that conversion or downstream use."
+}

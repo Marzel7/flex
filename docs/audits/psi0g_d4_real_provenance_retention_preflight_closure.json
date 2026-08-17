@@ -1,0 +1,26 @@
+{
+  "schema_version": "psi0g-d4.real-provenance-retention-preflight.closure.v1",
+  "milestone": "PSI0G-D4",
+  "status": "PASS",
+  "verdict": "EXACT_D3_PROPOSED_DISPOSITION_BOUND_REAL_RETENTION_PREFLIGHT_READY",
+  "candidate_id": "1647cb5804e13ba1f34030eca7dba7abd8454f24f6186cf33d026e9d843672c0",
+  "disposition": "PROPOSED",
+  "disposition_digest": "9ad4d9100c200e8a783b1126b725247edaa21d4884ff0d5c8e0681a1d43fab79",
+  "preflight_digest": "22c268910a963710f004e3fda67c92cf970a3d24018aeab09b4fc678b6d6d361",
+  "blockers": [],
+  "preserved": {
+    "operations_remain_separate": true,
+    "unresolved_missing_evidence_count": 14,
+    "missing_evidence_treated_as_negative": false,
+    "same_operation_claim": false,
+    "same_human_or_operator_claim": false
+  },
+  "authority": {
+    "supported": false,
+    "publication": false,
+    "monitoring": false,
+    "activation": false
+  },
+  "fixture_f13_invoked": false,
+  "store_written_by_d4": false
+}

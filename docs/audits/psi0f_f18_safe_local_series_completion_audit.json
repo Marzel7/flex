@@ -1,0 +1,161 @@
+{
+  "schema_version": "psi0f-f18.safe-local-series-completion-audit.v1",
+  "milestone": "PSI0F-F18",
+  "closed_at_utc": "2026-08-17T09:55:46Z",
+  "engineering_commit": "a5296e22de69be7c23c0439d0d13c64b7be3fef5",
+  "status": "PASS",
+  "verdict": "PSI0F_SAFE_LOCAL_SERIES_COMPLETE_REAL_CAPTURE_AND_ACTIVATION_REMAIN_FAIL_CLOSED",
+  "bound_inputs": {
+    "psi0f_f17_contract_digest": "1fcc340e1e3f00e6a29230763984a2ef9008ce905bed52e5b31c46de93e91726",
+    "psi0f_f17_implementation_digest": "e471841677ede5fa556b9e2ba098d9c45123c9b2826b40e125a32be3456a6949",
+    "psi0f_f17_test_digest": "e71ea9cb6ff7e61740a616e8ba88aca92d841286d21b1020a482be85413a5325",
+    "psi0f_f17_documentation_digest": "7a0ac9535103d89fa53eb12822899634edbaeb8036b3c2583f6035a04ddd55cb",
+    "psi0f_f17_qualification_digest": "45c7a65a371c835f00cfe96d0010714b2e82841cb14fba3b7189e232baaf622b",
+    "psi0f_f15_real_capture_hold_digest": "88f67779c0ecb76f459f61fd59cfe0a021df67cfa79db0b471e201812ef010a0",
+    "qualified_psi0e_bundle_digest": "88c7de3156a4dc07b3c3b2461b4e1e37e85d5bd06d217d904472e4f4bc6f4d9c"
+  },
+  "completion_requirements": [
+    {
+      "requirement": "Immutable operational-family source contract and deterministic materialization",
+      "status": "PROVEN",
+      "evidence": [
+        "PSI0F-F1 deterministic source/rematerialization contract",
+        "PSI0F-F5 canonical immutable source materializer",
+        "PSI0F-F9 complete nine-file retention bundle",
+        "PSI0F-F13 insert-only retained-input store and query-only exporter"
+      ]
+    },
+    {
+      "requirement": "Operations discovered and retained by common behaviour rather than mutable addresses",
+      "status": "PROVEN_SAFE_LOCAL_CONTRACT",
+      "evidence": [
+        "PLATFORM_OPERATION_ID is the stable identity basis",
+        "behaviour, topology, mechanism and temporal identities are retained",
+        "candidate membership is explicit, ordered and replay-bound",
+        "address ownership, operator identity and attribution are forbidden"
+      ]
+    },
+    {
+      "requirement": "Traceable explicit nomination and disposition history",
+      "status": "PROVEN_SAFE_LOCAL_CONTRACT",
+      "evidence": [
+        "candidate lifecycle is descriptive only",
+        "PROPOSED and SUPPORTED require separate immutable dispositions",
+        "review class, closed reason codes, logical sequence, candidate identity and ordered members are retained",
+        "every retained table rejects UPDATE and DELETE"
+      ]
+    },
+    {
+      "requirement": "EB0.4H rematerialization from the immutable source",
+      "status": "PROVEN_FIXTURE_APPLICATION",
+      "evidence": [
+        "F17 exports F13 through F9 and F5",
+        "F17 invokes unchanged F1 once into a new isolated path",
+        "all five EB0.4H files, hashes, accounting and bundle identity replay",
+        "surface and EB0.4H run identities are cross-bound"
+      ]
+    },
+    {
+      "requirement": "Known-behaviour operational surface publication",
+      "status": "PROVEN_FIXTURE_APPLICATION",
+      "evidence": [
+        "unchanged PSI0F-D immutable summary adapter",
+        "unchanged PSI0F-B descriptive surface contract",
+        "atomic combined EB0.4H and surface publication root",
+        "canonical files, hashes, lineage and full post-publication replay",
+        "qualified immutable PSI0E input bundle replayed successfully"
+      ]
+    },
+    {
+      "requirement": "No cross-layer inference or operational authority",
+      "status": "PROVEN",
+      "evidence": [
+        "cross_layer_join_performed=false",
+        "negative inference, conflict resolution, duplicate collapse, thresholds and operator identity are false",
+        "policy, ranking, attribution, integration, deployment and activation authority are false"
+      ]
+    },
+    {
+      "requirement": "Tests, documentation, narrow commits and handoff checkpoints",
+      "status": "PROVEN_PENDING_FINAL_HANDOFF_PUBLICATION",
+      "evidence": [
+        "F9 through F17 implementation and closure artifacts are committed narrowly",
+        "163 combined EB0.4/PSI0F tests passed",
+        "586 broader PSI0 tests passed",
+        "27 unchanged state-coupled PSI0B failures are not PSI0F regressions",
+        "F17 documentation and qualification bind committed identities"
+      ]
+    },
+    {
+      "requirement": "Stop before unauthorized external or production action",
+      "status": "PROVEN",
+      "evidence": [
+        "F15 records real capture HOLD",
+        "no production database or retained EP3/EP4 database contents were opened",
+        "no provider or RPC call was made",
+        "no service, configuration, deployment or activation action occurred"
+      ]
+    }
+  ],
+  "independent_committed_revision_replay": {
+    "temporary_f13_store_only": true,
+    "retention_id": "3b794a07eecb217bf11ac037990628a0100dd569eb37b699776a22b425aa92af",
+    "retention_manifest_digest": "feaf0d7e5febd2ff0d83f2e32c07064b78db9dcca2276532f1435fbc28cc7e1a",
+    "f9_bundle_digest": "657333180cae5b9e35d2a8c5701c3a439ded34a22e6167bde4b89e9f2895a86d",
+    "f5_source_digest": "389d4dc722c465f26645dc66fffb521aa0c4064dcab658d24a17e0c14b1b4300",
+    "psi0e_bundle_digest": "88c7de3156a4dc07b3c3b2461b4e1e37e85d5bd06d217d904472e4f4bc6f4d9c",
+    "eb0_4h_bundle_digest": "24b84b98527e98c857a14814ee44c4fd6f82b09b956ecfd9de03cf33ea251b6b",
+    "surface_digest": "3bfe9f8e046cbd32c559f24ed2c966099ca2ec5781e8c04f12328b84ef6c155d",
+    "publication_digest": "881fc44f2850604975813af58e6209f77749d43e98bffbc417d7f19ff5ab225b",
+    "full_replay_equal": true,
+    "temporary_outputs_removed": true
+  },
+  "test_evidence": {
+    "focused_f17_tests_passed": 11,
+    "f17_dependency_chain_tests_passed": 127,
+    "combined_eb0_4_psi0f_tests_passed": 163,
+    "broader_psi0_tests_passed": 586,
+    "broader_state_coupled_psi0b_failures": 27,
+    "failures_are_psi0f_regressions": false
+  },
+  "safe_local_completion": {
+    "remaining_safe_local_implementation_gap": false,
+    "immutable_source_path_qualified": true,
+    "eb0_4h_rematerialization_path_qualified": true,
+    "known_behaviour_surface_publication_path_qualified": true,
+    "real_capture_or_production_application_is_required_for_safe_local_completion": false
+  },
+  "external_boundary": {
+    "real_retained_ep3_ep4_capture": "HUMAN_AUTHORIZATION_REQUIRED",
+    "human_nomination_dispositions": "EXPLICIT_REVIEW_REQUIRED",
+    "production_database_access": "NOT_AUTHORIZED",
+    "provider_access": "NOT_AUTHORIZED",
+    "service_mutation": "NOT_AUTHORIZED",
+    "deployment": "NOT_AUTHORIZED",
+    "activation": "NOT_AUTHORIZED",
+    "evidence_mirror": "OFF",
+    "cohort_mode": "OFF",
+    "eb2": "NOT_ENTERED"
+  },
+  "authority": {
+    "operator_identity": false,
+    "policy": false,
+    "ranking": false,
+    "attribution": false,
+    "integration": false,
+    "deployment": false,
+    "activation": false,
+    "evidence_mirror": false,
+    "cohort_mode": false,
+    "eb2": false
+  },
+  "scope_proof": {
+    "production_database_connections_opened": 0,
+    "retained_ep3_or_ep4_database_connections_opened": 0,
+    "provider_or_rpc_calls": 0,
+    "service_or_configuration_actions": 0,
+    "deployments": 0,
+    "activations": 0
+  },
+  "next_action": "No further safe-local PSI0F implementation is required. Preserve the real-capture HOLD until separately authorized complete retained inputs and explicit human dispositions exist."
+}

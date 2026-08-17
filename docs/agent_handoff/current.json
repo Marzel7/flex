@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-17T09:08:35Z",
+  "updated_at_utc": "2026-08-17T09:13:50Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "9d1f32a7b7b572ae4ee66bf79b5215758fdf8d10",
-    "working_tree": "dirty: unrelated live/runtime/user paths preserved; PSI0F-F3 HOLD preflight committed narrowly; PSI0C/PSI0D/PSI0E closure artifacts plus prior audit/diagnosis artifacts uncommitted"
+    "git_head": "914de967b2dc821abb25dce7f00e7cfda8ca2ba5",
+    "working_tree": "dirty: unrelated live/runtime/user paths preserved; PSI0F-F4 reconciliation committed narrowly; PSI0C/PSI0D/PSI0E closure artifacts plus prior audit/diagnosis artifacts uncommitted"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -40,10 +40,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0F-F3 immutable EB0.4 logical-source availability and lineage-binding preflight",
-    "mode": "bounded safe-local read-only inventory and preflight complete",
+    "milestone": "PSI0F-F4 immutable source acquisition architectural reconciliation",
+    "mode": "bounded safe-local code and contract reconciliation complete",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "EB0_4_IMMUTABLE_LOGICAL_SOURCE_UNAVAILABLE_REMATERIALIZATION_NOT_COHERENT"
+    "verdict": "NEXT_PSI0F_F5_FIXTURE_ONLY_IMMUTABLE_LOGICAL_SOURCE_MATERIALIZATION_CONTRACT"
   },
   "production_state": {
     "retention": "ON",
@@ -264,6 +264,24 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0f_f4_immutable_source_acquisition_reconciliation": {
+      "status": "PASS",
+      "verdict": "NEXT_PSI0F_F5_FIXTURE_ONLY_IMMUTABLE_LOGICAL_SOURCE_MATERIALIZATION_CONTRACT",
+      "engineering_commit": "914de967b2dc821abb25dce7f00e7cfda8ca2ba5",
+      "f3_preflight_digest": "ef77fdcd375ce28fdf4087174d6f8cc3c66e8d7a1fb1565293242b931806aa23",
+      "reconciliation_digest": "ed1b896b25951342e556cbfeacd04428a7bd4a6f159bef02905fb986c7b84596",
+      "ep3_identity_source_available": true,
+      "ep4_candidate_reference_source_available": true,
+      "ep3_direct_eb0_4c_output_available": false,
+      "ep4_lifecycle_maps_to_nomination_authority": false,
+      "authority_decision": "REQUIRE_EXPLICIT_IMMUTABLE_NOMINATION_DISPOSITION",
+      "safe_fixture_only_contract_is_coherent": true,
+      "real_records_opened": false,
+      "production_or_runtime_access": false,
+      "provider_or_rpc_calls": 0,
+      "artifact": "docs/audits/psi0f_f4_immutable_source_acquisition_reconciliation.json",
+      "next_gate": "PSI0F-F5 safe-local fixture-only immutable logical-source materialization contract implementation and qualification"
+    },
     "psi0f_f3_immutable_operational_family_source_preflight": {
       "status": "HOLD",
       "verdict": "EB0_4_IMMUTABLE_LOGICAL_SOURCE_UNAVAILABLE_REMATERIALIZATION_NOT_COHERENT",

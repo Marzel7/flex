@@ -1,0 +1,71 @@
+{
+  "schema_version": "psi0f-f5.qualification.v1",
+  "milestone": "PSI0F-F5",
+  "engineering_base_commit": "914de967b2dc821abb25dce7f00e7cfda8ca2ba5",
+  "status": "PASS",
+  "verdict": "FIXTURE_ONLY_IMMUTABLE_EB0_4_LOGICAL_SOURCE_MATERIALIZATION_CONTRACT_QUALIFIED",
+  "contract_digest": "3b950893ef6accc2312817934814a4edf344c583a85c63ba6090bcad9a4d6af1",
+  "bound_inputs": {
+    "psi0f_f4_reconciliation_digest": "ed1b896b25951342e556cbfeacd04428a7bd4a6f159bef02905fb986c7b84596",
+    "psi0f_f3_preflight_digest": "ef77fdcd375ce28fdf4087174d6f8cc3c66e8d7a1fb1565293242b931806aa23",
+    "psi0f_f1_contract_digest": "074686504842dd2174002f04be83b6f670870a76f32269db3623c0c4e634155a",
+    "output_schema": "psi0f-f1.logical-source.v1",
+    "output_provenance": "FROZEN_SYNTHETIC_IMMUTABLE_OPERATIONAL_FAMILY_LOGICAL_SOURCE"
+  },
+  "qualification": {
+    "focused_tests_passed": 19,
+    "combined_eb0_4_psi0f_tests_passed": 117,
+    "broader_psi0_tests_passed": 540,
+    "broader_state_coupled_psi0b_failures": 27,
+    "failures_are_psi0f_f5_regressions": false,
+    "pure_no_io_contract": true,
+    "exact_operation_cohort_binding": true,
+    "ep3_evaluation_lineage_binding": true,
+    "exact_eb0_4c_runtime_binding": true,
+    "ep4_candidate_reference_binding": true,
+    "ep4_lifecycle_grants_nomination_authority": false,
+    "explicit_immutable_nomination_disposition_required": true,
+    "proposed_and_supported_preserved": true,
+    "supported_evidence_gate": true,
+    "closed_vocabulary_and_digest": true,
+    "deterministic_canonical_f1_output": true,
+    "input_order_independent": true,
+    "f1_source_replay_verified": true,
+    "implicit_membership_allowed": false,
+    "missing_evidence_constructed_or_inferred": false,
+    "source_values_retained_outside_output": false
+  },
+  "fail_closed_proof": [
+    "contract and authority drift",
+    "cohort gaps, duplicates and evaluation mismatch",
+    "runtime-to-evaluation lineage drift and incomplete runtime coverage",
+    "candidate lifecycle, population and identity drift",
+    "implicit or widened candidate membership",
+    "nomination-state, supporting-identity and review-identity drift",
+    "SUPPORTED with incomplete, conflicting, missing, mechanism-free or temporal-free evidence",
+    "unknown or forbidden role and descriptor semantics",
+    "vocabulary, F1 contract, canonical replay, component, accounting and source-digest drift"
+  ],
+  "authority": {
+    "operator_identity": false,
+    "policy": false,
+    "ranking": false,
+    "attribution": false,
+    "integration": false,
+    "deployment": false,
+    "activation": false,
+    "evidence_mirror": false,
+    "cohort_mode": false,
+    "eb2": false
+  },
+  "scope_proof": {
+    "real_ep3_or_ep4_records_opened": false,
+    "real_source_file_created": false,
+    "f1_rematerializer_invoked": false,
+    "eb0_4h_bundle_created": false,
+    "psi0f_adapter_or_projection_invoked": false,
+    "production_or_runtime_access": false,
+    "provider_or_rpc_calls": 0
+  },
+  "next_action": "PSI0F-F6 replay-verified source-materialization-contract qualification closure only."
+}

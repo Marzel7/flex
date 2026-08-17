@@ -1,16 +1,16 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-17T09:29:11Z",
+  "updated_at_utc": "2026-08-17T09:37:03Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "e87b4bf9f378a035b6f7e55c3f627e747af73949",
-    "working_tree": "dirty: unrelated live/runtime/user paths preserved; PSI0F-F8 reconciliation committed narrowly; PSI0C/PSI0D/PSI0E closure artifacts plus prior audit/diagnosis artifacts uncommitted"
+    "git_head": "dc8ce35e4a1f66fff8a737b9586bd59752949d6a",
+    "working_tree": "dirty: unrelated live/runtime/user paths preserved; PSI0F-F9/F10/F11 committed narrowly; PSI0C/PSI0D/PSI0E closure artifacts plus prior audit/diagnosis artifacts uncommitted"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-17T08:18:10Z",
+    "published_at_utc": "2026-08-17T09:37:03Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
@@ -40,10 +40,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0F-F8 candidate-retention and nomination-disposition architecture",
-    "mode": "bounded safe-local architectural reconciliation complete",
-    "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "NEXT_PSI0F_F9_FIXTURE_ONLY_CANDIDATE_RETENTION_AND_DISPOSITION_BUNDLE_CONTRACT"
+    "milestone": "PSI0F-F11 retained-source replay/extraction preflight",
+    "mode": "autonomous safe-local series continuation; real-store and production boundary preserved",
+    "status": "HOLD",
+    "verdict": "NEXT_PSI0F_F12_DISPOSITION_LEDGER_AND_RETAINED_INPUT_EXPORT_BOUNDARY_ARCHITECTURE"
   },
   "production_state": {
     "retention": "ON",
@@ -264,6 +264,50 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0f_f11_retained_source_replay_extraction_preflight": {
+      "status": "HOLD",
+      "verdict": "RETAINED_SOURCE_EXTRACTION_BLOCKED_REAL_EP3_EP4_DISPOSITION_INPUTS_UNAVAILABLE",
+      "engineering_commit": "dc8ce35e4a1f66fff8a737b9586bd59752949d6a",
+      "preflight_digest": "afa05d4d0b20aa16b1210adec9639d69e1112866edd71cd41e0c2685152a5c83",
+      "f9_contract_digest": "52e24914afb8871943baa0826d43878ed3b73cd5521af1298de62eab2320df2b",
+      "database_connections_opened": 0,
+      "retained_payloads_opened": 0,
+      "provider_or_rpc_calls": 0,
+      "retained_ep3_runtime_source_proven": false,
+      "retained_ep4_candidate_source_proven": false,
+      "explicit_disposition_ledger_exists": false,
+      "bounded_query_only_exporter_exists": false,
+      "artifact": "docs/audits/psi0f_f11_retained_source_replay_extraction_preflight.json",
+      "next_gate": "PSI0F-F12 safe-local disposition-ledger and retained-input-export boundary architecture"
+    },
+    "psi0f_f10_retention_bundle_qualification_closure": {
+      "status": "PASS",
+      "verdict": "PSI0F_F9_CLOSED_QUALIFIED_RETAINED_SOURCE_REPLAY_EXTRACTION_PREFLIGHT_MAY_BE_PROPOSED",
+      "engineering_commit": "69d3f2fdde57c60a495ef2c8312c8d3ce7a91157",
+      "f9_engineering_commit": "83f2bb74db8e6559b83a8109e32acd93e521c288",
+      "f9_contract_digest": "52e24914afb8871943baa0826d43878ed3b73cd5521af1298de62eab2320df2b",
+      "fixture_bundle_file_count": 9,
+      "exact_f5_source_identity_reconstructed": true,
+      "real_records_opened": false,
+      "artifact": "docs/audits/psi0f_f10_retention_bundle_qualification_closure.json",
+      "next_gate": "Bounded metadata/code-only retained-source replay/extraction preflight"
+    },
+    "psi0f_f9_candidate_retention_disposition_bundle_qualification": {
+      "status": "PASS",
+      "verdict": "FIXTURE_ONLY_COMPLETE_F5_RETENTION_BUNDLE_CONTRACT_QUALIFIED",
+      "engineering_commit": "83f2bb74db8e6559b83a8109e32acd93e521c288",
+      "contract_digest": "52e24914afb8871943baa0826d43878ed3b73cd5521af1298de62eab2320df2b",
+      "exact_bundle_file_count": 9,
+      "f8_file_set_completeness_corrected": true,
+      "focused_tests_passed": 13,
+      "combined_eb0_4_psi0f_tests_passed": 130,
+      "broader_psi0_tests_passed": 553,
+      "historical_state_coupled_psi0b_failures": 27,
+      "pure_no_io_fixture_only": true,
+      "authority_granted": false,
+      "artifact": "docs/audits/psi0f_f9_candidate_retention_disposition_bundle_qualification.json",
+      "next_gate": "PSI0F-F10 replay-verified qualification closure"
+    },
     "psi0f_f8_candidate_retention_disposition_architecture": {
       "status": "PASS",
       "verdict": "NEXT_PSI0F_F9_FIXTURE_ONLY_CANDIDATE_RETENTION_AND_DISPOSITION_BUNDLE_CONTRACT",

@@ -1,0 +1,78 @@
+{
+  "schema_version": "psi0f-f10.qualification-closure.v1",
+  "milestone": "PSI0F-F10",
+  "closed_at_utc": "2026-08-17T09:34:58Z",
+  "engineering_commit": "83f2bb74db8e6559b83a8109e32acd93e521c288",
+  "status": "PASS",
+  "verdict": "PSI0F_F9_CLOSED_QUALIFIED_RETAINED_SOURCE_REPLAY_EXTRACTION_PREFLIGHT_MAY_BE_PROPOSED",
+  "bound_inputs": {
+    "psi0f_f9_contract_digest": "52e24914afb8871943baa0826d43878ed3b73cd5521af1298de62eab2320df2b",
+    "psi0f_f9_qualification_digest": "f696121ecf503981f2e8c1b29d0a3369dd54be9de9e8b4730cb3823a271bbe7e",
+    "psi0f_f9_source_digest": "d011ad6e0df32dc9ff2ae9baa69bcd9db1c36e8354e0274067601ded4d103767",
+    "psi0f_f9_test_digest": "690f1a610da89e6311eddfacc5de3b51402dd6d6ff62991655365a0b38efaf45",
+    "psi0f_f9_documentation_digest": "e9f57e5a80f88559206d9b9bc16323e9d5feae8d080e7d89e89d501dacf77195",
+    "psi0f_f8_architecture_digest": "a799d62370a17d45c485d94f73dd153a1bf7786feee01e7d74eeb7160260f2de",
+    "psi0f_f5_contract_digest": "3b950893ef6accc2312817934814a4edf344c583a85c63ba6090bcad9a4d6af1"
+  },
+  "replay_verification": {
+    "committed_contract_identity": true,
+    "contract_replay_verified": true,
+    "pure_no_io_fixture_boundary": true,
+    "complete_f5_replay_input_set": true,
+    "f8_incomplete_file_sketch_corrected": true,
+    "canonical_exact_file_set": true,
+    "file_hash_and_bundle_digest_replay": true,
+    "accounting_replay": true,
+    "f5_source_identity_reconstructed": true,
+    "fixture_bundle_file_count": 9,
+    "fixture_bundle_digest": "657333180cae5b9e35d2a8c5701c3a439ded34a22e6167bde4b89e9f2895a86d",
+    "fixture_source_digest": "389d4dc722c465f26645dc66fffb521aa0c4064dcab658d24a17e0c14b1b4300",
+    "focused_f9_tests_passed": 13,
+    "combined_f5_f9_tests_passed": 32,
+    "recorded_combined_eb0_4_psi0f_tests_passed": 130,
+    "recorded_broader_psi0_tests_passed": 553,
+    "recorded_state_coupled_psi0b_failures": 27,
+    "state_coupled_failures_are_psi0f_f9_regressions": false
+  },
+  "fail_closed_proof": {
+    "contract_and_authority_drift": true,
+    "file_set_and_canonical_byte_drift": true,
+    "stale_and_adversarially_recomputed_hash_drift": true,
+    "cohort_evaluation_and_runtime_lineage_drift": true,
+    "candidate_disposition_and_membership_drift": true,
+    "unsupported_nomination": true,
+    "accounting_and_source_identity_drift": true
+  },
+  "retained_source_preflight_disposition": {
+    "bounded_read_only_metadata_preflight_is_coherent": true,
+    "real_retained_record_access_authorized_by_this_closure": false,
+    "production_or_runtime_database_access_authorized": false,
+    "bundle_export_authorized": false,
+    "source_materialization_authorized": false,
+    "rematerialization_authorized": false,
+    "required_preflight": "Reconcile committed schemas and code plus filesystem metadata only against the F9 nine-file input contract; do not open database contents or retained record payloads.",
+    "separate_human_authorization_required_for_any_database_or_provider_read": true
+  },
+  "authority": {
+    "operator_identity": false,
+    "policy": false,
+    "ranking": false,
+    "attribution": false,
+    "integration": false,
+    "deployment": false,
+    "activation": false,
+    "evidence_mirror": false,
+    "cohort_mode": false,
+    "eb2": false
+  },
+  "scope_proof": {
+    "real_ep3_or_ep4_records_opened": false,
+    "retained_bundle_written": false,
+    "real_source_created": false,
+    "eb0_4h_invoked": false,
+    "psi0f_surface_published": false,
+    "production_or_runtime_access": false,
+    "provider_or_rpc_calls": 0
+  },
+  "next_action": "Proceed autonomously with a bounded code-and-filesystem-metadata-only retained-source replay/extraction preflight; stop before opening any database or retained record payload."
+}

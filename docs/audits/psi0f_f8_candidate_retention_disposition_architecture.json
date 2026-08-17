@@ -1,0 +1,127 @@
+{
+  "schema_version": "psi0f-f8.candidate-retention-disposition-architecture.v1",
+  "milestone": "PSI0F-F8",
+  "reconciled_at_utc": "2026-08-17T09:28:23Z",
+  "engineering_commit": "557134552b3951805f227848a82ddddd83b1a91d",
+  "status": "PASS",
+  "verdict": "NEXT_PSI0F_F9_FIXTURE_ONLY_CANDIDATE_RETENTION_AND_DISPOSITION_BUNDLE_CONTRACT",
+  "bound_inputs": {
+    "psi0f_f7_preflight_digest": "a704f6f96b73d5d68772276adca934720acd2a1a6497e54a3cccc47e7f882dcf",
+    "psi0f_f6_closure_digest": "5cfce7bf60524dd21178990ec38ca0d4f7e8e4763a2eac315b336b27ea3403dd",
+    "psi0f_f5_contract_digest": "3b950893ef6accc2312817934814a4edf344c583a85c63ba6090bcad9a4d6af1",
+    "ep3_runtime_schema_digest": "ba323c2657d49fae928d6309a16c9bdb95c4b9d36038be522134b09045288b59",
+    "ep4_discovery_schema_digest": "df82e1ce4d926b5417187676c7be3d8e2145898d1ce13cf090498a5e833d5e79"
+  },
+  "architectural_decision": {
+    "retain_full_ep3_evaluation_summaries": true,
+    "retain_full_ep4_candidate_payloads": true,
+    "retain_only_aggregate_candidate_reports": false,
+    "nomination_dispositions_are_separate_from_discovery_lifecycle": true,
+    "nomination_dispositions_are_append_only": true,
+    "nomination_dispositions_require_explicit_reviewer_action": true,
+    "candidate_retention_grants_nomination_authority": false,
+    "disposition_grants_operator_identity_or_attribution": false
+  },
+  "next_milestone": {
+    "milestone": "PSI0F-F9",
+    "name": "Pure fixture-only candidate-retention and nomination-disposition bundle contract",
+    "authorization_class": "SAFE_LOCAL_DESIGN_IMPLEMENTATION_TEST_DOCUMENTATION_NARROW_COMMIT",
+    "objective": "Build and fixture-qualify deterministic canonical byte bundles for injected EP3 evaluation summaries, EP4 candidate payloads, and explicit append-only nomination dispositions without file, database, network, service or clock access.",
+    "bundle_files": [
+      "contract.json",
+      "evaluations.json",
+      "candidates.json",
+      "dispositions.json",
+      "accounting.json",
+      "hashes.json"
+    ],
+    "evaluation_requirements": [
+      "stable PLATFORM_OPERATION_ID operation key",
+      "contract id and version",
+      "snapshot and detector-result identities",
+      "topology-revision identity",
+      "behaviour-observation identities",
+      "source engineering and schema identities"
+    ],
+    "candidate_requirements": [
+      "exact EP4 candidate identity and input digest",
+      "population and all supporting reference identities",
+      "recurring-pattern payload",
+      "quality, missing and contradictory evidence",
+      "lifecycle retained as descriptive workflow state only"
+    ],
+    "disposition_requirements": [
+      "review identity",
+      "reviewer class without personal identity or credentials",
+      "candidate identity and exact ordered member operations",
+      "explicit PROPOSED or SUPPORTED state",
+      "reason codes and supporting identity digest",
+      "reviewed-at logical sequence supplied by caller",
+      "false operator-identity, attribution, policy, ranking, integration, deployment and activation authority"
+    ],
+    "replay_and_accounting": [
+      "exact file set and canonical bytes",
+      "per-file hashes and one bundle digest",
+      "evaluation, candidate, disposition, group and membership counts",
+      "complete candidate-to-disposition and operation-to-evaluation coverage",
+      "duplicate, conflict, missing and unsupported disposition accounting",
+      "deterministic input-order-independent replay"
+    ],
+    "fail_closed_conditions": [
+      "schema, contract, engineering, provenance or authority drift",
+      "missing, duplicate, extra or altered evaluation/candidate/disposition",
+      "candidate identity or supporting-reference replay failure",
+      "operation population outside evaluation cohort",
+      "lifecycle used as nomination state",
+      "implicit, widened or reordered membership",
+      "SUPPORTED without complete non-conflicting evidence",
+      "review collision, sequence regression or altered reason codes",
+      "operator identity, ownership, attribution, score, ranking, policy, profitability or selection semantics",
+      "canonical, accounting, file-hash or bundle-digest mismatch"
+    ],
+    "boundary": {
+      "pure": true,
+      "fixture_only": true,
+      "performs_io": false,
+      "reads_real_ep3_or_ep4_store": false,
+      "writes_real_retention_bundle": false,
+      "opens_production_or_retained_database": false,
+      "authorizes_ep4_rerun": false,
+      "authorizes_human_disposition_creation": false,
+      "authorizes_f5_source_materialization": false
+    }
+  },
+  "future_sequence": [
+    "PSI0F-F9 fixture-only bundle contract qualification",
+    "PSI0F-F10 replay-verified F9 qualification closure",
+    "separate retained-source replay/extraction preflight",
+    "separate bounded EP3/EP4 candidate retention run if source evidence is authorized",
+    "separate explicit nomination review/disposition run",
+    "one F5 real-source materialization",
+    "repeat F3 lineage preflight",
+    "one F1 EB0.4H rematerialization",
+    "PSI0F immutable-summary adapter application and operational-surface publication"
+  ],
+  "authority": {
+    "operator_identity": false,
+    "policy": false,
+    "ranking": false,
+    "attribution": false,
+    "integration": false,
+    "deployment": false,
+    "activation": false,
+    "evidence_mirror": false,
+    "cohort_mode": false,
+    "eb2": false
+  },
+  "actions_performed": {
+    "database_connections_opened": 0,
+    "retained_record_payloads_opened": 0,
+    "retention_bundles_created": 0,
+    "nomination_dispositions_created": 0,
+    "real_source_created": 0,
+    "provider_rpc_calls": 0,
+    "service_or_configuration_actions": 0
+  },
+  "next_action": "Proceed autonomously with PSI0F-F9 safe-local fixture-only candidate-retention and nomination-disposition bundle contract implementation and qualification."
+}

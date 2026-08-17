@@ -1,0 +1,46 @@
+{
+  "schema_version": "psi0g-d7.first-real-input-surface-inspection.v1",
+  "milestone": "PSI0G-D7",
+  "status": "HOLD",
+  "verdict": "REAL_INPUT_CHAIN_REPLAYED_BUT_FROZEN_SURFACE_PROVENANCE_REMAINS_SYNTHETIC_FIXTURE_ONLY",
+  "run": {
+    "path": "docs/audits/psi0g_runs/psi0g-d7-first-real-known-behaviour-surface-20260817-01",
+    "retention_id": "d0faf987c6bbbe213c993cd96fc8408e78eb503401f6c16096709ffdf6a7dfca",
+    "f9_bundle_digest": "998c93dcdd8a5bd1426908a701986f515c2d34cf62a9edfd7c0a9235668102a7",
+    "f5_source_digest": "2614d516a1df7a48b120e3ff38ac12939179c178b94d5b6d8ad885e522ce5574",
+    "eb0_4h_bundle_digest": "7b6fe6863430a0a394890620e15237a3bd37ac35ba89f82d4319f0dc19b85d05",
+    "psi0e_bundle_digest": "88c7de3156a4dc07b3c3b2461b4e1e37e85d5bd06d217d904472e4f4bc6f4d9c",
+    "surface_digest": "2c6b19a9c87ba0d6e8b473c7747b0cd096b344e0a2105a458f453a33edff67d9",
+    "publication_digest": "3ad5241b987af750ce6bc17e3b7cbb4171844c3259a021e2f326ab30732de965",
+    "replay_verified": true
+  },
+  "qualification_tests_passed": 146,
+  "observed_surface": {
+    "role": "FUNDING_AND_LAUNCH_OPERATION",
+    "nomination_state": "PROPOSED",
+    "nomination_count": 1,
+    "member_operation_reference_count": 2,
+    "quality_state": "DEGRADED",
+    "completeness_state": "PARTIAL",
+    "supported_count": 0,
+    "operator_identity_asserted": false,
+    "consumer_enabled": false,
+    "default_off": true,
+    "cross_layer_join_performed": false
+  },
+  "blocker": {
+    "code": "PSI0G_D7_REAL_SURFACE_PROVENANCE_CONTRACT_ABSENT",
+    "detail": "The unchanged PSI0F surface contract emits fixture_only=true and provenance_class=FROZEN_SYNTHETIC_KNOWN_BEHAVIOUR_OPERATIONAL_SURFACE. The F17 publication contract also declares fixture_only=true and real_capture_authorized=false. Relabeling this output would alter frozen semantics and is not an adapter action."
+  },
+  "adapter_verdict": "PASS_NO_FIELDS_FIXED_OR_MANUFACTURED",
+  "fully_real_surface_verdict": "NOT_YET_QUALIFIED",
+  "authority": {
+    "supported": false,
+    "same_operation": false,
+    "same_human": false,
+    "publication": false,
+    "monitoring": false,
+    "activation": false
+  },
+  "next_boundary": "Separately review a real-provenance F1-to-PSI0F qualification contract that preserves all payload semantics while changing only provenance classification through an explicit, replay-bound authority path."
+}

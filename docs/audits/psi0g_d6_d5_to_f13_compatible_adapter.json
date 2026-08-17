@@ -1,0 +1,45 @@
+{
+  "schema_version": "psi0g-d6.d5-to-f13-compatible-adapter.audit.v1",
+  "milestone": "PSI0G-D6",
+  "status": "PASS",
+  "verdict": "D5_REAL_PROVENANCE_LOSSLESSLY_ADAPTED_AND_UNCHANGED_F13_F9_F5_EXPORT_REPLAYED",
+  "source": {
+    "d5_retention_id": "68f0dfcf24aac66637f397b189adc3ef999f3740c1accfa5469d2ceccd6581e6",
+    "candidate_id": "1647cb5804e13ba1f34030eca7dba7abd8454f24f6186cf33d026e9d843672c0",
+    "disposition": "PROPOSED",
+    "unresolved_missing_evidence_count": 14
+  },
+  "output": {
+    "local_store": "docs/audits/psi0g_runs/psi0g-d6-f13-compatible-store-20260817-01.db",
+    "retention_id": "d0faf987c6bbbe213c993cd96fc8408e78eb503401f6c16096709ffdf6a7dfca",
+    "manifest_digest": "ccea15b0a88a118eaf4db6ca7c2f90a2d4ade17ec072cded3604a19cc2edfea4",
+    "adapter_digest": "ac15c677ce37ef39e8638c61af38580b0e43b4cfc051d7c985173eac686e4150",
+    "f9_bundle_digest": "998c93dcdd8a5bd1426908a701986f515c2d34cf62a9edfd7c0a9235668102a7",
+    "f5_source_digest": "2614d516a1df7a48b120e3ff38ac12939179c178b94d5b6d8ad885e522ce5574"
+  },
+  "losslessness": {
+    "candidate_identity_changed": false,
+    "operation_population_changed": false,
+    "disposition_changed": false,
+    "missing_evidence_changed": false,
+    "evidence_reinterpreted_or_manufactured": false,
+    "identity_claim_added": false,
+    "unchanged_f13_exporter_replay_passed": true,
+    "unchanged_f9_bundle_identity_matched": true,
+    "unchanged_f5_source_identity_matched": true
+  },
+  "qualification": {
+    "focused_d4_d5_d6_and_downstream_chain_tests_passed": 146,
+    "new_destination_and_atomic_transaction": true,
+    "schema_and_immutable_triggers_unchanged": true,
+    "source_and_output_tamper_fail_closed": true
+  },
+  "authority": {
+    "supported": false,
+    "same_operation": false,
+    "same_human": false,
+    "publication": false,
+    "monitoring": false,
+    "activation": false
+  }
+}

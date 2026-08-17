@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-17T07:47:04Z",
+  "updated_at_utc": "2026-08-17T08:08:05Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -13,6 +13,30 @@
     "published_at_utc": "2026-08-17T07:47:04Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
+  },
+  "local_runtime_session": {
+    "started_at_utc": "2026-08-17T08:07:57Z",
+    "status": "PARTIAL",
+    "verdict": "LOCAL_DASHBOARD_RUNNING_LIVE_WORKERS_INTENTIONALLY_STOPPED",
+    "bind": "127.0.0.1:5002",
+    "entrypoint": "gunicorn src.core.main:app",
+    "master_pid": 2634,
+    "safety_flags": {
+      "flask_background_workers": false,
+      "create_interceptor": false,
+      "create_benchmark": false,
+      "submit_disabled": true,
+      "websocket_disabled": true
+    },
+    "verification": {
+      "listener_bound": true,
+      "database": "ok",
+      "health_http_status": 503,
+      "health_reason": "Aggregate health is unhealthy because provider-facing and production workers were intentionally not started; all reported worker heartbeats are stale."
+    },
+    "production_impact": false,
+    "provider_impact": false,
+    "exact_next_action": "Use http://127.0.0.1:5002 for the local dashboard. Obtain explicit authorization before starting the full supervised stack, listener, ngrok, schedulers, or provider-facing workers."
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",

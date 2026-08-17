@@ -1,0 +1,70 @@
+{
+  "schema_version": "psi0f-f14.qualification-closure.v1",
+  "milestone": "PSI0F-F14",
+  "closed_at_utc": "2026-08-17T09:45:25Z",
+  "engineering_commit": "761b461f6e9d324c07a4546d66b3089aa355f75f",
+  "status": "PASS",
+  "verdict": "PSI0F_F13_CLOSED_QUALIFIED_REAL_CAPTURE_ELIGIBILITY_PREFLIGHT_MAY_BE_PROPOSED",
+  "bound_inputs": {
+    "psi0f_f13_contract_digest": "e6300d9a49bddaa5e6d99c1e6a86f50bd41f5a635ea7ff3ebf119c33cbae0579",
+    "psi0f_f13_schema_digest": "55366e106c9b2f1cd3dccfc37eff16193bc3ba374ffe931243a7992dcda18b75",
+    "psi0f_f13_implementation_digest": "725d2cfce7595640965b4aae8debd77e61f619531b77e3997d670b97e0c82649",
+    "psi0f_f13_test_digest": "f1a56d84b8cce02cab0273eb61504caa491d8b58488dcc461dd51a1b46d58ca2",
+    "psi0f_f13_documentation_digest": "0e11db6c43cc36f0ac9d81825ee517eeb41a07749c3e97e94ec50b120281e792",
+    "psi0f_f13_qualification_digest": "9b60e8c45e99881c4dd1cb599260e5d6942a237b6a67764d4d400bb899763fd3",
+    "psi0f_f12_architecture_digest": "70a5d98982bee953796168d2aded36a15917198e1877fad92541ca8d174a2787",
+    "psi0f_f9_contract_digest": "52e24914afb8871943baa0826d43878ed3b73cd5521af1298de62eab2320df2b"
+  },
+  "independent_fixture_replay": {
+    "contract_replay_verified": true,
+    "fresh_temporary_store_created": true,
+    "store_retention_id": "3b794a07eecb217bf11ac037990628a0100dd569eb37b699776a22b425aa92af",
+    "store_manifest_digest": "feaf0d7e5febd2ff0d83f2e32c07064b78db9dcca2276532f1435fbc28cc7e1a",
+    "export_query_count": 7,
+    "f9_bundle_digest": "657333180cae5b9e35d2a8c5701c3a439ded34a22e6167bde4b89e9f2895a86d",
+    "f5_source_digest": "389d4dc722c465f26645dc66fffb521aa0c4064dcab658d24a17e0c14b1b4300",
+    "exact_f9_and_f5_identity_match": true,
+    "temporary_store_removed_by_temporary_directory_cleanup": true
+  },
+  "recorded_qualification": {
+    "focused_f13_tests_passed": 22,
+    "combined_eb0_4_psi0f_tests_passed": 152,
+    "broader_psi0_tests_passed": 575,
+    "recorded_state_coupled_psi0b_failures": 27,
+    "state_coupled_failures_are_psi0f_f13_regressions": false,
+    "all_tables_insert_only": true,
+    "query_only_export": true,
+    "real_store_capture_authorized": false,
+    "authority_granted": false
+  },
+  "real_capture_preflight_disposition": {
+    "code_and_filesystem_metadata_only_preflight_is_coherent": true,
+    "real_ep3_or_ep4_store_access_authorized": false,
+    "human_disposition_creation_authorized": false,
+    "fixture_publisher_may_be_used_for_real_capture": false,
+    "production_or_retained_database_access_authorized": false,
+    "provider_access_authorized": false,
+    "required_preflight": "Determine whether a complete immutable caller-supplied capture can be derived from already retained authorized artifacts, whether reviewer identities and reason codes exist, and whether a new isolated destination is available. Do not open database contents or payloads."
+  },
+  "authority": {
+    "operator_identity": false,
+    "policy": false,
+    "ranking": false,
+    "attribution": false,
+    "integration": false,
+    "deployment": false,
+    "activation": false,
+    "evidence_mirror": false,
+    "cohort_mode": false,
+    "eb2": false
+  },
+  "scope_proof": {
+    "temporary_fixture_databases_only": true,
+    "real_ep3_or_ep4_records_opened": false,
+    "real_dispositions_created": false,
+    "production_or_retained_database_access": false,
+    "provider_or_rpc_calls": 0,
+    "service_or_configuration_actions": 0
+  },
+  "next_action": "Proceed autonomously with a code-and-filesystem-metadata-only real-capture eligibility preflight; stop before opening any database or retained payload."
+}

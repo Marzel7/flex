@@ -1,0 +1,161 @@
+{
+  "schema_version": "1.0.0",
+  "milestone": "PSI0G-A",
+  "evaluated_at": "2026-08-17T10:05:38Z",
+  "engineering_revision": "ef6102190febd89eb40575ed75ffa12b4b3e323f",
+  "status": "HOLD",
+  "verdict": "EXISTING_RETAINED_EVIDENCE_IS_SUBSTANTIAL_BUT_NOT_A_COMPLETE_REPLAYABLE_PSI0F_INPUT_SET",
+  "purpose": "Determine whether explicitly named retained real EP3/EP4 evidence can populate the frozen PSI0F contract unchanged.",
+  "authorization": {
+    "allowed": [
+      "query-only schema inspection of explicitly named retained EP3/EP4 shadow stores",
+      "ceiling-bounded aggregate and field-coverage reads",
+      "inspection of retained EP3/EP4 validation reports and frozen contracts",
+      "publication of an eligibility verdict and a separately authorized minimum next proposal"
+    ],
+    "forbidden_and_not_performed": [
+      "production database reads",
+      "provider or RPC acquisition",
+      "database or evidence writes",
+      "candidate disposition or authority promotion",
+      "PSI0F publisher or surface execution",
+      "service, configuration, deployment, monitoring, activation, operator identity, or EB2 changes"
+    ]
+  },
+  "frozen_contract_bindings": [
+    {"path": "docs/audits/psi0f_f1_operational_family_rematerialization_qualification.json", "sha256": "e82e4906d078a06b40aed1121e556370707abdaa171c630b9c4fdad210802ad3"},
+    {"path": "docs/audits/psi0f_f5_operational_family_source_materialization_qualification.json", "sha256": "533d34b555dec2385110c52dd5a1a160e8a2dc4ef5cf946b115a10a3527db7ee"},
+    {"path": "docs/audits/psi0f_f9_candidate_retention_disposition_bundle_qualification.json", "sha256": "f696121ecf503981f2e8c1b29d0a3369dd54be9de9e8b4730cb3823a271bbe7e"},
+    {"path": "docs/audits/psi0f_f13_retained_input_store_exporter_qualification.json", "sha256": "9b60e8c45e99881c4dd1cb599260e5d6942a237b6a67764d4d400bb899763fd3"},
+    {"path": "docs/audits/psi0f_f18_safe_local_series_completion_audit.json", "sha256": "c9377f3b9c591d3f9b76ed03b8d9cd3418469822e860b623e287ff54aac7428a"}
+  ],
+  "eligible_sources": [
+    {
+      "path": "database/evidence_platform/watchtower_shadow_ep3_0d/evidence.db",
+      "access": "sqlite_uri_mode_ro_and_query_only",
+      "identity": {"device": 16777234, "inode": 478454728, "size_bytes": 777375744, "mtime_ns": 1786180144286484075},
+      "schema_digest": "62233b45b1cfe84984a1346cb729c16d92298deed5b4cca5321a94cd98e9ce38",
+      "bounded_counts": {"evidence_envelopes": 4784, "normalized_evidence_records": 148223, "primitive_observations": 85989},
+      "direct_psi0f_field_coverage": {
+        "normalized_records_examined": 148223,
+        "primitive_outputs_examined": 85989,
+        "present_counts": {
+          "operation_id": 0,
+          "contract_id": 0,
+          "contract_version": 0,
+          "snapshot_digest": 0,
+          "detector_result_id": 0,
+          "topology_revision_id": 0,
+          "behaviour_observation_ids": 0,
+          "primary_role": 0,
+          "mechanism_features": 0,
+          "temporal_features": 0,
+          "candidate_id": 0,
+          "population": 0
+        }
+      }
+    },
+    {
+      "path": "database/evidence_platform/three_sw2_shadow_ep3_2a/evidence.db",
+      "access": "sqlite_uri_mode_ro_and_query_only",
+      "identity": {"device": 16777234, "inode": 478883403, "size_bytes": 10510336, "mtime_ns": 1786191358099713639},
+      "schema_digest": "002a8d4bbe5b1079238dc48001f0b1295882413b1392a9afb4fc1f7b8767c66b",
+      "bounded_counts": {"evidence_envelopes": 59, "normalized_evidence_records": 1620, "primitive_observations": 858},
+      "direct_psi0f_field_coverage": {
+        "normalized_records_examined": 1620,
+        "primitive_outputs_examined": 858,
+        "present_counts": {
+          "operation_id": 0,
+          "contract_id": 0,
+          "contract_version": 0,
+          "snapshot_digest": 0,
+          "detector_result_id": 0,
+          "topology_revision_id": 0,
+          "behaviour_observation_ids": 0,
+          "primary_role": 0,
+          "mechanism_features": 0,
+          "temporal_features": 0,
+          "candidate_id": 0,
+          "population": 0
+        }
+      }
+    }
+  ],
+  "excluded_sources": [
+    {
+      "path": "database/evidence_platform/production/evidence.db",
+      "reason": "Production database reads were outside PSI0G-A authority; the path was not opened."
+    }
+  ],
+  "retained_report_findings": {
+    "ep3_watchtower": {
+      "path": "docs/evidence_platform/ep3_1_watchtower_parity.json",
+      "sha256": "c3f35ad838da2c9c05315286b62033be739b942eae332ca13b8d3dc6e5079439",
+      "finding": "Aggregate shadow parity exists, but no retained operation runtime evaluation payload is identified; 40 of 176 frozen launches lack materialized LAUNCH_SIGNER evidence."
+    },
+    "ep3_three_sw2": {
+      "path": "docs/evidence_platform/ep3_2_three_sw2_parity.json",
+      "sha256": "2fe1e13028cba2e4ba3843c181c15f8fcc2e307ea43ce084c426233d0683a3ae",
+      "finding": "All 13 historical launches are covered, but health.evaluations is zero and no retained operation runtime evaluation payload is identified."
+    },
+    "ep4_discovery": {
+      "path": "docs/evidence_platform/ep4_0_unknown_discovery_validation.json",
+      "sha256": "1d2d5043e00f542a1a5ef9a298244a39947cf5936cd730b64e109b52a44acc23",
+      "finding": "Deterministic candidate counts and digests are retained (14203 and 94 for the two known corpora), but candidate payload persistence occurred only in temporary validation storage; operation_contracts_loaded is zero."
+    }
+  },
+  "available_shadow_contracts": [
+    {"contract_id": "watchtower", "contract_version": "1.0.0", "lifecycle_status": "SHADOW", "path": "src/evidence/operation_contracts/contracts/watchtower_v1.json", "sha256": "2ccc7718135d1e8c354e9cb3d79e0b142dd7cd2b8610540200dabaab8366b22b"},
+    {"contract_id": "three_sw2", "contract_version": "1.0.0", "lifecycle_status": "SHADOW", "path": "src/evidence/operation_contracts/contracts/three_sw2_v1.json", "sha256": "c01a8c8e8244ecba518577669bbe7357e8d3668465708d7d077c8cccb82a04aa"}
+  ],
+  "missing_evidence_blockers": [
+    {
+      "code": "PSI0G_A_EP3_RUNTIME_OUTPUTS_ABSENT",
+      "detail": "Neither eligible retained store contains the operation contract, snapshot, detector-result, topology-revision, or behaviour-observation identities required by F9/F5. Aggregate parity reports cannot substitute for immutable runtime payloads."
+    },
+    {
+      "code": "PSI0G_A_EP4_CANDIDATE_PAYLOADS_NOT_RETAINED",
+      "detail": "EP4 retained counts and candidate digests, but not the complete candidate records, population membership, evidence references, or ordered operation cohort required for unchanged replay."
+    },
+    {
+      "code": "PSI0G_A_COMPLETE_F13_INPUT_SET_ABSENT",
+      "detail": "No immutable manifest can bind a complete F13 retained-input set. Manufacturing operation identifiers, topology, behaviour, role, mechanism, temporal, candidate, or population fields would violate the frozen contract."
+    }
+  ],
+  "authority_separation": {
+    "candidate_disposition": "NOT_PERFORMED_AND_NOT_INFERRED",
+    "proposed_or_supported_authority": "NOT_GRANTED",
+    "psi0f_application": "NOT_RUN",
+    "monitoring_or_activation": "NOT_AUTHORIZED",
+    "semantic_guard": "Behavioural similarity may support operational continuity evidence but must not be represented as definite common human identity."
+  },
+  "capture_necessity": {
+    "fresh_provider_capture_required_now": false,
+    "reason": "The two retained generic-evidence corpora may be sufficient to derive the missing EP3/EP4 payloads. That must be tested before requesting provider acquisition."
+  },
+  "smallest_separately_authorized_next_programme": {
+    "milestone": "PSI0G-B",
+    "name": "bounded retained-evidence EP3/EP4 derivation",
+    "inputs": [
+      "the exact two eligible shadow stores and identities recorded above",
+      "watchtower contract 1.0.0 in SHADOW lifecycle",
+      "three_sw2 contract 1.0.0 in SHADOW lifecycle"
+    ],
+    "allowed_if_separately_authorized": [
+      "read the two bound shadow stores only through immutable/query-only access",
+      "derive complete EP3 snapshots, behaviour observations, topology revisions, and detector results without inventing missing facts",
+      "derive and retain complete EP4 candidate payloads and their frozen population in a new isolated non-production store",
+      "emit a deterministic manifest or exact evidence gaps"
+    ],
+    "still_forbidden": [
+      "provider or RPC acquisition",
+      "human disposition or authority promotion",
+      "F13 export, PSI0F publication, production integration, monitoring, deployment, or activation"
+    ],
+    "terminal_states": {
+      "PASS": "Complete immutable EP3/EP4 payloads for the two bound real corpora are retained and replay deterministically without weakening PSI0F contracts.",
+      "HOLD": "Exact underivable facts are identified per contract and operation; only then propose the smallest provider-backed capture cohort needed to obtain those facts."
+    }
+  },
+  "terminal_statement": "HOLD / evidence insufficient. Existing generic evidence is real and substantial, but the complete immutable EP3/EP4 payloads required by PSI0F are not retained. First authorize bounded local derivation over the two named stores; do not yet authorize fresh capture, disposition, publication, monitoring, or activation."
+}

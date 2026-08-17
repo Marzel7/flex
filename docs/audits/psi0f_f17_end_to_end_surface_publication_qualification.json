@@ -1,0 +1,71 @@
+{
+  "schema_version": "psi0f-f17.qualification.v1",
+  "milestone": "PSI0F-F17",
+  "engineering_base_commit": "b4aeaf84d2848f99eaad9f953de8861527bc5c8f",
+  "status": "PASS",
+  "verdict": "FIXTURE_END_TO_END_EB0_4H_AND_KNOWN_BEHAVIOUR_SURFACE_PUBLICATION_QUALIFIED",
+  "contract_digest": "1fcc340e1e3f00e6a29230763984a2ef9008ce905bed52e5b31c46de93e91726",
+  "bound_inputs": {
+    "psi0f_f16_architecture_digest": "fa06d36f14ff5b8ee412657d3eb4b96a5a1d7ffe629f919d54a3f0b4d3e7235b",
+    "psi0f_f13_contract_digest": "e6300d9a49bddaa5e6d99c1e6a86f50bd41f5a635ea7ff3ebf119c33cbae0579",
+    "psi0f_f9_contract_digest": "52e24914afb8871943baa0826d43878ed3b73cd5521af1298de62eab2320df2b",
+    "psi0f_f5_contract_digest": "3b950893ef6accc2312817934814a4edf344c583a85c63ba6090bcad9a4d6af1",
+    "psi0f_f1_contract_digest": "074686504842dd2174002f04be83b6f670870a76f32269db3623c0c4e634155a",
+    "psi0f_d_adapter_contract_digest": "0d93b35b98c30d55d03ea8c8c787ba213442ab70b43499b989bfe8f2a18f990e",
+    "psi0f_b_surface_contract_digest": "042568c68b0eb86ef41bc65037568d65214d02d9d9753988adf88c86c14222ef",
+    "implementation_digest": "e471841677ede5fa556b9e2ba098d9c45123c9b2826b40e125a32be3456a6949",
+    "focused_test_digest": "e71ea9cb6ff7e61740a616e8ba88aca92d841286d21b1020a482be85413a5325"
+  },
+  "qualification": {
+    "focused_tests_passed": 11,
+    "dependency_chain_tests_passed": 127,
+    "combined_eb0_4_psi0f_tests_passed": 163,
+    "broader_psi0_tests_passed": 586,
+    "broader_state_coupled_psi0b_failures": 27,
+    "failures_are_psi0f_f17_regressions": false,
+    "f13_query_only_export_replayed": true,
+    "f9_bundle_replayed": true,
+    "f5_immutable_source_replayed": true,
+    "f1_rematerializer_invoked_once_per_fixture_application": true,
+    "eb0_4h_bundle_replay_verified": true,
+    "psi0f_d_immutable_summary_adapter_replayed": true,
+    "psi0f_b_surface_replay_verified": true,
+    "atomic_combined_root_publication": true,
+    "surface_and_eb0_4h_run_identity_bound": true,
+    "input_order_independent": true,
+    "cross_layer_join_performed": false,
+    "operator_identity_asserted": false,
+    "authority_granted": false
+  },
+  "qualified_immutable_psi0e_replay": {
+    "input_path": "docs/audits/psi0e_runs/psi0e-envelope-20260816-01",
+    "input_bundle_digest": "88c7de3156a4dc07b3c3b2461b4e1e37e85d5bd06d217d904472e4f4bc6f4d9c",
+    "synthetic_operational_input_only": true,
+    "temporary_outputs_only": true,
+    "eb0_4h_bundle_digest": "24b84b98527e98c857a14814ee44c4fd6f82b09b956ecfd9de03cf33ea251b6b",
+    "surface_digest": "3bfe9f8e046cbd32c559f24ed2c966099ca2ec5781e8c04f12328b84ef6c155d",
+    "publication_digest": "881fc44f2850604975813af58e6209f77749d43e98bffbc417d7f19ff5ab225b",
+    "full_post_publication_replay_match": true
+  },
+  "fail_closed_proof": [
+    "contract, fixture boundary and authority drift",
+    "existing output or owner-content overwrite",
+    "F13, F9, F5, F1 or EB0.4H replay failure",
+    "immutable PSI0E identity or content drift",
+    "stale and adversarially rehashed surface tamper",
+    "EB0.4H and surface run identity divergence",
+    "root or surface file-set drift",
+    "adapter fault before rename with no partial publication",
+    "cross-layer join, interpretation or authority drift"
+  ],
+  "scope_proof": {
+    "temporary_fixture_retention_store_only": true,
+    "temporary_eb0_4h_and_surface_outputs_only": true,
+    "real_ep3_or_ep4_records_opened": false,
+    "production_database_access": false,
+    "provider_or_rpc_calls": 0,
+    "service_or_configuration_actions": 0,
+    "deployment_or_activation": false
+  },
+  "next_action": "PSI0F-F18 replay-verified end-to-end publication qualification closure and safe-local series completion audit."
+}

@@ -1,0 +1,74 @@
+{
+  "schema_version": "psi0h-b.fresh-observation-cohort.audit.v1",
+  "milestone": "PSI0H-B",
+  "status": "HOLD",
+  "verdict": "COHORT_CONTRACT_QUALIFIED_POST_CUTOFF_EVIDENCE_EXISTS_BUT_NO_POST_CUTOFF_OPERATIONAL_PRIMITIVE_EXISTS",
+  "cutoff": 1786109860,
+  "bound": {
+    "maximum_observation_units": 20,
+    "strict_window_start_after_cutoff": true,
+    "baseline_observation_identity_disjoint": true,
+    "baseline_evidence_identity_disjoint": true,
+    "baseline_primitive_identity_disjoint": true,
+    "all_source_evidence_strictly_post_cutoff": true
+  },
+  "real_capture": {
+    "artifact": "docs/audits/psi0h_b_real_prospective_cohort.json",
+    "artifact_digest": "fc4a2e20f0149c338004bee8311fc2abeaaa70ba581ae89d2db26c9ed6113dbc",
+    "contract_replay_digest": "5fc838e6c3c78823336eff18e3494b50ed8b96c13661f7aaab6dbb630d0b58a3",
+    "cohort_digest": "2e3810d5f042b66ce11bdbda16eb55b5265d9a71750f9973191bdf09ee75fb69",
+    "primitive_input_count": 0,
+    "eligible_count": 0,
+    "selected_count": 0
+  },
+  "source_observation": {
+    "watchtower_primitive_count": 85989,
+    "three_sw2_primitive_count": 858,
+    "watchtower_post_cutoff_evidence_count": 4784,
+    "three_sw2_post_cutoff_evidence_count": 59,
+    "total_post_cutoff_evidence_count": 4843,
+    "post_cutoff_primitive_window_start_count": 0,
+    "post_cutoff_primitive_window_end_count": 0,
+    "post_cutoff_fact_families": [
+      "AddressHistoryObservation",
+      "TransactionVerificationObservation"
+    ],
+    "interpretation": "The post-cutoff records are late verification/freshness acquisition over historical activity. They do not prove operational behaviour after the D8 cutoff and are ineligible for a prospective cohort."
+  },
+  "qualification": {
+    "focused_psi0h_psi0g_and_downstream_tests_passed": 162,
+    "late_acquisition_of_old_activity_rejected": true,
+    "old_evidence_or_primitive_identity_rejected": true,
+    "bounded_selection_order_independent": true,
+    "invalid_or_duplicate_evidence_rejected": true,
+    "comparison_performed": false,
+    "candidate_generated": false
+  },
+  "scope": {
+    "observation_only": true,
+    "source_access": "SQLITE_URI_MODE_RO_AND_QUERY_ONLY",
+    "production_writes": 0,
+    "provider_or_rpc_calls": 0,
+    "service_or_configuration_changes": 0,
+    "alerts_emitted": 0,
+    "external_actions": 0
+  },
+  "authority": {
+    "comparison": false,
+    "candidate_generation": false,
+    "candidate_disposition": false,
+    "supported": false,
+    "same_operation": false,
+    "same_human": false,
+    "alerting": false,
+    "monitoring": false,
+    "consumer": false,
+    "policy": false,
+    "ranking": false,
+    "trading": false,
+    "integration": false,
+    "deployment": false,
+    "activation": false
+  },
+  "next_boundary": "Fresh operational primitive production is absent. Separately decide whether to authorize a bounded observation-path reconciliation to determine the smallest existing collector/deriver action needed to retain genuinely post-cutoff operational primitives. Do not activate monitoring or treat late historical verification as prospective behaviour."
+}

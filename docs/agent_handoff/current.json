@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-17T12:09:13Z",
+  "updated_at_utc": "2026-08-17T12:12:45Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "9d67b694750277a536a7eb89e94c826a63351c70",
-    "working_tree": "dirty: unrelated live/runtime/user paths plus local PSI0G-B2 databases, full D1/D3/D5 projections, and D6 compatible store preserved; PSI0H-E boundary committed narrowly"
+    "git_head": "7dc7259f7bd0d09a82281b1636e6e52f8f42ec4b",
+    "working_tree": "dirty: unrelated live/runtime/user paths plus local PSI0G-B2 databases, full D1/D3/D5 projections, and D6 compatible store preserved; PSI0H-E1 committed narrowly"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -40,10 +40,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0H-E real prospective cohort execution boundary",
-    "mode": "safe-local execution boundary qualified; live source and authorization absent",
-    "status": "HOLD",
-    "verdict": "SAFE_LOCAL_EXECUTION_BOUNDARY_QUALIFIED_REAL_SOURCE_AND_AUTHORIZATION_NOT_MATERIALIZED"
+    "milestone": "PSI0H-E1 live source and collector preflight",
+    "mode": "safe-local source selection; no capture or provider work",
+    "status": "READY",
+    "verdict": "MIGRATION_CENSUS_PLUS_BOUNDED_GETTRANSACTION_IS_SMALLEST_COMPLETE_PROSPECTIVE_SOURCE_PATH"
   },
   "production_state": {
     "retention": "ON",
@@ -7996,8 +7996,12 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0H-E1 live source and collector preflight",
-    "instruction": "Perform a safe-local read-only source/collector preflight: select the smallest existing operation-neutral live event stream capable of producing PSI0H-D evidence families, determine whether provider work or service/configuration changes would be required, bind the exact collector implementation digest, and propose a future interval, ceilings, consumption directory, and isolated output. Do not materialize/consume a real authorization, start services, make provider calls, collect evidence, compare against D8, generate candidates, alert, or activate monitoring.",
+    "milestone": "PSI0H-E2 isolated census-to-transaction collector adapter",
+    "instruction": "Implement and fixture-qualify an isolated injected-transport adapter that accepts bounded future PumpPortal migration census events, performs exactly one getTransaction acquisition per selected migration with no retry/failover/pagination, retains exact artifacts, runs the existing normalizer and PrimitiveEngine in a new isolated store, and emits PSI0H-E-compatible lineage. Do not bind a real endpoint/credential, read live census records, make provider calls, start/reconfigure services, materialize a real authorization, compare against D8, generate candidates, alert, or activate monitoring.",
+    "psi0h_e1_engineering_commit": "7dc7259f7bd0d09a82281b1636e6e52f8f42ec4b",
+    "psi0h_e1_artifact": "docs/audits/psi0h_e1_live_source_collector_preflight.json",
+    "psi0h_e1_artifact_digest": "f5c64ae64529ea8a18c97a0903975bc974013527776d42f33cdc2cac4758eb8c",
+    "psi0h_e1_collector_contract_digest": "3674d8eacdbec22cac5806e08949bcf494ab81cce4d8c34fc56abaad46d255b8",
     "psi0h_e_engineering_commit": "9d67b694750277a536a7eb89e94c826a63351c70",
     "psi0h_e_artifact": "docs/audits/psi0h_e_real_prospective_cohort_execution_boundary.json",
     "psi0h_e_artifact_digest": "0c4a612a2c6e51a0425f1562763b04155fd2c8e2fcf54fa7fe8fd330b26882df",

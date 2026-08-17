@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-17T11:19:10Z",
+  "updated_at_utc": "2026-08-17T11:34:40Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "090d44c7a45b6b933747ae45bd34e9f165fcef3f",
-    "working_tree": "dirty: unrelated live/runtime/user paths plus local PSI0G-B2 databases, full D1/D3/D5 projections, and D6 compatible store preserved; D6/D7 committed narrowly"
+    "git_head": "7a3c802ea72e38798d437c303de78252918a2bbc",
+    "working_tree": "dirty: unrelated live/runtime/user paths plus local PSI0G-B2 databases, full D1/D3/D5 projections, and D6 compatible store preserved; D8 committed narrowly"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -40,10 +40,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0G-D7 first real-input surface inspection",
-    "mode": "D6 adapter PASS; unchanged downstream chain replayed; fully real surface provenance held",
-    "status": "HOLD",
-    "verdict": "REAL_INPUT_CHAIN_ACCEPTED_UNCHANGED_BUT_FROZEN_SURFACE_REMAINS_SYNTHETIC_FIXTURE_ONLY"
+    "milestone": "PSI0G-D8 first real-provenance PSI0F surface",
+    "mode": "explicit two-field provenance transition complete; surface remains non-authoritative and default-off",
+    "status": "PASS",
+    "verdict": "FIRST_REAL_PROVENANCE_PSI0F_SURFACE_REPLAY_VERIFIED_AND_NON_AUTHORITATIVE"
   },
   "production_state": {
     "retention": "ON",
@@ -7996,8 +7996,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "Post-PSI0G-D7 real surface provenance decision",
-    "instruction": "D6 lossless adaptation is complete and the existing chain accepts the real retained evidence unchanged. Separately decide whether to authorize a real-provenance F1-to-PSI0F qualification contract. It must preserve the exact D7 payload semantics and may change provenance classification only through an explicit replay-bound path; no relabeling, SUPPORTED promotion, identity inference, publication, monitoring, integration, deployment, or activation is authorized.",
+    "milestone": "Post-PSI0G-D8 prospective monitoring qualification decision",
+    "instruction": "The first real-provenance PSI0F surface is qualified, replay verified, consumer-disabled and default-off. Decide separately whether to authorize prospective monitoring qualification against this exact surface. D8 grants no monitoring, consumer, policy, ranking, integration, deployment, identity, SUPPORTED, publication, or activation authority.",
     "psi0g_d3_engineering_commit": "e35a2b9b3a1f4becb96e75cfe494933c7e6f2dfe",
     "psi0g_d3_candidate_id": "1647cb5804e13ba1f34030eca7dba7abd8454f24f6186cf33d026e9d843672c0",
     "psi0g_d3_artifact": "docs/audits/psi0g_d3_representation_reconciliation.json",
@@ -8013,6 +8013,10 @@
     "psi0g_d6_retention_id": "d0faf987c6bbbe213c993cd96fc8408e78eb503401f6c16096709ffdf6a7dfca",
     "psi0g_d7_artifact": "docs/audits/psi0g_d7_first_real_input_surface_inspection.json",
     "psi0g_d7_surface_digest": "2c6b19a9c87ba0d6e8b473c7747b0cd096b344e0a2105a458f453a33edff67d9",
+    "psi0g_d8_engineering_commit": "7a3c802ea72e38798d437c303de78252918a2bbc",
+    "psi0g_d8_artifact": "docs/audits/psi0g_d8_first_real_provenance_surface.json",
+    "psi0g_d8_surface_digest": "b185a25420d6f228da6bdcb62efdf74f599e8fbb88d6deaa54bb0a725d15c7db",
+    "psi0g_d8_transition_digest": "3b6b409500e9259d4579a86e15bad3cf51d01d9cc56a44373e288d35d2018e96",
     "psi0g_d1_engineering_commit": "04e6b9d47194ad02a4d3fc2f419f4962d04f2a96",
     "psi0g_series_engineering_commit": "a88a15b5f10da670222dcb9f5488e019b2352ba0",
     "psi0g_b1_engineering_commit": "a0be224dff2c169847503c5fad29295f524d2453",

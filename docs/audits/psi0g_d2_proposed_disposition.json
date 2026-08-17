@@ -1,0 +1,46 @@
+{
+  "schema_version": "psi0g-d2.human-disposition.v1",
+  "status": "PASS",
+  "candidate_id": "95fba7d16194a1b2c03970910b5c737c70da669988fb2c317321318c41814505",
+  "candidate_input_digest": "4893bf250eb4652bf7fb4da350b5f48207a54aa2d8772d03fb81a82377858721",
+  "group_id": "5493a8a6fac8cd7ffbcbca00ef53f7f70bcbbbee1ec88c929354aa791b3a9502",
+  "review_id": "fd9240941bd7ab902771c2d5f66096121f65fe59f1cb6d4caa34e9c3670f88c7",
+  "reviewer_class": "HUMAN_REVIEW",
+  "reviewed_sequence": 0,
+  "nomination_state": "PROPOSED",
+  "operation_ids": ["watchtower", "three_sw2"],
+  "reason_codes": ["EVIDENCE_INCOMPLETE", "RECURRING_BEHAVIOUR"],
+  "reasoning": "Substantial shared evidence and no contradictory evidence support investigation, while both operations remain PARTIAL and all fourteen missing-evidence reasons remain unresolved.",
+  "unresolved_missing_evidence": [
+    "three_sw2:DIRECT_COUNTERPARTY:NO_PROVEN_OBSERVATION",
+    "three_sw2:REPEATED_COUNTERPARTY:NO_PROVEN_OBSERVATION",
+    "three_sw2:WALLET_FRESH_AT_EVENT:AddressHistoryObservation",
+    "three_sw2:WALLET_FRESH_AT_EVENT:NO_PROVEN_OBSERVATION",
+    "watchtower:DIRECT_COUNTERPARTY:AccountParticipationFact",
+    "watchtower:DIRECT_COUNTERPARTY:NO_PROVEN_OBSERVATION",
+    "watchtower:ECONOMIC_FUNDING:AccountParticipationFact",
+    "watchtower:ECONOMIC_FUNDING:NO_PROVEN_OBSERVATION",
+    "watchtower:LAUNCH_ACTIVATION:AccountParticipationFact",
+    "watchtower:LAUNCH_ACTIVATION:NO_PROVEN_OBSERVATION",
+    "watchtower:SYSTEM_TRANSFER:AccountParticipationFact",
+    "watchtower:SYSTEM_TRANSFER:NO_PROVEN_OBSERVATION",
+    "watchtower:WALLET_FRESH_AT_EVENT:AddressHistoryObservation",
+    "watchtower:WALLET_FRESH_AT_EVENT:NO_PROVEN_OBSERVATION"
+  ],
+  "contradictory_evidence": [],
+  "authority": {
+    "proposed": false,
+    "supported": false,
+    "same_operation": false,
+    "same_human": false,
+    "publication": false,
+    "monitoring": false,
+    "activation": false
+  },
+  "semantic_guards": {
+    "operations_remain_separate": true,
+    "same_operation_claim": false,
+    "same_person_or_operator_claim": false,
+    "missing_evidence_is_negative_evidence": false
+  }
+}

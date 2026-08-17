@@ -1,0 +1,13 @@
+{
+  "schema_version": "psi0g-d2.compatibility-stop.v1",
+  "status": "HOLD",
+  "verdict": "D1_DISPOSITION_RETAINED_FROZEN_RUNTIME_VOCABULARY_REJECTS_D1_REPRESENTATION",
+  "candidate_id": "95fba7d16194a1b2c03970910b5c737c70da669988fb2c317321318c41814505",
+  "blocker": "PSI0F_F9_F5_SOURCE_REJECTED:PSI0F_F5_F1_SOURCE_REJECTED:PSI0F_F1_RUNTIME_CONTRACT_REJECTED",
+  "cause": "D1 encoded incomplete evidence as quality_state=INCOMPLETE. The frozen runtime contract requires quality_state=OBSERVED|CONFLICTING|DEGRADED and separately represents completeness as COMPLETE|PARTIAL|NOT_OBSERVED.",
+  "resolution_class": "REPRESENTATION_ONLY_SUPERSEDING_PROJECTION",
+  "authority_transferred": false,
+  "f13_publication_authorized": false,
+  "real_provenance_retained": false,
+  "next_boundary": "PSI0G-D3"
+}

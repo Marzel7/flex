@@ -63,7 +63,7 @@ def test_missing_or_unproven_selected_feature_is_partial_and_explicit():
     runtime = {row["operation_id"]: row for row in document["runtime"]}
     assert runtime["watchtower"]["completeness_state"] == "PARTIAL"
     assert runtime["three_sw2"]["completeness_state"] == "PARTIAL"
-    assert document["candidate"]["quality_state"] == "INCOMPLETE"
+    assert document["candidate"]["quality_state"] == "DEGRADED"
     assert "three_sw2:REPEATED_COUNTERPARTY:NO_PROVEN_OBSERVATION" in document["candidate"]["missing_evidence"]
     assert any(item.startswith("watchtower:WALLET_FRESH_AT_EVENT:")
                for item in document["candidate"]["missing_evidence"])

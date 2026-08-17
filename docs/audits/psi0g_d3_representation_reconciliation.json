@@ -1,0 +1,39 @@
+{
+  "schema_version": "psi0g-d3.representation-reconciliation.v1",
+  "status": "PASS",
+  "verdict": "REPRESENTATION_REPAIRED_AND_FROZEN_F5_F9_STRUCTURE_ACCEPTED",
+  "supersedes_representation_of_candidate_id": "95fba7d16194a1b2c03970910b5c737c70da669988fb2c317321318c41814505",
+  "candidate_id": "1647cb5804e13ba1f34030eca7dba7abd8454f24f6186cf33d026e9d843672c0",
+  "projection_sha256": "056b3925ccaf97a091b711eb9567026e93add078a9b387535b08cdb35942ab5c",
+  "representation_change": {
+    "quality_state": "DEGRADED",
+    "completeness_state": "PARTIAL",
+    "evidence_changed": false,
+    "population_changed": false,
+    "missing_evidence_changed": false,
+    "contradictory_evidence_changed": false
+  },
+  "f5_f9_structural_compatibility": {
+    "accepted": true,
+    "fixture_only": true,
+    "f9_contract_digest": "52e24914afb8871943baa0826d43878ed3b73cd5521af1298de62eab2320df2b",
+    "bundle_digest": "998c93dcdd8a5bd1426908a701986f515c2d34cf62a9edfd7c0a9235668102a7",
+    "source_digest": "2614d516a1df7a48b120e3ff38ac12939179c178b94d5b6d8ad885e522ce5574"
+  },
+  "disposition": null,
+  "authority": {
+    "proposed": false,
+    "supported": false,
+    "same_operation": false,
+    "same_human": false,
+    "publication": false,
+    "monitoring": false,
+    "activation": false
+  },
+  "f13": {
+    "real_store_written": false,
+    "authorized": false,
+    "reason": "The qualified F13 publisher remains fixture-only; structural acceptance does not authorize real provenance retention."
+  },
+  "human_review_required": "Confirm, revise, or reject PROPOSED for the superseding candidate identity before real retention is considered."
+}

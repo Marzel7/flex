@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Apply the approved PSI0G-D projection once to the immutable PSI0G-B2 bundle."""
+"""Apply a PSI0G-D projection once to the immutable PSI0G-B2 bundle."""
 
 from __future__ import annotations
 
@@ -52,7 +52,7 @@ def candidate_context(path: Path) -> tuple[int, str]:
     return len(ids), digest
 
 
-def run(output: Path = OUTPUT) -> dict:
+def run(output: Path = OUTPUT, publication_schema: str = "psi0g-d1.publication.v1") -> dict:
     if output.exists():
         raise FileExistsError(f"PSI0G_D1_OUTPUT_EXISTS:{output}")
     manifest_path = SOURCE / "manifest.json"
@@ -85,7 +85,7 @@ def run(output: Path = OUTPUT) -> dict:
     try:
         (staging / "projection.json").write_bytes(result.payload)
         published = {
-            "schema_version": "psi0g-d1.publication.v1", "status": "PASS",
+            "schema_version": publication_schema, "status": "PASS",
             "source_manifest_sha256": sha256_file(manifest_path),
             "source_files": {name: expected[name] for name in sorted(expected)},
             "projection_sha256": result.projection_digest,
@@ -110,8 +110,9 @@ def run(output: Path = OUTPUT) -> dict:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path, default=OUTPUT)
+    parser.add_argument("--publication-schema", default="psi0g-d1.publication.v1")
     args = parser.parse_args()
-    print(json.dumps(run(args.output.resolve()), sort_keys=True))
+    print(json.dumps(run(args.output.resolve(), args.publication_schema), sort_keys=True))
     return 0
 
 

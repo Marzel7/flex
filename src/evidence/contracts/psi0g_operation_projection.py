@@ -8,7 +8,7 @@ import json
 from typing import Any, Mapping, Sequence
 
 
-SCHEMA_VERSION = "psi0g-d1.operation-projection.v1"
+SCHEMA_VERSION = "psi0g-d3.operation-projection.v2"
 OPERATIONS = ("watchtower", "three_sw2")
 PRIMARY_ROLE = "FUNDING_AND_LAUNCH_OPERATION"
 EDGE_FEATURES = ("CREATOR_SIGNED_LAUNCH", "DIRECTED_VALUE_TRANSFER")
@@ -153,7 +153,7 @@ def project_psi0g_operation_candidate(
             "behaviour_observation_id": expected_behaviours[0],
             "input_digest": operation["snapshot_digest"], "edge_features": sorted(edges),
             "mechanism_features": observed_mechanisms, "temporal_features": temporal,
-            "quality_state": "PROVEN" if complete else "INCOMPLETE",
+            "quality_state": "OBSERVED" if complete else "DEGRADED",
             "completeness_state": "COMPLETE" if complete else "PARTIAL",
             "conflict_group_id": None,
         })
@@ -171,7 +171,7 @@ def project_psi0g_operation_candidate(
         "supporting_primitive_ids": sorted(all_primitives),
         "supporting_behaviour_observation_ids": sorted(all_behaviours),
         "supporting_topology_revision_ids": sorted(all_topologies),
-        "quality_state": "PROVEN" if not candidate_missing else "INCOMPLETE",
+        "quality_state": "PROVEN" if not candidate_missing else "DEGRADED",
         "missing_evidence": sorted(candidate_missing), "contradictory_evidence": [],
         "lifecycle": "RECURRING_PATTERN",
     }

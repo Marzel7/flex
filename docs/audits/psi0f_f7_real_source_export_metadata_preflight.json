@@ -1,0 +1,132 @@
+{
+  "schema_version": "psi0f-f7.real-source-export-metadata-preflight.v1",
+  "milestone": "PSI0F-F7",
+  "evaluated_at_utc": "2026-08-17T09:26:12Z",
+  "engineering_commit": "0027087d1da09b78ca585509bf330af8117fbd43",
+  "status": "HOLD",
+  "verdict": "REAL_SOURCE_EXPORT_BLOCKED_RUNTIME_CANDIDATE_AND_DISPOSITION_STORES_UNAVAILABLE",
+  "bound_inputs": {
+    "psi0f_f6_closure_digest": "5cfce7bf60524dd21178990ec38ca0d4f7e8e4763a2eac315b336b27ea3403dd",
+    "psi0f_f5_contract_digest": "3b950893ef6accc2312817934814a4edf344c583a85c63ba6090bcad9a4d6af1",
+    "runtime_schema_digest": "ba323c2657d49fae928d6309a16c9bdb95c4b9d36038be522134b09045288b59",
+    "discovery_schema_digest": "df82e1ce4d926b5417187676c7be3d8e2145898d1ce13cf090498a5e833d5e79",
+    "ep4_validation_entrypoint_digest": "9c40a6216003ab2e2300acf0e5662528e8e0ae31a3e51942320f9a3cec5059d4"
+  },
+  "metadata_inventory": {
+    "database_contents_opened": false,
+    "candidate_retained_evidence_databases": [
+      {
+        "path": "database/evidence_platform/watchtower_shadow_ep3_0d/evidence.db",
+        "bytes": 777375744,
+        "mtime_utc": "2026-08-08T10:09:04Z",
+        "classification": "RETAINED_EVIDENCE_DATABASE_CONTENTS_NOT_OPENED"
+      },
+      {
+        "path": "database/evidence_platform/three_sw2_shadow_ep3_2a/evidence.db",
+        "bytes": 10510336,
+        "mtime_utc": "2026-08-08T13:15:58Z",
+        "classification": "RETAINED_EVIDENCE_DATABASE_CONTENTS_NOT_OPENED"
+      },
+      {
+        "path": "database/evidence_platform/production/evidence.db",
+        "bytes": 114688,
+        "mtime_utc": "2026-08-14T08:30:31Z",
+        "classification": "PRODUCTION_EVIDENCE_DATABASE_CONTENTS_NOT_OPENED"
+      }
+    ],
+    "dedicated_ep3_runtime_store_paths": {
+      "watchtower_shadow_ep3_0d_operation_runtime_db": false,
+      "three_sw2_shadow_ep3_2a_operation_runtime_db": false
+    },
+    "dedicated_ep4_discovery_store_paths": {
+      "watchtower_shadow_ep3_0d_discovery_db": false,
+      "three_sw2_shadow_ep3_2a_discovery_db": false
+    },
+    "retained_discovery_reports": [
+      {
+        "path": "database/evidence_platform/oip_v2_1c_retry_failover/reports/discovery.json",
+        "bytes": 2453
+      },
+      {
+        "path": "database/evidence_platform/oip_v2_1e_stage_1000/reports/discovery.json",
+        "bytes": 2453
+      },
+      {
+        "path": "database/evidence_platform/oip_v2_1f_stage_1000/reports/discovery.json",
+        "bytes": 2454
+      },
+      {
+        "path": "database/evidence_platform/oip_v2_1g_stage_2000_frozen/reports/discovery.json",
+        "bytes": 2454
+      }
+    ]
+  },
+  "code_path_findings": {
+    "ep3_runtime_schema_is_append_only": true,
+    "ep4_discovery_schema_is_append_only": true,
+    "ep4_validation_persists_candidates_to_temporary_directory_only": true,
+    "ep4_retained_report_contains_candidate_payloads": false,
+    "ep4_retained_report_contains_only_counts_digests_quality_and_replay_metadata": true,
+    "real_f5_exporter_implemented": false,
+    "immutable_nomination_disposition_ledger_implemented": false,
+    "automatic_ep4_lifecycle_to_nomination_mapping_allowed": false
+  },
+  "precondition_verification": {
+    "retained_ep3_evaluation_payload_store_proven": false,
+    "retained_ep4_candidate_payload_store_proven": false,
+    "explicit_nomination_dispositions_available": false,
+    "ordered_platform_operation_cohort_available": false,
+    "complete_eb0_4c_runtime_projection_available": false,
+    "bounded_export_query_set_available": false,
+    "export_replay_and_accounting_available": false,
+    "real_source_export_is_coherent": false
+  },
+  "blockers": [
+    {
+      "code": "PSI0F_F7_EP3_RUNTIME_STORE_ABSENT",
+      "detail": "The append-only OperationRuntimeStore schema exists, but no dedicated retained operation-runtime.db was found at the known EP3 corpus paths."
+    },
+    {
+      "code": "PSI0F_F7_EP4_CANDIDATE_STORE_ABSENT",
+      "detail": "EP4 validation persists DiscoveryCandidate payloads only to a temporary discovery.db. Retained reports expose aggregate counts and digests, not replayable candidate payloads."
+    },
+    {
+      "code": "PSI0F_F7_NOMINATION_DISPOSITION_LEDGER_ABSENT",
+      "detail": "No immutable ledger exists for explicit reviewed PROPOSED or SUPPORTED dispositions. Existing unrelated operator and treasury review tables do not implement the F5 disposition contract."
+    },
+    {
+      "code": "PSI0F_F7_EXPORTER_ABSENT",
+      "detail": "No bounded query-only exporter maps retained EP3/EP4 evidence and explicit dispositions into F5 inputs with complete lineage and accounting."
+    }
+  ],
+  "disposition": {
+    "database_read_authorization_consumed": false,
+    "database_read_needed_now": false,
+    "real_source_export_authorized": false,
+    "safe_next_architectural_step": "Design and fixture-qualify an append-only explicit nomination-disposition ledger and retention/export boundary before any real candidate acquisition or database read.",
+    "production_or_retained_database_read_may_later_be_required": true,
+    "separate_human_authorization_required": true
+  },
+  "authority": {
+    "operator_identity": false,
+    "policy": false,
+    "ranking": false,
+    "attribution": false,
+    "integration": false,
+    "deployment": false,
+    "activation": false,
+    "evidence_mirror": false,
+    "cohort_mode": false,
+    "eb2": false
+  },
+  "scope_proof": {
+    "database_connections_opened": 0,
+    "database_rows_or_schema_queried": 0,
+    "retained_candidate_payloads_opened": 0,
+    "real_source_created": false,
+    "f1_rematerializer_invoked": false,
+    "provider_or_rpc_calls": 0,
+    "service_or_configuration_actions": 0
+  },
+  "next_action": "Continue safe-locally with an architectural reconciliation for an immutable nomination-disposition ledger and candidate-retention/export boundary; do not open retained databases."
+}

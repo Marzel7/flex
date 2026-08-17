@@ -1,0 +1,111 @@
+{
+  "schema_version": "1.0.0",
+  "milestone": "PSI0H-C",
+  "generated_at_utc": "2026-08-17T11:57:41Z",
+  "status": "PASS",
+  "verdict": "FRESHNESS_LOSS_LOCALIZED_TO_ABSENT_PROSPECTIVE_OPERATIONAL_EVIDENCE_DERIVATION_PATH",
+  "purpose": "Diagnose why retained records acquired after the PSI0G-D8 cutoff do not produce eligible post-cutoff operational primitives.",
+  "cutoff": {
+    "unix_seconds": 1786109860,
+    "semantics": "strict event-time boundary inherited unchanged from PSI0G-D8 and PSI0H-A/B"
+  },
+  "sources": [
+    {
+      "operation": "watchtower",
+      "path": "database/evidence_platform/watchtower_shadow_ep3_0d/evidence.db",
+      "normalized_evidence_records": 148223,
+      "records_acquired_after_cutoff": 148223,
+      "records_observed_after_cutoff": 4784,
+      "post_cutoff_observed_families": {
+        "AddressHistoryObservation": 44,
+        "TransactionVerificationObservation": 4740
+      },
+      "primitive_observations": 85989,
+      "primitives_generated_after_cutoff": 85989,
+      "primitive_windows_starting_after_cutoff": 0,
+      "primitive_windows_ending_after_cutoff": 0,
+      "maximum_primitive_window_end": 1786109860,
+      "maximum_primitive_generated_at": 1786180121
+    },
+    {
+      "operation": "three_sw2",
+      "path": "database/evidence_platform/three_sw2_shadow_ep3_2a/evidence.db",
+      "normalized_evidence_records": 1620,
+      "records_acquired_after_cutoff": 1620,
+      "records_observed_after_cutoff": 59,
+      "post_cutoff_observed_families": {
+        "AddressHistoryObservation": 33,
+        "TransactionVerificationObservation": 26
+      },
+      "primitive_observations": 858,
+      "primitives_generated_after_cutoff": 858,
+      "primitive_windows_starting_after_cutoff": 0,
+      "primitive_windows_ending_after_cutoff": 0,
+      "maximum_primitive_window_end": 1785838418,
+      "maximum_primitive_generated_at": 1786189048
+    }
+  ],
+  "findings": [
+    {
+      "id": "H-C-1",
+      "result": "PASS",
+      "finding": "The 4843 records observed after cutoff contain only address-history and transaction-verification observations. They verify or recover historical activity and are not new launch, transfer, funding, activation, or behavioural events."
+    },
+    {
+      "id": "H-C-2",
+      "result": "PASS",
+      "finding": "All 86847 primitives were generated after cutoff, but none has an event window after cutoff. PrimitiveEngine derives observation windows from underlying event timestamps; generated_at is processing lineage, not operational event time."
+    },
+    {
+      "id": "H-C-3",
+      "result": "PASS",
+      "finding": "The Watchtower and 3SW2 stores are bounded shadow recovery corpora. Their recovery runners explicitly perform a one-shot PrimitiveEngine.run_once after importing frozen historical populations or bounded historical address pages. They are not continuous prospective collectors."
+    },
+    {
+      "id": "H-C-4",
+      "result": "PASS",
+      "finding": "The configured production evidence_writer is autostart=false and its normalization and primitive-engine flags are both disabled. Acquisition retention remains a separate path; it does not populate these shadow corpora with normalized, operation-level primitives."
+    },
+    {
+      "id": "H-C-5",
+      "result": "PASS",
+      "finding": "PSI0G-B is a query-only, one-shot derivation over already-retained primitives and hard-binds source file identity. It cannot serve as an incremental prospective primitive producer."
+    }
+  ],
+  "cause": {
+    "primary": "No qualified path continuously retains genuinely new operational event families, normalizes them, derives primitives using their event timestamps, and appends them to an isolated prospective cohort store.",
+    "not_causes": [
+      "PSI0H-A matching logic",
+      "PSI0H-B cutoff eligibility logic",
+      "primitive event-window timestamp calculation",
+      "lack of post-cutoff acquisition or processing timestamps"
+    ]
+  },
+  "prohibited_repairs": [
+    "Use acquired_at, observed_at, committed_at, or generated_at as a substitute for an older underlying event timestamp",
+    "Relabel historical transaction verification or address-history recovery as prospective operational behaviour",
+    "Modify the D8 cutoff or weaken PSI0H-A/B eligibility",
+    "Start the production evidence writer, enable mirroring, normalization, primitive derivation, monitoring, alerts, or any provider work under PSI0H-C authority"
+  ],
+  "smallest_legitimate_next_boundary": {
+    "milestone": "PSI0H-D",
+    "scope": "Qualify a bounded, isolated prospective operational-evidence capture and derivation path.",
+    "requirements": [
+      "Freeze a small post-authorization observation interval and operation-neutral eligibility contract.",
+      "Retain genuinely new event-time LaunchFact, TransactionFact, AccountParticipationFact, InstructionFact, and other evidence families required by the existing PrimitiveEngine; do not manufacture absent fields.",
+      "Normalize and derive into a new isolated prospective store, leaving the D8 baseline and EP3 shadow corpora immutable.",
+      "Prove each eligible primitive window is anchored to its underlying event time and begins strictly after 1786109860.",
+      "Bind acquisition, normalization, evidence-to-primitive lineage, replay digests, exclusions, and completeness gaps end to end.",
+      "Stop after a bounded cohort is frozen; perform no comparison, alerting, monitoring activation, policy, ranking, identity attribution, or production publication."
+    ],
+    "authority_needed": "A separate explicit authorization is required before production observation, provider traffic, service activation, or production configuration changes. Safe-local work may only define and test the isolated contract with fixtures."
+  },
+  "authority": {
+    "production_reads": 0,
+    "production_writes": 0,
+    "provider_calls": 0,
+    "service_changes": 0,
+    "monitoring_activations": 0,
+    "identity_claims": 0
+  }
+}

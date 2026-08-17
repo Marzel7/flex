@@ -1,16 +1,16 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-17T09:37:03Z",
+  "updated_at_utc": "2026-08-17T09:48:28Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "dc8ce35e4a1f66fff8a737b9586bd59752949d6a",
-    "working_tree": "dirty: unrelated live/runtime/user paths preserved; PSI0F-F9/F10/F11 committed narrowly; PSI0C/PSI0D/PSI0E closure artifacts plus prior audit/diagnosis artifacts uncommitted"
+    "git_head": "b4aeaf84d2848f99eaad9f953de8861527bc5c8f",
+    "working_tree": "dirty: unrelated live/runtime/user paths preserved; PSI0F-F12 through F16 committed narrowly; PSI0C/PSI0D/PSI0E closure artifacts plus prior audit/diagnosis artifacts uncommitted"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-17T09:37:03Z",
+    "published_at_utc": "2026-08-17T09:48:28Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
@@ -40,10 +40,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0F-F11 retained-source replay/extraction preflight",
-    "mode": "autonomous safe-local series continuation; real-store and production boundary preserved",
-    "status": "HOLD",
-    "verdict": "NEXT_PSI0F_F12_DISPOSITION_LEDGER_AND_RETAINED_INPUT_EXPORT_BOUNDARY_ARCHITECTURE"
+    "milestone": "PSI0F-F16 fixture end-to-end EB0.4H and surface publication architecture",
+    "mode": "autonomous safe-local implementation authorized; real capture remains on hold",
+    "status": "PASS",
+    "verdict": "NEXT_PSI0F_F17_FIXTURE_END_TO_END_EB0_4H_AND_SURFACE_PUBLICATION"
   },
   "production_state": {
     "retention": "ON",
@@ -264,6 +264,66 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0f_f16_fixture_end_to_end_publication_architecture": {
+      "status": "PASS",
+      "verdict": "NEXT_PSI0F_F17_FIXTURE_END_TO_END_EB0_4H_AND_SURFACE_PUBLICATION",
+      "engineering_commit": "b4aeaf84d2848f99eaad9f953de8861527bc5c8f",
+      "architecture_digest": "fa06d36f14ff5b8ee412657d3eb4b96a5a1d7ffe629f919d54a3f0b4d3e7235b",
+      "f13_to_f9_to_f5_identity_chain": true,
+      "f1_eb0_4h_rematerialization_bound": true,
+      "psi0f_immutable_adapter_bound": true,
+      "atomic_surface_publication_specified": true,
+      "real_capture_remains_on_hold": true,
+      "artifact": "docs/audits/psi0f_f16_fixture_end_to_end_publication_architecture.json",
+      "next_gate": "PSI0F-F17 fixture-only end-to-end implementation and qualification"
+    },
+    "psi0f_f15_real_capture_eligibility_preflight": {
+      "status": "HOLD",
+      "verdict": "REAL_CAPTURE_INELIGIBLE_COMPLETE_RETAINED_INPUTS_AND_HUMAN_DISPOSITIONS_UNPROVEN",
+      "engineering_commit": "d7d6ca4c263f06c8ab7b9aa9601856d712ef895e",
+      "preflight_digest": "88f67779c0ecb76f459f61fd59cfe0a021df67cfa79db0b471e201812ef010a0",
+      "database_connections_opened": 0,
+      "retained_payloads_opened": 0,
+      "real_capture_authorized": false,
+      "safe_local_fixture_continuation": true,
+      "artifact": "docs/audits/psi0f_f15_real_capture_eligibility_preflight.json",
+      "next_gate": "PSI0F-F16 fixture end-to-end publication architecture"
+    },
+    "psi0f_f14_retained_input_store_exporter_qualification_closure": {
+      "status": "PASS",
+      "verdict": "PSI0F_F13_CLOSED_QUALIFIED_REAL_CAPTURE_ELIGIBILITY_PREFLIGHT_MAY_BE_PROPOSED",
+      "engineering_commit": "ddb656b255464364793a95c6f3987de9e56cb1eb",
+      "closure_digest": "571529ef23e1d6b28dacf14a4d6747e4e3cf068ac3e61d965cce17461390d154",
+      "fresh_fixture_store_replayed": true,
+      "exact_f9_and_f5_identity_match": true,
+      "artifact": "docs/audits/psi0f_f14_retained_input_store_exporter_qualification_closure.json",
+      "next_gate": "Metadata-only real-capture eligibility preflight"
+    },
+    "psi0f_f13_retained_input_store_exporter_qualification": {
+      "status": "PASS",
+      "verdict": "FIXTURE_ONLY_RETAINED_INPUT_STORE_AND_QUERY_ONLY_F9_EXPORTER_QUALIFIED",
+      "engineering_commit": "761b461f6e9d324c07a4546d66b3089aa355f75f",
+      "contract_digest": "e6300d9a49bddaa5e6d99c1e6a86f50bd41f5a635ea7ff3ebf119c33cbae0579",
+      "qualification_digest": "9b60e8c45e99881c4dd1cb599260e5d6942a237b6a67764d4d400bb899763fd3",
+      "focused_tests_passed": 22,
+      "combined_eb0_4_psi0f_tests_passed": 152,
+      "broader_psi0_tests_passed": 575,
+      "historical_state_coupled_psi0b_failures": 27,
+      "real_store_capture_authorized": false,
+      "artifact": "docs/audits/psi0f_f13_retained_input_store_exporter_qualification.json",
+      "next_gate": "PSI0F-F14 replay-verified qualification closure"
+    },
+    "psi0f_f12_disposition_ledger_export_boundary_architecture": {
+      "status": "PASS",
+      "verdict": "NEXT_PSI0F_F13_FIXTURE_ONLY_RETAINED_INPUT_STORE_AND_QUERY_ONLY_EXPORTER",
+      "engineering_commit": "17d30faf",
+      "architecture_digest": "70a5d98982bee953796168d2aded36a15917198e1877fad92541ca8d174a2787",
+      "insert_only_store_specified": true,
+      "explicit_disposition_ledger_specified": true,
+      "query_only_exporter_specified": true,
+      "artifact": "docs/audits/psi0f_f12_disposition_ledger_export_boundary_architecture.json",
+      "next_gate": "PSI0F-F13 fixture-only implementation and qualification"
+    },
     "psi0f_f11_retained_source_replay_extraction_preflight": {
       "status": "HOLD",
       "verdict": "RETAINED_SOURCE_EXTRACTION_BLOCKED_REAL_EP3_EP4_DISPOSITION_INPUTS_UNAVAILABLE",

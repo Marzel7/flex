@@ -1,0 +1,62 @@
+{
+  "schema_version": "psi0h-e.real-prospective-cohort.audit.v1",
+  "milestone": "PSI0H-E",
+  "status": "HOLD",
+  "verdict": "SAFE_LOCAL_EXECUTION_BOUNDARY_QUALIFIED_REAL_SOURCE_AND_AUTHORIZATION_NOT_MATERIALIZED",
+  "implementation": {
+    "contract": "src/evidence/contracts/psi0h_real_cohort_execution.py",
+    "entrypoint": "scripts/run_psi0h_e_real_cohort.py",
+    "tests": "tests/test_psi0h_e_real_cohort_execution.py",
+    "authority_class": "HUMAN_APPROVED_ONE_RUN_OBSERVATION_ONLY",
+    "maximum_attempts": 1,
+    "injected_collector_only": true,
+    "built_in_live_collector": false,
+    "new_isolated_output_required": true,
+    "new_empty_consumption_directory_required": true,
+    "consumption_before_collection": true,
+    "partial_publication_on_failure": false
+  },
+  "qualified_guards": [
+    "authorization identity, source, interval, cutoff, ceilings, destination and collector contract are digest-bound",
+    "provider access must be explicitly true exactly when the provider request ceiling is nonzero",
+    "authorization replay and downstream authority drift fail closed",
+    "authorization is durably consumed before the collector can run and cannot be reused",
+    "collector output shape and provider, envelope and primitive ceilings fail closed",
+    "all captured lineage passes unchanged through the qualified PSI0H-D event-time contract",
+    "historical event time remains ineligible regardless of acquisition time",
+    "publication contains no comparison, alerting, monitoring or activation authority",
+    "the CLI supports replay-verifiable preflight but refuses real execution because no live collector is configured"
+  ],
+  "qualification": {
+    "focused_psi0h_tests_passed": 27,
+    "production_reads": 0,
+    "production_writes": 0,
+    "provider_or_rpc_calls": 0,
+    "service_or_configuration_changes": 0,
+    "real_authorizations_materialized": 0,
+    "real_cohorts_published": 0
+  },
+  "blockers": [
+    "PSI0H_E_REAL_SOURCE_UNSELECTED: no reviewed live source_id/source_kind or operation-neutral collection adapter has been selected.",
+    "PSI0H_E_COLLECTOR_CONTRACT_UNBOUND: no immutable digest identifies the exact live collector implementation and evidence-family projection.",
+    "PSI0H_E_INTERVAL_UNBOUND: no future observation interval has been selected.",
+    "PSI0H_E_PROVIDER_BUDGET_UNBOUND: it is not established whether the collector needs provider traffic; therefore no request ceiling is authorized.",
+    "PSI0H_E_SERVICE_ACTION_UNBOUND: no service start/reconfiguration action is authorized.",
+    "PSI0H_E_DESTINATION_UNBOUND: no new isolated real cohort and consumption paths are materialized."
+  ],
+  "authority": {
+    "real_capture": false,
+    "provider_access": false,
+    "service_change": false,
+    "comparison": false,
+    "candidate_generation": false,
+    "alerting": false,
+    "monitoring": false,
+    "identity_attribution": false,
+    "policy": false,
+    "ranking": false,
+    "integration": false,
+    "activation": false
+  },
+  "exact_next_action": "PSI0H-E1 should perform a safe-local source and collector preflight: select the smallest existing operation-neutral live event stream capable of producing the required evidence families, identify whether it needs provider work or service/config changes, bind its implementation digest, propose a future bounded interval and ceilings, and materialize no authorization or traffic."
+}

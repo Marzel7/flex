@@ -1,0 +1,108 @@
+{
+  "schema_version": "psi0f-f11.retained-source-replay-extraction-preflight.v1",
+  "milestone": "PSI0F-F11",
+  "evaluated_at_utc": "2026-08-17T09:36:08Z",
+  "engineering_commit": "69d3f2fdde57c60a495ef2c8312c8d3ce7a91157",
+  "status": "HOLD",
+  "verdict": "RETAINED_SOURCE_EXTRACTION_BLOCKED_REAL_EP3_EP4_DISPOSITION_INPUTS_UNAVAILABLE",
+  "bound_inputs": {
+    "psi0f_f10_closure_digest": "c28fd229000885e35423acc9a731c12a04091ab27cac49219c3d594c1aeb3b24",
+    "psi0f_f9_contract_digest": "52e24914afb8871943baa0826d43878ed3b73cd5521af1298de62eab2320df2b",
+    "psi0f_f9_implementation_digest": "d011ad6e0df32dc9ff2ae9baa69bcd9db1c36e8354e0274067601ded4d103767",
+    "discovery_store_implementation_digest": "092a2db0c4b68bb11b2ce1afb9bd4968d17b4ecfb4ef7736aa4e8ed5b1a9506d"
+  },
+  "metadata_inventory": {
+    "database_contents_or_schemas_opened": false,
+    "known_evidence_database_files": [
+      {
+        "path": "database/evidence_platform/watchtower_shadow_ep3_0d/evidence.db",
+        "bytes": 777375744,
+        "mtime_utc": "2026-08-08T10:09:04Z",
+        "classification": "CONTENTS_NOT_OPENED"
+      },
+      {
+        "path": "database/evidence_platform/three_sw2_shadow_ep3_2a/evidence.db",
+        "bytes": 10510336,
+        "mtime_utc": "2026-08-08T13:15:58Z",
+        "classification": "CONTENTS_NOT_OPENED"
+      },
+      {
+        "path": "database/evidence_platform/production/evidence.db",
+        "bytes": 114688,
+        "mtime_utc": "2026-08-14T08:30:31Z",
+        "classification": "PRODUCTION_CONTENTS_NOT_OPENED"
+      }
+    ],
+    "dedicated_runtime_store_paths_present": false,
+    "dedicated_discovery_store_paths_present": false,
+    "dedicated_nomination_disposition_ledger_path_present": false,
+    "retained_f9_bundle_path_present": false
+  },
+  "code_reconciliation": {
+    "f9_accepts_all_complete_f5_inputs_from_caller": true,
+    "f9_performs_retained_store_reads": false,
+    "f9_writes_retention_bundle_files": false,
+    "discovery_store_schema_and_append_implementation_exist": true,
+    "known_ep4_validation_uses_temporary_discovery_store": true,
+    "retained_discovery_payload_path_proven": false,
+    "retained_ep3_evaluation_and_runtime_path_proven": false,
+    "explicit_immutable_nomination_disposition_ledger_exists": false,
+    "bounded_query_only_f9_exporter_exists": false,
+    "lifecycle_may_be_translated_to_nomination": false
+  },
+  "f9_input_availability": {
+    "ordered_cohort": false,
+    "evaluation_summaries": false,
+    "normalized_runtime_projections": false,
+    "candidate_payloads": false,
+    "explicit_nomination_dispositions": false,
+    "closed_vocabulary": true,
+    "complete_real_f9_export_coherent": false
+  },
+  "blockers": [
+    {
+      "code": "PSI0F_F11_EP3_REPLAY_SOURCE_UNPROVEN",
+      "detail": "No dedicated retained evaluation-summary and normalized-runtime store path is present at either known EP3 corpus location. Evidence database contents were not opened to speculate about substitutes."
+    },
+    {
+      "code": "PSI0F_F11_EP4_REPLAY_SOURCE_UNPROVEN",
+      "detail": "The append-only DiscoveryStore implementation exists, but no retained discovery.db is present at either known corpus location and the prior validation path retained only aggregate reports."
+    },
+    {
+      "code": "PSI0F_F11_DISPOSITION_LEDGER_ABSENT",
+      "detail": "No append-only ledger implements F5 review identity, exact ordered membership, explicit PROPOSED or SUPPORTED state, supporting candidate identity, and false authority."
+    },
+    {
+      "code": "PSI0F_F11_QUERY_ONLY_EXPORTER_ABSENT",
+      "detail": "No bounded query-only adapter maps retained EP3, EP4, disposition, cohort, and vocabulary inputs into the complete F9 nine-file contract with source replay and accounting."
+    }
+  ],
+  "disposition": {
+    "database_read_authorization_consumed": false,
+    "database_or_provider_read_needed_now": false,
+    "real_retention_or_export_run_authorized": false,
+    "safe_next_step": "Specify and fixture-qualify an append-only nomination-disposition ledger plus query-only retained-input exporter boundary without opening real stores.",
+    "separate_human_authorization_required_for_real_store_or_provider_access": true
+  },
+  "authority": {
+    "operator_identity": false,
+    "policy": false,
+    "ranking": false,
+    "attribution": false,
+    "integration": false,
+    "deployment": false,
+    "activation": false,
+    "evidence_mirror": false,
+    "cohort_mode": false,
+    "eb2": false
+  },
+  "scope_proof": {
+    "database_connections_opened": 0,
+    "database_rows_or_schemas_queried": 0,
+    "retained_payload_files_opened": 0,
+    "provider_or_rpc_calls": 0,
+    "service_or_configuration_actions": 0,
+    "real_bundle_or_source_created": false
+  },
+  "next_action": "Proceed autonomously with PSI0F-F12 safe-local disposition-ledger and retained-input-export boundary architecture; do not open databases or retained payloads."
+}

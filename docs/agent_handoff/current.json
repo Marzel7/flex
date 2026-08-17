@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-17T11:02:04Z",
+  "updated_at_utc": "2026-08-17T11:06:23Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "e35a2b9b3a1f4becb96e75cfe494933c7e6f2dfe",
-    "working_tree": "dirty: unrelated live/runtime/user paths plus local PSI0G-B2 databases and full D1/D3 projections preserved; D2/D3 committed narrowly"
+    "git_head": "8f57845cf484dbd9c80c1f7687197eb12d25cb16",
+    "working_tree": "dirty: unrelated live/runtime/user paths plus local PSI0G-B2 databases and full D1/D3 projections preserved; D4 committed narrowly"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -40,10 +40,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0G-D3 representation reconciliation",
-    "mode": "D1 PROPOSED disposition retained; superseding D3 candidate awaits explicit disposition",
+    "milestone": "PSI0G-D4 real-provenance retention preflight",
+    "mode": "real D3 preflight qualified; exact D3 human disposition absent",
     "status": "HOLD",
-    "verdict": "D1_PROPOSED_RECORDED_D3_F5_F9_COMPATIBLE_NEW_CANDIDATE_REVIEW_REQUIRED"
+    "verdict": "REAL_RETENTION_PREFLIGHT_QUALIFIED_EXACT_D3_HUMAN_DISPOSITION_ABSENT"
   },
   "production_state": {
     "retention": "ON",
@@ -8001,6 +8001,9 @@
     "psi0g_d3_engineering_commit": "e35a2b9b3a1f4becb96e75cfe494933c7e6f2dfe",
     "psi0g_d3_candidate_id": "1647cb5804e13ba1f34030eca7dba7abd8454f24f6186cf33d026e9d843672c0",
     "psi0g_d3_artifact": "docs/audits/psi0g_d3_representation_reconciliation.json",
+    "psi0g_d4_engineering_commit": "8f57845cf484dbd9c80c1f7687197eb12d25cb16",
+    "psi0g_d4_artifact": "docs/audits/psi0g_d4_real_provenance_retention_preflight.json",
+    "psi0g_d4_preflight_digest": "dca44ad826d7f1452b4ed28495e2f6d39362f1c490ca581242fe13e7feb075a0",
     "psi0g_d1_engineering_commit": "04e6b9d47194ad02a4d3fc2f419f4962d04f2a96",
     "psi0g_series_engineering_commit": "a88a15b5f10da670222dcb9f5488e019b2352ba0",
     "psi0g_b1_engineering_commit": "a0be224dff2c169847503c5fad29295f524d2453",

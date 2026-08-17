@@ -1,0 +1,91 @@
+{
+  "schema_version": "1.0.0",
+  "milestone": "PSI0G-B",
+  "evaluated_at": "2026-08-17T10:17:00Z",
+  "engineering_base_revision": "d347545e44a2b6996818f72265a06523a28ee68d",
+  "status": "HOLD",
+  "verdict": "REAL_WATCHTOWER_TOPOLOGY_EXCEEDS_FROZEN_SINGLE_LOCAL_ROLE_PER_ENTITY_VALIDATION_SEMANTICS",
+  "authorization": {
+    "allowed": "Query-only derivation from the two PSI0G-A-bound shadow stores through watchtower 1.0.0 and three_sw2 1.0.0 SHADOW contracts into one new isolated non-production bundle.",
+    "forbidden_and_not_performed": [
+      "provider or RPC acquisition",
+      "production database reads or writes",
+      "contract weakening",
+      "candidate disposition or authority promotion",
+      "F13 export or PSI0F publication",
+      "monitoring, deployment, activation, operator identity, or EB2 changes"
+    ]
+  },
+  "implementation": {
+    "runner": "scripts/run_psi0g_b_retained_derivation.py",
+    "focused_tests": "tests/test_psi0g_b_retained_derivation.py",
+    "properties": [
+      "source SQLite opened with URI mode=ro and PRAGMA query_only=ON",
+      "PSI0G-A filesystem identities checked before source reads",
+      "source identity checked again after reads and full source SHA-256 derived",
+      "EP3 runtime and EP4 candidate payloads target append-only isolated SQLite stores",
+      "publication uses a sibling staging directory and atomic rename",
+      "an existing final output path fails closed without mutation"
+    ]
+  },
+  "qualification": {
+    "command": "pytest -q tests/test_psi0g_b_retained_derivation.py tests/test_ep3_3_multi_operation_runtime_validation.py tests/test_ep4_0_generic_unknown_operation_discovery.py",
+    "passed": 11,
+    "failed": 0
+  },
+  "bounded_attempt": {
+    "run_id": "psi0g-b-retained-derivation-20260817-01",
+    "command": "python scripts/run_psi0g_b_retained_derivation.py",
+    "attempts": 1,
+    "terminal_exception": "ValueError: Topology Revision edge is not permitted by contract",
+    "failed_operation": "watchtower",
+    "failed_stage": "EP3 topology validation",
+    "three_sw2_execution_reached": false,
+    "retry_performed": false,
+    "final_output_exists": false,
+    "staging_output_exists_after_cleanup": false,
+    "partial_publication": false
+  },
+  "aggregate_query_only_diagnosis": {
+    "source": "database/evidence_platform/watchtower_shadow_ep3_0d/evidence.db",
+    "proven_system_transfer_distinct_sources": 3501,
+    "proven_system_transfer_distinct_destinations": 8061,
+    "entities_observed_as_both_source_and_destination": 1378,
+    "raw_entity_identities_retained_or_published": false
+  },
+  "root_cause": {
+    "producer_semantics": "WatchtowerTopology permits an entity to be emitted once as funding_source and once as funded_wallet because nodes are keyed by (entity_ref, local_role).",
+    "validator_semantics": "OperationRuntime._validate_topology reduces nodes to one local_role per entity_ref before validating every edge.",
+    "real_data_effect": "The retained transfer graph has 1,378 multi-role entities. At least one edge is evaluated against the role retained by the reduction rather than the role attached to that edge, and validation rejects it.",
+    "classification": "FROZEN_CONTRACT_IMPLEMENTATION_SEMANTIC_MISMATCH_EXPOSED_BY_REAL_EVIDENCE",
+    "evidence_deficiency": false,
+    "safe_to_ignore": false
+  },
+  "contract_protection": {
+    "runtime_validator_changed": false,
+    "topology_contract_changed": false,
+    "evidence_modified_or_manufactured": false,
+    "reason_for_hold": "PSI0G-B must not weaken EP3 or reshape real evidence merely to obtain a PASS."
+  },
+  "smallest_separately_authorized_next_programme": {
+    "milestone": "PSI0G-B1",
+    "name": "multi-role topology semantic reconciliation",
+    "scope": [
+      "reproduce the producer/validator mismatch with frozen synthetic multi-role transfer fixtures",
+      "determine whether local roles are node-scoped or entity-unique in the committed EP3 schema and contracts",
+      "make the smallest contract-consistent repair only if the frozen semantics unambiguously support it",
+      "qualify valid single-role and multi-role graphs plus malformed role/edge rejection",
+      "do not rerun the consumed PSI0G-B real derivation attempt"
+    ],
+    "still_forbidden": [
+      "real-source reread or derivation rerun",
+      "provider/RPC acquisition",
+      "candidate disposition, F13 export, PSI0F publication, monitoring, deployment, or activation"
+    ],
+    "terminal_states": {
+      "PASS": "One frozen-semantics-consistent validation rule is proved and qualified without changing evidence meaning or authority.",
+      "HOLD": "The contract is ambiguous or entity-unique roles are intentional; require explicit EP3 contract-version review rather than an implementation repair."
+    }
+  },
+  "terminal_statement": "HOLD. Real evidence cannot pass the frozen EP3 topology validator unchanged because multi-role entities are common in the retained watchtower transfer graph. No output was published and no retry occurred."
+}

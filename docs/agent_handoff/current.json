@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-17T08:18:10Z",
+  "updated_at_utc": "2026-08-17T08:28:29Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "f3073041f6e97cbdc676e528c4dc664d83132058",
-    "working_tree": "dirty: unrelated live/runtime/user paths preserved; PSI0F-F1 committed narrowly; PSI0C/PSI0D/PSI0E closure artifacts plus prior audit/diagnosis artifacts uncommitted"
+    "git_head": "1240c211161023aac0651dc8d551889d3fbbdde0",
+    "working_tree": "dirty: unrelated live/runtime/user paths preserved; PSI0F-F2 closure committed narrowly; PSI0C/PSI0D/PSI0E closure artifacts plus prior audit/diagnosis artifacts uncommitted"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -40,10 +40,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0F-F1 deterministic EB0.4H rematerialization contract qualification",
-    "mode": "safe-local fixture-only design, implementation and qualification complete",
+    "milestone": "PSI0F-F2 replay-verified rematerialization-contract qualification closure",
+    "mode": "bounded safe-local replay verification and closure complete",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "FIXTURE_ONLY_DETERMINISTIC_EB0_4H_REMATERIALIZATION_CONTRACT_QUALIFIED"
+    "verdict": "PSI0F_F1_CLOSED_QUALIFIED_ONE_IMMUTABLE_SOURCE_AVAILABILITY_AND_LINEAGE_PREFLIGHT_MAY_BE_PROPOSED"
   },
   "production_state": {
     "retention": "ON",
@@ -264,6 +264,28 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0f_f2_operational_family_rematerialization_qualification_closure": {
+      "status": "PASS",
+      "verdict": "PSI0F_F1_CLOSED_QUALIFIED_ONE_IMMUTABLE_SOURCE_AVAILABILITY_AND_LINEAGE_PREFLIGHT_MAY_BE_PROPOSED",
+      "engineering_commit": "1240c211161023aac0651dc8d551889d3fbbdde0",
+      "f1_engineering_commit": "f3073041f6e97cbdc676e528c4dc664d83132058",
+      "contract_digest": "074686504842dd2174002f04be83b6f670870a76f32269db3623c0c4e634155a",
+      "qualification_digest": "e82e4906d078a06b40aed1121e556370707abdaa171c630b9c4fdad210802ad3",
+      "closure_digest": "918aa42bd39791dea52c7f4f4b9dc33a17ef574ef4a0fd0b701f9d3d299ff07d",
+      "focused_tests_passed": 26,
+      "combined_eb0_4_psi0f_tests_passed": 98,
+      "broader_psi0_tests_passed": 521,
+      "historical_state_coupled_psi0b_failures": 27,
+      "historical_failures_are_psi0f_f1_regressions": false,
+      "real_eb0_4_logical_source_opened": false,
+      "real_eb0_4_bundle_materialized": false,
+      "real_psi0e_bundle_opened": false,
+      "psi0f_adapter_or_projection_invoked": false,
+      "production_or_runtime_access": false,
+      "provider_or_rpc_calls": 0,
+      "artifact": "docs/audits/psi0f_f2_operational_family_rematerialization_qualification_closure.json",
+      "next_gate": "PSI0F-F3 immutable EB0.4 logical-source availability and lineage-binding preflight only; no rematerialization or publication"
+    },
     "psi0f_f1_operational_family_rematerialization_qualification": {
       "status": "PASS",
       "verdict": "FIXTURE_ONLY_DETERMINISTIC_EB0_4H_REMATERIALIZATION_CONTRACT_QUALIFIED",

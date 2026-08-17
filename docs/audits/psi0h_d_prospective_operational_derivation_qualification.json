@@ -1,0 +1,77 @@
+{
+  "schema_version": "psi0h-d.prospective-operational-derivation.audit.v1",
+  "milestone": "PSI0H-D",
+  "status": "PASS",
+  "verdict": "SAFE_LOCAL_PROSPECTIVE_DERIVATION_CONTRACT_QUALIFIED_REAL_CAPTURE_NOT_AUTHORIZED",
+  "cutoff": 1786109860,
+  "contract": {
+    "module": "src/evidence/contracts/psi0h_prospective_derivation.py",
+    "schema_version": "psi0h-d.prospective-operational-derivation.v1",
+    "maximum_envelopes": 100,
+    "maximum_primitives": 20,
+    "isolated_store_required": true,
+    "strictly_post_cutoff_event_time_required": true,
+    "acquisition_time_is_not_event_time": true,
+    "complete_envelope_to_evidence_to_primitive_lineage_required": true,
+    "baseline_evidence_and_primitive_identity_disjoint": true,
+    "unbound_envelopes_and_evidence_rejected": true,
+    "primitive_window_must_equal_underlying_evidence_event_range": true,
+    "missing_inputs_preserved": true
+  },
+  "qualification": {
+    "runner": "scripts/run_psi0h_d_prospective_derivation_qualification.py",
+    "fixture_only": true,
+    "status": "PASS",
+    "lineage_digest": "29bee4f8fdd5b0ba258b56fa531ca6a25deef031c8402bf1e891d3dfdd3db41a",
+    "replay_digest": "6a333c641163a8bcfa374673827d29f194a3bf5b10d73fecc9ac9385f21d71fd",
+    "focused_tests": "20 passed",
+    "broad_psi0_tests": "641 passed, 27 failed",
+    "broad_failure_classification": "The unchanged 27 retained-output PSI0B failures require the historical psi0b-shadow-20260814-02 output to be absent. That immutable output exists from an earlier completed milestone; no PSI0H-D failure occurred."
+  },
+  "fail_closed_proofs": [
+    "historical event time remains ineligible even when acquisition is post-cutoff",
+    "acquisition before event time is rejected",
+    "missing evidence-to-primitive lineage is rejected",
+    "unbound evidence and envelopes are rejected",
+    "primitive windows drifting from evidence event time are rejected",
+    "baseline evidence and primitive identity reuse is rejected",
+    "duplicate identities, malformed digests, invalid intervals, and ceiling violations are rejected",
+    "input ordering does not alter lineage or replay digests"
+  ],
+  "scope": {
+    "production_reads": 0,
+    "production_writes": 0,
+    "provider_or_rpc_calls": 0,
+    "service_or_configuration_changes": 0,
+    "real_envelopes_captured": 0,
+    "real_evidence_normalized": 0,
+    "real_primitives_derived": 0,
+    "comparison_performed": false,
+    "candidates_generated": 0,
+    "alerts_emitted": 0
+  },
+  "authority": {
+    "comparison": false,
+    "candidate_generation": false,
+    "candidate_disposition": false,
+    "supported": false,
+    "same_operation": false,
+    "same_human": false,
+    "alerting": false,
+    "monitoring": false,
+    "consumer": false,
+    "policy": false,
+    "ranking": false,
+    "trading": false,
+    "integration": false,
+    "deployment": false,
+    "activation": false
+  },
+  "next_boundary": {
+    "milestone": "PSI0H-E",
+    "status": "HUMAN_APPROVAL_REQUIRED",
+    "scope": "Materialize and execute exactly one bounded real observation-only cohort through the qualified PSI0H-D contract in a new isolated store.",
+    "minimum_authorization": "Explicitly authorize the named live source/collector, observation interval, provider and request ceilings if any, isolated destination, service/configuration actions, stop conditions, and zero downstream authority.",
+    "stop_after": "Freeze the real event-time cohort and replay-verify its lineage. Do not compare it with D8 or generate continuity candidates."
+  }
+}

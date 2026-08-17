@@ -1,0 +1,56 @@
+{
+  "schema_version": "psi0h-e3.real-run-preflight.audit.v1",
+  "milestone": "PSI0H-E3",
+  "status": "PASS",
+  "verdict": "IMMUTABLE_REAL_RUN_PREFLIGHT_AND_WRAPPER_FIXTURE_QUALIFIED",
+  "implementation": {
+    "contract": "src/evidence/contracts/psi0h_real_run_preflight.py",
+    "contract_sha256": "f5fa0e2b5a83a07de9cd876d3a065f845c46a3505876c3a7f5c806ee56c577ad",
+    "qualification_runner": "scripts/run_psi0h_e3_real_run_preflight_qualification.py",
+    "qualification_runner_sha256": "0bd480f3dd623640621825004821dd61def0422464bdfc1ea27d23f5e8a152ba",
+    "bound_e2_adapter_sha256": "9ad8c3b6b45152d2d364e5f9dad4787f515f84c5b45853ea284c6da510c00a88"
+  },
+  "preflight_bindings": [
+    "run and source identities",
+    "absolute census path plus caller-supplied device, inode and start offset high-water",
+    "maximum 4 MiB future census byte range",
+    "future observation interval and unchanged D8 cutoff",
+    "provider endpoint class without endpoint URL or credential",
+    "maximum 20 events and exactly 20 provider requests",
+    "exact E2 adapter identity",
+    "three distinct absent isolated staging, output and consumption paths",
+    "false source-read, provider, service-change, comparison and activation authority"
+  ],
+  "wrapper_proofs": [
+    "authorization identity, interval, cutoff, source, request ceiling, adapter and output must equal preflight",
+    "binding drift fails before creation of the consumption directory",
+    "preflight tamper or path reuse fails closed",
+    "single-use authorization is consumed before injected collection",
+    "E2 physical-attempt ledger and isolated Evidence store are retained",
+    "only the four PSI0H-E collector fields cross the adapter boundary",
+    "PSI0H-E publishes one cohort with comparison, alerting, monitoring and activation false"
+  ],
+  "fixture_qualification": {
+    "status": "PASS",
+    "preflight_digest": "dd66111dc2dc73b0cbea2cdd76e5d08294211182a0bf92b48f9f2327bb8e0e71",
+    "cohort_artifact_digest": "c7b576e9a6318be05b5bf0981403d2ba1ee3e7b15f80fef8ac097fefed9a2b50",
+    "injected_provider_request_count": 1,
+    "focused_psi0h_tests_passed": 41
+  },
+  "scope": {
+    "fixture_only": true,
+    "live_census_reads": 0,
+    "real_provider_requests": 0,
+    "production_reads": 0,
+    "production_writes": 0,
+    "service_or_configuration_changes": 0,
+    "real_preflights_materialized": 0,
+    "real_authorizations_materialized": 0,
+    "real_authorizations_consumed": 0
+  },
+  "next_boundary": {
+    "milestone": "PSI0H-E4",
+    "scope": "Perform one bounded read-only live-census high-water preflight: stat the configured census file and inspect only framing/metadata needed to establish its current byte offset, device/inode and eligibility for a future append-only range. Propose exact new absent staging/output/consumption paths and stop without reading historical rows, creating an authorization or making provider calls.",
+    "authorization": "Requires explicit production-observation approval because it inspects live runtime file metadata. It grants no provider execution."
+  }
+}

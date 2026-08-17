@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-17T10:53:00Z",
+  "updated_at_utc": "2026-08-17T11:02:04Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "04e6b9d47194ad02a4d3fc2f419f4962d04f2a96",
-    "working_tree": "dirty: unrelated live/runtime/user paths plus local PSI0G-B2 databases and D1 full projection preserved; D/D1 committed narrowly"
+    "git_head": "e35a2b9b3a1f4becb96e75cfe494933c7e6f2dfe",
+    "working_tree": "dirty: unrelated live/runtime/user paths plus local PSI0G-B2 databases and full D1/D3 projections preserved; D2/D3 committed narrowly"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -40,10 +40,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0G-D1 real operation-candidate projection",
-    "mode": "approved non-authoritative projection complete; candidate disposition pending",
-    "status": "PASS",
-    "verdict": "APPROVED_NON_AUTHORITATIVE_TWO_OPERATION_CANDIDATE_PROJECTED_AND_REPLAY_VERIFIED"
+    "milestone": "PSI0G-D3 representation reconciliation",
+    "mode": "D1 PROPOSED disposition retained; superseding D3 candidate awaits explicit disposition",
+    "status": "HOLD",
+    "verdict": "D1_PROPOSED_RECORDED_D3_F5_F9_COMPATIBLE_NEW_CANDIDATE_REVIEW_REQUIRED"
   },
   "production_state": {
     "retention": "ON",
@@ -7996,8 +7996,11 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0G-D2 candidate disposition review",
-    "instruction": "HUMAN_DECISION_REQUIRED: review candidate 95fba7d16194a1b2c03970910b5c737c70da669988fb2c317321318c41814505 and choose PROPOSED or REJECT/HOLD. SUPPORTED is unavailable because both operations are PARTIAL under the approved completeness rule. A PROPOSED disposition means evidence-supported investigation continuity only, not same operation, human, or operator. No F13 export, PSI0F publication, monitoring, deployment, or activation before this explicit decision.",
+    "milestone": "PSI0G-D3 superseding candidate disposition review",
+    "instruction": "HUMAN_DECISION_REQUIRED: confirm, revise, or reject PROPOSED for corrected candidate 1647cb5804e13ba1f34030eca7dba7abd8454f24f6186cf33d026e9d843672c0. It contains the same two separate operations and unchanged evidence/gaps, but uses frozen quality=DEGRADED and completeness=PARTIAL vocabulary. The prior D1 PROPOSED decision is retained against its exact identity and was not transferred. No real F13 retention, PSI0F publication, monitoring, deployment, or activation is authorized.",
+    "psi0g_d3_engineering_commit": "e35a2b9b3a1f4becb96e75cfe494933c7e6f2dfe",
+    "psi0g_d3_candidate_id": "1647cb5804e13ba1f34030eca7dba7abd8454f24f6186cf33d026e9d843672c0",
+    "psi0g_d3_artifact": "docs/audits/psi0g_d3_representation_reconciliation.json",
     "psi0g_d1_engineering_commit": "04e6b9d47194ad02a4d3fc2f419f4962d04f2a96",
     "psi0g_series_engineering_commit": "a88a15b5f10da670222dcb9f5488e019b2352ba0",
     "psi0g_b1_engineering_commit": "a0be224dff2c169847503c5fad29295f524d2453",

@@ -1,0 +1,105 @@
+{
+  "schema_version": "psi0f-f16.fixture-end-to-end-publication-architecture.v1",
+  "milestone": "PSI0F-F16",
+  "reconciled_at_utc": "2026-08-17T09:47:35Z",
+  "engineering_commit": "d7d6ca4c263f06c8ab7b9aa9601856d712ef895e",
+  "status": "PASS",
+  "verdict": "NEXT_PSI0F_F17_FIXTURE_END_TO_END_EB0_4H_AND_SURFACE_PUBLICATION",
+  "bound_inputs": {
+    "psi0f_f15_preflight_digest": "88f67779c0ecb76f459f61fd59cfe0a021df67cfa79db0b471e201812ef010a0",
+    "psi0f_f13_contract_digest": "e6300d9a49bddaa5e6d99c1e6a86f50bd41f5a635ea7ff3ebf119c33cbae0579",
+    "psi0f_f1_contract_digest": "074686504842dd2174002f04be83b6f670870a76f32269db3623c0c4e634155a",
+    "psi0f_f2_closure_digest": "918aa42bd39791dea52c7f4f4b9dc33a17ef574ef4a0fd0b701f9d3d299ff07d",
+    "psi0f_d_adapter_qualification_digest": "a86dd975dc037f2796d19d187443eb9a9f4c87e297c82900c806304106560a80",
+    "psi0f_c_surface_closure_digest": "bac68ff658eaeffbc77c09ff4a827a221c60e9b6c20e3e65f7b195299dd76cf0",
+    "expected_psi0e_bundle_digest": "88c7de3156a4dc07b3c3b2461b4e1e37e85d5bd06d217d904472e4f4bc6f4d9c"
+  },
+  "application_flow": [
+    "accept one F13 fixture-retained store path and retention identity",
+    "export through F13 URI read-only query-only bounded replay",
+    "obtain the exact replay-verified F5 immutable source bytes from the in-memory F9 export",
+    "invoke the unchanged F1 rematerializer once into a new isolated EB0.4H output directory",
+    "replay-verify the exact EB0.4H file set and bundle digest",
+    "accept one caller-injected immutable PSI0E bundle with its already-qualified fixed digest",
+    "adapt PSI0E and EB0.4H bytes through the unchanged PSI0F-D adapter with no cross-layer join",
+    "replay-verify the PSI0F-B known-behaviour operational surface",
+    "publish one new isolated canonical surface directory atomically",
+    "replay-verify final lineage, hashes, accounting, authority and surface digest"
+  ],
+  "surface_publication_files": [
+    "run.json",
+    "surface.json",
+    "hashes.json"
+  ],
+  "surface_publication_contract": {
+    "run_json": [
+      "schema_version",
+      "run_id",
+      "engineering_revision",
+      "f13_contract_digest",
+      "retention_id",
+      "retention_manifest_digest",
+      "f9_bundle_digest",
+      "f5_source_digest",
+      "f1_contract_digest",
+      "eb0_4h_bundle_digest",
+      "psi0e_bundle_digest",
+      "psi0f_adapter_contract_digest",
+      "psi0f_surface_contract_digest",
+      "surface_digest",
+      "authority"
+    ],
+    "surface_json": "exact canonical PSI0F-B surface bytes",
+    "hashes_json": "per-file SHA-256 for run.json and surface.json plus one publication digest",
+    "publication": "stage, replay, fsync, rename-if-absent, parent-fsync, post-publication replay",
+    "existing_output_reuse": false
+  },
+  "identity_chain": [
+    "F13 retention manifest -> F9 bundle -> F5 source",
+    "F5 source -> F1 source verification -> EB0.4G extraction -> EB0.4H bundle",
+    "qualified immutable PSI0E bundle plus EB0.4H bundle -> PSI0F-D adapter",
+    "PSI0F-D adapter -> PSI0F-B surface -> atomic surface publication"
+  ],
+  "fail_closed_conditions": [
+    "F13 source, query-only, schema, payload, review, membership, manifest, F9 or F5 replay drift",
+    "F1 contract or source identity drift",
+    "EB0.4H output reuse, extraction, accounting, file, hash, bundle or replay drift",
+    "PSI0E file set, canonical bytes, contract, envelope or fixed bundle identity drift",
+    "PSI0F-D contract, EB0.4H expected identity, lineage or content replay drift",
+    "cross-layer join, operator identity, negative inference, threshold, score, ranking, policy or authority semantics",
+    "surface contract, canonical bytes or surface digest drift",
+    "publication output reuse, partial stage, rename, fsync, hash or post-publication replay failure"
+  ],
+  "fixture_qualification": {
+    "retained_store": "new ephemeral F13 fixture store only",
+    "psi0e_input": "caller-injected immutable qualified bundle bytes; no database or provider access",
+    "eb0_4h_output": "new temporary isolated directory",
+    "surface_output": "new temporary isolated directory",
+    "fault_injection_required": true,
+    "input_order_independence_required": true,
+    "exact_replay_required": true
+  },
+  "real_application_boundary": {
+    "real_capture_remains_on_hold": true,
+    "real_ep3_or_ep4_records_may_be_opened": false,
+    "human_dispositions_may_be_created": false,
+    "production_database_may_be_opened": false,
+    "provider_access": false,
+    "service_mutation": false,
+    "deployment": false,
+    "activation": false
+  },
+  "authority": {
+    "operator_identity": false,
+    "policy": false,
+    "ranking": false,
+    "attribution": false,
+    "integration": false,
+    "deployment": false,
+    "activation": false,
+    "evidence_mirror": false,
+    "cohort_mode": false,
+    "eb2": false
+  },
+  "next_action": "Proceed autonomously with PSI0F-F17 fixture-only end-to-end implementation, tests, documentation and narrow commit."
+}

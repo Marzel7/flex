@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-17T12:01:00Z",
+  "updated_at_utc": "2026-08-17T12:05:37Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "411c72dcd0e27ae2e98da525a49ef05919ea8465",
-    "working_tree": "dirty: unrelated live/runtime/user paths plus local PSI0G-B2 databases, full D1/D3/D5 projections, and D6 compatible store preserved; PSI0H-C committed narrowly"
+    "git_head": "5608a0139464731224afdec6154a1ccd38ab1644",
+    "working_tree": "dirty: unrelated live/runtime/user paths plus local PSI0G-B2 databases, full D1/D3/D5 projections, and D6 compatible store preserved; PSI0H-D committed narrowly"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -40,10 +40,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0H-C fresh primitive observation-path reconciliation",
-    "mode": "read-only local collection and derivation path diagnosis",
+    "milestone": "PSI0H-D prospective operational derivation qualification",
+    "mode": "safe-local fixture-only contract qualification; real capture not authorized",
     "status": "PASS",
-    "verdict": "FRESHNESS_LOSS_LOCALIZED_TO_ABSENT_PROSPECTIVE_OPERATIONAL_EVIDENCE_DERIVATION_PATH"
+    "verdict": "SAFE_LOCAL_PROSPECTIVE_DERIVATION_CONTRACT_QUALIFIED_REAL_CAPTURE_NOT_AUTHORIZED"
   },
   "production_state": {
     "retention": "ON",
@@ -7996,8 +7996,12 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0H-D bounded prospective operational-evidence capture and derivation",
-    "instruction": "PSI0H-C proved the matcher and event-time semantics are correct and localized the hold to the absence of a continuous qualified path producing genuinely new operational primitives. Decide separately whether to authorize a bounded isolated prospective capture/normalization/derivation programme for genuinely new event-time operational evidence after cutoff 1786109860. Keep D8 and the EP3 shadow corpora immutable; do not substitute acquisition or generation time for event time; stop after freezing the cohort with no comparison, candidates, alerts, monitoring activation, identity attribution, policy, ranking, or production publication.",
+    "milestone": "PSI0H-E first bounded real prospective cohort",
+    "instruction": "PSI0H-D qualified the isolated event-time lineage contract with fixtures only. Before any real execution, explicitly authorize the named live source/collector, observation interval, provider/request ceilings if any, isolated destination, and any service/configuration action. Execute exactly one observation-only cohort, freeze and replay-verify it, then stop without D8 comparison, candidate generation, alerts, monitoring activation, identity attribution, policy, ranking, integration, or production publication.",
+    "psi0h_d_engineering_commit": "5608a0139464731224afdec6154a1ccd38ab1644",
+    "psi0h_d_artifact": "docs/audits/psi0h_d_prospective_operational_derivation_qualification.json",
+    "psi0h_d_artifact_digest": "72bf8108d1b4bf4f3cac798ad48c44412ce9c209be26cb373dd6becc7bbe9216",
+    "psi0h_d_verdict": "SAFE_LOCAL_PROSPECTIVE_DERIVATION_CONTRACT_QUALIFIED_REAL_CAPTURE_NOT_AUTHORIZED",
     "psi0h_c_engineering_commit": "411c72dcd0e27ae2e98da525a49ef05919ea8465",
     "psi0h_c_artifact": "docs/audits/psi0h_c_fresh_primitive_observation_path_reconciliation.json",
     "psi0h_c_artifact_digest": "e464a7ec0cc942c99e2390be9368b3ab875fd54ac849537d0ad62eda1eb2dca1",

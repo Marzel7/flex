@@ -1,0 +1,75 @@
+{
+  "schema_version": "psi0f-f15.real-capture-eligibility-preflight.v1",
+  "milestone": "PSI0F-F15",
+  "evaluated_at_utc": "2026-08-17T09:46:17Z",
+  "engineering_commit": "ddb656b255464364793a95c6f3987de9e56cb1eb",
+  "status": "HOLD",
+  "verdict": "REAL_CAPTURE_INELIGIBLE_COMPLETE_RETAINED_INPUTS_AND_HUMAN_DISPOSITIONS_UNPROVEN",
+  "bound_inputs": {
+    "psi0f_f14_closure_digest": "571529ef23e1d6b28dacf14a4d6747e4e3cf068ac3e61d965cce17461390d154",
+    "psi0f_f13_contract_digest": "e6300d9a49bddaa5e6d99c1e6a86f50bd41f5a635ea7ff3ebf119c33cbae0579",
+    "psi0f_f11_preflight_digest": "afa05d4d0b20aa16b1210adec9639d69e1112866edd71cd41e0c2685152a5c83"
+  },
+  "metadata_verification": {
+    "database_contents_or_schemas_opened": false,
+    "retained_payload_files_opened": false,
+    "dedicated_operation_runtime_db_paths_found": 0,
+    "dedicated_discovery_db_paths_found": 0,
+    "dedicated_disposition_db_paths_found": 0,
+    "dedicated_psi0f_retained_input_db_paths_found": 0,
+    "f13_fixture_contract_available": true,
+    "f13_real_capture_authorized": false
+  },
+  "eligibility_requirements": {
+    "complete_ordered_operation_cohort_proven": false,
+    "complete_ep3_evaluation_summaries_proven": false,
+    "complete_normalized_runtime_projections_proven": false,
+    "full_ep4_candidate_payloads_proven": false,
+    "explicit_human_review_dispositions_proven": false,
+    "reviewer_class_reason_codes_and_sequences_proven": false,
+    "closed_vocabulary_available": true,
+    "new_isolated_destination_can_be_allocated_later": true,
+    "all_real_capture_preconditions_satisfied": false
+  },
+  "stop_reasons": [
+    "PSI0F_F15_COMPLETE_EP3_INPUTS_UNPROVEN",
+    "PSI0F_F15_COMPLETE_EP4_PAYLOADS_UNPROVEN",
+    "PSI0F_F15_HUMAN_DISPOSITIONS_UNAVAILABLE",
+    "PSI0F_F15_REAL_CAPTURE_NOT_AUTHORIZED"
+  ],
+  "disposition": {
+    "f13_fixture_publisher_invoked_on_real_inputs": false,
+    "real_retention_store_created": false,
+    "real_f9_bundle_created": false,
+    "real_f5_source_created": false,
+    "real_capture_may_not_proceed": true,
+    "safe_local_fixture_end_to_end_qualification_may_continue": true,
+    "separate_authorization_required_for_any_real_store_or_payload_read": true,
+    "separate_explicit_human_review_required_for_dispositions": true
+  },
+  "safe_local_continuation": {
+    "next_milestone": "PSI0F-F16",
+    "name": "Fixture end-to-end retained-input to EB0.4H and known-behaviour surface architecture",
+    "objective": "Bind F13 query-only export, F5 source identity, F1 isolated EB0.4H rematerialization, immutable PSI0F summary adapters, and isolated known-behaviour surface publication into one fixture-only fail-closed application path.",
+    "real_data_or_production_authority": false
+  },
+  "authority": {
+    "operator_identity": false,
+    "policy": false,
+    "ranking": false,
+    "attribution": false,
+    "integration": false,
+    "deployment": false,
+    "activation": false,
+    "evidence_mirror": false,
+    "cohort_mode": false,
+    "eb2": false
+  },
+  "scope_proof": {
+    "database_connections_opened": 0,
+    "retained_payloads_opened": 0,
+    "provider_or_rpc_calls": 0,
+    "service_or_configuration_actions": 0
+  },
+  "next_action": "Proceed autonomously with PSI0F-F16 fixture-only end-to-end application architecture while keeping real capture on HOLD."
+}

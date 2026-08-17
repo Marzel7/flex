@@ -1,0 +1,65 @@
+{
+  "schema_version": "psi0h-e2.census-transaction-adapter.audit.v1",
+  "milestone": "PSI0H-E2",
+  "status": "PASS",
+  "verdict": "ISOLATED_CENSUS_TO_TRANSACTION_ADAPTER_FIXTURE_QUALIFIED",
+  "implementation": {
+    "adapter": "src/evidence/contracts/psi0h_census_transaction_adapter.py",
+    "adapter_sha256": "9ad8c3b6b45152d2d364e5f9dad4787f515f84c5b45853ea284c6da510c00a88",
+    "qualification_runner": "scripts/run_psi0h_e2_census_transaction_adapter_qualification.py",
+    "qualification_runner_sha256": "ec62c3a797df336c8398d249df83d232e175446f21d9b4417f275cc2db909368",
+    "transport": "caller-injected only",
+    "maximum_events": 20,
+    "requests_per_event": 1,
+    "retry_allowed": false,
+    "pagination_allowed": false,
+    "failover_allowed": false,
+    "exact_provider_artifact_required": true,
+    "isolated_new_staging_root_required": true
+  },
+  "pipeline": [
+    "validated bounded PumpPortal migration census representation",
+    "one injected getTransaction response per unique signature/mint pair",
+    "exact raw response artifact retained by existing ArtifactStore",
+    "existing Evidence mirror envelope construction",
+    "existing single-writer Evidence database",
+    "existing AcquisitionNormalizer",
+    "existing PrimitiveEngine",
+    "PSI0H-D-compatible envelope/evidence/primitive lineage projection"
+  ],
+  "semantic_guards": [
+    "both census receive time and transaction blockTime must fall inside the authorized interval",
+    "the returned transaction must contain the census signature",
+    "acquisition timestamp cannot replace transaction blockTime",
+    "response must be successful exact provider bytes from getTransaction with retry_count zero",
+    "a physical-attempt ledger row is flushed and fsynced before each injected transport call",
+    "duplicate census subjects, malformed shapes, source drift and over-bound cohorts fail closed",
+    "missing LaunchFact remains missing; partial operational primitives are retained without manufacturing fields",
+    "no evidence is projected unless it is linked to a selected primitive"
+  ],
+  "fixture_qualification": {
+    "status": "PASS",
+    "provider_request_count": 1,
+    "attempts_digest": "d9bc8bf0fab5549069e22af6c9539203ec23dda4ca5685515c06f826874377dc",
+    "lineage_digest": "832230591fc04fc967d5c705f1165e9895ad6318c3e5dc1f79143a2e7a65c67c",
+    "replay_digest": "92a7ede7d22abb686f8fc7dfcaf0681bc83eadc1fe60bfa32f03786c0c299cef",
+    "focused_psi0h_tests_passed": 36
+  },
+  "scope": {
+    "fixture_only": true,
+    "live_census_reads": 0,
+    "real_provider_requests": 0,
+    "production_reads": 0,
+    "production_writes": 0,
+    "service_or_configuration_changes": 0,
+    "real_authorizations_materialized": 0,
+    "comparisons_performed": 0,
+    "alerts_emitted": 0,
+    "monitoring_activations": 0
+  },
+  "next_boundary": {
+    "milestone": "PSI0H-E3",
+    "scope": "Qualify the immutable real-run preflight and adapter-to-PSI0H-E wrapper: bind a future census byte-range/high-water rather than reading mutable history, adapter identity, one provider endpoint class, exact 20-request ceiling, isolated staging/output/consumption paths, and prestart stop conditions.",
+    "real_execution": "Not authorized. PSI0H-E3 must not read live census rows, make provider calls, start services, or consume a real authorization."
+  }
+}

@@ -1,0 +1,183 @@
+{
+  "schema_version": "psi0f-f12.disposition-ledger-export-boundary-architecture.v1",
+  "milestone": "PSI0F-F12",
+  "reconciled_at_utc": "2026-08-17T09:39:00Z",
+  "engineering_commit": "dc8ce35e4a1f66fff8a737b9586bd59752949d6a",
+  "status": "PASS",
+  "verdict": "NEXT_PSI0F_F13_FIXTURE_ONLY_RETAINED_INPUT_STORE_AND_QUERY_ONLY_EXPORTER",
+  "bound_inputs": {
+    "psi0f_f11_preflight_digest": "afa05d4d0b20aa16b1210adec9639d69e1112866edd71cd41e0c2685152a5c83",
+    "psi0f_f9_contract_digest": "52e24914afb8871943baa0826d43878ed3b73cd5521af1298de62eab2320df2b",
+    "psi0f_f5_contract_digest": "3b950893ef6accc2312817934814a4edf344c583a85c63ba6090bcad9a4d6af1",
+    "ep3_runtime_schema_digest": "ba323c2657d49fae928d6309a16c9bdb95c4b9d36038be522134b09045288b59",
+    "ep4_discovery_schema_digest": "df82e1ce4d926b5417187676c7be3d8e2145898d1ce13cf090498a5e833d5e79"
+  },
+  "architectural_decision": {
+    "one_isolated_retention_store_per_capture": true,
+    "caller_supplies_all_source_values": true,
+    "fixture_publisher_requires_new_absent_path": true,
+    "all_retained_rows_are_insert_only": true,
+    "all_payloads_are_canonical_and_digest_bound": true,
+    "dispositions_are_separate_from_candidate_lifecycle": true,
+    "dispositions_require_explicit_reviewer_class_reason_and_sequence": true,
+    "disposition_member_order_is_identity_bearing": true,
+    "exporter_opens_uri_read_only_and_enforces_query_only": true,
+    "exporter_builds_and_replays_f9_in_memory": true,
+    "exporter_writes_no_bundle_or_source": true,
+    "candidate_lifecycle_grants_nomination_authority": false
+  },
+  "retained_schema": {
+    "retention_manifest": [
+      "retention_id",
+      "schema_version",
+      "f9_contract_digest",
+      "source_engineering_revision",
+      "vocabulary_json",
+      "vocabulary_digest",
+      "logical_capture_sequence",
+      "manifest_digest"
+    ],
+    "operation_cohort": [
+      "retention_id",
+      "position",
+      "operation_id"
+    ],
+    "evaluation_summaries": [
+      "retention_id",
+      "operation_id",
+      "payload_json",
+      "payload_digest"
+    ],
+    "normalized_runtime_projections": [
+      "retention_id",
+      "operation_id",
+      "input_digest",
+      "payload_json",
+      "payload_digest"
+    ],
+    "candidate_payloads": [
+      "retention_id",
+      "candidate_id",
+      "payload_json",
+      "payload_digest"
+    ],
+    "nomination_dispositions": [
+      "retention_id",
+      "review_id",
+      "candidate_id",
+      "group_id",
+      "nomination_state",
+      "supporting_identity_digest",
+      "reviewer_class",
+      "reason_codes_json",
+      "reviewed_sequence",
+      "authority_json",
+      "payload_digest"
+    ],
+    "nomination_disposition_members": [
+      "retention_id",
+      "review_id",
+      "position",
+      "operation_id"
+    ]
+  },
+  "schema_invariants": [
+    "one immutable manifest and one contiguous unique cohort per retention identity",
+    "exactly one evaluation summary per cohort operation",
+    "one or more uniquely keyed runtime projections per cohort operation",
+    "each canonical candidate payload retained exactly once",
+    "exactly one disposition per candidate and group within a capture",
+    "strictly increasing unique nonnegative reviewed_sequence",
+    "nonempty closed reason-code list and non-personal reviewer_class",
+    "PROPOSED or SUPPORTED only; lifecycle values rejected as nomination states",
+    "contiguous ordered disposition membership exactly equals candidate population",
+    "false operator-identity, attribution, policy, ranking, integration, deployment and activation authority",
+    "UPDATE and DELETE rejected for every table"
+  ],
+  "fixture_publisher_contract": {
+    "input": "caller-injected F5/F9 values plus explicit reviewer_class, reason_codes, reviewed_sequence and logical capture sequence",
+    "validation_order": [
+      "construct and replay F9 fully in memory",
+      "validate ledger-only reviewer, reason and sequence metadata",
+      "require absent destination and isolated parent",
+      "create one SQLite file with FULL synchronous durability",
+      "insert canonical payloads and all identity digests transactionally",
+      "install immutable UPDATE and DELETE triggers",
+      "close and fsync file plus parent"
+    ],
+    "real_store_capture_authorized": false,
+    "fixture_and_ephemeral_paths_only": true
+  },
+  "query_only_exporter_contract": {
+    "source": "one explicitly supplied isolated retention-store path and retention_id",
+    "queries": [
+      "exact schema object and column inventory",
+      "one manifest by retention identity",
+      "ordered bounded cohort",
+      "bounded evaluation summaries",
+      "bounded normalized runtime projections",
+      "bounded candidate payloads",
+      "bounded dispositions and ordered members"
+    ],
+    "ceilings": {
+      "retention_manifests": 1,
+      "operations": 5000,
+      "evaluations": 5000,
+      "runtime_projections": 10000,
+      "candidates": 5000,
+      "dispositions": 5000,
+      "memberships": 50000,
+      "query_seconds_each": 30
+    },
+    "output": "one in-memory F9 bundle and replay-verified F5 source identity",
+    "file_output": false,
+    "database_write": false
+  },
+  "fail_closed_conditions": [
+    "source missing, non-file, symlink, changed identity or unexpected companion path",
+    "query_only not enforced, schema object or column drift, triggers absent or altered",
+    "unknown retention identity or multiple manifests",
+    "ceiling, deadline, row-count, coverage or accounting breach",
+    "noncanonical payload, payload digest or manifest digest mismatch",
+    "cohort gap, duplicate operation, orphan evaluation/runtime/candidate/disposition/member",
+    "candidate population or ordered disposition membership mismatch",
+    "review collision, sequence duplicate/regression, empty or unknown reason code",
+    "lifecycle translated to nomination, unsupported SUPPORTED disposition or authority drift",
+    "F9 file, hash, bundle digest, accounting or reconstructed F5 source replay mismatch",
+    "destination reuse, partial publication or cleanup failure"
+  ],
+  "planned_sequence": [
+    "PSI0F-F13 fixture-only retained-input store publisher and query-only exporter qualification",
+    "PSI0F-F14 replay-verified F13 qualification closure",
+    "separate real-capture eligibility preflight",
+    "separate explicitly authorized retained EP3/EP4 capture and human disposition run",
+    "one query-only F13 export to F9",
+    "one F5 source materialization",
+    "repeat F3 lineage preflight",
+    "one F1 EB0.4H rematerialization",
+    "PSI0F immutable-summary adapter and known-behaviour surface publication"
+  ],
+  "boundary": {
+    "pure_architecture_only": true,
+    "database_connections_opened": 0,
+    "retained_payloads_opened": 0,
+    "real_store_created": false,
+    "provider_or_rpc_calls": 0,
+    "service_or_configuration_actions": 0,
+    "production_or_retained_database_access_authorized": false,
+    "deployment_or_activation_authorized": false
+  },
+  "authority": {
+    "operator_identity": false,
+    "policy": false,
+    "ranking": false,
+    "attribution": false,
+    "integration": false,
+    "deployment": false,
+    "activation": false,
+    "evidence_mirror": false,
+    "cohort_mode": false,
+    "eb2": false
+  },
+  "next_action": "Proceed autonomously with PSI0F-F13 fixture-only implementation and qualification against ephemeral databases only."
+}

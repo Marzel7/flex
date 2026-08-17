@@ -1,0 +1,207 @@
+{
+  "schema_version": "psi0f-f4.immutable-source-acquisition-reconciliation.v1",
+  "milestone": "PSI0F-F4",
+  "reconciled_at_utc": "2026-08-17T09:12:24Z",
+  "engineering_commit": "9d1f32a7b7b572ae4ee66bf79b5215758fdf8d10",
+  "status": "PASS",
+  "verdict": "NEXT_PSI0F_F5_FIXTURE_ONLY_IMMUTABLE_LOGICAL_SOURCE_MATERIALIZATION_CONTRACT",
+  "bound_inputs": {
+    "psi0f_f3_preflight_digest": "ef77fdcd375ce28fdf4087174d6f8cc3c66e8d7a1fb1565293242b931806aa23",
+    "psi0f_f2_closure_digest": "918aa42bd39791dea52c7f4f4b9dc33a17ef574ef4a0fd0b701f9d3d299ff07d",
+    "psi0f_f1_contract_digest": "074686504842dd2174002f04be83b6f670870a76f32269db3623c0c4e634155a",
+    "ep3_formalization_source_digest": "3a5932288f656ce7a7a1d06e00b463fe2bd1a8c8ce61eda64a23d26051a3af56",
+    "ep3_multi_operation_source_digest": "d56cd1ef3a37f37b9a25490630a5628fed25abf222fe34a8d128c5b2173db30e",
+    "ep4_discovery_contract_source_digest": "726d9971ccdc75c3d764326c847e1cefc91b6c4c9ec2b98b33970469aafad748"
+  },
+  "architectural_findings": {
+    "ep3_immutable_operation_evaluation_identity_available": true,
+    "ep3_supplies_contract_topology_and_behaviour_identities": true,
+    "ep3_directly_emits_eb0_4c_normalized_runtime": false,
+    "ep4_identity_free_discovery_candidate_contract_available": true,
+    "ep4_supplies_population_and_supporting_evidence_identities": true,
+    "ep4_lifecycle_is_non_authoritative": true,
+    "ep4_lifecycle_directly_maps_to_eb0_4_nomination_state": false,
+    "existing_f1_source_materializer_available": false,
+    "existing_production_safe_source_exporter_available": false,
+    "safe_fixture_only_contract_is_coherent": true
+  },
+  "authority_decision": {
+    "decision": "REQUIRE_EXPLICIT_IMMUTABLE_NOMINATION_DISPOSITION",
+    "rationale": "EP4 OBSERVED, RECURRING_PATTERN and INVESTIGATE lifecycle states describe discovery workflow, not EB0.4 PROPOSED or SUPPORTED evidence authority. Automatic translation would promote authority and silently infer candidate membership.",
+    "ep4_candidate_population_may_be_referenced": true,
+    "ep4_candidate_population_may_define_membership_automatically": false,
+    "proposed_or_supported_must_be_caller_supplied": true,
+    "supported_requires_existing_eb0_4a_evidence_rules": true,
+    "operator_identity_or_common_ownership_inference": false
+  },
+  "next_milestone": {
+    "milestone": "PSI0F-F5",
+    "name": "Pure fixture-only immutable EB0.4 logical-source materialization contract",
+    "authorization_class": "SAFE_LOCAL_DESIGN_IMPLEMENTATION_TEST_DOCUMENTATION_NARROW_COMMIT",
+    "objective": "Define and fixture-qualify a pure no-I/O contract that converts caller-injected synthetic EP3 evaluation summaries, EP4 candidate references and explicit nomination dispositions into canonical psi0f-f1.logical-source.v1 bytes.",
+    "accepted_inputs": {
+      "operation_cohort": [
+        "explicit contiguous position",
+        "stable PLATFORM_OPERATION_ID operation key",
+        "immutable cohort manifest digest"
+      ],
+      "operation_evaluations": [
+        "operation key",
+        "contract id and version",
+        "snapshot digest",
+        "detector-result identity",
+        "topology-revision identity",
+        "behaviour-observation identities",
+        "exact engineering and contract lineage"
+      ],
+      "normalized_runtime_projection": [
+        "exact EB0.4C fields",
+        "primary role",
+        "closed edge, mechanism and temporal descriptor values",
+        "quality and completeness state",
+        "preserved conflict group",
+        "source input digest"
+      ],
+      "candidate_references": [
+        "EP4 candidate identity",
+        "EP4 input digest",
+        "explicit operation population",
+        "supporting evidence, primitive, behaviour and topology identities",
+        "quality, missing and contradictory evidence state"
+      ],
+      "nomination_dispositions": [
+        "explicit group id and ordered operation membership",
+        "caller-supplied PROPOSED or SUPPORTED state",
+        "review/disposition record identity",
+        "supporting candidate and evidence identities",
+        "false operator-identity and attribution authority"
+      ],
+      "vocabulary": [
+        "closed primary-role values",
+        "closed edge descriptors",
+        "closed mechanism descriptors",
+        "closed temporal descriptors",
+        "vocabulary contract digest"
+      ]
+    },
+    "deterministic_output": {
+      "schema_version": "psi0f-f1.logical-source.v1",
+      "canonical_bytes": true,
+      "component_digests": [
+        "operation_cohort",
+        "normalized_operation_runtime",
+        "nomination_candidates"
+      ],
+      "accounting": [
+        "cohort operations",
+        "runtime records",
+        "candidate groups",
+        "candidate memberships",
+        "quality, completeness and conflict counts"
+      ],
+      "lineage_and_provenance": true,
+      "source_digest": true,
+      "fixture_only": true,
+      "all_authority_false": true
+    },
+    "required_fail_closed_tests": [
+      "deterministic canonical replay and input-order independence",
+      "missing, extra, duplicate or noncontiguous cohort entries",
+      "operation, contract, snapshot, topology or behaviour identity drift",
+      "runtime record absent from the cohort or not bound to an EP3 evaluation",
+      "unknown role or descriptor vocabulary",
+      "topology-only evidence without mechanism and temporal support",
+      "EP4 lifecycle used as nomination authority",
+      "implicit candidate membership or candidate population widening",
+      "SUPPORTED without the EB0.4A evidence prerequisites",
+      "missing review disposition or supporting identities",
+      "duplicate, orphan, conflicting or ambiguously ordered group membership",
+      "negative inference from missing evidence",
+      "operator identity, attribution, ranking, policy, profitability or selection content",
+      "lineage, provenance, accounting, component-hash or source-digest drift",
+      "file, database, network, provider, service, configuration or clock access"
+    ],
+    "implementation_boundary": {
+      "pure": true,
+      "no_io": true,
+      "fixture_only": true,
+      "caller_injected": true,
+      "reads_real_ep3_or_ep4_store": false,
+      "opens_production_or_runtime_database": false,
+      "writes_f1_source_file": false,
+      "invokes_f1_rematerializer": false,
+      "creates_eb0_4h_bundle": false
+    }
+  },
+  "future_acquisition_sequence": [
+    {
+      "order": 1,
+      "milestone": "PSI0F-F5",
+      "purpose": "Fixture-qualify the pure source-materialization contract.",
+      "authority": "safe-local implementation only"
+    },
+    {
+      "order": 2,
+      "milestone": "PSI0F-F6",
+      "purpose": "Replay-verified F5 qualification closure.",
+      "authority": "closure only; no real source access"
+    },
+    {
+      "order": 3,
+      "milestone": "SEPARATE_REAL_SOURCE_EXPORT_PREFLIGHT",
+      "purpose": "Determine whether immutable EP3/EP4 records and explicit nomination dispositions exist and can be exported under bounded read-only access.",
+      "authority": "separately reviewed local or production-read authorization"
+    },
+    {
+      "order": 4,
+      "milestone": "SEPARATE_REAL_SOURCE_MATERIALIZATION",
+      "purpose": "Create exactly one immutable F1 logical-source document through the qualified contract.",
+      "authority": "isolated source publication only"
+    },
+    {
+      "order": 5,
+      "milestone": "REPEAT_PSI0F_F3",
+      "purpose": "Re-verify immutable source availability and lineage before rematerialization.",
+      "authority": "read-only preflight"
+    },
+    {
+      "order": 6,
+      "milestone": "SEPARATE_EB0_4H_REMATERIALIZATION",
+      "purpose": "Invoke F1 once against the immutable source and publish one replay-verified EB0.4H bundle.",
+      "authority": "isolated local publication only"
+    }
+  ],
+  "prohibited_shortcuts": [
+    "derive PROPOSED or SUPPORTED from EP4 lifecycle",
+    "treat recurring behaviour as common ownership",
+    "use live wt_operations or wallet tables as direct F1 input",
+    "infer missing membership, role, descriptors, quality or completeness",
+    "collapse conflicts or missing evidence",
+    "read production state during F5",
+    "materialize a real source or EB0.4H bundle during F5",
+    "apply PSI0F adapters or create an operational surface"
+  ],
+  "authority": {
+    "operator_identity": false,
+    "policy": false,
+    "ranking": false,
+    "attribution": false,
+    "integration": false,
+    "deployment": false,
+    "activation": false,
+    "evidence_mirror": false,
+    "cohort_mode": false,
+    "eb2": false
+  },
+  "actions_performed": {
+    "real_ep3_or_ep4_records_opened": 0,
+    "production_or_runtime_databases_opened": 0,
+    "source_files_created": 0,
+    "f1_rematerializer_invocations": 0,
+    "eb0_4h_bundles_created": 0,
+    "psi0f_adapter_or_projection_invocations": 0,
+    "provider_rpc_calls": 0,
+    "service_or_configuration_actions": 0
+  },
+  "next_action": "HUMAN_APPROVAL_REQUIRED: PSI0F-F5 safe-local fixture-only immutable logical-source materialization contract implementation and qualification."
+}

@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.0.0",
+  "milestone": "PSI0G-C",
+  "evaluated_at": "2026-08-17T10:36:47Z",
+  "engineering_revision": "a0be224dff2c169847503c5fad29295f524d2453",
+  "status": "HOLD",
+  "verdict": "REAL_EP3_EP4_PAYLOADS_RETAINED_BUT_OPERATION_LEVEL_F5_PROJECTION_AND_REVIEW_CANDIDATE_ARE_ABSENT",
+  "bound_input": {
+    "psi0g_b2_artifact": "docs/audits/psi0g_b2_fresh_retained_evidence_derivation.json",
+    "run_manifest": "docs/audits/psi0g_runs/psi0g-b-retained-derivation-20260817-01/manifest.json",
+    "run_manifest_sha256": "eee70f2022ebf7ac6fbab809d4ca64757f3a131ff383683276fc651c08de0ae4",
+    "operation_runtime_sha256": "06d008b96bea385e52f86fc4c7d37929be150596d0e1051e31e515128684d9d2",
+    "discovery_sha256": "157bd1815e5be422598a815d8feccc0dc4c9b6cf912887fe7b02478826e439c2"
+  },
+  "unchanged_contract_findings": {
+    "f5_operation_cohort": ["watchtower", "three_sw2"],
+    "f5_requires_one_evaluation_per_operation": true,
+    "f5_requires_normalized_runtime_projection_fields": [
+      "primary_role", "module_id", "module_version", "edge_features",
+      "mechanism_features", "temporal_features", "quality_state",
+      "completeness_state", "conflict_group_id"
+    ],
+    "f5_candidate_population_must_be_operation_ids": true,
+    "f5_disposition_population_must_equal_candidate_population": true,
+    "f5_supported_requires_complete_nonconflicting_mechanism_and_temporal_evidence": true,
+    "f9_requires_explicit_proposed_or_supported_disposition": true,
+    "f13_candidate_ceiling": 5000
+  },
+  "real_payload_accounting": {
+    "operation_evaluations_available": 2,
+    "behaviour_observations_available": 13,
+    "topology_revisions_available": 2,
+    "detector_results_available": 2,
+    "ep4_candidates_available": 14297,
+    "ep4_candidates_with_lifecycle_recurring_pattern": 14297,
+    "ep4_candidates_with_population_outside_operation_cohort": 14297,
+    "ep4_candidates_with_exact_operation_cohort_population": 0,
+    "explicit_human_dispositions": 0
+  },
+  "blockers": [
+    {
+      "code": "PSI0G_C_EP4_SUBJECT_CANDIDATES_ARE_NOT_F5_OPERATION_CANDIDATES",
+      "detail": "EP4 candidates describe subject-centric address motifs. Every population contains subjects outside the two-operation cohort, so passing any payload unchanged to F5 would fail CANDIDATE_POPULATION_OUTSIDE_COHORT."
+    },
+    {
+      "code": "PSI0G_C_EP3_TO_EB0_4C_SEMANTIC_PROJECTION_ABSENT",
+      "detail": "The retained runtime supplies behaviour measurements and topology, but no qualified mapping assigns EB0.4C primary role, edge, mechanism, temporal, completeness, or conflict vocabulary. Manufacturing these fields would violate PSI0G's unchanged-evidence rule."
+    },
+    {
+      "code": "PSI0G_C_F13_CANDIDATE_CEILING_EXCEEDED",
+      "detail": "The retained EP4 store contains 14,297 candidates; F13 accepts at most 5,000. Automatic selection or truncation has no qualified evidential semantics."
+    },
+    {
+      "code": "PSI0G_C_HUMAN_DISPOSITION_NOT_YET_POSSIBLE",
+      "detail": "No operation-level candidate exists for a reviewer to mark PROPOSED or SUPPORTED. EP4 RECURRING_PATTERN lifecycle cannot substitute for disposition."
+    }
+  ],
+  "authority_protection": {
+    "automatic_operation_family_inference_performed": false,
+    "candidate_selection_or_truncation_performed": false,
+    "primary_role_or_feature_vocabulary_manufactured": false,
+    "human_disposition_performed": false,
+    "f13_export_performed": false,
+    "psi0f_application_performed": false,
+    "monitoring_or_activation_performed": false
+  },
+  "smallest_next_programme": {
+    "milestone": "PSI0G-D",
+    "name": "EP3-to-EB0.4C real projection semantic review",
+    "required_decisions": [
+      "Define the evidence-backed operation-level primary-role vocabulary for watchtower and three_sw2.",
+      "Define exact mappings from retained topology edges and behaviour measurements to EB0.4C edge, mechanism, and temporal features.",
+      "Define completeness and conflict semantics without treating absent observations as negative evidence.",
+      "Define how subject-level EP4 motifs may support one operation-level review candidate without automatic family membership."
+    ],
+    "implementable_after_review": "A pure deterministic adapter and one non-authoritative operation-level review-candidate manifest can then be fixture-qualified and applied to the retained B2 bundle.",
+    "not_authorized_by_implementation_series": "The semantic choices themselves and the subsequent PROPOSED/SUPPORTED disposition require recorded human review; code cannot supply them.",
+    "still_forbidden": "No disposition, F13 export, PSI0F publication, monitoring, deployment, or activation."
+  },
+  "terminal_statement": "HOLD. Real EP3/EP4 capture is now complete, but the retained payloads cannot populate F5 unchanged: EP4 candidates are address-level rather than operation-level, and the EB0.4C semantic projection has never been defined. This is the first genuine human semantic-review boundary."
+}

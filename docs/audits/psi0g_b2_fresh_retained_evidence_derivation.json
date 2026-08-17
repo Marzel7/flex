@@ -1,0 +1,90 @@
+{
+  "schema_version": "1.0.0",
+  "milestone": "PSI0G-B2",
+  "evaluated_at": "2026-08-17T10:36:47Z",
+  "engineering_revision": "a0be224dff2c169847503c5fad29295f524d2453",
+  "status": "PASS",
+  "verdict": "COMPLETE_REAL_EP3_RUNTIME_AND_EP4_CANDIDATE_PAYLOADS_RETAINED_ATOMICALLY",
+  "run": {
+    "run_id": "psi0g-b-retained-derivation-20260817-01",
+    "attempts": 1,
+    "output": "docs/audits/psi0g_runs/psi0g-b-retained-derivation-20260817-01",
+    "manifest_sha256": "eee70f2022ebf7ac6fbab809d4ca64757f3a131ff383683276fc651c08de0ae4",
+    "operation_runtime_sha256": "06d008b96bea385e52f86fc4c7d37929be150596d0e1051e31e515128684d9d2",
+    "operation_runtime_size_bytes": 728997888,
+    "discovery_sha256": "157bd1815e5be422598a815d8feccc0dc4c9b6cf912887fe7b02478826e439c2",
+    "discovery_size_bytes": 312119296,
+    "exact_file_set": ["discovery.db", "manifest.json", "operation-runtime.db"],
+    "sqlite_quick_check": {"operation-runtime.db": "ok", "discovery.db": "ok"},
+    "partial_or_staging_output": false
+  },
+  "operations": [
+    {
+      "operation_id": "watchtower",
+      "contract": "watchtower@1.0.0",
+      "evidence_records": 107941,
+      "primitive_observations": 85989,
+      "subjects": 17630,
+      "snapshot_digest": "2ebb566c8aeac704e914a7b86d898cf5c828c294293b3a7fe9f6a972b54b543b",
+      "behaviour_observations": 6,
+      "topology_revisions": 1,
+      "detector_inputs": 1,
+      "detector_results": 1,
+      "candidate_payloads": 14203
+    },
+    {
+      "operation_id": "three_sw2",
+      "contract": "three_sw2@1.0.0",
+      "evidence_records": 1000,
+      "primitive_observations": 858,
+      "subjects": 157,
+      "snapshot_digest": "6f601ebc3f65921716e35b8af6f9c4e1e64fdbea6e32e2fb335d277b4f542e41",
+      "behaviour_observations": 7,
+      "topology_revisions": 1,
+      "detector_inputs": 1,
+      "detector_results": 1,
+      "candidate_payloads": 94
+    }
+  ],
+  "retained_counts": {
+    "operation_contract_versions": 2,
+    "behaviour_observations": 13,
+    "topology_revisions": 2,
+    "detector_inputs": 2,
+    "detector_results": 2,
+    "lifecycle_recommendations": 0,
+    "operation_runtime_references": 705584,
+    "discovery_candidates": 14297,
+    "discovery_candidate_references": 684687,
+    "discovery_lifecycle_events": 0
+  },
+  "authority": {
+    "candidate_lifecycle": "OBSERVED_OR_RECURRING_PATTERN_ONLY",
+    "human_dispositions": 0,
+    "operator_identity": false,
+    "f13_export": false,
+    "psi0f_publication": false,
+    "monitoring": false,
+    "activation": false
+  },
+  "invariants": {
+    "source_access": "QUERY_ONLY",
+    "provider_rpc_calls": 0,
+    "production_database_reads": 0,
+    "production_writes": 0,
+    "candidate_dispositions": 0,
+    "identity_promotions": 0,
+    "retry_performed": false
+  },
+  "next_boundary": {
+    "milestone": "PSI0G-C",
+    "purpose": "Reconcile the retained real EP3/EP4 payloads against unchanged F13/F9/F5 input schemas and determine the smallest human-review cohort without making dispositions.",
+    "known_constraints": [
+      "F13 permits at most 5,000 candidate payload rows while B2 retains 14,297",
+      "EP4 candidate lifecycle cannot substitute for F9 PROPOSED or SUPPORTED nomination state",
+      "F5 requires operation-level normalized projections and explicit reviewed group membership"
+    ],
+    "forbidden": "No automatic candidate selection, disposition, F13 export, PSI0F publication, monitoring, deployment, or activation."
+  },
+  "terminal_statement": "PASS. The complete real EP3 runtime and EP4 candidate payload layers are retained unchanged and replayable. Human disposition and every downstream authority remain ungranted."
+}

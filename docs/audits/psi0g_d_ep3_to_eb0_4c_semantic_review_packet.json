@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.0.0",
+  "milestone": "PSI0G-D",
+  "status": "HUMAN_REVIEW_REQUIRED",
+  "purpose": "Freeze the smallest explicit semantic decisions required before a pure EP3-to-EB0.4C adapter and one operation-level review candidate can be implemented.",
+  "bound_inputs": {
+    "psi0g_b2_manifest_sha256": "eee70f2022ebf7ac6fbab809d4ca64757f3a131ff383683276fc651c08de0ae4",
+    "operation_runtime_sha256": "06d008b96bea385e52f86fc4c7d37929be150596d0e1051e31e515128684d9d2",
+    "discovery_sha256": "157bd1815e5be422598a815d8feccc0dc4c9b6cf912887fe7b02478826e439c2",
+    "psi0g_c_artifact": "docs/audits/psi0g_c_real_payload_f13_f9_f5_contract_reconciliation.json"
+  },
+  "proposed_semantic_mapping": {
+    "operation_cohort": ["watchtower", "three_sw2"],
+    "primary_role": {
+      "proposed_value": "FUNDING_AND_LAUNCH_OPERATION",
+      "basis": "Both contracts require SYSTEM_TRANSFER and LAUNCH_SIGNER and model funding/activation followed by creator-signed launch behaviour.",
+      "decision": null
+    },
+    "edge_features": {
+      "proposed_values": ["DIRECTED_VALUE_TRANSFER", "CREATOR_SIGNED_LAUNCH"],
+      "basis": "Union of declared topology edge semantics, normalized to operation-independent descriptions.",
+      "decision": null
+    },
+    "mechanism_features": {
+      "proposed_values": [
+        "BEHAVIOURAL_TIMING", "DIRECT_COUNTERPARTY", "ECONOMIC_FUNDING",
+        "LAUNCH_ACTIVATION", "LAUNCH_SIGNER", "REPEATED_COUNTERPARTY",
+        "SYSTEM_TRANSFER", "WALLET_FRESH_AT_EVENT"
+      ],
+      "basis": "Exact intersection of declared primitive requirements in watchtower 1.0.0 and three_sw2 1.0.0, excluding watchtower-only WSOL_CLOSE.",
+      "decision": null
+    },
+    "temporal_features": {
+      "proposed_values": ["BEHAVIOURAL_TIMING_OBSERVED"],
+      "basis": "Both retained corpora contain proven BEHAVIOURAL_TIMING primitives; no cadence, periodicity, or dormancy value is inferred.",
+      "decision": null
+    },
+    "quality_and_completeness": {
+      "proposed_rule": "COMPLETE only when every selected common feature has at least one PROVEN observation and no selected observation has missing_inputs; otherwise PARTIAL. CONFLICTING only from explicit conflicting evidence, never absence.",
+      "decision": null
+    },
+    "operation_level_candidate": {
+      "proposed_population": ["watchtower", "three_sw2"],
+      "proposed_lifecycle": "RECURRING_PATTERN",
+      "support_rule": "Bind the two EP3 snapshots, all 13 behaviour observations, both topology revisions, both detector results, and only EP4 candidate identity digests as subject-level supporting context; do not copy address populations into F5.",
+      "nomination_state": null,
+      "decision": null
+    }
+  },
+  "review_requirements": {
+    "allowed_decisions": ["APPROVE", "REVISE", "REJECT"],
+    "reviewer_class": "HUMAN_REVIEW",
+    "must_record": [
+      "decision for every null decision field",
+      "reviewer identifier or review record reference",
+      "reason codes",
+      "review sequence",
+      "explicit nomination_state only after reviewing the derived operation-level candidate"
+    ],
+    "nomination_state_choices": ["PROPOSED", "SUPPORTED"],
+    "supported_guard": "SUPPORTED remains invalid unless the adapter proves complete, nonconflicting, nonempty mechanism and temporal evidence for both operations."
+  },
+  "implementation_after_approval": [
+    "fixture-qualify a pure deterministic EP3-to-EB0.4C adapter",
+    "apply it once query-only to the immutable PSI0G-B2 bundle",
+    "emit one immutable operation-level review candidate",
+    "record a separate explicit human disposition",
+    "only then construct and replay an F13/F9 bundle"
+  ],
+  "authority": {
+    "this_packet_is_a_disposition": false,
+    "candidate_membership_approved": false,
+    "proposed_or_supported_authority": false,
+    "operator_identity": false,
+    "f13_export": false,
+    "psi0f_publication": false,
+    "monitoring": false,
+    "activation": false
+  },
+  "terminal_statement": "Implementation is blocked on explicit semantic review, not missing code or missing retained evidence. Null decisions must not be auto-filled from behavioural similarity."
+}

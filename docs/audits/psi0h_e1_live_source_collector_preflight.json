@@ -1,0 +1,76 @@
+{
+  "schema_version": "psi0h-e1.live-source-collector-preflight.audit.v1",
+  "milestone": "PSI0H-E1",
+  "status": "READY",
+  "verdict": "MIGRATION_CENSUS_PLUS_BOUNDED_GETTRANSACTION_IS_SMALLEST_COMPLETE_PROSPECTIVE_SOURCE_PATH",
+  "selection": {
+    "candidate_id": "migration-census-bounded-gettransaction-adapter",
+    "collector_contract_digest": "3674d8eacdbec22cac5806e08949bcf494ab81cce4d8c34fc56abaad46d255b8",
+    "preflight_digest": "eef50753481983d30e00164ec3caa778a5675d9523507a9d5558bbd47d140603",
+    "operation_neutral": true,
+    "fresh_event_trigger": "PumpPortal subscribeMigration census record",
+    "transaction_subject": "the migration signature already retained in the census record",
+    "acquisition": "exactly one getTransaction request per selected migration through SharedTransactionAcquisition",
+    "normalization": "existing AcquisitionNormalizer",
+    "derivation": "existing PrimitiveEngine in a new isolated store",
+    "required_families": [
+      "TransactionFact",
+      "AccountParticipationFact",
+      "InstructionFact",
+      "LaunchFact"
+    ]
+  },
+  "rejected_alternatives": [
+    {
+      "candidate_id": "pumpportal-migration-census-only",
+      "reason": "It proves a fresh migration signature and receive time but retains no exact transaction artifact and cannot produce the required normalized evidence families."
+    },
+    {
+      "candidate_id": "retained-acquisition-only",
+      "reason": "It retains exact completed acquisitions but is not itself a fresh operation-neutral event trigger and may contain late verification of historical transactions."
+    },
+    {
+      "candidate_id": "enable-production-evidence-mirror-writer",
+      "reason": "It requires broader service/configuration activation and is unnecessary for the smallest bounded cohort."
+    }
+  ],
+  "proposed_bounds": {
+    "future_interval": "must be fixed immediately before separately authorized execution",
+    "maximum_migrations": 20,
+    "maximum_getTransaction_requests": 20,
+    "requests_per_migration": 1,
+    "retries": 0,
+    "pagination": 0,
+    "failover": 0,
+    "population_widening": false,
+    "listener_restart_required": false,
+    "production_evidence_writer_required": false,
+    "evidence_mirror_activation_required": false,
+    "cohort_mode_activation_required": false
+  },
+  "qualification": {
+    "focused_psi0h_tests_passed": 31,
+    "authorization_materialized": false,
+    "capture_performed": false,
+    "provider_requests": 0,
+    "production_reads": 0,
+    "production_writes": 0,
+    "service_or_configuration_changes": 0
+  },
+  "authority": {
+    "adapter_implementation": false,
+    "real_capture": false,
+    "provider_access": false,
+    "service_change": false,
+    "comparison": false,
+    "candidate_generation": false,
+    "alerting": false,
+    "monitoring": false,
+    "activation": false
+  },
+  "next_boundary": {
+    "milestone": "PSI0H-E2",
+    "scope": "Implement and fixture-qualify the isolated census-to-getTransaction collector adapter with injected transport, exact one-request accounting, no retry/failover/pagination, isolated artifacts, normalization and derivation, and PSI0H-E output compatibility.",
+    "real_execution": "Still requires a later explicit authorization binding a future interval, provider endpoint/credential class, 20-request ceiling, consumption directory and isolated destination."
+  }
+}

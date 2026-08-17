@@ -1,0 +1,77 @@
+{
+  "schema_version": "psi0f-f6.qualification-closure.v1",
+  "milestone": "PSI0F-F6",
+  "closed_at_utc": "2026-08-17T09:22:53Z",
+  "engineering_commit": "8eb91a957573f53e67ce44b61bcd08a67a2e33cd",
+  "status": "PASS",
+  "verdict": "PSI0F_F5_CLOSED_QUALIFIED_REAL_SOURCE_EXPORT_PREFLIGHT_MAY_BE_PROPOSED",
+  "bound_inputs": {
+    "psi0f_f5_contract_digest": "3b950893ef6accc2312817934814a4edf344c583a85c63ba6090bcad9a4d6af1",
+    "psi0f_f5_qualification_digest": "533d34b555dec2385110c52dd5a1a160e8a2dc4ef5cf946b115a10a3527db7ee",
+    "psi0f_f5_source_digest": "674177faf275d81bec3b010d39821499898dac5329b9cb644e68476e83bc7d24",
+    "psi0f_f5_test_digest": "15f0344168719c41193926321f79e4ef338a082932181b918c3c49c338aa4dba",
+    "psi0f_f4_reconciliation_digest": "ed1b896b25951342e556cbfeacd04428a7bd4a6f159bef02905fb986c7b84596",
+    "psi0f_f1_contract_digest": "074686504842dd2174002f04be83b6f670870a76f32269db3623c0c4e634155a"
+  },
+  "replay_verification": {
+    "committed_contract_identity": true,
+    "contract_replay_verified": true,
+    "pure_no_io_fixture_boundary": true,
+    "exact_ep3_evaluation_lineage_binding": true,
+    "exact_eb0_4c_runtime_binding": true,
+    "ep4_candidate_reference_only": true,
+    "ep4_lifecycle_authority_promotion": false,
+    "explicit_immutable_nomination_disposition": true,
+    "supported_evidence_gate": true,
+    "deterministic_canonical_f1_output": true,
+    "input_order_independent": true,
+    "f1_source_replay_verified": true,
+    "focused_f5_tests_passed": 19,
+    "combined_f1_f5_tests_passed": 45,
+    "recorded_combined_eb0_4_psi0f_tests_passed": 117,
+    "recorded_broader_psi0_tests_passed": 540,
+    "recorded_state_coupled_psi0b_failures": 27,
+    "state_coupled_failures_are_psi0f_f5_regressions": false
+  },
+  "fail_closed_proof": {
+    "contract_and_authority_drift": true,
+    "cohort_evaluation_and_runtime_lineage_drift": true,
+    "candidate_population_and_identity_drift": true,
+    "implicit_or_widened_membership": true,
+    "lifecycle_to_nomination_translation": true,
+    "nomination_and_review_identity_drift": true,
+    "unsupported_supported_nomination": true,
+    "unknown_or_forbidden_semantics": true,
+    "vocabulary_and_f1_replay_drift": true
+  },
+  "export_preflight_disposition": {
+    "bounded_read_only_metadata_preflight_is_coherent": true,
+    "real_source_export_authorized_by_this_closure": false,
+    "production_or_runtime_database_access_authorized": false,
+    "source_materialization_authorized": false,
+    "rematerialization_authorized": false,
+    "required_preflight": "Determine from filesystem metadata, configuration, schemas and code only whether immutable EP3 evaluation records, EP4 candidate records and explicit nomination dispositions have retained stores and a coherent bounded export path. Do not open database contents.",
+    "separate_human_authorization_required_for_any_database_read": true
+  },
+  "authority": {
+    "operator_identity": false,
+    "policy": false,
+    "ranking": false,
+    "attribution": false,
+    "integration": false,
+    "deployment": false,
+    "activation": false,
+    "evidence_mirror": false,
+    "cohort_mode": false,
+    "eb2": false
+  },
+  "scope_proof": {
+    "real_ep3_or_ep4_records_opened": false,
+    "real_source_created": false,
+    "f1_rematerializer_invoked": false,
+    "eb0_4h_bundle_created": false,
+    "production_or_runtime_access": false,
+    "provider_or_rpc_calls": 0
+  },
+  "next_action": "Proceed with a bounded filesystem-metadata and code-only real-source export preflight; stop before opening any database or retained record payload."
+}

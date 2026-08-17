@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-17T11:12:29Z",
+  "updated_at_utc": "2026-08-17T11:19:10Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "74ae7eaf06cbbcf5d6da803f4d389aeba92abcba",
-    "working_tree": "dirty: unrelated live/runtime/user paths plus local PSI0G-B2 databases and full D1/D3/D5 projections preserved; D5 committed narrowly"
+    "git_head": "090d44c7a45b6b933747ae45bd34e9f165fcef3f",
+    "working_tree": "dirty: unrelated live/runtime/user paths plus local PSI0G-B2 databases, full D1/D3/D5 projections, and D6 compatible store preserved; D6/D7 committed narrowly"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -40,10 +40,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0G-D5 real-provenance retention",
-    "mode": "confirmed D3 PROPOSED disposition retained locally and replay verified",
-    "status": "PASS",
-    "verdict": "EXACT_REVIEWED_REAL_CANDIDATE_PROVENANCE_RETAINED_WITHOUT_F13_OR_DOWNSTREAM_AUTHORITY"
+    "milestone": "PSI0G-D7 first real-input surface inspection",
+    "mode": "D6 adapter PASS; unchanged downstream chain replayed; fully real surface provenance held",
+    "status": "HOLD",
+    "verdict": "REAL_INPUT_CHAIN_ACCEPTED_UNCHANGED_BUT_FROZEN_SURFACE_REMAINS_SYNTHETIC_FIXTURE_ONLY"
   },
   "production_state": {
     "retention": "ON",
@@ -7996,8 +7996,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "Post-PSI0G-D5 adapter decision",
-    "instruction": "PSI0G-D5 is complete. Decide separately whether to authorize design and qualification of an adapter from retained D5 provenance into a real F13-compatible input store. D5 itself authorizes no conversion, PSI0F surface publication, monitoring, integration, deployment, identity attribution, SUPPORTED promotion, or activation.",
+    "milestone": "Post-PSI0G-D7 real surface provenance decision",
+    "instruction": "D6 lossless adaptation is complete and the existing chain accepts the real retained evidence unchanged. Separately decide whether to authorize a real-provenance F1-to-PSI0F qualification contract. It must preserve the exact D7 payload semantics and may change provenance classification only through an explicit replay-bound path; no relabeling, SUPPORTED promotion, identity inference, publication, monitoring, integration, deployment, or activation is authorized.",
     "psi0g_d3_engineering_commit": "e35a2b9b3a1f4becb96e75cfe494933c7e6f2dfe",
     "psi0g_d3_candidate_id": "1647cb5804e13ba1f34030eca7dba7abd8454f24f6186cf33d026e9d843672c0",
     "psi0g_d3_artifact": "docs/audits/psi0g_d3_representation_reconciliation.json",
@@ -8008,6 +8008,11 @@
     "psi0g_d5_engineering_commit": "74ae7eaf06cbbcf5d6da803f4d389aeba92abcba",
     "psi0g_d5_artifact": "docs/audits/psi0g_d5_real_provenance_retention.json",
     "psi0g_d5_retention_id": "68f0dfcf24aac66637f397b189adc3ef999f3740c1accfa5469d2ceccd6581e6",
+    "psi0g_d6_engineering_commit": "090d44c7a45b6b933747ae45bd34e9f165fcef3f",
+    "psi0g_d6_artifact": "docs/audits/psi0g_d6_d5_to_f13_compatible_adapter.json",
+    "psi0g_d6_retention_id": "d0faf987c6bbbe213c993cd96fc8408e78eb503401f6c16096709ffdf6a7dfca",
+    "psi0g_d7_artifact": "docs/audits/psi0g_d7_first_real_input_surface_inspection.json",
+    "psi0g_d7_surface_digest": "2c6b19a9c87ba0d6e8b473c7747b0cd096b344e0a2105a458f453a33edff67d9",
     "psi0g_d1_engineering_commit": "04e6b9d47194ad02a4d3fc2f419f4962d04f2a96",
     "psi0g_series_engineering_commit": "a88a15b5f10da670222dcb9f5488e019b2352ba0",
     "psi0g_b1_engineering_commit": "a0be224dff2c169847503c5fad29295f524d2453",

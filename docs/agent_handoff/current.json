@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-17T10:19:57Z",
+  "updated_at_utc": "2026-08-17T10:24:44Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "b87d2df182488a991e052fd1f785b175d120ec61",
-    "working_tree": "dirty: unrelated live/runtime/user paths preserved; PSI0G-B committed narrowly; PSI0C/PSI0D/PSI0E closure artifacts plus prior audit/diagnosis artifacts uncommitted"
+    "git_head": "a0be224dff2c169847503c5fad29295f524d2453",
+    "working_tree": "dirty: unrelated live/runtime/user paths preserved; PSI0G-B1 committed narrowly; PSI0C/PSI0D/PSI0E closure artifacts plus prior audit/diagnosis artifacts uncommitted"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -40,10 +40,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0G-B bounded retained-evidence EP3/EP4 derivation",
-    "mode": "single query-only real derivation attempt; fail-closed with no publication",
-    "status": "HOLD",
-    "verdict": "REAL_WATCHTOWER_TOPOLOGY_EXCEEDS_FROZEN_SINGLE_LOCAL_ROLE_PER_ENTITY_VALIDATION_SEMANTICS"
+    "milestone": "PSI0G-B1 multi-role topology semantic reconciliation",
+    "mode": "synthetic-only committed-semantics repair; no real-source access",
+    "status": "PASS",
+    "verdict": "EP3_LOCAL_ROLES_ARE_NODE_SCOPED_AND_MULTI_ROLE_VALIDATION_IS_REPAIRED"
   },
   "production_state": {
     "retention": "ON",
@@ -264,6 +264,22 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0g_b1_multi_role_topology_semantic_reconciliation": {
+      "status": "PASS",
+      "verdict": "EP3_LOCAL_ROLES_ARE_NODE_SCOPED_AND_MULTI_ROLE_VALIDATION_IS_REPAIRED",
+      "engineering_commit": "a0be224dff2c169847503c5fad29295f524d2453",
+      "artifact": "docs/audits/psi0g_b1_multi_role_topology_semantic_reconciliation.json",
+      "artifact_digest": "b1e9b26cc9d9f3a8068b4063f2eb6bd4bf5ed17b87bf73ce228b448af1494ac0",
+      "local_role_scope": "TOPOLOGY_NODE",
+      "contract_schema_changed": false,
+      "producer_changed": false,
+      "focused_and_runtime_tests_passed": 40,
+      "ep3_ep4_regression_tests_passed": 74,
+      "real_source_reads": 0,
+      "psi0g_b_reruns": 0,
+      "provider_or_rpc_calls": 0,
+      "next_gate": "Separately authorize one fresh PSI0G-B2 atomic retained-evidence derivation"
+    },
     "psi0g_b_retained_evidence_derivation": {
       "status": "HOLD",
       "verdict": "REAL_WATCHTOWER_TOPOLOGY_EXCEEDS_FROZEN_SINGLE_LOCAL_ROLE_PER_ENTITY_VALIDATION_SEMANTICS",
@@ -7943,8 +7959,10 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0G-B1 multi-role topology semantic reconciliation",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: reproduce the watchtower producer/validator mismatch using frozen synthetic multi-role transfer fixtures only; determine whether EP3 local roles are node-scoped or entity-unique; implement and qualify the smallest repair only if committed semantics are unambiguous. Do not reread real sources, rerun PSI0G-B, use provider/RPC, disposition candidates, export F13, publish PSI0F, monitor, deploy, or activate.",
+    "milestone": "PSI0G-B2 fresh bounded retained-evidence derivation",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: execute exactly one fresh atomic invocation of the committed PSI0G-B runner against only the two PSI0G-A-bound shadow stores after rebinding their unchanged identities and engineering revision a0be224dff2c169847503c5fad29295f524d2453. Stop without retry or partial publication on any contract, evidence, resource, identity, or replay failure. No provider/RPC, disposition, F13 export, PSI0F publication, monitoring, deployment, or activation.",
+    "psi0g_b1_engineering_commit": "a0be224dff2c169847503c5fad29295f524d2453",
+    "psi0g_b1_artifact": "docs/audits/psi0g_b1_multi_role_topology_semantic_reconciliation.json",
     "psi0g_b_engineering_commit": "b87d2df182488a991e052fd1f785b175d120ec61",
     "psi0g_b_artifact": "docs/audits/psi0g_b_retained_evidence_derivation_attempt.json",
     "psi0g_a_engineering_commit": "d347545e44a2b6996818f72265a06523a28ee68d",

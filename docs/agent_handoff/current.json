@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-17T11:52:10Z",
+  "updated_at_utc": "2026-08-17T12:01:00Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "8e9cf52690df01fe978bdcda9aa65b6f51f9a015",
-    "working_tree": "dirty: unrelated live/runtime/user paths plus local PSI0G-B2 databases, full D1/D3/D5 projections, and D6 compatible store preserved; PSI0H-B committed narrowly"
+    "git_head": "411c72dcd0e27ae2e98da525a49ef05919ea8465",
+    "working_tree": "dirty: unrelated live/runtime/user paths plus local PSI0G-B2 databases, full D1/D3/D5 projections, and D6 compatible store preserved; PSI0H-C committed narrowly"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -40,10 +40,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0H-B fresh observation cohort",
-    "mode": "observation-only cohort contract qualified; no post-cutoff operational primitive available",
-    "status": "HOLD",
-    "verdict": "POST_CUTOFF_EVIDENCE_EXISTS_BUT_NO_POST_CUTOFF_OPERATIONAL_PRIMITIVE_EXISTS"
+    "milestone": "PSI0H-C fresh primitive observation-path reconciliation",
+    "mode": "read-only local collection and derivation path diagnosis",
+    "status": "PASS",
+    "verdict": "FRESHNESS_LOSS_LOCALIZED_TO_ABSENT_PROSPECTIVE_OPERATIONAL_EVIDENCE_DERIVATION_PATH"
   },
   "production_state": {
     "retention": "ON",
@@ -7996,8 +7996,12 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0H-C fresh primitive observation-path reconciliation",
-    "instruction": "PSI0H-B found 4,843 post-cutoff verification/freshness evidence rows but zero operational primitives with windows after cutoff 1786109860. Decide separately whether to authorize a bounded read-only reconciliation of existing collectors/derivers to identify the smallest action needed to retain genuinely fresh operational primitives. Do not start/reconfigure services, increase provider work, compare against D8, generate candidates, alert, activate monitoring, or grant downstream authority.",
+    "milestone": "PSI0H-D bounded prospective operational-evidence capture and derivation",
+    "instruction": "PSI0H-C proved the matcher and event-time semantics are correct and localized the hold to the absence of a continuous qualified path producing genuinely new operational primitives. Decide separately whether to authorize a bounded isolated prospective capture/normalization/derivation programme for genuinely new event-time operational evidence after cutoff 1786109860. Keep D8 and the EP3 shadow corpora immutable; do not substitute acquisition or generation time for event time; stop after freezing the cohort with no comparison, candidates, alerts, monitoring activation, identity attribution, policy, ranking, or production publication.",
+    "psi0h_c_engineering_commit": "411c72dcd0e27ae2e98da525a49ef05919ea8465",
+    "psi0h_c_artifact": "docs/audits/psi0h_c_fresh_primitive_observation_path_reconciliation.json",
+    "psi0h_c_artifact_digest": "e464a7ec0cc942c99e2390be9368b3ab875fd54ac849537d0ad62eda1eb2dca1",
+    "psi0h_c_verdict": "FRESHNESS_LOSS_LOCALIZED_TO_ABSENT_PROSPECTIVE_OPERATIONAL_EVIDENCE_DERIVATION_PATH",
     "psi0g_d3_engineering_commit": "e35a2b9b3a1f4becb96e75cfe494933c7e6f2dfe",
     "psi0g_d3_candidate_id": "1647cb5804e13ba1f34030eca7dba7abd8454f24f6186cf33d026e9d843672c0",
     "psi0g_d3_artifact": "docs/audits/psi0g_d3_representation_reconciliation.json",

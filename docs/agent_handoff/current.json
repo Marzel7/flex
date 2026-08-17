@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-17T10:24:44Z",
+  "updated_at_utc": "2026-08-17T10:39:42Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "a0be224dff2c169847503c5fad29295f524d2453",
-    "working_tree": "dirty: unrelated live/runtime/user paths preserved; PSI0G-B1 committed narrowly; PSI0C/PSI0D/PSI0E closure artifacts plus prior audit/diagnosis artifacts uncommitted"
+    "git_head": "a88a15b5f10da670222dcb9f5488e019b2352ba0",
+    "working_tree": "dirty: unrelated live/runtime/user paths and local PSI0G-B2 retained databases preserved; PSI0G-B2/C/D committed narrowly"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -40,10 +40,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0G-B1 multi-role topology semantic reconciliation",
-    "mode": "synthetic-only committed-semantics repair; no real-source access",
-    "status": "PASS",
-    "verdict": "EP3_LOCAL_ROLES_ARE_NODE_SCOPED_AND_MULTI_ROLE_VALIDATION_IS_REPAIRED"
+    "milestone": "PSI0G-D EP3-to-EB0.4C semantic review boundary",
+    "mode": "real payloads retained; explicit human semantic review required",
+    "status": "HOLD",
+    "verdict": "REAL_EP3_EP4_PAYLOADS_RETAINED_BUT_OPERATION_LEVEL_F5_PROJECTION_AND_REVIEW_CANDIDATE_ARE_ABSENT"
   },
   "production_state": {
     "retention": "ON",
@@ -264,6 +264,24 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0g_d_ep3_to_eb0_4c_semantic_review": {
+      "status": "HUMAN_REVIEW_REQUIRED",
+      "engineering_commit": "a88a15b5f10da670222dcb9f5488e019b2352ba0",
+      "psi0g_b2_status": "PASS",
+      "psi0g_b2_artifact_digest": "d728a1fdde124ff19cdcdda807093f3df5b638b88a41889e73438c9c6d03b01f",
+      "psi0g_c_status": "HOLD",
+      "psi0g_c_artifact_digest": "0bdbfb026c67d83108edae3465b04837da808e3d93532092dbe52a3125dc2172",
+      "review_packet": "docs/audits/psi0g_d_ep3_to_eb0_4c_semantic_review_packet.json",
+      "review_packet_digest": "513678ccde0c755faae0bb64f3cdd7e43f0260f92d7d9531dc75fc2612ba7bb3",
+      "retained_operation_count": 2,
+      "retained_candidate_count": 14297,
+      "operation_level_candidates": 0,
+      "human_dispositions": 0,
+      "f13_exports": 0,
+      "psi0f_publications": 0,
+      "monitoring_activations": 0,
+      "next_gate": "Human approve, revise, or reject every PSI0G-D semantic mapping decision before adapter implementation"
+    },
     "psi0g_b1_multi_role_topology_semantic_reconciliation": {
       "status": "PASS",
       "verdict": "EP3_LOCAL_ROLES_ARE_NODE_SCOPED_AND_MULTI_ROLE_VALIDATION_IS_REPAIRED",
@@ -7959,8 +7977,9 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0G-B2 fresh bounded retained-evidence derivation",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: execute exactly one fresh atomic invocation of the committed PSI0G-B runner against only the two PSI0G-A-bound shadow stores after rebinding their unchanged identities and engineering revision a0be224dff2c169847503c5fad29295f524d2453. Stop without retry or partial publication on any contract, evidence, resource, identity, or replay failure. No provider/RPC, disposition, F13 export, PSI0F publication, monitoring, deployment, or activation.",
+    "milestone": "PSI0G-D human semantic review",
+    "instruction": "HUMAN_DECISION_REQUIRED: approve, revise, or reject every null decision in docs/audits/psi0g_d_ep3_to_eb0_4c_semantic_review_packet.json, including primary role, edge/mechanism/temporal mappings, completeness/conflict semantics, and creation of one two-operation review candidate. This authorization cannot be inferred from a request to implement code. No disposition, F13 export, PSI0F publication, monitoring, deployment, or activation until recorded review exists.",
+    "psi0g_series_engineering_commit": "a88a15b5f10da670222dcb9f5488e019b2352ba0",
     "psi0g_b1_engineering_commit": "a0be224dff2c169847503c5fad29295f524d2453",
     "psi0g_b1_artifact": "docs/audits/psi0g_b1_multi_role_topology_semantic_reconciliation.json",
     "psi0g_b_engineering_commit": "b87d2df182488a991e052fd1f785b175d120ec61",

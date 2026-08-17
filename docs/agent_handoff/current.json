@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-17T08:28:29Z",
+  "updated_at_utc": "2026-08-17T09:08:35Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "1240c211161023aac0651dc8d551889d3fbbdde0",
-    "working_tree": "dirty: unrelated live/runtime/user paths preserved; PSI0F-F2 closure committed narrowly; PSI0C/PSI0D/PSI0E closure artifacts plus prior audit/diagnosis artifacts uncommitted"
+    "git_head": "9d1f32a7b7b572ae4ee66bf79b5215758fdf8d10",
+    "working_tree": "dirty: unrelated live/runtime/user paths preserved; PSI0F-F3 HOLD preflight committed narrowly; PSI0C/PSI0D/PSI0E closure artifacts plus prior audit/diagnosis artifacts uncommitted"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -40,10 +40,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0F-F2 replay-verified rematerialization-contract qualification closure",
-    "mode": "bounded safe-local replay verification and closure complete",
+    "milestone": "PSI0F-F3 immutable EB0.4 logical-source availability and lineage-binding preflight",
+    "mode": "bounded safe-local read-only inventory and preflight complete",
     "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "PSI0F_F1_CLOSED_QUALIFIED_ONE_IMMUTABLE_SOURCE_AVAILABILITY_AND_LINEAGE_PREFLIGHT_MAY_BE_PROPOSED"
+    "verdict": "EB0_4_IMMUTABLE_LOGICAL_SOURCE_UNAVAILABLE_REMATERIALIZATION_NOT_COHERENT"
   },
   "production_state": {
     "retention": "ON",
@@ -264,6 +264,30 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0f_f3_immutable_operational_family_source_preflight": {
+      "status": "HOLD",
+      "verdict": "EB0_4_IMMUTABLE_LOGICAL_SOURCE_UNAVAILABLE_REMATERIALIZATION_NOT_COHERENT",
+      "engineering_commit": "9d1f32a7b7b572ae4ee66bf79b5215758fdf8d10",
+      "f2_closure_digest": "918aa42bd39791dea52c7f4f4b9dc33a17ef574ef4a0fd0b701f9d3d299ff07d",
+      "f1_contract_digest": "074686504842dd2174002f04be83b6f670870a76f32269db3623c0c4e634155a",
+      "preflight_digest": "ef77fdcd375ce28fdf4087174d6f8cc3c66e8d7a1fb1565293242b931806aa23",
+      "candidate_f1_logical_source_files": 0,
+      "candidate_eb0_4h_bundle_directories": 0,
+      "retained_synthetic_fixture_records": 3,
+      "ordered_cohort_available": false,
+      "complete_normalized_runtime_available": false,
+      "explicit_group_membership_available": false,
+      "vocabulary_hashes_accounting_lineage_provenance_available": false,
+      "new_isolated_output_path_available": true,
+      "rematerialization_preconditions_satisfied": false,
+      "f1_rematerializer_invoked": false,
+      "real_bundle_materialized": false,
+      "production_or_runtime_access": false,
+      "provider_or_rpc_calls": 0,
+      "artifact": "docs/audits/psi0f_f3_immutable_operational_family_source_preflight.json",
+      "blocker": "No exact psi0f-f1.logical-source.v1 document or equivalent complete immutable component set exists; the retained test fixtures are synthetic and incomplete.",
+      "next_gate": "Architectural and evidence-acquisition decision for an authoritative immutable EB0.4 logical source; rematerialization remains prohibited"
+    },
     "psi0f_f2_operational_family_rematerialization_qualification_closure": {
       "status": "PASS",
       "verdict": "PSI0F_F1_CLOSED_QUALIFIED_ONE_IMMUTABLE_SOURCE_AVAILABILITY_AND_LINEAGE_PREFLIGHT_MAY_BE_PROPOSED",

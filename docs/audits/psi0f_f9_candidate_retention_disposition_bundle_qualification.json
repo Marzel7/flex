@@ -1,0 +1,61 @@
+{
+  "schema_version": "psi0f-f9.qualification.v1",
+  "milestone": "PSI0F-F9",
+  "engineering_base_commit": "e87b4bf9f378a035b6f7e55c3f627e747af73949",
+  "status": "PASS",
+  "verdict": "FIXTURE_ONLY_COMPLETE_F5_RETENTION_BUNDLE_CONTRACT_QUALIFIED",
+  "contract_digest": "52e24914afb8871943baa0826d43878ed3b73cd5521af1298de62eab2320df2b",
+  "bound_inputs": {
+    "psi0f_f8_architecture_digest": "a799d62370a17d45c485d94f73dd153a1bf7786feee01e7d74eeb7160260f2de",
+    "psi0f_f5_contract_digest": "3b950893ef6accc2312817934814a4edf344c583a85c63ba6090bcad9a4d6af1",
+    "implementation_digest": "d011ad6e0df32dc9ff2ae9baa69bcd9db1c36e8354e0274067601ded4d103767",
+    "focused_test_digest": "690f1a610da89e6311eddfacc5de3b51402dd6d6ff62991655365a0b38efaf45"
+  },
+  "architecture_correction": {
+    "f8_six_file_sketch_was_lossless_for_f5_replay": false,
+    "added_required_documents": [
+      "cohort.json",
+      "runtime.json",
+      "vocabulary.json"
+    ],
+    "exact_file_count": 9,
+    "complete_f5_replay_inputs": true
+  },
+  "qualification": {
+    "focused_tests_passed": 13,
+    "f5_and_f9_tests_passed": 32,
+    "combined_eb0_4_psi0f_tests_passed": 130,
+    "broader_psi0_tests_passed": 553,
+    "broader_state_coupled_psi0b_failures": 27,
+    "failures_are_psi0f_f9_regressions": false,
+    "pure_no_io_contract": true,
+    "canonical_exact_file_set": true,
+    "per_file_hashes_and_bundle_digest": true,
+    "deterministic_input_order_independent": true,
+    "explicit_member_order_preserved": true,
+    "accounting_replay_verified": true,
+    "exact_f5_source_digest_reconstructed": true,
+    "lifecycle_grants_nomination_authority": false,
+    "authority_granted": false
+  },
+  "fail_closed_proof": [
+    "contract, engineering, provenance and authority drift",
+    "missing, extra or non-byte files",
+    "noncanonical or invalid JSON bytes",
+    "stale or recomputed hash tampering",
+    "evaluation-to-runtime lineage drift",
+    "candidate, disposition, membership and nomination drift",
+    "F5 evidence-gate failure",
+    "accounting or reconstructed source-digest mismatch"
+  ],
+  "scope_proof": {
+    "real_ep3_or_ep4_records_opened": false,
+    "bundle_files_written": false,
+    "real_source_file_created": false,
+    "eb0_4h_invoked": false,
+    "psi0f_surface_published": false,
+    "production_or_runtime_access": false,
+    "provider_or_rpc_calls": 0
+  },
+  "next_action": "PSI0F-F10 replay-verified F9 qualification closure only."
+}

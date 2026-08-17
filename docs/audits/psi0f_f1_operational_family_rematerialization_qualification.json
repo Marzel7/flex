@@ -1,0 +1,63 @@
+{
+  "schema_version": "psi0f-f1.qualification.v1",
+  "milestone": "PSI0F-F1",
+  "engineering_base_commit": "4215f899b510f7d366c21702ce6cef63c6882878",
+  "status": "PASS",
+  "verdict": "FIXTURE_ONLY_DETERMINISTIC_EB0_4H_REMATERIALIZATION_CONTRACT_QUALIFIED",
+  "contract_digest": "074686504842dd2174002f04be83b6f670870a76f32269db3623c0c4e634155a",
+  "bound_inputs": {
+    "psi0f_d_adapter_digest": "0d93b35b98c30d55d03ea8c8c787ba213442ab70b43499b989bfe8f2a18f990e",
+    "psi0f_d_qualification_digest": "a86dd975dc037f2796d19d187443eb9a9f4c87e297c82900c806304106560a80",
+    "psi0f_b_contract_digest": "042568c68b0eb86ef41bc65037568d65214d02d9d9753988adf88c86c14222ef",
+    "psi0e_h_closure_digest": "ae0994f1f3647f53fbcd3cabf0c8e46efa26b504805fecb95e8d2851d9e98c16",
+    "psi0e_bundle_digest": "88c7de3156a4dc07b3c3b2461b4e1e37e85d5bd06d217d904472e4f4bc6f4d9c",
+    "eb0_4_nomination_contract": "eb0.4a.v1",
+    "eb0_4_adapter_contract": "eb0.4c.v1",
+    "eb0_4_source_schema": "eb0.4c.normalized-runtime.v1",
+    "eb0_4_extractor_schema": "eb0.4g.v1",
+    "eb0_4_bundle_schema": "eb0.4h.v1"
+  },
+  "qualification": {
+    "focused_tests_passed": 26,
+    "combined_eb0_4_psi0f_tests_passed": 98,
+    "broader_psi0_tests_passed": 521,
+    "broader_state_coupled_psi0b_failures": 27,
+    "failures_are_psi0f_f1_regressions": false,
+    "canonical_source_manifest": true,
+    "component_hashes_and_source_digest": true,
+    "closed_role_and_descriptor_vocabulary": true,
+    "ordered_cohort_and_explicit_membership": true,
+    "proposed_and_supported_preserved": true,
+    "duplicate_orphan_ambiguous_group_rejection": true,
+    "topology_only_and_prohibited_semantics_rejection": true,
+    "unchanged_eb0_4g_extractor": true,
+    "unchanged_eb0_4h_publisher": true,
+    "unchanged_psi0f_d_and_psi0f_b_entrypoints": true,
+    "query_only_deadline_and_ceiling_semantics_preserved": true,
+    "deterministic_bundle_replay": true,
+    "input_order_independent": true,
+    "atomic_absent_output_publication": true,
+    "file_and_directory_fsync": true,
+    "validation_fixture_extraction_write_fsync_rename_and_replay_cleanup": true,
+    "retries_allowed": false,
+    "retains_source_values_outside_boundary": false
+  },
+  "authority": {
+    "operator_identity": false,
+    "policy": false,
+    "ranking": false,
+    "attribution": false,
+    "integration": false,
+    "deployment": false,
+    "activation": false
+  },
+  "scope_proof": {
+    "real_eb0_4_bundle_materialized": false,
+    "real_psi0e_bundle_opened": false,
+    "psi0f_adapter_or_projection_invoked": false,
+    "operational_surface_created": false,
+    "production_or_runtime_access": false,
+    "provider_or_rpc_calls": 0
+  },
+  "next_action": "HUMAN_APPROVAL_REQUIRED: PSI0F-F2 replay-verified rematerialization-contract qualification closure only."
+}

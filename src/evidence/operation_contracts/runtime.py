@@ -247,8 +247,10 @@ class OperationRuntime:
         roles = set(declaration["local_roles"])
         rules = {(item["source_role"], item["destination_role"], item["primitive_type"])
                  for item in declaration["edge_rules"]}
-        node_roles = {item.entity_ref: item.local_role for item in value.nodes}
-        if not set(node_roles.values()) <= roles:
+        node_roles: dict[str, set[str]] = {}
+        for node in value.nodes:
+            node_roles.setdefault(node.entity_ref, set()).add(node.local_role)
+        if not {role for local_roles in node_roles.values() for role in local_roles} <= roles:
             raise ValueError("Topology Revision contains undeclared local role")
         if value.subjects != snapshot.subjects:
             raise ValueError("Topology Revision subjects do not match evaluation")
@@ -258,8 +260,12 @@ class OperationRuntime:
             if not set(node.evidence_refs) <= set(evidence_refs) or not set(node.primitive_refs) <= set(primitive_refs):
                 raise ValueError("Topology Revision references undeclared runtime inputs")
         for edge in value.edges:
-            signature = (node_roles.get(edge.source), node_roles.get(edge.destination), edge.primitive_type)
-            if signature not in rules:
+            source_roles = node_roles.get(edge.source, set())
+            destination_roles = node_roles.get(edge.destination, set())
+            if not any(
+                (source_role, destination_role, edge.primitive_type) in rules
+                for source_role in source_roles for destination_role in destination_roles
+            ):
                 raise ValueError("Topology Revision edge is not permitted by contract")
             if not set(edge.evidence_refs) <= set(evidence_refs) or not set(edge.primitive_refs) <= set(primitive_refs):
                 raise ValueError("Topology Revision references undeclared runtime inputs")

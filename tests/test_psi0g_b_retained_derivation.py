@@ -100,7 +100,7 @@ def test_existing_output_fails_closed_without_mutation(tmp_path, monkeypatch):
     assert marker.read_text() == "preserve"
 
 
-def test_real_shape_multi_role_entity_fails_frozen_topology_validation(tmp_path):
+def test_real_shape_multi_role_entity_derives_node_scoped_roles(tmp_path):
     source = tmp_path / "source.db"
     source_db(source)
     item = primitive(PrimitiveType.SYSTEM_TRANSFER, ("b", "c"),
@@ -114,8 +114,14 @@ def test_real_shape_multi_role_entity_fails_frozen_topology_validation(tmp_path)
         json.dumps(item.missing_inputs), item.failure_state, item.generated_at))
     connection.commit()
     connection.close()
-    with pytest.raises(ValueError, match="Topology Revision edge is not permitted by contract"):
-        derive_corpus(operation_key="watchtower", source=source,
-            contract_path=ROOT / "src/evidence/operation_contracts/contracts/watchtower_v1.json",
-            register=register_watchtower_v1, runtime_path=tmp_path / "runtime.db",
-            discovery_path=tmp_path / "discovery.db")
+    descriptor = derive_corpus(operation_key="watchtower", source=source,
+        contract_path=ROOT / "src/evidence/operation_contracts/contracts/watchtower_v1.json",
+        register=register_watchtower_v1, runtime_path=tmp_path / "runtime.db",
+        discovery_path=tmp_path / "discovery.db")
+    assert descriptor["topology_revision_id"]
+    runtime = sqlite3.connect(tmp_path / "runtime.db")
+    payload = json.loads(runtime.execute("SELECT payload_json FROM topology_revisions").fetchone()[0])
+    runtime.close()
+    assert sorted(node["local_role"] for node in payload["nodes"] if node["entity_ref"] == "b") == [
+        "funded_wallet", "funding_source",
+    ]

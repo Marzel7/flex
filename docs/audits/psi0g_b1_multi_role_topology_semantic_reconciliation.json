@@ -1,0 +1,92 @@
+{
+  "schema_version": "1.0.0",
+  "milestone": "PSI0G-B1",
+  "evaluated_at": "2026-08-17T10:23:40Z",
+  "engineering_base_revision": "b87d2df182488a991e052fd1f785b175d120ec61",
+  "status": "PASS",
+  "verdict": "EP3_LOCAL_ROLES_ARE_NODE_SCOPED_AND_MULTI_ROLE_VALIDATION_IS_REPAIRED",
+  "authority": {
+    "allowed": "Synthetic-only reconciliation and the smallest unambiguous committed-semantics validator repair.",
+    "forbidden_and_not_performed": [
+      "real retained-source reads",
+      "PSI0G-B derivation rerun",
+      "provider or RPC access",
+      "candidate disposition or authority promotion",
+      "F13 export or PSI0F publication",
+      "monitoring, deployment, activation, operator identity, or EB2 changes"
+    ]
+  },
+  "semantic_evidence": [
+    {
+      "path": "src/evidence/operation_contracts/runtime_output_v1.schema.json",
+      "sha256": "286f4b58f236971aebe87d0f09a8e4b312308e2e07f5c29c79c62cd9ed944734",
+      "finding": "TopologyNode carries entity_ref and local_role as separate required fields and imposes no entity-wide role uniqueness constraint."
+    },
+    {
+      "path": "src/evidence/operation_contracts/formalization.py",
+      "sha256": "3a5932288f656ce7a7a1d06e00b463fe2bd1a8c8ce61eda64a23d26051a3af56",
+      "finding": "TopologyRevision canonicalizes nodes by the compound key (entity_ref, local_role), making distinct roles on one entity deterministic."
+    },
+    {
+      "path": "src/evidence/operation_contracts/watchtower_v1.py",
+      "sha256": "65d81be09e8edbbb89582c2e405514367dc7d1ef7e1562b52309a3efe2f426c6",
+      "finding": "The watchtower producer keys nodes by (entity_ref, local_role)."
+    },
+    {
+      "path": "src/evidence/operation_contracts/three_sw2_v1.py",
+      "sha256": "0573a39239ec84b86caa8430afa81c2b4cd52fbabcf8bdf93aa71e15a4461000",
+      "finding": "The independent three_sw2 producer also keys nodes by (entity_ref, local_role)."
+    }
+  ],
+  "semantic_decision": {
+    "local_role_scope": "TOPOLOGY_NODE",
+    "entity_unique_role": false,
+    "edge_validation_rule": "An edge is valid only when at least one role on its source node-set and one role on its destination node-set form a declared (source_role, destination_role, primitive_type) rule.",
+    "ambiguity": false
+  },
+  "repair": {
+    "path": "src/evidence/operation_contracts/runtime.py",
+    "sha256": "ebf91a31d6a944578320c1c29c5f6155234d5f1faadc09cd2d2fdb054d4c3c39",
+    "before": "Validation reduced nodes to one local_role per entity_ref, losing committed node identity.",
+    "after": "Validation retains the complete local-role set per entity and checks every edge for at least one declared role pairing.",
+    "contract_schema_changed": false,
+    "producer_changed": false,
+    "evidence_semantics_changed": false,
+    "authority_changed": false
+  },
+  "qualification": {
+    "focused_fixture": {
+      "path": "tests/test_psi0g_b1_multi_role_topology_semantics.py",
+      "sha256": "48272e7383205a7c7eb07b27ae3a16ea62b4974cd47d9d91041d37071c051b3d",
+      "cases": [
+        "one entity validly occupies destination and source roles across two edges",
+        "reversed undeclared role pairing is rejected",
+        "missing edge endpoint node is rejected",
+        "undeclared local role is rejected"
+      ]
+    },
+    "focused_and_runtime_command": "pytest -q tests/test_psi0g_b1_multi_role_topology_semantics.py tests/test_psi0g_b_retained_derivation.py tests/test_ep3_0_operation_contract_runtime.py tests/test_ep3_0a_operation_runtime_contract.py tests/test_ep3_2_three_sw2_operation_contract.py tests/test_ep3_3_multi_operation_runtime_validation.py tests/test_ep4_0_generic_unknown_operation_discovery.py",
+    "focused_and_runtime_passed": 40,
+    "ep3_ep4_regression_command": "pytest -q tests/test_ep3*.py tests/test_ep4*.py tests/test_psi0g_b*.py",
+    "ep3_ep4_regression_passed": 74,
+    "failed": 0
+  },
+  "psi0g_b_relationship": {
+    "prior_artifact": "docs/audits/psi0g_b_retained_evidence_derivation_attempt.json",
+    "prior_artifact_sha256": "4225f86cd3d07e0c0a29d1f48e06ae561c259d1da9eaf62c50ff302052253e13",
+    "consumed_attempt_reused": false,
+    "real_source_reread": false,
+    "derivation_output_created": false
+  },
+  "smallest_separately_authorized_next_programme": {
+    "milestone": "PSI0G-B2",
+    "name": "fresh bounded retained-evidence derivation",
+    "scope": "One fresh atomic invocation of the committed PSI0G-B runner against the two PSI0G-A-bound stores after rebinding their unchanged identities and the PSI0G-B1 repair revision.",
+    "terminal_states": {
+      "PASS": "Both complete EP3 runtime payload sets and EP4 candidate payload sets publish atomically and replay deterministically.",
+      "HOLD": "Any new contract, evidence, resource, identity, or replay failure stops without retry or partial publication."
+    },
+    "still_forbidden": "Provider/RPC acquisition, disposition, F13 export, PSI0F publication, monitoring, deployment, or activation."
+  },
+  "terminal_statement": "PASS. EP3 roles are unambiguously node-scoped; the validator now preserves that committed identity while continuing to reject undeclared roles, endpoints, primitive types, and role pairings. No real derivation was rerun."
+}

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-16T18:09:14Z",
+  "updated_at_utc": "2026-08-17T07:47:04Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-16T18:09:14Z",
+    "published_at_utc": "2026-08-17T07:47:04Z",
     "protocol_version": 1,
     "status": "PUBLISHED"
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0F-E immutable-summary adapter qualification closure",
-    "mode": "bounded safe-local read-only replay verification complete",
-    "status": "HUMAN_APPROVAL_REQUIRED",
-    "verdict": "PSI0F_D_CLOSED_QUALIFIED_EB0_4_IMMUTABLE_BUNDLE_BINDING_REQUIRED_BEFORE_REAL_ADAPTER_APPLICATION"
+    "milestone": "PSI0F-F immutable-input availability and lineage binding preflight",
+    "mode": "bounded safe-local read-only metadata reconciliation complete",
+    "status": "HOLD",
+    "verdict": "PSI0E_BOUND_EXACTLY_EB0_4H_IMMUTABLE_BUNDLE_UNAVAILABLE_APPLICATION_NOT_COHERENT"
   },
   "production_state": {
     "retention": "ON",
@@ -240,6 +240,24 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0f_f_immutable_input_availability_lineage_binding": {
+      "status": "HOLD",
+      "verdict": "PSI0E_REPLAY_BINDABLE_EB0_4H_BUNDLE_ABSENT",
+      "engineering_commit": "4215f899b510f7d366c21702ce6cef63c6882878",
+      "psi0e_bundle_path": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0e_runs/psi0e-envelope-20260816-01",
+      "psi0e_file_set": ["contract.json", "envelope.json", "hashes.json"],
+      "psi0e_bundle_digest": "88c7de3156a4dc07b3c3b2461b4e1e37e85d5bd06d217d904472e4f4bc6f4d9c",
+      "psi0e_envelope_digest": "c8827678b2137f1aec864f86623514a92affb0c6df092d13b24c160f8fb90a9d",
+      "psi0e_publication_contract_digest": "b893198fed71329c33083176a7ce93d7c86f119ab66b9488dbf9c42db6435cc3",
+      "eb0_4h_expected_file_set": ["run.json", "accounting.json", "manifests.json", "corpora.json", "hashes.json"],
+      "eb0_4h_bundle_path": null,
+      "eb0_4h_bundle_digest": null,
+      "blocker": "No exact replay-verifiable EB0.4H immutable bundle exists in the repository audit tree or bounded retained local temporary artifacts; only contracts, documentation, tests and synthetic fixtures are present.",
+      "adapter_or_projection_invoked": false,
+      "source_values_inspected_or_disclosed": false,
+      "operational_surface_created": false,
+      "next_gate": "A separately authorized deterministic safe-local EB0.4H source-manifest/rematerialization contract must be qualified before any PSI0F adapter application."
+    },
     "psi0f_e_immutable_summary_adapter_qualification_closure": {
       "status": "PASS",
       "verdict": "PSI0F_D_CLOSED_QUALIFIED",

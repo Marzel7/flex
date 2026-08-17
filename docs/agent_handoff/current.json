@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-17T09:56:58Z",
+  "updated_at_utc": "2026-08-17T10:05:38Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "ef6102190febd89eb40575ed75ffa12b4b3e323f",
-    "working_tree": "dirty: unrelated live/runtime/user paths preserved; PSI0F-F17/F18 committed narrowly; PSI0C/PSI0D/PSI0E closure artifacts plus prior audit/diagnosis artifacts uncommitted"
+    "git_head": "d347545e44a2b6996818f72265a06523a28ee68d",
+    "working_tree": "dirty: unrelated live/runtime/user paths preserved; PSI0G-A committed narrowly; PSI0C/PSI0D/PSI0E closure artifacts plus prior audit/diagnosis artifacts uncommitted"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -40,10 +40,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0F-F18 safe-local series completion audit",
-    "mode": "safe-local implementation and qualification complete; external boundary preserved",
-    "status": "COMPLETE",
-    "verdict": "PSI0F_SAFE_LOCAL_SERIES_COMPLETE_REAL_CAPTURE_AND_ACTIVATION_REMAIN_FAIL_CLOSED"
+    "milestone": "PSI0G-A real retained EP3/EP4 source eligibility reconciliation",
+    "mode": "bounded query-only retained-source inspection; production and provider boundaries preserved",
+    "status": "HOLD",
+    "verdict": "EXISTING_RETAINED_EVIDENCE_IS_SUBSTANTIAL_BUT_NOT_A_COMPLETE_REPLAYABLE_PSI0F_INPUT_SET"
   },
   "production_state": {
     "retention": "ON",
@@ -264,6 +264,24 @@
     "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred."
   },
   "latest_results": {
+    "psi0g_a_real_source_eligibility_reconciliation": {
+      "status": "HOLD",
+      "verdict": "EXISTING_RETAINED_EVIDENCE_IS_SUBSTANTIAL_BUT_NOT_A_COMPLETE_REPLAYABLE_PSI0F_INPUT_SET",
+      "engineering_commit": "d347545e44a2b6996818f72265a06523a28ee68d",
+      "artifact": "docs/audits/psi0g_a_real_source_eligibility_reconciliation.json",
+      "artifact_digest": "d72dd75330bc0e11aa836986528388954bae688ea2bd4c1098dd9e9e30e190a0",
+      "eligible_shadow_stores": 2,
+      "evidence_envelopes": 4843,
+      "normalized_evidence_records": 149843,
+      "primitive_observations": 86847,
+      "complete_ep3_runtime_payloads_retained": false,
+      "complete_ep4_candidate_payloads_retained": false,
+      "production_database_reads": 0,
+      "provider_or_rpc_calls": 0,
+      "writes_or_dispositions": 0,
+      "fresh_provider_capture_required_now": false,
+      "next_gate": "Separately authorize PSI0G-B bounded retained-evidence EP3/EP4 derivation over the two bound shadow stores and contracts"
+    },
     "psi0f_f18_safe_local_series_completion_audit": {
       "status": "PASS",
       "verdict": "PSI0F_SAFE_LOCAL_SERIES_COMPLETE_REAL_CAPTURE_AND_ACTIVATION_REMAIN_FAIL_CLOSED",
@@ -7907,8 +7925,10 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0F-D immutable-summary adapter design and fixture qualification",
-    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize safe-local implementation and fixture qualification of separate provenance-preserving adapters over injected immutable PSI0E envelope and EB0.4 family-summary byte schemas, producing only PSI0F-B inputs with no real bundle reads, cross-layer join, output publication or authority promotion.",
+    "milestone": "PSI0G-B bounded retained-evidence EP3/EP4 derivation",
+    "instruction": "HUMAN_APPROVAL_REQUIRED: authorize query-only derivation of complete EP3 runtime and EP4 candidate payloads from only the two PSI0G-A-bound shadow stores through watchtower 1.0.0 and three_sw2 1.0.0 SHADOW contracts, retaining outputs only in a new isolated non-production store. No provider/RPC acquisition, disposition, F13 export, PSI0F publication, monitoring, deployment or activation.",
+    "psi0g_a_engineering_commit": "d347545e44a2b6996818f72265a06523a28ee68d",
+    "psi0g_a_artifact": "docs/audits/psi0g_a_real_source_eligibility_reconciliation.json",
     "psi0d_d_engineering_commit": "9ef7467327b74dbf435fc00ddc26c99a77f5b33e",
     "psi0d_d_adapter_contract_digest": "48e4480d741793c78dda8413ce8fa233c849d3781538bc32c0283a436f00bd7d",
     "psi0d_d_qualification_digest": "b918f495bb34858b9dce86b61f657d530e0db47ba1f36f17095e0250d9ec9265",

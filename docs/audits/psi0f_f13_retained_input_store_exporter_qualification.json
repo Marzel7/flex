@@ -1,0 +1,61 @@
+{
+  "schema_version": "psi0f-f13.qualification.v1",
+  "milestone": "PSI0F-F13",
+  "engineering_base_commit": "17d30faf",
+  "status": "PASS",
+  "verdict": "FIXTURE_ONLY_RETAINED_INPUT_STORE_AND_QUERY_ONLY_F9_EXPORTER_QUALIFIED",
+  "contract_digest": "e6300d9a49bddaa5e6d99c1e6a86f50bd41f5a635ea7ff3ebf119c33cbae0579",
+  "bound_inputs": {
+    "psi0f_f12_architecture_digest": "70a5d98982bee953796168d2aded36a15917198e1877fad92541ca8d174a2787",
+    "psi0f_f9_contract_digest": "52e24914afb8871943baa0826d43878ed3b73cd5521af1298de62eab2320df2b",
+    "retained_schema_digest": "55366e106c9b2f1cd3dccfc37eff16193bc3ba374ffe931243a7992dcda18b75",
+    "implementation_digest": "725d2cfce7595640965b4aae8debd77e61f619531b77e3997d670b97e0c82649",
+    "focused_test_digest": "f1a56d84b8cce02cab0273eb61504caa491d8b58488dcc461dd51a1b46d58ca2"
+  },
+  "qualification": {
+    "focused_tests_passed": 22,
+    "combined_eb0_4_psi0f_tests_passed": 152,
+    "broader_psi0_tests_passed": 575,
+    "broader_state_coupled_psi0b_failures": 27,
+    "failures_are_psi0f_f13_regressions": false,
+    "fixture_publisher_only": true,
+    "publisher_requires_new_absent_path": true,
+    "transactional_complete_store": true,
+    "canonical_payload_and_digest_binding": true,
+    "seven_insert_only_tables": true,
+    "fourteen_update_delete_rejection_triggers": true,
+    "explicit_reviewer_class_reason_codes_and_sequence": true,
+    "lifecycle_grants_nomination_authority": false,
+    "query_only_uri_read_only_export": true,
+    "exact_schema_and_trigger_replay": true,
+    "seven_bounded_queries": true,
+    "symlink_and_companion_rejection": true,
+    "input_file_identity_stability_check": true,
+    "f9_bundle_reconstructed_and_replayed": true,
+    "exact_f5_source_identity_reconstructed": true,
+    "exporter_writes_files": false,
+    "authority_granted": false
+  },
+  "fail_closed_proof": [
+    "contract, retained-schema and authority drift",
+    "destination reuse or invalid capture sequence",
+    "reviewer class, reason code, sequence or coverage drift",
+    "lifecycle used as nomination state",
+    "table update or delete",
+    "source symlink, companion, missing identity or invalid query bound",
+    "schema object, column or immutable-trigger drift",
+    "query timeout or row ceiling breach",
+    "canonical payload or digest tamper with schema restored",
+    "ordered membership, F9, manifest or F5 source replay drift"
+  ],
+  "scope_proof": {
+    "temporary_fixture_databases_only": true,
+    "real_ep3_or_ep4_records_opened": false,
+    "real_dispositions_created": false,
+    "production_or_retained_database_access": false,
+    "real_bundle_or_source_created": false,
+    "provider_or_rpc_calls": 0,
+    "service_or_configuration_actions": 0
+  },
+  "next_action": "PSI0F-F14 replay-verified F13 qualification closure only."
+}

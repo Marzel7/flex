@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-17T11:44:26Z",
+  "updated_at_utc": "2026-08-17T11:52:10Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
-    "git_head": "89fb8e45db50cfcf4f69bd4fb5f752dff653b663",
-    "working_tree": "dirty: unrelated live/runtime/user paths plus local PSI0G-B2 databases, full D1/D3/D5 projections, and D6 compatible store preserved; PSI0H-A committed narrowly"
+    "git_head": "8e9cf52690df01fe978bdcda9aa65b6f51f9a015",
+    "working_tree": "dirty: unrelated live/runtime/user paths plus local PSI0G-B2 databases, full D1/D3/D5 projections, and D6 compatible store preserved; PSI0H-B committed narrowly"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
@@ -40,10 +40,10 @@
   },
   "current_milestone": {
     "programme": "Post-E Evidence and Outcome Intelligence",
-    "milestone": "PSI0H-A prospective monitoring historical replay",
-    "mode": "shadow replay contract qualified; current real evidence rejected as in-sample",
+    "milestone": "PSI0H-B fresh observation cohort",
+    "mode": "observation-only cohort contract qualified; no post-cutoff operational primitive available",
     "status": "HOLD",
-    "verdict": "SHADOW_REPLAY_CONTRACT_QUALIFIED_CURRENT_REAL_EVIDENCE_HAS_NO_HELD_OUT_COHORT"
+    "verdict": "POST_CUTOFF_EVIDENCE_EXISTS_BUT_NO_POST_CUTOFF_OPERATIONAL_PRIMITIVE_EXISTS"
   },
   "production_state": {
     "retention": "ON",
@@ -7996,8 +7996,8 @@
     "Any B2M provider/RPC increase, production observation or mutation, deployment, service restart, Evidence Mirror/Cohort activation, or architectural expansion remains HUMAN_APPROVAL_REQUIRED."
   ],
   "next_action": {
-    "milestone": "PSI0H-B prospective cohort acquisition decision",
-    "instruction": "PSI0H-A is implemented and qualified, but all 13 retained observations are in D8 lineage and none begins after cutoff 1786109860. Decide separately whether to authorize a bounded production-observation-only cohort that retains later observation, evidence, and primitive identities for offline PSI0H-A replay. No comparison may occur until disjointness passes; no alerting, consumer, monitoring activation, provider-work increase, policy, ranking, trading, integration, deployment, or activation is authorized.",
+    "milestone": "PSI0H-C fresh primitive observation-path reconciliation",
+    "instruction": "PSI0H-B found 4,843 post-cutoff verification/freshness evidence rows but zero operational primitives with windows after cutoff 1786109860. Decide separately whether to authorize a bounded read-only reconciliation of existing collectors/derivers to identify the smallest action needed to retain genuinely fresh operational primitives. Do not start/reconfigure services, increase provider work, compare against D8, generate candidates, alert, activate monitoring, or grant downstream authority.",
     "psi0g_d3_engineering_commit": "e35a2b9b3a1f4becb96e75cfe494933c7e6f2dfe",
     "psi0g_d3_candidate_id": "1647cb5804e13ba1f34030eca7dba7abd8454f24f6186cf33d026e9d843672c0",
     "psi0g_d3_artifact": "docs/audits/psi0g_d3_representation_reconciliation.json",
@@ -8021,6 +8021,10 @@
     "psi0h_a_artifact": "docs/audits/psi0h_a_prospective_monitoring_historical_replay.json",
     "psi0h_a_real_replay_digest": "016a556f63aab5b4cd78e76af2d23700e94e316a4fd79a232c32494ffc3297d5",
     "psi0h_a_evidence_cutoff": 1786109860,
+    "psi0h_b_engineering_commit": "8e9cf52690df01fe978bdcda9aa65b6f51f9a015",
+    "psi0h_b_artifact": "docs/audits/psi0h_b_fresh_observation_cohort.json",
+    "psi0h_b_real_cohort_digest": "fc4a2e20f0149c338004bee8311fc2abeaaa70ba581ae89d2db26c9ed6113dbc",
+    "psi0h_b_selected_count": 0,
     "psi0g_d1_engineering_commit": "04e6b9d47194ad02a4d3fc2f419f4962d04f2a96",
     "psi0g_series_engineering_commit": "a88a15b5f10da670222dcb9f5488e019b2352ba0",
     "psi0g_b1_engineering_commit": "a0be224dff2c169847503c5fad29295f524d2453",

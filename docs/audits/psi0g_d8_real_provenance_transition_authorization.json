@@ -1,0 +1,25 @@
+{
+  "schema_version": "psi0g-d8.real-provenance-transition-authorization.v1",
+  "status": "AUTHORIZED",
+  "source_d5_retention_id": "68f0dfcf24aac66637f397b189adc3ef999f3740c1accfa5469d2ceccd6581e6",
+  "source_d6_retention_id": "d0faf987c6bbbe213c993cd96fc8408e78eb503401f6c16096709ffdf6a7dfca",
+  "source_d7_surface_digest": "2c6b19a9c87ba0d6e8b473c7747b0cd096b344e0a2105a458f453a33edff67d9",
+  "allowed_mutations": {
+    "fixture_only": [true, false],
+    "provenance_class": [
+      "FROZEN_SYNTHETIC_KNOWN_BEHAVIOUR_OPERATIONAL_SURFACE",
+      "RETAINED_REAL_KNOWN_BEHAVIOUR_OPERATIONAL_SURFACE"
+    ]
+  },
+  "authority": {
+    "supported": false,
+    "same_operation": false,
+    "same_human": false,
+    "monitoring": false,
+    "policy": false,
+    "ranking": false,
+    "publication": false,
+    "integration": false,
+    "activation": false
+  }
+}

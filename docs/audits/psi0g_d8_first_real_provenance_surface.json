@@ -1,0 +1,58 @@
+{
+  "schema_version": "psi0g-d8.first-real-provenance-surface.audit.v1",
+  "milestone": "PSI0G-D8",
+  "status": "PASS",
+  "verdict": "FIRST_REAL_PROVENANCE_PSI0F_SURFACE_REPLAY_VERIFIED_AND_NON_AUTHORITATIVE",
+  "output": {
+    "path": "docs/audits/psi0g_runs/psi0g-d8-first-real-provenance-surface-20260817-01",
+    "source_surface_digest": "2c6b19a9c87ba0d6e8b473c7747b0cd096b344e0a2105a458f453a33edff67d9",
+    "surface_digest": "b185a25420d6f228da6bdcb62efdf74f599e8fbb88d6deaa54bb0a725d15c7db",
+    "semantic_digest": "809d6a4b30c930669f962b7d949bdf311582161c80af57d2fe7e291e1da2e60d",
+    "transition_digest": "3b6b409500e9259d4579a86e15bad3cf51d01d9cc56a44373e288d35d2018e96",
+    "publication_digest": "ad76eab79457439e02d84d4c6f2705892f312cb6d0a9bbbc5e641b72789f8dc9"
+  },
+  "transition_proof": {
+    "exact_d7_source_bytes_retained": true,
+    "changed_paths": ["fixture_only", "provenance_class"],
+    "all_other_payload_fields_identical": true,
+    "source_semantic_digest_equals_surface_semantic_digest": true,
+    "d5_d6_d7_lineage_bound": true,
+    "authorization_bound": true,
+    "replay_verified": true,
+    "atomic_new_directory_publication": true
+  },
+  "surface": {
+    "fixture_only": false,
+    "provenance_class": "RETAINED_REAL_KNOWN_BEHAVIOUR_OPERATIONAL_SURFACE",
+    "role": "FUNDING_AND_LAUNCH_OPERATION",
+    "nomination_state": "PROPOSED",
+    "member_count": 2,
+    "quality_state": "DEGRADED",
+    "completeness_state": "PARTIAL",
+    "supported_count": 0,
+    "operator_identity_asserted": false,
+    "consumer_enabled": false,
+    "default_off": true,
+    "cross_layer_join_performed": false
+  },
+  "qualification": {
+    "focused_d4_d5_d6_d8_and_psi0f_tests_passed": 151,
+    "source_byte_tamper_rejected": true,
+    "derived_surface_tamper_rejected": true,
+    "transition_or_hash_tamper_rejected": true,
+    "destination_reuse_rejected": true,
+    "authority_drift_rejected": true
+  },
+  "authority": {
+    "supported": false,
+    "same_operation": false,
+    "same_human": false,
+    "monitoring": false,
+    "policy": false,
+    "ranking": false,
+    "publication": false,
+    "integration": false,
+    "activation": false
+  },
+  "next_boundary": "Prospective monitoring qualification is now a separate decision. D8 does not authorize a consumer, monitoring, integration, deployment, policy, ranking, or activation."
+}

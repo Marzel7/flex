@@ -1,0 +1,67 @@
+{
+  "schema_version": "psi0h-a.prospective-monitoring-historical-replay.audit.v1",
+  "milestone": "PSI0H-A",
+  "status": "HOLD",
+  "verdict": "SHADOW_REPLAY_CONTRACT_QUALIFIED_CURRENT_REAL_EVIDENCE_HAS_NO_HELD_OUT_COHORT",
+  "surface": {
+    "d8_surface_digest": "b185a25420d6f228da6bdcb62efdf74f599e8fbb88d6deaa54bb0a725d15c7db",
+    "provenance_class": "RETAINED_REAL_KNOWN_BEHAVIOUR_OPERATIONAL_SURFACE",
+    "consumer_enabled": false,
+    "default_off": true
+  },
+  "real_replay": {
+    "artifact": "docs/audits/psi0h_a_real_historical_replay.json",
+    "artifact_digest": "016a556f63aab5b4cd78e76af2d23700e94e316a4fd79a232c32494ffc3297d5",
+    "contract_replay_digest": "ccaf3fd05c459649d68fd8840cb2e3d9b1d0dc12b7c55068b4e3404a9baf90f9",
+    "baseline_evidence_cutoff": 1786109860,
+    "observation_count": 13,
+    "eligible_held_out_observation_count": 0,
+    "continuity_candidate_count": 0,
+    "blocker_count": 50,
+    "blocker_classes": {
+      "observation_already_in_baseline": 13,
+      "observation_not_strictly_after_cutoff": 13,
+      "evidence_leakage": 12,
+      "primitive_leakage": 12,
+      "note": "The thirteenth observation is UNVERIFIABLE with zero evidence and primitive references, so it fails baseline identity and cutoff gates but has no reference-overlap blocker."
+    }
+  },
+  "contract_qualification": {
+    "focused_psi0h_psi0g_and_downstream_tests_passed": 157,
+    "strict_post_cutoff_required": true,
+    "observation_identity_disjointness_required": true,
+    "evidence_and_primitive_disjointness_required": true,
+    "complete_shared_feature_proof_required": true,
+    "partial_similarity_does_not_match": true,
+    "candidate_has_no_disposition": true,
+    "same_operation_or_human_claims_false": true,
+    "reviewed_negative_false_positive_metric_supported": true,
+    "logical_latency_metrics_supported": true,
+    "input_order_independent_replay": true,
+    "surface_authority_drift_rejected": true
+  },
+  "scope": {
+    "historical_local_only": true,
+    "production_observation": false,
+    "provider_or_rpc_calls": 0,
+    "services_accessed": 0,
+    "alerts_emitted": 0,
+    "external_actions": 0
+  },
+  "authority": {
+    "candidate_disposition": false,
+    "supported": false,
+    "same_operation": false,
+    "same_human": false,
+    "alerting": false,
+    "monitoring": false,
+    "consumer": false,
+    "policy": false,
+    "ranking": false,
+    "trading": false,
+    "integration": false,
+    "deployment": false,
+    "activation": false
+  },
+  "next_boundary": "A genuinely prospective cohort must contain retained observations whose windows start strictly after cutoff 1786109860 and whose observation, evidence, and primitive identities are disjoint from D8 lineage. Acquiring or observing that cohort is a separate production-observation decision; PSI0H-A does not authorize it."
+}

@@ -1,0 +1,68 @@
+{
+  "schema_version": "1.0.0",
+  "milestone": "PSI0G-D1",
+  "status": "PASS",
+  "verdict": "APPROVED_NON_AUTHORITATIVE_TWO_OPERATION_CANDIDATE_PROJECTED_AND_REPLAY_VERIFIED",
+  "semantic_review": {
+    "artifact": "docs/audits/psi0g_d_semantic_review_disposition.json",
+    "decision": "APPROVE_ALL_UNCHANGED"
+  },
+  "implementation": {
+    "pure_projection": "src/evidence/contracts/psi0g_operation_projection.py",
+    "application_runner": "scripts/run_psi0g_d1_operation_projection.py",
+    "focused_tests": "tests/test_psi0g_d1_operation_projection.py",
+    "focused_and_f5_f9_tests_passed": 44,
+    "ep3_ep4_psi0g_f5_f9_regression_tests_passed": 110,
+    "failed": 0
+  },
+  "application": {
+    "run_id": "psi0g-d1-operation-candidate-20260817-01",
+    "output": "docs/audits/psi0g_runs/psi0g-d1-operation-candidate-20260817-01",
+    "manifest_sha256": "204ef021dff8b94db51179df971038e658d0e9c09660b1cc02168c57a0a1f2a7",
+    "projection_sha256": "181193a8900133edc29b7ddfe3bee871c6bbf83498d99043b57824740d0a073a",
+    "projection_size_bytes": 12785682,
+    "candidate_id": "95fba7d16194a1b2c03970910b5c737c70da669988fb2c317321318c41814505",
+    "deterministic_replay": true,
+    "atomic_publication": true
+  },
+  "candidate": {
+    "population": ["watchtower", "three_sw2"],
+    "operations_merged": false,
+    "primary_role": "FUNDING_AND_LAUNCH_OPERATION",
+    "shared_edge_features": ["CREATOR_SIGNED_LAUNCH", "DIRECTED_VALUE_TRANSFER"],
+    "shared_mechanism_features": [
+      "BEHAVIOURAL_TIMING", "ECONOMIC_FUNDING", "LAUNCH_ACTIVATION",
+      "LAUNCH_SIGNER", "SYSTEM_TRANSFER", "WALLET_FRESH_AT_EVENT"
+    ],
+    "shared_temporal_features": ["BEHAVIOURAL_TIMING_OBSERVED"],
+    "quality_state": "INCOMPLETE",
+    "lifecycle": "RECURRING_PATTERN",
+    "complete_operations": 0,
+    "contradictory_evidence_count": 0,
+    "missing_evidence_reason_count": 14,
+    "supporting_evidence_count": 108809,
+    "supporting_primitive_count": 81920,
+    "supporting_behaviour_observation_count": 13,
+    "supporting_topology_revision_count": 2,
+    "subject_candidate_context_count": 14297
+  },
+  "material_review_finding": {
+    "watchtower_completeness": "PARTIAL",
+    "three_sw2_completeness": "PARTIAL",
+    "supported_currently_contract_valid": false,
+    "reason": "Both operations have selected features without fully proven, missing-input-free coverage; three_sw2 also has no proven DIRECT_COUNTERPARTY or REPEATED_COUNTERPARTY observation.",
+    "available_disposition_choices": ["PROPOSED", "REJECT_OR_HOLD"],
+    "supported_choice_available": false
+  },
+  "authority": {
+    "disposition": null,
+    "same_operation": false,
+    "same_human_or_operator": false,
+    "operator_identity": false,
+    "f13_export": false,
+    "psi0f_publication": false,
+    "monitoring": false,
+    "activation": false
+  },
+  "next_boundary": "Explicit human review of candidate 95fba7d16194a1b2c03970910b5c737c70da669988fb2c317321318c41814505: mark PROPOSED or reject/hold. SUPPORTED is unavailable under the approved completeness rule."
+}

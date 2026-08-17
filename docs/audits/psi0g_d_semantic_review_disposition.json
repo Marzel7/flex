@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0.0",
+  "milestone": "PSI0G-D",
+  "reviewed_at": "2026-08-17T10:48:00Z",
+  "reviewer_class": "HUMAN_REVIEW",
+  "review_record": "User explicitly approved Option 1 in the engineering conversation.",
+  "review_packet": "docs/audits/psi0g_d_ep3_to_eb0_4c_semantic_review_packet.json",
+  "review_packet_sha256": "513678ccde0c755faae0bb64f3cdd7e43f0260f92d7d9531dc75fc2612ba7bb3",
+  "decision": "APPROVE_ALL_UNCHANGED",
+  "approved_semantics": {
+    "operations_remain_separate": true,
+    "operation_cohort": ["watchtower", "three_sw2"],
+    "primary_role": "FUNDING_AND_LAUNCH_OPERATION",
+    "edge_features": ["DIRECTED_VALUE_TRANSFER", "CREATOR_SIGNED_LAUNCH"],
+    "mechanism_features": [
+      "BEHAVIOURAL_TIMING", "DIRECT_COUNTERPARTY", "ECONOMIC_FUNDING",
+      "LAUNCH_ACTIVATION", "LAUNCH_SIGNER", "REPEATED_COUNTERPARTY",
+      "SYSTEM_TRANSFER", "WALLET_FRESH_AT_EVENT"
+    ],
+    "temporal_features": ["BEHAVIOURAL_TIMING_OBSERVED"],
+    "completeness_rule": "Every selected feature must have proven evidence and no missing required inputs; absence is not negative evidence.",
+    "candidate_population": ["watchtower", "three_sw2"],
+    "candidate_is_non_authoritative": true
+  },
+  "explicit_non_authority": {
+    "same_operation_claim": false,
+    "same_human_or_operator_claim": false,
+    "proposed_or_supported_disposition": false,
+    "f13_export": false,
+    "psi0f_publication": false,
+    "monitoring": false,
+    "activation": false
+  },
+  "next_authorized_action": "Implement, qualify, and apply the non-authoritative projection once, then present the actual candidate before a separate PROPOSED/SUPPORTED decision."
+}

@@ -1,0 +1,61 @@
+{
+  "schema_version": "b2z.p2.calibration-failure.v1",
+  "artifact_type": "B2Z_P2_CALIBRATION_FAILURE_RECORD",
+  "milestone": "B2Z-P2",
+  "generated_utc": "2026-08-19T02:00:00Z",
+
+  "what_happened": "The human ran the exact manual command provided at the READY_B2Z_P2_MANUAL_CALIBRATION_EXECUTION_GATE. The FIRST --resume invocation (ordinal 1, MIGRATION_TX) failed with error_class=InvalidURL. Root cause, confirmed directly from the printed error message: the pasted B2Z_P2_HELIUS_ENDPOINT value had a stray terminal control-sequence artifact appended ('\\x1b[C', a right-arrow-key escape sequence from the terminal input), producing a malformed URL that urllib.request.Request() rejected before any network I/O occurred. This is a credential-input artifact from the human's terminal/paste, NOT a defect in the P2 authorization, the durable runner, or the frozen plan.",
+
+  "durable_accounting_proof": {
+    "event_ledger_path": "docs/audits/b2z_p1_event_ledger_b2z-p1-44d6798563468c8aff747446.jsonl",
+    "event_ledger_sha256_after_failure": "39ce0dca5afe9a3ee2964356540d8c19448142eda47dcbcfcceca37da597fad4",
+    "events_recorded": [
+      {"event": "ATTEMPT_RESERVED", "sample_ordinal": 1, "stage": "MIGRATION_TX", "physical_request_number": 1},
+      {"event": "ATTEMPT_FAILED_AFTER_DISPATCH", "sample_ordinal": 1, "stage": "MIGRATION_TX", "physical_request_number": 1, "error_class": "InvalidURL"}
+    ],
+    "durability_confirmed": "ATTEMPT_RESERVED was durably written BEFORE the failing urlopen() call, exactly as designed. The failure occurred inside HeliusTransport.post_json() AFTER physical_request_count was incremented (the increment happens before urlopen() is called), so this correctly counts as a DISPATCHED, FAILED attempt -- not a pre-dispatch exception.",
+    "physical_requests_attempted": 1,
+    "remaining_budget": 49,
+    "stage_output_ledger_exists": false,
+    "final_result_file_exists": false
+  },
+
+  "member_1_status": {
+    "ordinal": 1,
+    "mint": "66ruWUv7KLXkLbHBTnj7PqzEgdue1oZjeA5Z3JMHpump",
+    "blocking_stage": "MIGRATION_TX",
+    "permanently_blocked_this_run": true,
+    "reasoning": "resume_next()'s _member_has_failed_stage() guard will now raise B2Z_P1_MEMBER_BLOCKED_BY_FAILED_STAGE for ordinal 1 on any future --resume call against this same event ledger -- per the qualified P1 no-retry design, this is CORRECT and INTENTIONAL behavior, not a bug to work around."
+  },
+
+  "corrective_action_required": "The credential must be re-entered WITHOUT the stray control character. Likely cause: an arrow key or similar was pressed during the `read -s` paste, which some terminals echo into the buffer even in silent/no-echo mode. The human should re-paste the credential carefully (e.g. using a paste method that doesn't trigger terminal line-editing artifacts, or verifying the exact byte length before proceeding) in a FRESH shell invocation.",
+
+  "what_this_milestone_does_not_do": {
+    "no_retry_performed": true,
+    "no_automatic_fresh_authorization_created": true,
+    "no_ledger_deleted_or_reset": true,
+    "no_budget_manipulation": true,
+    "reasoning": "per absolute prohibition -- retries are forbidden. This is a genuine, durably-recorded, provider-dispatch-shaped failure (from the runner's perspective, indistinguishable from a real malformed-request rejection) and must be treated with the same discipline as any other Stage failure: recorded, not silently worked around."
+  },
+
+  "path_to_resume_safely": {
+    "member_1_cannot_be_retried_under_this_event_ledger": true,
+    "reasoning": "member 1's MIGRATION_TX stage has a terminal FAILED event -- the qualified runner will never redispatch it. This is a genuine, if narrow, complication for a 20-member CALIBRATION run: 1 member (ordinal 1) cannot complete under the CURRENT event ledger.",
+    "options_for_a_human_decision": [
+      "A. Accept a 19-member calibration result (ordinal 1 excluded), continuing the SAME event ledger and run_id for ordinals 2-20 -- requires explicit confirmation this is acceptable for a valid calibration sample, and requires ordinal 1's local-vs-raw comparison to be marked EXCLUDED/NOT_ATTEMPTED rather than silently dropped",
+      "B. Start a genuinely FRESH ledger under a NEW run identity scoped only to this recovery, preserving the current (failed) ledger as an immutable historical record rather than deleting it -- this is a bigger decision requiring separate explicit authorization since it touches the run_id binding established in Phase A",
+      "C. Human corrects the credential and re-runs ONLY member-1-forward in a way that respects the existing ledger's constraint -- not possible under option A's same-ledger approach, since member 1 specifically is blocked"
+    ],
+    "no_option_selected_or_executed_by_this_milestone": true
+  },
+
+  "ra4_v2_b2n_health_reconfirmed_after_failure": {
+    "legacy_db_recreated": false,
+    "creator_funding_worker_pid": 33383,
+    "creator_funding_worker_restarted": false,
+    "b2n_ledger_digests_unchanged": true
+  },
+
+  "verdict": "HOLD_B2Z_P2_CALIBRATION_FAILURE",
+  "verdict_note": "The first live calibration invocation failed with a durably-recorded, dispatch-counted InvalidURL error, caused by a stray terminal control-character artifact in the pasted credential -- not a defect in the P2 authorization, plan, or runner. 1 of 50 physical requests was consumed (49 remaining). Member 1 (ordinal 1) is now permanently blocked under this specific event ledger per the qualified no-retry design. Per absolute prohibition, no retry was performed and no automatic fresh authorization was created. The event ledger, stage-output ledger (absent), and all other cohort/RA4/V2/B2N state remain exactly as they were. A human decision is required on how to proceed (accept a 19-member sample, or authorize a genuinely fresh recovery ledger) before any further live execution occurs."
+}

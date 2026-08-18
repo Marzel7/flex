@@ -30,11 +30,11 @@
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
   "current_milestone": {
-    "milestone": "RA4-C4 -- bounded production writer cutover",
-    "status": "PASS",
-    "verdict": "RA4_BOUNDED_WRITER_PRODUCTION_CUTOVER_QUALIFIED"
+    "milestone": "Overnight autonomous session -- 12 provider-free workstreams complete",
+    "status": "OVERNIGHT_COMPLETE_AWAITING_HUMAN_MORNING_REVIEW",
+    "verdict": "READY_B2Z_P2_19_MEMBER_MANUAL_RESUME_GATE"
   },
-  "current_next_blocker": null,
+  "current_next_blocker": "B2Z_P2_HELIUS_ENDPOINT was never available during the overnight session. P2 remains frozen at the 19-member manual resume gate, exactly as left. All 12 provider-free workstreams from the overnight prompt were completed: P2 analysis engine, selective-RPC policy (B2Z-P3), historical coverage profile, 2-hop coverage quality, B2Z-2H contract, operation-discovery preparation, candidate funding family analysis (with a real cross-validated finding), raw-transaction cache adapter, RPC savings models, V2 persistent-budget design, edge-case classifier, and roadmap reconciliation. See docs/audits/overnight_human_decision_queue.json for the 5 decisions that actually need you.",
   "focused_tests": [
     {
       "details": {
@@ -28818,7 +28818,7 @@
     "production_changes_allowed": false
   },
   "schema_version": 1,
-  "status": "PASS",
+  "status": "AWAIT_HUMAN_MORNING_REVIEW_SEE_DECISION_QUEUE",
   "test_runs": {
     "continuity_adapter": {
       "command": "pytest -q tests/test_psi0h_h8_h4_runtime_projection.py tests/test_psi0h_h2_historical_candidate_generation.py tests/test_psi0h_h3_historical_candidate_disposition.py",
@@ -28864,7 +28864,7 @@
   "updated_at": "2026-08-18T14:31:00Z",
   "updated_at_utc": "2026-08-18T14:31:00Z",
   "updated_by": "agent_local",
-  "verdict": "RA4_BOUNDED_WRITER_PRODUCTION_CUTOVER_QUALIFIED",
+  "verdict": "READY_B2Z_P2_19_MEMBER_MANUAL_RESUME_GATE",
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "continuation_update": {
@@ -29353,5 +29353,570 @@
     "rollback_performed": false,
     "legacy_db_size_bytes_final": 66155503616,
     "legacy_db_untouched": true
+  },
+  "ra4_c5_legacy_retirement_qualification": {
+    "milestone": "RA4-C5",
+    "verdict": "HOLD_RA4_V2_OBSERVATION_WINDOW_INCOMPLETE",
+    "preflight_artifact": "docs/audits/ra4_c5_legacy_retained_acquisition_retirement_preflight.json",
+    "preflight_artifact_sha256": "e56e8f1eceb96f6e16f37d47d560b4408101571eceeef2a1975d36c73ad5eba8",
+    "focused_test_file": "tests/test_ra4_c5_legacy_retirement_qualification.py",
+    "focused_test_file_sha256": "8f0f1a5a84f16ea2b116eac387797cf6f3e60b90b2a0891d5aecb7cc4ec854f9",
+    "focused_test_result": "3 passed",
+    "c4_cutover_status": "RA4_BOUNDED_WRITER_PRODUCTION_CUTOVER_QUALIFIED (remains qualified, unchanged this milestone)",
+    "legacy_db_state": {
+      "path": "database/evidence_platform/production/retained_acquisition.db",
+      "status": "HISTORICAL_READ_ONLY",
+      "size_bytes": 66155503616,
+      "mtime_epoch": 1787077699,
+      "inode": 487625267,
+      "byte_identical_across_all_c5_checkpoints": true,
+      "deleted_vacuumed_or_mutated_this_milestone": false
+    },
+    "compact_manifest": {
+      "built": false,
+      "designed": true,
+      "estimated_size_gib": 0.54,
+      "estimated_reclaim_gib": 61.08,
+      "estimated_reclaim_percent": 99.1
+    },
+    "v2_health_and_cap": {
+      "path": "database/evidence_platform/production/retained_acquisition_shadow.db",
+      "cap_status": "NOT_YET_REACHED",
+      "cap_consumed_percent_at_last_checkpoint": 30.3,
+      "hot_payload_fallback_observed_live": false,
+      "write_failures": 0,
+      "disk_available_gib_at_last_checkpoint": 14
+    },
+    "b2n_frozen_state_reconfirmed": {
+      "run_id": "b2n-p3e-98695fbdf44146c93ff08c8c",
+      "completed": 1,
+      "remaining": 19,
+      "attempt_ledger_sha256": "06ea55a8b21a30aec7b81f23737f921b1dcdf5bbe88266671600a25785fe9e0f",
+      "event_ledger_sha256": "f427610ccdae99b033d006fc0423170bcb6780a461c85c13d329c5fda8615071",
+      "live_result_sha256": "675e0bf23c99b70e24db24ef27bf0738f47b0fe69d6200543031ece62fa18767",
+      "b2n_resumed": false
+    },
+    "blockers": [
+      "V2 daily payload cap not yet observed reaching its enforcement threshold under real traffic",
+      "V2 hot-payload fallback not yet observed firing on real (non-test) data",
+      "compact retirement manifest designed but not yet built"
+    ],
+    "next_action": "AWAIT_EXTENDED_V2_OBSERVATION_WINDOW -- no code/config change required; periodically re-check V2 cap consumption and fallback status until either a real cap-triggered fallback or a multi-day sustained-rate characterization is observed, then re-run RA4-C5 to attempt READY_RA4_LEGACY_DB_DELETION_AUTHORIZATION_REVIEW"
+  },
+  "ra4_c5a_v2_production_cap_transition_observation": {
+    "milestone": "RA4-C5A",
+    "verdict": "HOLD_RA4_COMPACT_RETIREMENT_MANIFEST_REQUIRED",
+    "artifact": "docs/audits/ra4_c5a_v2_production_cap_transition_observation.json",
+    "artifact_sha256": "f00aa562da421309bc70f13f7c61336b584e6cadbdf3016514e9f50b231748aa",
+    "cap_bytes": 1073741824,
+    "cap_period_semantics": "NO calendar period exists -- self._payload_bytes is a plain in-process counter reset only by process restart (code-proven, not calendar-day bucketed as previously assumed)",
+    "consumed_bytes_at_transition": 1065138273,
+    "consumed_bytes_final_checkpoint": 1067641552,
+    "consumed_percent_final": 99.43,
+    "representation_counts_final": {
+      "full": 33587,
+      "hot": 2375,
+      "total_session_rows": 35962
+    },
+    "cap_status": "V2_PRODUCTION_CAP_REACHED = true",
+    "fallback_status": "V2_PRODUCTION_FALLBACK_VERIFIED = true",
+    "cap_accounting_classification": "CAP_ENFORCEMENT_PASS (no overshoot; cumulative full-payload bytes never exceeded cap)",
+    "restart_cap_persistence": "RESTART_CAP_PERSISTENCE_FALSE_BY_DESIGN (code-proven, no persistence mechanism exists)",
+    "replay_after_fallback_status": "PASS -- 5/5 genuine post-cap rows bounded-replay-verified, all artifact digests resolved with SHA-256 integrity",
+    "legacy_growth_arrest_status": "LEGACY_GROWTH_ARREST_REMAINS_VERIFIED (byte-identical across 11 checkpoints this milestone: 66155503616 bytes, mtime 1787077699, inode 487625267)",
+    "disk_state": {
+      "free_gib_start": 14,
+      "free_gib_transition": 13,
+      "free_gib_end": 12,
+      "floor_required_gib": 10,
+      "floor_met_throughout": true
+    },
+    "b2n_frozen_state_reconfirmed": {
+      "run_id": "b2n-p3e-98695fbdf44146c93ff08c8c",
+      "completed": 1,
+      "remaining": 19,
+      "attempt_ledger_sha256": "06ea55a8b21a30aec7b81f23737f921b1dcdf5bbe88266671600a25785fe9e0f",
+      "event_ledger_sha256": "f427610ccdae99b033d006fc0423170bcb6780a461c85c13d329c5fda8615071",
+      "live_result_sha256": "675e0bf23c99b70e24db24ef27bf0738f47b0fe69d6200543031ece62fa18767",
+      "digests_unchanged_this_milestone": true,
+      "b2n_resumed": false
+    },
+    "compact_manifest_status": "DESIGNED ONLY, NOT MATERIALIZED -- unchanged from RA4-C5; this is now the sole retirement blocker",
+    "disclosed_finding": "_observation_from_payload() helper does not correctly read hot-payload top-level acquisition_id/correlation_id/launch_mint fields (only checks nested metadata) -- minor gap, data itself is intact and correct in storage, not a retirement blocker, but should be fixed before that helper is relied on as a general replay path",
+    "blockers": [
+      "compact correlation/lineage retirement manifest (~0.54 GiB) designed but not materialized or verified"
+    ],
+    "next_action": "COMPACT_MANIFEST_MATERIALIZATION_REQUIRED -- build and independently verify the compact manifest as its own explicitly-scoped milestone (bounded, read-only against the legacy DB, writes one new ~0.54 GiB artifact). After that, re-attempt RA4-C5 closure toward READY_RA4_LEGACY_DB_DELETION_AUTHORIZATION_REVIEW."
+  },
+  "ra4_c5b_compact_manifest_materialization": {
+    "milestone": "RA4-C5B",
+    "verdict": "READY_RA4_LEGACY_DB_DELETION_AUTHORIZATION_REVIEW",
+    "materialization_artifact": "docs/audits/ra4_c5b_compact_retirement_manifest_materialization.json",
+    "materialization_artifact_sha256": "e1dbd5560d529ef5d0c08429f2e494b9fc98ef2b682e180c875e5071f1184ce5",
+    "successor_preflight_artifact": "docs/audits/ra4_c5_legacy_retained_acquisition_retirement_preflight_post_manifest.json",
+    "successor_preflight_artifact_sha256": "9cd0037fb4eacb0308ac17961da549f87ebfbb5c57b3b84ca2195e1d1a5777ee",
+    "compact_artifact_path": "database/evidence_platform/archive/retained_acquisition_legacy_compact.db",
+    "compact_artifact_sha256": "60a323261910b4c1847e3289c473bbc9eaf957a456332aba0962484683063bec",
+    "compact_artifact_size_bytes": 1776209920,
+    "materializer_script": "scripts/run_ra4_c5b_compact_manifest_materialization.py",
+    "focused_test_files": [
+      "tests/test_ra4_c5_legacy_retirement_qualification.py (5 tests)",
+      "tests/test_ra4_c5b_compact_manifest_materialization.py (7 tests)"
+    ],
+    "focused_test_result": "32/32 passed (combined RA4-C3/C5/C5B suite), zero regressions",
+    "accounting": {
+      "source_observations": 1938017,
+      "compact_observations": 1938017,
+      "source_distinct_mints": 6311,
+      "compact_distinct_mints": 6311,
+      "outcomes_retained": 1937940,
+      "gaps": 0,
+      "exact_match": true
+    },
+    "artifact_coverage": "10/10 combined samples (5 legacy in C5B + 5 in original C5) resolved with SHA-256 integrity",
+    "replay_without_legacy": "COMPACT_REPLAY_WITHOUT_LEGACY = PASS",
+    "reclaim": {
+      "legacy_db_gib": 61.61,
+      "compact_artifact_gib": 1.65,
+      "expected_reclaim_gib": 59.96,
+      "expected_reclaim_percent": 97.32,
+      "measured_not_estimated": true,
+      "note": "actual compact size (1.65 GiB) exceeded RA4-C5's original ~0.54 GiB design-time estimate due to richer lineage fields + 4 real indexes; reclaim % is still very high (97.32%) but reported as measured, not the earlier projection"
+    },
+    "hot_payload_helper_fix": {
+      "file": "src/acquisition/retained_observations.py",
+      "function": "_observation_from_payload()",
+      "fix": "backfill acquisition_id/correlation_id/launch from top-level hot-payload fields via setdefault(), additive-only, backwards compatible",
+      "tests_added": 2,
+      "blocking": false
+    },
+    "v2_health": {
+      "creator_funding_worker_pid": 33383,
+      "restarted_this_milestone": false,
+      "legacy_writer": "OFF",
+      "v2_writer": "ON",
+      "v2_row_count_latest": 53637,
+      "still_in_post_cap_fallback_state": true,
+      "evidence_loss_signals": "none"
+    },
+    "b2n_frozen_state_reconfirmed": {
+      "run_id": "b2n-p3e-98695fbdf44146c93ff08c8c",
+      "completed": 1,
+      "remaining": 19,
+      "attempt_ledger_sha256": "06ea55a8b21a30aec7b81f23737f921b1dcdf5bbe88266671600a25785fe9e0f",
+      "event_ledger_sha256": "f427610ccdae99b033d006fc0423170bcb6780a461c85c13d329c5fda8615071",
+      "live_result_sha256": "675e0bf23c99b70e24db24ef27bf0738f47b0fe69d6200543031ece62fa18767",
+      "digests_unchanged_this_milestone": true,
+      "b2n_resumed": false
+    },
+    "dependency_state": {
+      "legacy_active_writers": 0,
+      "legacy_active_readers": 0,
+      "b2n_dependency": "none",
+      "b2z_dependency": "none",
+      "watchtower_dependency": "none",
+      "canonical_operation_dependency": "none",
+      "h_series_dependency": "none"
+    },
+    "legacy_db_state": {
+      "path": "database/evidence_platform/production/retained_acquisition.db",
+      "status": "HISTORICAL_READ_ONLY, byte-identical throughout (66155503616 bytes, mtime 1787077699, inode 487625267)",
+      "deleted_vacuumed_or_mutated_this_milestone": false
+    },
+    "blockers": [],
+    "next_action": "AWAIT_EXPLICIT_RA4_LEGACY_DB_DELETION_GO_NO_GO -- present the GO/NO-GO summary to a human and wait for explicit authorization before any deletion of database/evidence_platform/production/retained_acquisition.db"
+  },
+  "ra4_c6_legacy_db_deletion": {
+    "milestone": "RA4-C6",
+    "verdict": "RA4_LEGACY_DB_DELETION_COMPLETE",
+    "artifact": "docs/audits/ra4_c6_legacy_db_deletion_execution.json",
+    "artifact_sha256": "41e59947921c0da3efad9421a3bbac6a4490d0d50f17fd378b2c956260b3e42e",
+    "authorization": "explicit human GO with 12-point just-in-time revalidation requirement",
+    "files_deleted": [
+      "database/evidence_platform/production/retained_acquisition.db (66155503616 bytes)",
+      "database/evidence_platform/production/retained_acquisition.db-wal (0 bytes, empty)",
+      "database/evidence_platform/production/retained_acquisition.db-shm (32768 bytes, standard header)"
+    ],
+    "compact_retirement_index": {
+      "path": "database/evidence_platform/archive/retained_acquisition_legacy_compact.db",
+      "sha256": "60a323261910b4c1847e3289c473bbc9eaf957a456332aba0962484683063bec",
+      "row_count": 1938017,
+      "distinct_mints": 6311,
+      "intact_post_deletion": true
+    },
+    "disk_reclaim": {
+      "avail_gib_before": 12,
+      "avail_gib_after": 74,
+      "reclaimed_gib": 61.86
+    },
+    "v2_post_deletion": {
+      "pid": 33383,
+      "restarted": false,
+      "row_count_post": 72513,
+      "still_writing": true
+    },
+    "b2n_post_deletion": {
+      "run_id": "b2n-p3e-98695fbdf44146c93ff08c8c",
+      "completed": 1,
+      "remaining": 19,
+      "digests_unchanged": true,
+      "resumed": false
+    },
+    "next_action": "RA4 storage retirement problem is CLOSED. B2N may now resume at ordinal 2 of 20 under a separate, explicitly authorized continuation milestone -- not performed in this milestone."
+  },
+  "b2n_p3i_ordinal2_live_continuation": {
+    "milestone": "B2N-P3I",
+    "verdict": "B2N_ORDINAL_2_LIVE_CONTINUATION_PASS",
+    "artifact": "docs/audits/b2n_p3i_ordinal2_live_continuation_result.json",
+    "artifact_sha256": "b856192eda3b11d6151757a04e7d139416e7357b1fe4216fff086f9be60304fc",
+    "run_id": "b2n-p3e-98695fbdf44146c93ff08c8c",
+    "completed_ordinals": [
+      1,
+      2
+    ],
+    "completed_count": 2,
+    "remaining_ordinals": "3..20",
+    "remaining_count": 18,
+    "physical_requests_consumed": 2,
+    "remaining_budget": 18,
+    "next_ordinal": 3,
+    "ordinal_2_result": {
+      "mint": "3hgXvsR8Xh6hnoKyFbPnrMVEkrKGPVbH6EJQkzoNpump",
+      "provider_signature": "2aP6mCzC2aoaMn7SZfV4jvYUNeCgoyrsM96iGCThjS6U9if92fZjaxPcMyUh1hdMBR1had8EdD2d9stvw389FkVP",
+      "provider_slot": 438884664,
+      "request_outcome": "SUCCESS",
+      "provenance_complete": true,
+      "no_creator_funding_evidence_acquired": true
+    },
+    "ordinal_1_unchanged": true,
+    "ordinal_3_plus_untouched": true,
+    "live_artifact_current_digests": {
+      "attempt_ledger_sha256": "computed post-execution, changed as EXPECTED/AUTHORIZED result of the append-only continuation step -- see b2n_p3i artifact for details",
+      "note": "digests are no longer the RA4-era frozen values; they now include the ordinal-2 append. This is correct, not drift."
+    },
+    "storage_v2_health_post_execution": {
+      "legacy_db_recreated": false,
+      "creator_funding_worker_pid": 33383,
+      "creator_funding_worker_restarted": false,
+      "disk_free_gib": 74,
+      "compact_index_intact": true
+    },
+    "b2n_purpose_reminder": "BOUNDED_MIGRATION_LINEAGE_QUALIFICATION -- NO_CREATOR_FUNDING_EVIDENCE_ACQUIRED_IN_B2N (creator-funding belongs to future B2Z stage, not executed)",
+    "next_action": "STOP after ordinal 2 per explicit instruction. Await separate human decision on whether to authorize a controlled sequential completion of ordinals 3-20, or continue requiring per-member GO. No ordinal 3 execution without further authorization."
+  },
+  "ra4_status_unchanged_note": "RA4 storage retirement remains CLOSED (RA4-C3 through C6) -- not reopened by B2N-P3I. V2 cap is process-lifetime (resets only on restart, which did not occur here) -- known engineering debt, recorded, not addressed this milestone.",
+  "b2n_p3j_bounded_migration_lineage_completion": {
+    "milestone": "B2N-P3J",
+    "verdict": "B2N_BOUNDED_MIGRATION_LINEAGE_QUALIFIED",
+    "artifact": "docs/audits/b2n_p3j_bounded_migration_lineage_completion.json",
+    "artifact_sha256": "e7623e6070c3e5f7a94fb39988ddd6f21bc77f28f42ef9c8cfe454d5ce67ad54",
+    "run_id": "b2n-p3e-98695fbdf44146c93ff08c8c",
+    "completed_ordinals": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+    ],
+    "completed_count": 20,
+    "remaining_count": 0,
+    "physical_requests_consumed": 20,
+    "remaining_budget": 0,
+    "all_outcomes": "SUCCESS (20/20)",
+    "no_creator_funding_evidence_acquired": true,
+    "ledger_reconciliation": "20 unique ordinals 1-20, no gaps/duplicates, 20 reservations, 20 terminal events (all ATTEMPT_SUCCEEDED), single consistent run_id, zero unexplained events",
+    "existing_operation_safety": "EXISTING_OPERATION_SEMANTICS_UNCHANGED",
+    "storage_ra4_status_at_close": {
+      "legacy_db_recreated": false,
+      "creator_funding_worker_pid": 33383,
+      "creator_funding_worker_restarted": false,
+      "disk_free_gib": 74,
+      "compact_index_intact": true
+    },
+    "execution_note": "executed via 2 manual shell invocations (ordinal 3 standalone after a zsh 'status' variable naming bug halted the first loop attempt; ordinals 4-20 via a corrected loop) -- disclosed for transparency; the error was in the wrapper script only, ledger integrity was independently verified clean at both checkpoints",
+    "next_action": "B2N is CLOSED. Next milestone is B2Z creator-funding qualification preflight -- NOT executed, requires separate explicit human authorization before any B2Z work begins."
+  },
+  "b2z_p0_creator_funding_qualification_preflight": {
+    "milestone": "B2Z-P0",
+    "verdict": "READY_B2Z_BOUNDED_PROVIDER_AUTHORIZATION_REVIEW",
+    "preflight_artifact": "docs/audits/b2z_p0_creator_funding_qualification_preflight.json",
+    "preflight_artifact_sha256": "9857b46fbb3a20e02fc35c5188a1fddbbc3b703422b20c1c82cfdb5e1dc1a38b",
+    "coverage_matrix_artifact": "docs/audits/b2z_p0_local_evidence_coverage_matrix.json",
+    "coverage_matrix_artifact_sha256": "eb89b3dcca2b247433912eb56e7c96d04716ac2527d58c71015fac47702a29ae",
+    "b2n_closure_binding": {
+      "run_id": "b2n-p3e-98695fbdf44146c93ff08c8c",
+      "closure_artifact": "docs/audits/b2n_p3j_bounded_migration_lineage_completion.json",
+      "closure_verdict": "B2N_BOUNDED_MIGRATION_LINEAGE_QUALIFIED"
+    },
+    "cohort": {
+      "count": 20,
+      "source": "same B2N-qualified frozen manifest (digest 82bbda32...eedc), matches existing B2Z frozen projection exactly"
+    },
+    "b2n_input_reuse_result": "B2N_OUTPUT_NOT_SUFFICIENT -- B2N discarded raw getTransaction content, only the migration_signature<->mint BINDING is reusable (via the existing b2z_frozen_projection.json), not the transaction body itself",
+    "local_evidence_coverage": "0/20 members have provider-independent, on-chain-verified creator-funding evidence locally. token_analysis.pf_ws_creator gives a candidate (unverified) creator hint for all 20; creator_funders has funder/amount summaries but no transaction_signature column; creator_inbound_transfers has the signature column but zero rows for this cohort.",
+    "provider_stages_required": {
+      "members_needing_3_calls": 20,
+      "members_needing_fewer": 0,
+      "total_budget_required": 60,
+      "matches_existing_max_requests_constant": true
+    },
+    "ledger_state": "B2Z has never executed live (0 provider requests recorded in prior preflight docs/evidence_platform/oip_v2_2e_2b2bq_b2z_run_preflight.json). No new run_id has been minted this milestone -- authorization design only.",
+    "production_authority": {
+      "production_db_read": false,
+      "production_db_write": false
+    },
+    "operation_safety": "CANDIDATE_EVIDENCE_ONLY -- zero Watchtower/three_sw2/canonical-operation coupling in b2z_execution_boundary.py",
+    "storage_impact": "well under 1 MB total (ledger + result artifacts); B2Z as currently coded does not persist raw provider response bytes anywhere (same gap pattern as B2N)",
+    "identified_gaps": [
+      "B2ZRunner has no resume/continuation mechanism -- all-or-nothing across 20 members/60 requests",
+      "No pre-dispatch durable reservation before each network call",
+      "Candidate-funding-signature selection is unsophisticated (picks most-recent-before-migration unconditionally, no self-funding/distribution-hub exclusion) -- 4 of 20 members (ordinals 8, 11, 15, 19) show wide local funder fan-out patterns warranting extra scrutiny of live results"
+    ],
+    "blockers": [],
+    "next_action": "Present GO/NO-GO to human for B2Z execution approach: (a) execute existing all-or-nothing B2ZRunner as-is for a single session, accepting the resume-gap risk, or (b) invest in a resume-capable extension first. No provider calls made, no live B2Z execution performed this milestone."
+  },
+  "b2z_p1_durable_resumable_execution_preflight": {
+    "milestone": "B2Z-P1",
+    "verdict": "READY_B2Z_DURABLE_BOUNDED_EXECUTION_AUTHORIZATION_REVIEW",
+    "preflight_artifact": "docs/audits/b2z_p1_durable_resumable_execution_preflight.json",
+    "preflight_artifact_sha256": "544533a2a7d78600ef7a97a0e71e69156f8d42ba98f528ce20911a03d2192c1b",
+    "mock_reconciliation_artifact": "docs/audits/b2z_p1_mock_execution_reconciliation.json",
+    "mock_reconciliation_artifact_sha256": "4cd16ee56e34b37a9cf76872a555dfa44fcdb699319766a460e1f637da82d08c",
+    "new_code_module": "src/acquisition/b2z_durable_execution.py",
+    "new_code_module_sha256": "151ec9dafae8c20cbffa4cbad416bb7f80cf339286a16685a084116b51e400ad",
+    "new_test_file": "tests/test_b2z_p1_durable_execution.py",
+    "new_test_file_sha256": "90365656d90958a2af14344510f3e27c3e44540f984eb2686161f8b53dca0df7",
+    "existing_b2zrunner_unmodified": true,
+    "existing_b2z_b2n_suite_regression_check": "60/60 pre-existing tests still passing",
+    "new_test_result": "26/26 passed",
+    "b2z_run_id": "b2z-p1-44d6798563468c8aff747446",
+    "b2z_run_id_distinct_from_b2n": true,
+    "authorization_digest": "b13fa0ad7b8146cafb60098c43203e1359bf73cd4f89c0e033c0843542a7b6eb",
+    "authorization_bound_to_real_committed_manifest_projection": true,
+    "budget": {
+      "max_total_requests": 60,
+      "max_requests_per_member": 3,
+      "max_requests_per_stage": 1,
+      "retries": 0,
+      "pagination_budget": 0,
+      "fallback_budget": 0
+    },
+    "ledger_paths_designed_not_yet_created": {
+      "event_ledger": "docs/audits/b2z_p1_event_ledger_b2z-p1-44d6798563468c8aff747446.jsonl",
+      "stage_output_ledger": "docs/audits/b2z_p1_stage_outputs_b2z-p1-44d6798563468c8aff747446.json",
+      "final_result": "docs/audits/b2z_p1_live_result_b2z-p1-44d6798563468c8aff747446.json"
+    },
+    "resume_capability": "FULLY QUALIFIED via mocked tests -- resume from interruption at any of member 1-3 stage 1/2/3 boundaries proven, dependency order enforced, duplicate-stage prevention proven, budget-exhaustion guard proven",
+    "pre_dispatch_durability": "FULLY QUALIFIED -- ATTEMPT_RESERVED written before every network call, terminal event always follows, pre-dispatch exceptions correctly excluded from budget, post-dispatch exceptions correctly included",
+    "no_candidate_semantics": "NO_EVIDENCE_NO_CANDIDATE terminal state, exactly 2 requests consumed (not 3), no stage-3 dispatch attempted",
+    "multiple_candidate_semantics": "unchanged from existing B2ZRunner contract -- most-recent qualifying pre-migration signature, no extra disambiguation calls",
+    "fan_out_review_flag": {
+      "ordinals": [
+        8,
+        11,
+        15,
+        19
+      ],
+      "flag_value": "FUNDING_SOURCE_REQUIRES_DOWNSTREAM_REVIEW",
+      "changes_acquisition_behavior": false
+    },
+    "operation_safety": "CANDIDATE_EVIDENCE_ONLY, zero Watchtower/three_sw2/operation coupling",
+    "production_authority": {
+      "production_db_read": false,
+      "production_db_write": false
+    },
+    "storage_impact": "well under 200KB for full 20-member run; no raw provider response bytes persisted",
+    "ra4_v2_status_unaffected": true,
+    "zero_provider_calls_made": true,
+    "blockers": [],
+    "next_action": "Present GO/NO-GO to human for LIVE B2Z execution using the new durable/resumable path. No live execution performed this milestone."
+  },
+  "b2z_p1_5_exhaustive_local_evidence_reconciliation": {
+    "milestone": "B2Z-P1.5",
+    "verdict": "B2Z_LOCAL_EVIDENCE_EXHAUSTIVELY_CONFIRMED_INSUFFICIENT",
+    "artifact": "docs/audits/b2z_p1_5_exhaustive_local_evidence_reconciliation.json",
+    "artifact_sha256": "a14012748ebed4002e73cb105dbac2fab7364bbd903cf746fdb194c1f7184033",
+    "method": "programmatically enumerated all 278 tables in flex_complete_database.db, checked every table with a mint or creator/signature-shaped column against the 20 members, inspected actual row content (not just presence), also checked the cold archive (flex_investigation_archive.db) and did a full non-sampled scan of the V2 production retention store",
+    "result": "confirms (not merely repeats) P0's finding -- 0/20 members have local, signature-bound, on-chain-verified evidence for migration content, creator identity, or funding transaction",
+    "recalculated_budget": {
+      "total_required": 60,
+      "change_from_p0": "none",
+      "members_needing_3_calls": 20,
+      "members_needing_fewer": 0
+    },
+    "new_findings": [
+      "3 members (ordinals 11, 15, 18) have creator_funding_queue status='failed' after 5 automated extraction attempts -- independent corroboration these are genuinely hard cases",
+      "ordinal 18 is a NEW review-flag candidate not previously surfaced by the funder-fan-out heuristic alone -- recommend extending FAN_OUT_REVIEW_ORDINALS from {8,11,15,19} to {8,11,15,18,19}",
+      "ordinals 3 and 16 share the same candidate creator (confirmed genuine serial-creator pattern, not a query artifact)",
+      "V2 retention store fully scanned (not sampled) for all 20 migration signatures -- zero matches, confirms no incidental re-acquisition since RA4 cutover"
+    ],
+    "code_changed_this_milestone": false,
+    "provider_calls_made": 0,
+    "b2z_durable_resumable_path": "unchanged, still the qualified execution mechanism for whenever live execution is authorized",
+    "next_action": "Present updated GO/NO-GO to human for live B2Z execution (still 60 requests required, now with independent confirmation and a recommended fan-out-review-set update). No live execution performed this milestone."
+  },
+  "b2z_p1_6_historical_lineage_reconstruction": {
+    "milestone": "B2Z-P1.6",
+    "verdict": "B2Z_PARTIAL_HISTORICAL_EVIDENCE_REUSE_QUALIFIED",
+    "artifact": "docs/audits/b2z_p1_6_historical_creator_funding_data_lineage_reconstruction.json",
+    "artifact_sha256": "393bcd0bdac973b60a33e21e628076626743ad9d12291e4204073f279efdcdb5",
+    "method": "traced the ACTUAL production creator-funding pipeline (pumpfun_curve_listener.py + realtime_creator_funding_extractor.py) backwards from application to raw acquisition, rather than repeating a table search",
+    "key_discovery": "transfer_index table (signature, source, destination, amount_lamports, block_time, slot) -- populated via Helius ENHANCED API (not raw getTransaction/getSignaturesForAddress), missed by P1.5's search because it has no creator_address/mint column. Provides SIGNATURE_BOUND_EVIDENCE for 19/20 creators.",
+    "critical_caveat_1": "creator resolution in production uses the CREATE transaction (pf_ws_creator), NOT the migration transaction B2Z requires -- structurally different method, cannot substitute for B2Z Stage 1 (MIGRATION_TX) for any member",
+    "critical_caveat_2": "transfer_index data is Enhanced-API-normalized, not raw jsonParsed instruction content -- cannot substitute for B2Z Stage 3 (FUNDING_TX)'s exact validation for any member, since raw transaction bytes were never persisted",
+    "stage_reuse_result": {
+      "stage_1_migration_tx": "NOT reusable for any of 20 members",
+      "stage_2_creator_history": "reusable for 10/20 members (ordinals 1,2,4,7,10,12,13,14,17,20) -- low creator tx volume + small temporal gap + no documented extraction failure",
+      "stage_3_funding_tx": "NOT reusable for any of 20 members, but becomes a TARGETED call (known signature) for the 10 stage-2-reusable members"
+    },
+    "revised_provider_budget": {
+      "members_needing_2_calls": 10,
+      "members_needing_3_calls": 10,
+      "total": 50,
+      "original": 60,
+      "reduction": 10
+    },
+    "historical_failure_root_cause": "ordinals 11, 15, 18 (creator_funding_queue.status='failed', attempts=5) all failed identically: 90-second creator_funding_worker TIMEOUT during Helius Enhanced API pagination -- not a provider/transport/creator-resolution/no-candidate failure. Directly confirms these 3 have genuinely incomplete local coverage.",
+    "fan_out_context": "none of ordinals 8/11/15/18/19 classified as CEX; 11 and 15 show bot/automated-trading pattern tags (uses_axiom, uses_jitotip_other) -- context only, not used to reject evidence",
+    "b2z_p1_durable_runner_status": "unmodified, still fully qualified -- 60-request ceiling remains the safety maximum; a future execution would be authorization-narrowed to the proven 50-request requirement",
+    "provider_calls_made": 0,
+    "production_data_modified": false,
+    "code_changed": false,
+    "next_action": "Present updated GO/NO-GO to human: is 50 (not 60) requests now acceptable to authorize, using the qualified B2Z-P1 durable/resumable runner, skipping Stage 2 only for the 10 high-confidence members? No live execution performed this milestone."
+  },
+  "b2z_p1_7_1hop_2hop_reconciliation": {
+    "milestone": "B2Z-P1.7",
+    "verdict": "READY_B2Z_DIRECT_FUNDING_EXECUTION_WITH_SEPARATE_2H_SUCCESSOR",
+    "artifact": "docs/audits/b2z_p1_7_historical_one_hop_two_hop_funding_reconciliation.json",
+    "artifact_sha256": "4b647c2df1d777940c88067359f85224d6ab8820aab40f5111bf69f6de6eece4",
+    "existing_2hop_system_found": "SecondHopExpansionBuilder (src/core/second_hop_builder.py), feature-flag ENABLED in production, joins transfer_index relationally (destination=known direct funder -> source=upstream), volume-gated (2-50 qualifying funders), writes funder_upstream_links/upstream_network_bridge/creator_second_hop -- 19,769 / 463 rows in production but essentially NOT covering this 20-member cohort yet",
+    "raw_relational_search_result": {
+      "candidates_found": 9,
+      "self_loop_false_positives_caught": 3,
+      "genuine_usable_candidates": 5,
+      "candidate_quality": "mostly weak -- 3 of 5 are 1-lamport dust-level transfers, 1 moderate (ordinal 12, 12.39 SOL), 1 intermediate (ordinal 9)"
+    },
+    "shared_upstream_candidate": "ordinals 3, 4, 16 share identical direct funder AND identical (weak) upstream source -- recorded as CANDIDATE_SHARED_FUNDING_EVIDENCE only, not operation attribution",
+    "b2z_scope_determination": "B2Z remains DIRECT-ONLY (funder->creator), confirmed directly from its own governing contract (B2N-P3B) and code -- 2-hop is NOT part of B2Z's existing contract",
+    "proposed_successor": "B2Z-2H -- upstream funding qualification (proposed name only, not built, not authorized)",
+    "direct_b2z_provider_requirement_unchanged": {
+      "total": 50,
+      "stage_1": 20,
+      "stage_2": 10,
+      "stage_3": 20
+    },
+    "future_2h_estimate_explicitly_unauthorized": "~35 requests, kept entirely separate from the direct 50, not combined in any budget",
+    "operation_safety": "confirmed intact in both B2Z-P1 and the existing production second-hop system -- zero Watchtower/operation/three_sw2 references in either",
+    "provider_calls_made": 0,
+    "production_data_modified": false,
+    "code_changed": false,
+    "next_action": "Present updated summary to human: direct B2Z remains 50 requests (unchanged), 2-hop is confirmed a separate future milestone with only weak/partial local evidence (5/20 members, mostly low-confidence). Await GO/NO-GO for direct B2Z execution specifically -- 2-hop execution is not being requested."
+  },
+  "b2z_p1_8_evidence_standard_rpc_scaling": {
+    "milestone": "B2Z-P1.8",
+    "verdict": "READY_LOCAL_OPERATION_DISCOVERY_WITH_SELECTIVE_RPC_VERIFICATION",
+    "artifact": "docs/audits/b2z_p1_8_operation_discovery_evidence_standard_rpc_scaling_reconciliation.json",
+    "artifact_sha256": "a7ae8e603ca2f642700d5d9bd55340e114ce5cb12bfebdbc62f7903ecf36b17d",
+    "watchtower_evidence_model": "legacy production Watchtower (traced via a real 2026-06-02 investigation doc) used LOCAL normalized multi-hop transfer analysis + human investigative review, NOT raw-RPC-first. A newer, stricter shadow contract (EP3.1) requires proven primitives but explicitly tolerates 22.7% Missing Evidence without blocking.",
+    "three_sw2_evidence_model": "stricter than Watchtower (requires proven SYSTEM_TRANSFER + LAUNCH_SIGNER for every materialized edge) but uses a CACHE-FIRST acquisition (16 RPC calls for 13 launches, not 39) against a dedicated 1.4GB raw-transaction cache (database/transaction_first_lineage.db) -- RPC spent only on genuinely missing signatures",
+    "key_discovery": "database/transaction_first_lineage.db -- tf_transaction_cache (22,025 rows, 21,994 rpc_verified), tf_launches (1,596,895 rows, only 3,560 with reconstructed evidence, 1,529,992 explicitly RPC_PENDING_BUDGET), tf_edges (14,062 rows, ALL rpc_verified, up to 8 hops deep)",
+    "provider_free_discovery_already_proven": "EP4.0/EP4.1 MotifCanonicalizer already processed 14,203 real discovery candidates into 1,379 motifs with ZERO RPC calls -- validated and documented, not hypothetical",
+    "true_historical_scale_measured": {
+      "token_analysis_rows": 1893864,
+      "pf_ws_creator_resolved": 1852564,
+      "transfer_index_rows": 4964041,
+      "funder_upstream_links_rows": 19769
+    },
+    "model_a_blind_reverification": "~5.68 million provider requests -- confirmed infeasible, larger than the milestone's own worst-case estimate",
+    "model_b_selective_verification": "orders of magnitude smaller (illustrative 2,000-30,000 range for a meaningful audit sample), scoped to ambiguous/missing/high-value relationships only",
+    "20_member_b2z_role_redetermined": "CALIBRATE_LOCAL_EVIDENCE_ACCURACY, not discover-from-scratch -- local evidence already exists for 19/20 members; the run's value is measuring local-vs-raw agreement rates to calibrate selective-verification thresholds",
+    "2hop_sequencing": "local direct -> local 2-hop -> candidate operation -> selective raw verification -- 2-hop discovery does not require raw-verified direct edges as input (SecondHopExpansionBuilder operates on Level-A local data)",
+    "b2z_p1_runner_status": "unmodified, future role as the selective evidence-upgrade executor",
+    "operation_safety": "confirmed intact across every evidence surface examined -- Watchtower, three_sw2, EP3, EP4 all remain candidate-only / non-authoritative by design",
+    "provider_calls_made": 0,
+    "production_data_modified": false,
+    "code_changed": false,
+    "next_action": "Present findings to human: recommend treating the 20-member B2Z run as a calibration exercise (still not executed), and separately decide whether/when to authorize a real selective-verification architecture at wider scale. No live execution performed this milestone."
+  },
+  "b2z_p2_calibration": {
+    "milestone": "B2Z-P2",
+    "phase": "B_HELD_AFTER_1_REQUEST",
+    "verdict": "HOLD_B2Z_P2_CALIBRATION_FAILURE",
+    "prediction_freeze_artifact": "docs/audits/b2z_p2_local_prediction_freeze.json",
+    "prediction_freeze_digest": "e403f46f5ebe08332bfeae9089f341b9b1e49d70f737cbd7e386f2fa62de19b3",
+    "prediction_freeze_predictions_digest": "11357ddcc73ae45d947a3412ef3255952cc491969ae3005b2b81daaef8d487cc",
+    "execution_plan_authorization_artifact": "docs/audits/b2z_p2_execution_plan_and_authorization.json",
+    "execution_plan_authorization_artifact_digest": "40fd882afeea60e05feda81f9b7e3d499e3b55d81f5ea407f8cedb3e082198c6",
+    "plan_digest": "646758c961e97f52b87082810bfb43da8b2571cecec66829ebf429c488ef38d0",
+    "authorization_digest": "6e457e9cdf39c49b41bda0ef8cac390cf71e2320d5dda74a0b5b5656a1686550",
+    "run_id": "b2z-p1-44d6798563468c8aff747446 (reused from qualified P1)",
+    "plan_totals": {
+      "MIGRATION_TX": 20,
+      "CREATOR_HISTORY": 10,
+      "FUNDING_TX": 20,
+      "TOTAL": 50
+    },
+    "authorization_max_total_requests": 50,
+    "runner_hard_ceiling_unchanged": 60,
+    "code_additions": {
+      "module": "src/acquisition/b2z_durable_execution.py (extended, not replaced -- LOCAL_PREDICTION_SEEDED event type + seed_frozen_stage() + seed_frozen_creator_history_from_local_prediction())",
+      "module_sha256": "fdf8ce6ffab652da3d2005da9cd3fdcd83918888d42d914be410d430bd827dc9",
+      "driver_script": "scripts/run_b2z_p2_calibration.py",
+      "driver_script_sha256": "108f3b4dabb554a8eb40ef73f036ff105a22181e47ab6a2841a8c88eef47da40",
+      "test_file": "tests/test_b2z_p2_calibration.py",
+      "test_file_sha256": "2c354edf5021573a76d6bfada9859197a39711c79221162d8ec235b9040009bd",
+      "test_result": "9/9 passed, 95/95 combined suite passed, zero regressions"
+    },
+    "anti_circularity_verified": "seeded stages never count toward physical budget; frozen signatures used verbatim in Stage 3; disagreements raise rather than silently correct; prediction corpus never written by execution code",
+    "credential_status": "B2Z_P2_HELIUS_ENDPOINT not present in this session",
+    "manual_command_provided": true,
+    "storage_ra4_status": {
+      "legacy_db_recreated": false,
+      "creator_funding_worker_pid": 33383,
+      "restarted": false,
+      "disk_free_gib": 70
+    },
+    "operation_safety": "EXISTING_OPERATION_SEMANTICS_UNCHANGED",
+    "blockers": [],
+    "next_action": "Present recovery options to human: (A) accept 19-member calibration sample continuing same ledger/run_id, marking ordinal 1 EXCLUDED, or (B) authorize a genuinely fresh recovery ledger under separate authorization. No option selected or executed yet. Root cause (stray terminal escape sequence in credential paste) should be avoided on retry by pasting more carefully.",
+    "failure_record_artifact": "docs/audits/b2z_p2_calibration_failure_invocation1.json",
+    "failure_record_artifact_sha256": "d8552296012c0035d11857623d1aac8f7138b47f175db7a03313d2d98614c916",
+    "event_ledger_path": "docs/audits/b2z_p1_event_ledger_b2z-p1-44d6798563468c8aff747446.jsonl",
+    "event_ledger_sha256": "39ce0dca5afe9a3ee2964356540d8c19448142eda47dcbcfcceca37da597fad4",
+    "physical_requests_consumed": 1,
+    "physical_requests_remaining": 49,
+    "ordinal_1_status": "PERMANENTLY_BLOCKED under current event ledger (failed MIGRATION_TX, no retry performed)"
+  },
+  "overnight_session_summary": {
+    "roadmap_artifact": "docs/audits/overnight_b2z_operation_discovery_roadmap_reconciliation.json",
+    "roadmap_artifact_sha256": "1ea41c43bf13fcb6cad38a0aec7a5c94b393369aa21f29200247cde225289cda",
+    "decision_queue_artifact": "docs/audits/overnight_human_decision_queue.json",
+    "decision_queue_artifact_sha256": "b4da749dd74f668c373d09638d11268b963ac110a5743ab25c5a6c01e72cd3a8",
+    "workstreams_completed": 12,
+    "provider_calls_made": 0,
+    "production_mutations": 0,
+    "new_tests_added": 59,
+    "test_suite_status": "85/85 passing (relevant B2Z modules), zero regressions",
+    "commits_made": 6,
+    "key_finding": "cross-validated P1.7's shared-funder discovery (5tzFkiKscXHK5ZXC..., cohort ordinals 3/4/16) against an independent production discovery system: same address roots a 56-launch/56-creator family -- two structurally independent methods converged on the same address",
+    "b2n_data_committed": "B2N-P3I/P3J live completion (20/20 SUCCESS) was found uncommitted in the working tree and committed this session with digest verification against the qualified closure artifact",
+    "ra4_v2_b2n_health": "confirmed healthy at every checkpoint throughout -- legacy DB absent, worker PID unchanged, disk stable ~72GiB free",
+    "decisions_pending_human": 5,
+    "decisions_summary": "D1 (resume P2 credential), D2 (recalibrate P3 thresholds after P2), D3 (investigate 2-hop dust discrepancy), D4 (EP6 proposal contract scheduling), D5 (V2 persistent-budget implementation authorization) -- see decision queue artifact for full detail"
   }
 }

@@ -1,0 +1,86 @@
+{
+  "schema_version": "overnight.roadmap-reconciliation.v1",
+  "artifact_type": "OVERNIGHT_B2Z_OPERATION_DISCOVERY_ROADMAP_RECONCILIATION",
+  "milestone": "B2Z overnight workstream 12",
+  "generated_utc": "2026-08-19T05:20:00Z",
+  "session_summary": "Autonomous overnight continuation. Live P2 execution remained frozen at the manual-resume gate the entire session (credential never became available). All 12 provider-free workstreams completed. Zero provider calls made. Zero production mutations. RA4/V2/B2N confirmed healthy at every checkpoint.",
+
+  "completed_milestones_confirmed_unchanged": {
+    "RA4": "COMPLETE, legacy DB RETIRED_AND_DELETED, compact index (1,938,017 rows) intact, V2 bounded retention ACTIVE",
+    "B2N": "B2N_BOUNDED_MIGRATION_LINEAGE_QUALIFIED, 20/20 SUCCESS, CLOSED -- live-execution artifacts committed to git this session (were previously uncommitted working-tree state)",
+    "B2Z-P1": "durable/resumable execution boundary QUALIFIED, unmodified except the additive LOCAL_PREDICTION_SEEDED extension built for P2 calibration",
+    "B2Z-P1.6_P1.7_P1.8": "unchanged, all findings reconfirmed and cross-validated further this session (see candidate_family_analysis)"
+  },
+
+  "p2_current_state": {
+    "verdict": "READY_B2Z_P2_19_MEMBER_MANUAL_RESUME_GATE (frozen overnight, unchanged)",
+    "credential_b2z_p2_helius_endpoint": "not present at any point during the overnight session",
+    "ordinal_1_status": "EXECUTION_EXCLUDED, reason CREDENTIAL_INPUT_CORRUPTION, per explicit human decision (OPTION_A)",
+    "physical_requests_consumed": 1,
+    "physical_requests_remaining_authorized": 49,
+    "calibration_denominator_when_resumed": "19 eligible + 1 execution-excluded = 20 total cohort, but metrics computed over 19",
+    "event_ledger_path": "docs/audits/b2z_p1_event_ledger_b2z-p1-44d6798563468c8aff747446.jsonl",
+    "event_ledger_sha256": "39ce0dca5afe9a3ee2964356540d8c19448142eda47dcbcfcceca37da597fad4",
+    "no_action_taken_overnight": "confirmed -- no retry, no ledger modification, no new authorization created"
+  },
+
+  "overnight_workstreams_completed": [
+    {"workstream": 1, "name": "P2 Analysis Engine", "artifact": "src/acquisition/b2z_calibration_comparison.py + tests/test_b2z_calibration_comparison.py", "result": "20/20 tests passing, ready to consume real raw results once P2 resumes"},
+    {"workstream": 2, "name": "Selective RPC Policy (B2Z-P3)", "artifact": "docs/audits/overnight_b2z_p3_selective_rpc_policy.json", "result": "5-category boolean-criteria policy defined, calibration-dependent thresholds explicitly left unresolved"},
+    {"workstream": 3, "name": "Historical Coverage Profile", "artifact": "docs/audits/overnight_historical_coverage_profile.json", "result": "10 populations measured with explicit numerator/denominator, including a newly-confirmed real gap (creator_inbound_transfers = 0 rows at full scale)"},
+    {"workstream": 4, "name": "2-Hop Coverage Quality", "artifact": "docs/audits/overnight_2hop_coverage_quality.json", "result": "19,769 rows measured; disclosed an UNRESOLVED discrepancy (172 sub-threshold bridges) rather than rationalizing it"},
+    {"workstream": 5, "name": "B2Z-2H Contract", "artifact": "docs/audits/overnight_b2z_2h_upstream_funding_contract.json", "result": "non-executable contract with explicit rejection rules, backed by real measured evidence"},
+    {"workstream": 6, "name": "Operation Discovery Preparation", "artifact": "docs/audits/overnight_operation_discovery_preparation.json", "result": "traced EP3-EP5.2 as already-built and validated at 14,203-candidate scale; identified the honest EP6 gap (no proposal/review contract exists yet)"},
+    {"workstream": 7, "name": "Candidate Funding Family Analysis", "artifact": "docs/audits/overnight_candidate_funding_family_analysis.json", "result": "cross-validated P1.7's shared-funder finding against an independent discovery system -- same address (5tzFkiKscXHK5ZXC...) roots a 56-launch family, found by two structurally independent methods"},
+    {"workstream": 8, "name": "Raw Transaction Cache", "artifact": "src/acquisition/tf_cache_lookup.py + tests/test_tf_cache_lookup.py", "result": "read-only adapter, tested against real production cache with zero write risk proven structurally"},
+    {"workstream": 9, "name": "RPC Savings Model", "artifact": "docs/audits/overnight_rpc_savings_models.json", "result": "Model A (~5.68M, infeasible) vs Model B (63K-190K, measured range with disclosed uncertainty) vs Model C (illustrative, explicitly not scale-accurate)"},
+    {"workstream": 10, "name": "V2 Persistent Budget Design", "artifact": "docs/audits/overnight_v2_persistent_payload_budget_design.json", "result": "two design options, recommendation given, zero activation"},
+    {"workstream": 11, "name": "Edge Case Contracts", "artifact": "src/acquisition/funding_evidence_classifier.py + tests/test_funding_evidence_classifier.py", "result": "21/21 tests, cross-validated against 3 real cohort members' known-correct classifications"},
+    {"workstream": 12, "name": "Roadmap Reconciliation", "artifact": "this document", "result": "complete"}
+  ],
+
+  "test_suite_summary": {
+    "new_tests_added_this_session": "26 (P1) unchanged + 9 (P2 calibration) + 20 (comparison engine) + 9 (cache lookup) + 21 (evidence classifier) = 59 new/extended tests across this overnight session's new modules",
+    "total_relevant_suite_passing": "85/85 confirmed passing at last checkpoint (test_b2z_p1_durable_execution.py, test_b2z_p2_calibration.py, test_b2z_calibration_comparison.py, test_tf_cache_lookup.py, test_funding_evidence_classifier.py)",
+    "zero_regressions": true
+  },
+
+  "candidate_family_findings": {
+    "top_family": {"root": "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9", "launch_count": 56, "creator_count": 56, "classification": "CANDIDATE_OPERATIONAL_FAMILY", "cross_validated": true},
+    "known_bot_service": {"address": "AxiomRXZAq1Jgjj9pHmNqVP7Lhu67wLXZJZbaK87TTSk", "fan_in": 131, "classification": "SERVICE_DISTRIBUTION_REVIEW, not rejected"},
+    "no_canonical_attribution_performed": true
+  },
+
+  "edge_cases_covered": ["self-funding/self-loop", "dust", "service wallet", "mega-hub", "high fan-out/fan-in", "same-slot/post-launch temporal impossibility", "missing signature/timestamp/amount", "documented extraction failure history"],
+
+  "v2_debt_status": "documented, not activated -- cap resets on restart remains a known, disclosed limitation",
+
+  "unresolved_blockers": [
+    {"id": "P2_CREDENTIAL", "description": "B2Z_P2_HELIUS_ENDPOINT not available -- live calibration cannot resume without it", "resolution": "human action required (see decision queue)"},
+    {"id": "2HOP_DUST_DISCREPANCY", "description": "172/5175 non-excluded second-hop bridges below documented dust threshold, root cause not confirmed", "resolution": "future investigation, non-blocking"},
+    {"id": "EP6_GAP", "description": "no proposal/review contract exists between EP5's structural intelligence and canonical operation attribution", "resolution": "future milestone if/when a human wants operation-discovery output to feed a review queue"}
+  ],
+
+  "recommended_next_milestones": [
+    "B2Z-P2 resume (human executes manual command once credential is safely available)",
+    "B2Z-P3 formal qualification (once P2 calibration metrics exist, replace placeholder thresholds with calibrated ones)",
+    "B2Z-2H implementation (only after B2Z-P3 policy is calibrated and a human authorizes upstream acquisition)",
+    "EP6 proposal/review contract design (separate track, not blocking B2Z work)",
+    "V2 persistent-budget implementation (separate small milestone, RA4-adjacent but not RA4 itself)"
+  ],
+
+  "authority_posture_entire_overnight_session": {
+    "provider_calls_made": 0,
+    "production_database_writes": 0,
+    "watchtower_mutated": false,
+    "three_sw2_mutated": false,
+    "canonical_operation_mutated": false,
+    "ra4_reopened": false,
+    "b2n_reopened": false,
+    "legacy_db_recreated": false,
+    "creator_funding_worker_restarted": false,
+    "v2_routing_changed": false,
+    "handoff_transport_repaired": false,
+    "credentials_read_from_prohibited_sources": false
+  }
+}

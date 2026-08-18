@@ -1,0 +1,114 @@
+{
+  "schema_version": "b2n.p3b.migration-lineage-contract-reconciliation.v1",
+  "artifact_type": "B2N_P3B_MIGRATION_LINEAGE_CONTRACT_RECONCILIATION",
+  "milestone": "B2N-P3B",
+  "generated_utc": "2026-08-18T16:20:00Z",
+  "resolution_selected": "OPTION_3",
+  "resolution_summary": "B2N's authoritative purpose is formally narrowed to BOUNDED_MIGRATION_LINEAGE_QUALIFICATION, matching exactly what the qualified 1-request/member MigrationGetTransactionAdapter can prove. Full creator-funding evidence acquisition is NOT deleted from the programme -- it is rebound to the existing canonical B2Z contract (already present in this repository as OIP_v2.2E.2B2Z.v1 / src/acquisition/b2z_execution_boundary.py / the 2B2Z preflight family), which remains a separate, non-executable, non-authorized future stage.",
+
+  "part1_b2n_authoritative_purpose": {
+    "purpose": "BOUNDED_MIGRATION_LINEAGE_QUALIFICATION",
+    "creator_funding_evidence_authority": false,
+    "b2n_must_prove_per_member": [
+      "exact mint/member identity (bound to the frozen 20-member manifest, ordinal 1-20)",
+      "exact reviewed migration provenance (bound to the P2E reviewed_migration_origin per member)",
+      "exact migration transaction lookup/binding (one getTransaction call against the reviewed migration_signature)",
+      "transaction/member consistency (the mint appears in the fetched transaction's account keys)",
+      "bounded provider execution (<=1 physical request per member, <=20 total)",
+      "deterministic attempt accounting (B2NAttemptLedger, append-only, one entry per ordinal)",
+      "candidate evidence output (migration-lineage evidence only; no creator-funding claim)"
+    ],
+    "explicit_non_goal": "B2N does not resolve a creator address, does not call getSignaturesForAddress, does not verify an inbound SOL funding transfer, and does not set any field meaning creator-funding evidence to true. This was true of the qualified MigrationGetTransactionAdapter implementation from the start; this reconciliation makes it the DECLARED contract rather than an unstated implementation detail that conflicted with the .md design doc's success criteria."
+  },
+
+  "part2_creator_funding_requirement_preserved_not_deleted": {
+    "requirement_still_exists": true,
+    "rebound_to_canonical_stage": "B2Z",
+    "canonical_stage_evidence": {
+      "contract_version": "OIP_v2.2E.2B2Z.v1",
+      "module": "src/acquisition/b2z_execution_boundary.py",
+      "class": "B2ZRunner",
+      "preflight_family": [
+        "docs/evidence_platform/oip_v2_2e_2b2bq_b2z_run_preflight.json",
+        "docs/evidence_platform/oip_v2_2e_2b2bq_b2z_frozen_projection.json"
+      ]
+    },
+    "note": "B2Z already exists as a named, qualified, tested contract in this repository (test_full_fake_run_is_exactly_60_ordered_attempts). This reconciliation does not invent a new B2CF milestone name; B2Z is reused as the canonical creator-funding evidence stage per repository convention.",
+    "b2z_authorization_status_after_this_reconciliation": "STILL NOT AUTHORIZED. This artifact does not grant B2Z execution authority. See part7 below."
+  },
+
+  "part3_b2n_success_criteria": {
+    "success_field_name": "migration_lineage_evidence_observed",
+    "field_naming_rationale": "Distinct from the shared 'evidence_observed' field name used generically in OneRequestResponse/B2NExecutor plumbing (kept for backward wire-compatibility with existing tests) and from B2Z's evidence_observed=True (creator-funding meaning). This new field is B2N-output-specific and never conflated with B2Z's semantics.",
+    "per_member_success_requires_all_of": [
+      "member/mint bound to the exact frozen 20-member manifest (ordinal, mint, census_event_id match)",
+      "reviewed provenance valid (P2E human_approval_decision_record.decision == APPROVED, bound to reviewed_provenance_digest)",
+      "migration transaction request succeeded (request_outcome == SUCCESS) OR a valid CACHE_HIT (request_count == 0)",
+      "transaction response is well-formed (result is a dict; accountKeys list is present and parseable)",
+      "expected migration/mint relationship observed: the member's mint appears in the fetched transaction's account keys, exactly as MigrationGetTransactionAdapter.acquire_once() already checks (mint not in addresses -> MALFORMED_RESPONSE)",
+      "provenance/output digest valid (provider_signature returned matches the reviewed migration_signature bound at P2E)",
+      "request_count <= 1 for this member",
+      "ledger entry reconciles (append-only, no duplicate ordinal, required fields present)",
+      "no forbidden authority exercised (no production write, no existing-operation mutation, no retry/pagination/fallback)"
+    ],
+    "explicit_exclusion": "migration_lineage_evidence_observed=true NEVER implies or claims creator_funding_evidence. Any downstream consumer must not conflate the two."
+  },
+
+  "part4_contradiction_removal": {
+    "contradiction_found_in": [
+      {
+        "location": "docs/evidence_platform/oip_v2_2e_2b2n_provider_qualification_contract.md, line 86-87 and success criterion 3 (line 107-109)",
+        "old_text_meaning": "evidence_observed was defined as creator-funding evidence, and success criterion 3 required evidence_observed=true from all 20 members -- unsatisfiable by the qualified 1-request adapter",
+        "reconciliation_action": "This design .md is NOT edited/overwritten by this artifact (it is historical/immutable per repository convention). Instead, this reconciliation artifact is the authoritative CURRENT statement of B2N's narrowed purpose and supersedes the .md's success-criteria section for B2N's actual operating contract. The .md remains valid architectural context explaining WHY a bounded budget was chosen and WHAT the wider ambition was; it is not deleted or silently rewritten."
+      },
+      {
+        "location": "src/acquisition/b2n_qualification.py OneRequestResponse.evidence_observed and B2NExecutor.run() stop condition (line 249)",
+        "old_meaning_conflict": "The generic field name evidence_observed is shared plumbing between B2N and (conceptually) any future adapter; it does not itself claim creator-funding meaning -- that meaning was only asserted in the .md design doc and never actually reconciled against the concrete adapter's behavior.",
+        "reconciliation_action": "NOT renamed globally (this field is shared executor/response plumbing, not B2N-exclusive, and a global rename risks breaking B2Z-adjacent semantics per explicit instruction). Instead, B2N's own success determination for reporting/gating purposes uses the new B2N-specific derived field migration_lineage_evidence_observed (see part3), computed FROM but not IDENTICAL TO the generic evidence_observed plumbing field. No code change was required to b2n_qualification.py itself for this reconciliation -- the existing MigrationGetTransactionAdapter behavior (evidence_observed=False, provenance_complete=True, error_class=B2W_MIGRATION_LINEAGE_ONLY) is now the CORRECT and EXPECTED B2N outcome, not a contradiction, once success is measured by migration_lineage_evidence_observed rather than the generic evidence_observed field."
+      }
+    ],
+    "code_changes_required": false,
+    "code_changes_reason": "The qualified implementation (MigrationGetTransactionAdapter, B2NExecutor) already behaves exactly as BOUNDED_MIGRATION_LINEAGE_QUALIFICATION requires. The contradiction was entirely in the .md design doc's stated success criteria referencing a stronger claim (creator-funding evidence) than the bounded 1-request implementation could ever produce. Reconciliation is therefore a CONTRACT/DOCUMENTATION-LEVEL correction, not a code change, consistent with instruction 4's requirement not to weaken or ambiguously rewrite code merely to make an existing implementation pass."
+  },
+
+  "part5_migration_get_transaction_adapter_binding": {
+    "canonical_adapter": "MigrationGetTransactionAdapter",
+    "module": "src/acquisition/b2w_projection.py",
+    "confirmed_by_code_inspection": true,
+    "exact_input": "reviewed migration_signature per member, sourced from B2WInputProjection.from_census() which validates signature/mint/subscription lineage against the frozen manifest before binding",
+    "exact_method": "getTransaction",
+    "exact_request_payload": {
+      "jsonrpc": "2.0",
+      "id": "<sample_ordinal>",
+      "method": "getTransaction",
+      "params": ["<migration_signature>", {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}]
+    },
+    "exact_response_requirements": [
+      "response is a dict with no 'error' key set to non-null (otherwise RPC_ERROR)",
+      "response['result'] is a dict (otherwise MALFORMED_RESPONSE, error_class=B2W_RESULT_MISSING)",
+      "result['transaction']['message']['accountKeys'] is present and contains the member's mint as a pubkey (otherwise MALFORMED_RESPONSE, error_class=B2W_MINT_NOT_IN_TRANSACTION)"
+    ],
+    "evidence_extracted": "migration transaction slot (provider_slot), migration_signature echoed back (provider_signature), confirmation that mint appears in the transaction's account keys",
+    "provenance_fields_extracted": "provider_signature (== reviewed migration_signature), provider_slot",
+    "cache_hit_behavior": "Not implemented in MigrationGetTransactionAdapter itself (it always issues exactly one request); cache-hit semantics are handled at the B2NExecutor/OneRequestResponse layer generically (request_count=0, outcome=CACHE_HIT) if a caller supplies a caching-aware client -- MigrationGetTransactionAdapter as committed is not itself a caching client.",
+    "failure_semantics": {
+      "unknown_mint": "raises ValueError B2W_MINT_NOT_IN_FROZEN_PROJECTION before any request is issued (zero physical requests)",
+      "rpc_error": "OneRequestResponse(outcome=RPC_ERROR, evidence_observed=False, provenance_complete=False, error_class=B2W_RPC_ERROR)",
+      "malformed_result": "OneRequestResponse(outcome=MALFORMED_RESPONSE, evidence_observed=False, provenance_complete=False, error_class=B2W_RESULT_MISSING)",
+      "mint_not_in_transaction": "OneRequestResponse(outcome=MALFORMED_RESPONSE, evidence_observed=False, provenance_complete=False, provider_signature=<sig>, error_class=B2W_MINT_NOT_IN_TRANSACTION)",
+      "success": "OneRequestResponse(outcome=SUCCESS, evidence_observed=False, provenance_complete=True, provider_signature=<sig>, provider_slot=<slot>, error_class=B2W_MIGRATION_LINEAGE_ONLY)"
+    },
+    "one_physical_request_maximum": true,
+    "proof": "MigrationGetTransactionAdapter.acquire_once() calls self.transport.post_json() exactly once per invocation; no loop, no retry, no secondary call anywhere in the method body."
+  },
+
+  "authority_posture": {
+    "provider_calls_made": 0,
+    "rpc_calls_made": 0,
+    "production_db_access": false,
+    "budget_widened": false,
+    "code_modified": false,
+    "b2z_authorized": false,
+    "b2n_executed": false
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "schema_version": "b2n.p3b.future-creator-funding-stage-boundary.v1",
+  "artifact_type": "B2N_P3B_FUTURE_CREATOR_FUNDING_STAGE_BOUNDARY",
+  "milestone": "B2N-P3B",
+  "generated_utc": "2026-08-18T16:28:00Z",
+  "purpose": "Document that full creator-funding evidence acquisition remains a genuine programme requirement, formally separated from B2N, bound to the existing canonical B2Z contract, and NOT authorized by this or any prior B2N milestone.",
+
+  "architectural_chain": {
+    "step_1": "member is migration-lineage-qualified by B2N (BOUNDED_MIGRATION_LINEAGE_QUALIFICATION, this milestone)",
+    "step_2": "SEPARATE creator-funding stage (B2Z) may later run against migration-lineage-qualified members",
+    "step_3": "B2Z performs sequential 3-request evidence acquisition per member where required: getTransaction(migration_signature) -> getSignaturesForAddress(resolved_creator) -> getTransaction(candidate_funding_signature)",
+    "sequential_dependency_confirmed": "Each B2Z call depends on the prior call's response content (creator is derived from call 1; candidate funding signature is selected from call 2's results); this cannot be collapsed or parallelized, per direct code inspection of src/acquisition/b2z_execution_boundary.py resolve_creator() and B2ZRunner.run()."
+  },
+
+  "canonical_future_stage": {
+    "name": "B2Z",
+    "contract_version": "OIP_v2.2E.2B2Z.v1",
+    "reused_not_invented": true,
+    "reason": "B2Z already exists in this repository as a named, tested, qualified contract (src/acquisition/b2z_execution_boundary.py, docs/evidence_platform/oip_v2_2e_2b2bq_b2z_run_preflight.json, docs/evidence_platform/oip_v2_2e_2b2bq_b2z_frozen_projection.json). No new B2CF milestone name is introduced; doing so would create a duplicate/parallel naming path for work that already has a canonical identity."
+  },
+
+  "explicit_boundary_statements": [
+    "B2N does not authorize B2Z execution.",
+    "B2N's request budget (max 20 total, max 1/member) cannot be borrowed, extended, or silently combined with B2Z's budget (max 60 total, max 3/member) for any run.",
+    "B2Z requires its OWN separate provider contract closure (a B2Z-specific P3-equivalent authorization preflight), distinct from this B2N-P3B artifact, even though both may end up naming Helius as the provider.",
+    "B2Z requires its OWN separate max-request budget: max 60 total, max 3/member, as already qualified in docs/evidence_platform/oip_v2_2e_2b2bq_b2z_run_preflight.json execution_contract.",
+    "B2Z requires its OWN separate ledger and run ID; B2N's attempt ledger and run ID (bound in this milestone) MUST NOT be reused or extended for a B2Z run.",
+    "B2Z requires its OWN separate explicit human GO/NO-GO. A GO on B2N's migration-lineage run does NOT constitute or imply authorization for a subsequent B2Z run.",
+    "Existing-operation mutation remains forbidden for B2Z exactly as it is forbidden for B2N: existing_operation_mutation_authority=false, merge/split/membership-write/attribution-write authority=false, WATCHTOWER_CANONICAL_STATE_MUTATION=FORBIDDEN.",
+    "Any B2Z findings involving an existing operation remain CANDIDATE_ONLY, exactly as B2N findings do."
+  ],
+
+  "authorization_status": {
+    "b2z_execution_authority_granted_by_this_artifact": false,
+    "b2z_provider_authority_granted_by_this_artifact": false,
+    "b2z_request_budget_granted_by_this_artifact": 0,
+    "b2z_ledger_created_by_this_artifact": false,
+    "b2z_run_id_created_by_this_artifact": false,
+    "note": "This artifact is a documentation/boundary record only. It creates no executable authority for B2Z. A future, separately-authored B2Z-P3-equivalent authorization preflight (not part of this B2N milestone) would be required before any B2Z provider call could occur."
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "schema_version": "b2n.p3b.native-migration-lineage-provider-contract.v1",
+  "artifact_type": "B2N_P3B_NATIVE_MIGRATION_LINEAGE_PROVIDER_CONTRACT",
+  "milestone": "B2N-P3B",
+  "generated_utc": "2026-08-18T16:25:00Z",
+  "provider": "helius",
+  "endpoint_family": "helius-mainnet-json-rpc",
+  "method": "getTransaction",
+  "compatibility_proof": {
+    "method": "direct code comparison between the request payload MigrationGetTransactionAdapter (src/acquisition/b2w_projection.py) issues and the request payload the committed HeliusB2BTTransport.get_transaction() (src/acquisition/b2bt_execution_boundary.py) issues to Helius",
+    "b2n_adapter_request_shape": {
+      "jsonrpc": "2.0",
+      "method": "getTransaction",
+      "params": [
+        "<migration_signature>",
+        {
+          "encoding": "jsonParsed",
+          "maxSupportedTransactionVersion": 0
+        }
+      ]
+    },
+    "committed_helius_transport_request_shape": {
+      "jsonrpc": "2.0",
+      "method": "getTransaction",
+      "params": [
+        "<signature>",
+        {
+          "encoding": "jsonParsed",
+          "maxSupportedTransactionVersion": 0
+        }
+      ]
+    },
+    "method_match": true,
+    "params_options_match": true,
+    "endpoint_prefix_hardcoded_in_committed_transport": "https://mainnet.helius-rpc.com/",
+    "endpoint_prefix_matches_b2z_preflight_identifier": "helius-mainnet-json-rpc (docs/evidence_platform/oip_v2_2e_2b2bq_b2z_run_preflight.json endpoint.redacted == https://mainnet.helius-rpc.com/?api-key=<redacted>)",
+    "conclusion": "Helius, via the helius-mainnet-json-rpc endpoint family and the getTransaction JSON-RPC method, is PROVEN COMPATIBLE with B2N's exact migration-lineage request shape by direct comparison against a committed, already-implemented Helius transport class (HeliusB2BTTransport) that issues the byte-for-byte identical method+params[1] shape for the same purpose (fetching a Solana transaction by signature). This is NOT an inference from the differently-shaped B2Z 3-call execution_contract; it is a comparison of the getTransaction call shape alone, which both the B2N adapter and a real Helius transport class already use identically.",
+    "caveat": "No live HTTP call was made to confirm Helius actually accepts/returns this shape at the network level; this proof is limited to static code comparison of what this repository's own committed Helius transport already sends for the identical RPC method."
+  },
+  "request_payload_contract": {
+    "jsonrpc": "2.0",
+    "id": "<sample_ordinal>",
+    "method": "getTransaction",
+    "params": [
+      "<reviewed_migration_signature>",
+      {
+        "encoding": "jsonParsed",
+        "maxSupportedTransactionVersion": 0
+      }
+    ]
+  },
+  "required_response_fields": [
+    "result (dict, not null/error)",
+    "result.transaction.message.accountKeys (list containing the member's mint as a pubkey)",
+    "result.slot (optional, extracted as provider_slot if present)"
+  ],
+  "response_validation": {
+    "error_present": "-> outcome=RPC_ERROR, evidence excluded",
+    "result_not_dict": "-> outcome=MALFORMED_RESPONSE, error_class=B2W_RESULT_MISSING",
+    "mint_not_in_account_keys": "-> outcome=MALFORMED_RESPONSE, error_class=B2W_MINT_NOT_IN_TRANSACTION",
+    "well_formed_and_mint_present": "-> outcome=SUCCESS, migration_lineage_evidence_observed=True, error_class=B2W_MIGRATION_LINEAGE_ONLY"
+  },
+  "max_physical_requests_per_member": 1,
+  "max_total_physical_requests": 20,
+  "retries": 0,
+  "pagination": 0,
+  "fallback": 0,
+  "cache_hit_semantics": {
+    "physical_requests_consumed": 0,
+    "handled_at_layer": "B2NExecutor/OneRequestResponse generic plumbing, not MigrationGetTransactionAdapter itself (the committed adapter always issues exactly one request; a caching-aware wrapper would need to be a separate, not-yet-committed client)",
+    "provenance_still_required": "a CACHE_HIT does not bypass evidence validation -- B2N-P2 design contract explicitly makes cache hits non-qualifying for creator-funding purposes; for migration-lineage purposes a cache hit still requires the cached response to have satisfied the same account-key/mint check before being cached"
+  },
+  "malformed_non_success_handling": "fail closed: B2NExecutor.run() breaks the member loop on any outcome != SUCCESS or where migration_lineage_evidence_observed/provenance_complete are not both true; no retry, no substitute member, no silent continuation",
+  "execution_authority": false,
+  "provider_execution_authority": false,
+  "no_hidden_secondary_requests": true,
+  "no_automatic_pagination": true,
+  "no_automatic_retries": true,
+  "no_fallback_provider": true,
+  "one_logical_member_satisfied_within_one_physical_request": true
+}

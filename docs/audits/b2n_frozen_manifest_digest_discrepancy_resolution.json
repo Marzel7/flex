@@ -1,0 +1,93 @@
+{
+  "schema_version": "b2n.frozen-manifest-digest-discrepancy-resolution.v1",
+  "artifact_type": "B2N frozen manifest digest discrepancy resolution",
+  "milestone": "B2N-P2D",
+  "verdict": "FROZEN_MANIFEST_CONTENT_EQUIVALENT_DIGEST_STALE",
+  "subject_manifest": {
+    "path": "docs/evidence_platform/oip_v2_2e_2b2u_b2r_frozen_manifest.json",
+    "sole_git_commit": "fdb6154c",
+    "sole_git_commit_message": "Freeze B2N marked cohort manifest",
+    "note": "manifest has exactly one commit in its history; never modified since creation"
+  },
+  "digest_comparison": {
+    "claimed_digest_in_prior_turn_prompt": "82bbda32d25a9951a8d8475528d7db3a92b675aae90ce2d55e13391a6b69eedc",
+    "actual_raw_file_sha256": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+    "internal_self_declared_manifest_digest_field": "82bbda32d25a9951a8d8475528d7db3a92b675aae90ce2d55e13391a6b69eedc",
+    "reproducibility_attempts": [
+      {
+        "method": "sha256 of canonical JSON (sort_keys, compact separators) of full document minus the manifest_digest field",
+        "result": "93b625646738b2ce8f46fe992aa16c21bb9df0a3d18a78be5c2098692c966d03",
+        "matches_claimed": false
+      },
+      {
+        "method": "sha256 of canonical JSON of the members array only",
+        "result": "34e63489d4e877d68cb5cd219bfa68998cfed314d3dc176aa23468b3b49bdecd",
+        "matches_claimed": false
+      }
+    ],
+    "conclusion": "The internal manifest_digest field (82bbda32...) does not correspond to the raw file's SHA-256, nor to any canonical-JSON self-digest convention reproduced here. It appears to be a stale or miscomputed value that was never the digest actually consumed downstream."
+  },
+  "downstream_artifact_binding_check": {
+    "method": "every already digest-verified B2N artifact was inspected for which manifest digest it actually records/consumes",
+    "findings": [
+      {
+        "artifact": "docs/audits/b2n_cohort_eligibility_existing_provenance_resolution.json",
+        "artifact_own_digest": "ce4a8b3e58738cecbb8015c19608923f5114599c0a4498a22950981a18e523f7",
+        "artifact_own_digest_matches_prior_claim": true,
+        "recorded_source_manifest_digest": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+        "matches_raw_file_sha256": true,
+        "matches_internal_field_claim": false
+      },
+      {
+        "artifact": "docs/audits/b2n_cohort_eligibility_human_review_packet.json",
+        "artifact_own_digest": "9a123317998506332b465c5f2204fedb9c3a99ac2663a11801177d483837cfcd",
+        "artifact_own_digest_matches_prior_claim": true,
+        "recorded_source_manifest_digest": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+        "matches_raw_file_sha256": true,
+        "matches_internal_field_claim": false
+      },
+      {
+        "artifact": "docs/audits/b2n_cohort_eligibility_human_review_index.json",
+        "artifact_own_digest": "1d5ad41023e0dfb8e947b338ed51e8569e319273ec0431ce412aed19b02bc38a",
+        "artifact_own_digest_matches_prior_claim": true,
+        "recorded_source_manifest_digest": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+        "matches_raw_file_sha256": true,
+        "matches_internal_field_claim": false
+      }
+    ],
+    "conclusion": "All three already-qualified downstream B2N artifacts independently bind to 54481980... (the actual raw-file SHA-256), never to 82bbda32.... The downstream provenance chain was never built against the claimed digest."
+  },
+  "content_equivalence_verification": {
+    "member_count": 20,
+    "member_count_expected": 20,
+    "ordinals_exactly_1_to_20": true,
+    "unique_mints": 20,
+    "unique_census_event_ids": 20,
+    "observation_required_all_true": true,
+    "uniform_member_field_shape": true,
+    "field_level_diff_manifest_vs_review_index_source_member_set": [],
+    "field_level_diff_count": 0,
+    "census_event_id_set_manifest_vs_p2d_resolution_member_rows": "EXACT_MATCH",
+    "conclusion": "Content is byte-for-byte identical in every B2N-significant field (ordinal, mint, census_event_id, observation_required) across the manifest and all three downstream consumer artifacts. No substitution, omission, or addition detected."
+  },
+  "explicit_statements": [
+    "The mismatch is NOT a cohort-anchor mutation: the manifest file has a single git commit and has never been altered since it was frozen.",
+    "The mismatch is NOT a harmless content-preserving rewrite either, because no rewrite occurred at all -- the file is unchanged.",
+    "The mismatch is a STALE/INCORRECT DIGEST CLAIM: the value 82bbda32... asserted in the prior turn's prompt does not match the raw file bytes, does not match any reproducible canonical-digest convention, and -- critically -- was never the digest actually recorded by any of the three already-qualified downstream B2N artifacts.",
+    "All downstream B2N provenance/review artifacts (P2D resolution, human review packet, human review index) were built against and are bound to 54481980..., the correct and actual manifest digest.",
+    "Cohort content equivalence is fully proven: 20/20 members, ordinals 1-20, 20 unique mints, 20 unique census_event_ids, observation_required=true uniformly, zero field-level differences against downstream consumers."
+  ],
+  "resolution": {
+    "canonical_frozen_manifest_digest": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+    "stale_claim_to_retire": "82bbda32d25a9951a8d8475528d7db3a92b675aae90ce2d55e13391a6b69eedc",
+    "action": "handoff updated to record 54481980... as the canonical digest and to log the stale historical claim explicitly; no B2N artifact content requires regeneration",
+    "b2n_review_artifacts_remain_bound_to_same_20_member_cohort": true
+  },
+  "authority_boundary_respected": {
+    "provider_access": false,
+    "rpc_access": false,
+    "production_db_access": false,
+    "b2n_execution": false,
+    "human_decisions_fabricated": false
+  }
+}

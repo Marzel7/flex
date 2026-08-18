@@ -1,0 +1,51 @@
+{
+  "schema_version": "overnight.operation-discovery-preparation.v1",
+  "artifact_type": "OVERNIGHT_OPERATION_DISCOVERY_PREPARATION",
+  "milestone": "B2Z overnight workstream 6",
+  "generated_utc": "2026-08-19T05:00:00Z",
+  "purpose": "Reconcile the EXISTING local-evidence-to-candidate-family pipeline (EP3/EP4/EP5) and determine exactly how far it already goes, and precisely where the remaining gap to canonical operation attribution actually is. No canonical mutation performed.",
+
+  "existing_pipeline_traced": {
+    "EP3": {
+      "content": "Operation Contracts (Watchtower v1, three_sw2 v1) -- topology limited to PROVEN primitives (SYSTEM_TRANSFER, LAUNCH_SIGNER), shadow-only, 'No production database, RPC client, legacy WATCHTOWER module, or governance executor is imported or called'",
+      "authority": "NO_AUTOMATIC_GOVERNANCE, no confidence score, no canonical identity claim"
+    },
+    "EP4.0": "generic unknown-operation discovery -- surfaces raw candidate subgraphs, zero RPC, zero production writes",
+    "EP4.1": "MotifCanonicalizer -- 14,203 candidates -> 1,379 motifs (10.3x compression), explicitly 'not an identity, an Operation classification, or a governance recommendation'",
+    "EP4.2": "motif intelligence layer (not re-read in full this workstream, referenced by EP4.3/4.4)",
+    "EP4.3": "motif population distribution / Pareto measurement",
+    "EP4.4": "dominant motif intelligence -- 69 motifs (80.13% of activity), full structural/temporal/stability profiles, relationship graph (78 edges, 26 neighbourhoods), EXPLICITLY: 'No profile contains an identity, Operation attribution, confidence score, forecast, promotion state, or governance action' and 'These are structural neighbourhoods, not Operations or ownership clusters'",
+    "EP5.0": "operational CHANGE intelligence -- compares two immutable snapshots, tracks motif/neighbourhood/relationship deltas over time, 'Identity and governance remained disabled. No Operation Contract was loaded.'",
+    "EP5.1": "operational evolution graph (referenced, not read in full this workstream)",
+    "EP5.2": "cross-motif relationship intelligence (referenced, not read in full this workstream)"
+  },
+
+  "the_actual_gap": {
+    "finding": "NO EP6 or later stage exists in the repository. No 'proposal', 'review queue', or 'promotion' contract was found anywhere in src/evidence/ or docs/evidence_platform/ that consumes EP4/EP5 output and produces a human-reviewable candidate-operation PROPOSAL. Searched explicitly for promotion_state, GOVERNANCE_ACTION, governance_action symbols in src/evidence/ -- zero matches.",
+    "conclusion": "the existing pipeline (EP3 through EP5.2) goes exactly as far as: local evidence -> candidate subgraphs -> canonical motifs -> dominant-motif intelligence -> cross-snapshot change tracking. It stops BEFORE any proposal/review contract. This is the genuine, currently-unbuilt link between 'candidate operational family' and 'canonical operation' -- not a hidden gap, an HONESTLY UNBUILT one, consistent with every EP4/EP5 document's own explicit self-description ('non-authoritative', 'identity and governance disabled')."
+  },
+
+  "b2z_2h_and_b2z_p3_relationship_to_this_pipeline": {
+    "how_they_fit": "B2Z (direct funding) and the proposed B2Z-2H (upstream funding) produce PER-RELATIONSHIP evidence (creator, funder, signature, amount, time) at the RAW_ONCHAIN_EVIDENCE tier. This is a DIFFERENT axis from EP4's STRUCTURAL motif canonicalization (which strips concrete addresses/signatures and works on graph shape). The two are complementary, not sequential: EP4/EP5 already runs today on whatever primitive evidence exists (including local-tier), independent of whether B2Z has raw-verified a given relationship. A future B2Z-P3 selective-verification pass would UPGRADE specific edges from local to raw tier, which EP3's Operation Contracts (which explicitly require PROVEN primitives) could then consume -- but EP4/EP5's structural/motif layer does not require this upgrade to keep operating.",
+    "explicit_non_claim": "this workstream does NOT claim B2Z output feeds directly into EP4/EP5 today -- that integration (if it exists) was not verified in this pass and should not be assumed"
+  },
+
+  "provider_free_path_confirmed": "local evidence -> candidate subgraph (EP4.0) -> canonical motif (EP4.1) -> dominant profile (EP4.4) -> change tracking (EP5.0+) is CONFIRMED to already exist, be validated, and operate at real scale (14,203 candidates) with zero RPC calls. This directly satisfies the 'determine the exact provider-free path' requirement of this workstream -- the path exists and has already been built and run, it does not need to be built by this milestone.",
+
+  "what_this_workstream_built": {
+    "candidate_schemas": "the B2Z-P3 policy (overnight_b2z_p3_selective_rpc_policy.json) and funding_evidence_classifier.py define a per-relationship candidate schema compatible with (but not yet wired into) the EP3 Operation Contract's SYSTEM_TRANSFER/LAUNCH_SIGNER primitive shapes",
+    "adapters": "src/acquisition/tf_cache_lookup.py -- a read-only adapter for the raw-transaction cache that a future selective-verification executor (and potentially a future EP6 proposal stage) could consult",
+    "fixture_dry_runs": "not built this workstream -- EP4.0/4.1/4.4/5.0 already have their own validated fixture/replay dry-run infrastructure (docs/evidence_platform/ep4_1_motif_validation.json etc.), duplicating it would be wasted effort",
+    "coverage_reports": "overnight_historical_coverage_profile.json, overnight_2hop_coverage_quality.json, overnight_candidate_funding_family_analysis.json",
+    "deterministic_candidate_bundles": "not built this workstream -- would require either (a) wiring B2Z's actual output format into EP4's candidate-subgraph input format (not attempted without verifying that integration point exists and is intended), or (b) inventing a new bundle format not grounded in the existing pipeline. Given explicit instruction not to expand authority or invent unnecessary structure, this is left as an identified next step rather than built speculatively."
+  },
+
+  "recommended_next_milestone": "EP6 -- candidate operation proposal contract (if and when a human decides operation-discovery output should feed a review queue). This would be the FIRST stage in the entire EP3-EP5 chain to actually touch canonical operation state, and per every document's repeated emphasis, must remain gated behind explicit human review, never automatic promotion.",
+
+  "operation_safety": {
+    "watchtower_mutated": false,
+    "three_sw2_mutated": false,
+    "canonical_operation_created_or_modified": false,
+    "ep3_ep4_ep5_contracts_unmodified": true
+  }
+}

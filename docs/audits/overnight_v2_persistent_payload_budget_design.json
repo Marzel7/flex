@@ -1,0 +1,52 @@
+{
+  "schema_version": "overnight.v2-persistent-payload-budget-design.v1",
+  "artifact_type": "OVERNIGHT_V2_PERSISTENT_PAYLOAD_BUDGET_DESIGN",
+  "milestone": "B2Z overnight workstream 10 (RA4 follow-up debt)",
+  "generated_utc": "2026-08-19T05:10:00Z",
+  "status": "DESIGN ONLY -- no production code changed, no activation, RA4 remains CLOSED",
+
+  "known_issue_restated": "RetainedAcquisitionStoreV2's daily_payload_cap_bytes accounting (self._payload_bytes) is a plain in-process Python int, reset to 0 unconditionally in __init__. It has NO persistence mechanism -- confirmed by direct code inspection during RA4-C5A (RESTART_CAP_PERSISTENCE_FALSE_BY_DESIGN). A creator_funding_worker restart, for ANY reason, silently resets the cap to fully-available, regardless of how much was consumed in the prior process lifetime.",
+
+  "design_option_a_restart_safe_persistent_accounting": {
+    "approach": "add a small, dedicated accounting table (e.g. v2_payload_budget_ledger) to the SAME V2 shadow database, written transactionally alongside each retain() call, recording cumulative bytes consumed for the CURRENT accounting period. On __init__, read the current period's cumulative total from this table instead of starting at 0.",
+    "schema_sketch": "CREATE TABLE v2_payload_budget_ledger (period_key TEXT PRIMARY KEY, cumulative_bytes INTEGER NOT NULL, last_updated_at INTEGER NOT NULL)",
+    "period_key_definition": "must be defined explicitly -- e.g. a fixed process-lifetime UUID (preserves current semantics exactly, just makes them restart-safe within the SAME calendar day) vs a true calendar-day key (see option B)",
+    "write_path": "_write_budgeted() would need to (a) read the current cumulative value, (b) check against the cap, (c) if permitted, UPDATE the ledger row and proceed with the full-payload write, all within the SAME sqlite transaction as the observation insert -- to avoid a race where the ledger updates but the observation write fails, or vice versa",
+    "disk_reserve_interaction": "unchanged -- the existing usage.free < 10*GIB_BYTES check remains a separate, orthogonal gate evaluated before the cap check, exactly as today",
+    "hot_fallback_interaction": "unchanged -- when the persistent cumulative total would exceed the cap, the write still falls back to the existing _build_v2_hot_payload() path; only the SOURCE of the cumulative-bytes number changes from an in-memory int to a persisted ledger read",
+    "rollover_semantics": "if period_key is a fixed process-lifetime UUID, there is NO rollover -- the cap only ever resets on a genuinely NEW process start, closing the restart-reset gap without changing the fundamental 'accounting resets sometime' behavior",
+    "recovery": "on process start, if the ledger row for the current period_key does not exist, initialize cumulative_bytes=0 (identical to today's behavior for a genuinely new period) -- no special recovery logic needed beyond normal INSERT OR IGNORE",
+    "migration_compatibility": "purely additive -- CREATE TABLE IF NOT EXISTS, no change to retained_acquisition_observations' schema, fully backward compatible with the existing V2 store and with any tooling that reads it"
+  },
+
+  "design_option_b_real_time_bucketed_accounting": {
+    "approach": "define period_key as a true calendar-day bucket (e.g. UTC date string 'YYYY-MM-DD'), so the cap genuinely resets once per calendar day regardless of process restarts, matching the 'daily_payload_cap_bytes' NAME's actual documented intent for the first time",
+    "schema_sketch": "same v2_payload_budget_ledger table, period_key = date string instead of process UUID",
+    "rollover_semantics": "at UTC midnight, a new period_key naturally begins accumulating from 0 -- no explicit rollover code needed if period_key is computed fresh on each write (int(time.time()) // 86400 or equivalent), only requires the ledger read/write to always use the CURRENT period_key at call time, not a cached one",
+    "disk_reserve_interaction": "unchanged, same as option A",
+    "hot_fallback_interaction": "unchanged, same as option A",
+    "recovery": "identical to option A -- missing row for a new period_key means it's genuinely a fresh day",
+    "migration_compatibility": "same additive schema change as option A",
+    "behavioral_change_vs_current": "this WOULD change observable behavior: today, restarting the worker effectively grants a fresh 1 GiB budget at any time (a bug from the cap's perspective, but has been the DE FACTO production behavior throughout RA4-C4/C5A); calendar-day bucketing would mean a restart WITHIN the same UTC day no longer grants extra budget, which is closer to the cap's documented intent but IS a behavior change worth flagging explicitly to a human before activation, not silently 'fixed'"
+  },
+
+  "recommended_option": "Option B (real time-bucketed accounting) -- it is the only option that actually delivers on the cap's documented name and intent ('daily_payload_cap_bytes'). Option A only closes the restart-within-a-session gap without providing genuine daily semantics. However, RECOMMENDING is not AUTHORIZING -- this is a design note for a human decision, not an activation.",
+
+  "tests_to_be_written_when_implemented": [
+    "restart mid-period preserves cumulative accounting (option A and B both)",
+    "calendar-day rollover resets accounting at exactly the boundary (option B only)",
+    "concurrent-process safety: two processes racing to update the same period_key row do not double-count or lose updates (requires either a single-writer guarantee, matching the existing single-worker architecture, or an atomic UPDATE...RETURNING / INSERT OR REPLACE pattern)",
+    "disk-reserve check remains evaluated independently of and before the persistent cap check",
+    "hot-payload fallback still triggers correctly when the PERSISTED cumulative total (not an in-memory one) would exceed the cap",
+    "a missing ledger row for a new period is correctly treated as zero consumed, not an error",
+    "migration compatibility: an existing V2 database without the new table continues to work after the table is added (CREATE TABLE IF NOT EXISTS is idempotent and non-destructive)"
+  ],
+
+  "explicit_non_activation": {
+    "no_code_written_this_workstream": true,
+    "no_schema_migration_applied": true,
+    "ra4_status": "CLOSED, unaffected",
+    "production_v2_store_untouched": true,
+    "reasoning": "this is a genuine, disclosed engineering debt item first identified during RA4-C5A live observation -- the design is now documented in enough detail for a future implementation milestone to proceed directly to code+tests, but activating it requires a scoped implementation milestone with its own explicit authorization, not an overnight design pass"
+  }
+}

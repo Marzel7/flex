@@ -1,0 +1,92 @@
+{
+  "schema_version": "b2z.2h.upstream-funding-qualification-contract.v1",
+  "artifact_type": "B2Z_2H_UPSTREAM_FUNDING_QUALIFICATION_CONTRACT",
+  "milestone": "B2Z-2H (proposed successor to B2Z-P1.7, NOT B2Z-P1/P2)",
+  "generated_utc": "2026-08-19T04:30:00Z",
+  "status": "NON_EXECUTABLE_CONTRACT_DESIGN_ONLY -- no code implementing live acquisition is built or activated in this artifact",
+
+  "purpose": "Define the upstream_source -> direct_funder -> creator qualification contract as a genuinely separate stage from direct B2Z (funder -> creator), per P1.7's explicit finding that B2Z's own canonical contract covers direct funding only.",
+
+  "architecture": "LOCAL-FIRST -> CACHE-FIRST -> SELECTIVE RPC, mirroring three_sw2's proven historical acquisition pattern (16 RPC calls for 13 launches, not 39) rather than B2Z's own current all-or-nothing-per-member design",
+
+  "inputs": {
+    "required": "QUALIFIED B2Z direct-funding output ONLY -- creator, direct_funder, direct_funding_signature, direct_funding_amount, direct_funding_time, all RAW_ONCHAIN_EVIDENCE tier (i.e. this contract must not be fed local-only P1.6/P1.7-tier predictions as if they were qualified inputs; it consumes B2Z's LIVE, RAW-VERIFIED results once B2Z-P2/live-B2Z produces them)",
+    "explicit_non_input": "B2Z-2H does NOT independently re-derive direct funding -- it strictly composes on top of already-qualified direct-hop evidence, avoiding duplicate acquisition"
+  },
+
+  "stage_design": {
+    "stage_local": {
+      "name": "LOCAL_UPSTREAM_CANDIDATE_DISCOVERY",
+      "method": "relational search of transfer_index (or the pre-built, volume-gated funder_upstream_links where available) for rows WHERE destination=direct_funder AND block_time<direct_funding_time AND amount_lamports>0, most recent first -- exactly the method P1.7 used manually",
+      "rpc_cost": 0,
+      "output": "zero or more candidate (upstream_source, upstream_signature, upstream_amount, upstream_block_time) tuples per direct-funder"
+    },
+    "stage_cache": {
+      "name": "CACHE_FIRST_RAW_LOOKUP",
+      "method": "before any live dispatch, check database/transaction_first_lineage.db's tf_transaction_cache (keyed by signature) for the candidate upstream signature -- if present and rpc_verified=1, treat as already-raw-verified with ZERO new RPC cost, exactly mirroring three_sw2's materialize_three_sw2_shadow_corpus.py cache-first design",
+      "rpc_cost": 0,
+      "measured_cache_size": "22,025 signatures, 21,994 already rpc_verified=1 (overnight_historical_coverage_profile.json population_7)",
+      "explicit_caveat": "this cache does NOT currently overlap the B2N/B2Z 20-member cohort's specific signatures (confirmed 0 matches in P1.8) -- cache-first only helps when the SPECIFIC candidate signature happens to already be cached, which is not guaranteed for any given member"
+    },
+    "stage_selective_rpc": {
+      "name": "TARGETED_RAW_VERIFICATION",
+      "method": "getTransaction(candidate_upstream_signature) -- a SINGLE targeted call per candidate that survived stage_local and stage_cache without resolution, using the qualified B2Z-P1 durable/resumable execution boundary (NOT a new unsafe batch path) as the executor",
+      "rpc_cost": "1 per unresolved candidate (never 2, since the candidate signature is already known from stage_local -- no equivalent of B2Z's CREATOR_HISTORY discovery stage is needed at the upstream hop, because the direct funder's own inbound history search already IS the candidate-discovery step)",
+      "reuses": "src/acquisition/b2z_durable_execution.py's DurableB2ZClient/B2ZEventLedger/B2ZStageOutputLedger classes -- NOT reimplemented"
+    }
+  },
+
+  "explicit_rejection_flags": {
+    "self_loop": {
+      "definition": "upstream_source == the creator OR upstream_source == the direct_funder itself",
+      "action": "REJECT the candidate before any RPC dispatch -- P1.7 proved this is a real, measured failure mode (3/9 raw candidates in the 20-member cohort), not hypothetical",
+      "rpc_cost_if_rejected_pre_dispatch": 0
+    },
+    "dust": {
+      "definition": "upstream_amount_lamports below the existing MIN_UPSTREAM_SOL threshold (0.01 SOL, src/core/second_hop_builder.py)",
+      "action": "FLAG as low-confidence; do not auto-reject (a genuinely small legitimate funding amount is possible), but do not treat a dust-level match as sufficient LOCAL_EVIDENCE_SUFFICIENT_FOR_DISCOVERY tier without additional corroboration -- route to RAW_VERIFICATION_REQUIRED per the B2Z-P3 policy",
+      "measured_evidence": "3 of 5 genuine (non-self-loop) upstream candidates in the 20-member cohort were exactly 1 lamport -- overwhelmingly likely dust/probe transactions, not real funding"
+    },
+    "post_direct_funding_upstream_transfer": {
+      "definition": "a candidate transfer_index row whose block_time is AFTER (not before) the direct_funding_time it is supposed to precede",
+      "action": "STRUCTURALLY IMPOSSIBLE as upstream funding -- REJECT unconditionally, never a candidate, regardless of amount or any other signal (an upstream source must fund the direct funder BEFORE the direct funder funds the creator, by definition of the 2-hop chain)"
+    },
+    "impossible_temporal_ordering": {
+      "definition": "upstream_block_time >= direct_funding_time (subsumes post_direct_funding_upstream_transfer but stated generally for same-instant edge cases)",
+      "action": "REJECT -- the local_stage's own SQL query (block_time < direct_funding_time) already structurally prevents this from ever being selected as a candidate in the first place, so this is a defense-in-depth check, not expected to ever trigger given correct query construction"
+    },
+    "service_mega_hub_ambiguity": {
+      "definition": "upstream_source exceeds the existing MAX_UPSTREAM_FUNDERS=50 threshold when checked against funder_upstream_links, OR carries a known bot/service creator_tags entry",
+      "action": "does NOT reject the candidate, but attaches SERVICE_DISTRIBUTION_REVIEW_REQUIRED metadata -- mirrors B2Z-P1's FAN_OUT_REVIEW_ORDINALS non-gating design exactly. Measured real example: AxiomRXZAq1Jgjj9pHmNqVP7Lhu67wLXZJZbaK87TTSk reaches 131 distinct funders (2.6x the exclusion threshold)."
+    },
+    "conflicting_upstream_candidates": {
+      "definition": "more than one transfer_index row satisfies the temporal/amount filter for the same direct_funder",
+      "action": "select the single MOST RECENT qualifying candidate (mirrors B2Z's own existing candidates[0] rule exactly, for architectural consistency) -- but if the second-most-recent candidate is close in time/amount to the selected one, attach an AMBIGUOUS_MULTIPLE_CANDIDATES review flag rather than silently discarding the alternative",
+      "no_extra_rpc_for_disambiguation": "consistent with B2Z's existing contract -- no additional provider calls are spent trying to distinguish between multiple local candidates; ambiguity is flagged for review, not resolved by spending more budget"
+    }
+  },
+
+  "outputs": [
+    "creator (from qualified direct B2Z input, not re-derived)",
+    "direct_funder", "direct_funding_signature", "direct_funding_amount", "direct_funding_time",
+    "upstream_source", "upstream_funding_signature", "upstream_funding_amount", "upstream_funding_time",
+    "temporal_ordering_proof (upstream_time < direct_time < migration_time, explicitly re-verified from raw block_times, never assumed)",
+    "evidence_classification (per B2Z-P3's five-category policy, applied at the upstream hop)",
+    "cache_hit (bool -- whether stage_cache resolved this without a live RPC call)",
+    "service_distribution_flags (non-gating review metadata)",
+    "shared_source_candidate_metadata (whether this upstream_source also appears for other members' direct funders in the same cohort/batch -- CANDIDATE_SHARED_FUNDING_EVIDENCE only, never SAME_OPERATION, per P1.7's explicit precedent)"
+  ],
+
+  "explicit_prohibitions_preserved_from_b2z_p1": [
+    "candidate-only output, no canonical operation attribution",
+    "no Watchtower/three_sw2 mutation",
+    "production_db_read=false, production_db_write=false",
+    "no new authority states beyond what B2Z-P1 already established",
+    "reuses the SAME durable/resumable executor -- does not weaken or duplicate B2Z-P1's pre-dispatch durability, resume, or budget-accounting guarantees"
+  ],
+
+  "relationship_to_existing_second_hop_system": "B2Z-2H is a RAW-VERIFICATION UPGRADE layer that sits ON TOP of the existing local-only SecondHopExpansionBuilder (funder_upstream_links/creator_second_hop), not a replacement for it. Local-only second-hop discovery continues to run unchanged for the vast majority of relationships (Level A, EP4.0/4.1-compatible); B2Z-2H is invoked only for the selective subset warranting Level-B verification per the B2Z-P3 policy.",
+
+  "not_built_or_activated_this_milestone": true,
+  "no_code_written_for_this_contract": "correct for a design-only artifact -- B2Z-P1's existing durable executor is EXPLICITLY intended to be reused (not reimplemented) when this contract is eventually authorized for implementation"
+}

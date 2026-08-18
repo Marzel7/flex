@@ -1,0 +1,221 @@
+{
+  "schema_version": "ra4.c3.growth-arrest-cutover-preflight.v1",
+  "artifact_type": "RA4_C3_RETAINED_ACQUISITION_GROWTH_ARREST_CUTOVER_PREFLIGHT",
+  "milestone": "RA4-C3",
+  "generated_utc": "2026-08-18T19:10:00Z",
+  "scope_note": "This milestone addresses FUTURE GROWTH ARREST ONLY. The existing 61.3+ GB legacy DB is NOT touched, deleted, migrated, VACUUMed, or checkpointed. Archival/reclamation of historical data is explicitly out of scope, deferred to a separate future milestone.",
+
+  "part1_current_storage_state": {
+    "disk": {"filesystem": "/System/Volumes/Data", "available_at_start": "9.0 GiB", "available_at_end": "8.9 GiB", "capacity": "96%"},
+    "legacy_db_measurements": [
+      {"time": "19:00", "size_bytes": 65943715840},
+      {"time": "19:02", "size_bytes": 65981026304},
+      {"time": "19:05", "size_bytes": 66002423808}
+    ],
+    "bash_available": true,
+    "no_wal_shm_file_observed_for_this_db": "the legacy retained_acquisition.db showed no accompanying -wal/-shm file at measurement time (may be fully checkpointed or using a different journal mode than the bounded V2 store, which explicitly sets journal_mode=WAL)"
+  },
+
+  "part2_live_writer_identification": {
+    "code_trace": {
+      "storage_module": "src/acquisition/retained_observations.py",
+      "legacy_class": "RetainedAcquisitionStore (no budget/disk enforcement -- confirmed by direct test: does not define _write_budgeted or daily_payload_cap_bytes)",
+      "bounded_class": "RetainedAcquisitionStoreV2 (already implements daily payload cap, 10 GiB disk-reserve floor, hot-payload fallback)",
+      "factory_selector": "src/acquisition/factory.py _configured_retained_store() -- reads EvidenceConfig.from_env() and wires whichever of RETAINED_ACQUISITION_OBSERVATIONS_ENABLED / RETAINED_ACQUISITION_V2_SHADOW_ENABLED are set to '1'; if both, wraps both in _ParallelRetainedAcquisitionStore (dual-write)",
+      "acquisition_call_chain": "src/extractors/realtime_creator_funding_extractor.py -> build_transaction_acquisition() -> RetainingTransactionAcquisition.request_once() -> self._retained_store.retain(response, ...) on every successful acquisition response"
+    },
+    "live_process_identified": {
+      "supervisor_program": "[program:creator_funding_worker]",
+      "config_file": "config/supervisor/supervisord.conf",
+      "command": "python -m src.core.creator_funding_worker",
+      "environment_flags_set": {
+        "RETAINED_ACQUISITION_OBSERVATIONS_ENABLED": "1",
+        "RETAINED_ACQUISITION_DATABASE_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/evidence_platform/production/retained_acquisition.db",
+        "RETAINED_ACQUISITION_V2_SHADOW_ENABLED": "NOT SET (defaults to false)"
+      },
+      "sole_writer_confirmed": "grepped every [program:*] block in supervisord.conf for RETAINED_ACQUISITION_OBSERVATIONS_ENABLED -- exactly one match (creator_funding_worker). No other process has this flag set."
+    },
+    "writes_occur_for": "every successful acquisition response (response.error is None and response.status is not None) passed through RetainingTransactionAcquisition -- i.e. every provider request the creator_funding_worker's extractor makes",
+    "single_vs_multiple_writers": "SINGLE writer process",
+    "dynamic_reload": "NO -- EvidenceConfig.from_env() reads os.environ, which is fixed for a running process at exec time (set once by supervisor's environment= block). Changing the .conf file requires supervisorctl restart of the specific program to take effect; it will NOT hot-reload."
+  },
+
+  "part3_bounded_short_window_growth_estimate": {
+    "label": "BOUNDED_SHORT_WINDOW_GROWTH_ESTIMATE",
+    "not_a_long_term_average": true,
+    "sample_1": {"window_minutes": 2, "delta_bytes": 37310464, "projected_gib_per_day": 25.02},
+    "sample_2": {"window_minutes": 3, "delta_bytes": 21397504, "projected_gib_per_day": 9.57},
+    "observed_range_gib_per_day": "9.6 - 25.0",
+    "target_gib_per_day": 1,
+    "exceeds_target": true,
+    "conclusion": "Both independent short-window samples exceed the <=1 GiB/day target by a wide margin (roughly 10x-25x), despite meaningful sample-to-sample variance. This is not a marginal overshoot; it is a materially urgent, actively-compounding growth condition."
+  },
+
+  "part4_bounded_path_readiness_classification": {
+    "diagnostic_proof_only_tooling": [
+      "scripts/run_ra4_retained_acquisition_bounded_shadow_activation.py -- reads FROM the existing legacy DB and writes a separate shadow DB for equivalence sampling; does NOT touch the live acquisition-time write path",
+      "scripts/run_ra0_retained_acquisition_bounded_experiment.py and RA1/RA2 architecture scripts -- design/projection tooling, not the production writer itself"
+    ],
+    "actual_production_writer_implementation": {
+      "class": "RetainedAcquisitionStoreV2",
+      "location": "src/acquisition/retained_observations.py",
+      "already_wired_into_production_factory": true,
+      "factory_wiring_location": "src/acquisition/factory.py _configured_retained_store()",
+      "config_controlled": true,
+      "config_flags": ["RETAINED_ACQUISITION_V2_SHADOW_ENABLED", "RETAINED_ACQUISITION_V2_SHADOW_DATABASE_PATH", "RETAINED_ACQUISITION_V2_SHADOW_ARTIFACT_PATH", "RETAINED_ACQUISITION_V2_DAILY_PAYLOAD_CAP_BYTES"],
+      "tested_via_factory_selection": "tests/test_ra4_retained_acquisition_shadow_activation.py -- proves shadow-only selection AND parallel (dual-write) selection both work via real env-var-driven factory calls",
+      "tested_via_direct_enforcement": "tests/test_ra4_c3_bounded_writer_enforcement.py (NEW this milestone, 9 tests) -- proves _write_budgeted enforces the daily cap and 10 GiB disk floor with real SQLite writes, proves the hot-payload fallback correctly omits bulk fields while preserving all required identity fields, proves the legacy store has NO equivalent enforcement at all"
+    },
+    "gap_found_and_closed_this_milestone": "no existing test exercised RetainedAcquisitionStoreV2._write_budgeted() or the hot-payload fallback against a real .retain() call before this milestone -- this was a genuine coverage gap, now closed with 9 new tests, all passing."
+  },
+
+  "part5_core_answer": "CUTOVER_IMPLEMENTATION_ALREADY_EXISTS",
+  "part5_reasoning": "RetainedAcquisitionStoreV2 is a complete, already-implemented, already-factory-wired, already-tested production-capable bounded writer. It requires NO new code to activate -- only a configuration change (flip RETAINED_ACQUISITION_OBSERVATIONS_ENABLED to '0' and RETAINED_ACQUISITION_V2_SHADOW_ENABLED to '1' in the creator_funding_worker supervisor block) and a restart of that single process. This is not a partial integration and not proof-only tooling being mistaken for readiness -- the exact same factory function (_configured_retained_store) that the live process calls today already returns RetainedAcquisitionStoreV2 when the flag is set, proven by both existing and newly-added tests calling that function directly.",
+
+  "part6_desired_new_write_posture": {
+    "target": "NEW acquisition -> RetainedAcquisitionStoreV2 (bounded/hot representation, hard growth budget, replay-required fields preserved) -> legacy 61.3 GB DB becomes READ-ONLY/HISTORICAL after cutover",
+    "not_performed_this_milestone": "no migration or rewrite of the legacy DB; it remains exactly as-is, untouched"
+  },
+
+  "part7_hard_growth_control_enforcement": {
+    "daily_payload_byte_counter": "YES -- self._payload_bytes, incremented only on successful budgeted writes",
+    "hard_refusal_after_cap": "YES -- _is_within_budget() / _write_budgeted() return False once self._payload_bytes + payload_bytes would exceed daily_payload_cap_bytes",
+    "cap_minimum_clamp": "the constructor enforces max(1_000_000, requested_cap) -- a cap below 1MB is silently raised to 1MB, not honored literally (discovered and documented via test_daily_cap_has_a_1mb_minimum_clamp)",
+    "metadata_only_fallback_if_qualified": "YES -- on budget refusal, retain() stores the condensed hot payload (_build_v2_hot_payload) instead of failing the write entirely; verified the full-payload-only fields (response_data, response_text, raw_body_base64, request_payload) are absent from the hot fallback while identity/replay fields remain present",
+    "hot_store_ceiling": "governed by the same daily_payload_cap_bytes -- there is no SEPARATE ceiling for hot-payload volume; hot payloads are always written regardless of cap (they are the fallback, not a second budgeted tier)",
+    "archive_before_retire_semantics": "NOT PRESENT in RetainedAcquisitionStoreV2 itself -- this class only decides full-vs-hot payload shape per observation; archive/retire of the legacy DB is a SEPARATE, not-yet-designed concern explicitly out of scope for this milestone (Problem B)",
+    "disk_reserve_floor": "YES -- shutil.disk_usage(self.path.parent).free < 10 * GIB_BYTES refuses ANY write (full or the write attempt itself) once free space drops below 10 GiB; this matches the exact floor this session has independently been enforcing at the B2N milestone-gate level",
+    "fail_open_or_closed_relative_to_acquisition_runtime": "FAIL-OPEN for acquisition itself: RetainingTransactionAcquisition.request_once() wraps store.retain()/record_outcome() in a try/except that only journals a degraded-accounting event on failure -- it never raises into or blocks the underlying acquisition response. FAIL-CLOSED for the retention WRITE specifically: _write_budgeted() cleanly refuses (returns False, does not raise) rather than writing an oversized payload; the caller then substitutes the hot payload, which is always written regardless.",
+    "no_missing_enforcement_invented": "the above is a direct, literal restatement of what the code does, verified with 9 passing tests this milestone; nothing was assumed or exaggerated"
+  },
+
+  "part8_evidence_semantics_preserved": {
+    "verified_via_test": "tests/test_ra4_c3_bounded_writer_enforcement.py::test_hot_payload_preserves_required_identity_fields",
+    "fields_confirmed_present_in_hot_fallback": [
+      "observation_id (deterministic replay identity)",
+      "acquisition_id, correlation_id (correlation identity)",
+      "launch_mint (migration lineage anchor)",
+      "http_method, url (sanitized -- credential-stripped, confirmed 'SECRET'/'api-key' absent)",
+      "response_status",
+      "artifact_digest, artifact_size_bytes, artifact_compressed_bytes, content_type (artifact linkage -- the raw response body itself lives in the separate ArtifactStore, referenced by digest, not duplicated inline)",
+      "request_payload_sha256, response_headers_sha256 (request/response identity as digests, not full bulk payload)",
+      "metadata subset: launch, purpose, provider, method, request_type, timestamp (provider/method identity, timestamps/boundaries)",
+      "retained_at (retention timestamp)"
+    ],
+    "fields_confirmed_absent_from_hot_fallback_by_design": ["response_data (bulk)", "response_text (bulk)", "raw_body_base64 (bulk, but recoverable via artifact_digest -> ArtifactStore)", "request_payload (bulk, but sha256 digest retained)"],
+    "conclusion": "No field required for deterministic replay, migration lineage, correlation identity, provider/method identity, request/response identity, or artifact linkage is removed. Bulk payload bytes are the ONLY thing dropped in the hot fallback, and only when the daily cap is already exhausted or disk is low -- and even then, the raw bytes remain recoverable via the artifact digest into the separate, already-existing ArtifactStore, not destroyed."
+  },
+
+  "part9_existing_operation_safety": {
+    "verdict": "EXISTING_OPERATION_SEMANTICS_UNCHANGED",
+    "proof": "grepped src/acquisition/retained_observations.py and src/acquisition/factory.py for 'watchtower', 'wt_operations', 'canonical_operation', 'EP3', 'EP4', 'B2N', 'B2Z' -- ZERO matches in either file. This storage layer is structurally isolated from any canonical-operation concept, exactly as retained_observations.py's own module docstring states: 'operation-neutral'. The proposed change is a storage-routing config flip for one unrelated acquisition-retention concern; it cannot touch Watchtower, three_sw2, canonical operation membership/attribution, H-series evidence, or EP3/EP4 identities because no code path connects them."
+  },
+
+  "part10_legacy_database_safety": {
+    "actions_performed_this_milestone": ["read-only ls -la size/mtime measurements (x3)"],
+    "actions_explicitly_not_performed": ["DELETE", "UPDATE", "schema migration", "VACUUM", "WAL/SHM checkpoint or deletion", "full-DB copy", "index rebuild", "row transformation", "truncate", "replace", "rename", "remove"],
+    "verified_unchanged_by_local_cutover_simulation": "measured legacy_db.stat().st_size immediately before and after a real simulated .retain() call routed through the bounded store -- byte-identical, confirming the simulation touched only the isolated bounded/tmp_path DB"
+  },
+
+  "part11_minimum_cutover_action": {
+    "file": "config/supervisor/supervisord.conf",
+    "affected_block": "[program:creator_funding_worker] environment=",
+    "exact_change": {
+      "before": "RETAINED_ACQUISITION_OBSERVATIONS_ENABLED=\"1\"  (RETAINED_ACQUISITION_V2_SHADOW_ENABLED not present)",
+      "after_option_A_bounded_only": "RETAINED_ACQUISITION_OBSERVATIONS_ENABLED=\"0\", RETAINED_ACQUISITION_V2_SHADOW_ENABLED=\"1\", RETAINED_ACQUISITION_V2_SHADOW_DATABASE_PATH=\"<new bounded DB path>\", RETAINED_ACQUISITION_V2_SHADOW_ARTIFACT_PATH=\"<new bounded artifact path>\"",
+      "after_option_B_dual_write_verification_period": "RETAINED_ACQUISITION_OBSERVATIONS_ENABLED=\"1\" (kept temporarily), RETAINED_ACQUISITION_V2_SHADOW_ENABLED=\"1\" (added) -- runs both in parallel via _ParallelRetainedAcquisitionStore for a verification window before disabling the legacy flag; this does NOT stop legacy growth during the verification window, so it should be brief if used at all"
+    },
+    "affected_process": "creator_funding_worker only (the sole confirmed writer)",
+    "restart_requirement": "YES -- supervisorctl restart creator_funding_worker (this single program, not a full supervisor reload, not other services)",
+    "rollback_control": "revert the environment= block to the prior values and restart creator_funding_worker again",
+    "expected_writer_destination_after_activation": "RetainedAcquisitionStoreV2 at the configured RETAINED_ACQUISITION_V2_SHADOW_DATABASE_PATH",
+    "legacy_write_state_after_activation": "ZERO new writes (Option A) once RETAINED_ACQUISITION_OBSERVATIONS_ENABLED=0; the legacy DB becomes read-only/historical from that point forward, exactly as required by Part 6",
+    "not_activated_this_turn": true
+  },
+
+  "part12_rollback": {
+    "if_bounded_writer_misbehaves": [
+      "stop the bounded writer by reverting RETAINED_ACQUISITION_V2_SHADOW_ENABLED to unset/0",
+      "do NOT automatically resume unbounded full retention as a default rollback -- per explicit instruction, prefer a fail-safe posture that preserves acquisition runtime while retention degrades/stops per already-qualified semantics",
+      "acquisition itself is unaffected either way: RetainingTransactionAcquisition's fail-open try/except means a broken retained_store still lets provider requests/responses complete normally -- retention failure never blocks the creator-funding pipeline",
+      "if retention must be fully paused during investigation, set BOTH RETAINED_ACQUISITION_OBSERVATIONS_ENABLED=0 AND RETAINED_ACQUISITION_V2_SHADOW_ENABLED=0 -- _configured_retained_store() returns None, build_transaction_acquisition() falls back to plain SharedTransactionAcquisition (no retention at all, acquisition unaffected)",
+      "preserve all bounded artifacts (the new bounded DB and its artifact store) -- do not delete them on rollback",
+      "record the failure in the handoff/audit trail rather than silently reverting"
+    ],
+    "legacy_db_never_modified_by_rollback": true
+  },
+
+  "part13_disk_reserve_gate": {
+    "required_gib": 10,
+    "preferred_gib": 15,
+    "current_free_gib": 8.9,
+    "gate_met": false,
+    "note": "Per explicit instruction, activation remains HOLD even though the bounded-writer implementation itself is ready. No project data was deleted to satisfy this gate."
+  },
+
+  "part14_local_cutover_simulation": {
+    "method": "fixture/tmp_path only -- zero production writes",
+    "steps_proven": [
+      "constructed environment matching Option A (legacy disabled, bounded enabled) via mock.patch.dict on os.environ",
+      "called the REAL _configured_retained_store() -- selected RetainedAcquisitionStoreV2, not a mock",
+      "called the REAL .retain()/.record_outcome() with a realistic AcquisitionResponse fixture",
+      "confirmed the bounded tmp_path DB received exactly 1 row",
+      "confirmed the real production legacy DB's file size was byte-identical before and after (st_size comparison)"
+    ],
+    "result": "PASS -- new acquisition routed exclusively to the bounded path; legacy DB received zero new writes; rollback control (reverting env vars) was not separately re-tested in this exact script run but is covered by the existing dual-write test (test_parallel_activation_enables_shadow_and_legacy_side_by_side) proving the factory responds correctly to flag changes"
+  },
+
+  "part15_implementation_gap_closed": {
+    "gap_identified": "no test exercised RetainedAcquisitionStoreV2's enforcement behavior directly against real writes",
+    "minimum_local_integration_added": "tests/test_ra4_c3_bounded_writer_enforcement.py (9 tests) -- test-only, no code changes to src/, no production DB mutation, no provider changes, no acquisition semantics changes, no canonical-operation changes",
+    "feature_gated": "N/A -- no new feature code was added; only test coverage for EXISTING code",
+    "default_behavior_unchanged": "confirmed -- no src/ file was modified this milestone"
+  },
+
+  "focused_tests": {
+    "command": "python3 -m pytest -q tests/test_oip_v2_2e_1c1_retained_observations.py tests/test_ra4_retained_acquisition_shadow_activation.py tests/test_ra4_c3_bounded_writer_enforcement.py",
+    "result": "20 passed",
+    "zero_production_writes_during_tests": true
+  },
+
+  "b2n_frozen_state": {
+    "run_id": "b2n-p3e-98695fbdf44146c93ff08c8c",
+    "completed": 1,
+    "remaining": 19,
+    "physical_requests_consumed": 1,
+    "remaining_budget": 19,
+    "status": "PAUSED_NOT_ABANDONED",
+    "reason": "host storage growth (this RA4-C3 milestone)",
+    "b2n_execution_this_milestone": false,
+    "ledger_digests_reverified_unchanged": {
+      "attempt_ledger_sha256": "06ea55a8b21a30aec7b81f23737f921b1dcdf5bbe88266671600a25785fe9e0f",
+      "event_ledger_sha256": "f427610ccdae99b033d006fc0423170bcb6780a461c85c13d329c5fda8615071",
+      "live_result_sha256": "675e0bf23c99b70e24db24ef27bf0738f47b0fe69d6200543031ece62fa18767"
+    }
+  },
+
+  "authority_posture": {
+    "provider_calls_made": 0,
+    "helius_calls_made": 0,
+    "b2z_executed": false,
+    "b2n_resumed": false,
+    "legacy_db_deleted_or_modified": false,
+    "legacy_db_vacuumed": false,
+    "legacy_db_checkpointed": false,
+    "wal_shm_deleted": false,
+    "production_services_stopped": false,
+    "bounded_writer_activated": false,
+    "watchtower_mutated": false,
+    "existing_operations_mutated": false,
+    "h_series_evidence_altered": false,
+    "trading_policy_state_changed": false,
+    "handoff_transport_repaired": false,
+    "ordinal_1_redispatched": false,
+    "b2n_ledgers_modified": false
+  },
+
+  "blockers": ["RA4_HOST_STORAGE_FLOOR"],
+
+  "verdict": "HOLD_RA4_HOST_STORAGE_FLOOR",
+  "verdict_note": "The bounded writer implementation is genuinely production-ready (CUTOVER_IMPLEMENTATION_ALREADY_EXISTS): already coded, already factory-wired, already config-controlled, already tested (20 passing tests including 9 new this milestone), and locally simulated end-to-end with zero impact on the real legacy DB. The minimum cutover action is a two-line config change plus a single-process restart. HOWEVER, per explicit instruction, activation remains on HOLD because free disk (8.9 GiB) is below the required 10 GiB floor, even though the implementation itself is ready. No cleanup was performed to clear this gate. B2N remains frozen at exactly 1/20, untouched, artifacts byte-identical to before this milestone began."
+}

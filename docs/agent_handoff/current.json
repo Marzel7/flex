@@ -27927,7 +27927,8 @@
     "H3 reviewed 11175 pairs and returned disposition_counts={'continuity_candidate_supported_for_review': 13, 'insufficient_evidence': 11162, 'non_authoritative_candidate': 0, 'review_required': 0}",
     "H9 rerun remains PSI0H_H9_NO_ACTION_NEEDED with 1 diagnostics and unchanged source-class blockers after projection adapter.",
     "PSI0H-H4R boundary-qualified: continuity-candidate_id set size fixed at 13, unique_operation_count=22, packet/index digests unchanged after replay.",
-    "PSI0H-H4R1: accidental deletion of the OIP v2.1G frozen canonical DB was recovered from retained successor canonical_shadow.db (155 surplus provenance links removed under a temporarily-lifted immutable-delete trigger, then restored); logical canonical controls (evidence=807545, primitives=401050, links=12398192, canonical primitive digest) verified to match historical controls exactly; fresh v2.2C replay reproduced historical outputs; physical SHA-256 differs from the original by design (reconstructed from successor, not restored byte-for-byte) and is recorded as EXACT_PHYSICAL_FILE_RECOVERY_NOT_ACHIEVED without being conflated with the original digest. Recovery audit: docs/audits/oip_v2_1g_frozen_canonical_recovery_audit.json. H4R1 review material for the 13 already-qualified continuity candidates was then prepared read-only from the immutable H4R packet/index (docs/audits/psi0h_h4r1_bounded_human_review.json); all 13 rows are PENDING_HUMAN_DECISION."
+    "PSI0H-H4R1: accidental deletion of the OIP v2.1G frozen canonical DB was recovered from retained successor canonical_shadow.db (155 surplus provenance links removed under a temporarily-lifted immutable-delete trigger, then restored); logical canonical controls (evidence=807545, primitives=401050, links=12398192, canonical primitive digest) verified to match historical controls exactly; fresh v2.2C replay reproduced historical outputs; physical SHA-256 differs from the original by design (reconstructed from successor, not restored byte-for-byte) and is recorded as EXACT_PHYSICAL_FILE_RECOVERY_NOT_ACHIEVED without being conflated with the original digest. Recovery audit: docs/audits/oip_v2_1g_frozen_canonical_recovery_audit.json. H4R1 review material for the 13 already-qualified continuity candidates was then prepared read-only from the immutable H4R packet/index (docs/audits/psi0h_h4r1_bounded_human_review.json); all 13 rows are PENDING_HUMAN_DECISION.",
+    "PSI0H-H4R1 follow-up: the reconstructed OIP v2.1G frozen source's PRAGMA integrity_check, which had not finished at initial recovery-audit publication time, subsequently completed and returned ok (exit 0). docs/audits/oip_v2_1g_frozen_canonical_recovery_audit.json updated with the literal result; no other recovery findings changed."
   ],
   "operation_count_delta": {
     "current_count": 150,
@@ -28221,7 +28222,9 @@
     "fresh_replay_reproduced_historical_outputs": true,
     "audit_artifact": "docs/audits/oip_v2_1g_frozen_canonical_recovery_audit.json",
     "no_further_mutation_authorized": true,
-    "programme_boundary_note": "Recovery does not move the programme roadmap backwards; H4R PASS state (candidate_count=13, unique_operation_count=22) at commit 9cbf7baea3356c35a51f7823f7545b9140029e3b remains the qualified baseline for H4R1."
+    "programme_boundary_note": "Recovery does not move the programme roadmap backwards; H4R PASS state (candidate_count=13, unique_operation_count=22) at commit 9cbf7baea3356c35a51f7823f7545b9140029e3b remains the qualified baseline for H4R1.",
+    "integrity_check_result": "ok",
+    "integrity_check_note": "PRAGMA integrity_check(5) completed after initial recovery-record publication and returned ok; audit artifact updated with the literal result."
   },
   "latest_h4r1_output_path": "docs/audits/psi0h_h4r1_bounded_human_review.json"
 }

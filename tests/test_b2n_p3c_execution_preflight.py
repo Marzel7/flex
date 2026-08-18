@@ -92,13 +92,13 @@ def test_dry_run_rejects_tampered_authorization_digest(tmp_path, monkeypatch):
     fake_path.write_text(json.dumps(tampered))
     monkeypatch.setattr(p3c, "SUCCESSOR_PREFLIGHT_PATH", fake_path)
     with pytest.raises(p3c.B2NP3CError, match="AUTHORIZATION_DIGEST_MISMATCH"):
-        p3c.dry_run(ledger_path=tmp_path / "ledger.jsonl")
+        p3c.dry_run(ledger_path=tmp_path / "ledger.jsonl", event_ledger_path=tmp_path / "events.jsonl")
 
 
 def test_live_run_refuses_without_credential_env_var(monkeypatch, tmp_path):
     monkeypatch.delenv(p3c.CREDENTIAL_ENV_VAR, raising=False)
     with pytest.raises(p3c.B2NP3CError, match="CREDENTIAL_ENV_VAR_MISSING"):
-        p3c.live_run(ledger_path=tmp_path / "ledger.jsonl")
+        p3c.live_run(ledger_path=tmp_path / "ledger.jsonl", event_ledger_path=tmp_path / "events.jsonl")
 
 
 def test_credential_env_var_is_distinct_from_production_env_files():
@@ -164,7 +164,7 @@ def test_provenance_closure_gate_enforced(monkeypatch, tmp_path):
     tampered["closure_state"] = {"COMPLETE": 19, "PARTIAL": 1, "MISSING": 0, "CONFLICTING": 0}
     monkeypatch.setattr(p3c, "_load_reviewed_binding", lambda: tampered)
     with pytest.raises(p3c.B2NP3CError, match="PROVENANCE_CLOSURE_NOT_QUALIFIED"):
-        p3c.dry_run(ledger_path=tmp_path / "ledger.jsonl")
+        p3c.dry_run(ledger_path=tmp_path / "ledger.jsonl", event_ledger_path=tmp_path / "events.jsonl")
 
 
 def test_expected_authorization_constants_match_p3b_artifact():
@@ -285,7 +285,7 @@ def test_cumulative_budget_cannot_be_bypassed_via_rerun(tmp_path):
         })
 
     with pytest.raises(RuntimeError, match="MUST_BE_EMPTY"):
-        p3c.dry_run(ledger_path=ledger_path)
+        p3c.dry_run(ledger_path=ledger_path, event_ledger_path=tmp_path / "events.jsonl")
 
     # exactly the 3 pre-existing entries remain; nothing was appended, nothing was reset
     assert len(B2NAttemptLedger(ledger_path).entries()) == 3

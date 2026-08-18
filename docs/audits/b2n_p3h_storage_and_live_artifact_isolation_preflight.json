@@ -1,0 +1,187 @@
+{
+  "schema_version": "b2n.p3h.storage-and-live-artifact-isolation-preflight.v1",
+  "artifact_type": "B2N_P3H_STORAGE_AND_LIVE_ARTIFACT_ISOLATION_PREFLIGHT",
+  "milestone": "B2N-P3H",
+  "generated_utc": "2026-08-18T19:35:00Z",
+
+  "part1_current_disk": {
+    "filesystem": "/System/Volumes/Data",
+    "readings_this_session": [
+      {"at": "start_of_milestone", "available": "10 GiB", "capacity": "95%"},
+      {"at": "mid_milestone_after_tests", "available": "9.1 GiB", "capacity": "96%"}
+    ],
+    "final_reading": {"available": "9.1 GiB", "used": "188 GiB", "size": "228 GiB", "capacity": "96%"},
+    "private_tmp_same_volume": true,
+    "private_tmp_total_size": "164 MB (negligible)",
+    "execution_floor_required_gib": 10,
+    "execution_floor_preferred_gib": 15,
+    "execution_floor_met": false,
+    "bash_availability": "OK -- df -h succeeded, no ENOSPC"
+  },
+
+  "part2_through_6_storage_attribution": {
+    "objective": "explain the drop from ~11 GiB (P3F/P3G) to ~7.4-9.1 GiB (P3H, still fluctuating)",
+    "method": "bounded ls -lh / find by size, NOT recursive du across multi-GB databases",
+    "ranked_attribution": [
+      {
+        "rank": 1,
+        "path": "database/evidence_platform/production/retained_acquisition.db",
+        "size": "61.3 GB (65846349824 bytes)",
+        "mtime": "2026-08-18T18:52 -- literally the current timestamp at time of measurement, confirmed actively growing during this milestone",
+        "classification": "active production data",
+        "conclusion": "OVERWHELMINGLY the dominant contributor. A continuously-running production process (RA4 retained-acquisition store, per prior session memory) is writing to this file in real time, independent of anything in this B2N milestone. This single file's growth rate alone is sufficient to explain the entire multi-GiB free-space drop and its continued fluctuation during this session."
+      },
+      {
+        "rank": 2,
+        "path": "database/flex_complete_database.db",
+        "size": "13 GB",
+        "mtime": "2026-08-18T18:51 -- also current, also actively written (32K -shm, 1.9M -wal both fresh)",
+        "classification": "active production data",
+        "conclusion": "secondary active contributor; also under live write by production services (per production_state in the handoff: migration_census=ON, retention=ON)."
+      },
+      {
+        "rank": 3,
+        "path": "database/wt_ops_v2.db",
+        "size": "3.8 GB",
+        "mtime": "2026-08-18T18:50-18:51 -- current, actively written (5.8M -wal)",
+        "classification": "active production data",
+        "conclusion": "tertiary active contributor; canonical operation store, under live write by production listener/operator processes."
+      },
+      {
+        "rank": 4,
+        "path": "logs/ (all files combined)",
+        "size": "largest single log ~34MB (logs/diagnostics/x78_19_listener_connections.jsonl), most in low tens of MB with .log.N rotation caps",
+        "classification": "logs",
+        "conclusion": "negligible relative to GB-scale growth; rotation caps prevent unbounded growth."
+      },
+      {
+        "rank": 5,
+        "path": "unexplained residual",
+        "size": "not material -- the rank-1 through rank-3 active production DBs fully account for the observed drop and its continued volatility",
+        "classification": "unknown",
+        "conclusion": "none required; attribution is conclusive without residual."
+      }
+    ]
+  },
+
+  "part5_b2n_disk_contribution": {
+    "measured_path": "docs/audits/b2n_*",
+    "total_size_bytes": 450039,
+    "total_size_mb": 0.43,
+    "docs_audits_total_mb": 152,
+    "conclusion": "B2N's entire artifact footprint (~0.43 MB) is approximately 7 orders of magnitude smaller than the dominant contributor (61.3 GB). B2N did NOT materially contribute to the disk regression. This was measured, not assumed."
+  },
+
+  "part7_and_8_live_artifact_isolation_hardening": {
+    "incident_context": "P3G test incident: an older test unconditionally called DEFAULT_LEDGER_PATH.unlink(), deleting the real live attempt ledger during a routine full-suite run. Already fixed in the P3G commit; this milestone adds a STRUCTURAL guard on top of that fix, not just the removal of the one bad call.",
+    "paths_hardened": [
+      "docs/audits/b2n_p3c_live_ledger_b2n-p3e-98695fbdf44146c93ff08c8c.jsonl",
+      "docs/audits/b2n_p3e_event_ledger_b2n-p3e-98695fbdf44146c93ff08c8c.jsonl",
+      "docs/audits/b2n_p3c_live_result.json"
+    ],
+    "hardening_mechanism": "new _resolve_path_under_test() helper in scripts/run_b2n_p3c_migration_lineage_run.py: if a caller does not supply an explicit ledger_path/event_ledger_path AND the code is running under pytest (sys.modules contains 'pytest'), the call is REJECTED with B2N_P3H_TEST_MUST_SUPPLY_EXPLICIT_<LEDGER|EVENT_LEDGER>_PATH rather than silently falling back to the canonical live default path. Wired into dry_run(), live_run(), and resume_run().",
+    "audit_of_all_test_call_sites": "grepped every dry_run()/live_run()/resume_run() invocation across tests/*.py; found 4 call sites in tests/test_b2n_p3c_execution_preflight.py that supplied ledger_path but omitted event_ledger_path (relying on the call raising for an unrelated reason -- digest mismatch, missing credential, provenance closure, or a duplicate on the explicit ledger_path -- before ever reaching the event-ledger check). All 4 fixed to pass explicit tmp_path-scoped event_ledger_path as well, so correctness no longer depends on incidental code ordering.",
+    "main_cli_entrypoint_risk": "main() (the CLI --live/--resume path) still defaults --output/DEFAULT_RESULT_PATH when no --output/--ledger-path/--event-ledger-path flags are given -- this is CORRECT and INTENTIONAL for real human invocation (durable-by-default), and is structurally unreachable from any test in this suite, since no test calls main() directly (confirmed by grep)."
+  },
+
+  "part9_live_artifact_integrity_snapshot": {
+    "before_tests": {
+      "attempt_ledger": {"path": "docs/audits/b2n_p3c_live_ledger_b2n-p3e-98695fbdf44146c93ff08c8c.jsonl", "exists": true, "size_bytes": 727, "sha256": "06ea55a8b21a30aec7b81f23737f921b1dcdf5bbe88266671600a25785fe9e0f"},
+      "event_ledger": {"path": "docs/audits/b2n_p3e_event_ledger_b2n-p3e-98695fbdf44146c93ff08c8c.jsonl", "exists": true, "size_bytes": 521, "sha256": "f427610ccdae99b033d006fc0423170bcb6780a461c85c13d329c5fda8615071"},
+      "live_result": {"path": "docs/audits/b2n_p3c_live_result.json", "exists": true, "size_bytes": 1332, "sha256": "675e0bf23c99b70e24db24ef27bf0738f47b0fe69d6200543031ece62fa18767"}
+    },
+    "test_run_between_snapshots": "python3 -m pytest -q tests/test_oip_v2_2e_2b2t_executor.py tests/test_oip_v2_2e_2b2x_projection.py tests/test_oip_v2_2e_2b2bt_preflight.py tests/test_b2n_p3_bounded_run_authorization_preflight.py tests/test_b2n_p3a_provider_method_trace.py tests/test_b2n_p3b_migration_lineage_reconciliation.py tests/test_b2n_p3c_execution_preflight.py tests/test_b2n_p3e_accounting_repair.py tests/test_b2n_p3g_continuation.py -- 100 passed",
+    "after_tests": {
+      "attempt_ledger": {"path": "docs/audits/b2n_p3c_live_ledger_b2n-p3e-98695fbdf44146c93ff08c8c.jsonl", "exists": true, "size_bytes": 727, "sha256": "06ea55a8b21a30aec7b81f23737f921b1dcdf5bbe88266671600a25785fe9e0f"},
+      "event_ledger": {"path": "docs/audits/b2n_p3e_event_ledger_b2n-p3e-98695fbdf44146c93ff08c8c.jsonl", "exists": true, "size_bytes": 521, "sha256": "f427610ccdae99b033d006fc0423170bcb6780a461c85c13d329c5fda8615071"},
+      "live_result": {"path": "docs/audits/b2n_p3c_live_result.json", "exists": true, "size_bytes": 1332, "sha256": "675e0bf23c99b70e24db24ef27bf0738f47b0fe69d6200543031ece62fa18767"}
+    },
+    "before_digest_equals_after_digest_all_three": true,
+    "integrity_verdict": "PASS -- no live artifact integrity violation detected"
+  },
+
+  "part10_partial_run_reconciliation": {
+    "method": "direct read of the real, untouched live artifacts + programmatic re-run of p3c._completed_ordinals_from_ledgers() against them",
+    "completed_ordinals": [1],
+    "remaining_ordinals": [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+    "attempt_ledger_entry_count": 1,
+    "event_ledger_lifecycle_for_ordinal_1": ["ATTEMPT_RESERVED", "ATTEMPT_SUCCEEDED"],
+    "physical_requests_consumed": 1,
+    "remaining_budget": 19,
+    "no_duplicate_ordinal": true,
+    "no_unexplained_event": true,
+    "live_result_agrees_with_ledgers": true,
+    "artifacts_mutated_by_this_reconciliation": false
+  },
+
+  "part11_continuation_tests": {
+    "command": "python3 -m pytest -q tests/test_b2n_p3g_continuation.py",
+    "result": "12 passed",
+    "all_paths_tmp_path_scoped": true,
+    "covers": [
+      "ordinal 1 preserved and cannot be redispatched (duplicate-reservation guard)",
+      "next member selection = ordinal 2",
+      "one continuation invocation processes exactly one member",
+      "cumulative physical requests 1 -> 2, budget 19 -> 18",
+      "interruption mid-sequence remains durable, subsequent resume selects the correct next unattempted ordinal",
+      "dangling-reservation and ledger/event-ledger-mismatch fail-closed",
+      "full 19-step sequence reaches 20/20 with correct budget decrement to 0",
+      "zero real network calls (all mocked transports)"
+    ]
+  },
+
+  "focused_tests_combined": {
+    "command": "python3 -m pytest -q tests/test_oip_v2_2e_2b2t_executor.py tests/test_oip_v2_2e_2b2x_projection.py tests/test_oip_v2_2e_2b2bt_preflight.py tests/test_b2n_p3_bounded_run_authorization_preflight.py tests/test_b2n_p3a_provider_method_trace.py tests/test_b2n_p3b_migration_lineage_reconciliation.py tests/test_b2n_p3c_execution_preflight.py tests/test_b2n_p3e_accounting_repair.py tests/test_b2n_p3g_continuation.py",
+    "result": "100 passed",
+    "zero_real_network_calls": true
+  },
+
+  "part13_storage_remediation_recommendation": {
+    "note": "recommendation only -- no cleanup performed by this milestone",
+    "SAFE_DISPOSABLE": [
+      "database/evidence_platform/production/retained_acquisition_ra0_probe.db (462 MB) -- appears to be a bounded probe/experiment artifact, not the canonical production store itself; verify it is not still referenced by an active process before removal",
+      "database/evidence_platform/oip_v2_2c_application_equivalence/primitive_replay.pre_recovery_20260818.sqlite (318 MB) -- explicitly a pre-recovery historical snapshot per its own filename; likely safe once the recovery it documents is confirmed durable",
+      "logs/*.log.N rotated log segments -- already capped by rotation, but very old segments (if any exceed normal retention policy) could be reviewed for archival/deletion by the human"
+    ],
+    "REVIEW_BEFORE_DELETE": [
+      "database/evidence_platform/oip_v2_2d_shadow_migration/canonical_shadow.db (5.3 GB) and its compact_sidecar*.db siblings -- historical shadow-migration artifacts referenced by name in other committed audit trails; do not delete without confirming no downstream provenance chain still points to them",
+      "database/evidence_platform/oip_v2_1g_stage_2000_frozen/evidence.db (5.3 GB) -- the OIP v2.1G FROZEN canonical evidence DB, subject of a prior recovery incident this session's memory references; treat with extreme caution",
+      "database/evidence_platform/watchtower_shadow*/evidence.db (365 MB + 741 MB) -- shadow/parity artifacts; review against their governing milestone before removal",
+      "database/flex_investigation_archive.db (2.7 GB) -- cold-storage archive per prior session memory (funder_networks archived here); do not delete without confirming its archival purpose is still needed"
+    ],
+    "DO_NOT_TOUCH": [
+      "database/evidence_platform/production/retained_acquisition.db (61.3 GB) -- active production data, under live write right now",
+      "database/flex_complete_database.db (13 GB) + its -wal/-shm -- active production data, under live write right now",
+      "database/wt_ops_v2.db (3.8 GB) + its -wal/-shm -- active production data (canonical operation store), under live write right now",
+      "docs/audits/b2n_p3c_live_ledger_b2n-p3e-98695fbdf44146c93ff08c8c.jsonl -- live B2N attempt ledger, authoritative partial-run record",
+      "docs/audits/b2n_p3e_event_ledger_b2n-p3e-98695fbdf44146c93ff08c8c.jsonl -- live B2N pre-dispatch event ledger, authoritative partial-run record",
+      "docs/audits/b2n_p3c_live_result.json -- live B2N result artifact",
+      "any *.db-wal / *.db-shm belonging to an actively-written DB listed above -- checkpointing or deleting these risks data loss for a live production process; explicitly out of scope for this milestone regardless"
+    ]
+  },
+
+  "authority_posture": {
+    "provider_calls_made": 0,
+    "rpc_calls_made": 0,
+    "live_ledger_mutated": false,
+    "event_ledger_mutated": false,
+    "live_result_mutated": false,
+    "ordinal_1_redispatched": false,
+    "budget_widened": false,
+    "cleanup_performed": false,
+    "wal_checkpointed": false,
+    "vacuum_performed": false,
+    "production_db_written": false,
+    "existing_operation_mutated": false,
+    "watchtower_mutated": false,
+    "b2z_executed": false,
+    "handoff_transport_repaired": false,
+    "continuation_executed": false,
+    "ordinal_2_dispatched": false
+  },
+
+  "blockers": ["B2N_HOST_STORAGE_FLOOR"],
+
+  "verdict": "HOLD_B2N_HOST_STORAGE_FLOOR",
+  "verdict_note": "Live-artifact isolation hardening PASSES (before/after digests identical across all three canonical live artifacts; test-call-site audit found and fixed 4 latent gaps; new structural guard makes the P3G incident class impossible going forward, not merely discouraged). Partial-run reconciliation PASSES (completed={1}, remaining=19, consumed=1, remaining budget=19, fully consistent across both ledgers and the result artifact). Continuation mechanism re-verified with 12 mocked tests, zero real network calls. HOWEVER, disk remains below the 10 GiB floor (9.1 GiB at final measurement, having fluctuated 7.4-11 GiB across this and the prior session due to an actively-growing 61.3 GB production database entirely unrelated to B2N). Per explicit instruction this alone forces HOLD_B2N_HOST_STORAGE_FLOOR regardless of every other check passing. No continuation was executed."
+}

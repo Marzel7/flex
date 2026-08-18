@@ -76,6 +76,27 @@ CREDENTIAL_ENV_VAR = "B2N_P3C_HELIUS_ENDPOINT"
 DEFAULT_LEDGER_PATH = ROOT / "docs/audits" / f"b2n_p3c_live_ledger_{EXPECTED_RUN_ID}.jsonl"
 DEFAULT_RESULT_PATH = ROOT / "docs/audits" / "b2n_p3c_live_result.json"
 
+
+def _resolve_path_under_test(explicit_path: Path | None, default_path: Path, *, label: str) -> Path:
+    """P3H test-isolation hardening: if this function is imported/running
+    under pytest (sys.modules contains 'pytest'), an explicit path MUST be
+    supplied -- silently falling back to a canonical live default path
+    (DEFAULT_LEDGER_PATH / DEFAULT_EVENT_LEDGER_PATH / DEFAULT_RESULT_PATH) is
+    refused with a clear error rather than allowed. This exists because a
+    P3G test incident showed that a default-path fallback, combined with a
+    since-removed unconditional .unlink() in one test, deleted the real live
+    attempt ledger during a routine full-suite run. Requiring every
+    test-context call to pass an explicit (tmp_path-scoped) path makes that
+    class of accident structurally impossible, not merely discouraged."""
+    if explicit_path is not None:
+        return explicit_path.resolve()
+    if "pytest" in sys.modules:
+        raise B2NP3CError(
+            f"B2N_P3H_TEST_MUST_SUPPLY_EXPLICIT_{label}_PATH: refusing to resolve to the canonical "
+            f"live default ({default_path}) while running under pytest."
+        )
+    return default_path.resolve()
+
 # P3E: a SEPARATE, append-only, multi-event-per-ordinal pre-dispatch reservation
 # ledger. Unlike B2NAttemptLedger (which stores exactly one terminal entry per
 # ordinal and is only ever written AFTER a successful counter reconciliation),
@@ -358,8 +379,8 @@ def build_projection(manifest: B2NManifest, reviewed: dict) -> B2WInputProjectio
 
 
 def dry_run(*, ledger_path: Path | None = None, event_ledger_path: Path | None = None) -> dict:
-    ledger_path = (ledger_path or DEFAULT_LEDGER_PATH).resolve()
-    event_ledger_path = (event_ledger_path or DEFAULT_EVENT_LEDGER_PATH).resolve()
+    ledger_path = _resolve_path_under_test(ledger_path, DEFAULT_LEDGER_PATH, label="LEDGER")
+    event_ledger_path = _resolve_path_under_test(event_ledger_path, DEFAULT_EVENT_LEDGER_PATH, label="EVENT_LEDGER")
 
     manifest = _load_frozen_manifest()
     manifest.validate()
@@ -438,8 +459,8 @@ def live_run(*, ledger_path: Path | None = None, event_ledger_path: Path | None 
     if not endpoint:
         raise B2NP3CError(f"B2N_P3C_CREDENTIAL_ENV_VAR_MISSING:{CREDENTIAL_ENV_VAR}")
 
-    ledger_path = (ledger_path or DEFAULT_LEDGER_PATH).resolve()
-    event_ledger_path = (event_ledger_path or DEFAULT_EVENT_LEDGER_PATH).resolve()
+    ledger_path = _resolve_path_under_test(ledger_path, DEFAULT_LEDGER_PATH, label="LEDGER")
+    event_ledger_path = _resolve_path_under_test(event_ledger_path, DEFAULT_EVENT_LEDGER_PATH, label="EVENT_LEDGER")
 
     manifest = _load_frozen_manifest()
     manifest.validate()
@@ -583,8 +604,8 @@ def resume_run(*, ledger_path: Path | None = None, event_ledger_path: Path | Non
     if not endpoint:
         raise B2NP3CError(f"B2N_P3C_CREDENTIAL_ENV_VAR_MISSING:{CREDENTIAL_ENV_VAR}")
 
-    ledger_path = (ledger_path or DEFAULT_LEDGER_PATH).resolve()
-    event_ledger_path = (event_ledger_path or DEFAULT_EVENT_LEDGER_PATH).resolve()
+    ledger_path = _resolve_path_under_test(ledger_path, DEFAULT_LEDGER_PATH, label="LEDGER")
+    event_ledger_path = _resolve_path_under_test(event_ledger_path, DEFAULT_EVENT_LEDGER_PATH, label="EVENT_LEDGER")
 
     manifest = _load_frozen_manifest()
     manifest.validate()

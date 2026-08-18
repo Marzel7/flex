@@ -28,11 +28,11 @@
   },
   "blockers": [],
   "current_milestone": {
-    "milestone": "PSI0H-H4R bounded continuity review packet",
+    "milestone": "PSI0H-H4R1 bounded human review preparation",
     "mode": "historical retained evidence population/candidate pipeline",
     "programme": "historical operation source expansion",
-    "status": "PASS",
-    "verdict": "PSI0H_H4R_REVIEW_PACKET_EMITTED"
+    "status": "READY_FOR_HUMAN_REVIEW",
+    "verdict": "PSI0H_H4R1_REVIEW_MATERIAL_PREPARED"
   },
   "hand_off_transport_blocker": "HANDOFF_TRANSPORT_DEGRADED",
   "handoff_transport": {
@@ -27902,16 +27902,12 @@
     }
   },
   "next_action": {
+    "decision": "PSI0H_H4R1_REVIEW_MATERIAL_PREPARED",
+    "instruction": "13 continuity candidates are presented for explicit human review with disposition PENDING_HUMAN_DECISION. No automatic dispositions have been made.",
+    "next_boundary": "Human reviewer records one of COMMON_PLAYBOOK_ONLY / PLAUSIBLE_OPERATIONAL_CONTINUITY / PLAUSIBLE_OPERATIONAL_FAMILY / INSUFFICIENT_EVIDENCE / CONFLICTING_EVIDENCE for each of the 13 candidates in docs/audits/psi0h_h4r1_bounded_human_review.json.",
     "candidate_count": 13,
-    "candidate_count_expected": 13,
-    "decision": "PSI0H-H4R_REVIEW_PACKET_QUALIFIED",
-    "instruction": "Targeted H4R qualification and replay are complete; proceed to bounded human review of 13 continuity candidates.",
-    "insufficient_candidates": 11162,
-    "next_boundary": "PSI0H-H4R1 bounded human review of 13 historical continuity candidates",
-    "operation_count": 150,
-    "pair_count": 11175,
-    "required_authorization": "NONE",
-    "unique_operation_count": 22,
+    "pending_human_decisions": 13,
+    "required_authorization": "HUMAN_REVIEW_REQUIRED",
     "verdict": "PASS_WITH_BOUNDARY_CONTINUITY_CANDIDATES"
   },
   "notes": [
@@ -27930,7 +27926,8 @@
     "H2 now reports 13 continuity candidates out of 11175 pairs (13 continuity, 11162 insufficient).",
     "H3 reviewed 11175 pairs and returned disposition_counts={'continuity_candidate_supported_for_review': 13, 'insufficient_evidence': 11162, 'non_authoritative_candidate': 0, 'review_required': 0}",
     "H9 rerun remains PSI0H_H9_NO_ACTION_NEEDED with 1 diagnostics and unchanged source-class blockers after projection adapter.",
-    "PSI0H-H4R boundary-qualified: continuity-candidate_id set size fixed at 13, unique_operation_count=22, packet/index digests unchanged after replay."
+    "PSI0H-H4R boundary-qualified: continuity-candidate_id set size fixed at 13, unique_operation_count=22, packet/index digests unchanged after replay.",
+    "PSI0H-H4R1: accidental deletion of the OIP v2.1G frozen canonical DB was recovered from retained successor canonical_shadow.db (155 surplus provenance links removed under a temporarily-lifted immutable-delete trigger, then restored); logical canonical controls (evidence=807545, primitives=401050, links=12398192, canonical primitive digest) verified to match historical controls exactly; fresh v2.2C replay reproduced historical outputs; physical SHA-256 differs from the original by design (reconstructed from successor, not restored byte-for-byte) and is recorded as EXACT_PHYSICAL_FILE_RECOVERY_NOT_ACHIEVED without being conflated with the original digest. Recovery audit: docs/audits/oip_v2_1g_frozen_canonical_recovery_audit.json. H4R1 review material for the 13 already-qualified continuity candidates was then prepared read-only from the immutable H4R packet/index (docs/audits/psi0h_h4r1_bounded_human_review.json); all 13 rows are PENDING_HUMAN_DECISION."
   ],
   "operation_count_delta": {
     "current_count": 150,
@@ -28163,7 +28160,7 @@
     "production_changes_allowed": false
   },
   "schema_version": 1,
-  "status": "PASS",
+  "status": "READY_FOR_HUMAN_REVIEW",
   "test_runs": {
     "continuity_adapter": {
       "command": "pytest -q tests/test_psi0h_h8_h4_runtime_projection.py tests/test_psi0h_h2_historical_candidate_generation.py tests/test_psi0h_h3_historical_candidate_disposition.py",
@@ -28203,5 +28200,28 @@
   },
   "updated_at_utc": "2026-08-17T21:05:22Z",
   "updated_by": "codex-h7h-h1h2h3-continuity-adapter",
-  "verdict": "PSI0H_H4R_REVIEW_PACKET_EMITTED"
+  "verdict": "PSI0H_H4R1_REVIEW_MATERIAL_PREPARED",
+  "recovery_event": {
+    "incident": "accidental_deletion_of_frozen_canonical_evidence_db",
+    "incident_path": "database/evidence_platform/oip_v2_1g_stage_2000_frozen/evidence.db",
+    "recovered_at_utc": "2026-08-18T08:24:00Z",
+    "recovery_source": "database/evidence_platform/oip_v2_2d_shadow_migration/canonical_shadow.db",
+    "logical_canonical_recovery_verdict": "LOGICAL_CANONICAL_RECOVERY_VERIFIED",
+    "physical_file_recovery_verdict": "EXACT_PHYSICAL_FILE_RECOVERY_NOT_ACHIEVED",
+    "original_physical_source_digest_sha256": "acb0be3ad7f3982fa0f6ffcf0854f1fae46ab5b500271a5f78880527b5b03ca0",
+    "reconstructed_physical_file_sha256": "c2ad1d9f300f86e8c2026483cd7d79127bedb829f5c37b8f20ea1144682861d2",
+    "canonical_logical_controls": {
+      "evidence": 807545,
+      "primitives": 401050,
+      "links": 12398192,
+      "canonical_primitive_digest_sha256": "e472f2cae08f26ace75f73b6f6ef5d550aea23072ccd78c3e8d1efeccc423c38"
+    },
+    "deleted_surplus_links": 155,
+    "immutable_delete_trigger_restored": true,
+    "fresh_replay_reproduced_historical_outputs": true,
+    "audit_artifact": "docs/audits/oip_v2_1g_frozen_canonical_recovery_audit.json",
+    "no_further_mutation_authorized": true,
+    "programme_boundary_note": "Recovery does not move the programme roadmap backwards; H4R PASS state (candidate_count=13, unique_operation_count=22) at commit 9cbf7baea3356c35a51f7823f7545b9140029e3b remains the qualified baseline for H4R1."
+  },
+  "latest_h4r1_output_path": "docs/audits/psi0h_h4r1_bounded_human_review.json"
 }

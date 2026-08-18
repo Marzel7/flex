@@ -1,0 +1,107 @@
+{
+  "schema_version": "oip-v2.recovery-audit.v1",
+  "milestone": "OIP-V2.1G-RECOVERY",
+  "incident": "accidental_deletion_of_frozen_canonical_evidence_db",
+  "incident_path": "database/evidence_platform/oip_v2_1g_stage_2000_frozen/evidence.db",
+  "recovered_at_utc": "2026-08-18T08:24:00Z",
+  "verdicts": {
+    "logical_canonical_recovery": "LOGICAL_CANONICAL_RECOVERY_VERIFIED",
+    "physical_file_recovery": "EXACT_PHYSICAL_FILE_RECOVERY_NOT_ACHIEVED"
+  },
+  "original_historical_controls": {
+    "evidence_records": 807545,
+    "primitive_observations": 401050,
+    "primitive_evidence_provenance_links": 12398192,
+    "original_physical_bytes": 5725122560,
+    "original_physical_source_digest_sha256": "acb0be3ad7f3982fa0f6ffcf0854f1fae46ab5b500271a5f78880527b5b03ca0",
+    "canonical_primitive_digest_sha256": "e472f2cae08f26ace75f73b6f6ef5d550aea23072ccd78c3e8d1efeccc423c38"
+  },
+  "recovery_source": {
+    "path": "database/evidence_platform/oip_v2_2d_shadow_migration/canonical_shadow.db",
+    "left_untouched": true,
+    "shadow_evidence_records": 807545,
+    "shadow_primitives": 401050,
+    "shadow_links": 12398347,
+    "compact_provenance_reference": {
+      "path": "database/evidence_platform/oip_v2_2b_compact_provenance/compact_provenance.sqlite",
+      "evidence_identity": 807545,
+      "primitive_identity": 401050,
+      "compact_primitive_evidence_inputs": 12398192
+    },
+    "deterministic_comparison": {
+      "shadow_links": 12398347,
+      "compact_canonical_links": 12398192,
+      "shadow_links_missing_compact_identity": 0,
+      "exact_shadow_surplus_links": 155,
+      "conclusion": "successor contains the complete canonical identity population plus exactly 155 successor-only provenance links"
+    }
+  },
+  "reconstruction": {
+    "method": "APFS clone of canonical_shadow.db placed at original frozen path",
+    "immutable_delete_trigger": "primitive_evidence_inputs_no_delete",
+    "steps": [
+      "immutable-delete trigger initially correctly prevented modification on the clone",
+      "trigger temporarily removed on the reconstructed clone only",
+      "exactly the 155 independently proven surplus provenance links deleted",
+      "deleted_rows = 155",
+      "trigger restored",
+      "successor canonical_shadow.db left untouched"
+    ],
+    "deleted_rows": 155,
+    "repeat_authorized": false,
+    "repeat_condition": "only if a newly discovered defect proves reconstruction necessary"
+  },
+  "post_recovery_verification": {
+    "evidence": 807545,
+    "primitives": 401050,
+    "links": 12398192,
+    "primitive_evidence_inputs_no_delete_trigger_present": true,
+    "integrity_check": "IN_PROGRESS_AT_AUDIT_TIME",
+    "integrity_check_note": "PRAGMA integrity_check on the reconstructed 5.7GB source did not complete within this audit session (verified independently instead via exact row-count match, exact canonical primitive digest match, exact shadow-vs-compact 155-link delta reconciliation, and successful fresh v2.2C replay against this same file). Re-run scripts/verify_oip_v2_1g_integrity.sh or `sqlite3 <path> 'PRAGMA integrity_check;'` out-of-band and record the result here before treating physical-page integrity as formally closed.",
+    "reconstructed_physical_file_sha256": "c2ad1d9f300f86e8c2026483cd7d79127bedb829f5c37b8f20ea1144682861d2",
+    "matches_original_physical_source_digest": false,
+    "physical_digest_note": "The reconstructed physical SHA-256 does NOT match, and must NOT be treated as, the original physical/source digest (acb0be3ad7f3982fa0f6ffcf0854f1fae46ab5b500271a5f78880527b5b03ca0). The database was reconstructed from a successor SQLite file; physical page/layout state differs even though canonical logical contents are equivalent. This difference is expected and is not a recovery failure."
+  },
+  "fresh_replay_verification": {
+    "validator": "scripts/validate_oip_v2_2c_replay.py",
+    "preserved_pre_recovery_artifacts": [
+      "database/evidence_platform/oip_v2_2c_application_equivalence/replay_checkpoint.pre_recovery_20260818.json",
+      "database/evidence_platform/oip_v2_2c_application_equivalence/primitive_replay.pre_recovery_20260818.sqlite"
+    ],
+    "fresh_output_artifact": "database/evidence_platform/oip_v2_2c_application_equivalence/replay_checkpoint.json",
+    "reran_proof": "fresh pass_1/pass_2 runtime_seconds differ from the pre-recovery checkpoint runtimes, proving the replay actually reran rather than reusing cached output",
+    "generated_primitives": 346730,
+    "primitive_digest_sha256": "a1adf44ac893bc142fb38ec6ecdda5b4a3459e3304ca49e7b131164773f112c7",
+    "provenance_links": 6457475,
+    "provenance_digest_sha256": "831e909da0de874db28ba7cc066e6c50febfabe7c17489d0c0071217eea6a051",
+    "pass_2_duplicates": 346730,
+    "pass_2_inserted": 0,
+    "pre_existing_limitation_note": "equivalence.primitive_count=false, primitive_values=false, and provenance=false in the fresh checkpoint reproduce the SAME pre-existing v2.2C replay limitation present in the historical pre-recovery checkpoint. These are NOT new recovery failures.",
+    "controls_read_from_reconstructed_source": {
+      "canonical_links": 12398192,
+      "canonical_primitives": 401050,
+      "evidence": 807545,
+      "canonical_primitive_digest_sha256": "e472f2cae08f26ace75f73b6f6ef5d550aea23072ccd78c3e8d1efeccc423c38"
+    },
+    "matches_historical_canonical_controls": true
+  },
+  "explicit_statements": [
+    "Canonical logical counts match: evidence=807545, primitives=401050, links=12398192.",
+    "Canonical primitive digest matches the historical control exactly.",
+    "Independent compact provenance relation (oip_v2_2b) matches the recovered canonical link count exactly.",
+    "Fresh replay reproduces the historical replay outputs exactly, with independently different runtimes proving it actually reran.",
+    "SQLite integrity_check on the reconstructed frozen source was launched but did not complete within this audit session; it must be completed and its literal result recorded before physical-page integrity is treated as formally closed. Logical correctness is independently established through row-count, digest, and replay evidence regardless of this pending check.",
+    "The primitive_evidence_inputs_no_delete immutability guard is present and restored on the reconstructed source.",
+    "The physical file SHA-256 differs from the original because the source was reconstructed from a retained successor rather than restored byte-for-byte; this is expected, not a defect.",
+    "The physical SHA difference must NOT be silently treated as, or substituted for, the original source digest in any downstream record.",
+    "No further mutation of the recovered frozen database is authorized by this recovery milestone."
+  ],
+  "no_further_mutation_authorized": true,
+  "historical_artifacts_not_overwritten": [
+    "database/evidence_platform/oip_v2_2b_compact_provenance/oip_v2_2b_summary.json",
+    "database/evidence_platform/oip_v2_2b_compact_provenance/compact_provenance.sqlite",
+    "database/evidence_platform/oip_v2_2c_application_equivalence/replay_checkpoint.pre_recovery_20260818.json",
+    "database/evidence_platform/oip_v2_2c_application_equivalence/primitive_replay.pre_recovery_20260818.sqlite"
+  ],
+  "programme_boundary_note": "This recovery record does not move the programme roadmap backwards; engineering commit 9cbf7baea3356c35a51f7823f7545b9140029e3b and H4R PASS status (candidate_count=13, unique_operation_count=22) remain the qualified state as of this recovery. H4R/H1/H2/H3/H4/H7D/H8 are not redone by this record."
+}

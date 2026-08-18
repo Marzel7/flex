@@ -1,0 +1,139 @@
+{
+  "schema_version": "b2n.p3f.fresh-live-execution-gate.v1",
+  "artifact_type": "B2N_P3F_FRESH_LIVE_EXECUTION_GATE",
+  "milestone": "B2N-P3F",
+  "generated_utc": "2026-08-18T18:40:00Z",
+
+  "part1_fresh_run_artifacts_verified": {
+    "run_id": "b2n-p3e-98695fbdf44146c93ff08c8c",
+    "authorization_artifact": "docs/audits/b2n_p3e_bounded_migration_lineage_run_authorization_preflight.json",
+    "authorization_digest": "b4994fdda5eb9ae1dd7fe27927efd9cef7504b179dfcbb12fa4bbd9b9bbffaae",
+    "authorization_digest_verified": true,
+    "cohort_member_count": 20,
+    "p2e_provenance_closure": {"COMPLETE": 20, "PARTIAL": 0, "MISSING": 0, "CONFLICTING": 0},
+    "provider": "helius",
+    "endpoint_family": "helius-mainnet-json-rpc",
+    "method": "getTransaction",
+    "max_total_requests": 20,
+    "max_requests_per_member": 1,
+    "retries": 0,
+    "pagination": 0,
+    "fallback": 0,
+    "attempt_ledger_path": "docs/audits/b2n_p3c_live_ledger_b2n-p3e-98695fbdf44146c93ff08c8c.jsonl",
+    "attempt_ledger_exists": false,
+    "attempt_ledger_empty": true,
+    "event_ledger_path": "docs/audits/b2n_p3e_event_ledger_b2n-p3e-98695fbdf44146c93ff08c8c.jsonl",
+    "event_ledger_exists": false,
+    "event_ledger_empty": true,
+    "confirmed_by": "direct filesystem check this session -- neither file exists, nothing was reset"
+  },
+
+  "part2_durability_order_verified": {
+    "order_confirmed_by_direct_code_read": [
+      "authorization.validate(manifest=manifest) -- live_run(), before ledger construction",
+      "_verify_ledger_readiness(ledger_path) + event_ledger.require_empty() -- before transport/adapter/client construction",
+      "DurableAccountingClient.acquire_once(): event_ledger.append_event(event='ATTEMPT_RESERVED', ...) -- durable, BEFORE any dispatch",
+      "transport_before = self._transport.physical_request_count",
+      "response = self._adapter.acquire_once(mint=mint) -- physical dispatch happens inside this call (transport.post_json)",
+      "transport_after = self._transport.physical_request_count",
+      "terminal event appended (ATTEMPT_SUCCEEDED / ATTEMPT_FAILED / ATTEMPT_NOT_DISPATCHED)",
+      "response returned to B2NExecutor with provider_request_count forced to match observed reality",
+      "B2NExecutor.run()'s own before/after/delta/request_count reconciliation -- now internally consistent",
+      "self.ledger.append(entry) -- candidate result / attempt ledger"
+    ],
+    "physical_request_never_before_reservation": true,
+    "verified_by_tests": [
+      "tests/test_b2n_p3e_accounting_repair.py::test_reservation_written_before_dispatch",
+      "tests/test_b2n_p3e_accounting_repair.py::test_scenario_A_http_success_accounted",
+      "tests/test_b2n_p3e_accounting_repair.py::test_scenario_E_transport_exception_after_dispatch_accounted",
+      "tests/test_b2n_p3e_accounting_repair.py::test_scenario_F_exception_before_dispatch_not_accounted"
+    ],
+    "rerun_this_session": true,
+    "rerun_result": "4/4 passed"
+  },
+
+  "part3_old_run_reuse_impossible": {
+    "old_run_id": "b2n-p3b-c39499f523e42083ce045d70",
+    "old_run_id_rejected": "EXPECTED_RUN_ID constant now equals the NEW run_id; old value differs and is never referenced by any live code path",
+    "old_authorization_digest_rejected": "EXPECTED_AUTHORIZATION_DIGEST now equals the P3E artifact's digest (b4994fdd...); the P3B artifact's digest differs and SUCCESSOR_PREFLIGHT_PATH no longer points at it",
+    "old_ledger_cannot_be_passed_into_new_authorization": "verified directly: dry_run(ledger_path=<arbitrary path>) still binds run_id_verified to the NEW run_id regardless of --ledger-path value, because authorization binding is read from SUCCESSOR_PREFLIGHT_PATH (hardcoded to the P3E artifact), independent of any ledger path override",
+    "runner_requires_p3e_run_id": true,
+    "no_automatic_fallback_to_old_authorization": "SUCCESSOR_PREFLIGHT_PATH is a single hardcoded constant pointing at the P3E artifact; there is no code path, flag, or fallback that reads the P3B artifact during dry_run() or live_run()",
+    "verified_this_session": true
+  },
+
+  "part4_secret_input_verified": {
+    "env_var": "B2N_P3C_HELIUS_ENDPOINT",
+    "unchanged_from_p3c": true,
+    "not_renamed_during_p3e": true,
+    "never_read_from_production_env_files": true,
+    "never_printed_or_persisted": true
+  },
+
+  "part5_disk_verified": {
+    "filesystem": "/System/Volumes/Data",
+    "size": "228 GiB",
+    "used": "186 GiB",
+    "available": "11 GiB",
+    "capacity": "95%",
+    "measured_this_session": true,
+    "execution_floor_required_gib": 10,
+    "execution_floor_met": true
+  },
+
+  "part6_final_dry_run": {
+    "command": "python3 scripts/run_b2n_p3c_migration_lineage_run.py",
+    "mode": "DRY_RUN",
+    "authorization_digest_verified": true,
+    "run_id_verified": "b2n-p3e-98695fbdf44146c93ff08c8c",
+    "provenance_closure_verified": {"COMPLETE": 20, "PARTIAL": 0, "MISSING": 0, "CONFLICTING": 0},
+    "constructed_request_count": 20,
+    "one_request_per_member": true,
+    "ledger_verified_empty": true,
+    "event_ledger_verified_empty": true,
+    "ledger_path_reported": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/b2n_p3c_live_ledger_b2n-p3e-98695fbdf44146c93ff08c8c.jsonl",
+    "event_ledger_path_reported": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/b2n_p3e_event_ledger_b2n-p3e-98695fbdf44146c93ff08c8c.jsonl",
+    "result_path_reported": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/b2n_p3c_live_result.json",
+    "network_calls_made": 0,
+    "secrets_present": false,
+    "no_leftover_files_after_dry_run": true
+  },
+
+  "focused_tests": {
+    "command": "python3 -m pytest -q tests/test_oip_v2_2e_2b2t_executor.py tests/test_oip_v2_2e_2b2x_projection.py tests/test_oip_v2_2e_2b2bt_preflight.py tests/test_b2n_p3_bounded_run_authorization_preflight.py tests/test_b2n_p3a_provider_method_trace.py tests/test_b2n_p3b_migration_lineage_reconciliation.py tests/test_b2n_p3c_execution_preflight.py tests/test_b2n_p3e_accounting_repair.py",
+    "result": "88 passed",
+    "all_network_calls_mocked": true
+  },
+
+  "existing_operation_protections_reconfirmed": {
+    "existing_operation_mutation_authority": false,
+    "existing_operation_merge_authority": false,
+    "existing_operation_split_authority": false,
+    "existing_operation_membership_write_authority": false,
+    "existing_operation_attribution_write_authority": false,
+    "watchtower_canonical_state_mutation": "FORBIDDEN",
+    "production_database_read": false,
+    "production_database_write": false,
+    "output_scope": "candidate migration-lineage evidence only",
+    "no_creator_funding_evidence_acquired_statement": "NO_CREATOR_FUNDING_EVIDENCE_ACQUIRED_IN_B2N"
+  },
+
+  "authority_posture": {
+    "provider_calls_made_this_milestone": 0,
+    "rpc_calls_made_this_milestone": 0,
+    "old_run_id_reused": false,
+    "old_authorization_reused": false,
+    "old_accounting_reset": false,
+    "request_budget_widened": false,
+    "production_db_access": false,
+    "existing_operation_mutation": false,
+    "watchtower_mutation": false,
+    "b2z_executed": false,
+    "handoff_transport_repaired": false,
+    "authorization_consumed": false,
+    "b2n_executed": false
+  },
+
+  "verdict": "READY_B2N_P3E_LIVE_EXECUTION_GATE",
+  "verdict_note": "All P3F checks pass. Fresh run_id b2n-p3e-98695fbdf44146c93ff08c8c is bound, both ledgers confirmed empty, durability order verified by code and test, old authorization proven unreachable through any exposed code path, secret handling unchanged, disk floor met (11 GiB >= 10 GiB), final dry-run clean (20 requests constructed, zero network calls, no secrets). This does NOT authorize execution. The exact manual command is presented separately for the human to run themselves."
+}

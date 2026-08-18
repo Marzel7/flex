@@ -30,9 +30,9 @@
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
   "current_milestone": {
-    "milestone": "B2N-P3C -- isolated provider credential and live-call execution preflight",
-    "status": "READY_FOR_EXECUTION_GATE",
-    "verdict": "READY_FOR_EXECUTION_GATE"
+    "milestone": "B2N-P3D -- disk recovery, durable ledger path, and final dry-run execution readiness",
+    "status": "HOLD",
+    "verdict": "HOLD_B2N_HOST_STORAGE_FLOOR"
   },
   "current_next_blocker": null,
   "focused_tests": [
@@ -28652,11 +28652,10 @@
     }
   },
   "next_action": {
-    "decision": "READY_FOR_EXECUTION_GATE",
-    "instruction": "B2N-P3C isolated credential/execution preflight is complete. To execute the live 20-request bounded run: set B2N_P3C_HELIUS_ENDPOINT in your own shell to the full Helius mainnet endpoint URL (including api-key) you want used, then run `python scripts/run_b2n_p3c_migration_lineage_run.py --live` from the repository root. This has NOT been done automatically.",
-    "next_action_code": "AWAIT_EXPLICIT_LIVE_EXECUTION_GO_WITH_CREDENTIAL_SUPPLIED_BY_HUMAN",
-    "b2n_execution_authorized": false,
-    "credential_rotation_authorized": false
+    "decision": "HOLD_B2N_HOST_STORAGE_FLOOR",
+    "instruction": "All B2N-P3D code, ledger-durability, rerun-safety, secret-redaction, and authorization-reconfirmation checks pass (72 focused tests, zero drift, clean dry-run). The sole remaining blocker is host disk space: 8.3 GiB free, below the required 10 GiB floor. Project data deletion is NOT authorized to clear this floor. The human must free additional space through safe, non-project means before the live B2N run can proceed to the execution gate.",
+    "next_action_code": "AWAIT_HUMAN_DISK_SPACE_RECOVERY_THEN_RECHECK_FLOOR",
+    "b2n_execution_authorized": false
   },
   "notes": [
     "PSI0H-H4R generated docs/audits/psi0h_h4r_historical_continuity_review_packet.json and docs/audits/psi0h_h4r_historical_continuity_review_index.json with SHA-256 2ed2edb6b74db6b749166b05b01189328aefdbc85e6e212f762ba9cd5f8e32bb and 5cbba208ad8a4bc217237ba7a50d3ff1a4046f0157943cf062f0e37a04ba4afa respectively.",
@@ -28686,7 +28685,8 @@
     "B2N-P3 bounded run authorization preflight complete. Verified P2E closure (20/20 COMPLETE, zero digest drift) before proceeding. Discovered and corrected a material misunderstanding from the P2D digest-discrepancy resolution: 82bbda32...eedc is NOT a stale digest, it is B2NManifest.digest() -- the executor's own canonical member-list digest, distinct from and equally correct alongside the raw file SHA-256 54481980...4d4c; both are now bound explicitly under distinct field names. Found and committed (9e50ffa1) a substantial uncommitted local rewrite of src/acquisition/b2n_qualification.py (B2NQualificationRunAuthorization, per-member request accounting, cache-hit semantics, contract-specific ledger) so P3 could bind a reproducible engineering revision rather than untracked working-tree state. Bound exact 20-member cohort, executor contract, request budget (20 total/1 per member, verified against source), deterministic run ID, empty ledger precondition, and 20 explicit fail-closed stop conditions. Provider/endpoint (helius / helius-mainnet-json-rpc) was inferred from the adjacent 2B2Z preflight, since no B2N-native provider preflight exists -- flagged explicitly as requiring human confirmation, not silently assumed. Built existing-operation immutability contract and Watchtower safety assertion: discovered Watchtower is NOT a single canonical row but an operator_identity='WATCHTOWER' class spanning many wt_operations rows in the live production DB (database/wt_ops_v2.db); could not take a pre-run canonical snapshot under P3's production_database_read=false authority, so protection is grounded in STRUCTURAL isolation instead (direct source inspection proves b2n_qualification.py has zero references to wt_operations/watchtower/any canonical operation module). 17 new dry-validation tests added and passing (30 total combined with existing baseline), proving manifest/provider/endpoint/run-id/budget/ledger rejections and operation-safety postures without any provider call. Verdict: READY_B2N_BOUNDED_RUN_AUTHORIZATION_REVIEW. Execution NOT authorized; awaiting explicit human GO/NO-GO.",
     "B2N-P3A native provider/endpoint contract closure: traced B2N's actual per-member request requirement backwards from the executor's success gate (evidence_observed AND provenance_complete AND outcome==SUCCESS) rather than assuming Helius from the adjacent 2B2Z preflight, per explicit instruction. Found a genuine, code-and-test-proven contract insufficiency: the only 1-request/member client (b2w_projection.py MigrationGetTransactionAdapter) can never set evidence_observed=True -- its own docstring says so, its return value hardcodes it, and its own test asserts exactly that limitation (error_class=B2W_MIGRATION_LINEAGE_ONLY). The only client that ever produces evidence_observed=True (b2z_execution_boundary.py B2ZRunner) requires 3 sequential dependent requests per member (call 2 needs call 1's creator; call 3 needs call 2's candidate signature) -- its own test asserts exactly 60 total attempts for 20 members, not 20. This means B2N's stated 1-request/member budget and B2N's stated success criteria (creator-funding evidence) are mutually incompatible as currently written -- no provider selection can resolve that gap. Per instruction, did NOT infer Helius compatibility, did NOT silently widen the budget, and did NOT invent a fourth option. Recorded three possible resolutions (widen budget / redefine success criteria / scope B2N narrower) without choosing one -- that decision belongs to the human. Verdict: HOLD_B2N_PROVIDER_METHOD_UNRESOLVED. Zero provider/RPC calls made. 34 focused tests pass (13 existing + 17 P3 dry-validation + 4 new P3A trace-proof tests, unaffected).",
     "B2N-P3B migration-lineage bounded-run contract reconciliation complete, resolution OPTION_3 selected by the human. B2N's authoritative purpose formally narrowed to BOUNDED_MIGRATION_LINEAGE_QUALIFICATION (creator_funding_evidence_authority=false); the creator-funding requirement is NOT deleted, it is rebound to the existing canonical B2Z contract (reused, not a new B2CF name) as a separate, non-executable future stage documented in docs/audits/b2n_p3b_future_creator_funding_stage_boundary.json. New B2N-specific success field migration_lineage_evidence_observed introduced (distinct from the shared generic evidence_observed plumbing field, which was NOT globally renamed to avoid breaking B2Z-adjacent semantics). No code changes were required -- the qualified MigrationGetTransactionAdapter behavior (evidence_observed=False, error_class=B2W_MIGRATION_LINEAGE_ONLY) was always correct; the contradiction was in the .md design doc's stated success criteria, corrected via this contract-level reconciliation artifact rather than a code or doc rewrite. Completed the provider compatibility analysis P3A correctly deferred: proved Helius getTransaction is compatible with B2N's exact request shape via direct code comparison against the already-committed HeliusB2BTTransport class (identical method + params[1] encoding options), not inference from the differently-shaped 2B2Z contract. Rebound a successor P3 authorization (docs/audits/b2n_p3b_bounded_migration_lineage_run_authorization_preflight.json) with a NEW run ID (b2n-p3b-c39499f523e42083ce045d70, prior b2n-p3-be37d9a9da6643d2640cb35 explicitly NOT reused since bound inputs changed). Request budget unchanged: max 20 total, max 1/member, zero retry/pagination/fallback -- NOT widened to 60. Existing-operation immutability and Watchtower safety artifacts carried forward unchanged (digests identical to P3). 34 new tests added across P3A+P3B (4+17=21 new this turn), 51 total focused tests passing combined. Zero provider/RPC calls made. Also found and folded in a second latent uncommitted local edit to tests/test_oip_v2_2e_2b2t_executor.py (cache-hit test, authorization tests) that was part of the same qualified B2N baseline but never committed -- committed alongside this turn's work. Verdict: READY_B2N_BOUNDED_MIGRATION_LINEAGE_RUN_AUTHORIZATION_REVIEW. Execution NOT authorized; awaiting explicit human GO/NO-GO on the migration-lineage-only run.",
-    "B2N-P3C isolated provider credential and live-call execution preflight complete. NO-GO was correctly given on using the existing production-shared HELIUS_API_KEY after it was exposed in plaintext during review; a second replacement key was also pasted in plaintext in the same turn and is treated identically as exposed -- neither value appears anywhere in any artifact/log/commit from this session. Built scripts/run_b2n_p3c_migration_lineage_run.py: an isolated one-shot runner that reads the Helius endpoint only from environment variable B2N_P3C_HELIUS_ENDPOINT (never from .env/config/.env/supervisord.conf, never written to disk), hard-binds to the exact P3B run_id and authorization digest (fails closed on any mismatch before network access), enforces the empty-ledger precondition, hard-caps at 20 total / 1 per member requests, issues only getTransaction, and redacts the endpoint from all repr/str/exception paths -- verified by a mocked-network-error test that a URLError containing the full credential-bearing URL does not leak into the raised exception message. Dry-run mode (default; --live required for network access) successfully constructs and validates all 20 request payloads with zero network calls. Disclosed transparently in docs/audits/b2n_p3c_execution_readiness.json: one manual test during construction accidentally made a real (fake-credential, non-functional) HTTPS call to Helius before the test suite was rewritten to use mocks exclusively -- not hidden, and the committed test suite (12 tests) makes zero real network calls. Recorded a security follow-up requiring the exposed production Helius key to be rotated through the normal ops procedure; NOT actioned this turn since it would require restarting production services, which is outside this milestone's authority. Verdict: READY_FOR_EXECUTION_GATE. 63 focused tests passing combined. Live execution requires the human to separately supply a credential via B2N_P3C_HELIUS_ENDPOINT and invoke --live; nothing was executed automatically."
+    "B2N-P3C isolated provider credential and live-call execution preflight complete. NO-GO was correctly given on using the existing production-shared HELIUS_API_KEY after it was exposed in plaintext during review; a second replacement key was also pasted in plaintext in the same turn and is treated identically as exposed -- neither value appears anywhere in any artifact/log/commit from this session. Built scripts/run_b2n_p3c_migration_lineage_run.py: an isolated one-shot runner that reads the Helius endpoint only from environment variable B2N_P3C_HELIUS_ENDPOINT (never from .env/config/.env/supervisord.conf, never written to disk), hard-binds to the exact P3B run_id and authorization digest (fails closed on any mismatch before network access), enforces the empty-ledger precondition, hard-caps at 20 total / 1 per member requests, issues only getTransaction, and redacts the endpoint from all repr/str/exception paths -- verified by a mocked-network-error test that a URLError containing the full credential-bearing URL does not leak into the raised exception message. Dry-run mode (default; --live required for network access) successfully constructs and validates all 20 request payloads with zero network calls. Disclosed transparently in docs/audits/b2n_p3c_execution_readiness.json: one manual test during construction accidentally made a real (fake-credential, non-functional) HTTPS call to Helius before the test suite was rewritten to use mocks exclusively -- not hidden, and the committed test suite (12 tests) makes zero real network calls. Recorded a security follow-up requiring the exposed production Helius key to be rotated through the normal ops procedure; NOT actioned this turn since it would require restarting production services, which is outside this milestone's authority. Verdict: READY_FOR_EXECUTION_GATE. 63 focused tests passing combined. Live execution requires the human to separately supply a credential via B2N_P3C_HELIUS_ENDPOINT and invoke --live; nothing was executed automatically.",
+    "B2N-P3D disk recovery and durable-ledger-path milestone complete. Confirmed the runner (scripts/run_b2n_p3c_migration_lineage_run.py) was genuinely unchanged from commit 26a388cf before this session's edits (the earlier ENOSPC-aborted edit left no partial write). Correction of record: the runner's original default ledger path (ROOT.parent/flex-b2n-p3c-ledger/<run_id>.jsonl) was actually a sibling directory OUTSIDE the repo and outside /private/tmp -- not literally under /private/tmp as previously assumed -- but it was still not durably inside the repo, so it has now been replaced regardless with docs/audits/b2n_p3c_live_ledger_<run_id>.jsonl (and a --ledger-path override) per the safer, more explicit convention requested. Added _verify_ledger_readiness(): resolves the path, creates/verifies a writable parent directory, verifies no prior/foreign attempts exist (fails closed), and performs a durable write+delete probe -- all executed strictly BEFORE any transport/client/executor object is constructed in live_run(), so ledger readiness is never bypassed by a network call. Proved via mocked-failure tests: (a) ledger entries for already-attempted members survive an executor exception mid-run (synchronous per-member append, not buffered), and (b) a rerun against a non-empty ledger fails closed rather than silently resetting or granting a fresh budget on top of prior entries. Result path also moved to docs/audits/b2n_p3c_live_result.json by default. 72 focused tests pass combined (up from 63; P3C suite rewritten with 9 net new tests for the new ledger-safety surface), zero real network calls anywhere in the committed suite. Reconfirmed the qualified authorization (run_id b2n-p3b-c39499f523e42083ce045d70, digest e2414ef9...db1569, P2E provenance 20/0/0/0) has zero drift. Ran a clean final dry-run: mode=DRY_RUN, 20 requests constructed, ledger verified empty, network_calls_made=0, durable paths reported correctly, no secrets present. HOWEVER: measured disk free space is 8.3 GiB, below the required 10 GiB execution floor -- terminal verdict is HOLD_B2N_HOST_STORAGE_FLOOR, not READY, per explicit instruction that the floor applies even when all code/tests/dry-run pass. No project data was deleted, no VACUUM was performed, no Helius calls were made. Awaiting the human to free additional disk space through safe non-project means, then a re-check of the floor before live execution can proceed."
   ],
   "operation_count_delta": {
     "current_count": 150,
@@ -28811,7 +28811,7 @@
     "production_changes_allowed": false
   },
   "schema_version": 1,
-  "status": "READY_FOR_EXECUTION_GATE",
+  "status": "HOLD",
   "test_runs": {
     "continuity_adapter": {
       "command": "pytest -q tests/test_psi0h_h8_h4_runtime_projection.py tests/test_psi0h_h2_historical_candidate_generation.py tests/test_psi0h_h3_historical_candidate_disposition.py",
@@ -28857,7 +28857,7 @@
   "updated_at": "2026-08-18T14:31:00Z",
   "updated_at_utc": "2026-08-18T14:31:00Z",
   "updated_by": "agent_local",
-  "verdict": "READY_FOR_EXECUTION_GATE",
+  "verdict": "HOLD_B2N_HOST_STORAGE_FLOOR",
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "continuation_update": {
@@ -29145,5 +29145,39 @@
       "rotation_recommended": "human/ops team rotates the Helius key via normal production secret-management procedure and restarts affected services outside this milestone"
     },
     "focused_tests": "63 passed (13 existing + 17 P3 + 4 P3A + 17 P3B + 12 new P3C, all P3C tests network-mocked)"
+  },
+  "b2n_p3d_execution_readiness": {
+    "verdict": "HOLD_B2N_HOST_STORAGE_FLOOR",
+    "readiness_artifact": "docs/audits/b2n_p3d_execution_readiness.json",
+    "readiness_artifact_digest": "d1cd34ae56793581f67d9535695064416294ec2a02f13f18a79a9d4853ede604",
+    "disk_free_gib_current": 8.3,
+    "disk_free_gib_required_floor": 10,
+    "disk_free_gib_preferred": 15,
+    "disk_prior_low_point": "115 MiB free (100% capacity) before human manual cleanup of disposable caches",
+    "disk_used_gib": 189,
+    "disk_size_gib": 228,
+    "filesystem": "/System/Volumes/Data",
+    "ledger_path": "docs/audits/b2n_p3c_live_ledger_b2n-p3b-c39499f523e42083ce045d70.jsonl",
+    "ledger_path_on_main_filesystem_not_tmp": true,
+    "result_path": "docs/audits/b2n_p3c_live_result.json",
+    "result_path_on_main_filesystem_not_tmp": true,
+    "runner_revision": "scripts/run_b2n_p3c_migration_lineage_run.py, uncommitted local edit this session adding --ledger-path override, durable default paths, and pre-network ledger-readiness preflight (parent-writable check, empty check, durable write probe)",
+    "run_id": "b2n-p3b-c39499f523e42083ce045d70",
+    "authorization_digest": "e2414ef97516b4a03ff260b6b333749769d6a5a1bc70035ed62f1d6e76db1569",
+    "authorization_reconfirmed_no_drift": true,
+    "provenance_closure": {
+      "COMPLETE": 20,
+      "PARTIAL": 0,
+      "MISSING": 0,
+      "CONFLICTING": 0
+    },
+    "dry_run_result": "PASS -- mode=DRY_RUN, authorization/run_id verified, 20 requests constructed, one/member, ledger verified empty, network_calls_made=0",
+    "focused_tests": "72 passed (13 existing + 17 P3 + 4 P3A + 17 P3B + 21 P3C-rewritten [was 12, +9 net new ledger-durability/rerun-safety tests])",
+    "ledger_durability_proven": "test_ledger_entries_durable_after_simulated_mid_run_failure -- entries written synchronously per-member survive an executor exception mid-run",
+    "rerun_safety_proven": "a ledger with prior entries fails closed (B2N_LEDGER_MUST_BE_EMPTY_FOR_NEW_RUN), never resets, never permits a fresh 20-request budget on top of existing entries",
+    "secret_redaction_proven": "a mocked URLError embedding the full credential-bearing URL is redacted before it can propagate",
+    "no_live_helius_calls_made": true,
+    "no_project_data_deleted": true,
+    "no_vacuum_performed": true
   }
 }

@@ -1,0 +1,147 @@
+{
+  "schema_version": "b2n.p3d.execution-readiness.v1",
+  "artifact_type": "B2N_P3D_EXECUTION_READINESS",
+  "milestone": "B2N-P3D",
+  "generated_utc": "2026-08-18T17:15:00Z",
+
+  "disk_state": {
+    "prior_low_point": {
+      "filesystem": "/System/Volumes/Data",
+      "size": "228 GiB",
+      "used": "197 GiB",
+      "available": "115 MiB",
+      "capacity": "100%"
+    },
+    "human_recovery_action": "manually removed disposable development/tool caches only; no project databases, Evidence artifacts, or retained-acquisition DBs were deleted; no VACUUM/migration/reclamation was performed",
+    "current_measurement": {
+      "filesystem": "/System/Volumes/Data",
+      "size": "228 GiB",
+      "used": "189 GiB",
+      "available": "8.3 GiB",
+      "capacity": "96%",
+      "measured_this_session": true
+    },
+    "private_tmp_shares_same_volume": true,
+    "execution_floor_required_gib": 10,
+    "execution_floor_preferred_gib": 15,
+    "execution_floor_met": false,
+    "note": "Available space (8.3 GiB) is below the required 10 GiB floor. Per explicit instruction, this alone forces a HOLD terminal verdict regardless of code/test/dry-run status, and project data deletion to pass this gate is NOT authorized."
+  },
+
+  "runner_revision": {
+    "path": "scripts/run_b2n_p3c_migration_lineage_run.py",
+    "git_status_before_this_milestone": "unmodified from commit 26a388cf (confirmed via git diff -- empty -- before any edit was made this session)",
+    "prior_failed_edit_confirmed_clean_abort": true,
+    "changes_made_this_milestone": [
+      "added DEFAULT_LEDGER_PATH = docs/audits/b2n_p3c_live_ledger_<run_id>.jsonl (was: sibling directory outside the repo, ROOT.parent/flex-b2n-p3c-ledger/<run_id>.jsonl -- never /private/tmp, contrary to initial assumption, but still not durably inside the repo)",
+      "added DEFAULT_RESULT_PATH = docs/audits/b2n_p3c_live_result.json",
+      "added --ledger-path CLI override",
+      "dry_run() and live_run() now accept an explicit ledger_path parameter",
+      "added _verify_ledger_readiness(): resolves path, creates/verifies writable parent, verifies empty (fails closed on ANY prior/foreign attempt), performs a durable write+delete probe -- all before any client/transport/network object is constructed",
+      "live_run() now calls _verify_ledger_readiness() BEFORE constructing RedactingJsonRpcTransport/MigrationGetTransactionAdapter/B2NExecutor, so ledger readiness is established strictly before the first possible network call",
+      "--live now defaults --output to DEFAULT_RESULT_PATH (docs/audits/b2n_p3c_live_result.json) rather than requiring an explicit --output or printing-only",
+      "no change to B2NExecutor/B2NAttemptLedger/B2NQualificationRunAuthorization in src/acquisition/b2n_qualification.py -- that module is unmodified"
+    ]
+  },
+
+  "ledger_durability": {
+    "default_path": "docs/audits/b2n_p3c_live_ledger_b2n-p3b-c39499f523e42083ce045d70.jsonl",
+    "on_main_project_filesystem": true,
+    "outside_private_tmp": true,
+    "durability_mechanism": "B2NAttemptLedger.append() (src/acquisition/b2n_qualification.py, unmodified) writes each entry synchronously inside B2NExecutor.run()'s per-member loop, not buffered until the run completes",
+    "durability_proof": {
+      "test": "tests/test_b2n_p3c_execution_preflight.py::test_ledger_entries_durable_after_simulated_mid_run_failure",
+      "scenario": "member 1 succeeds (SUCCESS, evidence_observed=True), member 2 triggers B2N_CLIENT_REQUEST_COUNTER_INVALID (simulated client counter desync)",
+      "result": "the executor raises RuntimeError, but the ledger already durably contains exactly 1 entry (member 1) when the exception propagates -- verified by reading the ledger file fresh after the exception, not from in-memory state",
+      "passed": true
+    },
+    "rerun_safety": {
+      "test": "tests/test_b2n_p3c_execution_preflight.py::test_rerun_after_partial_failure_does_not_reset_ledger and test_cumulative_budget_cannot_be_bypassed_via_rerun",
+      "behavior": "FAIL_CLOSED -- a ledger containing prior entries (from any prior run attempt under this or another run_id) causes _verify_ledger_readiness()/B2NAttemptLedger.require_empty() to raise B2N_LEDGER_MUST_BE_EMPTY_FOR_NEW_RUN before any network access; the pre-existing entries are left untouched, never wiped, never silently continued past",
+      "passed": true
+    }
+  },
+
+  "result_path": {
+    "default": "docs/audits/b2n_p3c_live_result.json",
+    "override_support": "--output <path>",
+    "on_main_project_filesystem": true,
+    "outside_tmp": true
+  },
+
+  "secret_handling": {
+    "env_var": "B2N_P3C_HELIUS_ENDPOINT",
+    "never_read_from": [".env", "config/.env", "config/supervisor/supervisord.conf"],
+    "never_printed": true,
+    "never_serialized_to_artifact": true,
+    "redaction_proof": "tests/test_b2n_p3c_execution_preflight.py::test_transport_error_is_redacted_even_with_secret_in_url -- a mocked urllib.error.URLError whose message embeds the full credential-bearing URL is caught and replaced with a secret-free B2N_P3C_TRANSPORT_ERROR message before it can propagate",
+    "no_live_network_calls_made_this_milestone": true
+  },
+
+  "reconfirmed_authorization": {
+    "run_id": "b2n-p3b-c39499f523e42083ce045d70",
+    "run_id_matches_expected": true,
+    "authorization_digest": "e2414ef97516b4a03ff260b6b333749769d6a5a1bc70035ed62f1d6e76db1569",
+    "authorization_digest_matches_expected": true,
+    "provenance_closure": {"COMPLETE": 20, "PARTIAL": 0, "MISSING": 0, "CONFLICTING": 0},
+    "provenance_closure_qualified": true,
+    "provider": "helius",
+    "endpoint_family": "helius-mainnet-json-rpc",
+    "method": "getTransaction",
+    "max_total_requests": 20,
+    "max_requests_per_member": 1,
+    "retries": 0,
+    "pagination": 0,
+    "fallback": 0,
+    "no_drift_detected": true
+  },
+
+  "focused_tests": {
+    "existing_b2n_baseline": "13 passed",
+    "p3_dry_validation": "17 passed",
+    "p3a_trace_proof": "4 passed",
+    "p3b_reconciliation": "17 passed",
+    "p3c_execution_preflight_rewritten": "21 passed (was 12; added 9 net new covering ledger durability/writability/rerun-safety/default-path tests)",
+    "combined": "72 passed",
+    "all_network_calls_mocked": true
+  },
+
+  "dry_run_result": {
+    "command": "python3 scripts/run_b2n_p3c_migration_lineage_run.py",
+    "mode": "DRY_RUN",
+    "authorization_digest_verified": true,
+    "run_id_verified": "b2n-p3b-c39499f523e42083ce045d70",
+    "provenance_closure_verified": {"COMPLETE": 20, "PARTIAL": 0, "MISSING": 0, "CONFLICTING": 0},
+    "constructed_request_count": 20,
+    "constructed_requests_max_20": true,
+    "one_request_per_member": true,
+    "ledger_verified_empty": true,
+    "ledger_path_reported": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/b2n_p3c_live_ledger_b2n-p3b-c39499f523e42083ce045d70.jsonl",
+    "result_path_reported": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/b2n_p3c_live_result.json",
+    "network_calls_made": 0,
+    "secrets_present": false,
+    "reran_this_session": true
+  },
+
+  "authority_posture": {
+    "provider_calls_made": 0,
+    "rpc_calls_made": 0,
+    "production_db_read": false,
+    "production_db_write": false,
+    "existing_operation_mutation": false,
+    "watchtower_mutation": false,
+    "cohort_mode_activated": false,
+    "evidence_mirror_activated": false,
+    "evidence_writer_started": false,
+    "b2z_executed": false,
+    "project_data_deleted": false,
+    "vacuum_performed": false,
+    "authorization_consumed": false,
+    "b2n_executed": false
+  },
+
+  "blockers": ["B2N_HOST_STORAGE_FLOOR"],
+
+  "verdict": "HOLD_B2N_HOST_STORAGE_FLOOR",
+  "verdict_note": "All code, ledger-durability, rerun-safety, secret-redaction, and authorization-reconfirmation checks PASS (72 focused tests, zero network calls, zero drift). The dry-run itself is clean. The sole blocker is available disk space: 8.3 GiB free, below the required 10 GiB floor for live execution. Per explicit instruction, project data deletion is not an authorized way to clear this floor; the human must free additional space separately before the live run proceeds."
+}

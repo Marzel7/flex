@@ -52,6 +52,14 @@ EXPECTED_METHOD = "getTransaction"
 
 CREDENTIAL_ENV_VAR = "B2N_P3C_HELIUS_ENDPOINT"
 
+# Pinned inside the repository, on the main project filesystem -- never under
+# /private/tmp or any sibling scratch directory -- so a partial/failed ledger
+# from a live run always survives independently of unrelated tmp-storage
+# exhaustion. The ledger is the authoritative attempt-accounting record for
+# this run ID; it must never be silently reset.
+DEFAULT_LEDGER_PATH = ROOT / "docs/audits" / f"b2n_p3c_live_ledger_{EXPECTED_RUN_ID}.jsonl"
+DEFAULT_RESULT_PATH = ROOT / "docs/audits" / "b2n_p3c_live_result.json"
+
 
 class B2NP3CError(RuntimeError):
     pass
@@ -131,6 +139,36 @@ class RedactingJsonRpcTransport:
             raise B2NP3CError(f"B2N_P3C_TRANSPORT_ERROR:{type(exc).__name__}") from None
 
 
+def _verify_ledger_readiness(ledger_path: Path) -> B2NAttemptLedger:
+    """Ledger safety preflight (Part 6): resolve, verify writable, verify no
+    foreign/prior attempts, verify expected initial (empty) state, and prove a
+    durable append/rollback round-trip is actually possible on this
+    filesystem -- all BEFORE any network call is permitted."""
+    ledger_path = ledger_path.resolve()
+    parent = ledger_path.parent
+    try:
+        parent.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        raise B2NP3CError(f"B2N_P3C_LEDGER_PARENT_NOT_CREATABLE:{type(exc).__name__}") from None
+    if not os.access(parent, os.W_OK):
+        raise B2NP3CError("B2N_P3C_LEDGER_PARENT_NOT_WRITABLE")
+
+    ledger = B2NAttemptLedger(ledger_path)
+    ledger.require_empty()  # fails closed on ANY prior/foreign attempt for this run ID
+
+    # Prove a durable write is actually possible on this filesystem right now,
+    # without consuming any part of the authorized attempt budget: write a
+    # throwaway probe file beside the ledger, then remove it.
+    probe_path = parent / f".b2n_p3c_writability_probe_{os.getpid()}.tmp"
+    try:
+        probe_path.write_text("b2n-p3c-writability-probe\n")
+        probe_path.unlink()
+    except OSError as exc:
+        raise B2NP3CError(f"B2N_P3C_LEDGER_DURABLE_WRITE_PROBE_FAILED:{type(exc).__name__}") from None
+
+    return ledger
+
+
 def build_projection(manifest: B2NManifest, reviewed: dict) -> B2WInputProjection:
     reviewed_by_ordinal = {m["ordinal"]: m for m in reviewed["members"]}
     members = []
@@ -152,7 +190,9 @@ def build_projection(manifest: B2NManifest, reviewed: dict) -> B2WInputProjectio
     return B2WInputProjection(tuple(B2WRequestInput(**m) for m in members))
 
 
-def dry_run() -> dict:
+def dry_run(*, ledger_path: Path | None = None) -> dict:
+    ledger_path = (ledger_path or DEFAULT_LEDGER_PATH).resolve()
+
     manifest = _load_frozen_manifest()
     manifest.validate()
     auth_payload = _verify_authorization_digest()
@@ -169,15 +209,13 @@ def dry_run() -> dict:
         endpoint_family=EXPECTED_ENDPOINT_FAMILY,
         run_id=EXPECTED_RUN_ID,
         manifest_digest=manifest.digest(),
-        ledger_path=str(ROOT.parent / "flex-b2n-p3c-ledger" / f"{EXPECTED_RUN_ID}.jsonl"),
+        ledger_path=str(ledger_path),
         max_physical_requests=B2N_MAX_PHYSICAL_REQUESTS,
         require_not_production=True,
     )
     authorization.validate(manifest=manifest)  # dry validation only, no client, no network
 
-    ledger_path = Path(authorization.ledger_path)
-    ledger = B2NAttemptLedger(ledger_path)
-    ledger.require_empty()  # raises if a stale ledger exists
+    _verify_ledger_readiness(ledger_path)  # parent writable, empty, durable-write probe -- still zero network calls
 
     constructed_requests = []
     for member in projection.members:
@@ -207,16 +245,26 @@ def dry_run() -> dict:
         "provider": EXPECTED_PROVIDER,
         "method": EXPECTED_METHOD,
         "ledger_path": str(ledger_path),
+        "result_path": str(DEFAULT_RESULT_PATH),
         "ledger_verified_empty": True,
         "network_calls_made": 0,
         "requests": constructed_requests,
     }
 
 
-def live_run() -> dict:
+def live_run(*, ledger_path: Path | None = None) -> dict:
+    """Executes the live bounded run. Ledger entries are written durably by
+    B2NAttemptLedger.append() as each member is attempted (see
+    src/acquisition/b2n_qualification.py B2NExecutor.run(), which calls
+    self.ledger.append(entry) synchronously inside the per-member loop, not
+    only after the loop completes) -- so a failure at member N leaves entries
+    1..N-1 (or 1..N, depending on where the failure occurred) durably on disk
+    even though this function's own return value is never reached."""
     endpoint = os.environ.get(CREDENTIAL_ENV_VAR)
     if not endpoint:
         raise B2NP3CError(f"B2N_P3C_CREDENTIAL_ENV_VAR_MISSING:{CREDENTIAL_ENV_VAR}")
+
+    ledger_path = (ledger_path or DEFAULT_LEDGER_PATH).resolve()
 
     manifest = _load_frozen_manifest()
     manifest.validate()
@@ -232,14 +280,18 @@ def live_run() -> dict:
         endpoint_family=EXPECTED_ENDPOINT_FAMILY,
         run_id=EXPECTED_RUN_ID,
         manifest_digest=manifest.digest(),
-        ledger_path=str(ROOT.parent / "flex-b2n-p3c-ledger" / f"{EXPECTED_RUN_ID}.jsonl"),
+        ledger_path=str(ledger_path),
         max_physical_requests=B2N_MAX_PHYSICAL_REQUESTS,
         require_not_production=True,
     )
 
+    # Ledger readiness MUST be established before the transport/adapter/executor
+    # are even constructed, let alone before any network call (Part 6: "Do not
+    # consume the first provider request before ledger readiness is established").
+    ledger = _verify_ledger_readiness(ledger_path)
+
     transport = RedactingJsonRpcTransport(endpoint)
     adapter = MigrationGetTransactionAdapter(transport, projection)
-    ledger = B2NAttemptLedger(Path(authorization.ledger_path))
 
     executor = B2NExecutor(
         manifest=manifest, ledger=ledger, client=adapter,
@@ -252,7 +304,7 @@ def live_run() -> dict:
         "run_id": EXPECTED_RUN_ID,
         "entries": len(results),
         "physical_requests_used": transport.physical_request_count,
-        "ledger_path": authorization.ledger_path,
+        "ledger_path": str(ledger_path),
         "results": results,
     }
 
@@ -260,11 +312,20 @@ def live_run() -> dict:
 def main() -> int:
     parser = argparse.ArgumentParser(description="B2N-P3C isolated migration-lineage bounded-run runner.")
     parser.add_argument("--live", action="store_true", help="Perform the live network run. Default is dry-run.")
-    parser.add_argument("--output", default=None, help="Optional path to write the JSON result.")
+    parser.add_argument(
+        "--output", default=None,
+        help=f"Path to write the JSON result. Defaults to {DEFAULT_RESULT_PATH} (never /tmp).",
+    )
+    parser.add_argument(
+        "--ledger-path", default=None,
+        help=f"Path to the durable attempt ledger. Defaults to {DEFAULT_LEDGER_PATH} (never /private/tmp).",
+    )
     args = parser.parse_args()
 
+    ledger_path = Path(args.ledger_path).resolve() if args.ledger_path else None
+
     try:
-        result = live_run() if args.live else dry_run()
+        result = live_run(ledger_path=ledger_path) if args.live else dry_run(ledger_path=ledger_path)
     except (B2NP3CError, RuntimeError, ValueError) as exc:
         print(json.dumps({"error": type(exc).__name__, "message": str(exc)}))
         return 1
@@ -272,6 +333,11 @@ def main() -> int:
     text = json.dumps(result, indent=2, default=str)
     if args.output:
         Path(args.output).write_text(text + "\n")
+    elif args.live:
+        # The live result is authoritative and must land on durable repo
+        # storage by default -- never silently printed-only, never /tmp.
+        DEFAULT_RESULT_PATH.write_text(text + "\n")
+        print(json.dumps({"result_written_to": str(DEFAULT_RESULT_PATH)}))
     else:
         print(text)
     return 0

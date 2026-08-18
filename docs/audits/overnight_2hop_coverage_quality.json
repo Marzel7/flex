@@ -1,0 +1,68 @@
+{
+  "schema_version": "overnight.2hop-coverage-quality.v1",
+  "artifact_type": "OVERNIGHT_2HOP_COVERAGE_QUALITY",
+  "milestone": "B2Z overnight workstream 4",
+  "generated_utc": "2026-08-19T04:50:00Z",
+  "purpose": "Measure quality/coverage of the existing SecondHopExpansionBuilder output (funder_upstream_links, creator_second_hop) at full scale. Candidate-only, no operation mutation.",
+
+  "scale": {
+    "funder_upstream_links_total_rows": 19769,
+    "distinct_direct_funders_reached": 3147,
+    "distinct_upstream_sources": 16313,
+    "excluded_as_infra_or_hub": 14594,
+    "excluded_percent_of_total": 73.83,
+    "non_excluded_usable_bridges": 5175,
+    "creator_second_hop_total_rows": 463
+  },
+
+  "amount_distribution_non_excluded_bridges": {
+    "count": 5175,
+    "amount_sol_min": 0.001,
+    "amount_sol_max": 1501.74756,
+    "amount_sol_median": 0.853156951,
+    "amount_sol_p10": 0.016704339,
+    "amount_sol_p90": 14.999760002999999
+  },
+
+  "discrepancy_disclosed": {
+    "finding": "172 of 5,175 (3.33%) non-excluded bridges have total_sol BELOW the documented MIN_UPSTREAM_SOL=0.01 threshold from src/core/second_hop_builder.py",
+    "explanation_attempted": "the builder's SQL filters on ti.amount_sol (a single transfer's amount) BETWEEN MIN_UPSTREAM_SOL AND MAX_UPSTREAM_SOL, but funder_upstream_links.total_sol is a SUM() aggregate across potentially multiple qualifying transfers -- if a bridge has exactly ONE qualifying transfer at or near the 0.01 floor, total_sol should still be >= 0.01. The 172 sub-threshold rows are NOT fully explained by this reasoning and are disclosed as an UNRESOLVED DISCREPANCY rather than rationalized away.",
+    "hypothesis_not_verified": "possible causes not verified: rows written before a threshold parameter change, floating-point rounding at the boundary, or the row being written via source='rpc_backfill' (a different write path observed for at least one sampled row in P1.7) rather than 'transfer_index' -- NOT confirmed, flagged for future investigation rather than assumed",
+    "action_taken": "none -- this is a measurement/observation only, no code or data was modified to investigate or correct this"
+  },
+
+  "temporal_span_within_bridge": {
+    "median_seconds": 0,
+    "zero_span_count": 3462,
+    "zero_span_percent": 66.9,
+    "interpretation": "the majority (66.9%) of non-excluded bridges represent a SINGLE observed transfer instance (first_transfer_ts == last_transfer_ts) rather than a sustained recurring relationship -- worth noting for future confidence weighting: a bridge backed by only one observed transfer is inherently weaker evidence than one backed by many transfers over time"
+  },
+
+  "self_loops_dust_mega_hubs": {
+    "self_loops": "not directly queryable from funder_upstream_links alone (the table does not retain per-transfer source/destination identity beyond the aggregate) -- P1.7's RAW relational transfer_index query (bypassing this pre-built table) is the only method that surfaced self-loops (3 of 9 raw candidates for the 20-member cohort), and that finding is preserved as the authoritative self-loop evidence rather than re-derived here",
+    "dust": "172 sub-threshold bridges identified above; additionally P1.7's raw query found 3 of 5 genuine upstream candidates for the cohort were exactly 1 lamport -- both findings point to real, non-trivial dust contamination risk in upstream evidence",
+    "mega_hub_exclusions": {"count": 14594, "percent_of_total": 73.83, "top_example": "AxiomRXZAq1Jgjj9pHmNqVP7Lhu67wLXZJZbaK87TTSk (131 distinct funders reached, 2.6x the 50-funder exclusion threshold)"}
+  },
+
+  "fan_out_fan_in": {
+    "top_10_fan_in_non_excluded": [
+      {"upstream": "5Ww9G6XuSHgXLoNmWusVz2SbESAeL7Q6stZMeEhPU25H", "distinct_funders_reached": 71},
+      {"upstream": "4gE46F7x7RtP6KQTbLxXjyDL4bWscDPNYzv5y5E4Afm8", "distinct_funders_reached": 68},
+      {"upstream": "5hRDxN8UVgVeVV3Cb2FFY7Gz6488gUuEUGT5uGi1qUmq", "distinct_funders_reached": 29}
+    ],
+    "note": "these non-excluded top fan-in addresses are LEGITIMATE candidates under the current gate (2-50 funders) -- distinct from the mega-hub-excluded ones. They warrant SERVICE_DISTRIBUTION_REVIEW metadata per the B2Z-P3 policy even though they pass the volume gate, since 68-71 is close to (though under) the 50-threshold's spirit for a manually-reviewed case."
+  },
+
+  "repeated_upstream_topology_cross_reference": {
+    "finding": "the top REPEATED_TOPOLOGY family root (5tzFkiKscXHK5ZXC..., 56 launches) from tf_populations does NOT appear as a direct-funder key in funder_upstream_links at all -- confirming P1.7's finding that the pre-built, volume-gated second-hop table has NOT yet processed this address's own upstream relationships, even though it IS itself a well-characterized structural root in a completely different discovery system (transaction_first_lineage.db)",
+    "implication": "the two local discovery systems (SecondHopExpansionBuilder and the transaction-first-lineage population builder) operate on overlapping but NOT identical coverage -- a future selective-verification pass should consult BOTH, not assume either is individually complete"
+  },
+
+  "operation_safety": {
+    "watchtower_mutated": false,
+    "canonical_operation_mutated": false,
+    "candidate_only": true
+  },
+
+  "measurement_method": "bounded/indexed SQLite queries against database/flex_complete_database.db, read-only, zero writes"
+}

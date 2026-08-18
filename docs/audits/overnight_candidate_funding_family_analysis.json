@@ -1,0 +1,53 @@
+{
+  "schema_version": "overnight.candidate-funding-family-analysis.v1",
+  "artifact_type": "OVERNIGHT_CANDIDATE_FUNDING_FAMILY_ANALYSIS",
+  "milestone": "B2Z overnight workstream 7",
+  "generated_utc": "2026-08-19T04:45:00Z",
+  "purpose": "Analyze recurring funding structures using ONLY existing local evidence (tf_populations, funder_upstream_links) -- CANDIDATE_OPERATIONAL_FAMILY labeling only, never SAME_OPERATION. No provider calls, no operation mutation.",
+
+  "key_finding_cross_validation": {
+    "description": "The top-ranked REPEATED_TOPOLOGY family root in tf_populations (independently discovered by the existing transaction-first-lineage system, unrelated to this session's B2Z-P2 cohort analysis) is the EXACT SAME address P1.7 flagged as a shared direct funder across 3 of the 20-member B2Z cohort (ordinals 3, 4, 16).",
+    "address": "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9",
+    "independent_discovery_1": "P1.7 (this session, manual relational transfer_index query): shared direct funder for B2Z cohort ordinals 3, 4, 16",
+    "independent_discovery_2": "tf_populations (pre-existing production discovery system, unrelated to this session): root of a REPEATED_TOPOLOGY population with 56 launches, 56 creators, 36 direct children, max_depth=6, 159 PLAIN_TRANSFER edges",
+    "significance": "two structurally independent methods (a manual, cohort-scoped local query in this session vs. an automated, whole-database, pre-existing discovery pipeline) converged on the identical address as a repeated-funding-structure root. This is strong corroborating evidence that the pattern is real, not an artifact of the small 20-member sample.",
+    "classification": "CANDIDATE_OPERATIONAL_FAMILY -- explicitly NOT SAME_OPERATION. No canonical attribution performed or implied."
+  },
+
+  "top_10_repeated_topology_families": [
+    {"root": "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9", "launch_count": 56, "creator_count": 56, "direct_child_count": 36, "max_depth": 6, "mechanisms": {"PLAIN_TRANSFER": 159}, "infrastructure_status": "UNCLASSIFIED", "note": "matches B2Z cohort ordinals 3/4/16's shared direct funder -- see key_finding_cross_validation"},
+    {"root": "QVtWcAX3R7Cr51VhNTLKcvBBz2SoNW9nziGPxUcezcmM", "launch_count": 41, "creator_count": 41, "direct_child_count": null, "max_depth": null, "mechanisms": null, "infrastructure_status": "UNCLASSIFIED"},
+    {"root": "3hJX3p8St5As9dBbtQtb2Rr1TWvVMzmz9DdSyJyErx5r", "launch_count": 36, "creator_count": 36, "infrastructure_status": "UNCLASSIFIED"},
+    {"root": "4GFSMkZVqBcgwgxsi3aXFhFhaczCAvyKh9BX21bcvLuS", "launch_count": 20, "creator_count": 20, "infrastructure_status": "UNCLASSIFIED"},
+    {"root": "ASTyfSima4LLAdDgcJubxKGasP5PhpsWDdKtJKAmuwGL", "launch_count": 9, "creator_count": 9, "infrastructure_status": "UNCLASSIFIED"},
+    {"root": "FLipgewPwNeqvwPFRJPQC63Bz9tsyGa3Mv7pW3f8jjxV", "launch_count": 8, "creator_count": 8, "infrastructure_status": "UNCLASSIFIED"},
+    {"root": "2AQdpHJ2JpcEgPiAqjyKuXcyzUJvbBxNqiJVKPYzumzV", "launch_count": 6, "creator_count": 6, "infrastructure_status": "UNCLASSIFIED"},
+    {"root": "5F1seMKUqSNhv45f6FhB2cFmgJbk8U1avJw7M6TexUq1", "launch_count": 6, "creator_count": 6, "direct_child_count": 6, "max_depth": 4, "mechanisms": {"PLAIN_TRANSFER": 15}, "infrastructure_status": "UNCLASSIFIED", "note": "matches B2Z cohort ordinal 9's direct funder"},
+    {"root": "AxiomRXZAq1Jgjj9pHmNqVP7Lhu67wLXZJZbaK87TTSk", "launch_count": 6, "creator_count": 6, "direct_child_count": 6, "max_depth": 5, "mechanisms": {"PLAIN_TRANSFER": 20}, "infrastructure_status": "UNCLASSIFIED", "note": "the same address independently flagged as a known bot/service (uses_axiom tag) and as the single largest fan-in upstream (131 distinct funders) in the second-hop tables -- a service/bot account can ALSO root a structural family; these classifications are not mutually exclusive and both are preserved"},
+    {"root": "FLiPGqowc82LLR17...", "launch_count": 6, "creator_count": 6, "infrastructure_status": "UNCLASSIFIED"}
+  ],
+
+  "families_scale": {
+    "total_repeated_topology_populations": 81,
+    "total_repeated_root_populations": 1,
+    "total_single_launch_root_populations": 809,
+    "total_populations": 891,
+    "note": "82 of 891 (9.2%) discovered population roots show recurring/repeated structure -- the remainder are single-launch, isolated roots"
+  },
+
+  "cross_reference_with_second_hop_fan_in": {
+    "method": "checked whether the top REPEATED_TOPOLOGY family roots also appear in funder_upstream_links as fan-in upstream sources",
+    "finding": "AxiomRXZAq1... appears in BOTH datasets (family root in tf_populations AND top fan-in upstream in funder_upstream_links, 131 distinct funders reached) -- consistent cross-dataset corroboration of a single, real, well-characterized address rather than two separate coincidental findings"
+  },
+
+  "infrastructure_status_note": "ALL 891 discovered populations, including the 82 repeated-topology ones, remain 'UNCLASSIFIED' in tf_populations.infrastructure_status -- the existing system has NOT yet made any infra-vs-organic determination for any of them. This is consistent with the CANDIDATE_OPERATIONAL_FAMILY (not SAME_OPERATION, not canonical attribution) posture required by this workstream.",
+
+  "operation_safety": {
+    "watchtower_mutated": false,
+    "three_sw2_mutated": false,
+    "canonical_operation_created_or_modified": false,
+    "labeling_used": "CANDIDATE_OPERATIONAL_FAMILY only, exclusively for the families listed above -- no SAME_OPERATION label applied anywhere in this artifact"
+  },
+
+  "recommendation": "the 5tzFkiKscXHK5ZXC... family (56 launches, 56 creators, cross-validated by two independent methods) is the strongest candidate for a future selective-RPC verification pass under the B2Z-P3 policy -- verifying even a small sample of its 159 PLAIN_TRANSFER edges with raw on-chain evidence would meaningfully upgrade confidence in a structurally large, already-discovered candidate family, at a fraction of the cost of blind verification. This is a recommendation for a FUTURE milestone, not executed here."
+}

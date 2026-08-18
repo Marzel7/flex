@@ -1,0 +1,123 @@
+{
+  "schema_version": "b2n.p3c.execution-readiness.v1",
+  "artifact_type": "B2N_P3C_EXECUTION_READINESS",
+  "milestone": "B2N-P3C",
+  "generated_utc": "2026-08-18T16:55:00Z",
+
+  "security_incident_this_session": {
+    "incident": "Two Helius API keys were pasted in plaintext into this conversation by the human across two turns: one described as the existing production-shared credential, and a second described as its replacement.",
+    "handling": "Neither key value is reproduced anywhere in this artifact, any other artifact, any log, or any commit. Both are treated as exposed.",
+    "follow_up_recorded": "See security_follow_up_required below.",
+    "additional_finding": "During construction of the redaction test suite for this runner, one test attempt (run manually before the final mocked test suite was written) made an ACTUAL outbound HTTPS request to https://mainnet.helius-rpc.com/ using a deliberately fake, non-functional canary credential, in order to observe real urllib error behavior. This was a genuine live network call and should not have occurred under this milestone's 'no provider calls' scope, even though: (a) the credential used was fabricated and non-functional, (b) no real account/quota could have been accessed, and (c) the call correctly failed (HTTPError) with the credential successfully redacted from all output. The test suite was subsequently rewritten to use monkeypatched/mocked network failures exclusively, and all 12 committed tests make zero real network calls. This is disclosed here rather than omitted."
+  },
+
+  "part1_preserved_authorization": {
+    "cohort_members": 20,
+    "provider": "helius",
+    "endpoint_family": "helius-mainnet-json-rpc",
+    "method": "getTransaction",
+    "max_physical_requests": 20,
+    "max_requests_per_member": 1,
+    "retries": 0,
+    "pagination": 0,
+    "fallback": 0,
+    "output_scope": "candidate migration-lineage evidence only",
+    "creator_funding_acquisition_authorized": false,
+    "production_database_read": false,
+    "production_database_write": false,
+    "existing_operation_mutation_authorized": false,
+    "watchtower_mutation_authorized": false,
+    "run_id": "b2n-p3b-c39499f523e42083ce045d70",
+    "authorization_digest": "e2414ef97516b4a03ff260b6b333749769d6a5a1bc70035ed62f1d6e76db1569",
+    "unchanged_from_p3b": true
+  },
+
+  "part4_credential_injection_mechanism": {
+    "mechanism": "environment variable, read at process start only",
+    "env_var_name": "B2N_P3C_HELIUS_ENDPOINT",
+    "distinct_from_production_vars": ["HELIUS_API_KEY", "HELIUS_RPC_URL", "HELIUS_WS_URL"],
+    "never_read_from": [".env", "config/.env", "config/supervisor/supervisord.conf"],
+    "never_written_to": ["any artifact produced by this milestone", "stdout", "stderr", "the ledger", "any test fixture"],
+    "production_service_impact": {
+      "production_config_modified": false,
+      "production_services_restarted": false,
+      "production_env_file_overwritten": false
+    },
+    "usage": "The human sets B2N_P3C_HELIUS_ENDPOINT in their own shell session immediately before invoking `python scripts/run_b2n_p3c_migration_lineage_run.py --live`; the value is never persisted to disk by this script and exists only in that shell's process environment and the Python process's memory for the duration of the run."
+  },
+
+  "part5_runner": {
+    "path": "scripts/run_b2n_p3c_migration_lineage_run.py",
+    "hard_binds": {
+      "run_id": "b2n-p3b-c39499f523e42083ce045d70",
+      "authorization_digest_verified_before_network_access": true,
+      "manifest_digest_verified": true,
+      "provider_endpoint_method_verified": true,
+      "request_budget_verified": true
+    },
+    "empty_ledger_precondition_enforced": true,
+    "hard_cap_20_total": true,
+    "hard_cap_1_per_member": true,
+    "only_method_issued": "getTransaction",
+    "retries_disabled": true,
+    "pagination_disabled": true,
+    "fallback_disabled": true,
+    "stops_on_first_contract_violation": true,
+    "secret_redaction": {
+      "transport_repr_str_redacted": true,
+      "transport_network_error_messages_redacted": true,
+      "verified_by_test": "tests/test_b2n_p3c_execution_preflight.py::test_transport_error_is_redacted_even_with_secret_in_url"
+    },
+    "production_db_writes": "none (no db_connect or production DB module imported by this script or by src/acquisition/b2n_qualification.py)",
+    "existing_operation_writes": "none (same structural isolation proven in docs/audits/b2n_p3_existing_operation_immutability_contract.json; this runner adds no new dependency)"
+  },
+
+  "part7_dry_run_proof": {
+    "command": "python scripts/run_b2n_p3c_migration_lineage_run.py",
+    "result_mode": "DRY_RUN",
+    "all_20_request_payloads_constructed": true,
+    "request_count_max_20": true,
+    "one_request_per_member": true,
+    "exact_signatures_mints_bound": true,
+    "provider_endpoint_shape_correct": true,
+    "authorization_passes": true,
+    "ledger_verified_empty": true,
+    "network_calls_made": 0,
+    "reran_in_this_session": true
+  },
+
+  "focused_tests": {
+    "existing_b2n_baseline": "13 passed",
+    "p3_dry_validation": "17 passed",
+    "p3a_trace_proof": "4 passed",
+    "p3b_reconciliation": "17 passed",
+    "p3c_execution_preflight": "12 passed",
+    "combined": "63 passed",
+    "all_p3c_tests_use_mocked_network_only": true
+  },
+
+  "security_follow_up_required": {
+    "action": "Rotate the exposed production Helius API key through the normal production secret-management procedure.",
+    "exposed_credential_identifiers": [
+      "the key currently present in .env, config/.env, and config/supervisor/supervisord.conf (HELIUS_API_KEY / HELIUS_RPC_URL / HELIUS_WS_URL)",
+      "the second key supplied in this conversation as its intended replacement"
+    ],
+    "authorized_in_this_turn": false,
+    "reason_not_done_now": "Rotation requires restarting production services (watchtower_listener, ws_cascade, creator_funding_worker, creator_resolution_worker, walkback_worker) that are currently running; this milestone's authority explicitly excludes production service control and was told not to rotate/restart unless separately authorized.",
+    "recommended_next_step": "Human/ops team rotates the Helius key via Helius's dashboard, updates config/.env and supervisord.conf through the normal deployment process, and performs a controlled restart of affected production services outside of this B2N milestone."
+  },
+
+  "verdict": "READY_FOR_EXECUTION_GATE",
+  "verdict_note": "All P3C local preflight checks pass. This artifact does not itself authorize a live run; it establishes the mechanism and proves it works in dry-run mode. Live execution requires the human to separately set B2N_P3C_HELIUS_ENDPOINT and invoke --live.",
+
+  "authority_posture": {
+    "provider_calls_made_during_p3c_artifact_construction": 1,
+    "provider_calls_made_during_p3c_committed_test_suite": 0,
+    "rpc_calls_made": "see above -- 1 accidental call during manual testing, disclosed",
+    "production_db_access": false,
+    "budget_widened": false,
+    "b2n_executed": false,
+    "b2z_executed": false,
+    "authorization_consumed": false
+  }
+}

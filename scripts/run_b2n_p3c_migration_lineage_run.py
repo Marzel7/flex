@@ -37,6 +37,9 @@ from src.acquisition.b2n_qualification import (
     B2NQualificationRunAuthorization,
     B2N_MAX_PHYSICAL_REQUESTS,
     B2N_MAX_REQUESTS_PER_MEMBER,
+    B2N_VALID_OUTCOMES,
+    CONTRACT_VERSION,
+    OUTCOME_CACHE_HIT,
 )
 from src.acquisition.b2w_projection import B2WInputProjection, MigrationGetTransactionAdapter
 
@@ -490,9 +493,175 @@ def live_run(*, ledger_path: Path | None = None, event_ledger_path: Path | None 
     }
 
 
+def _completed_ordinals_from_ledgers(ledger: "AppendOnlyLedger", event_ledger: PreDispatchEventLedger) -> set[int]:
+    """P3G: derive the durably-completed ordinal set from BOTH ledgers and
+    fail closed on any inconsistency between them (e.g. a reservation with no
+    terminal event -- an ambiguous, possibly-in-flight attempt that must never
+    be silently treated as either complete or safe to redispatch)."""
+    attempt_ordinals = {e["sample_ordinal"] for e in ledger.entries()}
+
+    reserved = event_ledger.reserved_ordinals()
+    terminal_events = [e for e in event_ledger.events() if e["event"] in ("ATTEMPT_SUCCEEDED", "ATTEMPT_FAILED", "ATTEMPT_NOT_DISPATCHED")]
+    terminal_ordinals = {e["sample_ordinal"] for e in terminal_events}
+
+    dangling = reserved - terminal_ordinals
+    if dangling:
+        raise B2NP3CError(f"B2N_P3G_DANGLING_RESERVATION_NO_TERMINAL_EVENT:{sorted(dangling)}")
+
+    dispatched_ordinals = {e["sample_ordinal"] for e in terminal_events if e["event"] in ("ATTEMPT_SUCCEEDED", "ATTEMPT_FAILED")}
+    if dispatched_ordinals != attempt_ordinals:
+        raise B2NP3CError(
+            f"B2N_P3G_LEDGER_EVENT_LEDGER_MISMATCH:dispatched={sorted(dispatched_ordinals)}:attempt_ledger={sorted(attempt_ordinals)}"
+        )
+
+    return attempt_ordinals
+
+
+def _reconcile_single_member(*, client: "DurableAccountingClient", member: B2NMember,
+                              run_id: str, provider: str) -> dict:
+    """Replicates EXACTLY the per-member reconciliation body of
+    B2NExecutor.run() (src/acquisition/b2n_qualification.py lines ~215-244:
+    before/after counter read, outcome validation, counter-delta check,
+    request_count validation, cache-hit semantics, entry construction) for a
+    SINGLE member, without invoking B2NExecutor itself.
+
+    This exists ONLY because B2NExecutor.run() structurally cannot process
+    any ordinal other than 1 for the migration-lineage-only adapter (see
+    docs/audits/b2n_p3g_partial_live_run_reconciliation.json part3_diagnosis
+    and part4_fix_decision: B2NManifest.validate() requires the fixed 1..20
+    member order and B2NExecutor.run() always starts iteration at index 0 and
+    halts after the first non-qualifying outcome, which is unconditional for
+    this adapter). B2NExecutor itself is NOT modified. This function is the
+    B2N-specific, request-scoped equivalent of that reconciliation logic,
+    reused verbatim in intent (same checks, same exception names) so a
+    continuation step is held to the identical correctness bar as a normal
+    B2NExecutor.run() invocation."""
+    before = getattr(client, "provider_request_count", 0)
+    response = client.acquire_once(mint=member.mint)
+    if response.outcome not in B2N_VALID_OUTCOMES:
+        raise ValueError("B2N_INVALID_REQUEST_OUTCOME")
+    after = getattr(client, "provider_request_count", before)
+    if (delta := after - before) not in {0, 1}:
+        raise RuntimeError("B2N_CLIENT_REQUEST_COUNTER_INVALID")
+    request_count = int(response.provider_request_count)
+    if request_count not in {0, 1}:
+        raise ValueError("B2N_REQUEST_COUNT_INVALID")
+    if response.outcome == OUTCOME_CACHE_HIT and request_count != 0:
+        raise ValueError("B2N_CACHE_HIT_MUST_HAVE_ZERO_REQUESTS")
+    if request_count == 0 and response.outcome != OUTCOME_CACHE_HIT:
+        raise ValueError("B2N_REQUEST_COUNT_MISMATCH")
+    if request_count != delta:
+        raise RuntimeError("B2N_CLIENT_REQUEST_COUNTER_MISMATCH")
+    return {
+        "contract_version": CONTRACT_VERSION, "run_id": run_id,
+        "manifest_digest": _load_frozen_manifest().digest(), "sample_ordinal": member.sample_ordinal,
+        "mint": member.mint, "observation_required": True, "provider": provider,
+        "request_count": request_count, "request_outcome": response.outcome,
+        "provider_signature": response.provider_signature, "provider_slot": response.provider_slot,
+        "provider_block_time_utc": response.provider_block_time_utc,
+        "request_started_utc_ns": None, "response_received_utc_ns": None,
+        "elapsed_monotonic_ns": 0, "evidence_observed": response.evidence_observed,
+        "provenance_complete": response.provenance_complete, "error_class": response.error_class,
+    }
+
+
+def resume_run(*, ledger_path: Path | None = None, event_ledger_path: Path | None = None) -> dict:
+    """P3G safe continuation: reads the EXISTING (non-empty, durable) event
+    and attempt ledgers for the fresh P3E run_id, derives completed ordinals,
+    and processes AT MOST ONE additional remaining member per invocation.
+
+    Never invokes B2NExecutor.run() for continuation steps (that shared code
+    always starts at ordinal 1 and halts there for this adapter -- see
+    docs/audits/b2n_p3g_partial_live_run_reconciliation.json part3_diagnosis).
+    Instead calls DurableAccountingClient.acquire_once() directly for exactly
+    ONE targeted remaining member, then reconciles it via
+    _reconcile_single_member() (the identical logic B2NExecutor.run() uses
+    per-member) before durably appending to the CUMULATIVE ledger (never
+    reset, never truncated; AppendOnlyLedger.append() independently rejects
+    a duplicate sample_ordinal as a second guard against redispatch)."""
+    endpoint = os.environ.get(CREDENTIAL_ENV_VAR)
+    if not endpoint:
+        raise B2NP3CError(f"B2N_P3C_CREDENTIAL_ENV_VAR_MISSING:{CREDENTIAL_ENV_VAR}")
+
+    ledger_path = (ledger_path or DEFAULT_LEDGER_PATH).resolve()
+    event_ledger_path = (event_ledger_path or DEFAULT_EVENT_LEDGER_PATH).resolve()
+
+    manifest = _load_frozen_manifest()
+    manifest.validate()
+    _verify_authorization_digest()
+    reviewed = _load_reviewed_binding()
+    if reviewed["closure_state"] != {"COMPLETE": 20, "PARTIAL": 0, "MISSING": 0, "CONFLICTING": 0}:
+        raise B2NP3CError("B2N_P3C_PROVENANCE_CLOSURE_NOT_QUALIFIED")
+
+    projection = build_projection(manifest, reviewed)
+
+    durable_ledger = B2NAttemptLedger(ledger_path)
+    event_ledger = PreDispatchEventLedger(event_ledger_path)
+
+    completed = _completed_ordinals_from_ledgers(durable_ledger, event_ledger)
+    remaining = sorted(m.sample_ordinal for m in manifest.members if m.sample_ordinal not in completed)
+
+    physical_requests_consumed = event_ledger.physical_requests_attempted()
+
+    if not remaining:
+        return {
+            "mode": "RESUME",
+            "run_id": EXPECTED_RUN_ID,
+            "status": "ALL_MEMBERS_COMPLETE",
+            "completed_ordinals": sorted(completed),
+            "remaining_ordinals": [],
+            "physical_requests_consumed": physical_requests_consumed,
+        }
+
+    if physical_requests_consumed >= B2N_MAX_PHYSICAL_REQUESTS:
+        raise RuntimeError("B2N_BUDGET_EXHAUSTED")
+
+    next_ordinal = remaining[0]
+    next_member = next(m for m in manifest.members if m.sample_ordinal == next_ordinal)
+
+    transport = RedactingJsonRpcTransport(endpoint)
+    adapter = MigrationGetTransactionAdapter(transport, projection)
+    durable_client = DurableAccountingClient(
+        adapter=adapter, transport=transport, event_ledger=event_ledger,
+        run_id=EXPECTED_RUN_ID, provider=EXPECTED_PROVIDER, method=EXPECTED_METHOD,
+    )
+    # DurableAccountingClient fails closed on a second reservation for an
+    # already-reserved ordinal (B2N_P3E_DUPLICATE_ORDINAL_ATTEMPT) -- an
+    # independent guard even though `next_member` is already guaranteed to
+    # be an uncompleted ordinal by construction above.
+
+    entry = _reconcile_single_member(
+        client=durable_client, member=next_member, run_id=EXPECTED_RUN_ID, provider=EXPECTED_PROVIDER,
+    )
+
+    if entry["sample_ordinal"] in completed:
+        raise RuntimeError(f"B2N_P3G_REFUSING_TO_MERGE_ALREADY_COMPLETED_ORDINAL:{entry['sample_ordinal']}")
+    durable_ledger.append(entry)
+
+    new_completed = completed | {entry["sample_ordinal"]}
+    return {
+        "mode": "RESUME",
+        "run_id": EXPECTED_RUN_ID,
+        "status": "STEP_COMPLETE" if len(new_completed) < 20 else "ALL_MEMBERS_COMPLETE",
+        "processed_ordinal": next_ordinal,
+        "completed_ordinals": sorted(new_completed),
+        "remaining_ordinals": sorted(set(range(1, 21)) - new_completed),
+        "physical_requests_consumed": event_ledger.physical_requests_attempted(),
+        "physical_requests_remaining_budget": B2N_MAX_PHYSICAL_REQUESTS - event_ledger.physical_requests_attempted(),
+        "ledger_path": str(ledger_path),
+        "event_ledger_path": str(event_ledger_path),
+        "results": [entry],
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="B2N-P3C isolated migration-lineage bounded-run runner.")
     parser.add_argument("--live", action="store_true", help="Perform the live network run. Default is dry-run.")
+    parser.add_argument(
+        "--resume", action="store_true",
+        help="P3G: process at most one additional remaining member against EXISTING non-empty ledgers. "
+             "Mutually exclusive with --live (fresh 20-member run).",
+    )
     parser.add_argument(
         "--output", default=None,
         help=f"Path to write the JSON result. Defaults to {DEFAULT_RESULT_PATH} (never /tmp).",
@@ -507,15 +676,20 @@ def main() -> int:
     )
     args = parser.parse_args()
 
+    if args.live and args.resume:
+        print(json.dumps({"error": "B2NP3CError", "message": "B2N_P3G_LIVE_AND_RESUME_MUTUALLY_EXCLUSIVE"}))
+        return 1
+
     ledger_path = Path(args.ledger_path).resolve() if args.ledger_path else None
     event_ledger_path = Path(args.event_ledger_path).resolve() if args.event_ledger_path else None
 
     try:
-        result = (
-            live_run(ledger_path=ledger_path, event_ledger_path=event_ledger_path)
-            if args.live
-            else dry_run(ledger_path=ledger_path, event_ledger_path=event_ledger_path)
-        )
+        if args.resume:
+            result = resume_run(ledger_path=ledger_path, event_ledger_path=event_ledger_path)
+        elif args.live:
+            result = live_run(ledger_path=ledger_path, event_ledger_path=event_ledger_path)
+        else:
+            result = dry_run(ledger_path=ledger_path, event_ledger_path=event_ledger_path)
     except (B2NP3CError, RuntimeError, ValueError) as exc:
         print(json.dumps({"error": type(exc).__name__, "message": str(exc)}))
         return 1
@@ -523,9 +697,9 @@ def main() -> int:
     text = json.dumps(result, indent=2, default=str)
     if args.output:
         Path(args.output).write_text(text + "\n")
-    elif args.live:
-        # The live result is authoritative and must land on durable repo
-        # storage by default -- never silently printed-only, never /tmp.
+    elif args.live or args.resume:
+        # The live/resume result is authoritative and must land on durable
+        # repo storage by default -- never silently printed-only, never /tmp.
         DEFAULT_RESULT_PATH.write_text(text + "\n")
         print(json.dumps({"result_written_to": str(DEFAULT_RESULT_PATH)}))
     else:

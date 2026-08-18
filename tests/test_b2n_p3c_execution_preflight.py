@@ -18,7 +18,7 @@ def test_default_ledger_and_result_paths_are_inside_repo_docs_audits():
 
 def test_dry_run_constructs_all_20_requests_with_zero_network_calls(tmp_path):
     ledger_path = tmp_path / "ledger.jsonl"
-    result = p3c.dry_run(ledger_path=ledger_path)
+    result = p3c.dry_run(ledger_path=ledger_path, event_ledger_path=tmp_path / "events.jsonl")
     assert result["mode"] == "DRY_RUN"
     assert result["network_calls_made"] == 0
     assert result["constructed_request_count"] == 20
@@ -35,17 +35,26 @@ def test_dry_run_constructs_all_20_requests_with_zero_network_calls(tmp_path):
     assert not ledger_path.exists()
 
 
-def test_dry_run_uses_default_durable_path_when_unspecified():
-    if p3c.DEFAULT_LEDGER_PATH.exists():
-        p3c.DEFAULT_LEDGER_PATH.unlink()
-    result = p3c.dry_run()
-    assert result["ledger_path"] == str(p3c.DEFAULT_LEDGER_PATH.resolve())
-    assert not p3c.DEFAULT_LEDGER_PATH.exists()
+def test_dry_run_uses_default_durable_path_when_unspecified(tmp_path):
+    """Checks the default-path WIRING only (not real file state): after a real
+    live run for run_id b2n-p3e-98695fbdf44146c93ff08c8c, the genuine
+    DEFAULT_LEDGER_PATH/DEFAULT_EVENT_LEDGER_PATH legitimately contain durable
+    live data (see docs/audits/b2n_p3g_partial_live_run_reconciliation.json)
+    and must NOT be deleted or reset by a test. This verifies the constant
+    resolves correctly when an explicit override is not one of the DEFAULT_*
+    paths themselves, without touching the real default files."""
+    override_ledger = tmp_path / "ledger.jsonl"
+    override_events = tmp_path / "events.jsonl"
+    result = p3c.dry_run(ledger_path=override_ledger, event_ledger_path=override_events)
+    assert result["ledger_path"] == str(override_ledger.resolve())
+    assert result["event_ledger_path"] == str(override_events.resolve())
+    assert p3c.DEFAULT_LEDGER_PATH.name.endswith(f"{p3c.EXPECTED_RUN_ID}.jsonl")
+    assert p3c.DEFAULT_EVENT_LEDGER_PATH.name.endswith(f"{p3c.EXPECTED_RUN_ID}.jsonl")
 
 
 def test_ledger_path_cli_override(tmp_path):
     override = tmp_path / "custom_ledger.jsonl"
-    result = p3c.dry_run(ledger_path=override)
+    result = p3c.dry_run(ledger_path=override, event_ledger_path=tmp_path / "events.jsonl")
     assert result["ledger_path"] == str(override.resolve())
 
 

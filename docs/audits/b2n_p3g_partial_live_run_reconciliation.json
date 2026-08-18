@@ -1,0 +1,140 @@
+{
+  "schema_version": "b2n.p3g.partial-live-run-reconciliation.v1",
+  "artifact_type": "B2N_P3G_PARTIAL_LIVE_RUN_RECONCILIATION",
+  "milestone": "B2N-P3G",
+  "generated_utc": "2026-08-18T19:05:00Z",
+  "run_id": "b2n-p3e-98695fbdf44146c93ff08c8c",
+  "authorized_members": 20,
+  "completed_ordinals": [
+    1
+  ],
+  "completed_count": 1,
+  "remaining_ordinals": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "remaining_count": 19,
+  "physical_requests_consumed": 1,
+  "physical_requests_remaining_max": 19,
+  "part2_ledger_reconciliation": {
+    "attempt_ledger_path": "docs/audits/b2n_p3c_live_ledger_b2n-p3e-98695fbdf44146c93ff08c8c.jsonl",
+    "attempt_ledger_entry_count": 1,
+    "attempt_ledger_entries_by_ordinal": {
+      "1": {
+        "request_outcome": "SUCCESS",
+        "request_count": 1,
+        "provider_signature": "3F3Kx3jN8oaKx4w25GAgYwosXtFgiSyKPSmYyUhX3YeqWdR7jNmgBV9gzofyPkKznbP5FZ9f6tFzQQyCCTN4hq8i",
+        "provider_slot": 438884281,
+        "evidence_observed": false,
+        "provenance_complete": true,
+        "error_class": "B2W_MIGRATION_LINEAGE_ONLY"
+      }
+    },
+    "event_ledger_path": "docs/audits/b2n_p3e_event_ledger_b2n-p3e-98695fbdf44146c93ff08c8c.jsonl",
+    "event_ledger_event_count": 2,
+    "event_ledger_events": [
+      {
+        "event": "ATTEMPT_RESERVED",
+        "sample_ordinal": 1,
+        "request_number": 1
+      },
+      {
+        "event": "ATTEMPT_SUCCEEDED",
+        "sample_ordinal": 1,
+        "request_number": 1,
+        "request_outcome": "SUCCESS"
+      }
+    ],
+    "exactly_one_reservation": true,
+    "exactly_one_terminal_event": true,
+    "exactly_one_attempt_ledger_entry": true,
+    "all_refer_to_ordinal_1": true,
+    "physical_request_accounting_equals_1": true,
+    "no_events_or_attempts_for_ordinals_2_through_20": true,
+    "provider_signature_matches_reviewed_migration_signature": true,
+    "reviewed_migration_signature_ordinal_1": "3F3Kx3jN8oaKx4w25GAgYwosXtFgiSyKPSmYyUhX3YeqWdR7jNmgBV9gzofyPkKznbP5FZ9f6tFzQQyCCTN4hq8i",
+    "verification_method": "direct read of both live ledger files, cross-checked against docs/audits/b2n_cohort_eligibility_reviewed_provenance_binding.json member ordinal 1 reviewed_migration_origin -- exact string match"
+  },
+  "part3_diagnosis": {
+    "verdict": "INTENTIONAL_ONE_MEMBER_PER_INVOCATION_BEHAVIOR_NOT_A_BUG",
+    "exact_cause": "src/acquisition/b2n_qualification.py B2NExecutor.run() line 249: `if response.outcome != OUTCOME_SUCCESS or not response.evidence_observed or not response.provenance_complete: break`. MigrationGetTransactionAdapter (src/acquisition/b2w_projection.py), the B2N-native migration-lineage-only adapter qualified in P3B, ALWAYS returns evidence_observed=False on every successful call (it never claims creator-funding evidence, by design -- see error_class=B2W_MIGRATION_LINEAGE_ONLY). Therefore `not response.evidence_observed` is unconditionally True for every member, so the loop breaks after exactly one member on EVERY invocation, regardless of HTTP outcome, regardless of which member is processed first.",
+    "ruled_out_by_direct_inspection": [
+      "no premature return statement inside the per-member loop",
+      "no indentation error -- the break is correctly scoped inside the for loop, at the expected place",
+      "not an iterator exhaustion bug -- for member in self.manifest.members correctly iterates all 20 manifest members; the loop CAN reach member 2..20, it chooses to stop via the explicit break condition",
+      "not a ledger duplicate/empty-semantics bug -- B2NAttemptLedger.require_empty() only runs once, at the start of run(), not per-member",
+      "not client state preventing the second member -- DurableAccountingClient has no internal state that would reject a second acquire_once() call for a DIFFERENT ordinal (verified: duplicate-ordinal rejection only triggers for the SAME ordinal, per P3E test_max_one_attempted_request_per_member)",
+      "not an authorization request-budget bug -- max_physical_requests=20 is correctly read and total_requests(1) < 20 at the point the loop would otherwise continue to member 2; the break happens for a DIFFERENT reason (evidence_observed check), not a budget check",
+      "the migration-lineage-only error_class (B2W_MIGRATION_LINEAGE_ONLY) IS being correctly interpreted as a non-qualifying outcome by the existing, already-qualified stop condition -- this is the actual mechanism, confirmed by code read and reproduced with a mocked ALWAYS-SUCCESSFUL transport (see reproduction below)"
+    ],
+    "reproduction_with_always_successful_transport": {
+      "method": "constructed a fake transport that would return a valid SUCCESS response for all 20 members if asked, wired through the real DurableAccountingClient/MigrationGetTransactionAdapter/B2NExecutor stack, zero network calls",
+      "result": "executor.run() still returns exactly 1 result and the transport's physical_request_count is exactly 1 -- proving the loop stops after member 1 purely due to evidence_observed=False, not due to any transport/network failure",
+      "conclusion": "this would have happened identically even if the live Helius call for every one of the 20 members had succeeded perfectly -- it is a structural property of the current B2NExecutor + MigrationGetTransactionAdapter pairing, not a live-environment defect"
+    },
+    "architectural_root": "B2NExecutor's stop-on-non-qualifying-outcome condition was designed with a creator-funding-evidence use case in mind (matching B2Z's semantics, where evidence_observed=True is a genuine, achievable success signal). The P3B reconciliation correctly narrowed B2N's PURPOSE to migration-lineage-only, but did not (until this milestone) trace that this narrowing makes evidence_observed permanently False for B2N specifically -- which, combined with the SHARED executor's stop condition, limits any single B2NExecutor.run() invocation to exactly one processed member for this adapter."
+  },
+  "part4_fix_decision": {
+    "chosen_approach": "SAFE_CONTINUATION_NOT_EXECUTOR_MODIFICATION",
+    "reasoning": "B2NExecutor.run()'s stop condition is NOT modified, because it is shared, already-qualified code also relied upon by (or architecturally analogous to) creator-funding-evidence contracts where evidence_observed=True is a meaningful success signal and stopping on the first non-qualifying outcome is a genuine safety property, not a defect. Weakening or bypassing that condition specifically for B2N risks silently changing behavior other contracts may depend on. Instead, a continuation contract is qualified at the P3C/P3E RUNNER level (scripts/run_b2n_p3c_migration_lineage_run.py), which repeatedly and safely invokes B2NExecutor.run() -- once per remaining member -- while durably tracking completed ordinals across invocations via the existing event ledger and attempt ledger, neither of which is reset between invocations."
+  },
+  "session_incident_disclosure": {
+    "incident": "During this milestone, before the P3C dry-run/default-path tests were corrected for the P3E event-ledger check, an OLDER version of tests/test_b2n_p3c_execution_preflight.py::test_dry_run_uses_default_durable_path_when_unspecified called p3c.DEFAULT_LEDGER_PATH.unlink() unconditionally. Running the full test baseline mid-session deleted the genuine, real live attempt ledger file (docs/audits/b2n_p3c_live_ledger_b2n-p3e-98695fbdf44146c93ff08c8c.jsonl) for the actual human live run.",
+    "detected_by": "a routine re-verification step (re-reading the live artifacts before diagnosing early termination) found the attempt ledger missing where it had existed moments earlier in the same turn.",
+    "recovery": "the exact byte content had already been captured verbatim via a direct cat of the file EARLIER in this same turn, before any test was run, and was independently cross-verified field-by-field against the separate, untouched docs/audits/b2n_p3c_live_result.json artifact (every field -- provider_signature, provider_slot, request_started_utc_ns, response_received_utc_ns, elapsed_monotonic_ns -- matched exactly). The file was restored byte-for-byte from that captured content, not reconstructed from memory or assumption.",
+    "fix": "the offending .unlink() call was removed from the test (see tests/test_b2n_p3c_execution_preflight.py::test_dry_run_uses_default_durable_path_when_unspecified, now uses only tmp_path-scoped override paths); re-ran the full 100-test combined baseline afterward and confirmed the real live ledger survives intact.",
+    "verified_intact_after_fix": true,
+    "event_ledger_never_touched": true,
+    "disclosed_rather_than_hidden": true
+  },
+  "disk_state_at_milestone_end": {
+    "filesystem": "/System/Volumes/Data",
+    "available": "7.4 GiB",
+    "capacity": "97%",
+    "execution_floor_required_gib": 10,
+    "execution_floor_met": false,
+    "note": "Disk dropped below the 10 GiB floor during this session (was 11 GiB at P3F). This is disclosed for completeness; continuation execution is NOT authorized or attempted this turn regardless, so this does not change the terminal verdict, but it WOULD need to be re-checked and satisfied before any actual continuation execution is authorized in a future turn."
+  },
+  "part9_success_requirements_not_yet_met": {
+    "exactly_20_frozen_members_accounted": false,
+    "current_count": 1,
+    "note": "Per instruction, B2N cannot close (cannot be marked complete/qualified) until all 20 are accounted. This milestone only qualifies the SAFETY of a continuation mechanism; it does not execute it."
+  },
+  "tests": {
+    "command": "python3 -m pytest -q tests/test_b2n_p3g_continuation.py",
+    "result": "12 passed",
+    "combined_with_full_p3_baseline": "100 passed",
+    "all_network_calls_mocked": true
+  },
+  "authority_posture": {
+    "provider_calls_made_this_milestone": 0,
+    "rpc_calls_made_this_milestone": 0,
+    "old_run_id_reused": false,
+    "fresh_run_id_widened_or_reset": false,
+    "ordinal_1_redispatched": false,
+    "production_db_access": false,
+    "existing_operation_mutation": false,
+    "watchtower_mutation": false,
+    "continuation_executed": false,
+    "b2n_closed": false
+  },
+  "verdict": "READY_B2N_19_MEMBER_CONTINUATION_AUTHORIZATION_REVIEW",
+  "verdict_note": "Safe same-run continuation is qualified: a resume_run() function processes at most one additional remaining member per invocation, reads existing (non-empty) durable ledgers without resetting them, derives completed ordinals with fail-closed inconsistency checks, never redispatches a completed ordinal (verified both by construction and by an independent duplicate-reservation guard), and preserves cumulative physical-request accounting. Verified end-to-end with mocks: seeding ordinal-1-complete state and calling resume_run() 19 times processes ordinals 2-20 exactly once each with correct budget decrementing to 0. This does NOT execute the continuation. Disk is currently below the 10 GiB floor (7.4 GiB) and must be re-verified before any actual continuation execution is authorized."
+}

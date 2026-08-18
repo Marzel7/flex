@@ -1,0 +1,2 @@
+{"event":"ATTEMPT_RESERVED","event_utc_ns":1787074505163110000,"method":"getTransaction","mint":"66ruWUv7KLXkLbHBTnj7PqzEgdue1oZjeA5Z3JMHpump","provider":"helius","request_number":1,"run_id":"b2n-p3e-98695fbdf44146c93ff08c8c","sample_ordinal":1}
+{"event":"ATTEMPT_SUCCEEDED","event_utc_ns":1787074505424415000,"method":"getTransaction","mint":"66ruWUv7KLXkLbHBTnj7PqzEgdue1oZjeA5Z3JMHpump","provider":"helius","request_number":1,"request_outcome":"SUCCESS","run_id":"b2n-p3e-98695fbdf44146c93ff08c8c","sample_ordinal":1}

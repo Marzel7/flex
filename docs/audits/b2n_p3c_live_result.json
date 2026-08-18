@@ -1,0 +1,31 @@
+{
+  "mode": "LIVE",
+  "run_id": "b2n-p3e-98695fbdf44146c93ff08c8c",
+  "entries": 1,
+  "physical_requests_used": 1,
+  "physical_requests_attempted_per_event_ledger": 1,
+  "ledger_path": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/b2n_p3c_live_ledger_b2n-p3e-98695fbdf44146c93ff08c8c.jsonl",
+  "event_ledger_path": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/b2n_p3e_event_ledger_b2n-p3e-98695fbdf44146c93ff08c8c.jsonl",
+  "results": [
+    {
+      "contract_version": "OIP_v2.2E.2B2N.v1",
+      "run_id": "b2n-p3e-98695fbdf44146c93ff08c8c",
+      "manifest_digest": "82bbda32d25a9951a8d8475528d7db3a92b675aae90ce2d55e13391a6b69eedc",
+      "sample_ordinal": 1,
+      "mint": "66ruWUv7KLXkLbHBTnj7PqzEgdue1oZjeA5Z3JMHpump",
+      "observation_required": true,
+      "provider": "helius",
+      "request_count": 1,
+      "request_outcome": "SUCCESS",
+      "provider_signature": "3F3Kx3jN8oaKx4w25GAgYwosXtFgiSyKPSmYyUhX3YeqWdR7jNmgBV9gzofyPkKznbP5FZ9f6tFzQQyCCTN4hq8i",
+      "provider_slot": 438884281,
+      "provider_block_time_utc": null,
+      "request_started_utc_ns": 1787074505163098000,
+      "response_received_utc_ns": 1787074505424600000,
+      "elapsed_monotonic_ns": 261499750,
+      "evidence_observed": false,
+      "provenance_complete": true,
+      "error_class": "B2W_MIGRATION_LINEAGE_ONLY"
+    }
+  ]
+}

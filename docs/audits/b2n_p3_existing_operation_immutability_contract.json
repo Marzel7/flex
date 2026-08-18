@@ -1,0 +1,74 @@
+{
+  "schema_version": "b2n.p3.existing-operation-immutability-contract.v1",
+  "artifact_type": "B2N_P3_EXISTING_OPERATION_IMMUTABILITY_CONTRACT",
+  "milestone": "B2N-P3",
+  "generated_utc": "2026-08-18T15:35:00Z",
+  "authority_posture": {
+    "existing_operation_mutation_authority": false,
+    "existing_operation_merge_authority": false,
+    "existing_operation_split_authority": false,
+    "existing_operation_membership_write_authority": false,
+    "existing_operation_attribution_write_authority": false,
+    "monitoring_activation_authority": false,
+    "policy_authority": false,
+    "trading_authority": false
+  },
+  "canonical_operation_source_identification": {
+    "canonical_operation_store_module": "src/core/operation_store_v2.py",
+    "canonical_operation_db_path": "database/wt_ops_v2.db",
+    "db_last_modified_utc_observed": "2026-08-18T16:24:00+01:00",
+    "db_file_size_bytes_observed": 4039446528,
+    "identification_method": "grep for wt_operations table usage across src/*.py; confirmed operation_store_v2.py, operation_discovery_poc.py, operation_dashboard_routes.py, watchtower_init.py, main.py, watchtower_operations_bridge.py, observation_providers.py, operator_resolver.py all reference wt_operations"
+  },
+  "pre_run_canonical_snapshot": {
+    "attempted": true,
+    "result": "NOT_TAKEN",
+    "reason": "P3 authority explicitly forbids production_database_read; wt_operations lives in a live, actively-written production database (database/wt_ops_v2.db, 4.0GB, last modified today). No frozen/exported canonical-operation snapshot artifact exists elsewhere in the repository (searched for *watchtower*snapshot*, *wt_operations*snapshot*, *canonical*snapshot* -- zero matches). A digest-bound pre-run snapshot is therefore NOT AVAILABLE under this authority boundary and is not fabricated here.",
+    "implication": "The invariant before(O) == after(O) for canonical operation identity/membership/attribution cannot be PROVEN by artifact diff in this authority boundary. It is instead enforced STRUCTURALLY: see structural_isolation_evidence below. Any future stage that needs a provable before/after snapshot must separately request bounded production_database_read authority, which is NOT granted by this artifact."
+  },
+  "structural_isolation_evidence": {
+    "method": "direct source inspection of src/acquisition/b2n_qualification.py",
+    "findings": [
+      "Module docstring states: 'This module deliberately has no production database, queue, service, provider configuration, or HTTP-client dependency.'",
+      "grep for 'wt_operations', 'watchtower', 'canonical', 'production' in the file returns zero references to any canonical-operation table, module, or identity concept -- only unrelated local uses of the word 'canonical' (a JSON-serialization helper function name) and a boolean flag literally named require_not_production.",
+      "B2NExecutor has no import of src/core/operation_store_v2.py or any db_connect/db-layer module.",
+      "B2NAttemptLedger is a local append-only JSONL file (AppendOnlyLedger), not a database table, and has no code path that writes to database/wt_ops_v2.db or any other production database file."
+    ],
+    "conclusion": "The B2N executor is structurally incapable of writing to, merging, splitting, or reattributing any canonical operation, because it contains no code path that references the canonical operation store at all. This is a stronger guarantee than a snapshot diff for THIS specific implementation, but does not substitute for a snapshot-based invariant check if the executor is later modified."
+  },
+  "candidate_output_authority": {
+    "b2n_output_touching_an_existing_operation_must_be": "CANDIDATE_ONLY",
+    "prohibited_outputs": [
+      "canonical operation writes",
+      "canonical family writes",
+      "production policy writes",
+      "monitoring activation",
+      "trading decisions",
+      "automatic attribution",
+      "automatic identity linkage",
+      "operation merge/split",
+      "adding a member to any existing operation",
+      "removing a member from any existing operation",
+      "renaming/re-IDing any existing operation",
+      "changing monitoring state of any existing operation",
+      "changing trading/policy state of any existing operation"
+    ],
+    "allowed_outputs": [
+      "local run artifact (attempt ledger entries)",
+      "candidate evidence",
+      "candidate relationship",
+      "candidate continuation hypothesis",
+      "candidate address/member association",
+      "candidate operational-family relationship",
+      "missing-evidence/gap record",
+      "bounded qualification result"
+    ]
+  },
+  "all_operations_invariant": {
+    "statement": "for every existing canonical operation O, before(O) == after(O) for all canonical identity/membership/attribution fields during the B2N bounded run",
+    "scope": "applies uniformly to Watchtower and every other canonical operation; Watchtower is not a special case",
+    "enforcement_mechanism": "structural isolation (see structural_isolation_evidence) + candidate-only output authority (see candidate_output_authority) + zero production_database_write authority anywhere in this milestone",
+    "provable_by_snapshot_diff": false,
+    "provable_by_snapshot_diff_reason": "no pre-run canonical snapshot could be taken under current authority boundary; see pre_run_canonical_snapshot above"
+  }
+}

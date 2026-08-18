@@ -30,9 +30,9 @@
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
   "current_milestone": {
-    "milestone": "B2N-P2E human provenance review execution - COMPLETE",
-    "status": "PASS",
-    "verdict": "B2N_COHORT_ELIGIBILITY_PROVENANCE_QUALIFIED"
+    "milestone": "B2N-P3 -- bounded run authorization preflight",
+    "status": "READY",
+    "verdict": "READY_B2N_BOUNDED_RUN_AUTHORIZATION_REVIEW"
   },
   "current_next_blocker": null,
   "focused_tests": [
@@ -28652,10 +28652,9 @@
     }
   },
   "next_action": {
-    "decision": "B2N_COHORT_ELIGIBILITY_PROVENANCE_QUALIFIED",
-    "instruction": "Provenance is qualified 20/20. Next milestone is B2N-P3 -- bounded run authorization preflight. B2N execution itself still requires a SEPARATE explicit human authorization; do not auto-execute.",
-    "next_milestone": "B2N-P3 bounded run authorization preflight",
-    "required_authorization": "SEPARATE_HUMAN_AUTHORIZATION_FOR_BOUNDED_RUN",
+    "decision": "READY_B2N_BOUNDED_RUN_AUTHORIZATION_REVIEW",
+    "instruction": "P3 authorization preflight is complete and bound. This does NOT authorize execution.",
+    "next_action_code": "AWAIT_EXPLICIT_B2N_BOUNDED_RUN_GO_NO_GO",
     "b2n_execution_authorized": false
   },
   "notes": [
@@ -28682,7 +28681,8 @@
     "RA0 read-only dedup-preflight script was implemented, but output artifact generation is still pending in this environment due disk-full/long-run constraints; no production schema changes were made.",
     "B2N local contract tests now pass; blocker remains only provenance provenance missing. Deterministic provenance gap audit written to docs/audits/b2n_cohort_eligibility_provenance_gap_audit.json.",
     "B2N frozen-manifest digest reconciliation: a takeover prompt claimed manifest digest 82bbda32...eedc for docs/evidence_platform/oip_v2_2e_2b2u_b2r_frozen_manifest.json. The actual raw-file SHA-256 is 54481980...4d4c, which is also the digest already recorded by all three independently digest-verified downstream B2N artifacts (P2D resolution, human review packet, human review index) -- meaning the qualified provenance chain was built against the correct digest all along and 82bbda32... was simply a stale/incorrect claim, never a real state the repository was ever in (manifest has a single git commit, never modified). Content equivalence fully verified: 20/20 members, ordinals 1-20, unique mints/census_event_ids, zero field-level diffs. Verdict: FROZEN_MANIFEST_CONTENT_EQUIVALENT_DIGEST_STALE. See docs/audits/b2n_frozen_manifest_digest_discrepancy_resolution.json. B2N-P2E human review may proceed.",
-    "B2N-P2E human provenance review execution complete: all 20 frozen cohort members reviewed one-at-a-time by the human, all disposed APPROVED, recorded per the existing decision-record contract (docs/audits/b2n_cohort_eligibility_human_review_decision_record_contract.json), bound to review packet digest 9a123317...7cfcd and frozen manifest digest 54481980...4d4c (no drift detected across the full review). Final reviewed provenance binding written to docs/audits/b2n_cohort_eligibility_reviewed_provenance_binding.json with closure state COMPLETE=20/PARTIAL=0/MISSING=0/CONFLICTING=0. Blocker B2N_COHORT_ELIGIBILITY_PROVENANCE_MISSING is now cleared. Next milestone: B2N-P3 bounded run authorization preflight, which still requires a separate explicit human authorization before any provider execution. No provider/RPC calls were made by the agent during this review; where a human decision cited external verification, that was recorded explicitly as human-supplied, not repository-confirmed."
+    "B2N-P2E human provenance review execution complete: all 20 frozen cohort members reviewed one-at-a-time by the human, all disposed APPROVED, recorded per the existing decision-record contract (docs/audits/b2n_cohort_eligibility_human_review_decision_record_contract.json), bound to review packet digest 9a123317...7cfcd and frozen manifest digest 54481980...4d4c (no drift detected across the full review). Final reviewed provenance binding written to docs/audits/b2n_cohort_eligibility_reviewed_provenance_binding.json with closure state COMPLETE=20/PARTIAL=0/MISSING=0/CONFLICTING=0. Blocker B2N_COHORT_ELIGIBILITY_PROVENANCE_MISSING is now cleared. Next milestone: B2N-P3 bounded run authorization preflight, which still requires a separate explicit human authorization before any provider execution. No provider/RPC calls were made by the agent during this review; where a human decision cited external verification, that was recorded explicitly as human-supplied, not repository-confirmed.",
+    "B2N-P3 bounded run authorization preflight complete. Verified P2E closure (20/20 COMPLETE, zero digest drift) before proceeding. Discovered and corrected a material misunderstanding from the P2D digest-discrepancy resolution: 82bbda32...eedc is NOT a stale digest, it is B2NManifest.digest() -- the executor's own canonical member-list digest, distinct from and equally correct alongside the raw file SHA-256 54481980...4d4c; both are now bound explicitly under distinct field names. Found and committed (9e50ffa1) a substantial uncommitted local rewrite of src/acquisition/b2n_qualification.py (B2NQualificationRunAuthorization, per-member request accounting, cache-hit semantics, contract-specific ledger) so P3 could bind a reproducible engineering revision rather than untracked working-tree state. Bound exact 20-member cohort, executor contract, request budget (20 total/1 per member, verified against source), deterministic run ID, empty ledger precondition, and 20 explicit fail-closed stop conditions. Provider/endpoint (helius / helius-mainnet-json-rpc) was inferred from the adjacent 2B2Z preflight, since no B2N-native provider preflight exists -- flagged explicitly as requiring human confirmation, not silently assumed. Built existing-operation immutability contract and Watchtower safety assertion: discovered Watchtower is NOT a single canonical row but an operator_identity='WATCHTOWER' class spanning many wt_operations rows in the live production DB (database/wt_ops_v2.db); could not take a pre-run canonical snapshot under P3's production_database_read=false authority, so protection is grounded in STRUCTURAL isolation instead (direct source inspection proves b2n_qualification.py has zero references to wt_operations/watchtower/any canonical operation module). 17 new dry-validation tests added and passing (30 total combined with existing baseline), proving manifest/provider/endpoint/run-id/budget/ledger rejections and operation-safety postures without any provider call. Verdict: READY_B2N_BOUNDED_RUN_AUTHORIZATION_REVIEW. Execution NOT authorized; awaiting explicit human GO/NO-GO."
   ],
   "operation_count_delta": {
     "current_count": 150,
@@ -28807,7 +28807,7 @@
     "production_changes_allowed": false
   },
   "schema_version": 1,
-  "status": "PASS",
+  "status": "READY",
   "test_runs": {
     "continuity_adapter": {
       "command": "pytest -q tests/test_psi0h_h8_h4_runtime_projection.py tests/test_psi0h_h2_historical_candidate_generation.py tests/test_psi0h_h3_historical_candidate_disposition.py",
@@ -28853,7 +28853,7 @@
   "updated_at": "2026-08-18T14:31:00Z",
   "updated_at_utc": "2026-08-18T14:31:00Z",
   "updated_by": "agent_local",
-  "verdict": "B2N_COHORT_ELIGIBILITY_PROVENANCE_QUALIFIED",
+  "verdict": "READY_B2N_BOUNDED_RUN_AUTHORIZATION_REVIEW",
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "continuation_update": {
@@ -29033,5 +29033,38 @@
     "bound_review_packet_digest": "9a123317998506332b465c5f2204fedb9c3a99ac2663a11801177d483837cfcd",
     "bound_frozen_manifest_digest": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
     "note": "Several decisions cited human-performed external (Solscan) transaction verification supplementing the repository's own evidence, which by itself only establishes internally-consistent cross-referenced assertions, not independently confirmed transaction content. This is recorded explicitly per-decision as evidence_basis, not silently normalized into repository-confirmed status."
+  },
+  "b2n_p3_authorization_preflight": {
+    "verdict": "READY_B2N_BOUNDED_RUN_AUTHORIZATION_REVIEW",
+    "p2e_closure_digest": "ff6863f7949d521e9d04002491e16b0c7935f101a0126587d7d1cac2f9c9e9fc",
+    "p3_preflight_artifact": "docs/audits/b2n_p3_bounded_run_authorization_preflight.json",
+    "p3_preflight_artifact_digest": "3560d53abf30c207a48d5429f2eda37d68d5aa2b08b6421d7a41e8ee5b3c9578",
+    "operation_immutability_artifact": "docs/audits/b2n_p3_existing_operation_immutability_contract.json",
+    "operation_immutability_artifact_digest": "9158d30c2cc993514c78de86396d408b91eef298890d94cb42733d340f001b1d",
+    "watchtower_safety_artifact": "docs/audits/b2n_p3_watchtower_safety_assertion.json",
+    "watchtower_safety_artifact_digest": "1a2fcdfa7b54c40646cbab6b36706c6efa51dfca3521eca376a01ae0ba8d1b54",
+    "watchtower_canonical_state_mutation": "FORBIDDEN",
+    "executor_engineering_revision_commit": "9e50ffa156ad779779d24f1d73cff4e3e4ac3f01",
+    "b2n_manifest_digest_executor": "82bbda32d25a9951a8d8475528d7db3a92b675aae90ce2d55e13391a6b69eedc",
+    "frozen_manifest_file_sha256": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+    "run_id": "b2n-p3-be37d9a9da6643d2640cb315",
+    "max_total_requests": 20,
+    "max_requests_per_member": 1,
+    "provider": "helius",
+    "endpoint_family": "helius-mainnet-json-rpc",
+    "provider_endpoint_caveat": "Inferred from adjacent 2B2Z preflight evidence, not a B2N-native source; requires explicit human confirmation before GO.",
+    "ledger_state": "EMPTY (0 attempts, not yet created)",
+    "authority_posture": {
+      "production_database_read": false,
+      "production_database_write": false,
+      "provider_access": false,
+      "b2n_execution": false,
+      "existing_operation_mutation_authority": false,
+      "watchtower_mutation_authority": false,
+      "cohort_mode": false,
+      "evidence_mirror": false,
+      "evidence_writer": false
+    },
+    "focused_tests": "30 passed (13 existing B2N baseline + 17 new P3 dry-validation)"
   }
 }

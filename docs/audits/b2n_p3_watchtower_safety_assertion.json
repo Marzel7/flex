@@ -1,0 +1,38 @@
+{
+  "schema_version": "b2n.p3.watchtower-safety-assertion.v1",
+  "artifact_type": "B2N_P3_WATCHTOWER_SAFETY_ASSERTION",
+  "milestone": "B2N-P3",
+  "generated_utc": "2026-08-18T15:38:00Z",
+  "watchtower_identity_clarification": {
+    "finding": "Watchtower is NOT a single canonical operation row with one fixed operation_id. It is an identity CLASS: operator_identity='WATCHTOWER', identity_confidence='LINEAGE_CONFIRMED', spanning MANY rows in the live wt_operations table (each with its own AUTOINCREMENT INTEGER operation_id and a human-readable name WATCHTOWER_HUB_<prefix>).",
+    "evidence_source": "src/analysis/watchtower_operations_bridge.py module docstring and _launch_creators() implementation; src/core/watchtower_init.py schema (wt_operations.operation_id INTEGER PRIMARY KEY AUTOINCREMENT)",
+    "canonical_source_tables": ["wt_operations", "wt_operation_members", "wt_operation_transitions", "wt_identity_proposals"],
+    "canonical_source_db_path": "database/wt_ops_v2.db",
+    "implication": "There is no single 'the Watchtower operation_id' this artifact can name from repository evidence without a live production DB read, which P3 authority forbids. This assertion therefore protects the ENTIRE identity class, not one row, and does not claim to have enumerated the current member set."
+  },
+  "current_state_read_attempt": {
+    "attempted": false,
+    "reason": "production_database_read = false for P3; wt_operations lives only in the live database/wt_ops_v2.db (4.0GB, last modified 2026-08-18T16:24:00+01:00). No static/frozen export of current Watchtower operation_id set, member set, or status exists elsewhere in the repository.",
+    "current_member_set": "NOT_READ -- see reason above",
+    "current_authority_status": "NOT_READ -- see reason above"
+  },
+  "protection_mechanism": {
+    "type": "structural_isolation",
+    "evidence": [
+      "src/acquisition/b2n_qualification.py has zero import of, or reference to, wt_operations, watchtower_operations_bridge, operation_store_v2, or any db_connect/database module.",
+      "src/analysis/watchtower_operations_bridge.py (the module that WRITES operator_identity='WATCHTOWER' rows) makes zero RPC calls and is not imported by, called from, or in any way reachable from b2n_qualification.py or its executor/test suite.",
+      "B2N's only local output surface is its own append-only JSONL attempt ledger (B2NAttemptLedger), which has no code path capable of writing to database/wt_ops_v2.db or any wt_operations-adjacent table."
+    ],
+    "conclusion": "B2N, as implemented, cannot reach the Watchtower identity class or any specific WATCHTOWER_HUB_<prefix> operation row through any code path. This is a structural (not merely policy) guarantee for the current implementation."
+  },
+  "watchtower_canonical_state_mutation": "FORBIDDEN",
+  "candidate_association_rule": {
+    "rule": "If a future B2N run (or any downstream consumer of B2N's candidate evidence) produces evidence that appears connected to a Watchtower-identified creator, mint, or funding corridor, that output MUST be represented as a candidate association only (e.g. candidate_evidence, candidate_relationship, candidate_operational_family_relationship) and MUST NOT automatically create, modify, or extend any wt_operations row, wt_operation_members row, or operator_identity='WATCHTOWER' classification.",
+    "automatic_membership_creation_authorized": false
+  },
+  "authority_posture": {
+    "watchtower_mutation_authority": false,
+    "watchtower_membership_write_authority": false,
+    "watchtower_monitoring_activation_authority": false
+  }
+}

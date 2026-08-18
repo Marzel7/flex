@@ -89,5 +89,13 @@
     "production_db_access": false,
     "b2n_execution": false,
     "human_decisions_fabricated": false
+  },
+  "erratum_p2f": {
+    "generated_utc": "2026-08-18T15:20:00Z",
+    "supersedes_conclusion": "The original 'reproducibility_attempts' section above concluded that 82bbda32...eedc did not correspond to any reproducible digest convention. That was incomplete, not wrong about the raw-file digest, but wrong about 82bbda32 being merely stale.",
+    "corrected_finding": "During B2N-P3 executor inspection, src/acquisition/b2n_qualification.py's B2NManifest.digest() method was run directly against the real 20-member frozen manifest content. It deterministically produces 82bbda32d25a9951a8d8475528d7db3a92b675aae90ce2d55e13391a6b69eedc -- an EXACT match. This is SHA-256 of the canonical JSON (sort_keys, compact separators, trailing newline) of the ordered [asdict(member) for member in members] list, which was not among the two reproduction methods originally tried.",
+    "corrected_conclusion": "There are TWO distinct, both-correct digests for this manifest, each serving a different purpose: (1) 54481980...4d4c is the raw-file SHA-256, used by every P2D/P2E provenance/review artifact as the checkpoint/source-manifest identity; (2) 82bbda32...eedc is B2NManifest.digest() -- the executor's canonical member-list digest, which is what B2NQualificationRunAuthorization.manifest_digest and B2NManifest.validate() actually check at runtime. Neither digest is stale or incorrect; they are not interchangeable and must each be bound to their correct role in any B2N-P3 authorization artifact.",
+    "revised_verdict": "FROZEN_MANIFEST_CONTENT_EQUIVALENT_TWO_DISTINCT_CORRECT_DIGESTS_FOR_DIFFERENT_PURPOSES",
+    "action": "B2N-P3 authorization binds both digests explicitly under distinct field names (frozen_manifest_file_sha256 and b2n_manifest_digest_executor) rather than treating either as sole canonical value."
   }
 }

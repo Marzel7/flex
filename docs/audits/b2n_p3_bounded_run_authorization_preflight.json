@@ -1,0 +1,401 @@
+{
+  "schema_version": "b2n.p3.bounded-run-authorization-preflight.v1",
+  "artifact_type": "B2N_P3_BOUNDED_RUN_AUTHORIZATION_PREFLIGHT",
+  "milestone": "B2N-P3",
+  "generated_utc": "2026-08-18T15:45:00Z",
+  "contract_version": "OIP_v2.2E.2B2N.v1",
+  "part1_p2e_closure_verification": {
+    "authorized_member_count": 20,
+    "closure_state": {
+      "COMPLETE": 20,
+      "PARTIAL": 0,
+      "MISSING": 0,
+      "CONFLICTING": 0
+    },
+    "closure_qualified": true,
+    "reviewed_provenance_artifact": "docs/audits/b2n_cohort_eligibility_reviewed_provenance_binding.json",
+    "reviewed_provenance_digest": "ff6863f7949d521e9d04002491e16b0c7935f101a0126587d7d1cac2f9c9e9fc",
+    "human_decisions_artifact": "docs/audits/b2n_cohort_eligibility_human_decisions.json",
+    "human_decisions_digest": "fda035b2d2cf83920a8d2f7184f05d2ecf6665dc220b8ad0ae503742c4b17f24",
+    "review_packet_digest": "9a123317998506332b465c5f2204fedb9c3a99ac2663a11801177d483837cfcd",
+    "no_cohort_substitution_verified": true,
+    "no_decision_digest_drift_verified": true
+  },
+  "part2_cohort_binding": {
+    "authorized_member_count": 20,
+    "members": [
+      {
+        "ordinal": 1,
+        "mint": "66ruWUv7KLXkLbHBTnj7PqzEgdue1oZjeA5Z3JMHpump",
+        "census_event_id": "b223a9f4f6123b98e67c8ba0d8f19d57a7dd1676a9b80b15a8d04a9cfb431aec",
+        "reviewed_migration_origin": "3F3Kx3jN8oaKx4w25GAgYwosXtFgiSyKPSmYyUhX3YeqWdR7jNmgBV9gzofyPkKznbP5FZ9f6tFzQQyCCTN4hq8i",
+        "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+        "human_decision": "APPROVED",
+        "reviewed_provenance_digest": "ff6863f7949d521e9d04002491e16b0c7935f101a0126587d7d1cac2f9c9e9fc"
+      },
+      {
+        "ordinal": 2,
+        "mint": "3hgXvsR8Xh6hnoKyFbPnrMVEkrKGPVbH6EJQkzoNpump",
+        "census_event_id": "3e4dbf40558e85f62d9b22151f7e9077a6fd3b31a3946d871a51336de716edb5",
+        "reviewed_migration_origin": "2aP6mCzC2aoaMn7SZfV4jvYUNeCgoyrsM96iGCThjS6U9if92fZjaxPcMyUh1hdMBR1had8EdD2d9stvw389FkVP",
+        "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+        "human_decision": "APPROVED",
+        "reviewed_provenance_digest": "ff6863f7949d521e9d04002491e16b0c7935f101a0126587d7d1cac2f9c9e9fc"
+      },
+      {
+        "ordinal": 3,
+        "mint": "5BQpi43RtPxsw7jw3dpeE7duQAXcNYhw9MD6KUxGpump",
+        "census_event_id": "21c8cfa392903e39e866598cebf2ae08e0f0b553f4e0485b2bcdc29fb6d5a966",
+        "reviewed_migration_origin": "5i5H2vfw7o89B79beo38FHAAE8NzBDdW2KafXxLeYAQ1sS5WCJa8fRuS9SC56hUMBSqXQkGUW8Uea4knhirCXw6N",
+        "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+        "human_decision": "APPROVED",
+        "reviewed_provenance_digest": "ff6863f7949d521e9d04002491e16b0c7935f101a0126587d7d1cac2f9c9e9fc"
+      },
+      {
+        "ordinal": 4,
+        "mint": "59hy2QNgTB6vvXJqayUk4RgtJ4wCCniwbHpg8Q5gpump",
+        "census_event_id": "ff681631e3ccf77207381fdebc0a7d5543a3562f26fde09948a3a0a3da78520e",
+        "reviewed_migration_origin": "Dee584VJB7PcmXxAJxd9MEaF3EXKTi4WoRiDf6ZJYQz5FbkEhnd6qBRjiP52yxXsVNtXXPAgbDE3b98i3YmpunL",
+        "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+        "human_decision": "APPROVED",
+        "reviewed_provenance_digest": "ff6863f7949d521e9d04002491e16b0c7935f101a0126587d7d1cac2f9c9e9fc"
+      },
+      {
+        "ordinal": 5,
+        "mint": "6V4rTJ9M4ZNUjvRMvBPiGia5Ju3TutG2nNatRdq1pump",
+        "census_event_id": "18cb1a5556e7eea974f5a572a06e82f6c2e9e49f3a2ea35f33f6c0bd18859b6e",
+        "reviewed_migration_origin": "31nh1aW7qJxphgnLMNnAmxCsuTqWKHLEEu3fr23gVrPFZHHcKLp1z6fmJhmR7wAJjb8u5Dz5mxaHcFgU1VuvUk9Z",
+        "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+        "human_decision": "APPROVED",
+        "reviewed_provenance_digest": "ff6863f7949d521e9d04002491e16b0c7935f101a0126587d7d1cac2f9c9e9fc"
+      },
+      {
+        "ordinal": 6,
+        "mint": "FzKMeRzbfD1wbVf2ZxfdFgYirLLnVwzspt6gJRVTA8WU",
+        "census_event_id": "20cce44c2ec91673280a2743f791aafb6090a75bf5cfa7bbf1c851e31b837e0f",
+        "reviewed_migration_origin": "4Y2LXDq8u8Jd9Vy4RLJXasF746iZ91rLmhUogSH7pJy2T8NNDqg7Jn7iD9hBSW2Hf9wF7JC76LL1ATrosaVFxM5V",
+        "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+        "human_decision": "APPROVED",
+        "reviewed_provenance_digest": "ff6863f7949d521e9d04002491e16b0c7935f101a0126587d7d1cac2f9c9e9fc"
+      },
+      {
+        "ordinal": 7,
+        "mint": "AGfrbmkuqf3UYG5UXEkTpCtw5UMn62Bc9NrAo6rdpump",
+        "census_event_id": "f154ee9501abac5ad69e7221eea9db0abc2dbf43e22a9223f3a4e6f31f8c90ba",
+        "reviewed_migration_origin": "9LEnii6ZR5YzDTrKP8nAv64Zj3XJaBdQcRTBqc5t4AmKefZBsEYyUgYPjfKr38hDHa8T7kKedFTdkBXqnx1QW8f",
+        "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+        "human_decision": "APPROVED",
+        "reviewed_provenance_digest": "ff6863f7949d521e9d04002491e16b0c7935f101a0126587d7d1cac2f9c9e9fc"
+      },
+      {
+        "ordinal": 8,
+        "mint": "qgiXEYJD6mXjHqzJJksX1yjYtownjLXFHAtD7KApump",
+        "census_event_id": "ba42821acc1b64e9f360e962fe403b4a4ff4ca7830c0ae77a99372cd6044e8a0",
+        "reviewed_migration_origin": "2RJoBHPmncEkQYyLNH4hVzh5Z4pQiEYNNuahEcGqs4DYCSNjVxzd88nW24PHYGzQciYuvD1Fvfv9LhufsSAfWN6h",
+        "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+        "human_decision": "APPROVED",
+        "reviewed_provenance_digest": "ff6863f7949d521e9d04002491e16b0c7935f101a0126587d7d1cac2f9c9e9fc"
+      },
+      {
+        "ordinal": 9,
+        "mint": "DU8u7EvQsG3GovXDknrcdV8dQfAie7MMY5keqT2Fpump",
+        "census_event_id": "ce5e2df758814e3d9c610ae806c5942b2adea1ab4234201df1bf9bdff63c4b6f",
+        "reviewed_migration_origin": "t3Aok52hDtN9rHhjEKCcB4q7g6hChe5os1Hahf48qU4fictSNTxyaX3rKmiaXXfBb2Dhw8nE3yXxzMy2Bf98Tuy",
+        "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+        "human_decision": "APPROVED",
+        "reviewed_provenance_digest": "ff6863f7949d521e9d04002491e16b0c7935f101a0126587d7d1cac2f9c9e9fc"
+      },
+      {
+        "ordinal": 10,
+        "mint": "Gb71a9p2wfCcuBhHJ2zbG6pchnFGDrocGRAJjZh4pump",
+        "census_event_id": "6061d9ed3cb61ae5d40d1703de785e4d3b1bef466c05d0e4a2d7c968441edb37",
+        "reviewed_migration_origin": "5p6YMv1izrWFHRqhrwXEcWJshfvrYauFsChp6LrovwoM8MqhmjJVJaPnsEx3EQM1qiS2Y9vUhZpnZmi1xoSu4uV3",
+        "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+        "human_decision": "APPROVED",
+        "reviewed_provenance_digest": "ff6863f7949d521e9d04002491e16b0c7935f101a0126587d7d1cac2f9c9e9fc"
+      },
+      {
+        "ordinal": 11,
+        "mint": "CNCTqxJ2ug2Cg35Z4UwhggmXdfLSTQ4eQgskVdEspump",
+        "census_event_id": "8bdfb1de92627f69137070b3f976d1689350ca34af2d9810b368d199ec8c2b47",
+        "reviewed_migration_origin": "5fQqxsakF7XJiUg4TaDPHEbBA69QeCDVKTERQmU9SXJSZftvSsJLqdS6BVsNDEJ9dpGpkqX4QVTRRRiuD2Hbs42o",
+        "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+        "human_decision": "APPROVED",
+        "reviewed_provenance_digest": "ff6863f7949d521e9d04002491e16b0c7935f101a0126587d7d1cac2f9c9e9fc"
+      },
+      {
+        "ordinal": 12,
+        "mint": "DykmoWpVtaKN9R5vurKk2TWgBX2WvvnbMkJMd7gcpump",
+        "census_event_id": "7a9dd1838a2986aee354edb5e44536407c58dcf30abb6e00a6a6e63851043c42",
+        "reviewed_migration_origin": "EdUFG5wpsoS18UrgBuoYYPARe8LwxcZbf8Z4B9AXYV7crrrUGrZeDdd4roCSMKXEUdfHNsnnynbmzRffLvRXWgB",
+        "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+        "human_decision": "APPROVED",
+        "reviewed_provenance_digest": "ff6863f7949d521e9d04002491e16b0c7935f101a0126587d7d1cac2f9c9e9fc"
+      },
+      {
+        "ordinal": 13,
+        "mint": "E1TTBe4a7qRbLXJ2ef8zUaHE99CqM98oKhCn7YGUpump",
+        "census_event_id": "b4e81e3b547b31ff09171b3f222929faf69078c4a9d4818d3e5f9d81e3eaa0d4",
+        "reviewed_migration_origin": "3SetG5n9psXDdELTrHKtho1Fn8qP5Qcyho98YeYxqBLHbsJJaYAcu2HisknZd169iWjb31Uggpzp42WXpxWw9QbJ",
+        "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+        "human_decision": "APPROVED",
+        "reviewed_provenance_digest": "ff6863f7949d521e9d04002491e16b0c7935f101a0126587d7d1cac2f9c9e9fc"
+      },
+      {
+        "ordinal": 14,
+        "mint": "TmzQHAfT2MeuW5mgMP7HK4nZogfrGVxrzYHQBkqpump",
+        "census_event_id": "0177a62c18dc35d32b8d116e0a69504a8b3f8d74560bde9d3bc2080d6497e655",
+        "reviewed_migration_origin": "3rweMFqFKYn2ahLZGw8SBXa3Dw1cvY4n4gG8pWELDhYBrwNZ9bLMRiGsEAgj4KPKe1F3gboc4CTooyRjiCGarp1R",
+        "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+        "human_decision": "APPROVED",
+        "reviewed_provenance_digest": "ff6863f7949d521e9d04002491e16b0c7935f101a0126587d7d1cac2f9c9e9fc"
+      },
+      {
+        "ordinal": 15,
+        "mint": "2grdcnAX48SivhXjB4WkzKHzsz6b9BMWp1EipZWdpump",
+        "census_event_id": "ec9e402b7e32441599f9aab258e4818f83e3e51c87be3966d5f8c1e3652c4354",
+        "reviewed_migration_origin": "3xYs5NbD4EpfYKQ6UuvJSCGraz3MCak4wbXuzQvQjw83H9Q8Ar9Kv2ChDyTiZCugjiZFuRJbfNcL9qvg64F9wf8m",
+        "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+        "human_decision": "APPROVED",
+        "reviewed_provenance_digest": "ff6863f7949d521e9d04002491e16b0c7935f101a0126587d7d1cac2f9c9e9fc"
+      },
+      {
+        "ordinal": 16,
+        "mint": "D62UbUSyC78Ucdr9jmrCy9veFuuoQEvuL7NYJCNTpump",
+        "census_event_id": "050a34d4f50dae7dad3497bb33cab2a15991a4ab28d1b6ee6f2c7f2cc9212500",
+        "reviewed_migration_origin": "Gvy2hQfCq3GSjScBWtoukBT2mrQ3d3Gxo6JxfhVKJSPjUnxm5g3iYKQGoQungH1iEcuvypSf7DyVYpYxf9zDcMY",
+        "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+        "human_decision": "APPROVED",
+        "reviewed_provenance_digest": "ff6863f7949d521e9d04002491e16b0c7935f101a0126587d7d1cac2f9c9e9fc"
+      },
+      {
+        "ordinal": 17,
+        "mint": "9S4dmRLq3SmonrBi6ybxV5LW7M2c68NcGfYb6iFepump",
+        "census_event_id": "30b7f301b7a3c9424a0f51bcffc0dac9a9c965a3fc2e59b1c11df1b8e10587bd",
+        "reviewed_migration_origin": "3ee8Xa6qsMb9kU1qJ6tNEKgr3Pcf9S5eZm3r8crmWNKmBGuLLBYEWJmEGdhmEwGLFvq2XjEexVZyVoDy67usZKq4",
+        "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+        "human_decision": "APPROVED",
+        "reviewed_provenance_digest": "ff6863f7949d521e9d04002491e16b0c7935f101a0126587d7d1cac2f9c9e9fc"
+      },
+      {
+        "ordinal": 18,
+        "mint": "CzQDFKURcQHdRgpBib4kyDtmAcWFg9jRQ7Rw3TzGfRGU",
+        "census_event_id": "3fafb5cfed47d912330e216f8315021276d465c78e0858cc95eeec9e4c5af283",
+        "reviewed_migration_origin": "463HdXVPfw1DJJZUZTSqEUQfppc8LyeTZrAgDCF3Qc5CEhjYhwZDMv1Pg82LdtunSgZpHyAuAqjoNiiyTAG3wFNR",
+        "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+        "human_decision": "APPROVED",
+        "reviewed_provenance_digest": "ff6863f7949d521e9d04002491e16b0c7935f101a0126587d7d1cac2f9c9e9fc"
+      },
+      {
+        "ordinal": 19,
+        "mint": "p5HJBxcLPm2xR3jzdNkJtFkY8iqNixmYgevGwzkpump",
+        "census_event_id": "7f7103791e68f19cc2722652671ad1560044df72b9a1a7d119dd67fed3dd0e26",
+        "reviewed_migration_origin": "hCBhz6CYEcakbw8dctTydPNrxVa9p3oXdWp9VGgARMZfs2j2z7dAafpGYxFKnPdC2CVkm2tuLYZqXpJWimemQ6t",
+        "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+        "human_decision": "APPROVED",
+        "reviewed_provenance_digest": "ff6863f7949d521e9d04002491e16b0c7935f101a0126587d7d1cac2f9c9e9fc"
+      },
+      {
+        "ordinal": 20,
+        "mint": "w9qiqygRmeiYxFFGR6Lf5zcPautE9NDVDX2RG2Lpump",
+        "census_event_id": "0ffa96e36e71253aae8d7e05a884426dcd494097b4c87d738bd85c382c15e2bc",
+        "reviewed_migration_origin": "5X5viSu1mc4bCjx4mf4UxzbSJUDqUA13SMChTXkvUjzwgh7bCaJfDzYqzpr2GRunTPDzcxHxL24zuMBsXQYipWDr",
+        "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+        "human_decision": "APPROVED",
+        "reviewed_provenance_digest": "ff6863f7949d521e9d04002491e16b0c7935f101a0126587d7d1cac2f9c9e9fc"
+      }
+    ],
+    "no_dynamic_discovery": true,
+    "no_substitutions": true,
+    "no_additions": true,
+    "no_21st_member": true
+  },
+  "part3_executor_contract_binding": {
+    "executor_module_path": "src/acquisition/b2n_qualification.py",
+    "executor_file_sha256": "c68806efc3ae1048d056ab5278b513221d7775b74d616675f0b4dd10e4983d2b",
+    "engineering_revision_git_commit": "9e50ffa156ad779779d24f1d73cff4e3e4ac3f01",
+    "contract_version": "OIP_v2.2E.2B2N.v1",
+    "manifest_schema_fields": [
+      "sample_ordinal",
+      "mint",
+      "census_event_id",
+      "observation_required"
+    ],
+    "ledger_schema_required_fields": [
+      "contract_version",
+      "elapsed_monotonic_ns",
+      "evidence_observed",
+      "manifest_digest",
+      "mint",
+      "observation_required",
+      "provenance_complete",
+      "provider",
+      "request_count",
+      "request_outcome",
+      "request_started_utc_ns",
+      "response_received_utc_ns",
+      "run_id",
+      "sample_ordinal"
+    ],
+    "authorization_schema": "B2NQualificationRunAuthorization",
+    "stop_condition_contract": "B2NExecutor.run() breaks the loop on first outcome where outcome != SUCCESS or evidence_observed is False or provenance_complete is False; raises on manifest/ledger/counter/budget mismatches before any request",
+    "note": "Implementation change after this authorization's digest is bound (executor_file_sha256 above) MUST invalidate this authorization; no equivalent-digest binding mechanism currently exists in the contract, so ANY future edit to this file requires a new P3 preflight."
+  },
+  "part4_provider_endpoint_binding": {
+    "provider": "helius",
+    "endpoint_family": "helius-mainnet-json-rpc",
+    "binding_source": "docs/evidence_platform/oip_v2_2e_2b2bq_b2z_run_preflight.json (endpoint.identifier, endpoint.redacted)",
+    "binding_source_caveat": "IMPORTANT: this is the only concrete provider/endpoint evidence found anywhere in the repository related to the B2R/B2N family. It comes from the 2B2Z preflight, which describes a DIFFERENT (3-call-per-member, 60-total-budget) request shape than the current B2N executor (1-call-per-member, 20-total-budget). No B2N-specific run-preflight artifact names a provider/endpoint. This binding is a REASONABLE INFERENCE, not a repository-confirmed B2N-native fact, and must be explicitly confirmed or corrected by the human before GO.",
+    "no_fallback_provider": true,
+    "no_alternate_endpoint_family": true,
+    "no_pagination": true,
+    "no_retries": true,
+    "no_hidden_secondary_provider": true,
+    "runtime_mismatch_behavior": "FAIL_CLOSED"
+  },
+  "part5_request_budget": {
+    "max_total_requests": 20,
+    "max_requests_per_member": 1,
+    "retry_budget": 0,
+    "pagination_budget": 0,
+    "fallback_budget": 0,
+    "cache_hit_semantics": "CACHE_HIT outcomes consume request_count=0 and are reported but treated as non-qualifying for that member per the B2N design contract; actual provider requests may therefore be LESS than 20 but must never exceed 20 total or 1 per member",
+    "verified_against": "src/acquisition/b2n_qualification.py B2N_MAX_PHYSICAL_REQUESTS=20, B2N_MAX_REQUESTS_PER_MEMBER=1, B2NExecutor.run() budget-exhaustion RuntimeError, B2NAttemptLedger.append() request_count in {0,1} validation"
+  },
+  "part6_run_id": {
+    "run_id": "b2n-p3-be37d9a9da6643d2640cb315",
+    "run_id_pattern_valid": true,
+    "derivation": "sha256('B2N-P3|' + b2n_manifest_digest + '|' + reviewed_provenance_digest)[:24], prefixed 'b2n-p3-'",
+    "binds": {
+      "b2n_manifest_digest_executor": "82bbda32d25a9951a8d8475528d7db3a92b675aae90ce2d55e13391a6b69eedc",
+      "reviewed_provenance_digest": "ff6863f7949d521e9d04002491e16b0c7935f101a0126587d7d1cac2f9c9e9fc",
+      "executor_engineering_revision": "9e50ffa156ad779779d24f1d73cff4e3e4ac3f01",
+      "provider": "helius",
+      "endpoint_family": "helius-mainnet-json-rpc",
+      "max_total_requests": 20,
+      "ledger_schema": "B2NAttemptLedger.required_fields",
+      "authority_scope": "NOT_CONSUMED, NOT_EXECUTED, local-artifact-only"
+    },
+    "runtime_mismatch_behavior": "FAIL_CLOSED"
+  },
+  "part7_attempt_ledger": {
+    "ledger_path": "/private/tmp/flex-b2n-p3/b2n-p3-be37d9a9da6643d2640cb315/attempt_ledger.jsonl",
+    "ledger_exists": false,
+    "attempt_count": 0,
+    "required_initial_state": "EMPTY",
+    "verified_empty": true,
+    "bound_to": {
+      "run_id": "b2n-p3-be37d9a9da6643d2640cb315",
+      "authorization_digest": "computed below as this artifact's own digest after serialization",
+      "manifest_digest": "82bbda32d25a9951a8d8475528d7db3a92b675aae90ce2d55e13391a6b69eedc",
+      "reviewed_provenance_digest": "ff6863f7949d521e9d04002491e16b0c7935f101a0126587d7d1cac2f9c9e9fc"
+    },
+    "enforcement": "B2NAttemptLedger.require_empty() raises B2N_LEDGER_MUST_BE_EMPTY_FOR_NEW_RUN if non-empty; AppendOnlyLedger.append() rejects a second entry for the same sample_ordinal"
+  },
+  "part8_stop_conditions": [
+    "authorization_digest_mismatch",
+    "run_id_mismatch",
+    "cohort_member_mismatch",
+    "provenance_mismatch",
+    "provider_mismatch",
+    "endpoint_mismatch",
+    "request_budget_exceeded",
+    "greater_than_1_request_for_any_member",
+    "unexpected_pagination",
+    "unexpected_retry",
+    "unexpected_fallback",
+    "provider_non_success_where_contract_requires_success",
+    "malformed_response",
+    "missing_required_evidence",
+    "evidence_provenance_mismatch",
+    "ledger_reconciliation_mismatch",
+    "production_write_attempt",
+    "existing_operation_mutation_attempt",
+    "canonical_membership_mutation_attempt",
+    "authority_expansion"
+  ],
+  "stop_behavior": "FAIL_CLOSED_ON_ANY_CONDITION",
+  "part9_existing_operation_immutability_contract": {
+    "artifact": "docs/audits/b2n_p3_existing_operation_immutability_contract.json",
+    "digest": "9158d30c2cc993514c78de86396d408b91eef298890d94cb42733d340f001b1d"
+  },
+  "part10_watchtower_safety_assertion": {
+    "artifact": "docs/audits/b2n_p3_watchtower_safety_assertion.json",
+    "digest": "1a2fcdfa7b54c40646cbab6b36706c6efa51dfca3521eca376a01ae0ba8d1b54",
+    "watchtower_canonical_state_mutation": "FORBIDDEN"
+  },
+  "part11_all_operations_invariant": {
+    "statement": "for every existing operation O: before(O) == after(O) for all canonical identity/membership/attribution fields during the B2N bounded run",
+    "enforced_by": "structural isolation (B2N executor has no code path referencing any canonical operation store) + candidate-only output authority + zero production write authority"
+  },
+  "part12_output_authority": {
+    "allowed": [
+      "local run artifact",
+      "B2N attempt ledger entries",
+      "candidate evidence",
+      "candidate relationships",
+      "candidate continuation hypotheses",
+      "missing-evidence/gap records",
+      "bounded qualification results"
+    ],
+    "not_allowed": [
+      "canonical operation writes",
+      "canonical family writes",
+      "production policy writes",
+      "monitoring activation",
+      "trading decisions",
+      "automatic attribution",
+      "automatic identity linkage",
+      "operation merge/split"
+    ]
+  },
+  "part13_production_database_authority": {
+    "p3_itself": {
+      "production_database_read": false,
+      "production_database_write": false
+    },
+    "future_bounded_run": {
+      "production_database_read": false,
+      "production_database_write": false,
+      "note": "B2N as currently implemented requires ZERO production database access -- it operates only on the frozen local manifest, an injected provider client, and a local append-only ledger file. If a future stage needs production read access, that must be separately identified and separately bounded; it is NOT silently granted here."
+    }
+  },
+  "part14_provider_authority": {
+    "p3_itself": {
+      "provider_access": false
+    },
+    "future_run_authorization": {
+      "describes_bounded_provider_authority": true,
+      "consumed_by_p3": false,
+      "becomes_executable_only_after": "explicit human GO"
+    }
+  },
+  "part16_authorization_object": {
+    "type": "B2NQualificationRunAuthorization",
+    "status": "NOT_CONSUMED",
+    "executed": false,
+    "fields": {
+      "provider": "helius",
+      "endpoint_family": "helius-mainnet-json-rpc",
+      "run_id": "b2n-p3-be37d9a9da6643d2640cb315",
+      "manifest_digest": "82bbda32d25a9951a8d8475528d7db3a92b675aae90ce2d55e13391a6b69eedc",
+      "ledger_path": "/private/tmp/flex-b2n-p3/b2n-p3-be37d9a9da6643d2640cb315/attempt_ledger.jsonl",
+      "max_physical_requests": 20,
+      "require_not_production": true
+    },
+    "local_validation_result": "authorization.validate(manifest=manifest) PASSED (dry validation only; B2NExecutor was never instantiated with a real client, no acquire_once was called)"
+  },
+  "part19_terminal_verdict": "READY_B2N_BOUNDED_RUN_AUTHORIZATION_REVIEW",
+  "part19_terminal_verdict_note": "All P3 checks pass: 20/20 cohort bound, executor contract bound to committed engineering revision, request budget verified against source, run ID bound, ledger verified empty, existing-operation and Watchtower safety established structurally, candidate-only output authority defined, zero production/provider authority consumed. This does NOT authorize execution. One item requires explicit human confirmation before GO: the provider/endpoint binding (helius / helius-mainnet-json-rpc) is inferred from the adjacent 2B2Z preflight, not from a B2N-native provider preflight -- see part4_provider_endpoint_binding.binding_source_caveat.",
+  "focused_tests": {
+    "existing_b2n_baseline": {
+      "command": "python -m pytest -q tests/test_oip_v2_2e_2b2t_executor.py tests/test_oip_v2_2e_2b2x_projection.py tests/test_oip_v2_2e_2b2bt_preflight.py",
+      "result": "13 passed"
+    },
+    "new_p3_dry_validation": {
+      "command": "python -m pytest -q tests/test_b2n_p3_bounded_run_authorization_preflight.py",
+      "result": "17 passed"
+    },
+    "combined": "30 passed"
+  }
+}

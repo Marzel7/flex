@@ -140,8 +140,95 @@
     "b2n_executed": false
   },
 
-  "blockers": ["B2N_HOST_STORAGE_FLOOR"],
+  "blockers_at_first_pass": ["B2N_HOST_STORAGE_FLOOR"],
 
-  "verdict": "HOLD_B2N_HOST_STORAGE_FLOOR",
-  "verdict_note": "All code, ledger-durability, rerun-safety, secret-redaction, and authorization-reconfirmation checks PASS (72 focused tests, zero network calls, zero drift). The dry-run itself is clean. The sole blocker is available disk space: 8.3 GiB free, below the required 10 GiB floor for live execution. Per explicit instruction, project data deletion is not an authorized way to clear this floor; the human must free additional space separately before the live run proceeds."
+  "verdict_at_first_pass": "HOLD_B2N_HOST_STORAGE_FLOOR",
+
+  "revalidation": {
+    "generated_utc": "2026-08-18T17:45:00Z",
+    "trigger": "human manually freed additional disk space using disposable non-project caches only; no project databases, Evidence/audit artifacts, or production DBs deleted; no VACUUM/migration/reclamation performed",
+    "disk_measurement": {
+      "filesystem": "/System/Volumes/Data",
+      "size": "228 GiB",
+      "used": "186 GiB",
+      "available": "11 GiB",
+      "capacity": "95%",
+      "measured_this_session": true,
+      "execution_floor_required_gib": 10,
+      "execution_floor_met": true
+    },
+    "runner_committed_and_unchanged": {
+      "commit": "55e9f4ce",
+      "git_diff_before_revalidation": "empty (confirmed via git status/diff)"
+    },
+    "durable_ledger_verified": {
+      "default_path": "docs/audits/b2n_p3c_live_ledger_b2n-p3b-c39499f523e42083ce045d70.jsonl",
+      "under_docs_audits": true,
+      "under_private_tmp": false,
+      "ledger_path_cli_override_present": true,
+      "readiness_checked_before_transport_client_executor_construction": true,
+      "existing_ledger_for_run_id": "DOES NOT EXIST (zero prior attempts; not deleted or reset -- simply never created)"
+    },
+    "authorization_reconfirmed": {
+      "run_id": "b2n-p3b-c39499f523e42083ce045d70",
+      "run_id_matches": true,
+      "authorization_digest": "e2414ef97516b4a03ff260b6b333749769d6a5a1bc70035ed62f1d6e76db1569",
+      "authorization_digest_matches": true,
+      "b2n_purpose": "BOUNDED_MIGRATION_LINEAGE_QUALIFICATION",
+      "no_creator_funding_evidence_acquired_statement": "NO_CREATOR_FUNDING_EVIDENCE_ACQUIRED_IN_B2N",
+      "p2e_provenance_closure": {"COMPLETE": 20, "PARTIAL": 0, "MISSING": 0, "CONFLICTING": 0},
+      "provider": "helius",
+      "endpoint_family": "helius-mainnet-json-rpc",
+      "method": "getTransaction",
+      "max_total_requests": 20,
+      "max_requests_per_member": 1,
+      "retries": 0,
+      "pagination": 0,
+      "fallback": 0,
+      "no_drift_detected": true
+    },
+    "focused_tests_rerun": {
+      "command": "python3 -m pytest -q tests/test_b2n_p3c_execution_preflight.py",
+      "result": "21 passed",
+      "covers": ["ledger durability", "rerun safety", "secret redaction", "authorization binding", "request budget", "zero network calls"]
+    },
+    "final_dry_run": {
+      "command": "python3 scripts/run_b2n_p3c_migration_lineage_run.py",
+      "mode": "DRY_RUN",
+      "authorization_digest_verified": true,
+      "run_id_verified": "b2n-p3b-c39499f523e42083ce045d70",
+      "provenance_closure_verified": {"COMPLETE": 20, "PARTIAL": 0, "MISSING": 0, "CONFLICTING": 0},
+      "constructed_request_count": 20,
+      "one_request_per_member": true,
+      "ledger_verified_empty": true,
+      "ledger_path_under_docs_audits": true,
+      "ledger_path_under_private_tmp": false,
+      "network_calls_made": 0,
+      "secrets_present": false
+    },
+    "existing_operation_protections_reconfirmed": {
+      "operation_immutability_artifact_digest": "9158d30c2cc993514c78de86396d408b91eef298890d94cb42733d340f001b1d",
+      "operation_immutability_artifact_digest_unchanged": true,
+      "watchtower_safety_artifact_digest": "1a2fcdfa7b54c40646cbab6b36706c6efa51dfca3521eca376a01ae0ba8d1b54",
+      "watchtower_safety_artifact_digest_unchanged": true,
+      "existing_operation_mutation_authority": false,
+      "existing_operation_merge_authority": false,
+      "existing_operation_split_authority": false,
+      "existing_operation_membership_write_authority": false,
+      "existing_operation_attribution_write_authority": false,
+      "watchtower_canonical_state_mutation": "FORBIDDEN",
+      "output_scope": "candidate-only",
+      "production_database_read": false,
+      "production_database_write": false
+    },
+    "network_calls_made_during_revalidation": 0,
+    "authorization_consumed": false,
+    "b2n_executed": false,
+    "verdict": "READY_B2N_LIVE_EXECUTION_GATE",
+    "verdict_note": "All P3D checks pass on revalidation: disk floor met (11 GiB >= 10 GiB required), runner unchanged since commit 55e9f4ce, ledger for this run_id has zero prior attempts, authorization/provenance/provider/budget show zero drift, 21 focused tests pass, final dry-run is clean, existing-operation and Watchtower protections unchanged. This artifact does NOT authorize execution. Live execution requires the human to separately supply B2N_P3C_HELIUS_ENDPOINT and invoke --live manually; nothing was executed by this revalidation."
+  },
+
+  "blockers": [],
+  "verdict": "READY_B2N_LIVE_EXECUTION_GATE",
+  "verdict_note": "See revalidation block above for the current, authoritative check. The original HOLD_B2N_HOST_STORAGE_FLOOR verdict (blockers_at_first_pass) is preserved for the audit trail and reflects the state before the human freed additional disk space."
 }

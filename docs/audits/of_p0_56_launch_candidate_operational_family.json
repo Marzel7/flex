@@ -1,0 +1,158 @@
+{
+  "schema_version": "of.p0.56-launch-candidate-operational-family.v1",
+  "artifact_type": "OF_P0_56_LAUNCH_CANDIDATE_OPERATIONAL_FAMILY_QUALIFICATION",
+  "milestone": "OF-P0",
+  "generated_utc": "2026-08-19T06:00:00Z",
+  "purpose": "Local, read-only, provider-free qualification of the 56-launch candidate family rooted at 5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9. NOT canonical attribution. Watchtower and three_sw2 unmodified.",
+
+  "part1_candidate_identity_frozen": {
+    "root_direct_funder_address": "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9",
+    "source_systems_that_independently_touched_this_address": [
+      "database/transaction_first_lineage.db (tf_populations/tf_population_members/tf_edges) -- formal 56-launch REPEATED_TOPOLOGY population",
+      "database/flex_complete_database.db transfer_index (via this session's manual P1.7 relational query) -- shared direct funder for B2Z cohort ordinals 3, 4, 16",
+      "database/wt_ops_v2.db wt_walkback_edge_candidates -- Watchtower's own low-level raw-transaction candidate collector, 2,241 rows touching this address, 1,156 distinct mints, including a SELECTED edge exactly matching ordinal 4's (creator, direct_funder) pair"
+    ],
+    "tf_populations_record": {
+      "root": "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9",
+      "population_type": "REPEATED_TOPOLOGY",
+      "launch_count": 56, "creator_count": 56, "direct_child_count": 36, "max_depth": 6,
+      "mechanisms": {"PLAIN_TRANSFER": 159},
+      "first_seen_epoch": 1702063728, "first_seen_human": "2023-12-08",
+      "last_seen_epoch": 1786098310, "last_seen_human": "2026-08-05",
+      "infrastructure_status": "UNCLASSIFIED",
+      "graph_frozen_run_id": "x78_13_acceptance_2"
+    },
+    "exact_56_member_roster": "docs/audits/of_p0_56_launch_members_raw.json",
+    "roster_digest": "58d860b1884e65f6c4bd1f05f482dd7fefa9e34a4ca11a388d3fa0be49fc8d93",
+    "not_itself_a_launch_entity": "confirmed via SELECT against tf_launches WHERE mint=root OR creator=root -- zero rows, this address is a pure funding/provisioning wallet, never a mint or token creator itself",
+    "graph_activity": "687 outbound edges, 466 inbound edges in tf_edges (raw-verified)",
+    "relationship_to_b2z_cohort_ordinals_3_4_16": "CRITICAL CORRECTION vs the overnight framing: NONE of the 3 cohort mints, and NONE of the 3 cohort creators, are members of this specific 56-launch tf_populations family. The relationship is address-level only: this wallet plays the 'direct funder' role for cohort ordinals 3/4/16 (found via transfer_index) AND separately plays the 'root/provisioning' role for an entirely different, non-overlapping set of 56 launches (found via tf_populations). Same wallet, two disjoint launch populations, same functional role (funding source)."
+  },
+
+  "part2_discovery_path_independence": {
+    "classification": "PARTIALLY_SHARED_LINEAGE",
+    "reasoning": "Three distinct evidence surfaces were checked, with three distinct relationships to each other:",
+    "detail": [
+      {
+        "path": "P1.7 manual transfer_index query (this session, cohort ordinals 3/4/16)",
+        "underlying_source": "database/flex_complete_database.db transfer_index, populated by realtime_creator_funding_extractor.py's Helius Enhanced API scan (per B2Z-P1.6)",
+        "independence_from_tf_populations": "GENUINELY INDEPENDENT -- different database, different acquisition pipeline (Enhanced API vs raw getTransaction), different code entirely"
+      },
+      {
+        "path": "tf_populations 56-launch REPEATED_TOPOLOGY family",
+        "underlying_source": "src/ops/transaction_first_lineage.py's build_populations(), which consumes tf_edges, which is built (per scripts/reconstruct_transaction_first_lineage.py) from wt_walkback_edge_candidates (a Watchtower-adjacent table in database/wt_ops_v2.db) cross-referenced against a pre-fetched raw-transaction cache",
+        "independence_from_watchtower_walkback": "NOT INDEPENDENT -- tf_populations' underlying edges are DERIVED FROM wt_walkback_edge_candidates, confirmed by direct code inspection of evidence_rows() in scripts/reconstruct_transaction_first_lineage.py, which SELECTs directly from that table"
+      },
+      {
+        "path": "wt_walkback_edge_candidates direct check (this workstream)",
+        "finding": "a SELECTED edge exists here matching ordinal 4's exact (creator, direct_funder) pair -- this is Watchtower's OWN low-level evidence-collection layer, genuinely independent of BOTH transfer_index (different acquisition method: raw RPC walkback vs Helius Enhanced API) AND of tf_populations (which is downstream of and derived from this same walkback table, not upstream of it)"
+      }
+    ],
+    "conclusion": "The tf_populations 56-launch family and Watchtower's wt_walkback_edge_candidates SHARE underlying lineage (tf_populations is built FROM Watchtower's walkback evidence, not independently of it). However, the transfer_index-based B2Z cohort finding (ordinals 3/4/16) IS genuinely independent of both -- it uses a completely separate acquisition pipeline (Helius Enhanced Transactions API via realtime_creator_funding_extractor.py) that shares no code or data path with either Watchtower's walkback system or the transaction-first-lineage population builder. The overnight artifact's claim of 'two structurally independent methods' was PARTIALLY correct (transfer_index vs tf_populations ARE independently-coded systems) but did not account for tf_populations' own upstream dependency on Watchtower evidence -- this is now disclosed and corrected, not silently preserved."
+  },
+
+  "part3_all_56_direct_funding_relationships": {
+    "coverage": "56/56 (100%) have a signature-bound, RPC-VERIFIED direct funding edge (subprovider -> creator) in tf_edges",
+    "coverage_note": "this is materially STRONGER evidence than the B2Z-P1.6 cohort's local-only transfer_index tier -- every one of these 56 relationships is already RAW_ONCHAIN_EVIDENCE tier, not merely SIGNATURE_BOUND_NORMALIZED_EVIDENCE",
+    "creator_cross_validation": "56/56 members' creator field matches token_analysis.pf_ws_creator independently -- confirmed via direct join, not assumed",
+    "migration_coverage": "56/56 have a known migration event in pumpfun_migration_verification",
+    "full_roster_with_all_fields": "docs/audits/of_p0_56_launch_members_raw.json (mint, creator, subprovider/direct_funder, creation_time, funding_signature, funding_block_time, funding_amount, funding_asset, relationship_type, mechanism, edge_rpc_verified, hop_depth, upstream_signature/amount/time where available, main_db cross-reference fields)"
+  },
+
+  "part4_local_2hop_evidence": {
+    "root_to_subprovider_direct_edges": "20/56 (35.7%) have a DIRECT (hop_depth-consistent) raw-verified root->subprovider edge in tf_edges -- the remaining 36 reach the root via a longer chain (up to max_depth=6), consistent with the population's own recorded max_depth",
+    "self_loops": 0,
+    "dust": "not separately measured at the 2-hop level this workstream -- amount distribution (part6) covers the direct-hop funding amounts only; a full dust check on the 36 non-direct upstream paths was not performed (would require walking each multi-hop chain, out of scope for this qualification pass)",
+    "distinct_subproviders": 32,
+    "repeated_subprovider_reuse": "BmFdpraQhkiDQE6SnfG5omcA1VwzqfXrwtNYBwWTymy6 funds 18 of the 56 launches (32.1%) -- a major, heavily-reused intermediary, not incidental",
+    "second_place_reuse": "A77HErqtfN1hLLpvZ9pCtu66FEtM8BveoaKbbMoZ4RiR funds 5 launches",
+    "circular_funding": "NONE detected -- zero edges flow from any subprovider back to the root address (checked explicitly, not assumed)",
+    "service_distribution_candidates": "not cross-checked against creator_tags/infra_wallets this workstream -- flagged as a gap for a follow-on pass if this family proceeds to further investigation"
+  },
+
+  "part5_temporal_analysis": {
+    "launch_span": "1780032404 to 1786098635 (2026-05-27 to 2026-08-05), 70.2 days",
+    "launches_per_day_average": 0.798,
+    "median_gap_between_consecutive_launches_seconds": 9995,
+    "min_gap_seconds": 398,
+    "max_gap_seconds": 2647562,
+    "bursts_under_1hr_gap": "12 of 55 consecutive-launch gaps (21.8%) are under 1 hour -- some clustering exists but the majority of launches are spaced hours to days apart",
+    "funding_to_launch_gap_median_seconds": 4564,
+    "funding_to_launch_gap_min_seconds": 15,
+    "funding_to_launch_gap_max_seconds": 2226919,
+    "interpretation": "a median ~76-minute funding-to-launch gap, with a 15-second minimum, is consistent with dedicated/templated provisioning rather than organic incidental funding -- but the wide max (25.8 days) shows this is not perfectly uniform across all 56 members",
+    "dormancy_reactivation": "not formally computed this workstream (would require the same median-gap-times-2 dormancy definition EP4.4 uses) -- the 70.2-day span itself, against a 2023-12-08 first_seen far earlier than the launch window, suggests this root address has a MUCH longer history than the 56-launch population captures (the population's first_seen predates its 56th-launch activity by over 2 years, meaning this specific 56-launch cluster is a RECENT, BOUNDED slice of a much older wallet's total activity)"
+  },
+
+  "part6_funding_topology": {
+    "amount_distribution_lamports": {"min": 10588, "median": 5392869999, "max": 1241326000000},
+    "repeated_exact_amounts": {
+      "14998995000": {"count": 6, "sol_equivalent": 14.998995, "note": "6 of 56 launches (10.7%) funded with the IDENTICAL exact amount -- strong evidence of a templated/automated provisioning process, not organic coincidence"},
+      "4293220000": {"count": 2, "sol_equivalent": 4.29322},
+      "15268995000": {"count": 2, "sol_equivalent": 15.268995}
+    },
+    "creator_uniqueness": "56 distinct creators for 56 launches -- no creator reuse across this family (each launch has its own dedicated creator wallet)",
+    "intermediary_reuse": "32 distinct subproviders for 56 launches -- meaningful reuse (1.75 launches/subprovider average), dominated by one subprovider funding 18 launches",
+    "circular_funding": "none (confirmed part4)",
+    "fan_out": "root funds 32 distinct subproviders (687 total outbound edges including non-family activity)",
+    "fan_in": "466 inbound edges to the root -- not analyzed in detail this workstream (would require identifying the root's OWN funding sources, a further upstream hop beyond this family's scope)"
+  },
+
+  "part7_watchtower_three_sw2_structural_comparison": {
+    "method": "compared structural characteristics only -- topology shape, funding depth, creator/intermediary reuse, timing, distribution-hub behavior -- against what is documented for Watchtower/three_sw2's OWN evidence models (docs/evidence_platform/ep3_1_watchtower_operation_contract_v1.md, ep3_2_three_sw2_operation_contract_v1.md, and the real WATCH_WATCHTOWER_TRANSACTION_EVIDENCE.md investigation referenced in B2Z-P1.8)",
+    "topology": "STRUCTURALLY_SIMILAR -- this family's root->subprovider->creator->launch chain (up to 6 hops) matches the SAME general shape as the WATCH_WATCHTOWER_TRANSACTION_EVIDENCE.md investigation's documented 4-layer funding chain (primary source -> intermediary -> aggregation hub -> distribution) and three_sw2's formal Controller->Creator->Launch topology",
+    "funding_depth": "STRUCTURALLY_SIMILAR -- max_depth=6 is comparable to the multi-hop chains documented in both Watchtower's historical investigation and three_sw2's contract",
+    "creator_reuse": "STRUCTURALLY_DISTINCT from the WATCH_WATCHTOWER example -- that investigation documented DUAL-ROLE creators (a creator that is ALSO a funds-relay/aggregator); this family shows NO creator reuse (56 distinct creators, no creator ever repeats) and no creator appears to double as a subprovider (not separately verified this workstream, flagged as a gap)",
+    "launch_recurrence": "STRUCTURALLY_SIMILAR to a provisioning-hub pattern -- 56 launches over 70 days from one root is consistent with (though not proof of) an operational launch cadence",
+    "timing": "STRUCTURALLY_SIMILAR -- median funding-to-launch gap under 2 hours resembles dedicated provisioning timing rather than organic funding",
+    "wallet_rotation": "STRUCTURALLY_SIMILAR -- 32 distinct subprovider intermediaries for 56 launches shows rotation/distribution across multiple wallets rather than a single fixed relay, matching the general WATCHTOWER pattern of using intermediate wallets",
+    "upstream_sharing": "INSUFFICIENT_TO_COMPARE -- this workstream did not walk the root's OWN upstream funders (part6's fan-in of 466 edges was not analyzed), so it cannot be compared against Watchtower's documented multi-source/circular funding pattern",
+    "distribution_hub_behavior": "STRUCTURALLY_SIMILAR -- the single subprovider funding 18/56 launches (32%) resembles a distribution/aggregation-hub role, though NO circular return flow was found (unlike the WATCH_WATCHTOWER example's documented circular loop)",
+    "evidence_quality": "STRUCTURALLY_STRONGER than the B2Z-P1.6 cohort's local-only evidence -- 100% of this family's direct edges are RPC-verified, vs the cohort's local-only transfer_index tier",
+    "overall_conclusion": "STRUCTURALLY_SIMILAR to known Watchtower/three_sw2 provisioning-hub patterns on MOST measured dimensions, with one notable structural difference (no creator reuse, no confirmed circular funding) and one dimension left INSUFFICIENT_TO_COMPARE (upstream sharing). This is NOT a claim of SAME_OPERATION -- no pre-existing reviewed authority classifies this family, and this workstream does not create one."
+  },
+
+  "part8_existing_operation_collision_check": {
+    "wt_creator_launches_overlap": {"by_mint": 0, "by_creator": 0, "by_root_as_creator_wallet": 0},
+    "wt_sub_provisioners_overlap": 0,
+    "wt_operator_treasuries_overlap": 0,
+    "wt_provisioning_hubs_overlap": 0,
+    "wt_operation_members_overlap": 0,
+    "wt_operator_launches_overlap": 0,
+    "three_sw2_ep3_ep4_corpus_grep": "zero matches for the root address in docs/evidence_platform/*.json or *.md",
+    "critical_finding_wt_walkback_edge_candidates": {
+      "total_rows_touching_root": 2241,
+      "distinct_mints_touched": 1156,
+      "selection_status_breakdown": {"SELECTED": 1347, "ALTERNATIVE": 894},
+      "specific_match_to_b2z_cohort": "a SELECTED edge for ordinal 4's mint (59hy2QNgTB6vvXJqayUk4RgtJ4wCCniwbHpg8Q5gpump) with wallet=DoTKDtHMXvUXCjpDFfQWTLxqzoNXiGXJYWBNHfaJyeAr and candidate_parent=root -- an EXACT match to the (creator, direct_funder) pair P1.7 found independently via transfer_index",
+      "interpretation": "Watchtower's own raw evidence-collection layer has been passively observing this address across 1,156 distinct mints -- far beyond the 56-launch family -- but has NEVER promoted it to a confirmed treasury, subprovisioner, or formal operation membership in any live wt_ops_v2 table. This is CANDIDATE-TIER evidence already present in Watchtower's own infrastructure, not a new discovery from outside Watchtower entirely."
+    },
+    "conclusion": "NO CONFIRMED OPERATION MEMBERSHIP OVERLAP exists in any canonical/live Watchtower or three_sw2 table. However, this address is NOT a stranger to Watchtower's evidence layer -- it has substantial, already-collected candidate-tier evidence (2,241 rows, 1,156 mints) that has simply never crossed the confirmation threshold. This is disclosed precisely rather than characterized as either 'fully novel' or 'already known' -- it is candidate-known, not canonically-known."
+  },
+
+  "part9_evidence_completeness_classification": {
+    "method": "applied the B2Z-P3 policy's category definitions (docs/audits/overnight_b2z_p3_selective_rpc_policy.json) using the ACTUAL evidence tier present -- since all 56 direct edges are already RPC-verified (rpc_verified=1 in tf_edges), this population sits at a STRONGER evidence tier than the B2Z-P3 policy was designed to classify (that policy assumes local-only, pre-verification evidence)",
+    "classification_result": "STRONG_LOCAL_EVIDENCE for all 56 members at the direct-funding hop -- not because local evidence alone is being trusted, but because the local database ALREADY CONTAINS raw, RPC-verified transaction content (via the tf_transaction_cache / tf_edges rpc_verified=1 pipeline), making 'local' and 'raw-verified' the same tier for this specific family",
+    "no_calibration_dependent_thresholds_invented": "P2's calibration metrics do not apply here since this family's evidence is already raw-verified, not derived-only -- correctly stated as N/A rather than PENDING_P2_CALIBRATION, since P2 calibration measures LOCAL-vs-RAW agreement and this family already HAS the raw tier",
+    "upstream_2hop_completeness": "PARTIAL_LOCAL_EVIDENCE for the 20/56 members with a direct raw-verified root->subprovider edge; AMBIGUOUS for the remaining 36 whose upstream path requires walking a longer (up to 6-hop) chain not fully reconstructed this workstream"
+  },
+
+  "part10_terminal_verdict": {
+    "verdict": "CANDIDATE_OPERATIONAL_FAMILY_LOCALLY_SUPPORTED",
+    "verdict_reasoning": "56/56 direct funding relationships are backed by RPC-VERIFIED (not merely locally-derived) on-chain evidence, cross-validated against an independent main-database creator field for all 56 members, with zero circular-funding contamination, meaningful (not incidental) amount-repetition and subprovider-reuse signals, and structural similarity to known Watchtower/three_sw2 provisioning patterns on most measured dimensions. The family is genuinely novel relative to CONFIRMED Watchtower/three_sw2 operation membership (zero overlap in any live/canonical table), but is NOT novel relative to Watchtower's own raw candidate-evidence layer, which has independently selected the exact matching edge for one cohort member (ordinal 4). This is CANDIDATE evidence, explicitly NOT canonical attribution -- no operation was created, modified, or promoted."
+  },
+
+  "operation_safety": {
+    "watchtower_mutated": false,
+    "three_sw2_mutated": false,
+    "canonical_operation_created": false,
+    "canonical_operation_modified": false,
+    "candidate_evidence_only": true
+  },
+
+  "provider_calls_made": 0,
+  "production_data_modified": false,
+
+  "deterministic_digest": "e89baee472c7b8dd3fc60902d346da286bd7db358cc72982c4366ec49a2e4b0b",
+  "deterministic_digest_note": "SHA-256 of this file's content as of its self-referential update -- the digest above reflects the file's state immediately prior to this field's own update; the roster digest (58d860b1...) is the authoritative content-hash for the 56-member data itself"
+}

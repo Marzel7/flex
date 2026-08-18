@@ -1,0 +1,63 @@
+{
+  "schema_version": "of.p0.56-launch-candidate-family-review-packet.v1",
+  "artifact_type": "OF_P0_56_LAUNCH_CANDIDATE_FAMILY_REVIEW_PACKET",
+  "generated_utc": "2026-08-19T06:10:00Z",
+  "purpose": "Human-readable summary for morning review. No decision made here.",
+
+  "plain_english_summary": "A wallet (5tzFkiKscXHK5ZXC...uAi9) has been directly funding 56 different Pump.fun token launches over the last ~70 days, spending roughly 300+ SOL total across the ones we sampled. It never launches tokens itself -- it only sends SOL to 32 different intermediary wallets, each of which then funds one or a few creator wallets that actually launch tokens. One of those 32 intermediaries alone handled 18 of the 56 launches. Several launches were funded with the EXACT same amount down to the lamport (14,998,995,000 lamports, ~15 SOL) -- that's not something that happens by coincidence with organic funding; it strongly suggests an automated, templated process. All 56 of these funding relationships are backed by verified on-chain transactions, not just inferred patterns.",
+
+  "why_it_surfaced": "It came up because this same wallet also happens to be the funding source for 3 unrelated tokens in a completely different, smaller batch of 20 tokens we were separately investigating for a data-quality experiment (B2Z-P2). That coincidence prompted a closer look, which is how this 56-launch family got found.",
+
+  "independent_convergence_result": {
+    "verdict": "PARTIALLY_SHARED_LINEAGE, not fully independent",
+    "explanation": "Two of the three ways we found this wallet DID use genuinely separate data/code paths. But the third way (a dedicated 56-launch tracking system) turns out to be built on top of Watchtower's own existing transaction-collection infrastructure, not something totally separate from it. So this isn't three unrelated systems agreeing by chance -- it's more like two separate systems both bumping into a wallet that Watchtower's low-level machinery had already quietly logged (but never acted on)."
+  },
+
+  "root_funder": "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9",
+  "number_of_launches": 56,
+  "number_of_creators": 56,
+  "date_range": "2026-05-27 to 2026-08-05 (70.2 days) -- though this wallet's OWN history in our records goes back to December 2023, so this 56-launch batch is a recent slice of a much older, more active wallet",
+
+  "strongest_recurring_evidence": [
+    "6 of the 56 launches were funded with the exact same amount (14,998,995,000 lamports) -- and 3 of those 6 also had a matching UPSTREAM funding amount (~14,999,000,000 lamports) one hop further back. That's two layers of near-identical amounts, which is a strong templating signal.",
+    "One intermediary wallet (BmFdpraQhkiDQE6...) alone funded 18 of the 56 launches (32%) -- a clear, repeated workhorse, not a one-off.",
+    "All 56 funding transactions are already verified against real Solana transaction data -- this isn't a guess based on patterns, every single edge has a real transaction signature backing it."
+  ],
+
+  "strongest_2hop_evidence": "20 of the 56 launches have a directly-traceable path from the root wallet to the intermediary that funded them (1 hop). The other 36 route through a longer chain (the system tracks up to 6 hops deep), which we haven't fully walked out yet.",
+
+  "suspicious_or_noisy_evidence": [
+    "No circular funding was found -- money flows outward cleanly, doesn't loop back to the root. That's actually a point AGAINST the most dramatic prior Watchtower finding (which documented money literally cycling back and forth), so this family looks more like straightforward distribution than obfuscation.",
+    "No creator was reused across any of the 56 launches -- every launch gets a fresh creator wallet. That's consistent with either careful operational hygiene or just normal Pump.fun behavior; can't tell which from this data alone.",
+    "We haven't checked whether any of the 32 intermediary wallets are known bots, exchange hot wallets, or other 'noise' addresses -- that check wasn't done in this pass and would be worth doing before trusting the family too much."
+  ],
+
+  "overlap_with_known_operations": {
+    "confirmed_watchtower_or_three_sw2_membership": "NONE -- checked every relevant table (treasuries, subprovisioners, provisioning hubs, operation members, launches), zero matches anywhere",
+    "but": "Watchtower's own raw evidence-collection has quietly logged this wallet across 1,156 different token mints (way more than these 56), including one exact match to one of the 3 tokens from our other investigation. It just never got promoted to an actual tracked treasury or operation -- it's sitting in the 'noticed but not acted on' pile."
+  },
+
+  "service_distribution_concerns": "Not fully checked this pass. The 18-of-56 dominant intermediary and the templated-amount pattern both LOOK like they could be either (a) a coordinated launch operation, or (b) a legitimate service/tool that many independent creators happen to use (e.g. a bot or platform that provisions wallets for a fee). We genuinely don't know which yet -- that's exactly the kind of judgment call that needs a human, not something this pass could resolve.",
+
+  "representative_members_sample": [
+    {"mint": "qcAw2hA8fcMCbRKT614R2mgvqyKsvvCorZUs38fpump", "creator": "73Ah7fsGcfA9DqNgFLmTnxnV3om7oxmmQ97YBXJZ6LAR", "funder": "B3ae3UMeh177XWoNN5F696LzJexmUapLd8tzUC1iWv7i", "amount_sol": 15.0, "note": "earliest launch in this batch"},
+    {"mint": "Hk8dY6VL7WWJV4WQeeLvn5ZPfXr3LfHeuZ8r5nispump", "creator": "2VQh1ZsFfV9Vkd9vfZov5WmBt8jR41tghd9QtbEY9NLi", "funder": "BcDu1xuSVzGPh32NkishveDCZH77vz46JbFbom5WtrzN", "amount_sol": 0.00013949, "note": "an extreme outlier -- tiny funding amount, worth a second look"},
+    {"mint": "3kwZ7XfiZFZtN7bGjHTwUbkkYJGpu3z3A87zNSezpump", "creator": "FeVirQBJrMvtoEBP3zEUkFeEK4otrbU3NkFVbBPoTcD3", "funder": "8Dp23TpcfqYqHnTZkVvoG3tD3GNhXJseVEY8Ck9iVw8V", "amount_sol": 14.998995, "note": "part of the 6-way exact-amount match, also has an upstream near-match"},
+    {"mint": "9a5T4DVukSWL1nRkMFqGPaHET4vAXTqNAfHpAHfGpump", "creator": "FtZeKUaxtjDgx73kxLP3vkpnfVAFCezW9sAhxLDcLFuf", "funder": "BEK8kQN2Di4gvnjGqCEJrEFyyQZmvkABjno8f9Fpr1gc", "amount_sol": 14.998995, "note": "part of the exact-amount match set"},
+    {"mint": "BL1tPedBKiypopeuJc75mtKuYYiNBTB3AgqCLKeNpump", "creator": "C2ypkXcRUf4UDoCFFcK95vm1nY8NGVWbt252nxP6k55J", "funder": "AFi1Gt6ea7nMPwPZQH7quKbs7CUhWUKAXmPH5C9T25Qf", "amount_sol": 14.998995, "note": "part of the exact-amount match set"},
+    {"mint": "2rNwFkn6Y44P36rWsJyPyAe36HC3jFiBKfz5ekCcpump", "creator": "Etkw8hhgX5PeRZsYvpieFm3pq5KRGeUjAWDu4ZagRVtz", "funder": "BmFdpraQhkiDQE6SnfG5omcA1VwzqfXrwtNYBwWTymy6", "amount_sol": 6.95056, "note": "funded by the dominant 18-launch intermediary"},
+    {"mint": "4eYQE9ndnsfCNNFhAWQ2aSo4mZaP4hQsTC5WMVBEpump", "creator": "GatCUVN4piC3ML1MGCHBrSpxf2tggz4mhXx88zmTu3fi", "funder": "BmFdpraQhkiDQE6SnfG5omcA1VwzqfXrwtNYBwWTymy6", "amount_sol": 6.947567, "note": "also funded by the dominant intermediary"},
+    {"mint": "7sZyoqp5bM2TvairgBnqhbur15Sdv4BUJ6TupYKgpump", "creator": "AL23QQwgp62vRDEcxMrtHy5rMQYd9a5yNXpHKjHBFjs7", "funder": "A1B168pyjbtonYiwjPiMSX55xdFMGPREAw6hrZYMZGSM", "amount_sol": 0.000010588, "note": "most recent launch in this batch; also has a documented upstream edge"}
+  ],
+
+  "evidence_completeness_counts": {
+    "direct_funding_verified_on_chain": "56 of 56 (100%)",
+    "creator_cross_validated_against_independent_source": "56 of 56 (100%)",
+    "direct_1hop_upstream_evidence": "20 of 56 (35.7%)",
+    "longer_multi_hop_upstream_only": "36 of 56 (64.3%, chain not fully walked yet)"
+  },
+
+  "what_rpc_verification_would_add": "Honestly, not much for the DIRECT funding relationships -- those are already backed by real, verified Solana transactions, not guesses. Where RPC verification WOULD help is: (1) walking out the 36 launches' longer upstream chains to see where the root wallet's own money ultimately comes from, and (2) checking whether the 32 intermediary wallets or the root itself show up as known bots/services elsewhere on-chain.",
+
+  "recommended_next_decision": "This is genuinely your call, not ours. Three reasonable paths: (a) do nothing for now -- it's flagged and documented, no urgency; (b) authorize a deeper local-only pass (walking the remaining upstream chains, checking service/bot signals) before deciding anything else; (c) if you think this looks operationally significant, decide whether it should go through whatever formal review process would eventually let it become a tracked treasury/operation -- that would be a much bigger step than anything done here."
+}

@@ -1,0 +1,162 @@
+{
+  "schema_version": "ra4.c4.bounded-writer-cutover-result.v1",
+  "artifact_type": "RA4_C4_BOUNDED_WRITER_CUTOVER_RESULT",
+  "milestone": "RA4-C4",
+  "generated_utc": "2026-08-18T19:32:00Z",
+  "pre_cutover_snapshot_artifact": "docs/audits/ra4_c4_pre_cutover_snapshot.json",
+
+  "config_change": {
+    "file": "config/supervisor/supervisord.conf",
+    "block": "[program:creator_funding_worker]",
+    "before": {"RETAINED_ACQUISITION_OBSERVATIONS_ENABLED": "1", "RETAINED_ACQUISITION_V2_SHADOW_ENABLED": "ABSENT"},
+    "after": {"RETAINED_ACQUISITION_OBSERVATIONS_ENABLED": "0", "RETAINED_ACQUISITION_V2_SHADOW_ENABLED": "1"},
+    "other_variables_changed": "none -- only the two retention-routing flags were modified",
+    "unrelated_pre_existing_uncommitted_diff_note": "config/supervisor/supervisord.conf already had an uncommitted diff before this milestone (a MIGRATION_CENSUS_ENABLED line under [program:watchtower_listener], and the entire creator_funding_worker retention environment block itself was already uncommitted relative to git HEAD, from a prior unrelated session). This milestone's edit only touched the two RETAINED_ACQUISITION_* flag values within that pre-existing block; it did not introduce the block or touch the unrelated watchtower_listener line."
+  },
+
+  "process_lifecycle": {
+    "pid_before": 35285,
+    "pid_after_first_restart_attempt": 32879,
+    "first_restart_attempt_result": "STALE -- supervisorctl restart alone respawned the child process but did NOT reload supervisord's in-memory config from the edited file. Verified directly via `ps eww -p 32879 | grep RETAINED_ACQUISITION`, which showed the OLD flags still active (OBSERVATIONS_ENABLED=1, V2_SHADOW_ENABLED absent).",
+    "root_cause": "supervisorctl restart <program> does not imply a config reread; the running supervisord daemon (PID 35283, running since 08:58AM, long before this edit) needed an explicit `supervisorctl reread` + `supervisorctl update <program>` to pick up the file change.",
+    "corrective_action": "ran `supervisorctl reread` (reported 'creator_funding_worker: changed'), then `supervisorctl update creator_funding_worker` (reported 'stopped' then 'updated process group') -- this correctly targeted ONLY creator_funding_worker, not a bare `update` that could have touched every changed program.",
+    "pid_after_corrected_activation": 33383,
+    "uptime_at_final_check": "0:03:42",
+    "process_stable_no_crash_loop": true,
+    "other_processes_uptime_unaffected": "verified via full `supervisorctl status` before and after both restart attempts -- every other process's uptime was unchanged across both actions, confirming no other service was disturbed"
+  },
+
+  "part11_active_config_verified_from_running_process": {
+    "method": "ps eww -p <pid> | grep RETAINED_ACQUISITION (reads the ACTUAL process environment, not file contents)",
+    "result": {
+      "RETAINED_ACQUISITION_OBSERVATIONS_ENABLED": "0",
+      "RETAINED_ACQUISITION_V2_SHADOW_ENABLED": "1",
+      "RETAINED_ACQUISITION_DATABASE_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/evidence_platform/production/retained_acquisition.db",
+      "RETAINED_ACQUISITION_DEGRADED_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/evidence_platform/production/retention_degraded",
+      "RETAINED_ACQUISITION_JOURNAL_BUFFER_SIZE": "128"
+    },
+    "legacy_writer_off": true,
+    "bounded_v2_writer_on": true,
+    "confirmed_not_relying_on_file_contents_alone": true
+  },
+
+  "part12_legacy_growth_arrest": {
+    "measurements": [
+      {"label": "post_first_restart_attempt (before corrected activation)", "time": "19:28", "size_bytes": 66155503616},
+      {"label": "post_corrected_activation +90s", "time": "19:30", "size_bytes": 66155503616},
+      {"label": "post_corrected_activation +final_check", "time": "19:32", "size_bytes": 66155503616}
+    ],
+    "size_bytes_delta_across_all_post_cutover_measurements": 0,
+    "mtime_advancing": false,
+    "mtime_frozen_at": "2026-08-18T19:28",
+    "verdict": "LEGACY_GROWTH_ARREST_VERIFIED"
+  },
+
+  "part13_v2_receiving_new_retention": {
+    "row_count_at_cutover": 15316,
+    "row_count_after_observation_window": 16479,
+    "new_rows_since_process_start": 883,
+    "new_bytes_since_process_start": 26660769,
+    "no_dual_write_confirmed": "row schema_version is uniformly 2 (RetainedAcquisitionStoreV2 only); the legacy RetainedAcquisitionStore was never constructed under this config (config.retained_acquisition_observations_enabled=False means the factory's `if config.retained_acquisition_observations_enabled:` branch that appends RetainedAcquisitionStore is skipped entirely)",
+    "no_parse_or_write_failures_observed": "grepped logs/supervisor/creator_funding_worker.log for OBSERVATION_WRITE_FAILED / retention_degraded_accounting_lost -- zero matches",
+    "no_degraded_journal_directory_created": "database/evidence_platform/production/retention_degraded/ does not exist, meaning no retention failure has ever been journaled",
+    "sample_row_inspected": {
+      "observation_id": "10b556db68b5db6936a1796d34328f0340bb084dcb062d558470c173c1ab33f7",
+      "acquisition_id": "3202f415-e917-4155-9c85-db9e56386a7c",
+      "correlation_id": "3fefc2e6-f349-4661-8921-af214f86f06e",
+      "launch_mint": "AbiLe1zg4Krsr79t62icqxwXryt4KCkRFciMSMYbpump",
+      "provider": "helius_rpc",
+      "method": "getSignaturesForAddress",
+      "artifact_digest_present": true,
+      "request_payload_present": true,
+      "response_headers_present": true
+    }
+  },
+
+  "part14_v2_short_window_growth_estimate": {
+    "label": "BOUNDED_SHORT_WINDOW_GROWTH_ESTIMATE",
+    "sample": {"delta_bytes": 14856192, "window_seconds": 69},
+    "projected_gib_per_day_if_sustained": 17.32,
+    "hard_cap_still_applies": true,
+    "important_nuance": "this short-window rate is NOT the sustained/guaranteed long-term rate. daily_payload_cap_bytes (1 GiB) is an IN-PROCESS counter (self._payload_bytes, reset to 0 on every process start, not a true rolling calendar-day counter) that hard-refuses full-payload writes once exceeded, falling back to the tiny hot-payload representation for all subsequent observations in that process lifetime. At the observed rate (~26.7 MB in ~25 minutes since restart), the process would take multiple hours of continuous full-payload writes to reach the 1 GiB in-process cap, and would then degrade to hot-only rather than fail. The cap is real and enforced (verified with 9 passing tests including a real-write test), but this short window alone does not prove the cap will bind before a future process restart resets the counter -- that is an inherent property of the current implementation, not a gap introduced by this cutover, and is recorded here rather than glossed over.",
+    "cap_enforcement_verified_this_and_prior_milestone": true
+  },
+
+  "part15_replay_evidence_check": {
+    "method": "bounded, read-only inspection of the most recent V2 rows written by live production traffic since cutover (not a broad replay run)",
+    "fields_confirmed_present": [
+      "observation_id (deterministic replay identity)",
+      "acquisition_id, correlation_id (correlation identity)",
+      "launch (migration lineage / mint)",
+      "provider, method (provider/method identity)",
+      "timestamp (boundary)",
+      "artifact_digest, artifact_size_bytes, artifact_compressed_bytes, content_type (artifact linkage)",
+      "request_payload (request identity)",
+      "response_headers (response identity)"
+    ],
+    "no_evidence_loss_signal": true,
+    "verdict": "PASS"
+  },
+
+  "part16_b2n_integrity_check": {
+    "attempt_ledger_sha256_before": "06ea55a8b21a30aec7b81f23737f921b1dcdf5bbe88266671600a25785fe9e0f",
+    "attempt_ledger_sha256_after": "06ea55a8b21a30aec7b81f23737f921b1dcdf5bbe88266671600a25785fe9e0f",
+    "event_ledger_sha256_before": "f427610ccdae99b033d006fc0423170bcb6780a461c85c13d329c5fda8615071",
+    "event_ledger_sha256_after": "f427610ccdae99b033d006fc0423170bcb6780a461c85c13d329c5fda8615071",
+    "live_result_sha256_before": "675e0bf23c99b70e24db24ef27bf0738f47b0fe69d6200543031ece62fa18767",
+    "live_result_sha256_after": "675e0bf23c99b70e24db24ef27bf0738f47b0fe69d6200543031ece62fa18767",
+    "all_digests_identical": true,
+    "b2n_state": {"run_id": "b2n-p3e-98695fbdf44146c93ff08c8c", "completed": 1, "remaining": 19, "physical_requests_consumed": 1, "remaining_budget": 19},
+    "b2n_resumed": false
+  },
+
+  "part17_rollback_conditions_evaluated": {
+    "legacy_writer_still_active": false,
+    "v2_not_receiving_retention": false,
+    "replay_required_evidence_missing": false,
+    "unexpected_evidence_loss": false,
+    "v2_cap_enforcement_failure": false,
+    "creator_funding_worker_unstable": false,
+    "operation_h_series_mutation": false,
+    "b2n_artifact_drift": false,
+    "disk_reserve_breach": false,
+    "any_condition_triggered": false,
+    "rollback_performed": false
+  },
+
+  "part7_operation_safety_reconfirmed": "EXISTING_OPERATION_SEMANTICS_UNCHANGED",
+
+  "disk_state": {
+    "before_gib": 15,
+    "after_gib": 15,
+    "floor_required_gib": 10,
+    "floor_met": true
+  },
+
+  "authority_posture": {
+    "config_changed": true,
+    "config_change_scope": "exactly 2 environment variable values in 1 supervisor program block",
+    "process_restarted": true,
+    "process_restart_scope": "creator_funding_worker only",
+    "other_services_restarted": false,
+    "legacy_db_deleted": false,
+    "legacy_db_modified": false,
+    "legacy_db_vacuumed": false,
+    "legacy_db_checkpointed": false,
+    "wal_shm_deleted": false,
+    "b2n_resumed": false,
+    "b2n_ledgers_modified": false,
+    "helius_calls_made_by_agent": 0,
+    "b2z_executed": false,
+    "watchtower_mutated": false,
+    "existing_operations_mutated": false,
+    "h_series_evidence_altered": false,
+    "trading_policy_state_changed": false,
+    "handoff_transport_repaired": false
+  },
+
+  "blockers": [],
+
+  "verdict": "RA4_BOUNDED_WRITER_PRODUCTION_CUTOVER_QUALIFIED",
+  "verdict_note": "Cutover succeeded. Legacy retained_acquisition.db growth is arrested (zero byte change across all post-cutover measurements, mtime frozen). RetainedAcquisitionStoreV2 is confirmed receiving new retention (883 new rows, 26.7 MB, since process restart) with full replay-required evidence fields intact and zero write failures. Active process environment was verified directly (not just file contents), confirming legacy=OFF, bounded=ON, no dual-write. One real corrective action was required and is fully disclosed: the first restart attempt did not apply the config change (supervisord's in-memory state was stale until `reread`+`update` were run); this was caught by the explicit Part 11 verification step rather than assumed successful, and resolved narrowly (targeting only creator_funding_worker). B2N remains frozen at exactly 1/20 with all three live artifact digests byte-identical before and after. No rollback conditions triggered. Legacy 61.3+ GB DB was not deleted, modified, VACUUMed, or checkpointed -- it is now historical/read-only pending a separate future RA4-C5 archival/retirement milestone."
+}

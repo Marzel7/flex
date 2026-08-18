@@ -1,0 +1,119 @@
+{
+  "schema_version": "ra4.c4.pre-cutover-snapshot.v1",
+  "artifact_type": "RA4_C4_PRE_CUTOVER_SNAPSHOT",
+  "milestone": "RA4-C4",
+  "generated_utc": "2026-08-18T19:25:00Z",
+
+  "part1_disk": {
+    "filesystem": "/System/Volumes/Data",
+    "size": "228 GiB",
+    "used": "183 GiB",
+    "available": "15 GiB",
+    "capacity": "93%",
+    "floor_required_gib": 10,
+    "floor_preferred_gib": 15,
+    "floor_met": true,
+    "preferred_met": true
+  },
+
+  "part2_current_production_config": {
+    "file": "config/supervisor/supervisord.conf",
+    "block": "[program:creator_funding_worker]",
+    "command": "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python -m src.core.creator_funding_worker",
+    "current_flags": {
+      "RETAINED_ACQUISITION_OBSERVATIONS_ENABLED": "1",
+      "RETAINED_ACQUISITION_V2_SHADOW_ENABLED": "ABSENT (defaults to false via _flag())",
+      "RETAINED_ACQUISITION_DATABASE_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/evidence_platform/production/retained_acquisition.db",
+      "RETAINED_ACQUISITION_DEGRADED_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/evidence_platform/production/retention_degraded",
+      "RETAINED_ACQUISITION_JOURNAL_BUFFER_SIZE": "128"
+    },
+    "no_additional_retention_routing_variables_present": true,
+    "no_hidden_dual_write_mode": true,
+    "restart_command": "supervisorctl -c config/supervisor/supervisord.conf restart creator_funding_worker",
+    "restart_command_source": "established repository convention, confirmed via grep across docs/ and scripts/start_supervised.sh; this exact process has been restarted this way before per docs/audits/x78_2_creator_funding_detached_task_lifecycle_repair.md and x78_4_creator_funding_cancellation_grace_period_repair.md"
+  },
+
+  "part3_live_writer_verification": {
+    "process_status": "RUNNING",
+    "pid": 35285,
+    "uptime_at_snapshot": "10:24:37",
+    "sole_writer_confirmed": "grepped entire supervisord.conf for RETAINED_ACQUISITION_OBSERVATIONS_ENABLED -- exactly one match, this process",
+    "growth_still_present": true,
+    "growth_measurement": {
+      "sample_1": {"time": "19:22:17", "size_bytes": 66122870784},
+      "sample_2": {"time": "19:23:23", "size_bytes": 66126176256},
+      "delta_bytes": 3305472,
+      "window_seconds": 66,
+      "projected_gib_per_day": 4.03
+    },
+    "mtime_advancing": true
+  },
+
+  "part4_v2_no_dual_write_confirmed": {
+    "code_reference": "src/acquisition/factory.py _configured_retained_store() lines 208-232",
+    "logic": "stores = stores[0] if len(stores) == 1 else _ParallelRetainedAcquisitionStore(stores) -- with the target config (observations_enabled=False, v2_shadow_enabled=True), exactly ONE store is appended to the list, so the bare RetainedAcquisitionStoreV2 instance is returned directly, never wrapped in the parallel dual-write class",
+    "verified_this_session": true
+  },
+
+  "part5_hard_controls_reconfirmed": {
+    "focused_tests_rerun": "python3 -m pytest -q tests/test_oip_v2_2e_1c1_retained_observations.py tests/test_ra4_retained_acquisition_shadow_activation.py tests/test_ra4_c3_bounded_writer_enforcement.py",
+    "result": "20 passed",
+    "daily_payload_hard_cap": "1 GiB/day (RetainedAcquisitionStoreV2 default daily_payload_cap_bytes = 1 * GIB_BYTES; not overridden in supervisord.conf, will use this default since no RETAINED_ACQUISITION_V2_DAILY_PAYLOAD_CAP_BYTES var is being added)",
+    "disk_reserve_floor": "10 GiB (hardcoded in _write_budgeted(): usage.free < 10 * GIB_BYTES refuses)",
+    "bounded_hot_representation": "confirmed via _build_v2_hot_payload -- used as fallback when cap/disk gate refuses the full payload",
+    "replay_required_fields_preserved": "confirmed this session and in RA4-C3: observation_id, acquisition_id, correlation_id, launch_mint, http_method, url, response_status, artifact_digest/size/compressed_size, content_type, request_payload_sha256, response_headers_sha256, provider/method/timestamp metadata subset, retained_at",
+    "artifact_digest_recovery_preserved": "raw response bytes remain recoverable via artifact_digest into the separate ArtifactStore even when the hot fallback omits the inline bulk fields",
+    "acquisition_fail_open_if_retention_fails": "confirmed -- RetainingTransactionAcquisition.request_once() wraps store.retain()/record_outcome() in try/except; a retention failure only journals a degraded-accounting event, never blocks or raises into the underlying acquisition response",
+    "no_production_db_write_outside_bounded_store": "the only write target introduced by this cutover is the configured V2 shadow DB path; no other production DB is touched by this config change",
+    "no_canonical_operation_coupling": "reconfirmed by grep -- zero matches for watchtower/wt_operations/canonical_operation/EP3/EP4/B2N/B2Z in src/acquisition/retained_observations.py or src/acquisition/factory.py"
+  },
+
+  "part6_legacy_db_state": {
+    "path": "database/evidence_platform/production/retained_acquisition.db",
+    "size_bytes": 66126176256,
+    "mtime": "2026-08-18T19:23",
+    "target_state_after_cutover": "HISTORICAL_READ_ONLY (zero new writes; not deleted, not modified, not vacuumed, not migrated)"
+  },
+
+  "part6b_v2_target_state": {
+    "path": "database/evidence_platform/production/retained_acquisition_shadow.db",
+    "resolved_from": "EvidenceConfig default (no path override being added in this cutover -- reusing the existing default path)",
+    "pre_existing_file_found": true,
+    "pre_existing_size_bytes": 23134208,
+    "pre_existing_row_count": 15316,
+    "pre_existing_schema_version_in_rows": 2,
+    "provenance_of_pre_existing_file": "leftover from an earlier RA0-RA4 diagnostic/shadow-parallel period (last modified 2026-08-18T14:23, well before this session); schema is fully compatible with RetainedAcquisitionStoreV2 (schema_version=2 rows already present)",
+    "decision": "REUSE this existing file/path rather than introduce a new path override -- it is schema-compatible, and retain()'s INSERT OR IGNORE semantics make appending to it safe"
+  },
+
+  "part7_operation_safety_reconfirmed": "EXISTING_OPERATION_SEMANTICS_UNCHANGED -- zero code coupling to Watchtower/three_sw2/canonical operations/H-series/EP3/EP4/B2N/B2Z anywhere in the retention storage or factory modules",
+
+  "b2n_frozen_state_at_snapshot": {
+    "run_id": "b2n-p3e-98695fbdf44146c93ff08c8c",
+    "completed": 1,
+    "remaining": 19,
+    "physical_requests_consumed": 1,
+    "remaining_budget": 19,
+    "attempt_ledger_sha256": "06ea55a8b21a30aec7b81f23737f921b1dcdf5bbe88266671600a25785fe9e0f",
+    "event_ledger_sha256": "f427610ccdae99b033d006fc0423170bcb6780a461c85c13d329c5fda8615071",
+    "live_result_sha256": "675e0bf23c99b70e24db24ef27bf0738f47b0fe69d6200543031ece62fa18767"
+  },
+
+  "gates_status": {
+    "part1_disk": "PASS",
+    "part2_config_verified": "PASS",
+    "part3_writer_confirmed": "PASS",
+    "part4_no_dual_write": "PASS",
+    "part5_hard_controls": "PASS",
+    "part6_legacy_immutability_plan": "PASS (not yet executed)",
+    "part7_operation_safety": "PASS",
+    "all_pre_activation_gates_passed": true
+  },
+
+  "authority_posture": {
+    "cutover_applied_at_snapshot_time": false,
+    "process_restarted_at_snapshot_time": false,
+    "legacy_db_modified": false,
+    "b2n_execution": false
+  }
+}

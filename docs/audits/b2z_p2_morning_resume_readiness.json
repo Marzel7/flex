@@ -1,0 +1,57 @@
+{
+  "schema_version": "b2z.p2.morning-resume-readiness.v1",
+  "artifact_type": "B2Z_P2_MORNING_RESUME_READINESS",
+  "milestone": "B2Z overnight follow-on workstream 5",
+  "generated_utc": "2026-08-19T06:55:00Z",
+
+  "operation_safety": {
+    "provider_calls_made": 0,
+    "credentials_used": false,
+    "live_path_touched": false,
+    "method": "validation ran against a tmp_path COPY of the real event ledger; the real ledger file was never opened for write"
+  },
+
+  "reconciled_live_state": {
+    "run_id": "b2z-p1-44d6798563468c8aff747446",
+    "authorization_digest": "6e457e9cdf39c49b41bda0ef8cac390cf71e2320d5dda74a0b5b5656a1686550",
+    "manifest_digest": "82bbda32d25a9951a8d8475528d7db3a92b675aae90ce2d55e13391a6b69eedc",
+    "projection_digest": "eb2713e3f0ff01f122c0e962a7c67e7f1ea80337fa8894163892a47c17dd32bc",
+    "max_total_requests_authorized": 50,
+    "physical_requests_consumed": 1,
+    "physical_requests_remaining": 49,
+    "cohort_size": 20,
+    "ordinal_1_status": "EXECUTION_EXCLUDED, reason CREDENTIAL_INPUT_CORRUPTION (OPTION_A human decision), no retry performed or planned",
+    "next_incomplete_member_stage": "ordinal 2, MIGRATION_TX (first untouched member -- zero events found for ordinal 2 in the ledger)",
+    "event_ledger_path": "docs/audits/b2z_p1_event_ledger_b2z-p1-44d6798563468c8aff747446.jsonl",
+    "event_ledger_sha256": "39ce0dca5afe9a3ee2964356540d8c19448142eda47dcbcfcceca37da597fad4",
+    "event_ledger_row_count": 2,
+    "event_ledger_unchanged_since_overnight": true,
+    "stage_output_ledger": "no stage outputs recorded yet (ordinal 1 failed before any SUCCEEDED event)",
+    "prediction_digest_source": "docs/audits/b2z_p2_local_prediction_freeze.json (unmodified this session)",
+    "execution_plan_digest_source": "docs/audits/b2z_p2_execution_plan_and_authorization.json (unmodified this session)"
+  },
+
+  "mocked_resume_validation": {
+    "method": "real event ledger copied into a temp directory; B2ZEventLedger + DurableB2ZClient exercised against the copy only; a FakeTransport that raises AssertionError on any call was injected to structurally guarantee no live dispatch could occur even if a bug tried to trigger one",
+    "checks": [
+      {"check": "ordinal 1 MIGRATION_TX already reserved (from real ledger state)", "result": true},
+      {"check": "redispatch attempt on ordinal 1 MIGRATION_TX raises B2Z_P1_DUPLICATE_STAGE_ATTEMPT before any transport call", "result": "PASS -- B2ZP1Error raised, FakeTransport.send() never invoked"},
+      {"check": "physical_requests_attempted() reads exactly 1 from the ledger (not 0, not 2)", "result": "PASS -- 1"},
+      {"check": "remaining budget computed as max_total_requests(50) - attempted(1) = 49, no reset", "result": "PASS -- 49"},
+      {"check": "ordinal 2 has zero prior events (next stage is deterministic: MIGRATION_TX, not some other stage)", "result": "PASS -- confirmed no events exist for ordinal 2"},
+      {"check": "frozen predictions (manifest_digest, projection_digest, authorization_digest) unchanged from the pre-existing qualified artifacts", "result": "PASS -- values used in the mock match b2z_p2_execution_plan_and_authorization.json exactly"},
+      {"check": "Stage-2 seeded dependencies (LOCAL_PREDICTION_SEEDED capability) intact and unmodified", "result": "PASS -- 35/35 pre-existing tests in test_b2z_p1_durable_execution.py and test_b2z_p2_calibration.py still pass unmodified"},
+      {"check": "no live path touched by any of the above", "result": "PASS -- tmp directory removed after validation; real ledger file's mtime/content unchanged"}
+    ],
+    "test_suite_confirmation": "35/35 passed (test_b2z_p2_calibration.py: 9, test_b2z_p1_durable_execution.py: 26)"
+  },
+
+  "exact_safe_terminal_command_for_human": {
+    "note": "credential-free in this artifact; the human supplies the actual value interactively via read -s, which is never echoed or logged",
+    "command": "cd /Users/kevinkeaveney/Dev/claude/flex && read -s B2Z_P2_HELIUS_ENDPOINT && export B2Z_P2_HELIUS_ENDPOINT && echo && for i in $(seq 1 49); do python3 scripts/run_b2z_p2_calibration.py --resume; rc=$?; if [ $rc -ne 0 ]; then echo \"STOPPED at invocation $i (rc=$rc)\"; break; fi; done && unset B2Z_P2_HELIUS_ENDPOINT",
+    "semantics_preserved": "stop-on-first-failure (loop breaks immediately on any non-zero exit), credential unset at the end regardless of outcome, no retry of ordinal 1, budget ceiling of 49 additional invocations matches the exact remaining authorization"
+  },
+
+  "terminal_verdict": "READY_B2Z_P2_19_MEMBER_MANUAL_RESUME_GATE",
+  "verdict_reasoning": "All 8 mocked resume-validation checks pass against the real ledger's actual current state (copied, never mutated). No state problem exists. Resume is safe to execute whenever the human supplies the credential; nothing further needs to happen locally before then."
+}

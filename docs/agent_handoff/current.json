@@ -1,4 +1,26 @@
 {
+  "follow_on_session_summary": {
+    "session": "follow-on local qualification, 2026-08-19, continuing autonomously from the completed overnight 12-workstream session",
+    "provider_calls_made": 0,
+    "credentials_used": false,
+    "production_mutations": 0,
+    "watchtower_mutated": false,
+    "three_sw2_mutated": false,
+    "canonical_operation_mutated": false,
+    "workstreams_completed": [
+      {"id": "OF-P0", "artifact": "docs/audits/of_p0_56_launch_candidate_operational_family.json", "result": "56-launch candidate family qualified, independence corrected to PARTIALLY_SHARED_LINEAGE, terminal verdict CANDIDATE_OPERATIONAL_FAMILY_LOCALLY_SUPPORTED, zero canonical overlap"},
+      {"id": "OF-P0-review-packet", "artifact": "docs/audits/of_p0_56_launch_candidate_family_review_packet.json", "result": "plain-English human review packet, no decision made"},
+      {"id": "B2Z-P3A", "artifact": "docs/audits/b2z_p3a_historical_selective_rpc_dry_classification.json", "result": "39,260-token population classified; 3/5 policy categories fully measured locally (LOCAL_EVIDENCE_SUFFICIENT_FOR_DISCOVERY ~57.4%, RAW_VERIFICATION_REQUIRED 1.6%, MISSING_LOCAL_EVIDENCE 36.9%); 2 categories left PENDING_P2_CALIBRATION rather than guessed"},
+      {"id": "cache-first-savings", "artifact": "docs/audits/b2z_p3a_cache_first_savings.json", "result": "tf_transaction_cache overlap negligible for this population (0/646 migration-tx, 7/22,951 funding-tx) -- no material RPC savings from cache reuse here"},
+      {"id": "P2-resume-readiness", "artifact": "docs/audits/b2z_p2_morning_resume_readiness.json", "result": "mocked resume validation PASSED all 8 checks (tmp_path copy of real ledger, FakeTransport structurally blocks live dispatch); terminal verdict READY_B2Z_P2_19_MEMBER_MANUAL_RESUME_GATE; state unchanged (1/50 consumed, 49 remaining, ordinal 1 excluded)"},
+      {"id": "discovery-queue", "artifact": "docs/audits/local_operation_discovery_candidate_queue.json", "result": "20 candidate roots ranked by raw walkback-candidate launch count; 3 already canonical (treasuries/hubs, flagged not novel), 1 suspected service/bot, 17 genuinely unattributed"},
+      {"id": "decision-queue-update", "artifact": "docs/audits/overnight_human_decision_queue.json", "result": "reprioritized: P2 resume (1) > 56-launch family review (2) > discovery queue next picks (3) > selective-RPC thresholds (4) > B2Z-2H authorization (5) > V2 persistent budget (6)"}
+    ],
+    "tests_run": "35/35 passing (test_b2z_p2_calibration.py, test_b2z_p1_durable_execution.py) -- confirms durable execution boundary unmodified and sound; no new test files added this session (all new work was read-only SQL analysis + artifact generation, not new production code)",
+    "commits_made": "pending -- see next_action",
+    "next_action_for_next_agent_or_human": "commit the 7 new/updated docs/audits/*.json artifacts from this session with a descriptive message, then stop with FOLLOW_ON_LOCAL_QUALIFICATION_COMPLETE_AWAITING_HUMAN_GATES per the user's explicit terminal instruction. All 7 requested workstreams are complete. No further work should be invented.",
+    "human_decisions_remaining": "see docs/audits/overnight_human_decision_queue.json D1-D6, in priority order -- D1 (P2 resume) is the highest-priority actionable item"
+  },
   "active_observation": {
     "authorization_consumed_at_utc": "2026-08-12T20:55:26Z",
     "census_output": "logs/oip_migration_census.jsonl",

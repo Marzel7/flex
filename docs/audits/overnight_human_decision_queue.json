@@ -1,61 +1,73 @@
 {
-  "schema_version": "overnight.human-decision-queue.v1",
+  "schema_version": "overnight.human-decision-queue.v2",
   "artifact_type": "OVERNIGHT_HUMAN_DECISION_QUEUE",
-  "generated_utc": "2026-08-19T05:25:00Z",
-  "purpose": "Only genuine decisions requiring human judgment -- not trivial implementation choices. Everything provider-free, local, and safe was already completed autonomously overnight.",
+  "generated_utc": "2026-08-19T07:10:00Z",
+  "purpose": "Only genuine decisions requiring human judgment -- reprioritized after the follow-on local-qualification session. Everything provider-free, local, and safe was completed autonomously.",
 
   "decisions": [
     {
       "decision_id": "D1_P2_RESUME",
+      "priority": 1,
       "milestone": "B2Z-P2",
       "question": "Provide B2Z_P2_HELIUS_ENDPOINT again (carefully, avoiding terminal control-character artifacts) to resume the 19-member calibration run?",
-      "current_evidence": "Phase A remains fully qualified (frozen predictions, exact 50-request plan, 50-request fail-closed authorization). 1/50 requests consumed (ordinal 1, excluded per your OPTION_A decision). 49 requests remain authorized. The comparison engine is now built and tested (20/20 passing), ready to consume real results immediately once execution resumes.",
-      "risk": "Low -- the durable runner is qualified, fail-closed, and will stop immediately on any anomaly (second failure, disagreement, drift). Worst case is another isolated failure consuming at most 1 more request.",
-      "recommended_option": "Resume when convenient -- paste the credential carefully (verify cursor position / avoid arrow-key input before pressing enter)",
-      "alternatives": ["Wait and batch this with other credential-requiring work", "Authorize a fresh recovery ledger instead of continuing the current one (bigger decision, not recommended given 49/50 budget remains available on the current ledger)"],
-      "exact_next_action": "Run: cd /Users/kevinkeaveney/Dev/claude/flex && read -s B2Z_P2_HELIUS_ENDPOINT && export B2Z_P2_HELIUS_ENDPOINT && echo && for i in $(seq 1 49); do python3 scripts/run_b2z_p2_calibration.py --resume; rc=$?; if [ $rc -ne 0 ]; then echo \"STOPPED at invocation $i\"; break; fi; done && unset B2Z_P2_HELIUS_ENDPOINT"
+      "current_evidence": "docs/audits/b2z_p2_morning_resume_readiness.json -- reconciled live state confirmed (1/50 consumed, 49 remaining, ordinal 1 excluded, next stage deterministically ordinal 2/MIGRATION_TX), mocked resume validation PASSED all 8 checks against a tmp_path copy of the real ledger (redispatch correctly blocked, budget correctly computed, no live path touched). Terminal verdict READY_B2Z_P2_19_MEMBER_MANUAL_RESUME_GATE.",
+      "risk": "Low -- fail-closed, stops immediately on any anomaly.",
+      "recommended_option": "Resume when convenient using the exact command in b2z_p2_morning_resume_readiness.json",
+      "exact_next_action": "cd /Users/kevinkeaveney/Dev/claude/flex && read -s B2Z_P2_HELIUS_ENDPOINT && export B2Z_P2_HELIUS_ENDPOINT && echo && for i in $(seq 1 49); do python3 scripts/run_b2z_p2_calibration.py --resume; rc=$?; if [ $rc -ne 0 ]; then echo \"STOPPED at invocation $i\"; break; fi; done && unset B2Z_P2_HELIUS_ENDPOINT"
     },
     {
-      "decision_id": "D2_B2Z_P3_CALIBRATION_DEPENDENCY",
-      "milestone": "B2Z-P3",
-      "question": "Once P2 calibration completes, should the placeholder thresholds in the selective-RPC policy (temporal gap, dust floor) be recalibrated against the real measured agreement rates, or kept as the current P1.6-derived qualitative values?",
-      "current_evidence": "docs/audits/overnight_b2z_p3_selective_rpc_policy.json explicitly preserves P1.6's 3600-second threshold as a placeholder, not a calibrated value.",
-      "risk": "Low -- this only affects future policy precision, not any current production behavior.",
-      "recommended_option": "Recalibrate once real P2 data exists -- straightforward once available",
-      "alternatives": ["Keep the current qualitative threshold indefinitely if the 19-member sample proves too small to meaningfully recalibrate"],
-      "exact_next_action": "No action needed until D1 resolves -- this is a follow-on step, not currently blocking"
+      "decision_id": "D2_56_LAUNCH_FAMILY_REVIEW",
+      "priority": 2,
+      "milestone": "OF-P0",
+      "question": "What to do about the 56-launch candidate operational family rooted at 5tzFkiKscXHK5ZXC...uAi9?",
+      "current_evidence": "docs/audits/of_p0_56_launch_candidate_operational_family.json (full technical qualification, terminal verdict CANDIDATE_OPERATIONAL_FAMILY_LOCALLY_SUPPORTED) and docs/audits/of_p0_56_launch_candidate_family_review_packet.json (plain-English summary). Independence classification corrected to PARTIALLY_SHARED_LINEAGE (not fully independent -- tf_populations derives from Watchtower's own wt_walkback_edge_candidates). Zero overlap with any canonical operation. Same root's RAW candidate footprint (not yet curated) is far larger -- 1,062 launches -- per the new discovery queue (D3 below).",
+      "risk": "None from documentation alone -- no membership was created, nothing was promoted.",
+      "recommended_option": "Review the plain-English packet first; three options are presented there (do nothing / authorize a deeper local pass / consider formal review toward canonical attribution) -- this is explicitly the human's call.",
+      "exact_next_action": "Read docs/audits/of_p0_56_launch_candidate_family_review_packet.json"
     },
     {
-      "decision_id": "D3_2HOP_DUST_DISCREPANCY_INVESTIGATION",
-      "milestone": "B2Z overnight workstream 4",
-      "question": "Should the 172/5,175 (3.3%) second-hop bridges below the documented dust threshold be investigated further before B2Z-2H is ever implemented?",
-      "current_evidence": "docs/audits/overnight_2hop_coverage_quality.json discloses this as an UNRESOLVED discrepancy -- the SQL filter logic should structurally prevent this, but 172 rows exist anyway. Hypotheses (rounding, a different write path via source='rpc_backfill', a historical parameter change) were NOT verified.",
-      "risk": "Low-to-medium -- if unexplained, it could indicate either a benign historical artifact or a genuine bug in the second-hop builder that would also affect any future B2Z-2H work reusing this table.",
-      "recommended_option": "Investigate before authorizing B2Z-2H implementation (not before B2Z-P2/P3, which don't depend on this table)",
-      "alternatives": ["Accept as a known minor artifact and proceed with B2Z-2H design using transfer_index directly (bypassing the pre-built, potentially-imperfect funder_upstream_links table) as P1.7 already did"],
-      "exact_next_action": "If you want this investigated: ask for a targeted read-only query correlating the 172 rows' `source` field values against the second_hop_builder.py write paths"
+      "decision_id": "D3_DISCOVERY_QUEUE_NEXT_PICKS",
+      "priority": 3,
+      "milestone": "Local operation discovery",
+      "question": "Which of the 17 novel (non-canonical) candidate family roots in the ranked queue should receive a deeper local investigation pass next, if any?",
+      "current_evidence": "docs/audits/local_operation_discovery_candidate_queue.json -- 20 roots ranked by raw SELECTED-candidate launch count, 3 already confirmed as existing canonical treasuries/hubs (flagged, not novel), 1 flagged as a suspected service/bot (Axiom...), 17 genuinely unattributed. Recommended first pick: rank 2 (BmFdpraQhkiDQE6...), which already has partial characterization as OF-P0's dominant intermediary.",
+      "risk": "None -- purely a scoping/prioritization question.",
+      "recommended_option": "Start with rank 2 if any deeper pass is authorized -- it has the most existing evidentiary head start",
+      "exact_next_action": "No action needed until authorized -- this is a scheduling decision, not urgent"
     },
     {
-      "decision_id": "D4_EP6_PROPOSAL_CONTRACT",
-      "milestone": "Operation discovery (new track)",
-      "question": "Do you want operation-discovery output (EP4/EP5's motifs, neighbourhoods, candidate families) to eventually feed a formal human-review/proposal queue toward canonical operation attribution? If so, when should that design work begin?",
-      "current_evidence": "docs/audits/overnight_operation_discovery_preparation.json confirms EP3 through EP5.2 are fully built, validated, and non-authoritative by design -- but nothing beyond EP5.2 exists. This is a genuinely new, unstarted track, not a continuation of any current milestone.",
-      "risk": "None currently -- this is purely a scoping/prioritization question, no urgency, no existing work depends on it",
-      "recommended_option": "Defer until B2Z-P2/P3/2H direct-funding work matures -- EP6 is independent and can be scheduled whenever it becomes the priority",
-      "alternatives": ["Start EP6 design now, in parallel with B2Z work, since they touch different parts of the system"],
-      "exact_next_action": "No action needed -- purely a future scheduling decision"
+      "decision_id": "D4_SELECTIVE_RPC_THRESHOLDS",
+      "priority": 4,
+      "milestone": "B2Z-P3 / B2Z-P3A",
+      "question": "Two of the five B2Z-P3 policy categories (RAW_VERIFICATION_OPTIONAL split, SERVICE_DISTRIBUTION_REVIEW) remain PENDING_P2_CALIBRATION -- resolve once P2 produces real agreement-rate data, or accept a different (non-calibration-derived) threshold now?",
+      "current_evidence": "docs/audits/b2z_p3a_historical_selective_rpc_dry_classification.json -- three of five categories fully measured locally on the 39,260-token tractable population (LOCAL_EVIDENCE_SUFFICIENT_FOR_DISCOVERY ~57.4%, RAW_VERIFICATION_REQUIRED 1.6%, MISSING_LOCAL_EVIDENCE 36.9%). Cache-first lookup (docs/audits/b2z_p3a_cache_first_savings.json) found negligible tf_transaction_cache overlap (0/646 migration-tx, 7/22,951 funding-tx) -- no material RPC savings from cache reuse for this specific population.",
+      "risk": "Low -- affects future policy precision only, no current production behavior.",
+      "recommended_option": "Wait for D1 (P2 resume) to produce real calibration data before resolving these two categories",
+      "exact_next_action": "No action needed until D1 resolves"
     },
     {
-      "decision_id": "D5_V2_PERSISTENT_BUDGET_IMPLEMENTATION",
+      "decision_id": "D5_B2Z_2H_AUTHORIZATION",
+      "priority": 5,
+      "milestone": "B2Z-2H",
+      "question": "Authorize B2Z-2H upstream-funding-acquisition implementation?",
+      "current_evidence": "Non-executable contract exists (docs/audits/overnight_b2z_2h_upstream_funding_contract.json) with explicit rejection rules. Still blocked on the D4 threshold resolution and the unresolved 2-hop dust discrepancy (172/5,175 sub-threshold bridges, root cause not yet confirmed).",
+      "risk": "None currently -- nothing executes without explicit authorization.",
+      "recommended_option": "Defer until D1 and D4 resolve",
+      "exact_next_action": "No action needed"
+    },
+    {
+      "decision_id": "D6_V2_PERSISTENT_BUDGET",
+      "priority": 6,
       "milestone": "RA4 follow-up debt",
-      "question": "Authorize implementation of the V2 persistent-payload-budget design (Option A or B) as its own scoped milestone?",
-      "current_evidence": "docs/audits/overnight_v2_persistent_payload_budget_design.json -- design complete, two options presented, Option B (true calendar-day bucketing) recommended. Currently the cap silently resets on any worker restart.",
-      "risk": "Low for the design itself; Option B DOES change observable production behavior (a same-day restart would no longer grant extra budget) -- worth being aware of before authorizing, even though this is very likely the intended/correct behavior.",
-      "recommended_option": "Authorize Option B when convenient -- it's a small, additive, well-tested schema change with no RA4 reopening required",
-      "alternatives": ["Option A (process-lifetime-safe only, smaller behavior change)", "Leave as-is indefinitely -- the current behavior has not caused any incident, only identified as a design gap"],
+      "question": "Authorize implementation of the V2 persistent-payload-budget design (Option B recommended)?",
+      "current_evidence": "docs/audits/overnight_v2_persistent_payload_budget_design.json -- design complete, zero activation. Current behavior (cap resets on worker restart) has caused no incident, only identified as a design gap.",
+      "risk": "Low; Option B changes observable production behavior (same-day restart no longer grants extra budget) -- almost certainly the intended/correct behavior.",
+      "recommended_option": "Authorize when convenient -- small, additive, well-tested change",
       "exact_next_action": "If authorizing: request a scoped implementation milestone referencing this design artifact directly"
     }
   ],
 
-  "excluded_as_trivial": "implementation details already fully resolved by this session's design work (exact schema shapes, test coverage, threshold values already grounded in measured/existing repository constants) are NOT listed here -- only genuine judgment calls requiring your input are included above"
+  "excluded_as_trivial": "implementation details already fully resolved (exact schema shapes, test coverage, threshold values already grounded in measured/existing repository constants) are NOT listed -- only genuine judgment calls requiring human input are included above",
+
+  "session_note": "This queue was reprioritized during the follow-on local-qualification session (2026-08-19), which completed OF-P0 (56-launch family qualification + human review packet), B2Z-P3A (historical selective-RPC dry classification), cache-first savings measurement, P2 morning resume readiness validation, and a ranked 20-candidate operation-discovery queue. See docs/agent_handoff/current.json for full session detail."
 }

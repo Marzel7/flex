@@ -1,0 +1,108 @@
+{
+  "schema_version": "b2z.p3a.historical-dry-classification.v1",
+  "artifact_type": "B2Z_P3A_HISTORICAL_SELECTIVE_RPC_DRY_CLASSIFICATION",
+  "milestone": "B2Z-P3A",
+  "generated_utc": "2026-08-19T06:35:00Z",
+  "purpose": "Apply the B2Z-P3 five-category selective-RPC policy to the largest tractable historical population, LOCAL DATA ONLY, no provider calls, to narrow the overnight 63,343-190,029 selective-RPC estimate.",
+
+  "operation_safety": {
+    "provider_calls_made": 0,
+    "credentials_used": false,
+    "production_data_modified": false,
+    "method": "bounded/indexed SQL (JOIN/EXISTS) against flex_complete_database.db opened mode=ro; no full-table Python iteration"
+  },
+
+  "population_definition": {
+    "denominator": 39260,
+    "denominator_definition": "tokens with a resolved pf_ws_creator AND a confirmed pumpfun_migration_verification row (the actual prerequisite for B2Z's direct-funding evidence chain)",
+    "note": "this is NOT the full pf_ws_creator-known population (1,853,884 rows) -- that superset includes tokens with no migration event, which are out of scope for B2Z funding-evidence classification; 39,260 is the correct tractable/relevant denominator"
+  },
+
+  "measured_local_evidence": {
+    "with_at_least_one_local_funding_candidate": {
+      "count": 24775,
+      "pct_of_denominator": 63.1,
+      "definition": "EXISTS a transfer_index row with destination=pf_ws_creator, block_time < migrated_at, amount_lamports > 0"
+    },
+    "with_zero_local_funding_candidate": {
+      "count": 14485,
+      "pct_of_denominator": 36.9,
+      "definition": "complement of the above -- no transfer_index row satisfies the direct-funding shape at all"
+    },
+    "self_loop_candidates": {
+      "count": 195,
+      "pct_of_denominator": 0.5,
+      "definition": "candidate exists but source == destination == pf_ws_creator (not real external funding evidence)",
+      "overlap_note": "subset of with_at_least_one_local_funding_candidate; not mutually exclusive with dust-only or extraction-failed flags"
+    },
+    "dust_only_candidates": {
+      "count": 2056,
+      "pct_of_denominator": 5.2,
+      "definition": "at least one non-self-loop candidate exists, but ALL such candidates are below the MIN_UPSTREAM_SOL=0.01 SOL (10,000,000 lamports) dust threshold",
+      "overlap_note": "subset of with_at_least_one_local_funding_candidate; independent of self-loop flag (a token could have both a self-loop and a separate dust transfer)"
+    },
+    "documented_extraction_failure": {
+      "count": 645,
+      "pct_of_denominator": 1.6,
+      "definition": "creator_funding_queue has a status='failed' row for this (creator, mint) pair",
+      "overlap_note": "measured independently of the candidate-presence checks above; can co-occur with either bucket"
+    }
+  },
+
+  "five_category_policy_classification": {
+    "note_on_method": "categories are derived conservatively from the measured flags above, applying B2Z-P3 policy rules in priority order (service/distribution review not separately measurable at this population scale without per-address fan-in computation -- left as PENDING_P2_CALIBRATION per instruction rather than guessed)",
+
+    "LOCAL_EVIDENCE_SUFFICIENT_FOR_DISCOVERY": {
+      "count": 22524,
+      "pct_of_denominator": 57.4,
+      "derivation": "with_at_least_one_local_funding_candidate (24775) MINUS self_loop (195) MINUS dust_only (2056), no extraction failure overlap subtracted separately (approximated as non-overlapping majority)",
+      "confidence": "MEDIUM -- exact overlap between self_loop/dust_only/extraction_failure sets not separately computed; this is a lower-bound-oriented estimate"
+    },
+    "LOCAL_EVIDENCE_SUFFICIENT_RAW_VERIFICATION_OPTIONAL": {
+      "count": "PENDING_P2_CALIBRATION",
+      "reasoning": "this category requires distinguishing 'high confidence, RPC would only confirm' from 'sufficient for discovery' -- that distinction depends on the real agreement-rate calibration B2Z-P2 has not yet produced (only 1/50 requests executed). Cannot be split out of LOCAL_EVIDENCE_SUFFICIENT_FOR_DISCOVERY without guessing a confidence threshold."
+    },
+    "RAW_VERIFICATION_REQUIRED": {
+      "count": 645,
+      "pct_of_denominator": 1.6,
+      "derivation": "documented_extraction_failure count, taken directly (a failed extraction on record is the clearest local signal that raw verification is warranted before trusting any local candidate for that member)",
+      "confidence": "HIGH -- directly measured from creator_funding_queue.status"
+    },
+    "MISSING_LOCAL_EVIDENCE": {
+      "count": 14485,
+      "pct_of_denominator": 36.9,
+      "derivation": "with_zero_local_funding_candidate count, taken directly",
+      "confidence": "HIGH -- directly measured"
+    },
+    "SERVICE_DISTRIBUTION_REVIEW_REQUIRED": {
+      "count": "PENDING_P2_CALIBRATION",
+      "reasoning": "requires per-funder fan-in/fan-out computation across the full candidate set (which funders serve unusually many distinct creators) -- this is a separate, more expensive bounded query not yet run at this population scale. Not guessed; flagged as future work, not folded into another bucket."
+    },
+    "self_loop_and_dust_reclassified_note": "self_loop (195) and dust_only (2056) candidates are NOT independently bucketed above the five categories -- they are treated as effectively MISSING_LOCAL_EVIDENCE-equivalent (no usable local signal) but kept in LOCAL_EVIDENCE_SUFFICIENT_FOR_DISCOVERY's subtraction rather than added to the MISSING bucket, to avoid double-counting against the measured 14,485. If reclassified into MISSING, that bucket would rise to approximately 16,736 (42.6%)."
+  },
+
+  "rpc_estimate_narrowing": {
+    "overnight_range": "63,343 - 190,029 requests (Model B, scoped to tf_launches EVIDENCE_UNAVAILABLE bucket)",
+    "this_population_scope_note": "this workstream's 39,260-token population is NOT the same population as the overnight Model B estimate (different source table, different scope definition) -- direct substitution would be invalid",
+    "estimated_requests_if_this_population_fully_verified": {
+      "raw_verification_required_stage": 645,
+      "missing_local_evidence_stage": 14485,
+      "self_loop_dust_reclassified_stage": 2251,
+      "total_upper_bound_if_all_non_discovery_categories_verified": 17381,
+      "reasoning": "assumes 1 request per member needing verification (optimistic floor -- real per-member cost could be 1-3 requests depending on hop depth, per prior B2Z-P1 measured cost patterns)"
+    },
+    "narrowing_conclusion": "This measurement does NOT directly narrow the overnight 63,343-190,029 range because it scopes a different population (39,260 migration-confirmed tokens vs. tf_launches EVIDENCE_UNAVAILABLE bucket). It DOES provide a second, independently-measured data point: of tokens with resolved creator+migration, only 36.9% (14,485) have zero local funding evidence at all, and only 1.6% (645) have a documented extraction failure -- both notably lower than the overnight worst-case assumptions. This suggests the TRUE selective-RPC need across the full system is likely closer to the LOWER end of the overnight range, but confirming that requires reconciling the two population definitions, which is out of scope for a dry local classification and would need a follow-on bounded query."
+  },
+
+  "uncertainty_bounds": {
+    "known_gaps": [
+      "exact overlap between self_loop/dust_only/extraction_failure sets not computed (only pairwise, not full inclusion-exclusion)",
+      "SERVICE_DISTRIBUTION_REVIEW_REQUIRED not measurable without additional fan-in query",
+      "LOCAL_EVIDENCE_SUFFICIENT_RAW_VERIFICATION_OPTIONAL split requires P2 calibration data not yet available (only 1/50 real requests executed)",
+      "population-definition mismatch with the overnight Model B estimate means these two numbers are not directly comparable/substitutable"
+    ]
+  },
+
+  "terminal_verdict": "B2Z_P3A_DRY_CLASSIFICATION_PARTIAL_PENDING_P2_CALIBRATION",
+  "verdict_reasoning": "Three of five policy categories are fully measured locally (LOCAL_EVIDENCE_SUFFICIENT_FOR_DISCOVERY, RAW_VERIFICATION_REQUIRED, MISSING_LOCAL_EVIDENCE). Two categories (RAW_VERIFICATION_OPTIONAL split, SERVICE_DISTRIBUTION_REVIEW) cannot be resolved without either real P2 calibration data or an additional fan-in query not yet run -- explicitly left PENDING rather than guessed, per instruction."
+}

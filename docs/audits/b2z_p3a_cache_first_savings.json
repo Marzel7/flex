@@ -1,0 +1,40 @@
+{
+  "schema_version": "b2z.p3a.cache-first-savings.v1",
+  "artifact_type": "B2Z_P3A_CACHE_FIRST_SAVINGS",
+  "milestone": "B2Z overnight follow-on workstream 4",
+  "generated_utc": "2026-08-19T06:45:00Z",
+
+  "operation_safety": {
+    "provider_calls_made": 0,
+    "cache_writes_made": 0,
+    "method": "src/acquisition/tf_cache_lookup.py TransactionFirstLineageCacheLookup.lookup_many(), read-only mode=ro connection, bounded signature lists only"
+  },
+
+  "scope": "Checked cache coverage for the RAW_VERIFICATION_REQUIRED population (645-646 documented extraction failures) from b2z_p3a_historical_selective_rpc_dry_classification.json -- the only B2Z-P3 category with a well-defined bounded signature set suitable for lookup_many(). MISSING_LOCAL_EVIDENCE (14,485) has no candidate signature by definition and is structurally not cache-checkable.",
+
+  "results": {
+    "migration_tx_cache_hits": {
+      "checked": 646,
+      "hits": 0,
+      "pct": 0.0
+    },
+    "funding_tx_cache_hits": {
+      "checked": 22951,
+      "hits": 7,
+      "pct": 0.03,
+      "note": "22,951 candidate funding signatures across 646 mints (multiple transfer_index candidates per creator, not yet deduplicated to one-per-mint)"
+    },
+    "both_stage_hits": "NOT_COMPUTED -- would require a per-mint join correlating migration-tx and funding-tx cache hits; not run this pass since migration_tx_cache_hits=0 makes both-stage hits trivially 0 for this population",
+    "partial_hits": "7 (funding-tx cache hits only, no corresponding migration-tx hit)",
+    "misses": {
+      "migration_tx": 646,
+      "funding_tx_candidates": 22944
+    }
+  },
+
+  "interpretation": "tf_transaction_cache provides negligible coverage (effectively 0%) for the RAW_VERIFICATION_REQUIRED population. This is expected: tf_transaction_cache is populated by the transaction_first_lineage system's own prior RPC calls (e.g. the 56-launch family walk), which has no reason to overlap with this differently-scoped 39,260-token migration-confirmed population. Cache-first savings for THIS specific bucket are not material.",
+
+  "p3a_rpc_estimate_update": "No reduction applied to the 17,381-request upper-bound estimate in b2z_p3a_historical_selective_rpc_dry_classification.json -- cache hits found (7) are too small to materially change that figure. If a future B2Z-2H executor targets a population that DOES overlap with prior tf_populations walks (e.g. re-verifying the 56-launch family itself), cache-first savings would be substantial there instead -- this was not tested since it is out of this workstream's defined population.",
+
+  "terminal_note": "Cache-first lookup is structurally correct and zero-risk (proven read-only), but this population simply hasn't been touched by the cache's existing sources. No further action needed for this workstream."
+}

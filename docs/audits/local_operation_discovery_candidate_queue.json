@@ -1,0 +1,49 @@
+{
+  "schema_version": "local.operation-discovery-candidate-queue.v1",
+  "artifact_type": "LOCAL_OPERATION_DISCOVERY_CANDIDATE_QUEUE",
+  "milestone": "B2Z overnight follow-on workstream 6",
+  "generated_utc": "2026-08-19T07:05:00Z",
+
+  "operation_safety": {
+    "provider_calls_made": 0,
+    "canonical_membership_changed": false,
+    "method": "bounded SQL against wt_walkback_edge_candidates (wt_ops_v2.db) grouped by candidate_parent, cross-checked against wt_operator_treasuries/wt_sub_provisioners/wt_provisioning_hubs/wt_operator_launches (flex_complete_database.db) for known-operation overlap"
+  },
+
+  "ranking_method": "Ranked purely by SELECTED-status distinct-mint count (a deterministic, existing local evidence-strength indicator) in wt_walkback_edge_candidates, the same raw evidence layer that produced the OF-P0 56-launch family and the underlying tf_populations system. NOT ranked by trading profitability -- no authorized contract calls for that. Known-operation overlap is disclosed per row, not used to exclude a row from the list (excluding would hide useful information from the human).",
+
+  "important_caveat": "counts in this table are from the RAW walkback-candidate layer (SELECTED rows only, no further 2-hop/temporal/collision analysis applied) -- they are NOT directly comparable to OF-P0's curated 56-launch figure for the same root (5tzFki...), which applied additional filtering. These are candidate-strength indicators for triage, not final family sizes.",
+
+  "candidates": [
+    {"rank": 1, "root": "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9", "raw_launch_count": 1062, "raw_creator_count": 1037, "known_operation_overlap": "NONE_CONFIRMED (candidate-tier walkback evidence only)", "note": "already the subject of OF-P0 (56-launch curated subset); this is the SAME root's full raw candidate footprint, ~19x larger than the curated family -- highest-value target for a deeper walkback pass"},
+    {"rank": 2, "root": "BmFdpraQhkiDQE6SnfG5omcA1VwzqfXrwtNYBwWTymy6", "raw_launch_count": 185, "raw_creator_count": 192, "known_operation_overlap": "NONE_CONFIRMED", "note": "this is the dominant intermediary from OF-P0 (funded 18/56 of that family) -- worth investigating as a root in its own right, not just a pass-through"},
+    {"rank": 3, "root": "AxiomRXZAq1Jgjj9pHmNqVP7Lhu67wLXZJZbaK87TTSk", "raw_launch_count": 162, "raw_creator_count": 78, "known_operation_overlap": "NONE_CONFIRMED_IN_WT_TABLES", "note": "flagged in prior session memory as a suspected known bot/service wallet (fan_in=131 in an earlier measurement) -- SERVICE_DISTRIBUTION_REVIEW_REQUIRED, low priority for operation attribution, high priority for service/bot classification instead"},
+    {"rank": 4, "root": "iGdFcQoyR2MwbXMHQskhmNsqddZ6rinsipHc4TNSdwu", "raw_launch_count": 140, "raw_creator_count": 141, "known_operation_overlap": "NONE_CONFIRMED", "note": "no prior investigation on record"},
+    {"rank": 5, "root": "3hJX3p8St5As9dBbBMMGxSrReooEUfZbUpCAuYW2kNmY", "raw_launch_count": 125, "raw_creator_count": 147, "known_operation_overlap": "NONE_CONFIRMED", "note": "creator_count > launch_count -- some creators may have multiple funding edges from this root; worth checking for reused creators (unlike OF-P0's zero-reuse family)"},
+    {"rank": 6, "root": "5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1", "raw_launch_count": 125, "raw_creator_count": 118, "known_operation_overlap": "NONE_CONFIRMED", "note": "no prior investigation on record"},
+    {"rank": 7, "root": "QVtWcAX3R7Cr51VhAxFSYntoCAmTQzK8Hf4R1TrKNQ4", "raw_launch_count": 122, "raw_creator_count": 122, "known_operation_overlap": "NONE_CONFIRMED", "note": "1:1 launch:creator ratio, same shape as OF-P0's family"},
+    {"rank": 8, "root": "4GFSMkZVqBcgwgxsxmEURaohKbQfGc3GSUVQeBBNEscM", "raw_launch_count": 110, "raw_creator_count": 110, "known_operation_overlap": "NONE_CONFIRMED", "note": "1:1 ratio"},
+    {"rank": 9, "root": "u6PJ8DtQuPFnfmwHbGFULQ4u4EgjDiyYKjVEsynXq2w", "raw_launch_count": 90, "raw_creator_count": 93, "known_operation_overlap": "NONE_CONFIRMED", "note": "no prior investigation on record"},
+    {"rank": 10, "root": "A77HErqtfN1hLLpvZ9pCtu66FEtM8BveoaKbbMoZ4RiR", "raw_launch_count": 88, "raw_creator_count": 99, "known_operation_overlap": "NONE_CONFIRMED", "note": "creator_count > launch_count, same reuse question as rank 5"},
+    {"rank": 11, "root": "B48kNVXs4YK4amkBCH2XokQiv1SeiVQGHDR17xDeKAAn", "raw_launch_count": 66, "raw_creator_count": 67, "known_operation_overlap": "CONFIRMED -- present in wt_provisioning_hubs (hub_address match)", "note": "already a tracked, canonical provisioning hub -- NOT a novel discovery target; included for completeness/cross-reference only, do not re-investigate as new"},
+    {"rank": 12, "root": "Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM", "raw_launch_count": 62, "raw_creator_count": 62, "known_operation_overlap": "CONFIRMED -- present in wt_provisioning_hubs (hub_address match)", "note": "already a tracked, canonical provisioning hub -- NOT a novel discovery target"},
+    {"rank": 13, "root": "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV", "raw_launch_count": 62, "raw_creator_count": 66, "known_operation_overlap": "CONFIRMED -- present in wt_operator_treasuries (wallet match)", "note": "already a tracked, canonical treasury -- NOT a novel discovery target"},
+    {"rank": 14, "root": "ASTyfSima4LLAdDgoFGkgqoKowG1LZFDr9fAQrg7iaJZ", "raw_launch_count": 53, "raw_creator_count": 53, "known_operation_overlap": "NONE_CONFIRMED", "note": "1:1 ratio, no prior investigation on record"},
+    {"rank": 15, "root": "5F1seMKUqSNhv45f6FhB2cFmgJbk8U1avJw7M6TexUq1", "raw_launch_count": 46, "raw_creator_count": 45, "known_operation_overlap": "NONE_CONFIRMED", "note": "no prior investigation on record"},
+    {"rank": 16, "root": "FHpcNSe6tb2n15bAdq4BkeYWGyZKFD7yLYrH92ng7wCT", "raw_launch_count": 44, "raw_creator_count": 35, "known_operation_overlap": "NONE_CONFIRMED", "note": "launch_count > creator_count, suggests SOME creator reuse -- interesting discriminator vs OF-P0's zero-reuse pattern, worth a closer look"},
+    {"rank": 17, "root": "EiMJefb6bdJuFvgvGXbaSW9d8Cg8v5N4yx2T27jejQWt", "raw_launch_count": 42, "raw_creator_count": 1, "known_operation_overlap": "NONE_CONFIRMED", "note": "42 launches but only 1 distinct creator -- this shape is structurally distinct from OF-P0 (fresh-creator-per-launch); more consistent with a single serial-deployer wallet than a distributed operation. Per the single-token-creator-filter memory heuristic, a >1-token creator is a serial deployer signature, not a WATCHTOWER-style provisioning signature -- flag as LOW PRIORITY for operation attribution, but worth noting as a distinct pattern type"},
+    {"rank": 18, "root": "Bwpr1KPp6HkHWKXjXHGtseSDN5zUDy1qtDvX6mi3byXS", "raw_launch_count": 39, "raw_creator_count": 38, "known_operation_overlap": "NONE_CONFIRMED", "note": "no prior investigation on record"},
+    {"rank": 19, "root": "FJYrqteMcW8QUrVU7Z1Jk1exfMsraJiwKTg5bBkdgnTJ", "raw_launch_count": 39, "raw_creator_count": 67, "known_operation_overlap": "NONE_CONFIRMED", "note": "creator_count nearly 2x launch_count -- unusual ratio, worth checking whether this reflects multiple candidate rows per launch (noise) rather than genuine multi-creator funding"},
+    {"rank": 20, "root": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY", "raw_launch_count": 38, "raw_creator_count": 38, "known_operation_overlap": "NONE_CONFIRMED", "note": "1:1 ratio, no prior investigation on record"}
+  ],
+
+  "summary": {
+    "total_candidates_listed": 20,
+    "already_canonical_operations": 3,
+    "novel_unattributed_candidates": 17,
+    "suspected_service_or_bot": 1,
+    "recommended_first_pick": "rank 2 (BmFdpraQhkiDQE6...) -- already partially characterized via its role inside OF-P0, has the clearest existing evidentiary head-start of any unattributed root on this list"
+  },
+
+  "not_performed": "no 2-hop, temporal, funding-topology, or collision-detail analysis was run for ranks 2-20 (only rank 1's subset received that treatment, in OF-P0) -- this queue is a TRIAGE list only, per the workstream's explicit 'do not perform unlimited investigation' instruction."
+}

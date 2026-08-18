@@ -1,0 +1,414 @@
+{
+  "schema_version": "b2n-cohort-eligibility-human-decisions.v1",
+  "artifact_type": "B2N_COHORT_ELIGIBILITY_DECISION_SET",
+  "milestone": "B2N-P2E",
+  "contract_version": "OIP_v2.2E.2B2N.v1",
+  "bound_review_packet_path": "docs/audits/b2n_cohort_eligibility_human_review_packet.json",
+  "bound_review_packet_digest": "9a123317998506332b465c5f2204fedb9c3a99ac2663a11801177d483837cfcd",
+  "bound_decision_contract_path": "docs/audits/b2n_cohort_eligibility_human_review_decision_record_contract.json",
+  "bound_decision_contract_digest": "586d78a3e5806ebbe217c1a2ff194cedaccd0b9af2ec16ada763dd002f787f10",
+  "bound_frozen_manifest_digest": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+  "expected_member_count": 20,
+  "decisions": [
+    {
+      "review_item_id": "b2n:cohort:b223a9f4f6123b98e67c8ba0d8f19d57a7dd1676a9b80b15a8d04a9cfb431aec",
+      "sample_ordinal": 1,
+      "mint": "66ruWUv7KLXkLbHBTnj7PqzEgdue1oZjeA5Z3JMHpump",
+      "census_event_id": "b223a9f4f6123b98e67c8ba0d8f19d57a7dd1676a9b80b15a8d04a9cfb431aec",
+      "reviewed_migration_origin": "3F3Kx3jN8oaKx4w25GAgYwosXtFgiSyKPSmYyUhX3YeqWdR7jNmgBV9gzofyPkKznbP5FZ9f6tFzQQyCCTN4hq8i",
+      "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+      "source_provenance_digest": "836f302c0a130eabc060e45b05afca5c6defd6dba57e454fb0cc9703687498e3",
+      "source_provenance_artifact": "docs/evidence_platform/oip_v2_2e_2b2bq_b2z_frozen_projection.json",
+      "decision": "APPROVED",
+      "human_approval_decision_record": {
+        "disposition": "APPROVED",
+        "justification": "Solscan transaction inspection confirms the stated transaction executes Pump.fun migrate_v2 and creates the VOL/WSOL pool for mint 66ruWUv7KLXkLbHBTnj7PqzEgdue1oZjeA5Z3JMHpump.",
+        "evidence_basis": "HUMAN_SUPPLEMENTAL_EXTERNAL_VERIFICATION",
+        "repository_evidence_status_at_decision_time": "SOURCE_PROVENANCE_BOUND_UNVERIFIED_TRANSACTION_CONTENT"
+      },
+      "reviewer_id": "human_operator",
+      "review_timestamp_utc": "2026-08-18T14:48:37Z",
+      "bound_review_packet_digest_at_decision_time": "9a123317998506332b465c5f2204fedb9c3a99ac2663a11801177d483837cfcd"
+    },
+    {
+      "review_item_id": "b2n:cohort:3e4dbf40558e85f62d9b22151f7e9077a6fd3b31a3946d871a51336de716edb5",
+      "sample_ordinal": 2,
+      "mint": "3hgXvsR8Xh6hnoKyFbPnrMVEkrKGPVbH6EJQkzoNpump",
+      "census_event_id": "3e4dbf40558e85f62d9b22151f7e9077a6fd3b31a3946d871a51336de716edb5",
+      "reviewed_migration_origin": "2aP6mCzC2aoaMn7SZfV4jvYUNeCgoyrsM96iGCThjS6U9if92fZjaxPcMyUh1hdMBR1had8EdD2d9stvw389FkVP",
+      "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+      "source_provenance_digest": "836f302c0a130eabc060e45b05afca5c6defd6dba57e454fb0cc9703687498e3",
+      "source_provenance_artifact": "docs/evidence_platform/oip_v2_2e_2b2bq_b2z_frozen_projection.json",
+      "decision": "APPROVED",
+      "human_approval_decision_record": {
+        "disposition": "APPROVED",
+        "justification": "External transaction inspection confirms 2aP6...FkVP executes Pump.fun migrate_v2 and creates/adds liquidity to the VOL/WSOL Pump.fun AMM pool for the exact mint 3hgXvsR8Xh6hnoKyFbPnrMVEkrKGPVbH6EJQkzoNpump.",
+        "evidence_basis": "HUMAN_SUPPLEMENTAL_EXTERNAL_VERIFICATION",
+        "repository_evidence_status_at_decision_time": "SOURCE_PROVENANCE_BOUND_UNVERIFIED_TRANSACTION_CONTENT"
+      },
+      "reviewer_id": "human_operator",
+      "review_timestamp_utc": "2026-08-18T14:50:31Z",
+      "bound_review_packet_digest_at_decision_time": "9a123317998506332b465c5f2204fedb9c3a99ac2663a11801177d483837cfcd"
+    },
+    {
+      "review_item_id": "b2n:cohort:21c8cfa392903e39e866598cebf2ae08e0f0b553f4e0485b2bcdc29fb6d5a966",
+      "sample_ordinal": 3,
+      "mint": "5BQpi43RtPxsw7jw3dpeE7duQAXcNYhw9MD6KUxGpump",
+      "census_event_id": "21c8cfa392903e39e866598cebf2ae08e0f0b553f4e0485b2bcdc29fb6d5a966",
+      "reviewed_migration_origin": "5i5H2vfw7o89B79beo38FHAAE8NzBDdW2KafXxLeYAQ1sS5WCJa8fRuS9SC56hUMBSqXQkGUW8Uea4knhirCXw6N",
+      "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+      "source_provenance_digest": "836f302c0a130eabc060e45b05afca5c6defd6dba57e454fb0cc9703687498e3",
+      "source_provenance_artifact": "docs/evidence_platform/oip_v2_2e_2b2bq_b2z_frozen_projection.json",
+      "decision": "APPROVED",
+      "human_approval_decision_record": {
+        "disposition": "APPROVED",
+        "justification": "Human reviewer approved without additional stated justification beyond the presented repository evidence.",
+        "evidence_basis": "REPOSITORY_EVIDENCE_AS_PRESENTED",
+        "repository_evidence_status_at_decision_time": "SOURCE_PROVENANCE_BOUND_UNVERIFIED_TRANSACTION_CONTENT"
+      },
+      "reviewer_id": "human_operator",
+      "review_timestamp_utc": "2026-08-18T14:51:29Z",
+      "bound_review_packet_digest_at_decision_time": "9a123317998506332b465c5f2204fedb9c3a99ac2663a11801177d483837cfcd"
+    },
+    {
+      "review_item_id": "b2n:cohort:ff681631e3ccf77207381fdebc0a7d5543a3562f26fde09948a3a0a3da78520e",
+      "sample_ordinal": 4,
+      "mint": "59hy2QNgTB6vvXJqayUk4RgtJ4wCCniwbHpg8Q5gpump",
+      "census_event_id": "ff681631e3ccf77207381fdebc0a7d5543a3562f26fde09948a3a0a3da78520e",
+      "reviewed_migration_origin": "Dee584VJB7PcmXxAJxd9MEaF3EXKTi4WoRiDf6ZJYQz5FbkEhnd6qBRjiP52yxXsVNtXXPAgbDE3b98i3YmpunL",
+      "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+      "source_provenance_digest": "836f302c0a130eabc060e45b05afca5c6defd6dba57e454fb0cc9703687498e3",
+      "source_provenance_artifact": "docs/evidence_platform/oip_v2_2e_2b2bq_b2z_frozen_projection.json",
+      "decision": "APPROVED",
+      "human_approval_decision_record": {
+        "disposition": "APPROVED",
+        "justification": "Human reviewer approved without additional stated justification beyond the presented repository evidence.",
+        "evidence_basis": "REPOSITORY_EVIDENCE_AS_PRESENTED",
+        "repository_evidence_status_at_decision_time": "SOURCE_PROVENANCE_BOUND_UNVERIFIED_TRANSACTION_CONTENT"
+      },
+      "reviewer_id": "human_operator",
+      "review_timestamp_utc": "2026-08-18T14:52:05Z",
+      "bound_review_packet_digest_at_decision_time": "9a123317998506332b465c5f2204fedb9c3a99ac2663a11801177d483837cfcd"
+    },
+    {
+      "review_item_id": "b2n:cohort:18cb1a5556e7eea974f5a572a06e82f6c2e9e49f3a2ea35f33f6c0bd18859b6e",
+      "sample_ordinal": 5,
+      "mint": "6V4rTJ9M4ZNUjvRMvBPiGia5Ju3TutG2nNatRdq1pump",
+      "census_event_id": "18cb1a5556e7eea974f5a572a06e82f6c2e9e49f3a2ea35f33f6c0bd18859b6e",
+      "reviewed_migration_origin": "31nh1aW7qJxphgnLMNnAmxCsuTqWKHLEEu3fr23gVrPFZHHcKLp1z6fmJhmR7wAJjb8u5Dz5mxaHcFgU1VuvUk9Z",
+      "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+      "source_provenance_digest": "836f302c0a130eabc060e45b05afca5c6defd6dba57e454fb0cc9703687498e3",
+      "source_provenance_artifact": "docs/evidence_platform/oip_v2_2e_2b2bq_b2z_frozen_projection.json",
+      "decision": "APPROVED",
+      "human_approval_decision_record": {
+        "disposition": "APPROVED",
+        "justification": "Human reviewer approved without additional stated justification beyond the presented repository evidence.",
+        "evidence_basis": "REPOSITORY_EVIDENCE_AS_PRESENTED",
+        "repository_evidence_status_at_decision_time": "SOURCE_PROVENANCE_BOUND_UNVERIFIED_TRANSACTION_CONTENT"
+      },
+      "reviewer_id": "human_operator",
+      "review_timestamp_utc": "2026-08-18T14:52:40Z",
+      "bound_review_packet_digest_at_decision_time": "9a123317998506332b465c5f2204fedb9c3a99ac2663a11801177d483837cfcd"
+    },
+    {
+      "review_item_id": "b2n:cohort:20cce44c2ec91673280a2743f791aafb6090a75bf5cfa7bbf1c851e31b837e0f",
+      "sample_ordinal": 6,
+      "mint": "FzKMeRzbfD1wbVf2ZxfdFgYirLLnVwzspt6gJRVTA8WU",
+      "census_event_id": "20cce44c2ec91673280a2743f791aafb6090a75bf5cfa7bbf1c851e31b837e0f",
+      "reviewed_migration_origin": "4Y2LXDq8u8Jd9Vy4RLJXasF746iZ91rLmhUogSH7pJy2T8NNDqg7Jn7iD9hBSW2Hf9wF7JC76LL1ATrosaVFxM5V",
+      "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+      "source_provenance_digest": "836f302c0a130eabc060e45b05afca5c6defd6dba57e454fb0cc9703687498e3",
+      "source_provenance_artifact": "docs/evidence_platform/oip_v2_2e_2b2bq_b2z_frozen_projection.json",
+      "decision": "APPROVED",
+      "human_approval_decision_record": {
+        "disposition": "APPROVED",
+        "justification": "Human reviewer approved without additional stated justification beyond the presented repository evidence.",
+        "evidence_basis": "REPOSITORY_EVIDENCE_AS_PRESENTED",
+        "repository_evidence_status_at_decision_time": "SOURCE_PROVENANCE_BOUND_UNVERIFIED_TRANSACTION_CONTENT"
+      },
+      "reviewer_id": "human_operator",
+      "review_timestamp_utc": "2026-08-18T14:53:33Z",
+      "bound_review_packet_digest_at_decision_time": "9a123317998506332b465c5f2204fedb9c3a99ac2663a11801177d483837cfcd"
+    },
+    {
+      "review_item_id": "b2n:cohort:f154ee9501abac5ad69e7221eea9db0abc2dbf43e22a9223f3a4e6f31f8c90ba",
+      "sample_ordinal": 7,
+      "mint": "AGfrbmkuqf3UYG5UXEkTpCtw5UMn62Bc9NrAo6rdpump",
+      "census_event_id": "f154ee9501abac5ad69e7221eea9db0abc2dbf43e22a9223f3a4e6f31f8c90ba",
+      "reviewed_migration_origin": "9LEnii6ZR5YzDTrKP8nAv64Zj3XJaBdQcRTBqc5t4AmKefZBsEYyUgYPjfKr38hDHa8T7kKedFTdkBXqnx1QW8f",
+      "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+      "source_provenance_digest": "836f302c0a130eabc060e45b05afca5c6defd6dba57e454fb0cc9703687498e3",
+      "source_provenance_artifact": "docs/evidence_platform/oip_v2_2e_2b2bq_b2z_frozen_projection.json",
+      "decision": "APPROVED",
+      "human_approval_decision_record": {
+        "disposition": "APPROVED",
+        "justification": "Human reviewer approved without additional stated justification beyond the presented repository evidence.",
+        "evidence_basis": "REPOSITORY_EVIDENCE_AS_PRESENTED",
+        "repository_evidence_status_at_decision_time": "SOURCE_PROVENANCE_BOUND_UNVERIFIED_TRANSACTION_CONTENT"
+      },
+      "reviewer_id": "human_operator",
+      "review_timestamp_utc": "2026-08-18T14:54:05Z",
+      "bound_review_packet_digest_at_decision_time": "9a123317998506332b465c5f2204fedb9c3a99ac2663a11801177d483837cfcd"
+    },
+    {
+      "review_item_id": "b2n:cohort:ba42821acc1b64e9f360e962fe403b4a4ff4ca7830c0ae77a99372cd6044e8a0",
+      "sample_ordinal": 8,
+      "mint": "qgiXEYJD6mXjHqzJJksX1yjYtownjLXFHAtD7KApump",
+      "census_event_id": "ba42821acc1b64e9f360e962fe403b4a4ff4ca7830c0ae77a99372cd6044e8a0",
+      "reviewed_migration_origin": "2RJoBHPmncEkQYyLNH4hVzh5Z4pQiEYNNuahEcGqs4DYCSNjVxzd88nW24PHYGzQciYuvD1Fvfv9LhufsSAfWN6h",
+      "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+      "source_provenance_digest": "836f302c0a130eabc060e45b05afca5c6defd6dba57e454fb0cc9703687498e3",
+      "source_provenance_artifact": "docs/evidence_platform/oip_v2_2e_2b2bq_b2z_frozen_projection.json",
+      "decision": "APPROVED",
+      "human_approval_decision_record": {
+        "disposition": "APPROVED",
+        "justification": "Human reviewer approved without additional stated justification beyond the presented repository evidence.",
+        "evidence_basis": "REPOSITORY_EVIDENCE_AS_PRESENTED",
+        "repository_evidence_status_at_decision_time": "SOURCE_PROVENANCE_BOUND_UNVERIFIED_TRANSACTION_CONTENT"
+      },
+      "reviewer_id": "human_operator",
+      "review_timestamp_utc": "2026-08-18T14:54:40Z",
+      "bound_review_packet_digest_at_decision_time": "9a123317998506332b465c5f2204fedb9c3a99ac2663a11801177d483837cfcd"
+    },
+    {
+      "review_item_id": "b2n:cohort:ce5e2df758814e3d9c610ae806c5942b2adea1ab4234201df1bf9bdff63c4b6f",
+      "sample_ordinal": 9,
+      "mint": "DU8u7EvQsG3GovXDknrcdV8dQfAie7MMY5keqT2Fpump",
+      "census_event_id": "ce5e2df758814e3d9c610ae806c5942b2adea1ab4234201df1bf9bdff63c4b6f",
+      "reviewed_migration_origin": "t3Aok52hDtN9rHhjEKCcB4q7g6hChe5os1Hahf48qU4fictSNTxyaX3rKmiaXXfBb2Dhw8nE3yXxzMy2Bf98Tuy",
+      "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+      "source_provenance_digest": "836f302c0a130eabc060e45b05afca5c6defd6dba57e454fb0cc9703687498e3",
+      "source_provenance_artifact": "docs/evidence_platform/oip_v2_2e_2b2bq_b2z_frozen_projection.json",
+      "decision": "APPROVED",
+      "human_approval_decision_record": {
+        "disposition": "APPROVED",
+        "justification": "Human reviewer approved without additional stated justification beyond the presented repository evidence.",
+        "evidence_basis": "REPOSITORY_EVIDENCE_AS_PRESENTED",
+        "repository_evidence_status_at_decision_time": "SOURCE_PROVENANCE_BOUND_UNVERIFIED_TRANSACTION_CONTENT"
+      },
+      "reviewer_id": "human_operator",
+      "review_timestamp_utc": "2026-08-18T15:10:28Z",
+      "bound_review_packet_digest_at_decision_time": "9a123317998506332b465c5f2204fedb9c3a99ac2663a11801177d483837cfcd"
+    },
+    {
+      "review_item_id": "b2n:cohort:6061d9ed3cb61ae5d40d1703de785e4d3b1bef466c05d0e4a2d7c968441edb37",
+      "sample_ordinal": 10,
+      "mint": "Gb71a9p2wfCcuBhHJ2zbG6pchnFGDrocGRAJjZh4pump",
+      "census_event_id": "6061d9ed3cb61ae5d40d1703de785e4d3b1bef466c05d0e4a2d7c968441edb37",
+      "reviewed_migration_origin": "5p6YMv1izrWFHRqhrwXEcWJshfvrYauFsChp6LrovwoM8MqhmjJVJaPnsEx3EQM1qiS2Y9vUhZpnZmi1xoSu4uV3",
+      "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+      "source_provenance_digest": "836f302c0a130eabc060e45b05afca5c6defd6dba57e454fb0cc9703687498e3",
+      "source_provenance_artifact": "docs/evidence_platform/oip_v2_2e_2b2bq_b2z_frozen_projection.json",
+      "decision": "APPROVED",
+      "human_approval_decision_record": {
+        "disposition": "APPROVED",
+        "justification": "Human reviewer approved without additional stated justification beyond the presented repository evidence.",
+        "evidence_basis": "REPOSITORY_EVIDENCE_AS_PRESENTED",
+        "repository_evidence_status_at_decision_time": "SOURCE_PROVENANCE_BOUND_UNVERIFIED_TRANSACTION_CONTENT"
+      },
+      "reviewer_id": "human_operator",
+      "review_timestamp_utc": "2026-08-18T15:11:09Z",
+      "bound_review_packet_digest_at_decision_time": "9a123317998506332b465c5f2204fedb9c3a99ac2663a11801177d483837cfcd"
+    },
+    {
+      "review_item_id": "b2n:cohort:8bdfb1de92627f69137070b3f976d1689350ca34af2d9810b368d199ec8c2b47",
+      "sample_ordinal": 11,
+      "mint": "CNCTqxJ2ug2Cg35Z4UwhggmXdfLSTQ4eQgskVdEspump",
+      "census_event_id": "8bdfb1de92627f69137070b3f976d1689350ca34af2d9810b368d199ec8c2b47",
+      "reviewed_migration_origin": "5fQqxsakF7XJiUg4TaDPHEbBA69QeCDVKTERQmU9SXJSZftvSsJLqdS6BVsNDEJ9dpGpkqX4QVTRRRiuD2Hbs42o",
+      "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+      "source_provenance_digest": "836f302c0a130eabc060e45b05afca5c6defd6dba57e454fb0cc9703687498e3",
+      "source_provenance_artifact": "docs/evidence_platform/oip_v2_2e_2b2bq_b2z_frozen_projection.json",
+      "decision": "APPROVED",
+      "human_approval_decision_record": {
+        "disposition": "APPROVED",
+        "justification": "Human reviewer approved without additional stated justification beyond the presented repository evidence.",
+        "evidence_basis": "REPOSITORY_EVIDENCE_AS_PRESENTED",
+        "repository_evidence_status_at_decision_time": "SOURCE_PROVENANCE_BOUND_UNVERIFIED_TRANSACTION_CONTENT"
+      },
+      "reviewer_id": "human_operator",
+      "review_timestamp_utc": "2026-08-18T15:11:46Z",
+      "bound_review_packet_digest_at_decision_time": "9a123317998506332b465c5f2204fedb9c3a99ac2663a11801177d483837cfcd"
+    },
+    {
+      "review_item_id": "b2n:cohort:7a9dd1838a2986aee354edb5e44536407c58dcf30abb6e00a6a6e63851043c42",
+      "sample_ordinal": 12,
+      "mint": "DykmoWpVtaKN9R5vurKk2TWgBX2WvvnbMkJMd7gcpump",
+      "census_event_id": "7a9dd1838a2986aee354edb5e44536407c58dcf30abb6e00a6a6e63851043c42",
+      "reviewed_migration_origin": "EdUFG5wpsoS18UrgBuoYYPARe8LwxcZbf8Z4B9AXYV7crrrUGrZeDdd4roCSMKXEUdfHNsnnynbmzRffLvRXWgB",
+      "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+      "source_provenance_digest": "836f302c0a130eabc060e45b05afca5c6defd6dba57e454fb0cc9703687498e3",
+      "source_provenance_artifact": "docs/evidence_platform/oip_v2_2e_2b2bq_b2z_frozen_projection.json",
+      "decision": "APPROVED",
+      "human_approval_decision_record": {
+        "disposition": "APPROVED",
+        "justification": "Human reviewer approved without additional stated justification beyond the presented repository evidence.",
+        "evidence_basis": "REPOSITORY_EVIDENCE_AS_PRESENTED",
+        "repository_evidence_status_at_decision_time": "SOURCE_PROVENANCE_BOUND_UNVERIFIED_TRANSACTION_CONTENT"
+      },
+      "reviewer_id": "human_operator",
+      "review_timestamp_utc": "2026-08-18T15:12:22Z",
+      "bound_review_packet_digest_at_decision_time": "9a123317998506332b465c5f2204fedb9c3a99ac2663a11801177d483837cfcd"
+    },
+    {
+      "review_item_id": "b2n:cohort:b4e81e3b547b31ff09171b3f222929faf69078c4a9d4818d3e5f9d81e3eaa0d4",
+      "sample_ordinal": 13,
+      "mint": "E1TTBe4a7qRbLXJ2ef8zUaHE99CqM98oKhCn7YGUpump",
+      "census_event_id": "b4e81e3b547b31ff09171b3f222929faf69078c4a9d4818d3e5f9d81e3eaa0d4",
+      "reviewed_migration_origin": "3SetG5n9psXDdELTrHKtho1Fn8qP5Qcyho98YeYxqBLHbsJJaYAcu2HisknZd169iWjb31Uggpzp42WXpxWw9QbJ",
+      "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+      "source_provenance_digest": "836f302c0a130eabc060e45b05afca5c6defd6dba57e454fb0cc9703687498e3",
+      "source_provenance_artifact": "docs/evidence_platform/oip_v2_2e_2b2bq_b2z_frozen_projection.json",
+      "decision": "APPROVED",
+      "human_approval_decision_record": {
+        "disposition": "APPROVED",
+        "justification": "Human reviewer approved without additional stated justification beyond the presented repository evidence.",
+        "evidence_basis": "REPOSITORY_EVIDENCE_AS_PRESENTED",
+        "repository_evidence_status_at_decision_time": "SOURCE_PROVENANCE_BOUND_UNVERIFIED_TRANSACTION_CONTENT"
+      },
+      "reviewer_id": "human_operator",
+      "review_timestamp_utc": "2026-08-18T15:13:02Z",
+      "bound_review_packet_digest_at_decision_time": "9a123317998506332b465c5f2204fedb9c3a99ac2663a11801177d483837cfcd"
+    },
+    {
+      "review_item_id": "b2n:cohort:0177a62c18dc35d32b8d116e0a69504a8b3f8d74560bde9d3bc2080d6497e655",
+      "sample_ordinal": 14,
+      "mint": "TmzQHAfT2MeuW5mgMP7HK4nZogfrGVxrzYHQBkqpump",
+      "census_event_id": "0177a62c18dc35d32b8d116e0a69504a8b3f8d74560bde9d3bc2080d6497e655",
+      "reviewed_migration_origin": "3rweMFqFKYn2ahLZGw8SBXa3Dw1cvY4n4gG8pWELDhYBrwNZ9bLMRiGsEAgj4KPKe1F3gboc4CTooyRjiCGarp1R",
+      "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+      "source_provenance_digest": "836f302c0a130eabc060e45b05afca5c6defd6dba57e454fb0cc9703687498e3",
+      "source_provenance_artifact": "docs/evidence_platform/oip_v2_2e_2b2bq_b2z_frozen_projection.json",
+      "decision": "APPROVED",
+      "human_approval_decision_record": {
+        "disposition": "APPROVED",
+        "justification": "Human reviewer approved without additional stated justification beyond the presented repository evidence.",
+        "evidence_basis": "REPOSITORY_EVIDENCE_AS_PRESENTED",
+        "repository_evidence_status_at_decision_time": "SOURCE_PROVENANCE_BOUND_UNVERIFIED_TRANSACTION_CONTENT"
+      },
+      "reviewer_id": "human_operator",
+      "review_timestamp_utc": "2026-08-18T15:13:39Z",
+      "bound_review_packet_digest_at_decision_time": "9a123317998506332b465c5f2204fedb9c3a99ac2663a11801177d483837cfcd"
+    },
+    {
+      "review_item_id": "b2n:cohort:ec9e402b7e32441599f9aab258e4818f83e3e51c87be3966d5f8c1e3652c4354",
+      "sample_ordinal": 15,
+      "mint": "2grdcnAX48SivhXjB4WkzKHzsz6b9BMWp1EipZWdpump",
+      "census_event_id": "ec9e402b7e32441599f9aab258e4818f83e3e51c87be3966d5f8c1e3652c4354",
+      "reviewed_migration_origin": "3xYs5NbD4EpfYKQ6UuvJSCGraz3MCak4wbXuzQvQjw83H9Q8Ar9Kv2ChDyTiZCugjiZFuRJbfNcL9qvg64F9wf8m",
+      "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+      "source_provenance_digest": "836f302c0a130eabc060e45b05afca5c6defd6dba57e454fb0cc9703687498e3",
+      "source_provenance_artifact": "docs/evidence_platform/oip_v2_2e_2b2bq_b2z_frozen_projection.json",
+      "decision": "APPROVED",
+      "human_approval_decision_record": {
+        "disposition": "APPROVED",
+        "justification": "Human reviewer approved without additional stated justification beyond the presented repository evidence.",
+        "evidence_basis": "REPOSITORY_EVIDENCE_AS_PRESENTED",
+        "repository_evidence_status_at_decision_time": "SOURCE_PROVENANCE_BOUND_UNVERIFIED_TRANSACTION_CONTENT"
+      },
+      "reviewer_id": "human_operator",
+      "review_timestamp_utc": "2026-08-18T15:14:15Z",
+      "bound_review_packet_digest_at_decision_time": "9a123317998506332b465c5f2204fedb9c3a99ac2663a11801177d483837cfcd"
+    },
+    {
+      "review_item_id": "b2n:cohort:050a34d4f50dae7dad3497bb33cab2a15991a4ab28d1b6ee6f2c7f2cc9212500",
+      "sample_ordinal": 16,
+      "mint": "D62UbUSyC78Ucdr9jmrCy9veFuuoQEvuL7NYJCNTpump",
+      "census_event_id": "050a34d4f50dae7dad3497bb33cab2a15991a4ab28d1b6ee6f2c7f2cc9212500",
+      "reviewed_migration_origin": "Gvy2hQfCq3GSjScBWtoukBT2mrQ3d3Gxo6JxfhVKJSPjUnxm5g3iYKQGoQungH1iEcuvypSf7DyVYpYxf9zDcMY",
+      "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+      "source_provenance_digest": "836f302c0a130eabc060e45b05afca5c6defd6dba57e454fb0cc9703687498e3",
+      "source_provenance_artifact": "docs/evidence_platform/oip_v2_2e_2b2bq_b2z_frozen_projection.json",
+      "decision": "APPROVED",
+      "human_approval_decision_record": {
+        "disposition": "APPROVED",
+        "justification": "Human reviewer approved without additional stated justification beyond the presented repository evidence.",
+        "evidence_basis": "REPOSITORY_EVIDENCE_AS_PRESENTED",
+        "repository_evidence_status_at_decision_time": "SOURCE_PROVENANCE_BOUND_UNVERIFIED_TRANSACTION_CONTENT"
+      },
+      "reviewer_id": "human_operator",
+      "review_timestamp_utc": "2026-08-18T15:14:51Z",
+      "bound_review_packet_digest_at_decision_time": "9a123317998506332b465c5f2204fedb9c3a99ac2663a11801177d483837cfcd"
+    },
+    {
+      "review_item_id": "b2n:cohort:30b7f301b7a3c9424a0f51bcffc0dac9a9c965a3fc2e59b1c11df1b8e10587bd",
+      "sample_ordinal": 17,
+      "mint": "9S4dmRLq3SmonrBi6ybxV5LW7M2c68NcGfYb6iFepump",
+      "census_event_id": "30b7f301b7a3c9424a0f51bcffc0dac9a9c965a3fc2e59b1c11df1b8e10587bd",
+      "reviewed_migration_origin": "3ee8Xa6qsMb9kU1qJ6tNEKgr3Pcf9S5eZm3r8crmWNKmBGuLLBYEWJmEGdhmEwGLFvq2XjEexVZyVoDy67usZKq4",
+      "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+      "source_provenance_digest": "836f302c0a130eabc060e45b05afca5c6defd6dba57e454fb0cc9703687498e3",
+      "source_provenance_artifact": "docs/evidence_platform/oip_v2_2e_2b2bq_b2z_frozen_projection.json",
+      "decision": "APPROVED",
+      "human_approval_decision_record": {
+        "disposition": "APPROVED",
+        "justification": "Human reviewer approved without additional stated justification beyond the presented repository evidence.",
+        "evidence_basis": "REPOSITORY_EVIDENCE_AS_PRESENTED",
+        "repository_evidence_status_at_decision_time": "SOURCE_PROVENANCE_BOUND_UNVERIFIED_TRANSACTION_CONTENT"
+      },
+      "reviewer_id": "human_operator",
+      "review_timestamp_utc": "2026-08-18T15:15:28Z",
+      "bound_review_packet_digest_at_decision_time": "9a123317998506332b465c5f2204fedb9c3a99ac2663a11801177d483837cfcd"
+    },
+    {
+      "review_item_id": "b2n:cohort:3fafb5cfed47d912330e216f8315021276d465c78e0858cc95eeec9e4c5af283",
+      "sample_ordinal": 18,
+      "mint": "CzQDFKURcQHdRgpBib4kyDtmAcWFg9jRQ7Rw3TzGfRGU",
+      "census_event_id": "3fafb5cfed47d912330e216f8315021276d465c78e0858cc95eeec9e4c5af283",
+      "reviewed_migration_origin": "463HdXVPfw1DJJZUZTSqEUQfppc8LyeTZrAgDCF3Qc5CEhjYhwZDMv1Pg82LdtunSgZpHyAuAqjoNiiyTAG3wFNR",
+      "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+      "source_provenance_digest": "836f302c0a130eabc060e45b05afca5c6defd6dba57e454fb0cc9703687498e3",
+      "source_provenance_artifact": "docs/evidence_platform/oip_v2_2e_2b2bq_b2z_frozen_projection.json",
+      "decision": "APPROVED",
+      "human_approval_decision_record": {
+        "disposition": "APPROVED",
+        "justification": "Human reviewer approved without additional stated justification beyond the presented repository evidence.",
+        "evidence_basis": "REPOSITORY_EVIDENCE_AS_PRESENTED",
+        "repository_evidence_status_at_decision_time": "SOURCE_PROVENANCE_BOUND_UNVERIFIED_TRANSACTION_CONTENT"
+      },
+      "reviewer_id": "human_operator",
+      "review_timestamp_utc": "2026-08-18T15:16:04Z",
+      "bound_review_packet_digest_at_decision_time": "9a123317998506332b465c5f2204fedb9c3a99ac2663a11801177d483837cfcd"
+    },
+    {
+      "review_item_id": "b2n:cohort:7f7103791e68f19cc2722652671ad1560044df72b9a1a7d119dd67fed3dd0e26",
+      "sample_ordinal": 19,
+      "mint": "p5HJBxcLPm2xR3jzdNkJtFkY8iqNixmYgevGwzkpump",
+      "census_event_id": "7f7103791e68f19cc2722652671ad1560044df72b9a1a7d119dd67fed3dd0e26",
+      "reviewed_migration_origin": "hCBhz6CYEcakbw8dctTydPNrxVa9p3oXdWp9VGgARMZfs2j2z7dAafpGYxFKnPdC2CVkm2tuLYZqXpJWimemQ6t",
+      "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+      "source_provenance_digest": "836f302c0a130eabc060e45b05afca5c6defd6dba57e454fb0cc9703687498e3",
+      "source_provenance_artifact": "docs/evidence_platform/oip_v2_2e_2b2bq_b2z_frozen_projection.json",
+      "decision": "APPROVED",
+      "human_approval_decision_record": {
+        "disposition": "APPROVED",
+        "justification": "Human reviewer approved without additional stated justification beyond the presented repository evidence.",
+        "evidence_basis": "REPOSITORY_EVIDENCE_AS_PRESENTED",
+        "repository_evidence_status_at_decision_time": "SOURCE_PROVENANCE_BOUND_UNVERIFIED_TRANSACTION_CONTENT"
+      },
+      "reviewer_id": "human_operator",
+      "review_timestamp_utc": "2026-08-18T15:16:47Z",
+      "bound_review_packet_digest_at_decision_time": "9a123317998506332b465c5f2204fedb9c3a99ac2663a11801177d483837cfcd"
+    },
+    {
+      "review_item_id": "b2n:cohort:0ffa96e36e71253aae8d7e05a884426dcd494097b4c87d738bd85c382c15e2bc",
+      "sample_ordinal": 20,
+      "mint": "w9qiqygRmeiYxFFGR6Lf5zcPautE9NDVDX2RG2Lpump",
+      "census_event_id": "0ffa96e36e71253aae8d7e05a884426dcd494097b4c87d738bd85c382c15e2bc",
+      "reviewed_migration_origin": "5X5viSu1mc4bCjx4mf4UxzbSJUDqUA13SMChTXkvUjzwgh7bCaJfDzYqzpr2GRunTPDzcxHxL24zuMBsXQYipWDr",
+      "immutable_source_checkpoint_id": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+      "source_provenance_digest": "836f302c0a130eabc060e45b05afca5c6defd6dba57e454fb0cc9703687498e3",
+      "source_provenance_artifact": "docs/evidence_platform/oip_v2_2e_2b2bq_b2z_frozen_projection.json",
+      "decision": "APPROVED",
+      "human_approval_decision_record": {
+        "disposition": "APPROVED",
+        "justification": "Human reviewer approved without additional stated justification beyond the presented repository evidence.",
+        "evidence_basis": "REPOSITORY_EVIDENCE_AS_PRESENTED",
+        "repository_evidence_status_at_decision_time": "SOURCE_PROVENANCE_BOUND_UNVERIFIED_TRANSACTION_CONTENT"
+      },
+      "reviewer_id": "human_operator",
+      "review_timestamp_utc": "2026-08-18T15:17:23Z",
+      "bound_review_packet_digest_at_decision_time": "9a123317998506332b465c5f2204fedb9c3a99ac2663a11801177d483837cfcd"
+    }
+  ]
+}

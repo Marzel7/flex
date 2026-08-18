@@ -27,13 +27,12 @@
     "qualified_start_receive_utc_ns_exclusive": 1786568002689241000
   },
   "blockers": [
-    "B2N_COHORT_ELIGIBILITY_PROVENANCE_MISSING",
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
   "current_milestone": {
-    "status": "HOLD",
-    "verdict": "PARTIAL",
-    "next_action": "COMPLETE_B2N_HUMAN_PROVENANCE_REVIEW"
+    "milestone": "B2N-P2E human provenance review execution - COMPLETE",
+    "status": "PASS",
+    "verdict": "B2N_COHORT_ELIGIBILITY_PROVENANCE_QUALIFIED"
   },
   "current_next_blocker": null,
   "focused_tests": [
@@ -28652,7 +28651,13 @@
       "listener_bound": true
     }
   },
-  "next_action": "Collect reviewed provenance (reviewed_migration_origin, human approval disposition, immutable source checkpoint) and rerun local B2N provenance preflight; no provider or production execution.",
+  "next_action": {
+    "decision": "B2N_COHORT_ELIGIBILITY_PROVENANCE_QUALIFIED",
+    "instruction": "Provenance is qualified 20/20. Next milestone is B2N-P3 -- bounded run authorization preflight. B2N execution itself still requires a SEPARATE explicit human authorization; do not auto-execute.",
+    "next_milestone": "B2N-P3 bounded run authorization preflight",
+    "required_authorization": "SEPARATE_HUMAN_AUTHORIZATION_FOR_BOUNDED_RUN",
+    "b2n_execution_authorized": false
+  },
   "notes": [
     "PSI0H-H4R generated docs/audits/psi0h_h4r_historical_continuity_review_packet.json and docs/audits/psi0h_h4r_historical_continuity_review_index.json with SHA-256 2ed2edb6b74db6b749166b05b01189328aefdbc85e6e212f762ba9cd5f8e32bb and 5cbba208ad8a4bc217237ba7a50d3ff1a4046f0157943cf062f0e37a04ba4afa respectively.",
     "Agent-handoff publish blocked during this turn: operation-handoff worktree copy denied by filesystem",
@@ -28676,7 +28681,8 @@
     "RA0 diagnostic artifact created: docs/audits/ra0_retained_acquisition_storage_preflight.md. Root-cause evidence now points to metadata timestamp/retry-scoped identity preventing deduplication of repeated attempts in retained_acquisition_observations.",
     "RA0 read-only dedup-preflight script was implemented, but output artifact generation is still pending in this environment due disk-full/long-run constraints; no production schema changes were made.",
     "B2N local contract tests now pass; blocker remains only provenance provenance missing. Deterministic provenance gap audit written to docs/audits/b2n_cohort_eligibility_provenance_gap_audit.json.",
-    "B2N frozen-manifest digest reconciliation: a takeover prompt claimed manifest digest 82bbda32...eedc for docs/evidence_platform/oip_v2_2e_2b2u_b2r_frozen_manifest.json. The actual raw-file SHA-256 is 54481980...4d4c, which is also the digest already recorded by all three independently digest-verified downstream B2N artifacts (P2D resolution, human review packet, human review index) -- meaning the qualified provenance chain was built against the correct digest all along and 82bbda32... was simply a stale/incorrect claim, never a real state the repository was ever in (manifest has a single git commit, never modified). Content equivalence fully verified: 20/20 members, ordinals 1-20, unique mints/census_event_ids, zero field-level diffs. Verdict: FROZEN_MANIFEST_CONTENT_EQUIVALENT_DIGEST_STALE. See docs/audits/b2n_frozen_manifest_digest_discrepancy_resolution.json. B2N-P2E human review may proceed."
+    "B2N frozen-manifest digest reconciliation: a takeover prompt claimed manifest digest 82bbda32...eedc for docs/evidence_platform/oip_v2_2e_2b2u_b2r_frozen_manifest.json. The actual raw-file SHA-256 is 54481980...4d4c, which is also the digest already recorded by all three independently digest-verified downstream B2N artifacts (P2D resolution, human review packet, human review index) -- meaning the qualified provenance chain was built against the correct digest all along and 82bbda32... was simply a stale/incorrect claim, never a real state the repository was ever in (manifest has a single git commit, never modified). Content equivalence fully verified: 20/20 members, ordinals 1-20, unique mints/census_event_ids, zero field-level diffs. Verdict: FROZEN_MANIFEST_CONTENT_EQUIVALENT_DIGEST_STALE. See docs/audits/b2n_frozen_manifest_digest_discrepancy_resolution.json. B2N-P2E human review may proceed.",
+    "B2N-P2E human provenance review execution complete: all 20 frozen cohort members reviewed one-at-a-time by the human, all disposed APPROVED, recorded per the existing decision-record contract (docs/audits/b2n_cohort_eligibility_human_review_decision_record_contract.json), bound to review packet digest 9a123317...7cfcd and frozen manifest digest 54481980...4d4c (no drift detected across the full review). Final reviewed provenance binding written to docs/audits/b2n_cohort_eligibility_reviewed_provenance_binding.json with closure state COMPLETE=20/PARTIAL=0/MISSING=0/CONFLICTING=0. Blocker B2N_COHORT_ELIGIBILITY_PROVENANCE_MISSING is now cleared. Next milestone: B2N-P3 bounded run authorization preflight, which still requires a separate explicit human authorization before any provider execution. No provider/RPC calls were made by the agent during this review; where a human decision cited external verification, that was recorded explicitly as human-supplied, not repository-confirmed."
   ],
   "operation_count_delta": {
     "current_count": 150,
@@ -28801,7 +28807,7 @@
     "production_changes_allowed": false
   },
   "schema_version": 1,
-  "status": "HOLD",
+  "status": "PASS",
   "test_runs": {
     "continuity_adapter": {
       "command": "pytest -q tests/test_psi0h_h8_h4_runtime_projection.py tests/test_psi0h_h2_historical_candidate_generation.py tests/test_psi0h_h3_historical_candidate_disposition.py",
@@ -28847,7 +28853,7 @@
   "updated_at": "2026-08-18T14:31:00Z",
   "updated_at_utc": "2026-08-18T14:31:00Z",
   "updated_by": "agent_local",
-  "verdict": "PARTIAL",
+  "verdict": "B2N_COHORT_ELIGIBILITY_PROVENANCE_QUALIFIED",
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "continuation_update": {
@@ -29007,5 +29013,25 @@
     "resolution_artifact": "docs/audits/b2n_frozen_manifest_digest_discrepancy_resolution.json",
     "action_taken": "no B2N artifact regenerated; handoff corrected to canonical digest; stale claim logged for audit trail",
     "b2n_review_artifacts_status": "unchanged, still bound to the same 20-member cohort"
+  },
+  "b2n_p2e_human_review_closure": {
+    "verdict": "B2N_COHORT_ELIGIBILITY_PROVENANCE_QUALIFIED",
+    "decisions_recorded": 20,
+    "decisions_approved": 20,
+    "decisions_denied": 0,
+    "decisions_requires_review": 0,
+    "closure_state": {
+      "COMPLETE": 20,
+      "PARTIAL": 0,
+      "MISSING": 0,
+      "CONFLICTING": 0
+    },
+    "human_decisions_artifact": "docs/audits/b2n_cohort_eligibility_human_decisions.json",
+    "reviewed_provenance_binding_artifact": "docs/audits/b2n_cohort_eligibility_reviewed_provenance_binding.json",
+    "reviewed_provenance_binding_digest": "ff6863f7949d521e9d04002491e16b0c7935f101a0126587d7d1cac2f9c9e9fc",
+    "p2e_preflight_closure_artifact": "docs/audits/b2n_cohort_eligibility_provenance_binding_preflight_p2e_closure.json",
+    "bound_review_packet_digest": "9a123317998506332b465c5f2204fedb9c3a99ac2663a11801177d483837cfcd",
+    "bound_frozen_manifest_digest": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+    "note": "Several decisions cited human-performed external (Solscan) transaction verification supplementing the repository's own evidence, which by itself only establishes internally-consistent cross-referenced assertions, not independently confirmed transaction content. This is recorded explicitly per-decision as evidence_basis, not silently normalized into repository-confirmed status."
   }
 }

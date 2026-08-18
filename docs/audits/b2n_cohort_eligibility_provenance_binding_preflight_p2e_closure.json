@@ -1,0 +1,72 @@
+{
+  "artifact_type": "b2n_cohort_eligibility_provenance_binding_preflight",
+  "authority_posture": {
+    "execution_authority": false,
+    "production_authority": false,
+    "production_database_read": false,
+    "production_database_write": false,
+    "provider": false,
+    "provider_authority": false
+  },
+  "blocker": null,
+  "checks": [
+    {
+      "check": "source_artifact_exists",
+      "result": true
+    },
+    {
+      "check": "source_milestone_supported",
+      "result": true
+    },
+    {
+      "check": "member_count_20",
+      "result": true
+    },
+    {
+      "check": "ordinal_range_1_to_20",
+      "result": true
+    },
+    {
+      "check": "all_members_observation_required_true",
+      "result": true
+    },
+    {
+      "check": "review_origin_candidate_present_for_all",
+      "result": true
+    },
+    {
+      "check": "immutable_source_checkpoint_id_present_for_all",
+      "result": true
+    },
+    {
+      "check": "human_decision_present_for_all",
+      "result": true
+    },
+    {
+      "check": "conflict_free",
+      "result": true
+    }
+  ],
+  "generated_utc": "2026-08-18T15:10:00Z",
+  "milestone": "B2N-P2E",
+  "reason": "All 20 members have complete technical provenance AND recorded human approval decisions (20/20 APPROVED). Reviewed provenance binding closure: COMPLETE=20, PARTIAL=0, MISSING=0, CONFLICTING=0.",
+  "resolution_counts": {
+    "checkpoint_bound": 20,
+    "origin_candidate_bound": 20,
+    "conflicting_origin": 0,
+    "ready_for_human_decision": 0,
+    "human_decision_recorded": 20,
+    "human_decision_approved": 20,
+    "human_decision_denied": 0,
+    "human_decision_requires_review": 0
+  },
+  "result": "CLOSED",
+  "scope": {
+    "preflight_b2bt_run_id": "a3721658-f6ef-4b20-8f87-7c631551a80c",
+    "preflight_b2z_run_id": "102f6376-9f63-476f-a07e-77c578a44c4d",
+    "projection_digest": "836f302c0a130eabc060e45b05afca5c6defd6dba57e454fb0cc9703687498e3",
+    "source_manifest_digest": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c"
+  },
+  "reviewed_provenance_binding_artifact": "docs/audits/b2n_cohort_eligibility_reviewed_provenance_binding.json",
+  "verdict": "B2N_COHORT_ELIGIBILITY_PROVENANCE_QUALIFIED"
+}

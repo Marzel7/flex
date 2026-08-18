@@ -1,0 +1,87 @@
+{
+  "schema_version": "b2n.p3e.historical-live-attempt-reconciliation.v1",
+  "artifact_type": "B2N_P3E_HISTORICAL_LIVE_ATTEMPT_RECONCILIATION",
+  "milestone": "B2N-P3E",
+  "generated_utc": "2026-08-18T18:05:00Z",
+  "purpose": "Record, without erasure, what is and is not known about two real live B2N execution attempts that occurred outside this agent's direct observation, under the authorization run_id b2n-p3b-c39499f523e42083ce045d70, before the accounting/durability defect described below was discovered.",
+
+  "historical_attempts": [
+    {
+      "attempt_index": 1,
+      "reported_error": "B2N_P3C_TRANSPORT_ERROR:HTTPError",
+      "raised_from": "RedactingJsonRpcTransport.post_json() (scripts/run_b2n_p3c_migration_lineage_run.py), which increments self.physical_request_count BEFORE calling urllib.request.urlopen() and catches HTTPError/URLError/OSError/ValueError to redact the credential-bearing URL from the exception message",
+      "implication": "physical_request_count on the transport object was incremented to at least 1 before this exception was raised, meaning network dispatch was very likely attempted (an HTTPError specifically indicates the server responded with a non-2xx status, which requires the request to have actually reached Helius and gotten a response -- not merely a connection failure)",
+      "durable_ledger_entry_written": false,
+      "reason_no_ledger_entry": "the exception is raised and propagates out of post_json() -> MigrationGetTransactionAdapter.acquire_once() -> B2NExecutor.run()'s self.client.acquire_once(mint=...) call (line 217) before the code ever reaches self.ledger.append(entry) at line 244",
+      "exact_physical_request_count_consumed": "UNKNOWN -- not deterministically recoverable from any artifact; the transport object and its physical_request_count counter existed only in that process's memory and were never persisted anywhere"
+    },
+    {
+      "attempt_index": 2,
+      "reported_error": "B2N_CLIENT_REQUEST_COUNTER_MISMATCH",
+      "raised_from": "B2NExecutor.run() line ~231-232 (src/acquisition/b2n_qualification.py): `if request_count != delta: raise RuntimeError(\"B2N_CLIENT_REQUEST_COUNTER_MISMATCH\")`",
+      "root_cause_identified": true,
+      "root_cause": "MigrationGetTransactionAdapter (src/acquisition/b2w_projection.py) never exposes a provider_request_count attribute. B2NExecutor.run() reads `before = getattr(self.client, 'provider_request_count', 0)` and `after = getattr(self.client, 'provider_request_count', before)` against self.client, which is the ADAPTER, not the transport -- so both getattr calls silently fall back to their defaults (0 and before, respectively) on every call, making delta ALWAYS equal 0 regardless of what actually happened on the wire. Separately, OneRequestResponse.provider_request_count defaults to 1, and MigrationGetTransactionAdapter never overrides it on any return path (SUCCESS, RPC_ERROR, or MALFORMED_RESPONSE all return the default). Therefore request_count (1) != delta (0) on EVERY invocation, deterministically, regardless of whether the underlying HTTP call succeeded, failed, or was never reached.",
+      "reproduced_with_zero_network_calls": true,
+      "reproduction_test": "verified interactively and formalized in tests/test_b2n_p3e_accounting_repair.py::test_reproduces_original_counter_mismatch_defect_with_real_adapter",
+      "implication": "this is a deterministic CODE defect, not an intermittent live/network condition -- it would fire identically on every future attempt using the current MigrationGetTransactionAdapter + B2NExecutor pairing as-is, success or failure, until repaired",
+      "durable_ledger_entry_written": false,
+      "reason_no_ledger_entry": "same as attempt 1: the exception is raised before self.ledger.append(entry) at line 244 is ever reached",
+      "exact_physical_request_count_consumed": "UNKNOWN for the same reason as attempt 1 -- BUT given the root cause is deterministic and independent of the HTTP outcome, it is likely (not certain) that a real network dispatch occurred on this attempt too, since RedactingJsonRpcTransport.post_json() increments its counter and calls urlopen() BEFORE any exception related to the counter-mismatch bug could possibly be raised (the counter-mismatch check happens entirely inside B2NExecutor.run(), after acquire_once() has already returned)"
+    }
+  ],
+
+  "durable_ledger_state": {
+    "path": "docs/audits/b2n_p3c_live_ledger_b2n-p3b-c39499f523e42083ce045d70.jsonl",
+    "exists": false,
+    "entries": 0,
+    "confirmed_by": "direct filesystem check this session -- file does not exist"
+  },
+
+  "durable_result_state": {
+    "path": "docs/audits/b2n_p3c_live_result.json",
+    "exists": false,
+    "confirmed_by": "direct filesystem check this session -- file does not exist"
+  },
+
+  "exact_provider_request_count_consumed_under_this_run_id": {
+    "value": "UNKNOWN",
+    "lower_bound_estimate": 2,
+    "lower_bound_reasoning": "two live attempts occurred; both code paths that produced the reported errors are downstream of at least one network dispatch attempt each (transport.physical_request_count is incremented before urlopen() in both the HTTPError case and, very likely, the counter-mismatch case, since the mismatch check happens strictly after acquire_once() returns)",
+    "upper_bound_known": "cannot be bounded above from available evidence -- if attempt 2 was itself retried manually by the human before this milestone began, or if the script was invoked more than twice, additional physical requests may have been consumed without any corresponding artifact",
+    "authoritative": false,
+    "note": "This estimate is NOT a substitute for durable per-attempt accounting. It exists only to make clear that the true count is not provably zero, and must not be treated as zero when deciding whether the existing authorization/run_id remains safe to reuse."
+  },
+
+  "authorization_reuse_recommendation": {
+    "reuse_old_authorization_as_is": false,
+    "reasoning": "the old authorization (run_id b2n-p3b-c39499f523e42083ce045d70, max_physical_requests=20) has an unknown, non-zero number of physical requests already consumed against it with zero durable evidence; continuing to use the SAME run_id and the SAME max_physical_requests=20 ceiling without accounting for the historical attempts would allow up to 20 NEW requests on top of an unknown number of PRIOR requests, silently exceeding the intended 20-total-request bound for this authorization's lifetime",
+    "action_taken_this_milestone": "durability defect repaired; a fresh authorization/run_id was created (see repair_and_fresh_authorization below) rather than resuming under the compromised run_id"
+  },
+
+  "repair_and_fresh_authorization": {
+    "root_cause_fix": {
+      "component": "scripts/run_b2n_p3c_migration_lineage_run.py",
+      "class_added": "DurableAccountingClient",
+      "mechanism": "wraps MigrationGetTransactionAdapter; before delegating to the adapter, durably appends an ATTEMPT_RESERVED event to a new PreDispatchEventLedger; tracks provider_request_count by diffing the TRANSPORT's own counter before/after the call (the object that actually dispatches), not the adapter (which never exposed one); forces the returned OneRequestResponse.provider_request_count to match what was actually observed, eliminating the always-1-vs-always-0 mismatch that caused B2N_CLIENT_REQUEST_COUNTER_MISMATCH on every prior invocation",
+      "event_ledger_class": "PreDispatchEventLedger",
+      "event_ledger_semantics": "append-only, multiple immutable events permitted per ordinal (ATTEMPT_RESERVED then a terminal event), unlike B2NAttemptLedger's single-terminal-entry-per-ordinal design; no UPDATE is ever performed",
+      "canonical_counter": "physical_requests_attempted() counts an ordinal once network dispatch was attempted (a terminal ATTEMPT_SUCCEEDED or ATTEMPT_FAILED event exists), regardless of HTTP outcome; ATTEMPT_NOT_DISPATCHED (exception before the transport call) does not count",
+      "reproduction_test": "tests/test_b2n_p3e_accounting_repair.py::test_reproduces_original_counter_mismatch_defect_with_real_adapter (confirms the ORIGINAL unwrapped wiring still fails exactly as observed live) and test_durable_accounting_client_fixes_the_mismatch (confirms the wrapped wiring succeeds)",
+      "scenario_coverage": "tests/test_b2n_p3e_accounting_repair.py scenarios A-F (HTTP success, RPC error, timeout, malformed response, transport exception after dispatch, exception before dispatch) all pass with correct accounting and zero real network calls"
+    },
+    "fresh_authorization": {
+      "new_run_id": "b2n-p3e-98695fbdf44146c93ff08c8c",
+      "new_run_id_derivation": "sha256('B2N-P3E|' + b2n_manifest_digest + '|' + reviewed_provenance_digest + '|' + prior_run_id + '|ACCOUNTING_REPAIR')[:24], prefixed 'b2n-p3e-' -- deterministically bound to the compromised prior run_id so the lineage is traceable, not merely random",
+      "new_authorization_artifact": "docs/audits/b2n_p3e_bounded_migration_lineage_run_authorization_preflight.json",
+      "supersedes_prior_artifact": "docs/audits/b2n_p3b_bounded_migration_lineage_run_authorization_preflight.json",
+      "prior_run_id_reused": false,
+      "new_ledger_path": "docs/audits/b2n_p3c_live_ledger_b2n-p3e-98695fbdf44146c93ff08c8c.jsonl",
+      "new_event_ledger_path": "docs/audits/b2n_p3e_event_ledger_b2n-p3e-98695fbdf44146c93ff08c8c.jsonl",
+      "both_ledgers_confirmed_empty": true,
+      "max_total_requests_unchanged": 20,
+      "max_requests_per_member_unchanged": 1,
+      "budget_not_widened_to_account_for_prior_unknown_consumption": true,
+      "note": "The fresh 20-request ceiling applies ONLY to attempts under the new run_id b2n-p3e-98695fbdf44146c93ff08c8c. It does not retroactively account for, forgive, or reset whatever was consumed under the old run_id -- that consumption remains permanently UNKNOWN and is recorded above, not erased."
+    }
+  }
+}

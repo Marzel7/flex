@@ -23,6 +23,7 @@ import argparse
 import json
 import os
 import sys
+import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -42,10 +43,22 @@ from src.acquisition.b2w_projection import B2WInputProjection, MigrationGetTrans
 ROOT = Path(__file__).resolve().parents[1]
 FROZEN_MANIFEST_PATH = ROOT / "docs/evidence_platform/oip_v2_2e_2b2u_b2r_frozen_manifest.json"
 REVIEWED_BINDING_PATH = ROOT / "docs/audits/b2n_cohort_eligibility_reviewed_provenance_binding.json"
-SUCCESSOR_PREFLIGHT_PATH = ROOT / "docs/audits/b2n_p3b_bounded_migration_lineage_run_authorization_preflight.json"
+SUCCESSOR_PREFLIGHT_PATH = ROOT / "docs/audits/b2n_p3e_bounded_migration_lineage_run_authorization_preflight.json"
 
-EXPECTED_RUN_ID = "b2n-p3b-c39499f523e42083ce045d70"
-EXPECTED_AUTHORIZATION_DIGEST = "e2414ef97516b4a03ff260b6b333749769d6a5a1bc70035ed62f1d6e76db1569"
+# P3E: the original run_id (b2n-p3b-c39499f523e42083ce045d70) was used for two
+# real live attempts whose exact physical-request consumption is UNKNOWN (see
+# docs/audits/b2n_p3e_historical_live_attempt_reconciliation.json). Both
+# attempts failed before any durable ledger entry was written -- attempt 1
+# with a redacted HTTPError, attempt 2 with B2N_CLIENT_REQUEST_COUNTER_MISMATCH,
+# a deterministic code defect (see the reconciliation artifact) that would have
+# fired identically on every future attempt. Since the true consumed-request
+# count against the OLD run_id cannot be proven, that authorization/run_id is
+# NOT reused. A fresh run_id is bound below, deterministically derived from the
+# old (compromised) run_id plus the manifest/provenance digests, so the
+# lineage is traceable without silently pretending nothing happened.
+PRIOR_RUN_ID_DO_NOT_REUSE = "b2n-p3b-c39499f523e42083ce045d70"
+EXPECTED_RUN_ID = "b2n-p3e-98695fbdf44146c93ff08c8c"
+EXPECTED_AUTHORIZATION_DIGEST = "b4994fdda5eb9ae1dd7fe27927efd9cef7504b179dfcbb12fa4bbd9b9bbffaae"
 EXPECTED_PROVIDER = "helius"
 EXPECTED_ENDPOINT_FAMILY = "helius-mainnet-json-rpc"
 EXPECTED_METHOD = "getTransaction"
@@ -59,6 +72,15 @@ CREDENTIAL_ENV_VAR = "B2N_P3C_HELIUS_ENDPOINT"
 # this run ID; it must never be silently reset.
 DEFAULT_LEDGER_PATH = ROOT / "docs/audits" / f"b2n_p3c_live_ledger_{EXPECTED_RUN_ID}.jsonl"
 DEFAULT_RESULT_PATH = ROOT / "docs/audits" / "b2n_p3c_live_result.json"
+
+# P3E: a SEPARATE, append-only, multi-event-per-ordinal pre-dispatch reservation
+# ledger. Unlike B2NAttemptLedger (which stores exactly one terminal entry per
+# ordinal and is only ever written AFTER a successful counter reconciliation),
+# this ledger records an ATTEMPT_RESERVED event durably BEFORE network dispatch,
+# and a terminal event (ATTEMPT_SUCCEEDED / ATTEMPT_FAILED) immediately after --
+# so a physical request can never be attempted without durable evidence, even if
+# B2NExecutor.run() itself later raises before reaching its own ledger.append().
+DEFAULT_EVENT_LEDGER_PATH = ROOT / "docs/audits" / f"b2n_p3e_event_ledger_{EXPECTED_RUN_ID}.jsonl"
 
 
 class B2NP3CError(RuntimeError):
@@ -139,6 +161,148 @@ class RedactingJsonRpcTransport:
             raise B2NP3CError(f"B2N_P3C_TRANSPORT_ERROR:{type(exc).__name__}") from None
 
 
+class PreDispatchEventLedger:
+    """Append-only, multi-event-per-ordinal immutable event log.
+
+    Unlike AppendOnlyLedger/B2NAttemptLedger (exactly one terminal entry per
+    ordinal, written only after B2NExecutor has already reconciled counters),
+    this ledger permits an ATTEMPT_RESERVED event and a later terminal event
+    for the SAME ordinal, because durability here must be established BEFORE
+    the outcome of the network call -- or even whether it dispatched at all --
+    is known. Events are never updated or deleted, only appended (P3E Part 4:
+    "implement a B2N-specific immutable event ledger rather than using UPDATE").
+    """
+
+    VALID_EVENTS = {"ATTEMPT_RESERVED", "ATTEMPT_SUCCEEDED", "ATTEMPT_FAILED", "ATTEMPT_NOT_DISPATCHED"}
+
+    def __init__(self, path: Path) -> None:
+        self.path = Path(path)
+
+    def events(self) -> list[dict]:
+        if not self.path.exists():
+            return []
+        return [json.loads(line) for line in self.path.read_text().splitlines() if line.strip()]
+
+    def require_empty(self) -> None:
+        if self.events():
+            raise RuntimeError("B2N_P3E_EVENT_LEDGER_MUST_BE_EMPTY_FOR_NEW_RUN")
+
+    def append_event(self, *, event: str, run_id: str, sample_ordinal: int, mint: str,
+                      provider: str, method: str, request_number: int, **extra) -> None:
+        if event not in self.VALID_EVENTS:
+            raise B2NP3CError(f"B2N_P3E_INVALID_EVENT_TYPE:{event}")
+        entry = {
+            "event": event,
+            "run_id": run_id,
+            "sample_ordinal": sample_ordinal,
+            "mint": mint,
+            "provider": provider,
+            "method": method,
+            "request_number": request_number,
+            "event_utc_ns": time.time_ns(),
+            **extra,
+        }
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        with self.path.open("a", encoding="utf-8") as handle:
+            handle.write(json.dumps(entry, sort_keys=True, separators=(",", ":")) + "\n")
+
+    def reserved_ordinals(self) -> set[int]:
+        return {e["sample_ordinal"] for e in self.events() if e["event"] == "ATTEMPT_RESERVED"}
+
+    def physical_requests_attempted(self) -> int:
+        """Canonical accounting per P3E Part 5: a request counts once network
+        dispatch is attempted (ATTEMPT_RESERVED followed by a non-'not
+        dispatched' terminal event), regardless of success/failure/timeout/
+        malformed response. ATTEMPT_NOT_DISPATCHED (an exception raised BEFORE
+        the transport call, e.g. an unknown mint) does NOT count."""
+        dispatched_ordinals = {
+            e["sample_ordinal"] for e in self.events()
+            if e["event"] in ("ATTEMPT_SUCCEEDED", "ATTEMPT_FAILED")
+        }
+        return len(dispatched_ordinals)
+
+
+class DurableAccountingClient:
+    """Wraps MigrationGetTransactionAdapter so that a physical request can
+    never be attempted without a durable pre-dispatch reservation, and so
+    B2NExecutor's own counter reconciliation (before/after provider_request_count
+    on THIS wrapper, and OneRequestResponse.provider_request_count) is always
+    internally consistent -- fixing the root cause of
+    B2N_CLIENT_REQUEST_COUNTER_MISMATCH: MigrationGetTransactionAdapter never
+    exposed provider_request_count at all, so B2NExecutor's getattr(...) calls
+    silently fell back to defaults that never matched
+    OneRequestResponse.provider_request_count's own default of 1."""
+
+    def __init__(self, *, adapter, transport, event_ledger: PreDispatchEventLedger,
+                 run_id: str, provider: str, method: str) -> None:
+        self._adapter = adapter
+        self._transport = transport
+        self._event_ledger = event_ledger
+        self._run_id = run_id
+        self._provider = provider
+        self._method = method
+        self.provider_request_count = 0
+        self._sample_ordinal_by_mint: dict[str, int] | None = None
+
+    def _ordinal_for_mint(self, mint: str) -> int:
+        if self._sample_ordinal_by_mint is None:
+            self._sample_ordinal_by_mint = {item.mint: item.sample_ordinal for item in self._adapter.by_mint.values()}
+        ordinal = self._sample_ordinal_by_mint.get(mint)
+        if ordinal is None:
+            raise B2NP3CError(f"B2N_P3E_MINT_NOT_IN_PROJECTION:{mint}")
+        return ordinal
+
+    def acquire_once(self, *, mint: str):
+        ordinal = self._ordinal_for_mint(mint)
+        if ordinal in self._event_ledger.reserved_ordinals():
+            raise RuntimeError("B2N_P3E_DUPLICATE_ORDINAL_ATTEMPT")
+
+        request_number = self._event_ledger.physical_requests_attempted() + 1
+
+        # Durable reservation BEFORE any network dispatch is attempted -- this
+        # write must complete before self._adapter.acquire_once() is called.
+        self._event_ledger.append_event(
+            event="ATTEMPT_RESERVED", run_id=self._run_id, sample_ordinal=ordinal,
+            mint=mint, provider=self._provider, method=self._method, request_number=request_number,
+        )
+
+        transport_before = self._transport.physical_request_count
+        try:
+            response = self._adapter.acquire_once(mint=mint)
+        except Exception as exc:
+            transport_after = self._transport.physical_request_count
+            dispatched = transport_after != transport_before
+            self._event_ledger.append_event(
+                event="ATTEMPT_FAILED" if dispatched else "ATTEMPT_NOT_DISPATCHED",
+                run_id=self._run_id, sample_ordinal=ordinal, mint=mint, provider=self._provider,
+                method=self._method, request_number=request_number,
+                error_class=type(exc).__name__,
+            )
+            if dispatched:
+                self.provider_request_count += 1
+            raise
+
+        transport_after = self._transport.physical_request_count
+        dispatched = transport_after != transport_before
+        self._event_ledger.append_event(
+            event="ATTEMPT_SUCCEEDED" if dispatched else "ATTEMPT_NOT_DISPATCHED",
+            run_id=self._run_id, sample_ordinal=ordinal, mint=mint, provider=self._provider,
+            method=self._method, request_number=request_number,
+            request_outcome=response.outcome,
+        )
+        if dispatched:
+            self.provider_request_count += 1
+
+        # Force OneRequestResponse.provider_request_count to reflect what THIS
+        # wrapper actually observed on the transport, rather than trusting the
+        # adapter's own (always-default) value -- this is what makes
+        # B2NExecutor's before/after-vs-response.provider_request_count
+        # reconciliation internally consistent instead of deterministically
+        # mismatched.
+        from dataclasses import replace
+        return replace(response, provider_request_count=1 if dispatched else 0)
+
+
 def _verify_ledger_readiness(ledger_path: Path) -> B2NAttemptLedger:
     """Ledger safety preflight (Part 6): resolve, verify writable, verify no
     foreign/prior attempts, verify expected initial (empty) state, and prove a
@@ -190,8 +354,9 @@ def build_projection(manifest: B2NManifest, reviewed: dict) -> B2WInputProjectio
     return B2WInputProjection(tuple(B2WRequestInput(**m) for m in members))
 
 
-def dry_run(*, ledger_path: Path | None = None) -> dict:
+def dry_run(*, ledger_path: Path | None = None, event_ledger_path: Path | None = None) -> dict:
     ledger_path = (ledger_path or DEFAULT_LEDGER_PATH).resolve()
+    event_ledger_path = (event_ledger_path or DEFAULT_EVENT_LEDGER_PATH).resolve()
 
     manifest = _load_frozen_manifest()
     manifest.validate()
@@ -216,6 +381,7 @@ def dry_run(*, ledger_path: Path | None = None) -> dict:
     authorization.validate(manifest=manifest)  # dry validation only, no client, no network
 
     _verify_ledger_readiness(ledger_path)  # parent writable, empty, durable-write probe -- still zero network calls
+    PreDispatchEventLedger(event_ledger_path).require_empty()
 
     constructed_requests = []
     for member in projection.members:
@@ -245,26 +411,32 @@ def dry_run(*, ledger_path: Path | None = None) -> dict:
         "provider": EXPECTED_PROVIDER,
         "method": EXPECTED_METHOD,
         "ledger_path": str(ledger_path),
+        "event_ledger_path": str(event_ledger_path),
         "result_path": str(DEFAULT_RESULT_PATH),
         "ledger_verified_empty": True,
+        "event_ledger_verified_empty": True,
         "network_calls_made": 0,
         "requests": constructed_requests,
     }
 
 
-def live_run(*, ledger_path: Path | None = None) -> dict:
-    """Executes the live bounded run. Ledger entries are written durably by
-    B2NAttemptLedger.append() as each member is attempted (see
-    src/acquisition/b2n_qualification.py B2NExecutor.run(), which calls
-    self.ledger.append(entry) synchronously inside the per-member loop, not
-    only after the loop completes) -- so a failure at member N leaves entries
-    1..N-1 (or 1..N, depending on where the failure occurred) durably on disk
-    even though this function's own return value is never reached."""
+def live_run(*, ledger_path: Path | None = None, event_ledger_path: Path | None = None) -> dict:
+    """Executes the live bounded run.
+
+    P3E durability: a physical request can never be attempted without a
+    durable ATTEMPT_RESERVED event written to the event ledger BEFORE
+    DurableAccountingClient delegates to the real adapter. This is
+    independent of, and stronger than, B2NAttemptLedger's own per-member
+    append (which only happens after B2NExecutor has already reconciled
+    counters) -- so a failure at ANY point, including inside B2NExecutor's
+    own counter-reconciliation checks, still leaves durable evidence of
+    every attempted dispatch."""
     endpoint = os.environ.get(CREDENTIAL_ENV_VAR)
     if not endpoint:
         raise B2NP3CError(f"B2N_P3C_CREDENTIAL_ENV_VAR_MISSING:{CREDENTIAL_ENV_VAR}")
 
     ledger_path = (ledger_path or DEFAULT_LEDGER_PATH).resolve()
+    event_ledger_path = (event_ledger_path or DEFAULT_EVENT_LEDGER_PATH).resolve()
 
     manifest = _load_frozen_manifest()
     manifest.validate()
@@ -290,11 +462,18 @@ def live_run(*, ledger_path: Path | None = None) -> dict:
     # consume the first provider request before ledger readiness is established").
     ledger = _verify_ledger_readiness(ledger_path)
 
+    event_ledger = PreDispatchEventLedger(event_ledger_path)
+    event_ledger.require_empty()
+
     transport = RedactingJsonRpcTransport(endpoint)
     adapter = MigrationGetTransactionAdapter(transport, projection)
+    durable_client = DurableAccountingClient(
+        adapter=adapter, transport=transport, event_ledger=event_ledger,
+        run_id=EXPECTED_RUN_ID, provider=EXPECTED_PROVIDER, method=EXPECTED_METHOD,
+    )
 
     executor = B2NExecutor(
-        manifest=manifest, ledger=ledger, client=adapter,
+        manifest=manifest, ledger=ledger, client=durable_client,
         provider=EXPECTED_PROVIDER, run_id=EXPECTED_RUN_ID, authorization=authorization,
     )
     results = executor.run()
@@ -303,8 +482,10 @@ def live_run(*, ledger_path: Path | None = None) -> dict:
         "mode": "LIVE",
         "run_id": EXPECTED_RUN_ID,
         "entries": len(results),
-        "physical_requests_used": transport.physical_request_count,
+        "physical_requests_used": durable_client.provider_request_count,
+        "physical_requests_attempted_per_event_ledger": event_ledger.physical_requests_attempted(),
         "ledger_path": str(ledger_path),
+        "event_ledger_path": str(event_ledger_path),
         "results": results,
     }
 
@@ -320,12 +501,21 @@ def main() -> int:
         "--ledger-path", default=None,
         help=f"Path to the durable attempt ledger. Defaults to {DEFAULT_LEDGER_PATH} (never /private/tmp).",
     )
+    parser.add_argument(
+        "--event-ledger-path", default=None,
+        help=f"Path to the pre-dispatch reservation event ledger. Defaults to {DEFAULT_EVENT_LEDGER_PATH}.",
+    )
     args = parser.parse_args()
 
     ledger_path = Path(args.ledger_path).resolve() if args.ledger_path else None
+    event_ledger_path = Path(args.event_ledger_path).resolve() if args.event_ledger_path else None
 
     try:
-        result = live_run(ledger_path=ledger_path) if args.live else dry_run(ledger_path=ledger_path)
+        result = (
+            live_run(ledger_path=ledger_path, event_ledger_path=event_ledger_path)
+            if args.live
+            else dry_run(ledger_path=ledger_path, event_ledger_path=event_ledger_path)
+        )
     except (B2NP3CError, RuntimeError, ValueError) as exc:
         print(json.dumps({"error": type(exc).__name__, "message": str(exc)}))
         return 1

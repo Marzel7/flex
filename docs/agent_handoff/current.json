@@ -30,9 +30,9 @@
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
   "current_milestone": {
-    "milestone": "B2N-P3 -- bounded run authorization preflight",
-    "status": "READY",
-    "verdict": "READY_B2N_BOUNDED_RUN_AUTHORIZATION_REVIEW"
+    "milestone": "B2N-P3A -- native provider/endpoint contract closure",
+    "status": "HOLD",
+    "verdict": "HOLD_B2N_PROVIDER_METHOD_UNRESOLVED"
   },
   "current_next_blocker": null,
   "focused_tests": [
@@ -28652,9 +28652,9 @@
     }
   },
   "next_action": {
-    "decision": "READY_B2N_BOUNDED_RUN_AUTHORIZATION_REVIEW",
-    "instruction": "P3 authorization preflight is complete and bound. This does NOT authorize execution.",
-    "next_action_code": "AWAIT_EXPLICIT_B2N_BOUNDED_RUN_GO_NO_GO",
+    "decision": "HOLD_B2N_PROVIDER_METHOD_UNRESOLVED",
+    "instruction": "B2N-P3A cannot select or bind a provider/endpoint because B2N's own success contract (evidence_observed=true, i.e. creator-funding evidence) is not achievable within B2N's own stated 1-request/member budget using any method that exists in this repository. This is a contract-level gap, not a provider-selection problem, and requires an explicit human/engineering decision among the three options recorded in docs/audits/b2n_p3a_provider_method_trace.json before any provider binding can proceed.",
+    "next_action_code": "AWAIT_HUMAN_DECISION_ON_B2N_REQUEST_BUDGET_VS_SUCCESS_CRITERIA_CONFLICT",
     "b2n_execution_authorized": false
   },
   "notes": [
@@ -28682,7 +28682,8 @@
     "B2N local contract tests now pass; blocker remains only provenance provenance missing. Deterministic provenance gap audit written to docs/audits/b2n_cohort_eligibility_provenance_gap_audit.json.",
     "B2N frozen-manifest digest reconciliation: a takeover prompt claimed manifest digest 82bbda32...eedc for docs/evidence_platform/oip_v2_2e_2b2u_b2r_frozen_manifest.json. The actual raw-file SHA-256 is 54481980...4d4c, which is also the digest already recorded by all three independently digest-verified downstream B2N artifacts (P2D resolution, human review packet, human review index) -- meaning the qualified provenance chain was built against the correct digest all along and 82bbda32... was simply a stale/incorrect claim, never a real state the repository was ever in (manifest has a single git commit, never modified). Content equivalence fully verified: 20/20 members, ordinals 1-20, unique mints/census_event_ids, zero field-level diffs. Verdict: FROZEN_MANIFEST_CONTENT_EQUIVALENT_DIGEST_STALE. See docs/audits/b2n_frozen_manifest_digest_discrepancy_resolution.json. B2N-P2E human review may proceed.",
     "B2N-P2E human provenance review execution complete: all 20 frozen cohort members reviewed one-at-a-time by the human, all disposed APPROVED, recorded per the existing decision-record contract (docs/audits/b2n_cohort_eligibility_human_review_decision_record_contract.json), bound to review packet digest 9a123317...7cfcd and frozen manifest digest 54481980...4d4c (no drift detected across the full review). Final reviewed provenance binding written to docs/audits/b2n_cohort_eligibility_reviewed_provenance_binding.json with closure state COMPLETE=20/PARTIAL=0/MISSING=0/CONFLICTING=0. Blocker B2N_COHORT_ELIGIBILITY_PROVENANCE_MISSING is now cleared. Next milestone: B2N-P3 bounded run authorization preflight, which still requires a separate explicit human authorization before any provider execution. No provider/RPC calls were made by the agent during this review; where a human decision cited external verification, that was recorded explicitly as human-supplied, not repository-confirmed.",
-    "B2N-P3 bounded run authorization preflight complete. Verified P2E closure (20/20 COMPLETE, zero digest drift) before proceeding. Discovered and corrected a material misunderstanding from the P2D digest-discrepancy resolution: 82bbda32...eedc is NOT a stale digest, it is B2NManifest.digest() -- the executor's own canonical member-list digest, distinct from and equally correct alongside the raw file SHA-256 54481980...4d4c; both are now bound explicitly under distinct field names. Found and committed (9e50ffa1) a substantial uncommitted local rewrite of src/acquisition/b2n_qualification.py (B2NQualificationRunAuthorization, per-member request accounting, cache-hit semantics, contract-specific ledger) so P3 could bind a reproducible engineering revision rather than untracked working-tree state. Bound exact 20-member cohort, executor contract, request budget (20 total/1 per member, verified against source), deterministic run ID, empty ledger precondition, and 20 explicit fail-closed stop conditions. Provider/endpoint (helius / helius-mainnet-json-rpc) was inferred from the adjacent 2B2Z preflight, since no B2N-native provider preflight exists -- flagged explicitly as requiring human confirmation, not silently assumed. Built existing-operation immutability contract and Watchtower safety assertion: discovered Watchtower is NOT a single canonical row but an operator_identity='WATCHTOWER' class spanning many wt_operations rows in the live production DB (database/wt_ops_v2.db); could not take a pre-run canonical snapshot under P3's production_database_read=false authority, so protection is grounded in STRUCTURAL isolation instead (direct source inspection proves b2n_qualification.py has zero references to wt_operations/watchtower/any canonical operation module). 17 new dry-validation tests added and passing (30 total combined with existing baseline), proving manifest/provider/endpoint/run-id/budget/ledger rejections and operation-safety postures without any provider call. Verdict: READY_B2N_BOUNDED_RUN_AUTHORIZATION_REVIEW. Execution NOT authorized; awaiting explicit human GO/NO-GO."
+    "B2N-P3 bounded run authorization preflight complete. Verified P2E closure (20/20 COMPLETE, zero digest drift) before proceeding. Discovered and corrected a material misunderstanding from the P2D digest-discrepancy resolution: 82bbda32...eedc is NOT a stale digest, it is B2NManifest.digest() -- the executor's own canonical member-list digest, distinct from and equally correct alongside the raw file SHA-256 54481980...4d4c; both are now bound explicitly under distinct field names. Found and committed (9e50ffa1) a substantial uncommitted local rewrite of src/acquisition/b2n_qualification.py (B2NQualificationRunAuthorization, per-member request accounting, cache-hit semantics, contract-specific ledger) so P3 could bind a reproducible engineering revision rather than untracked working-tree state. Bound exact 20-member cohort, executor contract, request budget (20 total/1 per member, verified against source), deterministic run ID, empty ledger precondition, and 20 explicit fail-closed stop conditions. Provider/endpoint (helius / helius-mainnet-json-rpc) was inferred from the adjacent 2B2Z preflight, since no B2N-native provider preflight exists -- flagged explicitly as requiring human confirmation, not silently assumed. Built existing-operation immutability contract and Watchtower safety assertion: discovered Watchtower is NOT a single canonical row but an operator_identity='WATCHTOWER' class spanning many wt_operations rows in the live production DB (database/wt_ops_v2.db); could not take a pre-run canonical snapshot under P3's production_database_read=false authority, so protection is grounded in STRUCTURAL isolation instead (direct source inspection proves b2n_qualification.py has zero references to wt_operations/watchtower/any canonical operation module). 17 new dry-validation tests added and passing (30 total combined with existing baseline), proving manifest/provider/endpoint/run-id/budget/ledger rejections and operation-safety postures without any provider call. Verdict: READY_B2N_BOUNDED_RUN_AUTHORIZATION_REVIEW. Execution NOT authorized; awaiting explicit human GO/NO-GO.",
+    "B2N-P3A native provider/endpoint contract closure: traced B2N's actual per-member request requirement backwards from the executor's success gate (evidence_observed AND provenance_complete AND outcome==SUCCESS) rather than assuming Helius from the adjacent 2B2Z preflight, per explicit instruction. Found a genuine, code-and-test-proven contract insufficiency: the only 1-request/member client (b2w_projection.py MigrationGetTransactionAdapter) can never set evidence_observed=True -- its own docstring says so, its return value hardcodes it, and its own test asserts exactly that limitation (error_class=B2W_MIGRATION_LINEAGE_ONLY). The only client that ever produces evidence_observed=True (b2z_execution_boundary.py B2ZRunner) requires 3 sequential dependent requests per member (call 2 needs call 1's creator; call 3 needs call 2's candidate signature) -- its own test asserts exactly 60 total attempts for 20 members, not 20. This means B2N's stated 1-request/member budget and B2N's stated success criteria (creator-funding evidence) are mutually incompatible as currently written -- no provider selection can resolve that gap. Per instruction, did NOT infer Helius compatibility, did NOT silently widen the budget, and did NOT invent a fourth option. Recorded three possible resolutions (widen budget / redefine success criteria / scope B2N narrower) without choosing one -- that decision belongs to the human. Verdict: HOLD_B2N_PROVIDER_METHOD_UNRESOLVED. Zero provider/RPC calls made. 34 focused tests pass (13 existing + 17 P3 dry-validation + 4 new P3A trace-proof tests, unaffected)."
   ],
   "operation_count_delta": {
     "current_count": 150,
@@ -28807,7 +28808,7 @@
     "production_changes_allowed": false
   },
   "schema_version": 1,
-  "status": "READY",
+  "status": "HOLD",
   "test_runs": {
     "continuity_adapter": {
       "command": "pytest -q tests/test_psi0h_h8_h4_runtime_projection.py tests/test_psi0h_h2_historical_candidate_generation.py tests/test_psi0h_h3_historical_candidate_disposition.py",
@@ -28853,7 +28854,7 @@
   "updated_at": "2026-08-18T14:31:00Z",
   "updated_at_utc": "2026-08-18T14:31:00Z",
   "updated_by": "agent_local",
-  "verdict": "READY_B2N_BOUNDED_RUN_AUTHORIZATION_REVIEW",
+  "verdict": "HOLD_B2N_PROVIDER_METHOD_UNRESOLVED",
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "continuation_update": {
@@ -29066,5 +29067,19 @@
       "evidence_writer": false
     },
     "focused_tests": "30 passed (13 existing B2N baseline + 17 new P3 dry-validation)"
+  },
+  "b2n_p3a_provider_method_trace": {
+    "verdict": "HOLD_B2N_PROVIDER_METHOD_UNRESOLVED",
+    "trace_artifact": "docs/audits/b2n_p3a_provider_method_trace.json",
+    "trace_artifact_digest": "337411e7c037e5d7694d1f6edb41969be149615c801eb3268baa6c871317b13a",
+    "finding_summary": "B2N's own success criteria require evidence_observed=true (creator-funding evidence). The only 1-request/member client implementation in the repository (src/acquisition/b2w_projection.py MigrationGetTransactionAdapter) is architecturally scoped to migration-lineage-only and its own docstring/tests confirm evidence_observed is ALWAYS False on every code path. The only implementation that ever produces evidence_observed=True (src/acquisition/b2z_execution_boundary.py B2ZRunner) provably requires 3 sequential requests per member (getTransaction -> getSignaturesForAddress -> getTransaction), tested and asserted as exactly 60 total attempts for 20 members. No provider/endpoint binding was attempted because the underlying method requirement itself is unresolved -- binding a provider to an insufficient method would not have been meaningful.",
+    "provider_endpoint_binding_attempted": false,
+    "reason_not_attempted": "Part 3 of the task explicitly requires the method to be established BEFORE evaluating any provider; the method could not be established within B2N's own stated 1-request/member budget.",
+    "options_recorded_not_chosen": [
+      "widen B2N's per-member budget to 3 (contract change, not made)",
+      "redefine B2N success criteria to accept migration-lineage-only evidence (contract change, not made)",
+      "scope B2N strictly to migration-lineage qualification as a separate, narrower milestone from full creator-funding acquisition (not chosen; requires human decision)"
+    ],
+    "focused_tests": "34 passed (13 existing B2N baseline + 17 P3 dry-validation + 4 new P3A trace-proof tests)"
   }
 }

@@ -1,0 +1,75 @@
+{
+  "schema_version": "b2n.p3a.provider-method-trace.v1",
+  "artifact_type": "B2N_P3A_PROVIDER_METHOD_TRACE",
+  "milestone": "B2N-P3A",
+  "generated_utc": "2026-08-18T16:05:00Z",
+  "objective": "Trace B2N's actual per-member request requirement backwards from the executor's success criteria to the concrete provider method(s) needed, without assuming Helius or inheriting 2B2Z authority.",
+
+  "part1_trace": {
+    "executor_module": "src/acquisition/b2n_qualification.py",
+    "executor_success_gate": "B2NExecutor.run() breaks the loop unless response.outcome == 'SUCCESS' AND response.evidence_observed AND response.provenance_complete (line 249)",
+    "design_contract_definition": {
+      "source": "docs/evidence_platform/oip_v2_2e_2b2n_provider_qualification_contract.md",
+      "evidence_observed_definition": "Boolean indicating that the existing acquisition path produced the REQUIRED CREATOR-FUNDING EVIDENCE for this mint (line 86 of the .md contract)",
+      "success_criterion_3": "All 20 members have request_outcome=SUCCESS, evidence_observed=true, and provenance_complete=true from an actual authorized provider request; cache hits are reported but make the run NON-QUALIFYING (line 107-109)"
+    },
+    "concrete_client_implementations_found": [
+      {
+        "class": "MigrationGetTransactionAdapter",
+        "module": "src/acquisition/b2w_projection.py",
+        "physical_requests": 1,
+        "method": "getTransaction",
+        "evidence_observed_result": "ALWAYS FALSE on every code path, including SUCCESS outcome (line 73: evidence_observed hardcoded to False)",
+        "error_class_on_success": "B2W_MIGRATION_LINEAGE_ONLY",
+        "module_docstring_admission": "\"The projection proves only the migration transaction's mint/signature lineage. It cannot, in one transaction request, establish creator-funding evidence.\" (b2w_projection.py lines 7-8)",
+        "test_proof": "tests/test_oip_v2_2e_2b2x_projection.py::test_adapter_issues_one_exact_get_transaction_and_never_claims_funding_evidence asserts outcome.evidence_observed is False and error_class == 'B2W_MIGRATION_LINEAGE_ONLY' -- PASSED when re-run in this session"
+      },
+      {
+        "class": "B2ZRunner",
+        "module": "src/acquisition/b2z_execution_boundary.py",
+        "physical_requests_per_member": 3,
+        "methods": ["getTransaction(migration_signature)", "getSignaturesForAddress(creator, {limit:1000})", "getTransaction(candidate_funding_signature)"],
+        "evidence_observed_result": "TRUE only after all 3 calls succeed AND funding_time < migration_time AND proves_inbound_sol_funding(funding, creator) is True (line 252)",
+        "sequential_dependency": "Call 2 requires 'creator', which is derived from call 1's response via resolve_creator() (line 224); call 3 requires the funding signature, which is the first qualifying candidate from call 2's response (line 234-238). The three calls cannot be issued in parallel or collapsed into one -- each depends on the prior response's content.",
+        "test_proof": "tests/test_oip_v2_2e_2b2bp_execution_boundary.py::test_full_fake_run_is_exactly_60_ordered_attempts (20 members x 3 requests = 60) -- PASSED when re-run in this session",
+        "contract_family": "OIP_v2.2E.2B2Z.v1 (explicitly NOT B2N's own contract; PROVIDER hardcoded as 'helius_rpc' inside this module, MAX_REQUESTS=60)"
+      }
+    ],
+    "no_other_client_implementations_found": "grep for 'acquire_once' and 'OneRequestClient' across the entire repository (excluding tests) returns only b2n_qualification.py (protocol definition) and b2w_projection.py (the only concrete 1-request implementation)."
+  },
+
+  "part2_native_method_identification": {
+    "result": "CANNOT BE UNAMBIGUOUSLY IDENTIFIED",
+    "reason": "B2N's own success criteria (evidence_observed=true, i.e. creator-funding evidence) require the 3-call B2Z sequence to satisfy, per direct code trace and passing tests. The only implementation that fits B2N's declared 1-request/member budget (MigrationGetTransactionAdapter) is explicitly incapable of ever producing evidence_observed=True -- it is architecturally scoped to migration-lineage-only, by its own docstring, its own hardcoded return value, and a test asserting exactly that limitation.",
+    "conclusion": "There is no single provider method in this repository that satisfies B2N's stated success contract (evidence_observed=true, creator-funding evidence) within B2N's stated budget (<=1 physical request per member). The two implementations that exist are each internally consistent but mutually incompatible with B2N's own combined requirement (1 request AND creator-funding evidence)."
+  },
+
+  "part7_one_request_proof": {
+    "requested": "Prove that one member requires at most 1 physical provider request to establish the B2N output.",
+    "result": "PROOF FAILS. The B2N output as defined by the design contract (evidence_observed=true meaning creator-funding evidence) provably requires 3 physical requests per member, per the only code path in this repository that ever sets evidence_observed=True (B2ZRunner, 20 x 3 = 60 total attempts, test-proven).",
+    "hidden_second_request_exists": true,
+    "hidden_request_detail": "Establishing creator-funding evidence requires getSignaturesForAddress(creator) and a second getTransaction(funding_signature) beyond the first getTransaction(migration_signature) call. This is not a hidden implementation detail introduced by this trace -- it is the exact, already-committed B2Z 3-call sequence."
+  },
+
+  "verdict": "HOLD_B2N_PROVIDER_METHOD_UNRESOLVED",
+  "verdict_reason": "B2N's own success criteria (evidence_observed=true / creator-funding evidence) cannot be satisfied within B2N's own stated budget (max 1 physical request per member) using any provider method that exists in this repository. The 1-request adapter (b2w_projection.py) is provably migration-lineage-only and never produces qualifying evidence. The evidence-producing sequence (b2z_execution_boundary.py) provably requires 3 requests per member, which is the 2B2Z contract's budget, not B2N's. Per explicit instruction, this HOLD does not infer Helius/endpoint compatibility from 2B2Z, does not silently widen B2N's request budget, and does not proceed to provider selection until this contract-level insufficiency is resolved by a human/engineering decision.",
+
+  "options_for_human_decision_not_chosen_here": [
+    "Option A: widen B2N's per-member budget from 1 to 3 to match the B2Z sequence (this would be a contract change, not a P3A action, and is explicitly prohibited from being made silently by this milestone).",
+    "Option B: redefine B2N's success criteria so migration-lineage-only evidence (evidence_observed remaining False, provenance_complete=True) is treated as a qualifying/sufficient B2N outcome for this milestone's narrower purpose -- this would also be a contract change requiring explicit human sign-off, not something inferred here.",
+    "Option C: leave B2N's scope as strictly migration-lineage qualification (matching what MigrationGetTransactionAdapter actually proves) and treat full creator-funding evidence acquisition as an explicitly separate, future milestone with its own 3-request/member authorization -- this preserves B2N's existing 1-request/member ceiling exactly as qualified, at the cost of B2N never reaching its own currently-stated success criterion.",
+    "None of these options are selected or acted on by this artifact. This is a report of an unresolved contract gap, not a proposal being executed."
+  ],
+
+  "authority_posture": {
+    "provider_calls_made": 0,
+    "rpc_calls_made": 0,
+    "production_db_access": false,
+    "budget_widened": false,
+    "retry_introduced": false,
+    "pagination_introduced": false,
+    "fallback_introduced": false,
+    "authorization_consumed": false,
+    "b2n_executed": false
+  }
+}

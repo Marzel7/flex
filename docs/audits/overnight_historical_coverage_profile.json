@@ -1,0 +1,120 @@
+{
+  "schema_version": "overnight.historical-coverage-profile.v1",
+  "artifact_type": "OVERNIGHT_HISTORICAL_COVERAGE_PROFILE",
+  "milestone": "B2Z overnight workstream 3",
+  "generated_utc": "2026-08-19T04:00:00Z",
+  "purpose": "Clearly-denominated local historical coverage measurement across all populations relevant to B2Z/2-hop/operation-discovery scaling. All numbers measured via bounded/indexed COUNT queries against the live committed databases -- zero provider calls, zero writes.",
+
+  "population_1_token_analysis": {
+    "source": "database/flex_complete_database.db, table token_analysis",
+    "total_rows": 1894543,
+    "pf_ws_creator_known": 1853242,
+    "pf_ws_creator_known_percent_of_total": 97.83,
+    "earliest_tx_creator_known": 1861198,
+    "earliest_tx_creator_known_percent_of_total": 98.24,
+    "creator_mismatch_flagged": 380,
+    "network_funder_address_known": 431,
+    "network_funder_address_known_percent_of_total": 0.023,
+    "note_on_network_funder_address": "essentially unpopulated at scale (0.023%) -- confirms this is NOT a viable shortcut for creator-funding evidence, consistent with the 20-member cohort finding (0/20 populated)"
+  },
+
+  "population_2_creator_funding_queue": {
+    "source": "database/flex_complete_database.db, table creator_funding_queue",
+    "total_rows": 34293,
+    "status_complete": 16528,
+    "status_expired": 17075,
+    "status_failed": 645,
+    "status_pending": 18,
+    "status_retry": 27,
+    "complete_percent_of_total": 48.2,
+    "expired_percent_of_total": 49.8,
+    "failed_percent_of_total": 1.9,
+    "note": "roughly HALF of all enqueued creator-funding extraction jobs expired without completing -- a large, real, measured local-evidence gap at scale, not a hypothetical one"
+  },
+
+  "population_3_creator_funders": {
+    "source": "database/flex_complete_database.db, table creator_funders",
+    "total_rows": 132804,
+    "distinct_creators": 20592,
+    "is_cex_flagged_rows": 7624,
+    "note": "this is DERIVED_INFORMATION_ONLY tier (creator, funder, amount) -- no transaction_signature column, confirmed at full scale (see population_4 for the signature-bound surface)"
+  },
+
+  "population_4_transfer_index": {
+    "source": "database/flex_complete_database.db, table transfer_index",
+    "total_rows": 4971567,
+    "distinct_destinations": 1480320,
+    "distinct_sources": 388460,
+    "note": "the primary SIGNATURE_BOUND_NORMALIZED_EVIDENCE surface for both direct funding and 2-hop upstream discovery -- confirmed duplicate-free (PRIMARY-KEY-equivalent uniqueness on (signature, source, destination))"
+  },
+
+  "population_5_creator_inbound_transfers": {
+    "source": "database/flex_complete_database.db, table creator_inbound_transfers",
+    "total_rows": 0,
+    "distinct_creators": 0,
+    "note": "CONFIRMED EMPTY AT FULL SCALE, not just for the 20-member cohort -- this table's extraction path (funder_incoming_extractor.py per docs/CLAUDE.md) has effectively never populated it in production despite having the correct schema (transaction_signature column present)"
+  },
+
+  "population_6_transaction_first_lineage_launches": {
+    "source": "database/transaction_first_lineage.db, table tf_launches",
+    "total_rows": 1596895,
+    "state_EVIDENCE_UNAVAILABLE": 63343,
+    "state_PERSISTED_EVIDENCE_RECONSTRUCTED": 3560,
+    "state_RPC_PENDING_BUDGET": 1529992,
+    "reconstructed_percent_of_total": 0.223,
+    "pending_budget_percent_of_total": 95.81,
+    "note": "the system's own internal state model explicitly tracks 95.81% of this population as awaiting a future, rationed RPC budget -- direct architectural confirmation that blind universal verification was never the design"
+  },
+
+  "population_7_tf_transaction_cache": {
+    "source": "database/transaction_first_lineage.db, table tf_transaction_cache",
+    "total_rows": 22025,
+    "rpc_verified_count": 21994,
+    "rpc_verified_percent": 99.86,
+    "duplicate_signatures": 0,
+    "cache_key": "signature (PRIMARY KEY)",
+    "note": "a dedicated raw-transaction cache, single-batch-imported (all rows share one fetched_at timestamp), NOT overlapping the 20-member B2N/B2Z cohort's specific signatures (confirmed 0 matches in P1.8)"
+  },
+
+  "population_8_tf_edges": {
+    "source": "database/transaction_first_lineage.db, table tf_edges",
+    "total_rows": 14062,
+    "rpc_verified_count": 14062,
+    "rpc_verified_percent": 100.0,
+    "distinct_senders": 9779,
+    "distinct_recipients": 7650,
+    "hop_depth_distribution": {"1": 5173, "2": 2631, "3": 2262, "4": 1540, "5": 892, "6": 775, "7": 430, "8": 359},
+    "note": "every currently-materialized edge in this multi-hop graph IS raw-verified -- the system enforces Level-B evidence for edges it actually commits to topology, while leaving the vast majority of the launch population (population_6) unmaterialized pending selective RPC"
+  },
+
+  "population_9_tf_populations": {
+    "source": "database/transaction_first_lineage.db, table tf_populations",
+    "total_rows": 891,
+    "type_SINGLE_LAUNCH_ROOT": 809,
+    "type_REPEATED_TOPOLOGY": 81,
+    "type_REPEATED_ROOT": 1,
+    "note": "891 already-discovered structural population roots, 82 of which (REPEATED_TOPOLOGY + REPEATED_ROOT) represent multi-launch/multi-creator recurring structures -- direct input material for candidate operational family analysis (workstream 7)"
+  },
+
+  "population_10_second_hop": {
+    "source": "database/flex_complete_database.db, tables funder_upstream_links / creator_second_hop",
+    "funder_upstream_links_total_rows": 19769,
+    "distinct_direct_funders_reached": 3147,
+    "distinct_upstream_sources": 16313,
+    "excluded_as_infra_or_hub": 14594,
+    "excluded_percent": 73.83,
+    "non_excluded_usable_bridges": 5175,
+    "creator_second_hop_total_rows": 463,
+    "top_fan_in_upstream_non_excluded": [
+      {"upstream": "5Ww9G6XuSHgXLoNmWusVz2SbESAeL7Q6stZMeEhPU25H", "distinct_funders_reached": 71},
+      {"upstream": "4gE46F7x7RtP6KQTbLxXjyDL4bWscDPNYzv5y5E4Afm8", "distinct_funders_reached": 68}
+    ],
+    "top_fan_in_upstream_overall_including_excluded": [
+      {"upstream": "AxiomRXZAq1Jgjj9pHmNqVP7Lhu67wLXZJZbaK87TTSk", "distinct_funders_reached": 131, "note": "address name pattern matches the 'uses_axiom' creator_tags signal seen for ordinal 11's creator in P1.6/P1.7 -- corroborates this as a genuine, correctly-excluded trading-bot/service address, not a random hub"}
+    ]
+  },
+
+  "explicit_note_on_denominators": "every ratio above is reported with both its numerator and denominator inline -- no bare percentage is presented without the counts that produced it, per instruction",
+
+  "measurement_method": "all counts obtained via bounded/indexed SQLite COUNT(*)/COUNT(DISTINCT)/GROUP BY queries against the live committed databases in read-only mode; no provider calls; no writes; no schema changes"
+}

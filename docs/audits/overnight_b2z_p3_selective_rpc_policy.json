@@ -1,0 +1,84 @@
+{
+  "schema_version": "b2z.p3.selective-rpc-verification-policy.v1",
+  "artifact_type": "B2Z_P3_SELECTIVE_RPC_VERIFICATION_POLICY_QUALIFICATION",
+  "milestone": "B2Z-P3 (proposed successor to B2Z-P1.8/P2)",
+  "generated_utc": "2026-08-19T04:20:00Z",
+  "status": "NON_EXECUTABLE_POLICY_DESIGN_ONLY -- no provider calls, no code activation, no production mutation",
+
+  "purpose": "Define the deterministic classification policy that routes each historical creator-funding relationship into one of five categories, using ONLY existing local evidence-quality signals and existing repository authority contracts. Calibration-dependent thresholds are left explicitly unresolved where B2Z-P2's live calibration has not yet completed.",
+
+  "p2_calibration_dependency": {
+    "p2_status_at_time_of_writing": "HOLD_B2Z_P2_CALIBRATION_FAILURE, then frozen overnight at READY_B2Z_P2_19_MEMBER_MANUAL_RESUME_GATE -- live calibration has NOT completed",
+    "explicit_consequence": "any threshold below that would ideally be calibrated against measured local-vs-raw agreement rates (e.g. 'temporal gap under N seconds implies M% confidence') is left as an EXPLICIT PLACEHOLDER bound by existing qualitative evidence (P1.6/P1.7's HIGH/LOW confidence classification) rather than a fabricated numeric threshold. This artifact will be revised once real P2 metrics exist."
+  },
+
+  "five_categories": {
+    "LOCAL_EVIDENCE_SUFFICIENT_FOR_DISCOVERY": {
+      "definition": "relationship has SIGNATURE_BOUND_NORMALIZED_EVIDENCE (transfer_index or equivalent) with no disqualifying signal -- usable for Level-A candidate discovery / motif canonicalization without any RPC",
+      "criteria": [
+        "a transfer_index (or tf_edges) row exists linking funder->creator with signature, amount, block_time",
+        "amount is not dust (existing SecondHopExpansionBuilder threshold: >= 0.01 SOL, from src/core/second_hop_builder.py MIN_UPSTREAM_SOL, reused here as the existing repository-defined dust floor)",
+        "no self-loop (source != the entity being funded, checked at both direct and upstream hops -- P1.7 found this is a REAL, not hypothetical, failure mode: 3/9 raw upstream candidates in the 20-member cohort were self-loops)",
+        "not flagged in infra_wallets (existing exclusion set, src/utils/infra_mapping.build_excluded_set())"
+      ],
+      "rpc_required": false,
+      "supports": "EP4.0/4.1 motif canonicalization, candidate operational family surfacing (workstream 7)"
+    },
+    "LOCAL_EVIDENCE_SUFFICIENT_RAW_VERIFICATION_OPTIONAL": {
+      "definition": "relationship meets LOCAL_EVIDENCE_SUFFICIENT_FOR_DISCOVERY criteria AND has additional corroborating signal (small temporal gap to reference event, non-trivial amount, no documented extraction failure) making it a reasonable candidate for Level-B upgrade if the relationship becomes operationally important -- but discovery does not require the upgrade",
+      "criteria": [
+        "meets all LOCAL_EVIDENCE_SUFFICIENT_FOR_DISCOVERY criteria",
+        "temporal gap to reference event (migration_time or equivalent launch boundary) is QUALITATIVELY small -- P1.6 used <=3600 seconds as its HIGH-confidence threshold for the 20-member cohort; this artifact PRESERVES that exact threshold as the current best-available value rather than inventing a new one, but flags it explicitly as NOT YET CALIBRATED against a completed P2 run",
+        "the funding creator/entity has NO documented extraction failure (creator_funding_queue.status != 'failed')",
+        "the direct funder is NOT among the top fan-in/fan-out entities flagged for review (see SERVICE_DISTRIBUTION_REVIEW_REQUIRED below)"
+      ],
+      "rpc_required": "optional -- desirable if the relationship is selected for canonical-attribution-adjacent use",
+      "corresponds_to_p1_6_p1_7_finding": "matches exactly the 10/20 'HIGH completeness_confidence, stage2_skip=true' members from B2Z-P1.6/P2's frozen prediction corpus"
+    },
+    "RAW_VERIFICATION_REQUIRED": {
+      "definition": "relationship has local evidence but it is AMBIGUOUS or LOW-CONFIDENCE by existing measured criteria -- raw verification is the only way to resolve it, not a preference",
+      "criteria_any_of": [
+        "temporal gap to reference event exceeds the current 3600-second threshold (LOW confidence per P1.6)",
+        "documented extraction failure exists for this creator/entity (creator_funding_queue.status='failed') -- P1.6/P1.7 directly measured 3 such cases (ordinals 11, 15, 18) all failing for the IDENTICAL documented reason (90s worker timeout), proving genuinely incomplete local coverage rather than mere caution",
+        "multiple local candidate signatures exist for the same relationship with no clear single-best selection rule (existing B2Z contract's own candidates[0] rule is a discovery-time heuristic, not proof)",
+        "amount is at or near the dust floor (P1.7 found 3/5 raw upstream candidates in the cohort were exactly 1 lamport -- essentially certain to be spam/dust, not genuine funding, and MUST be flagged for verification or exclusion, never silently accepted)",
+        "self-loop detected (source == the entity being funded at either hop)"
+      ],
+      "rpc_required": true,
+      "note": "this is the category that structurally CANNOT be resolved by adding more local data -- only an independent raw signal (or explicit human/interpretive review) can adjudicate it"
+    },
+    "MISSING_LOCAL_EVIDENCE": {
+      "definition": "no transfer_index (or equivalent signature-bound) row exists at all for this relationship",
+      "criteria": ["zero rows returned from the relational transfer_index search described in P1.7"],
+      "rpc_required": true,
+      "measured_scale_reference": "at minimum the 63,343 tf_launches rows in EVIDENCE_UNAVAILABLE state (overnight_historical_coverage_profile.json population_6) fall unambiguously into this bucket"
+    },
+    "SERVICE_DISTRIBUTION_REVIEW_REQUIRED": {
+      "definition": "the funder or upstream entity itself is a high fan-out/fan-in address (bot, exchange-like, distribution hub) -- review metadata, does NOT gate acquisition or discovery, but flags the eventual relationship for human/downstream interpretive review before any operation-adjacent use",
+      "criteria_any_of": [
+        "direct funder or upstream source exceeds the existing MAX_UPSTREAM_FUNDERS=50 threshold (src/core/second_hop_builder.py) when checked against funder_upstream_links -- confirmed at scale: the address AxiomRXZAq1... reaches 131 distinct funders, more than 2.6x the exclusion threshold",
+        "entity carries an existing creator_tags/creator_service_history behavioral tag (e.g. uses_axiom, uses_jitotip_other) indicating known bot/service activity",
+        "entity is present in infra_wallets"
+      ],
+      "rpc_required": "not directly implied -- orthogonal to the RAW_VERIFICATION_REQUIRED axis; a relationship can be BOTH raw-verified AND still carry this review flag (matches B2Z-P1's existing FAN_OUT_REVIEW_ORDINALS design, which never gates acquisition)",
+      "governance": "review metadata only -- MUST NOT automatically reject, exclude, or promote to canonical attribution"
+    }
+  },
+
+  "classification_algorithm_pseudocode": [
+    "1. Does a transfer_index (or equivalent) signature-bound row exist for this relationship? NO -> MISSING_LOCAL_EVIDENCE, RPC required.",
+    "2. Is the source==destination (self-loop) at this hop? YES -> RAW_VERIFICATION_REQUIRED (cannot trust local evidence for this specific candidate).",
+    "3. Is the amount below the dust floor (0.01 SOL / existing MIN_UPSTREAM_SOL)? YES -> RAW_VERIFICATION_REQUIRED.",
+    "4. Does the funding entity have a documented extraction failure? YES -> RAW_VERIFICATION_REQUIRED.",
+    "5. Is the temporal gap to the reference event within the current 3600s threshold? NO -> RAW_VERIFICATION_REQUIRED. YES -> continue.",
+    "6. [Orthogonal check, always evaluated regardless of steps 1-5] Does the entity exceed the fan-out/fan-in threshold or carry a service/bot tag? YES -> add SERVICE_DISTRIBUTION_REVIEW_REQUIRED flag (non-gating).",
+    "7. If none of steps 1-5 triggered RAW_VERIFICATION_REQUIRED or MISSING: classify LOCAL_EVIDENCE_SUFFICIENT_RAW_VERIFICATION_OPTIONAL if all corroborating signals hold, else LOCAL_EVIDENCE_SUFFICIENT_FOR_DISCOVERY."
+  ],
+
+  "explicit_non_scoring_statement": "No arbitrary numeric confidence score is introduced -- the repository's existing scoring contracts (e.g. src/core/second_hop_scorer.py's confidence_score, CONFIDENCE_STORE_MIN=15, CONFIDENCE_UI_FLOOR=35) are the ONLY existing scoring mechanism found, and they apply specifically to upstream_network_bridge cross-network scoring, not to a general per-relationship RPC-necessity score. This policy therefore uses BOOLEAN/CATEGORICAL criteria only (the six-step algorithm above), consistent with 'no arbitrary scoring if no existing scoring contract exists' per instruction.",
+
+  "authority_boundary": "This policy classifies relationships for VERIFICATION PRIORITIZATION only. It grants no authority to acquire evidence, mutate operations, or promote candidates -- consistent with every prior B2Z/B2N milestone's CANDIDATE_EVIDENCE_ONLY posture.",
+
+  "not_executed_this_milestone": true,
+  "next_step_when_p2_completes": "re-derive the temporal-gap and amount thresholds from P2's actual measured creator/funder/amount/temporal agreement rates, replacing the currently-preserved P1.6 qualitative values with calibrated ones."
+}

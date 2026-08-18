@@ -1,0 +1,40 @@
+{
+  "schema_version": "overnight.rpc-savings-models.v1",
+  "artifact_type": "OVERNIGHT_RPC_SAVINGS_MODELS",
+  "milestone": "B2Z overnight workstream 9",
+  "generated_utc": "2026-08-19T04:10:00Z",
+  "purpose": "Compare blind universal raw verification against local-first selective verification models, using measured historical coverage (overnight_historical_coverage_profile.json) rather than extrapolating from the 20-member cohort alone.",
+
+  "model_a_blind_raw_reverification": {
+    "population": "token_analysis total rows (the broadest plausible historical population requiring funding verification)",
+    "population_size": 1894543,
+    "calls_per_token_per_b2z_contract": 3,
+    "total_requests": 5683629,
+    "characterization": "categorically infeasible -- confirms and slightly refines P1.8's estimate (1,893,864 rows measured then vs 1,894,543 now, reflecting ~680 rows of natural production growth between measurements)",
+    "runtime_at_10_req_per_sec": "~6.6 days of continuous, uninterrupted RPC traffic",
+    "assumptions": "assumes every token needs the full 3-stage chain; does not account for tokens with no migration event, duplicate tokens, or tokens outside the funding-relevant population -- so this is likely an OVER-estimate of true need, in addition to being infeasible in absolute terms"
+  },
+
+  "model_b_local_first_cache_first_selective": {
+    "basis": "measured tf_launches.acquisition_state distribution -- the system's own internal model of what already has evidence vs what is genuinely missing vs what is unassessed",
+    "already_has_evidence_zero_rpc_needed": {"count": 3560, "state": "PERSISTED_EVIDENCE_RECONSTRUCTED"},
+    "genuinely_missing_would_need_rpc_if_pursued": {"count": 63343, "state": "EVIDENCE_UNAVAILABLE"},
+    "unassessed_pending_budget": {"count": 1529992, "state": "RPC_PENDING_BUDGET", "note": "NOT yet classified as needing verification -- this is the system's own explicit 'have not looked yet' bucket, not a commitment to verify all of it"},
+    "low_estimate_requests": {"value": 63343, "assumption": "1 call/record average -- optimistic, assumes most EVIDENCE_UNAVAILABLE records need only a single targeted lookup"},
+    "high_estimate_requests": {"value": 190029, "assumption": "3 calls/record worst-case -- assumes every EVIDENCE_UNAVAILABLE record needs the full 3-stage chain"},
+    "reduction_vs_model_a_low": "98.89% (63,343 vs 5,683,629)",
+    "reduction_vs_model_a_high": "96.66% (190,029 vs 5,683,629)",
+    "explicit_uncertainty": "this model deliberately scopes to only the EVIDENCE_UNAVAILABLE bucket, NOT the much larger RPC_PENDING_BUDGET bucket -- the true number of RPC_PENDING_BUDGET records that would eventually warrant verification (as opposed to being satisfied by local-only discovery, per P1.8's EP4.1 proof) is NOT computable without first running a Level-A discovery pass at full scale to classify them. This is disclosed as a genuine unknown, not filled in with an invented number."
+  },
+
+  "model_c_direct_plus_2hop_selective_illustrative": {
+    "basis": "the 20-member B2Z-P2 cohort's own measured local-evidence-reuse ratio, applied illustratively (NOT as a scale-accurate projection)",
+    "direct_funding_stage2_reduction_ratio": "10/20 = 50% of members had CREATOR_HISTORY-stage-skippable local evidence",
+    "caveat": "this ratio is measured from a SMALL, RECENT, specific 20-member cohort and should not be treated as representative of the full ~1.9M-token historical population without further sampling -- it is reported as an input data point for future policy calibration (B2Z-P3), not as a scale estimate in its own right",
+    "2hop_illustrative_note": "P1.7 found only 5/20 (25%) direct funders had genuine (mostly weak) local upstream evidence, and the pre-built funder_upstream_links table covers only 3,147 of an unknown much-larger universe of direct funders across the full population -- 2-hop selective verification would need its own, separately-measured coverage ratio, not reused from the direct-hop numbers"
+  },
+
+  "reporting_discipline": "no precise historical-scale request count is asserted where the underlying classification (which of the ~1.53M RPC_PENDING_BUDGET records genuinely need verification) has not yet been measured. Model B's range (63,343 to 190,029) is the only historically-scale-informed range with a defensible lower/upper bound; it should be treated as provisional pending a real Level-A discovery pass over the full RPC_PENDING_BUDGET population.",
+
+  "recommendation": "before authorizing any large-scale selective verification budget, run a full Level-A discovery pass (EP4.0/4.1-equivalent, zero RPC) over the RPC_PENDING_BUDGET population to reclassify records into LOCAL_EVIDENCE_SUFFICIENT / AMBIGUOUS_REQUIRES_RPC / MISSING_REQUIRES_RPC per the B2Z-P3 policy (see overnight_b2z_p3_selective_rpc_policy.json). Only after that reclassification would a precise, defensible total-request estimate be possible."
+}

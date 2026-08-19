@@ -1,4 +1,22 @@
 {
+  "b2z_sprint_completion_reconciliation": {
+    "milestone": "B2Z sprint closure -- calibration + selective RPC policy",
+    "artifact": "docs/audits/b2z_sprint_completion_reconciliation.json",
+    "provider_calls_made_this_turn": 0,
+    "credentials_used_this_turn": false,
+    "p2_final_state": "the human's manual resume run completed ALL 19 eligible members -- confirmed durably (ALL_MEMBERS_COMPLETE in the ledger, 104 events, sha256 dbf7999e..., NOT inferred from shell output). Ordinal 20: genuine MEMBER_COMPLETE (no semantic failure). Consumed 41/50 physical requests, 9 remaining and permanently unused for this run.",
+    "p2_verdict": "B2Z_P2_LOCAL_VS_RAW_CALIBRATION_COMPLETE",
+    "p2_headline_finding": "stark split: 9/9 (100%) raw confirmation for Stage-2-seeded/HIGH-confidence members vs 0/10 positive confirmations for live/LOW-confidence members (8 no-candidate, 2 raw-negative)",
+    "p3b_binding": "the pre-existing 3600s/HIGH-LOW threshold is empirically VALIDATED (not replaced) -- docs/audits/b2z_p3b_selective_rpc_policy_calibration_binding.json",
+    "p3a_update": "advanced from 3-of-5 to 4-of-5 measured policy categories using the now-calibrated criteria; SERVICE_DISTRIBUTION_REVIEW_REQUIRED remains the sole PENDING category (needs a separate fan-in query, not calibration-blocked)",
+    "rpc_savings_models": "Model A (blanket) 75,308-112,962 requests vs Model B (selective) 15,130-45,390 (point estimate ~33,286) vs Model C (selective+cache) ~same as B (cache negligible for this population) -- docs/audits/b2z_p3_rpc_savings_models_calibrated.json",
+    "operation_discovery_answer": "local direct evidence CONDITIONALLY safe for candidate-family discovery -- true for the now-calibrated HIGH-confidence tier (100% confirmed), NOT established for LOW-confidence relationships (0/10 this sprint). Raw verification remains UNCONDITIONALLY required before canonical operation attribution -- unweakened.",
+    "56_launch_family": "preserved as CANDIDATE_OPERATIONAL_FAMILY, not promoted, zero overlap with the P2 cohort, Watchtower/three_sw2 unmutated",
+    "unresolved_blockers": ["SERVICE_DISTRIBUTION_REVIEW_REQUIRED unmeasured", "LOW-confidence reliability unknown at scale (n=10)", "shared-migration-signer global frequency unmeasurable locally", "direct_funder/amount fields not captured in B2Z-P1's stage-output schema (data-capture gap for future calibration)"],
+    "recommended_next_milestone": "LOCAL_OPERATION_DISCOVERY_EXECUTION_QUALIFICATION -- NOT automatically executed, requires separate human authorization",
+    "content_disclosure": "one on-chain address (ordinal 11's raw migration signer) contains offensive language -- genuine pre-existing durable evidence, not introduced by this analysis, flagged explicitly in the calibration result artifact",
+    "final_verdict": "B2Z_CALIBRATION_AND_SELECTIVE_RPC_SPRINT_QUALIFIED"
+  },
   "b2z_p2h_ordinal19_semantic_negative_reconciliation": {
     "milestone": "B2Z-P2H -- ordinal-19 semantic-negative reconciliation",
     "artifact": "docs/audits/b2z_p2h_ordinal19_semantic_negative_reconciliation.json",

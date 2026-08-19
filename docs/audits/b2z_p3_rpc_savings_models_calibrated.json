@@ -1,0 +1,64 @@
+{
+  "schema_version": "b2z.p3.rpc-savings-models-calibrated.v1",
+  "artifact_type": "B2Z_P3_RPC_SAVINGS_MODELS_CALIBRATED",
+  "milestone": "B2Z-P3B follow-on -- RPC savings models using real P2 calibration data",
+  "generated_utc": "2026-08-19T11:25:00Z",
+
+  "operation_safety": {"provider_calls_made": 0, "credentials_used": false},
+
+  "population_source": "docs/audits/b2z_p3a_historical_selective_rpc_dry_classification.json (39,260-token tractable population, migration-confirmed + resolved creator)",
+  "categories": {
+    "LOCAL_EVIDENCE_SUFFICIENT_FOR_DISCOVERY": 14904,
+    "LOCAL_EVIDENCE_SUFFICIENT_RAW_VERIFICATION_OPTIONAL": 7620,
+    "RAW_VERIFICATION_REQUIRED": 645,
+    "MISSING_LOCAL_EVIDENCE": 14485
+  },
+
+  "model_a_blanket_raw_verification": {
+    "description": "verify every member in the entire 39,260-token population with the full 3-stage B2Z path, ignoring local evidence entirely",
+    "requests_per_member_range": "2-3 (per B2Z-P1's measured cost shape: 2 requests if NO_CANDIDATE short-circuits Stage 3, 3 if Stage 3 dispatches)",
+    "estimated_total_requests": "75,308 - 112,962",
+    "assumption": "worst case treats every member identically regardless of local evidence quality -- this is the naive floor this whole selective-RPC sprint exists to beat"
+  },
+
+  "model_b_local_first_plus_selective_rpc": {
+    "description": "skip RPC entirely for LOCAL_EVIDENCE_SUFFICIENT_FOR_DISCOVERY (14,904, zero RPC needed for discovery-tier use) and for LOCAL_EVIDENCE_SUFFICIENT_RAW_VERIFICATION_OPTIONAL (7,620, RPC optional -- P2's real calibration measured 9/9=100% raw confirmation for exactly this tier's criteria, so skipping is empirically justified for discovery/candidate-family purposes). Only dispatch RPC for RAW_VERIFICATION_REQUIRED (645) and MISSING_LOCAL_EVIDENCE (14,485).",
+    "selective_population": 15130,
+    "requests_per_member_range": "1-3 (MISSING_LOCAL_EVIDENCE members with no local candidate at all still need the full MIGRATION_TX+CREATOR_HISTORY dispatch to discover whether a candidate exists at all -- P2's real 10-member unseeded/live population showed 8/10 short-circuited at 2 requests via NO_CANDIDATE, only 2/10 reached the full 3-stage path)",
+    "estimated_total_requests_range": "15,130 - 45,390",
+    "p2_measured_shape_applied": "P2's real live/unseeded population (n=10, structurally similar to this tier) showed 80% NO_CANDIDATE (2 requests) and 20% reaching Stage 3 (3 requests) -- applying that EXACT observed ratio to the 15,130-member selective population gives a calibrated point estimate below, not just a range"
+  },
+
+  "model_b_point_estimate_using_p2_observed_ratio": {
+    "method": "apply P2's measured 80%/20% NO_CANDIDATE/reaches-Stage-3 split (from the 10-member live/unseeded calibration population) to the 15,130-member Model B selective population",
+    "calculation": "15130 * 0.80 * 2 (no-candidate, 2 req) + 15130 * 0.20 * 3 (reaches stage 3, 3 req) = 24208 + 9078 = 33286",
+    "point_estimate": 33286,
+    "caveat": "this applies an n=10 observed ratio to a 15,130-member population -- a reasonable calibrated estimate, not a proof; the true ratio could differ meaningfully at scale, especially since P2's live/unseeded population was itself preselected for LOW local confidence (by the same criteria that route MISSING_LOCAL_EVIDENCE + RAW_VERIFICATION_REQUIRED into Model B), so this may be a REASONABLE ANALOGY rather than a strict extrapolation flaw"
+  },
+
+  "model_c_local_first_plus_cache_first_plus_selective_rpc": {
+    "description": "same as Model B, but check tf_transaction_cache before any live dispatch for the RAW_VERIFICATION_REQUIRED tier (already measured: negligible hit rate)",
+    "cache_hit_rate_measured": "0.03% (7 of 22,951 candidate funding signatures for the RAW_VERIFICATION_REQUIRED tier -- see docs/audits/b2z_p3a_cache_first_savings.json)",
+    "estimated_total_requests_range": "15,125 - 45,376 (negligible reduction from Model B -- cache coverage for this specific population is essentially zero)",
+    "point_estimate_with_cache": 33279,
+    "conclusion": "cache-first savings are NOT material for this specific 39,260-token population -- the existing tf_transaction_cache was built by a different prior investigation (the 56-launch family walk) with essentially zero overlap with this population. Cache-first would be far more valuable for a population that DOES overlap with prior tf_populations walks (not this one)."
+  },
+
+  "comparison_summary": {
+    "model_a_blanket": "75,308 - 112,962 requests",
+    "model_b_selective": "15,130 - 45,390 requests (point estimate 33,286 using P2's observed ratio)",
+    "model_c_selective_plus_cache": "15,125 - 45,376 requests (point estimate 33,279 -- cache adds negligible value here)",
+    "requests_avoided_b_vs_a": "29,918 - 97,832 (using range bounds) / ~42,000-79,676 using point estimates",
+    "pct_reduction_b_vs_a": "39.7% - 86.6% (range bounds), approximately 62% using point-estimate comparison",
+    "narrowing_of_overnight_estimate": "the overnight session's original Model B estimate was 63,343-190,029 requests for a DIFFERENT population (tf_launches EVIDENCE_UNAVAILABLE bucket). This calibrated estimate (15,130-45,390 for the 39,260-token migration-confirmed population) is a materially smaller number, though the two populations are not identical -- this should be read as a second, more grounded data point rather than a direct replacement of the overnight figure."
+  },
+
+  "uncertainty_disclosed": [
+    "the 80/20 no-candidate/reaches-stage-3 ratio is extrapolated from n=10 real observations -- meaningful sampling uncertainty exists at 15,130-member scale",
+    "the 7,620-member OPTIONAL tier's skippability rests on n=9 calibration samples with 100% confirmation -- strong but not conclusive at 7,620-member scale",
+    "cache-first savings measured against the WRONG population for this specific model (measured for RAW_VERIFICATION_REQUIRED only, not the full Model B selective population) -- a full Model C cache check against MISSING_LOCAL_EVIDENCE candidates (which have zero local signature to check by definition) is structurally not possible; Model C's benefit is inherently capped at whatever the RAW_VERIFICATION_REQUIRED subset can contribute, which is already known to be negligible"
+  ],
+
+  "no_provider_calls_this_milestone": true,
+  "no_authority_to_execute_selective_rpc_granted_by_this_artifact": true
+}

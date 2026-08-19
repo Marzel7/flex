@@ -1,0 +1,96 @@
+{
+  "schema_version": "b2z.sprint-completion-reconciliation.v1",
+  "artifact_type": "B2Z_SPRINT_COMPLETION_RECONCILIATION",
+  "milestone": "B2Z sprint closure -- calibration + selective RPC policy",
+  "generated_utc": "2026-08-19T11:35:00Z",
+  "run_id": "b2z-p1-44d6798563468c8aff747446",
+
+  "operation_safety": {"provider_calls_made": 0, "credentials_used": false, "canonical_operation_mutated": false, "watchtower_mutated": false, "three_sw2_mutated": false},
+
+  "ra4_status": "COMPLETE (unchanged this sprint)",
+  "b2n_status": "B2N_BOUNDED_MIGRATION_LINEAGE_QUALIFIED (unchanged this sprint)",
+  "b2z_p1_status": "durable/resumable runner qualified, extended this sprint with EXECUTION_EXCLUDED, NO_CANDIDATE_TERMINAL, SEMANTIC_VALIDATION_FAILED_TERMINAL, RAW_VERIFICATION_NEGATIVE_TERMINAL event types -- all additive, no removal of prior behavior, 98/98 relevant tests passing",
+
+  "p2_calibration_result": {
+    "verdict": "B2Z_P2_LOCAL_VS_RAW_CALIBRATION_COMPLETE",
+    "eligible_population": 19,
+    "execution_exclusions": 1,
+    "outcome_distribution": {"positive_confirmations": 8, "no_candidate": 8, "raw_negative": 2},
+    "physical_requests_consumed": 41,
+    "authorization_max": 50,
+    "remaining_unused": 9,
+    "headline_finding": "stark split between Stage-2-seeded/HIGH-confidence members (9/9 = 100% raw confirmation) and live/LOW-confidence members (0/10 positive confirmations)",
+    "artifacts": ["docs/audits/b2z_p2_raw_verified_direct_funding_corpus.json", "docs/audits/b2z_p2_local_vs_raw_calibration_result.json"]
+  },
+
+  "stage2_seed_result": {
+    "confirmation_rate": "9/9 = 100%",
+    "significance": "strong positive validation that local transfer_index signatures can safely replace CREATOR_HISTORY RPC for HIGH-confidence-classified relationships",
+    "caveat": "small sample (n=9), preselected for HIGH confidence -- not yet proven at scale or for LOW-confidence relationships"
+  },
+
+  "p3_selective_policy": {
+    "verdict": "B2Z_P3B_CALIBRATION_BINDING_COMPLETE",
+    "threshold_status": "the pre-existing 3600-second/HIGH-LOW temporal-gap threshold is now empirically validated (not replaced) by real calibration data",
+    "artifact": "docs/audits/b2z_p3b_selective_rpc_policy_calibration_binding.json"
+  },
+
+  "historical_dry_classification": {
+    "verdict": "B2Z_P3A_DRY_CLASSIFICATION_FOUR_OF_FIVE_MEASURED",
+    "population": 39260,
+    "categories": {
+      "LOCAL_EVIDENCE_SUFFICIENT_FOR_DISCOVERY": 14904,
+      "LOCAL_EVIDENCE_SUFFICIENT_RAW_VERIFICATION_OPTIONAL": 7620,
+      "RAW_VERIFICATION_REQUIRED": 645,
+      "MISSING_LOCAL_EVIDENCE": 14485,
+      "SERVICE_DISTRIBUTION_REVIEW_REQUIRED": "still PENDING -- requires a separate fan-in query, not calibration-blocked"
+    },
+    "artifact": "docs/audits/b2z_p3a_historical_selective_rpc_dry_classification.json"
+  },
+
+  "cache_first_savings": {
+    "measured_hit_rate": "0.03% (negligible for the RAW_VERIFICATION_REQUIRED tier)",
+    "conclusion": "cache-first savings not material for this population; would be more valuable for a population overlapping prior tf_populations walks"
+  },
+
+  "rpc_savings_models": {
+    "model_a_blanket": "75,308 - 112,962 requests",
+    "model_b_selective": "15,130 - 45,390 requests (point estimate ~33,286 using P2's observed 80/20 no-candidate/full-path ratio)",
+    "model_c_selective_plus_cache": "15,125 - 45,376 (cache adds negligible value for this population)",
+    "pct_reduction_b_vs_a": "approximately 39.7% - 86.6% depending on range bounds, ~62% at point estimates",
+    "artifact": "docs/audits/b2z_p3_rpc_savings_models_calibrated.json"
+  },
+
+  "direct_and_2hop_architecture": {
+    "current_posture_unchanged": "local direct evidence -> local 2-hop -> candidate family -> selective raw verification (from the existing non-executable B2Z-2H contract, docs/audits/overnight_b2z_2h_upstream_funding_contract.json)",
+    "p2_calibration_confirms_local_direct_evidence_reliability": "CONDITIONALLY -- reliable (100% confirmed) specifically for HIGH-confidence/stage2_skip-eligible relationships (the LOCAL_EVIDENCE_SUFFICIENT_RAW_VERIFICATION_OPTIONAL tier); NOT yet shown reliable for LOW-confidence relationships (0/10 positive in that tier this sprint)",
+    "sequence_preserved": true,
+    "no_2hop_rpc_executed_this_sprint": true
+  },
+
+  "operation_discovery_readiness": {
+    "can_local_normalized_direct_funding_evidence_safely_feed_candidate_family_discovery_before_raw_verification": "CONDITIONAL -- true specifically for relationships meeting the now-calibrated LOCAL_EVIDENCE_SUFFICIENT_RAW_VERIFICATION_OPTIONAL criteria (temporal gap <=3600s, non-dust, no extraction failure); NOT established as generally true for arbitrary local evidence, and specifically shown UNRELIABLE for LOW-confidence relationships this sprint",
+    "is_raw_verification_required_before_canonical_operation_attribution": "YES, unconditionally -- nothing in this sprint changes that. Even the 100%-confirmed HIGH-confidence tier represents CANDIDATE-quality confirmation of a DIRECT FUNDING EDGE, not canonical operation membership. Existing human/review authority for canonical attribution is fully preserved, unweakened.",
+    "authority_chain_preserved": "evidence -> candidate -> proposal/review -> canonical operation (never evidence -> automatic canonical operation)"
+  },
+
+  "56_launch_family_state": {
+    "preserved_classification": "CANDIDATE_OPERATIONAL_FAMILY (unchanged)",
+    "not_promoted": true,
+    "overlap_with_p2_calibration": "NONE of the 20 B2Z-P2 cohort mints/creators are members of the 56-launch family (already established in the original OF-P0 qualification) -- P2's calibration results have no direct bearing on the 56-launch family's own evidence quality",
+    "watchtower_three_sw2_unmutated": true
+  },
+
+  "unresolved_blockers": [
+    {"id": "SERVICE_DISTRIBUTION_REVIEW_REQUIRED_UNMEASURED", "description": "requires a dedicated per-funder fan-in query at the 39,260-token population scale, not run this sprint"},
+    {"id": "LOW_CONFIDENCE_RELIABILITY_UNKNOWN", "description": "0/10 positive confirmation for LOW-confidence relationships this sprint is a real, disclosed finding -- whether this generalizes or was cohort-specific (small n=10) is unresolved"},
+    {"id": "SHARED_MIGRATION_SIGNER_GLOBAL_FREQUENCY", "description": "B2Z-P2G's finding that 9/19 eligible members shared one migration-signer address cannot be generalized without either live RPC (prohibited this sprint) or a dedicated local index of migration-transaction signers, which does not currently exist"},
+    {"id": "DIRECT_FUNDER_AMOUNT_NOT_CAPTURED", "description": "B2Z-P1's stage-output schema does not persist raw funder/amount fields -- direct_funder_agreement and amount_agreement metrics could not be measured this sprint, a genuine data-capture gap for any FUTURE calibration run"}
+  ],
+
+  "recommended_next_milestone": "LOCAL_OPERATION_DISCOVERY_EXECUTION_QUALIFICATION -- of the three offered options, this is the best fit given actual results: the LOCAL_EVIDENCE_SUFFICIENT_RAW_VERIFICATION_OPTIONAL tier (7,620 tokens, now criteria-calibrated) is ready to feed candidate-family discovery without further RPC, while B2Z_2H_LOCAL_QUALIFICATION and SELECTIVE_RPC_EXECUTION_QUALIFICATION both remain gated on the two unresolved blockers above (SERVICE_DISTRIBUTION_REVIEW measurement, LOW-confidence reliability). This recommendation is NOT an automatic execution -- it requires separate human authorization.",
+  "next_milestone_not_automatically_executed": true,
+
+  "final_verdict": "B2Z_CALIBRATION_AND_SELECTIVE_RPC_SPRINT_QUALIFIED",
+  "verdict_reasoning": "P2 calibration completed with a genuine, disclosed, non-manufactured result (19/19 eligible members resolved, real 41/50 requests consumed). P3B calibration binding replaced the sole calibration-dependent placeholder (the 3600s threshold) with measured validation rather than a new invented number. P3A historical classification advanced from 3-of-5 to 4-of-5 measured categories. RPC savings models were computed from real, calibration-grounded ratios rather than the overnight session's pre-calibration placeholder range. 56-launch family and canonical-attribution authority are explicitly preserved unweakened. All work this sprint was provider-free except the human's own manual resume executions, which were reconciled directly from durable ledger state at every step, never assumed from shell output."
+}

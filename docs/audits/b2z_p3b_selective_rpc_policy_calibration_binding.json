@@ -1,0 +1,63 @@
+{
+  "schema_version": "b2z.p3b.selective-rpc-policy-calibration-binding.v1",
+  "artifact_type": "B2Z_P3B_SELECTIVE_RPC_POLICY_CALIBRATION_BINDING",
+  "milestone": "B2Z-P3B -- selective RPC policy calibration binding",
+  "generated_utc": "2026-08-19T11:15:00Z",
+  "authority_note": "LOCAL / NON-EXECUTABLE ONLY -- this artifact binds real P2 calibration data into the existing policy structure; it grants no execution authority and does not itself trigger any RPC",
+
+  "operation_safety": {"provider_calls_made": 0, "credentials_used": false},
+
+  "prior_policy_artifact_updated": "docs/audits/overnight_b2z_p3_selective_rpc_policy.json (that file's structure is PRESERVED, this artifact supplements it with the calibration data it explicitly deferred)",
+  "p2_source": "docs/audits/b2z_p2_local_vs_raw_calibration_result.json (B2Z_P2_LOCAL_VS_RAW_CALIBRATION_COMPLETE, 19/19 eligible members resolved)",
+
+  "the_3600_second_threshold_now_calibrated": {
+    "prior_status": "explicit placeholder, preserved from P1.6 as a qualitative HIGH/LOW split, NOT yet validated against real raw outcomes",
+    "measured_result": {
+      "HIGH_confidence_group_stage2_skip_true": {
+        "n": 9, "ordinals": [2, 4, 7, 10, 12, 13, 14, 17, 20],
+        "raw_confirmation_rate": "9/9 = 100.0%",
+        "definition_matched": "temporal_gap_to_migration_seconds <= 3600 AND no documented extraction failure AND not fan_out_review_flag"
+      },
+      "LOW_confidence_group_stage2_skip_false": {
+        "n": 10, "ordinals": [3, 5, 6, 8, 9, 11, 15, 16, 18, 19],
+        "raw_positive_confirmation_rate": "0/10 = 0.0%",
+        "outcome_breakdown": "8 NO_CANDIDATE, 2 RAW_VERIFICATION_NEGATIVE_TERMINAL (local false positives)",
+        "definition_matched": "temporal_gap_to_migration_seconds > 3600 OR documented extraction failure OR fan_out_review_flag"
+      }
+    },
+    "verdict": "THE EXISTING 3600-SECOND THRESHOLD IS EMPIRICALLY VALIDATED, NOT REPLACED -- the qualitative HIGH/LOW split it encodes produced a striking, real separation (100% vs 0% raw confirmation) in this 19-member sample. No new threshold is invented; the existing one is promoted from 'preserved placeholder' to 'measured-and-holding' status.",
+    "uncertainty_disclosed": "n=9 and n=10 are small samples. A 100%-vs-0% split this clean, while a very strong signal, has wide confidence intervals at this sample size. This should be treated as strong initial validation, not proof the threshold is optimal or that it will hold at scale. Recommend re-measuring if/when a larger authorized calibration sample becomes available, rather than freezing this as final."
+  },
+
+  "category_reclassification_using_real_data": {
+    "LOCAL_EVIDENCE_SUFFICIENT_FOR_DISCOVERY": {
+      "unchanged_criteria": true,
+      "calibration_support": "no direct measurement possible from this cohort (all 19 members already had a resolved candidate discovery outcome by the time of comparison) -- criteria remain as originally specified in the prior artifact, unchanged"
+    },
+    "LOCAL_EVIDENCE_SUFFICIENT_RAW_VERIFICATION_OPTIONAL": {
+      "corresponds_to": "the 9 HIGH-confidence/stage2_skip=true members",
+      "calibration_result": "STRONGLY SUPPORTED -- 9/9 (100%) raw confirmation. This is now the single strongest piece of evidence in the whole B2Z sprint that RPC verification can be treated as OPTIONAL (not required) for relationships meeting this tier's criteria.",
+      "criteria_unchanged": true,
+      "confidence_upgrade": "from 'plausible, unvalidated' to 'measured, n=9, 100% confirmed' -- category definition itself is unchanged, only its evidentiary backing is now real rather than inferred"
+    },
+    "RAW_VERIFICATION_REQUIRED": {
+      "corresponds_to": "the 10 LOW-confidence/stage2_skip=false members, and specifically ordinals 11/15/18 (documented 90s-extraction-timeout failures, EXACT match to the pre-existing criteria in the prior policy artifact)",
+      "calibration_result": "STRONGLY SUPPORTED -- 0/10 positive confirmations. Every member in this tier either found no evidence (8) or was actively contradicted by raw evidence (2). This tier's premise (local data alone cannot resolve these) is now empirically demonstrated, not merely argued.",
+      "criteria_unchanged": true,
+      "new_measured_subcategory": "2 of the 10 (ordinals 8, 19) are specifically RAW_VERIFICATION_NEGATIVE cases -- local claimed a specific relationship that raw evidence affirmatively contradicted, as opposed to simple absence of evidence. This distinction (contradiction vs absence) did not exist as a named category before B2Z-P2F/P2H; it is now available as a real, observed outcome class worth incorporating into a future policy revision (not done in this artifact -- policy STRUCTURE preserved, only calibration DATA bound)."
+    },
+    "MISSING_LOCAL_EVIDENCE": {
+      "not_directly_measured_by_this_cohort": "all 19 eligible members had SOME local prediction by the fixed cohort design -- this category is orthogonal to the calibration sample and remains defined by the pre-existing B2Z-P3A historical dry classification (docs/audits/b2z_p3a_historical_selective_rpc_dry_classification.json), unaffected by this binding"
+    },
+    "SERVICE_DISTRIBUTION_REVIEW_REQUIRED": {
+      "new_measured_evidence": "the B2Z-P2G finding (shared migration-signer address 9C4nRvhhVquC... across 9/19 = 47.4% of the eligible cohort) is a genuine, real-world instance of exactly the kind of pattern this category exists to catch -- though it was discovered via a DIFFERENT signal (repeated raw creator resolution) than this category's original criteria (fan-in/fan-out counts). Recommend a future policy revision consider 'high-frequency migration-signer reuse' as an additional criterion, though not added here (structure preservation, no new thresholds invented without further dedicated review)."
+    }
+  },
+
+  "policy_structure_preserved_not_rewritten": true,
+  "no_invented_thresholds": true,
+  "candidate_only_authority_preserved": true,
+
+  "verdict": "B2Z_P3B_CALIBRATION_BINDING_COMPLETE",
+  "verdict_reasoning": "Real P2 calibration data strongly validates the existing P1.6-derived 3600-second/HIGH-LOW threshold split (100% vs 0% raw confirmation across n=9/n=10) without requiring any new threshold to be invented. The policy's five-category structure is unchanged; only its evidentiary confidence is upgraded from placeholder to measured. Two genuinely new observed outcome classes (RAW_NEGATIVE local-false-positive, and the P2G shared-migration-signer pattern) are disclosed as candidates for a FUTURE policy revision, not incorporated here, per the instruction to only bind measured data into the existing structure and not invent new categories/thresholds."
+}

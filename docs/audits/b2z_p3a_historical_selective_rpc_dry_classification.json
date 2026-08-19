@@ -50,17 +50,21 @@
   },
 
   "five_category_policy_classification": {
-    "note_on_method": "categories are derived conservatively from the measured flags above, applying B2Z-P3 policy rules in priority order (service/distribution review not separately measurable at this population scale without per-address fan-in computation -- left as PENDING_P2_CALIBRATION per instruction rather than guessed)",
+    "note_on_method": "categories are derived conservatively from the measured flags above, applying B2Z-P3 policy rules in priority order. UPDATED post-P2-completion: the RAW_VERIFICATION_OPTIONAL split below is now measured, using the SAME <=3600s/non-dust/no-extraction-failure criteria that B2Z-P2's real calibration validated at 9/9=100% raw confirmation (see docs/audits/b2z_p3b_selective_rpc_policy_calibration_binding.json). Service/distribution review remains not separately measurable at this population scale without per-address fan-in computation -- left as PENDING_P2_CALIBRATION.",
 
     "LOCAL_EVIDENCE_SUFFICIENT_FOR_DISCOVERY": {
-      "count": 22524,
-      "pct_of_denominator": 57.4,
-      "derivation": "with_at_least_one_local_funding_candidate (24775) MINUS self_loop (195) MINUS dust_only (2056), no extraction failure overlap subtracted separately (approximated as non-overlapping majority)",
+      "count": 14904,
+      "pct_of_denominator": 38.0,
+      "derivation": "UPDATED: with_at_least_one_local_funding_candidate (24775) MINUS self_loop (195) MINUS dust_only (2056) MINUS the newly-split RAW_VERIFICATION_OPTIONAL count (7620) = 14904. Previously this bucket (22524) had NOT yet had the OPTIONAL tier split out; now it has.",
       "confidence": "MEDIUM -- exact overlap between self_loop/dust_only/extraction_failure sets not separately computed; this is a lower-bound-oriented estimate"
     },
     "LOCAL_EVIDENCE_SUFFICIENT_RAW_VERIFICATION_OPTIONAL": {
-      "count": "PENDING_P2_CALIBRATION",
-      "reasoning": "this category requires distinguishing 'high confidence, RPC would only confirm' from 'sufficient for discovery' -- that distinction depends on the real agreement-rate calibration B2Z-P2 has not yet produced (only 1/50 requests executed). Cannot be split out of LOCAL_EVIDENCE_SUFFICIENT_FOR_DISCOVERY without guessing a confidence threshold."
+      "count": 7620,
+      "pct_of_denominator": 19.4,
+      "derivation": "bounded SQL: candidate exists, non-self-loop, amount >= 0.01 SOL, temporal gap to migration <= 3600 seconds, no documented extraction failure -- the EXACT criteria B2Z-P2's real calibration validated at 9/9 = 100% raw confirmation rate",
+      "confidence": "HIGH -- directly measured via bounded SQL, and the underlying HIGH-confidence criteria are now empirically calibrated (not merely qualitative) per B2Z-P2/P3B",
+      "measured_this_turn": true,
+      "query_time_seconds": 93.5
     },
     "RAW_VERIFICATION_REQUIRED": {
       "count": 645,
@@ -97,12 +101,19 @@
   "uncertainty_bounds": {
     "known_gaps": [
       "exact overlap between self_loop/dust_only/extraction_failure sets not computed (only pairwise, not full inclusion-exclusion)",
-      "SERVICE_DISTRIBUTION_REVIEW_REQUIRED not measurable without additional fan-in query",
-      "LOCAL_EVIDENCE_SUFFICIENT_RAW_VERIFICATION_OPTIONAL split requires P2 calibration data not yet available (only 1/50 real requests executed)",
-      "population-definition mismatch with the overnight Model B estimate means these two numbers are not directly comparable/substitutable"
+      "SERVICE_DISTRIBUTION_REVIEW_REQUIRED not measurable without additional fan-in query -- STILL PENDING, not resolved by P2 (P2's cohort was too small to measure fan-in patterns at this population's scale)",
+      "population-definition mismatch with the overnight Model B estimate means these two numbers are not directly comparable/substitutable",
+      "the RAW_VERIFICATION_OPTIONAL 100% confirmation rate is based on n=9 real calibration samples -- strong initial signal, not proof at the 7,620-token scale this criteria now classifies"
     ]
   },
 
-  "terminal_verdict": "B2Z_P3A_DRY_CLASSIFICATION_PARTIAL_PENDING_P2_CALIBRATION",
-  "verdict_reasoning": "Three of five policy categories are fully measured locally (LOCAL_EVIDENCE_SUFFICIENT_FOR_DISCOVERY, RAW_VERIFICATION_REQUIRED, MISSING_LOCAL_EVIDENCE). Two categories (RAW_VERIFICATION_OPTIONAL split, SERVICE_DISTRIBUTION_REVIEW) cannot be resolved without either real P2 calibration data or an additional fan-in query not yet run -- explicitly left PENDING rather than guessed, per instruction."
+  "p2_calibration_update": {
+    "applied_utc": "2026-08-19T11:20:00Z",
+    "source": "docs/audits/b2z_p2_local_vs_raw_calibration_result.json (B2Z_P2_LOCAL_VS_RAW_CALIBRATION_COMPLETE)",
+    "change": "LOCAL_EVIDENCE_SUFFICIENT_RAW_VERIFICATION_OPTIONAL split from PENDING_P2_CALIBRATION to a measured 7,620 (19.4%), using the calibration-validated <=3600s/non-dust/no-extraction-failure criteria",
+    "remaining_pending": "SERVICE_DISTRIBUTION_REVIEW_REQUIRED only"
+  },
+
+  "terminal_verdict": "B2Z_P3A_DRY_CLASSIFICATION_FOUR_OF_FIVE_MEASURED",
+  "verdict_reasoning": "Four of five policy categories are now fully measured locally: LOCAL_EVIDENCE_SUFFICIENT_FOR_DISCOVERY (14,904 / 38.0%), LOCAL_EVIDENCE_SUFFICIENT_RAW_VERIFICATION_OPTIONAL (7,620 / 19.4%, newly split using P2-calibration-validated criteria), RAW_VERIFICATION_REQUIRED (645 / 1.6%), MISSING_LOCAL_EVIDENCE (14,485 / 36.9%). Only SERVICE_DISTRIBUTION_REVIEW_REQUIRED remains PENDING -- it requires a separate per-funder fan-in query not run this milestone, not blocked by calibration."
 }

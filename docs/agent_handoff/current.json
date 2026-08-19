@@ -1,4 +1,28 @@
 {
+  "b2z_p2g_raw_creator_resolution_integrity_qualification": {
+    "milestone": "B2Z-P2G -- raw creator-resolution integrity qualification",
+    "artifact": "docs/audits/b2z_p2g_raw_creator_resolution_integrity_qualification.json",
+    "provider_calls_made": 0,
+    "credentials_used": false,
+    "live_artifacts_mutated": false,
+    "trigger": "ordinals 3,4,5,7 all resolved to the identical raw creator 9C4nRvhhVquCKATjDCx5FKvNS9PNgNqgyWy9AcoDjYv5 despite 4 different local predictions and 4 different mints",
+    "code_trace_finding": "resolve_creator() in src/acquisition/b2z_execution_boundary.py implements EXACTLY its documented contract: the migration transaction's sole signer=True accountKeys entry, no fallback, no position assumption, fail-closed (B2Z_CREATOR_AMBIGUOUS) on 0 or 2+ signers. No bug found. 9 new isolated unit tests confirm this precisely.",
+    "governing_contract_source": "docs/audits/b2z_p1_6_historical_creator_funding_data_lineage_reconstruction.json explicitly flagged this EXACT risk as an unproven structural assumption BEFORE it was ever observed live: 'B2Z's resolve_creator() derives creator from the MIGRATION transaction's unique signer. The production pipeline derives pf_ws_creator from the CREATE transaction's fee payer/signer... this is a STRUCTURAL, UNPROVEN ASSUMPTION.'",
+    "repeated_address_identity": "confirmed via local DB query to be a genuine, ordinary wallet -- independently the CREATE-tx creator (pf_ws_creator) for 7 different, unrelated tokens locally. NOT a Pump.fun/system/program account (ruled out definitively).",
+    "classification": "GENUINE_SHARED_MIGRATION_SIGNER_NOT_TOKEN_CREATOR",
+    "not_a_bug": true,
+    "not_a_contract_mismatch": true,
+    "calibration_reinterpretation": "ordinals 3,5 (NO_CANDIDATE) and 4,7 (MEMBER_COMPLETE) all tested the migration-signer creator, not the local-predicted CREATE-tx creator -- results remain factually valid for B2Z's own contract but should be reinterpreted, not discarded, when assessing local-prediction quality. Ordinal 8 unaffected (raw creator matches local prediction, a control case).",
+    "disclosed_evidence_gap": "the true global frequency of this address as a migration signer across ALL Pump.fun migrations cannot be determined from local data alone -- no local index of migration-transaction SIGNERS exists (only signatures), and re-deriving it would require live RPC, explicitly prohibited this milestone",
+    "no_recalculation_performed": true,
+    "no_retry_no_reset_no_rewrite": true,
+    "tests": "96/96 passing (69 pre-existing unaffected + 16 from P2F + 9 new from P2G), zero code changes to production modules",
+    "physical_requests_consumed": 16,
+    "remaining_authorization": 34,
+    "next_deterministic_stage": "ordinal 9 / MIGRATION_TX",
+    "terminal_verdict": "READY_B2Z_P2_CONTINUE_CREATOR_RESOLUTION_QUALIFIED",
+    "exact_safe_manual_resume_command": "cd /Users/kevinkeaveney/Dev/claude/flex && read -s B2Z_P2_HELIUS_ENDPOINT && export B2Z_P2_HELIUS_ENDPOINT && echo && for i in $(seq 1 34); do python3 scripts/run_b2z_p2_calibration.py --resume; rc=$?; if [ $rc -ne 0 ]; then echo \"STOPPED at invocation $i\"; break; fi; done && unset B2Z_P2_HELIUS_ENDPOINT"
+  },
   "b2z_p2f_raw_semantic_negative_terminal_qualification": {
     "milestone": "B2Z-P2F -- semantic-negative terminal-state qualification",
     "artifact": "docs/audits/b2z_p2f_raw_semantic_negative_terminal_qualification.json",

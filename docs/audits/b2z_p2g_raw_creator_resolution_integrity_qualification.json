@@ -1,0 +1,170 @@
+{
+  "schema_version": "b2z.p2g.raw-creator-resolution-integrity-qualification.v1",
+  "artifact_type": "B2Z_P2G_RAW_CREATOR_RESOLUTION_INTEGRITY_QUALIFICATION",
+  "milestone": "B2Z-P2G -- raw creator-resolution integrity qualification",
+  "generated_utc": "2026-08-19T10:05:00Z",
+  "run_id": "b2z-p1-44d6798563468c8aff747446",
+
+  "operation_safety": {
+    "provider_calls_made": 0,
+    "credentials_used": false,
+    "live_artifacts_mutated": false,
+    "method": "read-only code trace + read-only local database queries (bounded, indexed) + new isolated unit tests against resolve_creator() with synthetic fixtures. Zero writes to any live B2Z ledger/artifact this milestone."
+  },
+
+  "part1_frozen_baseline": {
+    "event_ledger_sha256": "5560a196c16eb8c2b76a767a8062c3a7461edd98a10502c14219d3e2a0241b48",
+    "event_ledger_line_count": 41,
+    "stage_output_ledger_sha256": "b75aa16f8655d3ec54abf7f3497ea44a85ea9e2ea0db5779bc053ade3dee9b82",
+    "prediction_freeze_digest": "e403f46f5ebe08332bfeae9089f341b9b1e49d70f737cbd7e386f2fa62de19b3",
+    "execution_plan_digest": "40fd882afeea60e05feda81f9b7e3d499e3b55d81f5ea407f8cedb3e082198c6",
+    "authorization_digest": "6e457e9cdf39c49b41bda0ef8cac390cf71e2320d5dda74a0b5b5656a1686550",
+    "physical_requests_consumed": 16,
+    "remaining_authorization": 34,
+    "confirmed_unchanged_at_end_of_milestone": true
+  },
+
+  "repeated_address": "9C4nRvhhVquCKATjDCx5FKvNS9PNgNqgyWy9AcoDjYv5",
+  "affected_ordinals": [3, 4, 5, 7],
+
+  "part2_creator_extraction_code_trace": {
+    "function": "resolve_creator() in src/acquisition/b2z_execution_boundary.py:125-135",
+    "field_inspected": "transaction.message.accountKeys from the jsonParsed getTransaction response for the MIGRATION transaction signature (not the CREATE transaction)",
+    "signer_identification": "an accountKeys entry is treated as a signer ONLY if it is a dict with key.get('signer') is True. String-only entries (bare pubkey, no signer metadata) are normalized to signer=False by _account_keys() -- they can NEVER be selected as creator via this path.",
+    "account_keys_parsing": "_account_keys() (lines 112-122) reads transaction.message.accountKeys as a list; for each entry: string -> {pubkey, signer:False}; dict with a string pubkey -> kept as-is (its own signer flag preserved, defaulting to False via .get() if the key is entirely absent). Non-conforming entries are silently dropped from the normalized list (neither error nor included).",
+    "jsonparsed_handling": "the function assumes the caller already requested encoding=jsonParsed (confirmed at the B2Z dispatch call site: params include {'encoding':'jsonParsed', 'maxSupportedTransactionVersion':0}) -- resolve_creator() itself does no encoding-specific branching, it just reads the standard jsonParsed accountKeys shape",
+    "signer_writable_flags": "only the 'signer' boolean is consulted; 'writable' is never read or used",
+    "static_vs_loaded_addresses": "no distinction is made -- loadedAddresses (from address lookup tables, a v0-transaction feature) are NOT separately merged in; only transaction.message.accountKeys is read. If a real migration transaction used an address lookup table for its signer (uncommon but possible), that signer would NOT appear in this field and resolve_creator() would find zero signers, raising B2Z_CREATOR_AMBIGUOUS rather than a wrong answer -- fail-closed, not silently wrong, for that specific case (not the case observed here, since ordinals 3/4/5/7 all resolved successfully, meaning the signer WAS present in accountKeys with signer=True)",
+    "pumpfun_program_accounts": "no special-casing at all -- the function has no awareness of which accounts are the Pump.fun program, the PumpSwap program, the mint, or any other system account. It relies ENTIRELY on the provider-supplied signer flag.",
+    "fee_payer_handling": "NOT explicitly identified or special-cased. In Solana, accountKeys[0] is conventionally the fee payer AND is virtually always a signer, but resolve_creator() does not read position -- it only reads the signer flag wherever it appears. Verified by test_fee_payer_position_is_not_special_cased (a signer in the LAST position still resolves correctly).",
+    "exactly_one_signer_assumption": "HARD requirement, enforced by len(signers) != 1 raising B2Z_CREATOR_AMBIGUOUS. Zero signers, two signers, or any count other than exactly one is rejected -- there is no fallback selection (e.g. 'pick the first signer', 'pick accountKeys[0]') for the ambiguous case.",
+    "fallback_default_behavior": "NONE. Every non-single-signer or malformed-input case raises a ValueError (B2Z_MINT_NOT_IN_MIGRATION, B2Z_CREATOR_AMBIGUOUS, B2Z_MIGRATION_TIME_MISSING, or B2Z_ACCOUNT_KEYS_MALFORMED from _account_keys). There is no silent default value returned.",
+    "index_assumptions": "none beyond requiring the mint's own pubkey to be present somewhere in accountKeys (order-independent, uses a set membership check)"
+  },
+
+  "part3_raw_evidence_inspection": {
+    "method": "already-persisted stage outputs only (docs/audits/b2z_p1_stage_outputs_b2z-p1-44d6798563468c8aff747446.json), cross-referenced against token_analysis and pumpfun_migration_verification. NO new provider calls. The full raw transaction JSON (accountKeys array with signer flags) was NOT independently re-derivable from any local source, because B2Z's durable design deliberately never persists full raw provider response bodies (see B2ZStageOutputLedger docstring: 'never full provider response bodies') and the tf_transaction_cache read-only adapter had ZERO cache hits for any of these 5 migration signatures (checked directly).",
+    "members": [
+      {"ordinal": 2, "mint": "3hgXvsR8Xh6hnoKyFbPnrMVEkrKGPVbH6EJQkzoNpump", "migration_signature": "2aP6mCzC2aoaMn7SZfV4jvYUNeCgoyrsM96iGCThjS6U9if92fZjaxPcMyUh1hdMBR1had8EdD2d9stvw389FkVP", "raw_creator": "5CcDWYv3ctLYmRkZntRnLLuD5KVvnCdGnGdrNxxCUt6L", "local_creator": "5CcDWYv3ctLYmRkZntRnLLuD5KVvnCdGnGdrNxxCUt6L", "agree": true, "role": "control"},
+      {"ordinal": 3, "mint": "5BQpi43RtPxsw7jw3dpeE7duQAXcNYhw9MD6KUxGpump", "migration_signature": "5i5H2vfw7o89B79beo38FHAAE8NzBDdW2KafXxLeYAQ1sS5WCJa8fRuS9SC56hUMBSqXQkGUW8Uea4knhirCXw6N", "raw_creator": "9C4nRvhhVquCKATjDCx5FKvNS9PNgNqgyWy9AcoDjYv5", "local_creator": "7VJPjQZyH9yYGYMv1BYrxXdEkU749Ra9zebSeiHWpKKy", "agree": false, "role": "affected"},
+      {"ordinal": 4, "mint": "59hy2QNgTB6vvXJqayUk4RgtJ4wCCniwbHpg8Q5gpump", "migration_signature": "Dee584VJB7PcmXxAJxd9MEaF3EXKTi4WoRiDf6ZJYQz5FbkEhnd6qBRjiP52yxXsVNtXXPAgbDE3b98i3YmpunL", "raw_creator": "9C4nRvhhVquCKATjDCx5FKvNS9PNgNqgyWy9AcoDjYv5", "local_creator": "DoTKDtHMXvUXCjpDFfQWTLxqzoNXiGXJYWBNHfaJyeAr", "agree": false, "role": "affected"},
+      {"ordinal": 5, "mint": "6V4rTJ9M4ZNUjvRMvBPiGia5Ju3TutG2nNatRdq1pump", "migration_signature": "31nh1aW7qJxphgnLMNnAmxCsuTqWKHLEEu3fr23gVrPFZHHcKLp1z6fmJhmR7wAJjb8u5Dz5mxaHcFgU1VuvUk9Z", "raw_creator": "9C4nRvhhVquCKATjDCx5FKvNS9PNgNqgyWy9AcoDjYv5", "local_creator": "FtgrFX9PMr4YY2B4KC358RLZykNNkC6k7Qs1mRVmCAXo", "agree": false, "role": "affected"},
+      {"ordinal": 6, "mint": "FzKMeRzbfD1wbVf2ZxfdFgYirLLnVwzspt6gJRVTA8WU", "migration_signature": "4Y2LXDq8u8Jd9Vy4RLJXasF746iZ91rLmhUogSH7pJy2T8NNDqg7Jn7iD9hBSW2Hf9wF7JC76LL1ATrosaVFxM5V", "raw_creator": "yHCxHBEaJW5tbndqC8JciSThr7U1cqLpdcsvHcx6PRe", "local_creator": "yHCxHBEaJW5tbndqC8JciSThr7U1cqLpdcsvHcx6PRe", "agree": true, "role": "control"},
+      {"ordinal": 7, "mint": "AGfrbmkuqf3UYG5UXEkTpCtw5UMn62Bc9NrAo6rdpump", "migration_signature": "9LEnii6ZR5YzDTrKP8nAv64Zj3XJaBdQcRTBqc5t4AmKefZBsEYyUgYPjfKr38hDHa8T7kKedFTdkBXqnx1QW8f", "raw_creator": "9C4nRvhhVquCKATjDCx5FKvNS9PNgNqgyWy9AcoDjYv5", "local_creator": "9TvQa8S9mgvMKpGmZgxAd4ZdjG6NuDpVGWh5PScdAehw", "agree": false, "role": "affected"},
+      {"ordinal": 8, "mint": "qgiXEYJD6mXjHqzJJksX1yjYtownjLXFHAtD7KApump", "migration_signature": "2RJoBHPmncEkQYyLNH4hVzh5Z4pQiEYNNuahEcGqs4DYCSNjVxzd88nW24PHYGzQciYuvD1Fvfv9LhufsSAfWN6h", "raw_creator": "FChCzcTZiVxYpwkTALotD16kwDwACdxQTUHJThKqG6Dj", "local_creator": "FChCzcTZiVxYpwkTALotD16kwDwACdxQTUHJThKqG6Dj", "agree": true, "role": "control"}
+    ],
+    "dex_confirmation": "all 4 affected migration_tx signatures independently confirmed present in pumpfun_migration_verification with dex='pumpswap' and 4 DIFFERENT pumpswap_pool_address values -- these are 4 genuinely distinct migration events, not duplicate/reused signatures",
+    "signer_flag_and_account_keys_detail": "NOT independently re-derivable from any local source (see method note above) -- resolve_creator() only persists the FINAL resolved creator+blockTime into the stage-output ledger, by design, never the full accountKeys/signer array. This is an acknowledged LIMIT of this local-only investigation, disclosed explicitly rather than papered over."
+  },
+
+  "part4_signer_role_determination": {
+    "is_the_repeated_address_actually_a_signer_in_each_transaction": "PROVEN INDIRECTLY, not directly observed: resolve_creator() would have raised B2Z_CREATOR_AMBIGUOUS for ordinals 3/4/5/7 if the address were NOT the sole signer=True entry (this is the function's only success path, confirmed exactly by code trace in Part 2 and by the isolated unit tests in Part 11). Since all 4 ordinals returned STAGE_COMPLETE for MIGRATION_TX with this creator, it MUST have been the sole signer=True entry in each of the 4 raw transactions at the time of dispatch.",
+    "is_it_fee_payer": "cannot be independently confirmed from local data (position not persisted) -- but signer status alone is Solana-typical of a fee payer, and B2Z's own historical caveat (B2Z-P1.6) speculated exactly this role",
+    "is_it_a_pumpfun_system_program_account": "NO -- confirmed the address is a genuine ordinary wallet, not a program account: it is independently the pf_ws_creator (CREATE-transaction creator/fee-payer) for 7 real, unrelated tokens in the local database (query: SELECT COUNT(*) FROM token_analysis WHERE pf_ws_creator=... -> 7), and it receives (never sends) SOL via transfer_index 4 times. A Solana program account cannot legitimately sign as a Pump.fun token creator elsewhere -- this rules out hypothesis D (Pump.fun/migration/system program account) definitively.",
+    "same_account_index_each_time": "not determinable without the raw accountKeys array (see Part 3 disclosed limit)",
+    "controls_or_relates_to_all_four_launches": "NO evidence it created, controls, or is otherwise administratively related to mints for ordinals 3/4/5/7 -- their pf_ws_creator/earliest_tx_creator values are 4 DIFFERENT addresses, all distinct from 9C4nRvhhVquC..., and creator_mismatch=0 for the (spot-checked) mints, meaning the production pipeline's OWN creator-consistency check found no conflict for those tokens using ITS OWN methodology",
+    "broader_frequency_appearance": "appears as pf_ws_creator (i.e. genuine CREATE-tx creator) for 7 DIFFERENT, UNRELATED tokens locally -- none of which are ordinals 3/4/5/7's mints. This is the single strongest piece of evidence: the address is a real, independently-token-creating wallet, seen here in an ENTIRELY DIFFERENT role (migration signer) for tokens it did not create."
+  },
+
+  "part5_create_vs_migration_creator_comparison": {
+    "for_each_affected_ordinal": [
+      {"ordinal": 3, "create_derived_creator": "7VJPjQZyH9yYGYMv1BYrxXdEkU749Ra9zebSeiHWpKKy", "migration_derived_signer": "9C4nRvhhVquCKATjDCx5FKvNS9PNgNqgyWy9AcoDjYv5", "differ": true},
+      {"ordinal": 4, "create_derived_creator": "DoTKDtHMXvUXCjpDFfQWTLxqzoNXiGXJYWBNHfaJyeAr", "migration_derived_signer": "9C4nRvhhVquCKATjDCx5FKvNS9PNgNqgyWy9AcoDjYv5", "differ": true},
+      {"ordinal": 5, "create_derived_creator": "FtgrFX9PMr4YY2B4KC358RLZykNNkC6k7Qs1mRVmCAXo", "migration_derived_signer": "9C4nRvhhVquCKATjDCx5FKvNS9PNgNqgyWy9AcoDjYv5", "differ": true},
+      {"ordinal": 7, "create_derived_creator": "9TvQa8S9mgvMKpGmZgxAd4ZdjG6NuDpVGWh5PScdAehw", "migration_derived_signer": "9C4nRvhhVquCKATjDCx5FKvNS9PNgNqgyWy9AcoDjYv5", "differ": true}
+    ],
+    "both_legitimate_actors_different_roles": "YES, strongly supported -- the CREATE-derived creator is a distinct real wallet for each mint (production pipeline's own creator_mismatch=0 check found no internal conflict for these values, spot-checked), while the migration-derived signer is a SEPARATE, independently-verified real wallet (creates 7 of its OWN other tokens elsewhere) that appears to act as an agent triggering migration for tokens it did not create.",
+    "not_assumed_local_creator_wrong": "explicitly NOT assumed -- the CREATE-tx creator remains a valid, well-established concept (documented as the primary creator-tracking methodology throughout docs/CLAUDE.md and the repository's production funding-extraction pipeline). This finding does not invalidate the local prediction; it reveals that B2Z's contract is measuring a DIFFERENT thing.",
+    "does_b2z_contract_truly_intend_migration_signer_as_creator": "this is answered directly in Part 6 below using the repository's own prior documentation, not assumed here"
+  },
+
+  "part6_governing_b2z_semantics": {
+    "authoritative_source": "docs/audits/b2z_p1_6_historical_creator_funding_data_lineage_reconstruction.json, field part4_writer_traced.critical_distinction_from_b2z (written during an EARLIER milestone, BEFORE this live discrepancy was ever observed)",
+    "exact_quote": "\"B2Z's resolve_creator() derives creator from the MIGRATION transaction's unique signer. The production pipeline derives pf_ws_creator from the CREATE transaction's fee payer/signer. On Pump.fun these are very likely the same wallet in the overwhelming majority of cases (a token's creator typically also owns/triggers its own migration), but this is a STRUCTURAL, UNPROVEN ASSUMPTION relative to B2Z's specific contract -- not something this reconstruction can treat as equivalent without qualification.\"",
+    "what_b2z_means_by_creator": "EXPLICITLY, by design: the migration transaction's sole signer. Not the CREATE-transaction creator, not the bonding-curve authority, not a launch-authority concept -- specifically and only 'whoever signed the transaction that moved this token from Pump.fun's bonding curve to a PumpSwap pool'.",
+    "does_implementation_match_contract": "YES -- resolve_creator() implements EXACTLY the documented single-signer-of-migration-tx concept, with no deviation found in Part 2's code trace. There is no bug in the implementation relative to its own stated contract.",
+    "was_this_gap_known_in_advance": "YES, explicitly, in writing, before this milestone -- this is not a newly-discovered ambiguity, it is the DOCUMENTED, PREDICTED failure mode of a previously-flagged unproven assumption, now observed manifesting for 4 of 7 resolved eligible members in the live cohort (57% of the resolved-so-far sample, though this is far too small a sample to generalize a global rate from)."
+  },
+
+  "part7_broader_frequency_check": {
+    "method": "bounded, indexed local SQL queries only -- no unbounded scans",
+    "as_create_creator_pf_ws_creator": {"count": 7, "note": "the address genuinely created 7 different tokens locally -- confirms it is an ordinary active wallet, not a program/system account"},
+    "as_transfer_index_source_sender": {"count": 0, "note": "never observed sending SOL via the indexed transfer table"},
+    "as_transfer_index_destination_receiver": {"count": 4, "note": "receives SOL 4 times -- consistent with, but not proof of, a fee-payer/rent-recipient role"},
+    "as_network_funder_address": {"count": 0, "query_time_seconds": 70.8, "note": "does not appear as a tracked distribution/funding-network hub in token_analysis.network_funder_address"},
+    "as_migration_signer_for_unrelated_tokens_broader_than_this_cohort": "NOT MEASURED -- would require either the raw migration-tx accountKeys for a large population (not locally cached, would need live RPC, explicitly prohibited this milestone) or a dedicated local index of migration-transaction signers, which does not currently exist in this repository (only migration_tx SIGNATURES are indexed in pumpfun_migration_verification, not their signer). This is a genuine, disclosed evidence gap -- the true global frequency of this address as a migration signer across ALL Pump.fun migrations cannot be determined from local data alone.",
+    "conclusion": "local evidence is consistent with (but does not conclusively prove beyond the 4 observed cases) a shared migration-completion-agent role. The 7-tokens-created-elsewhere fact, combined with zero outbound transfers and some inbound transfers, paints a wallet that is NOT a program account and IS an active participant in the Pump.fun ecosystem, plausibly in an automated migration-triggering capacity for tokens beyond its own."
+  },
+
+  "part8_classification": {
+    "classification": "GENUINE_SHARED_MIGRATION_SIGNER_NOT_TOKEN_CREATOR",
+    "reasoning": "resolve_creator()'s implementation exactly matches its own documented contract (migration-tx sole signer), with no code defect found. The repeated address is confirmed to be a real, independently-verified wallet (not a program/system account), genuinely creating 7 other tokens elsewhere -- ruling out both B2Z_CREATOR_EXTRACTION_BUG (the code does what it says) and the 'Pump.fun/system account misidentified as signer' variant of option D. The finding is that B2Z's contract concept of 'creator' (migration-tx signer) and the production pipeline's concept (CREATE-tx creator) are GENUINELY DIFFERENT ROLES that happen to diverge for this specific address across 4 of the cohort's tokens -- exactly the previously-documented, previously-flagged risk. This is closest to option A+D combined in the original hypothesis list, refined with actual evidence: A is true in the sense that the address IS a genuine, real actor (not noise/bug), but D's 'program account' framing is specifically ruled out -- it is better described as a genuine shared AGENT (likely automated migration bot/service), not a program.",
+    "not_selected": {
+      "B2Z_CREATOR_EXTRACTION_BUG": "ruled out -- code trace + 9 passing unit tests confirm resolve_creator() does exactly what its docstring/contract says, with no off-by-one, index, or parsing defect found",
+      "B2Z_CREATOR_CONTRACT_IMPLEMENTATION_MISMATCH": "ruled out -- the implementation matches its own documented contract exactly (Part 6)",
+      "INSUFFICIENT_LOCAL_EVIDENCE": "considered but rejected as the PRIMARY classification, because sufficient local evidence exists to confidently rule out a bug and rule out a program-account misidentification -- though genuine residual uncertainty remains about the address's PRECISE operational role (fee payer vs. some other migration-completion mechanism) and its TRUE global frequency as a migration signer, both explicitly disclosed as gaps in Parts 3 and 7 rather than resolved with false confidence"
+    }
+  },
+
+  "part9_calibration_impact": {
+    "affected_ordinals": [3, 4, 5, 7],
+    "creator_metrics_affected": "the creator_agreement_rate computed in B2Z-P2F (3/7 = 42.9%) is now understood to measure something MORE SPECIFIC than 'is the local creator prediction wrong' -- it partly measures 'does the CREATE-tx creator happen to also be the migration-tx signer', which this finding shows is NOT reliably true. The raw 42.9% figure is NOT invalidated as a measurement of raw-vs-local agreement (it is factually correct), but its INTERPRETATION as evidence of local-prediction quality requires this context.",
+    "creator_history_stages_potentially_affected": {
+      "ordinal_3": "CREATOR_HISTORY was dispatched against the WRONG creator (9C4nRvhhVquC..., the migration signer) rather than the local prediction's creator (7VJPjQZyH9yYG...) -- per B2Z's OWN contract this is not wrong (Stage 2 always searches against whatever resolve_creator() returned in Stage 1, by design, not the local prediction), but it means the NO_CANDIDATE result for ordinal 3 reflects 'no pre-migration funding found TO THE MIGRATION SIGNER', not necessarily 'no pre-migration funding found to the actual CREATE-tx creator'",
+      "ordinal_5": "same structural situation as ordinal 3 -- NO_CANDIDATE reflects search against the migration signer, not the CREATE creator"
+    },
+    "funding_candidate_selection_potentially_affected": "for ordinals 3 and 5, whatever candidate pool getSignaturesForAddress would have found for the CREATE-tx creator was never searched -- this is not a B2Z contract violation (B2Z never claimed to search the CREATE creator), but it means these two NO_CANDIDATE outcomes cannot be read as 'the local prediction's funder claim is definitively false' -- only as 'no evidence was found for the migration-signer creator, which is a different question'",
+    "stage3_results_potentially_affected": "ordinal 4 and 7 both reached MEMBER_COMPLETE with STAGE_COMPLETE status -- meaning a funding candidate WAS found and validated for the MIGRATION-SIGNER creator (9C4nRvhhVquC...), not for the local prediction's CREATE-tx creator. This means ordinals 4 and 7's 'positive confirmation' status needs the same contextual caveat as ordinal 8's negative one: it confirms B2Z's OWN internal contract self-consistently (migration signer has SOME funding evidence), but does NOT confirm or deny the LOCAL PREDICTION's specific claim about the CREATE-tx creator's funding, because a different creator address was actually tested.",
+    "does_ordinal_8_raw_negative_conclusion_remain_valid": "YES, UNCHANGED -- ordinal 8's raw creator (FChCzcTZiVxYpwkTALotD16kwDwACdxQTUHJThKqG6Dj) MATCHES the local prediction's creator exactly (a control case, not an affected ordinal). Ordinal 8's classification is unaffected by this finding.",
+    "do_positive_results_4_7_remain_valid": "PARTIALLY -- they remain valid as confirmations of B2Z's OWN internal creator-funding contract (the migration signer DOES have provable inbound funding), but they should NOT be read as confirmations of the LOCAL PREDICTION's specific creator/funder/signature claims, since a different creator was actually tested. This is a MATERIAL REINTERPRETATION, not an invalidation -- both readings are simultaneously true for different purposes.",
+    "do_no_candidate_results_3_5_remain_valid": "PARTIALLY -- they remain valid as 'no funding evidence found for the migration-signer creator', but should NOT be read as 'the local prediction's creator/funder claim is refuted', since the local creator was never actually searched.",
+    "no_outcomes_are_being_silently_recalculated": "confirmed -- per Part 10 requirement, no automatic recalculation was performed. This section only REPORTS the interpretive impact; it does not rewrite or reclassify any ordinal's terminal state."
+  },
+
+  "part10_no_automatic_retry": {
+    "no_provider_calls_made": true,
+    "no_stages_retried": true,
+    "no_ledgers_reset": true,
+    "no_historical_live_evidence_rewritten": true,
+    "existing_physical_requests_remain_consumed": 16,
+    "smallest_recovery_path_design_deferred": "a future milestone could, IF authorized, add a distinct CREATE_CREATOR_CROSS_CHECK stage that ALSO tests the local prediction's specific creator (in addition to, not instead of, B2Z's migration-signer contract) -- this would consume ADDITIONAL physical requests beyond the original 50-request budget and would require a new, separately-authorized allocation. NOT designed or scoped in detail here, per the instruction to defer recovery design as a separate step."
+  },
+
+  "part11_tests": {
+    "file": "tests/test_b2z_p2g_creator_resolution_semantics.py",
+    "count": 9,
+    "all_passing": true,
+    "coverage": [
+      "single signer resolved correctly",
+      "multiple signers raise B2Z_CREATOR_AMBIGUOUS",
+      "zero signers raise B2Z_CREATOR_AMBIGUOUS",
+      "string-only accountKeys (no signer metadata) always raise ambiguous -- never silently guessed",
+      "fee-payer position (index 0) is NOT special-cased -- a signer in ANY position resolves correctly, proven with the real signer in the LAST position",
+      "mint not present in accountKeys raises B2Z_MINT_NOT_IN_MIGRATION",
+      "missing blockTime raises B2Z_MIGRATION_TIME_MISSING",
+      "the CENTRAL finding, directly demonstrated: a shared signer address across 3 different mints resolves deterministically and identically for all 3 -- proving this is the function's correct, contract-following behavior, not a bug",
+      "a dict entry missing the 'signer' key entirely defaults safely to False (no KeyError, no false-positive signer)"
+    ],
+    "full_relevant_suite": "96/96 passing (69 pre-existing B2Z-P1/P2/P2R/P2F + 16 P2F + 9 new P2G + 2 previously-fixed-in-place across P2D/P2E) -- zero regressions, zero code changes to production modules this milestone"
+  },
+
+  "terminal_verdict": "READY_B2Z_P2_CONTINUE_CREATOR_RESOLUTION_QUALIFIED",
+  "verdict_reasoning": "resolve_creator() is confirmed to implement exactly its documented contract, with no bug found. The repeated address is a genuine, real wallet independently verified to create 7 other tokens locally -- not a program account, not extraction noise. It appears here in a structurally different, previously-flagged, now-observed role: migration-transaction signer for tokens it did not create. This is a genuine interpretive nuance for calibration analysis (documented in Part 9), not a defect requiring code changes or blocking further calibration. Resume may safely proceed to ordinal 9 with this context now on record.",
+
+  "what_9C4n_actually_is": "a real, ordinary Solana wallet -- independently confirmed to be the CREATE-transaction creator (pf_ws_creator) for 7 different, unrelated tokens in the local database. It is NOT a Pump.fun/PumpSwap/system program account.",
+  "why_it_legitimately_appears_across_four_tokens": "for ordinals 3, 4, 5, and 7, it is the migration transaction's sole signer -- distinct from and NOT the CREATE-transaction creator for those specific 4 tokens. This is consistent with it acting as a migration-completion agent (possibly automated) for tokens beyond its own, a previously-documented unproven risk in B2Z's contract now observed live.",
+  "were_local_creators_wrong_or_another_role": "the local creators (CREATE-tx-derived) were NOT shown to be wrong -- they represent a different, well-established role (token creator) from what B2Z's contract measures (migration-tx signer). Both are legitimate, real actors; they are simply different people/wallets for these 4 tokens.",
+
+  "affected_calibration_results_summary": {
+    "ordinal_3": "NO_CANDIDATE result reflects search against the migration signer, not the local-predicted CREATE creator -- reinterpret, do not discard",
+    "ordinal_4": "MEMBER_COMPLETE confirms B2Z's own contract (migration signer has funding evidence) but does not confirm the local prediction's specific claim -- reinterpret, do not discard",
+    "ordinal_5": "same as ordinal 3",
+    "ordinal_7": "same as ordinal 4",
+    "ordinal_8": "UNAFFECTED -- raw creator matches local prediction exactly, a control case"
+  },
+
+  "physical_requests_consumed": 16,
+  "remaining_authorization": 34,
+  "next_deterministic_stage": "ordinal 9 / MIGRATION_TX",
+  "exact_manual_continuation_command": "cd /Users/kevinkeaveney/Dev/claude/flex && read -s B2Z_P2_HELIUS_ENDPOINT && export B2Z_P2_HELIUS_ENDPOINT && echo && for i in $(seq 1 34); do python3 scripts/run_b2z_p2_calibration.py --resume; rc=$?; if [ $rc -ne 0 ]; then echo \"STOPPED at invocation $i\"; break; fi; done && unset B2Z_P2_HELIUS_ENDPOINT"
+}

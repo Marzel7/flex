@@ -534,9 +534,9 @@
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
   "current_milestone": {
-    "milestone": "OF-DV34-P1 -- bounded selective raw-evidence qualification",
+    "milestone": "OF-DV34-P2 -- operation-identity separation review",
     "status": "COMPLETE",
-    "verdict": "DV34_SELECTIVE_RAW_VERIFICATION_COMPLETE"
+    "verdict": "DV34_OPERATION_IDENTITY_PARTIALLY_RESOLVED"
   },
   "current_next_blocker": "B2Z_P2_HELIUS_ENDPOINT was never available during the overnight session. P2 remains frozen at the 19-member manual resume gate, exactly as left. All 12 provider-free workstreams from the overnight prompt were completed: P2 analysis engine, selective-RPC policy (B2Z-P3), historical coverage profile, 2-hop coverage quality, B2Z-2H contract, operation-discovery preparation, candidate funding family analysis (with a real cross-validated finding), raw-transaction cache adapter, RPC savings models, V2 persistent-budget design, edge-case classifier, and roadmap reconciliation. See docs/audits/overnight_human_decision_queue.json for the 5 decisions that actually need you.",
   "focused_tests": [
@@ -30465,5 +30465,28 @@
     "canonical_authority": "unchanged -- Dv34 not promoted to any operation",
     "next_action": "human decides whether to accept 23-member family as raw-evidence-qualified on this bounded sample, expand sampling, or defer -- a separate explicitly-scoped review governs any operation-identity/attribution decision",
     "verdict": "DV34_SELECTIVE_RAW_VERIFICATION_COMPLETE"
+  },
+  "of_dv34_p2_operation_identity_separation_review": {
+    "milestone": "OF-DV34-P2 -- operation-identity separation review",
+    "target_address": "Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM",
+    "family_size": 23,
+    "family_digest": "a30ecc5bc301fd37e4f002fa8107b7c2e4cad914fb21961a344a46f5870a868f",
+    "prior_raw_verification_summary": "OF-DV34-P1: 6/6 representative direct-funding edges raw-confirmed on-chain (destination+amount+existence). Known limitation preserved: no independent source-byte-level re-parse confirming Dv34 as the SOURCE account on those 6 transactions.",
+    "identity_analysis_summary": "Operation-identity separation review across 13 dimensions and 5 hypotheses. Confirmed-Watchtower membership overlap = 0/23. Dv34 itself remains a CANDIDATE-tier (confidence=0.5) row in wt_provisioning_hubs, unchanged, not promoted. Internal-boundary counterfactual (Dv34-funding removed as merge key): 0 of 23 creators remain clustered by any independent local evidence -- every creator resolves to its own singleton.",
+    "watchtower_relationship": "SHARED_SOURCE_LINEAGE (unchanged from P0/P1). Watchtower-boundary counterfactual (independent evidence only, Dv34-funding removed): verdict NO -- independent evidence does not group the 23 with confirmed Watchtower. Strongest independent evidence: token_analysis.watchtower_related = 0 for all 23 mints, an independently-maintained flag not derived from this review's source data.",
+    "independent_evidence_summary": "Evidence-independence matrix (13 dimensions): 4 INDEPENDENT (confirmed-membership overlap, CREATE-creator population overlap, watchtower-boundary counterfactual, internal-boundary counterfactual, cross-operation collision check), 5 SHARED_SOURCE (candidate membership overlap, temporal separation, funding topology, internal amount-group coherence, exact-amount deep-dive), 3 NOT_AVAILABLE (migration-signer overlap, cross-operation provisioner hypothesis test at full depth, EP3/EP4 topology cross-reference).",
+    "internal_substructure_summary": "0 of 23 creators cluster together under any non-Dv34, non-Dv34-upstream-hub secondary funder evidence (compute_internal_subfamilies() over 57 creator_funders rows, 54 attributive after excluding 3 CEX/infra edges). The 3 exact-amount recurrence groups (4.9775/2.9865/1.991 SOL) are Dv34-routed, not independent corroboration of internal unity.",
+    "recommended_disposition": "DV34_PRIVATE_PROVISIONING_NETWORK_CANDIDATE",
+    "escalation_note": "DV34_WATCHTOWER_MEMBERSHIP_REVIEW -- Dv34's existing CANDIDATE-tier wt_provisioning_hubs row (confidence=0.5) has never been formally reviewed; flagged for hygiene, not recommended for promotion given current independent evidence.",
+    "canonical_authority": "unchanged -- no Watchtower promotion, no operation membership created, no confirmed-state table written",
+    "artifacts": {
+      "technical": "docs/audits/of_dv34_p2_operation_identity_review.json",
+      "human_packet": "docs/audits/of_dv34_p2_human_identity_review_packet.json",
+      "analysis_module": "src/analysis/dv34_p2_identity_review.py",
+      "tests": "tests/test_dv34_p2_operation_identity_review.py (24/24 passing)"
+    },
+    "blockers": [],
+    "next_action": "human decides among disposition_options in the technical artifact (separate operation / Watchtower-related / private provisioning network / cross-operation provisioner / identity-unresolved); a future pass could pursue EP3/EP4 cross-reference and migration-signer coverage to close the two NOT_AVAILABLE gaps",
+    "verdict": "DV34_OPERATION_IDENTITY_PARTIALLY_RESOLVED"
   }
 }

@@ -1,0 +1,66 @@
+{
+  "schema_version": "of.dv34.p2.human-packet.v1",
+  "artifact_type": "OF_DV34_P2_HUMAN_IDENTITY_REVIEW_PACKET",
+  "milestone": "OF-DV34-P2 -- operation-identity separation review",
+  "generated_utc": "2026-08-19T00:00:00Z",
+  "companion_technical_artifact": "docs/audits/of_dv34_p2_operation_identity_review.json",
+
+  "what_dv34_is": "Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM is a private Solana wallet (not classified as an exchange or known infrastructure address) that directly funded 23 distinct pump.fun token creators, each edge immediately preceding that token's migration. Dv34 itself receives most of its own funding from a Binance-attributed CEX hub, then redistributes it in 23 separate, varied-size transfers (0.11 to 78.8 SOL) over roughly a 99-day window.",
+
+  "what_is_already_proven_from_p1": "In OF-DV34-P1, a bounded sample of 6 representative funding edges out of the 23 was raw-verified directly against the blockchain: for each, the destination address, the positive lamport amount, and the transaction's existence were confirmed exactly as recorded locally. 6 of 6 confirmed. This raises confidence that the local dataset is not fabricated or badly corrupted.",
+
+  "what_is_not_proven": {
+    "source_byte_level_limitation": "The raw verification primitive used in P1 did NOT independently re-parse the transaction bytes to confirm the SOURCE account on each of the 6 transactions is actually Dv34 -- it only confirmed a positive transfer landed at the expected destination at the expected time. This is a genuine, disclosed gap, not resolved by this review.",
+    "operation_identity_open_questions": "Whether the 23 creators constitute ONE coherent operation (a single actor's set of wallets), or whether Dv34 is better understood as a funding SERVICE used by multiple otherwise-unrelated actors, is NOT resolved by local evidence. See 'internal_subfamilies' below."
+  },
+
+  "relationship_to_confirmed_watchtower": "NONE of the 23 CREATE creators appear in any table this codebase treats as CONFIRMED Watchtower membership (wt_confirmed_treasuries, wt_provisioning_hubs where status='CONFIRMED'). The main hot database's own independently-maintained flag, token_analysis.watchtower_related, is 0 for all 23 tokens, and none of the 23 appear in watchtower_token_attribution. This is the strongest piece of independent (non-shared-source) evidence found in this review, and it points AWAY from Dv34 being part of confirmed Watchtower.",
+
+  "relationship_to_watchtower_candidate_history": "Dv34 ITSELF (the funder, not the 23 downstream creators) already appears as a CANDIDATE-tier row in wt_provisioning_hubs -- discovered independently by Watchtower's own structural, treasury-agnostic provisioner detector, with confidence=0.5, funding 26 creators over roughly a 50-day window, and recording an exact-amount recurrence (2.9865 SOL) that matches this review's own finding. However, that Watchtower detector and this review's discovery pipeline both ultimately read the SAME underlying creator_funders table -- they are two different filters over one shared data source, not two independent confirmations. This candidate row has never been promoted to confirmed, and this review does not promote it either.",
+
+  "membership_overlap": "Checked 62 confirmed treasuries, 8 confirmed provisioning hubs, 7 Watchtower candidates, and 40 candidate provisioning hubs. Zero of the 23 creators overlap any of these sets. Dv34 itself is one of the 40 candidate provisioning hubs.",
+
+  "temporal_comparison": "Dv34's 23 funding events span about 99 days with a median gap of roughly 3.7 days between events -- not a tight coordinated burst. Watchtower's own separately-pulled record of Dv34's activity (26 creators, ~50-day span) shows the same general non-burst cadence. Both describe Dv34's own behavior, not two independent operations being compared.",
+
+  "creator_comparison": "All 23 CREATE creators are self-consistent across every local column that records them (pf_ws_creator, earliest_tx_creator, and the discovery pipeline's own create_creator field agree in all 23 cases). None appear in any watchtower attribution table.",
+
+  "migration_signer_comparison": "Not available locally at this scale -- the main database does not carry a populated per-token migration-signer identity column for these 23 mints. This is the same gap already disclosed in OF-DV34-P1 and in earlier B2Z work. Kept strictly separate from the CREATE-creator comparison above; it was not aliased or assumed equal to it.",
+
+  "funding_topology_summary": "Binance CEX hub funds Dv34 (16 of Dv34's 20 recorded upstream edges), Dv34 funds 23 distinct creators directly, each creator's token later migrates. No self-loops, no circular funding, no single fixed disbursement amount -- amounts range from 0.11 to 78.8 SOL.",
+
+  "ep3_ep4_status": "NOT_AVAILABLE for this specific 23-member population. EP3 (evidence-envelope contracts) and EP4 (motif canonicalization, 14,203 candidates into 1,379 motifs) both exist in this codebase as general capabilities, but neither has been cross-referenced against these specific 23 mints/creators in any prior milestone or in this review. This is reported honestly as a gap rather than fabricated.",
+
+  "exact_amount_groups_analysis": "Three amount-repeat groups exist within the 23: 4.9775 SOL (3 members), 2.9865 SOL (2 members), 1.991 SOL (2 members). The 2.9865 SOL match against Watchtower's own separately-noted distinct_amounts field looks like independent corroboration at first glance, but is NOT -- both records trace back to the same underlying creator_funders/transfer_index rows. It is internal-consistency confirmation of the same data, not a second independent detection.",
+
+  "internal_subfamilies": "When Dv34 (and its own CEX upstream hub) is removed as the connecting evidence and only OTHER, independent secondary-funder data is used to try to cluster the 23 creators together, they do NOT cluster at all -- every one of the 23 resolves to its own isolated singleton. Zero pairs of the 23 share any other independent link. This means the ONLY thing currently holding this 23-member set together as a group is Dv34's own funding behavior; there is no independent corroboration of internal operational unity.",
+
+  "cross_operation_evidence": "Checked the 23 creators against every independently-maintained operation/attribution store available locally (operator_entities, watchtower_operator_graph, watchtower_token_attribution, wt_watchtower_candidates, wt_confirmed_treasuries). Zero matches. This means there is currently no local evidence that Dv34 funds creators belonging to multiple already-established operations -- but this is because no established operation touches this population at all, not because the multi-operation hypothesis was actively disproven. Separately, Dv34's own CEX upstream hub does fan out to many other, much larger, unrelated direct-funder families in the wider local dataset -- but that is evidence about the shared CEX withdrawal hop, not evidence that Dv34 itself provisions multiple operations.",
+
+  "five_hypotheses": {
+    "H1_part_of_watchtower": "NOT SUPPORTED by independent evidence. The only evidence pointing this way (Dv34's own Watchtower CANDIDATE-hub status, the amount-match) is same-source. The independently-maintained watchtower_related flag and the Watchtower-boundary counterfactual both say NO.",
+    "H2_separate_operation": "PARTIALLY SUPPORTED. Separateness from CONFIRMED Watchtower is well-supported by independent evidence. But claiming the 23 form one coherent OPERATION (as opposed to a funding conduit touching 23 otherwise-unconnected actors) is NOT independently supported -- there is zero internal independent corroboration.",
+    "H3_private_provisioning_network": "PLAUSIBLE and consistent with the data (single private root, wide varied fan-out, zero independent internal clustering), but cannot be distinguished from H2 using local evidence alone -- both a single operator's private treasury and a shared provisioning service used by many unrelated actors would produce the exact same observable signature here.",
+    "H4_shared_provisioner_across_multiple_operations": "NOT SUPPORTED locally, but genuinely UNTESTED rather than disproven -- no independently-established operation touches this population, so there is nothing to check multi-operation overlap against yet.",
+    "H5_identity_unresolved": "SUPPORTED specifically for the H2-vs-H3 question (single operation vs. provisioning network) -- local evidence does not resolve that finer distinction, even though the broader 'is it confirmed Watchtower' question IS resolved (no)."
+  },
+
+  "recommended_disposition": "DV34_PRIVATE_PROVISIONING_NETWORK_CANDIDATE",
+  "recommended_disposition_reasoning": "The best-supported single-sentence characterization given ONLY independent local evidence is: Dv34 is a private funding conduit whose 23 downstream creators show zero independent internal corroboration of shared operational identity, and zero confirmed or independent overlap with Watchtower. This is closer to a provisioning-network/service signature than to either 'part of Watchtower' or a confidently unified 'separate operation.' It is explicitly candidate-tier, not canonical.",
+
+  "escalation_note": "DV34_WATCHTOWER_MEMBERSHIP_REVIEW -- Dv34's existing CANDIDATE-tier row in wt_provisioning_hubs (confidence=0.5, structural-provisioner method) has never been formally reviewed for promotion or rejection. This review does not recommend promotion (independent evidence argues against Watchtower membership), but flags that the stale CANDIDATE row itself may be worth a human look purely for hygiene, independent of this review's operation-identity conclusions.",
+
+  "what_was_not_answered": [
+    "migration-signer overlap (data not available locally at this scale)",
+    "EP3/EP4 topology/motif cross-reference against these specific 23 mints (not performed, scope discipline preserved from OF-DV34-P0)",
+    "whether Dv34 is a single operator's private treasury vs. a shared service used by multiple unrelated actors (H2 vs H3 -- observationally indistinguishable with current local data)",
+    "downstream post-migration token behavior similarity across the 23 (not analyzed this pass)"
+  ],
+
+  "absolute_boundaries_respected": {
+    "no_watchtower_promotion": true,
+    "no_canonical_membership_change": true,
+    "no_three_sw2_mutation": true,
+    "no_provider_or_rpc_calls": true,
+    "cex_binance_provenance_preserved": true
+  }
+}

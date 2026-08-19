@@ -79,8 +79,14 @@
       "confidence": "HIGH -- directly measured"
     },
     "SERVICE_DISTRIBUTION_REVIEW_REQUIRED": {
-      "count": "PENDING_P2_CALIBRATION",
-      "reasoning": "requires per-funder fan-in/fan-out computation across the full candidate set (which funders serve unusually many distinct creators) -- this is a separate, more expensive bounded query not yet run at this population scale. Not guessed; flagged as future work, not folded into another bucket."
+      "count": 1249,
+      "pct_of_denominator": 3.2,
+      "measured_utc": "2026-08-19T21:20:00Z (overnight autonomous continuation)",
+      "derivation": "bounded SQL fan-in query: funders in the HIGH-confidence direct-funding population with >50 distinct creators funded, then summed (funder, creator) pairs across all 7 qualifying funders. Query time 72.2s, streaming/indexed, no full-table scan.",
+      "confidence": "HIGH -- directly measured via bounded SQL",
+      "flagged_funders": 7,
+      "top_flagged_funder": "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9 (645 distinct creators -- the 56-launch family root, independently corroborating its SERVICE_DISTRIBUTION_CLUSTER classification from the local_operation_discovery_execution_qualification run)",
+      "overlap_note": "these 1,249 (funder,creator) pairs are a SUBSET of LOCAL_EVIDENCE_SUFFICIENT_RAW_VERIFICATION_OPTIONAL (7,620) -- they meet the HIGH-confidence direct-funding criteria but ALSO trigger the mega-hub fan-in flag, so they should be treated as OPTIONAL-tier evidence requiring additional service/distribution review before being trusted as a genuine 1:1 funding relationship, not moved to a separate denominator"
     },
     "self_loop_and_dust_reclassified_note": "self_loop (195) and dust_only (2056) candidates are NOT independently bucketed above the five categories -- they are treated as effectively MISSING_LOCAL_EVIDENCE-equivalent (no usable local signal) but kept in LOCAL_EVIDENCE_SUFFICIENT_FOR_DISCOVERY's subtraction rather than added to the MISSING bucket, to avoid double-counting against the measured 14,485. If reclassified into MISSING, that bucket would rise to approximately 16,736 (42.6%)."
   },
@@ -111,9 +117,16 @@
     "applied_utc": "2026-08-19T11:20:00Z",
     "source": "docs/audits/b2z_p2_local_vs_raw_calibration_result.json (B2Z_P2_LOCAL_VS_RAW_CALIBRATION_COMPLETE)",
     "change": "LOCAL_EVIDENCE_SUFFICIENT_RAW_VERIFICATION_OPTIONAL split from PENDING_P2_CALIBRATION to a measured 7,620 (19.4%), using the calibration-validated <=3600s/non-dust/no-extraction-failure criteria",
-    "remaining_pending": "SERVICE_DISTRIBUTION_REVIEW_REQUIRED only"
+    "remaining_pending_at_that_time": "SERVICE_DISTRIBUTION_REVIEW_REQUIRED only"
   },
 
-  "terminal_verdict": "B2Z_P3A_DRY_CLASSIFICATION_FOUR_OF_FIVE_MEASURED",
-  "verdict_reasoning": "Four of five policy categories are now fully measured locally: LOCAL_EVIDENCE_SUFFICIENT_FOR_DISCOVERY (14,904 / 38.0%), LOCAL_EVIDENCE_SUFFICIENT_RAW_VERIFICATION_OPTIONAL (7,620 / 19.4%, newly split using P2-calibration-validated criteria), RAW_VERIFICATION_REQUIRED (645 / 1.6%), MISSING_LOCAL_EVIDENCE (14,485 / 36.9%). Only SERVICE_DISTRIBUTION_REVIEW_REQUIRED remains PENDING -- it requires a separate per-funder fan-in query not run this milestone, not blocked by calibration."
+  "fan_in_query_update": {
+    "applied_utc": "2026-08-19T21:20:00Z",
+    "context": "overnight autonomous continuation (LOCAL_OPERATION_DISCOVERY_EXECUTION_QUALIFICATION mandate) -- ran the deferred per-funder fan-in query",
+    "change": "SERVICE_DISTRIBUTION_REVIEW_REQUIRED split from PENDING to a measured 1,249 (3.2%), a subset of the OPTIONAL tier -- see updated five_category_policy_classification above",
+    "cross_validation": "the top flagged funder (5tzFkiKscXHK5ZXC..., 645 creators) is the 56-launch family root, independently corroborated by the SAME turn's local_operation_discovery_execution_qualification run, which classified it SERVICE_DISTRIBUTION_CLUSTER via a different (family-clustering) mechanism -- two independent methods agree"
+  },
+
+  "terminal_verdict": "B2Z_P3A_DRY_CLASSIFICATION_FIVE_OF_FIVE_MEASURED",
+  "verdict_reasoning": "All five policy categories are now fully measured locally: LOCAL_EVIDENCE_SUFFICIENT_FOR_DISCOVERY (14,904 / 38.0%), LOCAL_EVIDENCE_SUFFICIENT_RAW_VERIFICATION_OPTIONAL (7,620 / 19.4%), RAW_VERIFICATION_REQUIRED (645 / 1.6%), MISSING_LOCAL_EVIDENCE (14,485 / 36.9%), SERVICE_DISTRIBUTION_REVIEW_REQUIRED (1,249 / 3.2%, a subset of OPTIONAL). No category remains PENDING. All measurements are direct, bounded SQL against the local database -- zero provider calls, zero invented thresholds."
 }

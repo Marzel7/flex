@@ -1,13 +1,3 @@
 {
-  "status": "STAGE_COMPLETE",
-  "sample_ordinal": 19,
-  "stage": "CREATOR_HISTORY",
-  "output": {
-    "creator": "HSvt8XpvHwTKhkTapsnkkrp5uUZPzxcCmHYVnAxXb42u",
-    "migration_time": 1786569670,
-    "candidate_funding_signature": "y4Xsxu8Z6F4kXJUebrqJc9aPs3ZffmaBc9ag5WctMoQp24dkaNacGGBghM5n3hq6TXCA1mRkpNzhKskLeq1nwjV",
-    "candidate_block_time": 1786569449,
-    "selection_rule": "most_recent_qualifying_pre_migration_signature",
-    "candidate_pool_size_after_filter": 201
-  }
+  "status": "ALL_MEMBERS_COMPLETE"
 }

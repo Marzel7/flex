@@ -368,3 +368,24 @@ def test_comparison_engine_uses_denominator_19():
     sig = inspect.signature(compute_metrics)
     params = list(sig.parameters.keys())
     assert len(params) >= 1  # comparisons list/mapping is caller-supplied and caller controls the denominator
+
+
+def test_semantic_validation_failure_cannot_be_excluded_via_credential_corruption_path(tmp_path):
+    """exclude_member_from_execution() (the B2Z-P2R credential-corruption
+    exclusion mechanism) must NOT be usable to skip a genuine local-vs-raw
+    semantic disagreement (B2Z_P2D's SEMANTIC_VALIDATION_FAILED_TERMINAL).
+    These are two structurally distinct outcomes -- a malformed credential
+    causing a transport-level failure is not the same as raw evidence
+    contradicting a local prediction -- and conflating them would let a
+    genuine disagreement be silently swept aside using the same mechanism
+    meant only for infrastructure corruption."""
+    event_ledger, _ = ledgers(tmp_path)
+    event_ledger.record_semantic_validation_failed_terminal(
+        run_id="r", sample_ordinal=8, mint="mint-8", failure_reason="B2Z_P1_NO_FUNDING_EDGE",
+        candidate_signature="some-signature",
+    )
+    with pytest.raises(B2ZP1Error, match="NO_MATCHING_FAILURE_TO_EXCLUDE"):
+        event_ledger.exclude_member_from_execution(
+            run_id="r", sample_ordinal=8, mint="mint-8", failed_stage=STAGE_FUNDING_TX,
+            exclusion_reason="ATTEMPTED_MISUSE", decision_source="TEST",
+        )

@@ -516,6 +516,15 @@ def test_stage_2_timeout_after_dispatch_durably_accounted(tmp_path):
 
 
 def test_stage_3_malformed_response_raises_and_is_accounted(tmp_path):
+    """Regression test for the observed live incident: ordinal 8's FUNDING_TX
+    dispatched successfully (ATTEMPT_SUCCEEDED, physical request correctly
+    counted) but failed proves_inbound_sol_funding(). Before the fix, this
+    left the member looking "done" to succeeded_stage_keys() (via the raw
+    ATTEMPT_SUCCEEDED) with NO stage output ever recorded -- a future resume
+    would have silently skipped it as if real evidence existed. The fix
+    durably records SEMANTIC_VALIDATION_FAILED_TERMINAL (distinguishable
+    from ATTEMPT_SUCCEEDED-with-real-evidence) and a stage output describing
+    the contradiction, so the finding cannot be silently lost."""
     a = auth(tmp_path)
     event_ledger, stage_ledger = ledgers(tmp_path)
     transport = FakeTransport(bad_funding_mints={"mint-1"})
@@ -528,7 +537,28 @@ def test_stage_3_malformed_response_raises_and_is_accounted(tmp_path):
                     event_ledger=event_ledger, stage_output_ledger=stage_ledger)  # stage 3 -- wrong destination
     assert event_ledger.physical_requests_attempted() == 3  # the malformed-for-our-purposes response was still dispatched and counted
     events = event_ledger.events()
-    assert events[-1]["event"] == "ATTEMPT_SUCCEEDED"  # the RPC call itself succeeded; our business-rule check failed afterward
+    # the raw transport-level ATTEMPT_SUCCEEDED remains untouched (the request
+    # genuinely did succeed at the HTTP/RPC level) -- but the durable
+    # SEMANTIC_VALIDATION_FAILED_TERMINAL is appended immediately after it,
+    # so the failure is never silently indistinguishable from real evidence
+    assert events[-2]["event"] == "ATTEMPT_SUCCEEDED"
+    assert events[-1]["event"] == "SEMANTIC_VALIDATION_FAILED_TERMINAL"
+    assert events[-1]["failure_reason"] == "B2Z_P1_NO_FUNDING_EDGE"
+    assert 1 in event_ledger.semantic_validation_failed_ordinals()
+    # a distinguishable stage output was recorded -- NOT a MEMBER_COMPLETE-shaped one
+    output = stage_ledger.get_stage_output(sample_ordinal=1, stage=STAGE_FUNDING_TX)
+    assert output is not None
+    assert output["terminal_status"] == "SEMANTIC_VALIDATION_FAILED"
+    assert output["evidence_observed"] is False
+    # critically: a LATER resume_next() call must NOT silently skip ordinal 1
+    # as if it had genuine evidence -- it must raise, surfacing the failure,
+    # exactly like an unexcluded ATTEMPT_FAILED_AFTER_DISPATCH would
+    with pytest.raises(B2ZP1Error):
+        resume_next(manifest=manifest(), projection=projection(), authorization=a, transport=transport,
+                    event_ledger=event_ledger, stage_output_ledger=stage_ledger)
+    # and the raise must happen WITHOUT any new physical request or duplicate event
+    assert event_ledger.physical_requests_attempted() == 3
+    assert len([e for e in event_ledger.events() if e["event"] == "SEMANTIC_VALIDATION_FAILED_TERMINAL"]) == 1
 
 
 # --- operation isolation ---------------------------------------------------

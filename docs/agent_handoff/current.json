@@ -1,4 +1,21 @@
 {
+  "b2z_p2e_semantic_validation_failure_preservation_fix": {
+    "milestone": "B2Z-P2E -- resume evidence-loss bug fix",
+    "artifact": "docs/audits/b2z_p2e_semantic_validation_failure_preservation_fix.json",
+    "provider_calls_made": 0,
+    "credentials_used": false,
+    "run_summary": "the manual resume loop made real progress (ordinals 4-8 resolved, 12 new physical requests) then correctly stopped on B2Z_P1_NO_FUNDING_EDGE:8, a genuine local-vs-raw disagreement -- this is calibration data, not an error to suppress",
+    "second_bug_found": "the raw ATTEMPT_SUCCEEDED for (8, FUNDING_TX) was already durably recorded before the semantic-validation raise, which made the member LOOK complete to succeeded_stage_keys() with NO stage output ever written -- a future resume would have silently skipped ordinal 8 as if genuine evidence existed, permanently losing the contradiction finding. More serious than the B2Z-P2D liveness bug: this one silently loses evidence rather than merely stalling.",
+    "fix": "new SEMANTIC_VALIDATION_FAILED_TERMINAL durable event (recorded at both FUNDING_TIME_INVALID and NO_FUNDING_EDGE raise sites, zero additional physical requests) + a distinguishable stage output (terminal_status=SEMANTIC_VALIDATION_FAILED, evidence_observed=false) + _member_has_failed_stage() updated so the member now correctly BLOCKS resume instead of being silently skipped. Verified exclude_member_from_execution() (the credential-corruption path) correctly REJECTS excluding this failure mode -- a distinct human decision would be needed.",
+    "tests": "71/71 passing (69 pre-existing + 1 updated in place + 1 new)",
+    "live_ledger_repaired": true,
+    "live_ledger_sha256_before": "5fd341b2021f8160a48483b1a4dfa213fef7b6b21a5d991534b0996ab3a76756",
+    "physical_requests_unchanged": 16,
+    "progress_this_run": "ordinals 4,7 = MEMBER_COMPLETE (agree with frozen predictions); ordinals 5,6 = NO_EVIDENCE_NO_CANDIDATE; ordinal 8 = SEMANTIC_VALIDATION_FAILED (review-sensitive, LOW local confidence -- flag correctly anticipated risk)",
+    "cumulative_resolved": "7 of 19 eligible members (2,3,4,5,6,7,8) now terminally resolved; ordinal 8 BLOCKS further resume until a human decision is made",
+    "terminal_verdict": "HOLD_B2Z_P2_ORDINAL_8_SEMANTIC_DISAGREEMENT_REVIEW_REQUIRED",
+    "human_decision_needed": "ordinal 8's local funding prediction is contradicted by raw evidence (different candidate signature found, doesn't prove funding to creator). Requires an explicit human decision analogous to but distinct from ordinal 1's OPTION_A -- whether to exclude ordinal 8 (making 18 eligible) or resolve otherwise. No further provider-free action is possible until this decision is made -- the member loop will correctly keep blocking on ordinal 8."
+  },
   "b2z_p2d_no_candidate_terminal_liveness_fix": {
     "milestone": "B2Z-P2D -- resume liveness bug fix",
     "artifact": "docs/audits/b2z_p2d_no_candidate_terminal_liveness_fix.json",

@@ -1,5 +1,13 @@
 {
-  "status": "NO_EVIDENCE_NO_CANDIDATE",
-  "sample_ordinal": 3,
-  "stage": "FUNDING_TX"
+  "status": "STAGE_COMPLETE",
+  "sample_ordinal": 8,
+  "stage": "CREATOR_HISTORY",
+  "output": {
+    "creator": "FChCzcTZiVxYpwkTALotD16kwDwACdxQTUHJThKqG6Dj",
+    "migration_time": 1786569138,
+    "candidate_funding_signature": "3dcBuPJ9VdWWkeCAFvuvsn5BSSC64omwvUo3zYmHgREFV1oPV2CXPPm4oyHUtpfYKDivwzVZWnLQxjs5SbPUfk85",
+    "candidate_block_time": 1786568791,
+    "selection_rule": "most_recent_qualifying_pre_migration_signature",
+    "candidate_pool_size_after_filter": 201
+  }
 }

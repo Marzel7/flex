@@ -127,7 +127,7 @@ class B2ZEventLedger:
 
     VALID_EVENTS = {"ATTEMPT_RESERVED", "ATTEMPT_SUCCEEDED", "ATTEMPT_FAILED_AFTER_DISPATCH",
                      "ATTEMPT_NOT_DISPATCHED", "LOCAL_PREDICTION_SEEDED", "EXECUTION_EXCLUDED",
-                     "NO_CANDIDATE_TERMINAL"}
+                     "NO_CANDIDATE_TERMINAL", "SEMANTIC_VALIDATION_FAILED_TERMINAL"}
 
     def __init__(self, path: Path) -> None:
         self.path = Path(path)
@@ -160,6 +160,9 @@ class B2ZEventLedger:
 
     def no_candidate_terminal_ordinals(self) -> set[int]:
         return {e["sample_ordinal"] for e in self.events() if e["event"] == "NO_CANDIDATE_TERMINAL"}
+
+    def semantic_validation_failed_ordinals(self) -> set[int]:
+        return {e["sample_ordinal"] for e in self.events() if e["event"] == "SEMANTIC_VALIDATION_FAILED_TERMINAL"}
 
     def terminal_events(self) -> list[dict[str, Any]]:
         return [e for e in self.events() if e["event"] in
@@ -271,6 +274,48 @@ class B2ZEventLedger:
             stage=STAGE_FUNDING_TX, physical_request_number=0, provider="NONE_NO_CANDIDATE_TERMINAL",
             endpoint_family="NONE_NO_CANDIDATE_TERMINAL", method="NONE_NO_CANDIDATE_TERMINAL",
             dependency_digest=None, request_digest=None,
+        )
+
+    def record_semantic_validation_failed_terminal(self, *, run_id: str, sample_ordinal: int, mint: str,
+                                                     failure_reason: str, candidate_signature: str | None) -> None:
+        """Durably mark a member as terminally resolved at a CONTRADICTED
+        outcome: the FUNDING_TX physical request was dispatched and got a
+        successful HTTP response (already recorded via ATTEMPT_SUCCEEDED,
+        already counted in physical_requests_attempted()), but the fetched
+        transaction FAILED semantic validation (B2Z_P1_FUNDING_TIME_INVALID
+        or B2Z_P1_NO_FUNDING_EDGE) -- the local prediction's candidate
+        signature does not actually prove inbound SOL funding to the raw
+        creator.
+
+        This is DELIBERATELY DISTINCT from NO_CANDIDATE_TERMINAL: that event
+        means CREATOR_HISTORY found zero candidates (benign, contract-valid,
+        no evidence to lose). This event means a candidate WAS found and
+        WAS fetched, but contradicted the local claim -- a genuine
+        local-false-positive finding that must be preserved, not silently
+        indistinguishable from either success or "not yet attempted".
+
+        Without this event, the raw ATTEMPT_SUCCEEDED transport-level record
+        for FUNDING_TX makes succeeded_stage_keys() treat the stage as
+        "done" even though record_stage_output() was NEVER called (the
+        raise happens before that line) -- a future resume_next() call
+        would then silently skip ordinal 8 as if it had genuine evidence,
+        permanently losing the fact that the raw evidence contradicted the
+        prediction. Observed live: this exact sequence occurred for
+        ordinal 8 (B2Z_P1_NO_FUNDING_EDGE).
+
+        Consumes NO additional physical request (the request that already
+        happened was already counted via ATTEMPT_SUCCEEDED). Refuses to
+        record a duplicate for an already-marked ordinal."""
+        if sample_ordinal in self.semantic_validation_failed_ordinals():
+            raise B2ZP1Error(f"B2Z_P1_DUPLICATE_SEMANTIC_VALIDATION_FAILED_TERMINAL:{sample_ordinal}")
+        self.append_event(
+            event="SEMANTIC_VALIDATION_FAILED_TERMINAL", run_id=run_id, sample_ordinal=sample_ordinal,
+            mint=mint, stage=STAGE_FUNDING_TX, physical_request_number=0,
+            provider="NONE_SEMANTIC_VALIDATION_FAILED_TERMINAL",
+            endpoint_family="NONE_SEMANTIC_VALIDATION_FAILED_TERMINAL",
+            method="NONE_SEMANTIC_VALIDATION_FAILED_TERMINAL",
+            dependency_digest=None, request_digest=candidate_signature,
+            failure_reason=failure_reason,
         )
 
 
@@ -454,8 +499,19 @@ def _member_has_failed_stage(event_ledger: B2ZEventLedger, sample_ordinal: int) 
     """Returns the stage name of the first non-succeeded terminal (failed or
     not-dispatched) event for this member found in dependency order, if the
     member's progression is blocked by a stage that was attempted but did
-    not succeed. Returns None if the member has no blocking failure."""
+    not succeed. Returns None if the member has no blocking failure.
+
+    A stage with a raw ATTEMPT_SUCCEEDED but ALSO a
+    SEMANTIC_VALIDATION_FAILED_TERMINAL for the same (ordinal, stage) is
+    treated as NOT succeeded here -- the physical request got an HTTP-level
+    success, but the business-rule validation afterward contradicted the
+    local prediction, so this must still block further progress on this
+    member (mirroring an unexcluded ATTEMPT_FAILED_AFTER_DISPATCH) rather
+    than being silently skipped as if genuine evidence existed."""
     succeeded = event_ledger.succeeded_stage_keys()
+    semantically_failed = event_ledger.semantic_validation_failed_ordinals()
+    if sample_ordinal in semantically_failed:
+        succeeded = succeeded - {(sample_ordinal, STAGE_FUNDING_TX)}
     terminal_by_key = {(e["sample_ordinal"], e["stage"]): e["event"] for e in event_ledger.terminal_events()}
     for stage in STAGES_IN_ORDER:
         key = (sample_ordinal, stage)
@@ -465,6 +521,35 @@ def _member_has_failed_stage(event_ledger: B2ZEventLedger, sample_ordinal: int) 
             return stage
         return None  # not yet attempted at all -- not a failure, just not reached
     return None
+
+
+def _record_semantic_validation_failure(*, event_ledger: "B2ZEventLedger", stage_output_ledger: "B2ZStageOutputLedger",
+                                         run_id: str, ordinal: int, mint: str, creator: str,
+                                         signature: str, failure_reason: str) -> None:
+    """Durably preserve a FUNDING_TX semantic-validation failure (the
+    physical request already dispatched successfully -- ATTEMPT_SUCCEEDED
+    is already recorded and already counted -- but the fetched transaction
+    contradicted the local prediction). Idempotent: a repeated call for an
+    already-recorded ordinal is a silent no-op rather than raising, since
+    this helper runs on the path to an exception that the caller re-raises
+    immediately after -- if a caller somehow reached this twice for the same
+    ordinal (should not happen given B2Z_P1_DUPLICATE_STAGE_ATTEMPT guards
+    dispatch), duplicate-recording would itself throw an unrelated error
+    that would mask the real semantic failure being reported."""
+    if ordinal not in event_ledger.semantic_validation_failed_ordinals():
+        event_ledger.record_semantic_validation_failed_terminal(
+            run_id=run_id, sample_ordinal=ordinal, mint=mint,
+            failure_reason=failure_reason, candidate_signature=signature,
+        )
+    if stage_output_ledger.get_stage_output(sample_ordinal=ordinal, stage=STAGE_FUNDING_TX) is None:
+        stage_output_ledger.record_stage_output(
+            sample_ordinal=ordinal, stage=STAGE_FUNDING_TX,
+            output={
+                "creator": creator, "candidate_funding_signature": signature,
+                "terminal_status": "SEMANTIC_VALIDATION_FAILED", "failure_reason": failure_reason,
+                "evidence_observed": False, "provenance_complete": False, "candidate_only": True,
+            },
+        )
 
 
 def seed_frozen_creator_history_from_local_prediction(
@@ -626,8 +711,18 @@ def resume_next(*, manifest: B2NManifest, projection: B2WInputProjection, author
             )
             funding_time = result.get("blockTime")
             if not isinstance(funding_time, int) or funding_time >= migration_time:
+                _record_semantic_validation_failure(
+                    event_ledger=event_ledger, stage_output_ledger=stage_output_ledger,
+                    run_id=authorization.run_id, ordinal=ordinal, mint=mint,
+                    creator=creator, signature=signature, failure_reason="B2Z_P1_FUNDING_TIME_INVALID",
+                )
                 raise B2ZP1Error(f"B2Z_P1_FUNDING_TIME_INVALID:{ordinal}")
             if not proves_inbound_sol_funding(result, creator):
+                _record_semantic_validation_failure(
+                    event_ledger=event_ledger, stage_output_ledger=stage_output_ledger,
+                    run_id=authorization.run_id, ordinal=ordinal, mint=mint,
+                    creator=creator, signature=signature, failure_reason="B2Z_P1_NO_FUNDING_EDGE",
+                )
                 raise B2ZP1Error(f"B2Z_P1_NO_FUNDING_EDGE:{ordinal}")
             review_flag = "FUNDING_SOURCE_REQUIRES_DOWNSTREAM_REVIEW" if ordinal in FAN_OUT_REVIEW_ORDINALS else None
             output = {

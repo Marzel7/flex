@@ -1,0 +1,85 @@
+{
+  "schema_version": "b2z.p2e.semantic-validation-failure-preservation-fix.v1",
+  "artifact_type": "B2Z_P2E_SEMANTIC_VALIDATION_FAILURE_PRESERVATION_FIX",
+  "milestone": "B2Z-P2E -- resume evidence-loss bug fix (B2Z_P1_NO_FUNDING_EDGE)",
+  "generated_utc": "2026-08-19T09:15:00Z",
+  "run_id": "b2z-p1-44d6798563468c8aff747446",
+
+  "operation_safety": {
+    "provider_calls_made": 0,
+    "credentials_used": false,
+    "production_data_modified": false,
+    "method": "code fix to src/acquisition/b2z_durable_execution.py + regression tests (tmp_path/FakeTransport only), then authorized append to the real live event/stage ledgers recording an already-earned finding -- no dispatch, no retry, no re-verification against the provider"
+  },
+
+  "incident": {
+    "human_action": "ran the manual resume loop; it made real progress through ordinals 4-8 (12 new physical requests, 3 more NO_CANDIDATE_TERMINAL resolutions at ordinals 5 and 6), then invocation 13 raised B2ZP1Error(\"B2Z_P1_NO_FUNDING_EDGE:8\") and the loop correctly stopped (stop-on-first-failure semantics worked as designed)",
+    "durable_state_at_stop": "16 total physical requests consumed (11 new this run + 5 from before). Ordinal 8's MIGRATION_TX and CREATOR_HISTORY both succeeded normally (candidate found, pool size 201). FUNDING_TX was dispatched (ATTEMPT_RESERVED + ATTEMPT_SUCCEEDED -- the HTTP/RPC call itself succeeded) against the raw-discovered candidate signature, but the fetched transaction did NOT contain a parsed System Program transfer with destination==creator and positive lamports -- proves_inbound_sol_funding() returned False, raising B2Z_P1_NO_FUNDING_EDGE.",
+    "genuine_finding_not_an_error": "this is REAL calibration data: ordinal 8's raw creator MATCHES the local prediction's creator, but the raw Stage-2-discovered 'most recent qualifying' candidate signature (3dcBuPJ9Vd...) is a DIFFERENT transaction from the local prediction's claimed funding signature (5ZWirv1r...), and that raw candidate does not actually prove funding to the creator. Notably ordinal 8 was already flagged fan_out_review_flag=true and local_completeness_confidence=LOW in the frozen prediction -- the review flag correctly anticipated risk here."
+  },
+
+  "second_distinct_bug_found": {
+    "symptom": "the raw transport-level ATTEMPT_SUCCEEDED event for (8, FUNDING_TX) was already durably recorded (correctly -- the physical request genuinely succeeded at the HTTP level and correctly consumed budget) BEFORE the raise occurred. This meant succeeded_stage_keys() already included (8, FUNDING_TX), and stage_output_ledger.record_stage_output() was NEVER reached (the raise happens before that line) -- so ordinal 8 had NO stage output at all.",
+    "risk": "_member_has_failed_stage(8) returned None (not blocked) and _stage_for_next(8) returned None (looked fully complete) purely because of the raw ATTEMPT_SUCCEEDED event -- a future resume_next() call would have SILENTLY SKIPPED ordinal 8 and moved to ordinal 9, permanently losing the fact that raw evidence contradicted the local prediction. This is an evidence-loss risk, more serious than the earlier B2Z-P2D liveness bug (which was merely stuck, not silently wrong).",
+    "distinguishing_feature_from_p2d": "B2Z-P2D's NO_CANDIDATE_TERMINAL fix addressed a member that made ZERO progress (safe but stuck forever). This bug is the opposite failure mode: the member LOOKED complete and would have been silently treated as resolved with no evidence, which is worse because it could pass unnoticed."
+  },
+
+  "fix": {
+    "new_event_type": "SEMANTIC_VALIDATION_FAILED_TERMINAL",
+    "new_ledger_method": "B2ZEventLedger.record_semantic_validation_failed_terminal(run_id, sample_ordinal, mint, failure_reason, candidate_signature)",
+    "new_accessor": "B2ZEventLedger.semantic_validation_failed_ordinals()",
+    "wired_into": "resume_next()'s STAGE_FUNDING_TX branch now calls this (via the _record_semantic_validation_failure helper) at BOTH raise sites -- B2Z_P1_FUNDING_TIME_INVALID and B2Z_P1_NO_FUNDING_EDGE -- immediately before re-raising the same B2ZP1Error, so the script's stop-on-failure behavior is completely unchanged from the operator's perspective",
+    "stage_output_also_recorded": "a distinguishable, non-MEMBER_COMPLETE-shaped stage output is written (terminal_status=SEMANTIC_VALIDATION_FAILED, evidence_observed=False, provenance_complete=False) so any future reader can immediately tell this member has NO valid evidence without cross-referencing the raw event ledger",
+    "member_now_correctly_blocks": "_member_has_failed_stage() was updated to treat (ordinal, FUNDING_TX) as NOT succeeded when a SEMANTIC_VALIDATION_FAILED_TERMINAL exists for that ordinal, even though a raw ATTEMPT_SUCCEEDED event also exists -- so the member now correctly BLOCKS resume (exactly like an unexcluded ATTEMPT_FAILED_AFTER_DISPATCH would), requiring an explicit human decision to skip past it, rather than being silently bypassed",
+    "cannot_be_excluded_via_the_wrong_mechanism": "exclude_member_from_execution() (the B2Z-P2R credential-corruption exclusion path) was verified to correctly REJECT an attempt to exclude a SEMANTIC_VALIDATION_FAILED_TERMINAL member -- it only matches ATTEMPT_FAILED_AFTER_DISPATCH, so a genuine local-vs-raw disagreement cannot be swept aside using the mechanism meant only for credential/infrastructure corruption. A distinct, explicit decision path would be needed if a human later decides ordinal 8 should be skipped.",
+    "consumes_zero_additional_physical_requests": "the physical request that already happened (and already succeeded at the transport level) was already counted; this fix adds zero new requests"
+  },
+
+  "tests": {
+    "existing_test_updated": "tests/test_b2z_p1_durable_execution.py::test_stage_3_malformed_response_raises_and_is_accounted -- extended to prove SEMANTIC_VALIDATION_FAILED_TERMINAL is recorded immediately after ATTEMPT_SUCCEEDED, a distinguishable stage output exists, and a SUBSEQUENT resume_next() call correctly raises (blocks) rather than silently skipping the member",
+    "new_test": "tests/test_b2z_p2r_execution_exclusion.py::test_semantic_validation_failure_cannot_be_excluded_via_credential_corruption_path -- proves the exclusion mechanism boundary holds",
+    "results": "71/71 passing (69 pre-existing + 1 fixed-in-place + 1 new)"
+  },
+
+  "live_ledger_repair": {
+    "precondition_verified": "read ordinal 8's stage output directly first: confirmed CREATOR_HISTORY output exists, FUNDING_TX output does NOT exist -- matching the incident exactly before appending anything",
+    "action": "appended exactly ONE SEMANTIC_VALIDATION_FAILED_TERMINAL event to the event ledger, and ONE stage output record to the stage-output ledger, for ordinal 8 -- both preserve an ALREADY-EARNED finding (the getTransaction call already happened and already returned a transaction that already failed validation); no new dispatch, no retry, no re-verification against the provider",
+    "event_ledger_sha256_before": "5fd341b2021f8160a48483b1a4dfa213fef7b6b21a5d991534b0996ab3a76756",
+    "event_ledger_line_count_before": 39,
+    "event_ledger_line_count_after": 40,
+    "first_39_events_byte_identical": true,
+    "physical_requests_attempted_before": 16,
+    "physical_requests_attempted_after": 16,
+    "prediction_freeze_digest_unchanged": "e403f46f5ebe08332bfeae9089f341b9b1e49d70f737cbd7e386f2fa62de19b3",
+    "execution_plan_digest_unchanged": "40fd882afeea60e05feda81f9b7e3d499e3b55d81f5ea407f8cedb3e082198c6",
+    "post_repair_resume_state": {
+      "ordinal_7": "next_stage=None (complete, unchanged)",
+      "ordinal_8": "blocked=FUNDING_TX (correctly blocking now -- genuine unresolved disagreement, requires explicit human decision to proceed past)",
+      "ordinal_9": "next_stage=MIGRATION_TX (unaffected, but UNREACHABLE until ordinal 8 is resolved, per the member-order loop's existing stop-on-blocked-member semantics)"
+    }
+  },
+
+  "progress_this_run": {
+    "members_resolved_this_manual_run": [4, 5, 6, 7, 8],
+    "ordinal_4": "MEMBER_COMPLETE (Stage-2-seeded, agrees with frozen prediction)",
+    "ordinal_5": "NO_EVIDENCE_NO_CANDIDATE (live Stage-2, zero candidates found)",
+    "ordinal_6": "NO_EVIDENCE_NO_CANDIDATE (live Stage-2, zero candidates found)",
+    "ordinal_7": "MEMBER_COMPLETE (Stage-2-seeded, agrees with frozen prediction)",
+    "ordinal_8": "SEMANTIC_VALIDATION_FAILED (live Stage-2 found a candidate, but raw Stage-3 fetch contradicted it -- review-sensitive ordinal, LOW local confidence, flag correctly anticipated risk)",
+    "cumulative_resolved_since_start": "ordinals 2,3,4,5,6,7,8 = 7 of 19 eligible members now terminally resolved (1 excluded=ordinal1, 6 evidence-complete/no-candidate, 1 semantically-contradicted-and-blocking)"
+  },
+
+  "request_accounting": {
+    "total_physical_requests_consumed": 16,
+    "authorization_max": 50,
+    "remaining_authorization": 33,
+    "unchanged_by_this_fix": true
+  },
+
+  "terminal_verdict": "HOLD_B2Z_P2_ORDINAL_8_SEMANTIC_DISAGREEMENT_REVIEW_REQUIRED",
+  "verdict_reasoning": "Ordinal 8 is now a correctly-blocking, genuine finding requiring human review before resume can proceed to ordinal 9+. This is NOT a bug to fix further and NOT something to auto-exclude -- it is calibration data showing the local prediction's funding claim was contradicted by raw evidence for a review-sensitive member. No provider calls were made this turn. Resume cannot safely continue past ordinal 8 until a human reviews this finding and makes an explicit decision (accept the contradiction as-is and exclude ordinal 8 the same way ordinal 1 was excluded, using a NEW distinct exclusion reason -- or some other resolution).",
+
+  "human_decision_needed": "ordinal 8's local prediction (funder 5NCTr5wkgXHeYXC1ymrp174xxQa1AtcciHCfMEdH2adG, signature 5ZWirv1r...) is CONTRADICTED by raw evidence -- Stage 2 found a different candidate signature (3dcBuPJ9Vd...) that does not prove funding to the creator. This is exactly the kind of case the review-sensitive tracking (ordinals 8,11,15,18,19) exists to catch. No code action remains; this requires a human review decision analogous to (but distinct from) the ordinal-1 OPTION_A decision -- whether to exclude ordinal 8 from the 19-member calibration (making it 18 eligible + 1 semantic-exclusion) or handle it some other way. This artifact does NOT propose eligible-population changes; that is preserved as an explicit future human decision.",
+
+  "no_further_provider_free_action_possible": "resume cannot proceed to ordinal 9+ without a human decision on ordinal 8, since the member loop processes ordinals in order and will correctly keep raising on ordinal 8 (as designed) until either excluded via an explicit new decision or otherwise resolved."
+}

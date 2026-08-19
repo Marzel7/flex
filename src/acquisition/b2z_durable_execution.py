@@ -126,7 +126,8 @@ class B2ZEventLedger:
     purposes only."""
 
     VALID_EVENTS = {"ATTEMPT_RESERVED", "ATTEMPT_SUCCEEDED", "ATTEMPT_FAILED_AFTER_DISPATCH",
-                     "ATTEMPT_NOT_DISPATCHED", "LOCAL_PREDICTION_SEEDED", "EXECUTION_EXCLUDED"}
+                     "ATTEMPT_NOT_DISPATCHED", "LOCAL_PREDICTION_SEEDED", "EXECUTION_EXCLUDED",
+                     "NO_CANDIDATE_TERMINAL"}
 
     def __init__(self, path: Path) -> None:
         self.path = Path(path)
@@ -157,6 +158,9 @@ class B2ZEventLedger:
     def excluded_ordinals(self) -> set[int]:
         return {e["sample_ordinal"] for e in self.events() if e["event"] == "EXECUTION_EXCLUDED"}
 
+    def no_candidate_terminal_ordinals(self) -> set[int]:
+        return {e["sample_ordinal"] for e in self.events() if e["event"] == "NO_CANDIDATE_TERMINAL"}
+
     def terminal_events(self) -> list[dict[str, Any]]:
         return [e for e in self.events() if e["event"] in
                 ("ATTEMPT_SUCCEEDED", "ATTEMPT_FAILED_AFTER_DISPATCH", "ATTEMPT_NOT_DISPATCHED")]
@@ -174,7 +178,7 @@ class B2ZEventLedger:
 
     def succeeded_stage_keys(self) -> set[tuple[int, str]]:
         return {(e["sample_ordinal"], e["stage"]) for e in self.events()
-                if e["event"] in ("ATTEMPT_SUCCEEDED", "LOCAL_PREDICTION_SEEDED")}
+                if e["event"] in ("ATTEMPT_SUCCEEDED", "LOCAL_PREDICTION_SEEDED", "NO_CANDIDATE_TERMINAL")}
 
     def seed_frozen_stage(self, *, run_id: str, sample_ordinal: int, mint: str, stage: str,
                            frozen_prediction_digest: str) -> None:
@@ -238,6 +242,35 @@ class B2ZEventLedger:
             endpoint_family="NONE_EXECUTION_EXCLUDED", method="NONE_EXECUTION_EXCLUDED",
             dependency_digest=None, request_digest=None,
             exclusion_reason=exclusion_reason, decision_source=decision_source,
+        )
+
+    def record_no_candidate_terminal(self, *, run_id: str, sample_ordinal: int, mint: str) -> None:
+        """Durably mark a member as terminally resolved at NO_EVIDENCE_NO_CANDIDATE
+        (CREATOR_HISTORY succeeded but found zero qualifying pre-migration
+        signatures, so FUNDING_TX is never dispatched per the contract).
+
+        Without this event, `_stage_for_next()` would keep reporting
+        FUNDING_TX as this member's next incomplete stage forever, and
+        `resume_next()`'s member loop -- which processes members in manifest
+        order -- would re-derive and re-return the SAME NO_EVIDENCE_NO_CANDIDATE
+        result on every future call without ever reaching a later ordinal.
+        That is a genuine liveness bug (observed live: 17 consecutive
+        --resume invocations against ordinal 3, zero progress, zero physical
+        requests consumed -- safe but stuck). Recording this event lets
+        `resume_next()` treat the member as done and advance.
+
+        Consumes NO physical request. Refuses to record a duplicate for an
+        already-marked ordinal, and refuses to record for a member whose
+        CREATOR_HISTORY stage output doesn't actually show no_candidate (so
+        this can't be used to fabricate a terminal state for a member that
+        hasn't earned one)."""
+        if sample_ordinal in self.no_candidate_terminal_ordinals():
+            raise B2ZP1Error(f"B2Z_P1_DUPLICATE_NO_CANDIDATE_TERMINAL:{sample_ordinal}")
+        self.append_event(
+            event="NO_CANDIDATE_TERMINAL", run_id=run_id, sample_ordinal=sample_ordinal, mint=mint,
+            stage=STAGE_FUNDING_TX, physical_request_number=0, provider="NONE_NO_CANDIDATE_TERMINAL",
+            endpoint_family="NONE_NO_CANDIDATE_TERMINAL", method="NONE_NO_CANDIDATE_TERMINAL",
+            dependency_digest=None, request_digest=None,
         )
 
 
@@ -573,7 +606,14 @@ def resume_next(*, manifest: B2NManifest, projection: B2WInputProjection, author
                 # No provider request is made for stage 3 when there is no
                 # candidate -- this member's evidence acquisition ends here
                 # with a qualified no-evidence outcome, consuming exactly the
-                # 2 requests actually attempted (not 3).
+                # 2 requests actually attempted (not 3). Durably record this
+                # as the member's terminal state (idempotent -- a second call
+                # for the same ordinal is a no-op) so resume advances past it
+                # instead of re-deriving the same result forever.
+                if ordinal not in event_ledger.no_candidate_terminal_ordinals():
+                    event_ledger.record_no_candidate_terminal(
+                        run_id=authorization.run_id, sample_ordinal=ordinal, mint=mint,
+                    )
                 return {"status": "NO_EVIDENCE_NO_CANDIDATE", "sample_ordinal": ordinal, "stage": stage}
             creator = stage2["creator"]
             migration_time = stage2["migration_time"]

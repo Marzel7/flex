@@ -1,0 +1,77 @@
+{
+  "schema_version": "b2z.p2d.no-candidate-terminal-liveness-fix.v1",
+  "artifact_type": "B2Z_P2D_NO_CANDIDATE_TERMINAL_LIVENESS_FIX",
+  "milestone": "B2Z-P2D -- resume liveness bug fix (NO_EVIDENCE_NO_CANDIDATE)",
+  "generated_utc": "2026-08-19T08:55:00Z",
+  "run_id": "b2z-p1-44d6798563468c8aff747446",
+
+  "operation_safety": {
+    "provider_calls_made": 0,
+    "credentials_used": false,
+    "production_data_modified": false,
+    "method": "code fix to src/acquisition/b2z_durable_execution.py + regression tests (tmp_path/FakeTransport only), then ONE authorized append to the real live event ledger recording an already-earned terminal state -- no dispatch, no retry"
+  },
+
+  "incident": {
+    "observed_symptom": "the human ran the manual resume loop and it printed 17 identical {\"result_written_to\": ...} lines with no visible progress",
+    "durable_state_confirmed": "the event ledger was byte-identical across all 17 invocations (sha256 10b1671f..., 12 events, 5 physical requests consumed) -- ZERO new events, ZERO new physical requests. The result artifact was also unchanged, always reporting {\"status\": \"NO_EVIDENCE_NO_CANDIDATE\", \"sample_ordinal\": 3, \"stage\": \"FUNDING_TX\"}.",
+    "safety_confirmed": "this was NOT a budget leak or a semantic failure -- zero physical requests were consumed across all 17 invocations, and no ledger drift or corruption occurred. It was a pure liveness bug: safe but permanently stuck."
+  },
+
+  "root_cause": {
+    "function": "resume_next()'s STAGE_FUNDING_TX branch in src/acquisition/b2z_durable_execution.py (pre-fix, around line 605)",
+    "mechanism": "when CREATOR_HISTORY's stage output has no_candidate=True, the branch returns {\"status\": \"NO_EVIDENCE_NO_CANDIDATE\", ...} WITHOUT ever appending any event to the event ledger. _stage_for_next() determines a member's next incomplete stage by checking succeeded_stage_keys(), which only included ATTEMPT_SUCCEEDED and LOCAL_PREDICTION_SEEDED events -- so FUNDING_TX for a no-candidate member was NEVER marked complete, and _stage_for_next() kept returning FUNDING_TX as \"next incomplete\" forever.",
+    "why_it_blocks_all_later_ordinals": "resume_next()'s member loop iterates manifest.members in ordinal order and processes AT MOST ONE stage per call, returning immediately once it finds a member with an incomplete stage. Since ordinal 3 (earlier than 4-20) permanently reported FUNDING_TX as incomplete, EVERY subsequent call re-entered ordinal 3's STAGE_FUNDING_TX branch, re-derived the same no_candidate result, and returned -- never reaching ordinal 4 or any later member.",
+    "distinguishing_feature_from_the_execution_exclusion_bug": "this is a DIFFERENT bug from the earlier B2Z-P2R fix (which addressed unexcluded FAILED_AFTER_DISPATCH stages raising an error). NO_EVIDENCE_NO_CANDIDATE never raised an error at all -- it silently returned success (exit 0) every time, which is why the shell loop's `if rc -ne 0` stop condition never triggered and why 17 invocations ran without any visible failure."
+  },
+
+  "fix": {
+    "new_event_type": "NO_CANDIDATE_TERMINAL",
+    "new_ledger_method": "B2ZEventLedger.record_no_candidate_terminal(run_id, sample_ordinal, mint)",
+    "guard": "refuses a duplicate record for an already-marked ordinal (B2Z_P1_DUPLICATE_NO_CANDIDATE_TERMINAL)",
+    "succeeded_stage_keys_updated": "now includes NO_CANDIDATE_TERMINAL events, so (ordinal, FUNDING_TX) is correctly treated as complete once recorded",
+    "resume_next_updated": "the STAGE_FUNDING_TX no-candidate branch now calls record_no_candidate_terminal() (idempotently, checking no_candidate_terminal_ordinals() first) before returning the NO_EVIDENCE_NO_CANDIDATE result",
+    "consumes_zero_physical_requests": "NO_CANDIDATE_TERMINAL is not in the event-name set dispatched_stage_keys()/physical_requests_attempted() filter for, structurally identical to how EXECUTION_EXCLUDED and LOCAL_PREDICTION_SEEDED are excluded",
+    "does_not_change_the_terminal_result_returned": "resume_next() still returns exactly {\"status\": \"NO_EVIDENCE_NO_CANDIDATE\", ...} for the FIRST call reaching this state -- the fix only changes what gets durably recorded, not the contract-facing return value"
+  },
+
+  "tests": {
+    "existing_test_extended": "tests/test_b2z_p1_durable_execution.py::test_no_candidate_ends_member_with_only_2_requests -- extended to prove a 4th resume_next() call after the no-candidate outcome ADVANCES to ordinal 2 instead of re-deriving the same result, and that NO_CANDIDATE_TERMINAL is not duplicated",
+    "new_regression_test": "tests/test_b2z_p1_durable_execution.py::test_no_candidate_terminal_liveness_regression -- directly reproduces the observed incident shape (many repeated resume_next() calls past a no-candidate member) and proves the ordinal never regresses back and progress is made",
+    "results": "70/70 passing (69 pre-existing unaffected + 1 new regression test; 1 existing test extended in place)"
+  },
+
+  "live_ledger_repair": {
+    "precondition_verified": "ordinal 3's stage-output ledger genuinely shows CREATOR_HISTORY.no_candidate=True (read directly, not assumed) before appending anything",
+    "action": "appended exactly ONE NO_CANDIDATE_TERMINAL event for ordinal 3 to the real live event ledger -- this records an ALREADY-EARNED terminal state (the getSignaturesForAddress call already succeeded and already returned zero candidates, back when the human's original resume attempt ran); no new dispatch, no retry, no re-verification against the provider",
+    "ledger_sha256_before": "10b1671f1b98f6510903846701a02bbecb366fff852cb0d36f38043f155c7b6c",
+    "ledger_sha256_after": "b78034663303d14a2f8c1fde73123126e07bb5828cb0130f22176f66656acab0",
+    "ledger_line_count_before": 12,
+    "ledger_line_count_after": 13,
+    "first_12_events_byte_identical": true,
+    "physical_requests_attempted_before": 5,
+    "physical_requests_attempted_after": 5,
+    "prediction_freeze_digest_unchanged": "e403f46f5ebe08332bfeae9089f341b9b1e49d70f737cbd7e386f2fa62de19b3",
+    "execution_plan_digest_unchanged": "40fd882afeea60e05feda81f9b7e3d499e3b55d81f5ea407f8cedb3e082198c6",
+    "post_repair_resume_state": {
+      "ordinal_1": "blocked=MIGRATION_TX (excluded, permanently non-dispatchable, unchanged)",
+      "ordinal_2": "next_stage=None (complete, unchanged)",
+      "ordinal_3": "next_stage=None (NOW correctly complete -- was FUNDING_TX before the fix)",
+      "ordinal_4": "next_stage=MIGRATION_TX (the genuine next deterministic stage)"
+    }
+  },
+
+  "updated_request_accounting": {
+    "total_physical_requests_consumed": 5,
+    "authorization_max": 50,
+    "remaining_authorization": 44,
+    "unchanged_by_this_fix": true,
+    "note": "this fix did not consume or free any budget -- it only unblocked forward progress"
+  },
+
+  "terminal_verdict": "READY_B2Z_P2_17_MEMBER_MANUAL_RESUME_GATE",
+  "verdict_reasoning": "17 eligible members remain untouched (ordinals 4-20, of which 2 are already resolved: ordinal 2 complete, ordinal 3 complete). The liveness bug is fixed and tested; resume will now genuinely advance to ordinal 4 instead of looping on ordinal 3 forever. No provider calls were made this turn.",
+
+  "exact_safe_manual_resume_command": "cd /Users/kevinkeaveney/Dev/claude/flex && read -s B2Z_P2_HELIUS_ENDPOINT && export B2Z_P2_HELIUS_ENDPOINT && echo && for i in $(seq 1 44); do python3 scripts/run_b2z_p2_calibration.py --resume; rc=$?; if [ $rc -ne 0 ]; then echo \"STOPPED at invocation $i\"; break; fi; done && unset B2Z_P2_HELIUS_ENDPOINT",
+  "diagnostic_note_for_human": "the previous 17-invocation run was NOT wasted budget (0 physical requests consumed) and did not damage anything -- it was a code bug in this repository, now fixed. The same command as before remains correct; it should now make real forward progress starting at ordinal 4."
+}

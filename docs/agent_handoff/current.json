@@ -1,4 +1,21 @@
 {
+  "b2z_p2d_no_candidate_terminal_liveness_fix": {
+    "milestone": "B2Z-P2D -- resume liveness bug fix",
+    "artifact": "docs/audits/b2z_p2d_no_candidate_terminal_liveness_fix.json",
+    "provider_calls_made": 0,
+    "credentials_used": false,
+    "incident": "human ran the manual resume loop 17 times after ordinal 3 hit NO_EVIDENCE_NO_CANDIDATE; zero new ledger events, zero new physical requests, zero progress -- safe but permanently stuck (not a budget leak, not a semantic failure)",
+    "root_cause": "resume_next()'s STAGE_FUNDING_TX no-candidate branch never durably recorded the member as complete, so _stage_for_next() kept reporting FUNDING_TX as ordinal 3's next incomplete stage forever, blocking the member loop from ever reaching ordinal 4+ (the branch returns exit 0, so the shell loop's stop-on-failure condition never triggered either)",
+    "fix": "new NO_CANDIDATE_TERMINAL durable event type (zero-physical-request, idempotent, guarded against duplicates) + resume_next() now records it before returning NO_EVIDENCE_NO_CANDIDATE, so succeeded_stage_keys() correctly treats the member as done",
+    "tests": "70/70 passing (69 pre-existing unaffected + 1 new regression test reproducing the exact 17-invocation stuck scenario + 1 existing test extended to prove forward advance)",
+    "live_ledger_repaired": true,
+    "live_ledger_sha256_before": "10b1671f1b98f6510903846701a02bbecb366fff852cb0d36f38043f155c7b6c",
+    "live_ledger_sha256_after": "b78034663303d14a2f8c1fde73123126e07bb5828cb0130f22176f66656acab0",
+    "physical_requests_unchanged": 5,
+    "post_fix_state": "ordinal 2 complete, ordinal 3 complete (NO_EVIDENCE_NO_CANDIDATE, durably recorded), next deterministic stage = ordinal 4 / MIGRATION_TX",
+    "terminal_verdict": "READY_B2Z_P2_17_MEMBER_MANUAL_RESUME_GATE",
+    "exact_safe_manual_resume_command": "cd /Users/kevinkeaveney/Dev/claude/flex && read -s B2Z_P2_HELIUS_ENDPOINT && export B2Z_P2_HELIUS_ENDPOINT && echo && for i in $(seq 1 44); do python3 scripts/run_b2z_p2_calibration.py --resume; rc=$?; if [ $rc -ne 0 ]; then echo \"STOPPED at invocation $i\"; break; fi; done && unset B2Z_P2_HELIUS_ENDPOINT"
+  },
   "b2z_p2c_partial_live_calibration_result": {
     "milestone": "B2Z-P2C -- live calibration reconciliation and analysis",
     "artifacts": [

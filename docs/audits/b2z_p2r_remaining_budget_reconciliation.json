@@ -1,0 +1,163 @@
+{
+  "schema_version": "b2z.p2r.remaining-budget-reconciliation.v1",
+  "artifact_type": "B2Z_P2R_REMAINING_BUDGET_RECONCILIATION",
+  "milestone": "B2Z-P2R follow-up -- final budget reconciliation before live resume",
+  "generated_utc": "2026-08-19T07:55:00Z",
+  "run_id": "b2z-p1-44d6798563468c8aff747446",
+
+  "operation_safety": {
+    "provider_calls_made": 0,
+    "credentials_used": false,
+    "ledgers_modified": false,
+    "frozen_predictions_modified": false,
+    "frozen_execution_plan_modified": false,
+    "method": "direct read of docs/audits/b2z_p2_execution_plan_and_authorization.json (the committed frozen plan) and the live event ledger, no inference from tests"
+  },
+
+  "part1_real_frozen_plan": {
+    "source": "docs/audits/b2z_p2_execution_plan_and_authorization.json -> part3_frozen_execution_plan",
+    "plan_digest": "646758c961e97f52b87082810bfb43da8b2571cecec66829ebf429c488ef38d0",
+    "totals_as_frozen": {
+      "MIGRATION_TX": 20,
+      "CREATOR_HISTORY": 10,
+      "FUNDING_TX": 20,
+      "TOTAL_MAXIMUM": 50
+    },
+    "matches_required_50": true,
+    "drift_detected": false,
+    "per_member_plan_full_20": [
+      {"ordinal": 1, "MIGRATION_TX_required": true, "CREATOR_HISTORY_required": false, "CREATOR_HISTORY_seeded": true, "FUNDING_TX_required": true, "max_physical_requests": 2},
+      {"ordinal": 2, "MIGRATION_TX_required": true, "CREATOR_HISTORY_required": false, "CREATOR_HISTORY_seeded": true, "FUNDING_TX_required": true, "max_physical_requests": 2},
+      {"ordinal": 3, "MIGRATION_TX_required": true, "CREATOR_HISTORY_required": true, "CREATOR_HISTORY_seeded": false, "FUNDING_TX_required": true, "max_physical_requests": 3},
+      {"ordinal": 4, "MIGRATION_TX_required": true, "CREATOR_HISTORY_required": false, "CREATOR_HISTORY_seeded": true, "FUNDING_TX_required": true, "max_physical_requests": 2},
+      {"ordinal": 5, "MIGRATION_TX_required": true, "CREATOR_HISTORY_required": true, "CREATOR_HISTORY_seeded": false, "FUNDING_TX_required": true, "max_physical_requests": 3},
+      {"ordinal": 6, "MIGRATION_TX_required": true, "CREATOR_HISTORY_required": true, "CREATOR_HISTORY_seeded": false, "FUNDING_TX_required": true, "max_physical_requests": 3},
+      {"ordinal": 7, "MIGRATION_TX_required": true, "CREATOR_HISTORY_required": false, "CREATOR_HISTORY_seeded": true, "FUNDING_TX_required": true, "max_physical_requests": 2},
+      {"ordinal": 8, "MIGRATION_TX_required": true, "CREATOR_HISTORY_required": true, "CREATOR_HISTORY_seeded": false, "FUNDING_TX_required": true, "max_physical_requests": 3},
+      {"ordinal": 9, "MIGRATION_TX_required": true, "CREATOR_HISTORY_required": true, "CREATOR_HISTORY_seeded": false, "FUNDING_TX_required": true, "max_physical_requests": 3},
+      {"ordinal": 10, "MIGRATION_TX_required": true, "CREATOR_HISTORY_required": false, "CREATOR_HISTORY_seeded": true, "FUNDING_TX_required": true, "max_physical_requests": 2},
+      {"ordinal": 11, "MIGRATION_TX_required": true, "CREATOR_HISTORY_required": true, "CREATOR_HISTORY_seeded": false, "FUNDING_TX_required": true, "max_physical_requests": 3},
+      {"ordinal": 12, "MIGRATION_TX_required": true, "CREATOR_HISTORY_required": false, "CREATOR_HISTORY_seeded": true, "FUNDING_TX_required": true, "max_physical_requests": 2},
+      {"ordinal": 13, "MIGRATION_TX_required": true, "CREATOR_HISTORY_required": false, "CREATOR_HISTORY_seeded": true, "FUNDING_TX_required": true, "max_physical_requests": 2},
+      {"ordinal": 14, "MIGRATION_TX_required": true, "CREATOR_HISTORY_required": false, "CREATOR_HISTORY_seeded": true, "FUNDING_TX_required": true, "max_physical_requests": 2},
+      {"ordinal": 15, "MIGRATION_TX_required": true, "CREATOR_HISTORY_required": true, "CREATOR_HISTORY_seeded": false, "FUNDING_TX_required": true, "max_physical_requests": 3},
+      {"ordinal": 16, "MIGRATION_TX_required": true, "CREATOR_HISTORY_required": true, "CREATOR_HISTORY_seeded": false, "FUNDING_TX_required": true, "max_physical_requests": 3},
+      {"ordinal": 17, "MIGRATION_TX_required": true, "CREATOR_HISTORY_required": false, "CREATOR_HISTORY_seeded": true, "FUNDING_TX_required": true, "max_physical_requests": 2},
+      {"ordinal": 18, "MIGRATION_TX_required": true, "CREATOR_HISTORY_required": true, "CREATOR_HISTORY_seeded": false, "FUNDING_TX_required": true, "max_physical_requests": 3},
+      {"ordinal": 19, "MIGRATION_TX_required": true, "CREATOR_HISTORY_required": true, "CREATOR_HISTORY_seeded": false, "FUNDING_TX_required": true, "max_physical_requests": 3},
+      {"ordinal": 20, "MIGRATION_TX_required": true, "CREATOR_HISTORY_required": false, "CREATOR_HISTORY_seeded": true, "FUNDING_TX_required": true, "max_physical_requests": 2}
+    ],
+    "note": "every member's plan includes MIGRATION_TX and FUNDING_TX as real physical stages -- Stage 1 is always live per the anti-circularity contract (only CREATOR_HISTORY is ever seeded), and FUNDING_TX always dispatches at most once against either a live-discovered or frozen-seeded signature"
+  },
+
+  "part2_ordinal1_accounting": {
+    "ORIGINAL_FROZEN_PLAN_PHYSICAL_MAX": 50,
+    "ORDINAL_1_ORIGINAL_PLANNED_STAGES": ["MIGRATION_TX", "FUNDING_TX"],
+    "ORDINAL_1_ORIGINAL_PLANNED_PHYSICAL_REQUESTS": 2,
+    "ORDINAL_1_ALREADY_CONSUMED": 1,
+    "ORDINAL_1_CONSUMED_STAGE": "MIGRATION_TX (failed after dispatch, InvalidURL)",
+    "ORDINAL_1_UNREACHED_PLANNED_STAGE": "FUNDING_TX -- was planned (ordinal 1 was in the Stage-2 SEED set, frozen_stage3_signature already assigned) but is now permanently unreachable because ordinal 1 is EXECUTION_EXCLUDED",
+    "unreached_stage_not_reassigned": "confirmed -- the 1 planned-but-now-unreachable FUNDING_TX request for ordinal 1 simply does not occur; it is not transferred to any other ordinal",
+    "REMAINING_ELIGIBLE_PLANNED_PHYSICAL_REQUESTS": 48,
+    "arithmetic_check": "50 (total plan) - 2 (ordinal 1's full planned allocation) = 48 (ordinals 2..20 planned total); consistent with summing ordinals 2..20's individual max_physical_requests directly"
+  },
+
+  "part3_reconciliation_with_authorization": {
+    "current_authorization_nominal_remaining": 49,
+    "actual_frozen_plan_remaining_for_ordinals_2_to_20": 48,
+    "condition": "REMAINING_ELIGIBLE_PLANNED_PHYSICAL_REQUESTS (48) <= nominal remaining (49)",
+    "condition_holds": true,
+    "slack": 1,
+    "slack_explanation": "the 1-request slack exists because ordinal 1 consumed only 1 of its 2 originally-planned requests (its MIGRATION_TX failed before FUNDING_TX could ever be attempted) -- the nominal remaining authorization (49) was computed simply as 50-1, without yet accounting for the fact that ordinal 1's now-unreachable FUNDING_TX stage further reduces genuine demand. The real number the plan can ever consume from here is 48, one less than the nominal ceiling allows.",
+    "verdict": "REAL_FROZEN_PLAN_FITS_WITHIN_NOMINAL_49_REMAINDER -- with 1 request of margin never to be used"
+  },
+
+  "part4_58_request_mock_explanation": {
+    "classification": "GENERIC_WORST_CASE_EXCEEDS_BUDGET_BUT_REAL_FROZEN_PLAN_FITS",
+    "exact_reason": "the B2Z-P2R mocked test (test_19_member_calibration_walk_never_exceeds_original_authorization in tests/test_b2z_p2r_execution_exclusion.py) intentionally used a GENERIC FakeTransport fixture with no no_candidate_mints and, critically, WITHOUT calling seed_frozen_creator_history_from_local_prediction() for any of the 19 members -- so every one of them required the full 3-stage path (MIGRATION_TX + CREATOR_HISTORY + FUNDING_TX = 3 requests each), giving 19*3=57 plus ordinal 1's already-consumed 1 = 58. It did not apply the REAL frozen Stage-2 seed/skip plan (9 of the 19 remaining members -- ordinals 2,4,7,10,12,13,14,17,20 -- are seeded and require only 2 stages each, not 3).",
+    "test_still_valuable": "yes -- it proves the hard physical-request budget guard in DurableB2ZClient.dispatch() fails closed correctly under a worst-case load that WOULD occur if seeding were somehow bypassed or unavailable. It is a defense-in-depth test, not a prediction of real consumption. It was never intended to model the real frozen plan and this reconciliation does not treat it as having done so.",
+    "worst_case_vs_real": {
+      "generic_mock_worst_case_total": 58,
+      "real_frozen_plan_total_for_all_20": 50,
+      "real_frozen_plan_remaining_for_19_eligible": 48
+    }
+  },
+
+  "part5_stage2_seeding_verification": {
+    "seeded_ordinal_set_full_20": [1, 2, 4, 7, 10, 12, 13, 14, 17, 20],
+    "seeded_ordinal_set_eligible_2_to_20": [2, 4, 7, 10, 12, 13, 14, 17, 20],
+    "note_on_ordinal_1": "ordinal 1 WAS in the original Stage-2 seed set (its CREATOR_HISTORY was always planned to be seeded, not dispatched live) -- but ordinal 1 never reached the CREATOR_HISTORY stage at all, because its MIGRATION_TX failed first. So ordinal 1's seed slot is moot; it is excluded from calibration and its planned FUNDING_TX (which would have used the frozen signature) will never be dispatched.",
+    "live_stage2_ordinal_set_eligible_2_to_20": [3, 5, 6, 8, 9, 11, 15, 16, 18, 19],
+    "checks_performed": [
+      {"check": "every seeded ordinal has a non-null frozen_stage3_signature in the committed plan", "result": "PASS -- verified directly against part3_frozen_execution_plan.per_member_plan for all 9 remaining seeded ordinals"},
+      {"check": "every live-Stage2 ordinal has NO pre-assigned frozen signature (must be discovered live)", "result": "PASS -- verified directly, frozen_stage3_signature is null for all 10 live-Stage2 ordinals"},
+      {"check": "LOCAL_PREDICTION_SEEDED state/plan is deterministic", "result": "PASS -- seed_frozen_creator_history_from_local_prediction() writes a fixed output dict keyed only on the caller-supplied frozen values, and B2ZEventLedger.seed_frozen_stage() refuses to reseed an already-touched stage (B2Z_P2_STAGE_ALREADY_HAS_EVENTS), so the seed is idempotent-safe and cannot silently vary run to run"},
+      {"check": "seeded stage consumes zero physical requests", "result": "PASS -- LOCAL_PREDICTION_SEEDED is excluded from dispatched_stage_keys()/physical_requests_attempted() by construction (same mechanism verified for EXECUTION_EXCLUDED in the P2R milestone)"},
+      {"check": "Stage 3 (FUNDING_TX) uses the exact frozen signature for seeded members", "result": "PASS -- resume_next()'s STAGE_FUNDING_TX branch reads candidate_funding_signature directly from the Stage-2 stage_output record (whether live-discovered or seeded) and dispatches getTransaction against exactly that signature; there is no alternate-candidate-selection code path in that branch"},
+      {"check": "no live Stage-2 request can accidentally occur for a seeded member", "result": "PASS -- seed_frozen_stage()/seed_frozen_creator_history_from_local_prediction() must be called BEFORE any resume_next() invocation reaches that member's CREATOR_HISTORY stage; once seeded, _stage_for_next() sees the stage as already in succeeded_stage_keys() (LOCAL_PREDICTION_SEEDED is included there) and skips straight to FUNDING_TX -- the live CREATOR_HISTORY dispatch branch in resume_next() is never reached for that ordinal"},
+      {"check": "raw Stage-3 disagreement fails closed rather than selecting another signature", "result": "PASS -- resume_next()'s STAGE_FUNDING_TX branch raises B2Z_P1_FUNDING_TIME_INVALID or B2Z_P1_NO_FUNDING_EDGE if the fetched transaction for the frozen signature doesn't validate; it never falls back to trying a different signature"}
+    ]
+  },
+
+  "part6_exact_remaining_live_plan": {
+    "eligible_members": 19,
+    "ordered_summary_ordinals_2_to_20": [
+      {"ordinal": 2, "physical_stages_remaining": ["MIGRATION_TX", "FUNDING_TX"], "seeded": true, "max_physical_requests": 2},
+      {"ordinal": 3, "physical_stages_remaining": ["MIGRATION_TX", "CREATOR_HISTORY", "FUNDING_TX"], "seeded": false, "max_physical_requests": 3},
+      {"ordinal": 4, "physical_stages_remaining": ["MIGRATION_TX", "FUNDING_TX"], "seeded": true, "max_physical_requests": 2},
+      {"ordinal": 5, "physical_stages_remaining": ["MIGRATION_TX", "CREATOR_HISTORY", "FUNDING_TX"], "seeded": false, "max_physical_requests": 3},
+      {"ordinal": 6, "physical_stages_remaining": ["MIGRATION_TX", "CREATOR_HISTORY", "FUNDING_TX"], "seeded": false, "max_physical_requests": 3},
+      {"ordinal": 7, "physical_stages_remaining": ["MIGRATION_TX", "FUNDING_TX"], "seeded": true, "max_physical_requests": 2},
+      {"ordinal": 8, "physical_stages_remaining": ["MIGRATION_TX", "CREATOR_HISTORY", "FUNDING_TX"], "seeded": false, "max_physical_requests": 3, "review_sensitive": true},
+      {"ordinal": 9, "physical_stages_remaining": ["MIGRATION_TX", "CREATOR_HISTORY", "FUNDING_TX"], "seeded": false, "max_physical_requests": 3},
+      {"ordinal": 10, "physical_stages_remaining": ["MIGRATION_TX", "FUNDING_TX"], "seeded": true, "max_physical_requests": 2},
+      {"ordinal": 11, "physical_stages_remaining": ["MIGRATION_TX", "CREATOR_HISTORY", "FUNDING_TX"], "seeded": false, "max_physical_requests": 3, "review_sensitive": true},
+      {"ordinal": 12, "physical_stages_remaining": ["MIGRATION_TX", "FUNDING_TX"], "seeded": true, "max_physical_requests": 2},
+      {"ordinal": 13, "physical_stages_remaining": ["MIGRATION_TX", "FUNDING_TX"], "seeded": true, "max_physical_requests": 2},
+      {"ordinal": 14, "physical_stages_remaining": ["MIGRATION_TX", "FUNDING_TX"], "seeded": true, "max_physical_requests": 2},
+      {"ordinal": 15, "physical_stages_remaining": ["MIGRATION_TX", "CREATOR_HISTORY", "FUNDING_TX"], "seeded": false, "max_physical_requests": 3, "review_sensitive": true},
+      {"ordinal": 16, "physical_stages_remaining": ["MIGRATION_TX", "CREATOR_HISTORY", "FUNDING_TX"], "seeded": false, "max_physical_requests": 3},
+      {"ordinal": 17, "physical_stages_remaining": ["MIGRATION_TX", "FUNDING_TX"], "seeded": true, "max_physical_requests": 2},
+      {"ordinal": 18, "physical_stages_remaining": ["MIGRATION_TX", "CREATOR_HISTORY", "FUNDING_TX"], "seeded": false, "max_physical_requests": 3, "review_sensitive": true},
+      {"ordinal": 19, "physical_stages_remaining": ["MIGRATION_TX", "CREATOR_HISTORY", "FUNDING_TX"], "seeded": false, "max_physical_requests": 3, "review_sensitive": true},
+      {"ordinal": 20, "physical_stages_remaining": ["MIGRATION_TX", "FUNDING_TX"], "seeded": true, "max_physical_requests": 2}
+    ],
+    "totals": {
+      "eligible_members": 19,
+      "MIGRATION_TX_remaining": 19,
+      "CREATOR_HISTORY_physical_remaining": 10,
+      "CREATOR_HISTORY_seeded_remaining": 9,
+      "FUNDING_TX_remaining": 19,
+      "EXACT_MAXIMUM_REMAINING_PHYSICAL_REQUESTS": 48
+    },
+    "review_sensitive_ordinals_note": "ordinals 8, 11, 15, 18, 19 (the tracked review-sensitive set) are ALL in the live-Stage2 group -- each requires the full 3-stage path (max 3 requests each). This is expected: they were flagged for review precisely because their funding evidence needs live confirmation rather than being safe to freeze/seed."
+  },
+
+  "part7_no_candidate_semantics": {
+    "reminder": "48 is a MAXIMUM, not a forecast. If any live-Stage2 member's CREATOR_HISTORY dispatch returns zero qualifying pre-migration signatures (a contract-valid NO_CANDIDATE result), that member's FUNDING_TX is never dispatched -- actual consumption for that member drops from 3 to 2.",
+    "no_calls_will_be_manufactured_to_reach_the_maximum": true,
+    "actual_final_consumption_may_be_lower_than_48": true
+  },
+
+  "part8_ledger_reconciliation": {
+    "event_ledger_path": "docs/audits/b2z_p1_event_ledger_b2z-p1-44d6798563468c8aff747446.jsonl",
+    "event_ledger_sha256": "3ded105e78770e181e31058ab268ee4e15453601510eb931934224436d946d1c",
+    "total_events": 3,
+    "physical_requests_consumed": 1,
+    "ordinal_1_excluded": true,
+    "events_for_ordinal_2_or_higher": 0,
+    "unexplained_events": 0,
+    "next_deterministic_stage": "ordinal 2 / MIGRATION_TX",
+    "ledger_not_modified_this_turn": true,
+    "stage_output_ledger": "does not exist yet -- no stage has ever succeeded for any ordinal"
+  },
+
+  "terminal_verdict": "READY_B2Z_P2_19_MEMBER_MANUAL_RESUME_GATE",
+  "verdict_qualifier": "REAL_FROZEN_PLAN_FITS_EXISTING_49_REQUEST_REMAINDER",
+  "exact_maximum_remaining_physical_requests_under_frozen_plan": 48,
+  "nominal_authorization_remaining": 49,
+  "margin": 1,
+
+  "exact_safe_manual_resume_command": "cd /Users/kevinkeaveney/Dev/claude/flex && read -s B2Z_P2_HELIUS_ENDPOINT && export B2Z_P2_HELIUS_ENDPOINT && echo && for i in $(seq 1 49); do python3 scripts/run_b2z_p2_calibration.py --resume; rc=$?; if [ $rc -ne 0 ]; then echo \"STOPPED at invocation $i\"; break; fi; done && unset B2Z_P2_HELIUS_ENDPOINT",
+  "command_preserves": ["same run_id", "same ledgers (real, canonical paths)", "ordinal 1 exclusion (resume_next() now skips it)", "stop-on-first-failure (loop breaks on any non-zero exit)", "maximum existing authorization (loop capped at 49 invocations, never exceeds nominal remainder)", "no retry (ordinal 1 structurally cannot be redispatched -- DUPLICATE_STAGE_ATTEMPT guard plus new exclusion skip)"]
+}

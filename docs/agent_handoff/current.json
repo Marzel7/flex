@@ -1,4 +1,20 @@
 {
+  "b2z_p2r_remaining_budget_reconciliation": {
+    "milestone": "B2Z-P2R follow-up -- final budget reconciliation before live resume",
+    "artifact": "docs/audits/b2z_p2r_remaining_budget_reconciliation.json",
+    "provider_calls_made": 0,
+    "credentials_used": false,
+    "finding": "the real frozen execution plan (plan_digest 646758c9...) allocates ordinal 1 exactly 2 planned requests (MIGRATION_TX + FUNDING_TX); only 1 was consumed before failure, and the planned FUNDING_TX is now permanently unreachable (not reassigned). Actual remaining demand for ordinals 2-20 is 48 physical requests maximum, which fits within the nominal 49-request remainder with 1 request of margin.",
+    "58_request_mock_explained": "the P2R mocked worst-case test used a generic fixture with NO Stage-2 seeding applied for any of the 19 members, so it required 3 stages each (57) + ordinal 1's consumed 1 = 58. This never modeled the real frozen plan (9 of the 19 remaining members are seeded, requiring only 2 stages each) -- classified GENERIC_WORST_CASE_EXCEEDS_BUDGET_BUT_REAL_FROZEN_PLAN_FITS. The test remains valuable as a defense-in-depth proof that the budget guard fails closed.",
+    "seeded_ordinals_remaining": [2, 4, 7, 10, 12, 13, 14, 17, 20],
+    "live_stage2_ordinals_remaining": [3, 5, 6, 8, 9, 11, 15, 16, 18, 19],
+    "review_sensitive_ordinals_all_live_stage2": [8, 11, 15, 18, 19],
+    "exact_maximum_remaining_physical_requests": 48,
+    "nominal_authorization_remaining": 49,
+    "margin": 1,
+    "terminal_verdict": "READY_B2Z_P2_19_MEMBER_MANUAL_RESUME_GATE",
+    "verdict_qualifier": "REAL_FROZEN_PLAN_FITS_EXISTING_49_REQUEST_REMAINDER"
+  },
   "b2z_p2r_execution_exclusion_resume_repair": {
     "milestone": "B2Z-P2R -- execution-exclusion-aware resume repair",
     "artifact": "docs/audits/b2z_p2r_execution_exclusion_resume_repair.json",

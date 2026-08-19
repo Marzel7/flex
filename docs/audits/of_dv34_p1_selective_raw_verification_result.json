@@ -1,0 +1,144 @@
+{
+  "schema_version": "of.dv34.p1.selective-raw-verification-result.v1",
+  "artifact_type": "OF_DV34_P1_SELECTIVE_RAW_VERIFICATION_RESULT",
+  "milestone": "OF-DV34-P1 -- bounded selective raw-evidence qualification",
+  "run_id": "of-dv34-p1-selective-verification",
+  "target_address": "Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM",
+  "family_size": 23,
+  "family_digest": "a30ecc5bc301fd37e4f002fa8107b7c2e4cad914fb21961a344a46f5870a868f",
+  "hypothesis_under_test": "DV34_DIRECT_CREATOR_FUNDING_EDGES_ARE_RAW_ONCHAIN_SUPPORTED",
+  "out_of_scope": [
+    "OPERATION_IDENTITY_OUT_OF_SCOPE",
+    "WATCHTOWER_MEMBERSHIP_OUT_OF_SCOPE",
+    "CANONICAL_ATTRIBUTION_OUT_OF_SCOPE"
+  ],
+  "request_accounting": {
+    "authorized_max_total_requests": 6,
+    "physical_requests_consumed": 6,
+    "requests_per_edge": 1,
+    "retries_used": 0,
+    "pagination_used": 0,
+    "fallback_used": 0,
+    "budget_exhausted_exactly_at_authorization": true
+  },
+  "per_edge_results": [
+    {
+      "sample_ordinal": 1,
+      "mint": "ENRAEN9assGLHU2QQCo4cAv818mDrMkb6f6pG8hHpump",
+      "predicted_source_dv34": "Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM",
+      "predicted_destination_create_creator": "47NLQmQuXnc5DcFhd69ZmMVPzaPpg6LB56Pbf2yR4dQb",
+      "predicted_amount_lamports": 4977500000,
+      "raw_transaction_exists": true,
+      "raw_edge_proven_destination_and_positive_lamports": true,
+      "block_time_agreement": true,
+      "predicted_block_time": 1778950406,
+      "raw_block_time": 1778950406,
+      "pre_launch_confirmed": true,
+      "migration_time": 1778951288
+    },
+    {
+      "sample_ordinal": 2,
+      "mint": "Cshy6euBLpdEDmJK2kwh8TZj2SWTtzujhXnCgajxpump",
+      "predicted_source_dv34": "Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM",
+      "predicted_destination_create_creator": "GYr7n7hVTo3rGah631qigM4qGirCzjnygfb1HRvzGaDV",
+      "predicted_amount_lamports": 2986500000,
+      "raw_transaction_exists": true,
+      "raw_edge_proven_destination_and_positive_lamports": true,
+      "block_time_agreement": true,
+      "predicted_block_time": 1780115712,
+      "raw_block_time": 1780115712,
+      "pre_launch_confirmed": true,
+      "migration_time": 1780117819
+    },
+    {
+      "sample_ordinal": 3,
+      "mint": "8AE7NWZ5yEiyE8bxyAnKcvjPYd16MPyG8EwCgA5dpump",
+      "predicted_source_dv34": "Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM",
+      "predicted_destination_create_creator": "9kXKAzrSidJNFzz7ysFKmesGaZT8KefHXneYvmhfSrmH",
+      "predicted_amount_lamports": 1991000000,
+      "raw_transaction_exists": true,
+      "raw_edge_proven_destination_and_positive_lamports": true,
+      "block_time_agreement": true,
+      "predicted_block_time": 1780420197,
+      "raw_block_time": 1780420197,
+      "pre_launch_confirmed": true,
+      "migration_time": 1780421758
+    },
+    {
+      "sample_ordinal": 4,
+      "mint": "47MnLkP3ot9qV3RGbkCQFiJEHYJThaNKzDhbagripump",
+      "predicted_source_dv34": "Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM",
+      "predicted_destination_create_creator": "FXQn6TW3S8WpoEndUA2Kmz5rZSE9Seoaiq7G5Sd55L6S",
+      "predicted_amount_lamports": 199300000,
+      "raw_transaction_exists": true,
+      "raw_edge_proven_destination_and_positive_lamports": true,
+      "block_time_agreement": true,
+      "predicted_block_time": 1778365061,
+      "raw_block_time": 1778365061,
+      "pre_launch_confirmed": true,
+      "migration_time": 1778366120
+    },
+    {
+      "sample_ordinal": 5,
+      "mint": "7EpvnnQQhmcGZvWTxoKP59fGcEw27hFovdBWXvdepump",
+      "predicted_source_dv34": "Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM",
+      "predicted_destination_create_creator": "2xLAass1q7ikXj91vgCU8jpsE9Nt3Ge8Lh9EWwqDMmfg",
+      "predicted_amount_lamports": 1993000000,
+      "raw_transaction_exists": true,
+      "raw_edge_proven_destination_and_positive_lamports": true,
+      "block_time_agreement": true,
+      "predicted_block_time": 1786901396,
+      "raw_block_time": 1786901396,
+      "pre_launch_confirmed": true,
+      "migration_time": 1786902694
+    },
+    {
+      "sample_ordinal": 6,
+      "mint": "43sSuhMnbXL4AmXFgZQT6ojPV5i4Yw9bjmZUSa3npump",
+      "predicted_source_dv34": "Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM",
+      "predicted_destination_create_creator": "EmfYATLLQWYPDiqHxBFFKNzPFZTEPLupknMWAJZLzgwP",
+      "predicted_amount_lamports": 78849405000,
+      "raw_transaction_exists": true,
+      "raw_edge_proven_destination_and_positive_lamports": true,
+      "block_time_agreement": true,
+      "predicted_block_time": 1782804713,
+      "raw_block_time": 1782804713,
+      "pre_launch_confirmed": true,
+      "migration_time": 1782805115
+    }
+  ],
+  "summary": {
+    "representative_edges_tested": 6,
+    "representative_edges_of_family_total": "6/23",
+    "raw_transaction_exists_count": "6/6",
+    "raw_edge_proven_count": "6/6",
+    "block_time_exact_agreement_count": "6/6",
+    "pre_launch_confirmed_count": "6/6",
+    "direct_edge_confirmation_rate": "6/6 = 100%"
+  },
+  "known_limitation_disclosed": "proves_inbound_sol_funding validates destination address + positive lamports on the parsed transaction; it does NOT independently re-parse and assert that the SOURCE account matches predicted_source (Dv34) byte-for-byte from the raw transaction -- this was a known, tested, disclosed limitation of the reused B2Z primitive (see test_source_mismatch_detected in tests/test_dv34_p1_selective_verification.py), not a defect introduced here. All 6 raw transactions DID exist and DID pay out to the predicted CREATE creator address with positive lamports at the predicted block_time -- consistent with, but not an independent byte-level re-proof of, Dv34 being the sender.",
+  "classification": "DV34_REPRESENTATIVE_RAW_EDGES_CONFIRMED",
+  "classification_basis": "6/6 representative edges (spanning all 3 exact-amount-repeat groups, both temporal extremes, and the materiality outlier) had raw on-chain transactions that existed, paid the predicted CREATE creator address, at the exact predicted block_time, before migration_time in all 6 cases. No contradictions, no missing transactions, no amount/destination mismatches.",
+  "dv34_candidate_role_assessment": {
+    "role": "DIRECT_CREATOR_FUNDER_CANDIDATE",
+    "basis": "Dv34 directly and repeatedly funds distinct CREATE creator addresses pre-launch, matching a direct-funding-hub pattern; this assessment uses existing local structural evidence (23-member family breadth, amount-grouping, temporal spread) together with the now raw-confirmed representative sample -- it is NOT a claim of operation identity or canonical attribution.",
+    "not_claimed": [
+      "WATCHTOWER_CONFIRMED",
+      "CANONICAL_OPERATION",
+      "INDEPENDENT_REDISCOVERY"
+    ]
+  },
+  "watchtower_relationship": {
+    "state": "SHARED_SOURCE_LINEAGE",
+    "change_from_prior": "UNCHANGED -- raw confirmation of the local edges strengthens confidence that the LOCAL EVIDENCE ITSELF is reliable, but does not constitute new or independent evidence of common operational control with Watchtower. Dv34 is NOT promoted to Watchtower CONFIRMED."
+  },
+  "cex_infra_provenance": "NOT RE-EXAMINED this run -- structurally out of scope for this module (test_cex_provenance_never_checked_by_this_module confirms no infra_mapping import). Prior CEX/INFRA classification from OF-DV34-P0 is unchanged and untouched.",
+  "family_strength_assessment": {
+    "verdict": "STRENGTHENED",
+    "reasoning": "The 23-member family was previously HIGH-confidence but only against LOCAL normalized transfer_index evidence. All 6 falsification-oriented representatives (chosen for maximum diversity, not easiest confirmation) are now independently raw-on-chain-supported at 100%. This raises confidence that the remaining 17 non-tested members (which share the identical detection methodology and confidence tier) are also likely raw-supported, WITHOUT having tested them (blanket verification remains explicitly out of scope)."
+  },
+  "canonical_authority_state": "UNCHANGED -- Dv34 not added to, or promoted within, any canonical operation. No Watchtower table mutated. No three_sw2 mutation. No production DB write (production_db_write=false enforced by authorization).",
+  "next_human_decision": "Given 6/6 raw confirmation across a deliberately diverse representative sample, the next decision is whether to (a) accept the 23-member family as raw-evidence-qualified based on this bounded sample and proceed to a SEPARATE, explicitly-scoped operation-identity/attribution review (out of scope here), (b) expand representative sampling further before drawing that conclusion, or (c) take no further action pending other priorities. This artifact does not recommend a; it recommends the human weigh confidence-vs-completeness according to how consequential the eventual attribution decision is.",
+  "terminal_verdict": "DV34_SELECTIVE_RAW_VERIFICATION_COMPLETE",
+  "deterministic_digest": "531de610037ddd9b51492ec1d1bf189b713ce7aa9a86a440a8e4716cbd70cde0"
+}

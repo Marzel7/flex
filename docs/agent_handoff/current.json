@@ -535,8 +535,8 @@
   ],
   "current_milestone": {
     "milestone": "OF-DV34-P1 -- bounded selective raw-evidence qualification",
-    "status": "PREFLIGHT_COMPLETE_AWAITING_CREDENTIAL",
-    "verdict": "READY_DV34_P1_MANUAL_EXECUTION_GATE"
+    "status": "COMPLETE",
+    "verdict": "DV34_SELECTIVE_RAW_VERIFICATION_COMPLETE"
   },
   "current_next_blocker": "B2Z_P2_HELIUS_ENDPOINT was never available during the overnight session. P2 remains frozen at the 19-member manual resume gate, exactly as left. All 12 provider-free workstreams from the overnight prompt were completed: P2 analysis engine, selective-RPC policy (B2Z-P3), historical coverage profile, 2-hop coverage quality, B2Z-2H contract, operation-discovery preparation, candidate funding family analysis (with a real cross-validated finding), raw-transaction cache adapter, RPC savings models, V2 persistent-budget design, edge-case classifier, and roadmap reconciliation. See docs/audits/overnight_human_decision_queue.json for the 5 decisions that actually need you.",
   "focused_tests": [
@@ -30453,12 +30453,17 @@
     "runner_script": "scripts/run_of_dv34_p1_selective_verification.py",
     "credential_env_var": "OF_DV34_P1_HELIUS_ENDPOINT",
     "credential_check_this_turn": "env | grep -i OF_DV34_P1_HELIUS_ENDPOINT -- absent, no credential requested/read from .env/supervisor secrets",
-    "execution_status": "NOT_EXECUTED -- credential absent",
-    "raw_verification_result": null,
-    "dv34_candidate_role": "UNDETERMINED_PENDING_LIVE_EXECUTION",
-    "watchtower_relationship": "SHARED_SOURCE_LINEAGE (unchanged, not independently confirmed)",
+    "execution_status": "COMPLETE -- 6/6 representative edges raw-confirmed, 6 physical requests consumed (exactly at budget)",
+    "raw_verification_result": {
+      "artifact": "docs/audits/of_dv34_p1_selective_raw_verification_result.json",
+      "digest": "531de610037ddd9b51492ec1d1bf189b713ce7aa9a86a440a8e4716cbd70cde0",
+      "classification": "DV34_REPRESENTATIVE_RAW_EDGES_CONFIRMED",
+      "confirmation_rate": "6/6 = 100%"
+    },
+    "dv34_candidate_role": "DIRECT_CREATOR_FUNDER_CANDIDATE",
+    "watchtower_relationship": "SHARED_SOURCE_LINEAGE (unchanged -- raw confirmation strengthens local evidence reliability, not Watchtower membership)",
     "canonical_authority": "unchanged -- Dv34 not promoted to any operation",
-    "next_action": "human runs the exact_safe_manual_command from the preflight artifact 6 times (once per representative) with a real Helius endpoint in OF_DV34_P1_HELIUS_ENDPOINT, then requests result reconciliation",
-    "verdict": "READY_DV34_P1_MANUAL_EXECUTION_GATE"
+    "next_action": "human decides whether to accept 23-member family as raw-evidence-qualified on this bounded sample, expand sampling, or defer -- a separate explicitly-scoped review governs any operation-identity/attribution decision",
+    "verdict": "DV34_SELECTIVE_RAW_VERIFICATION_COMPLETE"
   }
 }

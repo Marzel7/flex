@@ -1,0 +1,16 @@
+{
+  "sample_ordinal": 6,
+  "mint": "43sSuhMnbXL4AmXFgZQT6ojPV5i4Yw9bjmZUSa3npump",
+  "result": {
+    "mint": "43sSuhMnbXL4AmXFgZQT6ojPV5i4Yw9bjmZUSa3npump",
+    "predicted_source": "Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM",
+    "predicted_destination": "EmfYATLLQWYPDiqHxBFFKNzPFZTEPLupknMWAJZLzgwP",
+    "predicted_amount_lamports": 78849405000,
+    "predicted_block_time": 1782804713,
+    "raw_block_time": 1782804713,
+    "raw_transaction_exists": true,
+    "raw_edge_proven": true,
+    "migration_time": 1782805115,
+    "pre_launch": true
+  }
+}

@@ -127,7 +127,8 @@ class B2ZEventLedger:
 
     VALID_EVENTS = {"ATTEMPT_RESERVED", "ATTEMPT_SUCCEEDED", "ATTEMPT_FAILED_AFTER_DISPATCH",
                      "ATTEMPT_NOT_DISPATCHED", "LOCAL_PREDICTION_SEEDED", "EXECUTION_EXCLUDED",
-                     "NO_CANDIDATE_TERMINAL", "SEMANTIC_VALIDATION_FAILED_TERMINAL"}
+                     "NO_CANDIDATE_TERMINAL", "SEMANTIC_VALIDATION_FAILED_TERMINAL",
+                     "RAW_VERIFICATION_NEGATIVE_TERMINAL"}
 
     def __init__(self, path: Path) -> None:
         self.path = Path(path)
@@ -163,6 +164,9 @@ class B2ZEventLedger:
 
     def semantic_validation_failed_ordinals(self) -> set[int]:
         return {e["sample_ordinal"] for e in self.events() if e["event"] == "SEMANTIC_VALIDATION_FAILED_TERMINAL"}
+
+    def raw_negative_terminal_ordinals(self) -> set[int]:
+        return {e["sample_ordinal"] for e in self.events() if e["event"] == "RAW_VERIFICATION_NEGATIVE_TERMINAL"}
 
     def terminal_events(self) -> list[dict[str, Any]]:
         return [e for e in self.events() if e["event"] in
@@ -316,6 +320,63 @@ class B2ZEventLedger:
             method="NONE_SEMANTIC_VALIDATION_FAILED_TERMINAL",
             dependency_digest=None, request_digest=candidate_signature,
             failure_reason=failure_reason,
+        )
+
+    def classify_raw_verification_negative_terminal(self, *, run_id: str, sample_ordinal: int, mint: str,
+                                                      prediction_digest: str, failure_reason: str,
+                                                      review_sensitive: bool, decision_source: str) -> None:
+        """B2Z-P2F only: the explicit, human-authorized classification step
+        that takes an ALREADY-RECORDED SEMANTIC_VALIDATION_FAILED_TERMINAL
+        finding (raw evidence was acquired and evaluated, but contradicted
+        the frozen local prediction) and makes it TERMINAL FOR SEQUENCING --
+        unblocking resume to proceed to the next member -- while explicitly
+        keeping the member INCLUDED in the calibration denominator as a
+        genuine negative result.
+
+        This is DELIBERATELY a separate, later step from
+        record_semantic_validation_failed_terminal(): that method durably
+        preserves the raw FINDING at the moment it occurs (automatic, no
+        human decision required -- it is simply preventing evidence loss).
+        THIS method records the human's DECISION about how to treat that
+        finding for calibration purposes -- analogous to how
+        EXECUTION_EXCLUDED is a distinct, later, human-authorized step after
+        an ATTEMPT_FAILED_AFTER_DISPATCH failure.
+
+        Unlike EXECUTION_EXCLUDED, this classification does NOT remove the
+        member from the calibration denominator -- it is a genuine, INCLUDED
+        negative result (local false positive / contradiction), not an
+        execution-quality exclusion.
+
+        Refuses to classify:
+          - a member with no matching SEMANTIC_VALIDATION_FAILED_TERMINAL
+            finding (cannot manufacture a raw-negative classification for a
+            member that never actually failed semantic validation)
+          - a member that already has a RAW_VERIFICATION_NEGATIVE_TERMINAL
+            classification (no duplicate classification)
+          - a member that is EXECUTION_EXCLUDED (these are mutually
+            exclusive treatments of a member -- a credential/infrastructure
+            exclusion is not compatible with also being a genuine evidence
+            outcome)
+
+        Consumes NO physical request -- the request was already consumed and
+        counted when the original FUNDING_TX dispatch happened."""
+        if sample_ordinal not in self.semantic_validation_failed_ordinals():
+            raise B2ZP1Error(
+                f"B2Z_P2F_NO_MATCHING_SEMANTIC_FAILURE_TO_CLASSIFY:{sample_ordinal}"
+            )
+        if sample_ordinal in self.raw_negative_terminal_ordinals():
+            raise B2ZP1Error(f"B2Z_P2F_DUPLICATE_RAW_NEGATIVE_TERMINAL:{sample_ordinal}")
+        if sample_ordinal in self.excluded_ordinals():
+            raise B2ZP1Error(f"B2Z_P2F_ALREADY_EXECUTION_EXCLUDED:{sample_ordinal}")
+        self.append_event(
+            event="RAW_VERIFICATION_NEGATIVE_TERMINAL", run_id=run_id, sample_ordinal=sample_ordinal,
+            mint=mint, stage=STAGE_FUNDING_TX, physical_request_number=0,
+            provider="NONE_RAW_VERIFICATION_NEGATIVE_TERMINAL",
+            endpoint_family="NONE_RAW_VERIFICATION_NEGATIVE_TERMINAL",
+            method="NONE_RAW_VERIFICATION_NEGATIVE_TERMINAL",
+            dependency_digest=None, request_digest=prediction_digest,
+            failure_reason=failure_reason, review_sensitive=review_sensitive,
+            decision_source=decision_source, calibration_denominator_treatment="INCLUDED",
         )
 
 
@@ -609,6 +670,7 @@ def resume_next(*, manifest: B2NManifest, projection: B2WInputProjection, author
     client = DurableB2ZClient(transport=transport, event_ledger=event_ledger, authorization=authorization)
 
     excluded = event_ledger.excluded_ordinals()
+    raw_negative = event_ledger.raw_negative_terminal_ordinals()
 
     for member in manifest.members:
         ordinal = member.sample_ordinal
@@ -624,12 +686,25 @@ def resume_next(*, manifest: B2NManifest, projection: B2WInputProjection, author
                 # next member instead of treating this as a run-blocking
                 # anomaly.
                 continue
+            if ordinal in raw_negative:
+                # This member's semantic validation failure was reviewed and
+                # explicitly classified as a genuine RAW_VERIFICATION_NEGATIVE_TERMINAL
+                # calibration outcome (B2Z-P2F) -- raw evidence was acquired
+                # and evaluated but contradicted the frozen local prediction.
+                # Unlike EXECUTION_EXCLUDED, this member REMAINS in the
+                # calibration denominator as a genuine negative result; it is
+                # simply no longer a run-blocking anomaly for SEQUENCING
+                # purposes. It can never be retried (FUNDING_TX already has a
+                # terminal ATTEMPT_SUCCEEDED + SEMANTIC_VALIDATION_FAILED_TERMINAL,
+                # and DurableB2ZClient.dispatch()'s duplicate-stage guard
+                # would reject any redispatch attempt regardless).
+                continue
             # This member is permanently blocked by a failed/not-dispatched
-            # stage that has NOT been explicitly excluded -- do NOT retry it,
-            # and do NOT skip to a later member's earlier stage out of order.
-            # Per the "stop on first anomaly" discipline (matching B2N/B2Z's
-            # existing stop-on-first-non-success posture), surface this
-            # rather than silently continuing past it.
+            # stage that has NOT been explicitly excluded or classified --
+            # do NOT retry it, and do NOT skip to a later member's earlier
+            # stage out of order. Per the "stop on first anomaly" discipline
+            # (matching B2N/B2Z's existing stop-on-first-non-success
+            # posture), surface this rather than silently continuing past it.
             raise B2ZP1Error(f"B2Z_P1_MEMBER_BLOCKED_BY_FAILED_STAGE:{ordinal}:{blocking_stage}")
 
         stage = _stage_for_next(event_ledger, ordinal)

@@ -1,4 +1,37 @@
 {
+  "b2z_p2f_raw_semantic_negative_terminal_qualification": {
+    "milestone": "B2Z-P2F -- semantic-negative terminal-state qualification",
+    "artifact": "docs/audits/b2z_p2f_raw_semantic_negative_terminal_qualification.json",
+    "provider_calls_made": 0,
+    "credentials_used": false,
+    "human_decision_applied": "KEEP ORDINAL 8 IN CALIBRATION -- classified as RAW_VERIFICATION_NEGATIVE_TERMINAL, not excluded, not retried, not converted to success",
+    "new_event_type": "RAW_VERIFICATION_NEGATIVE_TERMINAL -- distinct from EXECUTION_EXCLUDED (mutually exclusive by design, guarded) and from SEMANTIC_VALIDATION_FAILED_TERMINAL (the automatic finding-preservation event from P2E; this is the human's later classification decision)",
+    "sequencing_fix": "resume_next()'s member loop now skips a raw_negative_terminal ordinal exactly like it skips an excluded one -- ordinal 8 no longer blocks resume",
+    "no_retry_guaranteed_two_layers": "DurableB2ZClient's duplicate-stage-attempt guard (structural) + resume_next()'s sequencing skip (never even attempts dispatch)",
+    "tests": "87/87 passing (69 pre-existing + 1 fixed-in-place from P2E + 1 new from P2R + 16 new from P2F)",
+    "live_ledger_repaired": true,
+    "live_ledger_sha256_before": "f3d9beae3162b66ef05c729197b8ca4ce0fd6e63388bb7f7722356c3a95e5dc3",
+    "live_ledger_sha256_after": "5560a196c16eb8c2b76a767a8062c3a7461edd98a10502c14219d3e2a0241b48",
+    "physical_requests_unchanged": 16,
+    "authorization_max": 50,
+    "remaining_authorization": 34,
+    "remaining_authorization_correction_note": "the follow-on instruction's stated 'consumed=17/remaining=33' was NOT trusted -- direct ledger reconciliation confirmed the correct figures are consumed=16/remaining=34",
+    "calibration_snapshot": {
+      "eligible_population": 19,
+      "resolved": 7,
+      "unresolved": 12,
+      "positive_confirmations": [2, 4, 7],
+      "no_candidate": [3, 5, 6],
+      "raw_semantic_negative": [8],
+      "creator_agreement_rate": "3/7 = 42.9%",
+      "complete_relationship_agreement_rate": "3/7 = 42.9%",
+      "local_false_positives": 1
+    },
+    "important_disclosed_observation": "ordinals 3, 4, 5, 7 all show the IDENTICAL raw-derived creator address (9C4nRvhhVquC...) despite 4 different local predictions and 4 different mints -- flagged for explicit human attention, NOT investigated in this milestone (out of P2F's scope, which only classifies ordinal 8)",
+    "next_deterministic_stage": "ordinal 9 / MIGRATION_TX",
+    "terminal_verdict": "READY_B2Z_P2_CONTINUE_AFTER_RAW_NEGATIVE",
+    "exact_safe_manual_resume_command": "cd /Users/kevinkeaveney/Dev/claude/flex && read -s B2Z_P2_HELIUS_ENDPOINT && export B2Z_P2_HELIUS_ENDPOINT && echo && for i in $(seq 1 34); do python3 scripts/run_b2z_p2_calibration.py --resume; rc=$?; if [ $rc -ne 0 ]; then echo \"STOPPED at invocation $i\"; break; fi; done && unset B2Z_P2_HELIUS_ENDPOINT"
+  },
   "b2z_p2e_semantic_validation_failure_preservation_fix": {
     "milestone": "B2Z-P2E -- resume evidence-loss bug fix",
     "artifact": "docs/audits/b2z_p2e_semantic_validation_failure_preservation_fix.json",

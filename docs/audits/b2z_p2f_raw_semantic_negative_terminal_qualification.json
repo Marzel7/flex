@@ -1,0 +1,198 @@
+{
+  "schema_version": "b2z.p2f.raw-semantic-negative-terminal-qualification.v1",
+  "artifact_type": "B2Z_P2F_RAW_SEMANTIC_NEGATIVE_TERMINAL_QUALIFICATION",
+  "milestone": "B2Z-P2F -- semantic-negative terminal-state qualification",
+  "generated_utc": "2026-08-19T09:35:00Z",
+  "run_id": "b2z-p1-44d6798563468c8aff747446",
+
+  "operation_safety": {
+    "provider_calls_made": 0,
+    "credentials_used": false,
+    "production_data_modified": false,
+    "method": "code addition (new RAW_VERIFICATION_NEGATIVE_TERMINAL event type + classification method + resume_next() sequencing update) + regression tests (tmp_path/FakeTransport only), then ONE authorized append to the real live event ledger classifying an already-earned finding -- no dispatch, no retry"
+  },
+
+  "part1_live_state_reconciliation": {
+    "event_ledger_sha256_at_start_of_turn": "f3d9beae3162b66ef05c729197b8ca4ce0fd6e63388bb7f7722356c3a95e5dc3",
+    "event_ledger_line_count_at_start": 40,
+    "unchanged_since_p2e_commit": true,
+    "ordinal_8_funding_tx_dispatched_exactly_once": true,
+    "ordinal_8_no_retry_occurred": true,
+    "semantic_failure_terminal_event_confirmed_present": true,
+    "raw_negative_evidence_confirmed_durable": "stage-output ledger for ordinal 8's FUNDING_TX shows terminal_status=SEMANTIC_VALIDATION_FAILED, evidence_observed=false -- confirmed present before this turn's changes",
+    "physical_requests_consumed_verified": 16,
+    "remaining_authorization_verified": 34,
+    "remaining_authorization_note": "50 - 16 = 34 (the prompt's stated 33 was NOT trusted and was recomputed directly from the ledger -- the correct figure is 34)",
+    "ordinal_9_plus_untouched_confirmed": "zero events exist for any ordinal >= 9 in the event ledger",
+    "no_duplicate_or_unexplained_events": true,
+    "prediction_freeze_digest_unchanged": "e403f46f5ebe08332bfeae9089f341b9b1e49d70f737cbd7e386f2fa62de19b3",
+    "execution_plan_digest_unchanged": "40fd882afeea60e05feda81f9b7e3d499e3b55d81f5ea407f8cedb3e082198c6",
+    "material_difference_from_prompt_assumptions": "the prompt's stated 'consumed=17? remaining=33' figures were NOT correct -- direct ledger reconciliation confirms consumed=16, remaining=34. This did not trigger a STOP because it was a prompt-narrative imprecision, not a live-state anomaly; the underlying durable state is fully consistent and was independently reconciled from source."
+  },
+
+  "part2_ordinal8_facts_confirmed": {
+    "local_prediction": {
+      "ordinal": 8, "mint": "qgiXEYJD6mXjHqzJJksX1yjYtownjLXFHAtD7KApump",
+      "local_creator": "FChCzcTZiVxYpwkTALotD16kwDwACdxQTUHJThKqG6Dj",
+      "local_direct_funder": "5NCTr5wkgXHeYXC1ymrp174xxQa1AtcciHCfMEdH2adG",
+      "local_direct_funding_signature": "5ZWirv1rbPigofxLTwH5j4WKDEjzbZ8tKRcp8cmjJYUHPV88k6P1zydfoDNejBFX7zsYUw1tHx2AMkXs9Qh3UL6T",
+      "local_funding_amount_lamports": 997955720,
+      "fan_out_review_flag": true,
+      "local_completeness_confidence": "LOW"
+    },
+    "raw_result": {
+      "raw_creator": "FChCzcTZiVxYpwkTALotD16kwDwACdxQTUHJThKqG6Dj",
+      "creator_agreement": "AGREE (raw creator matches local prediction exactly -- the disagreement is one level deeper than ordinal 3's)",
+      "raw_candidate_pool_size": 201,
+      "raw_selected_candidate_signature": "3dcBuPJ9VdWWkeCAFvuvsn5BSSC64omwvUo3zYmHgREFV1oPV2CXPPm4oyHUtpfYKDivwzVZWnLQxjs5SbPUfk85",
+      "candidate_signature_matches_local_claim": false,
+      "note": "the raw-discovered 'most recent qualifying pre-migration signature' is a DIFFERENT transaction from the local prediction's claimed funding signature -- Stage 3 fetched the raw candidate and it did NOT contain a parsed System Program transfer proving inbound SOL to the creator"
+    },
+    "semantic_failure": "B2Z_P1_NO_FUNDING_EDGE -- proves_inbound_sol_funding() returned False for the raw-fetched candidate transaction"
+  },
+
+  "part2b_definitional_state_model": {
+    "1_execution_exclusion": {"example": "ordinal 1", "meaning": "execution failure unrelated to evidence quality (credential/infrastructure)", "denominator_treatment": "EXCLUDED", "event_type": "EXECUTION_EXCLUDED"},
+    "2_qualified_positive": {"examples": "ordinals 2,4,7", "meaning": "raw evidence validates the required relationship (creator + funding signature + destination all agree)", "denominator_treatment": "INCLUDED", "event_type": "ATTEMPT_SUCCEEDED at all 3 stages, MEMBER_COMPLETE"},
+    "3_qualified_no_candidate": {"examples": "ordinals 3,5,6", "meaning": "raw creator-history evidence yields zero qualifying candidates", "denominator_treatment": "INCLUDED", "event_type": "NO_CANDIDATE_TERMINAL"},
+    "4_raw_semantic_negative": {"example": "ordinal 8", "meaning": "raw transaction acquired and evaluated, but does not prove the frozen local relationship", "denominator_treatment": "INCLUDED", "event_type": "SEMANTIC_VALIDATION_FAILED_TERMINAL (finding) + RAW_VERIFICATION_NEGATIVE_TERMINAL (human classification, this milestone)", "local_false_positive_contradiction": true},
+    "5_unresolved_execution_provider_failure": {"meaning": "transport/provider/ledger failure prevents evidence conclusion", "denominator_treatment": "fail-closed, explicit, blocks resume until reviewed", "event_type": "ATTEMPT_FAILED_AFTER_DISPATCH without a subsequent EXECUTION_EXCLUDED or RAW_VERIFICATION_NEGATIVE_TERMINAL"}
+  },
+
+  "part3_contract_implemented": {
+    "new_event_type": "RAW_VERIFICATION_NEGATIVE_TERMINAL",
+    "new_ledger_method": "B2ZEventLedger.classify_raw_verification_negative_terminal(run_id, sample_ordinal, mint, prediction_digest, failure_reason, review_sensitive, decision_source)",
+    "bound_fields": ["run_id", "sample_ordinal (ordinal)", "mint", "stage=FUNDING_TX", "prediction_digest (local prediction identity via request_digest field)", "failure_reason", "review_sensitive flag", "decision_source", "calibration_denominator_treatment=INCLUDED", "event_utc_ns (terminal timestamp)", "physical_request_number=0"],
+    "guards": [
+      "refuses classification without a pre-existing SEMANTIC_VALIDATION_FAILED_TERMINAL finding for the ordinal (B2Z_P2F_NO_MATCHING_SEMANTIC_FAILURE_TO_CLASSIFY) -- cannot manufacture a raw-negative for a member that never actually failed semantic validation",
+      "refuses duplicate classification (B2Z_P2F_DUPLICATE_RAW_NEGATIVE_TERMINAL)",
+      "refuses classification of an EXECUTION_EXCLUDED member (B2Z_P2F_ALREADY_EXECUTION_EXCLUDED) -- the two treatments are mutually exclusive by design"
+    ],
+    "consumes_zero_new_physical_requests": true,
+    "append_only": true,
+    "prior_events_never_mutated": "verified: first 40 ledger lines byte-identical before and after this turn's append"
+  },
+
+  "part4_sequencing_semantics": {
+    "resume_next_member_loop_updated": "now checks raw_negative_terminal_ordinals() alongside excluded_ordinals() -- when a member's blocking stage is found AND the ordinal is in raw_negative, resume `continue`s to the next member instead of raising, exactly mirroring how EXECUTION_EXCLUDED already worked",
+    "ordinal_8_now": "terminal for sequencing (does not block), non-retryable, INCLUDED in calibration, NOT execution-excluded, NOT treated as MEMBER_COMPLETE",
+    "next_deterministic_stage_verified": "ordinal 9 / MIGRATION_TX -- verified by directly simulating resume_next()'s member-loop logic (excluded + raw_negative checks) against the real live ledger without dispatching anything"
+  },
+
+  "part4b_no_retry_proof": {
+    "layer_1_duplicate_stage_guard": "DurableB2ZClient.dispatch() checks reserved_stage_keys() BEFORE any dispatch attempt -- (8, FUNDING_TX) already has an ATTEMPT_RESERVED event, so any future dispatch attempt for this exact stage would raise B2Z_P1_DUPLICATE_STAGE_ATTEMPT regardless of sequencing logic",
+    "layer_2_sequencing_skip": "resume_next()'s member loop now skips ordinal 8 entirely once classified, so it never even reaches the point of attempting a dispatch",
+    "both_layers_independently_sufficient": true,
+    "no_candidate_signature_substitution_possible": "the classification method takes no candidate-signature parameter that could override the frozen local prediction or the raw-discovered candidate -- it only records a review decision about an ALREADY-FIXED outcome"
+  },
+
+  "part5_calibration_metrics_treatment": {
+    "ordinal_8_creator_agreement": "AGREE (raw creator == local creator)",
+    "ordinal_8_funding_signature_agreement": "DISAGREE (raw candidate signature != local claimed signature)",
+    "ordinal_8_direct_relationship_agreement": "DISAGREE/NOT_PROVEN (raw candidate transaction does not prove inbound funding to the creator)",
+    "ordinal_8_complete_relationship_agreement": "FAIL (creator agrees, but the funding relationship itself is not raw-verified)",
+    "ordinal_8_local_false_positive": "YES -- the local prediction claimed a specific funding signature/amount that raw evidence does not support",
+    "ordinal_8_review_sensitive": true,
+    "eligible_calibration_population_unchanged": 19,
+    "ordinal_8_remains_included": true
+  },
+
+  "part6_frozen_prediction_preserved": {
+    "prediction_freeze_digest_unchanged": "e403f46f5ebe08332bfeae9089f341b9b1e49d70f737cbd7e386f2fa62de19b3",
+    "ordinal_8_local_prediction_untouched": true,
+    "local_claim_and_raw_negative_kept_as_separate_surfaces": "local prediction remains in docs/audits/b2z_p2_local_prediction_freeze.json (untouched); the raw negative finding lives in the event ledger (SEMANTIC_VALIDATION_FAILED_TERMINAL) and stage-output ledger (terminal_status=SEMANTIC_VALIDATION_FAILED) -- no field of the local prediction was read-modified or overwritten with raw values"
+  },
+
+  "part7_tests": {
+    "file": "tests/test_b2z_p2f_raw_negative_terminal.py",
+    "count": 16,
+    "all_passing": true,
+    "requirements_covered": [
+      "1-2. raw Stage-3 dispatch succeeds then semantic validation fails -- test_raw_stage3_dispatch_succeeds_then_semantic_validation_fails",
+      "3. physical request counted exactly once -- test_physical_request_counted_exactly_once",
+      "4. semantic failure terminal recorded (covered in test 1-2)",
+      "5-6. human-authorized raw-negative terminal appended, zero requests -- test_raw_negative_terminal_classification_consumes_zero_requests",
+      "7. member becomes terminal for sequencing -- test_member_terminal_for_sequencing_after_classification",
+      "8-9. remains in denominator, not converted to success -- test_member_remains_negative_not_success",
+      "10. member cannot be retried -- test_ordinal_8_cannot_be_retried_after_classification",
+      "11. execution exclusion refuses this case -- test_execution_exclusion_still_refuses_raw_negative_case",
+      "12. next member selected correctly -- test_next_member_selected_correctly",
+      "13. local false-positive/contradiction metric preserved -- test_local_false_positive_metric_derivable_from_ledger",
+      "14. duplicate raw-negative terminal rejected -- test_duplicate_raw_negative_terminal_rejected (+ 2 additional guard tests)",
+      "15. unreviewed semantic failures still block -- test_unreviewed_semantic_failure_still_blocks",
+      "16. transport/provider failures still block -- test_transport_failure_still_blocks",
+      "17. ledger inconsistencies fail closed -- test_invalid_event_type_fails_closed"
+    ],
+    "full_relevant_suite": "87/87 passing (69 pre-existing unaffected + 1 test updated in P2E + 1 new in P2R + 16 new in P2F)"
+  },
+
+  "part8_mock_remaining_walk": {
+    "test": "test_mock_remaining_walk_ordinal_8_through_20",
+    "method": "seeds the exact ordinal-8 semantic-failure fixture state, classifies it raw-negative, applies the real P2-specific max_total_requests=50 via dataclasses.replace(), then walks resume_next() in a loop until B2ZP1Error or ALL_MEMBERS_COMPLETE",
+    "verified": [
+      "ordinal 8's FUNDING_TX never redispatched a second time (exactly 1 request for it, total)",
+      "seeded stages remain zero-request throughout the walk",
+      "physical_requests_attempted() never exceeds 50 at any point",
+      "no request numbered beyond 50 ever appears in the ledger"
+    ]
+  },
+
+  "part9_live_ledger_application": {
+    "applied": true,
+    "precondition_verified_before_append": "read ordinal 8's semantic_validation_failed_ordinals() membership and raw_negative_terminal_ordinals() non-membership directly before calling classify_raw_verification_negative_terminal()",
+    "action": "appended exactly ONE RAW_VERIFICATION_NEGATIVE_TERMINAL event for ordinal 8, bound to the real prediction_freeze deterministic_digest (11357ddc...)",
+    "event_ledger_sha256_before": "f3d9beae3162b66ef05c729197b8ca4ce0fd6e63388bb7f7722356c3a95e5dc3",
+    "event_ledger_sha256_after": "5560a196c16eb8c2b76a767a8062c3a7461edd98a10502c14219d3e2a0241b48",
+    "event_ledger_line_count_before": 40,
+    "event_ledger_line_count_after": 41,
+    "first_40_lines_byte_identical": true,
+    "no_prior_events_rewritten": true,
+    "physical_requests_attempted_before": 16,
+    "physical_requests_attempted_after": 16,
+    "post_repair_verification": {
+      "ordinal_8_terminal": true,
+      "ordinal_8_non_retryable": "verified via both the duplicate-stage-attempt guard and the sequencing-skip layer",
+      "ordinal_8_included_in_calibration": true,
+      "next_deterministic_stage": "ordinal 9 / MIGRATION_TX (verified by direct simulation against the live ledger)",
+      "physical_request_count_unchanged": 16,
+      "remaining_authorization_unchanged": 34
+    }
+  },
+
+  "part10_partial_calibration_snapshot": {
+    "eligible_population": 19,
+    "resolved_eligible_members": [2, 3, 4, 5, 6, 7, 8],
+    "resolved_count": 7,
+    "unresolved_eligible_members": [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+    "unresolved_count": 12,
+    "positive_confirmations": {"count": 3, "ordinals": [2, 4, 7]},
+    "no_candidate_outcomes": {"count": 3, "ordinals": [3, 5, 6]},
+    "raw_semantic_negatives": {"count": 1, "ordinals": [8]},
+    "execution_exclusions": {"count": 1, "ordinals": [1], "note": "NOT part of the 19-member eligible population"},
+    "creator_agreement": {"numerator": 3, "denominator": 5, "note": "denominator = 5 comparable members with a raw creator to compare (2,3,4,5,6,7,8 all have raw creators; but ordinal 6's local creator ALSO agreed -- recomputed below with full precision"},
+    "creator_agreement_full_precision": {
+      "ordinal_2": "AGREE", "ordinal_3": "DISAGREE", "ordinal_4": "DISAGREE",
+      "ordinal_5": "DISAGREE", "ordinal_6": "AGREE", "ordinal_7": "DISAGREE", "ordinal_8": "AGREE",
+      "numerator_agree": 3, "denominator_comparable": 7, "rate": "3/7 = 42.9%"
+    },
+    "funding_signature_agreement": {"numerator": 3, "denominator_comparable": 4, "note": "comparable = members that reached a raw funding-signature comparison point (2,4,7 agree; 8 disagrees; 3,5,6 never reached this comparison, raw_missing due to NO_CANDIDATE)", "rate": "3/4 = 75.0%"},
+    "direct_funder_agreement": {"numerator": 3, "denominator_comparable": 4, "note": "mirrors funding_signature_agreement since funder identity is carried by signature match in this dataset", "rate": "3/4 = 75.0%"},
+    "complete_relationship_agreement": {"numerator": 3, "denominator": 7, "note": "PASS only for 2,4,7; FAIL for 3,5,6 (no evidence) and 8 (contradicted)", "rate": "3/7 = 42.9%"},
+    "local_false_positives": {"count": 1, "ordinals": [8], "note": "ordinal 8 is the only case where local claimed a SPECIFIC funding relationship that raw evidence actively contradicted (vs. 3,5,6 which are absence-of-evidence, not contradiction)"},
+    "review_sensitive_cases_resolved_so_far": {"count": 1, "ordinals": [8], "still_unresolved": [11, 15, 18, 19]},
+    "important_disclosed_observation": "ordinals 3, 4, 5, and 7 ALL show the identical raw-derived creator address (9C4nRvhhVquCKATjDCx5FKvNS9PNgNqgyWy9AcoDjYv5) despite having 4 different local-predicted creators and 4 different migration signatures/mints. This is a striking pattern worth flagging prominently to the human -- it may indicate a bug in resolve_creator()'s account-key extraction, OR it may be a genuine finding (e.g. a shared deployer/factory pattern). This is OUT OF SCOPE for B2Z-P2F (which only classifies ordinal 8) and is NOT investigated further here -- flagged for explicit human attention before drawing broader conclusions from the creator-agreement rate above."
+  },
+
+  "request_accounting": {
+    "authorization_max": 50,
+    "physical_requests_consumed": 16,
+    "remaining_authorization": 34,
+    "retries": 0,
+    "pagination": 0,
+    "fallback": 0,
+    "no_request_exceeded_50": true
+  },
+
+  "terminal_verdict": "READY_B2Z_P2_CONTINUE_AFTER_RAW_NEGATIVE",
+  "verdict_reasoning": "Ordinal 8 is now durably classified as a genuine RAW_VERIFICATION_NEGATIVE_TERMINAL, included in the calibration denominator, non-retryable via two independent guard layers, and no longer blocking sequencing. 87/87 tests pass. The live ledger was updated only after all tests passed, appending exactly one new event with the first 40 lines byte-identical. Resume is ready to proceed manually to ordinal 9 whenever the human is ready. No provider calls were made this turn."
+}

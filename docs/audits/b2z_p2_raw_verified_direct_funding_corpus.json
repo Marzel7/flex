@@ -1,0 +1,60 @@
+{
+  "schema_version": "b2z.p2.raw-verified-direct-funding-corpus.v1",
+  "artifact_type": "B2Z_P2_RAW_VERIFIED_DIRECT_FUNDING_CORPUS",
+  "milestone": "B2Z-P2C",
+  "generated_utc": "2026-08-19T08:35:00Z",
+  "run_id": "b2z-p1-44d6798563468c8aff747446",
+
+  "operation_safety": {
+    "provider_calls_made_this_turn": 0,
+    "corpus_derived_from_already_dispatched_live_results": true,
+    "note": "this artifact reflects the ACTUAL, ALREADY-CONSUMED live results from the human's manual resume run -- no new provider calls were made to produce it"
+  },
+
+  "scope_note": "PARTIAL corpus -- only ordinals 2 and 3 reached a terminal state during this live run. Ordinals 4-20 were never dispatched and have NO raw evidence yet. This corpus does not claim coverage beyond what was actually returned by the provider.",
+
+  "eligible_members_with_raw_result": 2,
+  "eligible_members_total": 19,
+
+  "members": [
+    {
+      "ordinal": 2,
+      "mint": "3hgXvsR8Xh6hnoKyFbPnrMVEkrKGPVbH6EJQkzoNpump",
+      "raw_derived_creator": "5CcDWYv3ctLYmRkZntRnLLuD5KVvnCdGnGdrNxxCUt6L",
+      "migration_signature": "2aP6mCzC2aoaMn7SZfV4jvYUNeCgoyrsM96iGCThjS6U9if92fZjaxPcMyUh1hdMBR1had8EdD2d9stvw389FkVP",
+      "migration_slot": 438884664,
+      "migration_block_time": 1786568322,
+      "stage2_state": "LOCAL_PREDICTION_SEEDED",
+      "stage2_frozen_prediction_digest": "11357ddcc73ae45d947a3412ef3255952cc491969ae3005b2b81daaef8d487cc",
+      "funding_signature_validated": "5NFxWxuRQE4NDfYoWcUNJue3CHQNjPq9m3mhGZLpofBJNbkMi9oibAJkife2ME7U7LjiD62qQTuX5QErmGtBDZno",
+      "funding_source": "not independently re-derived from raw parse in this artifact -- see stage-output ledger; proves_inbound_sol_funding() validated the destination match at execution time",
+      "creator_destination_validated": "5CcDWYv3ctLYmRkZntRnLLuD5KVvnCdGnGdrNxxCUt6L",
+      "funding_slot": 438884085,
+      "funding_block_time": 1786568080,
+      "stage_evidence_digest_migration": "3bf322f43e1af30000f9350676ee83d24c00855c14d3fdc30cf34ef2d867f926",
+      "stage_evidence_digest_funding": "dcddba8ad9636ae9c0ca1ecc03b742b0c11c9e33170388f2dd90ce21d0b0e2f7",
+      "review_flag": null,
+      "terminal_status": "MEMBER_COMPLETE"
+    },
+    {
+      "ordinal": 3,
+      "mint": "5BQpi43RtPxsw7jw3dpeE7duQAXcNYhw9MD6KUxGpump",
+      "raw_derived_creator": "9C4nRvhhVquCKATjDCx5FKvNS9PNgNqgyWy9AcoDjYv5",
+      "migration_signature": "5i5H2vfw7o89B79beo38FHAAE8NzBDdW2KafXxLeYAQ1sS5WCJa8fRuS9SC56hUMBSqXQkGUW8Uea4knhirCXw6N",
+      "migration_slot": 438884680,
+      "migration_block_time": 1786568329,
+      "stage2_state": "LIVE_DISPATCHED",
+      "stage2_result": "NO_CANDIDATE (getSignaturesForAddress against the RAW-DERIVED creator returned zero pre-migration qualifying signatures)",
+      "funding_signature_validated": null,
+      "funding_source": null,
+      "creator_destination_validated": null,
+      "funding_slot": null,
+      "funding_block_time": null,
+      "stage_evidence_digest_migration": "be4c15d3a883f636f248582aa6ead4ada2b6640b59f94a8c7a9500e35d37b876",
+      "stage_evidence_digest_creator_history": "afc23b9dd59786030fe4176f1fad121702d883792603fe997a3a2fdecd45173a",
+      "review_flag": null,
+      "terminal_status": "NO_EVIDENCE_NO_CANDIDATE",
+      "important_note": "the RAW MIGRATION_TX signature matches the local prediction's migration_signature EXACTLY, but the RAW-derived creator (9C4nRvhhVquC...) DIFFERS from the local prediction's creator (7VJPjQZyH9yYG...). This is a genuine creator disagreement, not a missing-data case -- see calibration result for detail."
+    }
+  ]
+}

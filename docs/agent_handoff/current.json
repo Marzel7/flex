@@ -1,4 +1,24 @@
 {
+  "b2z_p2c_partial_live_calibration_result": {
+    "milestone": "B2Z-P2C -- live calibration reconciliation and analysis",
+    "artifacts": [
+      "docs/audits/b2z_p2_raw_verified_direct_funding_corpus.json",
+      "docs/audits/b2z_p2_local_vs_raw_calibration_result.json"
+    ],
+    "provider_calls_made_this_turn": 0,
+    "credentials_used_this_turn": false,
+    "execution_classification": "P2_LIVE_EXECUTION_PARTIAL_SAFE_STOP",
+    "members_completed_this_run": [2, 3],
+    "ordinal_2_result": "MEMBER_COMPLETE, full EXACT_AGREEMENT across creator/funding_signature/direct_funder/destination/temporal (Stage-2-seeded, frozen signature confirmed by raw Stage 3)",
+    "ordinal_3_result": "NO_EVIDENCE_NO_CANDIDATE -- IMPORTANT: local_false_positive on creator. Local prediction's creator (7VJPjQZyH9yYG...) does NOT match the raw transaction-verified creator (9C4nRvhhVquC...) despite the migration_signature matching exactly. Raw Stage 2 (dispatched against the correct raw creator) found zero pre-migration funding candidates, contradicting the local prediction. Local prediction had already flagged LOW completeness confidence for this member.",
+    "request_accounting": {"total_consumed": 5, "ordinal_1_historical": 1, "new_this_run": 4, "remaining": 44, "authorization_max_unchanged": 50},
+    "calibration_sample_size": "n=2 -- explicitly too small to generalize; no P3B binding or sprint closure performed, per instruction requiring full 19-member completion first",
+    "seeded_confirmation_so_far": "1/1 (ordinal 2) -- 8 of 9 seeded ordinals remain untested",
+    "review_sensitive_ordinals_status": "all 5 (8,11,15,18,19) untested, classified INSUFFICIENT_RAW_EVIDENCE",
+    "terminal_verdict": "P2_LIVE_EXECUTION_PARTIAL_SAFE_STOP",
+    "next_action": "human may resume the same run with up to 44 more physical requests when ready; no retry, no new authorization",
+    "exact_safe_manual_resume_command": "cd /Users/kevinkeaveney/Dev/claude/flex && read -s B2Z_P2_HELIUS_ENDPOINT && export B2Z_P2_HELIUS_ENDPOINT && echo && for i in $(seq 1 44); do python3 scripts/run_b2z_p2_calibration.py --resume; rc=$?; if [ $rc -ne 0 ]; then echo \"STOPPED at invocation $i\"; break; fi; done && unset B2Z_P2_HELIUS_ENDPOINT"
+  },
   "b2z_p2c_live_execution_reconciliation": {
     "milestone": "B2Z-P2C -- live calibration execution reconciliation",
     "artifact": "docs/audits/b2z_p2c_live_execution_reconciliation.json",

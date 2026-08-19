@@ -1,0 +1,114 @@
+[
+  {
+    "direct_funder_root": "Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM",
+    "upstream_root": "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9",
+    "shared_mint_count": 23,
+    "direct_funder_known_operation": true,
+    "upstream_known_operation": false,
+    "note": "shared_mint_count is the deterministic, interpretable ranking signal -- two independent evidence dimensions (direct funding AND 2-hop upstream) agree on this many mints"
+  },
+  {
+    "direct_funder_root": "HBQ2TC2gmX9qeNuCsY9gRTk9hiZLRZaKhvHGj2ZbVoWB",
+    "upstream_root": "69aiAKU3uJMxMLRkUEGFNt6nQ43PiVimE4ZbErJ7VSM1",
+    "shared_mint_count": 9,
+    "direct_funder_known_operation": false,
+    "upstream_known_operation": false,
+    "note": "shared_mint_count is the deterministic, interpretable ranking signal -- two independent evidence dimensions (direct funding AND 2-hop upstream) agree on this many mints"
+  },
+  {
+    "direct_funder_root": "HBQ2TC2gmX9qeNuCsY9gRTk9hiZLRZaKhvHGj2ZbVoWB",
+    "upstream_root": "5bQ9k4KDv6cMBR23TNCcBwgNi4CQtXHQYNHnYw1d5sy4",
+    "shared_mint_count": 9,
+    "direct_funder_known_operation": false,
+    "upstream_known_operation": false,
+    "note": "shared_mint_count is the deterministic, interpretable ranking signal -- two independent evidence dimensions (direct funding AND 2-hop upstream) agree on this many mints"
+  },
+  {
+    "direct_funder_root": "HBQ2TC2gmX9qeNuCsY9gRTk9hiZLRZaKhvHGj2ZbVoWB",
+    "upstream_root": "HfSaUhys1Fe2zJGRm3UYbLnJQTcZyiSghEHaRWRQLsvj",
+    "shared_mint_count": 9,
+    "direct_funder_known_operation": false,
+    "upstream_known_operation": false,
+    "note": "shared_mint_count is the deterministic, interpretable ranking signal -- two independent evidence dimensions (direct funding AND 2-hop upstream) agree on this many mints"
+  },
+  {
+    "direct_funder_root": "HBQ2TC2gmX9qeNuCsY9gRTk9hiZLRZaKhvHGj2ZbVoWB",
+    "upstream_root": "BCeRVwwny66KpbfrA3eUxss8mNJkFktp1g1sPy6M8L74",
+    "shared_mint_count": 9,
+    "direct_funder_known_operation": false,
+    "upstream_known_operation": false,
+    "note": "shared_mint_count is the deterministic, interpretable ranking signal -- two independent evidence dimensions (direct funding AND 2-hop upstream) agree on this many mints"
+  },
+  {
+    "direct_funder_root": "HBQ2TC2gmX9qeNuCsY9gRTk9hiZLRZaKhvHGj2ZbVoWB",
+    "upstream_root": "DPbhcQWtNjuJfpeSDwynoLDE9EhvdjWjQ72zu4CaBvro",
+    "shared_mint_count": 9,
+    "direct_funder_known_operation": false,
+    "upstream_known_operation": false,
+    "note": "shared_mint_count is the deterministic, interpretable ranking signal -- two independent evidence dimensions (direct funding AND 2-hop upstream) agree on this many mints"
+  },
+  {
+    "direct_funder_root": "AaZkwhkiDStDcgrU37XAj9fpNLrD8Erz5PNkdm4k5hjy",
+    "upstream_root": "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9",
+    "shared_mint_count": 4,
+    "direct_funder_known_operation": false,
+    "upstream_known_operation": false,
+    "note": "shared_mint_count is the deterministic, interpretable ranking signal -- two independent evidence dimensions (direct funding AND 2-hop upstream) agree on this many mints"
+  },
+  {
+    "direct_funder_root": "FncazAs6omJJjtLVzquzT9KoyXn6tFixr9kGjr42ktLj",
+    "upstream_root": "FbKtNefhZReRgiWQ1ywgRFTMewau2J2JCDiJKZzzw9C1",
+    "shared_mint_count": 4,
+    "direct_funder_known_operation": true,
+    "upstream_known_operation": false,
+    "note": "shared_mint_count is the deterministic, interpretable ranking signal -- two independent evidence dimensions (direct funding AND 2-hop upstream) agree on this many mints"
+  },
+  {
+    "direct_funder_root": "bwamJzztZsepfkteWRChggmXuiiCQvpLqPietdNfSXa",
+    "upstream_root": "8aQGN8FNTUR1tEeLrtNHotYujuRqycBLT9N9qfh91m8t",
+    "shared_mint_count": 4,
+    "direct_funder_known_operation": false,
+    "upstream_known_operation": false,
+    "note": "shared_mint_count is the deterministic, interpretable ranking signal -- two independent evidence dimensions (direct funding AND 2-hop upstream) agree on this many mints"
+  },
+  {
+    "direct_funder_root": "FM1YCKED2KaqB8Uat8aB1nsffR1vezr7s6FAEieXJgke",
+    "upstream_root": "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9",
+    "shared_mint_count": 3,
+    "direct_funder_known_operation": false,
+    "upstream_known_operation": false,
+    "note": "shared_mint_count is the deterministic, interpretable ranking signal -- two independent evidence dimensions (direct funding AND 2-hop upstream) agree on this many mints"
+  },
+  {
+    "direct_funder_root": "FM1YCKED2KaqB8Uat8aB1nsffR1vezr7s6FAEieXJgke",
+    "upstream_root": "JAAMEWknebuSAX7KZG6DfMS6vvm1cURbrwyBmK56vU7A",
+    "shared_mint_count": 3,
+    "direct_funder_known_operation": false,
+    "upstream_known_operation": false,
+    "note": "shared_mint_count is the deterministic, interpretable ranking signal -- two independent evidence dimensions (direct funding AND 2-hop upstream) agree on this many mints"
+  },
+  {
+    "direct_funder_root": "FM1YCKED2KaqB8Uat8aB1nsffR1vezr7s6FAEieXJgke",
+    "upstream_root": "AxiomRXZAq1Jgjj9pHmNqVP7Lhu67wLXZJZbaK87TTSk",
+    "shared_mint_count": 3,
+    "direct_funder_known_operation": false,
+    "upstream_known_operation": false,
+    "note": "shared_mint_count is the deterministic, interpretable ranking signal -- two independent evidence dimensions (direct funding AND 2-hop upstream) agree on this many mints"
+  },
+  {
+    "direct_funder_root": "FM1YCKED2KaqB8Uat8aB1nsffR1vezr7s6FAEieXJgke",
+    "upstream_root": "F7p3dFrjRTbtRp8FRF6qHLomXbKRBzpvBLjtQcfcgmNe",
+    "shared_mint_count": 3,
+    "direct_funder_known_operation": false,
+    "upstream_known_operation": false,
+    "note": "shared_mint_count is the deterministic, interpretable ranking signal -- two independent evidence dimensions (direct funding AND 2-hop upstream) agree on this many mints"
+  },
+  {
+    "direct_funder_root": "cashgL9xiMtJ3G2XG64JEPMP8QxwoLz6HKY3tZWxh2R",
+    "upstream_root": "CJYNMqDZcDwDshCSRgBmtDJmgzdvE5AejmvP918w51iL",
+    "shared_mint_count": 3,
+    "direct_funder_known_operation": false,
+    "upstream_known_operation": false,
+    "note": "shared_mint_count is the deterministic, interpretable ranking signal -- two independent evidence dimensions (direct funding AND 2-hop upstream) agree on this many mints"
+  }
+]

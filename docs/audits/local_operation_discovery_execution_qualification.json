@@ -34,11 +34,19 @@
     "total_families": 385,
     "direct_funder_families": 273,
     "upstream_source_families": 112,
+    "composite_families": 14,
     "STRONG_CANDIDATE_FAMILY": 21,
     "PARTIAL_CANDIDATE_FAMILY": 81,
     "AMBIGUOUS_FUNDING_CLUSTER": 100,
     "SERVICE_DISTRIBUTION_CLUSTER": 8,
     "NOISE_OR_INSUFFICIENT": 175
+  },
+
+  "composite_families_workstream_l": {
+    "method": "a mint counts as composite evidence when it is a member of BOTH a strong/partial DIRECT_FUNDER family AND a strong/partial UPSTREAM_SOURCE family -- two independent evidence dimensions agreeing, ranked by the interpretable shared_mint_count (no opaque score)",
+    "count": 14,
+    "artifact": "docs/audits/local_operation_discovery_composite_families.json",
+    "top_finding": "Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM (a CONFIRMED canonical provisioning hub) shares 23 mints of composite direct+upstream evidence with 5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9 (the 56-launch family root, itself NOT a known canonical operation) -- a genuine, materialized structural link between a confirmed operation and a large candidate cluster, worth explicit human review. Not promoted or merged automatically."
   },
 
   "known_operation_overlap": {

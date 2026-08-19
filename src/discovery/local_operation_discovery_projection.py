@@ -91,6 +91,15 @@ CREATE TABLE IF NOT EXISTS candidate_families (
 
 CREATE INDEX IF NOT EXISTS idx_cf_classification ON candidate_families(run_id, classification);
 
+CREATE TABLE IF NOT EXISTS composite_families (
+    run_id TEXT NOT NULL,
+    composite_id TEXT NOT NULL,
+    direct_funder_root TEXT NOT NULL,
+    upstream_root TEXT NOT NULL,
+    shared_mint_count INTEGER NOT NULL,
+    PRIMARY KEY (run_id, composite_id)
+);
+
 CREATE TABLE IF NOT EXISTS candidate_family_members (
     run_id TEXT NOT NULL,
     family_id TEXT NOT NULL,
@@ -131,6 +140,7 @@ class DiscoveryStats:
     ambiguous_count: int
     service_distribution_count: int
     noise_count: int
+    composite_count: int
 
 
 def build_high_confidence_direct_funding_edges(source: sqlite3.Connection, out: sqlite3.Connection, run_id: str) -> int:
@@ -341,6 +351,34 @@ def build_upstream_source_families(out: sqlite3.Connection, run_id: str) -> dict
     return counts
 
 
+def build_composite_families(out: sqlite3.Connection, run_id: str, *, min_shared_mints: int = 2) -> int:
+    """Workstream L: find mints that are members of BOTH a strong/partial
+    DIRECT_FUNDER family AND a strong/partial UPSTREAM_SOURCE family --
+    a composite structure where two independent signals agree, ranked
+    above single-signal clusters without an opaque score (the ranking
+    IS the shared_mint_count, an interpretable, deterministic quantity)."""
+    from collections import Counter
+    rows = out.execute("""
+        SELECT m1.mint, f1.root_evidence, f2.root_evidence
+        FROM candidate_family_members m1
+        JOIN candidate_families f1 ON m1.family_id = f1.family_id AND f1.family_kind='DIRECT_FUNDER'
+        JOIN candidate_family_members m2 ON m1.mint = m2.mint
+        JOIN candidate_families f2 ON m2.family_id = f2.family_id AND f2.family_kind='UPSTREAM_SOURCE'
+        WHERE f1.classification IN ('STRONG_CANDIDATE_FAMILY','PARTIAL_CANDIDATE_FAMILY')
+          AND f2.classification IN ('STRONG_CANDIDATE_FAMILY','PARTIAL_CANDIDATE_FAMILY')
+    """, ()).fetchall()
+    pairs = Counter((r[1], r[2]) for r in rows)
+    batch = []
+    for (df_root, us_root), count in pairs.items():
+        if count < min_shared_mints:
+            continue
+        composite_id = "COMPOSITE_" + hashlib.sha256(f"{df_root}|{us_root}".encode()).hexdigest()[:16]
+        batch.append((run_id, composite_id, df_root, us_root, count))
+    out.executemany("INSERT OR REPLACE INTO composite_families VALUES (?,?,?,?,?)", batch)
+    out.commit()
+    return len(batch)
+
+
 def run_discovery(*, source_db_path: str = SOURCE_DB, output_db_path: str = OUTPUT_DB) -> DiscoveryStats:
     run_id = "local_discovery_" + time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
     source = _connect_source_ro(source_db_path)
@@ -356,6 +394,7 @@ def run_discovery(*, source_db_path: str = SOURCE_DB, output_db_path: str = OUTP
         build_upstream_edges_for_funders(source, out, run_id)
         dff_counts = build_direct_funder_families(out, run_id)
         usf_counts = build_upstream_source_families(out, run_id)
+        composite_count = build_composite_families(out, run_id)
 
         manifest = {"run_id": run_id, "population_denominator": denom, "high_confidence_edge_count": edge_count}
         out.execute("INSERT OR REPLACE INTO discovery_run VALUES (?,?,?,?,?,?)",
@@ -374,6 +413,7 @@ def run_discovery(*, source_db_path: str = SOURCE_DB, output_db_path: str = OUTP
             run_id=run_id, population_denominator=denom, high_confidence_edge_count=edge_count,
             family_count=total_families, strong_count=strong, partial_count=partial,
             ambiguous_count=ambiguous, service_distribution_count=service, noise_count=noise,
+            composite_count=composite_count,
         )
     finally:
         source.close()

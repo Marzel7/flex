@@ -211,3 +211,77 @@ def test_upstream_source_family_excludes_dust_and_self_loop(tmp_path):
     assert family[0] == "sharedUpstream"
     assert family[1] == 4
     assert family[2] == 4
+
+
+def test_composite_family_requires_shared_signals(tmp_path):
+    """Workstream L: a composite family requires the SAME mint to be a
+    member of both a strong/partial direct-funder family and a
+    strong/partial upstream-source family -- two independent signals
+    agreeing, not a single signal double-counted."""
+    from src.discovery.local_operation_discovery_projection import build_composite_families
+
+    src_path = tmp_path / "source.db"
+    conn = make_source_db(src_path)
+    # two distinct direct funders (funder_count>=2 needed for an upstream-source
+    # family to qualify), both funded by the same upstream source, each funder
+    # in turn funding multiple creators (member_count/creator_count>=3 needed
+    # for direct-funder family qualification too)
+    for funder_idx in range(2):
+        funder = f"funder{funder_idx}"
+        conn.execute("INSERT INTO transfer_index VALUES (?, 'sharedUpstream', ?, 50000000, 100)",
+                     (f"upsig{funder_idx}", funder))
+        for i in range(3):
+            mint = f"mint{funder_idx}_{i}"
+            creator = f"creator{funder_idx}_{i}"
+            conn.execute("INSERT INTO token_analysis VALUES (?,?)", (mint, creator))
+            conn.execute("INSERT INTO pumpfun_migration_verification VALUES (?, 1000)", (mint,))
+            conn.execute("INSERT INTO transfer_index VALUES (?, ?, ?, 15000000, 500)",
+                         (f"sig{funder_idx}_{i}", funder, creator))
+    conn.commit()
+    conn.close()
+
+    source = sqlite3.connect(f"file:{src_path}?mode=ro", uri=True)
+    out = _connect_output(str(tmp_path / "out.db"))
+    build_high_confidence_direct_funding_edges(source, out, "run1")
+    build_upstream_edges_for_funders(source, out, "run1")
+    build_direct_funder_families(out, "run1")
+    build_upstream_source_families(out, "run1")
+    n = build_composite_families(out, "run1", min_shared_mints=2)
+    # each of the 2 distinct direct funders forms its own composite with
+    # the shared upstream source (3 shared mints each) -- proves the
+    # mechanism correctly attributes composite signal per direct-funder
+    # family, not merged across unrelated funders
+    assert n == 2
+    rows = out.execute(
+        "SELECT direct_funder_root, upstream_root, shared_mint_count FROM composite_families WHERE run_id='run1'"
+    ).fetchall()
+    assert all(r[1] == "sharedUpstream" and r[2] == 3 for r in rows)
+    assert {r[0] for r in rows} == {"funder0", "funder1"}
+
+
+def test_composite_family_below_threshold_excluded(tmp_path):
+    from src.discovery.local_operation_discovery_projection import build_composite_families
+
+    src_path = tmp_path / "source.db"
+    conn = make_source_db(src_path)
+    # only 1 shared mint -- below the min_shared_mints=2 threshold
+    for i in range(3):
+        mint = f"mint{i}"
+        creator = f"creator{i}"
+        conn.execute("INSERT INTO token_analysis VALUES (?,?)", (mint, creator))
+        conn.execute("INSERT INTO pumpfun_migration_verification VALUES (?, 1000)", (mint,))
+        conn.execute("INSERT INTO transfer_index VALUES (?, 'sharedFunder', ?, 15000000, 500)",
+                     (f"sig{i}", creator))
+    # only ONE of the 3 has upstream evidence pointing to a shared upstream
+    conn.execute("INSERT INTO transfer_index VALUES ('upsig0', 'sharedUpstream', 'sharedFunder', 50000000, 100)")
+    conn.commit()
+    conn.close()
+
+    source = sqlite3.connect(f"file:{src_path}?mode=ro", uri=True)
+    out = _connect_output(str(tmp_path / "out.db"))
+    build_high_confidence_direct_funding_edges(source, out, "run1")
+    build_upstream_edges_for_funders(source, out, "run1")
+    build_direct_funder_families(out, "run1")
+    build_upstream_source_families(out, "run1")
+    n = build_composite_families(out, "run1", min_shared_mints=2)
+    assert n == 0

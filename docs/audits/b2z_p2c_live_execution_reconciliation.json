@@ -1,0 +1,83 @@
+{
+  "schema_version": "b2z.p2c.live-execution-reconciliation.v1",
+  "artifact_type": "B2Z_P2C_LIVE_EXECUTION_RECONCILIATION",
+  "milestone": "B2Z-P2C -- live calibration execution reconciliation",
+  "generated_utc": "2026-08-19T08:10:00Z",
+  "run_id": "b2z-p1-44d6798563468c8aff747446",
+
+  "operation_safety": {
+    "provider_calls_made": 0,
+    "credentials_used": false,
+    "ledgers_modified": false,
+    "method": "direct read of the real event ledger, direct check for the stage-output and result artifact paths the runner script would have created, direct inspection of the runner script's credential-check control flow, and a fresh check of the current shell environment"
+  },
+
+  "part1_durable_state_read": {
+    "event_ledger_path": "docs/audits/b2z_p1_event_ledger_b2z-p1-44d6798563468c8aff747446.jsonl",
+    "event_ledger_sha256": "3ded105e78770e181e31058ab268ee4e15453601510eb931934224436d946d1c",
+    "event_ledger_line_count": 3,
+    "event_ledger_unchanged_from_pre_execution_snapshot": true,
+    "pre_execution_snapshot_reference": "docs/audits/b2z_p2r_remaining_budget_reconciliation.json part8_ledger_reconciliation (same sha256, same 3 events)",
+    "stage_output_ledger_path_checked": "docs/audits/b2z_p1_stage_outputs_b2z-p1-44d6798563468c8aff747446.json",
+    "stage_output_ledger_exists": false,
+    "result_artifact_path_checked": "docs/audits/b2z_p1_live_result_b2z-p1-44d6798563468c8aff747446.json",
+    "result_artifact_exists": false,
+    "total_physical_requests_attempted": 1,
+    "successful_requests": 0,
+    "failed_requests": 1,
+    "completed_stages": 0,
+    "seeded_stages": 0,
+    "completed_members": 0,
+    "incomplete_members": 19,
+    "failed_members": 0,
+    "excluded_members": 1,
+    "exact_next_incomplete_stage": "ordinal 2 / MIGRATION_TX (unchanged)",
+    "remaining_authorization": 49,
+    "duplicate_events": 0,
+    "unexplained_events": 0
+  },
+
+  "part1b_root_cause_of_no_progress": {
+    "runner_script_control_flow": "scripts/run_b2z_p2_calibration.py main(): reads os.environ.get('B2Z_P2_HELIUS_ENDPOINT') at line 108. If missing, it prints {\"error\": \"B2Z_P2_CREDENTIAL_ENV_VAR_MISSING\"} and returns 1 IMMEDIATELY -- resume_next() is never called, the event ledger is never opened for write, and no stage-output or result file is ever created.",
+    "current_shell_environment_check": "B2Z_P2_HELIUS_ENDPOINT is NOT set in the current execution environment (verified fresh this turn via `env | grep`)",
+    "conclusion": "the observed state (zero new ledger events, no stage-output file, no result file) is EXACTLY consistent with the credential having been unavailable at the moment the human's manual command ran -- either the read -s/export sequence did not successfully populate the variable in the shell that invoked the script, or the command was not actually run to completion, or it exited at the very first credential check before touching any durable state. All three explanations are indistinguishable from ledger evidence alone, and this artifact does not guess which one occurred.",
+    "not_assumed": "no completion was inferred merely because a shell loop may have exited cleanly -- durable state was read directly and shows no execution occurred at all"
+  },
+
+  "part2_ordinal_1_preserved": {
+    "status": "EXECUTION_EXCLUDED_CREDENTIAL_INPUT_CORRUPTION",
+    "verified_unchanged": true,
+    "original_failed_request_still_counted": true,
+    "not_retried": true,
+    "not_rewritten": true,
+    "not_converted_to_success": true,
+    "excluded_from_calibration_denominators": true
+  },
+
+  "part3_execution_outcome_classification": {
+    "classification": "NO_EXECUTION_OCCURRED",
+    "reasoning": "none of the four listed categories (P2_LIVE_EXECUTION_COMPLETE / P2_LIVE_EXECUTION_PARTIAL_SAFE_STOP / P2_LIVE_EXECUTION_SEMANTIC_FAILURE / P2_LIVE_EXECUTION_LEDGER_INCONSISTENCY) accurately describes this state, because all four presuppose at least one new physical dispatch attempt was durably recorded since the pre-execution snapshot, and zero were. This is not a failure of the durable execution boundary, not a ledger inconsistency, and not a partial run needing resume-from-a-different-point -- it is the SAME state as before, meaning nothing has changed and no reconciliation of new failures is needed.",
+    "closest_prior_category_if_forced": "functionally equivalent to P2_LIVE_EXECUTION_PARTIAL_SAFE_STOP with zero stages attempted -- i.e. the pre-existing READY_B2Z_P2_19_MEMBER_MANUAL_RESUME_GATE state remains fully valid and unconsumed",
+    "no_retry_performed": true,
+    "no_provider_call_made_this_turn": true
+  },
+
+  "part4_next_action": {
+    "safe_continuation_remains_possible": true,
+    "exact_next_stage_if_resumed": "ordinal 2 / MIGRATION_TX",
+    "remaining_authorization_unchanged": 49,
+    "real_frozen_plan_maximum_remaining_demand_unchanged": 48,
+    "no_new_action_needed_from_this_reconciliation_besides_reporting": true
+  },
+
+  "downstream_workstreams_not_performed": {
+    "reason": "Parts 5-23 of the requesting instruction (raw corpus freeze, local-vs-raw comparison, calibration metrics, Stage-2 seed validation, P3B binding, sprint closure) are all explicitly gated on P2 calibration having genuinely completed. Since durable state proves zero eligible members reached any terminal state, none of that analysis has real data to operate on. Fabricating placeholder metrics, a raw corpus, or a P3B binding from zero actual raw results would violate the instruction's own repeated requirement to never invent evidence or force disagreements into agreement -- there is nothing to compare yet.",
+    "not_performed": ["raw-verified corpus", "local-vs-raw calibration result", "calibration metrics", "Stage-2 seed validation", "review-sensitive member classification", "B2Z-P3B policy binding", "P3A historical reclassification update", "cache-first savings update", "RPC savings model comparison", "operation-discovery implication", "2-hop posture update", "56-launch family update", "sprint completion reconciliation"]
+  },
+
+  "terminal_verdict": "READY_B2Z_P2_19_MEMBER_MANUAL_RESUME_GATE",
+  "verdict_reasoning": "Durable state is unchanged from the last qualified pre-execution snapshot. No provider calls were made this turn. The gate that was ready before remains ready and unconsumed -- the human's attempted resume did not durably progress the run, most likely because the credential was not successfully available to the script's own environment check at the moment it ran. Nothing needs repair; nothing needs undoing. The same manual command remains valid.",
+
+  "exact_safe_manual_resume_command": "cd /Users/kevinkeaveney/Dev/claude/flex && read -s B2Z_P2_HELIUS_ENDPOINT && export B2Z_P2_HELIUS_ENDPOINT && echo && for i in $(seq 1 49); do python3 scripts/run_b2z_p2_calibration.py --resume; rc=$?; if [ $rc -ne 0 ]; then echo \"STOPPED at invocation $i\"; break; fi; done && unset B2Z_P2_HELIUS_ENDPOINT",
+  "diagnostic_suggestion_for_human": "if the credential was intended to be set, verify the `read -s` and `export` steps completed in the SAME shell session/process that then invokes the for-loop (e.g. not across a new terminal tab, not inside a subshell that exited before export took effect) -- the script's own first action is an environment-variable presence check that fails fast and prints B2Z_P2_CREDENTIAL_ENV_VAR_MISSING with no ledger write, which matches exactly what was observed here"
+}

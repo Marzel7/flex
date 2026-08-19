@@ -1,4 +1,17 @@
 {
+  "b2z_p2c_live_execution_reconciliation": {
+    "milestone": "B2Z-P2C -- live calibration execution reconciliation",
+    "artifact": "docs/audits/b2z_p2c_live_execution_reconciliation.json",
+    "provider_calls_made": 0,
+    "credentials_used": false,
+    "finding": "the human's attempted manual resume did NOT durably progress the run -- the event ledger is byte-identical to the pre-execution snapshot (sha256 3ded105e..., 3 events, 1 physical request consumed by ordinal 1's historical failure, ordinal 1 excluded), and neither the stage-output ledger nor the live-result artifact the runner script would create exists on disk. B2Z_P2_HELIUS_ENDPOINT is confirmed NOT set in the current environment.",
+    "root_cause_most_likely": "scripts/run_b2z_p2_calibration.py checks os.environ.get('B2Z_P2_HELIUS_ENDPOINT') as its very first action and exits immediately (before touching any ledger) if missing -- this exactly matches the observed zero-progress state. The read -s/export sequence most likely did not populate the variable in the same shell process that then ran the resume loop.",
+    "classification": "NO_EXECUTION_OCCURRED (none of the 4 standard outcome categories apply -- all presuppose at least one new dispatch, and zero occurred)",
+    "downstream_p2_analysis_not_performed": "correctly skipped -- Parts 5-23 (raw corpus, calibration metrics, P3B binding, sprint closure) all require real raw results, which do not exist yet. No placeholder/invented data was produced.",
+    "terminal_verdict": "READY_B2Z_P2_19_MEMBER_MANUAL_RESUME_GATE",
+    "state_unchanged": true,
+    "diagnostic_note_for_human": "verify the read -s and export steps complete in the SAME shell session that then runs the resume loop -- a new terminal tab or an exited subshell would silently lose the exported variable"
+  },
   "b2z_p2r_remaining_budget_reconciliation": {
     "milestone": "B2Z-P2R follow-up -- final budget reconciliation before live resume",
     "artifact": "docs/audits/b2z_p2r_remaining_budget_reconciliation.json",

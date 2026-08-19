@@ -1,73 +1,75 @@
 {
-  "schema_version": "overnight.human-decision-queue.v2",
+  "schema_version": "overnight.human-decision-queue.v3",
   "artifact_type": "OVERNIGHT_HUMAN_DECISION_QUEUE",
-  "generated_utc": "2026-08-19T07:10:00Z",
-  "purpose": "Only genuine decisions requiring human judgment -- reprioritized after the follow-on local-qualification session. Everything provider-free, local, and safe was completed autonomously.",
+  "generated_utc": "2026-08-19T21:35:00Z",
+  "purpose": "Only genuine decisions requiring human judgment -- everything provider-free, local, and safe was completed autonomously overnight per the pre-authorized mandate.",
+
+  "session_summary": "B2Z calibration sprint completed (P2 100% resolved, P3B/P3A fully measured, all 5 policy categories) then extended into LOCAL_OPERATION_DISCOVERY_EXECUTION_QUALIFICATION: a new provider-free discovery pipeline was built, tested (108/108 passing across all modules), and executed against the full 40,279-token local population, materializing 385 candidate families (21 strong, 81 partial, 100 ambiguous, 8 service-distribution, 14 composite). Zero provider calls, zero production writes, zero canonical mutation across the entire session.",
 
   "decisions": [
     {
-      "decision_id": "D1_P2_RESUME",
+      "decision_id": "D1_TOP_STRONG_CANDIDATES_REVIEW",
       "priority": 1,
-      "milestone": "B2Z-P2",
-      "question": "Provide B2Z_P2_HELIUS_ENDPOINT again (carefully, avoiding terminal control-character artifacts) to resume the 19-member calibration run?",
-      "current_evidence": "docs/audits/b2z_p2_morning_resume_readiness.json -- reconciled live state confirmed (1/50 consumed, 49 remaining, ordinal 1 excluded, next stage deterministically ordinal 2/MIGRATION_TX), mocked resume validation PASSED all 8 checks against a tmp_path copy of the real ledger (redispatch correctly blocked, budget correctly computed, no live path touched). Terminal verdict READY_B2Z_P2_19_MEMBER_MANUAL_RESUME_GATE.",
-      "risk": "Low -- fail-closed, stops immediately on any anomaly.",
-      "recommended_option": "Resume when convenient using the exact command in b2z_p2_morning_resume_readiness.json",
-      "exact_next_action": "cd /Users/kevinkeaveney/Dev/claude/flex && read -s B2Z_P2_HELIUS_ENDPOINT && export B2Z_P2_HELIUS_ENDPOINT && echo && for i in $(seq 1 49); do python3 scripts/run_b2z_p2_calibration.py --resume; rc=$?; if [ $rc -ne 0 ]; then echo \"STOPPED at invocation $i\"; break; fi; done && unset B2Z_P2_HELIUS_ENDPOINT"
-    },
-    {
-      "decision_id": "D2_56_LAUNCH_FAMILY_REVIEW",
-      "priority": 2,
-      "milestone": "OF-P0",
-      "question": "What to do about the 56-launch candidate operational family rooted at 5tzFkiKscXHK5ZXC...uAi9?",
-      "current_evidence": "docs/audits/of_p0_56_launch_candidate_operational_family.json (full technical qualification, terminal verdict CANDIDATE_OPERATIONAL_FAMILY_LOCALLY_SUPPORTED) and docs/audits/of_p0_56_launch_candidate_family_review_packet.json (plain-English summary). Independence classification corrected to PARTIALLY_SHARED_LINEAGE (not fully independent -- tf_populations derives from Watchtower's own wt_walkback_edge_candidates). Zero overlap with any canonical operation. Same root's RAW candidate footprint (not yet curated) is far larger -- 1,062 launches -- per the new discovery queue (D3 below).",
-      "risk": "None from documentation alone -- no membership was created, nothing was promoted.",
-      "recommended_option": "Review the plain-English packet first; three options are presented there (do nothing / authorize a deeper local pass / consider formal review toward canonical attribution) -- this is explicitly the human's call.",
-      "exact_next_action": "Read docs/audits/of_p0_56_launch_candidate_family_review_packet.json"
-    },
-    {
-      "decision_id": "D3_DISCOVERY_QUEUE_NEXT_PICKS",
-      "priority": 3,
       "milestone": "Local operation discovery",
-      "question": "Which of the 17 novel (non-canonical) candidate family roots in the ranked queue should receive a deeper local investigation pass next, if any?",
-      "current_evidence": "docs/audits/local_operation_discovery_candidate_queue.json -- 20 roots ranked by raw SELECTED-candidate launch count, 3 already confirmed as existing canonical treasuries/hubs (flagged, not novel), 1 flagged as a suspected service/bot (Axiom...), 17 genuinely unattributed. Recommended first pick: rank 2 (BmFdpraQhkiDQE6...), which already has partial characterization as OF-P0's dominant intermediary.",
-      "risk": "None -- purely a scoping/prioritization question.",
-      "recommended_option": "Start with rank 2 if any deeper pass is authorized -- it has the most existing evidentiary head start",
-      "exact_next_action": "No action needed until authorized -- this is a scheduling decision, not urgent"
+      "question": "Review the 20 strongest, novel (non-canonical-overlap) candidate families and decide whether any warrant deeper investigation or eventual proposal toward canonical review.",
+      "current_evidence": "docs/audits/local_operation_discovery_top20_review_packets.json -- 16 of 20 are NOVEL (no existing canonical-operation overlap), each with a recommended human question. 5 of 21 total STRONG candidates already match confirmed Watchtower treasuries/hubs, correctly excluded from novelty consideration.",
+      "risk": "None -- documentation only, no membership created, nothing promoted.",
+      "recommended_option": "Start with the largest novel candidates (ASTyfSima4LLA..., 50 members; 2uPFJbcK9X4w..., 40 members; u6PJ8DtQuP..., 40 members)",
+      "exact_next_action": "Read docs/audits/local_operation_discovery_top20_review_packets.json"
     },
     {
-      "decision_id": "D4_SELECTIVE_RPC_THRESHOLDS",
+      "decision_id": "D2_COMPOSITE_LINK_DV34PRGM2_5TZFKI",
+      "priority": 2,
+      "milestone": "Local operation discovery -- composite families",
+      "question": "A CONFIRMED canonical provisioning hub (Dv34prGm2...) shares 23 mints of composite (direct+upstream) evidence with the 56-launch family root (5tzFkiKscXHK5ZXC..., itself not a known operation). Does this warrant investigating whether the two structures are related?",
+      "current_evidence": "docs/audits/local_operation_discovery_composite_families.json -- the strongest of 14 composite findings, where two independent evidence dimensions agree.",
+      "risk": "Low -- purely investigative; no membership changes proposed.",
+      "recommended_option": "Worth a closer look given the confirmed-operation anchor point, but this is a genuine judgment call about investigation priority.",
+      "exact_next_action": "Review the composite_families artifact alongside the existing OF-P0 56-launch review packet"
+    },
+    {
+      "decision_id": "D3_56_LAUNCH_FAMILY_SUPERSET_FINDING",
+      "priority": 3,
+      "milestone": "56-launch family reconciliation",
+      "question": "The calibrated discovery pipeline rediscovered the 56-launch family's root at MUCH larger scale (575 members vs. the original curated 56) and classified the larger set SERVICE_DISTRIBUTION_CLUSTER due to its 568-creator fan-out. The original 56-member OF-P0 packet was preserved unmodified. Should the larger 575-member finding get its own dedicated review, given the different confidence tier?",
+      "current_evidence": "docs/audits/local_operation_discovery_execution_qualification.json, 56_launch_family_reconciliation section",
+      "risk": "Low -- this is a scoping/prioritization question, not an urgent finding.",
+      "recommended_option": "Treat as a separate, lower-priority candidate given the mega-hub/service-distribution classification -- likely either a legitimate shared tool many creators use, or a larger operation than originally scoped. Needs human judgment on which.",
+      "exact_next_action": "No immediate action required -- flagged for awareness"
+    },
+    {
+      "decision_id": "D4_SELECTIVE_RPC_QUEUE_AUTHORIZATION",
       "priority": 4,
-      "milestone": "B2Z-P3 / B2Z-P3A",
-      "question": "Two of the five B2Z-P3 policy categories (RAW_VERIFICATION_OPTIONAL split, SERVICE_DISTRIBUTION_REVIEW) remain PENDING_P2_CALIBRATION -- resolve once P2 produces real agreement-rate data, or accept a different (non-calibration-derived) threshold now?",
-      "current_evidence": "docs/audits/b2z_p3a_historical_selective_rpc_dry_classification.json -- three of five categories fully measured locally on the 39,260-token tractable population (LOCAL_EVIDENCE_SUFFICIENT_FOR_DISCOVERY ~57.4%, RAW_VERIFICATION_REQUIRED 1.6%, MISSING_LOCAL_EVIDENCE 36.9%). Cache-first lookup (docs/audits/b2z_p3a_cache_first_savings.json) found negligible tf_transaction_cache overlap (0/646 migration-tx, 7/22,951 funding-tx) -- no material RPC savings from cache reuse for this specific population.",
-      "risk": "Low -- affects future policy precision only, no current production behavior.",
-      "recommended_option": "Wait for D1 (P2 resume) to produce real calibration data before resolving these two categories",
-      "exact_next_action": "No action needed until D1 resolves"
+      "milestone": "Selective RPC verification",
+      "question": "Authorize live selective-RPC verification for any items in the prioritized queue?",
+      "current_evidence": "docs/audits/local_operation_discovery_selective_rpc_queue.json -- 2 borderline service-distribution cases, 10 ambiguous self-loop clusters, 10 highest-value novel strong candidates. This is a NON-EXECUTABLE queue; nothing was dispatched.",
+      "risk": "Low per-item (RPC budget only), but requires explicit authorization since this session's mandate prohibited all provider calls.",
+      "recommended_option": "If authorizing, start with priority_1 (borderline service-distribution) -- a single edge verification could resolve/reclassify multiple related members at once.",
+      "exact_next_action": "If authorizing: specify a request budget and which priority tier(s) to execute against"
     },
     {
-      "decision_id": "D5_B2Z_2H_AUTHORIZATION",
+      "decision_id": "D5_THREE_SW2_CONTROL_CHECK",
       "priority": 5,
-      "milestone": "B2Z-2H",
-      "question": "Authorize B2Z-2H upstream-funding-acquisition implementation?",
-      "current_evidence": "Non-executable contract exists (docs/audits/overnight_b2z_2h_upstream_funding_contract.json) with explicit rejection rules. Still blocked on the D4 threshold resolution and the unresolved 2-hop dust discrepancy (172/5,175 sub-threshold bridges, root cause not yet confirmed).",
-      "risk": "None currently -- nothing executes without explicit authorization.",
-      "recommended_option": "Defer until D1 and D4 resolve",
-      "exact_next_action": "No action needed"
+      "milestone": "Discovery pipeline validation (deferred)",
+      "question": "Run the deferred three_sw2 control cross-check (Workstream N) to further validate the discovery pipeline against a second known-good identity set?",
+      "current_evidence": "Watchtower control check already completed and passed (5/21 STRONG candidates matched exactly); three_sw2's specific identity set was not separately cross-referenced this session to avoid unbounded scope expansion.",
+      "risk": "None -- read-only, provider-free, small follow-on.",
+      "recommended_option": "Low priority -- Watchtower validation already demonstrates the pipeline's structural correctness; three_sw2 would be confirmatory, not essential.",
+      "exact_next_action": "If desired: authorize a follow-on session to run this specific check"
     },
     {
-      "decision_id": "D6_V2_PERSISTENT_BUDGET",
+      "decision_id": "D6_P2_MIGRATION_SIGNER_DATA_CAPTURE_GAP",
       "priority": 6,
-      "milestone": "RA4 follow-up debt",
-      "question": "Authorize implementation of the V2 persistent-payload-budget design (Option B recommended)?",
-      "current_evidence": "docs/audits/overnight_v2_persistent_payload_budget_design.json -- design complete, zero activation. Current behavior (cap resets on worker restart) has caused no incident, only identified as a design gap.",
-      "risk": "Low; Option B changes observable production behavior (same-day restart no longer grants extra budget) -- almost certainly the intended/correct behavior.",
-      "recommended_option": "Authorize when convenient -- small, additive, well-tested change",
-      "exact_next_action": "If authorizing: request a scoped implementation milestone referencing this design artifact directly"
+      "milestone": "B2Z-P1 schema (future engineering)",
+      "question": "B2Z-P1's stage-output schema never persists raw direct_funder/amount fields (data-capture gap discovered during P2 calibration analysis). Authorize a schema extension for any FUTURE calibration run?",
+      "current_evidence": "docs/audits/b2z_p2_local_vs_raw_calibration_result.json -- direct_funder_agreement and amount_agreement metrics could not be measured this sprint as a direct consequence.",
+      "risk": "None currently -- P2 is complete and this doesn't affect existing results, only future calibration precision.",
+      "recommended_option": "Low priority, no urgency -- worth fixing before any SECOND calibration run is ever authorized, not before.",
+      "exact_next_action": "No action needed until a future calibration round is planned"
     }
   ],
 
-  "excluded_as_trivial": "implementation details already fully resolved (exact schema shapes, test coverage, threshold values already grounded in measured/existing repository constants) are NOT listed -- only genuine judgment calls requiring human input are included above",
+  "excluded_as_trivial": "implementation details already fully resolved by this session's work (schema shapes, test coverage, threshold values grounded in measured constants) are NOT listed -- only genuine judgment calls requiring human input are included above",
 
-  "session_note": "This queue was reprioritized during the follow-on local-qualification session (2026-08-19), which completed OF-P0 (56-launch family qualification + human review packet), B2Z-P3A (historical selective-RPC dry classification), cache-first savings measurement, P2 morning resume readiness validation, and a ranked 20-candidate operation-discovery queue. See docs/agent_handoff/current.json for full session detail."
+  "session_completeness_note": "All safe local branches identified in the overnight mandate were either completed (input contract, evidence eligibility, role separation, 2-hop integration, discovery execution, family materialization, quality filtering, migration-signer investigation, direct-funder families, upstream-source families, composite families, 56-launch reconciliation, Watchtower control, false-merge protection, discovery corpus, execution summary, top-20 review packets, selective-RPC queue) or explicitly deferred with a stated reason (EP3/EP4 identity cross-reference against the new corpus, three_sw2-specific control, further composite-family depth). No safe branch was abandoned without documentation."
 }

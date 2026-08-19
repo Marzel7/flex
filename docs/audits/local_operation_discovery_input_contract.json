@@ -1,0 +1,59 @@
+{
+  "schema_version": "local.operation-discovery.input-contract.v1",
+  "artifact_type": "LOCAL_OPERATION_DISCOVERY_INPUT_CONTRACT",
+  "milestone": "LOCAL_OPERATION_DISCOVERY_EXECUTION_QUALIFICATION -- Workstream A",
+  "generated_utc": "2026-08-19T12:00:00Z",
+
+  "operation_safety": {"provider_calls_made": 0, "credentials_used": false, "production_writes": 0},
+
+  "purpose": "Freeze the exact discovery input contract before executing candidate-family discovery at historical scale. No discovery execution occurs in this artifact -- it defines feature provenance only.",
+
+  "current_measured_population_baselines": {
+    "token_analysis_rows": 1935806,
+    "transfer_index_rows": 5135632,
+    "note": "measured fresh this turn via bounded COUNT(*) queries -- supersedes stale prompt-text figures (1.89M/4.97M)"
+  },
+
+  "features": [
+    {"name": "CREATE_CREATOR", "provenance": "token_analysis.pf_ws_creator", "role": "distinct from MIGRATION_SIGNER per B2Z-P2G finding", "coverage": "1,935,806 rows (full token_analysis population, though pf_ws_creator itself may be NULL for some)", "eligibility_gate": "must be non-NULL"},
+    {"name": "MIGRATION_SIGNER", "provenance": "NONE AT SCALE -- ONLY the 19 B2Z-P2 calibration members have this feature locally (via docs/audits/b2z_p1_stage_outputs_...json, resolve_creator()'s migration-tx sole-signer extraction). Zero local tables track migration-transaction signers for the broader population.", "role": "distinct from CREATE_CREATOR; NOT available at historical scale without live RPC", "coverage": "19/1,935,806 (0.00098%) -- a genuine, disclosed coverage gap, NOT filled with RPC this milestone", "eligibility_gate": "N/A at scale; only usable for the 19-member calibration cohort itself"},
+    {"name": "DIRECT_FUNDER", "provenance": "transfer_index.source WHERE destination=CREATE_CREATOR AND block_time<migrated_at AND amount_lamports>0", "role": "candidate direct funding source", "coverage": "24,775/39,260 migration-confirmed tokens per B2Z-P3A (63.1%)", "eligibility_gate": "per B2Z-P3 policy tiers below"},
+    {"name": "DIRECT_FUNDING_SIGNATURE", "provenance": "transfer_index.signature for the selected DIRECT_FUNDER edge", "role": "signature-bound evidence anchor", "coverage": "matches DIRECT_FUNDER coverage"},
+    {"name": "DIRECT_FUNDING_AMOUNT", "provenance": "transfer_index.amount_lamports", "role": "dust/materiality filter input", "coverage": "matches DIRECT_FUNDER coverage"},
+    {"name": "DIRECT_FUNDING_TIMESTAMP", "provenance": "transfer_index.block_time", "role": "temporal-gap computation input", "coverage": "matches DIRECT_FUNDER coverage"},
+    {"name": "FUNDING_TO_LAUNCH_GAP", "provenance": "computed: pumpfun_migration_verification.migrated_at - transfer_index.block_time", "role": "HIGH/LOW confidence classifier input (existing P1.6/P2-validated 3600s threshold)", "coverage": "matches DIRECT_FUNDER coverage"},
+    {"name": "EVIDENCE_CONFIDENCE", "provenance": "computed per B2Z-P3B-calibrated policy: HIGH if gap<=3600s AND amount>=0.01 SOL AND no documented extraction failure; else LOW", "role": "primary eligibility gate for discovery use", "empirical_backing": "P2 calibration: HIGH tier 9/9=100% raw-confirmed; LOW tier 0/10 positive -- see docs/audits/b2z_p3b_selective_rpc_policy_calibration_binding.json"},
+    {"name": "RAW_VERIFICATION_STATE", "provenance": "B2Z-P3A five-category classification (LOCAL_EVIDENCE_SUFFICIENT_FOR_DISCOVERY / _RAW_VERIFICATION_OPTIONAL / RAW_VERIFICATION_REQUIRED / MISSING_LOCAL_EVIDENCE / SERVICE_DISTRIBUTION_REVIEW_REQUIRED [pending])", "role": "gates whether a relationship may be used for discovery vs. requires selective RPC before trust"},
+    {"name": "UPSTREAM_SOURCE", "provenance": "second-hop expansion: transfer_index row funding the DIRECT_FUNDER, from SecondHopExpansionBuilder's existing evidence (src/core/second_hop_builder.py) OR freshly computed via the same query shape", "role": "2-hop candidate signal", "coverage": "to be measured in Workstream D"},
+    {"name": "UPSTREAM_FUNDING_SIGNATURE_AMOUNT_TIME", "provenance": "same source as UPSTREAM_SOURCE", "role": "2-hop evidence anchor"},
+    {"name": "SHARED_DIRECT_FUNDER", "provenance": "computed: GROUP BY direct_funder HAVING COUNT(DISTINCT creator) > 1", "role": "primary candidate-family clustering signal"},
+    {"name": "SHARED_UPSTREAM_SOURCE", "provenance": "computed: GROUP BY upstream_source HAVING COUNT(DISTINCT direct_funder) > 1", "role": "secondary/composite clustering signal"},
+    {"name": "EP3_TOPOLOGY", "provenance": "existing EP3 Operation Contract identities (src/evidence/discovery/*, Watchtower/three_sw2 shadow corpora)", "role": "cross-reference for CANDIDATE_IDENTITY_OVERLAP determination, read-only"},
+    {"name": "EP4_MOTIF", "provenance": "existing EP4.1 canonicalized motifs (14,203 candidates -> 1,379 motifs, docs/evidence_platform/ep4_1_motif_validation.json)", "role": "cross-reference for structural corroboration, read-only"},
+    {"name": "CREATOR_REUSE", "provenance": "computed: GROUP BY CREATE_CREATOR HAVING COUNT(DISTINCT mint) > 1", "role": "serial-deployer signal, existing single-token-creator-filter heuristic"},
+    {"name": "MIGRATION_SIGNER_REUSE", "provenance": "ONLY measurable within the 19-member B2Z-P2 cohort (see MIGRATION_SIGNER coverage note above) -- not measurable at historical scale locally", "role": "documented as a coverage-limited feature"},
+    {"name": "FUNDING_WALLET_REUSE", "provenance": "computed: GROUP BY DIRECT_FUNDER or UPSTREAM_SOURCE across the discovery population", "role": "clustering signal, same mechanism as SHARED_DIRECT_FUNDER/SHARED_UPSTREAM_SOURCE"},
+    {"name": "TEMPORAL_RECURRENCE", "provenance": "computed: distribution of FUNDING_TO_LAUNCH_GAP and launch timestamps within a candidate cluster", "role": "distinguishes templated/automated patterns from organic ones (existing precedent: OF-P0's 6-way exact-lamport-amount match)"},
+    {"name": "LAUNCH_RECURRENCE", "provenance": "computed: launches/day within a candidate cluster's date range", "role": "burst-detection signal"},
+    {"name": "FAN_OUT_FAN_IN", "provenance": "computed: distinct downstream/upstream counts per wallet", "role": "distinguishes distribution hub from a 1:1 funding relationship; existing dust/fan-out review precedent from B2Z-P2's fan_out_review_flag"},
+    {"name": "CIRCULAR_FUNDING", "provenance": "computed: cycle detection A->B->A within transfer_index for the candidate population", "role": "existing self-funding-scheme detection precedent (docs/CLAUDE.md's documented bwamJzzt example)"},
+    {"name": "SERVICE_DISTRIBUTION_INDICATOR", "provenance": "computed: fan-out wallet with high launch count but ambiguous 1:1 role, OR the B2Z-P2G-qualified 'shared migration signer, not creator' pattern applied at whatever scale MIGRATION_SIGNER coverage permits", "role": "downgrades a candidate from STRONG to SERVICE_DISTRIBUTION_CLUSTER"},
+    {"name": "RAW_CACHE_AVAILABILITY", "provenance": "tf_transaction_cache via src/acquisition/tf_cache_lookup.py (read-only)", "role": "informs selective-RPC queue prioritization -- prior measurement showed near-zero overlap for the B2Z-P2/P3A population specifically; re-checked per-candidate-family in Workstream S"},
+    {"name": "EVIDENCE_CONFLICTS", "provenance": "computed: e.g. a direct funder with two candidate creators at conflicting/impossible timestamps, or CREATE_CREATOR disagreement across duplicate detection paths", "role": "flags a relationship for IDENTITY_REVIEW_REQUIRED rather than silent resolution"}
+  ],
+
+  "role_separation_mandate": {
+    "CREATE_CREATOR_and_MIGRATION_SIGNER_kept_distinct": true,
+    "no_historical_source_table_rewrite": true,
+    "implementation_approach": "adapter/projection layer only (src/discovery/local_operation_discovery_projection.py, built this milestone) -- reads existing tables, computes derived features, writes to NEW discovery-specific tables only, never mutates token_analysis/transfer_index/pumpfun_migration_verification/creator_funding_queue"
+  },
+
+  "evidence_eligibility_policy_reused_verbatim": {
+    "source": "docs/audits/b2z_p3b_selective_rpc_policy_calibration_binding.json and docs/audits/overnight_b2z_p3_selective_rpc_policy.json",
+    "HIGH_confidence_criteria": "temporal gap <= 3600 seconds AND amount >= 0.01 SOL (10,000,000 lamports) AND no documented extraction failure (creator_funding_queue.status != 'failed')",
+    "empirical_validation": "9/9 = 100% raw-confirmed in B2Z-P2 -- HIGH-confidence evidence MAY be used for discovery without further verification",
+    "LOW_confidence_treatment": "MUST NOT be silently treated as proven -- classified per B2Z-P3A's five categories (RAW_VERIFICATION_REQUIRED / MISSING_LOCAL_EVIDENCE / SERVICE_DISTRIBUTION_REVIEW_REQUIRED) and flagged, not used to assert a confirmed family membership on its own"
+  },
+
+  "not_performed_this_artifact": ["no discovery execution", "no candidate materialization", "no provider calls"]
+}

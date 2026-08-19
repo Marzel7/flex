@@ -1,0 +1,742 @@
+[
+  {
+    "candidate_family_id": "DFF_8676698e545b3dbe",
+    "family_kind": "DIRECT_FUNDER",
+    "why_it_surfaced": "48 distinct CREATE creators all received a HIGH-confidence (<=3600s temporal gap, non-dust, no documented extraction failure) direct SOL transfer from the same direct funder wallet, immediately before their respective token migrations.",
+    "member_count": 50,
+    "creator_count": 48,
+    "root_evidence_address": "ASTyfSima4LLAdDgoFGkgqoKowG1LZFDr9fAQrg7iaJZ",
+    "migration_signer_data": "NOT AVAILABLE at this scale -- migration-signer evidence only exists for the 19-member B2Z-P2 calibration cohort (see docs/audits/local_operation_discovery_input_contract.json)",
+    "evidence_completeness": "HIGH-confidence direct-funding tier only (B2Z-P3B-calibrated: 100% raw-confirmed in the 19-member sample this criteria was validated against)",
+    "conflicts": "none detected in this pass -- amount/temporal repeats were used only as a STRENGTH signal, not cross-validated against every member individually in this packet",
+    "service_distribution_concern": "NONE_DETECTED",
+    "selective_rpc_requirement": "OPTIONAL per B2Z-P3 policy -- this family's evidence tier does not mandate raw verification for discovery use, though canonical attribution would still require it",
+    "representative_members": [
+      {
+        "mint": "124iHd3KUU99qngrBZ2iozvjBgiDxbs3r51JdKFEpump",
+        "create_creator": "BQpGSM3RydsKfoAff1bkfSo69NQJuNJBJzg93DNsNRDJ"
+      },
+      {
+        "mint": "26RRx4zixpRNratctgxwiHReSBz23rjkFR7Z92UGpump",
+        "create_creator": "FDok15rQSZisiuVNdndTgLw4UDWrBKPoFr9Pk39kcqUU"
+      },
+      {
+        "mint": "2G1WE9wZmme6AjMUgE7giqt5ySqG7qeUcCXKcS2epump",
+        "create_creator": "93pY33mwb16YvbibYqKVYQ7K5mGc6mnDbzHmuzskC4ZY"
+      },
+      {
+        "mint": "2Z4CN2nenmravmFBkHR7iCzVFBxuKLu4BSubTSdZpump",
+        "create_creator": "4Ua3zqbUrP4tqnvR9GvSndFsb835a3T6UU8ffJpXYi1q"
+      },
+      {
+        "mint": "2ftZFBoCKrgSNVVRn6dgRA3JVuBzF9r1gVLKt2CRpump",
+        "create_creator": "9KsSE2ysHyP3gGGCfZ6EdZw9V1R52mVoaPAnJKmeDXQC"
+      }
+    ],
+    "overlap_with_known_operations": "NONE_CONFIRMED -- novel candidate",
+    "recommended_human_question": "Is this a genuine coordinated operation, or a legitimate shared service (e.g. a bot/tool many independent creators use)? Recommend checking whether the funder wallet shows other service-like behavior before treating this as a operation candidate."
+  },
+  {
+    "candidate_family_id": "DFF_12ca9ae852c0763e",
+    "family_kind": "DIRECT_FUNDER",
+    "why_it_surfaced": "35 distinct CREATE creators all received a HIGH-confidence (<=3600s temporal gap, non-dust, no documented extraction failure) direct SOL transfer from the same direct funder wallet, immediately before their respective token migrations.",
+    "member_count": 40,
+    "creator_count": 35,
+    "root_evidence_address": "2uPFJbcK9X4w93C3uE9iJzb9vqENbPPM19ZpvH17KgQY",
+    "migration_signer_data": "NOT AVAILABLE at this scale -- migration-signer evidence only exists for the 19-member B2Z-P2 calibration cohort (see docs/audits/local_operation_discovery_input_contract.json)",
+    "evidence_completeness": "HIGH-confidence direct-funding tier only (B2Z-P3B-calibrated: 100% raw-confirmed in the 19-member sample this criteria was validated against)",
+    "conflicts": "none detected in this pass -- amount/temporal repeats were used only as a STRENGTH signal, not cross-validated against every member individually in this packet",
+    "service_distribution_concern": "NONE_DETECTED",
+    "selective_rpc_requirement": "OPTIONAL per B2Z-P3 policy -- this family's evidence tier does not mandate raw verification for discovery use, though canonical attribution would still require it",
+    "representative_members": [
+      {
+        "mint": "14Qen7FawuYEnQzBApWWQtyhU4E91fCBZj4Yp49w6pYQ",
+        "create_creator": "DLsoBjVfgvCeQSQ1rLvEkvJpV4pwmmLtw9kaj1q1GknU"
+      },
+      {
+        "mint": "2JaHhEh9oFSGiZYAsrUP9Nr7YL48qVoaNWEXpDfvUSmt",
+        "create_creator": "GqtiHUzm85u8ro4F7Wrb4RmKu4DnC9dZDdLSfXH1JvWN"
+      },
+      {
+        "mint": "2WUUCSH35dNU9WrRBcf8P9XWwN5jspDUi9u2woHwMm5L",
+        "create_creator": "71xeSrjuNEsCksNe5XjA1fzG4CYX9BPu7sC6LUoYns41"
+      },
+      {
+        "mint": "2YCi1H1tYQiaec6UyPdnpD4iW6cjcKpxi462DQMHkizx",
+        "create_creator": "4ZhFRi5QRVZrxxxM8ffPQa5ejXTJ5Ajjj19nVLveVmgD"
+      },
+      {
+        "mint": "33FBp73272CcMnxP8WRp9MiyMtTUSnWDbfRX6ASUt1a6",
+        "create_creator": "DVCZqn3Yu12hzXU5FK59QmvjyCvJd6Ph2CFfZZnYYayY"
+      }
+    ],
+    "overlap_with_known_operations": "NONE_CONFIRMED -- novel candidate",
+    "recommended_human_question": "Is this a genuine coordinated operation, or a legitimate shared service (e.g. a bot/tool many independent creators use)? Recommend checking whether the funder wallet shows other service-like behavior before treating this as a operation candidate."
+  },
+  {
+    "candidate_family_id": "DFF_4f19989ddda5b63d",
+    "family_kind": "DIRECT_FUNDER",
+    "why_it_surfaced": "40 distinct CREATE creators all received a HIGH-confidence (<=3600s temporal gap, non-dust, no documented extraction failure) direct SOL transfer from the same direct funder wallet, immediately before their respective token migrations.",
+    "member_count": 40,
+    "creator_count": 40,
+    "root_evidence_address": "B48kNVXs4YK4amkBCH2XokQiv1SeiVQGHDR17xDeKAAn",
+    "migration_signer_data": "NOT AVAILABLE at this scale -- migration-signer evidence only exists for the 19-member B2Z-P2 calibration cohort (see docs/audits/local_operation_discovery_input_contract.json)",
+    "evidence_completeness": "HIGH-confidence direct-funding tier only (B2Z-P3B-calibrated: 100% raw-confirmed in the 19-member sample this criteria was validated against)",
+    "conflicts": "none detected in this pass -- amount/temporal repeats were used only as a STRENGTH signal, not cross-validated against every member individually in this packet",
+    "service_distribution_concern": "NONE_DETECTED",
+    "selective_rpc_requirement": "OPTIONAL per B2Z-P3 policy -- this family's evidence tier does not mandate raw verification for discovery use, though canonical attribution would still require it",
+    "representative_members": [
+      {
+        "mint": "2A3fFL8XcvLyx7AECNBdRwK2UEW9p5P9k52EtTBUpump",
+        "create_creator": "d26rNZN8ZbjKKVQ2QVWzhuRr2hGUqoz2Mm6fd8udoS1"
+      },
+      {
+        "mint": "2Q7mGZo1z8YfvUFWUoRUWyousKNMUaY3w1bUBYk7pump",
+        "create_creator": "GoSWDNW15H36Fn3YmLMJYVxHTJUxP7uJEYziAZMbQ4w7"
+      },
+      {
+        "mint": "3JuWwuUcTajprJicPGCw8VVHJQ4oseEG6a1UkEs8pump",
+        "create_creator": "6Z2rerJbbQtzSJ2BZgKhNGMk44K8FVLMqDba8VCmMNvu"
+      },
+      {
+        "mint": "4UUxue13HNQFKxjLR3VUK9Cf4Uunhjk168opjLMYpump",
+        "create_creator": "2uKGmg32YaZ3iAJ2VLxYu3m4cdadpLyprJfqeRNsUtpE"
+      },
+      {
+        "mint": "4rDoPju5Djga55ih381tVdtmqj8eaifN4JjqsDyEpump",
+        "create_creator": "DnXGstLD928iqAi83SSUE7scowsJN8WZj63GrmCz5jHk"
+      }
+    ],
+    "overlap_with_known_operations": "CONFIRMED overlap with an existing canonical treasury/provisioning-hub record",
+    "recommended_human_question": "This address is already a confirmed canonical treasury/hub -- does this newly-discovered member list add any NEW launches not already tracked under that canonical identity?"
+  },
+  {
+    "candidate_family_id": "DFF_5dc774234c5ae4fb",
+    "family_kind": "DIRECT_FUNDER",
+    "why_it_surfaced": "38 distinct CREATE creators all received a HIGH-confidence (<=3600s temporal gap, non-dust, no documented extraction failure) direct SOL transfer from the same direct funder wallet, immediately before their respective token migrations.",
+    "member_count": 40,
+    "creator_count": 38,
+    "root_evidence_address": "u6PJ8DtQuPFnfmwHbGFULQ4u4EgjDiyYKjVEsynXq2w",
+    "migration_signer_data": "NOT AVAILABLE at this scale -- migration-signer evidence only exists for the 19-member B2Z-P2 calibration cohort (see docs/audits/local_operation_discovery_input_contract.json)",
+    "evidence_completeness": "HIGH-confidence direct-funding tier only (B2Z-P3B-calibrated: 100% raw-confirmed in the 19-member sample this criteria was validated against)",
+    "conflicts": "none detected in this pass -- amount/temporal repeats were used only as a STRENGTH signal, not cross-validated against every member individually in this packet",
+    "service_distribution_concern": "NONE_DETECTED",
+    "selective_rpc_requirement": "OPTIONAL per B2Z-P3 policy -- this family's evidence tier does not mandate raw verification for discovery use, though canonical attribution would still require it",
+    "representative_members": [
+      {
+        "mint": "2tatRczHmkUKS2dYggCRpZAh2eDyE5LJEycg5rxupump",
+        "create_creator": "C5KZk3EpKX3CaVXiw8EfuJ73xuNpCmQ83wriHenZykYq"
+      },
+      {
+        "mint": "38pQMFS8Pgs7hewoZxA5DraTpv9nvjBnqb8dR6kJpump",
+        "create_creator": "J19q85Lx7kqDi7RJxKzrUihJva9187yLiL2wDKxp6zUd"
+      },
+      {
+        "mint": "3KLDyVXCzkRac5diFHWfLxbnL3PBsLWeVPEMFvbFpump",
+        "create_creator": "E9NThyQPxDBb9DeMSkyCksUQ3DEk2gbh6KqFLmTmpmjU"
+      },
+      {
+        "mint": "3fbVbmFfn9yc9QkSMNtnGuNx6hci5gDqgZHfP362pump",
+        "create_creator": "3hBxQieJQJXN4JXMBvPiAqRhFF1GwdoESG7by9EQxCC9"
+      },
+      {
+        "mint": "3z18KDwzkwGFp63ryhWSK4eP8qkg8PRBtpZiy224pump",
+        "create_creator": "HwNxbH7CnK4RBnd135RkBuoQAAJYWKMLUnjeYDNN3XTa"
+      }
+    ],
+    "overlap_with_known_operations": "NONE_CONFIRMED -- novel candidate",
+    "recommended_human_question": "Is this a genuine coordinated operation, or a legitimate shared service (e.g. a bot/tool many independent creators use)? Recommend checking whether the funder wallet shows other service-like behavior before treating this as a operation candidate."
+  },
+  {
+    "candidate_family_id": "DFF_9b1e39496684d7ab",
+    "family_kind": "DIRECT_FUNDER",
+    "why_it_surfaced": "32 distinct CREATE creators all received a HIGH-confidence (<=3600s temporal gap, non-dust, no documented extraction failure) direct SOL transfer from the same direct funder wallet, immediately before their respective token migrations.",
+    "member_count": 34,
+    "creator_count": 32,
+    "root_evidence_address": "A77HErqtfN1hLLpvZ9pCtu66FEtM8BveoaKbbMoZ4RiR",
+    "migration_signer_data": "NOT AVAILABLE at this scale -- migration-signer evidence only exists for the 19-member B2Z-P2 calibration cohort (see docs/audits/local_operation_discovery_input_contract.json)",
+    "evidence_completeness": "HIGH-confidence direct-funding tier only (B2Z-P3B-calibrated: 100% raw-confirmed in the 19-member sample this criteria was validated against)",
+    "conflicts": "none detected in this pass -- amount/temporal repeats were used only as a STRENGTH signal, not cross-validated against every member individually in this packet",
+    "service_distribution_concern": "NONE_DETECTED",
+    "selective_rpc_requirement": "OPTIONAL per B2Z-P3 policy -- this family's evidence tier does not mandate raw verification for discovery use, though canonical attribution would still require it",
+    "representative_members": [
+      {
+        "mint": "22TJSgpWPr7akHG2YVdHAJDnfwJ8yLnZsetNJxfGpump",
+        "create_creator": "5tkXJHVrMmXJ1Y54ztGj8PaGSxTbtkjpLFz5fFTzteGv"
+      },
+      {
+        "mint": "2PjnnAaxayHkzKfsWkfpb9piS7AyZMp9JpxjYgxepump",
+        "create_creator": "CPRFH2VDk3uDJnAi2c6grRRqzNxef41V74HWqf4rQ6tN"
+      },
+      {
+        "mint": "2WSqnBViU6vG2Jj6kRLqfGmJYFJ1mnRJuGB2dvZvpump",
+        "create_creator": "5rduTDjTUytRMRjwSKk2TcFWFw2wxDm4wrB92bNrgiYc"
+      },
+      {
+        "mint": "2bqW58sVYxsDjp4kcfdLhVtyx7mkJFgdrFRbvMKipump",
+        "create_creator": "7RA1XadQoPgfXNYRgTD9qmmvp9NkekoHee9cHg2ijTUz"
+      },
+      {
+        "mint": "2dgFtq98AMtTFuPsyqtpmPXVeMhQjSknSe4a92ixpump",
+        "create_creator": "9J7kwPzXoiFY3eLhd3AiNyG7g3MokBqgLfwyymwFpNcC"
+      }
+    ],
+    "overlap_with_known_operations": "NONE_CONFIRMED -- novel candidate",
+    "recommended_human_question": "Is this a genuine coordinated operation, or a legitimate shared service (e.g. a bot/tool many independent creators use)? Recommend checking whether the funder wallet shows other service-like behavior before treating this as a operation candidate."
+  },
+  {
+    "candidate_family_id": "DFF_6df7791c49f5f420",
+    "family_kind": "DIRECT_FUNDER",
+    "why_it_surfaced": "29 distinct CREATE creators all received a HIGH-confidence (<=3600s temporal gap, non-dust, no documented extraction failure) direct SOL transfer from the same direct funder wallet, immediately before their respective token migrations.",
+    "member_count": 29,
+    "creator_count": 29,
+    "root_evidence_address": "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV",
+    "migration_signer_data": "NOT AVAILABLE at this scale -- migration-signer evidence only exists for the 19-member B2Z-P2 calibration cohort (see docs/audits/local_operation_discovery_input_contract.json)",
+    "evidence_completeness": "HIGH-confidence direct-funding tier only (B2Z-P3B-calibrated: 100% raw-confirmed in the 19-member sample this criteria was validated against)",
+    "conflicts": "none detected in this pass -- amount/temporal repeats were used only as a STRENGTH signal, not cross-validated against every member individually in this packet",
+    "service_distribution_concern": "NONE_DETECTED",
+    "selective_rpc_requirement": "OPTIONAL per B2Z-P3 policy -- this family's evidence tier does not mandate raw verification for discovery use, though canonical attribution would still require it",
+    "representative_members": [
+      {
+        "mint": "2MkTVDTgdF7847ypDML8tp9ccWPf7dsBsCEJEb2xpump",
+        "create_creator": "7UJY2fSz8Lhfj3wHHA7BHFztYczWBmzVrFgbg62znmVA"
+      },
+      {
+        "mint": "2UZ2GtUJkbGQa1SLJ8zsQznCQvb2z4EJ2g9ZxCT3pump",
+        "create_creator": "chTSSUwwY1YQA3NW9PuAnGGtmM8Lahn8mVgEyqxKSap"
+      },
+      {
+        "mint": "2wdrjnyopx3uDcCFzbCSgQiW3sT1TghpNAzfVQGNpump",
+        "create_creator": "8W6NjzRynFW3rToo9VGtX3sxPR8mjM635J36LoWpoCKP"
+      },
+      {
+        "mint": "3SwBxtzo7isykJf8UVfwtv9cNATBWJYTMeLFptT2pump",
+        "create_creator": "242oWStDgCtExqUWvuy5aoNihd4SVUazFnMdWMgXpyPK"
+      },
+      {
+        "mint": "3cthRe7oPWnKt474zeFLZkSG76KvEsBBvJT3MP7Fpump",
+        "create_creator": "5zraZW1EfS3gmWLJh8avzDkud16tswhFEXfFHxwAHvDU"
+      }
+    ],
+    "overlap_with_known_operations": "CONFIRMED overlap with an existing canonical treasury/provisioning-hub record",
+    "recommended_human_question": "This address is already a confirmed canonical treasury/hub -- does this newly-discovered member list add any NEW launches not already tracked under that canonical identity?"
+  },
+  {
+    "candidate_family_id": "DFF_f3ec7e6175bb4a90",
+    "family_kind": "DIRECT_FUNDER",
+    "why_it_surfaced": "18 distinct CREATE creators all received a HIGH-confidence (<=3600s temporal gap, non-dust, no documented extraction failure) direct SOL transfer from the same direct funder wallet, immediately before their respective token migrations.",
+    "member_count": 26,
+    "creator_count": 18,
+    "root_evidence_address": "ARu4n5mFdZogZAravu7CcizaojWnS6oqka37gdLT5SZn",
+    "migration_signer_data": "NOT AVAILABLE at this scale -- migration-signer evidence only exists for the 19-member B2Z-P2 calibration cohort (see docs/audits/local_operation_discovery_input_contract.json)",
+    "evidence_completeness": "HIGH-confidence direct-funding tier only (B2Z-P3B-calibrated: 100% raw-confirmed in the 19-member sample this criteria was validated against)",
+    "conflicts": "none detected in this pass -- amount/temporal repeats were used only as a STRENGTH signal, not cross-validated against every member individually in this packet",
+    "service_distribution_concern": "NONE_DETECTED",
+    "selective_rpc_requirement": "OPTIONAL per B2Z-P3 policy -- this family's evidence tier does not mandate raw verification for discovery use, though canonical attribution would still require it",
+    "representative_members": [
+      {
+        "mint": "27d5uxRAXPRyjQy66zrfgnxewT7zwuUkANqbCzWHpump",
+        "create_creator": "3HwH8kuciRa67fvwSayghDqNjjEh1HdjqPQCqTdwb95L"
+      },
+      {
+        "mint": "41RBpvsKMcAEFaU73i6oUtrgkSLo9R8mhHp7NXtgpump",
+        "create_creator": "A21szvYx6cdztNRCK9qmKC9b2JfsWswiqsnZCRSLM6Dg"
+      },
+      {
+        "mint": "4gUquUfH1iTmnRECtDgkgPSPpWfoMs2AuD2NyuGspump",
+        "create_creator": "hk8naPeZCgsZ7cc6zR4RcXtZA8p8Dbfaruh6WqtsKCE"
+      },
+      {
+        "mint": "4jNRHNC39RKN5drsL92edmGSuh6qiSsTWZj9gxDqpump",
+        "create_creator": "4tozYswvngirH5Mq91e7xrXsWHeUDLeHKhTb4AXy4tT4"
+      },
+      {
+        "mint": "5cQtoQtDcd7HFpjdv5FBFuVQWTRYhBYsH6u2MYaxpump",
+        "create_creator": "8VNsUpyxgdbauHi98GSxHRgwFWBJg7z7ywi2MmUj6fv1"
+      }
+    ],
+    "overlap_with_known_operations": "NONE_CONFIRMED -- novel candidate",
+    "recommended_human_question": "Is this a genuine coordinated operation, or a legitimate shared service (e.g. a bot/tool many independent creators use)? Recommend checking whether the funder wallet shows other service-like behavior before treating this as a operation candidate."
+  },
+  {
+    "candidate_family_id": "DFF_0273a0d43ef0f4b8",
+    "family_kind": "DIRECT_FUNDER",
+    "why_it_surfaced": "21 distinct CREATE creators all received a HIGH-confidence (<=3600s temporal gap, non-dust, no documented extraction failure) direct SOL transfer from the same direct funder wallet, immediately before their respective token migrations.",
+    "member_count": 25,
+    "creator_count": 21,
+    "root_evidence_address": "5F1seMKUqSNhv45f6FhB2cFmgJbk8U1avJw7M6TexUq1",
+    "migration_signer_data": "NOT AVAILABLE at this scale -- migration-signer evidence only exists for the 19-member B2Z-P2 calibration cohort (see docs/audits/local_operation_discovery_input_contract.json)",
+    "evidence_completeness": "HIGH-confidence direct-funding tier only (B2Z-P3B-calibrated: 100% raw-confirmed in the 19-member sample this criteria was validated against)",
+    "conflicts": "none detected in this pass -- amount/temporal repeats were used only as a STRENGTH signal, not cross-validated against every member individually in this packet",
+    "service_distribution_concern": "NONE_DETECTED",
+    "selective_rpc_requirement": "OPTIONAL per B2Z-P3 policy -- this family's evidence tier does not mandate raw verification for discovery use, though canonical attribution would still require it",
+    "representative_members": [
+      {
+        "mint": "25RjfVTdroWKisviKBbyt1eU3nRtX1mWnt5gRyccpump",
+        "create_creator": "538zTKnbMfmGuNG8rmNSgVjT6CL35X8iXomdFiTh4WGB"
+      },
+      {
+        "mint": "2AmYfASC2UyWNzkk1ziaY2PY78esJ1ka1p9eYziCpump",
+        "create_creator": "AB5PYDP89vaqdYKimKEwNa6RuCSn8M9KzBct8Zcv7nAe"
+      },
+      {
+        "mint": "2hcnAQh8yjfkonHzyLwMBqBMXHJBs1jU7fDVms2Lpump",
+        "create_creator": "CJibWc8T56VaaBSDXjJZRTxPkVKogzNq2Mo7AYrJT94U"
+      },
+      {
+        "mint": "5z3DQDzG1UQARA5k1XW967H3NL1oaNv3XzK1Nv75pump",
+        "create_creator": "6BEj7pDjyo8s6X8j2UAF6to1CrMxnNCDCNdAJyh2DhbU"
+      },
+      {
+        "mint": "6X7GQ5r3RYqxRxCNaabKVAhgFx7mWb3g4vyxBCqypump",
+        "create_creator": "mVHRoNvbAEhrx2YrQSC4qD3petGaNwwH1YaPDJ4dpMB"
+      }
+    ],
+    "overlap_with_known_operations": "NONE_CONFIRMED -- novel candidate",
+    "recommended_human_question": "Is this a genuine coordinated operation, or a legitimate shared service (e.g. a bot/tool many independent creators use)? Recommend checking whether the funder wallet shows other service-like behavior before treating this as a operation candidate."
+  },
+  {
+    "candidate_family_id": "DFF_a7528920645173d2",
+    "family_kind": "DIRECT_FUNDER",
+    "why_it_surfaced": "23 distinct CREATE creators all received a HIGH-confidence (<=3600s temporal gap, non-dust, no documented extraction failure) direct SOL transfer from the same direct funder wallet, immediately before their respective token migrations.",
+    "member_count": 23,
+    "creator_count": 23,
+    "root_evidence_address": "Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM",
+    "migration_signer_data": "NOT AVAILABLE at this scale -- migration-signer evidence only exists for the 19-member B2Z-P2 calibration cohort (see docs/audits/local_operation_discovery_input_contract.json)",
+    "evidence_completeness": "HIGH-confidence direct-funding tier only (B2Z-P3B-calibrated: 100% raw-confirmed in the 19-member sample this criteria was validated against)",
+    "conflicts": "none detected in this pass -- amount/temporal repeats were used only as a STRENGTH signal, not cross-validated against every member individually in this packet",
+    "service_distribution_concern": "NONE_DETECTED",
+    "selective_rpc_requirement": "OPTIONAL per B2Z-P3 policy -- this family's evidence tier does not mandate raw verification for discovery use, though canonical attribution would still require it",
+    "representative_members": [
+      {
+        "mint": "2DK6WxzW9UT5mDr3rivN8oeiUmWVkGucaXgAKc4Wpump",
+        "create_creator": "7WhrXmkoTggqs757pTfQrCdCE9N1TxP9QLo7vKkfPiTX"
+      },
+      {
+        "mint": "2wFzPu4X4YHt2XGg6PsJW625KvJHghjTq4rfTUBUpump",
+        "create_creator": "5us8pNsLSPv8bbv8ZnGNKMUZLrGRvtTcB28bTE14xh1j"
+      },
+      {
+        "mint": "389jyAUhLEYMBKv1bL4Gj2VTgKiMkTv97VdWmqmcpump",
+        "create_creator": "HuZGx4k41dCPuXR4PnBNdHNXJ4WzbUnDxo9wvU3VpXAY"
+      },
+      {
+        "mint": "3J5KVnFBHtnrRs6MehnmTZBeN4T8D1wnbhG65Mb6pump",
+        "create_creator": "5pJXkzbbw9oSqQ3w2B97YRyaijh5uztkjmKJ7yEGQWh7"
+      },
+      {
+        "mint": "43sSuhMnbXL4AmXFgZQT6ojPV5i4Yw9bjmZUSa3npump",
+        "create_creator": "EmfYATLLQWYPDiqHxBFFKNzPFZTEPLupknMWAJZLzgwP"
+      }
+    ],
+    "overlap_with_known_operations": "CONFIRMED overlap with an existing canonical treasury/provisioning-hub record",
+    "recommended_human_question": "This address is already a confirmed canonical treasury/hub -- does this newly-discovered member list add any NEW launches not already tracked under that canonical identity?"
+  },
+  {
+    "candidate_family_id": "DFF_d7e3978837e3d4ae",
+    "family_kind": "DIRECT_FUNDER",
+    "why_it_surfaced": "17 distinct CREATE creators all received a HIGH-confidence (<=3600s temporal gap, non-dust, no documented extraction failure) direct SOL transfer from the same direct funder wallet, immediately before their respective token migrations.",
+    "member_count": 19,
+    "creator_count": 17,
+    "root_evidence_address": "Cc3bpPzUvgAzdW9Nv7dUQ8cpap8Xa7ujJgLdpqGrTCu6",
+    "migration_signer_data": "NOT AVAILABLE at this scale -- migration-signer evidence only exists for the 19-member B2Z-P2 calibration cohort (see docs/audits/local_operation_discovery_input_contract.json)",
+    "evidence_completeness": "HIGH-confidence direct-funding tier only (B2Z-P3B-calibrated: 100% raw-confirmed in the 19-member sample this criteria was validated against)",
+    "conflicts": "none detected in this pass -- amount/temporal repeats were used only as a STRENGTH signal, not cross-validated against every member individually in this packet",
+    "service_distribution_concern": "NONE_DETECTED",
+    "selective_rpc_requirement": "OPTIONAL per B2Z-P3 policy -- this family's evidence tier does not mandate raw verification for discovery use, though canonical attribution would still require it",
+    "representative_members": [
+      {
+        "mint": "26Hk8GbPS78R2V8dBCw89fEszRswzRUTDr9EQbgHpump",
+        "create_creator": "ADiNF7DDYRDjgTeey44J4xgPteUGthjvLgeFFk6kCwnc"
+      },
+      {
+        "mint": "3oPUDFjTAus1Pe9VnNT2QDtonZzGzffRTPbaRRkLpump",
+        "create_creator": "84DMQM1FTX5hjQp6rXRFWpsUxGRsZS6toaexLTFjj55i"
+      },
+      {
+        "mint": "4QFHPKhuKRH6D3X11AZg7q86rXE3qmmrAhrxF7iYpump",
+        "create_creator": "5kPT3Xt29PEhFkzbpk1Ywa8MJ3eASzHj2doe4WERav6Q"
+      },
+      {
+        "mint": "4ZPkkrD3RbmuwQPjiwH8j2x71gSRUtpQW3i3uciFpump",
+        "create_creator": "H1nXa1rvq8ya4DgUP6GkD9M29XVfDobxUzSRTE7BjGfN"
+      },
+      {
+        "mint": "5Kzd6kZw7LcvwYTcmq8M3LQo5vM7QhZ3wLF8biuhpump",
+        "create_creator": "6tXyFhkuXVqvWVHX83sjQwLc9uxxHcXKh55LnKST7poP"
+      }
+    ],
+    "overlap_with_known_operations": "NONE_CONFIRMED -- novel candidate",
+    "recommended_human_question": "Is this a genuine coordinated operation, or a legitimate shared service (e.g. a bot/tool many independent creators use)? Recommend checking whether the funder wallet shows other service-like behavior before treating this as a operation candidate."
+  },
+  {
+    "candidate_family_id": "DFF_975c3ac0a8e5b8e2",
+    "family_kind": "DIRECT_FUNDER",
+    "why_it_surfaced": "17 distinct CREATE creators all received a HIGH-confidence (<=3600s temporal gap, non-dust, no documented extraction failure) direct SOL transfer from the same direct funder wallet, immediately before their respective token migrations.",
+    "member_count": 18,
+    "creator_count": 17,
+    "root_evidence_address": "F7p3dFrjRTbtRp8FRF6qHLomXbKRBzpvBLjtQcfcgmNe",
+    "migration_signer_data": "NOT AVAILABLE at this scale -- migration-signer evidence only exists for the 19-member B2Z-P2 calibration cohort (see docs/audits/local_operation_discovery_input_contract.json)",
+    "evidence_completeness": "HIGH-confidence direct-funding tier only (B2Z-P3B-calibrated: 100% raw-confirmed in the 19-member sample this criteria was validated against)",
+    "conflicts": "none detected in this pass -- amount/temporal repeats were used only as a STRENGTH signal, not cross-validated against every member individually in this packet",
+    "service_distribution_concern": "NONE_DETECTED",
+    "selective_rpc_requirement": "OPTIONAL per B2Z-P3 policy -- this family's evidence tier does not mandate raw verification for discovery use, though canonical attribution would still require it",
+    "representative_members": [
+      {
+        "mint": "335p9ASM3N1n5BMTZ84G4ZJ3R8uoiXBnvxb5hTF7pump",
+        "create_creator": "9hSoUM3ae1T77U1sovg4gWPXCSdj3zhyZBkPbJABKaVA"
+      },
+      {
+        "mint": "3srrmavQdnjkzwtVB14bAah2W9HbPifEP7iqSYwspump",
+        "create_creator": "BBX5y3HXFubkHzWJfSVvAyKm3RCcMvHJEuvqpj2Xbu8e"
+      },
+      {
+        "mint": "57mKKy8zjGsXxXk2sUmFJvX9a5de5dyCt8S3TJNApump",
+        "create_creator": "8dtTtFjjocr4LG6EynMNbeYFXX7GC4yozbsXCAwkZYmw"
+      },
+      {
+        "mint": "5VUDGeHTyEXWtuwdRRbG8eendwzGAkwWCDNP1zwCpump",
+        "create_creator": "F52uaQLismofYTRb1m96iMcM1svySWCdrtTcB3XPebDj"
+      },
+      {
+        "mint": "5nxjUeC4GA5m46KLpLThb5QV4cy3186sV2BZsJ64pump",
+        "create_creator": "9mJNDkg9rFozS7m6CGPMUEwXqyH36AM68droutmjeccC"
+      }
+    ],
+    "overlap_with_known_operations": "NONE_CONFIRMED -- novel candidate",
+    "recommended_human_question": "Is this a genuine coordinated operation, or a legitimate shared service (e.g. a bot/tool many independent creators use)? Recommend checking whether the funder wallet shows other service-like behavior before treating this as a operation candidate."
+  },
+  {
+    "candidate_family_id": "DFF_d0b2b2cf778d31b8",
+    "family_kind": "DIRECT_FUNDER",
+    "why_it_surfaced": "15 distinct CREATE creators all received a HIGH-confidence (<=3600s temporal gap, non-dust, no documented extraction failure) direct SOL transfer from the same direct funder wallet, immediately before their respective token migrations.",
+    "member_count": 15,
+    "creator_count": 15,
+    "root_evidence_address": "BY4StcU9Y2BpgH8quZzorg31EGE4L1rjomN8FNsCBEcx",
+    "migration_signer_data": "NOT AVAILABLE at this scale -- migration-signer evidence only exists for the 19-member B2Z-P2 calibration cohort (see docs/audits/local_operation_discovery_input_contract.json)",
+    "evidence_completeness": "HIGH-confidence direct-funding tier only (B2Z-P3B-calibrated: 100% raw-confirmed in the 19-member sample this criteria was validated against)",
+    "conflicts": "none detected in this pass -- amount/temporal repeats were used only as a STRENGTH signal, not cross-validated against every member individually in this packet",
+    "service_distribution_concern": "NONE_DETECTED",
+    "selective_rpc_requirement": "OPTIONAL per B2Z-P3 policy -- this family's evidence tier does not mandate raw verification for discovery use, though canonical attribution would still require it",
+    "representative_members": [
+      {
+        "mint": "4npnaW85dxJBRGUnPcqTa4dhRiAbdyeRj9CbzJGNpump",
+        "create_creator": "CcoXDEyHghta7vR8mEmCVPt7hBCY3LpZis1aUeic6RUa"
+      },
+      {
+        "mint": "5ozUbPb1VbpqocghmwccFZpvjLXDC4CkKg3mmYvYpump",
+        "create_creator": "CReQJym4pLXWJtNdBqcqjYeYBdVC19pxzWb7oFGz97Hi"
+      },
+      {
+        "mint": "6iEJia8xDXhQZsmn8xUiB4ZXyb6AyjmJcjAfvKnspump",
+        "create_creator": "DzMmxEg4MPJeFr9mnHJiZapsMyDStym9Q5XLBbtmrr88"
+      },
+      {
+        "mint": "7G8MECUQTBp2ineSexHC2Z1D4X1YccyMT9f3hihopump",
+        "create_creator": "EWuEEFHxPvYwkgzMwB7d6kFWJ9TRYxZm7gHVJfFAnMRe"
+      },
+      {
+        "mint": "8wZKkP2j9bdb41ZSfeSk4GXom2ntTcmTFoXxL7Mapump",
+        "create_creator": "FzzpNMhKKRaUwZFjXz4498icv8PHtGGNCZiLT4mse54U"
+      }
+    ],
+    "overlap_with_known_operations": "NONE_CONFIRMED -- novel candidate",
+    "recommended_human_question": "Is this a genuine coordinated operation, or a legitimate shared service (e.g. a bot/tool many independent creators use)? Recommend checking whether the funder wallet shows other service-like behavior before treating this as a operation candidate."
+  },
+  {
+    "candidate_family_id": "DFF_17952e9adf4435ed",
+    "family_kind": "DIRECT_FUNDER",
+    "why_it_surfaced": "13 distinct CREATE creators all received a HIGH-confidence (<=3600s temporal gap, non-dust, no documented extraction failure) direct SOL transfer from the same direct funder wallet, immediately before their respective token migrations.",
+    "member_count": 13,
+    "creator_count": 13,
+    "root_evidence_address": "2AQdpHJ2JpcEgPiATUXjQxA8QmafFegfQwSLWSprPicm",
+    "migration_signer_data": "NOT AVAILABLE at this scale -- migration-signer evidence only exists for the 19-member B2Z-P2 calibration cohort (see docs/audits/local_operation_discovery_input_contract.json)",
+    "evidence_completeness": "HIGH-confidence direct-funding tier only (B2Z-P3B-calibrated: 100% raw-confirmed in the 19-member sample this criteria was validated against)",
+    "conflicts": "none detected in this pass -- amount/temporal repeats were used only as a STRENGTH signal, not cross-validated against every member individually in this packet",
+    "service_distribution_concern": "NONE_DETECTED",
+    "selective_rpc_requirement": "OPTIONAL per B2Z-P3 policy -- this family's evidence tier does not mandate raw verification for discovery use, though canonical attribution would still require it",
+    "representative_members": [
+      {
+        "mint": "2BUz5zHwy4M1jCyFDuDSs7udCB4V9oPVTPwPCM2opump",
+        "create_creator": "6Cn5N4nSkvE6YrfEx1G26nP5SFANepFm9sxJ35xPwSfg"
+      },
+      {
+        "mint": "2SmWzbsjMaPE6HAKu6YYgTi1itGYPiouk3XqJ6Mdpump",
+        "create_creator": "4uXZbhK4FUXkTJsP34AjdFoLiBkHxXK9he8fWazdRTrS"
+      },
+      {
+        "mint": "46UYRU9iC61m5mTKjuBUpKzqor5Y6iVRTwT4uf7bpump",
+        "create_creator": "CKTKvMranDdWEUE328ySfyMaS13PBXpPwTFmtbWzsJi5"
+      },
+      {
+        "mint": "7JBFfawSiv9k9UujqporX2foyV74vkovKC6vYMAqpump",
+        "create_creator": "9xTEo7P5ogapakaB1B349H2M5LdkqGqH7kdCSxrMXejP"
+      },
+      {
+        "mint": "AJ55bVbXf9fHmMWLqaUq8ZckmAokZwVNzDJVymEQpump",
+        "create_creator": "Ht5qZHGvzu5BwcMuqgs58HbmRAzrdvbQG7HLyqqxUKmW"
+      }
+    ],
+    "overlap_with_known_operations": "NONE_CONFIRMED -- novel candidate",
+    "recommended_human_question": "Is this a genuine coordinated operation, or a legitimate shared service (e.g. a bot/tool many independent creators use)? Recommend checking whether the funder wallet shows other service-like behavior before treating this as a operation candidate."
+  },
+  {
+    "candidate_family_id": "DFF_baab837b2cde1af8",
+    "family_kind": "DIRECT_FUNDER",
+    "why_it_surfaced": "10 distinct CREATE creators all received a HIGH-confidence (<=3600s temporal gap, non-dust, no documented extraction failure) direct SOL transfer from the same direct funder wallet, immediately before their respective token migrations.",
+    "member_count": 12,
+    "creator_count": 10,
+    "root_evidence_address": "DwdrYTtTWHfnfJBiN2RH6EgPbquDQLjZTfTwpykPEq1g",
+    "migration_signer_data": "NOT AVAILABLE at this scale -- migration-signer evidence only exists for the 19-member B2Z-P2 calibration cohort (see docs/audits/local_operation_discovery_input_contract.json)",
+    "evidence_completeness": "HIGH-confidence direct-funding tier only (B2Z-P3B-calibrated: 100% raw-confirmed in the 19-member sample this criteria was validated against)",
+    "conflicts": "none detected in this pass -- amount/temporal repeats were used only as a STRENGTH signal, not cross-validated against every member individually in this packet",
+    "service_distribution_concern": "NONE_DETECTED",
+    "selective_rpc_requirement": "OPTIONAL per B2Z-P3 policy -- this family's evidence tier does not mandate raw verification for discovery use, though canonical attribution would still require it",
+    "representative_members": [
+      {
+        "mint": "2vSxDc2HwbF8fCwuCVqkJwADdh6cBgzXuZkviKSnceBt",
+        "create_creator": "H4JM6rZYwzeEi8AxvDppKhehMGhoDgRkjF4zmCBynTNf"
+      },
+      {
+        "mint": "2zDJzMi9LN2wqtuoKvz8bW9LWyr5o2oXEU25Dm5Apump",
+        "create_creator": "4NLxCCwKoKVwe9nvbfnWzmKp3kAPEYJLX9abg79Uo7EX"
+      },
+      {
+        "mint": "4292SH91J3i8Ba8SXff8dBzqAfG5m4sxXLUeWyEfpump",
+        "create_creator": "5DXmBEgfXNqGjUcBehem8Ydd487wKCzpzViWzP37ovPS"
+      },
+      {
+        "mint": "7bgt3dDo5VZ7CtVuXZeYbttGZnJNCH8HwDfTP9JQpump",
+        "create_creator": "6wx7fSdTHrjk3byRyUarV1C3Z1oRFKudqQx574wkQyg7"
+      },
+      {
+        "mint": "97xbmyACPxtGikrCdgycuLPrYHJVx8s6oabMMxEbpump",
+        "create_creator": "6wx7fSdTHrjk3byRyUarV1C3Z1oRFKudqQx574wkQyg7"
+      }
+    ],
+    "overlap_with_known_operations": "CONFIRMED overlap with an existing canonical treasury/provisioning-hub record",
+    "recommended_human_question": "This address is already a confirmed canonical treasury/hub -- does this newly-discovered member list add any NEW launches not already tracked under that canonical identity?"
+  },
+  {
+    "candidate_family_id": "DFF_49d319694405522a",
+    "family_kind": "DIRECT_FUNDER",
+    "why_it_surfaced": "9 distinct CREATE creators all received a HIGH-confidence (<=3600s temporal gap, non-dust, no documented extraction failure) direct SOL transfer from the same direct funder wallet, immediately before their respective token migrations.",
+    "member_count": 11,
+    "creator_count": 9,
+    "root_evidence_address": "Biw4eeaiYYYq6xSqEd7GzdwsrrndxA8mqdxfAtG3PTUU",
+    "migration_signer_data": "NOT AVAILABLE at this scale -- migration-signer evidence only exists for the 19-member B2Z-P2 calibration cohort (see docs/audits/local_operation_discovery_input_contract.json)",
+    "evidence_completeness": "HIGH-confidence direct-funding tier only (B2Z-P3B-calibrated: 100% raw-confirmed in the 19-member sample this criteria was validated against)",
+    "conflicts": "none detected in this pass -- amount/temporal repeats were used only as a STRENGTH signal, not cross-validated against every member individually in this packet",
+    "service_distribution_concern": "NONE_DETECTED",
+    "selective_rpc_requirement": "OPTIONAL per B2Z-P3 policy -- this family's evidence tier does not mandate raw verification for discovery use, though canonical attribution would still require it",
+    "representative_members": [
+      {
+        "mint": "2zfMFpYLfVW7jrDaRR6bZkVmE1v1amo12Qbbp4VJpump",
+        "create_creator": "EgDSjAi4sNECU3REDBb24oGLoaKhb4e7mybjd7aNmNnv"
+      },
+      {
+        "mint": "3e28bjWiu7yWcwdF2TzD93ETrSFwCD6FcGiDUvUspump",
+        "create_creator": "FZytaXbm9bbqmPYSFT2JRc5Yw7W8wA3ChND8bc6QrQEs"
+      },
+      {
+        "mint": "53hptQqxpDrgfjtWMkiPhKPVZRVCa6FsNsanpvpwpump",
+        "create_creator": "9TWR6PiutNALGNzCzH5vr7BFGXvBV9antnqCimp3FQBK"
+      },
+      {
+        "mint": "6zrn9qs96TKDaVLXRnFfCu5B2ru1RVJbVq6ktYQWpump",
+        "create_creator": "9TWR6PiutNALGNzCzH5vr7BFGXvBV9antnqCimp3FQBK"
+      },
+      {
+        "mint": "94TeTwCBupHgNhJL2WecvHXvkgH4KCAHZGLF7gsKpump",
+        "create_creator": "8n8HqLkBtdkkFATcWxrcknRrrkbUsLFYKTosd7FAkRFe"
+      }
+    ],
+    "overlap_with_known_operations": "NONE_CONFIRMED -- novel candidate",
+    "recommended_human_question": "Is this a genuine coordinated operation, or a legitimate shared service (e.g. a bot/tool many independent creators use)? Recommend checking whether the funder wallet shows other service-like behavior before treating this as a operation candidate."
+  },
+  {
+    "candidate_family_id": "DFF_48551bff97356525",
+    "family_kind": "DIRECT_FUNDER",
+    "why_it_surfaced": "8 distinct CREATE creators all received a HIGH-confidence (<=3600s temporal gap, non-dust, no documented extraction failure) direct SOL transfer from the same direct funder wallet, immediately before their respective token migrations.",
+    "member_count": 10,
+    "creator_count": 8,
+    "root_evidence_address": "5g7yNHyGLJ7fiQ9SN9mf47opDnMjc585kqXWt6d7aBWs",
+    "migration_signer_data": "NOT AVAILABLE at this scale -- migration-signer evidence only exists for the 19-member B2Z-P2 calibration cohort (see docs/audits/local_operation_discovery_input_contract.json)",
+    "evidence_completeness": "HIGH-confidence direct-funding tier only (B2Z-P3B-calibrated: 100% raw-confirmed in the 19-member sample this criteria was validated against)",
+    "conflicts": "none detected in this pass -- amount/temporal repeats were used only as a STRENGTH signal, not cross-validated against every member individually in this packet",
+    "service_distribution_concern": "NONE_DETECTED",
+    "selective_rpc_requirement": "OPTIONAL per B2Z-P3 policy -- this family's evidence tier does not mandate raw verification for discovery use, though canonical attribution would still require it",
+    "representative_members": [
+      {
+        "mint": "27yqA4YcEkcqqrndC18mHrbeieXi8NfH1Fixea8Epump",
+        "create_creator": "AvLzceQ2XK9HmW4gn3HddXJSFRHcCTVx3fi6G1b4W745"
+      },
+      {
+        "mint": "54JDPsJSP6EfD8dXP5DsJDXe5FAcUPs3uSAjwSCvpump",
+        "create_creator": "BVr1BGsT72PpSTbsyjB6KZhjRdJ2FzkBhg55nXsNtDs"
+      },
+      {
+        "mint": "5oCRbGaxhzWG83hDZ1he629fF74prHAnbGtQ8t4Rpump",
+        "create_creator": "BTkE7r3VG2PnjV7XgSDpLMkdBPWJq3Dt7Wpd55NjjP18"
+      },
+      {
+        "mint": "64YTN61GXfaAtSkiu1xDtT3krxhkZsaSotAQh9wWpump",
+        "create_creator": "7kRLj6GoY73wtfJov1VBsHQzptvFNXaTGKa2D5AQrQho"
+      },
+      {
+        "mint": "8rtM1z1xoxW55E5VAyAsKqXypGpbykPTZTqgnPfEpump",
+        "create_creator": "BTkE7r3VG2PnjV7XgSDpLMkdBPWJq3Dt7Wpd55NjjP18"
+      }
+    ],
+    "overlap_with_known_operations": "NONE_CONFIRMED -- novel candidate",
+    "recommended_human_question": "Is this a genuine coordinated operation, or a legitimate shared service (e.g. a bot/tool many independent creators use)? Recommend checking whether the funder wallet shows other service-like behavior before treating this as a operation candidate."
+  },
+  {
+    "candidate_family_id": "DFF_a5c233fb4c23d60f",
+    "family_kind": "DIRECT_FUNDER",
+    "why_it_surfaced": "9 distinct CREATE creators all received a HIGH-confidence (<=3600s temporal gap, non-dust, no documented extraction failure) direct SOL transfer from the same direct funder wallet, immediately before their respective token migrations.",
+    "member_count": 10,
+    "creator_count": 9,
+    "root_evidence_address": "FHpcNSe6tb2n15bAdq4BkeYWGyZKFD7yLYrH92ng7wCT",
+    "migration_signer_data": "NOT AVAILABLE at this scale -- migration-signer evidence only exists for the 19-member B2Z-P2 calibration cohort (see docs/audits/local_operation_discovery_input_contract.json)",
+    "evidence_completeness": "HIGH-confidence direct-funding tier only (B2Z-P3B-calibrated: 100% raw-confirmed in the 19-member sample this criteria was validated against)",
+    "conflicts": "none detected in this pass -- amount/temporal repeats were used only as a STRENGTH signal, not cross-validated against every member individually in this packet",
+    "service_distribution_concern": "NONE_DETECTED",
+    "selective_rpc_requirement": "OPTIONAL per B2Z-P3 policy -- this family's evidence tier does not mandate raw verification for discovery use, though canonical attribution would still require it",
+    "representative_members": [
+      {
+        "mint": "6swUx9bYhJArb3gUj5k94UizuNHvhuazeAbC4Nghpump",
+        "create_creator": "DLS79CycdyqbzVjZtL6Wr6TW2ZU2YR6SCF5nfCDWsNpx"
+      },
+      {
+        "mint": "8kybLALGMgx3iFbCQV6te5w8arR5S5SYwBpyNtKjpump",
+        "create_creator": "7Rkve87JPMLtFTJBcAjKSxuMX2YEQwXgAPg1pQYAaNRn"
+      },
+      {
+        "mint": "8yML9w5Cb7TkjMdLHbVwmKpvSsT2zo5FET8y6ANipump",
+        "create_creator": "D2P7dg4AFxwsukovrgSXxUVQcuTNZLUHMBPEgdtSSPwC"
+      },
+      {
+        "mint": "9Wq7xrQzd7JUUkC3rNzGiuNRSCCzGkcSecnN4G6apump",
+        "create_creator": "4uXMjJJbU8yue9YU8azPUxQsJrTiXJavvNaamM6wpZKQ"
+      },
+      {
+        "mint": "B8dr2eHKJN8Gydg54jCcJrKiL4KtHpxufDsUfTdcpump",
+        "create_creator": "H9i1P9cHd3p2BLMZ3zYCCdExRjC9NxuYQQw69XEqTt5y"
+      }
+    ],
+    "overlap_with_known_operations": "NONE_CONFIRMED -- novel candidate",
+    "recommended_human_question": "Is this a genuine coordinated operation, or a legitimate shared service (e.g. a bot/tool many independent creators use)? Recommend checking whether the funder wallet shows other service-like behavior before treating this as a operation candidate."
+  },
+  {
+    "candidate_family_id": "DFF_4ccfb33bc3c91424",
+    "family_kind": "DIRECT_FUNDER",
+    "why_it_surfaced": "6 distinct CREATE creators all received a HIGH-confidence (<=3600s temporal gap, non-dust, no documented extraction failure) direct SOL transfer from the same direct funder wallet, immediately before their respective token migrations.",
+    "member_count": 9,
+    "creator_count": 6,
+    "root_evidence_address": "C1SX4FAVW8c5vHQaqFCxZEUrLMpbCYx51w13kCNqKGEV",
+    "migration_signer_data": "NOT AVAILABLE at this scale -- migration-signer evidence only exists for the 19-member B2Z-P2 calibration cohort (see docs/audits/local_operation_discovery_input_contract.json)",
+    "evidence_completeness": "HIGH-confidence direct-funding tier only (B2Z-P3B-calibrated: 100% raw-confirmed in the 19-member sample this criteria was validated against)",
+    "conflicts": "none detected in this pass -- amount/temporal repeats were used only as a STRENGTH signal, not cross-validated against every member individually in this packet",
+    "service_distribution_concern": "NONE_DETECTED",
+    "selective_rpc_requirement": "OPTIONAL per B2Z-P3 policy -- this family's evidence tier does not mandate raw verification for discovery use, though canonical attribution would still require it",
+    "representative_members": [
+      {
+        "mint": "3AZ53B5KDqDpgsBukqu27aiytuZFy6jCsBgmT7JHpump",
+        "create_creator": "AkEFXE1BTi4F1SNwxtAHhA4D3cYXEpzfcuVCREzGg81B"
+      },
+      {
+        "mint": "5YA4WoxRRchFAbGTEqWnoeuxmbGWjV9i6bhArMeTpump",
+        "create_creator": "42RjCGZFwDM3821yPhYnohscZkZT2bNWi9VuUrMFLCQ3"
+      },
+      {
+        "mint": "9ZZ9erRuKQ8u9oUqHhEF31Dc24RBcQRaYoZvAgfppump",
+        "create_creator": "5Voxqwa8y9KRJNY71mrKHHs5MEVwuVVdySCJExrrUA6U"
+      },
+      {
+        "mint": "AeDxat4wvc5bd5ydeNyyfNxD3coSaKTwRehvtHVfpump",
+        "create_creator": "5Voxqwa8y9KRJNY71mrKHHs5MEVwuVVdySCJExrrUA6U"
+      },
+      {
+        "mint": "BNqDLVcHwwpwFshVYWQ8qtDRoPTs1ECLApJKu4Vcpump",
+        "create_creator": "2mwdWa11kR7N8RVrv4bETgjJAZccwetdRkybcr4AqH6y"
+      }
+    ],
+    "overlap_with_known_operations": "NONE_CONFIRMED -- novel candidate",
+    "recommended_human_question": "Is this a genuine coordinated operation, or a legitimate shared service (e.g. a bot/tool many independent creators use)? Recommend checking whether the funder wallet shows other service-like behavior before treating this as a operation candidate."
+  },
+  {
+    "candidate_family_id": "DFF_74f1d09f3647937e",
+    "family_kind": "DIRECT_FUNDER",
+    "why_it_surfaced": "6 distinct CREATE creators all received a HIGH-confidence (<=3600s temporal gap, non-dust, no documented extraction failure) direct SOL transfer from the same direct funder wallet, immediately before their respective token migrations.",
+    "member_count": 9,
+    "creator_count": 6,
+    "root_evidence_address": "HBQ2TC2gmX9qeNuCsY9gRTk9hiZLRZaKhvHGj2ZbVoWB",
+    "migration_signer_data": "NOT AVAILABLE at this scale -- migration-signer evidence only exists for the 19-member B2Z-P2 calibration cohort (see docs/audits/local_operation_discovery_input_contract.json)",
+    "evidence_completeness": "HIGH-confidence direct-funding tier only (B2Z-P3B-calibrated: 100% raw-confirmed in the 19-member sample this criteria was validated against)",
+    "conflicts": "none detected in this pass -- amount/temporal repeats were used only as a STRENGTH signal, not cross-validated against every member individually in this packet",
+    "service_distribution_concern": "NONE_DETECTED",
+    "selective_rpc_requirement": "OPTIONAL per B2Z-P3 policy -- this family's evidence tier does not mandate raw verification for discovery use, though canonical attribution would still require it",
+    "representative_members": [
+      {
+        "mint": "7J4EFzXXvVFPcPf4aojinCsYChARJArDkD5WbY9Kpump",
+        "create_creator": "BQ2Rqggi8ySfBQaih1QFHcmnvgKoto6Jc9DZqeQGdsLm"
+      },
+      {
+        "mint": "88dksdzZ3BuqyCtZAbyTBhLpZSoL4Y1yVWLxFqe8pump",
+        "create_creator": "4UKEcqAvvF7XtCjy7X1sisZ9XpWCdyFemHjZWBv3fruj"
+      },
+      {
+        "mint": "8F9JgVqdfuLQ6g8aH7XHo2ErLV5LJ5orS6wjHhcXpump",
+        "create_creator": "6PJEGnZWWQEpZA5u6XkQSPHda7HwqFKxov9xeEmbSGyF"
+      },
+      {
+        "mint": "9Mivu1ATYc1Zz3ZUxfYFGNoy9iRL1dF8SzUrxqBmpump",
+        "create_creator": "628tUm9GL2Wdt1T2q3JuasZQa7yFdanbUpuQxmBSko12"
+      },
+      {
+        "mint": "BEypcMxsUouPzoh8kVRxxETQ6o9JKxsXmzqGgpMTpump",
+        "create_creator": "54wNY3qBJc2trkYwQD3Sj9sy6dp7BjqKDWNo19e4wRyS"
+      }
+    ],
+    "overlap_with_known_operations": "NONE_CONFIRMED -- novel candidate",
+    "recommended_human_question": "Is this a genuine coordinated operation, or a legitimate shared service (e.g. a bot/tool many independent creators use)? Recommend checking whether the funder wallet shows other service-like behavior before treating this as a operation candidate."
+  },
+  {
+    "candidate_family_id": "DFF_19f82f602ec9e0ad",
+    "family_kind": "DIRECT_FUNDER",
+    "why_it_surfaced": "6 distinct CREATE creators all received a HIGH-confidence (<=3600s temporal gap, non-dust, no documented extraction failure) direct SOL transfer from the same direct funder wallet, immediately before their respective token migrations.",
+    "member_count": 6,
+    "creator_count": 6,
+    "root_evidence_address": "8wvqvPt1DDdjdghpMpp7ueQFUL5Js5zux4pPeRFXWteB",
+    "migration_signer_data": "NOT AVAILABLE at this scale -- migration-signer evidence only exists for the 19-member B2Z-P2 calibration cohort (see docs/audits/local_operation_discovery_input_contract.json)",
+    "evidence_completeness": "HIGH-confidence direct-funding tier only (B2Z-P3B-calibrated: 100% raw-confirmed in the 19-member sample this criteria was validated against)",
+    "conflicts": "none detected in this pass -- amount/temporal repeats were used only as a STRENGTH signal, not cross-validated against every member individually in this packet",
+    "service_distribution_concern": "NONE_DETECTED",
+    "selective_rpc_requirement": "OPTIONAL per B2Z-P3 policy -- this family's evidence tier does not mandate raw verification for discovery use, though canonical attribution would still require it",
+    "representative_members": [
+      {
+        "mint": "5Go8aJ6YgVBQU34Eoe9xtC1iX1WT2tYntwF1e93Kpump",
+        "create_creator": "DkeZBonuR1nMzPQtt2QCCR1eEoWKjrJKXHRj9TVHcuhn"
+      },
+      {
+        "mint": "6b6aPpzJs7AqrZzEiHM8u14jASrjy9qFsLzvQka777qN",
+        "create_creator": "69Xe5s8eiqddCT4z2CbnRA3YLsPaAkKy8CjF9Hnvyqft"
+      },
+      {
+        "mint": "6vaWHatVpFRbu5bTK3cpSvve6A6yfz9LLJAfnvhrpump",
+        "create_creator": "FQwJrp8pkKXCt9SzZq477TBweMk28ZQLJAb5PbzL2es"
+      },
+      {
+        "mint": "FCvrpVqS8xi8baTDBQRzKFwG5HwNSjxzrmFtsZaBuBQX",
+        "create_creator": "7J91QCZxJd9rjS8SkJYqJWn4BsdGZ4S3GaKGH7m2hiZ7"
+      },
+      {
+        "mint": "HBNcjpNhqCChUaoTqr1UGkMFzZJUcMivaigJFPr4nwwW",
+        "create_creator": "HPYG3e8pRhpVWkbyeDZQCBjNDkfBg4nZqL7JirZ8wnoD"
+      }
+    ],
+    "overlap_with_known_operations": "CONFIRMED overlap with an existing canonical treasury/provisioning-hub record",
+    "recommended_human_question": "This address is already a confirmed canonical treasury/hub -- does this newly-discovered member list add any NEW launches not already tracked under that canonical identity?"
+  }
+]

@@ -1,0 +1,140 @@
+{
+  "priority_1_borderline_service_distribution": [
+    {
+      "root": "3bhsoZju2wEmiCfVweWC7G27KJQ1Kk5DAoa4apD1D9Zc",
+      "member_count": 52,
+      "creator_count": 52,
+      "reason": "creator_count is near the mega-hub threshold (50) -- one representative edge verification could confirm or refute the service-distribution classification and reclassify many members at once"
+    },
+    {
+      "root": "AxiomRXZAq1Jgjj9pHmNqVP7Lhu67wLXZJZbaK87TTSk",
+      "member_count": 68,
+      "creator_count": 65,
+      "reason": "creator_count is near the mega-hub threshold (50) -- one representative edge verification could confirm or refute the service-distribution classification and reclassify many members at once"
+    }
+  ],
+  "priority_2_ambiguous_self_loop": [
+    {
+      "root": "8aQGN8FNTUR1tEeLrtNHotYujuRqycBLT9N9qfh91m8t",
+      "member_count": 4,
+      "creator_count": 2,
+      "reason": "flagged AMBIGUOUS due to detected self-loop in upstream evidence -- a single raw verification of the self-loop edge would resolve whether it's real circular funding or a data artifact"
+    },
+    {
+      "root": "Ev2YuLX2aRtSYbG6FNnzqD4bo8KqbN47Fvy7Q77EvZcM",
+      "member_count": 4,
+      "creator_count": 2,
+      "reason": "flagged AMBIGUOUS due to detected self-loop in upstream evidence -- a single raw verification of the self-loop edge would resolve whether it's real circular funding or a data artifact"
+    },
+    {
+      "root": "75Md826bNHncrsfjYJnjYfW86kqukuqZXkyqXW6JMJC8",
+      "member_count": 4,
+      "creator_count": 2,
+      "reason": "flagged AMBIGUOUS due to detected self-loop in upstream evidence -- a single raw verification of the self-loop edge would resolve whether it's real circular funding or a data artifact"
+    },
+    {
+      "root": "5njZuDSS2WTFkvWWsgv8Q4TfQBuCASKJAztc5yF2qLWZ",
+      "member_count": 3,
+      "creator_count": 2,
+      "reason": "flagged AMBIGUOUS due to detected self-loop in upstream evidence -- a single raw verification of the self-loop edge would resolve whether it's real circular funding or a data artifact"
+    },
+    {
+      "root": "5wHuMhntF2At2iWVCPm3Cj9H3ZJvZsWHWq4QvPmg5jMV",
+      "member_count": 3,
+      "creator_count": 2,
+      "reason": "flagged AMBIGUOUS due to detected self-loop in upstream evidence -- a single raw verification of the self-loop edge would resolve whether it's real circular funding or a data artifact"
+    },
+    {
+      "root": "FxteHmLwG9nk1eL4pjNve3Eub2goGkkz6g6TbvdmW46a",
+      "member_count": 3,
+      "creator_count": 2,
+      "reason": "flagged AMBIGUOUS due to detected self-loop in upstream evidence -- a single raw verification of the self-loop edge would resolve whether it's real circular funding or a data artifact"
+    },
+    {
+      "root": "9YSymdzj7kvThMPid4LgMKijn6n4815vNpUVN8MhSo84",
+      "member_count": 3,
+      "creator_count": 2,
+      "reason": "flagged AMBIGUOUS due to detected self-loop in upstream evidence -- a single raw verification of the self-loop edge would resolve whether it's real circular funding or a data artifact"
+    },
+    {
+      "root": "BpbCvejipDiUYh2nkXRxPXuRzdkjqKFjbk12NNNiusu",
+      "member_count": 3,
+      "creator_count": 2,
+      "reason": "flagged AMBIGUOUS due to detected self-loop in upstream evidence -- a single raw verification of the self-loop edge would resolve whether it's real circular funding or a data artifact"
+    },
+    {
+      "root": "2mgWrAkV36r8xL5Mn76UWpYv9P66heeA6wVGBuiLeX9Q",
+      "member_count": 2,
+      "creator_count": 2,
+      "reason": "flagged AMBIGUOUS due to detected self-loop in upstream evidence -- a single raw verification of the self-loop edge would resolve whether it's real circular funding or a data artifact"
+    },
+    {
+      "root": "35dszeQQQzkMvjcmyrPWPnN5ZyK9ZjYkNp9kKXZWMvji",
+      "member_count": 2,
+      "creator_count": 2,
+      "reason": "flagged AMBIGUOUS due to detected self-loop in upstream evidence -- a single raw verification of the self-loop edge would resolve whether it's real circular funding or a data artifact"
+    }
+  ],
+  "priority_3_strong_novel_high_value": [
+    {
+      "root": "ASTyfSima4LLAdDgoFGkgqoKowG1LZFDr9fAQrg7iaJZ",
+      "member_count": 50,
+      "creator_count": 48,
+      "reason": "largest novel (non-canonical-overlap) strong candidates -- verifying even ONE representative edge per family would validate/refute the highest-member-count new candidates first"
+    },
+    {
+      "root": "2uPFJbcK9X4w93C3uE9iJzb9vqENbPPM19ZpvH17KgQY",
+      "member_count": 40,
+      "creator_count": 35,
+      "reason": "largest novel (non-canonical-overlap) strong candidates -- verifying even ONE representative edge per family would validate/refute the highest-member-count new candidates first"
+    },
+    {
+      "root": "u6PJ8DtQuPFnfmwHbGFULQ4u4EgjDiyYKjVEsynXq2w",
+      "member_count": 40,
+      "creator_count": 38,
+      "reason": "largest novel (non-canonical-overlap) strong candidates -- verifying even ONE representative edge per family would validate/refute the highest-member-count new candidates first"
+    },
+    {
+      "root": "A77HErqtfN1hLLpvZ9pCtu66FEtM8BveoaKbbMoZ4RiR",
+      "member_count": 34,
+      "creator_count": 32,
+      "reason": "largest novel (non-canonical-overlap) strong candidates -- verifying even ONE representative edge per family would validate/refute the highest-member-count new candidates first"
+    },
+    {
+      "root": "ARu4n5mFdZogZAravu7CcizaojWnS6oqka37gdLT5SZn",
+      "member_count": 26,
+      "creator_count": 18,
+      "reason": "largest novel (non-canonical-overlap) strong candidates -- verifying even ONE representative edge per family would validate/refute the highest-member-count new candidates first"
+    },
+    {
+      "root": "5F1seMKUqSNhv45f6FhB2cFmgJbk8U1avJw7M6TexUq1",
+      "member_count": 25,
+      "creator_count": 21,
+      "reason": "largest novel (non-canonical-overlap) strong candidates -- verifying even ONE representative edge per family would validate/refute the highest-member-count new candidates first"
+    },
+    {
+      "root": "Cc3bpPzUvgAzdW9Nv7dUQ8cpap8Xa7ujJgLdpqGrTCu6",
+      "member_count": 19,
+      "creator_count": 17,
+      "reason": "largest novel (non-canonical-overlap) strong candidates -- verifying even ONE representative edge per family would validate/refute the highest-member-count new candidates first"
+    },
+    {
+      "root": "F7p3dFrjRTbtRp8FRF6qHLomXbKRBzpvBLjtQcfcgmNe",
+      "member_count": 18,
+      "creator_count": 17,
+      "reason": "largest novel (non-canonical-overlap) strong candidates -- verifying even ONE representative edge per family would validate/refute the highest-member-count new candidates first"
+    },
+    {
+      "root": "BY4StcU9Y2BpgH8quZzorg31EGE4L1rjomN8FNsCBEcx",
+      "member_count": 15,
+      "creator_count": 15,
+      "reason": "largest novel (non-canonical-overlap) strong candidates -- verifying even ONE representative edge per family would validate/refute the highest-member-count new candidates first"
+    },
+    {
+      "root": "2AQdpHJ2JpcEgPiATUXjQxA8QmafFegfQwSLWSprPicm",
+      "member_count": 13,
+      "creator_count": 13,
+      "reason": "largest novel (non-canonical-overlap) strong candidates -- verifying even ONE representative edge per family would validate/refute the highest-member-count new candidates first"
+    }
+  ]
+}

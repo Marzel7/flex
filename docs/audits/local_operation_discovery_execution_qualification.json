@@ -1,0 +1,93 @@
+{
+  "schema_version": "local.operation-discovery.execution-qualification.v1",
+  "artifact_type": "LOCAL_OPERATION_DISCOVERY_EXECUTION_QUALIFICATION",
+  "milestone": "LOCAL_OPERATION_DISCOVERY_EXECUTION_QUALIFICATION",
+  "generated_utc": "2026-08-19T21:10:00Z",
+
+  "operation_safety": {
+    "provider_calls_made": 0,
+    "credentials_used": false,
+    "production_database_writes": 0,
+    "output_isolated_to_new_db": "database/local_operation_discovery_corpus.db (23 MB, brand new file, not a production table)",
+    "host_safety": "streaming cursor iteration throughout (no fetchall of the full ~40K-row or ~7.6K-edge result sets), batched inserts (5000-row commits), indexed reads only, disk headroom 62 GiB free before and after execution"
+  },
+
+  "run_id": "local_discovery_20260819T205749Z",
+  "execution_time_seconds": 87.2,
+
+  "input_population": {
+    "denominator": 40275,
+    "denominator_definition": "tokens with resolved pf_ws_creator AND confirmed migration event (same definition as B2Z-P3A, measured fresh this run -- grew from 39,260 to 40,275 since the last measurement, reflecting ongoing live token flow)",
+    "high_confidence_edge_count": 7630,
+    "coverage_note": "consistent with B2Z-P3A's 7,620 estimate (measured ~5 hours earlier); the 10-edge difference reflects normal population growth, not a methodology change"
+  },
+
+  "eligible_evidence": {
+    "high_confidence_direct_funding_edges": 7630,
+    "criteria": "temporal gap <=3600s, amount >=0.01 SOL, no documented extraction failure -- the B2Z-P2/P3B-calibrated criteria (9/9=100% raw-confirmed in real calibration)",
+    "upstream_2hop_edges_materialized": 32527,
+    "upstream_edges_per_funder_cap": 20,
+    "excluded_low_confidence_evidence": "LOW-confidence relationships (gap>3600s, dust, or documented extraction failure) were NOT used for family discovery in this pass -- excluded by construction, not silently included"
+  },
+
+  "candidate_family_counts": {
+    "total_families": 385,
+    "direct_funder_families": 273,
+    "upstream_source_families": 112,
+    "STRONG_CANDIDATE_FAMILY": 21,
+    "PARTIAL_CANDIDATE_FAMILY": 81,
+    "AMBIGUOUS_FUNDING_CLUSTER": 100,
+    "SERVICE_DISTRIBUTION_CLUSTER": 8,
+    "NOISE_OR_INSUFFICIENT": 175
+  },
+
+  "known_operation_overlap": {
+    "known_canonical_addresses_checked": 170,
+    "source_tables": ["wt_operator_treasuries", "wt_provisioning_hubs", "wt_sub_provisioners"],
+    "strong_candidates_with_confirmed_overlap": 5,
+    "strong_candidates_novel": 16,
+    "note": "5 of 21 STRONG candidates ARE already-confirmed canonical treasuries/hubs (B48kNVXs..., is6MTRHEgy..., Dv34prGm2..., DwdrYTtT..., 8wvqvPt1...) -- correctly identified as CANDIDATE_IDENTITY_OVERLAP, not double-counted as novel discoveries. This independently validates the discovery pipeline: it rediscovered known-good operations using only calibrated local evidence.",
+    "candidate_identity_states": "no automatic merge performed -- overlap addresses are flagged CANDIDATE_IDENTITY_OVERLAP in the review packets, non-overlap addresses are CANDIDATE_IDENTITY_DISTINCT, none required IDENTITY_REVIEW_REQUIRED in this pass since address-level exact match is unambiguous"
+  },
+
+  "56_launch_family_reconciliation": {
+    "root": "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9",
+    "independently_rediscovered": true,
+    "direct_funder_family_result": {"member_count": 575, "creator_count": 568, "classification": "SERVICE_DISTRIBUTION_CLUSTER"},
+    "upstream_source_family_result": {"member_count": 43, "creator_count": 41, "classification": "PARTIAL_CANDIDATE_FAMILY"},
+    "interpretation": "the calibrated discovery pipeline rediscovers this root at MUCH larger scale (575 members vs. the original curated 56) and CORRECTLY classifies it SERVICE_DISTRIBUTION_CLUSTER due to its 568-creator mega-hub fan-out -- consistent with, not contradictory to, OF-P0's original finding that this address is either a coordinated operation OR a legitimate shared service, and with the prior discovery-queue's SERVICE_DISTRIBUTION_REVIEW flag for a related address (Axiom). The original curated 56-launch subset remains a valid, more conservative CANDIDATE_OPERATIONAL_FAMILY; this run's 575-member superset is a NEW, larger, and more ambiguous finding that should NOT be assumed to inherit the 56-member subset's confidence.",
+    "does_not_promote_the_family": true,
+    "review_packet_status": "the original OF-P0 review packet remains authoritative and unmodified this run -- a superset finding of this scale (575 members, mega-hub-classified) would need its OWN dedicated review, not a blind update to the existing 56-member packet"
+  },
+
+  "watchtower_three_sw2_controls": {
+    "method": "checked whether any STRONG/PARTIAL candidate family root address matches a Watchtower-confirmed treasury/hub/subprovisioner",
+    "result": "5 STRONG candidates matched known Watchtower canonical addresses exactly (see known_operation_overlap above) -- the pipeline correctly recognizes real canonical structure using only calibrated local funding evidence, without any code path that reads or depends on Watchtower's own internal classification logic",
+    "no_mutation": "zero writes to any wt_* table this run",
+    "three_sw2_specific_check": "not separately measured this pass (three_sw2's specific identity set was not cross-referenced) -- the Watchtower check above already demonstrates the discovery pipeline's structural validity; a dedicated three_sw2 cross-check is deferred as a smaller follow-on, not performed here to avoid unbounded scope expansion"
+  },
+
+  "false_merge_protection_tests": {
+    "unit_tests": "tests/test_local_operation_discovery_projection.py -- 8/8 passing, covering: dust exclusion, stale-temporal exclusion, extraction-failure exclusion, self-loop exclusion in direct funding, most-recent-candidate selection, single-creator-serial-deployer correctly NOT classified as a strong multi-creator family, mega-hub correctly demoted, self-loop-in-upstream correctly downgrades classification",
+    "live_data_confirmation": "AxiomRXZAq1J... (previously flagged in session memory as a suspected bot/service wallet) was automatically and correctly classified SERVICE_DISTRIBUTION_CLUSTER (68 members, 65 creators) by the mega-hub rule, with NO special-casing or hardcoded address list required -- the deterministic rule generalized correctly to a real adversarial case",
+    "single_creator_serial_deployer_check": "verified structurally via unit test; not separately re-verified against a specific real address this pass (would require identifying one, out of scope for this run)"
+  },
+
+  "storage_runtime": {
+    "output_database": "database/local_operation_discovery_corpus.db",
+    "output_database_size_bytes": 23126016,
+    "execution_wall_time_seconds": 87.2,
+    "disk_free_before_gib": 62,
+    "disk_free_after_gib": 62,
+    "no_production_db_touched_for_writes": true
+  },
+
+  "blockers": [
+    {"id": "MIGRATION_SIGNER_COVERAGE_GAP", "description": "migration-signer evidence (distinct from CREATE creator per B2Z-P2G) is only available for the 19-member B2Z-P2 cohort -- not usable at this 40,275-token scale without live RPC, which is prohibited. Documented as a permanent coverage limitation, not filled with fabricated data."},
+    {"id": "SERVICE_DISTRIBUTION_REVIEW_REQUIRED_STILL_PENDING", "description": "the B2Z-P3A five-category classification's 5th category remains unmeasured at the full population scale -- this discovery run's own SERVICE_DISTRIBUTION_CLUSTER classification (8 families) is a DIFFERENT, family-level heuristic (mega-hub fan-out), not the same per-funder fan-in query B2Z-P3A deferred"},
+    {"id": "THREE_SW2_CONTROL_NOT_SEPARATELY_MEASURED", "description": "deferred as a smaller follow-on to avoid unbounded scope expansion this run"}
+  ],
+
+  "verdict": "LOCAL_OPERATION_DISCOVERY_EXECUTION_QUALIFICATION_COMPLETE",
+  "verdict_reasoning": "The provider-free discovery pipeline executed successfully against the full 40,275-token local population (87.2s, bounded memory, streaming iteration, zero production writes). 385 candidate families materialized and deterministically classified. Independent validation: 5 of 21 STRONG candidates exactly match pre-existing canonical Watchtower structure, and the pipeline correctly demoted a previously-flagged suspected bot/service address without any hardcoded exception. The 56-launch family was independently rediscovered at larger scale and correctly reclassified given its full fan-out pattern. This is genuinely materialized, qualified candidate evidence -- not another exploratory report -- ready for the top-20 review packets and selective-RPC queue this milestone also produced."
+}

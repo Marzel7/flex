@@ -1,0 +1,49 @@
+{
+  "schema_version": "h4r1-cex-infra-eligibility-check.v1",
+  "artifact_type": "H4R1_CEX_INFRA_ELIGIBILITY_CHECK",
+  "milestone": "H4R1-CEX-INFRA-ELIGIBILITY-CHECK",
+  "generated_utc": "2026-08-20T00:10:00Z",
+
+  "operation_safety": {"provider_calls_made": 0, "production_writes": 0, "h4r1_history_modified": false, "watchtower_mutated": false, "three_sw2_mutated": false},
+
+  "source_data_located": {
+    "h4r1_review_sheet": "docs/audits/psi0h_h4r1_human_disposition_closure.json (13 candidates, read-only)",
+    "underlying_wallet_evidence": "/private/tmp/psi0h_h8_to_h4_runtime_continuity.db (STILL EXISTS from the H8 runtime projection -- 150 detector_inputs rows), read-only, no write attempted",
+    "blocker_from_prior_session_resolved": "ROADMAP-H-REENTRY-A/B had flagged 'H's underlying funding-evidence artifacts not yet located' as a blocker -- resolved this milestone by locating the exact runtime continuity DB referenced in each candidate's operation_a/operation_b.source_path field"
+  },
+
+  "methodology": "for each of the 13 candidates, both operation_a and operation_b's operation_id were matched against detector_inputs.payload_json.operation_id to recover their underlying wallet set (payload_json.roles.creator + .destination, plus payload_json.wallets/.wallet). Every recovered wallet address was checked against src.utils.infra_mapping.get_category(). Zero provider calls -- purely a local dict lookup against the already-authoritative mapping.",
+
+  "important_structural_finding": "ALL 150 detector_inputs rows in the H8 runtime continuity DB use mechanism='LAUNCH_LINKAGE' from source in {'pumpfun','token_analysis'} -- meaning H4R1's ENTIRE evidence basis is creator/destination (mint launch) identity continuity, NOT funding-source evidence. Every row's roles.funder/roles.source fields are empty (0/150 non-empty). This means H's candidates were never evaluated using funder-wallet evidence at all -- the CEX/INFRA question is structurally inapplicable to H's actual evidence dimension, not merely coincidentally clear of it.",
+
+  "candidates": [
+    {"index": 1, "continuity_candidate_id": "1c22317100c0749be88275232acf84abfbd3418aa4a922fe72cba09a614321d7", "historical_disposition": "COMMON_PLAYBOOK_ONLY", "wallets_checked": 3, "cex_infra_hits": {}, "eligibility": "H_CANDIDATE_UNAFFECTED"},
+    {"index": 2, "historical_disposition": "PLAUSIBLE_OPERATIONAL_CONTINUITY", "wallets_checked": 4, "cex_infra_hits": {}, "eligibility": "H_CANDIDATE_UNAFFECTED"},
+    {"index": 3, "historical_disposition": "PLAUSIBLE_OPERATIONAL_CONTINUITY", "wallets_checked": 4, "cex_infra_hits": {}, "eligibility": "H_CANDIDATE_UNAFFECTED"},
+    {"index": 4, "historical_disposition": "COMMON_PLAYBOOK_ONLY", "wallets_checked": 4, "cex_infra_hits": {}, "eligibility": "H_CANDIDATE_UNAFFECTED"},
+    {"index": 5, "historical_disposition": "PLAUSIBLE_OPERATIONAL_CONTINUITY", "wallets_checked": 4, "cex_infra_hits": {}, "eligibility": "H_CANDIDATE_UNAFFECTED"},
+    {"index": 6, "historical_disposition": "PLAUSIBLE_OPERATIONAL_CONTINUITY", "wallets_checked": 4, "cex_infra_hits": {}, "eligibility": "H_CANDIDATE_UNAFFECTED"},
+    {"index": 7, "historical_disposition": "PLAUSIBLE_OPERATIONAL_CONTINUITY", "wallets_checked": 4, "cex_infra_hits": {}, "eligibility": "H_CANDIDATE_UNAFFECTED"},
+    {"index": 8, "historical_disposition": "PLAUSIBLE_OPERATIONAL_CONTINUITY", "wallets_checked": 4, "cex_infra_hits": {}, "eligibility": "H_CANDIDATE_UNAFFECTED"},
+    {"index": 9, "historical_disposition": "PLAUSIBLE_OPERATIONAL_CONTINUITY", "wallets_checked": 4, "cex_infra_hits": {}, "eligibility": "H_CANDIDATE_UNAFFECTED"},
+    {"index": 10, "historical_disposition": "COMMON_PLAYBOOK_ONLY", "wallets_checked": 4, "cex_infra_hits": {}, "eligibility": "H_CANDIDATE_UNAFFECTED"},
+    {"index": 11, "historical_disposition": "COMMON_PLAYBOOK_ONLY", "wallets_checked": 4, "cex_infra_hits": {}, "eligibility": "H_CANDIDATE_UNAFFECTED"},
+    {"index": 12, "historical_disposition": "PLAUSIBLE_OPERATIONAL_CONTINUITY", "wallets_checked": 4, "cex_infra_hits": {}, "eligibility": "H_CANDIDATE_UNAFFECTED"},
+    {"index": 13, "historical_disposition": "PLAUSIBLE_OPERATIONAL_CONTINUITY", "wallets_checked": 4, "cex_infra_hits": {}, "eligibility": "H_CANDIDATE_UNAFFECTED"}
+  ],
+
+  "conflicts_found": 0,
+  "h4r1_dispositions_altered": 0,
+  "h4r1_history_preserved": true,
+
+  "eligibility_summary": {
+    "H_CANDIDATE_UNAFFECTED": 13,
+    "H_CANDIDATE_CEX_PROVENANCE_WITH_INDEPENDENT_SUPPORT": 0,
+    "H_CANDIDATE_INFRA_PROVENANCE_WITH_INDEPENDENT_SUPPORT": 0,
+    "H_CANDIDATE_CEX_INFRA_ONLY": 0,
+    "H_CANDIDATE_REVIEW_REQUIRED": 0
+  },
+
+  "terminal_verdict": "H4R1_CEX_INFRA_ELIGIBILITY_QUALIFIED",
+  "verdict_reasoning": "All 13 H4R1 candidates checked against the authoritative CEX/INFRA mapping using their actual recovered underlying wallet evidence (not assumed). Zero CEX/infra wallets found among any of the 13 candidates' creator/destination pairs. H's original dispositions (4x COMMON_PLAYBOOK_ONLY, 9x PLAUSIBLE_OPERATIONAL_CONTINUITY) remain semantically valid and unaffected by the corrected CEX/INFRA lineage rule -- not because CEX happened to be absent by chance, but because H's evidence dimension (creator/destination launch-linkage continuity) never used funder-role evidence at all, making the CEX/INFRA question structurally inapplicable rather than merely empirically clear. No historical H4R1 disposition was altered."
+}

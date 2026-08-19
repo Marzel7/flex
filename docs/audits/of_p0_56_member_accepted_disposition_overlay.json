@@ -1,0 +1,24 @@
+{
+  "schema_version": "of.p0.56-member-accepted-disposition-overlay.v1",
+  "artifact_type": "OF_P0_56_MEMBER_ACCEPTED_DISPOSITION_OVERLAY",
+  "milestone": "H4R1-CEX-INFRA-ELIGIBILITY-CHECK + OF-DV34-P0 -- Workstream L",
+  "generated_utc": "2026-08-20T00:55:00Z",
+  "type": "APPEND_ONLY_HUMAN_DECISION_RECORD -- does not modify docs/audits/of_p0_56_launch_members_raw.json or any original OF-P0 artifact",
+
+  "operation_safety": {"provider_calls_made": 0, "historical_of_p0_artifact_modified": false},
+
+  "human_decision": "ACCEPT OF_P0_SUBSET_PARTIALLY_SUPPORTED for the original 56-member subset",
+  "decision_source": "explicit human instruction this milestone",
+
+  "preserved_unchanged": [
+    "all 56 original members (docs/audits/of_p0_56_launch_members_raw.json, byte-identical, not touched this session)",
+    "all CEX funding paths (the 5-exchange funder-identity finding from ROADMAP-H-REENTRY-B)",
+    "all private funding paths (the 27 non-recurring private funders)",
+    "the original amount/timing evidence dimension (the 6-way exact-lamport-amount match, the templated-timing signal) -- never discounted by the CEX/funder-identity re-review",
+    "the original OF-P0 review packet (docs/audits/of_p0_56_launch_candidate_family_review_packet.json)"
+  ],
+
+  "final_accepted_state": "OF_P0_SUBSET_PARTIALLY_SUPPORTED -- CANDIDATE_OPERATIONAL_FAMILY status preserved at PARTIAL confidence, per human acceptance",
+  "not_promoted_to_canonical": true,
+  "not_reopened_for_further_automatic_reclassification": true
+}

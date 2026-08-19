@@ -1,0 +1,22 @@
+{
+  "schema_version": "okx.watchtower.candidate-disposition-overlay.v1",
+  "artifact_type": "OKX_WATCHTOWER_CANDIDATE_DISPOSITION_OVERLAY",
+  "milestone": "H4R1-CEX-INFRA-ELIGIBILITY-CHECK + OF-DV34-P0 -- Workstream M",
+  "generated_utc": "2026-08-20T00:57:00Z",
+  "type": "APPEND_ONLY_HUMAN_DECISION_RECORD -- does not mutate any wt_operator_treasuries row or Watchtower state",
+
+  "operation_safety": {"provider_calls_made": 0, "watchtower_mutated": false},
+
+  "candidate_address": "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV",
+  "human_decision": "RETAIN as CANDIDATE-state -- do not promote, do not remove",
+  "decision_source": "explicit human instruction this milestone",
+
+  "identity_classification": "OKX Hot Wallet (per src.utils.infra_mapping.CEX_ACCOUNTS) -- NON_ATTRIBUTIVE_PROVENANCE (this classification applies to the address's own identity, not to the evidentiary basis of its candidate state)",
+
+  "actual_evidentiary_basis_preserved": "the candidate's operational evidence (state='POSSIBLE_SWARM', operator_class='POSSIBLE_STEALTH', confidence=0.56) derives from a 17-buyer/3-second buy-swarm window with a PRIVATE provisioner wallet (CyzTk5VBRrVop1H73ijwJEBJesoPfZUQkpcr378cdDZ5, category=unknown) funding 10 of 12 sampled buyers -- this evidence remains fully valid candidate evidence, independent of the OKX label",
+
+  "final_state": "CANDIDATE (state='CANDIDATE', confidence=0.56, unchanged)",
+  "not_promoted": true,
+  "not_removed": true,
+  "watchtower_row_untouched": true
+}

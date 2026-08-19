@@ -1,0 +1,77 @@
+{
+  "schema_version": "local.operation-discovery.definitive-census.v1",
+  "artifact_type": "LOCAL_OPERATION_DISCOVERY_DEFINITIVE_CANDIDATE_CENSUS",
+  "milestone": "H4R1-CEX-INFRA-ELIGIBILITY-CHECK + OF-DV34-P0 -- Workstream N",
+  "generated_utc": "2026-08-20T00:45:00Z",
+  "run_id": "local_discovery_20260819T212624Z",
+  "operation_safety": {
+    "provider_calls_made": 0,
+    "production_writes": 0,
+    "canonical_operations_mutated": false
+  },
+  "human_question_answered": "How many potential operations do we actually have?",
+  "total_families": 385,
+  "no_double_counting": "confirmed -- every family is counted in EXACTLY ONE (classification, attribution_state) cell below; composite_families (14) is a SEPARATE overlay table describing relationships BETWEEN already-counted families, not additional families itself",
+  "mutually_exclusive_census": {
+    "STRONG_CANDIDATE_FAMILY_ATTRIBUTABLE": 8,
+    "STRONG_CANDIDATE_FAMILY_NON_ATTRIBUTIVE_PROVENANCE": 13,
+    "PARTIAL_CANDIDATE_FAMILY_ATTRIBUTABLE": 57,
+    "PARTIAL_CANDIDATE_FAMILY_NON_ATTRIBUTIVE_PROVENANCE": 24,
+    "AMBIGUOUS_FUNDING_CLUSTER_ATTRIBUTABLE": 96,
+    "AMBIGUOUS_FUNDING_CLUSTER_NON_ATTRIBUTIVE_PROVENANCE": 4,
+    "SERVICE_DISTRIBUTION_CLUSTER_ATTRIBUTABLE": 4,
+    "SERVICE_DISTRIBUTION_CLUSTER_NON_ATTRIBUTIVE_PROVENANCE": 4,
+    "NOISE_OR_INSUFFICIENT_ATTRIBUTABLE": 175,
+    "sum_check": "8+13+57+24+96+4+4+4+175 = 385 (verified exact match to total_families)"
+  },
+  "overlay_dimensions_not_double_counted": {
+    "composite_families": {
+      "count": 14,
+      "note": "families where 2+ independent signals agree -- a RELATIONSHIP between families, not new families. All 14 composite pairs' member families are already counted in the mutually-exclusive census above."
+    },
+    "known_canonical_operation_overlap": {
+      "count": 1,
+      "note": "families whose root_evidence matches a TRUE CONFIRMED (not CANDIDATE) canonical Watchtower address -- corrects the earlier session's erroneous '5/21' claim; re-verified this session with the same strict state='CONFIRMED' filter"
+    },
+    "families_with_discovered_private_substructure": {
+      "count": 4,
+      "note": "NON_ATTRIBUTIVE_PROVENANCE families that contain independently-attributable substructure -- these remain counted as NON_ATTRIBUTIVE_PROVENANCE at the family level (since their ROOT is still CEX/infra), but their substructure (e.g. the Dv34 23-member subfamily) is separately counted as its OWN attributable STRONG family (already included in STRONG_CANDIDATE_FAMILY_ATTRIBUTABLE=8) -- no double count, Dv34's family exists as its own distinct row in candidate_families"
+    }
+  },
+  "potential_operation_counts": {
+    "BROAD_POTENTIAL_OPERATION_COUNT": {
+      "value": 161,
+      "definition": "all candidate families NOT definitively classified as pure NOISE_OR_INSUFFICIENT or pure NON_ATTRIBUTIVE_PROVENANCE (CEX/infra-rooted with no discovered substructure) or SERVICE_DISTRIBUTION",
+      "derivation": "STRONG_ATTRIBUTABLE(8) + PARTIAL_ATTRIBUTABLE(57) + AMBIGUOUS_ATTRIBUTABLE(96) = 161"
+    },
+    "HIGH_PRIORITY_POTENTIAL_OPERATION_COUNT": {
+      "value": 12,
+      "definition": "STRONG attributable candidates PLUS families that yielded genuine discovered private substructure within an otherwise-CEX-rooted cluster",
+      "derivation": "STRONG_ATTRIBUTABLE(8) + families_with_discovered_substructure(4) = 12",
+      "note": "the Dv34 23-member family is counted ONCE here as part of the 8 STRONG_ATTRIBUTABLE (it has its own independent family row), not counted again in the +4 -- the +4 refers to the 4 DIFFERENT non-attributive families (including the 43-member Binance upstream variant itself) that were found to CONTAIN discoverable substructure, which is a distinct fact worth flagging even though the substructure itself is separately counted"
+    },
+    "CURRENTLY_ATTRIBUTABLE_STRONG_COUNT": {
+      "value": 8,
+      "definition": "STRONG candidates supported independently of CEX/infra -- the most conservative, highest-confidence number",
+      "families": [
+        "2uPFJbcK9X4w93C3uE9iJzb9vqENbPPM19ZpvH17KgQY (40 members)",
+        "B48kNVXs4YK4amkBCH2XokQiv1SeiVQGHDR17xDeKAAn (40 members, Watchtower CANDIDATE-state hub)",
+        "Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM (23 members, Watchtower CANDIDATE-state hub)",
+        "FHpcNSe6tb2n15bAdq4BkeYWGyZKFD7yLYrH92ng7wCT (10 members)",
+        "C1SX4FAVW8c5vHQaqFCxZEUrLMpbCYx51w13kCNqKGEV (9 members)",
+        "HBQ2TC2gmX9qeNuCsY9gRTk9hiZLRZaKhvHGj2ZbVoWB (9 members)",
+        "8wvqvPt1DDdjdghpMpp7ueQFUL5Js5zux4pPeRFXWteB (6 members, Watchtower CANDIDATE-state hub)",
+        "B45FWB9i3pBRv5rGM5tnzk8uBq8TJoSdtYqMV6Z6xKom (5 members)"
+      ]
+    }
+  },
+  "evidence_coverage": {
+    "population_denominator": 40301,
+    "high_confidence_edges_used": 7644,
+    "raw_verification_performed_this_session": 0,
+    "all_classifications_local_only": true
+  },
+  "deterministic_digest": "9fca6308646deec0532ed88a2c63799ddfd5f6960bc101fd5b2a54043d24ff4b",
+  "terminal_verdict": "CENSUS_COMPLETE",
+  "verdict_reasoning": "All 385 families accounted for exactly once across 9 mutually-exclusive (classification, attribution_state) cells, verified summing to 385. Three headline numbers computed directly from this census: 161 broad potential operations, 12 high-priority (including the newly-qualified Dv34 23-member family), 8 currently-attributable-strong with zero CEX/infra dependency. Only 1 family matches a TRUE CONFIRMED canonical address (correcting the earlier erroneous 5/21 claim)."
+}

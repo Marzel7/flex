@@ -1,0 +1,107 @@
+{
+  "schema_version": "of.dv34.p0.23-member-qualification.v1",
+  "artifact_type": "OF_DV34_P0_23_MEMBER_PRIVATE_SUBFAMILY_QUALIFICATION",
+  "milestone": "OF-DV34-P0",
+  "generated_utc": "2026-08-20T00:30:00Z",
+  "run_id": "local_discovery_20260819T212624Z",
+
+  "operation_safety": {"provider_calls_made": 0, "production_writes": 0, "canonical_operations_mutated": false, "watchtower_mutated": false, "three_sw2_mutated": false},
+
+  "workstream_b_identity_freeze": {
+    "root_address": "Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM",
+    "exact_member_count": 23,
+    "exact_creator_count": 23,
+    "family_id_in_discovery_corpus": "DFF_a7528920645173d2",
+    "family_kind": "DIRECT_FUNDER",
+    "classification": "STRONG_CANDIDATE_FAMILY",
+    "attribution_state": "ATTRIBUTABLE (root is genuinely private -- category=unknown per src.utils.infra_mapping)",
+    "member_evidence_digest": "a30ecc5bc301fd37e4f002fa8107b7c2e4cad914fb21961a344a46f5870a868f",
+    "migration_signer_availability": "NOT LOCALLY AVAILABLE at this scale -- consistent with the documented B2Z-P2G coverage gap (only the 19-member B2Z-P2 calibration cohort has migration-signer evidence)",
+    "relation_to_43_member_upstream_variant": "this 23-member set is the exact largest subfamily discovered WITHIN the 43-member USF_29dd35c2748f592b (5tzFki-rooted UPSTREAM_SOURCE) family by find_private_substructure_in_cex_family() -- but it is ALSO, independently, Dv34's own full STRONG DIRECT_FUNDER family (DFF_a7528920645173d2) with the SAME 23 members. These are the SAME 23 mints reached via two different family-construction paths in the corpus, not two different findings.",
+    "relation_to_575_member_binance_cluster": "Dv34 (the direct funder of these 23) is ITSELF, separately, heavily funded by the Binance root -- 16 of Dv34's own 20 recorded upstream funding edges come from 5tzFki... (Binance), totaling well over 100 SOL. So the correct lineage is: Binance -> Dv34 (1 hop, private) -> 23 creators (2nd hop from Binance). This is exactly a 'CEX -> private wallet -> creator' pattern the CEX/INFRA lineage rule is designed to handle: Binance funding is preserved as valid provenance for DV34's OWN capital, but Dv34 itself -- not Binance -- is the private, attributable node whose recurring behavior clusters these 23 creators.",
+    "relation_to_watchtower_candidate_state": "Dv34prGm2... is a CANDIDATE-state (status='CANDIDATE', confidence=0.5) entry in wt_provisioning_hubs, discovered via the structural (treasury-agnostic) provisioner-detection path in src/analysis/watchtower_detector.py -- NOT the known-signature birth-pattern path. See Workstream F below for the full relationship analysis."
+  },
+
+  "workstream_c_why_the_23_cluster": {
+    "primary_clustering_signal": "SHARED_PRIVATE_DIRECT_FUNDER -- all 23 creators received a HIGH-confidence (gap<=3600s, amount>=0.01 SOL, no documented extraction failure) direct SOL transfer from the SAME address (Dv34prGm2...) immediately before their respective token migrations",
+    "secondary_evidence_dimensions_per_member": {
+      "exact_amount_repeats": {
+        "count": 3, "groups": [
+          {"amount_lamports": 4977500000, "amount_sol": 4.9775, "members": ["ENRAEN9assGLHU2QQCo4cAv818mDrMkb6f6pG8hHpump", "3J5KVnFBHtnrRs6MehnmTZBeN4T8D1wnbhG65Mb6pump", "7FvdzTLH5zRspacWYqUzHbThUScHH15gqbwzcVgLpump"]},
+          {"amount_lamports": 2986500000, "amount_sol": 2.9865, "members": ["Cshy6euBLpdEDmJK2kwh8TZj2SWTtzujhXnCgajxpump", "BnhjU2KkAQ1KKcNcuAB1X6obBuj9oRfG6ACechEZpump"]},
+          {"amount_lamports": 1991000000, "amount_sol": 1.991, "members": ["8AE7NWZ5yEiyE8bxyAnKcvjPYd16MPyG8EwCgA5dpump", "G1xH3odVn4YDfpW9iSoHiLMKHtXgDDMLNuw8p5Sspump"]}
+        ],
+        "significance": "the 2.9865 SOL amount EXACTLY MATCHES one of Watchtower's own independently-recorded distinct_amounts for Dv34 ('2.9865' in wt_provisioning_hubs.evidence_json) -- cross-validates that this repeat pattern is real, not an artifact of this session's specific query"
+      },
+      "temporal_span": {"earliest": 1778365061, "latest": 1786901396, "span_days": 98.8, "note": "NOT a tight burst -- spans ~99 days, consistent with Watchtower's own finding (burst=false, span_seconds=4322112 ≈ 50 days for its broader 26-creator sample)"},
+      "amount_range": {"min_lamports": 109942000, "max_lamports": 78849405000, "note": "wide range (0.11 to 78.8 SOL) -- not a single fixed provisioning amount, consistent with organic/varied capital allocation rather than a single automated template applied uniformly"},
+      "migration_signer_reuse": "NOT MEASURABLE -- migration-signer data unavailable at this scale (see identity freeze above)",
+      "ep3_ep4_topology": "NOT CROSS-REFERENCED this pass -- would require a dedicated EP3/EP4 lookup against these 23 specific mints, not performed (scope discipline)",
+      "circular_funding": "NONE detected -- Dv34's own upstream funders (Binance + 3 dust pings) never loop back to any of the 23 creators"
+    }
+  },
+
+  "workstream_d_funding_lineage_preserved": {
+    "pattern": "Binance (5tzFki...) --[16 of 20 upstream edges, 0.02-58 SOL]--> Dv34prGm2... --[23 direct-funding edges, HIGH confidence, 0.11-78.8 SOL]--> 23 distinct CREATE creators --> 23 distinct tokens",
+    "cex_hop_distance_for_the_23_direct_edges": "1 (Dv34 itself is category=unknown/private; its own upstream, 1 hop further, includes Binance)",
+    "full_lineage_not_truncated": "confirmed -- both the direct_funding_edges (Dv34->creator) and upstream_edges (Binance->Dv34) tables retain every original row; none deleted",
+    "no_rpc_used": true
+  },
+
+  "workstream_e_dv34_role": {
+    "classification": "DIRECT_FUNDER acting in a PROVISIONING_HUB capacity",
+    "reasoning": "Dv34 (a) is NOT itself a creator of any of the 23 tokens (zero self-loop), (b) receives large, repeated capital injections from Binance (its own funding source), (c) redistributes that capital to 23+ distinct creators (123 total per Watchtower's broader creator_funders view) in amounts and timing consistent with operational capital provisioning rather than a single transaction pattern, (d) shows exact-amount recurrence suggesting templated/systematic disbursement for at least a subset. This matches Watchtower's OWN independent classification via a different detection method (structural provisioner, treasury-agnostic).",
+    "not_classified_as_operation_identity": "Dv34's centrality alone is NOT treated as proof of a single operation -- its role is reported as PROVISIONING_HUB (a functional description), and whether the 23 downstream creators constitute one true 'operation' remains a candidate-tier question requiring further evidence (see Workstream K)"
+  },
+
+  "workstream_f_watchtower_relationship": {
+    "watchtower_evidence": {"method": "structural_provisioner (treasury-agnostic)", "fresh_creators_funded": 26, "burst": false, "span_seconds": 4322112, "distinct_amounts_sample": ["14.9325", "2.9865", "0.9965", "2.69055", "0.4788", "5.48075"], "status": "CANDIDATE", "confidence": 0.5, "discovered_at": 1781367248},
+    "discovery_pipeline_evidence": {"method": "calibrated HIGH-confidence direct-funding clustering (B2Z-P3B)", "member_count": 23, "classification": "STRONG_CANDIDATE_FAMILY"},
+    "source_data_overlap_check": "queried creator_funders directly for Dv34: 123 total creators recorded. This session's 23-member set is a COMPLETE, EXACT SUBSET of that 123-creator pool (23/23 overlap, 0 members unique to this session's set).",
+    "classification": "SHARED_SOURCE_LINEAGE",
+    "classification_reasoning": "NOT classified as INDEPENDENT_EVIDENCE_CONVERGENCE, because both Watchtower's structural-provisioner detector and this session's discovery pipeline ultimately read from the SAME underlying creator_funders table -- they are two different FILTERS/confidence-thresholds applied to the same raw source, not two independently-sourced confirmations. The exact-amount match (2.9865 SOL appearing in both) is real corroboration of the underlying DATA's consistency, but does not constitute independent discovery-path convergence the way, e.g., a raw RPC re-verification would.",
+    "not_promoted_to_confirmed_watchtower": true
+  },
+
+  "workstream_g_member_coherence": {
+    "question": "do all 23 belong in ONE candidate family, or are there smaller coherent subfamilies?",
+    "analysis": "the 3 exact-amount-repeat groups (3+2+2=7 members) show the strongest INTERNAL coherence signal; the remaining 16 members share ONLY the common direct funder, with no further internal recurrence (amounts, while all HIGH-confidence, do not repeat beyond the 3 groups found)",
+    "outcome": "ONE coherent 23-member candidate family (single shared direct funder is itself real, strong, deterministic evidence -- HAVING COUNT(*)>=2 clustering, matching the same methodology as every other STRONG family in this corpus), WITH an internally-flagged higher-confidence core of 7 members (the amount-repeat groups) that would be the natural first priority if the family were ever split for review purposes",
+    "not_canonically_split": true
+  },
+
+  "workstream_h_cex_context": {
+    "direct_cex_members": 0,
+    "one_hop_private_members": "23 of 23 (all 23 creators are exactly 1 hop from Dv34, which is itself 1 hop from the Binance CEX root -- so all 23 sit at CEX_INFRA_HOP_DISTANCE=1 relative to Dv34, or effectively 2 hops from Binance if the chain is walked all the way)",
+    "deeper_paths": "not measured beyond Dv34's own 1-hop upstream (Binance + 3 dust pings) -- consistent with this session's documented 1-hop-past-direct-funder capture depth",
+    "no_known_cex_upstream_members": 0,
+    "no_members_discarded_for_cex_ancestry": true
+  },
+
+  "workstream_i_false_merge_controls": {
+    "test_1_remove_binance_as_attribution_feature": "PASS -- the family's actual merge key is Dv34 (private, category=unknown), not Binance. Binance only appears 2 hops removed as Dv34's OWN funding source. Removing Binance from consideration does not affect this family's construction at all.",
+    "test_2_exclude_known_cex_nodes_as_merge_keys": "PASS -- Dv34 was never CEX-classified to begin with; this test is trivially satisfied",
+    "test_3_exclude_known_infra_nodes_as_merge_keys": "PASS -- Dv34 is not classified as infrastructure either (category=unknown, a genuinely private/unclassified wallet)",
+    "conclusion": "the family SURVIVES all three false-merge controls because its actual clustering evidence was never CEX/infra-dependent -- it rests entirely on Dv34's own private, repeated, HIGH-confidence direct-funding behavior"
+  },
+
+  "workstream_j_selective_rpc_classification": {
+    "policy_source": "B2Z-P3B calibrated policy (9/9=100% raw-confirmed for HIGH-confidence criteria; 0/10 positive for LOW-confidence)",
+    "all_23_edges_classification": "LOCAL_HIGH_CONFIDENCE (every edge meets gap<=3600s, amount>=0.01 SOL, no documented extraction failure -- by construction, since this is exactly how the family was materialized)",
+    "no_extrapolation_beyond_qualified_policy": "confirmed -- this classification reuses the EXACT calibrated criteria, does not invent a new threshold or extrapolate the 9/9 sample to a stronger claim than 'this criteria was validated at 100% for n=9'",
+    "raw_verification_required_count": 0,
+    "raw_verification_optional_count": 23,
+    "service_distribution_review_required_count": 0,
+    "missing_evidence_count": 0
+  },
+
+  "workstream_k_operation_authority_state": {
+    "candidate_state": "STRONG_CANDIDATE_OPERATIONAL_FAMILY",
+    "reasoning": "23 members, 23 distinct creators, single shared private direct funder, HIGH-confidence calibrated evidence on every edge, 3 internal exact-amount-repeat groups, cross-validated (same underlying data) against an independent Watchtower structural-provisioner detection using a DIFFERENT confidence threshold, survives all false-merge controls, zero CEX/infra dependency in its actual clustering evidence",
+    "explicitly_not_canonical": true,
+    "not_merged_with_watchtower_candidate": "Dv34's Watchtower CANDIDATE-state entry remains CANDIDATE, unchanged -- this qualification does NOT promote it"
+  },
+
+  "terminal_verdict": "DV34_STRONG_CANDIDATE_OPERATIONAL_FAMILY",
+  "verdict_reasoning": "The 23-member family survives every false-merge control, rests on genuinely private (non-CEX/infra) recurring direct-funding evidence, shows internal amount-repeat coherence for a 7-member core, and is corroborated (via shared source data, not independent discovery) by Watchtower's own structural-provisioner detection. It is the strongest single new finding to emerge from the CEX/INFRA-corrected discovery pass. It remains explicitly candidate-tier -- no canonical mutation, no Watchtower promotion, no operation membership created."
+}

@@ -1,0 +1,30 @@
+{
+  "schema_version": "of.dv34.p0.human-review-packet.v1",
+  "artifact_type": "OF_DV34_P0_HUMAN_REVIEW_PACKET",
+  "milestone": "OF-DV34-P0 -- Workstream Q",
+  "generated_utc": "2026-08-20T00:38:00Z",
+  "purpose": "Concise human-readable summary. No decision made here.",
+
+  "plain_english_summary": "A private wallet (Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM) directly funded 23 different token creators with HIGH-confidence, calibrated evidence -- every single funding relationship met the exact criteria that B2Z's live raw-verification calibration proved 100% reliable (9 for 9). Three of the 23 payments were for EXACTLY the same amount as another payment in the set (a strong templating signal), and one of those repeated amounts (2.9865 SOL) was independently spotted by Watchtower's own older detection system too -- though both systems are ultimately reading the same underlying funding records, not two separate confirmations. This wallet itself gets most of its own money from a Binance exchange wallet, but Binance funding Dv34 doesn't make Dv34 or its 23 creators 'Binance' -- Dv34's own repeated, templated funding behavior is the real evidence here, and it survives every check we ran to rule out CEX/exchange funding as a false merge signal.",
+
+  "why_it_surfaced": "It came up while investigating the much larger 575-member cluster that's rooted at a Binance wallet -- most of that cluster looked like ordinary, unrelated Binance withdrawals, but this 23-member slice stood out because its members ALSO cluster together through a completely separate, private wallet (Dv34), independent of the Binance connection.",
+
+  "root_funder": "Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM",
+  "number_of_members": 23,
+  "number_of_creators": 23,
+  "date_range": "2026-05-09 to 2026-08-16 (98.8 days)",
+
+  "strongest_evidence": [
+    "All 23 funding relationships meet the calibrated HIGH-confidence bar (fast timing before launch, meaningful amount, no known extraction problems) -- this exact criteria was separately proven 100% reliable in a real raw-verification test earlier this sprint.",
+    "3 pairs/triples of EXACT amount matches (4.9775 SOL x3, 2.9865 SOL x2, 1.991 SOL x2) -- money amounts repeating to the lamport almost never happen by coincidence.",
+    "One of those repeated amounts was independently noticed by an older detection system (Watchtower) too, though it's using the same underlying data, not a truly separate source."
+  ],
+
+  "cex_binance_context": "Dv34 gets most of its OWN operating capital from a Binance exchange wallet (16 of its last 20 incoming payments, worth well over 100 SOL total). This is completely normal and doesn't hurt the finding -- lots of legitimate operators fund their wallets from an exchange. What matters is that Dv34 ITSELF, not Binance, is the thing that recurs across all 23 creators. We specifically tested removing Binance from consideration entirely, and the 23-member grouping held up fine because it was never based on the Binance connection in the first place.",
+
+  "watchtower_context": "Dv34 already sits in Watchtower's own review queue as a CANDIDATE (not yet confirmed) -- discovered independently via Watchtower's older 'funds lots of fresh creators' detection rule. This finding doesn't change that status either way; it's additional context showing two different detection approaches landed on the same wallet using the same underlying records.",
+
+  "what_selective_verification_would_add": "We identified the 6 most useful individual transactions to double-check with a real blockchain lookup (not done yet) -- one from each of the 3 repeated-amount groups, the earliest and latest payment in the set, and the single largest payment. Confirming those 6 (out of a possible 18 lookups, versus 69 if we checked everyone) would give strong confidence in the whole pattern without needing to check all 23 individually.",
+
+  "recommended_next_decision": "Three reasonable paths: (a) leave it as a documented candidate for now, no urgency; (b) authorize the 6-transaction selective verification described above to firm up confidence before doing anything else; (c) if this looks operationally significant, decide whether it should go through a formal review process toward becoming a tracked operation -- a bigger step than anything done here. This is your call, not ours."
+}

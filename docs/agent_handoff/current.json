@@ -1,4 +1,42 @@
 {
+  "h4r1_cex_infra_eligibility_check_and_of_dv34_p0": {
+    "milestone": "H4R1-CEX-INFRA-ELIGIBILITY-CHECK + OF-DV34-P0",
+    "artifacts": [
+      "docs/audits/h4r1_cex_infra_eligibility_check.json",
+      "docs/audits/of_dv34_p0_23_member_private_subfamily_qualification.json",
+      "docs/audits/of_dv34_p0_selective_verification_manifest.json",
+      "docs/audits/of_dv34_p0_human_review_packet.json",
+      "docs/audits/local_operation_discovery_definitive_candidate_census.json",
+      "docs/audits/local_operation_discovery_top20_priority_review_queue.json",
+      "docs/audits/of_p0_56_member_accepted_disposition_overlay.json",
+      "docs/audits/okx_watchtower_candidate_disposition_overlay.json",
+      "docs/audits/next_h_series_scope_proposal.json (updated with Workstream S decision)"
+    ],
+    "provider_calls_made": 0,
+    "production_writes": 0,
+    "canonical_operations_mutated": false,
+    "watchtower_mutated": false,
+    "three_sw2_mutated": false,
+    "h4r1_result": "H4R1_CEX_INFRA_ELIGIBILITY_QUALIFIED -- located H's actual underlying wallet evidence (/private/tmp/psi0h_h8_to_h4_runtime_continuity.db, still existed), checked all 13 candidates' creator/destination wallets against the CEX/INFRA mapping: 0 CEX/infra hits across all 13. Structural finding: H's ENTIRE evidence basis (150/150 detector_inputs rows) is LAUNCH_LINKAGE (creator/destination identity continuity), never funder-role evidence -- the CEX/INFRA question is structurally inapplicable to H's evidence dimension, not just empirically clear. Zero H4R1 historical dispositions altered.",
+    "dv34_result": "DV34_STRONG_CANDIDATE_OPERATIONAL_FAMILY -- 23 members, 23 distinct creators, root Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM is genuinely private (category=unknown), all edges HIGH-confidence (calibrated criteria validated 9/9=100% in B2Z-P2). 3 internal exact-amount-repeat groups (4.9775/2.9865/1.991 SOL). Survives all 3 false-merge controls. Dv34's OWN capital comes 16/20-edges from Binance (preserved, not attributive). Cross-referenced against Watchtower: SHARED_SOURCE_LINEAGE (not independent convergence -- both read creator_funders), 23/23 members are an exact subset of Watchtower's own 123-creator record for the same address. Watchtower CANDIDATE-state (confidence=0.5) unchanged, not promoted.",
+    "selective_verification_manifest": "6 of 23 members prioritized (3 amount-repeat representatives, 2 temporal boundaries, 1 materiality boundary) = max 18 requests vs 69 for blanket verification -- non-executable, not run",
+    "56_member_disposition": "OF_P0_SUBSET_PARTIALLY_SUPPORTED accepted per human decision, append-only overlay created, historical OF-P0 artifact untouched",
+    "okx_candidate_disposition": "RETAIN as CANDIDATE per human decision, append-only overlay created, Watchtower row untouched",
+    "definitive_census": {
+      "total_families": 385,
+      "sum_verified": "8+13+57+24+96+4+4+4+175 = 385",
+      "BROAD_POTENTIAL_OPERATION_COUNT": 161,
+      "HIGH_PRIORITY_POTENTIAL_OPERATION_COUNT": 12,
+      "CURRENTLY_ATTRIBUTABLE_STRONG_COUNT": 8,
+      "true_confirmed_canonical_overlap": 1,
+      "correction_note": "corrects the earlier erroneous '5/21 strong candidates match confirmed Watchtower' claim -- only 1 family matches a TRUE CONFIRMED (not CANDIDATE-state) canonical address"
+    },
+    "top20_queue": "corrected priority order: Dv34 (rank 1, deeply qualified) > 7 remaining non-CEX strong candidates > 11 strongest PARTIAL-tier attributable candidates (including composite-corroborated ones) > OKX candidate (continuity). Explicitly deprioritizes large CEX-rooted families regardless of size.",
+    "roadmap_decision_workstream_s": "H_REMAINS_COMPLETE -- the one concrete H gap is now closed with a definitive result; no new H work manufactured. New operation-discovery/review workflow proceeds independently, per the frozen dual-source architecture.",
+    "tests": "53/53 passing (26 pre-existing + 7 new this milestone) in tests/test_local_operation_discovery_projection.py, combined with 27 B2Z-P1 tests",
+    "terminal_verdict": "H_REENTRY_AND_PRIORITY_OPERATION_REVIEW_QUALIFIED",
+    "next_action": "human review of the corrected top-20 queue (rank 1 = Dv34) and decision on whether to authorize the 6-transaction selective verification manifest"
+  },
   "roadmap_h_reentry_b": {
     "milestone": "ROADMAP-H-REENTRY-B -- dual-source evidence architecture and preserved infrastructure lineage",
     "artifacts": [

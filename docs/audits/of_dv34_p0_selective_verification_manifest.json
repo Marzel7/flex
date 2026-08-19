@@ -1,0 +1,63 @@
+{
+  "schema_version": "of.dv34.p0.selective-verification-manifest.v1",
+  "artifact_type": "OF_DV34_P0_SELECTIVE_VERIFICATION_MANIFEST",
+  "milestone": "OF-DV34-P0 -- Workstream J2",
+  "generated_utc": "2026-08-20T00:35:00Z",
+  "status": "NON_EXECUTABLE -- no RPC performed, no RPC authorized by this artifact",
+
+  "operation_safety": {"provider_calls_made": 0},
+
+  "principle": "minimum set of future selective-RPC requests capable of materially testing the 23-member family -- NOT blanket 3-calls-per-member (which would be 69 requests). Prioritizes representative central edges, boundary members, and edges whose verification would corroborate multiple related claims at once.",
+
+  "prioritized_verification_set": [
+    {
+      "priority": 1,
+      "mint": "ENRAEN9assGLHU2QQCo4cAv818mDrMkb6f6pG8hHpump",
+      "reason": "representative of the 4.9775 SOL exact-amount-repeat group (3 members) -- verifying this ONE edge is a strong test of whether the templated-amount pattern is real (raw-confirms funder/destination/amount/timing simultaneously for the whole group's shared characteristic)",
+      "requests_needed": "up to 3 (MIGRATION_TX + CREATOR_HISTORY-equivalent + FUNDING_TX, per the B2Z contract shape)"
+    },
+    {
+      "priority": 2,
+      "mint": "Cshy6euBLpdEDmJK2kwh8TZj2SWTtzujhXnCgajxpump",
+      "reason": "representative of the 2.9865 SOL exact-amount-repeat group -- this SAME amount independently appears in Watchtower's own recorded distinct_amounts for Dv34, so verifying this edge cross-validates BOTH this session's finding AND Watchtower's independent (same-source-data) record",
+      "requests_needed": "up to 3"
+    },
+    {
+      "priority": 3,
+      "mint": "8AE7NWZ5yEiyE8bxyAnKcvjPYd16MPyG8EwCgA5dpump",
+      "reason": "representative of the 1.991 SOL exact-amount-repeat group -- completes coverage of all 3 internal repeat groups with a single edge each",
+      "requests_needed": "up to 3"
+    },
+    {
+      "priority": 4,
+      "mint": "47MnLkP3ot9qV3RGbkCQFiJEHYJThaNKzDhbagripump",
+      "reason": "temporal LEFT boundary (earliest member, 1778365061) -- verifying the earliest edge tests whether the family's full 99-day span is genuine or whether early members are lower-quality/different-pattern evidence",
+      "requests_needed": "up to 3"
+    },
+    {
+      "priority": 5,
+      "mint": "7EpvnnQQhmcGZvWTxoKP59fGcEw27hFovdBWXvdepump",
+      "reason": "temporal RIGHT boundary (latest member, 1786901396) -- pairs with priority 4 to test the full observed span",
+      "requests_needed": "up to 3"
+    },
+    {
+      "priority": 6,
+      "mint": "43sSuhMnbXL4AmXFgZQT6ojPV5i4Yw9bjmZUSa3npump",
+      "reason": "largest single amount (78.8 SOL) -- materiality boundary; the highest-value edge is the highest-consequence one to confirm or refute",
+      "requests_needed": "up to 3"
+    }
+  ],
+
+  "totals": {
+    "members_targeted_for_verification": 6,
+    "members_not_targeted": 17,
+    "maximum_possible_requests": 18,
+    "note": "18 requests (if all 6 need the full 3-stage path) vs. 69 for blanket per-member verification -- a 74% reduction while covering all 3 internal repeat groups, both temporal boundaries, and the materiality boundary"
+  },
+
+  "if_all_6_confirm": "would provide strong (not absolute) confidence that the family's characteristic evidence dimensions (amount-repeat templating, temporal span, materiality range) are genuine, without needing to verify all 23 members individually",
+  "if_any_of_the_6_contradict": "per the B2Z-P2F/P2H precedent, a contradiction becomes a RAW_VERIFICATION_NEGATIVE_TERMINAL finding for that specific member -- does not automatically invalidate the other 22, but would warrant expanding the verification set for that specific evidence dimension",
+
+  "no_rpc_authorized_by_this_artifact": true,
+  "requires_separate_explicit_authorization_to_execute": true
+}

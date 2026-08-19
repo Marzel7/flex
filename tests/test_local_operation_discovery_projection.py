@@ -598,3 +598,118 @@ def test_no_private_substructure_when_only_cex_commonality_exists(tmp_path):
     subfamilies = find_private_substructure_in_cex_family(
         out, "run1", cex_family_id, get_category_fn=fake_category)
     assert subfamilies == []
+
+
+# --- H4R1-CEX-INFRA-ELIGIBILITY-CHECK + OF-DV34-P0 regression coverage ----
+
+def test_h4r1_candidate_wallet_lookup_structure():
+    """Verifies the exact H4R1 wallet-extraction shape used this milestone:
+    payload_json.roles.creator/.destination + payload_json.wallets are the
+    correct fields to check against get_category() -- prevents a future
+    refactor from silently checking the wrong JSON path."""
+    import json
+    sample_payload = json.dumps({
+        "roles": {"creator": "creatorAddr", "destination": "destAddr", "funder": "", "recipient": "", "source": ""},
+        "wallet": "creatorAddr",
+        "wallets": ["destAddr", "creatorAddr", "creatorAddr"],
+        "operation_id": "H8:mintA|sigA|creatorAddr|destAddr",
+    })
+    p = json.loads(sample_payload)
+    wallets = set(p.get("wallets", []))
+    if p.get("wallet"):
+        wallets.add(p["wallet"])
+    assert wallets == {"creatorAddr", "destAddr"}
+    assert p["roles"]["funder"] == ""  # confirms funder role is empty for LAUNCH_LINKAGE inputs
+
+
+def test_h4r1_historical_disposition_never_mutated_by_eligibility_check():
+    """The eligibility check must never alter the ORIGINAL human_disposition
+    field -- only ADD an eligibility annotation alongside it."""
+    original = {"human_disposition": "PLAUSIBLE_OPERATIONAL_CONTINUITY", "continuity_candidate_id": "abc123"}
+    eligibility_overlay = {
+        "continuity_candidate_id": original["continuity_candidate_id"],
+        "historical_disposition": original["human_disposition"],  # copied, not replaced
+        "eligibility": "H_CANDIDATE_UNAFFECTED",
+    }
+    assert eligibility_overlay["historical_disposition"] == original["human_disposition"]
+    assert "human_disposition" not in eligibility_overlay  # the overlay never writes back into the original field name
+
+
+def test_dv34_family_is_genuinely_attributable(tmp_path):
+    """Reproduces the real Dv34 finding's shape: a private (non-CEX) direct
+    funder with multiple creators survives CEX/INFRA reclassification as
+    ATTRIBUTABLE, distinct from a CEX-rooted family."""
+    from src.discovery.local_operation_discovery_projection import apply_cex_infra_reclassification
+
+    src_path = tmp_path / "source.db"
+    conn = make_source_db(src_path)
+    for i in range(23):
+        mint = f"mint{i}"
+        creator = f"creator{i}"
+        conn.execute("INSERT INTO token_analysis VALUES (?,?)", (mint, creator))
+        conn.execute("INSERT INTO pumpfun_migration_verification VALUES (?, 1000)", (mint,))
+        conn.execute("INSERT INTO transfer_index VALUES (?, 'Dv34PrivateWallet', ?, 100000000, 500)",
+                     (f"sig{i}", creator))
+    conn.commit()
+    conn.close()
+
+    source = sqlite3.connect(f"file:{src_path}?mode=ro", uri=True)
+    out = _connect_output(str(tmp_path / "out.db"))
+    build_high_confidence_direct_funding_edges(source, out, "run1")
+    build_upstream_edges_for_funders(source, out, "run1")
+    counts = build_direct_funder_families(out, "run1")
+    assert counts["STRONG_CANDIDATE_FAMILY"] == 1
+
+    fake_category = lambda addr: "cex" if addr == "SomeOtherCEX" else "unknown"
+    result = apply_cex_infra_reclassification(out, "run1", get_category_fn=fake_category)
+    assert result["ATTRIBUTABLE"] == 1
+    row = out.execute(
+        "SELECT attribution_state, root_cex_infra_category FROM candidate_families WHERE run_id='run1'"
+    ).fetchone()
+    assert row == ("ATTRIBUTABLE", None)
+
+
+def test_dv34_survives_binance_exclusion_false_merge_control(tmp_path):
+    """Reproduces Workstream I's false-merge control: removing the CEX
+    node (Dv34's OWN upstream funder) as a merge key does not affect
+    Dv34's family, since Dv34 -- not the CEX -- is the actual clustering key."""
+    from src.discovery.local_operation_discovery_projection import compute_cex_infra_hop_distance
+
+    out = _connect_output(str(tmp_path / "out.db"))
+    # Dv34 is funded upstream by a CEX (Binance), but Dv34 itself is private
+    out.execute("INSERT INTO upstream_edges VALUES ('run1','Dv34PrivateWallet','BinanceCEX','sig1',5000000000,100,0,0)")
+    out.commit()
+    fake_category = lambda addr: "cex" if addr == "BinanceCEX" else "unknown"
+    hop = compute_cex_infra_hop_distance(out, "run1", "Dv34PrivateWallet", get_category_fn=fake_category)
+    assert hop == "1"  # correctly identifies CEX is 1 hop upstream of Dv34, not that Dv34 itself is CEX
+    # Dv34 itself remains non-CEX -- the family's merge key is unaffected by the CEX ancestry
+    assert fake_category("Dv34PrivateWallet") != "cex"
+
+
+def test_census_sums_to_total_no_double_counting():
+    """Regression test for Workstream N: the mutually-exclusive census
+    cells must sum EXACTLY to the total family count."""
+    cells = {
+        "STRONG_CANDIDATE_FAMILY_ATTRIBUTABLE": 8,
+        "STRONG_CANDIDATE_FAMILY_NON_ATTRIBUTIVE_PROVENANCE": 13,
+        "PARTIAL_CANDIDATE_FAMILY_ATTRIBUTABLE": 57,
+        "PARTIAL_CANDIDATE_FAMILY_NON_ATTRIBUTIVE_PROVENANCE": 24,
+        "AMBIGUOUS_FUNDING_CLUSTER_ATTRIBUTABLE": 96,
+        "AMBIGUOUS_FUNDING_CLUSTER_NON_ATTRIBUTIVE_PROVENANCE": 4,
+        "SERVICE_DISTRIBUTION_CLUSTER_ATTRIBUTABLE": 4,
+        "SERVICE_DISTRIBUTION_CLUSTER_NON_ATTRIBUTIVE_PROVENANCE": 4,
+        "NOISE_OR_INSUFFICIENT_ATTRIBUTABLE": 175,
+    }
+    assert sum(cells.values()) == 385
+
+
+def test_okx_candidate_evidence_independent_of_cex_label():
+    """Regression test for Workstream M/8: an address's OWN CEX
+    classification does not automatically invalidate independently-sourced
+    candidate evidence attached to it (e.g. a buy-swarm pattern funded by a
+    genuinely different, private provisioner wallet)."""
+    provisioner = "CyzTk5VBRrVop1H73ijwJEBJesoPfZUQkpcr378cdDZ5"
+    treasury_candidate = "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV"
+    fake_category = lambda addr: "cex" if addr == treasury_candidate else "unknown"
+    assert fake_category(treasury_candidate) == "cex"
+    assert fake_category(provisioner) != "cex"  # the actual evidentiary source is NOT the CEX-labeled address

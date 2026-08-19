@@ -1,0 +1,38 @@
+{
+  "schema_version": "local.operation-discovery.top20-priority-queue.v2",
+  "artifact_type": "LOCAL_OPERATION_DISCOVERY_TOP20_PRIORITY_REVIEW_QUEUE",
+  "milestone": "H4R1-CEX-INFRA-ELIGIBILITY-CHECK + OF-DV34-P0 -- Workstream O",
+  "generated_utc": "2026-08-20T00:50:00Z",
+  "supersedes": "docs/audits/local_operation_discovery_top20_review_packets.json (that artifact predates CEX/INFRA reclassification and ranked several now-known-CEX-rooted candidates highly -- this artifact is the corrected priority order)",
+
+  "operation_safety": {"provider_calls_made": 0},
+
+  "priority_ordering_rule": "Dv34 first (deepest-qualified this session) > remaining strong non-CEX candidates by member count > strongest composite candidates > candidates with independent evidence convergence > candidates where one selective verification resolves major uncertainty. CEX-only clusters are explicitly NOT ranked highly regardless of size.",
+
+  "queue": [
+    {"rank": 1, "root": "Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM", "members": 23, "reason": "DEEPLY QUALIFIED this milestone -- see docs/audits/of_dv34_p0_23_member_private_subfamily_qualification.json. Strongest new finding: private, non-CEX, HIGH-confidence, internal amount-repeat coherence, survives all false-merge controls, Watchtower CANDIDATE-state cross-reference."},
+    {"rank": 2, "root": "2uPFJbcK9X4w93C3uE9iJzb9vqENbPPM19ZpvH17KgQY", "members": 40, "reason": "largest remaining non-CEX/infra strong candidate, not yet deeply qualified"},
+    {"rank": 3, "root": "B48kNVXs4YK4amkBCH2XokQiv1SeiVQGHDR17xDeKAAn", "members": 40, "reason": "second-largest non-CEX strong candidate; ALSO a Watchtower CANDIDATE-state provisioning hub (not confirmed) -- worth the same treatment as Dv34"},
+    {"rank": 4, "root": "FHpcNSe6tb2n15bAdq4BkeYWGyZKFD7yLYrH92ng7wCT", "members": 10, "reason": "next-largest non-CEX strong candidate"},
+    {"rank": 5, "root": "C1SX4FAVW8c5vHQaqFCxZEUrLMpbCYx51w13kCNqKGEV", "members": 9, "reason": "non-CEX strong candidate"},
+    {"rank": 6, "root": "HBQ2TC2gmX9qeNuCsY9gRTk9hiZLRZaKhvHGj2ZbVoWB", "members": 9, "reason": "non-CEX strong candidate AND appears as the direct-funder side of 4 of this session's 14 composite families (independent evidence convergence with 4 different upstream sources) -- unusually well-corroborated"},
+    {"rank": 7, "root": "8wvqvPt1DDdjdghpMpp7ueQFUL5Js5zux4pPeRFXWteB", "members": 6, "reason": "non-CEX strong candidate, also a Watchtower CANDIDATE-state provisioning hub"},
+    {"rank": 8, "root": "B45FWB9i3pBRv5rGM5tnzk8uBq8TJoSdtYqMV6Z6xKom", "members": 5, "reason": "smallest of the 8 currently-attributable strong candidates -- completes full coverage of the strong tier"},
+    {"rank": 9, "root": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY", "members": 48, "reason": "largest PARTIAL-tier attributable candidate -- larger than several STRONG candidates, worth checking whether it should be reclassified"},
+    {"rank": 10, "root": "5dxvr2A9TwMs1gnQ7gCpYiem9ArtcqmnuKHF76Yr2mT6", "members": 31, "reason": "large PARTIAL-tier attributable, 1:1 member:creator ratio"},
+    {"rank": 11, "root": "Aq7WPwsRRK28KuSQnAvzwzDcbYkCCfVtLjxhrYGc9ZLL", "members": 31, "reason": "large PARTIAL-tier attributable, 1:1 ratio"},
+    {"rank": 12, "root": "5QDtfFdBxaUP3vT7bK5F1MHRUnkpTFW1Wj4GqCU7kk9X", "members": 22, "reason": "PARTIAL-tier attributable"},
+    {"rank": 13, "root": "DPbhcQWtNjuJfpeSDwynoLDE9EhvdjWjQ72zu4CaBvro", "members": 12, "reason": "PARTIAL-tier, also the upstream side of a 9-mint composite finding with HBQ2TC2gmX9q (rank 6)"},
+    {"rank": 14, "root": "5bQ9k4KDv6cMBR23TNCcBwgNi4CQtXHQYNHnYw1d5sy4", "members": 11, "reason": "PARTIAL-tier, also the upstream side of a 9-mint composite finding with HBQ2TC2gmX9q"},
+    {"rank": 15, "root": "69aiAKU3uJMxMLRkUEGFNt6nQ43PiVimE4ZbErJ7VSM1", "members": 10, "reason": "PARTIAL-tier, also the upstream side of a 9-mint composite finding with HBQ2TC2gmX9q"},
+    {"rank": 16, "root": "HfSaUhys1Fe2zJGRm3UYbLnJQTcZyiSghEHaRWRQLsvj", "members": "see composite artifact", "reason": "upstream side of the 4th 9-mint composite finding with HBQ2TC2gmX9q"},
+    {"rank": 17, "root": "8pF8h7FsGs83DTfJuqXYAUc8upwXixQvnxRYJH8rkxzC", "members": 12, "reason": "PARTIAL-tier attributable, 1:1 ratio"},
+    {"rank": 18, "root": "DyaESzDfBLtbvKz7iM5Th6nsbsGSpjt5NLXuieigRcZX", "members": 11, "reason": "PARTIAL-tier attributable, 1:1 ratio"},
+    {"rank": 19, "root": "Bwpr1KPp6HkHWKXjXHGtseSDN5zUDy1qtDvX6mi3byXS", "members": 10, "reason": "PARTIAL-tier attributable, 1:1 ratio"},
+    {"rank": 20, "root": "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV", "members": "N/A (Watchtower-only)", "reason": "the OKX Watchtower CANDIDATE with independent private-provisioner buy-swarm evidence -- listed here for review continuity, NOT ranked by discovery-corpus member count (it isn't a discovery-corpus family at all, it's a Watchtower-native candidate). Human decision already made: RETAIN as candidate."}
+  ],
+
+  "explicitly_deprioritized": "the previous top-20 packet's #1-#2 (ASTyfSima4LL..., a Binance-rooted family) and several other large CEX-rooted families are explicitly NOT included here -- they are provenance-only per this session's corrected classification and should not consume review priority ahead of genuinely attributable candidates.",
+
+  "not_ranked_by_raw_size_alone": true
+}

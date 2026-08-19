@@ -424,23 +424,22 @@ def run_discovery(*, source_db_path: str = SOURCE_DB, output_db_path: str = OUTP
 
 def apply_cex_infra_reclassification(out: sqlite3.Connection, run_id: str, *,
                                       get_category_fn) -> dict[str, int]:
-    """Deterministic, non-destructive reclassification (Part 10): looks up
-    each candidate family's root_evidence address against the authoritative
-    src.utils.infra_mapping.get_category() (injected as get_category_fn to
-    keep this module import-light and unit-testable with a fake mapping).
+    """Deterministic, non-destructive reclassification implementing
+    CEX_INFRA_PRESERVE_LINEAGE_EXCLUDE_SOLE_ATTRIBUTION (ROADMAP-H-REENTRY-B):
+    looks up each candidate family's root_evidence address against the
+    authoritative src.utils.infra_mapping.get_category() (injected as
+    get_category_fn to keep this module import-light and unit-testable with
+    a fake mapping).
 
-    A family whose root is a known CEX/infra address has its
-    attribution_state set to NON_ATTRIBUTIVE_PROVENANCE -- the family row,
-    its evidence, and its members are NEVER deleted. Only the
-    root_cex_infra_category and attribution_state columns are updated.
-
-    Per the KNOWN_CEX_INFRA_NON_ATTRIBUTIVE_FUNDING_BOUNDARY rule: a
-    CEX/infra-rooted family is NOT independently strong evidence of a
-    coordinated operation (shared exchange withdrawal wallet != shared
-    operator) -- but it is NOT deleted, since the underlying funding edges
-    remain valid provenance/timing/transfer evidence, and could still
-    combine with independent evidence (e.g. a composite family, see
-    build_composite_families) to support a genuine candidate."""
+    CRITICAL SEMANTIC: this NEVER deletes, truncates, or discards any
+    funding lineage. The family row, its full evidence_json, every member
+    record, and every direct/upstream edge remain permanently intact. A
+    family whose root is CEX/infra only has its attribution_state field
+    updated to record that the ROOT ALONE is not sufficient proof of common
+    operational control -- the underlying transfer/timing/provenance
+    evidence remains fully queryable and may still combine with independent
+    private substructure (see find_private_substructure_in_cex_family) to
+    support a genuine candidate."""
     rows = out.execute(
         "SELECT run_id, family_id, root_evidence, classification FROM candidate_families WHERE run_id=?",
         (run_id,)).fetchall()
@@ -458,6 +457,92 @@ def apply_cex_infra_reclassification(out: sqlite3.Connection, run_id: str, *,
         "WHERE run_id=? AND family_id=?", batch)
     out.commit()
     return counts
+
+
+def compute_cex_infra_hop_distance(out: sqlite3.Connection, run_id: str, direct_funder: str, *,
+                                    get_category_fn) -> str:
+    """Determine CEX_INFRA_HOP_DISTANCE for a DIRECT_FUNDER family's root,
+    using ONLY already-materialized local evidence (direct_funding_edges +
+    the 1-hop upstream_edges table) -- no new queries beyond what
+    run_discovery() already captured, per 'deterministic from existing
+    evidence' (instruction Part CEX/INFRA HOP DISTANCE).
+
+    Returns one of:
+      "0"  -- the direct_funder itself is CEX/infra
+      "1"  -- the direct_funder's own upstream funder (1 hop out) is CEX/infra
+      "NO_KNOWN_CEX_INFRA_UPSTREAM" -- neither hop 0 nor hop 1 (within this
+          run's already-captured 1-hop upstream depth) matches CEX/infra
+      "UNKNOWN_BEYOND_LOCAL_DEPTH" -- hop 0/1 are clear of CEX/infra, but
+          this run's upstream capture is capped at 1 hop past the direct
+          funder (see build_upstream_edges_for_funders's LIMIT 20), so
+          deeper hops are honestly reported as not locally determinable
+          rather than assumed absent."""
+    if get_category_fn(direct_funder) not in (None, "unknown"):
+        return "0"
+    upstream_rows = out.execute(
+        "SELECT upstream_source FROM upstream_edges WHERE run_id=? AND direct_funder=? AND self_loop=0",
+        (run_id, direct_funder)).fetchall()
+    if not upstream_rows:
+        return "NO_KNOWN_CEX_INFRA_UPSTREAM"
+    for (upstream_source,) in upstream_rows:
+        if get_category_fn(upstream_source) not in (None, "unknown"):
+            return "1"
+    return "UNKNOWN_BEYOND_LOCAL_DEPTH"
+
+
+def find_private_substructure_in_cex_family(out: sqlite3.Connection, run_id: str, family_id: str, *,
+                                             get_category_fn, min_shared_mints: int = 2) -> list[dict]:
+    """Search WITHIN a CEX/infra-rooted family's member population for
+    genuine private substructure -- per the instruction's explicit
+    requirement to search for subfamilies rather than discard or merge the
+    whole cluster. Looks for members that ALSO share a DIFFERENT,
+    NON-CEX/infra direct funder or upstream source with each other (i.e.
+    evidence independent of the CEX root itself).
+
+    Returns a list of candidate subfamily dicts: {"private_evidence_type",
+    "shared_node", "member_mints", "member_count"}. Empty list means no
+    independent private substructure was found within local evidence --
+    the family remains provenance-only (SHARED_CEX_PROVENANCE_CLUSTER),
+    which is itself reported, not silently treated as failure."""
+    members = out.execute(
+        "SELECT mint, create_creator FROM candidate_family_members WHERE run_id=? AND family_id=?",
+        (run_id, family_id)).fetchall()
+    member_mints = {m for m, _ in members}
+    if not member_mints:
+        return []
+
+    # look for OTHER direct-funder families whose membership overlaps this
+    # CEX family's members via a non-CEX root -- this is the deterministic,
+    # already-materialized signal for "these members ALSO share private
+    # evidence with each other, independent of the CEX root"
+    placeholders = ",".join("?" for _ in member_mints)
+    rows = out.execute(f"""
+        SELECT cf.root_evidence, cf.family_id, m.mint
+        FROM candidate_family_members m
+        JOIN candidate_families cf ON m.run_id = cf.run_id AND m.family_id = cf.family_id
+        WHERE m.run_id = ? AND m.family_id != ? AND m.mint IN ({placeholders})
+          AND cf.family_kind IN ('DIRECT_FUNDER', 'UPSTREAM_SOURCE')
+    """, (run_id, family_id, *member_mints)).fetchall()
+
+    from collections import defaultdict
+    by_root: dict[str, set[str]] = defaultdict(set)
+    for root, other_family_id, mint in rows:
+        by_root[root].add(mint)
+
+    subfamilies = []
+    for root, mints in by_root.items():
+        if get_category_fn(root) not in (None, "unknown"):
+            continue  # this "other" family is ALSO CEX/infra -- not independent private evidence
+        if len(mints) < min_shared_mints:
+            continue
+        subfamilies.append({
+            "private_evidence_type": "shared_non_cex_funder_or_upstream",
+            "shared_node": root,
+            "member_mints": sorted(mints),
+            "member_count": len(mints),
+        })
+    subfamilies.sort(key=lambda s: -s["member_count"])
+    return subfamilies
 
 
 if __name__ == "__main__":

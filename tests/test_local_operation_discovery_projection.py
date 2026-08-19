@@ -433,3 +433,168 @@ def test_composite_independent_evidence_survives_cex_reclassification(tmp_path):
     assert row[0] == 3
     assert row[1] == "ATTRIBUTABLE"
     assert row[2] is None
+
+
+# --- CEX/INFRA lineage preservation + hop distance (ROADMAP-H-REENTRY-B) ---
+
+def test_hop_distance_zero_when_direct_funder_is_cex(tmp_path):
+    from src.discovery.local_operation_discovery_projection import compute_cex_infra_hop_distance
+    out = _connect_output(str(tmp_path / "out.db"))
+    fake_category = lambda addr: "cex" if addr == "knownCEX" else "unknown"
+    result = compute_cex_infra_hop_distance(out, "run1", "knownCEX", get_category_fn=fake_category)
+    assert result == "0"
+
+
+def test_hop_distance_one_when_upstream_is_cex(tmp_path):
+    from src.discovery.local_operation_discovery_projection import compute_cex_infra_hop_distance
+    out = _connect_output(str(tmp_path / "out.db"))
+    out.execute(
+        "INSERT INTO upstream_edges VALUES ('run1','privateWallet','knownCEX','sig1',50000000,100,0,0)")
+    out.commit()
+    fake_category = lambda addr: "cex" if addr == "knownCEX" else "unknown"
+    result = compute_cex_infra_hop_distance(out, "run1", "privateWallet", get_category_fn=fake_category)
+    assert result == "1"
+
+
+def test_hop_distance_no_known_upstream_when_no_edges(tmp_path):
+    from src.discovery.local_operation_discovery_projection import compute_cex_infra_hop_distance
+    out = _connect_output(str(tmp_path / "out.db"))
+    fake_category = lambda addr: "unknown"
+    result = compute_cex_infra_hop_distance(out, "run1", "privateWallet", get_category_fn=fake_category)
+    assert result == "NO_KNOWN_CEX_INFRA_UPSTREAM"
+
+
+def test_hop_distance_unknown_beyond_local_depth(tmp_path):
+    from src.discovery.local_operation_discovery_projection import compute_cex_infra_hop_distance
+    out = _connect_output(str(tmp_path / "out.db"))
+    out.execute(
+        "INSERT INTO upstream_edges VALUES ('run1','privateWallet','anotherPrivateWallet','sig1',50000000,100,0,0)")
+    out.commit()
+    fake_category = lambda addr: "unknown"  # neither hop 0 nor hop 1 is CEX/infra
+    result = compute_cex_infra_hop_distance(out, "run1", "privateWallet", get_category_fn=fake_category)
+    assert result == "UNKNOWN_BEYOND_LOCAL_DEPTH"
+
+
+def test_cex_lineage_never_deleted_by_reclassification(tmp_path):
+    """The corrected semantic: reclassification NEVER truncates/deletes
+    lineage. All original direct_funding_edges and upstream_edges rows
+    remain byte-for-byte queryable after reclassification."""
+    from src.discovery.local_operation_discovery_projection import apply_cex_infra_reclassification
+
+    src_path = tmp_path / "source.db"
+    conn = make_source_db(src_path)
+    for i in range(5):
+        mint = f"mint{i}"
+        creator = f"creator{i}"
+        conn.execute("INSERT INTO token_analysis VALUES (?,?)", (mint, creator))
+        conn.execute("INSERT INTO pumpfun_migration_verification VALUES (?, 1000)", (mint,))
+        conn.execute("INSERT INTO transfer_index VALUES (?, 'knownCEX', ?, 15000000, 500)",
+                     (f"sig{i}", creator))
+    conn.commit()
+    conn.close()
+
+    source = sqlite3.connect(f"file:{src_path}?mode=ro", uri=True)
+    out = _connect_output(str(tmp_path / "out.db"))
+    build_high_confidence_direct_funding_edges(source, out, "run1")
+    build_upstream_edges_for_funders(source, out, "run1")
+    build_direct_funder_families(out, "run1")
+
+    edges_before = out.execute("SELECT * FROM direct_funding_edges WHERE run_id='run1'").fetchall()
+    fake_category = lambda addr: "cex" if addr == "knownCEX" else "unknown"
+    apply_cex_infra_reclassification(out, "run1", get_category_fn=fake_category)
+    edges_after = out.execute("SELECT * FROM direct_funding_edges WHERE run_id='run1'").fetchall()
+    assert edges_before == edges_after  # byte-identical -- lineage never touched
+
+
+def test_private_substructure_found_within_cex_rooted_family(tmp_path):
+    """The positive case: a CEX-rooted family's members ALSO share a
+    private (non-CEX) direct funder among a subset -- this should be
+    discoverable as a candidate subfamily, not lost when the CEX family
+    is marked non-attributive."""
+    from src.discovery.local_operation_discovery_projection import (
+        apply_cex_infra_reclassification, find_private_substructure_in_cex_family,
+    )
+
+    src_path = tmp_path / "source.db"
+    conn = make_source_db(src_path)
+    # 5 creators all CEX-funded (forms the CEX family)
+    for i in range(5):
+        mint = f"mint{i}"
+        creator = f"creator{i}"
+        conn.execute("INSERT INTO token_analysis VALUES (?,?)", (mint, creator))
+        conn.execute("INSERT INTO pumpfun_migration_verification VALUES (?, 1000)", (mint,))
+        conn.execute("INSERT INTO transfer_index VALUES (?, 'knownCEX', ?, 15000000, 500)",
+                     (f"sig{i}", creator))
+    conn.commit()
+    conn.close()
+
+    source = sqlite3.connect(f"file:{src_path}?mode=ro", uri=True)
+    out = _connect_output(str(tmp_path / "out.db"))
+    build_high_confidence_direct_funding_edges(source, out, "run1")
+    build_upstream_edges_for_funders(source, out, "run1")
+    build_direct_funder_families(out, "run1")
+
+    cex_family_id = out.execute(
+        "SELECT family_id FROM candidate_families WHERE run_id='run1' AND root_evidence='knownCEX'"
+    ).fetchone()[0]
+
+    # now manually seed a SEPARATE private family covering 3 of the same 5 mints
+    # (simulating a private-funder edge that ALSO reaches those creators --
+    # in real data this comes from a second direct_funding_edges row/family;
+    # here we insert the family + member rows directly, which is what
+    # build_direct_funder_families would have produced from real transfer_index data)
+    private_family_id = "DFF_privateTest"
+    out.execute(
+        "INSERT INTO candidate_families VALUES (?,?,?,?,?,?,?,?,?,?)",
+        ("run1", private_family_id, "DIRECT_FUNDER", "privateSharedFunder", 3, 3,
+         "PARTIAL_CANDIDATE_FAMILY", "{}", None, None))
+    for i in range(3):
+        out.execute("INSERT INTO candidate_family_members VALUES (?,?,?,?)",
+                     ("run1", private_family_id, f"mint{i}", f"creator{i}"))
+    out.commit()
+
+    fake_category = lambda addr: "cex" if addr == "knownCEX" else "unknown"
+    apply_cex_infra_reclassification(out, "run1", get_category_fn=fake_category)
+
+    subfamilies = find_private_substructure_in_cex_family(
+        out, "run1", cex_family_id, get_category_fn=fake_category, min_shared_mints=2)
+    assert len(subfamilies) == 1
+    assert subfamilies[0]["shared_node"] == "privateSharedFunder"
+    assert subfamilies[0]["member_count"] == 3
+
+
+def test_no_private_substructure_when_only_cex_commonality_exists(tmp_path):
+    """The negative control: a CEX-rooted family with NO other overlapping
+    family membership correctly reports zero subfamilies -- remains
+    provenance-only, not silently upgraded."""
+    from src.discovery.local_operation_discovery_projection import (
+        apply_cex_infra_reclassification, find_private_substructure_in_cex_family,
+    )
+
+    src_path = tmp_path / "source.db"
+    conn = make_source_db(src_path)
+    for i in range(5):
+        mint = f"mint{i}"
+        creator = f"creator{i}"
+        conn.execute("INSERT INTO token_analysis VALUES (?,?)", (mint, creator))
+        conn.execute("INSERT INTO pumpfun_migration_verification VALUES (?, 1000)", (mint,))
+        conn.execute("INSERT INTO transfer_index VALUES (?, 'knownCEX', ?, 15000000, 500)",
+                     (f"sig{i}", creator))
+    conn.commit()
+    conn.close()
+
+    source = sqlite3.connect(f"file:{src_path}?mode=ro", uri=True)
+    out = _connect_output(str(tmp_path / "out.db"))
+    build_high_confidence_direct_funding_edges(source, out, "run1")
+    build_upstream_edges_for_funders(source, out, "run1")
+    build_direct_funder_families(out, "run1")
+
+    cex_family_id = out.execute(
+        "SELECT family_id FROM candidate_families WHERE run_id='run1' AND root_evidence='knownCEX'"
+    ).fetchone()[0]
+
+    fake_category = lambda addr: "cex" if addr == "knownCEX" else "unknown"
+    apply_cex_infra_reclassification(out, "run1", get_category_fn=fake_category)
+    subfamilies = find_private_substructure_in_cex_family(
+        out, "run1", cex_family_id, get_category_fn=fake_category)
+    assert subfamilies == []

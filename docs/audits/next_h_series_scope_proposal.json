@@ -1,0 +1,49 @@
+{
+  "schema_version": "roadmap.h-reentry-b.next-h-scope-proposal.v1",
+  "artifact_type": "NEXT_H_SERIES_SCOPE_PROPOSAL",
+  "milestone": "ROADMAP-H-REENTRY-B -- Parts 11-12",
+  "generated_utc": "2026-08-19T23:45:00Z",
+  "status": "PROPOSAL ONLY -- not executed, not activated",
+
+  "operation_safety": {"provider_calls_made": 0, "production_writes": 0, "proposed_milestone_activated": false},
+
+  "part11_scope_reasoning": {
+    "no_manufactured_h11": "confirmed: this proposal does NOT continue the bounded psi0h_h7->h10 backfill chain merely because H10 was the last-numbered stage. That chain reached its own natural, deliberate terminal state (PSI0H_H10_SOURCE_LINEAGE_FROZEN) and its own human review already closed (PSI0H_H4R1_HUMAN_DISPOSITION_CLOSED). Resuming IT specifically would not be 'the next H stage' -- it would be reopening a closed, complete unit of work without a stated reason.",
+    "actual_gap_identified": "H's OWN 13 candidates / 22 operations were disposed under a single-creator-role model, WITHOUT the CEX/INFRA lineage-preservation semantics now implemented at the discovery layer. This is a genuine, concrete, small, well-scoped gap -- not a request to redo H's work, but to CHECK whether its existing conclusions still hold under the newly-corrected lens.",
+    "smallest_coherent_next_stage": "a NON-EXECUTABLE eligibility/cross-check stage that reads H4R1's existing review sheet, applies get_category()/hop-distance/substructure-search to H's OWN 13 candidates (the same machinery already built and tested this session), and reports whether any of H's PLAUSIBLE_OPERATIONAL_CONTINUITY dispositions rested solely on CEX/infra-shared funding -- exactly the same class of error this session already caught and corrected for the NEW discovery corpus (the OKX/is6MTRHEgy... case)."
+  },
+
+  "part12_proposed_milestone": {
+    "name": "H4R1-CEX-INFRA-ELIGIBILITY-CHECK",
+    "naming_rationale": "follows the repository's existing H4R1 naming convention (a lettered/numbered sub-stage of an already-completed milestone, not a new top-level H11) -- reflects that this is a re-EXAMINATION of H4R1's existing conclusions, not new discovery work",
+    "purpose": "Determine whether any of H's 13 already-disposed candidates / 22 operations relied on CEX/infra-shared funding as their SOLE supporting evidence, using the now-qualified CEX_INFRA_PRESERVE_LINEAGE_EXCLUDE_SOLE_ATTRIBUTION machinery.",
+    "inputs": [
+      "docs/audits/psi0h_h4r1_human_disposition_closure.json (H's existing review sheet, read-only)",
+      "src/utils/infra_mapping.py (authoritative CEX/INFRA mapping, already bound)",
+      "src/discovery/local_operation_discovery_projection.py's compute_cex_infra_hop_distance() and find_private_substructure_in_cex_family() (already built, already tested, reusable as-is)",
+      "H's original candidate evidence chain (would need locating the specific psi0h artifact(s) containing the 13 candidates' funding evidence -- not yet identified in this session, would be the FIRST step of this proposed milestone)"
+    ],
+    "outputs": [
+      "a per-candidate CEX/INFRA eligibility report (same structure as this session's Part 5 individual-candidate reports)",
+      "an updated (NOT overwritten) disposition-eligibility annotation -- H4R1's original disposition_distribution remains the historical record; this proposed stage would ADD a parallel eligibility flag, not replace the original verdict"
+    ],
+    "authority": "read-only, candidate-eligibility-annotation only -- explicitly forbidden from changing any of H4R1's original disposition values (COMMON_PLAYBOOK_ONLY / PLAUSIBLE_OPERATIONAL_CONTINUITY) or promoting anything toward canonical",
+    "production_access": "read-only against the main DB and existing psi0h artifacts",
+    "provider_access": "NONE -- fully provider-free, matching every other stage this session",
+    "mutation_rights": "NONE on H4R1's original artifacts (append-only annotation in a NEW artifact, e.g. docs/audits/psi0h_h4r1_cex_infra_eligibility_annotation.json); NONE on canonical operation state; NONE on Watchtower/three_sw2",
+    "tests_required": "reuse the existing 20 focused tests in tests/test_local_operation_discovery_projection.py (already cover the exact CEX/INFRA eligibility logic this milestone would apply) -- may need 1-2 new tests specifically for reading/parsing H4R1's review-sheet format, not yet examined in detail",
+    "blockers_before_starting": [
+      "the specific psi0h artifact(s) containing the 13 candidates' underlying funding evidence chain have not yet been located/read this session -- H4R1's closure artifact records DISPOSITIONS, not necessarily the raw funding edges that led to them; a locate-and-trace step would be the actual first action of this milestone, not yet done"
+    ],
+    "go_no_go_boundary": "GO if the underlying funding-evidence artifacts for H's 13 candidates can be located and are provider-free/local (expected, given H's entire design was already provider-free per its own H7-H10 chain's 'no RPC' controls). NO-GO (or escalate to human) if H's original funding evidence turns out to require re-acquisition via RPC to determine CEX/infra status -- in which case this becomes a selective-RPC-eligible follow-on, not an immediate local stage."
+  },
+
+  "alternative_scopes_considered_and_rejected": [
+    {"option": "resume/extend the bounded H7-H10 backfill chain to a larger population", "rejected_because": "H10 explicitly froze lineage as a deliberate terminal state; no evidence in any artifact suggests this was meant to be temporary or that a larger run was planned"},
+    {"option": "merge the new 385-family discovery corpus directly into H's candidate pool", "rejected_because": "H's candidates went through H4R1's specific human disposition process; the new corpus has NOT been through an equivalent review yet (only the top-20 review packets exist, unreviewed) -- merging would conflate two different review-maturity levels"},
+    {"option": "do nothing further with H", "rejected_because": "the CEX/infra eligibility gap is concrete, small, well-scoped, and directly analogous to a real error this session already found and fixed elsewhere (the OKX Watchtower candidate) -- leaving H's own conclusions unchecked against the same known failure mode is an avoidable, low-cost gap"}
+  ],
+
+  "verdict": "PROPOSED_NOT_ACTIVATED",
+  "human_decision_required": "authorize H4R1-CEX-INFRA-ELIGIBILITY-CHECK as a new, small, non-executable, read-only sub-stage -- or decline/defer it. Not started, not scheduled, not assumed."
+}

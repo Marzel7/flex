@@ -1,4 +1,32 @@
 {
+  "roadmap_h_reentry_b": {
+    "milestone": "ROADMAP-H-REENTRY-B -- dual-source evidence architecture and preserved infrastructure lineage",
+    "artifacts": [
+      "docs/audits/main_db_plus_evidence_dual_source_architecture.json",
+      "docs/audits/cex_infra_preserved_lineage_attribution_boundary.json",
+      "docs/audits/cex_rooted_candidate_private_substructure_reconciliation.json",
+      "docs/audits/h_series_reentry_reconciliation.json (updated)",
+      "docs/audits/next_h_series_scope_proposal.json"
+    ],
+    "provider_calls_made": 0,
+    "production_writes": 0,
+    "main_db_modified": false,
+    "watchtower_mutated": false,
+    "three_sw2_mutated": false,
+    "dual_source_architecture": "frozen -- MAIN DB owns normalized historical facts (unchanged), NEW EVIDENCE LAYER owns provenance/confidence, DISCOVERY LAYER owns candidate families, CANONICAL state remains sole attribution authority. Source-precedence rule confirmed already implemented (B2Z-P2's RAW_VERIFICATION_NEGATIVE_TERMINAL pattern): preserve both, record conflict, classify quality, selective-verify, human authority resolves -- never silent overwrite.",
+    "cex_infra_semantics_corrected": "rule is now CEX_INFRA_PRESERVE_LINEAGE_EXCLUDE_SOLE_ATTRIBUTION (not discard/remove). New code: compute_cex_infra_hop_distance() (0/1/NO_KNOWN_CEX_INFRA_UPSTREAM/UNKNOWN_BEYOND_LOCAL_DEPTH) and find_private_substructure_in_cex_family() in src/discovery/local_operation_discovery_projection.py. Verified via test that reclassification NEVER deletes/truncates lineage (byte-identical edges before/after).",
+    "corpus_substructure_scan_result": "45 NON_ATTRIBUTIVE families scanned: 4 have discovered private substructure (largest: 23-member subfamily within the Binance-cluster's 43-member upstream variant, funded by Dv34prGm2..., a Watchtower CANDIDATE-state hub), 41 remain pure provenance.",
+    "thirteen_former_strong_result": "10/13 remain pure CEX/infra provenance with no local substructure; 3 have either independent evidence in a separate source (OKX case) or substructure on a smaller family variant with the same root -- none auto-promoted.",
+    "575_member_family_result": "PRESERVED as shared-CEX-provenance cluster (not deleted, not called meaningless). The literal 575-direct-funded population shows zero substructure (consistent with unrelated Binance customers); the related 43-member upstream variant has real substructure, strongest being 23 members via a Watchtower CANDIDATE hub.",
+    "of_p0_56_member_result": "OF_P0_SUBSET_PARTIALLY_SUPPORTED -- does NOT route through the Binance root at all; routes through 5 DIFFERENT exchanges (KuCoin 18/56, Bidget 5, WhiteBIT 4, Kraken 1, Coinbase 1 = 29/56 CEX-funded) plus 27 private funders with ZERO recurrence among them. Original amount/timing evidence dimension not discounted -- only funder-identity dimension re-evaluated. Historical OF-P0 artifact not modified.",
+    "okx_candidate_result": "is6MTRHEgy...'s CANDIDATE state rests on independent, non-OKX evidence -- a private provisioner wallet (CyzTk5VBRrVop1H..., category=unknown) funding 10/12 sampled buyers in a 3-second buy-swarm window. The OKX label is additional context, not the causal evidence. Candidate status remains evidentially meaningful; not promoted, not dismissed, Watchtower not mutated.",
+    "confirmed_watchtower_control": "9 CONFIRMED addresses re-verified: full historical evidence intact, funding lineage untouched, zero CEX overlap (unchanged from H-REENTRY-A), new discovery layer references but does not replace this history",
+    "three_sw2_control": "evidence-envelope schema confirmed untouched",
+    "next_h_milestone_proposed": "H4R1-CEX-INFRA-ELIGIBILITY-CHECK -- a small, non-executable, read-only re-check of H's OWN 13 candidates against the CEX/INFRA mapping (NOT a new H11 continuation of the closed bounded-backfill chain). Blocker: H's underlying funding-evidence artifacts for the 13 candidates not yet located this session -- would be the first actual step.",
+    "tests": "20/20 passing in tests/test_local_operation_discovery_projection.py (13 prior + 7 new CEX-lineage/hop-distance/substructure tests)",
+    "terminal_verdict": "READY_NEW_H_SERIES_SCOPE_REVIEW",
+    "human_decisions_pending": ["authorize H4R1-CEX-INFRA-ELIGIBILITY-CHECK or decline/defer", "23-member Dv34prGm2 subfamily within the Binance cluster -- highest-priority follow-on candidate for selective RPC or deeper local investigation", "review the corrected OF_P0_SUBSET_PARTIALLY_SUPPORTED verdict for the 56-member family", "review the OKX Watchtower candidate's independent-evidence finding"]
+  },
   "roadmap_h_reentry_a": {
     "milestone": "ROADMAP-H-REENTRY-A -- existing operation method + CEX/INFRA authority reconciliation",
     "artifacts": [

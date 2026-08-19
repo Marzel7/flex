@@ -1,0 +1,41 @@
+{
+  "schema_version": "roadmap.h-reentry-b.cex-infra-lineage-boundary.v1",
+  "artifact_type": "CEX_INFRA_PRESERVE_LINEAGE_EXCLUDE_SOLE_ATTRIBUTION_CONTRACT",
+  "milestone": "ROADMAP-H-REENTRY-B -- Part 3",
+  "generated_utc": "2026-08-19T23:25:00Z",
+
+  "operation_safety": {"provider_calls_made": 0, "production_writes": 0, "edges_deleted": 0},
+
+  "corrected_rule": "CEX_INFRA_PRESERVE_LINEAGE_EXCLUDE_SOLE_ATTRIBUTION -- preserve the COMPLETE funding lineage through known CEX/INFRA nodes; do not use the CEX/INFRA node BY ITSELF as proof of common operational control. This supersedes any prior framing that could be read as 'discard' or 'remove from graph' -- verified this session that the implementation NEVER deleted anything (attribution_state is a metadata field, not a filter).",
+
+  "authoritative_mapping_used": "src/utils/infra_mapping.py -- CEX_ACCOUNTS (56 static entries) + INFRASTRUCTURE_ACCOUNTS (74 static entries) + cex_wallets DB table (62 rows) + infra_wallets DB table (1,466,657 rows, predominantly Pump.fun protocol accounts). Counts re-verified this session, unchanged from ROADMAP-H-REENTRY-A.",
+
+  "examples_verified_against_real_data": [
+    {"pattern": "CEX -> creator (0 hops)", "example": "5tzFki... (Binance) -> creator directly, 575-member family", "classification": "DIRECT_CEX_FUNDED_CREATOR", "preserved": true, "attributable_alone": false},
+    {"pattern": "CEX -> private wallet -> creator (1 hop)", "example": "checked within the 385-family corpus's upstream_edges table", "classification": "hop_distance=1", "preserved": true, "private_wallet_may_be_attributable": true},
+    {"pattern": "CEX -> W1 -> W2 -> creator (2+ hops)", "note": "beyond this run's captured 1-hop-past-direct-funder depth -- honestly reported as UNKNOWN_BEYOND_LOCAL_DEPTH rather than assumed absent or fabricated further", "preserved": "the 2-hop table itself IS preserved; only DEEPER (3+) hops are not locally computable this session"}
+  ],
+
+  "cex_infra_hop_distance_implementation": {
+    "function": "compute_cex_infra_hop_distance() in src/discovery/local_operation_discovery_projection.py",
+    "values": ["0 (direct funder itself is CEX/infra)", "1 (direct funder's own 1-hop upstream is CEX/infra)", "NO_KNOWN_CEX_INFRA_UPSTREAM (neither hop matches, and no upstream edge exists at all)", "UNKNOWN_BEYOND_LOCAL_DEPTH (hop 0/1 clear, but this run's upstream capture caps at 1 hop past the direct funder -- deeper hops not fabricated)"],
+    "evidence_not_score": "explicitly documented as context/evidence, not an attribution score -- consumers must not treat a lower hop-distance as 'more suspicious' without independent private substructure support",
+    "tested": "4 focused tests (hop 0, hop 1, no-upstream, unknown-beyond-depth) -- all passing"
+  },
+
+  "private_substructure_discovery": {
+    "function": "find_private_substructure_in_cex_family() in src/discovery/local_operation_discovery_projection.py",
+    "method": "searches WITHIN a CEX/infra-rooted family's members for overlap with OTHER already-materialized candidate families rooted at a NON-CEX/infra address -- deterministic, using only already-computed local evidence, no new provider calls",
+    "returns": "list of {private_evidence_type, shared_node, member_mints, member_count} -- empty list is itself a meaningful, reported result (SHARED_CEX_PROVENANCE_CLUSTER remains provenance-only), not silently treated as failure",
+    "tested": "positive case (substructure found) and negative control (none found) -- both passing"
+  },
+
+  "direct_cex_funding_retained": {
+    "principle": "direct CEX funding of creators is retained and queryable -- represents exchange withdrawal / fresh wallet provisioning / launch preparation, all legitimate context",
+    "does_not_imply_common_operation": "creator A funded by Binance + creator B funded by Binance does NOT by itself imply same operation -- verified: the 575-member DIRECT_FUNDER family (all direct-Binance-funded) shows ZERO discovered private substructure among its members, consistent with this expectation (they are likely genuinely unrelated Binance customers)"
+  },
+
+  "deep_cex_lineage_retained": "the upstream_edges table (1-hop past direct funder) is never deleted or filtered by this reconciliation -- confirmed via test_cex_lineage_never_deleted_by_reclassification (byte-identical edge rows before/after reclassification)",
+
+  "operation_discovery_rule_implemented": "PRESERVE_LINEAGE (verified non-destructive) + CLASSIFY_INFRASTRUCTURE (get_category() lookup + hop-distance) + IDENTIFY_PRIVATE_SUBSTRUCTURE (find_private_substructure_in_cex_family()) + ATTRIBUTE_ONLY_WITH_INDEPENDENT_EVIDENCE (attribution_state remains NON_ATTRIBUTIVE_PROVENANCE unless independent substructure is found)"
+}

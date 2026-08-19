@@ -1,0 +1,111 @@
+{
+  "schema_version": "roadmap.h-reentry-b.cex-rooted-substructure-reconciliation.v1",
+  "artifact_type": "CEX_ROOTED_CANDIDATE_PRIVATE_SUBSTRUCTURE_RECONCILIATION",
+  "milestone": "ROADMAP-H-REENTRY-B -- Parts 4-8",
+  "generated_utc": "2026-08-19T23:35:00Z",
+  "run_id": "local_discovery_20260819T212624Z",
+
+  "operation_safety": {"provider_calls_made": 0, "production_writes": 0, "edges_deleted": 0, "canonical_operations_mutated": false, "watchtower_mutated": false, "three_sw2_mutated": false},
+
+  "part4_full_corpus_substructure_scan": {
+    "total_non_attributive_families_scanned": 45,
+    "families_with_discovered_private_substructure": 4,
+    "families_remaining_provenance_only": 41,
+    "results": [
+      {"root": "5tzFkiKscXHK... (Binance)", "family_kind": "UPSTREAM_SOURCE", "member_count": 43, "subfamilies_found": 5, "largest_subfamily": 23},
+      {"root": "AxiomRXZAq1J... (automation/infra)", "member_count": 7, "subfamilies_found": 2, "largest_subfamily": 3},
+      {"root": "F7p3dFrjRTbt... (relay)", "member_count": 4, "subfamilies_found": 2, "largest_subfamily": 3},
+      {"root": "BY4StcU9Y2Bp... (cex)", "member_count": 3, "subfamilies_found": 2, "largest_subfamily": 3}
+    ],
+    "interpretation": "the substructure search (find_private_substructure_in_cex_family) is DELIBERATELY conservative -- it only detects overlap with OTHER already-materialized candidate families, not a full graph re-walk. 41/45 showing no substructure is an honest local-evidence-limited result, not proof no substructure exists at all -- deeper investigation would require either a dedicated graph traversal (not run this session, would need explicit scoping) or selective RPC."
+  },
+
+  "part5_thirteen_former_strong_candidates_individually": [
+    {"root": "ASTyfSima4LLAdDgoFGkgqoKowG1LZFDr9fAQrg7iaJZ", "category": "cex", "members": 50, "verdict": "PROVENANCE_ONLY_NO_INDEPENDENT_SUBSTRUCTURE", "recommend_selective_rpc": false, "reason": "no other candidate family overlaps its members locally"},
+    {"root": "u6PJ8DtQuPFnfmwHbGFULQ4u4EgjDiyYKjVEsynXq2w", "category": "cex", "members": 40, "verdict": "PROVENANCE_ONLY_NO_INDEPENDENT_SUBSTRUCTURE", "recommend_selective_rpc": false},
+    {"root": "A77HErqtfN1hLLpvZ9pCtu66FEtM8BveoaKbbMoZ4RiR", "category": "cex", "members": 34, "verdict": "PROVENANCE_ONLY_NO_INDEPENDENT_SUBSTRUCTURE", "recommend_selective_rpc": false, "note": "Bidget exchange -- also appears as a direct subprovider (5 members) within the ORIGINAL 56-member OF-P0 subset, see part7"},
+    {"root": "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV", "category": "cex", "members": 29, "verdict": "PROVENANCE_ONLY_NO_INDEPENDENT_SUBSTRUCTURE_IN_DISCOVERY_CORPUS", "recommend_selective_rpc": true, "note": "SEPARATELY has independent private evidence in a DIFFERENT source -- see part8 OKX Watchtower candidate review -- its Watchtower CANDIDATE-state evidence rests on a private provisioner wallet (CyzTk5VBRrVop1H..., category=unknown), NOT on OKX directly. This is genuinely independent evidence outside the discovery-corpus substructure search."},
+    {"root": "ARu4n5mFdZogZAravu7CcizaojWnS6oqka37gdLT5SZn", "category": "automation", "members": 26, "verdict": "PROVENANCE_ONLY_NO_INDEPENDENT_SUBSTRUCTURE", "recommend_selective_rpc": false},
+    {"root": "5F1seMKUqSNhv45f6FhB2cFmgJbk8U1avJw7M6TexUq1", "category": "cex", "members": 25, "verdict": "PROVENANCE_ONLY_NO_INDEPENDENT_SUBSTRUCTURE", "recommend_selective_rpc": false},
+    {"root": "Cc3bpPzUvgAzdW9Nv7dUQ8cpap8Xa7ujJgLdpqGrTCu6", "category": "cex", "members": 19, "verdict": "PROVENANCE_ONLY_NO_INDEPENDENT_SUBSTRUCTURE", "recommend_selective_rpc": false},
+    {"root": "F7p3dFrjRTbtRp8FRF6qHLomXbKRBzpvBLjtQcfcgmNe", "category": "relay", "members": 18, "verdict": "PROVENANCE_ONLY_IN_STRONG_TIER (substructure found on a SEPARATE, smaller PARTIAL/AMBIGUOUS-tier family variant with the same root, 4 members, 2 subfamilies of 3 each)", "recommend_selective_rpc": true, "note": "the same root address appears as multiple distinct family rows (different family_kind/classification) -- the STRONG-tier 18-member variant shows no substructure, but a smaller variant DOES; worth reconciling which member set is more representative"},
+    {"root": "BY4StcU9Y2BpgH8quZzorg31EGE4L1rjomN8FNsCBEcx", "category": "cex", "members": 15, "verdict": "PROVENANCE_ONLY_IN_STRONG_TIER (substructure found on a smaller variant, same note as F7p3dFrjRTbt)", "recommend_selective_rpc": true},
+    {"root": "2AQdpHJ2JpcEgPiATUXjQxA8QmafFegfQwSLWSprPicm", "category": "cex", "members": 13, "verdict": "PROVENANCE_ONLY_NO_INDEPENDENT_SUBSTRUCTURE", "recommend_selective_rpc": false},
+    {"root": "DwdrYTtTWHfnfJBiN2RH6EgPbquDQLjZTfTwpykPEq1g", "category": "cex", "members": 12, "verdict": "PROVENANCE_ONLY_NO_INDEPENDENT_SUBSTRUCTURE", "recommend_selective_rpc": false, "note": "also a CANDIDATE-state (not confirmed) Watchtower treasury row -- see H-REENTRY-A"},
+    {"root": "Biw4eeaiYYYq6xSqEd7GzdwsrrndxA8mqdxfAtG3PTUU", "category": "cex", "members": 11, "verdict": "PROVENANCE_ONLY_NO_INDEPENDENT_SUBSTRUCTURE", "recommend_selective_rpc": false},
+    {"root": "5g7yNHyGLJ7fiQ9SN9mf47opDnMjc585kqXWt6d7aBWs", "category": "cex", "members": 10, "verdict": "PROVENANCE_ONLY_NO_INDEPENDENT_SUBSTRUCTURE", "recommend_selective_rpc": false}
+  ],
+  "part5_summary": {"remain_pure_provenance": 10, "have_independent_evidence_elsewhere_or_smaller_variant": 3, "none_promoted_to_strong": "confirmed -- no automatic reclassification to STRONG performed for any of the 13"},
+
+  "part6_575_member_binance_subfamily_discovery": {
+    "root": "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9",
+    "direct_funder_variant_575_members": {"substructure_found": 0, "note": "the largest, most literal '575 members directly funded by Binance' population shows ZERO overlap with any other candidate family -- consistent with genuinely unrelated Binance customers"},
+    "upstream_source_variant_43_members": {
+      "substructure_found": 5,
+      "note": "this SMALLER 43-member variant (members whose DIRECT funder is itself linked upstream to Binance, i.e. one hop removed from the direct 575) DOES show real private subfamily structure",
+      "subfamilies": [
+        {"shared_node": "Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM", "member_count": 23, "note": "the confirmed-composite finding from ROADMAP-H-REENTRY-A, now correctly reframed: Dv34prGm2 is a CANDIDATE-state (not confirmed canonical) Watchtower provisioning hub that independently funded 23 of these 43 members -- GENUINE independent evidence, NOT because it shares the Binance root, but because it is itself a recurring, non-CEX direct funder for this specific subset"},
+        {"shared_node": "AaZkwhkiDStDcgrU37XAj9fpNLrD8Erz5PNkdm4k5hjy", "member_count": 4, "note": "a private, unclassified wallet independently funding 4 of these members -- genuine candidate signal"},
+        {"shared_node": "HFgv8k52DakmectzX1YHovk9yoQ1Mj8GGS1DDKK8fu72", "member_count": 3},
+        {"shared_node": "FM1YCKED2KaqB8Uat8aB1nsffR1vezr7s6FAEieXJgke", "member_count": 3},
+        {"shared_node": "JAAMEWknebuSAX7KZG6DfMS6vvm1cURbrwyBmK56vU7A", "member_count": 3, "note": "shares the SAME 3 mints as FM1YCKED2Ka... above -- worth checking whether these two 'private' addresses are themselves related (e.g. a rotation pair), not investigated further this session"}
+      ]
+    },
+    "conclusion": "575-member Binance provenance cluster PRESERVED as SHARED_CEX_PROVENANCE_CLUSTER (repository-equivalent: attribution_state=NON_ATTRIBUTIVE_PROVENANCE, family NOT deleted). Within it, genuine private substructure exists for a 43-member subset, with the strongest single subfamily being 23 members funded by Dv34prGm2 (a Watchtower CANDIDATE-state provisioning hub). This 23-member subfamily is the recommended highest-priority follow-on for either selective RPC or deeper local investigation -- it is candidate-tier evidence, not canonical, and was NOT promoted this session."
+  },
+
+  "part7_original_56_member_of_p0_re_review": {
+    "source": "docs/audits/of_p0_56_launch_members_raw.json (UNMODIFIED, read-only this session)",
+    "distinct_direct_funders_subproviders": 32,
+    "cex_infra_classified_subproviders": {
+      "count": 5,
+      "detail": [
+        {"address": "BmFdpraQhkiDQE6SnfG5omcA1VwzqfXrwtNYBwWTymy6", "exchange": "KuCoin 2", "members_funded": 18},
+        {"address": "A77HErqtfN1hLLpvZ9pCtu66FEtM8BveoaKbbMoZ4RiR", "exchange": "Bidget Exchange", "members_funded": 5},
+        {"address": "8mowmVCEewZ9W2cEaQyQeQEeSxhGr1hvRviLwozwNtBt", "exchange": "WhiteBIT Hot Wallet", "members_funded": 4},
+        {"address": "6LY1JzAFVZsP2a2xKrtU6znQMQ5h4i7tocWdgrkZzkzF", "exchange": "Kraken Hot Wallet", "members_funded": 1},
+        {"address": "H8sMJSCQxfKiFTCfDR3DUMLPwcRbM61LGFJ8N4dK3WjS", "exchange": "Coinbase Hot Wallet 1", "members_funded": 1}
+      ],
+      "total_members_via_cex_subprovider": 29
+    },
+    "private_unknown_subproviders": {"count": 27, "total_members": 27, "recurrence": "NONE -- each of the 27 private subproviders funds EXACTLY 1 member, zero recurrence among them"},
+    "important_correction": "the 56-member family does NOT route through the Binance root (5tzFki...) at all -- its direct funders are 5 DIFFERENT exchanges (KuCoin, Bidget, WhiteBIT, Kraken, Coinbase). It is a structurally SEPARATE finding from the 575-member Binance cluster, not a subfamily of it, despite both being CEX-provenance-related.",
+    "recurrence_analysis": "the ONLY subprovider with meaningful recurrence is the KuCoin wallet (18/56 = 32%) -- CEX, non-attributive alone. All other recurrence in the original OF-P0 packet (the 6-way exact-lamport-amount match, the templated-timing signal) is a DIFFERENT evidence dimension (amount/timing pattern, not funder identity) and was NOT re-evaluated this session -- that evidence remains valid and un-discounted by this CEX/funder-identity-focused re-review.",
+    "verdict": "OF_P0_SUBSET_PARTIALLY_SUPPORTED",
+    "verdict_reasoning": "51.8% of the 56 members (29) route through 5 different CEX exchanges with no cross-exchange recurrence pattern suggesting coordination (each exchange funds its own separate subset). 48.2% (27) route through private wallets, but NONE of those private wallets recur across more than 1 member -- so funder-identity alone does not support even the private portion as a coherent family. The ORIGINAL OF-P0 packet's strongest evidence was NEVER funder-identity-based recurrence -- it was the exact-lamport-amount-repeat pattern (6-way match) and the 32%-share dominant-intermediary pattern (the KuCoin wallet, now known to be CEX). This re-review does not invalidate the amount/timing evidence, but it DOES show that the funder-identity dimension specifically is now understood to be CEX-provenance-dominated, not private-operator-dominated, for over half the family.",
+    "canonical_mutation": false,
+    "historical_of_p0_evidence_not_overwritten": true
+  },
+
+  "part8_okx_watchtower_candidate_review": {
+    "candidate_address": "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV",
+    "cex_classification": "OKX Hot Wallet",
+    "watchtower_state": "CANDIDATE (state='CANDIDATE', wt_operator_treasuries.id=2, confidence=0.56)",
+    "why_it_originally_entered_candidate_state": "NOT because of any OKX relationship -- its evidence_json shows operator_class='POSSIBLE_STEALTH', state='POSSIBLE_SWARM', a 17-buyer/3-second buy-window burst pattern, with a DIFFERENT wallet (provisioner='CyzTk5VBRrVop1H73ijwJEBJesoPfZUQkpcr378cdDZ5') funding 10 of 12 sampled buyers (prov_funding_sol=214.97). The candidate address itself (is6MTRHEgy...) only receives 1-lamport dust pings in transfer_index -- it appears to be a WATCHED/PROBED target address, not itself the funding source.",
+    "provisioner_cex_classification": "CyzTk5VBRrVop1H73ijwJEBJesoPfZUQkpcr378cdDZ5 -- category=unknown (genuinely private, not itself CEX/infra)",
+    "independent_non_okx_evidence_exists": true,
+    "reason": "the actual buy-swarm evidence (17 buyers, 3-second window, 83.3% one-token-purchase rate, a private provisioner funding 83% of sampled buyers) is entirely independent of the OKX classification of the treasury_candidate address itself -- the OKX label applies to is6MTRHEgy... as an ADDRESS, but the swarm-detection EVIDENCE that put it in CANDIDATE state originates from a different, private wallet's behavior",
+    "candidate_status_remains_evidentially_meaningful": true,
+    "candidate_status_reasoning": "the OKX classification does NOT retroactively invalidate this candidate -- it means 'this address is also known to be an OKX-labeled wallet' as an ADDITIONAL fact, not that the buy-swarm evidence was OKX-caused. Recommend keeping this candidate under review with the OKX label now recorded as context (per the preserve-lineage-and-context principle), rather than either promoting OR dismissing it based on the CEX label alone.",
+    "watchtower_not_mutated": true
+  },
+
+  "part9_confirmed_watchtower_control": {
+    "confirmed_addresses_checked": 9,
+    "full_historical_main_db_evidence_available": "confirmed -- all 9 addresses have queryable wt_operator_treasuries/wt_provisioning_hubs rows with intact evidence_json",
+    "funding_lineage_intact": "confirmed -- creator_funders/transfer_index rows for these addresses were not touched by any discovery-pipeline or reclassification work this session",
+    "cex_infra_paths_preserved": "0 of the 9 CONFIRMED addresses are themselves CEX/infra (verified in ROADMAP-H-REENTRY-A, re-confirmed unchanged this session)",
+    "private_attributable_evidence_distinguishable": "yes -- the CONFIRMED gate itself IS the distinguishing mechanism (birth-signature timing match, per src/analysis/watchtower_detector.py's discover_provisioning_hubs())",
+    "new_discovery_layer_references_not_replaces": "confirmed -- the new discovery corpus is a SEPARATE SQLite file (database/local_operation_discovery_corpus.db); Watchtower's own tables were read-only queried, never written",
+    "no_mutation": true
+  },
+
+  "part10_three_sw2_control": {
+    "structural_note": "unchanged from ROADMAP-H-REENTRY-A -- three_sw2 is an EP3 evidence-envelope system (database/evidence_platform/three_sw2_shadow_ep3_2a/evidence.db), not an address registry",
+    "dual_source_check_performed": "confirmed the evidence-envelope schema (evidence_schema_metadata, immutable_artifacts, evidence_envelopes, evidence_provenance, normalized_evidence_records, etc.) is untouched this session",
+    "no_mutation": true
+  },
+
+  "terminal_verdict": "RECONCILIATION_COMPLETE",
+  "verdict_reasoning": "All 45 NON_ATTRIBUTIVE families were scanned for private substructure (4 found some, 41 remain pure provenance). All 13 former-strong CEX-rooted candidates were individually reported -- 10 remain pure provenance, 3 have either independent evidence in a separate source (the OKX/Watchtower case) or a smaller family variant with substructure. The 575-member Binance cluster was preserved and searched: 0 substructure in the literal 575-direct-funded population, but a genuine 23-member private subfamily (funded by a Watchtower CANDIDATE-state hub) exists in the related 43-member upstream variant. The original 56-member OF-P0 subset was re-reviewed and found PARTIALLY_SUPPORTED -- CEX-dominant at the funder-identity layer (51.8% via 5 different exchanges), but its ORIGINAL amount/timing evidence dimension was not discounted. The OKX Watchtower candidate's actual evidentiary basis is independent of its OKX label -- neither promoted nor dismissed. All controls confirm zero mutation to Watchtower, three_sw2, or the main DB."
+}

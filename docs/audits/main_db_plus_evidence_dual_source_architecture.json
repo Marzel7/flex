@@ -1,0 +1,47 @@
+{
+  "schema_version": "roadmap.h-reentry-b.dual-source-architecture.v1",
+  "artifact_type": "MAIN_DB_PLUS_EVIDENCE_DISCOVERY_ARCHITECTURE",
+  "milestone": "ROADMAP-H-REENTRY-B -- Part 1-2",
+  "generated_utc": "2026-08-19T23:20:00Z",
+  "status": "NON_EXECUTABLE -- defines a contract, mutates nothing",
+
+  "operation_safety": {"provider_calls_made": 0, "production_writes": 0, "main_db_modified": false, "watchtower_mutated": false, "three_sw2_mutated": false},
+
+  "layer_responsibilities": {
+    "MAIN_DB": {
+      "owns": ["normalized historical/operational facts (tokens, CREATE creators, creator funding, direct funders, transfers, migration events, lifecycle/state, Watchtower's own historical detection method and its wt_* tables, existing operation candidate/confirmed state)"],
+      "authority": "authoritative source of RECORD for what happened -- NOT authoritative for confidence/verification quality, which is a separate concern",
+      "status_this_session": "UNCHANGED -- zero writes, zero migration, zero pruning, zero redesign"
+    },
+    "NEW_EVIDENCE_LAYER": {
+      "owns": ["provenance chains", "evidence digests", "replayability guarantees", "calibrated confidence tiers (B2Z-P2/P3B)", "selective raw verification state (B2Z-2H contract)"],
+      "authority": "answers WHY/HOW STRONGLY a main-DB fact is supported -- does not itself assert new facts, only qualifies existing ones",
+      "status_this_session": "extended (CEX/INFRA lineage semantics corrected)"
+    },
+    "DISCOVERY_LAYER": {
+      "owns": ["candidate operational-family construction (src/discovery/local_operation_discovery_projection.py)", "EP3 topology cross-reference", "EP4 motif cross-reference", "candidate review packets"],
+      "authority": "produces CANDIDATE-tier intelligence derived from BOTH main-DB facts and new-evidence confidence -- never canonical",
+      "status_this_session": "corpus reclassified (non-destructively) under corrected CEX/INFRA semantics"
+    },
+    "CANONICAL_OPERATION_STATE": {
+      "owns": ["wt_operator_treasuries.state='CONFIRMED', wt_provisioning_hubs.status='CONFIRMED', Watchtower/three_sw2 canonical identities"],
+      "authority": "SOLE reviewed/authorized operation identity -- the only layer whose output may be treated as ground truth for attribution",
+      "status_this_session": "UNCHANGED -- zero mutation, verified via the 9-address CONFIRMED control check"
+    }
+  },
+
+  "roles_not_collapsed": "confirmed distinct throughout this session's work: main-DB facts (e.g. a transfer_index row) are never treated as themselves confidence-scored; new-evidence confidence (e.g. HIGH/LOW tier) is never treated as itself a candidate family; a candidate family is never treated as canonical without the explicit CONFIRMED-state gate",
+
+  "part2_source_precedence_and_conflicts": {
+    "scenario": "main-DB fact != new raw-verified evidence (concrete example this session: ordinal 3/5's local-predicted creator disagreed with the raw migration-tx signer during B2Z-P2 calibration)",
+    "required_behavior_confirmed_already_implemented": [
+      "PRESERVE BOTH -- the local prediction (main-DB-derived) and the raw result are both retained as permanent, separate ledger records (B2Z-P2's RAW_VERIFICATION_NEGATIVE_TERMINAL contract does exactly this)",
+      "RECORD CONFLICT -- the disagreement itself is a first-class, durably recorded fact (SEMANTIC_VALIDATION_FAILED_TERMINAL), not silently resolved",
+      "CLASSIFY EVIDENCE QUALITY -- B2Z-P3's five-category policy (HIGH/LOW/etc) explicitly exists for this",
+      "REVIEW/SELECTIVE VERIFICATION -- the non-executable selective-RPC queue is the mechanism for resolving specific conflicts when warranted",
+      "EXPLICIT AUTHORITY RESOLVES CANONICAL INTERPRETATION -- only human review + the CONFIRMED-state gate ever decides which interpretation becomes canonical; this session made zero such decisions"
+    ],
+    "no_silent_overwrite_anywhere_this_session": true,
+    "precedent_already_exists": "this precedence model was NOT invented this session -- it is exactly what B2Z-P2C through P2H already implemented and tested (ordinals 8 and 19's RAW_VERIFICATION_NEGATIVE_TERMINAL records). This artifact formalizes it as an explicit, named architectural rule rather than leaving it implicit in the B2Z-specific code."
+  }
+}

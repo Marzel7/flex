@@ -3,62 +3,79 @@
   "artifact_type": "H_SERIES_REENTRY_RECONCILIATION",
   "milestone": "ROADMAP-H-REENTRY-A -- Parts 16-18",
   "generated_utc": "2026-08-19T22:30:00Z",
-
-  "operation_safety": {"provider_calls_made": 0, "credentials_used": false, "production_writes": 0, "h_series_activated": false},
-
+  "operation_safety": {
+    "provider_calls_made": 0,
+    "credentials_used": false,
+    "production_writes": 0,
+    "h_series_activated": false
+  },
   "important_disambiguation": "The repository's actual 'H-series' is the psi0h_h1 through psi0h_h10 (+ h4r review) milestone chain (docs/audits/psi0h_h*.json), a self-contained, bounded, replay-controlled historical backfill/candidate-generation experiment with its OWN provenance/digest binding, run against a small (300-row) capped population and writing runtime output to /private/tmp/, NOT the production database. This is a DIFFERENT track from the B2Z/discovery evidence programme reconciled elsewhere this session. Traced directly from committed artifacts, not inferred.",
-
   "last_completed_h_milestone": {
     "milestone": "PSI0H-H10",
     "verdict": "PSI0H_H10_SOURCE_LINEAGE_FROZEN",
     "artifact": "docs/audits/psi0h_h10_historical_backfill_lineage_from_h8_projection_continuity.json",
     "meaning": "source lineage for the bounded H7->H8 backfill chain was frozen as an immutable, digest-bound artifact -- this reads as a DELIBERATE, natural terminal state (freezing lineage IS the intended end product of H10), not an interrupted or blocked state"
   },
-
   "human_review_state": {
     "milestone": "PSI0H-H4R1",
     "verdict": "PSI0H_H4R1_HUMAN_DISPOSITION_CLOSED",
     "candidate_count": 13,
     "unique_operation_count": 22,
-    "disposition_distribution": {"COMMON_PLAYBOOK_ONLY": 4, "PLAUSIBLE_OPERATIONAL_CONTINUITY": 9},
-    "forbidden_authorities_already_enforced": ["PROPOSED", "SUPPORTED", "PLAUSIBLE_OPERATIONAL_FAMILY", "SAME_OPERATION", "SAME_HUMAN", "MONITORING_WATCHLIST_MEMBERSHIP"],
+    "disposition_distribution": {
+      "COMMON_PLAYBOOK_ONLY": 4,
+      "PLAUSIBLE_OPERATIONAL_CONTINUITY": 9
+    },
+    "forbidden_authorities_already_enforced": [
+      "PROPOSED",
+      "SUPPORTED",
+      "PLAUSIBLE_OPERATIONAL_FAMILY",
+      "SAME_OPERATION",
+      "SAME_HUMAN",
+      "MONITORING_WATCHLIST_MEMBERSHIP"
+    ],
     "significance": "H's own authority model was ALREADY candidate-only, with an explicit forbidden-authority list preventing canonical claims -- structurally compatible with the new B2Z/discovery candidate-only boundary reconciled this session. No conflict found."
   },
-
   "next_intended_h_milestone": {
     "explicit_next_step_recorded_in_h9": "rerun H9 after H7 plan correction; bind explicit primitive budget strategy before another H8; if no reconcilable sources remain, locate alternate source artifacts",
     "but_h10_superseded_this": "H10 froze lineage AFTER H9's NO_ACTION_NEEDED verdict, suggesting the series concluded satisfactorily at that point rather than continuing to a further H11 -- no H11 artifact exists in the repository",
     "conclusion": "the H-series appears ALREADY CONCLUDED at a natural stopping point, not blocked or awaiting resumption. This is a materially different situation from 'H-series must resume' -- it more closely resembles 'H-series is done; the question is whether its OUTPUT should now be consumed by newer evidence layers, not whether H itself needs to run further.'"
   },
-
   "assumptions_h_made_before_ra4_b2n_b2z_work": {
     "single_creator_role": "H's candidate/evidence model (inferred from the psi0h_h1-h4 chain's use of 'creator' terminology throughout, consistent with the rest of the pre-B2Z codebase) assumed ONE creator role -- same gap as the existing main-DB watchtower_detector.py method (Part 1). H predates the CREATE_CREATOR/MIGRATION_SIGNER split entirely.",
     "bounded_small_scale": "H's entire design is intentionally small-scale (300-row caps, single reconstruction window) -- it was never intended to process the 40,275-token historical scale the new discovery pipeline now covers. This is a SCOPE difference, not a semantic conflict.",
     "no_cex_infra_awareness_traced": "not confirmed either way from the artifacts read this session -- H's provenance chain does not surface CEX/infra classification explicitly in the digest chain reviewed. If H's underlying candidate evidence included CEX-rooted funding without discount, its 13 candidates/22 operations should be spot-checked against the CEX/INFRA mapping before being combined with new evidence -- NOT done this session (out of scope, would require re-reading H's full candidate list, deferred as a blocker below)."
   },
-
   "which_assumptions_are_now_obsolete": {
     "single_creator_role": "OBSOLETE going forward for any NEW evidence gathering, but NOT retroactively invalidating H's own already-closed candidates -- those were reviewed and disposed under H's own methodology at the time, which remains a valid historical record",
     "scale_boundedness": "NOT obsolete -- H's small-scale, tightly-controlled design was almost certainly deliberate (matches the 'bounded/indexed, no giant fetchall' discipline used throughout this entire evidence programme), not a limitation to be lifted casually"
   },
-
   "new_evidence_surfaces_h_should_consume_if_reentered": [
     "CREATE_CREATOR / MIGRATION_SIGNER role separation (if H ever re-evaluates a creator identity)",
     "CEX/INFRA classification (src/utils/infra_mapping.py) -- to re-verify H's existing 13 candidates were not solely CEX/infra-rooted",
     "the new local_operation_discovery_execution_qualification corpus (385 families) as an ADDITIONAL candidate source, cross-referenced not merged",
     "B2Z-P3B calibrated confidence tiers, if H ever wants to weight its own funding evidence by measured confidence rather than qualitative judgment"
   ],
-
   "does_h_need_role_separation": "only if H performs NEW creator-identity work going forward -- its EXISTING 13 candidates/22 operations were disposed under the single-role model and remain valid as historical record unless explicitly re-reviewed",
   "does_h_need_cex_infra_awareness": "YES if resumed -- this is the one concrete, actionable gap identified this session (see blockers)",
   "can_h_consume_candidate_families_directly": "CONDITIONALLY -- H's own authority model (candidate-only, human-disposition-gated) is structurally compatible with consuming the new 385-family corpus as ADDITIONAL candidate input, but this session does NOT recommend an automatic merge -- H's candidates were human-reviewed via a specific disposition sheet; the new corpus has NOT been through that same review process yet",
   "human_review_gates_remaining": "H4R1's disposition_distribution (COMMON_PLAYBOOK_ONLY / PLAUSIBLE_OPERATIONAL_CONTINUITY) represents ALREADY-COMPLETED human review for H's own 13 candidates -- no outstanding H-specific human gate was found. Any NEW candidates (from the local_operation_discovery corpus) would need their OWN review pass, already partially provided by the top-20 review packets built earlier this session.",
-
   "blockers": [
-    {"id": "H_CANDIDATES_NOT_CEX_CROSS_CHECKED", "description": "H's 13 candidates/22 operations were not spot-checked against the CEX/INFRA mapping this session -- would require reading H4R1's full review_sheet, deferred as a smaller follow-on, not performed here to avoid unbounded scope expansion"},
-    {"id": "NO_H11_EXISTS", "description": "confirmed no artifact beyond H10/H4R1 exists -- if the mandate intends a genuinely NEW H11 milestone, its design/scope was not specified by any existing artifact and would need fresh scoping, not resumption of an interrupted process"}
+    {
+      "id": "H_CANDIDATES_NOT_CEX_CROSS_CHECKED",
+      "description": "H's 13 candidates/22 operations were not spot-checked against the CEX/INFRA mapping this session -- would require reading H4R1's full review_sheet, deferred as a smaller follow-on, not performed here to avoid unbounded scope expansion"
+    },
+    {
+      "id": "NO_H11_EXISTS",
+      "description": "confirmed no artifact beyond H10/H4R1 exists -- if the mandate intends a genuinely NEW H11 milestone, its design/scope was not specified by any existing artifact and would need fresh scoping, not resumption of an interrupted process"
+    }
   ],
-
   "verdict": "H_SERIES_ALREADY_CONCLUDED_AT_NATURAL_STOPPING_POINT",
-  "verdict_reasoning": "Traced directly from committed artifacts: the psi0h H-series reached PSI0H_H10_SOURCE_LINEAGE_FROZEN after PSI0H_H9_NO_ACTION_NEEDED and PSI0H_H4R1_HUMAN_DISPOSITION_CLOSED -- all three read as deliberate, satisfied terminal states, not interruptions. No H11 exists. This session does NOT activate any H-series production behavior (none exists to activate -- the series is dormant/complete, not paused mid-execution). The one concrete, actionable finding is that IF H is ever re-entered for new work, it should adopt CEX/INFRA awareness (a gap it shares with the pre-reconciliation local discovery pipeline) and role-separated creator identity for any NEW evidence gathering -- but its EXISTING 13-candidate/22-operation disposition remains a valid, closed historical record that this session did not touch or need to touch."
+  "verdict_reasoning": "Traced directly from committed artifacts: the psi0h H-series reached PSI0H_H10_SOURCE_LINEAGE_FROZEN after PSI0H_H9_NO_ACTION_NEEDED and PSI0H_H4R1_HUMAN_DISPOSITION_CLOSED -- all three read as deliberate, satisfied terminal states, not interruptions. No H11 exists. This session does NOT activate any H-series production behavior (none exists to activate -- the series is dormant/complete, not paused mid-execution). The one concrete, actionable finding is that IF H is ever re-entered for new work, it should adopt CEX/INFRA awareness (a gap it shares with the pre-reconciliation local discovery pipeline) and role-separated creator identity for any NEW evidence gathering -- but its EXISTING 13-candidate/22-operation disposition remains a valid, closed historical record that this session did not touch or need to touch.",
+  "roadmap_h_reentry_b_update": {
+    "milestone": "ROADMAP-H-REENTRY-B",
+    "updated_utc": "2026-08-19T23:40:00Z",
+    "cex_infra_gap_now_closed": "the one concrete blocker identified in ROADMAP-H-REENTRY-A (H needs CEX/INFRA awareness) is now IMPLEMENTED at the discovery-layer (apply_cex_infra_reclassification, compute_cex_infra_hop_distance, find_private_substructure_in_cex_family) -- any future H work consuming the discovery corpus inherits this awareness automatically via the corpus's attribution_state/cex_infra_hop_distance columns",
+    "h_candidates_cex_cross_check_status": "STILL NOT PERFORMED against H's own 13-candidate/22-operation review sheet specifically (H4R1) -- remains a deferred, smaller follow-on, unchanged from ROADMAP-H-REENTRY-A",
+    "next_h_scope_determination": "see docs/audits/next_h_series_scope_proposal.json for the full proposal -- summary: the smallest coherent next H-equivalent stage is a NON-EXECUTABLE eligibility/integration check confirming H's OWN 13 candidates against the now-corrected CEX/INFRA lineage semantics, NOT a new large-scale H11 continuation of the bounded backfill chain"
+  }
 }

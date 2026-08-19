@@ -1,0 +1,133 @@
+{
+  "schema_version": "b2z.p2r.execution-exclusion-resume-repair.v1",
+  "artifact_type": "B2Z_P2R_EXECUTION_EXCLUSION_RESUME_REPAIR",
+  "milestone": "B2Z-P2R -- execution-exclusion-aware resume repair",
+  "generated_utc": "2026-08-19T07:35:00Z",
+
+  "operation_safety": {
+    "provider_calls_made": 0,
+    "credentials_used": false,
+    "production_data_modified": false,
+    "method": "code change to src/acquisition/b2z_durable_execution.py + new focused test suite (tmp_path/FakeTransport only), then ONE authorized append to the real live event ledger after all tests passed"
+  },
+
+  "run_id": "b2z-p1-44d6798563468c8aff747446",
+
+  "part1_dispatch_verification": {
+    "question": "did the resume invocation that raised B2Z_P1_MEMBER_BLOCKED_BY_FAILED_STAGE dispatch any new physical request?",
+    "method": "read the real event ledger directly and diff against the last-known reconciled state (docs/audits/b2z_p2_morning_resume_readiness.json)",
+    "result": "NO -- ledger was byte-identical (2 lines, sha256 39ce0dca...) both before this milestone's investigation began and immediately before the code fix. The error was raised BEFORE any reservation/dispatch attempt, inside resume_next()'s member-iteration loop, prior to calling DurableB2ZClient.dispatch().",
+    "physical_requests_consumed_by_latest_invocation": 0,
+    "conclusion": "confirmed via direct read, not assumed -- consistent with the expected likely state"
+  },
+
+  "part2_root_cause": {
+    "raising_function": "resume_next() in src/acquisition/b2z_durable_execution.py, originally at line 453 (pre-fix)",
+    "mechanism": "resume_next() iterates manifest.members in ordinal order. For each member it calls _member_has_failed_stage(event_ledger, ordinal), which returns the first stage with a terminal-but-not-succeeded event (i.e. ATTEMPT_FAILED_AFTER_DISPATCH or ATTEMPT_NOT_DISPATCHED without a later ATTEMPT_SUCCEEDED). If that returns non-None, the ORIGINAL code unconditionally raised B2ZP1Error, halting the entire resume call -- it never reached ordinal 2 because the raise occurs inside the loop before any later-ordinal iteration.",
+    "why_failure_blocks_the_whole_run": "by design (matching B2N's stop-on-first-anomaly discipline) -- a failed/undispatched stage was treated as an unconditional run-blocking anomaly requiring human intervention, with no mechanism to distinguish 'ordinary failure needing investigation' from 'failure already reviewed and explicitly excluded by human decision'.",
+    "failure_blocking_occurs_before_next_member_selection": true,
+    "execution_exclusion_state_existed_only_in_artifacts_before_this_milestone": true,
+    "evidence": "grep of the pre-fix module confirmed zero occurrences of any EXCLUDED/EXCLUSION event type or state -- OPTION_A was previously represented ONLY in docs/audits/*.json narrative artifacts (e.g. b2z_p2_morning_resume_readiness.json's prose), never in the executable B2ZEventLedger.VALID_EVENTS set or resume_next()'s control flow. This is the exact gap the instruction anticipated."
+  },
+
+  "part3_no_retry_invariant": {
+    "requirement": "ordinal 1 / MIGRATION_TX remains permanently non-dispatchable",
+    "how_preserved": [
+      "the original ATTEMPT_RESERVED and ATTEMPT_FAILED_AFTER_DISPATCH events for ordinal 1 are NEVER modified, deleted, or reinterpreted as success -- they remain byte-identical in the ledger (verified: events[:2] before and after the exclusion append are identical)",
+      "DurableB2ZClient.dispatch() still raises B2Z_P1_DUPLICATE_STAGE_ATTEMPT if ordinal 1 MIGRATION_TX is ever dispatched again, because it is already in reserved_stage_keys() -- this guard is untouched and independent of the new exclusion logic",
+      "resume_next()'s new behavior is purely a SELECTION change: when a member's failed stage IS in excluded_ordinals(), resume_next() skips to the next member instead of raising -- it never calls client.dispatch() for the excluded member's failed stage",
+      "exclude_member_from_execution() itself never calls DurableB2ZClient.dispatch() and cannot cause a physical request"
+    ],
+    "verified_by_tests": ["test_resume_does_not_redispatch_ordinal_1_after_exclusion", "test_ordinal_1_history_unchanged_after_exclusion"]
+  },
+
+  "part4_exclusion_contract": {
+    "new_event_type": "EXECUTION_EXCLUDED",
+    "new_ledger_method": "B2ZEventLedger.exclude_member_from_execution(run_id, sample_ordinal, mint, failed_stage, exclusion_reason, decision_source)",
+    "bound_fields": ["run_id", "sample_ordinal", "mint", "stage (the failed_stage)", "exclusion_reason", "decision_source", "event_utc_ns (timestamp)", "physical_request_number=0"],
+    "guards": [
+      "refuses to exclude a member/stage pair with no matching ATTEMPT_FAILED_AFTER_DISPATCH terminal event -- raises B2Z_P2R_NO_MATCHING_FAILURE_TO_EXCLUDE (prevents forging an exclusion for a stage that never actually failed, or that already succeeded)",
+      "refuses a duplicate exclusion for an already-excluded ordinal -- raises B2Z_P2R_DUPLICATE_EXCLUSION",
+      "append-only, uses the same B2ZEventLedger.append_event() path as every other event type -- goes through the existing VALID_EVENTS allowlist"
+    ],
+    "does_not_count_as_provider_request": "EXECUTION_EXCLUDED is not in dispatched_stage_keys()'s filtered event-name tuple (ATTEMPT_SUCCEEDED, ATTEMPT_FAILED_AFTER_DISPATCH only), so physical_requests_attempted() is structurally unaffected by any number of exclusion events -- verified by test_exclusion_itself_consumes_zero_requests",
+    "original_events_never_overwritten": true
+  },
+
+  "part5_resume_semantics": {
+    "code_change": "resume_next() now computes excluded = event_ledger.excluded_ordinals() once per call, and inside the per-member loop, when _member_has_failed_stage() finds a blocking failure AND the ordinal is in excluded, it `continue`s to the next member instead of raising. Unexcluded blocking failures still raise exactly as before (unchanged for every ordinal other than 1).",
+    "post_repair_derived_state": {
+      "ordinal_1": "EXECUTION_EXCLUDED (terminally resolved for execution selection, historical failure preserved)",
+      "eligible_execution_members": "ordinals 2..20",
+      "next_deterministic_stage": "ordinal 2 / MIGRATION_TX",
+      "consumed_physical_requests": 1,
+      "remaining_max": 49
+    },
+    "verified_directly_against_live_ledger": true,
+    "live_ledger_check_output": "excluded ordinals: {1}; physical_requests_attempted: 1; ordinal 1 blocking stage: MIGRATION_TX (preserved, not cleared); ordinal 2 blocking stage: None; ordinal 2 next stage: MIGRATION_TX"
+  },
+
+  "part6_calibration_metric_semantics": {
+    "requirement": "execution exclusion must not count in evidence-accuracy denominators, only in execution_excluded_count",
+    "status": "the comparison engine (src/acquisition/b2z_calibration_comparison.py) already has an EXECUTION_EXCLUDED comparison state (built in the prior P2 milestone, per the conversation record) distinct from AGREEMENT/DISAGREEMENT/LOCAL_MISSING/RAW_MISSING/NOT_YET_EXECUTED -- its compute_metrics() denominators already explicitly exclude excluded/not-yet-executed members. No further code change was required for this part; verified structurally via test_comparison_engine_uses_denominator_19 that the engine's interface supports caller-controlled eligible-population scoping.",
+    "no_new_code_needed": true
+  },
+
+  "part7_mocked_tests": {
+    "file": "tests/test_b2z_p2r_execution_exclusion.py",
+    "count": 14,
+    "all_passing": true,
+    "requirements_covered": [
+      "1. resume does NOT redispatch ordinal 1 -- test_resume_does_not_redispatch_ordinal_1_after_exclusion",
+      "2. resume selects ordinal 2 / MIGRATION_TX -- test_resume_selects_ordinal_2_migration_tx",
+      "3. budget remains 49 (verified as max_total_requests - attempted) -- test_budget_remains_49_after_exclusion_and_one_resume",
+      "4. ordinal 1 history remains unchanged -- test_ordinal_1_history_unchanged_after_exclusion",
+      "5. calibration eligible count = 19 -- test_calibration_eligible_count_is_19",
+      "6. exclusion itself consumes zero requests -- test_exclusion_itself_consumes_zero_requests",
+      "7. ordinary failed stages WITHOUT explicit exclusion still block/fail closed -- test_unexcluded_failed_member_still_blocks_resume",
+      "8. exclusion cannot be forged for arbitrary failures without a bound authorized record -- test_exclusion_rejected_without_matching_failure, test_exclusion_rejected_for_stage_that_already_succeeded",
+      "9. duplicate exclusion rejected -- test_duplicate_exclusion_rejected",
+      "10. ledger inconsistency fails closed -- test_exclusion_invalid_event_type_rejected"
+    ]
+  },
+
+  "part8_19_member_mock_completion": {
+    "test": "test_19_member_calibration_walk_never_exceeds_original_authorization",
+    "method": "starts from the exact excluded-ordinal-1 fixture state, applies the REAL P2-specific max_total_requests=50 via dataclasses.replace() (matching scripts/run_b2z_p2_calibration.py's own construction exactly, NOT the module's 60-default), then walks resume_next() in a loop",
+    "finding": "IMPORTANT: under this test's fixture (no NO_CANDIDATE mints, no Stage-2 seeding), 19 members x 3 stages = 57 possible additional dispatches + ordinal 1's already-consumed 1 = 58 possible total, which EXCEEDS the real 50-request ceiling. The walk correctly fails closed via DurableB2ZClient.dispatch()'s existing budget guard once exhausted -- it does NOT silently complete all 19 members, and no request numbered 51+ is ever dispatched.",
+    "implication_for_real_execution": "the REAL 19-member calibration population may not fully complete within 49 remaining requests if most/all members require all 3 stages with no seeded skips or no-candidate short-circuits. This is a legitimate capacity finding, not a code defect -- the existing budget guard behaves correctly (fails closed, never exceeds authorization). Whether the real run completes depends on how many of the 19 real members hit NO_CANDIDATE (2 stages) or have Stage-2 seeded (2 stages) vs. requiring the full 3. This should be disclosed to the human as a real possibility before live execution resumes.",
+    "stage2_seeded_members_verified": "test_stage2_seeded_member_still_behaves_correctly_after_exclusion confirms seeded members still consume exactly 1 request for their next real stage (FUNDING_TX), not 2 -- seeding continues to work correctly after the exclusion repair",
+    "ordinal_1_never_dispatched_in_full_walk": true
+  },
+
+  "part9_live_artifact_safety": {
+    "pre_change_snapshots": {
+      "event_ledger_sha256": "39ce0dca5afe9a3ee2964356540d8c19448142eda47dcbcfcceca37da597fad4",
+      "prediction_freeze_sha256": "e403f46f5ebe08332bfeae9089f341b9b1e49d70f737cbd7e386f2fa62de19b3",
+      "execution_plan_sha256": "40fd882afeea60e05feda81f9b7e3d499e3b55d81f5ea407f8cedb3e082198c6"
+    },
+    "all_tests_used_tmp_path_only": true,
+    "canonical_live_ledger_append_performed_after_tests_passed": true,
+    "post_change_snapshots": {
+      "event_ledger_sha256": "3ded105e78770e181e31058ab268ee4e15453601510eb931934224436d946d1c",
+      "event_ledger_row_count": 3,
+      "prediction_freeze_sha256": "e403f46f5ebe08332bfeae9089f341b9b1e49d70f737cbd7e386f2fa62de19b3 (UNCHANGED)",
+      "execution_plan_sha256": "40fd882afeea60e05feda81f9b7e3d499e3b55d81f5ea407f8cedb3e082198c6 (UNCHANGED)"
+    },
+    "diff_summary": "exactly one new line appended (EXECUTION_EXCLUDED for ordinal 1); the first 2 lines are byte-identical to the pre-change ledger; ordinal-1 historical failure events were never mutated",
+    "stage_output_ledger": "did not exist before or after -- ordinal 1 never succeeded any stage, so no stage output was ever recorded for it"
+  },
+
+  "part10_authorization": {
+    "original_max": 50,
+    "consumed": 1,
+    "remaining": 49,
+    "fresh_allowance_created": false,
+    "note": "the repair changed execution SELECTION semantics only -- no authorization object was recreated, no budget was reset or expanded"
+  },
+
+  "tests_summary": "69/69 passing (55 pre-existing across test_b2z_p1_durable_execution.py/test_b2z_p2_calibration.py/test_b2z_calibration_comparison.py, unmodified behavior confirmed for every ordinal other than 1's excluded case; 14 new in test_b2z_p2r_execution_exclusion.py)",
+
+  "terminal_verdict": "READY_B2Z_P2_19_MEMBER_MANUAL_RESUME_GATE",
+  "verdict_reasoning": "The execution-exclusion mechanism is implemented, tested (14/14 new tests, 55/55 pre-existing tests unaffected), and the authorized exclusion record has been appended to the real live ledger. Live state now correctly derives: ordinal 1 = EXECUTION_EXCLUDED, next deterministic stage = ordinal 2/MIGRATION_TX, consumed=1, remaining=49, no-retry invariant intact. Resume is ready to proceed manually whenever the human supplies the credential. Part 8's finding about possible budget exhaustion before all 19 complete should be disclosed as a known, non-blocking risk -- not a repair defect."
+}

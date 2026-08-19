@@ -1,4 +1,27 @@
 {
+  "b2z_p2r_execution_exclusion_resume_repair": {
+    "milestone": "B2Z-P2R -- execution-exclusion-aware resume repair",
+    "artifact": "docs/audits/b2z_p2r_execution_exclusion_resume_repair.json",
+    "provider_calls_made": 0,
+    "credentials_used": false,
+    "trigger": "manual resume attempt stopped immediately with B2Z_P1_MEMBER_BLOCKED_BY_FAILED_STAGE:1:MIGRATION_TX -- the resume selector had no representation of the OPTION_A execution-exclusion decision in executable state, only in narrative artifacts",
+    "root_cause": "resume_next() in src/acquisition/b2z_durable_execution.py unconditionally raised on any member with a terminal-but-unsucceeded stage; execution-exclusion state did not exist as an event type before this milestone",
+    "fix": "added EXECUTION_EXCLUDED event type + B2ZEventLedger.exclude_member_from_execution() (guarded: refuses to exclude a non-matching or already-succeeded stage, refuses duplicates, consumes zero physical requests, append-only) + resume_next() now skips (does not raise for) an excluded member's blocking failure instead of halting the whole run. Ordinary unexcluded failures still block exactly as before.",
+    "no_retry_invariant_preserved": true,
+    "ordinal_1_status": "EXECUTION_EXCLUDED (reason CREDENTIAL_INPUT_CORRUPTION, decision_source OPTION_A_HUMAN_DECISION) -- historical ATTEMPT_RESERVED/ATTEMPT_FAILED_AFTER_DISPATCH events untouched",
+    "calibration_eligible_population": 19,
+    "physical_requests_consumed": 1,
+    "physical_requests_remaining": 49,
+    "next_deterministic_stage": "ordinal 2 / MIGRATION_TX",
+    "live_ledger_appended": true,
+    "live_ledger_sha256_before": "39ce0dca5afe9a3ee2964356540d8c19448142eda47dcbcfcceca37da597fad4",
+    "live_ledger_sha256_after": "3ded105e78770e181e31058ab268ee4e15453601510eb931934224436d946d1c",
+    "prediction_and_execution_plan_digests_unchanged": true,
+    "tests": "69/69 passing (55 pre-existing unaffected + 14 new in tests/test_b2z_p2r_execution_exclusion.py)",
+    "important_disclosed_finding": "under a fixture with no NO_CANDIDATE/seeded-stage savings, 19 members x 3 stages (57) + ordinal 1's consumed 1 = 58 possible total dispatches, which EXCEEDS the real 50-request P2 ceiling. The budget guard correctly fails closed before exceeding it. Whether the REAL 19-member run completes within 49 remaining requests depends on how many real members hit NO_CANDIDATE or have Stage-2 seeded -- this is a real capacity risk to disclose to the human, not a defect in the repair.",
+    "terminal_verdict": "READY_B2Z_P2_19_MEMBER_MANUAL_RESUME_GATE",
+    "exact_safe_manual_resume_command": "cd /Users/kevinkeaveney/Dev/claude/flex && read -s B2Z_P2_HELIUS_ENDPOINT && export B2Z_P2_HELIUS_ENDPOINT && echo && for i in $(seq 1 49); do python3 scripts/run_b2z_p2_calibration.py --resume; rc=$?; if [ $rc -ne 0 ]; then echo \"STOPPED at invocation $i\"; break; fi; done && unset B2Z_P2_HELIUS_ENDPOINT"
+  },
   "follow_on_session_summary": {
     "session": "follow-on local qualification, 2026-08-19, continuing autonomously from the completed overnight 12-workstream session",
     "provider_calls_made": 0,

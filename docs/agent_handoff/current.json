@@ -63,7 +63,12 @@
     "next_h_milestone_proposed": "H4R1-CEX-INFRA-ELIGIBILITY-CHECK -- a small, non-executable, read-only re-check of H's OWN 13 candidates against the CEX/INFRA mapping (NOT a new H11 continuation of the closed bounded-backfill chain). Blocker: H's underlying funding-evidence artifacts for the 13 candidates not yet located this session -- would be the first actual step.",
     "tests": "20/20 passing in tests/test_local_operation_discovery_projection.py (13 prior + 7 new CEX-lineage/hop-distance/substructure tests)",
     "terminal_verdict": "READY_NEW_H_SERIES_SCOPE_REVIEW",
-    "human_decisions_pending": ["authorize H4R1-CEX-INFRA-ELIGIBILITY-CHECK or decline/defer", "23-member Dv34prGm2 subfamily within the Binance cluster -- highest-priority follow-on candidate for selective RPC or deeper local investigation", "review the corrected OF_P0_SUBSET_PARTIALLY_SUPPORTED verdict for the 56-member family", "review the OKX Watchtower candidate's independent-evidence finding"]
+    "human_decisions_pending": [
+      "authorize H4R1-CEX-INFRA-ELIGIBILITY-CHECK or decline/defer",
+      "23-member Dv34prGm2 subfamily within the Binance cluster -- highest-priority follow-on candidate for selective RPC or deeper local investigation",
+      "review the corrected OF_P0_SUBSET_PARTIALLY_SUPPORTED verdict for the 56-member family",
+      "review the OKX Watchtower candidate's independent-evidence finding"
+    ]
   },
   "roadmap_h_reentry_a": {
     "milestone": "ROADMAP-H-REENTRY-A -- existing operation method + CEX/INFRA authority reconciliation",
@@ -90,7 +95,12 @@
     "h_series_status": "H_SERIES_ALREADY_CONCLUDED_AT_NATURAL_STOPPING_POINT -- last milestone PSI0H_H10_SOURCE_LINEAGE_FROZEN, human review PSI0H_H4R1_HUMAN_DISPOSITION_CLOSED (13 candidates/22 operations, already candidate-only with an explicit forbidden-authority list). No H11 exists. Not blocked, not paused mid-execution -- dormant/complete. Nothing was activated or resumed.",
     "tests": "16/16 passing in tests/test_local_operation_discovery_projection.py (13 pre-existing + 3 new CEX/INFRA false-merge tests)",
     "terminal_verdict": "READY_H_SERIES_REENTRY",
-    "human_decisions_pending": ["review/act on the OKX false-positive in Watchtower's candidate queue", "decide 575-member family disposition (recommend: non-attributive CEX activity)", "re-review the original 56-member OF-P0 subset against the CEX/INFRA mapping", "any actual H-series re-entry is a fresh scoping decision, nothing is currently blocked"]
+    "human_decisions_pending": [
+      "review/act on the OKX false-positive in Watchtower's candidate queue",
+      "decide 575-member family disposition (recommend: non-attributive CEX activity)",
+      "re-review the original 56-member OF-P0 subset against the CEX/INFRA mapping",
+      "any actual H-series re-entry is a fresh scoping decision, nothing is currently blocked"
+    ]
   },
   "overnight_session_2026_08_19_summary": {
     "mandate": "pre-authorized overnight continuation: exhaust safe local branches from B2Z sprint closure through LOCAL_OPERATION_DISCOVERY_EXECUTION_QUALIFICATION",
@@ -100,7 +110,15 @@
     "canonical_operations_mutated": false,
     "watchtower_mutated": false,
     "three_sw2_mutated": false,
-    "commits_this_session": ["e13e9d17", "cd3d775d", "1c4bccab", "d1b8c107", "a50675cc", "b592b548", "1ee9f19b"],
+    "commits_this_session": [
+      "e13e9d17",
+      "cd3d775d",
+      "1c4bccab",
+      "d1b8c107",
+      "a50675cc",
+      "b592b548",
+      "1ee9f19b"
+    ],
     "milestones_completed": [
       "B2Z-P2H (ordinal 19 raw-negative reconciliation)",
       "B2Z-P2 final completion (ordinal 20, all 19 eligible members resolved)",
@@ -139,9 +157,18 @@
     "creator_migration_signer_role_separation": "preserved throughout -- MIGRATION_SIGNER documented as a genuine, disclosed coverage gap (only exists for the 19-member B2Z-P2 cohort; no local table tracks it at scale, not filled with RPC)",
     "top20_review_packets": "created for the 20 largest STRONG candidates, each with why-it-surfaced, known-operation-overlap flag, and a recommended human question -- no automatic attribution",
     "selective_rpc_queue": "prioritized non-executable verification queue: borderline service-distribution cases, ambiguous self-loop clusters, and highest-value novel strong candidates -- NOT blanket per-member verification",
-    "blockers_disclosed": ["migration-signer coverage gap at scale (permanent, documented, not RPC-filled)", "SERVICE_DISTRIBUTION_REVIEW_REQUIRED (B2Z-P3A's 5th category) still needs a dedicated fan-in query, separate from this run's family-level mega-hub heuristic", "three_sw2 control cross-check deferred as a smaller follow-on"],
+    "blockers_disclosed": [
+      "migration-signer coverage gap at scale (permanent, documented, not RPC-filled)",
+      "SERVICE_DISTRIBUTION_REVIEW_REQUIRED (B2Z-P3A's 5th category) still needs a dedicated fan-in query, separate from this run's family-level mega-hub heuristic",
+      "three_sw2 control cross-check deferred as a smaller follow-on"
+    ],
     "verdict": "LOCAL_OPERATION_DISCOVERY_EXECUTION_QUALIFICATION_COMPLETE",
-    "next_safe_branches_available": ["Workstream M deeper 56-launch reconciliation using the new discovery machinery", "Workstream N dedicated three_sw2 control check", "EP3/EP4 identity cross-reference (Workstream E) not yet run against the materialized corpus", "SERVICE_DISTRIBUTION fan-in query at full population scale to unblock B2Z-P3A's last pending category"]
+    "next_safe_branches_available": [
+      "Workstream M deeper 56-launch reconciliation using the new discovery machinery",
+      "Workstream N dedicated three_sw2 control check",
+      "EP3/EP4 identity cross-reference (Workstream E) not yet run against the materialized corpus",
+      "SERVICE_DISTRIBUTION fan-in query at full population scale to unblock B2Z-P3A's last pending category"
+    ]
   },
   "b2z_sprint_completion_reconciliation": {
     "milestone": "B2Z sprint closure -- calibration + selective RPC policy",
@@ -156,7 +183,12 @@
     "rpc_savings_models": "Model A (blanket) 75,308-112,962 requests vs Model B (selective) 15,130-45,390 (point estimate ~33,286) vs Model C (selective+cache) ~same as B (cache negligible for this population) -- docs/audits/b2z_p3_rpc_savings_models_calibrated.json",
     "operation_discovery_answer": "local direct evidence CONDITIONALLY safe for candidate-family discovery -- true for the now-calibrated HIGH-confidence tier (100% confirmed), NOT established for LOW-confidence relationships (0/10 this sprint). Raw verification remains UNCONDITIONALLY required before canonical operation attribution -- unweakened.",
     "56_launch_family": "preserved as CANDIDATE_OPERATIONAL_FAMILY, not promoted, zero overlap with the P2 cohort, Watchtower/three_sw2 unmutated",
-    "unresolved_blockers": ["SERVICE_DISTRIBUTION_REVIEW_REQUIRED unmeasured", "LOW-confidence reliability unknown at scale (n=10)", "shared-migration-signer global frequency unmeasurable locally", "direct_funder/amount fields not captured in B2Z-P1's stage-output schema (data-capture gap for future calibration)"],
+    "unresolved_blockers": [
+      "SERVICE_DISTRIBUTION_REVIEW_REQUIRED unmeasured",
+      "LOW-confidence reliability unknown at scale (n=10)",
+      "shared-migration-signer global frequency unmeasurable locally",
+      "direct_funder/amount fields not captured in B2Z-P1's stage-output schema (data-capture gap for future calibration)"
+    ],
     "recommended_next_milestone": "LOCAL_OPERATION_DISCOVERY_EXECUTION_QUALIFICATION -- NOT automatically executed, requires separate human authorization",
     "content_disclosure": "one on-chain address (ordinal 11's raw migration signer) contains offensive language -- genuine pre-existing durable evidence, not introduced by this analysis, flagged explicitly in the calibration result artifact",
     "final_verdict": "B2Z_CALIBRATION_AND_SELECTIVE_RPC_SPRINT_QUALIFIED"
@@ -178,10 +210,33 @@
     "calibration_snapshot": {
       "eligible_population": 19,
       "resolved": 18,
-      "unresolved": [20],
-      "positives": [2, 4, 7, 10, 12, 13, 14, 17],
-      "no_candidate": [3, 5, 6, 9, 11, 15, 16, 18],
-      "raw_semantic_negatives": [8, 19],
+      "unresolved": [
+        20
+      ],
+      "positives": [
+        2,
+        4,
+        7,
+        10,
+        12,
+        13,
+        14,
+        17
+      ],
+      "no_candidate": [
+        3,
+        5,
+        6,
+        9,
+        11,
+        15,
+        16,
+        18
+      ],
+      "raw_semantic_negatives": [
+        8,
+        19
+      ],
       "all_5_review_sensitive_ordinals_now_resolved": true
     },
     "reinforced_p2g_finding": "shared migration-signer address 9C4nRvhhVquC... now accounts for 9/19 eligible members (47.4%, up from 4/7 when P2G was written) -- further reinforces, does not change, the GENUINE_SHARED_MIGRATION_SIGNER_NOT_TOKEN_CREATOR classification",
@@ -234,9 +289,19 @@
       "eligible_population": 19,
       "resolved": 7,
       "unresolved": 12,
-      "positive_confirmations": [2, 4, 7],
-      "no_candidate": [3, 5, 6],
-      "raw_semantic_negative": [8],
+      "positive_confirmations": [
+        2,
+        4,
+        7
+      ],
+      "no_candidate": [
+        3,
+        5,
+        6
+      ],
+      "raw_semantic_negative": [
+        8
+      ],
       "creator_agreement_rate": "3/7 = 42.9%",
       "complete_relationship_agreement_rate": "3/7 = 42.9%",
       "local_false_positives": 1
@@ -289,10 +354,19 @@
     "provider_calls_made_this_turn": 0,
     "credentials_used_this_turn": false,
     "execution_classification": "P2_LIVE_EXECUTION_PARTIAL_SAFE_STOP",
-    "members_completed_this_run": [2, 3],
+    "members_completed_this_run": [
+      2,
+      3
+    ],
     "ordinal_2_result": "MEMBER_COMPLETE, full EXACT_AGREEMENT across creator/funding_signature/direct_funder/destination/temporal (Stage-2-seeded, frozen signature confirmed by raw Stage 3)",
     "ordinal_3_result": "NO_EVIDENCE_NO_CANDIDATE -- IMPORTANT: local_false_positive on creator. Local prediction's creator (7VJPjQZyH9yYG...) does NOT match the raw transaction-verified creator (9C4nRvhhVquC...) despite the migration_signature matching exactly. Raw Stage 2 (dispatched against the correct raw creator) found zero pre-migration funding candidates, contradicting the local prediction. Local prediction had already flagged LOW completeness confidence for this member.",
-    "request_accounting": {"total_consumed": 5, "ordinal_1_historical": 1, "new_this_run": 4, "remaining": 44, "authorization_max_unchanged": 50},
+    "request_accounting": {
+      "total_consumed": 5,
+      "ordinal_1_historical": 1,
+      "new_this_run": 4,
+      "remaining": 44,
+      "authorization_max_unchanged": 50
+    },
     "calibration_sample_size": "n=2 -- explicitly too small to generalize; no P3B binding or sprint closure performed, per instruction requiring full 19-member completion first",
     "seeded_confirmation_so_far": "1/1 (ordinal 2) -- 8 of 9 seeded ordinals remain untested",
     "review_sensitive_ordinals_status": "all 5 (8,11,15,18,19) untested, classified INSUFFICIENT_RAW_EVIDENCE",
@@ -320,9 +394,36 @@
     "credentials_used": false,
     "finding": "the real frozen execution plan (plan_digest 646758c9...) allocates ordinal 1 exactly 2 planned requests (MIGRATION_TX + FUNDING_TX); only 1 was consumed before failure, and the planned FUNDING_TX is now permanently unreachable (not reassigned). Actual remaining demand for ordinals 2-20 is 48 physical requests maximum, which fits within the nominal 49-request remainder with 1 request of margin.",
     "58_request_mock_explained": "the P2R mocked worst-case test used a generic fixture with NO Stage-2 seeding applied for any of the 19 members, so it required 3 stages each (57) + ordinal 1's consumed 1 = 58. This never modeled the real frozen plan (9 of the 19 remaining members are seeded, requiring only 2 stages each) -- classified GENERIC_WORST_CASE_EXCEEDS_BUDGET_BUT_REAL_FROZEN_PLAN_FITS. The test remains valuable as a defense-in-depth proof that the budget guard fails closed.",
-    "seeded_ordinals_remaining": [2, 4, 7, 10, 12, 13, 14, 17, 20],
-    "live_stage2_ordinals_remaining": [3, 5, 6, 8, 9, 11, 15, 16, 18, 19],
-    "review_sensitive_ordinals_all_live_stage2": [8, 11, 15, 18, 19],
+    "seeded_ordinals_remaining": [
+      2,
+      4,
+      7,
+      10,
+      12,
+      13,
+      14,
+      17,
+      20
+    ],
+    "live_stage2_ordinals_remaining": [
+      3,
+      5,
+      6,
+      8,
+      9,
+      11,
+      15,
+      16,
+      18,
+      19
+    ],
+    "review_sensitive_ordinals_all_live_stage2": [
+      8,
+      11,
+      15,
+      18,
+      19
+    ],
     "exact_maximum_remaining_physical_requests": 48,
     "nominal_authorization_remaining": 49,
     "margin": 1,
@@ -361,13 +462,41 @@
     "three_sw2_mutated": false,
     "canonical_operation_mutated": false,
     "workstreams_completed": [
-      {"id": "OF-P0", "artifact": "docs/audits/of_p0_56_launch_candidate_operational_family.json", "result": "56-launch candidate family qualified, independence corrected to PARTIALLY_SHARED_LINEAGE, terminal verdict CANDIDATE_OPERATIONAL_FAMILY_LOCALLY_SUPPORTED, zero canonical overlap"},
-      {"id": "OF-P0-review-packet", "artifact": "docs/audits/of_p0_56_launch_candidate_family_review_packet.json", "result": "plain-English human review packet, no decision made"},
-      {"id": "B2Z-P3A", "artifact": "docs/audits/b2z_p3a_historical_selective_rpc_dry_classification.json", "result": "39,260-token population classified; 3/5 policy categories fully measured locally (LOCAL_EVIDENCE_SUFFICIENT_FOR_DISCOVERY ~57.4%, RAW_VERIFICATION_REQUIRED 1.6%, MISSING_LOCAL_EVIDENCE 36.9%); 2 categories left PENDING_P2_CALIBRATION rather than guessed"},
-      {"id": "cache-first-savings", "artifact": "docs/audits/b2z_p3a_cache_first_savings.json", "result": "tf_transaction_cache overlap negligible for this population (0/646 migration-tx, 7/22,951 funding-tx) -- no material RPC savings from cache reuse here"},
-      {"id": "P2-resume-readiness", "artifact": "docs/audits/b2z_p2_morning_resume_readiness.json", "result": "mocked resume validation PASSED all 8 checks (tmp_path copy of real ledger, FakeTransport structurally blocks live dispatch); terminal verdict READY_B2Z_P2_19_MEMBER_MANUAL_RESUME_GATE; state unchanged (1/50 consumed, 49 remaining, ordinal 1 excluded)"},
-      {"id": "discovery-queue", "artifact": "docs/audits/local_operation_discovery_candidate_queue.json", "result": "20 candidate roots ranked by raw walkback-candidate launch count; 3 already canonical (treasuries/hubs, flagged not novel), 1 suspected service/bot, 17 genuinely unattributed"},
-      {"id": "decision-queue-update", "artifact": "docs/audits/overnight_human_decision_queue.json", "result": "reprioritized: P2 resume (1) > 56-launch family review (2) > discovery queue next picks (3) > selective-RPC thresholds (4) > B2Z-2H authorization (5) > V2 persistent budget (6)"}
+      {
+        "id": "OF-P0",
+        "artifact": "docs/audits/of_p0_56_launch_candidate_operational_family.json",
+        "result": "56-launch candidate family qualified, independence corrected to PARTIALLY_SHARED_LINEAGE, terminal verdict CANDIDATE_OPERATIONAL_FAMILY_LOCALLY_SUPPORTED, zero canonical overlap"
+      },
+      {
+        "id": "OF-P0-review-packet",
+        "artifact": "docs/audits/of_p0_56_launch_candidate_family_review_packet.json",
+        "result": "plain-English human review packet, no decision made"
+      },
+      {
+        "id": "B2Z-P3A",
+        "artifact": "docs/audits/b2z_p3a_historical_selective_rpc_dry_classification.json",
+        "result": "39,260-token population classified; 3/5 policy categories fully measured locally (LOCAL_EVIDENCE_SUFFICIENT_FOR_DISCOVERY ~57.4%, RAW_VERIFICATION_REQUIRED 1.6%, MISSING_LOCAL_EVIDENCE 36.9%); 2 categories left PENDING_P2_CALIBRATION rather than guessed"
+      },
+      {
+        "id": "cache-first-savings",
+        "artifact": "docs/audits/b2z_p3a_cache_first_savings.json",
+        "result": "tf_transaction_cache overlap negligible for this population (0/646 migration-tx, 7/22,951 funding-tx) -- no material RPC savings from cache reuse here"
+      },
+      {
+        "id": "P2-resume-readiness",
+        "artifact": "docs/audits/b2z_p2_morning_resume_readiness.json",
+        "result": "mocked resume validation PASSED all 8 checks (tmp_path copy of real ledger, FakeTransport structurally blocks live dispatch); terminal verdict READY_B2Z_P2_19_MEMBER_MANUAL_RESUME_GATE; state unchanged (1/50 consumed, 49 remaining, ordinal 1 excluded)"
+      },
+      {
+        "id": "discovery-queue",
+        "artifact": "docs/audits/local_operation_discovery_candidate_queue.json",
+        "result": "20 candidate roots ranked by raw walkback-candidate launch count; 3 already canonical (treasuries/hubs, flagged not novel), 1 suspected service/bot, 17 genuinely unattributed"
+      },
+      {
+        "id": "decision-queue-update",
+        "artifact": "docs/audits/overnight_human_decision_queue.json",
+        "result": "reprioritized: P2 resume (1) > 56-launch family review (2) > discovery queue next picks (3) > selective-RPC thresholds (4) > B2Z-2H authorization (5) > V2 persistent budget (6)"
+      }
     ],
     "tests_run": "35/35 passing (test_b2z_p2_calibration.py, test_b2z_p1_durable_execution.py) -- confirms durable execution boundary unmodified and sound; no new test files added this session (all new work was read-only SQL analysis + artifact generation, not new production code)",
     "commits_made": "pending -- see next_action",
@@ -405,9 +534,9 @@
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
   "current_milestone": {
-    "milestone": "Overnight autonomous session -- 12 provider-free workstreams complete",
-    "status": "OVERNIGHT_COMPLETE_AWAITING_HUMAN_MORNING_REVIEW",
-    "verdict": "READY_B2Z_P2_19_MEMBER_MANUAL_RESUME_GATE"
+    "milestone": "OF-DV34-P1 -- bounded selective raw-evidence qualification",
+    "status": "PREFLIGHT_COMPLETE_AWAITING_CREDENTIAL",
+    "verdict": "READY_DV34_P1_MANUAL_EXECUTION_GATE"
   },
   "current_next_blocker": "B2Z_P2_HELIUS_ENDPOINT was never available during the overnight session. P2 remains frozen at the 19-member manual resume gate, exactly as left. All 12 provider-free workstreams from the overnight prompt were completed: P2 analysis engine, selective-RPC policy (B2Z-P3), historical coverage profile, 2-hop coverage quality, B2Z-2H contract, operation-discovery preparation, candidate funding family analysis (with a real cross-validated finding), raw-transaction cache adapter, RPC savings models, V2 persistent-budget design, edge-case classifier, and roadmap reconciliation. See docs/audits/overnight_human_decision_queue.json for the 5 decisions that actually need you.",
   "focused_tests": [
@@ -30293,5 +30422,43 @@
     "ra4_v2_b2n_health": "confirmed healthy at every checkpoint throughout -- legacy DB absent, worker PID unchanged, disk stable ~72GiB free",
     "decisions_pending_human": 5,
     "decisions_summary": "D1 (resume P2 credential), D2 (recalibrate P3 thresholds after P2), D3 (investigate 2-hop dust discrepancy), D4 (EP6 proposal contract scheduling), D5 (V2 persistent-budget implementation authorization) -- see decision queue artifact for full detail"
+  },
+  "of_dv34_p1_bounded_selective_raw_evidence_qualification": {
+    "milestone": "OF-DV34-P1 -- bounded selective raw-evidence qualification",
+    "target_address": "Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM",
+    "family_size": 23,
+    "family_digest": "a30ecc5bc301fd37e4f002fa8107b7c2e4cad914fb21961a344a46f5870a868f",
+    "hypothesis_under_test": "DV34_DIRECT_CREATOR_FUNDING_EDGES_ARE_RAW_ONCHAIN_SUPPORTED",
+    "out_of_scope": [
+      "OPERATION_IDENTITY_OUT_OF_SCOPE",
+      "WATCHTOWER_MEMBERSHIP_OUT_OF_SCOPE",
+      "CANONICAL_ATTRIBUTION_OUT_OF_SCOPE"
+    ],
+    "representative_set": [
+      "ENRAEN9assGLHU2QQCo4cAv818mDrMkb6f6pG8hHpump",
+      "Cshy6euBLpdEDmJK2kwh8TZj2SWTtzujhXnCgajxpump",
+      "8AE7NWZ5yEiyE8bxyAnKcvjPYd16MPyG8EwCgA5dpump",
+      "47MnLkP3ot9qV3RGbkCQFiJEHYJThaNKzDhbagripump",
+      "7EpvnnQQhmcGZvWTxoKP59fGcEw27hFovdBWXvdepump",
+      "43sSuhMnbXL4AmXFgZQT6ojPV5i4Yw9bjmZUSa3npump"
+    ],
+    "local_cache_reuse": "checked tf_transaction_cache and b2z raw-verified corpus, 0 hits -- genuine RPC required for all 6",
+    "minimum_request_shape": "getTransaction(funding_signature) only, 1 request per representative (reduced from an over-allocated 18 to 6)",
+    "final_provider_budget": 6,
+    "prediction_freeze_artifact": "docs/audits/of_dv34_p1_local_prediction_freeze.json",
+    "prediction_freeze_digest": "0771e63f0b4fd47a473670a10a275048db92327d4e703d51e2b0864d13715b52",
+    "preflight_artifact": "docs/audits/of_dv34_p1_selective_raw_verification_preflight.json",
+    "core_module": "src/acquisition/dv34_p1_selective_verification.py",
+    "tests": "tests/test_dv34_p1_selective_verification.py (17/17 passing)",
+    "runner_script": "scripts/run_of_dv34_p1_selective_verification.py",
+    "credential_env_var": "OF_DV34_P1_HELIUS_ENDPOINT",
+    "credential_check_this_turn": "env | grep -i OF_DV34_P1_HELIUS_ENDPOINT -- absent, no credential requested/read from .env/supervisor secrets",
+    "execution_status": "NOT_EXECUTED -- credential absent",
+    "raw_verification_result": null,
+    "dv34_candidate_role": "UNDETERMINED_PENDING_LIVE_EXECUTION",
+    "watchtower_relationship": "SHARED_SOURCE_LINEAGE (unchanged, not independently confirmed)",
+    "canonical_authority": "unchanged -- Dv34 not promoted to any operation",
+    "next_action": "human runs the exact_safe_manual_command from the preflight artifact 6 times (once per representative) with a real Helius endpoint in OF_DV34_P1_HELIUS_ENDPOINT, then requests result reconciliation",
+    "verdict": "READY_DV34_P1_MANUAL_EXECUTION_GATE"
   }
 }

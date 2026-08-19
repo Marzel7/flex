@@ -1,0 +1,116 @@
+{
+  "schema_version": "of.dv34.p1.selective-raw-verification-preflight.v1",
+  "artifact_type": "OF_DV34_P1_SELECTIVE_RAW_VERIFICATION_PREFLIGHT",
+  "milestone": "OF-DV34-P1 -- bounded selective raw-evidence qualification",
+  "generated_utc": "2026-08-20T01:30:00Z",
+  "run_id": "of-dv34-p1-selective-verification",
+
+  "operation_safety": {"provider_calls_made": 0, "credentials_used": false, "production_writes": 0, "canonical_operations_mutated": false, "watchtower_mutated": false, "three_sw2_mutated": false},
+
+  "part1_reconciliation": {
+    "dv34_p0_family_digest_verified": "a30ecc5bc301fd37e4f002fa8107b7c2e4cad914fb21961a344a46f5870a868f -- recomputed directly from the live discovery corpus (23 direct_funding_edges rows for Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM), BYTE-IDENTICAL to the digest recorded in docs/audits/of_dv34_p0_23_member_private_subfamily_qualification.json",
+    "member_count_verified": 23,
+    "manifest_source_read_directly": "docs/audits/of_dv34_p0_selective_verification_manifest.json -- 6 representatives confirmed, covering the 3 exact-amount-repeat groups (4.9775/2.9865/1.991 SOL), both temporal boundaries (earliest 2026-05-09, latest 2026-08-16), and the materiality boundary (78.8 SOL max)"
+  },
+
+  "part2_hypothesis_frozen": {
+    "hypothesis": "DV34_DIRECT_CREATOR_FUNDING_EDGES_ARE_RAW_ONCHAIN_SUPPORTED",
+    "OPERATION_IDENTITY_OUT_OF_SCOPE": true,
+    "WATCHTOWER_MEMBERSHIP_OUT_OF_SCOPE": true,
+    "CANONICAL_ATTRIBUTION_OUT_OF_SCOPE": true
+  },
+
+  "part3_manifest_reconciliation": {
+    "representatives": [
+      {"mint": "ENRAEN9assGLHU2QQCo4cAv818mDrMkb6f6pG8hHpump", "why": "4.9775 SOL amount-group representative"},
+      {"mint": "Cshy6euBLpdEDmJK2kwh8TZj2SWTtzujhXnCgajxpump", "why": "2.9865 SOL amount-group representative, independently corroborated in Watchtower's own record"},
+      {"mint": "8AE7NWZ5yEiyE8bxyAnKcvjPYd16MPyG8EwCgA5dpump", "why": "1.991 SOL amount-group representative"},
+      {"mint": "47MnLkP3ot9qV3RGbkCQFiJEHYJThaNKzDhbagripump", "why": "earliest temporal boundary (block_time 1778365061)"},
+      {"mint": "7EpvnnQQhmcGZvWTxoKP59fGcEw27hFovdBWXvdepump", "why": "latest temporal boundary (block_time 1786901396)"},
+      {"mint": "43sSuhMnbXL4AmXFgZQT6ojPV5i4Yw9bjmZUSa3npump", "why": "largest single amount (78.8 SOL), materiality boundary"}
+    ],
+    "evidence_diversity_confirmed": "all 3 amount-repeat groups, both temporal extremes, and the materiality outlier are covered -- 6 members out of 23 chosen deliberately for maximum falsification power, not easiest confirmations",
+    "any_low_confidence_selected": false,
+    "note": "all 23 members (including all 6 selected) are HIGH-confidence by construction -- the family was materialized using ONLY HIGH-confidence edges, so no LOW-confidence representative exists to select"
+  },
+
+  "part4_local_cache_reuse": {
+    "tf_transaction_cache_checked": true,
+    "tf_transaction_cache_hits": 0,
+    "b2z_raw_verified_corpus_checked": true,
+    "b2z_raw_verified_corpus_hits": 0,
+    "main_db_transfer_index_status": "all 6 signatures marked is_valid=1, transfer_type='standard' -- this is the NORMALIZED LOCAL INDEX being tested, not independent raw confirmation; does not satisfy the hypothesis",
+    "conclusion": "no existing local/cached raw evidence satisfies any of the 6 selected signatures -- genuine RPC verification remains required for all 6"
+  },
+
+  "part10_minimum_request_shape": {
+    "original_manifest_assumption": "up to 3 requests/edge x 6 edges = 18 maximum (full B2Z MIGRATION_TX + CREATOR_HISTORY + FUNDING_TX sequence)",
+    "corrected_analysis": "the CREATE creator (from token_analysis.pf_ws_creator) AND the candidate funding signature (from transfer_index) are ALREADY KNOWN locally for all 23 members -- MIGRATION_TX discovery (which resolves the creator) and CREATOR_HISTORY discovery (which finds the candidate signature) are BOTH UNNECESSARY for this specific hypothesis",
+    "minimum_request_shape": "getTransaction(funding_signature) ONLY, 1 request per representative",
+    "final_maximum_requests": 6,
+    "reduction_from_original_manifest": "18 -> 6 (67% reduction)",
+    "proven_by_tests": "test_representative_set_uses_single_request_per_edge in tests/test_dv34_p1_selective_verification.py confirms exactly 1 physical request per edge"
+  },
+
+  "part6_prediction_freeze": {
+    "artifact": "docs/audits/of_dv34_p1_local_prediction_freeze.json",
+    "deterministic_digest": "0771e63f0b4fd47a473670a10a275048db92327d4e703d51e2b0864d13715b52",
+    "frozen_before_any_raw_evidence_examined": true
+  },
+
+  "part7_creator_role_semantics": {
+    "tested_relationship": "Dv34 -> CREATE_CREATOR",
+    "migration_signer_role": "explicitly absent from this module's data model -- structurally cannot be confused with CREATE_CREATOR",
+    "b2z_role_confusion_not_repeated": true
+  },
+
+  "part11_durable_accounting": {
+    "reused_machinery": "src.acquisition.b2z_durable_execution.B2ZEventLedger, B2ZAuthorization, DurableB2ZClient -- the SAME qualified B2Z durability primitives, not a weaker executor",
+    "run_id": "of-dv34-p1-selective-verification",
+    "ledger_paths": {
+      "event_ledger": "docs/audits/of_dv34_p1_event_ledger.jsonl (created on first live dispatch, not yet existing)",
+      "stage_output_ledger": "docs/audits/of_dv34_p1_stage_outputs.json (created on first live dispatch, not yet existing)"
+    },
+    "pre_dispatch_reservation": "ATTEMPT_RESERVED before every dispatch, confirmed by test_pre_dispatch_durability_reservation_before_call",
+    "duplicate_prevention": "confirmed by test_duplicate_stage_prevention (B2Z_P1_DUPLICATE_STAGE_ATTEMPT)",
+    "resume_capability": "inherited from B2ZEventLedger -- re-reads ledger state from disk on every call, same pattern as B2Z-P1",
+    "zero_retries_pagination_fallback": true
+  },
+
+  "part12_authorization": {
+    "run_id": "of-dv34-p1-selective-verification",
+    "not_reusing_b2z_old_authorization": true,
+    "target_address_bound": "Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM",
+    "family_digest_bound": "a30ecc5bc301fd37e4f002fa8107b7c2e4cad914fb21961a344a46f5870a868f",
+    "prediction_freeze_digest_bound": "0771e63f0b4fd47a473670a10a275048db92327d4e703d51e2b0864d13715b52",
+    "provider": "helius_rpc",
+    "allowed_methods": ["getTransaction"],
+    "max_total_requests": 6,
+    "max_requests_per_member": 1,
+    "max_requests_per_stage": 1,
+    "retries": 0,
+    "pagination_budget": 0,
+    "fallback_budget": 0,
+    "candidate_evidence_only": true,
+    "existing_operation_mutation_forbidden": true,
+    "production_db_write": false
+  },
+
+  "part13_tests": {
+    "file": "tests/test_dv34_p1_selective_verification.py",
+    "count": 17,
+    "all_passing": true,
+    "coverage": ["exact Dv34 identity in authorization", "single-request-per-edge shape proven", "frozen prediction immutability", "CREATE creator role used, migration-signer structurally absent", "source mismatch behavior documented (proves_inbound_sol_funding checks destination only, disclosed not hidden)", "destination mismatch correctly fails", "amount visibility not silently coerced", "post-launch transfer flagged pre_launch=False", "malformed raw tx raises", "provider failure durably recorded", "pre-dispatch durability", "terminal-event durability", "duplicate prevention", "budget exhaustion at exactly 6", "CEX provenance never touched by this module (structural check)", "no Watchtower/canonical coupling (structural check)", "zero real provider calls confirmed via FakeTransport source inspection"]
+  },
+
+  "authority_boundary": {
+    "may_verify": "whether the 6 frozen local direct-funding predictions are raw-on-chain-supported",
+    "may_never": ["claim Dv34=Watchtower", "promote Dv34 to confirmed operation", "mutate Watchtower", "mutate three_sw2", "blanket-verify all 23 members", "use more than 1 request per representative", "exceed 6 total requests", "modify main DB"]
+  },
+
+  "terminal_verdict": "READY_DV34_P1_MANUAL_EXECUTION_GATE",
+  "verdict_reasoning": "All local reconciliation, hypothesis framing, manifest verification, cache-reuse checking, request-minimization, prediction freezing, and durability/authorization qualification are complete. 17/17 tests pass. The maximum possible live request budget has been reduced from the originally-proposed 18 to a verified minimum of 6 (one getTransaction call per representative). No local or cached evidence eliminates the need for genuine RPC verification. Execution requires the isolated OF_DV34_P1_HELIUS_ENDPOINT credential, which was not sought, read, or requested this turn.",
+
+  "exact_safe_manual_command": "cd /Users/kevinkeaveney/Dev/claude/flex && read -s OF_DV34_P1_HELIUS_ENDPOINT && export OF_DV34_P1_HELIUS_ENDPOINT && echo && python3 scripts/run_of_dv34_p1_selective_verification.py --resume && unset OF_DV34_P1_HELIUS_ENDPOINT",
+  "command_note": "scripts/run_of_dv34_p1_selective_verification.py now exists, imports cleanly, and has been syntax/import verified (no execution). It processes exactly ONE representative per --resume invocation (resumable, matching the B2Z pattern); run it 6 times to cover all 6 representatives. Environment checked this turn via `env | grep -i OF_DV34_P1_HELIUS_ENDPOINT` -- the credential is NOT present, so this preflight stops at the manual-execution gate as instructed. No credential was requested, read from .env, or read from supervisor secrets."
+}

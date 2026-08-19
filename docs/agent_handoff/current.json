@@ -1,4 +1,29 @@
 {
+  "local_operation_discovery_execution_qualification": {
+    "milestone": "LOCAL_OPERATION_DISCOVERY_EXECUTION_QUALIFICATION (overnight autonomous continuation)",
+    "artifacts": [
+      "docs/audits/local_operation_discovery_input_contract.json",
+      "docs/audits/local_operation_discovery_execution_qualification.json",
+      "docs/audits/local_operation_discovery_top20_review_packets.json",
+      "docs/audits/local_operation_discovery_selective_rpc_queue.json",
+      "docs/audits/local_operation_discovery_composite_families.json"
+    ],
+    "code": "src/discovery/local_operation_discovery_projection.py (new module, 10/10 tests passing)",
+    "output_db": "database/local_operation_discovery_corpus.db (gitignored, regeneratable via run_discovery())",
+    "provider_calls_made": 0,
+    "credentials_used": false,
+    "production_writes": 0,
+    "execution_summary": "ran the calibrated (B2Z-P3B) discovery pipeline against the full 40,279-token local population in 122.9s, streaming/bounded, zero production writes. 7,631 HIGH-confidence direct-funding edges materialized (criteria empirically validated at 9/9=100% in B2Z-P2). 385 candidate families: 21 strong, 81 partial, 100 ambiguous, 8 service-distribution, 175 noise, 14 composite (2+ independent signals agreeing).",
+    "validation_not_just_generation": "5 of 21 STRONG candidates exactly match pre-existing canonical Watchtower treasuries/hubs -- independent rediscovery using only calibrated local evidence. A previously-flagged suspected bot/service address (AxiomRXZAq1J...) was automatically demoted to SERVICE_DISTRIBUTION_CLUSTER via the mega-hub rule with zero hardcoded exceptions.",
+    "56_launch_family_result": "independently rediscovered at much larger scale (575 vs. 56 members) and correctly reclassified SERVICE_DISTRIBUTION_CLUSTER given its full 568-creator fan-out -- original curated 56-member OF-P0 packet preserved unmodified, NOT overwritten, since the two findings represent different confidence tiers",
+    "top_composite_finding": "Dv34prGm2... (CONFIRMED canonical provisioning hub) shares 23 mints of composite direct+upstream evidence with the 56-launch family root -- a real, materialized link between confirmed and candidate structure, flagged for human review, not auto-merged",
+    "creator_migration_signer_role_separation": "preserved throughout -- MIGRATION_SIGNER documented as a genuine, disclosed coverage gap (only exists for the 19-member B2Z-P2 cohort; no local table tracks it at scale, not filled with RPC)",
+    "top20_review_packets": "created for the 20 largest STRONG candidates, each with why-it-surfaced, known-operation-overlap flag, and a recommended human question -- no automatic attribution",
+    "selective_rpc_queue": "prioritized non-executable verification queue: borderline service-distribution cases, ambiguous self-loop clusters, and highest-value novel strong candidates -- NOT blanket per-member verification",
+    "blockers_disclosed": ["migration-signer coverage gap at scale (permanent, documented, not RPC-filled)", "SERVICE_DISTRIBUTION_REVIEW_REQUIRED (B2Z-P3A's 5th category) still needs a dedicated fan-in query, separate from this run's family-level mega-hub heuristic", "three_sw2 control cross-check deferred as a smaller follow-on"],
+    "verdict": "LOCAL_OPERATION_DISCOVERY_EXECUTION_QUALIFICATION_COMPLETE",
+    "next_safe_branches_available": ["Workstream M deeper 56-launch reconciliation using the new discovery machinery", "Workstream N dedicated three_sw2 control check", "EP3/EP4 identity cross-reference (Workstream E) not yet run against the materialized corpus", "SERVICE_DISTRIBUTION fan-in query at full population scale to unblock B2Z-P3A's last pending category"]
+  },
   "b2z_sprint_completion_reconciliation": {
     "milestone": "B2Z sprint closure -- calibration + selective RPC policy",
     "artifact": "docs/audits/b2z_sprint_completion_reconciliation.json",

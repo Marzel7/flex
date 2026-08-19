@@ -86,6 +86,8 @@ CREATE TABLE IF NOT EXISTS candidate_families (
     creator_count INTEGER NOT NULL,
     classification TEXT NOT NULL,
     evidence_json TEXT NOT NULL,
+    root_cex_infra_category TEXT,
+    attribution_state TEXT,
     PRIMARY KEY (run_id, family_id)
 );
 
@@ -288,7 +290,7 @@ def build_direct_funder_families(out: sqlite3.Connection, run_id: str) -> dict[s
             "self_loop_upstream_detected": self_loop_upstream,
             "mega_hub": mega_hub,
         }
-        out.execute("INSERT OR REPLACE INTO candidate_families VALUES (?,?,?,?,?,?,?,?)",
+        out.execute("INSERT OR REPLACE INTO candidate_families VALUES (?,?,?,?,?,?,?,?,NULL,NULL)",
                     (run_id, family_id, "DIRECT_FUNDER", funder, member_count, creator_count,
                      classification, _canonical(evidence)))
         member_batch = [(run_id, family_id, mint, creator) for mint, creator in members]
@@ -342,7 +344,7 @@ def build_upstream_source_families(out: sqlite3.Connection, run_id: str) -> dict
             "creator_count": creator_count,
             "mega_hub": mega_hub,
         }
-        out.execute("INSERT OR REPLACE INTO candidate_families VALUES (?,?,?,?,?,?,?,?)",
+        out.execute("INSERT OR REPLACE INTO candidate_families VALUES (?,?,?,?,?,?,?,?,NULL,NULL)",
                     (run_id, family_id, "UPSTREAM_SOURCE", upstream_source, member_count, creator_count,
                      classification, _canonical(evidence)))
         member_batch = [(run_id, family_id, mint, creator) for mint, creator in mint_creator_pairs]
@@ -418,6 +420,44 @@ def run_discovery(*, source_db_path: str = SOURCE_DB, output_db_path: str = OUTP
     finally:
         source.close()
         out.close()
+
+
+def apply_cex_infra_reclassification(out: sqlite3.Connection, run_id: str, *,
+                                      get_category_fn) -> dict[str, int]:
+    """Deterministic, non-destructive reclassification (Part 10): looks up
+    each candidate family's root_evidence address against the authoritative
+    src.utils.infra_mapping.get_category() (injected as get_category_fn to
+    keep this module import-light and unit-testable with a fake mapping).
+
+    A family whose root is a known CEX/infra address has its
+    attribution_state set to NON_ATTRIBUTIVE_PROVENANCE -- the family row,
+    its evidence, and its members are NEVER deleted. Only the
+    root_cex_infra_category and attribution_state columns are updated.
+
+    Per the KNOWN_CEX_INFRA_NON_ATTRIBUTIVE_FUNDING_BOUNDARY rule: a
+    CEX/infra-rooted family is NOT independently strong evidence of a
+    coordinated operation (shared exchange withdrawal wallet != shared
+    operator) -- but it is NOT deleted, since the underlying funding edges
+    remain valid provenance/timing/transfer evidence, and could still
+    combine with independent evidence (e.g. a composite family, see
+    build_composite_families) to support a genuine candidate."""
+    rows = out.execute(
+        "SELECT run_id, family_id, root_evidence, classification FROM candidate_families WHERE run_id=?",
+        (run_id,)).fetchall()
+
+    counts = {"ATTRIBUTABLE": 0, "NON_ATTRIBUTIVE_PROVENANCE": 0}
+    batch = []
+    for r_run_id, family_id, root, classification in rows:
+        category = get_category_fn(root)
+        is_cex_infra = category not in (None, "unknown")
+        state = "NON_ATTRIBUTIVE_PROVENANCE" if is_cex_infra else "ATTRIBUTABLE"
+        counts[state] += 1
+        batch.append((category if is_cex_infra else None, state, r_run_id, family_id))
+    out.executemany(
+        "UPDATE candidate_families SET root_cex_infra_category=?, attribution_state=? "
+        "WHERE run_id=? AND family_id=?", batch)
+    out.commit()
+    return counts
 
 
 if __name__ == "__main__":

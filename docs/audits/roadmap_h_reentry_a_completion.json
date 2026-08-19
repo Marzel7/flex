@@ -1,0 +1,45 @@
+{
+  "schema_version": "roadmap.h-reentry-a.completion.v1",
+  "artifact_type": "ROADMAP_H_REENTRY_A_COMPLETION",
+  "milestone": "ROADMAP-H-REENTRY-A -- existing operation method + CEX/INFRA authority reconciliation",
+  "generated_utc": "2026-08-19T23:00:00Z",
+
+  "operation_safety": {"provider_calls_made": 0, "credentials_used": false, "production_writes": 0,
+    "canonical_operations_mutated": false, "watchtower_mutated": false, "three_sw2_mutated": false,
+    "h_series_activated": false, "b2n_reopened": false, "ra4_reopened": false},
+
+  "part15_roadmap_statements": [
+    "1. Existing main-DB operation discovery (src/analysis/watchtower_detector.py) remains valid -- traced directly, confirmed CEX-aware (is_cex filtering) and two-tier CANDIDATE/CONFIRMED authority already, unchanged this session.",
+    "2. New calibrated discovery (src/discovery/local_operation_discovery_projection.py, this session) augments the existing method rather than replacing it -- broader population coverage, calibrated confidence tiers, but candidate-only, same as the existing method's own CANDIDATE tier.",
+    "3. Raw RPC (B2Z) is selective evidence verification, not a universal discovery prerequisite -- confirmed unchanged; B2Z-P2/P3B calibration validated specific confidence criteria, it did not become a gate on discovery itself.",
+    "4. CREATE creator and migration signer are separate roles -- established this session's B2Z-P2G finding, now explicitly documented in the discovery input contract; migration signer remains a coverage-limited feature (19-member cohort only).",
+    "5. Direct funding and 2-hop funding are separate evidence layers -- confirmed in both the existing method (creator_funders direct + lineage_to_infra 2-hop) and the new pipeline (direct_funding_edges + upstream_edges tables).",
+    "6. Known CEX/INFRA funding is valid provenance but non-attributive by itself -- IMPLEMENTED this session: apply_cex_infra_reclassification() in the discovery pipeline, backed by the authoritative src/utils/infra_mapping.py mapping (130 static entries + 62-row cex_wallets + 1.47M-row infra_wallets, triple-cross-validated).",
+    "7. Independent private/behavioural/topological evidence is required to establish candidate family linkage when common funding passes through CEX/INFRA -- IMPLEMENTED and TESTED: 3 new focused tests prove shared-CEX funding alone does not merge candidates, while independent private evidence (shared non-CEX funder) survives reclassification.",
+    "8. Candidate discovery remains separate from canonical attribution -- confirmed throughout; zero canonical mutations this session; 9 TRUE CONFIRMED Watchtower addresses verified unchanged and CEX-free."
+  ],
+
+  "reconciliation_impact_summary": {
+    "discovery_corpus_before": "385 families, 21 STRONG, no CEX/INFRA awareness",
+    "discovery_corpus_after": "385 families PRESERVED (none deleted), 340 ATTRIBUTABLE / 45 NON_ATTRIBUTIVE_PROVENANCE, only 8 of the original 21 STRONG candidates remain genuinely attributable",
+    "575_member_family": "reclassified from 'candidate operational family' to 'root is a known Binance CEX wallet -- ordinary exchange withdrawal activity, not evidence of a coordinated operation'",
+    "watchtower_control_correction": "an earlier claim this session ('5/21 strong candidates match confirmed canonical Watchtower structure') was found to be based on an unfiltered query and has been corrected: those were CANDIDATE-state matches, not CONFIRMED. True CONFIRMED Watchtower addresses (9 total) have zero CEX overlap, as expected.",
+    "concrete_false_positive_surfaced": "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV, a CANDIDATE-state Watchtower operator-treasury row (confidence=0.56), is the OKX exchange hot wallet -- flagged for human review, not auto-corrected, Watchtower NOT mutated"
+  },
+
+  "h_series_status": "H_SERIES_ALREADY_CONCLUDED_AT_NATURAL_STOPPING_POINT (see docs/audits/h_series_reentry_reconciliation.json for full detail) -- not activated, not resumed, nothing to reopen",
+
+  "artifacts_produced_this_milestone": [
+    "docs/audits/main_db_operation_method_cex_infra_reconciliation.json",
+    "docs/audits/local_operation_discovery_cex_infra_reclassification.json",
+    "docs/audits/h_series_reentry_reconciliation.json",
+    "docs/audits/h_series_reentry_input_contract.json",
+    "docs/audits/roadmap_h_reentry_a_completion.json (this artifact)"
+  ],
+  "code_changes": "src/discovery/local_operation_discovery_projection.py extended with root_cex_infra_category/attribution_state columns and apply_cex_infra_reclassification(); 3 new focused tests in tests/test_local_operation_discovery_projection.py (16 total, all passing)",
+
+  "terminal_verdict": "READY_H_SERIES_REENTRY",
+  "verdict_reasoning": "The existing main-DB operation method was traced (not assumed), the authoritative CEX/INFRA mapping was located and bound into the new discovery pipeline (not re-invented), the full 385-family corpus was deterministically reclassified without any deletion, and false-merge protection was proven with focused tests plus real corpus evidence (13/21 strong candidates correctly downgraded). The H-series itself was found to be dormant/already-concluded, not blocked -- there is no operation-semantics conflict and no unresolved CEX/INFRA mapping ambiguity. All absolute prohibitions were respected: zero provider calls, zero production writes, zero canonical/Watchtower/three_sw2 mutation, H-series not activated.",
+
+  "human_authorization_required_before": ["reviewing/acting on the is6MTRHEgy... (OKX) false-positive in Watchtower's candidate queue", "deciding the 575-member family's disposition (recommend: reclassify as non-attributive CEX activity)", "re-reviewing the original 56-member OF-P0 subset against the CEX/INFRA mapping", "authorizing any actual H-series re-entry work (none is currently blocked or pending -- this would be a fresh scoping decision, not a resumption)"]
+}

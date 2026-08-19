@@ -1,0 +1,85 @@
+{
+  "schema_version": "roadmap.h-reentry-a.discovery-cex-infra-reclassification.v1",
+  "artifact_type": "LOCAL_OPERATION_DISCOVERY_CEX_INFRA_RECLASSIFICATION",
+  "milestone": "ROADMAP-H-REENTRY-A -- Parts 10-14",
+  "generated_utc": "2026-08-19T22:40:00Z",
+  "run_id": "local_discovery_20260819T212624Z",
+
+  "operation_safety": {"provider_calls_made": 0, "credentials_used": false, "production_writes": 0, "canonical_operations_mutated": false, "watchtower_mutated": false, "three_sw2_mutated": false},
+
+  "method": "deterministic reclassification against the ALREADY-materialized 385-family corpus -- no blind regeneration. Each family's root_evidence address was looked up via src.utils.infra_mapping.get_category() (the authoritative CEX/INFRA mapping). A CEX/infra-rooted family's attribution_state is set to NON_ATTRIBUTIVE_PROVENANCE; the family row, evidence_json, and all member records are PRESERVED, not deleted.",
+
+  "part10_full_corpus_reclassification": {
+    "total_families": 385,
+    "ATTRIBUTABLE": 340,
+    "NON_ATTRIBUTIVE_PROVENANCE": 45,
+    "breakdown_by_original_classification": {
+      "STRONG_CANDIDATE_FAMILY": {"attributable": 8, "non_attributive": 13},
+      "PARTIAL_CANDIDATE_FAMILY": {"attributable": 57, "non_attributive": 24},
+      "AMBIGUOUS_FUNDING_CLUSTER": {"attributable": 96, "non_attributive": 4},
+      "SERVICE_DISTRIBUTION_CLUSTER": {"attributable": 4, "non_attributive": 4},
+      "NOISE_OR_INSUFFICIENT": {"attributable": 175, "non_attributive": 0}
+    },
+    "families_unaffected": 340,
+    "families_weakened_to_non_attributive": 45,
+    "families_moved_to_service_distribution": "not separately re-run this pass -- classification labels (STRONG/PARTIAL/etc) are UNCHANGED by this reclassification; only the NEW attribution_state field is added. A future decision could fold NON_ATTRIBUTIVE_PROVENANCE strong/partial families down into a SERVICE_DISTRIBUTION-equivalent bucket, but this was not done automatically here per the instruction to preserve rather than silently reclassify.",
+    "families_where_cex_infra_was_the_only_common_link": "the 45 NON_ATTRIBUTIVE_PROVENANCE families ARE exactly this case by construction (their root itself is the shared CEX/infra address)",
+    "families_still_strong_after_cex_infra_discount": 8,
+    "composite_families_retaining_independent_evidence": "requires a per-composite check -- see the top composite finding correction below"
+  },
+
+  "part14_top21_strong_candidates_reevaluated": [
+    {"root": "ASTyfSima4LL...", "members": 50, "creators": 48, "result": "NON_ATTRIBUTIVE_PROVENANCE", "category": "cex"},
+    {"root": "2uPFJbcK9X4w...", "members": 40, "creators": 35, "result": "STILL_ATTRIBUTABLE"},
+    {"root": "B48kNVXs4YK4...", "members": 40, "creators": 40, "result": "STILL_ATTRIBUTABLE", "note": "CANDIDATE-state Watchtower provisioning hub (see correction below -- NOT confirmed canonical, contrary to earlier session claim)"},
+    {"root": "u6PJ8DtQuPFn...", "members": 40, "creators": 38, "result": "NON_ATTRIBUTIVE_PROVENANCE", "category": "cex"},
+    {"root": "A77HErqtfN1h...", "members": 34, "creators": 32, "result": "NON_ATTRIBUTIVE_PROVENANCE", "category": "cex"},
+    {"root": "is6MTRHEgyFL...", "members": 29, "creators": 29, "result": "NON_ATTRIBUTIVE_PROVENANCE", "category": "cex", "note": "OKX Hot Wallet -- see the significant false-positive correction below"},
+    {"root": "ARu4n5mFdZog...", "members": 26, "creators": 18, "result": "NON_ATTRIBUTIVE_PROVENANCE", "category": "automation"},
+    {"root": "5F1seMKUqSNh...", "members": 25, "creators": 21, "result": "NON_ATTRIBUTIVE_PROVENANCE", "category": "cex"},
+    {"root": "Dv34prGm2BT7...", "members": 23, "creators": 23, "result": "STILL_ATTRIBUTABLE", "note": "CANDIDATE-state Watchtower provisioning hub (see correction below)"},
+    {"root": "Cc3bpPzUvgAz...", "members": 19, "creators": 17, "result": "NON_ATTRIBUTIVE_PROVENANCE", "category": "cex"},
+    {"root": "F7p3dFrjRTbt...", "members": 18, "creators": 17, "result": "NON_ATTRIBUTIVE_PROVENANCE", "category": "relay"},
+    {"root": "BY4StcU9Y2Bp...", "members": 15, "creators": 15, "result": "NON_ATTRIBUTIVE_PROVENANCE", "category": "cex"},
+    {"root": "2AQdpHJ2JpcE...", "members": 13, "creators": 13, "result": "NON_ATTRIBUTIVE_PROVENANCE", "category": "cex"},
+    {"root": "DwdrYTtTWHfn...", "members": 12, "creators": 10, "result": "NON_ATTRIBUTIVE_PROVENANCE", "category": "cex", "note": "also matches a CANDIDATE-state (not confirmed) Watchtower treasury row -- BOTH findings apply"},
+    {"root": "Biw4eeaiYYYq...", "members": 11, "creators": 9, "result": "NON_ATTRIBUTIVE_PROVENANCE", "category": "cex"},
+    {"root": "5g7yNHyGLJ7f...", "members": 10, "creators": 8, "result": "NON_ATTRIBUTIVE_PROVENANCE", "category": "cex"},
+    {"root": "FHpcNSe6tb2n...", "members": 10, "creators": 9, "result": "STILL_ATTRIBUTABLE"},
+    {"root": "C1SX4FAVW8c5...", "members": 9, "creators": 6, "result": "STILL_ATTRIBUTABLE"},
+    {"root": "HBQ2TC2gmX9q...", "members": 9, "creators": 6, "result": "STILL_ATTRIBUTABLE"},
+    {"root": "8wvqvPt1DDdj...", "members": 6, "creators": 6, "result": "STILL_ATTRIBUTABLE", "note": "CANDIDATE-state Watchtower provisioning hub (see correction below)"},
+    {"root": "B45FWB9i3pBR...", "members": 5, "creators": 5, "result": "STILL_ATTRIBUTABLE"}
+  ],
+  "part14_summary": {"still_strong_attributable": 8, "downgraded_non_attributive": 13, "note": "13 of 21 (61.9%) of the original STRONG candidates were rooted in known CEX/infra wallets -- a substantial, real false-positive rate that this reconciliation catches before H-series or any further consumer relies on this corpus"},
+
+  "part13_575_member_family_reevaluation": {
+    "root": "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9",
+    "root_cex_infra_category": "cex",
+    "root_identity": "Binance 2 -- a Binance exchange hot wallet, confirmed via 3 independent local sources (static CEX_ACCOUNTS, dynamic cex_wallets DB table with confidence_level=4, and infra_wallets table with explicit label 'CEX/infra funder excluded from clustering topology')",
+    "attribution_state": "NON_ATTRIBUTIVE_PROVENANCE",
+    "how_much_membership_survives": "NONE of the 575/568-member direct-funder relationship is independently attributable evidence of a coordinated operation -- the root is a known exchange withdrawal wallet, and 568 creators withdrawing SOL from the same exchange to fund token launches is the EXPECTED, ORDINARY pattern for an exchange, not evidence of a shared operator",
+    "23_mint_composite_overlap_reassessed": "the earlier session's framing ('a confirmed provisioning hub shares 23 mints of composite evidence with the 56-launch family root') requires TWO corrections: (1) Dv34prGm2... is CANDIDATE-state in wt_operator_treasuries/wt_provisioning_hubs, NOT a confirmed canonical hub (see H-reentry finding below); (2) the '56-launch family root' is a Binance CEX wallet, so the composite finding now reads as 'a CANDIDATE provisioning hub received 23 SEPARATE fundings from Binance' -- which is simply normal capital sourcing (the hub topped up its own operating capital from an exchange), NOT evidence linking it to a coordinated multi-creator operation",
+    "recommendation": "the 575-member family should NOT be treated as a candidate operational family AT ALL going forward -- it should be reclassified as ordinary CEX withdrawal activity. The ORIGINAL, much smaller, curated 56-launch OF-P0 subset predates this reconciliation and used different (non-CEX-aware) selection criteria; it should be separately re-reviewed against this same CEX/INFRA mapping before continuing to treat it as CANDIDATE_OPERATIONAL_FAMILY -- NOT done in this pass (would require re-reading OF-P0's original 56-member list against get_category(), a bounded follow-on, not performed here to respect scope)",
+    "split_vs_remain_one_candidate": "recommend NEITHER split nor remain-as-candidate -- recommend RECLASSIFY AS NON_ATTRIBUTIVE_CEX_ACTIVITY, pending the OF-P0 56-member re-review above"
+  },
+
+  "part11_watchtower_control_CORRECTED": {
+    "initial_check_was_flawed": "the FIRST cross-reference this session (used to compute the earlier '5 of 21 strong candidates exactly match pre-existing canonical Watchtower structure' claim, made in an EARLIER turn this session, and also asserted again in this reconciliation's own working notes before the error was caught) queried wt_operator_treasuries/wt_provisioning_hubs WITHOUT filtering by state/status. This was WRONG -- it matched CANDIDATE-state rows, not CONFIRMED canonical Watchtower identities.",
+    "corrected_check": "re-ran filtering strictly to state='CONFIRMED' (treasuries) / status='CONFIRMED' (hubs): 9 total CONFIRMED-state Watchtower addresses exist locally. ZERO of the 21 STRONG discovery candidates match a TRUE CONFIRMED Watchtower address.",
+    "corrected_finding": "the earlier session's claim of '5 of 21 STRONG candidates independently rediscovered pre-existing canonical Watchtower structure' was INCORRECT -- it should read '5 of 21 matched Watchtower CANDIDATE-state rows (not yet canonically confirmed)'. This correction is disclosed explicitly rather than silently carried forward.",
+    "cex_overlap_among_confirmed_addresses": "0 of 9 TRUE CONFIRMED Watchtower addresses are classified CEX/infra -- Watchtower's actual canonical identity does NOT depend on any CEX-classified address, consistent with the expected principle that a known operation should not depend solely on a CEX/shared-service edge",
+    "cex_overlap_among_candidate_state_addresses": "3 of the CANDIDATE-state rows checked earlier ARE classified CEX -- most notably is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV, which is the OKX exchange hot wallet, not a private operator. This is a genuine, concrete false-positive already present in Watchtower's OWN candidate pool (not introduced by the new discovery pipeline), now surfaced by this reconciliation. NOT auto-corrected or removed from wt_operator_treasuries -- flagged for human review, per the absolute prohibition against mutating Watchtower.",
+    "watchtower_not_mutated": true
+  },
+
+  "part12_three_sw2_control": {
+    "structural_difference": "three_sw2 is an EP3 Operation Contract shadow-corpus construct (immutable evidence-envelope system: database/evidence_platform/three_sw2_shadow_ep3_2a/evidence.db, tables like immutable_artifacts/evidence_envelopes/normalized_evidence_records) -- NOT a simple wallet-address registry like Watchtower's wt_operator_treasuries/wt_provisioning_hubs. A direct address-overlap check the same way as Watchtower does not structurally apply.",
+    "check_performed": "confirmed the evidence-envelope schema exists and is untouched; did NOT perform an address-level CEX cross-check against it this pass, since no simple address list was found to check against without deeper EP3-specific tooling",
+    "recommendation": "if a three_sw2-specific CEX/infra check is desired, it would need to go through the EP3 evidence-envelope/normalization pipeline specifically, not a raw address lookup -- deferred as a distinct, smaller follow-on",
+    "three_sw2_not_mutated": true
+  },
+
+  "terminal_verdict": "RECONCILIATION_COMPLETE_WITH_CORRECTIONS_DISCLOSED",
+  "verdict_reasoning": "The CEX/INFRA reclassification was applied deterministically and non-destructively to the full 385-family corpus. 13 of 21 (61.9%) originally-STRONG candidates were correctly downgraded to NON_ATTRIBUTIVE_PROVENANCE. In the process of the Watchtower control check, this reconciliation ALSO caught and corrected a real methodological error from earlier this session: the claimed '5 canonical Watchtower matches' were actually CANDIDATE-state, not CONFIRMED -- and one of those candidate rows (is6MTRHEgy..., OKX Hot Wallet) is itself a genuine false-positive already sitting in Watchtower's own review queue, independent of the new discovery pipeline. The 575-member '56-launch family' is now understood to be rooted at a Binance CEX wallet and should be reclassified as ordinary exchange activity, not a candidate operation, pending re-review of the original smaller OF-P0 subset."
+}

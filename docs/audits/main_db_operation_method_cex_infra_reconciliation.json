@@ -1,0 +1,148 @@
+{
+  "schema_version": "roadmap.h-reentry-a.main-db-cex-infra-reconciliation.v1",
+  "artifact_type": "MAIN_DB_OPERATION_METHOD_CEX_INFRA_RECONCILIATION",
+  "milestone": "ROADMAP-H-REENTRY-A -- existing operation method + CEX/INFRA authority reconciliation",
+  "generated_utc": "2026-08-19T22:00:00Z",
+  "operation_safety": {
+    "provider_calls_made": 0,
+    "credentials_used": false,
+    "production_writes": 0,
+    "canonical_operations_mutated": false,
+    "watchtower_mutated": false,
+    "three_sw2_mutated": false
+  },
+  "part1_2_existing_main_db_operation_method": {
+    "core_module": "src/analysis/watchtower_detector.py (1,757 lines) -- the actual historical implementation, traced directly, not summarized from memory",
+    "input_tables": [
+      "creator_funders (direct funder table, has is_cex/cex_exchange/cex_type columns)",
+      "transfer_index (timing/edge lookup via _edge_ts)",
+      "creator_risk_scores (watchtower_related flag storage)",
+      "token_analysis (token-level mirror)",
+      "wt_provisioning_hubs",
+      "wt_operator_treasuries"
+    ],
+    "create_creator_role": "used implicitly as the analysis subject ('creator_address' parameter throughout) -- the existing method does NOT distinguish CREATE creator from migration signer; it operates entirely on the CREATE-transaction creator concept (same as pf_ws_creator), predating the B2Z-P2G finding",
+    "migration_signer_role": "NOT used anywhere in the existing method -- this is a genuinely NEW evidence dimension B2Z introduced, not a replacement for anything",
+    "direct_funding": "creator_funders table, is_cex flag ALREADY consulted at the query layer to exclude CEX from lineage pass-throughs (_LINEAGE_STOP_NODES + is_cex filtering, confirmed by direct code read)",
+    "2hop_upstream_funding": "lineage_to_infra() walks funding ancestry up to LINEAGE_MAX_DEPTH=3 hops, breadth-first, capped branching (LINEAGE_TOP_FUNDERS=4), looking for a WATCHTOWER-specific infrastructure terminal or a CONFIRMED provisioning hub",
+    "timing": "birth-signature timing check (HUB_SIGNALLER_WINDOW_S=120s) -- both signaller dust pings must land within 120s of the treasury injection to confirm a provisioning hub birth; amount-only NEVER qualifies (explicit safety rule in the code comments)",
+    "behaviour": "structural provisioner detection (_discover_structural_provisioners) -- treasury-AGNOSTIC: a wallet funding >=3 fresh single-token creators within an 86400s burst window qualifies as CANDIDATE_PROVISIONER regardless of identity, letting a rotated/fresh treasury surface without requiring a known address match",
+    "topology": "funding fingerprint scoring (_score_funding_fingerprint), transaction-count scoring, outbound-inactivity scoring, combined in score_creator_candidate()",
+    "candidate_creation": "discover_provisioning_hubs() -- two paths: (a) known-signature path (700/800 SOL treasury injection + dual signaller pings -> promoted directly to status='CONFIRMED'), (b) structural path -> status='CANDIDATE' (never auto-promoted to CONFIRMED)",
+    "review": "CANDIDATE status requires human/downstream review before promotion; CONFIRMED requires the exact, narrow birth-signature match",
+    "canonical_authority": "wt_provisioning_hubs.status field is the authority marker (CONFIRMED vs CANDIDATE); wt_operator_treasuries similarly gated",
+    "evidence_sufficiency_findings": {
+      "A_surface_a_candidate": "structural burst-funding pattern (>=3 fresh creators, 24h window) -- identity-agnostic, always CANDIDATE not CONFIRMED",
+      "B_support_membership": "lineage-to-infrastructure match within 3 hops, OR direct infra/CEX-excluded funding, OR birth-signature timing match",
+      "C_establish_canonical_confirmed": "ONLY the exact known-signature birth pattern (specific treasury amount band + dual signaller timing) auto-promotes to CONFIRMED -- everything else remains CANDIDATE pending human/further review"
+    }
+  },
+  "part3_comparison_old_vs_new": {
+    "A_existing_main_db_method": "creator_funders-based, single CREATE-creator role, CEX-aware (is_cex filter + _LINEAGE_STOP_NODES), WATCHTOWER-specific infrastructure signatures, structural burst-detection fallback, two-tier CANDIDATE/CONFIRMED authority",
+    "B_new_local_discovery_pipeline": "transfer_index-based (broader table than creator_funders), calibrated HIGH-confidence tier (B2Z-P2/P3B-validated 3600s/dust/extraction-failure criteria), CREATE_CREATOR and MIGRATION_SIGNER as explicit SEPARATE roles, deterministic rule-based family classification (STRONG/PARTIAL/AMBIGUOUS/SERVICE_DISTRIBUTION/NOISE), did NOT consult CEX/infra classification until this reconciliation",
+    "C_ep3_ep4": "topology/motif canonicalization (14,203 candidates -> 1,379 motifs), operates on a different evidence representation (motif/relationship graphs), non-authoritative by design (no identity, no canonical claim -- per its own documented contract)",
+    "D_b2z_selective_verification": "raw RPC confirms/contradicts a SPECIFIC local claim (creator+signature+amount+timing) -- evidence UPGRADE mechanism, not a discovery mechanism itself",
+    "overlapping_evidence": "both A and B use direct-funder relationships and timing; both apply a CEX-exclusion concept (A via is_cex column filter, B did NOT until this reconciliation -- GAP IDENTIFIED AND NOW CLOSED)",
+    "unique_to_A": "WATCHTOWER-specific known infrastructure signatures (birth amount bands, dual-signaller timing), structural burst-detection identity-agnostic fallback",
+    "unique_to_B": "MIGRATION_SIGNER as a distinct evidence role, 2-hop composite-family detection (independent signal agreement), calibrated (measured, not assumed) confidence thresholds",
+    "conflicting_semantics": "NONE material -- both use CANDIDATE-vs-CONFIRMED-equivalent two-tier authority; B's classification vocabulary differs (STRONG/PARTIAL/etc vs CANDIDATE/CONFIRMED) but maps cleanly (STRONG/PARTIAL == CANDIDATE-tier, no B-side CONFIRMED authority exists or is claimed)",
+    "duplicated_logic": "burst/fan-out detection exists in BOTH A (_discover_structural_provisioners) and B (mega-hub demotion rule) -- functionally analogous, independently arrived at, not literally duplicated code",
+    "provenance_strength": "A has WATCHTOWER-specific ground truth (exact known signatures); B has broader population coverage but weaker per-relationship certainty (candidate-only, calibration-validated but not individually RPC-confirmed) -- A is authoritative for WATCHTOWER-related structure, B is exploratory for NEW/unknown structure",
+    "authority_conclusion": "NEITHER method replaces the other. A remains authoritative for Watchtower-specific canonical determination. B is a NEW, broader, provider-free discovery layer for candidates A's WATCHTOWER-specific signatures cannot see. Neither claims exclusive authority over canonical attribution -- that remains a separate, human-reviewed step in both."
+  },
+  "part4_combined_architecture": {
+    "layers": [
+      "MAIN DB normalized evidence (creator_funders, transfer_index, token_analysis)",
+      "direct + 2-hop funding topology (both A's lineage_to_infra and B's upstream-edge expansion)",
+      "CREATE creator + migration signer as separate roles (NEW, from B2Z-P2G, applies going forward)",
+      "CEX/INFRA classification (src/utils/infra_mapping.py + infra_wallets/cex_wallets tables -- AUTHORITATIVE, now bound into B, part 5-6 below)",
+      "EP3 topology / EP4 behaviour (existing, unchanged, cross-referenced not merged)",
+      "candidate operational family (produced by EITHER A's structural/known-signature detection OR B's calibrated clustering)",
+      "selective raw verification where required (B2Z-2H contract, non-executable, unchanged)",
+      "proposal/review (existing CANDIDATE-state human gate)",
+      "canonical operation (existing CONFIRMED-state authority, unchanged, UNMUTATED this reconciliation)"
+    ],
+    "no_canonical_mutation_performed": true
+  },
+  "part5_6_authoritative_cex_infra_mapping": {
+    "primary_source": "src/utils/infra_mapping.py",
+    "static_registries": {
+      "CEX_ACCOUNTS": {
+        "count": 56,
+        "structure": "{address: {name, category='cex', exchange, description, risk_level, tags}}"
+      },
+      "INFRASTRUCTURE_ACCOUNTS": {
+        "count": 74,
+        "structure": "{address: {name, category, description, risk_level, tags}}",
+        "categories_observed": "automation, platform, relay, custody, protocol, bridge, system"
+      }
+    },
+    "dynamic_db_tables": {
+      "cex_wallets": {
+        "row_count": 62,
+        "columns": [
+          "cex_address",
+          "exchange_name",
+          "wallet_type",
+          "confidence_level",
+          "discovered_date",
+          "discovery_source",
+          "notes",
+          "is_active"
+        ],
+        "has_confidence_metadata": true,
+        "has_provenance_metadata": true
+      },
+      "infra_wallets": {
+        "row_count": 1466657,
+        "columns": [
+          "address",
+          "type",
+          "label",
+          "updated_at"
+        ],
+        "type_distribution": {
+          "bonding_curve": 1436373,
+          "pool": 29783,
+          "pumpswap_pool": 368,
+          "automation": 55,
+          "observed_infra": 48,
+          "cex": 14,
+          "custody": 8,
+          "relay": 3,
+          "protocol": 2,
+          "bridge": 1,
+          "platform": 1,
+          "system": 1
+        },
+        "note": "the overwhelming majority are Pump.fun/PumpSwap protocol accounts, NOT CEX/infra-provider wallets -- the CEX/infra-relevant subset is small"
+      }
+    },
+    "cross_source_consistency_check": {
+      "test_address": "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9",
+      "static_CEX_ACCOUNTS": "Binance 2, category=cex, exchange=Binance",
+      "cex_wallets_table": "exchange_name=Binance, wallet_type='Hot Wallet', confidence_level=4, discovery_source='infra_mapping.py', is_active=1",
+      "infra_wallets_table": "type='observed_infra', label='CEX/infra funder excluded from clustering topology (kept for investigation)'",
+      "result": "TRIPLE-CONFIRMED consistent across all three sources -- no conflict. The infra_wallets label text explicitly documents the EXACT non-attributive-but-preserved semantic this reconciliation was asked to define, proving it already exists as an operating principle in the codebase, just not yet consumed by the new B2Z-era discovery pipeline."
+    },
+    "lookup_semantics": "get_category(address) -> 'cex' | <infra category> | 'unknown'; deterministic exact-string dict lookup, no normalization/fuzzing performed",
+    "consumer_functions": [
+      "build_excluded_set()",
+      "classify_wallet()",
+      "format_funder_with_tags()",
+      "get_category()/get_tags()/get_risk_level()"
+    ],
+    "distinguishes_cex_vs_infra": true,
+    "confidence_source_metadata_exists": "YES for the dynamic cex_wallets table (confidence_level, discovery_source columns); static registries carry risk_level instead of a numeric confidence field",
+    "duplicate_conflicting_stale_findings": "NONE found in the single cross-check performed -- a full audit of all entries was NOT performed (unbounded scope), but the sampled check found perfect agreement",
+    "already_consumed_by_existing_operation_discovery": "YES -- creator_funders.is_cex is populated and consulted by the existing watchtower_detector.py lineage-walking code",
+    "consumed_by_new_local_discovery_pipeline_before_this_reconciliation": "NO -- this was the gap this milestone closes"
+  },
+  "part7_8_9_discovery_input_contract_extension": {
+    "field_added": "cex_infra_classification (per direct_funder AND per upstream_source in every discovery edge)",
+    "implementation_approach": "adapter/projection extension, NOT a production schema change -- src/discovery/local_operation_discovery_projection.py extended to look up each funder/upstream address via src.utils.infra_mapping.get_category() at classification time, output written to the existing isolated discovery corpus DB",
+    "new_edge_semantics_defined": "KNOWN_CEX_INFRA_FUNDING_EDGE -- properties: valid funding provenance (True), valid temporal evidence (True), valid transfer evidence (True), independently_attributable (False), can_create_operation_membership (False), can_merge_candidate_families_alone (False)",
+    "non_attributive_state_name": "NON_ATTRIBUTIVE_PROVENANCE (not NO_EVIDENCE -- the edge and its data are preserved, only its family-forming AUTHORITY is restricted)",
+    "preserved_not_deleted": "confirmed -- no discovery edge or family record is deleted by this reconciliation; classification/reclassification only"
+  }
+}

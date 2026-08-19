@@ -1,0 +1,81 @@
+{
+  "schema_version": "roadmap.h-reentry-a.h-series-input-contract.v1",
+  "artifact_type": "H_SERIES_REENTRY_INPUT_CONTRACT",
+  "milestone": "ROADMAP-H-REENTRY-A -- Parts 17-18",
+  "generated_utc": "2026-08-19T22:50:00Z",
+  "status": "NON_EXECUTABLE -- defines a contract, activates nothing",
+  "operation_safety": {
+    "provider_calls_made": 0,
+    "h_series_activated": false,
+    "canonical_mutation_authorized": false
+  },
+  "potential_inputs": {
+    "main_db_historical_operation_evidence": {
+      "source": "src/analysis/watchtower_detector.py's discover_provisioning_hubs()/detect_watchtower_linkage() outputs, wt_operator_treasuries, wt_provisioning_hubs",
+      "authority": "CANDIDATE or CONFIRMED per existing state column -- H may consume either, but must preserve the distinction"
+    },
+    "calibrated_high_confidence_direct_funding": {
+      "source": "docs/audits/local_operation_discovery_execution_qualification.json + database/local_operation_discovery_corpus.db",
+      "authority": "candidate-only, B2Z-P2/P3B-calibrated (9/9=100% raw-confirmed for this specific criteria tier)"
+    },
+    "local_2hop_evidence": {
+      "source": "upstream_edges table in the discovery corpus",
+      "authority": "candidate-only, self-loop/dust already flagged"
+    },
+    "create_creator": {
+      "source": "token_analysis.pf_ws_creator",
+      "authority": "established, long-standing production field"
+    },
+    "migration_signer": {
+      "source": "ONLY the 19-member B2Z-P2 cohort (docs/audits/b2z_p2_raw_verified_direct_funding_corpus.json) -- NOT available at H's historical scale locally",
+      "authority": "raw-verified for those 19 members only; a documented, permanent coverage gap elsewhere"
+    },
+    "cex_infra_classification": {
+      "source": "src/utils/infra_mapping.py + infra_wallets/cex_wallets tables (THE authoritative mapping, reconciled this milestone)",
+      "authority": "curated static registries (130 total) + a live 62-row DB table + a 1.47M-row broader infra_wallets table"
+    },
+    "ep3_topology": {
+      "source": "src/evidence/discovery/* (Operation Contracts, Watchtower/three_sw2 shadow corpora)",
+      "authority": "non-authoritative by its own documented contract -- structural signal only"
+    },
+    "ep4_motifs": {
+      "source": "14,203 candidates -> 1,379 motifs (docs/evidence_platform/ep4_1_motif_validation.json)",
+      "authority": "non-authoritative -- 'not an identity, an Operation classification, or a governance recommendation' per its own contract"
+    },
+    "candidate_operational_families": {
+      "source": "database/local_operation_discovery_corpus.db (this session's new pipeline, now CEX/INFRA-reclassified)",
+      "authority": "candidate-only, attribution_state further qualifies each family as ATTRIBUTABLE or NON_ATTRIBUTIVE_PROVENANCE"
+    },
+    "selective_rpc_verification_state": {
+      "source": "docs/audits/local_operation_discovery_selective_rpc_queue.json (prioritized, non-executable)",
+      "authority": "not yet executed -- would require separate authorization"
+    },
+    "human_review_state": {
+      "source": "docs/audits/psi0h_h4r1_human_disposition_closure.json (H's own prior review, ALREADY CLOSED) + docs/audits/local_operation_discovery_top20_review_packets.json (new, not yet reviewed)",
+      "authority": "H4R1's 13 candidates/22 operations are a CLOSED historical record; the new top-20 packets await first review"
+    },
+    "canonical_operation_state": {
+      "source": "wt_operator_treasuries.state='CONFIRMED', wt_provisioning_hubs.status='CONFIRMED' (9 addresses total, verified this milestone), Watchtower/three_sw2 canonical identities generally",
+      "authority": "SOLE canonical authority -- unchanged, unmutated"
+    }
+  },
+  "provenance_preservation_rule": "every input above retains its ORIGINAL source artifact reference -- H must never collapse a candidate-tier input into a canonical-tier claim by omitting its provenance chain",
+  "authority_boundary": {
+    "h_may_consume": [
+      "all inputs listed above, read-only, for candidate-tier analysis",
+      "main-DB CANDIDATE and CONFIRMED rows (distinguishing them explicitly)",
+      "the new discovery corpus's ATTRIBUTABLE and NON_ATTRIBUTIVE_PROVENANCE classifications",
+      "EP3/EP4 structural signals as CORROBORATING, non-authoritative context"
+    ],
+    "h_may_never_automatically": [
+      "promote a candidate family to canonical operation status",
+      "treat CEX/infra-shared funding as proof of common operation membership",
+      "treat raw-RPC-confirmed funding as sufficient for canonical attribution by itself",
+      "treat an EP4 motif match as sufficient for canonical attribution",
+      "write to wt_operator_treasuries.state or wt_provisioning_hubs.status as CONFIRMED without the SAME human-review gate H's own H4R1 milestone already required for its prior 13 candidates",
+      "mutate Watchtower or three_sw2 identities",
+      "merge two candidate families solely because they share a CEX/infra root (per KNOWN_CEX_INFRA_NON_ATTRIBUTIVE_FUNDING_BOUNDARY)"
+    ],
+    "existing_review_authority_preserved": "H4R1's disposition model (COMMON_PLAYBOOK_ONLY / PLAUSIBLE_OPERATIONAL_CONTINUITY, with an explicit forbidden-authority list) remains the template for any FUTURE H-series human review -- not weakened, not bypassed, not automated away by the new evidence layers"
+  }
+}

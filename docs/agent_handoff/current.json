@@ -1,4 +1,31 @@
 {
+  "roadmap_h_reentry_a": {
+    "milestone": "ROADMAP-H-REENTRY-A -- existing operation method + CEX/INFRA authority reconciliation",
+    "artifacts": [
+      "docs/audits/main_db_operation_method_cex_infra_reconciliation.json",
+      "docs/audits/local_operation_discovery_cex_infra_reclassification.json",
+      "docs/audits/h_series_reentry_reconciliation.json",
+      "docs/audits/h_series_reentry_input_contract.json",
+      "docs/audits/roadmap_h_reentry_a_completion.json"
+    ],
+    "provider_calls_made": 0,
+    "production_writes": 0,
+    "canonical_operations_mutated": false,
+    "watchtower_mutated": false,
+    "three_sw2_mutated": false,
+    "h_series_activated": false,
+    "existing_operation_method": "src/analysis/watchtower_detector.py -- creator_funders-based, ALREADY CEX-aware (is_cex filtering, _LINEAGE_STOP_NODES), 2-hop lineage_to_infra() walk, two-tier CANDIDATE/CONFIRMED authority (wt_operator_treasuries.state, wt_provisioning_hubs.status). Traced directly from code, not assumed. NOT replaced by the new discovery pipeline -- both coexist, new pipeline covers broader/newer structure the old method's WATCHTOWER-specific signatures cannot see.",
+    "authoritative_cex_infra_mapping": "src/utils/infra_mapping.py -- CEX_ACCOUNTS (56 static) + INFRASTRUCTURE_ACCOUNTS (74 static) + cex_wallets DB table (62 rows, has confidence_level+discovery_source) + infra_wallets DB table (1,466,657 rows, mostly Pump.fun protocol accounts). Triple-cross-validated on a real test address, zero conflicts found. Was ALREADY consumed by the existing watchtower_detector.py method but NOT by the new discovery pipeline before this reconciliation.",
+    "cex_infra_semantics_implemented": "apply_cex_infra_reclassification() added to src/discovery/local_operation_discovery_projection.py -- non-destructive, preserves all family/edge/member records, sets attribution_state=NON_ATTRIBUTIVE_PROVENANCE (not NO_EVIDENCE) for CEX/infra-rooted families. 3 new tests prove shared-CEX funding alone never merges candidates while independent private evidence survives.",
+    "discovery_corpus_reclassification_result": "385 families preserved, 340 ATTRIBUTABLE / 45 NON_ATTRIBUTIVE_PROVENANCE. Of the original 21 STRONG candidates, only 8 remain genuinely attributable -- 13 (61.9%) were rooted in known CEX/infra wallets.",
+    "575_member_family_result": "root (5tzFkiKscXHK5ZXC...) is a confirmed Binance CEX hot wallet -- reclassified as ordinary exchange withdrawal activity, NOT a candidate operational family. Recommend the original smaller OF-P0 56-member subset be separately re-reviewed against this same mapping (not done this session).",
+    "watchtower_control_result": "CAUGHT AND CORRECTED an earlier-session error: the claimed '5/21 strong candidates match confirmed Watchtower structure' was based on an unfiltered query -- those were CANDIDATE-state, not CONFIRMED. True CONFIRMED Watchtower addresses (9 total) verified to have ZERO CEX overlap, as expected. One concrete false positive surfaced in Watchtower's OWN candidate pool: is6MTRHEgy... (a CANDIDATE-state treasury row, confidence=0.56) is the OKX exchange hot wallet -- flagged for human review, Watchtower NOT mutated.",
+    "three_sw2_control_result": "structurally distinct (EP3 evidence-envelope system, not an address registry) -- direct address-overlap check does not apply the same way; evidence-envelope schema confirmed untouched, no address-level check performed this pass",
+    "h_series_status": "H_SERIES_ALREADY_CONCLUDED_AT_NATURAL_STOPPING_POINT -- last milestone PSI0H_H10_SOURCE_LINEAGE_FROZEN, human review PSI0H_H4R1_HUMAN_DISPOSITION_CLOSED (13 candidates/22 operations, already candidate-only with an explicit forbidden-authority list). No H11 exists. Not blocked, not paused mid-execution -- dormant/complete. Nothing was activated or resumed.",
+    "tests": "16/16 passing in tests/test_local_operation_discovery_projection.py (13 pre-existing + 3 new CEX/INFRA false-merge tests)",
+    "terminal_verdict": "READY_H_SERIES_REENTRY",
+    "human_decisions_pending": ["review/act on the OKX false-positive in Watchtower's candidate queue", "decide 575-member family disposition (recommend: non-attributive CEX activity)", "re-review the original 56-member OF-P0 subset against the CEX/INFRA mapping", "any actual H-series re-entry is a fresh scoping decision, nothing is currently blocked"]
+  },
   "overnight_session_2026_08_19_summary": {
     "mandate": "pre-authorized overnight continuation: exhaust safe local branches from B2Z sprint closure through LOCAL_OPERATION_DISCOVERY_EXECUTION_QUALIFICATION",
     "provider_calls_made": 0,

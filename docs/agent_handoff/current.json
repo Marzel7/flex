@@ -1,4 +1,32 @@
 {
+  "b2z_p2h_ordinal19_semantic_negative_reconciliation": {
+    "milestone": "B2Z-P2H -- ordinal-19 semantic-negative reconciliation",
+    "artifact": "docs/audits/b2z_p2h_ordinal19_semantic_negative_reconciliation.json",
+    "provider_calls_made": 0,
+    "credentials_used": false,
+    "trigger": "manual resume run made real progress through ordinals 9-19 (39 physical requests total, NOT the 28-invocation count), then stopped on B2Z_P1_NO_FUNDING_EDGE:19 -- same structural shape as ordinal 8",
+    "ordinal_19_classification": "RAW_FUNDING_EDGE_NOT_PROVEN -- creator agrees with local prediction exactly, candidate found in valid temporal window, but raw transaction does not prove inbound funding to creator. Already flagged fan_out_review_flag=true, LOW confidence.",
+    "contract_reuse": "reused the existing B2Z-P2F RAW_VERIFICATION_NEGATIVE_TERMINAL contract exactly, zero new code, zero new mechanism",
+    "tests": "98/98 passing (96 pre-existing + 2 new proving a second, later raw-negative classification coexists cleanly with the earlier ordinal-8 one)",
+    "live_ledger_repaired": true,
+    "live_ledger_sha256_before": "71d1405386ea30d015f749fef7096542f13696598c4e3943fdce761900f326ad",
+    "live_ledger_sha256_after": "ef7436493a90225c067296ea3deafe88568be88e14ff6e9fa03f61acc62661e6",
+    "physical_requests_unchanged": 39,
+    "remaining_authorization": 11,
+    "calibration_snapshot": {
+      "eligible_population": 19,
+      "resolved": 18,
+      "unresolved": [20],
+      "positives": [2, 4, 7, 10, 12, 13, 14, 17],
+      "no_candidate": [3, 5, 6, 9, 11, 15, 16, 18],
+      "raw_semantic_negatives": [8, 19],
+      "all_5_review_sensitive_ordinals_now_resolved": true
+    },
+    "reinforced_p2g_finding": "shared migration-signer address 9C4nRvhhVquC... now accounts for 9/19 eligible members (47.4%, up from 4/7 when P2G was written) -- further reinforces, does not change, the GENUINE_SHARED_MIGRATION_SIGNER_NOT_TOKEN_CREATOR classification",
+    "next_deterministic_stage": "ordinal 20 / MIGRATION_TX",
+    "terminal_verdict": "READY_B2Z_P2_CONTINUE_AFTER_ORDINAL19_RAW_NEGATIVE",
+    "exact_safe_manual_resume_command": "cd /Users/kevinkeaveney/Dev/claude/flex && read -s B2Z_P2_HELIUS_ENDPOINT && export B2Z_P2_HELIUS_ENDPOINT && echo && for i in $(seq 1 11); do python3 scripts/run_b2z_p2_calibration.py --resume; rc=$?; if [ $rc -ne 0 ]; then echo \"STOPPED at invocation $i\"; break; fi; done && unset B2Z_P2_HELIUS_ENDPOINT"
+  },
   "b2z_p2g_raw_creator_resolution_integrity_qualification": {
     "milestone": "B2Z-P2G -- raw creator-resolution integrity qualification",
     "artifact": "docs/audits/b2z_p2g_raw_creator_resolution_integrity_qualification.json",

@@ -1,0 +1,166 @@
+{
+  "schema_version": "b2z.p2h.ordinal19-semantic-negative-reconciliation.v1",
+  "artifact_type": "B2Z_P2H_ORDINAL19_SEMANTIC_NEGATIVE_RECONCILIATION",
+  "milestone": "B2Z-P2H -- ordinal-19 semantic-negative reconciliation",
+  "generated_utc": "2026-08-19T10:35:00Z",
+  "run_id": "b2z-p1-44d6798563468c8aff747446",
+
+  "operation_safety": {
+    "provider_calls_made": 0,
+    "credentials_used": false,
+    "method": "direct live-ledger read (not shell output/invocation count) + reuse of the already-qualified B2Z-P2F RAW_VERIFICATION_NEGATIVE_TERMINAL contract, no new mechanism built + regression tests + ONE authorized append to the real live event ledger classifying an already-earned finding"
+  },
+
+  "part1_live_state_reconciliation": {
+    "warning_heeded": "invocation count (28) was explicitly NOT used to infer physical requests -- durable ledger read directly",
+    "event_ledger_line_count": 98,
+    "physical_requests_attempted_durable": 39,
+    "remaining_authorization": 11,
+    "completed_ordinals_since_p2g": [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
+    "no_candidate_terminal_ordinals_full": [3, 5, 6, 9, 11, 15, 16, 18],
+    "raw_negative_terminal_ordinals_before_this_milestone": [8],
+    "ordinal_19_funding_tx_dispatched_exactly_once": true,
+    "ordinal_19_attempt_succeeded_confirmed": true,
+    "ordinal_19_semantic_failure_terminal_confirmed": true,
+    "ordinal_20_activity": "zero events -- completely untouched",
+    "duplicates_or_unexplained_events": "none found (verified via exhaustive (ordinal,stage,event) tuple uniqueness check)"
+  },
+
+  "part2_ordinal19_reconstruction": {
+    "local_prediction": {
+      "mint": "p5HJBxcLPm2xR3jzdNkJtFkY8iqNixmYgevGwzkpump",
+      "local_creator": "HSvt8XpvHwTKhkTapsnkkrp5uUZPzxcCmHYVnAxXb42u",
+      "local_direct_funder": "7T1PmQ5rDgc12pYjVbgjQHhjoxpvFFZJ9mg93qF8DFvR",
+      "local_direct_funding_signature": "42m2A3Ushjx8xqRMpXK3YUqnJwP4Lsdwp82zoBdXm6dvnbKkSMmQ8HDfTkPQ4BQvMCGSBctTuV8SGuP8oCYWNphi",
+      "local_funding_amount_lamports": 997955720,
+      "local_block_time": 1786569449,
+      "fan_out_review_flag": true,
+      "local_completeness_confidence": "LOW"
+    },
+    "raw_migration_result": {"creator": "HSvt8XpvHwTKhkTapsnkkrp5uUZPzxcCmHYVnAxXb42u", "migration_time": 1786569670},
+    "raw_creator_history_result": {
+      "candidate_funding_signature": "y4Xsxu8Z6F4kXJUebrqJc9aPs3ZffmaBc9ag5WctMoQp24dkaNacGGBghM5n3hq6TXCA1mRkpNzhKskLeq1nwjV",
+      "candidate_block_time": 1786569449,
+      "candidate_pool_size_after_filter": 201
+    },
+    "raw_funding_tx_outcome": {"terminal_status": "SEMANTIC_VALIDATION_FAILED", "failure_reason": "B2Z_P1_NO_FUNDING_EDGE"},
+    "comparisons": {
+      "creator_matches_local_creator": true,
+      "selected_raw_candidate_matches_local_signature": false,
+      "note_on_matching_block_time": "the local claim's block_time (1786569449) is IDENTICAL to the raw-selected candidate's block_time (1786569449) despite different signatures -- likely two distinct transactions landing in the same slot/second, not a shared-record artifact; not independently resolvable further without raw provider re-verification (not performed, out of scope)",
+      "source_matches_local_funder": "not determinable -- raw transaction instruction contents are not persisted beyond the pass/fail outcome, per this repository's deliberate design (never store full raw provider response bodies)",
+      "destination_matches_creator": "FALSE, by definition of the failure -- proves_inbound_sol_funding() found no parsed System transfer with destination==creator and positive lamports in the raw candidate transaction",
+      "amount_positive": "not applicable -- no qualifying transfer was found at all",
+      "timing_pre_migration": true,
+      "service_distribution_like": "not determinable from available evidence",
+      "exact_reason_for_B2Z_P1_NO_FUNDING_EDGE": "the raw-fetched candidate transaction (signature y4Xsxu8Z...) did not contain any parsed System Program transfer instruction with destination equal to the creator address and a positive lamports value -- the funding relationship claimed by the local prediction (via a DIFFERENT signature) was simply never proven by this specific raw transaction"
+    }
+  },
+
+  "part3_classification": {
+    "classification": "RAW_FUNDING_EDGE_NOT_PROVEN",
+    "reasoning": "creator agrees exactly with local prediction (unlike ordinal 3/5's creator-role confusion documented in B2Z-P2G), a candidate WAS found within the correct pre-migration temporal window, but the specific transaction fetched does not contain evidence of an inbound SOL transfer to the creator. This is not attribution ambiguity (the creator identity itself is not in question), not a service/distribution pattern (no evidence either way), and not insufficient evidence (a definitive raw answer was obtained -- it is simply negative). Same structural shape as ordinal 8.",
+    "not_forced_to_pass": true,
+    "review_flag_correctly_anticipated_risk": "ordinal 19 was already fan_out_review_flag=true and local_completeness_confidence=LOW in the frozen prediction -- consistent with ordinal 8's pattern"
+  },
+
+  "part4_raw_negative_contract_reuse": {
+    "satisfies_same_qualified_contract_as_ordinal8": true,
+    "no_new_mechanism_built": true,
+    "no_evidence_semantics_changed": true,
+    "action_taken": "appended exactly one RAW_VERIFICATION_NEGATIVE_TERMINAL event for ordinal 19 using the existing B2ZEventLedger.classify_raw_verification_negative_terminal() method (built in B2Z-P2F), with zero code changes to that method or to resume_next()"
+  },
+
+  "part5_no_retry_no_substitution": {
+    "ordinal_19_funding_tx_never_redispatched": "guaranteed by the same two independent layers verified in P2F: DurableB2ZClient's structural duplicate-stage guard (ATTEMPT_RESERVED already exists for (19,FUNDING_TX)) + resume_next()'s sequencing skip (raw_negative_terminal check)",
+    "no_alternative_candidate_substituted": true,
+    "no_fallback": true,
+    "local_prediction_remains_frozen": "prediction_freeze_digest unchanged: e403f46f5ebe08332bfeae9089f341b9b1e49d70f737cbd7e386f2fa62de19b3",
+    "raw_disagreement_preserved_as_separate_surface": "SEMANTIC_VALIDATION_FAILED_TERMINAL (the automatic finding) and RAW_VERIFICATION_NEGATIVE_TERMINAL (this milestone's classification) both remain as distinct, permanent ledger events alongside the untouched local prediction"
+  },
+
+  "part6_calibration_impact": {
+    "ordinal_19_remains_in_eligible_19_member_sample": true,
+    "creator_agreement": "AGREE (raw creator == local creator)",
+    "funding_signature_agreement": "DISAGREE (raw-selected candidate signature != local claimed signature)",
+    "direct_funder_agreement": "NOT PROVEN (raw candidate transaction does not establish any inbound transfer to compare a source against)",
+    "complete_relationship_agreement": "FAIL",
+    "local_false_positive": "YES -- local prediction claimed a specific funding relationship that raw evidence does not support",
+    "service_distribution_review_count_contribution": "0 -- no positive evidence of service/distribution pattern found; review_sensitive flag is about SOURCE/creator ambiguity concerns generally, not confirmed service/distribution behavior specifically"
+  },
+
+  "part7_live_ledger_application": {
+    "applied": true,
+    "event_ledger_sha256_before": "71d1405386ea30d015f749fef7096542f13696598c4e3943fdce761900f326ad",
+    "event_ledger_sha256_after": "ef7436493a90225c067296ea3deafe88568be88e14ff6e9fa03f61acc62661e6",
+    "event_ledger_line_count_before": 98,
+    "event_ledger_line_count_after": 99,
+    "first_98_lines_byte_identical": true,
+    "no_prior_events_mutated": true,
+    "physical_requests_attempted_before": 39,
+    "physical_requests_attempted_after": 39,
+    "post_repair_verification": {
+      "ordinal_19_terminal": true,
+      "ordinal_19_non_retryable": true,
+      "ordinal_19_included_in_calibration": true,
+      "next_deterministic_stage": "ordinal 20 / MIGRATION_TX (verified by direct simulation against the live ledger without dispatching)",
+      "consumed_count_unchanged": 39,
+      "remaining_authorization_unchanged": 11
+    }
+  },
+
+  "part8_calibration_snapshot": {
+    "eligible_population": 19,
+    "resolved_eligible_members": 18,
+    "unresolved_eligible_members": [20],
+    "positives": {"count": 8, "ordinals": [2, 4, 7, 10, 12, 13, 14, 17]},
+    "no_candidate": {"count": 8, "ordinals": [3, 5, 6, 9, 11, 15, 16, 18]},
+    "raw_semantic_negatives": {"count": 2, "ordinals": [8, 19]},
+    "execution_exclusions": {"count": 1, "ordinals": [1], "note": "not part of the 19-member eligible population"},
+    "review_sensitive_tracked_set": [8, 11, 15, 18, 19],
+    "review_sensitive_resolved": {"count": 5, "note": "ALL 5 review-sensitive ordinals now resolved -- 8 and 19 are raw-negative, 11/15/18 are NO_CANDIDATE"},
+    "creator_role_mismatch_count": {
+      "count": 9,
+      "ordinals": [3, 4, 5, 7, 9, 15, 16, 17, 18],
+      "shared_address": "9C4nRvhhVquCKATjDCx5FKvNS9PNgNqgyWy9AcoDjYv5",
+      "note": "PER B2Z-P2G's qualified classification (GENUINE_SHARED_MIGRATION_SIGNER_NOT_TOKEN_CREATOR, not a bug): this address now accounts for 9 of 19 eligible members (47.4%) as the migration-tx signer, distinct from their CREATE-tx local-predicted creator. This is a substantially larger share than the 4/7 observed when P2G was written, and further reinforces (without changing) that classification."
+    },
+    "request_accounting": {
+      "authorization_max": 50,
+      "physical_requests_consumed": 39,
+      "remaining_authorization": 11,
+      "retries": 0,
+      "pagination": 0,
+      "fallback": 0,
+      "no_request_exceeded_50": true
+    }
+  },
+
+  "part9_tests": {
+    "existing_p2f_contract_reused_unmodified": true,
+    "new_tests_added": "tests/test_b2z_p2f_raw_negative_terminal.py::test_later_ordinal_semantic_negative_reuses_same_contract, ::test_duplicate_classification_rejected_for_later_ordinal",
+    "coverage": [
+      "ordinal-19-shape (later ordinal, after mixed prior outcomes including an earlier raw-negative classification) reuses the same contract with zero interaction/interference between two independently-classified raw-negative members",
+      "no retry proven",
+      "no substitution proven (contract takes no candidate-signature override parameter)",
+      "zero-request terminal classification proven",
+      "next member selected correctly (advances past BOTH raw-negative ordinals to the next clean member)",
+      "calibration denominator preserved (both classified ordinals remain queryable via raw_negative_terminal_ordinals())",
+      "unreviewed semantic failures still block (covered by pre-existing P2F test, unmodified)",
+      "transport failures still block (covered by pre-existing P2F test, unmodified)",
+      "duplicate raw-negative classification rejected for a later ordinal specifically"
+    ],
+    "results": "98/98 passing (96 pre-existing unaffected + 2 new)"
+  },
+
+  "terminal_verdict": "READY_B2Z_P2_CONTINUE_AFTER_ORDINAL19_RAW_NEGATIVE",
+  "verdict_reasoning": "Ordinal 19 satisfies the already-qualified B2Z-P2F raw-negative contract exactly -- same mechanism, zero new code, zero new requests. 98/98 tests pass. Live ledger updated only after tests passed, first 98 lines byte-identical. 18 of 19 eligible members are now resolved (only ordinal 20 remains) and all 5 review-sensitive ordinals have reached a terminal classification. Resume is ready to proceed to ordinal 20 whenever the human is ready. No provider calls were made this turn.",
+
+  "consumed_requests": 39,
+  "remaining_authorization": 11,
+  "ordinal_19_local_false_positive": true,
+  "resolved_eligible_members_list": [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
+  "unresolved_eligible_members_list": [20],
+  "next_deterministic_stage": "ordinal 20 / MIGRATION_TX",
+  "exact_manual_resume_command": "cd /Users/kevinkeaveney/Dev/claude/flex && read -s B2Z_P2_HELIUS_ENDPOINT && export B2Z_P2_HELIUS_ENDPOINT && echo && for i in $(seq 1 11); do python3 scripts/run_b2z_p2_calibration.py --resume; rc=$?; if [ $rc -ne 0 ]; then echo \"STOPPED at invocation $i\"; break; fi; done && unset B2Z_P2_HELIUS_ENDPOINT"
+}

@@ -385,3 +385,81 @@ def test_mock_remaining_walk_ordinal_8_through_20(tmp_path):
     assert all(e.get("physical_request_number", 0) <= 50
                for e in event_ledger.events() if e["event"] in
                ("ATTEMPT_SUCCEEDED", "ATTEMPT_FAILED_AFTER_DISPATCH"))
+
+
+# --- B2Z-P2H regression: a SECOND, later semantic-negative member reuses ---
+# --- the exact same qualified contract as ordinal 8, no new mechanism -----
+
+def test_later_ordinal_semantic_negative_reuses_same_contract(tmp_path):
+    """Reproduces the real B2Z-P2H incident shape: a semantic disagreement
+    occurring at a LATER ordinal (not the first affected member), after
+    several other members have already resolved via mixed paths (positive,
+    NO_CANDIDATE, and an earlier raw-negative classification). Proves the
+    existing classify_raw_verification_negative_terminal() contract handles
+    this identically -- no new mechanism, no special-casing by ordinal
+    number, no interaction with the earlier ordinal-8 classification."""
+    event_ledger, stage_ledger = ledgers(tmp_path)
+    a = auth()
+    # ordinal 8 fails semantic validation and gets classified first (as in the real run)
+    transport = FakeTransport(bad_funding_mints={"mint-8", "mint-15"})
+    for _ in range(7 * 3):
+        resume_next(manifest=manifest(), projection=projection(), authorization=a, transport=transport,
+                    event_ledger=event_ledger, stage_output_ledger=stage_ledger)
+    resume_next(manifest=manifest(), projection=projection(), authorization=a, transport=transport,
+                event_ledger=event_ledger, stage_output_ledger=stage_ledger)
+    resume_next(manifest=manifest(), projection=projection(), authorization=a, transport=transport,
+                event_ledger=event_ledger, stage_output_ledger=stage_ledger)
+    with pytest.raises(B2ZP1Error, match="NO_FUNDING_EDGE"):
+        resume_next(manifest=manifest(), projection=projection(), authorization=a, transport=transport,
+                    event_ledger=event_ledger, stage_output_ledger=stage_ledger)
+    event_ledger.classify_raw_verification_negative_terminal(
+        run_id=a.run_id, sample_ordinal=8, mint="mint-8", prediction_digest="digest-8",
+        failure_reason="B2Z_P1_NO_FUNDING_EDGE", review_sensitive=True,
+        decision_source="HUMAN_REVIEW_KEEP_IN_CALIBRATION",
+    )
+    # walk through ordinals 9-14 cleanly
+    for _ in range(6 * 3):
+        resume_next(manifest=manifest(), projection=projection(), authorization=a, transport=transport,
+                    event_ledger=event_ledger, stage_output_ledger=stage_ledger)
+    # ordinal 15 hits the SAME semantic failure independently
+    resume_next(manifest=manifest(), projection=projection(), authorization=a, transport=transport,
+                event_ledger=event_ledger, stage_output_ledger=stage_ledger)
+    resume_next(manifest=manifest(), projection=projection(), authorization=a, transport=transport,
+                event_ledger=event_ledger, stage_output_ledger=stage_ledger)
+    with pytest.raises(B2ZP1Error, match="NO_FUNDING_EDGE"):
+        resume_next(manifest=manifest(), projection=projection(), authorization=a, transport=transport,
+                    event_ledger=event_ledger, stage_output_ledger=stage_ledger)
+    assert 15 in event_ledger.semantic_validation_failed_ordinals()
+    assert 8 in event_ledger.raw_negative_terminal_ordinals()
+    assert 15 not in event_ledger.raw_negative_terminal_ordinals()  # not yet classified
+    before = event_ledger.physical_requests_attempted()
+    event_ledger.classify_raw_verification_negative_terminal(
+        run_id=a.run_id, sample_ordinal=15, mint="mint-15", prediction_digest="digest-15",
+        failure_reason="B2Z_P1_NO_FUNDING_EDGE", review_sensitive=True,
+        decision_source="HUMAN_REVIEW_KEEP_IN_CALIBRATION",
+    )
+    after = event_ledger.physical_requests_attempted()
+    assert before == after  # zero new requests
+    # ordinal 8's earlier classification is completely untouched by ordinal 15's
+    assert 8 in event_ledger.raw_negative_terminal_ordinals()
+    assert 15 in event_ledger.raw_negative_terminal_ordinals()
+    # resume now advances past BOTH raw-negative members to ordinal 16
+    result = resume_next(manifest=manifest(), projection=projection(), authorization=a, transport=transport,
+                          event_ledger=event_ledger, stage_output_ledger=stage_ledger)
+    assert result["sample_ordinal"] == 16
+
+
+def test_duplicate_classification_rejected_for_later_ordinal(tmp_path):
+    event_ledger, stage_ledger = ledgers(tmp_path)
+    a, transport = seed_ordinal_8_semantic_failure(event_ledger, stage_ledger)
+    event_ledger.classify_raw_verification_negative_terminal(
+        run_id=a.run_id, sample_ordinal=8, mint="mint-8", prediction_digest="digest-8",
+        failure_reason="B2Z_P1_NO_FUNDING_EDGE", review_sensitive=True,
+        decision_source="HUMAN_REVIEW_KEEP_IN_CALIBRATION",
+    )
+    with pytest.raises(B2ZP1Error, match="DUPLICATE_RAW_NEGATIVE_TERMINAL"):
+        event_ledger.classify_raw_verification_negative_terminal(
+            run_id=a.run_id, sample_ordinal=8, mint="mint-8", prediction_digest="digest-8-again",
+            failure_reason="B2Z_P1_NO_FUNDING_EDGE", review_sensitive=True,
+            decision_source="ATTEMPTED_REPEAT",
+        )

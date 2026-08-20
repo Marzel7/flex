@@ -36,6 +36,21 @@ class EvidenceConfig:
     mirror_cohort_manifest_path: Path | None = None
     retained_acquisition_observations_enabled: bool = False
     retained_acquisition_database_path: Path = Path("database/evidence_platform/production/retained_acquisition.db")
+    retained_acquisition_v2_shadow_enabled: bool = False
+    retained_acquisition_v2_shadow_database_path: Path = Path(
+        "database/evidence_platform/production/retained_acquisition_shadow.db"
+    )
+    retained_acquisition_v2_shadow_artifact_path: Path = Path(
+        "database/evidence_platform/production/retained_acquisition_shadow_artifacts"
+    )
+    # STORAGE-LIFECYCLE-P2: despite the "daily" name (kept for env-var/API
+    # backward compatibility), this has never had calendar-day semantics.
+    # As of P2, RetainedAcquisitionStoreV2 reconciles this against the
+    # DURABLE SUM(LENGTH(payload_json)) already stored in the DB at
+    # construction -- it is a BOUNDED_RETAINED_RAW_BYTES budget, not a
+    # process-lifetime or daily allowance. See retained_observations.py
+    # RetainedAcquisitionStoreV2._reconcile_durable_usage().
+    retained_acquisition_v2_daily_payload_cap_bytes: int = 1 * 1024 * 1024 * 1024
     retained_acquisition_degraded_path: Path = Path("database/evidence_platform/production/retention_degraded")
     retained_acquisition_journal_buffer_size: int = 128
 
@@ -75,6 +90,22 @@ class EvidenceConfig:
             retained_acquisition_database_path=Path(values.get(
                 "RETAINED_ACQUISITION_DATABASE_PATH", "database/evidence_platform/production/retained_acquisition.db"
             )),
+            retained_acquisition_v2_shadow_enabled=_flag(values, "RETAINED_ACQUISITION_V2_SHADOW_ENABLED"),
+            retained_acquisition_v2_shadow_database_path=Path(values.get(
+                "RETAINED_ACQUISITION_V2_SHADOW_DATABASE_PATH",
+                "database/evidence_platform/production/retained_acquisition_shadow.db",
+            )),
+            retained_acquisition_v2_shadow_artifact_path=Path(values.get(
+                "RETAINED_ACQUISITION_V2_SHADOW_ARTIFACT_PATH",
+                "database/evidence_platform/production/retained_acquisition_shadow_artifacts",
+            )),
+            retained_acquisition_v2_daily_payload_cap_bytes=max(
+                64 * 1024,
+                int(values.get(
+                    "RETAINED_ACQUISITION_V2_DAILY_PAYLOAD_CAP_BYTES",
+                    str(1 * 1024 * 1024 * 1024),
+                )),
+            ),
             retained_acquisition_degraded_path=Path(values.get(
                 "RETAINED_ACQUISITION_DEGRADED_PATH", "database/evidence_platform/production/retention_degraded"
             )),
@@ -95,6 +126,8 @@ class EvidenceConfig:
             "evidence artifacts": self.artifact_path.resolve(),
             "evidence mirror spool": self.mirror_spool_path.resolve(),
             "retained acquisition observations": self.retained_acquisition_database_path.resolve(),
+            "retained acquisition shadow observations": self.retained_acquisition_v2_shadow_database_path.resolve(),
+            "retained acquisition shadow artifacts": self.retained_acquisition_v2_shadow_artifact_path.resolve(),
         }
         if len(set(targets.values())) != len(targets):
             raise IsolationError(

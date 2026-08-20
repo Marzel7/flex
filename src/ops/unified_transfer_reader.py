@@ -138,6 +138,25 @@ class UnifiedTransferReader:
         deduped.sort(key=lambda r: r[4], reverse=True)
         return deduped[:limit]
 
+    def earliest_edge(self, address: str) -> tuple | None:
+        """Globally-earliest transfer involving address as source OR
+        destination, across hot_conn and every cold_conns tier. Each
+        connection is asked for only its own earliest match (LIMIT 1
+        pushdown), then the per-connection candidates are compared in
+        Python -- no full-result-set materialization across tiers."""
+        candidates: list[tuple] = []
+        for conn in [self.hot_conn, *self.cold_conns]:
+            row = conn.execute(
+                "SELECT signature, source, destination, amount_lamports, block_time FROM transfer_index "
+                "WHERE source=? OR destination=? ORDER BY block_time ASC LIMIT 1",
+                (address, address),
+            ).fetchone()
+            if row is not None:
+                candidates.append(tuple(row))
+        if not candidates:
+            return None
+        return min(candidates, key=lambda r: r[4])
+
     def count_by_destination(self, destination: str) -> int:
         """Used for parity checks (e.g. Dv34's historical population
         count) -- must equal the monolithic-source count when HOT+COLD

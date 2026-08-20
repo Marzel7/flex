@@ -1,0 +1,145 @@
+{
+  "schema_version": "of.dv34.p3.main-db-vs-new-discovery-reconciliation.v1",
+  "artifact_type": "OF_DV34_P3_MAIN_DB_VS_NEW_DISCOVERY_RECONCILIATION",
+  "milestone": "OF-DV34-P3 -- 70-member main-DB vs calibrated-discovery membership reconciliation",
+  "target_address": "Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM",
+  "part1_freeze_the_authoritative_population": {
+    "human_claimed_population": {
+      "launches": 70,
+      "creators": 70,
+      "initial_launches": 79,
+      "provisioning_clients": 1,
+      "role": "Provisioning Controller",
+      "state": "UNRESOLVED",
+      "promotion": "NOT ELIGIBLE"
+    },
+    "search_performed": [
+      "grepped main.py and all Flask routes for 'investigation', 'Provisioning Controller', 'provisioning_client' -- no live route wires src/ops/investigation_population.py or evidence_reconciliation.py to any UI endpoint",
+      "queried operator_entities, operators, operator_evidence in database/wt_ops_v2.db for Dv34 -- zero rows",
+      "queried wt_provisioning_hubs in database/flex_complete_database.db for Dv34 -- exactly 1 row, but creator_seed_count=26, create_count=0, status=CANDIDATE, confidence=0.5 -- does not match 70/79/47",
+      "grepped docs/agent_handoff/current.json (all prior Dv34 milestones) for literal '70' or '79' near Dv34 -- zero matches",
+      "grepped all committed docs/*.md for Dv34 with 70/79 nearby -- found only docs/NETWORK_APPROVAL_DOCUMENT.md, an unrelated older document showing an 8-9 member Dv34 cluster snapshot, not 70/79"
+    ],
+    "finding": "NO_LOCAL_SOURCE_PRODUCES_70_OR_79_FOR_DV34. No table, view, artifact, or code path in this repository's committed state currently yields a 70-member or 79-member Dv34 population. The 'Provisioning Controller / UNRESOLVED / NOT ELIGIBLE / provisioning_clients=1' state described does not correspond to any operator_entities, wt_provisioning_hubs, or investigation_population row found for Dv34.",
+    "closest_real_populations_found": {
+      "creator_funders_full_relationship_population": 123,
+      "wt_provisioning_hubs_candidate_row_creator_seed_count": 26,
+      "network_approval_document_historical_snapshot_cluster_size": 9
+    },
+    "interpretation": "The 70/79 figures most likely describe a live application session, external view, or a different/uncommitted environment state the human was observing directly, not a reproducible artifact of this repository's current committed code+data. This finding is reported honestly rather than forcing a match. All downstream reconciliation in this artifact instead uses the REAL, verified, reproducible main-DB relationship population: 123 (creator_funders rows for Dv34, all distinct creators).",
+    "DV34_MAIN_DB_POPULATION_DIGEST_123": "9e24655c2863760805dc5236a9daedd983e6794e32a7dd044bfe0e2fd4e3a92d",
+    "population_source": "database/flex_complete_database.db, table creator_funders, WHERE funder_address='Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM' -- this is the full, unfiltered historical funding-relationship record for Dv34 in the main DB; the only real candidate for 'the main-DB investigation population'."
+  },
+  "part2_explain_79_to_70": {
+    "finding": "NO_EVIDENCE_OF_79_TRANSITION_FOUND",
+    "reasoning": "Since no 70-member or 79-member population exists anywhere locally (Part 1), there is no lifecycle transition to trace. No wt_provisioning_hubs history/versioning table exists (checked schema -- single current-state row only, no snapshot/history table). No investigation_population persistence table was found with a Dv34 entry. This question cannot be answered from local data; it is not fabricated here."
+  },
+  "part3_freeze_the_new_23": {
+    "method": "Live re-execution of the ACTUAL production function src.discovery.local_operation_discovery_projection.build_high_confidence_direct_funding_edges() against the current flex_complete_database.db (read-only), not a hand-written SQL replay (an earlier hand-replay attempt produced 29 and was diagnosed as buggy -- see part9).",
+    "result_count": 23,
+    "verified_identical_to_committed_corpus": true,
+    "committed_corpus_source": "database/local_operation_discovery_corpus.db, direct_funding_edges, run_id local_discovery_20260819T212624Z (matches docs/audits/of_dv34_p0_23_member_private_subfamily_qualification.json and of_dv34_p1_local_prediction_freeze.json exactly)",
+    "DV34_NEW_DISCOVERY_23_POPULATION_DIGEST": "7bfd3da5fef109b598dbc225271599f4a1f946c1649ed68071f35fb91b3d6d6b"
+  },
+  "part4_exact_set_comparison": {
+    "compared": "creator_funders 123-member population (Part 1) vs new-discovery 23-member population (Part 3)",
+    "intersection": 23,
+    "main_db_only": 100,
+    "new_discovery_only": 0,
+    "result": "The 23 are a CLEAN, VERIFIED SUBSET of the 123. Zero new-discovery-only members (no contradiction, no member appears in the new system that isn't also in the main DB)."
+  },
+  "part5_reconciliation_matrix": {
+    "artifact": "docs/audits/of_dv34_p3_70_member_reconciliation_matrix.json",
+    "row_count": 123,
+    "note": "Filename retained per the human directive's naming request; real population is 123, not 70 (see Part 1)."
+  },
+  "part6_reconcile_the_difference_100_members": {
+    "classification_distribution": {
+      "FUNDING_GAP_GT_3600S": 76,
+      "DIRECT_EDGE_NOT_PROJECTED_LOST_RECENCY_TIEBREAK": 6,
+      "OUTSIDE_DISCOVERY_INPUT_POPULATION": 7,
+      "CREATOR_FUNDERS_ONLY_NO_TRANSFER_INDEX_ROW": 11
+    },
+    "every_member_classified": true,
+    "definitions": {
+      "FUNDING_GAP_GT_3600S": "Dv34 sent a qualifying transfer (>=0.01 SOL) to the creator before migration, but the gap between the transfer and migration exceeded the calibrated 3600-second HIGH-confidence threshold. Median failing gap ~36 hours; range 3843s to ~133 days.",
+      "DIRECT_EDGE_NOT_PROJECTED_LOST_RECENCY_TIEBREAK": "Dv34's transfer met amount+gap thresholds, but a DIFFERENT funder's qualifying transfer to the same creator was temporally closer to migration, so the pipeline's one-edge-per-mint materialization attributed the mint to that other funder instead. Verified individually for all 6 -- Dv34 never wins this tie-break for any of them. This reflects genuine multi-funder co-funding, not evidence loss.",
+      "OUTSIDE_DISCOVERY_INPUT_POPULATION": "Creator has no migration-verified launch (no token_analysis row joined to pumpfun_migration_verification) -- outside the discovery pipeline's source population entirely.",
+      "CREATOR_FUNDERS_ONLY_NO_TRANSFER_INDEX_ROW": "A creator_funders relationship row exists (some earlier/different extraction process recorded a Dv34-to-creator funding relationship) but no corresponding normalized transfer_index row exists for it -- the relationship exists in an older/coarser evidence table but was never captured by the current transfer-indexing pipeline."
+    }
+  },
+  "part7_low_is_not_wrong": {
+    "principle_applied": "VALID_HISTORICAL_ASSOCIATION_BUT_NOT_HIGH_QUALIFIED",
+    "reasoning": "The 76 FUNDING_GAP_GT_3600S members are NOT classified as false or wrong. Each has a real, signature-bound transfer_index row from Dv34 to the creator, before migration, meeting the amount threshold -- only the timing gap exceeds the calibrated HIGH-confidence window. This is CREATE_CREATOR funding evidence (the relationship this whole Dv34 investigation concerns), correctly kept separate from B2Z's MIGRATION_SIGNER calibration (0/10 LOW-tier positive under a DIFFERENT role/contract). No conflation occurred here.",
+    "count_with_valid_historical_association_not_high_qualified": 82
+  },
+  "part8_main_db_funding_transaction_coverage": {
+    "of_123_main_db_members": {
+      "have_a_transfer_index_signature_bound_row": 105,
+      "have_creator_funders_relationship_only_no_signature": 11,
+      "no_migration_verified_launch_at_all": 7
+    },
+    "finding": "105 of 123 (85%) already have signature-bound, normalized transfer_index evidence. This is NOT a coverage/join gap in the new pipeline -- it correctly reads and uses this same transfer_index table (see part9 funnel). The reduction to 23 is a legitimate confidence-tier filter (amount+gap+recency-tiebreak), not a failure to consume available signature-bound evidence."
+  },
+  "part9_discovery_funnel": {
+    "artifact": "docs/audits/of_dv34_p3_discovery_coverage_funnel.json",
+    "summary": "123 -> 116 (migration-verified) -> 105 (has transfer_index row) -> 29 (amount+gap thresholds met) -> 23 (wins recency tie-break) -> 23 (no extraction failure)"
+  },
+  "part10_classification_of_the_difference": {
+    "verdict": [
+      "EXPECTED_EVIDENCE_TIER_DIFFERENCE",
+      "DIRECT_VS_2HOP_SEMANTIC_DIFFERENCE"
+    ],
+    "quantitative_support": "76/100 (76%) of the difference is the calibrated 3600s HIGH-confidence gap threshold correctly excluding older/looser-timed funding relationships. 6/100 (6%) is a legitimate multi-funder recency tie-break, not evidence loss. 18/100 (18%) is genuinely outside the discovery pipeline's evidence base (no migration-verified launch or no transfer_index row) -- these represent a coarser/older evidence layer (creator_funders alone) than the pipeline consumes. NO PROJECTION_JOIN_GAP and NO NEW_PIPELINE_BUG were found: the pipeline's actual production function was re-executed live and correctly reproduced the exact committed 23-member set.",
+    "note_on_initial_manual_replay_error": "An initial hand-written SQL replay of the pipeline's logic (not calling the real function) produced 29 instead of 23, which looked like a possible bug. Re-running the ACTUAL production function (not a manual replay) proved the real pipeline is correct; the hand-replay had incorrectly pre-filtered to source=Dv34 before the cross-funder most-recent-per-mint dedup step, which bypasses the tie-break the real pipeline performs. This is documented so the investigation process itself is transparent, not just the conclusion."
+  },
+  "part11_local_upgradability": {
+    "current_high_qualified": 23,
+    "locally_upgradable_without_weakening_standards": 0,
+    "remains_low_or_partial_valid_historical": 82,
+    "missing_requires_selective_rpc": 0,
+    "historical_only_not_reproducible": 18,
+    "reasoning": "No member can be locally upgraded to HIGH confidence without weakening the calibrated 3600s/amount thresholds, which this milestone is explicitly prohibited from doing. The 82 VALID_HISTORICAL_ASSOCIATION_BUT_NOT_HIGH_QUALIFIED members already have all locally-available evidence attached (signature, amount, timestamp) -- there is nothing further to discover locally; their gap is a real temporal fact, not a data-completeness gap. RPC would not resolve this either (RPC would confirm the SAME already-known transfer, not close the timing gap). The 18 historical-only members lack transfer_index rows entirely; closing that would require re-running the transfer-indexing extraction against archived RPC data, which is a DIFFERENT kind of work (backfill/indexing) not selective single-edge verification, and is out of scope for this milestone."
+  },
+  "part12_main_population_unchanged": {
+    "attestation": "No write, INSERT, UPDATE, or DELETE was issued against creator_funders, transfer_index, token_analysis, wt_provisioning_hubs, or any main-DB table this milestone. All connections used mode=ro. The 123-member creator_funders population remains exactly as found."
+  },
+  "part13_dual_source_representation": {
+    "proposed_model": {
+      "INVESTIGATION_POPULATION": 123,
+      "HIGH_EVIDENCE_QUALIFIED": 23,
+      "VALID_HISTORICAL_ASSOCIATION_NOT_HIGH_QUALIFIED": 82,
+      "HISTORICAL_ONLY_NOT_REPRODUCIBLE": 18,
+      "RAW_VERIFIED_SAMPLE": 6
+    },
+    "check_sums_to_123": true
+  },
+  "part14_systemic_check": {
+    "method": "Compared 3 other top direct-funder families already materialized in database/local_operation_discovery_corpus.db against their raw creator_funders population in the main DB.",
+    "findings": [
+      {
+        "funder_prefix": "5tzFkiKscXHK",
+        "main_db_population": 1898,
+        "new_discovery_high": 575,
+        "ratio": 3.3
+      },
+      {
+        "funder_prefix": "iGdFcQoyR2Mw",
+        "main_db_population": 744,
+        "new_discovery_high": 140,
+        "ratio": 5.3
+      },
+      {
+        "funder_prefix": "BmFdpraQhkiD",
+        "main_db_population": 498,
+        "new_discovery_high": 139,
+        "ratio": 3.6
+      }
+    ],
+    "dv34_ratio_for_comparison": 5.3,
+    "conclusion": "main-DB population exceeding new-discovery HIGH population by 3-5x is a SYSTEMIC, CONSISTENT pattern across multiple unrelated funders, not something anomalous to Dv34. Dv34's 5.3x ratio is squarely within this normal range. This supports EXPECTED_EVIDENCE_TIER_DIFFERENCE as the dominant explanation."
+  },
+  "terminal_verdict": "DV34_70_VS_23_MEMBERSHIP_RECONCILED",
+  "verdict_reasoning": "Every one of the 123 real main-DB Dv34 relationship members has a fully evidence-backed classification. The 23-member new-discovery family was verified, by live re-execution of the actual production pipeline function (not assumption or hand-replay), to be an exact, clean subset. No pipeline bug was found -- an initial apparent discrepancy (29 vs 23) was traced to an error in a manual SQL replay, not the real pipeline, which was independently confirmed correct. The systemic check (Part 14) shows this same ~3-5x population-to-HIGH-confidence ratio recurs across other funders, supporting EXPECTED_EVIDENCE_TIER_DIFFERENCE as the governing explanation, with a small (6-member) genuine multi-funder tie-break effect and an 18-member historical-evidence-coverage boundary as secondary contributors. The claimed 70/79-member main-DB population could not be located anywhere in this repository's current committed state; this is reported as an explicit, unresolved discrepancy from the human's stated numbers rather than silently substituted.",
+  "deterministic_digest": "cccc23392f15348e2ce82c1930e5778ef0a57e7cf56565823c9b9f03af23943e"
+}

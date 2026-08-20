@@ -1,0 +1,30 @@
+{
+  "schema_version": "of.dv34.p3.discovery-coverage-funnel.v1",
+  "milestone": "OF-DV34-P3",
+  "target": "Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM",
+  "method": "Live re-execution of the actual src.discovery.local_operation_discovery_projection.build_high_confidence_direct_funding_edges() function against the current flex_complete_database.db (read-only), cross-referenced with a hand classification of every one of the 100 main_db_only creator_funders members.",
+  "funnel": {
+    "stage_0_creator_funders_relationship_population": 123,
+    "stage_1_has_migration_verified_launch": 116,
+    "stage_2_has_any_dv34_transfer_index_row_pre_migration": 105,
+    "stage_3_amount_and_gap_thresholds_met": 29,
+    "stage_4_wins_most_recent_per_mint_tiebreak": 23,
+    "stage_5_no_extraction_failure_flag": 23,
+    "final_high_confidence_dv34_family": 23
+  },
+  "stage_definitions": {
+    "stage_0": "All creator_funders rows where funder_address=Dv34 (the full historical relationship record)",
+    "stage_1": "Creator has at least one token_analysis row joined to pumpfun_migration_verification (i.e. a real, migration-verified launch exists) -- 7 creators fail this (OUTSIDE_DISCOVERY_INPUT_POPULATION)",
+    "stage_2": "Of those, has at least one transfer_index row from Dv34 to the creator before migration -- 11 further creators fail this (CREATOR_FUNDERS_ONLY_NO_TRANSFER_INDEX_ROW: a creator_funders relationship exists but no matching normalized transfer_index row was ever indexed for it)",
+    "stage_3": "Of those, at least one qualifying transfer meets amount>=0.01 SOL AND gap<=3600s (HIGH_CONFIDENCE_GAP_SECONDS) -- 76 creators fail this (FUNDING_GAP_GT_3600S dominates; median failing gap is ~36 hours)",
+    "stage_4": "Of those, Dv34's qualifying transfer is the MOST RECENT qualifying transfer to that mint across ALL funders (the pipeline materializes exactly one edge per mint, attributed to whichever funder's qualifying transfer is temporally closest to migration) -- 6 creators fail this because a different funder sent a qualifying transfer even closer to migration time (DIRECT_EDGE_NOT_PROJECTED_LOST_RECENCY_TIEBREAK)",
+    "stage_5": "Of those, no documented extraction failure in creator_funding_queue -- 0 creators fail this for Dv34"
+  },
+  "classification_distribution_of_the_100_main_db_only_members": {
+    "FUNDING_GAP_GT_3600S": 76,
+    "DIRECT_EDGE_NOT_PROJECTED_LOST_RECENCY_TIEBREAK": 6,
+    "OUTSIDE_DISCOVERY_INPUT_POPULATION": 7,
+    "CREATOR_FUNDERS_ONLY_NO_TRANSFER_INDEX_ROW": 11
+  },
+  "critical_finding": "The 6-member DIRECT_EDGE_NOT_PROJECTED_LOST_RECENCY_TIEBREAK group is NOT a coverage gap or bug: in every one of these 6 cases, verified by direct query, a DIFFERENT funder sent SOL to the same creator MORE RECENTLY (closer to migration) than Dv34 did, and the pipeline's one-edge-per-mint materialization (ORDER BY block_time DESC, keep first) correctly attributes the mint to that other funder instead. Dv34 genuinely co-funded these 6 creators alongside another funder; this is a real multi-funder scenario, not evidence loss."
+}

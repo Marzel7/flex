@@ -534,9 +534,9 @@
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
   "current_milestone": {
-    "milestone": "OF-DV34-P2 -- operation-identity separation review",
+    "milestone": "OF-DV34-P3 -- 70-member main-DB vs calibrated-discovery membership reconciliation",
     "status": "COMPLETE",
-    "verdict": "DV34_OPERATION_IDENTITY_PARTIALLY_RESOLVED"
+    "verdict": "DV34_70_VS_23_MEMBERSHIP_RECONCILED"
   },
   "current_next_blocker": "B2Z_P2_HELIUS_ENDPOINT was never available during the overnight session. P2 remains frozen at the 19-member manual resume gate, exactly as left. All 12 provider-free workstreams from the overnight prompt were completed: P2 analysis engine, selective-RPC policy (B2Z-P3), historical coverage profile, 2-hop coverage quality, B2Z-2H contract, operation-discovery preparation, candidate funding family analysis (with a real cross-validated finding), raw-transaction cache adapter, RPC savings models, V2 persistent-budget design, edge-case classifier, and roadmap reconciliation. See docs/audits/overnight_human_decision_queue.json for the 5 decisions that actually need you.",
   "focused_tests": [
@@ -30488,5 +30488,48 @@
     "blockers": [],
     "next_action": "human decides among disposition_options in the technical artifact (separate operation / Watchtower-related / private provisioning network / cross-operation provisioner / identity-unresolved); a future pass could pursue EP3/EP4 cross-reference and migration-signer coverage to close the two NOT_AVAILABLE gaps",
     "verdict": "DV34_OPERATION_IDENTITY_PARTIALLY_RESOLVED"
+  },
+  "of_dv34_p3_membership_reconciliation": {
+    "milestone": "OF-DV34-P3 -- 70-member main-DB vs calibrated-discovery membership reconciliation",
+    "target_address": "Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM",
+    "human_claimed_population": {
+      "initial": 79,
+      "current": 70,
+      "not_locally_reproducible": true
+    },
+    "real_main_db_population_verified": 123,
+    "real_main_db_population_source": "creator_funders table, funder_address=Dv34, database/flex_complete_database.db",
+    "new_qualified_population": 23,
+    "new_population_verified_via": "live re-execution of the actual production function build_high_confidence_direct_funding_edges(), not assumption -- reproduced the committed 23-member corpus exactly",
+    "exact_intersection": 23,
+    "main_db_only": 100,
+    "new_discovery_only": 0,
+    "explanation_79_to_70": "NO_EVIDENCE_OF_79_TRANSITION_FOUND -- no 70 or 79 population, snapshot, or history table exists anywhere in committed repository state for Dv34",
+    "explanation_for_100_member_difference": {
+      "FUNDING_GAP_GT_3600S": 76,
+      "DIRECT_EDGE_NOT_PROJECTED_LOST_RECENCY_TIEBREAK": 6,
+      "OUTSIDE_DISCOVERY_INPUT_POPULATION": 7,
+      "CREATOR_FUNDERS_ONLY_NO_TRANSFER_INDEX_ROW": 11
+    },
+    "locally_upgradable_count": 0,
+    "selective_rpc_required_count": 0,
+    "historical_only_count": 18,
+    "valid_historical_association_not_high_qualified_count": 82,
+    "bug_coverage_gap_status": "NO_BUG_FOUND -- systemic 3-5x main-vs-HIGH ratio confirmed across 3 other unrelated funders (Part 14 diagnostic), Dv34's 5.3x ratio is normal",
+    "dual_source_representation": {
+      "INVESTIGATION_POPULATION": 123,
+      "HIGH_EVIDENCE_QUALIFIED": 23,
+      "VALID_HISTORICAL_ASSOCIATION_NOT_HIGH_QUALIFIED": 82,
+      "HISTORICAL_ONLY_NOT_REPRODUCIBLE": 18,
+      "RAW_VERIFIED_SAMPLE": 6
+    },
+    "artifacts": [
+      "docs/audits/of_dv34_p3_main_db_70_vs_new_23_reconciliation.json",
+      "docs/audits/of_dv34_p3_70_member_reconciliation_matrix.json",
+      "docs/audits/of_dv34_p3_discovery_coverage_funnel.json"
+    ],
+    "tests": "tests/test_dv34_p3_membership_reconciliation.py (21/21 passing)",
+    "next_action": "human decides whether the claimed 70/79 UI state exists in a different environment/session and, if so, where; no local action can resolve that discrepancy further. The 123-vs-23 dual-source population model is otherwise fully reconciled and ready to inform Dv34's ongoing candidate status.",
+    "verdict": "DV34_70_VS_23_MEMBERSHIP_RECONCILED"
   }
 }

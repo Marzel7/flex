@@ -1,0 +1,1116 @@
+{
+  "schema_version": "of.dv34.p3.reconciliation-matrix.v1",
+  "note_on_filename": "filename retained for continuity with the human directive's request; the REAL main-DB population verified this milestone is 123 (creator_funders rows for Dv34), not 70 -- see of_dv34_p3_main_db_70_vs_new_23_reconciliation.json Part 1 for the full explanation of why no 70/79 population exists anywhere in this repository's committed data or code.",
+  "real_main_db_population_count": 123,
+  "new_discovery_qualified_count": 23,
+  "intersection_count": 23,
+  "matrix": [
+    {
+      "creator_address": "2xLAass1q7ikXj91vgCU8jpsE9Nt3Ge8Lh9EWwqDMmfg",
+      "amount_sol_creator_funders": 1.993,
+      "first_detected_at": "2026-08-16 17:52:48",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": true,
+      "classification_reason": "HIGH_CONFIDENCE_QUALIFIED"
+    },
+    {
+      "creator_address": "47NLQmQuXnc5DcFhd69ZmMVPzaPpg6LB56Pbf2yR4dQb",
+      "amount_sol_creator_funders": 4.9775,
+      "first_detected_at": "2026-05-16 17:08:40",
+      "mint_count_for_creator": 3,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": true,
+      "classification_reason": "HIGH_CONFIDENCE_QUALIFIED"
+    },
+    {
+      "creator_address": "4LXAFVZUUTdcqLCmgHq2NZmgLB2arRxp9wuYVa6rnx5C",
+      "amount_sol_creator_funders": 8.00100074,
+      "first_detected_at": "2026-08-10 18:07:17",
+      "mint_count_for_creator": 14,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": true,
+      "classification_reason": "HIGH_CONFIDENCE_QUALIFIED"
+    },
+    {
+      "creator_address": "5Vp7uqSEtTv5br8zs7SSEuJqmmrYdD97UQ383hHdponT",
+      "amount_sol_creator_funders": 4.9825,
+      "first_detected_at": "2026-08-10 19:49:09",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": true,
+      "classification_reason": "HIGH_CONFIDENCE_QUALIFIED"
+    },
+    {
+      "creator_address": "5pJXkzbbw9oSqQ3w2B97YRyaijh5uztkjmKJ7yEGQWh7",
+      "amount_sol_creator_funders": 4.9775,
+      "first_detected_at": "2026-05-25 03:59:18",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": true,
+      "classification_reason": "HIGH_CONFIDENCE_QUALIFIED"
+    },
+    {
+      "creator_address": "5us8pNsLSPv8bbv8ZnGNKMUZLrGRvtTcB28bTE14xh1j",
+      "amount_sol_creator_funders": 3.982,
+      "first_detected_at": "2026-05-14 14:35:10",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": true,
+      "classification_reason": "HIGH_CONFIDENCE_QUALIFIED"
+    },
+    {
+      "creator_address": "7WhrXmkoTggqs757pTfQrCdCE9N1TxP9QLo7vKkfPiTX",
+      "amount_sol_creator_funders": 0.109942,
+      "first_detected_at": "2026-05-19 20:53:54",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": true,
+      "classification_reason": "HIGH_CONFIDENCE_QUALIFIED"
+    },
+    {
+      "creator_address": "9999CPw3UwyJp5eRSahcwAhzqvvHLgcVDF2Q4omhv85R",
+      "amount_sol_creator_funders": 7.972,
+      "first_detected_at": "2026-06-22 17:40:24",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": true,
+      "classification_reason": "HIGH_CONFIDENCE_QUALIFIED"
+    },
+    {
+      "creator_address": "9DEwjdVTkLj2gmmWS1NtSHFTUKXCDZGjoMhrcaPkKdVc",
+      "amount_sol_creator_funders": 6.221875,
+      "first_detected_at": "2026-06-17 03:00:47",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": true,
+      "classification_reason": "HIGH_CONFIDENCE_QUALIFIED"
+    },
+    {
+      "creator_address": "9kXKAzrSidJNFzz7ysFKmesGaZT8KefHXneYvmhfSrmH",
+      "amount_sol_creator_funders": 1.991,
+      "first_detected_at": "2026-06-02 17:49:42",
+      "mint_count_for_creator": 3,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": true,
+      "classification_reason": "HIGH_CONFIDENCE_QUALIFIED"
+    },
+    {
+      "creator_address": "A1mVoRdCVTZpfvVzYWD2MBwjzmiFe8RUdBfWX5Yb2A4e",
+      "amount_sol_creator_funders": 22.415309,
+      "first_detected_at": "2026-08-12 22:51:46",
+      "mint_count_for_creator": 3,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": true,
+      "classification_reason": "HIGH_CONFIDENCE_QUALIFIED"
+    },
+    {
+      "creator_address": "AT3bajJAfDMMbHF67qdb7QEEtnzRreKcjbAbY9kaqHPE",
+      "amount_sol_creator_funders": 5.8703815,
+      "first_detected_at": "2026-08-05 11:20:57",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": true,
+      "classification_reason": "HIGH_CONFIDENCE_QUALIFIED"
+    },
+    {
+      "creator_address": "BdvxU16rb8qr3EBhhiV5S2vLsGpcTBbHf2GSy8hoT5Gs",
+      "amount_sol_creator_funders": 2.965545,
+      "first_detected_at": "2026-06-09 22:17:03",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": true,
+      "classification_reason": "HIGH_CONFIDENCE_QUALIFIED"
+    },
+    {
+      "creator_address": "EmfYATLLQWYPDiqHxBFFKNzPFZTEPLupknMWAJZLzgwP",
+      "amount_sol_creator_funders": 78.849405,
+      "first_detected_at": "2026-08-10 14:26:51",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": true,
+      "classification_reason": "HIGH_CONFIDENCE_QUALIFIED"
+    },
+    {
+      "creator_address": "FXQn6TW3S8WpoEndUA2Kmz5rZSE9Seoaiq7G5Sd55L6S",
+      "amount_sol_creator_funders": 0.229195,
+      "first_detected_at": "2026-05-09 22:36:30",
+      "mint_count_for_creator": 684,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": true,
+      "classification_reason": "HIGH_CONFIDENCE_QUALIFIED"
+    },
+    {
+      "creator_address": "FZSuhwXZNuVCb69VxdqbyqLi2Y28gF4ihLNBSmwLxCsc",
+      "amount_sol_creator_funders": 4.9775,
+      "first_detected_at": "2026-06-22 11:20:28",
+      "mint_count_for_creator": 3,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": true,
+      "classification_reason": "HIGH_CONFIDENCE_QUALIFIED"
+    },
+    {
+      "creator_address": "GEAwFLi82tuZxTiQgUDhKAPKrPpLt5hw7fMH1iwQuML7",
+      "amount_sol_creator_funders": 1.09615,
+      "first_detected_at": "2026-06-02 19:30:30",
+      "mint_count_for_creator": 2,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": true,
+      "classification_reason": "HIGH_CONFIDENCE_QUALIFIED"
+    },
+    {
+      "creator_address": "GHGCz8b4GJ1YvmkZt6ZdzE7c2E41UaJbKxfx4HcFqPju",
+      "amount_sol_creator_funders": 9.955,
+      "first_detected_at": "2026-06-23 00:10:12",
+      "mint_count_for_creator": 3,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": true,
+      "classification_reason": "HIGH_CONFIDENCE_QUALIFIED"
+    },
+    {
+      "creator_address": "GYr7n7hVTo3rGah631qigM4qGirCzjnygfb1HRvzGaDV",
+      "amount_sol_creator_funders": 2.9865,
+      "first_detected_at": "2026-05-30 09:48:43",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": true,
+      "classification_reason": "HIGH_CONFIDENCE_QUALIFIED"
+    },
+    {
+      "creator_address": "GmnU4JG8dp9wJAbDNgjUmQ4x3stzMHv8qUaoqzYH2nZt",
+      "amount_sol_creator_funders": 2.9865,
+      "first_detected_at": "2026-06-12 22:11:49",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": true,
+      "classification_reason": "HIGH_CONFIDENCE_QUALIFIED"
+    },
+    {
+      "creator_address": "HuZGx4k41dCPuXR4PnBNdHNXJ4WzbUnDxo9wvU3VpXAY",
+      "amount_sol_creator_funders": 1.280006,
+      "first_detected_at": "2026-06-16 12:57:51",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": true,
+      "classification_reason": "HIGH_CONFIDENCE_QUALIFIED"
+    },
+    {
+      "creator_address": "J7kkoA4SY3MYujJyWmAuEPsVz31tcfN4GJLBGQ6Fs8UM",
+      "amount_sol_creator_funders": 1.991,
+      "first_detected_at": "2026-06-04 21:01:23",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": true,
+      "classification_reason": "HIGH_CONFIDENCE_QUALIFIED"
+    },
+    {
+      "creator_address": "XQQaca5yjCy5LbmH5dnc1irmD6w8MrRuXPL9u6QjMH1",
+      "amount_sol_creator_funders": 2.723806,
+      "first_detected_at": "2026-08-11 23:54:51",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": true,
+      "classification_reason": "HIGH_CONFIDENCE_QUALIFIED"
+    },
+    {
+      "creator_address": "2CoKsjtuFoufi6FVkahFSWzHd3STcPAkZxhptSVusL7d",
+      "amount_sol_creator_funders": 7.964,
+      "first_detected_at": "2026-06-13 00:31:41",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "2cg6sbD9zronxKBNibnF4PddfndqazRQAuQGFjMMpwQq",
+      "amount_sol_creator_funders": 1.991,
+      "first_detected_at": "2026-06-06 22:17:29",
+      "mint_count_for_creator": 4,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "DIRECT_EDGE_NOT_PROJECTED_LOST_RECENCY_TIEBREAK"
+    },
+    {
+      "creator_address": "2i1Tdfi5tmiMHBnwBLA5vHqRjtCcJYYnGDtcdBVTLsvi",
+      "amount_sol_creator_funders": 5.649733,
+      "first_detected_at": "2026-08-12 07:32:32",
+      "mint_count_for_creator": 5,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "2ucD8nYHHy7S6NGkHcwMHgAberNkm92Pw5KCznutfQMM",
+      "amount_sol_creator_funders": 2.202265,
+      "first_detected_at": "2026-05-08 09:36:35",
+      "mint_count_for_creator": 2,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "37MfkbpsdrUbYwWvJNJ3pdMhdzfDyKFw6eQYfDpNjVTK",
+      "amount_sol_creator_funders": 2.42991,
+      "first_detected_at": "2026-08-14 02:08:39",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "3FiWnNDTZrKPbjPeMiTe2r5m5zygxSu57ePck5LUQp7d",
+      "amount_sol_creator_funders": 2.9865,
+      "first_detected_at": "2026-08-08 15:16:18",
+      "mint_count_for_creator": 39,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "3GCuBhB7VXDgYRgMvU1tYjo28vGBQWKhLaL3KvrRu3mu",
+      "amount_sol_creator_funders": 5.450048,
+      "first_detected_at": "2026-08-15 06:58:02",
+      "mint_count_for_creator": 6,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "3devgFVmruGQzaw3RMpmfyvmKqYM7BJXk7qFrKfncA5b",
+      "amount_sol_creator_funders": 3.244714,
+      "first_detected_at": "2026-05-22 21:19:43",
+      "mint_count_for_creator": 53,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "3jQerWRggbn7M6jC2gPPjWpQKNjEydfg15x4X51U5Yct",
+      "amount_sol_creator_funders": 0.110949,
+      "first_detected_at": "2026-05-19 20:14:01",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "DIRECT_EDGE_NOT_PROJECTED_LOST_RECENCY_TIEBREAK"
+    },
+    {
+      "creator_address": "3pSzNshdfe3LcGJpW752goDcvQHevcEKZttXrW6zNuSW",
+      "amount_sol_creator_funders": 2.507194,
+      "first_detected_at": "2026-06-03 17:31:38",
+      "mint_count_for_creator": 0,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "OUTSIDE_DISCOVERY_INPUT_POPULATION"
+    },
+    {
+      "creator_address": "41h2iiroPDn1Tkad2ZviQYWPNwT9H7ay7PuPemmEzTJg",
+      "amount_sol_creator_funders": 1.9999595,
+      "first_detected_at": "2026-06-03 10:34:50",
+      "mint_count_for_creator": 0,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "OUTSIDE_DISCOVERY_INPUT_POPULATION"
+    },
+    {
+      "creator_address": "443DVTziAogBPamriqyBymfYW6KgcUZ75nhbo7tc69dd",
+      "amount_sol_creator_funders": 2.980028,
+      "first_detected_at": "2026-08-17 12:42:41",
+      "mint_count_for_creator": 4,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "4DczWE5ebxJ9RW2boUihVbLCQTVL4MoHnWvtRbxqCG8y",
+      "amount_sol_creator_funders": 0.4788,
+      "first_detected_at": "2026-04-30 09:51:34",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "4Ji3sELwVFhny2hdAcwaNyKcL513kgDT2iaCADt4Mveq",
+      "amount_sol_creator_funders": 4.524512,
+      "first_detected_at": "2026-08-16 18:15:55",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "4RxjZMt1mbTDtjsHtuwg72LsPQQ64gidBMzNfpRWmUeq",
+      "amount_sol_creator_funders": 2.9895,
+      "first_detected_at": "2026-06-01 16:20:24",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "4XZ9BRZE4y6gq88PWUXiwfaiCVjyhAYkqfUdpQeD6pxC",
+      "amount_sol_creator_funders": 1.701735,
+      "first_detected_at": "2026-08-13 14:57:53",
+      "mint_count_for_creator": 40,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "4sxTXH5B5kBoA2RYwRsEQVFYFHXWKTEZEuxBxpiYqJCg",
+      "amount_sol_creator_funders": 5.995435,
+      "first_detected_at": "2026-05-30 11:54:41",
+      "mint_count_for_creator": 2,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "51jCZskznErEfw3Vvf468XSvzcU3pao827JxYUZY76z2",
+      "amount_sol_creator_funders": 1.29545,
+      "first_detected_at": "2026-08-11 02:00:35",
+      "mint_count_for_creator": 2,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "DIRECT_EDGE_NOT_PROJECTED_LOST_RECENCY_TIEBREAK"
+    },
+    {
+      "creator_address": "57946kgvUawCtHvayM7R8YQmsr4PxA613hR9uW26ULDc",
+      "amount_sol_creator_funders": 1.872103,
+      "first_detected_at": "2026-08-19 04:03:18",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "5QiamMy8nLFfDhQQarcfwXbWAvTbiwHDZT5naxsRCUHd",
+      "amount_sol_creator_funders": 6.86895,
+      "first_detected_at": "2026-06-08 20:59:46",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "5tazyBaxSMXVFxBaFoRvdUkgisADH1KVmMf4SpQJ7kWs",
+      "amount_sol_creator_funders": 2.9865,
+      "first_detected_at": "2026-04-21 09:34:43",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "OUTSIDE_DISCOVERY_INPUT_POPULATION"
+    },
+    {
+      "creator_address": "68Zb8GSYvtGZRhbrLmaFyCrYD1XURL61qHffDxMeKSjC",
+      "amount_sol_creator_funders": 0.49825,
+      "first_detected_at": "2026-06-08 06:11:31",
+      "mint_count_for_creator": 6,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "6B6vG3MaXLJk8JeBe6JLHfimexFPdHAbniarWsATVSQc",
+      "amount_sol_creator_funders": 1.993,
+      "first_detected_at": "2026-06-03 13:05:11",
+      "mint_count_for_creator": 2,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "6FMg75D7Rq1BvBjtjFXfTokF7PFEeiqqQXAvRa3WGnXv",
+      "amount_sol_creator_funders": 2.9865,
+      "first_detected_at": "2026-06-03 09:09:08",
+      "mint_count_for_creator": 2,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "CREATOR_FUNDERS_ONLY_NO_TRANSFER_INDEX_ROW"
+    },
+    {
+      "creator_address": "6N7ZdVh513Y3Gui5U1H3sYVaUQg2UgchgM7y73o8p5cr",
+      "amount_sol_creator_funders": 57.27866056,
+      "first_detected_at": "2026-08-10 10:00:13",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "6dCuwiZpX9x7vTaqHz7XeHyGifa4tj993ADEgc788TdE",
+      "amount_sol_creator_funders": 7.551068,
+      "first_detected_at": "2026-06-18 00:33:18",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "OUTSIDE_DISCOVERY_INPUT_POPULATION"
+    },
+    {
+      "creator_address": "6e1HdNWzbN82SgG6sKEJugLtUM13KjkPAAx1UUWySSfV",
+      "amount_sol_creator_funders": 18.71150073,
+      "first_detected_at": "2026-08-10 00:10:27",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "6kTwj7RLGzwbpugk2u381yHay2kFvPe91ZJkCpDQvorf",
+      "amount_sol_creator_funders": 5.973,
+      "first_detected_at": "2026-08-13 23:50:34",
+      "mint_count_for_creator": 2,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "6x7YxZNSAn1JLULsNJmbbrUo4Fsg7qVt6y4US2jAwVvF",
+      "amount_sol_creator_funders": 1.09505,
+      "first_detected_at": "2026-06-22 18:25:17",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "7B7RC3D5Uxr2MrceoDrziZp4bzQBE34tzaKjWQyvhxyQ",
+      "amount_sol_creator_funders": 1.09615,
+      "first_detected_at": "2026-06-09 23:48:06",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "7YXzojxqxB18nafHgXgoq6NwcRhFK6DbH6hR8RnWYQ2V",
+      "amount_sol_creator_funders": 29.757486,
+      "first_detected_at": "2026-06-11 20:39:42",
+      "mint_count_for_creator": 0,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "OUTSIDE_DISCOVERY_INPUT_POPULATION"
+    },
+    {
+      "creator_address": "7k8fKFhaXcBUvCmaxYoDcxn5YeWEnPgFByDMDWkYC6Z9",
+      "amount_sol_creator_funders": 9.955,
+      "first_detected_at": "2026-04-27 18:05:17",
+      "mint_count_for_creator": 2,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "7kK7KauFCBFRMNHzbhTVDGrMLeUNh1DZLjiuiF8m4bWv",
+      "amount_sol_creator_funders": 0.9965,
+      "first_detected_at": "2026-04-26 10:17:05",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "7mFyHKH5PszP6yht6eZQUNKGG6Y8ZRHSXjAPZPtqTE7n",
+      "amount_sol_creator_funders": 3.038259,
+      "first_detected_at": "2026-05-19 21:41:13",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "7vxo27Ahz7CxV9BDXA7X8QN6DUX1N1t3XJ4VNHQF2WNe",
+      "amount_sol_creator_funders": 3.703346,
+      "first_detected_at": "2026-08-10 14:04:23",
+      "mint_count_for_creator": 3,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "DIRECT_EDGE_NOT_PROJECTED_LOST_RECENCY_TIEBREAK"
+    },
+    {
+      "creator_address": "84i4kYL6YD7to7KYwx845qsT5J6df4mZ3PwcfjxHoQth",
+      "amount_sol_creator_funders": 0.012051,
+      "first_detected_at": "2026-06-10 02:34:00",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "8Aq6zD5DWeLsXk836NpM9F1DJBc7TRnbjp6sFj33tQVi",
+      "amount_sol_creator_funders": 2.13312,
+      "first_detected_at": "2026-08-14 02:58:44",
+      "mint_count_for_creator": 83,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "8NtcLKtuTDnHvPnRgTvn3vaPbJhMSccc2s7jMaxp9cxM",
+      "amount_sol_creator_funders": 1.17979,
+      "first_detected_at": "2026-06-22 14:05:46",
+      "mint_count_for_creator": 316,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "CREATOR_FUNDERS_ONLY_NO_TRANSFER_INDEX_ROW"
+    },
+    {
+      "creator_address": "8gMiYfCqgweB9b27bh8w6u4pE25oEby94Dc6NBW4t3zc",
+      "amount_sol_creator_funders": 2.965545,
+      "first_detected_at": "2026-06-25 08:38:36",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "8ghXE611T1KiKaGHhwFKeLMdFeszJkjZJcTJeaVgZozM",
+      "amount_sol_creator_funders": 5.973,
+      "first_detected_at": "2026-05-16 20:56:30",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "8hFXhHFvamAuNSo4pQTKBjPPq6spn4UjzfAxgMMvjVve",
+      "amount_sol_creator_funders": 12.933081999999999,
+      "first_detected_at": "2026-08-10 18:20:37",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "8qUkrwjE1JqXC7XhwPWMqo39JPxgnriyHco486oJ8VKE",
+      "amount_sol_creator_funders": 2.69055,
+      "first_detected_at": "2026-04-30 03:01:51",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "8qZ6qho6R4pQSXgVhZEuLBwY84v4en28K3MXfZnSUetw",
+      "amount_sol_creator_funders": 4.89927,
+      "first_detected_at": "2026-08-10 07:53:13",
+      "mint_count_for_creator": 87,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "CREATOR_FUNDERS_ONLY_NO_TRANSFER_INDEX_ROW"
+    },
+    {
+      "creator_address": "94RWZqvwoQQkEUgqH2uSyFiSxvV957vrDmivn8ohowLH",
+      "amount_sol_creator_funders": 1.49325,
+      "first_detected_at": "2026-05-30 22:08:49",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "9uGdPFn5AedYjtyJVQvGwNiu2Aqhwm3pCSkUJkaKWHM",
+      "amount_sol_creator_funders": 2.948224,
+      "first_detected_at": "2026-08-12 16:38:16",
+      "mint_count_for_creator": 19,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "9uPhT8iVdzMWUYN61HFffHtoJDQpLgjQmWa7rYJzngkw",
+      "amount_sol_creator_funders": 1.988016,
+      "first_detected_at": "2026-08-12 17:02:57",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "9w1aUHf3fVCfwyrqHJD2oNmpvMdKvDJf9WJeDvcCkUwu",
+      "amount_sol_creator_funders": 9.955,
+      "first_detected_at": "2026-06-22 13:37:45",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "AJtJdQnjjW5fMkxoCwNyAjE9fSjhJbR9uCDjNUgiuZ96",
+      "amount_sol_creator_funders": 3.037912,
+      "first_detected_at": "2026-08-12 19:10:49",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "AKwY7WQjSkMjtY7zkhun5RMWtvJMsC6gyNZafrQVxw1p",
+      "amount_sol_creator_funders": 2.9865,
+      "first_detected_at": "2026-06-18 02:25:46",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "CREATOR_FUNDERS_ONLY_NO_TRANSFER_INDEX_ROW"
+    },
+    {
+      "creator_address": "AY2K4iJjxUvYMvNA6eusRmQL2qvovJQq5MyJeWVXDnAY",
+      "amount_sol_creator_funders": 28.57085,
+      "first_detected_at": "2026-08-13 19:15:12",
+      "mint_count_for_creator": 2,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "AdqCya733nLJjyEtoRj4vPdLBdEVuENADhn5yg8p3ZUq",
+      "amount_sol_creator_funders": 5.48075,
+      "first_detected_at": "2026-05-11 17:06:56",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "AmNMqM5VbPwtG14gLBdtrqZpQrhSzavLkQPufS8CQ7LB",
+      "amount_sol_creator_funders": 29.333997,
+      "first_detected_at": "2026-08-13 11:11:27",
+      "mint_count_for_creator": 233,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "BF1srwWBzEnKSYHucoo1gEKpzfTCX5VDbRSj4fB9oKYF",
+      "amount_sol_creator_funders": 1.343925,
+      "first_detected_at": "2026-06-03 20:59:21",
+      "mint_count_for_creator": 2,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "BVVnMLH6RHZHJXjqR5kkA52cKvSC4jCfLKXEZ6C6ztZU",
+      "amount_sol_creator_funders": 84.47202,
+      "first_detected_at": "2026-05-09 14:31:02",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "Bg9LQPPvYy6hss7yffrmaSZ9NDKaYdNw4BchuTjWQL2p",
+      "amount_sol_creator_funders": 1.163275,
+      "first_detected_at": "2026-08-08 00:36:11",
+      "mint_count_for_creator": 227,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "CREATOR_FUNDERS_ONLY_NO_TRANSFER_INDEX_ROW"
+    },
+    {
+      "creator_address": "BmHVFu7BUmQe497JeERLgQCwpBpXtMcaCcHzx339BkdV",
+      "amount_sol_creator_funders": 0.109342,
+      "first_detected_at": "2026-05-28 22:00:36",
+      "mint_count_for_creator": 0,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "OUTSIDE_DISCOVERY_INPUT_POPULATION"
+    },
+    {
+      "creator_address": "BuVDHAedP3PwXxp26WfxeqCo1KoASqnBLEwR59Jn7yKi",
+      "amount_sol_creator_funders": 0.035203,
+      "first_detected_at": "2026-08-13 00:58:44",
+      "mint_count_for_creator": 5,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "By3wc5hsBHE1oZwrUhvJf1tyqZdf982ZdetNpn1DoR19",
+      "amount_sol_creator_funders": 5.6743500000000004,
+      "first_detected_at": "2026-06-06 19:53:48",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "CH8r9ULVBBfBnEcXR1X2ELVFfhAvjDpa9U8jzbsG2SVg",
+      "amount_sol_creator_funders": 1.294804,
+      "first_detected_at": "2026-08-18 01:08:20",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "CSmzARyUvrZDVgUJsGgpNgfGrvpYAA8uNZ4FvhoaCVSV",
+      "amount_sol_creator_funders": 0.018226,
+      "first_detected_at": "2026-06-22 15:46:15",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "CWHHRKSM9pdo21yxP7UKXCTMeoFohd2mopnimtR2YnLs",
+      "amount_sol_creator_funders": 0.49775,
+      "first_detected_at": "2026-05-14 22:50:34",
+      "mint_count_for_creator": 29,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "Ccs9wSrEwmKx7iBD9H4xqd311eJUd2ufDk2ip87Knbo3",
+      "amount_sol_creator_funders": 0.83328,
+      "first_detected_at": "2026-08-13 08:34:44",
+      "mint_count_for_creator": 2,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "D4eRVfjs3CPpSGtmAUQcT3reWqfupJSbrHoJELYJigkW",
+      "amount_sol_creator_funders": 0.179822,
+      "first_detected_at": "2026-08-10 16:17:44",
+      "mint_count_for_creator": 4,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "DU7cDMrQuowLEwZcaSKUEx3KuR7X63r5tVwkZMKb833a",
+      "amount_sol_creator_funders": 31.855999999999998,
+      "first_detected_at": "2026-06-22 11:58:03",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "CREATOR_FUNDERS_ONLY_NO_TRANSFER_INDEX_ROW"
+    },
+    {
+      "creator_address": "Djq4w3b299zby5BX98M3zcJuV6V3ZByHZka5wvjnEpJp",
+      "amount_sol_creator_funders": 14.9475,
+      "first_detected_at": "2026-05-10 21:30:51",
+      "mint_count_for_creator": 4,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "DkW7ihjubCBJaxJruD5oErbZo3KNGfkT3UZeY1wJGX8y",
+      "amount_sol_creator_funders": 1.209349,
+      "first_detected_at": "2026-06-09 23:53:56",
+      "mint_count_for_creator": 4,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "DIRECT_EDGE_NOT_PROJECTED_LOST_RECENCY_TIEBREAK"
+    },
+    {
+      "creator_address": "EA5ENPKZMYN5BDPJeobEXoXHtERZPCx4jsHknvsQPae5",
+      "amount_sol_creator_funders": 2.9865,
+      "first_detected_at": "2026-04-30 12:28:39",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "EC3kVgHmWp7QLFsPB1zi1muZBVYonR3FFp4qfAGUMMyf",
+      "amount_sol_creator_funders": 6.304203,
+      "first_detected_at": "2026-08-11 10:24:21",
+      "mint_count_for_creator": 73,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "EDqh5eN2K8V2oZ2mhUFAy5ZmcYnQDqeJr2S8awacyoBA",
+      "amount_sol_creator_funders": 2.81145,
+      "first_detected_at": "2026-08-12 01:50:54",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "EEiXGf3LahXCNLUez4kGzoCt5PL6oiujVG37UUEaci6R",
+      "amount_sol_creator_funders": 4.200639,
+      "first_detected_at": "2026-08-10 19:37:32",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "CREATOR_FUNDERS_ONLY_NO_TRANSFER_INDEX_ROW"
+    },
+    {
+      "creator_address": "ENWvJrD5qyfFEzx8u9QTkStgpkdh9PWikoU6UYqA2KWV",
+      "amount_sol_creator_funders": 2.48875,
+      "first_detected_at": "2026-06-23 19:55:35",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "EQSEFpaEJDqdAtqwW9VmKQVDB6TiLoCoSenWQRe3mQX4",
+      "amount_sol_creator_funders": 3.87784,
+      "first_detected_at": "2026-06-09 20:18:32",
+      "mint_count_for_creator": 16,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "EhrQmJL2an8co64rFkwbzavHP27HDr6kSswZ7MkXXkzu",
+      "amount_sol_creator_funders": 58.801665,
+      "first_detected_at": "2026-08-11 17:01:03",
+      "mint_count_for_creator": 233,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "Eij4hvccTtan5aomKPGu1DGXLUxGeJx626eXx8VAjJe1",
+      "amount_sol_creator_funders": 0.037775,
+      "first_detected_at": "2026-08-19 12:41:43",
+      "mint_count_for_creator": 3,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "F5kQpd6Es9C4Mne46AXEthjeBjEWQhvMX6HZdbEa2qUh",
+      "amount_sol_creator_funders": 3.625977,
+      "first_detected_at": "2026-08-12 14:30:58",
+      "mint_count_for_creator": 46,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "FBoAZWmPT91mhBUCnDRkUo38wqdLniwLs844XhEe46HL",
+      "amount_sol_creator_funders": 1.7919,
+      "first_detected_at": "2026-06-09 17:53:01",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "DIRECT_EDGE_NOT_PROJECTED_LOST_RECENCY_TIEBREAK"
+    },
+    {
+      "creator_address": "FMvPzm2QWLaTwYPC51NQGSzsfuQ8cKQvd9GQ6gwyWL35",
+      "amount_sol_creator_funders": 3.08381,
+      "first_detected_at": "2026-08-10 16:23:37",
+      "mint_count_for_creator": 11,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "FfJkBvnDEFJ9vjRjDZKX9zbz3GE4Wzzwyj3VijtWMbYu",
+      "amount_sol_creator_funders": 28.8985,
+      "first_detected_at": "2026-08-08 20:15:44",
+      "mint_count_for_creator": 2,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "FiAk3TQBQstZ84DWqFvWpcWhKZKNKSWSSMqc2muTK4aS",
+      "amount_sol_creator_funders": 3.97404,
+      "first_detected_at": "2026-08-19 21:41:02",
+      "mint_count_for_creator": 10,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "GMFtUt3mEV2uvC6JFYm5oor3xMhikEWKgpsT1ioz4pce",
+      "amount_sol_creator_funders": 2.9865,
+      "first_detected_at": "2026-04-26 18:27:57",
+      "mint_count_for_creator": 4,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "GMwfY5uhMzhpdzrahLyWajprVYCEfByYqo8qKzYLvDhL",
+      "amount_sol_creator_funders": 128.8226775,
+      "first_detected_at": "2026-04-27 08:54:01",
+      "mint_count_for_creator": 420,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "GQrmMTerFZahGyVpknQRZwZHXkXnQvVMwWBgNzSMMPmc",
+      "amount_sol_creator_funders": 0.01568,
+      "first_detected_at": "2026-08-11 11:21:01",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "GS4XMy6yhS4LE7dQg4qMdYU7XACZNZTjtQzgxEdPvovD",
+      "amount_sol_creator_funders": 1.001473,
+      "first_detected_at": "2026-08-14 21:51:11",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "GSC9Hm3xZu5mtomDfBU3tmq8Q9JC94axG7TKFXZudWAz",
+      "amount_sol_creator_funders": 4.871712,
+      "first_detected_at": "2026-08-10 22:02:44",
+      "mint_count_for_creator": 3,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "GfCNHSTeGnS5BYcxLck4UtA4P6r3vai6ggxzszhtNWjf",
+      "amount_sol_creator_funders": 2.998656,
+      "first_detected_at": "2026-08-10 14:57:13",
+      "mint_count_for_creator": 2,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "GogLecsuu5gAisRDwMCRezZ6iAwz2BRpg3Umcqnvf4jF",
+      "amount_sol_creator_funders": 0.495486,
+      "first_detected_at": "2026-08-18 03:01:34",
+      "mint_count_for_creator": 98,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "GuWqt1S6f2pFZxFDDM6mJYTBP5Kb2L1NrMVnVdZ2JwbM",
+      "amount_sol_creator_funders": 8.722667,
+      "first_detected_at": "2026-08-09 15:54:08",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "CREATOR_FUNDERS_ONLY_NO_TRANSFER_INDEX_ROW"
+    },
+    {
+      "creator_address": "HGqggutZEKE5LE76QvFjVhC4ui6SQpaxfp6e3mpqEU5J",
+      "amount_sol_creator_funders": 1.08293,
+      "first_detected_at": "2026-08-10 18:56:32",
+      "mint_count_for_creator": 2,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "HPg7D2urG2B4z2BwKkS8z5HEwRRDKbtmYnAE31oCWzjL",
+      "amount_sol_creator_funders": 47.2018,
+      "first_detected_at": "2026-08-10 18:01:46",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "CREATOR_FUNDERS_ONLY_NO_TRANSFER_INDEX_ROW"
+    },
+    {
+      "creator_address": "Hi8JcgLTH2LU3wAxxtbCGnTX1jqoRkX3q6VG77BPw768",
+      "amount_sol_creator_funders": 2.741888,
+      "first_detected_at": "2026-08-10 23:16:27",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "Hiw6aSRegfF4K5YfmEEjJNsYLjpaxtUqHukfapw5uyhk",
+      "amount_sol_creator_funders": 4.526496,
+      "first_detected_at": "2026-08-18 14:02:24",
+      "mint_count_for_creator": 4,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "HkjBjXZU3Gu57HvX5F7Zv9FcUsWntFkaxSW535kHeagc",
+      "amount_sol_creator_funders": 1.329242,
+      "first_detected_at": "2026-08-12 21:32:45",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "HnzaourUakpF9RZfTy8DEhGK11UmWYSPTM52bZi2JPuu",
+      "amount_sol_creator_funders": 7.964,
+      "first_detected_at": "2026-06-22 12:36:08",
+      "mint_count_for_creator": 82,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "HyQZusToLWLyeLaLu1Du9EhY43KvBrgH9C8b3AWcZTfQ",
+      "amount_sol_creator_funders": 10.4861695,
+      "first_detected_at": "2026-06-22 12:05:06",
+      "mint_count_for_creator": 2,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "CREATOR_FUNDERS_ONLY_NO_TRANSFER_INDEX_ROW"
+    },
+    {
+      "creator_address": "JCNU82NRGdLwcnLvtsB3aQeW463e3inAYk1idThNKLTt",
+      "amount_sol_creator_funders": 14.9325,
+      "first_detected_at": "2026-04-20 23:18:44",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "OUTSIDE_DISCOVERY_INPUT_POPULATION"
+    },
+    {
+      "creator_address": "SvVkyQFvza1A6wBk7UXzaGaNgY5oE48nxexE7W1zRXu",
+      "amount_sol_creator_funders": 3.919232,
+      "first_detected_at": "2026-08-10 17:49:26",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "a1on9Ats86JFbxPFNQxT5TBD3vdYC3JXCJLETrLsgJU",
+      "amount_sol_creator_funders": 11.946,
+      "first_detected_at": "2026-05-21 14:19:25",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "cskUVStPaAaU1V3eGTqCU3UVbVMV5y7eDXZt662erAQ",
+      "amount_sol_creator_funders": 5.973,
+      "first_detected_at": "2026-05-26 03:00:18",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "wnDBysEVFUsYP3VmS32ed6qzwKDvpSb8xh1LzByvW9e",
+      "amount_sol_creator_funders": 0.988515,
+      "first_detected_at": "2026-06-23 10:30:17",
+      "mint_count_for_creator": 3,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "FUNDING_GAP_GT_3600S"
+    },
+    {
+      "creator_address": "yMUb7aPTWX4jSkWqzPEaHXL1Bh5k8VwUkJKwwPT8JBC",
+      "amount_sol_creator_funders": 16.6602,
+      "first_detected_at": "2026-08-10 19:37:46",
+      "mint_count_for_creator": 1,
+      "present_in_main_db_creator_funders": true,
+      "present_in_new_discovery_23": false,
+      "classification_reason": "CREATOR_FUNDERS_ONLY_NO_TRANSFER_INDEX_ROW"
+    }
+  ]
+}

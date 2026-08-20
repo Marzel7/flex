@@ -534,11 +534,12 @@
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
   "current_milestone": {
-    "milestone": "OPS-DISCOVERY-P3 -- mint-linked independent evidence adapter qualification",
+    "milestone": "OPS-DISCOVERY-P3R -- bounded residual independent-evidence acquisition qualification",
     "status": "HOLD",
-    "verdict": "BLIND_TEST_NOT_READY_LOCAL_INDEPENDENT_EVIDENCE_INSUFFICIENT",
-    "next_action": "OPS-DISCOVERY-P3R_BOUNDED_RESIDUAL_EVIDENCE_ACQUISITION_REQUIRES_HUMAN_AUTHORIZATION"
+    "verdict": "READY_OPS_DISCOVERY_P3R_MANUAL_EXECUTION_GATE",
+    "next_action": "HUMAN_SUPPLY_CREDENTIAL_AND_RUN_FROZEN_68_REQUEST_CONTROL_MANIFEST"
   },
+  "ops_discovery_p3r": {"updated_at_utc":"2026-08-20T00:00:00Z","status":"HOLD","verdict":"READY_OPS_DISCOVERY_P3R_MANUAL_EXECUTION_GATE","cohort_size":38,"controls":{"watchtower":12,"three_sw2":6,"negative":12,"unknown":8},"request_maximum":68,"actual_requests_consumed":0,"provider_calls_made":0,"existing_8_funding_structures_preserved":true,"next_action":"HUMAN_SUPPLY_CREDENTIAL_AND_RUN_FROZEN_68_REQUEST_CONTROL_MANIFEST"},
   "ops_discovery_p3": {
     "updated_at_utc": "2026-08-20T00:00:00Z",
     "status": "HOLD",

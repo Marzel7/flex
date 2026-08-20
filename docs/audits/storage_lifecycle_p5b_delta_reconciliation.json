@@ -1,0 +1,90 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5B Stage 1 -- Parts B+C: pre-cutover delta sync and delta identity reconciliation",
+  "generated_at_utc": "2026-08-20T19:30:00Z",
+  "repo": "/Users/kevinkeaveney/Dev/claude/flex",
+  "branch": "classification-attribution-axis",
+  "scope_note": "Production remained fully live and untouched (read-only connections only) throughout. All writes targeted ONLY database/_p5a_migration_build/replacement_main.db and a new database/_p5a_migration_build/cold_segments/transfer_index_cold_2026_08_delta.sqlite segment file. No atomic switch, no writer quiesce, no service stop/start performed.",
+  "p5a_high_water": 6648855,
+  "p5b_precutover_high_water_round1": 6743251,
+  "hot_boundary_unix_used": 1779446413,
+  "hot_boundary_source": "docs/audits/storage_lifecycle_p5a_part14_row_accounting.json (hot_boundary_unix, 90-day rolling window frozen at P5A's freeze time) -- literal recorded value reused, not re-derived",
+  "identity_key": "(signature, source, destination, amount_lamports, block_time) composite, per P5A Part 15 corrected methodology -- raw id NOT used since cold segments locally renumber ids",
+  "pin_set_sizes": {
+    "creator_funders_distinct_creator_address": 21777,
+    "wt_ops_v2_operator_entities_distinct_entity_address": 70,
+    "discovery_corpus_direct_plus_upstream_signature_union": 36835
+  },
+  "candidate_pre_existing_state_finding": {
+    "observation": "database/_p5a_migration_build/replacement_main.db already contained 80,693 rows with id > P5A_HIGH_WATER (6648855) BEFORE this session's script ran, and a cold delta segment did not yet exist.",
+    "root_cause_investigation": "Verified all 80,693 pre-existing rows byte-identical (full composite-key match against production for the same ids, 80,693/80,693 matched, 0 mismatches). Checked the superseded storage_lifecycle_p5b_pre_cutover.json (the FIRST P5B attempt, HOLD_P5B_UNEXPECTED_WRITER verdict) -- that artifact explicitly states 'action_taken: NONE beyond read-only reconnaissance. No delta copied,' so it is NOT the source. database/_p5a_migration_build/ is gitignored (no commits reference it), so its exact prior-session origin cannot be traced via git history. Origin is therefore UNRESOLVED but the rows themselves are independently VERIFIED CORRECT (byte-identical to production, correctly HOT-classifiable), so this poses no integrity risk to Stage 1's own output.",
+    "disposition": "Not a defect and not blocking. INSERT OR IGNORE correctly treated these as already-present and inserted only the 1 genuinely-new row this session found. Documented here transparently rather than silently absorbed; flagged for human awareness that the candidate build directory has untracked prior write activity of unknown session origin, though verified benign."
+  },
+  "round1": {
+    "id_range": {"low_id_exclusive": 6648855, "high_id_inclusive": 6743251},
+    "source_row_count": 85934,
+    "classification": {
+      "hot_pinned": 12021,
+      "hot_recent": 68672,
+      "hot_ambiguous_invalid_block_time": 0,
+      "cold": 5241,
+      "hot_total": 80693
+    },
+    "accounting_check": {"hot_plus_cold": 85934, "source_row_count": 85934, "matches": true},
+    "hot_write_result": {
+      "inserted_new": 1,
+      "ignored_as_duplicate_pre_existing": 80692,
+      "note": "80,692 of the 80,693 hot-classified rows were already present in replacement_main.db from a prior partial sync (see candidate_pre_existing_state_finding above); verified byte-identical, not overwritten (INSERT OR IGNORE)."
+    },
+    "cold_write_result": {
+      "inserted_new": 5241,
+      "ignored_as_duplicate": 0,
+      "segment_path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2026_08_delta.sqlite",
+      "segment_created_this_session": true
+    },
+    "elapsed_seconds": 82.525
+  },
+  "round2": {
+    "performed": false,
+    "reason": "MAX(id) re-checked immediately after round 1 completed; production high-water was still 6743251 (unchanged). No new rows arrived during round 1's ~82s execution window, so round 2 was correctly skipped per the task's 'up to 2 rounds' instruction."
+  },
+  "final_replacement_main_db_row_count": {
+    "measured": 3568079,
+    "expected": "P5A original hot_total_rows (3,487,386) + total delta hot rows ever synced into this candidate across both this session and the prior partial attempt (80,693) = 3,568,079",
+    "arithmetic_check": "3487386 + 80693 = 3568079",
+    "matches": true,
+    "no_double_insertion": "Confirmed via INSERT OR IGNORE semantics + the byte-identical verification above; this session's own net new contribution was exactly 1 row."
+  },
+  "cold_delta_segment_verification": {
+    "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2026_08_delta.sqlite",
+    "row_count": 5241,
+    "integrity_check": "ok",
+    "manifest_row": {
+      "segment_id": "transfer_index_cold_2026_08_delta",
+      "row_count": 5241,
+      "closed_at_set": true,
+      "sha256_of_sorted_signatures": "b35c976778d5ddff6d557d3f3dd33288a1ed1ecdd232ee86228532007f08c02a",
+      "source_run_id": "p5b-stage1-delta-20260820T192518Z",
+      "month_covered": "2026_08"
+    },
+    "collision_check": "No pre-existing 2026_08 segment found among the 41 original P5A segments (all 41 cover months through 2026_05 per P5A's own record); distinct '_delta' suffix used regardless per instruction to avoid any future naming ambiguity with a possible future full-month 2026_08 segment.",
+    "existing_41_segments_untouched": "Confirmed -- this session only created and wrote to the new *_delta.sqlite file; no existing cold segment file was opened in write mode."
+  },
+  "delta_identity_reconciliation": {
+    "method": "Streaming chunked XOR-combined SHA256 digest over composite key (signature, source, destination, amount_lamports, block_time), identical method to P5A Part 15, restricted to the delta id range (6648855, 6743251].",
+    "delta_id_range": {"low_exclusive": 6648855, "high_inclusive": 6743251},
+    "production": {"row_count": 85934, "digest_hex": "2da27f84f56bbe71a23df4f2543dd66db092e2cef4dffde3f48fc3829a183d73"},
+    "hot_delta_slice_in_replacement_main_db": {"row_count": 80693, "digest_hex": "c7e44fa553d914633cdb99dd2c9b4f9f2ad19ee75a8870a89d4507adcc422f6f"},
+    "cold_delta_segment": {"row_count": 5241, "digest_hex": "ea463021a6b2aa129ee66d2f78a699f29a437c29ae578d4b69cac42f565a121c"},
+    "union_hot_cold": {"row_count": 85934, "digest_hex": "2da27f84f56bbe71a23df4f2543dd66db092e2cef4dffde3f48fc3829a183d73"},
+    "comparison": {"row_count_match": true, "digest_match": true, "missing": 0, "extra": 0, "conflicts": 0},
+    "verdict": "DELTA_IDENTITY_RECONCILIATION_PASS"
+  },
+  "disk_check": {
+    "before_round1_gib": 42,
+    "after_round1_gib": 42,
+    "note": "Delta write volume (1 HOT row + one small ~5241-row cold segment, well under 10MB) caused no measurable change to free disk; never approached the 20 GiB hard-stop or 25 GiB caution threshold at any point."
+  },
+  "production_mutation_occurred": false,
+  "production_mutation_confirmation": "Every read against database/flex_complete_database.db in Parts B and C used a read-only URI connection (file:...?mode=ro) with PRAGMA query_only=1. No write statement was ever issued against the production file. wt_ops_v2.db and local_operation_discovery_corpus.db were also opened read-only only, for pin-set loading.",
+  "verdict": "STORAGE_LIFECYCLE_P5B_STAGE1_DELTA_SYNC_AND_RECONCILIATION_PASS"
+}

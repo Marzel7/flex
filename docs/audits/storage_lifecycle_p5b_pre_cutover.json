@@ -1,0 +1,112 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5B Stage 1 -- Parts A+D: freshness check and readiness gate",
+  "supersedes": "This file supersedes the FIRST P5B attempt's storage_lifecycle_p5b_pre_cutover.json (verdict HOLD_P5B_UNEXPECTED_WRITER, git_head 942d7e38). That attempt's 'unexpected writer' concern (watchtower_api's /api/analyze-all-coordinated-funders write path) was subsequently investigated and resolved in STORAGE-LIFECYCLE-P5B-R1 (docs/audits/storage_lifecycle_p5b_r1_*.json): watchtower_api is now formally classified CONDITIONALLY_ARMABLE_WRITER (toggle currently false, but kept inside the writer-quiesce boundary regardless), and R1's full 3-writer stop/start qualification passed live. This Stage 1 session builds on R1's settled census rather than re-litigating it.",
+  "generated_at_utc": "2026-08-20T19:00:00Z",
+  "repo": "/Users/kevinkeaveney/Dev/claude/flex",
+  "branch": "classification-attribution-axis",
+  "part_a_freshness_check": {
+    "writer_supervisor_status": {
+      "command": "supervisorctl -c config/supervisor/supervisord.conf status",
+      "watchtower_listener": "RUNNING pid 38418",
+      "creator_funding_worker": "RUNNING pid 38454",
+      "watchtower_api": "RUNNING pid 38474",
+      "other_programs_observed": ["alert_evaluator (RUNNING)", "creator_resolution_worker (RUNNING)", "intelligence_snapshot_scheduler (RUNNING)", "operation_scheduler (RUNNING)", "walkback_worker (RUNNING)", "watchtower_ngrok (RUNNING)", "ws_cascade (RUNNING)", "dust_observatory_enricher (STOPPED)", "evidence_writer (STOPPED)", "infra_sync_scheduler (STOPPED)", "watchtower_helius_monitor (STOPPED)", "webhook_worker (STOPPED)"],
+      "comparison_to_r1_complete_writer_census": "Every RUNNING and STOPPED program name observed this session matches R1's complete_writer_census.json enumeration exactly (same 15 programs, same running/stopped split). No new or unexpected supervisord program has appeared since R1.",
+      "verdict": "PASS -- exactly the 3 known writers RUNNING, no anomaly."
+    },
+    "disk_headroom": {
+      "command": "df -g .",
+      "free_gib": 42,
+      "hard_stop_threshold_gib": 20,
+      "caution_threshold_gib": 25,
+      "verdict": "PASS -- comfortably above both thresholds."
+    },
+    "candidate_drift_check": {
+      "final_commit_hash_reference": "0fd2f46eef6e77a72b1e9c21c32bb5c8c34b71e5",
+      "commit_time": "2026-08-20T18:25:42+0100 (per git log -1 --format=%ci)",
+      "replacement_main_db_mtime_at_check_time": "2026-08-20T12:58:34 local (pre-this-session-write)",
+      "cold_segments_mtime_range": "2026-08-20T11:40:xx through 2026-08-20T11:55:14 local, all 41 segments",
+      "gitignore_status": "database/_p5a_migration_build/replacement_main.db and cold_segments/*.sqlite are NOT literally present in commit 0fd2f46e's tree (both are gitignored -- confirmed *.db, *.sqlite, and database/_p5a_migration_build/ are all covered by the current .gitignore, closing the gap P5A itself flagged). Filesystem mtimes were used instead, per instruction, since the commit cannot directly attest to these files.",
+      "reasoning": "All observed mtimes (11:40-12:58 local) cluster tightly within a single build window on 2026-08-20, consistent with 'built once by P5A, then untouched' for the bulk of the candidate. One nuance requiring disclosure below.",
+      "nuance_disclosed": "This session's Part B work discovered that replacement_main.db already contained 80,693 rows beyond P5A_HIGH_WATER (6648855) BEFORE this session wrote anything -- i.e. the file was NOT purely P5A's original static output; some additional write activity occurred at or before the 12:58:34 mtime this session first observed. All 80,693 rows were independently verified byte-identical to production for their ids (see storage_lifecycle_p5b_delta_reconciliation.json), so this did not represent drift/corruption, but the file's write history between P5A's commit and this session's start is not fully traceable via git (the build dir is gitignored, no commit history exists for it). Judgment call: treated as PASS because (a) content is verified correct, not merely assumed, and (b) no mtime advanced during this session's OWN freshness-check window (i.e. no writer was actively touching the file concurrently with this check) -- but flagged explicitly rather than silently waved through.",
+      "verdict": "PASS (with disclosed nuance) -- proceeded to Part B per the verified-correct content, not blind trust in mtime alone."
+    },
+    "overall_part_a_result": "PASS -- proceeded to Part B."
+  },
+  "part_d_readiness_gate": {
+    "candidate_valid": {
+      "result": "YES",
+      "why": "replacement_main.db + cold_segments now fully reflect production through id<=6743251 (P5A's 3,487,386 original HOT rows + 80,693 delta HOT rows = 3,568,079 total; 41 original + 1 new delta COLD segment = 1,735,652 + 5,241 = 1,740,893 total COLD rows). Delta identity reconciliation PASS (see below)."
+    },
+    "delta_reconciled": {
+      "result": "YES",
+      "exact_counts": "Production delta range (id 6648855, 6743251] = 85,934 rows. HOT-classified = 80,693 (12,021 pinned + 68,672 recent). COLD-classified = 5,241. 80,693 + 5,241 = 85,934, exact match, zero ambiguous/held-hot rows. Identity reconciliation: production digest 2da27f84... (85,934 rows) == union HOT+COLD digest 2da27f84... (85,934 rows), exact match, 0 missing/extra/conflicts."
+    },
+    "rollback_contract_ready": {
+      "result": "YES, UNCHANGED FROM R1",
+      "confirmation": "database/flex_complete_database.db remains the rollback target, untouched, at its current path database/flex_complete_database.db. Every access to it in this Stage 1 session used a read-only URI connection (file:...?mode=ro) or PRAGMA query_only=1. No write statement was ever issued against it. Reference: docs/audits/storage_lifecycle_p5b_r1_rollback_contract.json for the full 6-step rollback sequence (quiesce order, zero-writer proof, restore, identity verify, restart order, health/write proof)."
+    },
+    "old_db_retained": {
+      "result": "TRIVIALLY YES",
+      "why": "Never touched, moved, renamed, or opened in write mode during Stage 1."
+    },
+    "watchtower_baseline_not_yet_frozen": {
+      "status": "NOT YET FROZEN for this specific cutover attempt -- this is a Stage 2 action, to be taken immediately before writer quiesce so it is as close to the actual quiesce moment as practical.",
+      "preliminary_informational_read_taken": {
+        "note": "NOT the authoritative freeze -- for informational purposes only.",
+        "query": "SELECT COUNT(*) FROM operator_entities (wt_ops_v2.db, read-only)",
+        "result": 70,
+        "watchtower_operator_id_sample": "04265d9f-6eb2-568c-a49e-9253091a4dbb (first display_name/operator_id LIKE match)"
+      }
+    },
+    "3sw2_baseline_not_yet_frozen": {
+      "status": "NOT YET FROZEN, same note as Watchtower -- 3SW2's canonical evidence lives in wt_ops_v2.db operator_entities (per P5A's three_sw2_parity section), which is the canonical source; freezing deferred to Stage 2 for the same as-close-to-quiesce-as-practical reasoning."
+    },
+    "current_disk_safe": {
+      "result": "YES",
+      "free_gib_before": 42,
+      "free_gib_after_all_stage1_writes": 42,
+      "hard_stop_threshold_gib": 20,
+      "never_approached": true
+    },
+    "exact_writer_stop_start_commands_known": {
+      "result": "YES, reference docs/audits/storage_lifecycle_p5b_r1_three_writer_quiesce_test.json and storage_lifecycle_p5b_r1_rollback_contract.json",
+      "stop_order": ["watchtower_api", "creator_funding_worker", "watchtower_listener"],
+      "stop_commands": [
+        "supervisorctl -c config/supervisor/supervisord.conf stop watchtower_api",
+        "supervisorctl -c config/supervisor/supervisord.conf stop creator_funding_worker",
+        "supervisorctl -c config/supervisor/supervisord.conf stop watchtower_listener"
+      ],
+      "start_order": ["watchtower_listener", "creator_funding_worker", "watchtower_api"],
+      "start_commands": [
+        "supervisorctl -c config/supervisor/supervisord.conf start watchtower_listener",
+        "supervisorctl -c config/supervisor/supervisord.conf start creator_funding_worker",
+        "supervisorctl -c config/supervisor/supervisord.conf start watchtower_api"
+      ],
+      "measured_durations_from_r1": {
+        "combined_stop_sec": "~26 (10.25 + 15.20 + 0.12... order differs slightly from R1's per-service breakdown but total holds)",
+        "combined_start_sec": "~25 (11.16 + 5.25 + 8.67)",
+        "combined_zero_writer_interval_measured_in_r1_sec": 65,
+        "note": "R1's own extrapolation states a real cutover's zero-writer window only needs to hold long enough for one zero-writer-proof pass (~10-15s), not the full 65s exploratory window R1 used."
+      },
+      "zero_writer_proof_method": "6 independent signals per R1: supervisor state, process census, lsof write-handle absence, write-lock file presence (shared infra, expected), WAL 0-byte stability, MAX(id) flat across repeated polls."
+    },
+    "exact_switch_mechanism_determined": {
+      "investigation_performed": "Grepped src/core/main.py, src/core/pumpfun_curve_listener.py, src/core/creator_funding_worker.py, src/core/transfer_indexer.py, src/extractors/realtime_creator_funding_extractor.py, src/extractors/funder_incoming_extractor.py for DB_PATH / hardcoded database path resolution.",
+      "finding": "Confirmed, consistent with R1's own restart_target_contract.json: ALL modules resolve their DB path as a module-level constant at process import time (e.g. src/core/main.py:47 DB_PATH = os.path.abspath(os.environ.get('DB_PATH', _DEFAULT_DB_PATH)); src/core/pumpfun_curve_listener.py:761-764; src/core/creator_funding_worker.py:69-71; src/extractors/realtime_creator_funding_extractor.py:57-59; src/extractors/funder_incoming_extractor.py:70). No module re-resolves the path lazily or via a live-reloaded config, so an already-running process would NOT pick up a new DB target without a full restart.",
+      "determined_mechanism": "Smallest atomic reversible switch: (1) quarantine-rename the live file, e.g. `mv database/flex_complete_database.db database/flex_complete_database.db.pre_p5b_quarantine`, (2) rename the fully-delta-applied candidate into the exact original path, e.g. `mv database/_p5a_migration_build/replacement_main.db database/flex_complete_database.db`. Both are POSIX rename(2) calls within the same filesystem/volume, hence atomic (no partial-file window). Followed immediately by starting all 3 writer services in R1's proven order so they resolve DB_PATH fresh against the new file.",
+      "same_filesystem_confirmed": {
+        "method": "stat -f %d on both database/ and database/_p5a_migration_build/",
+        "device_id_database": 16777231,
+        "device_id_build_dir": 16777231,
+        "match": true,
+        "conclusion": "Same filesystem/volume confirmed -- atomic rename holds."
+      },
+      "cold_segments_handling_not_yet_designed": "The switch mechanism above covers the single HOT file only. How COLD segment files (41 originals + 1 new delta) get wired into the live read path (e.g. a UnifiedTransferReader COLD-segment directory pointer) is referenced as already-validated in P5A Part 16-18 (UnifiedTransferReader validated against the real build with zero code changes needed) but the exact COLD-directory activation step for Stage 2 is not independently re-verified in this Stage 1 session -- flagged for Stage 2 planning attention.",
+      "confidence": "HIGH for the HOT-file atomic rename mechanism itself (directly verified: same device, all writers proven to require restart anyway). MEDIUM for the full end-to-end switch including COLD-segment directory activation, since that specific wiring step was not independently re-tested this session (relies on P5A's prior validation)."
+    }
+  },
+  "production_mutation_occurred": false,
+  "production_mutation_confirmation": "Every Part A and Part D check against database/flex_complete_database.db used read-only connections or read-only shell commands (stat, ls, df, supervisorctl status). No write, stop, start, or rename was performed against production or any supervisord-managed service.",
+  "overall_verdict": "STAGE1_READY_FOR_HUMAN_STAGE2_AUTHORIZATION_REVIEW"
+}

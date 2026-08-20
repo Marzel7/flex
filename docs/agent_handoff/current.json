@@ -31056,5 +31056,31 @@
       "cutover_performed": false
     },
     "next_step": "Real P5B cutover (delta copy, identity reconciliation, atomic HOT/COLD switch) remains gated on separate explicit human authorization. When authorized, use the proven stop/start orders and zero-writer-proof method from this R1 combined with P5A-benchmarked delta/reconciliation/switch timings."
+  },
+  "storage_lifecycle_p5b_stage1": {
+    "milestone": "STORAGE-LIFECYCLE-P5B Stage 1 -- pre-cutover delta sync + readiness gate (production read-only throughout)",
+    "status": "COMPLETE_AWAITING_HUMAN_STAGE2_AUTHORIZATION",
+    "verdict": "STAGE1_READY_FOR_HUMAN_STAGE2_AUTHORIZATION_REVIEW",
+    "p5a_high_water": 6648855,
+    "p5b_precutover_high_water": 6743251,
+    "delta_row_counts": {
+      "source": 85934,
+      "hot": 80693,
+      "cold": 5241,
+      "hot_newly_inserted_this_session": 1
+    },
+    "delta_identity_reconciliation": "PASS -- digest match, 85934=85934, 0 missing/extra/conflicts",
+    "candidate_row_totals": {
+      "hot_total": 3568079,
+      "cold_total": 1740893
+    },
+    "production_mutation_occurred": false,
+    "services_stopped_or_restarted": false,
+    "atomic_switch_performed": false,
+    "artifacts": [
+      "docs/audits/storage_lifecycle_p5b_delta_reconciliation.json",
+      "docs/audits/storage_lifecycle_p5b_pre_cutover.json"
+    ],
+    "next_action": "HUMAN_AUTHORIZATION_REQUIRED_FOR_STAGE2 (writer quiesce + atomic switch), NOT sought or attempted by this session."
   }
 }

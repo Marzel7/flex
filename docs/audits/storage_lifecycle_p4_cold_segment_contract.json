@@ -1,0 +1,52 @@
+{
+  "schema_version": "storage.lifecycle.p4.cold-segment-contract.v1",
+  "artifact_type": "STORAGE_LIFECYCLE_P4_COLD_SEGMENT_CONTRACT",
+  "milestone": "STORAGE-LIFECYCLE-P4 Part 6-9",
+  "implementation": "src/ops/transfer_cold_store.py (schema/manifest) + src/ops/transfer_archival_cursor.py (keyset cursor)",
+  "segment_schema": {
+    "compatible_with_hot": "identical column set to the live transfer_index table (signature, source, destination, amount_lamports, slot, block_time, indexed_at, is_valid, transfer_type) plus the same UNIQUE(signature, source, destination) identity constraint",
+    "no_unnecessary_payload_duplication": "no raw RPC payload or artifact body is stored in cold segments -- transfer_index rows are already compact (addresses/signature/amount/time), and any raw payload evidence lives in the existing ArtifactStore (untouched by this design)",
+    "indexes": "idx_cold_destination_time, idx_cold_source_time, idx_cold_block_time -- matching the 3 most query-relevant HOT indexes (the 2 partial indexes and the amount-ordered composite index from HOT were judged unnecessary in COLD, since COLD is never queried for 'is_valid=1 only' bulk scans or amount-sorted top-N the way HOT sometimes is per the consumer census)"
+  },
+  "monthly_segment_validation_against_real_volume": {
+    "measured_avg_daily_ingest": 171796,
+    "measured_high_daily_ingest": 402792,
+    "monthly_row_estimate_avg": 5153880,
+    "monthly_row_estimate_high": 12083760,
+    "estimated_monthly_bytes_avg_gib": 0.72,
+    "estimated_monthly_bytes_high_gib": 1.69,
+    "conclusion": "A single monthly segment is estimated at roughly 0.7-1.7 GiB under measured ingest rates -- well within a manageable single-SQLite-file size, no subsegmentation required at current volume. If sustained ingest were to grow materially (e.g. multiple x current rate), the segment_manifest schema already supports a subsegment sequence number in its segment_id naming (transfer_index_cold_YYYY_MM_NNNN.sqlite pattern is compatible with the existing segment_id=Path(dest_path).stem logic, which does not assume any particular id format) -- not activated now since current volume does not require it."
+  },
+  "segment_manifest_fields": {
+    "implemented": [
+      "segment_id (PK)",
+      "created_at",
+      "closed_at",
+      "row_count",
+      "sha256_of_sorted_signatures",
+      "source_run_id",
+      "month_covered"
+    ],
+    "not_yet_implemented_flagged_for_p5": [
+      "min/max slot (currently only min/max block_time tracked implicitly via the segment's row content, not a dedicated manifest column)",
+      "unique signature count (row_count currently conflates total rows with unique signatures; the UNIQUE constraint makes them equal in practice but a dedicated column would be more explicit)",
+      "file bytes (not recorded in the manifest table itself, though trivially obtainable via os.path.getsize at any time)",
+      "explicit reference/retention state enum (currently only closed_at IS NULL/NOT NULL distinguishes open/closed; no PERMANENT/RETIREMENT_ELIGIBLE state machine yet)"
+    ],
+    "atomicity": "manifest row is inserted via INSERT OR IGNORE at segment creation and updated via a single UPDATE statement at close_segment() time, both within the same connection's implicit transaction as the data write that precedes them -- verified by test_close_segment_marks_immutable and the RuntimeError raised in close_segment() if the UPDATE affects anything other than exactly 1 row (P4 addition, catches a manifest-row-missing bug found and fixed during P3->P4 testing)"
+  },
+  "keyset_archival_cursor": {
+    "key_chosen": "id (INTEGER PRIMARY KEY AUTOINCREMENT) -- immutable once assigned, strictly monotonic, never reused even after deletes",
+    "why_not_block_time_or_indexed_at": "both are mutable/backfillable event-time fields (block_time can be indexed later than it occurred; indexed_at reflects write time but is a REAL/float, less suitable for exact keyset boundaries than an INTEGER PK) -- explicitly rejected per the human directive's own guidance",
+    "high_water_binding": "frozen once per run_id at run start via start_or_resume_run(); a resumed run (same run_id) NEVER re-freezes a later ceiling, tested by test_high_water_freezes_at_run_start; a genuinely new run_id gets a fresh ceiling, tested by test_new_run_id_freezes_fresh_ceiling",
+    "crash_safety": "checkpoint written atomically (temp file + os.replace) after EVERY batch commit -- tested by test_resume_after_partial_run_continues_not_restarts (simulates a crash after 2 of many batches, proves resume continues from row 21, not row 1, and produces zero duplicates)",
+    "idempotent_rerun": "re-running an already-completed run_id processes zero additional rows (test_rerun_completed_run_is_idempotent_zero_new_rows)",
+    "tests": "19/19 passing in tests/test_storage_lifecycle_p4_archival_cursor.py"
+  },
+  "copy_verify_contract": {
+    "sequence": "SOURCE READ (mode=ro or caller-controlled) -> COLD COPY (bounded batch INSERT OR IGNORE) -> VERIFY (row count + signature digest) -> CLOSE SEGMENT (manifest UPDATE)",
+    "no_source_deletion": "verified structurally (test_no_delete_or_vacuum_in_archival_cursor_module, test_no_delete_from_hot_in_cold_store_module) and behaviorally (test_archival_never_deletes_from_source: source row count unchanged after archival)",
+    "failed_verification_leaves_source_untouched": "true by construction -- the cursor never issues a DELETE against source_conn anywhere in transfer_archival_cursor.py or transfer_cold_store.py; this is not merely 'best effort', there is no code path capable of it"
+  },
+  "deterministic_digest": "b602d94e492475ed79ae116e20b70e12c6f65ae60f30978635816acb9d119957"
+}

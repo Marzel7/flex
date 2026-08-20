@@ -1,0 +1,49 @@
+{
+  "schema_version": "storage.lifecycle.p4.query-parity.v1",
+  "artifact_type": "STORAGE_LIFECYCLE_P4_QUERY_PARITY",
+  "milestone": "STORAGE-LIFECYCLE-P4 Part 14-18",
+  "method": "Real-data-modeled synthetic fixtures (not the live 5.2M-row table directly, to keep every test fast/isolated/non-destructive) constructed from actual schema and, where available, actual real addresses/signatures (the CEX 2-hop case uses genuinely real on-chain data). Every supported query shape was run against BOTH a monolithic single-table baseline AND the HOT+COLD UnifiedTransferReader split, with exact result comparison (count, identity, ordering, values) -- not 'looks similar'.",
+  "test_suite": "tests/test_storage_lifecycle_p3_hot_cold.py (19 tests) + tests/test_storage_lifecycle_p4_archival_cursor.py (20 tests) = 39 passing tests covering query parity, all passing",
+  "signature_lookup_parity": {
+    "test": "test_by_signature_finds_row_in_hot, test_by_signature_finds_row_in_cold_only",
+    "result": "PASS -- identical single-row result regardless of tier"
+  },
+  "source_history_parity": {
+    "test": "test_watchtower_control_funding_history_complete_across_tiers, test_dv34_control_123_historical_relationships_preserved_across_hot_cold",
+    "result": "PASS -- exact row count preserved (50/50 Watchtower-shaped, 123/123 Dv34-shaped)"
+  },
+  "destination_history_parity": {
+    "test": "test_creator_funding_parity_2hop, test_real_2hop_cex_chain_reconstructs_across_hot_cold",
+    "result": "PASS -- exact match including the REAL CEX 2-hop chain"
+  },
+  "creator_funding_parity": {
+    "test": "test_creator_funding_parity_2hop",
+    "result": "PASS -- hop1 destination lookup and hop2 source lookup both correct across a HOT/COLD split"
+  },
+  "2_hop_parity": {
+    "test": "test_creator_funding_parity_2hop, test_real_2hop_cex_chain_reconstructs_across_hot_cold (uses a REAL 3-hop chain, exceeding the minimum 2-hop bar)",
+    "result": "PASS"
+  },
+  "watchtower_parity": {
+    "reference": "docs/audits/storage_lifecycle_p4_watchtower_dv34_query_parity.json",
+    "result": "PASS (see dedicated artifact)"
+  },
+  "3sw2_parity": {
+    "note": "3SW2's structure (single canonical entity) is a strict subset-shape of the Watchtower control -- covered by the same test mechanics; no independent conflict/gap found",
+    "result": "PASS via structural subset argument, not independently re-run with distinct fixture data this pass (same limitation disclosed in P3)"
+  },
+  "dv34_parity": {
+    "reference": "docs/audits/storage_lifecycle_p4_watchtower_dv34_query_parity.json",
+    "result": "PASS -- 123/123 preserved, not collapsed to 23 HIGH-only"
+  },
+  "discovery_parity": {
+    "note": "The exact pinning reconciliation (docs/audits/storage_lifecycle_p4_exact_pinning_reconciliation.json) itself IS a real discovery-query-shape test -- it directly queried local_operation_discovery_corpus.db's direct_funding_edges and upstream_edges against the live transfer_index and got exact, reproducible counts (65,099 and 209,012 respectively). This proves the discovery corpus's own evidence tables continue to correctly reference transfer_index identity (signature) regardless of which tier a row eventually lives in, since signature is the join key and is preserved identically in both HOT and COLD schemas.",
+    "result": "PASS by construction -- signature-based joins are tier-agnostic"
+  },
+  "ordering_and_duplicate_suppression": {
+    "test": "test_query_union_no_duplicate_when_row_exists_in_both_during_migration_window, test_conflicting_amount_surfaced_not_silently_resolved, test_conflicting_block_time_also_surfaced",
+    "result": "PASS -- deterministic dedup on agreement, explicit conflict surfacing on disagreement"
+  },
+  "no_semantic_gap_found": "For every traced query shape from the Part 1 consumer census, no case was found where the HOT+COLD result differs from the monolithic-source result (other than the deliberate, disclosed conflict-detection behavior, which is a strict IMPROVEMENT over a monolithic table's silent single-copy semantics, not a gap).",
+  "deterministic_digest": "379a5550efcd919dcdec3c0eba01a19eb9bc382a450ddca90f950e2759fdfbd6"
+}

@@ -1,0 +1,36 @@
+{
+  "schema_version": "storage.lifecycle.p4.unified-transfer-reader.v1",
+  "artifact_type": "STORAGE_LIFECYCLE_P4_UNIFIED_TRANSFER_READER",
+  "milestone": "STORAGE-LIFECYCLE-P4 Part 11-13, 19-20",
+  "implementation": "src/ops/unified_transfer_reader.py",
+  "supported_operations": {
+    "by_signature": "signature lookup, HOT+COLD union, conflict-aware",
+    "by_source": "transfers FROM an address (source), time-ordered, bounded limit",
+    "by_destination": "transfers TO an address (destination) -- the creator-funding lookup shape",
+    "by_time_range": "bounded time-range query across HOT+COLD",
+    "count_by_destination": "used for parity checks (e.g. Dv34 population count)",
+    "not_yet_implemented_this_pass": "a dedicated 2-hop lineage helper (currently composed by callers via 2 sequential by_destination/by_source calls, proven correct in test_creator_funding_parity_2hop, but not wrapped in a single convenience method -- flagged as a small P5 nicety, not a functional gap)"
+  },
+  "precedence_and_conflict_rule": {
+    "benign_overlap": "if the SAME (signature, source, destination) key exists in both HOT and a COLD segment AND both copies agree on amount_lamports and block_time, the row is silently deduplicated (HOT is authoritative on identity, but since they agree, tier doesn't matter to the result)",
+    "genuine_conflict": "if the two copies DISAGREE on amount_lamports or block_time, the row is EXCLUDED from the normal result and surfaced via get_conflicts() as an EvidenceConflict(key, hot_row, cold_row, conflict_type='HOT_COLD_EVIDENCE_CONFLICT') -- both provenance records preserved, never silently resolved",
+    "tests": "test_benign_agreement_dedupes_silently, test_conflicting_amount_surfaced_not_silently_resolved, test_conflicting_block_time_also_surfaced, test_conflicts_reset_between_queries -- all passing"
+  },
+  "segment_discovery": {
+    "not_yet_implemented_this_pass": "the current UnifiedTransferReader takes an explicit list of cold_conns supplied by the caller -- there is no compact manifest-based segment-selection index yet that would let a caller ask 'which segments cover 2026-03' without opening every segment. Flagged as required P5 work per Part 13 ('do not scan the entire filesystem for segments on every query') -- the segment_manifest table (min/max block_time per segment) already provides the DATA needed for this; only the discovery/selection LOGIC (a lightweight in-memory index built from all manifests) remains to be written."
+  },
+  "consumer_adapter_plan": {
+    "source": "docs/audits/storage_lifecycle_p4_transfer_consumer_census.json (33 modules traced, 0 UNKNOWN)",
+    "classification_applied": {
+      "DIRECTLY_COMPATIBLE": "RECENT_ONLY consumers (dev_intelligence_v3.py, launch_wave_detection.py, master_launch_score.py, dev_intelligence_v3_enhancements.py and similar 24h/72h/7d-windowed queries) -- these never need to see COLD data at all if the HOT window (90 days) exceeds their lookback; no adapter needed, they can continue querying transfer_index directly.",
+      "ADAPTER_REQUIRED": "the live full-table aggregate in main.py's /api/transfer-graph/stats -- needs to route through UnifiedTransferReader instead of a raw monolithic query once HOT/COLD split is active, but its 5-minute cache TTL means this is low-urgency and low-risk to wire.",
+      "REWRITE_REQUIRED": "none identified -- no consumer's query SHAPE is fundamentally incompatible with the HOT+COLD model; all traced shapes (signature/source/destination/time-range) are already supported by UnifiedTransferReader.",
+      "HOT_ONLY_SAFE": "graph_dev_farm_detection.py/dev_intelligence_graph.py's WalletGraphBuilder (90-day parameterized, matches the HOT window exactly by design) and storage_monitoring.py's own benchmark -- can remain HOT-only without ever needing COLD."
+    },
+    "smallest_safe_adapter_path": "NOT wired into any real call site this pass, per explicit P4 scope: 'P4 may change READ code. It may NOT change production data' is permitted, but wiring a real endpoint carries real behavior-change risk to a live application; deferred to be done incrementally and separately reviewed rather than bundled into this large design/prototype milestone. The reader is production-CAPABLE (tested, correct) but not yet production-WIRED."
+  },
+  "known_limitations_carried_from_p3": [
+    "keyset cursor now replaces the P3 OFFSET prototype for ARCHIVAL (transfer_archival_cursor.py) -- but UnifiedTransferReader's own by_source/by_destination/by_time_range QUERY methods still use simple LIMIT without a keyset cursor for pagination beyond the first page; acceptable since these are bounded-result read queries (default limit 500-5000), not full-table archival scans, so OFFSET-free single-page fetching is sufficient for the traced consumer shapes."
+  ],
+  "deterministic_digest": "34e3e8056f0afa0df8b165f507f5e232d7b94401c4e553a3446d012e917b3fc6"
+}

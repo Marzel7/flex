@@ -1,0 +1,57 @@
+{
+  "schema_version": "storage.lifecycle.p4.hot-cold-size-model.v1",
+  "artifact_type": "STORAGE_LIFECYCLE_P4_HOT_COLD_SIZE_MODEL",
+  "milestone": "STORAGE-LIFECYCLE-P4 Part 23-24",
+  "inputs": {
+    "exact_total_rows": 5221462,
+    "exact_pinned_rows": 817054,
+    "exact_pinned_percentage": 15.648,
+    "hot_window_days": 90,
+    "hot_window_source": "docs/audits/storage_lifecycle_p4_transfer_consumer_census.json hot_window_recommendation -- grounded in real consumer trace, not guessed",
+    "ingest_rates": {
+      "average": 171796,
+      "observed_low": 77060,
+      "observed_high": 402792
+    },
+    "row_bytes_estimate": 150,
+    "row_bytes_confidence": "LOW -- disclosed estimate, exact dbstat measurement not obtained (see Part 22 in implementation_result artifact)"
+  },
+  "hot_size_model": {
+    "average_ingest_scenario": {
+      "recent_window_total_rows_est": 15461640,
+      "recent_window_pinned_subset_est": 2419436,
+      "recent_window_generic_est": 13042204,
+      "steady_state_hot_rows": 13859258,
+      "steady_state_hot_gib": 1.936
+    },
+    "high_ingest_scenario": {
+      "recent_window_total_rows_est": 36251280,
+      "recent_window_pinned_subset_est": 5672598,
+      "recent_window_generic_est": 30578682,
+      "steady_state_hot_rows": 31395736,
+      "steady_state_hot_gib": 4.386
+    },
+    "low_ingest_scenario": {
+      "recent_window_total_rows_est": 6935400,
+      "recent_window_pinned_subset_est": 1085251,
+      "recent_window_generic_est": 5850149
+    },
+    "interpretation": "Steady-state HOT population is expected to be roughly 13,859,258 rows (~1.94 GiB) under average ingest, rising to ~31,395,736 rows under sustained high-activity days -- a small, BOUNDED fraction of the eventual total table size, versus the CURRENT architecture where 100% of 5,221,462+ rows (and growing) live in HOT forever."
+  },
+  "cold_growth_model": {
+    "daily_cold_ingest_avg": 144913,
+    "note": "COLD growth continues indefinitely in absolute terms (more segments accumulate) -- this is EXPECTED, not a failure; each segment is small, closed, and independently retireable, so it does not carry the same lock/backup/VACUUM burden as the monolithic HOT file. Moving data COLD does not eliminate total storage growth (explicitly acknowledged per Part 24's instruction) -- it converts unbounded HOT growth into bounded HOT + independently-manageable COLD growth.",
+    "future_cold_policy_requirements_not_activated_this_pass": [
+      "retention duration for COLD segments (e.g. retain N years before considering compaction)",
+      "compaction of many small/sparse segments into fewer larger ones if segment count becomes unwieldy",
+      "whole-segment retirement criteria (age + zero-reference proof, reusing the P2 Part 1 mechanism)",
+      "permanent-pinned-evidence extraction if a COLD segment is ever retired but some of its rows are later found to match a NEW pinning dimension not known at archival time"
+    ]
+  },
+  "permanent_growth_quantified": {
+    "pinned_rows_grow_daily_by": 26883,
+    "pinned_growth_gib_per_year_est": 1.371,
+    "assessment": "This is genuine, valuable intelligence growth (confirmed operations, discovery evidence, direct/2-hop funding lineage) -- NOT reducible to zero without discarding real evidence. Whether it is further reducible via COMPACT_EVIDENCE_INDEX (storing only signature+minimal identity for replay rather than the full row) versus keeping full normalized rows hot is flagged as a P5+ optimization question, not decided here."
+  },
+  "deterministic_digest": "831b8783aa605e2104ee7524deeda8163d20d56a8f17282481d219a9d979e452"
+}

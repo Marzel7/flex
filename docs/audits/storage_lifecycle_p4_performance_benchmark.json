@@ -1,0 +1,58 @@
+{
+  "schema_version": "storage.lifecycle.p4.performance-benchmark.v1",
+  "artifact_type": "STORAGE_LIFECYCLE_P4_PERFORMANCE_BENCHMARK",
+  "milestone": "STORAGE-LIFECYCLE-P4 Part 21",
+  "fixture_scale": {
+    "total_rows": 50000,
+    "hot_rows_after_split": 40000,
+    "cold_rows": 10000,
+    "note": "50,000-row synthetic fixture -- small relative to the real 5.2M-row table, but sufficient to demonstrate the shape of monolithic-vs-tiered latency, with real indexes applied to both."
+  },
+  "hot_cold_split_latency": {
+    "signature_lookup": {
+      "min_ms": 0.007,
+      "median_ms": 0.007,
+      "max_ms": 0.04
+    },
+    "source_history": {
+      "min_ms": 0.087,
+      "median_ms": 0.094,
+      "max_ms": 0.146
+    },
+    "destination_funding": {
+      "min_ms": 0.09,
+      "median_ms": 0.09,
+      "max_ms": 0.125
+    },
+    "time_range": {
+      "min_ms": 17.247,
+      "median_ms": 17.837,
+      "max_ms": 19.855
+    }
+  },
+  "monolithic_baseline_latency": {
+    "signature_lookup": {
+      "min_ms": 0.002,
+      "median_ms": 0.002,
+      "max_ms": 0.047
+    },
+    "source_history": {
+      "min_ms": 0.113,
+      "median_ms": 0.115,
+      "max_ms": 0.182
+    },
+    "destination_funding": {
+      "min_ms": 0.113,
+      "median_ms": 0.118,
+      "max_ms": 0.243
+    },
+    "time_range": {
+      "min_ms": 17.248,
+      "median_ms": 17.88,
+      "max_ms": 18.762
+    }
+  },
+  "comparison": "HOT+COLD query latency is comparable to or better than the monolithic baseline for indexed point/range lookups at this fixture scale, since each tier is individually smaller and each query still uses an index -- the HOT+COLD model does not introduce a fundamental latency penalty for indexed access patterns. A COLD-only historical query naturally costs one additional connection's worth of query overhead versus a single-table query, but this is sub-millisecond at this scale.",
+  "caveat": "This benchmark uses a 50K-row fixture with 1 cold segment, not the real 5.2M-row/~85% cold-eligible production scale. A P5 implementation should re-benchmark against a realistic multi-segment (12+ monthly segments) COLD population, where segment DISCOVERY (Part 13, not yet implemented) becomes the dominant cost for historical queries rather than per-segment query time.",
+  "deterministic_digest": "0dbcaf122edf590a2a7d6fd3ef4e80ce569f3aba7f7425e17b18257d307ce82f"
+}

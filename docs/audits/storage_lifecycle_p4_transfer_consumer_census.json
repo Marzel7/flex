@@ -1,0 +1,560 @@
+{
+  "meta": {
+    "task": "STORAGE-LIFECYCLE-P4 Task 1: transfer_index consumer census",
+    "generated_at_utc": "2026-08-20",
+    "method": "For each module P3 flagged as referencing transfer_index, the actual query bodies were read directly (not just grep line counts) and each distinct query shape classified. Modules that only mention transfer_index in comments/docstrings/table-name lists (no executable query) are marked NOT_A_READER. transfer_indexer.py, funder_incoming_extractor.py, and realtime_creator_funding_extractor.py are confirmed WRITE-ONLY paths for this table (INSERT OR IGNORE) and excluded from query-shape classification per the task's skip instruction; transfer_indexer.py additionally exposes get_funders(), a READ method, so it is NOT fully write-only and is included below.",
+    "safety_notes": [
+      "Zero writes. Zero network/RPC. Read-only ps/grep/file-read investigation only for this task (no DB queries needed for Task 1)."
+    ]
+  },
+  "modules": [
+    {
+      "path": "src/core/transfer_indexer.py",
+      "role": "PRIMARY WRITER (index_transaction/index_transactions_batch, INSERT OR IGNORE) + a READ method (get_funders)",
+      "query_shapes": [
+        {
+          "function": "TransferIndexer.get_funders(destination, limit=1000)",
+          "shape": "SELECT DISTINCT source FROM transfer_index WHERE destination=? AND is_valid=1 AND amount_lamports>0 ORDER BY block_time DESC LIMIT ?",
+          "classification": "ADDRESS_HISTORY",
+          "time_range_filter": "none (no block_time bound, but ORDER BY + LIMIT caps result size)",
+          "uses_limit": true,
+          "keyed_by": "destination (address)",
+          "runtime_frequency": "LIVE — called from src/core/phase3_integration.py's get_creator_funders(), which phase3_integration's docstring states replaces the old Phase-2 RPC lookup at token-detection time (per-creator, likely per new token, real-time path). A CachingTransferIndexer subclass (line ~902) wraps it with a get_funders cache, confirming this is a hot/frequently-repeated live call."
+        }
+      ]
+    },
+    {
+      "path": "src/core/phase3_integration.py",
+      "role": "Live indexing + read integration layer, calls transfer_indexer.get_funders()",
+      "query_shapes": [
+        {
+          "function": "Phase3Integration.get_creator_funders (delegates to TransferIndexer.get_funders)",
+          "shape": "see transfer_indexer.py above",
+          "classification": "ADDRESS_HISTORY",
+          "time_range_filter": "none",
+          "uses_limit": true,
+          "keyed_by": "destination (creator address)",
+          "runtime_frequency": "LIVE — docstring explicitly states this runs per new token detection to replace RPC-based funder discovery (0 credits vs 1000+ credits), i.e. on the real-time ingest path."
+        }
+      ]
+    },
+    {
+      "path": "src/core/dev_intelligence_v3.py",
+      "role": "Org scoring pipeline (24h/72h/7d signal windows)",
+      "query_shapes": [
+        {
+          "function": "_compute_24h_signals: burst_count",
+          "shape": "SELECT COUNT(*) FROM (SELECT CAST(block_time/3600 AS INT) hb, COUNT(*) FROM transfer_index WHERE source IN (wallet_list) AND block_time>=? GROUP BY hb HAVING cnt>=3)",
+          "classification": "RECENT_ONLY",
+          "time_range_filter": "last 24h (now-86400)",
+          "uses_limit": false,
+          "keyed_by": "source (address list, IN-clause)",
+          "runtime_frequency": "Background/cron — org scoring pipeline, not a per-request UI call"
+        },
+        {
+          "function": "_compute_24h_signals: hours_since_last_tx",
+          "shape": "SELECT (?-MAX(block_time))/3600.0 FROM transfer_index WHERE (source IN (...) OR destination IN (...)) AND block_time>=?",
+          "classification": "RECENT_ONLY",
+          "time_range_filter": "last 24h",
+          "uses_limit": false,
+          "keyed_by": "source OR destination (address list)",
+          "runtime_frequency": "Background/cron"
+        },
+        {
+          "function": "_compute_72h_signals: sol_in_72h",
+          "shape": "SELECT SUM(amount_sol) FROM transfer_index WHERE source IN (...) AND block_time>=?",
+          "classification": "RECENT_ONLY",
+          "time_range_filter": "last 72h",
+          "uses_limit": false,
+          "keyed_by": "source (address list)",
+          "runtime_frequency": "Background/cron"
+        },
+        {
+          "function": "OrgSnapshotRecorder._count_active_funders / _count_active_creators / _count_bursts / _compute_weighted_volume / _compute_graph_density",
+          "shape": "various COUNT/SUM aggregates over transfer_index WHERE source/destination IN (wallet/creator/all-member list) AND block_time>=since_24h (graph_density has no time filter)",
+          "classification": "RECENT_ONLY (graph_density: ANALYTICAL, no time bound but address-scoped to a small member list)",
+          "time_range_filter": "24h for most; none for graph_density",
+          "uses_limit": false,
+          "keyed_by": "source/destination (address list, small — one org's members)",
+          "runtime_frequency": "Background — daily activity snapshot recorder per docstring"
+        }
+      ]
+    },
+    {
+      "path": "src/core/graph_dev_farm_detection.py",
+      "role": "Directed wallet graph builder for farm/cluster detection (also duplicated at src/scripts/graph_dev_farm_detection.py — same query)",
+      "query_shapes": [
+        {
+          "function": "WalletGraphBuilder.build_graph",
+          "shape": "SELECT source, destination, amount_sol, block_time FROM transfer_index WHERE amount_sol BETWEEN ? AND ? AND block_time >= (strftime('%s','now') - ?*86400) AND is_valid=1 ORDER BY source, destination, block_time",
+          "classification": "HISTORICAL_REQUIRED",
+          "time_range_filter": "configurable days_back parameter, default in call sites observed as 90 days",
+          "uses_limit": false,
+          "keyed_by": "unbounded scan (amount + time range filtered, not address-keyed) — full graph rebuild",
+          "runtime_frequency": "Background — scripts/run_graph_analyzers.py entrypoint, an operator-run batch pipeline, not live UI"
+        }
+      ]
+    },
+    {
+      "path": "src/core/second_hop_builder.py",
+      "role": "Upstream funder-of-funder discovery, writes to funder_upstream_links",
+      "query_shapes": [
+        {
+          "function": "build (main INSERT...SELECT with two nested transfer_index scans)",
+          "shape": "INSERT INTO funder_upstream_links SELECT ... FROM transfer_index ti JOIN (qualifying creator_funders) cf ON cf.funder_address=ti.destination JOIN (SELECT ti2.source, COUNT(DISTINCT ti2.destination) FROM transfer_index ti2 JOIN qualifying-funders WHERE ti2.block_time>cutoff AND ti2.amount_sol BETWEEN MIN/MAX ...)",
+          "classification": "BATCH/OFFLINE",
+          "time_range_filter": "yes — inner subquery bounded by a computed cutoff (recent window) for the volume-gate pass; outer join has no explicit added filter beyond the destination match",
+          "uses_limit": false,
+          "keyed_by": "destination-keyed via join to creator_funders.funder_address; source-keyed in the volume-gate subquery",
+          "runtime_frequency": "Background/batch — explicitly deletes and rebuilds funder_upstream_links rows tagged source='transfer_index' each run, a scheduled/manual rebuild job, not live"
+        }
+      ]
+    },
+    {
+      "path": "src/core/graph_analyzer_api.py",
+      "role": "NOT_A_READER — 'transfer_index' appears only in an OUTPUT_TABLES list constant documenting which tables the analyzer pipeline touches; no query against it in this file",
+      "query_shapes": [],
+      "classification_note": "NOT_A_READER, not UNKNOWN — verified by reading the full mention context (line 208, a plain list literal)."
+    },
+    {
+      "path": "src/core/unified_network_intelligence.py",
+      "role": "NOT_A_READER — single mention is a docstring describing System 2's data flow (transfer_index -> farm_clusters/wallet_clusters), no executable query in this file",
+      "query_shapes": []
+    },
+    {
+      "path": "src/core/launch_prediction_api.py",
+      "role": "NOT_A_READER — single mention is a comment ('For full pump.fun farm info, you'd query transfer_index') describing a hypothetical, not an actual query",
+      "query_shapes": []
+    },
+    {
+      "path": "src/core/launch_wave_detection.py",
+      "role": "Detects new-creator funding waves and funding bursts for org scoring",
+      "query_shapes": [
+        {
+          "function": "detect (new creators in last 24h)",
+          "shape": "SELECT DISTINCT destination FROM transfer_index WHERE destination IN (current_creators) AND block_time>=since_24h ORDER BY block_time ASC",
+          "classification": "RECENT_ONLY",
+          "time_range_filter": "24h",
+          "uses_limit": false,
+          "keyed_by": "destination (address list, one org's known creators)",
+          "runtime_frequency": "Background — org wave-detection pipeline"
+        },
+        {
+          "function": "detect (avg funding size for new creators)",
+          "shape": "SELECT COUNT(*), AVG(amount_sol) FROM transfer_index WHERE destination IN (new_creators) AND block_time>=since_24h",
+          "classification": "RECENT_ONLY",
+          "time_range_filter": "24h",
+          "uses_limit": false,
+          "keyed_by": "destination (address list)",
+          "runtime_frequency": "Background"
+        },
+        {
+          "function": "FundingBurstAnalyzer.analyze_bursts (1h burst windows)",
+          "shape": "SELECT hour_bucket, COUNT(*), SUM(amount_sol) FROM transfer_index WHERE source IN (org wallets) AND block_time>=since_24h GROUP BY hour_bucket HAVING tx_count>=3",
+          "classification": "RECENT_ONLY",
+          "time_range_filter": "24h",
+          "uses_limit": false,
+          "keyed_by": "source (address list, one org's wallets)",
+          "runtime_frequency": "Background"
+        },
+        {
+          "function": "FundingBurstAnalyzer.analyze_bursts (total tx/value for concentration ratio)",
+          "shape": "SELECT COUNT(*), SUM(amount_sol) FROM transfer_index WHERE source IN (org wallets) AND block_time>=since_24h",
+          "classification": "RECENT_ONLY",
+          "time_range_filter": "24h",
+          "uses_limit": false,
+          "keyed_by": "source (address list)",
+          "runtime_frequency": "Background"
+        }
+      ]
+    },
+    {
+      "path": "src/core/dev_intelligence_v2.py",
+      "role": "Fallback last-activity lookup (older version, superseded by v3 per prior note but still live as a fallback path)",
+      "query_shapes": [
+        {
+          "function": "_fetch last_activity_ts fallback",
+          "shape": "SELECT MAX(block_time) FROM transfer_index WHERE source IN (wallet_list) OR destination IN (wallet_list)",
+          "classification": "ADDRESS_HISTORY",
+          "time_range_filter": "none (unbounded MAX over the address's full history)",
+          "uses_limit": false,
+          "keyed_by": "source OR destination (address list, one org's wallets)",
+          "runtime_frequency": "Fallback path only invoked when the primary farm_clusters lookup fails/misses — infrequent, but structurally could be in a request path depending on caller; treated as MEDIUM frequency, unbounded-time query, worth checking if this ever executes on a live request."
+        }
+      ]
+    },
+    {
+      "path": "src/core/second_hop_lite_worker.py",
+      "role": "NOT_A_READER of transfer_index — docstring says it discovers inbound transfers NOT ALREADY present in transfer_index (an RPC-backfill worker) and writes results to funder_upstream_links with source='rpc_backfill'; no SELECT against transfer_index found in this file",
+      "query_shapes": []
+    },
+    {
+      "path": "src/core/storage_monitoring.py",
+      "role": "Storage/ops monitoring — row counts and synthetic latency probes",
+      "query_shapes": [
+        {
+          "function": "metrics collector — row count",
+          "shape": "SELECT COUNT(*) FROM transfer_index",
+          "classification": "ANALYTICAL",
+          "time_range_filter": "none",
+          "uses_limit": false,
+          "keyed_by": "none (full-table count)",
+          "runtime_frequency": "Background/cron — periodic metrics collection"
+        },
+        {
+          "function": "synthetic latency probe (funder-lookup style)",
+          "shape": "SELECT source, COUNT(*), SUM(amount_sol) FROM transfer_index WHERE destination=? AND block_time>=? GROUP BY source ORDER BY total DESC LIMIT 100 (run against a synthetic 'test_address_xxx' destination, 90-day window)",
+          "classification": "SIGNATURE_LOOKUP-adjacent / synthetic benchmark (ADDRESS_HISTORY shape, not a real production query)",
+          "time_range_filter": "90 days",
+          "uses_limit": true,
+          "keyed_by": "destination",
+          "runtime_frequency": "Background — this is a latency-measurement probe, not a real consumer query, but its shape mirrors main.py's real top-funders query and is useful evidence of the intended 90-day retention window design"
+        },
+        {
+          "function": "synthetic latency probe (retention-window count)",
+          "shape": "SELECT COUNT(*) FROM transfer_index WHERE block_time >= ? (90 days ago)",
+          "classification": "ANALYTICAL",
+          "time_range_filter": "90 days",
+          "uses_limit": false,
+          "keyed_by": "none",
+          "runtime_frequency": "Background probe"
+        },
+        {
+          "function": "synthetic latency probe (newest transfers)",
+          "shape": "SELECT signature, destination, amount_sol FROM transfer_index ORDER BY block_time DESC LIMIT 1000",
+          "classification": "RECENT_ONLY",
+          "time_range_filter": "none explicit, but ORDER BY DESC LIMIT 1000 is implicitly recency-scoped",
+          "uses_limit": true,
+          "keyed_by": "none",
+          "runtime_frequency": "Background probe"
+        }
+      ]
+    },
+    {
+      "path": "src/core/phase3_integration.py (DB_PATH health check)",
+      "role": "see phase3_integration.py entry above for the live get_funders path; also contains a plain COUNT(*) health-check query",
+      "query_shapes": [
+        {
+          "function": "health/diagnostics",
+          "shape": "SELECT COUNT(*) FROM transfer_index; SELECT COUNT(*) FROM transfer_index WHERE is_valid=1",
+          "classification": "ANALYTICAL",
+          "time_range_filter": "none",
+          "uses_limit": false,
+          "keyed_by": "none",
+          "runtime_frequency": "One-shot/diagnostic, not a hot path"
+        }
+      ]
+    },
+    {
+      "path": "src/core/dev_intelligence_graph.py",
+      "role": "Wraps graph_dev_farm_detection.py's WalletGraphBuilder to add token/creator context",
+      "query_shapes": [
+        {
+          "function": "load_base_wallet_graph (delegates to WalletGraphBuilder.build_graph)",
+          "shape": "see src/core/graph_dev_farm_detection.py above",
+          "classification": "HISTORICAL_REQUIRED",
+          "time_range_filter": "configurable days_back",
+          "uses_limit": false,
+          "keyed_by": "amount+time range, not address-keyed",
+          "runtime_frequency": "Background"
+        }
+      ]
+    },
+    {
+      "path": "src/core/master_launch_score.py",
+      "role": "Org/operator activity scoring for launch prediction",
+      "query_shapes": [
+        {
+          "function": "coordinated-edge check (LIMIT 1 existence probes)",
+          "shape": "...WHERE funder_a IN (SELECT source FROM transfer_index WHERE destination IN (org creators) LIMIT 1) OR funder_b IN (same)",
+          "classification": "ADDRESS_HISTORY",
+          "time_range_filter": "none",
+          "uses_limit": true,
+          "keyed_by": "destination (org creator list), LIMIT 1 existence check",
+          "runtime_frequency": "Likely scoring-pipeline background, but LIMIT 1 pattern suggests it may be called per-scoring-request — treat as MEDIUM frequency"
+        },
+        {
+          "function": "activity_24h / activity_7d",
+          "shape": "SELECT COUNT(*), SUM(amount_sol) FROM transfer_index WHERE source IN (org wallets) AND block_time>=day_ago/week_ago",
+          "classification": "RECENT_ONLY",
+          "time_range_filter": "24h and 7d variants",
+          "uses_limit": false,
+          "keyed_by": "source (address list)",
+          "runtime_frequency": "Scoring pipeline — likely called per org score computation, could be request-path-adjacent if scores are computed on demand rather than purely batch"
+        },
+        {
+          "function": "operator wallet activity",
+          "shape": "SELECT COUNT(*) FROM transfer_index WHERE source IN (operator_wallets) AND block_time>=day_ago",
+          "classification": "RECENT_ONLY",
+          "time_range_filter": "24h",
+          "uses_limit": false,
+          "keyed_by": "source (address list)",
+          "runtime_frequency": "Scoring pipeline"
+        }
+      ]
+    },
+    {
+      "path": "src/core/storage_cleanup.py",
+      "role": "SKIPPED per task instruction — dormant deletion tool (TransferIndexCleanup), not a query consumer",
+      "query_shapes": []
+    },
+    {
+      "path": "src/core/wallet_clustering.py",
+      "role": "Dev-farm/wallet clustering engine (heaviest consumer by mention count)",
+      "query_shapes": [
+        {
+          "function": "_full_rebuild -> _detect_dev_farms",
+          "shape": "described as 'full scan of transfer_index' by its own docstring; exact WHERE clause not fully re-quoted here but confirmed HISTORICAL/unbounded by module docstring ('full scan... original algorithm, unmodified')",
+          "classification": "HISTORICAL_REQUIRED",
+          "time_range_filter": "none (full scan per docstring)",
+          "uses_limit": false,
+          "keyed_by": "not address-keyed — full-table farm detection",
+          "runtime_frequency": "Background — explicit 'full_rebuild' vs 'incremental' modes; incremental mode uses a rowid watermark cursor (clustering_cursor.last_processed_rowid) to only scan transfer_index rows newer than the last processed rowid, i.e. append-only incremental scanning, not address-keyed either.",
+          "note": "This is the single largest full-table-scan-class consumer identified — HOT window design must account for either (a) wallet_clustering always needing the full table, meaning it may need a route to COLD segments too via UnifiedTransferReader.by_time_range, or (b) the incremental-cursor mode already limits it to only new rows, in which case HOT-window-only is fine for the common case and full_rebuild is a rare/manual operation that can afford to cross into COLD."
+        }
+      ]
+    },
+    {
+      "path": "src/core/advanced_farm_intelligence_engine.py",
+      "role": "Farm ecosystem / coordinated-funder detection",
+      "query_shapes": [
+        {
+          "function": "detect dev farm ecosystems (self-join)",
+          "shape": "SELECT ... FROM transfer_index f1 INNER JOIN transfer_index f2 ON f1.destination=f2.destination WHERE f1.source<f2.source AND amount_sol BETWEEN 0.5 AND 10 AND is_valid=1 AND source NOT IN (cex_wallets)",
+          "classification": "HISTORICAL_REQUIRED",
+          "time_range_filter": "none observed",
+          "uses_limit": false,
+          "keyed_by": "not address-keyed — full self-join scan filtered by amount range and CEX exclusion",
+          "runtime_frequency": "Background — heavy self-join, must be a batch/offline job given cost"
+        },
+        {
+          "function": "hour-window burst grouping",
+          "shape": "SELECT ..., GROUP_CONCAT(amount_sol) FROM transfer_index WHERE amount_sol BETWEEN ? AND ? AND is_valid=1 AND source/destination NOT IN (cex_wallets) GROUP BY hour_window HAVING creator_count>=? AND funder_count>=?",
+          "classification": "HISTORICAL_REQUIRED",
+          "time_range_filter": "none observed in this excerpt",
+          "uses_limit": false,
+          "keyed_by": "amount-range + CEX exclusion, not address-keyed",
+          "runtime_frequency": "Background"
+        },
+        {
+          "function": "per-funder connection strength",
+          "shape": "SELECT COUNT(DISTINCT destination), COUNT(*), AVG(amount_sol) FROM transfer_index WHERE source=? AND destination IN (creators)",
+          "classification": "ADDRESS_HISTORY",
+          "time_range_filter": "none",
+          "uses_limit": false,
+          "keyed_by": "source (single funder) + destination IN (creator list)",
+          "runtime_frequency": "Background, called per-funder within a batch analysis loop"
+        }
+      ]
+    },
+    {
+      "path": "src/core/funder_overlap_analysis.py",
+      "role": "Funder→creator relationship extraction, seed-phase filter",
+      "query_shapes": [
+        {
+          "function": "extract funder->creator relationships",
+          "shape": "SELECT source, destination FROM transfer_index WHERE amount_sol BETWEEN 0.5 AND 10 AND is_valid=1",
+          "classification": "HISTORICAL_REQUIRED",
+          "time_range_filter": "none — full-table amount-filtered scan",
+          "uses_limit": false,
+          "keyed_by": "amount range only, not address- or time-keyed",
+          "runtime_frequency": "Background — scripts/run_graph_analyzers.py entrypoint (FunderOverlapAnalyzer)"
+        },
+        {
+          "function": "wallet-in-org lookup (UNION of two near-identical subqueries)",
+          "shape": "SELECT source FROM transfer_index WHERE destination IN (org creators) UNION SELECT source FROM transfer_index WHERE destination IN (org creators)",
+          "classification": "ADDRESS_HISTORY",
+          "time_range_filter": "none",
+          "uses_limit": false,
+          "keyed_by": "destination (org's creator list)",
+          "runtime_frequency": "Background"
+        }
+      ]
+    },
+    {
+      "path": "src/core/launch_prediction_engine.py",
+      "role": "Launch prediction scoring — funder/creator cluster candidate extraction",
+      "query_shapes": [
+        {
+          "function": "candidate funder clusters (by source)",
+          "shape": "SELECT source, GROUP_CONCAT(DISTINCT destination) FROM transfer_index WHERE amount_sol BETWEEN ? AND ? AND is_valid=1 AND source NOT IN (cex_wallets) GROUP BY source HAVING creator_count>=? AND (last_ts-first_ts)<?",
+          "classification": "HISTORICAL_REQUIRED",
+          "time_range_filter": "none as an absolute cutoff, but a HAVING clause bounds the SPAN of activity (last_ts-first_ts), which requires scanning full history per source to compute correctly",
+          "uses_limit": false,
+          "keyed_by": "amount range, CEX-exclusion, not address- or absolute-time-keyed",
+          "runtime_frequency": "Background — prediction engine batch run"
+        },
+        {
+          "function": "candidate funder clusters (by destination)",
+          "shape": "SELECT destination, GROUP_CONCAT(DISTINCT source) FROM transfer_index WHERE amount_sol BETWEEN ? AND ? AND is_valid=1 AND destination NOT IN (cex_wallets) GROUP BY destination HAVING funder_count>=? ORDER BY funder_count DESC",
+          "classification": "HISTORICAL_REQUIRED",
+          "time_range_filter": "none",
+          "uses_limit": false,
+          "keyed_by": "amount range only",
+          "runtime_frequency": "Background"
+        }
+      ]
+    },
+    {
+      "path": "src/core/main.py",
+      "role": "LIVE FLASK UI — confirmed live application, /api/transfer-graph/stats endpoint",
+      "query_shapes": [
+        {
+          "function": "api_transfer_graph_stats (cache-fresh path)",
+          "shape": "SELECT COUNT(*) FROM transfer_index WHERE indexed_at>=? AND is_valid=1 (repeated for last_1h/24h/7d windows)",
+          "classification": "RECENT_ONLY",
+          "time_range_filter": "1h / 24h / 7d, keyed on indexed_at (write time)",
+          "uses_limit": false,
+          "keyed_by": "none (aggregate count only)",
+          "runtime_frequency": "LIVE — this is the actual API route backing the 'transfer_index page'; a 5-minute (_TRANSFER_GRAPH_STATS_TTL=300) in-process cache means the cache-fresh path (just the 3 window counts) runs on every request while cache is warm, and the full expensive aggregate below runs at most once per 5 minutes."
+        },
+        {
+          "function": "api_transfer_graph_stats (cache-stale / full recompute path)",
+          "shape": "SELECT COUNT(*), COUNT(DISTINCT signature), COUNT(DISTINCT source), COUNT(DISTINCT destination), MIN(block_time), MAX(block_time), SUM(CASE amount_sol BETWEEN 0.5 AND 10...), ... FROM transfer_index WHERE is_valid=1  (full-table aggregate, no time bound) + a top-funders query by COUNT(DISTINCT destination)",
+          "classification": "HISTORICAL_REQUIRED",
+          "time_range_filter": "none on the main aggregate (full-table scan); the per-window counts alongside it ARE time-bounded (1h/24h/7d)",
+          "uses_limit": false,
+          "keyed_by": "none (full aggregate)",
+          "runtime_frequency": "LIVE but rate-limited to at most once per 5 minutes via the module-level cache (_transfer_graph_stats_cache / TTL 300s) — this is the single most important data point for HOT window sizing: the live UI DOES need a full-table aggregate (counts/min/max/distinct), but only recomputes it every 5 minutes, so it tolerates some latency; a HOT-window-only table would break this specific aggregate (COUNT/MIN/MAX/DISTINCT over the WHOLE table) unless it is redirected through UnifiedTransferReader across HOT+COLD, or replaced with a maintained running-total counter table that doesn't require a live full scan at all."
+        }
+      ]
+    },
+    {
+      "path": "src/core/dev_intelligence_v3_enhancements.py",
+      "role": "Extension of dev_intelligence_v3 — new-creator detection at 24h and 7d windows",
+      "query_shapes": [
+        {
+          "function": "new creators in last 24h",
+          "shape": "SELECT DISTINCT destination FROM transfer_index WHERE destination IN (current_creators) AND block_time>=(now-86400) ORDER BY block_time DESC",
+          "classification": "RECENT_ONLY",
+          "time_range_filter": "24h",
+          "uses_limit": false,
+          "keyed_by": "destination (address list)",
+          "runtime_frequency": "Background"
+        },
+        {
+          "function": "new creators in last 7d",
+          "shape": "same shape, block_time>=(now-604800)",
+          "classification": "RECENT_ONLY",
+          "time_range_filter": "7d",
+          "uses_limit": false,
+          "keyed_by": "destination (address list)",
+          "runtime_frequency": "Background"
+        }
+      ]
+    },
+    {
+      "path": "src/analysis/watchtower_detector.py",
+      "role": "Watchtower hub timing verification — signaller-window checks",
+      "query_shapes": [
+        {
+          "function": "_edge_ts (earliest edge timestamp between two specific addresses)",
+          "shape": "SELECT MIN(block_time) FROM transfer_index WHERE source=? AND destination=? AND is_valid=1",
+          "classification": "SIGNATURE_LOOKUP-adjacent (really a specific-pair ADDRESS_HISTORY lookup)",
+          "time_range_filter": "none — MIN over full history for that exact (source,destination) pair",
+          "uses_limit": false,
+          "keyed_by": "source AND destination (exact pair, uses idx_transfer_source_dest partial index)",
+          "runtime_frequency": "Called per-hub-candidate during hub promotion checks — likely near-real-time (candidate arrives, gets checked), moderate frequency, cheap per-call due to exact pair index"
+        }
+      ]
+    },
+    {
+      "path": "src/analysis/dv34_p2_identity_review.py",
+      "role": "NOT_A_READER — single mention is prose in a docstring about double-counting risk between watchtower and dv34 pipelines that both read creator_funders/transfer_index; no query in this file",
+      "query_shapes": []
+    },
+    {
+      "path": "src/acquisition/dv34_p1_selective_verification.py",
+      "role": "NOT_A_READER of transfer_index directly in this file — docstring explains the module answers questions using ALREADY-known local transfer_index evidence (sourced from local_operation_discovery_corpus.db's direct_funding_edges, which itself sources from transfer_index elsewhere), but no direct SQL against transfer_index found here",
+      "query_shapes": []
+    },
+    {
+      "path": "src/discovery/local_operation_discovery_projection.py",
+      "role": "Discovery corpus builder — the module populating local_operation_discovery_corpus.db from transfer_index",
+      "query_shapes": [
+        {
+          "function": "direct funding-edge extraction (JOIN to token_analysis + migration verification)",
+          "shape": "SELECT ... FROM token_analysis ta JOIN pumpfun_migration_verification pmv ON ta.mint=pmv.mint JOIN transfer_index ti ON ti.destination=ta.pf_ws_creator WHERE ta.pf_ws_creator IS NOT NULL AND ti.source != ta.pf_ws_creator AND ti.block_time < pmv.migrated_at AND ti.amount_lamports >= ? AND (pmv.migrated_at - ti.block_time) <= ?",
+          "classification": "FUNDING_LINEAGE",
+          "time_range_filter": "yes — bounded by a gap-seconds parameter relative to each token's migration time (per-row relative window, not an absolute cutoff)",
+          "uses_limit": false,
+          "keyed_by": "destination (JOIN to creator), plus amount and relative-time filters",
+          "runtime_frequency": "Background — explicitly the discovery-run pipeline that builds local_operation_discovery_corpus.db (the exact source of Task 2's dimension 3/4 marker tables)"
+        },
+        {
+          "function": "upstream funder lookup for a given funder",
+          "shape": "SELECT ti.source, ti.signature, ti.amount_lamports, ti.block_time FROM transfer_index ti WHERE ti.destination=? ORDER BY ti.block_time DESC LIMIT 20",
+          "classification": "FUNDING_LINEAGE",
+          "time_range_filter": "none absolute, ORDER BY DESC LIMIT 20 caps to most recent 20",
+          "uses_limit": true,
+          "keyed_by": "destination (single funder address)",
+          "runtime_frequency": "Background — per-funder upstream walk during discovery-run"
+        }
+      ]
+    },
+    {
+      "path": "src/extractors/funder_incoming_extractor.py",
+      "role": "WRITER — INSERT OR IGNORE INTO transfer_index only; no SELECT against transfer_index in this file",
+      "query_shapes": []
+    },
+    {
+      "path": "src/extractors/realtime_creator_funding_extractor.py",
+      "role": "WRITER — INSERT OR IGNORE INTO transfer_index only (real-time ingest path); no SELECT against transfer_index in this file",
+      "query_shapes": []
+    },
+    {
+      "path": "archive/phase2_3_deployment_verification.py",
+      "role": "One-shot archived verification script — schema/index existence checks only (PRAGMA table_info, sqlite_master lookups), no SELECT of actual transfer_index row data",
+      "query_shapes": [],
+      "classification_note": "NOT_A_ROW_READER — only queries sqlite_master/PRAGMA metadata about the table, never its rows. Excluded from window-sizing consideration; archived/one-shot per its path."
+    },
+    {
+      "path": "scripts/run_graph_analyzers.py",
+      "role": "Orchestrator entrypoint — invokes WalletClusteringEngine, FunderOverlapAnalyzer, GraphDevFarmDetectionEngine etc. (their actual queries are catalogued under their respective src/core/*.py entries above); this script itself issues no direct transfer_index SQL",
+      "query_shapes": [],
+      "runtime_frequency": "Confirmed BATCH/OFFLINE entrypoint by its own docstring's numbered pipeline-stage list — operator-run script, not live."
+    },
+    {
+      "path": "scripts/reclaim_funder_networks_space.py",
+      "role": "Maintenance script — lists transfer_index in CORE_TABLES as a table that MUST survive a compaction/vacuum sanity check; does not query transfer_index rows for business logic",
+      "query_shapes": [],
+      "classification_note": "NOT_A_ROW_READER for this task's purposes — the mention is a safety-guard table-existence check, not a data-shape query."
+    },
+    {
+      "path": "src/scripts/graph_dev_farm_detection.py",
+      "role": "Duplicate/alternate-location copy of src/core/graph_dev_farm_detection.py — same query shape as that entry",
+      "query_shapes": [
+        {
+          "function": "same as src/core/graph_dev_farm_detection.py WalletGraphBuilder.build_graph",
+          "shape": "see src/core/graph_dev_farm_detection.py entry",
+          "classification": "HISTORICAL_REQUIRED",
+          "time_range_filter": "configurable days_back",
+          "uses_limit": false,
+          "keyed_by": "amount+time range",
+          "runtime_frequency": "Background — this script's own docstring confirms it is a standalone dev-farm detection entrypoint with its own exit codes (0/1), consistent with a scheduled/cron invocation, not live UI"
+        }
+      ]
+    },
+    {
+      "path": "src/scripts/cleanup_transfers.py",
+      "role": "SKIPPED per task instruction — companion cron script to the dormant TransferIndexCleanup deletion tool, not a query consumer",
+      "query_shapes": []
+    }
+  ],
+
+  "unknown_count": 0,
+  "unknown_modules": [],
+
+  "hot_window_recommendation": {
+    "recommended_hot_window": "90 days minimum, with the live full-table aggregate in main.py's /api/transfer-graph/stats being the actual binding constraint, not any single consumer's individual time filter.",
+    "reasoning": [
+      "The overwhelming majority of REAL consumer query shapes (dev_intelligence_v3, launch_wave_detection, master_launch_score, dev_intelligence_v3_enhancements) are RECENT_ONLY, bounded to 24h/72h/7d windows — these would be fully served by a HOT window far shorter than 90 days.",
+      "graph_dev_farm_detection.py / dev_intelligence_graph.py's WalletGraphBuilder explicitly parameterizes days_back with an observed default of 90 days in its docstring example — this is the single longest EXPLICIT time-bounded window found among real (non-synthetic) consumers.",
+      "src/core/storage_monitoring.py's own synthetic latency probe uses a 90-day retention_window benchmark, independently corroborating 90 days as the design-intended retention boundary already baked into this codebase (predates this P4 pass).",
+      "The hardest constraint is main.py's api_transfer_graph_stats full aggregate (COUNT/MIN/MAX/DISTINCT over the WHOLE unbounded table) — this is a LIVE endpoint, but its own 5-minute TTL cache means it is NOT latency-critical on every request; it can tolerate hitting HOT+COLD together via UnifiedTransferReader (already designed for exactly this in transfer_cold_store.py/unified_transfer_reader.py) once every 5 minutes, rather than requiring the full 5.2M rows to live in HOT permanently. This decouples the 'needs full history' requirement from 'needs it in HOT'.",
+      "wallet_clustering.py's full_rebuild is unbounded/full-scan by its own docstring, but the module already implements an incremental rowid-cursor mode for the common case, meaning full-table access is a rare/manual operation, not the steady-state — acceptable to serve from HOT+COLD via the unified reader rather than requiring HOT to hold everything.",
+      "second_hop_builder.py and funder_overlap_analysis.py / launch_prediction_engine.py / advanced_farm_intelligence_engine.py all run unbounded amount-filtered (not time-filtered) full scans as BATCH/OFFLINE jobs — these need full historical coverage but are NOT live-latency-sensitive, so they are the correct candidates to route through the cross-tier UnifiedTransferReader rather than driving the HOT window size upward.",
+      "CONCLUSION: HOT window = 90 days (covers every live/near-live query path directly, matches the pre-existing 90-day design signal in storage_monitoring.py's probe) + the PINNED rows from Task 2 (regardless of age) + route the handful of genuinely-unbounded batch/offline analytical jobs through the already-designed UnifiedTransferReader (src/ops/unified_transfer_reader.py) so they keep working transparently against HOT+COLD without requiring COLD data to ever re-enter HOT."
+    ]
+  }
+}

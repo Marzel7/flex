@@ -1,0 +1,23 @@
+{
+  "schema_version": "storage.lifecycle.p4.watchtower-dv34-query-parity.v1",
+  "artifact_type": "STORAGE_LIFECYCLE_P4_WATCHTOWER_DV34_QUERY_PARITY",
+  "milestone": "STORAGE-LIFECYCLE-P4 Part 15, 17",
+  "method": "Live execution (not just test-suite reference) of the actual reader code this session, against a 123-row Dv34-shaped and 50-row Watchtower-shaped fixture, each split across HOT/COLD, measuring both correctness AND latency.",
+  "dv34_control": {
+    "historical_relationships_preserved": 123,
+    "expected": 123,
+    "matches_of_dv34_p3_reconciliation": true,
+    "not_collapsed_to_23_high_only": true,
+    "query_latency_ms": 0.176
+  },
+  "dv34_full_classification_preserved_note": "This test proves the RAW ROW COUNT (123) survives tiering. The evidence-QUALIFICATION breakdown (23 HIGH / 82 valid-not-HIGH / 18 historical-only, per docs/audits/of_dv34_p3_main_db_70_vs_new_23_reconciliation.json) is a property of a SEPARATE classification layer (the discovery corpus's direct_funding_edges table), not of transfer_index itself -- that classification is computed by joining against transfer_index by signature, which is identical in HOT and COLD schemas, so the classification remains computable identically regardless of tier. Not re-run end-to-end this pass (would require the full OF-DV34-P3 pipeline against a synthetic fixture, out of scope for this storage-focused milestone) -- the row-count-preservation proof is the storage-layer-relevant guarantee, and it holds.",
+  "watchtower_control": {
+    "funding_history_preserved": 50,
+    "expected": 50,
+    "complete": true,
+    "query_latency_ms": 0.11
+  },
+  "3sw2_note": "3SW2's real structure (1 canonical entity per docs/audits/ops_ui_p1_unified_operations_read_model.json) is a strict subset-shape of this Watchtower control (fewer entities, same query mechanics) -- not independently re-run with distinct fixture data this pass; same limitation disclosed in P3, carried forward honestly rather than silently claimed as tested.",
+  "conclusion": "Both hard reference controls confirm ZERO row loss and sub-millisecond query latency across a HOT/COLD split using the actual production-capable UnifiedTransferReader code (not a simplified stand-in).",
+  "deterministic_digest": "151073ac18a48ee4d6894464db29b9ac24172d3ed4a7cc48a0cdad001ee881d0"
+}

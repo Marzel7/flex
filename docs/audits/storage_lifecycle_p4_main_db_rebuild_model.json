@@ -1,0 +1,27 @@
+{
+  "schema_version": "storage.lifecycle.p4.main-db-rebuild-model.v1",
+  "artifact_type": "STORAGE_LIFECYCLE_P4_MAIN_DB_REBUILD_MODEL",
+  "milestone": "STORAGE-LIFECYCLE-P4 Part 29 -- SIMULATION ONLY, no live rebuild/cutover performed or scheduled",
+  "principle": "Every non-transfer_index table is preserved unchanged in the replacement DB unless a SEPARATE retention contract says otherwise -- this milestone touches ONLY transfer_index's model, nothing else.",
+  "replacement_db_contents": {
+    "all_other_tables": "byte-identical copy, no filtering",
+    "transfer_index_retained": "PERMANENT_PINNED (817,054 exact rows) + RECENT_GENERIC_HOT (90-day window, ~14M rows estimated at average ingest -- see hot_cold_size_model.json for the full model)",
+    "transfer_index_moved_out": "the remaining ~85% of current + all future aging rows, into COLD segments outside the main DB file"
+  },
+  "expected_replacement_db_size": {
+    "current_main_db_total": "13.75 GiB (measured this session)",
+    "current_transfer_index_estimated_share": "1.5-3 GiB (P3's disclosed LOW-confidence estimate, dbstat not obtained -- see below)",
+    "non_transfer_index_share_estimate": "~10.75-12.25 GiB (current total minus the transfer_index estimate) -- this portion is UNCHANGED by this design",
+    "replacement_transfer_index_share_estimate": "~1.9-2.5 GiB (steady-state HOT model from hot_cold_size_model.json, average-ingest scenario)",
+    "expected_replacement_db_total": "~12.6-14.75 GiB in the FIRST rebuild (since it captures ALL current pinned+recent rows, not yet benefiting from ongoing archival) -- the real reclaim benefit compounds over subsequent months as MORE of the current ~85% generic-bulk population ages past the 90-day window and is excluded from the rebuild target",
+    "steady_state_after_12_months_of_operation": "the non-transfer_index portion likely still dominates total size; transfer_index's contribution to the LIVE file shrinks to the bounded HOT model (~1.9-2.5 GiB) regardless of how much total historical data has accumulated in COLD segments outside the main file"
+  },
+  "potential_filesystem_reclaim": {
+    "immediate_from_rebuild": "difference between current 13.75 GiB and the rebuilt DB's actual size after excluding non-pinned rows older than 90 days from the CURRENT snapshot -- exact figure requires the exact byte-level dbstat measurement not yet obtained (flagged in P3 and again here as a P5 prerequisite)",
+    "ongoing_benefit": "the KEY long-term benefit is not a one-time reclaim but PREVENTING the file from ever growing to today's size again -- steady-state bounded HOT vs unbounded append"
+  },
+  "dbstat_status": "STILL NOT OBTAINED -- P3 flagged this as needing a maintenance window with no competing load; this P4 pass checked whether the earlier PRAGMA integrity_check process was still running and (per Part 22's own guidance: 'if dbstat would materially load production: defer and state why') did NOT attempt a fresh dbstat run given ongoing production write activity, to avoid materially loading production. This remains an open P5 prerequisite, explicitly deferred rather than guessed at with false precision.",
+  "no_live_rebuild_performed": true,
+  "no_cutover_scheduled_or_attempted": true,
+  "deterministic_digest": "3ad18d88061ad2bda08656370e5ccfbc7f201a6fdcfd4d7ff09277f5c7dba122"
+}

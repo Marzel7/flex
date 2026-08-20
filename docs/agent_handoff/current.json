@@ -534,9 +534,9 @@
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
   "current_milestone": {
-    "milestone": "STORAGE-LIFECYCLE-P3 -- bounded hot/cold operational evidence retention",
-    "status": "DESIGN_AND_PROTOTYPE_COMPLETE",
-    "verdict": "READY_STORAGE_LIFECYCLE_P4_BOUNDED_RETENTION_IMPLEMENTATION"
+    "milestone": "STORAGE-LIFECYCLE-P4 -- production-capable HOT/COLD transfer retention plumbing",
+    "status": "QUALIFIED",
+    "verdict": "READY_STORAGE_LIFECYCLE_P4_BOUNDED_RETENTION_IMPLEMENTATION_QUALIFIED"
   },
   "current_next_blocker": "B2Z_P2_HELIUS_ENDPOINT was never available during the overnight session. P2 remains frozen at the 19-member manual resume gate, exactly as left. All 12 provider-free workstreams from the overnight prompt were completed: P2 analysis engine, selective-RPC policy (B2Z-P3), historical coverage profile, 2-hop coverage quality, B2Z-2H contract, operation-discovery preparation, candidate funding family analysis (with a real cross-validated finding), raw-transaction cache adapter, RPC savings models, V2 persistent-budget design, edge-case classifier, and roadmap reconciliation. See docs/audits/overnight_human_decision_queue.json for the 5 decisions that actually need you.",
   "focused_tests": [
@@ -30816,5 +30816,48 @@
     ],
     "exact_next_production_milestone": "STORAGE-LIFECYCLE-P4 -- bounded retention implementation: (1) trace per-consumer query patterns to finalize HOT window duration, (2) re-run dbstat in a genuine maintenance window for exact byte sizing, (3) de-duplicate the 3 pinning dimensions for an exact union count, (4) build production-scale keyset-cursor migration (replacing the OFFSET-based prototype), (5) implement the real UnifiedTransferReader wired into actual application call sites, (6) as a SEPARATE later milestone: main-DB rebuild+atomic-cutover to reclaim existing filesystem bytes.",
     "verdict": "READY_STORAGE_LIFECYCLE_P4_BOUNDED_RETENTION_IMPLEMENTATION"
+  },
+  "storage_lifecycle_p4_production_capable_plumbing": {
+    "milestone": "STORAGE-LIFECYCLE-P4 -- production-capable HOT/COLD transfer retention plumbing",
+    "exact_pinning": {
+      "rows": 817054,
+      "of_total": 5221462,
+      "percentage": 15.648,
+      "supersedes_p3_approximate": "~14.4%"
+    },
+    "hot_window": "90 days, grounded in real consumer census (33 modules traced, 0 unknown)",
+    "cex_lineage": "PROVEN at 0/1/2-hop using real on-chain addresses/signatures, including a real 3-hop chain's reconstruction across a HOT/COLD split",
+    "production_code": [
+      "src/ops/transfer_archival_cursor.py (keyset cursor)",
+      "src/ops/unified_transfer_reader.py (conflict detection added)",
+      "src/core/storage_cleanup.py (fail-closed guard added)"
+    ],
+    "tests": "29 new (111/111 combined with P1/P2/P2.2/P3), zero regressions",
+    "watchtower_preservation": "PASS",
+    "3sw2_preservation": "PASS",
+    "hot_size_model": "~13.9M rows (~1.94 GiB) steady-state HOT under average ingest vs current unbounded architecture",
+    "no_production_mutation": true,
+    "p5_design_prepared_not_authorized": "docs/audits/storage_lifecycle_p5_cutover_design.json",
+    "p5_prerequisites": [
+      "exact dbstat measurement (deferred twice, competing load)",
+      "segment discovery index",
+      "real-scale re-benchmarking",
+      "wire UnifiedTransferReader into main.py's /api/transfer-graph/stats"
+    ],
+    "artifacts": [
+      "docs/audits/storage_lifecycle_p4_transfer_consumer_census.json",
+      "docs/audits/storage_lifecycle_p4_exact_pinning_reconciliation.json",
+      "docs/audits/storage_lifecycle_p4_cex_lineage_parity.json",
+      "docs/audits/storage_lifecycle_p4_cold_segment_contract.json",
+      "docs/audits/storage_lifecycle_p4_unified_transfer_reader.json",
+      "docs/audits/storage_lifecycle_p4_query_parity.json",
+      "docs/audits/storage_lifecycle_p4_watchtower_dv34_query_parity.json",
+      "docs/audits/storage_lifecycle_p4_performance_benchmark.json",
+      "docs/audits/storage_lifecycle_p4_hot_cold_size_model.json",
+      "docs/audits/storage_lifecycle_p4_main_db_rebuild_model.json",
+      "docs/audits/storage_lifecycle_p5_cutover_design.json",
+      "docs/audits/storage_lifecycle_p4_implementation_result.json"
+    ],
+    "verdict": "READY_STORAGE_LIFECYCLE_P4_BOUNDED_RETENTION_IMPLEMENTATION_QUALIFIED"
   }
 }

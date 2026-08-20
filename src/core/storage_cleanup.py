@@ -1,10 +1,32 @@
 """
 FLEX Phase 3.2 Storage Management — Production-Safe Cleanup
 
-This module provides atomic, verifiable cleanup of old transfers from the
-transfer_index table, keeping hot storage bounded to 90 days of data.
+*** DEPRECATED as of STORAGE-LIFECYCLE-P4 (2026-08-20) ***
 
-Architecture:
+This module implements UNBOUNDED, AGE-ONLY deletion from transfer_index
+(DELETE FROM transfer_index WHERE block_time < cutoff) with ZERO
+awareness of operational significance -- exactly the anti-pattern the
+STORAGE-LIFECYCLE-P1 through P4 milestones replace with a pinning-aware
+HOT/COLD architecture (see docs/audits/storage_lifecycle_p3_hot_cold_
+retention_contract.json). P3 confirmed this class has NEVER executed
+against production (its own cleanup_log table does not exist in the
+live database) and is NOT present in the active crontab -- it has been
+fully dormant since it was written.
+
+FAIL-CLOSED BY DEFAULT: cleanup_old_transfers() now refuses to run
+unless the environment variable ALLOW_LEGACY_UNBOUNDED_TRANSFER_CLEANUP
+is set to exactly "development-test-only" -- this is deliberately not a
+simple truthy flag, to make accidental production activation (e.g. a
+stray "true" in some config) extremely unlikely. See
+tests/test_storage_lifecycle_p4_legacy_cleanup_guard.py for the
+enforcement tests.
+
+This module is NOT deleted (something may still import it, e.g. its own
+companion script or a future dev/test harness) but must never be wired
+into any production schedule without a separate, explicit, later
+authorization that supersedes this deprecation notice.
+
+Architecture (as originally written, still described for reference):
 - Single transfer_index table with DELETE + VACUUM retention
 - Pre-cleanup verification prevents duplicate runs and ensures safety
 - Post-cleanup integrity checks detect corruption
@@ -20,10 +42,20 @@ from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
 
+LEGACY_CLEANUP_OVERRIDE_ENV_VAR = "ALLOW_LEGACY_UNBOUNDED_TRANSFER_CLEANUP"
+LEGACY_CLEANUP_OVERRIDE_VALUE = "development-test-only"
+
+
+class LegacyCleanupDisabledError(RuntimeError):
+    """Raised when TransferIndexCleanup.cleanup_old_transfers() is called
+    without the explicit development/test-only override set. This class
+    is deprecated -- see module docstring."""
+
 
 class TransferIndexCleanup:
     """
-    Production-safe cleanup for time-based retention.
+    DEPRECATED (see module docstring) -- production-safe cleanup for
+    time-based retention, fail-closed by default as of P4.
 
     Implements:
     1. Atomic deletion of old transfers
@@ -110,7 +142,23 @@ class TransferIndexCleanup:
                 'status': 'success' | 'skipped' | 'error',
                 'message': str
             }
+
+        Raises:
+            LegacyCleanupDisabledError: unless ALLOW_LEGACY_UNBOUNDED_
+                TRANSFER_CLEANUP is set to exactly "development-test-only"
+                in the environment. This class is DEPRECATED as of
+                STORAGE-LIFECYCLE-P4 -- see module docstring. This guard
+                applies even when dry_run=True, since a dry-run call
+                still implies the caller believes this class is the
+                correct tool, which it is not.
         """
+        if os.environ.get(LEGACY_CLEANUP_OVERRIDE_ENV_VAR) != LEGACY_CLEANUP_OVERRIDE_VALUE:
+            raise LegacyCleanupDisabledError(
+                "TransferIndexCleanup is deprecated (STORAGE-LIFECYCLE-P4) and fails closed by "
+                f"default. Set {LEGACY_CLEANUP_OVERRIDE_ENV_VAR}={LEGACY_CLEANUP_OVERRIDE_VALUE!r} "
+                "to override for development/test use only -- never in production."
+            )
+
         cleanup_start = time.time()
         result = {
             'deleted': 0,

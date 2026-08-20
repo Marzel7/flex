@@ -1,0 +1,127 @@
+{
+  "meta": {
+    "task": "STORAGE-LIFECYCLE-P4 Tasks 2 and 3",
+    "generated_at_utc": "2026-08-20",
+    "database_files": {
+      "main": "database/flex_complete_database.db (14,763,945,984 bytes at run time)",
+      "wt_ops": "database/wt_ops_v2.db",
+      "discovery_corpus": "database/local_operation_discovery_corpus.db"
+    },
+    "connection_mode": "sqlite3.connect(f'file:{path}?mode=ro', uri=True, timeout=30) for both flex_complete_database.db and wt_ops_v2.db; local_operation_discovery_corpus.db opened with a plain read-only-intent connection (small 23MB file, no concurrent writers observed, PRAGMA query_only=1 additionally set on the main-DB connection).",
+    "safety_notes": [
+      "A PRAGMA integrity_check(1) from an earlier session was confirmed still running against flex_complete_database.db at the start of this investigation (ps aux showed pid 32785, low CPU%). All queries below completed in well under the 90s abandonment threshold (longest single dimension query: 67.7s cumulative for dim4's ~65 chunked IN(...) queries, not a single query) alongside that concurrent load, so nothing was abandoned or fell back to sampling.",
+      "No writes, deletes, or schema changes were made to any database. No network/RPC calls were made.",
+      "Total wall-clock time for the entire Task 2 exact-union computation: 68.5 seconds."
+    ]
+  },
+
+  "task2_exact_pinning_union": {
+    "method_chosen": "Marker-set-in-Python + chunked indexed id-collection, NOT a single giant SQL UNION/EXISTS query. Reasoning: the retention contract's 4 dimensions have very different key types (address vs signature) living in 3 different SQLite files, so a single cross-database SQL query isn't directly expressible without ATTACH DATABASE (which was avoided to keep every connection strictly read-only and simple). Instead: (1) loaded all 4 marker sets into Python (small: 21,535 + 70 + 7,412 + 32,255 = 61,272 distinct values total, well within memory), (2) for each dimension ran chunked (500-per-batch) indexed `WHERE column IN (?,?,...)` queries against transfer_index (destination for dim1, source+destination separately for dim2's 70 addresses, signature for dim3 and dim4), collecting the matching transfer_index.id (an integer, using the table's PRIMARY KEY, cheapest possible unique identifier) into 4 Python sets, (3) computed the exact set union and every intersection combination in Python (trivial once ids are in memory — no further DB queries needed for the overlap matrix). This is EXACT, not sampled: every dimension is evaluated as a full indexed lookup across the marker set, not a random sample of rows.",
+    "marker_set_sizes": {
+      "dim1_creator_funders_creator_address_distinct": 21535,
+      "dim2_operator_entities_entity_address_distinct": 70,
+      "dim3_direct_funding_edges_funding_signature_distinct": 7412,
+      "dim4_upstream_edges_upstream_signature_distinct": 32255,
+      "dim3_plus_dim4_signature_union_distinct": 36835,
+      "note": "dim3 and dim4 signature sets overlap somewhat (7412+32255=39667 raw vs 36835 union), consistent with upstream_edges (2-hop evidence) and direct_funding_edges (1-hop evidence) sometimes citing the same underlying transaction."
+    },
+    "dimension_definitions_as_run": {
+      "dim1": "transfer_index.destination IN (SELECT DISTINCT creator_address FROM creator_funders) — DESTINATION ONLY, per the task's explicit instruction not to include source-matches (P3 found those are creator-outbound noise, not funding evidence).",
+      "dim2": "transfer_index.source IN (operator_entities.entity_address, 70 addrs) OR transfer_index.destination IN (same 70 addrs) — both directions included per the retention contract's 'source or destination' wording for this dimension specifically (unlike dim1, which the task explicitly restricts to destination-only).",
+      "dim3": "transfer_index.signature IN (SELECT DISTINCT funding_signature FROM local_operation_discovery_corpus.db:direct_funding_edges)",
+      "dim4": "transfer_index.signature IN (SELECT DISTINCT upstream_signature FROM local_operation_discovery_corpus.db:upstream_edges) — upstream_edges has an 'upstream_signature' column (not literally named 'signature', but semantically the same funding-evidence signature at the next hop out), confirmed via PRAGMA table_info before use; this covers the 2-hop evidence the task asked for."
+    },
+    "per_dimension_exact_row_counts": {
+      "dim1_only_and_combined_total": 679015,
+      "dim2_only_and_combined_total": 274,
+      "dim3_only_and_combined_total": 65099,
+      "dim4_only_and_combined_total": 209012,
+      "note": "these 'combined_total' numbers are each dimension's raw hit count (may double-count rows also hit by other dimensions) — see overlap_matrix below for the deduplicated breakdown. dim3's 65,099 matches P3's earlier exact measurement of the same dimension (65,099), confirming consistency across milestones."
+    },
+
+    "exact_union_total_pinned_rows": 817054,
+    "exact_full_table_row_count": 5221462,
+    "exact_pinned_percentage": 15.647992841851574,
+    "comparison_to_p3_approximation": {
+      "p3_approximate_pin_fraction": "~14.4% (per the task's stated prior estimate; P3's own artifact's headline number was actually 70.2% raw / a corrected ~14.4% destination-match estimate derived by removing source-match noise from a 20,000-id SAMPLE)",
+      "p4_exact_measurement": "15.648% (817,054 / 5,221,462), computed as an EXACT union across all 4 real retention-contract dimensions (not just the destination-in-creator_funders proxy P3 used for its correction), via full indexed marker-set lookups, zero sampling",
+      "delta": "+1.25 percentage points above P3's approximation — close enough to validate P3's correction methodology was directionally sound, but this P4 number is the one to use going forward: it is exact, covers all 4 contractual dimensions (P3's ~14.4% only approximated dimension 1), and is reproducible."
+    },
+
+    "overlap_matrix": {
+      "description": "Exact count of transfer_index rows by WHICH SET of dimensions they match (deduplicated — every row counted exactly once, in exactly one combination bucket). Sum of all buckets = 817,054 (the exact union).",
+      "buckets": [
+        {"dimensions_matched": ["dim1"], "row_count": 598552, "description": "destination in creator_funders ONLY"},
+        {"dimensions_matched": ["dim4"], "row_count": 129741, "description": "signature in upstream_edges (2-hop evidence) ONLY"},
+        {"dimensions_matched": ["dim1", "dim3", "dim4"], "row_count": 51544, "description": "destination in creator_funders AND signature in both direct_funding_edges AND upstream_edges"},
+        {"dimensions_matched": ["dim1", "dim4"], "row_count": 23399, "description": "destination in creator_funders AND signature in upstream_edges"},
+        {"dimensions_matched": ["dim1", "dim3"], "row_count": 5400, "description": "destination in creator_funders AND signature in direct_funding_edges"},
+        {"dimensions_matched": ["dim3", "dim4"], "row_count": 4313, "description": "signature in both direct_funding_edges and upstream_edges, but destination NOT a known creator_funders creator (e.g. an upstream/intermediary-side transfer_index row referenced by the discovery corpus that doesn't itself terminate at a creator)"},
+        {"dimensions_matched": ["dim3"], "row_count": 3831, "description": "signature in direct_funding_edges ONLY"},
+        {"dimensions_matched": ["dim2"], "row_count": 154, "description": "operator_entities address (source or destination) ONLY"},
+        {"dimensions_matched": ["dim1", "dim2"], "row_count": 103, "description": "operator_entities address AND destination in creator_funders"},
+        {"dimensions_matched": ["dim1", "dim2", "dim3", "dim4"], "row_count": 9, "description": "matches all four dimensions simultaneously"},
+        {"dimensions_matched": ["dim1", "dim2", "dim4"], "row_count": 6, "description": "operator_entities + creator_funders destination + upstream_edges signature"},
+        {"dimensions_matched": ["dim1", "dim2", "dim3"], "row_count": 2, "description": "operator_entities + creator_funders destination + direct_funding_edges signature"}
+      ],
+      "sum_check": 817054,
+      "dominant_dimension": "dim1 (destination in creator_funders.creator_address) dominates overwhelmingly: it appears (alone or combined) in 679,015 of the 817,054 pinned rows (83.1% of all pinned rows). Its solo bucket alone (598,552 rows, 73.3% of all pinned rows) is larger than every other dimension's total combined contribution. dim4 (upstream_edges / 2-hop signature evidence) is the second-largest contributor at 209,012 rows total (129,741 of which are dim4-only, not also caught by dim1), meaning 2-hop discovery evidence pins a materially large, mostly-DISTINCT set of rows that dim1 alone would miss.",
+      "dim2_note": "dim2 (operator_entities, 70 canonical addresses) remains, as in P3, a tiny-volume-but-highest-certainty dimension: only 274 raw hits / 274 rows appear in any dim2 bucket, but every one of those addresses is a canonical Watchtower-confirmed operator, so per-row confidence is maximal even though it contributes <0.04% of the pinned-row count."
+    },
+
+    "confidence": "EXACT (HIGH) for every number in this section — no sampling was used anywhere in Task 2. All 4 marker sets were exhaustively loaded (not sampled) and every transfer_index row matching any of them was individually identified by primary-key id before deduplication."
+  },
+
+  "task3_cex_lineage_proof": {
+    "method": "Loaded the 43 CEX_ACCOUNTS addresses from src/utils/infra_mapping.py (regex-extracted from the CEX_ACCOUNTS dict literal). Checked local_operation_discovery_corpus.db:candidate_families for root_cex_infra_category IS NOT NULL (45 rows found, all root_cex_infra_category in {'cex','automation'}) — all 45 had cex_infra_hop_distance='0', meaning the corpus's own family-root evidence only tracks the DIRECT (0-hop) case; 1-hop and 2-hop chains were found instead by directly walking transfer_index + local_operation_discovery_corpus.db:upstream_edges/direct_funding_edges, as described per chain below.",
+    "chains_found": [
+      {
+        "hop_distance": "0-hop (direct)",
+        "description": "CEX address transfers directly into what becomes a wallet later receiving creator-level funding fan-out; this is the direct-funder root pattern behind candidate_family DFF_29dd35c2748f592b (root_cex_infra_category='cex', member_count=575, classification='SERVICE_DISTRIBUTION_CLUSTER').",
+        "cex_address": "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9",
+        "signature": "4ufq5m4AicN3k7UwtuUh7eugsA35KQMeVLYiZEzVw5iqZVAGpfzm7YUbUmMpmfTTuwXpNEmnRCn7TmLa5kharcMP",
+        "sample_destinations_same_signature": [
+          {"destination": "6brjZR1STr22HH11tEySvdf77HxUFN6aTD9GcLARpnTK", "amount_lamports": 98999000000},
+          {"destination": "5uxmAZBPvasHAZSyRwJeg2NmR4irNmwZWKVwGTEYXWTM", "amount_lamports": 2087391380},
+          {"destination": "23d8w9GvKARhEs7NhXRRUivme8jKqm65DmpzXbqKYhzF", "amount_lamports": 649000000}
+        ],
+        "block_time": 1787216902,
+        "note": "This single signature fans out to multiple destinations in one transaction (multiple transfer_index rows sharing one signature, consistent with the schema's documented one-tx-to-many-rows pattern). None of these 3 specific sample destinations were themselves confirmed creator_funders.creator_address in a spot-check, but the source address IS the confirmed root of a 575-member SERVICE_DISTRIBUTION_CLUSTER family per the discovery corpus, i.e. this CEX address is a confirmed real distribution hub feeding creator funding elsewhere in the graph."
+      },
+      {
+        "hop_distance": "1-hop",
+        "description": "CEX -> intermediary funder -> creator, reconstructed by joining local_operation_discovery_corpus.db upstream_edges (intermediary's own upstream funding source) to direct_funding_edges (intermediary's funding of the actual token creator).",
+        "cex_address": "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9",
+        "intermediary_address": "2meLgaCbZxB2rUexwbQqVaxwuxWTQCgDEHpnpcX4vncS",
+        "creator_address": "2kqFabgiH26pfFsJTqq431qYNxNdqjnMMrFZ2GpC8fyC",
+        "mint": "mA1Tj6k1Ct39RirbDpJU4sMhX4PmEEQj2ZyDtD9pump",
+        "hop1_signature_cex_to_intermediary": "3Dd7sMQLaEp6GMP5DrLh5p6eEGtnMeMu4tSS6oB2WdSGZzMWpmS9N9WeCXxLE4sj7BY7rw8bKmqEvwgfqsEBwFiN",
+        "hop1_amount_lamports": 49999000000,
+        "hop1_block_time": 1786695945,
+        "hop2_signature_intermediary_to_creator": "2vUyZQqjtk5K1Ye69X342ct3vkLk5B1To634AaNzKsthEobNQBJFStL9sdQADbPKroo1a3xyBdsyfXdkGXRDxMuL",
+        "note": "Both edges independently confirmed: hop1 via transfer_index/upstream_edges (CEX->intermediary), hop2 via local_operation_discovery_corpus.db's direct_funding_edges (intermediary->creator, tied to a real pump.fun mint and migration record). All 3 addresses are distinct."
+      },
+      {
+        "hop_distance": "2-hop",
+        "description": "CEX -> intermediary_2 -> intermediary_1 -> creator, found by taking non-CEX upstream_source addresses from upstream_edges (these are the 'intermediary_1's own upstream funders, i.e. potential intermediary_2 nodes) and checking which of them ALSO appear directly as a transfer_index destination of a known CEX address -- i.e. a genuine second layer of indirection distinct from both the CEX and the creator.",
+        "cex_address": "2AQdpHJ2JpcEgPiATUXjQxA8QmafFegfQwSLWSprPicm",
+        "intermediary_2_address": "FFLeWB1qD581VPpJh9bw5T9bxdHPvQjfd9Rbbh4vWri4",
+        "intermediary_1_address": "5TtfGFYNJZekNsN6QE9FeHigxhhTwy1NnisMTUSXEujs",
+        "creator_address": "9vY2sDbJLVvUKMorvFo7kZJWPG7VNUR3umJPH2VC33Hi",
+        "mint": "Jfu3UhZ5T82CBexCokL2f8235JcbWGgA8tjMx6tpump",
+        "hop1_signature_cex_to_intermediary2": "53QqyRDrsdk7mTKEJqiaBa7VCP7rze5Bw4nya89RdPVPpEqNPwi6MgqycJwJSwFrB5DPcSNa9N2P6jW5ZP4bAmbw",
+        "hop1_amount_lamports": 4520195000,
+        "hop1_block_time": 1776836642,
+        "hop2_signature_intermediary2_to_intermediary1": "3ycr1ZQNemDaeyjMTXkiTZpPGDn8NnvCGW1eyZh4kSbGTECnruaKSyaS21Z9uHB2TvMmx3zKXnPQtzgXaX8bdp2G",
+        "hop2_amount_lamports": 2281482,
+        "hop2_block_time": 1777503488,
+        "hop3_signature_intermediary1_to_creator": "59mg6RT3BxtwPgtNUakFcvdzdDUUPrjL4pADrjuqQoMcJxyYYLL8woM1h8ThmkfckB6eYZNxFfeHkFHZyGpPY56",
+        "hop3_amount_lamports": 21384718,
+        "hop3_block_time": 1777503504,
+        "note": "All 4 addresses (CEX, intermediary_2, intermediary_1, creator) confirmed distinct. hop1 confirmed directly in transfer_index (CEX source -> intermediary_2 destination). hop2 confirmed via local_operation_discovery_corpus.db upstream_edges (intermediary_1's own upstream funding source = intermediary_2). hop3 confirmed via direct_funding_edges (intermediary_1 -> creator, tied to a real pump.fun mint). This is a genuine, real, on-chain-evidenced 2-hop CEX lineage chain, not a self-loop or degenerate case -- 32 additional CEX->intermediary_2 candidate edges of this shape were found in a bounded 2,000-address sample of non-CEX upstream_source addresses (33 total hits), confirming this pattern is not a one-off."
+      }
+    ],
+    "search_method_for_2hop": "Bounded, not exhaustive: took ALL 8,434 distinct (direct_funder, upstream_source) pairs from upstream_edges (a small local table, full scan was cheap), filtered to the 6,259 upstream_source addresses NOT themselves a known CEX address, then checked the FIRST 2,000 of those (sample, disclosed) against transfer_index for `source IN (43 CEX addrs) AND destination IN (that 2,000-address sample)` in a single indexed batch query. 33 hits found in this bounded first-2000 sample alone (0.5s runtime), strongly suggesting the full 6,259-address population would yield many more -- treated as sufficient to prove hop-distance-2 chains are real and non-trivial in volume, without needing to scan the full population for this proof-of-existence task.",
+    "conclusion": "Real CEX-rooted funding chains were found at 0-hop, 1-hop, AND 2-hop depth, all backed by actual transfer_index signatures/addresses/amounts and (for 1-hop and 2-hop) cross-validated against the local_operation_discovery_corpus.db's independently-built upstream_edges/direct_funding_edges evidence tables. The 2-hop case in particular is not a rare edge case -- 33 distinct CEX->intermediary_2 candidate edges were found in just the first 2,000 of 6,259 non-CEX upstream_source addresses, implying on the order of 100+ such 2-hop chains likely exist in the full population (extrapolated, not counted exactly -- this was a proof-of-existence search per the task's scope, not a census)."
+  }
+}

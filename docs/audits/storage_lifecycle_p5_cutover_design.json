@@ -1,0 +1,32 @@
+{
+  "schema_version": "storage.lifecycle.p5-design.v1",
+  "artifact_type": "STORAGE_LIFECYCLE_P5_CUTOVER_DESIGN",
+  "milestone_name": "STORAGE-LIFECYCLE-P5 -- controlled HOT/COLD production cutover and main-DB rebuild",
+  "status": "DESIGN ONLY -- no P5 action taken in P4, per explicit instruction. Requires SEPARATE human authorization before any step below is executed.",
+  "prerequisites_from_p4": [
+    "exact dbstat byte-level measurement of transfer_index (deferred twice now, P3 and P4, both times due to competing production load -- must be obtained in a genuine idle/maintenance window before P5 sizing is finalized)",
+    "segment discovery index implementation (Part 13, not yet built)",
+    "at least one real production-scale (not fixture-scale) archival dry-run to validate the keyset cursor's throughput against the actual 5.2M-row table",
+    "wiring UnifiedTransferReader into the 1 ADAPTER_REQUIRED consumer identified in the census (main.py's /api/transfer-graph/stats) and observing it in production for a period before trusting it as the sole read path"
+  ],
+  "sequence": {
+    "1_archival_high_water": "freeze a run_id + high_water_id using start_or_resume_run() against the LIVE transfer_index, at a chosen production-quiet time",
+    "2_cold_segment_creation": "run_keyset_archival() to copy all eligible (non-pinned, older-than-90-days) rows up to the frozen high-water into monthly COLD segments, using the already-tested keyset cursor -- copy-only, zero source mutation",
+    "3_validation": "verify each segment's row count, signature digest, and manifest against the source query that produced it; run the full query-parity test suite (Part 14-18 mechanics) against REAL migrated data, not just fixtures",
+    "4_replacement_main_db_construction": "build a new main DB file containing all non-transfer_index tables unchanged, plus ONLY the PERMANENT_PINNED + RECENT_GENERIC_HOT transfer_index subset (per the exact pinning contract, Part 3-4 of this milestone)",
+    "5_application_read_cutover": "point read call sites at the new DB + COLD segments via UnifiedTransferReader; keep the OLD main DB available as a live fallback during a defined observation window",
+    "6_writer_cutover": "point the actual write path (transfer_indexer.py, confirmed as the writer in this milestone's census) at the NEW main DB -- this is the point of no return for new data and must be carefully sequenced with step 5",
+    "7_brief_maintenance_window": "a short window is likely unavoidable around steps 5-6 to avoid a split-brain state where new writes land in the old DB after reads have already cut over -- exact duration to be measured in a P5 dry run, not guessed here",
+    "8_rollback": "OLD MAIN DB retained read-only (quarantined, not deleted) for a defined observation period; rollback = repoint reads+writes back to the old DB, no COLD reconstruction needed since old DB still has 100% of pre-cutover data",
+    "9_old_db_quarantine": "old DB moved to a clearly-marked quarantine path (following the same _retired/ pattern already proven safe in STORAGE-LIFECYCLE-P2 Part 1), read-only, retained until observation passes",
+    "10_observation": "monitor query correctness, latency, error rates, and absence of HOT_COLD_EVIDENCE_CONFLICT surges for a defined period (recommend >=7 days minimum, informed by the existing 48-72h precedent from P2.2 but likely longer given this is a much higher-stakes cutover)",
+    "11_eventual_old_db_retirement": "only after observation passes AND an explicit separate human decision -- never automatic"
+  },
+  "rollback_contract": {
+    "no_reconstruction_from_cold_required": "the OLD main DB, quarantined but intact, IS the complete rollback target -- COLD segments exist for forward capacity/growth management, not as the rollback mechanism",
+    "no_immediate_deletion_after_cutover": "explicit requirement carried forward from the human directive -- old DB deletion is a SEPARATE future decision after successful observation, never bundled into the cutover itself"
+  },
+  "lock_safety_carried_forward": "SQLITE_STORAGE_LIFECYCLE_LOCK_SAFETY applies throughout: bounded batches (proven in P4's keyset cursor), no long write transaction on the live DB during archival (copy-only), cold writes isolated to their own files, busy-source handling (P1's DatabaseBusyError skip/continue pattern) reused rather than reinvented.",
+  "not_authorized_by_this_artifact": "This document is a DESIGN ONLY. No step in the sequence above is executed by STORAGE-LIFECYCLE-P4. P5 requires its own separate milestone directive with its own explicit human GO decision.",
+  "deterministic_digest": "aeac6779ca7724949115c93ebb6d9b77b5a983f39ce96a2abba5091178012d4b"
+}

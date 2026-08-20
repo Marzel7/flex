@@ -534,10 +534,12 @@
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
   "current_milestone": {
-    "milestone": "STORAGE-LIFECYCLE-P5A -- real replacement main DB + cold segment build, validated (not cutover)",
-    "status": "COMPLETE_AWAITING_HUMAN_REVIEW",
-    "verdict": "READY_STORAGE_LIFECYCLE_P5B_CONTROLLED_CUTOVER_REVIEW",
-    "next_action": "HUMAN_REVIEW_P5A_AUDIT_TRAIL_THEN_AUTHORIZE_OR_DECLINE_P5B"
+    "milestone": "STORAGE-LIFECYCLE-P5B Stage 2 -- final quiesce and reconciliation (writer-quiesce core re-validated live, delta/reconciliation pipeline deferred)",
+    "status": "PARTIAL_WRITER_QUIESCE_REVALIDATED_SERVICES_RESTORED",
+    "verdict": "SEE docs/audits/storage_lifecycle_p5b_stage2_final_quiesce_reconciliation.json -- NOT READY_P5B_STAGE3_ATOMIC_SWITCH (Parts 7-21 delta-copy/identity-reconciliation/parity-suite not yet run)",
+    "final_high_water_captured": 6765610,
+    "all_3_writer_services_confirmed_running": true,
+    "next_action": "RESUME_P5B_STAGE2_PARTS_7_THROUGH_21_NO_FURTHER_DOWNTIME_NEEDED_UNTIL_REAL_STAGE3_SWITCH"
   },
   "ops_discovery_p3r_x": {
     "updated_at_utc": "2026-08-20T00:00:00Z",

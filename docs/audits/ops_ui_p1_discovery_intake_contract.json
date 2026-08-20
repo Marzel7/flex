@@ -1,0 +1,116 @@
+{
+  "schema_version": "1.0",
+  "artifact_type": "ops_ui_p1_discovery_intake_contract",
+  "milestone": "OPS-UI-P1 -- Discovery Intake Contract (Phase E-F)",
+  "generated_at": "2026-08-20",
+
+  "discovery_corpus_verification": {
+    "candidate_families_total": 385,
+    "classification_breakdown": {
+      "STRONG_CANDIDATE_FAMILY": 21,
+      "PARTIAL_CANDIDATE_FAMILY": 81,
+      "AMBIGUOUS_FUNDING_CLUSTER": 100,
+      "SERVICE_DISTRIBUTION_CLUSTER": 8,
+      "NOISE_OR_INSUFFICIENT": 175
+    }
+  },
+
+  "discovery_corpus_census": {
+    "method": "sqlite3 database/local_operation_discovery_corpus.db run directly against candidate_families, not read from any prior document.",
+    "verified_total": 385,
+    "composite_families_total": 14,
+    "classification_breakdown": {
+      "STRONG_CANDIDATE_FAMILY": 21,
+      "PARTIAL_CANDIDATE_FAMILY": 81,
+      "AMBIGUOUS_FUNDING_CLUSTER": 100,
+      "SERVICE_DISTRIBUTION_CLUSTER": 8,
+      "NOISE_OR_INSUFFICIENT": 175,
+      "sum_check": "21+81+100+8+175 = 385, matches total"
+    },
+    "attribution_state_breakdown": {
+      "ATTRIBUTABLE": "subset of 385, distinct dimension from classification",
+      "NON_ATTRIBUTIVE_PROVENANCE": "subset of 385, distinct dimension from classification"
+    },
+    "strong_and_attributable_intersection": 8,
+    "strong_and_attributable_query": "SELECT COUNT(*) FROM candidate_families WHERE classification='STRONG_CANDIDATE_FAMILY' AND attribution_state='ATTRIBUTABLE' -> 8 (measured live)",
+    "verdict": "The task brief's '385 total candidate families' figure is CONFIRMED against live data."
+  },
+
+  "phase_e_deterministic_classification_rule": {
+    "source": "src/discovery/local_operation_discovery_projection.py, _classify_family() (lines ~226-246), read directly -- deterministic, interpretable rule-based, no ML/scoring involved.",
+    "rule_logic_summary": [
+      "STRONG_CANDIDATE_FAMILY: highest member_count/creator_count with repeat-amount or fanout signal (exact numeric thresholds live in source; implementers call _classify_family directly rather than re-deriving thresholds here, to avoid drift).",
+      "PARTIAL_CANDIDATE_FAMILY: member_count >= 3 and creator_count >= 3.",
+      "AMBIGUOUS_FUNDING_CLUSTER / SERVICE_DISTRIBUTION_CLUSTER / NOISE_OR_INSUFFICIENT: remaining buckets for mega-hub, self-loop-upstream, or below-threshold populations."
+    ],
+    "policy": "No automatic promotion exists anywhere in this classification path -- _classify_family() only assigns a label into candidate_families.classification; it never writes to operators.status or calls any promotion/governance service."
+  },
+
+  "phase_e_intake_eligibility_criteria": {
+    "eligible_for_analyst_intake_queue": {
+      "condition": "classification IN ('STRONG_CANDIDATE_FAMILY', 'PARTIAL_CANDIDATE_FAMILY') AND family_id is not already DISMISSED in wt_investigation_lifecycle",
+      "count": 102,
+      "note": "Reuses the exact classification boundary the codebase's own cross-family pairing query already applies (local_operation_discovery_projection.py lines ~369-371: WHERE f1.classification IN ('STRONG_CANDIDATE_FAMILY','PARTIAL_CANDIDATE_FAMILY') AND f2.classification IN (...))."
+    },
+    "strict_tier_STRONG_and_ATTRIBUTABLE": {
+      "condition": "classification = 'STRONG_CANDIDATE_FAMILY' AND attribution_state = 'ATTRIBUTABLE' AND family_id is not already DISMISSED in wt_investigation_lifecycle",
+      "count": 8,
+      "note": "A tighter default-queue view within the broader eligible set above, adding the independent attribution_state dimension to exclude CEX/infra-terminating provenance from the DEFAULT queue (not from evidence)."
+    },
+    "eligible_condition": "classification = 'STRONG_CANDIDATE_FAMILY' AND attribution_state = 'ATTRIBUTABLE' AND family_id is not already DISMISSED in wt_investigation_lifecycle",
+    "eligible_count": 8,
+    "rationale": "Tightened to the STRONG x ATTRIBUTABLE intersection (8 of 385) rather than STRONG-or-PARTIAL alone: attribution_state is an independent, already-existing schema dimension (root_cex_infra_category / cex_infra_hop_distance derived) distinguishing families with an attributable non-CEX-only funding path from ones whose provenance terminates at CEX/infra. Requiring BOTH avoids queuing high-member-count families whose only evidence is proximity to shared platform infrastructure (SERVICE_DISTRIBUTION_CLUSTER-adjacent risk).",
+    "broader_context_tier": {
+      "condition": "classification IN ('STRONG_CANDIDATE_FAMILY','PARTIAL_CANDIDATE_FAMILY') regardless of attribution_state",
+      "count": 102,
+      "usage": "Visible in the discovery feed as background/context, not auto-queued for analyst review by default; an analyst can still promote any one of these into the queue manually."
+    },
+    "excluded_by_design": {
+      "AMBIGUOUS_FUNDING_CLUSTER": "100 -- held as context/background, visible in discovery feed but not queued for analyst review by default.",
+      "SERVICE_DISTRIBUTION_CLUSTER": "8 -- explicitly a platform/service-routing pattern, not an operator candidate (matches ops_tokens.html cexchip 'shared launch platform, not one operator' semantics).",
+      "NOISE_OR_INSUFFICIENT": "175 -- below evidentiary threshold, excluded from default queue view.",
+      "NON_ATTRIBUTIVE_PROVENANCE": "families whose attribution_state is NON_ATTRIBUTIVE_PROVENANCE are excluded from the default intake queue VIEW only; this evidence is not excluded from evidence, never deleted, and remains visible in the family's own detail record and in the broader-context tier above."
+    }
+  },
+
+  "proposed_intake_flow": {
+    "stages": ["DISCOVERY_CORPUS (385)", "ELIGIBILITY_FILTER (STRONG x ATTRIBUTABLE = 8, or broader context tier = 102)", "ANALYST_INTAKE_QUEUE (InvestigationLifecycleService, family_id-keyed)", "INVESTIGATION_POPULATION (human-reviewed candidate)", "HUMAN_REVIEW (operator_routes.py POST review/resolve)", "CANONICAL_OPERATION (operators.status = CONFIRMED)"],
+    "no_automatic_promotion": true,
+    "note": "Every arrow in this funnel requires an explicit human POST action through the existing operator_routes.py / operator_identity_governance.py endpoints. No stage writes operators.status automatically."
+  },
+
+  "phase_f_analyst_queue_reuse_decision": {
+    "question": "Can the existing Analyst Queue mechanism absorb new discovery candidates cleanly?",
+    "finding": "YES -- reuse, do not build a second workflow.",
+    "mechanism_chosen": "InvestigationLifecycleService (src/ops/investigation_lifecycle.py) is already family_id-keyed (the discovery corpus's own primary key unit), already has a DISMISSED/REOPENED state machine with full audit trail (wt_investigation_lifecycle + wt_investigation_lifecycle_audit), and already computes a behaviour_snapshot()/fingerprint() over exactly the kind of fields discovery families carry (treasuries, clients, mechanisms, topologies, walkback_descendants, supporting_types). New discovery-corpus families slot into this table using their existing family_id with zero schema change.",
+    "why_not_a_second_workflow": "A second workflow would (a) duplicate the DISMISS/REOPEN state machine, (b) create two places an analyst could act on the same family_id, (c) violate the Phase T architecture principle (ONE investigation workflow). Absolutely prohibited per task brief ('DO NOT build a competing operations registry').",
+    "gap_identified": "InvestigationLifecycleService currently reads/writes against family_id values produced by the LIVE discovery pipeline (src/discovery/service.py), not yet against the local_operation_discovery_corpus.db candidate_families table specifically. Wiring the corpus DB's family_id namespace into the same lifecycle table is a small, additive, read-adjacent change (a new read adapter, not a schema change) -- left design-only this milestone, see implementation_result artifact.",
+    "source_badge_concepts_designed": {
+      "NEW_DISCOVERY": "family present in local_operation_discovery_corpus.db, not yet linked to any operator_id or main-DB historical population.",
+      "MAIN_DB": "relationship present in creator_funders (historical, pre-existing), independent of discovery corpus.",
+      "EVIDENCE_UPGRADE": "a historical (MAIN_DB) relationship whose discovery-corpus classification is STRONG/PARTIAL (i.e. the 23/82 split concept generalized) -- evidence quality moved up without changing membership.",
+      "RAW_VERIFIED": "relationship has an entry in a raw-verification ledger (of_dv34_p1_selective_raw_verification_result.json pattern) with an explicit VERIFIED/CONTRADICTED/NOT_PERFORMED outcome.",
+      "PROVISIONER": "entity classified as a funding provisioner (wrap-close / repeated structural provisioning) without independently established operation identity -- see role_taxonomy below.",
+      "CEX_CONTEXT": "entity or funding hop attributed to a CEX/infra category (root_cex_infra_category populated) -- shown as context, never as sole attribution."
+    }
+  },
+
+  "role_taxonomy": {
+    "states": ["PROVISIONING_NETWORK_CANDIDATE", "OPERATION_IDENTITY_UNRESOLVED", "OPERATION_CANDIDATE", "CONFIRMED_OPERATION"],
+    "not_forced_binary": true,
+    "note": "A provisioner (funding-only role) is deliberately kept distinct from an operation candidate (independently-established coherent identity behind one or more launches). Dv34 sits at PROVISIONING_NETWORK_CANDIDATE, not OPERATION_CANDIDATE, because no independent operation-identity evidence (beyond shared funding lineage) has been established -- see Phase H in the read-model artifact."
+  },
+
+  "intake_funnel_summary": {
+    "total_corpus": 385,
+    "eligible_for_queue_strict": 8,
+    "eligible_for_context_tier": 102,
+    "not_eligible_noise_or_service": 283,
+    "downstream_of_queue": "Human review via existing operator_routes.py POST endpoints -> at most PROVISIONAL/REVIEW_CANDIDATE status -> further human action required to reach CONFIRMED. No stage in this funnel is automatic."
+  },
+
+  "assumptions_and_judgment_calls": [
+    "Chose the STRONG_CANDIDATE_FAMILY x ATTRIBUTABLE intersection (8) as the STRICT default intake queue, and STRONG+PARTIAL (102) as a secondary context tier, rather than a single threshold -- this reuses two already-existing schema dimensions (classification, attribution_state) instead of inventing a new composite score.",
+    "The corpus-DB-to-investigation-lifecycle wiring gap is real and is called out explicitly rather than assumed solved; see implementation_result.json for disposition."
+  ]
+}

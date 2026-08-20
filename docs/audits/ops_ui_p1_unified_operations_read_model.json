@@ -1,0 +1,193 @@
+{
+  "schema_version": "1.0",
+  "artifact_type": "ops_ui_p1_unified_operations_read_model",
+  "milestone": "OPS-UI-P1 -- Unified Operations Intelligence Read Model",
+  "generated_at": "2026-08-20",
+  "scope_note": "Local, read-only, provider-free. Traced against real repository code and the actual live SQLite stores. No production writes performed.",
+
+  "phase_a_existing_ui_trace": {
+    "method": "Read src/ops/operator_routes.py, operator_reader.py, operator_model.py, investigation_lifecycle.py, emerging_operator_service.py, canonical_merge_contract.py, discovery/local_operation_discovery_projection.py directly; ran real queries against database/wt_ops_v2.db, database/local_operation_discovery_corpus.db, database/flex_complete_database.db.",
+    "primary_live_page": {
+      "template": "templates/operators_index.html",
+      "route_blueprint": "src/ops/operator_routes.py (operator_bp)",
+      "confirms": "This IS the real, live Operations registry page per task brief, backed by GET /api/ops/operators and /api/ops/operators/summary."
+    },
+    "route_layer": "src/ops/operator_routes.py (operator_bp) is THE live Operations registry route layer, confirmed by direct code read -- NOT src/core/operation_dashboard_routes.py, which is a different, older wt_ops_v2-backed dashboard left untouched.",
+    "distinct_unrelated_page_flagged": {
+      "template": "templates/ops_tokens.html (CEX-funding view)",
+      "route_module": "src/core/operation_dashboard_routes.py (a different, older wt_ops_v2-backed dashboard, e.g. /api/ops-v2/cex-funding-intelligence)",
+      "action_taken": "Left untouched. Not confused with operator_routes.py. Linked to, not merged (Phase I)."
+    },
+    "other_frontend": {
+      "detail_page": "templates/operator_intelligence.html / templates/operation_profile.html (backed by /api/ops/operators/<operator_id> and identity sub-routes)",
+      "discovery_feed": "templates/discovery.html (src/discovery/routes.py, service.py)",
+      "emerging_candidates": "templates/emerging_operators.html (/intelligence/emerging-operators, emerging_operator_service.py)",
+      "reconciliation_diagnostics": "templates/reconciliation_diagnostics.html (reconciliation_diagnostics_routes.py)"
+    },
+    "key_routes": [
+      "GET /api/ops/operators", "GET /api/ops/operators/summary",
+      "GET /api/ops/operators/<operator_id>", "GET /api/ops/operators/<operator_id>/identity",
+      "POST .../identity/expand|activity|review|resolve|retire|merge|split",
+      "GET /api/ops/operators/by-entity/<address>", "POST /api/ops/operators/resolve",
+      "POST /api/ops/operators/<operator_id>/review", "GET /api/ops/operators/search",
+      "GET /intelligence/operator/<operator_id>", "GET /intelligence/operators",
+      "GET /intelligence/emerging-operators", "GET /intelligence/operations",
+      "GET /intelligence/operations/<path:entity>"
+    ],
+    "service_layer": {
+      "OperatorReader": "src/ops/operator_reader.py -- read path for list/summary/detail; queries operators, operator_entities, operator_evidence, operator_reviews, operator_identity_state tables in database/wt_ops_v2.db (OPS_DB_PATH).",
+      "OperatorResolver": "src/ops/operator_resolver.py -- resolver run (write path, POST /resolve only).",
+      "PromotionService": "src/ops/promotion_service.py -- reads OPS_DB_PATH + DB_PATH (main DB), used for candidate->canonical promotion decisions.",
+      "EmergingOperatorService": "src/ops/emerging_operator_service.py -- computes candidate/emerging populations, contains the canonical-family 'absorption' block (_compose(), lines ~585-619) gated by canonical_merge_contract.py.",
+      "OperatorIdentityGovernanceService": "src/ops/operator_identity_governance.py -- identity lifecycle: expand/activity/review/resolve/retire/merge/split, all POST-only, human-invoked.",
+      "InvestigationLifecycleService": "src/ops/investigation_lifecycle.py -- DISMISSED/REOPENED workflow over wt_investigation_lifecycle table, keyed by family_id (discovery-side identifier), with full audit trail in wt_investigation_lifecycle_audit.",
+      "CanonicalMergeContract": "src/ops/canonical_merge_contract.py -- gates automatic absorption; requires wallet overlap computed symmetrically across ALL wallet-role fields (not just member_wallets) AND >=2 independent identity-class evidence signals. Directly documents why B48k/Dv34 currently escapes WATCHTOWER absorption (their one shared wallet, EFKV, is recorded in `treasuries` on both sides, and the pre-fix candidate-side check only looked at member_wallets)."
+    },
+    "db_model": {
+      "registry_db": "database/wt_ops_v2.db (OPS_DB_PATH) -- operators, operator_entities, operator_evidence, operator_reviews, operator_identity_state, operator_identity_events/merges/splits, operator_promotion_reviews, wt_investigation_lifecycle(+audit), wt_operation_candidates, wt_operation_family_confirmations.",
+      "main_history_db": "database/flex_complete_database.db (DB_PATH) -- creator_funders and all historical relationship/launch/token data. Never migrated or physically merged into wt_ops_v2.db.",
+      "discovery_corpus_db": "database/local_operation_discovery_corpus.db -- candidate_families (385 rows), composite_families (14 rows), direct_funding_edges, upstream_edges, candidate_family_members. Precomputed local artifact, separate SQLite file, read independently.",
+      "cross_db_policy": "All three DBs are read independently in Python (sqlite3 connect per-file, mode=ro where safe) and merged in-memory. No ATTACH DATABASE, no cross-db write transaction, per Phase N requirement."
+    },
+    "operation_state_model": "operators.status column, one of OPERATOR_STATES (operator_model.py): CANDIDATE, REVIEW_CANDIDATE, PROVISIONAL, CONFIRMED, REJECTED, MERGE_REVIEW, SPLIT_REVIEW, REVIEW, MERGED, SPLIT, RETIRED.",
+    "investigation_state_model": "Separate, family_id-keyed table wt_investigation_lifecycle: state in (DISMISSED, REOPENED), independent of operators.status -- this is the analyst dismissal/reopen workflow layered on top of discovery-side families, not a duplicate of operator status.",
+    "analyst_queue_logic": "InvestigationLifecycleService (dismiss/reopen with reason codes SPAM_DUSTING/KNOWN_BENIGN/FALSE_POSITIVE/DUPLICATE/SHARED_INFRASTRUCTURE/ANALYST_DECISION/OTHER) plus OperatorIdentityGovernanceService review/resolve/retire/merge/split actions on confirmed operator_id records. Both are human-invoked POST endpoints; no automatic promotion path exists for either.",
+    "promotion_review_actions": "POST /api/ops/operators/<id>/review (operator-level, record analyst decision); POST /api/ops/operators/resolve (trigger resolver run); identity sub-routes for expand/activity/review/resolve/retire/merge/split, all requiring analyst + reason metadata per canonical_merge_contract.py.",
+    "filtering_search": "GET /api/ops/operators/search; GET /api/ops/operators?include_rejected=<bool>&limit=<n> (list_operators excludes REJECTED by default, cap 500).",
+    "detail_profile_source": "OperatorReader.fetch_operator(): SELECT * FROM operators, joined in-Python with operator_entities (ORDER BY evidence_count DESC), operator_evidence, operator_reviews, operator_promotion_history. Launch/creator/provisioning-client/treasury counts derive from operator_entities.entity_type breakdown (TREASURY/CLIENT/CREATOR/etc.), not from a separate launch table -- entity_type is the canonical role tag on each member wallet.",
+    "evidence_history_tabs": "operator_evidence (evidence_type/category/details JSON, ordered by created_at DESC) and operator_reviews (analyst review timeline) are the existing History/Evidence source; append-only, never overwritten."
+  },
+
+  "phase_b_authority_model": {
+    "principle": "operators.status is the ONLY canonical authority state. Everything else is workflow/UI/lifecycle overlay.",
+    "canonical_authority_states": {
+      "OPERATOR_STATES": ["CANDIDATE", "REVIEW_CANDIDATE", "PROVISIONAL", "CONFIRMED", "REJECTED", "MERGE_REVIEW", "SPLIT_REVIEW", "REVIEW", "MERGED", "SPLIT", "RETIRED"],
+      "HUMAN_DECIDED_never_auto_overwritten": ["CONFIRMED", "REJECTED", "REVIEW", "MERGED", "SPLIT", "RETIRED"],
+      "source": "operator_model.py OPERATOR_STATES / HUMAN_DECIDED frozensets."
+    },
+    "investigation_workflow_states": {
+      "states": ["DISMISSED", "REOPENED"],
+      "source": "wt_investigation_lifecycle table (src/ops/investigation_lifecycle.py), family_id-keyed, structurally separate from operators.status."
+    },
+    "ui_filter_only_lifecycle_states": {
+      "states": ["ACTIVE", "QUIET", "DORMANT", "REACTIVATED"],
+      "source": "activity_status from operator_identity_governance.read_identity_lifecycle(); recomputed from activity timestamps, never overwrites operators.status."
+    },
+    "descriptive_non_enum_terms": {
+      "UNRESOLVED": "No literal enum value exists; maps to CANDIDATE/REVIEW_CANDIDATE or null-operator_id (investigation-workflow, not canonical).",
+      "INFRASTRUCTURE": "Not an operator status; an entity-role tag (entity_type / NON-ATTRIBUTIVE INFRASTRUCTURE marking on CEX/relay member wallets), UI-annotation-only."
+    },
+    "classification": {
+      "CANDIDATE / REVIEW_CANDIDATE / PROVISIONAL": "investigation-workflow-state -- pre-authority, machine/pipeline-populated, freely re-computable by resolver runs until a human acts.",
+      "CONFIRMED": "canonical-authority-state (operators.status), HUMAN_DECIDED, never auto-overwritten.",
+      "REJECTED": "canonical-authority-state (operators.status), HUMAN_DECIDED, never auto-overwritten.",
+      "REVIEW / MERGE_REVIEW / SPLIT_REVIEW": "investigation-workflow-state -- pending-human-action markers; part of HUMAN_DECIDED once entered (not auto-overwritten) but not yet a terminal authority outcome.",
+      "MERGED": "canonical-authority-state (operators.status), HUMAN_DECIDED, never auto-overwritten.",
+      "SPLIT": "canonical-authority-state (operators.status), HUMAN_DECIDED, never auto-overwritten.",
+      "RETIRED": "canonical-authority-state (operators.status), HUMAN_DECIDED, never auto-overwritten.",
+      "ACTIVE / DORMANT / QUIET / REACTIVATED": "UI-filter-only / lifecycle-state -- activity_status overlay, never changes operators.status.",
+      "DISMISSED": "investigation-workflow-state, scoped to wt_investigation_lifecycle (family_id, discovery-side), fully separate table from operators.status.",
+      "UNRESOLVED": "descriptive term, not a literal enum -- maps to investigation-workflow-state (CANDIDATE/REVIEW_CANDIDATE or null-operator_id).",
+      "INFRASTRUCTURE": "not a status; entity-role tag, UI-annotation-only, never a canonical operation state."
+    },
+    "safety_rule_for_this_milestone": "New evidence-qualification states introduced by this read model (e.g. HIGH/LOW discovery confidence, RAW_VERIFIED/NOT_PERFORMED/CONTRADICTED) are explicitly EVIDENCE QUALIFICATION -- never written to operators.status and never treated as a canonical-authority-state. They are presentation-layer annotations only."
+  },
+
+  "phase_c_unified_read_model_spec": {
+    "purpose": "One conceptual read-only projection per investigation (operator_id if canonical/candidate, or a discovery family_id/entity if pre-candidate), assembled by joining the 3 stores in-Python. No new tables, no schema change. Implementable as a single Python function (design-only in this milestone -- see implementation_result artifact for why Phase P is not code-shipped).",
+    "conflict_presentation_rule": "The read model never silently picks a winner between conflicting sources (e.g. historical relationship YES vs raw verification CONTRADICTED, or main-DB YES vs discovery-corpus LOW): both values are always rendered side by side with their own provenance label, e.g. 'Historical relationship: YES / Evidence qualification: LOW / Raw verification: NOT PERFORMED'.",
+    "dimensions": {
+      "IDENTITY": {
+        "fields": ["operator_id (nullable if no canonical operator exists yet)", "display_name", "status (canonical authority state, may be null/CANDIDATE)", "confidence", "activity_status (lifecycle)", "identity_status (governance projection)", "merged_into_operator_id", "primary_entity_address", "candidate_role", "promotion_eligible"],
+        "source": "operators + operator_identity_state via OperatorReader.fetch_operator() / read_identity_lifecycle(); candidate_role/promotion_eligible computed read-only via canonical_merge_contract.py evaluation."
+      },
+      "HISTORICAL_POPULATION": {
+        "fields": ["historical_launches (e.g. Dv34=123)", "source_table (creator_funders)", "population_definition (as frozen in the prior milestone's part1)"],
+        "source": "database/flex_complete_database.db creator_funders, exactly as already computed and frozen in docs/audits/of_dv34_p3_main_db_70_vs_new_23_reconciliation.json part1/part4 -- read model MUST recompute the same query, not hardcode the 123."
+      },
+      "EVIDENCE_QUALIFICATION": {
+        "fields": ["high_qualified_count (Dv34=23)", "valid_historical_not_high_count (Dv34=82)", "historical_only_count (Dv34=18)", "classification_breakdown (STRONG/PARTIAL/AMBIGUOUS/SERVICE/NOISE per candidate_families.classification)"],
+        "source": "database/local_operation_discovery_corpus.db candidate_families + candidate_family_members, joined against the historical population by address."
+      },
+      "FUNDING_TOPOLOGY": {
+        "fields": ["direct_funding_edges", "upstream_edges (2+ hop)", "cex_infra_hop_distance", "root_cex_infra_category", "attribution_state"],
+        "source": "candidate_families columns root_cex_infra_category / attribution_state / cex_infra_hop_distance (already present in schema) + direct_funding_edges/upstream_edges tables."
+      },
+      "BEHAVIOURAL_TOPOLOGY_EVIDENCE": {
+        "fields": ["funding_mechanisms (WSOL_WRAP_CLOSE/SEEDED_ACCOUNT_CLOSE/PLAIN_XFER/etc)", "observed_topology_variants", "exact_amount_repeats", "mega_hub flag", "self_loop_upstream flag", "migration_signer_reuse", "create_creator_reuse", "NOTE: migration_signer_reuse and create_creator_reuse are STRUCTURALLY SEPARATE fields -- CREATE-time creator identity is never conflated with a later migration-transaction signer identity, even when the same wallet appears in both roles"],
+        "source": "candidate_families.evidence_json + local_operation_discovery_projection.py classification inputs."
+      },
+      "DISCOVERY": {
+        "fields": ["family_id", "family_kind", "run_id", "classification (STRONG_CANDIDATE_FAMILY etc)", "member_count", "creator_count"],
+        "source": "candidate_families primary key (run_id, family_id)."
+      },
+      "AUTHORITY": {
+        "fields": ["canonical_operation (YES/NO, derived solely from operators.status=='CONFIRMED')", "human_review_state (REVIEW/MERGE_REVIEW/SPLIT_REVIEW/none)", "watchtower_relationship (SHARED_SOURCE_LINEAGE / IDENTITY / none, from operation identity review artifacts)"],
+        "source": "operators.status + operator_identity_state ONLY. Never derived from evidence_qualification or discovery_classification fields (structural guard: AUTHORITY dimension must not reference those field names)."
+      },
+      "PROVENANCE": {
+        "fields": ["raw_verification_status (NOT_PERFORMED / VERIFIED / CONTRADICTED, per-relationship)", "raw_verified_sample_result (Dv34=6/6)", "source_artifact_refs (paths to of_dv34_p* audit JSONs)", "generated_at", "read_model_version"],
+        "source": "docs/audits/of_dv34_p1_selective_raw_verification_result.json + of_dv34_p1_local_prediction_freeze.json, referenced not duplicated."
+      }
+    },
+    "field_naming_policy": "Where an equivalent concept already exists in operator_model.py / candidate_families schema (status, confidence, classification, entity_type, attribution_state), the read model reuses that exact field name rather than inventing a synonym."
+  },
+
+  "phase_k_dv34_reference_result": {
+    "target_address": "Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM",
+    "identity": {
+      "operator_id": null,
+      "status": null,
+      "candidate_role": "PROVISIONING_NETWORK_CANDIDATE",
+      "promotion_eligible": false,
+      "note": "No canonical operator_id exists for Dv34 in database/wt_ops_v2.db (only WATCHTOWER and 3SW2 are CONFIRMED). Identity section renders as UNRESOLVED / pre-candidate."
+    },
+    "historical_population": {"count": 123, "historical_launches": 123, "source": "creator_funders, live-recomputed: SELECT COUNT(*) FROM creator_funders WHERE funder_address='Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM' -> 123 (measured live against database/flex_complete_database.db, matches frozen prior-milestone number exactly)"},
+    "evidence_qualification": {
+      "high_confidence": 23, "high_qualified_count": 23,
+      "valid_not_high": 82, "valid_historical_not_high_count": 82,
+      "historical_only_not_reproducible": 18, "historical_only_count": 18,
+      "sum_check": "23+82+18=123, matches historical_population.count"
+    },
+    "raw_verification": {"sample_size": 6, "verified": 6, "ratio": "6/6"},
+    "role": "DV34_PRIVATE_PROVISIONING_NETWORK_CANDIDATE",
+    "operation_identity": "DV34_OPERATION_IDENTITY_PARTIALLY_RESOLVED -- NOT canonical",
+    "watchtower_relationship": "SHARED_SOURCE_LINEAGE, NOT confirmed identity or membership with WATCHTOWER",
+    "authority": {
+      "canonical_operation": "NO",
+      "watchtower_relationship": "SHARED_SOURCE_LINEAGE (not confirmed membership)"
+    },
+    "promotion_eligibility": "NOT ELIGIBLE -- fails canonical_merge_contract.py's >=2-independent-identity-signal + symmetric-wallet-overlap requirement; matches the documented B48k/Dv34-escapes-absorption case in canonical_merge_contract.py line ~25.",
+    "how_it_displays_under_unified_model": "Card shows historical population 123 as the PRIMARY, always-visible count (never hidden/replaced); evidence qualification 23 HIGH / 82 valid-not-HIGH / 18 historical-only shown as a secondary breakdown chip; raw verification 6/6 shown as a small provenance badge; identity/authority section clearly renders 'No canonical operator -- Provisioning Network Candidate, not confirmed Watchtower' rather than silently omitting or promoting."
+  },
+
+  "phase_l_watchtower_control": {
+    "how_identified": "Live query against database/wt_ops_v2.db operators table: only 2 rows have status='CONFIRMED'. display_name='WATCHTOWER' on operator_id 04265d9f-6eb2-568c-a49e-9253091a4dbb, confidence='CERTAIN', summary='Canonical operator promoted from legacy:WATCHTOWER after analyst review.'",
+    "entity_count": 69,
+    "no_mutation": true,
+    "mutation_performed": false,
+    "result": "CONFIRMED (display_name=WATCHTOWER, operator_id=04265d9f-6eb2-568c-a49e-9253091a4dbb, confidence=CERTAIN, 69 entities). Verified via read-only SELECT queries only (mode=ro URI connections); OperatorReader.fetch_operator() code path traced but not invoked against a live write path; no POST route called.",
+    "narrative": "CONFIRMED status preserved untouched. Read model in Phase C is additive-only for CONFIRMED operators: historical/evidence/discovery sections become secondary context, canonical status/entity membership remain primary and are never recomputed from discovery-corpus data for a CONFIRMED operator.",
+    "cex_lineage": "Preserved -- CEX/infra-hop fields (root_cex_infra_category, cex_infra_hop_distance, attribution_state) are additive columns already in candidate_families schema and are surfaced, not removed, wherever present for WATCHTOWER-linked families."
+  },
+
+  "phase_m_3sw2_control": {
+    "how_identified": "Same operators table query: operator_id 64527dc2-8073-50c0-8bd7-7ef49e62d875, display_name='3SW2', status='CONFIRMED', confidence='CERTAIN', summary='Canonical operator promoted from 3SW2 Family by explicit analyst approval.'",
+    "entity_count": 1,
+    "entity_sample": "3SW2zquY2mVTbNuw1ZCGgtoehq2evfU36PFd6TTqSXdK (CLIENT, HIGH confidence)",
+    "no_mutation": true,
+    "mutation_performed": false,
+    "result": "CONFIRMED (display_name=3SW2, operator_id=64527dc2-8073-50c0-8bd7-7ef49e62d875, confidence=CERTAIN, 1 entity). CONFIRMED status preserved untouched. Same additive-only rule as WATCHTOWER applies; a single-entity confirmed operator is a valid canonical state and the read model does not require a minimum entity count to respect CONFIRMED status."
+  },
+
+  "phase_t_long_term_architecture_principle": {
+    "statement": "ONE operations intelligence workflow, ONE registry (src/ops/operator_routes.py + operators table), ONE investigation workflow (InvestigationLifecycleService + OperatorIdentityGovernanceService), ONE review authority (human-invoked POST endpoints, HUMAN_DECIDED status set), ONE canonical operation state (operators.status) -- backed by MULTIPLE specialized evidence stores underneath: main DB (flex_complete_database.db, historical relationships), discovery corpus (local_operation_discovery_corpus.db, candidate families), CEX mapping (infra_mapping.py / operation_dashboard_routes.py cex-funding-intelligence), and raw-verification ledgers (of_dv34_p1_* artifacts). This is never described or implemented as two independent operation systems; the older operation_dashboard_routes.py dashboard is a separate, narrower CEX/token view that should be LINKED to from Operations, not merged or duplicated into it (see Phase I)."
+  },
+
+  "assumptions_and_judgment_calls": [
+    "Assumed 'UNRESOLVED' in the task's authority-state list is descriptive language for the CANDIDATE/REVIEW_CANDIDATE workflow states plus the null-operator_id case, since no literal 'UNRESOLVED' enum value exists in operator_model.py.",
+    "Assumed 'INFRASTRUCTURE' in the task's list refers to the NON-ATTRIBUTIVE INFRASTRUCTURE entity-role marking (CEX/relay nodes), not a status value, since no such operators.status value exists.",
+    "Confirmed operator_id for WATCHTOWER and 3SW2 by querying the live DB rather than guessing from documentation, per Phase L instruction to 'first find how Watchtower appears in this registry'.",
+    "AUTHORITY.canonical_operation modeled as YES/NO string (not boolean) to match Dv34's authority.canonical_operation == 'NO' representation used consistently across this artifact."
+  ]
+}

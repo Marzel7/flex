@@ -4,7 +4,6 @@
   "verdict": "READY_STORAGE_LIFECYCLE_P5B_CONTROLLED_CUTOVER_REVIEW",
   "production_mutation_occurred": false,
   "production_mutation_confirmation": "Every part of this milestone operated exclusively via read-only connections (PRAGMA query_only=1 / file:...?mode=ro) against database/flex_complete_database.db, database/wt_ops_v2.db, and database/local_operation_discovery_corpus.db. All writes throughout this milestone targeted ONLY: (a) database/_p5a_migration_build/ (the disposable candidate build, pre-existing from Parts 1-13), (b) /tmp/storage_p5a/ scratch files (outside the repo), (c) docs/audits/*.json artifacts, (d) docs/agent_handoff/current.json (a single additive, diff-checked, blockers-preserved update), and (e) a new pytest test file. No production database, table, or row was ever created, updated, or deleted.",
-
   "replacement_hot_db_size": {
     "path": "database/_p5a_migration_build/replacement_main.db",
     "bytes": 12349992960,
@@ -24,7 +23,6 @@
     "estimated_percent_of_current_main_db": 4.85,
     "caveat": "Proportional estimate (COLD row-fraction applied to transfer_index's real dbstat-measured table+index bytes), not a direct post-deletion measurement -- P5A never deletes anything from production. A VACUUM would be required post-deletion to physically reclaim freed pages. See Part 28 for full methodology."
   },
-
   "identity_reconciliation": {
     "result": "IDENTITY_RECONCILIATION_PASS",
     "method": "Streaming chunked XOR-combined SHA256 digest over the composite key (signature, source, destination, amount_lamports, block_time)",
@@ -33,19 +31,24 @@
     "digest_match": true,
     "note": "An initial attempt using raw `id` as the identity key produced a false-positive mismatch (cold segments use locally-renumbered ids, not global production ids) -- corrected and re-verified. See Part 15 artifact for the full investigation."
   },
-
   "all_consumer_parity": {
     "result": "ALL_CONSUMER_QUERY_PARITY_PASS",
     "census_source": "docs/audits/storage_lifecycle_p4_transfer_consumer_census.json (33 modules, 38 distinct query shapes)",
     "checks_run": 10,
     "checks_matched": 10,
-    "representative_classifications_covered": ["ADDRESS_HISTORY", "SIGNATURE_LOOKUP-adjacent", "HISTORICAL_REQUIRED", "ANALYTICAL", "RECENT_ONLY", "FUNDING_LINEAGE"],
+    "representative_classifications_covered": [
+      "ADDRESS_HISTORY",
+      "SIGNATURE_LOOKUP-adjacent",
+      "HISTORICAL_REQUIRED",
+      "ANALYTICAL",
+      "RECENT_ONLY",
+      "FUNDING_LINEAGE"
+    ],
     "dedicated_transfer_graph_stats_endpoint_check": {
       "result": "TRANSFER_GRAPH_STATS_PARITY_PASS",
       "note": "Initial run flagged a HARD_STOP on the shared_funder_overlap_block sub-check; root-caused as a genuine SQL ORDER BY tie at the LIMIT 200 boundary with no secondary sort key (199/200 rows matched exactly; the 1 differing row on each side shared an identical tie value of 64) -- a query-determinism artifact, not lost or incorrect data. Verified via independent row-count/dedup check at the data layer (0 duplicate collapse) before accepting the corrected PASS verdict."
     }
   },
-
   "wallet_clustering_parity": {
     "result": "WALLET_CLUSTERING_PARITY_PASS",
     "method": "Ran the ACTUAL WalletClusteringEngine._detect_dev_farms() production code (not a reimplementation) against production and a lean P5A-build test DB",
@@ -53,7 +56,6 @@
     "p5a_farm_count": 4177,
     "field_mismatches": 0
   },
-
   "watchtower_parity_and_preservation": {
     "hotcold_query_parity_result": "WATCHTOWER_HOTCOLD_QUERY_PARITY_PASS",
     "transfer_index_rows_checked": 274,
@@ -63,7 +65,6 @@
     "freeze_specific_to_this_milestone": true,
     "final_re_verification_immediately_before_commit": "BYTE_IDENTICAL -- PASS"
   },
-
   "three_sw2_parity": {
     "hotcold_query_parity_result": "THREE_SW2_HOTCOLD_QUERY_PARITY_PASS",
     "transfer_index_rows_checked": 0,
@@ -72,19 +73,16 @@
     "canonical_digest": "1941795ded85ee45f03c9bbc0ff6151f9d3d2ccb480b9c516059ffa86511522d",
     "final_re_verification_immediately_before_commit": "BYTE_IDENTICAL -- PASS"
   },
-
   "dv34_parity": {
     "result": "DV34_FULL_HISTORY_PARITY_PASS",
     "transfer_index_rows_as_destination_matched": "69/69 (100% HOT, 0 in any COLD segment)",
     "discrepancy_disclosed": true,
     "discrepancy_summary": "The prior-milestone '123' figure for Dv34's creator_funders population could not be reproduced against live production (which shows exactly 1 row today). Investigated and confirmed this is NOT a P5A artifact: (a) the P4 source of '123' was explicitly a SYNTHETIC FIXTURE, never a live measurement, and (b) creator_funders' single Dv34 row is byte-identical between production and the P5A build. P5A itself loses zero Dv34 evidence -- it faithfully reproduces whatever production's real current state is."
   },
-
   "cex_lineage_parity": {
     "result": "CEX_LINEAGE_PARITY_PASS",
     "scope": "0/1/2-hop: PASS (5/5 real, previously-discovered on-chain signatures match exactly between production and the P5A build). 3-hop: NOT_TESTED (no independently-verified real 3-hop CEX-rooted chain found within a bounded search of the discovery corpus -- an absence-of-evidence, not a parity failure, since no chain that WAS found reconstructed differently)."
   },
-
   "discovery_parity": {
     "result": "DISCOVERY_PARITY_PASS",
     "signatures_checked": 36835,
@@ -93,7 +91,6 @@
     "found_in_cold": 0,
     "note": "Every discovery-corpus-referenced signature (direct_funding_edges + upstream_edges) resolved identically on both sides, and lived entirely in HOT as expected (these signatures are a HOT pinning criterion by construction)."
   },
-
   "performance_benchmark": {
     "result": "PERFORMANCE_BENCHMARK_COMPLETE",
     "total_production_seconds_10_queries": 413.4582,
@@ -102,49 +99,53 @@
     "headline_finding": "RECENT_ONLY 24h aggregate: 32.24s (production) vs 0.47s (P5A) -- a 68x speedup for the dominant real-world live-path query shape.",
     "caveat": "Not a clean engine-vs-engine comparison -- production queries ran against a live, concurrently-written 13.75GB file; P5A queries ran against a freshly-built in-memory table. Directionally real, not statistically hardened (single-run capture)."
   },
-
   "current_free_disk_gib": 42,
   "disk_safety": "Never approached the 25 GiB caution threshold or 20 GiB hard-stop at any point in this milestone; lowest observed was ~39 GiB during the Part 19 test-DB build, immediately reclaimed to ~43 GiB after cleanup.",
-
   "pre_existing_fk_condition_summary": {
     "reference": "docs/audits/storage_lifecycle_p5a_part13_replacement_integrity.json",
-    "tables_with_pre_existing_violations": ["creator_tx_ledger", "creator_state", "network_evidence", "dev_reputation", "token_market_cap_peaks", "token_monitoring_state", "trade_simulation_claims"],
-    "tables_with_pre_existing_schema_invalid_fk": ["pool_health_metrics"],
+    "tables_with_pre_existing_violations": [
+      "creator_tx_ledger",
+      "creator_state",
+      "network_evidence",
+      "dev_reputation",
+      "token_market_cap_peaks",
+      "token_monitoring_state",
+      "trade_simulation_claims"
+    ],
+    "tables_with_pre_existing_schema_invalid_fk": [
+      "pool_health_metrics"
+    ],
     "status": "CONFIRMED PRE_EXISTING_PRODUCTION_DATA_QUALITY_CONDITION, not a migration regression, out of scope for repair in this milestone"
   },
-
   "p5b_writer_quiesce_requirement": {
     "reference": "docs/audits/storage_lifecycle_p5a_part31_writer_quiesce_and_rollback_design.json",
-    "processes_requiring_pause": ["watchtower_listener (supervisord program running src.core.pumpfun_curve_listener)"],
+    "processes_requiring_pause": [
+      "watchtower_listener (supervisord program running src.core.pumpfun_curve_listener)"
+    ],
     "reason": "The ONLY continuously-running process with a confirmed live write path into transfer_index (via realtime_creator_funding_extractor.extract_funding_for_new_token AND funder_incoming_extractor.extract_for_creator, both imported directly by pumpfun_curve_listener.py)",
     "blast_radius": "Narrow -- a single supervisord program, not a whole-system freeze"
   },
-
   "expected_cutover_duration_estimate": {
     "reference": "docs/audits/storage_lifecycle_p5a_part30_p5b_delta_catchup_design.json",
     "estimated_final_quiesce_window": "Seconds, not minutes, provided pre-cutover delta-capture rounds are run frequently enough to keep the final gap small (projection based on measured per-row apply costs; not yet tested against a real quiesce since P5B is design-only)."
   },
-
   "rollback_design_summary": {
     "reference": "docs/audits/storage_lifecycle_p5a_part31_writer_quiesce_and_rollback_design.json",
     "procedure": "rm -rf database/_p5a_migration_build/ -- safe and complete because the entire candidate build is a read-derived copy that production has zero dependency on; no production restore or schema reversion is ever needed since nothing was migrated INTO production.",
     "audit_trail_preserved": "All docs/audits/storage_lifecycle_p5a_part*.json artifacts remain in git history regardless of whether the physical build directory is deleted."
   },
-
   "gitignore_flag": {
     "issue": "database/_p5a_migration_build/replacement_main.db IS covered by the existing '*.db' gitignore rule, but database/_p5a_migration_build/cold_segments/*.sqlite (41 files, ~1GB) is NOT covered by any existing rule (no '*.sqlite' pattern exists in .gitignore).",
     "action_taken": "Per instruction, did NOT add a new gitignore rule unilaterally -- flagged here instead. Mitigated by committing only explicitly-named files (never `git add -A` or `git add .`) so this gap could not cause an accidental commit in this session.",
     "recommendation_for_human": "Consider adding a 'database/_p5a_migration_build/' directory-level gitignore rule (or a '*.sqlite' pattern) to close this gap for future sessions."
   },
-
   "tests_added": {
     "file": "tests/test_storage_lifecycle_p5a_identity_reconciliation.py",
     "test_count": 12,
     "all_passed": true,
-    "runtime_seconds": 0.10,
+    "runtime_seconds": 0.1,
     "coverage": "Identity-reconciliation XOR-digest math (determinism, order-independence, partition-independence, the specific v1-bug regression with locally-renumbered ids), and the segment_name_for_month() discovery-index logic at a synthetic 41-segment scale mirroring the real Part 27 finding. All isolated tmp_path/in-memory fixtures, no real database touched."
   },
-
   "handoff_update": {
     "file": "docs/agent_handoff/current.json",
     "precondition_verified": "blockers == ['HANDOFF_TRANSPORT_DEGRADED'] confirmed before editing",
@@ -153,10 +154,7 @@
     "blockers_preserved_exactly": true,
     "diff_checked_no_other_key_changed": true
   },
-
-  "final_commit_hash": "PENDING -- filled in via a short follow-up commit after this summary artifact itself is committed, per the milestone's own instruction that the summary may need to reference its own commit in a small additional commit",
-
+  "final_commit_hash": "0fd2f46eef6e77a72b1e9c21c32bb5c8c34b71e5",
   "parts_completed": "14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31a, 31b, 31c, 31d, 31e (this summary + commit)",
-
   "conclusion": "All P5A validation parts pass. Zero production mutation occurred at any point. Identity reconciliation is exact. All consumer, Watchtower, 3SW2, Dv34, and discovery parity checks pass (with one honestly-disclosed non-finding on 3-hop CEX lineage and one honestly-disclosed pre-existing data-state discrepancy on Dv34's historical figure, neither of which reflects a P5A defect). The candidate build is real, on disk, and ready for human review as the P5B controlled-cutover gate."
 }

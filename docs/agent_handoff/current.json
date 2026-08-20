@@ -534,10 +534,22 @@
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
   "current_milestone": {
-    "milestone": "OPS-DISCOVERY-P1 -- funding-structure semantic correction and higher-order operation-discovery preflight",
+    "milestone": "OPS-DISCOVERY-P2 -- independent operation-identity evidence census and blind Watchtower/3SW2 qualification",
     "status": "HOLD",
-    "verdict": "NOT_YET_EXECUTABLE_INDEPENDENT_OPERATION_IDENTITY_EVIDENCE_INCOMPLETE",
-    "next_action": "DEFINE_AND_QUALIFY_A_BOUNDED_MULTI_SIGNAL_OPERATION_DETECTOR_INPUT_CONTRACT"
+    "verdict": "P2_DATA_GAPS_PREVENT_BLIND_HIGHER_ORDER_OPERATION_REDISCOVERY",
+    "next_action": "DEFINE_A_BOUNDED_MINT_LINKED_EP3_EP4_AND_MIGRATION_SIGNER_ADAPTER_CONTRACT"
+  },
+  "ops_discovery_p2": {
+    "updated_at_utc": "2026-08-20T00:00:00Z",
+    "engineering_revision": "62e204747fa12dea10322ca0361252f588396117",
+    "artifact": "docs/audits/ops_discovery_p2_independent_operation_identity_evidence_census.json",
+    "status": "HOLD",
+    "verdict": "P2_DATA_GAPS_PREVENT_BLIND_HIGHER_ORDER_OPERATION_REDISCOVERY",
+    "population_freeze": {"launches": 40275, "high_confidence_direct_funding_edges": 7630, "one_upstream_hop_edges": 32527},
+    "result": "The eight Analyst Queue funding structures remain preserved. A provider-free operational fingerprint and no-score eligibility gate were added, but blind Watchtower/3SW2 rediscovery was not run because retained population-wide independent topology, behaviour, and migration-signer adapters are absent.",
+    "production_flags": {"cohort_mode": "OFF", "retention": "ON", "migration_census": "ON", "evidence_mirror": "OFF", "evidence_writer": "STOPPED"},
+    "blockers": ["EP3_POPULATION_GAP", "EP4_LAUNCH_MAPPING_GAP", "MIGRATION_SIGNER_COVERAGE_GAP", "BEHAVIOURAL_PRIMITIVE_COVERAGE_GAP", "TOPOLOGY_DEPTH_GAP", "INDEPENDENT_EVIDENCE_LINEAGE_GAP"],
+    "next_action": "DEFINE_A_BOUNDED_MINT_LINKED_EP3_EP4_AND_MIGRATION_SIGNER_ADAPTER_CONTRACT"
   },
   "ops_discovery_p1": {
     "updated_at_utc": "2026-08-20T00:00:00Z",

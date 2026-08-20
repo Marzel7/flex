@@ -534,9 +534,9 @@
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
   "current_milestone": {
-    "milestone": "STORAGE-LIFECYCLE-P2.2 -- conservative automated lifecycle activation",
-    "status": "CODE_COMPLETE_CRON_INSTALL_PENDING_HUMAN",
-    "verdict": "READY_STORAGE_LIFECYCLE_SCHEDULER_RESTART_GATE"
+    "milestone": "STORAGE-LIFECYCLE-P3 -- bounded hot/cold operational evidence retention",
+    "status": "DESIGN_AND_PROTOTYPE_COMPLETE",
+    "verdict": "READY_STORAGE_LIFECYCLE_P4_BOUNDED_RETENTION_IMPLEMENTATION"
   },
   "current_next_blocker": "B2Z_P2_HELIUS_ENDPOINT was never available during the overnight session. P2 remains frozen at the 19-member manual resume gate, exactly as left. All 12 provider-free workstreams from the overnight prompt were completed: P2 analysis engine, selective-RPC policy (B2Z-P3), historical coverage profile, 2-hop coverage quality, B2Z-2H contract, operation-discovery preparation, candidate funding family analysis (with a real cross-validated finding), raw-transaction cache adapter, RPC savings models, V2 persistent-budget design, edge-case classifier, and roadmap reconciliation. See docs/audits/overnight_human_decision_queue.json for the 5 decisions that actually need you.",
   "focused_tests": [
@@ -30784,5 +30784,37 @@
     ],
     "next_action": "Human runs the provided crontab command, verifies with crontab -l, then observation window begins. After 48-72h, review docs/audits/storage_lifecycle_p2_execution_ledger.jsonl and consider expanding the automation allowlist.",
     "verdict": "READY_STORAGE_LIFECYCLE_SCHEDULER_RESTART_GATE"
+  },
+  "storage_lifecycle_p3_hot_cold_retention": {
+    "milestone": "STORAGE-LIFECYCLE-P3 -- bounded hot/cold operational evidence retention (design/prototype only)",
+    "growth_source": "transfer_index in flex_complete_database.db, 5,221,462 rows (exact), ~172K rows/day avg ingest (77K-403K range)",
+    "operational_significance": {
+      "raw_headline_misleading": "70.2% touch a known creator address, but only via source(outbound)+destination combined",
+      "corrected_pinned_fraction": 0.144,
+      "watchtower_3sw2_exact_rows": 292,
+      "discovery_corpus_signature_exact_rows": 65099
+    },
+    "hot_contract": "PERMANENT (pinned, ~14.4%, any age) + bounded RECENT window (unpinned, rolling) -- exact window duration deferred to P4",
+    "permanent_contract": "richer than a single flag: Watchtower/3SW2 membership, candidate/investigation membership, discovery-corpus signatures, creator-funding destination matches, human review artifacts, 2-hop chains",
+    "cold_contract": "segmented monthly SQLite files (transfer_index_cold_YYYY_MM.sqlite), copy-then-verify migration, immutable closing with SHA-256 manifest, whole-segment retirement (same mechanism proven in P2 Part 1)",
+    "retirement_eligibility": "not executed this milestone -- design only; generic bulk (~85.6%) is COLD-eligible after HOT window, never directly RETIREMENT_ELIGIBLE without a further unreferenced-check",
+    "expected_steady_state_growth": "current: 100% of ~172K rows/day unbounded to HOT. proposed: ~24-34K rows/day (pinned) permanently to HOT, bounded shape; ~138-148K rows/day to COLD (not counted against active/hot concern)",
+    "expected_active_db_bound": "current transfer_index footprint ~1.5-3GiB (LOW confidence estimate); proposed HOT-only footprint ~0.25-0.6GiB + bounded recent window",
+    "watchtower_preservation": "PASS -- byte-identical before/after (zero production writes this milestone)",
+    "3sw2_preservation": "PASS",
+    "dv34_control": "prototype proves 123-row history preserved across HOT/COLD split, not reduced to 23 HIGH-only",
+    "critical_dormant_code_finding": "src/core/storage_cleanup.py TransferIndexCleanup implements unbounded age-only DELETE, confirmed NEVER executed (cleanup_log table doesn't exist), not in crontab -- flagged, not touched",
+    "implementation_state": "DESIGN_AND_PROTOTYPE_ONLY -- src/ops/transfer_cold_store.py + src/ops/unified_transfer_reader.py built and tested (19/19, 82/82 combined with prior suites), zero production mutation",
+    "p2_2_cron_unaffected": true,
+    "artifacts": [
+      "docs/audits/storage_lifecycle_p3_hot_cold_retention_contract.json",
+      "docs/audits/storage_lifecycle_p3_transfer_index_analysis.json",
+      "docs/audits/storage_lifecycle_p3_retention_simulation.json",
+      "docs/audits/storage_lifecycle_p3_hot_cold_query_prototype.json",
+      "docs/audits/storage_lifecycle_p3_long_term_growth_model.json",
+      "docs/audits/storage_lifecycle_p3_implementation_result.json"
+    ],
+    "exact_next_production_milestone": "STORAGE-LIFECYCLE-P4 -- bounded retention implementation: (1) trace per-consumer query patterns to finalize HOT window duration, (2) re-run dbstat in a genuine maintenance window for exact byte sizing, (3) de-duplicate the 3 pinning dimensions for an exact union count, (4) build production-scale keyset-cursor migration (replacing the OFFSET-based prototype), (5) implement the real UnifiedTransferReader wired into actual application call sites, (6) as a SEPARATE later milestone: main-DB rebuild+atomic-cutover to reclaim existing filesystem bytes.",
+    "verdict": "READY_STORAGE_LIFECYCLE_P4_BOUNDED_RETENTION_IMPLEMENTATION"
   }
 }

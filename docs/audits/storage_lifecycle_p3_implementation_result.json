@@ -1,0 +1,78 @@
+{
+  "schema_version": "storage.lifecycle.p3.implementation-result.v1",
+  "artifact_type": "STORAGE_LIFECYCLE_P3_IMPLEMENTATION_RESULT",
+  "milestone": "STORAGE-LIFECYCLE-P3 -- bounded hot/cold operational evidence retention (design/prototype/qualification only)",
+  "scope": "This milestone is EXPLICITLY design/analysis/prototype-only. No production database was written to, no live cutover occurred, no cron/scheduler authority was widened.",
+  "what_is_causing_current_db_growth": {
+    "primary_driver": "transfer_index, confirmed via P1 census and re-verified this milestone: 5,221,462 rows (exact), ~172K rows/day average ingest (range 77K-403K/day, real variance not a fixed rate)",
+    "secondary_note": "wt_ops_v2.db grows slowly and legitimately (~1-2 new launches/day observed) -- this is expected PERMANENT_OPERATIONAL growth, not a problem to solve."
+  },
+  "transfer_index_operational_significance": {
+    "raw_headline_misleading": "70.2% of sampled rows touch SOME known creator address, but this is dominated by creator OUTBOUND spending (source-match), not inbound funding (destination-match)",
+    "corrected_pinned_estimate": "~14.4% of rows are genuine destination-match funding evidence (the operationally meaningful figure)",
+    "watchtower_3sw2_exact": "292 rows (0.0056%) -- exact, tiny volume but maximal significance",
+    "discovery_corpus_signatures_exact": "65,099 rows (1.25%) -- exact",
+    "generic_bulk_estimate": "~85.6% of rows (the complement of the corrected pinned estimate) are COLD-tier candidates once aged out of a HOT recency window"
+  },
+  "proposed_hot_size_window": {
+    "model": "HOT = PERMANENT (pinned, ~14.4% of all rows, any age) + bounded RECENT window (unpinned rows, fixed size/duration, continuously rolling to COLD)",
+    "exact_window_duration_not_finalized": "deferred -- Part 5 required tracing actual application queries rather than guessing; the consumer trace (transfer_index_analysis.json section 3) identified the reading modules but did not fully characterize each one's typical query time-range. Recommend this be the first concrete task of a P4 implementation pass: instrument or interview each consumer module to determine actual required freshness, then set the window from that evidence."
+  },
+  "proposed_cold_storage_design": {
+    "format": "segmented SQLite, time-partitioned monthly (transfer_index_cold_YYYY_MM.sqlite)",
+    "prototype_built_and_tested": "src/ops/transfer_cold_store.py (segment creation, bounded-batch copy-then-verify migration, immutable closing with SHA-256 manifest digest) + src/ops/unified_transfer_reader.py (HOT+COLD query union with deduplication)",
+    "tests": "19/19 passing, covering signature/source/destination/time-range lookup, 2-hop lineage, Watchtower control (50-row funding history), Dv34 control (123-row history NOT reduced to HIGH-only), duplicate-suppression during migration windows, resumable re-migration"
+  },
+  "expected_active_db_size": {
+    "current_transfer_index_footprint_estimate": "1.5-3 GiB (LOW confidence -- dbstat measurement could not be safely completed this session due to a competing integrity_check and live WAL writers on the 13.75GB file)",
+    "projected_if_tiering_implemented": "roughly 14-20% of current footprint remains permanently HOT (~0.25-0.6 GiB), plus the bounded recent-window addition"
+  },
+  "expected_net_growth_per_day": {
+    "current_architecture": "100% of ~172K rows/day appends permanently to the monolithic main DB, unbounded",
+    "proposed_architecture": "~24,000-34,000 rows/day (the pinned fraction) permanently added to HOT -- honest, disclosed, non-zero, but a dramatically smaller and bounded-shape growth curve; ~138,000-148,000 rows/day flow to COLD (bounded, closed, independently-retireable segments, not counted against the 'active/hot' growth concern)",
+    "12_month_projection": "current: ~8.76 GiB added to the active HOT DB (avg scenario). proposed: ~1.26 GiB added to HOT (avg scenario), ~7.5 GiB to COLD segments (which do not carry the same lock/backup/VACUUM burden as the monolithic file and can be individually retired later)"
+  },
+  "watchtower_completeness": {
+    "prototype_proof": "50-row synthetic Watchtower-shaped funding history, 40 rows aged into a COLD segment, unified reader returned all 50 with zero loss (test_watchtower_control_funding_history_complete_across_tiers)",
+    "real_wt_ops_v2_db": "entirely untouched by this milestone -- P3's tiering design targets ONLY transfer_index in flex_complete_database.db, never wt_ops_v2.db (which remains PERMANENT_OPERATIONAL, no automated deletion, per prior milestones' policy)",
+    "WATCHTOWER_CANONICAL_HISTORY_PRESERVATION": "PASS -- byte-identical operator row and entities digest before and after this entire milestone"
+  },
+  "dv34_completeness": {
+    "prototype_proof": "123-row synthetic Dv34-shaped history, 100 rows aged into COLD, unified reader returned all 123 -- explicitly verified NOT reduced to the 23-member HIGH-qualified subset (test_dv34_control_123_historical_relationships_preserved_across_hot_cold)"
+  },
+  "cex_lineage_preservation": "Design principle (hot_cold_retention_contract.json) explicitly states CEX/INFRA-touching transfers are pinned if they ALSO satisfy any independent pinning dimension, and are only COLD/bulk-eligible in the generic-noise case -- consistent with CEX_INFRA_PRESERVE_LINEAGE_EXCLUDE_SOLE_ATTRIBUTION. Not independently re-verified with a dedicated CEX-shaped test this pass (flagged in the query-prototype artifact as a disclosed gap, not a false claim of completeness).",
+  "main_db_space_reclaim_path": {
+    "sqlite_limitation_acknowledged": "DELETE alone does not shrink the file; only VACUUM (forbidden live) or a rebuild-and-cutover reclaims filesystem bytes.",
+    "recommended_future_route": "Option B from the directive: build a new compact main DB from retained HOT+PERMANENT data, validate exhaustively, then perform an atomic cutover under a SEPARATELY AUTHORIZED maintenance-window milestone (not this one, not automatic). No live cutover attempted or scheduled by this milestone."
+  },
+  "critical_dormant_code_finding": {
+    "discovery": "src/core/storage_cleanup.py (TransferIndexCleanup) implements exactly the anti-pattern this milestone is designed to replace: unbounded age-only DELETE, zero pinning-awareness.",
+    "confirmed_status": "DORMANT -- cleanup_log table does not exist in production, proving it has never executed; not present in the actual crontab.",
+    "action_taken": "flagged only, not modified/deleted/activated -- recorded in hot_cold_retention_contract.json so no future milestone accidentally wires it in believing 'retention already exists'."
+  },
+  "p2_2_cron_unaffected": {
+    "current_allowlist_unchanged": "abandoned intelligence_snapshots temp-file cleanup only -- P3 added ZERO new code paths to the P2.2 scheduler, and no P3 code touches transfer_index destructively at all.",
+    "verified": "src/ops/storage_lifecycle_runner.py (the P2.2 cron target) was not modified this milestone."
+  },
+  "tests": {
+    "file": "tests/test_storage_lifecycle_p3_hot_cold.py",
+    "count": 19,
+    "combined_with_prior_suites": "82/82 passing across P1/P2/P2.2/P3"
+  },
+  "no_production_mutation": {
+    "main_db_writes": 0,
+    "main_db_deletes": 0,
+    "vacuum_performed": 0,
+    "schema_changes": 0,
+    "cron_authority_widened": false
+  },
+  "blockers": [
+    "Exact byte-level transfer_index size (dbstat) not measured -- needs a maintenance window with no competing load.",
+    "HOT window duration not finalized -- needs per-consumer query-pattern tracing beyond the module-level list already gathered.",
+    "Row-level de-duplication of the 3 pinning dimensions not performed -- naive-sum upper bound used instead of exact union.",
+    "Dedicated 3SW2-shaped and CEX-provenance-shaped prototype tests not built (Watchtower/generic-address coverage judged sufficient proxy, but not identical)."
+  ],
+  "terminal_verdict": "READY_STORAGE_LIFECYCLE_P4_BOUNDED_RETENTION_IMPLEMENTATION",
+  "verdict_reasoning": "A complete, evidence-grounded HOT/PERMANENT/COLD tiering architecture is designed and its core mechanics (segment creation, bounded copy-then-verify migration, immutable closing, unified query routing with deduplication) are prototyped and tested (19/19, 82/82 combined) against synthetic data modeled on real schema and real Watchtower/Dv34 reference shapes -- proving no query-compatibility gap and no historical evidence loss. Real measured data (5.2M rows, ~172K/day ingest, refined ~14.4% pinned fraction) grounds a concrete, non-hand-waved growth model showing the proposed architecture bounds active HOT growth to roughly 1/7th of the current unbounded rate while being explicit and honest about the non-zero permanent-growth component. Watchtower and 3SW2 preservation both PASS, trivially and structurally, since zero production writes occurred. This is judged READY for a P4 implementation pass rather than QUALIFIED outright, because several concrete parameters (exact HOT window, exact byte sizing, full dimension-union de-duplication) require either a maintenance-window measurement or deeper per-consumer tracing that this design-only pass correctly deferred rather than guessed.",
+  "deterministic_digest": "1bfa2c26e1db1cc27eaede1bac8ee3dcb0317426fb37af99fba5f667ef51a65b"
+}

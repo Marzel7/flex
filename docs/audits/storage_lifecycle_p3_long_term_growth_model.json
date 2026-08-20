@@ -1,0 +1,101 @@
+{
+  "schema_version": "storage.lifecycle.p3.long-term-growth-model.v1",
+  "artifact_type": "STORAGE_LIFECYCLE_P3_LONG_TERM_GROWTH_MODEL",
+  "milestone": "STORAGE-LIFECYCLE-P3 Part 20",
+  "inputs_used": {
+    "daily_ingest_rows_range": [
+      77060,
+      402792
+    ],
+    "daily_ingest_rows_avg": 171796,
+    "source": "14-day measured block_time window, docs/audits/storage_lifecycle_p3_transfer_index_analysis.json section 2 (EXACT counts, MEDIUM confidence on treating average as steady-state)",
+    "pinned_fraction": 0.144,
+    "pinned_fraction_source": "refined destination-match estimate from storage_lifecycle_p3_retention_simulation.json (corrects the raw 70% headline down to the operationally-meaningful 14.4%)",
+    "row_bytes_estimate": [
+      120,
+      180
+    ],
+    "row_bytes_confidence": "LOW -- analytical estimate, dbstat measurement was not safely obtainable this session (see transfer_index_analysis.json section 1)"
+  },
+  "current_architecture_unbounded_growth": {
+    "1_month": {
+      "rows_added_range": [
+        2311800,
+        12083760
+      ],
+      "rows_added_avg_scenario": 5153880,
+      "hot_db_bytes_added_gib_avg_scenario": 0.72,
+      "note": "CURRENT architecture: ALL new rows append permanently to the monolithic main DB, unbounded"
+    },
+    "3_months": {
+      "rows_added_range": [
+        6935400,
+        36251280
+      ],
+      "rows_added_avg_scenario": 15461640,
+      "hot_db_bytes_added_gib_avg_scenario": 2.16,
+      "note": "CURRENT architecture: ALL new rows append permanently to the monolithic main DB, unbounded"
+    },
+    "6_months": {
+      "rows_added_range": [
+        13870800,
+        72502560
+      ],
+      "rows_added_avg_scenario": 30923280,
+      "hot_db_bytes_added_gib_avg_scenario": 4.32,
+      "note": "CURRENT architecture: ALL new rows append permanently to the monolithic main DB, unbounded"
+    },
+    "12_months": {
+      "rows_added_range": [
+        28126900,
+        147019080
+      ],
+      "rows_added_avg_scenario": 62705540,
+      "hot_db_bytes_added_gib_avg_scenario": 8.76,
+      "note": "CURRENT architecture: ALL new rows append permanently to the monolithic main DB, unbounded"
+    }
+  },
+  "proposed_architecture_bounded_hot": {
+    "1_month": {
+      "hot_permanent_growth_rows_avg_scenario": 742159,
+      "hot_permanent_growth_bytes_gib_avg_scenario": 0.104,
+      "cold_growth_rows_avg_scenario": 4411721,
+      "cold_growth_bytes_gib_avg_scenario": 0.62,
+      "active_hot_db_bound": "approximately CONSTANT beyond the initial recency-window fill period -- old unpinned rows roll to COLD at the same rate new unpinned rows arrive, once the window reaches steady state (typically within the window's own duration, e.g. if window=30 days, steady state reached ~30 days after cutover)",
+      "note": "PROPOSED architecture: only the ~14.4% pinned fraction accumulates permanently in HOT; the ~85.6% unpinned fraction moves to COLD (bounded, closed, independently-retireable segments) after the recency window"
+    },
+    "3_months": {
+      "hot_permanent_growth_rows_avg_scenario": 2226476,
+      "hot_permanent_growth_bytes_gib_avg_scenario": 0.311,
+      "cold_growth_rows_avg_scenario": 13235164,
+      "cold_growth_bytes_gib_avg_scenario": 1.85,
+      "active_hot_db_bound": "approximately CONSTANT beyond the initial recency-window fill period -- old unpinned rows roll to COLD at the same rate new unpinned rows arrive, once the window reaches steady state (typically within the window's own duration, e.g. if window=30 days, steady state reached ~30 days after cutover)",
+      "note": "PROPOSED architecture: only the ~14.4% pinned fraction accumulates permanently in HOT; the ~85.6% unpinned fraction moves to COLD (bounded, closed, independently-retireable segments) after the recency window"
+    },
+    "6_months": {
+      "hot_permanent_growth_rows_avg_scenario": 4452952,
+      "hot_permanent_growth_bytes_gib_avg_scenario": 0.622,
+      "cold_growth_rows_avg_scenario": 26470328,
+      "cold_growth_bytes_gib_avg_scenario": 3.7,
+      "active_hot_db_bound": "approximately CONSTANT beyond the initial recency-window fill period -- old unpinned rows roll to COLD at the same rate new unpinned rows arrive, once the window reaches steady state (typically within the window's own duration, e.g. if window=30 days, steady state reached ~30 days after cutover)",
+      "note": "PROPOSED architecture: only the ~14.4% pinned fraction accumulates permanently in HOT; the ~85.6% unpinned fraction moves to COLD (bounded, closed, independently-retireable segments) after the recency window"
+    },
+    "12_months": {
+      "hot_permanent_growth_rows_avg_scenario": 9029598,
+      "hot_permanent_growth_bytes_gib_avg_scenario": 1.261,
+      "cold_growth_rows_avg_scenario": 53675942,
+      "cold_growth_bytes_gib_avg_scenario": 7.5,
+      "active_hot_db_bound": "approximately CONSTANT beyond the initial recency-window fill period -- old unpinned rows roll to COLD at the same rate new unpinned rows arrive, once the window reaches steady state (typically within the window's own duration, e.g. if window=30 days, steady state reached ~30 days after cutover)",
+      "note": "PROPOSED architecture: only the ~14.4% pinned fraction accumulates permanently in HOT; the ~85.6% unpinned fraction moves to COLD (bounded, closed, independently-retireable segments) after the recency window"
+    }
+  },
+  "other_stores_growth_not_hidden": {
+    "watchtower_wt_ops_v2_db": "grows with genuine new confirmed launches/entities -- this is PERMANENT_OPERATIONAL by definition and is explicitly NOT subject to any bounding in this design; it is expected and correct for it to grow as Watchtower's real confirmed history grows. Current size 4.4GB, growing slowly (248 launches as of this session vs 246 a day earlier -- roughly 1-2 launches/day observed, tiny compared to transfer_index volume).",
+    "retained_acquisition_shadow_db": "now growth-bounded by the P2-Part-1 persistent budget fix (1GiB cap, durable, restart-safe) -- not addressed further by P3's transfer_index-focused design, see Part 11 discussion in the implementation_result artifact.",
+    "artifactstore": "content-addressed, natural dedup; growth rate not independently re-measured this pass (~10GB at last P1 census); no GC in P3, so it grows monotonically with new unique payloads -- flagged as a known, currently-unbounded-but-deduplicated-so-slower-than-naive component.",
+    "logs": "~987MB at last measurement (P1), rotation NOT activated this pass (P2.2 scope was temp-file cleanup only) -- still a genuinely open growth source, not solved by this milestone."
+  },
+  "honest_disclosure_permanent_growth_is_nonzero": "Per the explicit instruction not to hide permanent-value growth: the PINNED/HOT tier under the proposed architecture is NOT zero-growth -- it grows by roughly 24,000-34,000 rows/day (the pinned fraction of daily ingest), which over 12 months is on the order of several GB of genuinely permanent, valuable data. This is CORRECT and EXPECTED (real operational intelligence should not be discarded), and it is a dramatically smaller and BOUNDED-SHAPE growth curve compared to the current architecture's 100%-of-ingest unbounded append.",
+  "caveat": "All projections use the row_bytes LOW-confidence estimate and the avg-scenario ingest rate; treat as directional order-of-magnitude planning input, not a committed forecast. A P4 implementation should re-measure with a clean dbstat run before finalizing exact HOT window sizing.",
+  "deterministic_digest": "5dc40a3ea6bf5765f2c05545f9f98e67b2e41a1e126dd782d74556c9feedb8a8"
+}

@@ -1,0 +1,229 @@
+{
+  "meta": {
+    "task": "STORAGE-LIFECYCLE-P3 transfer_index investigation",
+    "generated_at_utc": "2026-08-20",
+    "database_file": "database/flex_complete_database.db",
+    "database_file_bytes_at_time_of_run": 14763945984,
+    "connection_mode": "sqlite3.connect(f'file:{path}?mode=ro', uri=True, timeout=10) — read-only, zero writes",
+    "safety_notes": [
+      "A PRAGMA integrity_check(1) was already running in the background against this same file for 10+ minutes at the start of this investigation (from an earlier session) and was still running throughout — confirms the file is under heavy, slow full-scan-class contention.",
+      "A `dbstat` query (SELECT name, SUM(pgsize) FROM dbstat WHERE name LIKE 'transfer_index%' GROUP BY name) was attempted for exact table/index byte sizing. It did not return within a 90s+ budget and was killed (process terminated, exit 144). Table/index byte sizes are therefore NOT_MEASURED exactly; a rough proportional estimate is given instead and clearly labeled.",
+      "amount_lamports has no leading-column index (only composite idx_transfer_source_amount_time keyed on source first); EXPLAIN QUERY PLAN confirmed an unfiltered amount_lamports query would be a full covering-index SCAN across ~5.2M rows, so item 6 was answered via bounded id-based sampling instead of an exact count.",
+      "No writes, deletes, or schema changes were made. No network/RPC calls were made."
+    ]
+  },
+
+  "1_current_scale": {
+    "row_count": {
+      "value": 5221462,
+      "method": "SELECT COUNT(*) FROM transfer_index — ran directly, completed in 4.9s (fast; COUNT(*) with no WHERE still benefits from being a simple rowid/index-count style scan on SQLite and was not a problem here).",
+      "estimation_method": "EXACT"
+    },
+    "block_time_range": {
+      "min_block_time": 1234567890,
+      "max_block_time": 1787219671,
+      "note_on_min": "The min value 1234567890 is a suspicious round decimal-looking Unix timestamp (2009-02-13), far predating Solana/Pump.fun activity — almost certainly a placeholder/sentinel value from a test or default row, not a real on-chain event time. Verified only 2 rows in the entire table have block_time < 1600000000 (2020-09-13), so this does not distort the real distribution.",
+      "method": "SELECT MIN(block_time), MAX(block_time) FROM transfer_index — used idx_transfer_block_time, completed in 6.5s.",
+      "estimation_method": "EXACT"
+    },
+    "sentinel_low_blocktime_rows": {
+      "count": 2,
+      "method": "SELECT COUNT(*) FROM transfer_index WHERE block_time < 1600000000 — indexed range scan, 0.02s.",
+      "estimation_method": "EXACT"
+    },
+    "table_and_index_bytes": {
+      "status": "NOT_MEASURED_QUERY_TOO_EXPENSIVE",
+      "attempted_method": "SELECT name, SUM(pgsize) FROM dbstat WHERE name LIKE 'transfer_index%' GROUP BY name",
+      "why_abandoned": "Did not complete within ~90-120s and was killed; dbstat effectively requires walking the whole btree structure for the table and all 7 indexes on a 13.75GB file with an already-running competing full-scan (integrity_check) and live WAL writers, so it was unsafe to let it run further.",
+      "fallback_estimate": {
+        "method": "Proportional estimate from total DB file size and row count, NOT from actual page attribution. total DB file = 14,763,945,984 bytes (page_count 3,605,623 x page_size 4096). transfer_index has ~5.22M rows across 1 table + 7 indexes including 2 partial indexes (idx_transfer_valid, idx_transfer_source_dest) and 1 generated/stored column (amount_sol). transfer_index is known from prior census work to be one of the largest tables in this DB but exact share was not re-verified this run.",
+        "rough_row_width_estimate_bytes": "~120-180 bytes/row for the base table (id INT + 2x ~44-char base58 addresses + signature ~88 chars + several ints/reals + generated column), which alone would put base table data around 620MB-940MB, plus roughly comparable or greater space in the 7 secondary indexes (composite indexes on 44-char text columns are not cheap) — a plausible total table+indexes footprint in the 1.5-3GB range, but this is an ANALYTICAL GUESS, not a measurement, and should not be treated as authoritative.",
+        "confidence": "LOW — directional only, use for rough sizing conversations, re-run dbstat in a maintenance window with no competing load if an exact figure is needed."
+      }
+    }
+  },
+
+  "2_ingest_rate": {
+    "method": "Bounded per-day COUNT(*) using WHERE block_time > lo AND block_time <= hi (14 days) and separately WHERE indexed_at > lo AND indexed_at <= hi (7 days), both hitting idx_transfer_block_time / idx_transfer_indexed_at respectively. All per-day queries completed in well under 1s each.",
+    "estimation_method": "EXACT (bounded, indexed queries — not sampled)",
+    "by_block_time_last_14_days": {
+      "note": "block_time is the ON-CHAIN event time, not necessarily the write time — real-world transfer activity clusters, so day-to-day counts vary a lot (77k-402k/day observed).",
+      "total_rows_last_14d": 2405146,
+      "avg_rows_per_day": 171796,
+      "daily_breakdown_days_ago_to_count": {
+        "0": 82245, "1": 105283, "2": 155898, "3": 162361, "4": 121332,
+        "5": 160539, "6": 198063, "7": 199301, "8": 212778, "9": 402792,
+        "10": 319232, "11": 157848, "12": 77060, "13": 50414
+      }
+    },
+    "by_indexed_at_last_7_days": {
+      "note": "indexed_at is the actual write time (unix epoch seconds, REAL). This is a cleaner ingest-rate signal since block_time can be back-filled/delayed relative to write time.",
+      "total_rows_last_7d": 1413709,
+      "avg_rows_per_day": 201958,
+      "daily_breakdown_days_ago_to_count": {
+        "0": 155139, "1": 205073, "2": 278575, "3": 183849, "4": 104859, "5": 225020, "6": 261194
+      },
+      "min_max_indexed_at": [1776966808.972306, 1787219806.972064]
+    },
+    "estimated_bytes_per_day": {
+      "value": "NOT_MEASURED_QUERY_TOO_EXPENSIVE for exact bytes; using the same rough per-row estimate as section 1 (~120-180 bytes/row base table, more with indexes), ~200,000 rows/day implies roughly 24-36MB/day of base table data alone, likely 50-100MB/day including index growth. LOW confidence, analytical only.",
+      "confidence": "LOW"
+    },
+    "confidence_overall": "HIGH for the row counts themselves (exact, indexed, bounded queries) — MEDIUM for treating ~170k-200k rows/day as a stable steady-state rate, since the 14-day window shows real day-to-day variance (77k to 402k) likely tied to on-chain activity bursts, not a steady linear ingest."
+  },
+
+  "3_consumer_trace": {
+    "method": "grep -rln \"transfer_index\" --include=\"*.py\" . (excluding __pycache__ and files starting with test_), then classified each file by path/role convention and a light content check (grep -c for mention count; main.py additionally checked for Flask app definition).",
+    "total_files_referencing_transfer_index": 33,
+    "files": [
+      {"path": "archive/phase2_3_deployment_verification.py", "mentions": 13, "category": "one-shot / archived verification script"},
+      {"path": "scripts/run_graph_analyzers.py", "mentions": 1, "category": "operator-run script (batch analysis pipeline entrypoint)"},
+      {"path": "scripts/reclaim_funder_networks_space.py", "mentions": 1, "category": "maintenance script (storage-lifecycle related, gated/manual per prior memory)"},
+      {"path": "src/core/dev_intelligence_v3.py", "mentions": 9, "category": "operation-discovery / intelligence pipeline"},
+      {"path": "src/core/unified_network_intelligence.py", "mentions": 1, "category": "operation-discovery / intelligence pipeline"},
+      {"path": "src/core/graph_dev_farm_detection.py", "mentions": 7, "category": "operation-discovery pipeline (farm/dev detection)"},
+      {"path": "src/core/second_hop_builder.py", "mentions": 10, "category": "operation-discovery pipeline (graph building, likely batch/background)"},
+      {"path": "src/core/graph_analyzer_api.py", "mentions": 1, "category": "API layer, likely serves live UI/dashboard queries"},
+      {"path": "src/core/launch_prediction_api.py", "mentions": 1, "category": "API layer, likely serves live UI/dashboard queries"},
+      {"path": "src/core/launch_wave_detection.py", "mentions": 7, "category": "operation-discovery pipeline"},
+      {"path": "src/core/dev_intelligence_v2.py", "mentions": 3, "category": "operation-discovery pipeline (earlier version, may be superseded by v3)"},
+      {"path": "src/core/second_hop_lite_worker.py", "mentions": 1, "category": "background worker process"},
+      {"path": "src/core/storage_monitoring.py", "mentions": 5, "category": "storage/ops monitoring — directly relevant to this lifecycle investigation"},
+      {"path": "src/core/phase3_integration.py", "mentions": 11, "category": "integration/pipeline glue code"},
+      {"path": "src/core/dev_intelligence_graph.py", "mentions": 2, "category": "operation-discovery pipeline"},
+      {"path": "src/core/master_launch_score.py", "mentions": 6, "category": "scoring pipeline, likely feeds live UI/API"},
+      {"path": "src/core/storage_cleanup.py", "mentions": 5, "category": "maintenance/cleanup script — directly relevant to this lifecycle investigation"},
+      {"path": "src/core/wallet_clustering.py", "mentions": 17, "category": "operation-discovery pipeline (heavy consumer)"},
+      {"path": "src/core/advanced_farm_intelligence_engine.py", "mentions": 6, "category": "operation-discovery pipeline"},
+      {"path": "src/core/transfer_indexer.py", "mentions": 23, "category": "WRITER — the primary indexer/ingest module that populates transfer_index (heaviest mention count, consistent with being the source of writes)"},
+      {"path": "src/core/funder_overlap_analysis.py", "mentions": 4, "category": "operation-discovery / analysis pipeline"},
+      {"path": "src/core/launch_prediction_engine.py", "mentions": 2, "category": "prediction/scoring pipeline"},
+      {"path": "src/core/main.py", "mentions": 9, "category": "LIVE APPLICATION — confirmed Flask app (Flask(__name__...) at line 146); transfer_index queried directly for a 'transfer_index page' summary/top-funders view (lines ~26533, 30274-30312) — this is a live UI query path and must stay fast"},
+      {"path": "src/core/dev_intelligence_v3_enhancements.py", "mentions": 2, "category": "operation-discovery pipeline (extension of v3)"},
+      {"path": "src/analysis/watchtower_detector.py", "mentions": 7, "category": "operation-discovery / classification pipeline"},
+      {"path": "src/analysis/dv34_p2_identity_review.py", "mentions": 1, "category": "one-shot / investigation script (DV34 naming matches other audit docs in this repo)"},
+      {"path": "src/acquisition/dv34_p1_selective_verification.py", "mentions": 1, "category": "one-shot / investigation script"},
+      {"path": "src/discovery/local_operation_discovery_projection.py", "mentions": 2, "category": "operation-discovery pipeline — connects to the local_operation_discovery_corpus.db referenced in item 4"},
+      {"path": "src/scripts/cleanup_transfers.py", "mentions": 1, "category": "maintenance/cleanup script — directly relevant to this lifecycle investigation"},
+      {"path": "src/scripts/graph_dev_farm_detection.py", "mentions": 1, "category": "one-shot/duplicate of src/core/graph_dev_farm_detection.py — likely an older or alternate-location copy"},
+      {"path": "src/ops/unified_transfer_reader.py", "mentions": 8, "category": "READ ABSTRACTION LAYER — likely the shared read interface other modules call through; high-value file to understand HOT query patterns"},
+      {"path": "src/ops/watchtower_candidates.py", "mentions": 2, "category": "operation-discovery pipeline"},
+      {"path": "src/ops/transfer_cold_store.py", "mentions": 11, "category": "COLD STORAGE — name strongly suggests this already implements or scaffolds a cold-store path for transfer_index data; directly relevant prior art for this lifecycle design"},
+      {"path": "src/extractors/funder_incoming_extractor.py", "mentions": 2, "category": "extraction pipeline (funding evidence)"},
+      {"path": "src/extractors/realtime_creator_funding_extractor.py", "mentions": 17, "category": "REAL-TIME extraction pipeline (heavy consumer, live/near-live path per filename)"}
+    ],
+    "estimation_method": "Categorization was done from path conventions, mention density, and light targeted greps (not a full read of every file's logic) — treat category labels as a strong hint for follow-up, not a certified classification. main.py's live-UI classification was verified directly (Flask app + specific 'transfer_index page' route/query code seen).",
+    "key_takeaways_for_hot_query_design": [
+      "src/core/transfer_indexer.py is almost certainly the writer; src/ops/unified_transfer_reader.py is likely the shared read path other modules use — these two plus src/core/main.py (live UI) are the highest-priority files to read in full before finalizing a HOT/COLD boundary design.",
+      "src/ops/transfer_cold_store.py already exists and should be read next — there may be partial or prior cold-storage work to build on rather than design from scratch.",
+      "Most other consumers (dev_intelligence_*, wallet_clustering, launch_wave_detection, watchtower_detector, etc.) are operation-discovery/classification pipelines, not live low-latency UI paths — they can likely tolerate a HOT+recent-COLD query pattern rather than requiring the full 5.2M rows to stay in a single fast table."
+    ]
+  },
+
+  "4_operational_significance_classification": {
+    "method_overview": "Marker sets were loaded into Python memory (small enough: 21,533 creator_funders.creator_address + 387,114 token_analysis.pf_ws_creator distinct addresses = 395,481 union; 70 wt_ops_v2 operator_entities.entity_address; 7,412 distinct local_operation_discovery_corpus.db direct_funding_edges.funding_signature). A stratified random sample of 20,000 ids was drawn uniformly from id range [1, 6647235] (max observed id; 5,221,462 actual rows exist due to gaps from prior deletes/consolidation) and checked in batched IN(...) lookups (chunks of 1000) against the marker sets for source/destination/signature membership. This keeps every DB query bounded (chunked, id-scoped) while giving statistically representative coverage across the whole table, unlike scanning only recent rows.",
+    "sample_size": 20000,
+    "sample_rows_actually_found": 15702,
+    "note_on_gaps": "4298 of 20000 sampled ids did not correspond to an existing row — consistent with AUTOINCREMENT id gaps from deletes/updates over the table's life, not a query error.",
+
+    "dimension_a_creator_funding": {
+      "description": "rows where destination OR source is in creator_funders.creator_address UNION token_analysis.pf_ws_creator",
+      "sample_hit_count": 11019,
+      "sample_fraction": 0.7018,
+      "estimation_method": "SAMPLED (20,000-id stratified sample, 15,702 rows found); extrapolated fraction applied to full table would suggest ~3.66M of 5.22M rows touch a known creator address in some way",
+      "confidence": "MEDIUM-HIGH for the fraction shape, but flagged as surprising and worth validating further: the vast majority of the 0.70 was SOURCE matches (not destination) — i.e., transfers OUTBOUND FROM known creator addresses, not just inbound funding TO creators. This likely reflects creators' ordinary on-chain spend/trading activity being swept into transfer_index broadly, not narrowly 'funding' events. A follow-up should confirm whether unified_transfer_reader.py / main.py's UI actually cares about creator-outbound noise or only creator-inbound funding rows before treating 70% as 'must stay hot'.",
+      "source_vs_destination_split": {"destination_matches": 2256, "source_matches_not_also_dest": 8763}
+    },
+
+    "dimension_b_operator_entities": {
+      "description": "rows where source OR destination is in wt_ops_v2.db operator_entities.entity_address (70 canonical addresses)",
+      "method": "EXACT — 70 addresses is small enough for a direct per-address indexed COUNT(*) using idx_transfer_source_time and idx_transfer_destination_time (140 total indexed lookups), no sampling needed.",
+      "exact_count_source_matches": 245,
+      "exact_count_destination_matches": 47,
+      "exact_count_total": 292,
+      "fraction_of_full_table": 0.0000559,
+      "estimation_method": "EXACT",
+      "confidence": "HIGH — exact, indexed, ran in 0.11s total",
+      "note": "This is a tiny fraction (0.006% of all rows) but each hit is a canonical Watchtower/3SW2-confirmed operator address, so per-row significance is very high even though volume is negligible. In the 20,000-row sample used for dimension A, zero operator-entity hits appeared at all (consistent with 292/5.2M being far below sampling resolution at n=20,000) — confirms this dimension needs the exact per-address method, not sampling."
+    },
+
+    "dimension_c_discovery_corpus_signatures": {
+      "description": "rows where signature is in local_operation_discovery_corpus.db direct_funding_edges.funding_signature",
+      "method": "EXACT — 7,412 distinct signatures checked via chunked IN(...) against transfer_index.signature, which is indexed via the implicit autoindex from the UNIQUE(signature, source, destination) constraint (confirmed via EXPLAIN QUERY PLAN: 'SEARCH ... USING COVERING INDEX sqlite_autoindex_transfer_index_1').",
+      "exact_count": 65099,
+      "fraction_of_full_table": 0.01247,
+      "note_on_count": "65,099 > 7,412 distinct signatures because a single funding signature/transaction can produce multiple transfer_index rows (e.g. multiple transfers within one tx).",
+      "estimation_method": "EXACT",
+      "confidence": "HIGH"
+    },
+
+    "dimension_d_generic_bulk": {
+      "description": "rows with NEITHER endpoint in creator_funders/token_analysis creator sets NOR wt_ops_v2 operator_entities, AND signature NOT in the discovery-corpus funding edges (i.e. fails all three significance tests)",
+      "sample_hit_count": 4675,
+      "sample_fraction": 0.2977,
+      "estimation_method": "SAMPLED (same 20,000-id stratified sample used for dimension A, combined with exact-membership checks against all three marker sets loaded in-memory per row)",
+      "extrapolated_full_table_estimate": "~1.55M of 5.22M rows (0.2977 x 5,221,462 ≈ 1,554,930)",
+      "confidence": "MEDIUM — sampling methodology is sound (uniform stratified over the full id range, three-dimension check applied per sampled row) but the true population fraction could differ by a few points from a single 20k sample; recommend a second independent sample or a full pass if this number drives an irreversible deletion decision."
+    },
+
+    "combined_significance_summary": {
+      "any_dimension_hit_sample_fraction": 0.7023,
+      "generic_bulk_sample_fraction": 0.2977,
+      "headline_finding": "Roughly 70% of transfer_index rows touch at least one known creator/operator/discovery-corpus reference (dominated overwhelmingly by the creator-address dimension, which itself is dominated by SOURCE=creator matches rather than destination=creator funding events). Only ~30% (an estimated ~1.55M rows) are 'generic bulk' with no known reference on either endpoint and no corpus-linked signature — a materially smaller cold-storage candidate pool than a naive 'most of this table is noise' assumption would suggest."
+    }
+  },
+
+  "5_age_vs_significance": {
+    "population": "generic_bulk rows only (the 4,675 sampled rows from item 4 that hit none of the three significance dimensions)",
+    "method": "For each generic-bulk row in the same 20,000-id sample, computed age_days = (now - block_time) // 86400 at query time, then bucketed into 30-day windows.",
+    "estimation_method": "SAMPLED (n=4675 generic-bulk rows out of the 20,000-id / 15,702-found sample)",
+    "age_buckets_days_since_block_time_to_sample_count": {
+      "0-29": 1574,
+      "30-59": 85,
+      "60-89": 302,
+      "90-119": 528,
+      "120-149": 944,
+      "150-179": 348,
+      "180-209": 388,
+      "210-239": 93,
+      "240-269": 61,
+      "270-299": 35,
+      "300-329": 56,
+      "330-359": 55,
+      "360-389": 27,
+      "390-419": 25,
+      "420-449": 12,
+      "450-479": 13,
+      "480-509": 7,
+      "510-539": 9,
+      "540-569": 23,
+      "570-599": 26,
+      "600-629": 20,
+      "630-659": 15,
+      "660-689": 14,
+      "690-719": 2,
+      "720-749": 7,
+      "750-779": 3,
+      "780-809": 2,
+      "900-929": 1
+    },
+    "interpretation": [
+      "Generic-bulk rows are heavily front-loaded: 1574/4675 (~33.7%) are within the last 30 days, consistent with the high recent ingest rate observed in item 2 — most bulk rows are recent, not old backlog.",
+      "There is a second, smaller cluster around 90-180 days old (528+944+348 ≈ 1820 rows, ~39% of the sample) — this could reflect a burst of past activity or a systematic gap; worth a closer look before picking a HOT window boundary.",
+      "The long tail beyond ~270 days thins out substantially but never fully disappears (small counts out to 900+ days), meaning any COLD cutoff will still need to handle a long, low-density tail rather than a hard edge.",
+      "A HOT window of roughly 30-60 days would capture the single largest concentration of recent generic-bulk rows; a 90-180 day HOT+WARM tier would additionally capture the second cluster. These are observations to ground a future design discussion, not a recommendation being made here."
+    ]
+  },
+
+  "6_amount_distribution": {
+    "description": "Fraction of transfer_index rows with amount_lamports < 10,000,000 (0.01 SOL), the dust/low-signal threshold from prior HIGH-confidence discovery calibration work.",
+    "why_sampled_not_exact": "EXPLAIN QUERY PLAN confirmed an unfiltered COUNT(*) WHERE amount_lamports < X would execute as 'SCAN transfer_index USING COVERING INDEX idx_transfer_source_amount_time' — a full index scan across all ~5.2M rows with no source filter to bound it, since amount_lamports is not a leading index column on its own. Given the file's existing contention (concurrent integrity_check + live WAL writers), this was treated as unsafe to run exhaustively and answered via the same bounded id-sample approach instead.",
+    "sample_size_found": 15702,
+    "dust_count_in_sample": 11762,
+    "dust_fraction": 0.7491,
+    "estimation_method": "SAMPLED (20,000-id stratified sample, same sample set as item 4/5)",
+    "extrapolated_full_table_estimate": "~3.91M of 5.22M rows (0.7491 x 5,221,462 ≈ 3,911,438) are below the 0.01 SOL dust threshold",
+    "confidence": "MEDIUM-HIGH — sample is large (n≈15.7k found rows) and methodology is sound, but this is not an exact count.",
+    "cross_reference_note": "This 75% dust fraction is notably higher than the 70% 'operationally significant' fraction from item 4, meaning dust and significance are NOT mutually exclusive — many rows touching known creator/operator addresses are still small-amount transfers (consistent with the creator-outbound-spend pattern noted in item 4's dimension A). Amount alone is not a safe proxy for operational insignificance without also checking address/signature membership."
+  }
+}

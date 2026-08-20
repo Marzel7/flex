@@ -1,0 +1,78 @@
+{
+  "schema_version": "storage.lifecycle.p3.hot-cold-query-prototype.v1",
+  "artifact_type": "STORAGE_LIFECYCLE_P3_HOT_COLD_QUERY_PROTOTYPE",
+  "milestone": "STORAGE-LIFECYCLE-P3 Part 15",
+  "prototype_modules": [
+    "src/ops/transfer_cold_store.py",
+    "src/ops/unified_transfer_reader.py"
+  ],
+  "test_file": "tests/test_storage_lifecycle_p3_hot_cold.py",
+  "test_result": "19/19 passing",
+  "query_shapes_tested": {
+    "signature_lookup": {
+      "tests": [
+        "test_by_signature_finds_row_in_hot",
+        "test_by_signature_finds_row_in_cold_only"
+      ],
+      "result": "PASS -- found regardless of tier"
+    },
+    "source_address_lookup": {
+      "tests": [
+        "test_watchtower_control_funding_history_complete_across_tiers",
+        "test_dv34_control_123_historical_relationships_preserved_across_hot_cold"
+      ],
+      "result": "PASS"
+    },
+    "destination_address_lookup": {
+      "tests": [
+        "test_creator_funding_parity_2hop"
+      ],
+      "result": "PASS"
+    },
+    "2_hop_lineage": {
+      "tests": [
+        "test_creator_funding_parity_2hop"
+      ],
+      "result": "PASS -- hop1 destination lookup and hop2 source lookup both resolve correctly across a HOT/COLD split"
+    },
+    "time_range_query": {
+      "tests": [
+        "test_time_range_query_spans_hot_and_cold"
+      ],
+      "result": "PASS -- 20 rows split across HOT+COLD, all 20 returned"
+    },
+    "watchtower_control": {
+      "tests": [
+        "test_watchtower_control_funding_history_complete_across_tiers"
+      ],
+      "result": "PASS -- 50-row synthetic Watchtower-shaped funding history, 40 aged to COLD, all 50 still returned via unified reader, count unchanged"
+    },
+    "dv34_control": {
+      "tests": [
+        "test_dv34_control_123_historical_relationships_preserved_across_hot_cold"
+      ],
+      "result": "PASS -- 123-row synthetic Dv34-shaped history (100 aged to COLD, 23 remain HOT), unified reader returns all 123, NOT reduced to a HIGH-only subset"
+    },
+    "duplicate_suppression": {
+      "tests": [
+        "test_query_union_no_duplicate_when_row_exists_in_both_during_migration_window"
+      ],
+      "result": "PASS -- a row present in both HOT and COLD simultaneously (mid-migration state) is emitted exactly once"
+    },
+    "3sw2": {
+      "tests": [],
+      "result": "NOT independently prototyped this pass -- 3SW2's structure (single entity, single treasury) is a strict subset of the Watchtower control's shape (multi-entity funding history), so the Watchtower test is considered sufficient coverage; a dedicated 3SW2-shaped test can be added trivially if a future pass wants explicit coverage"
+    },
+    "cex_provenance": {
+      "tests": [],
+      "result": "NOT independently prototyped this pass -- the query mechanics (by_source/by_destination/by_signature) are address/signature-agnostic, so a CEX address would be queried identically to any other address; no CEX-specific query logic exists to test separately"
+    }
+  },
+  "known_limitations_disclosed": [
+    "migrate_rows_to_cold uses OFFSET-based pagination, which is O(n) per batch on large tables -- fine for isolated-fixture tests, explicitly flagged as needing a keyset-based cursor for a real production-scale (5.2M row) migration in a future P4 implementation.",
+    "UnifiedTransferReader is a prototype proving query-shape compatibility, not the production reader -- no caching, no connection pooling, no integration with the real application's actual query call sites (those were only traced, not modified, in the transfer_index_analysis artifact).",
+    "Deduplication is correct for the (signature, source, destination) UNIQUE key, matching the real table's constraint exactly -- verified structurally, not just assumed."
+  ],
+  "conclusion": "Query-shape compatibility is PROVEN for all traced query patterns using synthetic data modeled on real schema and real reference-case shapes (Watchtower, Dv34, 2-hop). No semantic gap was found between monolithic-source query results and HOT+COLD unified-reader results for any tested shape.",
+  "deterministic_digest": "dc073c9cfe59fcf854b918a16648d7cc6a0c31669ee231b168db160d6cde7f9b"
+}

@@ -1,0 +1,87 @@
+{
+  "schema_version": "storage.lifecycle.p3.hot-cold-retention-contract.v1",
+  "artifact_type": "STORAGE_LIFECYCLE_P3_HOT_COLD_RETENTION_CONTRACT",
+  "milestone": "STORAGE-LIFECYCLE-P3 -- bounded hot/cold operational evidence retention (design/prototype only, no production writes)",
+  "critical_prior_art_finding": {
+    "discovery": "src/core/storage_cleanup.py (TransferIndexCleanup class) already implements an UNBOUNDED, age-only 'DELETE FROM transfer_index WHERE block_time < cutoff' (90-day retention) plus a WAL checkpoint. A companion cron script (src/scripts/cleanup_transfers.py) exists to schedule it daily at 2AM.",
+    "live_status": "CONFIRMED DORMANT -- the cleanup_log table this code writes to does NOT EXIST in the live flex_complete_database.db (verified: 'no such table: cleanup_log'), proving cleanup_old_transfers() has NEVER been executed against production. The script is not present in the actual crontab (verified via crontab -l -- only 4 entries exist, all unrelated). No live code path invokes TransferIndexCleanup other than a read-only /api/storage/cleanup-history reporting endpoint that queries the (nonexistent) cleanup_log table.",
+    "why_this_matters_for_p3": "This dormant tool represents exactly the anti-pattern P3 is designed to avoid: it deletes purely by age with zero operational-significance awareness (a row referenced by a CONFIRMED Watchtower operation, a Dv34-style provisioner investigation, or CEX/INFRA lineage would be deleted merely for being >90 days old). It must NOT be activated as-is. STORAGE-LIFECYCLE-P3's design supersedes it conceptually; a future P4 implementation should either retire this dormant class entirely or repurpose ONLY its safe mechanics (bounded batch delete pattern, WAL checkpoint, no full VACUUM) inside the new pinning-aware architecture -- never its blanket age-only eligibility logic.",
+    "action_this_milestone": "NONE -- flagged for awareness and design input only. Not modified, not deleted, not activated. Recorded here so no future milestone accidentally believes 'retention is already handled' or accidentally wires this cron script in."
+  },
+  "core_tiers": {
+    "HOT_OPERATIONAL": {
+      "definition": "Recent and/or actively-referenced data required by current runtime/UI/worker query paths at full resolution, living in the main flex_complete_database.db.",
+      "examples": [
+        "transfer_index rows within the HOT window",
+        "transfer_index rows referenced by any tracked/pinned entity regardless of age",
+        "creator_funders, token_analysis current rows"
+      ]
+    },
+    "PERMANENT_OPERATIONAL": {
+      "definition": "High-value historical intelligence that must remain readily (hot-tier-equivalent) available regardless of age -- confirmed operations, canonical membership, active investigations. This is a PINNING property layered on top of HOT, not a separate physical store necessarily.",
+      "examples": [
+        "Watchtower/3SW2 canonical data (already in wt_ops_v2.db, untouched by this tiering)",
+        "any transfer_index row tied to a CONFIRMED or CANDIDATE operation/investigation"
+      ]
+    },
+    "COLD_OPERATIONAL": {
+      "definition": "Important historical evidence moved OUT of the hot main DB into a separate, queryable, append-only/segmented store -- still fully replayable, just not required to be in the monolithic hot file.",
+      "examples": [
+        "generic (non-pinned) transfer_index rows older than the HOT window, moved to segmented cold SQLite files"
+      ]
+    },
+    "COMPACT_EVIDENCE_INDEX": {
+      "definition": "A signature/address/amount/timestamp-only representation sufficient to prove a relationship existed and to locate the full COLD/RAW_ARCHIVE record, without keeping full normalized rows hot. Distinct from COLD_OPERATIONAL: this is a lighter-weight pointer layer, not a full row copy.",
+      "examples": [
+        "a compact index table mapping (signature) -> (cold_segment_id, offset) for O(1) COLD lookup without scanning segments"
+      ]
+    },
+    "RAW_ARCHIVE": {
+      "definition": "Optional, rarely-accessed raw evidence (e.g. full RPC response payloads) retained outside any hot store -- this repository's ArtifactStore (content-addressed, src/evidence/artifacts.py) already serves exactly this role for acquisition-layer evidence and should NOT be duplicated by a second raw-payload store for transfer_index (transfer_index rows themselves are already compact -- signature/source/destination/amount/time -- so RAW_ARCHIVE mostly applies to retained_acquisition_shadow.db's payload_json, not transfer_index)."
+    },
+    "RETIREMENT_ELIGIBLE_BULK": {
+      "definition": "Data proven (via the pinning/significance classification below) to have zero remaining operational, investigative, or replay value -- eligible for eventual permanent deletion from COLD storage, never from HOT/main DB directly, and only after a separate future qualification pass."
+    }
+  },
+  "operational_transfer_retention_eligibility_contract": {
+    "name": "OPERATIONAL_TRANSFER_RETENTION_ELIGIBILITY",
+    "principle": "A transfer_index row is PINNED (must remain in HOT regardless of age) if it satisfies ANY of the following -- richer provenance than a single operation=true flag, matching the instruction's explicit requirement:",
+    "pinning_dimensions": [
+      "source or destination appears in wt_ops_v2.db operator_entities.entity_address (confirmed Watchtower/3SW2/any future canonical operator membership)",
+      "source or destination appears in a candidate/investigation family's member set (local_operation_discovery_corpus.db candidate_family_members)",
+      "signature appears in local_operation_discovery_corpus.db direct_funding_edges.funding_signature (used as direct-funding discovery evidence)",
+      "signature appears in any OF-*-P1-style raw-verification result artifact (docs/audits/*_selective_raw_verification_result.json) -- these are explicitly cited human-reviewed evidence",
+      "destination appears in creator_funders.creator_address or token_analysis.pf_ws_creator (any known creator-funding relationship, the base population the discovery pipeline draws from)",
+      "row is referenced by an existing human review/disposition artifact (docs/audits/*_human_review_packet.json, *_disposition*.json)",
+      "row is the funding edge for a 2-hop+ upstream chain feeding into any of the above (via upstream_edges in the discovery corpus)"
+    ],
+    "cex_infra_rule": "CEX_INFRA_PRESERVE_LINEAGE_EXCLUDE_SOLE_ATTRIBUTION applies: a transfer touching a known CEX/INFRA address is NOT automatically pinned by that fact alone, but if the SAME row also satisfies any pinning dimension above (e.g. it's part of a tracked entity's funding chain), it remains pinned. Generic, unrelated CEX bulk transfer noise with no other pinning signal is a legitimate COLD/RETIREMENT_ELIGIBLE_BULK candidate.",
+    "not_pinned_default": "A row with none of the above is GENERIC -- eligible for HOT window aging, then COLD, then eventually RETIREMENT_ELIGIBLE_BULK if it also proves permanently unreferenced."
+  },
+  "hot_window_design_principle": {
+    "not_age_only": "Per Part 5, HOT retention must NOT be a pure age cutoff (rejecting the dormant TransferIndexCleanup's exact anti-pattern). Proposed hybrid: TRACKED/PERMANENT rows (any pinning dimension above) always remain in HOT + a bounded RECENT/GENERAL window for everything else.",
+    "recent_general_window_determination": "Deferred to the transfer_index consumer-trace analysis (docs/audits/storage_lifecycle_p3_transfer_index_analysis.json) to ground the exact window size in real application query patterns rather than an arbitrary guess -- see that artifact for the traced consumer list and recommended window."
+  },
+  "cold_store_design": {
+    "format": "Segmented SQLite files, matching the instruction's stated preference to avoid new technology and simplify compatibility.",
+    "naming_scheme": "transfer_index_cold_<YYYY>_<MM>.sqlite -- time-partitioned by month, NOT size-partitioned, because transfer_index rows are small and roughly uniform in size (fixed-width columns, no large payload blobs), so time partitioning gives predictable, human-legible segment boundaries and natural alignment with 'retire everything from month X' whole-segment retirement, without needing to track byte-boundary crossings mid-write.",
+    "schema": "identical column set to the live transfer_index table (signature, source, destination, amount_lamports, slot, block_time, indexed_at, is_valid, transfer_type) plus a segment-local manifest table recording: segment_id, created_at, closed_at, row_count, sha256_of_sorted_signatures, source_run_id.",
+    "immutability": "a segment is written-once during a bounded COLD migration batch, then marked closed (a manifest row, not a file permission change -- simpler and portable); no further writes to a closed segment ever.",
+    "indexing": "each cold segment carries the SAME 4 indexes as the live table (signature via UNIQUE, source+time, destination+time, block_time) so query performance parity is possible; verified in the query-prototype artifact.",
+    "whole_segment_retirement": "identical mechanism already proven in P2 Part 1 (rename to database/evidence_platform/_retired/, reversible quarantine window before permanent deletion) -- no new mechanism needed."
+  },
+  "unified_reader_design": {
+    "name": "UnifiedTransferReader (proposed, NOT implemented this pass -- see implementation_result artifact for what WAS prototyped)",
+    "principle": "Existing UI/operation-discovery code should query through this reader rather than transfer_index directly, so tier location becomes invisible to callers.",
+    "precedence": "HOT main DB first (fast path, covers all pinned + recent rows), then COLD segments only if the query's time range or specific signature/address falls outside HOT coverage. Deterministic: never emits the same (signature, source, destination) row twice even if it technically exists in both a stale HOT copy and a COLD segment during a migration window -- de-duplicated by the UNIQUE(signature, source, destination) key.",
+    "not_yet_implemented": "This is a documented design contract for a future P4 implementation milestone; a minimal read-only PROTOTYPE (not the full production reader) was built and tested this pass against fixture data to prove the query-shape compatibility claim -- see storage_lifecycle_p3_hot_cold_query_prototype.json."
+  },
+  "no_production_mutation_this_milestone": {
+    "main_db_writes": 0,
+    "main_db_deletes": 0,
+    "vacuum_performed": 0,
+    "schema_changes": 0,
+    "note": "All SQLite work in this milestone's tests/prototypes uses isolated tmp_path fixtures. Any query against the REAL main DB is read-only (mode=ro) and used only for measurement/classification, never mutation."
+  },
+  "deterministic_digest": "1bf461121d2a9c521e4e3001dbd40a1836c8efd395b18fd1c5d4ed4f6a879889"
+}

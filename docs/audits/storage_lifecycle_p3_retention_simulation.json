@@ -1,0 +1,74 @@
+{
+  "schema_version": "storage.lifecycle.p3.retention-simulation.v1",
+  "artifact_type": "STORAGE_LIFECYCLE_P3_RETENTION_SIMULATION",
+  "milestone": "STORAGE-LIFECYCLE-P3 Part 18 -- READ-ONLY simulation, no production mutation",
+  "input_data_source": "docs/audits/storage_lifecycle_p3_transfer_index_analysis.json (real, measured/sampled live data)",
+  "critical_correction_to_raw_headline_figure": {
+    "raw_dimension_a_headline": "70.2% of sampled rows touch SOME known creator address (source OR destination)",
+    "why_this_overstates_pinning_need": "Within that 70.2%, only 2,256 of 15,702 sample hits (14.4% of found rows, ~2,256/5221462*population) are DESTINATION matches -- i.e. genuine inbound funding-to-a-tracked-creator events, which is what actually matters for OPERATIONAL_TRANSFER_RETENTION_ELIGIBILITY. The remaining 8,763 (55.8% of found rows) are SOURCE-only matches -- a known creator's own OUTBOUND spending/trading activity, which is not itself a pinning signal under the retention contract (a creator paying for something is not 'funding evidence' the way someone funding a creator is).",
+    "corrected_interpretation": "Refined estimate: roughly 14.4% of transfer_index rows (not 70%) are directly pinned by the creator-funding dimension alone. This is a MUCH smaller, more defensible HOT-tier core than the raw headline suggested."
+  },
+  "hot_permanent_cold_bulk_breakdown": {
+    "TOTAL_ROWS_measured_exact": 5221462,
+    "PINNED_creator_funding_destination_matches": {
+      "estimated_rows": 750198,
+      "estimated_fraction": 0.1437,
+      "method": "sampled (20,000-id stratified sample, 2,256/15,702 found rows were destination matches), extrapolated",
+      "confidence": "MEDIUM -- sampled, not exact; but the sampling method (uniform stratified across the full id range) is sound"
+    },
+    "PINNED_watchtower_3sw2_operator_entities": {
+      "exact_rows": 292,
+      "exact_fraction": 5.6e-05,
+      "method": "EXACT -- 70 canonical addresses, 140 indexed lookups, 0.11s",
+      "confidence": "HIGH"
+    },
+    "PINNED_discovery_corpus_signatures": {
+      "exact_rows": 65099,
+      "exact_fraction": 0.0125,
+      "method": "EXACT -- signature membership against 7,412 known direct_funding_edges signatures",
+      "confidence": "HIGH"
+    },
+    "PINNED_union_upper_bound_estimate": {
+      "note": "The three pinning dimensions overlap (a Watchtower funding row is very likely ALSO a destination-match on the creator dimension, and may also be a discovery-corpus signature). Without row-level de-duplication (not performed this pass -- would require joining all three checks in one pass, not done by the background analysis), the true union is LESS than the naive sum of the three. Naive sum as a conservative UPPER BOUND:",
+      "naive_sum_upper_bound_rows": 815589,
+      "naive_sum_upper_bound_fraction": 0.1562,
+      "realistic_estimate_given_overlap": "likely close to the destination-match figure alone (~14-16% of table), since Watchtower/discovery-corpus hits are largely a SUBSET of destination-matches (both ultimately trace to creator-funding-adjacent addresses), not fully additive"
+    },
+    "GENERIC_BULK_source_only_or_unreferenced": {
+      "estimated_rows": 4471264,
+      "estimated_fraction": 0.8563,
+      "composition": "includes the 55.8%-of-sample SOURCE-only creator-outbound noise PLUS whatever fraction touches no known address at all",
+      "eligibility": "COLD-tier candidate after aging out of the HOT recent-window; NOT retirement-eligible merely by this classification alone -- would need a further check that no CEX/INFRA-tracked-entity or human-review-artifact reference exists before ever reaching RETIREMENT_ELIGIBLE_BULK"
+    }
+  },
+  "amount_dust_cross_reference": {
+    "sampled_dust_fraction_below_0_01_sol": "see source artifact",
+    "note": "High dust fraction (~75% sampled) likely correlates significantly with the GENERIC_BULK population -- small/dust transfers are exactly the kind of noise unlikely to be pinning-relevant. Not independently cross-tabulated against the pinning dimensions this pass (would require a joined query); flagged as a natural next refinement."
+  },
+  "projected_active_hot_db_size_if_tiering_implemented": {
+    "current_transfer_index_footprint_estimate_gib": "1.5-3 GiB (LOW confidence, see transfer_index_analysis.json section 1 -- dbstat measurement was abandoned as too expensive to run safely alongside a competing integrity_check)",
+    "if_only_pinned_rows_stay_hot": "roughly 14-20% of current footprint, i.e. very roughly 0.25-0.6 GiB of pinned transfer_index data remaining permanently hot, plus a bounded RECENT window on top (see hot_window recommendation below)",
+    "caveat": "This is a rough, sampled-data-driven estimate, explicitly NOT a committed number -- byte-level dbstat measurement should be re-run in a genuinely idle maintenance window before any real HOT/COLD implementation locks in exact figures."
+  },
+  "daily_flow_simulation": {
+    "measured_ingest_rows_per_day": {
+      "value_range": "77,060 - 402,792 (14-day observed range)",
+      "average": 171796,
+      "confidence": "MEDIUM -- real variance, not a steady rate"
+    },
+    "if_generic_bulk_moves_to_cold_after_hot_window": "daily HOT growth would be bounded to roughly: (pinned fraction of new rows, ~14-20%) + (unpinned rows within the HOT recency window, which age out daily as older unpinned rows roll to COLD) -- net HOT growth approaches the PINNED daily rate alone once the recency window reaches steady state, since every day's unpinned intake is matched by an equal day's worth of unpinned rows aging out the other end of the window",
+    "steady_state_net_hot_growth_estimate": "~14-20% of ~172K rows/day = ~24,000-34,000 pinned rows/day permanently added to HOT -- this IS the honest non-zero permanent growth component (Part 20's explicit instruction: 'if permanent operational intelligence itself grows materially, quantify it' -- this is that quantification, not hidden)",
+    "cold_growth": "the remaining ~80-86% of daily ingest (~138,000-148,000 rows/day) flows to COLD segments once past the HOT window -- COLD growth continues indefinitely in absolute terms (more segments accumulate over time) but each segment is small, closed, and independently retireable, so ACTIVE (open, hot-adjacent) storage stays bounded even as TOTAL retained evidence grows"
+  },
+  "target_normal_steady_state_net_growth": {
+    "definition_used": "NORMAL_STEADY_STATE_NET_GROWTH_APPROACHES_ZERO applies specifically to the HOT/active tier, not to total retained evidence across all tiers -- total evidence volume necessarily grows as long as real on-chain activity continues (this is expected and correct, not a failure), but ACTIVE disk footprint (the main DB file, which is what currently threatens unbounded growth and lock/backup/VACUUM pain) can be bounded.",
+    "achieved_if": "the HOT tier = PINNED (permanent, ~14-20% of intake) + a bounded RECENT window (fixed size, old rows continuously roll to COLD as new ones arrive) -- this is a genuinely boundable quantity, unlike the current unbounded-append model."
+  },
+  "no_production_mutation": {
+    "writes": 0,
+    "deletes": 0,
+    "vacuum": 0,
+    "note": "entirely a read-only analytical simulation over already-measured data"
+  },
+  "deterministic_digest": "e476416892ffef4dd83d462529bd919a388714d4d4613267e78a192aad2d2eee"
+}

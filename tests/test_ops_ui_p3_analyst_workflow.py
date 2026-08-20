@@ -254,6 +254,77 @@ def test_dv34_appears_in_discovery_intake_candidates():
     assert dv34_family[0]["candidate_role"] == "PROVISIONING_NETWORK_CANDIDATE"
 
 
+def test_discovery_intake_family_id_is_not_prefixed():
+    """Regression test: registry rows' family_id and profile_href must use
+    the BARE discovery family_id (e.g. 'DFF_...'), matching what
+    fetch_discovery_family_detail() looks up -- a prior bug prefixed this
+    with 'discovery:' which broke every discovery-candidate detail-page
+    link with 'Unable to load record: Record unavailable'."""
+    candidates = fetch_discovery_intake_candidates(OUTPUT_DB)
+    for c in candidates:
+        assert not c["family_id"].startswith("discovery:")
+        assert c["family_id"].startswith("DFF_")
+        assert c["presentation"]["profile_href"] == "/intelligence/operations/" + c["family_id"]
+
+
+def test_discovery_family_detail_lookup_resolves_real_family():
+    """Regression test for the exact user-reported bug: clicking a NEW
+    DISCOVERY registry row must not 404 on its detail page."""
+    from src.ops.discovery_intake import fetch_discovery_family_detail
+
+    candidates = fetch_discovery_intake_candidates(OUTPUT_DB)
+    assert candidates, "no discovery candidates available to test against"
+    target = candidates[0]["family_id"]
+
+    detail = fetch_discovery_family_detail(OUTPUT_DB, target)
+    assert detail is not None
+    assert detail["family_id"] == target
+    assert detail["launches"] > 0
+    assert detail["candidate_role"] == "PROVISIONING_NETWORK_CANDIDATE"
+
+
+def test_discovery_family_detail_route_end_to_end():
+    """Full end-to-end reproduction of the reported bug via a real Flask
+    test client hitting the exact API the detail page calls."""
+    from flask import Flask
+
+    from src.ops.operator_routes import operator_bp
+
+    candidates = fetch_discovery_intake_candidates(OUTPUT_DB)
+    assert candidates
+    target = candidates[0]["family_id"]
+
+    app = Flask(__name__, template_folder=str(ROOT / "templates"), static_folder=str(ROOT / "static"))
+    app.register_blueprint(operator_bp)
+    with app.test_client() as client:
+        resp = client.get(f"/api/ops/emerging-operators/{target}")
+        assert resp.status_code == 200
+        data = resp.get_json()
+        assert data["ok"] is True
+        assert data["family"]["family_id"] == target
+
+        page = client.get(f"/intelligence/operations/{target}")
+        assert page.status_code == 200
+
+
+def test_discovery_family_detail_returns_none_for_nonexistent_family():
+    from src.ops.discovery_intake import fetch_discovery_family_detail
+
+    assert fetch_discovery_family_detail(OUTPUT_DB, "DFF_doesnotexist0000") is None
+
+
+def test_discovery_family_detail_bounded_member_fetch():
+    """Part 8 requirement: detail lookup must not return unbounded
+    members."""
+    from src.ops.discovery_intake import MAX_INTAKE_CANDIDATES, fetch_discovery_family_detail
+
+    candidates = fetch_discovery_intake_candidates(OUTPUT_DB)
+    assert candidates
+    target = candidates[0]["family_id"]
+    detail = fetch_discovery_family_detail(OUTPUT_DB, target)
+    assert detail["member_sample_size"] <= 200
+
+
 # ── Discovery intake ──────────────────────────────────────────────────────
 
 def test_discovery_intake_bounded_not_all_385():

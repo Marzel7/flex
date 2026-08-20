@@ -373,6 +373,15 @@ def list_emerging_operators():
 def get_emerging_operator(entity: str):
     candidate = _get_emerging_service().get(entity)
     if not candidate:
+        # OPS-UI-P3 discovery-intake candidates (family_id like "DFF_...")
+        # are not registered in the emerging-operator service at all --
+        # they are synthesized read-time from the discovery corpus (see
+        # src/ops/discovery_intake.py). Without this fallback, clicking a
+        # "NEW DISCOVERY" registry row 404s ("Record unavailable").
+        from src.discovery.local_operation_discovery_projection import OUTPUT_DB
+        from src.ops.discovery_intake import fetch_discovery_family_detail
+        candidate = fetch_discovery_family_detail(OUTPUT_DB, entity)
+    if not candidate:
         return jsonify({"ok": False, "error": "Operation family not found"}), 404
     return jsonify({"ok": True, "family": candidate, "candidate": candidate, "read_only": True})
 

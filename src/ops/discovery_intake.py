@@ -49,7 +49,15 @@ def fetch_discovery_intake_candidates(corpus_db_path: str, *, known_operator_ent
         root = row["root_evidence"]
         known_operation_overlap = root in known_operator_entities
         candidates.append({
-            "family_id": "discovery:" + row["family_id"],
+            # NOTE: family_id here is the BARE discovery family_id (e.g.
+            # "DFF_..."), matching what fetch_discovery_family_detail()
+            # below looks up and what profile_href actually links to --
+            # do NOT prefix this with "discovery:" or the detail-page
+            # fallback lookup will 404 (this was a real bug: registry rows
+            # linked to /intelligence/operations/DFF_... but the detail
+            # route only ever checked the emerging-operator service,
+            # which has never heard of a raw discovery-corpus family_id).
+            "family_id": row["family_id"],
             "family_name": "New Discovery: " + root[:8] + "…",
             "launches": row["member_count"],
             "creator_count": row["creator_count"],
@@ -69,3 +77,65 @@ def fetch_discovery_intake_candidates(corpus_db_path: str, *, known_operator_ent
             "source_badge": "NEW_DISCOVERY",
         })
     return candidates
+
+
+def fetch_discovery_family_detail(corpus_db_path: str, family_id: str) -> dict | None:
+    """Read-only lookup for a SINGLE discovery-corpus family by its exact
+    family_id, shaped as a render()-compatible family object for
+    templates/operation_profile.html (via GET /api/ops/emerging-operators/
+    <entity>'s fallback path in operator_routes.py). Returns None if no
+    such family exists -- callers should then return the existing 404,
+    not fabricate a record.
+
+    Bounded: fetches at most MAX_DETAIL_MEMBERS member rows, never the
+    full member list unconditionally, matching Part 8's 'do not return
+    all members on initial page load' requirement."""
+    MAX_DETAIL_MEMBERS = 200
+
+    conn = sqlite3.connect(f"file:{corpus_db_path}?mode=ro", uri=True, timeout=10)
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA query_only=ON")
+    try:
+        row = conn.execute(
+            "SELECT family_id, root_evidence, member_count, creator_count, "
+            "classification, attribution_state, root_cex_infra_category, cex_infra_hop_distance "
+            "FROM candidate_families WHERE family_id=?",
+            (family_id,),
+        ).fetchone()
+        if not row:
+            return None
+        members = conn.execute(
+            "SELECT mint, create_creator FROM candidate_family_members "
+            "WHERE family_id=? LIMIT ?",
+            (family_id, MAX_DETAIL_MEMBERS),
+        ).fetchall()
+    finally:
+        conn.close()
+
+    unique_creators = sorted({m["create_creator"] for m in members})
+    return {
+        "family_id": row["family_id"],
+        "family_name": "New Discovery: " + row["root_evidence"][:8] + "…",
+        "family_anchor": row["root_evidence"],
+        "launches": row["member_count"],
+        "unique_creators": unique_creators,
+        "member_wallets": [row["root_evidence"]],
+        "client_wallets": unique_creators,
+        "treasuries": [],
+        "presentation": {"disposition": "REVIEW", "profile_href": "/intelligence/operations/" + row["family_id"]},
+        "reconciliation": {
+            "disposition": "REVIEW",
+            "contradictory_evidence_count": 0,
+            "supporting_evidence": [],
+            "contradictory_evidence": [],
+            "missing_evidence": [],
+        },
+        "candidate_role": "PROVISIONING_NETWORK_CANDIDATE",
+        "discovery_classification": row["classification"],
+        "discovery_attribution_state": row["attribution_state"],
+        "cex_infra_hop_distance": row["cex_infra_hop_distance"],
+        "root_cex_infra_category": row["root_cex_infra_category"],
+        "source_badge": "NEW_DISCOVERY",
+        "member_count_truncated": row["member_count"] > MAX_DETAIL_MEMBERS,
+        "member_sample_size": len(members),
+    }

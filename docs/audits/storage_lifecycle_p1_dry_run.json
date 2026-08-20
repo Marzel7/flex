@@ -1,0 +1,239 @@
+{
+  "pressure_state": "NORMAL",
+  "free_bytes_at_evaluation": 62120939520,
+  "total_bytes_examined": 36549265152,
+  "total_bytes_eligible_for_future_cleanup": 0,
+  "total_bytes_protected": 22315294720,
+  "destructive_mutations_performed": 0,
+  "entries": [
+    {
+      "path": "database/flex_complete_database.db",
+      "bytes": 14751309824,
+      "lifecycle_class": "PERMANENT_OPERATIONAL",
+      "protected_by_invariant": "PERMANENT_CLASS_NO_AUTOMATED_DELETION",
+      "eligible_this_pressure_state": false,
+      "action": "PROTECTED",
+      "reason": "core operational intelligence, active writers"
+    },
+    {
+      "path": "database/wt_ops_v2.db",
+      "bytes": 4697157632,
+      "lifecycle_class": "PERMANENT_OPERATIONAL",
+      "protected_by_invariant": "PERMANENT_CLASS_NO_AUTOMATED_DELETION",
+      "eligible_this_pressure_state": false,
+      "action": "PROTECTED",
+      "reason": "Watchtower/3SW2 canonical operator store"
+    },
+    {
+      "path": "database/flex_investigation_archive.db",
+      "bytes": 2866827264,
+      "lifecycle_class": "PERMANENT_EVIDENCE_INDEX",
+      "protected_by_invariant": "PERMANENT_CLASS_NO_AUTOMATED_DELETION",
+      "eligible_this_pressure_state": false,
+      "action": "PROTECTED",
+      "reason": "archived funder-network evidence, deliberately preserved"
+    },
+    {
+      "path": "database/transaction_first_lineage.db",
+      "bytes": 1432764416,
+      "lifecycle_class": "HOT_REPLAYABLE",
+      "protected_by_invariant": null,
+      "eligible_this_pressure_state": false,
+      "action": "RETAIN",
+      "reason": "raw transaction cache"
+    },
+    {
+      "path": "database/evidence_platform/production/retained_acquisition_shadow.db",
+      "bytes": 2117206016,
+      "lifecycle_class": "HOT_REPLAYABLE",
+      "protected_by_invariant": null,
+      "eligible_this_pressure_state": false,
+      "action": "RETAIN",
+      "reason": "RA4 shadow log, cap currently ineffective (in-process counter)"
+    },
+    {
+      "path": "database/evidence_platform/artifacts",
+      "bytes": 10350000000,
+      "lifecycle_class": "COLD_REPLAYABLE",
+      "protected_by_invariant": null,
+      "eligible_this_pressure_state": false,
+      "action": "RETAIN",
+      "reason": "content-addressed ArtifactStore, GC identify-only, no deletion path yet"
+    },
+    {
+      "path": "database/evidence_platform/primitive_replay.pre_recovery_20260818.sqlite",
+      "bytes": 334000000,
+      "lifecycle_class": "RETIREMENT_ELIGIBLE",
+      "protected_by_invariant": null,
+      "eligible_this_pressure_state": false,
+      "action": "RETAIN",
+      "reason": "MD5-confirmed byte-identical duplicate of live primitive_replay.sqlite, zero code references"
+    },
+    {
+      "path": "database/evidence_platform/archive",
+      "bytes": 0,
+      "lifecycle_class": "PERMANENT_EVIDENCE_INDEX",
+      "protected_by_invariant": "PERMANENT_CLASS_NO_AUTOMATED_DELETION",
+      "eligible_this_pressure_state": false,
+      "action": "PROTECTED",
+      "reason": "referenced by scripts/archive_funder_networks.py, scripts/reclaim_funder_networks_space.py, src/analysis/cross_funding_network_analyzer.py, src/analysis/webhook_manager.py, src/core/main.py, src/ops/promotion_service.py, src/ops/forecast_engine.py - the generic name 'archive' also matched many unrel"
+    },
+    {
+      "path": "database/evidence_platform/oip_v2_1a_pilot",
+      "bytes": 0,
+      "lifecycle_class": "REGENERABLE",
+      "protected_by_invariant": null,
+      "eligible_this_pressure_state": false,
+      "action": "RETAIN",
+      "reason": "only referenced by scripts/run_oip_v2_1a_pilot.py, scripts/finalize_oip_v2_1a_pilot.py, scripts/analyze_oip_v2_1b_efficiency.py, scripts/analyze_oip_v2_1c_retry_failover.py, src/intelligence/operational_landscape.py - all one-shot pilot/analysis scripts, no evidence of a live runtime read path; like"
+    },
+    {
+      "path": "database/evidence_platform/oip_v2_1c_retry_failover",
+      "bytes": 0,
+      "lifecycle_class": "REGENERABLE",
+      "protected_by_invariant": null,
+      "eligible_this_pressure_state": false,
+      "action": "RETAIN",
+      "reason": "only referenced by scripts/run_oip_v2_1c_retry_failover.py, scripts/analyze_oip_v2_1c_retry_failover.py, scripts/analyze_oip_v2_1e_stage.py, scripts/prototype_oip_v2_1d_compact_links.py, scripts/analyze_oip_v2_1d_storage.py - same one-shot script pattern."
+    },
+    {
+      "path": "database/evidence_platform/oip_v2_1d_storage_audit",
+      "bytes": 0,
+      "lifecycle_class": "PERMANENT_EVIDENCE_INDEX",
+      "protected_by_invariant": "PERMANENT_CLASS_NO_AUTOMATED_DELETION",
+      "eligible_this_pressure_state": false,
+      "action": "PROTECTED",
+      "reason": "name itself signals audit-artifact intent; referenced by scripts/analyze_oip_v2_1d_storage.py, scripts/finalize_oip_v2_1d_storage.py, scripts/prototype_oip_v2_1d_compact_links.py, scripts/audit_oip_v2_2a_retention.py - treat storage_audit output as a point-in-time record, not safe to silently regene"
+    },
+    {
+      "path": "database/evidence_platform/oip_v2_1e_stage_1000",
+      "bytes": 0,
+      "lifecycle_class": "REGENERABLE",
+      "protected_by_invariant": null,
+      "eligible_this_pressure_state": false,
+      "action": "RETAIN",
+      "reason": "only scripts/run_oip_v2_1e_stage.py and scripts/analyze_oip_v2_1e_stage.py reference it - staged test corpus, script-driven."
+    },
+    {
+      "path": "database/evidence_platform/oip_v2_1f_stage_1000",
+      "bytes": 0,
+      "lifecycle_class": "RETIREMENT_ELIGIBLE",
+      "protected_by_invariant": null,
+      "eligible_this_pressure_state": false,
+      "action": "RETAIN",
+      "reason": "ZERO references found anywhere in the repo's Python source for the literal string 'oip_v2_1f_stage_1000' - no script, no src/ module. Strong candidate for retirement pending human confirmation."
+    },
+    {
+      "path": "database/evidence_platform/oip_v2_1g_stage_2000",
+      "bytes": 0,
+      "lifecycle_class": "COMPACTABLE",
+      "protected_by_invariant": null,
+      "eligible_this_pressure_state": false,
+      "action": "RETAIN",
+      "reason": "referenced by scripts/benchmark_oip_v2_2c4_compact_read_path.py, scripts/validate_oip_v2_2c_replay.py, scripts/validate_oip_v2_2c2_authority_projection.py, scripts/validate_oip_v2_2c3_indexed_authority.py, scripts/rehearse_oip_v2_2d_shadow_migration.py, scripts/scan_oip_v2_2c1_relationship_participa"
+    },
+    {
+      "path": "database/evidence_platform/oip_v2_1g_stage_2000_frozen",
+      "bytes": 0,
+      "lifecycle_class": "COMPACTABLE",
+      "protected_by_invariant": null,
+      "eligible_this_pressure_state": false,
+      "action": "RETAIN",
+      "reason": "same broad reference set as oip_v2_1g_stage_2000 (both matched together by the substring grep since 'oip_v2_1g_stage_2000' is a prefix of '..._frozen') - the '_frozen' suffix and heavy downstream validate/benchmark/rehearse script references suggest this IS the input corpus those scripts consume; at"
+    },
+    {
+      "path": "database/evidence_platform/oip_v2_2a_retention_audit",
+      "bytes": 0,
+      "lifecycle_class": "PERMANENT_EVIDENCE_INDEX",
+      "protected_by_invariant": "PERMANENT_CLASS_NO_AUTOMATED_DELETION",
+      "eligible_this_pressure_state": false,
+      "action": "PROTECTED",
+      "reason": "referenced only by scripts/audit_oip_v2_2a_retention.py - name and single-audit-script reference pattern strongly suggest a point-in-time retention audit record."
+    },
+    {
+      "path": "database/evidence_platform/oip_v2_2b_compact_provenance",
+      "bytes": 0,
+      "lifecycle_class": "COMPACTABLE",
+      "protected_by_invariant": null,
+      "eligible_this_pressure_state": false,
+      "action": "RETAIN",
+      "reason": "referenced by scripts/benchmark_oip_v2_2c4_compact_read_path.py, scripts/validate_oip_v2_2c_replay.py, scripts/rehearse_oip_v2_2d_shadow_migration.py, scripts/validate_oip_v2_2c3_indexed_authority.py, scripts/audit_oip_v2_2b_compact_provenance.py - name implies it's already a compacted representatio"
+    },
+    {
+      "path": "database/evidence_platform/oip_v2_2c1_divergence_audit",
+      "bytes": 0,
+      "lifecycle_class": "PERMANENT_EVIDENCE_INDEX",
+      "protected_by_invariant": "PERMANENT_CLASS_NO_AUTOMATED_DELETION",
+      "eligible_this_pressure_state": false,
+      "action": "PROTECTED",
+      "reason": "referenced by scripts/validate_oip_v2_2c3_indexed_authority.py, scripts/scan_oip_v2_2c1_relationship_participation.py, scripts/audit_oip_v2_2c1_primitive_divergence.py - name + audit-script pattern signals a preserved divergence-audit record."
+    },
+    {
+      "path": "database/evidence_platform/oip_v2_2c2_authority_contract",
+      "bytes": 0,
+      "lifecycle_class": "PERMANENT_EVIDENCE_INDEX",
+      "protected_by_invariant": "PERMANENT_CLASS_NO_AUTOMATED_DELETION",
+      "eligible_this_pressure_state": false,
+      "action": "PROTECTED",
+      "reason": "referenced by scripts/validate_oip_v2_2c2_authority_projection.py, scripts/validate_oip_v2_2c3_indexed_authority.py - 'contract' in the name plus validate-script pattern suggests this is a frozen reference contract, not safe to regenerate casually."
+    },
+    {
+      "path": "database/evidence_platform/oip_v2_2c3_indexed_authority",
+      "bytes": 0,
+      "lifecycle_class": "PERMANENT_OPERATIONAL",
+      "protected_by_invariant": "PERMANENT_CLASS_NO_AUTOMATED_DELETION",
+      "eligible_this_pressure_state": false,
+      "action": "PROTECTED",
+      "reason": "referenced by scripts/benchmark_oip_v2_2c4_compact_read_path.py, scripts/validate_oip_v2_2c3_indexed_authority.py, scripts/rehearse_oip_v2_2d1_bounded_cutover.py - at 1.6G, and referenced by a 'bounded_cutover' rehearsal script, this looks like it's actively feeding a cutover-readiness rehearsal; fl"
+    },
+    {
+      "path": "database/evidence_platform/oip_v2_2c_application_equivalence",
+      "bytes": 0,
+      "lifecycle_class": "PERMANENT_OPERATIONAL",
+      "protected_by_invariant": "PERMANENT_CLASS_NO_AUTOMATED_DELETION",
+      "eligible_this_pressure_state": false,
+      "action": "PROTECTED",
+      "reason": "referenced by scripts/validate_oip_v2_2c_replay.py, scripts/validate_oip_v2_2c3_indexed_authority.py, scripts/validate_oip_v2_2c2_authority_projection.py, scripts/audit_oip_v2_2c1_primitive_divergence.py; ALSO its replay_checkpoint.json has an mtime of 2026-08-20 08:43 - TODAY, i.e. this directory w"
+    },
+    {
+      "path": "database/evidence_platform/oip_v2_2d_shadow_migration",
+      "bytes": 0,
+      "lifecycle_class": "PERMANENT_OPERATIONAL",
+      "protected_by_invariant": "PERMANENT_CLASS_NO_AUTOMATED_DELETION",
+      "eligible_this_pressure_state": false,
+      "action": "PROTECTED",
+      "reason": "referenced by scripts/rehearse_oip_v2_2d_shadow_migration.py and scripts/rehearse_oip_v2_2d1_bounded_cutover.py; at 6.3G this is the LARGEST evidence_platform subdirectory found, and its rehearsal-script linkage to a 'bounded_cutover' script suggests active use in an in-progress migration cutover pr"
+    },
+    {
+      "path": "database/evidence_platform/three_sw2_shadow_ep3_2a",
+      "bytes": 0,
+      "lifecycle_class": "PERMANENT_OPERATIONAL",
+      "protected_by_invariant": "PERMANENT_CLASS_NO_AUTOMATED_DELETION",
+      "eligible_this_pressure_state": false,
+      "action": "PROTECTED",
+      "reason": "referenced by many scripts/validate_ep*.py files, tests/test_psi0h_h1_historical_discovery.py, tests/test_storage_lifecycle_p1_lock_safety.py, tests/test_ep3_2b_three_sw2_freshness_recovery.py, and src/ops/three_sw2_shadow_corpus.py + src/ops/three_sw2_freshness_recovery.py (these src/ modules accep"
+    },
+    {
+      "path": "database/evidence_platform/watchtower_shadow",
+      "bytes": 0,
+      "lifecycle_class": "PERMANENT_OPERATIONAL",
+      "protected_by_invariant": "PERMANENT_CLASS_NO_AUTOMATED_DELETION",
+      "eligible_this_pressure_state": false,
+      "action": "PROTECTED",
+      "reason": "referenced by scripts/materialize_watchtower_shadow_corpus.py, scripts/recover_watchtower_shadow_corpus.py, scripts/validate_watchtower_contract_v1.py, many scripts/validate_ep*.py, tests/test_ep3_0c_watchtower_shadow_corpus.py, and src/ops/watchtower_shadow_recovery.py, src/intelligence/coverage.py"
+    },
+    {
+      "path": "database/evidence_platform/watchtower_shadow_ep3_0d",
+      "bytes": 0,
+      "lifecycle_class": "PERMANENT_OPERATIONAL",
+      "protected_by_invariant": "PERMANENT_CLASS_NO_AUTOMATED_DELETION",
+      "eligible_this_pressure_state": false,
+      "action": "PROTECTED",
+      "reason": "CONFIRMED via a HARDCODED path: src/intelligence/coverage.py line 18: `evidence = root / \"database/evidence_platform/watchtower_shadow_ep3_0d/evidence.db\"` inside the measure() function, which reads normalized_evidence_records, primitive_observations, and artifact_references tables from this exact e"
+    }
+  ],
+  "schema_version": "storage.lifecycle.p1.dry-run.v1",
+  "artifact_type": "STORAGE_LIFECYCLE_P1_DRY_RUN",
+  "milestone": "STORAGE-LIFECYCLE-P1",
+  "note": "Zero destructive mutations performed -- this is a pure planning report. Entry byte counts for OIP/shadow directories are 0 (not yet measured due to du/find slowness on the large tree this session); their inclusion here demonstrates classification-to-eligibility mapping, not a byte-accurate reclaim total. See storage_lifecycle_p1_storage_census.json for the real measured byte figures where available."
+}

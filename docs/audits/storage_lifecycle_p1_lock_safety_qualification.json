@@ -1,0 +1,99 @@
+{
+  "schema_version": "storage.lifecycle.p1.lock-safety-qualification.v1",
+  "artifact_type": "STORAGE_LIFECYCLE_P1_LOCK_SAFETY_QUALIFICATION",
+  "milestone": "STORAGE-LIFECYCLE-P1",
+  "contract_name": "SQLITE_STORAGE_LIFECYCLE_LOCK_SAFETY",
+  "rules_and_verification": [
+    {
+      "rule": "no unbounded DELETE",
+      "enforced_by": "delete_bounded_batch() raises ValueError if max_rows_per_batch <= 0",
+      "test": "test_bounded_delete_rejects_unbounded_batch_size"
+    },
+    {
+      "rule": "no live VACUUM",
+      "enforced_by": "storage_lock_safety.py contains zero VACUUM execute() calls anywhere; delete_bounded_batch() explicitly rejects VACUUM in where_clause",
+      "test": "test_no_vacuum_statement_executed_anywhere_in_lock_safety_module, test_bounded_delete_rejects_vacuum_in_where_clause"
+    },
+    {
+      "rule": "no schema migration during cleanup",
+      "enforced_by": "no ALTER/CREATE TABLE/DROP TABLE statement anywhere in storage_lock_safety.py",
+      "test": "structural (module review)"
+    },
+    {
+      "rule": "no long EXCLUSIVE transaction",
+      "enforced_by": "delete_bounded_batch() commits after each bounded batch, never holds BEGIN EXCLUSIVE",
+      "test": "test_bounded_delete_multiple_batches_reach_zero (15 independent transactions, not one)"
+    },
+    {
+      "rule": "bounded transaction duration",
+      "enforced_by": "LockSafetyBudget.max_transaction_seconds tracked via time.monotonic() around each batch",
+      "test": "test_bounded_delete_respects_batch_size"
+    },
+    {
+      "rule": "bounded rows per mutation",
+      "enforced_by": "LockSafetyBudget.max_rows_per_batch required, LIMIT-bounded subselect",
+      "test": "test_bounded_delete_respects_batch_size"
+    },
+    {
+      "rule": "busy timeout",
+      "enforced_by": "PRAGMA busy_timeout set before every write attempt in delete_bounded_batch()",
+      "test": "test_cleanup_fails_closed_when_db_held_exclusively"
+    },
+    {
+      "rule": "fail/skip rather than block production",
+      "enforced_by": "DatabaseBusyError raised on lock contention beyond busy_timeout, caller expected to skip -- no retry loop exists in this module",
+      "test": "test_cleanup_fails_closed_when_db_held_exclusively"
+    },
+    {
+      "rule": "one cleanup writer maximum",
+      "enforced_by": "acquire_cleanup_lease() uses fcntl.flock(LOCK_EX | LOCK_NB), second concurrent caller raises CleanupLeaseHeldError immediately (non-blocking)",
+      "test": "test_cleanup_lease_prevents_duplicate_scheduler"
+    },
+    {
+      "rule": "production writer has priority",
+      "enforced_by": "cleanup never uses BEGIN EXCLUSIVE or blocking retry; a real writer's IMMEDIATE/EXCLUSIVE transaction always wins within busy_timeout",
+      "test": "test_cleanup_fails_closed_when_db_held_exclusively, test_concurrent_reader_not_blocked_by_wal_mode"
+    },
+    {
+      "rule": "WAL size monitored",
+      "enforced_by": "storage_monitor.py measure_db() reads the -wal sidecar file size as part of every snapshot",
+      "test": "live measurement this session: flex_complete_database.db WAL=17.7MB, wt_ops_v2.db WAL=19.9MB"
+    },
+    {
+      "rule": "rollback/failure leaves DB valid",
+      "enforced_by": "delete_bounded_batch() calls conn.rollback() on any sqlite3.OperationalError before re-raising; verify_db_valid_after_cleanup() runs PRAGMA integrity_check",
+      "test": "test_db_remains_valid_after_bounded_deletes"
+    },
+    {
+      "rule": "cleanup can resume safely",
+      "enforced_by": "each batch is an independent transaction; an interrupted run leaves committed batches committed and uncommitted work rolled back, so a subsequent run continues from wherever the WHERE clause naturally resumes",
+      "test": "test_bounded_delete_multiple_batches_reach_zero"
+    },
+    {
+      "rule": "disk-pressure cleanup cannot corrupt evidence",
+      "enforced_by": "eligible_for_pressure_state() checks NO_AUTOMATED_DELETION_CLASSES BEFORE consulting the pressure-state allow-list, so no pressure-state misconfiguration can make a PERMANENT class eligible",
+      "test": "test_no_class_bypasses_no_automated_deletion_via_pressure_table, test_permanent_classes_never_eligible_at_any_pressure_state"
+    },
+    {
+      "rule": "stale lease does not permanently block cleanup",
+      "enforced_by": "flock is tied to the holding process's file descriptor, released automatically on process exit regardless of file content",
+      "test": "test_stale_lease_file_does_not_block_after_process_exit"
+    },
+    {
+      "rule": "no duplicate deletion / no partial segment retirement",
+      "enforced_by": "retire_closed_segment() checks os.path.exists(dest) BEFORE os.rename(), raising FileExistsError rather than overwriting; source file is left completely untouched on failure",
+      "test": "test_segment_retirement_never_overwrites_existing_destination, test_no_partial_segment_retirement_on_duplicate_destination"
+    }
+  ],
+  "test_execution": {
+    "file": "tests/test_storage_lifecycle_p1_lock_safety.py",
+    "count": 23,
+    "all_passing": true,
+    "fixtures_used": "isolated tmp_path SQLite databases only -- zero references to any real database/ path (verified by test_all_db_paths_used_in_tests_are_tmp_path_fixtures)",
+    "no_live_production_db_touched": true
+  },
+  "watchtower_preservation_during_testing": "All fixture databases are created fresh in pytest tmp_path directories per test; the real database/wt_ops_v2.db and database/flex_complete_database.db were never opened for write by any test in this suite.",
+  "preferred_mechanism_confirmed": "Whole closed-segment retirement (os.rename, atomic on same filesystem) avoids SQLite row-level locking entirely -- confirmed as the preferred mechanism per Part 13, and it is the ONLY mutation primitive in this module that requires zero SQLite lock at all (delete_bounded_batch necessarily does acquire a write lock, bounded and safe, but retire_closed_segment does not touch SQLite locking machinery at all).",
+  "qualification_result": "SQLITE_STORAGE_LIFECYCLE_LOCK_SAFETY_QUALIFIED",
+  "deterministic_digest": "97f7d141c326a107c323ab9e821e99851a14e9cd4691c3c06c6435a8ff43891c"
+}

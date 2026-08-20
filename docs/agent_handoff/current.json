@@ -534,9 +534,9 @@
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
   "current_milestone": {
-    "milestone": "OPS-UI-P3 -- analyst workflow frontend completion",
-    "status": "QUALIFIED",
-    "verdict": "OPS_UI_ANALYST_WORKFLOW_QUALIFIED"
+    "milestone": "STORAGE-LIFECYCLE-P1 -- automated bounded retention and safe retirement",
+    "status": "COMPLETE_DESIGN_AND_SAFE_PRIMITIVES_ONLY",
+    "verdict": "READY_STORAGE_LIFECYCLE_P2_ACTIVATION_REVIEW"
   },
   "current_next_blocker": "B2Z_P2_HELIUS_ENDPOINT was never available during the overnight session. P2 remains frozen at the 19-member manual resume gate, exactly as left. All 12 provider-free workstreams from the overnight prompt were completed: P2 analysis engine, selective-RPC policy (B2Z-P3), historical coverage profile, 2-hop coverage quality, B2Z-2H contract, operation-discovery preparation, candidate funding family analysis (with a real cross-validated finding), raw-transaction cache adapter, RPC savings models, V2 persistent-budget design, edge-case classifier, and roadmap reconciliation. See docs/audits/overnight_human_decision_queue.json for the 5 decisions that actually need you.",
   "focused_tests": [
@@ -30686,5 +30686,42 @@
     ],
     "next_action": "Follow-up pass to implement per-member evidence pagination, CEX-tab contextual link, and evidence-conflict state computation -- all explicitly scoped as separate work in the P3 artifact.",
     "verdict": "OPS_UI_ANALYST_WORKFLOW_QUALIFIED"
+  },
+  "storage_lifecycle_p1_bounded_retention": {
+    "milestone": "STORAGE-LIFECYCLE-P1 -- automated bounded retention and safe retirement",
+    "watchtower_preservation": "PASS -- zero writes performed anywhere this milestone, digests identical before/after",
+    "measured_disk_free_gib": 62.0,
+    "pressure_state_at_measurement": "NORMAL",
+    "largest_growth_driver": "transfer_index table in flex_complete_database.db (5.2M rows, actively growing)",
+    "critical_finding": "retained_acquisition_shadow.db's '1GiB daily cap' is an in-process counter that resets on restart and never checks existing DB size -- effectively unbounded across restarts; #1 priority for P2",
+    "artifact_store_gc": "content-addressed with true dedup, but GC is identify-only -- no deletion path exists yet",
+    "reclaim_opportunity_gib": {
+      "immediately_safe": 1.56,
+      "safe_after_compaction": 5.9,
+      "requires_archival": 2.13,
+      "total_potential": 7.46
+    },
+    "growth_forecast": "worst-case 39.8 days to first WARNING threshold (30GiB free) -- not urgent",
+    "lock_safety_qualification": "SQLITE_STORAGE_LIFECYCLE_LOCK_SAFETY_QUALIFIED, 23/23 tests passing against isolated fixtures",
+    "destructive_actions_performed": 0,
+    "files_created": [
+      "src/ops/storage_lifecycle_policy.py",
+      "src/ops/storage_lock_safety.py",
+      "src/ops/storage_dry_run_planner.py",
+      "src/ops/storage_monitor.py",
+      "src/ops/storage_audit_ledger.py",
+      "tests/test_storage_lifecycle_p1_lock_safety.py"
+    ],
+    "artifacts": [
+      "docs/audits/storage_lifecycle_p1_storage_census.json",
+      "docs/audits/storage_lifecycle_p1_retention_policy.json",
+      "docs/audits/storage_lifecycle_p1_lock_safety_qualification.json",
+      "docs/audits/storage_lifecycle_p1_dry_run.json",
+      "docs/audits/storage_lifecycle_p1_growth_forecast.json",
+      "docs/audits/storage_lifecycle_p1_reclaim_opportunity.json",
+      "docs/audits/storage_lifecycle_p1_implementation_result.json"
+    ],
+    "next_action": "Human GO/NO-GO review of STORAGE-LIFECYCLE-P2 activation plan -- highest priority is fixing retained_acquisition_shadow.db's broken cap, followed by deleting the confirmed-duplicate primitive_replay file and abandoned temp snapshots (both already proven safe, pending human approval).",
+    "verdict": "READY_STORAGE_LIFECYCLE_P2_ACTIVATION_REVIEW"
   }
 }

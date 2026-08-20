@@ -1,0 +1,160 @@
+{
+  "schema_version": "storage.lifecycle.p1.retention-policy.v1",
+  "artifact_type": "STORAGE_LIFECYCLE_P1_RETENTION_POLICY",
+  "milestone": "STORAGE-LIFECYCLE-P1",
+  "policy_version": "p1.0",
+  "lifecycle_classes": {
+    "PERMANENT_OPERATIONAL": "No automated deletion, ever, regardless of disk pressure. Watchtower/3SW2 canonical state and any store whose name matches a Watchtower/3SW2 marker is structurally forced into this class (src/ops/storage_lifecycle_policy.py classify_store()).",
+    "PERMANENT_EVIDENCE_INDEX": "No automated deletion. Signatures/digests/compact indexes required to reproduce a human decision or verify evidence.",
+    "HOT_REPLAYABLE": "Retain a bounded recent period/size; older data may migrate to COLD_REPLAYABLE.",
+    "COLD_REPLAYABLE": "Archive/compact according to policy; not immediately reclaimable but not permanently protected either.",
+    "COMPACTABLE": "Structure/format can shrink (e.g. VACUUM-equivalent, or closed-segment compaction) without losing informational content.",
+    "REGENERABLE": "Can be recreated by re-running a known script/pipeline; safe to retire if disk-pressure demands it AFTER confirming no live consumer.",
+    "DIAGNOSTIC": "Logs/diagnostics; rotate/compress/expire on a schedule.",
+    "TEMPORARY": "Short TTL; abandoned .tmp.* files, process-lifetime scratch state.",
+    "RETIREMENT_ELIGIBLE": "Proven (via consumer trace) to have zero live readers; eligible for deletion only after the proof is recorded, never on age alone.",
+    "UNKNOWN_NEEDS_HUMAN_REVIEW": "No automated deletion until classified by a human."
+  },
+  "no_automated_deletion_classes": [
+    "PERMANENT_OPERATIONAL",
+    "PERMANENT_EVIDENCE_INDEX",
+    "UNKNOWN_NEEDS_HUMAN_REVIEW"
+  ],
+  "watchtower_canonical_history_preservation_required": {
+    "statement": "WATCHTOWER_CANONICAL_HISTORY_PRESERVATION_REQUIRED",
+    "enforcement": "Structural, not policy-only: src/ops/storage_lifecycle_policy.py classify_store() forces PERMANENT_OPERATIONAL for any store name matching a Watchtower/3SW2 marker, regardless of what class was proposed. Verified by test_watchtower_store_forced_permanent_regardless_of_proposed_class in tests/test_storage_lifecycle_p1_lock_safety.py.",
+    "applies_to": [
+      "database/wt_ops_v2.db (entire file, 4.70GB measured)",
+      "any table within flex_complete_database.db tagged watchtower_* or wt_*",
+      "database/evidence_platform/watchtower_shadow",
+      "database/evidence_platform/watchtower_shadow_ep3_0d (confirmed live via src/intelligence/coverage.py:18)"
+    ]
+  },
+  "per_store_classification": {
+    "database/flex_complete_database.db": {
+      "class": "PERMANENT_OPERATIONAL (core tables) / mixed at table level",
+      "reason": "Contains creator_funders, transfer_index, token_analysis and other core operational-intelligence tables. Growth driver identified (transfer_index, 5.2M rows, actively growing) is itself operational lineage evidence, not disposable.",
+      "table_level_note": "Table-by-table classification deferred to a P1.5/P2 pass -- dbstat introspection hung >2min on this 14.75GB file this session; a bounded/sampled dbstat approach is needed before any table-level action can be proposed."
+    },
+    "database/wt_ops_v2.db": {
+      "class": "PERMANENT_OPERATIONAL",
+      "reason": "Watchtower/3SW2 canonical operator store -- forced by name guard."
+    },
+    "database/flex_investigation_archive.db": {
+      "class": "PERMANENT_EVIDENCE_INDEX",
+      "reason": "Archived funder-network evidence moved here in a prior milestone specifically to preserve it long-term outside the hot DB -- default to protected pending explicit re-review."
+    },
+    "database/transaction_first_lineage.db": {
+      "class": "HOT_REPLAYABLE",
+      "reason": "Raw transaction cache used for lineage lookups; likely re-derivable from RPC if lost, but currently the fastest local path -- classify HOT_REPLAYABLE not REGENERABLE until a re-derivation script is confirmed to exist."
+    },
+    "database/evidence_platform/production/retained_acquisition_shadow.db": {
+      "class": "HOT_REPLAYABLE",
+      "reason": "RA4 shadow-mode acquisition-metadata log with a broken/ineffective cap (in-process counter, resets on restart, never checks existing DB size -- see census Part 3). Currently effectively unbounded growth. NOT classified REGENERABLE because the census could not confirm the underlying raw payloads are fully reproducible without re-acquisition. Flagged as the #1 priority for the P2 activation plan (fixing the cap, not deleting existing data)."
+    },
+    "database/evidence_platform/artifacts": {
+      "class": "COLD_REPLAYABLE",
+      "reason": "Content-addressed ArtifactStore (SHA256, true dedup). GC is identify-only per census Part 4 (retention_candidates() exists but no deletion path) -- 'EP1.0 never deletes immutable artifacts' is the current code comment. Treat as COLD_REPLAYABLE (candidates identified, not yet safe to delete) rather than RETIREMENT_ELIGIBLE until a real reference-counting GC is built and tested."
+    },
+    "oip_shadow_frozen_stores": {
+      "archive": {
+        "classification": "IMMUTABLE_AUDIT_REQUIRED",
+        "evidence": "referenced by scripts/archive_funder_networks.py, scripts/reclaim_funder_networks_space.py, src/analysis/cross_funding_network_analyzer.py, src/analysis/webhook_manager.py, src/core/main.py, src/ops/promotion_service.py, src/ops/forecast_engine.py - the generic name 'archive' also matched many unrelated 'archive' substrings so this classification is LOW CONFIDENCE; recommend targeted re-grep on the literal path 'evidence_platform/archive' before acting."
+      },
+      "oip_v2_1a_pilot": {
+        "classification": "REGENERABLE",
+        "evidence": "only referenced by scripts/run_oip_v2_1a_pilot.py, scripts/finalize_oip_v2_1a_pilot.py, scripts/analyze_oip_v2_1b_efficiency.py, scripts/analyze_oip_v2_1c_retry_failover.py, src/intelligence/operational_landscape.py - all one-shot pilot/analysis scripts, no evidence of a live runtime read path; likely regenerable by re-running the pilot script if ever needed."
+      },
+      "oip_v2_1c_retry_failover": {
+        "classification": "REGENERABLE",
+        "evidence": "only referenced by scripts/run_oip_v2_1c_retry_failover.py, scripts/analyze_oip_v2_1c_retry_failover.py, scripts/analyze_oip_v2_1e_stage.py, scripts/prototype_oip_v2_1d_compact_links.py, scripts/analyze_oip_v2_1d_storage.py - same one-shot script pattern."
+      },
+      "oip_v2_1d_storage_audit": {
+        "classification": "IMMUTABLE_AUDIT_REQUIRED",
+        "evidence": "name itself signals audit-artifact intent; referenced by scripts/analyze_oip_v2_1d_storage.py, scripts/finalize_oip_v2_1d_storage.py, scripts/prototype_oip_v2_1d_compact_links.py, scripts/audit_oip_v2_2a_retention.py - treat storage_audit output as a point-in-time record, not safe to silently regenerate/overwrite."
+      },
+      "oip_v2_1e_stage_1000": {
+        "classification": "REGENERABLE",
+        "evidence": "only scripts/run_oip_v2_1e_stage.py and scripts/analyze_oip_v2_1e_stage.py reference it - staged test corpus, script-driven."
+      },
+      "oip_v2_1f_stage_1000": {
+        "classification": "RETIREMENT_ELIGIBLE",
+        "evidence": "ZERO references found anywhere in the repo's Python source for the literal string 'oip_v2_1f_stage_1000' - no script, no src/ module. Strong candidate for retirement pending human confirmation."
+      },
+      "oip_v2_1g_stage_2000": {
+        "classification": "COMPACTABLE",
+        "evidence": "referenced by scripts/benchmark_oip_v2_2c4_compact_read_path.py, scripts/validate_oip_v2_2c_replay.py, scripts/validate_oip_v2_2c2_authority_projection.py, scripts/validate_oip_v2_2c3_indexed_authority.py, scripts/rehearse_oip_v2_2d_shadow_migration.py, scripts/scan_oip_v2_2c1_relationship_participation.py, scripts/audit_oip_v2_2c1_primitive_divergence.py, scripts/audit_oip_v2_2b_compact_provenance.py, scripts/audit_oip_v2_2a_retention.py - heavily referenced by validation/benchmark scripts but only 908K on disk already, negligible size; low priority."
+      },
+      "oip_v2_1g_stage_2000_frozen": {
+        "classification": "COMPACTABLE",
+        "evidence": "same broad reference set as oip_v2_1g_stage_2000 (both matched together by the substring grep since 'oip_v2_1g_stage_2000' is a prefix of '..._frozen') - the '_frozen' suffix and heavy downstream validate/benchmark/rehearse script references suggest this IS the input corpus those scripts consume; at 5.4G it is the SECOND LARGEST evidence_platform subdirectory. Recommend compacting (e.g. deduplicating or summarizing) rather than deleting, since 'frozen' implies deliberate preservation for reproducibility."
+      },
+      "oip_v2_2a_retention_audit": {
+        "classification": "IMMUTABLE_AUDIT_REQUIRED",
+        "evidence": "referenced only by scripts/audit_oip_v2_2a_retention.py - name and single-audit-script reference pattern strongly suggest a point-in-time retention audit record."
+      },
+      "oip_v2_2b_compact_provenance": {
+        "classification": "COMPACTABLE",
+        "evidence": "referenced by scripts/benchmark_oip_v2_2c4_compact_read_path.py, scripts/validate_oip_v2_2c_replay.py, scripts/rehearse_oip_v2_2d_shadow_migration.py, scripts/validate_oip_v2_2c3_indexed_authority.py, scripts/audit_oip_v2_2b_compact_provenance.py - name implies it's already a compacted representation of something; still referenced by multiple downstream validators."
+      },
+      "oip_v2_2c1_divergence_audit": {
+        "classification": "IMMUTABLE_AUDIT_REQUIRED",
+        "evidence": "referenced by scripts/validate_oip_v2_2c3_indexed_authority.py, scripts/scan_oip_v2_2c1_relationship_participation.py, scripts/audit_oip_v2_2c1_primitive_divergence.py - name + audit-script pattern signals a preserved divergence-audit record."
+      },
+      "oip_v2_2c2_authority_contract": {
+        "classification": "IMMUTABLE_AUDIT_REQUIRED",
+        "evidence": "referenced by scripts/validate_oip_v2_2c2_authority_projection.py, scripts/validate_oip_v2_2c3_indexed_authority.py - 'contract' in the name plus validate-script pattern suggests this is a frozen reference contract, not safe to regenerate casually."
+      },
+      "oip_v2_2c3_indexed_authority": {
+        "classification": "STILL_RUNTIME_REQUIRED",
+        "evidence": "referenced by scripts/benchmark_oip_v2_2c4_compact_read_path.py, scripts/validate_oip_v2_2c3_indexed_authority.py, scripts/rehearse_oip_v2_2d1_bounded_cutover.py - at 1.6G, and referenced by a 'bounded_cutover' rehearsal script, this looks like it's actively feeding a cutover-readiness rehearsal; flagged higher-confidence-required (script-only evidence, not confirmed via src/ import) but treat cautiously."
+      },
+      "oip_v2_2c_application_equivalence": {
+        "classification": "STILL_RUNTIME_REQUIRED",
+        "evidence": "referenced by scripts/validate_oip_v2_2c_replay.py, scripts/validate_oip_v2_2c3_indexed_authority.py, scripts/validate_oip_v2_2c2_authority_projection.py, scripts/audit_oip_v2_2c1_primitive_divergence.py; ALSO its replay_checkpoint.json has an mtime of 2026-08-20 08:43 - TODAY, i.e. this directory was actively written to during the current session window, confirming live/recent use. Contains a confirmed byte-identical duplicate file pending cleanup (see section 6)."
+      },
+      "oip_v2_2d_shadow_migration": {
+        "classification": "STILL_RUNTIME_REQUIRED",
+        "evidence": "referenced by scripts/rehearse_oip_v2_2d_shadow_migration.py and scripts/rehearse_oip_v2_2d1_bounded_cutover.py; at 6.3G this is the LARGEST evidence_platform subdirectory found, and its rehearsal-script linkage to a 'bounded_cutover' script suggests active use in an in-progress migration cutover process. Do not touch without human confirmation the cutover is complete."
+      },
+      "three_sw2_shadow_ep3_2a": {
+        "classification": "STILL_RUNTIME_REQUIRED",
+        "evidence": "referenced by many scripts/validate_ep*.py files, tests/test_psi0h_h1_historical_discovery.py, tests/test_storage_lifecycle_p1_lock_safety.py, tests/test_ep3_2b_three_sw2_freshness_recovery.py, and src/ops/three_sw2_shadow_corpus.py + src/ops/three_sw2_freshness_recovery.py (these src/ modules accept output_root as a constructor parameter rather than hardcoding the path, so live-runtime status is HIGH-CONFIDENCE but not 100% proven by a hardcoded path the way watchtower_shadow_ep3_0d is)."
+      },
+      "watchtower_shadow": {
+        "classification": "STILL_RUNTIME_REQUIRED",
+        "evidence": "referenced by scripts/materialize_watchtower_shadow_corpus.py, scripts/recover_watchtower_shadow_corpus.py, scripts/validate_watchtower_contract_v1.py, many scripts/validate_ep*.py, tests/test_ep3_0c_watchtower_shadow_corpus.py, and src/ops/watchtower_shadow_recovery.py, src/intelligence/coverage.py, src/ops/three_sw2_shadow_corpus.py (all src/ modules parameterize the path, not hardcoded, except the specific ep3_0d variant below)."
+      },
+      "watchtower_shadow_ep3_0d": {
+        "classification": "STILL_RUNTIME_REQUIRED",
+        "evidence": "CONFIRMED via a HARDCODED path: src/intelligence/coverage.py line 18: `evidence = root / \"database/evidence_platform/watchtower_shadow_ep3_0d/evidence.db\"` inside the measure() function, which reads normalized_evidence_records, primitive_observations, and artifact_references tables from this exact evidence.db. This is the highest-confidence STILL_RUNTIME_REQUIRED finding in this census - do not touch this directory."
+      },
+      "classification_counts": {
+        "STILL_RUNTIME_REQUIRED": 6,
+        "IMMUTABLE_AUDIT_REQUIRED": 5,
+        "COMPACTABLE": 3,
+        "REGENERABLE": 2,
+        "RETIREMENT_ELIGIBLE": 1,
+        "REDUNDANT": 0,
+        "UNKNOWN_NEEDS_HUMAN_REVIEW": 0,
+        "total_directories_classified": 17,
+        "note": "'archive' was classified separately (18th directory, see above) at LOW CONFIDENCE due to name-collision noise in the grep and is not included in the counts above; recommend re-verifying it with a scoped grep before acting on it."
+      }
+    }
+  },
+  "duplicate_files_flagged_not_deleted": {
+    "primitive_replay.pre_recovery_20260818.sqlite": "334MB, MD5-confirmed byte-identical to the live primitive_replay.sqlite, zero code references. Classified RETIREMENT_ELIGIBLE pending human confirmation -- proof (MD5 match + zero references) already gathered, no further investigation needed before a human approves deletion in P2."
+  },
+  "intelligence_snapshots_tmp_files": {
+    "count": 37,
+    "total_bytes_approx": 825000000,
+    "class": "TEMPORARY",
+    "reason": "Abandoned .tmp.* partial-write files from interrupted snapshot generation. Safe short-TTL retirement candidates once a live-writer check confirms none are currently being written (age-based check + no active file handle)."
+  },
+  "logs_diagnostics": {
+    "measured_top_level_bytes": 987000000,
+    "class": "DIAGNOSTIC",
+    "policy": "Rotate/compress/expire -- exact rotation policy (size vs age trigger, retention count) deferred to P2 since the current logging implementation's rotation support was not independently re-verified this pass (see census 'unknowns_and_gaps')."
+  },
+  "deterministic_digest": "f5fc488638fa88f51d2b73a2706cf11a1272cada2200123aa3560134a092b080"
+}

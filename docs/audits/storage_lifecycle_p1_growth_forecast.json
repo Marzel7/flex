@@ -1,0 +1,64 @@
+{
+  "schema_version": "storage.lifecycle.p1.growth-forecast.v1",
+  "artifact_type": "STORAGE_LIFECYCLE_P1_GROWTH_FORECAST",
+  "milestone": "STORAGE-LIFECYCLE-P1 Part 25",
+  "methodology": "Two INDEPENDENT short-window samples (one from the background census agent, ~2-4 minute window; one from the orchestrating session directly, 35.9-second window) were each projected to a daily HARD UPPER BOUND assuming unrealistic constant peak rate. The larger of the two bounds per file is reported as the conservative worst case. This is explicitly NOT a realistic daily-rate estimate -- see caveats.",
+  "measured_current_free_disk_gib": 62.0,
+  "per_file_projections": {
+    "flex_complete_database.db": {
+      "measured_deltas": {
+        "sample_a_census_agent": {
+          "delta_bytes": 671744,
+          "window_seconds_approx": 240
+        },
+        "sample_b_orchestrating_session": {
+          "delta_bytes": 0,
+          "window_seconds": 35.9
+        }
+      },
+      "hard_bound_daily_growth_bytes_worst_case": 241827840,
+      "hard_bound_daily_growth_gib_worst_case": 0.225,
+      "caveat": "HARD UPPER BOUND assuming unrealistic constant peak write rate 24/7 -- real workloads are bursty (confirmed: flex_complete_database.db showed a ZERO delta in one 36-second window and a nonzero delta in the other, proving it is NOT continuously writing at a steady rate). Treat this as a safety-margin ceiling, not an expected value."
+    },
+    "wt_ops_v2.db": {
+      "measured_deltas": {
+        "sample_a_census_agent": {
+          "delta_bytes": 36864,
+          "window_seconds_approx": 240
+        },
+        "sample_b_orchestrating_session": {
+          "delta_bytes": 8192,
+          "window_seconds": 35.9
+        }
+      },
+      "hard_bound_daily_growth_bytes_worst_case": 19715565,
+      "hard_bound_daily_growth_gib_worst_case": 0.018,
+      "caveat": "HARD UPPER BOUND assuming unrealistic constant peak write rate 24/7 -- real workloads are bursty (confirmed: flex_complete_database.db showed a ZERO delta in one 36-second window and a nonzero delta in the other, proving it is NOT continuously writing at a steady rate). Treat this as a safety-margin ceiling, not an expected value."
+    },
+    "retained_acquisition_shadow.db": {
+      "measured_deltas": {
+        "sample_a_census_agent": {
+          "delta_bytes": 643072,
+          "window_seconds_approx": 240
+        },
+        "sample_b_orchestrating_session": {
+          "delta_bytes": 249856,
+          "window_seconds": 35.9
+        }
+      },
+      "hard_bound_daily_growth_bytes_worst_case": 601324747,
+      "hard_bound_daily_growth_gib_worst_case": 0.56,
+      "caveat": "HARD UPPER BOUND assuming unrealistic constant peak write rate 24/7 -- real workloads are bursty (confirmed: flex_complete_database.db showed a ZERO delta in one 36-second window and a nonzero delta in the other, proving it is NOT continuously writing at a steady rate). Treat this as a safety-margin ceiling, not an expected value."
+    }
+  },
+  "total_hard_bound_daily_growth_gib_worst_case": 0.804,
+  "time_to_threshold_worst_case": {
+    "30_GiB_free": "39.8 days (WORST CASE, using hard-bound rate; realistic rate is very likely much slower given observed burstiness)",
+    "20_GiB_free": "52.3 days (WORST CASE, using hard-bound rate; realistic rate is very likely much slower given observed burstiness)",
+    "15_GiB_free": "58.5 days (WORST CASE, using hard-bound rate; realistic rate is very likely much slower given observed burstiness)",
+    "10_GiB_free": "64.7 days (WORST CASE, using hard-bound rate; realistic rate is very likely much slower given observed burstiness)"
+  },
+  "explicit_disclaimer": "These figures are HARD BOUNDS derived from two single short observation windows (36 seconds and ~2-4 minutes), NOT a measured daily rate. A real forecast requires observation across at least a full day-night cycle to capture realistic write cadence (batch jobs, scheduler cycles, quiet periods). Do not treat 'days to threshold' as a committed timeline -- it is a worst-case safety margin only, likely far more conservative (i.e. pessimistic) than reality, given flex_complete_database.db showed literally zero growth in one of the two sampled windows.",
+  "recommendation": "A P1.5/P2 follow-up should run storage_monitor.take_snapshot() on an hourly cron for at least 48-72 hours before committing to any specific automated retention cadence -- this P1 pass could not responsibly extrapolate a real daily rate from two short bursts.",
+  "deterministic_digest": "9ad8357a40d0af03cc9ea9975f9bbd155a32d4d3b464c813165db53511dda967"
+}

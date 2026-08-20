@@ -1,0 +1,110 @@
+{
+  "schema_version": "storage.lifecycle.p1.implementation-result.v1",
+  "artifact_type": "STORAGE_LIFECYCLE_P1_IMPLEMENTATION_RESULT",
+  "milestone": "STORAGE-LIFECYCLE-P1 -- automated bounded retention and safe retirement",
+  "phases_completed": [
+    "INVENTORY",
+    "CLASSIFICATION",
+    "DESIGN",
+    "IMPLEMENTATION (safe primitives only)",
+    "CONCURRENCY/LOCK TESTING",
+    "DRY RUN"
+  ],
+  "watchtower_preservation": {
+    "WATCHTOWER_CANONICAL_HISTORY_PRESERVATION": "PASS",
+    "method": "Baseline captured before any P1 work; identical digest re-verified after all implementation/tests/dry-run. Trivially expected since this milestone performed ZERO writes to any production database at any point -- confirmed structurally (no INSERT/UPDATE/DELETE against operators/operator_entities/wt_confirmed_treasuries/wt_watchtower_launches anywhere in the new src/ops/storage_*.py modules) and behaviorally (byte-identical operator row + entities digest before/after).",
+    "3sw2_preservation": "Same method, same result -- identical."
+  },
+  "files_created": [
+    "src/ops/storage_lifecycle_policy.py",
+    "src/ops/storage_lock_safety.py",
+    "src/ops/storage_dry_run_planner.py",
+    "src/ops/storage_monitor.py",
+    "src/ops/storage_audit_ledger.py",
+    "tests/test_storage_lifecycle_p1_lock_safety.py",
+    "docs/audits/storage_lifecycle_p1_storage_census.json",
+    "docs/audits/storage_lifecycle_p1_retention_policy.json",
+    "docs/audits/storage_lifecycle_p1_lock_safety_qualification.json",
+    "docs/audits/storage_lifecycle_p1_dry_run.json",
+    "docs/audits/storage_lifecycle_p1_growth_forecast.json",
+    "docs/audits/storage_lifecycle_p1_reclaim_opportunity.json",
+    "docs/audits/storage_lifecycle_p1_implementation_result.json"
+  ],
+  "files_modified": [],
+  "database_or_logs_files_touched": 0,
+  "key_findings_summary": {
+    "total_disk_free": "62 GiB measured live this session (better than the human's implied situation; NORMAL pressure state per the proposed thresholds, not WARNING/PRESSURE)",
+    "largest_growth_driver": "transfer_index table in flex_complete_database.db -- 5.2M rows, confirmed actively growing via MAX(block_time)",
+    "retained_acquisition_shadow_db_critical_finding": "Its documented '1GiB daily cap' (src/acquisition/retained_observations.py lines ~257-285) is an in-process Python counter that resets to 0 on every process restart and never checks existing DB size against the cap -- effectively UNBOUNDED across restarts. Only real backstop is a global 'refuse writes if disk free < 10GiB' guard. This is the #1 priority finding for P2.",
+    "artifact_store_gc_status": "Content-addressed (SHA256, true dedup on put()) at src/evidence/artifacts.py. retention_candidates() exists and identifies old artifacts, but the code explicitly states 'EP1.0 never deletes immutable artifacts' -- GC is IDENTIFY-ONLY, no deletion path exists yet.",
+    "oip_shadow_frozen_classification_counts": "17 directories classified: 6 STILL_RUNTIME_REQUIRED, 5 IMMUTABLE_AUDIT_REQUIRED, 3 COMPACTABLE, 2 REGENERABLE, 1 RETIREMENT_ELIGIBLE (oip_v2_1f_stage_1000, zero code references found), 0 UNKNOWN.",
+    "duplicate_file_found": "primitive_replay.pre_recovery_20260818.sqlite (334MB), MD5-confirmed byte-identical to the live primitive_replay.sqlite, zero code references -- flagged RETIREMENT_ELIGIBLE, not deleted.",
+    "abandoned_temp_files": "37 .tmp.* files in intelligence_snapshots/, ~825MB total, flagged TEMPORARY -- not deleted."
+  },
+  "reclaim_opportunity_summary": {
+    "artifact": "docs/audits/storage_lifecycle_p1_reclaim_opportunity.json",
+    "immediately_safe_after_review_gib": 1.56,
+    "safe_after_compaction_gib": 5.9,
+    "requires_archival_gib": 2.13,
+    "must_retain_gib_within_measured_scope": 15.9,
+    "total_estimated_potential_reclaim_gib": 7.46,
+    "note": "This deliberately EXCLUDES flex_complete_database.db, wt_ops_v2.db, flex_investigation_archive.db, transaction_first_lineage.db, retained_acquisition_shadow.db, and the artifacts/ ArtifactStore -- all protected/must-retain and outside this reclaim estimate's scope entirely."
+  },
+  "growth_forecast_summary": {
+    "artifact": "docs/audits/storage_lifecycle_p1_growth_forecast.json",
+    "method": "Two independent short-window samples projected to a conservative HARD UPPER BOUND -- explicitly NOT a measured daily rate.",
+    "worst_case_days_to_30gib_threshold": "39.8 days",
+    "worst_case_days_to_10gib_hard_floor": "64.7 days",
+    "recommendation": "Run hourly monitoring for 48-72 hours before committing to any real automated cadence -- not urgent based on current worst-case bounds."
+  },
+  "lock_safety_qualification": {
+    "artifact": "docs/audits/storage_lifecycle_p1_lock_safety_qualification.json",
+    "result": "SQLITE_STORAGE_LIFECYCLE_LOCK_SAFETY_QUALIFIED",
+    "tests": "23/23 passing, all against isolated tmp_path fixtures, zero production DB touched"
+  },
+  "dry_run": {
+    "artifact": "docs/audits/storage_lifecycle_p1_dry_run.json",
+    "destructive_mutations_performed": 0,
+    "pressure_state_at_evaluation": "NORMAL (62 GiB free)",
+    "eligible_bytes_at_normal_pressure": 0,
+    "note": "At current NORMAL disk pressure, the policy correctly reports ZERO bytes eligible for cleanup -- RETIREMENT_ELIGIBLE/REGENERABLE classes only become eligible at PRESSURE state or worse, which is not the current condition."
+  },
+  "safe_p1_components_implemented": [
+    "storage census (via background investigation + live measurements)",
+    "classification (lifecycle classes + per-store/per-directory classification)",
+    "monitor (storage_monitor.py, O(1) cheap sampling)",
+    "retention policy config (storage_lifecycle_policy.py, structured, not magic constants)",
+    "dry-run cleanup planner (storage_dry_run_planner.py, zero destructive calls)",
+    "lifecycle audit ledger (storage_audit_ledger.py, append-only)",
+    "fixture-tested bounded cleanup primitives (storage_lock_safety.py, 23 tests)"
+  ],
+  "not_implemented_this_pass_by_design": [
+    "scheduler wiring (no cron/supervisor program added -- P1 explicitly does not authorize activation)",
+    "segmented-storage adapters for retained_acquisition_shadow.db (design principle documented, adapter code not built -- flagged as P2 priority #1)",
+    "log rotation implementation (design discussed, current logging implementation's rotation support not independently re-verified this pass)",
+    "actual retirement of any flagged file (duplicate, abandoned temp files, RETIREMENT_ELIGIBLE OIP directories) -- all flagged with proof, none deleted"
+  ],
+  "p2_activation_plan": {
+    "milestone_name": "STORAGE-LIFECYCLE-P2 -- bounded production activation",
+    "explicit_go_no_go_items": [
+      "Fix retained_acquisition_shadow.db's cap to be persistent (check actual DB size, not an in-process counter) -- HIGHEST PRIORITY, addresses the only confirmed-unbounded growth source",
+      "Delete the confirmed-duplicate primitive_replay.pre_recovery_20260818.sqlite (334MB) -- proof already gathered (MD5 match + zero references), needs only human GO",
+      "Clean up the 37 abandoned intelligence_snapshots/*.tmp.* files (~825MB) -- needs a live-writer check immediately before deletion (confirm none are currently being written) then human GO",
+      "Retire oip_v2_1f_stage_1000 (59MB, zero code references) -- lowest-risk, smallest, good first real-deletion test of the mechanism",
+      "Build and test a real reference-counting GC for the ArtifactStore (currently identify-only) before considering it for cleanup",
+      "Activate scheduler (acquire_cleanup_lease + one daily bounded pass) only after at least one of the above has been manually executed and verified safe",
+      "Design and build the segmented-storage adapter for retained_acquisition_shadow.db (close/immutable/archive/retire whole segments) as the long-term fix for its structural growth, not just the cap fix",
+      "Run 48-72 hours of hourly storage_monitor sampling to replace the current worst-case-bound growth forecast with a real measured rate"
+    ],
+    "do_not_execute_automatically": true
+  },
+  "blockers": [
+    "Table-level dbstat introspection of flex_complete_database.db (14.75GB) hung >2min this session -- needs a bounded/sampled approach before table-level retention decisions can be made for that file.",
+    "artifacts/ and retained_acquisition_shadow_artifacts/ totals are sampling-based estimates (5-10 of 256 hash-prefix dirs each), not exhaustive counts.",
+    "logs/diagnostics/ (987MB) only measured at top level, not broken down by individual file.",
+    "Current logging implementation's rotation support not independently re-verified -- needed before Part 10 log-rotation design can be finalized."
+  ],
+  "terminal_verdict": "READY_STORAGE_LIFECYCLE_P2_ACTIVATION_REVIEW",
+  "verdict_reasoning": "All P1-authorized safe components are implemented, tested (23/23 passing against isolated fixtures), and verified against real, measured repository data (not fabricated numbers) via a combination of direct investigation and a background census agent. WATCHTOWER_CANONICAL_HISTORY_PRESERVATION passes trivially and structurally (zero writes performed anywhere in this milestone). No destructive production cleanup was performed or activated, consistent with P1's explicit non-authorization. The dry-run correctly reports zero eligible bytes at the CURRENT normal disk-pressure state, and the growth forecast shows no near-term urgency (worst-case 40+ days to the first WARNING threshold) -- so there is no emergency justifying skipping ahead to destructive action. A clear, prioritized P2 activation plan is proposed with explicit GO/NO-GO items, the highest priority being fixing retained_acquisition_shadow.db's genuinely broken (not just imperfect) retention cap.",
+  "deterministic_digest": "504e17fd6604304bcf847f4642b5bd0b3bf0837f28a75835cba2395343675120"
+}

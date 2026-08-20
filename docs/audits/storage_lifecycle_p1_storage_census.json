@@ -1,0 +1,320 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P1",
+  "generated_at_unix": 1787213900,
+  "generated_at_note": "measurements taken 2026-08-20 09:09-09:19 local; single point-in-time census, read-only, zero writes/deletes performed",
+  "methodology_note": "du -sh used per-subdirectory (not whole-tree, which hangs). sqlite3 used in mode=ro for all DB introspection. dbstat GROUP BY on the 14.75GB flex_complete_database.db hung past 2 minutes and was abandoned in favor of PRAGMA page_count/freelist_count + targeted row COUNT(*) on suspected-largest tables. artifacts/ and retained_acquisition_shadow_artifacts/ content-addressed stores were sampled (5-10 of 256 top-level hash-prefix dirs), not fully enumerated.",
+
+  "1_full_storage_census": {
+    "database_top_level": {
+      "flex_complete_database.db": {"bytes": 14750715904, "mtime": "2026-08-20 09:09", "sqlite": true, "wal_active": true, "wal_files": ["flex_complete_database.db-shm (32768B)", "flex_complete_database.db-wal (3242472B)"], "activity": "ACTIVE - mtime is current, WAL actively growing"},
+      "wt_ops_v2.db": {"bytes": 4696924160, "mtime": "2026-08-20 09:09", "sqlite": true, "wal_active": true, "wal_files": ["wt_ops_v2.db-shm (32768B)", "wt_ops_v2.db-wal (10650232B)"], "activity": "ACTIVE"},
+      "flex_investigation_archive.db": {"bytes": 2866827264, "mtime": "2026-06-22 12:07", "sqlite": true, "wal_active": false, "activity": "DORMANT - mtime ~2 months old, no WAL sidecar files present, consistent with the known cold-archive move (funder_networks archived here per prior memory)"},
+      "transaction_first_lineage.db": {"bytes": 1432764416, "mtime": "2026-08-07 15:28", "sqlite": true, "wal_active": false, "activity": "SEMI-ACTIVE - mtime ~2 weeks old, no current WAL sidecars present at scan time"},
+      "local_operation_discovery_corpus.db": {"bytes": 23187456, "mtime": "2026-08-19 22:43", "sqlite": true, "activity": "ACTIVE"},
+      "wt_alerts.db": {"bytes": 12288, "mtime": "2026-08-20 09:09", "sqlite": true, "activity": "ACTIVE (tiny, likely a small alert queue)"},
+      "flex.db": {"bytes": 4096, "mtime": "2026-05-05 19:47", "activity": "DORMANT, near-empty, likely legacy/placeholder"},
+      "flex_production.db": {"bytes": 0, "activity": "empty placeholder"},
+      "operation-runtime.db": {"bytes": 0, "activity": "empty placeholder"},
+      "operations.db": {"bytes": 0, "activity": "empty placeholder"},
+      "pumpswap_tokens.db": {"bytes": 0, "activity": "empty placeholder"},
+      "token_analysis.db": {"bytes": 0, "activity": "empty placeholder"},
+      "watchtower.db": {"bytes": 0, "activity": "empty placeholder"},
+      "watchtower_ops.db": {"bytes": 0, "activity": "empty placeholder"},
+      "flex_complete_database.db (trailing-space filename variant)": {"bytes": 0, "note": "literal filename has a trailing space; distinct file from flex_complete_database.db, empty, likely accidental artifact of a prior shell redirect"},
+      "orphaned_backup_wal_shm_pairs": [
+        {"pattern": "flex_complete_database.backup_pre_lineage_20260604_162419.db-{shm,wal}", "shm_bytes": 32768, "wal_bytes": 0, "note": "no corresponding .db base file found in listing - orphaned sidecar files from a backup that appears to have been removed, mtime Jul 21"},
+        {"pattern": "flex_complete_database.backup_pre_opsbridge_20260604_170906.db-{shm,wal}", "shm_bytes": 32768, "wal_bytes": 0, "note": "same pattern, orphaned sidecars only"}
+      ],
+      "lock_and_guard_files": "several .write.lock / .write.lock.owner.* / .write.lock.waiters files present for flex_complete_database.db and wt_ops_v2.db - part of the DB write serializer (see memory: db-write-serializer), negligible bytes, excluded from further analysis"
+    },
+    "database_evidence_platform_subdirs_measured_via_du": {
+      "archive": {"size_human": "1.7G", "mtime_dir": "2026-08-18 21:33"},
+      "artifacts": {"note": "content-addressed store, see section 4 for estimate", "top_level_subdir_count": 256},
+      "canonical_evidence.sqlite": {"bytes": 0, "mtime": "2026-08-09 16:44", "activity": "empty placeholder, sqlite file with zero pages"},
+      "oip_v2_1a_pilot": {"size_human": "175M", "mtime_dir": "2026-08-17 22:59"},
+      "oip_v2_1c_retry_failover": {"size_human": "209M", "mtime_dir": "2026-08-17 22:59"},
+      "oip_v2_1d_storage_audit": {"size_human": "161M", "mtime_dir": "2026-08-08 23:48"},
+      "oip_v2_1e_stage_1000": {"size_human": "49M", "mtime_dir": "2026-08-17 22:59"},
+      "oip_v2_1f_stage_1000": {"size_human": "59M", "mtime_dir": "2026-08-17 22:59"},
+      "oip_v2_1g_stage_2000": {"size_human": "908K", "mtime_dir": "2026-08-17 22:59"},
+      "oip_v2_1g_stage_2000_frozen": {"size_human": "5.4G", "mtime_dir": "2026-08-18 08:42", "note": "second-largest evidence_platform subdirectory found"},
+      "oip_v2_2a_retention_audit": {"size_human": "62M", "mtime_dir": "2026-08-17 16:37"},
+      "oip_v2_2b_compact_provenance": {"size_human": "512M", "mtime_dir": "2026-08-09 14:36"},
+      "oip_v2_2c1_divergence_audit": {"size_human": "60M", "mtime_dir": "2026-08-09 16:44"},
+      "oip_v2_2c2_authority_contract": {"size_human": "160M", "mtime_dir": "2026-08-09 17:26"},
+      "oip_v2_2c3_indexed_authority": {"size_human": "1.6G", "mtime_dir": "2026-08-09 19:47"},
+      "oip_v2_2c_application_equivalence": {"size_human": "639M", "mtime_dir": "2026-08-20 08:43", "note": "contains a confirmed byte-identical duplicate file, see section 6"},
+      "oip_v2_2d_shadow_migration": {"size_human": "6.3G", "mtime_dir": "2026-08-18 08:35", "note": "LARGEST evidence_platform subdirectory found"},
+      "three_sw2_shadow_ep3_2a": {"size_human": "12M", "mtime_dir": "2026-08-19 23:38"},
+      "watchtower_shadow": {"size_human": "407M", "mtime_dir": "2026-08-17 16:37"},
+      "watchtower_shadow_ep3_0d": {"size_human": "787M", "mtime_dir": "2026-08-17 16:37", "note": "confirmed STILL_RUNTIME_REQUIRED, see section 5"},
+      "production": {"size_human": "6.2G", "file_count_top_level": 195, "mtime_dir": "2026-08-20 09:09", "activity": "ACTIVE - contains the actively-growing retained_acquisition_shadow.db"}
+    },
+    "database_intelligence_snapshots": {"exists": true, "size_human": "1.2G", "details": "see section 7"},
+    "logs_directory": {"exists": true, "size_human": "1.3G", "path": "logs/ (repo root)", "details": "see section 8"}
+  },
+
+  "2_table_level_growth_attribution": {
+    "flex_complete_database.db": {
+      "page_count": 3601383,
+      "page_size": 4096,
+      "freelist_count": 0,
+      "computed_total_bytes": 14750715904,
+      "reclaimable_via_vacuum_bytes": 0,
+      "note": "dbstat GROUP BY query hung >2min on this file's size and was abandoned; used PRAGMA page_count instead (fast, accurate for total size) plus targeted row counts on suspected largest tables",
+      "table_row_counts_sampled": {
+        "transfer_index": {"rows": 5216108, "note": "by far the largest row count found in this DB; likely single biggest growth driver by row volume", "block_time_min": 1234567890, "block_time_max": 1787213857, "min_note": "MIN(block_time)=1234567890 is a well-known placeholder/dummy epoch (Feb 2009), not a real transfer - indicates seeded/test rows mixed into an otherwise real append-only log; MAX is current, confirming this table is actively growing"},
+        "watchtower_events": {"rows": 56210},
+        "rpc_response_cache": {"rows": 159935},
+        "token_behavior_history": {"rows": 123097},
+        "token_price_snapshots": {"rows": 13741},
+        "creator_tx_ledger": {"rows": 12622},
+        "sol_transfers": {"rows": 40581},
+        "address_activity": {"rows": 3112},
+        "helius_account_history": {"rows": 2},
+        "wallet_fingerprints": {"rows": 0},
+        "creator_sol_transfers": {"rows": 0}
+      },
+      "table_count_total": "~250 tables (full sqlite_master list captured; only a subset row-counted due to time budget)"
+    },
+    "wt_ops_v2.db": {
+      "page_count": 1146757,
+      "page_size": 4096,
+      "freelist_count": 0,
+      "computed_total_bytes": 4696924160,
+      "reclaimable_via_vacuum_bytes": 0,
+      "table_row_counts_sampled": {
+        "watchtower_events": {"rows": 1029317, "note": "largest row count found in wt_ops_v2.db; append-only WATCHTOWER event log"},
+        "wt_swarm_buys": {"rows": 16006},
+        "wt_webhook_hits": {"rows": 13617},
+        "wt_ops_v2_edges": {"rows": 13125},
+        "watchtower_token_attribution": {"rows": 5053},
+        "wt_ops_v2_creators": {"rows": 1130},
+        "wt_ops_v2_wallets": {"rows": 789},
+        "wt_watchtower_launches": {"rows": 246},
+        "wt_ops_v2": {"rows": 155},
+        "migrated_tokens": {"rows": 51}
+      },
+      "table_count_total": "~140 tables (full list captured)"
+    },
+    "flex_investigation_archive.db": {
+      "page_count": 699909,
+      "page_size": 4096,
+      "freelist_count": 875,
+      "computed_total_bytes": 2866827264,
+      "reclaimable_via_vacuum_bytes": 3584000,
+      "tables": ["funder_networks", "sqlite_sequence"],
+      "note": "single-purpose cold archive of the funder_networks table per prior memory (funder-networks-archived-cold-db); consistent with DORMANT classification, 875 free pages ~3.6MB reclaimable via VACUUM (not performed)"
+    },
+    "transaction_first_lineage.db": {
+      "page_count": 349796,
+      "page_size": 4096,
+      "freelist_count": 64,
+      "computed_total_bytes": 1432764416,
+      "reclaimable_via_vacuum_bytes": 262144,
+      "tables": ["tf_runs", "tf_launches", "tf_transaction_cache", "tf_edges", "tf_context_observations", "tf_paths", "tf_populations", "tf_population_members", "tf_acquisition_queue", "tf_canonical_overlay", "tf_session_comparison"],
+      "note": "row counts not obtained for individual tf_* tables due to time budget; 64 free pages ~256KB reclaimable"
+    },
+    "retained_acquisition_shadow_db": {
+      "path": "database/evidence_platform/production/retained_acquisition_shadow.db",
+      "page_count": 516858,
+      "page_size": 4096,
+      "freelist_count": 0,
+      "computed_total_bytes": 2116444160,
+      "reclaimable_via_vacuum_bytes": 0,
+      "tables": {
+        "retained_acquisition_observations": {"rows": 650354, "min_retained_at": 0, "max_retained_at": 1787213821, "min_note": "MIN=0 is a Unix-epoch-zero placeholder value present among real rows, not a real observation timestamp - same seeded-row pattern as transfer_index"},
+        "retained_acquisition_gaps": {"rows": 0},
+        "retained_acquisition_outcomes": {"rows": 635037, "min_recorded_at": 1787077713, "max_recorded_at": 1787213743, "span_note": "real span is only ~136030 seconds (~1.6 days) of continuous outcome recording, at 635037 rows - this is a high-frequency append-only log, consistent with an unbounded shadow-mode observation stream"}
+      },
+      "note": "see section 3 for full deep-dive; this is the human-flagged ~2.1GB growing store, confirmed by measurement"
+    }
+  },
+
+  "3_retained_acquisition_shadow_deep_dive": {
+    "path": "database/evidence_platform/production/retained_acquisition_shadow.db",
+    "measured_bytes_at_census": 2116444160,
+    "schema": {
+      "retained_acquisition_observations": "CREATE TABLE retained_acquisition_observations (observation_id TEXT PRIMARY KEY, schema_version INTEGER NOT NULL, launch_mint TEXT, acquisition_id TEXT NOT NULL, correlation_id TEXT NOT NULL, payload_json TEXT NOT NULL, retained_at INTEGER NOT NULL)",
+      "retained_acquisition_gaps": "CREATE TABLE retained_acquisition_gaps (gap_id TEXT PRIMARY KEY, acquisition_id TEXT, launch_mint TEXT, correlation_id TEXT, purpose TEXT, provider TEXT, method TEXT, reason TEXT NOT NULL, recorded_at INTEGER NOT NULL)",
+      "retained_acquisition_outcomes": "CREATE TABLE retained_acquisition_outcomes (acquisition_id TEXT PRIMARY KEY, outcome TEXT NOT NULL CHECK(outcome IN ('RETAINED','FAILED_WITH_GAP','NOT_RETAINABLE','FAILED_GAP_WRITE_FAILED')), recorded_at INTEGER NOT NULL)"
+    },
+    "writer_code": {
+      "file": "src/acquisition/retained_observations.py",
+      "primary_class": "RetainedAcquisitionStoreV2 (lines 246-455)",
+      "legacy_class": "RetainedAcquisitionStore (lines 62-177) - schema_version 1, older non-V2 version writing to database/evidence_platform/production/retained_acquisition.db (a DIFFERENT, DISTINCT file from the shadow.db - see src/evidence/config.py:38 retained_acquisition_database_path)",
+      "config": "src/evidence/config.py - retained_acquisition_v2_daily_payload_cap_bytes defaults to 1 * 1024 * 1024 * 1024 (1 GiB), env var RETAINED_ACQUISITION_V2_DAILY_PAYLOAD_CAP_BYTES",
+      "cap_mechanism": {
+        "declared_intent": "a 1GiB 'daily payload cap' intended to bound the size of FULL payload writes vs a smaller hot-only fallback payload",
+        "actual_implementation": "src/acquisition/retained_observations.py lines 257-259: self._payload_bytes = 0 and self._observation_count = 0 are PLAIN PYTHON INSTANCE ATTRIBUTES on RetainedAcquisitionStoreV2.__init__, NOT persisted to disk and NOT read back from the database on construction. The cap check (_is_within_budget, line 278-279) only compares against self._payload_bytes accumulated IN THE CURRENT PROCESS LIFETIME.",
+        "critical_finding": "Because the counter resets to 0 on every process restart and is never reconciled against existing DB size or row count, the '1GiB/day cap' does NOT bound total or even daily disk growth across restarts. Each new process gets a fresh 1GiB allowance regardless of how much data already exists. This is consistent with an unbounded/effectively-uncapped growth pattern.",
+        "secondary_safety_check": "lines 282-285: a disk-space guard (shutil.disk_usage) refuses to write if free disk space < 10 GiB - this is the only persistent, process-independent bound found, and it is a global-disk-space circuit breaker, not a per-store size cap",
+        "cap_behavior_when_exceeded": "when the per-process budget is exhausted, writes fall back to a smaller 'hot payload' (schema V2, _build_v2_hot_payload) rather than being rejected outright - so rows keep being inserted even after the nominal cap is hit, just with smaller payload_json values"
+      },
+      "row_cap": "NONE FOUND - no LIMIT, no row-count-based eviction, no TTL/retention deletion logic anywhere in retained_observations.py. retention_candidates()-style pattern exists only in the ArtifactStore (src/evidence/artifacts.py) and is identify-only there too (see section 4).",
+      "storage_model": "does NOT store full response payloads inline for large content - stores small JSON metadata rows in the DB, with the actual response body written to the separate ArtifactStore (content-addressed, at RETAINED_ACQUISITION_V2_SHADOW_ARTIFACT_PATH = database/evidence_platform/production/retained_acquisition_shadow_artifacts, ~3.75GB estimated separately). So growth is split across two stores: metadata rows in shadow.db (2.1GB) + artifact blobs in retained_acquisition_shadow_artifacts/ (~3.75GB estimated).",
+      "older_non_shadow_version": "YES - RetainedAcquisitionStore (schema_version=1, non-V2, no budget/cap logic at all) writes to a SEPARATE file database/evidence_platform/production/retained_acquisition.db. That exact filename ('retained_acquisition.db', no '_shadow' suffix) was NOT found in the production/ directory listing captured during this census, suggesting either it was never activated (RETAINED_ACQUISITION_OBSERVATIONS_ENABLED flag defaults false) or has since been removed/renamed. Not independently verified further - flagged as UNKNOWN_NEEDS_HUMAN_REVIEW whether this legacy path is truly inactive."
+    },
+    "conclusion": "retained_acquisition_shadow.db is a shadow-mode (not-yet-promoted-to-primary) observation-retention store for the RA4 initiative, logging acquisition metadata (with bodies offloaded to a content-addressed artifact store) at very high frequency (635K outcome rows in ~1.6 days observed). Its nominal 1GiB daily cap is an in-process counter that does not survive restarts and does not check existing DB size, so from a storage-lifecycle standpoint it should be treated as UNBOUNDED / growing indefinitely until a persistent, DB-size-aware cap or retention/eviction policy is added."
+  },
+
+  "4_artifact_store_deep_dive": {
+    "implementation_file": "src/evidence/artifacts.py, class ArtifactStore",
+    "content_addressed": true,
+    "addressing_scheme": "SHA256 digest of raw bytes; path layout is root/digest[:2]/digest[2:4]/{digest}.json.gz + {digest}.metadata.json (two-level, 2-hex-char subdirectories, giving up to 256*256=65536 possible leaf directories)",
+    "natural_dedup": "YES, confirmed in code: ArtifactStore.put() (lines 64-89) checks artifact.exists() first; if the digest already exists it verifies content equality and returns the existing reference without rewriting, incrementing an 'artifact_reused' metric instead of 'artifact_written'. Identical content writes are true no-ops on disk.",
+    "reference_index": "NONE FOUND - there is no separate manifest/index table tracking which artifacts are still referenced by callers. The store is purely content-addressed with per-artifact .metadata.json sidecars (created_at, size, content_type, caller-supplied metadata dict) but nothing that tracks reverse-references from consuming tables (e.g. retained_acquisition_observations.payload_json embeds an artifact_digest, but nothing walks that relationship in the artifact store itself).",
+    "garbage_collection": {
+      "exists_as_code": true,
+      "method": "ArtifactStore.retention_candidates(older_than) at lines 121-133",
+      "behavior": "Scans root/*/*/*.metadata.json, reads created_at from each, and returns a sorted list of digests older than the given cutoff. Explicit code comment: 'Return candidates only. EP1.0 never deletes immutable artifacts.' - this function IDENTIFIES old artifacts but performs NO deletion. There is no caller found in this census that invokes retention_candidates() and then deletes files.",
+      "conclusion": "GC exists only as a read-only candidate-identification primitive; actual space reclamation is NOT implemented. Every artifact ever written (content-addressed store) is retained forever barring some external/manual process not found in this repo."
+    },
+    "artifacts_directory_estimate": {
+      "path": "database/evidence_platform/artifacts",
+      "top_level_hash_prefix_dirs": 256,
+      "sample_method": "measured 5 of 256 top-level 2-hex-char directories via du -sh (00, 3f, 7a, a5, ff) - spread across the hex range to avoid non-uniform hotspots",
+      "sample_results_bytes": {"00": "41M", "3f": "40M", "7a": "40M", "a5": "39M", "ff": "42M"},
+      "estimation_method": "average of 5 samples ~= 40.4MB per top-level directory * 256 top-level directories = ESTIMATE of approximately 10.35 GB total for database/evidence_platform/artifacts/. This is an ESTIMATE, not a full enumeration - actual total could vary if hash distribution of digests is non-uniform across prefixes, though SHA256 digests should distribute near-uniformly by construction.",
+      "file_count_estimate": "each top-level dir contains up to 256 second-level subdirs (digest[2:4]); full file count was not enumerated due to time cost, but the content-addressed .json.gz + .metadata.json pairing implies roughly 2 files per unique artifact, so total artifact count is on the order of tens of thousands to low hundreds of thousands - not independently counted."
+    },
+    "age_distribution_sample": {
+      "method": "ls -lat on artifacts/00/00/ subdirectory (all files, sorted by mtime)",
+      "oldest_sampled": "2026-08-12 09:09",
+      "newest_sampled": "2026-08-12 23:56",
+      "note": "this single leaf directory's file ages span less than 15 hours; NOT representative of the full store's age range since older/newer content could exist in other prefix directories not sampled for age - flagged as a narrow sample, true global age range UNKNOWN"
+    },
+    "production_retained_acquisition_shadow_artifacts_separate_store": {
+      "path": "database/evidence_platform/production/retained_acquisition_shadow_artifacts",
+      "note": "a SEPARATE ArtifactStore instance (see RETAINED_ACQUISITION_V2_SHADOW_ARTIFACT_PATH in src/evidence/config.py) with the same 256-dir content-addressed layout, used specifically by the RA4 shadow observation store",
+      "top_level_dir_count": 256,
+      "sample_results_bytes": {"00": "15M", "ff": "14M"},
+      "estimation_method": "average of 2 samples ~=14.5MB per top-level dir * 256 = ESTIMATE of approximately 3.71 GB total. Cross-checked against production/ total (6.2G) minus retained_acquisition_shadow.db (2.1G) minus retained_acquisition_ra0_probe.db (0.45G) = ~3.65G residual, consistent with the estimate."
+    }
+  },
+
+  "5_oip_shadow_frozen_stores_classification": {
+    "archive": {"classification": "IMMUTABLE_AUDIT_REQUIRED", "evidence": "referenced by scripts/archive_funder_networks.py, scripts/reclaim_funder_networks_space.py, src/analysis/cross_funding_network_analyzer.py, src/analysis/webhook_manager.py, src/core/main.py, src/ops/promotion_service.py, src/ops/forecast_engine.py - the generic name 'archive' also matched many unrelated 'archive' substrings so this classification is LOW CONFIDENCE; recommend targeted re-grep on the literal path 'evidence_platform/archive' before acting."},
+    "oip_v2_1a_pilot": {"classification": "REGENERABLE", "evidence": "only referenced by scripts/run_oip_v2_1a_pilot.py, scripts/finalize_oip_v2_1a_pilot.py, scripts/analyze_oip_v2_1b_efficiency.py, scripts/analyze_oip_v2_1c_retry_failover.py, src/intelligence/operational_landscape.py - all one-shot pilot/analysis scripts, no evidence of a live runtime read path; likely regenerable by re-running the pilot script if ever needed."},
+    "oip_v2_1c_retry_failover": {"classification": "REGENERABLE", "evidence": "only referenced by scripts/run_oip_v2_1c_retry_failover.py, scripts/analyze_oip_v2_1c_retry_failover.py, scripts/analyze_oip_v2_1e_stage.py, scripts/prototype_oip_v2_1d_compact_links.py, scripts/analyze_oip_v2_1d_storage.py - same one-shot script pattern."},
+    "oip_v2_1d_storage_audit": {"classification": "IMMUTABLE_AUDIT_REQUIRED", "evidence": "name itself signals audit-artifact intent; referenced by scripts/analyze_oip_v2_1d_storage.py, scripts/finalize_oip_v2_1d_storage.py, scripts/prototype_oip_v2_1d_compact_links.py, scripts/audit_oip_v2_2a_retention.py - treat storage_audit output as a point-in-time record, not safe to silently regenerate/overwrite."},
+    "oip_v2_1e_stage_1000": {"classification": "REGENERABLE", "evidence": "only scripts/run_oip_v2_1e_stage.py and scripts/analyze_oip_v2_1e_stage.py reference it - staged test corpus, script-driven."},
+    "oip_v2_1f_stage_1000": {"classification": "RETIREMENT_ELIGIBLE", "evidence": "ZERO references found anywhere in the repo's Python source for the literal string 'oip_v2_1f_stage_1000' - no script, no src/ module. Strong candidate for retirement pending human confirmation."},
+    "oip_v2_1g_stage_2000": {"classification": "COMPACTABLE", "evidence": "referenced by scripts/benchmark_oip_v2_2c4_compact_read_path.py, scripts/validate_oip_v2_2c_replay.py, scripts/validate_oip_v2_2c2_authority_projection.py, scripts/validate_oip_v2_2c3_indexed_authority.py, scripts/rehearse_oip_v2_2d_shadow_migration.py, scripts/scan_oip_v2_2c1_relationship_participation.py, scripts/audit_oip_v2_2c1_primitive_divergence.py, scripts/audit_oip_v2_2b_compact_provenance.py, scripts/audit_oip_v2_2a_retention.py - heavily referenced by validation/benchmark scripts but only 908K on disk already, negligible size; low priority."},
+    "oip_v2_1g_stage_2000_frozen": {"classification": "COMPACTABLE", "evidence": "same broad reference set as oip_v2_1g_stage_2000 (both matched together by the substring grep since 'oip_v2_1g_stage_2000' is a prefix of '..._frozen') - the '_frozen' suffix and heavy downstream validate/benchmark/rehearse script references suggest this IS the input corpus those scripts consume; at 5.4G it is the SECOND LARGEST evidence_platform subdirectory. Recommend compacting (e.g. deduplicating or summarizing) rather than deleting, since 'frozen' implies deliberate preservation for reproducibility."},
+    "oip_v2_2a_retention_audit": {"classification": "IMMUTABLE_AUDIT_REQUIRED", "evidence": "referenced only by scripts/audit_oip_v2_2a_retention.py - name and single-audit-script reference pattern strongly suggest a point-in-time retention audit record."},
+    "oip_v2_2b_compact_provenance": {"classification": "COMPACTABLE", "evidence": "referenced by scripts/benchmark_oip_v2_2c4_compact_read_path.py, scripts/validate_oip_v2_2c_replay.py, scripts/rehearse_oip_v2_2d_shadow_migration.py, scripts/validate_oip_v2_2c3_indexed_authority.py, scripts/audit_oip_v2_2b_compact_provenance.py - name implies it's already a compacted representation of something; still referenced by multiple downstream validators."},
+    "oip_v2_2c1_divergence_audit": {"classification": "IMMUTABLE_AUDIT_REQUIRED", "evidence": "referenced by scripts/validate_oip_v2_2c3_indexed_authority.py, scripts/scan_oip_v2_2c1_relationship_participation.py, scripts/audit_oip_v2_2c1_primitive_divergence.py - name + audit-script pattern signals a preserved divergence-audit record."},
+    "oip_v2_2c2_authority_contract": {"classification": "IMMUTABLE_AUDIT_REQUIRED", "evidence": "referenced by scripts/validate_oip_v2_2c2_authority_projection.py, scripts/validate_oip_v2_2c3_indexed_authority.py - 'contract' in the name plus validate-script pattern suggests this is a frozen reference contract, not safe to regenerate casually."},
+    "oip_v2_2c3_indexed_authority": {"classification": "STILL_RUNTIME_REQUIRED", "evidence": "referenced by scripts/benchmark_oip_v2_2c4_compact_read_path.py, scripts/validate_oip_v2_2c3_indexed_authority.py, scripts/rehearse_oip_v2_2d1_bounded_cutover.py - at 1.6G, and referenced by a 'bounded_cutover' rehearsal script, this looks like it's actively feeding a cutover-readiness rehearsal; flagged higher-confidence-required (script-only evidence, not confirmed via src/ import) but treat cautiously."},
+    "oip_v2_2c_application_equivalence": {"classification": "STILL_RUNTIME_REQUIRED", "evidence": "referenced by scripts/validate_oip_v2_2c_replay.py, scripts/validate_oip_v2_2c3_indexed_authority.py, scripts/validate_oip_v2_2c2_authority_projection.py, scripts/audit_oip_v2_2c1_primitive_divergence.py; ALSO its replay_checkpoint.json has an mtime of 2026-08-20 08:43 - TODAY, i.e. this directory was actively written to during the current session window, confirming live/recent use. Contains a confirmed byte-identical duplicate file pending cleanup (see section 6)."},
+    "oip_v2_2d_shadow_migration": {"classification": "STILL_RUNTIME_REQUIRED", "evidence": "referenced by scripts/rehearse_oip_v2_2d_shadow_migration.py and scripts/rehearse_oip_v2_2d1_bounded_cutover.py; at 6.3G this is the LARGEST evidence_platform subdirectory found, and its rehearsal-script linkage to a 'bounded_cutover' script suggests active use in an in-progress migration cutover process. Do not touch without human confirmation the cutover is complete."},
+    "three_sw2_shadow_ep3_2a": {"classification": "STILL_RUNTIME_REQUIRED", "evidence": "referenced by many scripts/validate_ep*.py files, tests/test_psi0h_h1_historical_discovery.py, tests/test_storage_lifecycle_p1_lock_safety.py, tests/test_ep3_2b_three_sw2_freshness_recovery.py, and src/ops/three_sw2_shadow_corpus.py + src/ops/three_sw2_freshness_recovery.py (these src/ modules accept output_root as a constructor parameter rather than hardcoding the path, so live-runtime status is HIGH-CONFIDENCE but not 100% proven by a hardcoded path the way watchtower_shadow_ep3_0d is)."},
+    "watchtower_shadow": {"classification": "STILL_RUNTIME_REQUIRED", "evidence": "referenced by scripts/materialize_watchtower_shadow_corpus.py, scripts/recover_watchtower_shadow_corpus.py, scripts/validate_watchtower_contract_v1.py, many scripts/validate_ep*.py, tests/test_ep3_0c_watchtower_shadow_corpus.py, and src/ops/watchtower_shadow_recovery.py, src/intelligence/coverage.py, src/ops/three_sw2_shadow_corpus.py (all src/ modules parameterize the path, not hardcoded, except the specific ep3_0d variant below)."},
+    "watchtower_shadow_ep3_0d": {"classification": "STILL_RUNTIME_REQUIRED", "evidence": "CONFIRMED via a HARDCODED path: src/intelligence/coverage.py line 18: `evidence = root / \"database/evidence_platform/watchtower_shadow_ep3_0d/evidence.db\"` inside the measure() function, which reads normalized_evidence_records, primitive_observations, and artifact_references tables from this exact evidence.db. This is the highest-confidence STILL_RUNTIME_REQUIRED finding in this census - do not touch this directory."},
+    "classification_counts": {
+      "STILL_RUNTIME_REQUIRED": 6,
+      "IMMUTABLE_AUDIT_REQUIRED": 5,
+      "COMPACTABLE": 3,
+      "REGENERABLE": 2,
+      "RETIREMENT_ELIGIBLE": 1,
+      "REDUNDANT": 0,
+      "UNKNOWN_NEEDS_HUMAN_REVIEW": 0,
+      "total_directories_classified": 17,
+      "note": "'archive' was classified separately (18th directory, see above) at LOW CONFIDENCE due to name-collision noise in the grep and is not included in the counts above; recommend re-verifying it with a scoped grep before acting on it."
+    }
+  },
+
+  "6_duplicate_recovery_file_check": {
+    "search_patterns_used": ["*.pre_recovery_*", "*_backup*", "*_old*", "*.bak", "*shadow*checkpoint*"],
+    "search_scope": "database/ and evidence/ (evidence/ does not exist at repo root; corrected to database/evidence_platform/ implicitly via prior directory listings)",
+    "findings": [
+      {
+        "pair": [
+          "database/evidence_platform/oip_v2_2c_application_equivalence/primitive_replay.pre_recovery_20260818.sqlite (333836288 bytes, mtime 2026-08-09 14:50)",
+          "database/evidence_platform/oip_v2_2c_application_equivalence/primitive_replay.sqlite (333836288 bytes, mtime 2026-08-18 08:23)"
+        ],
+        "verification": "MD5 checksum CONFIRMED IDENTICAL: 084cfa86490d577164ad0c8eef7339b3 for both files",
+        "conclusion": "primitive_replay.pre_recovery_20260818.sqlite is a byte-for-byte duplicate of the current primitive_replay.sqlite. No Python code in the repo references the 'pre_recovery' filename pattern (grep for 'pre_recovery' across *.py returned zero matches), meaning this is not read by any known live or script code path. Approximately 333.8 MB is fully redundant on disk.",
+        "size_reclaimable_if_retired_bytes": 333836288
+      },
+      {
+        "file": "database/evidence_platform/oip_v2_2c_application_equivalence/replay_checkpoint.pre_recovery_20260818.json (1559 bytes, mtime 2026-08-18 08:19)",
+        "companion": "database/evidence_platform/oip_v2_2c_application_equivalence/replay_checkpoint.json (1558 bytes, mtime 2026-08-20 08:43)",
+        "conclusion": "near-identical sibling of the current checkpoint (1 byte size difference, likely a single field change); same 'pre_recovery' snapshot pattern as the sqlite pair above, also unreferenced by any Python code. Negligible size (~1.5KB) but same retirement-eligible pattern."
+      }
+    ],
+    "no_other_matches": "no *_backup*, *_old*, *.bak, or *shadow*checkpoint* filename matches were found under database/ in this search."
+  },
+
+  "7_intelligence_snapshots": {
+    "path": "database/intelligence_snapshots",
+    "exists": true,
+    "total_size_human": "1.2G (via du -sh)",
+    "tmp_file_count": 37,
+    "tmp_file_total_bytes": 825270852,
+    "tmp_file_note": "these are abandoned partial-write artifacts named like <basename>.tmp.<pid>.<nanosecond-timestamp> (e.g. emerging_operators__0.json.tmp.27363.1786951518571847000) - a temp-file-then-atomic-rename pattern where the final rename apparently did not happen for 37 of them, leaving orphaned partial writes. At ~825MB total (roughly 68% of the entire 1.2G intelligence_snapshots directory), these are pure waste - safe cleanup candidates pending human confirmation of the writer's atomic-write contract.",
+    "tmp_file_age_range": "oldest sampled 2026-08-05 09:41 (emerging_operators__0.json.tmp.46096...), newest sampled 2026-08-17 21:26 (operational_intelligence__604800.json.tmp.2467...) - spans roughly 12 days, meaning this is a RECURRING leak pattern (not a one-time incident), consistent with a writer that periodically fails to complete its atomic rename.",
+    "largest_live_files": {
+      "operational_intelligence__31536000.json": "183279185 bytes (~183MB), mtime 2026-08-20 08:45",
+      "operational_intelligence__2592000.json": "137750434 bytes (~138MB), mtime 2026-08-20 09:03",
+      "operational_intelligence__604800.json": "41689923 bytes (~42MB), mtime 2026-08-20 08:57",
+      "emerging_operators__0.json": "31021491 bytes (~31MB), mtime 2026-08-20 09:09"
+    },
+    "locks_subdir": "database/intelligence_snapshots/locks exists, not sized separately (small)"
+  },
+
+  "8_logs": {
+    "path": "logs/ (repo root)",
+    "exists": true,
+    "total_size_human": "1.3G (via du -sh)",
+    "largest_subdirectory": {"diagnostics": "987M (via du -sh) - the single largest component of logs/, not broken down further in this pass; recommend a follow-up census specifically on logs/diagnostics"},
+    "largest_individual_files": {
+      "graph_analyzers.log.1": {"bytes": 20977740, "mtime": "2026-05-12 16:10", "note": "rotated log, ~3 months old, DORMANT"},
+      "gunicorn_access.log": {"bytes": 13202805, "mtime": "2026-08-20 09:13", "note": "ACTIVE"},
+      "gunicorn_error.log": {"bytes": 8895978, "mtime": "2026-08-20 09:03", "note": "ACTIVE"},
+      "launch_price.log": {"bytes": 7925613, "mtime": "2026-07-06 22:20", "note": "DORMANT ~6 weeks"},
+      "creator_funding_worker.log": {"bytes": 6210474, "mtime": "2026-06-25 14:36", "note": "DORMANT ~2 months"},
+      "listener.log": {"bytes": 2432054, "mtime": "2026-06-25 07:37", "note": "DORMANT ~2 months"},
+      "graph_analyzers.log": {"bytes": 1036077, "mtime": "2026-08-20 08:00", "note": "ACTIVE, current rotation"}
+    },
+    "jsonl_files_found": {
+      "oip_migration_census.jsonl": {"bytes": 3326261, "mtime": "2026-08-20 09:12", "note": "ACTIVE, the only top-level *.jsonl matched in this pass"}
+    },
+    "other_notes": "1791 total directory entries at logs/ top level (from initial ls -la) - many are individual small files (loop_lag_snapshot_*.txt timestamped snapshots) that were not itemized further; logs/diagnostics/ (987M) is the priority follow-up target for a future, more granular pass."
+  },
+
+  "9_growth_forecast_inputs": {
+    "disclaimer": "ONE short-window sample only. This is NOT a daily or monthly rate and must not be extrapolated by the reader without independent verification across a longer observation window.",
+    "measurement_1": {
+      "timestamp_unix": 1787213824,
+      "timestamp_human": "2026-08-20 09:17 approx (T1)",
+      "flex_complete_database.db_bytes": 14753374208,
+      "wt_ops_v2.db_bytes": 4697186304,
+      "retained_acquisition_shadow.db_bytes": 2117713920
+    },
+    "measurement_2": {
+      "timestamp_human": "2026-08-20 09:19 approx (T2, ~2-4 minutes after T1)",
+      "flex_complete_database.db_bytes": 14754045952,
+      "wt_ops_v2.db_bytes": 4697223168,
+      "retained_acquisition_shadow.db_bytes": 2118356992
+    },
+    "raw_deltas_bytes": {
+      "flex_complete_database.db": 671744,
+      "wt_ops_v2.db": 36864,
+      "retained_acquisition_shadow.db": 643072
+    },
+    "note_on_window_precision": "the exact elapsed wall-clock seconds between T1 and T2 was not captured with second-level precision in this session (T1 captured via `date +%s`=1787213824; T2 was captured opportunistically after a blocked sleep attempt was worked around via a background Monitor task, with the actual read landing at approximately +120-300 seconds after T1, not a clean fixed interval). Treat the deltas as directionally indicative of active-write status only (all three files ARE actively growing, confirming section 1's ACTIVE classification), not as a rate suitable for extrapolation."
+  },
+
+  "unknowns_and_gaps": [
+    "flex_complete_database.db: dbstat GROUP BY per-table breakdown could not be obtained (query hung >2 minutes on the 14.75GB file); only PRAGMA-level totals and a manually-selected subset of ~11 table row counts (out of ~250 tables) were obtained. The true single-largest-table-by-bytes is UNKNOWN with certainty; transfer_index (5.2M rows) is the strongest row-count-based candidate but was not converted to a bytes figure via dbstat.",
+    "transaction_first_lineage.db: individual tf_* table row counts were not obtained (only table names listed) due to time budget after the dbstat timeout on the larger file consumed the budget allocated to this pass.",
+    "the legacy (non-V2, non-shadow) database/evidence_platform/production/retained_acquisition.db was not found in the production/ directory listing captured during this census - unclear if it was ever created, or removed. Flagged as needing a direct existence check.",
+    "artifacts/ and retained_acquisition_shadow_artifacts/ totals are ESTIMATES extrapolated from 5 and 2 sampled top-level directories respectively out of 256 each - not full enumerations. True totals could differ from the ~10.35GB and ~3.71GB estimates if digest distribution is non-uniform (unlikely given SHA256, but not independently verified).",
+    "artifact age-distribution sample (section 4) covered only one leaf directory (artifacts/00/00/) and is not representative of the full store's true oldest/newest range.",
+    "logs/diagnostics/ (987M, the largest single logs/ component) was measured only at the du -sh top level; no file-level breakdown was obtained.",
+    "the 'archive' evidence_platform subdirectory classification (section 5) is LOW CONFIDENCE due to grep substring collisions with unrelated 'archive' references repo-wide; needs a re-run with a scoped path-literal grep.",
+    "no query to determine whether flex_investigation_archive.db's cold funder_networks table is still written to anywhere (dormant classification is based purely on file mtime, not a code-reference check)."
+  ]
+}

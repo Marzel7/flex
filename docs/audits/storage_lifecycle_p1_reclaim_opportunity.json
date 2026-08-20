@@ -1,0 +1,157 @@
+{
+  "schema_version": "storage.lifecycle.p1.reclaim-opportunity.v1",
+  "artifact_type": "STORAGE_LIFECYCLE_P1_RECLAIM_OPPORTUNITY",
+  "milestone": "STORAGE-LIFECYCLE-P1 Part 24",
+  "note": "NO reclaim performed -- this is an estimate only, using real du-measured bytes cross-referenced with the Part 8 classification. Buckets follow the exact taxonomy requested: IMMEDIATELY_SAFE_AFTER_REVIEW / SAFE_AFTER_COMPACTION / REQUIRES_ARCHIVAL / MUST_RETAIN.",
+  "buckets": {
+    "IMMEDIATELY_SAFE_AFTER_REVIEW": [
+      {
+        "path": "database/intelligence_snapshots/*.tmp.*",
+        "bytes": 825000000,
+        "gib": 0.77,
+        "classification": "TEMPORARY (37 abandoned files)"
+      },
+      {
+        "path": "database/evidence_platform/oip_v2_2c_application_equivalence/primitive_replay.pre_recovery_20260818.sqlite",
+        "bytes": 334000000,
+        "gib": 0.31,
+        "classification": "RETIREMENT_ELIGIBLE (MD5-confirmed duplicate)"
+      },
+      {
+        "path": "database/evidence_platform/oip_v2_1c_retry_failover",
+        "bytes": 219152384,
+        "gib": 0.2,
+        "classification": "REGENERABLE"
+      },
+      {
+        "path": "database/evidence_platform/oip_v2_1a_pilot",
+        "bytes": 183500800,
+        "gib": 0.17,
+        "classification": "REGENERABLE"
+      },
+      {
+        "path": "database/evidence_platform/oip_v2_1f_stage_1000",
+        "bytes": 61865984,
+        "gib": 0.06,
+        "classification": "RETIREMENT_ELIGIBLE"
+      },
+      {
+        "path": "database/evidence_platform/oip_v2_1e_stage_1000",
+        "bytes": 51380224,
+        "gib": 0.05,
+        "classification": "REGENERABLE"
+      }
+    ],
+    "SAFE_AFTER_COMPACTION": [
+      {
+        "path": "database/evidence_platform/oip_v2_1g_stage_2000_frozen",
+        "bytes": 5798205849,
+        "gib": 5.4,
+        "classification": "COMPACTABLE"
+      },
+      {
+        "path": "database/evidence_platform/oip_v2_2b_compact_provenance",
+        "bytes": 536870912,
+        "gib": 0.5,
+        "classification": "COMPACTABLE"
+      },
+      {
+        "path": "database/evidence_platform/oip_v2_1g_stage_2000",
+        "bytes": 929792,
+        "gib": 0.0,
+        "classification": "COMPACTABLE"
+      }
+    ],
+    "REQUIRES_ARCHIVAL": [
+      {
+        "path": "database/evidence_platform/archive",
+        "bytes": 1825361100,
+        "gib": 1.7,
+        "classification": "IMMUTABLE_AUDIT_REQUIRED"
+      },
+      {
+        "path": "database/evidence_platform/oip_v2_1d_storage_audit",
+        "bytes": 168820736,
+        "gib": 0.16,
+        "classification": "IMMUTABLE_AUDIT_REQUIRED"
+      },
+      {
+        "path": "database/evidence_platform/oip_v2_2c2_authority_contract",
+        "bytes": 167772160,
+        "gib": 0.16,
+        "classification": "IMMUTABLE_AUDIT_REQUIRED"
+      },
+      {
+        "path": "database/evidence_platform/oip_v2_2a_retention_audit",
+        "bytes": 65011712,
+        "gib": 0.06,
+        "classification": "IMMUTABLE_AUDIT_REQUIRED"
+      },
+      {
+        "path": "database/evidence_platform/oip_v2_2c1_divergence_audit",
+        "bytes": 62914560,
+        "gib": 0.06,
+        "classification": "IMMUTABLE_AUDIT_REQUIRED"
+      }
+    ],
+    "MUST_RETAIN": [
+      {
+        "path": "database/evidence_platform/oip_v2_2d_shadow_migration",
+        "bytes": 6764573491,
+        "gib": 6.3,
+        "classification": "STILL_RUNTIME_REQUIRED"
+      },
+      {
+        "path": "database/evidence_platform/production",
+        "bytes": 6657199308,
+        "gib": 6.2,
+        "classification": "UNKNOWN_NEEDS_HUMAN_REVIEW"
+      },
+      {
+        "path": "database/evidence_platform/oip_v2_2c3_indexed_authority",
+        "bytes": 1717986918,
+        "gib": 1.6,
+        "classification": "STILL_RUNTIME_REQUIRED"
+      },
+      {
+        "path": "database/evidence_platform/watchtower_shadow_ep3_0d",
+        "bytes": 825229312,
+        "gib": 0.77,
+        "classification": "STILL_RUNTIME_REQUIRED"
+      },
+      {
+        "path": "database/evidence_platform/oip_v2_2c_application_equivalence",
+        "bytes": 670040064,
+        "gib": 0.62,
+        "classification": "STILL_RUNTIME_REQUIRED"
+      },
+      {
+        "path": "database/evidence_platform/watchtower_shadow",
+        "bytes": 426770432,
+        "gib": 0.4,
+        "classification": "STILL_RUNTIME_REQUIRED"
+      },
+      {
+        "path": "database/evidence_platform/three_sw2_shadow_ep3_2a",
+        "bytes": 12582912,
+        "gib": 0.01,
+        "classification": "STILL_RUNTIME_REQUIRED"
+      }
+    ]
+  },
+  "totals_gib": {
+    "IMMEDIATELY_SAFE_AFTER_REVIEW": 1.56,
+    "SAFE_AFTER_COMPACTION": 5.9,
+    "REQUIRES_ARCHIVAL": 2.13,
+    "MUST_RETAIN": 15.9
+  },
+  "total_estimated_potential_reclaim_gib": 7.460000000000001,
+  "interpretation": "Of the measured evidence_platform subdirectory footprint, approximately 1.56 GiB is IMMEDIATELY_SAFE_AFTER_REVIEW (RETIREMENT_ELIGIBLE/REGENERABLE stores with zero live code references, a confirmed duplicate file, and abandoned temp files) and 5.9 GiB is SAFE_AFTER_COMPACTION (COMPACTABLE stores, format can shrink without data loss). 2.13 GiB requires deliberate archival (audit-required, cannot be silently deleted) and 15.9 GiB is still runtime-required. This does NOT include flex_complete_database.db, wt_ops_v2.db, flex_investigation_archive.db, transaction_first_lineage.db, retained_acquisition_shadow.db, or the artifacts/ ArtifactStore -- all classified MUST_RETAIN/protected per the retention policy and excluded from this reclaim estimate entirely.",
+  "single_largest_reclaim_candidate": {
+    "path": "database/evidence_platform/oip_v2_1g_stage_2000_frozen",
+    "bytes": 5798205849,
+    "gib": 5.4,
+    "classification": "COMPACTABLE"
+  },
+  "deterministic_digest": "d5866a4f00d53614ada682005848ed63fa05691579617e5e6853fb6a4c24b167"
+}

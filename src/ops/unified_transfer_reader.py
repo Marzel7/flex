@@ -162,3 +162,73 @@ class UnifiedTransferReader:
         count) -- must equal the monolithic-source count when HOT+COLD
         together cover the same data as the original single table."""
         return len(self.by_destination(destination, limit=1_000_000))
+
+    # amount_sol is a GENERATED ALWAYS AS (amount_lamports / 1e9) STORED
+    # column on the HOT table (and on flex_complete_database.db, the
+    # production source of this filter), but the 42 COLD segment files do
+    # NOT carry that generated column -- only amount_lamports. Expressing
+    # the filter in lamports is mathematically identical (verified: on the
+    # HOT candidate DB, `amount_sol BETWEEN 0.5 AND 10` and
+    # `amount_lamports BETWEEN 500000000 AND 10000000000` both return
+    # 226061 rows) and works unmodified against every tier.
+    _FUNDER_CREATOR_LAMPORTS_LO = 500_000_000
+    _FUNDER_CREATOR_LAMPORTS_HI = 10_000_000_000
+
+    def funder_creator_pairs(self) -> set[tuple[str, str]]:
+        """Reproduces FunderCreatorExtractor.extract_funder_creator_pairs's
+        SQL (src/core/funder_overlap_analysis.py):
+
+            SELECT DISTINCT source AS funder_wallet, destination AS creator_wallet
+            FROM transfer_index
+            WHERE amount_sol BETWEEN 0.5 AND 10 AND is_valid = 1
+
+        across hot_conn and every cold_conns tier. Each connection pushes
+        down its own WHERE filter and DISTINCT -- only the (source,
+        destination) pairs actually matching the seed-phase amount/validity
+        filter ever leave SQL, never full unfiltered transfer_index rows.
+
+        The per-connection DISTINCT pairs are then merged in Python into a
+        single set. This is the correctness-critical step: summing
+        per-connection distinct-destination COUNTS would double count a
+        creator that a funder funded once in COLD (e.g. months ago) and
+        again in HOT (e.g. recently) -- the same (source, destination) pair
+        appearing in two tiers must contribute exactly one membership to
+        the global distinct set, not two. Building one Python set of pairs
+        across all tiers before counting distinct destinations per source
+        guarantees that.
+
+        Note: the original query has no ORDER BY / LIMIT / secondary sort
+        key -- it is an unordered DISTINCT pair extraction consumed
+        entirely into a Python dict-of-sets by the caller. This method
+        preserves that: it returns an unordered set, matching the
+        production consumer's actual usage (FunderCreatorExtractor never
+        relies on row order).
+
+        CEX/infra wallet exclusion (`excluded` in the original) and
+        pairwise overlap/coordination-level computation are Python-side
+        concerns in the production module, not part of the SQL this reader
+        proxies -- callers apply that filtering to the returned set
+        themselves, exactly as FunderOverlapAnalyzer.compute_funder_overlaps
+        does today.
+        """
+        query = (
+            "SELECT DISTINCT source, destination FROM transfer_index "
+            "WHERE amount_lamports BETWEEN ? AND ? AND is_valid = 1"
+        )
+        params = (self._FUNDER_CREATOR_LAMPORTS_LO, self._FUNDER_CREATOR_LAMPORTS_HI)
+        pairs: set[tuple[str, str]] = set()
+        for conn in [self.hot_conn, *self.cold_conns]:
+            for source, destination in conn.execute(query, params):
+                pairs.add((source, destination))
+        return pairs
+
+    def funder_creator_map(self) -> dict[str, set[str]]:
+        """funder_creator_pairs(), grouped by funder -- same shape as
+        FunderCreatorExtractor.extract_funder_creator_pairs's return value
+        ({funder_wallet: {creator_wallet, ...}}), ready for the same
+        Python-side pairwise-overlap computation
+        FunderOverlapAnalyzer.compute_funder_overlaps performs."""
+        out: dict[str, set[str]] = {}
+        for source, destination in self.funder_creator_pairs():
+            out.setdefault(source, set()).add(destination)
+        return out

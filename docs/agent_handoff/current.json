@@ -31131,5 +31131,33 @@
       "docs/audits/storage_lifecycle_p5b_r2_production_reader_integration.json"
     ],
     "next_action": "Stage 2 Parts 4-9 and Stage 3 (the actual cutover) remain separately gated and were NOT resumed by this milestone. A future, separately-authorized milestone must wire the adapters above into their live call sites and perform the writer-quiesce + atomic switch already qualified by STORAGE-LIFECYCLE-P5B-R1."
+  },
+  "storage_lifecycle_p5b_r2_2": {
+    "milestone": "STORAGE-LIFECYCLE-P5B-R2.2 -- exact fast path for /api/transfer-graph/stats full-history aggregate (code + tests only, not activated)",
+    "status": "COMPLETE_AWAITING_SEPARATE_STAGE3_AUTHORIZATION",
+    "verdict": "READY_P5B_STAGE2_FINAL_QUIESCE_ALL_GATES_CLOSED",
+    "objective": "Closed the performance gap R2.1 flagged: the exact HOT+COLD full-history aggregate for api_transfer_graph_stats() took 354.38s via naive per-connection SQL. Built an exact (not approximate) fast path: per-COLD-segment immutable digest-bound summaries + an incrementally-checkpointed HOT identity cache, merged at request time.",
+    "new_modules": [
+      "src/ops/transfer_graph_stats_summary.py (SegmentSummary, SummaryStore, HotCheckpointCache, build_all_summaries, compute_exact_stats, compute_exact_stats_fast -- NOT imported by src/core/main.py)"
+    ],
+    "performance": {
+      "baseline_seconds": 354.38,
+      "warm_call_latency_seconds_range": [9.65, 16.52],
+      "improvement_factor": "~21x-35x",
+      "honest_caveat": "Warm latency is 'seconds' (~10-17s), not sub-second; residual cost is a ~420K-key Python dict merge + 42-file JSON deserialization, profiled and disclosed, not yet further optimized within this milestone."
+    },
+    "parity_results": {
+      "scalar_fields": "EXACT_PARITY (9/9 fields, zero mismatches)",
+      "top_funders": "EXACT_PARITY (50/50 rows identical)",
+      "overlap_raw": "LIMIT_BOUNDARY_TIE_ARTIFACT (199/200 rows identical; 1 row differs at a genuine unordered tie at the LIMIT=200 boundary)"
+    },
+    "empirical_finding": "signature IS disjoint across all 42 real COLD segments (sum-of-per-segment-counts == true union, zero pairwise overlaps in all 861 pairs checked); source/destination are NOT disjoint and are always stored/merged as real identity sets, never summed.",
+    "tests": "tests/test_storage_lifecycle_p5b_r2_2_aggregate_performance.py -- 16/16 passing; full existing suite (85 tests) + new file = 101/101 passing",
+    "production_mutation_occurred": false,
+    "writer_services_quiesced": false,
+    "artifacts": [
+      "docs/audits/storage_lifecycle_p5b_r2_2_transfer_graph_stats_performance.json"
+    ],
+    "next_action": "Stage-3 activation of api_transfer_graph_stats() (wiring compute_exact_stats_fast() into the live route via a per-worker-process singleton) remains a separate, not-yet-authorized milestone. Writer quiescence for any eventual cutover remains separately gated."
   }
 }

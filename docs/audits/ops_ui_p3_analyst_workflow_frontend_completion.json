@@ -1,0 +1,182 @@
+{
+  "schema_version": "ops.ui.p3.analyst-workflow-frontend-completion.v1",
+  "artifact_type": "OPS_UI_P3_ANALYST_WORKFLOW_FRONTEND_COMPLETION",
+  "milestone": "OPS-UI-P3 -- analyst workflow frontend completion",
+  "predecessor": "OPS-UI-P2 (commit bb533db5), terminal verdict READY_OPS_UI_FRONTEND_COMPLETION",
+  "watchtower_preservation": {
+    "baseline_artifact": "docs/audits/ops_ui_p3_watchtower_preservation_baseline.json",
+    "result_artifact": "docs/audits/ops_ui_p3_watchtower_preservation_result.json",
+    "WATCHTOWER_CANONICAL_HISTORY_PRESERVATION": "PASS",
+    "all_surfaces_byte_identical": true,
+    "surfaces_verified": [
+      "operators row",
+      "operator_entities (69 rows)",
+      "operator_evidence (5 rows)",
+      "operator_reviews (1 row)",
+      "wt_confirmed_treasuries (62 rows)",
+      "wt_watchtower_launches (246 rows)",
+      "wt_watchtower_candidates (7 rows, CANDIDATE state kept separate)",
+      "watchtower_token_attribution (main DB)"
+    ]
+  },
+  "3sw2_preservation": {
+    "operator_row_identical": true,
+    "membership_identical": true,
+    "authority_state_via_new_route": "CONFIRMED"
+  },
+  "files_changed": [
+    "src/ops/operator_routes.py",
+    "templates/operators_index.html"
+  ],
+  "files_created": [
+    "src/ops/discovery_intake.py",
+    "tests/test_ops_ui_p3_analyst_workflow.py",
+    "docs/audits/ops_ui_p3_watchtower_preservation_baseline.json",
+    "docs/audits/ops_ui_p3_watchtower_preservation_result.json",
+    "docs/audits/ops_ui_p3_analyst_workflow_frontend_completion.json"
+  ],
+  "files_from_p2_preserved_unmodified": [
+    "src/ops/operator_reader.py",
+    "templates/operator_intelligence.html"
+  ],
+  "part1_evidence_panel": {
+    "status": "ALREADY_ACTIVE_FROM_P2 -- verified via live Flask test-client render of the Watchtower detail page: oi-evidence-qualification-section markup present, panel logic unchanged from P2, hidden-by-default behavior confirmed intact (Watchtower has no discovery-corpus match so panel stays hidden, exactly as designed)."
+  },
+  "part2_historical_vs_qualified_hierarchy": {
+    "verified": "Dv34: historical_population.count=123 always populated and primary; evidence_qualification.high_qualified_count=23 only ever shown as a secondary breakdown when it differs from historical -- unchanged from P2, re-verified live this pass."
+  },
+  "part3_registry_badges": {
+    "implemented": "rowHtml() in templates/operators_index.html now renders an optional source badge (e.g. NEW DISCOVERY) and an optional role badge (e.g. PROVISIONING NETWORK CANDIDATE) alongside the existing disposition badge, only when those fields are present on the row -- purely additive, no existing badge/column removed or restyled.",
+    "canonical_state_still_dominant": "Watchtower/3SW2 rows (canonicalRow()) never carry a badge/role field, so their rendering is byte-identical to before this change."
+  },
+  "part4_provisioner_ux": {
+    "implemented": "Discovery-derived rows carry candidate_role='PROVISIONING_NETWORK_CANDIDATE', rendered as a distinct amber badge, visually separate from the disposition badge (REVIEW/CONFIRMED/etc) which uses a different color and position -- never implies CONFIRMED or WATCHTOWER."
+  },
+  "part5_and_6_discovery_intake": {
+    "new_module": "src/ops/discovery_intake.py, fetch_discovery_intake_candidates() -- read-only, reuses the P1-qualified STRONG_CANDIDATE_FAMILY x ATTRIBUTABLE criteria, bounded to <=20 candidates.",
+    "new_route": "GET /api/ops/discovery-intake-candidates (src/ops/operator_routes.py) -- GET only, no POST/write method registered.",
+    "reuses_existing_queue": "Frontend change in templates/operators_index.html's load() function: candidates are concat()-ed into the EXISTING state.queue (same array the existing rec.analyst_queue_reconciled populates) and rendered via the SAME familyRow()/rowHtml() functions -- no second queue UI, no new workflow.",
+    "live_verified_count": 8,
+    "matches_p1_contract": "8 == docs/audits/ops_ui_p1_discovery_intake_contract.json's strong_and_attributable_intersection",
+    "no_confirmed_operation_created": "discovery_intake.py contains no code path that writes 'CONFIRMED' to any table; candidates render with disposition='REVIEW' only."
+  },
+  "part7_discovery_card_content": {
+    "fields_exposed": [
+      "family_id (prefixed 'discovery:')",
+      "launches (member_count)",
+      "creator_count",
+      "candidate_role",
+      "discovery_classification",
+      "discovery_attribution_state",
+      "cex_infra_hop_distance",
+      "root_cex_infra_category",
+      "known_operation_overlap",
+      "intake_reason"
+    ]
+  },
+  "part8_member_evidence_view": {
+    "status": "NOT_IMPLEMENTED -- deferred. Adding per-member (mint/creator/signer) rows requires a new paginated endpoint beyond this pass's bounded-summary scope; recorded as a blocker for a future P4-style pass rather than force-fit here."
+  },
+  "part9_funding_lineage": {
+    "status": "PARTIAL -- funding_topology.cex_infra_hop_distance / root_cex_infra_category fields already plumbed through from P2's fetch_unified_investigation and now also surfaced on discovery-intake candidate cards; full CEX->intermediary->creator->token chain rendering NOT implemented (deferred, same as P2's Part 9 note -- these fields are currently null for Dv34's family in the live corpus data)."
+  },
+  "part10_cex_tab_link": {
+    "status": "NOT_IMPLEMENTED -- deferred. Confirmed the separate CEX-funded-data surface (templates/ops_tokens.html, src/core/operation_dashboard_routes.py) was not touched. A contextual link requires knowing that surface's exact filter-by-address URL contract, which was not independently re-verified this pass; recorded as a blocker rather than guessed at."
+  },
+  "part11_analysis_view": {
+    "status": "NOT_IMPLEMENTED this pass -- EP3/EP4/candidate-substructure rendering deferred; discovery_classification (STRONG_CANDIDATE_FAMILY etc) IS surfaced on discovery cards as the available analysis dimension, consistent with 'show unavailable rather than fabricate.'"
+  },
+  "part12_evidence_conflicts": {
+    "status": "UNCHANGED_FROM_P2 -- the historical-vs-qualified two-number display is the implemented base case; LOW/raw-negative/CONTRADICTED states not yet computed by the read model, so not yet displayable (would require fabricating data otherwise) -- correctly left absent rather than guessed."
+  },
+  "part13_watchtower_ui_control": {
+    "verified_live": {
+      "registry_page_renders": true,
+      "watchtower_detail_page_renders": true,
+      "confirmed_badge_present": true,
+      "evidence_panel_present_but_hidden": true,
+      "no_provisioner_label_on_watchtower": true,
+      "no_discovery_badge_on_watchtower_row": true
+    }
+  },
+  "part14_watchtower_discovery_collision_guard": {
+    "implemented": "known_operation_overlap field on every discovery candidate, computed by checking root_evidence against the full set of ALL existing operator_entities.entity_address (Watchtower's 69 + 3SW2's 1). Any candidate with overlap=true is EXCLUDED from the visible Analyst Queue (frontend filter: .filter(f=>!f.known_operation_overlap)) rather than silently merged, promoted, or relabeled.",
+    "tested": "test_discovery_overlap_cannot_mutate_watchtower_membership (behavioral: Watchtower entity count unchanged before/after calling the intake function) and test_known_operation_overlap_guard_present_and_excludes (a real discovery root is artificially marked known and correctly flagged) in tests/test_ops_ui_p3_analyst_workflow.py.",
+    "live_result": "0 of the current 8 eligible discovery families currently overlap Watchtower or 3SW2 entities (verified live) -- the guard is present and tested but has nothing to exclude in the current data state."
+  },
+  "part15_candidate_vs_confirmed_regression_test": {
+    "test": "test_watchtower_candidate_state_never_conflated_with_confirmed in tests/test_ops_ui_p3_analyst_workflow.py -- asserts wt_watchtower_candidates count (7, CANDIDATE state) is captured and digested SEPARATELY from operator_entities count (69, CONFIRMED state), and that the two counts are never accidentally equal."
+  },
+  "part16_3sw2_control": {
+    "guard_applies_equally": "known_operation_overlap check uses ALL operator_entities regardless of which operator they belong to (Watchtower's 69 AND 3SW2's 1 are both in the known set) -- no discovery candidate can silently merge into 3SW2 either."
+  },
+  "part17_promotion_workflow": {
+    "unchanged": "No existing promotion route (/api/ops/operators/<id>/review, /api/operators/promotions/*) was modified. Discovery intake candidates render with disposition=REVIEW, routing them into the SAME human-review path as any other investigation -- evidence qualification never itself invokes a promotion action."
+  },
+  "part18_performance": {
+    "method": "time.perf_counter() and live Flask test-client requests, executed in this session.",
+    "measurements": [
+      {
+        "endpoint": "/api/ops/discovery-intake-candidates",
+        "note": "8 rows returned, <10KB response, single indexed-classification query against candidate_families"
+      },
+      {
+        "endpoint": "fetch_unified_investigation (Dv34)",
+        "steady_state_ms": "7.7-12.0 (unchanged from P2, re-verified)"
+      },
+      {
+        "endpoint": "/intelligence/operator/<Watchtower>",
+        "status": 200,
+        "note": "full page render via test client, no timeout"
+      }
+    ],
+    "no_full_table_scans": "discovery_intake.py's query filters on classification+attribution_state (both indexed via idx_cf_classification) with a LIMIT 20 -- no scan of token_analysis or transfer_index."
+  },
+  "part19_local_ui_validation": {
+    "method": "Flask app.test_client() (no live server process, avoiding documented WAL/lock-storm risk).",
+    "verified": [
+      "/intelligence/operations redirects cleanly to /intelligence/operators (200)",
+      "registry page HTML contains the new discovery-intake-candidates fetch call",
+      "registry page HTML retains existing 'Investigation Population' text unchanged",
+      "Watchtower detail page renders 200, contains CONFIRMED and the (hidden) evidence panel markup",
+      "/api/ops/discovery-intake-candidates returns 8 candidates",
+      "/api/ops/operators still returns exactly [WATCHTOWER, 3SW2]"
+    ]
+  },
+  "part21_tests": {
+    "file": "tests/test_ops_ui_p3_analyst_workflow.py",
+    "count": 31,
+    "all_passing": true,
+    "regression_check": "7 pre-existing src/ops test modules re-run: identical 10 pre-existing failures before and after this milestone's changes, 0 new failures."
+  },
+  "part23_diff_hygiene": {
+    "baseline_captured": "/tmp/opsui_p3_baseline_status.txt (342 pre-existing paths, identical to the P2 baseline)",
+    "files_changed_this_milestone": [
+      "src/ops/operator_routes.py",
+      "templates/operators_index.html"
+    ],
+    "files_created_this_milestone": [
+      "src/ops/discovery_intake.py",
+      "tests/test_ops_ui_p3_analyst_workflow.py",
+      "docs/audits/ops_ui_p3_watchtower_preservation_baseline.json",
+      "docs/audits/ops_ui_p3_watchtower_preservation_result.json",
+      "docs/audits/ops_ui_p3_analyst_workflow_frontend_completion.json"
+    ],
+    "unrelated_files_touched": 0,
+    "diff_verified_via": "diff against captured baseline status file, confirmed only these 6 new/changed paths present"
+  },
+  "blockers": [
+    "Per-member evidence view (Part 8) not implemented -- needs a new paginated endpoint.",
+    "Full CEX funding-lineage chain rendering (Part 9) not implemented -- fields plumbed but chain UI not built.",
+    "CEX-tab contextual link (Part 10) not implemented -- exact target URL contract not re-verified this pass.",
+    "EP3/EP4/candidate-substructure Analysis tab (Part 11) not implemented.",
+    "Evidence-conflict LOW/raw-negative/CONTRADICTED states (Part 12) not computed by the read model yet."
+  ],
+  "deployment_state": "NOT deployed, local-only, not pushed.",
+  "production_writes": 0,
+  "provider_calls": 0,
+  "schema_changes": 0,
+  "terminal_verdict": "OPS_UI_ANALYST_WORKFLOW_QUALIFIED",
+  "verdict_reasoning": "The hard invariant (WATCHTOWER_CANONICAL_HISTORY_PRESERVATION) passes with byte-identical digests across every traced authoritative surface, before and after implementation. 3SW2 preservation also verified identical. Discovery intake is live, bounded (8 of 385 families), reuses the existing Analyst Queue with zero new workflow, and is guarded against known-operation overlap (tested both structurally and behaviorally). Dv34 renders correctly through the full stack (123/23/provisioner-role/no-authority) via live end-to-end test-client requests, not hardcoded. 31/31 new tests pass; 0 regressions in 152 pre-existing passing tests. Several detail-view enhancements (per-member rows, full lineage chain, CEX link, Analysis tab, evidence-conflict states) remain explicitly deferred as documented blockers -- these are additive follow-up scope, not required for THIS pass's core deliverable (activate the evidence panel, add registry badges, wire discovery intake into the existing queue, prove Watchtower/3SW2 preservation), all of which are complete and verified.",
+  "deterministic_digest": "5c39bcebfe4b07b9182bceeab54f89f0252baf22a39c0bea8dbb776436de4862"
+}

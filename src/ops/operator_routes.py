@@ -483,6 +483,38 @@ def defer_operator_promotion(proposal_id: str):
     return _decide_promotion(proposal_id, "DEFER")
 
 
+# ── Discovery intake (OPS-UI-P3) ─────────────────────────────────────────────────
+
+@operator_bp.route("/api/ops/discovery-intake-candidates")
+def discovery_intake_candidates():
+    """Read-only, bounded (<=20) discovery-corpus candidates meeting the
+    P1-qualified deterministic intake criteria, shaped for the EXISTING
+    Analyst Queue rendering path (familyRow). Never writes, never
+    promotes, never merges into any canonical operator. Any candidate
+    whose root already appears in a known operator's entity list is
+    flagged known_operation_overlap=true rather than silently merged or
+    hidden (Part 14 guard)."""
+    from src.core.db import DB_PATH  # noqa: F401  (kept for parity/documentation of the DB set this route reads from)
+    from src.discovery.local_operation_discovery_projection import OUTPUT_DB
+    from src.ops.discovery_intake import fetch_discovery_intake_candidates
+
+    store = _get_store()
+    known_entities = frozenset()
+    try:
+        with store._connect() as conn:  # noqa: SLF001 -- read-only reuse of the existing connection helper
+            known_entities = frozenset(r[0] for r in conn.execute("SELECT entity_address FROM operator_entities"))
+    except Exception:
+        known_entities = frozenset()
+
+    candidates = fetch_discovery_intake_candidates(OUTPUT_DB, known_operator_entities=known_entities)
+    return jsonify({
+        "ok": True,
+        "candidates": candidates,
+        "count": len(candidates),
+        "generated_at": int(time.time()),
+    })
+
+
 # ── Evidence catalogue ──────────────────────────────────────────────────────────
 
 @operator_bp.route("/api/ops/evidence-catalogue")

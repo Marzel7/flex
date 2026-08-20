@@ -534,9 +534,9 @@
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
   "current_milestone": {
-    "milestone": "OPS-UI-P2 -- unified operations intelligence implementation",
-    "status": "BACKEND_QUALIFIED_FRONTEND_PARTIAL",
-    "verdict": "READY_OPS_UI_FRONTEND_COMPLETION"
+    "milestone": "OPS-UI-P3 -- analyst workflow frontend completion",
+    "status": "QUALIFIED",
+    "verdict": "OPS_UI_ANALYST_WORKFLOW_QUALIFIED"
   },
   "current_next_blocker": "B2Z_P2_HELIUS_ENDPOINT was never available during the overnight session. P2 remains frozen at the 19-member manual resume gate, exactly as left. All 12 provider-free workstreams from the overnight prompt were completed: P2 analysis engine, selective-RPC policy (B2Z-P3), historical coverage profile, 2-hop coverage quality, B2Z-2H contract, operation-discovery preparation, candidate funding family analysis (with a real cross-validated finding), raw-transaction cache adapter, RPC savings models, V2 persistent-budget design, edge-case classifier, and roadmap reconciliation. See docs/audits/overnight_human_decision_queue.json for the 5 decisions that actually need you.",
   "focused_tests": [
@@ -30649,5 +30649,42 @@
     ],
     "next_action": "Follow-up OPS-UI-P3 pass to wire discovery-corpus data into the existing Analyst Queue mechanism (emerging_operator_service.py) and extend the detail-view template with per-member evidence rows -- both explicitly scoped as separate work in the P2 artifact.",
     "verdict": "READY_OPS_UI_FRONTEND_COMPLETION"
+  },
+  "ops_ui_p3_analyst_workflow_frontend_completion": {
+    "milestone": "OPS-UI-P3 -- analyst workflow frontend completion",
+    "predecessor": "OPS-UI-P2 (commit bb533db5)",
+    "implementation_status": "QUALIFIED",
+    "watchtower_preservation": "PASS -- all surfaces byte-identical before/after (operators row, 69 confirmed entities, 5 evidence rows, 1 review, 62 confirmed treasuries, 246 launches, 7 candidate-state rows kept separate)",
+    "3sw2_preservation": "PASS -- operator row and membership identical",
+    "dv34_result": {
+      "historical_population": 123,
+      "high_qualified": 23,
+      "remainder": 100,
+      "candidate_role": "PROVISIONING_NETWORK_CANDIDATE",
+      "authority_state": null,
+      "promotion_eligible": false,
+      "not_watchtower": true
+    },
+    "discovery_intake": {
+      "status": "LIVE",
+      "eligible_candidates": 8,
+      "reuses_existing_analyst_queue": true,
+      "known_operation_overlap_guard": "implemented and tested, 0 current overlaps",
+      "no_automatic_promotion": true
+    },
+    "cex_navigation": "field plumbing present (hop-distance/category), full lineage chain and CEX-tab link deferred",
+    "performance": "discovery intake ~8 rows <10KB response, indexed classification query; Dv34 fetch 7.7-12ms unchanged from P2",
+    "tests": "tests/test_ops_ui_p3_analyst_workflow.py (31/31 passing); 7 pre-existing src/ops modules re-run before/after -- identical 10 pre-existing failures, 0 regressions",
+    "commit": "pending (about to commit)",
+    "deployment_state": "NOT deployed, local-only, not pushed",
+    "blockers": [
+      "Per-member evidence view not implemented",
+      "Full CEX funding-lineage chain rendering not implemented",
+      "CEX-tab contextual link not implemented",
+      "EP3/EP4/candidate-substructure Analysis tab not implemented",
+      "Evidence-conflict LOW/raw-negative/CONTRADICTED states not computed yet"
+    ],
+    "next_action": "Follow-up pass to implement per-member evidence pagination, CEX-tab contextual link, and evidence-conflict state computation -- all explicitly scoped as separate work in the P3 artifact.",
+    "verdict": "OPS_UI_ANALYST_WORKFLOW_QUALIFIED"
   }
 }

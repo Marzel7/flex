@@ -283,6 +283,37 @@ def test_discovery_family_detail_lookup_resolves_real_family():
     assert detail["candidate_role"] == "PROVISIONING_NETWORK_CANDIDATE"
 
 
+def test_discovery_family_detail_populates_operational_role_summary():
+    """Regression test for a second user-reported bug: the Summary tab
+    (Operational Role / 'Recorded evidence' / 'Typical observed funding
+    relationships') rendered empty for every discovery-derived family,
+    even though real direct_funding_edges rows exist for them --
+    fetch_discovery_family_detail() never set operational_role at all."""
+    from src.ops.discovery_intake import fetch_discovery_family_detail
+
+    candidates = fetch_discovery_intake_candidates(OUTPUT_DB)
+    assert candidates
+    # prefer a family known to have funding edges (all STRONG_CANDIDATE_FAMILY
+    # results do, by construction of the discovery pipeline)
+    target = candidates[0]["family_id"]
+
+    detail = fetch_discovery_family_detail(OUTPUT_DB, target)
+    assert "operational_role" in detail
+    role = detail["operational_role"]
+    assert role["current_role"] == "Provisioning Controller"
+    assert role["evidence_backed"] is True
+    assert len(role["observed_relationships"]) > 0
+    assert role["observation_count"] == len(role["observed_relationships"])
+
+    rel = role["observed_relationships"][0]
+    assert rel["controller"] == detail["family_anchor"]
+    assert rel["creator"]
+    assert rel["launch"]
+    assert rel["funding_hops"][0]["mechanism"] == "PLAIN_XFER"
+    assert rel["funding_hops"][0]["transaction"]  # real signature, not empty
+    assert rel["funding_hops"][0]["transaction_at"] > 0  # real timestamp
+
+
 def test_discovery_family_detail_route_end_to_end():
     """Full end-to-end reproduction of the reported bug via a real Flask
     test client hitting the exact API the detail page calls."""

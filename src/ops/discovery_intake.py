@@ -109,10 +109,53 @@ def fetch_discovery_family_detail(corpus_db_path: str, family_id: str) -> dict |
             "WHERE family_id=? LIMIT ?",
             (family_id, MAX_DETAIL_MEMBERS),
         ).fetchall()
+        # Real observed funding edges for this family's root -- populates
+        # the Summary tab's "Operational Role" / "Recorded evidence"
+        # section (templates/operation_profile.html roleView()), which
+        # was previously left empty for every discovery-derived family
+        # (bug: the detail record never set operational_role at all, so
+        # roleView() rendered "No recorded edges" / "No observed funding
+        # relationships" even though real direct_funding_edges rows exist
+        # for these families -- same evidence already used elsewhere,
+        # e.g. OF-DV34-P0/P1's raw-verification work).
+        funding_edges = conn.execute(
+            "SELECT mint, create_creator, funding_signature, funding_block_time "
+            "FROM direct_funding_edges WHERE direct_funder=? "
+            "ORDER BY funding_block_time DESC LIMIT ?",
+            (row["root_evidence"], MAX_DETAIL_MEMBERS),
+        ).fetchall()
     finally:
         conn.close()
 
     unique_creators = sorted({m["create_creator"] for m in members})
+
+    observed_relationships = [
+        {
+            "controller": row["root_evidence"],
+            "creator": edge["create_creator"],
+            "launch": edge["mint"],
+            "launch_label": "Launch",
+            "funding_hops": [{
+                "mechanism": "PLAIN_XFER",
+                "transaction": edge["funding_signature"],
+                "transaction_at": edge["funding_block_time"],
+            }],
+        }
+        for edge in funding_edges
+    ]
+    operational_role = {
+        "current_role": "Provisioning Controller",
+        "evidence_backed": bool(observed_relationships),
+        "observed_relationships": observed_relationships,
+        "edges": [{
+            "from": row["root_evidence"],
+            "to": "CREATE_CREATOR",
+            "relationship_type": "direct_funding",
+            "observation_count": len(funding_edges),
+        }] if funding_edges else [],
+        "observation_count": len(funding_edges),
+    }
+
     return {
         "family_id": row["family_id"],
         "family_name": "New Discovery: " + row["root_evidence"][:8] + "…",
@@ -131,6 +174,7 @@ def fetch_discovery_family_detail(corpus_db_path: str, family_id: str) -> dict |
             "missing_evidence": [],
         },
         "candidate_role": "PROVISIONING_NETWORK_CANDIDATE",
+        "operational_role": operational_role,
         "discovery_classification": row["classification"],
         "discovery_attribution_state": row["attribution_state"],
         "cex_infra_hop_distance": row["cex_infra_hop_distance"],

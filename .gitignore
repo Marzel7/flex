@@ -30,6 +30,8 @@ wheels/
 *.db
 *.db-wal
 *.db-shm
+*.sqlite
+database/_p5a_migration_build/
 pumpswap_tokens.db
 coordinated_accounts.json
 .claude/

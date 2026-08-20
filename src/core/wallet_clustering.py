@@ -746,6 +746,28 @@ class WalletClusteringEngine:
 
         return 0.0
 
+    def _compute_wallet_age_via_hot_cold(self, reader, wallet: str) -> float:
+        """STORAGE-LIFECYCLE-P5B-R2 Part 5 adapter (NOT YET WIRED INTO
+        _compute_wallet_age() ABOVE OR ITS CALLERS -- that method remains
+        unmodified production code, still querying self._get_conn()'s
+        single transfer_index table directly).
+
+        Reproduces _compute_wallet_age()'s MIN(block_time) WHERE source=?
+        semantics via the HOT+COLD UnifiedTransferReader
+        (src.ops.cold_segment_registry.get_transfer_reader), so a wallet
+        whose true earliest transfer has aged into a COLD segment is not
+        under-reported as younger than it really is -- a wallet-age signal
+        that silently truncated to only the HOT window would be a
+        correctness regression for exactly the dev-farm-detection use case
+        this method feeds. `reader` is a UnifiedTransferReader.
+        """
+        rows = reader.by_source(wallet, limit=1_000_000)
+        block_times = [r[4] for r in rows if r[4] is not None]
+        if not block_times:
+            return 0.0
+        earliest = min(block_times)
+        return (time.time() - earliest) / 86400.0
+
     def _score_cluster(self, farm: Dict) -> float:
         """
         Compute confidence score (0-100) from farm characteristics.

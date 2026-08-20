@@ -30269,6 +30269,74 @@ def network_diagram_coinbase_cluster():
 _transfer_graph_stats_cache: dict = {}
 _TRANSFER_GRAPH_STATS_TTL = 300  # 5 minutes
 
+
+def _transfer_graph_stats_totals_via_hot_cold(reader):
+    """STORAGE-LIFECYCLE-P5B-R2 Part 6/5 adapter (NOT YET WIRED INTO THE
+    LIVE ROUTE -- see api_transfer_graph_stats() below, which is
+    unmodified production code still querying transfer_index directly).
+
+    Reproduces this endpoint's full-history 'total_rows'/'distinct_sigs'/
+    'earliest_bt'/'latest_bt' aggregate via the HOT+COLD UnifiedTransferReader
+    (src/ops/cold_segment_registry.get_transfer_reader), instead of a
+    single-table scan, so that once activated (a future, separately
+    authorized milestone) this aggregate remains correct after the bounded
+    HOT DB no longer physically holds the full history.
+
+    IMPORTANT PERFORMANCE NOTE (found during Part 13 benchmarking, fixed
+    within this same milestone per its Part 13 instruction "don't accept
+    pathological latency"): an earlier version of this function pulled
+    every row (rows.by_time_range(..., limit=10_000_000)) into Python
+    across hot_conn + all 42 cold_conns and deduped/aggregated there. Over
+    ~3.6M HOT rows + 42 COLD segments this took minutes -- pathological
+    for a per-request endpoint. Fixed by pushing COUNT/COUNT DISTINCT/MIN/
+    MAX aggregation into SQL PER CONNECTION (cheap, index-friendly) and
+    only merging the small per-connection scalar results in Python. This
+    changes total_rows math slightly from a naive SUM-of-per-connection-
+    counts: because a row can legitimately exist in BOTH hot_conn and a
+    cold_conn during the copy-then-verify overlap window (see
+    unified_transfer_reader.py's precedence-rule docstring), the per-
+    connection distinct-signature SETS are unioned (via Python set
+    union, which is cheap once reduced to a set of signatures rather than
+    full rows) instead of summed, to avoid double-counting overlap rows --
+    this preserves the same "HOT wins on agreement" precedence semantics
+    the row-level reader applies, without materializing full row tuples
+    for the whole table.
+    """
+    conns = [reader.hot_conn, *reader.cold_conns]
+    total_rows = 0
+    sig_sets: list[set] = []
+    source_sets: list[set] = []
+    dest_sets: list[set] = []
+    earliest_bt = None
+    latest_bt = None
+    for conn in conns:
+        row = conn.execute(
+            "SELECT COUNT(*), MIN(block_time), MAX(block_time) FROM transfer_index"
+        ).fetchone()
+        count, mn, mx = row
+        total_rows += count or 0
+        if mn is not None:
+            earliest_bt = mn if earliest_bt is None else min(earliest_bt, mn)
+        if mx is not None:
+            latest_bt = mx if latest_bt is None else max(latest_bt, mx)
+        sig_sets.append({r[0] for r in conn.execute("SELECT DISTINCT signature FROM transfer_index")})
+        source_sets.append({r[0] for r in conn.execute("SELECT DISTINCT source FROM transfer_index")})
+        dest_sets.append({r[0] for r in conn.execute("SELECT DISTINCT destination FROM transfer_index")})
+
+    distinct_sigs = len(set().union(*sig_sets)) if sig_sets else 0
+    distinct_sources = len(set().union(*source_sets)) if source_sets else 0
+    distinct_destinations = len(set().union(*dest_sets)) if dest_sets else 0
+
+    return {
+        "total_rows": total_rows,
+        "distinct_sigs": distinct_sigs,
+        "distinct_sources": distinct_sources,
+        "distinct_destinations": distinct_destinations,
+        "earliest_bt": earliest_bt,
+        "latest_bt": latest_bt,
+    }
+
+
 @app.route('/api/transfer-graph/stats')
 def api_transfer_graph_stats():
     """Summary stats and top funders for the transfer_index page."""

@@ -844,6 +844,65 @@ class TransferIndexer:
             logger.warning(f"[TRANSFER_INDEX] optimize_indexes() failed: {e}")
 
 
+def get_funders_via_hot_cold(reader, destination: str, limit: int = 1000) -> List[str]:
+    """STORAGE-LIFECYCLE-P5B-R2 Part 5 adapter (NOT YET WIRED INTO
+    TransferIndexer.get_funders() ABOVE OR ITS CALLERS -- phase3_integration.py
+    etc. remain unmodified production code, still calling get_funders()
+    directly against a single transfer_index table).
+
+    Reproduces get_funders()'s DISTINCT-source / block_time DESC / LIMIT
+    semantics via the HOT+COLD UnifiedTransferReader
+    (src.ops.cold_segment_registry.get_transfer_reader), so a funder whose
+    only funding transaction has aged into a COLD segment is still
+    returned. This is the P5A-census "ADDRESS_HISTORY get_funders
+    (destination)" classification (HISTORICAL_HOT_COLD_REQUIRED) -- see
+    docs/audits/storage_lifecycle_p5a_part17_all_consumer_query_parity.json
+    where this exact shape was already parity-tested (prod=6102 rows,
+    p5a unified=6102 rows, match).
+
+    `reader` is a UnifiedTransferReader. Note: get_funders() filters
+    amount_lamports > 0 and is_valid = 1 in SQL; UnifiedTransferReader's
+    by_destination() does not select is_valid or filter amount, so this
+    adapter applies the amount_lamports > 0 filter in Python (row[3] is
+    amount_lamports) to preserve exact semantics. is_valid is not selected
+    by the reader at all -- every row P5A migrated into HOT+COLD was
+    already required to satisfy is_valid=1 at migration time (see
+    storage_lifecycle_p5a identity reconciliation), so this is a
+    preserved invariant, not a silently dropped filter.
+
+    IMPORTANT ROW-vs-DISTINCT-SOURCE LIMIT SEMANTICS: the original SQL's
+    `LIMIT ?` bounds the DISTINCT source-address result set directly.
+    UnifiedTransferReader.by_destination(limit=N) bounds RAW ROWS (one
+    per transfer, pre-dedup-to-source), which is a different quantity
+    whenever a destination has repeat funders -- a naive
+    by_destination(limit=limit) call under-counts distinct sources
+    whenever transfer-row volume exceeds source-address cardinality
+    (verified empirically during R2 qualification: for one high-traffic
+    destination, requesting limit=1000 rows yielded only 241 distinct
+    sources via the row-limited path vs. 3649+ real distinct sources).
+    To preserve get_funders()'s actual contract, this adapter always
+    fetches an unbounded row window (reader.by_destination with a very
+    high internal limit) and applies the source-level LIMIT itself,
+    trading some extra I/O for correctness -- get_funders() call sites in
+    this codebase use limit=1000 (the default) against destinations
+    whose total transfer-row count is bounded enough that this is not a
+    perf concern (see Part 13 benchmark in the R2 qualification artifact).
+    """
+    _ROW_FETCH_CEILING = 2_000_000
+    rows = reader.by_destination(destination, limit=_ROW_FETCH_CEILING)
+    eligible = [r for r in rows if r[3] and r[3] > 0]
+    seen = set()
+    funders: List[str] = []
+    for r in eligible:
+        source = r[1]
+        if source not in seen:
+            seen.add(source)
+            funders.append(source)
+            if len(funders) >= limit:
+                break
+    return funders
+
+
 class OptimizedTransferIndexer(TransferIndexer):
     """
     PHASE 3.1C OPTIMIZATION: Extended indexer with query result caching.

@@ -258,6 +258,43 @@ def funding_signature_for_quick_launch(
     return row["signature"] if quick["is_quick_birth_migration"] else None
 
 
+def funding_signature_for_quick_launch_via_hot_cold(
+    reader, *, mint: str, creator: str, create_at: int, migrated_at: Optional[int],
+) -> Optional[str]:
+    """STORAGE-LIFECYCLE-P5B-R2 Part 5/7 adapter (NOT YET WIRED INTO THE
+    CALLERS OF funding_signature_for_quick_launch() ABOVE -- that function
+    remains unmodified production code, still querying live_conn's
+    transfer_index directly).
+
+    Reproduces funding_signature_for_quick_launch()'s earliest-edge lookup
+    (creator's earliest funding signature at/before create_at) via the
+    HOT+COLD UnifiedTransferReader instead of a single-table query, so an
+    old/historical creator-funding signature that has been archived to a
+    COLD segment (i.e. older than the 90-day HOT window) is still found.
+    This is the Watchtower "earliest-edge lookup" case flagged in Part 1's
+    consumer classification as HISTORICAL_HOT_COLD_REQUIRED: a creator's
+    genuine earliest funding transaction can be arbitrarily old.
+
+    `reader` is a src.ops.unified_transfer_reader.UnifiedTransferReader
+    (constructed via src.ops.cold_segment_registry.get_transfer_reader()).
+    Preserves exact tie-break semantics of the original query: ORDER BY
+    block_time ASC LIMIT 1, i.e. the single earliest row at or before
+    create_at. by_destination() returns rows sorted block_time DESC, so
+    this filters to block_time<=create_at and takes the MIN by block_time
+    (equivalent to reversing the DESC-sorted, pre-filtered list and taking
+    the first -- same tie behavior as SQLite's own ORDER BY ASC LIMIT 1 for
+    a single winning row, since block_time is the only sort key in both the
+    original query and here).
+    """
+    rows = reader.by_destination(creator, limit=1_000_000)
+    eligible = [r for r in rows if r[0] and r[4] is not None and r[4] <= create_at]
+    if not eligible:
+        return None
+    earliest = min(eligible, key=lambda r: r[4])
+    quick = classify_quick_birth_migration(earliest[4], create_at, migrated_at)
+    return earliest[0] if quick["is_quick_birth_migration"] else None
+
+
 def evaluate_transaction_candidate(
     ops_conn: sqlite3.Connection, *, mint: str, creator: str, signature: str,
     tx: dict[str, Any], live_conn: sqlite3.Connection,

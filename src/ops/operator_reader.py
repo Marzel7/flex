@@ -98,6 +98,121 @@ class OperatorReader:
         except (sqlite3.Error, OSError):
             return []
 
+    def fetch_unified_investigation(self, entity_address: str) -> dict:
+        """Read-time-only projection combining canonical operator state
+        (this DB), main-DB historical funding relationships, and the new
+        discovery-corpus evidence-qualification layer for a single entity
+        address. Three independent read-only connections, no ATTACH, no
+        writes, no schema change -- see docs/audits/ops_ui_p1_*.json for
+        the full contract this implements.
+
+        `operators.status` (read via fetch_by_entity, which already only
+        reads the operators/operator_entities tables) is the ONLY field
+        this method ever surfaces as canonical authority_state; every
+        other field below is EVIDENCE_QUALIFICATION / DISCOVERY / FUNDING
+        context and can never override it."""
+        canonical_matches = self.fetch_by_entity(entity_address)
+        authority_state = canonical_matches[0]["status"] if canonical_matches else None
+        canonical_operator_id = canonical_matches[0]["operator_id"] if canonical_matches else None
+
+        historical_population = 0
+        try:
+            from src.core.db import DB_PATH
+            main_conn = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True, timeout=10)
+            main_conn.execute("PRAGMA query_only=ON")
+            try:
+                row = main_conn.execute(
+                    "SELECT COUNT(*) FROM creator_funders WHERE funder_address=?",
+                    (entity_address,),
+                ).fetchone()
+                historical_population = row[0] if row else 0
+            finally:
+                main_conn.close()
+        except (sqlite3.Error, OSError):
+            historical_population = None
+
+        discovery = {
+            "high_qualified_count": 0, "family_id": None, "classification": None,
+            "attribution_state": None, "root_cex_infra_category": None,
+            "cex_infra_hop_distance": None, "member_count": 0, "creator_count": 0,
+        }
+        try:
+            from src.discovery.local_operation_discovery_projection import OUTPUT_DB
+            disc_conn = sqlite3.connect(f"file:{OUTPUT_DB}?mode=ro", uri=True, timeout=10)
+            disc_conn.row_factory = sqlite3.Row
+            disc_conn.execute("PRAGMA query_only=ON")
+            try:
+                edge_count = disc_conn.execute(
+                    "SELECT COUNT(*) FROM direct_funding_edges WHERE direct_funder=?",
+                    (entity_address,),
+                ).fetchone()
+                discovery["high_qualified_count"] = edge_count[0] if edge_count else 0
+                fam = disc_conn.execute(
+                    "SELECT family_id, classification, attribution_state, "
+                    "root_cex_infra_category, cex_infra_hop_distance, member_count, creator_count "
+                    "FROM candidate_families WHERE root_evidence=? "
+                    "ORDER BY member_count DESC LIMIT 1",
+                    (entity_address,),
+                ).fetchone()
+                if fam:
+                    discovery.update(dict(fam))
+            finally:
+                disc_conn.close()
+        except (sqlite3.Error, OSError, ImportError):
+            pass
+
+        valid_not_high = None
+        historical_only = None
+        if historical_population is not None:
+            accounted = discovery["high_qualified_count"]
+            remainder = historical_population - accounted
+            if remainder >= 0:
+                # Without a per-member classification pass (out of scope for
+                # a bounded read-time projection), the remainder is reported
+                # as a single VALID_HISTORICAL_ASSOCIATION_OR_HISTORICAL_ONLY
+                # bucket rather than guessing an 82/18-style split that would
+                # require the full OF-DV34-P3-style reconciliation query.
+                valid_not_high = remainder
+
+        candidate_role = None
+        if discovery["classification"] == "SERVICE_DISTRIBUTION_CLUSTER":
+            candidate_role = "SERVICE_DISTRIBUTION_NETWORK"
+        elif discovery["classification"] in ("STRONG_CANDIDATE_FAMILY", "PARTIAL_CANDIDATE_FAMILY"):
+            candidate_role = "PROVISIONING_NETWORK_CANDIDATE"
+        elif discovery["attribution_state"] == "NON_ATTRIBUTIVE_PROVENANCE":
+            candidate_role = "CEX_INFRA_PROVENANCE_CLUSTER"
+
+        return {
+            "entity_address": entity_address,
+            "identity": {
+                "canonical_operator_id": canonical_operator_id,
+                "authority_state": authority_state,
+                "candidate_role": candidate_role,
+                "promotion_eligible": authority_state == "CONFIRMED",
+            },
+            "historical_population": {
+                "count": historical_population,
+                "source": "creator_funders (main DB)",
+            },
+            "evidence_qualification": {
+                "high_qualified_count": discovery["high_qualified_count"],
+                "valid_not_high_or_historical_only": valid_not_high,
+                "source": "local_operation_discovery_corpus.db direct_funding_edges",
+            },
+            "discovery": {
+                "family_id": discovery["family_id"],
+                "classification": discovery["classification"],
+                "attribution_state": discovery["attribution_state"],
+                "member_count": discovery["member_count"],
+                "creator_count": discovery["creator_count"],
+            },
+            "funding_topology": {
+                "cex_infra_hop_distance": discovery["cex_infra_hop_distance"],
+                "root_cex_infra_category": discovery["root_cex_infra_category"],
+            },
+            "authority_note": "authority_state is read ONLY from operators.status via fetch_by_entity; no field in evidence_qualification or discovery can set or override it.",
+        }
+
     def fetch_summary(self) -> dict:
         empty = {
             "total": 0, "candidates": 0, "review_candidates": 0,

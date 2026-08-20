@@ -5,6 +5,7 @@ GET  /api/ops/operators                      → list all operators
 GET  /api/ops/operators/summary              → count summary
 GET  /api/ops/operators/<operator_id>        → full operator detail
 GET  /api/ops/operators/by-entity/<address>  → operators containing a wallet
+GET  /api/ops/investigation/<address>/unified → unified read-time projection (canonical + historical + evidence qualification)
 POST /api/ops/operators/resolve              → trigger resolver run
 POST /api/ops/operators/<operator_id>/review → record analyst decision
 
@@ -223,6 +224,19 @@ def operators_by_entity(address: str):
         "count":        len(rows),
         "generated_at": int(time.time()),
     })
+
+
+@operator_bp.route("/api/ops/investigation/<path:address>/unified")
+def unified_investigation(address: str):
+    """Read-time-only unified projection (OPS-UI-P2): combines canonical
+    operator state, main-DB historical population, and the new discovery-
+    corpus evidence-qualification layer for one entity address. Never
+    writes; authority_state always comes solely from operators.status."""
+    store = _get_store()
+    result = store.fetch_unified_investigation(address)
+    result["ok"] = True
+    result["generated_at"] = int(time.time())
+    return jsonify(result)
 
 
 # ── Resolver ────────────────────────────────────────────────────────────────────

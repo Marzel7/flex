@@ -400,6 +400,7 @@
     <section class="oi-panel oi-section-stack" data-panel="evidence" hidden><section id="oi-evidence-section"><div class="ip-section-hdr"><span class="ip-section-label">Evidence</span><span class="ip-section-line"></span><span id="oi-ev-count"></span></div><div id="oi-evidence-body"><div class="ip-loading">Loading…</div></div></section></section>
 
     <section class="oi-panel oi-section-stack" data-panel="members" hidden>
+      <section id="oi-evidence-qualification-section" hidden><div class="ip-section-hdr"><span class="ip-section-label">Evidence Qualification</span><span class="ip-section-line"></span></div><div id="oi-evidence-qualification-body" style="font-size:11px;color:var(--ip-sec);"></div></section>
       <section><div class="ip-section-hdr"><span class="ip-section-label">Known Entities</span><span class="ip-section-line"></span><span id="oi-entity-count"></span></div><div id="oi-entities-body"><div class="ip-loading">Loading…</div></div></section>
       <section><div class="ip-section-hdr"><span class="ip-section-label">Operations observed</span><span class="ip-section-line"></span></div><div id="oi-ops-body"><div class="ip-loading">Loading…</div></div></section>
     </section>
@@ -973,6 +974,42 @@
   buildEntities(OP.entities  || []);
   buildOperations(OP.evidence || []);
   renderCommandCentre();
+
+  /* OPS-UI-P2: unified read-time projection (historical population vs
+     evidence-qualified subset) for the operator's primary entity. This
+     is EVIDENCE_QUALIFICATION context only -- it can never set or change
+     oi-status-chip (canonical authority state, rendered server-side from
+     operator.status above and never touched by this fetch). Bounded to
+     ONE request for the operator's highest-evidence entity, never one
+     request per row. */
+  (function loadEvidenceQualification() {
+    var primaryEntity = (OP.entities || [])[0];
+    if (!primaryEntity || !primaryEntity.entity_address) return;
+    fetch('/api/ops/investigation/' + encodeURIComponent(primaryEntity.entity_address) + '/unified')
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(d) {
+        var section = document.getElementById('oi-evidence-qualification-section');
+        var body = document.getElementById('oi-evidence-qualification-body');
+        if (!d || !d.ok || !section || !body) return;
+        var hist = d.historical_population && d.historical_population.count;
+        var high = d.evidence_qualification && d.evidence_qualification.high_qualified_count;
+        if (hist == null) return;  // no main-DB relationship data for this entity -- stay hidden
+        var remainder = d.evidence_qualification && d.evidence_qualification.valid_not_high_or_historical_only;
+        var role = d.identity && d.identity.candidate_role;
+        var parts = [
+          '<div><strong>' + hist + '</strong> historical relationship' + (hist === 1 ? '' : 's') + ' (main DB)</div>'
+        ];
+        if (high != null && high !== hist) {
+          parts.push('<div><strong>' + high + '</strong> HIGH-qualified' + (remainder != null ? ', <strong>' + remainder + '</strong> valid historical / not-HIGH' : '') + '</div>');
+        }
+        if (role) {
+          parts.push('<div style="margin-top:4px;color:var(--ip-dim);">Candidate role: ' + escapeHtml(role.replaceAll('_', ' ')) + ' — not a canonical operation.</div>');
+        }
+        body.innerHTML = parts.join('');
+        section.hidden = false;
+      })
+      .catch(function() { /* evidence-qualification panel is optional context; fail silently */ });
+  })();
 
   /* Shared evidence projection used by Investigation Profiles and Discovery. */
   fetch('/api/ops/emerging-operators/' + encodeURIComponent('canonical:' + OP_ID))

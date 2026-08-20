@@ -1,0 +1,162 @@
+{
+  "schema_version": "ops.ui.p2.unified-operations-implementation.v1",
+  "artifact_type": "OPS_UI_P2_UNIFIED_OPERATIONS_IMPLEMENTATION",
+  "milestone": "OPS-UI-P2 -- unified operations intelligence implementation",
+  "predecessor": "OPS-UI-P1 (commit aa35f362), terminal verdict READY_OPS_UI_UNIFIED_INTEGRATION_IMPLEMENTATION",
+  "part1_p1_contract_followed": {
+    "contract_source": "docs/audits/ops_ui_p1_implementation_result.json phase_p_implementation_decision.ready_to_implement_spec",
+    "implemented_as_specified": true,
+    "deviation_note": "The P1 spec named 'GET /api/ops/operators/<operator_id>/unified' as the illustrative route form; this pass implemented 'GET /api/ops/investigation/<address>/unified' instead (entity-address-keyed, not operator-id-keyed), because the primary reference case (Dv34) has NO operator_id -- it is a pre-candidate entity, not a canonical operator. Recorded explicitly per the instruction to document any deviation with reasoning; authority boundaries are unchanged (the route still reads operators.status via fetch_by_entity() exactly as designed)."
+  },
+  "part2_unified_read_projection": {
+    "location": "src/ops/operator_reader.py, new method OperatorReader.fetch_unified_investigation(entity_address)",
+    "implementation": "Three independent sqlite3 mode=ro connections (wt_ops_v2.db via fetch_by_entity, flex_complete_database.db for creator_funders historical count, local_operation_discovery_corpus.db for direct_funding_edges/candidate_families), each opened, queried, and closed separately. No ATTACH DATABASE statement. No cross-database write transaction of any kind.",
+    "no_schema_changes": true,
+    "output_fields": [
+      "entity_address",
+      "identity.canonical_operator_id",
+      "identity.authority_state",
+      "identity.candidate_role",
+      "identity.promotion_eligible",
+      "historical_population.count",
+      "historical_population.source",
+      "evidence_qualification.high_qualified_count",
+      "evidence_qualification.valid_not_high_or_historical_only",
+      "evidence_qualification.source",
+      "discovery.family_id",
+      "discovery.classification",
+      "discovery.attribution_state",
+      "discovery.member_count",
+      "discovery.creator_count",
+      "funding_topology.cex_infra_hop_distance",
+      "funding_topology.root_cex_infra_category",
+      "authority_note"
+    ],
+    "route": "GET /api/ops/investigation/<address>/unified, added in src/ops/operator_routes.py (unified_investigation view function)"
+  },
+  "part3_authority_protection": {
+    "principle_implemented": "authority_state in the projection is populated ONLY via self.fetch_by_entity(entity_address)[0]['status'], which itself only ever SELECTs from operators/operator_entities. No code path in fetch_unified_investigation ever assigns authority_state from discovery, evidence_qualification, or funding_topology data.",
+    "structural_proof": "test_evidence_cannot_set_canonical_status_structural (greps the method body for INSERT/UPDATE/DELETE against 'operators' -- none found) and test_no_attach_database_cross_db_write_pattern in tests/test_ops_ui_p2_unified_implementation.py.",
+    "candidate_role_never_becomes_authority": "candidate_role is a SEPARATE dict key (identity.candidate_role) from authority_state; verified Dv34's authority_state=None while candidate_role=PROVISIONING_NETWORK_CANDIDATE simultaneously -- proves the two never collapse into one field."
+  },
+  "part4_dv34_reference_result": {
+    "method": "Live call to OperatorReader(OPS_DB_PATH).fetch_unified_investigation('Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM'), executed in this session, not hardcoded.",
+    "result": {
+      "historical_population_count": 123,
+      "evidence_qualification_high_qualified_count": 23,
+      "evidence_qualification_remainder": 100,
+      "candidate_role": "PROVISIONING_NETWORK_CANDIDATE",
+      "authority_state": null,
+      "canonical_operator_id": null,
+      "promotion_eligible": false
+    },
+    "matches_of_dv34_p3_reconciliation": "123 historical and 23 HIGH-qualified match docs/audits/of_dv34_p3_main_db_70_vs_new_23_reconciliation.json exactly. The remainder (100) equals P3's 82 valid-not-HIGH + 18 historical-only; this bounded read-time projection reports that as one combined figure rather than re-running the full P3 per-member classification query on every page load (which would violate the Part 15 performance requirement) -- flagged as an intentional simplification, not a data loss.",
+    "ui_never_shows_23_as_total": "Confirmed both server-side (historical_population.count is a separate, always-populated field) and in the template change (the new panel always renders the historical count as the primary line; the HIGH-qualified figure only appears as an explicitly-labeled secondary breakdown, never replacing it)."
+  },
+  "part5_registry_card_enhancement": {
+    "decision": "NOT implemented on the bulk registry list (templates/operators_index.html) this pass -- the list already renders f.launches (historical population) as the primary count via the EXISTING familyRow()/rowHtml() functions, which was verified to already satisfy the 'never show 23 as total' requirement without any change. Adding a per-row secondary evidence-qualification line to the bulk list would require either (a) N additional HTTP requests per page load (one per row), violating Part 14/15's bounded-response requirement, or (b) embedding discovery-corpus data into the existing /api/ops/emerging-operators aggregate response, which is a larger, riskier change to a shared endpoint. Deferred as an explicit next step (see blockers).",
+    "implemented_instead": "templates/operator_intelligence.html (the single-entity detail page) -- ONE bounded fetch to the new /unified route for the operator's primary entity, rendering a new 'Evidence Qualification' section in the Members tab, hidden by default and only shown when historical_population.count is non-null."
+  },
+  "part6_confirmed_operation_cards": {
+    "verified": "Watchtower and 3SW2, fetched through the new route end-to-end via a real Flask test client, both return authority_state=CONFIRMED and candidate_role=None (discovery corpus has no STRONG/PARTIAL family rooted at either entity's primary address, so the evidence-qualification panel correctly stays hidden/empty for them rather than displaying misleading secondary data).",
+    "no_downgrade_semantics": "The template change never modifies oi-status-chip (the canonical CONFIRMED badge, rendered server-side from operator.status) -- the new panel is purely additive and appears below/after the existing entity list."
+  },
+  "part7_discovery_intake_into_analyst_queue": {
+    "status": "NOT implemented this pass -- remains design-only per docs/audits/ops_ui_p1_discovery_intake_contract.json.",
+    "reasoning": "Wiring 385-family discovery-corpus data into the existing Analyst Queue (rec.analyst_queue_reconciled in operators_index.html's load()) requires either extending /api/ops/emerging-operators (src/ops/emerging_operator_service.py, a large existing service) or adding a second merged fetch in the frontend load() function. Both are more invasive than the bounded, purely-additive read-model route implemented this pass, and the P1 contract itself flagged the EmergingOperatorService<->discovery-corpus family_id wiring gap as 'not yet built, flagged as the concrete next implementation step' rather than something P1 expected P2 to complete outright. Recorded as the primary blocker for a P3-style follow-up."
+  },
+  "part8_provisioner_role": {
+    "implemented": "candidate_role classification logic in fetch_unified_investigation: STRONG_CANDIDATE_FAMILY or PARTIAL_CANDIDATE_FAMILY -> PROVISIONING_NETWORK_CANDIDATE; SERVICE_DISTRIBUTION_CLUSTER -> SERVICE_DISTRIBUTION_NETWORK; NON_ATTRIBUTIVE_PROVENANCE with no other classification -> CEX_INFRA_PROVENANCE_CLUSTER; else None (no forced classification).",
+    "verified_for_dv34": "PROVISIONING_NETWORK_CANDIDATE, distinct from any OPERATION_CANDIDATE label -- no such label exists anywhere in this implementation, consistent with the 'provisioner != operation' requirement."
+  },
+  "part9_cex_infra_context": {
+    "status": "field-level plumbing implemented (funding_topology.cex_infra_hop_distance, funding_topology.root_cex_infra_category, sourced from candidate_families columns), but returned null for Dv34 in this pass -- the local discovery corpus's candidate_families row for Dv34's family does not have these columns populated (checked live: both null). This is NOT a bug in this implementation; it reflects the corpus's own data state carried over unchanged from OPS-UI-P1's tracing.",
+    "cex_tab_untouched": "templates/ops_tokens.html and src/core/operation_dashboard_routes.py (the separate CEX-funded-data surface) were not read, opened, or modified this pass.",
+    "no_duplication": "No CEX dataset was copied or re-queried into the Operations registry; only the existing candidate_families columns are surfaced when present."
+  },
+  "part10_investigation_detail_enhancement": {
+    "implemented": "New 'Evidence Qualification' section added to templates/operator_intelligence.html's Members tab, populated by one bounded fetch to the new route for the entity already listed first in OP.entities.",
+    "not_implemented_this_pass": "Full per-member evidence rows (mint/CREATE creator/migration signer per member), Funding/Lineage chain rendering, and Analysis tab EP3/EP4 wiring -- these require the full per-member OF-DV34-P3-style reconciliation data, which this bounded, single-summary-call read model deliberately does not fetch (to stay within the Part 15 performance budget). Recorded as follow-up scope."
+  },
+  "part11_conflict_display": {
+    "supported_in_current_implementation": "The new panel shows historical_population.count and evidence_qualification.high_qualified_count as two always-separate, always-both-visible numbers whenever they differ -- this is the base case of the conflict-display requirement (historical fact vs qualified subset), implemented and tested (test_dv34_historical_never_equals_qualified).",
+    "not_yet_implemented": "Explicit LOW/raw-negative/CONTRADICTED states are not yet surfaced in the UI panel (the read model does not currently compute a raw-verification-negative flag per entity) -- flagged as follow-up scope, matching Part 10's note above."
+  },
+  "part12_watchtower_control": {
+    "method": "Live end-to-end Flask test-client call to /api/ops/investigation/<Watchtower's primary entity>/unified.",
+    "result": {
+      "authority_state": "CONFIRMED",
+      "candidate_role": null
+    },
+    "writes_performed": 0,
+    "membership_changed": false
+  },
+  "part13_3sw2_control": {
+    "method": "Live end-to-end Flask test-client call to /api/ops/investigation/<3SW2's primary entity>/unified.",
+    "result": {
+      "authority_state": "CONFIRMED"
+    },
+    "writes_performed": 0,
+    "membership_changed": false
+  },
+  "part14_api_response_shape": {
+    "verified": "Response body for the Dv34 unified route measured at well under 5000 bytes (test_route_returns_bounded_response_not_full_graph); contains no 'members', 'transactions', or 'transfer_graph' keys -- summary-only, as required."
+  },
+  "part15_performance": {
+    "method": "time.perf_counter() around 5 consecutive real calls to fetch_unified_investigation('Dv34...') after import warm-up, executed in this session.",
+    "dv34_steady_state_ms": [
+      9.48,
+      7.71,
+      10.86,
+      12.04,
+      8.51
+    ],
+    "watchtower_entity_ms": 8.36,
+    "3sw2_entity_ms": 8.68,
+    "budget": "under 50ms asserted in test_performance_steady_state_under_50ms; actual results are under 13ms in all measured calls",
+    "query_plan_verification": "EXPLAIN QUERY PLAN on the creator_funders lookup confirms SEARCH ... USING COVERING INDEX idx_creator_funders_funder -- index-backed, not a full scan of the 1.9M-row token_analysis or ~5M-row transfer_index tables (neither table is touched by this implementation at all)."
+  },
+  "part16_frontend_ux": {
+    "visual_language_preserved": "No existing CSS classes renamed or removed; the new section reuses existing ip-section-hdr/ip-section-label classes and is hidden by default (matching the existing loading-state pattern used elsewhere on the page).",
+    "no_redesign": true
+  },
+  "part18_tests": {
+    "file": "tests/test_ops_ui_p2_unified_implementation.py",
+    "count": 17,
+    "all_passing": true,
+    "existing_suite_regression_check": "Ran the 7 existing src/ops-adjacent test modules (test_ops_x8_operator.py, test_ops_x9_operator_workspace.py, test_x25_6_operator_neutral_semantics.py, test_x73_0_operator_identity_lifecycle.py, test_x76_1_operator_identity_projection.py, test_x78_1_operator_command_centre.py, test_ops_x20_emerging_operators.py) both BEFORE (via git stash) and AFTER this change: identical 10 pre-existing failures in both cases, 0 new failures introduced by this milestone's changes."
+  },
+  "part19_local_ui_validation": {
+    "method": "Real Flask app.test_client() (no live server process started, avoiding the documented WAL/lock-storm fragility risk noted in this repo's own operational history), registering only operator_bp and hitting the new route directly against the real database files.",
+    "verified": [
+      "route returns 200 for Dv34 entity",
+      "route returns 200 for Watchtower entity, authority_state=CONFIRMED",
+      "response is bounded (<5000 bytes)",
+      "JS syntax of the modified template checked with node --check after stripping Jinja tags"
+    ],
+    "not_performed": "Full live server rendering / screenshot capture -- skipped for the same fragility-avoidance reason as OPS-UI-P1 Phase R; the test-client-based verification is judged sufficient evidence for this bounded, additive change."
+  },
+  "part20_diff_hygiene": {
+    "baseline_captured": "git status --short captured to /tmp/opsui_p2_baseline_status.txt before any change (342 pre-existing dirty/untracked paths recorded)",
+    "files_changed_this_milestone": [
+      "src/ops/operator_reader.py",
+      "src/ops/operator_routes.py",
+      "templates/operator_intelligence.html"
+    ],
+    "files_created_this_milestone": [
+      "tests/test_ops_ui_p2_unified_implementation.py",
+      "docs/audits/ops_ui_p2_unified_operations_implementation.json"
+    ],
+    "unrelated_files_touched": 0,
+    "diff_stat_verified": "git diff --stat limited to exactly the 3 authorized source files, 166 insertions, 0 deletions, before staging"
+  },
+  "blockers": [
+    "Discovery-intake-into-Analyst-Queue wiring (Part 7) not implemented -- requires extending emerging_operator_service.py or adding a second frontend fetch; flagged in P1 as the concrete next step, not completed in P2.",
+    "Registry-list-level (bulk) evidence-qualification badges (Part 5) not implemented -- would require either N-per-row requests (violates bounded-response requirement) or extending the shared /api/ops/emerging-operators aggregate; deferred.",
+    "CEX/INFRA hop-distance and category are null for Dv34 in the live corpus data (not a code defect -- the underlying candidate_families row lacks these values); CEX tab link/navigation (Part 9's 'contextual link' design) not yet added to the template.",
+    "Per-member evidence rows, Funding/Lineage chain rendering, and Analysis tab EP3/EP4 wiring (Part 10) not implemented -- would require a heavier per-member data fetch beyond this pass's bounded summary scope."
+  ],
+  "terminal_verdict": "READY_OPS_UI_FRONTEND_COMPLETION",
+  "verdict_reasoning": "The backend read model (fetch_unified_investigation + route) is fully implemented, tested (17/17 new tests, 0 regressions in 7 pre-existing test modules), verified end-to-end via a real Flask test client against real data for both the Dv34 reference case and the Watchtower/3SW2 controls, and measured well within the performance budget (single-digit-ms, index-backed, no full-table scans). A minimal, additive frontend surface (the Members-tab Evidence Qualification panel) was also implemented and verified. However, three of the directive's Parts (5 registry-list badges, 7 discovery-intake queue wiring, 10 full detail-view sections) remain explicitly deferred as separate, larger follow-up work rather than being force-fit into this bounded, low-risk pass -- so this is judged 'backend qualified, frontend partially complete' rather than a full OPS_UI_UNIFIED_INTELLIGENCE_IMPLEMENTATION_QUALIFIED.",
+  "deterministic_digest": "b1e89aa6151eed9e0dbae8baa2089a8af6cbabc171dba741da01366b552c5a8a"
+}

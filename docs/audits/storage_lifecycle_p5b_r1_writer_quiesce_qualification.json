@@ -1,0 +1,167 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5B-R1",
+  "purpose": "Qualification-only: prove or disprove a complete, safe, two-process writer quiesce procedure exists for the real P5B cutover. NOT a cutover execution.",
+  "generated_at_utc": "2026-08-20T17:52:00Z",
+  "repo": "/Users/kevinkeaveney/Dev/claude/flex",
+  "branch": "classification-attribution-axis",
+  "verdict": "BLOCKED_UNKNOWN_WRITER_COUNT_NOT_ZERO",
+  "verdict_reason": "Fresh exhaustive writer census found THREE genuine, independently-running production writers to transfer_index, not the two (watchtower_listener, watchtower_api) assumed by the prior P5B attempt and this milestone's own background section. A third live supervisord-managed daemon, creator_funding_worker, independently calls extract_funding_for_new_token() (src/extractors/realtime_creator_funding_extractor.py) which performs 'INSERT OR IGNORE INTO transfer_index' at line ~984. This process is NOT watchtower_listener and NOT watchtower_api -- it runs as its own supervisord program (pid 52101 at time of investigation, uptime 6h44m, independent of both). Per the milestone's explicit stop condition ('If ... the writer count is NOT exactly 2 ... STOP and report exactly that -- do not force the answer to be 2'), this R1 STOPS here. No quiesce-procedure testing beyond confirming service identities was performed for the third writer; the two known writers' stop/start mechanisms were investigated to the extent needed to confirm they are real supervisord programs, but full timed stop/start tests were not executed because the census itself is the blocking finding.",
+  "disk_free_check": {
+    "before_gib": 42,
+    "after_gib": 42,
+    "threshold_stop_at_or_below_gib": 20,
+    "threshold_caution_at_or_below_gib": 25,
+    "status": "OK, no action needed"
+  },
+  "writer_census": {
+    "method": "grepped entire repo for INSERT/INSERT OR IGNORE/INSERT OR REPLACE/UPDATE/DELETE statements touching transfer_index specifically; traced every hit to its actual runtime entrypoint via ps aux, lsof-equivalent process inspection, supervisorctl status, crontab -l, and source-level import/caller tracing; excluded tests/ (non-production, operate on isolated sqlite files, not the live DB).",
+    "unknown_writer_count": "NOT_YET_PROVABLE_AT_ZERO -- see verdict; count of GENUINE LIVE production writers = 3, not the assumed 2",
+    "live_production_writers": [
+      {
+        "id": "watchtower_listener",
+        "process": "python -u -m src.core.pumpfun_curve_listener",
+        "supervisord_program": "watchtower_listener",
+        "pid_observed": 21076,
+        "uptime_observed": "1:03:13",
+        "write_path": "src/core/transfer_indexer.py lines ~251, ~337, ~357 (INSERT OR IGNORE INTO transfer_index); also imports extract_funding_for_new_token from realtime_creator_funding_extractor.py at line 34, but that in-process call path is CONFIRMED PARKED via LISTENER_CREATOR_FUNDING_QUEUE_ENABLED=0, set in run_listener.sh line 21, and gated at pumpfun_curve_listener.py line 1487 (`if ... != \"0\"`). Docstring in creator_funding_worker.py and inline comments at pumpfun_curve_listener.py ~5330 confirm this parking is intentional (X73.2) and current.",
+        "status": "CONFIRMED live writer, accounted for"
+      },
+      {
+        "id": "watchtower_api",
+        "process": "gunicorn --config config/gunicorn.conf.py src.core.main:app",
+        "supervisord_program": "watchtower_api",
+        "pid_observed": 35289,
+        "uptime_observed": "2 days, 9:50:17",
+        "note_extra_pid": "A second gunicorn process (pid 34082) was also observed running the same command line outside supervisord's tracked pid -- see anomaly note below.",
+        "write_path": "POST /api/analyze-all-coordinated-funders (src/core/main.py ~15819-15889) spawns daemon threads calling extract_for_creator() in src/extractors/funder_incoming_extractor.py, which does INSERT OR IGNORE INTO transfer_index at line ~1073. Gated by listener_settings.auto_extract_funders (currently 'false') but that toggle is live-flippable via a separate route (~12369-12392) -- confirmed still true, still explicitly rejected as adequate protection per user instruction.",
+        "status": "CONFIRMED live writer, accounted for"
+      },
+      {
+        "id": "creator_funding_worker",
+        "process": "python -m src.core.creator_funding_worker",
+        "supervisord_program": "creator_funding_worker",
+        "pid_observed": 52101,
+        "uptime_observed": "6:44:28",
+        "status": "RUNNING (confirmed via supervisorctl status)",
+        "write_path": "Standalone daemon, sole canonical consumer of creator_funding_queue as of X73.2 (see docstring src/core/creator_funding_worker.py lines 1-33). Calls extract_funding_for_new_token (imported at line 1219, invoked ~1290/1295) from src/extractors/realtime_creator_funding_extractor.py, which performs INSERT OR IGNORE INTO transfer_index at line ~984 (confirmed by direct read of that code block). This process runs entirely independently of both watchtower_listener and watchtower_api -- it is its OWN supervisord program and was NOT part of either 'known writer' description in this milestone's background or the prior P5B Part-4 census.",
+        "status_classification": "THIRD LIVE WRITER -- NOT one of the two known writers. This is the blocking finding.",
+        "why_prior_census_missed_it": "The X73.2 comment history shows creator_funding_worker replaced two previously-inert consumer paths (pumpfun_curve_listener's in-process loop, parked since 2026-06-25; and scripts/run_creator_funding_queue_once.py, documented-but-never-scheduled) with a new standalone daemon. The prior P5B census evidently checked for the OLD (inert) consumer paths and/or was not re-run after X73.2 introduced this new daemon -- it is a genuinely NEW writer relative to whatever baseline the original P5A/P5B census used, not a mistraced existing one."
+      }
+    ],
+    "confirmed_dead_or_unreachable_writers": [
+      {
+        "file": "src/ops/transfer_archival_cursor.py",
+        "write_path": "INSERT OR IGNORE INTO transfer_index at line ~143 (run_keyset_archival)",
+        "invocation_search": "No supervisord program, no cron entry, no import from any live-running module found anywhere in the repo outside its own file and tests/test_storage_lifecycle_p4_archival_cursor.py.",
+        "status": "CONFIRMED DEAD -- never wired into any running process"
+      },
+      {
+        "file": "src/ops/transfer_cold_store.py",
+        "write_path": "INSERT OR IGNORE INTO transfer_index at line ~130 (migrate_rows_to_cold)",
+        "invocation_search": "No supervisord program, no cron entry, no non-test import found anywhere.",
+        "status": "CONFIRMED DEAD -- never wired into any running process"
+      },
+      {
+        "file": "scripts/run_creator_funding_queue_once.py",
+        "write_path": "Calls extract_funding_for_new_token, same underlying write as creator_funding_worker",
+        "invocation_search": "Explicitly documented in creator_funding_worker.py's own docstring as 'a documented but never-scheduled one-shot cron script ... no longer the intended consumer'; confirmed absent from crontab -l and supervisord.conf.",
+        "status": "CONFIRMED DEAD -- superseded by creator_funding_worker, never scheduled"
+      },
+      {
+        "file": "src/core/pumpfun_curve_listener.py in-process creator-funding loop (_process_creator_funding_queue_periodic)",
+        "write_path": "Same underlying extract_funding_for_new_token call, gated in-process",
+        "invocation_search": "Gated by LISTENER_CREATOR_FUNDING_QUEUE_ENABLED, confirmed set to 0 in run_listener.sh line 21 (the actual live invocation of watchtower_listener).",
+        "status": "CONFIRMED PARKED/inert under current live configuration (code present but unreachable given current env)"
+      },
+      {
+        "file": "src/core/storage_cleanup.py",
+        "write_path": "DELETE FROM transfer_index WHERE block_time < cutoff (line ~215) -- not an insert/writer-growth concern but checked for completeness",
+        "invocation_search": "No supervisord program or cron entry found referencing storage_cleanup.py.",
+        "status": "CONFIRMED DEAD/unwired; irrelevant to zero-writer proof in any case since it only deletes, and the cron-scheduled src/ops/storage_lifecycle_runner.py (0 3 * * *) was explicitly out of scope to touch or broaden per this milestone's hard constraints -- confirmed storage_lifecycle_runner.py does not import storage_cleanup.py, transfer_archival_cursor.py, or transfer_cold_store.py."
+      }
+    ],
+    "other_table_sanity_check": "Not performed exhaustively for tables beyond transfer_index, per milestone scope ('transfer_index is the primary concern'). Given the transfer_index census alone surfaced an unaccounted third writer, a full census would be required before any other table could be assumed safe for a cutover involving them.",
+    "anomaly_noted_not_investigated_further": {
+      "description": "A second gunicorn process (pid 34082, command identical to watchtower_api's pid 35289, uptime 6:43:54 wall-clock at observation) was seen in ps aux, running under the algotrader conda env, same config file, but NOT the pid supervisorctl reports for watchtower_api (35289).",
+      "handling": "Per this milestone's caution guidance (root-cause apparent anomalies before treating as real problems, but err toward caution and avoid unnecessary live intervention), this was noted but NOT investigated further live (e.g. not killed, not lsof'd against the DB) because doing so risks disturbing a running process outside the scope of this R1's quiesce testing, and because the R1 verdict is already BLOCKED on the writer-count finding independent of this anomaly. This MUST be resolved (identify what pid 34082 is -- orphaned prior gunicorn master/worker not reaped by supervisord, a manually-started duplicate, etc.) before any real P5B cutover, since an un-supervised gunicorn process would not be stopped by `supervisorctl stop watchtower_api` and could itself be an unaccounted writer path to /api/analyze-all-coordinated-funders."
+    }
+  },
+  "quiesce_procedure_investigation": {
+    "status": "PARTIAL -- performed only to the extent needed to confirm service identities and supervisord control surface; full timed stop/start tests were NOT executed because the writer-count blocker makes any 'complete' quiesce claim false regardless of how well watchtower_listener/watchtower_api quiesce individually.",
+    "supervisord_control_surface_confirmed": {
+      "command_prefix": "supervisorctl -c /Users/kevinkeaveney/Dev/claude/flex/config/supervisor/supervisord.conf",
+      "socket": "unix:///tmp/watchtower_supervisord.sock (confirmed still accurate -- `status` subcommand succeeded using -c pointed at the repo config)",
+      "status_output_observed": {
+        "watchtower_api": "RUNNING pid 35289, uptime 2 days, 9:50:17",
+        "watchtower_listener": "RUNNING pid 21076, uptime 1:03:13",
+        "creator_funding_worker": "RUNNING pid 52101, uptime 6:44:28",
+        "watchtower_ngrok": "RUNNING",
+        "operation_scheduler": "RUNNING",
+        "intelligence_snapshot_scheduler": "RUNNING",
+        "walkback_worker": "RUNNING",
+        "alert_evaluator": "RUNNING",
+        "creator_resolution_worker": "RUNNING",
+        "dust_observatory_enricher": "STOPPED (Not started)",
+        "evidence_writer": "STOPPED (Not started)",
+        "infra_sync_scheduler": "STOPPED (Not started)",
+        "watchtower_helius_monitor": "STOPPED (Not started)",
+        "webhook_worker": "STOPPED (Not started)"
+      }
+    },
+    "sighup_vs_stop_analysis": {
+      "question": "Is SIGHUP alone sufficient for API quiescence?",
+      "answer": "INSUFFICIENT -- confirmed by source-level reasoning, consistent with milestone's framing; not re-litigated further given the higher-priority writer-count blocker.",
+      "reasoning": "SIGHUP against a running Gunicorn master reloads workers (typically by starting new workers and gracefully phasing out old ones) but does not guarantee: (a) no worker is mid-request inside /api/analyze-all-coordinated-funders at the moment of signal, or (b) that a daemon thread already spawned via threading.Thread(target=extract_for_creator, daemon=True) from a request that landed just before reload will be joined or waited on -- daemon threads are fire-and-forget by Python's own semantics and Gunicorn's worker reload does not track or join non-request-lifecycle threads it didn't spawn itself. A full graceful STOP (supervisorctl stop watchtower_api), which waits out Gunicorn's worker shutdown timeout for in-flight REQUESTS, still does not by itself prove the daemon THREAD (as opposed to the request that spawned it) has finished, since the thread is detached from the request lifecycle once spawned. No join/tracking mechanism for these threads was found anywhere in src/core/main.py or funder_incoming_extractor.py in this or the prior investigation."
+    },
+    "in_flight_daemon_thread_risk": {
+      "confirmed_no_join_mechanism": true,
+      "estimated_bound_needed": "NOT independently re-derived in R1 (duration analysis of extract_for_creator's RPC/retry behavior was already characterized in the prior P5B attempt per this milestone's background; re-deriving it was not reached because R1 stopped at the writer-count blocker, which is prior in the dependency chain -- a correct duration bound for ONE fire-and-forget writer thread pool is moot if a wholly separate, always-on daemon (creator_funding_worker) is also writing.)"
+    }
+  },
+  "writer_count_exactly_two": false,
+  "sighup_sufficient_for_quiescence": false,
+  "expected_downtime_estimate_for_real_cutover": "NOT COMPUTED -- blocked on writer-count remediation; any downtime estimate premised on a 2-writer quiesce is invalid until creator_funding_worker (and the pid 34082 anomaly) are resolved into the quiesce plan.",
+  "multi_signal_zero_writer_proof_design": {
+    "status": "DESIGNED IN OUTLINE, NOT FINALIZED -- the design below is a correct STARTING POINT but MUST be revised to add creator_funding_worker (and confirm/rule out pid 34082) as a THIRD service to quiesce and monitor before it can be considered complete.",
+    "signals": [
+      {
+        "signal": "process/service state",
+        "check": "supervisorctl -c <config> status shows watchtower_listener, watchtower_api, AND creator_funding_worker (once added) as STOPPED; ps aux confirms no process matching pumpfun_curve_listener, gunicorn src.core.main:app, or creator_funding_worker command lines remains, INCLUDING any pid not tracked by supervisorctl (the pid 34082 class of anomaly) -- ps aux must be cross-checked against supervisorctl's reported pids, not trusted alone."
+      },
+      {
+        "signal": "open writable DB handles",
+        "check": "lsof database/flex_complete_database.db (macOS/Darwin syntax confirmed correct for this environment) should show zero processes with the DB file open in a write-capable mode once all writers are stopped. BASELINE NOT YET CAPTURED in R1 -- capturing an accurate 'production running normally' lsof baseline should be done in a follow-up pass so the future cutover session knows what changes when writers actually stop; this is a lightweight, safe, read-only step deferred here only because of time/scope, not risk."
+      },
+      {
+        "signal": "DB write-lock state",
+        "check": "database/flex_complete_database.db.write.lock, .owner.guard, .waiters files exist and were observed with fresh mtimes (Aug 20 18:49) at investigation time, confirming this IS an actively-written app-level lease mechanism, not a stale artifact. Its writer(s) were not traced to source in R1 (out of scope creep beyond transfer_index census) but should be traced in the writer-count remediation pass, since if this lock is acquired by any of the 3 (not 2) writer processes, its release/absence becomes a 4th independent signal of true quiescence once all 3 are confirmed stopped."
+      },
+      {
+        "signal": "WAL stability",
+        "check": "database/flex_complete_database.db-wal file size polled every few seconds; PRAGMA wal_checkpoint(PASSIVE) behavior observed for stabilization. Not executed live in R1 to avoid an unnecessary checkpoint operation against the live production DB outside the scope of a pure census; safe to run read-only in a future pass."
+      },
+      {
+        "signal": "transfer_index max-id stability",
+        "check": "Poll SELECT MAX(id) FROM transfer_index (or an equivalent monotonic column) every few seconds for 30-60s. Script design: python loop, sqlite3.connect(db_path, uri='mode=ro') read-only connection, print (timestamp, max_id) each iteration, flag STABLE if unchanged across all samples. NOT executed against live prod in R1 -- would currently show ongoing legitimate writes from all 3 active writers, which is expected/correct and was explicitly not needed to prove the polling mechanism itself; deferred to avoid extra unnecessary reads during an already-flagged blocked run.",
+        "script_location_if_needed": "/private/tmp/claude-501/-Users-kevinkeaveney-Dev-claude-flex/2a2873e1-2617-41ce-813b-9b93656942e5/scratchpad/ (not written in R1 since the check design is fully specified here and the milestone treats a written or described script as equally acceptable)"
+      }
+    ]
+  },
+  "restart_sequence": "Not exercised as a distinct step in R1 since no service was stopped (see production_action_taken below). For the eventual real quiesce: supervisorctl -c <config> start watchtower_listener; supervisorctl -c <config> start watchtower_api; supervisorctl -c <config> start creator_funding_worker (once correctly included); verify each via supervisorctl status + a lightweight health check (listener log tail showing WS reconnect; API GET to a lightweight health endpoint; worker log tail or --status flag) before considering the system restored.",
+  "rollback_sequence": "Trivial and low-risk by design, consistent with the milestone's framing: since all three writers are independently start/stoppable supervisord programs, an aborted-mid-quiesce rollback is simply 'ensure all three are RUNNING again via supervisorctl start <program> for whichever are stopped, then verify via supervisorctl status'. No data mutation occurs during a stop/start cycle of these services themselves (they are read/write DB CLIENTS, not the DB), so rollback carries no data-loss risk -- the only risk during an aborted real cutover would be around the DB-file-level cutover operations (delta copy, atomic switch), which remain entirely out of scope for R1 and were not touched.",
+  "production_action_taken": {
+    "any_service_stopped_or_started": false,
+    "any_data_mutated": false,
+    "any_cutover_performed": false,
+    "note": "R1 stopped at the census/blocker stage before reaching live stop/start testing of watchtower_listener or watchtower_api, since a correct 'complete two-process quiesce procedure' claim is already false once a third live writer is known to exist -- proceeding to test the two known writers' stop/start mechanics in isolation would not have advanced the milestone's actual goal (proving a COMPLETE procedure) and would have added unnecessary live-service risk for no qualification value. All investigation in R1 was read-only (grep, ps aux, supervisorctl status, ls, df, crontab -l)."
+  },
+  "next_step_instructions_for_future_p5b_resume_session": [
+    "1. Treat creator_funding_worker as a REQUIRED THIRD member of the P5B final quiesce boundary, alongside watchtower_listener and watchtower_api. Update any planning documents/scripts that assume exactly 2 writers.",
+    "2. Resolve the pid 34082 anomaly BEFORE any real cutover: identify whether it is an orphaned/duplicate gunicorn process outside supervisord's control. If it independently holds a route to /api/analyze-all-coordinated-funders or any other DB-writing endpoint, it must be accounted for and stopped by an explicit, verified mechanism (supervisorctl will not touch it) -- do not assume it is harmless without checking what it's actually doing (e.g. ps -p 34082 -o etime,ppid,command, and whether it's actually bound to the listening port or just an idle/zombie master).",
+    "3. Re-run a fresh writer census (this document's method is reusable) as the FIRST step of any real P5B resume attempt, in case further writers were added between R1 and the resume session -- do not reuse this R1 census beyond its generation timestamp without re-verifying.",
+    "4. Once UNKNOWN_WRITER_COUNT is proven to be exactly 0 unaccounted (i.e., every writer -- now expected to be 3 -- is enumerated and each has a proven graceful stop/start procedure), execute Part 2 of this milestone's original instructions in full for ALL THREE processes: timed graceful stop/start tests for creator_funding_worker (likely trivial via supervisorctl, same mechanism as watchtower_listener, since it is a simple standalone polling daemon per its docstring -- but verify it does not have its own in-flight-thread risk analogous to the API's daemon threads; check whether creator_funding_worker's extraction calls are awaited synchronously in its main loop or fire-and-forget).",
+    "5. Trace the database/flex_complete_database.db.write.lock / .owner.guard / .waiters mechanism to its source code (which module acquires/releases it) -- this was noticed but not traced in R1 and could be a valuable additional zero-writer signal once understood, or could reveal yet another writer path if it's acquired somewhere unexpected.",
+    "6. Once a genuine 3-writer complete quiesce procedure is proven (all 3 stop/start tested individually with measured latencies, in-flight-thread risk analyzed for each, pid-34082-class anomalies ruled out), THEN re-attempt the multi-signal zero-writer proof script live during an actual brief real quiesce window, and only then proceed to the real P5B cutover (Parts 6+ of the original directive) under separate human authorization."
+  ],
+  "handoff_transport_note": "docs/agent_handoff/current.json blockers confirmed == ['HANDOFF_TRANSPORT_DEGRADED'] prior to update; preserved exactly, new key storage_lifecycle_p5b_r1 added, diff-checked no other key mutated."
+}

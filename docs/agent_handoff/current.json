@@ -31001,5 +31001,34 @@
     "final_summary_artifact": "docs/audits/storage_lifecycle_p5a_final_qualification_summary.json",
     "production_mutation_occurred": false,
     "note": "P5A built and validated a candidate replacement main DB (HOT) + 41 cold segment files entirely from read-only copies of production; production (database/flex_complete_database.db) was never written to. P5A does NOT cut over. See the final qualification summary artifact for full metrics."
+  },
+  "storage_lifecycle_p5b": {
+    "milestone": "STORAGE-LIFECYCLE-P5B -- controlled HOT/COLD production cutover (attempt)",
+    "terminal_verdict": "HOLD_P5B_UNEXPECTED_WRITER",
+    "artifacts": [
+      "docs/audits/storage_lifecycle_p5b_pre_cutover.json"
+    ],
+    "reason": "Part 4 writer census found watchtower_api (gunicorn, POST /api/analyze-all-coordinated-funders) is a second live write path into transfer_index, independent of watchtower_listener. Currently inert (auto_extract_funders toggle=false) but live-flippable and not accounted for in the planned quiesce/reload scope.",
+    "production_writes_by_this_milestone": 0,
+    "cutover_performed": false,
+    "writer_quiesced": false,
+    "switch_performed": false,
+    "reload_performed": false,
+    "old_db_state": "untouched, still live and being written by watchtower_listener as normal",
+    "next_action": "Human decision needed: either hard-disable the /api/analyze-all-coordinated-funders write path for the cutover window, or explicitly extend the P5B writer-quiesce/reload plan to cover watchtower_api as a writer, then retry P5B from Part 1 with a fresh census."
+  },
+  "storage_lifecycle_p5b_r1": {
+    "milestone": "STORAGE-LIFECYCLE-P5B-R1",
+    "verdict": "BLOCKED_UNKNOWN_WRITER_COUNT_NOT_ZERO",
+    "summary": "Qualification-only re-run of writer census found a THIRD live production writer to transfer_index (creator_funding_worker, a standalone supervisord daemon calling extract_funding_for_new_token) not accounted for by the assumed watchtower_listener/watchtower_api 2-writer model. Also flagged an unresolved anomaly: a second untracked gunicorn process (pid 34082) alongside supervisord-tracked watchtower_api (pid 35289). No live service was stopped/started; no data mutated; no cutover performed.",
+    "artifact_path": "docs/audits/storage_lifecycle_p5b_r1_writer_quiesce_qualification.json",
+    "writer_count_exactly_two": false,
+    "live_writers_found": [
+      "watchtower_listener",
+      "watchtower_api",
+      "creator_funding_worker"
+    ],
+    "production_action_taken": false,
+    "next_step": "Future P5B-resume session must treat creator_funding_worker as a required third quiesce-boundary member, resolve the pid 34082 anomaly, re-run a fresh writer census, then prove and test a complete 3-process graceful quiesce procedure before any real cutover."
   }
 }

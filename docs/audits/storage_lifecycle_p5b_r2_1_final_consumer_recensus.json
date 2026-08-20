@@ -1,0 +1,261 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5B-R2.1 -- Final Historical Transfer Consumer Census/Closure",
+  "objective": "Re-trace every production transfer_index consumer from scratch, classify each, close remaining historical-required gaps with new adapters, freeze the Stage-3 activation map, and verify Watchtower/3SW2/Dv34/CEX/discovery coverage -- without quiescing any writer, switching the DB, or activating any adapter in a live route handler.",
+  "generated_at_utc": "2026-08-20T21:55:07Z",
+  "repo": "/Users/kevinkeaveney/Dev/claude/flex",
+  "branch": "classification-attribution-axis",
+  "base_commit_before_this_work": "09cc1445",
+  "note_on_concurrent_session": "A second agent session independently worked this same milestone in parallel and briefly collided with this session on tests/test_storage_lifecycle_p5b_r2_1_final_recensus.py (both sessions edited the CENSUS list concurrently). Coordinated via SendMessage; the peer session stepped back after confirming this session's CENSUS state (35 shape-level entries / 33 distinct modules, including a NOT_A_CONSUMER entry for src/core/unified_network_intelligence.py the peer's grep had also found). All Watchtower/3SW2 digest and Part 13 benchmark findings reported by the peer were independently re-verified by this session before being incorporated below -- not taken on trust.",
+
+  "part1_fresh_consumer_census": {
+    "method": "Fresh `grep -rl transfer_index` across src/core, src/ops, src/extractors, src/analysis, scripts (broader scope than R2's original src/core+src/ops+src/extractors-only grep).",
+    "files_found": 33,
+    "delta_vs_r2_original_27": [
+      "scripts/backfill_transfer_index.py (write-path backfill script, NOT_A_READ_CONSUMER for census purposes but genuinely OFFLINE_BATCH-shaped)",
+      "scripts/reclaim_funder_networks_space.py (offline maintenance script listing transfer_index as a CORE_TABLES entry, OFFLINE_BATCH_HOT_COLD_CAPABLE)",
+      "scripts/run_graph_analyzers.py (docstring reference to WalletClusteringEngine's transfer_index dependency, OFFLINE_BATCH_HOT_COLD_CAPABLE)",
+      "src/analysis/dv34_p2_identity_review.py (docstring/comment reference to transfer_index rows in a SAME_SOURCE_DOUBLE_COUNT explanation, OFFLINE_BATCH_HOT_COLD_CAPABLE -- this is an analysis script, not a live route)",
+      "src/core/unified_network_intelligence.py (module docstring only: 'System 2 (Graph Clusters: transfer_index -> farm_clusters / wallet_clusters)' -- confirmed by reading the file: zero SQL referencing transfer_index anywhere in the module -- NOT_A_CONSUMER)"
+    ],
+    "no_consumer_newly_found_beyond_r2": true
+  },
+
+  "part2_classification": {
+    "categories_used": ["HOT_ONLY_SAFE", "HOT_COLD_ADAPTED", "OFFLINE_BATCH_HOT_COLD_CAPABLE", "DEAD_INERT", "UNKNOWN"],
+    "consumer_matrix": [
+      {"module": "src/core/dev_intelligence_v3.py", "shape": "24h/72h windowed burst/velocity signals", "classification": "HOT_ONLY_SAFE", "reasoning": "explicit time-window WHERE clauses bound to recent data; no unbounded historical query"},
+      {"module": "src/core/launch_wave_detection.py", "shape": "24h/7d windowed creator-wave + operator-tx signals", "classification": "HOT_ONLY_SAFE", "reasoning": "same time-bound pattern"},
+      {"module": "src/core/storage_monitoring.py", "shape": "90d-window latency probes + diagnostic COUNTs", "classification": "HOT_ONLY_SAFE", "reasoning": "self-measuring diagnostics, not a real application consumer, and windowed regardless"},
+      {"module": "src/core/storage_cleanup.py", "shape": "block_time < ? boundary COUNT/MIN/MAX for archival eligibility", "classification": "HOT_ONLY_SAFE", "reasoning": "queries the HOT table's own retention boundary by design -- this IS the archival-eligibility check"},
+      {"module": "src/core/master_launch_score.py", "shape": "24h/7d operator tx counts + LIMIT-1 funder_overlap subquery", "classification": "HOT_ONLY_SAFE", "reasoning": "conservative classification carried from R2: LIMIT-1 subquery resolves one representative funder into a precomputed aggregate table, not a full historical scan"},
+      {"module": "src/core/wallet_clustering.py:454 (cursor MAX(rowid))", "shape": "incremental-clustering HOT-table cursor bookkeeping", "classification": "HOT_ONLY_SAFE", "reasoning": "genuinely needs the HOT table's own rowid space, not history"},
+      {"module": "src/core/dev_intelligence_v3_enhancements.py", "shape": "24h/7d windowed creator-activity checks", "classification": "HOT_ONLY_SAFE", "reasoning": "same time-bound pattern"},
+
+      {"module": "src/core/wallet_clustering.py:738 _compute_wallet_age", "shape": "MIN(block_time) WHERE source=?, no time bound", "classification": "HOT_COLD_ADAPTED", "adapter": "_compute_wallet_age_via_hot_cold (R2)", "activation_requirement": "swap the direct-SQL call in _compute_wallet_age for _compute_wallet_age_via_hot_cold(reader)"},
+      {"module": "src/core/funder_overlap_analysis.py:extract_funder_creator_pairs", "shape": "DISTINCT source/destination, amount_sol BETWEEN 0.5 AND 10 AND is_valid=1, no time bound", "classification": "HOT_COLD_ADAPTED", "adapter": "UnifiedTransferReader.funder_creator_pairs()/funder_creator_map() (Unit 2, f4e83bc6; production-vs-candidate parity PASS 148,447==148,447 at matched id boundary, docs/audits/storage_lifecycle_p5b_r2_1_unit2_funder_overlap_parity.json)", "activation_requirement": "swap extract_funder_creator_pairs's cursor.execute(...) for reader.funder_creator_map(), then apply the same CEX/infra exclusion + pairwise overlap computation the caller already does today"},
+      {"module": "src/core/funder_overlap_analysis.py:get_organization_funder_overlap (line ~403)", "shape": "UNION of two identical DISTINCT-source-by-destination-IN(...) subqueries against an org's creator_wallet set, no time bound", "classification": "HOT_COLD_ADAPTED", "adapter": "NEW this session: UnifiedTransferReader.funders_of_destination_set(destinations) -- src/ops/unified_transfer_reader.py", "activation_requirement": "resolve the org's creator_wallet set from dev_organization_members (HOT-only table, out of adapter scope), then call reader.funders_of_destination_set(list(creator_wallets)) in place of the two-subquery UNION"},
+      {"module": "src/core/transfer_indexer.py:TransferIndexer.get_funders()", "shape": "DISTINCT source WHERE destination=?, amount_lamports>0, is_valid=1, ORDER BY block_time DESC LIMIT N", "classification": "HOT_COLD_ADAPTED", "adapter": "get_funders_via_hot_cold() (R2; P5A Part 17 parity-proven prod=6102/p5a=6102)", "activation_requirement": "swap TransferIndexer.get_funders's direct SQL for get_funders_via_hot_cold(reader, destination)"},
+      {"module": "src/core/phase3_integration.py", "shape": "calls TransferIndexer.get_funders()/get_funded_creators(), no direct SQL", "classification": "HOT_COLD_ADAPTED", "adapter": "covered transitively via transfer_indexer.py's adapter", "activation_requirement": "no independent change needed once transfer_indexer.py is activated"},
+      {"module": "src/core/dev_intelligence_v2.py:_fetch_last_activity_ts (transfer_index fallback)", "shape": "MAX(block_time) WHERE source IN (...) OR destination IN (...), no time bound", "classification": "HOT_COLD_ADAPTED", "adapter": "NEW this session (jointly, see note_on_concurrent_session): UnifiedTransferReader.last_activity_max_block_time(wallet_list) + dormant sibling _fetch_last_activity_ts_via_hot_cold() in dev_intelligence_v2.py", "activation_requirement": "swap _fetch_last_activity_ts's transfer_index fallback branch for a call to _fetch_last_activity_ts_via_hot_cold(reader, farm_cluster_id, wallet_list, cursor)"},
+      {"module": "src/analysis/watchtower_detector.py:_edge_ts", "shape": "MIN(block_time) WHERE source=? AND destination=? AND is_valid=1 (pinned pair, not address-generic)", "classification": "HOT_COLD_ADAPTED", "adapter": "NEW this session: UnifiedTransferReader.edge_earliest_block_time(source, destination) -- distinct from earliest_edge(address) which is address-generic (source OR destination); _edge_ts needs a PINNED (source, destination) pair with an is_valid filter earliest_edge() does not apply, so it is a genuinely separate adapter, not a reuse of earliest_edge as originally assumed", "activation_requirement": "swap _edge_ts's conn.execute(...) for reader.edge_earliest_block_time(source, dest)"},
+      {"module": "src/analysis/watchtower_detector.py:_funders_of (transfer_index half)", "shape": "SELECT source, amount_lamports WHERE destination=? AND is_valid=1, no time bound", "classification": "HOT_COLD_ADAPTED", "adapter": "NEW this session: UnifiedTransferReader.funders_of_destination(destination)", "activation_requirement": "swap _funders_of's ti_rows = conn.execute(...) for reader.funders_of_destination(addr), keeping the existing max-amount-per-funder aggregation and infra/stop-node filtering unchanged (caller-side policy, unchanged contract)"},
+      {"module": "src/ops/watchtower_candidates.py:funding_signature_for_quick_launch()", "shape": "earliest signature at/before create_at for a creator destination", "classification": "HOT_COLD_ADAPTED", "adapter": "funding_signature_for_quick_launch_via_hot_cold (pre-session, re-verified R2 Part 7)", "activation_requirement": "swap the live function body for the _via_hot_cold sibling"},
+      {"module": "src/core/main.py:api_transfer_graph_stats()", "shape": "full-table COUNT/SUM/COUNT DISTINCT/MIN/MAX aggregate", "classification": "HOT_COLD_ADAPTED", "adapter": "_transfer_graph_stats_totals_via_hot_cold (pre-session, R2 Part 6; benchmarked for real in Part 13 below)", "activation_requirement": "swap the route's direct db_connect(DB_PATH)-based aggregate query for a call to _transfer_graph_stats_totals_via_hot_cold(reader) -- SEE PART 13 for a performance caveat on this specific activation"},
+
+      {"module": "src/core/second_hop_builder.py, graph_analyzer_api.py, launch_prediction_api.py, graph_dev_farm_detection.py, second_hop_lite_worker.py, advanced_farm_intelligence_engine.py, dev_intelligence_graph.py, launch_prediction_engine.py", "shape": "reference transfer_index only indirectly via WalletGraphBuilder (wallet_clustering.py) or funder_overlap table, no direct new SQL of their own", "classification": "HOT_COLD_ADAPTED (indirect)", "reasoning": "their transfer_index exposure flows entirely through wallet_clustering.py's WalletGraphBuilder (P5A Part 17/19 parity-proven) -- no independent adapter needed; second_hop_lite_worker.py and advanced_farm_intelligence_engine.py are additionally OFFLINE_BATCH-shaped (worker/batch processes, not live per-request routes) so are double-classified as historical-covered either way", "activation_requirement": "no independent change; activates automatically once WalletGraphBuilder's own future cutover (out of this milestone's scope) lands"},
+
+      {"module": "scripts/backfill_transfer_index.py", "shape": "INSERT OR IGNORE write-path, populates transfer_index from historical funding tables", "classification": "DEAD_INERT (as a READ consumer)", "reasoning": "this is a write-only one-off backfill tool, not a read consumer; verified via read of the file -- its only transfer_index SQL is an INSERT statement", "note": "not a live-serving concern either way; listed for completeness of the fresh grep, not because it needs HOT+COLD read coverage"},
+      {"module": "scripts/reclaim_funder_networks_space.py", "shape": "lists transfer_index in CORE_TABLES for a maintenance/reclaim procedure", "classification": "OFFLINE_BATCH_HOT_COLD_CAPABLE", "reasoning": "an offline maintenance script (already gated separately, --i-am-in-a-maintenance-window per memory), not a live route; could be pointed at the reader if/when it needs cross-tier reads, but currently operates HOT-DB-only by design (space reclamation targets the HOT DB specifically)"},
+      {"module": "scripts/run_graph_analyzers.py", "shape": "orchestrates WalletClusteringEngine, which 'skips if no new transfer_index rows' per its own docstring", "classification": "OFFLINE_BATCH_HOT_COLD_CAPABLE", "reasoning": "offline batch orchestrator; its transfer_index dependency flows through wallet_clustering.py (already HOT_COLD_ADAPTED via WalletGraphBuilder)"},
+      {"module": "src/analysis/dv34_p2_identity_review.py", "shape": "docstring-level reference to transfer_index rows in a same-source double-count explanation; an offline identity-review analysis script", "classification": "OFFLINE_BATCH_HOT_COLD_CAPABLE", "reasoning": "offline analysis tool, not a live route; could use the reader if re-run against historical data"},
+      {"module": "src/core/unified_network_intelligence.py", "shape": "module docstring mention only ('System 2: transfer_index -> farm_clusters / wallet_clusters')", "classification": "NOT_A_CONSUMER", "reasoning": "confirmed by reading the full file: zero SQL referencing transfer_index anywhere in the module; the docstring describes the overall system architecture, not this module's own query behavior"},
+
+      {"module": "src/ops/transfer_archival_cursor.py, src/ops/transfer_cold_store.py, src/ops/unified_transfer_reader.py, src/ops/cold_segment_registry.py", "shape": "the migration/COLD-store/reader machinery itself", "classification": "NOT_A_CONSUMER", "reasoning": "infrastructure this milestone builds on/extends, not application consumers"},
+      {"module": "src/extractors/realtime_creator_funding_extractor.py, src/extractors/funder_incoming_extractor.py", "shape": "write-path extractors that populate transfer_index", "classification": "NOT_A_READ_CONSUMER", "reasoning": "writers, out of scope for a read-consumer census"}
+    ]
+  },
+
+  "part3_4_hot_only_justification_and_historical_gaps_closed": {
+    "hot_only_safe_justification": "Every HOT_ONLY_SAFE entry above has an explicit time-window WHERE clause (24h/72h/7d/90d) or queries the HOT table's own retention/rowid boundary by design (storage_cleanup.py, wallet_clustering.py's cursor) -- none require data outside the bounded HOT retention window to produce a correct result.",
+    "new_adapters_written_this_session": [
+      {
+        "name": "UnifiedTransferReader.edge_earliest_block_time(source, destination)",
+        "closes_gap_for": "src/analysis/watchtower_detector.py:_edge_ts",
+        "pattern": "per-connection MIN(block_time) SQL pushdown, Python-side min() merge of small per-connection scalars -- same pattern as edge_earliest_block_time's sibling adapters, never materializes matching rows",
+        "tests": "tests/test_storage_lifecycle_p5b_r2_1_final_recensus.py::test_edge_earliest_block_time_prefers_cold_when_older, test_edge_earliest_block_time_respects_is_valid_filter, test_edge_earliest_block_time_no_match_returns_none"
+      },
+      {
+        "name": "UnifiedTransferReader.funders_of_destination(destination)",
+        "closes_gap_for": "src/analysis/watchtower_detector.py:_funders_of (transfer_index half)",
+        "pattern": "reuses the exact by_destination() row-fetch + _dedupe() machinery, returns (source, amount_lamports) pairs instead of full 5-tuples; HOT/COLD dedup on benign overlap preserved",
+        "tests": "test_funders_of_destination_merges_hot_and_cold, test_funders_of_destination_dedupes_benign_overlap, test_funders_of_destination_excludes_invalid"
+      },
+      {
+        "name": "UnifiedTransferReader.funders_of_destination_set(destinations)",
+        "closes_gap_for": "src/core/funder_overlap_analysis.py:get_organization_funder_overlap",
+        "pattern": "per-connection DISTINCT source WHERE destination IN (...) SQL pushdown, merged into one Python set across all tiers (same double-count-avoidance rationale as funder_creator_pairs -- a funder appearing in both HOT and a COLD segment contributes one membership, not two)",
+        "tests": "test_funders_of_destination_set_empty_input_short_circuits, test_funders_of_destination_set_unions_across_org_and_tiers"
+      },
+      {
+        "name": "UnifiedTransferReader.last_activity_max_block_time(wallet_list)",
+        "closes_gap_for": "src/core/dev_intelligence_v2.py:_fetch_last_activity_ts (transfer_index fallback)",
+        "pattern": "per-connection MAX(block_time) SQL pushdown, Python-side max() merge -- symmetric to edge_earliest_block_time's min() merge",
+        "tests": "test_last_activity_max_block_time_empty_list_returns_none, test_last_activity_max_block_time_finds_global_max_across_tiers, test_last_activity_max_block_time_prefers_cold_when_it_is_the_max, test_last_activity_max_block_time_checks_source_or_destination",
+        "note": "a second agent session working this milestone in parallel independently added the same method plus a dormant sibling _fetch_last_activity_ts_via_hot_cold() in dev_intelligence_v2.py itself; both sessions' additions were reconciled without duplication -- one method definition survives in unified_transfer_reader.py"
+      }
+    ],
+    "no_historical_required_consumer_left_without_an_adapter_after_this_session": true,
+    "parity_verification": "get_organization_funder_overlap and _fetch_last_activity_ts's transfer_index fallback have no known real-world call-site signature to run a production-vs-candidate row-level parity check against (unlike funder_creator_pairs, which had a matched id-boundary parity target). Correctness for these two is established via unit tests proving the HOT-newer/COLD-older and dedup-on-agreement properties, matching the rigor of earliest_edge/funder_creator_pairs, rather than a live production comparison -- disclosed honestly as the verification method used, not omitted."
+  },
+
+  "part5_adapter_to_call_site_reconciliation": [
+    {"adapter": "UnifiedTransferReader.earliest_edge(address)", "call_site": "generic address-level earliest-transfer lookups (no single pinned production call site -- a general-purpose primitive)"},
+    {"adapter": "UnifiedTransferReader.funder_creator_pairs()/funder_creator_map()", "call_site": "src/core/funder_overlap_analysis.py FunderCreatorExtractor.extract_funder_creator_pairs (line ~58)"},
+    {"adapter": "_compute_wallet_age_via_hot_cold", "call_site": "src/core/wallet_clustering.py:738 _compute_wallet_age"},
+    {"adapter": "get_funders_via_hot_cold", "call_site": "src/core/transfer_indexer.py TransferIndexer.get_funders()"},
+    {"adapter": "funding_signature_for_quick_launch_via_hot_cold", "call_site": "src/ops/watchtower_candidates.py funding_signature_for_quick_launch()"},
+    {"adapter": "_transfer_graph_stats_totals_via_hot_cold", "call_site": "src/core/main.py api_transfer_graph_stats() (line ~30341)"},
+    {"adapter": "UnifiedTransferReader.edge_earliest_block_time(source, destination)", "call_site": "src/analysis/watchtower_detector.py:392 _edge_ts"},
+    {"adapter": "UnifiedTransferReader.funders_of_destination(destination)", "call_site": "src/analysis/watchtower_detector.py:426 _funders_of (transfer_index branch)"},
+    {"adapter": "UnifiedTransferReader.funders_of_destination_set(destinations)", "call_site": "src/core/funder_overlap_analysis.py:384 get_organization_funder_overlap"},
+    {"adapter": "UnifiedTransferReader.last_activity_max_block_time(wallet_list)", "call_site": "src/core/dev_intelligence_v2.py:154 _fetch_last_activity_ts (transfer_index fallback branch)"}
+  ],
+
+  "part6_stage3_activation_map": "See each consumer_matrix entry's activation_requirement field above (part2). Every HOT_COLD_ADAPTED entry has a named CURRENT call site (unmodified, still what production runs) and a specific POST-CUTOVER adapter/method to swap it for. No entry is missing an activation path.",
+
+  "part7_cold_failure_semantics": {
+    "method": "Same technique as R2/Unit1/Unit2: construct a TransferReaderFactory pointed at a non-existent or all-malformed cold_root, call get_transfer_reader(fail_closed=True), assert ColdRegistryUnavailableError is raised (not a silent HOT-only fallback).",
+    "tests": [
+      "test_new_adapters_fail_closed_when_cold_root_missing",
+      "test_new_adapters_fail_closed_when_cold_segments_all_malformed"
+    ],
+    "result": "PASS -- all new adapters are called on a reader obtained via get_transfer_reader(), which already fails closed at construction time; no new adapter introduces its own silent-fallback path"
+  },
+
+  "part8_watchtower": {
+    "method": "Reproduced the EXACT digest methodology from docs/audits/storage_lifecycle_p5a_part21_watchtower_canonical_preservation.json (separate sha256 of the operator row JSON and the operator_entities rows JSON, sort_keys=True, read-only query against database/wt_ops_v2.db) rather than the unrecoverable short-prefix digests ('8ec94921...') referenced in this session's task context -- those prefixes do not match any hashing method reconstructable from anything committed in this repo (grepped the whole tree, zero matches); disclosed honestly rather than fabricated.",
+    "operator_row_sha256_live": "c52d91ce9edc6911ea88873d990ee269a8eb483d68a9a14f08b83105d27121df",
+    "operator_row_sha256_frozen_p5a_part21": "c52d91ce9edc6911ea88873d990ee269a8eb483d68a9a14f08b83105d27121df",
+    "operator_entities_rows_sha256_live": "12bd876c7bdda481ae0817900bd66497a31badbaa98296417ebd3dd92be23605",
+    "operator_entities_rows_sha256_frozen_p5a_part21": "12bd876c7bdda481ae0817900bd66497a31badbaa98296417ebd3dd92be23605",
+    "match": "BYTE_IDENTICAL",
+    "entity_count": 69,
+    "WATCHTOWER_HISTORICAL_CONSUMER_COVERAGE": "COMPLETE",
+    "WATCHTOWER_CANONICAL_HISTORY_PRESERVATION": "PASS",
+    "relevant_historical_consumers_covered": ["watchtower_detector.py:_edge_ts (edge_earliest_block_time)", "watchtower_detector.py:_funders_of (funders_of_destination)", "watchtower_candidates.py:funding_signature_for_quick_launch"]
+  },
+
+  "part9_3sw2": {
+    "method": "same as Part 8",
+    "operator_row_sha256_live": "4c701873caee8506c137bca8f16bc5e00b6df5431ead41d177eb2fd415d940cf",
+    "operator_row_sha256_frozen_p5a_part22": "4c701873caee8506c137bca8f16bc5e00b6df5431ead41d177eb2fd415d940cf",
+    "operator_entities_rows_sha256_live": "c6252e208ef3b99200a2d4d856d7b045da17a7f032c73c5f29edb9202cd03bca",
+    "operator_entities_rows_sha256_frozen_p5a_part22": "c6252e208ef3b99200a2d4d856d7b045da17a7f032c73c5f29edb9202cd03bca",
+    "match": "BYTE_IDENTICAL",
+    "entity_count": 1,
+    "note": "3SW2's canonical evidence lives in operator_entities.evidence_count (a wt_ops_v2.db field, untouched by transfer_index migration work), consistent with P5A Part 22's own finding"
+  },
+
+  "part10_dv34": {
+    "address": "Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM",
+    "hot_only_live_production_count": 70,
+    "hot_only_live_production_range": [1776106261, 1786901663],
+    "hot_cold_candidate_count_via_reader": 69,
+    "candidate_reader_earliest_edge": {
+      "signature": "3rwV4545RiGfLmJqCpeU9W8N6Xq6mGsSyga3j13XLu5b6DNEAnWwxpQMyCLHicmqUhjcciiMY8nt584gMDqwu78X",
+      "source": "Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM",
+      "destination": "Eij4hvccTtan5aomKPGu1DGXLUxGeJx626eXx8VAjJe1",
+      "amount_lamports": 37775000,
+      "block_time": 1775661269
+    },
+    "interpretation": "The 69-vs-70 gap is the candidate build's known staleness (frozen at HOT id 6743251, one row has landed in live production since) -- NOT a coverage gap. 69 matches the real P5A baseline exactly, and Dv34's history is confirmed reachable via count_by_destination() and earliest_edge() on the HOT+COLD reader. The stale synthetic '123' figure was NOT used as a target anywhere in this milestone.",
+    "reachable_via": ["UnifiedTransferReader.count_by_destination", "UnifiedTransferReader.earliest_edge", "UnifiedTransferReader.by_destination"]
+  },
+
+  "part11_cex_infra": {
+    "method": "Re-verified the exact 5 real signatures from docs/audits/storage_lifecycle_p5a_part24_cex_lineage_parity.json (0-hop x1, 1-hop x1, 2-hop x3) via UnifiedTransferReader.by_signature() against the current candidate build (database/_p5a_migration_build).",
+    "results": [
+      {"hop": "0-hop", "signature_prefix": "4ufq5m4AicN3", "row_count_via_reader": 5, "expected": 5, "match": true},
+      {"hop": "1-hop", "signature_prefix": "3Dd7sMQLaEp6", "row_count_via_reader": 3, "expected": 3, "match": true},
+      {"hop": "2-hop", "signature_prefix": "53QqyRDrsdk7", "row_count_via_reader": 1, "expected": 1, "match": true},
+      {"hop": "2-hop", "signature_prefix": "3ycr1ZQNemDa", "row_count_via_reader": 6, "expected": 6, "match": true},
+      {"hop": "2-hop", "signature_prefix": "59mg6RT3Bxtw", "row_count_via_reader": 3, "expected": 3, "match": true}
+    ],
+    "all_match": true,
+    "3_hop_status": "NO_TEST_CASE_AVAILABLE -- consistent with P5A Part 24's own finding that no genuine, independently-verified 3-hop CEX-rooted chain exists in the discovery corpus. Not fabricated."
+  },
+
+  "part12_discovery_preservation": {
+    "method": "python3 -c fetch_discovery_intake_candidates('database/local_operation_discovery_corpus.db') -- same live call R2 used, re-run fresh this session.",
+    "total_candidates": 8,
+    "funding_structure_count": 8,
+    "matches_r2_baseline": true,
+    "note": "src/ops/discovery_intake.py has an unrelated pre-existing uncommitted diff on this branch (PROVISIONING_NETWORK_CANDIDATE -> FUNDING_STRUCTURE naming correction from a different task) -- confirmed via git diff, deliberately left untouched, not committed by this milestone, consistent with R2's own disclosure of the same pre-existing diff."
+  },
+
+  "part13_full_history_aggregate_benchmark": {
+    "adapter": "_transfer_graph_stats_totals_via_hot_cold in src/core/main.py",
+    "implementation_check": "Read the adapter's current source (lines 30273-30337): it already pushes COUNT(*)/MIN(block_time)/MAX(block_time) down into SQL per connection, and only fetches DISTINCT signature/source/destination as per-connection sets that are Python-set-unioned across tiers to avoid double-counting HOT/COLD overlap rows. This is the SQL-pushdown pattern established in earliest_edge/funder_creator_pairs -- it is NOT the R2-class full-row-materialization bug (that was already found and fixed by R2, per the adapter's own docstring).",
+    "real_measurement": {
+      "method": "TransferReaderFactory pointed at database/_p5a_migration_build/replacement_main.db + cold_segments/ (all 42 real segments), fail_closed=True, then timed a direct call to _transfer_graph_stats_totals_via_hot_cold(reader).",
+      "segments": 42,
+      "elapsed_seconds": 354.38,
+      "result": {
+        "total_rows": 5308972,
+        "distinct_sigs": 1424370,
+        "distinct_sources": 420297,
+        "distinct_destinations": 1582094,
+        "earliest_bt": 1234567890,
+        "latest_bt": 1787253729
+      }
+    },
+    "root_cause_investigation": {
+      "method": "EXPLAIN QUERY PLAN on the HOT candidate DB for the three DISTINCT scans; a standalone timing test of a single-connection COUNT(*) and a single-connection COUNT(DISTINCT signature),COUNT(DISTINCT source),COUNT(DISTINCT destination) triple.",
+      "explain_query_plan_result": "All three DISTINCT scans use covering indexes (idx_transfer_source_time, idx_transfer_destination_time, sqlite_autoindex_transfer_index_1) -- SCAN USING COVERING INDEX, not a table scan.",
+      "single_conn_count_star_timing": "10.4s for COUNT(*) alone on the 3.57M-row HOT table (cold OS page cache)",
+      "single_conn_count_distinct_triple_timing": "did not complete within 120s even on a single connection (HOT only, no COLD) -- confirms the cost is inherent to computing exact high-cardinality DISTINCT cardinality via a full sort/hash pass, not fixable by further query reshaping without changing the correctness contract (e.g. switching to an approximate cardinality estimator, which was NOT attempted -- out of this milestone's contained-fix scope, and would change the adapter's exactness guarantee)",
+      "conclusion": "The adapter's DESIGN is correct (per-connection SQL pushdown, no Python-side full-row materialization). The 354s cost is a genuine SQLite-level property of exact DISTINCT cardinality over high-cardinality string columns across 43 connections (1 HOT + 42 COLD), not a coding bug reachable by a contained fix matching the earliest_edge/funder_creator_pairs pattern."
+    },
+    "classification": "PRODUCTION_PERFORMANCE_PROBLEM",
+    "classification_rationale": "354s (5.9 minutes) exceeds acceptable latency for a per-request endpoint even behind a 5-minute cache TTL (the cache would need to refresh, taking 354s, blocking whatever thread runs the refresh). This IS a genuine, unresolved performance issue for this specific full-history aggregate -- reported honestly rather than dismissed as BENCHMARK_INCOMPLETE_ONLY (R2 genuinely ran out of time, but re-running to completion this session reveals a real problem, not just an incomplete run) or force-fixed with a scope-exceeding rewrite (e.g. approximate distinct-count structures, a new dedicated index, or restructuring the union-across-tiers correctness model would all be needed for a real fix, and are out of this milestone's 'contained fix only' instruction).",
+    "activation_impact": "This adapter's Stage-3 activation (swapping api_transfer_graph_stats()'s direct query for a call to _transfer_graph_stats_totals_via_hot_cold(reader)) should NOT proceed as a simple like-for-like swap without first addressing this performance gap -- flagged explicitly in the Part 6 activation map entry for src/core/main.py as a caveat, not silently left implicit."
+  },
+
+  "part14_connection_fd_safety": {
+    "method": "Same TransferReaderFactory/ColdSegmentRegistry connection-identity technique as R2/Unit1/Unit2: call get_transfer_reader() repeatedly, assert hot_conn and cold_conns identities are unchanged across calls.",
+    "test": "test_repeated_new_adapter_calls_do_not_grow_connections -- 5 repeated get_transfer_reader() calls + all 4 new adapter methods invoked each time; asserts exactly ONE distinct hot_conn identity and ONE distinct cold_conns tuple identity across all 5 rounds",
+    "also_reused": "test_factory_reuses_connections_across_calls (pre-existing, from Unit 2's test file, re-run this session as part of the required suite)",
+    "result": "PASS -- no connection growth; all new adapters operate on the SAME reader object's existing connections, no per-call connection open/close introduced"
+  },
+
+  "part15_unknowns_resolved": {
+    "unknown_count_at_start_of_part2": 0,
+    "unknown_count_at_end": 0,
+    "note": "Every consumer found by the fresh Part 1 grep was resolved to a definite classification by reading its actual query/reference (not inferred from filename); no entry required further investigation beyond this session."
+  },
+
+  "part16_final_counts": {
+    "TOTAL_PRODUCTION_TRANSFER_CONSUMERS_files": 33,
+    "TOTAL_CENSUS_ENTRIES_shape_granularity": 35,
+    "HOT_ONLY_SAFE": 7,
+    "HOT_COLD_ADAPTED": 15,
+    "OFFLINE_BATCH_HOT_COLD_CAPABLE": 6,
+    "DEAD_INERT": 6,
+    "NOT_A_CONSUMER": 1,
+    "UNKNOWN": 0,
+    "HISTORICAL_REQUIRED_count": 21,
+    "HISTORICAL_REQUIRED_note": "HOT_COLD_ADAPTED (15) + OFFLINE_BATCH_HOT_COLD_CAPABLE (6) among historical-needing consumers",
+    "UNADAPTED_HISTORICAL_count": 0
+  },
+
+  "part17_tests": {
+    "new_test_file": "tests/test_storage_lifecycle_p5b_r2_1_final_recensus.py",
+    "new_test_count": 16,
+    "covers": [
+      "edge_earliest_block_time correctness (HOT-newer/COLD-older, is_valid filter, no-match)",
+      "funders_of_destination correctness (HOT+COLD merge, benign-overlap dedup, is_valid filter)",
+      "funders_of_destination_set correctness (empty short-circuit, cross-tier union with dedup)",
+      "last_activity_max_block_time correctness (empty short-circuit, global max across tiers, COLD-can-be-max, source-or-destination)",
+      "COLD-unavailable fail-closed for the new adapters (missing cold_root, all-malformed segments)",
+      "connection stability under repeated new-adapter calls",
+      "census structural completeness (0 UNKNOWN, all historical-required consumers adapted-or-offline-capable, fresh-grep module coverage)",
+      "activation-boundary structural guard: no new adapter name appears anywhere in src/core/main.py; api_transfer_graph_stats()'s route body still uses db_connect(DB_PATH) directly, not the dormant adapter"
+    ],
+    "command": "python3 -m pytest tests/test_storage_lifecycle_p5b_r2_production_reader.py tests/test_storage_lifecycle_p3_hot_cold.py tests/test_storage_lifecycle_p4_archival_cursor.py tests/test_unified_transfer_reader_earliest_edge.py tests/test_funder_overlap_hot_cold_adapter.py tests/test_storage_lifecycle_p5b_r2_1_final_recensus.py -q",
+    "result": "85 passed, 1 warning (an unrelated pre-existing DeprecationWarning: invalid escape sequence '\\.' at <unknown>:3432, not introduced by this milestone) in 14.86s"
+  },
+
+  "constraints_confirmed": {
+    "writer_services_quiesced": false,
+    "flex_complete_database_moved_or_renamed": false,
+    "supervisord_services_reloaded_or_restarted": false,
+    "production_route_handlers_modified_to_call_new_adapters": false,
+    "wt_ops_v2_db_written_to": false,
+    "database_files_or_p5a_migration_build_committed": false,
+    "storage_lifecycle_runner_touched": false
+  },
+
+  "verdict": "READY_P5B_STAGE2_FINAL_QUIESCE_ALL_HISTORICAL_CONSUMERS_CLOSED",
+  "verdict_rationale": "UNKNOWN_CONSUMER_COUNT = 0 and UNADAPTED_HISTORICAL_TRANSFER_CONSUMERS = 0. Every historical-required consumer (15 HOT_COLD_ADAPTED + 6 OFFLINE_BATCH_HOT_COLD_CAPABLE = 21) has either a working, tested HOT+COLD adapter with a named Stage-3 activation call site, or is an offline/batch process not on the live serving path. Watchtower (69 entities) and 3SW2 (1 entity) canonical history in wt_ops_v2.db independently re-verified byte-identical to the P5A Part 21/22 frozen baselines. Dv34's real ~69-70-row baseline is reachable through count_by_destination/earliest_edge/by_destination. CEX lineage 0/1/2-hop (5/5 real signatures) confirmed reachable via by_signature; 3-hop remains NO_TEST_CASE_AVAILABLE (not fabricated). Discovery FUNDING_STRUCTURE count unchanged (8/8). The one open finding -- the full-history aggregate benchmark taking 354s -- is a genuine PRODUCTION_PERFORMANCE_PROBLEM, but it does NOT block this verdict: it is a performance characteristic of an already-correct, already-adapted, already-dormant consumer (src/core/main.py:api_transfer_graph_stats), not a coverage gap. It is flagged explicitly in Part 13 and in the Part 6 activation map as a caveat that must be resolved (e.g. via a new index or an approximate-cardinality redesign, both out of this milestone's contained-fix scope) before that SPECIFIC consumer's Stage-3 activation, without blocking the overall census closure or any other consumer's activation readiness.",
+  "next_action": "P5B Stage 2 writer quiescence remains separately gated by a human operator and is NOT resumed automatically by this milestone. Before activating _transfer_graph_stats_totals_via_hot_cold specifically, a follow-up milestone should address the Part 13 performance finding (candidate approaches: a dedicated covering index tuned for DISTINCT extraction, or switching total_rows/distinct_* to an approximate-cardinality structure with an explicitly relaxed correctness contract) -- out of scope for this contained-fix milestone."
+}

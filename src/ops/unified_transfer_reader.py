@@ -157,6 +157,38 @@ class UnifiedTransferReader:
             return None
         return min(candidates, key=lambda r: r[4])
 
+    def last_activity_max_block_time(self, wallets: list[str]) -> int | None:
+        """STORAGE-LIFECYCLE-P5B-R2.1: reproduces
+        DevIntelligenceV2._fetch_last_activity_ts's transfer_index fallback
+        (src/core/dev_intelligence_v2.py):
+
+            SELECT MAX(block_time) AS last_ts FROM transfer_index
+            WHERE source IN (...) OR destination IN (...)
+
+        across hot_conn and every cold_conns tier. Each connection pushes
+        its own MAX(block_time) pushdown (index-friendly, no full-row
+        materialization); the per-connection scalar maxima are then
+        combined in Python with a single max() -- correctness-safe because
+        MAX is associative/order-independent across a partition (unlike
+        funder_creator_pairs' DISTINCT-pair merge, there is no
+        double-counting risk with a scalar MAX: the same edge appearing in
+        both HOT and COLD during the copy-then-verify overlap window
+        simply produces the same block_time twice, and max(x, x) == x)."""
+        if not wallets:
+            return None
+        placeholders = ",".join("?" for _ in wallets)
+        query = (
+            f"SELECT MAX(block_time) FROM transfer_index "
+            f"WHERE source IN ({placeholders}) OR destination IN ({placeholders})"
+        )
+        params = (*wallets, *wallets)
+        best: int | None = None
+        for conn in [self.hot_conn, *self.cold_conns]:
+            row = conn.execute(query, params).fetchone()
+            if row is not None and row[0] is not None:
+                best = row[0] if best is None else max(best, row[0])
+        return best
+
     def count_by_destination(self, destination: str) -> int:
         """Used for parity checks (e.g. Dv34's historical population
         count) -- must equal the monolithic-source count when HOT+COLD
@@ -232,3 +264,162 @@ class UnifiedTransferReader:
         for source, destination in self.funder_creator_pairs():
             out.setdefault(source, set()).add(destination)
         return out
+
+    def edge_earliest_block_time(self, source: str, destination: str) -> int | None:
+        """STORAGE-LIFECYCLE-P5B-R2.1 Part 4 adapter.
+
+        Reproduces src/analysis/watchtower_detector.py's _edge_ts(conn,
+        source, dest):
+
+            SELECT MIN(block_time) FROM transfer_index
+            WHERE source = ? AND destination = ? AND is_valid = 1
+
+        across hot_conn and every cold_conns tier. Each connection pushes
+        its own MIN(block_time) aggregate down into SQL (index-friendly,
+        no full-row materialization); only the small per-connection scalar
+        is compared in Python to find the global minimum. This is the
+        same per-connection-aggregate-then-merge pattern as
+        _transfer_graph_stats_totals_via_hot_cold in src/core/main.py --
+        deliberately NOT built by pulling every matching row through
+        by_source/by_destination and taking min() in Python, since that
+        would materialize full row tuples this scalar query doesn't need.
+
+        Returns None if no matching edge exists in any tier (matching the
+        original's `row[0] if row and row[0] else None` behavior).
+        """
+        query = (
+            "SELECT MIN(block_time) FROM transfer_index "
+            "WHERE source = ? AND destination = ? AND is_valid = 1"
+        )
+        candidates: list[int] = []
+        for conn in [self.hot_conn, *self.cold_conns]:
+            row = conn.execute(query, (source, destination)).fetchone()
+            if row and row[0] is not None:
+                candidates.append(row[0])
+        return min(candidates) if candidates else None
+
+    def funders_of_destination(self, destination: str) -> list[tuple[str, int]]:
+        """STORAGE-LIFECYCLE-P5B-R2.1 Part 4 adapter.
+
+        Reproduces the transfer_index half of
+        src/analysis/watchtower_detector.py's _funders_of(addr, conn,
+        infra):
+
+            SELECT source, amount_lamports FROM transfer_index
+            WHERE destination = ? AND is_valid = 1
+
+        across hot_conn and every cold_conns tier -- the exact same
+        (source=?, destination=?, is_valid) shape as by_destination(),
+        but returning the raw (source, amount_lamports) pairs the caller
+        needs (not full 5-tuples), and keeping ALL matching rows per
+        source (the caller's own agg dict in watchtower_detector.py keeps
+        the max amount per funder; that reduction is intentionally left
+        to the caller here, unchanged from the original function's
+        contract, since infra-set filtering and max-amount aggregation
+        are caller-side policy, not an SQL-pushdown concern).
+
+        Deduplication across HOT/COLD tiers uses the same signature-based
+        precedence as _dedupe (a row present in both tiers with identical
+        amount_lamports/block_time is counted once, HOT wins), so a
+        caller reducing this to per-source max-amount will not double
+        count an edge that was copied to COLD but not yet purged from
+        HOT.
+        """
+        hot_rows = list(self.hot_conn.execute(
+            "SELECT signature, source, destination, amount_lamports, block_time "
+            "FROM transfer_index WHERE destination = ? AND is_valid = 1",
+            (destination,),
+        ))
+        rows = list(hot_rows)
+        for cold in self.cold_conns:
+            rows.extend(cold.execute(
+                "SELECT signature, source, destination, amount_lamports, block_time "
+                "FROM transfer_index WHERE destination = ? AND is_valid = 1",
+                (destination,),
+            ))
+        deduped = self._dedupe(rows, hot_count=len(hot_rows))
+        return [(r[1], r[3]) for r in deduped]
+
+    def funders_of_destination_set(self, destinations: list[str]) -> set[str]:
+        """STORAGE-LIFECYCLE-P5B-R2.1 Part 4 adapter.
+
+        Reproduces the transfer_index half of
+        src/core/funder_overlap_analysis.py's
+        OrganizationOverlapScorer.get_organization_funder_overlap (line
+        ~403):
+
+            SELECT DISTINCT wallet FROM (
+                SELECT source as wallet FROM transfer_index
+                WHERE destination IN (<creator_wallets of an org>)
+                UNION
+                SELECT source as wallet FROM transfer_index
+                WHERE destination IN (<same set again>)
+            )
+
+        The original issues the identical subquery twice (a harmless
+        no-op UNION against itself in the production SQL); this adapter
+        collapses that to one DISTINCT source pass per connection, which
+        is equivalent (UNION of a set with itself is itself) and avoids
+        doubling the COLD-tier scan cost for no behavioral difference.
+
+        `destinations` (the org's creator_wallet set) is resolved by the
+        CALLER from dev_organization_members -- a HOT-only table with no
+        COLD equivalent, so it is out of scope for this adapter, exactly
+        as funder_creator_pairs() leaves CEX/infra-exclusion and
+        pairwise-overlap computation to its caller. This method only
+        proxies the transfer_index IN(...) lookup across HOT+COLD tiers,
+        pushed down per-connection as a DISTINCT source scan (no full-row
+        materialization), merged into a single Python set (so a funder
+        appearing in both HOT and a COLD segment contributes one
+        membership, not two -- same double-count-avoidance rationale as
+        funder_creator_pairs()).
+
+        Returns an empty set immediately (no queries issued) if
+        `destinations` is empty, matching the original's short-circuit
+        for `len(org_wallets) < 2`.
+        """
+        if not destinations:
+            return set()
+        placeholders = ",".join("?" for _ in destinations)
+        query = f"SELECT DISTINCT source FROM transfer_index WHERE destination IN ({placeholders})"
+        wallets: set[str] = set()
+        for conn in [self.hot_conn, *self.cold_conns]:
+            for (source,) in conn.execute(query, tuple(destinations)):
+                wallets.add(source)
+        return wallets
+
+    def last_activity_max_block_time(self, wallet_list: list[str]) -> int | None:
+        """STORAGE-LIFECYCLE-P5B-R2.1 Part 4 adapter.
+
+        Reproduces src/core/dev_intelligence_v2.py's
+        OrganizationSignalComputer._fetch_last_activity_ts's transfer_index
+        fallback:
+
+            SELECT MAX(block_time) AS last_ts FROM transfer_index
+            WHERE source IN (<wallet_list>) OR destination IN (<wallet_list>)
+
+        across hot_conn and every cold_conns tier. Each connection pushes
+        its own MAX(block_time) aggregate down into SQL; only the small
+        per-connection scalar is compared in Python to find the global
+        maximum -- same per-connection-aggregate-then-merge pattern as
+        edge_earliest_block_time()/_transfer_graph_stats_totals_via_hot_cold,
+        deliberately not materializing matching rows in Python.
+
+        Returns None if wallet_list is empty (matching the original's
+        `if not wallet_list: return None` short-circuit) or if no tier has
+        a matching row.
+        """
+        if not wallet_list:
+            return None
+        placeholders = ",".join("?" for _ in wallet_list)
+        query = (
+            f"SELECT MAX(block_time) FROM transfer_index "
+            f"WHERE source IN ({placeholders}) OR destination IN ({placeholders})"
+        )
+        params = tuple(wallet_list) + tuple(wallet_list)
+        candidates: list[int] = []
+        for conn in [self.hot_conn, *self.cold_conns]:
+            row = conn.execute(query, params).fetchone()
+            if row and row[0] is not None:
+                candidates.append(row[0])
+        return max(candidates) if candidates else None

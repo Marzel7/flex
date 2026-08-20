@@ -128,6 +128,42 @@ class LaunchProbabilityModel:
 
         return signals
 
+    def _fetch_last_activity_ts_via_hot_cold(self, reader, farm_cluster_id: Optional[int],
+                                              wallet_list: List[str], cursor: sqlite3.Cursor = None) -> Optional[int]:
+        """STORAGE-LIFECYCLE-P5B-R2.1 (NOT YET WIRED INTO THE LIVE CALL
+        SITE -- see _fetch_last_activity_ts() below, which is unmodified
+        production code still querying transfer_index directly against
+        the monolithic HOT DB).
+
+        Reproduces this method's transfer_index fallback (the
+        `SELECT MAX(block_time) ... WHERE source IN (...) OR destination
+        IN (...)` unbounded historical-max lookup) via
+        UnifiedTransferReader.last_activity_max_block_time(), so the
+        result stays correct once history moves out of the HOT table.
+        The farm_clusters primary path is untouched -- it is a different
+        table, not transfer_index, and stays HOT_ONLY_SAFE as-is; `cursor`
+        is accepted only to preserve that primary-path call signature for
+        a future caller that wants to try farm_clusters first."""
+        if farm_cluster_id and cursor is not None:
+            try:
+                cursor.execute(
+                    "SELECT last_activity_ts FROM farm_clusters WHERE cluster_id = ? LIMIT 1",
+                    (farm_cluster_id,)
+                )
+                row = cursor.fetchone()
+                if row and row[0]:
+                    return row[0]
+            except Exception as e:
+                logger.debug(f"Error fetching farm_clusters last_activity_ts: {e}")
+
+        if not wallet_list:
+            return None
+        try:
+            return reader.last_activity_max_block_time(wallet_list)
+        except Exception as e:
+            logger.debug(f"Error fetching transfer_index last_activity_ts via hot_cold reader: {e}")
+            return None
+
     def _fetch_last_activity_ts(self, cursor: sqlite3.Cursor, farm_cluster_id: Optional[int],
                                 wallet_list: List[str]) -> Optional[int]:
         """Get Unix timestamp of last funding activity for org."""

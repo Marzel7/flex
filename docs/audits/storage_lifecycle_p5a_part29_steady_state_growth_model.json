@@ -1,0 +1,49 @@
+{
+  "part": "P5A Part 29 -- Expected Steady-State Growth Model",
+  "objective": "Using the real HOT/COLD split ratio and known production growth rate, project bounded-HOT vs current-unbounded main-DB size growth.",
+  "inputs": {
+    "daily_ingest_rows_avg": 171796,
+    "daily_ingest_rows_source": "docs/audits/storage_lifecycle_p3_long_term_growth_model.json inputs_used -- a 14-day measured block_time window average, carried forward from P3 (MEDIUM confidence per that artifact's own disclosure: treating a 14-day average as representative steady-state is an assumption, not a long-term-verified rate)",
+    "bytes_per_row_table_plus_indexes": 413.09,
+    "bytes_per_row_source": "Part 28 of THIS milestone -- a REAL PRAGMA dbstat measurement against live production transfer_index (2,182,950,912 bytes / 5,284,432 rows), superseding P3's earlier LOW-confidence analytical estimate (120-180 bytes/row, dbstat 'not safely obtainable' at that time). This is a genuine confidence upgrade this session.",
+    "cold_fraction": 0.3323069830240561,
+    "hot_fraction": 0.6676930169759439,
+    "cold_fraction_source": "Part 14 frozen accounting (1,735,652 COLD / 5,223,038 total at high-water id 6648855)",
+    "hot_window_days": 90,
+    "pinned_rows_at_freeze": 817207,
+    "pinned_rows_source": "Part 14 / original P5A classification (creator_funders + wt_ops_v2 operator_entities + discovery-corpus signature pins)"
+  },
+  "current_architecture_unbounded_growth": {
+    "description": "Today, ALL transfer_index rows (HOT-eligible and COLD-eligible alike) live permanently in the single monolithic main DB. Main DB size grows without bound as ingest continues.",
+    "daily_growth_mb": 70.97,
+    "annual_growth_gb": 25.9,
+    "projection_1yr_gb_added": 25.9,
+    "projection_2yr_gb_added": 51.81,
+    "projection_5yr_gb_added": 129.52,
+    "caveat": "Assumes the 14-day measured daily ingest rate (171,796 rows/day) holds as a long-term steady-state average -- real growth could be higher (organic platform growth) or lower (rate is itself somewhat volatile per P3's disclosed 77,060-402,792 daily range)."
+  },
+  "proposed_architecture_bounded_hot_model": {
+    "description": "Post-P5B-cutover, only HOT-classified rows (90-day recency window UNION a pinned set) live in the main DB; COLD rows live in separate, append-only monthly segment files outside the main DB.",
+    "steady_state_hot_rows_ceiling": 16278847,
+    "steady_state_hot_rows_ceiling_formula": "(90 days x daily_ingest_rows_avg) + pinned_rows_at_freeze = (90 x 171796) + 817207",
+    "steady_state_hot_bytes_ceiling_gb": 6.72,
+    "hot_growth_characteristic": "BOUNDED -- the recency-window component (90 days x daily rate) is a rolling window that does not grow over time (old rows exit HOT as new rows enter, net-zero at steady state); the pinned component grows only as NEW addresses get pinned (via creator_funders/wt_ops_v2/discovery-corpus criteria), which is a much slower, sub-linear growth relative to raw transaction ingest -- so total HOT size approaches a ceiling rather than growing unboundedly.",
+    "cold_growth_characteristic": "UNBOUNDED but OUTSIDE the main DB -- COLD accumulates in separate monthly .sqlite segment files (already proven to scale cleanly across 41 real segments in Part 27). This growth does not inflate main-DB size, main-DB query latency for HOT-scoped queries, or main-DB backup/VACUUM/WAL-checkpoint cost.",
+    "cold_projection_1yr_gb": 19.52,
+    "cold_projection_2yr_gb": 45.42,
+    "cold_projection_5yr_gb": 123.13,
+    "cold_projection_caveat": "COLD accumulation is spread across many small monthly files (Part 28 showed 41 real segments totaling only ~1.0 GB today, i.e. ~25 MB/segment average) rather than one growing monolith -- this is architecturally significant even though the RAW BYTE total is comparable to the unbounded model's growth, because per-file size stays small and bounded per month, and old segments can be moved to cheaper storage tiers independently without touching the main DB."
+  },
+  "comparison_summary": {
+    "main_db_growth_5yr_current_unbounded_gb": 129.52,
+    "main_db_growth_5yr_bounded_hot_gb": "~0 (HOT stabilizes near its 6.72 GB ceiling; no further main-DB growth from transfer_index specifically, modulo the slow-growing pinned-set contribution)",
+    "key_benefit": "The bounded-HOT model converts transfer_index from an UNBOUNDED main-DB liability into a BOUNDED ~6.7 GB steady-state cost, while total data volume (HOT+COLD combined) grows at essentially the same real rate either way -- the win is entirely architectural (where the growth lives, not how much data exists), consistent with Part 26's finding that this split doesn't reduce total work, it isolates hot-path query cost from cold-history volume."
+  },
+  "confidence_disclosure": {
+    "daily_ingest_rate_confidence": "MEDIUM (carried from P3, a 14-day measurement)",
+    "bytes_per_row_confidence": "HIGH (real dbstat measurement, this session)",
+    "pinned_set_growth_rate_confidence": "NOT MODELED -- assumed slow/sub-linear based on qualitative reasoning (pinning criteria require becoming a creator_funders/wt_ops_v2/discovery-corpus entity, a much rarer event than raw transaction ingest), not independently measured this session",
+    "overall_model_confidence": "MEDIUM -- real inputs where available (row bytes, HOT/COLD split ratio), with one inherited MEDIUM-confidence input (daily ingest rate) and one unmodeled assumption (pinned-set growth rate) disclosed rather than hidden"
+  },
+  "verdict": "STEADY_STATE_GROWTH_MODEL_COMPLETE"
+}

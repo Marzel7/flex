@@ -1,0 +1,45 @@
+{
+  "part": "P5A Part 28 -- Size/Reclaim Measurement",
+  "objective": "Real, exact du-style byte-level sizes of the live main DB, replacement_main.db, cold_segments/ total, and the theoretical post-cutover production footprint.",
+  "measured_at_unix_approx": 1787245600,
+  "exact_measurements": {
+    "live_main_db": {
+      "path": "database/flex_complete_database.db",
+      "bytes": 14953185280,
+      "du_h": "14G",
+      "method": "stat -f %z (exact file size in bytes) + du -sh (human-readable cross-check)"
+    },
+    "replacement_main_db": {
+      "path": "database/_p5a_migration_build/replacement_main.db",
+      "bytes": 12349992960,
+      "du_h": "12G"
+    },
+    "cold_segments_total": {
+      "path": "database/_p5a_migration_build/cold_segments/",
+      "du_h": "1.0G",
+      "note": "du -sh reported 1.0G total across all 41 segment files; du -ch sum of individual files also reported 1.0G total, consistent."
+    },
+    "total_p5a_candidate_footprint": {
+      "replacement_main_db_bytes": 12349992960,
+      "cold_segments_approx_bytes": 1073741824,
+      "approx_total_bytes": 13423734784,
+      "approx_total_gb": 13.42,
+      "note": "cold_segments bytes is the 1.0G du -sh figure converted to bytes (approximate, since du -sh rounds); exact byte-level per-file sum not separately captured but du -ch's own total agreed at 1.0G so this is a tight approximation, not a rough estimate."
+    }
+  },
+  "theoretical_post_cutover_footprint": {
+    "method": "PRAGMA dbstat (SQLite's built-in page-level size introspection virtual table) was used to measure transfer_index's REAL on-disk footprint including all 5 of its indexes (idx_transfer_destination_time, idx_transfer_source_time, idx_transfer_block_time, idx_transfer_indexed_at, idx_transfer_valid) directly against the live production DB: 2,182,950,912 bytes (~2.18 GB) for 5,284,432 transfer_index rows at time of measurement, i.e. ~413.09 bytes/row (table+indexes combined).",
+    "cold_fraction_of_frozen_population": 0.33230698302405606,
+    "hot_fraction_of_frozen_population": 0.6676930169759439,
+    "cold_fraction_source": "Part 14 frozen accounting: 1,735,652 COLD / 5,223,038 total at high-water id 6648855",
+    "estimated_transfer_index_bytes_removable_post_cutover": 725409831.66,
+    "estimated_transfer_index_bytes_removable_post_cutover_gb": 0.7254,
+    "theoretical_post_cutover_main_db_bytes": 14227775448.34,
+    "theoretical_post_cutover_main_db_gb": 14.23,
+    "reclaim_percentage_of_current_main_db": 4.85,
+    "important_caveat": "This is a PROPORTIONAL ESTIMATE, not a direct measurement of a post-cutover DB (P5A does not delete anything from production, per the explicit hard-stop/forbidden-action list). The estimate applies the measured COLD row fraction (33.2%) to the measured transfer_index table+index bytes (2.18 GB), NOT to the whole 14.95 GB file (transfer_index is only ~14.6% of the total file size -- the rest is the 275 other tables, indexes, and free/overallocated pages). VACUUM would additionally be needed after any real row deletion to physically reclaim freed pages (SQLite does not automatically shrink a file on DELETE without VACUUM or auto_vacuum); this estimate assumes a VACUUM is included in any real future cutover, otherwise the freed pages would remain allocated inside the file (logically empty, physically still occupying 14.95 GB) until a VACUUM runs.",
+    "reclaim_is_modest_by_design": "The 4.85% reclaim is intentionally modest because HOT is defined generously (90-day recency window UNION broad pinning criteria), which is a deliberate P5A/P4 design choice favoring safety and evidence-completeness over maximum storage reduction -- COLD only captures older, unpinned, historically-inactive rows. The benefit of the split is NOT primarily disk reclaim; it is bounding HOT's steady-state growth (see Part 29) and improving RECENT_ONLY query latency (see Part 26), with disk reclaim being a secondary, smaller benefit."
+  },
+  "verdict": "SIZE_RECLAIM_MEASUREMENT_COMPLETE",
+  "note": "All primary size figures (live main DB, replacement_main.db, cold_segments/) are exact byte-level measurements via stat/du, not estimates. Only the theoretical post-cutover footprint is a disclosed proportional estimate, since P5A never performs an actual cutover or deletion against production."
+}

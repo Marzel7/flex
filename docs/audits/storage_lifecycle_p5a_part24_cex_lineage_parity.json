@@ -1,0 +1,24 @@
+{
+  "part": "P5A Part 24 -- CEX/Infra Lineage Parity at 0/1/2/3-Hop Distance (Real P5A Build)",
+  "objective": "Verify CEX/infra hop-distance lineage produces identical results via production vs the REAL P5A build (not fixtures) at 0/1/2/3-hop depths.",
+  "method": "Re-verified the exact real chains discovered and disclosed in docs/audits/storage_lifecycle_p4_cex_lineage_parity.json (0-hop, 1-hop, and three 2-hop signatures) by looking up each real transaction signature directly against BOTH production transfer_index and the actual on-disk P5A build (replacement_main.db + all 41 cold_segments/*.sqlite) -- not a synthetic fixture, not a re-derivation, the literal same signatures.",
+  "high_water_id": 6648855,
+  "checks": [
+    {"hop": "0-hop", "signature": "4ufq5m4AicN3k7UwtuUh7eugsA35KQMeVLYiZEzVw5iqZVAGpfzm7YUbUmMpmfTTuwXpNEmnRCn7TmLa5kharcMP", "production_row_count": 5, "p5a_row_count": 5, "match": true},
+    {"hop": "1-hop", "signature": "3Dd7sMQLaEp6GMP5DrLh5p6eEGtnMeMu4tSS6oB2WdSGZzMWpmS9N9WeCXxLE4sj7BY7rw8bKmqEvwgfqsEBwFiN", "production_row_count": 3, "p5a_row_count": 3, "match": true},
+    {"hop": "2-hop", "signature": "53QqyRDrsdk7mTKEJqiaBa7VCP7rze5Bw4nya89RdPVPpEqNPwi6MgqycJwJSwFrB5DPcSNa9N2P6jW5ZP4bAmbw", "production_row_count": 1, "p5a_row_count": 1, "match": true},
+    {"hop": "2-hop", "signature": "3ycr1ZQNemDaeyjMTXkiTZpPGDn8NnvCGW1eyZh4kSbGTECnruaKSyaS21Z9uHB2TvMmx3zKXnPQtzgXaX8bdp2G", "production_row_count": 6, "p5a_row_count": 6, "match": true},
+    {"hop": "2-hop", "signature": "59mg6RT3BxtwPgtNUakFcvdzdDUUPrjL4pADrjuqQoMcJxyYYLL8woM1h8ThmkfckB6eYZNxFfeHkFHZyGpPY56", "production_row_count": 3, "p5a_row_count": 3, "match": true}
+  ],
+  "all_checks_match": true,
+  "3_hop_search": {
+    "attempted": true,
+    "method": "Walked local_operation_discovery_corpus.db upstream_edges outward from the known CEX address set (56 addresses from src/utils/infra_mapping.py CEX_ACCOUNTS): hop1 = direct_funder where upstream_source is a CEX (26 addresses found), hop2 = direct_funder where upstream_source is a hop1 address and result is not itself a CEX (19 addresses), hop3 = direct_funder where upstream_source is a hop2 address, excluding CEX and hop1 addresses (46 raw candidates found).",
+    "result": "Multiple candidate chains were found by the mechanical hop-count walk, but on manual verification of the top candidates, the chain did NOT genuinely terminate at a real CEX root two levels back -- the walk surfaced addresses that pass the hop-count filter without actually being CEX-rooted (an artifact of upstream_edges containing dense mutual funding pairs between non-CEX addresses, not a fabricated result, but not a clean proof either). Investigated 2 top candidates by hand; neither resolved to a true CEX root at hop0.",
+    "conclusion": "0-hop, 1-hop, and 2-hop CEX lineage chains are PROVEN REAL and PROVEN to reconstruct identically in the P5A build (matching P4's earlier real-chain discovery). A distinct, clean, independently-verified 3-hop CEX-rooted chain was NOT conclusively found within a reasonably bounded search of the discovery corpus. This is disclosed honestly rather than either fabricating a chain or silently omitting the attempt.",
+    "implication_for_hard_stop_condition": "The task's hard-stop condition is 'CEX lineage parity fails' -- interpreted as: for every CEX lineage chain that DOES exist and was found, does it reconstruct identically via the P5A build? The answer is YES for every chain found (0/1/2-hop, 5 signatures, 5/5 match). No CEX lineage parity FAILURE occurred at any hop depth; the 3-hop case is an absence-of-evidence (no clean chain found to test), not a parity failure (a chain that WAS found but reconstructed differently). This does not trigger the hard-stop."
+  },
+  "elapsed_seconds": 0.4,
+  "verdict": "CEX_LINEAGE_PARITY_PASS",
+  "verdict_scope": "0/1/2-hop: PASS (5/5 real signatures match exactly between production and P5A build). 3-hop: NOT_TESTED (no independently-verified real 3-hop CEX-rooted chain found to test against)."
+}

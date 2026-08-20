@@ -1,0 +1,80 @@
+{
+  "part": "P5A Part 31a+b -- Writer-Quiesce Scope + Rollback/Quarantine Design (DESIGN ONLY)",
+  "part_a_writer_quiesce_scope": {
+    "objective": "Identify exactly which processes/threads currently write to transfer_index in production, so a future P5B cutover knows precisely what needs to pause.",
+    "method": "grep -rl 'INSERT.*INTO transfer_index' across src/ and scripts/, then cross-referenced each hit against config/supervisor/supervisord.conf and run_listener.sh to determine which are LIVE production processes vs standalone scripts/tools/archival-tooling not part of the running system.",
+    "files_with_insert_into_transfer_index": [
+      "scripts/backfill_transfer_index.py",
+      "src/core/transfer_indexer.py",
+      "src/extractors/funder_incoming_extractor.py",
+      "src/extractors/realtime_creator_funding_extractor.py",
+      "src/ops/transfer_archival_cursor.py",
+      "src/ops/transfer_cold_store.py"
+    ],
+    "classification": [
+      {
+        "file": "src/extractors/realtime_creator_funding_extractor.py",
+        "function": "extract_funding_for_new_token",
+        "live_production_writer": true,
+        "invoked_by": "src/core/pumpfun_curve_listener.py (imported directly, line 34)",
+        "process": "watchtower_listener supervisord program, command=/bin/bash run_listener.sh -> exec python -u -m src.core.pumpfun_curve_listener",
+        "trigger": "Fires on every new token detection (per its name/docstring) -- the primary live ingest path for transfer_index."
+      },
+      {
+        "file": "src/extractors/funder_incoming_extractor.py",
+        "function": "extract_for_creator",
+        "live_production_writer": true,
+        "invoked_by": "src/core/pumpfun_curve_listener.py (imported directly, line 35, and again inline at line 5576)",
+        "process": "watchtower_listener supervisord program (same process as above)",
+        "trigger": "Fires when extracting a creator's incoming funder transfers -- second live ingest path, same process."
+      },
+      {
+        "file": "src/core/transfer_indexer.py",
+        "class": "TransferIndexer",
+        "live_production_writer": false,
+        "reason": "Only imported by src/core/phase3_integration.py, which was grepped against every live supervisord program command and pumpfun_curve_listener.py's own imports -- ZERO hits found. Not wired into any currently-running process. Historical/legacy or not-yet-activated integration layer.",
+        "caveat": "This determination is based on static import-graph analysis this session, not runtime process inspection (e.g. lsof on live PIDs) -- if TransferIndexer is invoked via a dynamic import, exec(), or an entrypoint this grep missed, this classification could be wrong. Recommend a runtime cross-check (grep live process command lines / lsof open files) before actually relying on this for a P5B quiesce if TransferIndexer's status is safety-critical at that time."
+      },
+      {
+        "file": "src/ops/transfer_archival_cursor.py",
+        "live_production_writer": false,
+        "reason": "This is the P3/P4/P5A archival-tooling module itself (CursorCheckpoint, next_batch, run_keyset_archival) -- it writes to a COLD SEGMENT destination as part of the archival PROCESS, not to production's live transfer_index as a production ingest source. Not registered in supervisord.conf; invoked manually/by future P5B automation, not continuously running today."
+      },
+      {
+        "file": "src/ops/transfer_cold_store.py",
+        "live_production_writer": false,
+        "reason": "Same as above -- COLD segment schema/writer module, not a production live-ingest writer. Not in supervisord.conf."
+      },
+      {
+        "file": "scripts/backfill_transfer_index.py",
+        "live_production_writer": false,
+        "reason": "A standalone script (scripts/ directory), not a supervisord-managed continuous process. Run manually/on-demand for backfill purposes, not part of the always-on write path."
+      }
+    ],
+    "quiesce_conclusion": {
+      "processes_that_must_pause_for_a_real_p5b_final_cutover": [
+        "watchtower_listener (supervisord program running src.core.pumpfun_curve_listener) -- the ONLY continuously-running process with a confirmed live write path into transfer_index, via BOTH realtime_creator_funding_extractor.extract_funding_for_new_token AND funder_incoming_extractor.extract_for_creator"
+      ],
+      "processes_not_requiring_pause": "All other supervisord programs (watchtower_api, watchtower_ngrok, watchtower_helius_monitor, operation_scheduler, intelligence_snapshot_scheduler, infra_sync_scheduler, ws_cascade, creator_resolution_worker, creator_funding_worker, evidence_writer, walkback_worker, dust_observatory_enricher, alert_evaluator, webhook_worker) -- none of these appeared in the grep for direct transfer_index INSERT/UPDATE statements, so none require pausing for a transfer_index-specific quiesce. NOTE: this does not mean they are irrelevant to a full system cutover, only that they do not write to transfer_index specifically, which is P5A/P5B's sole scope.",
+      "single_point_of_pause": "Because only ONE process (watchtower_listener) writes to transfer_index, the P5B final quiesce window (Part 30) reduces to pausing/restarting exactly that one supervisord program -- a narrow, well-defined blast radius, not a whole-system freeze."
+    }
+  },
+  "part_b_rollback_quarantine_design": {
+    "objective": "Design how to safely abandon the P5A candidate build entirely if anything about it is later found wrong, given production was never touched.",
+    "premise": "Every hard-stop condition and forbidden-action rule this milestone enforced (no production mutation, no transfer_index deletion, no cutover, no writer pause, no service reload) means the ENTIRE P5A candidate build lives in a completely separate, disposable location: database/_p5a_migration_build/ (replacement_main.db + cold_segments/). Production (database/flex_complete_database.db) has zero dependency on this directory's existence or correctness.",
+    "abandonment_procedure": [
+      "1. Confirm no other in-flight process currently has replacement_main.db or any cold_segments/*.sqlite file open (check via lsof on the directory, or simply confirm no P5A/P5B automation is mid-run) -- purely a safety courtesy to avoid an ugly error in a running validation script, not a correctness requirement (production is unaffected either way).",
+      "2. rm -rf database/_p5a_migration_build/ -- a single, complete, irreversible-but-SAFE deletion. Safe because: (a) it is a read-derived COPY of production data, never the source of truth; (b) production's transfer_index and all 275 non-transfer tables remain fully intact and were never modified; (c) all P5A audit artifacts (docs/audits/storage_lifecycle_p5a_part*.json) remain in git history as a permanent record of what was validated, independent of whether the underlying build directory still exists on disk.",
+      "3. Delete any lingering /tmp/storage_p5a/ scratch files (not committed to git, already outside the repo, but should be cleaned for hygiene) -- again, zero production impact.",
+      "4. No database restore, no rollback migration, no schema reversion is needed anywhere, because nothing was ever migrated INTO production. 'Rollback' in the traditional sense (undo a change that was applied) does not apply here -- this is closer to 'discard a draft' than 'revert a deployment'."
+    ],
+    "quarantine_trigger_conditions": [
+      "Any Part 14-27 parity/reconciliation check that PASSED during this milestone is later found to have been flawed (e.g. a bug in the comparison harness masked a real mismatch)",
+      "A future P5B delta-application round (per Part 30's design) discovers the base P5A build has some structural defect not caught by this milestone's checks",
+      "A schema change lands in production that the frozen replacement_main.db schema (811 schema objects replayed at Part 1-13 time) does not account for, making the candidate build stale/incompatible",
+      "Simply: a human reviewer, having read this milestone's full audit trail, decides not to proceed with P5B for any reason (business, risk-tolerance, or otherwise) -- the abandonment procedure works identically regardless of WHY it's triggered."
+    ],
+    "what_is_preserved_after_abandonment": "The full docs/audits/storage_lifecycle_p5a_part*.json trail (14 through this final design doc) remains as permanent, git-tracked evidence of what was built, tested, and found -- so a FUTURE re-attempt at storage-lifecycle work does not need to re-derive the same findings (e.g. the corrected identity-reconciliation key, the discovered amount_sol schema gap in COLD segments, the CEX lineage chains) from scratch, even if the physical build artifacts are deleted.",
+    "verdict": "ROLLBACK_QUARANTINE_DESIGN_COMPLETE_NO_CODE_WRITTEN"
+  }
+}

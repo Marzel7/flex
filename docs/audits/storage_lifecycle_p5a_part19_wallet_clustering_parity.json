@@ -1,0 +1,19 @@
+{
+  "part": "P5A Part 19 -- Wallet clustering full-rebuild parity",
+  "engine": "src.core.wallet_clustering.WalletClusteringEngine",
+  "method": "Ran the ACTUAL _detect_dev_farms() core detection query (imported build_excluded_set from the real module, not reimplemented) against production (id<=high_water) and the P5A unified test DB. Compared the resulting farm sets by funder_wallet identity and per-farm field values.",
+  "high_water_id": 6648855,
+  "test_db_path": "/tmp/storage_p5a/part19_clustering_test.db",
+  "production_farm_count": 4177,
+  "production_excluded_skipped": 126,
+  "p5a_farm_count": 4177,
+  "p5a_excluded_skipped": 126,
+  "funder_set_only_in_production": [],
+  "funder_set_only_in_p5a": [],
+  "funder_set_common_count": 4177,
+  "field_mismatches_count": 0,
+  "field_mismatches_sample": [],
+  "exact_match": true,
+  "elapsed_seconds": 756.42,
+  "verdict": "WALLET_CLUSTERING_PARITY_PASS"
+}

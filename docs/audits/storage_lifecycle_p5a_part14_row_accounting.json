@@ -1,0 +1,45 @@
+{
+  "part": "P5A Part 14 -- Row Accounting Finalization",
+  "source_artifacts": [
+    "/tmp/storage_p5a/classification_final.json",
+    "/tmp/storage_p5a/high_water.json",
+    "/tmp/storage_p5a/hot_boundary.json"
+  ],
+  "high_water_id": 6648855,
+  "high_water_run_id": "p5a-migration-20260820T104005Z",
+  "hot_boundary_unix": 1779446413,
+  "hot_boundary_window_days": 90,
+  "total_rows_at_high_water": 5223038,
+  "classification": {
+    "pinned_rows": 817207,
+    "recent_rows": 3180671,
+    "hot_total_rows": 3487386,
+    "cold_candidate_rows": 1735652,
+    "ambiguous_held_hot_rows": 0
+  },
+  "pinning_criteria": [
+    "creator_funders.creator_address destination match",
+    "wt_ops_v2.db operator_entities.entity_address source OR destination match",
+    "local_operation_discovery_corpus.db direct_funding_edges.funding_signature match",
+    "local_operation_discovery_corpus.db upstream_edges.upstream_signature match"
+  ],
+  "recency_criteria": "block_time >= hot_boundary_unix (90-day rolling window from freeze time)",
+  "accounting_equation": "total_rows_at_high_water == hot_total_rows + cold_candidate_rows",
+  "accounting_equation_arithmetic_check": {
+    "hot_total_rows": 3487386,
+    "cold_candidate_rows": 1735652,
+    "sum": 5223038,
+    "matches_total_rows_at_high_water": true
+  },
+  "overlap_note": "hot_total_rows = pinned_rows UNION recent_rows (817207 pinned + 3180671 recent - overlap = 3487386; overlap between pinned and recent sets = 817207 + 3180671 - 3487386 = 510492 rows that are both pinned AND recent, counted once)",
+  "overlap_arithmetic_check": {
+    "pinned_rows": 817207,
+    "recent_rows": 3180671,
+    "raw_sum": 3997878,
+    "hot_total_rows": 3487386,
+    "implied_overlap": 510492
+  },
+  "ambiguous_invalid_block_time_rows_found": 0,
+  "verdict": "ROW_ACCOUNTING_FINALIZATION_PASS",
+  "note": "Equation 5,223,038 = 3,487,386 HOT + 1,735,652 COLD holds exactly, zero ambiguous rows found in prior classification pass. This artifact formalizes the already-computed and previously verified result from /tmp/storage_p5a/classification_final.json for the P5A audit trail; no new computation was required for Part 14 beyond arithmetic verification of the stored figures."
+}

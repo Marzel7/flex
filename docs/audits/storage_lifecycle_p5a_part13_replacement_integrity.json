@@ -1,0 +1,50 @@
+{
+  "part": "P5A Part 13 -- Replacement DB Integrity",
+  "integrity_check_result": "ok",
+  "integrity_check_duration_seconds": 4307.2,
+  "foreign_key_check_method": "per-table (whole-DB PRAGMA foreign_key_check aborts on first schema-invalid FK declaration)",
+  "foreign_key_check_tables_total": 276,
+  "foreign_key_check_tables_clean": 268,
+  "foreign_key_check_tables_with_violations": 7,
+  "foreign_key_check_tables_skipped": 1,
+  "violations_are_pre_existing_production_condition": true,
+  "violations_regression_check": "PASS -- each violating table (incl. skipped pool_health_metrics) independently re-checked against LIVE production DB; violation counts match (small deltas explained by ongoing production writes between replacement-DB build and this comparison, not by the migration copy)",
+  "violation_detail": {
+    "creator_tx_ledger": {
+      "replacement_db_violation_rows": 20,
+      "live_db_violation_rows": 20
+    },
+    "creator_state": {
+      "replacement_db_violation_rows": 12602,
+      "live_db_violation_rows": 12670
+    },
+    "network_evidence": {
+      "replacement_db_violation_rows": 220,
+      "live_db_violation_rows": 220
+    },
+    "dev_reputation": {
+      "replacement_db_violation_rows": 686,
+      "live_db_violation_rows": 686
+    },
+    "token_market_cap_peaks": {
+      "replacement_db_violation_rows": 8408,
+      "live_db_violation_rows": 8446
+    },
+    "token_monitoring_state": {
+      "replacement_db_violation_rows": 2,
+      "live_db_violation_rows": 2
+    },
+    "trade_simulation_claims": {
+      "replacement_db_violation_rows": 54,
+      "live_db_violation_rows": 54
+    }
+  },
+  "skipped_detail": [
+    {
+      "table": "pool_health_metrics",
+      "reason": "pre-existing schema mismatch, confirmed identical in live production DB (not introduced by migration)"
+    }
+  ],
+  "verdict": "REPLACEMENT_DB_INTEGRITY_PASS",
+  "note": "No new FK integrity defects introduced by the P5A schema+data copy. All FK inconsistencies found are pre-existing in production today."
+}

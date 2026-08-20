@@ -1,0 +1,282 @@
+{
+  "part": "P5A Part 17 -- All-consumer query parity",
+  "census_source": "docs/audits/storage_lifecycle_p4_transfer_consumer_census.json",
+  "census_module_count": 33,
+  "census_query_shape_count": 38,
+  "method": "Representative instance per distinct classification x filter combination, run against production (id<=high_water) and P5A unified HOT+COLD (deduped by signature+source+destination, HOT wins) via an in-memory SQLite UNION ALL + ROW_NUMBER dedup, matching UnifiedTransferReader semantics but as bulk SQL for full-table aggregate speed.",
+  "high_water_id": 6648855,
+  "p5a_cold_segments_loaded": 41,
+  "p5a_hot_rows_loaded": 3487386,
+  "p5a_cold_rows_loaded": 1735652,
+  "p5a_unified_row_count_after_dedup": 5223038,
+  "checks": [
+    {
+      "name": "ADDRESS_HISTORY get_funders(destination) [transfer_indexer.py/phase3_integration.py]",
+      "match": true,
+      "prod_row_count": 6102,
+      "p5a_row_count": 6102,
+      "prod_sample": [
+        [
+          "123157i3TZqhrbUFPY8pkexuHtCjH3TnuSuugxdabb3P"
+        ],
+        [
+          "127FkvAs8aoSEtqDMjs8Tu7Mxv8JxShvjUDGBLgsgWse"
+        ],
+        [
+          "12D7vz8YKqv4RFmyuZr9BCNwGjDHioBbZGA3yG5GtCD3"
+        ]
+      ],
+      "p5a_sample": [
+        [
+          "123157i3TZqhrbUFPY8pkexuHtCjH3TnuSuugxdabb3P"
+        ],
+        [
+          "127FkvAs8aoSEtqDMjs8Tu7Mxv8JxShvjUDGBLgsgWse"
+        ],
+        [
+          "12D7vz8YKqv4RFmyuZr9BCNwGjDHioBbZGA3yG5GtCD3"
+        ]
+      ],
+      "prod_time_s": 8.2418,
+      "p5a_time_s": 9.7844
+    },
+    {
+      "name": "ADDRESS_HISTORY last_activity_ts MAX(block_time) [dev_intelligence_v2.py]",
+      "match": true,
+      "prod_row_count": 1,
+      "p5a_row_count": 1,
+      "prod_sample": [
+        [
+          1774561293
+        ]
+      ],
+      "p5a_sample": [
+        [
+          1774561293
+        ]
+      ],
+      "prod_time_s": 0.5133,
+      "p5a_time_s": 0.0638
+    },
+    {
+      "name": "SIGNATURE_LOOKUP-adjacent _edge_ts MIN(block_time) for (source,destination) pair [watchtower_detector.py]",
+      "match": true,
+      "prod_row_count": 1,
+      "p5a_row_count": 1,
+      "prod_sample": [
+        [
+          null
+        ]
+      ],
+      "p5a_sample": [
+        [
+          null
+        ]
+      ],
+      "prod_time_s": 8.3424,
+      "p5a_time_s": 0.463
+    },
+    {
+      "name": "HISTORICAL_REQUIRED WalletGraphBuilder.build_graph [graph_dev_farm_detection.py]",
+      "match": true,
+      "prod_row_count": 391303,
+      "p5a_row_count": 391303,
+      "prod_sample": [
+        [
+          "11113QZged7eewin3YGztsphqSHo4vrgcbmYHWBKG49",
+          "6UTcAwXsxMzQCUu1wQwCoFbo5ch95BDai3Cy8j8oV6og",
+          197530863,
+          1785967086
+        ],
+        [
+          "11113QZged7eewin3YGztsphqSHo4vrgcbmYHWBKG49",
+          "8JupcdgZutzZdt7Sv3JTSGPduWJqQoZX8A1By3b8nJZr",
+          197530863,
+          1785941729
+        ],
+        [
+          "11KMkcxZourFjDwMpc1CSA5A513fmK6iSr8gPMmqqHF",
+          "A57MwwmhM7JYuDMtGCTPm5uGWkCSiRxMMiJzC9F2RAKS",
+          100000000,
+          1786627430
+        ]
+      ],
+      "p5a_sample": [
+        [
+          "11113QZged7eewin3YGztsphqSHo4vrgcbmYHWBKG49",
+          "6UTcAwXsxMzQCUu1wQwCoFbo5ch95BDai3Cy8j8oV6og",
+          197530863,
+          1785967086
+        ],
+        [
+          "11113QZged7eewin3YGztsphqSHo4vrgcbmYHWBKG49",
+          "8JupcdgZutzZdt7Sv3JTSGPduWJqQoZX8A1By3b8nJZr",
+          197530863,
+          1785941729
+        ],
+        [
+          "11KMkcxZourFjDwMpc1CSA5A513fmK6iSr8gPMmqqHF",
+          "A57MwwmhM7JYuDMtGCTPm5uGWkCSiRxMMiJzC9F2RAKS",
+          100000000,
+          1786627430
+        ]
+      ],
+      "prod_time_s": 30.8713,
+      "p5a_time_s": 28.2542
+    },
+    {
+      "name": "HISTORICAL_REQUIRED funder->creator relationship COUNT aggregate [funder_overlap_analysis.py]",
+      "match": true,
+      "prod_row_count": 1,
+      "p5a_row_count": 1,
+      "prod_sample": [
+        [
+          498923,
+          88381,
+          138349
+        ]
+      ],
+      "p5a_sample": [
+        [
+          498923,
+          88381,
+          138349
+        ]
+      ],
+      "prod_time_s": 43.0865,
+      "p5a_time_s": 42.1638
+    },
+    {
+      "name": "ANALYTICAL full-table aggregate (COUNT, SUM, COUNT DISTINCT source/dest) [main.py api_transfer_graph_stats full recompute path]",
+      "match": true,
+      "prod_row_count": 1,
+      "p5a_row_count": 1,
+      "prod_sample": [
+        [
+          5223038,
+          5118842370522962,
+          410903,
+          1553569
+        ]
+      ],
+      "p5a_sample": [
+        [
+          5223038,
+          5118842370522962,
+          410903,
+          1553569
+        ]
+      ],
+      "prod_time_s": 282.0317,
+      "p5a_time_s": 148.0927
+    },
+    {
+      "name": "RECENT_ONLY 24h aggregate COUNT/SUM [dev_intelligence_v3.py / launch_wave_detection.py family]",
+      "match": true,
+      "prod_row_count": 1,
+      "p5a_row_count": 1,
+      "prod_sample": [
+        [
+          81851,
+          374076712065498
+        ]
+      ],
+      "p5a_sample": [
+        [
+          81851,
+          374076712065498
+        ]
+      ],
+      "prod_time_s": 32.2443,
+      "p5a_time_s": 0.4699
+    },
+    {
+      "name": "RECENT_ONLY 7d aggregate COUNT [dev_intelligence_v3_enhancements.py]",
+      "match": true,
+      "prod_row_count": 1,
+      "p5a_row_count": 1,
+      "prod_sample": [
+        [
+          984275
+        ]
+      ],
+      "p5a_sample": [
+        [
+          984275
+        ]
+      ],
+      "prod_time_s": 0.8956,
+      "p5a_time_s": 0.2745
+    },
+    {
+      "name": "FUNDING_LINEAGE upstream funder lookup ORDER BY DESC LIMIT 20 [local_operation_discovery_projection.py]",
+      "match": true,
+      "prod_row_count": 20,
+      "p5a_row_count": 20,
+      "prod_sample": [
+        [
+          "5knExjKkmqMoKpUn5KRDs8eeRMkkvy53VZwdMh8NMBM4tgNGt3xVyN4wEw9chKY3ZQeDKHHGuuDWtoxvmUQBxoYn",
+          "6zhaFh1ghLtG9ZfABfxYNywJHwMFZS1CRSFdmP2GAqBk",
+          "62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV",
+          9382717,
+          1787219563
+        ],
+        [
+          "4TkxKEYj4taJ1kPhPTraT6QNeerQaQXdFpGSLqTX7izBcWtLeSqTQkMEQcYmr4gJf1veBXY3aCqhPrQSgsWsna1b",
+          "4CVXbzkiEH4t8UgEr76jqxS898t6p7CMJDy87PepNdbB",
+          "62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV",
+          9382717,
+          1787218967
+        ],
+        [
+          "HoU5nLeLphRgsfUeddCY3S648EsrfyCp8RmMSSJtXE1VLxXTePdaXHNQNJSQrYP5vzTRnzWAty6CKGfTvSg1vrn",
+          "BuLL7nohvuknpA2TdYAjMofFYygXeGe9WSXC9F9VmhUu",
+          "62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV",
+          4644445,
+          1787218779
+        ]
+      ],
+      "p5a_sample": [
+        [
+          "5knExjKkmqMoKpUn5KRDs8eeRMkkvy53VZwdMh8NMBM4tgNGt3xVyN4wEw9chKY3ZQeDKHHGuuDWtoxvmUQBxoYn",
+          "6zhaFh1ghLtG9ZfABfxYNywJHwMFZS1CRSFdmP2GAqBk",
+          "62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV",
+          9382717,
+          1787219563
+        ],
+        [
+          "4TkxKEYj4taJ1kPhPTraT6QNeerQaQXdFpGSLqTX7izBcWtLeSqTQkMEQcYmr4gJf1veBXY3aCqhPrQSgsWsna1b",
+          "4CVXbzkiEH4t8UgEr76jqxS898t6p7CMJDy87PepNdbB",
+          "62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV",
+          9382717,
+          1787218967
+        ],
+        [
+          "HoU5nLeLphRgsfUeddCY3S648EsrfyCp8RmMSSJtXE1VLxXTePdaXHNQNJSQrYP5vzTRnzWAty6CKGfTvSg1vrn",
+          "BuLL7nohvuknpA2TdYAjMofFYygXeGe9WSXC9F9VmhUu",
+          "62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV",
+          4644445,
+          1787218779
+        ]
+      ],
+      "prod_time_s": 0.0104,
+      "p5a_time_s": 0.0047
+    },
+    {
+      "name": "ADDRESS_HISTORY existence probe LIMIT 1 [master_launch_score.py coordinated-edge check]",
+      "match": true,
+      "prod_row_count": 0,
+      "p5a_row_count": 0,
+      "prod_sample": [],
+      "p5a_sample": [],
+      "prod_time_s": 7.2209,
+      "p5a_time_s": 0.5649
+    }
+  ],
+  "checks_total": 10,
+  "checks_matched": 10,
+  "checks_mismatched": 0,
+  "all_checks_match": true,
+  "elapsed_seconds": 1485.74,
+  "verdict": "ALL_CONSUMER_QUERY_PARITY_PASS"
+}

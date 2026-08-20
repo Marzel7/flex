@@ -1,0 +1,36 @@
+{
+  "part": "P5A Part 27 -- Real-scale segment discovery index",
+  "mechanism": "src/ops/transfer_cold_store.segment_name_for_month(year, month) -- deterministic O(1) filename derivation from a block_time's (year, month), cross-checked against each segment's own segment_manifest.month_covered.",
+  "real_segment_count": 41,
+  "naming_convention_check": {
+    "segments_checked": 41,
+    "mismatches": [],
+    "all_consistent": true
+  },
+  "range_query_selection_check": {
+    "query_range": {
+      "start_ts": 1704067200,
+      "end_ts": 1780271999,
+      "start_human": "2024-01-01",
+      "end_human": "2026-05-31"
+    },
+    "computed_segment_candidates": 29,
+    "computed_candidates_that_exist_on_disk": 29,
+    "ground_truth_segments_with_matching_rows": 29,
+    "over_selected_count": 0,
+    "under_selected_count": 0,
+    "over_selected_sample": [],
+    "under_selected_sample": [],
+    "exact_match": true
+  },
+  "scaling_timing": {
+    "naive_open_every_manifest_seconds": 0.014811,
+    "naive_segments_opened": 41,
+    "indexed_o1_computation_seconds": 3.4e-05,
+    "indexed_segments_opened": 0,
+    "speedup_factor": 434.4,
+    "note": "indexed approach opens ZERO files to determine the candidate segment set -- it computes filenames directly from the query's time range, then only opens the segments actually selected for the real data query (not for discovery)."
+  },
+  "elapsed_seconds": 1.02,
+  "verdict": "SEGMENT_DISCOVERY_INDEX_PASS"
+}

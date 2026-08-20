@@ -1,0 +1,18 @@
+{
+  "part": "P5A Part 20 -- Watchtower HOT/COLD Query Parity",
+  "objective": "Verify every WATCHTOWER-attributed transfer_index row is queryable and produces identical results via the P5A build as via production.",
+  "watchtower_entity_source": "database/wt_ops_v2.db operator_entities JOIN operators ON operator_id WHERE operators.display_name='WATCHTOWER'",
+  "watchtower_entity_address_count": 69,
+  "high_water_id": 6648855,
+  "method": "For all 69 WATCHTOWER entity_addresses, queried every transfer_index row where the address appears as source OR destination, against production (id<=high_water) and the P5A unified HOT+COLD build (replacement_main.db + all 41 cold segments, deduped by signature+source+destination). Full row-set diff (signature, source, destination, amount_lamports, block_time tuples), not just counts.",
+  "result": {
+    "production_row_count": 274,
+    "p5a_row_count": 274,
+    "rows_only_in_production": 0,
+    "rows_only_in_p5a": 0,
+    "exact_match": true
+  },
+  "elapsed_seconds": 1436.9,
+  "verdict": "WATCHTOWER_HOTCOLD_QUERY_PARITY_PASS",
+  "note": "All 274 WATCHTOWER-attributed transfer_index rows (across all 69 known entity addresses) are present and identical in the P5A HOT+COLD build. Zero rows lost, zero rows added."
+}

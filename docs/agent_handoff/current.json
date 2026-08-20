@@ -534,9 +534,141 @@
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
   "current_milestone": {
-    "milestone": "STORAGE-LIFECYCLE-P4 -- production-capable HOT/COLD transfer retention plumbing",
-    "status": "QUALIFIED",
-    "verdict": "READY_STORAGE_LIFECYCLE_P4_BOUNDED_RETENTION_IMPLEMENTATION_QUALIFIED"
+    "milestone": "STORAGE-LIFECYCLE-P5A -- real replacement main DB + cold segment build, validated (not cutover)",
+    "status": "COMPLETE_AWAITING_HUMAN_REVIEW",
+    "verdict": "READY_STORAGE_LIFECYCLE_P5B_CONTROLLED_CUTOVER_REVIEW",
+    "next_action": "HUMAN_REVIEW_P5A_AUDIT_TRAIL_THEN_AUTHORIZE_OR_DECLINE_P5B"
+  },
+  "ops_discovery_p3r_x": {
+    "updated_at_utc": "2026-08-20T00:00:00Z",
+    "status": "HOLD",
+    "verdict": "P3R_X_UPSTREAM_COHORT_IDENTITIES_NOT_FROZEN",
+    "provider_calls_made": 0,
+    "requests_consumed": 0,
+    "bound_outer_values": {
+      "cohort_size": 38,
+      "maximum": 68,
+      "migration_actor": 38,
+      "topology": 18,
+      "behaviour": 12
+    },
+    "missing": [
+      "38 cohort mint identities",
+      "38 migration signatures",
+      "18 topology addresses",
+      "12 behaviour targets"
+    ],
+    "next_action": "HUMAN_AUTHORIZE_A_COHORT_IDENTITY_AND_REQUEST_TARGET_SUPPLEMENT_BEFORE_P3R_X_EXECUTION_CONTRACT"
+  },
+  "ops_discovery_p3r_execution": {
+    "updated_at_utc": "2026-08-20T00:00:00Z",
+    "status": "HOLD",
+    "verdict": "P3R_E_FROZEN_MANIFEST_NOT_EXECUTABLE",
+    "run_id": "ops-discovery-p3r-control-cohort-v1",
+    "cohort_size": 38,
+    "request_maximum": 68,
+    "actual_requests_consumed": 0,
+    "provider_calls_made": 0,
+    "blockers": [
+      "MANIFEST_HAS_NO_PER_REQUEST_MINT_SIGNATURE_OR_ADDRESS_IDENTITIES",
+      "MANIFEST_HAS_NO_DESIGNATED_CREDENTIAL_ENVIRONMENT_VARIABLE",
+      "HANDOFF_HAS_NO_EXPECTED_FROZEN_ARTIFACT_DIGEST_BINDINGS",
+      "NO_FROZEN_RESUMABLE_RUNNER_CONTRACT"
+    ],
+    "preservation": {
+      "existing_8_funding_structures": true,
+      "watchtower": true,
+      "three_sw2": true,
+      "canonical_operations": true
+    },
+    "next_action": "HUMAN_AUTHORIZE_A_NEW_FULLY_ENUMERATED_P3R_EXECUTION_CONTRACT"
+  },
+  "ops_discovery_p3r": {
+    "updated_at_utc": "2026-08-20T00:00:00Z",
+    "status": "HOLD",
+    "verdict": "READY_OPS_DISCOVERY_P3R_MANUAL_EXECUTION_GATE",
+    "cohort_size": 38,
+    "controls": {
+      "watchtower": 12,
+      "three_sw2": 6,
+      "negative": 12,
+      "unknown": 8
+    },
+    "request_maximum": 68,
+    "actual_requests_consumed": 0,
+    "provider_calls_made": 0,
+    "existing_8_funding_structures_preserved": true,
+    "next_action": "HUMAN_SUPPLY_CREDENTIAL_AND_RUN_FROZEN_68_REQUEST_CONTROL_MANIFEST"
+  },
+  "ops_discovery_p3": {
+    "updated_at_utc": "2026-08-20T00:00:00Z",
+    "status": "HOLD",
+    "verdict": "BLIND_TEST_NOT_READY_LOCAL_INDEPENDENT_EVIDENCE_INSUFFICIENT",
+    "frozen_population": 40275,
+    "coverage": {
+      "direct_funding": 7630,
+      "mint_linked_ep3": 47,
+      "mint_linked_ep4": 0,
+      "population_wide_migration_signer": 0
+    },
+    "result": "Local adapters recovered a small mint-linked EP3 topology slice only. EP4 remains address-level and migration signer remains cohort-only; no blind detector was run and the eight FUNDING_STRUCTURE entries remain unchanged.",
+    "provider_calls_made": 0,
+    "production_writes": 0,
+    "next_action": "OPS-DISCOVERY-P3R_BOUNDED_RESIDUAL_EVIDENCE_ACQUISITION_REQUIRES_HUMAN_AUTHORIZATION"
+  },
+  "ops_discovery_p2": {
+    "updated_at_utc": "2026-08-20T00:00:00Z",
+    "engineering_revision": "62e204747fa12dea10322ca0361252f588396117",
+    "artifact": "docs/audits/ops_discovery_p2_independent_operation_identity_evidence_census.json",
+    "status": "HOLD",
+    "verdict": "P2_DATA_GAPS_PREVENT_BLIND_HIGHER_ORDER_OPERATION_REDISCOVERY",
+    "population_freeze": {
+      "launches": 40275,
+      "high_confidence_direct_funding_edges": 7630,
+      "one_upstream_hop_edges": 32527
+    },
+    "result": "The eight Analyst Queue funding structures remain preserved. A provider-free operational fingerprint and no-score eligibility gate were added, but blind Watchtower/3SW2 rediscovery was not run because retained population-wide independent topology, behaviour, and migration-signer adapters are absent.",
+    "production_flags": {
+      "cohort_mode": "OFF",
+      "retention": "ON",
+      "migration_census": "ON",
+      "evidence_mirror": "OFF",
+      "evidence_writer": "STOPPED"
+    },
+    "blockers": [
+      "EP3_POPULATION_GAP",
+      "EP4_LAUNCH_MAPPING_GAP",
+      "MIGRATION_SIGNER_COVERAGE_GAP",
+      "BEHAVIOURAL_PRIMITIVE_COVERAGE_GAP",
+      "TOPOLOGY_DEPTH_GAP",
+      "INDEPENDENT_EVIDENCE_LINEAGE_GAP"
+    ],
+    "next_action": "DEFINE_A_BOUNDED_MINT_LINKED_EP3_EP4_AND_MIGRATION_SIGNER_ADAPTER_CONTRACT"
+  },
+  "ops_discovery_p1": {
+    "updated_at_utc": "2026-08-20T00:00:00Z",
+    "engineering_revision": "62e204747fa12dea10322ca0361252f588396117",
+    "artifact": "docs/audits/ops_discovery_p1_funding_structure_semantic_correction_and_higher_order_preflight.json",
+    "status": "HOLD",
+    "verdict": "NOT_YET_EXECUTABLE_INDEPENDENT_OPERATION_IDENTITY_EVIDENCE_INCOMPLETE",
+    "result": "All eight existing discovery-derived Analyst Queue entries are preserved and now carry the neutral FUNDING_STRUCTURE role. No canonical operation, Watchtower, three_sw2, provider, or production state was mutated.",
+    "evidence_assessment": {
+      "funding_structure_discovery": "SUFFICIENT",
+      "entity_role_triage": "PARTIALLY_SUFFICIENT",
+      "independent_operation_identity_detection": "INSUFFICIENT"
+    },
+    "production_flags": {
+      "cohort_mode": "OFF",
+      "retention": "ON",
+      "migration_census": "ON",
+      "evidence_mirror": "OFF",
+      "evidence_writer": "STOPPED"
+    },
+    "blockers": [
+      "INDEPENDENT_OPERATION_IDENTITY_EVIDENCE_INCOMPLETE"
+    ],
+    "handoff_transport": "PUBLISHED_AND_REMOTE_CHECKSUM_VERIFIED",
+    "next_action": "DEFINE_AND_QUALIFY_A_BOUNDED_MULTI_SIGNAL_OPERATION_DETECTOR_INPUT_CONTRACT"
   },
   "current_next_blocker": "B2Z_P2_HELIUS_ENDPOINT was never available during the overnight session. P2 remains frozen at the 19-member manual resume gate, exactly as left. All 12 provider-free workstreams from the overnight prompt were completed: P2 analysis engine, selective-RPC policy (B2Z-P3), historical coverage profile, 2-hop coverage quality, B2Z-2H contract, operation-discovery preparation, candidate funding family analysis (with a real cross-validated finding), raw-transaction cache adapter, RPC savings models, V2 persistent-budget design, edge-case classifier, and roadmap reconciliation. See docs/audits/overnight_human_decision_queue.json for the 5 decisions that actually need you.",
   "focused_tests": [
@@ -30859,5 +30991,15 @@
       "docs/audits/storage_lifecycle_p4_implementation_result.json"
     ],
     "verdict": "READY_STORAGE_LIFECYCLE_P4_BOUNDED_RETENTION_IMPLEMENTATION_QUALIFIED"
+  },
+  "storage_lifecycle_p5a_migration_build": {
+    "milestone": "STORAGE-LIFECYCLE-P5A -- real replacement main DB + cold segment build, validated (not cutover)",
+    "status": "COMPLETE_AWAITING_HUMAN_REVIEW",
+    "verdict": "READY_STORAGE_LIFECYCLE_P5B_CONTROLLED_CUTOVER_REVIEW",
+    "next_action": "HUMAN_REVIEW_P5A_AUDIT_TRAIL_THEN_AUTHORIZE_OR_DECLINE_P5B",
+    "artifacts_prefix": "docs/audits/storage_lifecycle_p5a_part*.json",
+    "final_summary_artifact": "docs/audits/storage_lifecycle_p5a_final_qualification_summary.json",
+    "production_mutation_occurred": false,
+    "note": "P5A built and validated a candidate replacement main DB (HOT) + 41 cold segment files entirely from read-only copies of production; production (database/flex_complete_database.db) was never written to. P5A does NOT cut over. See the final qualification summary artifact for full metrics."
   }
 }

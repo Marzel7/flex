@@ -1,0 +1,46 @@
+{
+  "part": "P5A Part 15 -- Scalable Identity Digest Reconciliation",
+  "objective": "Prove, via streaming/chunked digests (not loading 5.2M rows into memory at once), that UNION(HOT rows in replacement_main.db, COLD rows across all 41 segments) contains EXACTLY the same set of transfer_index rows as production transfer_index at frozen high-water id <= 6648855.",
+  "script": "/tmp/storage_p5a/part15_identity_reconciliation_v2.py",
+  "raw_result_file": "/tmp/storage_p5a/part15_identity_reconciliation_v2_result.json",
+  "method": "Streamed each source (production, replacement_main.db, each of the 41 cold segment files) in ascending-id chunks of 100,000 rows via sqlite3 fetchmany(). For each row computed SHA256 over the identity tuple, then combined all row digests within and across chunks/sources using XOR (commutative + associative, so chunk boundaries and HOT/COLD/segment partitioning cannot affect the final combined digest). Peak memory footprint per source pass = one 100k-row chunk, never the full 5.2M-row set.",
+  "identity_key_investigation": {
+    "v1_attempt_key": "raw `id` column",
+    "v1_result": "FALSE-POSITIVE MISMATCH -- row counts matched exactly (5,223,038 = 5,223,038) but digest did not match",
+    "root_cause_found": "cold_segments/*.sqlite intentionally use a FRESH local `id INTEGER PRIMARY KEY AUTOINCREMENT` per segment file (confirmed by direct inspection: transfer_index_cold_2026_04.sqlite ids run 1..727605, unrelated to the original production id). This is correct behavior per src/ops/transfer_cold_store.py's COLD_SCHEMA, which declares the true row identity as `UNIQUE (signature, source, destination)`, not `id`.",
+    "additional_finding": "signature alone is not unique per row either -- confirmed a single cold segment (2026_04) has 727,605 rows but only 147,641 distinct signatures (multiple transfer legs can share one tx signature), so signature alone is an insufficient key.",
+    "v2_corrected_key": "(signature, source, destination, amount_lamports, block_time) -- composite tuple matching each row's full copied identity, used consistently across production, HOT, and every COLD segment",
+    "v2_result": "MATCH -- see below"
+  },
+  "high_water_id": 6648855,
+  "chunk_size": 100000,
+  "production": {
+    "row_count": 5223038,
+    "digest_hex": "62c648eeec01126f8c7af80b60695a7bd342a682132ae29b3016b4112bf8a587"
+  },
+  "hot_replacement_main": {
+    "row_count": 3487386,
+    "digest_hex": "8963cffc1e77efdc247e35d875de55794787dd9aa5ddce06bb8dc7482f806186"
+  },
+  "cold_segments": {
+    "segment_count": 41,
+    "row_count": 1735652,
+    "digest_hex": "eba58712f276fdb3a804cdd315b70f0294c57b18b6f72c9d8b9b73590478c401",
+    "note": "per-segment row counts recorded in raw_result_file; largest segments are the most recent months (2026_04 = 727,605 rows, 2026_03 = 245,207, 2026_02 = 204,038), smallest are the earliest historical months (single-digit rows in 2009-2023 range) -- consistent with organic production growth over time"
+  },
+  "union_hot_cold": {
+    "row_count": 5223038,
+    "digest_hex": "62c648eeec01126f8c7af80b60695a7bd342a682132ae29b3016b4112bf8a587"
+  },
+  "comparison": {
+    "row_count_match": true,
+    "digest_match": true,
+    "production_row_count": 5223038,
+    "union_row_count": 5223038,
+    "delta": 0
+  },
+  "elapsed_seconds": 112.24,
+  "hard_stop_triggered": false,
+  "verdict": "IDENTITY_RECONCILIATION_PASS",
+  "note": "Digest and row count match EXACTLY between production transfer_index (id<=6648855) and the P5A HOT+COLD union using the corrected composite identity key. No missing or unexplained rows found. This satisfies the Part 15 hard-stop gate: identity reconciliation did NOT find missing/unexplained rows, so no hard-stop was triggered."
+}

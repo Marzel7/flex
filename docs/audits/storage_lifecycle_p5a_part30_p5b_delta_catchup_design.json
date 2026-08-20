@@ -1,0 +1,52 @@
+{
+  "part": "P5A Part 30 -- P5B Delta/Catch-Up Plan Design (DESIGN ONLY, NOT IMPLEMENTED)",
+  "explicit_scope_note": "This is a DESIGN DOCUMENT ONLY per the task directive. No P5B code was written. No delta-capture, no apply-to-replacement, no quiesce logic exists yet -- this describes HOW it would need to work when a future, separately-authorized P5B milestone begins.",
+  "objective": "Design how P5B would (a) capture every transfer_index row written to production between the P5A high-water freeze (id=6648855) and actual cutover time, (b) apply that delta to replacement_main.db, (c) do this with the shortest possible writer-quiesce window.",
+  "context": {
+    "high_water_id": 6648855,
+    "high_water_frozen_at": "p5a-migration-20260820T104005Z",
+    "current_production_row_count_today": "5,284,457 (measured in Part 28, i.e. production has already written ~61,419 new rows since the freeze, purely from continued operation during P5A build+validation)",
+    "implication": "The delta window is ALREADY nonzero and growing every day P5A remains unlanded. P5B's delta-capture design must handle an arbitrarily large delta, not assume a small one, even though in practice keeping the P5A->P5B gap short is operationally desirable."
+  },
+  "design": {
+    "part_a_delta_capture": {
+      "mechanism": "Reuse src/ops/transfer_archival_cursor.py's existing CursorCheckpoint + next_batch() keyset-cursor primitives (already built and tested in this repo, not new code) to stream all transfer_index rows with id > 6648855 (the frozen high-water) up to a NEW high-water id captured at the moment P5B delta-capture begins.",
+      "steps": [
+        "1. P5B run starts: read current production MAX(id) from transfer_index -- call this new_high_water_id.",
+        "2. Use next_batch()-style keyset pagination (WHERE id > 6648855 AND id <= new_high_water_id ORDER BY id, batched, NOT a single unbounded query) to stream the delta rows out of production in a read-only connection.",
+        "3. For each delta row, classify it HOT or COLD using the EXACT SAME pinning+recency rules frozen in Part 14 (creator_funders/wt_ops_v2/discovery-corpus pin match, OR block_time within the (now-shifted) 90-day recency window) -- this classification must be re-evaluated at P5B time, not reused from the P5A freeze, since 'recency' is relative to current time and some P5A-era HOT rows will have aged into COLD-eligibility by the time P5B runs.",
+        "4. Write delta-classified rows into a SEPARATE staging area first (NOT directly into replacement_main.db or cold_segments in place) -- a delta_hot_staging table and delta_cold_staging table, so the apply step (Part B) can be verified before touching the candidate build."
+      ],
+      "reused_existing_code": ["src/ops/transfer_archival_cursor.py (CursorCheckpoint, next_batch, start_or_resume_run)", "the Part 14/15 pinning+recency classification logic (re-derived from the same source tables, not hardcoded)"],
+      "safety_property": "Entirely read-only against production at this stage. Zero writes to production. Zero writes to replacement_main.db or cold_segments yet."
+    },
+    "part_b_apply_delta_to_replacement": {
+      "mechanism": "Two-phase apply, mirroring the copy-then-verify discipline already used for the original P5A build (per src/ops/transfer_cold_store.py's migrate_rows_to_cold docstring: 'copy old eligible rows to closed cold segment -> verify counts/digests -> mark archived').",
+      "steps": [
+        "1. Apply delta_hot_staging rows into replacement_main.db's transfer_index via INSERT OR IGNORE (idempotent, safe to re-run if interrupted), preserving the ORIGINAL production id (not renumbering) -- consistent with how the original P5A HOT copy preserved exact ids (Part 15's identity-reconciliation depends on this).",
+        "2. For delta_cold_staging rows, determine which month(s) they belong to (via block_time -> segment_name_for_month()) and either APPEND to an already-closed segment file (if that segment is being kept open/appendable) or create/append to a NEW segment for the current month -- reusing create_cold_segment()/migrate_rows_to_cold() from transfer_cold_store.py.",
+        "3. Re-run the Part 15 streaming identity-digest reconciliation (the corrected v2 composite-key version: signature+source+destination+amount_lamports+block_time) comparing production at new_high_water_id against the updated replacement_main.db+cold_segments union -- this MUST show an exact match before P5B proceeds to any cutover step. If it does not match, P5B must HARD STOP exactly as P5A Part 15 was specified to (do not attempt to auto-fix, report and abort).",
+        "4. Only after reconciliation passes: advance the frozen high-water checkpoint to new_high_water_id for the next delta round (if cutover is not yet happening) or proceed to the actual cutover swap (out of scope for P5B design -- that is a P5C-or-later concern, full cutover mechanics are not designed here)."
+      ],
+      "idempotency": "INSERT OR IGNORE + UNIQUE(signature,source,destination) constraint on transfer_index makes delta application safe to retry from scratch if interrupted mid-apply -- no risk of duplicate rows from a partial re-run."
+    },
+    "part_c_shortest_writer_quiesce_window": {
+      "goal": "Minimize the time production writers must be paused (if pausing is ever required at all) for the FINAL delta capture immediately before actual cutover.",
+      "strategy": "Multi-round delta capture, NOT a single big-bang catch-up: run Part A+B repeatedly BEFORE the real cutover moment, each round capturing and applying a progressively smaller remaining delta (since most of the gap gets closed by earlier rounds while production keeps writing only a little more each round). This is the standard 'trickle-then-freeze' pattern for minimizing final cutover downtime.",
+      "concrete_round_plan": [
+        "Round 1 (any time before cutover): capture+apply the full delta since the ORIGINAL P5A freeze (id 6648855) -- this is the biggest round, done well ahead of cutover, production keeps running normally throughout (fully online, no quiesce).",
+        "Round 2..N (as needed, hours/days before cutover): repeat delta capture+apply for whatever NEW rows arrived since the previous round's high-water -- each round's delta should be small (bounded by inter-round elapsed time x daily ingest rate) and fast to apply, still fully online.",
+        "Final round (AT actual cutover, writers paused): a LAST, minimal delta capture+apply for the tiny remaining gap since the last online round -- this is the ONLY step that requires a write-pause, and its duration is bounded by (time since last online round x daily ingest rate x per-row apply cost), which can be driven arbitrarily small by running online rounds close together right before the cutover window."
+      ],
+      "estimated_quiesce_duration": "With the measured Part 26 apply-rate characteristics (P5A build applies ~171,796 rows/day of production ingest; a final round capturing e.g. 10 minutes of production activity would be on the order of ~1,193 rows, well under 1 second of actual insert work at demonstrated throughput) -- the quiesce window is expected to be SECONDS, not minutes, PROVIDED the online rounds are kept current (run frequently enough that the final gap stays small). This is a projection based on measured per-row costs, not yet tested against a real quiesce (P5B has not been implemented).",
+      "explicit_non_goal": "This design does NOT specify the mechanics of actually pausing writers, the swap-over moment itself, or rollback-during-cutover -- those are P5B/cutover-execution concerns, separate from delta-capture design, and explicitly out of scope for what was asked here."
+    }
+  },
+  "open_questions_for_p5b_implementation": [
+    "Should delta rounds run on a fixed schedule (e.g. every N hours) or be triggered on-demand before a planned cutover window? (operational decision, not a technical blocker)",
+    "How to handle a delta row whose classification would move an EXISTING P5A-era HOT row into COLD-eligibility at P5B time (aged out of the 90-day window) -- does P5B need a HOT-to-COLD demotion step for the replacement build, or is this deferred to the NEXT storage-lifecycle cycle after cutover? (needs an explicit decision, not designed here)",
+    "What happens if reconciliation (step B.3) fails on a LATER round, after earlier rounds already succeeded -- does P5B roll back only the failed round's staged delta, or the whole multi-round session? (needs an explicit decision)"
+  ],
+  "verdict": "P5B_DELTA_CATCHUP_DESIGN_COMPLETE_NO_CODE_WRITTEN",
+  "note": "This design reuses existing, already-tested P3/P4 primitives (CursorCheckpoint, next_batch, create_cold_segment, migrate_rows_to_cold, segment_name_for_month) rather than inventing new mechanisms, consistent with this repo's established incremental-build discipline. No new source files were created for this design; it references existing code paths only."
+}

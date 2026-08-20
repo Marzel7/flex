@@ -1,0 +1,33 @@
+{
+  "part": "P5A Part 16 -- UnifiedTransferReader pointed at real P5A build (TEST/preflight only)",
+  "hot_db_path": "/Users/kevinkeaveney/Dev/claude/flex/database/_p5a_migration_build/replacement_main.db",
+  "cold_segment_count": 41,
+  "all_connections_read_only": true,
+  "reader_constructed": true,
+  "smoke_test_by_signature": {
+    "signature": "ZtPewtNK7vbFt12t1aBFTHEgBBRPKiRX9HEUHdQEbWoiQ2xED3wqCK6aNbbL7Utr5LCLmkrfdd2kna1xpAnNTe5",
+    "row_count": 1,
+    "sample": [
+      [
+        "ZtPewtNK7vbFt12t1aBFTHEgBBRPKiRX9HEUHdQEbWoiQ2xED3wqCK6aNbbL7Utr5LCLmkrfdd2kna1xpAnNTe5",
+        "GBjyNeXrH1ZYd7ViuzcEdksn9LCNUGnG39VpPd19DCHL",
+        "8VEATidxWQRQadFWjFZq5WvyRFLpC1AhEzRK5ayPso3t",
+        5346550644,
+        1773886146
+      ]
+    ]
+  },
+  "smoke_test_by_time_range_straddle": {
+    "start_ts": 1779000000,
+    "end_ts": 1780000000,
+    "row_count": 50,
+    "conflicts_found": 0
+  },
+  "smoke_test_count_by_destination": {
+    "destination": "111134RmVrGpCE3LnLyjcXp8Zc1MXnDjouB48uqUuv",
+    "count": 7
+  },
+  "elapsed_seconds": 0.22,
+  "verdict": "UNIFIED_READER_P5A_BUILD_VALIDATION_PASS",
+  "note": "UnifiedTransferReader required ZERO code changes -- its constructor already accepts arbitrary sqlite3.Connection objects for hot_conn/cold_conns. This script is a throwaway TEST/preflight validation only; no production-facing config file was read or modified."
+}

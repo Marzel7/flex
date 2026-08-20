@@ -1,0 +1,32 @@
+{
+  "part": "P5A Part 18 -- /api/transfer-graph/stats dedicated parity (corrected)",
+  "endpoint": "GET /api/transfer-graph/stats",
+  "implementation": "src/core/main.py:30272 api_transfer_graph_stats()",
+  "high_water_id": 6648855,
+  "initial_finding": "shared_funder_overlap_block reported MISMATCH via exact list-equality (p_rows == u_rows) on a GROUP BY source ORDER BY shared_creators DESC LIMIT 200 query with NO secondary sort key.",
+  "root_cause_investigation": {
+    "duplicate_key_theory_disproven": "Checked production (signature,source,destination) uniqueness directly: 5223038 total rows == 5223038 distinct triples, zero duplicates. The unified-merge helper (INSERT OR IGNORE with UNIQUE(signature,source,destination)) does not silently drop any real rows.",
+    "full_unified_rebuild_verified": "Rebuilt the complete HOT+COLD union (replacement_main.db id<=6648855 + all 41 cold_segments) into an isolated file-backed table: 3487386 HOT + 1735652 COLD = 5223038 total, 5223038 distinct triples, 0 duplicate collapse -- exact match to production row count.",
+    "set_comparison_result": {
+      "common_sources_matching_exactly": 199,
+      "only_in_production": [
+        {
+          "source": "8aQGN8FNTUR1tEeLrtNHotYujuRqycBLT9N9qfh91m8t",
+          "shared_creators": 64
+        }
+      ],
+      "only_in_unified": [
+        {
+          "source": "H7HAnido4FYiGmhn6wXh7e3AVZmBQjPMj8rf3mr2F2Zh",
+          "shared_creators": 64
+        }
+      ],
+      "value_mismatches_for_common_sources": 0
+    },
+    "conclusion": "The single differing row on each side has the IDENTICAL shared_creators value (64) -- a genuine SQL ORDER BY tie at the LIMIT 200 boundary. With no secondary sort key, SQLite resolves ties using internal row/page order, which legitimately differs between productions live B-tree layout and the freshly rebuilt P5A tables. This is a query-design artifact of the validation script (and would equally affect the real endpoint if called twice against production with a physical reorganization like VACUUM in between), NOT a data-completeness or migration defect."
+  },
+  "verdict": "TRANSFER_GRAPH_STATS_PARITY_PASS",
+  "verdict_basis": "199/200 exact match, 1/200 boundary tie with identical value, 0 data loss, 0 duplicates, exact row-count match on full 5.2M-row union",
+  "recommendation_for_endpoint_code": "Not required for P5A. If exact reproducibility of tied ranks is ever needed, add a secondary ORDER BY source ASC tie-break to the shared_funder_overlap_block query in main.py -- purely a determinism nicety, not a correctness bug.",
+  "note": "Original mismatched artifact retained for audit trail; this corrected artifact supersedes its verdict after root-cause analysis."
+}

@@ -1,0 +1,38 @@
+{
+  "part": "P5A Part 21 -- Watchtower Canonical-History Preservation",
+  "objective": "Freeze SHA256 digests of the operators row + all operator_entities rows for WATCHTOWER from database/wt_ops_v2.db BEFORE further P5A work, then re-verify byte-identical after P5A work. wt_ops_v2.db must remain completely untouched (read-only) throughout.",
+  "source_db": "database/wt_ops_v2.db",
+  "read_only_confirmed": true,
+  "freeze_specific_to_this_p5a_milestone": true,
+  "freeze_reused_from_p4": false,
+  "watchtower_operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+  "watchtower_operator_row": {
+    "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+    "status": "CONFIRMED",
+    "confidence": "CERTAIN",
+    "first_seen": 1783953537,
+    "last_seen": 1783953537,
+    "summary": "Canonical operator promoted from legacy:WATCHTOWER after analyst review.",
+    "review_state": "REVIEWED",
+    "display_name": "WATCHTOWER",
+    "created_at": 1783953537,
+    "updated_at": 1785962235
+  },
+  "operator_row_sha256": "c52d91ce9edc6911ea88873d990ee269a8eb483d68a9a14f08b83105d27121df",
+  "operator_entities_row_count": 69,
+  "operator_entities_rows_sha256": "12bd876c7bdda481ae0817900bd66497a31badbaa98296417ebd3dd92be23605",
+  "combined_canonical_digest": "37ab5498e01757153c4175c9ff394ce673b28d7fd173545fea8c060c66d5e640",
+  "freeze_taken_at_unix": 1787245503.0442429,
+  "initial_bug_note": "An earlier freeze attempt (part21_watchtower_freeze.py) incorrectly tried to match the literal string 'WATCHTOWER' inside operator_entities row values and found 0 rows, because operator_entities links to operators only via operator_id (no display_name column of its own). Corrected by joining operator_entities.operator_id = operators.operator_id WHERE operators.display_name='WATCHTOWER', which correctly returns all 69 rows. The buggy intermediate artifact was never used as the authoritative freeze.",
+  "re_verification": {
+    "performed_after": "Part 20+22 HOT/COLD query parity checks (274 WATCHTOWER transfer_index rows queried against production and P5A build)",
+    "result": "BYTE_IDENTICAL",
+    "operator_row_sha256_match": true,
+    "operator_entities_rows_sha256_match": true,
+    "combined_digest_match": true
+  },
+  "final_re_verification_pending": "COMPLETE -- performed at end of all P5A work, immediately before final commit. Result: BYTE_IDENTICAL. combined_canonical_digest re-measured: 37ab5498e01757153c4175c9ff394ce673b28d7fd173545fea8c060c66d5e640 (matches original freeze exactly).",
+  "verdict": "WATCHTOWER_CANONICAL_HISTORY_PRESERVATION = PASS",
+  "note": "wt_ops_v2.db was never written to at any point during Part 20-22 P5A work. All P5A activity (building HOT/COLD unions, running parity queries) operated on separate read-only connections against flex_complete_database.db, replacement_main.db, and cold_segments/*.sqlite -- never against wt_ops_v2.db.",
+  "WATCHTOWER_CANONICAL_HISTORY_PRESERVATION_FINAL": "PASS"
+}

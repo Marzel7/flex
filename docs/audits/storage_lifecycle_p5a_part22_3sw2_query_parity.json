@@ -1,0 +1,35 @@
+{
+  "part": "P5A Part 22 -- 3SW2 HOT/COLD Query Parity + Canonical History Preservation",
+  "objective": "Same as Part 20/21 but for 3SW2: verify every 3SW2-attributed transfer_index row is queryable and identical via the P5A build vs production, and that 3SW2's canonical wt_ops_v2.db state is preserved byte-identical.",
+  "three_sw2_entity_source": "database/wt_ops_v2.db operator_entities JOIN operators ON operator_id WHERE operators.display_name='3SW2'",
+  "three_sw2_operator_id": "64527dc2-8073-50c0-8bd7-7ef49e62d875",
+  "three_sw2_controller_address": "3SW2zquY2mVTbNuw1ZCGgtoehq2evfU36PFd6TTqSXdK",
+  "three_sw2_entity_address_count": 1,
+  "high_water_id": 6648855,
+  "query_parity_method": "Queried every transfer_index row where the 3SW2 entity_address appears as source OR destination, against production (id<=high_water) and the P5A unified HOT+COLD build. Full row-set diff.",
+  "query_parity_result": {
+    "production_row_count": 0,
+    "p5a_row_count": 0,
+    "rows_only_in_production": 0,
+    "rows_only_in_p5a": 0,
+    "exact_match": true,
+    "interpretation": "0/0 is a genuine match, not a failure to find data -- 3SW2's single known entity_address has no direct transfer_index rows within the frozen window on EITHER side, confirmed identical on both. 3SW2's canonical evidence lives in operator_entities.evidence_count=13 (wt_ops_v2.db, a separate table from transfer_index), which is untouched by P5A (P5A only reshapes transfer_index)."
+  },
+  "canonical_history_preservation": {
+    "source_db": "database/wt_ops_v2.db (READ ONLY, never written to by P5A)",
+    "freeze_taken_before_p5a20_22_query_work": true,
+    "freeze_specific_to_this_p5a_milestone": true,
+    "freeze_reused_from_p4": false,
+    "operator_row_sha256": "4c701873caee8506c137bca8f16bc5e00b6df5431ead41d177eb2fd415d940cf",
+    "operator_entities_row_count": 1,
+    "operator_entities_rows_sha256": "c6252e208ef3b99200a2d4d856d7b045da17a7f032c73c5f29edb9202cd03bca",
+    "combined_canonical_digest": "1941795ded85ee45f03c9bbc0ff6151f9d3d2ccb480b9c516059ffa86511522d",
+    "re_verified_immediately_after_query_parity_check": true,
+    "re_verification_result": "BYTE_IDENTICAL",
+    "final_re_verification_pending": "COMPLETE -- performed at end of all P5A work, immediately before final commit. Result: BYTE_IDENTICAL. combined_canonical_digest re-measured: 1941795ded85ee45f03c9bbc0ff6151f9d3d2ccb480b9c516059ffa86511522d (matches original freeze exactly)."
+  },
+  "elapsed_seconds": 1436.9,
+  "verdict": "THREE_SW2_HOTCOLD_QUERY_PARITY_PASS",
+  "THREE_SW2_CANONICAL_HISTORY_PRESERVATION": "PASS",
+  "THREE_SW2_CANONICAL_HISTORY_PRESERVATION_FINAL": "PASS"
+}

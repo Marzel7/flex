@@ -1,0 +1,19 @@
+{
+  "part": "P5A Part 25 -- Discovery parity",
+  "method": "Every distinct funding_signature (direct_funding_edges) and upstream_signature (upstream_edges) from local_operation_discovery_corpus.db was looked up in production transfer_index and in the P5A HOT+COLD build. Verified (a) every discovery-referenced signature resolves to the SAME row set on both sides, and (b) whether these signatures indeed live entirely in HOT as expected (they were a pinning criterion).",
+  "high_water_id": 6648855,
+  "direct_funding_edges_distinct_signatures": 7412,
+  "upstream_edges_distinct_signatures": 32255,
+  "union_distinct_signatures": 36835,
+  "total_signatures_checked": 36835,
+  "found_in_hot_count": 36835,
+  "found_in_cold_count": 0,
+  "found_in_neither_production_count": 0,
+  "found_in_neither_p5a_count": 0,
+  "mismatches_count": 0,
+  "mismatches_sample": [],
+  "all_hot_as_expected": true,
+  "exact_match": true,
+  "elapsed_seconds": 122.25,
+  "verdict": "DISCOVERY_PARITY_PASS"
+}

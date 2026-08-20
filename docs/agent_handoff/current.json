@@ -559,9 +559,9 @@
       "evidence_writer": "STOPPED"
     },
     "blockers": [
-      "INDEPENDENT_OPERATION_IDENTITY_EVIDENCE_INCOMPLETE",
-      "HANDOFF_TRANSPORT_DEGRADED"
+      "INDEPENDENT_OPERATION_IDENTITY_EVIDENCE_INCOMPLETE"
     ],
+    "handoff_transport": "PUBLISHED_AND_REMOTE_CHECKSUM_VERIFIED",
     "next_action": "DEFINE_AND_QUALIFY_A_BOUNDED_MULTI_SIGNAL_OPERATION_DETECTOR_INPUT_CONTRACT"
   },
   "current_next_blocker": "B2Z_P2_HELIUS_ENDPOINT was never available during the overnight session. P2 remains frozen at the 19-member manual resume gate, exactly as left. All 12 provider-free workstreams from the overnight prompt were completed: P2 analysis engine, selective-RPC policy (B2Z-P3), historical coverage profile, 2-hop coverage quality, B2Z-2H contract, operation-discovery preparation, candidate funding family analysis (with a real cross-validated finding), raw-transaction cache adapter, RPC savings models, V2 persistent-budget design, edge-case classifier, and roadmap reconciliation. See docs/audits/overnight_human_decision_queue.json for the 5 decisions that actually need you.",

@@ -534,10 +534,21 @@
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
   "current_milestone": {
-    "milestone": "OPS-DISCOVERY-P2 -- independent operation-identity evidence census and blind Watchtower/3SW2 qualification",
+    "milestone": "OPS-DISCOVERY-P3 -- mint-linked independent evidence adapter qualification",
     "status": "HOLD",
-    "verdict": "P2_DATA_GAPS_PREVENT_BLIND_HIGHER_ORDER_OPERATION_REDISCOVERY",
-    "next_action": "DEFINE_A_BOUNDED_MINT_LINKED_EP3_EP4_AND_MIGRATION_SIGNER_ADAPTER_CONTRACT"
+    "verdict": "BLIND_TEST_NOT_READY_LOCAL_INDEPENDENT_EVIDENCE_INSUFFICIENT",
+    "next_action": "OPS-DISCOVERY-P3R_BOUNDED_RESIDUAL_EVIDENCE_ACQUISITION_REQUIRES_HUMAN_AUTHORIZATION"
+  },
+  "ops_discovery_p3": {
+    "updated_at_utc": "2026-08-20T00:00:00Z",
+    "status": "HOLD",
+    "verdict": "BLIND_TEST_NOT_READY_LOCAL_INDEPENDENT_EVIDENCE_INSUFFICIENT",
+    "frozen_population": 40275,
+    "coverage": {"direct_funding": 7630, "mint_linked_ep3": 47, "mint_linked_ep4": 0, "population_wide_migration_signer": 0},
+    "result": "Local adapters recovered a small mint-linked EP3 topology slice only. EP4 remains address-level and migration signer remains cohort-only; no blind detector was run and the eight FUNDING_STRUCTURE entries remain unchanged.",
+    "provider_calls_made": 0,
+    "production_writes": 0,
+    "next_action": "OPS-DISCOVERY-P3R_BOUNDED_RESIDUAL_EVIDENCE_ACQUISITION_REQUIRES_HUMAN_AUTHORIZATION"
   },
   "ops_discovery_p2": {
     "updated_at_utc": "2026-08-20T00:00:00Z",

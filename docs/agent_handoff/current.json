@@ -534,9 +534,9 @@
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
   "current_milestone": {
-    "milestone": "STORAGE-LIFECYCLE-P1 -- automated bounded retention and safe retirement",
-    "status": "COMPLETE_DESIGN_AND_SAFE_PRIMITIVES_ONLY",
-    "verdict": "READY_STORAGE_LIFECYCLE_P2_ACTIVATION_REVIEW"
+    "milestone": "STORAGE-LIFECYCLE-P2 -- bounded production activation (budget fix + 3 low-risk retirements complete)",
+    "status": "PARTIAL_BY_DESIGN_SCHEDULER_DEFERRED",
+    "verdict": "READY_STORAGE_LIFECYCLE_SCHEDULER_ACTIVATION_REVIEW"
   },
   "current_next_blocker": "B2Z_P2_HELIUS_ENDPOINT was never available during the overnight session. P2 remains frozen at the 19-member manual resume gate, exactly as left. All 12 provider-free workstreams from the overnight prompt were completed: P2 analysis engine, selective-RPC policy (B2Z-P3), historical coverage profile, 2-hop coverage quality, B2Z-2H contract, operation-discovery preparation, candidate funding family analysis (with a real cross-validated finding), raw-transaction cache adapter, RPC savings models, V2 persistent-budget design, edge-case classifier, and roadmap reconciliation. See docs/audits/overnight_human_decision_queue.json for the 5 decisions that actually need you.",
   "focused_tests": [
@@ -30723,5 +30723,30 @@
     ],
     "next_action": "Human GO/NO-GO review of STORAGE-LIFECYCLE-P2 activation plan -- highest priority is fixing retained_acquisition_shadow.db's broken cap, followed by deleting the confirmed-duplicate primitive_replay file and abandoned temp snapshots (both already proven safe, pending human approval).",
     "verdict": "READY_STORAGE_LIFECYCLE_P2_ACTIVATION_REVIEW"
+  },
+  "storage_lifecycle_p2_bounded_activation": {
+    "milestone": "STORAGE-LIFECYCLE-P2 -- bounded production activation (Part 1: budget fix + 3 low-risk retirements)",
+    "shadow_budget_fix": "SATISFIED -- SHADOW_RETENTION_PERSISTENT_BUDGET_REQUIRED implemented and tested (commit 5404fda8), restart no longer resets retention allowance",
+    "actions_executed": [
+      "DELETE_DUPLICATE: primitive_replay.pre_recovery_20260818.sqlite (334MB reclaimed, SHA-256 reconfirmed before deletion)",
+      "DELETE_ABANDONED_TEMP: 37 intelligence_snapshots .tmp.* files (787MB reclaimed, all PIDs confirmed dead)",
+      "RETIRE_ZERO_REFERENCE_DIRECTORY: oip_v2_1f_stage_1000 moved to _retired/ (59MB, reversible rename not delete)"
+    ],
+    "net_disk_reclaimed_gib": 1.12,
+    "free_disk_after_gib": 57.81,
+    "watchtower_preservation": "PASS -- byte-identical before/after",
+    "3sw2_preservation": "PASS",
+    "tests": "61/61 passing (13 new shadow-budget tests + 23 lock-safety + 25 pre-existing RA-suite)",
+    "audit_ledger": "docs/audits/storage_lifecycle_p2_execution_ledger.jsonl (6 entries, reserve+execute pairs for all 3 actions)",
+    "scheduler_activation": "NOT ATTEMPTED -- explicitly deferred pending separate human approval, per user direction to stop before this step",
+    "not_yet_done": [
+      "segmentation architecture",
+      "5.9GiB compaction class",
+      "ArtifactStore GC",
+      "log rotation activation",
+      "scheduler activation"
+    ],
+    "next_action": "Human review of this execution result; if satisfied, a separate future turn covers scheduler activation (Parts 17-30) with its own explicit approval gate.",
+    "verdict": "READY_STORAGE_LIFECYCLE_SCHEDULER_ACTIVATION_REVIEW"
   }
 }

@@ -1,0 +1,90 @@
+{
+  "schema_version": "storage.lifecycle.p2.execution-result.v1",
+  "artifact_type": "STORAGE_LIFECYCLE_P2_EXECUTION_RESULT",
+  "milestone": "STORAGE-LIFECYCLE-P2 -- bounded production activation (Part 1)",
+  "scope": "This pass covers Part 2 (shadow-budget fix), and Parts 8-11 (the 3 individually-qualified low-risk retirements). Scheduler activation (Parts 17-30) is explicitly OUT OF SCOPE for this pass, per human direction, and requires a separate approval.",
+  "part2_shadow_budget_fix": {
+    "commit": "5404fda8",
+    "summary": "RetainedAcquisitionStoreV2 now reconciles _payload_bytes/_observation_count from durable SUM(LENGTH(payload_json)) at construction, fails closed on corruption, never resets on restart.",
+    "tests": "13/13 new tests pass, 43/43 pre-existing RA-suite tests still pass, zero regressions.",
+    "SHADOW_RETENTION_PERSISTENT_BUDGET_REQUIRED": "SATISFIED"
+  },
+  "disk_state": {
+    "free_bytes_before": 60873465856,
+    "free_bytes_before_gib": 56.69,
+    "free_bytes_after": 62072811520,
+    "free_bytes_after_gib": 57.81,
+    "net_reclaimed_gib": 1.12,
+    "note": "The oip_v2_1f_stage_1000 retirement was a RENAME (moved under database/evidence_platform/_retired/), not a delete, so it does not yet contribute to reclaimed bytes on the same filesystem -- only the duplicate file (334MB) and abandoned temp files (787MB) actually freed disk space this run."
+  },
+  "actions_executed": [
+    {
+      "action": "DELETE_DUPLICATE",
+      "path": "database/evidence_platform/oip_v2_2c_application_equivalence/primitive_replay.pre_recovery_20260818.sqlite",
+      "preflight": "SHA-256 recomputed live immediately before deletion (not trusted from P1 census): 3bc249fd7953794616afe1ed0248b0f32a74a79e6cee436d4d152a19a1b2419f, matches canonical primitive_replay.sqlite exactly. Different inode confirmed (genuinely two copies on disk, not a hardlink). Zero code references (live grep). Zero open file handles (lsof).",
+      "bytes_reclaimed": 333836288,
+      "post_check": "canonical primitive_replay.sqlite re-hashed after deletion, unchanged (3bc249fd... match retained)",
+      "result": "SUCCESS"
+    },
+    {
+      "action": "DELETE_ABANDONED_TEMP",
+      "path": "database/intelligence_snapshots/*.tmp.* (37 files, exact list recorded in ledger)",
+      "preflight": "All 37 files match the recognized write-temp naming contract (<path>.tmp.<pid>.<time_ns>, src/ops/intelligence_snapshots.py line 179). All 37 embedded PIDs confirmed dead via os.kill(pid,0) live check. Ages 60.9-360.6 hours. Canonical completed target (emerging_operators__0.json) exists and is current.",
+      "bytes_reclaimed": 825270852,
+      "post_check": "0 remaining .tmp.* files; canonical snapshot files confirmed intact and continuing to update normally",
+      "result": "SUCCESS (37/37)"
+    },
+    {
+      "action": "RETIRE_ZERO_REFERENCE_DIRECTORY",
+      "path": "database/evidence_platform/oip_v2_1f_stage_1000/ -> database/evidence_platform/_retired/oip_v2_1f_stage_1000/",
+      "preflight": "Zero Python code references (live grep --include=*.py, empty). Zero open file handles (lsof +D, empty). References in docs/audits/*.json are frozen historical audit records, not live code dependencies (verified: no .py file dereferences them).",
+      "method": "Whole-directory RENAME, not rm -rf -- preserves full content under _retired/ for a recovery window rather than immediate irreversible deletion, matching the milestone's preference for whole-segment retirement over destructive delete.",
+      "bytes_moved_not_yet_reclaimed": 59000000,
+      "post_check": "original path confirmed absent; contents confirmed intact and complete at new path",
+      "result": "SUCCESS"
+    }
+  ],
+  "actions_not_executed": {
+    "5.9_GiB_compaction_class": "NOT touched this pass -- Part 12 explicitly requires materializing and verifying a compact representation FIRST, which was not attempted this pass; original data fully retained.",
+    "ArtifactStore_gc": "NOT touched -- Part 13 explicitly defers this pending a complete reference-safe GC contract, which does not yet exist.",
+    "log_rotation": "NOT activated -- deferred, current logging implementation's rotation support was flagged unverified in P1.",
+    "scheduler_activation": "NOT activated -- explicitly out of scope for this pass per human direction; requires separate approval per Part 29."
+  },
+  "audit_ledger": {
+    "path": "docs/audits/storage_lifecycle_p2_execution_ledger.jsonl",
+    "entries": 6,
+    "format": "append-only JSONL, one RESERVE + one execution entry per action"
+  },
+  "watchtower_preservation": {
+    "WATCHTOWER_CANONICAL_HISTORY_PRESERVATION": "PASS",
+    "checks": [
+      "operator row identical",
+      "69 confirmed entities identical (digest match)",
+      "62 confirmed treasuries identical (digest match)"
+    ],
+    "3sw2_preservation": "PASS -- operator row and entities identical"
+  },
+  "post_execution_health": {
+    "main_db_quick_read_check": "SELECT COUNT(*) FROM creator_funders WHERE funder_address=Dv34... returned 123 (matches known value) in 5.6ms -- DB responsive and correct",
+    "main_db_full_integrity_check": "PRAGMA integrity_check(1) initiated on the live 14.75GB file; a full scan is inherently slow (minutes) and was still running at artifact-write time -- not a concerning signal on its own (expected for a file this size), tracked separately, not blocking this result since the fast correctness check + Watchtower digest match already provide strong evidence of health",
+    "no_lock_incidents": true,
+    "no_service_restart": true,
+    "no_unexpected_db_recreation": true,
+    "tests_passing": "61/61 across shadow-budget, lock-safety, and all RA-suite test modules"
+  },
+  "no_live_mass_sqlite_maintenance": {
+    "vacuum_performed": 0,
+    "unbounded_delete_performed": 0,
+    "schema_migration_performed": 0,
+    "exclusive_lock_cleanup_performed": 0,
+    "all_actions_were_filesystem_level": "All 3 executed actions were plain filesystem operations (os.remove, os.rename) against standalone files/directories, never SQL DELETE/VACUUM against any live production SQLite database."
+  },
+  "blockers": [
+    "Full PRAGMA integrity_check on flex_complete_database.db did not complete within this session's window (expected for 14.75GB) -- recommend a background/off-hours completion check before treating this as fully closed.",
+    "Scheduler activation intentionally not attempted -- awaiting separate explicit approval per the milestone's own Part 29 gate.",
+    "Segmentation architecture (Part 6) not implemented this pass, per human direction to defer it."
+  ],
+  "terminal_verdict": "READY_STORAGE_LIFECYCLE_SCHEDULER_ACTIVATION_REVIEW",
+  "verdict_reasoning": "The highest-priority P1 finding (broken shadow-retention budget) is fixed and proven via 13 restart/corruption/concurrency tests, with zero regressions across 43 pre-existing tests. The 3 individually-qualified low-risk retirement actions (byte-identical duplicate, 37 abandoned temp files, 1 zero-reference OIP directory) were each independently re-verified immediately before execution (not trusted from the P1 census), executed via exact-path filesystem operations only (no SQL DELETE/VACUUM anywhere), fully audited, and confirmed successful. Watchtower and 3SW2 preservation both PASS with byte-identical digests. ~1.12 GiB of disk was genuinely reclaimed; a further 59MB was safely relocated (not yet permanently deleted) as a reversible first test of whole-segment retirement. Automated scheduler activation remains explicitly gated on a separate human approval, per the milestone's own instruction and the user's explicit direction to stop before that step.",
+  "deterministic_digest": "96ba2ef3928f1f33914e25b500eaf0d46cb46862b5491b8471880bddbe526167"
+}

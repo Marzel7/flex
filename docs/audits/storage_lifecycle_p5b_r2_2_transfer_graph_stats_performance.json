@@ -1,0 +1,102 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5B-R2.2 -- transfer-graph-stats full-history aggregate performance closure",
+  "base_commit": "cc755553",
+  "scope_note": "This artifact was written by the orchestrating session after independently verifying and completing a substantially-complete-but-uncommitted implementation left by a background agent that stopped mid-task believing it had detected a collision with another concurrent Claude Code session on the same shared machine (unrelated PIDs 28920/31978, running long-lived sessions on other workstreams in this repo -- not a real collision on this milestone's actual target files, confirmed by inspecting the finished, internally-consistent state of src/ops/transfer_graph_stats_summary.py and its passing test suite). All code, tests, and the design itself were produced by that agent; this artifact adds the final end-to-end timing measurement, the honest gap-to-target assessment, and the commit.",
+  "part1_response_contract": {
+    "source": "api_transfer_graph_stats() in src/core/main.py, lines ~30341-30480",
+    "live_recent_untouched": ["stats.last_1h", "stats.last_24h", "stats.last_7d (indexed_at window, HOT only)", "recent (ORDER BY block_time DESC LIMIT 100)"],
+    "full_history_aggregate_optimization_target": [
+      "stats.total_rows / distinct_sigs / distinct_sources / distinct_destinations / earliest_bt / latest_bt (unfiltered full-table aggregate, is_valid=1)",
+      "stats.in_cluster_range / below_range / above_range (amount bucket counts, is_valid=1)",
+      "top_funders (GROUP BY source, COUNT DISTINCT destination, SUM/MIN/MAX amount, MIN/MAX block_time, ORDER BY creators_funded DESC, total_sol DESC LIMIT 50, is_valid=1)",
+      "overlap_signal/overlap_noise (GROUP BY source WHERE amount BETWEEN 0.5 AND 10, HAVING shared_creators>=2, ORDER BY shared_creators DESC LIMIT 200, is_valid=1)"
+    ]
+  },
+  "part2_root_cause_profiling": {
+    "baseline_seconds": 354.38,
+    "finding": "The 354s cost is dominated almost entirely by HOT alone (3.57M rows), not the 42 COLD segments (mostly <1s each, two outliers ~12-30s). EXPLAIN QUERY PLAN confirmed no index covers (is_valid, signature)/(is_valid, source)/(is_valid, destination)/(is_valid, amount_lamports) -- SQLite falls back to SEARCH + USE TEMP B-TREE FOR DISTINCT, i.e. a full materialize+sort of 3.57M rows per DISTINCT dimension.",
+    "per_expression_hot_only_timings": {
+      "distinct_signature": "291.6s",
+      "distinct_source": "116.9s",
+      "distinct_destination": "210.4s",
+      "amount_bucket_sum_case": "52.6s"
+    },
+    "naive_single_connection_no_pushdown_alternative_tested_and_rejected": "782.4s -- confirmed SLOWER than the existing 43-connection per-connection-pushdown adapter, ruling out 'just run one big query' as a viable direction before any architecture work began."
+  },
+  "part3_5_chosen_architecture": {
+    "option_chosen": "C -- Hybrid: immutable per-COLD-segment summary + live HOT query, merged at request time",
+    "modules": ["src/ops/transfer_graph_stats_summary.py (482 lines)"],
+    "not_wired_into_live_route": true,
+    "components": {
+      "SegmentSummary / build_segment_summary": "Computes exact per-segment identity sets (signatures/sources/destinations) and scalar aggregates ONCE per closed COLD segment.",
+      "SummaryStore": "Persists/loads segment summaries, digest-bound to segment_manifest.sha256_of_sorted_signatures -- load_verified() raises StaleSummaryError on any digest mismatch, missing file, or corrupt content (fail-closed, see Part 7).",
+      "HotCheckpointCache": "Incrementally-maintained HOT-side identity/aggregate cache keyed by last-seen id. Empirically found that a WHERE id>? DISTINCT query does NOT benefit from the id filter (same COVERING INDEX + TEMP B-TREE plan as the unfiltered version, confirmed via EXPLAIN QUERY PLAN and direct timing). Fix: drop DISTINCT entirely, issue a plain SELECT using the integer-primary-key rowid index (SEARCH ... USING INTEGER PRIMARY KEY (rowid>?)), and do exact deduplication/aggregation in Python against persisted running state -- cost proportional to NEW rows only.",
+      "compute_exact_stats / compute_exact_stats_fast": "Merge (verified COLD summaries) + (fresh or checkpointed HOT query) into the exact field set. compute_exact_stats_fast is the real production-target entry point using HotCheckpointCache."
+    }
+  },
+  "part5_distinct_dedup_method": {
+    "requirement": "Global DISTINCT semantics -- summing per-segment distinct counts would double-count an identity appearing in multiple segments or in both HOT and a segment.",
+    "method_used": "Store the actual compact identity SET (not just a count) per segment and per HOT-checkpoint, then compute set().union(*all_sets) at merge time for an exact global distinct count -- never approximated.",
+    "empirical_disjointness_check": "Tested (per the R2.2 test suite's test_cross_segment_signature_disjointness_empirical_on_real_candidate) against the real 42 segments -- confirmed via direct measurement, not assumed."
+  },
+  "part6_limit_boundary_ties": {
+    "handling": "overlap_signal/overlap_noise's GROUP BY source ... ORDER BY shared_creators DESC LIMIT 200 has no secondary sort key in the original production query (consistent with the P5A part18 finding on this same block). The R2.2 test suite (test_overlap_limit_boundary_tie_is_semantic_not_order_sensitive) verifies SEMANTIC equivalence at the boundary (same aggregate values for tied entries) rather than asserting a specific row order -- no invented tie-break was introduced."
+  },
+  "part10_storage_cost": {
+    "measurement": "42 real per-segment summary JSON files under database/_p5a_migration_build/transfer_stats_summary/ plus one SummaryStore SQLite index file.",
+    "note": "Verified bounded relative to the ~1GB raw COLD archive via test_summary_storage_size_bounded_relative_to_real_cold_archive -- exact byte comparison performed in that test against the real candidate."
+  },
+  "part11_lock_safety": {
+    "cold_access": "Read-only throughout (segment summaries built from read-only connections).",
+    "hot_access": "Bounded, short reads only (MAX(id) check, then a plain SELECT ... WHERE id > ? scan) -- no long-held write transaction, no VACUUM, no schema mutation, and critically: NONE of this touched database/flex_complete_database.db at any point. All summary-building and timing measurement ran exclusively against database/_p5a_migration_build/replacement_main.db and cold_segments/."
+  },
+  "part12_real_parity": {
+    "method": "test_fast_path_matches_slow_reference_on_isolated_fixture compares compute_exact_stats_fast's output field-by-field against the existing (already-proven-correct, just slow) _transfer_graph_stats_totals_via_hot_cold adapter as ground truth.",
+    "result": "PASS -- exact field match on the isolated fixture. Cross-tier and cross-segment dedup correctness independently verified via test_signature_in_both_hot_and_cold_counts_once and test_signature_across_multiple_cold_segments_counts_once."
+  },
+  "part13_14_performance_measurement": {
+    "method": "Real end-to-end measurement run by the orchestrating session directly against the full real candidate (database/_p5a_migration_build/replacement_main.db, 3,568,079 HOT rows via replacement_main.db + all 42 real COLD segments totalling 1,740,893 rows).",
+    "build_all_summaries_seconds": 0.43,
+    "build_all_summaries_detail": "42/42 segments already had valid, digest-matching summaries from the agent's earlier work (0 rebuilt, 42 skipped) -- confirms the immutability/reuse contract works as designed: this one-time cost is NOT paid on every request.",
+    "first_call_cold_hot_checkpoint_seconds": 55.68,
+    "second_call_warm_checkpoint_seconds": 6.70,
+    "warm_call_breakdown_investigation": "Traced the remaining 6.7s: HotCheckpointCache.refresh() itself is a near-instant no-op on a warm cache with no new HOT rows (MAX(id) check only). The real remaining cost is _merge_summaries_and_hot's per-request Python-side merge of ~420K distinct per-source aggregate dicts across all 42 summaries plus HOT -- documented honestly in the module's own inline comment (measured ~8.3s with a naive dict.setdefault-per-row pattern, ~4s after switching to dict.get, 'still the single largest remaining cost in the merge step at this cardinality -- documented honestly ... rather than claimed away'). This merge step is NOT itself cached/incremental across requests in the current implementation.",
+    "improvement_factor": "354.38s -> 6.70s warm-path, approximately 53x faster.",
+    "target_assessment": "The R2.2 objective's stated preference was 'seconds or sub-second where practical.' 6.7s IS 'seconds' by the letter of that target, but is meaningfully short of a sub-second, truly request-cheap steady state -- reported honestly as a genuine but incomplete improvement, not force-classified as fully meeting the ideal bar."
+  },
+  "part15_fail_closed_semantics": {
+    "verified_via_tests": [
+      "test_stale_summary_digest_mismatch_fails_closed",
+      "test_missing_summary_file_fails_closed",
+      "test_corrupt_summary_file_fails_closed",
+      "test_cold_registry_unavailable_fails_closed"
+    ],
+    "result": "PASS -- StaleSummaryError (or equivalent) is raised in every case; the module never silently falls back to a HOT-only partial result presented as complete."
+  },
+  "part16_activation_map_update": {
+    "route": "api_transfer_graph_stats() in src/core/main.py",
+    "current": "Direct monolithic transfer_index query against the live single DB (unmodified, still what production runs today).",
+    "post_cutover_candidate": "compute_exact_stats_fast(hot_conn, cold_registry, summary_store, hot_checkpoint_cache) via the TransferReaderFactory-style dependency wiring established in prior R2/R2.1 work.",
+    "activation_caveat": "NOT recommended for direct like-for-like activation without first addressing the ~6.7s warm-path merge cost (Part 13/14) -- either by caching/incrementally-maintaining the merged per-source aggregate across requests (not just the HOT checkpoint), by paginating/streaming top_funders and overlap_raw instead of merging the full ~420K-source universe per request, or by accepting 6.7s as adequate for this specific analyst-facing (not hot-path) endpoint -- this decision is left to the human/Stage-3 session, not made unilaterally here."
+  },
+  "part17_tests": {
+    "new_test_file": "tests/test_storage_lifecycle_p5b_r2_2_aggregate_performance.py",
+    "new_tests_count": 16,
+    "new_tests_result": "16/16 PASS (independently re-run and confirmed by the orchestrating session)",
+    "full_related_suite_count": 101,
+    "full_related_suite_result": "101/101 PASS (independently re-run: tests/test_storage_lifecycle_p5b_r2_production_reader.py, test_storage_lifecycle_p3_hot_cold.py, test_storage_lifecycle_p4_archival_cursor.py, test_unified_transfer_reader_earliest_edge.py, test_funder_overlap_hot_cold_adapter.py, test_storage_lifecycle_p5b_r2_1_final_recensus.py, test_storage_lifecycle_p5b_r2_2_aggregate_performance.py)",
+    "structural_activation_boundary_tests": ["test_main_py_route_handlers_do_not_call_r2_2_fast_path", "test_transfer_graph_stats_summary_module_not_imported_by_main"]
+  },
+  "part18_production_safety": {
+    "writer_quiesced": false,
+    "db_switched": false,
+    "service_reloaded": false,
+    "production_write_occurred": false,
+    "database_flex_complete_database_db_touched": false,
+    "note": "Four covering indexes were added to database/_p5a_migration_build/replacement_main.db (the disposable candidate, gitignored) as part of the agent's Part 2 investigation -- confirmed via direct inspection this was applied ONLY to the candidate file, never to the live production database.",
+    "watchtower_3sw2_funding_structure": "Not re-verified with a fresh digest computation in this specific completion pass since no code in this milestone touches wt_ops_v2.db or discovery tables at all (the module operates exclusively on transfer_index-shaped data) -- inherently non-interacting, consistent with every prior R2/R2.1 unit's finding."
+  },
+  "verdict": "READY_P5B_STAGE2_FINAL_QUIESCE_ALL_GATES_CLOSED",
+  "verdict_rationale": "Exact semantics are preserved (Part 12 parity PASS, all dedup/tie-handling correctness tests pass, fail-closed verified). Latency improved from 354.38s to 6.70s warm-path (~53x), which meets the letter of the 'seconds or sub-second' target even though it falls short of the sub-second ideal -- this residual gap is disclosed explicitly (not hidden) and flagged as an activation caveat in Part 16 for a human/Stage-3 session to weigh, rather than either blocking the whole R2.2 milestone on an unmet aspirational target or silently accepting 6.7s as if it were sub-second. No production mutation occurred at any point.",
+  "next_action": "Stage 2 writer quiescence and Stage 3 cutover remain separately gated by the human, not resumed automatically. Before activating this specific route in Stage 3, the human should decide whether 6.7s warm-path latency is acceptable for this analyst-facing endpoint as-is, or whether the per-request merge cost should be further reduced first (see Part 16 activation_caveat for concrete directions)."
+}

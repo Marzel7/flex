@@ -1,0 +1,85 @@
+{
+  "schema_version": "storage.lifecycle.p2_2.scheduler-activation.v1",
+  "artifact_type": "STORAGE_LIFECYCLE_P2_2_SCHEDULER_ACTIVATION",
+  "milestone": "STORAGE-LIFECYCLE-P2.2 -- conservative automated lifecycle activation",
+  "part1_disk_state_at_activation": {
+    "free_bytes": 61917536256,
+    "free_gib": 57.67,
+    "pressure_state": "NORMAL",
+    "flex_complete_database_db_gib": 13.75,
+    "wt_ops_v2_db_gib": 4.4,
+    "retained_acquisition_shadow_db_gib": 1.98,
+    "note": "measured live via src.ops.storage_monitor immediately before this milestone's work"
+  },
+  "part2_main_db_health_followup": {
+    "prior_integrity_check_process": "still alive (confirmed via ps aux, pid 32785, mode=ro read-only query, ~1:15 CPU time accumulated) -- a full PRAGMA integrity_check on a 14.75GB file is inherently slow; left running rather than killed since it is read-only and does not block production writers",
+    "quick_correctness_check": "SELECT COUNT(*) FROM creator_funders WHERE funder_address=Dv34... returned 123 (correct) in ~5ms during the P2 Part 1 pass",
+    "result": "FULL_INTEGRITY_CHECK_STILL_IN_PROGRESS -- not blocking, per instruction ('this must NOT block scheduler activation because the retirement actions did not mutate the main DB')"
+  },
+  "part3_scheduler_architecture": {
+    "decision": "standalone module (src/ops/storage_lifecycle_runner.py), NOT woven into the existing live src/core/operation_scheduler.py process",
+    "reasoning": "operation_scheduler.py (pid 35375) is an already-running, complex, actively-used production daemon with its own intricate pressure/batching logic. Modifying its --loop main dispatch to add a new job type risked destabilizing a live process for a change that doesn't require sharing its runtime. The new runner follows the SAME established idioms (single-instance lock file with stale-lock recovery, --once/--status flags, quiet mode, run logging) so it fits the existing operational pattern without touching live code.",
+    "activation_mechanism": "cron, matching this environment's ALREADY-ESTABLISHED pattern for scheduled scripts (3 existing crontab entries found: run_helius_monitor.sh every 5min, run_graph_analyzers.py every 4h, audit_pumpswap_migration_coverage.py hourly) -- requires ZERO service/supervisor/application restart.",
+    "lock_semantics": "reuses storage_lock_safety.acquire_cleanup_lease() (P1-qualified, fcntl.flock non-blocking) -- a concurrent/overlapping cron invocation exits cleanly via CleanupLeaseHeldError rather than blocking or double-executing."
+  },
+  "part4_cadence": {
+    "frequency": "once per day",
+    "proposed_time": "03:00 local (low-traffic window, matches existing crontab conventions)",
+    "idempotent": "YES -- if nothing is eligible, the run completes with 0 planned/0 executed and exits cleanly (proven live this session)"
+  },
+  "part5_lease": {
+    "mechanism": "storage_lock_safety.acquire_cleanup_lease, fcntl.flock(LOCK_EX | LOCK_NB)",
+    "lock_file": "database/storage_lifecycle.lock",
+    "tested": "test_duplicate_invocation_exits_cleanly_not_blocking, test_stale_lease_recoverable_after_process_exit (both pass)"
+  },
+  "part6_plan_validate_execute": {
+    "implemented": true,
+    "phases": [
+      "PLAN (read-only candidate discovery)",
+      "VALIDATE (re-check eligibility immediately before mutation, per-action)",
+      "EXECUTE (exact filesystem mutation only)",
+      "VERIFY (bytes reclaimed recorded)",
+      "AUDIT (append-only ledger, RESERVE entry written BEFORE execute(), terminal entry after)"
+    ],
+    "eligibility_changed_handling": "SKIPPED_ELIGIBILITY_CHANGED action + audit entry, tested via test_lifecycle_pass_skips_ineligible_and_records_audit"
+  },
+  "part8_pressure_thresholds": {
+    "config_authority": "src/ops/storage_lifecycle_policy.py DiskPressureThresholds (single source, P1-qualified, unchanged this pass)",
+    "thresholds_gib": {
+      "NORMAL": ">30",
+      "WARNING": "<=30",
+      "PRESSURE": "<=20",
+      "EMERGENCY": "<=15",
+      "HARD_FLOOR": "<=10"
+    }
+  },
+  "automation_allowlist_this_pass": [
+    "abandoned temp files (recognized <name>.tmp.<pid>.<time_ns> contract, dead PID, >=24h age) -- WIRED and proven"
+  ],
+  "automation_allowlist_not_yet_wired": [
+    "proven byte-identical duplicates -- requires a fresh live re-classification per invocation, not yet automated (executed manually under full review in P2 Part 1; automating this safely needs a duplicate-detection census step this pass did not build)",
+    "log rotation/expiry -- hook point exists conceptually but no log-writer-compatibility check has been qualified yet",
+    "pre-qualified closed zero-reference stores -- same as duplicates, requires a fresh classification pass; the one executed in P2 Part 1 was a one-time manual action, not yet a repeatable automated class"
+  ],
+  "automation_denylist_structural": {
+    "exact_path_list": [
+      "database/flex_complete_database.db",
+      "database/wt_ops_v2.db",
+      "database/transaction_first_lineage.db",
+      "database/flex_investigation_archive.db"
+    ],
+    "substring_guard": "classify_store() forces PERMANENT_OPERATIONAL for any store name containing a Watchtower/3SW2 marker",
+    "shadow_db_rows": "retained_acquisition_shadow.db is monitored (size/budget read) but no code path in storage_lifecycle_runner.py ever issues DELETE against it",
+    "artifactstore": "no code path in storage_lifecycle_runner.py references artifact deletion",
+    "tested": "test_is_protected_rejects_main_db, test_is_protected_rejects_watchtower_db, test_is_protected_rejects_watchtower_named_variant, test_validate_rejects_action_targeting_protected_path, test_runner_never_references_shadow_db_row_deletion, test_runner_never_references_artifactstore_deletion"
+  },
+  "part21_activation_gate": {
+    "restart_required": false,
+    "activation_mechanism": "crontab entry -- NOT installed automatically by this session; the human runs the provided exact command themselves via crontab -e, per explicit direction not to have Claude modify system crontab after an install attempt hung for 2 minutes without applying (crontab confirmed unmodified, still original 3 lines)",
+    "exact_command_for_human": "(crontab -l 2>/dev/null; echo '0 3 * * * cd /Users/kevinkeaveney/Dev/claude/flex && /Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python3 -m src.ops.storage_lifecycle_runner --once --quiet >> logs/storage_lifecycle.log 2>&1') | crontab -",
+    "verification_after_install": "crontab -l should show exactly one line referencing storage_lifecycle_runner, alongside the 3 pre-existing unrelated entries"
+  },
+  "terminal_verdict": "READY_STORAGE_LIFECYCLE_SCHEDULER_RESTART_GATE",
+  "verdict_reasoning": "No service restart is required for activation -- the mechanism is a new crontab line, which the human must install themselves per their explicit instruction (a prior automated install attempt hung and was correctly aborted rather than forced). All code, tests, and the one real manual production-entrypoint invocation are complete and passing. This verdict name is used per the milestone's own terminal-verdict taxonomy for 'restart-equivalent gate reached, human action required to complete activation' even though the blocking action here is a crontab install rather than a literal service restart.",
+  "deterministic_digest": "47e182d7f9e467c189a3b6e82998382fe862421974201cfc838dba8802bf0084"
+}

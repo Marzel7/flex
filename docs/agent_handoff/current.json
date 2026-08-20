@@ -534,9 +534,9 @@
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
   "current_milestone": {
-    "milestone": "STORAGE-LIFECYCLE-P2 -- bounded production activation (budget fix + 3 low-risk retirements complete)",
-    "status": "PARTIAL_BY_DESIGN_SCHEDULER_DEFERRED",
-    "verdict": "READY_STORAGE_LIFECYCLE_SCHEDULER_ACTIVATION_REVIEW"
+    "milestone": "STORAGE-LIFECYCLE-P2.2 -- conservative automated lifecycle activation",
+    "status": "CODE_COMPLETE_CRON_INSTALL_PENDING_HUMAN",
+    "verdict": "READY_STORAGE_LIFECYCLE_SCHEDULER_RESTART_GATE"
   },
   "current_next_blocker": "B2Z_P2_HELIUS_ENDPOINT was never available during the overnight session. P2 remains frozen at the 19-member manual resume gate, exactly as left. All 12 provider-free workstreams from the overnight prompt were completed: P2 analysis engine, selective-RPC policy (B2Z-P3), historical coverage profile, 2-hop coverage quality, B2Z-2H contract, operation-discovery preparation, candidate funding family analysis (with a real cross-validated finding), raw-transaction cache adapter, RPC savings models, V2 persistent-budget design, edge-case classifier, and roadmap reconciliation. See docs/audits/overnight_human_decision_queue.json for the 5 decisions that actually need you.",
   "focused_tests": [
@@ -30748,5 +30748,41 @@
     ],
     "next_action": "Human review of this execution result; if satisfied, a separate future turn covers scheduler activation (Parts 17-30) with its own explicit approval gate.",
     "verdict": "READY_STORAGE_LIFECYCLE_SCHEDULER_ACTIVATION_REVIEW"
+  },
+  "storage_lifecycle_p2_2_conservative_automation": {
+    "milestone": "STORAGE-LIFECYCLE-P2.2 -- conservative automated lifecycle activation",
+    "current_disk_free_gib": 57.67,
+    "scheduler_mechanism": "standalone src/ops/storage_lifecycle_runner.py, activated via crontab (NOT woven into the live operation_scheduler.py process)",
+    "cadence": "daily, proposed 03:00 local",
+    "cron_installation_status": "NOT YET INSTALLED -- an automated install attempt hung for 2 minutes and was aborted; crontab confirmed unmodified. Human must run the exact command themselves (see docs/audits/storage_lifecycle_p2_2_scheduler_activation.json part21_activation_gate.exact_command_for_human).",
+    "automation_allowlist_wired": [
+      "abandoned temp files (24h+ age, dead PID, recognized naming contract)"
+    ],
+    "automation_allowlist_not_yet_wired": [
+      "proven byte-identical duplicates",
+      "log rotation/expiry",
+      "closed zero-reference stores"
+    ],
+    "automation_denylist": [
+      "flex_complete_database.db",
+      "wt_ops_v2.db",
+      "transaction_first_lineage.db",
+      "flex_investigation_archive.db",
+      "retained_acquisition_shadow.db rows",
+      "ArtifactStore objects",
+      "any Watchtower/3SW2-named store"
+    ],
+    "first_automated_equivalent_run": "PASSED -- real production entrypoint invoked directly, 0 eligible actions (correct, already cleaned in P2 Part 1), Watchtower/3SW2 preservation PASS",
+    "tests": "27/27 new (storage_lifecycle_runner) + 63/63 combined with P1/P2 shadow-budget suites",
+    "watchtower_preservation": "PASS",
+    "3sw2_preservation": "PASS",
+    "observation_window": "48-72 hours, starts once cron is installed by human; contract recorded in docs/audits/storage_lifecycle_p2_2_observation_contract.json",
+    "main_db_integrity_check": "still in progress from P2 Part 1 (pid 32785, read-only, not blocking)",
+    "unrelated_open_item": "OPS-UI-P3 discovery-detail-page fix (commit f6f928f0) is correct in code but not yet live -- requires a gunicorn worker reload, explicitly deferred by the human until storage activation is fully reconciled",
+    "blockers": [
+      "cron installation requires human action (automated attempt hung)"
+    ],
+    "next_action": "Human runs the provided crontab command, verifies with crontab -l, then observation window begins. After 48-72h, review docs/audits/storage_lifecycle_p2_execution_ledger.jsonl and consider expanding the automation allowlist.",
+    "verdict": "READY_STORAGE_LIFECYCLE_SCHEDULER_RESTART_GATE"
   }
 }

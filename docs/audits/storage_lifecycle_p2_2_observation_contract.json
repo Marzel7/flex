@@ -1,0 +1,45 @@
+{
+  "schema_version": "storage.lifecycle.p2_2.observation-contract.v1",
+  "artifact_type": "STORAGE_LIFECYCLE_P2_2_OBSERVATION_CONTRACT",
+  "milestone": "STORAGE-LIFECYCLE-P2.2 Part 23",
+  "window_required_hours": [
+    48,
+    72
+  ],
+  "window_start_baseline": {
+    "timestamp_utc": "2026-08-20T09:35:35Z",
+    "free_bytes": 61918912512,
+    "free_gib": 57.67,
+    "flex_complete_database_db_gib": 13.75,
+    "wt_ops_v2_db_gib": 4.4,
+    "retained_acquisition_shadow_db_gib": 1.98,
+    "pressure_state": "NORMAL"
+  },
+  "metrics_to_accumulate": [
+    "free disk trend (measure via storage_lifecycle_runner --status, or storage_monitor.take_snapshot)",
+    "gross bytes created/day (main DB, Watchtower DB, shadow DB, logs, ArtifactStore -- delta between consecutive daily snapshots)",
+    "bytes retired/day (sum of bytes_reclaimed across each day's cron-triggered ledger entries)",
+    "net growth/day (created - retired)",
+    "cleanup duration per run (recorded in each run's result JSON / ledger)",
+    "cleanup failures (result.errors, non-empty list)",
+    "skipped-busy stores (would appear as SKIPPED entries with a busy-related reason -- none possible yet since no SQL-DELETE-based action class is wired this pass)",
+    "WAL sizes (storage_monitor.measure_db(...).wal_bytes for the 2 protected DBs)",
+    "lock incidents (CleanupLeaseHeldError occurrences in cron logs)",
+    "scheduler misses (a day with no ledger entry at all when one was expected -- cron log absence)",
+    "shadow-DB restart events and reconciled-usage values (requires correlating supervisor restarts of any process constructing RetainedAcquisitionStoreV2 against the reconciled _payload_bytes value logged at construction -- NOT currently logged; recommend adding a log line in a follow-up if this needs to be observed precisely)",
+    "pressure-state transitions (any run whose pressure_state differs from the previous run's)"
+  ],
+  "how_to_collect": {
+    "daily_snapshot": "cron already writes stdout/stderr to logs/storage_lifecycle.log per run (once installed); each run's JSON result includes free_bytes_before/after, pressure_state, bytes_reclaimed, duration_seconds, errors",
+    "manual_status_check": "python3 -m src.ops.storage_lifecycle_runner --status (cheap, safe to run anytime)",
+    "audit_trail": "docs/audits/storage_lifecycle_p2_execution_ledger.jsonl -- append-only, one line per RESERVE/execution/skip"
+  },
+  "do_not_claim_before_window_closes": [
+    "long-term storage growth is under control",
+    "the daily cadence is sufficient",
+    "the shadow-DB budget fix behaves correctly under real restart cycles in production (only isolated-fixture-tested so far, not yet observed against a real supervisor restart of the actual writer process)",
+    "no lock contention will ever occur (only smoke-tested, not observed under real production write load over multiple days)"
+  ],
+  "review_trigger": "A human should review this observation data after the 48-72 hour window closes (target: 2026-08-22T09:35Z through 2026-08-23T09:35Z) before considering STORAGE-LIFECYCLE-P2.2 fully closed, and before considering expansion of the automation allowlist (duplicates, zero-reference stores, log rotation) to automated execution.",
+  "deterministic_digest": "064b9f4c973b8ea605b8228b4453b1616d54ec4e101cf3425aacf2db1cdd9aa1"
+}

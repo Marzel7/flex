@@ -1,0 +1,48 @@
+{
+  "schema_version": "storage.lifecycle.p2_2.first-automated-run.v1",
+  "artifact_type": "STORAGE_LIFECYCLE_P2_2_FIRST_AUTOMATED_RUN",
+  "milestone": "STORAGE-LIFECYCLE-P2.2 Part 20",
+  "method": "Invoked the exact production entrypoint (python3 -m src.ops.storage_lifecycle_runner --once) directly, twice: once with --dry-run, once for real. This exercised the SAME code path the cron job will use -- not a special manual implementation.",
+  "dry_run_invocation": {
+    "command": "python3 -m src.ops.storage_lifecycle_runner --once --dry-run",
+    "result": {
+      "run_id": "storage-lifecycle-20260820T093414Z-6b8ac666",
+      "pressure_state": "NORMAL",
+      "planned_count": 0,
+      "executed_count": 0,
+      "bytes_reclaimed": 0
+    },
+    "note": "Zero eligible actions found -- correct and expected, since all 37 abandoned temp files were already cleaned in the P2 Part 1 manual pass a few hours earlier, and the minimum age requirement (24h) has not yet elapsed for any new candidates."
+  },
+  "real_invocation": {
+    "command": "python3 -m src.ops.storage_lifecycle_runner --once",
+    "result": {
+      "run_id": "storage-lifecycle-20260820T093535Z-92fbe3f4",
+      "pressure_state": "NORMAL",
+      "free_bytes_before": 61918912512,
+      "free_bytes_after": 61918912512,
+      "planned_count": 0,
+      "executed_count": 0,
+      "skipped_count": 0,
+      "errors": [],
+      "bytes_reclaimed": 0,
+      "duration_seconds": 0.0007667080208193511
+    },
+    "acceptable_per_instruction": "'If nothing is eligible, that is acceptable.' -- explicit in Part 20."
+  },
+  "watchtower_preservation_check": {
+    "method": "digest comparison of operators row + operator_entities for WATCHTOWER, frozen immediately before the real invocation and re-measured immediately after",
+    "wt_row_match": true,
+    "wt_entities_match": true,
+    "sw2_row_match": true,
+    "WATCHTOWER_CANONICAL_HISTORY_PRESERVATION": "PASS"
+  },
+  "lease_smoke_test": {
+    "method": "launched two --once invocations near-simultaneously (backgrounded + foregrounded)",
+    "result": "both completed independently and successfully -- each run's PLAN/VALIDATE/EXECUTE/AUDIT cycle finished in under 1ms given zero eligible actions, so no real overlap window occurred in this smoke test",
+    "stronger_proof": "the lease mechanism's mutual-exclusion guarantee is independently proven by 2 dedicated unit tests (test_duplicate_invocation_exits_cleanly_not_blocking, test_stale_lease_recoverable_after_process_exit), both passing"
+  },
+  "production_scheduler_untouched": "The existing src/core/operation_scheduler.py process (pid 35375, running continuously) was never stopped, restarted, or modified. This is a fully independent, additive mechanism.",
+  "verdict": "FIRST_AUTOMATED_EQUIVALENT_RUN_PASSED",
+  "deterministic_digest": "726c898facd52c56da5fcc85f8de87054c0394d38cd41c47c21e2363736bb205"
+}

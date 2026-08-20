@@ -1,0 +1,50 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5B-R2.1 -- Unit 2 production-vs-candidate parity verification",
+  "unit": "HOT+COLD funder overlap adapter",
+  "adapter_commit": "f4e83bc6",
+  "adapter_methods": ["UnifiedTransferReader.funder_creator_pairs", "UnifiedTransferReader.funder_creator_map"],
+  "traced_production_query": {
+    "source_file": "src/core/funder_overlap_analysis.py",
+    "function": "FunderCreatorExtractor.extract_funder_creator_pairs",
+    "sql": "SELECT DISTINCT source AS funder_wallet, destination AS creator_wallet FROM transfer_index WHERE amount_sol BETWEEN 0.5 AND 10 AND is_valid = 1",
+    "ordering_note": "Confirmed by direct code read: this query has NO ORDER BY, NO LIMIT, and NO secondary sort key -- it is an unordered DISTINCT extraction consumed entirely into a Python dict-of-sets by the caller (FunderOverlapAnalyzer.compute_funder_overlaps, which itself returns an unordered dict of pairwise funder-vs-funder overlaps filtered by shared>=2, also with no LIMIT). The 'ORDER BY shared_creators DESC LIMIT' characteristic referenced in this milestone's directive belongs to a DIFFERENT query shape (the /api/transfer-graph/stats shared_funder_overlap_block investigated in an earlier P5A milestone), not to this consumer. No LIMIT-boundary tie scenario applies here -- this is a set-membership comparison, not a ranked/truncated one."
+  },
+  "method": "Ran the exact production SQL directly against (A) live production transfer_index read-only, and (B) the committed adapter's funder_creator_pairs() against the real candidate (database/_p5a_migration_build/replacement_main.db HOT + all 42 real cold_segments via ColdSegmentRegistry). No adapter code was modified to force a match.",
+  "pass_1_unbounded": {
+    "description": "First comparison used production's current live state (no id ceiling) vs the candidate (implicitly frozen at its own last-synced high-water). This is NOT an apples-to-apples comparison by construction -- included here for the audit trail, superseded by pass_2_bounded below.",
+    "production_pair_count": 148905,
+    "candidate_pair_count": 148447,
+    "exact_match": false,
+    "only_in_production_count": 458,
+    "only_in_candidate_count": 0,
+    "production_query_seconds": 225.5,
+    "candidate_query_seconds": 51.34
+  },
+  "root_cause_investigation": {
+    "finding": "Every one of the 458 production-only pairs traces to transfer_index rows with id > 6743251 (the candidate HOT DB's exact max id, confirmed via SELECT MAX(id) FROM replacement_main.db's transfer_index -- this is the STORAGE-LIFECYCLE-P5B Stage 1 delta-sync high-water). Directly inspected one sample pair's underlying row: id=6743414, a real, valid, in-range (7.0 SOL) transfer with block_time well after Stage 1 completed. A direct count confirmed 616 production rows past that same id boundary match the filter -- comfortably enough to account for 458 distinct pairs (fewer distinct pairs than raw rows is expected since multiple transfers can share a (source,destination) pair).",
+    "conclusion": "This is expected, benign staleness from comparing a frozen candidate snapshot against a continuously-written live production DB -- NOT a defect in the adapter's logic. It is exactly the kind of gap STORAGE-LIFECYCLE-P5B Stage 2's final delta sync (Parts 6-8, not yet run) exists to close before any real cutover. Zero pairs were found only in the candidate (only_in_candidate_count=0), meaning the adapter never fabricates or duplicates data -- the only discrepancy direction is 'candidate is missing rows production has written since the freeze,' which is the correct and expected direction for a not-yet-fully-synced candidate."
+  },
+  "pass_2_bounded": {
+    "description": "Re-ran the exact same production query with an added `AND id <= 6743251` clause to match the candidate's actual frozen boundary -- a true apples-to-apples comparison at the same logical point in time.",
+    "bounded_production_pair_count": 148447,
+    "candidate_pair_count": 148447,
+    "exact_match": true,
+    "bounded_query_seconds": 246.62
+  },
+  "cross_tier_duplicate_check": {
+    "requirement": "A funder funding the same creator in both HOT and a COLD segment must be counted once, not twice, in the merged distinct set.",
+    "verification": "Already proven at the unit-test level in commit f4e83bc6 (test_funder_funds_same_creator_in_both_tiers_counts_once) via isolated fixtures asserting a merged count of 1, not 2. The real production-vs-candidate exact match at the bounded boundary (148,447 == 148,447) is consistent with this holding true at real scale as well -- an over-counting bug would have produced MORE candidate pairs than production, which did not occur (only_in_candidate_count=0 in both passes)."
+  },
+  "classification": "EXACT_PARITY",
+  "classification_rationale": "At a boundary-matched comparison, the two sides are byte-for-byte identical as sets (148,447 == 148,447, 0 differences in either direction). No LIMIT_BOUNDARY_TIE_EQUIVALENT classification was needed because the underlying production query has no ORDER BY/LIMIT to produce tie ambiguity in the first place -- this is a pure set-equality comparison, and it is exact.",
+  "latency": {
+    "production_full_scan_unbounded_seconds": 225.5,
+    "production_full_scan_bounded_seconds": 246.62,
+    "candidate_hot_plus_42_cold_seconds": 51.34,
+    "note": "Candidate query (HOT + 42 COLD connections, each independently filtered) is ~4-5x faster than a full production monolithic scan, consistent with P5A's general finding that the bounded-HOT + segment-filtered-COLD architecture outperforms full-table scans for filtered queries."
+  },
+  "production_mutation_occurred": false,
+  "production_mutation_confirmation": "Every access against database/flex_complete_database.db in this verification used a read-only URI connection (file:...?mode=ro). No write statement was issued. No supervisord-managed service was touched, stopped, started, or reloaded. No writer was quiesced. No database file was switched, moved, or renamed. No canonical (Watchtower/3SW2/wt_ops_v2.db) state was accessed at all in this specific verification pass.",
+  "verdict": "R2_1_FUNDER_OVERLAP_ADAPTER_PASS",
+  "note": "This verdict is scoped to Unit 2 (the funder-overlap adapter) only. The full STORAGE-LIFECYCLE-P5B-R2.1 consumer recensus (checking every remaining historical-required consumer) has NOT been run and is not authorized to begin automatically per this milestone's explicit instruction."
+}

@@ -534,20 +534,83 @@
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
   "current_milestone": {
-    "milestone": "OPS-DISCOVERY-P3R-X -- fully enumerated bounded execution contract",
+    "milestone": "STORAGE-LIFECYCLE-P5A -- real replacement main DB + cold segment build, validated (not cutover)",
+    "status": "COMPLETE_AWAITING_HUMAN_REVIEW",
+    "verdict": "READY_STORAGE_LIFECYCLE_P5B_CONTROLLED_CUTOVER_REVIEW",
+    "next_action": "HUMAN_REVIEW_P5A_AUDIT_TRAIL_THEN_AUTHORIZE_OR_DECLINE_P5B"
+  },
+  "ops_discovery_p3r_x": {
+    "updated_at_utc": "2026-08-20T00:00:00Z",
     "status": "HOLD",
     "verdict": "P3R_X_UPSTREAM_COHORT_IDENTITIES_NOT_FROZEN",
+    "provider_calls_made": 0,
+    "requests_consumed": 0,
+    "bound_outer_values": {
+      "cohort_size": 38,
+      "maximum": 68,
+      "migration_actor": 38,
+      "topology": 18,
+      "behaviour": 12
+    },
+    "missing": [
+      "38 cohort mint identities",
+      "38 migration signatures",
+      "18 topology addresses",
+      "12 behaviour targets"
+    ],
     "next_action": "HUMAN_AUTHORIZE_A_COHORT_IDENTITY_AND_REQUEST_TARGET_SUPPLEMENT_BEFORE_P3R_X_EXECUTION_CONTRACT"
   },
-  "ops_discovery_p3r_x": {"updated_at_utc":"2026-08-20T00:00:00Z","status":"HOLD","verdict":"P3R_X_UPSTREAM_COHORT_IDENTITIES_NOT_FROZEN","provider_calls_made":0,"requests_consumed":0,"bound_outer_values":{"cohort_size":38,"maximum":68,"migration_actor":38,"topology":18,"behaviour":12},"missing":["38 cohort mint identities","38 migration signatures","18 topology addresses","12 behaviour targets"],"next_action":"HUMAN_AUTHORIZE_A_COHORT_IDENTITY_AND_REQUEST_TARGET_SUPPLEMENT_BEFORE_P3R_X_EXECUTION_CONTRACT"},
-  "ops_discovery_p3r_execution": {"updated_at_utc":"2026-08-20T00:00:00Z","status":"HOLD","verdict":"P3R_E_FROZEN_MANIFEST_NOT_EXECUTABLE","run_id":"ops-discovery-p3r-control-cohort-v1","cohort_size":38,"request_maximum":68,"actual_requests_consumed":0,"provider_calls_made":0,"blockers":["MANIFEST_HAS_NO_PER_REQUEST_MINT_SIGNATURE_OR_ADDRESS_IDENTITIES","MANIFEST_HAS_NO_DESIGNATED_CREDENTIAL_ENVIRONMENT_VARIABLE","HANDOFF_HAS_NO_EXPECTED_FROZEN_ARTIFACT_DIGEST_BINDINGS","NO_FROZEN_RESUMABLE_RUNNER_CONTRACT"],"preservation":{"existing_8_funding_structures":true,"watchtower":true,"three_sw2":true,"canonical_operations":true},"next_action":"HUMAN_AUTHORIZE_A_NEW_FULLY_ENUMERATED_P3R_EXECUTION_CONTRACT"},
-  "ops_discovery_p3r": {"updated_at_utc":"2026-08-20T00:00:00Z","status":"HOLD","verdict":"READY_OPS_DISCOVERY_P3R_MANUAL_EXECUTION_GATE","cohort_size":38,"controls":{"watchtower":12,"three_sw2":6,"negative":12,"unknown":8},"request_maximum":68,"actual_requests_consumed":0,"provider_calls_made":0,"existing_8_funding_structures_preserved":true,"next_action":"HUMAN_SUPPLY_CREDENTIAL_AND_RUN_FROZEN_68_REQUEST_CONTROL_MANIFEST"},
+  "ops_discovery_p3r_execution": {
+    "updated_at_utc": "2026-08-20T00:00:00Z",
+    "status": "HOLD",
+    "verdict": "P3R_E_FROZEN_MANIFEST_NOT_EXECUTABLE",
+    "run_id": "ops-discovery-p3r-control-cohort-v1",
+    "cohort_size": 38,
+    "request_maximum": 68,
+    "actual_requests_consumed": 0,
+    "provider_calls_made": 0,
+    "blockers": [
+      "MANIFEST_HAS_NO_PER_REQUEST_MINT_SIGNATURE_OR_ADDRESS_IDENTITIES",
+      "MANIFEST_HAS_NO_DESIGNATED_CREDENTIAL_ENVIRONMENT_VARIABLE",
+      "HANDOFF_HAS_NO_EXPECTED_FROZEN_ARTIFACT_DIGEST_BINDINGS",
+      "NO_FROZEN_RESUMABLE_RUNNER_CONTRACT"
+    ],
+    "preservation": {
+      "existing_8_funding_structures": true,
+      "watchtower": true,
+      "three_sw2": true,
+      "canonical_operations": true
+    },
+    "next_action": "HUMAN_AUTHORIZE_A_NEW_FULLY_ENUMERATED_P3R_EXECUTION_CONTRACT"
+  },
+  "ops_discovery_p3r": {
+    "updated_at_utc": "2026-08-20T00:00:00Z",
+    "status": "HOLD",
+    "verdict": "READY_OPS_DISCOVERY_P3R_MANUAL_EXECUTION_GATE",
+    "cohort_size": 38,
+    "controls": {
+      "watchtower": 12,
+      "three_sw2": 6,
+      "negative": 12,
+      "unknown": 8
+    },
+    "request_maximum": 68,
+    "actual_requests_consumed": 0,
+    "provider_calls_made": 0,
+    "existing_8_funding_structures_preserved": true,
+    "next_action": "HUMAN_SUPPLY_CREDENTIAL_AND_RUN_FROZEN_68_REQUEST_CONTROL_MANIFEST"
+  },
   "ops_discovery_p3": {
     "updated_at_utc": "2026-08-20T00:00:00Z",
     "status": "HOLD",
     "verdict": "BLIND_TEST_NOT_READY_LOCAL_INDEPENDENT_EVIDENCE_INSUFFICIENT",
     "frozen_population": 40275,
-    "coverage": {"direct_funding": 7630, "mint_linked_ep3": 47, "mint_linked_ep4": 0, "population_wide_migration_signer": 0},
+    "coverage": {
+      "direct_funding": 7630,
+      "mint_linked_ep3": 47,
+      "mint_linked_ep4": 0,
+      "population_wide_migration_signer": 0
+    },
     "result": "Local adapters recovered a small mint-linked EP3 topology slice only. EP4 remains address-level and migration signer remains cohort-only; no blind detector was run and the eight FUNDING_STRUCTURE entries remain unchanged.",
     "provider_calls_made": 0,
     "production_writes": 0,
@@ -559,10 +622,27 @@
     "artifact": "docs/audits/ops_discovery_p2_independent_operation_identity_evidence_census.json",
     "status": "HOLD",
     "verdict": "P2_DATA_GAPS_PREVENT_BLIND_HIGHER_ORDER_OPERATION_REDISCOVERY",
-    "population_freeze": {"launches": 40275, "high_confidence_direct_funding_edges": 7630, "one_upstream_hop_edges": 32527},
+    "population_freeze": {
+      "launches": 40275,
+      "high_confidence_direct_funding_edges": 7630,
+      "one_upstream_hop_edges": 32527
+    },
     "result": "The eight Analyst Queue funding structures remain preserved. A provider-free operational fingerprint and no-score eligibility gate were added, but blind Watchtower/3SW2 rediscovery was not run because retained population-wide independent topology, behaviour, and migration-signer adapters are absent.",
-    "production_flags": {"cohort_mode": "OFF", "retention": "ON", "migration_census": "ON", "evidence_mirror": "OFF", "evidence_writer": "STOPPED"},
-    "blockers": ["EP3_POPULATION_GAP", "EP4_LAUNCH_MAPPING_GAP", "MIGRATION_SIGNER_COVERAGE_GAP", "BEHAVIOURAL_PRIMITIVE_COVERAGE_GAP", "TOPOLOGY_DEPTH_GAP", "INDEPENDENT_EVIDENCE_LINEAGE_GAP"],
+    "production_flags": {
+      "cohort_mode": "OFF",
+      "retention": "ON",
+      "migration_census": "ON",
+      "evidence_mirror": "OFF",
+      "evidence_writer": "STOPPED"
+    },
+    "blockers": [
+      "EP3_POPULATION_GAP",
+      "EP4_LAUNCH_MAPPING_GAP",
+      "MIGRATION_SIGNER_COVERAGE_GAP",
+      "BEHAVIOURAL_PRIMITIVE_COVERAGE_GAP",
+      "TOPOLOGY_DEPTH_GAP",
+      "INDEPENDENT_EVIDENCE_LINEAGE_GAP"
+    ],
     "next_action": "DEFINE_A_BOUNDED_MINT_LINKED_EP3_EP4_AND_MIGRATION_SIGNER_ADAPTER_CONTRACT"
   },
   "ops_discovery_p1": {
@@ -4969,7 +5049,7 @@
       "retained_to_replayable_rate": 1,
       "shared_acquisitions": 15,
       "shared_to_completion_rate": 1,
-      "verdict": "B \u2014 MATERIAL_MIGRATION_TO_SHARED_ACQUISITION_GAP",
+      "verdict": "B — MATERIAL_MIGRATION_TO_SHARED_ACQUISITION_GAP",
       "window_endpoint": "20_DISTINCT_QUALIFIED_MIGRATIONS"
     },
     "oip_v2_2e_2b2k_observation_gate": {
@@ -9668,7 +9748,7 @@
       "artifact": "docs/audits/psi0h_h4_historical_operation_census_from_h8_projection_continuity.json",
       "artifact_digest": "cf18ed4c461d811c3485d9af31ce45694080f2f68017e730e59a214fecd005d7",
       "notes": [
-        "discovered 150 populations from H7D-backed H8 evidence via H8\u2192H4 continuity adapter",
+        "discovered 150 populations from H7D-backed H8 evidence via H8→H4 continuity adapter",
         "projection uses normalized runtime evidence+primitive rows and lineage refs (evidence_refs/primitive_refs)",
         "non-authoritative census-only outputs",
         "no provider/service/monitoring activity"
@@ -29222,7 +29302,7 @@
     "Rerun completed: synthetic H6-bridged artifact enabled H7 PASS/READY_H7_BOUND_PLAN with 1 reconstructable source (flex_complete_database.db). H8 now runs but returns 0 rows with stop condition NO_RECONSTRUCTABLE_ROWS due schema mismatch: no normalized_evidence_records/primitive_observations in selected source.",
     "Latest run refreshed H6/H7/H8 from current flex_complete_database.db identity and completed H8 (150/150 emitted) with H9 reporting no action due source lacks normalized primitive evidence tables; H9 remains PASS with schema-gap recommendation preserved.",
     "H4 run using current PSI0H-H1 artifact + manifest bound produced operation_count=2 (PASS, watchtower/three_sw2); no H4 population expansion observed. Next fork: narrow H8 normalization split adaptation before retest H8/H9/H1/H2/H3.",
-    "H8\u2192H4 compatibility projection now implemented as deterministic, minimal adapter from H8 evidence/primitive rows to PSI0G-B runtime schema.",
+    "H8→H4 compatibility projection now implemented as deterministic, minimal adapter from H8 evidence/primitive rows to PSI0G-B runtime schema.",
     "Rerun H4 with projection manifest produced 150 operation populations (PASS), so we now have a material expansion from previous operation_count=2.",
     "Continuity-compatible projection artifact: docs/audits/psi0h_h7_historical_backfill/psi0h_h8_bounded_historical_backfill_execution_from_h7d_bridge_next2.json",
     "H4 census preserved 150 operations from fixed 150-op H7D-backed source: docs/audits/psi0h_h4_historical_operation_census_from_h8_projection_continuity.json",
@@ -29497,7 +29577,7 @@
       "HANDOFF_TRANSPORT_DEGRADED"
     ],
     "next_action": "COMPLETE_B2N_HUMAN_PROVENANCE_REVIEW",
-    "milestone": "B2N-P2D \u2014 collect and bind existing immutable provenance",
+    "milestone": "B2N-P2D — collect and bind existing immutable provenance",
     "checklist_artifact": "docs/audits/b2n_cohort_eligibility_provenance_collection_checklist.json",
     "checklist_digest": "f2357fc27fe0feb2132a94e1c23fe0df2f6bb84335f0548e035d03bb92299c04",
     "coverage": {
@@ -30742,7 +30822,7 @@
   "storage_lifecycle_p1_bounded_retention": {
     "milestone": "STORAGE-LIFECYCLE-P1 -- automated bounded retention and safe retirement",
     "watchtower_preservation": "PASS -- zero writes performed anywhere this milestone, digests identical before/after",
-    "measured_disk_free_gib": 62.0,
+    "measured_disk_free_gib": 62,
     "pressure_state_at_measurement": "NORMAL",
     "largest_growth_driver": "transfer_index table in flex_complete_database.db (5.2M rows, actively growing)",
     "critical_finding": "retained_acquisition_shadow.db's '1GiB daily cap' is an in-process counter that resets on restart and never checks existing DB size -- effectively unbounded across restarts; #1 priority for P2",
@@ -30911,5 +30991,86 @@
       "docs/audits/storage_lifecycle_p4_implementation_result.json"
     ],
     "verdict": "READY_STORAGE_LIFECYCLE_P4_BOUNDED_RETENTION_IMPLEMENTATION_QUALIFIED"
+  },
+  "storage_lifecycle_p5a_migration_build": {
+    "milestone": "STORAGE-LIFECYCLE-P5A -- real replacement main DB + cold segment build, validated (not cutover)",
+    "status": "COMPLETE_AWAITING_HUMAN_REVIEW",
+    "verdict": "READY_STORAGE_LIFECYCLE_P5B_CONTROLLED_CUTOVER_REVIEW",
+    "next_action": "HUMAN_REVIEW_P5A_AUDIT_TRAIL_THEN_AUTHORIZE_OR_DECLINE_P5B",
+    "artifacts_prefix": "docs/audits/storage_lifecycle_p5a_part*.json",
+    "final_summary_artifact": "docs/audits/storage_lifecycle_p5a_final_qualification_summary.json",
+    "production_mutation_occurred": false,
+    "note": "P5A built and validated a candidate replacement main DB (HOT) + 41 cold segment files entirely from read-only copies of production; production (database/flex_complete_database.db) was never written to. P5A does NOT cut over. See the final qualification summary artifact for full metrics."
+  },
+  "storage_lifecycle_p5b": {
+    "milestone": "STORAGE-LIFECYCLE-P5B -- controlled HOT/COLD production cutover (attempt)",
+    "terminal_verdict": "HOLD_P5B_UNEXPECTED_WRITER",
+    "artifacts": [
+      "docs/audits/storage_lifecycle_p5b_pre_cutover.json"
+    ],
+    "reason": "Part 4 writer census found watchtower_api (gunicorn, POST /api/analyze-all-coordinated-funders) is a second live write path into transfer_index, independent of watchtower_listener. Currently inert (auto_extract_funders toggle=false) but live-flippable and not accounted for in the planned quiesce/reload scope.",
+    "production_writes_by_this_milestone": 0,
+    "cutover_performed": false,
+    "writer_quiesced": false,
+    "switch_performed": false,
+    "reload_performed": false,
+    "old_db_state": "untouched, still live and being written by watchtower_listener as normal",
+    "next_action": "Human decision needed: either hard-disable the /api/analyze-all-coordinated-funders write path for the cutover window, or explicitly extend the P5B writer-quiesce/reload plan to cover watchtower_api as a writer, then retry P5B from Part 1 with a fresh census.",
+    "execution_attempts": [
+      {
+        "timestamp_utc": "2026-08-20T19:13:40Z",
+        "status": "HOLD",
+        "artifact": "docs/audits/storage_lifecycle_p5b_execution_hold.json",
+        "terminal_verdict": "HOLD_STORAGE_LIFECYCLE_P5B_FILE_LEVEL_CUTOVER_IMPLEMENTATION_MISSING",
+        "production_actions": "NONE",
+        "blocker": "Qualified writer quiesce exists, but no qualified P5B delta/copy/reconciliation/atomic-switch/rollback implementation exists.",
+        "exact_next_action": "Implement and rehearse the dedicated cutover runner; then repeat fresh P5B gates before any production writer stop.",
+        "integrity": {
+          "pre_update_sha256": "1c4b745896ff3a87750fc202d15f4a5e8918a4fa498d4ad12ade116af562be1f",
+          "current_milestone_sha256_before": "6c833d8a14314de4d28ff6d354eea3625d1f6ebad051ee1e7720bcc4652c7ee7",
+          "existing_p5b_record_sha256_before": "3c8b0da23c8e1d694e162f4e404b1bfcd7d6d4bf4412d81563c226029de74aa0"
+        }
+      }
+    ]
+  },
+  "storage_lifecycle_p5b_r1": {
+    "milestone": "STORAGE-LIFECYCLE-P5B-R1 (resumed)",
+    "resumed_from_commit": "a0ffac4e",
+    "verdict": "READY_STORAGE_LIFECYCLE_P5B_RESUME_WITH_COMPLETE_WRITER_QUIESCE",
+    "summary": "Completed full 18-part qualification. Fresh census resolved the prior attempt's UNKNOWN_WRITER_COUNT>0 blocker: confirmed exactly 3 transfer_index writers (watchtower_listener, creator_funding_worker as ACTIVE_WRITERS; watchtower_api as CONDITIONALLY_ARMABLE_WRITER), all dead-code/inert candidates resolved (transfer_archival_cursor.py, transfer_cold_store.py, storage_cleanup.py = DEAD_CODE_NOT_WIRED). Prior 'pid 34082 anomaly' RESOLVED: pid no longer exists; current worker pids directly verified via ps PPID to belong to the supervisord-tracked watchtower_api master (one service-level quiesce unit, not a 4th writer). Live stop/start tests performed and PASSED individually (listener, creator_funding_worker, watchtower_api) and combined (all three simultaneously down for 65s with 6-signal zero-writer proof PASS: supervisor state, process census, lsof write-handle absence, WAL 0-byte stability, MAX(id) flat across 8 polls). creator_funding_worker's DB-backed queue checkpoint proven to resume correctly with no lost/duplicated rows. All three services restored to healthy RUNNING state at session end. No data mutated, no cutover performed.",
+    "artifacts": [
+      "docs/audits/storage_lifecycle_p5b_r1_complete_writer_census.json",
+      "docs/audits/storage_lifecycle_p5b_r1_three_writer_quiesce_test.json",
+      "docs/audits/storage_lifecycle_p5b_r1_zero_writer_proof.json",
+      "docs/audits/storage_lifecycle_p5b_r1_restart_target_contract.json",
+      "docs/audits/storage_lifecycle_p5b_r1_rollback_contract.json",
+      "docs/audits/storage_lifecycle_p5b_r1_resume_readiness.json"
+    ],
+    "final_writer_service_count": 3,
+    "active_writers": [
+      "watchtower_listener",
+      "creator_funding_worker"
+    ],
+    "conditionally_armable_writers": [
+      "watchtower_api"
+    ],
+    "stop_order_proven_safe": [
+      "watchtower_api",
+      "creator_funding_worker",
+      "watchtower_listener"
+    ],
+    "start_order_proven_safe": [
+      "watchtower_listener",
+      "creator_funding_worker",
+      "watchtower_api"
+    ],
+    "combined_zero_writer_interval_sec": 65,
+    "production_action_taken": {
+      "services_stopped_and_restarted": true,
+      "all_restored_healthy": true,
+      "data_mutated": false,
+      "cutover_performed": false
+    },
+    "next_step": "Real P5B cutover (delta copy, identity reconciliation, atomic HOT/COLD switch) remains gated on separate explicit human authorization. When authorized, use the proven stop/start orders and zero-writer-proof method from this R1 combined with P5A-benchmarked delta/reconciliation/switch timings."
   }
 }

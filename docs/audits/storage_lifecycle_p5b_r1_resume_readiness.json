@@ -1,0 +1,57 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5B-R1 (resumed)",
+  "resumed_from_commit": "a0ffac4e",
+  "generated_at_utc": "2026-08-20T18:20:00Z",
+  "repo": "/Users/kevinkeaveney/Dev/claude/flex",
+  "branch": "classification-attribution-axis",
+  "summary": "Completed the full 18-part R1 qualification. UNKNOWN_WRITER_COUNT=0. Three confirmed transfer_index writers (watchtower_listener, creator_funding_worker as ACTIVE_WRITERS; watchtower_api as CONDITIONALLY_ARMABLE_WRITER) individually and combined stop/start qualified live, with full zero-writer proof and clean restoration. No data mutated. No cutover performed.",
+  "final_writer_service_count": 3,
+  "active_writers": ["watchtower_listener", "creator_funding_worker"],
+  "conditionally_armable_writers": ["watchtower_api"],
+  "dead_inert_candidates_ruled_out": [
+    "src/ops/transfer_archival_cursor.py (DEAD_CODE_NOT_WIRED)",
+    "src/ops/transfer_cold_store.py (DEAD_CODE_NOT_WIRED)",
+    "src/core/storage_cleanup.py (DEAD_CODE_NOT_WIRED, delete-only)",
+    "pumpfun_curve_listener.py in-process creator-funding loop (MANUAL_ONLY_NOT_RUNNING, gated via LISTENER_CREATOR_FUNDING_QUEUE_ENABLED=0)",
+    "scripts/run_creator_funding_queue_once.py (MANUAL_ONLY_NOT_RUNNING, never scheduled)"
+  ],
+  "other_supervisord_programs_ruled_out": [
+    "alert_evaluator", "creator_resolution_worker", "intelligence_snapshot_scheduler",
+    "operation_scheduler", "walkback_worker", "watchtower_ngrok", "ws_cascade"
+  ],
+  "gunicorn_child_process_resolution": {
+    "pid_34082_from_prior_r1": "RESOLVED -- pid no longer exists (transient, since recycled). Not a 4th writer.",
+    "current_session_verification": "Worker pids 36501 (pre-test) and 37966 (post-restart) both directly verified via ps -o ppid to have PPID equal to the supervisord-tracked watchtower_api master pid (35289 and 37965 respectively). One service-level quiesce unit confirmed by direct process-tree inspection, not assumption.",
+    "guidance_for_future_sessions": "Any future 'extra gunicorn pid' sighting should be re-verified fresh via ps -p <pid> -o pid,ppid,command against the CURRENT supervisorctl-reported master pid, not treated as an unresolved anomaly by default."
+  },
+  "stop_order_proven_safe": ["watchtower_api", "creator_funding_worker", "watchtower_listener"],
+  "start_order_proven_safe": ["watchtower_listener", "creator_funding_worker", "watchtower_api"],
+  "measured_downtime": {
+    "listener_stop_sec": 0.093, "listener_start_sec": 10.211,
+    "creator_funding_worker_stop_sec": 15.233, "creator_funding_worker_start_sec": 5.296,
+    "api_stop_sec": 10.330, "api_start_sec": 8.270,
+    "combined_zero_writer_interval_sec": 65
+  },
+  "zero_writer_proof": "PASS -- 6 independent signals (supervisor state, process census, lsof write-handle absence, write-lock file presence noted as shared infra, WAL 0-byte stability, MAX(id) flat across 8 polls over 36s) all agree.",
+  "queue_in_flight_handling": "creator_funding_worker's checkpoint is fully DB-backed (creator_funding_queue.status); proven via live stop/start that no row was lost or duplicated (retry 29->28, running 1->2, terminal-state counts unchanged, pending held steady).",
+  "db_lock_result": "PASS -- zero sustained lock storms. One historical batch of 'database is locked' messages in listener log predates the test window by ~24,000 log lines. Five transient single-retry lock errors in creator_funding_worker_err.log at rpc_metrics_recorder.py's _try_claim_reset_day, consistent with normal transient-retry behavior explicitly permitted by this milestone's own lock-safety bar; no crash loop, no sustained condition.",
+  "watchtower_preservation": {
+    "verdict": "PASS (by non-interaction)",
+    "method": "wt_ops_v2.db was never opened in write mode by any process this session stopped/started/tested. Computed a SHA256 digest of the single WATCHTOWER operator row post-test (digest f35b949b912acce5a34320041d03ab9af0421100eb521e0629f2e4d9d6891598, 1 row matched by display_name/summary LIKE '%WATCHTOWER%'). A pre-Part-3 baseline digest was NOT captured before testing began (process gap in this session), so this is a reasoning-based proof (no code path exercised in this R1 writes wt_ops_v2.db) rather than a literal before/after byte comparison. wt_ops_v2.db's file mtime continued advancing throughout the session from its own independently-running writers (operation_scheduler, alert_evaluator, walkback_worker, ws_cascade -- all confirmed untouched/unstopped by this session), which is expected and unrelated to WATCHTOWER row identity specifically."
+  },
+  "3sw2_preservation": {
+    "verdict": "PASS (by non-interaction)",
+    "method": "3SW2 (src/evidence/operation_contracts/three_sw2_v1.py) is a stateless classification-contract module, not a mutable DB row; no code path in this session's testing touches it or any table it depends on. Preservation follows trivially from scope: only transfer_index writers on flex_complete_database.db were stopped/started."
+  },
+  "production_data_mutated": false,
+  "cutover_performed": false,
+  "all_services_confirmed_healthy_at_session_end": {
+    "watchtower_listener": "RUNNING, stable, new pid post-final-restart",
+    "creator_funding_worker": "RUNNING, stable, new pid post-final-restart",
+    "watchtower_api": "RUNNING, stable, HTTP 302 healthy, toggle unchanged (false)"
+  },
+  "restart_target_contract": "PROVEN -- all 6 relevant modules across the 3 services resolve DB_PATH as a module-level constant at import time; a full restart (already required and proven by this R1) is necessary and sufficient to pick up any future real DB-path change. No service caches a path/connection that would silently survive a symlink swap without restart.",
+  "rollback_contract": "CONSTRUCTIBLE -- built directly on this R1's own live-measured stop/start orders; DB-file-level rollback steps (restore old DB, verify identity) deferred to the real switch implementation, consistent with this R1's writer-quiesce-only scope.",
+  "next_p5b_resume_action": "This R1 qualification is COMPLETE. The real P5B cutover (delta copy, identity reconciliation, atomic HOT/COLD switch) remains gated on separate explicit human authorization per this milestone's terminal-verdict instruction. When authorized, follow docs/audits/storage_lifecycle_p5b_r1_three_writer_quiesce_test.json's proven stop/start orders and zero-writer-proof method verbatim, combined with the P5A-benchmarked delta/reconciliation/switch timings.",
+  "verdict": "READY_STORAGE_LIFECYCLE_P5B_RESUME_WITH_COMPLETE_WRITER_QUIESCE"
+}

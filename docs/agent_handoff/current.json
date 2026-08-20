@@ -31018,17 +31018,43 @@
     "next_action": "Human decision needed: either hard-disable the /api/analyze-all-coordinated-funders write path for the cutover window, or explicitly extend the P5B writer-quiesce/reload plan to cover watchtower_api as a writer, then retry P5B from Part 1 with a fresh census."
   },
   "storage_lifecycle_p5b_r1": {
-    "milestone": "STORAGE-LIFECYCLE-P5B-R1",
-    "verdict": "BLOCKED_UNKNOWN_WRITER_COUNT_NOT_ZERO",
-    "summary": "Qualification-only re-run of writer census found a THIRD live production writer to transfer_index (creator_funding_worker, a standalone supervisord daemon calling extract_funding_for_new_token) not accounted for by the assumed watchtower_listener/watchtower_api 2-writer model. Also flagged an unresolved anomaly: a second untracked gunicorn process (pid 34082) alongside supervisord-tracked watchtower_api (pid 35289). No live service was stopped/started; no data mutated; no cutover performed.",
-    "artifact_path": "docs/audits/storage_lifecycle_p5b_r1_writer_quiesce_qualification.json",
-    "writer_count_exactly_two": false,
-    "live_writers_found": [
+    "milestone": "STORAGE-LIFECYCLE-P5B-R1 (resumed)",
+    "resumed_from_commit": "a0ffac4e",
+    "verdict": "READY_STORAGE_LIFECYCLE_P5B_RESUME_WITH_COMPLETE_WRITER_QUIESCE",
+    "summary": "Completed full 18-part qualification. Fresh census resolved the prior attempt's UNKNOWN_WRITER_COUNT>0 blocker: confirmed exactly 3 transfer_index writers (watchtower_listener, creator_funding_worker as ACTIVE_WRITERS; watchtower_api as CONDITIONALLY_ARMABLE_WRITER), all dead-code/inert candidates resolved (transfer_archival_cursor.py, transfer_cold_store.py, storage_cleanup.py = DEAD_CODE_NOT_WIRED). Prior 'pid 34082 anomaly' RESOLVED: pid no longer exists; current worker pids directly verified via ps PPID to belong to the supervisord-tracked watchtower_api master (one service-level quiesce unit, not a 4th writer). Live stop/start tests performed and PASSED individually (listener, creator_funding_worker, watchtower_api) and combined (all three simultaneously down for 65s with 6-signal zero-writer proof PASS: supervisor state, process census, lsof write-handle absence, WAL 0-byte stability, MAX(id) flat across 8 polls). creator_funding_worker's DB-backed queue checkpoint proven to resume correctly with no lost/duplicated rows. All three services restored to healthy RUNNING state at session end. No data mutated, no cutover performed.",
+    "artifacts": [
+      "docs/audits/storage_lifecycle_p5b_r1_complete_writer_census.json",
+      "docs/audits/storage_lifecycle_p5b_r1_three_writer_quiesce_test.json",
+      "docs/audits/storage_lifecycle_p5b_r1_zero_writer_proof.json",
+      "docs/audits/storage_lifecycle_p5b_r1_restart_target_contract.json",
+      "docs/audits/storage_lifecycle_p5b_r1_rollback_contract.json",
+      "docs/audits/storage_lifecycle_p5b_r1_resume_readiness.json"
+    ],
+    "final_writer_service_count": 3,
+    "active_writers": [
       "watchtower_listener",
-      "watchtower_api",
       "creator_funding_worker"
     ],
-    "production_action_taken": false,
-    "next_step": "Future P5B-resume session must treat creator_funding_worker as a required third quiesce-boundary member, resolve the pid 34082 anomaly, re-run a fresh writer census, then prove and test a complete 3-process graceful quiesce procedure before any real cutover."
+    "conditionally_armable_writers": [
+      "watchtower_api"
+    ],
+    "stop_order_proven_safe": [
+      "watchtower_api",
+      "creator_funding_worker",
+      "watchtower_listener"
+    ],
+    "start_order_proven_safe": [
+      "watchtower_listener",
+      "creator_funding_worker",
+      "watchtower_api"
+    ],
+    "combined_zero_writer_interval_sec": 65,
+    "production_action_taken": {
+      "services_stopped_and_restarted": true,
+      "all_restored_healthy": true,
+      "data_mutated": false,
+      "cutover_performed": false
+    },
+    "next_step": "Real P5B cutover (delta copy, identity reconciliation, atomic HOT/COLD switch) remains gated on separate explicit human authorization. When authorized, use the proven stop/start orders and zero-writer-proof method from this R1 combined with P5A-benchmarked delta/reconciliation/switch timings."
   }
 }

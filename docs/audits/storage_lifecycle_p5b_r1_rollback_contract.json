@@ -1,0 +1,44 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5B-R1 (resumed)",
+  "purpose": "Design-only rollback contract for a real P5B cutover. Not executed in this session -- no cutover occurred, so no rollback was needed or performed. Documents the procedure that would be used, built on the orders proven safe in this R1's live testing.",
+  "generated_at_utc": "2026-08-20T18:13:00Z",
+  "rollback_sequence": [
+    {
+      "step": 1,
+      "action": "Quiesce all three writer services",
+      "detail": "Use the exact order proven safe in this R1: stop watchtower_api, then creator_funding_worker, then watchtower_listener. Measured real durations from this session: ~10.25s + ~15.20s + ~0.12s = ~26s total.",
+      "reference": "storage_lifecycle_p5b_r1_three_writer_quiesce_test.json combined_quiesce_test.stop_order_used"
+    },
+    {
+      "step": 2,
+      "action": "Zero-writer proof",
+      "detail": "Run the exact 6-signal check qualified in this R1 (supervisor state, process census, lsof handles, write-lock state, WAL stability, MAX(id) polling) before proceeding. Must reach PASS before any rollback file operation.",
+      "reference": "storage_lifecycle_p5b_r1_zero_writer_proof.json"
+    },
+    {
+      "step": 3,
+      "action": "Restore old DB / read configuration",
+      "detail": "Revert whatever switch mechanism was used (e.g. re-point the symlink/config back to the original database/flex_complete_database.db path, or restore the pre-switch DB_PATH env var in supervisord.conf if that was the switch mechanism). This step's exact mechanics depend on what the real P5B switch implementation turns out to be -- not designed or executed in this R1, which is writer-quiesce-mechanics-only in scope."
+    },
+    {
+      "step": 4,
+      "action": "Verify old DB identity",
+      "detail": "Confirm the restored target is genuinely the original DB and not a partially-migrated or corrupted intermediate state -- e.g. compare a fingerprint (file size, row counts on key tables, MAX(id) on transfer_index matching the last known-good pre-switch value) against a pre-switch baseline captured in step 1's zero-writer-proof snapshot."
+    },
+    {
+      "step": 5,
+      "action": "Start services in dependency-safe order",
+      "detail": "Use the exact order proven safe in this R1: start watchtower_listener, then creator_funding_worker, then watchtower_api. Measured real durations from this session: ~11.16s + ~5.25s + ~8.67s = ~25s total.",
+      "reference": "storage_lifecycle_p5b_r1_three_writer_quiesce_test.json combined_quiesce_test.start_order_used"
+    },
+    {
+      "step": 6,
+      "action": "Health/write proof",
+      "detail": "Confirm all three RUNNING and stable for at least 15-20s (no crash loop, matching this R1's stability-window methodology), API health check returns 200/302, auto_extract_funders toggle value unchanged from pre-rollback, and MAX(id) on transfer_index eventually advances again under organic traffic (or listener log shows live WS event processing as a faster proxy signal, per this R1's Part 10 methodology)."
+    }
+  ],
+  "restart_target_contract_dependency": "This rollback sequence depends on the restart-target-contract finding (storage_lifecycle_p5b_r1_restart_target_contract.json): since all three services resolve DB_PATH as a module-level constant at import time, a full stop/start (step 1 and step 5 above) is REQUIRED and SUFFICIENT to make each service pick up the restored old-DB target after step 3/4 -- no service needs any additional signal, reload, or special handling to complete the rollback.",
+  "risk_assessment": "Low risk by design: the three writer services are DB CLIENTS, not the DB itself. A stop/start cycle of these services carries no data-loss risk on its own (proven in this R1: creator_funding_worker's DB-backed checkpoint resumes correctly, no queue rows lost or duplicated across a real stop/start cycle). The only genuine risk in an aborted real cutover lies in the DB-file-level operations themselves (delta copy, identity reconciliation, atomic switch) -- those remain out of scope for this R1's rollback contract and would need their own P5A-referenced rollback design (see docs/audits/storage_lifecycle_p5a_part*.json for whatever was already benchmarked there).",
+  "not_executed_this_session": true,
+  "verdict": "ROLLBACK_CONTRACT_CONSTRUCTIBLE -- a safe rollback target proof exists, built directly on this R1's own measured, live-verified stop/start orders and the restart-target contract; the file-level portion (steps 3-4) is deferred to whatever the real switch implementation turns out to be, consistent with this milestone's scope boundary (writer-quiesce mechanics only, no actual cutover)."
+}

@@ -1,0 +1,107 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5B-R1 (resumed)",
+  "purpose": "Final exhaustive writer census for transfer_index, superseding the prior R1 attempt's 2-writer-assumed census and its own mid-run 3-writer finding. Resolves every candidate to a terminal classification; UNKNOWN_WRITER_COUNT must be 0.",
+  "generated_at_utc": "2026-08-20T18:05:00Z",
+  "repo": "/Users/kevinkeaveney/Dev/claude/flex",
+  "branch": "classification-attribution-axis",
+  "resumed_from_commit": "a0ffac4e",
+  "method": "Fresh `supervisorctl status` for all ~15 programs; `crontab -l`; repo-wide grep for INSERT/INSERT OR IGNORE/INSERT OR REPLACE/UPDATE/DELETE against transfer_index specifically; traced every hit to its actual runtime owner via source-level import/caller tracing and live process inspection (ps, lsof).",
+  "supervisord_full_status": {
+    "alert_evaluator": "RUNNING pid 35284 - reads wt_ops_v2.db, writes wt_alerts.db only (per its own config comment: 'Isolated from the detection pipeline -- no writes to hot DB')",
+    "creator_funding_worker": "RUNNING pid 52101 (pre-test) - ACTIVE_WRITER, see below",
+    "creator_resolution_worker": "RUNNING pid 86613 - drains creator_resolution_queue, resolves creators via RPC; grepped source, NO reference to transfer_index anywhere in src/core/creator_resolution_worker.py; writes creators/creator_resolution_queue/wt_worker_heartbeat tables only",
+    "dust_observatory_enricher": "STOPPED (Not started)",
+    "evidence_writer": "STOPPED (Not started)",
+    "infra_sync_scheduler": "STOPPED (Not started)",
+    "intelligence_snapshot_scheduler": "RUNNING pid 52337 - builds read-only operational-intelligence/pipeline-health snapshots; opens hot DB read-only (confirmed via lsof FD mode 'r' during zero-writer window, see three_writer_quiesce_test artifact)",
+    "operation_scheduler": "RUNNING pid 35375 - writes ONLY database/wt_ops_v2.db per its own config comment; not a transfer_index candidate",
+    "walkback_worker": "RUNNING pid 35288 - drains wt_walkback_queue, writes RPC-resolved walkback evidence into wt_ops_v2.db-side tables; not a transfer_index writer",
+    "watchtower_api": "RUNNING pid 35289 (pre-test) - CONDITIONALLY_ARMABLE_WRITER, see below",
+    "watchtower_helius_monitor": "STOPPED (Not started)",
+    "watchtower_listener": "RUNNING pid 21076 (pre-test) - ACTIVE_WRITER, see below",
+    "watchtower_ngrok": "RUNNING pid 35291 - ngrok tunnel process, no DB access",
+    "webhook_worker": "STOPPED (Not started)",
+    "ws_cascade": "RUNNING pid 35292 - writes wt_active_subprov_sessions / cascade telemetry to wt_ops_v2.db (per commit 0b18545, see MEMORY note cascade-telemetry-on-ops-db); not a transfer_index writer"
+  },
+  "cron_entries": [
+    {"schedule": "*/5 * * * *", "command": "run_helius_monitor.sh", "transfer_index_risk": "NOT_A_WRITER - helius monitor script, unrelated table scope"},
+    {"schedule": "0 */4 * * *", "command": "scripts/run_graph_analyzers.py", "transfer_index_risk": "NOT_A_WRITER - reads transfer_index for graph analysis, no write statements found in file"},
+    {"schedule": "0 * * * *", "command": "scripts/audit_pumpswap_migration_coverage.py", "transfer_index_risk": "NOT_A_WRITER - read-only coverage audit script"},
+    {"schedule": "0 3 * * *", "command": "src.ops.storage_lifecycle_runner --once --quiet", "transfer_index_risk": "NOT_A_WRITER for transfer_index rows themselves in the sense this milestone cares about (P2.2 bounded retention scope only); scope not broadened, not touched in this session per hard prohibition"}
+  ],
+  "grep_hits_and_classification": [
+    {
+      "file": "src/core/transfer_indexer.py",
+      "lines": "251, 337, 357 (INSERT OR IGNORE), 811 (DELETE is_valid=0)",
+      "owner": "watchtower_listener (imported and called from src/core/pumpfun_curve_listener.py)",
+      "classification": "ACTIVE_WRITER"
+    },
+    {
+      "file": "src/extractors/realtime_creator_funding_extractor.py",
+      "lines": "~984 (INSERT OR IGNORE), function extract_funding_for_new_token()",
+      "owner": "creator_funding_worker (standalone supervisord program, sole live caller per its own docstring)",
+      "classification": "ACTIVE_WRITER",
+      "note": "Also importable from pumpfun_curve_listener.py's in-process creator-funding loop, but that path is CONFIRMED PARKED via LISTENER_CREATOR_FUNDING_QUEUE_ENABLED=0 in run_listener.sh line 21 -- re-verified this session, unchanged."
+    },
+    {
+      "file": "src/extractors/funder_incoming_extractor.py",
+      "lines": "~1073 (INSERT OR IGNORE), function extract_for_creator()",
+      "owner": "watchtower_api, via POST /api/analyze-all-coordinated-funders spawning daemon threads",
+      "classification": "CONDITIONALLY_ARMABLE_WRITER",
+      "note": "Gated by listener_settings.auto_extract_funders, confirmed 'false' both before and after this session's testing (re-checked). Toggle is live-flippable via a separate route, so watchtower_api remains inside the writer/quiesce boundary regardless of current toggle state, per milestone instruction."
+    },
+    {
+      "file": "src/ops/transfer_archival_cursor.py",
+      "lines": "~143 (INSERT OR IGNORE, run_keyset_archival)",
+      "owner": "none -- no supervisord program, no cron entry, no non-test import anywhere in repo",
+      "classification": "DEAD_CODE_NOT_WIRED"
+    },
+    {
+      "file": "src/ops/transfer_cold_store.py",
+      "lines": "~130 (INSERT OR IGNORE, migrate_rows_to_cold)",
+      "owner": "none -- no supervisord program, no cron entry, no non-test import anywhere in repo",
+      "classification": "DEAD_CODE_NOT_WIRED"
+    },
+    {
+      "file": "src/core/storage_cleanup.py",
+      "lines": "215 (DELETE FROM transfer_index WHERE block_time < cutoff)",
+      "owner": "none -- no supervisord program or cron entry references storage_cleanup.py; confirmed storage_lifecycle_runner.py (the only live P2.2 cron job) does not import it",
+      "classification": "DEAD_CODE_NOT_WIRED",
+      "note": "DELETE-only, not a growth/id-advancement concern in any case; out of scope for this milestone's zero-writer proof regardless."
+    },
+    {
+      "file": "src/core/pumpfun_curve_listener.py in-process creator-funding loop (_process_creator_funding_queue_periodic)",
+      "lines": "gate at ~1487",
+      "owner": "watchtower_listener process, but gated off",
+      "classification": "MANUAL_ONLY_NOT_RUNNING",
+      "note": "Re-confirmed LISTENER_CREATOR_FUNDING_QUEUE_ENABLED=0 in run_listener.sh this session; code path unreachable under current live configuration."
+    },
+    {
+      "file": "scripts/run_creator_funding_queue_once.py",
+      "owner": "none -- not in crontab, not in supervisord.conf",
+      "classification": "MANUAL_ONLY_NOT_RUNNING",
+      "note": "Superseded by creator_funding_worker per its own docstring; would call the same extract_funding_for_new_token if manually invoked, but is not scheduled anywhere."
+    }
+  ],
+  "pid_34082_resolution": {
+    "prior_finding": "Prior R1 attempt observed a second gunicorn process, pid 34082, with an identical command line to watchtower_api's tracked pid 35289, and left it unresolved as an anomaly requiring investigation before any real cutover.",
+    "this_session_finding": "pid 34082 NO LONGER EXISTS (ps -p 34082 returns empty). It was a transient/since-recycled Gunicorn worker, not a persistent unaccounted writer. The CURRENT worker child, observed this session as pid 36501 (pre-test) and pid 37966 (post-restart), was directly verified via `ps -p <worker_pid> -o pid,ppid,command` to have PPID = 35289 (pre-test master) / 37965 (post-restart master) respectively -- i.e., an ordinary Gunicorn worker child of the supervisord-tracked watchtower_api master in both cases.",
+    "verdict": "RESOLVED -- not a 4th writer. Gunicorn's master+worker(s) is confirmed one service-level quiesce unit under supervisord control. This finding should NOT be re-flagged by any future session; any future 'extra gunicorn pid' sighting should be re-verified fresh via `ps -p <pid> -o pid,ppid,command` against the CURRENT supervisorctl-reported master pid rather than assumed anomalous."
+  },
+  "unknown_writer_count": 0,
+  "final_writer_service_count": 3,
+  "active_writers": ["watchtower_listener", "creator_funding_worker"],
+  "conditionally_armable_writers": ["watchtower_api"],
+  "dead_or_inert_candidates_ruled_out": [
+    "src/ops/transfer_archival_cursor.py (DEAD_CODE_NOT_WIRED)",
+    "src/ops/transfer_cold_store.py (DEAD_CODE_NOT_WIRED)",
+    "src/core/storage_cleanup.py (DEAD_CODE_NOT_WIRED, delete-only)",
+    "pumpfun_curve_listener.py in-process creator-funding loop (MANUAL_ONLY_NOT_RUNNING, gated off)",
+    "scripts/run_creator_funding_queue_once.py (MANUAL_ONLY_NOT_RUNNING, never scheduled)"
+  ],
+  "other_supervisord_programs_confirmed_not_transfer_index_writers": [
+    "alert_evaluator", "creator_resolution_worker", "intelligence_snapshot_scheduler",
+    "operation_scheduler", "walkback_worker", "watchtower_ngrok", "ws_cascade"
+  ],
+  "verdict": "UNKNOWN_WRITER_COUNT_ZERO_CENSUS_COMPLETE"
+}

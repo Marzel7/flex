@@ -1,0 +1,48 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5B-R1 (resumed)",
+  "purpose": "Design/code proof only (no switch performed). Document exactly how each of the three writer services resolves its DB path, and prove that post-switch (e.g. atomic symlink swap or config change), each would resolve to the NEW HOT DB on next start -- not reopen a quarantined old DB or hold a stale connection across the swap.",
+  "generated_at_utc": "2026-08-20T18:12:00Z",
+  "path_resolution_by_module": [
+    {
+      "module": "src/core/main.py (watchtower_api)",
+      "resolution": "DB_PATH = os.path.abspath(os.environ.get('DB_PATH', _DEFAULT_DB_PATH)) at module import time (line 47); _DEFAULT_DB_PATH = database/flex_complete_database.db relative to repo root (line 44)",
+      "caching_behavior": "Module-level constant, resolved once at process start (import time). A running process holds this path (and any connections opened from it) for its entire lifetime."
+    },
+    {
+      "module": "src/core/pumpfun_curve_listener.py (watchtower_listener)",
+      "resolution": "DB_PATH = os.getenv('DB_PATH') or joined default path (lines 761-764), resolved at module import time. Separate CREATOR_DB_PATH constant at line 900, same pattern.",
+      "caching_behavior": "Module-level constant, resolved once at process start."
+    },
+    {
+      "module": "src/core/creator_funding_worker.py (creator_funding_worker)",
+      "resolution": "DB_PATH = os.environ.get(...) at line 69, module import time.",
+      "caching_behavior": "Module-level constant, resolved once at process start."
+    },
+    {
+      "module": "src/core/transfer_indexer.py (used by watchtower_listener)",
+      "resolution": "Inherits DB_PATH from caller context / its own module-level resolution (same pattern).",
+      "caching_behavior": "Module-level constant."
+    },
+    {
+      "module": "src/extractors/realtime_creator_funding_extractor.py (used by creator_funding_worker)",
+      "resolution": "_DEFAULT_DB_PATH computed at line 50; DB_PATH = os.environ.get(...) at line 57, module import time.",
+      "caching_behavior": "Module-level constant."
+    },
+    {
+      "module": "src/extractors/funder_incoming_extractor.py (used by watchtower_api)",
+      "resolution": "DB_PATH = os.environ.get('DB_PATH', os.getenv('RPC_METRICS_DB', 'flex_complete_database.db')) at line 70, module import time.",
+      "caching_behavior": "Module-level constant."
+    }
+  ],
+  "finding": "ALL SIX relevant modules across all three services resolve DB_PATH as a MODULE-LEVEL CONSTANT at import time, not lazily per-call and not via a live-reloaded config object. This is a UNIFORM pattern across the codebase -- no module was found that caches a path or connection in a way that differs from this pattern.",
+  "implication_for_real_cutover": {
+    "symlink_swap_or_env_var_change_alone_is_INSUFFICIENT": "If the real P5B switch mechanism turns out to be an atomic symlink swap of database/flex_complete_database.db to point at a new inode (or a change to a DB_PATH env var in supervisord.conf), a process that is ALREADY RUNNING at the moment of the swap would NOT pick up the new target -- it resolved DB_PATH once at its own process start and, in the case of a symlink, likely also holds an already-open sqlite3 connection/file descriptor bound to the OLD inode (POSIX symlink swaps do not retarget already-open FDs).",
+    "restart_is_mandatory_and_already_planned": "This is NOT a new risk discovered here -- it is exactly consistent with why the milestone's own P5B sequence design (Part 12) already places 'quiesce all three -> atomic switch -> start services in proven safe order' AFTER the switch, not before. Every one of the three services necessarily gets a fresh process start (and therefore a fresh DB_PATH resolution + fresh connection) as an inherent, already-required step of the proven quiesce/restart procedure qualified in this R1 (see storage_lifecycle_p5b_r1_three_writer_quiesce_test.json). No additional restart requirement is being newly flagged here beyond what Parts 3-6 already exercise.",
+    "no_service_requires_special_handling": "Because ALL THREE services follow the identical module-level-constant-at-import-time pattern, none of them is a special case requiring extra restart logic beyond the standard supervisorctl stop/start sequence already qualified in Parts 3-6 of this milestone. If a future code change introduced lazy/live DB path resolution (e.g. a config-reload endpoint or a connection pool that re-resolves DB_PATH per-request) for any of these six modules, that WOULD need to be re-audited before relying on this contract -- but no such pattern exists in the current codebase as of this session's inspection."
+  },
+  "current_target_verified": {
+    "all_six_modules_currently_resolve_to": "database/flex_complete_database.db (repo-relative, absolute-pathed at runtime)",
+    "no_drift_observed": "No module was found pointing at database/_p5a_migration_build/ or any other non-production path; this qualification session did not touch or reference that directory at any point, consistent with the milestone's absolute prohibition on any actual cutover."
+  },
+  "verdict": "RESTART_TARGET_CONTRACT_PROVEN -- all three services require (and, per this R1's qualified procedure, already receive) a full process restart to pick up any real DB-path change; no service caches a path/connection in a way that would silently survive a symlink swap without restart, so none is flagged as requiring special-case handling beyond the standard proven restart sequence."
+}

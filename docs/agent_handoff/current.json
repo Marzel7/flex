@@ -534,11 +534,12 @@
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
   "current_milestone": {
-    "milestone": "OPS-DISCOVERY-P3R-E -- bounded control-cohort evidence execution",
+    "milestone": "OPS-DISCOVERY-P3R-X -- fully enumerated bounded execution contract",
     "status": "HOLD",
-    "verdict": "P3R_E_FROZEN_MANIFEST_NOT_EXECUTABLE",
-    "next_action": "HUMAN_AUTHORIZE_A_NEW_FULLY_ENUMERATED_P3R_EXECUTION_CONTRACT"
+    "verdict": "P3R_X_UPSTREAM_COHORT_IDENTITIES_NOT_FROZEN",
+    "next_action": "HUMAN_AUTHORIZE_A_COHORT_IDENTITY_AND_REQUEST_TARGET_SUPPLEMENT_BEFORE_P3R_X_EXECUTION_CONTRACT"
   },
+  "ops_discovery_p3r_x": {"updated_at_utc":"2026-08-20T00:00:00Z","status":"HOLD","verdict":"P3R_X_UPSTREAM_COHORT_IDENTITIES_NOT_FROZEN","provider_calls_made":0,"requests_consumed":0,"bound_outer_values":{"cohort_size":38,"maximum":68,"migration_actor":38,"topology":18,"behaviour":12},"missing":["38 cohort mint identities","38 migration signatures","18 topology addresses","12 behaviour targets"],"next_action":"HUMAN_AUTHORIZE_A_COHORT_IDENTITY_AND_REQUEST_TARGET_SUPPLEMENT_BEFORE_P3R_X_EXECUTION_CONTRACT"},
   "ops_discovery_p3r_execution": {"updated_at_utc":"2026-08-20T00:00:00Z","status":"HOLD","verdict":"P3R_E_FROZEN_MANIFEST_NOT_EXECUTABLE","run_id":"ops-discovery-p3r-control-cohort-v1","cohort_size":38,"request_maximum":68,"actual_requests_consumed":0,"provider_calls_made":0,"blockers":["MANIFEST_HAS_NO_PER_REQUEST_MINT_SIGNATURE_OR_ADDRESS_IDENTITIES","MANIFEST_HAS_NO_DESIGNATED_CREDENTIAL_ENVIRONMENT_VARIABLE","HANDOFF_HAS_NO_EXPECTED_FROZEN_ARTIFACT_DIGEST_BINDINGS","NO_FROZEN_RESUMABLE_RUNNER_CONTRACT"],"preservation":{"existing_8_funding_structures":true,"watchtower":true,"three_sw2":true,"canonical_operations":true},"next_action":"HUMAN_AUTHORIZE_A_NEW_FULLY_ENUMERATED_P3R_EXECUTION_CONTRACT"},
   "ops_discovery_p3r": {"updated_at_utc":"2026-08-20T00:00:00Z","status":"HOLD","verdict":"READY_OPS_DISCOVERY_P3R_MANUAL_EXECUTION_GATE","cohort_size":38,"controls":{"watchtower":12,"three_sw2":6,"negative":12,"unknown":8},"request_maximum":68,"actual_requests_consumed":0,"provider_calls_made":0,"existing_8_funding_structures_preserved":true,"next_action":"HUMAN_SUPPLY_CREDENTIAL_AND_RUN_FROZEN_68_REQUEST_CONTROL_MANIFEST"},
   "ops_discovery_p3": {

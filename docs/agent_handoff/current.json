@@ -31488,6 +31488,18 @@
       "automation_active": "NO",
       "exact_next_action": "Design an idempotent per-batch publication/checkpoint advancement model that never writes a closed segment, then rerun the full focused regression before any production runner execution or scheduler installation.",
       "integrity": {"pre_update_sha256": "04ea70b8dc6bd76f87a9ed5c7b1b58be0e549ad76dae7c6c890022be48a9357c"}
+    },
+    "p5f_r3_delta_resumability": {
+      "milestone": "STORAGE-LIFECYCLE-P5F-R3 -- deterministic delta resumability repair",
+      "artifacts": ["docs/audits/storage_lifecycle_p5f_r3_delta_resumability.json", "docs/audits/storage_lifecycle_p5f_r3_supervised_runner_execution.json"],
+      "verdict": "READY_P5F_SCHEDULER_INSTALLATION",
+      "identity_design": "run_id -> immutable batch composite digest -> deterministic delta segment ID; closed deltas never reopen",
+      "tests": "35/35 passing",
+      "supervised_runner": "PASS clean no-op: scanned 500, pinned=500, selected/copied/retired=0, disk OK, 0.438808s; durable PRE_RUN phase persisted",
+      "capacity": "8421/day inflow; proposed 20 x 500 = 10000/day; headroom 1579/day",
+      "automation_active": "NO",
+      "exact_next_action": "Separate explicit authorization is required to install the 20-opportunity recurring scheduler; no cron is installed by R3.",
+      "integrity": {"pre_update_sha256": "04ea70b8dc6bd76f87a9ed5c7b1b58be0e549ad76dae7c6c890022be48a9357c"}
     }
   }
 }

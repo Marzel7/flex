@@ -31275,10 +31275,10 @@
   },
   "storage_lifecycle_p5e_r1": {
     "milestone": "STORAGE-LIFECYCLE-P5E-R1 -- immutable closed-segment remediation",
-    "status": "HOLD_P5E_R1_PHASE_1B_UNRESOLVED",
+    "status": "HOLD_P5E_R1_INTEGRITY_EXECUTION_ENVIRONMENT",
     "timestamp_utc": "2026-08-21T10:03:35Z",
     "artifact": "docs/audits/storage_lifecycle_p5e_r1_validation_hold.json",
-    "terminal_verdict": "HOLD_P5E_R1_PHASE_1B_UNRESOLVED",
+    "terminal_verdict": "HOLD_P5E_R1_INTEGRITY_EXECUTION_ENVIRONMENT",
     "production_actions": "NONE",
     "validation": "30 passed, 1 failed; no physical repair executed",
     "blocker": "Regression fixture contradicts its three-field HOT uniqueness constraint; repaired code remains unaccepted.",
@@ -31339,6 +31339,18 @@
       "exact_next_action": "Use a persistent host-side execution mechanism for Phase 1B; do not run later phases or physical repair.",
       "integrity": {
         "pre_update_sha256": "fdfa9e7f2463357148c4ac33cfe7d4fa1f2dfa3c3c1555254b70670dba09eda5"
+      }
+    },
+    "d4_integrity": {
+      "timestamp_utc": "2026-08-21T10:32:57Z",
+      "artifact": "docs/audits/storage_lifecycle_p5e_r1_d4_integrity_execution_environment.json",
+      "background_child": "UNRELIABLE",
+      "fast_structural_checks": "PASS",
+      "full_integrity": "STARTED marker only; externally terminated before result/exception/finished",
+      "production_actions": "NONE",
+      "exact_next_action": "Use a persistent host execution environment for fresh integrity_check=ok; do not advance phases or repair.",
+      "integrity": {
+        "pre_update_sha256": "04ea70b8dc6bd76f87a9ed5c7b1b58be0e549ad76dae7c6c890022be48a9357c"
       }
     }
   }

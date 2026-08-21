@@ -31445,6 +31445,25 @@
       "integrity": {
         "pre_update_sha256": "04ea70b8dc6bd76f87a9ed5c7b1b58be0e549ad76dae7c6c890022be48a9357c"
       }
+    },
+    "p5f_r1_e1_evidence_recovery": {
+      "milestone": "STORAGE-LIFECYCLE-P5F-R1-E1 -- Run-1 recovery and durable evidence repair",
+      "artifacts": ["docs/audits/storage_lifecycle_p5f_r1_run1_evidence_recovery.json", "docs/audits/storage_lifecycle_p5f_r1_durable_execution_evidence.json", "docs/audits/storage_lifecycle_p5f_r1_multi_run_qualification.json"],
+      "verdict": "READY_P5F_RECURRING_HOT_COLD_ROLLOVER_ACTIVATION",
+      "run1": "FUNCTIONAL PASS; timing evidence unavailable; rollback source truth/HOT absence/parity/COLD read all 500/500 PASS",
+      "run2": "PASS -- 500 retired, lease 0.0007155s, tx 0.566458s, SQLITE_BUSY=0, durable phases/parity/COLD read PASS",
+      "run3": "PASS -- 500 retired, lease 0.0000932s, tx 0.496996s, SQLITE_BUSY=0, durable phases/parity/COLD read PASS",
+      "total_qualification_retired": 1500,
+      "timing_distribution_runs_2_3": "min=0.496996s median=0.531727s max=0.566458s",
+      "writers": "PASS -- all RUNNING",
+      "watchtower": "PASS",
+      "three_sw2": "PASS",
+      "rollback": "unchanged",
+      "eligible_flow_per_day": 8421,
+      "proposed_capacity": "20 x 500 = 10000/day; headroom 1579/day",
+      "automation_active": "NO",
+      "exact_next_action": "Human review and separate authorization to install the proposed recurring scheduler; no cron entry is installed by E1.",
+      "integrity": {"pre_update_sha256": "04ea70b8dc6bd76f87a9ed5c7b1b58be0e549ad76dae7c6c890022be48a9357c"}
     }
   }
 }

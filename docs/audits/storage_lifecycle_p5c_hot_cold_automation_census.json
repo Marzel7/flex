@@ -1,0 +1,42 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5C -- HOT->COLD automation census (Part 10, CRITICAL)",
+  "review_performed_at_utc": "2026-08-21T08:41:55Z",
+  "objective": "Determine whether ongoing production HOT->COLD rollover is ACTUALLY automated right now, post-cutover -- an actual live, scheduled invoker, not merely the existence of qualified capability code.",
+
+  "traces_performed": [
+    {
+      "trace": "crontab -l",
+      "full_output_relevant_lines": [
+        "*/5 * * * * /Users/kevinkeaveney/Dev/claude/flex/run_helius_monitor.sh",
+        "0 */4 * * * cd .../flex && python3 scripts/run_graph_analyzers.py >> logs/graph_analyzers.log 2>&1",
+        "0 * * * * python3 scripts/audit_pumpswap_migration_coverage.py >> logs/migration_coverage_audit.log 2>&1",
+        "0 3 * * * cd .../flex && python3 -m src.ops.storage_lifecycle_runner --once --quiet >> logs/storage_lifecycle.log 2>&1"
+      ],
+      "finding": "Exactly 4 crontab entries exist. None invoke p5b_delta_reconciler.py, transfer_archival_cursor.py, or any COLD-segment-building function. The only storage-related entry is the P2.2 allowlist cleanup job, which is explicitly NOT HOT->COLD archival (confirmed by reading src/ops/storage_lifecycle_runner.py's scope and by its NORMAL/0-executed log output in Part 9)."
+    },
+    {
+      "trace": "supervisord.conf program census",
+      "programs_found": ["watchtower_api", "watchtower_listener", "watchtower_ngrok", "watchtower_helius_monitor", "operation_scheduler", "intelligence_snapshot_scheduler", "infra_sync_scheduler", "ws_cascade", "creator_resolution_worker", "creator_funding_worker", "evidence_writer", "walkback_worker", "dust_observatory_enricher", "alert_evaluator", "webhook_worker"],
+      "finding": "Grepped config/supervisor/supervisord.conf for 'p5b_delta_reconciler', 'transfer_archival_cursor', 'cold_segment', 'transfer_cold_store', 'close_segment' -- zero matches. No supervisord-managed program runs any transfer archival logic on any schedule."
+    },
+    {
+      "trace": "src/core/operation_scheduler.py (the actual operation_scheduler.py in this repo, confirmed at src/core/, not scripts/)",
+      "finding": "Grepped for 'archival', 'cold_segment', 'p5b_delta', 'reconcil' -- the only match is 'reconcile_armed' (src.core.operation_armed.reconcile_armed), which is ARMED-pipeline state reconciliation, unrelated to transfer_index HOT/COLD storage. operation_scheduler.py does NOT touch transfer archival in any way."
+    },
+    {
+      "trace": "launchd (macOS)",
+      "finding": "Checked ~/Library/LaunchAgents/ for any flex-related plist and `launchctl list | grep flex` -- zero results. No launchd job exists for this project."
+    },
+    {
+      "trace": "repo-wide grep for actual invocations of the reconciler/archival modules outside their own definitions",
+      "command": "grep -rln 'p5b_delta_reconciler|transfer_archival_cursor' --include=*.py .",
+      "finding": "Only 4 files reference these module names: src/ops/p5b_delta_reconciler.py and src/ops/transfer_archival_cursor.py (the modules themselves) plus 3 test files (tests/test_storage_lifecycle_p4_archival_cursor.py, tests/test_storage_lifecycle_p5b_r1_writer_quiesce.py, tests/test_storage_lifecycle_p5b_stage2_parts7_21.py, tests/test_storage_lifecycle_p5b_r2_1_final_recensus.py). No production script, cron entry, or supervisord program imports or calls these modules outside of tests and the qualification/migration work already done for P5A/P5B."
+    }
+  ],
+
+  "IS_HOT_TO_COLD_ROLLOVER_AUTOMATED": "NO",
+  "evidence_summary": "Exhaustive trace across crontab, supervisord.conf, operation_scheduler.py, launchd, and repo-wide grep for actual call sites found zero live, scheduled invocation of any HOT->COLD archival capability. The qualified infrastructure (P5BDeltaReconciler, ColdSegmentRegistry, transfer_cold_store.py's close_segment/build functions) exists and is fully qualified from P5A/P5B manual migration work, but nothing currently invokes it on a recurring basis in production. COLD is confirmed static since cutover (Part 8: 45 segments / 1,746,519 rows, unchanged) -- this is consistent with and further confirms the absence of automation, since if any rollover were running, COLD would have grown by now.",
+
+  "HOT_TO_COLD_AUTOMATION_GAP": true,
+  "gap_note": "Per Part 15 policy, this gap alone does not indicate the cutover failed -- HOT reads/writes, COLD reads, and all canonical-state checks are healthy independent of whether ongoing archival exists. However, per the milestone's explicit automation-gap retention policy, this absence means the rollback DB must be RETAINED until the automation contract is at least qualified (see storage_lifecycle_p5c_hot_cold_automation_contract.json for the design-only response), not merely to reclaim its 15.4GB immediately."
+}

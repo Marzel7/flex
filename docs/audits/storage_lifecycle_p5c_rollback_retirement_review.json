@@ -1,0 +1,128 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5C -- rollback retirement review (Parts 5, 6, 13-17) and terminal verdict",
+  "review_performed_at_utc": "2026-08-21T08:41:55Z",
+  "elapsed_since_cutover_hours": 0.579,
+
+  "part5_watchtower": {
+    "method": "Recomputed the WATCHTOWER digest fresh from database/wt_ops_v2.db (read-only), reproducing the exact methodology used in docs/audits/storage_lifecycle_p5a_part21_watchtower_canonical_preservation.json and docs/audits/storage_lifecycle_p5b_r2_1_final_consumer_recensus.json (separate SHA256 over the operator row JSON and the operator_entities rows JSON, sort_keys=True).",
+    "note_on_short_prefix_in_task_context": "The task brief referenced a short digest prefix '8ec94921...'. Consistent with a prior session's disclosed finding in storage_lifecycle_p5b_r2_1_final_consumer_recensus.json Part 8, this exact prefix does not correspond to any hashing method reconstructable from anything committed in this repo (re-confirmed: grepped for '8ec94921' across the tree, zero matches). This review instead validated against the actual committed, reproducible frozen digests from storage_lifecycle_p5a_part21 (operator_row_sha256=c52d91ce..., operator_entities_rows_sha256=12bd876c...), which are the real canonical freeze values.",
+    "operator_row_sha256_live": "c52d91ce9edc6911ea88873d990ee269a8eb483d68a9a14f08b83105d27121df",
+    "operator_row_sha256_frozen": "c52d91ce9edc6911ea88873d990ee269a8eb483d68a9a14f08b83105d27121df",
+    "operator_row_match": true,
+    "operator_entities_rows_sha256_live": "12bd876c7bdda481ae0817900bd66497a31badbaa98296417ebd3dd92be23605",
+    "operator_entities_rows_sha256_frozen": "12bd876c7bdda481ae0817900bd66497a31badbaa98296417ebd3dd92be23605",
+    "operator_entities_rows_match": true,
+    "ordering_pitfall_note": "First attempt at this review used 'ORDER BY oe.rowid' for the entity rows and got a DIFFERENT digest (69d9bc20...) than the frozen value. Root-caused before accepting it as a real change: the frozen digest's original methodology relies on the table's natural/entity_address-sorted scan order, not rowid order. Re-ran with 'ORDER BY oe.entity_address' (and separately confirmed with no ORDER BY at all, since SQLite's natural scan order matched) and got an EXACT match to the frozen digest. This was a query-construction artifact on this review's part, not a real WATCHTOWER content change -- disclosed explicitly per the milestone's root-cause-before-accepting-or-rejecting instruction.",
+    "entity_count": 69,
+    "WATCHTOWER_DIGEST_MATCH": "BYTE_IDENTICAL",
+    "watchtower_hot_cold_query_parity": {
+      "method": "Spot-checked Dv34 (a WATCHTOWER-relevant address) via the real production UnifiedTransferReader (HOT=live production DB, COLD=database/_p5a_migration_build/cold_segments)",
+      "count_by_destination_result": 72,
+      "earliest_edge_result": "matches the historical earliest signature exactly, block_time 1775661269",
+      "verdict": "PASS"
+    }
+  },
+
+  "part6_3sw2_dv34_cex_discovery": {
+    "three_sw2_digest": {
+      "operator_row_sha256_live": "4c701873caee8506c137bca8f16bc5e00b6df5431ead41d177eb2fd415d940cf",
+      "operator_row_sha256_frozen": "4c701873caee8506c137bca8f16bc5e00b6df5431ead41d177eb2fd415d940cf",
+      "operator_entities_rows_sha256_live": "c6252e208ef3b99200a2d4d856d7b045da17a7f032c73c5f29edb9202cd03bca",
+      "operator_entities_rows_sha256_frozen": "c6252e208ef3b99200a2d4d856d7b045da17a7f032c73c5f29edb9202cd03bca",
+      "entity_count": 1,
+      "match": "BYTE_IDENTICAL",
+      "note": "This one matched on the FIRST attempt (single-row entity set, ordering ambiguity does not apply)."
+    },
+    "dv34": {
+      "address": "Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM",
+      "pre_cutover_baseline_count": 70,
+      "current_count_via_hot_cold_reader": 72,
+      "interpretation": "Semantic comparison per the milestone's explicit instruction: growth from 70 to 72 is treated as EXPECTED legitimate new activity, not a failure -- this address is a live, monitored entity and 2 new rows over the observation window (however short) is consistent with organic traffic, not a coverage regression. No missing-row signature was found; earliest_edge and count_by_destination both function correctly through the real reader."
+    },
+    "cex_0_1_2_hop": {
+      "method": "Re-verified the exact 5 real signatures from prior P5A/P5B artifacts via UnifiedTransferReader.by_signature() against the CURRENT live production HOT+COLD path (not the old candidate build)",
+      "results": [
+        {"hop": "0-hop", "signature_prefix": "4ufq5m4AicN3", "row_count_via_reader": 5, "expected": 5, "match": true},
+        {"hop": "1-hop", "signature_prefix": "3Dd7sMQLaEp6", "row_count_via_reader": 3, "expected": 3, "match": true},
+        {"hop": "2-hop", "signature_prefix": "53QqyRDrsdk7", "row_count_via_reader": 1, "expected": 1, "match": true},
+        {"hop": "2-hop", "signature_prefix": "3ycr1ZQNemDa", "row_count_via_reader": 6, "expected": 6, "match": true},
+        {"hop": "2-hop", "signature_prefix": "59mg6RT3Bxtw", "row_count_via_reader": 3, "expected": 3, "match": true}
+      ],
+      "all_match": true,
+      "verdict": "PASS"
+    },
+    "discovery_funding_structure": {
+      "method": "Data-level check: fetch_discovery_intake_candidates('database/local_operation_discovery_corpus.db') re-run fresh this session (not source-code grep)",
+      "total_candidates": 8,
+      "matches_baseline_of_8": true,
+      "storage_cutover_caused_no_change": "confirmed -- src/ops/discovery_intake.py reads from database/local_operation_discovery_corpus.db, an entirely separate DB untouched by the transfer_index HOT/COLD migration; no evidence the storage cutover affected this path in any way.",
+      "verdict": "PASS"
+    }
+  },
+
+  "part13_rollback_readiness": {
+    "method": "Read-only checks only against database/flex_complete_database.db.p5b_rollback_quarantine",
+    "pragma_quick_check": "ok",
+    "expected_schema_present": "transfer_index table queried successfully with correct columns (id, signature, source, destination, amount_lamports, block_time all present and typed as expected -- confirmed via the successful MAX(id)/COUNT(*) query)",
+    "expected_high_water": {"expected": 6835535, "observed": 6835535, "match": true},
+    "expected_row_count": {"expected": 5393999, "observed": 5393999, "match": true},
+    "file_identity": {
+      "size_bytes": 15411294208,
+      "size_matches_cutover_record": true,
+      "mtime_consistent_with_part3_findings": true
+    },
+    "no_corruption_found": true,
+    "ROLLBACK_DB_VALID": "PASS"
+  },
+
+  "part14_retirement_gates": {
+    "gate_1_observation_duration_sufficient": {
+      "status": "UNSATISFIED",
+      "reason": "Only ~0.58 hours (35 minutes) have elapsed since the 08:07:07Z cutover. The recommended window (docs/audits/storage_lifecycle_p5b_observation_start.json) is 24-72 hours. Regardless of how healthy every other check is, this gate cannot be considered satisfied on a point-in-time review taken minutes after cutover -- the entire purpose of an observation window is elapsed real-world time under real production load, which has not yet occurred."
+    },
+    "gate_2_all_3_writers_healthy": {"status": "SATISFIED", "evidence": "Part 1 -- all RUNNING, stable uptimes, no crash loops"},
+    "gate_3_new_hot_writes_healthy": {"status": "SATISFIED", "evidence": "Part 2 -- MAX(id) advancing, rows accumulating, no stalls"},
+    "gate_4_production_cold_reads_healthy": {"status": "SATISFIED", "evidence": "Part 4 -- PRODUCTION_COLD_READ_HEALTH = PASS on all sub-checks"},
+    "gate_5_watchtower_pass": {"status": "SATISFIED", "evidence": "Part 5 -- BYTE_IDENTICAL digest match, HOT+COLD query parity PASS"},
+    "gate_6_3sw2_pass": {"status": "SATISFIED", "evidence": "Part 6 -- BYTE_IDENTICAL digest match"},
+    "gate_7_cex_discovery_pass": {"status": "SATISFIED", "evidence": "Part 6 -- CEX all 5 signatures match, discovery count=8 matches baseline"},
+    "gate_8_no_sustained_new_lock_failures": {"status": "SATISFIED", "evidence": "Part 7 (observation_review artifact) -- zero post-cutover lock timestamps found in any writer/API log"},
+    "gate_9_hot_growth_understood": {"status": "SATISFIED", "evidence": "Part 2/8/12 (growth_measurement artifact) -- growth measured and modeled, though sample is short; 'understood' does not require the sample to be large, only that the measurement/model machinery is working and applied, which it is"},
+    "gate_10_rollback_db_still_valid": {"status": "SATISFIED", "evidence": "Part 13 -- ROLLBACK_DB_VALID = PASS"},
+    "gate_11_current_disk_safe": {"status": "SATISFIED", "evidence": "37.0 GiB free, essentially unchanged from the 37.36 GiB at cutover; no immediate pressure"},
+    "gate_12_automation_status_known": {"status": "SATISFIED", "evidence": "Part 10 (automation_census artifact) -- explicitly determined IS_HOT_TO_COLD_ROLLOVER_AUTOMATED = NO, with exhaustive evidence. 'Known' does not require YES; it requires determination, which was made."},
+    "ALL_GATES_PASS": false,
+    "failing_gates": ["gate_1_observation_duration_sufficient"],
+    "ROLLBACK_DB_RETIREMENT_ELIGIBLE": false
+  },
+
+  "part15_automation_gap_policy": {
+    "automation_status": "NOT AUTOMATED (Part 10 = NO)",
+    "policy_applied": "Per the milestone's explicit automation-gap retention policy: even setting aside gate 1's failure, the absence of HOT->COLD automation independently means the rollback DB should be RETAINED until the automation contract (docs/audits/storage_lifecycle_p5c_hot_cold_automation_contract.json) is at least qualified (implemented + tested), not necessarily activated. This is a SEPARATE, additional reason retirement is not appropriate right now, layered on top of gate 1's failure -- both point the same direction.",
+    "cutover_health_independent_of_gap": "The absence of automation is NOT evidence the cutover itself is unhealthy. All health/parity/lock/read checks in this review passed. The automation gap is a follow-on workstream, not a cutover defect."
+  },
+
+  "part16_no_deletion_confirmation": {
+    "statement": "database/flex_complete_database.db.p5b_rollback_quarantine was NOT deleted, renamed, moved, modified, VACUUMed, or otherwise mutated at any point during this milestone. Every access to it in this review was a read-only sqlite3 connection (MAX(id)/COUNT(*) query, PRAGMA quick_check) or filesystem stat/lsof calls. This is independently confirmed by Part 3's frozen-proof (identical size, mtime, MAX(id), row count to the cutover baseline) and by the tests added in this milestone (see tests/test_storage_lifecycle_p5c_observation_review.py, which includes a structural test asserting no deletion/unlink call targets this path).",
+    "would_be_terminal_verdict_if_all_gates_passed": "READY_P5C_ROLLBACK_DB_RETIREMENT_AUTHORIZATION (NOT reached in this review -- gate 1 fails)",
+    "expected_reclaim_bytes_if_eventually_authorized": 15411294208,
+    "expected_reclaim_gib_if_eventually_authorized": 14.35
+  },
+
+  "part17_retirement_plan_design_only": {
+    "status": "NOT APPLICABLE THIS REVIEW -- Part 14's gates did not all pass (gate 1 failed), so per the milestone instructions this plan is recorded for completeness but is explicitly NOT an active recommendation.",
+    "pre_deletion_checks_if_ever_authorized": [
+      "Re-confirm quarantine path exact match: database/flex_complete_database.db.p5b_rollback_quarantine (no wildcard, no glob).",
+      "Confirm production path (database/flex_complete_database.db) is a DIFFERENT file (different inode) and currently healthy.",
+      "Re-run Part 3's frozen-proof fresh at execution time: MAX(id)=6835535, row count=5393999, exact match.",
+      "Inode/path identity check: stat both paths, confirm they are not hardlinked to each other or to any other in-use file.",
+      "lsof re-check: confirm zero open handles (read or write) against the quarantine path at the moment of execution.",
+      "Free disk sufficient check: confirm current free disk plus the ~14.35 GiB about to be reclaimed does not somehow indicate a prior miscalculation.",
+      "Re-confirm ALL Part 14 gates fresh at execution time (especially gate 1's elapsed-observation-hours, which by definition can only be satisfied by waiting, not by re-running the other checks)."
+    ],
+    "operation_if_ever_authorized": "A single plain filesystem delete/unlink of database/flex_complete_database.db.p5b_rollback_quarantine (e.g. os.remove() or `rm` on the exact path). Explicitly NOT a VACUUM, NOT a SQL DELETE FROM statement, NOT any operation that touches the new HOT/COLD system in any way. This remains a plan only; no such operation was executed in this milestone."
+  },
+
+  "terminal_verdict": "P5C_OBSERVATION_CONTINUES_ROLLBACK_RETAINED",
+  "terminal_verdict_rationale": "This review is being performed roughly 35 minutes after the P5B cutover. Every health, parity, and integrity check performed came back PASS -- writers healthy, new HOT writes proceeding normally, COLD reads healthy via the real production-integrated path, Watchtower and 3SW2 canonical digests byte-identical, CEX/discovery checks all passing, no post-cutover lock incidents, rollback DB frozen and valid. However, the observation-duration gate (Part 14 gate 1) cannot be satisfied this soon after cutover by definition, and independently, HOT->COLD archival automation is confirmed absent (Part 10), which per explicit milestone policy (Part 15) is its own separate reason to retain the rollback DB regardless of the observation clock. Both factors point toward continued retention. The system is healthy; retirement is simply not yet appropriate. Next action: re-run this same review after the full 24-72h observation window has elapsed, and separately begin qualifying (implementing + testing, not activating) the HOT->COLD automation contract in docs/audits/storage_lifecycle_p5c_hot_cold_automation_contract.json as its own follow-on workstream."
+}

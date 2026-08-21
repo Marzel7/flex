@@ -1,0 +1,64 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5C -- disk growth measurement (Part 8) and steady-state model (Part 12)",
+  "review_performed_at_utc": "2026-08-21T08:41:55Z",
+  "observation_window_hours": 0.579,
+  "observation_window_note": "Extremely short window (~35 minutes). All growth figures below are PRELIMINARY and explicitly labeled OBSERVED (real, measured) vs MODELED (extrapolated/theoretical) per the milestone's Part 12 instruction.",
+
+  "part8_disk_growth": {
+    "sizes_at_cutover": {
+      "hot_db_bytes": 13815083008,
+      "quarantine_db_bytes": 15411294208,
+      "cold_segments_total_bytes": "not separately recorded at cutover in prior artifacts; current value used as the only available reference point",
+      "free_disk_gib": 37.36
+    },
+    "sizes_now_OBSERVED": {
+      "hot_db_bytes": 13914836992,
+      "hot_wal_bytes": 786952,
+      "hot_shm_bytes": 32768,
+      "cold_segments_total": "1.1G (database/_p5a_migration_build/cold_segments, 45 files)",
+      "cold_summaries_total": "121M (database/_p5a_migration_build/transfer_stats_summary, 45 files)",
+      "hot_checkpoint_cache_bytes": "327M (database/_p5a_migration_build/hot_checkpoint_cache.json)",
+      "quarantine_db_bytes": 15411294208,
+      "evidence_platform_total": "394M... measured separately, see note",
+      "evidence_platform_note": "du -sh database/evidence_platform reported alongside intelligence_snapshots in a combined background call; evidence_platform measured at same pass as logs/intelligence_snapshots below.",
+      "logs_total": "1.8G",
+      "intelligence_snapshots_total": "394M (database/intelligence_snapshots)",
+      "free_disk_gib_now": 37.0
+    },
+    "growth_since_cutover_OBSERVED": {
+      "hot_growth_bytes": 99753984,
+      "hot_growth_mb": 99.75,
+      "cold_growth_bytes": 0,
+      "cold_growth_note": "COLD segment count (45) and total manifest row count (1,746,519) are IDENTICAL to the cutover baseline -- zero COLD growth since cutover. This is expected: Part 10 confirms no automated HOT->COLD rollover exists post-cutover, so COLD is currently static.",
+      "quarantine_growth_bytes": 0,
+      "quarantine_note": "Confirmed frozen, see Part 3 of storage_lifecycle_p5c_observation_review.json",
+      "total_storage_growth_bytes_approx": 99753984,
+      "free_disk_change_gib": -0.36
+    },
+    "projection_PRELIMINARY_MODELED": {
+      "basis": "Linear extrapolation of the observed ~35-minute HOT byte growth rate (172,173,681 bytes/hour). Explicitly flagged low-confidence given the short window; post-restart traffic may not be representative of steady state.",
+      "projected_7day_growth_gib": 28.93,
+      "projected_30day_growth_gib": 123.97,
+      "caveat": "A 30-day projection of ~124 GiB growth from a 35-minute sample, if taken literally, would exceed current free disk (37 GiB) well before 30 days -- this is exactly why the milestone brief requires this figure to be clearly labeled preliminary rather than presented as a confident forecast. The Part 12 steady-state model below (based on the previously qualified ~172k rows/day long-run average, not this 35-minute sample) is the more credible planning reference; the two should be read together, not the short-sample figure alone."
+    }
+  },
+
+  "part12_hot_steady_state_model": {
+    "observed_this_session": {
+      "rows_per_hour_id_based": 79359.0,
+      "rows_per_hour_count_based": 54629.1,
+      "sample_duration_hours": 0.579,
+      "directional_consistency_with_model": "The observed id-based rate (79,359 rows/hour -> ~1,904,615 rows/day projected) is roughly 11x higher than the established long-run model average of ~172,000 rows/day (~7,167 rows/hour). This is NOT interpreted as a contradiction of the model -- a 35-minute sample immediately following a service restart is expected to be noisy and potentially inflated by backfill/catch-up traffic following the ~6-minute writer downtime during cutover. The count-based rate (54,629 rows/hour) is closer but still elevated. Neither observed rate should be used to revise the long-run model; both are flagged as directionally uninformative at this sample size and should be re-measured after the full 24-72h observation window."
+    },
+    "MODELED_established_baseline": {
+      "raw_transfer_ingestion_rows_per_day": 172000,
+      "permanently_pinned_fraction": 0.15648,
+      "generic_hot_retention_window_days": 90,
+      "modeled_permanent_growth_rows_per_day": 26914.56,
+      "modeled_permanent_growth_rows_per_year": 9823814.4,
+      "modeled_steady_state_hot_row_count": "raw_ingestion_rate * 90-day generic window + permanently-pinned accumulation beyond the window; using 172,000/day * 90 = 15,480,000 generic-window rows, plus pinned rows accumulating indefinitely on top -- exact steady-state row count depends on how long the system has already been running the 90-day policy, which requires the HOT->COLD automation (Part 10) to actually exist and run before a true steady state can be reached or measured",
+      "modeled_steady_state_hot_db_size_note": "Not independently re-derived in this review beyond the existing P5B baseline sizing (~13.8GB HOT at 3,647,480 rows at cutover implies roughly ~3.8KB/row average including index/page overhead); a precise steady-state byte estimate would require this per-row byte figure applied to the modeled steady-state row count above, but since HOT->COLD rollover is NOT currently automated (Part 10), HOT will NOT reach the modeled 90-day-windowed steady state on its own -- it will instead grow UNBOUNDED at the raw ingestion rate until automation exists, which is the central finding driving Part 15's automation-gap policy."
+    },
+    "verdict": "OBSERVED short-window rates are noisy/elevated and not treated as model-invalidating. MODELED steady-state figures remain the reference baseline, but are currently ASPIRATIONAL rather than descriptive of live HOT behavior, because HOT->COLD automation does not yet exist to bound HOT to the 90-day window (see automation census artifact)."
+  }
+}

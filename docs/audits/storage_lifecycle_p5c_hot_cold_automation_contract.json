@@ -1,0 +1,50 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5C Part 11 -- HOT->COLD automation contract (DESIGN DOCUMENT ONLY)",
+  "status": "DESIGN ONLY -- NOT IMPLEMENTED, NOT ACTIVATED. No cron entry, supervisord program, or scheduler code was written or modified as part of producing this document.",
+  "trigger": "storage_lifecycle_p5c_hot_cold_automation_census.json found IS_HOT_TO_COLD_ROLLOVER_AUTOMATED = NO",
+
+  "design_goals": [
+    "Reuse the already-qualified P5BDeltaReconciler bounded-keyset-batch pattern rather than inventing a new traversal strategy.",
+    "Apply the existing 90-day generic HOT retention window boundary already established in the storage lifecycle model.",
+    "Preserve permanently pinned rows using the SAME pin-set logic already qualified elsewhere in this project (never re-derive pin criteria ad hoc inside the archival job).",
+    "Use the existing single-writer lease mechanism (src/utils/db_locking.py) so this job cannot collide with the 3 live writer services or with itself if triggered twice.",
+    "copy-then-verify-before-any-source-retirement semantics: a candidate COLD segment must be built, closed, and identity-verified (row count + digest match against the HOT rows it represents) BEFORE any corresponding HOT row is considered eligible for removal.",
+    "Update COLD summaries (transfer_stats_summary/*.summary.json) as part of segment closure so compute_exact_stats_fast() never sees a StaleSummaryError from a freshly-rolled segment.",
+    "NEVER touch Watchtower (wt_ops_v2.db) or 3SW2 canonical state under any circumstance -- this job only ever reads and writes transfer_index-shaped data.",
+    "NEVER archive or delete rows merely by age without first checking pin status -- age alone is necessary but not sufficient.",
+    "Fail closed on any uncertainty: any ambiguous pin-set lookup failure, digest mismatch, or partial-batch error aborts the WHOLE run without touching HOT, not just the ambiguous rows."
+  ],
+
+  "proposed_recurring_contract": {
+    "trigger": "Daily cron entry, analogous in form to the existing P2.2 entry, e.g. '0 4 * * * cd .../flex && python3 -m src.ops.hot_cold_archival_runner --once --quiet >> logs/hot_cold_archival.log 2>&1' -- deliberately scheduled at a DIFFERENT hour (04:00) from the existing 03:00 P2.2 cleanup job to avoid any overlap or shared-lock contention between the two independent maintenance jobs.",
+    "not_yet_created": "src/ops/hot_cold_archival_runner.py does not exist. This contract names it only as a design placeholder; creating it is explicitly out of scope for this milestone.",
+    "steps": [
+      "1. Acquire the single-writer lease (src/utils/db_locking.py) against database/flex_complete_database.db before touching anything. If lease cannot be acquired within a bounded timeout, exit cleanly with pressure_state=SKIPPED_LOCK_CONTENTION and zero rows touched -- never block or retry indefinitely.",
+      "2. Compute the 90-day retention boundary id/timestamp against the current HOT table (same boundary logic already qualified in storage_lifecycle_policy.py).",
+      "3. Identify candidate rows older than the boundary using a bounded keyset scan (reuse P5BDeltaReconciler's exact batching pattern: fixed batch size, monotonic id cursor, resumable).",
+      "4. For each candidate batch: check pin-set membership using the already-established pin-set logic (permanently_pinned_fraction ~15.648% derivation) -- any row that is pinned is excluded from the candidate set for this run, unconditionally, regardless of age.",
+      "5. Build (or append to) a COLD segment file for the surviving (non-pinned, aged-out) candidate rows using transfer_cold_store.py's existing segment-building functions.",
+      "6. Close the segment and compute its manifest (segment_id, month_covered, row_count, closed_at) -- this is the qualifying step ColdSegmentRegistry already expects.",
+      "7. VERIFY before retiring anything: re-read the closed segment file fresh (separate connection), confirm row count and an identity digest over (signature, source, destination, amount_lamports, block_time) match exactly what was selected from HOT in step 3-4. Any mismatch aborts the ENTIRE run without deleting any HOT row, and leaves the just-built COLD segment file quarantined (renamed with a .verify_failed suffix) for human investigation -- never silently discarded, never silently trusted.",
+      "8. Only after verification passes: delete the now-archived rows from HOT in the SAME bounded-batch style (never a single unbounded DELETE), inside short transactions to avoid long write locks, releasing the writer lease between batches if the batch count is large.",
+      "9. Build the new segment's summary JSON (transfer_stats_summary/<segment_id>.summary.json) via the qualified build_segment_summary() so compute_exact_stats_fast() sees it as fresh immediately.",
+      "10. Release the writer lease. Write a run-log record (mirroring storage_lifecycle_runner.py's existing JSON-line log format: run_id, pressure_state, planned/executed/skipped counts, errors, bytes_reclaimed, duration_seconds) to logs/hot_cold_archival.log."
+    ],
+    "explicit_non_goals_for_this_contract": [
+      "Does NOT touch database/flex_complete_database.db.p5b_rollback_quarantine in any way.",
+      "Does NOT touch wt_ops_v2.db (Watchtower/3SW2 canonical state) in any way.",
+      "Does NOT VACUUM the HOT db as part of routine rollover (space reclamation from SQLite page-level deletes is a separate, larger, gated maintenance action -- consistent with the existing project pattern of keeping VACUUM as a distinct manually-gated operation, per the funder_networks archival precedent in project memory).",
+      "Does NOT change the P2.2 allowlist cleanup cron's scope."
+    ]
+  },
+
+  "qualification_before_activation": {
+    "required_before_this_contract_may_be_activated": [
+      "Implement src/ops/hot_cold_archival_runner.py against this contract.",
+      "Unit + integration tests proving: pin-set exclusion is respected under adversarial inputs, copy-then-verify correctly aborts and quarantines on a deliberately corrupted/mismatched segment, bounded batching never holds a write lock beyond a short bounded duration, fail-closed behavior on every identified uncertainty class above.",
+      "A dry-run mode (plan-only, zero mutation) exercised against real production HOT data at least once, with its output reviewed by a human before any write-mode run is authorized.",
+      "Explicit separate human authorization to install the cron entry and let it run for the first time -- this design document is not that authorization."
+    ],
+    "note": "Per Part 15 of this milestone, activating (or even fully implementing) this contract is NOT required for the cutover itself to be considered healthy -- but per the milestone's explicit retention policy, the rollback DB will be retained until this contract is AT LEAST qualified (implemented + tested), even if not yet activated."
+  }
+}

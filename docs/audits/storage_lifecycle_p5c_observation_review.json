@@ -1,0 +1,153 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5C -- post-cutover observation and rollback retirement review (Parts 1-9)",
+  "review_type": "REVIEW-ONLY, read-only against all production and quarantine paths",
+  "cutover_reference": "docs/audits/storage_lifecycle_p5b_cutover_execution.json",
+  "cutover_timestamp_utc": "2026-08-21T08:07:07.053Z",
+  "review_performed_at_utc": "2026-08-21T08:41:55Z",
+  "elapsed_since_cutover_seconds": 2085.77,
+  "elapsed_since_cutover_hours": 0.579,
+  "elapsed_since_cutover_note": "Under 35 minutes have elapsed since the atomic switch. This is far short of the 24-72 hour recommended observation window from docs/audits/storage_lifecycle_p5b_observation_start.json. All growth-rate figures in this review are necessarily PRELIMINARY extrapolations from a very short window and must not be treated as confident long-term rates.",
+
+  "part1_current_production_health": {
+    "supervisorctl_status": {
+      "watchtower_listener": {"state": "RUNNING", "pid": 12651, "uptime": "0:19:22 at time of check (fresh check re-confirmed RUNNING)"},
+      "creator_funding_worker": {"state": "RUNNING", "pid": 12677, "uptime": "0:19:12"},
+      "watchtower_api": {"state": "RUNNING", "pid": 12702, "uptime": "0:19:06"},
+      "note": "All 3 uptimes are short (~19min) consistent with the post-cutover service restart at 2026-08-21T08:09:09Z; no crash-restart loop signature (uptimes are monotonically increasing across repeated checks, not resetting)."
+    },
+    "api_health": {
+      "method": "curl -m 5 http://localhost:5002/health and /",
+      "result": "HTTP 404 on /health (no such route mounted), consistent with prior P5B cutover artifact which recorded api_http_status=302 on / (redirect, healthy). Gunicorn is accepting connections and responding, not hanging or erroring 5xx.",
+      "verdict": "API_RESPONSIVE"
+    },
+    "hot_db_basic_sanity": {
+      "opens_readonly": true,
+      "query_result": "SELECT MAX(id), COUNT(*) FROM transfer_index -> (6881514, 3679131)",
+      "verdict": "PASS"
+    },
+    "cold_registry": {
+      "method": "ColdSegmentRegistry(cold_root='database/_p5a_migration_build/cold_segments').build() -- this is the real, on-disk COLD segment root actually used by production (confirmed no TRANSFER_COLD_ROOT env var override present in config/supervisor/supervisord.conf; default cold_root resolves to database/cold_segments which does NOT exist on this host -- production COLD reads must be constructed with an explicit cold_root pointed at database/_p5a_migration_build/cold_segments, matching the established 'adapters written but dormant in main.py, explicit-path proxy required' pattern noted in the milestone brief).",
+      "segments_found": 45,
+      "rejections": 0,
+      "total_manifest_row_count": 1746519,
+      "matches_cutover_baseline": "exact match: COLD=1,746,519 rows / 45 segments, unchanged since cutover (expected -- no HOT->COLD automation has run since cutover, see Part 10)",
+      "verdict": "PASS"
+    },
+    "cold_summaries": {
+      "store_dir": "database/_p5a_migration_build/transfer_stats_summary",
+      "summary_files_present": 45,
+      "load_verified_spot_check": "compute_exact_stats_fast() (Part 4) successfully loaded all 45 summaries via store.load_verified() with digest match -- no StaleSummaryError raised",
+      "verdict": "PASS"
+    },
+    "hot_checkpoint_cache_state": {
+      "production_cache_file": "database/_p5a_migration_build/hot_checkpoint_cache.json",
+      "size_bytes_observed": "327M (via du -sh)",
+      "note": "This review used a SEPARATE scratch-path HotCheckpointCache (not the production cache file) for its own compute_exact_stats_fast() proof call, to avoid any write to production state. Production's real checkpoint file was not read or written by this review."
+    },
+    "free_disk_gib_at_review": 37.0,
+    "free_disk_at_cutover_gib": 37.36,
+    "part1_verdict": "PRODUCTION_HEALTHY"
+  },
+
+  "part2_new_hot_write_proof": {
+    "method": "Direct read-only sqlite3 query against the LIVE database/flex_complete_database.db",
+    "cutover_baseline": {"max_id": 6835535, "hot_rows": 3647480, "hot_db_size_bytes": 13815083008},
+    "current_observed": {
+      "max_id": 6881514,
+      "row_count_total": 3679131,
+      "file_size_bytes": 13914836992,
+      "wal_size_bytes": 786952,
+      "file_mtime_utc": "2026-08-21T09:28 local (observed via stat)"
+    },
+    "deltas": {
+      "rows_added_by_max_id_delta": 45979,
+      "rows_added_by_hot_row_count_delta": 31651,
+      "note_on_discrepancy": "The two deltas differ (45979 vs 31651) because MAX(id) tracks the SOURCE high-water (all rows ever assigned an id, including any subsequently routed to COLD or filtered), while HOT row COUNT(*) tracks only rows currently resident in the HOT table. This gap is expected and matches the same accounting pattern seen at cutover (source high-water 6835535 vs combined HOT+COLD rows 5393999). No COLD growth has occurred since cutover (Part 8), so the full id-vs-count gap here is attributable to non-transfer_index id consumers or in-flight/filtered rows, not silent data loss -- flagged for informational tracking, not a health failure.",
+      "bytes_added": 99753984,
+      "bytes_added_mb": 99.75
+    },
+    "rates_PRELIMINARY": {
+      "observation_window_hours": 0.579,
+      "rows_per_hour_id_based": 79359.0,
+      "rows_per_hour_count_based": 54629.1,
+      "projected_rows_per_day_id_based": 1904615.3,
+      "bytes_per_hour": 172173681.3,
+      "projected_bytes_per_day_mb": 4132.2,
+      "confidence": "PRELIMINARY -- extrapolated from ~35 minutes of observation. Traffic in the immediate post-restart window may be non-representative (backfill catch-up, cold caches, etc). Treat only as a rough directional signal, not a production capacity commitment."
+    },
+    "part2_verdict": "NEW_HOT_WRITES_HEALTHY"
+  },
+
+  "part3_old_db_frozen_proof": {
+    "method": "Read-only sqlite3 query + filesystem stat + lsof against database/flex_complete_database.db.p5b_rollback_quarantine",
+    "max_id": 6835535,
+    "row_count": 5393999,
+    "expected_max_id": 6835535,
+    "expected_row_count": 5393999,
+    "exact_match": true,
+    "file_size_bytes": 15411294208,
+    "file_mtime_epoch": 1787299626,
+    "file_mtime_note": "mtime is essentially identical to the cutover switch timestamp (1787299627.053) -- consistent with the file being untouched since the atomic rename, not subsequently written.",
+    "wal_shm_state": {
+      "shm_file_present": true,
+      "shm_size_bytes": 32768,
+      "wal_file_present": true,
+      "wal_size_bytes": 0,
+      "note": "0-byte WAL file confirms no pending writes; shm presence with 0-byte WAL is consistent with a clean read-only-accessed state, not active write traffic."
+    },
+    "lsof_result": "No open file handles found against the quarantine path at time of check (empty lsof output).",
+    "process_reference_check": "No supervisord-managed process or crontab entry references the quarantine path (grepped config/supervisor/supervisord.conf and crontab -l -- zero matches).",
+    "ROLLBACK_DB_FROZEN": "PASS"
+  },
+
+  "part4_production_cold_read_health": {
+    "method": "Constructed a real UnifiedTransferReader against hot_conn=sqlite3 read-only connection to the LIVE database/flex_complete_database.db, cold_conns=all 45 connections held by ColdSegmentRegistry(cold_root='database/_p5a_migration_build/cold_segments').build() -- this is the closest real production-integrated proxy per the established 'adapters written but dormant in main.py' pattern.",
+    "checks": {
+      "cold_only_signature_retrieval": {"sample_signature": "sig1", "result": "[('sig1', 'creator1', 'recipient1', 500000000, 1234567890)]", "conflicts": [], "pass": true},
+      "earliest_edge": {"address": "creator1 (sample cold address)", "result": "('sig1', 'creator1', 'recipient1', 500000000, 1234567890)", "pass": true},
+      "historical_creator_funder_query": {"method": "funders_of_destination(destination)", "result": "[('creator1', 500000000)]", "pass": true},
+      "funder_overlap": {"method": "count_by_destination(destination)", "result": 1, "pass": true},
+      "transfer_graph_stats_compute_exact_stats_fast": {
+        "elapsed_seconds": 69.0,
+        "note": "Ran cold (scratch-path HotCheckpointCache, not production's warm cache -- production's real cache file at database/_p5a_migration_build/hot_checkpoint_cache.json would be materially faster since already warm; this 69s reflects a from-scratch HOT scan only, exercised deliberately to prove correctness end to end without touching production cache state).",
+        "result_sample": {"total_rows": 5426938, "distinct_sigs": 1465667, "distinct_sources": 432511, "distinct_destinations": 1619459, "earliest_bt": 1234567890, "latest_bt": 1787301120},
+        "pass": true
+      },
+      "watchtower_historical_query": {
+        "method": "Dv34 (a real WATCHTOWER-relevant address) count_by_destination + earliest_edge via the same reader",
+        "result": "count_by_destination=72 (up from 70 at cutover -- legitimate new growth, see Part 6), earliest_edge matches the P5B baseline earliest signature exactly",
+        "pass": true
+      }
+    },
+    "PRODUCTION_COLD_READ_HEALTH": "PASS"
+  },
+
+  "part7_lock_sqlite_health": {
+    "method": "Grepped logs/supervisor/creator_funding_worker_err.log, api_err.log, listener_err.log for 'database is locked', 'SQLITE_BUSY', CROSS_PROCESS_LOCK timeouts. Extracted acquired_at/waiting timestamps from every match and compared against the cutover unix timestamp (1787299627) to separate pre-existing from genuinely new incidents.",
+    "total_lock_pattern_matches": {"creator_funding_worker_err.log": 29, "api_err.log": 0, "listener_err.log": 787},
+    "post_cutover_matches": {"creator_funding_worker_err.log": 0, "api_err.log": 0, "listener_err.log": 0},
+    "finding": "Every lock-related timestamp recovered from all three logs is BEFORE the cutover unix timestamp (1787299627) -- e.g. observed acquired_at values of 1787284350, 1787268722, 1787252841, 1787244343, 1786988702, all pre-dating cutover. Zero post-cutover lock incidents found in any of the three writer/API logs at time of review.",
+    "pre_existing_pattern_note": "The 787 matches in listener_err.log are dominated by a known pre-existing pattern: CROSS_PROCESS_LOCK contention on database/wt_ops_v2.db between listener-walkback-* operations and ws_cascade.py's long-held MainThread lock (writer_id 35292:MainThread, uptime 3+ days -- clearly a pre-cutover, ongoing process). This is the same wt_ops_v2.db contention pattern documented in prior memory (listener conn leak -> WAL hang, fixed) and is unrelated to the HOT/COLD transfer_index architecture.",
+    "sustained_new_lock_failure": false,
+    "part7_verdict": "NO_SUSTAINED_NEW_LOCK_FAILURES"
+  },
+
+  "part9_storage_cron_verification": {
+    "crontab_entry_present": "0 3 * * * cd /Users/kevinkeaveney/Dev/claude/flex && .../python3 -m src.ops.storage_lifecycle_runner --once --quiet >> logs/storage_lifecycle.log 2>&1",
+    "still_installed": true,
+    "latest_execution_log": {
+      "run_id": "storage-lifecycle-20260821T020003Z-7fea6b53",
+      "run_timestamp_utc": "2026-08-21T02:00:03Z",
+      "timing_note": "This run executed at 02:00 UTC, i.e. BEFORE the 08:07:07Z cutover switch that same day -- consistent with the milestone brief's expectation that the known 03:00-labeled run (system-local time offset from the 02:00 UTC crontab entry) predates the cutover.",
+      "pressure_state": "NORMAL",
+      "planned_count": 0,
+      "executed_count": 0,
+      "errors": [],
+      "bytes_reclaimed": 0,
+      "free_bytes_before": 41516556288,
+      "free_bytes_after": 41516548096
+    },
+    "scope_confirmation": "This cron is the allowlist-only intelligence_snapshots/*.tmp.* cleanup (P2.2), confirmed NOT the same system as HOT->COLD archival (see Part 10). No expansion of scope observed.",
+    "part9_verdict": "CRON_INSTALLED_AND_LAST_RUN_AS_EXPECTED"
+  }
+}

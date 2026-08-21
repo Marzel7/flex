@@ -31213,5 +31213,36 @@
       "docs/audits/storage_lifecycle_p5b_observation_start.json"
     ],
     "p5c_next_action": "NOT AUTHORIZED -- old DB retirement/deletion requires a separate, future, explicit human authorization after the observation window"
+  },
+  "storage_lifecycle_p5c_observation_review": {
+    "milestone": "STORAGE-LIFECYCLE-P5C -- post-cutover observation and rollback retirement review",
+    "reviewed_at_utc": "2026-08-21T08:41:55Z",
+    "observation_duration_so_far_hours": 0.579,
+    "current_hot_high_water": 6881514,
+    "current_hot_rows": 3679131,
+    "hot_growth_since_cutover_bytes": 99753984,
+    "cold_growth_since_cutover_bytes": 0,
+    "free_disk_gib": 37.0,
+    "writer_health": "all 3 RUNNING, no crash loops",
+    "cold_read_health": "PASS (real production-integrated UnifiedTransferReader + ColdSegmentRegistry against database/flex_complete_database.db + database/_p5a_migration_build/cold_segments)",
+    "watchtower": "BYTE_IDENTICAL digest match (69 entities)",
+    "three_sw2": "BYTE_IDENTICAL digest match (1 entity)",
+    "lock_incidents_post_cutover": 0,
+    "cron_0300_result": "run_id storage-lifecycle-20260821T020003Z-7fea6b53, pressure_state=NORMAL, planned=0, executed=0, errors=[], bytes_reclaimed=0 (ran 02:00 UTC, before the 08:07 cutover)",
+    "hot_to_cold_automation_status": "NOT AUTOMATED -- no live scheduled invoker found (crontab, supervisord.conf, operation_scheduler.py all checked, zero matches)",
+    "rollback_db_frozen": "PASS (MAX(id)=6835535, rows=5393999, exact match, lsof clean)",
+    "rollback_db_valid": "PASS (quick_check=ok, schema present, high-water exact)",
+    "rollback_retirement_eligible": false,
+    "rollback_retirement_ineligible_reason": "Gate 1 (observation duration) fails -- only ~35 min elapsed vs 24-72h required; independently, automation-gap policy also requires retention until the HOT->COLD automation contract is qualified.",
+    "expected_reclaim_if_eventually_authorized_bytes": 15411294208,
+    "terminal_verdict": "P5C_OBSERVATION_CONTINUES_ROLLBACK_RETAINED",
+    "exact_next_action": "Re-run this same P5C review after the full 24-72h observation window elapses. In parallel, begin qualifying (implement + test, do NOT activate) the HOT->COLD automation contract at docs/audits/storage_lifecycle_p5c_hot_cold_automation_contract.json as its own follow-on workstream. Do not delete database/flex_complete_database.db.p5b_rollback_quarantine.",
+    "artifacts": [
+      "docs/audits/storage_lifecycle_p5c_observation_review.json",
+      "docs/audits/storage_lifecycle_p5c_growth_measurement.json",
+      "docs/audits/storage_lifecycle_p5c_hot_cold_automation_census.json",
+      "docs/audits/storage_lifecycle_p5c_hot_cold_automation_contract.json",
+      "docs/audits/storage_lifecycle_p5c_rollback_retirement_review.json"
+    ]
   }
 }

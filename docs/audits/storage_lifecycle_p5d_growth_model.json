@@ -1,0 +1,52 @@
+{
+  "schema_version": "storage.lifecycle.p5d.growth_model.v1",
+  "artifact_type": "STORAGE_LIFECYCLE_P5D_GROWTH_MODEL",
+  "milestone": "STORAGE-LIFECYCLE-P5D Part 28",
+  "inputs": {
+    "p5c_established_baseline": "docs/audits/storage_lifecycle_p5c_growth_measurement.json part12_hot_steady_state_model.MODELED_established_baseline",
+    "p5d_live_census": "docs/audits/storage_lifecycle_p5d_live_eligibility_census.json",
+    "raw_transfer_ingestion_rows_per_day": 172000,
+    "permanently_pinned_fraction_p5c": 0.15648,
+    "permanently_pinned_fraction_p5d_measured": 0.9676,
+    "pinned_fraction_note": "P5C's 15.648% figure and P5D's 96.76% figure are NOT directly comparable -- P5C's fraction was measured over ALL rows (a mix of recent + old), while P5D's 96.76% is measured ONLY over the subset already older than the 90-day boundary (318,948 rows). A row's pin status is independent of its age, but young pinned rows are common (creators are pinned the moment they appear, long before they age past 90 days) while young UNPINNED rows churn out of the >90-day population as they either get pinned later (unlikely to change retroactively) or simply are the ones this system is designed to eventually retire. The high 96.76%-of-old-rows figure indicates the OLD population is disproportionately pinned relative to the all-rows average, consistent with creator_funders (21,612 addresses) already covering a large fraction of all-time creator activity.",
+    "hot_bytes_per_row_estimate": 3800,
+    "hot_bytes_per_row_note": "Derived in P5C from ~13.8GB / 3,647,480 rows at cutover (~3.8KB/row including index/page overhead); reused here unchanged."
+  },
+
+  "without_rollover_unbounded": {
+    "description": "Current live behavior (confirmed by P5C: IS_HOT_TO_COLD_ROLLOVER_AUTOMATED=NO, unchanged by this milestone since P5D is qualification-only).",
+    "hot_row_growth_per_day": 172000,
+    "hot_byte_growth_per_day_gib": "172000 * 3800 bytes / 1024^3 = 0.608 GiB/day",
+    "hot_byte_growth_per_year_gib": "0.608 * 365 = 222.0 GiB/year",
+    "note": "HOT grows at the full raw ingestion rate indefinitely -- no rows are ever retired. Purely a function of ingestion, independent of pinning, since without rollover NOTHING is ever removed from HOT regardless of pin status."
+  },
+
+  "with_rollover_bounded_steady_state": {
+    "description": "Modeled steady state once rollover has been running long enough that the >90-day generic (unpinned) population has fully cycled through archival at least once.",
+    "generic_90_day_rolling_population": {
+      "logic": "Only the UNPINNED fraction of ingested rows is subject to the 90-day rolling window; pinned rows never leave HOT regardless of age.",
+      "estimated_unpinned_fraction_of_new_ingestion": "Not independently re-measured for FRESH (day-old) rows this pass -- the P5D census measured pin fraction only for the already->90-day-old population (96.76% pinned). Using that as a conservative upper bound for now (i.e. assuming most new rows also eventually get pinned, consistent with 21,612 known creator addresses covering a large share of activity), the unpinned/generic daily rate is estimated at approximately 172000 * (1 - 0.9676) = 5566 rows/day, though this is a coarser estimate than P5C's all-rows-based 15.648% pinned figure (172000 * (1-0.15648) = 145085 rows/day generic) -- the two estimates diverge by roughly 26x, and the true fresh-ingestion pin rate needs its own direct measurement (flagged as a P5D->P5E open item, not resolved by this artifact) rather than assumed from either extreme.",
+      "conservative_planning_range_rows_per_day": {"low": 5566, "high": 145085},
+      "rolling_generic_hot_population_size": "generic_rows_per_day * 90 -- using the LOW (P5D-derived, likely more accurate for what actually survives to 90+ days) estimate: 5566 * 90 = 500,940 rows resident in HOT's generic rolling window at any time; using the HIGH (P5C all-rows) estimate: 145085 * 90 = 13,057,650 rows -- the true figure is almost certainly closer to the LOW estimate, since P5D's measurement is the more direct one (it measures what ACTUALLY remained unpinned after 90 days, not a same-day snapshot that has not yet had pinning opportunities applied), but is reported as a range pending direct fresh-ingestion measurement."
+    },
+    "permanent_pin_accumulation": {
+      "modeled_permanent_growth_rows_per_day_p5c": 26914.56,
+      "modeled_permanent_growth_rows_per_year": 9823814.4,
+      "modeled_permanent_growth_mb_per_day": "26914.56 * 3800 / 1024^2 = 97.6 MB/day",
+      "modeled_permanent_growth_gb_per_year": "97.6 MB/day * 365 / 1024 = 34.8 GB/year",
+      "note": "This is the DOMINANT long-run growth driver even WITH rollover active: pinned rows are never archived, so HOT grows without bound from this component regardless of rollover. Rollover bounds the GENERIC component only; it does not and cannot bound the pinned component (by design -- pinning is deliberately permanent-retention, not a bug)."
+    },
+    "expected_steady_state_hot_rows": "rolling_generic_population + cumulative_pinned_rows_since_system_inception -- the pinned component is NOT steady-state (it accumulates forever), so 'steady state' technically only applies to the generic-rolling component; total HOT size will keep growing at approximately the permanent-pin rate (97.6 MB/day) even after rollover is activated and the generic backlog is fully cleared.",
+    "expected_steady_state_hot_size_gib_generic_component_only": "500,940 rows * 3800 bytes / 1024^3 = 1.77 GiB (LOW estimate) to 13,057,650 * 3800 / 1024^3 = 46.2 GiB (HIGH estimate) -- range driven entirely by the unresolved fresh-ingestion pin-rate uncertainty flagged above.",
+    "cold_growth_per_day": {
+      "rows": "equal to whatever leaves the generic rolling window daily once steady state is reached -- approximately equal to the generic ingestion rate once the window is full (5566-145085 rows/day range, same uncertainty as above)",
+      "bytes_gib_per_day_low": "5566 * 3800 / 1024^3 = 0.0197 GiB/day (~7.2 GiB/year)",
+      "bytes_gib_per_day_high": "145085 * 3800 / 1024^3 = 0.513 GiB/day (~187.3 GiB/year)"
+    },
+    "total_retained_hot_plus_cold_growth_per_day": "Regardless of the generic-rate uncertainty, total retained data (HOT+COLD combined) grows at exactly the raw ingestion rate (172,000 rows/day, ~0.608 GiB/day, ~222 GiB/year) since rollover never deletes logical history, only relocates it -- this figure is NOT sensitive to the pin-rate uncertainty above and is the one high-confidence total-footprint number in this model."
+  },
+
+  "net_effect_of_activating_rollover": "Rollover does not reduce total data retained (HOT+COLD together grow at the same ~222 GiB/year regardless) -- its value is entirely in keeping the LIVE, actively-queried, write-lock-contending HOT file small and bounded (roughly 1.8-46 GiB generic component, pending the fresh-pin-rate measurement, plus the permanent-pin component which grows identically with or without rollover) instead of letting HOT itself grow at the full 222 GiB/year rate forever. COLD segments are read-only, append-only, and never touched by the 3 live writers, so growing COLD does not create the same lock-contention/backup-time/query-latency pressure that an unbounded HOT file would.",
+
+  "open_item_for_next_milestone": "Directly measure the pin-rate of FRESH (same-day) ingestion, not just the already-90-days-old population, to collapse the 5566-145085 rows/day range in this model to a single confident figure. This does not block P5D qualification (the eligibility/pinning/retirement MECHANISM is fully qualified and correct regardless of the exact future growth rate), but should be resolved before the cadence/steady-state sizing in the activation contract is treated as precise rather than directional."
+}

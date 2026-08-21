@@ -1,0 +1,49 @@
+{
+  "schema_version": "storage.lifecycle.p5d.lock_safety.v1",
+  "artifact_type": "STORAGE_LIFECYCLE_P5D_LOCK_SAFETY",
+  "milestone": "STORAGE-LIFECYCLE-P5D Parts 6-7, 11-17",
+  "verdict": "PASS -- ZERO_SUSTAINED_DB_LOCK_REGRESSION observed under all tested conditions. No production writer interaction was required or performed; all measurements below are from isolated tmp_path fixture databases with a real schema-equivalent transfer_index table.",
+
+  "batch_size_qualification": {
+    "method": "Isolated fixture DB, 5000 synthetic old (>90d) unpinned rows, full copy-verify-retire pipeline run to completion for each batch size, HOT retirement transaction duration measured with time.monotonic() around the BEGIN IMMEDIATE...COMMIT block specifically (not the whole batch).",
+    "results": [
+      {"batch_size": 100, "batches": 51, "total_run_seconds": 0.5485, "max_hot_retirement_txn_seconds": 0.00532},
+      {"batch_size": 500, "batches": 11, "total_run_seconds": 0.1358, "max_hot_retirement_txn_seconds": 0.00462},
+      {"batch_size": 1000, "batches": 6, "total_run_seconds": 0.0817, "max_hot_retirement_txn_seconds": 0.00451},
+      {"batch_size": 5000, "batches": 2, "total_run_seconds": 0.0504, "max_hot_retirement_txn_seconds": 0.00709}
+    ],
+    "chosen_default": 500,
+    "reasoning": "All tested sizes keep the HOT retirement transaction under 10ms (target was 'well under a second, ideally tens of milliseconds' -- exceeded). 500 was chosen over 5000 because: (1) it keeps each individual retirement transaction's lock hold time low and roughly flat regardless of total backlog size, reducing worst-case contention with the 3 live writers on any single batch; (2) it produces 11 batches for a 5000-row test run, giving the lease-acquire/release cycle more opportunities to yield between batches rather than holding a large single transaction; (3) given the real production net-new-eligible backlog measured in Part 18 is only 9,590 rows, batch_size=500 means a full backlog clear is ~19-20 batches -- a small, easily-observed number for the first-run observation procedure in the activation contract. batch_size=100 was rejected as unnecessarily granular (5x more lease acquisitions for negligible latency benefit); batch_size=5000 was rejected as producing a needlessly large single COLD-copy+verify unit relative to the real backlog size.",
+    "wal_growth": "wal_bytes_after was 0 for every tested batch size in the fixture -- SQLite auto-checkpoints the WAL back to the main file between the short, fully-committed transactions used here; no evidence of WAL growth pressure from this runner's batching pattern at any tested size."
+  },
+
+  "sqlite_busy_and_lease_contention_behavior": {
+    "test": "test_lease_contention_aborts_cleanly_not_indefinite (holds acquire_cleanup_lease in a background thread, then invokes run_rollover concurrently)",
+    "result": "Lease acquisition is non-blocking (fcntl LOCK_EX | LOCK_NB) -- a held lease is detected in well under 3 seconds (test asserts elapsed < 3.0s; actual observed elapsed was near-instant, bounded only by thread scheduling), the run aborts with abort_reason='LEASE_HELD_BY_ANOTHER_RUN', retired=0, and the COLD copy+verify already completed for that batch is correctly PRESERVED (not rolled back) -- report.copied==5 even though retirement was skipped. This proves the fail-closed-on-the-CURRENT-batch-only design: partial progress that is already safe (immutable COLD data) survives a contention abort, and a later run resumes cleanly from the checkpoint without re-copying it (idempotence proven separately, see below).",
+    "no_indefinite_wait": true,
+    "no_tight_retry_loop": "confirmed by code inspection -- acquire_cleanup_lease raises CleanupLeaseHeldError immediately on contention; the runner catches it once per batch and aborts, it does not loop/retry."
+  },
+
+  "idempotence": {
+    "test": "test_idempotent_rerun_same_run_id_no_duplicates",
+    "result": "Running the identical run_id twice against a DB already fully retired on the first pass processes ZERO additional rows on the second pass (rows_scanned==0, retired==0) because the checkpoint reports completed=True and last_processed_id==high_water_id. Segment row counts after the rerun are unchanged (INSERT OR IGNORE + a full checkpoint-driven skip prevents both duplicate COLD inserts and any attempt to re-delete already-deleted HOT rows)."
+  },
+
+  "concurrent_writer_simulation": {
+    "test": "test_concurrent_writers_and_retirement_no_sustained_lock_regression",
+    "setup": "3 background threads each performing 20 INSERT+commit cycles (5ms sleep between) against the same fixture HOT DB file, concurrently with a full run_rollover(...confirm_retire=True) pass over 100 pre-seeded old rows at batch_size=20.",
+    "measured": "Total wall time for the archival run while writers were active: bounded, asserted < 10.0s (observed well under that in practice on this hardware). All 3 concurrent writers' inserts were verified present afterward (COUNT(*) > 0 for each writer's signature prefix) -- no lost writes. No corruption (all subsequent SELECTs against the fixture succeeded).",
+    "conclusion": "The archival runner's short, exact-id DELETE transactions do not starve or corrupt concurrent application writers in this simulated load; SQLite's own busy_timeout (set to 2000ms on the archival runner's write connection, 3000ms on the simulated writers) absorbed the transient contention without any observed indefinite stall."
+  },
+
+  "transaction_design": {
+    "read_phase": "plain SELECT against a mode=ro connection, no write lock ever requested.",
+    "cold_copy_phase": "writes to a separate COLD segment .sqlite file, never touches the HOT connection/lock.",
+    "verify_phase": "read-only re-open (mode=ro) of the just-written COLD segment file.",
+    "hot_retirement_phase": "acquire_cleanup_lease (cross-process, non-blocking) -> sqlite3.connect(hot_path) with PRAGMA busy_timeout=2000 -> BEGIN IMMEDIATE -> DELETE FROM transfer_index WHERE id IN (<exact ids>) -> COMMIT -> connection closed -> lease released. Measured at ~4-7ms for batches up to 5000 rows in fixture testing.",
+    "post_verify_phase": "none required beyond the retirement transaction's own COMMIT succeeding; historical read-back parity is checked separately (Part 20-21, not per-batch).",
+    "no_vacuum": "confirmed absent from the module by both manual review and a structural test (test_no_vacuum_anywhere)."
+  },
+
+  "production_writer_interaction_this_milestone": "NONE. All lock-safety measurements in this artifact are from isolated tmp_path fixture databases. The 3 live production writer services (watchtower_listener, creator_funding_worker, watchtower_api) were confirmed RUNNING throughout this milestone (Part 1 census) but were never targeted by any write from this runner -- only read-only census queries (Part 18) touched the real production HOT DB."
+}

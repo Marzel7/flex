@@ -31061,47 +31061,6 @@
   },
   "storage_lifecycle_p5b_r2": {
     "milestone": "STORAGE-LIFECYCLE-P5B-R2 -- production HOT+COLD reader integration (code only, not activated)",
-    "verdict": "READY_P5B_STAGE2_FINAL_QUIESCE_WITH_PRODUCTION_HOT_COLD_READER",
-    "summary": "Closed the gap found during P5B Stage 2: UnifiedTransferReader was fully qualified but had zero production call sites in src/core/. Added src/ops/cold_segment_registry.py (production COLD segment registry + TransferReaderFactory + fail-closed get_transfer_reader(), process-per-worker singleton) and wired representative HISTORICAL_HOT_COLD_REQUIRED consumers to new adapter functions (get_funders_via_hot_cold in transfer_indexer.py, _compute_wallet_age_via_hot_cold in wallet_clustering.py; two pre-existing adapters in main.py and watchtower_candidates.py independently re-verified) -- all adapters remain explicitly NOT wired into their live call sites, qualified only. Fixed a genuine correctness bug found during qualification: a naive get_funders adapter under-counted distinct funders at the LIMIT boundary (241 vs 3649+ real) because by_destination()'s limit bounds raw rows pre-dedup, not distinct sources; fixed by an unbounded-then-limit approach, re-verified. All testing against the disposable database/_p5a_migration_build/ candidate (42 cold segments, fresh-verified) plus read-only production/wt_ops_v2.db comparisons. Watchtower (274/274), 3SW2 (0/0), Dv34 (69 rows/13 funders, fresh not stale-123), and CEX/INFRA 0/1/2-hop (5/5 real signatures) parity all PASS. COLD-only signature proof genuine (2022-01 real Solana-era row, confirmed absent from HOT, found via reader). 22/22 new tests pass. Two gaps honestly disclosed rather than hidden: funder_overlap_analysis.py's two full-table scans not adapted this pass (reader doesn't select amount_sol), and the full-history aggregate benchmark did not complete within session time (disclosed as incomplete, not fabricated).",
-    "artifacts": [
-      "docs/audits/storage_lifecycle_p5b_r2_production_reader_integration.json",
-      "src/ops/cold_segment_registry.py",
-      "tests/test_storage_lifecycle_p5b_r2_production_reader.py"
-    ],
-    "production_mutation_occurred": false,
-    "services_stopped_or_restarted": false,
-    "atomic_switch_performed": false,
-    "code_written_not_activated": true,
-    "next_action": "STORAGE-LIFECYCLE-P5B Stage 2 Parts 4-9 and Stage 3 remain SEPARATELY GATED, NOT resumed by this milestone. Recommended (not authorized) follow-on R3: complete/redesign the full-history aggregate benchmark, adapt funder_overlap_analysis.py's two full-table scans, wire dev_intelligence_v2.py/watchtower_detector.py's earliest-edge shapes to the existing adapter pattern."
-  },
-  "storage_lifecycle_p5b_stage1": {
-    "milestone": "STORAGE-LIFECYCLE-P5B Stage 1 -- pre-cutover delta sync + readiness gate (production read-only throughout)",
-    "status": "COMPLETE_AWAITING_HUMAN_STAGE2_AUTHORIZATION",
-    "verdict": "STAGE1_READY_FOR_HUMAN_STAGE2_AUTHORIZATION_REVIEW",
-    "p5a_high_water": 6648855,
-    "p5b_precutover_high_water": 6743251,
-    "delta_row_counts": {
-      "source": 85934,
-      "hot": 80693,
-      "cold": 5241,
-      "hot_newly_inserted_this_session": 1
-    },
-    "delta_identity_reconciliation": "PASS -- digest match, 85934=85934, 0 missing/extra/conflicts",
-    "candidate_row_totals": {
-      "hot_total": 3568079,
-      "cold_total": 1740893
-    },
-    "production_mutation_occurred": false,
-    "services_stopped_or_restarted": false,
-    "atomic_switch_performed": false,
-    "artifacts": [
-      "docs/audits/storage_lifecycle_p5b_delta_reconciliation.json",
-      "docs/audits/storage_lifecycle_p5b_pre_cutover.json"
-    ],
-    "next_action": "HUMAN_AUTHORIZATION_REQUIRED_FOR_STAGE2 (writer quiesce + atomic switch), NOT sought or attempted by this session."
-  },
-  "storage_lifecycle_p5b_r2": {
-    "milestone": "STORAGE-LIFECYCLE-P5B-R2 -- production HOT+COLD reader integration (code only, not activated)",
     "status": "COMPLETE_AWAITING_SEPARATE_STAGE2_STAGE3_AUTHORIZATION",
     "verdict": "READY_P5B_STAGE2_FINAL_QUIESCE_WITH_PRODUCTION_HOT_COLD_READER",
     "objective": "Closed the gap found during P5B Stage 2: UnifiedTransferReader (src/ops/unified_transfer_reader.py) was fully qualified but had ZERO production call sites -- a cutover to bounded HOT + COLD segments would have silently made historical (>90-day) data invisible to real queries. This milestone adds a production-safe COLD segment registry + reader factory and wires representative HISTORICAL_HOT_COLD_REQUIRED consumers to it as new, tested, NOT-YET-ACTIVATED adapter code.",
@@ -31134,6 +31093,32 @@
     ],
     "next_action": "Stage 2 Parts 4-9 and Stage 3 (the actual cutover) remain separately gated and were NOT resumed by this milestone. A future, separately-authorized milestone must wire the adapters above into their live call sites and perform the writer-quiesce + atomic switch already qualified by STORAGE-LIFECYCLE-P5B-R1."
   },
+  "storage_lifecycle_p5b_stage1": {
+    "milestone": "STORAGE-LIFECYCLE-P5B Stage 1 -- pre-cutover delta sync + readiness gate (production read-only throughout)",
+    "status": "COMPLETE_AWAITING_HUMAN_STAGE2_AUTHORIZATION",
+    "verdict": "STAGE1_READY_FOR_HUMAN_STAGE2_AUTHORIZATION_REVIEW",
+    "p5a_high_water": 6648855,
+    "p5b_precutover_high_water": 6743251,
+    "delta_row_counts": {
+      "source": 85934,
+      "hot": 80693,
+      "cold": 5241,
+      "hot_newly_inserted_this_session": 1
+    },
+    "delta_identity_reconciliation": "PASS -- digest match, 85934=85934, 0 missing/extra/conflicts",
+    "candidate_row_totals": {
+      "hot_total": 3568079,
+      "cold_total": 1740893
+    },
+    "production_mutation_occurred": false,
+    "services_stopped_or_restarted": false,
+    "atomic_switch_performed": false,
+    "artifacts": [
+      "docs/audits/storage_lifecycle_p5b_delta_reconciliation.json",
+      "docs/audits/storage_lifecycle_p5b_pre_cutover.json"
+    ],
+    "next_action": "HUMAN_AUTHORIZATION_REQUIRED_FOR_STAGE2 (writer quiesce + atomic switch), NOT sought or attempted by this session."
+  },
   "storage_lifecycle_p5b_r2_2": {
     "milestone": "STORAGE-LIFECYCLE-P5B-R2.2 -- exact fast path for /api/transfer-graph/stats full-history aggregate (code + tests only, not activated)",
     "status": "COMPLETE_AWAITING_SEPARATE_STAGE3_AUTHORIZATION",
@@ -31144,7 +31129,10 @@
     ],
     "performance": {
       "baseline_seconds": 354.38,
-      "warm_call_latency_seconds_range": [9.65, 16.52],
+      "warm_call_latency_seconds_range": [
+        9.65,
+        16.52
+      ],
       "improvement_factor": "~21x-35x",
       "honest_caveat": "Warm latency is 'seconds' (~10-17s), not sub-second; residual cost is a ~420K-key Python dict merge + 42-file JSON deserialization, profiled and disclosed, not yet further optimized within this milestone."
     },
@@ -31243,6 +31231,46 @@
       "docs/audits/storage_lifecycle_p5c_hot_cold_automation_census.json",
       "docs/audits/storage_lifecycle_p5c_hot_cold_automation_contract.json",
       "docs/audits/storage_lifecycle_p5c_rollback_retirement_review.json"
+    ]
+  },
+  "storage_lifecycle_p5d": {
+    "milestone": "STORAGE-LIFECYCLE-P5D -- HOT->COLD rollover automation qualification (BUILD-TEST-QUALIFY, not activation)",
+    "reviewed_at_utc": "2026-08-21",
+    "current_hot_rows": 3685352,
+    "current_hot_max_id": 6888113,
+    "current_hot_size_bytes_approx": 13000000000,
+    "current_cold_rows": 1746519,
+    "current_cold_qualified_segments": 45,
+    "eligible_backlog_older_than_90d_total": 318948,
+    "pinned_excluded_count": 308615,
+    "net_new_archival_eligible_backlog": 9590,
+    "chosen_batch_size": 500,
+    "chosen_batch_size_evidence": "measured max HOT retirement transaction 4.62ms at batch_size=500 vs 5.32ms@100, 4.51ms@1000, 7.09ms@5000 against a 5000-row isolated fixture -- see docs/audits/storage_lifecycle_p5d_lock_safety.json",
+    "measured_max_hot_retirement_txn_seconds": 0.00709,
+    "sqlite_busy_test_result": "PASS -- lease contention aborts non-blocking (well under 3s), already-verified COLD data preserved, no indefinite wait, no tight retry loop",
+    "identity_parity_result": "PASS -- missing=0, extra=0 in test_query_and_identity_parity_after_archival (fixture-based, before/after composite-identity set comparison via UnifiedTransferReader)",
+    "query_parity_result": "PASS -- by_signature() lookups against the HOT+COLD unified reader return identical rows for every archived row in the fixture parity test",
+    "watchtower_preservation": "PASS -- operators_sha256=0c33b0168b381a679670296ed562c4fb9a878f248749ad7cd679280b10dc90fb and operator_entities_sha256=ae305a03ae1a8ad5919c9965ab41b180f623e282e354cee5a098b41b75feb9aa confirmed IDENTICAL before and after this milestone (read-only throughout, wt_ops_v2.db never written)",
+    "disk_thresholds": {
+      "hard_stop_gib": 20,
+      "caution_gib": 25,
+      "free_at_qualification_gib": 37
+    },
+    "proposed_cadence": "daily at 04:00 (distinct from existing 03:00 P2.2 cleanup cron and clear of the 0-3/0-*/4 job minutes)",
+    "runner_path": "src/ops/hot_cold_rollover_runner.py",
+    "activation_command_proposed_not_run": "0 4 * * * /Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python3 -m src.ops.hot_cold_rollover_runner --once --confirm-retire-hot-rows-in-production --quiet >> logs/hot_cold_rollover.log 2>&1 (requires env HOT_COLD_ROLLOVER_CONFIRM=YES-RETIRE-PRODUCTION-HOT-ROWS)",
+    "production_writes": 0,
+    "automation_active": "NO",
+    "rollback_db_status": "unchanged, still frozen and untouched -- MAX(id)=6835535, rows=5393999, verified read-only at both start and end of this milestone",
+    "test_summary": "29/29 new P5D tests passing; 122 passed + 12 pre-existing skips across the full regression set (p5d + p5b_r2_production_reader + p5b_stage2_parts7_21 + p5b_r2_2_aggregate_performance + p5c_observation_review), 0 failures",
+    "terminal_verdict": "READY_P5D_HOT_COLD_ROLLOVER_ACTIVATION_REVIEW",
+    "exact_next_action": "Human review of docs/audits/storage_lifecycle_p5d_activation_contract.json; activation (installing the proposed 04:00 cron entry) requires separate explicit human authorization -- this milestone is qualification only, not that authorization.",
+    "artifacts": [
+      "docs/audits/storage_lifecycle_p5d_hot_cold_rollover_design.json",
+      "docs/audits/storage_lifecycle_p5d_live_eligibility_census.json",
+      "docs/audits/storage_lifecycle_p5d_lock_safety.json",
+      "docs/audits/storage_lifecycle_p5d_growth_model.json",
+      "docs/audits/storage_lifecycle_p5d_activation_contract.json"
     ]
   }
 }

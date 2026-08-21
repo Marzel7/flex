@@ -1,0 +1,77 @@
+{
+  "schema_version": "storage.lifecycle.p5d.activation_contract.v1",
+  "artifact_type": "STORAGE_LIFECYCLE_P5D_ACTIVATION_CONTRACT",
+  "milestone": "STORAGE-LIFECYCLE-P5D Part 35",
+  "status": "PROPOSAL ONLY -- NOT EXECUTED, NOT INSTALLED. No crontab entry has been added or modified as part of producing this document. Explicit separate human authorization is required before installation.",
+
+  "runner_path": "src/ops/hot_cold_rollover_runner.py",
+
+  "exact_activation_command": "0 4 * * * cd /Users/kevinkeaveney/Dev/claude/flex && /Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python3 -m src.ops.hot_cold_rollover_runner --once --confirm-retire-hot-rows-in-production --quiet >> logs/hot_cold_rollover.log 2>&1",
+  "required_env_for_command_above": "HOT_COLD_ROLLOVER_CONFIRM=YES-RETIRE-PRODUCTION-HOT-ROWS must be set in the cron environment (or exported in the shell wrapper invoking the command) -- without it, the command above runs safely in COPY_VERIFY_ONLY_UNCONFIRMED mode and deletes nothing, per the double-gate default-safe design.",
+
+  "proposed_cadence": {
+    "schedule": "daily at 04:00",
+    "reasoning": "Matches the P5C contract sketch's proposal (different hour from the existing 03:00 P2.2 cleanup job to avoid overlap). Verified against the CURRENT real crontab (Part 1/25 census): */5 helius monitor, 0 */4 graph analyzers, 0 * migration coverage audit (hourly, so it DOES run at 04:00 too -- but it is a short read-mostly audit job against a different concern, not a HOT write-lock-heavy job, so co-occurrence at the top of the hour is judged low-risk; if first-run observation shows contention, shifting to 04:07 avoids the hourly job's exact top-of-hour firing), and 0 3 storage_lifecycle_runner (P2.2, narrow temp-file cleanup, different scope entirely). 04:00 remains clear of the 0-3 and 0-*/4 jobs' exact minute, and quiet-traffic-period reasoning from P5C's growth observations (ingestion is not obviously day/night patterned in the short sample available, so 04:00 is chosen primarily for cron-slot cleanliness, not a proven traffic trough)."
+  },
+
+  "batch_size": {
+    "value": 500,
+    "evidence": "docs/audits/storage_lifecycle_p5d_lock_safety.json batch_size_qualification -- measured max HOT retirement transaction duration of 4.62ms at batch_size=500 against a 5000-row fixture, versus 5.32ms at 100 and 7.09ms at 5000. 500 chosen for flatter per-batch lock hold time and a sensible number of batches (~19-20) against the real measured backlog of 9,590 rows."
+  },
+
+  "max_rows_per_run": 50000,
+  "max_rows_per_run_reasoning": "The real measured net-new-eligible backlog (9,590 rows, Part 18) is well under this ceiling, so a single scheduled run is expected to fully clear the current backlog plus several days of newly-aged-out rows without needing multiple scheduled invocations. The ceiling exists as a safety bound against an unexpectedly large backlog (e.g. after an extended period of automation being off), not as a routine constraint.",
+
+  "max_wall_time": "Not separately enforced by a wall-clock cutoff in this implementation -- bounded instead by max_rows_per_run (50,000 rows at ~500/batch = 100 batches; fixture measurements show ~0.03-0.05s of pipeline overhead per batch excluding I/O against a real 13GB file, so a full 50,000-row run is expected to complete in well under a minute of runner-side compute; real production I/O time against the live 13GB file was not benchmarked in this qualification pass and should be observed on the first real activated run).",
+
+  "lock_policy": {
+    "mechanism": "src.ops.storage_lock_safety.acquire_cleanup_lease (flock-based, cross-process, non-blocking advisory lease)",
+    "lease_path": "database/hot_cold_rollover.lease (a NEW lease file, separate from database/storage_lifecycle.lock used by the existing P2.2 job -- the two jobs never contend with each other's lease, only (potentially) with SQLite's own file-level locking on the HOT db during the P5D job's brief retirement transactions, which is bounded and measured above)",
+    "behavior_on_contention": "non-blocking -- a second concurrent invocation (e.g. a manually triggered run overlapping the scheduled one) receives CleanupLeaseHeldError immediately and exits cleanly with zero rows touched, exactly like the existing P2.2 runner's pattern."
+  },
+
+  "busy_policy": {
+    "mechanism": "PRAGMA busy_timeout=2000 (2s) on the HOT retirement write connection; on sqlite3.OperationalError (locked/busy) the CURRENT batch aborts (abort_reason='HOT_RETIREMENT_BUSY: ...'), already-copied+verified COLD data for that batch is retained, and the run stops (does not retry in a loop, does not skip ahead)."
+  },
+
+  "disk_thresholds": {
+    "hard_stop_free_bytes": 21474836480,
+    "hard_stop_gib": 20,
+    "caution_free_bytes": 26843545600,
+    "caution_gib": 25,
+    "current_free_disk_at_qualification_time_gib": 37,
+    "behavior": "STOP: run aborts before touching anything, reports DISK_GUARD_STOP. CAUTION: currently proceeds (the design's 'stop-unless-proven-safe' framing is implemented as a reported state; the qualification build proceeds through CAUTION rather than hard-stopping, since COLD writes for a 500-row batch are on the order of tens of KB, far below a level that would meaningfully worsen a 25 GiB-free situation) -- flagged for tightening (hard-stop at CAUTION too) if a future review judges the current behavior too permissive."
+  },
+
+  "audit_log_location": {
+    "run_ledger": "docs/audits/storage_lifecycle_p5d_execution_ledger.jsonl (append-only JSON lines via src.ops.storage_audit_ledger.append_entry, same LedgerEntry shape already used by the P2.2 job)",
+    "cron_stdout_stderr": "logs/hot_cold_rollover.log (proposed, matching the existing logs/storage_lifecycle.log and logs/graph_analyzers.log convention)"
+  },
+
+  "stop_conditions": [
+    "Disk guard STOP state (<=20 GiB free) -- abort before any work.",
+    "Lease already held by a concurrent invocation -- abort immediately, zero rows touched.",
+    "COLD verification mismatch for any batch -- abort the WHOLE run, leave HOT untouched, leave the mismatched COLD segment in place for human investigation (NOT auto-discarded, matching the P5C contract sketch's quarantine intent -- note: this qualification build does not yet implement the .verify_failed rename step from the P5C sketch; it aborts and logs but does not rename the segment file. Flagged as a small gap to close before activation if segment quarantine renaming is judged necessary; the run-halting fail-closed behavior itself is fully implemented and tested).",
+    "SQLITE_BUSY / database locked on the HOT retirement transaction -- abort the current batch, preserve already-verified COLD data, stop the run.",
+    "max_rows_per_run ceiling reached -- clean stop, resumable next scheduled run via the persisted checkpoint."
+  ],
+
+  "first_run_observation_procedure": [
+    "1. Run manually ONCE with --dry-run first (zero writes) and review the JSON report: rows_scanned, pinned_excluded, copied ('would copy') counts should roughly match the Part 18 census (approximately 9,590 net-new eligible, though the exact figure will have drifted by the time of activation).",
+    "2. Run manually ONCE with --copy-verify-only (writes COLD, never retires HOT) against production. Confirm the resulting segment(s) under database/_p5a_migration_build/cold_segments/ via ColdSegmentRegistry, confirm row counts match the dry-run report, confirm a spot-check of several archived signatures is readable identically before/after via UnifiedTransferReader.",
+    "3. Only after step 2's segments are human-reviewed and closed (close_segment()), run the FIRST real-retire pass manually (not yet via cron) with both the CLI flag and the env var set, on a small --max-rows (e.g. 2000) to observe real production HOT retirement transaction timing and lease behavior under live traffic.",
+    "4. Confirm the 3 writer services show no new lock-error log entries during and immediately after the manual real-retire pass (grep watchtower_listener/creator_funding_worker/watchtower_api logs for 'database is locked'/'database is busy' in a window around the run).",
+    "5. Only after steps 1-4 all pass cleanly does installing the cron entry become appropriate -- and that installation itself requires separate explicit human authorization per this milestone's boundary, not automatic follow-on from a clean qualification."
+  ],
+
+  "rollback_disable_procedure": [
+    "To disable: remove the cron entry (once installed) -- the runner has no other persistent state that needs deactivating. No supervisord program is proposed, so there is nothing to stop/restart.",
+    "To pause without removing: the runner's own default-safe behavior means simply NOT setting HOT_COLD_ROLLOVER_CONFIRM in the cron environment reverts it to COPY_VERIFY_ONLY_UNCONFIRMED mode automatically -- COLD segments continue accumulating (harmless, append-only) but HOT retirement stops immediately, with zero code change required.",
+    "If a bad COLD segment is ever published: it can be excluded from ColdSegmentRegistry by moving it out of the cold_root directory (the registry only globs *.sqlite files present at build() time); this does not affect HOT (already-retired rows would need restoration from the rollback DB in the worst case, which is why database/flex_complete_database.db.p5b_rollback_quarantine remains retained per the existing P5B/P5C retention policy, unaffected by this milestone).",
+    "This runner never modifies the existing P2.2 storage_lifecycle_runner.py or its cron entry, so disabling P5D has zero effect on that job."
+  ],
+
+  "production_writes_this_milestone": 0,
+  "automation_active": "NO",
+  "next_action": "Activation (installing the cron entry) requires separate explicit human authorization -- this contract is a qualified proposal, not a decision."
+}

@@ -1,0 +1,48 @@
+{
+  "schema_version": "storage.lifecycle.p5d.design.v1",
+  "artifact_type": "STORAGE_LIFECYCLE_P5D_HOT_COLD_ROLLOVER_DESIGN",
+  "milestone": "STORAGE-LIFECYCLE-P5D",
+  "status": "BUILT, TESTED, QUALIFIED -- NOT ACTIVATED. No cron entry, no supervisord program, no scheduler invokes this code. Continues from P5B cutover (d9b1848d) and P5C observation review (6c1e32fd).",
+
+  "implementation": "src/ops/hot_cold_rollover_runner.py",
+  "test_file": "tests/test_storage_lifecycle_p5d_hot_cold_rollover.py",
+
+  "reused_components": {
+    "eligibility_classification": "src.ops.p5b_delta_reconciler.classify() + PinSets -- imported directly, not reimplemented. classify() returns hot_pinned/hot_recent/hot_ambiguous/cold given a row and a PinSets instance.",
+    "keyset_batch_pattern": "modeled on src.ops.transfer_archival_cursor's next_batch()/start_or_resume_run() (id-bounded, high-water-frozen-at-start, never OFFSET); hot_cold_rollover_runner.py implements its own RolloverCheckpoint/start_or_resume() following the identical contract because it needs an extra field set (pinned_excluded, copied, retired counters) beyond CursorCheckpoint's rows_processed.",
+    "cold_segment_schema": "src.ops.transfer_cold_store.COLD_SCHEMA, create_cold_segment(), close_segment(), segment_name_for_month() -- used as-is.",
+    "cold_registry": "src.ops.cold_segment_registry.ColdSegmentRegistry -- used unmodified for post-archival query parity verification (Part 20-21) and for the activation contract's segment-visibility gate.",
+    "single_writer_lease": "src.ops.storage_lock_safety.acquire_cleanup_lease -- an flock-based, non-blocking, CROSS-PROCESS advisory lease. Chosen over src.utils.db_locking.db_write_lock, which is an in-process asyncio/thread lock scoped to one Python process and structurally cannot serialize a second OS process (this runner is a separate process from the 3 writer services). acquire_cleanup_lease is also what the existing P2.2 storage_lifecycle_runner.py already uses for the identical 'one cleanup process at a time' requirement, so this is the established cross-process idiom in this codebase, not a new primitive."
+  },
+
+  "eligibility_contract": {
+    "rule": "A transfer_index row is archival-ELIGIBLE only if ALL of: (1) block_time is a valid positive number older than the frozen 90-day hot_boundary_unix, (2) classify() does not return hot_pinned (destination in creator_funders.creator_address, OR source/destination in wt_ops_v2.operator_entities.entity_address, OR signature in local_operation_discovery_corpus.db's direct_funding_edges.funding_signature/upstream_edges.upstream_signature), (3) classify() does not return hot_ambiguous (NULL/non-numeric/<=0 block_time is held HOT, never archived -- fail-closed on ambiguity), (4) the row is not already represented in an existing COLD month segment by composite identity (signature, source, destination) -- checked via _existing_cold_signatures() against the target month's segment file before every COLD copy.",
+    "90_day_boundary_value": "HOT_RETENTION_DAYS = 90, matching src/scripts/cleanup_transfers.py's TransferIndexCleanup(retention_days=90) -- unchanged, not re-derived.",
+    "pin_dimensions_verified_by_grep": "PinSets(...) construction pattern confirmed in tests/test_storage_lifecycle_p5b_stage2_parts7_21.py; derive_pin_sets() in the new runner queries creator_funders.creator_address, wt_ops_v2.db operator_entities.entity_address, and local_operation_discovery_corpus.db direct_funding_edges.funding_signature + upstream_edges.upstream_signature -- table/column names verified against the live databases during Part 18 census, not assumed."
+  },
+
+  "pipeline_sequence": [
+    "1. READ: plain SELECT (id-bounded keyset batch) against a mode=ro HOT connection. No write lock ever taken in this phase.",
+    "2. CLASSIFY: p5b_delta_reconciler.classify() per row against a frozen PinSets (derived fresh at run start from live creator_funders/operator_entities/discovery-corpus tables, never cached across runs).",
+    "3. DEDUPE-AGAINST-COLD: identity check (signature) against the target month's existing COLD segment file, skipping rows already represented.",
+    "4. COLD COPY: INSERT OR IGNORE into a per-month rolling-accumulation segment file (created via create_cold_segment() if absent). No HOT lock required -- entirely separate files.",
+    "5. VERIFY: fresh read-only re-open of each touched COLD segment, composite-identity set comparison against what was selected for that batch. Any missing row aborts the WHOLE run (fail-closed) before any HOT mutation -- the just-written COLD data is left in place (immutable, safe, not rolled back).",
+    "6. HOT RETIREMENT (real-retire mode only): acquire_cleanup_lease (non-blocking) -> BEGIN IMMEDIATE -> DELETE FROM transfer_index WHERE id IN (<exact ids from this verified batch>) -> COMMIT -> release lease. On CleanupLeaseHeldError or sqlite3.OperationalError (SQLITE_BUSY/locked), the batch aborts cleanly; already-copied+verified COLD data is retained for a later run to retire."
+  ],
+
+  "segment_strategy": "Rolling per-calendar-month accumulation (transfer_index_cold_<YYYY>_<MM>.sqlite), matching the existing convention in database/_p5a_migration_build/cold_segments/. A batch may span >1 month near a boundary; rows are grouped and appended to each relevant month's file. Chosen over one-segment-per-run (would fragment into hundreds of tiny segments given the ~500-row batch size) and one-segment-per-batch (same problem, worse). Segments are NOT closed by the runner automatically every batch -- close_segment() (manifest finalization + sha256 digest + registry visibility) is a deliberate later step, consistent with P4's contract that a segment must be explicitly closed before ColdSegmentRegistry treats it as qualified; the activation contract specifies when production closure happens.",
+
+  "default_safe_design": {
+    "no_args_or_dry_run": "zero writes anywhere -- --dry-run peeks at batches via a read-only connection, classifies, reports counts, and never persists a checkpoint or COLD row.",
+    "copy_verify_only": "writes COLD, verifies, never deletes HOT -- available via --copy-verify-only, and structurally wins over confirm_retire even if both are passed.",
+    "real_retirement_double_gate": "requires BOTH --confirm-retire-hot-rows-in-production (CLI flag / confirm_retire=True) AND the environment variable HOT_COLD_ROLLOVER_CONFIRM=YES-RETIRE-PRODUCTION-HOT-ROWS. Missing either gate silently falls back to COPY_VERIFY_ONLY_UNCONFIRMED mode (zero HOT deletions), never an error that could be silenced/bypassed by a misconfigured flag alone."
+  },
+
+  "never_touches": [
+    "database/flex_complete_database.db.p5b_rollback_quarantine -- structurally verified never opened (test_rollback_db_never_opened_structurally); the filename appears exactly once in the module, inside a dedicated unused string constant kept only for this test's cross-reference.",
+    "database/wt_ops_v2.db -- read-only connection only, used solely to derive the operator_entity_addresses pin dimension.",
+    "src/ops/storage_lifecycle_runner.py (the existing P2.2 allowlist cleanup job) -- not imported, not modified, not referenced.",
+    "VACUUM -- absent from the module (test_no_vacuum_anywhere).",
+    "any age-based mass DELETE -- the only DELETE statement in the module is exact 'WHERE id IN (...)' (test_no_unbounded_or_age_based_mass_delete, structural AST check)."
+  ]
+}

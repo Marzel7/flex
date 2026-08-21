@@ -1,0 +1,60 @@
+{
+  "schema_version": "storage.lifecycle.p5d.live_eligibility_census.v1",
+  "artifact_type": "STORAGE_LIFECYCLE_P5D_LIVE_ELIGIBILITY_CENSUS",
+  "milestone": "STORAGE-LIFECYCLE-P5D Part 18",
+  "method": "Read-only queries (mode=ro URI connections) against live production database/flex_complete_database.db, database/wt_ops_v2.db, and database/local_operation_discovery_corpus.db while all 3 writer services (watchtower_listener, creator_funding_worker, watchtower_api) were RUNNING. Zero writes issued. Indexed queries used where a suitable index existed (idx_transfer_block_time); the full-row pin-set classification pass required a single bounded fetch of the 90-day-old row set (318,948 rows) held in process memory, not a per-row query -- completed in ~9s.",
+  "measured_at_utc": "2026-08-21",
+
+  "hot_db_snapshot_at_census_time": {
+    "size_bytes_approx": "13GB (13,000,000,000 approx, du -sh reported 13G)",
+    "row_count": 3685352,
+    "max_id": 6888113,
+    "min_id": 4
+  },
+
+  "cold_segment_snapshot_at_census_time": {
+    "qualified_segments": 45,
+    "total_rows_in_qualified_segments": 1746519,
+    "note": "89 total *.sqlite files present in database/_p5a_migration_build/cold_segments/, 45 pass the ColdSegmentRegistry qualification gate (segment_manifest row with closed_at NOT NULL); the remainder are open/unclosed delta staging segments from prior P5B work, correctly excluded by the registry."
+  },
+
+  "pin_dimension_sizes_at_census_time": {
+    "creator_funders_distinct_creator_address": 21612,
+    "wt_ops_v2_operator_entities_distinct_entity_address": 70,
+    "discovery_corpus_direct_plus_upstream_signature_union": 36835,
+    "note": "creator_funders count (21612) differs slightly from the 21777 recorded in storage_lifecycle_p5b_delta_reconciliation.json -- expected drift over the intervening period between P5B and P5D census passes, not a discrepancy requiring investigation."
+  },
+
+  "90_day_boundary": {
+    "hot_boundary_unix": 1779526871,
+    "hot_boundary_utc_approx": "2026-05-23 (90 days before census time)",
+    "rows_with_block_time_older_than_boundary": 318948,
+    "query": "SELECT COUNT(*), MIN(block_time) FROM transfer_index WHERE block_time IS NOT NULL AND block_time>0 AND block_time < ? (idx_transfer_block_time used, 0.62s)"
+  },
+
+  "eligibility_breakdown": {
+    "older_than_90_days_total": 318948,
+    "pinned_excluded": 308615,
+    "pinned_excluded_fraction": 0.9676,
+    "generic_candidates_older_than_90_days": 10333,
+    "already_represented_in_existing_cold_segments_by_signature": 743,
+    "net_new_archival_eligible_backlog": 9590,
+    "oldest_eligible_block_time": 1673050179,
+    "oldest_eligible_date_utc": "2023-01-07",
+    "estimated_bytes_eligible_rough": 1239960,
+    "estimated_bytes_note": "9590 rows * ~120 bytes/row rough in-row estimate (excludes index overhead); a precise on-disk figure requires a real COLD write, not attempted against production per the read-only boundary for this part."
+  },
+
+  "eligible_backlog_month_by_month_distribution": {
+    "2023-01": 1, "2024-01": 1, "2024-03": 1, "2024-07": 1, "2024-08": 9,
+    "2024-09": 18, "2024-11": 20, "2025-01": 44, "2025-02": 3, "2025-03": 9,
+    "2025-04": 1, "2025-05": 11, "2025-06": 76, "2025-07": 18, "2025-08": 70,
+    "2025-09": 50, "2025-10": 65, "2025-11": 11, "2025-12": 2, "2026-01": 55,
+    "2026-02": 288, "2026-03": 101, "2026-04": 376, "2026-05": 9102,
+    "note": "Heavily skewed toward the most recent eligible month (2026-05, just past the 90-day boundary) -- 95% of the generic backlog is concentrated there, consistent with P5C's growth observations that most transfer_index volume is recent."
+  },
+
+  "interpretation": "The eligible backlog is small in absolute terms (9,590 rows against a 3.69M-row HOT table, ~0.26%) because the vast majority of old rows are pinned (96.8%) -- creator_funders alone covers 21,612 addresses, and any row touching a known creator, a Watchtower operator entity, or a discovery-corpus signature stays HOT regardless of age. This confirms the P4/P5B pinning design is doing its job: HOT is NOT accumulating unboundedly with generic noise, it is accumulating pinned (permanently retained) rows, which is the expected and correct steady-state behavior documented in the Part 28 growth model.",
+
+  "production_safety_confirmation": "Zero writes issued to database/flex_complete_database.db, database/wt_ops_v2.db, or database/local_operation_discovery_corpus.db during this census. All connections opened with mode=ro URIs. Total wall time across all census queries: approximately 35 seconds, non-blocking to the 3 live writer services (plain SELECTs, no write lock requested)."
+}

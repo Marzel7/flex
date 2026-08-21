@@ -31409,6 +31409,25 @@
       "integrity": {
         "pre_update_sha256": "04ea70b8dc6bd76f87a9ed5c7b1b58be0e549ad76dae7c6c890022be48a9357c"
       }
+    },
+    "p5f_recurring_rollover_activation": {
+      "milestone": "STORAGE-LIFECYCLE-P5F -- recurring HOT to COLD rollover activation",
+      "timestamp_utc": "2026-08-21T11:19:48Z",
+      "artifact": "docs/audits/storage_lifecycle_p5f_activation_contract.json",
+      "scheduler_installation_artifact": "docs/audits/storage_lifecycle_p5f_scheduler_installation.json",
+      "first_scheduled_observation_artifact": "docs/audits/storage_lifecycle_p5f_first_scheduled_observation.json",
+      "verdict": "HOLD_P5F_CAPACITY_REQUALIFICATION_REQUIRED",
+      "automation_active": "NO",
+      "scheduler_installed": false,
+      "fresh_capacity_measurement": "8421 fresh composite-eligible rows/day vs hard 500/day ceiling; shortfall 7921/day",
+      "preflight": "PASS -- writers healthy, COLD registry/summaries healthy, disk 36.48GB free, rollback frozen",
+      "runner_safety": "PASS -- qualified immutable delta, composite dedup, exact delete, lease/busy, disk/default/double-gate protections remain present",
+      "first_scheduled_run": "PENDING_FIRST_SCHEDULED_RUN -- no scheduler installed and no result fabricated",
+      "disable_procedure": "No P5F entry exists. Future entry disable: crontab -l | grep -v 'hot_cold_rollover_runner' | crontab -; verify no matching entry. Do not stop writers.",
+      "exact_next_action": "Separate capacity qualification required for multiple independently leased 500-row runs or a larger requalified batch. Do not install automation until capacity passes.",
+      "integrity": {
+        "pre_update_sha256": "04ea70b8dc6bd76f87a9ed5c7b1b58be0e549ad76dae7c6c890022be48a9357c"
+      }
     }
   }
 }

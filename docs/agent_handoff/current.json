@@ -31500,6 +31500,22 @@
       "automation_active": "NO",
       "exact_next_action": "Separate explicit authorization is required to install the 20-opportunity recurring scheduler; no cron is installed by R3.",
       "integrity": {"pre_update_sha256": "04ea70b8dc6bd76f87a9ed5c7b1b58be0e549ad76dae7c6c890022be48a9357c"}
+    },
+    "p5f_scheduler_installation": {
+      "milestone": "STORAGE-LIFECYCLE-P5F-S -- scheduler installation and first natural-run observation",
+      "verdict": "P5F_RECURRING_ROLLOVER_ACTIVE_FIRST_NATURAL_RUN_PENDING",
+      "automation_active": "YES",
+      "scheduler": "crontab P5F tagged block; 20 independent daily entries at 00:30,01:42,02:54,04:06,05:18,06:30,07:42,08:54,10:06,11:18,12:30,13:42,14:54,16:06,17:18,18:30,19:42,20:54,22:06,23:18 local",
+      "max_rows_per_run": 500,
+      "capacity_per_day": 10000,
+      "eligible_inflow_per_day": 8421,
+      "headroom_per_day": 1579,
+      "log": "logs/hot_cold_rollover.log",
+      "first_natural_run": "PENDING_FIRST_NATURAL_RUN",
+      "preflight": "PASS -- writers RUNNING; COLD registry healthy; rollback 6835535/5393999; free disk 32403976192 bytes",
+      "disable_procedure": "crontab -l | sed '/# P5F HOT-COLD ROLLOVER BEGIN/,/# P5F HOT-COLD ROLLOVER END/d' | crontab -; verify crontab -l has no P5F block. Do not stop writers.",
+      "exact_next_action": "Observe and reconcile the first natural scheduled invocation from durable phase evidence. Do not run manual catch-up.",
+      "integrity": {"pre_update_sha256": "04ea70b8dc6bd76f87a9ed5c7b1b58be0e549ad76dae7c6c890022be48a9357c"}
     }
   }
 }

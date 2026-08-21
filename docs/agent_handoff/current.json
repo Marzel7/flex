@@ -31275,7 +31275,7 @@
   },
   "storage_lifecycle_p5e_r1": {
     "milestone": "STORAGE-LIFECYCLE-P5E-R1 -- immutable closed-segment remediation",
-    "status": "HOLD",
+    "status": "PARTIAL_FOCUSED_TESTS_PASS_FRESH_INVARIANT_RECHECK_INCOMPLETE",
     "timestamp_utc": "2026-08-21T10:03:35Z",
     "artifact": "docs/audits/storage_lifecycle_p5e_r1_validation_hold.json",
     "terminal_verdict": "HOLD_P5E_HISTORICAL_PARITY",
@@ -31285,6 +31285,16 @@
     "exact_next_action": "Authorize the correct regression-test shape, rerun the targeted suite, then replace the base and replay the frozen 439 rows into a closed delta segment.",
     "integrity": {
       "pre_update_sha256": "39734f293b0448c3b99b3911e2b6dd573f639f6e77d11ac51820d407393cc1ca"
+    },
+    "continuation": {
+      "timestamp_utc": "2026-08-21T10:07:42Z",
+      "focused_suite": "32 passed",
+      "production_actions": "NONE",
+      "fresh_invariant_recheck": "INCOMPLETE: two read-only production SQLite probes returned no usable result after their read windows; not treated as PASS.",
+      "exact_next_action": "Obtain successful bounded read-only invariant measurements for base digest/integrity, 439 HOT presence, 433 incident rows, 6 HOT-only identities, and rollback DB identity; only then execute the already-authorized base replacement and 433-row delta replay.",
+      "integrity": {
+        "pre_update_sha256": "070add64447cff15c83490367aae05050af538e45527522836c8d689e2e42492"
+      }
     }
   }
 }

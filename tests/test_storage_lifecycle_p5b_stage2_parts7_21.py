@@ -674,3 +674,119 @@ def test_zero_production_mutation_mtime_unchanged():
     # a normal growing file, not proof of a frozen mtime (which would be
     # WRONG given writers are intentionally left running throughout).
     assert current_mtime >= baseline_mtime
+
+
+# ---------------------------------------------------------------------
+# Regression: candidate-local AUTOINCREMENT id divergence is EXPECTED
+# and must never be used as a freshness/identity signal.
+# ---------------------------------------------------------------------
+
+
+def test_candidate_local_id_may_exceed_source_id_while_identity_stays_exact(tmp_path, pins):
+    """Reproduces the real Stage-3B false alarm: the reconciler's INSERT
+    never specifies `id` (see P5BDeltaReconciler.run), so the HOT
+    destination's own AUTOINCREMENT sequence assigns fresh, candidate-
+    local ids on every insert. If the SOURCE has an id gap (e.g. an
+    invalid/filtered row that was never inserted, or a delta round that
+    skipped some ids), the candidate's local id sequence -- which never
+    skips -- pulls ahead of the source's own id sequence. This is
+    expected and harmless: composite content identity (signature,
+    source, destination, amount_lamports, block_time) must still match
+    exactly, and the source-checkpoint boundary (last_processed_id,
+    tracked against SOURCE ids only) remains the authoritative
+    "reconciled through" marker -- NOT `SELECT MAX(id) FROM candidate`.
+    """
+    # Build a source with a genuine id GAP: ids 1..5 then a gap at 6,7,8
+    # (as if those source ids belong to invalid/filtered rows that were
+    # never written to transfer_index at all), then ids 9..12.
+    conn = sqlite3.connect(str(tmp_path / "source.db"))
+    conn.executescript(SOURCE_SCHEMA)
+    conn.execute("DELETE FROM sqlite_sequence WHERE name='transfer_index'")
+    rows = sample_rows(5, start_bt=1_700_000_000)
+    conn.executemany(
+        "INSERT INTO transfer_index (signature, source, destination, amount_lamports, "
+        "slot, block_time, indexed_at, is_valid, transfer_type) VALUES (?,?,?,?,?,?,?,?,?)",
+        rows,
+    )
+    conn.commit()
+    # force the next autoincrement id to jump past a gap (ids 6,7,8 never exist)
+    conn.execute("UPDATE sqlite_sequence SET seq=8 WHERE name='transfer_index'")
+    more_rows = sample_rows(4, start_bt=1_700_000_100)
+    more_rows = [(f"sig_late{i}", *r[1:]) for i, r in enumerate(more_rows)]
+    conn.executemany(
+        "INSERT INTO transfer_index (signature, source, destination, amount_lamports, "
+        "slot, block_time, indexed_at, is_valid, transfer_type) VALUES (?,?,?,?,?,?,?,?,?)",
+        more_rows,
+    )
+    conn.commit()
+    source_max_id = conn.execute("SELECT MAX(id) FROM transfer_index").fetchone()[0]
+    assert source_max_id == 12  # confirms the gap: 9,10,11,12 after the jump to 8
+
+    # HOT destination already contains some unrelated pre-existing rows
+    # with their own local ids 1..3, simulating a candidate build that
+    # started its AUTOINCREMENT sequence independently of the source.
+    hot_conn = make_hot_dest_db(str(tmp_path / "hot.db"))
+    hot_conn.executemany(
+        "INSERT INTO transfer_index (signature, source, destination, amount_lamports, "
+        "slot, block_time, indexed_at, is_valid, transfer_type) VALUES (?,?,?,?,?,?,?,?,?)",
+        [("preexisting1", "srcX", "destX", 1, 0, 1_699_000_000, time.time(), 1, "standard")],
+    )
+    hot_conn.commit()
+    cold_conn = make_cold_dest_db(str(tmp_path / "cold.db"))
+
+    reconciler = P5BDeltaReconciler(
+        source_conn=conn, hot_dest_conn=hot_conn, cold_dest_conn=cold_conn,
+        pins=pins, upper_bound_id=source_max_id, run_id="test-id-divergence",
+        checkpoint_path=str(tmp_path / "ckpt.json"), batch_size=3,
+    )
+    result = reconciler.run(lower_bound_id_exclusive=0)
+
+    # The core regression proof: candidate-local ids are assigned by the
+    # destination's OWN AUTOINCREMENT sequence, entirely independent of
+    # source ids -- the reconciler's INSERT never specifies `id` (see
+    # p5b_delta_reconciler.py's INSERT OR IGNORE statements). Prove this
+    # directly by checking that the specific rows this reconciler run
+    # inserted do NOT carry their source ids -- their candidate-local ids
+    # are a fresh, gap-free 2..N sequence following the 1 pre-existing
+    # row, regardless of what the source's (gapped) id sequence looked
+    # like. If a future change ever made the reconciler preserve/derive
+    # candidate ids from source ids, this assertion would need updating,
+    # not silently removed.
+    inserted_ids = sorted(
+        row[0] for row in hot_conn.execute(
+            "SELECT id FROM transfer_index WHERE signature != 'preexisting1'"
+        )
+    )
+    assert inserted_ids == list(range(2, 2 + len(inserted_ids))), (
+        f"expected a fresh, gap-free candidate-local id sequence starting after "
+        f"the pre-existing row, got {inserted_ids} -- candidate ids must never "
+        f"be derived from or forced to match the source's (gapped) id sequence"
+    )
+    assert inserted_ids != [source_max_id - len(inserted_ids) + 1 + i for i in range(len(inserted_ids))], (
+        "candidate ids coincidentally matching a source-id-derived sequence would "
+        "defeat the point of this regression test -- ids must be independently assigned"
+    )
+
+    # The AUTHORITATIVE signal is the source-side checkpoint, never a
+    # candidate-side MAX(id) read.
+    ckpt = load_checkpoint(str(tmp_path / "ckpt.json"))
+    assert ckpt.completed is True
+    assert ckpt.last_processed_id == source_max_id  # CANDIDATE_RECONCILED_THROUGH_SOURCE_ID
+
+    # Composite content identity must be EXACT regardless of the id
+    # divergence -- this is the real correctness contract.
+    source_keys = {
+        (sig, src, dst, amt, bt)
+        for sig, src, dst, amt, bt in conn.execute(
+            "SELECT signature, source, destination, amount_lamports, block_time FROM transfer_index"
+        )
+    }
+    hot_keys_from_this_run = {
+        (sig, src, dst, amt, bt)
+        for sig, src, dst, amt, bt in hot_conn.execute(
+            "SELECT signature, source, destination, amount_lamports, block_time FROM transfer_index "
+            "WHERE signature != 'preexisting1'"
+        )
+    }
+    assert source_keys == hot_keys_from_this_run
+    assert streaming_identity_digest(source_keys) == streaming_identity_digest(hot_keys_from_this_run)

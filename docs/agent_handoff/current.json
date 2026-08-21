@@ -534,10 +534,12 @@
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
   "current_milestone": {
-    "milestone": "STORAGE-LIFECYCLE-P5B Stage 3 -- controlled production HOT/COLD cutover",
-    "status": "HOLD_ACTIVATION_GATE_FAILED_NO_PRODUCTION_ACTION",
-    "verdict": "HOLD_P5B_STAGE3_PRODUCTION_ACTIVATION_NOT_IMPLEMENTED",
-    "next_action": "Implement/test/rehearse production activation and rollback integration, then resume Stage 3 from fresh preflight."
+    "milestone": "STORAGE-LIFECYCLE-P5B Stage 3A -- final pre-switch reconciliation (Parts 1-11 only, no atomic switch)",
+    "status": "READY_FOR_STAGE3B_ATOMIC_SWITCH",
+    "verdict": "SEE docs/audits/storage_lifecycle_p5b_stage3a_pre_switch_reconciliation.json -- Parts 1-11 all PASS, identity reconciliation EXACT_PARITY hard gate PASS, all 3 writer services restored/healthy, no atomic switch performed",
+    "final_high_water_captured": 6827280,
+    "all_3_writer_services_confirmed_running": true,
+    "next_action": "AWAIT_SEPARATE_HUMAN_AUTHORIZED_STAGE3B_DISPATCH_FOR_THE_ATOMIC_SWITCH_ITSELF"
   },
   "ops_discovery_p3r_x": {
     "updated_at_utc": "2026-08-20T00:00:00Z",
@@ -31148,18 +31150,141 @@
     ],
     "next_action": "Stage-3 activation of api_transfer_graph_stats() (wiring compute_exact_stats_fast() into the live route via a per-worker-process singleton) remains a separate, not-yet-authorized milestone. Writer quiescence for any eventual cutover remains separately gated."
   },
-  "storage_lifecycle_p5b_stage3": {
-    "milestone": "STORAGE-LIFECYCLE-P5B Stage 3 -- controlled production HOT/COLD cutover",
+  "storage_lifecycle_p5b_stage3a": {
+    "milestone": "STORAGE-LIFECYCLE-P5B Stage 3A -- final pre-switch reconciliation (Parts 1-11 only, no atomic switch)",
+    "status": "READY_FOR_STAGE3B_ATOMIC_SWITCH",
+    "verdict": "READY_FOR_STAGE3B_ATOMIC_SWITCH",
+    "production_actions": "Read-only against production throughout except a bounded ~4-minute real writer quiesce (2026-08-21T06:48:53Z - 06:53:30Z) to prove zero-writer state and capture the final high-water; all 3 writer services restored and confirmed healthy before this update. No atomic switch performed.",
+    "final_high_water": 6827280,
+    "final_hot_rows": 3639945,
+    "final_cold_rows": 1746515,
+    "final_segment_count": 44,
+    "identity_reconciliation_verdict": "EXACT_PARITY -- HARD GATE PASS",
+    "artifacts": [
+      "docs/audits/storage_lifecycle_p5b_stage3a_pre_switch_reconciliation.json"
+    ],
+    "next_action": "AWAIT_SEPARATE_HUMAN_AUTHORIZED_STAGE3B_DISPATCH_FOR_THE_ATOMIC_SWITCH_ITSELF"
+  },
+  "storage_lifecycle_p5b_cutover": {
+    "milestone": "STORAGE-LIFECYCLE-P5B -- controlled production HOT/COLD atomic cutover COMPLETE",
+    "verdict": "STORAGE_LIFECYCLE_P5B_CUTOVER_COMPLETE_OBSERVATION_REQUIRED",
+    "executed_directly_in_session_per_human_instruction_after_auto_mode_classifier_declined_background_dispatch": true,
+    "cutover_final_high_water": 6835535,
+    "cutover_final_source_row_count": 5393999,
+    "final_micro_delta_rows": 2498,
+    "final_hot_rows": 3647480,
+    "final_cold_rows": 1746519,
+    "final_segment_count": 45,
+    "final_identity_reconciliation": "EXACT_PARITY -- missing=0, extra=0, conflicts=0",
+    "switch_timestamp_utc": "2026-08-21T08:07:07.053Z",
+    "switch_elapsed_seconds": 0.0068,
+    "writer_downtime_seconds": 354,
+    "old_db_quarantine_path": "database/flex_complete_database.db.p5b_rollback_quarantine",
+    "old_db_deletion_eligible": false,
+    "new_hot_db_path": "database/flex_complete_database.db",
+    "new_hot_db_size_bytes": 13815083008,
+    "old_quarantine_db_size_bytes": 15411294208,
+    "first_new_write_proof": "PASS -- new HOT MAX(id) advanced 6835535->6843549 with genuine traffic, quarantined old DB frozen exactly at 6835535/5393999",
+    "production_cold_read_proof": "PASS -- via real TransferReaderFactory against the new live production path",
+    "watchtower_preservation": "PASS -- digest 8ec94921... byte-identical pre/post switch",
+    "three_sw2_preservation": "PASS -- digest ecbd1426... byte-identical",
+    "dv34": "70 rows via new HOT DB, unchanged",
+    "funding_structure": "8/8 unchanged",
+    "lock_health": "no lock errors or crash loops observed",
+    "current_free_disk_gib": 37.36,
+    "rollback_triggered": false,
+    "rollback_readiness": "old DB quarantined and available, rollback procedure documented in cutover_execution.json",
+    "observation_start_utc": "2026-08-21T08:09:09Z",
+    "observation_window_recommended": "24-72 hours",
+    "audit_artifacts": [
+      "docs/audits/storage_lifecycle_p5b_cutover_execution.json",
+      "docs/audits/storage_lifecycle_p5b_observation_start.json"
+    ],
+    "p5c_next_action": "NOT AUTHORIZED -- old DB retirement/deletion requires a separate, future, explicit human authorization after the observation window"
+  },
+  "storage_lifecycle_p5c_observation_review": {
+    "milestone": "STORAGE-LIFECYCLE-P5C -- post-cutover observation and rollback retirement review",
+    "reviewed_at_utc": "2026-08-21T08:41:55Z",
+    "observation_duration_so_far_hours": 0.579,
+    "current_hot_high_water": 6881514,
+    "current_hot_rows": 3679131,
+    "hot_growth_since_cutover_bytes": 99753984,
+    "cold_growth_since_cutover_bytes": 0,
+    "free_disk_gib": 37,
+    "writer_health": "all 3 RUNNING, no crash loops",
+    "cold_read_health": "PASS (real production-integrated UnifiedTransferReader + ColdSegmentRegistry against database/flex_complete_database.db + database/_p5a_migration_build/cold_segments)",
+    "watchtower": "BYTE_IDENTICAL digest match (69 entities)",
+    "three_sw2": "BYTE_IDENTICAL digest match (1 entity)",
+    "lock_incidents_post_cutover": 0,
+    "cron_0300_result": "run_id storage-lifecycle-20260821T020003Z-7fea6b53, pressure_state=NORMAL, planned=0, executed=0, errors=[], bytes_reclaimed=0 (ran 02:00 UTC, before the 08:07 cutover)",
+    "hot_to_cold_automation_status": "NOT AUTOMATED -- no live scheduled invoker found (crontab, supervisord.conf, operation_scheduler.py all checked, zero matches)",
+    "rollback_db_frozen": "PASS (MAX(id)=6835535, rows=5393999, exact match, lsof clean)",
+    "rollback_db_valid": "PASS (quick_check=ok, schema present, high-water exact)",
+    "rollback_retirement_eligible": false,
+    "rollback_retirement_ineligible_reason": "Gate 1 (observation duration) fails -- only ~35 min elapsed vs 24-72h required; independently, automation-gap policy also requires retention until the HOT->COLD automation contract is qualified.",
+    "expected_reclaim_if_eventually_authorized_bytes": 15411294208,
+    "terminal_verdict": "P5C_OBSERVATION_CONTINUES_ROLLBACK_RETAINED",
+    "exact_next_action": "Re-run this same P5C review after the full 24-72h observation window elapses. In parallel, begin qualifying (implement + test, do NOT activate) the HOT->COLD automation contract at docs/audits/storage_lifecycle_p5c_hot_cold_automation_contract.json as its own follow-on workstream. Do not delete database/flex_complete_database.db.p5b_rollback_quarantine.",
+    "artifacts": [
+      "docs/audits/storage_lifecycle_p5c_observation_review.json",
+      "docs/audits/storage_lifecycle_p5c_growth_measurement.json",
+      "docs/audits/storage_lifecycle_p5c_hot_cold_automation_census.json",
+      "docs/audits/storage_lifecycle_p5c_hot_cold_automation_contract.json",
+      "docs/audits/storage_lifecycle_p5c_rollback_retirement_review.json"
+    ]
+  },
+  "storage_lifecycle_p5d": {
+    "milestone": "STORAGE-LIFECYCLE-P5D -- HOT->COLD rollover automation qualification (BUILD-TEST-QUALIFY, not activation)",
+    "reviewed_at_utc": "2026-08-21",
+    "current_hot_rows": 3685352,
+    "current_hot_max_id": 6888113,
+    "current_hot_size_bytes_approx": 13000000000,
+    "current_cold_rows": 1746519,
+    "current_cold_qualified_segments": 45,
+    "eligible_backlog_older_than_90d_total": 318948,
+    "pinned_excluded_count": 308615,
+    "net_new_archival_eligible_backlog": 9590,
+    "chosen_batch_size": 500,
+    "chosen_batch_size_evidence": "measured max HOT retirement transaction 4.62ms at batch_size=500 vs 5.32ms@100, 4.51ms@1000, 7.09ms@5000 against a 5000-row isolated fixture -- see docs/audits/storage_lifecycle_p5d_lock_safety.json",
+    "measured_max_hot_retirement_txn_seconds": 0.00709,
+    "sqlite_busy_test_result": "PASS -- lease contention aborts non-blocking (well under 3s), already-verified COLD data preserved, no indefinite wait, no tight retry loop",
+    "identity_parity_result": "PASS -- missing=0, extra=0 in test_query_and_identity_parity_after_archival (fixture-based, before/after composite-identity set comparison via UnifiedTransferReader)",
+    "query_parity_result": "PASS -- by_signature() lookups against the HOT+COLD unified reader return identical rows for every archived row in the fixture parity test",
+    "watchtower_preservation": "PASS -- operators_sha256=0c33b0168b381a679670296ed562c4fb9a878f248749ad7cd679280b10dc90fb and operator_entities_sha256=ae305a03ae1a8ad5919c9965ab41b180f623e282e354cee5a098b41b75feb9aa confirmed IDENTICAL before and after this milestone (read-only throughout, wt_ops_v2.db never written)",
+    "disk_thresholds": {
+      "hard_stop_gib": 20,
+      "caution_gib": 25,
+      "free_at_qualification_gib": 37
+    },
+    "proposed_cadence": "daily at 04:00 (distinct from existing 03:00 P2.2 cleanup cron and clear of the 0-3/0-*/4 job minutes)",
+    "runner_path": "src/ops/hot_cold_rollover_runner.py",
+    "activation_command_proposed_not_run": "0 4 * * * /Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python3 -m src.ops.hot_cold_rollover_runner --once --confirm-retire-hot-rows-in-production --quiet >> logs/hot_cold_rollover.log 2>&1 (requires env HOT_COLD_ROLLOVER_CONFIRM=YES-RETIRE-PRODUCTION-HOT-ROWS)",
+    "production_writes": 0,
+    "automation_active": "NO",
+    "rollback_db_status": "unchanged, still frozen and untouched -- MAX(id)=6835535, rows=5393999, verified read-only at both start and end of this milestone",
+    "test_summary": "29/29 new P5D tests passing; 122 passed + 12 pre-existing skips across the full regression set (p5d + p5b_r2_production_reader + p5b_stage2_parts7_21 + p5b_r2_2_aggregate_performance + p5c_observation_review), 0 failures",
+    "terminal_verdict": "READY_P5D_HOT_COLD_ROLLOVER_ACTIVATION_REVIEW",
+    "exact_next_action": "Human review of docs/audits/storage_lifecycle_p5d_activation_contract.json; activation (installing the proposed 04:00 cron entry) requires separate explicit human authorization -- this milestone is qualification only, not that authorization.",
+    "artifacts": [
+      "docs/audits/storage_lifecycle_p5d_hot_cold_rollover_design.json",
+      "docs/audits/storage_lifecycle_p5d_live_eligibility_census.json",
+      "docs/audits/storage_lifecycle_p5d_lock_safety.json",
+      "docs/audits/storage_lifecycle_p5d_growth_model.json",
+      "docs/audits/storage_lifecycle_p5d_activation_contract.json"
+    ]
+  },
+  "storage_lifecycle_p5e_r1": {
+    "milestone": "STORAGE-LIFECYCLE-P5E-R1 -- immutable closed-segment remediation",
     "status": "HOLD",
-    "artifact": "docs/audits/storage_lifecycle_p5b_cutover_execution.json",
-    "terminal_verdict": "HOLD_P5B_STAGE3_PRODUCTION_ACTIVATION_NOT_IMPLEMENTED",
+    "timestamp_utc": "2026-08-21T10:03:35Z",
+    "artifact": "docs/audits/storage_lifecycle_p5e_r1_validation_hold.json",
+    "terminal_verdict": "HOLD_P5E_HISTORICAL_PARITY",
     "production_actions": "NONE",
-    "blocker": "No atomic activation/rollback executable; Supervisor lacks COLD-root configuration; required HOT+COLD adapters remain dormant.",
-    "exact_next_action": "Implement, test, and independently rehearse activation-map wiring, runtime configuration, atomic switch, and rollback before any writer quiescence.",
+    "validation": "30 passed, 1 failed; no physical repair executed",
+    "blocker": "Regression fixture contradicts its three-field HOT uniqueness constraint; repaired code remains unaccepted.",
+    "exact_next_action": "Authorize the correct regression-test shape, rerun the targeted suite, then replace the base and replay the frozen 439 rows into a closed delta segment.",
     "integrity": {
-      "pre_update_sha256": "9e477c17215d2b47ea0d5d2b1d80ad90c20d7957eabf8e45057cc530b867eb78",
-      "prior_current_milestone_sha256": "e6fd6cffa66d53dab2cd6c0736dd8b30aaf4bc8930bca9472c2e9e392d458574",
-      "prior_p5b_record_sha256": "3c8b0da23c8e1d694e162f4e404b1bfcd7d6d4bf4412d81563c226029de74aa0"
+      "pre_update_sha256": "39734f293b0448c3b99b3911e2b6dd573f639f6e77d11ac51820d407393cc1ca"
     }
   }
 }

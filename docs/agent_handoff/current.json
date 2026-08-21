@@ -31306,6 +31306,18 @@
       "integrity": {
         "pre_update_sha256": "36b436df6f4c1783348eedcde1d96698a4fcfb83beaf99de338f6e1fd696132c"
       }
+    },
+    "diagnostic": {
+      "milestone": "STORAGE-LIFECYCLE-P5E-R1-DIAG",
+      "timestamp_utc": "2026-08-21T10:16:59Z",
+      "artifact": "docs/audits/storage_lifecycle_p5e_r1_diag_read_only_probe.json",
+      "verdict": "P5E_R1_DIAG_PROBE_HARNESS_WALL_TIME_EXCEEDED",
+      "production_actions": "NONE",
+      "root_cause": "Original all-in-one Python probe exceeds harness wall time before its sole final print; basic output, file paths, minimal SQLite reads, and bounded ordered scan all pass.",
+      "exact_next_action": "Use a chunked phase-emitting read-only invariant probe; do not perform physical repair until all required values are observed.",
+      "integrity": {
+        "pre_update_sha256": "56f3800de655c3a137ba43f15259e1dd685833fae8811ca9a56d8c177e306d77"
+      }
     }
   }
 }

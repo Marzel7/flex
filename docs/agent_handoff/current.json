@@ -31368,6 +31368,23 @@
       "integrity": {
         "pre_update_sha256": "04ea70b8dc6bd76f87a9ed5c7b1b58be0e549ad76dae7c6c890022be48a9357c"
       }
+    },
+    "r1_repair_execution": {
+      "milestone": "STORAGE-LIFECYCLE-P5E-R1 -- immutable May segment repair execution",
+      "timestamp_utc": "2026-08-21T10:50:00Z",
+      "artifact": "docs/audits/storage_lifecycle_p5e_r1_repair_execution.json",
+      "verdict": "READY_P5E_FIRST_LIVE_RETIREMENT_RETRY",
+      "base_repair": "PASS -- forensic hard-link preserved; verified 319318-row May base atomically installed with original digest",
+      "delta_repair": "PASS -- exactly 433 incident rows published in closed DELTA transfer_index_cold_2026_05_delta_bfbfb2121047, parented to May base",
+      "post_repair_checks": "PASS -- base+delta forensic parity 319751/319751, incident digest exact, no full-identity overlap/double count, registry and summary verification, reader cold-only lookup, closed-delta idempotence guard",
+      "protected_store_readback": "PASS -- bounded read-only Watchtower and 3SW2 reads; repair never opened either for writing",
+      "hot_rows_deleted": 0,
+      "services_restarted": false,
+      "rollback_db_modified": false,
+      "exact_next_action": "Await separate explicit authorization for the first live HOT retirement retry; no retirement is authorized by this repair completion.",
+      "integrity": {
+        "pre_update_sha256": "04ea70b8dc6bd76f87a9ed5c7b1b58be0e549ad76dae7c6c890022be48a9357c"
+      }
     }
   }
 }

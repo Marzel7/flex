@@ -541,6 +541,26 @@
     "all_3_writer_services_confirmed_running": true,
     "next_action": "AWAIT_SEPARATE_HUMAN_AUTHORIZED_STAGE3B_DISPATCH_FOR_THE_ATOMIC_SWITCH_ITSELF"
   },
+  "ops_discovery_p3r_s": {
+    "updated_at_utc": "2026-08-21T00:00:00Z",
+    "status": "HOLD",
+    "verdict": "HOLD_P3R_S_ORIGINAL_COHORT_IDENTITY_NOT_RECOVERABLE",
+    "original_38_cohort_exactly_recoverable": false,
+    "cohort_count": 38,
+    "cohort_digest": null,
+    "migration_targets": 0,
+    "topology_targets": 0,
+    "behaviour_targets": 0,
+    "original_max_requests": 68,
+    "locally_satisfied_requests": 0,
+    "remaining_provider_maximum": 68,
+    "provider_calls_made": 0,
+    "existing_funding_structures_unchanged": 8,
+    "blockers": [
+      "ORIGINAL_P3R_FREEZE_CONTAINS_AGGREGATE_COUNTS_BUT_NO_IMMUTABLE_COHORT_OR_REQUEST_IDENTITIES"
+    ],
+    "next_action": "REQUIRES_SEPARATE_HUMAN_AUTHORIZATION_FOR_A_NEW_COHORT_RE_FREEZE_WITH_IDENTITY_AND_REQUEST_TARGET_PROVENANCE"
+  },
   "ops_discovery_p3r_x": {
     "updated_at_utc": "2026-08-20T00:00:00Z",
     "status": "HOLD",

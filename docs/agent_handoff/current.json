@@ -31275,10 +31275,10 @@
   },
   "storage_lifecycle_p5e_r1": {
     "milestone": "STORAGE-LIFECYCLE-P5E-R1 -- immutable closed-segment remediation",
-    "status": "HOLD_P5E_R1_PHASE_1_UNRESOLVED",
+    "status": "HOLD_P5E_R1_PHASE_1B_UNRESOLVED",
     "timestamp_utc": "2026-08-21T10:03:35Z",
     "artifact": "docs/audits/storage_lifecycle_p5e_r1_validation_hold.json",
-    "terminal_verdict": "HOLD_P5E_R1_PHASE_1_UNRESOLVED",
+    "terminal_verdict": "HOLD_P5E_R1_PHASE_1B_UNRESOLVED",
     "production_actions": "NONE",
     "validation": "30 passed, 1 failed; no physical repair executed",
     "blocker": "Regression fixture contradicts its three-field HOT uniqueness constraint; repaired code remains unaccepted.",
@@ -31327,6 +31327,18 @@
       "exact_next_action": "Diagnose Phase 1 output failure; do not run later phases or physical repair.",
       "integrity": {
         "pre_update_sha256": "c39f09e6539ce26a9cb68d3094ea0e83603cf0b3177ccd1ce8cc0f41cb307625"
+      }
+    },
+    "d3_phase_1b": {
+      "timestamp_utc": "2026-08-21T10:29:56Z",
+      "artifact": "docs/audits/storage_lifecycle_p5e_r1_d3_phase1b_unresolved.json",
+      "channel_test": "PASS",
+      "phase_1a": "PASS",
+      "phase_1b": "UNRESOLVED: child exited without result/error/log",
+      "production_actions": "NONE",
+      "exact_next_action": "Use a persistent host-side execution mechanism for Phase 1B; do not run later phases or physical repair.",
+      "integrity": {
+        "pre_update_sha256": "fdfa9e7f2463357148c4ac33cfe7d4fa1f2dfa3c3c1555254b70670dba09eda5"
       }
     }
   }

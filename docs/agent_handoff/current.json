@@ -31464,6 +31464,18 @@
       "automation_active": "NO",
       "exact_next_action": "Human review and separate authorization to install the proposed recurring scheduler; no cron entry is installed by E1.",
       "integrity": {"pre_update_sha256": "04ea70b8dc6bd76f87a9ed5c7b1b58be0e549ad76dae7c6c890022be48a9357c"}
+    },
+    "p5f_scheduler_activation": {
+      "milestone": "STORAGE-LIFECYCLE-P5F-A -- recurring scheduler activation",
+      "artifact": "docs/audits/storage_lifecycle_p5f_scheduler_activation.json",
+      "verdict": "HOLD_P5F_SCHEDULER_ACTIVATION",
+      "automation_active": "NO",
+      "scheduler_installed": false,
+      "blocker": "Production runner lacks P5F-R1 durable phase-evidence integration and does not close/publish per-invocation COLD segments before retirement; installing cron would violate the P5F contract.",
+      "capacity": "Target remains 20 x 500 = 10000/day vs 8421/day inflow, 1579/day headroom; not activated.",
+      "first_scheduled_run": "PENDING_FIRST_SCHEDULED_RUN -- not fabricated",
+      "exact_next_action": "Implement/test the narrow durable single-run production runner integration, re-review pre-install gates, then install exactly one logical 20-opportunity schedule if all gates pass.",
+      "integrity": {"pre_update_sha256": "04ea70b8dc6bd76f87a9ed5c7b1b58be0e549ad76dae7c6c890022be48a9357c"}
     }
   }
 }

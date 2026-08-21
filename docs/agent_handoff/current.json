@@ -534,10 +534,10 @@
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
   "current_milestone": {
-    "milestone": "STORAGE-LIFECYCLE-P5A -- real replacement main DB + cold segment build, validated (not cutover)",
-    "status": "COMPLETE_AWAITING_HUMAN_REVIEW",
-    "verdict": "READY_STORAGE_LIFECYCLE_P5B_CONTROLLED_CUTOVER_REVIEW",
-    "next_action": "HUMAN_REVIEW_P5A_AUDIT_TRAIL_THEN_AUTHORIZE_OR_DECLINE_P5B"
+    "milestone": "STORAGE-LIFECYCLE-P5B Stage 3 -- controlled production HOT/COLD cutover",
+    "status": "HOLD_ACTIVATION_GATE_FAILED_NO_PRODUCTION_ACTION",
+    "verdict": "HOLD_P5B_STAGE3_PRODUCTION_ACTIVATION_NOT_IMPLEMENTED",
+    "next_action": "Implement/test/rehearse production activation and rollback integration, then resume Stage 3 from fresh preflight."
   },
   "ops_discovery_p3r_x": {
     "updated_at_utc": "2026-08-20T00:00:00Z",
@@ -31015,23 +31015,7 @@
     "switch_performed": false,
     "reload_performed": false,
     "old_db_state": "untouched, still live and being written by watchtower_listener as normal",
-    "next_action": "Human decision needed: either hard-disable the /api/analyze-all-coordinated-funders write path for the cutover window, or explicitly extend the P5B writer-quiesce/reload plan to cover watchtower_api as a writer, then retry P5B from Part 1 with a fresh census.",
-    "execution_attempts": [
-      {
-        "timestamp_utc": "2026-08-20T19:13:40Z",
-        "status": "HOLD",
-        "artifact": "docs/audits/storage_lifecycle_p5b_execution_hold.json",
-        "terminal_verdict": "HOLD_STORAGE_LIFECYCLE_P5B_FILE_LEVEL_CUTOVER_IMPLEMENTATION_MISSING",
-        "production_actions": "NONE",
-        "blocker": "Qualified writer quiesce exists, but no qualified P5B delta/copy/reconciliation/atomic-switch/rollback implementation exists.",
-        "exact_next_action": "Implement and rehearse the dedicated cutover runner; then repeat fresh P5B gates before any production writer stop.",
-        "integrity": {
-          "pre_update_sha256": "1c4b745896ff3a87750fc202d15f4a5e8918a4fa498d4ad12ade116af562be1f",
-          "current_milestone_sha256_before": "6c833d8a14314de4d28ff6d354eea3625d1f6ebad051ee1e7720bcc4652c7ee7",
-          "existing_p5b_record_sha256_before": "3c8b0da23c8e1d694e162f4e404b1bfcd7d6d4bf4412d81563c226029de74aa0"
-        }
-      }
-    ]
+    "next_action": "Human decision needed: either hard-disable the /api/analyze-all-coordinated-funders write path for the cutover window, or explicitly extend the P5B writer-quiesce/reload plan to cover watchtower_api as a writer, then retry P5B from Part 1 with a fresh census."
   },
   "storage_lifecycle_p5b_r1": {
     "milestone": "STORAGE-LIFECYCLE-P5B-R1 (resumed)",
@@ -31072,5 +31056,110 @@
       "cutover_performed": false
     },
     "next_step": "Real P5B cutover (delta copy, identity reconciliation, atomic HOT/COLD switch) remains gated on separate explicit human authorization. When authorized, use the proven stop/start orders and zero-writer-proof method from this R1 combined with P5A-benchmarked delta/reconciliation/switch timings."
+  },
+  "storage_lifecycle_p5b_r2": {
+    "milestone": "STORAGE-LIFECYCLE-P5B-R2 -- production HOT+COLD reader integration (code only, not activated)",
+    "status": "COMPLETE_AWAITING_SEPARATE_STAGE2_STAGE3_AUTHORIZATION",
+    "verdict": "READY_P5B_STAGE2_FINAL_QUIESCE_WITH_PRODUCTION_HOT_COLD_READER",
+    "objective": "Closed the gap found during P5B Stage 2: UnifiedTransferReader (src/ops/unified_transfer_reader.py) was fully qualified but had ZERO production call sites -- a cutover to bounded HOT + COLD segments would have silently made historical (>90-day) data invisible to real queries. This milestone adds a production-safe COLD segment registry + reader factory and wires representative HISTORICAL_HOT_COLD_REQUIRED consumers to it as new, tested, NOT-YET-ACTIVATED adapter code.",
+    "new_modules": [
+      "src/ops/cold_segment_registry.py (ColdSegmentRegistry, TransferReaderFactory, get_transfer_reader(), fail-closed by default)"
+    ],
+    "adapters_added_not_yet_wired_into_live_call_sites": [
+      "src/core/main.py: _transfer_graph_stats_totals_via_hot_cold()",
+      "src/ops/watchtower_candidates.py: funding_signature_for_quick_launch_via_hot_cold()",
+      "src/core/wallet_clustering.py: WalletClusteringEngine._compute_wallet_age_via_hot_cold()",
+      "src/core/transfer_indexer.py: get_funders_via_hot_cold()"
+    ],
+    "cold_only_signature_proof": {
+      "signature": "3D93c741cFbTCY9pxD11Xank2XqpdqWEeG1bbopb2wxodc8UT6saSDGyxViKcw52R33EqXTdgtaKQKLe5qMRDMiH",
+      "confirmed_absent_from_hot": true,
+      "confirmed_present_in": "transfer_index_cold_2021_10.sqlite",
+      "reader_lookup_result": "PASS -- 1 row correctly returned via the application-layer reader"
+    },
+    "parity_results": {
+      "watchtower_69_entities": "PASS (274/274 rows)",
+      "3sw2": "PASS (0/0 rows)",
+      "dv34": "PASS (69/69 rows, fresh-recomputed baseline, not the stale synthetic 123 figure)",
+      "cex_infra_0_1_2_hop": "PASS (5/5 checks)"
+    },
+    "tests": "tests/test_storage_lifecycle_p5b_r2_production_reader.py -- 22/22 passing",
+    "production_mutation_occurred": false,
+    "writer_services_quiesced": false,
+    "artifacts": [
+      "docs/audits/storage_lifecycle_p5b_r2_production_reader_integration.json"
+    ],
+    "next_action": "Stage 2 Parts 4-9 and Stage 3 (the actual cutover) remain separately gated and were NOT resumed by this milestone. A future, separately-authorized milestone must wire the adapters above into their live call sites and perform the writer-quiesce + atomic switch already qualified by STORAGE-LIFECYCLE-P5B-R1."
+  },
+  "storage_lifecycle_p5b_stage1": {
+    "milestone": "STORAGE-LIFECYCLE-P5B Stage 1 -- pre-cutover delta sync + readiness gate (production read-only throughout)",
+    "status": "COMPLETE_AWAITING_HUMAN_STAGE2_AUTHORIZATION",
+    "verdict": "STAGE1_READY_FOR_HUMAN_STAGE2_AUTHORIZATION_REVIEW",
+    "p5a_high_water": 6648855,
+    "p5b_precutover_high_water": 6743251,
+    "delta_row_counts": {
+      "source": 85934,
+      "hot": 80693,
+      "cold": 5241,
+      "hot_newly_inserted_this_session": 1
+    },
+    "delta_identity_reconciliation": "PASS -- digest match, 85934=85934, 0 missing/extra/conflicts",
+    "candidate_row_totals": {
+      "hot_total": 3568079,
+      "cold_total": 1740893
+    },
+    "production_mutation_occurred": false,
+    "services_stopped_or_restarted": false,
+    "atomic_switch_performed": false,
+    "artifacts": [
+      "docs/audits/storage_lifecycle_p5b_delta_reconciliation.json",
+      "docs/audits/storage_lifecycle_p5b_pre_cutover.json"
+    ],
+    "next_action": "HUMAN_AUTHORIZATION_REQUIRED_FOR_STAGE2 (writer quiesce + atomic switch), NOT sought or attempted by this session."
+  },
+  "storage_lifecycle_p5b_r2_2": {
+    "milestone": "STORAGE-LIFECYCLE-P5B-R2.2 -- exact fast path for /api/transfer-graph/stats full-history aggregate (code + tests only, not activated)",
+    "status": "COMPLETE_AWAITING_SEPARATE_STAGE3_AUTHORIZATION",
+    "verdict": "READY_P5B_STAGE2_FINAL_QUIESCE_ALL_GATES_CLOSED",
+    "objective": "Closed the performance gap R2.1 flagged: the exact HOT+COLD full-history aggregate for api_transfer_graph_stats() took 354.38s via naive per-connection SQL. Built an exact (not approximate) fast path: per-COLD-segment immutable digest-bound summaries + an incrementally-checkpointed HOT identity cache, merged at request time.",
+    "new_modules": [
+      "src/ops/transfer_graph_stats_summary.py (SegmentSummary, SummaryStore, HotCheckpointCache, build_all_summaries, compute_exact_stats, compute_exact_stats_fast -- NOT imported by src/core/main.py)"
+    ],
+    "performance": {
+      "baseline_seconds": 354.38,
+      "warm_call_latency_seconds_range": [
+        9.65,
+        16.52
+      ],
+      "improvement_factor": "~21x-35x",
+      "honest_caveat": "Warm latency is 'seconds' (~10-17s), not sub-second; residual cost is a ~420K-key Python dict merge + 42-file JSON deserialization, profiled and disclosed, not yet further optimized within this milestone."
+    },
+    "parity_results": {
+      "scalar_fields": "EXACT_PARITY (9/9 fields, zero mismatches)",
+      "top_funders": "EXACT_PARITY (50/50 rows identical)",
+      "overlap_raw": "LIMIT_BOUNDARY_TIE_ARTIFACT (199/200 rows identical; 1 row differs at a genuine unordered tie at the LIMIT=200 boundary)"
+    },
+    "empirical_finding": "signature IS disjoint across all 42 real COLD segments (sum-of-per-segment-counts == true union, zero pairwise overlaps in all 861 pairs checked); source/destination are NOT disjoint and are always stored/merged as real identity sets, never summed.",
+    "tests": "tests/test_storage_lifecycle_p5b_r2_2_aggregate_performance.py -- 16/16 passing; full existing suite (85 tests) + new file = 101/101 passing",
+    "production_mutation_occurred": false,
+    "writer_services_quiesced": false,
+    "artifacts": [
+      "docs/audits/storage_lifecycle_p5b_r2_2_transfer_graph_stats_performance.json"
+    ],
+    "next_action": "Stage-3 activation of api_transfer_graph_stats() (wiring compute_exact_stats_fast() into the live route via a per-worker-process singleton) remains a separate, not-yet-authorized milestone. Writer quiescence for any eventual cutover remains separately gated."
+  },
+  "storage_lifecycle_p5b_stage3": {
+    "milestone": "STORAGE-LIFECYCLE-P5B Stage 3 -- controlled production HOT/COLD cutover",
+    "status": "HOLD",
+    "artifact": "docs/audits/storage_lifecycle_p5b_cutover_execution.json",
+    "terminal_verdict": "HOLD_P5B_STAGE3_PRODUCTION_ACTIVATION_NOT_IMPLEMENTED",
+    "production_actions": "NONE",
+    "blocker": "No atomic activation/rollback executable; Supervisor lacks COLD-root configuration; required HOT+COLD adapters remain dormant.",
+    "exact_next_action": "Implement, test, and independently rehearse activation-map wiring, runtime configuration, atomic switch, and rollback before any writer quiescence.",
+    "integrity": {
+      "pre_update_sha256": "9e477c17215d2b47ea0d5d2b1d80ad90c20d7957eabf8e45057cc530b867eb78",
+      "prior_current_milestone_sha256": "e6fd6cffa66d53dab2cd6c0736dd8b30aaf4bc8930bca9472c2e9e392d458574",
+      "prior_p5b_record_sha256": "3c8b0da23c8e1d694e162f4e404b1bfcd7d6d4bf4412d81563c226029de74aa0"
+    }
   }
 }

@@ -31275,10 +31275,10 @@
   },
   "storage_lifecycle_p5e_r1": {
     "milestone": "STORAGE-LIFECYCLE-P5E-R1 -- immutable closed-segment remediation",
-    "status": "PARTIAL_FOCUSED_TESTS_PASS_FRESH_INVARIANT_RECHECK_INCOMPLETE",
+    "status": "HOLD_P5E_R1_PRE_REPAIR_INVARIANT_UNRESOLVED",
     "timestamp_utc": "2026-08-21T10:03:35Z",
     "artifact": "docs/audits/storage_lifecycle_p5e_r1_validation_hold.json",
-    "terminal_verdict": "HOLD_P5E_HISTORICAL_PARITY",
+    "terminal_verdict": "HOLD_P5E_R1_PRE_REPAIR_INVARIANT_UNRESOLVED",
     "production_actions": "NONE",
     "validation": "30 passed, 1 failed; no physical repair executed",
     "blocker": "Regression fixture contradicts its three-field HOT uniqueness constraint; repaired code remains unaccepted.",
@@ -31294,6 +31294,17 @@
       "exact_next_action": "Obtain successful bounded read-only invariant measurements for base digest/integrity, 439 HOT presence, 433 incident rows, 6 HOT-only identities, and rollback DB identity; only then execute the already-authorized base replacement and 433-row delta replay.",
       "integrity": {
         "pre_update_sha256": "070add64447cff15c83490367aae05050af538e45527522836c8d689e2e42492"
+      }
+    },
+    "invariant_recheck_attempt": {
+      "timestamp_utc": "2026-08-21T10:12:46Z",
+      "artifact": "docs/audits/storage_lifecycle_p5e_r1_pre_repair_invariant_unresolved.json",
+      "authorized": true,
+      "result": "NO_USABLE_RESULT_RETURNED",
+      "production_actions": "NONE",
+      "exact_next_action": "Diagnose/retry bounded read-only measurements; do not perform physical repair until all seven values are observed.",
+      "integrity": {
+        "pre_update_sha256": "36b436df6f4c1783348eedcde1d96698a4fcfb83beaf99de338f6e1fd696132c"
       }
     }
   }

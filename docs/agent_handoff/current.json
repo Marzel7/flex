@@ -31385,6 +31385,30 @@
       "integrity": {
         "pre_update_sha256": "04ea70b8dc6bd76f87a9ed5c7b1b58be0e549ad76dae7c6c890022be48a9357c"
       }
+    },
+    "r2_first_live_retirement": {
+      "milestone": "STORAGE-LIFECYCLE-P5E-R2 -- first live HOT retirement retry after immutable-segment remediation",
+      "timestamp_utc": "2026-08-21T11:00:00Z",
+      "artifact": "docs/audits/storage_lifecycle_p5e_r2_first_live_retirement.json",
+      "verdict": "READY_P5F_RECURRING_HOT_COLD_ROLLOVER_ACTIVATION_REVIEW",
+      "focused_tests": "32/32 passed",
+      "selected_batch": 500,
+      "copied": 500,
+      "retired": 500,
+      "cold_destination": "transfer_index_cold_2026_05_delta_7b8efffd1b33.sqlite (closed DELTA)",
+      "lock": "PASS -- lease 0.000241s; delete transaction 0.445089s; SQLITE_BUSY=0",
+      "accounting": "PASS at frozen high-water 6906172: HOT 3699696 - 500 = 3699196; logical history 5446648 exact before/after. 20 concurrent new HOT rows correctly excluded from boundary comparison.",
+      "post_retire_cold_read": "PASS",
+      "watchtower": "PASS -- no canonical mutation",
+      "three_sw2": "PASS",
+      "writers": "PASS -- all RUNNING; HOT max advanced 6906172 to 6906196",
+      "rollback": "PASS -- unchanged 6835535/5393999",
+      "automation_active": "NO",
+      "batches_run": 1,
+      "exact_next_action": "Await separate human authorization for P5F recurring rollover activation review; do not run another batch or install automation.",
+      "integrity": {
+        "pre_update_sha256": "04ea70b8dc6bd76f87a9ed5c7b1b58be0e549ad76dae7c6c890022be48a9357c"
+      }
     }
   }
 }

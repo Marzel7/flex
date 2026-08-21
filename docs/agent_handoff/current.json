@@ -31428,6 +31428,23 @@
       "integrity": {
         "pre_update_sha256": "04ea70b8dc6bd76f87a9ed5c7b1b58be0e549ad76dae7c6c890022be48a9357c"
       }
+    },
+    "p5f_r1_capacity_requalification": {
+      "milestone": "STORAGE-LIFECYCLE-P5F-R1 -- recurring rollover capacity requalification",
+      "timestamp_utc": "2026-08-21T11:30:00Z",
+      "artifacts": ["docs/audits/storage_lifecycle_p5f_r1_capacity_requalification.json", "docs/audits/storage_lifecycle_p5f_r1_multi_run_qualification.json", "docs/audits/storage_lifecycle_p5f_r1_scheduler_proposal.json"],
+      "verdict": "HOLD_P5F_MULTI_RUN_QUALIFICATION_EXECUTION_EVIDENCE_UNRESOLVED",
+      "eligible_flow_per_day": 8421,
+      "provisional_target": "20 independently leased x 500-row invocations/day = 10000/day, pending qualification",
+      "run_1": "Unqualified: harness emitted no result artifact. Read-only evidence: closed 500-row DELTA exists and 0 of its identities remain in HOT, but required timings/parity/COLD-read preservation evidence is absent.",
+      "runs_started": 1,
+      "runs_qualified": 0,
+      "runs_not_started": 2,
+      "automation_active": "NO",
+      "exact_next_action": "Use a durable file-backed execution mechanism to capture all mandatory per-run results before any further qualification batch or scheduler installation.",
+      "integrity": {
+        "pre_update_sha256": "04ea70b8dc6bd76f87a9ed5c7b1b58be0e549ad76dae7c6c890022be48a9357c"
+      }
     }
   }
 }

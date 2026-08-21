@@ -1,0 +1,23 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5B -- post-cutover observation window",
+  "observation_start_utc": "2026-08-21T08:09:09Z",
+  "recommended_duration": "24-72 hours before any P5C (old-DB retirement) review begins",
+  "cutover_reference": "docs/audits/storage_lifecycle_p5b_cutover_execution.json",
+  "watch_items": [
+    {"item": "writer health", "how": "supervisorctl status for watchtower_listener/creator_funding_worker/watchtower_api, all RUNNING with stable uptime, no crash-restart loops"},
+    {"item": "new HOT DB growth", "how": "SELECT COUNT(*)/MAX(id) FROM transfer_index on database/flex_complete_database.db should advance smoothly with normal traffic patterns, no stalls"},
+    {"item": "COLD segment visibility", "how": "spot-check historical queries via TransferReaderFactory continue to find COLD-only data correctly"},
+    {"item": "aggregate cache (R2.2 transfer-graph-stats)", "how": "if/when activated, warm-path latency should remain in the ~10-17s accepted range, not degrade"},
+    {"item": "DB lock incidents", "how": "grep logs/supervisor/*.log for 'database is locked', 'busy', sustained connection errors -- single transient retries are normal, storms are not"},
+    {"item": "API health", "how": "periodic curl to :5002, watch for 5xx responses or timeouts"},
+    {"item": "Watchtower/3SW2 canonical state", "how": "periodic digest re-check against the frozen baselines (8ec94921.../ecbd1426...) -- any change would be a serious, separate concern unrelated to this migration"},
+    {"item": "discovery/FUNDING_STRUCTURE", "how": "count should remain 8 unless a genuine new discovery occurs through normal operation"},
+    {"item": "free disk", "how": "monitor for unexpected growth beyond normal transfer_index accumulation; both the new HOT DB and the quarantined old DB (15.4GB) currently coexist on disk"},
+    {"item": "P2.2 storage lifecycle cron", "how": "confirm its allowlist (abandoned intelligence_snapshots/*.tmp.* only) does not expand scope or mistakenly target the new HOT DB, COLD segments, summary store, checkpoint cache, or the quarantined old DB"}
+  ],
+  "thresholds_for_concern": {
+    "immediate_rollback_trigger_if_seen": "missing transfer evidence, identity mismatch discovered post-hoc, Watchtower/3SW2 digest change, writer cannot persist to new HOT DB, old quarantined DB shows any write activity, sustained DB lock failures, critical API regression, COLD segment/summary corruption",
+    "investigate_but_not_necessarily_rollback": "isolated transient lock retries, minor latency variance in aggregate queries, disk usage growth consistent with normal traffic volume"
+  },
+  "next_milestone_not_yet_authorized": "STORAGE-LIFECYCLE-P5C -- old DB retirement/deletion review, requires separate explicit human authorization after the observation window concludes without incident."
+}

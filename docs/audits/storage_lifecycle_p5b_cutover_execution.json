@@ -1,0 +1,138 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5B -- controlled production HOT/COLD atomic cutover",
+  "authorization": "Explicit human final authorization, given directly in-conversation, following a staged checkpoint review of Stage 3A pre-switch reconciliation.",
+  "executed_by": "Orchestrating session directly, visibly, in-conversation -- NOT a background/subagent dispatch, per explicit human instruction after Claude Code's own auto-mode permission classifier declined an earlier attempt to dispatch the switch as a background agent action.",
+  "verdict": "STORAGE_LIFECYCLE_P5B_CUTOVER_COMPLETE_OBSERVATION_REQUIRED",
+
+  "final_micro_cycle": {
+    "reason": "Production writers were running against the old DB while the human reviewed the Stage 3A/3B checkpoint. Per explicit instruction, one final micro-quiesce/reconcile cycle was required before the atomic switch.",
+    "quiesce_timestamps_utc": {"start": "2026-08-21T08:03:15Z", "complete": "2026-08-21T08:03:40Z"},
+    "zero_writer_proof": {
+      "supervisor_state": "PASS -- all 3 STOPPED",
+      "process_census": "PASS -- no matching processes",
+      "lsof": "PASS -- only read-only handles present",
+      "write_lock_state": "benign stale RELEASE_PENDING record from a known non-transfer-writer process (rpc_metrics_recorder.py), zero waiters",
+      "max_id_stability": "PASS -- 6835535 flat across 6 polls over 30s",
+      "verdict": "ZERO_WRITER_PROOF_PASS"
+    },
+    "true_final_high_water": {"id": 6835535, "source_row_count": 5393999, "captured_at_unix": 1787299473.55},
+    "final_delta_reconciled": {
+      "range": "(6832866, 6835535]",
+      "rows_scanned": 2498,
+      "hot_written": 2498,
+      "cold_written": 0,
+      "duplicates": 0,
+      "elapsed_seconds": 7.12
+    },
+    "final_row_accounting": {
+      "hot_rows": 3647480,
+      "cold_rows": 1746519,
+      "sum": 5393999,
+      "matches_source": true,
+      "segment_count": 45
+    },
+    "final_identity_reconciliation": {
+      "method": "Streaming XOR-combined SHA256 digest over composite key (signature, source, destination, amount_lamports, block_time), bounded to id<=6835535",
+      "source_n": 5393999,
+      "source_digest": "0x221a707dd6d37fe3af27ce4d8248adcf",
+      "union_n": 5393999,
+      "union_digest": "0x221a707dd6d37fe3af27ce4d8248adcf",
+      "n_match": true,
+      "digest_match": true,
+      "missing": 0,
+      "extra": 0,
+      "content_conflicts": 0,
+      "verdict": "EXACT_PARITY -- FINAL GO/NO-GO PASS"
+    }
+  },
+
+  "atomic_switch": {
+    "switch_timestamp_utc": "2026-08-21T08:07:07.053Z",
+    "switch_complete_utc": "2026-08-21T08:07:07.060Z",
+    "elapsed_seconds": 0.0068,
+    "mechanism": "Two POSIX same-filesystem renames (device id 16777231 confirmed identical for database/ and database/_p5a_migration_build/ via stat -f): (1) database/flex_complete_database.db -> database/flex_complete_database.db.p5b_rollback_quarantine, (2) database/_p5a_migration_build/replacement_main.db -> database/flex_complete_database.db. No copy performed -- atomic, near-instant.",
+    "new_hot_db_size_bytes": 13815083008,
+    "old_quarantine_db_size_bytes": 15411294208
+  },
+
+  "old_db_quarantine": {
+    "original_path": "database/flex_complete_database.db",
+    "quarantine_path": "database/flex_complete_database.db.p5b_rollback_quarantine",
+    "size_bytes": 15411294208,
+    "represents_final_high_water": 6835535,
+    "represents_final_row_count": 5393999,
+    "quarantine_timestamp_utc": "2026-08-21T08:07:07Z",
+    "deletion_eligible": false,
+    "note": "Verified post-switch: quarantined file's MAX(id) and row count remain exactly frozen at 6835535/5393999 with no writes reaching it after the switch. Never deleted, VACUUMed, modified, or repurposed. Remains the rollback source through the observation window and beyond, until a separate P5C retirement decision."
+  },
+
+  "writer_downtime": {
+    "final_quiesce_start_utc": "2026-08-21T08:03:15Z",
+    "services_restarted_complete_utc": "2026-08-21T08:09:09Z",
+    "total_downtime_seconds": 354,
+    "note": "~5m54s total, dominated by the deliberate care taken at each verification step (zero-writer proof polling, final delta reconciliation, full identity reconciliation scan, atomic switch, runtime-target verification) rather than by the switch itself, which took 6.8 milliseconds."
+  },
+
+  "first_new_write_proof": {
+    "method": "Observed genuine organic production traffic for ~45+ seconds after service restart.",
+    "new_hot_max_id_before": 6835535,
+    "new_hot_max_id_after_traffic": 6843549,
+    "new_rows_confirmed_real": "Sampled 3 latest rows -- genuine, distinct signatures, current block_times, consistent with normal listener activity",
+    "quarantined_old_db_max_id_unchanged": true,
+    "quarantined_old_db_row_count_unchanged": true,
+    "verdict": "FIRST_NEW_WRITE_PROOF_PASS"
+  },
+
+  "production_cold_read_proof": {
+    "method": "Constructed a real TransferReaderFactory pointed at the NEW live production path (database/flex_complete_database.db, post-switch) + the real COLD segment root, queried a genuine COLD-only historical signature.",
+    "result": "1 row correctly retrieved via the new production path",
+    "verdict": "PRODUCTION_COLD_READ_PASS"
+  },
+
+  "protected_state_post_switch": {
+    "watchtower": {
+      "entity_count": 69,
+      "digest": "8ec949212e01f9147d3eefe3bcb90baf89d1049e8a3853c2b18d530679202f3a",
+      "matches_pre_switch_freeze": true,
+      "verdict": "WATCHTOWER_CANONICAL_HISTORY_PRESERVATION_PASS"
+    },
+    "three_sw2": {
+      "entity_count": 1,
+      "digest": "ecbd1426142468ed434f6daf5a6d943eb458afb6ac87dcd0aa0a2e7924d2f86b",
+      "matches_pre_switch_freeze": true,
+      "verdict": "PASS"
+    },
+    "dv34": {
+      "rows_via_new_hot_db": 70,
+      "matches_pre_switch_baseline": true
+    },
+    "funding_structure": {
+      "count": 8,
+      "matches_baseline": true,
+      "method": "data-level fetch_discovery_intake_candidates() count, not source-code grep"
+    }
+  },
+
+  "application_health": {
+    "api_http_status": 302,
+    "all_3_services_running": true,
+    "uptimes_seconds_at_verification": {"watchtower_listener": 173, "creator_funding_worker": 163, "watchtower_api": 157},
+    "lock_errors_in_logs": "none found in the Part 4-onward window",
+    "crash_loops": "none observed"
+  },
+
+  "current_free_disk_gib": 37.36,
+
+  "rollback_readiness": {
+    "rollback_was_triggered": false,
+    "old_db_available_for_rollback": true,
+    "rollback_procedure_if_needed": "1. quiesce all 3 writers, 2. prove zero writers, 3. mv database/flex_complete_database.db.p5b_rollback_quarantine back to database/flex_complete_database.db (reversing the same atomic rename), 4. verify identity via row count/MAX(id), 5. restart all 3 services, 6. verify health."
+  },
+
+  "observation_start": {
+    "recommended_window": "24-72 hours",
+    "artifact": "docs/audits/storage_lifecycle_p5b_observation_start.json"
+  },
+
+  "p5c_status": "NOT AUTHORIZED -- old DB retirement/deletion remains a separate, future milestone requiring its own explicit human authorization after the observation window."
+}

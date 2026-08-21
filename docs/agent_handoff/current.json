@@ -31176,5 +31176,42 @@
       "docs/audits/storage_lifecycle_p5b_stage3a_pre_switch_reconciliation.json"
     ],
     "next_action": "AWAIT_SEPARATE_HUMAN_AUTHORIZED_STAGE3B_DISPATCH_FOR_THE_ATOMIC_SWITCH_ITSELF"
+  },
+  "storage_lifecycle_p5b_cutover": {
+    "milestone": "STORAGE-LIFECYCLE-P5B -- controlled production HOT/COLD atomic cutover COMPLETE",
+    "verdict": "STORAGE_LIFECYCLE_P5B_CUTOVER_COMPLETE_OBSERVATION_REQUIRED",
+    "executed_directly_in_session_per_human_instruction_after_auto_mode_classifier_declined_background_dispatch": true,
+    "cutover_final_high_water": 6835535,
+    "cutover_final_source_row_count": 5393999,
+    "final_micro_delta_rows": 2498,
+    "final_hot_rows": 3647480,
+    "final_cold_rows": 1746519,
+    "final_segment_count": 45,
+    "final_identity_reconciliation": "EXACT_PARITY -- missing=0, extra=0, conflicts=0",
+    "switch_timestamp_utc": "2026-08-21T08:07:07.053Z",
+    "switch_elapsed_seconds": 0.0068,
+    "writer_downtime_seconds": 354,
+    "old_db_quarantine_path": "database/flex_complete_database.db.p5b_rollback_quarantine",
+    "old_db_deletion_eligible": false,
+    "new_hot_db_path": "database/flex_complete_database.db",
+    "new_hot_db_size_bytes": 13815083008,
+    "old_quarantine_db_size_bytes": 15411294208,
+    "first_new_write_proof": "PASS -- new HOT MAX(id) advanced 6835535->6843549 with genuine traffic, quarantined old DB frozen exactly at 6835535/5393999",
+    "production_cold_read_proof": "PASS -- via real TransferReaderFactory against the new live production path",
+    "watchtower_preservation": "PASS -- digest 8ec94921... byte-identical pre/post switch",
+    "three_sw2_preservation": "PASS -- digest ecbd1426... byte-identical",
+    "dv34": "70 rows via new HOT DB, unchanged",
+    "funding_structure": "8/8 unchanged",
+    "lock_health": "no lock errors or crash loops observed",
+    "current_free_disk_gib": 37.36,
+    "rollback_triggered": false,
+    "rollback_readiness": "old DB quarantined and available, rollback procedure documented in cutover_execution.json",
+    "observation_start_utc": "2026-08-21T08:09:09Z",
+    "observation_window_recommended": "24-72 hours",
+    "audit_artifacts": [
+      "docs/audits/storage_lifecycle_p5b_cutover_execution.json",
+      "docs/audits/storage_lifecycle_p5b_observation_start.json"
+    ],
+    "p5c_next_action": "NOT AUTHORIZED -- old DB retirement/deletion requires a separate, future, explicit human authorization after the observation window"
   }
 }

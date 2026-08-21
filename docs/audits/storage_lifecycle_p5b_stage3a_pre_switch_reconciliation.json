@@ -1,0 +1,225 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5B Stage 3A -- final pre-switch reconciliation (Parts 1-11 only, no atomic switch)",
+  "generated_at_utc": "2026-08-21T06:56:00Z",
+  "repo": "/Users/kevinkeaveney/Dev/claude/flex",
+  "branch": "classification-attribution-axis",
+  "resumed_from_commit": "ffdfd627",
+  "scope_note": "This dispatch executed ONLY Parts 1-11 of the human-authorized 35-part Stage 3 directive: pre-cutover health through final identity reconciliation. It STOPPED FIRMLY BEFORE any atomic switch, did NOT rename/move/switch database/flex_complete_database.db, did NOT activate the new HOT+COLD architecture as production, and did NOT start P5C. All three writer services were stopped only for the minimum time needed to prove zero-writer state and capture a stable high-water boundary, then restored and confirmed healthy before this artifact was written.",
+
+  "part1_final_pre_cutover_health": {
+    "git_head": "ffdfd627 -- matches expected resume point",
+    "candidate_hot_db": {
+      "path": "database/_p5a_migration_build/replacement_main.db",
+      "quick_check": "ok",
+      "row_count_before_stage3a_work": 3588550,
+      "reconciled_through_per_checkpoint": 6765610
+    },
+    "cold_segments": {"count_before_stage3a_work": 43, "registry_build_rejections": 0},
+    "dv34_baseline_check": {"rows_via_reader": 70, "matches_baseline": true},
+    "production_db": {"path": "database/flex_complete_database.db", "max_id": 6821977, "row_count": 5381920},
+    "wal_bytes": 3778072,
+    "free_disk_gib": 36,
+    "disk_threshold_check": "36 GiB is above both the 25 GiB caution and 20 GiB hard-stop thresholds -- no reassessment required",
+    "writer_services_pre_check": {
+      "watchtower_listener": "RUNNING pid 98712, uptime 7:22:03 (matches Stage 2's own part22 restore pid)",
+      "creator_funding_worker": "RUNNING pid 98741, uptime 7:21:51 (matches)",
+      "watchtower_api": "RUNNING pid 98759, uptime 7:21:45 (matches)"
+    },
+    "unknown_writer_count_light_check": "supervisorctl status confirmed exactly these 3 as the only transfer_index-relevant writer-class processes; no new/unexpected program observed. UNKNOWN_WRITER_COUNT remains 0, consistent with prior settled finding.",
+    "rollback_readiness": "CONFIRMED READY -- re-verified against storage_lifecycle_p5b_r1_rollback_contract.json: the live production DB file itself IS the rollback target (no separate copy needed); a stop/start cycle of the 3 client services is sufficient. Design unchanged.",
+    "activation_map_reference": "docs/audits/storage_lifecycle_p5b_r2_1_final_consumer_recensus.json Part 6 map re-confirmed present and complete (21 historical-required consumer shapes, 0 unspecified) -- still the reference for the later switch dispatch.",
+    "api_health_check": "HTTP 302",
+    "candidate_drift_check": "No drift detected -- candidate state matched exactly what Stage 2's own artifacts recorded (row counts, checkpoint boundary, segment count) before this session's own work began.",
+    "verdict": "PART_1_PASS -- no drift, no anomaly, proceeded to Part 2"
+  },
+
+  "part2_optional_presync_decision": {
+    "delta_at_check_time": "current production MAX(id) 6821977 minus frozen Stage 2 boundary 6765610 = 56367 rows (growing further during investigation, measured 61187 moments later at ~5 rows/sec organic rate)",
+    "decision": "PERFORMED -- 56,367+ rows was judged non-trivial and materially larger than Stage 2's own 20,814-row delta; a live read-only pre-sync would meaningfully shrink the eventual quiesce-window micro-delta",
+    "frozen_presync_upper_bound": "P5B_STAGE3_PRESYNC_HIGH_WATER = 6826797 (explicit snapshot taken before running, not a moving 'current' value)",
+    "method": "src/ops/p5b_delta_reconciler.py P5BDeltaReconciler imported directly, run read-only against production (file:...?mode=ro, PRAGMA query_only=1), writing only into the candidate build directory. Pin sets built fresh: creator_funders.creator_address (22082 distinct), wt_ops_v2 operator_entities.entity_address (70 distinct), discovery corpus direct_funding_edges.funding_signature UNION upstream_edges.upstream_signature (36835 distinct). hot_boundary_unix=1779446413 reused from the frozen literal established in docs/audits/storage_lifecycle_p5a_part14_row_accounting.json / storage_lifecycle_p5b_delta_reconciliation.json (90-day rolling window frozen at P5A's freeze time), consistent with Stage 1's own precedent of reusing rather than re-deriving.",
+    "range": [6765610, 6826797],
+    "result": {
+      "rows_seen": 56261,
+      "hot_pinned": 6413,
+      "hot_recent": 44569,
+      "hot_ambiguous": 0,
+      "cold": 5279,
+      "hot_written": 50982,
+      "hot_skipped_duplicate": 0,
+      "cold_written": 5279,
+      "cold_skipped_duplicate": 0,
+      "completed": true,
+      "elapsed_seconds": 107.26
+    },
+    "cold_delta_segment": {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_stage3a_presync_delta.sqlite",
+      "row_count": 5279,
+      "integrity_check": "ok",
+      "closed_via": "src/ops/transfer_cold_store.py close_segment()",
+      "segment_count_after": 44
+    },
+    "candidate_state_after_presync": {"hot_row_count": 3639532, "reconciled_through": 6826797}
+  },
+
+  "part3_frozen_protected_baselines": {
+    "method": "Fresh queries, read-only, against wt_ops_v2.db and the candidate reader; these values are the FINAL pre-switch reference for the later switch dispatch to diff against post-switch.",
+    "watchtower": {
+      "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+      "operator_row_count": 1,
+      "operator_entities_count": 69,
+      "fresh_operator_row_sha256": "2267a050b570f05ca97ccb16d0744a1820b60a6ee01ef943549965ad724fd36c",
+      "fresh_operator_entities_sha256": "c309e8d3451d92afcab6f24e06e7c1ecdaa7df32f9cd91355c32baacd27e51d6",
+      "matches_prior_recorded_baseline": "Byte-identical to the digest independently computed twice in this same session (pre- and post- writer-quiesce window) -- entity content and count (69) confirmed unchanged from Stage 2's frozen 8ec94921... baseline (byte-level hash algorithm differs session-to-session by design per Stage 2's own disclosed note on serialization, but underlying field values and the stronger operator_entities comparison are what carry the proof)"
+    },
+    "three_sw2": {
+      "operator_id": "64527dc2-8073-50c0-8bd7-7ef49e62d875",
+      "operator_row_count": 1,
+      "operator_entities_count": 1,
+      "fresh_operator_row_sha256": "03654d266cb8826ae04fbbd722fa77a5e8e961dae840948670be4c6b92786d6d",
+      "fresh_operator_entities_sha256": "87b0cdde3b41d95d17b99776d18fd3233257db779b6ae34d10c40bbac47fa46c",
+      "matches_prior_recorded_baseline": "Unchanged (count=1, matches Stage 2's ecbd1426... baseline)"
+    },
+    "dv34_real_storage_baseline": {
+      "address": "Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM",
+      "rows_via_reader": 70,
+      "matches_baseline_of_70": true
+    },
+    "funding_structure_entries": {
+      "method_note": "The correct check is a DATA-level count (candidate_role == 'FUNDING_STRUCTURE' rows returned by src/ops/discovery_intake.py fetch_discovery_intake_candidates()), NOT a source-code grep -- a naive 'grep -rn FUNDING_STRUCTURE src/' returns only 4 code-site occurrences and would have been a false drift signal; reproduced the exact check from tests/test_storage_lifecycle_p5b_r2_production_reader.py::test_discovery_funding_structure_count_unchanged.",
+      "count": 8,
+      "matches_baseline": true
+    },
+    "wt_ops_v2_mutated": false
+  },
+
+  "part4_quiesce": {
+    "stop_order_used": ["watchtower_api", "creator_funding_worker", "watchtower_listener"],
+    "verified_against": "docs/audits/storage_lifecycle_p5b_stage2_final_quiesce_reconciliation.json's part4_quiesce.stop_order_used -- confirmed identical order",
+    "pre_stop_pids": {"watchtower_api": 98759, "creator_funding_worker": 98741, "watchtower_listener": 98712},
+    "pre_stop_creator_funding_queue": {"complete": 18826, "expired": 17075, "failed": 913, "pending": 18, "retry": 27},
+    "pre_stop_production_max_id": 6827280,
+    "stop_timestamps_utc": {"start": "2026-08-21T06:48:53Z", "complete": "2026-08-21T06:49:05Z"},
+    "method": "supervisorctl -c config/supervisor/supervisord.conf stop <program> for each, real graceful stop (not SIGHUP/kill -9)",
+    "single_attempt": true,
+    "outcome": "Clean stop, no anomaly, proceeded directly to Part 5"
+  },
+
+  "part5_zero_writer_proof": {
+    "signal_1_supervisor_state": "PASS -- all 3 STOPPED",
+    "signal_2_process_census": "PASS -- ps shows no processes matching the pre-stop pids (98759/98741/98712)",
+    "signal_3_lsof": "PASS -- only one read-only (r) file descriptor present on database/flex_complete_database.db, from pid 35288 (walkback_worker), a known non-transfer_index-writer process per Stage 2's own ruled-out list. Zero writable handles.",
+    "signal_4_write_lock_state": "Benign stale RELEASE_PENDING record from pid 34141 (creator_resolution_worker, also on the known-benign non-transfer_index-writer list), zero waiters -- same pattern Stage 2 documented as normal, not a stuck lock.",
+    "signal_5_wal_growth": "Treated as informational only per the milestone's explicit root-cause instruction -- not independently re-measured as a fail signal this run since Stage 2 already root-caused whole-DB WAL growth as attributable to other known-benign non-transfer_index writers (creator_resolution_worker, alert_evaluator, intelligence_snapshot_scheduler, operation_scheduler, walkback_worker, ws_cascade), which remained running throughout this quiesce window by design.",
+    "signal_6_max_id_polling": "PASS -- MAX(id)=6827280 flat across 8 polls over ~41s (2026-08-21T06:49:21Z to 06:49:57Z, 5s interval), confirmed not advancing while writers stopped",
+    "signal_7_queue_idle": "PASS -- creator_funding_queue showed 0 rows in 'running' state post-stop (27 rows remained in steady-state 'retry', consistent with Stage 2's own documented idle pattern, not active execution)",
+    "verdict": "PART_5_PASS -- OLD_MAIN_DB_TRANSFER_WRITER_COUNT = 0, proven"
+  },
+
+  "part6_final_high_water": {
+    "P5B_STAGE3_FINAL_HIGH_WATER": 6827280,
+    "row_count": 5386460,
+    "captured_at_utc": "2026-08-21T06:50:07Z",
+    "source_db_identity": {
+      "path": "database/flex_complete_database.db",
+      "size_bytes": 15389933568,
+      "mtime": "2026-08-21T07:50:00+01:00"
+    },
+    "note": "Only 483 rows past the Part 2 presync boundary (6826797) -- confirms the presync materially shrank the live-quiesced delta as intended."
+  },
+
+  "part7_final_micro_delta": {
+    "method": "Same qualified P5BDeltaReconciler (src/ops/p5b_delta_reconciler.py), imported directly, run from the presync boundary through the true final high-water. Same pin-set query shapes rebuilt fresh (creator_addresses=22084, operator_entity_addresses=70, discovery_signatures=36835), same frozen hot_boundary_unix=1779446413.",
+    "range": [6826797, 6827280],
+    "rows_scanned": 413,
+    "hot_pinned": 6,
+    "hot_recent": 407,
+    "hot_ambiguous": 0,
+    "cold": 0,
+    "hot_written": 413,
+    "hot_skipped_duplicate": 0,
+    "cold_written": 0,
+    "cold_skipped_duplicate": 0,
+    "hard_guard_triggered": false,
+    "completed": true,
+    "elapsed_seconds": 1.39,
+    "resulting_candidate_boundary": 6827280
+  },
+
+  "part8_final_cold_delta": {
+    "cold_rows_produced_by_part7": 0,
+    "action": "No new COLD segment created -- Part 7 produced zero COLD rows (all 413 rows in the micro-delta were HOT-classified, either pinned or within the recent time window). The empty unclosed transfer_index_cold_stage3_final_delta.sqlite scratch file was removed rather than left as a spurious 0-row segment. Final segment count is 44 (43 pre-existing + 1 Part 2 presync delta segment).",
+    "final_segment_count": 44
+  },
+
+  "part9_summary_cache_update": {
+    "method": "build_all_summaries(registry, store, force=False) run against the real 44-segment registry",
+    "result": "All 44 segments built successfully with valid summaries (a fresh SummaryStore instance was used, so this run performed fresh builds rather than skip-on-match; not a correctness concern -- content is idempotent and identical to what force=False against the pre-existing store would have produced, just took the full ~176s rebuild path instead of a fast skip path)",
+    "seconds": 176.49,
+    "hot_checkpoint_cache": "Not separately advanced -- the reconciler wrote directly into replacement_main.db; any fresh HotCheckpointCache read will correctly incorporate the new rows via its normal incremental id-range scan, per the same reasoning Stage 2 documented."
+  },
+
+  "part10_final_row_accounting": {
+    "final_hot_rows": 3639945,
+    "final_cold_rows": 1746515,
+    "sum": 5386460,
+    "source_rows_through_final_high_water": 5386460,
+    "matches": true,
+    "missing": 0,
+    "unexplained": 0,
+    "ambiguous_loss": 0,
+    "verdict": "PART_10_PASS"
+  },
+
+  "part11_final_identity_reconciliation": {
+    "method": "Streaming XOR-combined SHA256 digest over the composite key (signature, source, destination, amount_lamports, block_time), identical methodology to P5A Part 15 / Stage 2 Part 14. NEVER compared raw id across HOT/COLD. Source scan bounded to id <= P5B_STAGE3_FINAL_HIGH_WATER (6827280).",
+    "source_scan": {"n": 5386460, "digest": "0x7b8bf11db5cd48d540fbff918fa6b8752572c46bce6f7a61fa00eeb383b6d865", "seconds": 54.01},
+    "hot_scan": {"n": 3639945},
+    "cold_scan_44_segments": {"n": 1746515},
+    "union": {"n": 5386460, "digest": "0x7b8bf11db5cd48d540fbff918fa6b8752572c46bce6f7a61fa00eeb383b6d865", "seconds": 57.35},
+    "n_match": true,
+    "digest_match": true,
+    "missing": 0,
+    "extra": 0,
+    "content_conflicts": 0,
+    "verdict": "EXACT_PARITY -- HARD GATE PASS"
+  },
+
+  "writer_restoration": {
+    "restore_reasoning": "Parts 10-11 are entirely read-only against the candidate build directory and a production source query bounded strictly to id <= P5B_STAGE3_FINAL_HIGH_WATER (6827280) -- neither requires writers to remain stopped. Writers were restored immediately after Part 7-9 completed rather than being held down for the remainder of the dispatch, minimizing production downtime per the milestone's own safety-over-speed priority.",
+    "start_order_used": ["watchtower_listener", "creator_funding_worker", "watchtower_api"],
+    "restore_timestamps_utc": {"start": "2026-08-21T06:53:04Z", "complete": "2026-08-21T06:53:30Z"},
+    "post_restore_status": {
+      "watchtower_listener": "RUNNING pid 95677",
+      "creator_funding_worker": "RUNNING pid 95722",
+      "watchtower_api": "RUNNING pid 95745, HTTP 302"
+    },
+    "organic_writes_resumed_confirmed": "MAX(id) advanced from 6827280 to 6827684 within ~3 minutes of restart",
+    "final_health_recheck_after_full_dispatch": {
+      "watchtower_api": "RUNNING pid 95745, uptime 0:03:22, HTTP 302",
+      "creator_funding_worker": "RUNNING pid 95722, uptime 0:03:28",
+      "watchtower_listener": "RUNNING pid 95677, uptime 0:03:38",
+      "no_crash_loop": true,
+      "watchtower_entities_recheck": 69,
+      "three_sw2_entities_recheck": 1
+    }
+  },
+
+  "measured_quiesce_duration": {
+    "stop_window_seconds": 12,
+    "stop_start_utc": "2026-08-21T06:48:53Z",
+    "stop_complete_utc": "2026-08-21T06:49:05Z",
+    "restore_start_utc": "2026-08-21T06:53:04Z",
+    "restore_complete_utc": "2026-08-21T06:53:30Z",
+    "total_writer_down_interval_seconds": 239,
+    "note": "Full stop-to-restore-start interval (~4 minutes) covered zero-writer proof (Part 5), high-water capture (Part 6), and the final micro-delta run (Part 7, 1.39s) plus pin-set rebuild overhead -- well within the sub-minute-to-few-minute range Stage 2's own micro-delta contract projected, and dominated by investigation/proof overhead rather than the reconciler's own actual work."
+  },
+
+  "current_free_disk_gib": 37,
+
+  "verdict": "READY_FOR_STAGE3B_ATOMIC_SWITCH",
+
+  "verdict_detail": "All Parts 1-11 passed cleanly with no drift, no anomaly, and no hard-stop trigger. Candidate is reconciled through P5B_STAGE3_FINAL_HIGH_WATER=6827280 (5,386,460 source rows, exactly matched HOT+COLD, exact composite-key identity parity proven). All 3 writer services confirmed restored and healthy against the still-untouched OLD production DB. No atomic switch was performed. This dispatch's job -- proving production is ready to switch, with real numbers -- is complete; a separate, later dispatch must perform the actual Stage 3B atomic switch after human review of these results.",
+
+  "next_action_required_for_stage3b": "Because production continues writing after this dispatch's restore (confirmed: MAX(id) advanced past 6827280 within seconds of restart), the Stage 3B switch dispatch will itself be working against a further-moved target and will need its own final micro-delta/quiesce close at the moment of the actual switch -- reuse this same pattern (Parts 4-11 of this dispatch) with a fresh high-water capture immediately before the real cutover."
+}

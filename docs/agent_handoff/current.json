@@ -534,12 +534,12 @@
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
   "current_milestone": {
-    "milestone": "STORAGE-LIFECYCLE-P5B Stage 2 -- final quiesce and reconciliation (writer-quiesce core re-validated live, delta/reconciliation pipeline deferred)",
-    "status": "PARTIAL_WRITER_QUIESCE_REVALIDATED_SERVICES_RESTORED",
-    "verdict": "SEE docs/audits/storage_lifecycle_p5b_stage2_final_quiesce_reconciliation.json -- NOT READY_P5B_STAGE3_ATOMIC_SWITCH (Parts 7-21 delta-copy/identity-reconciliation/parity-suite not yet run)",
-    "final_high_water_captured": 6765610,
+    "milestone": "STORAGE-LIFECYCLE-P5B Stage 3A -- final pre-switch reconciliation (Parts 1-11 only, no atomic switch)",
+    "status": "READY_FOR_STAGE3B_ATOMIC_SWITCH",
+    "verdict": "SEE docs/audits/storage_lifecycle_p5b_stage3a_pre_switch_reconciliation.json -- Parts 1-11 all PASS, identity reconciliation EXACT_PARITY hard gate PASS, all 3 writer services restored/healthy, no atomic switch performed",
+    "final_high_water_captured": 6827280,
     "all_3_writer_services_confirmed_running": true,
-    "next_action": "RESUME_P5B_STAGE2_PARTS_7_THROUGH_21_NO_FURTHER_DOWNTIME_NEEDED_UNTIL_REAL_STAGE3_SWITCH"
+    "next_action": "AWAIT_SEPARATE_HUMAN_AUTHORIZED_STAGE3B_DISPATCH_FOR_THE_ATOMIC_SWITCH_ITSELF"
   },
   "ops_discovery_p3r_x": {
     "updated_at_utc": "2026-08-20T00:00:00Z",
@@ -31161,5 +31161,20 @@
       "docs/audits/storage_lifecycle_p5b_r2_2_transfer_graph_stats_performance.json"
     ],
     "next_action": "Stage-3 activation of api_transfer_graph_stats() (wiring compute_exact_stats_fast() into the live route via a per-worker-process singleton) remains a separate, not-yet-authorized milestone. Writer quiescence for any eventual cutover remains separately gated."
+  },
+  "storage_lifecycle_p5b_stage3a": {
+    "milestone": "STORAGE-LIFECYCLE-P5B Stage 3A -- final pre-switch reconciliation (Parts 1-11 only, no atomic switch)",
+    "status": "READY_FOR_STAGE3B_ATOMIC_SWITCH",
+    "verdict": "READY_FOR_STAGE3B_ATOMIC_SWITCH",
+    "production_actions": "Read-only against production throughout except a bounded ~4-minute real writer quiesce (2026-08-21T06:48:53Z - 06:53:30Z) to prove zero-writer state and capture the final high-water; all 3 writer services restored and confirmed healthy before this update. No atomic switch performed.",
+    "final_high_water": 6827280,
+    "final_hot_rows": 3639945,
+    "final_cold_rows": 1746515,
+    "final_segment_count": 44,
+    "identity_reconciliation_verdict": "EXACT_PARITY -- HARD GATE PASS",
+    "artifacts": [
+      "docs/audits/storage_lifecycle_p5b_stage3a_pre_switch_reconciliation.json"
+    ],
+    "next_action": "AWAIT_SEPARATE_HUMAN_AUTHORIZED_STAGE3B_DISPATCH_FOR_THE_ATOMIC_SWITCH_ITSELF"
   }
 }

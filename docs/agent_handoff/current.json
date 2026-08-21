@@ -31352,6 +31352,22 @@
       "integrity": {
         "pre_update_sha256": "04ea70b8dc6bd76f87a9ed5c7b1b58be0e549ad76dae7c6c890022be48a9357c"
       }
+    },
+    "d5_integrity_gate_reconciliation": {
+      "milestone": "STORAGE-LIFECYCLE-P5E-R1-D5 -- integrity-gate reconciliation under harness limitation",
+      "timestamp_utc": "2026-08-21T10:40:00Z",
+      "artifact": "docs/audits/storage_lifecycle_p5e_r1_d5_integrity_gate_reconciliation.json",
+      "verdict": "P5E_R1_PRE_REPAIR_INVARIANTS_RECONFIRMED",
+      "integrity_gate": "P5E_R1_INTEGRITY_GATE_SATISFIED_WITH_HARNESS_LIMITATION",
+      "full_current_integrity_check": "NOT_COMPLETABLE_IN_CURRENT_HARNESS",
+      "current_structural_integrity": "PASS",
+      "historical_post_incident_full_integrity": "PASS -- file-backed Phase 1 result integrity_check=ok for the exact 319751-row affected May file, with same size/mtime as fresh structural metadata",
+      "remaining_invariants": "PASS -- May digest, both verified reconstructions, HOT 439/439, exact 433 appended rows, six signature-collision rows, frozen rollback DB, and required service health",
+      "production_actions": "NONE",
+      "exact_next_action": "Perform the already-authorized immutable R1 repair: quarantine mutated May base, atomically install verified 319318-row reconstruction, publish exact 433-row delta, then complete parity/idempotence/preservation checks. No HOT retirement.",
+      "integrity": {
+        "pre_update_sha256": "04ea70b8dc6bd76f87a9ed5c7b1b58be0e549ad76dae7c6c890022be48a9357c"
+      }
     }
   }
 }

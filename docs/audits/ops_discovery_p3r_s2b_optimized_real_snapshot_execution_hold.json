@@ -1,0 +1,60 @@
+{
+  "milestone": "OPS-DISCOVERY-P3R-S2B one real provenance-safe optimized source snapshot",
+  "verdict": "HOLD_P3R_S2B_SOURCE_SNAPSHOT_INCOMPLETE_WITHIN_300S",
+  "run": {
+    "run_id": "s2b-source-snapshot-20260822T150007284438000Z-c863450ee1a53f5a092d4ace13922b7e",
+    "screen_session": "94869.p3rs2bcac0c062a8198daa",
+    "mechanism": "qualified detached GNU screen one-shot",
+    "launch_timestamp_utc": "2026-08-22T15:00:07Z",
+    "wrapper_started_at_utc": "2026-08-22T15:00:08.474909Z",
+    "runner_started_at_utc": "2026-08-22T15:00:08.477080Z",
+    "terminal_at_utc": "2026-08-22T15:05:03.095655Z",
+    "wrapper_elapsed_seconds": 294.620746,
+    "runner_exit_code": -15,
+    "terminal_wrapper_status": "HOLD_RUNNER_ERROR",
+    "automatic_retry": false
+  },
+  "preflight": {
+    "published_handoff_sha256": "2dc8a8d0bbab2b444fcb9b2afc2415badff81dea9e153da0c234145b79901066",
+    "optimization_qualification_sha256": "49a43e1d89a6afe57027bd22486ece9cfb5f2e7c6b6d764bf8d210b6ed123540",
+    "optimized_runner_sha256": "02101c5b8184b504af94b957457145c226fdafa2ef7c7f4dbc85bc3406373e31",
+    "provenance_wrapper_sha256": "073ae8b271b2261d11e0ae55ac12c8c70af08b983243e3a07e96e7c7fb509a22",
+    "screen_version": "4.00.03 (FAU) 23-Oct-06",
+    "source": {"path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db", "size_bytes": 15126700032, "schema_version": 816, "mode": "ro/query_only", "select_one": 1},
+    "bound_seconds": 300,
+    "legacy_quarantine_hashes_unchanged": {"terminal_audit": "d585d353af6d4e4a64c026ef7c1fbe77472abfd77e687b5e0983b02659abfa58", "temporary_snapshot": "8812ad675a1de997fa5dd7bb506e1446ff72c43a353308f2a8d98d69a49f942e"}
+  },
+  "provenance_and_contract": {
+    "started_checkpoint_observed": true,
+    "wrapper": {"pid": 94879, "ppid": 94872, "cwd": "/Users/kevinkeaveney/Dev/claude/flex"},
+    "runner": {"pid": 94891, "ppid": 94879},
+    "exact_surfaces": ["token_analysis(mint,pf_ws_creator)", "pumpfun_migration_verification(mint)"],
+    "read_mode": "sqlite_uri_mode_ro_query_only_single_transaction",
+    "canonicalization": "unchanged compact JSON array/newline/SHA-256 mint ASC canonical order",
+    "provider_calls_made": 0,
+    "production_source_database_writes": 0
+  },
+  "incomplete_disposition": {
+    "runner_audit_status": "STARTED only; no COMPLETE/HOLD result was emitted by the runner before termination",
+    "observed_work": "run-local unordered capture stage existed, followed by an active final candidate SQLite commit with journal; no final snapshot.sqlite was created",
+    "termination_reason": "At 294.620746 seconds the runner remained in final local materialization/commit work with no candidate promotion or replay result. The runner child alone was sent SIGTERM to prevent an over-bound execution; the wrapper then recorded exit -15 and HOLD_RUNNER_ERROR.",
+    "candidate_temp_final_authority": "none; all run-scoped capture, candidate, temporary, and journal artifacts remain non-authoritative and must not be consumed, promoted, repaired, or reused",
+    "replay_integrity": "not reached",
+    "per_surface_counts_high_waters_digests": "not completed",
+    "top_level_boundary_digest": "not produced",
+    "wrapper_promotion": "not performed"
+  },
+  "scope_confirmations": {
+    "exactly_one_real_snapshot_launch": true,
+    "population_reproduction_executed": false,
+    "identities_selected_or_frozen": false,
+    "cohort_formed": false,
+    "s2a_amendment_unchanged": true,
+    "existing_funding_structures_unchanged": 8,
+    "p5f_untouched": true,
+    "authoritative_source_boundary_promoted": false,
+    "legacy_ambiguous_artifacts_untouched": true
+  },
+  "preserved_source_boundary_verdict": "HOLD_P3R_S2B_SOURCE_BOUNDARY_UNRESOLVED",
+  "next_authorization_required": "Authorize a bounded diagnosis of the final local snapshot materialization/commit stage and the runner wall-time enforcement gap. Do not retry the current implementation, increase the bound, or run population reproduction."
+}

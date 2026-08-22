@@ -555,6 +555,23 @@
     "p5f_scheduler_untouched": true,
     "next_action": "BEGIN_OPS_DISCOVERY_P3R_S2_ONLY_FROM_BASELINE_bc78b062"
   },
+  "ops_discovery_p3r_s2b_host_execution": {
+    "updated_at_utc": "2026-08-22T00:00:00Z",
+    "status": "HOLD",
+    "verdict": "HOLD_P3R_S2B_POPULATION_REPRODUCTION_UNRESOLVED",
+    "baseline_commit": "28339773",
+    "execution": {"method": "nohup host launch", "result": "PROCESS_EXITED_BEFORE_RUNNER_STARTED; NO_AUDIT_MANIFEST_TEMP_OR_LOG"},
+    "query_started": false,
+    "population_reproduced": false,
+    "identities_selected_or_frozen": false,
+    "cohort_formed": false,
+    "provider_calls_made": 0,
+    "production_writes": 0,
+    "s2a_amendment_unchanged": true,
+    "existing_funding_structures_unchanged": 8,
+    "p5f_scheduler_untouched": true,
+    "next_action": "REQUIRES_SEPARATE_AUTHORIZATION_FOR_A_VERIFIABLE_PERSISTENT_HOST_LAUNCH_MECHANISM_THAT_CAN_CONFIRM_RUNNER_START_AND_CAPTURE_ITS_EXISTING_120_SECOND_TERMINAL_AUDIT; NO_QUERY_OR_IDENTITY_SCOPE_CHANGE"
+  },
   "ops_discovery_p3r_s2b_reproduction_execution": {
     "updated_at_utc": "2026-08-22T00:00:00Z",
     "status": "HOLD",

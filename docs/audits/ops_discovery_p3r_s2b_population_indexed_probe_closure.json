@@ -1,0 +1,29 @@
+{
+  "milestone": "OPS-DISCOVERY-P3R-S2B-INDEXED-POPULATION-PROBE",
+  "status": "HOLD",
+  "verdict": "HOLD_P3R_S2B_POPULATION_REPRODUCTION_UNRESOLVED",
+  "provider_calls_made": 0,
+  "production_writes": 0,
+  "identity_selection": false,
+  "cohort_formed": false,
+  "s2a_amendment_modified": false,
+  "execution": {
+    "approach": "schema-indexed EXISTS equivalent using token_analysis INDEXED BY idx_ta_pf_ws_creator and pumpfun_migration_verification primary-key existence",
+    "bound": {"wall_seconds": 20, "max_progress_calls": 100000, "progress_opcode_interval": 1000, "returned_rows_max": 1},
+    "outcome": "BOUND_EXCEEDED",
+    "elapsed_seconds": 20.00181,
+    "progress_calls": 799,
+    "sqlite_exception": "OperationalError: interrupted",
+    "population_count": null
+  },
+  "semantic_equivalence_status": "NOT_PUBLISHED",
+  "artifact_generation_failure": "The planned pre-execution equivalence artifact generator raised NameError because it used Python identifier false instead of False. No equivalence artifact was created and the failure was not repaired or rerun.",
+  "preservation": {
+    "existing_funding_structures_unchanged": 8,
+    "watchtower_unchanged": true,
+    "three_sw2_unchanged": true,
+    "p5f_scheduler_untouched": true,
+    "storage_untouched": true
+  },
+  "next_action": "REQUIRES_FURTHER_EXPLICIT_AUTHORIZATION_TO_REPAIR_THE_EQUIVALENCE_ARTIFACT_GENERATOR_OR_USE_ANOTHER_BOUNDED_READ_ONLY_REPRODUCTION_PATH; NO_IDENTITY_SELECTION_AUTHORIZED"
+}

@@ -16,6 +16,16 @@ JOIN pumpfun_migration_verification AS pmv ON ta.mint = pmv.mint
 WHERE ta.pf_ws_creator IS NOT NULL
 """.strip()
 
+INDEXED_EXISTS_QUERY = """
+SELECT COUNT(*)
+FROM token_analysis AS ta INDEXED BY idx_ta_pf_ws_creator
+WHERE ta.pf_ws_creator IS NOT NULL
+  AND EXISTS (
+      SELECT 1 FROM pumpfun_migration_verification AS pmv
+      WHERE pmv.mint = ta.mint
+  )
+""".strip()
+
 
 def write_result(path: Path, payload: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -29,9 +39,12 @@ def main() -> int:
     parser.add_argument("--db", default="database/flex_complete_database.db")
     parser.add_argument("--result-path", required=True)
     parser.add_argument("--expected-count", type=int, default=40301)
+    parser.add_argument("--schema-indexed-equivalent", action="store_true")
     parser.add_argument("--wall-seconds", type=float, default=20.0)
     parser.add_argument("--max-progress-calls", type=int, default=100000)
     args = parser.parse_args()
+    query = INDEXED_EXISTS_QUERY if args.schema_indexed_equivalent else QUERY
+    query_kind = "schema_indexed_exists_equivalent" if args.schema_indexed_equivalent else "frozen_original"
     result_path = Path(args.result_path)
     started = time.monotonic()
     common = {
@@ -40,7 +53,8 @@ def main() -> int:
         "production_writes": 0,
         "read_mode": "sqlite_uri_mode_ro_query_only",
         "source_db": args.db,
-        "query": QUERY,
+        "query": query,
+        "query_kind": query_kind,
         "expected_population_count": args.expected_count,
         "bounds": {"wall_seconds": args.wall_seconds, "max_progress_calls": args.max_progress_calls, "progress_opcode_interval": 1000, "returned_rows_max": 1},
     }
@@ -55,7 +69,7 @@ def main() -> int:
         conn = sqlite3.connect(uri, uri=True, timeout=5)
         conn.execute("PRAGMA query_only=ON")
         conn.set_progress_handler(progress, 1000)
-        count = conn.execute(QUERY).fetchone()[0]
+        count = conn.execute(query).fetchone()[0]
         conn.close()
         result = {**common, "status": "COMPLETE", "population_count": count, "reproduced": count == args.expected_count, "progress_calls": calls, "elapsed_seconds": round(time.monotonic() - started, 6)}
         write_result(result_path, result)

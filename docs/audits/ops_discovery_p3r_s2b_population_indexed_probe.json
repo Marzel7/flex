@@ -1,0 +1,22 @@
+{
+  "bounds": {
+    "max_progress_calls": 100000,
+    "progress_opcode_interval": 1000,
+    "returned_rows_max": 1,
+    "wall_seconds": 20.0
+  },
+  "elapsed_seconds": 20.00181,
+  "exception": "interrupted",
+  "exception_type": "OperationalError",
+  "expected_population_count": 40301,
+  "failure_reason": "BOUND_EXCEEDED",
+  "milestone": "OPS-DISCOVERY-P3R-S2B-PROBE",
+  "production_writes": 0,
+  "progress_calls": 799,
+  "provider_calls_made": 0,
+  "query": "SELECT COUNT(*)\nFROM token_analysis AS ta INDEXED BY idx_ta_pf_ws_creator\nWHERE ta.pf_ws_creator IS NOT NULL\n  AND EXISTS (\n      SELECT 1 FROM pumpfun_migration_verification AS pmv\n      WHERE pmv.mint = ta.mint\n  )",
+  "query_kind": "schema_indexed_exists_equivalent",
+  "read_mode": "sqlite_uri_mode_ro_query_only",
+  "source_db": "database/flex_complete_database.db",
+  "status": "HOLD"
+}

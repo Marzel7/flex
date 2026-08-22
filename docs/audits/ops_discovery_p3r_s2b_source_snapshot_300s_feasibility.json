@@ -59,8 +59,8 @@
     "identity_exposure": "none; only aggregate counts, plans, and high-water values were queried"
   },
   "feasibility_model": {
-    "observed_committed_materialization_rate_rows_per_second": 1148.634,
-    "copy_stage_projection_seconds_for_current_two_surface_total": 1778.144,
+    "observed_committed_materialization_rate_rows_per_second": 1148.635199,
+    "copy_stage_projection_seconds_for_current_two_surface_total": 1778.317434,
     "copy_stage_projection_minutes": 29.636,
     "multiple_of_existing_300_second_bound_before_replay_and_digest": 5.927,
     "additional_required_work_not_in_projection": [

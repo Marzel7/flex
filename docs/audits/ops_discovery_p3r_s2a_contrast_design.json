@@ -1,0 +1,28 @@
+{
+  "allocation": {
+    "cex_infrastructure_ancestry": 3,
+    "ordinary_matched_launches": 3,
+    "shared_funding_without_control_truth": 4,
+    "total": 10
+  },
+  "artifact_type": "CONTRAST_DESIGN",
+  "canonical_operations_mutated": false,
+  "eligibility": "All contrasts are drawn from the frozen population manifest and must have no evaluation-truth membership. Match on migration-time band, calibrated-funding availability, and family fanout band where available.",
+  "exclusions": [
+    "canonical Watchtower membership",
+    "canonical 3SW2 membership",
+    "selection based on detector output",
+    "using CEX/infra ancestry as operation identity"
+  ],
+  "existing_funding_structures_unchanged": 8,
+  "final_cohort_identities_selected": false,
+  "milestone": "OPS-DISCOVERY-P3R-S2A",
+  "ordering_and_ties": "neutral source_rank ASC, mint ASC, create_creator ASC; evaluation labels are applied only after detector-safe allocation is frozen",
+  "p5f_scheduler_touched": false,
+  "production_writes": 0,
+  "provider_calls_made": 0,
+  "provider_requests_enumerated": false,
+  "three_sw2_mutated": false,
+  "verdict": "CONTRAST_RULES_FROZEN_BEFORE_SELECTION",
+  "watchtower_mutated": false
+}

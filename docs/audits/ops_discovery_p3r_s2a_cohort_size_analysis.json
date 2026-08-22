@@ -1,0 +1,57 @@
+{
+  "artifact_type": "COHORT_SIZE_ANALYSIS",
+  "candidate_designs": [
+    {
+      "advantage": "minimal cost",
+      "contrast": 6,
+      "residual_maximum": 30,
+      "size": 16,
+      "three_sw2": 4,
+      "watchtower": 6,
+      "weakness": "too few 3SW2 controls and contrasts for interpretable negative results"
+    },
+    {
+      "advantage": "uses only a minority of available controls while preserving three contrast mechanisms and bounded acquisition",
+      "contrast": 10,
+      "residual_maximum": 44,
+      "size": 24,
+      "three_sw2": 6,
+      "watchtower": 8,
+      "weakness": "not a membership-completeness test"
+    },
+    {
+      "advantage": "broader within-control variation",
+      "contrast": 12,
+      "residual_maximum": 60,
+      "size": 32,
+      "three_sw2": 8,
+      "watchtower": 12,
+      "weakness": "larger residual surface without better independent local coverage"
+    }
+  ],
+  "canonical_operations_mutated": false,
+  "existing_funding_structures_unchanged": 8,
+  "final_cohort_identities_selected": false,
+  "justification": "24 is independently selected from current control availability (29 Watchtower calibrated overlap; 13 retained 3SW2 controls), retains 10 contrasts, and stays materially below the unrecoverable historical 68-request design.",
+  "milestone": "OPS-DISCOVERY-P3R-S2A",
+  "p5f_scheduler_touched": false,
+  "production_writes": 0,
+  "provider_calls_made": 0,
+  "provider_requests_enumerated": false,
+  "recommended": {
+    "cohort_id": "p3r_s2_control_cohort_v1",
+    "contrast": 10,
+    "residual_request_ceiling": {
+      "behaviour": 8,
+      "migration_actor": 24,
+      "topology": 12,
+      "total": 44
+    },
+    "size": 24,
+    "three_sw2": 6,
+    "watchtower": 8
+  },
+  "three_sw2_mutated": false,
+  "verdict": "COHORT_SIZE_24_RECOMMENDED",
+  "watchtower_mutated": false
+}

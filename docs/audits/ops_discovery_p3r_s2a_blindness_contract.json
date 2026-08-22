@@ -1,0 +1,40 @@
+{
+  "artifact_type": "BLINDNESS_CONTRACT",
+  "canonical_operation_label_leakage": 0,
+  "canonical_operations_mutated": false,
+  "detector_safe_fields": [
+    "mint",
+    "create_creator",
+    "direct_funder",
+    "upstream_funders",
+    "topology_refs",
+    "behaviour_refs",
+    "migration_signer",
+    "timing_refs",
+    "recurring_actor_refs",
+    "source_lineage"
+  ],
+  "enforcement": "src.discovery.p3r_s2a_contract.detector_safe_projection rejects any forbidden evaluation field; S2B must hash evaluation truth and detector-safe projection separately.",
+  "evaluation_truth_fields": [
+    "watchtower",
+    "three_sw2",
+    "canonical_operation_id",
+    "canonical_operation_membership",
+    "human_operation_label",
+    "evaluation_control_class"
+  ],
+  "existing_funding_structures_unchanged": 8,
+  "final_cohort_identities_selected": false,
+  "milestone": "OPS-DISCOVERY-P3R-S2A",
+  "p5f_scheduler_touched": false,
+  "production_writes": 0,
+  "provider_calls_made": 0,
+  "provider_requests_enumerated": false,
+  "success_criteria": {
+    "three_sw2": "Must show independent coherence appropriate to its retained topology; it is not required to match Watchtower shape.",
+    "watchtower": "Must show multiple independent operational dimensions; wallet-to-many-creators alone fails."
+  },
+  "three_sw2_mutated": false,
+  "verdict": "CANONICAL_OPERATION_LABEL_LEAKAGE_0",
+  "watchtower_mutated": false
+}

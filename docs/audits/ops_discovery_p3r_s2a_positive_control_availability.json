@@ -1,0 +1,28 @@
+{
+  "artifact_type": "EVALUATION_ONLY_CONTROL_AVAILABILITY",
+  "canonical_operations_mutated": false,
+  "control_truth_only": {
+    "three_sw2": {
+      "full_snapshot_membership": "requires S2B natural-key projection into the frozen manifest",
+      "provenance": "database/evidence_platform/three_sw2_shadow_ep3_2a/evidence.db and adopted P3 blind-readiness audit",
+      "retained_exact_shadow_launches": 13
+    },
+    "watchtower": {
+      "exact_calibrated_slice_overlap": 29,
+      "exact_local_launch_records": 266,
+      "full_snapshot_membership": "requires S2B manifest join",
+      "provenance": "wt_ops_v2.db wt_watchtower_launches.mint joined read-only to direct_funding_edges"
+    }
+  },
+  "detector_input": "No operation label, member flag, operator ID, or human-established family field is emitted.",
+  "existing_funding_structures_unchanged": 8,
+  "final_cohort_identities_selected": false,
+  "milestone": "OPS-DISCOVERY-P3R-S2A",
+  "p5f_scheduler_touched": false,
+  "production_writes": 0,
+  "provider_calls_made": 0,
+  "provider_requests_enumerated": false,
+  "three_sw2_mutated": false,
+  "verdict": "POSITIVE_CONTROL_SOURCES_SUFFICIENT_FOR_S2B_IDENTITY_FREEZE",
+  "watchtower_mutated": false
+}

@@ -1,0 +1,40 @@
+{
+  "allocation": {
+    "contrast": 10,
+    "three_sw2_evaluation_only": 6,
+    "total": 24,
+    "watchtower_evaluation_only": 8
+  },
+  "artifact_type": "SELECTION_CONTRACT",
+  "canonical_operations_mutated": false,
+  "cohort_id": "p3r_s2_control_cohort_v1",
+  "contrast_rule": "Allocate 4 shared-funding, 3 CEX/infra, and 3 ordinary matched contrasts after excluding control membership; ties use neutral source_rank, mint, creator order.",
+  "existing_funding_structures_unchanged": 8,
+  "final_cohort_identities_selected": false,
+  "local_first_value_ranking": [
+    "upstream/provisioner topology",
+    "migration actor",
+    "independent behaviour motif",
+    "recurring actor or timing",
+    "additional direct-funder edge"
+  ],
+  "milestone": "OPS-DISCOVERY-P3R-S2A",
+  "minimum_detector_rule": "A later operation candidate requires topology or funding context plus at least one independently sourced behaviour, migration actor, recurring-actor, or timing dimension. Shared funding, shared upstream lineage, or CEX/infra ancestry alone is insufficient.",
+  "p5f_scheduler_touched": false,
+  "population_boundary_artifact": "ops_discovery_p3r_s2a_population_boundary.json",
+  "positive_control_rule": "Materialize the snapshot manifest first. Independently rank each control by locally retained non-label evidence completeness, then source_rank and mint; labels remain evaluation-only.",
+  "production_writes": 0,
+  "provider_calls_made": 0,
+  "provider_requests_enumerated": false,
+  "residual_budget_rule": "Only unresolved selected-row gaps may receive a future request; caps are 24 migration, 12 topology, 8 behaviour, 44 total; retry=0, pagination=0, fallback=none.",
+  "s2b_preconditions": [
+    "materialize and digest exact population membership",
+    "map evaluation truth via separate read-only join",
+    "verify detector projection leakage=0",
+    "emit exact identities before any residual target"
+  ],
+  "selection_contract_frozen_before_final_identity_selection": true,
+  "three_sw2_mutated": false,
+  "verdict": "SELECTION_CONTRACT_FROZEN_BEFORE_FINAL_IDENTITY_SELECTION",
+  "watchtower_mutated": false
+}

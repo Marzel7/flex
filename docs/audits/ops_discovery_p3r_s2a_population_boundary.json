@@ -1,0 +1,23 @@
+{
+  "artifact_type": "POPULATION_BOUNDARY",
+  "canonical_operations_mutated": false,
+  "existing_funding_structures_unchanged": 8,
+  "final_cohort_identities_selected": false,
+  "high_confidence_direct_funding_edges": 7644,
+  "high_water_semantics": "The retained discovery_run is the S2A snapshot boundary. S2B must create and digest an identity manifest from this exact run before any allocation, and fail closed if run metadata or manifest differs.",
+  "manifest_digest": "1fa17ad61f35fc948e0c3b81b7cb63df5fe9f106bbbb845128233d0de8324f1e",
+  "milestone": "OPS-DISCOVERY-P3R-S2A",
+  "ordering": "S2B must materialize the frozen membership manifest ordered by mint ASC, create_creator ASC; no final identities are selected in S2A",
+  "p5f_scheduler_touched": false,
+  "population_count": 40301,
+  "production_writes": 0,
+  "provider_calls_made": 0,
+  "provider_requests_enumerated": false,
+  "query_semantics": "token_analysis JOIN pumpfun_migration_verification WHERE pf_ws_creator IS NOT NULL",
+  "run_id": "local_discovery_20260819T212624Z",
+  "source": "database/local_operation_discovery_corpus.db discovery_run",
+  "source_db": "database/flex_complete_database.db",
+  "three_sw2_mutated": false,
+  "verdict": "P3R_S2A_POPULATION_BOUNDARY_FROZEN",
+  "watchtower_mutated": false
+}

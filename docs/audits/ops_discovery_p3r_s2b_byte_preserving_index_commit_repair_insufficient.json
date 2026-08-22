@@ -1,0 +1,27 @@
+{
+  "benchmark_rows": 588439,
+  "byte_identity_pass": true,
+  "candidate": "destination PRAGMA journal_mode=OFF only; active index and 5000-row commits unchanged",
+  "candidate_wall_seconds": 87.67792195797665,
+  "final_projection_seconds": 305.5612957103306,
+  "frozen_sha256": "c6d350f9fa15c4063a9d8bf89d96d27596a9a5e9ac06dc7fe282999ec3481525",
+  "milestone": "OPS-DISCOVERY-P3R-S2B-BYTE-PRESERVING-INDEX-COMMIT-REPAIR",
+  "minimum_execution_seconds_before_replay": 340.5612957103306,
+  "next": "Authorize a different byte-preserving repair or explicit contract reconsideration; no real snapshot.",
+  "reason": "final materialization alone exceeds 270 seconds under conservative linear model",
+  "reference_sha256": "c6d350f9fa15c4063a9d8bf89d96d27596a9a5e9ac06dc7fe282999ec3481525",
+  "reference_wall_seconds": 118.89301787503064,
+  "scope_confirmations": {
+    "cohort": false,
+    "funding_structures_changed": false,
+    "p5f_touched": false,
+    "population_reproduction": false,
+    "production_writes": 0,
+    "provider_calls": 0,
+    "real_snapshot": 0,
+    "s2a_changed": false,
+    "selection": false
+  },
+  "speedup": 1.3560200244254779,
+  "verdict": "HOLD_P3R_S2B_BYTE_PRESERVING_REPAIR_INSUFFICIENT_270S"
+}

@@ -30221,6 +30221,14 @@
     "provider_calls_made": 0,
     "verdict": "HOLD_P3R_S2B_BYTE_PRESERVING_REPAIR_INSUFFICIENT_270S"
   },
+  "ops_discovery_p3r_s2b_canonical_semantic_identity_contract_review": {
+    "active_contract_changed": false,
+    "artifact": "docs/audits/ops_discovery_p3r_s2b_canonical_semantic_identity_proposed_amendment.json",
+    "exact_next_action": "Separate explicit approval and freeze of this proposed canonical semantic identity amendment; only then fixture-qualify a physical-layout-independent construction path.",
+    "finding": "Physical SQLite SHA is an implementation checksum, not a required semantic boundary invariant; proposed semantic digest binds all evidentiary inputs and keeps artifact file SHA separate.",
+    "milestone": "OPS-DISCOVERY-P3R-S2B-CANONICAL-SEMANTIC-IDENTITY-CONTRACT-REVIEW",
+    "verdict": "PASS_P3R_S2B_CANONICAL_SEMANTIC_IDENTITY_CONTRACT_REVIEW"
+  },
   "ops_discovery_p3r_s2b_equivalence": {
     "artifact": "docs/audits/ops_discovery_p3r_s2b_population_equivalence.json",
     "artifact_sha256": "733a6c2a799b01632b48801c476826cb722f10bee5c29c6aaad74d37122e5cd8",
@@ -30967,7 +30975,7 @@
   },
   "project": {
     "branch": "classification-attribution-axis",
-    "git_head": "4a145ea65d0245f8b10bc5024e28adceea552be5",
+    "git_head": "311da6b548570f8ccc1915919f220c58376444f2",
     "name": "flex",
     "updated_at_utc": "2026-08-17T18:50:18Z",
     "working_tree": "dirty: H8-to-H4 compatibility adapter added; projection runtime and H4 rerun materialized 150 operations"

@@ -1,0 +1,21 @@
+{
+  "milestone": "OPS-DISCOVERY-P3R-S2B-SOURCE-SNAPSHOT",
+  "status": "HOLD",
+  "verdict": "HOLD_P3R_S2B_SOURCE_BOUNDARY_UNRESOLVED",
+  "execution": {
+    "mechanism": "single SQLite mode=ro query_only BEGIN transaction with deterministic two-surface snapshot copy and replay",
+    "bounds": {"wall_seconds": 300, "max_progress_calls": 500000, "progress_opcode_interval": 1000},
+    "observed_outcome": "Interactive TTY environment returned without terminal runner output before the 300-second runner bound. Durable audit remains STARTED; final snapshot is absent; isolated temporary snapshot exists but is incomplete."
+  },
+  "interpretation": "No coherent source snapshot, per-surface digest, top-level boundary digest, or replay equality was produced. The partial temporary snapshot is preserved and is not authoritative or consumable.",
+  "population_query_executed": false,
+  "population_materialized": false,
+  "provider_calls_made": 0,
+  "production_writes": 0,
+  "identities_selected_or_frozen": false,
+  "cohort_formed": false,
+  "s2a_amendment_modified": false,
+  "existing_funding_structures_unchanged": 8,
+  "p5f_scheduler_untouched": true,
+  "next_action": "REQUIRES_SEPARATE_AUTHORIZATION_FOR_A_PERSISTENT_EXECUTION_ENVIRONMENT_CAPABLE_OF_COMPLETING_THE_ALREADY_BOUND_SINGLE_TRANSACTION_SOURCE_SNAPSHOT; DO_NOT_REDESIGN_SOURCE_SURFACES_OR_RUN_POPULATION_REPRODUCTION"
+}

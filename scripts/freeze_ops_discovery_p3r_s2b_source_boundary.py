@@ -1,0 +1,81 @@
+"""Create a minimal digest-bound S2B source snapshot without population execution."""
+from __future__ import annotations
+
+import argparse, hashlib, json, os, sqlite3, sys, time
+from pathlib import Path
+
+SURFACES = (
+    ('token_analysis', ('mint', 'pf_ws_creator'), 'mint ASC'),
+    ('pumpfun_migration_verification', ('mint',), 'mint ASC'),
+)
+
+
+def canon(row: tuple) -> bytes:
+    return (json.dumps(row, separators=(',', ':'), ensure_ascii=True) + '\n').encode()
+
+
+def atomic_json(path: Path, value: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp=path.with_suffix(path.suffix+'.tmp'); tmp.write_text(json.dumps(value,indent=2,sort_keys=True)+'\n'); os.replace(tmp,path)
+
+
+def digest_surface(conn: sqlite3.Connection, table: str, fields: tuple[str, ...], order: str) -> tuple[int, str]:
+    digest=hashlib.sha256(); count=0
+    for row in conn.execute(f"SELECT {','.join(fields)} FROM {table} ORDER BY {order}"):
+        digest.update(canon(row)); count+=1
+    return count,digest.hexdigest()
+
+
+def main() -> int:
+    ap=argparse.ArgumentParser()
+    ap.add_argument('--source-db', default='database/flex_complete_database.db')
+    ap.add_argument('--snapshot-db', required=True)
+    ap.add_argument('--audit-path', required=True)
+    ap.add_argument('--wall-seconds', type=float, default=300.0)
+    ap.add_argument('--max-progress-calls', type=int, default=500000)
+    args=ap.parse_args(); start=time.monotonic(); audit=Path(args.audit_path); snapshot=Path(args.snapshot_db)
+    base={'milestone':'OPS-DISCOVERY-P3R-S2B-SOURCE-SNAPSHOT','provider_calls_made':0,'production_writes':0,
+          'source_db':args.source_db,'read_mode':'sqlite_uri_mode_ro_query_only_single_transaction','bounds':{'wall_seconds':args.wall_seconds,'max_progress_calls':args.max_progress_calls,'progress_opcode_interval':1000},
+          'canonicalization':{'encoding':'utf-8','row_format':'json array compact separators','field_order':'SURFACES declaration','row_order':'primary key mint ASC','null_representation':'JSON null','digest':'SHA-256 over newline-delimited canonical rows'},
+          'population_query_executed':False,'identities_selected_or_frozen':False,'cohort_formed':False}
+    atomic_json(audit,{**base,'status':'STARTED'})
+    calls=0
+    def progress():
+        nonlocal calls
+        calls+=1
+        return int(calls>args.max_progress_calls or time.monotonic()-start>args.wall_seconds)
+    try:
+        source=sqlite3.connect(f'file:{Path(args.source_db).resolve()}?mode=ro',uri=True,timeout=5)
+        source.execute('pragma query_only=on'); source.execute('begin')
+        source.set_progress_handler(progress,1000)
+        identity=os.stat(args.source_db)
+        source_meta={'device':identity.st_dev,'inode':identity.st_ino,'size_bytes':identity.st_size,'mtime_ns':identity.st_mtime_ns,'schema_version':source.execute('pragma schema_version').fetchone()[0], 'data_version':source.execute('pragma data_version').fetchone()[0]}
+        snapshot.parent.mkdir(parents=True,exist_ok=True)
+        tmp=snapshot.with_suffix(snapshot.suffix+'.tmp'); tmp.unlink(missing_ok=True)
+        out=sqlite3.connect(tmp)
+        out.executescript('CREATE TABLE token_analysis (mint TEXT PRIMARY KEY, pf_ws_creator TEXT); CREATE INDEX idx_ta_pf_ws_creator ON token_analysis(pf_ws_creator); CREATE TABLE pumpfun_migration_verification (mint TEXT PRIMARY KEY);')
+        records=[]; total={}
+        for table,fields,order in SURFACES:
+            digest=hashlib.sha256(); count=0; batch=[]
+            for row in source.execute(f"SELECT {','.join(fields)} FROM {table} ORDER BY {order}"):
+                digest.update(canon(row)); count+=1; batch.append(row)
+                if len(batch)>=5000:
+                    out.executemany(f"INSERT INTO {table} ({','.join(fields)}) VALUES ({','.join('?' for _ in fields)})",batch); out.commit(); batch=[]
+            if batch: out.executemany(f"INSERT INTO {table} ({','.join(fields)}) VALUES ({','.join('?' for _ in fields)})",batch); out.commit()
+            total[table]={'columns':list(fields),'row_count':count,'sha256':digest.hexdigest(),'source_rowid_high_water':source.execute(f'SELECT max(rowid) FROM {table}').fetchone()[0]}
+        source.close(); out.close(); os.replace(tmp,snapshot)
+        replay=sqlite3.connect(f'file:{snapshot.resolve()}?mode=ro',uri=True); replay.execute('pragma query_only=on')
+        replay_results={}
+        for table,fields,order in SURFACES:
+            count,digest=digest_surface(replay,table,fields,order); replay_results[table]={'row_count':count,'sha256':digest}
+        replay.close()
+        identical=all(total[t]['row_count']==replay_results[t]['row_count'] and total[t]['sha256']==replay_results[t]['sha256'] for t,_,_ in SURFACES)
+        boundary={'source_meta':source_meta,'surfaces':total,'snapshot_path':str(snapshot),'snapshot_sha256':hashlib.sha256(snapshot.read_bytes()).hexdigest()}
+        boundary_digest=hashlib.sha256(json.dumps(boundary,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+        result={**base,'status':'COMPLETE' if identical else 'HOLD','source_identity_at_read_open':source_meta,'surfaces':total,'replay_surfaces':replay_results,'replay_identical':identical,'boundary_sha256':boundary_digest,'snapshot_path':str(snapshot),'snapshot_sha256':boundary['snapshot_sha256'],'progress_calls':calls,'elapsed_seconds':round(time.monotonic()-start,6)}
+        atomic_json(audit,result); print(json.dumps(result,sort_keys=True)); return 0 if identical else 2
+    except Exception as exc:
+        result={**base,'status':'HOLD','failure_reason':'BOUND_EXCEEDED' if 'interrupted' in str(exc).lower() else 'EXECUTION_ERROR','exception_type':type(exc).__name__,'exception':str(exc),'progress_calls':calls,'elapsed_seconds':round(time.monotonic()-start,6)}
+        atomic_json(audit,result); print(json.dumps(result,sort_keys=True),file=sys.stderr); return 3
+
+if __name__=='__main__': raise SystemExit(main())

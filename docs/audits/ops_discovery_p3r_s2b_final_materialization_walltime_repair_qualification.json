@@ -1,0 +1,51 @@
+{
+  "milestone": "OPS-DISCOVERY-P3R-S2B final materialization and wall-time repair qualification",
+  "verdict": "PASS_P3R_S2B_FINAL_MATERIALIZATION_AND_WALLTIME_REPAIR_QUALIFIED",
+  "repair": {
+    "runner": "scripts/freeze_ops_discovery_p3r_s2b_source_boundary.py",
+    "runner_sha256": "a346bdd4a6125c008ac5cd861fd33af565f6ecfdb47a4c0c43c8847b7a7eeeda",
+    "wrapper": "scripts/run_ops_discovery_p3r_s2b_source_snapshot_isolated.py",
+    "wrapper_sha256": "530f46480fbf3d591a6d6e522deb0130d236b6ab968afcc7af059a9236ad3502",
+    "selected_change": "Set PRAGMA synchronous=OFF and PRAGMA cache_size=-262144 only on the disposable run-local destination candidate connection while retaining the existing final schema, ordered insertion sequence, 5,000-row commit cadence, and output journal mode.",
+    "why_smallest": "It is the fastest tested byte-identical variant. No source query, surface, canonicalization, final schema/index, batch order, or promotion semantics changes."
+  },
+  "representative_local_only_matrix": {
+    "input": "read-only 250,000 token_analysis rows plus all 43,251 pumpfun_migration_verification rows from the retained non-authoritative staging artifact; disposable temporary outputs only",
+    "sample_total_rows": 293251,
+    "reference": {"build_seconds": 25.526489, "replay_seconds": 1.98094, "total_seconds": 27.507429, "snapshot_sha256": "ae96dfb0b73279a945ff52904037e719f08c4a81297748493ef7ce6a3db94b13"},
+    "synchronous_off": {"build_seconds": 21.210553, "replay_seconds": 2.152398, "total_seconds": 23.362951, "byte_identical": true},
+    "cache_256m": {"build_seconds": 18.805622, "replay_seconds": 1.663052, "total_seconds": 20.468674, "byte_identical": true},
+    "selected_sync_off_cache_256m": {"build_seconds": 17.252762, "replay_seconds": 1.411223, "total_seconds": 18.663985, "speedup_vs_reference": 1.473824, "byte_identical": true, "canonical_digests_equal": true, "replay_equal": true},
+    "rejected": {"single_transaction": "final SQLite bytes differ", "journal_mode_off": "final SQLite bytes differ"}
+  },
+  "semantic_equivalence": {
+    "focused_tests": "4 passed",
+    "fixture": "7000 token_analysis rows including NULL pf_ws_creator values and 2334 migration rows",
+    "proven": ["same two surfaces", "same values and NULLs", "same mint ASC canonical ordering", "same per-surface canonical digests", "same high-waters", "same replay", "byte-identical final snapshot SHA-256", "normalized top-level boundary inputs"],
+    "provenance_wrapper": "unchanged run identity, namespace claim, collision refusal, logs, PID/PPID, and wrapper-only promotion"
+  },
+  "walltime_guard": {
+    "external_ceiling_seconds": 300,
+    "execution_deadline_seconds": 270,
+    "cleanup_reserve_seconds": 30,
+    "runner_coverage": "one shared monotonic execution deadline now guards source, staging read, destination candidate, and replay SQLite progress handlers; deterministic pre-phase gates require 180 seconds before final materialization, 30 before replay/boundary, and 15 before snapshot hash/audit",
+    "wrapper_coverage": "wrapper polls child against the same 270-second execution deadline; it sends TERM, allows at most the reserved 30 seconds for exit/audit, then KILLs only if needed and records HOLD_BOUND_EXCEEDED",
+    "failure_semantics": "all deadline/budget exhaustion becomes runner HOLD/BOUND_EXCEEDED or wrapper HOLD_BOUND_EXCEEDED; candidate artifacts remain non-authoritative"
+  },
+  "projection": {
+    "full_source_rows": 2044005,
+    "scale_factor_from_representative_matrix": 6.970155,
+    "reference_final_stage_seconds": 191.731053,
+    "selected_final_stage_seconds": 130.090874,
+    "observed_source_capture_seconds": 39,
+    "conservative_contingency": "1.5x applied to observed source capture plus projected selected final/replay work",
+    "conservative_execution_seconds": 253.636312,
+    "reserved_cleanup_seconds": 30,
+    "projected_worst_case_terminal_seconds": 283.636312,
+    "margin_under_external_ceiling_seconds": 16.363688,
+    "qualification": "PASS: the deterministic execution deadline is 270 seconds, leaving the measured 30-second cleanup reserve; the 1.5x model remains below that execution deadline by 16.363688 seconds."
+  },
+  "scope_confirmations": {"real_source_snapshot_executed": false, "previous_candidate_modified_or_resumed": false, "previous_candidate_authoritative": false, "population_reproduction_executed": false, "provider_calls_made": 0, "production_source_database_writes": 0, "identities_selected_or_frozen": false, "cohort_formed": false, "s2a_amendment_unchanged": true, "existing_funding_structures_unchanged": 8, "p5f_untouched": true},
+  "preserved_source_boundary_verdict": "HOLD_P3R_S2B_SOURCE_BOUNDARY_UNRESOLVED",
+  "next_authorization_required": "Authorize one fresh provenance-safe real optimized source snapshot using the qualified detached GNU screen mechanism and repaired runner under the unchanged 300-second ceiling. Do not run population reproduction or select identities."
+}

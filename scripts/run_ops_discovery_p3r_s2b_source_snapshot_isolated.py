@@ -13,6 +13,7 @@ import re
 import secrets
 import subprocess
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -102,12 +103,14 @@ def main() -> int:
     tmp_snapshot, capture_snapshot, final_snapshot = namespace / "runner_candidate.sqlite.tmp", namespace / "runner_candidate.sqlite.capture.sqlite", namespace / "snapshot.sqlite"
     runner_audit = namespace / "source_boundary_audit.json"
     runner_hash = sha256(RUNNER)
+    wrapper_start = time.monotonic()
+    wrapper_execution_deadline = wrapper_start + 270.0
     record = {
         "run_id": run_id,
         "status": "STARTED",
         "launcher": {"pid": os.getpid(), "ppid": os.getppid(), "started_at_utc": utc_now(), "cwd": str(Path.cwd())},
         "runner": {"path": str(RUNNER.resolve()), "sha256": runner_hash, "pid": None, "ppid": None, "started_at_utc": None},
-        "bindings": {"source_db": str(Path(args.source_db).resolve()), "source_contract": SOURCE_CONTRACT, "dry_run": args.dry_run},
+        "bindings": {"source_db": str(Path(args.source_db).resolve()), "source_contract": SOURCE_CONTRACT, "dry_run": args.dry_run, "wrapper_hard_ceiling_seconds": 300, "wrapper_cleanup_reserve_seconds": 30, "wrapper_execution_deadline_seconds": 270},
         "paths": {"namespace": str(namespace), "lifecycle": str(lifecycle), "stdout": str(stdout_path), "stderr": str(stderr_path), "temporary_snapshot": str(tmp_snapshot), "capture_snapshot": str(capture_snapshot), "runner_candidate_snapshot": str(runner_candidate), "final_snapshot": str(final_snapshot), "runner_audit": str(runner_audit)},
         "legacy_quarantine_excluded": LEGACY,
         "ownership": {"wrapper": ["namespace", "lifecycle", "stdout", "stderr", "final_snapshot"], "snapshot_runner": ["temporary_snapshot", "capture_snapshot", "runner_candidate_snapshot", "runner_audit"], "promotion": "wrapper only after runner COMPLETE, replay_identical true, and exit code zero"},
@@ -123,7 +126,19 @@ def main() -> int:
             child = subprocess.Popen(command, cwd=Path.cwd(), stdout=stdout, stderr=stderr)
             record["runner"].update({"pid": child.pid, "ppid": os.getpid(), "started_at_utc": utc_now()})
             atomic_json(lifecycle, record)
-            exit_code = child.wait()
+            wrapper_timed_out = False
+            while child.poll() is None:
+                if time.monotonic() >= wrapper_execution_deadline:
+                    wrapper_timed_out = True
+                    child.terminate()
+                    try:
+                        child.wait(timeout=30)
+                    except subprocess.TimeoutExpired:
+                        child.kill()
+                        child.wait()
+                    break
+                time.sleep(0.1)
+            exit_code = child.returncode
     except BaseException as exc:
         record.update({"status": "HOLD_INTERRUPTED", "terminal_at_utc": utc_now(), "exception": repr(exc)})
         atomic_json(lifecycle, record)
@@ -137,7 +152,7 @@ def main() -> int:
         record["authoritative_snapshot"] = str(final_snapshot)
     else:
         failure = (runner_result or {}).get("failure_reason")
-        record["status"] = "HOLD_BOUND_EXCEEDED" if failure == "BOUND_EXCEEDED" else ("HOLD_INTERRUPTED" if failure == "INTERRUPTED_FIXTURE" else "HOLD_RUNNER_ERROR")
+        record["status"] = "HOLD_BOUND_EXCEEDED" if wrapper_timed_out or failure == "BOUND_EXCEEDED" else ("HOLD_INTERRUPTED" if failure == "INTERRUPTED_FIXTURE" else "HOLD_RUNNER_ERROR")
         record["authoritative_snapshot"] = None
     record.update({"terminal_at_utc": utc_now(), "exit_code": exit_code, "runner_terminal_audit": runner_result, "temporary_snapshot_non_authoritative": not complete})
     atomic_json(lifecycle, record)

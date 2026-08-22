@@ -541,6 +541,20 @@
     "all_3_writer_services_confirmed_running": true,
     "next_action": "AWAIT_SEPARATE_HUMAN_AUTHORIZED_STAGE3B_DISPATCH_FOR_THE_ATOMIC_SWITCH_ITSELF"
   },
+  "ops_discovery_concurrent_work_r1": {
+    "updated_at_utc": "2026-08-22T00:00:00Z",
+    "status": "COMPLETE",
+    "verdict": "OPS_DISCOVERY_CONCURRENT_WORK_RECONCILED",
+    "baseline_commit": "bc78b062",
+    "adopted_files": 35,
+    "rejected_files": 0,
+    "focused_tests": "5 passed",
+    "ownership": "POTENTIALLY_ORPHANED_BUNDLE_ADOPTED_AFTER_NO_OPEN_HANDLES_OR_POST_FREEZE_MTIME_CHANGES",
+    "p3r_s2_selection_inputs_changed_by_adoption": true,
+    "provider_calls_made": 0,
+    "p5f_scheduler_untouched": true,
+    "next_action": "BEGIN_OPS_DISCOVERY_P3R_S2_ONLY_FROM_BASELINE_bc78b062"
+  },
   "ops_discovery_p3r_s": {
     "updated_at_utc": "2026-08-21T00:00:00Z",
     "status": "HOLD",

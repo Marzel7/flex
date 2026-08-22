@@ -9,7 +9,7 @@
   "amendment_authorization": "explicit human authorization after PASS contract review",
   "amendment_status": "FROZEN_ACTIVE_FOR_FUTURE_S2B_SNAPSHOT_QUALIFICATION",
   "canonical_digest_algorithm": "SHA-256 over UTF-8 canonical JSON, sorted keys, compact separators, excluding canonical_digest_sha256 field",
-  "canonical_digest_sha256": "0df610af7745427bf65a7a22745c5c529e7ecf1f39096526ab68fead0151baa7",
+  "canonical_digest_sha256": "a2b99dde6d2211034d4f1845a4bf2d1f7a5be13f5a5a61d23c2036a91caac265",
   "contamination_guard": "Review used only contracts, source-snapshot code, local performance audits and integrity threats; no population/candidate/Watchtower/3SW2/contrast identities inspected.",
   "downstream_compatibility": "Reviewed S2B runner/wrapper contracts bind query surfaces, schema, canonical digests, replay and wrapper provenance; no population/S2A/contrast operation consumes literal file bytes. Conclusion: no downstream semantic effect, subject to amendment activation tests.",
   "milestone": "OPS-DISCOVERY-P3R-S2B-CANONICAL-SEMANTIC-IDENTITY-CONTRACT-REVIEW",

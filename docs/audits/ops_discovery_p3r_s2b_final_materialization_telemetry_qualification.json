@@ -1,0 +1,190 @@
+{
+  "derived_545000_token_rows": {
+    "baseline_dominant_cost": "insert_seconds=187.823374 of token_analysis",
+    "baseline_total_seconds": 202.04094608436571,
+    "byte_identity": "PASS: 545k qualified, baseline, and qualified_guarded SQLite SHA-256 values are identical: c6d350f9fa15c4063a9d8bf89d96d27596a9a5e9ac06dc7fe282999ec3481525",
+    "guard_overhead_seconds": 28.279235948284622,
+    "guarded_dominant_cost": "commit_seconds=82.031256 of token_analysis",
+    "qualified_dominant_cost": "commit_seconds=57.959123 of token_analysis",
+    "qualified_guarded_total_seconds": 95.00844486441929,
+    "qualified_total_seconds": 66.72920891613467,
+    "real_run_partial_final_materialization_seconds": 235.210428,
+    "real_run_vs_guarded_ratio": 2.475679170790074
+  },
+  "exact_next_authorization_required": "Authorize a semantics-preserving final-materialization performance repair proposal and fixture qualification targeting the measured commit-dominated qualified path and progress-handler overhead; do not authorize another real source snapshot until a revised full-workload model has demonstrated margin under the 270-second execution deadline.",
+  "finding": {
+    "not_proven": "No measured evidence yet identifies the remaining approximately 2.48x real-run-versus-guarded slowdown as fsync, cache eviction, storage contention, or another host effect.",
+    "proven": "The final stage is sensitive to SQLite runtime configuration. Qualified mode is commit-dominated; baseline mode is insert-dominated. The 1000-opcode progress handler increases the 545k qualified local workload materially but does not reproduce the full real-run timeout.",
+    "safety_conclusion": "No 270-second real snapshot retry is justified. The newly durable telemetry is required to classify any future qualified execution fail-closed."
+  },
+  "input_capture": {
+    "path": "docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T190101225416000Z-bb2dfefa2fd4795f945156fec8c84849/runner_candidate.sqlite.capture.sqlite",
+    "pumpfun_migration_verification_rows": 43439,
+    "read_only": true,
+    "run_id": "s2b-source-snapshot-20260822T190101225416000Z-bb2dfefa2fd4795f945156fec8c84849",
+    "token_analysis_rows": 2007296
+  },
+  "matrices": {
+    "250000_token_rows": {
+      "capture_db": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T190101225416000Z-bb2dfefa2fd4795f945156fec8c84849/runner_candidate.sqlite.capture.sqlite",
+      "capture_read_only": true,
+      "milestone": "OPS-DISCOVERY-P3R-S2B-FINAL-MATERIALIZATION-QUALIFICATION",
+      "production_writes": 0,
+      "provider_calls_made": 0,
+      "token_row_limit": 250000,
+      "variants": [
+        {
+          "file_size_bytes": 59019264,
+          "schema_seconds": 0.0014074579812586308,
+          "surfaces": {
+            "pumpfun_migration_verification": {
+              "commit_seconds": 0.01293346012244001,
+              "commits": 9,
+              "insert_seconds": 0.09097233193460852,
+              "ordered_read_seconds": 0.06948154006386176,
+              "rows": 43439
+            },
+            "token_analysis": {
+              "commit_seconds": 12.40870004001772,
+              "commits": 50,
+              "insert_seconds": 2.3944503705133684,
+              "ordered_read_seconds": 0.5394352881121449,
+              "rows": 250000
+            }
+          },
+          "variant": "qualified"
+        },
+        {
+          "file_size_bytes": 59019264,
+          "schema_seconds": 0.0038732499815523624,
+          "surfaces": {
+            "pumpfun_migration_verification": {
+              "commit_seconds": 0.026624289981555194,
+              "commits": 9,
+              "insert_seconds": 0.07149349997052923,
+              "ordered_read_seconds": 0.03998524695634842,
+              "rows": 43439
+            },
+            "token_analysis": {
+              "commit_seconds": 1.6713698376552202,
+              "commits": 50,
+              "insert_seconds": 24.937779961910564,
+              "ordered_read_seconds": 1.6311236239853315,
+              "rows": 250000
+            }
+          },
+          "variant": "baseline"
+        }
+      ]
+    },
+    "545000_token_rows": {
+      "capture_db": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T190101225416000Z-bb2dfefa2fd4795f945156fec8c84849/runner_candidate.sqlite.capture.sqlite",
+      "capture_read_only": true,
+      "milestone": "OPS-DISCOVERY-P3R-S2B-FINAL-MATERIALIZATION-QUALIFICATION",
+      "production_writes": 0,
+      "provider_calls_made": 0,
+      "token_row_limit": 545000,
+      "variants": [
+        {
+          "file_size_bytes": 122884096,
+          "schema_seconds": 0.0009259170037694275,
+          "surfaces": {
+            "pumpfun_migration_verification": {
+              "commit_seconds": 0.009040998062118888,
+              "commits": 9,
+              "insert_seconds": 0.04079837491735816,
+              "ordered_read_seconds": 0.028329914901405573,
+              "rows": 43439
+            },
+            "token_analysis": {
+              "commit_seconds": 57.95912332815351,
+              "commits": 109,
+              "insert_seconds": 6.792765748919919,
+              "ordered_read_seconds": 1.8982246341765858,
+              "rows": 545000
+            }
+          },
+          "variant": "qualified"
+        },
+        {
+          "file_size_bytes": 122884096,
+          "schema_seconds": 0.003119250002782792,
+          "surfaces": {
+            "pumpfun_migration_verification": {
+              "commit_seconds": 0.04647616803413257,
+              "commits": 9,
+              "insert_seconds": 0.11443079198943451,
+              "ordered_read_seconds": 0.11537112598307431,
+              "rows": 43439
+            },
+            "token_analysis": {
+              "commit_seconds": 5.761286872788332,
+              "commits": 109,
+              "insert_seconds": 187.82337366987485,
+              "ordered_read_seconds": 8.176888205693103,
+              "rows": 545000
+            }
+          },
+          "variant": "baseline"
+        }
+      ]
+    },
+    "545000_token_rows_guarded": {
+      "capture_db": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T190101225416000Z-bb2dfefa2fd4795f945156fec8c84849/runner_candidate.sqlite.capture.sqlite",
+      "capture_read_only": true,
+      "milestone": "OPS-DISCOVERY-P3R-S2B-FINAL-MATERIALIZATION-QUALIFICATION",
+      "production_writes": 0,
+      "provider_calls_made": 0,
+      "token_row_limit": 545000,
+      "variants": [
+        {
+          "file_size_bytes": 122884096,
+          "progress_calls": 30654,
+          "schema_seconds": 0.001430167001672089,
+          "surfaces": {
+            "pumpfun_migration_verification": {
+              "commit_seconds": 0.0037342890282161534,
+              "commits": 9,
+              "insert_seconds": 0.04144225100753829,
+              "ordered_read_seconds": 0.02921762497862801,
+              "rows": 43439
+            },
+            "token_analysis": {
+              "commit_seconds": 82.03125562117202,
+              "commits": 109,
+              "insert_seconds": 9.74795362126315,
+              "ordered_read_seconds": 3.153411289968062,
+              "rows": 545000
+            }
+          },
+          "variant": "qualified_guarded"
+        }
+      ]
+    }
+  },
+  "milestone": "OPS-DISCOVERY-P3R-S2B-FINAL-MATERIALIZATION-TELEMETRY-QUALIFICATION",
+  "scope": "local capture artifact only; no real source snapshot, population reproduction, provider call, or production/source write",
+  "scope_confirmations": {
+    "cohort_formed": false,
+    "funding_structures_changed": false,
+    "identities_selected_or_frozen": false,
+    "new_real_snapshot_launches": 0,
+    "p5f_touched": false,
+    "population_reproduction_executed": false,
+    "production_source_writes": 0,
+    "provider_calls_made": 0,
+    "s2a_amendment_1_changed": false
+  },
+  "telemetry_runner_change": {
+    "durable_checkpoints": [
+      "source_capture start/completed",
+      "final_materialization start/progress/per-surface completion",
+      "replay start/completed",
+      "digest_and_audit start/completed"
+    ],
+    "final_progress_interval": "20 commits / 100000 rows",
+    "fixture_validation": "4 passed; source_capture aggregate 9334 equals final materialization per-surface 7000 + 2334",
+    "source_capture_rows_rule": "sum of captured per-surface rows"
+  },
+  "verdict": "HOLD_P3R_S2B_SOURCE_BOUNDARY_SNAPSHOT_BOUND_EXCEEDED"
+}

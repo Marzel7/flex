@@ -1,0 +1,75 @@
+{
+  "activation_scope": "contract only; no construction path implemented or executed",
+  "active_contract_changed": false,
+  "active_identity_contract": {
+    "authoritative_boundary_identity": "boundary_semantic_sha256",
+    "mandatory_artifact_integrity_identity": "artifact_file_sha256",
+    "physical_layout_policy": "non-authoritative when all frozen semantic invariants/replay/integrity pass"
+  },
+  "amendment_authorization": "explicit human authorization after PASS contract review",
+  "amendment_status": "FROZEN_ACTIVE_FOR_FUTURE_S2B_SNAPSHOT_QUALIFICATION",
+  "canonical_digest_algorithm": "SHA-256 over UTF-8 canonical JSON, sorted keys, compact separators, excluding canonical_digest_sha256 field",
+  "canonical_digest_sha256": "0df610af7745427bf65a7a22745c5c529e7ecf1f39096526ab68fead0151baa7",
+  "contamination_guard": "Review used only contracts, source-snapshot code, local performance audits and integrity threats; no population/candidate/Watchtower/3SW2/contrast identities inspected.",
+  "downstream_compatibility": "Reviewed S2B runner/wrapper contracts bind query surfaces, schema, canonical digests, replay and wrapper provenance; no population/S2A/contrast operation consumes literal file bytes. Conclusion: no downstream semantic effect, subject to amendment activation tests.",
+  "milestone": "OPS-DISCOVERY-P3R-S2B-CANONICAL-SEMANTIC-IDENTITY-CONTRACT-REVIEW",
+  "next_authorization": "Separate explicit approval and freeze of this proposed canonical semantic identity amendment; only then fixture-qualify a physical-layout-independent construction path.",
+  "ordering": "mint ASC remains semantic canonical order; SQLite physical B-tree/page order is construction detail.",
+  "performance_implication": "Semantic identity could permit bulk-load then index construction or different commit mechanics; existing no-index 12.51s versus reference 118.89s demonstrates feasibility potential only. No construction change adopted.",
+  "physical_bytes_necessary": false,
+  "proposed_contract": {
+    "encoding": "UTF-8; NFC text; ASCII JSON metadata; SHA-256",
+    "rows": "field order exactly contract columns; record is length-prefixed field sequence; rows ordered mint ASC; no delimiter ambiguity",
+    "semantic_vs_artifact": "boundary_semantic_sha256 is authoritative evidence identity; artifact_file_sha256 remains mandatory checksum/provenance for each SQLite materialization but is not semantic identity.",
+    "surface_fields": [
+      "table",
+      "columns",
+      "canonical_type_rules",
+      "row_order",
+      "row_count",
+      "source_rowid_high_water",
+      "canonical_row_stream_sha256",
+      "canonical_schema_sha256",
+      "required_index_definitions_sha256"
+    ],
+    "top_level": "SHA-256 over length-delimited canonical JSON object binding contract/canonicalization version, source provenance, ordered surface descriptors and digests, required schema metadata.",
+    "value_encoding": "length-delimited typed fields: NULL=N; TEXT=T:utf8-byte-length:bytes; INTEGER=I:base10; BLOB=B:hex; BOOLEAN=Z:0|1",
+    "version": "P3R-S2B-semantic-boundary-v1 PROPOSED_NOT_ACTIVE"
+  },
+  "purpose_of_physical_sha": "An implementation-level all-at-once proxy for logical membership, values, schema, deterministic construction, replay, corruption detection, and provenance; no reviewed downstream contract requires literal SQLite page/B-tree bytes.",
+  "replay": "independently rebuild then require identical counts/high-waters/per-surface row-stream/schema digests/top-level boundary semantic digest and integrity_check=ok; physical file SHA may differ.",
+  "required_guarantees": [
+    "exact authorized surfaces and columns",
+    "exact values including NULL",
+    "exact membership/count",
+    "deterministic mint ASC row streams",
+    "source provenance and high-waters",
+    "semantic schema/index definitions",
+    "replay reproducibility",
+    "artifact corruption/substitution detection"
+  ],
+  "review_verdict": "PASS_P3R_S2B_CANONICAL_SEMANTIC_IDENTITY_CONTRACT_REVIEW",
+  "schema_indexes": "table schema and logical required index definitions remain bound; page layout/index construction order are not evidence semantics if schema, row streams, replay, integrity and boundary digest match.",
+  "scope_confirmations": {
+    "cohort_formed": false,
+    "funding_structures_changed": false,
+    "identities_selected": false,
+    "p5f_touched": false,
+    "population_reproduction": false,
+    "production_writes": 0,
+    "provider_calls": 0,
+    "real_snapshot": 0,
+    "s2a_changed": false
+  },
+  "tests": "Contract-review fixture checks: existing focused snapshot/isolation suite 4 passed; no active contract test or real snapshot run.",
+  "threat_matrix": {
+    "artifact_corruption_or_substitution": "artifact_file_sha256 plus bound semantic digest",
+    "high_water_or_provenance_change": "top-level bound fields",
+    "missing/additional/duplicate/changed_row_or_null": "canonical row-stream SHA + count",
+    "ordering_change": "explicit mint ASC canonical order",
+    "partial/stale_snapshot": "all surfaces plus high-waters/replay",
+    "post_freeze_mutation": "immutable manifest + artifact checksum + replay",
+    "schema_or_required_index_definition_change": "canonical schema metadata",
+    "wrong_surface_or_column": "contract surface descriptors"
+  }
+}

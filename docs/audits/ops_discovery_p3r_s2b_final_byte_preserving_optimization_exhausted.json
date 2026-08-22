@@ -1,0 +1,33 @@
+{
+  "benchmark": {
+    "commit_seconds": 45.00810175418155,
+    "journal_off_seconds": 87.67792195797665,
+    "reference_seconds": 118.89301787503064,
+    "rows": 588439,
+    "seconds": 72.27327250002418
+  },
+  "byte_identity": {
+    "pass": true,
+    "sha256": "c6d350f9fa15c4063a9d8bf89d96d27596a9a5e9ac06dc7fe282999ec3481525"
+  },
+  "candidate": "journal_mode=OFF plus cache_spill=OFF; active index and 5000-row commits unchanged",
+  "milestone": "OPS-DISCOVERY-P3R-S2B-FINAL-BYTE-PRESERVING-OPTIMIZATION",
+  "next": "Separate review of physical SQLite byte-identity contract versus canonical semantic identity; do not run a real snapshot.",
+  "projection": {
+    "capture_plus_final_seconds": 286.8754356532063,
+    "conclusion": "exceeds 270 seconds before replay/digest/audit and real/local contingency",
+    "final_materialization_seconds": 251.87543565320632
+  },
+  "scope": {
+    "cohort": false,
+    "funding": false,
+    "p5f": false,
+    "population": false,
+    "production_writes": 0,
+    "provider_calls": 0,
+    "real_snapshot": 0,
+    "s2a": false,
+    "selection": false
+  },
+  "verdict": "HOLD_P3R_S2B_BYTE_PRESERVING_OPTIMIZATION_SPACE_EXHAUSTED"
+}

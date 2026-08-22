@@ -1,0 +1,61 @@
+{
+  "cause_classification": {
+    "not_proven": "The existing abrupt-deadline evidence cannot separately attribute the slow rate among ordered source reads, destination inserts, primary-key/index maintenance, commit/fsync, cache behavior, or host storage contention.",
+    "proven": "source capture completed quickly; the timeout occurred while destination token_analysis rows were still being written into the ordered final SQLite artifact with its primary-key and pf_ws_creator indexes.",
+    "telemetry_gap": "The runner only persisted STARTED before wrapper termination; it emitted no per-stage timestamps, row progress, commit timing, or signal-safe terminal audit."
+  },
+  "exact_next_authorization_required": "Authorize a semantics-preserving telemetry and representative-scale final-materialization qualification that emits durable stage/progress/commit timing before any further real source snapshot; do not authorize another 270-second real snapshot yet.",
+  "input_run": {
+    "authoritative_snapshot_promoted": false,
+    "lifecycle_sha256": "efc197c4f15f91d3a7417ad819e07d9632706561aef9a2f5f76ad5b33e880508",
+    "run_id": "s2b-source-snapshot-20260822T190101225416000Z-bb2dfefa2fd4795f945156fec8c84849",
+    "runner_audit_sha256": "4a4a24afd4b6a34c9f5569f6f1b1d19d67595c2951414b0b3b56a82dd2e45f3d",
+    "runner_exit_code": -15,
+    "terminal_status": "HOLD_BOUND_EXCEEDED"
+  },
+  "milestone": "OPS-DISCOVERY-P3R-S2B-SOURCE-SNAPSHOT-REAL-RUN-TIMING-DIAGNOSIS",
+  "model_reconciliation": {
+    "conclusion": "The actual full-workload final-materialization rate is insufficient for the 270-second shared execution deadline even before replay/digesting. The prior model is not safe for this workload.",
+    "prior_qualified_full_final_materialization_seconds": 130.090874,
+    "prior_qualified_total_execution_with_1_5x_contingency_seconds": 253.636312,
+    "real_run_final_rate_vs_prior_qualified_implied_rate_ratio": 6.803349500805895,
+    "real_run_full_final_materialization_projection_seconds_from_partial_rate": 885.0536826873026,
+    "real_run_projected_capture_plus_final_seconds_minimum": 920.0536826873026
+  },
+  "observed_work": {
+    "capture_rows": {
+      "pumpfun_migration_verification": 43439,
+      "token_analysis": 2007296,
+      "total": 2050735
+    },
+    "final_materialization_rate_rows_per_second_approximate": 2317.0741392469217,
+    "partial_final_rows": {
+      "pumpfun_migration_verification": 0,
+      "token_analysis": 545000,
+      "total": 545000
+    },
+    "partial_final_state": "interrupted during first-surface ordered destination materialization; second surface, replay, digesting, and promotion had not begun"
+  },
+  "scope": "read-only diagnosis of the completed non-authoritative run; no new snapshot execution, query change, or source mutation",
+  "scope_confirmations": {
+    "cohort_formed": false,
+    "funding_structures_changed": false,
+    "identities_selected_or_frozen": false,
+    "new_real_snapshot_launches": 0,
+    "p5f_touched": false,
+    "population_reproduction_executed": false,
+    "production_source_writes": 0,
+    "provider_calls_made": 0,
+    "s2a_amendment_1_changed": false
+  },
+  "timestamps": {
+    "capture_completion_elapsed_seconds_approximate": 35.0,
+    "capture_stage_mtime_utc": "2026-08-22T19:01:37Z",
+    "final_materialization_window_seconds_approximate": 235.21042799999998,
+    "timestamp_precision_note": "capture completion is inferred from filesystem mtime and is limited to whole-second precision; wrapper timestamps are microsecond-resolution",
+    "total_elapsed_seconds": 270.210428,
+    "wrapper_started_at_utc": "2026-08-22T19:01:02.404047Z",
+    "wrapper_terminal_at_utc": "2026-08-22T19:05:32.614475Z"
+  },
+  "verdict": "HOLD_P3R_S2B_SOURCE_BOUNDARY_SNAPSHOT_BOUND_EXCEEDED"
+}

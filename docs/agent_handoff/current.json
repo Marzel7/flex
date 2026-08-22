@@ -555,6 +555,26 @@
     "p5f_scheduler_untouched": true,
     "next_action": "BEGIN_OPS_DISCOVERY_P3R_S2_ONLY_FROM_BASELINE_bc78b062"
   },
+  "ops_discovery_p3r_s2b_snapshot_provenance_reconciliation": {
+    "updated_at_utc": "2026-08-22T13:44:38Z",
+    "status": "HOLD",
+    "verdict": "HOLD_P3R_S2B_SNAPSHOT_PROVENANCE_UNRESOLVED",
+    "baseline_commit": "6cc1026b",
+    "artifact": "docs/audits/ops_discovery_p3r_s2b_snapshot_provenance_reconciliation.json",
+    "terminal_audit": "HOLD_BOUND_EXCEEDED_elapsed_seconds_300.356458",
+    "temporary_snapshot": "INCOMPLETE_NON_AUTHORITATIVE_PRESERVED",
+    "provenance": "STRUCTURALLY_AND_TEMPORALLY_CONSISTENT_WITH_ORIGINAL_RUN_BUT_SOLE_OWNERSHIP_NOT_PROVABLE_NO_RUN_IDENTIFIER_PID_OR_LAUNCHER_LINEAGE",
+    "snapshot_runner_launched_during_reconciliation": false,
+    "population_runner_executed": false,
+    "provider_calls_made": 0,
+    "production_writes": 0,
+    "identities_selected_or_frozen": false,
+    "cohort_formed": false,
+    "s2a_amendment_unchanged": true,
+    "existing_funding_structures_unchanged": 8,
+    "p5f_scheduler_untouched": true,
+    "next_action": "REQUIRES_SEPARATE_AUTHORIZATION_FOR_A_PROVENANCE_SAFE_RESOLUTION_PATH_BEFORE_ANY_SNAPSHOT_RERUN_OR_SOURCE_BOUNDARY_USE_DO_NOT_CONSUME_OR_OVERWRITE_AMBIGUOUS_RUNTIME_ARTIFACTS"
+  },
   "ops_discovery_p3r_s2b_source_snapshot": {
     "updated_at_utc": "2026-08-22T14:33:00Z",
     "status": "HOLD",

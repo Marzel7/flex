@@ -1,0 +1,21 @@
+{
+  "bounds": {
+    "max_progress_calls": 100000,
+    "progress_opcode_interval": 1000,
+    "returned_rows_max": 1,
+    "wall_seconds": 20.0
+  },
+  "elapsed_seconds": 20.007808,
+  "exception": "interrupted",
+  "exception_type": "OperationalError",
+  "expected_population_count": 40301,
+  "failure_reason": "BOUND_EXCEEDED",
+  "milestone": "OPS-DISCOVERY-P3R-S2B-PROBE",
+  "production_writes": 0,
+  "progress_calls": 735,
+  "provider_calls_made": 0,
+  "query": "SELECT COUNT(*)\nFROM token_analysis AS ta\nJOIN pumpfun_migration_verification AS pmv ON ta.mint = pmv.mint\nWHERE ta.pf_ws_creator IS NOT NULL",
+  "read_mode": "sqlite_uri_mode_ro_query_only",
+  "source_db": "database/flex_complete_database.db",
+  "status": "HOLD"
+}

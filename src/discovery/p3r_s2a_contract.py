@@ -41,3 +41,18 @@ def validate_design(*, watchtower: int, three_sw2: int, contrast: int,
     if residual_maximum > 44:
         raise ValueError("residual request budget exceeded")
     return {"cohort_size": total, "residual_request_maximum": residual_maximum}
+
+
+def source_rank(*, direct_funding: bool, upstream_funding: bool, ep3_topology: bool,
+                timing: bool, migration_actor: bool, behaviour: bool) -> tuple[int, int, int]:
+    """Neutral, pre-selection evidence-completeness rank for S2B only."""
+    independent = int(ep3_topology) + int(timing) + int(migration_actor) + int(behaviour)
+    return (-independent, -int(direct_funding or upstream_funding), -int(upstream_funding))
+
+
+def contrast_match_ladder(*, migration_week: int | None, funding_state: int,
+                          fanout_band: int | None) -> tuple[tuple[object, ...], ...]:
+    """Frozen deterministic matching fallbacks; no candidate-specific tuning."""
+    week = migration_week if migration_week is not None else -1
+    band = fanout_band if fanout_band is not None else -1
+    return ((week, funding_state, band), (week, funding_state), (funding_state,), ())

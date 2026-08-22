@@ -1,0 +1,49 @@
+{
+  "contamination_guard": "This amendment was written before running the population probe and before materializing any population or cohort identity. Its rules are fully specified from prior schema/contract semantics.",
+  "contract_sha256": "505120dc4a84fed3de7567cefbe28068e09b6e6bba25fa8f027843fdc96c6d78",
+  "contrast_matching": {
+    "anchor_assignment": "The 14 evaluation controls are ordered by frozen source_rank/mint/creator. Contrast slots cycle through control ordinals modulo 14 without using outcome data.",
+    "candidate_subclasses": [
+      "shared_funding_without_control_truth",
+      "cex_infrastructure_ancestry",
+      "ordinary_matched_launch"
+    ],
+    "fallback_ladder": [
+      "exact (migration_week, funding_state, fanout_band)",
+      "(migration_week, funding_state)",
+      "(funding_state)",
+      "global"
+    ],
+    "insufficient_candidates": "Fail closed with HOLD_P3R_S2B_CONTRAST_CONFOUND; do not rebalance quotas or hand-pick replacements.",
+    "match_features": {
+      "fanout_band": "0=1, 1=2-4, 2=5-9, 3=10+ members, or -1 when unavailable",
+      "funding_state": "1 if direct funding exists else 0",
+      "migration_week": "floor(migrated_at / 604800), or -1 when absent"
+    },
+    "missing_values": "Use -1 exactly as specified; no null ordering is discretionary.",
+    "neutrality": "Classes and matching features are pre-defined source properties. No detector result, canonical label in detector input, or observed candidate identity changes the rule.",
+    "ordering": "Within the first non-empty ladder level, use source_rank ASC, mint ASC, create_creator ASC; skip already selected and evaluation-truth members."
+  },
+  "final_identities_selected": false,
+  "milestone": "OPS-DISCOVERY-P3R-S2A-AMENDMENT-1",
+  "provider_calls_made": 0,
+  "scope": "schema-and-contract semantics only; no population, control, or contrast identities were read to create this amendment",
+  "selection_contract_changed": false,
+  "source_rank": {
+    "derivation": "(-independent_dimension_count, -has_funding_or_topology_context, -has_upstream_funding)",
+    "independent_dimension_count": "count of ep3_topology, timing, migration_actor, behaviour booleans",
+    "inputs": [
+      "direct_funding",
+      "upstream_funding",
+      "ep3_topology",
+      "timing",
+      "migration_actor",
+      "behaviour"
+    ],
+    "missing_values": "all absent/unavailable evidence is false",
+    "neutrality": "Ranks retained local evidence completeness only; it uses no control label, operation membership, contrast class, candidate outcome, or manually established family identity.",
+    "stability": "Booleans are derived solely from frozen population/evidence sources during S2B; no post-hoc tuning is permitted.",
+    "ties": "source_rank tuple ASC, then mint ASC, then create_creator ASC."
+  },
+  "status": "FROZEN_PRE_SELECTION"
+}

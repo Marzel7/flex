@@ -1,0 +1,48 @@
+{
+  "milestone": "OPS-DISCOVERY-P3R-S2B-SOURCE-BOUNDARY-RECONCILIATION",
+  "status": "HOLD",
+  "verdict": "HOLD_P3R_S2B_SOURCE_BOUNDARY_UNRESOLVED",
+  "previous_physical_db_identity": "device=16777231 inode=549513179 size=14952091648 mtime=2026-08-22T10:10:40Z",
+  "current_physical_db_identity": "device=16777231 inode=549513179 size=15036764160 mtime=2026-08-22T13:25:31Z",
+  "frozen_population_contract": {
+    "source": "database/flex_complete_database.db",
+    "predicate": "token_analysis JOIN pumpfun_migration_verification ON mint WHERE token_analysis.pf_ws_creator IS NOT NULL",
+    "retained_discovery_run": "local_discovery_20260819T212624Z",
+    "retained_population_denominator": 40301,
+    "retained_run_manifest_digest": "1fa17ad61f35fc948e0c3b81b7cb63df5fe9f106bbbb845128233d0de8324f1e"
+  },
+  "logical_boundary_recovery": {
+    "recorded_source_table_high_water": null,
+    "recorded_source_primary_key_digest": null,
+    "recorded_source_membership_digest": null,
+    "recorded_authoritative_timestamp_cutoff": null,
+    "conclusion": "The discovery_run manifest hashes run_id, denominator, and edge count only; it does not bind the source table rowids, source values, or source membership needed to reproduce the prior logical input."
+  },
+  "current_aggregate_only_observations": {
+    "token_analysis": {"primary_key": "mint", "rowid_min": 1, "rowid_max": 1997858, "relevant_index": "idx_ta_pf_ws_creator(pf_ws_creator)"},
+    "pumpfun_migration_verification": {"primary_key": "mint", "rowid_min": 1, "rowid_max": 43124},
+    "wal": {"present": true, "size_bytes": 3366072, "mtime_utc": "2026-08-22T13:26:32Z"},
+    "schema_and_index_metadata": "consistent with the proven indexed-equivalent query"
+  },
+  "preservation_assessment": {
+    "old_boundary_rows_unchanged": "NOT_PROVABLE: no old high-water or source digest was frozen",
+    "old_boundary_rows_append_only": "NOT_PROVABLE: current high-waters cannot identify an absent prior boundary, and WAL activity permits updates as well as inserts",
+    "old_boundary_membership_identical": "NOT_PROVABLE without the missing old membership/source digest",
+    "physical_drift_non_semantic": "NOT_PROVABLE"
+  },
+  "new_boundary_assessment": {
+    "result": "NOT_FROZEN",
+    "reason": "A new live rowid boundary would not by itself protect against updates to existing primary-key rows. Creating a digest-bound stable snapshot requires separate explicit scope and must not be inferred from desired population or control outcomes."
+  },
+  "contamination_guard": "No eligible-population query, count, manifest, candidate identity, Watchtower/3SW2 membership, contrast, or cohort evidence was read or used in this reconciliation.",
+  "provider_calls_made": 0,
+  "production_writes": 0,
+  "population_runner_executed": false,
+  "population_materialized": false,
+  "identities_selected_or_frozen": false,
+  "cohort_formed": false,
+  "s2a_amendment_modified": false,
+  "existing_funding_structures_unchanged": 8,
+  "p5f_scheduler_untouched": true,
+  "next_action": "REQUIRES_SEPARATE_AUTHORIZATION_FOR_A_NEUTRAL_DIGEST_BOUND_READ_ONLY_SOURCE_SNAPSHOT_OR_OTHER_AUTHORITATIVE_LOGICAL_BOUNDARY_CONTRACT_BEFORE_ANY_POPULATION_REPRODUCTION"
+}

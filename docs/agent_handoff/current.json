@@ -555,6 +555,21 @@
     "p5f_scheduler_untouched": true,
     "next_action": "BEGIN_OPS_DISCOVERY_P3R_S2_ONLY_FROM_BASELINE_bc78b062"
   },
+  "ops_discovery_p3r_s2b_preselection_closure": {
+    "updated_at_utc": "2026-08-22T00:00:00Z",
+    "status": "HOLD",
+    "verdict": "HOLD_P3R_S2B_POPULATION_REPRODUCTION_UNRESOLVED",
+    "baseline_commit": "18c5c970",
+    "population_probe": {"mode": "sqlite_uri_mode_ro_query_only", "expected_count": 40301, "wall_seconds": 20, "progress_calls": 735, "result": "BOUND_EXCEEDED_SQLITE_INTERRUPTED"},
+    "population_reproduced": false,
+    "identities_selected_or_frozen": false,
+    "s2a_amendment": {"contract_sha256": "505120dc4a84fed3de7567cefbe28068e09b6e6bba25fa8f027843fdc96c6d78", "status": "FROZEN_PRE_SELECTION"},
+    "deterministic_contract_tests": "9 passed",
+    "provider_calls_made": 0,
+    "existing_funding_structures_unchanged": 8,
+    "p5f_scheduler_untouched": true,
+    "next_action": "AUTHORIZE_A_DIFFERENT_PERSISTENT_READ_ONLY_EXECUTION_ENVIRONMENT_OR_A_SCHEMA_INDEXED_EQUIVALENT_REPRODUCTION_PROBE_BEFORE_ANY_S2B_IDENTITY_SELECTION"
+  },
   "ops_discovery_p3r_s2b": {
     "updated_at_utc": "2026-08-22T00:00:00Z",
     "status": "HOLD",

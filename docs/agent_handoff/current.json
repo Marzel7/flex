@@ -30216,6 +30216,21 @@
     "updated_at_utc": "2026-08-22T00:00:00Z",
     "verdict": "PASS_P3R_S2B_INDEXED_POPULATION_EQUIVALENCE_PROVEN"
   },
+  "ops_discovery_p3r_s2b_final_materialization_repair_qualification": {
+    "artifact": "docs/audits/ops_discovery_p3r_s2b_final_materialization_repair_rejected.json",
+    "candidate": "once-per-surface commits plus reduced progress-handler frequency",
+    "cohort_formed": false,
+    "exact_next_action": "Decide whether to preserve byte identity and authorize a different bounded repair candidate, or explicitly reopen the byte-identity contract. Do not run another real snapshot.",
+    "identities_selected_or_frozen": false,
+    "milestone": "OPS-DISCOVERY-P3R-S2B-FINAL-MATERIALIZATION-REPAIR-QUALIFICATION",
+    "new_real_snapshot_launches": 0,
+    "population_reproduction_executed": false,
+    "production_writes": 0,
+    "provider_calls_made": 0,
+    "result": "REJECTED: focused byte-identity fixture failed before benchmark; candidate final SQLite SHA differs from frozen reference",
+    "verdict": "HOLD_P3R_S2B_FINAL_MATERIALIZATION_REPAIR_BYTE_IDENTITY_REJECTED",
+    "working_tree_candidate": "UNCOMMITTED_REJECTED_RUNNER_AND_LOCAL_QUALIFICATION_HARNESS_CHANGES; do not use without explicit decision"
+  },
   "ops_discovery_p3r_s2b_final_materialization_telemetry_qualification": {
     "artifact": "docs/audits/ops_discovery_p3r_s2b_final_materialization_telemetry_qualification.json",
     "cohort_formed": false,
@@ -30908,7 +30923,7 @@
   },
   "project": {
     "branch": "classification-attribution-axis",
-    "git_head": "d688995da7430e7482be579dcc92ccfd0d22df56",
+    "git_head": "97a9f6bc2a424141496d1e544136ea8e45948912",
     "name": "flex",
     "updated_at_utc": "2026-08-17T18:50:18Z",
     "working_tree": "dirty: H8-to-H4 compatibility adapter added; projection runtime and H4 rerun materialized 150 operations"

@@ -555,6 +555,23 @@
     "p5f_scheduler_untouched": true,
     "next_action": "BEGIN_OPS_DISCOVERY_P3R_S2_ONLY_FROM_BASELINE_bc78b062"
   },
+  "ops_discovery_p3r_s2b_host_launch_preflight": {
+    "updated_at_utc": "2026-08-22T00:00:00Z",
+    "status": "HOLD",
+    "verdict": "HOLD_P3R_S2B_POPULATION_REPRODUCTION_UNRESOLVED",
+    "baseline_commit": "f9b8ac99",
+    "preflight": {"runner_query_and_equivalence_bindings": "PASS", "source_boundary": "DRIFT", "launch_started": false},
+    "previous_source": "device=16777231 inode=549513179 size=14952091648 mtime=2026-08-22T10:10:40Z",
+    "current_source": "device=16777231 inode=549513179 size=14963802112 mtime=2026-08-22T10:38:37Z",
+    "provider_calls_made": 0,
+    "production_writes": 0,
+    "identities_selected_or_frozen": false,
+    "cohort_formed": false,
+    "s2a_amendment_unchanged": true,
+    "existing_funding_structures_unchanged": 8,
+    "p5f_scheduler_untouched": true,
+    "next_action": "REQUIRES_SEPARATE_AUTHORIZATION_TO_RECONCILE_OR_REFREEZE_THE_SOURCE_BOUNDARY_BEFORE_ANY_POPULATION_REPRODUCTION_LAUNCH"
+  },
   "ops_discovery_p3r_s2b_host_execution": {
     "updated_at_utc": "2026-08-22T00:00:00Z",
     "status": "HOLD",

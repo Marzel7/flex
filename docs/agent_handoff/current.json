@@ -30245,6 +30245,20 @@
     "verdict": "HOLD_P3R_S2B_FINAL_MATERIALIZATION_REPAIR_BYTE_IDENTITY_REJECTED",
     "working_tree_candidate": "UNCOMMITTED_REJECTED_RUNNER_AND_LOCAL_QUALIFICATION_HARNESS_CHANGES; do not use without explicit decision"
   },
+  "ops_discovery_p3r_s2b_final_materialization_root_cause_diagnosis": {
+    "artifact": "docs/audits/ops_discovery_p3r_s2b_final_materialization_root_cause_diagnosis.json",
+    "broader_verdict": "HOLD_P3R_S2B_SOURCE_BOUNDARY_UNRESOLVED",
+    "cohort_formed": false,
+    "exact_next_action": "Fixture-qualify exactly one byte-preserving repair targeted at the isolated index-maintenance plus commit/journal cost, with byte identity first and a 270-second model before any real snapshot.",
+    "finding": "Index maintenance coupled with per-5000-row commit/journal behavior is dominant: removing the active secondary index reduces total wall time from 118.893s to 12.508s and commit time from 92.143s to 0.268s. Ordered reads and Python insert execution are secondary.",
+    "identities_selected_or_frozen": false,
+    "milestone": "OPS-DISCOVERY-P3R-S2B-FINAL-MATERIALIZATION-ROOT-CAUSE-DIAGNOSIS",
+    "population_reproduction_executed": false,
+    "production_writes": 0,
+    "provider_calls_made": 0,
+    "tests": "4 passed",
+    "verdict": "PASS_P3R_S2B_FINAL_MATERIALIZATION_ROOT_CAUSE_ISOLATED"
+  },
   "ops_discovery_p3r_s2b_final_materialization_telemetry_qualification": {
     "artifact": "docs/audits/ops_discovery_p3r_s2b_final_materialization_telemetry_qualification.json",
     "cohort_formed": false,
@@ -30937,7 +30951,7 @@
   },
   "project": {
     "branch": "classification-attribution-axis",
-    "git_head": "c134c412e589ebf2801578fd969f25e0242b489d",
+    "git_head": "e4296caeb84da5cbc9d9fa0dd0084b4652e74ce1",
     "name": "flex",
     "updated_at_utc": "2026-08-17T18:50:18Z",
     "working_tree": "dirty: H8-to-H4 compatibility adapter added; projection runtime and H4 rerun materialized 150 operations"

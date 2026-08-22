@@ -1,0 +1,41 @@
+{
+  "milestone": "OPS-DISCOVERY-P3R-S2B provenance-safe source snapshot execution contract",
+  "status": "PASS_P3R_S2B_PROVENANCE_SAFE_SNAPSHOT_EXECUTION_CONTRACT_READY",
+  "scope": "execution provenance only; no source snapshot or population reproduction executed",
+  "wrapper": "scripts/run_ops_discovery_p3r_s2b_source_snapshot_isolated.py",
+  "run_id": {
+    "generation": "UTC creation timestamp plus cryptographically random 128-bit hexadecimal suffix",
+    "format": "s2b-source-snapshot-<timestamp>-<random>",
+    "not_derived_from": ["population identities", "source outcomes", "candidate inspection"],
+    "collision_rule": "atomic creation of a run-scoped namespace; pre-existing namespace returns HOLD_PROVENANCE_ERROR and is never changed"
+  },
+  "namespace_layout": "docs/audits/ops_discovery_p3r_s2b_runs/<run_id>/{lifecycle.json,stdout.log,stderr.log,runner_candidate.sqlite.tmp,runner_candidate.sqlite,snapshot.sqlite,source_boundary_audit.json}",
+  "legacy_quarantine": {
+    "excluded": [
+      {"path": "docs/audits/ops_discovery_p3r_s2b_source_boundary_snapshot.json", "sha256": "d585d353af6d4e4a64c026ef7c1fbe77472abfd77e687b5e0983b02659abfa58"},
+      {"path": "docs/audits/ops_discovery_p3r_s2b_source_snapshot.sqlite.tmp", "sha256": "8812ad675a1de997fa5dd7bb506e1446ff72c43a353308f2a8d98d69a49f942e"}
+    ],
+    "rule": "never consume, promote, repair, overwrite, rename, or delete legacy artifacts; future runs use distinct namespaces"
+  },
+  "ownership": {
+    "wrapper": ["namespace claim", "lifecycle audit", "stdout", "stderr", "final authoritative snapshot promotion"],
+    "unchanged_snapshot_runner": ["run-scoped temporary candidate", "run-scoped candidate snapshot", "run-scoped source-boundary audit"],
+    "single_writer_enforcement": "one namespace per run ID; namespace collision fails closed before child launch"
+  },
+  "lifecycle_binding": {
+    "captured": ["run_id", "launcher PID/PPID/start time/cwd", "runner PID/PPID/start time", "exact command", "interpreter", "runner SHA-256", "source contract", "paths", "terminal time", "exit code", "runner terminal audit"],
+    "pid_reuse_protection": "PID is never an ownership key; the immutable run ID, atomic namespace claim, runner hash, command, and recorded child-start time bind the process to artifacts"
+  },
+  "terminal_states": ["STARTED", "PASS", "HOLD_BOUND_EXCEEDED", "HOLD_INTERRUPTED", "HOLD_RUNNER_ERROR", "HOLD_PROVENANCE_ERROR"],
+  "promotion": "only wrapper promotion after runner audit status COMPLETE, replay_identical=true, and child exit code=0; all HOLD temporary outputs remain non-authoritative and non-reusable",
+  "interruption": "wrapper writes STARTED before child launch; missing terminal audit or child error produces a terminal HOLD where possible; a namespace without terminal lifecycle remains non-authoritative and collision-protected for later investigation",
+  "unchanged_snapshot_contract": {"surfaces": ["token_analysis(mint,pf_ws_creator)", "pumpfun_migration_verification(mint)"], "transaction": "one coherent SQLite read-only transaction", "canonicalization_and_digest": "unchanged", "wall_seconds": 300, "population_query": "not executed by wrapper"},
+  "fixture_verification": {
+    "command": "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python -m pytest -q tests/test_ops_discovery_p3r_s2b_snapshot_isolated.py",
+    "result": "3 passed",
+    "coverage": ["run ID propagation and lifecycle attribution", "namespace collision refusal without mutation", "interrupted terminal HOLD retains non-authoritative temporary output"],
+    "real_source_snapshot_executed": false
+  },
+  "preserved_source_boundary_verdict": "HOLD_P3R_S2B_SOURCE_BOUNDARY_UNRESOLVED",
+  "next_authorization_required": "Separately authorize either one fresh provenance-safe source snapshot under the unchanged 300-second bound, or analysis of whether the unchanged implementation can legitimately complete within that bound."
+}

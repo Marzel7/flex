@@ -555,6 +555,28 @@
     "p5f_scheduler_untouched": true,
     "next_action": "BEGIN_OPS_DISCOVERY_P3R_S2_ONLY_FROM_BASELINE_bc78b062"
   },
+  "ops_discovery_p3r_s2b_source_snapshot": {
+    "updated_at_utc": "2026-08-22T14:33:00Z",
+    "status": "HOLD",
+    "verdict": "HOLD_P3R_S2B_SOURCE_BOUNDARY_UNRESOLVED",
+    "baseline_commit": "d18bd815",
+    "execution": {
+      "mode": "single_coherent_sqlite_read_only_transaction",
+      "bound_seconds": 300,
+      "result": "HARNESS_NO_TERMINAL_OUTPUT_AUDIT_STARTED_ONLY_TEMP_SNAPSHOT_INCOMPLETE"
+    },
+    "source_boundary_frozen": false,
+    "population_runner_executed": false,
+    "population_materialized": false,
+    "provider_calls_made": 0,
+    "production_writes": 0,
+    "identities_selected_or_frozen": false,
+    "cohort_formed": false,
+    "s2a_amendment_unchanged": true,
+    "existing_funding_structures_unchanged": 8,
+    "p5f_scheduler_untouched": true,
+    "next_action": "REQUIRES_SEPARATE_AUTHORIZATION_FOR_A_PERSISTENT_EXECUTION_ENVIRONMENT_CAPABLE_OF_COMPLETING_THE_ALREADY_BOUND_SINGLE_TRANSACTION_SOURCE_SNAPSHOT_DO_NOT_REDESIGN_SOURCE_SURFACES_OR_RUN_POPULATION_REPRODUCTION"
+  },
   "ops_discovery_p3r_s2b_source_boundary": {
     "updated_at_utc": "2026-08-22T00:00:00Z",
     "status": "HOLD",

@@ -1,0 +1,73 @@
+{
+  "milestone": "OPS-DISCOVERY-P3R-S2B final materialization and wall-time diagnosis",
+  "verdict": "HOLD_P3R_S2B_SNAPSHOT_300S_MARGIN_UNRESOLVED",
+  "real_run_timeline": {
+    "wrapper_started_utc": "2026-08-22T15:00:08.474909Z",
+    "runner_started_utc": "2026-08-22T15:00:08.477080Z",
+    "source_capture_stage_mtime_utc": "2026-08-22T15:00:47Z",
+    "source_capture_duration_approx_seconds": 39,
+    "final_candidate_active_mtime_utc": "2026-08-22T15:05:02Z",
+    "runner_terminated_utc": "2026-08-22T15:05:03.095655Z",
+    "wrapper_terminal_elapsed_seconds": 294.620746,
+    "last_definitely_completed_semantic_stage": "both source surfaces captured into the non-authoritative run-local staging file inside the runner's source read-only transaction",
+    "not_completed": ["final candidate materialization", "per-surface result publication", "replay", "snapshot SHA-256", "top-level boundary digest", "wrapper promotion"]
+  },
+  "artifact_diagnosis": {
+    "staging_capture": {
+      "path": "docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T150007284438000Z-c863450ee1a53f5a092d4ace13922b7e/runner_candidate.sqlite.capture.sqlite",
+      "size_bytes": 196071424,
+      "quick_check": "ok",
+      "rows": {"token_analysis": 2000754, "pumpfun_migration_verification": 43251},
+      "rowid_high_waters": {"token_analysis": 2000754, "pumpfun_migration_verification": 43251}
+    },
+    "final_candidate": {
+      "path": "docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T150007284438000Z-c863450ee1a53f5a092d4ace13922b7e/runner_candidate.sqlite.tmp",
+      "size_bytes": 168124416,
+      "journal_size_bytes": 5757000,
+      "schema_seen_before_read_failure": ["token_analysis", "pumpfun_migration_verification", "idx_ta_pf_ws_creator"],
+      "immutable_read_result": "DatabaseError: database disk image is malformed",
+      "interpretation": "SIGTERM interrupted active rollback-journal final materialization/commit. This candidate is non-authoritative and cannot establish completed-row counts or semantic completion."
+    }
+  },
+  "bottleneck_assessment": {
+    "localized_stage": "final ordered staging SELECT, Python transfer/digest, destination indexed inserts, and repeated destination commits",
+    "not_source_capture": "real source capture completed in about 39 seconds, leaving approximately 255 seconds in final local work",
+    "not_replay_or_hash": "neither was reached",
+    "exact_suboperation": "not isolatable from the interrupted candidate; the hot rollback journal proves a destination transaction was active at termination but does not distinguish index maintenance, batch commit/fsync, or preceding ordered transfer",
+    "conclusion": "A real performance repair cannot be selected safely from the retained evidence alone."
+  },
+  "walltime_enforcement": {
+    "runner_deadline": "time.monotonic() deadline is checked only by a SQLite progress handler attached to the source connection",
+    "uncovered_expensive_connections": ["run-local staging read connection used for final ORDER BY", "destination candidate connection used for inserts and commit", "replay connection"],
+    "wrapper_deadline": "none; wrapper waits indefinitely for child completion",
+    "noninterruptible_gap": "destination SQLite commit/fsync can run across the semantic deadline because no progress handler or wrapper deadline covers it",
+    "observed_cleanup_margin_seconds": 0,
+    "why_runner_was_active_at_294_6_seconds": "it had entered uncovered final local candidate work after source capture and had no deterministic pre-commit budget gate"
+  },
+  "bounded_fixture_experiments": {
+    "single_transaction_with_default_settings": {"final_snapshot_sha256_equal_to_reference": false, "result": "not qualified because prior fixture qualification established byte-identical final snapshot expectation"},
+    "journal_mode_off_and_synchronous_off": {"final_snapshot_sha256_equal_to_reference": false, "result": "not qualified"},
+    "synchronous_off_with_original_batch_commit_order": {"sample_rows": 100000, "reference_seconds": 0.608341, "candidate_seconds": 0.575424, "speedup": 1.057204, "final_snapshot_sha256_equal_to_reference": true, "result": "semantically/physically compatible but insufficient measured improvement to establish safe real-run margin"}
+  },
+  "budget_model": {
+    "external_semantic_ceiling_seconds": 300,
+    "minimum_required_repair": "a parent-wrapper monotonic deadline and deterministic pre-phase budget gates must cover source capture, final materialization, replay/hash, and terminal audit; the wrapper must signal/record HOLD before the external ceiling rather than wait indefinitely",
+    "not_yet_qualified": "phase allocations and cleanup reserve cannot be chosen non-arbitrarily until a final-stage repair is measured at representative scale",
+    "future_gate": "do not enter destination commit or replay unless measured remaining budget includes conservative operation and cleanup allowance"
+  },
+  "scope_confirmations": {
+    "real_source_snapshot_executed_during_diagnosis": false,
+    "previous_candidate_modified_or_resumed": false,
+    "previous_candidate_authoritative": false,
+    "population_reproduction_executed": false,
+    "provider_calls_made": 0,
+    "production_source_database_writes": 0,
+    "identities_selected_or_frozen": false,
+    "cohort_formed": false,
+    "s2a_amendment_unchanged": true,
+    "existing_funding_structures_unchanged": 8,
+    "p5f_untouched": true
+  },
+  "preserved_source_boundary_verdict": "HOLD_P3R_S2B_SOURCE_BOUNDARY_UNRESOLVED",
+  "next_authorization_required": "Authorize a representative-scale, local-only final-materialization benchmark matrix and a semantics-preserving wall-time guard design. Do not retry a real source snapshot until a specific final-stage repair and deterministic cleanup margin are qualified."
+}

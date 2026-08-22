@@ -1,0 +1,65 @@
+{
+  "artifact_sha256": "733a6c2a799b01632b48801c476826cb722f10bee5c29c6aaad74d37122e5cd8",
+  "bounds": {
+    "prior_execution_bound_seconds": 20,
+    "prior_execution_max_progress_calls": 100000,
+    "this_artifact_generation": "no SQLite population query executed"
+  },
+  "frozen_population_definition": {
+    "high_water": "No explicit source-DB high-water predicate exists in the frozen S2A query; equivalence applies to the same database state at execution time.",
+    "query": "SELECT COUNT(*) FROM token_analysis AS ta JOIN pumpfun_migration_verification AS pmv ON ta.mint = pmv.mint WHERE ta.pf_ws_creator IS NOT NULL",
+    "semantics": "Inner-join eligible token rows to migration-verification rows by mint, then retain rows whose creator is not NULL.",
+    "source_boundary": "database/flex_complete_database.db read-only; S2A retained discovery_run expects 40301 but this proof does not reproduce or assert that count."
+  },
+  "generator_repair": {
+    "location": "previous inline Python artifact-construction block",
+    "minimal_change": "false -> False",
+    "observed_defect": "NameError from Python identifier false",
+    "other_query_or_contract_changes": false
+  },
+  "membership_equivalence_proof": {
+    "cannot_add_members": "EXISTS requires the same PMV mint match that the inner join requires; forcing the creator index changes no predicate.",
+    "cannot_remove_members": "Every original joined row has exactly one matching PMV row and passes the identical creator predicate, so it satisfies EXISTS.",
+    "cardinality": "token_analysis.mint is a primary key and pumpfun_migration_verification.mint is a primary key. The observed duplicate PMV mint-group count was 0. Therefore each eligible token row has at most one PMV match, so INNER JOIN cardinality equals EXISTS cardinality.",
+    "null_and_missing": "NULL pf_ws_creator rows are excluded identically. A token row with no PMV mint match is excluded by both INNER JOIN and EXISTS. PK mint equality has identical NULL behavior; no NULL mint can form a match.",
+    "ordering": "COUNT(*) has no ordering semantics. A later authorized manifest must use the separately frozen mint/creator ordering; no ordering or identity output is produced here.",
+    "predicate_identity": "Both queries require exactly ta.pf_ws_creator IS NOT NULL and equality on ta.mint = pmv.mint."
+  },
+  "milestone": "OPS-DISCOVERY-P3R-S2B-POPULATION-EQUIVALENCE",
+  "preservation": {
+    "cohort_formed": false,
+    "existing_funding_structures_unchanged": 8,
+    "identities_selected_or_frozen": false,
+    "p5f_scheduler_untouched": true,
+    "population_count_materialized": false,
+    "population_manifest_materialized": false,
+    "production_writes": 0,
+    "provider_calls_made": 0,
+    "s2a_amendment_modified": false
+  },
+  "query_plans_observed_pre_generation": {
+    "indexed_equivalent": [
+      "SEARCH ta USING INDEX idx_ta_pf_ws_creator (pf_ws_creator>?)",
+      "SEARCH pmv EXISTS USING COVERING PRIMARY-KEY INDEX (mint=?)"
+    ],
+    "original": [
+      "SCAN ta USING INDEX idx_ta_bonding_curve_refresh",
+      "SEARCH pmv USING COVERING PRIMARY-KEY INDEX (mint=?)"
+    ]
+  },
+  "schema_indexed_equivalent": {
+    "access_path_only": "INDEXED BY idx_ta_pf_ws_creator constrains SQLite planning only; it adds no row predicate.",
+    "indexes": [
+      "token_analysis.idx_ta_pf_ws_creator(pf_ws_creator)",
+      "pumpfun_migration_verification.sqlite_autoindex_pumpfun_migration_verification_1(mint PRIMARY KEY)"
+    ],
+    "query": "SELECT COUNT(*) FROM token_analysis AS ta INDEXED BY idx_ta_pf_ws_creator WHERE ta.pf_ws_creator IS NOT NULL AND EXISTS (SELECT 1 FROM pumpfun_migration_verification AS pmv WHERE pmv.mint = ta.mint)",
+    "tables_columns": [
+      "token_analysis.mint",
+      "token_analysis.pf_ws_creator",
+      "pumpfun_migration_verification.mint"
+    ]
+  },
+  "scope": "semantic proof only; no population query, count, manifest, or candidate identity was materialized",
+  "status": "PASS_P3R_S2B_INDEXED_POPULATION_EQUIVALENCE_PROVEN"
+}

@@ -1,0 +1,62 @@
+{
+  "benchmark": {
+    "candidate_progress_calls": 304,
+    "candidate_rows_per_second": 5210.432950605071,
+    "candidate_surface_timings": {
+      "pumpfun_migration_verification": {
+        "commit_seconds": 0.021418624906800687,
+        "commits": 9,
+        "insert_seconds": 0.14520112494938076,
+        "ordered_read_seconds": 0.06161508592776954,
+        "rows": 43439
+      },
+      "token_analysis": {
+        "commit_seconds": 93.72203741967678,
+        "commits": 109,
+        "insert_seconds": 10.99407016846817,
+        "ordered_read_seconds": 7.989798579306807,
+        "rows": 545000
+      }
+    },
+    "candidate_total_seconds": 112.93476100324187,
+    "reference_guarded_total_seconds": 95.006765,
+    "rows": 588439,
+    "speedup_factor": 0.8412535180135792
+  },
+  "byte_identity": {
+    "candidate_fixture_sha256": "60577aedb116a7fb1d9be5a3be6b75645da2fbef9c02dd71ede51e4171bb65f0",
+    "fixture": "PASS 4 passed",
+    "reference_fixture_sha256": "60577aedb116a7fb1d9be5a3be6b75645da2fbef9c02dd71ede51e4171bb65f0",
+    "representative_snapshot_sha256": "c6d350f9fa15c4063a9d8bf89d96d27596a9a5e9ac06dc7fe282999ec3481525"
+  },
+  "candidate": "progress-handler cadence only: 1000 to 100000 opcodes; 5000-row commit cadence unchanged",
+  "exact_next_authorization_required": "Authorize a different single byte-preserving repair candidate or bounded root-cause diagnosis; do not run a real snapshot.",
+  "full_workload_model": {
+    "candidate_final_materialization_seconds_projected": 393.582456475494,
+    "conclusion": "fails 270-second execution deadline before replay/digest/audit",
+    "minimum_execution_seconds_before_replay_digest_audit": 428.582456475494,
+    "source_capture_seconds": 35
+  },
+  "milestone": "OPS-DISCOVERY-P3R-S2B-BYTE-PRESERVING-FINAL-MATERIALIZATION-REPAIR",
+  "scope_confirmations": {
+    "cohort_formed": false,
+    "funding_structures_changed": false,
+    "identities_selected_or_frozen": false,
+    "new_real_snapshot_launches": 0,
+    "p5f_touched": false,
+    "population_reproduction_executed": false,
+    "production_source_writes": 0,
+    "provider_calls_made": 0,
+    "s2a_amendment_1_changed": false
+  },
+  "timeout_safety": {
+    "candidate_progress_opcode_interval": 100000,
+    "cleanup_reserve_seconds": 30,
+    "conclusion": "measured gap fits the reserve, but candidate is not qualified because performance is insufficient",
+    "measured_max_progress_gap_seconds": 7.473118417023215,
+    "reserve_remaining_after_measured_gap_seconds": 22.526881582976785,
+    "shared_execution_deadline_seconds": 270,
+    "wrapper_hard_ceiling_seconds": 300
+  },
+  "verdict": "HOLD_P3R_S2B_BYTE_PRESERVING_REPAIR_INSUFFICIENT_270S"
+}

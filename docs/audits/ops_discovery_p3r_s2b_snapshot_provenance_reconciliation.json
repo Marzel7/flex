@@ -1,0 +1,89 @@
+{
+  "artifact_type": "OPS-DISCOVERY-P3R-S2B source snapshot provenance reconciliation",
+  "reconciled_at_utc": "2026-08-22T13:44:38Z",
+  "decision": "HOLD_P3R_S2B_SNAPSHOT_PROVENANCE_UNRESOLVED",
+  "preserved_source_boundary_verdict": "HOLD_P3R_S2B_SOURCE_BOUNDARY_UNRESOLVED",
+  "scope": {
+    "local_read_only_reconciliation": true,
+    "snapshot_runner_launched": false,
+    "population_reproduction_executed": false,
+    "provider_calls_made": 0,
+    "production_database_writes": 0,
+    "identities_selected_or_frozen": false,
+    "cohort_formed": false,
+    "s2a_amendment_unchanged": true,
+    "existing_funding_structures_unchanged": 8,
+    "p5f_untouched": true
+  },
+  "published_handoff": {
+    "commit": "80f8f249266b8c48dbdad5cdc9eff743850ec695",
+    "local_sha256": "3257f85c6f8b571d810cb5e9ededd4f2c10d0bea9608a975b5c72ee5c2c50098",
+    "expected_sha256": "3257f85c6f8b571d810cb5e9ededd4f2c10d0bea9608a975b5c72ee5c2c50098",
+    "verified": true
+  },
+  "committed_runner": {
+    "path": "scripts/freeze_ops_discovery_p3r_s2b_source_boundary.py",
+    "commit": "d18bd8152047402888a3e56886f1c9e3f1b4bf8a",
+    "committed_sha256": "a78c5c02bec7d075169bb51d2c3a961cff354ef9dc44582558f9ad1f77c36331",
+    "working_tree_sha256": "a78c5c02bec7d075169bb51d2c3a961cff354ef9dc44582558f9ad1f77c36331",
+    "matches_committed_state": true,
+    "authorized_surfaces": [
+      {"table": "token_analysis", "columns": ["mint", "pf_ws_creator"], "order": "mint ASC"},
+      {"table": "pumpfun_migration_verification", "columns": ["mint"], "order": "mint ASC"}
+    ],
+    "bound_seconds": 300,
+    "terminal_hold_path": "OperationalError containing interrupted is recorded as status HOLD, failure_reason BOUND_EXCEEDED, then atomically replaces the audit."
+  },
+  "artifact_inventory": {
+    "terminal_audit": {
+      "absolute_path": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_source_boundary_snapshot.json",
+      "designation": "runtime terminal audit; not an authoritative source boundary",
+      "size_bytes": 934,
+      "mtime_local": "2026-08-22T14:37:27+01:00",
+      "ctime_local": "2026-08-22T14:37:27+01:00",
+      "sha256": "d585d353af6d4e4a64c026ef7c1fbe77472abfd77e687b5e0983b02659abfa58",
+      "embedded_status": "HOLD",
+      "embedded_failure_reason": "BOUND_EXCEEDED",
+      "embedded_elapsed_seconds": 300.356458,
+      "embedded_progress_calls": 1733,
+      "run_identifier_or_pid": null
+    },
+    "temporary_snapshot": {
+      "absolute_path": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_source_snapshot.sqlite.tmp",
+      "designation": "incomplete temporary materialization; non-authoritative and not consumed",
+      "size_bytes": 74727424,
+      "mtime_local": "2026-08-22T14:37:26+01:00",
+      "ctime_local": "2026-08-22T14:37:26+01:00",
+      "sha256": "8812ad675a1de997fa5dd7bb506e1446ff72c43a353308f2a8d98d69a49f942e",
+      "schema_matches_runner_defined_temp_schema": true,
+      "quick_check": "ok"
+    },
+    "previous_closure": {
+      "absolute_path": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_source_boundary_snapshot_unresolved.json",
+      "size_bytes": 1384,
+      "mtime_local": "2026-08-22T14:33:33+01:00",
+      "sha256": "139f105be576e521d53300c4e003e5c3e36fb5ebffd651762b81a4e9e14a71f1",
+      "designation": "prior interruption closure; preserved unchanged"
+    },
+    "final_snapshot": {"present": false}
+  },
+  "correlation_evidence": {
+    "original_authorized_invocation": "Session record establishes one prior authorized invocation of the committed runner using the bound 300-second arguments; no new invocation occurred in this reconciliation.",
+    "temporal_correlation": "The temp snapshot mtime (14:37:26+01:00) immediately precedes the terminal audit mtime (14:37:27+01:00); terminal elapsed time is 300.356458 seconds. The preserved interruption closure predates both at 14:33:33+01:00.",
+    "structural_correlation": "The terminal audit fields exactly match the committed runner's BOUND_EXCEEDED exception path. The temporary SQLite schema exactly matches that runner's temporary schema and quick_check is ok.",
+    "live_process_and_handle_check": "No relevant live runner process or open handle was found; only the inspection command itself matched the process search.",
+    "stdout_stderr_lifecycle_files": "No relevant standalone stdout, stderr, or lifecycle file was found in the bounded audit/log path inspection.",
+    "second_runner_detected": false,
+    "unrelated_writer_detected": false
+  },
+  "why_provenance_is_not_accepted": "The runner emits no immutable run identifier or PID into its audit, and no retained launcher/PID/parent-child/exit record links the original authorized invocation to the terminal write. A second historical invocation of the same unchanged runner using the same paths therefore cannot be ruled out with sufficient confidence. Temporal and structural consistency is corroborative but not sole-ownership proof.",
+  "repository_reconciliation": {
+    "runtime_changes_after_d18bd815": [
+      "docs/audits/ops_discovery_p3r_s2b_source_boundary_snapshot.json modified",
+      "docs/audits/ops_discovery_p3r_s2b_source_snapshot.sqlite.tmp untracked"
+    ],
+    "source_runner_modified": false,
+    "classification": "The observed changes are runtime-output-shaped, but their sole writer provenance remains unresolved."
+  },
+  "next_authorization_required": "Authorize a provenance-safe resolution path before any source-snapshot rerun or source-boundary use. Do not consume, overwrite, delete, repair, or promote the ambiguous terminal audit or temporary snapshot under the current authorization."
+}

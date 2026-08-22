@@ -30459,6 +30459,16 @@
     "updated_at_utc": "2026-08-22T00:00:00Z",
     "verdict": "HOLD_P3R_S2B_POPULATION_REPRODUCTION_UNRESOLVED"
   },
+  "ops_discovery_p3r_s2b_layout_independent_snapshot_construction_qualification": {
+    "artifact": "docs/audits/ops_discovery_p3r_s2b_layout_independent_snapshot_construction_qualification.json",
+    "conservative_execution_seconds": 136.273906,
+    "conservative_terminal_seconds": 166.273906,
+    "local_workflow_seconds": 57.964348,
+    "milestone": "OPS-DISCOVERY-P3R-S2B-LAYOUT-INDEPENDENT-SNAPSHOT-CONSTRUCTION-QUALIFICATION",
+    "next_authorization": "Authorize one real provenance-safe source snapshot using this exact deferred-index construction under unchanged 270/300 limits.",
+    "semantic_boundary_sha256": "8fafd8de61c8d924bed5085a5a2102459e5e06a66cdc814e87dda6d9d800cfaa",
+    "verdict": "PASS_P3R_S2B_LAYOUT_INDEPENDENT_SNAPSHOT_CONSTRUCTION_QUALIFIED"
+  },
   "ops_discovery_p3r_s2b_optimized_real_snapshot_execution": {
     "artifact": "docs/audits/ops_discovery_p3r_s2b_optimized_real_snapshot_execution_hold.json",
     "authoritative_source_boundary_promoted": false,
@@ -30990,7 +31000,7 @@
   },
   "project": {
     "branch": "classification-attribution-axis",
-    "git_head": "3f4d4552ac89171ded775082c107ec505dc96ede",
+    "git_head": "1e292f254d71163d1935807cf9dc6217b97230d5",
     "name": "flex",
     "updated_at_utc": "2026-08-17T18:50:18Z",
     "working_tree": "dirty: H8-to-H4 compatibility adapter added; projection runtime and H4 rerun materialized 150 operations"

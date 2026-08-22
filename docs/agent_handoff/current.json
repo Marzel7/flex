@@ -30615,6 +30615,24 @@
     "updated_at_utc": "2026-08-22T13:44:38Z",
     "verdict": "PASS_P3R_S2B_SNAPSHOT_OPTIMIZATION_QUALIFIED_300S"
   },
+  "ops_discovery_p3r_s2b_source_snapshot_real_run_timing_diagnosis": {
+    "artifact": "docs/audits/ops_discovery_p3r_s2b_source_snapshot_real_run_timing_diagnosis.json",
+    "cohort_formed": false,
+    "exact_next_action": "Authorize a semantics-preserving telemetry and representative-scale final-materialization qualification that emits durable stage/progress/commit timing before any further real source snapshot; do not authorize another 270-second real snapshot yet.",
+    "finding": "capture completed in about 35s; final materialization reached only 545000/2050735 rows in about 235.210428s (about 2316.4 rows/s), so the prior 253.636312s projection is invalid for the real workload.",
+    "funding_structures_changed": false,
+    "identities_selected_or_frozen": false,
+    "input_run_id": "s2b-source-snapshot-20260822T190101225416000Z-bb2dfefa2fd4795f945156fec8c84849",
+    "milestone": "OPS-DISCOVERY-P3R-S2B-SOURCE-SNAPSHOT-REAL-RUN-TIMING-DIAGNOSIS",
+    "new_real_snapshot_launches": 0,
+    "p5f_touched": false,
+    "population_reproduction_executed": false,
+    "production_writes": 0,
+    "provider_calls_made": 0,
+    "root_cause_resolution": "PARTIAL: timeout is localized to first-surface final destination materialization; granular insert/index/commit/cache attribution requires durable telemetry.",
+    "s2a_amendment_1_changed": false,
+    "verdict": "HOLD_P3R_S2B_SOURCE_BOUNDARY_SNAPSHOT_BOUND_EXCEEDED"
+  },
   "ops_discovery_p3r_x": {
     "bound_outer_values": {
       "behaviour": 12,
@@ -30873,7 +30891,7 @@
   },
   "project": {
     "branch": "classification-attribution-axis",
-    "git_head": "df2f733569b7cf5b40ff7e51971b13262b50dedd",
+    "git_head": "688983be6c22e6c779e8f79ebeca6396ef00e3f6",
     "name": "flex",
     "updated_at_utc": "2026-08-17T18:50:18Z",
     "working_tree": "dirty: H8-to-H4 compatibility adapter added; projection runtime and H4 rerun materialized 150 operations"

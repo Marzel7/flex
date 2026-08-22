@@ -30216,6 +30216,23 @@
     "updated_at_utc": "2026-08-22T00:00:00Z",
     "verdict": "PASS_P3R_S2B_INDEXED_POPULATION_EQUIVALENCE_PROVEN"
   },
+  "ops_discovery_p3r_s2b_final_materialization_telemetry_qualification": {
+    "artifact": "docs/audits/ops_discovery_p3r_s2b_final_materialization_telemetry_qualification.json",
+    "cohort_formed": false,
+    "exact_next_action": "Authorize a semantics-preserving final-materialization performance repair proposal and fixture qualification targeting the measured commit-dominated qualified path and progress-handler overhead; do not authorize another real source snapshot until a revised full-workload model has demonstrated margin under the 270-second execution deadline.",
+    "finding": "At 545k local rows: qualified=66.729209s, guarded=95.008445s, baseline=202.040946s; qualified/guarded/baseline output SQLite bytes identical. Guard overhead is material but the real 235.210428s partial run remains about 2.476x slower than guarded.",
+    "funding_structures_changed": false,
+    "identities_selected_or_frozen": false,
+    "milestone": "OPS-DISCOVERY-P3R-S2B-FINAL-MATERIALIZATION-TELEMETRY-QUALIFICATION",
+    "new_real_snapshot_launches": 0,
+    "p5f_touched": false,
+    "population_reproduction_executed": false,
+    "production_writes": 0,
+    "provider_calls_made": 0,
+    "s2a_amendment_1_changed": false,
+    "tests": "4 passed; aggregate source capture telemetry equals per-surface fixture totals",
+    "verdict": "HOLD_P3R_S2B_SOURCE_BOUNDARY_SNAPSHOT_BOUND_EXCEEDED"
+  },
   "ops_discovery_p3r_s2b_final_materialization_walltime_diagnosis": {
     "artifact": "docs/audits/ops_discovery_p3r_s2b_final_materialization_walltime_diagnosis.json",
     "baseline_commit": "189babac",
@@ -30891,7 +30908,7 @@
   },
   "project": {
     "branch": "classification-attribution-axis",
-    "git_head": "688983be6c22e6c779e8f79ebeca6396ef00e3f6",
+    "git_head": "d688995da7430e7482be579dcc92ccfd0d22df56",
     "name": "flex",
     "updated_at_utc": "2026-08-17T18:50:18Z",
     "working_tree": "dirty: H8-to-H4 compatibility adapter added; projection runtime and H4 rerun materialized 150 operations"

@@ -1,0 +1,22 @@
+{
+  "milestone": "OPS-DISCOVERY-P3R-S2B-HOST-LAUNCH",
+  "status": "HOLD",
+  "verdict": "HOLD_P3R_S2B_POPULATION_REPRODUCTION_UNRESOLVED",
+  "preflight": {
+    "runner_matches_commit_23fc4023": true,
+    "query_sha256": "76398c241b7211c253199a45813effce8a7dcd394d8744380dd0b79bc7fc8031",
+    "equivalence_artifact_sha256": "733a6c2a799b01632b48801c476826cb722f10bee5c29c6aaad74d37122e5cd8",
+    "source_db_previous_binding": "device=16777231 inode=549513179 size=14952091648 mtime=2026-08-22T10:10:40Z",
+    "source_db_current_binding": "device=16777231 inode=549513179 size=14963802112 mtime=2026-08-22T10:38:37Z",
+    "result": "SOURCE_BOUNDARY_DRIFT"
+  },
+  "launch": "NOT_STARTED; lifecycle wrapper was not invoked because frozen source binding did not match.",
+  "provider_calls_made": 0,
+  "production_writes": 0,
+  "identities_selected_or_frozen": false,
+  "cohort_formed": false,
+  "s2a_amendment_modified": false,
+  "existing_funding_structures_unchanged": 8,
+  "p5f_scheduler_untouched": true,
+  "next_action": "REQUIRES_SEPARATE_AUTHORIZATION_TO_RECONCILE_OR_REFREEZE_THE_SOURCE_BOUNDARY_BEFORE_ANY_POPULATION_REPRODUCTION_LAUNCH"
+}

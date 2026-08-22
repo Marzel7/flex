@@ -30239,6 +30239,13 @@
     "updated_at_utc": "2026-08-22T00:00:00Z",
     "verdict": "PASS_P3R_S2B_INDEXED_POPULATION_EQUIVALENCE_PROVEN"
   },
+  "ops_discovery_p3r_s2b_final_byte_preserving_optimization": {
+    "artifact": "docs/audits/ops_discovery_p3r_s2b_final_byte_preserving_optimization_exhausted.json",
+    "exact_next_action": "Separate review of physical SQLite byte-identity contract versus canonical semantic identity; do not run a real snapshot.",
+    "finding": "final candidate byte-identical at 72.273s/588439 but projects 251.875s final alone",
+    "milestone": "OPS-DISCOVERY-P3R-S2B-FINAL-BYTE-PRESERVING-OPTIMIZATION",
+    "verdict": "HOLD_P3R_S2B_BYTE_PRESERVING_OPTIMIZATION_SPACE_EXHAUSTED"
+  },
   "ops_discovery_p3r_s2b_final_materialization_repair_qualification": {
     "artifact": "docs/audits/ops_discovery_p3r_s2b_final_materialization_repair_rejected.json",
     "candidate": "once-per-surface commits plus reduced progress-handler frequency",
@@ -30960,7 +30967,7 @@
   },
   "project": {
     "branch": "classification-attribution-axis",
-    "git_head": "364895a6d9ef6b956baaf41feea89a1b76993324",
+    "git_head": "4a145ea65d0245f8b10bc5024e28adceea552be5",
     "name": "flex",
     "updated_at_utc": "2026-08-17T18:50:18Z",
     "working_tree": "dirty: H8-to-H4 compatibility adapter added; projection runtime and H4 rerun materialized 150 operations"

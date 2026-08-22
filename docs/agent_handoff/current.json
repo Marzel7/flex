@@ -30212,6 +30212,15 @@
     "verdict": "HOLD_P3R_S2B_BYTE_PRESERVING_REPAIR_INSUFFICIENT_270S",
     "working_tree_candidate": "UNCOMMITTED_UNADOPTED_100K_PROGRESS_CADENCE_CANDIDATE"
   },
+  "ops_discovery_p3r_s2b_byte_preserving_index_commit_repair": {
+    "artifact": "docs/audits/ops_discovery_p3r_s2b_byte_preserving_index_commit_repair_insufficient.json",
+    "exact_next_action": "Authorize a different byte-preserving repair or explicit contract reconsideration; no real snapshot.",
+    "finding": "journal_mode=OFF preserves bytes and improves local stage but projects 305.561s final materialization alone",
+    "milestone": "OPS-DISCOVERY-P3R-S2B-BYTE-PRESERVING-INDEX-COMMIT-REPAIR",
+    "production_writes": 0,
+    "provider_calls_made": 0,
+    "verdict": "HOLD_P3R_S2B_BYTE_PRESERVING_REPAIR_INSUFFICIENT_270S"
+  },
   "ops_discovery_p3r_s2b_equivalence": {
     "artifact": "docs/audits/ops_discovery_p3r_s2b_population_equivalence.json",
     "artifact_sha256": "733a6c2a799b01632b48801c476826cb722f10bee5c29c6aaad74d37122e5cd8",
@@ -30951,7 +30960,7 @@
   },
   "project": {
     "branch": "classification-attribution-axis",
-    "git_head": "e4296caeb84da5cbc9d9fa0dd0084b4652e74ce1",
+    "git_head": "364895a6d9ef6b956baaf41feea89a1b76993324",
     "name": "flex",
     "updated_at_utc": "2026-08-17T18:50:18Z",
     "working_tree": "dirty: H8-to-H4 compatibility adapter added; projection runtime and H4 rerun materialized 150 operations"

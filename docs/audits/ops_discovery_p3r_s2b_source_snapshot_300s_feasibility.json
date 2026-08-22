@@ -1,0 +1,87 @@
+{
+  "milestone": "OPS-DISCOVERY-P3R-S2B source-snapshot bounded feasibility analysis",
+  "verdict": "HOLD_P3R_S2B_SNAPSHOT_300S_FEASIBILITY_NOT_DEMONSTRABLY_MET",
+  "scope": {
+    "analysis_only": true,
+    "real_source_snapshot_executed": false,
+    "population_reproduction_executed": false,
+    "eligible_population_count_calculated": false,
+    "provider_calls_made": 0,
+    "production_database_writes": 0,
+    "identities_selected_or_frozen": false,
+    "cohort_formed": false,
+    "s2a_amendment_unchanged": true,
+    "existing_funding_structures_unchanged": 8,
+    "p5f_untouched": true
+  },
+  "unchanged_runner_binding": {
+    "path": "scripts/freeze_ops_discovery_p3r_s2b_source_boundary.py",
+    "sha256": "a78c5c02bec7d075169bb51d2c3a961cff354ef9dc44582558f9ad1f77c36331",
+    "wall_seconds": 300,
+    "surfaces": [
+      "token_analysis(mint,pf_ws_creator) ordered mint ASC",
+      "pumpfun_migration_verification(mint) ordered mint ASC"
+    ],
+    "semantics_changed": false
+  },
+  "observed_authorized_attempt": {
+    "terminal_audit": "docs/audits/ops_discovery_p3r_s2b_source_boundary_snapshot.json",
+    "terminal_status": "HOLD",
+    "failure_reason": "BOUND_EXCEEDED",
+    "elapsed_seconds": 300.356458,
+    "progress_callbacks": 1733,
+    "temporary_snapshot": "docs/audits/ops_discovery_p3r_s2b_source_snapshot.sqlite.tmp",
+    "temporary_snapshot_size_bytes": 74727424,
+    "temporary_snapshot_quick_check": "ok",
+    "temporary_snapshot_committed_rows": {
+      "token_analysis": 345000,
+      "pumpfun_migration_verification": 0
+    },
+    "interpretation": "The unchanged runner had not reached the second authorized surface. Its 5,000-row commit cadence makes the 345,000 rows a conservative committed-work measurement; an in-memory partial batch is not counted."
+  },
+  "current_read_only_source_measurement": {
+    "source_db": "database/flex_complete_database.db",
+    "source_size_bytes": 15076417536,
+    "schema_version": 816,
+    "surface_counts": {
+      "token_analysis": 1999450,
+      "pumpfun_migration_verification": 43188,
+      "total": 2042638
+    },
+    "surface_rowid_high_waters": {
+      "token_analysis": 1999571,
+      "pumpfun_migration_verification": 43188
+    },
+    "query_plans": {
+      "token_analysis": "SCAN token_analysis USING INDEX sqlite_autoindex_token_analysis_1",
+      "pumpfun_migration_verification": "SCAN pumpfun_migration_verification USING COVERING INDEX sqlite_autoindex_pumpfun_migration_verification_1"
+    },
+    "identity_exposure": "none; only aggregate counts, plans, and high-water values were queried"
+  },
+  "feasibility_model": {
+    "observed_committed_materialization_rate_rows_per_second": 1148.634,
+    "copy_stage_projection_seconds_for_current_two_surface_total": 1778.144,
+    "copy_stage_projection_minutes": 29.636,
+    "multiple_of_existing_300_second_bound_before_replay_and_digest": 5.927,
+    "additional_required_work_not_in_projection": [
+      "remaining per-surface SHA-256 finalization and high-water reads",
+      "candidate snapshot promotion within the unchanged runner",
+      "full replay digest pass across both materialized surfaces",
+      "snapshot file SHA-256 and top-level boundary digest",
+      "terminal audit serialization"
+    ],
+    "conclusion": "The actual bounded attempt demonstrates that copy/materialization alone is far beyond 300 seconds at observed throughput. Because the projection excludes mandatory post-copy work, the unchanged implementation is not demonstrably feasible within the existing bound."
+  },
+  "where_time_is_spent": {
+    "primary": "The first full ordered token_analysis scan performs canonical JSON encoding, SHA-256 updates, SQLite insertion into the local candidate, and a commit every 5,000 rows. It reached only 17.255% of the currently measured first surface before the bound.",
+    "not_the_population_query": "No population eligibility query was executed or analyzed for membership; the only plans inspected are the two already-authorized source snapshot surfaces.",
+    "not_a_proven_lock_or_path_failure": "The observed temporary database is structurally valid and quick_check=ok; the terminal state is the runner's explicit bounded interrupt path."
+  },
+  "decision": {
+    "fresh_real_snapshot_authorized": false,
+    "bound_increase_authorized": false,
+    "performance_repair_authorized": false,
+    "preserved_source_boundary_verdict": "HOLD_P3R_S2B_SOURCE_BOUNDARY_UNRESOLVED",
+    "next_authorization_required": "Authorize the smallest justified performance repair to the unchanged source-snapshot implementation, with explicit proof that the two surfaces, coherent read-only transaction, canonicalization, per-surface digests, top-level digest, and 300-second bound semantics remain unchanged. After repair qualification, separately authorize one provenance-safe real snapshot."
+  }
+}

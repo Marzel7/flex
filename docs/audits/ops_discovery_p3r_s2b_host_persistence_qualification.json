@@ -1,0 +1,50 @@
+{
+  "milestone": "OPS-DISCOVERY-P3R-S2B host persistence mechanism qualification",
+  "verdict": "PASS_P3R_S2B_HOST_PERSISTENCE_MECHANISM_QUALIFIED",
+  "historical_nohup_diagnosis": {
+    "confidence": "limited",
+    "established": ["the exact nohup request returned a PID", "its wrapper namespace and STARTED lifecycle never appeared", "outer stdout and stderr remained empty", "no runner process remained after the bounded wait"],
+    "not_proven": "The host retained no launcher/process exit record, so the exact failure mechanism cannot be identified. The evidence is consistent with harness descendant-process cleanup before Python wrapper initialization."
+  },
+  "candidate_mechanisms": {
+    "nohup": "REJECTED: did not establish STARTED lifecycle",
+    "launchctl_submit": "REJECTED: launchd fixture detached and attributed correctly, but Submitted job automatically restarted after exit (runs=2), violating no-automatic-retry",
+    "screen": "SELECTED: installed screen 4.00.03; detached fixture process had PPID 1, survived interactive return and delay, completed wrapper PASS once, and exited without restart",
+    "tmux": "not installed",
+    "setsid": "not installed"
+  },
+  "selected_mechanism": {
+    "name": "GNU Screen detached one-shot session",
+    "version": "4.00.03 (FAU) 23-Oct-06",
+    "why_smallest": "already installed; creates one detached local process without a recurring scheduler, daemon installation, or automatic restart policy",
+    "qualified_template": "/usr/bin/screen -dmS <unique-screen-session> /bin/zsh -lc 'cd /Users/kevinkeaveney/Dev/claude/flex && exec /opt/homebrew/opt/python@3.14/bin/python3.14 scripts/run_ops_discovery_p3r_s2b_source_snapshot_isolated.py --run-id <unique-run-id> --output-root /Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs'",
+    "interpreter": "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "working_directory": "/Users/kevinkeaveney/Dev/claude/flex",
+    "detachment_evidence": "screen PID 93456 had PPID 1 after initiating command returned; its shell child remained through the 45-second delay before execing the wrapper",
+    "completion_observation": "read the wrapper run-scoped lifecycle.json, source_boundary_audit.json, stdout.log, stderr.log, and confirm no remaining screen socket/process"
+  },
+  "fixture_qualification": {
+    "run_id": "s2b-source-snapshot-screen-fixture-20260822-001",
+    "screen_session": "93456.p3rs2bfixture001",
+    "delay_seconds": 45,
+    "wrapper_started": true,
+    "wrapper_lifecycle_status": "PASS",
+    "wrapper_launcher": {"pid": 93463, "ppid": 93458, "cwd": "/Users/kevinkeaveney/Dev/claude/flex"},
+    "fixture_runner": {"pid": 93610, "ppid": 93463, "exit_code": 0, "status": "COMPLETE"},
+    "stdout": "fixture-run-id=s2b-source-snapshot-screen-fixture-20260822-001",
+    "stderr": "empty",
+    "terminal": "wrapper PASS, exit code 0, screen session absent after completion, no restart observed",
+    "lifecycle_sha256": "6f5e7a1fdb1d74a02e1785aab9f29ecdc565c7f7c372190a699718f282583280",
+    "runner_audit_sha256": "a1255532f2881d6abe4da7711a6f66496e95484e45a8e8a5f46a62dfe8b93aa2"
+  },
+  "collision_and_interruption": {
+    "duplicate_screen_launch_same_run_id": "PASS: detached duplicate exited and the original lifecycle/audit combined SHA-256 remained f6a48c134446448c2acc6c4cd371199f8682eec854358c7918e5dd2e680364c5",
+    "interrupted_non_authoritative": "PASS by existing focused wrapper fixture test: interrupted child leaves temporary output, no final authoritative snapshot, terminal HOLD_INTERRUPTED",
+    "automatic_retries": 0,
+    "legacy_quarantine_hashes_unchanged": {"terminal_audit": "d585d353af6d4e4a64c026ef7c1fbe77472abfd77e687b5e0983b02659abfa58", "temporary_snapshot": "8812ad675a1de997fa5dd7bb506e1446ff72c43a353308f2a8d98d69a49f942e"}
+  },
+  "preserved_contracts": {"provenance_safe_wrapper_unchanged": true, "optimized_snapshot_semantics_unchanged": true, "bound_seconds_unchanged": 300},
+  "scope_confirmations": {"real_source_snapshot_executed": false, "authoritative_source_boundary_promoted": false, "population_reproduction_executed": false, "provider_calls_made": 0, "production_database_writes": 0, "identities_selected_or_frozen": false, "cohort_formed": false, "s2a_amendment_unchanged": true, "existing_funding_structures_unchanged": 8, "p5f_untouched": true},
+  "preserved_source_boundary_verdict": "HOLD_P3R_S2B_SOURCE_BOUNDARY_UNRESOLVED",
+  "next_authorization_required": "Authorize one real provenance-safe optimized source snapshot using exactly the selected detached screen mechanism, the unchanged 300-second bound, and a new unique run ID. Do not run population reproduction or select identities."
+}

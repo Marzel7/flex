@@ -1,0 +1,15 @@
+{
+  "artifact_type": "IMMUTABLE_UNTRACKED_BUNDLE_INVENTORY_SUPPLEMENT",
+  "captured_at_utc": "2026-08-22T08:04:11Z",
+  "files": [
+    {
+      "git_status": "??",
+      "mtime_utc": "2026-08-20T16:31:56Z",
+      "path": "tests/test_mint_linked_evidence.py",
+      "sha256": "a9f94631a84c45755c7f157d8cc5175e9522a6bfaf48ef76b340ffc463dba8f7",
+      "size_bytes": 870
+    }
+  ],
+  "milestone": "OPS-DISCOVERY-CONCURRENT-WORK-R1",
+  "reason": "Focused mint-linked-evidence test is directly coupled to the untracked P3 source adapter and is added without modifying the original inventory."
+}

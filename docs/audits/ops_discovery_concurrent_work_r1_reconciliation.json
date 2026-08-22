@@ -1,0 +1,196 @@
+{
+  "adopted_files": [
+    {
+      "classification": "ADOPTABLE",
+      "path": "docs/audits/ops_discovery_p1_funding_structure_semantic_correction_and_higher_order_preflight.json"
+    },
+    {
+      "classification": "ADOPTABLE",
+      "path": "docs/audits/ops_discovery_p2_independent_operation_identity_evidence_census.json"
+    },
+    {
+      "classification": "ADOPTABLE",
+      "path": "docs/audits/ops_discovery_p3_blind_test_readiness.json"
+    },
+    {
+      "classification": "ADOPTABLE",
+      "path": "docs/audits/ops_discovery_p3_independent_evidence_coverage.json"
+    },
+    {
+      "classification": "ADOPTABLE",
+      "path": "docs/audits/ops_discovery_p3_local_evidence_source_census.json"
+    },
+    {
+      "classification": "ADOPTABLE",
+      "path": "docs/audits/ops_discovery_p3_migration_signer_adapter.json"
+    },
+    {
+      "classification": "ADOPTABLE",
+      "path": "docs/audits/ops_discovery_p3_mint_linked_ep3_adapter.json"
+    },
+    {
+      "classification": "ADOPTABLE",
+      "path": "docs/audits/ops_discovery_p3_mint_linked_ep4_adapter.json"
+    },
+    {
+      "classification": "ADOPTABLE",
+      "path": "docs/audits/ops_discovery_p3_operational_fingerprint_v2.json"
+    },
+    {
+      "classification": "ADOPTABLE",
+      "path": "docs/audits/ops_discovery_p3_post_adapter_coverage.json"
+    },
+    {
+      "classification": "ADOPTABLE",
+      "path": "docs/audits/ops_discovery_p3_residual_evidence_gap_manifest.json"
+    },
+    {
+      "classification": "ADOPTABLE",
+      "path": "docs/audits/ops_discovery_p3r_acquisition_manifest.json"
+    },
+    {
+      "classification": "ADOPTABLE",
+      "path": "docs/audits/ops_discovery_p3r_behaviour_assessment.json"
+    },
+    {
+      "classification": "ADOPTABLE",
+      "path": "docs/audits/ops_discovery_p3r_cache_reuse.json"
+    },
+    {
+      "classification": "ADOPTABLE",
+      "path": "docs/audits/ops_discovery_p3r_control_cohort.json"
+    },
+    {
+      "classification": "ADOPTABLE",
+      "path": "docs/audits/ops_discovery_p3r_execution_ledger.jsonl"
+    },
+    {
+      "classification": "ADOPTABLE",
+      "path": "docs/audits/ops_discovery_p3r_execution_result.json"
+    },
+    {
+      "classification": "ADOPTABLE",
+      "path": "docs/audits/ops_discovery_p3r_local_gap_matrix.json"
+    },
+    {
+      "classification": "ADOPTABLE",
+      "path": "docs/audits/ops_discovery_p3r_migration_actor_assessment.json"
+    },
+    {
+      "classification": "ADOPTABLE",
+      "path": "docs/audits/ops_discovery_p3r_p4_readiness.json"
+    },
+    {
+      "classification": "ADOPTABLE",
+      "path": "docs/audits/ops_discovery_p3r_post_acquisition_coverage.json"
+    },
+    {
+      "classification": "ADOPTABLE",
+      "path": "docs/audits/ops_discovery_p3r_request_budget.json"
+    },
+    {
+      "classification": "ADOPTABLE",
+      "path": "docs/audits/ops_discovery_p3r_s_cohort_identity_supplement.json"
+    },
+    {
+      "classification": "ADOPTABLE",
+      "path": "docs/audits/ops_discovery_p3r_second_hop_assessment.json"
+    },
+    {
+      "classification": "ADOPTABLE",
+      "path": "docs/audits/ops_discovery_p3r_value_of_information.json"
+    },
+    {
+      "classification": "ADOPTABLE",
+      "path": "docs/audits/ops_discovery_p3r_x_contract_reconciliation.json"
+    },
+    {
+      "classification": "ADOPTABLE",
+      "path": "src/discovery/mint_linked_evidence.py"
+    },
+    {
+      "classification": "ADOPTABLE",
+      "path": "src/discovery/operational_fingerprint.py"
+    },
+    {
+      "classification": "ADOPTABLE",
+      "path": "src/discovery/residual_acquisition.py"
+    },
+    {
+      "classification": "ADOPTABLE",
+      "path": "tests/test_operational_fingerprint.py"
+    },
+    {
+      "classification": "ADOPTABLE",
+      "path": "tests/test_residual_acquisition.py"
+    },
+    {
+      "classification": "ADOPTABLE",
+      "path": "tests/test_mint_linked_evidence.py"
+    }
+  ],
+  "baseline_before_adoption": {
+    "branch": "classification-attribution-axis",
+    "head": "3fef0895571ba9203dfc17a97a1f174d6e12560f"
+  },
+  "caveats": [
+    {
+      "classification": "ADOPTABLE",
+      "path": "docs/audits/ops_discovery_p3r_execution_ledger.jsonl",
+      "reason": "Empty by design because P3R-E stopped before provider dispatch."
+    },
+    {
+      "classification": "ADOPTABLE",
+      "path": "docs/audits/ops_discovery_p3r_acquisition_manifest.json",
+      "reason": "Uses schema_version/run_id rather than milestone and intentionally lacks identities; P3R-S/P3R-X already record it as non-executable."
+    },
+    {
+      "classification": "ADOPTABLE_WITH_PROVENANCE_CAVEAT",
+      "reason": "Legacy P1-P3R artifacts do not carry per-artifact content hashes; R1 inventory freezes their adopted bytes.",
+      "scope": "historical artifact digests"
+    }
+  ],
+  "historical_consistency": {
+    "p1": "Funding-structure semantic correction is present; canonical operation mutations are prohibited.",
+    "p2": "Operational fingerprint and tests enforce that shared funding alone is insufficient.",
+    "p3": "Mint-linked local evidence adapters and audits retain the reported limited EP3/EP4/migration coverage.",
+    "p3r": "Bounded non-dispatching contract retains 38 cohort slots and 68 maximum requests with retry=0 and pagination=0.",
+    "p3r_e_x_s": "Execution holds, zero provider calls, and the unrecoverable original cohort finding agree across audits."
+  },
+  "internal_consistency": {
+    "focused_tests": {
+      "tests/test_mint_linked_evidence.py": "2 passed",
+      "tests/test_operational_fingerprint.py": "2 passed",
+      "tests/test_residual_acquisition.py": "1 passed"
+    },
+    "json_parse_errors": 0,
+    "provider_call_contradictions": 0,
+    "source_syntax_errors": 0,
+    "test_source_alignment": "Focused tests import and pass against the same untracked source modules being adopted.",
+    "total_focused_tests_passed": 5
+  },
+  "inventory_artifacts": [
+    "docs/audits/ops_discovery_concurrent_work_r1_untracked_bundle_inventory.json",
+    "docs/audits/ops_discovery_concurrent_work_r1_untracked_bundle_inventory_supplement.json"
+  ],
+  "milestone": "OPS-DISCOVERY-CONCURRENT-WORK-R1",
+  "next_action": "BEGIN_OPS_DISCOVERY_P3R_S2_ONLY_FROM_THE_POST_RECONCILIATION_COMMITTED_BASELINE",
+  "ownership_recheck": {
+    "active_sessions_observed": 2,
+    "decision": "No active ownership of the exact files could be established; bundle adopted as orphaned provenance under this explicit authorization.",
+    "exact_file_open_handles": 0,
+    "git_locks": 0,
+    "mtime_changes_since_inventory_freeze": 0,
+    "session_cwds": [
+      "/Users/kevinkeaveney/Dev/claude/flex"
+    ]
+  },
+  "p5f_scheduler_touched": false,
+  "production_writes": 0,
+  "provider_calls_made": 0,
+  "rejected_files": [],
+  "s2_selection_inputs_changed_by_adoption": true,
+  "s2_selection_status": "NOT_STARTED",
+  "status": "COMPLETE",
+  "verdict": "OPS_DISCOVERY_UNTRACKED_BUNDLE_ADOPTABLE_AS_ORPHANED_PROVENANCE"
+}

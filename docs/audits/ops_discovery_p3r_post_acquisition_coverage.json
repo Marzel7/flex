@@ -1,0 +1,1 @@
+{"milestone":"OPS-DISCOVERY-P3R-E","status":"NOT_EXECUTED","provider_calls_made":0,"before":{"cohort":38,"topology":"partial local only","migration_signer":"not population retained","behaviour":"partial local only"},"after":"UNCHANGED","reason":"frozen manifest was not safely executable"}

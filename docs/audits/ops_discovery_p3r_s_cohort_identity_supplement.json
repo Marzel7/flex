@@ -1,0 +1,63 @@
+{
+  "milestone": "OPS-DISCOVERY-P3R-S",
+  "status": "HOLD",
+  "verdict": "HOLD_P3R_S_ORIGINAL_COHORT_IDENTITY_NOT_RECOVERABLE",
+  "provider_calls_made": 0,
+  "production_writes": 0,
+  "original_38_cohort_exactly_recoverable": false,
+  "frozen_aggregate_contract": {
+    "cohort_size": 38,
+    "request_maximum": 68,
+    "request_categories": {
+      "migration_actor": 38,
+      "topology": 18,
+      "behaviour": 12
+    }
+  },
+  "identity_provenance_reconciliation": {
+    "artifacts_inspected": [
+      "docs/audits/ops_discovery_p1_funding_structure_semantic_correction_and_higher_order_preflight.json",
+      "docs/audits/ops_discovery_p2_independent_operation_identity_evidence_census.json",
+      "docs/audits/ops_discovery_p3_*.json",
+      "docs/audits/ops_discovery_p3r_control_cohort.json",
+      "docs/audits/ops_discovery_p3r_acquisition_manifest.json",
+      "docs/audits/ops_discovery_p3r_request_budget.json",
+      "docs/audits/ops_discovery_p3r_value_of_information.json",
+      "docs/audits/ops_discovery_p3r_local_gap_matrix.json",
+      "docs/audits/ops_discovery_p3r_cache_reuse.json",
+      "docs/audits/ops_discovery_p3r_execution_result.json",
+      "docs/audits/ops_discovery_p3r_x_contract_reconciliation.json"
+    ],
+    "source_and_test_provenance_inspected": [
+      "src/discovery/operational_fingerprint.py",
+      "src/discovery/residual_acquisition.py",
+      "tests/test_operational_fingerprint.py",
+      "tests/test_residual_acquisition.py"
+    ],
+    "retained_temp_provenance": "/private/tmp/p3rs_handoff_before.json",
+    "committed_history_result": "No committed revision of the P3R artifact paths contained an identity-bearing cohort, request id, mint, signature, or target address record.",
+    "missing_immutable_records": [
+      "38 cohort launch or mint identities",
+      "38 migration signatures or references",
+      "18 topology target addresses",
+      "12 behaviour target references"
+    ],
+    "reason": "P3R froze control-class counts and selection descriptions only. Re-querying local corpora to select members now would be a new upstream selection decision, not deterministic recovery of the original experiment."
+  },
+  "preservation": {
+    "existing_funding_structures_unchanged": 8,
+    "watchtower_unchanged": true,
+    "three_sw2_unchanged": true,
+    "canonical_operations_unchanged": true,
+    "storage_lifecycle_unchanged": true,
+    "scheduler_unchanged": true,
+    "credentials_inspected": false
+  },
+  "not_created": [
+    "request target manifest",
+    "local-first reconciliation",
+    "blind-control leakage audit",
+    "execution contract"
+  ],
+  "next_action": "REQUIRES_SEPARATE_HUMAN_AUTHORIZATION_FOR_A_NEW_COHORT_RE_FREEZE_WITH_IDENTITY_AND_REQUEST_TARGET_PROVENANCE"
+}

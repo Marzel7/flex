@@ -1,0 +1,230 @@
+{
+  "artifact_type": "IMMUTABLE_UNTRACKED_BUNDLE_INVENTORY",
+  "captured_at_utc": "2026-08-22T08:03:26Z",
+  "files": [
+    {
+      "git_status": "??",
+      "mtime_utc": "2026-08-20T16:10:06Z",
+      "path": "docs/audits/ops_discovery_p1_funding_structure_semantic_correction_and_higher_order_preflight.json",
+      "sha256": "0ae5a6e7a33d81ca0317d2bcead96396920f036943b50444466f51d6bd353f64",
+      "size_bytes": 5666
+    },
+    {
+      "git_status": "??",
+      "mtime_utc": "2026-08-20T16:24:23Z",
+      "path": "docs/audits/ops_discovery_p2_independent_operation_identity_evidence_census.json",
+      "sha256": "238f1902da058d6eda7405321355b8eb5cd93715ad8a6261607675a49190b5ef",
+      "size_bytes": 5111
+    },
+    {
+      "git_status": "??",
+      "mtime_utc": "2026-08-20T16:31:57Z",
+      "path": "docs/audits/ops_discovery_p3_blind_test_readiness.json",
+      "sha256": "32ae1d04b02474e09b5974bbd870bee841e7b1d2017d8924c578230054e1dd81",
+      "size_bytes": 612
+    },
+    {
+      "git_status": "??",
+      "mtime_utc": "2026-08-20T16:31:57Z",
+      "path": "docs/audits/ops_discovery_p3_independent_evidence_coverage.json",
+      "sha256": "1f99d35a304a6c3c8349d2584fd5d2e9c90c2d9b1ee8326e7bd0c527d5e0b12f",
+      "size_bytes": 359
+    },
+    {
+      "git_status": "??",
+      "mtime_utc": "2026-08-20T16:31:56Z",
+      "path": "docs/audits/ops_discovery_p3_local_evidence_source_census.json",
+      "sha256": "5c23d8ce541ebbee22d6469d11c2b2da72c6e1b5dc46972b3fd99ca3fa58c2c4",
+      "size_bytes": 1085
+    },
+    {
+      "git_status": "??",
+      "mtime_utc": "2026-08-20T16:31:57Z",
+      "path": "docs/audits/ops_discovery_p3_migration_signer_adapter.json",
+      "sha256": "6c49f2a6b584fb01568126b5927d201af2a0ad2a5444552313ede7a5b1775e00",
+      "size_bytes": 521
+    },
+    {
+      "git_status": "??",
+      "mtime_utc": "2026-08-20T16:31:57Z",
+      "path": "docs/audits/ops_discovery_p3_mint_linked_ep3_adapter.json",
+      "sha256": "ea3d6c7d0d7303875d91b3040a88f47e62cd2ab572d6550187dcd96a402994f8",
+      "size_bytes": 546
+    },
+    {
+      "git_status": "??",
+      "mtime_utc": "2026-08-20T16:31:57Z",
+      "path": "docs/audits/ops_discovery_p3_mint_linked_ep4_adapter.json",
+      "sha256": "2f598b4260652c2da51ed765867cde5c8ef6bb55008fff4eca32836022a09808",
+      "size_bytes": 400
+    },
+    {
+      "git_status": "??",
+      "mtime_utc": "2026-08-20T16:31:57Z",
+      "path": "docs/audits/ops_discovery_p3_operational_fingerprint_v2.json",
+      "sha256": "3efe23de9e0127a982f773f085a3e08709d780c756499df2d9985a7e119fecbe",
+      "size_bytes": 524
+    },
+    {
+      "git_status": "??",
+      "mtime_utc": "2026-08-20T16:31:57Z",
+      "path": "docs/audits/ops_discovery_p3_post_adapter_coverage.json",
+      "sha256": "38349b955d776a553883da75a6a7f8a1d86ccac3905e5ce80bc8ab15008dd9b2",
+      "size_bytes": 459
+    },
+    {
+      "git_status": "??",
+      "mtime_utc": "2026-08-20T16:31:57Z",
+      "path": "docs/audits/ops_discovery_p3_residual_evidence_gap_manifest.json",
+      "sha256": "6012b482c4311919a7a7c4a32ff2945dea89789647c018e7402e0000d1cd327a",
+      "size_bytes": 942
+    },
+    {
+      "git_status": "??",
+      "mtime_utc": "2026-08-20T16:46:04Z",
+      "path": "docs/audits/ops_discovery_p3r_acquisition_manifest.json",
+      "sha256": "d29957f3980c75f25931ad39116ec7a28e815fe8af01d1f4f826d736392af828",
+      "size_bytes": 671
+    },
+    {
+      "git_status": "??",
+      "mtime_utc": "2026-08-20T16:58:05Z",
+      "path": "docs/audits/ops_discovery_p3r_behaviour_assessment.json",
+      "sha256": "bdf4891d82cac63f0028d045931c4e8e79130077301fb5e8a0db811bbc4c2c0b",
+      "size_bytes": 211
+    },
+    {
+      "git_status": "??",
+      "mtime_utc": "2026-08-20T16:46:03Z",
+      "path": "docs/audits/ops_discovery_p3r_cache_reuse.json",
+      "sha256": "9b6629555ae70cc023e8e491f797687218b82eba76e4278499e8a33080a88158",
+      "size_bytes": 514
+    },
+    {
+      "git_status": "??",
+      "mtime_utc": "2026-08-20T16:46:03Z",
+      "path": "docs/audits/ops_discovery_p3r_control_cohort.json",
+      "sha256": "cedb67096d61a1a4103903e263b19c2b37ecd8171419a852a68ab799240a6787",
+      "size_bytes": 615
+    },
+    {
+      "git_status": "??",
+      "mtime_utc": "2026-08-20T16:58:04Z",
+      "path": "docs/audits/ops_discovery_p3r_execution_ledger.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "git_status": "??",
+      "mtime_utc": "2026-08-20T16:58:05Z",
+      "path": "docs/audits/ops_discovery_p3r_execution_result.json",
+      "sha256": "d64e30e4a1d739ebff7c18329e16f530247f4eeff598be4e8183b2e74c4dbbc9",
+      "size_bytes": 919
+    },
+    {
+      "git_status": "??",
+      "mtime_utc": "2026-08-20T16:46:03Z",
+      "path": "docs/audits/ops_discovery_p3r_local_gap_matrix.json",
+      "sha256": "e2869cbb084f0ca5b4dbc360c564920585b4b0cb8954f6d6ad9000c43e742040",
+      "size_bytes": 775
+    },
+    {
+      "git_status": "??",
+      "mtime_utc": "2026-08-20T16:58:05Z",
+      "path": "docs/audits/ops_discovery_p3r_migration_actor_assessment.json",
+      "sha256": "776993a2884b0be56a100444197f654d6b23487d511c12823a0206ca33d63dc4",
+      "size_bytes": 229
+    },
+    {
+      "git_status": "??",
+      "mtime_utc": "2026-08-20T16:58:05Z",
+      "path": "docs/audits/ops_discovery_p3r_p4_readiness.json",
+      "sha256": "040bab0a72dc03c0e2937f4cf9251abf4f866f230a6edf2ef7b4cb9dd32aea2b",
+      "size_bytes": 295
+    },
+    {
+      "git_status": "??",
+      "mtime_utc": "2026-08-20T16:58:05Z",
+      "path": "docs/audits/ops_discovery_p3r_post_acquisition_coverage.json",
+      "sha256": "9f86a8e55b2d4e8e1ada35ab2310eb219d7954547c0a439126e4d3010caed578",
+      "size_bytes": 290
+    },
+    {
+      "git_status": "??",
+      "mtime_utc": "2026-08-20T16:46:04Z",
+      "path": "docs/audits/ops_discovery_p3r_request_budget.json",
+      "sha256": "88396c50524e7e89605b4bf72138b6fa16b2be23087c428598b15e03af57b097",
+      "size_bytes": 398
+    },
+    {
+      "git_status": "??",
+      "mtime_utc": "2026-08-21T21:57:24Z",
+      "path": "docs/audits/ops_discovery_p3r_s_cohort_identity_supplement.json",
+      "sha256": "d58dfc46387abf96816fa2caffc5e35aff77d3b9214cda4bf8eb357a85006a53",
+      "size_bytes": 2748
+    },
+    {
+      "git_status": "??",
+      "mtime_utc": "2026-08-20T16:58:05Z",
+      "path": "docs/audits/ops_discovery_p3r_second_hop_assessment.json",
+      "sha256": "f4117a34423e14b65bd2c2a0936d4c4b5954fb0cee2f403ae1fb76e25fced484",
+      "size_bytes": 297
+    },
+    {
+      "git_status": "??",
+      "mtime_utc": "2026-08-20T16:46:04Z",
+      "path": "docs/audits/ops_discovery_p3r_value_of_information.json",
+      "sha256": "9df86ac199d4b97feee635d84f91e7cc90ef9200380275aec5a82d7af44a0064",
+      "size_bytes": 548
+    },
+    {
+      "git_status": "??",
+      "mtime_utc": "2026-08-20T17:01:54Z",
+      "path": "docs/audits/ops_discovery_p3r_x_contract_reconciliation.json",
+      "sha256": "89d8101a44237d2e8674194c8b28a6fa55a3e3a7c0781ea2d0dd9cc7ec83758d",
+      "size_bytes": 1321
+    },
+    {
+      "git_status": "??",
+      "mtime_utc": "2026-08-20T16:31:56Z",
+      "path": "src/discovery/mint_linked_evidence.py",
+      "sha256": "cecd316780543e0e4d33b347d1cb64c76daeba3e3860548efd29cadfd6fa5b6f",
+      "size_bytes": 1496
+    },
+    {
+      "git_status": "??",
+      "mtime_utc": "2026-08-20T16:24:23Z",
+      "path": "src/discovery/operational_fingerprint.py",
+      "sha256": "ecf9df86627432742f3b4537fc3bc446ee24347d46a514b5c6e306cbf130e2c8",
+      "size_bytes": 3218
+    },
+    {
+      "git_status": "??",
+      "mtime_utc": "2026-08-20T16:46:03Z",
+      "path": "src/discovery/residual_acquisition.py",
+      "sha256": "0b3e1d8df107309cce911e8e5629de39d43327da8d1ed6a04e3e73c1103fc61f",
+      "size_bytes": 702
+    },
+    {
+      "git_status": "??",
+      "mtime_utc": "2026-08-20T16:24:23Z",
+      "path": "tests/test_operational_fingerprint.py",
+      "sha256": "986f24e33a8d6f3cbdcac50aed0ac77093dc9a42f95da6a800cf2b8803ee4d18",
+      "size_bytes": 1053
+    },
+    {
+      "git_status": "??",
+      "mtime_utc": "2026-08-20T16:46:03Z",
+      "path": "tests/test_residual_acquisition.py",
+      "sha256": "f974a5c9d519abd61e8a43b2bf12bac2929d2c737cf861ffb9dd5d5361c99bbf",
+      "size_bytes": 413
+    }
+  ],
+  "freeze_rule": "All provenance and content comparisons use these exact pre-reconciliation bytes. No source, test, audit, provider, production, scheduler, canonical, or corpus file was modified while creating this inventory.",
+  "milestone": "OPS-DISCOVERY-CONCURRENT-WORK-R1",
+  "repository": {
+    "branch": "classification-attribution-axis",
+    "git_status_scope": "P3R-S2 overlapping OPS-DISCOVERY files only",
+    "head": "3fef0895571ba9203dfc17a97a1f174d6e12560f"
+  }
+}

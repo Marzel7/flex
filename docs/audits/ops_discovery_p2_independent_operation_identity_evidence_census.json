@@ -1,0 +1,26 @@
+{
+  "schema_version": "ops-discovery.p2.evidence-census.v1",
+  "artifact_type": "INDEPENDENT_OPERATION_IDENTITY_EVIDENCE_CENSUS",
+  "milestone": "OPS-DISCOVERY-P2 -- independent operation-identity evidence census and blind Watchtower/3SW2 qualification",
+  "generated_utc": "2026-08-20T00:00:00Z",
+  "operation_safety": {"provider_calls_made": 0, "production_writes": 0, "canonical_operations_mutated": false, "watchtower_mutated": false, "three_sw2_mutated": false, "existing_funding_structures_deleted": 0},
+  "population_freeze": {"population_id": "local_discovery_20260819T205749Z", "launches": 40275, "source": "database/local_operation_discovery_corpus.db discovery_run", "mint_identity_source": "token_analysis.mint", "create_creator_source": "token_analysis.pf_ws_creator", "migration_evidence_source": "pumpfun_migration_verification", "deterministic_manifest_digest": "recorded in discovery_run.manifest_digest", "frozen_population_status": "RETAINED_AND_QUERYABLE"},
+  "availability_census": {
+    "direct_high_confidence_funding": {"count": 7630, "percentage": 18.95, "source": "direct_funding_edges", "lineage": "INDEPENDENT"},
+    "one_upstream_hop_edges": {"count": 32527, "unit": "edges_not_launches", "source": "upstream_edges", "lineage": "DERIVED_FROM_SAME_PRIMITIVE"},
+    "three_hop_plus": {"count": 0, "percentage": 0.0, "state": "NOT_AVAILABLE", "reason": "local discovery projection captures only one hop past direct funder"},
+    "migration_signer": {"count": 19, "percentage": 0.05, "state": "COHORT_ONLY", "reason": "B2Z calibration cohort only; CREATE creator is not substituted"},
+    "population_wide_ep3_topology": {"count": 0, "percentage": 0.0, "state": "NOT_AVAILABLE", "reason": "retained EP3 shadow corpora are bounded control cohorts, not a current-launch adapter"},
+    "population_wide_ep4_launch_motif": {"count": 0, "percentage": 0.0, "state": "NOT_AVAILABLE", "reason": "EP4 candidates are identity-free/address-level primitives without a retained population-wide mint adapter"},
+    "behavioural_ledger": {"count": "NOT_CENSUSED_WITHOUT_BOUNDED_ADAPTER", "state": "NOT_AVAILABLE_FOR_OPERATION_DISCOVERY", "source": "creator_tx_ledger", "reason": "actor-level ledger lacks frozen mint linkage in the current projection"}
+  },
+  "cross_dimension_coverage": {"funding_plus_timing": "AVAILABLE_WITHIN_7630_HIGH_CONFIDENCE_EDGES", "funding_plus_2hop": "AVAILABLE_BUT_SHARED_SOURCE_LINEAGE", "funding_plus_migration_signer": "COHORT_ONLY", "funding_plus_ep3": "NOT_AVAILABLE", "funding_plus_ep4": "NOT_AVAILABLE", "topology_plus_behaviour": "NOT_AVAILABLE", "funding_topology_behaviour": "NOT_AVAILABLE", "funding_topology_behaviour_migration_signer": "NOT_AVAILABLE"},
+  "ep3_trace": {"status": "USABLE_FOR_BLIND_EVALUATION_ONLY_NOT_POPULATION_DISCOVERY", "watchtower": "EP3.0C shadow corpus; retained evidence/primitive tables, cohort-bound", "three_sw2": "EP3.2A shadow corpus; exactly 13 frozen launches", "semantics": "topology revisions and primitive observations, not a general current-launch graph", "missingness": "no adapter maps all 40,275 frozen launches to EP3 topology"},
+  "ep4_trace": {"status": "USABLE_AS_IDENTITY_FREE_PRIMITIVE_FRAMEWORK_NOT_POPULATION_WIDE_LAUNCH_EVIDENCE", "semantics": "address/subject motif discovery; operation-level consumption requires a separate semantic projection", "missingness": "no retained mint-level adapter for frozen discovery population"},
+  "independence_audit": {"direct_funding_and_upstream": "DERIVED_FROM_SAME_PRIMITIVE", "watchtower_candidate_rows_and_creator_funders": "SHARED_SOURCE_LINEAGE", "ep3_shadow_primitives": "INDEPENDENT_ONLY_WITHIN_THEIR_RETAINED_CONTROL_COHORT", "ep4_motifs": "UNKNOWN_LINEAGE_UNTIL_MINT_ADAPTER_AND_PROVENANCE_BINDING_EXIST"},
+  "blind_controls": {"watchtower": {"discovery_input": "NOT_RUN", "reason": "population-wide independent topology+behaviour coverage is absent; running would reduce to funding-structure rediscovery", "evaluation_truth": "must remain separate"}, "three_sw2": {"discovery_input": "NOT_RUN", "reason": "13-launch frozen shadow corpus cannot validate generalization"}, "negative_controls": {"Dv34": "PASS_GUARD: shared funding alone cannot satisfy eligibility", "B48k": "ROLE_UNRESOLVED: local discovery reclassification did not establish CEX/INFRA; ChangeNOW remains unconfirmed", "FHpc_HBQ2": "PASS_GUARD: volume or repeated amounts alone cannot satisfy eligibility"}},
+  "operational_fingerprint": {"implementation": "src/discovery/operational_fingerprint.py", "authority": "NON_AUTHORITATIVE_NO_PROMOTION", "minimum_interpretable_gate": "independent topology plus independent behaviour; funding is supporting context only", "prototype_generation": "NOT_AUTHORIZED_BY_EVIDENCE_COVERAGE"},
+  "verdict": "P2_DATA_GAPS_PREVENT_BLIND_HIGHER_ORDER_OPERATION_REDISCOVERY",
+  "blockers": ["EP3_POPULATION_GAP", "EP4_LAUNCH_MAPPING_GAP", "MIGRATION_SIGNER_COVERAGE_GAP", "BEHAVIOURAL_PRIMITIVE_COVERAGE_GAP", "TOPOLOGY_DEPTH_GAP", "INDEPENDENT_EVIDENCE_LINEAGE_GAP"],
+  "next_action": "DEFINE_A_BOUNDED_MINT_LINKED_EP3_EP4_AND_MIGRATION_SIGNER_ADAPTER_CONTRACT"
+}

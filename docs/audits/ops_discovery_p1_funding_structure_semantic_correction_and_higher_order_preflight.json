@@ -1,0 +1,47 @@
+{
+  "schema_version": "ops-discovery.p1.funding-structure-preflight.v1",
+  "artifact_type": "FUNDING_STRUCTURE_SEMANTIC_CORRECTION_AND_HIGHER_ORDER_OPERATION_DISCOVERY_PREFLIGHT",
+  "milestone": "OPS-DISCOVERY-P1 -- funding-structure semantic correction and higher-order operation-discovery preflight",
+  "generated_utc": "2026-08-20T00:00:00Z",
+  "operation_safety": {
+    "provider_calls_made": 0,
+    "credentials_used": false,
+    "production_writes": 0,
+    "canonical_operations_mutated": false,
+    "watchtower_mutated": false,
+    "three_sw2_mutated": false,
+    "existing_discovery_entries_deleted": 0,
+    "existing_discovery_evidence_deleted": 0
+  },
+  "semantic_correction": {
+    "old_inference": "Recurring funding-led discovery evidence was presented as PROVISIONING_NETWORK_CANDIDATE.",
+    "corrected_base_classification": "FUNDING_STRUCTURE",
+    "frozen_hierarchy": ["FUNDING_STRUCTURE", "ENTITY_ROLE", "OPERATION_CANDIDATE", "CONFIRMED_OPERATION"],
+    "non_implications": ["FUNDING_STRUCTURE does not imply common operation identity.", "PRIVATE_PROVISIONER does not imply common operation identity.", "TREASURY_CANDIDATE does not imply common operation identity.", "CEX_INFRASTRUCTURE does not imply common operation identity."],
+    "ui_contract": "The existing Analyst Queue remains the sole workflow. Its eight discovery-derived rows retain their family identity, membership, creator population, funding lineage, qualification, raw-verification state, context, review state, and provenance; only their neutral displayed role changes to FUNDING_STRUCTURE."
+  },
+  "preserved_analyst_queue_population": {
+    "selection": "candidate_families where classification=STRONG_CANDIDATE_FAMILY and attribution_state=ATTRIBUTABLE in the already-materialized 385-family corpus",
+    "count": 8,
+    "rows": [
+      {"root": "2uPFJbcK9X4w", "member_count": 40, "base_classification": "FUNDING_STRUCTURE", "entity_role": "ROLE_UNRESOLVED"},
+      {"root": "B48kNVXs4YK4amkBCH2XokQiv1SeiVQGHDR17xDeKAAn", "member_count": 40, "base_classification": "FUNDING_STRUCTURE", "entity_role": "ROLE_UNRESOLVED", "local_mapping_result": "No CEX/INFRA classification was established by the recorded local discovery reclassification; the human ChangeNOW observation is retained as an unconfirmed review lead, not a label."},
+      {"root": "Dv34prGm2BT7Ph2n6qKLgzeLgjnii87RJJ7Db6ZQQvKM", "member_count": 23, "base_classification": "FUNDING_STRUCTURE", "entity_role": "ROLE_UNRESOLVED", "note": "Private, high-confidence funding evidence remains preserved; candidate-state Watchtower overlap does not establish confirmed operation identity."},
+      {"root": "FHpcNSe6tb2n15bAdq4BkeYWGyZKFD7yLYrH92ng7wCT", "member_count": 10, "base_classification": "FUNDING_STRUCTURE", "entity_role": "SERVICE_INFRA_REVIEW", "note": "High transaction volume is a review signal, not proof of infrastructure."},
+      {"root": "C1SX4FAVW8c5", "member_count": 9, "base_classification": "FUNDING_STRUCTURE", "entity_role": "ROLE_UNRESOLVED"},
+      {"root": "HBQ2TC2gmX9qeNuCsY9gRTk9hiZLRZaKhvHGj2ZbVoWB", "member_count": 9, "base_classification": "FUNDING_STRUCTURE", "entity_role": "ROLE_UNRESOLVED", "note": "Repeated amount/type behavior is retained as a review lead; it is not operation evidence unless shown launch-specific rather than generic service behavior."},
+      {"root": "8wvqvPt1DDdjdghpMpp7ueQFUL5Js5zux4pPeRFXWteB", "member_count": 6, "base_classification": "FUNDING_STRUCTURE", "entity_role": "ROLE_UNRESOLVED"},
+      {"root": "B45FWB9i3pBR", "member_count": 5, "base_classification": "FUNDING_STRUCTURE", "entity_role": "ROLE_UNRESOLVED"}
+    ]
+  },
+  "higher_order_detector_preflight": {
+    "verdict": "NOT_YET_EXECUTABLE_INDEPENDENT_OPERATION_IDENTITY_EVIDENCE_INCOMPLETE",
+    "reason": "The retained corpus is sufficient for funding-structure discovery and role-review triage, but its calibrated evidence is principally shared direct-funding lineage. That is intentionally insufficient to infer common operation identity.",
+    "available_local_signals": ["Calibrated HIGH-confidence direct funding", "Creator and member multiplicity", "CEX/INFRA role context and preserved hop lineage", "Existing candidate-family membership", "Limited exact-amount and temporal-repeat observations where already recorded"],
+    "required_independent_signal_classes": ["Launch linkage or repeated coordinated launch timing that is not explained by shared funding alone", "Role-topology continuity across a multi-layer path", "Independent behavioral or infrastructure motif with service-distribution controls", "Evidence lineage that can distinguish private launch-specific behavior from generic exchange/service behavior"],
+    "hard_gates": ["At least two independent signal classes must agree before emitting OPERATION_CANDIDATE.", "Shared funder or shared CEX/INFRA lineage alone is never an operation signal.", "Known CEX/INFRA nodes preserve context but cannot supply an operation edge by themselves.", "No canonical promotion, merge, demotion, or Watchtower/three_sw2 mutation is permitted by this detector.", "Any future detector must emit evidence provenance and an explicit alternative service/infra explanation for human review."],
+    "local_evidence_assessment": {"funding_structure_discovery": "SUFFICIENT", "entity_role_triage": "PARTIALLY_SUFFICIENT", "independent_operation_identity_detection": "INSUFFICIENT"},
+    "next_action": "DEFINE_AND_QUALIFY_A_BOUNDED_MULTI_SIGNAL_OPERATION_DETECTOR_INPUT_CONTRACT"
+  },
+  "production_flags": {"cohort_mode": "OFF", "retention": "ON", "migration_census": "ON", "evidence_mirror": "OFF", "evidence_writer": "STOPPED"}
+}

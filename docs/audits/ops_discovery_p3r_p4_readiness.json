@@ -1,0 +1,1 @@
+{"milestone":"OPS-DISCOVERY-P3R-E","ready":false,"verdict":"HOLD_OPS_DISCOVERY_CONTROL_EVIDENCE_STILL_INSUFFICIENT","reason":"No frozen request identities or credential/runner contract existed, therefore no bounded acquisition could safely occur. P4 is not authorized.","provider_calls_made":0}

@@ -59,6 +59,7 @@ def test_optimized_capture_preserves_reference_snapshot_and_boundary_semantics(t
     outcome = json.loads(audit.read_text())
     assert result.returncode == 0, result.stderr
     assert outcome["status"] == "COMPLETE"
+    assert outcome["bounds"]["progress_opcode_interval"] == 1000
     assert outcome["telemetry"]["stages"]["source_capture"]["completed_elapsed_seconds"] >= 0
     assert outcome["telemetry"]["stages"]["source_capture"]["rows_captured"] == 7000 + 2334
     assert outcome["telemetry"]["final_materialization"]["surfaces"]["token_analysis"]["committed_rows"] == 7000

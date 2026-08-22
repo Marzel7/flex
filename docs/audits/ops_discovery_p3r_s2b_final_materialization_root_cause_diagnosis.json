@@ -1,0 +1,61 @@
+{
+  "attribution": "Index maintenance coupled with per-5000-row commit/journal behavior is dominant: removing the active secondary index reduces total wall time from 118.893s to 12.508s and commit time from 92.143s to 0.268s. Ordered reads and Python insert execution are secondary.",
+  "broader_verdict": "HOLD_P3R_S2B_SOURCE_BOUNDARY_UNRESOLVED",
+  "byte_identity_pass": true,
+  "exact_next_authorization_required": "Fixture-qualify exactly one byte-preserving repair targeted at the isolated index-maintenance plus commit/journal cost, with byte identity first and a 270-second model before any real snapshot.",
+  "frozen_expected_sha256": "c6d350f9fa15c4063a9d8bf89d96d27596a9a5e9ac06dc7fe282999ec3481525",
+  "milestone": "OPS-DISCOVERY-P3R-S2B-FINAL-MATERIALIZATION-ROOT-CAUSE-DIAGNOSIS",
+  "no_index_control": {
+    "commit_seconds": 0.26795158989261836,
+    "index_coupled_incremental_insert_seconds": 10.013345913379453,
+    "insert_execution_seconds": 0.5908885405515321,
+    "wall_seconds": 12.507746915973257
+  },
+  "real_run_reconciliation": "Real partial final stage was 235.210s for 545000 token rows versus local reference 118.893s for 588439 rows. Local commit latency is highly variable (max 9.847s); host/storage contention remains a plausible but unproven multiplier.",
+  "recommended_next_repair_target": "A single byte-preserving index-maintenance/commit-journal repair candidate. Do not omit or rebuild indexes without proving exact final bytes first.",
+  "reference_accounting": {
+    "commit_distribution": {
+      "count": 118,
+      "max_seconds": 9.847415458003525,
+      "median_seconds": 0.6793559789948631,
+      "min_seconds": 0.0002948750043287873,
+      "p95_seconds": 1.822020917024929
+    },
+    "commit_percent": 77.50095679506433,
+    "commit_seconds": 92.1432264156756,
+    "cpu_seconds": 16.73301,
+    "cpu_to_wall_ratio": 0.14074005605264553,
+    "insert_execution_seconds": 10.604234453930985,
+    "insert_percent": 8.919139780838247,
+    "max_progress_gap_seconds": 9.861613082990516,
+    "ordered_read_seconds": 15.929088537872303,
+    "progress_calls": 30654,
+    "read_percent": 13.397833466230532,
+    "settings": {
+      "cache_size": -262144,
+      "cache_spill": 63429,
+      "journal_mode": "delete",
+      "page_count": 30001,
+      "page_size": 4096,
+      "synchronous": 0,
+      "temp_store": 0
+    },
+    "wall_seconds": 118.89301787503064
+  },
+  "reference_sha256": "c6d350f9fa15c4063a9d8bf89d96d27596a9a5e9ac06dc7fe282999ec3481525",
+  "rows": 588439,
+  "scope_confirmations": {
+    "cohort_formed": false,
+    "funding_structures_changed": false,
+    "identities_selected_or_frozen": false,
+    "p5f_touched": false,
+    "population_reproduction": false,
+    "production_source_writes": 0,
+    "provider_calls": 0,
+    "real_source_snapshots": 0,
+    "repair_adopted": false,
+    "s2a_changed": false
+  },
+  "tests": "4 passed",
+  "verdict": "PASS_P3R_S2B_FINAL_MATERIALIZATION_ROOT_CAUSE_ISOLATED"
+}

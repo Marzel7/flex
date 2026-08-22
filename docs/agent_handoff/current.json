@@ -30198,6 +30198,20 @@
     "updated_at_utc": "2026-08-22T00:00:00Z",
     "verdict": "HOLD_P3R_S2B_POPULATION_REPRODUCTION_UNRESOLVED"
   },
+  "ops_discovery_p3r_s2b_byte_preserving_final_materialization_repair": {
+    "artifact": "docs/audits/ops_discovery_p3r_s2b_byte_preserving_final_materialization_repair_insufficient.json",
+    "cohort_formed": false,
+    "exact_next_action": "Authorize a different single byte-preserving repair candidate or bounded root-cause diagnosis; do not run a real snapshot.",
+    "identities_selected_or_frozen": false,
+    "milestone": "OPS-DISCOVERY-P3R-S2B-BYTE-PRESERVING-FINAL-MATERIALIZATION-REPAIR",
+    "new_real_snapshot_launches": 0,
+    "population_reproduction_executed": false,
+    "production_writes": 0,
+    "provider_calls_made": 0,
+    "result": "Byte identity PASS; 100000-opcode candidate slower than 1000-opcode reference and projected final materialization exceeds execution budget before replay.",
+    "verdict": "HOLD_P3R_S2B_BYTE_PRESERVING_REPAIR_INSUFFICIENT_270S",
+    "working_tree_candidate": "UNCOMMITTED_UNADOPTED_100K_PROGRESS_CADENCE_CANDIDATE"
+  },
   "ops_discovery_p3r_s2b_equivalence": {
     "artifact": "docs/audits/ops_discovery_p3r_s2b_population_equivalence.json",
     "artifact_sha256": "733a6c2a799b01632b48801c476826cb722f10bee5c29c6aaad74d37122e5cd8",
@@ -30923,7 +30937,7 @@
   },
   "project": {
     "branch": "classification-attribution-axis",
-    "git_head": "97a9f6bc2a424141496d1e544136ea8e45948912",
+    "git_head": "c134c412e589ebf2801578fd969f25e0242b489d",
     "name": "flex",
     "updated_at_utc": "2026-08-17T18:50:18Z",
     "working_tree": "dirty: H8-to-H4 compatibility adapter added; projection runtime and H4 rerun materialized 150 operations"

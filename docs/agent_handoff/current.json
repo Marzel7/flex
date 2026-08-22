@@ -555,6 +555,24 @@
     "p5f_scheduler_untouched": true,
     "next_action": "BEGIN_OPS_DISCOVERY_P3R_S2_ONLY_FROM_BASELINE_bc78b062"
   },
+  "ops_discovery_p3r_s2b_equivalence": {
+    "updated_at_utc": "2026-08-22T00:00:00Z",
+    "status": "COMPLETE",
+    "verdict": "PASS_P3R_S2B_INDEXED_POPULATION_EQUIVALENCE_PROVEN",
+    "baseline_commit": "6f004df2",
+    "artifact": "docs/audits/ops_discovery_p3r_s2b_population_equivalence.json",
+    "artifact_sha256": "733a6c2a799b01632b48801c476826cb722f10bee5c29c6aaad74d37122e5cd8",
+    "population_query_rerun": false,
+    "population_count_materialized": false,
+    "identities_selected_or_frozen": false,
+    "provider_calls_made": 0,
+    "production_writes": 0,
+    "s2a_amendment_unchanged": true,
+    "existing_funding_structures_unchanged": 8,
+    "p5f_scheduler_untouched": true,
+    "overall_s2b_verdict_preserved": "HOLD_P3R_S2B_POPULATION_REPRODUCTION_UNRESOLVED",
+    "next_action": "AUTHORIZE_ONE_BOUNDED_READ_ONLY_EXECUTION_PATH_TO_ACTUALLY_RUN_THE_PROVEN_EQUIVALENT_QUERY_AND_REPRODUCE_THE_POPULATION; NO_IDENTITY_SELECTION"
+  },
   "ops_discovery_p3r_s2b_indexed_probe": {
     "updated_at_utc": "2026-08-22T00:00:00Z",
     "status": "HOLD",

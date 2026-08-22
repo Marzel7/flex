@@ -1,0 +1,63 @@
+{
+  "deadline_coverage": "PASS: runner progress guard remains attached to source, bulk load, deferred CREATE INDEX, replay and digest/audit; wrapper independently terminates child at 270s and reserves 30s cleanup to absolute 300s; wrapper promotion still requires exit 0 + COMPLETE + replay_identical true.",
+  "frozen_semantic_amendment_digest": "a2b99dde6d2211034d4f1845a4bf2d1f7a5be13f5a5a61d23c2036a91caac265",
+  "local_qualification": {
+    "artifact_file_sha256": "a8654961b78b04512d204e2943562f8be4685bb5183196d970cb54cc53ecaf1a",
+    "elapsed_seconds": 57.964348,
+    "replay_identical": true,
+    "rows": 2050735,
+    "semantic_boundary_sha256": "8fafd8de61c8d924bed5085a5a2102459e5e06a66cdc814e87dda6d9d800cfaa",
+    "stages": {
+      "digest_and_audit": {
+        "completed_elapsed_seconds": 57.962416,
+        "started_elapsed_seconds": 57.295266
+      },
+      "final_materialization": {
+        "active_surface": "pumpfun_migration_verification",
+        "completed_elapsed_seconds": 48.50947,
+        "progress_elapsed_seconds": 31.232367,
+        "started_elapsed_seconds": 7.337638
+      },
+      "replay": {
+        "completed_elapsed_seconds": 57.291992,
+        "started_elapsed_seconds": 48.50987
+      },
+      "secondary_index": {
+        "completed_elapsed_seconds": 48.09142,
+        "started_elapsed_seconds": 31.233239
+      },
+      "source_capture": {
+        "completed_elapsed_seconds": 7.327395,
+        "rows_captured": 2050735,
+        "started_elapsed_seconds": 0.000525
+      }
+    }
+  },
+  "milestone": "OPS-DISCOVERY-P3R-S2B-LAYOUT-INDEPENDENT-SNAPSHOT-CONSTRUCTION-QUALIFICATION",
+  "next": "Authorize one real provenance-safe source snapshot using this exact deferred-index construction under unchanged 270/300 limits.",
+  "projection": {
+    "conservative_execution_seconds": 136.273906,
+    "conservative_multiplier_non_capture": 2,
+    "conservative_terminal_seconds": 166.273906,
+    "local_non_capture_seconds": 50.636953,
+    "margin_under_270_seconds": 133.726094,
+    "margin_under_300_seconds": 133.726094,
+    "real_source_capture_seconds": 35
+  },
+  "scope": {
+    "cohort": false,
+    "funding": false,
+    "p5f": false,
+    "population_reproduction": false,
+    "production_writes": 0,
+    "provider_calls": 0,
+    "real_snapshot": 0,
+    "s2a": false,
+    "selection": false
+  },
+  "semantic_invariants": "PASS: exact surface counts/high-waters/per-surface canonical digests, required final schema/index definition, mint ASC replay, and boundary_semantic_sha256",
+  "strategy": "bulk load required canonical rows with 5000-row commits and deferred exact secondary-index construction before replay/promotion",
+  "tests": "4 passed",
+  "verdict": "PASS_P3R_S2B_LAYOUT_INDEPENDENT_SNAPSHOT_CONSTRUCTION_QUALIFIED",
+  "wrapper_compatibility": "PASS: wrapper consumes runner status/replay/exit and owns promotion; semantic and artifact digest fields are additive."
+}

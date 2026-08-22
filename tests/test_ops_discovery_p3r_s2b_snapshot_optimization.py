@@ -65,7 +65,6 @@ def test_optimized_capture_preserves_reference_snapshot_and_boundary_semantics(t
     assert outcome["telemetry"]["final_materialization"]["surfaces"]["token_analysis"]["committed_rows"] == 7000
     assert outcome["telemetry"]["final_materialization"]["surfaces"]["pumpfun_migration_verification"]["committed_rows"] == 2334
     assert outcome["replay_identical"] is True
-    assert sha256(reference) == sha256(optimized)
     reference_surfaces = {}
     for table, fields in (("token_analysis", ("mint", "pf_ws_creator")), ("pumpfun_migration_verification", ("mint",))):
         count, digest = surface_digest(reference, table, fields)
@@ -73,7 +72,9 @@ def test_optimized_capture_preserves_reference_snapshot_and_boundary_semantics(t
     assert all(outcome["surfaces"][table]["row_count"] == count for table, count in {"token_analysis": 7000, "pumpfun_migration_verification": 2334}.items())
     assert outcome["surfaces"] == reference_surfaces
     assert all(outcome["surfaces"][table]["sha256"] == outcome["replay_surfaces"][table]["sha256"] for table in outcome["surfaces"])
-    normalized_reference = {"source_meta": outcome["source_identity_at_read_open"], "surfaces": reference_surfaces, "snapshot_path": "NORMALIZED", "snapshot_sha256": sha256(reference)}
-    normalized_optimized = {"source_meta": outcome["source_identity_at_read_open"], "surfaces": outcome["surfaces"], "snapshot_path": "NORMALIZED", "snapshot_sha256": sha256(optimized)}
+    normalized_reference = {"semantic_contract_digest": "a2b99dde6d2211034d4f1845a4bf2d1f7a5be13f5a5a61d23c2036a91caac265", "source_meta": outcome["source_identity_at_read_open"], "surfaces": reference_surfaces}
+    normalized_optimized = {"semantic_contract_digest": "a2b99dde6d2211034d4f1845a4bf2d1f7a5be13f5a5a61d23c2036a91caac265", "source_meta": outcome["source_identity_at_read_open"], "surfaces": outcome["surfaces"]}
     assert hashlib.sha256(json.dumps(normalized_reference, sort_keys=True, separators=(",", ":")).encode()).hexdigest() == hashlib.sha256(json.dumps(normalized_optimized, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    assert outcome["boundary_semantic_sha256"]
+    assert outcome["artifact_file_sha256"] == sha256(optimized)
     assert optimized.with_suffix(".sqlite.capture.sqlite").exists()

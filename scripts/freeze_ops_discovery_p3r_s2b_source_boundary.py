@@ -8,6 +8,7 @@ SURFACES = (
     ('token_analysis', ('mint', 'pf_ws_creator'), 'mint ASC'),
     ('pumpfun_migration_verification', ('mint',), 'mint ASC'),
 )
+SEMANTIC_CONTRACT_DIGEST='a2b99dde6d2211034d4f1845a4bf2d1f7a5be13f5a5a61d23c2036a91caac265'
 
 
 def canon(row: tuple) -> bytes:
@@ -85,8 +86,8 @@ def main() -> int:
         require_budget('final_materialization',180.0)
         checkpoint('final_materialization','started')
         out=sqlite3.connect(tmp)
-        out.execute('PRAGMA synchronous=OFF'); out.execute('PRAGMA cache_size=-262144'); guard(out)
-        out.executescript('CREATE TABLE token_analysis (mint TEXT PRIMARY KEY, pf_ws_creator TEXT); CREATE INDEX idx_ta_pf_ws_creator ON token_analysis(pf_ws_creator); CREATE TABLE pumpfun_migration_verification (mint TEXT PRIMARY KEY);')
+        out.execute('PRAGMA journal_mode=OFF'); out.execute('PRAGMA synchronous=OFF'); out.execute('PRAGMA cache_size=-262144'); out.execute('PRAGMA cache_spill=OFF'); guard(out)
+        out.executescript('CREATE TABLE token_analysis (mint TEXT PRIMARY KEY, pf_ws_creator TEXT); CREATE TABLE pumpfun_migration_verification (mint TEXT PRIMARY KEY);')
         staged=sqlite3.connect(f'file:{stage.resolve()}?mode=ro',uri=True); staged.execute('pragma query_only=on'); guard(staged)
         total={}
         for table,fields,order in SURFACES:
@@ -106,6 +107,8 @@ def main() -> int:
             telemetry['final_materialization']['surfaces'][table].update({'completed_elapsed_seconds':round(time.monotonic()-start,6),'committed_rows':committed_rows,'commits':commits,'elapsed_seconds':round(time.monotonic()-surface_started,6)})
             checkpoint('final_materialization','progress',active_surface=table)
             total[table]={'columns':list(fields),'row_count':count,'sha256':digest.hexdigest(),'source_rowid_high_water':high_waters[table]}
+        checkpoint('secondary_index','started')
+        out.execute('CREATE INDEX idx_ta_pf_ws_creator ON token_analysis(pf_ws_creator)'); out.commit(); checkpoint('secondary_index','completed')
         staged.close(); out.close(); os.replace(tmp,snapshot); checkpoint('final_materialization','completed')
         require_budget('replay_and_boundary',30.0)
         checkpoint('replay','started')
@@ -117,10 +120,11 @@ def main() -> int:
         identical=all(total[t]['row_count']==replay_results[t]['row_count'] and total[t]['sha256']==replay_results[t]['sha256'] for t,_,_ in SURFACES)
         require_budget('snapshot_hash_and_audit',15.0)
         checkpoint('digest_and_audit','started')
-        boundary={'source_meta':source_meta,'surfaces':total,'snapshot_path':str(snapshot),'snapshot_sha256':hashlib.sha256(snapshot.read_bytes()).hexdigest()}
-        boundary_digest=hashlib.sha256(json.dumps(boundary,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+        schema_meta=[tuple(r) for r in sqlite3.connect(f'file:{snapshot.resolve()}?mode=ro',uri=True).execute("SELECT type,name,tbl_name,sql FROM sqlite_master WHERE type IN ('table','index') ORDER BY type,name")]
+        semantic={'semantic_contract_digest':SEMANTIC_CONTRACT_DIGEST,'source_meta':source_meta,'surfaces':total,'schema_metadata':schema_meta}
+        boundary_digest=hashlib.sha256(json.dumps(semantic,sort_keys=True,separators=(',',':')).encode()).hexdigest(); artifact_sha=hashlib.sha256(snapshot.read_bytes()).hexdigest()
         checkpoint('digest_and_audit','completed')
-        result={**base,'status':'COMPLETE' if identical else 'HOLD','source_identity_at_read_open':source_meta,'surfaces':total,'replay_surfaces':replay_results,'replay_identical':identical,'boundary_sha256':boundary_digest,'snapshot_path':str(snapshot),'snapshot_sha256':boundary['snapshot_sha256'],'progress_calls':calls,'elapsed_seconds':round(time.monotonic()-start,6),'telemetry':telemetry}
+        result={**base,'status':'COMPLETE' if identical else 'HOLD','source_identity_at_read_open':source_meta,'surfaces':total,'replay_surfaces':replay_results,'replay_identical':identical,'boundary_semantic_sha256':boundary_digest,'artifact_file_sha256':artifact_sha,'snapshot_path':str(snapshot),'progress_calls':calls,'elapsed_seconds':round(time.monotonic()-start,6),'telemetry':telemetry}
         atomic_json(audit,result); print(json.dumps(result,sort_keys=True)); return 0 if identical else 2
     except Exception as exc:
         bounded=isinstance(exc,TimeoutError) or 'interrupted' in str(exc).lower()

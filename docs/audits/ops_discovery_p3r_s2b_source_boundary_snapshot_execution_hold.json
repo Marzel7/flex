@@ -1,0 +1,62 @@
+{
+  "authorization": "one real source snapshot only; no retry",
+  "exact_next_authorization_required": "Authorize a bounded diagnosis of why the qualified final materialization did not complete inside the 270-second execution deadline, without retrying or changing snapshot semantics.",
+  "execution": {
+    "absolute_ceiling_seconds": 300,
+    "cleanup_reserve_seconds": 30,
+    "elapsed_seconds": 270.210428,
+    "execution_deadline_seconds": 270,
+    "lifecycle_started": "PASS",
+    "runner_exit_code": -15,
+    "runner_pid": 28243,
+    "screen_session": "p3rs2b0b4ec926f9f49a15",
+    "screen_sessions_after_completion": 0,
+    "started_at_utc": "2026-08-22T19:01:02.404047Z",
+    "terminal_at_utc": "2026-08-22T19:05:32.614475Z",
+    "wrapper_pid": 28232,
+    "wrapper_terminal_status": "HOLD_BOUND_EXCEEDED"
+  },
+  "milestone": "OPS-DISCOVERY-P3R-S2B-SOURCE-BOUNDARY-SNAPSHOT-EXECUTION",
+  "outcome": {
+    "authoritative_snapshot": null,
+    "authoritative_snapshot_promoted": false,
+    "candidate_integrity": "NOT_COMPLETED",
+    "canonical_digests": "UNAVAILABLE: runner was terminated by qualified wrapper at execution deadline before terminal audit",
+    "failure_reason": "wrapper enforced the 270-second shared execution deadline; runner exited -15; no promotion or retry",
+    "replay_result": "NOT_RUN_TO_COMPLETION",
+    "runner_terminal_audit_status": "STARTED",
+    "source_high_waters": "UNAVAILABLE: runner was terminated by qualified wrapper at execution deadline before terminal audit",
+    "source_surface_counts": "UNAVAILABLE: runner was terminated by qualified wrapper at execution deadline before terminal audit",
+    "temporary_snapshot_non_authoritative": true,
+    "top_level_source_boundary_digest": "UNAVAILABLE: no authoritative boundary was promoted"
+  },
+  "preflight": {
+    "active_screen_sessions_before_launch": 0,
+    "engineering_commit": "34dd293e679e49cf40d507810df96febff6ecb95",
+    "handoff_sha256": "46989217c99c1a4b9268f5e92faec5795e00752ce05af8c805e87cc95295ff79",
+    "repair_qualification_sha256": "bb5e5869fcc45d07ed9d6894b8ac71d49c49f26be9d032fb7fa2c6116c9ef266",
+    "runner_sha256": "a346bdd4a6125c008ac5cd861fd33af565f6ecfdb47a4c0c43c8847b7a7eeeda",
+    "source_read_only_open": "PASS",
+    "wrapper_sha256": "530f46480fbf3d591a6d6e522deb0130d236b6ab968afcc7af059a9236ad3502"
+  },
+  "run_id": "s2b-source-snapshot-20260822T190101225416000Z-bb2dfefa2fd4795f945156fec8c84849",
+  "runtime_artifacts": {
+    "authoritative_snapshot_path": null,
+    "lifecycle_sha256": "efc197c4f15f91d3a7417ad819e07d9632706561aef9a2f5f76ad5b33e880508",
+    "run_namespace": "docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T190101225416000Z-bb2dfefa2fd4795f945156fec8c84849",
+    "runner_audit_sha256": "4a4a24afd4b6a34c9f5569f6f1b1d19d67595c2951414b0b3b56a82dd2e45f3d"
+  },
+  "scope_confirmations": {
+    "automatic_retries": 0,
+    "cohort_formed": false,
+    "funding_structures_changed": false,
+    "identities_selected_or_frozen": false,
+    "launches": 1,
+    "p5f_touched": false,
+    "population_reproduction_executed": false,
+    "production_source_writes": 0,
+    "provider_calls_made": 0,
+    "s2a_amendment_1_changed": false
+  },
+  "verdict": "HOLD_P3R_S2B_SOURCE_BOUNDARY_SNAPSHOT_BOUND_EXCEEDED"
+}

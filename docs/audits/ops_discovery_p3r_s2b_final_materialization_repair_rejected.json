@@ -1,0 +1,26 @@
+{
+  "candidate": "retain 5000-row insert batches, commit once per surface, increase SQLite progress-handler opcode interval from 1000 to 100000",
+  "conclusion": "The candidate is not semantics-preserving under the existing byte-identity contract and is rejected. The working-tree candidate remains uncommitted pending an explicit decision; it was not benchmarked or published as a repair.",
+  "exact_next_authorization_required": "Decide whether to preserve byte identity and authorize a different bounded repair candidate, or explicitly reopen the byte-identity contract. Do not run another real snapshot.",
+  "failure": {
+    "assertion": "final SQLite SHA-256 differs from the frozen reference under once-per-surface commits",
+    "candidate_sha256": "b859bcff023a0a7ce7a12924705cd2a2cb6500bc53dad824ca488cbdf68db9a3",
+    "reference_sha256": "60577aedb116a7fb1d9be5a3be6b75645da2fbef9c02dd71ede51e4171bb65f0",
+    "test": "test_optimized_capture_preserves_reference_snapshot_and_boundary_semantics"
+  },
+  "focused_tests": "3 passed, 1 failed",
+  "milestone": "OPS-DISCOVERY-P3R-S2B-FINAL-MATERIALIZATION-REPAIR-QUALIFICATION",
+  "scope": "fixture-only qualification; no benchmark completed after focused test failure; no real source snapshot",
+  "scope_confirmations": {
+    "cohort_formed": false,
+    "funding_structures_changed": false,
+    "identities_selected_or_frozen": false,
+    "new_real_snapshot_launches": 0,
+    "p5f_touched": false,
+    "population_reproduction_executed": false,
+    "production_source_writes": 0,
+    "provider_calls_made": 0,
+    "s2a_amendment_1_changed": false
+  },
+  "verdict": "HOLD_P3R_S2B_FINAL_MATERIALIZATION_REPAIR_BYTE_IDENTITY_REJECTED"
+}

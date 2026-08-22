@@ -1,0 +1,20 @@
+{
+  "milestone": "OPS-DISCOVERY-P3R-S2B-REPRODUCTION",
+  "status": "HOLD",
+  "verdict": "HOLD_P3R_S2B_POPULATION_REPRODUCTION_UNRESOLVED",
+  "execution_path": "scripts/run_ops_discovery_p3r_s2b_population_reproduction.py",
+  "query_reference": "docs/audits/ops_discovery_p3r_s2b_population_equivalence.json",
+  "query_sha256": "76398c241b7211c253199a45813effce8a7dcd394d8744380dd0b79bc7fc8031",
+  "equivalence_artifact_sha256": "733a6c2a799b01632b48801c476826cb722f10bee5c29c6aaad74d37122e5cd8",
+  "bounds": {"wall_seconds": 120, "max_progress_calls_per_pass": 100000, "passes": 2},
+  "observed_execution_outcome": "Harness returned no completion output after approximately 31 seconds. Durable audit remained STARTED and the temporary canonical manifest contained 0 rows.",
+  "interpretation": "No population count, membership, digest, replay result, or empty-population inference is available. The one authorized execution path did not complete in the available execution environment and was not retried.",
+  "provider_calls_made": 0,
+  "production_writes": 0,
+  "identities_selected_or_frozen": false,
+  "cohort_formed": false,
+  "s2a_amendment_modified": false,
+  "existing_funding_structures_unchanged": 8,
+  "p5f_scheduler_untouched": true,
+  "next_action": "REQUIRES_SEPARATE_AUTHORIZATION_FOR_A_PERSISTENT_HOST_EXECUTION_ENVIRONMENT_CAPABLE_OF_COMPLETING_THE_ALREADY_BOUND_PROVEN_EQUIVALENT_REPRODUCTION_RUN; NO_IDENTITY_SELECTION"
+}

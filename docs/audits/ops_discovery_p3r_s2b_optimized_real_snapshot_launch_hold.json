@@ -1,0 +1,46 @@
+{
+  "milestone": "OPS-DISCOVERY-P3R-S2B optimized provenance-safe real source snapshot launch",
+  "verdict": "HOLD_P3R_S2B_SOURCE_SNAPSHOT_LAUNCH_NOT_STARTED",
+  "authorized_run": {
+    "run_id": "s2b-source-snapshot-20260822T143436877528000Z-cabe3612e0c74eb4dabac29c3b5eaf8a",
+    "persistent_mechanism": "nohup",
+    "outer_launcher_pid": 89896,
+    "command": "/opt/homebrew/opt/python@3.14/bin/python3.14 scripts/run_ops_discovery_p3r_s2b_source_snapshot_isolated.py --run-id s2b-source-snapshot-20260822T143436877528000Z-cabe3612e0c74eb4dabac29c3b5eaf8a",
+    "bound_seconds": 300,
+    "optimized_runner_sha256": "02101c5b8184b504af94b957457145c226fdafa2ef7c7f4dbc85bc3406373e31",
+    "qualification_artifact_sha256": "49a43e1d89a6afe57027bd22486ece9cfb5f2e7c6b6d764bf8d210b6ed123540"
+  },
+  "preflight": {
+    "published_handoff_sha256_verified": "0bbd6dfcfd956e4557b2b2edae1e11357b91823f86870dcecc7401faf2e7aa07",
+    "runner_and_wrapper_match_b2ec156e": true,
+    "source_access": "sqlite mode=ro, query_only; SELECT 1 passed",
+    "legacy_quarantine_hashes_unchanged": true
+  },
+  "failure_evidence": {
+    "run_namespace_created": false,
+    "lifecycle_started_checkpoint_observed": false,
+    "runner_audit_observed": false,
+    "runner_pid_observed": false,
+    "outer_launcher_stdout": "/tmp/s2b-source-snapshot-20260822T143436877528000Z-cabe3612e0c74eb4dabac29c3b5eaf8a.launcher.stdout",
+    "outer_launcher_stderr": "/tmp/s2b-source-snapshot-20260822T143436877528000Z-cabe3612e0c74eb4dabac29c3b5eaf8a.launcher.stderr",
+    "outer_launcher_logs": "both empty when inspected after the bounded wait",
+    "post_wait_process_check": "no runner process found; only the inspection command matched its own search",
+    "interpretation": "The persistent-launch mechanism did not establish the wrapper process or its required STARTED lifecycle record. No source snapshot transaction can be attributed to this attempt."
+  },
+  "scope_confirmations": {
+    "real_source_snapshot_transaction_started": false,
+    "authoritative_source_boundary_promoted": false,
+    "population_reproduction_executed": false,
+    "provider_calls_made": 0,
+    "production_database_writes": 0,
+    "identities_selected_or_frozen": false,
+    "cohort_formed": false,
+    "s2a_amendment_unchanged": true,
+    "existing_funding_structures_unchanged": 8,
+    "p5f_untouched": true,
+    "legacy_ambiguous_artifacts_untouched": true,
+    "automatic_retry_performed": false
+  },
+  "preserved_source_boundary_verdict": "HOLD_P3R_S2B_SOURCE_BOUNDARY_UNRESOLVED",
+  "next_authorization_required": "Authorize diagnosis and qualification of a host persistence mechanism that can establish and retain the already-qualified wrapper STARTED lifecycle record. Do not retry the source snapshot until that launch mechanism is proven."
+}

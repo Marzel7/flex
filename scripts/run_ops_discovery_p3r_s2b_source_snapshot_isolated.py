@@ -99,7 +99,7 @@ def main() -> int:
     lifecycle = namespace / "lifecycle.json"
     stdout_path, stderr_path = namespace / "stdout.log", namespace / "stderr.log"
     runner_candidate = namespace / "runner_candidate.sqlite"
-    tmp_snapshot, final_snapshot = namespace / "runner_candidate.sqlite.tmp", namespace / "snapshot.sqlite"
+    tmp_snapshot, capture_snapshot, final_snapshot = namespace / "runner_candidate.sqlite.tmp", namespace / "runner_candidate.sqlite.capture.sqlite", namespace / "snapshot.sqlite"
     runner_audit = namespace / "source_boundary_audit.json"
     runner_hash = sha256(RUNNER)
     record = {
@@ -108,9 +108,9 @@ def main() -> int:
         "launcher": {"pid": os.getpid(), "ppid": os.getppid(), "started_at_utc": utc_now(), "cwd": str(Path.cwd())},
         "runner": {"path": str(RUNNER.resolve()), "sha256": runner_hash, "pid": None, "ppid": None, "started_at_utc": None},
         "bindings": {"source_db": str(Path(args.source_db).resolve()), "source_contract": SOURCE_CONTRACT, "dry_run": args.dry_run},
-        "paths": {"namespace": str(namespace), "lifecycle": str(lifecycle), "stdout": str(stdout_path), "stderr": str(stderr_path), "temporary_snapshot": str(tmp_snapshot), "runner_candidate_snapshot": str(runner_candidate), "final_snapshot": str(final_snapshot), "runner_audit": str(runner_audit)},
+        "paths": {"namespace": str(namespace), "lifecycle": str(lifecycle), "stdout": str(stdout_path), "stderr": str(stderr_path), "temporary_snapshot": str(tmp_snapshot), "capture_snapshot": str(capture_snapshot), "runner_candidate_snapshot": str(runner_candidate), "final_snapshot": str(final_snapshot), "runner_audit": str(runner_audit)},
         "legacy_quarantine_excluded": LEGACY,
-        "ownership": {"wrapper": ["namespace", "lifecycle", "stdout", "stderr", "final_snapshot"], "snapshot_runner": ["temporary_snapshot", "runner_candidate_snapshot", "runner_audit"], "promotion": "wrapper only after runner COMPLETE, replay_identical true, and exit code zero"},
+        "ownership": {"wrapper": ["namespace", "lifecycle", "stdout", "stderr", "final_snapshot"], "snapshot_runner": ["temporary_snapshot", "capture_snapshot", "runner_candidate_snapshot", "runner_audit"], "promotion": "wrapper only after runner COMPLETE, replay_identical true, and exit code zero"},
     }
     atomic_json(lifecycle, record)
     command = fixture_command(tmp_snapshot, runner_audit, args.dry_run_outcome, run_id) if args.dry_run else [

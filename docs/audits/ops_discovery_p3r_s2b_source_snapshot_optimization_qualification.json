@@ -1,0 +1,83 @@
+{
+  "milestone": "OPS-DISCOVERY-P3R-S2B source snapshot semantics-preserving optimization qualification",
+  "verdict": "PASS_P3R_S2B_SNAPSHOT_OPTIMIZATION_QUALIFIED_300S",
+  "optimized_runner": {
+    "path": "scripts/freeze_ops_discovery_p3r_s2b_source_boundary.py",
+    "sha256": "02101c5b8184b504af94b957457145c226fdafa2ef7c7f4dbc85bc3406373e31",
+    "bound_seconds": 300,
+    "mechanical_change": "Capture both source surfaces without source ORDER BY into a run-local, non-authoritative staging SQLite file in one transaction; then stream the staging rows in the original mint ASC order through the original final-schema, canonical-digest, batch-commit, replay, and boundary-digest path.",
+    "why_smallest": "The source ordered primary-key scan was measured as the bottleneck. The change removes only that source-access-path cost while deliberately retaining the final snapshot schema, insertion order, canonical row encoding, digest algorithm, replay check, high-water capture, and terminal contract."
+  },
+  "frozen_semantic_invariants": {
+    "surfaces": ["token_analysis(mint,pf_ws_creator)", "pumpfun_migration_verification(mint)"],
+    "source_view": "one coherent SQLite mode=ro/query_only transaction captures both surfaces before source close",
+    "membership_and_null_semantics": "unchanged; every source row and the original column projections are captured without predicate changes",
+    "canonical_order": "mint ASC is retained for final insertion, per-surface canonical JSON-array/newline/SHA-256 digesting, and replay",
+    "high_waters": "read from the same source transaction after each surface capture",
+    "final_schema": "unchanged, including token_analysis primary key and idx_ta_pf_ws_creator",
+    "top_level_boundary_meaning": "unchanged; it still binds source metadata, per-surface counts/digests/high-waters, final snapshot SHA-256, and snapshot path",
+    "bound_seconds": 300
+  },
+  "profile": {
+    "reference_observed_real_attempt_rows_per_second": 1148.635199,
+    "reference_real_attempt": "345000 committed token_analysis rows in 300.356458 seconds; second surface not reached",
+    "25k_ordered_source_read": {"seconds": 3.684909, "rows_per_second": 6784.428, "plan": "SCAN token_analysis USING INDEX sqlite_autoindex_token_analysis_1"},
+    "25k_unordered_source_read": {"seconds": 0.051368, "rows_per_second": 486689.054, "plan": "SCAN token_analysis"},
+    "50k_optimized_complete_fixture_like_workflow": {
+      "capture_source_to_local_stage_seconds": 0.510079,
+      "capture_rows_per_second": 98023.967,
+      "canonical_ordered_finalization_seconds": 0.455048,
+      "finalization_rows_per_second": 109878.468,
+      "replay_seconds": 0.160794,
+      "replay_rows_per_second": 310957.762,
+      "complete_seconds": 1.125921,
+      "complete_rows_per_second": 44408.086,
+      "digest_equal": true
+    },
+    "250k_live_source_capture_to_local_stage": {"seconds": 2.565223, "rows_per_second": 97457.416},
+    "bottleneck_conclusion": "The prior rate is explained by the non-covering ordered source index scan. Local insertion, secondary-index maintenance, canonical encoding, and replay are each materially faster on the bounded measurements; source ordering, not the population query, is the dominant cost."
+  },
+  "equivalence_qualification": {
+    "test": "tests/test_ops_discovery_p3r_s2b_snapshot_optimization.py",
+    "fixture": "7000 token_analysis rows including NULL pf_ws_creator values and 2334 pumpfun_migration_verification rows",
+    "results": {
+      "runner_status": "COMPLETE",
+      "replay_identical": true,
+      "per_surface_counts_equal": true,
+      "per_surface_canonical_digests_equal": true,
+      "reference_and_optimized_final_snapshot_sha256_equal": true,
+      "normalized_top_level_boundary_inputs_equal": true
+    },
+    "artifact_layout_note": "The run-scoped candidate path is intentionally distinct across executions. Boundary comparison normalizes only that path value; final snapshot bytes were independently proven identical."
+  },
+  "performance_projection": {
+    "current_two_surface_rows": 2042638,
+    "method": "Current aggregate two-surface row count divided by the measured 50k complete capture/finalization/replay rate. The smaller second surface has fewer projected columns and is included conservatively at the token-analysis complete-workflow rate.",
+    "projected_complete_workflow_seconds": 45.996984,
+    "projected_complete_workflow_minutes": 0.766616,
+    "speedup_over_observed_reference_attempt": 38.66161,
+    "conservative_threefold_contingency_seconds": 137.990951,
+    "margin_against_300_seconds_with_contingency": 162.009049,
+    "qualification": "PASS; the 3x contingency still leaves 54.0% of the frozen bound unused, and the 250k source-capture sample corroborates the 50k rate."
+  },
+  "provenance_wrapper_compatibility": {
+    "wrapper": "scripts/run_ops_discovery_p3r_s2b_source_snapshot_isolated.py",
+    "preserved": ["unique pre-run ID", "atomic namespace collision refusal", "launcher/runner PID and PPID capture", "stdout/stderr", "terminal states", "wrapper-only final authoritative promotion", "legacy ambiguous artifact quarantine"],
+    "new_runner_owned_artifact": "runner_candidate.sqlite.capture.sqlite is run-scoped, non-authoritative, and recorded as runner-owned alongside the candidate and audit"
+  },
+  "scope_confirmations": {
+    "full_real_source_snapshot_executed": false,
+    "authoritative_source_boundary_promoted": false,
+    "ambiguous_legacy_artifacts_untouched": true,
+    "population_reproduction_executed": false,
+    "provider_calls_made": 0,
+    "production_database_writes": 0,
+    "identities_selected_or_frozen": false,
+    "cohort_formed": false,
+    "s2a_amendment_unchanged": true,
+    "existing_funding_structures_unchanged": 8,
+    "p5f_untouched": true
+  },
+  "preserved_source_boundary_verdict": "HOLD_P3R_S2B_SOURCE_BOUNDARY_UNRESOLVED",
+  "next_authorization_required": "Authorize one provenance-safe real source snapshot using this qualified optimized implementation under the unchanged 300-second bound. Do not run population reproduction or select identities."
+}

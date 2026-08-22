@@ -52,18 +52,34 @@ def main() -> int:
         source_meta={'device':identity.st_dev,'inode':identity.st_ino,'size_bytes':identity.st_size,'mtime_ns':identity.st_mtime_ns,'schema_version':source.execute('pragma schema_version').fetchone()[0], 'data_version':source.execute('pragma data_version').fetchone()[0]}
         snapshot.parent.mkdir(parents=True,exist_ok=True)
         tmp=snapshot.with_suffix(snapshot.suffix+'.tmp'); tmp.unlink(missing_ok=True)
+        stage=snapshot.with_suffix(snapshot.suffix+'.capture.sqlite'); stage.unlink(missing_ok=True)
+        capture=sqlite3.connect(stage)
+        capture.execute('PRAGMA journal_mode=OFF'); capture.execute('PRAGMA synchronous=OFF')
+        capture.executescript('CREATE TABLE token_analysis (mint TEXT, pf_ws_creator TEXT); CREATE TABLE pumpfun_migration_verification (mint TEXT);')
+        capture.execute('BEGIN')
+        high_waters={}
+        for table,fields,order in SURFACES:
+            batch=[]
+            for row in source.execute(f"SELECT {','.join(fields)} FROM {table}"):
+                batch.append(row)
+                if len(batch)>=5000:
+                    capture.executemany(f"INSERT INTO {table} ({','.join(fields)}) VALUES ({','.join('?' for _ in fields)})",batch); batch=[]
+            if batch: capture.executemany(f"INSERT INTO {table} ({','.join(fields)}) VALUES ({','.join('?' for _ in fields)})",batch)
+            high_waters[table]=source.execute(f'SELECT max(rowid) FROM {table}').fetchone()[0]
+        capture.commit(); source.close(); capture.close()
         out=sqlite3.connect(tmp)
         out.executescript('CREATE TABLE token_analysis (mint TEXT PRIMARY KEY, pf_ws_creator TEXT); CREATE INDEX idx_ta_pf_ws_creator ON token_analysis(pf_ws_creator); CREATE TABLE pumpfun_migration_verification (mint TEXT PRIMARY KEY);')
-        records=[]; total={}
+        staged=sqlite3.connect(f'file:{stage.resolve()}?mode=ro',uri=True); staged.execute('pragma query_only=on')
+        total={}
         for table,fields,order in SURFACES:
             digest=hashlib.sha256(); count=0; batch=[]
-            for row in source.execute(f"SELECT {','.join(fields)} FROM {table} ORDER BY {order}"):
+            for row in staged.execute(f"SELECT {','.join(fields)} FROM {table} ORDER BY {order}"):
                 digest.update(canon(row)); count+=1; batch.append(row)
                 if len(batch)>=5000:
                     out.executemany(f"INSERT INTO {table} ({','.join(fields)}) VALUES ({','.join('?' for _ in fields)})",batch); out.commit(); batch=[]
             if batch: out.executemany(f"INSERT INTO {table} ({','.join(fields)}) VALUES ({','.join('?' for _ in fields)})",batch); out.commit()
-            total[table]={'columns':list(fields),'row_count':count,'sha256':digest.hexdigest(),'source_rowid_high_water':source.execute(f'SELECT max(rowid) FROM {table}').fetchone()[0]}
-        source.close(); out.close(); os.replace(tmp,snapshot)
+            total[table]={'columns':list(fields),'row_count':count,'sha256':digest.hexdigest(),'source_rowid_high_water':high_waters[table]}
+        staged.close(); out.close(); os.replace(tmp,snapshot)
         replay=sqlite3.connect(f'file:{snapshot.resolve()}?mode=ro',uri=True); replay.execute('pragma query_only=on')
         replay_results={}
         for table,fields,order in SURFACES:

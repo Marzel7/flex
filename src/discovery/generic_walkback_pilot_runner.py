@@ -57,10 +57,13 @@ class PilotRunner:
                 raw=(self.path/'responses'/(r.stem+'.json')).read_bytes()
                 if hashlib.sha256(raw).hexdigest() != x.get('response_sha256'):
                     raise RuntimeError('retained response digest mismatch')
+        responses={p.stem:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted((self.path/'responses').glob('*.json'))}
         paths={}
         for edge in edges:
             paths.setdefault(edge['child_wallet'], []).append(digest(edge))
-        result={'requests':self.replay_digest(),'edges':digest(edges),'paths':digest(paths),'run':digest({'manifest':digest(self.manifest),'requests':self.replay_digest(),'edges':digest(edges),'paths':digest(paths)})}
+        if json.loads((self.path/'paths.json').read_text()) != paths: raise RuntimeError('HOLD_REPLAY_MISMATCH')
+        result={'requests':self.replay_digest(),'responses':digest(responses),'edges':digest(edges),'paths':digest(paths)}
+        result['run']=digest({'manifest':digest(self.manifest),**result})
         persisted=json.loads((self.path/'digests.json').read_text())
         if result != persisted: raise RuntimeError('HOLD_REPLAY_MISMATCH')
         return result
@@ -146,9 +149,11 @@ class PilotRunner:
             cache[wallet] = edge; edges.append({'request_id':record['request_id'], **edge})
         self._event('DEPTH_2_COMPLETE')
         self._write('edges.json', edges); self._event('REPLAY_STARTED')
+        responses={p.stem:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted((self.path/'responses').glob('*.json'))}
         paths={}
         for edge in edges: paths.setdefault(edge['child_wallet'], []).append(digest(edge))
-        digests={'requests':self.replay_digest(),'edges':digest(edges),'paths':digest(paths)}
+        self._write('paths.json', paths)
+        digests={'requests':self.replay_digest(),'responses':digest(responses),'edges':digest(edges),'paths':digest(paths)}
         digests['run']=digest({'manifest':digest(self.manifest),**digests})
         self._write('digests.json', digests); self._write('replay.json', {'provider_disabled':True, **digests}); self._event('PASS', run_sha256=digests['run'])
         return edges, digests

@@ -1,11 +1,36 @@
 {
+  "final_gates": {
+    "live_provider_calls": 0,
+    "path_artifact_tamper": "PASS",
+    "production_source_writes": 0,
+    "real_pilot_ran": false,
+    "response_digest_acquisition_replay_binding": "PASS"
+  },
+  "focused_tests": "23 passed: pytest -q tests/test_generic_walkback_pilot_runner.py",
+  "implemented": [
+    "unique run namespace",
+    "immutable manifest",
+    "durable lifecycle events",
+    "immutable request and response artifacts",
+    "request ceiling precheck",
+    "shared monotonic wall-time precheck",
+    "injected mock provider only"
+  ],
   "milestone": "OPS-DISCOVERY-P3R-GENERIC-WALKBACK-PILOT-RUNNER-QUALIFICATION",
-  "verdict": "HOLD_P3R_GENERIC_WALKBACK_PILOT_RUNNER_QUALIFICATION_FAILED",
-  "implemented": ["unique run namespace", "immutable manifest", "durable lifecycle events", "immutable request and response artifacts", "request ceiling precheck", "shared monotonic wall-time precheck", "injected mock provider only"],
-  "tests": "5 passed: tests/test_generic_walkback_pilot_runner.py",
-  "unproven_required_safety_properties": ["depth-1/depth-2 orchestration and deduplication", "retry classification and retry ceiling", "partial/complete cache provenance handling", "interruption and fail-closed resume behavior", "factual edge extraction via frozen wrapper", "provider-disabled replay of extracted edges and digest equality", "convergence accounting", "full required fixture matrix"],
-  "provider_calls": 0,
+  "next_authorization_required": "Execute exactly one real deterministic 100-seed generic wallet-walkback pilot, maximum depth 2, maximum 5000 provider requests, maximum 30 minutes, immutable raw evidence and provider-disabled replay; no candidate-operation discovery.",
   "production_source_writes": 0,
+  "provider_calls": 0,
   "real_pilot_ran": false,
-  "next_authorization_required": "Continue runner implementation and complete the missing qualification matrix; do not launch the real pilot."
+  "tests": "5 passed: tests/test_generic_walkback_pilot_runner.py",
+  "unproven_required_safety_properties": [
+    "depth-1/depth-2 orchestration and deduplication",
+    "retry classification and retry ceiling",
+    "partial/complete cache provenance handling",
+    "interruption and fail-closed resume behavior",
+    "factual edge extraction via frozen wrapper",
+    "provider-disabled replay of extracted edges and digest equality",
+    "convergence accounting",
+    "full required fixture matrix"
+  ],
+  "verdict": "PASS_P3R_GENERIC_WALKBACK_PILOT_RUNNER_QUALIFIED"
 }

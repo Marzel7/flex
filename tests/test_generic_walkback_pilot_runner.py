@@ -113,3 +113,14 @@ def test_frozen_wrapper_equivalence(monkeypatch):
  monkeypatch.setattr(walkback_worker,'_rpc',rpc)
  result=find_funding_parent('CHILD')
  assert (result.parent_wallet,result.signature,result.slot,result.block_time,result.amount_sol,result.state)==('PARENT','S',10,1010,0.0,'PARENT_FOUND')
+
+def test_path_artifact_tamper_fails_replay(tmp_path):
+ r=PilotRunner(tmp_path,'r',['a'],lambda w:{'parent':None});r.run(lambda w,x,d:{'child_wallet':w,'parent_wallet':x['parent'],'depth':d})
+ paths=json.loads((tmp_path/'r'/'paths.json').read_text());paths['a']=['tampered'];(tmp_path/'r'/'paths.json').write_text(json.dumps(paths))
+ with pytest.raises(RuntimeError, match='HOLD_REPLAY_MISMATCH'):r.replay()
+
+def test_response_digest_is_bound_and_tamper_fails(tmp_path):
+ r=PilotRunner(tmp_path,'r',['a'],lambda w:{'parent':None});_, acquired=r.run(lambda w,x,d:{'child_wallet':w,'parent_wallet':x['parent'],'depth':d})
+ assert r.replay()['responses'] == acquired['responses']
+ p=next((tmp_path/'r'/'responses').glob('*'));p.write_text('{"changed":true}')
+ with pytest.raises(RuntimeError):r.replay()

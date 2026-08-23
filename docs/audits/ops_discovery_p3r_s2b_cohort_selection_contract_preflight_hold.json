@@ -1,0 +1,34 @@
+{
+  "ambiguities": [
+    "No frozen deterministic source/table/query mapping derives direct_funding, upstream_funding, ep3_topology, timing, migration_actor, behaviour, migrated_at, or fanout for every frozen population member.",
+    "No frozen deterministic natural-key query maps the evaluation-only Watchtower or 3SW2 sources into the reproduced population.",
+    "No frozen deterministic predicate assigns the three contrast subclasses from the authorized local evidence.",
+    "The documents state the required evidence concepts and quotas but leave the executable mappings unspecified; defining them after materialized identities would violate the frozen-contract contamination guard."
+  ],
+  "bindings_verified": {
+    "docs/audits/ops_discovery_p3r_s2a_contrast_design.json": "d3d5c9f5a05ea45bb3d5a11230719ec43460ede33353e11cdc7b61113b5dbfd2",
+    "docs/audits/ops_discovery_p3r_s2a_positive_control_availability.json": "af82ec21d85399a418f0f976d14eb98531695b3007402a8982b7e6988383f1cb",
+    "docs/audits/ops_discovery_p3r_s2a_selection_contract.json": "ee480732246cc24a761c7800eec883ab441e49750447ff3208cb3460a24801ec",
+    "docs/audits/ops_discovery_p3r_s2a_selection_contract_amendment_1.json": "c1049c428cc6166211f3cb880a9a10b83d4e570e30e659cd659c36ca37a7f96b",
+    "docs/audits/ops_discovery_p3r_s2b_population_reproduction_closure.json": "fc3140f0688fbf7bece39ee2fffbc792e793d4ccfb55d1accb77cd6c49e14401"
+  },
+  "cohort_formed": false,
+  "cohort_identities_selected": false,
+  "frozen_population": {
+    "canonical_population_sha256": "4de4356ebb8c3311a18e1f3be4d7d2dcc1d5a7c4c09ab2a1e6c553f29dd66d66",
+    "closure_artifact_sha256": "fc3140f0688fbf7bece39ee2fffbc792e793d4ccfb55d1accb77cd6c49e14401",
+    "count": 42664
+  },
+  "milestone": "OPS-DISCOVERY-P3R-S2B-COHORT-SELECTION",
+  "next_authorization": "pre-selection S2A contract repair that deterministically freezes the exact authorized evidence-source mappings, truth joins, and contrast-subclass predicates without using population identities or outcomes; then reauthorize cohort selection.",
+  "operation_evaluation": false,
+  "production_source_writes": 0,
+  "provider_calls": 0,
+  "s2a_amendment": {
+    "artifact_sha256": "c1049c428cc6166211f3cb880a9a10b83d4e570e30e659cd659c36ca37a7f96b",
+    "declared_contract_sha256": "505120dc4a84fed3de7567cefbe28068e09b6e6bba25fa8f027843fdc96c6d78"
+  },
+  "s2a_amendment_modified": false,
+  "selection_executed": false,
+  "verdict": "HOLD_P3R_S2B_COHORT_SELECTION_CONTRACT_MISMATCH"
+}

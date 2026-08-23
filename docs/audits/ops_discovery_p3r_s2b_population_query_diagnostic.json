@@ -1,0 +1,41 @@
+{
+  "bounds": {
+    "replay": false,
+    "wall_seconds": 120
+  },
+  "first_row_observed": true,
+  "manifest_count": 42664,
+  "manifest_serialization_digest_seconds": 387.36877141700825,
+  "manifest_sha256": "4de4356ebb8c3311a18e1f3be4d7d2dcc1d5a7c4c09ab2a1e6c553f29dd66d66",
+  "milestone": "OPS-DISCOVERY-P3R-S2B-POPULATION-QUERY-PERFORMANCE-DIAGNOSIS",
+  "one_pass_projected_seconds": 1166.804379457957,
+  "plan": [
+    [
+      6,
+      0,
+      224,
+      "SEARCH ta USING INDEX idx_ta_pf_ws_creator (pf_ws_creator>?)"
+    ],
+    [
+      11,
+      0,
+      45,
+      "SEARCH pmv EXISTS USING COVERING INDEX sqlite_autoindex_pumpfun_migration_verification_1 (mint=?)"
+    ],
+    [
+      22,
+      0,
+      0,
+      "USE TEMP B-TREE FOR ORDER BY"
+    ]
+  ],
+  "production_writes": 0,
+  "provider_calls": 0,
+  "query_sha256": "015717f11c9a49b803089d90aafc651fa21063d66b45f946647c3912ef50a797",
+  "snapshot": "docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T221819272628000Z-16a03978948f3881020440ceeb080e8a/snapshot.sqlite",
+  "sql_count": 42664,
+  "sql_count_seconds": 376.31516158301383,
+  "status": "COMPLETE",
+  "time_to_first_row_seconds": 402.9980612079962,
+  "two_pass_projected_seconds": 1554.1731508749654
+}

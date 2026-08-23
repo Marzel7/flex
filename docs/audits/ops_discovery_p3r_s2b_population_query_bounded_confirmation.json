@@ -1,0 +1,39 @@
+{
+  "active_stage": "TIME_TO_FIRST_ROW",
+  "bounds": {
+    "deadline_monotonic": 484183.932868375,
+    "replay": false,
+    "wall_seconds": 120.0
+  },
+  "elapsed_seconds": 120.57642125000712,
+  "exception": "interrupted",
+  "exception_type": "OperationalError",
+  "last_completed_stage": "QUERY_PLAN",
+  "milestone": "OPS-DISCOVERY-P3R-S2B-POPULATION-QUERY-PERFORMANCE-DIAGNOSIS",
+  "plan": [
+    [
+      6,
+      0,
+      224,
+      "SEARCH ta USING INDEX idx_ta_pf_ws_creator (pf_ws_creator>?)"
+    ],
+    [
+      11,
+      0,
+      45,
+      "SEARCH pmv EXISTS USING COVERING INDEX sqlite_autoindex_pumpfun_migration_verification_1 (mint=?)"
+    ],
+    [
+      22,
+      0,
+      0,
+      "USE TEMP B-TREE FOR ORDER BY"
+    ]
+  ],
+  "production_writes": 0,
+  "provider_calls": 0,
+  "query_sha256": "015717f11c9a49b803089d90aafc651fa21063d66b45f946647c3912ef50a797",
+  "snapshot": "docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T221819272628000Z-16a03978948f3881020440ceeb080e8a/snapshot.sqlite",
+  "status": "HOLD_BOUND_EXCEEDED",
+  "timeout_stage": "TIME_TO_FIRST_ROW"
+}

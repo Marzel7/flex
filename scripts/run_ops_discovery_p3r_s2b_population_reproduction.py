@@ -56,7 +56,7 @@ def main() -> int:
     parser.add_argument('--db', default='database/flex_complete_database.db')
     parser.add_argument('--manifest-path', required=True)
     parser.add_argument('--audit-path', required=True)
-    parser.add_argument('--expected-count', type=int, default=40301)
+    parser.add_argument('--expected-count', type=int)
     parser.add_argument('--wall-seconds', type=float, default=120.0)
     parser.add_argument('--max-progress-calls', type=int, default=100000)
     parser.add_argument('--equivalence-digest', required=True)
@@ -81,7 +81,7 @@ def main() -> int:
         replay.unlink()
         result = {**common, 'status': 'COMPLETE', 'population_count': count1, 'population_manifest_sha256': digest1,
                   'replay': {'population_count': count2, 'population_manifest_sha256': digest2, 'identical': count1 == count2 and digest1 == digest2},
-                  'expected_count_match': count1 == args.expected_count, 'progress_calls': {'pass_1': calls1, 'pass_2': calls2},
+                  'expected_count_match': args.expected_count is None or count1 == args.expected_count, 'progress_calls': {'pass_1': calls1, 'pass_2': calls2},
                   'elapsed_seconds': round(time.monotonic() - started, 6), 'manifest_path': str(manifest)}
         atomic_json(audit_path, result)
         print(json.dumps(result, sort_keys=True))

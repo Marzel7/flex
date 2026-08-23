@@ -1,7 +1,7 @@
 import hashlib,json,os
 from types import SimpleNamespace
 from scripts.run_generic_walkback_pilot import preflight,CONTRACT,TRACK
-from scripts.run_generic_walkback_pilot import execute_acquire
+from scripts.run_generic_walkback_pilot import execute_acquire,execute_replay
 from src.discovery.immutable_jsonrpc_transport import ImmutableJsonRpcTransport
 from src.discovery.generic_walkback_rpc_adapter import RetainedRpcAdapter
 def args(tmp_path, **x):
@@ -26,3 +26,4 @@ def test_cli_acquire_composes_adapter_and_two_depths(tmp_path,monkeypatch):
   def open(req,timeout):return R(pages if b'getSignaturesForAddress' in req.data else tx if b'getTransaction' in req.data else owner)
   return RetainedRpcAdapter(ImmutableJsonRpcTransport(tmp_path,'transport','https://fixture',open))
  out=execute_acquire(a,factory);assert out['state']=='PASS' and out['depth_1_seeds']==100 and (tmp_path/'run'/'lifecycle.jsonl').exists()
+ a.mode='replay';assert execute_replay(a)['state']=='PASS_REPLAY'

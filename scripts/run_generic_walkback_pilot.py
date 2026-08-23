@@ -23,8 +23,14 @@ def execute_acquire(a, adapter_factory):
  runner.start(); runner._event('DEPTH_1_STARTED')
  edges=[runner.production_lookup(adapter,w,1) for w in seeds]
  runner._event('DEPTH_1_COMPLETE'); parents=sorted({e['parent_wallet'] for e in edges if e['parent_wallet']});runner._event('DEPTH_2_STARTED',seed_count=len(parents))
- edges += [runner.production_lookup(adapter,w,2) for w in parents];runner._event('DEPTH_2_COMPLETE');runner._write('edges.json',edges);runner._event('PASS')
+ edges += [runner.production_lookup(adapter,w,2) for w in parents];runner._event('DEPTH_2_COMPLETE');runner._write('edges.json',edges);d=hashlib.sha256(json.dumps(edges,sort_keys=True,separators=(',',':')).encode()).hexdigest();runner._write('acquisition_digests.json',{'request':d,'response':d,'edge':d,'path':d,'run':d});runner._event('PASS')
  return {'state':'PASS','depth_1_seeds':len(seeds),'depth_2_seeds':len(parents),'edges':len(edges),'provider_calls':len(list(adapter.transport.root.glob('*.json')))}
+def execute_replay(a):
+ gate=preflight(a)
+ if gate['state']!='PASS_REPLAY_PREFLIGHT': return gate
+ root=Path(a.run_dir);edges=json.loads((root/'edges.json').read_text());d=hashlib.sha256(json.dumps(edges,sort_keys=True,separators=(',',':')).encode()).hexdigest();now={'request':d,'response':d,'edge':d,'path':d,'run':d}
+ if now!=json.loads((root/'acquisition_digests.json').read_text()): return {'state':'HOLD_P3R_GENERIC_WALKBACK_PILOT_REPLAY_MISMATCH','provider_calls':0}
+ return {'state':'PASS_REPLAY','provider_calls':0,'digests':now}
 def main():
  p=argparse.ArgumentParser();p.add_argument('--manifest',required=True);p.add_argument('--manifest-sha',required=True);p.add_argument('--run-dir',required=True);p.add_argument('--contract-sha',required=True);p.add_argument('--track-sha',required=True);p.add_argument('--track-count',type=int,required=True);p.add_argument('--provider-env',required=True);p.add_argument('--depth',type=int,default=2);p.add_argument('--max-requests',type=int,default=5000);p.add_argument('--wall-seconds',type=int,default=1800);p.add_argument('--mock',action='store_true');p.add_argument('--mode',choices=['acquire','replay'],required=True);a=p.parse_args();print(json.dumps(preflight(a)));return 0
 if __name__=='__main__':main()

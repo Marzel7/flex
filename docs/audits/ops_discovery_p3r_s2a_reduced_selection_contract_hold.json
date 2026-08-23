@@ -1,0 +1,29 @@
+{
+  "contamination_barrier": "No population manifest or candidate/truth rows were opened; no proposed rule was run against the population.",
+  "milestone": "OPS-DISCOVERY-P3R-S2A-REDUCED-SELECTION-CONTRACT",
+  "minimum_amendment_required": "Human approval must explicitly redefine the experiment as an unlabeled neutral-sample evaluation with a justified fixed size, or separately freeze an executable Watchtower truth boundary before retaining a controlled evaluation design.",
+  "population_binding": {
+    "count": 42664,
+    "sha256": "4de4356ebb8c3311a18e1f3be4d7d2dcc1d5a7c4c09ab2a1e6c553f29dd66d66"
+  },
+  "production_source_writes": 0,
+  "provider_calls": 0,
+  "reason": "After mandatory removals, no executable evaluation-truth role, contrast class, matching feature, or evidence rank remains. A neutral mint-ordered sample could be deterministic but would be a new non-control cohort design; choosing its quota/role would be discretionary and cannot satisfy the stated fair-control experiment.",
+  "removed_unsupported_inputs": [
+    "direct_funding",
+    "upstream_funding",
+    "ep3_topology",
+    "timing",
+    "migration_actor",
+    "behaviour",
+    "migration_week",
+    "funding_state",
+    "fanout_band",
+    "3SW2 truth",
+    "all three contrast subclasses"
+  ],
+  "retained_inputs": [],
+  "selection_executed": false,
+  "verdict": "HOLD_P3R_S2A_REDUCED_SELECTION_QUOTA_DESIGN_UNRESOLVED",
+  "watchtower_truth": "REMOVED_UNSUPPORTED: source exists but no previously frozen executable natural-key/version binding."
+}

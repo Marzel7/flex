@@ -1,0 +1,726 @@
+{
+  "candidate_discovery": false,
+  "candidates": [
+    {
+      "path": "database/local_operation_discovery_corpus.db",
+      "tables": [
+        "discovery_run",
+        "direct_funding_edges",
+        "upstream_edges",
+        "composite_families"
+      ]
+    },
+    {
+      "path": "database/flex_complete_database.db",
+      "tables": [
+        "creator_sol_flows",
+        "wallet_cluster_edges",
+        "creator_sol_transfers",
+        "creator_networks",
+        "cex_wallets",
+        "creator_funders",
+        "creator_outgoing_transfers",
+        "creator_tx_ledger",
+        "creator_recipients_unified",
+        "token_analysis",
+        "creator_receivers",
+        "creator_inbound_transfers",
+        "address_tags",
+        "domain_registry",
+        "address_labels",
+        "blocksec_aml_cache",
+        "funder_outgoing_transfers",
+        "funder_incoming_transfers",
+        "funding_network_members",
+        "cross_network_senders",
+        "funder_extraction_status",
+        "funder_interactions",
+        "unified_creator_clusters",
+        "coordinated_funders",
+        "atomic_network_names",
+        "network_evidence",
+        "network_membership",
+        "networks_release",
+        "network_alerts",
+        "network_cex_infra_flags",
+        "coordinated_creator_edges",
+        "funding_chains",
+        "creator_self_funding",
+        "atomic_funder_networks",
+        "infra_funders_observed",
+        "coordinated_edge_cursor",
+        "rpc_metrics",
+        "sol_transfers",
+        "wallet_fingerprints",
+        "creator_funding_graph",
+        "funder_watchlist",
+        "funder_webhook_groups",
+        "funder_webhook_events",
+        "wallet_clusters",
+        "dev_reputation",
+        "creator_reuse",
+        "launch_watchlist",
+        "dev_farm_ecosystems",
+        "launch_waves",
+        "ecosystem_member_tracking",
+        "launch_wave_creators",
+        "ecosystem_evolution_log",
+        "dev_organizations",
+        "org_launch_windows",
+        "org_snapshots",
+        "org_alerts",
+        "creator_seed_metrics",
+        "funder_overlap",
+        "master_launch_signals",
+        "token_price_snapshots",
+        "metadata_cache",
+        "circuit_breaker_state",
+        "token_metadata",
+        "token_resolution_telemetry",
+        "token_lifecycle_snapshots",
+        "pumpfun_migration_verification",
+        "pumpfun_pre_migration_signals",
+        "creator_funding_queue",
+        "webhook_birth_queue",
+        "wss_metrics",
+        "webhook_metrics",
+        "transfer_index",
+        "farm_clusters",
+        "farm_cluster_members",
+        "farm_cluster_edges",
+        "funder_network_map",
+        "creator_c2c_edges",
+        "funder_upstream_links",
+        "upstream_network_bridge",
+        "creator_second_hop",
+        "second_hop_lite_queue",
+        "funder_rpc_scan_cache",
+        "second_hop_lite_rpc_log",
+        "intelligence_refresh_candidates",
+        "intelligence_refresh_rpc_budget",
+        "intelligence_relationship_events",
+        "monitored_upstream_hubs",
+        "network_display_names",
+        "creator_outbound_classifications",
+        "creator_resolution_queue",
+        "pump_bot_wallets",
+        "trade_simulations",
+        "creator_profitability",
+        "funder_profitability",
+        "funder_historical_performance",
+        "prediction_decision_context",
+        "operator_creator_edges",
+        "cex_coordinated_groups",
+        "watchtower_launch_candidates",
+        "watchtower_events",
+        "wt_graph_edges",
+        "wt_trader_wallets",
+        "wt_webhook_hits",
+        "wt_armed_operations",
+        "wt_interceptor_validation",
+        "wt_hub_backfill_queue",
+        "oneoff_hub5e1_outbound",
+        "wt_creator_reservoir",
+        "wt_operator_cluster_snapshots",
+        "wt_ops_v2_wallets",
+        "wt_ops_v2_edges",
+        "migration_inbox",
+        "migration_persist_queue",
+        "migrated_tokens",
+        "creator_funding_lifecycle_events"
+      ]
+    },
+    {
+      "path": "database/transaction_first_lineage.db",
+      "tables": [
+        "tf_runs",
+        "tf_launches",
+        "tf_transaction_cache",
+        "tf_edges",
+        "tf_context_observations",
+        "tf_paths"
+      ]
+    },
+    {
+      "path": "database/wt_ops_v2.db",
+      "tables": [
+        "wt_ops_v2",
+        "wt_ops_v2_edges",
+        "wt_ops_v2_creators",
+        "wt_operation_candidates",
+        "wt_ops_v2_runs",
+        "wt_ops_v2_forward_walks",
+        "wt_ops_v2_walk_candidates",
+        "migrated_tokens",
+        "wt_confirmed_treasuries",
+        "wt_confirmed_treasury_webhooks",
+        "wt_treasury_review",
+        "wt_wrap_close_candidates",
+        "wt_treasury_fingerprint_decisions",
+        "wt_treasury_funders",
+        "wt_rotation_candidates",
+        "wt_expansion_targets",
+        "wt_discovered_subprovs",
+        "wt_candidate_websocket_watches",
+        "wt_watchtower_launches",
+        "wt_launch_audit",
+        "wt_vanity_families",
+        "wt_vanity_matches",
+        "wt_farms",
+        "wt_farm_launches",
+        "wt_webhook_hits",
+        "watchtower_events",
+        "wt_capital_distributor_candidates",
+        "wt_walkback_queue",
+        "operator_evidence",
+        "operator_observations",
+        "watchtower_identity_reconciliations",
+        "wt_attribution_outcomes",
+        "wt_unknown_infrastructure_registry",
+        "wt_provisioning_edges",
+        "wt_provisioning_sessions",
+        "wt_funding_boundary",
+        "attribution_evidence",
+        "operation_merge_ledger",
+        "operation_merge_ledger_write_failures",
+        "wt_operator_entities_projection_shadow",
+        "wt_walkback_edge_candidates",
+        "wt_walkback_atomic_flows",
+        "wt_infrastructure_candidates",
+        "wt_anchor_reconciliation_log",
+        "wt_create_event_ledger",
+        "wt_create_ledger_conflicts",
+        "wt_create_ledger_pending",
+        "wt_subprov_sig_dedupe_stats",
+        "wt_provisioning_wallet_edges",
+        "wt_ecosystem_exchange_interactions",
+        "wt_provisioning_candidate_workflow",
+        "wt_canonical_predicate_comparisons",
+        "operator_identity_state",
+        "operator_identity_merges",
+        "operator_launch_membership",
+        "wt_walkback_recovery_events",
+        "wt_lineage_quarantine",
+        "wt_lineage_root_policies",
+        "wt_lineage_verified_session_edges"
+      ]
+    },
+    {
+      "path": "database/flex_investigation_archive.db",
+      "tables": [
+        "funder_networks"
+      ]
+    },
+    {
+      "path": "database/evidence_platform/oip_v2_2d_shadow_migration/compact_sidecar.slow_path_checkpoint.db",
+      "tables": [
+        "compact_migration_state",
+        "compact_migration_checkpoints"
+      ]
+    },
+    {
+      "path": "database/evidence_platform/oip_v2_2d_shadow_migration/compact_sidecar.text_join_checkpoint.db",
+      "tables": [
+        "compact_migration_state",
+        "compact_migration_checkpoints",
+        "compact_identity_seed"
+      ]
+    },
+    {
+      "path": "database/evidence_platform/oip_v2_2d_shadow_migration/canonical_shadow.db",
+      "tables": [
+        "evidence_envelopes",
+        "evidence_provenance",
+        "normalized_evidence_provenance",
+        "normalized_evidence_records"
+      ]
+    },
+    {
+      "path": "database/evidence_platform/oip_v2_2d_shadow_migration/compact_sidecar.db",
+      "tables": [
+        "compact_migration_state",
+        "compact_migration_checkpoints",
+        "compact_identity_seed",
+        "compact_prevalidation_boundary"
+      ]
+    },
+    {
+      "path": "database/evidence_platform/oip_v2_2d_shadow_migration/oip-v2.2d1-pause-brlw_974/0/compact.db",
+      "tables": [
+        "compact_migration_state",
+        "compact_migration_checkpoints",
+        "compact_identity_seed",
+        "compact_prevalidation_boundary"
+      ]
+    },
+    {
+      "path": "database/evidence_platform/oip_v2_2d_shadow_migration/oip-v2.2d1-pause-brlw_974/10/compact.db",
+      "tables": [
+        "compact_migration_state",
+        "compact_migration_checkpoints",
+        "compact_identity_seed",
+        "compact_prevalidation_boundary"
+      ]
+    },
+    {
+      "path": "database/evidence_platform/oip_v2_2d_shadow_migration/oip-v2.2d1-pause-brlw_974/100/compact.db",
+      "tables": [
+        "compact_migration_state",
+        "compact_migration_checkpoints",
+        "compact_identity_seed",
+        "compact_prevalidation_boundary"
+      ]
+    },
+    {
+      "path": "database/evidence_platform/oip_v2_2d_shadow_migration/oip-v2.2d1-pause-brlw_974/1000/compact.db",
+      "tables": [
+        "compact_migration_state",
+        "compact_migration_checkpoints",
+        "compact_identity_seed",
+        "compact_prevalidation_boundary"
+      ]
+    },
+    {
+      "path": "database/evidence_platform/oip_v2_1g_stage_2000_frozen/evidence.db",
+      "tables": [
+        "evidence_envelopes",
+        "evidence_provenance",
+        "normalized_evidence_provenance",
+        "normalized_evidence_records"
+      ]
+    },
+    {
+      "path": "database/evidence_platform/archive/retained_acquisition_legacy_compact.db",
+      "tables": [
+        "compact_observations"
+      ]
+    },
+    {
+      "path": "database/evidence_platform/three_sw2_shadow_ep3_2a/evidence.db",
+      "tables": [
+        "evidence_envelopes",
+        "evidence_provenance",
+        "normalized_evidence_records",
+        "normalized_evidence_provenance"
+      ]
+    },
+    {
+      "path": "database/evidence_platform/production/evidence.db",
+      "tables": [
+        "evidence_envelopes",
+        "evidence_provenance",
+        "normalized_evidence_records",
+        "normalized_evidence_provenance"
+      ]
+    },
+    {
+      "path": "database/evidence_platform/watchtower_shadow_ep3_0d/evidence.db",
+      "tables": [
+        "evidence_envelopes",
+        "evidence_provenance",
+        "normalized_evidence_provenance",
+        "normalized_evidence_records"
+      ]
+    },
+    {
+      "path": "database/evidence_platform/watchtower_shadow/evidence.db",
+      "tables": [
+        "evidence_envelopes",
+        "evidence_provenance",
+        "normalized_evidence_records",
+        "normalized_evidence_provenance"
+      ]
+    },
+    {
+      "path": "database/evidence_platform/oip_v2_1d_storage_audit/analysis.sqlite",
+      "tables": [
+        "transaction_amplification",
+        "transaction_primitive_map"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/r2_2_summary_store.sqlite",
+      "tables": [
+        "segment_summary",
+        "segment_sources",
+        "segment_destinations",
+        "hot_checkpoint_sources",
+        "hot_checkpoint_destinations"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2021_10.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2022_05.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2025_01.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2026_05_delta_a0d42401fc96.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2023_11.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2024_07.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2023_01.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2024_05.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2024_09.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2026_04.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2021_12.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2025_11.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2025_03.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2026_05_delta_bfbfb2121047.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2024_01.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2025_07.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2022_03.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2025_09.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2022_01.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2025_05.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2026_02.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2026_05_delta_57a59d393f7a.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2024_03.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2024_11.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_stage3b_final_delta.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2024_06.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2025_12.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2021_11.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2025_10.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2022_06.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2025_02.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2026_05.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2024_04.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2009_02.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2023_12.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2024_08.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2026_01.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2025_06.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2024_12.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2026_08_delta.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2023_08.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2026_05_delta_97a1ae2ffb6e.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_stage3a_presync_delta.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2024_02.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_stage2_parts7_21_delta.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2024_10.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2026_03.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2026_05_delta_7b8efffd1b33.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2025_08.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2025_04.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/_p5e_r1_work/transfer_index_cold_2026_05.base_reconstructed.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    },
+    {
+      "path": "database/_p5a_migration_build/cold_segments/_p5e_r1_work/transfer_index_cold_2026_05.incident_mutated.sqlite",
+      "tables": [
+        "transfer_index",
+        "segment_manifest"
+      ]
+    }
+  ],
+  "cohort_evaluation": false,
+  "hop0": "local_operation_discovery_corpus.db direct_funding_edges",
+  "hop1": "local_operation_discovery_corpus.db upstream_edges (one derived hop)",
+  "hop2": "no retained edge/path surface identified",
+  "last_completed_stage": "EDGE_SURFACES_IDENTIFIED",
+  "milestone": "OPS-DISCOVERY-P3R-S2B-EXISTING-TWO-HOP-FUNDING-EVIDENCE-AUDIT",
+  "production_source_writes": 0,
+  "provider_acquisition_requirement": "REQUIRED",
+  "provider_calls": 0,
+  "status": "HOLD_P3R_S2B_TWO_HOP_FUNDING_EVIDENCE_NOT_FOUND"
+}

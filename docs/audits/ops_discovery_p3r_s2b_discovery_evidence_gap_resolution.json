@@ -1,0 +1,18 @@
+{
+  "classification_counts": {
+    "EXISTS_LOCALLY_REQUIRES_DETERMINISTIC_MAPPING": 5,
+    "NO_VALID_SOURCE_EXISTS": 3,
+    "REQUIRES_EXTERNAL_ACQUISITION": 4
+  },
+  "cohort_evaluated": false,
+  "full_population_discovery": false,
+  "last_completed_stage": "SOURCE_INVENTORY_COMPLETE",
+  "matrix_path": "docs/audits/ops_discovery_p3r_s2b_discovery_evidence_gap_matrix.json",
+  "milestone": "OPS-DISCOVERY-P3R-S2B-DISCOVERY-EVIDENCE-ADAPTER-AND-ACQUISITION-GAP-RESOLUTION",
+  "next_authorization": "Human-approved discovery-method redesign removing no-valid-source semantics, or explicit new evidence/provenance programme where semantically legitimate.",
+  "production_source_writes": 0,
+  "provider_calls": 0,
+  "required_inputs": 12,
+  "status": "HOLD_P3R_S2B_DISCOVERY_EVIDENCE_SEMANTIC_INPUT_UNAVAILABLE",
+  "terminal_reason": "behaviour and CEX/infrastructure relation have no valid pre-existing population-wide semantic source; 3SW2 truth mapping is not executable."
+}

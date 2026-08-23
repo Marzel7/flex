@@ -1,0 +1,107 @@
+{
+  "cohort_evaluated": false,
+  "full_population_discovery": false,
+  "milestone": "OPS-DISCOVERY-P3R-S2B-DISCOVERY-EVIDENCE-ADAPTER-AND-ACQUISITION-GAP-RESOLUTION",
+  "production_source_writes": 0,
+  "provider_calls": 0,
+  "rows": [
+    {
+      "blocker": "creator is available; relationship semantics require mapping from retained relation source",
+      "classification": "EXISTS_LOCALLY_REQUIRES_DETERMINISTIC_MAPPING",
+      "input": "creation_creator",
+      "key": "mint",
+      "producer": "population snapshot",
+      "raw_source": "frozen snapshot token_analysis.pf_ws_creator"
+    },
+    {
+      "blocker": "immutable boundary, exact join, duplicate/high-water contract required",
+      "classification": "EXISTS_LOCALLY_REQUIRES_DETERMINISTIC_MAPPING",
+      "input": "direct_funding",
+      "key": "mint/funded identity",
+      "producer": "pre-existing local funding corpus",
+      "raw_source": "database/local_operation_discovery_corpus.db direct_funding_edges"
+    },
+    {
+      "blocker": "population-wide traversal/path coverage and frozen depth semantics not retained",
+      "classification": "REQUIRES_EXTERNAL_ACQUISITION",
+      "input": "upstream_funding",
+      "key": "funder/upstream identity",
+      "producer": "pre-existing local corpus",
+      "raw_source": "local_operation_discovery_corpus.db upstream_edges"
+    },
+    {
+      "blocker": "timestamp source/duplicate rule/high-water must be frozen",
+      "classification": "EXISTS_LOCALLY_REQUIRES_DETERMINISTIC_MAPPING",
+      "input": "migration_timestamp",
+      "key": "mint",
+      "producer": "migration reconciler",
+      "raw_source": "local token_analysis.migrated_at and migration verification"
+    },
+    {
+      "blocker": "raw transaction actor evidence not retained population-wide",
+      "classification": "REQUIRES_EXTERNAL_ACQUISITION",
+      "input": "migration_actor",
+      "key": "mint/migration transaction",
+      "producer": "none",
+      "raw_source": "no retained population-wide signer adapter"
+    },
+    {
+      "blocker": "control-bounded outputs; population-wide raw replay inputs not retained",
+      "classification": "REQUIRES_EXTERNAL_ACQUISITION",
+      "input": "ep3_topology",
+      "key": "mint",
+      "producer": "EP3 shadow producers",
+      "raw_source": "retained EP3 control corpora only"
+    },
+    {
+      "blocker": "P3 census reports zero coverage; creating classifier would introduce new semantics",
+      "classification": "NO_VALID_SOURCE_EXISTS",
+      "input": "behaviour",
+      "key": "mint",
+      "producer": "none",
+      "raw_source": "no population-wide behaviour adapter"
+    },
+    {
+      "blocker": "required topology/funding relation coverage absent",
+      "classification": "REQUIRES_EXTERNAL_ACQUISITION",
+      "input": "fanout",
+      "key": "relation grouping key",
+      "producer": "none",
+      "raw_source": "depends on population-wide relation graph"
+    },
+    {
+      "blocker": "freeze version/digest and exact natural-key mapping",
+      "classification": "EXISTS_LOCALLY_REQUIRES_DETERMINISTIC_MAPPING",
+      "input": "watchtower_truth",
+      "key": "mint",
+      "producer": "Watchtower canonical store",
+      "raw_source": "database/wt_ops_v2.db wt_watchtower_launches"
+    },
+    {
+      "blocker": "no executable table/key/version mapping; manual reconstruction prohibited",
+      "classification": "NO_VALID_SOURCE_EXISTS",
+      "input": "three_sw2_truth",
+      "key": "unfrozen",
+      "producer": "control shadow corpus",
+      "raw_source": "three_sw2 shadow evidence DB"
+    },
+    {
+      "blocker": "same immutable mapping boundary as direct funding",
+      "classification": "EXISTS_LOCALLY_REQUIRES_DETERMINISTIC_MAPPING",
+      "input": "shared_funding_relation",
+      "key": "direct_funder/mint",
+      "producer": "local funding corpus",
+      "raw_source": "direct_funding_edges"
+    },
+    {
+      "blocker": "would require new classification/proxy",
+      "classification": "NO_VALID_SOURCE_EXISTS",
+      "input": "cex_infrastructure_relation",
+      "key": "none",
+      "producer": "none",
+      "raw_source": "none with pre-existing executable classification/path semantics"
+    }
+  ],
+  "status": "SOURCE_INVENTORY_COMPLETE",
+  "timestamp_utc": "2026-08-23T09:54:36.387520+00:00"
+}

@@ -1,0 +1,23 @@
+{
+  "candidate_discovery": false,
+  "cohort_evaluated": false,
+  "implementations_found": [
+    "database/local_operation_discovery_corpus.db upstream_edges (derived one-hop surface)",
+    "src/ops/treasury_resolution.py (default two-hop treasury traversal, not provenance-established as operation funding ancestry)"
+  ],
+  "milestone": "OPS-DISCOVERY-P3R-S2B-UPSTREAM-ROOT-FUNDING-EVIDENCE-ACQUISITION-SPEC",
+  "next_authorization": "Human-approved semantic recovery from authoritative historical implementation/artifact, or explicit new traversal-method design; acquisition cannot be specified safely.",
+  "production_source_writes": 0,
+  "provider_calls": 0,
+  "recovered": "P2/P3 audits establish calibrated direct funding plus one upstream hop; no authoritative root traversal implementation/contract found.",
+  "unresolved": [
+    "traversal depth beyond one hop",
+    "root definition",
+    "historical cutoff",
+    "edge eligibility",
+    "multiple-parent/root ordering",
+    "cycle behavior",
+    "distinct-funder qualifying relation"
+  ],
+  "verdict": "HOLD_P3R_S2B_UPSTREAM_TRAVERSAL_SEMANTICS_UNRESOLVED"
+}

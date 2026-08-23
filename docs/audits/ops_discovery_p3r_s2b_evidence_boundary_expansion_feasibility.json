@@ -1,0 +1,39 @@
+{
+  "contamination_barrier": "No population manifest, candidate evidence rows, truth rows, or cross-surface joins were read; findings use prior aggregate/schema/provenance audits only.",
+  "dimensions": {
+    "behaviour": "UNAVAILABLE: P3 reports zero population-wide EP4 behaviour coverage/adapter.",
+    "contrast_cex": "UNSUPPORTED: no population-wide CEX classification/path semantics.",
+    "contrast_ordinary": "UNSUPPORTED: no complete predicate or overlap precedence.",
+    "contrast_shared_funding": "UNSUPPORTED: no frozen shared-funding predicate/truth exclusion boundary.",
+    "direct_funding": "PARTIAL/UNKNOWN: local_operation_discovery_corpus.direct_funding_edges exists but no immutable population-wide boundary, exact join, high-water, or replay contract is frozen.",
+    "ep3_topology": "CONTROL_BOUNDED: P2 explicitly limits retained EP3 topology to control corpora; no general adapter.",
+    "fanout": "PARTIAL/UNKNOWN: no bound population-wide grouping/member-count semantics.",
+    "migration_actor": "UNAVAILABLE: P3 reports no population-wide migration-signer adapter.",
+    "migration_time": "PARTIAL/UNKNOWN: token_analysis migrated_at exists outside the frozen snapshot; no explicit immutable timestamp surface/boundary is defined.",
+    "three_sw2_truth": "UNAVAILABLE: evidence DB is named but lacks executable table/key/version mapping.",
+    "upstream_funding": "PARTIAL/UNKNOWN: local_operation_discovery_corpus.upstream_edges exists but traversal/depth and immutable boundary are not frozen.",
+    "watchtower_truth": "EXACT_BUT_REQUIRES_FREEZE: named wt_ops_v2.db table/mint source exists, but version/digest and executable bound join are not frozen."
+  },
+  "frozen_population": {
+    "count": 42664,
+    "sha256": "4de4356ebb8c3311a18e1f3be4d7d2dcc1d5a7c4c09ab2a1e6c553f29dd66d66"
+  },
+  "milestone": "OPS-DISCOVERY-P3R-S2B-EVIDENCE-BOUNDARY-EXPANSION-FEASIBILITY",
+  "minimum_s2a_amendment_required": [
+    "Remove or explicitly mark unavailable migration_actor, ep3_topology, and behaviour dimensions unless a new immutable population-wide adapter/source is created and frozen.",
+    "Replace 3SW2 truth and all contrast predicates only after their exact immutable source/table/key contracts are separately defined.",
+    "Revise matching/fanout requirements to use only bound evidence; preserve no automatic narrowing."
+  ],
+  "next_authorization": "Human decision: authorize construction and immutable freeze of missing population-wide evidence adapters/surfaces, or approve an explicit S2A redesign removing unsupported dimensions and contrast requirements.",
+  "production_source_writes": 0,
+  "provider_calls": 0,
+  "references": {
+    "docs/audits/ops_discovery_p2_independent_operation_identity_evidence_census.json": "238f1902da058d6eda7405321355b8eb5cd93715ad8a6261607675a49190b5ef",
+    "docs/audits/ops_discovery_p3_local_evidence_source_census.json": "5c23d8ce541ebbee22d6469d11c2b2da72c6e1b5dc46972b3fd99ca3fa58c2c4",
+    "docs/audits/ops_discovery_p3_post_adapter_coverage.json": "38349b955d776a553883da75a6a7f8a1d86ccac3905e5ce80bc8ab15008dd9b2",
+    "docs/audits/ops_discovery_p3r_s2a_contrast_design.json": "d3d5c9f5a05ea45bb3d5a11230719ec43460ede33353e11cdc7b61113b5dbfd2",
+    "docs/audits/ops_discovery_p3r_s2a_positive_control_availability.json": "af82ec21d85399a418f0f976d14eb98531695b3007402a8982b7e6988383f1cb"
+  },
+  "selection_executed": false,
+  "verdict": "HOLD_P3R_S2B_EVIDENCE_BOUNDARY_EXPANSION_INCOMPLETE"
+}

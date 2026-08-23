@@ -1,0 +1,37 @@
+{
+  "contamination_barrier": "Read only snapshot schema and pre-existing aggregate contracts; no population rows, truth rows, candidate availability, or outcomes queried.",
+  "frozen_population_sha256": "4de4356ebb8c3311a18e1f3be4d7d2dcc1d5a7c4c09ab2a1e6c553f29dd66d66",
+  "milestone": "OPS-DISCOVERY-P3R-S2A-PRESELECTION-SOURCE-DEFINITION",
+  "minimum_selection_design_amendment_required": [
+    "Explicitly restrict S2B selection inputs to fields carried by a newly frozen evidence snapshot, or create and bind a separate immutable evidence snapshot containing exact migrations, funding edges, population-wide topology/behaviour/migration-actor sources, and truth tables.",
+    "Specify contrast predicates and precedence over that bound schema; do not use external mutable corpora without provenance/high-water/digest bindings.",
+    "If unavailable dimensions are allowed as false/-1, amend the control/contrast design explicitly to state which required classes remain selectable and how truth joins are sourced."
+  ],
+  "next_authorization": "human approval for a selection-design amendment that either freezes a complete evidence snapshot or narrows/removes requirements unsupported by population-wide bound evidence.",
+  "production_source_writes": 0,
+  "provider_calls": 0,
+  "references": {
+    "docs/audits/ops_discovery_p2_independent_operation_identity_evidence_census.json": "238f1902da058d6eda7405321355b8eb5cd93715ad8a6261607675a49190b5ef",
+    "docs/audits/ops_discovery_p3_local_evidence_source_census.json": "5c23d8ce541ebbee22d6469d11c2b2da72c6e1b5dc46972b3fd99ca3fa58c2c4",
+    "docs/audits/ops_discovery_p3r_s2a_selection_contract_amendment_1.json": "c1049c428cc6166211f3cb880a9a10b83d4e570e30e659cd659c36ca37a7f96b"
+  },
+  "selection_executed": false,
+  "snapshot_schema_tables": [
+    "CREATE TABLE pumpfun_migration_verification (mint TEXT PRIMARY KEY)",
+    "CREATE TABLE token_analysis (mint TEXT PRIMARY KEY, pf_ws_creator TEXT)"
+  ],
+  "source_boundary_semantic_sha256": "33df1667c5343793e1a9500a24f10117ce21f30fa0fc97306ff1e3cc4eeb84a4",
+  "source_definition": {
+    "behaviour": "P3 census records no population-wide behaviour adapter.",
+    "contrast_predicates": "No bound source can define shared-funding or CEX ancestry; ordinary class and overlap precedence would therefore be discretionary.",
+    "direct_funding": "No direct_funding_edges relation is present in the frozen source boundary; an external local corpus is not frozen/bound for S2B selection.",
+    "ep3_topology": "P2 census explicitly records population-wide EP3 topology unavailable; retained EP3 corpora are control-cohort bounded.",
+    "fanout_band": "No bound population-wide funding/topology grouping relation is present.",
+    "migration_actor": "P3 census records no population-wide migration-signer adapter.",
+    "migration_week": "No migrated_at column exists in the frozen snapshot schema; no bound migration timestamp relation is present.",
+    "three_sw2_truth": "Pre-existing artifact names an evidence DB but no machine-executable table/key/version mapping is frozen.",
+    "upstream_funding": "No upstream_edges relation is present in the frozen source boundary; same unbound external-corpus issue.",
+    "watchtower_truth": "Pre-existing artifact names a truth table but no bound cross-database natural-key specification/version is frozen."
+  },
+  "verdict": "HOLD_P3R_S2A_EVIDENCE_MAPPING_UNRESOLVED"
+}

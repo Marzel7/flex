@@ -1,0 +1,28 @@
+{
+  "milestone": "OPS-DISCOVERY-P3R-REUSABLE-COMPONENT-REGISTRY",
+  "verdict": "PASS_P3R_OPS_DISCOVERY_REUSABLE_COMPONENT_REGISTRY_FROZEN",
+  "principle": "Evidence and infrastructure remain valid unless their factual provenance failed; disproven discovery inferences are superseded without deleting supporting evidence.",
+  "components": [
+    {"name":"8 Funding Structures","classification":"REUSABLE_REFERENCE_EVIDENCE","use":"historical reference only; unchanged"},
+    {"name":"direct-funding mappings","classification":"REUSABLE_EVIDENCE_PRIMITIVE","use":"factual direct-edge evidence"},
+    {"name":"one-hop upstream mappings","classification":"REUSABLE_EVIDENCE_PRIMITIVE","use":"bounded factual upstream evidence, not complete topology"},
+    {"name":"Watchtower-native provisioning/lineage tables","classification":"REUSABLE_REFERENCE_EVIDENCE","use":"reference topology only"},
+    {"name":"wt_provisioning_edges","classification":"REUSABLE_REFERENCE_EVIDENCE","use":"role-labelled Watchtower historical evidence; never generic pilot storage"},
+    {"name":"wt_provisioning_wallet_edges","classification":"REUSABLE_REFERENCE_EVIDENCE","use":"Watchtower provisioning evidence only"},
+    {"name":"wt_treasury_funders","classification":"REUSABLE_REFERENCE_EVIDENCE","use":"Watchtower aggregate reference evidence"},
+    {"name":"watchtower_token_attribution","classification":"REUSABLE_REFERENCE_EVIDENCE","use":"Watchtower attribution reference only"},
+    {"name":"_find_funder_via_rpc","classification":"REUSABLE_EVIDENCE_PRIMITIVE","use":"authoritative factual parent selector"},
+    {"name":"generic_wallet_walkback wrapper","classification":"REUSABLE_INFRASTRUCTURE","use":"Watchtower-independent wrapper"},
+    {"name":"42,664 frozen population","classification":"REUSABLE_REFERENCE_EVIDENCE","use":"immutable parent boundary"},
+    {"name":"21,594 single-creator track","classification":"REUSABLE_REFERENCE_EVIDENCE","use":"immutable future seed universe; not evaluated here"},
+    {"name":"100-member validation cohort","classification":"REUSABLE_REFERENCE_EVIDENCE","use":"frozen and excluded"},
+    {"name":"snapshot/source-boundary machinery","classification":"REUSABLE_INFRASTRUCTURE","use":"immutable source capture"},
+    {"name":"canonical digest/replay machinery","classification":"REUSABLE_INFRASTRUCTURE","use":"semantic replay and provenance"},
+    {"name":"provenance-safe runner patterns","classification":"REUSABLE_INFRASTRUCTURE","use":"durable lifecycle and bounds"},
+    {"name":"population-query optimization","classification":"REUSABLE_INFRASTRUCTURE","use":"frozen population reproduction only"},
+    {"name":"creator/direct-funder/upstream fixtures","classification":"REUSABLE_TEST_FIXTURE_OR_VALIDATION","use":"factual extraction validation"}
+  ],
+  "superseded_discovery_rules": ["shared direct funder = operation","sparse generic one-hop coverage sufficiently describes Watchtower","selection rules requiring unavailable population-wide behaviour/topology/3SW2/CEX evidence"],
+  "unsafe_to_reuse": ["partial wt_walkback cache as complete generic replayable evidence","Watchtower role labels in generic pilot output"],
+  "confirmation": "No valid prior evidence was discarded. Only unsupported discovery conclusions are superseded."
+}

@@ -1,0 +1,10 @@
+{
+  "verdict": "PASS_P3R_GENERIC_WALKBACK_REAL_PILOT_ENTRYPOINT_QUALIFIED",
+  "tests": "33 passed: pytest -q tests/test_immutable_jsonrpc_transport.py tests/test_generic_walkback_rpc_adapter.py tests/test_generic_walkback_pilot_runner.py tests/test_run_generic_walkback_pilot.py",
+  "mock_dry_run": "tests/test_run_generic_walkback_pilot.py::test_cli_acquire_composes_adapter_and_two_depths",
+  "dry_run_lifecycle": ["preflight", "STARTED", "DEPTH_1_STARTED", "DEPTH_1_COMPLETE", "DEPTH_2_STARTED", "DEPTH_2_COMPLETE", "PASS_REPLAY"],
+  "provider_calls": 0,
+  "production_source_writes": 0,
+  "replay_provider_disabled": true,
+  "next_authorization": "Execute one real deterministic 100-seed generic wallet-walkback pilot under depth 2, 5000 requests, and 1800 seconds."
+}

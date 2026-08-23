@@ -1,0 +1,41 @@
+{
+  "contamination_barrier": "No frozen population manifest was opened or queried; only its previously recorded count/digest binding is cited. No truth availability or contrast availability was queried.",
+  "input_inventory": [
+    "direct_funding",
+    "upstream_funding",
+    "ep3_topology",
+    "timing",
+    "migration_actor",
+    "behaviour",
+    "migration_week",
+    "funding_state",
+    "fanout_band",
+    "Watchtower truth",
+    "3SW2 truth",
+    "three contrast subclasses"
+  ],
+  "milestone": "OPS-DISCOVERY-P3R-S2A-PRESELECTION-EVIDENCE-MAPPING",
+  "next_authorization": "A new pre-selection contract source-definition milestone may freeze only pre-existing schema-level mappings and predicates, or explicitly narrow/revise the selection design with human approval; it must not inspect population identities or outcomes.",
+  "population_binding": {
+    "count": 42664,
+    "sha256": "4de4356ebb8c3311a18e1f3be4d7d2dcc1d5a7c4c09ab2a1e6c553f29dd66d66"
+  },
+  "production_source_writes": 0,
+  "provider_calls": 0,
+  "references": {
+    "docs/audits/ops_discovery_p2_independent_operation_identity_evidence_census.json": "238f1902da058d6eda7405321355b8eb5cd93715ad8a6261607675a49190b5ef",
+    "docs/audits/ops_discovery_p3_local_evidence_source_census.json": "5c23d8ce541ebbee22d6469d11c2b2da72c6e1b5dc46972b3fd99ca3fa58c2c4",
+    "docs/audits/ops_discovery_p3r_s2a_contrast_design.json": "d3d5c9f5a05ea45bb3d5a11230719ec43460ede33353e11cdc7b61113b5dbfd2",
+    "docs/audits/ops_discovery_p3r_s2a_selection_contract_amendment_1.json": "c1049c428cc6166211f3cb880a9a10b83d4e570e30e659cd659c36ca37a7f96b",
+    "docs/audits/ops_discovery_p3r_s2b_population_reproduction_closure.json": "fc3140f0688fbf7bece39ee2fffbc792e793d4ccfb55d1accb77cd6c49e14401"
+  },
+  "selection_executed": false,
+  "unresolved": [
+    "P2 census records population-wide EP3 topology as unavailable outside bounded control corpora.",
+    "P3 evidence census records no population-wide migration-signer or behaviour adapter.",
+    "The frozen documents name direct/upstream evidence sources but do not freeze a join, aggregation, duplicate rule, or source-boundary binding for every rank/match input.",
+    "No pre-existing machine-executable natural-key mapping for the 3SW2 evidence DB is frozen.",
+    "No deterministic shared-funding, CEX/infrastructure ancestry, or ordinary-launch subclass predicate or overlap precedence exists in the frozen contract."
+  ],
+  "verdict": "HOLD_P3R_S2A_EVIDENCE_MAPPING_UNRESOLVED"
+}

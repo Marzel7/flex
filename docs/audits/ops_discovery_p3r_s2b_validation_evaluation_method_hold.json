@@ -1,0 +1,23 @@
+{
+  "bindings": {
+    "cohort_sha256": "34e84f72d4d1647419d85f620099e67f9a76ef03d22b04180728452a145a872f",
+    "population_sha256": "4de4356ebb8c3311a18e1f3be4d7d2dcc1d5a7c4c09ab2a1e6c553f29dd66d66",
+    "validation_contract_sha256": "b6087063e33eeda17ec00a7f4328e79731ec1d1870d8a2d9374697cae2cc1245"
+  },
+  "evaluated_member_count": 0,
+  "milestone": "OPS-DISCOVERY-P3R-S2B-VALIDATION-EVALUATION",
+  "missing_method_bindings": [
+    "executable entrypoint/version",
+    "input evidence schema and source bindings",
+    "deterministic feature/association algorithm",
+    "all parameters and thresholds",
+    "canonical member-result/output schema and digest",
+    "fail-closed rules for missing/ambiguous evidence",
+    "resource bounds and provider/write posture"
+  ],
+  "next_authorization": "Freeze a concrete deterministic discovery/evaluation method contract and fixture-qualify it without evaluating the real validation cohort; then reauthorize validation evaluation.",
+  "preflight": "Cohort/contract bindings were referenced only; no member rows or operation outputs were evaluated.",
+  "production_source_writes": 0,
+  "provider_calls": 0,
+  "verdict": "HOLD_P3R_S2B_VALIDATION_EVALUATION_METHOD_NOT_FROZEN"
+}

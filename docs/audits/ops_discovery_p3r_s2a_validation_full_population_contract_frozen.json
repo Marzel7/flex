@@ -1,0 +1,74 @@
+{
+  "canonical_contract_sha256": "b6087063e33eeda17ec00a7f4328e79731ec1d1870d8a2d9374697cae2cc1245",
+  "human_design_binding": {
+    "basis": "human-approved engineering method-validation budget",
+    "neutral_validation_sample_size": 100,
+    "not_statistical_representativeness": true
+  },
+  "limitations": [
+    "not controlled for EP3 topology, migration actor, behaviour, funding/fanout, 3SW2 truth, or contrast subclasses"
+  ],
+  "milestone": "OPS-DISCOVERY-P3R-S2A-VALIDATION-COHORT-AND-FULL-POPULATION-DISCOVERY-CONTRACT",
+  "promotion_gate": [
+    "selection binding verified",
+    "deterministic evaluation replay",
+    "no unresolved integrity/execution failure",
+    "complete provenance",
+    "method unchanged",
+    "bounded resources",
+    "no post-outcome contract tuning",
+    "separate authorization required for all-42664 discovery"
+  ],
+  "replay": {
+    "mismatch": "HOLD_P3R_S2B_REDUCED_SELECTION_REPLAY_MISMATCH",
+    "passes": 2,
+    "require_exact_count": 100,
+    "require_exact_identities_ordering_and_digest": true
+  },
+  "role": {
+    "eligibility": "every unique member of the authoritative frozen population",
+    "excluded_semantics": [
+      "Watchtower",
+      "3SW2",
+      "contrast",
+      "operation membership",
+      "operation similarity",
+      "truth label"
+    ],
+    "name": "neutral_validation_sample",
+    "quota": 100
+  },
+  "scope": {
+    "full_population_discovery": false,
+    "operation_evaluation": false,
+    "population_identities_inspected": false,
+    "production_source_writes": 0,
+    "provider_calls": 0,
+    "selection_executed": false
+  },
+  "selection": {
+    "canonical_cohort_order": "selection ordinal ASC",
+    "deduplication": "one row per mint; duplicate mint in manifest is HOLD_P3R_S2B_REDUCED_SELECTION_CONTRACT_MISMATCH",
+    "digest": "SHA-256 of newline-delimited canonical JSON rows including ordinal, role, mint, create_creator, population_ordinal, and population SHA",
+    "insufficient": "HOLD_P3R_S2B_REDUCED_SELECTION_INSUFFICIENT_CANDIDATES if fewer than 100 unique members",
+    "ordering": "mint ASC, then create_creator ASC, then population_ordinal ASC",
+    "selection": "take first 100 eligible ordered rows"
+  },
+  "status": "FROZEN_PRE_SELECTION",
+  "universe": {
+    "full_population_discovery_universe": 42664,
+    "population_sha256": "4de4356ebb8c3311a18e1f3be4d7d2dcc1d5a7c4c09ab2a1e6c553f29dd66d66",
+    "source_boundary_semantic_sha256": "33df1667c5343793e1a9500a24f10117ce21f30fa0fc97306ff1e3cc4eeb84a4",
+    "validation_cohort_size": 100,
+    "validation_cohort_size_is_operation_cap": false
+  },
+  "validation_objectives": {
+    "association_clustering": "PASS only if frozen method replay is equal and ambiguities follow frozen rules",
+    "bounded_resources": "PASS if frozen bound completes; HOLD otherwise",
+    "deterministic_discovery_outputs": "PASS if frozen method replay is equal; HOLD otherwise",
+    "deterministic_evidence_processing": "PASS if two evaluation executions are byte/canonical-output equal; HOLD otherwise",
+    "fail_closed": "PASS if injected/observed contract failure terminates without promotion; HOLD otherwise",
+    "provenance_audit": "PASS if all inputs/outputs/digests are recorded; HOLD otherwise"
+  },
+  "verdict": "PASS_P3R_S2A_VALIDATION_AND_FULL_POPULATION_DISCOVERY_CONTRACT_FROZEN"
+}

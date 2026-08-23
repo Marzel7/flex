@@ -96,3 +96,20 @@ def test_exact_wallet_cache_reuses_across_branches(tmp_path):
  calls=[]; raw={'parent':'x'};sha=__import__('hashlib').sha256((json.dumps(raw,sort_keys=True,separators=(',',':'))+'\n').encode()).hexdigest()
  r=PilotRunner(tmp_path,'r',['a'],lambda w:(calls.append(w) or {}));r.start(); cache={'same':{'complete':True,'response':raw,'response_sha256':sha}}
  assert not r.lookup_with_cache('same',1,cache,lambda w,x,d:x)[1]['provider_called']; assert not r.lookup_with_cache('same',2,cache,lambda w,x,d:x)[1]['provider_called']; assert not calls
+
+def test_request_metadata_tamper_fails_replay(tmp_path):
+ r=PilotRunner(tmp_path,'r',['a'],lambda w:{'parent':None});r.run(lambda w,x,d:{'child_wallet':w,'parent_wallet':x['parent'],'depth':d})
+ p=next((tmp_path/'r'/'requests').glob('*')); x=json.loads(p.read_text());x['wallet']='tampered';p.write_text(json.dumps(x))
+ with pytest.raises(RuntimeError, match='HOLD_REPLAY_MISMATCH'):r.replay()
+
+def test_frozen_wrapper_equivalence(monkeypatch):
+ from src.core import walkback_worker
+ from src.discovery.generic_wallet_walkback import find_funding_parent
+ pages=[{'signature':'S','slot':10}];tx={'slot':10,'blockTime':1010,'meta':{'preBalances':[100,0],'postBalances':[0,100]},'transaction':{'message':{'accountKeys':['PARENT','CHILD']}}}
+ def rpc(method, params):
+  if method=='getSignaturesForAddress':return pages
+  if method=='getTransaction':return tx
+  if method=='getAccountInfo':return {'value':{'owner':'11111111111111111111111111111111'}}
+ monkeypatch.setattr(walkback_worker,'_rpc',rpc)
+ result=find_funding_parent('CHILD')
+ assert (result.parent_wallet,result.signature,result.slot,result.block_time,result.amount_sol,result.state)==('PARENT','S',10,1010,0.0,'PARENT_FOUND')

@@ -1,0 +1,24 @@
+{
+  "canonical_digest_matches_both_passes": true,
+  "canonical_order_mint_asc": true,
+  "canonical_population_sha256": "4de4356ebb8c3311a18e1f3be4d7d2dcc1d5a7c4c09ab2a1e6c553f29dd66d66",
+  "manifest_file_sha256": "4de4356ebb8c3311a18e1f3be4d7d2dcc1d5a7c4c09ab2a1e6c553f29dd66d66",
+  "manifest_path": "docs/audits/ops_discovery_p3r_s2b_population_reproduced_manifest.jsonl",
+  "milestone": "OPS-DISCOVERY-P3R-S2B-POPULATION-REPRODUCTION-CLOSURE",
+  "next_authorization": "deterministic cohort selection and exact identity freeze under frozen S2A Amendment 1 rules",
+  "ordinals_contiguous": true,
+  "population_count": 42664,
+  "production_source_writes": 0,
+  "provider_calls": 0,
+  "replay": {
+    "identical": true,
+    "population_count": 42664,
+    "population_manifest_sha256": "4de4356ebb8c3311a18e1f3be4d7d2dcc1d5a7c4c09ab2a1e6c553f29dd66d66"
+  },
+  "reproduction_audit_file_sha256": "1f211d31098ee8d8b6dd22546211ce9de6477986061b330044874a035bfbfc92",
+  "reproduction_audit_path": "docs/audits/ops_discovery_p3r_s2b_population_reproduced_audit.json",
+  "selection_or_cohort_formation": false,
+  "source_artifact_file_sha256": "d1c4d546e06a5a72a6b134e82509afa3fcd5faba85b223876b70cde2532417f2",
+  "source_boundary_semantic_sha256": "33df1667c5343793e1a9500a24f10117ce21f30fa0fc97306ff1e3cc4eeb84a4",
+  "verdict": "PASS_P3R_S2B_POPULATION_REPRODUCED_FROZEN_IDENTITIES_UNSELECTED"
+}

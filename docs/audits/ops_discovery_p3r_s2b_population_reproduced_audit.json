@@ -1,0 +1,32 @@
+{
+  "bounds": {
+    "max_progress_calls_per_pass": 100000,
+    "passes": 2,
+    "progress_opcode_interval": 1000,
+    "wall_seconds": 120.0
+  },
+  "elapsed_seconds": 5.522799,
+  "equivalence_artifact_sha256": "733a6c2a799b01632b48801c476826cb722f10bee5c29c6aaad74d37122e5cd8",
+  "expected_count_match": true,
+  "identity_boundary": "Canonical population manifest only; no labels, ranks, quotas, or cohort selection.",
+  "manifest_path": "docs/audits/ops_discovery_p3r_s2b_population_reproduced_manifest.jsonl",
+  "milestone": "OPS-DISCOVERY-P3R-S2B-REPRODUCTION",
+  "population_count": 42664,
+  "population_manifest_sha256": "4de4356ebb8c3311a18e1f3be4d7d2dcc1d5a7c4c09ab2a1e6c553f29dd66d66",
+  "production_writes": 0,
+  "progress_calls": {
+    "pass_1": 520,
+    "pass_2": 520
+  },
+  "provider_calls_made": 0,
+  "query": "SELECT ta.mint, ta.pf_ws_creator\nFROM pumpfun_migration_verification AS pmv INDEXED BY sqlite_autoindex_pumpfun_migration_verification_1\nJOIN token_analysis AS ta ON ta.mint = pmv.mint\nWHERE ta.pf_ws_creator IS NOT NULL\nORDER BY pmv.mint ASC",
+  "query_sha256": "be042e9b54f59d5035e068dec5734b3b7bf2befa6c0b2e728f937cae44b25ed2",
+  "read_mode": "sqlite_uri_mode_ro_query_only",
+  "replay": {
+    "identical": true,
+    "population_count": 42664,
+    "population_manifest_sha256": "4de4356ebb8c3311a18e1f3be4d7d2dcc1d5a7c4c09ab2a1e6c553f29dd66d66"
+  },
+  "source_db": "docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T221819272628000Z-16a03978948f3881020440ceeb080e8a/snapshot.sqlite",
+  "status": "COMPLETE"
+}

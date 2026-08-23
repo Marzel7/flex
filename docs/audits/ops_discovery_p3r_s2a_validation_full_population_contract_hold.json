@@ -1,0 +1,21 @@
+{
+  "contamination_barrier": "No population identities, attributes, availability, controls, outputs, or prevalence inspected.",
+  "milestone": "OPS-DISCOVERY-P3R-S2A-VALIDATION-COHORT-AND-FULL-POPULATION-DISCOVERY-CONTRACT",
+  "production_source_writes": 0,
+  "provider_calls": 0,
+  "required_human_decision": "Approve one exact neutral_validation_sample size N and confirm it is an engineering validation budget, not a statistical-representativeness claim.",
+  "resolved": [
+    "Validation and discovery are distinct stages.",
+    "Future discovery is separately authorized over all 42,664 eligible members.",
+    "Unsupported truth/contrast roles cannot be resurrected."
+  ],
+  "selection_executed": false,
+  "universe": {
+    "full_population_discovery_universe": 42664,
+    "population_sha256": "4de4356ebb8c3311a18e1f3be4d7d2dcc1d5a7c4c09ab2a1e6c553f29dd66d66",
+    "validation_cohort": "bounded neutral validation subset only",
+    "validation_size_is_not_operation_cap": true
+  },
+  "unresolved": "No pre-existing evaluation or engineering artifact supplies an exact neutral_validation_sample size. The authorization permits a human-approved engineering budget, but no exact N is stated; choosing one here would remain an unreviewed design choice.",
+  "verdict": "HOLD_P3R_S2A_VALIDATION_COHORT_SIZE_UNRESOLVED"
+}

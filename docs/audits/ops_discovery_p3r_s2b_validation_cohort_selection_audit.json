@@ -1,0 +1,20 @@
+{
+  "duplicate_count": 0,
+  "full_population_discovery_universe": 42664,
+  "identity_order_role_equality": true,
+  "manifest_path": "docs/audits/ops_discovery_p3r_s2b_validation_cohort_manifest.jsonl",
+  "milestone": "OPS-DISCOVERY-P3R-S2B-VALIDATION-SELECTION",
+  "operation_evaluation": false,
+  "pass_1_cohort_sha256": "34e84f72d4d1647419d85f620099e67f9a76ef03d22b04180728452a145a872f",
+  "pass_1_count": 100,
+  "pass_2_cohort_sha256": "34e84f72d4d1647419d85f620099e67f9a76ef03d22b04180728452a145a872f",
+  "pass_2_count": 100,
+  "population_count": 42664,
+  "population_sha256": "4de4356ebb8c3311a18e1f3be4d7d2dcc1d5a7c4c09ab2a1e6c553f29dd66d66",
+  "production_source_writes": 0,
+  "provider_calls": 0,
+  "validation_cohort_sha256": "34e84f72d4d1647419d85f620099e67f9a76ef03d22b04180728452a145a872f",
+  "validation_cohort_size_is_operation_cap": false,
+  "validation_contract_sha256": "b6087063e33eeda17ec00a7f4328e79731ec1d1870d8a2d9374697cae2cc1245",
+  "verdict": "PASS_P3R_S2B_VALIDATION_COHORT_SELECTED_IDENTITIES_FROZEN"
+}

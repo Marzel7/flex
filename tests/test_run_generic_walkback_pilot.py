@@ -2,6 +2,7 @@ import hashlib,json,os
 from types import SimpleNamespace
 from scripts.run_generic_walkback_pilot import preflight,CONTRACT,TRACK
 from scripts.run_generic_walkback_pilot import execute_acquire,execute_replay
+from scripts.run_generic_walkback_pilot import main
 from src.discovery.immutable_jsonrpc_transport import ImmutableJsonRpcTransport
 from src.discovery.generic_walkback_rpc_adapter import RetainedRpcAdapter
 def args(tmp_path, **x):
@@ -27,3 +28,12 @@ def test_cli_acquire_composes_adapter_and_two_depths(tmp_path,monkeypatch):
   return RetainedRpcAdapter(ImmutableJsonRpcTransport(tmp_path,'transport','https://fixture',open))
  out=execute_acquire(a,factory);assert out['state']=='PASS' and out['depth_1_seeds']==100 and (tmp_path/'run'/'lifecycle.jsonl').exists()
  a.mode='replay';assert execute_replay(a)['state']=='PASS_REPLAY'
+
+def test_main_invokes_acquire_factory(tmp_path,monkeypatch):
+ monkeypatch.setenv('FIXTURE_PROVIDER','https://fixture');a=args(tmp_path);seen=[]
+ class A:
+  class T: root=tmp_path/'transport'
+  transport=T()
+  def extract(self,w): seen.append(w);return type('X',(),{'parent_wallet':None,'signature':None,'slot':None,'block_time':None,'amount_sol':None,'mechanism':None,'state':'NO_QUALIFYING_PARENT'})(),['id-'+w]
+ argv=['--manifest',a.manifest,'--manifest-sha',a.manifest_sha,'--run-dir',a.run_dir,'--contract-sha',a.contract_sha,'--track-sha',a.track_sha,'--track-count','21594','--provider-env','FIXTURE_PROVIDER','--mode','acquire']
+ main(argv,lambda x:A());assert len(seen)==100

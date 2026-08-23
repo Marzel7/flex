@@ -1,0 +1,24 @@
+{
+  "early_fail_reason": "Required topology is control-bounded and behaviour/fanout/3SW2 mappings unavailable; strict completeness cannot PASS.",
+  "full_population_discovery": false,
+  "inventory": {
+    "behaviour": "UNAVAILABLE: no population-wide adapter",
+    "creator_relationships": "EXISTING_PARTIAL: creator exists in frozen source, relationships not bound",
+    "direct_funding": "EXISTING_PARTIAL: corpus exists but no immutable population-wide mapping/boundary",
+    "fanout": "UNAVAILABLE: no bound grouping relation",
+    "funding_structures": "CONTROL_BOUNDED: unchanged references, not population-wide discovery evidence",
+    "migration_launch": "EXISTING_PARTIAL: membership exists, actor/timestamp boundary incomplete",
+    "three_sw2_truth": "UNAVAILABLE: no executable mapping",
+    "topology": "CONTROL_BOUNDED: EP3 retained control corpus only",
+    "upstream_funding": "EXISTING_PARTIAL: same",
+    "watchtower_truth": "EXISTING_PARTIAL: table named but no frozen executable truth boundary"
+  },
+  "last_completed_stage": "SOURCE_INVENTORY_COMPLETE",
+  "milestone": "OPS-DISCOVERY-P3R-S2B-DISCOVERY-EVIDENCE-BOUNDARY",
+  "next_authorization": "Human approval to construct immutable population-wide evidence adapters/boundaries for each missing required semantic input, or explicit discovery-semantics redesign.",
+  "production_source_writes": 0,
+  "provider_calls": 0,
+  "status": "HOLD_P3R_S2B_DISCOVERY_EVIDENCE_BOUNDARY_INCOMPLETE",
+  "timestamp_utc": "2026-08-23T09:36:10.975971+00:00",
+  "validation_cohort_evaluated": false
+}

@@ -1,0 +1,16 @@
+{
+  "discovery_addressable": "Retain a member unless a pre-existing deterministic semantic rule proves it outside the discovery objective.",
+  "milestone": "OPS-DISCOVERY-P3R-S2B-DISCOVERY-POPULATION-REDUCTION-FEASIBILITY",
+  "multiple_launcher_hypothesis": "Requires missing rich evidence; classify POSSIBLE_BUT_REQUIRES_RICH_EVIDENCE, not exclusion.",
+  "next_authorization": "Return to immutable discovery evidence-boundary construction; no safe reduction can precede it.",
+  "population_impact_inspected": false,
+  "production_source_writes": 0,
+  "provider_calls": 0,
+  "routing": "Creator-level grouped routing may be feasible only after rich relation evidence is frozen; not implemented.",
+  "signals": {
+    "creator_launch_multiplicity": "UNSAFE_FOR_EXCLUSION: repeated launches alone do not exclude meaningful shared funding/infrastructure/topology/behaviour relations.",
+    "duplicate_records": "SAFE_EXCLUSION_CANDIDATE only under existing manifest uniqueness rules; no real impact inspected.",
+    "integrity_invalid": "UNAVAILABLE: no bound invalid-state semantics."
+  },
+  "verdict": "HOLD_P3R_S2B_DISCOVERY_POPULATION_REDUCTION_NOT_JUSTIFIED"
+}

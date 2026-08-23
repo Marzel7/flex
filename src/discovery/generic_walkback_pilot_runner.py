@@ -39,6 +39,14 @@ class PilotRunner:
         raw_bytes=(canonical(raw)+'\n').encode(); self._write(Path('responses')/(rid+'.json'), raw)
         record={'request_id':rid,'wallet':wallet,'depth':depth,'status':'SUCCESS','response_sha256':hashlib.sha256(raw_bytes).hexdigest()}
         self._write(Path('requests')/(rid+'.json'), record); return record,raw
+    def production_lookup(self, adapter, wallet, depth):
+        """Use retained-envelope adapter only; each emitted RPC attempt counts."""
+        result, transport_ids = adapter.extract(wallet)
+        if not transport_ids: raise RuntimeError('production adapter emitted no immutable transport artifacts')
+        existing=list((adapter.transport.root).glob('*.json'))
+        if len(existing) > self.max_requests: raise RuntimeError('request bound')
+        edge={'child_wallet':wallet,'parent_wallet':result.parent_wallet,'signature':result.signature,'slot':result.slot,'block_time':result.block_time,'amount_sol':result.amount_sol,'mechanism':result.mechanism,'depth':depth,'state':result.state,'transport_request_ids':transport_ids}
+        return edge
     def request_with_retry(self, wallet, depth, *, retryable=(TimeoutError,), attempts=3):
         last=None
         for attempt in range(1, attempts + 1):

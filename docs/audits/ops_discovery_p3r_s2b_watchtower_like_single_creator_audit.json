@@ -1,0 +1,17 @@
+{
+  "derived_sha256": "1926c370c1d408f6068c5dfcde9bc43be6ce45cde647e1407dec598bb49075fe",
+  "manifest_path": "docs/audits/ops_discovery_p3r_s2b_watchtower_like_single_creator_manifest.jsonl",
+  "multi_launch_aggregate_count": 21070,
+  "null_creator_tokens": 0,
+  "operation_discovery": false,
+  "parent_count": 42664,
+  "parent_sha256": "4de4356ebb8c3311a18e1f3be4d7d2dcc1d5a7c4c09ab2a1e6c553f29dd66d66",
+  "pass_1_count": 21594,
+  "pass_1_sha256": "1926c370c1d408f6068c5dfcde9bc43be6ce45cde647e1407dec598bb49075fe",
+  "pass_2_count": 21594,
+  "pass_2_sha256": "1926c370c1d408f6068c5dfcde9bc43be6ce45cde647e1407dec598bb49075fe",
+  "production_source_writes": 0,
+  "provider_calls": 0,
+  "replay_equal": true,
+  "verdict": "PASS_P3R_S2B_WATCHTOWER_LIKE_DISCOVERY_POPULATION_FROZEN"
+}

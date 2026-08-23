@@ -1,0 +1,10 @@
+{
+  "full_population_discovery": false,
+  "milestone": "OPS-DISCOVERY-P3R-S2B-DISCOVERY-EVALUATION-METHOD-CONTRACT",
+  "next_authorization": "Authorize a separate immutable evidence-boundary construction for the exact existing discovery inputs, or explicitly approve a mint/creator-only neutral method with human-defined association semantics.",
+  "production_source_writes": 0,
+  "provider_calls": 0,
+  "real_cohort_evaluated": false,
+  "reason": "Frozen source boundary supplies only token_analysis mint/pf_ws_creator and migration membership. No immutable bound population-wide funding, upstream, topology, behaviour, truth, or relation surface supports pre-existing operation-association semantics. Freezing a method would require selecting new inputs/proxies or a new evidence boundary, prohibited here.",
+  "verdict": "HOLD_P3R_S2B_DISCOVERY_EVIDENCE_INPUT_UNRESOLVED"
+}

@@ -12,13 +12,10 @@ from pathlib import Path
 
 QUERY = """
 SELECT ta.mint, ta.pf_ws_creator
-FROM token_analysis AS ta INDEXED BY idx_ta_pf_ws_creator
+FROM pumpfun_migration_verification AS pmv INDEXED BY sqlite_autoindex_pumpfun_migration_verification_1
+JOIN token_analysis AS ta ON ta.mint = pmv.mint
 WHERE ta.pf_ws_creator IS NOT NULL
-  AND EXISTS (
-      SELECT 1 FROM pumpfun_migration_verification AS pmv
-      WHERE pmv.mint = ta.mint
-  )
-ORDER BY ta.mint ASC, ta.pf_ws_creator ASC
+ORDER BY pmv.mint ASC
 """.strip()
 
 

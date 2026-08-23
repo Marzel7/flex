@@ -1,0 +1,63 @@
+{
+  "benchmark": {
+    "candidate_count": 42664,
+    "candidate_plan": [
+      "SCAN pmv USING COVERING INDEX sqlite_autoindex_pumpfun_migration_verification_1",
+      "SEARCH ta USING INDEX sqlite_autoindex_token_analysis_1 (mint=?)"
+    ],
+    "candidate_population_sha256": "4de4356ebb8c3311a18e1f3be4d7d2dcc1d5a7c4c09ab2a1e6c553f29dd66d66",
+    "conservative_two_pass_seconds": 10.634679750888608,
+    "elapsed_seconds": 0.3188426250126213,
+    "margin_under_120_seconds": 109.36532024911139,
+    "materialization_digest_seconds": 0.21155991696286947,
+    "nominal_two_pass_seconds": 2.423119833925739,
+    "one_pass_seconds": 0.21155991696286947,
+    "sql_completion_seconds": 0.10667641600593925,
+    "sql_rows_per_second": 399938.4456038031,
+    "time_to_first_row_seconds": 3.5999983083456755e-05
+  },
+  "candidate": "mint-primary-key outer scan plus token_analysis mint-primary-key lookup; ORDER BY pmv.mint ASC",
+  "canonical_order_proof": "Both joined relations have unique mint primary keys, so one candidate row exists per mint and the removed creator tie-breaker is unreachable.",
+  "fixture": {
+    "candidate": {
+      "count": 2,
+      "sha256": "a07b5dabca7bc83f572f98ca17aee366d400d45b2dd8cee5709a7db5323b15f1"
+    },
+    "candidate_plan": [
+      "SCAN pmv USING COVERING INDEX sqlite_autoindex_pumpfun_migration_verification_1",
+      "SEARCH ta USING INDEX sqlite_autoindex_token_analysis_1 (mint=?)"
+    ],
+    "candidate_temp_btree": false,
+    "duplicate_cardinality_preserved": true,
+    "membership_equal": true,
+    "null_excluded": true,
+    "ordering_equal": true,
+    "pass": true,
+    "reference": {
+      "count": 2,
+      "sha256": "a07b5dabca7bc83f572f98ca17aee366d400d45b2dd8cee5709a7db5323b15f1"
+    },
+    "reference_plan": [
+      "SEARCH ta USING INDEX idx_ta_pf_ws_creator (pf_ws_creator>?)",
+      "CORRELATED SCALAR SUBQUERY 1",
+      "SEARCH pmv USING COVERING INDEX sqlite_autoindex_pumpfun_migration_verification_1 (mint=?)",
+      "USE TEMP B-TREE FOR ORDER BY"
+    ],
+    "reference_temp_btree": true,
+    "unmatched_token_excluded": true
+  },
+  "milestone": "OPS-DISCOVERY-P3R-S2B-POPULATION-ACCESS-PATH-REPAIR",
+  "no_authoritative_two_pass_reproduction": true,
+  "production_source_writes": 0,
+  "provider_calls": 0,
+  "reference_diagnostic": {
+    "count_non_authoritative": 42664,
+    "sql_completion_seconds": 376.315,
+    "time_to_first_row_seconds": 402.998,
+    "two_pass_projection_seconds": 1554.173
+  },
+  "source_artifact_file_sha256": "d1c4d546e06a5a72a6b134e82509afa3fcd5faba85b223876b70cde2532417f2",
+  "source_boundary_semantic_sha256": "33df1667c5343793e1a9500a24f10117ce21f30fa0fc97306ff1e3cc4eeb84a4",
+  "status": "PASS_P3R_S2B_POPULATION_ACCESS_PATH_REPAIR_QUALIFIED",
+  "wall_seconds": 120.0
+}

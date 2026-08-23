@@ -1,0 +1,28 @@
+{
+  "contamination_barrier": "No population manifest, candidate availability, truth overlap, or outcome was inspected.",
+  "milestone": "OPS-DISCOVERY-P3R-S2A-PRESELECTION-QUOTA-DESIGN",
+  "next_authorization": "Human must explicitly approve an unlabeled neutral-sample cohort size and role definition, or authorize freezing an executable truth boundary that permits a retained pre-existing control quota.",
+  "preexisting_design": {
+    "contrast": 10,
+    "source": "docs/audits/ops_discovery_p3r_s2a_selection_contract.json",
+    "three_sw2": 6,
+    "total": 24,
+    "watchtower": 8
+  },
+  "production_source_writes": 0,
+  "provider_calls": 0,
+  "quota_basis": {
+    "contrast": "PREEXISTING_EXACT but REMOVED_UNSUPPORTED because no executable predicates",
+    "three_sw2": "PREEXISTING_EXACT but REMOVED_UNSUPPORTED because no executable frozen truth binding",
+    "watchtower": "PREEXISTING_EXACT but REMOVED_UNSUPPORTED because no executable frozen truth binding"
+  },
+  "removed_roles": [
+    "watchtower",
+    "three_sw2",
+    "contrast"
+  ],
+  "retained_roles": [],
+  "selection_executed": false,
+  "unresolved": "No pre-existing evaluation artifact defines an unlabeled neutral/discovery-sample role or exact quota. Preserving 24 or selecting any smaller number would be discretionary redistribution prohibited by the authorization.",
+  "verdict": "HOLD_P3R_S2A_REDUCED_SELECTION_QUOTA_DESIGN_UNRESOLVED"
+}

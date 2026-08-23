@@ -1,0 +1,90 @@
+{
+  "arbitrary_seed_capability": {
+    "evidence": "_find_funder_via_rpc accepts any wallet string and does not require a Watchtower identity when ops=None.",
+    "evidence_mint": "src.core.walkback_worker._recover_creator_from_db has non-Watchtower fallbacks through local creator_funding_queue, token_analysis, and migrated_tokens. The function is embedded in Watchtower worker orchestration and has no standalone public API, but these fallback tables do not require Watchtower truth.",
+    "mint": "YES_GENERIC_FROM_MINT",
+    "wallet_or_direct_funder": "YES"
+  },
+  "created_at_utc": "2026-08-23T11:55:36Z",
+  "dependency_layers": {
+    "attribution": "classify_creator and _process_row use wt_ops_v2_wallets, wt_watchtower_launches, wt_wrap_close_candidates, wt_creator_birth_launch, wt_candidate_websocket_watches, watchtower_token_attribution, wt_discovered_subprovs, and confirmed treasury/subprov tests to assign Watchtower semantics and outcomes.",
+    "fact_persistence": "provisioning_edges.capture_provisioning_relationship records factual funding observations but persists them in role-labelled wt_provisioning_edges and wt_provisioning_sessions; provisioning_wallet.record_provisioning_wallet is explicitly a Watchtower subprovider/provisioning/creator representation.",
+    "orchestration": "walkback_queue.enqueue_migration and walkback_worker._process_row require wt_walkback_queue lifecycle state, mint/creator anchors, attempt and RPC budgets, and write leases.",
+    "primitive": "RPC transaction/history decoding and account-owner filtering in _find_funder_via_rpc; no treasury, subprov, operation ID, or wt queue is required when ops=None."
+  },
+  "generalization_decision": {
+    "coexisting_code_fact": "PASS_P3R_GENERIC_WALLET_WALKBACK_PRIMITIVE_EXTRACTABLE: the low-level factual wallet-parent primitive exists and can be called without Watchtower truth when ops=None, but it is private and embedded in an RPC-enabled Watchtower worker.",
+    "future_extraction_required": [
+      "Extract a pure generic interface around factual wallet-parent lookup with explicit input seed, cutoff, bounds, deterministic selection, and structured result/error contract.",
+      "Separate optional evidence persistence from retrieval and replace wt_* role-labelled storage with an approved generic evidence namespace/schema.",
+      "Separate queue lifecycle and Watchtower attribution from the generic traversal result.",
+      "Define a bounded provider/acquisition authorization, retention/provenance policy, and local replay contract before unknown-wallet execution."
+    ],
+    "next_authorization_required": "Authorize a design/qualification milestone for a standalone semantics-neutral generic wallet-parent walker and its bounded acquisition/provenance contract. It must not execute against unknown population identities until separately authorized.",
+    "terminal_verdict": "HOLD_P3R_GENERIC_WALLET_WALKBACK_REQUIRES_ACQUISITION",
+    "why_not_recovered_as_ready": "No standalone stable API, no semantics-neutral evidence store, no qualified arbitrary-mint execution contract, and new RPC acquisition would be required for unknown wallets."
+  },
+  "generic_factual_wallet_parent_primitive": {
+    "candidate_selection": "Qualifying SOL senders exclude self and blocklisted program/system accounts. Candidates sort by priority then slot: with ops None, mechanism priority WSOL_WRAP_CLOSE (4), SEEDED_ACCOUNT_CLOSE (5), PLAIN_XFER/UNKNOWN (6); ties use closest pre-anchor slot unless prefer_oldest=True, which selects oldest bounded-window slot.",
+    "error_behavior": "_rpc catches exceptions and returns None; absent pages/transactions/candidates produce the all-None FunderInfo result.",
+    "historical_cutoff": "before_signature is passed to getSignaturesForAddress and excludes activity at or after the downstream anchor.",
+    "independent_callable_from_wallet": true,
+    "inputs": [
+      "wallet",
+      "rpc_counter",
+      "optional ops connection",
+      "optional before_signature",
+      "prefer_oldest",
+      "optional source_mint",
+      "hop_depth"
+    ],
+    "module_function": "src.core.walkback_worker._find_funder_via_rpc",
+    "output": "FunderInfo tuple: (parent_wallet, funding_signature, slot, block_time, amount_sol, mechanism), or six None values when no qualifying parent is found.",
+    "provider_dependency": "Blocking JSON-RPC through _rpc using urllib.request; getSignaturesForAddress, getTransaction, and sometimes getAccountInfo.",
+    "request_bounds": {
+      "signature_pages": "SIG_PAGE_COUNT default 3",
+      "signatures_per_page": "SIG_PAGE_LIMIT default 100",
+      "timeout_seconds": "RPC_TIMEOUT default 8",
+      "transactions_examined": "TX_FETCH_LIMIT default 5"
+    },
+    "retry_and_cache": "No result cache or retry loop is in the primitive. Queue-level MAX_ATTEMPTS controls retries. Persisted wt_walkback_* tables are evidence stores, not a complete general arbitrary-wallet transaction cache.",
+    "watchtower_dependency": "None for basic extraction when ops=None. When ops is supplied, known treasury/subprov membership changes priority and known spam senders are excluded and recorded."
+  },
+  "generic_to_watchtower_boundary": {
+    "current_operational_shape": "The worker starts from a Watchtower queue row, derives or recovers a creator, walks creator->parent and optionally upstream, then persists role-labelled evidence and uses Watchtower truth to decide attribution. Generic factual extraction is embedded inside that orchestration.",
+    "generic_evidence_boundary": "A caller can use _find_funder_via_rpc(wallet, rpc_counter, ops=None, ...) to obtain a factual selected parent and transaction fields.",
+    "watchtower_interpretation_begins": "At queue seeding/classify_creator and in _process_row when results are compared with known treasury/subprov truth and written as WATCHTOWER_CONFIRMED, LINEAGE_GAP, or NO_ATTRIBUTION_FOUND; link_only writes watchtower_token_attribution."
+  },
+  "inspection_scope": {
+    "funding_structures_changed": false,
+    "p5f_touched": false,
+    "production_or_source_database_writes": 0,
+    "provider_calls": 0,
+    "read_only_source_files": [
+      "src/ops/provisioning_edges.py",
+      "src/ops/provisioning_wallet.py",
+      "src/core/walkback_queue.py",
+      "src/core/walkback_worker.py",
+      "src/core/deep_walkback.py",
+      "src/ops/treasury_resolution.py"
+    ],
+    "unknown_population_or_cohort_evaluation": false
+  },
+  "milestone": "OPS-DISCOVERY-P3R-WATCHTOWER-WALKBACK-IMPLEMENTATION-RECOVERY",
+  "provider_and_replay_posture": {
+    "classification": "NEW_RPC_ACQUISITION_REQUIRED",
+    "historical_local_replay": "LOCAL_CACHE_PARTIAL only for already-persisted prior evidence; not sufficient for a new arbitrary wallet walkback.",
+    "reason": "The factual primitive obtains arbitrary wallet history and transactions live through RPC. Existing persisted wt_walkback_* evidence is scoped to prior Watchtower walks and cannot prove complete historical replay for arbitrary unknown wallets."
+  },
+  "workspace_reconciliation": {
+    "all_preexisting_dirty_paths_preserved_and_excluded": true,
+    "commit_allowlist": [
+      "docs/audits/ops_discovery_p3r_walkback_workspace_ownership_inventory.json",
+      "docs/audits/ops_discovery_p3r_watchtower_walkback_implementation_recovery.json"
+    ],
+    "global_handoff_untouched": true,
+    "inventory_file_sha256": "d85b592b6c4b673ab5607eb0e213bb44776fc42037bf96040ec74e0f5c59725d",
+    "inventory_path": "docs/audits/ops_discovery_p3r_walkback_workspace_ownership_inventory.json",
+    "verdict": "PASS_SAFE_SINGLE_ARTIFACT_COMMIT_BOUNDARY"
+  }
+}

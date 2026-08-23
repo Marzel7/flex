@@ -1,0 +1,2786 @@
+{
+  "branch": "classification-attribution-axis",
+  "classification_counts": {
+    "GENERATED_RUNTIME_ARTIFACT": 0,
+    "OWNERSHIP_AMBIGUOUS": 0,
+    "PREEXISTING_CONCURRENT_WORK": 392,
+    "WALKBACK_MILESTONE_OWNED": 0
+  },
+  "commit_safety_rule": "Stage only the exact allowlist; do not use broad staging.",
+  "created_at_utc": "2026-08-23T11:55:36Z",
+  "entries": [
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": " M",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "database/evidence_platform/oip_v2_2c_application_equivalence/replay_checkpoint.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": " M",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/.DS_Store"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": " M",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/agent_handoff/current.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": " M",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ops_discovery_p3r_s2b_population_reproduction.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": " M",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ops_discovery_p3r_s2b_source_boundary_snapshot.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": " M",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ops_ui_p1_discovery_intake_contract.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": " M",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "operation_scheduler.lock"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": " M",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "scripts/diagnose_ops_discovery_p3r_s2b_final_materialization.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": " M",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "scripts/qualify_ops_discovery_p3r_s2b_final_materialization.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": " M",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "scripts/run_psi0h_a_historical_replay.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": " M",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "src/acquisition/factory.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": " M",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "src/ops/discovery_intake.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": " M",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "src/ops/hot_cold_rollover_runner.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": " M",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "src/ops/operator_reader.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": " M",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "src/ops/transfer_cold_store.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": " M",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "tests/test_psi0h_a_prospective_replay.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": " M",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "tests/test_storage_lifecycle_p5d_hot_cold_rollover.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": ".agent_orchestrator.lock"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": ".agents/"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": ".codex/"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "database/flex_complete_database.db.p5b_rollback_quarantine"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "database/flex_complete_database.db.p5b_rollback_quarantine-shm"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "database/flex_complete_database.db.p5b_rollback_quarantine-wal"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "database/flex_complete_database.db.write.lock.owner.guard"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "database/hot_cold_rollover.lease"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "database/hot_cold_rollover_checkpoint.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "database/infra_sync_scheduler.lock"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "database/storage_lifecycle.lock"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "database/wt_ops_v2.db.write.lock.owner.41735.8753196096.tmp"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "database/wt_ops_v2.db.write.lock.owner.98147.6173405184.tmp"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "database/wt_ops_v2.db.write.lock.owner.guard"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/b2n_cohort_eligibility_existing_provenance_resolution.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/b2n_cohort_eligibility_human_review_decision_record_contract.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/b2n_cohort_eligibility_human_review_index.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/b2n_cohort_eligibility_human_review_packet.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/b2n_cohort_eligibility_provenance_binding_preflight.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/b2n_cohort_eligibility_provenance_collection_checklist.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/b2n_cohort_eligibility_provenance_collection_checklist.md"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/b2n_cohort_eligibility_provenance_gap_audit.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/b2n_cohort_eligibility_provenance_gap_close_request.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/b2n_p3i_ordinal2_live_continuation_result.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/b2n_p3j_bounded_migration_lineage_completion.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/b2z_p0_creator_funding_qualification_preflight.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/b2z_p0_local_evidence_coverage_matrix.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/b2z_p1_5_exhaustive_local_evidence_reconciliation.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/b2z_p1_6_historical_creator_funding_data_lineage_reconstruction.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/b2z_p1_7_historical_one_hop_two_hop_funding_reconciliation.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/b2z_p1_8_operation_discovery_evidence_standard_rpc_scaling_reconciliation.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/b2z_p1_durable_resumable_execution_preflight.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/b2z_p1_mock_execution_reconciliation.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/b2z_p2_execution_plan_and_authorization.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/b2z_p2_local_prediction_freeze.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/eb0_1_birth_latency_creator_audit.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/eb0_2_creator_historical_outcomes.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/eb0_2_creator_outcome_sample.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/eb0_2_policy_simulation.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/eb0_3_birth_valuation_audit.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/eb0_3d_runs/"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/eb0_4_gmgn_market_feasibility.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/eb0_4a_gmgn_authorized_qualification.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/mc1_2a_operator_acceptance_review.md"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/oip_v2_2e_2b2n_local_provider_contract_preflight.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/oip_v2_2e_phase1_rerun_preflight.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/oip_v2_2e_phase1_rerun_preflight_2.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ops_discovery_p3r_s2b_host_launches/"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ops_discovery_p3r_s2b_population_members.jsonl.tmp"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ops_discovery_p3r_s2b_runs/"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ops_discovery_p3r_s2b_source_snapshot.sqlite.tmp"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ops_discovery_p3r_watchtower_reference_topology_profile.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d1_lock_contention_telemetry_diagnosis.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d1a_listener_descriptor_warning_diagnosis.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d2_contract_identity_drift_stop.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d2_creator_source_path_stop.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d2_evidence_source_path_preflight_stop.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d2_query_plan_do_not_start_stop.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d2_query_plan_terminal_health_stop.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d2b_creator_source_path_provenance.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d2c_evidence_source_path_provenance.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d2d_terminal_descriptor_gate_diagnosis.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d3_recurrent_descriptor_fanout_diagnosis.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d6_do_not_start_stop.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d6_second_authorization_do_not_start_stop.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d6a_recovery_observation_first_checkpoint_stop.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d6a_second_observation_first_checkpoint_stop.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d6b_active_pressure_deployment_boundary_diagnosis.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d6c_quiescence_runner_boundary_stop.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d6e_controlled_migration_tx_index_deployment.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d6e_runs/"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d6f1_post_deployment_descriptor_stop.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d6f_observer_contract_stop.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d6g_post_index_descriptor_diagnosis.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d6i_blocklist_repair_restart_descriptor_stop.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d6i_second_authorization_do_not_start.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d6i_third_authorization_do_not_start.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d6k_listener_pid_change_stop.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d6l_pool_discovery_long_holder_stop.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d6n_pool_discovery_deployment_serializer_stop.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d6o_usage_tracker_diagnosis_descriptor_stop.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d6p_vault_discovery_descriptor_diagnosis.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d6s_combined_connection_scope_restart_descriptor_stop.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d6t_seed_read_diagnosis_serializer_stop.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d6u_post_restart_serializer_pressure_diagnosis.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d6w_seed_read_deadline_deployment_verification.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0a_d6x_post_d6v_stability_observation.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0b_e16_authoritative_write_lease_diagnosis.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0b_e16a_write_lease_recovery_observation.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0b_e16b_physical_lock_descriptor_diagnosis.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0b_e16c_write_lease_recovery_observation.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0b_e17_preflight_replay_diagnosis.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0b_e4_operations_write_lease_diagnosis.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0b_e6_walkback_restart_recovery_stop.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0b_e6a_null_owner_lock_diagnosis_stop.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0b_e6b_restart_sequence_reconciliation.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0b_e6c_ws_cascade_reload_stability.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0b_e_02_production_shadow_do_not_start.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0b_e_03_launcher_bootstrap_stop.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0b_e_04_production_shadow_attempt.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0b_e_05_production_shadow_attempt.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0b_e_06_production_shadow_attempt.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0b_e_11_production_shadow_attempt.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0b_e_12_production_shadow_attempt.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0b_e_13_production_shadow_attempt.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0b_e_14_production_shadow_attempt.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0b_e_bound_preflight_artifact_missing_stop.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0b_e_production_shadow_do_not_start.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0b_f_closure_production_impact_assessment.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0b_g_final_closure_production_impact_assessment.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0b_runs/"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0c_a_post_psi0b_roadmap_reconciliation.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0c_d_replay_verified_closure_disposition.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0c_runs/"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0d_a_limited_consumer_integration_boundary_reconciliation.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0d_c_fixture_consumer_qualification_closure.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0d_e_immutable_assessment_adapter_qualification_closure.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0d_f_in_memory_adapter_application.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0d_g_in_memory_application_closure_publication_disposition.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0d_i_atomic_publisher_qualification_closure.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0d_runs/"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0e_b_integration_envelope_qualification_closure.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0e_d_in_memory_envelope_application_closure_disposition.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0e_f_atomic_envelope_publisher_qualification_closure.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0e_g2_lineage_reconstruction_diagnosis.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0e_g4_audit_adapter_qualification_closure.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0e_g5_adapter_result_interface_diagnosis.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0e_g6_canonical_provenance_representation_diagnosis.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0e_g_fresh_publication_provenance_stop.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0e_h_integration_envelope_publication_closure_disposition.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0e_runs/"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0f_a_known_behaviour_operational_surfacing_roadmap_reconciliation.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0f_c_known_behaviour_surface_qualification_closure.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0g_runs/psi0g-d1-operation-candidate-20260817-01/projection.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0g_runs/psi0g-d3-operation-candidate-20260817-01/projection.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0g_runs/psi0g-d5-real-provenance-retention-20260817-02/projection.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_a_real_historical_replay_from_b2.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_a_real_historical_replay_from_e5_selected.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_a_real_historical_replay_from_e5_window10.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_a_real_historical_replay_from_e5_window10_after_error.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_a_real_historical_replay_from_e5_window5.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_a_real_historical_replay_from_e5_window6.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e3_full_local_regression.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e4_live_census_preflight.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e4_live_census_preflight_window10_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e4_live_census_preflight_window11_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e4_live_census_preflight_window12_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e4_live_census_preflight_window13_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e4_live_census_preflight_window14_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e4_live_census_preflight_window15_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e4_live_census_preflight_window16_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e4_live_census_preflight_window17_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e4_live_census_preflight_window18_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e4_live_census_preflight_window19_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e4_live_census_preflight_window2.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e4_live_census_preflight_window20_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e4_live_census_preflight_window21_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e4_live_census_preflight_window3_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e4_live_census_preflight_window7_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e4_live_census_preflight_window8_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e4_live_census_preflight_window9_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e5_real_cohort_execution.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e5_real_cohort_execution_window10_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e5_real_cohort_execution_window11_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e5_real_cohort_execution_window12_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e5_real_cohort_execution_window13_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e5_real_cohort_execution_window14_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e5_real_cohort_execution_window15_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e5_real_cohort_execution_window16_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e5_real_cohort_execution_window17_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e5_real_cohort_execution_window18_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e5_real_cohort_execution_window19_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e5_real_cohort_execution_window20_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e5_real_cohort_execution_window21_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e5_real_cohort_execution_window3_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e5_real_cohort_execution_window5_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e5_real_cohort_execution_window6_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e5_real_cohort_execution_window7_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e5_real_cohort_execution_window8_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e5_real_cohort_execution_window9_nonempty.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e5_real_cohort_selected_sample.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_e5_real_prospective_frontier_closure_20260817.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h10_historical_backfill_lineage_from_h8_projection_continuity.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h10_historical_backfill_preflight_from_h8_projection_continuity.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h1_historical_discovery.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h1_historical_discovery_from_h4_150.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h1_historical_discovery_from_h4_150_continuity.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h1_historical_discovery_from_h4_150_continuity_retest.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h2_historical_candidate_generation.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h2_historical_candidate_generation_from_h4_150.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h2_historical_candidate_generation_from_h4_150_continuity.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h2_historical_candidate_generation_from_h4_150_continuity_retest.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h3_historical_candidate_disposition.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h3_historical_candidate_disposition_from_h4_150.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h3_historical_candidate_disposition_from_h4_150_continuity.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h3_historical_candidate_disposition_from_h4_150_continuity_retest.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h4_historical_operation_census.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h4_historical_operation_census_from_h7d_path.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h4_historical_operation_census_from_h8_projection.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h4_historical_operation_census_from_h8_projection_continuity.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h4_historical_operation_census_from_h8_projection_continuity_retest.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h4r1_human_disposition_closure.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h4r2_continuity_deep_review_index.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h4r2_continuity_deep_review_packet.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h4r2a_explicit_human_review_index.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h4r2a_explicit_human_review_packet.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h4r_historical_continuity_review_index.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h4r_historical_continuity_review_packet.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h5_source_expansion_reconciliation.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h6_source_retention_availability_from_h7d_bridge.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h6_source_retention_availability_from_h7d_bridge_refresh.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h6_source_retention_availability_h7d_refresh.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h6_source_retention_availability_window1.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h7_bounded_historical_backfill_preflight_from_h7d_bridge.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h7_bounded_historical_backfill_preflight_from_h7d_bridge_next.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h7_bounded_historical_backfill_preflight_from_h7d_bridge_next2.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h7_bounded_historical_backfill_preflight_window1.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h7_bounded_historical_backfill_preflight_window1_reclassified.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h7_historical_backfill/"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h7b_bounded_historical_reconstruction_capture.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h7c_bounded_operation_boundary_reconstruction.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h7d_historical_funding_corpus_source_mapping.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h7r_legacy_candidate_reconstruction_recheck.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h8_replay_boundary.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h8_to_h4_runtime_projection_from_h7d_continuity_manifest.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h9_historical_backfill_blocker_reconciliation.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h9_historical_backfill_blocker_reconciliation_check.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h9_historical_backfill_blocker_reconciliation_from_h7d_bridge_next2.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h9_historical_backfill_blocker_reconciliation_from_h8_projection_continuity.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h9_historical_backfill_blocker_reconciliation_from_h8_projection_continuity_retest.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/psi0h_h9_historical_backfill_blocker_reconciliation_from_h8_projection_next2.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ra0_i1_retained_acquisition_source_integrity_preflight.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ra0_retained_acquisition_bounded_experiment.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ra0_retained_acquisition_deduplicated_retention_preflight.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ra0_retained_acquisition_storage_preflight.md"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ra1_bounded_retained_acquisition_architecture_preflight.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ra2_retained_acquisition_smoke_experiment.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ra2_retained_acquisition_smoke_preflight.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ra3_retained_acquisition_production_cutover_plan.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ra4_c1_authoritative_cutover_and_hot_plateau_readiness.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ra4_c1_scaled_plateau_stress.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ra4_c5_legacy_retained_acquisition_retirement_preflight.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ra4_c5_legacy_retained_acquisition_retirement_preflight_post_manifest.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ra4_c5a_v2_production_cap_transition_observation.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ra4_c5b_compact_retirement_manifest_materialization.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ra4_c6_legacy_db_deletion_execution.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ra4_retained_acquisition_bounded_shadow_activation.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ra4_retained_acquisition_bounded_shadow_activation_live.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ra4_retained_acquisition_bounded_shadow_activation_live_cycle2.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ra4_retained_acquisition_bounded_shadow_activation_live_cycle3.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ra4_retained_acquisition_bounded_shadow_activation_live_cycle4.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ra4_retained_acquisition_bounded_shadow_activation_run.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ra4_retained_acquisition_c1_hot_store_plateau_local.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ra4_retained_acquisition_dual_path_replay_readiness.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ra4_retained_acquisition_dual_path_replay_readiness_live.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ra4_retained_acquisition_dual_path_replay_readiness_live_2.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ra4_retained_acquisition_dual_path_replay_readiness_live_cycle2.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ra4_retained_acquisition_dual_path_replay_readiness_live_cycle3.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ra4_retained_acquisition_dual_path_replay_readiness_live_cycle4.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ra4_retained_acquisition_dual_path_replay_readiness_live_cycle5.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/ra4_retained_acquisition_shadow_activation_preflight.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/storage_lifecycle_p5d_execution_ledger.jsonl"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/storage_lifecycle_p5e_r1_d2_phase1_unresolved.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/storage_lifecycle_p5e_r1_d3_phase1b_unresolved.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/storage_lifecycle_p5e_r1_d4_integrity_execution_environment.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/storage_lifecycle_p5e_r1_d5_integrity_gate_reconciliation.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/storage_lifecycle_p5e_r1_diag_read_only_probe.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/storage_lifecycle_p5e_r1_pre_repair_invariant_unresolved.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/storage_lifecycle_p5e_r1_repair_execution.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/storage_lifecycle_p5e_r1_validation_hold.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/storage_lifecycle_p5e_r2_first_live_retirement.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/storage_lifecycle_p5f_activation_contract.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/storage_lifecycle_p5f_capacity_observation.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/storage_lifecycle_p5f_first_scheduled_observation.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/storage_lifecycle_p5f_first_scheduled_run.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/storage_lifecycle_p5f_phase_evidence/"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/storage_lifecycle_p5f_r1_capacity_requalification.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/storage_lifecycle_p5f_r1_durable_execution_evidence.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/storage_lifecycle_p5f_r1_multi_run_qualification.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/storage_lifecycle_p5f_r1_run1_evidence_recovery.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/storage_lifecycle_p5f_r1_scheduler_proposal.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/storage_lifecycle_p5f_r2_runner_safety_integration.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/storage_lifecycle_p5f_r2_supervised_runner_execution.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/storage_lifecycle_p5f_r3_delta_resumability.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/storage_lifecycle_p5f_r3_supervised_runner_execution.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/storage_lifecycle_p5f_scheduler_activation.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/storage_lifecycle_p5f_scheduler_installation.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/x67_18_b48k_operation_audit.md"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/x67_19_b48k_operator_boundary_reeval.md"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/x67_20_b48k_execution_fingerprint_validation.md"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/x67_21_execution_service_client_discovery.md"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/x67_22_b48k_client_family_discovery.md"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/x67_23_emerging_operators_operational_audit.md"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "docs/audits/x78_38a1_provider_artifacts/"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "flex_complete_database.db.write.lock.owner.guard"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "pyrightconfig.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "scripts/audit_eb0_1_births.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "scripts/audit_eb0_2_creator_outcomes.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "scripts/run_b2z_p2_calibration.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "scripts/run_psi0h_e4_live_census_preflight.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "scripts/run_psi0h_e5_real_prospective_cohort.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "scripts/run_psi0h_h1_historical_discovery.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "scripts/run_psi0h_h2_historical_candidate_generation.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "scripts/run_psi0h_h3_historical_candidate_disposition.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "scripts/run_psi0h_h4_historical_operation_census.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "scripts/run_psi0h_h4r_historical_continuity_review.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "scripts/run_psi0h_h5_historical_source_expansion.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "scripts/run_psi0h_h6_historical_source_retention_availability.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "scripts/run_psi0h_h7_bounded_historical_backfill_preflight.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "scripts/run_psi0h_h7b_bounded_historical_reconstruction_capture.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "scripts/run_psi0h_h7c_bounded_operation_boundary_reconstruction.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "scripts/run_psi0h_h7d_historical_funding_corpus_source_mapping.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "scripts/run_psi0h_h7r_legacy_candidate_reconstruction_reconciliation.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "scripts/run_psi0h_h8_bounded_historical_backfill_execution.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "scripts/run_psi0h_h8_bounded_historical_replay.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "scripts/run_psi0h_h8_h4_runtime_projection.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "scripts/run_psi0h_h9_historical_backfill_blocker_reconciliation.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "scripts/run_ra0_retained_acquisition_bounded_experiment.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "scripts/run_ra1_retained_acquisition_architecture_preflight.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "scripts/run_ra2_retained_acquisition_local_replay_preflight.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "scripts/run_ra4_c5b_compact_manifest_materialization.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "scripts/run_ra4_retained_acquisition_bounded_shadow_activation.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "scripts/run_ra4_retained_acquisition_dual_path_replay_readiness.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "skills-lock.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "src/core/pumpportal_birth_audit.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "src/evidence/contracts/psi0h_e4_live_census_preflight.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "src/evidence/contracts/psi0h_e5_real_prospective_cohort.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "src/evidence/contracts/psi0h_h1_historical_discovery.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "src/evidence/contracts/psi0h_h2_historical_candidate_generation.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "src/evidence/contracts/psi0h_h3_historical_candidate_disposition.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "src/evidence/contracts/psi0h_h4_historical_operation_census.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "src/evidence/contracts/psi0h_h5_historical_source_expansion.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "src/evidence/contracts/psi0h_h6_historical_source_retention_availability.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "src/evidence/contracts/psi0h_h7_bounded_historical_backfill_preflight.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "src/evidence/contracts/psi0h_h7b_bounded_historical_reconstruction_capture.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "src/evidence/contracts/psi0h_h7c_bounded_operation_boundary_reconstruction.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "src/evidence/contracts/psi0h_h7d_historical_funding_corpus_source_mapping.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "src/evidence/contracts/psi0h_h7r_legacy_candidate_reconstruction_reconciliation.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "src/evidence/contracts/psi0h_h8_bounded_historical_backfill_execution.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "src/evidence/contracts/psi0h_h8_bounded_historical_replay.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "src/evidence/contracts/psi0h_h8_to_h4_runtime_projection.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "src/evidence/contracts/psi0h_h9_historical_backfill_blocker_reconciliation.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "src/evidence/contracts/ra1_retained_acquisition_architecture.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "src/evidence/contracts/ra2_retained_acquisition_implementation.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "src/ops/durable_execution_evidence.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "tests/test_b2z_p2_calibration.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "tests/test_durable_execution_evidence.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "tests/test_eb0_1_pumpportal_birth_audit.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "tests/test_psi0h_e4_live_census_preflight.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "tests/test_psi0h_e5_real_prospective_cohort.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "tests/test_psi0h_h1_historical_discovery.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "tests/test_psi0h_h2_historical_candidate_generation.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "tests/test_psi0h_h3_historical_candidate_disposition.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "tests/test_psi0h_h4_historical_operation_census.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "tests/test_psi0h_h5_historical_source_expansion.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "tests/test_psi0h_h6_historical_source_retention_availability.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "tests/test_psi0h_h7_bounded_historical_backfill_preflight.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "tests/test_psi0h_h7b_bounded_historical_reconstruction_capture.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "tests/test_psi0h_h7c_bounded_operation_boundary_reconstruction.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "tests/test_psi0h_h7d_historical_funding_corpus_source_mapping.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "tests/test_psi0h_h7r_legacy_candidate_reconstruction_reconciliation.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "tests/test_psi0h_h8_bounded_historical_backfill_execution.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "tests/test_psi0h_h8_bounded_historical_replay.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "tests/test_psi0h_h8_h4_runtime_projection.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "tests/test_psi0h_h9_historical_backfill_blocker_reconciliation.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "tests/test_ra0_retained_acquisition_bounded_experiment.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "tests/test_ra1_retained_acquisition_architecture.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "tests/test_ra2_retained_acquisition_replay.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "tests/test_ra4_c5_legacy_retirement_qualification.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "tests/test_ra4_c5b_compact_manifest_materialization.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "tests/test_ra4_retained_acquisition_c1_plateau.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "tests/test_ra4_retained_acquisition_c1_scaled_stress.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "tests/test_ra4_retained_acquisition_shadow_activation.py"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "tmp_pin_sets.json"
+    },
+    {
+      "classification": "PREEXISTING_CONCURRENT_WORK",
+      "disposition": "untouched and excluded from WALKBACK_COMMIT_ALLOWLIST",
+      "git_porcelain": "??",
+      "ownership": "unknown; observed before this milestone created any file",
+      "path": "x"
+    }
+  ],
+  "git_porcelain_counts": {
+    " M": 17,
+    "??": 375
+  },
+  "global_handoff_disposition": "docs/agent_handoff/current.json is excluded from this milestone and remains untouched.",
+  "head": "4d4b79aa16be89d1daac66dee533481983531cb3",
+  "ignored_disposition": "Not staged or claimed; ignored paths are outside this read-only reconciliation unless separately proven relevant.",
+  "ignored_path_count_observed": 2023,
+  "milestone": "OPS-DISCOVERY-P3R-WALKBACK-WORKSPACE-OWNERSHIP-RECONCILIATION",
+  "recent_commits": [
+    "4d4b79aa OPS-DISCOVERY: calculate single creator migration impact",
+    "620b1c75 OPS-DISCOVERY: audit two-hop funding evidence",
+    "191fea75 OPS-DISCOVERY: freeze Watchtower-like creator track",
+    "8a141f8a OPS-DISCOVERY: calculate multi-launch impact",
+    "15dcbc62 OPS-DISCOVERY: hold upstream traversal semantics",
+    "67709af1 OPS-DISCOVERY: classify discovery evidence gaps",
+    "3e946982 OPS-DISCOVERY: hold population reduction",
+    "36e3d6da OPS-DISCOVERY: hold discovery evidence boundary",
+    "23bcc164 OPS-DISCOVERY: hold method evidence inputs",
+    "07934896 OPS-DISCOVERY: hold validation method binding",
+    "0e3c14ed OPS-DISCOVERY: freeze neutral validation cohort",
+    "4822c003 OPS-DISCOVERY: freeze neutral validation contract"
+  ],
+  "tracked_staged_untracked_path_count": 392,
+  "walkback_commit_allowlist": [
+    "docs/audits/ops_discovery_p3r_walkback_workspace_ownership_inventory.json",
+    "docs/audits/ops_discovery_p3r_watchtower_walkback_implementation_recovery.json"
+  ],
+  "workspace_observation_boundary": "All listed dirty paths were observed before this milestone created any artifact. No listed path is claimed as walkback-milestone-owned."
+}

@@ -68,6 +68,22 @@ class PilotRunner:
         if not entry: return 'PARTIAL'
         if entry.get('complete') and entry.get('response_sha256') and 'response' in entry: return 'COMPLETE_REPLAYABLE'
         return 'UNVERIFIABLE'
+    def lookup_with_cache(self, wallet, depth, cache, extract):
+        """Return factual evidence; only complete, digest-bound cache avoids RPC."""
+        entry=cache.get(wallet)
+        state=self.cache_result(entry)
+        if state == 'COMPLETE_REPLAYABLE':
+            raw=entry['response']
+            if hashlib.sha256((canonical(raw)+'\n').encode()).hexdigest() != entry['response_sha256']:
+                raise RuntimeError('UNVERIFIABLE_CACHE')
+            edge=extract(wallet, raw, depth)
+            return edge, {'cache_state':state,'provider_called':False,'branch_wallet':wallet}
+        if state == 'PARTIAL':
+            self._event('PARTIAL_CACHE_REQUIRES_ACQUISITION', wallet=wallet)
+        elif state == 'UNVERIFIABLE' and entry:
+            self._event('UNVERIFIABLE_CACHE_REJECTED', wallet=wallet)
+        record, raw=self.request(wallet, depth)
+        return extract(wallet, raw, depth), {'cache_state':state,'provider_called':True,'request_id':record['request_id'],'branch_wallet':wallet}
     def resume_guard(self):
         started=[]; completed=[]
         for line in (self.path/'lifecycle.jsonl').read_text().splitlines():

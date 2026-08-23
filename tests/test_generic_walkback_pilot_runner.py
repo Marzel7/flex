@@ -78,3 +78,21 @@ def test_depth_one_complete_reconstructs_sorted_depth_two(tmp_path):
  r._write('requests/1-a-000000.json',{'request_id':'1-a-000000','wallet':'a','depth':1,'status':'SUCCESS'})
  r._write('responses/1-a-000000.json',{'parent':'z'});r._write('edges.json',[{'request_id':'1-a-000000','child_wallet':'a','parent_wallet':'z','depth':1}]);r._event('DEPTH_1_COMPLETE')
  assert sorted({e['parent_wallet'] for e in json.loads((tmp_path/'r'/'edges.json').read_text()) if e['depth']==1}) == ['z']
+
+def test_complete_cache_reuses_verified_response_without_provider(tmp_path):
+ calls=[]; raw={'parent':'x'}; sha=__import__('hashlib').sha256((json.dumps(raw,sort_keys=True,separators=(',',':'))+'\n').encode()).hexdigest()
+ r=PilotRunner(tmp_path,'r',['a'],lambda w:(calls.append(w) or {}));r.start()
+ edge,meta=r.lookup_with_cache('a',1,{'a':{'complete':True,'response':raw,'response_sha256':sha}},lambda w,x,d:{'child_wallet':w,'parent_wallet':x['parent'],'depth':d})
+ assert edge['parent_wallet']=='x' and not meta['provider_called'] and not calls
+
+def test_partial_and_unverifiable_cache_do_not_become_negative(tmp_path):
+ calls=[];r=PilotRunner(tmp_path,'r',['a'],lambda w:(calls.append(w) or {'parent':'x'}));r.start()
+ for cache in ({}, {'a':{'complete':False}}, {'a':{'complete':True}}):
+  edge,meta=r.lookup_with_cache('a',1,cache,lambda w,x,d:{'child_wallet':w,'parent_wallet':x['parent'],'depth':d})
+  assert edge['parent_wallet']=='x' and meta['provider_called']
+ assert len(calls)==3
+
+def test_exact_wallet_cache_reuses_across_branches(tmp_path):
+ calls=[]; raw={'parent':'x'};sha=__import__('hashlib').sha256((json.dumps(raw,sort_keys=True,separators=(',',':'))+'\n').encode()).hexdigest()
+ r=PilotRunner(tmp_path,'r',['a'],lambda w:(calls.append(w) or {}));r.start(); cache={'same':{'complete':True,'response':raw,'response_sha256':sha}}
+ assert not r.lookup_with_cache('same',1,cache,lambda w,x,d:x)[1]['provider_called']; assert not r.lookup_with_cache('same',2,cache,lambda w,x,d:x)[1]['provider_called']; assert not calls

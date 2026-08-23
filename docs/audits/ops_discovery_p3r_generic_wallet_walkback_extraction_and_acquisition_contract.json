@@ -1,0 +1,113 @@
+{
+  "acquisition_scale_model": {
+    "basis": "3 signature-page calls + up to 5 transaction calls and up to 3 account-info calls per examined transaction",
+    "deduplication": "exact initial seed dedup is already complete; parent-level deduplication cannot be estimated without acquired edges",
+    "depth_1_worst_case_requests": 496662,
+    "depth_2_worst_case_requests": 993324,
+    "depth_3_worst_case_requests": 1489986,
+    "per_lookup_worst_case_requests": 23,
+    "runtime_and_cost": "not deterministically known from local code; no provider pricing or rate guarantee was assumed",
+    "storage": "response and edge bytes are formula-bound to retained response size and observed edge count; no deterministic byte estimate exists without provider responses"
+  },
+  "authoritative_primitive": {
+    "equivalence": "PASS: wrapper delegates exact primitive with ops=None; 17 mock-only fixtures passed",
+    "path": "src.core.walkback_worker._find_funder_via_rpc",
+    "wrapper": "src.discovery.generic_wallet_walkback.find_funding_parent"
+  },
+  "cache_and_status_rules": {
+    "cache_reuse": "exact wallet and canonical request parameters only; retained response remains immutable across retries",
+    "retry_ceiling": 3,
+    "states": [
+      "PARENT_FOUND",
+      "NO_QUALIFYING_PARENT",
+      "EVIDENCE_UNAVAILABLE",
+      "RPC_ERROR",
+      "INCOMPLETE_HISTORY",
+      "AMBIGUOUS"
+    ]
+  },
+  "contract": {
+    "artifact_file_sha256": "0bf73250301c9bfb83b2d971b770e10b224a13758fe77aa77b51c58537152029",
+    "canonical_sha256": "8575048ea3af21765f2743fd708bce2713cee28692f2a96a2f54e627263529cf",
+    "canonicalization": "UTF-8 JSON parse then json.dumps(sort_keys=True,separators=(',',':'))",
+    "independent_self_verification": "PASS",
+    "path": "docs/design/ops_discovery_p3r_generic_wallet_walkback_contract.json"
+  },
+  "convergence_fixture": "PASS: distinct child wallets A and B can both retain factual parent X without assigning X an operation/treasury label",
+  "generic_evidence_schema": {
+    "module": "src.discovery.generic_wallet_walkback.GENERIC_EVIDENCE_SCHEMA_SQL",
+    "raw_response_provenance": [
+      "request_id",
+      "wallet",
+      "canonical params and SHA-256",
+      "provider",
+      "timestamp",
+      "raw/canonical retained response and SHA-256",
+      "pagination completeness",
+      "error",
+      "attempt ordinal",
+      "terminal status"
+    ],
+    "tables": [
+      "generic_walkback_runs",
+      "generic_walkback_requests",
+      "generic_walkback_responses",
+      "generic_wallet_parent_edges"
+    ],
+    "watchtower_tables_written": false
+  },
+  "generic_seed_chain": {
+    "creator_to_parent": "generic wrapper over authoritative primitive",
+    "mint_to_creator": "token_analysis.earliest_tx_creator then token_analysis.pf_ws_creator then migrated_tokens.creator",
+    "watchtower_truth_used": false
+  },
+  "milestone": "OPS-DISCOVERY-P3R-GENERIC-WALKBACK-EXTRACTION-AND-ACQUISITION-CONTRACT",
+  "next_authorization_required": "Approve one bounded generic wallet-walkback acquisition pilot against a small deterministic subset or explicitly approved batch using this frozen contract; no candidate-operation discovery.",
+  "repeated_walkback": {
+    "cycle": "fail closed at repeat",
+    "max_depth_note": "new acquisition safety bound, not historical operation semantics",
+    "max_depth_proposal": 3,
+    "queue_order": "deterministic seed ASC then depth ASC then wallet ASC proposed for execution",
+    "resume": "immutable run/request namespace, append-only attempts, terminal per-wallet states, restart reuses only retained terminal evidence",
+    "visited": "exact wallet identity; repeated wallet becomes AMBIGUOUS"
+  },
+  "scope_confirmation": {
+    "funding_structures_unchanged": true,
+    "global_handoff_untouched": true,
+    "p5f_untouched": true,
+    "production_source_writes": 0,
+    "unknown_candidate_discovery": false,
+    "validation_cohort_evaluated": false,
+    "watchtower_attribution_tables_untouched": true
+  },
+  "seed_universe": {
+    "cache_complete_and_replayable": 0,
+    "cache_note": "wt_walkback_edge_candidates have no generic raw-response retention contract; matching rows are partial only",
+    "cache_partial": 7310,
+    "cache_provenance_unresolved": 0,
+    "locally_resolvable_seeds": 21594,
+    "missing_seeds": 0,
+    "no_cache": 14284,
+    "parent_population_count": 42664,
+    "parent_population_sha256": "4de4356ebb8c3311a18e1f3be4d7d2dcc1d5a7c4c09ab2a1e6c553f29dd66d66",
+    "seed_field": "create_creator",
+    "track_count": 21594,
+    "track_sha256": "1926c370c1d408f6068c5dfcde9bc43be6ce45cde647e1407dec598bb49075fe",
+    "unique_initial_wallets": 21594
+  },
+  "semantics": {
+    "duplicate_handling": "same raw candidates retain extractor ordering; future acquisition deduplicates exact wallet plus canonical request parameters",
+    "errors": "RPC failure/missing/malformed evidence must not be represented as NO_QUALIFYING_PARENT",
+    "history": "getSignaturesForAddress bounded strictly before before_signature; depth one chooses closest qualifying slot, later depth chooses oldest qualifying slot",
+    "input": "wallet plus before_signature/prefer_oldest/depth",
+    "output": "state plus child,parent,signature,slot,block_time,amount_sol,mechanism,depth,rpc_requests",
+    "selection": "existing priority mechanism order retained; with ops=None no Watchtower truth priority applies"
+  },
+  "status": "FROZEN_PRE_ACQUISITION",
+  "terminal_verdict": "PASS_P3R_GENERIC_WALLET_WALKBACK_EXTRACTION_AND_ACQUISITION_CONTRACT_FROZEN",
+  "tests": {
+    "command": "pytest -q tests/test_generic_wallet_walkback.py",
+    "live_provider_calls": 0,
+    "result": "17 passed"
+  }
+}

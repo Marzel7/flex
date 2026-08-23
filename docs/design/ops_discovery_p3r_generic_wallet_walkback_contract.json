@@ -1,0 +1,14 @@
+{
+  "contract_version": 1,
+  "status": "FROZEN_PRE_ACQUISITION",
+  "authoritative_selector": "src.core.walkback_worker._find_funder_via_rpc",
+  "wrapper": "src.discovery.generic_wallet_walkback.find_funding_parent",
+  "semantic_rule": "The wrapper delegates with ops=None and therefore does not apply Watchtower truth, role labels, queue state, or attribution.",
+  "historical_context": {"cutoff": "before_signature passed to getSignaturesForAddress", "depth_1_order": "closest pre-anchor qualifying transaction", "depth_gt_1_order": "oldest qualifying transaction in the bounded pre-anchor window"},
+  "rpc": {"methods": ["getSignaturesForAddress", "getTransaction", "getAccountInfo"], "signature_pages": 3, "signatures_per_page": 100, "transactions_examined": 5, "timeout_seconds": 8, "retry_ceiling": 3},
+  "states": ["PARENT_FOUND", "NO_QUALIFYING_PARENT", "EVIDENCE_UNAVAILABLE", "RPC_ERROR", "INCOMPLETE_HISTORY", "AMBIGUOUS"],
+  "deduplication": "Exact wallet identity and canonical request parameters; retain every attempt immutably and reuse only terminal retained evidence.",
+  "execution_bound_proposal": {"max_depth": 3, "note": "new acquisition safety bound, not historical operation semantics"},
+  "generic_storage": "src.discovery.generic_wallet_walkback.GENERIC_EVIDENCE_SCHEMA_SQL",
+  "prohibitions": ["No Watchtower labels in generic evidence", "No operation attribution", "No live acquisition under this contract-freezing milestone"]
+}

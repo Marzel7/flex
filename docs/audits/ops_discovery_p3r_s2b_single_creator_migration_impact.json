@@ -1,0 +1,18 @@
+{
+  "metrics": {
+    "binding_anomaly": false,
+    "migrated": 21594,
+    "migration_pct": 100.0,
+    "non_migrated": 0,
+    "non_migration_pct": 0.0,
+    "total": 21594,
+    "unique_migrated_creators": 21594
+  },
+  "pass_1_digest": "515b2902733db9d8e015a5e8825001d02fea291f8beb6822fe6677f37167ca55",
+  "pass_2_digest": "515b2902733db9d8e015a5e8825001d02fea291f8beb6822fe6677f37167ca55",
+  "population_sha256": "1926c370c1d408f6068c5dfcde9bc43be6ce45cde647e1407dec598bb49075fe",
+  "production_source_writes": 0,
+  "provider_calls": 0,
+  "replay_equal": true,
+  "verdict": "PASS_P3R_S2B_SINGLE_CREATOR_MIGRATION_IMPACT_CALCULATED"
+}

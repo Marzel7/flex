@@ -63,3 +63,18 @@ def test_retained_response_tamper_fails_closed(tmp_path):
  r=PilotRunner(tmp_path,'r',['a'],lambda w:{'parent':None});r.start();rec,_=r.request('a',1)
  (tmp_path/'r'/'responses'/(rec['request_id']+'.json')).write_text('{"changed":true}')
  with pytest.raises(RuntimeError):r.replay()
+
+def test_resume_response_persisted_without_provider_repeat(tmp_path):
+ calls=[]; r=PilotRunner(tmp_path,'r',['a'],lambda w:(calls.append(w) or {'parent':'x'})); r.start(); rec,_=r.request('a',1)
+ edges=r.resume(lambda w, raw, d:{'child_wallet':w,'parent_wallet':raw['parent'],'depth':d})
+ assert calls == ['a'] and edges[0]['request_id']==rec['request_id']
+
+def test_resume_started_only_fails_closed(tmp_path):
+ r=PilotRunner(tmp_path,'r',['a'],lambda w:{});r.start();r._event('REQUEST_STARTED',request_id='unknown')
+ with pytest.raises(RuntimeError, match='ambiguous in-flight'):r.resume(lambda *x:{})
+
+def test_depth_one_complete_reconstructs_sorted_depth_two(tmp_path):
+ r=PilotRunner(tmp_path,'r',['b','a'],lambda w:{});r.start()
+ r._write('requests/1-a-000000.json',{'request_id':'1-a-000000','wallet':'a','depth':1,'status':'SUCCESS'})
+ r._write('responses/1-a-000000.json',{'parent':'z'});r._write('edges.json',[{'request_id':'1-a-000000','child_wallet':'a','parent_wallet':'z','depth':1}]);r._event('DEPTH_1_COMPLETE')
+ assert sorted({e['parent_wallet'] for e in json.loads((tmp_path/'r'/'edges.json').read_text()) if e['depth']==1}) == ['z']

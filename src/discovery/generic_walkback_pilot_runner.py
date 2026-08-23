@@ -77,6 +77,25 @@ class PilotRunner:
             completed.append(json.loads(p.read_text()).get('request_id'))
         if set(started)-set(completed):
             self._event('HOLD_INTERRUPTED', reason='HOLD_AMBIGUOUS_IN_FLIGHT'); raise RuntimeError('ambiguous in-flight')
+    def resume(self, extract):
+        """Resume solely from durable artifacts; never calls ``provider``."""
+        self.resume_guard()
+        requests=sorted((self.path/'requests').glob('*.json'))
+        edges_path=self.path/'edges.json'
+        edges=json.loads(edges_path.read_text()) if edges_path.exists() else []
+        known={e['request_id'] for e in edges}
+        for request_path in requests:
+            record=json.loads(request_path.read_text())
+            if record.get('status') != 'SUCCESS' or record['request_id'] in known: continue
+            response_path=self.path/'responses'/(request_path.stem+'.json')
+            if not response_path.exists(): raise RuntimeError('HOLD_AMBIGUOUS_IN_FLIGHT')
+            raw=json.loads(response_path.read_text())
+            edge=extract(record['wallet'], raw, record['depth'])
+            edges.append({'request_id':record['request_id'], **edge})
+        if edges_path.exists(): edges_path.unlink()
+        self._write('edges.json', edges)
+        self._event('RESUMED', reused_requests=len(requests), extracted_edges=len(edges))
+        return edges
     def replay_digest(self):
         records=[json.loads(p.read_text()) for p in sorted((self.path/'requests').glob('*.json'))]
         return digest(records)

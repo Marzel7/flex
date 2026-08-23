@@ -1,0 +1,99 @@
+{
+  "metrics": {
+    "bands": {
+      "1": 21594,
+      "11-25": 243,
+      "2": 1617,
+      "26-50": 78,
+      "3-5": 1093,
+      "51-100": 35,
+      "6-10": 358,
+      ">100": 11
+    },
+    "mean": 1.7045826840864597,
+    "median": 1,
+    "multi_creators": 3435,
+    "multi_tokens": 21070,
+    "null_creator_tokens": 0,
+    "p90": 2,
+    "p95": 3,
+    "p99": 15,
+    "single_tokens": 21594,
+    "thresholds": [
+      {
+        "creators_excluded": 3435,
+        "percent_excluded": 49.385899118694915,
+        "percent_retained": 50.614100881305085,
+        "threshold": 1,
+        "tokens_excluded": 21070,
+        "tokens_retained": 21594
+      },
+      {
+        "creators_excluded": 1818,
+        "percent_excluded": 41.80573785861616,
+        "percent_retained": 58.19426214138384,
+        "threshold": 2,
+        "tokens_excluded": 17836,
+        "tokens_retained": 24828
+      },
+      {
+        "creators_excluded": 1225,
+        "percent_excluded": 37.63594599662479,
+        "percent_retained": 62.36405400337521,
+        "threshold": 3,
+        "tokens_excluded": 16057,
+        "tokens_retained": 26607
+      },
+      {
+        "creators_excluded": 725,
+        "percent_excluded": 32.486405400337524,
+        "percent_retained": 67.51359459966248,
+        "threshold": 5,
+        "tokens_excluded": 13860,
+        "tokens_retained": 28804
+      },
+      {
+        "creators_excluded": 367,
+        "percent_excluded": 26.19773110819426,
+        "percent_retained": 73.80226889180574,
+        "threshold": 10,
+        "tokens_excluded": 11177,
+        "tokens_retained": 31487
+      },
+      {
+        "creators_excluded": 124,
+        "percent_excluded": 17.342490155634728,
+        "percent_retained": 82.65750984436528,
+        "threshold": 25,
+        "tokens_excluded": 7399,
+        "tokens_retained": 35265
+      },
+      {
+        "creators_excluded": 46,
+        "percent_excluded": 10.887399212450779,
+        "percent_retained": 89.11260078754923,
+        "threshold": 50,
+        "tokens_excluded": 4645,
+        "tokens_retained": 38019
+      },
+      {
+        "creators_excluded": 11,
+        "percent_excluded": 5.440183761485093,
+        "percent_retained": 94.55981623851491,
+        "threshold": 100,
+        "tokens_excluded": 2321,
+        "tokens_retained": 40343
+      }
+    ],
+    "top10_share": 0.052034502156384776,
+    "top25_share": 0.08034877179823739,
+    "unique_creators": 25029
+  },
+  "pass_1_digest": "bfdec157f291e08c214194effc471d37a85fb8f1ddd27eec742a4a4b397937e6",
+  "pass_2_digest": "bfdec157f291e08c214194effc471d37a85fb8f1ddd27eec742a4a4b397937e6",
+  "population_sha256": "4de4356ebb8c3311a18e1f3be4d7d2dcc1d5a7c4c09ab2a1e6c553f29dd66d66",
+  "production_source_writes": 0,
+  "provider_calls": 0,
+  "replay_equal": true,
+  "verdict": "PASS_P3R_S2B_MULTI_LAUNCH_CREATOR_IMPACT_CALCULATED"
+}

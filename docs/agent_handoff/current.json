@@ -5,8 +5,9 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "Prospective evidence remains insufficient: 21 corrected unseen launches abstained and no separate background population is available.",
+  "blocker": null,
   "engineering_revision": "p3r-corrected-shadow-successor-v1",
+  "exact_next_action": "Await user direction; AF500 selected-edge semantics are resolved without interpreting legacy [2,1,2].",
   "milestone": "P3R corrected prospective shadow successor",
   "next_action": "Continue append-only read-only shadow capture until enough complete nonzero features and an eligible background population exist; do not use quarantined 114000Z metrics.",
   "operations_registry_activity_metrics": {
@@ -382,17 +383,7 @@
   },
   "schema_version": 1,
   "status": "PASS",
-  "summary": {
-    "corrected_unseen": 21,
-    "current_abstain": 21,
-    "historical_excluded": 253,
-    "historical_exclusion_count": 28883,
-    "valid_lineage_abstain": 21,
-    "valid_lineage_match": 0,
-    "valid_lineage_no_match": 1,
-    "valid_lineage_unseen": 22,
-    "valid_prior_seen_excluded": 1
-  },
+  "summary": "Focused read-only AF500 selected-edge audit resolved 52/52: candidate_parent is a hop-one direct funder, wallet equals earliest_tx_creator, and matching atomic WSOL records prove source/owner to close-destination direction. Artifact: /tmp/p3r-clean-20260824T092959Z/activity/tiers/p3r_af500_selected_edge_semantics.v1.json sha256 66ca56a720f40300c041e85dde13b9913b776ccca59dd2049ad4eab356376683. No provider calls or source writes.",
   "tests": {
     "executed": [
       "tests/test_p3r_prospective_shadow_exclusion.py"
@@ -401,5 +392,5 @@
   },
   "updated_at_utc": "2026-08-24T16:22:55.943075+00:00",
   "updated_by": "codex",
-  "verdict": "OPERATIONS_REGISTRY_AUTHORITY_MIGRATION_COMPLETE"
+  "verdict": "P3R_AF500_SELECTED_EDGE_SEMANTICS_RESOLVED"
 }

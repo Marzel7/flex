@@ -6,10 +6,10 @@
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
   "blocker": "One-hop earliest evidence for all 91 direct funders is complete, but J37 and 4mm resolve to token-close receipts; the user-supplied 8f4 and B65 accounts are outside the direct-funder set and require a targeted second-hop transaction trace.",
-  "engineering_revision": "p3r-corrected-shadow-successor-v1",
-  "exact_next_action": "Diagnose and rerun the isolated root-infrastructure verifier with an explicit request ledger before reporting root-edge verification.",
+  "engineering_revision": "current-run-direct-funder-135-trace-only",
+  "exact_next_action": "Run scripts/full_history_direct_funder_trace_135.py with the 135-cohort file and inspect JSONL output; no production code was changed.",
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "Targeted RPC confirmation of J37 <- 8f4 <- B65 and B65 -> 4mm using the supplied relationships/signatures or broader transaction-semantic history; do not infer B65 from the current one-hop close-account records.",
+  "next_action": "Collect target 135-wallet cohort file and run the script once the HELIUS API key is available; this run is non-production/offline-only unless explicitly authorized.",
   "operations_registry_activity_metrics": {
     "activity_artifact": "/tmp/p3r-registry-migration/active_operations_launch_activity_snapshots.v3.json",
     "activity_artifact_sha256": "4d1bdb9db2e83aba1c2c5fd82ac248abea9ee1b48a391095f01003ea73041ef9",
@@ -383,14 +383,12 @@
   },
   "schema_version": 1,
   "status": "PASS",
-  "summary": "Completed Helius one-hop earliest funding trace for all 91 distinct stored candidate_parent/direct-funder accounts in the exact 99,999,985-lamport population. Artifact: /tmp/p3r-clean-20260824T092959Z/exact_amount_parent_initial_funder_rpc_v1/p3r_exact_amount_parent_initial_funder_rpc.v1.json SHA-256 781e6d23478742238f9406fab30d51a5faabb9478e5ea5ce7f631561b2889ebd. J37 (58 signatures) and 4mm (8) expose TOKEN_CLOSE candidates in their oldest three transactions; 8f4/B65 are not direct-funder members. No source writes, queue writes, or runtime changes.",
+  "summary": "Completed non-production 135-wallet full-history direct-funder tracer preparation. Added script that supports strict 135 membership validation, paginated Helius address-history scan per creator wallet, and output of JSONL result rows. No production code was changed.",
   "tests": {
-    "executed": [
-      "tests/test_p3r_prospective_shadow_exclusion.py"
-    ],
-    "result": "2 passed"
+    "executed": [],
+    "result": "not run (script-only change)"
   },
   "updated_at_utc": "2026-08-25T00:00:00Z",
   "updated_by": "codex",
-  "verdict": "P3R_EXACT_AMOUNT_PARENT_UPSTREAM_TRACE_COMPLETE_SECOND_HOP_REQUIRED"
+  "verdict": "READY_FULL_HISTORY_DIRECT_FUNDER_TRACE_135_PREP"
 }

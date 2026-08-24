@@ -5,9 +5,9 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": null,
+  "blocker": "All 36 direct-funder predecessor windows were boundedly acquired from Helius, but none contained a uniquely qualified parsed incoming provisioning edge; CEX origin cannot be measured under the frozen method.",
   "engineering_revision": "p3r-corrected-shadow-successor-v1",
-  "exact_next_action": "Await user direction; AF500 selected-edge semantics are resolved without interpreting legacy [2,1,2].",
+  "exact_next_action": "Require separate authorization to change the upstream-edge acquisition semantics or broaden the transaction-window ceiling; do not infer AF500 upstream convergence from this partial run.",
   "milestone": "P3R corrected prospective shadow successor",
   "next_action": "Continue append-only read-only shadow capture until enough complete nonzero features and an eligible background population exist; do not use quarantined 114000Z metrics.",
   "operations_registry_activity_metrics": {
@@ -378,12 +378,12 @@
     "trading_ranking_prediction": false
   },
   "project": {
-    "git_head": "e9d0a404417804faa70586c7b27f6a478028b798",
+    "git_head": "38ddc602d6fb049e385edff51246491fd9fbbd8e",
     "working_branch": "classification-attribution-axis"
   },
   "schema_version": 1,
   "status": "PASS",
-  "summary": "Focused read-only AF500 selected-edge audit resolved 52/52: candidate_parent is a hop-one direct funder, wallet equals earliest_tx_creator, and matching atomic WSOL records prove source/owner to close-destination direction. Artifact: /tmp/p3r-clean-20260824T092959Z/activity/tiers/p3r_af500_selected_edge_semantics.v1.json sha256 66ca56a720f40300c041e85dde13b9913b776ccca59dd2049ad4eab356376683. No provider calls or source writes.",
+  "summary": "AF500 upstream v3 fixed-ceiling RPC run: 36 direct funders, 108 successful provider requests, zero qualified immediate predecessor edges, zero CEX classifications, zero non-CEX deep walks, no upstream convergence conclusion. Artifact namespace /tmp/p3r-clean-20260824T092959Z/rpc_af500_upstream_v3. No source writes, queue changes, runtime changes, or canonical promotion.",
   "tests": {
     "executed": [
       "tests/test_p3r_prospective_shadow_exclusion.py"
@@ -392,5 +392,5 @@
   },
   "updated_at_utc": "2026-08-24T16:22:55.943075+00:00",
   "updated_by": "codex",
-  "verdict": "P3R_AF500_SELECTED_EDGE_SEMANTICS_RESOLVED"
+  "verdict": "P3R_AF500_UPSTREAM_PARTIAL"
 }

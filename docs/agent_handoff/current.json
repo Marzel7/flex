@@ -7,7 +7,7 @@
   },
   "blocker": null,
   "engineering_revision": "p3r-corrected-shadow-successor-v1",
-  "exact_next_action": "Retain the 17-hop target-reaching JzXZ chain as single-launch evidence; do not generalize it to EC1 without equivalent per-launch verification.",
+  "exact_next_action": "Use the 14 verified selected-signature anchors plus the JzXZ supplied anchor for any further per-creator upstream work.",
   "milestone": "P3R corrected prospective shadow successor",
   "next_action": "Continue append-only read-only shadow capture until enough complete nonzero features and an eligible background population exist; do not use quarantined 114000Z metrics.",
   "operations_registry_activity_metrics": {
@@ -383,7 +383,7 @@
   },
   "schema_version": 1,
   "status": "PASS",
-  "summary": "JzXZ chain continuation from 7ziJ reached D1We at hop 17 after 41 Helius requests. Alternating SPL closeAccount / system transfers; system amounts rose by 10,000 lamports from 10,296,845 through 10,366,845. Target resolution artifact sha256 d5ad0723084cc17734f514a2408d1fd39ba2a4b46d7b9b76162610bda758d7ec. No source writes or runtime changes.",
+  "summary": "EC1 remaining14 exact launch-anchor verification: 14/14 selected WSOL_WRAP_CLOSE transactions found and finalized via Helius; each retains 99,999,985,000 lamports and a specific direct funder/creator boundary. Artifact /tmp/p3r-clean-20260824T092959Z/rpc_ec1_remaining14_launch_anchors_v1/p3r_ec1_remaining14_launch_anchors.v1.json sha256 2f242b6e1021ffd5b8045b199557eb6962e450778d6989ac999dc5c66696d52f. No source writes or runtime changes.",
   "tests": {
     "executed": [
       "tests/test_p3r_prospective_shadow_exclusion.py"
@@ -392,5 +392,5 @@
   },
   "updated_at_utc": "2026-08-24T16:22:55.943075+00:00",
   "updated_by": "codex",
-  "verdict": "P3R_JZXZ_7ZIJI_TO_D1WE_TARGET_REACHED"
+  "verdict": "P3R_EC1_REMAINING14_LAUNCH_ANCHORS_RPC_VERIFIED"
 }

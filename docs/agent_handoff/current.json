@@ -117,6 +117,18 @@
     "profile_status": "MANUALLY_ADMITTED",
     "status": "COMPLETE"
   },
+  "p3r_13a04_membership_reconciliation": {
+    "authoritative_artifacts": [
+      "/tmp/p3r-clean-20260824T092959Z/behavioural_corpus/p3r_candidate_operational_family_membership.v1.json",
+      "/tmp/p3r-clean-20260824T092959Z/shadow_qualification/p3r_candidate_operational_family_membership.v2.json",
+      "/tmp/p3r-clean-20260824T092959Z/activity/p3r_114_candidate_activity_metrics.v1.json"
+    ],
+    "candidate_id": "p3r-candidate-13a04d7da7a1fc55",
+    "finding": "All five frozen historical members fall inside the final seven-day evidence window; the five are not a recent slice of a larger retained family.",
+    "historical_member_count": 5,
+    "last_7d_count": 5,
+    "status": "RESOLVED_NO_CHANGE"
+  },
   "p3r_13a04_upstream_continuation_20260824": {
     "artifact_manifest_sha256": "55ce454ffd1edb21e42eacdc0eb72f5280e3d48e73db495e65e3889e5707dc73",
     "ceiling": {
@@ -282,7 +294,7 @@
     ],
     "result": "2 passed"
   },
-  "updated_at_utc": "2026-08-24T15:44:20.030761+00:00",
+  "updated_at_utc": "2026-08-24T15:45:50.548449+00:00",
   "updated_by": "codex",
   "verdict": "OPERATIONS_REGISTRY_AUTHORITY_MIGRATION_COMPLETE"
 }

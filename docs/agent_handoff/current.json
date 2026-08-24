@@ -213,6 +213,42 @@
       "strong_alternative": 18
     }
   },
+  "p3r_af5004_behavioural_binding": {
+    "alternative_context": {
+      "0_1_sol_lamport_amount": 10000000,
+      "mechanism": "PLAIN_XFER",
+      "okx_0_1_sol_alternatives": 12,
+      "total_0_1_sol_alternatives": 33
+    },
+    "candidate_id": "p3r-candidate-af5004dfe42cfe11",
+    "conclusion": "0.1 SOL is not the sole/common family binding; it is retained alternative context and is excluded from selected-fingerprint membership.",
+    "coverage": {
+      "atomic_covered_members": 52,
+      "atomic_variants": 1,
+      "distinct_creators": 52,
+      "members": 52,
+      "selected_edges": 52,
+      "selected_parents": 36
+    },
+    "selected_fingerprint": {
+      "atomic_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount3",
+        "transfer",
+        "syncNative",
+        "closeAccount"
+      ],
+      "atomic_transfer_lamports": 99997955720,
+      "mechanism": "WSOL_WRAP_CLOSE",
+      "raw_lamports": 99999985000,
+      "topology": [
+        2,
+        1,
+        2
+      ]
+    },
+    "status": "RESOLVED_READ_ONLY"
+  },
   "p3r_af5004_okx_direct_exclusion": {
     "alternative_edge_okx_mints": 12,
     "alternative_edge_shape": {
@@ -363,7 +399,7 @@
     ],
     "result": "2 passed"
   },
-  "updated_at_utc": "2026-08-24T16:17:33.043382+00:00",
+  "updated_at_utc": "2026-08-24T16:22:55.943075+00:00",
   "updated_by": "codex",
   "verdict": "OPERATIONS_REGISTRY_AUTHORITY_MIGRATION_COMPLETE"
 }

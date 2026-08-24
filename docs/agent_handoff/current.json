@@ -9,6 +9,29 @@
   "engineering_revision": "p3r-corrected-shadow-successor-v1",
   "milestone": "P3R corrected prospective shadow successor",
   "next_action": "Continue append-only read-only shadow capture until enough complete nonzero features and an eligible background population exist; do not use quarantined 114000Z metrics.",
+  "p3r_13a04_upstream_continuation_20260824": {
+    "artifact_manifest_sha256": "55ce454ffd1edb21e42eacdc0eb72f5280e3d48e73db495e65e3889e5707dc73",
+    "ceiling": {
+      "max_pagination_depth": 1,
+      "max_retries": 0,
+      "max_total_requests": 90,
+      "max_transactions_per_wallet": 8
+    },
+    "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e",
+    "interpretation": "Bounded absence only; it neither disproves deeper ancestry nor weakens the prior 5/5 one-hop behavioural recurrence.",
+    "namespace": "/tmp/p3r-clean-20260824T092959Z/rpc_13a04_upstream_continue_2hop_v1",
+    "next_action": "Do not deepen this branch without new authorization defining a wider pagination/transaction ceiling; prioritize independently bounded Tier-1 replication if authorized.",
+    "provider_requests_made": 22,
+    "result": "No qualifying older inbound transfer found for any branch within the bounded transaction window; zero added edges, zero shared wallets.",
+    "safety": {
+      "queue_inserts_or_replay": false,
+      "runtime_changes": false,
+      "source_writes": false
+    },
+    "scope": "five prior verified hop-1 source wallets; two additional requested hops",
+    "status": "PARTIAL",
+    "verdict": "P3R_13A04_UPSTREAM_PARTIAL"
+  },
   "p3r_13a04_upstream_rpc_20260824": {
     "artifact_manifest_sha256": "4314843a09d247d30dcf63d916b8618a6ffacdee94c3358f218832108d802dcd",
     "behavioural_recurrence": "STRONG_UPSTREAM_BEHAVIOURAL_RECURRENCE",
@@ -132,6 +155,6 @@
     ],
     "result": "2 passed"
   },
-  "updated_at_utc": "2026-08-24T14:22:51.089026Z",
+  "updated_at_utc": "2026-08-24T14:27:19.906601Z",
   "verdict": "P3R_SHADOW_EVALUATION_COMPLETE"
 }

@@ -5,11 +5,11 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "The completed 135-creator trace is not the same layer as the user-supplied J37 -> 8f4 -> B65 example: J37 and 4mm are stored candidate parents/direct funders for two launches. Their own one-hop funding must be traced separately.",
+  "blocker": "Only 15 of 91 stored direct-funder/candidate-parent accounts have completed in the current execution window. J37, 8f4, and B65 are not yet reached by lexicographic checkpoint order. For 4mm, the three oldest transactions expose TOKEN_CLOSE receipts rather than the user-supplied B65 funding transfer; that does not disprove B65 and requires targeted transaction resolution.",
   "engineering_revision": "p3r-corrected-shadow-successor-v1",
   "exact_next_action": "Diagnose and rerun the isolated root-infrastructure verifier with an explicit request ledger before reporting root-edge verification.",
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "Trace the 91 distinct stored candidate_parent/direct-funder accounts one hop upstream, beginning with J37 and 4mm and then the remaining repeated parent clusters; retain generic amount-population scope and do not merge it into P3R_EC1.",
+  "next_action": "Resume /tmp/p3r_parent_initial_funder.py from its 15/91 checkpoint, then directly resolve the user-supplied J37 <- 8f4 <- B65 chain by signature/history rather than relying only on earliest-three transaction heuristics.",
   "operations_registry_activity_metrics": {
     "activity_artifact": "/tmp/p3r-registry-migration/active_operations_launch_activity_snapshots.v3.json",
     "activity_artifact_sha256": "4d1bdb9db2e83aba1c2c5fd82ac248abea9ee1b48a391095f01003ea73041ef9",
@@ -383,7 +383,7 @@
   },
   "schema_version": 1,
   "status": "PASS",
-  "summary": "User-authorized Helius creator-level initial-funding trace completed for all 135 exact-amount mints: 131 RESOLVED, 4 NO_INCOMING_EDGE_IN_3_OLDEST_TRANSACTIONS; 115 earliest candidates are SYSTEM_TRANSFER and 16 TOKEN_CLOSE; 20 creator histories truncated at 1000 signatures. Dominant earliest native sources: 7LAG8Bto... for 31 creators and is6MTRHE... for 25. Artifact: /tmp/p3r-clean-20260824T092959Z/exact_amount_creator_initial_funder_rpc_v1/p3r_exact_amount_creator_initial_funder_rpc.v1.json SHA-256 a26bc55769df6512f2c549f5f53331b793048327eb4c84bb9248bdadbb75d86b. J37 and 4mm appear as stored candidate parents, confirming the required next layer is candidate-parent upstream tracing. No source writes, queue writes, or runtime changes.",
+  "summary": "Corrected layer: tracing stored candidate_parent/direct-funder accounts that send the 99,999,985,000-lamport creator funding, not launch creators. Checkpointed Helius parent trace started: 15/91 completed, 76 remaining. Artifact /tmp/p3r-clean-20260824T092959Z/exact_amount_parent_initial_funder_rpc_v1/p3r_exact_amount_parent_initial_funder_rpc.v1.json SHA-256 cb6be9463de1f3de04834566da441cd23426d45a0de516a9543d30aeb0c8971e. No source writes, queue writes, or runtime changes.",
   "tests": {
     "executed": [
       "tests/test_p3r_prospective_shadow_exclusion.py"
@@ -392,5 +392,5 @@
   },
   "updated_at_utc": "2026-08-25T00:00:00Z",
   "updated_by": "codex",
-  "verdict": "P3R_EXACT_AMOUNT_CREATOR_INITIAL_FUNDING_TRACE_COMPLETE_PARENT_LAYER_NEXT"
+  "verdict": "P3R_EXACT_AMOUNT_PARENT_UPSTREAM_TRACE_PARTIAL_RESUMABLE"
 }

@@ -235,6 +235,19 @@
     "scope": "Profile-first panel is conditional on a linked behavioural profile and does not alter legacy WATCHTOWER rendering.",
     "status": "SHARED_LAYOUT_LIVE"
   },
+  "p3r_tier1_four_family_lookup": {
+    "families": {
+      "p3r-candidate-13a04d7da7a1fc55": 5,
+      "p3r-candidate-af5004dfe42cfe11": 52,
+      "p3r-candidate-bf30e77ee07e312b": 14,
+      "p3r-candidate-ec1b6cff80643746": 15
+    },
+    "provider_calls": false,
+    "query_scope": "Exact frozen Tier 1 family memberships joined to retained token_analysis.created_at for chronology.",
+    "source": "/tmp/p3r-clean-20260824T092959Z/shadow_qualification/p3r_candidate_operational_family_membership.v2.json",
+    "source_writes": false,
+    "status": "RESOLVED_READ_ONLY"
+  },
   "p3r_watch_now_tiers_20260824": {
     "artifact_manifest": "/tmp/p3r-clean-20260824T092959Z/activity/tiers/p3r_watch_now_tiering_artifact_manifest.v1.json",
     "artifact_manifest_sha256": "1b14f979105f054f6426a87d5ad9fc83074ef5b7b77e71ae4aa7d1e6b06cb211",
@@ -297,7 +310,7 @@
     ],
     "result": "2 passed"
   },
-  "updated_at_utc": "2026-08-24T15:51:11.919888+00:00",
+  "updated_at_utc": "2026-08-24T15:58:42.627726+00:00",
   "updated_by": "codex",
   "verdict": "OPERATIONS_REGISTRY_AUTHORITY_MIGRATION_COMPLETE"
 }

@@ -5,9 +5,9 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "Only 5/15 fixed-window chains yielded qualifying edges; ten are unmeasurable within 30 historical transactions, not negative evidence.",
+  "blocker": null,
   "engineering_revision": "p3r-corrected-shadow-successor-v1",
-  "exact_next_action": "Retain the observed five-launch recurrence; require a new contract for deeper pagination on the other ten before asserting operation-wide funding uniformity.",
+  "exact_next_action": "Use the confirmed EC1 15/15 closeAccount -> exact 99,999,995-lamport system-transfer core as behavioural evidence; further deep ancestry is optional and must remain separately bounded.",
   "milestone": "P3R corrected prospective shadow successor",
   "next_action": "Continue append-only read-only shadow capture until enough complete nonzero features and an eligible background population exist; do not use quarantined 114000Z metrics.",
   "operations_registry_activity_metrics": {
@@ -383,7 +383,7 @@
   },
   "schema_version": 1,
   "status": "PASS",
-  "summary": "Extensive EC1 all-15 bounded RPC funding analysis complete: 91/1200 Helius requests, 27 edges, 5 launches with any edge, four with alternating closeAccount/system pattern, all five with exact 99,999,995,000-lamport transfer. Ten launches no qualifying edge in fixed 30-tx window. Artifacts /tmp/p3r-clean-20260824T092959Z/rpc_ec1_all15_funding_v1. No source writes or runtime changes.",
+  "summary": "EC1 extended funding resolution complete: all ten previously unresolved branches have an immediate SPL closeAccount edge and a second-hop exact 99,999,995,000-lamport system transfer. Combined with the original five, the core two-hop funding pattern is observed 15/15. Extended first-hop run 20 requests; second-hop run 20 requests. Artifacts /tmp/p3r-clean-20260824T092959Z/rpc_ec1_unresolved10_extended_v1 and rpc_ec1_unresolved10_secondhop_v1. No source writes or runtime changes.",
   "tests": {
     "executed": [
       "tests/test_p3r_prospective_shadow_exclusion.py"
@@ -392,5 +392,5 @@
   },
   "updated_at_utc": "2026-08-24T16:22:55.943075+00:00",
   "updated_by": "codex",
-  "verdict": "P3R_EC1_ALL15_FUNDING_PARTIAL_RECURRENCE"
+  "verdict": "P3R_EC1_ALL15_FUNDING_CORE_CONFIRMED"
 }

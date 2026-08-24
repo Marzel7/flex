@@ -5,11 +5,11 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "RPC resolved every repeated-parent launch anchor but parsed closeAccount instructions did not emit a close authority. Candidate parent is stored local evidence, not a proven signing authority from this pass.",
+  "blocker": null,
   "engineering_revision": "p3r-corrected-shadow-successor-v1",
   "exact_next_action": "Diagnose and rerun the isolated root-infrastructure verifier with an explicit request ledger before reporting root-edge verification.",
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "Resolve account-key/signer relationships from the 59 already-identified anchor signatures, then group any repeated signer/controller evidence; do not infer it from candidate_parent alone.",
+  "next_action": "Open the existing generic operator detail route for P3R_EC1 when visual review is desired; retain the partial upstream-controller qualification in the profile and do not broaden it into an identity claim.",
   "operations_registry_activity_metrics": {
     "activity_artifact": "/tmp/p3r-registry-migration/active_operations_launch_activity_snapshots.v3.json",
     "activity_artifact_sha256": "4d1bdb9db2e83aba1c2c5fd82ac248abea9ee1b48a391095f01003ea73041ef9",
@@ -383,7 +383,7 @@
   },
   "schema_version": 1,
   "status": "PASS",
-  "summary": "Full exact-amount repeated-parent RPC launch pass complete: 59/59 expected hop-1 WSOL_WRAP_CLOSE anchors across 23 repeated candidate-parent clusters were RPC-available and each had a matching close edge into its creator wallet via a distinct temporary account. Raw runner status remained IN_PROGRESS because the execution boundary interrupted final status write, but persisted result count equals expected scope; immutable completion record establishes this. Artifacts: /tmp/p3r-clean-20260824T092959Z/exact_amount_99999985000_rpc_repeated_parents_v1/p3r_exact_amount_repeated_parent_rpc.v1.json sha256 f3584a9201cb9aef40ee76839b5bb7d09454e4dbb4e5a083b359934faa933c72; completion sha256 e09a95f8ca5b1da681c29e7dec770528348e112e00bd058fe8007c3419f34636. No source writes or runtime changes.",
+  "summary": "User-authorized local Active Operations Registry admission completed for P3R_EC1. Operator id 4c96fa15-c318-5a09-a4d9-bb9b78a8dd2b; source candidate p3r-candidate-ec1b6cff80643746; ACTIVE_MANUAL / CONFIRMED / HIGH. Version-1 profile records 15 member launch mints, 15 creators, 12 direct funders, 99,999,985,000-lamport WSOL_WRAP_CLOSE workflow, recurring atomic sequence, and partial upstream status. Activity snapshot from selected anchor block times: 15 launches, average gap 48279.57142857143 seconds, last launch 1787548938, VERY_ACTIVE. Artifact: /tmp/p3r-clean-20260824T092959Z/registry/p3r_ec1_manual_registry_admission.v1.json SHA-256 7818a452476be0f63739aa182c1ab40530aeba65ba4b022b2f861893a1582ec7. No provider calls, queue writes, runtime changes, or service restarts; only registry tables were written under explicit authorization.",
   "tests": {
     "executed": [
       "tests/test_p3r_prospective_shadow_exclusion.py"
@@ -392,5 +392,5 @@
   },
   "updated_at_utc": "2026-08-24T00:00:00Z",
   "updated_by": "codex",
-  "verdict": "P3R_EXACT_AMOUNT_REPEATED_PARENT_RPC_COMPLETE_AUTHORITY_UNRESOLVED"
+  "verdict": "P3R_EC1_ACTIVE_MANUAL_ADMITTED"
 }

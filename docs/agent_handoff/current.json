@@ -73,6 +73,25 @@
     "status": "LIVE_ENDPOINT_VERIFIED",
     "ui_file": "templates/operators_index.html"
   },
+  "p3r_13a04_manual_admission": {
+    "active_registry": [
+      "P3R_13A04",
+      "WATCHTOWER"
+    ],
+    "artifacts": {
+      "preflight": "/tmp/p3r-registry-migration/p3r_13a04_manual_admission_preflight.v1.json",
+      "result": "/tmp/p3r-registry-migration/p3r_13a04_manual_admission_result.v1.json"
+    },
+    "candidate_id": "p3r-candidate-13a04d7da7a1fc55",
+    "display_name": "P3R_13A04",
+    "disposition": "ACTIVE_MANUAL",
+    "live_endpoint": "PASS: GET /api/ops/operators returned exactly P3R_13A04 and WATCHTOWER",
+    "no_provider_calls": true,
+    "no_queue_replay": true,
+    "operator_id": "ccb7b1b0-56e1-4543-9e95-3f284bed3943",
+    "profile_status": "MANUALLY_ADMITTED",
+    "status": "COMPLETE"
+  },
   "p3r_13a04_upstream_continuation_20260824": {
     "artifact_manifest_sha256": "55ce454ffd1edb21e42eacdc0eb72f5280e3d48e73db495e65e3889e5707dc73",
     "ceiling": {
@@ -219,7 +238,7 @@
     ],
     "result": "2 passed"
   },
-  "updated_at_utc": "2026-08-24T15:29:22.678243+00:00",
+  "updated_at_utc": "2026-08-24T15:31:44.440323+00:00",
   "updated_by": "codex",
   "verdict": "OPERATIONS_REGISTRY_AUTHORITY_MIGRATION_COMPLETE"
 }

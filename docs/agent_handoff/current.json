@@ -1,1 +1,81 @@
-{"schema_version":1,"project":{"git_head":"38ddc602d6fb049e385edff51246491fd9fbbd8e","branch":"classification-attribution-axis"},"milestone":"P3R corrected prospective shadow successor","status":"PASS","verdict":"P3R_SHADOW_EVALUATION_COMPLETE","engineering_revision":"p3r-corrected-shadow-successor-v1","tests":{"executed":["tests/test_p3r_prospective_shadow_exclusion.py"],"result":"2 passed"},"production_flags":{"provider_network_calls":false,"source_table_writes":false,"production_action":false,"candidate_tuning":false,"canonical_operation_promotion":false,"identity_attribution":false,"trading_ranking_prediction":false},"artifacts":{"corrected_namespace":"/tmp/p3r-clean-20260824T115000Z","manifest_sha256":"551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972","metrics_sha256":"293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840","invalid_quarantined_namespace":"/tmp/p3r-clean-20260824T114000Z"},"summary":{"historical_exclusion_count":28883,"historical_excluded":253,"valid_prior_seen_excluded":1,"corrected_unseen":21,"current_abstain":21,"valid_lineage_unseen":22,"valid_lineage_match":0,"valid_lineage_no_match":1,"valid_lineage_abstain":21},"blocker":"Prospective evidence remains insufficient: 21 corrected unseen launches abstained and no separate background population is available.","next_action":"Continue append-only read-only shadow capture until enough complete nonzero features and an eligible background population exist; do not use quarantined 114000Z metrics."}
+{
+  "artifacts": {
+    "corrected_namespace": "/tmp/p3r-clean-20260824T115000Z",
+    "invalid_quarantined_namespace": "/tmp/p3r-clean-20260824T114000Z",
+    "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
+    "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
+  },
+  "blocker": "Prospective evidence remains insufficient: 21 corrected unseen launches abstained and no separate background population is available.",
+  "engineering_revision": "p3r-corrected-shadow-successor-v1",
+  "milestone": "P3R corrected prospective shadow successor",
+  "next_action": "Continue append-only read-only shadow capture until enough complete nonzero features and an eligible background population exist; do not use quarantined 114000Z metrics.",
+  "p3r_activity_priority_20260824": {
+    "activity_counts": {
+      "ACTIVITY_INSUFFICIENT_EVIDENCE": 0,
+      "DORMANT": 18,
+      "HIGH_ACTIVITY": 30,
+      "LOW_ACTIVITY": 4,
+      "REGULAR_ACTIVITY": 47,
+      "VERY_HIGH_ACTIVITY": 15
+    },
+    "artifacts_manifest": "/tmp/p3r-clean-20260824T092959Z/activity/p3r_candidate_activity_artifact_manifest.v1.json",
+    "artifacts_manifest_sha256": "69b02df4dcc273c232fed1b4e4a4197d9703f4931463909ed77327c448d13d7f",
+    "candidate_universe": "114 frozen NOVEL_BEHAVIOURAL_CANDIDATE families / 1,185 member mints",
+    "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e",
+    "evidence_cutoff_utc": "2026-08-24T08:46:51Z",
+    "next_action": "Use the frozen WATCH_NOW cohort for bounded prospective observation/research; retain WATCH_LATER and DORMANT_RETAINED without weakening membership.",
+    "safety": {
+      "candidate_membership_mutation": false,
+      "provider_or_network_calls": false,
+      "queue_inserts_or_replay": false,
+      "runtime_changes": false,
+      "source_databases_read_only": true,
+      "source_writes": false
+    },
+    "status": "PASS",
+    "timestamp_coverage": "1,185 / 1,185",
+    "timestamp_semantics": "earliest retained SELECTED Walkback edge block_time; activity proxy, not asserted token birth",
+    "v2_fingerprint_contract_state": "PAUSED_BY_AUTHORIZATION",
+    "verdict": "P3R_ACTIVITY_PRIORITY_COHORT_QUALIFIED",
+    "watch_now": {
+      "atomic_strong_address_blind": 4,
+      "families": 45,
+      "historical_launches": 626,
+      "strong_alternative": 18
+    }
+  },
+  "production_flags": {
+    "candidate_tuning": false,
+    "canonical_operation_promotion": false,
+    "identity_attribution": false,
+    "production_action": false,
+    "provider_network_calls": false,
+    "source_table_writes": false,
+    "trading_ranking_prediction": false
+  },
+  "project": {
+    "branch": "classification-attribution-axis",
+    "git_head": "38ddc602d6fb049e385edff51246491fd9fbbd8e"
+  },
+  "schema_version": 1,
+  "status": "PASS",
+  "summary": {
+    "corrected_unseen": 21,
+    "current_abstain": 21,
+    "historical_excluded": 253,
+    "historical_exclusion_count": 28883,
+    "valid_lineage_abstain": 21,
+    "valid_lineage_match": 0,
+    "valid_lineage_no_match": 1,
+    "valid_lineage_unseen": 22,
+    "valid_prior_seen_excluded": 1
+  },
+  "tests": {
+    "executed": [
+      "tests/test_p3r_prospective_shadow_exclusion.py"
+    ],
+    "result": "2 passed"
+  },
+  "updated_at_utc": "2026-08-24T13:51:57.734677Z",
+  "verdict": "P3R_SHADOW_EVALUATION_COMPLETE"
+}

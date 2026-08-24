@@ -31078,6 +31078,71 @@
     },
     "verdict": "PASS"
   },
+  "p3r_structural_lineage_evaluation": {
+    "artifact_path": "/tmp/p3r-clean-20260824T092959Z/evaluation/p3r_structural_lineage_evaluation.json",
+    "artifact_sha256": "8c5d84c26d8356f23ef28aa8b35702f96faa3414b401714a684c3e440d84e28a",
+    "blocker": null,
+    "contradiction_count": 12,
+    "edge_zero_count": 17528,
+    "eligibility_cohorts": [
+      {
+        "count": 17528,
+        "denominator": 28883,
+        "fields": [
+          "edge_count"
+        ],
+        "name": "EDGELESS",
+        "observation_state": "fully observed",
+        "rule": "edge_count == 0"
+      },
+      {
+        "count": 11343,
+        "denominator": 28883,
+        "fields": [
+          "edge_count",
+          "max_hop_depth",
+          "parents",
+          "mechanisms"
+        ],
+        "name": "OBSERVED_VALID_LINEAGE",
+        "observation_state": "conditionally observed",
+        "rule": "max_hop_depth, parents, and mechanisms populated and max_hop_depth <= edge_count"
+      },
+      {
+        "count": 14394,
+        "denominator": 28883,
+        "fields": [
+          "creator",
+          "direct_funder"
+        ],
+        "name": "BOTH_CREATOR_AND_DIRECT_FUNDER_OBSERVED",
+        "observation_state": "conditionally observed",
+        "rule": "creator and direct_funder are non-null"
+      }
+    ],
+    "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e",
+    "evaluation_code_sha256": "1365d232b41f9d692cd85e5680b005fb140ab709140e390a3a44f498b781899a",
+    "exact_next_action": "P3R discovery hypothesis design using only these descriptive structural cohorts, with an explicit evidence-bound review before any new data acquisition or canonical cohort promotion.",
+    "input_bindings": {
+      "corpus_path": "/tmp/p3r-clean-20260824T092959Z/p3r_historical_features.jsonl",
+      "corpus_sha256": "a1779e0f78f7aff8813e7ec4402073c7a6c99232fc80f0f8dcdd562a945524ce",
+      "frozen_queue_sha256": "d111116fd7a1e149e8fea30498cef6c35e3de534cdefef9da78dd4223daff5c3",
+      "identity_errors": [],
+      "manifest_digest": "c5aa554ab03f64bad048815e984be737e165f88982f4da5222d65fdb87836260",
+      "namespace": "/tmp/p3r-clean-20260824T092959Z",
+      "qualification_path": "/tmp/p3r-clean-20260824T092959Z/qualification/p3r_historical_corpus_qualification.v3.json",
+      "qualification_sha256": "b7969bce6af3c2f15a88da9ab612ef165dd3d181e7cac85b01d08c61d78bbe39",
+      "qualification_verdict": "P3R_HISTORICAL_CORPUS_PARTIALLY_QUALIFIED"
+    },
+    "population": 28883,
+    "production_flags": {
+      "input_artifacts_mutated": false,
+      "provider_or_network_calls": 0,
+      "source_table_writes": 0
+    },
+    "result": "P3R_STRUCTURAL_LINEAGE_EVALUATION_COMPLETE",
+    "valid_depth_observed_count": 11343
+  },
   "pending_human_decisions": 9,
   "production_state": {
     "cohort_mode": "OFF",
@@ -32265,7 +32330,7 @@
     }
   },
   "updated_at": "2026-08-24T09:31:56Z",
-  "updated_at_utc": "2026-08-24T09:39:28.361608+00:00",
+  "updated_at_utc": "2026-08-24T09:45:17.874385+00:00",
   "updated_by": "agent_local",
-  "verdict": "P3R_HISTORICAL_CORPUS_PARTIALLY_QUALIFIED"
+  "verdict": "P3R_STRUCTURAL_LINEAGE_EVALUATION_COMPLETE"
 }

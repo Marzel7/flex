@@ -5,9 +5,9 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "P3R_AF500 activity snapshot is persisted correctly (52 launches), but after authorized watchtower_api restart, gunicorn did not bind localhost:5002 within 35 seconds; registry API unavailable.",
+  "blocker": "Bounded 10-request trace acquired four hops but did not reach GiWXe; the fixed four-hop traversal ceiling ended before target.",
   "engineering_revision": "p3r-corrected-shadow-successor-v1",
-  "exact_next_action": "Investigate watchtower_api startup/bind failure separately before making any more registry/UI changes. Do not alter AF500 registry data.",
+  "exact_next_action": "Await explicit authorization for a new, higher-hop fixed trace from 8nVRPiLdUKKXbEPTHgeLsopqaC28Eskv25aer34WJfqS if target reachability is required.",
   "milestone": "P3R corrected prospective shadow successor",
   "next_action": "Continue append-only read-only shadow capture until enough complete nonzero features and an eligible background population exist; do not use quarantined 114000Z metrics.",
   "operations_registry_activity_metrics": {
@@ -383,7 +383,7 @@
   },
   "schema_version": 1,
   "status": "PASS",
-  "summary": "AF500 UI Not observed diagnosis: reader/template mapping correctly uses total_observed_launches and profile-member fallback. Snapshot persists 52 timestamped launches, 54,965.49s gap. API restart attempted; supervisor reports process RUNNING but port 5002 did not bind. No source data changed.",
+  "summary": "Single EC1 Ghvrrot launch trace: 8 Helius requests, 4 normalized hops, target GiWXe not reached. Alternating SPL closeAccount and system transfers, including exactly 99,999,995,000 lamports at hop 2. Artifacts /tmp/p3r-clean-20260824T092959Z/rpc_ec1_ghvrrot_giwxe_v2. No source writes or runtime changes.",
   "tests": {
     "executed": [
       "tests/test_p3r_prospective_shadow_exclusion.py"
@@ -392,5 +392,5 @@
   },
   "updated_at_utc": "2026-08-24T16:22:55.943075+00:00",
   "updated_by": "codex",
-  "verdict": "P3R_AF500_REGISTRY_UI_API_STARTUP_HOLD"
+  "verdict": "P3R_EC1_GHVRROT_GIWXE_TRACE_PARTIAL"
 }

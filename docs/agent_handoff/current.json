@@ -21,7 +21,8 @@
       "templates/operators_index.html"
     ],
     "next_action": "Optional separate authorization: materialize a qualified read-only launch chronology into an activity snapshot.",
-    "runtime_verification": "watchtower_api restarted; GET /api/ops/operators returned all three fields as null for WATCHTOWER, correctly reflecting the zero-snapshot source state.",
+    "null_rendering_fix": "Fixed JavaScript null coercion that rendered missing values as 0/0 min/1970; unavailable values now render Not observed.",
+    "runtime_verification": "watchtower_api restarted after null-rendering fix; browser refresh required.",
     "semantics": "Values are sourced only from the latest operation_activity_snapshots record; unavailable values render as Not observed.",
     "source_state": "operation_activity_snapshots contains 0 rows; no historic source was silently substituted.",
     "status": "LIVE_ENDPOINT_VERIFIED"
@@ -218,7 +219,7 @@
     ],
     "result": "2 passed"
   },
-  "updated_at_utc": "2026-08-24T15:26:42.267355+00:00",
+  "updated_at_utc": "2026-08-24T15:29:22.678243+00:00",
   "updated_by": "codex",
   "verdict": "OPERATIONS_REGISTRY_AUTHORITY_MIGRATION_COMPLETE"
 }

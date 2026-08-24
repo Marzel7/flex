@@ -5,9 +5,9 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": null,
+  "blocker": "P3R_AF500 activity snapshot is persisted correctly (52 launches), but after authorized watchtower_api restart, gunicorn did not bind localhost:5002 within 35 seconds; registry API unavailable.",
   "engineering_revision": "p3r-corrected-shadow-successor-v1",
-  "exact_next_action": "Observe P3R_AF500 through the existing manual-operation profile; do not infer canonical identity or mutate candidate evidence without separate authorization.",
+  "exact_next_action": "Investigate watchtower_api startup/bind failure separately before making any more registry/UI changes. Do not alter AF500 registry data.",
   "milestone": "P3R corrected prospective shadow successor",
   "next_action": "Continue append-only read-only shadow capture until enough complete nonzero features and an eligible background population exist; do not use quarantined 114000Z metrics.",
   "operations_registry_activity_metrics": {
@@ -383,7 +383,7 @@
   },
   "schema_version": 1,
   "status": "PASS",
-  "summary": "User-authorized P3R_AF500 manual admission complete. operator_id 777211c3-211e-551b-9310-ff9301570627; profile_id ecb6b817-4c8e-5bd6-921b-b5d21a12ad8f; ACTIVE_MANUAL. Bound to 52 frozen mints and selected-edge semantics artifact. Activity snapshot: 52 timestamped launches, 54,965.49s average gap. Only operations-registry tables were written; no source tables, queues, runtime services, or candidate definitions changed.",
+  "summary": "AF500 UI Not observed diagnosis: reader/template mapping correctly uses total_observed_launches and profile-member fallback. Snapshot persists 52 timestamped launches, 54,965.49s gap. API restart attempted; supervisor reports process RUNNING but port 5002 did not bind. No source data changed.",
   "tests": {
     "executed": [
       "tests/test_p3r_prospective_shadow_exclusion.py"
@@ -392,5 +392,5 @@
   },
   "updated_at_utc": "2026-08-24T16:22:55.943075+00:00",
   "updated_by": "codex",
-  "verdict": "P3R_AF500_ACTIVE_MANUAL_ADMITTED"
+  "verdict": "P3R_AF500_REGISTRY_UI_API_STARTUP_HOLD"
 }

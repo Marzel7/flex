@@ -5,11 +5,11 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": null,
+  "blocker": "Cohort-wide shared upstream ownership is not yet proven: several long chains are confirmed, but they are not a substitute for complete branch coverage across all 15 EC1 candidate launches.",
   "engineering_revision": "p3r-corrected-shadow-successor-v1",
   "exact_next_action": "Diagnose and rerun the isolated root-infrastructure verifier with an explicit request ledger before reporting root-edge verification.",
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "Use the confirmed full C927-to-6hak chain only as bounded EC1 relationship evidence; continue separate branch validation before making cohort-wide claims.",
+  "next_action": "If authorized, freeze a representative branch coverage plan for the remaining EC1 direct-funder paths and test root/ladder convergence without treating the recent-seven-day window as the full operation.",
   "operations_registry_activity_metrics": {
     "activity_artifact": "/tmp/p3r-registry-migration/active_operations_launch_activity_snapshots.v3.json",
     "activity_artifact_sha256": "4d1bdb9db2e83aba1c2c5fd82ac248abea9ee1b48a391095f01003ea73041ef9",
@@ -383,7 +383,7 @@
   },
   "schema_version": 1,
   "status": "PASS",
-  "summary": "User supplied finalized RPC transaction ABZhSRG9RkZQ8GFWDJ6dC9s66ZbszrardZbe6SppQAu1wasiWud2MVhTw7U6cs25Uxk6pwKRqP49ekYAdCuAYH7 confirms the final 4pzHYP... -> 6hakQX... WSOL wrap/close edge (3,199.99796072 SOL wrapped, close destination 6hak). The full 11/11 supplied C927-to-6hak chain is now confirmed. Supplement artifact: /tmp/p3r-clean-20260824T092959Z/rpc_ec1_c927_6hak_chain_v1/p3r_ec1_c927_6hak_chain_confirmation.v2.json SHA-256 c17cf244fa1ed91d0e0bb2bc03dfdd0d24d9dc42f36f6fd9c7b9e7d1a7bf6526. No writes or runtime changes.",
+  "summary": "EC1 evidence status clarified: 15 frozen historical candidate launches share a 99,999,985,000-lamport WSOL_WRAP_CLOSE creator-funding anchor and matching atomic launch mechanism. Confirmed long upstream branches include C927-to-6hak (11/11 supplied links, final edge proven by supplied finalized RPC tx) plus prior guided branches. The recent seven-day accounts are only a time-window subset, not the whole operation. No additional RPC, source writes, queue writes, or runtime changes in this clarification turn.",
   "tests": {
     "executed": [
       "tests/test_p3r_prospective_shadow_exclusion.py"
@@ -392,5 +392,5 @@
   },
   "updated_at_utc": "2026-08-24T00:00:00Z",
   "updated_by": "codex",
-  "verdict": "P3R_EC1_C927_TO_6HAK_CHAIN_CONFIRMED"
+  "verdict": "P3R_EC1_OPERATION_EVIDENCE_PARTIAL"
 }

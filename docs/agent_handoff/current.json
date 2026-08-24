@@ -5,9 +5,9 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "Independent fixed tracing did not establish ten upstream edges for any EC1 creator: depths 0-4 only. The supplied 7LYz chain is a separately guided 11/12 verified exception, not cohort-wide proof.",
+  "blocker": "Corrected creator-origin high-ceiling tracing found at most two unambiguous predecessor edges for any EC1 creator; the supplied long chain cannot be generalized.",
   "engineering_revision": "p3r-corrected-shadow-successor-v1",
-  "exact_next_action": "Do not claim every EC1 launch has a 10+ hop chain. If required, acquire per-launch externally supplied chain hypotheses or design a new evidence-selection contract.",
+  "exact_next_action": "Do not claim 10+ hop recurrence cohort-wide. Retain the universal two-hop core and the separately verified supplied 7LYz chain.",
   "milestone": "P3R corrected prospective shadow successor",
   "next_action": "Continue append-only read-only shadow capture until enough complete nonzero features and an eligible background population exist; do not use quarantined 114000Z metrics.",
   "operations_registry_activity_metrics": {
@@ -383,7 +383,7 @@
   },
   "schema_version": 1,
   "status": "PASS",
-  "summary": "EC1 all-15 10-upstream-edge test: 85 Helius requests, 0/15 reached 10 verified edges; depths distribution 0:9, 1:1, 3:2, 4:3. No source writes or runtime changes. Artifacts /tmp/p3r-clean-20260824T092959Z/rpc_ec1_all15_tenhop_v1.",
+  "summary": "Corrected EC1 all-15 creator-origin trace: 89 Helius requests; 0/15 reached 10 edges, depths 0:11, 1:2, 2:2. Up to 100 history entries per edge authorized; no qualifying predecessor was found beyond these depths. Artifacts /tmp/p3r-clean-20260824T092959Z/rpc_ec1_all15_creator_tenhop_v1. No source writes or runtime changes.",
   "tests": {
     "executed": [
       "tests/test_p3r_prospective_shadow_exclusion.py"
@@ -392,5 +392,5 @@
   },
   "updated_at_utc": "2026-08-24T16:22:55.943075+00:00",
   "updated_by": "codex",
-  "verdict": "P3R_EC1_ALL15_TENHOP_NOT_CONFIRMED"
+  "verdict": "P3R_EC1_ALL15_CREATOR_TENHOP_NOT_CONFIRMED"
 }

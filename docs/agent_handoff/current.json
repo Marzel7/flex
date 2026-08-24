@@ -5,11 +5,11 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "45 of 91 stored direct-funder/candidate-parent accounts completed; 46 remain. The supplied J37/8f4/B65 branch has not yet been reached by checkpoint order.",
+  "blocker": "One-hop earliest evidence for all 91 direct funders is complete, but J37 and 4mm resolve to token-close receipts; the user-supplied 8f4 and B65 accounts are outside the direct-funder set and require a targeted second-hop transaction trace.",
   "engineering_revision": "p3r-corrected-shadow-successor-v1",
   "exact_next_action": "Diagnose and rerun the isolated root-infrastructure verifier with an explicit request ledger before reporting root-edge verification.",
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "Resume /tmp/p3r_parent_initial_funder.py from 45/91; once J37 and 8f4 are reached, perform targeted transaction-level confirmation of J37 <- 8f4 <- B65 rather than relying solely on earliest-three candidates.",
+  "next_action": "Targeted RPC confirmation of J37 <- 8f4 <- B65 and B65 -> 4mm using the supplied relationships/signatures or broader transaction-semantic history; do not infer B65 from the current one-hop close-account records.",
   "operations_registry_activity_metrics": {
     "activity_artifact": "/tmp/p3r-registry-migration/active_operations_launch_activity_snapshots.v3.json",
     "activity_artifact_sha256": "4d1bdb9db2e83aba1c2c5fd82ac248abea9ee1b48a391095f01003ea73041ef9",
@@ -383,7 +383,7 @@
   },
   "schema_version": 1,
   "status": "PASS",
-  "summary": "Parent-upstream Helius trace advanced from 15/91 to 45/91 completed with 46 remaining. Checkpoint artifact /tmp/p3r-clean-20260824T092959Z/exact_amount_parent_initial_funder_rpc_v1/p3r_exact_amount_parent_initial_funder_rpc.v1.json SHA-256 dc6157515efaa9d6f7786aca8a40b2151c9e4165c2dfa08c3e46d5efaea4eca4. No source writes, queue writes, or runtime changes.",
+  "summary": "Completed Helius one-hop earliest funding trace for all 91 distinct stored candidate_parent/direct-funder accounts in the exact 99,999,985-lamport population. Artifact: /tmp/p3r-clean-20260824T092959Z/exact_amount_parent_initial_funder_rpc_v1/p3r_exact_amount_parent_initial_funder_rpc.v1.json SHA-256 781e6d23478742238f9406fab30d51a5faabb9478e5ea5ce7f631561b2889ebd. J37 (58 signatures) and 4mm (8) expose TOKEN_CLOSE candidates in their oldest three transactions; 8f4/B65 are not direct-funder members. No source writes, queue writes, or runtime changes.",
   "tests": {
     "executed": [
       "tests/test_p3r_prospective_shadow_exclusion.py"
@@ -392,5 +392,5 @@
   },
   "updated_at_utc": "2026-08-25T00:00:00Z",
   "updated_by": "codex",
-  "verdict": "P3R_EXACT_AMOUNT_PARENT_UPSTREAM_TRACE_PARTIAL_RESUMABLE"
+  "verdict": "P3R_EXACT_AMOUNT_PARENT_UPSTREAM_TRACE_COMPLETE_SECOND_HOP_REQUIRED"
 }

@@ -9,6 +9,22 @@
   "engineering_revision": "p3r-corrected-shadow-successor-v1",
   "milestone": "P3R corrected prospective shadow successor",
   "next_action": "Continue append-only read-only shadow capture until enough complete nonzero features and an eligible background population exist; do not use quarantined 114000Z metrics.",
+  "operations_registry_activity_metrics": {
+    "fields": [
+      "total_observed_launches",
+      "average_inter_launch_gap_seconds",
+      "last_observed_launch_timestamp"
+    ],
+    "files": [
+      "src/ops/manual_registry.py",
+      "src/ops/operator_reader.py",
+      "templates/operators_index.html"
+    ],
+    "next_action": "Authorize watchtower_api restart and browser/API verification; separately authorize qualified activity-snapshot materialization if real values are required.",
+    "semantics": "Values are sourced only from the latest operation_activity_snapshots record; unavailable values render as Not observed.",
+    "source_state": "operation_activity_snapshots contains 0 rows; no historic source was silently substituted.",
+    "status": "IMPLEMENTED_PENDING_RUNTIME_RELOAD"
+  },
   "operations_registry_authority_migration": {
     "active_manual_operations": [
       "WATCHTOWER"
@@ -201,7 +217,7 @@
     ],
     "result": "2 passed"
   },
-  "updated_at_utc": "2026-08-24T15:21:09.682267+00:00",
+  "updated_at_utc": "2026-08-24T15:24:33.438788+00:00",
   "updated_by": "codex",
   "verdict": "OPERATIONS_REGISTRY_AUTHORITY_MIGRATION_COMPLETE"
 }

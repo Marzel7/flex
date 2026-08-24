@@ -48,11 +48,11 @@
   },
   "operations_registry_ui_cleanup": {
     "api_file": "src/ops/operator_reader.py",
-    "next_action": "Explicitly authorize a watchtower_api restart, then verify GET /api/ops/operators and the browser page.",
+    "next_action": "Browser refresh only; no additional runtime change required.",
     "repair": "Added read-only fetch_active_manual_operators to OperatorReader, filtering solely on ACTIVE_MANUAL disposition.",
     "root_cause": "operator_routes instantiates OperatorReader but active-manual method existed only on OperatorStore, causing GET /api/ops/operators to return HTTP 500.",
-    "runtime_state": "No service restart or validation requested/performed after repair.",
-    "status": "API_REPAIR_PENDING_RUNTIME_RELOAD",
+    "runtime_state": "watchtower_api restarted; GET /api/ops/operators returned 200 with one ACTIVE_MANUAL operation (WATCHTOWER).",
+    "status": "LIVE_ENDPOINT_VERIFIED",
     "ui_file": "templates/operators_index.html"
   },
   "p3r_13a04_upstream_continuation_20260824": {
@@ -201,7 +201,7 @@
     ],
     "result": "2 passed"
   },
-  "updated_at_utc": "2026-08-24T15:20:05.093951+00:00",
+  "updated_at_utc": "2026-08-24T15:21:09.682267+00:00",
   "updated_by": "codex",
   "verdict": "OPERATIONS_REGISTRY_AUTHORITY_MIGRATION_COMPLETE"
 }

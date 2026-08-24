@@ -36,6 +36,8 @@
     },
     "next_action": "Optional separate authorization: materialize a qualified read-only launch chronology into an activity snapshot.",
     "null_rendering_fix": "Fixed JavaScript null coercion that rendered missing values as 0/0 min/1970; unavailable values now render Not observed.",
+    "ordering": "Active registry rows sort descending by last_observed_launch_timestamp; missing qualified timestamps sort last.",
+    "ordering_verification": "watchtower_api restarted; endpoint order WATCHTOWER then P3R_13A04, matching timestamps 1787572692 > 1787490637.",
     "runtime_verification": "GET /api/ops/operators returned WATCHTOWER total_launches=276.",
     "semantics": "Values are sourced only from the latest operation_activity_snapshots record; unavailable values render as Not observed.",
     "source_state": "operation_activity_snapshots contains 0 rows; no historic source was silently substituted.",
@@ -261,7 +263,7 @@
     ],
     "result": "2 passed"
   },
-  "updated_at_utc": "2026-08-24T15:38:15.471599+00:00",
+  "updated_at_utc": "2026-08-24T15:39:44.316027+00:00",
   "updated_by": "codex",
   "verdict": "OPERATIONS_REGISTRY_AUTHORITY_MIGRATION_COMPLETE"
 }

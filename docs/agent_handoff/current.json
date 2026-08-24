@@ -5,11 +5,11 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "The exact amount is not EC1-exclusive: it occurs in 135 retained edge records across 135 mints, so amount alone cannot establish membership.",
+  "blocker": "The first 100-signature page for each direct funder reaches only 2026-08-10 through 2026-08-24 and shared transaction participation does not itself establish direct funder-to-funder funding; deeper historical pagination and/or targeted predecessor resolution remains required for full upstream attribution.",
   "engineering_revision": "p3r-corrected-shadow-successor-v1",
   "exact_next_action": "Diagnose and rerun the isolated root-infrastructure verifier with an explicit request ledger before reporting root-edge verification.",
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "Use the structured source fields (mint, wallet/creator, candidate_parent/funder, signature, mechanism, hop, selection status) together with the frozen EC1 membership and atomic evidence for any further operation analysis.",
+  "next_action": "Use targeted, transaction-semantic predecessor tracing for the 12 EC1 direct funders, with pagination only where the relevant provisioning transaction falls outside the first 100 signatures.",
   "operations_registry_activity_metrics": {
     "activity_artifact": "/tmp/p3r-registry-migration/active_operations_launch_activity_snapshots.v3.json",
     "activity_artifact_sha256": "4d1bdb9db2e83aba1c2c5fd82ac248abea9ee1b48a391095f01003ea73041ef9",
@@ -383,7 +383,7 @@
   },
   "schema_version": 1,
   "status": "PASS",
-  "summary": "Read-only local query of database/wt_ops_v2.db confirms 135 wt_walkback_edge_candidates rows across 135 mints at exact amount_lamports=99,999,985,000. Of these, 119 are hop-1 WSOL_WRAP_CLOSE records: 112 SELECTED and 7 ALTERNATIVE. The table retains mint, wallet (creator in the observed EC1 rows), candidate_parent (direct funder), signature, mechanism, hop depth, temporary account, and selection status. No provider calls or writes.",
+  "summary": "Authorized EC1-only Helius acquisition completed: 15/15 frozen launch anchor transactions present; 12 direct funders; latest 100 signatures per funder yielded 652 captured references / 618 unique signatures covering 2026-08-10 to 2026-08-24. Expanded all 32 shared signatures. No shared transaction contains a direct System Program transfer from one EC1 direct funder to another. This is co-occurrence evidence, not direct funding proof. Artifacts: /tmp/p3r-clean-20260824T092959Z/rpc_ec1_extensive_direct_funder_v1/p3r_ec1_extensive_direct_funder_rpc.v1.json sha256 dc7340689c8e96f9573bcbe915d8160debc0f7620a920fca1a0a79479b9ba1f3; p3r_ec1_shared_direct_funder_transactions.v1.json sha256 e0bf2e83a3d88a9483436a3e815b3e26e4197936c6eef62b66073d24e8fd1c25. No writes or runtime changes.",
   "tests": {
     "executed": [
       "tests/test_p3r_prospective_shadow_exclusion.py"
@@ -392,5 +392,5 @@
   },
   "updated_at_utc": "2026-08-24T00:00:00Z",
   "updated_by": "codex",
-  "verdict": "P3R_EC1_LOCAL_FUNDING_EVIDENCE_CONFIRMED"
+  "verdict": "P3R_EC1_EXTENSIVE_RPC_PARTIAL"
 }

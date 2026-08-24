@@ -5,11 +5,11 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "One stated adjacent edge, 4pzHYPvK2bwHWsMdLHqd2dqe8SjNaKc1CxdvRQhYTtin -> 6hakQXcUcnk1EuuGMHsDPw9iP4GPwjUtHxxPAvGnPj3L, was not found within the fixed latest-100-signature RPC window; 10 of 11 adjacent links, including C927 root -> 3YWb, are confirmed.",
+  "blocker": null,
   "engineering_revision": "p3r-corrected-shadow-successor-v1",
   "exact_next_action": "Diagnose and rerun the isolated root-infrastructure verifier with an explicit request ledger before reporting root-edge verification.",
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "If stronger proof is required, acquire an explicit transaction signature or use a separately authorized deeper historical pagination for the unresolved 4pz -> 6hak link; do not treat it as confirmed yet.",
+  "next_action": "Use the confirmed full C927-to-6hak chain only as bounded EC1 relationship evidence; continue separate branch validation before making cohort-wide claims.",
   "operations_registry_activity_metrics": {
     "activity_artifact": "/tmp/p3r-registry-migration/active_operations_launch_activity_snapshots.v3.json",
     "activity_artifact_sha256": "4d1bdb9db2e83aba1c2c5fd82ac248abea9ee1b48a391095f01003ea73041ef9",
@@ -383,7 +383,7 @@
   },
   "schema_version": 1,
   "status": "PASS",
-  "summary": "Bounded Helius RPC exact-link verification completed for the supplied EC1 C927-to-6hak chain: 10/11 links confirmed in 135 requests. Artifact: /tmp/p3r-clean-20260824T092959Z/rpc_ec1_c927_6hak_chain_v1/p3r_ec1_c927_6hak_chain.v1.json SHA-256 d9dbd60d1987b14785ac4ba161408b319eac170ea86fa1f0a662925c5d3be9bf. No production/source DB, queue, or runtime changes.",
+  "summary": "User supplied finalized RPC transaction ABZhSRG9RkZQ8GFWDJ6dC9s66ZbszrardZbe6SppQAu1wasiWud2MVhTw7U6cs25Uxk6pwKRqP49ekYAdCuAYH7 confirms the final 4pzHYP... -> 6hakQX... WSOL wrap/close edge (3,199.99796072 SOL wrapped, close destination 6hak). The full 11/11 supplied C927-to-6hak chain is now confirmed. Supplement artifact: /tmp/p3r-clean-20260824T092959Z/rpc_ec1_c927_6hak_chain_v1/p3r_ec1_c927_6hak_chain_confirmation.v2.json SHA-256 c17cf244fa1ed91d0e0bb2bc03dfdd0d24d9dc42f36f6fd9c7b9e7d1a7bf6526. No writes or runtime changes.",
   "tests": {
     "executed": [
       "tests/test_p3r_prospective_shadow_exclusion.py"
@@ -392,5 +392,5 @@
   },
   "updated_at_utc": "2026-08-24T00:00:00Z",
   "updated_by": "codex",
-  "verdict": "P3R_EC1_C927_TO_6HAK_CHAIN_PARTIAL"
+  "verdict": "P3R_EC1_C927_TO_6HAK_CHAIN_CONFIRMED"
 }

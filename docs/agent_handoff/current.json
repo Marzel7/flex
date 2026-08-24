@@ -44,6 +44,36 @@
       "strong_alternative": 18
     }
   },
+  "p3r_watch_now_tiers_20260824": {
+    "artifact_manifest": "/tmp/p3r-clean-20260824T092959Z/activity/tiers/p3r_watch_now_tiering_artifact_manifest.v1.json",
+    "artifact_manifest_sha256": "1b14f979105f054f6426a87d5ad9fc83074ef5b7b77e71ae4aa7d1e6b06cb211",
+    "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e",
+    "next_action": "Run bounded prospective observation/evidence capture for Tier 1 and apply versioned background controls before broadening v2 requalification.",
+    "safety": {
+      "candidate_membership_mutation": false,
+      "provider_or_network_calls": false,
+      "queue_inserts_or_replay": false,
+      "runtime_changes": false,
+      "source_databases_read_only": true,
+      "source_writes": false
+    },
+    "status": "PASS",
+    "tier_1_historical_members": 86,
+    "tier_1_ids": [
+      "p3r-candidate-13a04d7da7a1fc55",
+      "p3r-candidate-af5004dfe42cfe11",
+      "p3r-candidate-bf30e77ee07e312b",
+      "p3r-candidate-ec1b6cff80643746"
+    ],
+    "tier_counts": {
+      "TIER_1_ACTIVE_MULTI_LAYER": 4,
+      "TIER_2_ACTIVE_STRUCTURAL": 14,
+      "TIER_3_ACTIVE_BASE": 27
+    },
+    "tier_interpretation": "research-priority only; no operation identity, canonical promotion, production action, or trading signal",
+    "v2_scope_recommendation": "TIER_1_FIRST",
+    "verdict": "P3R_WATCH_NOW_TIERS_QUALIFIED"
+  },
   "production_flags": {
     "candidate_tuning": false,
     "canonical_operation_promotion": false,
@@ -76,6 +106,6 @@
     ],
     "result": "2 passed"
   },
-  "updated_at_utc": "2026-08-24T13:51:57.734677Z",
+  "updated_at_utc": "2026-08-24T14:00:08.879886Z",
   "verdict": "P3R_SHADOW_EVALUATION_COMPLETE"
 }

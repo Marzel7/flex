@@ -10,6 +10,8 @@
   "milestone": "P3R corrected prospective shadow successor",
   "next_action": "Continue append-only read-only shadow capture until enough complete nonzero features and an eligible background population exist; do not use quarantined 114000Z metrics.",
   "operations_registry_activity_metrics": {
+    "activity_artifact": "/tmp/p3r-registry-migration/active_operations_launch_activity_snapshots.v2.json",
+    "activity_artifact_sha256": "06614c0fef572dfc1d965cddd38e3e401b82f1fc732a99d49d9003f54370ef15",
     "fields": [
       "total_observed_launches",
       "average_inter_launch_gap_seconds",
@@ -20,12 +22,25 @@
       "src/ops/operator_reader.py",
       "templates/operators_index.html"
     ],
+    "live_metrics": {
+      "P3R_13A04": {
+        "average_gap_seconds": 99805.25,
+        "last_launch_timestamp": 1787490637,
+        "total_launches": 5
+      },
+      "WATCHTOWER": {
+        "average_gap_seconds": 3931.7490627928773,
+        "last_launch_timestamp": 1787585065,
+        "total_launches": 4269
+      }
+    },
     "next_action": "Optional separate authorization: materialize a qualified read-only launch chronology into an activity snapshot.",
     "null_rendering_fix": "Fixed JavaScript null coercion that rendered missing values as 0/0 min/1970; unavailable values now render Not observed.",
-    "runtime_verification": "watchtower_api restarted after null-rendering fix; browser refresh required.",
+    "runtime_verification": "GET /api/ops/operators returned real metrics for both active operations.",
     "semantics": "Values are sourced only from the latest operation_activity_snapshots record; unavailable values render as Not observed.",
     "source_state": "operation_activity_snapshots contains 0 rows; no historic source was silently substituted.",
-    "status": "LIVE_ENDPOINT_VERIFIED"
+    "status": "LIVE_DATA_MATERIALIZED_VERIFIED",
+    "v1_superseded_reason": "same-second launch timestamps were incorrectly deduplicated; v2 preserves distinct mint launches."
   },
   "operations_registry_authority_migration": {
     "active_manual_operations": [
@@ -238,7 +253,7 @@
     ],
     "result": "2 passed"
   },
-  "updated_at_utc": "2026-08-24T15:31:44.440323+00:00",
+  "updated_at_utc": "2026-08-24T15:35:44.081052+00:00",
   "updated_by": "codex",
   "verdict": "OPERATIONS_REGISTRY_AUTHORITY_MIGRATION_COMPLETE"
 }

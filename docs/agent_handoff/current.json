@@ -213,6 +213,39 @@
       "strong_alternative": 18
     }
   },
+  "p3r_bf30e7_behaviour_binding": {
+    "binding": {
+      "atomic_coverage": 1.0,
+      "atomic_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount3",
+        "transfer",
+        "syncNative",
+        "closeAccount"
+      ],
+      "atomic_variants": 1,
+      "distinct_creators": 14,
+      "distinct_direct_funders": 6,
+      "distinct_parents": 17,
+      "selected_mechanism": "WSOL_WRAP_CLOSE",
+      "selected_raw_lamports": 999985000,
+      "selected_topology": [
+        4,
+        1,
+        4
+      ]
+    },
+    "candidate_id": "p3r-candidate-bf30e77ee07e312b",
+    "caveat": "OKX funding provenance is not the family binding and must remain infrastructure-context/deconfounding evidence, not identity proof.",
+    "members": 14,
+    "sources": [
+      "p3r_candidate_operational_family_membership.v2.json",
+      "p3r_tier1_funding_deep_dive.v1.json",
+      "p3r_tier1_atomic_deep_dive.v1.json",
+      "p3r_tier1_address_rotation.v1.json"
+    ],
+    "status": "RESOLVED_READ_ONLY"
+  },
   "p3r_operator_detail_profile": {
     "detail_payload": [
       "linked behavioural profile",
@@ -310,7 +343,7 @@
     ],
     "result": "2 passed"
   },
-  "updated_at_utc": "2026-08-24T15:58:42.627726+00:00",
+  "updated_at_utc": "2026-08-24T16:12:03.089555+00:00",
   "updated_by": "codex",
   "verdict": "OPERATIONS_REGISTRY_AUTHORITY_MIGRATION_COMPLETE"
 }

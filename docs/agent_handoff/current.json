@@ -214,17 +214,22 @@
     }
   },
   "p3r_af5004_okx_direct_exclusion": {
+    "alternative_edge_okx_mints": 12,
+    "alternative_edge_shape": {
+      "amount_lamports": 10000000,
+      "hop_depth": 1,
+      "mechanism": "PLAIN_XFER"
+    },
     "candidate_id": "p3r-candidate-af5004dfe42cfe11",
-    "direct_okx_funded_member_creators": 0,
     "frozen_members": 52,
-    "limitation": "Does not measure upstream/multi-hop OKX provenance; that requires a separately defined bounded lineage trace.",
+    "important_semantics": "The 12 OKX edges are ALTERNATIVE retained Walkback observations, not selected original-fingerprint edges. The frozen family definition was not changed.",
     "okx_address": "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV",
     "provider_calls": false,
-    "remaining_launches": 52,
-    "removed_launches": 0,
-    "scope": "Exact frozen members; token_analysis.earliest_tx_creator joined to creator_funders on the supplied address only.",
+    "remaining_if_any_direct_okx_edge_excluded": 40,
+    "selected_edge_okx_mints": 0,
+    "source": "wt_ops_v2.db wt_walkback_edge_candidates by exact frozen mint set",
     "source_writes": false,
-    "status": "RESOLVED_DIRECT_ONLY"
+    "status": "RESOLVED_WALKBACK_EDGE_SCOPE"
   },
   "p3r_bf30e7_behaviour_binding": {
     "binding": {
@@ -356,7 +361,7 @@
     ],
     "result": "2 passed"
   },
-  "updated_at_utc": "2026-08-24T16:14:52.600192+00:00",
+  "updated_at_utc": "2026-08-24T16:16:37.842407+00:00",
   "updated_by": "codex",
   "verdict": "OPERATIONS_REGISTRY_AUTHORITY_MIGRATION_COMPLETE"
 }

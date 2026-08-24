@@ -9,6 +9,27 @@
   "engineering_revision": "p3r-corrected-shadow-successor-v1",
   "milestone": "P3R corrected prospective shadow successor",
   "next_action": "Continue append-only read-only shadow capture until enough complete nonzero features and an eligible background population exist; do not use quarantined 114000Z metrics.",
+  "p3r_13a04_upstream_rpc_20260824": {
+    "acquisition_manifest": "/tmp/p3r-clean-20260824T092959Z/rpc_13a04_upstream_v1/p3r_13a04_rpc_acquisition_manifest.v1.json",
+    "acquisition_manifest_sha256": "14954af0dfb94773d6c6f87920c83e8ced6afc3df948958b7bd0ff45ef654e08",
+    "blocker": "No authorized RPC endpoint or Helius credential configured in environment or .env. Public/unrelated fallback was deliberately not used.",
+    "boundary_amount_lamports": 29999990000,
+    "branches_completed": 0,
+    "branches_unattempted": 5,
+    "candidate_id": "p3r-candidate-13a04d7da7a1fc55",
+    "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e",
+    "frozen_member_count": 5,
+    "next_action": "Provide an explicitly authorized configured RPC endpoint/credential, then execute the already frozen 13a04-only start set under the same ceilings.",
+    "provider_requests_made": 0,
+    "queue_or_replay": false,
+    "runtime_changes": false,
+    "source_writes": false,
+    "start_boundary_count": 5,
+    "start_manifest": "/tmp/p3r-clean-20260824T092959Z/rpc_13a04_upstream_v1/p3r_13a04_rpc_start_manifest.v1.json",
+    "start_manifest_sha256": "cda2a4a03b5bdb3e3b5074ee11c0682a95be131bde0e77d01c69e58fcf121f50",
+    "status": "HOLD",
+    "verdict": "P3R_13A04_RPC_HOLD"
+  },
   "p3r_activity_priority_20260824": {
     "activity_counts": {
       "ACTIVITY_INSUFFICIENT_EVIDENCE": 0,
@@ -106,6 +127,6 @@
     ],
     "result": "2 passed"
   },
-  "updated_at_utc": "2026-08-24T14:00:08.879886Z",
+  "updated_at_utc": "2026-08-24T14:18:32.187395Z",
   "verdict": "P3R_SHADOW_EVALUATION_COMPLETE"
 }

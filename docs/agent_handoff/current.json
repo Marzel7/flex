@@ -5,11 +5,11 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "The stored candidate_parent field is a Walkback evidence field and should not be treated as a cohort-wide real-world identity claim; selection status and hop depth remain necessary context.",
+  "blocker": "The completed 135-creator trace is not the same layer as the user-supplied J37 -> 8f4 -> B65 example: J37 and 4mm are stored candidate parents/direct funders for two launches. Their own one-hop funding must be traced separately.",
   "engineering_revision": "p3r-corrected-shadow-successor-v1",
   "exact_next_action": "Diagnose and rerun the isolated root-infrastructure verifier with an explicit request ledger before reporting root-edge verification.",
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "Use the exported evidence rows to choose a specific repeated-parent cluster for separate qualification; do not expand P3R_EC1 beyond its frozen 15-member profile merely because the broad amount motif has 135 mints.",
+  "next_action": "Trace the 91 distinct stored candidate_parent/direct-funder accounts one hop upstream, beginning with J37 and 4mm and then the remaining repeated parent clusters; retain generic amount-population scope and do not merge it into P3R_EC1.",
   "operations_registry_activity_metrics": {
     "activity_artifact": "/tmp/p3r-registry-migration/active_operations_launch_activity_snapshots.v3.json",
     "activity_artifact_sha256": "4d1bdb9db2e83aba1c2c5fd82ac248abea9ee1b48a391095f01003ea73041ef9",
@@ -383,14 +383,14 @@
   },
   "schema_version": 1,
   "status": "PASS",
-  "summary": "Read-only chronological export created for all 135 exact 99,999,985-lamport wt_walkback_edge_candidates rows: mint, stored creator wallet, stored candidate_parent/direct funder, selection status, mechanism, hop depth, signature, and block time. CSV: /tmp/p3r-clean-20260824T092959Z/exact_amount_99999985000_v1/p3r_exact_amount_99999985000_mint_creator_initial_funder.v1.csv SHA-256 d798de19fe3848c2c43577ba3546b79fbd9d6acd08323a017f7be54c9d70b7a3; manifest SHA-256 6745f5c4112abd3b7cdc82cbd701a251d3e957e128d2f08260d5f2af1265b159. No writes to source tables, no provider calls, queue writes, or runtime changes.",
+  "summary": "User-authorized Helius creator-level initial-funding trace completed for all 135 exact-amount mints: 131 RESOLVED, 4 NO_INCOMING_EDGE_IN_3_OLDEST_TRANSACTIONS; 115 earliest candidates are SYSTEM_TRANSFER and 16 TOKEN_CLOSE; 20 creator histories truncated at 1000 signatures. Dominant earliest native sources: 7LAG8Bto... for 31 creators and is6MTRHE... for 25. Artifact: /tmp/p3r-clean-20260824T092959Z/exact_amount_creator_initial_funder_rpc_v1/p3r_exact_amount_creator_initial_funder_rpc.v1.json SHA-256 a26bc55769df6512f2c549f5f53331b793048327eb4c84bb9248bdadbb75d86b. J37 and 4mm appear as stored candidate parents, confirming the required next layer is candidate-parent upstream tracing. No source writes, queue writes, or runtime changes.",
   "tests": {
     "executed": [
       "tests/test_p3r_prospective_shadow_exclusion.py"
     ],
     "result": "2 passed"
   },
-  "updated_at_utc": "2026-08-24T00:00:00Z",
+  "updated_at_utc": "2026-08-25T00:00:00Z",
   "updated_by": "codex",
-  "verdict": "P3R_EXACT_AMOUNT_MINT_CREATOR_FUNDER_EXPORT_COMPLETE"
+  "verdict": "P3R_EXACT_AMOUNT_CREATOR_INITIAL_FUNDING_TRACE_COMPLETE_PARENT_LAYER_NEXT"
 }

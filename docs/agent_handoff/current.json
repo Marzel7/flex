@@ -30979,6 +30979,97 @@
     "test_suite_status": "85/85 passing (relevant B2Z modules), zero regressions",
     "workstreams_completed": 12
   },
+  "p3r_behavioural_evidence_discovery": {
+    "artifact_path": "/tmp/p3r-clean-20260824T092959Z/behavioural_evidence/p3r_behavioural_evidence_discovery.v2.json",
+    "artifact_sha256": "154790a19f4cbe4d2bb45eb48c9232934042b42060d2ff6cf51e79a07cab829d",
+    "atomic_instruction_sequence_coverage": {
+      "coverage_pct": 9.219956375722743,
+      "eligible_denominator": 28883,
+      "missing": 26220,
+      "populated_numerator": 2663
+    },
+    "authoritative_bindings": {
+      "corpus_sha256": "a1779e0f78f7aff8813e7ec4402073c7a6c99232fc80f0f8dcdd562a945524ce",
+      "frozen_queue_sha256": "d111116fd7a1e149e8fea30498cef6c35e3de534cdefef9da78dd4223daff5c3",
+      "manifest_digest": "c5aa554ab03f64bad048815e984be737e165f88982f4da5222d65fdb87836260",
+      "qualification_sha256": "b7969bce6af3c2f15a88da9ab612ef165dd3d181e7cac85b01d08c61d78bbe39",
+      "structural_evaluation_sha256": "8c5d84c26d8356f23ef28aa8b35702f96faa3414b401714a684c3e440d84e28a"
+    },
+    "blocker": "Amount/time/signature evidence is local but partial; transaction-first source coverage is NOT_MEASURED_BOUNDED_IO, and broad qualified funding-to-launch endpoints remain 33/28883.",
+    "combined_eligibility": {
+      "funding_launch_interval_endpoints": {
+        "coverage_pct": 0.11425405948135582,
+        "eligible_denominator": 28883,
+        "missing": 28850,
+        "populated_numerator": 33
+      },
+      "topology_amount": {
+        "coverage_pct": 39.17875566942492,
+        "eligible_denominator": 28883,
+        "missing": 17567,
+        "populated_numerator": 11316
+      },
+      "topology_amount_timing": {
+        "coverage_pct": 39.17875566942492,
+        "eligible_denominator": 28883,
+        "missing": 17567,
+        "populated_numerator": 11316
+      },
+      "topology_timing": {
+        "coverage_pct": 39.17875566942492,
+        "eligible_denominator": 28883,
+        "missing": 17567,
+        "populated_numerator": 11316
+      }
+    },
+    "discovery_code_sha256": "4efadb4531f3741dfa782b6d69429c8f62b768b5fba10c135266db93bea0c87f",
+    "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e",
+    "exact_next_action": "Materialize a separately versioned, immutable partial local behavioural feature corpus using only the executable contract, then perform descriptive hypothesis tests with feature-specific denominators.",
+    "new_local_behavioural_corpus_materializable_immediately": true,
+    "production_flags": {
+      "authoritative_artifacts_mutated": false,
+      "provider_or_network_calls": 0,
+      "source_table_writes": 0
+    },
+    "result": "P3R_BEHAVIOURAL_EVIDENCE_PARTIAL_LOCAL",
+    "selected_edge_amount_time_signature_coverage": {
+      "coverage_pct": 39.199529134785166,
+      "eligible_denominator": 28883,
+      "missing": 17561,
+      "populated_numerator": 11322
+    },
+    "transaction_first_status": {
+      "edge_coverage": {
+        "reason": "tf_edges has no launch_context index and its complete retained-table scan exceeded the 30-second bounded local-discovery window; it is not treated as zero.",
+        "status": "NOT_MEASURED_BOUNDED_IO"
+      },
+      "edge_fields": [
+        "signature",
+        "block_time",
+        "amount",
+        "asset",
+        "mechanism",
+        "hop_depth",
+        "rpc_verified"
+      ],
+      "join": "P3R.mint = tf_launches.mint; P3R.mint = tf_edges.launch_context",
+      "kind": "retained transaction-first normalized/reconstructed evidence",
+      "launch_coverage": {
+        "reason": "the retained database's indexed tf_launches lookup exceeded the 30-second bounded local-discovery window; it is not treated as zero.",
+        "status": "NOT_MEASURED_BOUNDED_IO"
+      },
+      "multiplicity_rows": {
+        "edges": 0,
+        "launches": 0
+      }
+    },
+    "transfer_index_exact_pair_mint_coverage": {
+      "coverage_pct": 18.29796073815047,
+      "eligible_denominator": 28883,
+      "missing": 23598,
+      "populated_numerator": 5285
+    }
+  },
   "p3r_historical_corpus_qualification": {
     "artifact_path": "/tmp/p3r-clean-20260824T092959Z/qualification/p3r_historical_corpus_qualification.v3.json",
     "artifact_sha256": "b7969bce6af3c2f15a88da9ab612ef165dd3d181e7cac85b01d08c61d78bbe39",
@@ -32330,7 +32421,7 @@
     }
   },
   "updated_at": "2026-08-24T09:31:56Z",
-  "updated_at_utc": "2026-08-24T09:45:17.874385+00:00",
+  "updated_at_utc": "2026-08-24T10:20:56.717812+00:00",
   "updated_by": "agent_local",
-  "verdict": "P3R_STRUCTURAL_LINEAGE_EVALUATION_COMPLETE"
+  "verdict": "P3R_BEHAVIOURAL_EVIDENCE_PARTIAL_LOCAL"
 }

@@ -32184,8 +32184,40 @@
     "next_action": "Await explicit human instruction for clean rebuild; atomic/resumable protocol is implemented and failure-boundary behavior is validated.",
     "result": "READY_FOR_CLEAN_REBUILD"
   },
-  "updated_at": "2026-08-24T09:23:16Z",
-  "updated_at_utc": "2026-08-24T09:23:16Z",
+  "p3r_historical_features_clean_rebuild": {
+    "engineering_revision": "e9d0a404417804faa70586c7b27f6a478028b798",
+    "production_flags": {
+      "old_output_preserved": true,
+      "old_checkpoint_preserved": true,
+      "network_calls": false,
+      "source_table_writes": false
+    },
+    "run_namespace": "/tmp/p3r-clean-20260824T092959Z",
+    "run_manifest_path": "/tmp/p3r-clean-20260824T092959Z/p3r_historical_features.clean_rebuild_manifest.json",
+    "run_manifest_digest": "c5aa554ab03f64bad048815e984be737e165f88982f4da5222d65fdb87836260",
+    "frozen_queue_size": 28883,
+    "frozen_queue_digest": "d111116fd7a1e149e8fea30498cef6c35e3de534cdefef9da78dd4223daff5c3",
+    "extractor_digest": "d7c9c4d626044f1518e131a3d521683569a87712d47c52d29d76de6c26ecec5b",
+    "feature_contract_digest": "d7c9c4d626044f1518e131a3d521683569a87712d47c52d29d76de6c26ecec5b",
+    "chunks_completed": 15,
+    "durable_rows": 28883,
+    "physical_rows": 28883,
+    "valid_json_records": 28883,
+    "unique_mint_count": 28883,
+    "duplicate_row_count": 0,
+    "duplicate_mint_count": 0,
+    "current_chunk": 15,
+    "next_chunk": 16,
+    "last_committed_mint": "zzneDAaKYATB9N8DnHKpUpuqW6rfhFZtR3KG65mpump",
+    "checkpoint_output_match": true,
+    "resume_validated": true,
+    "exhausted": true,
+    "verdict": "CLEAN_REBUILD_COMPLETE",
+    "blocker": null,
+    "result": "CLEAN_REBUILD_COMPLETE"
+  },
+  "updated_at": "2026-08-24T09:31:56Z",
+  "updated_at_utc": "2026-08-24T09:31:56Z",
   "updated_by": "agent_local",
-  "verdict": "READY_FOR_CLEAN_REBUILD"
+  "verdict": "CLEAN_REBUILD_COMPLETE"
 }

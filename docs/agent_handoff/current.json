@@ -5,9 +5,9 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "All 36 direct-funder predecessor windows were boundedly acquired from Helius, but none contained a uniquely qualified parsed incoming provisioning edge; CEX origin cannot be measured under the frozen method.",
+  "blocker": "The fixed 16-hop ceiling was reached before the requested FK9wLKizAtRtfNH57Y4J1wmQxpwpZ2EMYNZ1kME2V7hM target; continuation requires a separately frozen higher-ceiling contract.",
   "engineering_revision": "p3r-corrected-shadow-successor-v1",
-  "exact_next_action": "Require separate authorization to change the upstream-edge acquisition semantics or broaden the transaction-window ceiling; do not infer AF500 upstream convergence from this partial run.",
+  "exact_next_action": "Await explicit authorization for a new bounded continuation from AE3VAHcBAGXnkYZrbhJMQ5amjetbCgEoTAva9kMuquDf; do not reuse or alter the immutable 16-hop evidence.",
   "milestone": "P3R corrected prospective shadow successor",
   "next_action": "Continue append-only read-only shadow capture until enough complete nonzero features and an eligible background population exist; do not use quarantined 114000Z metrics.",
   "operations_registry_activity_metrics": {
@@ -383,7 +383,7 @@
   },
   "schema_version": 1,
   "status": "PASS",
-  "summary": "AF500 upstream v3 fixed-ceiling RPC run: 36 direct funders, 108 successful provider requests, zero qualified immediate predecessor edges, zero CEX classifications, zero non-CEX deep walks, no upstream convergence conclusion. Artifact namespace /tmp/p3r-clean-20260824T092959Z/rpc_af500_upstream_v3. No source writes, queue changes, runtime changes, or canonical promotion.",
+  "summary": "Single CPM creator upstream RPC trace: 16 normalized hops, 33 Helius requests, target not reached. Observed alternating system transfers and SPL closeAccount events in 1-6 second cadence, with repeated +10,000-lamport increments among large transfers. Artifacts /tmp/p3r-clean-20260824T092959Z/rpc_af500_cpm_creator_chain_v2; termination sha256 87a0307da6b9ffbc747226095cb367e7ef5df4d62ddd9ec2c4718346e0727fb6. No source writes or runtime changes.",
   "tests": {
     "executed": [
       "tests/test_p3r_prospective_shadow_exclusion.py"
@@ -392,5 +392,5 @@
   },
   "updated_at_utc": "2026-08-24T16:22:55.943075+00:00",
   "updated_by": "codex",
-  "verdict": "P3R_AF500_UPSTREAM_PARTIAL"
+  "verdict": "P3R_AF500_CPM_CREATOR_CHAIN_PARTIAL"
 }

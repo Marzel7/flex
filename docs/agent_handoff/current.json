@@ -9,6 +9,22 @@
   "engineering_revision": "p3r-corrected-shadow-successor-v1",
   "milestone": "P3R corrected prospective shadow successor",
   "next_action": "Continue append-only read-only shadow capture until enough complete nonzero features and an eligible background population exist; do not use quarantined 114000Z metrics.",
+  "operations_registry_authority_migration_20260824": {
+    "blocking_neighbour_tests": "4 failures in tests/test_ops_ui_p2_unified_implementation.py: live DV34 expectations (131 vs 123, 108 vs 100, FUNDING_STRUCTURE vs expected role) and existing >50ms performance budget breach",
+    "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e",
+    "focused_tests": "3 passed: tests/test_manual_registry.py",
+    "implementation": "manual disposition/profile/activity schema and active reader added; no live migration applied",
+    "next_action": "Resolve or formally rebaseline the four neighbouring regression failures, rerun the full gate, then execute transactional WATCHTOWER/3SW2 disposition migration.",
+    "safety": {
+      "live_registry_migration_applied": false,
+      "provider_calls": false,
+      "queue_replay": false,
+      "runtime_changes": false,
+      "source_evidence_deleted": false
+    },
+    "status": "HOLD",
+    "verdict": "OPERATIONS_REGISTRY_AUTHORITY_MIGRATION_HOLD"
+  },
   "p3r_13a04_upstream_continuation_20260824": {
     "artifact_manifest_sha256": "55ce454ffd1edb21e42eacdc0eb72f5280e3d48e73db495e65e3889e5707dc73",
     "ceiling": {
@@ -155,6 +171,6 @@
     ],
     "result": "2 passed"
   },
-  "updated_at_utc": "2026-08-24T14:27:19.906601Z",
+  "updated_at_utc": "2026-08-24T14:58:16.157515Z",
   "verdict": "P3R_SHADOW_EVALUATION_COMPLETE"
 }

@@ -5,11 +5,11 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "The first 100-signature page for each direct funder reaches only 2026-08-10 through 2026-08-24 and shared transaction participation does not itself establish direct funder-to-funder funding; deeper historical pagination and/or targeted predecessor resolution remains required for full upstream attribution.",
+  "blocker": "The Helius endpoint reset the connection during the follow-on close-authority transaction expansion. The completed predecessor trace remains durable; close-account authority convergence has not been established.",
   "engineering_revision": "p3r-corrected-shadow-successor-v1",
   "exact_next_action": "Diagnose and rerun the isolated root-infrastructure verifier with an explicit request ledger before reporting root-edge verification.",
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "Use targeted, transaction-semantic predecessor tracing for the 12 EC1 direct funders, with pagination only where the relevant provisioning transaction falls outside the first 100 signatures.",
+  "next_action": "After provider recovery, resume only the small list of funding-era close transactions from the completed EC1 predecessor trace with retry/backoff and checkpointing; do not re-paginate the 12 histories.",
   "operations_registry_activity_metrics": {
     "activity_artifact": "/tmp/p3r-registry-migration/active_operations_launch_activity_snapshots.v3.json",
     "activity_artifact_sha256": "4d1bdb9db2e83aba1c2c5fd82ac248abea9ee1b48a391095f01003ea73041ef9",
@@ -383,7 +383,7 @@
   },
   "schema_version": 1,
   "status": "PASS",
-  "summary": "Authorized EC1-only Helius acquisition completed: 15/15 frozen launch anchor transactions present; 12 direct funders; latest 100 signatures per funder yielded 652 captured references / 618 unique signatures covering 2026-08-10 to 2026-08-24. Expanded all 32 shared signatures. No shared transaction contains a direct System Program transfer from one EC1 direct funder to another. This is co-occurrence evidence, not direct funding proof. Artifacts: /tmp/p3r-clean-20260824T092959Z/rpc_ec1_extensive_direct_funder_v1/p3r_ec1_extensive_direct_funder_rpc.v1.json sha256 dc7340689c8e96f9573bcbe915d8160debc0f7620a920fca1a0a79479b9ba1f3; p3r_ec1_shared_direct_funder_transactions.v1.json sha256 e0bf2e83a3d88a9483436a3e815b3e26e4197936c6eef62b66073d24e8fd1c25. No writes or runtime changes.",
+  "summary": "User-authorized deep EC1-only RPC predecessor trace completed: all 12 direct-funder histories exhausted (29,48,51,159,52,43,228,66,45,48,35,35 signatures respectively; 76 calls). Earliest retained history clusters on 2026-08-10/11. Seven funders have funding-era TOKEN_CLOSE credits among their five oldest transactions; five do not expose a native inbound System transfer in that bounded set. Artifact: /tmp/p3r-clean-20260824T092959Z/rpc_ec1_predecessor_trace_v2/p3r_ec1_direct_funder_predecessor_trace.v2.json SHA-256 ea3b00346f53ec7f5ed433323cd1bc71812c4c51fe906e05938965e44fcd296b. Follow-on close-authority expansion stopped on provider ConnectionResetError before artifact creation. No source writes, queue writes, or runtime changes.",
   "tests": {
     "executed": [
       "tests/test_p3r_prospective_shadow_exclusion.py"
@@ -392,5 +392,5 @@
   },
   "updated_at_utc": "2026-08-24T00:00:00Z",
   "updated_by": "codex",
-  "verdict": "P3R_EC1_EXTENSIVE_RPC_PARTIAL"
+  "verdict": "P3R_EC1_PREDECESSOR_TRACE_COMPLETE_AUTHORITY_EXPANSION_BLOCKED"
 }

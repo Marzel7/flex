@@ -5,11 +5,11 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "The high-ceiling root-edge RPC process completed without materializing its normalized result artifact; no DuTb or C927 relationship can be claimed from this execution.",
+  "blocker": "One stated adjacent edge, 4pzHYPvK2bwHWsMdLHqd2dqe8SjNaKc1CxdvRQhYTtin -> 6hakQXcUcnk1EuuGMHsDPw9iP4GPwjUtHxxPAvGnPj3L, was not found within the fixed latest-100-signature RPC window; 10 of 11 adjacent links, including C927 root -> 3YWb, are confirmed.",
   "engineering_revision": "p3r-corrected-shadow-successor-v1",
   "exact_next_action": "Diagnose and rerun the isolated root-infrastructure verifier with an explicit request ledger before reporting root-edge verification.",
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "Continue append-only read-only shadow capture until enough complete nonzero features and an eligible background population exist; do not use quarantined 114000Z metrics.",
+  "next_action": "If stronger proof is required, acquire an explicit transaction signature or use a separately authorized deeper historical pagination for the unresolved 4pz -> 6hak link; do not treat it as confirmed yet.",
   "operations_registry_activity_metrics": {
     "activity_artifact": "/tmp/p3r-registry-migration/active_operations_launch_activity_snapshots.v3.json",
     "activity_artifact_sha256": "4d1bdb9db2e83aba1c2c5fd82ac248abea9ee1b48a391095f01003ea73041ef9",
@@ -378,19 +378,19 @@
     "trading_ranking_prediction": false
   },
   "project": {
-    "git_head": "38ddc602d6fb049e385edff51246491fd9fbbd8e",
+    "git_head": "e9d0a404417804faa70586c7b27f6a478028b798",
     "working_branch": "classification-attribution-axis"
   },
   "schema_version": 1,
   "status": "PASS",
-  "summary": "Attempted extensive EC1 root infrastructure verification for DuTb-to-12-funder and C927-to-Crnc claims. No normalized result artifact was materialized; result is HOLD. No source writes or runtime changes.",
+  "summary": "Bounded Helius RPC exact-link verification completed for the supplied EC1 C927-to-6hak chain: 10/11 links confirmed in 135 requests. Artifact: /tmp/p3r-clean-20260824T092959Z/rpc_ec1_c927_6hak_chain_v1/p3r_ec1_c927_6hak_chain.v1.json SHA-256 d9dbd60d1987b14785ac4ba161408b319eac170ea86fa1f0a662925c5d3be9bf. No production/source DB, queue, or runtime changes.",
   "tests": {
     "executed": [
       "tests/test_p3r_prospective_shadow_exclusion.py"
     ],
     "result": "2 passed"
   },
-  "updated_at_utc": "2026-08-24T16:22:55.943075+00:00",
+  "updated_at_utc": "2026-08-24T00:00:00Z",
   "updated_by": "codex",
-  "verdict": "P3R_EC1_ROOT_INFRASTRUCTURE_RPC_EXECUTION_HOLD"
+  "verdict": "P3R_EC1_C927_TO_6HAK_CHAIN_PARTIAL"
 }

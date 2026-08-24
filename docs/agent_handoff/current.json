@@ -5,9 +5,9 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "Under the same frozen predecessor rule, 21/39 branches produced one qualified immediate edge and all 39 stopped before a second edge; no 10+ hop replication is established.",
+  "blocker": null,
   "engineering_revision": "p3r-corrected-shadow-successor-v1",
-  "exact_next_action": "Await explicit authorization for a revised bounded acquisition contract if deeper traces are required; preserve the existing branch-level artifacts.",
+  "exact_next_action": "Observe P3R_AF500 through the existing manual-operation profile; do not infer canonical identity or mutate candidate evidence without separate authorization.",
   "milestone": "P3R corrected prospective shadow successor",
   "next_action": "Continue append-only read-only shadow capture until enough complete nonzero features and an eligible background population exist; do not use quarantined 114000Z metrics.",
   "operations_registry_activity_metrics": {
@@ -383,7 +383,7 @@
   },
   "schema_version": 1,
   "status": "PASS",
-  "summary": "AF500 remaining 39 launch fixed-ceiling RPC trace: 192 Helius requests, 21 first-hop edges, 18 no edge, zero branch extended past one hop under strict rule. Artifact namespace /tmp/p3r-clean-20260824T092959Z/rpc_af500_remaining39_v1. No source writes or runtime changes.",
+  "summary": "User-authorized P3R_AF500 manual admission complete. operator_id 777211c3-211e-551b-9310-ff9301570627; profile_id ecb6b817-4c8e-5bd6-921b-b5d21a12ad8f; ACTIVE_MANUAL. Bound to 52 frozen mints and selected-edge semantics artifact. Activity snapshot: 52 timestamped launches, 54,965.49s average gap. Only operations-registry tables were written; no source tables, queues, runtime services, or candidate definitions changed.",
   "tests": {
     "executed": [
       "tests/test_p3r_prospective_shadow_exclusion.py"
@@ -392,5 +392,5 @@
   },
   "updated_at_utc": "2026-08-24T16:22:55.943075+00:00",
   "updated_by": "codex",
-  "verdict": "P3R_AF500_REMAINING39_UPSTREAM_PARTIAL"
+  "verdict": "P3R_AF500_ACTIVE_MANUAL_ADMITTED"
 }

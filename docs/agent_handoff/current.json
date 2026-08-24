@@ -5,11 +5,11 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "The Helius endpoint reset the connection during the follow-on close-authority transaction expansion. The completed predecessor trace remains durable; close-account authority convergence has not been established.",
+  "blocker": "Exact 99,999,985,000-lamport evidence is a broad motif across 135 mints and therefore is not operation-unique without higher-dimensional context.",
   "engineering_revision": "p3r-corrected-shadow-successor-v1",
   "exact_next_action": "Diagnose and rerun the isolated root-infrastructure verifier with an explicit request ledger before reporting root-edge verification.",
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "After provider recovery, resume only the small list of funding-era close transactions from the completed EC1 predecessor trace with retry/backoff and checkpointing; do not re-paginate the 12 histories.",
+  "next_action": "Use the frozen full amount-population artifact to investigate individual repeated candidate-parent clusters separately; retain EC1 as one 15-mint subset and do not merge clusters based on amount alone.",
   "operations_registry_activity_metrics": {
     "activity_artifact": "/tmp/p3r-registry-migration/active_operations_launch_activity_snapshots.v3.json",
     "activity_artifact_sha256": "4d1bdb9db2e83aba1c2c5fd82ac248abea9ee1b48a391095f01003ea73041ef9",
@@ -383,7 +383,7 @@
   },
   "schema_version": 1,
   "status": "PASS",
-  "summary": "User-authorized deep EC1-only RPC predecessor trace completed: all 12 direct-funder histories exhausted (29,48,51,159,52,43,228,66,45,48,35,35 signatures respectively; 76 calls). Earliest retained history clusters on 2026-08-10/11. Seven funders have funding-era TOKEN_CLOSE credits among their five oldest transactions; five do not expose a native inbound System transfer in that bounded set. Artifact: /tmp/p3r-clean-20260824T092959Z/rpc_ec1_predecessor_trace_v2/p3r_ec1_direct_funder_predecessor_trace.v2.json SHA-256 ea3b00346f53ec7f5ed433323cd1bc71812c4c51fe906e05938965e44fcd296b. Follow-on close-authority expansion stopped on provider ConnectionResetError before artifact creation. No source writes, queue writes, or runtime changes.",
+  "summary": "Read-only local materialization of all wt_walkback_edge_candidates rows at amount_lamports=99,999,985,000 complete: 135 rows/mints, 135 distinct stored wallets, 91 candidate parents, 2026-07-21T18:00:53Z to 2026-08-24T17:56:11Z. 112 SELECTED hop-1 WSOL_WRAP_CLOSE; 7 ALTERNATIVE hop-1 WSOL_WRAP_CLOSE; remaining 16 are mixed PLAIN_XFER/other hop-depth evidence. EC1 intersects exactly 15 rows/mints. Artifact: /tmp/p3r-clean-20260824T092959Z/exact_amount_99999985000_v1/p3r_exact_amount_99999985000_population.v1.json SHA-256 c0da3e4a18e1c33c6866bf17d64d5a884d14d70fb13c5262cfa3e8fcc887e429. No provider calls or writes.",
   "tests": {
     "executed": [
       "tests/test_p3r_prospective_shadow_exclusion.py"
@@ -392,5 +392,5 @@
   },
   "updated_at_utc": "2026-08-24T00:00:00Z",
   "updated_by": "codex",
-  "verdict": "P3R_EC1_PREDECESSOR_TRACE_COMPLETE_AUTHORITY_EXPANSION_BLOCKED"
+  "verdict": "P3R_EXACT_AMOUNT_POPULATION_MATERIALIZED"
 }

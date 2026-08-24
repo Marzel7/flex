@@ -10,25 +10,30 @@
   "milestone": "P3R corrected prospective shadow successor",
   "next_action": "Continue append-only read-only shadow capture until enough complete nonzero features and an eligible background population exist; do not use quarantined 114000Z metrics.",
   "p3r_13a04_upstream_rpc_20260824": {
-    "acquisition_manifest": "/tmp/p3r-clean-20260824T092959Z/rpc_13a04_upstream_v1/p3r_13a04_rpc_acquisition_manifest.v1.json",
-    "acquisition_manifest_sha256": "14954af0dfb94773d6c6f87920c83e8ced6afc3df948958b7bd0ff45ef654e08",
-    "blocker": "No authorized RPC endpoint or Helius credential configured in environment or .env. Public/unrelated fallback was deliberately not used.",
-    "boundary_amount_lamports": 29999990000,
-    "branches_completed": 0,
-    "branches_unattempted": 5,
+    "artifact_manifest_sha256": "4314843a09d247d30dcf63d916b8618a6ffacdee94c3358f218832108d802dcd",
+    "behavioural_recurrence": "STRONG_UPSTREAM_BEHAVIOURAL_RECURRENCE",
+    "branches": 5,
+    "branches_depth_2_or_3_incomplete": 5,
+    "branches_with_one_added_hop": 5,
     "candidate_id": "p3r-candidate-13a04d7da7a1fc55",
+    "ceilings_enforced": true,
+    "convergence": "NO_SHARED_UPSTREAM_ADDRESS at acquired depth",
     "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e",
-    "frozen_member_count": 5,
-    "next_action": "Provide an explicitly authorized configured RPC endpoint/credential, then execute the already frozen 13a04-only start set under the same ceilings.",
-    "provider_requests_made": 0,
-    "queue_or_replay": false,
-    "runtime_changes": false,
-    "source_writes": false,
-    "start_boundary_count": 5,
-    "start_manifest": "/tmp/p3r-clean-20260824T092959Z/rpc_13a04_upstream_v1/p3r_13a04_rpc_start_manifest.v1.json",
-    "start_manifest_sha256": "cda2a4a03b5bdb3e3b5074ee11c0682a95be131bde0e77d01c69e58fcf121f50",
-    "status": "HOLD",
-    "verdict": "P3R_13A04_RPC_HOLD"
+    "finding": "5/5 rotating boundary wallets received exact 29,999,995,000-lamport successful native-system transfers, 5-39 seconds before the retained 29,999,990,000-lamport boundary transfer. No common upstream source wallet observed in acquired hop +1.",
+    "namespace": "/tmp/p3r-clean-20260824T092959Z/rpc_13a04_upstream_v3/",
+    "next_action": "If authorized, repeat this exact bounded evidence acquisition contract for the other Tier-1 candidates; retain no identity or canonical-promotion claim.",
+    "provider": "HELIUS_TEMP_API_KEY (not persisted)",
+    "provider_requests_made": 31,
+    "recommendation": "EXPAND_TARGETED_RPC_TO_OTHER_TIER1 only under separately bounded authorization; do not continue 13a04 deeper without new authorization.",
+    "safety": {
+      "candidate_membership_mutation": false,
+      "queue_inserts_or_replay": false,
+      "runtime_changes": false,
+      "source_databases_read_only": true,
+      "source_writes": false
+    },
+    "status": "PASS",
+    "verdict": "P3R_13A04_UPSTREAM_BEHAVIOURAL_RECURRENCE_FOUND"
   },
   "p3r_activity_priority_20260824": {
     "activity_counts": {
@@ -127,6 +132,6 @@
     ],
     "result": "2 passed"
   },
-  "updated_at_utc": "2026-08-24T14:18:32.187395Z",
+  "updated_at_utc": "2026-08-24T14:22:51.089026Z",
   "verdict": "P3R_SHADOW_EVALUATION_COMPLETE"
 }

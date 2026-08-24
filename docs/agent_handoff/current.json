@@ -5,11 +5,11 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "Exact 99,999,985,000-lamport evidence is a broad motif across 135 mints and therefore is not operation-unique without higher-dimensional context.",
+  "blocker": "RPC resolved every repeated-parent launch anchor but parsed closeAccount instructions did not emit a close authority. Candidate parent is stored local evidence, not a proven signing authority from this pass.",
   "engineering_revision": "p3r-corrected-shadow-successor-v1",
   "exact_next_action": "Diagnose and rerun the isolated root-infrastructure verifier with an explicit request ledger before reporting root-edge verification.",
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "Use the frozen full amount-population artifact to investigate individual repeated candidate-parent clusters separately; retain EC1 as one 15-mint subset and do not merge clusters based on amount alone.",
+  "next_action": "Resolve account-key/signer relationships from the 59 already-identified anchor signatures, then group any repeated signer/controller evidence; do not infer it from candidate_parent alone.",
   "operations_registry_activity_metrics": {
     "activity_artifact": "/tmp/p3r-registry-migration/active_operations_launch_activity_snapshots.v3.json",
     "activity_artifact_sha256": "4d1bdb9db2e83aba1c2c5fd82ac248abea9ee1b48a391095f01003ea73041ef9",
@@ -383,7 +383,7 @@
   },
   "schema_version": 1,
   "status": "PASS",
-  "summary": "Read-only local materialization of all wt_walkback_edge_candidates rows at amount_lamports=99,999,985,000 complete: 135 rows/mints, 135 distinct stored wallets, 91 candidate parents, 2026-07-21T18:00:53Z to 2026-08-24T17:56:11Z. 112 SELECTED hop-1 WSOL_WRAP_CLOSE; 7 ALTERNATIVE hop-1 WSOL_WRAP_CLOSE; remaining 16 are mixed PLAIN_XFER/other hop-depth evidence. EC1 intersects exactly 15 rows/mints. Artifact: /tmp/p3r-clean-20260824T092959Z/exact_amount_99999985000_v1/p3r_exact_amount_99999985000_population.v1.json SHA-256 c0da3e4a18e1c33c6866bf17d64d5a884d14d70fb13c5262cfa3e8fcc887e429. No provider calls or writes.",
+  "summary": "Full exact-amount repeated-parent RPC launch pass complete: 59/59 expected hop-1 WSOL_WRAP_CLOSE anchors across 23 repeated candidate-parent clusters were RPC-available and each had a matching close edge into its creator wallet via a distinct temporary account. Raw runner status remained IN_PROGRESS because the execution boundary interrupted final status write, but persisted result count equals expected scope; immutable completion record establishes this. Artifacts: /tmp/p3r-clean-20260824T092959Z/exact_amount_99999985000_rpc_repeated_parents_v1/p3r_exact_amount_repeated_parent_rpc.v1.json sha256 f3584a9201cb9aef40ee76839b5bb7d09454e4dbb4e5a083b359934faa933c72; completion sha256 e09a95f8ca5b1da681c29e7dec770528348e112e00bd058fe8007c3419f34636. No source writes or runtime changes.",
   "tests": {
     "executed": [
       "tests/test_p3r_prospective_shadow_exclusion.py"
@@ -392,5 +392,5 @@
   },
   "updated_at_utc": "2026-08-24T00:00:00Z",
   "updated_by": "codex",
-  "verdict": "P3R_EXACT_AMOUNT_POPULATION_MATERIALIZED"
+  "verdict": "P3R_EXACT_AMOUNT_REPEATED_PARENT_RPC_COMPLETE_AUTHORITY_UNRESOLVED"
 }

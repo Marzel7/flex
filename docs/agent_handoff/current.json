@@ -213,6 +213,19 @@
       "strong_alternative": 18
     }
   },
+  "p3r_af5004_okx_direct_exclusion": {
+    "candidate_id": "p3r-candidate-af5004dfe42cfe11",
+    "direct_okx_funded_member_creators": 0,
+    "frozen_members": 52,
+    "limitation": "Does not measure upstream/multi-hop OKX provenance; that requires a separately defined bounded lineage trace.",
+    "okx_address": "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV",
+    "provider_calls": false,
+    "remaining_launches": 52,
+    "removed_launches": 0,
+    "scope": "Exact frozen members; token_analysis.earliest_tx_creator joined to creator_funders on the supplied address only.",
+    "source_writes": false,
+    "status": "RESOLVED_DIRECT_ONLY"
+  },
   "p3r_bf30e7_behaviour_binding": {
     "binding": {
       "atomic_coverage": 1.0,
@@ -343,7 +356,7 @@
     ],
     "result": "2 passed"
   },
-  "updated_at_utc": "2026-08-24T16:12:03.089555+00:00",
+  "updated_at_utc": "2026-08-24T16:14:52.600192+00:00",
   "updated_by": "codex",
   "verdict": "OPERATIONS_REGISTRY_AUTHORITY_MIGRATION_COMPLETE"
 }

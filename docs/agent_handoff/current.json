@@ -227,10 +227,13 @@
       "src/ops/operator_reader.py",
       "templates/operator_intelligence.html"
     ],
+    "future_operations": "Any manually admitted operator with a linked operation_behavioural_profile uses the same shared layout.",
+    "layout_contract": "Profile-aware operations render inside the common WATCHTOWER-style operator shell: operational role, snapshot, confidence, intelligence, expansion queue, and operational evolution.",
     "operator_id": "ccb7b1b0-56e1-4543-9e95-3f284bed3943",
-    "runtime_verification": "watchtower_api restarted; GET /api/ops/operators/<P3R_13A04> returned profile and activity snapshot.",
+    "removed": "Detached P3R panel above breadcrumb; legacy placeholders for profile-aware operations are replaced with qualified profile data.",
+    "runtime_verification": "watchtower_api restarted; P3R detail page returned HTTP 200.",
     "scope": "Profile-first panel is conditional on a linked behavioural profile and does not alter legacy WATCHTOWER rendering.",
-    "status": "LIVE_API_VERIFIED"
+    "status": "SHARED_LAYOUT_LIVE"
   },
   "p3r_watch_now_tiers_20260824": {
     "artifact_manifest": "/tmp/p3r-clean-20260824T092959Z/activity/tiers/p3r_watch_now_tiering_artifact_manifest.v1.json",
@@ -294,7 +297,7 @@
     ],
     "result": "2 passed"
   },
-  "updated_at_utc": "2026-08-24T15:45:50.548449+00:00",
+  "updated_at_utc": "2026-08-24T15:51:11.919888+00:00",
   "updated_by": "codex",
   "verdict": "OPERATIONS_REGISTRY_AUTHORITY_MIGRATION_COMPLETE"
 }

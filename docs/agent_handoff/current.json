@@ -10,8 +10,8 @@
   "milestone": "P3R corrected prospective shadow successor",
   "next_action": "Continue append-only read-only shadow capture until enough complete nonzero features and an eligible background population exist; do not use quarantined 114000Z metrics.",
   "operations_registry_activity_metrics": {
-    "activity_artifact": "/tmp/p3r-registry-migration/active_operations_launch_activity_snapshots.v2.json",
-    "activity_artifact_sha256": "06614c0fef572dfc1d965cddd38e3e401b82f1fc732a99d49d9003f54370ef15",
+    "activity_artifact": "/tmp/p3r-registry-migration/active_operations_launch_activity_snapshots.v3.json",
+    "activity_artifact_sha256": "4d1bdb9db2e83aba1c2c5fd82ac248abea9ee1b48a391095f01003ea73041ef9",
     "fields": [
       "total_observed_launches",
       "average_inter_launch_gap_seconds",
@@ -36,11 +36,19 @@
     },
     "next_action": "Optional separate authorization: materialize a qualified read-only launch chronology into an activity snapshot.",
     "null_rendering_fix": "Fixed JavaScript null coercion that rendered missing values as 0/0 min/1970; unavailable values now render Not observed.",
-    "runtime_verification": "GET /api/ops/operators returned real metrics for both active operations.",
+    "runtime_verification": "GET /api/ops/operators returned WATCHTOWER total_launches=276.",
     "semantics": "Values are sourced only from the latest operation_activity_snapshots record; unavailable values render as Not observed.",
     "source_state": "operation_activity_snapshots contains 0 rows; no historic source was silently substituted.",
-    "status": "LIVE_DATA_MATERIALIZED_VERIFIED",
-    "v1_superseded_reason": "same-second launch timestamps were incorrectly deduplicated; v2 preserves distinct mint launches."
+    "status": "WATCHTOWER_CANONICAL_METRICS_VERIFIED",
+    "v1_superseded_reason": "same-second launch timestamps were incorrectly deduplicated; v2 preserves distinct mint launches.",
+    "v2_superseded_reason": "WATCHTOWER scope was incorrectly expanded from current treasury bindings to every historic creator launch; canonical scope is wt_watchtower_launches only.",
+    "watchtower_contract": {
+      "cadence_source": "wt_watchtower_launches.create_time",
+      "timestamp_missing_launches": 1,
+      "timestamp_qualified_launches": 275,
+      "total_distinct_mints": 276,
+      "total_launches_displayed": 276
+    }
   },
   "operations_registry_authority_migration": {
     "active_manual_operations": [
@@ -253,7 +261,7 @@
     ],
     "result": "2 passed"
   },
-  "updated_at_utc": "2026-08-24T15:35:44.081052+00:00",
+  "updated_at_utc": "2026-08-24T15:38:15.471599+00:00",
   "updated_by": "codex",
   "verdict": "OPERATIONS_REGISTRY_AUTHORITY_MIGRATION_COMPLETE"
 }

@@ -5,11 +5,11 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "Cohort-wide shared upstream ownership is not yet proven: several long chains are confirmed, but they are not a substitute for complete branch coverage across all 15 EC1 candidate launches.",
+  "blocker": "The exact amount is not EC1-exclusive: it occurs in 135 retained edge records across 135 mints, so amount alone cannot establish membership.",
   "engineering_revision": "p3r-corrected-shadow-successor-v1",
   "exact_next_action": "Diagnose and rerun the isolated root-infrastructure verifier with an explicit request ledger before reporting root-edge verification.",
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "If authorized, freeze a representative branch coverage plan for the remaining EC1 direct-funder paths and test root/ladder convergence without treating the recent-seven-day window as the full operation.",
+  "next_action": "Use the structured source fields (mint, wallet/creator, candidate_parent/funder, signature, mechanism, hop, selection status) together with the frozen EC1 membership and atomic evidence for any further operation analysis.",
   "operations_registry_activity_metrics": {
     "activity_artifact": "/tmp/p3r-registry-migration/active_operations_launch_activity_snapshots.v3.json",
     "activity_artifact_sha256": "4d1bdb9db2e83aba1c2c5fd82ac248abea9ee1b48a391095f01003ea73041ef9",
@@ -383,7 +383,7 @@
   },
   "schema_version": 1,
   "status": "PASS",
-  "summary": "EC1 evidence status clarified: 15 frozen historical candidate launches share a 99,999,985,000-lamport WSOL_WRAP_CLOSE creator-funding anchor and matching atomic launch mechanism. Confirmed long upstream branches include C927-to-6hak (11/11 supplied links, final edge proven by supplied finalized RPC tx) plus prior guided branches. The recent seven-day accounts are only a time-window subset, not the whole operation. No additional RPC, source writes, queue writes, or runtime changes in this clarification turn.",
+  "summary": "Read-only local query of database/wt_ops_v2.db confirms 135 wt_walkback_edge_candidates rows across 135 mints at exact amount_lamports=99,999,985,000. Of these, 119 are hop-1 WSOL_WRAP_CLOSE records: 112 SELECTED and 7 ALTERNATIVE. The table retains mint, wallet (creator in the observed EC1 rows), candidate_parent (direct funder), signature, mechanism, hop depth, temporary account, and selection status. No provider calls or writes.",
   "tests": {
     "executed": [
       "tests/test_p3r_prospective_shadow_exclusion.py"
@@ -392,5 +392,5 @@
   },
   "updated_at_utc": "2026-08-24T00:00:00Z",
   "updated_by": "codex",
-  "verdict": "P3R_EC1_OPERATION_EVIDENCE_PARTIAL"
+  "verdict": "P3R_EC1_LOCAL_FUNDING_EVIDENCE_CONFIRMED"
 }

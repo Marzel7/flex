@@ -20,10 +20,11 @@
       "src/ops/operator_reader.py",
       "templates/operators_index.html"
     ],
-    "next_action": "Authorize watchtower_api restart and browser/API verification; separately authorize qualified activity-snapshot materialization if real values are required.",
+    "next_action": "Optional separate authorization: materialize a qualified read-only launch chronology into an activity snapshot.",
+    "runtime_verification": "watchtower_api restarted; GET /api/ops/operators returned all three fields as null for WATCHTOWER, correctly reflecting the zero-snapshot source state.",
     "semantics": "Values are sourced only from the latest operation_activity_snapshots record; unavailable values render as Not observed.",
     "source_state": "operation_activity_snapshots contains 0 rows; no historic source was silently substituted.",
-    "status": "IMPLEMENTED_PENDING_RUNTIME_RELOAD"
+    "status": "LIVE_ENDPOINT_VERIFIED"
   },
   "operations_registry_authority_migration": {
     "active_manual_operations": [
@@ -217,7 +218,7 @@
     ],
     "result": "2 passed"
   },
-  "updated_at_utc": "2026-08-24T15:24:33.438788+00:00",
+  "updated_at_utc": "2026-08-24T15:26:42.267355+00:00",
   "updated_by": "codex",
   "verdict": "OPERATIONS_REGISTRY_AUTHORITY_MIGRATION_COMPLETE"
 }

@@ -9,6 +9,27 @@
   "engineering_revision": "p3r-corrected-shadow-successor-v1",
   "milestone": "P3R corrected prospective shadow successor",
   "next_action": "Continue append-only read-only shadow capture until enough complete nonzero features and an eligible background population exist; do not use quarantined 114000Z metrics.",
+  "operations_registry_authority_migration": {
+    "active_manual_operations": [
+      "WATCHTOWER"
+    ],
+    "activity_profile_smoke": "schema present; no WATCHTOWER activity snapshot, metrics intentionally absent",
+    "artifacts": {
+      "application": "/tmp/p3r-registry-migration/registry_migration_application.v1.json",
+      "idempotency_activity": "/tmp/p3r-registry-migration/registry_idempotency_and_activity_smoke.v1.json",
+      "postcheck": "/tmp/p3r-registry-migration/registry_post_migration_verification.v1.json",
+      "preflight": "/tmp/p3r-registry-migration/registry_migration_preflight.v1.json"
+    },
+    "candidate_13a04_status": "PENDING_MANUAL_REVIEW_UNPROMOTED",
+    "dv34_expected_membership": 131,
+    "full_gate": "40 passed, 0 failed",
+    "idempotency": "PASS rollback-only rerun, no duplicated dispositions",
+    "next_action": "Obtain a separate explicit manual admission decision before assigning candidate p3r-candidate-13a04d7da7a1fc55 to an active operator.",
+    "remainder_expected_membership": 108,
+    "role_expectation": "FUNDING_STRUCTURE",
+    "status": "COMPLETE",
+    "three_sw2_disposition": "REFERENCE_RETIRED"
+  },
   "operations_registry_authority_migration_20260824": {
     "blocking_neighbour_tests": "4 failures in tests/test_ops_ui_p2_unified_implementation.py: live DV34 expectations (131 vs 123, 108 vs 100, FUNDING_STRUCTURE vs expected role) and existing >50ms performance budget breach",
     "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e",
@@ -149,8 +170,8 @@
     "trading_ranking_prediction": false
   },
   "project": {
-    "branch": "classification-attribution-axis",
-    "git_head": "38ddc602d6fb049e385edff51246491fd9fbbd8e"
+    "git_head": "e9d0a404417804faa70586c7b27f6a478028b798",
+    "working_branch": "classification-attribution-axis"
   },
   "schema_version": 1,
   "status": "PASS",
@@ -171,6 +192,7 @@
     ],
     "result": "2 passed"
   },
-  "updated_at_utc": "2026-08-24T14:58:16.157515Z",
-  "verdict": "P3R_SHADOW_EVALUATION_COMPLETE"
+  "updated_at_utc": "2026-08-24T15:10:12.999062+00:00",
+  "updated_by": "codex",
+  "verdict": "OPERATIONS_REGISTRY_AUTHORITY_MIGRATION_COMPLETE"
 }

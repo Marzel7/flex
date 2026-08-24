@@ -5,9 +5,9 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "The fixed 16-hop ceiling was reached before the requested FK9wLKizAtRtfNH57Y4J1wmQxpwpZ2EMYNZ1kME2V7hM target; continuation requires a separately frozen higher-ceiling contract.",
+  "blocker": "Under the same frozen predecessor rule, 21/39 branches produced one qualified immediate edge and all 39 stopped before a second edge; no 10+ hop replication is established.",
   "engineering_revision": "p3r-corrected-shadow-successor-v1",
-  "exact_next_action": "Await explicit authorization for a new bounded continuation from AE3VAHcBAGXnkYZrbhJMQ5amjetbCgEoTAva9kMuquDf; do not reuse or alter the immutable 16-hop evidence.",
+  "exact_next_action": "Await explicit authorization for a revised bounded acquisition contract if deeper traces are required; preserve the existing branch-level artifacts.",
   "milestone": "P3R corrected prospective shadow successor",
   "next_action": "Continue append-only read-only shadow capture until enough complete nonzero features and an eligible background population exist; do not use quarantined 114000Z metrics.",
   "operations_registry_activity_metrics": {
@@ -383,7 +383,7 @@
   },
   "schema_version": 1,
   "status": "PASS",
-  "summary": "Single CPM creator upstream RPC trace: 16 normalized hops, 33 Helius requests, target not reached. Observed alternating system transfers and SPL closeAccount events in 1-6 second cadence, with repeated +10,000-lamport increments among large transfers. Artifacts /tmp/p3r-clean-20260824T092959Z/rpc_af500_cpm_creator_chain_v2; termination sha256 87a0307da6b9ffbc747226095cb367e7ef5df4d62ddd9ec2c4718346e0727fb6. No source writes or runtime changes.",
+  "summary": "AF500 remaining 39 launch fixed-ceiling RPC trace: 192 Helius requests, 21 first-hop edges, 18 no edge, zero branch extended past one hop under strict rule. Artifact namespace /tmp/p3r-clean-20260824T092959Z/rpc_af500_remaining39_v1. No source writes or runtime changes.",
   "tests": {
     "executed": [
       "tests/test_p3r_prospective_shadow_exclusion.py"
@@ -392,5 +392,5 @@
   },
   "updated_at_utc": "2026-08-24T16:22:55.943075+00:00",
   "updated_by": "codex",
-  "verdict": "P3R_AF500_CPM_CREATOR_CHAIN_PARTIAL"
+  "verdict": "P3R_AF500_REMAINING39_UPSTREAM_PARTIAL"
 }

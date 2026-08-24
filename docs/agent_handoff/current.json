@@ -5,9 +5,9 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": null,
+  "blocker": "The high-ceiling root-edge RPC process completed without materializing its normalized result artifact; no DuTb or C927 relationship can be claimed from this execution.",
   "engineering_revision": "p3r-corrected-shadow-successor-v1",
-  "exact_next_action": "Use the 14 verified selected-signature anchors plus the JzXZ supplied anchor for any further per-creator upstream work.",
+  "exact_next_action": "Diagnose and rerun the isolated root-infrastructure verifier with an explicit request ledger before reporting root-edge verification.",
   "milestone": "P3R corrected prospective shadow successor",
   "next_action": "Continue append-only read-only shadow capture until enough complete nonzero features and an eligible background population exist; do not use quarantined 114000Z metrics.",
   "operations_registry_activity_metrics": {
@@ -383,7 +383,7 @@
   },
   "schema_version": 1,
   "status": "PASS",
-  "summary": "EC1 remaining14 exact launch-anchor verification: 14/14 selected WSOL_WRAP_CLOSE transactions found and finalized via Helius; each retains 99,999,985,000 lamports and a specific direct funder/creator boundary. Artifact /tmp/p3r-clean-20260824T092959Z/rpc_ec1_remaining14_launch_anchors_v1/p3r_ec1_remaining14_launch_anchors.v1.json sha256 2f242b6e1021ffd5b8045b199557eb6962e450778d6989ac999dc5c66696d52f. No source writes or runtime changes.",
+  "summary": "Attempted extensive EC1 root infrastructure verification for DuTb-to-12-funder and C927-to-Crnc claims. No normalized result artifact was materialized; result is HOLD. No source writes or runtime changes.",
   "tests": {
     "executed": [
       "tests/test_p3r_prospective_shadow_exclusion.py"
@@ -392,5 +392,5 @@
   },
   "updated_at_utc": "2026-08-24T16:22:55.943075+00:00",
   "updated_by": "codex",
-  "verdict": "P3R_EC1_REMAINING14_LAUNCH_ANCHORS_RPC_VERIFIED"
+  "verdict": "P3R_EC1_ROOT_INFRASTRUCTURE_RPC_EXECUTION_HOLD"
 }

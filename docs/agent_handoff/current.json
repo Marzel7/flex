@@ -5,11 +5,11 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": null,
+  "blocker": "The stored candidate_parent field is a Walkback evidence field and should not be treated as a cohort-wide real-world identity claim; selection status and hop depth remain necessary context.",
   "engineering_revision": "p3r-corrected-shadow-successor-v1",
   "exact_next_action": "Diagnose and rerun the isolated root-infrastructure verifier with an explicit request ledger before reporting root-edge verification.",
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "Open the existing generic operator detail route for P3R_EC1 when visual review is desired; retain the partial upstream-controller qualification in the profile and do not broaden it into an identity claim.",
+  "next_action": "Use the exported evidence rows to choose a specific repeated-parent cluster for separate qualification; do not expand P3R_EC1 beyond its frozen 15-member profile merely because the broad amount motif has 135 mints.",
   "operations_registry_activity_metrics": {
     "activity_artifact": "/tmp/p3r-registry-migration/active_operations_launch_activity_snapshots.v3.json",
     "activity_artifact_sha256": "4d1bdb9db2e83aba1c2c5fd82ac248abea9ee1b48a391095f01003ea73041ef9",
@@ -383,7 +383,7 @@
   },
   "schema_version": 1,
   "status": "PASS",
-  "summary": "User-authorized local Active Operations Registry admission completed for P3R_EC1. Operator id 4c96fa15-c318-5a09-a4d9-bb9b78a8dd2b; source candidate p3r-candidate-ec1b6cff80643746; ACTIVE_MANUAL / CONFIRMED / HIGH. Version-1 profile records 15 member launch mints, 15 creators, 12 direct funders, 99,999,985,000-lamport WSOL_WRAP_CLOSE workflow, recurring atomic sequence, and partial upstream status. Activity snapshot from selected anchor block times: 15 launches, average gap 48279.57142857143 seconds, last launch 1787548938, VERY_ACTIVE. Artifact: /tmp/p3r-clean-20260824T092959Z/registry/p3r_ec1_manual_registry_admission.v1.json SHA-256 7818a452476be0f63739aa182c1ab40530aeba65ba4b022b2f861893a1582ec7. No provider calls, queue writes, runtime changes, or service restarts; only registry tables were written under explicit authorization.",
+  "summary": "Read-only chronological export created for all 135 exact 99,999,985-lamport wt_walkback_edge_candidates rows: mint, stored creator wallet, stored candidate_parent/direct funder, selection status, mechanism, hop depth, signature, and block time. CSV: /tmp/p3r-clean-20260824T092959Z/exact_amount_99999985000_v1/p3r_exact_amount_99999985000_mint_creator_initial_funder.v1.csv SHA-256 d798de19fe3848c2c43577ba3546b79fbd9d6acd08323a017f7be54c9d70b7a3; manifest SHA-256 6745f5c4112abd3b7cdc82cbd701a251d3e957e128d2f08260d5f2af1265b159. No writes to source tables, no provider calls, queue writes, or runtime changes.",
   "tests": {
     "executed": [
       "tests/test_p3r_prospective_shadow_exclusion.py"
@@ -392,5 +392,5 @@
   },
   "updated_at_utc": "2026-08-24T00:00:00Z",
   "updated_by": "codex",
-  "verdict": "P3R_EC1_ACTIVE_MANUAL_ADMITTED"
+  "verdict": "P3R_EXACT_AMOUNT_MINT_CREATOR_FUNDER_EXPORT_COMPLETE"
 }

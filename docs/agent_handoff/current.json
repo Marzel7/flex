@@ -32165,8 +32165,27 @@
       "status": "PASS"
     }
   },
-  "updated_at": "2026-08-18T14:31:00Z",
-  "updated_at_utc": "2026-08-18T14:31:00Z",
+  "p3r_historical_features_resumable_chunk_commit": {
+    "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e",
+    "production_flags": {
+      "filesystem_mutation": true,
+      "checkpoint_preserved": true,
+      "default_output_path_unchanged": true,
+      "default_checkpoint_path_unchanged": true
+    },
+    "tests": {
+      "status": "PASS",
+      "command": "pytest -q tests/test_extract_historical_features.py",
+      "passed": 3,
+      "failed": 0
+    },
+    "verdict": "PASS",
+    "blocker": null,
+    "next_action": "Await explicit human instruction for clean rebuild; atomic/resumable protocol is implemented and failure-boundary behavior is validated.",
+    "result": "READY_FOR_CLEAN_REBUILD"
+  },
+  "updated_at": "2026-08-24T09:23:16Z",
+  "updated_at_utc": "2026-08-24T09:23:16Z",
   "updated_by": "agent_local",
-  "verdict": "READY_B2Z_P2_19_MEMBER_MANUAL_RESUME_GATE"
+  "verdict": "READY_FOR_CLEAN_REBUILD"
 }

@@ -30979,6 +30979,105 @@
     "test_suite_status": "85/85 passing (relevant B2Z modules), zero regressions",
     "workstreams_completed": 12
   },
+  "p3r_historical_corpus_qualification": {
+    "artifact_path": "/tmp/p3r-clean-20260824T092959Z/qualification/p3r_historical_corpus_qualification.v3.json",
+    "artifact_sha256": "b7969bce6af3c2f15a88da9ab612ef165dd3d181e7cac85b01d08c61d78bbe39",
+    "blocker": "Per-record transaction/timestamp/status/provenance fields are absent; use only structural lineage evaluation with nullable fields retained and exclude 12 contradictory records.",
+    "clean_manifest_digest": "c5aa554ab03f64bad048815e984be737e165f88982f4da5222d65fdb87836260",
+    "contradictions": {
+      "max_hop_depth_exceeds_edge_count": 12
+    },
+    "corpus_sha256": "a1779e0f78f7aff8813e7ec4402073c7a6c99232fc80f0f8dcdd562a945524ce",
+    "eligibility": {
+      "ELIGIBLE": {
+        "count": 11343,
+        "pct": 39.27223626354603
+      },
+      "INELIGIBLE": {
+        "count": 12,
+        "pct": 0.04154693072049302
+      },
+      "PARTIAL": {
+        "count": 17528,
+        "pct": 60.68621680573348
+      }
+    },
+    "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e",
+    "exact_next_action": "P3R evaluation design and execution limited to frozen lineage-structure features, with the stated provenance and temporal-evidence exclusions enforced.",
+    "frozen_queue_digest": "d111116fd7a1e149e8fea30498cef6c35e3de534cdefef9da78dd4223daff5c3",
+    "identity_errors": [],
+    "ineligible_reasons": {
+      "max_hop_depth_exceeds_edge_count": 12
+    },
+    "ordered_queue_exact_match": true,
+    "partial_reasons": {
+      "creator_null": 2785,
+      "direct_funder_null": 14489,
+      "max_hop_depth_null": 17528,
+      "mechanisms_null": 17528,
+      "parents_null": 17528
+    },
+    "population": 28883,
+    "production_flags": {
+      "clean_corpus_mutated": false,
+      "old_forensic_artifacts_mutated": false,
+      "provider_or_network_calls": 0,
+      "source_table_writes": 0
+    },
+    "qualification_code_sha256": "30e206ce61cde00133685ca4d7de2810da4dfc71f975109de83a023e7a23c455",
+    "result": "P3R_HISTORICAL_CORPUS_PARTIALLY_QUALIFIED"
+  },
+  "p3r_historical_features_clean_rebuild": {
+    "blocker": null,
+    "checkpoint_output_match": true,
+    "chunks_completed": 15,
+    "current_chunk": 15,
+    "duplicate_mint_count": 0,
+    "duplicate_row_count": 0,
+    "durable_rows": 28883,
+    "engineering_revision": "e9d0a404417804faa70586c7b27f6a478028b798",
+    "exhausted": true,
+    "extractor_digest": "d7c9c4d626044f1518e131a3d521683569a87712d47c52d29d76de6c26ecec5b",
+    "feature_contract_digest": "d7c9c4d626044f1518e131a3d521683569a87712d47c52d29d76de6c26ecec5b",
+    "frozen_queue_digest": "d111116fd7a1e149e8fea30498cef6c35e3de534cdefef9da78dd4223daff5c3",
+    "frozen_queue_size": 28883,
+    "last_committed_mint": "zzneDAaKYATB9N8DnHKpUpuqW6rfhFZtR3KG65mpump",
+    "next_chunk": 16,
+    "physical_rows": 28883,
+    "production_flags": {
+      "network_calls": false,
+      "old_checkpoint_preserved": true,
+      "old_output_preserved": true,
+      "source_table_writes": false
+    },
+    "result": "CLEAN_REBUILD_COMPLETE",
+    "resume_validated": true,
+    "run_manifest_digest": "c5aa554ab03f64bad048815e984be737e165f88982f4da5222d65fdb87836260",
+    "run_manifest_path": "/tmp/p3r-clean-20260824T092959Z/p3r_historical_features.clean_rebuild_manifest.json",
+    "run_namespace": "/tmp/p3r-clean-20260824T092959Z",
+    "unique_mint_count": 28883,
+    "valid_json_records": 28883,
+    "verdict": "CLEAN_REBUILD_COMPLETE"
+  },
+  "p3r_historical_features_resumable_chunk_commit": {
+    "blocker": null,
+    "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e",
+    "next_action": "Await explicit human instruction for clean rebuild; atomic/resumable protocol is implemented and failure-boundary behavior is validated.",
+    "production_flags": {
+      "checkpoint_preserved": true,
+      "default_checkpoint_path_unchanged": true,
+      "default_output_path_unchanged": true,
+      "filesystem_mutation": true
+    },
+    "result": "READY_FOR_CLEAN_REBUILD",
+    "tests": {
+      "command": "pytest -q tests/test_extract_historical_features.py",
+      "failed": 0,
+      "passed": 3,
+      "status": "PASS"
+    },
+    "verdict": "PASS"
+  },
   "pending_human_decisions": 9,
   "production_state": {
     "cohort_mode": "OFF",
@@ -32165,59 +32264,8 @@
       "status": "PASS"
     }
   },
-  "p3r_historical_features_resumable_chunk_commit": {
-    "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e",
-    "production_flags": {
-      "filesystem_mutation": true,
-      "checkpoint_preserved": true,
-      "default_output_path_unchanged": true,
-      "default_checkpoint_path_unchanged": true
-    },
-    "tests": {
-      "status": "PASS",
-      "command": "pytest -q tests/test_extract_historical_features.py",
-      "passed": 3,
-      "failed": 0
-    },
-    "verdict": "PASS",
-    "blocker": null,
-    "next_action": "Await explicit human instruction for clean rebuild; atomic/resumable protocol is implemented and failure-boundary behavior is validated.",
-    "result": "READY_FOR_CLEAN_REBUILD"
-  },
-  "p3r_historical_features_clean_rebuild": {
-    "engineering_revision": "e9d0a404417804faa70586c7b27f6a478028b798",
-    "production_flags": {
-      "old_output_preserved": true,
-      "old_checkpoint_preserved": true,
-      "network_calls": false,
-      "source_table_writes": false
-    },
-    "run_namespace": "/tmp/p3r-clean-20260824T092959Z",
-    "run_manifest_path": "/tmp/p3r-clean-20260824T092959Z/p3r_historical_features.clean_rebuild_manifest.json",
-    "run_manifest_digest": "c5aa554ab03f64bad048815e984be737e165f88982f4da5222d65fdb87836260",
-    "frozen_queue_size": 28883,
-    "frozen_queue_digest": "d111116fd7a1e149e8fea30498cef6c35e3de534cdefef9da78dd4223daff5c3",
-    "extractor_digest": "d7c9c4d626044f1518e131a3d521683569a87712d47c52d29d76de6c26ecec5b",
-    "feature_contract_digest": "d7c9c4d626044f1518e131a3d521683569a87712d47c52d29d76de6c26ecec5b",
-    "chunks_completed": 15,
-    "durable_rows": 28883,
-    "physical_rows": 28883,
-    "valid_json_records": 28883,
-    "unique_mint_count": 28883,
-    "duplicate_row_count": 0,
-    "duplicate_mint_count": 0,
-    "current_chunk": 15,
-    "next_chunk": 16,
-    "last_committed_mint": "zzneDAaKYATB9N8DnHKpUpuqW6rfhFZtR3KG65mpump",
-    "checkpoint_output_match": true,
-    "resume_validated": true,
-    "exhausted": true,
-    "verdict": "CLEAN_REBUILD_COMPLETE",
-    "blocker": null,
-    "result": "CLEAN_REBUILD_COMPLETE"
-  },
   "updated_at": "2026-08-24T09:31:56Z",
-  "updated_at_utc": "2026-08-24T09:31:56Z",
+  "updated_at_utc": "2026-08-24T09:39:28.361608+00:00",
   "updated_by": "agent_local",
-  "verdict": "CLEAN_REBUILD_COMPLETE"
+  "verdict": "P3R_HISTORICAL_CORPUS_PARTIALLY_QUALIFIED"
 }

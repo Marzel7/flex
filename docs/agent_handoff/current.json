@@ -946,6 +946,18 @@
     "exact_next_action": "Await user instruction: retain and audit the 687 rows, or perform a user-authorized scoped rollback before activating the corrected worker code.",
     "execution_error": "The one-off reconciler queried all historical missing queue-confirmed rows rather than the intended five recent rows.",
     "finding": "Five recent wt_walkback_queue rows had intelligence_outcome=WATCHTOWER_CONFIRMED while their wt_attribution_outcomes rows remained UNKNOWN_INFRASTRUCTURE, so the legacy promotion bridge did not admit them.",
+    "funding_history_coverage": {
+      "cohort_mints": 687,
+      "full_atomic_wsol_mints": 0,
+      "funder_signature": 5,
+      "provisioning_sessions": 5,
+      "queue_creator": 687,
+      "queue_subprov": 9,
+      "queue_treasury": 687,
+      "subprov_to_creator_edges": 5,
+      "treasury_to_subprov_edges": 5,
+      "verdict": "Only 5/687 have a persisted auditable two-edge funding route; queue treasury fields alone are insufficient to claim complete funding history."
+    },
     "ledger_effect": {
       "after_distinct_mints": 977,
       "before_distinct_mints": 290,

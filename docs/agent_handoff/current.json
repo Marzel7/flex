@@ -5,11 +5,11 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "All confirmed operations now derive a Behavioural Fingerprint card from retained data; durable operation_infrastructure_anchors persistence/migration, variant persistence, full render suite, and performance-gate coverage remain unfinished.",
-  "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e + uncommitted generic confirmed-operation fingerprint cards",
-  "exact_next_action": "Refresh WATCHTOWER Summary and confirm the Behavioural Fingerprint card displays Treasury to sub-provider to creator, WSOL_WRAP_CLOSE, recurring infrastructure, and recorded baseline.",
+  "blocker": "EC1 retained-activity snapshot is stale for current-state purposes: its last qualified walkback event is 2026-08-24 06:22:18 UTC, about 24h42m before this inspection; manual ACTIVE disposition must not be read as a fresh-launch assertion. Durable anchor persistence/migration, variant persistence, full render suite, and performance gate remain unfinished.",
+  "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e + uncommitted compact confirmed-operation Summary",
+  "exact_next_action": "Perform a read-only fresh activity/cadence evaluation against current qualified walkback observations before changing EC1 lifecycle state; do not infer an absence of launches solely from the current snapshot.",
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "Complete durable anchor persistence and full Summary/Analysis validation; no provider calls, queue replay, promotion, or identity mutation is authorized.",
+  "next_action": "Decide whether to authorize a read-only fresh EC1 activity evaluation; no provider calls, queue replay, promotion, or identity mutation is authorized.",
   "operations_registry_activity_metrics": {
     "activity_artifact": "/tmp/p3r-registry-migration/active_operations_launch_activity_snapshots.v3.json",
     "activity_artifact_sha256": "4d1bdb9db2e83aba1c2c5fd82ac248abea9ee1b48a391095f01003ea73041ef9",
@@ -386,11 +386,8 @@
   "status": "PASS",
   "summary": "Completed non-production 135-wallet full-history direct-funder tracer preparation. Added script that supports strict 135 membership validation, paginated Helius address-history scan per creator wallet, and output of JSONL result rows. No production code was changed.",
   "tests": {
-    "executed": [
-      "python -m pytest tests/test_operation_summary.py",
-      "python -m py_compile src/ops/operation_summary.py"
-    ],
-    "result": "PASS: 4 tests passed; compilation passed"
+    "executed": [],
+    "result": "not run; read-only activity snapshot inspection"
   },
   "updated_at_utc": "2026-08-25T00:00:00Z",
   "updated_by": "codex",

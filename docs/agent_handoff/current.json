@@ -5,11 +5,11 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "Read-only 24-hour census: 486 distinct selected walkback mints / 1,176 selected edges; P3R_EC1, P3R_13A04, and P3R_AF500 each have zero recorded-membership matches; WATCHTOWER has two retained launch matches, latest 2026-08-24 11:58:12 UTC. This does not establish absence of on-chain launches outside retained observation coverage.",
+  "blocker": "Read-only inspection of HZgqRhopNn2C3KmN9KgvjoTmtnczXFDCcGLnidojpump: selected path CAFTSz...fyHC -> J85yZd...UEk8 (600 SOL PLAIN_XFER, sig 5QDj6z...) -> creator 3EXeDU...46dJ (2.122039 SOL WSOL_WRAP_CLOSE, sig 2bGwXV...), recorded as LOW-confidence LINEAGE_GAP and not a member of any active operation profile.",
   "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e + uncommitted compact confirmed-operation Summary",
-  "exact_next_action": "Treat P3R cadence as a monitoring condition; if further classification is desired, authorize a separately scoped read-only comparison of the 486 new selected walkback mints against qualified P3R fingerprints without changing operation identity or membership.",
+  "exact_next_action": "If desired, authorize a bounded read-only comparison of this mint against WATCHTOWER and P3R qualified fingerprint contracts; do not add it to an operation or promote it based on this single path.",
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "Decide whether to authorize a read-only P3R fingerprint-comparison pass for the new walkback cohort; no provider calls, queue replay, promotion, or identity mutation is authorized.",
+  "next_action": "Decide whether to authorize a bounded read-only fingerprint comparison for HZgqRhopNn2C3KmN9KgvjoTmtnczXFDCcGLnidojpump; no provider calls, queue replay, promotion, or identity mutation is authorized.",
   "operations_registry_activity_metrics": {
     "activity_artifact": "/tmp/p3r-registry-migration/active_operations_launch_activity_snapshots.v3.json",
     "activity_artifact_sha256": "4d1bdb9db2e83aba1c2c5fd82ac248abea9ee1b48a391095f01003ea73041ef9",
@@ -387,7 +387,7 @@
   "summary": "Completed non-production 135-wallet full-history direct-funder tracer preparation. Added script that supports strict 135 membership validation, paginated Helius address-history scan per creator wallet, and output of JSONL result rows. No production code was changed.",
   "tests": {
     "executed": [],
-    "result": "not run; read-only 24-hour walkback census"
+    "result": "not run; read-only mint walkback inspection"
   },
   "updated_at_utc": "2026-08-25T00:00:00Z",
   "updated_by": "codex",

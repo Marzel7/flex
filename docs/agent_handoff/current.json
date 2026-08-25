@@ -39,7 +39,7 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "None for bounded local four-family comparison; operation activation remains out of scope.",
+  "blocker": "None for bounded local hierarchy closure; exposure/activation remain out of scope.",
   "dtuh_af500_ec1_link_check_20260825": {
     "af500_direct_connection": {
       "destination": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ",
@@ -53,8 +53,8 @@
     "status": "PARTIAL",
     "verdict": "AF500_LINK_CONFIRMED_EC1_LINK_UNPROVEN"
   },
-  "engineering_revision": "26e528b0 (main); four-family local comparison artifacts uncommitted in engineering worktree",
-  "exact_next_action": "If authorized, compare 900b/c357 alternative and role evidence on a specified labelled/control corpus before treating their shared lifecycle as a unified operation.",
+  "engineering_revision": "26e528b0 (main); hierarchy closure artifacts uncommitted in engineering worktree",
+  "exact_next_action": "If authorized, assess 063e against the parent signature and its different atomic lifecycle before creating any analyst-facing hierarchy view.",
   "generic_operation_activity_projection_20260825": {
     "exact_next_action": "Evaluate P3R matcher precision on a labelled negative/control cohort and, if authorized, implement an explicit establishment policy that writes operator membership then invokes the generic projection.",
     "implementation": "refresh_operator_activity_snapshot derives WATCHTOWER from its canonical ledger and other operations from retained behavioural-profile members plus explicit operator_launch_membership rows, resolving launch times from the core token ledger.",
@@ -836,6 +836,28 @@
     "next_action": "With user approval, exclude p3r_v2_* assessment tables from the historical-v1 table check and rerun/replay the blocked provenance artifact. Do not infer a v1-to-v2 member mapping.",
     "status": "PARTIAL",
     "verdict": "INSUFFICIENT_DURABLE_EVIDENCE_TO_REPRODUCE"
+  },
+  "p3r_v2_900b_c357_hierarchy_closure_20260825": {
+    "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/operation_hierarchy_closure/p3r-v2-900b-c357-hierarchy-v1/p3r_v2_900b_c357_operation_hierarchy_closure.v1.json",
+    "artifact_sha256": "396ac8b1532e7c2970725fcaea1fcac5f9c02c9b7b2d3ba61d18d3cd736f1f2a",
+    "children": [
+      "WSOL_PROVISION_CLOSE_1_SOL_MINUS_15K",
+      "WSOL_PROVISION_CLOSE_100_SOL_MINUS_15K"
+    ],
+    "deterministic_replay": "PASS",
+    "exact_next_action": "If authorized, assess 063e against the parent signature and its different atomic lifecycle before creating any analyst-facing hierarchy view.",
+    "finding": "The amount-agnostic shared lifecycle signature has 5 WATCH_NOW and 24 canonical-family matches, so it is a broad mechanism, not a controller identity. Exact amount preserves 900b and c357 child-variant precision.",
+    "manifest_sha256": "fc1104b97cb1b754c285ddc5bf28ac0d21533b43f401159d951d4df465b627e4",
+    "next_family": "p3r-v2-063e24a2def354f23ec5",
+    "parent": "WSOL_PROVISION_CLOSE",
+    "rpc_verdict": "RPC_OPTIONAL_VALIDATION_ONLY",
+    "safety": "No RPC/provider, tier/member/fingerprint/threshold mutation, family merge/split, queue replay, activation, detector/runtime change, or trading signal.",
+    "status": "PASS",
+    "verdict": "ONE_BROAD_MECHANISM_TWO_PROVISIONAL_VARIANTS",
+    "verdicts": {
+      "900b": "PROVISIONAL_OPERATION_VARIANT",
+      "c357": "PROVISIONAL_OPERATION_VARIANT"
+    }
   },
   "p3r_v2_900b_comparator_reconciliation_20260825": {
     "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/distinctiveness_reconciliation/p3r-v2-900b-comparator-reconciliation-v1/p3r_v2_900b_comparator_reconciliation.v1.json",

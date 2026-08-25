@@ -82,7 +82,7 @@
     "verified_ladder": "HboqWvK2... close 34,691,750,098 -> Gre9jF21... transfer 34,691,745,098 -> FwaWYJeu... close 34,691,740,098 -> AerCoA4G... transfer 34,691,735,098 -> 5jFqjJr4... close 34,691,730,098 -> DZtCkaEd... transfer 34,691,725,098 -> 2GH1yDtg... close 34,691,720,098 -> HWse5Gae... transfer 34,691,715,098 -> Ft5Sn8GN..."
   },
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "Use the dedicated operation review page for analyst assessment; only explicit evidence-backed promotion may alter confirmed membership.",
+  "next_action": "Monitor strict route-evidenced WATCHTOWER promotions; retain all remaining broad-reconciliation rows in PENDING_REVIEW until separately reviewed.",
   "operation_walkback_review_queue_20260825": {
     "endpoints": [
       "/api/ops/operators/review-queue",
@@ -1149,6 +1149,21 @@
     "verdict": "WATCHTOWER_TREASURY_FANOUT_GEOMETRY_SUPPORTED"
   },
   "watchtower_ui_quarantine_20260825": {
+    "approved_post_1024_launches_restored": {
+      "count": 6,
+      "excluded_false_positive": "2iYGJm6RBxMqEJyTUjp751dSsSfYBPGGfrERue3vJiAj",
+      "mints": [
+        "4kdU5fKaRb3ZDP84vAm2N8PY2Bq3PBtT5NkgzfAnpump",
+        "AVKQT851Cn3i1K5wDQsBfomYkiqdciqPE2bhZ5Egpump",
+        "31TBAGQ4cydajbZYCqvuyA9SqmKV7zvtdmohkLAJpump",
+        "AgySAfBHSjaqvgzBWqQfw52EQVEy6Ns7ehHwqWDdpump",
+        "GtVVWAY85x3nLNsP7y98fU51zLmhZMKZPAYzWmvspump",
+        "4Qvcp6WUmtxMp7WttkexnkvCi4ingwNVXoNGCea2pump"
+      ],
+      "snapshot_refreshed": true,
+      "state": "FIRED_CREATE",
+      "status": "COMPLETE"
+    },
     "next_action": "Review quarantined rows only with complete route evidence before any explicit re-promotion.",
     "production": {
       "walkback_worker": "unchanged; strict route gate remains active",

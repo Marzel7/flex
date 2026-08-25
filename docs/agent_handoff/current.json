@@ -582,6 +582,26 @@
     "artifact": "/tmp/watchtower_recent_six_paginated_treasury_rpc.json",
     "verdict": "WATCHTOWER_RECENT_SIX_UPSTREAM_ROUTES_RPC_CONFIRMED"
   },
+  "watchtower_behavioural_overnight_admission_20260825": {
+    "scope": "User-authorized bounded production database admission of the 14 current rolling-24-hour exact-2.122039-SOL WSOL-close launches previously classified LINEAGE_GAP, after read-only RPC route confirmation and a rollback-only live-schema replay.",
+    "test": {
+      "known_family_replay": "276/276 canonical registry rows have a recognized mechanism-family value",
+      "rollback_replay": "PASS: 14 staged rows; registry delta 14; membership rows 14; canonical outcomes 14",
+      "write_lock": "initial rollback test blocked by active SQLite writer; retry with 60-second busy timeout passed"
+    },
+    "applied": {
+      "registry_rows_added": 14,
+      "operator_memberships_added": 14,
+      "attribution_outcomes_promoted": 14,
+      "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+      "source_population_id": "watchtower_behavioural_paginated_lineage_20260825",
+      "confidence": "BEHAVIOURAL_LINEAGE",
+      "state": "BEHAVIOURAL_CONFIRMED"
+    },
+    "provenance": "Each admission records the recovered Treasury/Controller, direct funder/SubProv, creator, create signature/time, WSOL-close signature/amount, and pre-anchor paginated RPC lineage evidence. The address-only global resolver policy was not modified.",
+    "production_change_authorization": "Explicit user request: test the flow on known WATCHTOWER tokens and add the missed overnight launches to the WATCHTOWER operation.",
+    "verdict": "WATCHTOWER_OVERNIGHT_BEHAVIOURAL_LINEAGE_ADMISSION_PASS"
+  },
   "project": {
     "git_head": "e9d0a404417804faa70586c7b27f6a478028b798",
     "working_branch": "classification-attribution-axis"
@@ -593,7 +613,7 @@
     "executed": [],
     "result": "not run; read-only 16-mint WATCHTOWER miss analysis"
   },
-  "updated_at_utc": "2026-08-25T11:20:00Z",
+  "updated_at_utc": "2026-08-25T11:40:00Z",
   "updated_by": "codex",
-  "verdict": "WATCHTOWER_RECENT_SIX_UPSTREAM_ROUTES_RPC_CONFIRMED"
+  "verdict": "WATCHTOWER_OVERNIGHT_BEHAVIOURAL_LINEAGE_ADMISSION_PASS"
 }

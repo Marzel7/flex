@@ -707,6 +707,13 @@
     "ui": "API restart serves consolidated P3R; operator-list polling and snapshot projection update on subsequent requests.",
     "verdict": "PASS"
   },
+  "p3r_v1_tier1_to_v2_lineage_20260825": {
+    "blocker": "Replay is not deterministic because the provenance query mistakenly counts its own p3r_v2_v1_lineage_reconciliation_runs table as a historical v1 table. The historical v1 membership/tier artifacts remain absent under /tmp and no actual v1 database tables were found.",
+    "initial_run_id": "p3r-v2-v1-lineage-c819654681402b561ee0",
+    "next_action": "With user approval, exclude p3r_v2_* assessment tables from the historical-v1 table check and rerun/replay the blocked provenance artifact. Do not infer a v1-to-v2 member mapping.",
+    "status": "PARTIAL",
+    "verdict": "INSUFFICIENT_DURABLE_EVIDENCE_TO_REPRODUCE"
+  },
   "p3r_v2_active_candidate_tiering_20260825": {
     "engineering_commit": "532faa3d",
     "next_action": "Use the committed durable v2 artifacts for the Tier-2 assessment; do not alter tier membership without an authorized follow-up.",

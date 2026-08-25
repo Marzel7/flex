@@ -82,7 +82,7 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "900b projector remains unvalidated; walkback_worker not restarted.",
+  "blocker": "None for bounded activation; DB_LOCK_ERROR is a runtime observation caveat.",
   "dtuh_af500_ec1_link_check_20260825": {
     "af500_direct_connection": {
       "destination": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ",
@@ -96,7 +96,7 @@
     "status": "PARTIAL",
     "verdict": "AF500_LINK_CONFIRMED_EC1_LINK_UNPROVEN"
   },
-  "engineering_revision": "26e528b0 (main) + uncommitted provisional detail evidence projection root-cause fix",
+  "engineering_revision": "26e528b0 (main) + uncommitted 900b provisional walkback integration",
   "exact_next_action": "If authorized, implement completed-walkback insertion into provisional_operation_matches; preserve HISTORICAL_PROVISIONAL_REFERENCE separately from live pending review detections.",
   "generic_operation_activity_projection_20260825": {
     "exact_next_action": "Evaluate P3R matcher precision on a labelled negative/control cohort and, if authorized, implement an explicit establishment policy that writes operator membership then invokes the generic projection.",
@@ -1349,19 +1349,44 @@
     "main": "26e528b0ae1fa5ed465c4fe9059a259d903fef29"
   },
   "provisional_900b_live_detector_wiring_20260825": {
-    "exact_next_action": "With explicit approval, add selection_status to the fixed projection, catch sqlite3.Error around its retained-edge query, update the malformed-evidence fixture to retain the queried schema, rerun bounded tests, and restart only walkback_worker if green.",
-    "new_defects": [
-      "selected-edge query does not select selection_status required by classify_900b, causing safe not_900b results",
-      "malformed table shape raises SQL error before the adapter can classify it as malformed_selected_edge"
+    "changed_files": [
+      "src/ops/provisional_operations.py",
+      "src/core/walkback_worker.py",
+      "tests/test_provisional_operations.py"
     ],
-    "p3r_fixture": "PRE_EXISTING_FIXTURE_DEFECT: operators.status absent from fixture; unrelated to 900b row-shape code.",
-    "status": "PARTIAL",
-    "test_result": {
-      "failed_900b": 3,
-      "failed_p3r_fixture": 3,
-      "passed": 4
+    "exact_next_action": "Observe normal production queue consumption separately; investigate repeated DB_LOCK_ERROR only if it persists.",
+    "implementation": {
+      "detector_version": "900B_HYBRID_PROVISIONAL.v1",
+      "idempotency": "Unique operator/mint/detector row; pending replay no-ops; confirmed/rejected review outcomes preserved.",
+      "integration_point": "src/core/walkback_worker.py _promote_if_canonical_watchtower, after terminal walkback commit and retained selected-edge persistence",
+      "row_contract": "Explicit 11-field selected-edge projection including selection_status; adapter accepts tuple and sqlite3.Row.",
+      "states": {
+        "recurrent_funder": "PROVISIONAL_MATCH_PENDING",
+        "unknown_funder": "BEHAVIOURAL_MATCH_UNKNOWN_INFRASTRUCTURE",
+        "unobservable_schema": "unobservable_selected_edge_schema"
+      }
     },
-    "verdict": "ROW_SHAPE_FIX_INCOMPLETE_NOT_ACTIVATED"
+    "runtime": {
+      "pid": 74536,
+      "restarted": true,
+      "service": "walkback_worker",
+      "smoke": "Worker reached normal loop and reported queue empty. No live qualifying 900b event observed; 0 provisional matches and 0 confirmed memberships. Post-start log contained DB_LOCK_ERROR at walkback_worker.py:489, so extended clean consumption was not claimed.",
+      "status": "RUNNING"
+    },
+    "safety": {
+      "confirmed_900b_membership": 0,
+      "queue_replay": "none",
+      "rpc_provider_calls": 0,
+      "trading_signals": 0,
+      "unrelated_services_restarted": false,
+      "watchtower_changed": false
+    },
+    "status": "PASS_WITH_BOUNDED_SMOKE_CAVEAT",
+    "tests": {
+      "900b_and_watchtower": "8 passed",
+      "p3r": "PRE_EXISTING_STALE_FIXTURE: 3 failures solely because test fixture lacks operators.status; no production-path regression demonstrated."
+    },
+    "verdict": "900B_PROVISIONAL_WALKBACK_INTEGRATION_COMPLETE"
   },
   "provisional_operation_activity_ui_projection_20260825": {
     "activity_source": "44 explicit HISTORICAL_PROVISIONAL_REFERENCE rows in provisional_operation_activity_observations; never confirmed membership.",

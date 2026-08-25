@@ -720,7 +720,21 @@
     "finding": "After resolving SPL closeAccount authority, 14/15 EC1 branches contain an exact 99,999,995,000-lamport upstream transfer immediately before the known 99,999,985,000-lamport WSOL close-to-creator leg. The remaining UMVSu... branch has a three-step 7,321.115955669 / 7,321.115965669 / 7,321.115975669 SOL transfer ladder.",
     "safety": "Read-only RPC and /tmp artifact only; no production database or resolver changes.",
     "verdict": "EC1_UPSTREAM_AMOUNT_PATTERN_RPC_CONFIRMED",
-    "exact_next_action": "Compare the same upstream transfer-plus-close pattern against the AF500 retained family and a negative cohort before promoting it to an EC1-specific automatic matcher feature."
+    "exact_next_action": "Do not promote the amount pattern to an EC1-specific matcher feature; the completed contrast cohort found substantial AF500 and unlabelled overlap. Seek a feature beyond this provision-close workflow."
+  },
+  "p3r_ec1_upstream_amount_contrast_cohort_20260825": {
+    "scope": "User-authorized read-only two-level RPC comparison across the full retained 114-mint shared-fingerprint cohort. Each branch used the same close-account-authority resolution and up to 10 signature pages per predecessor search.",
+    "feature": "Exact 99,999,995,000-lamport upstream transfer before the 99,999,985,000-lamport WSOL close-to-creator leg.",
+    "result": {
+      "cohort_mints": 114,
+      "P3R_EC1": {"total": 15, "feature_matches": 14, "unresolved": 0, "nonmatches": 1},
+      "P3R_AF500": {"total": 52, "feature_matches": 41, "unresolved": 3, "nonmatches": 8},
+      "unlabelled": {"total": 47, "feature_matches": 39, "unresolved": 4, "nonmatches": 4}
+    },
+    "artifacts": "/tmp/p3r-ec1-upstream-pattern-cohort-20260825.<range>.json",
+    "conclusion": "The feature has high EC1 coverage but 41 known-AF500 false positives, plus broad unlabelled overlap. It is a shared provision-close workflow feature and is not safe for EC1-specific attribution or automatic admission.",
+    "safety": "Read-only RPC and /tmp artifacts only; no membership, attribution, resolver, or UI changes.",
+    "verdict": "EC1_AMOUNT_FEATURE_FALSE_POSITIVES_PROVEN"
   },
   "operators_page_automatic_refresh_20260825": {
     "scope": "Client-side automatic update for the active-operations list.",
@@ -736,12 +750,12 @@
   },
   "schema_version": 1,
   "status": "PASS",
-  "summary": "Activity projection is generic for every active operation. WATCHTOWER and unambiguous P3R_13A04 walkback matches now establish membership and refresh UI activity automatically; the operators page polls every 15 seconds. Deep EC1 RPC confirms a 14/15 exact 99.999995 SOL upstream transfer pattern before the known WSOL-close leg.",
+  "summary": "Activity projection is generic for every active operation. WATCHTOWER and unambiguous P3R_13A04 walkback matches now establish membership and refresh UI activity automatically; the operators page polls every 15 seconds. EC1's 14/15 upstream amount pattern is disproven as EC1-specific by 41/52 AF500 and 39/47 unlabelled matches.",
   "tests": {
     "executed": [],
     "result": "not run; read-only 16-mint WATCHTOWER miss analysis"
   },
   "updated_at_utc": "2026-08-25T12:35:13Z",
   "updated_by": "codex",
-  "verdict": "EC1_UPSTREAM_AMOUNT_PATTERN_RPC_CONFIRMED"
+  "verdict": "EC1_AMOUNT_FEATURE_FALSE_POSITIVES_PROVEN"
 }

@@ -82,7 +82,7 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "Runtime observation capture was incomplete; no demonstrated 900b contention defect.",
+  "blocker": "None",
   "dtuh_af500_ec1_link_check_20260825": {
     "af500_direct_connection": {
       "destination": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ",
@@ -96,7 +96,7 @@
     "status": "PARTIAL",
     "verdict": "AF500_LINK_CONFIRMED_EC1_LINK_UNPROVEN"
   },
-  "engineering_revision": "26e528b0 (main) + uncommitted 900b provisional walkback integration",
+  "engineering_revision": "26e528b0 (main) + uncommitted Potential Operations queue UI",
   "exact_next_action": "If authorized, implement completed-walkback insertion into provisional_operation_matches; preserve HISTORICAL_PROVISIONAL_REFERENCE separately from live pending review detections.",
   "generic_operation_activity_projection_20260825": {
     "exact_next_action": "Evaluate P3R matcher precision on a labelled negative/control cohort and, if authorized, implement an explicit establishment policy that writes operator membership then invokes the generic projection.",
@@ -1332,6 +1332,45 @@
     "tier_interpretation": "research-priority only; no operation identity, canonical promotion, production action, or trading signal",
     "v2_scope_recommendation": "TIER_1_FIRST",
     "verdict": "P3R_WATCH_NOW_TIERS_QUALIFIED"
+  },
+  "potential_operations_queue_ui_20260825": {
+    "detail_route": "/intelligence/potential-operations/<candidate_id>",
+    "exact_next_action": "If authorized, add bounded workflow-state mutation controls with separate analyst-action audit records.",
+    "implementation": [
+      "src/ops/potential_operations.py",
+      "templates/potential_operations.html",
+      "src/ops/operator_routes.py",
+      "templates/partials/sidebar.html"
+    ],
+    "known_records": {
+      "063e": "QUEUED next investigation",
+      "900b": "ACTIVE_PROVISIONAL linked to 70f27e37-83eb-5c97-831c-48189ef98f6c",
+      "c357": "PAUSED related 100-SOL variant",
+      "d3de": "WATCH_ONLY Tier-1 reference"
+    },
+    "route": "/intelligence/potential-operations",
+    "safety": {
+      "promotion_or_registration": false,
+      "queue_replay": false,
+      "rpc_provider_calls": 0,
+      "tiers_or_membership_changed": false,
+      "trading_signals": 0,
+      "watchtower_or_900b_classifier_changed": false
+    },
+    "source": {
+      "canonical_run_id": "p3r-v2-2dec1d40604c1f7c08c8",
+      "population": 61,
+      "ranking": "p3r-v2-operation-priority-20260825-v3"
+    },
+    "status": "PASS",
+    "verification": "Direct durable seed/read assertion PASS: 61 rows, 900b active provisional, 063e queued. watchtower_api restarted RUNNING pid 77567.",
+    "workflow": {
+      "active_provisional": 1,
+      "next_candidate": "p3r-v2-063e24a2def354f23ec5",
+      "paused": 1,
+      "queued": 58,
+      "watch_only": 1
+    }
   },
   "production_flags": {
     "candidate_tuning": false,

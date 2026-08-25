@@ -981,6 +981,16 @@
       }
     },
     "finding": "Five recent wt_walkback_queue rows had intelligence_outcome=WATCHTOWER_CONFIRMED while their wt_attribution_outcomes rows remained UNKNOWN_INFRASTRUCTURE, so the legacy promotion bridge did not admit them.",
+    "forward_promotion_gate": {
+      "code": "src/core/watchtower_registry_promotion.py",
+      "exact_next_action": "Observe a natural qualifying completion to verify it promotes and refreshes the WATCHTOWER snapshot.",
+      "false_positive_protection": "2iYG fails because it has no session, subprov, funder signature, WSOL mechanism, or edges.",
+      "historical_reconciliation": "No further sweep was run; current 977 ledger was left unchanged.",
+      "predicate": "Legacy CANONICAL_OPERATOR_REACHED remains eligible. Queue WATCHTOWER_CONFIRMED requires a persisted wt_provisioning_sessions treasury->subprov->creator route, matching queue creator/treasury/subprov, queue WSOL_WRAP_CLOSE mechanism, and non-null funder_sig.",
+      "runtime_change": "supervisor restart walkback_worker",
+      "status": "ACTIVE",
+      "verdict": "FORWARD_GATE_ACTIVE"
+    },
     "funding_history_coverage": {
       "cohort_mints": 687,
       "full_atomic_wsol_mints": 0,

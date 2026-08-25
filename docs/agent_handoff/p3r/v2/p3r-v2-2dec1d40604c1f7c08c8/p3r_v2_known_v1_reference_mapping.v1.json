@@ -1,0 +1,10 @@
+{
+  "historical_reference_ids": [
+    "p3r-candidate-13a04d7da7a1fc55",
+    "p3r-candidate-af5004dfe42cfe11",
+    "p3r-candidate-bf30e77ee07e312b",
+    "p3r-candidate-ec1b6cff80643746"
+  ],
+  "mapping_status": "UNMAPPED_NOT_FORCED",
+  "reason": "The v1 candidate membership artifacts are unrecoverable; v2 identities are intentionally new and address-independent."
+}

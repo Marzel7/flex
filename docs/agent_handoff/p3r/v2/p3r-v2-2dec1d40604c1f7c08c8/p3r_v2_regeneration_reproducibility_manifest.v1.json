@@ -1,0 +1,111 @@
+{
+  "artifacts": {
+    "activity_contract": {
+      "path": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/p3r_v2_activity_contract.v1.json",
+      "sha256": "90b889e9dfd3aac0b602f2f21ffdf77b0ec1637df3118d1eac2ab0d4e816a776"
+    },
+    "discovery_contract": {
+      "path": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/p3r_v2_candidate_discovery_contract.v1.json",
+      "sha256": "b5384c9bd87c1349ee18ff93405b8bb5e625bbf6571d5739c354ee4c614818fd"
+    },
+    "fingerprint_contracts": {
+      "path": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/p3r_v2_fingerprint_contracts.v1.json",
+      "sha256": "85ac5fdbed068331d2fe002183f0abaddbf3384037a0550416dd1f5260ed1c50"
+    },
+    "known_v1_references": {
+      "path": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/p3r_v2_known_v1_reference_mapping.v1.json",
+      "sha256": "9c3c24d5729e895a1e033dc23ad3cc18c71184a8d9d6fcb538c97e47d6716e51"
+    },
+    "membership": {
+      "path": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/p3r_v2_candidate_membership.v1.json",
+      "sha256": "54a7c8b75c58595d2fcaa2de7eb48d1f09d1d7fc85cfb9e0a7d985fd22d6ad33"
+    },
+    "promotion_contract": {
+      "path": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/p3r_v2_promotion_contract.v1.json",
+      "sha256": "cf2c0b8141ac5df5336683bf008c518abb85e9d2f1d8a7316a5561c8dbb2602d"
+    },
+    "shortlist": {
+      "path": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/p3r_v2_next_investigation_shortlist.v1.json",
+      "sha256": "35eab7278098e3d3ea719f06a471543f70759303f214b1375fd76db62ef7c73d"
+    },
+    "tiers": {
+      "path": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/p3r_v2_tier_membership.v1.json",
+      "sha256": "f401ff8b7df23a36f5afca0f7989e7a964fb12e72b1833ef19f2d9d58ab79c92"
+    }
+  },
+  "contract": {
+    "activity": {
+      "states": {
+        "DORMANT": "last_30d = 0",
+        "HIGH_ACTIVITY": "last_7d >= 3 and max_rolling_24h >= 1",
+        "LOW_ACTIVITY": "remaining observed",
+        "REGULAR_ACTIVITY": "last_30d >= 2",
+        "VERY_HIGH_ACTIVITY": "last_7d >= 7 and max_rolling_24h >= 2"
+      },
+      "timestamp": "MIN(selected wt_walkback_edge_candidates.block_time) per mint; observed activity proxy, not token launch time.",
+      "version": "P3R_V2_ACTIVITY.v1"
+    },
+    "code_bindings": {
+      "constructor_sha256": "57202f31287aaa80ddaccdeb61f6d83f3844edcb384dc8b3cd84e5cfd2f0b847",
+      "materializer_sha256": "bdca8384fe4690e227b3533dfbeb79aa3f796433819a2c560bc67c3d9d1db18d",
+      "version": "P3R_V2_CODE_BINDINGS.v1"
+    },
+    "discovery": {
+      "base_fingerprint": "Sorted unique (hop_depth, mechanism, amount_lamports); amount 0/null is normalized to null and never positive evidence.",
+      "family_minimums": {
+        "distinct_creators": 2,
+        "distinct_direct_funders": 2,
+        "members": 3
+      },
+      "source": "Selected retained walkback edges with non-null creator and direct funder from wt_walkback_queue.",
+      "topology": "Only documented hop_depth from retained selected edges; no legacy topology vector is used.",
+      "version": "P3R_V2_CANDIDATE_DISCOVERY_CONTRACT.v1"
+    },
+    "fingerprints": {
+      "alternative": "Address-free ALTERNATIVE edge structure per member.",
+      "atomic": "Address-free instruction order, create/sync/close flags, and non-zero transfer amount per atomic flow.",
+      "base": "Address-free selected edge structure.",
+      "canonical_serialization": "JSON sort_keys=true, compact separators, ASCII.",
+      "version": "P3R_V2_FINGERPRINT_CONTRACTS.v1"
+    },
+    "promotion": {
+      "dormant_to_reactivated": "Receive new retained selected-edge activity after the snapshot cutoff; reclassify activity only, then re-evaluate existing evidence.",
+      "tier_2_to_tier_1": "Retain tier-2 evidence; add strong atomic recurrence and address-independent persistence. Activity alone never promotes.",
+      "tier_3_to_tier_2": "Retain WATCH_NOW and strong base; add strong alternative-edge recurrence. Activity alone never promotes.",
+      "version": "P3R_V2_PROMOTION_CONTRACT.v1",
+      "watch_later_to_watch_now": "Meet the versioned HIGH_ACTIVITY or VERY_HIGH_ACTIVITY thresholds; this does not promote behavioural tier."
+    },
+    "tiers": {
+      "address_blind": "at least 3 distinct creators, direct funders, and selected parents; no one address occupies more than 50% of its populated role observations",
+      "strong_recurrence": "at least 3 observations, at least 50% member coverage, dominant fingerprint at least 3 observations and at least 60% of observed fingerprints",
+      "tier_1": "WATCH_NOW + strong base + strong alternative + strong atomic + address blind",
+      "tier_2": "WATCH_NOW + strong base + strong alternative, not tier 1",
+      "tier_3": "WATCH_NOW + strong base, not tier 1/2",
+      "version": "P3R_V2_EVIDENCE_TIERS.v1"
+    }
+  },
+  "contract_digest": "61b5199306ef79b48e007a3910f131510f3f05139b86e81d806c02b8d6f9c47a",
+  "counts": {
+    "V2_DORMANT": 33,
+    "V2_TIER_1_ACTIVE_MULTI_LAYER": 1,
+    "V2_TIER_2_ACTIVE_STRUCTURAL": 13,
+    "V2_TIER_3_ACTIVE_BASE": 47,
+    "V2_WATCH_LATER": 126,
+    "families": 220,
+    "member_mints": 2357,
+    "watch_now": 61
+  },
+  "created_at": 1787671362,
+  "run_id": "p3r-v2-2dec1d40604c1f7c08c8",
+  "schema_version": "P3R_V2_REGENERATION_MANIFEST.v1",
+  "source_snapshot": {
+    "database": "database/wt_ops_v2.db",
+    "highwaters": {
+      "wt_walkback_atomic_flows": 7095,
+      "wt_walkback_edge_candidates": 60299,
+      "wt_walkback_queue": 32353
+    },
+    "read_only_source": true,
+    "schema_sha256": "dcc038d07998c3d37d0475a7c0fc1d61eaa141401712b3079ec3e465dff3f4ad"
+  }
+}

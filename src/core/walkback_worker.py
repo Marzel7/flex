@@ -68,6 +68,9 @@ SIG_LIMIT       = int(os.environ.get("WALKBACK_SIG_LIMIT",       "20"))  # getSi
 TX_FETCH_LIMIT  = int(os.environ.get("WALKBACK_TX_FETCH_LIMIT",  "5"))   # max getTransaction per hop
 SIG_PAGE_LIMIT  = int(os.environ.get("WALKBACK_SIG_PAGE_LIMIT",  "100"))
 SIG_PAGE_COUNT  = int(os.environ.get("WALKBACK_SIG_PAGE_COUNT",  "3"))
+# WATCHTOWER-like candidates alone may need to look past dense fan-out activity
+# to their pre-anchor treasury top-up. Ordinary walkback keeps SIG_PAGE_COUNT.
+WATCHTOWER_SIG_PAGE_COUNT = int(os.environ.get("WALKBACK_WATCHTOWER_SIG_PAGE_COUNT", "10"))
 RPC_TIMEOUT     = int(os.environ.get("WALKBACK_RPC_TIMEOUT_S",   "8"))
 # X76.5 -- self-kill guard for a stuck same-thread write lease. Observed live:
 # this worker's thread-local write lease (see database_write_service.py's
@@ -110,7 +113,8 @@ def _get_sigs(wallet: str, limit: int = SIG_LIMIT,
 
 
 def _collect_signature_window(wallet: str, rpc_counter: list, *,
-                              before_signature: Optional[str] = None) -> list:
+                              before_signature: Optional[str] = None,
+                              page_count: Optional[int] = None) -> list:
     """Return a bounded, transaction-anchored wallet history window.
 
     High-throughput provisioning wallets can execute hundreds of transactions
@@ -121,7 +125,7 @@ def _collect_signature_window(wallet: str, rpc_counter: list, *,
     """
     entries: list[dict] = []
     cursor = before_signature
-    for _ in range(SIG_PAGE_COUNT):
+    for _ in range(page_count or SIG_PAGE_COUNT):
         page = _get_sigs(wallet, SIG_PAGE_LIMIT, before=cursor)
         rpc_counter[0] += 1
         if not page:
@@ -355,7 +359,9 @@ def _find_funder_via_rpc(wallet: str, rpc_counter: list,
                          before_signature: Optional[str] = None,
                          prefer_oldest: bool = False,
                          source_mint: Optional[str] = None,
-                         hop_depth: int = 0) -> FunderInfo:
+                         hop_depth: int = 0,
+                         signature_page_count: Optional[int] = None,
+                         tx_fetch_limit: Optional[int] = None) -> FunderInfo:
     """
     Collect all valid funders within the bounded tx window then select the strongest.
 
@@ -378,7 +384,8 @@ def _find_funder_via_rpc(wallet: str, rpc_counter: list,
     source_mint = source_mint or context_mint
     hop_depth = hop_depth or context_depth
     sigs = _collect_signature_window(
-        wallet, rpc_counter, before_signature=before_signature)
+        wallet, rpc_counter, before_signature=before_signature,
+        page_count=signature_page_count)
     _empty: FunderInfo = (None, None, None, None, None, None)
     if not sigs:
         return _empty
@@ -391,7 +398,7 @@ def _find_funder_via_rpc(wallet: str, rpc_counter: list,
     candidates: list[tuple[int, FunderInfo]] = []  # (priority, FunderInfo)
     candidate_txs: dict[str, dict] = {}
 
-    for entry in sigs[:TX_FETCH_LIMIT]:
+    for entry in sigs[:tx_fetch_limit or TX_FETCH_LIMIT]:
         if entry.get("err"):
             continue
         sig = entry.get("signature")
@@ -510,6 +517,48 @@ def _is_known_subprov(ops: sqlite3.Connection, wallet: str) -> bool:
     return bool(row)
 
 
+def _cached_watchtower_treasury(ops: sqlite3.Connection, subprov: str) -> Optional[str]:
+    """Return a previously admitted WATCHTOWER treasury for this direct funder.
+
+    The canonical launch ledger is the route cache: every behavior-plus-lineage
+    admission stores treasury_wallet -> subprov_wallet. This lookup is local and
+    lets subsequent fan-out launches avoid an upstream history scan entirely.
+    """
+    row = ops.execute(
+        "SELECT treasury_wallet FROM wt_watchtower_launches "
+        "WHERE subprov_wallet=? AND treasury_wallet IS NOT NULL "
+        "ORDER BY recorded_at DESC LIMIT 1", (subprov,)
+    ).fetchone()
+    return row["treasury_wallet"] if row else None
+
+
+def _is_cached_watchtower_treasury(ops: sqlite3.Connection, wallet: str) -> bool:
+    """True only for a treasury already recorded by the canonical launch ledger."""
+    row = ops.execute(
+        "SELECT 1 FROM wt_watchtower_launches WHERE treasury_wallet=? LIMIT 1", (wallet,)
+    ).fetchone()
+    return bool(row)
+
+
+def _is_watchtower_like_handoff(ops: sqlite3.Connection,
+                                 mechanism: Optional[str],
+                                 amount_sol: Optional[float]) -> bool:
+    """Cheap, evidence-derived gate for the expensive paginated cache miss path.
+
+    A candidate must use a previously observed WATCHTOWER funding mechanism and
+    normalized close amount. It never confirms attribution by itself.
+    """
+    if mechanism not in _DISPOSABLE_HANDOFF_MECHANISMS or amount_sol is None:
+        return False
+    row = ops.execute(
+        "SELECT 1 FROM wt_watchtower_launches "
+        "WHERE funding_mechanism=? AND wrap_close_sol IS NOT NULL "
+        "AND ABS(wrap_close_sol-?) < 0.000001 LIMIT 1",
+        (mechanism, amount_sol),
+    ).fetchone()
+    return bool(row)
+
+
 def _is_known_infrastructure(wallet: str) -> bool:
     """X26.3 canonical infrastructure exclusion — never treat a wallet already
     catalogued as known automation/relay/bridge/CEX infrastructure as a
@@ -616,6 +665,17 @@ def _promote_if_canonical_watchtower(ops: sqlite3.Connection, mint: str,
     if not materialized:
         return
 
+    # P3R and P3R_13A04 have reviewed, address-independent automatic-admission
+    # contracts. P3R is the unified former AF500/EC1 identity; 13A04 remains
+    # its separate exact-ladder identity. This is independent of WATCHTOWER.
+    try:
+        from src.ops.p3r_profile_candidate_matcher import admit_unambiguous_p3r_match
+        p3r_action = admit_unambiguous_p3r_match(ops, mint, core_db_path=LIVE_DB_PATH)
+        if p3r_action == "admitted":
+            print(f"[WALKBACK] P3R membership → {mint[:14]}… admitted", flush=True)
+    except Exception as exc:  # noqa: BLE001 -- must never break terminal walkback state
+        print(f"[WALKBACK] P3R membership check failed mint={mint}: {exc}", flush=True)
+
     # X67.21 -- shared canonical predicate integration (mode-aware; see
     # src/ops/watchtower_canonical_integration.py). The walkback commit
     # that triggered this call has ALREADY succeeded (see _mark_complete/
@@ -673,7 +733,10 @@ def _promote_if_canonical_watchtower(ops: sqlite3.Connection, mint: str,
         return
 
     try:
-        from src.core.watchtower_registry_promotion import promote_walkback_confirmed_watchtower
+        from src.core.watchtower_registry_promotion import (
+            project_watchtower_confirmed_membership,
+            promote_walkback_confirmed_watchtower,
+        )
         result = promote_walkback_confirmed_watchtower(
             ops, mint,
             outcome_type=materialized.get("outcome_type"),
@@ -685,6 +748,12 @@ def _promote_if_canonical_watchtower(ops: sqlite3.Connection, mint: str,
             print(f"[WALKBACK] registry promotion FAILED mint={mint}: {result['error']}", flush=True)
         elif result["action"] == "promoted":
             print(f"[WALKBACK] registry promotion → {mint[:14]}… promoted (WALKBACK_RECOVERED)", flush=True)
+        if result["action"] in {"promoted", "already_present"}:
+            membership = project_watchtower_confirmed_membership(
+                ops, mint, core_db_path=LIVE_DB_PATH,
+            )
+            if membership["action"] == "projected":
+                print(f"[WALKBACK] WATCHTOWER membership projection → {mint[:14]}…", flush=True)
     except Exception as exc:  # noqa: BLE001 -- must never break the caller's terminal transition
         print(f"[WALKBACK] registry promotion call failed mint={mint}: {exc}", flush=True)
 
@@ -1166,11 +1235,12 @@ def _process_row(ops: sqlite3.Connection, row: sqlite3.Row) -> int:
             # wt_confirmed_treasuries, never wt_walkback_queue's funder_*
             # columns or the provisioning-edge tables), so this reordering
             # changes no decision, only when the bookkeeping writes land.
-            if _is_known_subprov(ops, hop1):
+            cached_treasury = _cached_watchtower_treasury(ops, hop1)
+            if _is_known_subprov(ops, hop1) or cached_treasury:
                 t_row = ops.execute(
                     "SELECT treasury FROM wt_discovered_subprovs WHERE subprov=? LIMIT 1",
                     (hop1,)).fetchone()
-                treasury = t_row["treasury"] if t_row else None
+                treasury = t_row["treasury"] if t_row else cached_treasury
                 outcome = "WATCHTOWER_CONFIRMED" if treasury else "LINEAGE_GAP"
                 # X77.1 — collect mech1 evidence (RPC) BEFORE any write, same
                 # shape as the FULL_WALKBACK persistence stage below; this
@@ -1221,9 +1291,11 @@ def _process_row(ops: sqlite3.Connection, row: sqlite3.Row) -> int:
             # persist once, per this milestone's core principle. hop2 needs
             # only hop1/sig1 (already local variables); it does not depend on
             # anything _store_funder or the mech1 evidence capture write.
+            watchtower_candidate = _is_watchtower_like_handoff(ops, mech1, amt1)
             hop2, sig2, slot2, bt2, amt2, mech2 = _find_with_evidence(
                 hop1, rpc, ops, before_signature=sig1, prefer_oldest=True,
-                source_mint=mint, hop_depth=2)
+                source_mint=mint, hop_depth=2,
+                signature_page_count=(WATCHTOWER_SIG_PAGE_COUNT if watchtower_candidate else None))
 
             # X77.1 persistence stage — everything RPC-free from here on.
             # Collect hop1's own evidence (mech1 tx fetch, if any) now, RIGHT
@@ -1258,7 +1330,8 @@ def _process_row(ops: sqlite3.Connection, row: sqlite3.Row) -> int:
                     subprov_to_creator_amount_sol=amt1, subprov_to_creator_mechanism=mech1,
                 )
 
-            if hop2 and _is_known_treasury(ops, hop2):
+            if hop2 and (_is_known_treasury(ops, hop2) or
+                         (watchtower_candidate and _is_cached_watchtower_treasury(ops, hop2))):
                 # hop1 is now confirmed as subprov (its funder is a known treasury)
                 _mark_complete(ops, mint, "WATCHTOWER_CONFIRMED", hop1, hop2, rpc[0],
                                confirmed_subprov=True)

@@ -73,6 +73,7 @@ _LOG = logging.getLogger(__name__)
 
 CONFIDENCE_TIER = "WALKBACK"
 EXTRACTION_METHOD = "WALKBACK_RECOVERED"
+MEMBERSHIP_SOURCE = "walkback_watchtower_confirmed_projection_v1"
 
 
 def is_canonical_watchtower_outcome(outcome_type: str | None, operator_id: str | None) -> bool:
@@ -105,6 +106,37 @@ def _normalise_unix_seconds(value: Any) -> int | None:
             return None
 
 
+def _has_verified_queue_funding_route(conn: sqlite3.Connection, mint: str) -> bool:
+    """Require persisted, transaction-derived route evidence for queue promotion.
+
+    ``WATCHTOWER_CONFIRMED`` alone may originate from a legacy wallet
+    association. A queue-confirmed mint is eligible only after the walkback
+    has retained a complete treasury -> subprovisioner -> creator provisioning
+    session and the queue retains the WSOL creator-funding signature.
+    """
+    if not (_table_exists(conn, "wt_walkback_queue") and _table_exists(conn, "wt_provisioning_sessions")):
+        return False
+    row = conn.execute(
+        "SELECT q.creator,q.treasury,q.subprov,q.funder_sig,q.funding_mechanism,"
+        "s.treasury AS session_treasury,s.subprov AS session_subprov,"
+        "s.creator AS session_creator,s.treasury_to_subprov_mechanism,"
+        "s.subprov_to_creator_mechanism "
+        "FROM wt_walkback_queue q JOIN wt_provisioning_sessions s ON s.source_mint=q.mint "
+        "WHERE q.mint=? AND q.intelligence_outcome='WATCHTOWER_CONFIRMED'",
+        (mint,),
+    ).fetchone()
+    if not row:
+        return False
+    return bool(
+        row["creator"] and row["treasury"] and row["subprov"] and row["funder_sig"]
+        and row["funding_mechanism"] == "WSOL_WRAP_CLOSE"
+        and row["creator"] == row["session_creator"]
+        and row["treasury"] == row["session_treasury"]
+        and row["subprov"] == row["session_subprov"]
+        and row["subprov_to_creator_mechanism"] == "WSOL_WRAP_CLOSE"
+    )
+
+
 def promote_walkback_confirmed_watchtower(
     ops_conn: sqlite3.Connection,
     mint: str,
@@ -134,7 +166,13 @@ def promote_walkback_confirmed_watchtower(
     this module only guarantees it is visible in the return value, never
     silently swallowed.
     """
-    if not is_canonical_watchtower_outcome(outcome_type, operator_id):
+    # The legacy attribution table records only terminal walkback taxonomy.
+    # A newer queue confirmation may coexist with UNKNOWN_INFRASTRUCTURE, but
+    # queue confirmation is never sufficient alone: it must have a complete,
+    # persisted transaction-derived funding route.
+    legacy_eligible = is_canonical_watchtower_outcome(outcome_type, operator_id)
+    queue_route_eligible = not legacy_eligible and _has_verified_queue_funding_route(ops_conn, mint)
+    if not legacy_eligible and not queue_route_eligible:
         return {"action": "not_eligible", "mint": mint, "error": None}
 
     try:
@@ -214,6 +252,148 @@ def promote_walkback_confirmed_watchtower(
             mint, outcome_type, exc,
         )
         return {"action": "failed", "mint": mint, "error": str(exc)}
+
+
+def project_watchtower_confirmed_membership(
+    ops_conn: sqlite3.Connection,
+    mint: str,
+    *,
+    core_db_path: str | None = None,
+    now: int | None = None,
+    refresh_activity: bool = True,
+) -> dict[str, Any]:
+    """Project one strict queue-confirmed mint into WATCHTOWER membership.
+
+    This is deliberately downstream of classification: the sole admission
+    predicate is the persisted terminal ``WATCHTOWER_CONFIRMED`` queue outcome.
+    Existing assignments are never moved, and the primary-keyed membership
+    write makes repeated calls idempotent.
+    """
+    row = ops_conn.execute(
+        "SELECT intelligence_outcome FROM wt_walkback_queue WHERE mint=?", (mint,)
+    ).fetchone()
+    if not row or row["intelligence_outcome"] != "WATCHTOWER_CONFIRMED":
+        return {"action": "not_confirmed", "mint": mint}
+    # Keep membership projection behind the same strict, transaction-derived
+    # route gate as queue promotion. A terminal outcome on its own is not an
+    # authorization to bypass the corrected false-positive exclusion.
+    if not _has_verified_queue_funding_route(ops_conn, mint):
+        return {"action": "missing_verified_route", "mint": mint}
+
+    operator = ops_conn.execute(
+        "SELECT operator_id FROM operators WHERE display_name='WATCHTOWER' "
+        "AND status!='MERGED' LIMIT 1"
+    ).fetchone()
+    if not operator:
+        return {"action": "missing_watchtower_operator", "mint": mint}
+    operator_id = operator["operator_id"]
+
+    existing = ops_conn.execute(
+        "SELECT operator_id FROM operator_launch_membership WHERE mint=?", (mint,)
+    ).fetchone()
+    if existing:
+        return {
+            "action": "already_present" if existing["operator_id"] == operator_id else "existing_other_operator",
+            "mint": mint,
+            "operator_id": existing["operator_id"],
+        }
+
+    assigned_at = int(time.time()) if now is None else int(now)
+    ops_conn.execute(
+        "INSERT INTO operator_launch_membership"
+        "(mint,operator_id,source_population_id,assigned_at,event_id) VALUES(?,?,?,?,NULL)",
+        (mint, operator_id, MEMBERSHIP_SOURCE, assigned_at),
+    )
+    if refresh_activity:
+        from src.ops.manual_registry import refresh_operator_activity_snapshot
+        refresh_operator_activity_snapshot(
+            ops_conn, operator_id, core_db_path=core_db_path, now=assigned_at,
+        )
+    return {"action": "projected", "mint": mint, "operator_id": operator_id}
+
+
+def reconcile_confirmed_watchtower_memberships(
+    ops_conn: sqlite3.Connection,
+    *,
+    core_db_path: str | None = None,
+    now: int | None = None,
+) -> dict[str, Any]:
+    """Project only confirmed WATCHTOWER rows that have no membership.
+
+    This bounded repair intentionally neither reclassifies historical evidence
+    nor changes an assignment held by another operator.
+    """
+    rows = ops_conn.execute(
+        "SELECT q.mint FROM wt_walkback_queue q "
+        "LEFT JOIN operator_launch_membership m ON m.mint=q.mint "
+        "WHERE q.intelligence_outcome='WATCHTOWER_CONFIRMED' AND m.mint IS NULL "
+        "ORDER BY q.completed_at,q.mint"
+    ).fetchall()
+    projected: list[str] = []
+    outcomes: dict[str, int] = {}
+    timestamp = int(time.time()) if now is None else int(now)
+    for row in rows:
+        result = project_watchtower_confirmed_membership(
+            ops_conn, row["mint"], core_db_path=core_db_path, now=timestamp,
+            refresh_activity=False,
+        )
+        action = result["action"]
+        outcomes[action] = outcomes.get(action, 0) + 1
+        if action == "projected":
+            projected.append(row["mint"])
+
+    if projected:
+        operator = ops_conn.execute(
+            "SELECT operator_id FROM operators WHERE display_name='WATCHTOWER' "
+            "AND status!='MERGED' LIMIT 1"
+        ).fetchone()
+        if operator:
+            from src.ops.manual_registry import refresh_operator_activity_snapshot
+            refresh_operator_activity_snapshot(
+                ops_conn, operator["operator_id"], core_db_path=core_db_path, now=timestamp,
+            )
+    return {
+        "eligible_missing_membership": len(rows),
+        "projected": projected,
+        "outcomes": outcomes,
+    }
+
+
+def remove_invalid_confirmed_membership_projection(
+    ops_conn: sqlite3.Connection,
+    *,
+    core_db_path: str | None = None,
+    now: int | None = None,
+) -> dict[str, Any]:
+    """Undo only this projector's rows that fail the strict route gate."""
+    rows = ops_conn.execute(
+        "SELECT mint FROM operator_launch_membership WHERE source_population_id=? ORDER BY mint",
+        (MEMBERSHIP_SOURCE,),
+    ).fetchall()
+    retained: list[str] = []
+    removed: list[str] = []
+    for row in rows:
+        mint = row["mint"]
+        if _has_verified_queue_funding_route(ops_conn, mint):
+            retained.append(mint)
+            continue
+        ops_conn.execute(
+            "DELETE FROM operator_launch_membership WHERE mint=? AND source_population_id=?",
+            (mint, MEMBERSHIP_SOURCE),
+        )
+        removed.append(mint)
+    if removed:
+        operator = ops_conn.execute(
+            "SELECT operator_id FROM operators WHERE display_name='WATCHTOWER' "
+            "AND status!='MERGED' LIMIT 1"
+        ).fetchone()
+        if operator:
+            from src.ops.manual_registry import refresh_operator_activity_snapshot
+            refresh_operator_activity_snapshot(
+                ops_conn, operator["operator_id"], core_db_path=core_db_path,
+                now=int(time.time()) if now is None else int(now),
+            )
+    return {"examined": len(rows), "retained": retained, "removed": removed}
 
 
 def reconcile_missing_promotions(

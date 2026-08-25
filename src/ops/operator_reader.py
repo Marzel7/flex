@@ -54,6 +54,95 @@ class OperatorReader:
                         (operator_id,),
                     ).fetchall()
                 ]
+                profile = conn.execute(
+                    "SELECT source_candidate_id, profile_version, status, provenance_json, "
+                    "member_mints_json, reviewed_at, reviewer "
+                    "FROM operation_behavioural_profiles WHERE operator_id=? "
+                    "ORDER BY profile_version DESC LIMIT 1",
+                    (operator_id,),
+                ).fetchone()
+                if profile:
+                    op["behavioural_profile"] = {
+                        **dict(profile),
+                        "provenance": json.loads(profile["provenance_json"]),
+                        "member_mints": json.loads(profile["member_mints_json"]),
+                    }
+                    mints = op["behavioural_profile"]["member_mints"]
+                    if mints and conn.execute(
+                        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='wt_attribution_outcomes'"
+                    ).fetchone():
+                        placeholders = ",".join("?" for _ in mints)
+                        rows = conn.execute(
+                            "SELECT mint, outcome_type, terminal_entity, evidence_json, completed_at "
+                            f"FROM wt_attribution_outcomes WHERE mint IN ({placeholders})", mints,
+                        ).fetchall()
+                        history = [
+                            {**dict(item), "details": json.loads(item["evidence_json"] or "{}")}
+                            for item in rows
+                        ]
+                        history_by_mint = {item["mint"]: item for item in history}
+                        if history_by_mint and conn.execute(
+                            "SELECT 1 FROM sqlite_master WHERE type='table' AND name='wt_provisioning_edges'"
+                        ).fetchone():
+                            edge_rows = conn.execute(
+                                "SELECT source_mint, funding_tx_signature, funding_block_time, funding_mechanism "
+                                f"FROM wt_provisioning_edges WHERE edge_type='SUBPROV_TO_CREATOR' AND source_mint IN ({placeholders})",
+                                mints,
+                            ).fetchall()
+                            for edge in edge_rows:
+                                history_by_mint[edge["source_mint"]].update(dict(edge))
+                        op["retained_funding_history"] = history
+                snapshot = conn.execute(
+                    "SELECT observed_at, timestamp_semantics, metrics_json, activity_state "
+                    "FROM operation_activity_snapshots WHERE operator_id=? "
+                    "ORDER BY observed_at DESC LIMIT 1",
+                    (operator_id,),
+                ).fetchone()
+                if snapshot:
+                    op["activity_snapshot"] = {
+                        **dict(snapshot),
+                        "metrics": json.loads(snapshot["metrics_json"]),
+                    }
+                # WATCHTOWER's canonical launch ledger predates generic
+                # membership. The display therefore combines ledger entries
+                # with strict confirmed membership-only launches, using their
+                # retained queue route fields. This is a read-only projection.
+                if op.get("display_name") == "WATCHTOWER" and conn.execute(
+                    "SELECT 1 FROM sqlite_master WHERE type='table' AND name='wt_watchtower_launches'"
+                ).fetchone():
+                    has_membership = conn.execute(
+                        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='operator_launch_membership'"
+                    ).fetchone()
+                    has_queue = conn.execute(
+                        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='wt_walkback_queue'"
+                    ).fetchone()
+                    if has_membership and has_queue:
+                        op["recent_launches"] = [dict(r) for r in conn.execute(
+                            "SELECT mint, creator_wallet, create_time, treasury_wallet, subprov_wallet, "
+                            "wrap_close_signature, funding_mechanism FROM ("
+                            "SELECT mint, creator_wallet, create_time, treasury_wallet, subprov_wallet, "
+                            "wrap_close_signature, funding_mechanism "
+                            "FROM wt_watchtower_launches WHERE mint IS NOT NULL "
+                            "AND COALESCE(state, 'FIRED_CREATE') != 'PENDING_REVIEW' "
+                            "UNION ALL "
+                            "SELECT q.mint, q.creator AS creator_wallet, "
+                            "COALESCE(q.create_anchor_block_time,q.funder_block_time,q.completed_at) AS create_time, "
+                            "q.treasury AS treasury_wallet, q.subprov AS subprov_wallet, "
+                            "q.funder_sig AS wrap_close_signature, q.funding_mechanism "
+                            "FROM operator_launch_membership m JOIN wt_walkback_queue q ON q.mint=m.mint "
+                            "WHERE m.operator_id=? AND q.intelligence_outcome='WATCHTOWER_CONFIRMED' "
+                            "AND NOT EXISTS (SELECT 1 FROM wt_watchtower_launches l WHERE l.mint=q.mint)"
+                            ") ORDER BY create_time DESC LIMIT 250",
+                            (operator_id,),
+                        ).fetchall()]
+                    else:
+                        op["recent_launches"] = [dict(r) for r in conn.execute(
+                            "SELECT mint, creator_wallet, create_time, treasury_wallet, subprov_wallet, "
+                            "wrap_close_signature, funding_mechanism "
+                            "FROM wt_watchtower_launches WHERE mint IS NOT NULL "
+                            "AND COALESCE(state, 'FIRED_CREATE') != 'PENDING_REVIEW' "
+                            "ORDER BY create_time DESC LIMIT 250"
+                        ).fetchall()]
                 from src.ops.operator_identity_governance import read_identity_lifecycle
                 op["identity_lifecycle"] = read_identity_lifecycle(self._path, operator_id)
                 if op["identity_lifecycle"]:
@@ -81,6 +170,90 @@ class OperatorReader:
                     value["merged_into_operator_id"] = lifecycle.get("merged_into_operator_id")
                     result.append(value)
                 return result
+        except (sqlite3.Error, OSError):
+            return []
+
+    def fetch_active_manual_operators(self, *, limit: int = 200) -> list[dict]:
+        """Return only operations explicitly admitted to the active registry."""
+        try:
+            with self._connect() as conn:
+                rows = conn.execute(
+                    "SELECT o.*, d.disposition, d.updated_at AS disposition_updated_at, "
+                    "s.metrics_json, s.activity_state "
+                    "FROM operators o "
+                    "JOIN operation_registry_dispositions d "
+                    "ON d.operator_id=o.operator_id "
+                    "LEFT JOIN operation_activity_snapshots s ON s.snapshot_id=("
+                    "SELECT snapshot_id FROM operation_activity_snapshots "
+                    "WHERE operator_id=o.operator_id ORDER BY observed_at DESC LIMIT 1) "
+                    "WHERE d.disposition='ACTIVE_MANUAL' AND o.status!='MERGED' "
+                    "ORDER BY d.updated_at DESC, o.operator_id ASC LIMIT ?",
+                    (limit,),
+                ).fetchall()
+                result = []
+                for row in rows:
+                    value = dict(row)
+                    metrics = json.loads(value.pop("metrics_json") or "{}")
+                    value["total_launches"] = metrics.get("total_observed_launches")
+                    value["average_inter_launch_gap_seconds"] = metrics.get("average_inter_launch_gap_seconds")
+                    value["last_observed_launch_timestamp"] = metrics.get("last_observed_launch_timestamp")
+                    result.append(value)
+                result.sort(
+                    key=lambda value: (
+                        value["last_observed_launch_timestamp"] is not None,
+                        value["last_observed_launch_timestamp"] or 0,
+                    ),
+                    reverse=True,
+                )
+                return result
+        except (sqlite3.Error, OSError):
+            return []
+
+    def fetch_operation_review_queue(self, *, limit: int = 50) -> list[dict]:
+        """Return non-member walkback results that require analyst review.
+
+        This is deliberately a read-only projection.  A row in this queue is
+        not an attribution and must never affect an operator's membership or
+        activity snapshot.
+        """
+        try:
+            with self._connect() as conn:
+                if not conn.execute(
+                    "SELECT 1 FROM sqlite_master WHERE type='table' AND name='wt_watchtower_launches'"
+                ).fetchone():
+                    return []
+                row = conn.execute(
+                    "SELECT COUNT(DISTINCT mint) AS pending_launches, "
+                    "MAX(COALESCE(create_time, recorded_at)) AS last_observed "
+                    "FROM wt_watchtower_launches WHERE state='PENDING_REVIEW'"
+                ).fetchone()
+                if not row or not row["pending_launches"]:
+                    return []
+                return [{
+                    "candidate_operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+                    "candidate_operator_name": "WATCHTOWER",
+                    "pending_launches": row["pending_launches"],
+                    "last_observed": row["last_observed"],
+                    "review_state": "PENDING_ROUTE_REVIEW",
+                    "review_reason": "Walkback association was retained, but the verified provisioning route required for automatic membership is incomplete.",
+                }]
+        except (sqlite3.Error, OSError):
+            return []
+
+    def fetch_operator_review_candidates(self, operator_id: str, *, limit: int = 500) -> list[dict]:
+        """Return pending token evidence for one proposed operation, never membership."""
+        if operator_id != "04265d9f-6eb2-568c-a49e-9253091a4dbb":
+            return []
+        try:
+            with self._connect() as conn:
+                rows = conn.execute(
+                    "SELECT mint, creator_wallet, create_time, treasury_wallet, subprov_wallet, "
+                    "wrap_close_signature, funding_mechanism, recorded_at "
+                    "FROM wt_watchtower_launches WHERE state='PENDING_REVIEW' "
+                    "ORDER BY COALESCE(create_time, recorded_at) DESC, id DESC LIMIT ?",
+                    (limit,),
+                ).fetchall()
+                return [dict(row) for row in rows]
         except (sqlite3.Error, OSError):
             return []
 
@@ -178,7 +351,10 @@ class OperatorReader:
         if discovery["classification"] == "SERVICE_DISTRIBUTION_CLUSTER":
             candidate_role = "SERVICE_DISTRIBUTION_NETWORK"
         elif discovery["classification"] in ("STRONG_CANDIDATE_FAMILY", "PARTIAL_CANDIDATE_FAMILY"):
-            candidate_role = "PROVISIONING_NETWORK_CANDIDATE"
+            # Funding recurrence is a neutral structural fact.  It cannot
+            # establish a provisioner role or common operation identity on
+            # its own.
+            candidate_role = "FUNDING_STRUCTURE"
         elif discovery["attribution_state"] == "NON_ATTRIBUTIVE_PROVENANCE":
             candidate_role = "CEX_INFRA_PROVENANCE_CLUSTER"
 

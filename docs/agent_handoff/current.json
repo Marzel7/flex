@@ -1022,14 +1022,16 @@
     "status": "PARTIAL"
   },
   "p3r_v2_operation_priority_ranking_20260825": {
-    "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/operation_priority/p3r-v2-operation-priority-20260825/p3r_v2_operation_priority_ranking.v1.json",
-    "artifact_sha256": "f1b80125a83108867c4eec77c0f7963f1ab7a41e276ca49f621bdf0487397887",
-    "blocker": "Atomic coverage was not capped to 1.0 before score calculation; output contains a 104.45 operational-priority score despite the requested 0-100 range.",
-    "engineering_revision": "c00921e7",
-    "next_action": "With user authorization, correct the bounded scoring normalization, regenerate the ranking from the same frozen inputs, and supersede this invalid artifact.",
+    "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/operation_priority/p3r-v2-operation-priority-20260825-v2/p3r_v2_operation_priority_ranking.v2.json",
+    "artifact_sha256": "7e20dbf984fcbd9ec9ad738fe83c59738543fa2c97af8f79e806bc56e58f75da",
+    "engineering_revision": "a6437c58",
+    "manifest_sha256": "1b793023706cfd82f2fd1797d987a7ded8f13cd3c3df9fadfa700f105d0398d5",
+    "next_action": "Use ranking only for bounded local investigation; do not promote operations automatically.",
     "safety": "No RPC/provider calls, membership/tier/fingerprint/threshold mutation, queue replay, operation activation, production detector, or trading signal.",
-    "status": "PARTIAL",
-    "verdict": "P3R_V2_OPERATION_PRIORITY_RANKING_SCORE_RANGE_DEFECT"
+    "status": "COMPLETE",
+    "top_candidate": "p3r-v2-900b89587c6987d582df",
+    "validation": "PASS: all scores bounded 0-100 across 61 frozen WATCH_NOW families. v1 artifact superseded due uncapped atomic coverage.",
+    "verdict": "P3R_V2_OPERATION_PRIORITY_RANKING_COMPLETE"
   },
   "p3r_v2_shortlist_enrichment_20260825": {
     "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/shortlist_enrichment/p3r-v2-enrichment-c03f0fce0b7e3b9d685b/p3r_v2_shortlist_enrichment.v1.json",

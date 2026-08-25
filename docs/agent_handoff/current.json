@@ -512,6 +512,23 @@
     "next_action": "Keep the six as behaviorally matched candidates with an explicitly unresolved Treasury/Controller role; do not fabricate an upstream link. Resolve only if an independent provenance source or later infrastructure recurrence supplies it.",
     "verdict": "WATCHTOWER_RECENT_SIX_UPSTREAM_UNRESOLVED_RPC_VERIFIED"
   },
+  "watchtower_2nhz_bjg_gyff_rpc_reconciliation_20260825": {
+    "scope": "Read-only expanded RPC signature-window intersection for the user-proposed relation between BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT and GYffSdtiffuTTZpiXqevWCYsSjn11drMoPsky9vsSUnd.",
+    "result": {
+      "gyff_signature_window": 1000,
+      "bjg_signature_window": 510,
+      "shared_transactions": 1,
+      "shared_signature": "2LdTDi1mhN7YnRFqXhe6jCGNcA8upaAr7xWDzsEkpUPgCjWZ9Bgpk3o81m2jQa2G3EqvtmSD72nPfwDbKAc18Y7W",
+      "shared_transaction_time_utc": "2026-08-25T06:54:41Z",
+      "gyff_balance_delta_lamports": -1100173077194,
+      "bjg_balance_delta_lamports": 1100173067194,
+      "2nhz_creator_funding_anchor_time_utc": "2026-08-25T06:09:28Z"
+    },
+    "finding": "The shared transaction proves GYffSdt -> BJgZGdZX for approximately 1,100.173067194 SOL, not BJgZGdZX -> GYffSdt. It occurred about 45 minutes after the 2nHZ creator-funding anchor, so it cannot be the upstream funding source for that launch.",
+    "interpretation": "A 100-signature scan was insufficient for this high-volume wallet, but the asserted BJg-to-GYff upstream chain is disproven by RPC direction and chronology. GYff's pre-launch upstream remains unresolved.",
+    "next_action": "If needed, paginate GYff's history backward beyond the first 1,000 signatures, bounded strictly before 2026-08-25T06:09:28Z, and inspect only incoming funding transactions.",
+    "verdict": "WATCHTOWER_2NHZ_PROPOSED_BJG_UPSTREAM_DISPROVEN"
+  },
   "project": {
     "git_head": "e9d0a404417804faa70586c7b27f6a478028b798",
     "working_branch": "classification-attribution-axis"
@@ -523,7 +540,7 @@
     "executed": [],
     "result": "not run; read-only 16-mint WATCHTOWER miss analysis"
   },
-  "updated_at_utc": "2026-08-25T10:10:00Z",
+  "updated_at_utc": "2026-08-25T10:25:00Z",
   "updated_by": "codex",
-  "verdict": "WATCHTOWER_RECENT_SIX_UPSTREAM_UNRESOLVED_RPC_VERIFIED"
+  "verdict": "WATCHTOWER_2NHZ_PROPOSED_BJG_UPSTREAM_DISPROVEN"
 }

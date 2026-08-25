@@ -1,0 +1,77 @@
+{
+  "activity_annotation": {
+    "artifact_sha256": "ce0fb8e5df0d106ae5db9158cc649b8846ac52b64703e7a408239da3f80082df",
+    "census_run_id": "p3r-v2-census-b16928146d9b6876c44d",
+    "census_timestamp": 1787673754,
+    "edge_highwater": 60397
+  },
+  "artifacts": {
+    "complete_partition": {
+      "path": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/tier_group_exports/p3r-v2-tier-groups-59972ce2f9eb3d5e4985/p3r_v2_complete_canonical_partition.v1.json",
+      "sha256": "fcb6195d8e920a04b8039379b7ff18d10b168a8d8fc11231dba25961220b60a3"
+    },
+    "dormant": {
+      "path": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/tier_group_exports/p3r-v2-tier-groups-59972ce2f9eb3d5e4985/p3r_v2_dormant.v1.json",
+      "sha256": "a0f546db0c98cd1176e34186ed012589f9c3a6c4796557ee531937c4cf8daf93"
+    },
+    "tier_1": {
+      "path": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/tier_group_exports/p3r-v2-tier-groups-59972ce2f9eb3d5e4985/p3r_v2_tier_1.v1.json",
+      "sha256": "607940523e4638d517f55a3a3a55dca2b713847d8cb0048ed3a93fb08c8d8043"
+    },
+    "tier_2": {
+      "path": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/tier_group_exports/p3r-v2-tier-groups-59972ce2f9eb3d5e4985/p3r_v2_tier_2.v1.json",
+      "sha256": "0210c7b3372962c037401dea95b799f43415f114cd7607c0e27e8341f3590c28"
+    },
+    "tier_3": {
+      "path": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/tier_group_exports/p3r-v2-tier-groups-59972ce2f9eb3d5e4985/p3r_v2_tier_3.v1.json",
+      "sha256": "1c7e02e1588c0c4386b9df89bfa8fc8ab20db1bae56008cd17eba7dba2b4ff62"
+    },
+    "watch_later": {
+      "path": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/tier_group_exports/p3r-v2-tier-groups-59972ce2f9eb3d5e4985/p3r_v2_watch_later.v1.json",
+      "sha256": "3b242ec9a3531c4500b5ce09b5de5ce7f3573600b1e9ae26b841736e36c54d6a"
+    },
+    "watch_now": {
+      "path": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/tier_group_exports/p3r-v2-tier-groups-59972ce2f9eb3d5e4985/p3r_v2_watch_now.v1.json",
+      "sha256": "dad49ac29f17d34f28a0264577a11c025dd71659fae055457e489b36a92f3678"
+    },
+    "watch_now_working_set": {
+      "path": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/tier_group_exports/p3r-v2-tier-groups-59972ce2f9eb3d5e4985/p3r_v2_watch_now_working_set.v1.json",
+      "sha256": "84385ffa21b60f5dfa47b4a7ffb85b1205a0515cd523a082d564dc648f734210"
+    }
+  },
+  "canonical_manifest_sha256": "930fb7fc462e1464632913f22b28ea8fc419d9ca921f36fe4e798dff51617862",
+  "canonical_replay": "PASS: original run ID and manifest digest present after deterministic materializer replay",
+  "canonical_run_id": "p3r-v2-2dec1d40604c1f7c08c8",
+  "contract": {
+    "canonical_assignment": "Frozen qualification state; current activity is an annotation and does not mutate tier membership.",
+    "canonical_run": "p3r-v2-2dec1d40604c1f7c08c8",
+    "census_run": "p3r-v2-census-b16928146d9b6876c44d",
+    "code_sha256": "5ffb3b84c5e27e2617dd499470d37af97008844167eb584e7f76732849844052",
+    "version": "P3R_V2_CANONICAL_TIER_GROUP_EXPORT.v1"
+  },
+  "export_run_id": "p3r-v2-tier-groups-59972ce2f9eb3d5e4985",
+  "generated_timestamp": 1787676982,
+  "integrity": {
+    "family_total": 220,
+    "group_counts": {
+      "dormant": 33,
+      "tier_1": 1,
+      "tier_2": 13,
+      "tier_3": 47,
+      "watch_later": 126,
+      "watch_now": 61
+    },
+    "member_counts_match_lists": true,
+    "member_duplicates": 0,
+    "member_total": 2357,
+    "member_unique": 2357,
+    "terminal_groups_disjoint": true,
+    "watch_now_exact_union": true
+  },
+  "schema_version": "P3R_V2_CANONICAL_TIER_GROUP_EXPORT.v1",
+  "source_highwaters": {
+    "wt_walkback_atomic_flows": 7095,
+    "wt_walkback_edge_candidates": 60299,
+    "wt_walkback_queue": 32353
+  }
+}

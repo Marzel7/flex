@@ -1,0 +1,1810 @@
+{
+  "canonical_manifest_sha256": "930fb7fc462e1464632913f22b28ea8fc419d9ca921f36fe4e798dff51617862",
+  "canonical_run_id": "p3r-v2-2dec1d40604c1f7c08c8",
+  "families": [
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 0.8571428571428571,
+      "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+      "atomic_coverage": 0.0,
+      "atomic_recurrence": "NOT_OBSERVED",
+      "base_recurrence": "STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-0c4461dc473079a06180",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 14,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 0.8571428571428571,
+          "alternative_dominant_count": 1,
+          "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+          "atomic_coverage": 0.0,
+          "atomic_dominant_count": 0,
+          "atomic_recurrence": "NOT_OBSERVED",
+          "base_strong": true
+        },
+        "missing_tier_1_evidence": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN",
+          "ATOMIC_COVERAGE_INSUFFICIENT"
+        ]
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-0c4461dc473079a06180",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 811.2791666666667,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 14,
+        "members_with_retained_launch_timestamp": 14,
+        "most_recent_observed_launch": 1784753149,
+        "rank": 210
+      },
+      "distinct_creators": 14,
+      "distinct_direct_funders": 14,
+      "distinct_parents": 84,
+      "member_mints": [
+        "2AYT1zdQK4xiKvnCorKH1EY365ZRoi27oPXZBeTsPump",
+        "64GncEAYCXZ7XP8B84j9gegJj5t11zZbeNs9Lj25pump",
+        "77VsHKtPYKrrueLzA19FcDkLLt7uGxPHCdyA3qawpump",
+        "7ZeupYaFagHfd91UKVmpbqNooMbD4pSnfrSA4VuApump",
+        "8gtnRNwqLm7ht8eiKu9j4PrfK6SFzahmoraEGTbspump",
+        "9Xw6vSSC2v3rGec1dkMjEtQmHsveZTvePDc6G22Upump",
+        "CEEMTJLCMLx4iEjj7ihtwtAptYhYJoPqjPCPGBdWpump",
+        "CyTBUhGu4pcDZz5wP6GJE7MPwhbxnaBFqJ99dmqWpump",
+        "DsShb3WRtNuxKiCqGm4QJkrSCawjPAbPvgbPR5zxpump",
+        "Edw7mdQ44mFgjwPg2WKUgkxzHhLgcXMjwSdSRW7rpump",
+        "GjXJE3nEbrZezRUTVcTfbf9suRCgUWNWfzi8AzJ5pump",
+        "GpbdnzbBodwJhy8gXm8pkCHqFnf8dPHGhux9aMb9pump",
+        "Gx37dWejifwwTMDA4K6FqRrxD5wrgqDe7gv4EfXHpump",
+        "YURh3BjhNWFRTfqRvax3tt7n5XeNkLyy1Km8bQZpump"
+      ],
+      "watch_now": false
+    },
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 0.6666666666666666,
+      "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+      "atomic_coverage": 0.0,
+      "atomic_recurrence": "NOT_OBSERVED",
+      "base_recurrence": "NOT_STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-0f925b7bde81f530c321",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 3,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 0.6666666666666666,
+          "alternative_dominant_count": 1,
+          "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+          "atomic_coverage": 0.0,
+          "atomic_dominant_count": 0,
+          "atomic_recurrence": "NOT_OBSERVED",
+          "base_strong": false
+        },
+        "missing_tier_1_evidence": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN",
+          "ATOMIC_COVERAGE_INSUFFICIENT"
+        ]
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-0f925b7bde81f530c321",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 792.5019444444445,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 3,
+        "members_with_retained_launch_timestamp": 3,
+        "most_recent_observed_launch": 1784820747,
+        "rank": 204
+      },
+      "distinct_creators": 3,
+      "distinct_direct_funders": 3,
+      "distinct_parents": 12,
+      "member_mints": [
+        "9LhuK9W37eX2TvpVjpKqAd3ted3ujFTGzS6smbk6pump",
+        "DtUYiHJBzhN5wo2WB4iGCr6Z8QmNWGZyViWZLV9zpump",
+        "Lekmwc49axhb9eWTawqpFyCuRGHGbTLEnfbsHXLpump"
+      ],
+      "watch_now": false
+    },
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 1.0,
+      "alternative_recurrence": "STRONGLY_RECURRENT",
+      "atomic_coverage": 0.0,
+      "atomic_recurrence": "NOT_OBSERVED",
+      "base_recurrence": "NOT_STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-2745423a40e1880daf77",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 3,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 1.0,
+          "alternative_dominant_count": 3,
+          "alternative_recurrence": "STRONGLY_RECURRENT",
+          "atomic_coverage": 0.0,
+          "atomic_dominant_count": 0,
+          "atomic_recurrence": "NOT_OBSERVED",
+          "base_strong": false
+        },
+        "missing_tier_1_evidence": [
+          "ATOMIC_COVERAGE_INSUFFICIENT"
+        ]
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-2745423a40e1880daf77",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 795.0105555555556,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 3,
+        "members_with_retained_launch_timestamp": 3,
+        "most_recent_observed_launch": 1784811716,
+        "rank": 206
+      },
+      "distinct_creators": 3,
+      "distinct_direct_funders": 3,
+      "distinct_parents": 8,
+      "member_mints": [
+        "4bN5bFStn9Kbb8xKHYnJvztREaiXGSrFf8Ez1WEopump",
+        "HWofg5DLZdCcnJbw7L2dKKnC7h7aYK7uL1FTVstkpump",
+        "uzChhgtvkVAKLEQ5mLvT8sU9xZHNNTGtaU2C6pJpump"
+      ],
+      "watch_now": false
+    },
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 0.8,
+      "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+      "atomic_coverage": 1.0,
+      "atomic_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+      "base_recurrence": "STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-2dcc2e7294a15fb21c50",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 5,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 0.8,
+          "alternative_dominant_count": 1,
+          "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+          "atomic_coverage": 1.0,
+          "atomic_dominant_count": 1,
+          "atomic_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+          "base_strong": true
+        },
+        "missing_tier_1_evidence": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN",
+          "ATOMIC_RECURRENCE_NOT_PROVEN"
+        ]
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-2dcc2e7294a15fb21c50",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 727.8772222222223,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 5,
+        "members_with_retained_launch_timestamp": 5,
+        "most_recent_observed_launch": 1785053396,
+        "rank": 188
+      },
+      "distinct_creators": 5,
+      "distinct_direct_funders": 5,
+      "distinct_parents": 5,
+      "member_mints": [
+        "KSbatjNyYR68xQ4hLLMMCJ58YS86zwHJbthBqampump",
+        "PrvHpAPjVujxEmNauKHnSb9iuLe2gk51UbhjbqBpump",
+        "ahZd9cFCt3RxQA4rG9oXXKPFQxRdYQvtRv5izy3pump",
+        "gSuETrwQ6FtJtvttbZv8XVuGN3w64kneUgnKHLPpump",
+        "tt5NuNfg2RUuBHAQGX5fQ3CYocBYg6JZsHiNTwupump"
+      ],
+      "watch_now": false
+    },
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 1.0,
+      "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+      "atomic_coverage": 0.0,
+      "atomic_recurrence": "NOT_OBSERVED",
+      "base_recurrence": "NOT_STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-3ed234cb85b25a212f2a",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 3,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 1.0,
+          "alternative_dominant_count": 2,
+          "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+          "atomic_coverage": 0.0,
+          "atomic_dominant_count": 0,
+          "atomic_recurrence": "NOT_OBSERVED",
+          "base_strong": false
+        },
+        "missing_tier_1_evidence": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN",
+          "ATOMIC_COVERAGE_INSUFFICIENT"
+        ]
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-3ed234cb85b25a212f2a",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 794.6341666666667,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 3,
+        "members_with_retained_launch_timestamp": 3,
+        "most_recent_observed_launch": 1784813071,
+        "rank": 205
+      },
+      "distinct_creators": 3,
+      "distinct_direct_funders": 3,
+      "distinct_parents": 13,
+      "member_mints": [
+        "3xF8fgj5maAgFwprsEs26bJNmaPDS24zT1VTtELspump",
+        "ARXcxTmM7KsTCbgUPHDmFBhunwwAWHejypbT1m7upump",
+        "DFPVCAVmuVs2z3uUm31rxrxsRq9FAezXzor7ZB3cpump"
+      ],
+      "watch_now": false
+    },
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 1.0,
+      "alternative_recurrence": "STRONGLY_RECURRENT",
+      "atomic_coverage": 3.0,
+      "atomic_recurrence": "STRONGLY_RECURRENT",
+      "base_recurrence": "NOT_STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-46d96390b9e8a5718dd3",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 4,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 1.0,
+          "alternative_dominant_count": 3,
+          "alternative_recurrence": "STRONGLY_RECURRENT",
+          "atomic_coverage": 3.0,
+          "atomic_dominant_count": 8,
+          "atomic_recurrence": "STRONGLY_RECURRENT",
+          "base_strong": false
+        },
+        "missing_tier_1_evidence": []
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-46d96390b9e8a5718dd3",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 767.4316666666666,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 4,
+        "members_with_retained_launch_timestamp": 4,
+        "most_recent_observed_launch": 1784911000,
+        "rank": 197
+      },
+      "distinct_creators": 4,
+      "distinct_direct_funders": 4,
+      "distinct_parents": 8,
+      "member_mints": [
+        "G3UYtu27QEh8M3i4LWto5FDEqsc8qusVXHQW2umpump",
+        "nkiRABLck1AbNFCJLYN7PTMe8kxvpWP5Bq6x2kgpump",
+        "sjsnFCjAWS1PGSVewNoxHd32Ytjk3t4dN7G2SGPpump",
+        "yQgPPMM7FqHcTb1XXaxwARE6gmFXahzCBr85xrXpump"
+      ],
+      "watch_now": false
+    },
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 1.0,
+      "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+      "atomic_coverage": 0.0,
+      "atomic_recurrence": "NOT_OBSERVED",
+      "base_recurrence": "STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-4c89a303ada125056139",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 7,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 1.0,
+          "alternative_dominant_count": 4,
+          "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+          "atomic_coverage": 0.0,
+          "atomic_dominant_count": 0,
+          "atomic_recurrence": "NOT_OBSERVED",
+          "base_strong": true
+        },
+        "missing_tier_1_evidence": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN",
+          "ATOMIC_COVERAGE_INSUFFICIENT"
+        ]
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-4c89a303ada125056139",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 1654.6772222222223,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 7,
+        "members_with_retained_launch_timestamp": 7,
+        "most_recent_observed_launch": 1781716916,
+        "rank": 215
+      },
+      "distinct_creators": 7,
+      "distinct_direct_funders": 7,
+      "distinct_parents": 16,
+      "member_mints": [
+        "CR7gzSampCC76acKLE3P6M4FsL78i88eB6QQMW9Fpump",
+        "CdVgM1q7xyFJ6y4jSRiedwjeMY1aLiF4cew5Zdb1pump",
+        "CmcGVxk3xaq9waSW75MpxoNe1NcdTJWva4ZAF9Gdpump",
+        "EbzAM6hw7MQP8VNiwixoc5mgW18NkR348HFxVMHypump",
+        "FXM9tT9DVnVXQ1wM3KXdVAihP6eEpWr6pyPUjyVtpump",
+        "GZnLQ49CnY5X4biRcRTZBdWQzG6isW9j7o57KxxeEerA",
+        "Gp6Bcc5ArJXqf7XsJCuE2L4hsxjNFFDaxAy7vwyFim1h"
+      ],
+      "watch_now": false
+    },
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 1.0,
+      "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+      "atomic_coverage": 3.0,
+      "atomic_recurrence": "STRONGLY_RECURRENT",
+      "base_recurrence": "NOT_STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-5099994b7d5369d9591d",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 3,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 1.0,
+          "alternative_dominant_count": 2,
+          "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+          "atomic_coverage": 3.0,
+          "atomic_dominant_count": 6,
+          "atomic_recurrence": "STRONGLY_RECURRENT",
+          "base_strong": false
+        },
+        "missing_tier_1_evidence": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN"
+        ]
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-5099994b7d5369d9591d",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 763.6958333333333,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 3,
+        "members_with_retained_launch_timestamp": 3,
+        "most_recent_observed_launch": 1784924449,
+        "rank": 196
+      },
+      "distinct_creators": 3,
+      "distinct_direct_funders": 3,
+      "distinct_parents": 6,
+      "member_mints": [
+        "X6DEmXUKwnkEfFgrv1geES83vvHvvrFQaZuk9RPpump",
+        "cqXDa2CbxZ8V95ZaRGx9CBoEKZZDhwDyESjup9zpump",
+        "snSbfEkVw6gy3b2heR87TLLTdcnUekha8ZDsek3pump"
+      ],
+      "watch_now": false
+    },
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 1.0,
+      "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+      "atomic_coverage": 0.0,
+      "atomic_recurrence": "NOT_OBSERVED",
+      "base_recurrence": "STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-64d5fdff0cfd45a49dfe",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 22,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 1.0,
+          "alternative_dominant_count": 13,
+          "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+          "atomic_coverage": 0.0,
+          "atomic_dominant_count": 0,
+          "atomic_recurrence": "NOT_OBSERVED",
+          "base_strong": true
+        },
+        "missing_tier_1_evidence": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN",
+          "ATOMIC_COVERAGE_INSUFFICIENT"
+        ]
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-64d5fdff0cfd45a49dfe",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 783.2641666666667,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 22,
+        "members_with_retained_launch_timestamp": 22,
+        "most_recent_observed_launch": 1784854003,
+        "rank": 201
+      },
+      "distinct_creators": 22,
+      "distinct_direct_funders": 22,
+      "distinct_parents": 23,
+      "member_mints": [
+        "26jS67c1buisNxFgb6qjQbeoEWUtywxKDSQmzvZspump",
+        "3RDMSuUnH3eMZ8Qe81BkNupk8hvCXBrzDNxo2Mgwpump",
+        "5PXFhBsrnyAKWAyQ7TVGVQyDgKwSx7hasLsc1jo2pump",
+        "6evH57oyXMcdYsuH41eF6J4zVhiaSGoJnGidyTx9pump",
+        "77hmW8gAqQja5dUWwiFWqgMroA3L4JRJq1riJpZwJdD2",
+        "7EeeVDmcicX6wDgx9WFPuuqP8toCFFvtDMFiugRghGMy",
+        "7PHQexrFQLaijhc47Adoe6o39ZtfEsQF6frqeztwpump",
+        "8DKHDFSBpdHpjBGFdFBaRBA5AW5cF2A4st3ZZ3Mpump",
+        "BV6FZG9HkZ3hk9HvJMNh8wUnmnBNeqZ9VaEUAj3Kpump",
+        "DX39f7cpSRNTd7u4cNqaQPjRyHS3kXCfUL3TbKjbpump",
+        "F9CPwdA2zj9cBxpJTPyW8gVFmanhzYkpxJYmZtKApump",
+        "FHWYaUwqAD1FRHos4chB195Z3YavCiSwgMkiLue2pump",
+        "FHqC6Bk8v35cm4QHLHmKgXG1QpmYDkLs7hwha9vzpump",
+        "FSfqLckagGiSBPvRzbjx4cSmt3YfP3458kAUUbLApump",
+        "GZxPY8GBtwRAXg5imaseKBNRxTFTms7SNXyx2yBepump",
+        "H3sLWu8xomFZoPrSuZhiM3ox3bpXTpiur8R3JQK2pump",
+        "HFjckWNU2XF75CU88tB7pvAY9g9gcsHoXMESksGKpump",
+        "Hp5x54szrpHzpebY4a2euci9zTuRrntvpJpFHbuapump",
+        "Z7mcqQnyAauN9mwQjBS7yMLjGmEedcGMYbe5982pump",
+        "mxbo81UXPit1YH9sBhRQR4f3Tz6tUGAeKPZ4conpump",
+        "seYyzjtzZa7wgrm4znH6Z2UEvVknw5L2oQXbch2pump",
+        "xMxkWANN2zKWckDXdiLdzJtMXDbbBpxbsjDVSc7pump"
+      ],
+      "watch_now": false
+    },
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 1.0,
+      "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+      "atomic_coverage": 0.0,
+      "atomic_recurrence": "NOT_OBSERVED",
+      "base_recurrence": "NOT_STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-6bae070a84fe6a792784",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 3,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 1.0,
+          "alternative_dominant_count": 1,
+          "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+          "atomic_coverage": 0.0,
+          "atomic_dominant_count": 0,
+          "atomic_recurrence": "NOT_OBSERVED",
+          "base_strong": false
+        },
+        "missing_tier_1_evidence": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN",
+          "ATOMIC_COVERAGE_INSUFFICIENT"
+        ]
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-6bae070a84fe6a792784",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 2249.7719444444447,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 3,
+        "members_with_retained_launch_timestamp": 3,
+        "most_recent_observed_launch": 1779574575,
+        "rank": 217
+      },
+      "distinct_creators": 3,
+      "distinct_direct_funders": 3,
+      "distinct_parents": 7,
+      "member_mints": [
+        "7mgayyKnMLyvSWNEji3u7jbvJR1EEBd9YkQbi6v7pump",
+        "DFbrpozWNHk8G4GuoifNivFtdcx1P19yC8kBAzMXpump",
+        "EVZAKxdKwv4sDYBZGUPf3EnWDHBJzA75ARHbNM37pump"
+      ],
+      "watch_now": false
+    },
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 0.6666666666666666,
+      "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+      "atomic_coverage": 0.0,
+      "atomic_recurrence": "NOT_OBSERVED",
+      "base_recurrence": "NOT_STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-6f497d070207cabf75ed",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 3,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 0.6666666666666666,
+          "alternative_dominant_count": 1,
+          "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+          "atomic_coverage": 0.0,
+          "atomic_dominant_count": 0,
+          "atomic_recurrence": "NOT_OBSERVED",
+          "base_strong": false
+        },
+        "missing_tier_1_evidence": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN",
+          "ATOMIC_COVERAGE_INSUFFICIENT"
+        ]
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-6f497d070207cabf75ed",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 3227.839722222222,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 3,
+        "members_with_retained_launch_timestamp": 3,
+        "most_recent_observed_launch": 1776053531,
+        "rank": 219
+      },
+      "distinct_creators": 3,
+      "distinct_direct_funders": 3,
+      "distinct_parents": 7,
+      "member_mints": [
+        "2m8J7RRfcf1ivAmGYz7dQHMbjYUXGGCEPrkJRthspump",
+        "DKtVJrje2QZhJjr8mqTzcYsRMuf4wGHHAaA2e7DbLagi",
+        "uaVZu6eLsDYJjFizufqn5SvmgQW96FaPZ4YbjSqpump"
+      ],
+      "watch_now": false
+    },
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 1.0,
+      "alternative_recurrence": "STRONGLY_RECURRENT",
+      "atomic_coverage": 2.0,
+      "atomic_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+      "base_recurrence": "NOT_STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-88b7c2d82ab396e1ee21",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 3,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 1.0,
+          "alternative_dominant_count": 3,
+          "alternative_recurrence": "STRONGLY_RECURRENT",
+          "atomic_coverage": 2.0,
+          "atomic_dominant_count": 3,
+          "atomic_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+          "base_strong": false
+        },
+        "missing_tier_1_evidence": [
+          "ATOMIC_RECURRENCE_NOT_PROVEN"
+        ]
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-88b7c2d82ab396e1ee21",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 828.0966666666667,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 3,
+        "members_with_retained_launch_timestamp": 3,
+        "most_recent_observed_launch": 1784692606,
+        "rank": 213
+      },
+      "distinct_creators": 3,
+      "distinct_direct_funders": 3,
+      "distinct_parents": 12,
+      "member_mints": [
+        "UbEoFvPmiHUzo17PmpPEHZ56rQTGxipGFzAj4K6pump",
+        "Ux3UY87EZArWr9AXgFJm6GVyp6Jr8JD6dMcPrispump",
+        "ocFkqjqbkEBwn3jWnz9DZNebo6ERyDMgYdLqjdkpump"
+      ],
+      "watch_now": false
+    },
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 0.8461538461538461,
+      "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+      "atomic_coverage": 0.0,
+      "atomic_recurrence": "NOT_OBSERVED",
+      "base_recurrence": "STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-9329dc9a870fdcb62f86",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 13,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 0.8461538461538461,
+          "alternative_dominant_count": 1,
+          "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+          "atomic_coverage": 0.0,
+          "atomic_dominant_count": 0,
+          "atomic_recurrence": "NOT_OBSERVED",
+          "base_strong": true
+        },
+        "missing_tier_1_evidence": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN",
+          "ATOMIC_COVERAGE_INSUFFICIENT"
+        ]
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-9329dc9a870fdcb62f86",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 786.3483333333334,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 13,
+        "members_with_retained_launch_timestamp": 13,
+        "most_recent_observed_launch": 1784842900,
+        "rank": 203
+      },
+      "distinct_creators": 13,
+      "distinct_direct_funders": 13,
+      "distinct_parents": 39,
+      "member_mints": [
+        "2EmZnkMKWkbTN3T2uR1i1jtmQcFqDuZpioQnVCDrpump",
+        "2TzuVRtMwZmSYsPCkw8nvhQnkCdDPNeGZQCoj5Evpump",
+        "47rdPyNcD4jgbnzdCNVA2bFncaMNt2zSUyVQg8sLpump",
+        "4MYcuYsddXMDGi3itWnFDKWjK3xeZRryAsz7e4m3pump",
+        "5VoB1VPPXFCqBVPEjM4DHcZoUoGfSQZxkXcXQNrdPUMP",
+        "5aQjpZxKRdifBSjER7m1XUG3DzCdDzH88trjWtzfpump",
+        "7T4Dfh6JmZ488q15v6oA5eJTXr5ysGSSWTYojzdjpump",
+        "AVp3nsuUwJF4ydX6qwA7eyz77ChVzUmTzXDyZtsPump",
+        "DpDfMTpjAzjpe3N7iemHEoodnsNfRJCXN5wVk6URpump",
+        "EgzT5fP6131C5EEqZe58nXJk1bbD5v7GetJFR5kpump",
+        "HVAYF7YvNjipReVh6SWmfagurhxvbdN8CQtn6qropump",
+        "LVKcoKh5ddY6EvpAeXRk73JMUr51B1o13jxb5A4PUMP",
+        "aXofbJKjc1GkXt2HG5zE8cfk1Mfic7DMUTjiMFupump"
+      ],
+      "watch_now": false
+    },
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 1.0,
+      "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+      "atomic_coverage": 0.0,
+      "atomic_recurrence": "NOT_OBSERVED",
+      "base_recurrence": "STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-96b8918f7c9b4045de04",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 8,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 1.0,
+          "alternative_dominant_count": 1,
+          "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+          "atomic_coverage": 0.0,
+          "atomic_dominant_count": 0,
+          "atomic_recurrence": "NOT_OBSERVED",
+          "base_strong": true
+        },
+        "missing_tier_1_evidence": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN",
+          "ATOMIC_COVERAGE_INSUFFICIENT"
+        ]
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-96b8918f7c9b4045de04",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 2570.9294444444445,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 8,
+        "members_with_retained_launch_timestamp": 8,
+        "most_recent_observed_launch": 1778418408,
+        "rank": 218
+      },
+      "distinct_creators": 8,
+      "distinct_direct_funders": 8,
+      "distinct_parents": 10,
+      "member_mints": [
+        "41G6CueAmnjs6hYWRsgCtQmnXRjnwYJK7kkfpkjKCL1P",
+        "4MDp5jpxMPcZugHaa34TaDiv2Hyp6ZaHK3TLCenbpump",
+        "6jzGPhSDiRifgZrchzngZzsFPR9yn1RF9ruSFxF3pump",
+        "6rgZ1MEFwik2F1tDGfq7e9xmMf2vZE72uWTDNpospump",
+        "AMnPJwgiJc7XC6F3uLoTgaFpYXuEWY15toiYT21Gpump",
+        "D8EWinYDKfVAQvdhBJ5jxpfwv9cZqKpsjPn1JuaZpump",
+        "Fbv6deLeJZdeRN1JTiR6BBZas4az6XKyoiL5nLYwpump",
+        "FdkszrXPtX2z2mthQhU7nBo1pHco9NaKxtuqAkRXpump"
+      ],
+      "watch_now": false
+    },
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 1.0,
+      "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+      "atomic_coverage": 0.0,
+      "atomic_recurrence": "NOT_OBSERVED",
+      "base_recurrence": "NOT_STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-97ab1b933a0511454211",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 3,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 1.0,
+          "alternative_dominant_count": 1,
+          "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+          "atomic_coverage": 0.0,
+          "atomic_dominant_count": 0,
+          "atomic_recurrence": "NOT_OBSERVED",
+          "base_strong": false
+        },
+        "missing_tier_1_evidence": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN",
+          "ATOMIC_COVERAGE_INSUFFICIENT"
+        ]
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-97ab1b933a0511454211",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 837.2877777777778,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 3,
+        "members_with_retained_launch_timestamp": 3,
+        "most_recent_observed_launch": 1784659518,
+        "rank": 214
+      },
+      "distinct_creators": 3,
+      "distinct_direct_funders": 3,
+      "distinct_parents": 12,
+      "member_mints": [
+        "EL6aMd3wjGRn6JGPKqDVYv4Z3zXqkNV1zF4YajDGpump",
+        "XVTWySJscWWGf7rasayZ1AL9m85SYPWX8CxNxxppump",
+        "jicnLJ8PQdhMJRPXSdAvSUbmJsPT4JwvWLPq8yYpump"
+      ],
+      "watch_now": false
+    },
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 1.0,
+      "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+      "atomic_coverage": 1.3333333333333333,
+      "atomic_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+      "base_recurrence": "NOT_STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-9c5ed31345dea5253776",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 3,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 1.0,
+          "alternative_dominant_count": 2,
+          "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+          "atomic_coverage": 1.3333333333333333,
+          "atomic_dominant_count": 2,
+          "atomic_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+          "base_strong": false
+        },
+        "missing_tier_1_evidence": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN",
+          "ATOMIC_RECURRENCE_NOT_PROVEN"
+        ]
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-9c5ed31345dea5253776",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 6187.474166666667,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 3,
+        "members_with_retained_launch_timestamp": 3,
+        "most_recent_observed_launch": 1765398847,
+        "rank": 220
+      },
+      "distinct_creators": 3,
+      "distinct_direct_funders": 3,
+      "distinct_parents": 8,
+      "member_mints": [
+        "2BiWtxaQpchtq9PDzdwAoro62TQne5e42K2D7KSSpump",
+        "34imF3iwR5GwsErywDBvngQgaEEqrDQFVMd1JTHApump",
+        "76GfJ8CcivR7uLrwo2hvFdCk2oRiV1xgbVKyMWT1pump"
+      ],
+      "watch_now": false
+    },
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 0.875,
+      "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+      "atomic_coverage": 0.0,
+      "atomic_recurrence": "NOT_OBSERVED",
+      "base_recurrence": "STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-9f6fb14071bafbbc09d0",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 8,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 0.875,
+          "alternative_dominant_count": 1,
+          "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+          "atomic_coverage": 0.0,
+          "atomic_dominant_count": 0,
+          "atomic_recurrence": "NOT_OBSERVED",
+          "base_strong": true
+        },
+        "missing_tier_1_evidence": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN",
+          "ATOMIC_COVERAGE_INSUFFICIENT"
+        ]
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-9f6fb14071bafbbc09d0",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 1778.8255555555556,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 8,
+        "members_with_retained_launch_timestamp": 8,
+        "most_recent_observed_launch": 1781269982,
+        "rank": 216
+      },
+      "distinct_creators": 8,
+      "distinct_direct_funders": 8,
+      "distinct_parents": 9,
+      "member_mints": [
+        "3jzFad7osGadgWLigzjfVVPUc36wcGDeJkSiUybapump",
+        "4WnFE1W2QXss1LEsbKj9BY6AwmTQkXuJ73eLEBRMpump",
+        "9UBLt2NLwJDe9recKwKsyZqNsEDrcvbuXGrkeJDBpump",
+        "ASKGe9kxedSyAg59x12etvUWCcEQ6vS7ujdeUtaapump",
+        "DGiBMKvCJybMcPgZvjaBcGk6WAaDmjrdEiCSLyp3pump",
+        "Gabu6DcFwP2tUMrzGkBPsK7AVTmKkQWC3VBxxwqwpump",
+        "HAqNZqW9KC8JzP6cfinDby5rFXCvitnQBrCL4NW7pump",
+        "etr8xVre63euoDZ1cCVBkZjnGYDvebzRr99buH6pump"
+      ],
+      "watch_now": false
+    },
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 1.0,
+      "alternative_recurrence": "STRONGLY_RECURRENT",
+      "atomic_coverage": 0.0,
+      "atomic_recurrence": "NOT_OBSERVED",
+      "base_recurrence": "STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-a7ce1382fd7e2218864c",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 12,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 1.0,
+          "alternative_dominant_count": 12,
+          "alternative_recurrence": "STRONGLY_RECURRENT",
+          "atomic_coverage": 0.0,
+          "atomic_dominant_count": 0,
+          "atomic_recurrence": "NOT_OBSERVED",
+          "base_strong": true
+        },
+        "missing_tier_1_evidence": [
+          "ATOMIC_COVERAGE_INSUFFICIENT"
+        ]
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-a7ce1382fd7e2218864c",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 801.2025,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 12,
+        "members_with_retained_launch_timestamp": 12,
+        "most_recent_observed_launch": 1784789425,
+        "rank": 208
+      },
+      "distinct_creators": 12,
+      "distinct_direct_funders": 12,
+      "distinct_parents": 49,
+      "member_mints": [
+        "2ugbboh3hA2iQ6qcLeruTLspkadpuZfcurGrFjwVpump",
+        "3JA22FRmuViy8B9baYtvZLX6cCgFUuP1zb84ZrEypump",
+        "4QDVdiHXVdBDEB2fVBBVEVkDP4y4DFDo6Q1PY6Ydpump",
+        "4cWRz6MSiyfK8TrEVHUP2GAhyNqJ8gaRAZtPuhVSpump",
+        "53NprUUyEmjtpVSg5weYoYbTpEE5qhr1LdZS8ofypump",
+        "6vLnEdVSDmzm4L4ZER3C6RwpxkW3w3GGwEhhpuFPpump",
+        "71NmrvogE6SzQgCw2rdUiof3wTywSpwdbPDsEXKcpump",
+        "9aXqjFn6rnSscddkFtTKmY9ykBrZRobnXs7j4pnWpump",
+        "9zB2Xq6gE9ZD9E2hPAaxyqzLFeba6LJX6EJmzy5epump",
+        "BkgcH8zgKFaqEReqzpPat9QkftthWwLNsPTQo3RKpump",
+        "Bsw9XE2z3BwEvuTb4xnrYLwBzHL3kzoSUYBXc3aMpump",
+        "F3ioduuDEmsFUUAfXfDuXTf9TnwqXGkoHHsJwjdcpump"
+      ],
+      "watch_now": false
+    },
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 0.75,
+      "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+      "atomic_coverage": 0.0,
+      "atomic_recurrence": "NOT_OBSERVED",
+      "base_recurrence": "NOT_STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-ae775332d4fa0a513727",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 4,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 0.75,
+          "alternative_dominant_count": 1,
+          "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+          "atomic_coverage": 0.0,
+          "atomic_dominant_count": 0,
+          "atomic_recurrence": "NOT_OBSERVED",
+          "base_strong": false
+        },
+        "missing_tier_1_evidence": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN",
+          "ATOMIC_COVERAGE_INSUFFICIENT"
+        ]
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-ae775332d4fa0a513727",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 781.5997222222222,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 4,
+        "members_with_retained_launch_timestamp": 4,
+        "most_recent_observed_launch": 1784859995,
+        "rank": 199
+      },
+      "distinct_creators": 4,
+      "distinct_direct_funders": 4,
+      "distinct_parents": 8,
+      "member_mints": [
+        "2YYnmDdJrSGg8XMbTMZYnUsScxv5awrtK5UJZfrUpump",
+        "8iHW5A5pP116HoK2SSk6c6eSLVcv5GXm8J6mPcZppump",
+        "HstATUB4e5VngFFceHJhHScrFBrWzvU9aNdVQwzppump",
+        "QQTXTsxWdQRsD3JUKZwngqTcJkaMC4y1tXf7WQupump"
+      ],
+      "watch_now": false
+    },
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 0.6956521739130435,
+      "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+      "atomic_coverage": 0.0,
+      "atomic_recurrence": "NOT_OBSERVED",
+      "base_recurrence": "STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-b6663dd9dbcc659029c3",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 46,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 0.6956521739130435,
+          "alternative_dominant_count": 2,
+          "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+          "atomic_coverage": 0.0,
+          "atomic_dominant_count": 0,
+          "atomic_recurrence": "NOT_OBSERVED",
+          "base_strong": true
+        },
+        "missing_tier_1_evidence": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN",
+          "ATOMIC_COVERAGE_INSUFFICIENT"
+        ]
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-b6663dd9dbcc659029c3",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 772.6411111111111,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 46,
+        "members_with_retained_launch_timestamp": 46,
+        "most_recent_observed_launch": 1784892246,
+        "rank": 198
+      },
+      "distinct_creators": 43,
+      "distinct_direct_funders": 46,
+      "distinct_parents": 83,
+      "member_mints": [
+        "13eUGZTrWQeKpbZd5WrtHouQixp6AKhQmoGaQuMWpump",
+        "23rYjUT6w7tvKfUvS8WxZQV7FZvhTpLyJaDdXFaipump",
+        "2B84XDBcG7WAM1hH1S9uoKuPKWQFHHoiiAadKYwWpump",
+        "2eBGZbbaSEFvJJv3Ycv5ixFQ8CMJc2ruBtK3Zx8epump",
+        "3xMUoJ79RdKUdgJrCvFPZEeK9eJuMP2wkdqb9hwFpump",
+        "41LMYQFA9NbQrfASGQxLaKGbncp1nbEZ7W61brFbpump",
+        "51rmiHPSMBtwazUh1o7aZeRwoBWxjLdR4jzvakrHpump",
+        "5k9z3oazpQLmnYzrPfW3rqfPNU58Y5vmMtHZvQ8Lpump",
+        "6kMCTiXCxQ6zsSfCTsi7kgsb6j47cxeteh3Bt8LHpump",
+        "6mZfHjQaPwKQT7g2N6UaFkQRtDF57htgfikSQDhopump",
+        "6pWCZe9NP5GnnZLkCNnzxaYpWycenxPmu5awgaQwpump",
+        "7FfZNAMP3ii3Yaqx9Km7qXCumHEpgz5rJXS1AeiApump",
+        "7dPQs9xhtUxvZmQ7kaDJLD9s7HFLhascaXavw541pump",
+        "7qMx32Q1zDhkUtnrBkSiTRCbkJ2yyQNNu143MSqxpump",
+        "7xRDMhXuzX9vTPvLoceHgGXfU538JT7masxnwEU6pump",
+        "82HaGsaFGnUWmARWGoeyQNk5hA8wZSygYHeq7u8cpump",
+        "853b6p8UZahyNAkYQpJUDRbT4rgerDVf98fakQEcnomo",
+        "8iwHSrQiWAdsB9w4eJX38Bp2gVistxpTtTkesADpump",
+        "9DgEWHK3uEBGQVoWbYxSkUNmQXYbbzAgcLtQgyGZpump",
+        "9ozDxJfnDvc2Bj62qZWakC4aRogPSSWEbgnwVTmGpump",
+        "AZQrQ4MAcm6kL74i3TSw1LWznUTD7RwX2iR3Zpi1pump",
+        "AmAJEw2AocdfUNLrbpB5mKgcKP757zqAMxTBU3Mvpump",
+        "Ay3Q5zg9CCJAYTwizmK8AHiuM3AwfxehfBtygYgKpump",
+        "BPiKtiqiaAhavZy61Cp858ksWUXr7RiDrrPaiXuFpump",
+        "BPyga9v7cN35ZWk9uhr72rUBwa2rNbw59Nb7kXwtpump",
+        "BaANxGG36NdWnLTu55gWRdKKpNqx9yk5fZwa464pump",
+        "BcbuAEmVwQ4QWBNn1KQxcsJnpH39LGE76apE6XxQpump",
+        "BdVW7noQa4ydppuuhH37xc1116LzZNcPzje1hZoKpump",
+        "CtxRwnKzmzKS71HQpHxcFTjg1KM2Pe59cUoi7GrPpump",
+        "Cuavims3bSviy6ZGVTjS9dW1uBuufBaV8gm72og1NVn1",
+        "Dx194XFwRgm1wZSQfe8FANs9x9jfLayK4Y8mN1GSpump",
+        "FHhgsenea5oMpEJWPbMmhztFT8BDSuWWaq2p47aCpump",
+        "FNgRW5Vkgpvj2VmuJLXK8CFDAAUy89XxPB7dRUh5pump",
+        "FZW9v2i9jtKej8cgYpny2MJbn38JLnfw9VXok5nhpump",
+        "FnezYruxKeGBPEA9FxK1eNYZcRmfz7ZYQRExa5fypump",
+        "GKEsXW43feFXxEg2AVyx7x6UyhL5tHbmmKB2EmoKpump",
+        "Ggk5mzx8Snr5QSfc9jzahy5siPS8GD6AEUt1oAxZpump",
+        "GkUnjBvGx9sXf5jEpXWSucgNoT8G1xUo2Dq9vryApump",
+        "HHV2uafyLWvYtBvt46rY3hto8QfuKvLvfWtKLzXnpump",
+        "HLm74XVQZ5txTodXTcMQUWLbSXMqLmq2PfibZXS4pump",
+        "HnD7hbbrzrxEm24iDFjFf6FEnPzGqTYmPjA46PTzpump",
+        "J95gpg997TveJfuJCwc5xuSboxznQPxvT26swBXpump",
+        "Kjc3WMUsJ3UK4X3t397sPAXgCXXNoXg4xr6o5xcpump",
+        "STonmEQg6Zmi8m1iH1VSUrsAJgjHvUaD7vWQsk3pump",
+        "beXjn8EghNXnKCucBh1oiRa23rmnrhrpUvPBLPupump",
+        "ryD6LFPz7Z3UK7VCWk8eW4x23rLK2FkcWQrSWkWpump"
+      ],
+      "watch_now": false
+    },
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 0.0,
+      "alternative_recurrence": "NOT_OBSERVED",
+      "atomic_coverage": 1.0,
+      "atomic_recurrence": "STRONGLY_RECURRENT",
+      "base_recurrence": "NOT_STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-be2f34e44fc2569404d3",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 4,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 0.0,
+          "alternative_dominant_count": 0,
+          "alternative_recurrence": "NOT_OBSERVED",
+          "atomic_coverage": 1.0,
+          "atomic_dominant_count": 4,
+          "atomic_recurrence": "STRONGLY_RECURRENT",
+          "base_strong": false
+        },
+        "missing_tier_1_evidence": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN"
+        ]
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-be2f34e44fc2569404d3",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 739.3641666666666,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 4,
+        "members_with_retained_launch_timestamp": 4,
+        "most_recent_observed_launch": 1785012043,
+        "rank": 190
+      },
+      "distinct_creators": 4,
+      "distinct_direct_funders": 4,
+      "distinct_parents": 5,
+      "member_mints": [
+        "NXXnT6GRABxB2VbMEriVz5Qb6RR8hdiNKJVF4qqpump",
+        "arRWPU3zR1cpawMfC5ogKbJpgaGvqad8iZDarChpump",
+        "m2m6pQnHxHy4FJ3KjjCkRAFXmVwAUqgQfZ5RC5ppump",
+        "sawnfAjyopsuy8WEriCmeujgASniZVHcAQs7U4Spump"
+      ],
+      "watch_now": false
+    },
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 1.0,
+      "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+      "atomic_coverage": 4.0,
+      "atomic_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+      "base_recurrence": "NOT_STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-bed283370d8628d1bda1",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 3,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 1.0,
+          "alternative_dominant_count": 1,
+          "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+          "atomic_coverage": 4.0,
+          "atomic_dominant_count": 4,
+          "atomic_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+          "base_strong": false
+        },
+        "missing_tier_1_evidence": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN",
+          "ATOMIC_RECURRENCE_NOT_PROVEN"
+        ]
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-bed283370d8628d1bda1",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 783.2683333333333,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 3,
+        "members_with_retained_launch_timestamp": 3,
+        "most_recent_observed_launch": 1784853988,
+        "rank": 202
+      },
+      "distinct_creators": 3,
+      "distinct_direct_funders": 3,
+      "distinct_parents": 6,
+      "member_mints": [
+        "D4uFJVJAWUr9wcF91gHpx8G9qmQs1GDxkByL41Kpump",
+        "SQZE2YqnoruLAAi1i8u2ZmiA3WmXQY187Q4L9W8pump",
+        "h2myuwcCnDSAfGaCeujpzgA12tEuxNnmWD5igXmpump"
+      ],
+      "watch_now": false
+    },
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 1.0,
+      "alternative_recurrence": "STRONGLY_RECURRENT",
+      "atomic_coverage": 0.0,
+      "atomic_recurrence": "NOT_OBSERVED",
+      "base_recurrence": "STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-c194fe5305e1e584ce22",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 12,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 1.0,
+          "alternative_dominant_count": 12,
+          "alternative_recurrence": "STRONGLY_RECURRENT",
+          "atomic_coverage": 0.0,
+          "atomic_dominant_count": 0,
+          "atomic_recurrence": "NOT_OBSERVED",
+          "base_strong": true
+        },
+        "missing_tier_1_evidence": [
+          "ATOMIC_COVERAGE_INSUFFICIENT"
+        ]
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-c194fe5305e1e584ce22",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 800.8813888888889,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 12,
+        "members_with_retained_launch_timestamp": 12,
+        "most_recent_observed_launch": 1784790581,
+        "rank": 207
+      },
+      "distinct_creators": 12,
+      "distinct_direct_funders": 12,
+      "distinct_parents": 37,
+      "member_mints": [
+        "47UyUzYfpu9gRzkoLG6Se8ZLe5bpM3AB8gmHSonRpump",
+        "4xesUANebbjC4sdKzb2Bs4rcbtohaTxxjNhhvQ9Qpump",
+        "5zXnjNckatSzD9ieXkR1k5hvGKXkG1ueTEfmHkitpump",
+        "98bhjc8UcwB92r4bmvT6wfYRXLeKFuX53EXbwG2spump",
+        "AYq9m8d3kuQzVbQCuRXKfb9L3E75eEuRvnHaywUcpump",
+        "BGi5wc4ECtchkJvSXnUTKVvKuGPoVAfMX9yov9pRpump",
+        "Cg3kLFYFCCfxh8xCBjnNPj9pheSUDcbEd7bWcDrzpump",
+        "Dwm296LgT8cEuUsehejc9FCjwG1DvUYFoKTLR99Dpump",
+        "FTVSXVDJFouPxBksmBRBCBZCwMPdQhDfCj8vBDdcpump",
+        "HMimvRKhebLwRstuw5KwnZCgbvdjjdq6W1Rr66Wfpump",
+        "J1JncD5sLso33P6KZJ8xQH7yZfTrBiqzSwyhBusppump",
+        "k4QRpPqyL6LuPJMbYCUhC7QN3LUpcyq7v7RodKMpump"
+      ],
+      "watch_now": false
+    },
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 1.0,
+      "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+      "atomic_coverage": 4.0,
+      "atomic_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+      "base_recurrence": "NOT_STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-c35af444426de60ffa86",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 3,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 1.0,
+          "alternative_dominant_count": 2,
+          "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+          "atomic_coverage": 4.0,
+          "atomic_dominant_count": 3,
+          "atomic_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+          "base_strong": false
+        },
+        "missing_tier_1_evidence": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN",
+          "ATOMIC_RECURRENCE_NOT_PROVEN"
+        ]
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-c35af444426de60ffa86",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 763.6733333333333,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 3,
+        "members_with_retained_launch_timestamp": 3,
+        "most_recent_observed_launch": 1784924530,
+        "rank": 195
+      },
+      "distinct_creators": 3,
+      "distinct_direct_funders": 3,
+      "distinct_parents": 4,
+      "member_mints": [
+        "SJgswjPZfBQrBuYEtf8CAgbGFqiTikHrEodrNBKpump",
+        "sMy6gCcxTAoFfWNVz8XhfJb2TjmyuzUJKX76YN1pump",
+        "sx8X3b7f11NAzdMSu4oj3mF8wPcRXn8PqY4AVnXpump"
+      ],
+      "watch_now": false
+    },
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 1.0,
+      "alternative_recurrence": "STRONGLY_RECURRENT",
+      "atomic_coverage": 4.0,
+      "atomic_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+      "base_recurrence": "STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-c62577bb1de24fced5bb",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 5,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 1.0,
+          "alternative_dominant_count": 5,
+          "alternative_recurrence": "STRONGLY_RECURRENT",
+          "atomic_coverage": 4.0,
+          "atomic_dominant_count": 5,
+          "atomic_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+          "base_strong": true
+        },
+        "missing_tier_1_evidence": [
+          "ATOMIC_RECURRENCE_NOT_PROVEN"
+        ]
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-c62577bb1de24fced5bb",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 754.4755555555555,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 5,
+        "members_with_retained_launch_timestamp": 5,
+        "most_recent_observed_launch": 1784957642,
+        "rank": 193
+      },
+      "distinct_creators": 5,
+      "distinct_direct_funders": 5,
+      "distinct_parents": 6,
+      "member_mints": [
+        "G3dE83HcSuzFS53fyJHCFwsKgKC2C5dqGbL1iZipump",
+        "byTAnMfxybyaMibXftrT2janFC7v7kavhasgxmRpump",
+        "c3XhY2caaYZA18qxyioupTZquhjWSKDF1Xt6ZVXpump",
+        "kzbmCQBMAZ1Eo2cJ8WfrQg9SUQ7QhSpsPCA8jmPpump",
+        "rXawUDNhif2Lf7NkhsrugKY7rKVeunhUaDFREcqpump"
+      ],
+      "watch_now": false
+    },
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 1.0,
+      "alternative_recurrence": "STRONGLY_RECURRENT",
+      "atomic_coverage": 0.0,
+      "atomic_recurrence": "NOT_OBSERVED",
+      "base_recurrence": "NOT_STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-dc24add4d03696f7b524",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 3,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 1.0,
+          "alternative_dominant_count": 3,
+          "alternative_recurrence": "STRONGLY_RECURRENT",
+          "atomic_coverage": 0.0,
+          "atomic_dominant_count": 0,
+          "atomic_recurrence": "NOT_OBSERVED",
+          "base_strong": false
+        },
+        "missing_tier_1_evidence": [
+          "ATOMIC_COVERAGE_INSUFFICIENT"
+        ]
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-dc24add4d03696f7b524",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 733.5319444444444,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 3,
+        "members_with_retained_launch_timestamp": 3,
+        "most_recent_observed_launch": 1785033039,
+        "rank": 189
+      },
+      "distinct_creators": 3,
+      "distinct_direct_funders": 3,
+      "distinct_parents": 4,
+      "member_mints": [
+        "9ghptGzBCRiHe3eMvjkBqrHE8oodbVZjD1BYzqLdpump",
+        "FJ6XzNmeFtcKfbLMfQDkeyAVwEnyyhLW87DGdi4Qpump",
+        "GeUtuRJFSdzceWbwC8rC6idbDRUmyxuFDBQxAxB2pump"
+      ],
+      "watch_now": false
+    },
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 1.0,
+      "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+      "atomic_coverage": 0.0,
+      "atomic_recurrence": "NOT_OBSERVED",
+      "base_recurrence": "STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-e77e4f0a8364c14cd9e8",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 5,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 1.0,
+          "alternative_dominant_count": 1,
+          "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+          "atomic_coverage": 0.0,
+          "atomic_dominant_count": 0,
+          "atomic_recurrence": "NOT_OBSERVED",
+          "base_strong": true
+        },
+        "missing_tier_1_evidence": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN",
+          "ATOMIC_COVERAGE_INSUFFICIENT"
+        ]
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-e77e4f0a8364c14cd9e8",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 822.6330555555555,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 5,
+        "members_with_retained_launch_timestamp": 5,
+        "most_recent_observed_launch": 1784712275,
+        "rank": 211
+      },
+      "distinct_creators": 5,
+      "distinct_direct_funders": 5,
+      "distinct_parents": 39,
+      "member_mints": [
+        "7fFFUsg3cuBBTdbJDF3z3fs8tspXEehLxqpu8Wxxpump",
+        "7vk8TJU3YjZiePNzy29fwURCA1AoubUzaWRr7SZvpump",
+        "CbytHaLT1sqkT8LZNognZarC7cFQXCMzQ1YPKVT9pump",
+        "E4AFPRozGhz4KvELVnQ7U1eFLG9QHwFBWnNegVvtpump",
+        "HfzTdD7oe6SdtejGcyWeQmobJAxAaoVFG9ssvNF4pump"
+      ],
+      "watch_now": false
+    },
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 0.0,
+      "alternative_recurrence": "NOT_OBSERVED",
+      "atomic_coverage": 1.0,
+      "atomic_recurrence": "STRONGLY_RECURRENT",
+      "base_recurrence": "STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-ebe7c869c89cb7d5d779",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 21,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 0.0,
+          "alternative_dominant_count": 0,
+          "alternative_recurrence": "NOT_OBSERVED",
+          "atomic_coverage": 1.0,
+          "atomic_dominant_count": 21,
+          "atomic_recurrence": "STRONGLY_RECURRENT",
+          "base_strong": true
+        },
+        "missing_tier_1_evidence": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN"
+        ]
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-ebe7c869c89cb7d5d779",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 743.9158333333334,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 21,
+        "members_with_retained_launch_timestamp": 21,
+        "most_recent_observed_launch": 1784995657,
+        "rank": 191
+      },
+      "distinct_creators": 21,
+      "distinct_direct_funders": 21,
+      "distinct_parents": 26,
+      "member_mints": [
+        "AZTy2z1GNV7MNDfZKCgRyA9gJbKMbBebM9eN5qipump",
+        "GEDCz8RogURj7YWJGMKMagHxeeUiU7RmnnUTKnipump",
+        "RcaFUeinD9SsJ2DQTVg3VhDCF417JAgiQjzzMEJpump",
+        "TqgQkqNGuET9kYnNMRGbagkKgvbVQZ9gqzQ8u4Jpump",
+        "UB3m1pjPyHxR8xHrerTfnqq8D4N71znYxdAtE6jpump",
+        "Ufvua78CCTQ5aBhWv2Xx9bQXWrQDUuNk6Af3yrZpump",
+        "UyG9xAKzEpkq2sQi3eFAKWAPGTQ57LrF1XB2Ddmpump",
+        "W5fNXSWfWwW2vWM43ZNcwVGdPQNFewUWoJRCKnBpump",
+        "X9UGA27s5hYiZ3DG7Nn4Tzurgm2ApwBPqa5oUbZpump",
+        "ZzzumuX391meyiHLv5zRurWNhExT3DShzgmR5MEpump",
+        "e9VyeLF8ZiRwTRT4QXRHATFzK4o1Mc6NvBYNTCepump",
+        "hYJ4oNTDFKKuS7yP6LW4K5ULtCLhQzwudRL7nPQpump",
+        "hxpFbz9UMTXFyW2EVFshq4yLqfuv79LS1TsLrUUpump",
+        "iY84QsAZFHX9fmg6eFic8nNUn31uMvAX44V2pTKpump",
+        "ihTked44UCu83FFoQTgJW1fFYvjJiU5XgjNTDV9pump",
+        "nTCG5Q4WH8YBg9p8EEESmZS1Qu4JBhq2jRkw5wUpump",
+        "poqPVspejYNcJDbcvorFuxZBtQmKpZrJfWCjYtopump",
+        "twKxDLSRbM9dC1uiu1grU8dZXbuk3EtcEZFcLbwpump",
+        "uxYSa213VshtuBWiHYhYMx1dhTrHd12s5dizhpkpump",
+        "z8QBGNaFev9UNZ7NCyUjWFUam4JUqM6N1Mjb27Gpump",
+        "zzneDAaKYATB9N8DnHKpUpuqW6rfhFZtR3KG65mpump"
+      ],
+      "watch_now": false
+    },
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 0.0,
+      "alternative_recurrence": "NOT_OBSERVED",
+      "atomic_coverage": 0.0,
+      "atomic_recurrence": "NOT_OBSERVED",
+      "base_recurrence": "STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-f006a74397b422e4de52",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 6,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 0.0,
+          "alternative_dominant_count": 0,
+          "alternative_recurrence": "NOT_OBSERVED",
+          "atomic_coverage": 0.0,
+          "atomic_dominant_count": 0,
+          "atomic_recurrence": "NOT_OBSERVED",
+          "base_strong": true
+        },
+        "missing_tier_1_evidence": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN",
+          "ATOMIC_COVERAGE_INSUFFICIENT"
+        ]
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-f006a74397b422e4de52",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 761.6091666666666,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 6,
+        "members_with_retained_launch_timestamp": 6,
+        "most_recent_observed_launch": 1784931961,
+        "rank": 194
+      },
+      "distinct_creators": 6,
+      "distinct_direct_funders": 6,
+      "distinct_parents": 7,
+      "member_mints": [
+        "3kwZ7XfiZFZtN7bGjHTwUbkkYJGpu3z3A87zNSezpump",
+        "9a5T4DVukSWL1nRkMFqGPaHET4vAXTqNAfHpAHfGpump",
+        "BL1tPedBKiypopeuJc75mtKuYYiNBTB3AgqCLKeNpump",
+        "DFLjug26QUvnCkfRoLubBBszFBgg8JtEaFUtYkt7pump",
+        "EhdkoRNut1w26gTVG3r1QUh5TBNpqqvNHym8qrY9pump",
+        "FC9zEaTNb1P6KD5FxV7G4GfddujekXmXswnL3taPpump"
+      ],
+      "watch_now": false
+    },
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 1.0,
+      "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+      "atomic_coverage": 0.0,
+      "atomic_recurrence": "NOT_OBSERVED",
+      "base_recurrence": "STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-f0402f2a0f8f6556d67a",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 6,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 1.0,
+          "alternative_dominant_count": 1,
+          "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+          "atomic_coverage": 0.0,
+          "atomic_dominant_count": 0,
+          "atomic_recurrence": "NOT_OBSERVED",
+          "base_strong": true
+        },
+        "missing_tier_1_evidence": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN",
+          "ATOMIC_COVERAGE_INSUFFICIENT"
+        ]
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-f0402f2a0f8f6556d67a",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 808.8897222222222,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 6,
+        "members_with_retained_launch_timestamp": 6,
+        "most_recent_observed_launch": 1784761751,
+        "rank": 209
+      },
+      "distinct_creators": 6,
+      "distinct_direct_funders": 6,
+      "distinct_parents": 41,
+      "member_mints": [
+        "2fKHfjNpKUM4HHPG1otH5aTVA1gGsd1EqxT8HpeBpump",
+        "3JZaUp6MgWcNjcFZnPX94FFvMRHsdD44btA93CqLpump",
+        "6mgpAKDeGAzkMEoKDjYKuF9h4HeoSZY9F8FRmjvApump",
+        "9nXkTPZETP9hrntNYgxQSeDzwbhrExhFqKJPb5Z6pump",
+        "9roEmmh6zDoXmbppfyd4dmEqvWwkqUcHTJB3E6tcpump",
+        "Dd6PwXUSqCdwCiUihEAnG68gNjs5v7anVEsPfa4Wpump"
+      ],
+      "watch_now": false
+    },
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 1.0,
+      "alternative_recurrence": "STRONGLY_RECURRENT",
+      "atomic_coverage": 0.0,
+      "atomic_recurrence": "NOT_OBSERVED",
+      "base_recurrence": "STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-f7684f526ce423e913b2",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 15,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 1.0,
+          "alternative_dominant_count": 10,
+          "alternative_recurrence": "STRONGLY_RECURRENT",
+          "atomic_coverage": 0.0,
+          "atomic_dominant_count": 0,
+          "atomic_recurrence": "NOT_OBSERVED",
+          "base_strong": true
+        },
+        "missing_tier_1_evidence": [
+          "ATOMIC_COVERAGE_INSUFFICIENT"
+        ]
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-f7684f526ce423e913b2",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 783.2416666666667,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 15,
+        "members_with_retained_launch_timestamp": 15,
+        "most_recent_observed_launch": 1784854084,
+        "rank": 200
+      },
+      "distinct_creators": 15,
+      "distinct_direct_funders": 15,
+      "distinct_parents": 16,
+      "member_mints": [
+        "1e1aVusmeGFZeKZKS3U2Phiy1bsv6Nyd8HWYgRvpump",
+        "2txkoPhsrrJ3kkq1Emo2S7seVupTxZsoYjySzezYpump",
+        "3CSwrystaMLgEPztSkHbwXZYCKATqQ6zv3pw9Gz9pump",
+        "46tQW1Kw5RFFsWqf3Rq2Ce2wCnhHUXLSEvRPfbq9pump",
+        "55yo4kTnwQ47nAT3p82nrgg3ModVsnqTz2bh6LhnQBz9",
+        "5uyHgPoafyQpTmDcT7ASGUk1UhEKLdgwMP7FE6N1pump",
+        "7KGACf4mF4rAKEea8afy36NDPzbWJtZnLUskoYvTpump",
+        "8c3UquhcsGGB77nsa2DopP3PFmFZMnbA1xUpCFswpump",
+        "93cM2nwdWuxW47MztituKfTurik9aHN6uuTnHaiQpump",
+        "9AoX3RSTtn4RGzMCLxgwsHJmq3ytMX4cFS2Draagpump",
+        "A5dsspbfTEhwS6AZGubHtfJp9ZvVG8hvm13SWH1Cpump",
+        "E8VSb6Fv527Qv4f4Fqgz1655jQ3KrMseQfifuFC2pump",
+        "FRnE254fgp1n6oL9kGXhas8WH1aNor9M3pjofM4Qpump",
+        "G9eVUTNdDYif1TWCwu8JURG2fMTpA9DG6okcYZAkpump",
+        "HonZSQ7k4SYaPBnj2cX11sbRbAqPQtsv6pEVC5kbpump"
+      ],
+      "watch_now": false
+    },
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 0.6666666666666666,
+      "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+      "atomic_coverage": 0.0,
+      "atomic_recurrence": "NOT_OBSERVED",
+      "base_recurrence": "NOT_STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-ff288383daed9d742a67",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 3,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 0.6666666666666666,
+          "alternative_dominant_count": 1,
+          "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+          "atomic_coverage": 0.0,
+          "atomic_dominant_count": 0,
+          "atomic_recurrence": "NOT_OBSERVED",
+          "base_strong": false
+        },
+        "missing_tier_1_evidence": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN",
+          "ATOMIC_COVERAGE_INSUFFICIENT"
+        ]
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-ff288383daed9d742a67",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 827.7788888888889,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 3,
+        "members_with_retained_launch_timestamp": 3,
+        "most_recent_observed_launch": 1784693750,
+        "rank": 212
+      },
+      "distinct_creators": 3,
+      "distinct_direct_funders": 3,
+      "distinct_parents": 12,
+      "member_mints": [
+        "25UucM37SuFhAKUnxPUK2LSu5rdgkGDRjwq9xLrjpump",
+        "991JABTrbhuTCzzqTWKzmB1pmgcKBESXe8rCn9ynpump",
+        "tprahTrr2gFunEwt6BXipzLHm1sDQbuTfwvDhxipump"
+      ],
+      "watch_now": false
+    },
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 1.0,
+      "alternative_recurrence": "STRONGLY_RECURRENT",
+      "atomic_coverage": 0.0,
+      "atomic_recurrence": "NOT_OBSERVED",
+      "base_recurrence": "NOT_STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-ff6769bdbc144a236989",
+      "canonical_activity_class": "DORMANT",
+      "canonical_member_count": 3,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 1.0,
+          "alternative_dominant_count": 3,
+          "alternative_recurrence": "STRONGLY_RECURRENT",
+          "atomic_coverage": 0.0,
+          "atomic_dominant_count": 0,
+          "atomic_recurrence": "NOT_OBSERVED",
+          "base_strong": false
+        },
+        "missing_tier_1_evidence": [
+          "ATOMIC_COVERAGE_INSUFFICIENT"
+        ]
+      },
+      "canonical_tier": "V2_DORMANT",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-ff6769bdbc144a236989",
+        "canonical_activity_class": "DORMANT",
+        "canonical_tier": "V2_DORMANT",
+        "hours_since_most_recent_launch": 748.6358333333334,
+        "last_24h": 0,
+        "last_30d": 0,
+        "last_7d": 0,
+        "lifetime_member_count": 3,
+        "members_with_retained_launch_timestamp": 3,
+        "most_recent_observed_launch": 1784978665,
+        "rank": 192
+      },
+      "distinct_creators": 3,
+      "distinct_direct_funders": 3,
+      "distinct_parents": 4,
+      "member_mints": [
+        "4tr1bN3B7szr6ZgxXYJKhCooP9HPNS4nCwzK47hupump",
+        "69AcrB5P8pn5rzMvWKuNngvJ5K9QiNts7TpCUuFJpump",
+        "7Cj9EczteUsSu1vgPXoLdVcxLqpCWwyYWn8kgwDwpump"
+      ],
+      "watch_now": false
+    }
+  ],
+  "family_count": 33,
+  "group": "dormant",
+  "source_highwaters": {
+    "wt_walkback_atomic_flows": 7095,
+    "wt_walkback_edge_candidates": 60299,
+    "wt_walkback_queue": 32353
+  },
+  "total_member_count": 259
+}

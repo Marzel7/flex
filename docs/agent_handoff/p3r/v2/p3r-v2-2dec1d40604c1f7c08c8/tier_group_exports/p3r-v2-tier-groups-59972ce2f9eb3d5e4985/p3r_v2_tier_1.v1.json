@@ -1,0 +1,67 @@
+{
+  "canonical_manifest_sha256": "930fb7fc462e1464632913f22b28ea8fc419d9ca921f36fe4e798dff51617862",
+  "canonical_run_id": "p3r-v2-2dec1d40604c1f7c08c8",
+  "families": [
+    {
+      "address_persistence": "FULLY_ADDRESS_BLIND",
+      "alternative_coverage": 1.0,
+      "alternative_recurrence": "STRONGLY_RECURRENT",
+      "atomic_coverage": 1.6666666666666667,
+      "atomic_recurrence": "STRONGLY_RECURRENT",
+      "base_recurrence": "STRONGLY_RECURRENT",
+      "candidate_id": "p3r-v2-d3de29c88fe0ce5fa309",
+      "canonical_activity_class": "VERY_HIGH_ACTIVITY",
+      "canonical_member_count": 9,
+      "canonical_qualification_gates": {
+        "evidence": {
+          "address_blind": true,
+          "alternative_coverage": 1.0,
+          "alternative_dominant_count": 9,
+          "alternative_recurrence": "STRONGLY_RECURRENT",
+          "atomic_coverage": 1.6666666666666667,
+          "atomic_dominant_count": 9,
+          "atomic_recurrence": "STRONGLY_RECURRENT",
+          "base_strong": true
+        },
+        "missing_tier_1_evidence": []
+      },
+      "canonical_tier": "V2_TIER_1_ACTIVE_MULTI_LAYER",
+      "current_activity_annotation": {
+        "candidate_id": "p3r-v2-d3de29c88fe0ce5fa309",
+        "canonical_activity_class": "VERY_HIGH_ACTIVITY",
+        "canonical_tier": "V2_TIER_1_ACTIVE_MULTI_LAYER",
+        "hours_since_most_recent_launch": 24.7625,
+        "last_24h": 0,
+        "last_30d": 9,
+        "last_7d": 9,
+        "lifetime_member_count": 9,
+        "members_with_retained_launch_timestamp": 9,
+        "most_recent_observed_launch": 1787584609,
+        "rank": 53
+      },
+      "distinct_creators": 9,
+      "distinct_direct_funders": 9,
+      "distinct_parents": 33,
+      "member_mints": [
+        "SHmjdCg1KdcEeLESciT42de7hcpbL4kCRd5AAcUpump",
+        "TDeELn2vPFQHNPKnY86SZuD395JU8UePb6aknuPpump",
+        "TtcdL2sYgc6RT45yH7vziNrdSFujgAnHrH7AXkEpump",
+        "TwES5X8iJL44qq9rBwKiJgyVaXX6vDEjR61WqRopump",
+        "aFt6QNDNTCg4CkpT7Z7bcb3V1iXSbvF36ptaTnZpump",
+        "cCRsJVpQxfrF2HZ1ZQohHorCXnvr6Vwrf9tTc5Hpump",
+        "eshSWTWLC8RVsddtLMwaZTtKHhDtzUGT3SzPV28pump",
+        "fYUQSasxSS9oYqtsYnmJEWAHMU2BG4UwcJrXHdtpump",
+        "vccC9NYRktfcDP1NEs96RpTdh26BqYEn2hncTxSpump"
+      ],
+      "watch_now": true
+    }
+  ],
+  "family_count": 1,
+  "group": "tier_1",
+  "source_highwaters": {
+    "wt_walkback_atomic_flows": 7095,
+    "wt_walkback_edge_candidates": 60299,
+    "wt_walkback_queue": 32353
+  },
+  "total_member_count": 9
+}

@@ -1,0 +1,15 @@
+{
+  "artifact": {
+    "path": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/operation_priority/p3r-v2-operation-priority-20260825/p3r_v2_operation_priority_ranking.v1.json",
+    "sha256": "f1b80125a83108867c4eec77c0f7963f1ab7a41e276ca49f621bdf0487397887"
+  },
+  "canonical_run_id": "p3r-v2-2dec1d40604c1f7c08c8",
+  "census_run_id": "p3r-v2-census-b16928146d9b6876c44d",
+  "formula": {
+    "activity_score": "60*(24h/6 capped)+25*(7d/35 capped)+10*(30d/70 capped)+5*recency within 7d",
+    "operational_likeness": "selected base 20; atomic coverage/recurrent/full 25; alternative coverage/recurrent 15; fully address blind 20 or diversity-supported partial credit <=12; structure 10; evidence coverage 10",
+    "priority": "0.70*operational_likeness + 0.30*activity_score"
+  },
+  "ranking_digest": "e4d7351954fbec34af365c959da5cb9396f405f074bd08ec4ed034847cc37154",
+  "verdict": "P3R_V2_OPERATION_PRIORITY_RANKING_COMPLETE"
+}

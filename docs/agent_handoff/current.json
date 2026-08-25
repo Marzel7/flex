@@ -5,9 +5,9 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "24-hour structural census: 16 selected hop-1 2.122039 SOL WSOL_WRAP_CLOSE mints, 14 noncanonical; exactly one noncanonical mint also has selected hop-2 600 SOL PLAIN_XFER provision: HZgqRhopNn2C3KmN9KgvjoTmtnczXFDCcGLnidojpump. These are shape matches, not identity assignments.",
+  "blocker": "Enumerated 16 selected 2.122039-SOL WSOL_WRAP_CLOSE mints in the 24-hour retained walkback window: 2 canonical WATCHTOWER and 14 noncanonical shape matches. Upstream amount intentionally excluded from this signature.",
   "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e + uncommitted compact confirmed-operation Summary",
-  "exact_next_action": "If desired, authorize a bounded read-only lineage-continuity comparison for the 14 noncanonical 2.122039-SOL shape matches; do not auto-classify them as WATCHTOWER.",
+  "exact_next_action": "If desired, authorize a bounded read-only identity-continuity comparison for the 14 noncanonical structural matches; do not auto-classify them as WATCHTOWER.",
   "milestone": "P3R corrected prospective shadow successor",
   "next_action": "Decide whether to authorize a bounded read-only comparison of the 14 noncanonical WATCHTOWER-like shape matches; no provider calls, queue replay, promotion, or identity mutation is authorized.",
   "operations_registry_activity_metrics": {
@@ -387,7 +387,7 @@
   "summary": "Completed non-production 135-wallet full-history direct-funder tracer preparation. Added script that supports strict 135 membership validation, paginated Helius address-history scan per creator wallet, and output of JSONL result rows. No production code was changed.",
   "tests": {
     "executed": [],
-    "result": "not run; read-only 24-hour WATCHTOWER-like structural census"
+    "result": "not run; read-only 24-hour 2.122039-SOL signature enumeration"
   },
   "updated_at_utc": "2026-08-25T00:00:00Z",
   "updated_by": "codex",

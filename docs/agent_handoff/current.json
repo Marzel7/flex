@@ -39,7 +39,7 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "No blocker; 687 historical broad-reconciliation rows are deliberately held out of confirmed UI pending route-evidence review.",
+  "blocker": "Authoritative Tier 2 artifact files unavailable in the execution environment.",
   "dtuh_af500_ec1_link_check_20260825": {
     "af500_direct_connection": {
       "destination": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ",
@@ -82,7 +82,7 @@
     "verified_ladder": "HboqWvK2... close 34,691,750,098 -> Gre9jF21... transfer 34,691,745,098 -> FwaWYJeu... close 34,691,740,098 -> AerCoA4G... transfer 34,691,735,098 -> 5jFqjJr4... close 34,691,730,098 -> DZtCkaEd... transfer 34,691,725,098 -> 2GH1yDtg... close 34,691,720,098 -> HWse5Gae... transfer 34,691,715,098 -> Ft5Sn8GN..."
   },
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "Monitor strict route-evidenced WATCHTOWER promotions; retain all remaining broad-reconciliation rows in PENDING_REVIEW until separately reviewed.",
+  "next_action": "Provide the two persisted Tier artifacts; verify their supplied SHA-256 values and run the requested read-only Tier 2 assessment.",
   "operation_walkback_review_queue_20260825": {
     "endpoints": [
       "/api/ops/operators/review-queue",
@@ -757,6 +757,26 @@
   "tests": {
     "executed": [],
     "result": "not run; read-only 16-mint WATCHTOWER miss analysis"
+  },
+  "tier_2_persisted_assessment_20260825": {
+    "actions_not_taken": [
+      "No tier reconstruction",
+      "No database writes",
+      "No RPC/provider calls",
+      "No promotion or queue replay"
+    ],
+    "expected_sha256": {
+      "p3r_candidate_tier_promotion_contract.v1.json": "6eb95c6fca3f181912d48e47f1c52a4f0d526801551ffebb29587b7cb6e14e10",
+      "p3r_watch_now_evidence_tiers.v1.json": "e662ab14303c7c6e7023e99035f4dab3e727c85d47ec4654f69a5e88ddd7f52c"
+    },
+    "next_action": "Make both authoritative artifacts available at the stated paths or attach them, then SHA-256 verify and assess the exact persisted Tier 2 partition read-only.",
+    "observation": "The parent directory exists under /tmp and /private/tmp but neither file exists in this execution environment.",
+    "required_artifacts": [
+      "/tmp/p3r-clean-20260824T092959Z/activity/tiers/p3r_watch_now_evidence_tiers.v1.json",
+      "/tmp/p3r-clean-20260824T092959Z/activity/tiers/p3r_candidate_tier_promotion_contract.v1.json"
+    ],
+    "status": "PARTIAL",
+    "verdict": "BLOCKED_SOURCE_UNAVAILABLE"
   },
   "treasury_cluster_link_check_20260825": {
     "af500_limit": "B65 history pagination reached 3,000 newer records without reaching account origin; its immediate pre-launch close-account recycling chain is not treated as a capital-source link.",

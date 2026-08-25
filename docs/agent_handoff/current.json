@@ -682,18 +682,26 @@
     "verdict": "WATCHTOWER_UI_ACTIVITY_AUTO_REFRESH_ACTIVE",
     "exact_next_action": "On the next canonical WATCHTOWER walkback promotion, confirm the operators UI reflects the new count and timestamp; separately evaluate safe live candidate routing for P3R profiles."
   },
+  "generic_operation_activity_projection_20260825": {
+    "scope": "Generalized the activity-projection function from WATCHTOWER-only to any active operation.",
+    "implementation": "refresh_operator_activity_snapshot derives WATCHTOWER from its canonical ledger and other operations from retained behavioural-profile members plus explicit operator_launch_membership rows, resolving launch times from the core token ledger.",
+    "runtime": {"service": "walkback_worker", "action": "restarted"},
+    "important_limit": "Only WATCHTOWER currently has a live walkback-to-established-operation path. P3R_13A04, P3R_AF500, and P3R_EC1 still emit nomination-only matches; auto-inserting them as operation members would change attribution policy and requires the requested labelled precision evaluation first.",
+    "verdict": "GENERIC_UI_PROJECTION_READY_LIVE_CLASSIFICATION_LIMITED_TO_WATCHTOWER",
+    "exact_next_action": "Evaluate P3R matcher precision on a labelled negative/control cohort and, if authorized, implement an explicit establishment policy that writes operator membership then invokes the generic projection."
+  },
   "project": {
     "git_head": "e9d0a404417804faa70586c7b27f6a478028b798",
     "working_branch": "classification-attribution-axis"
   },
   "schema_version": 1,
   "status": "PASS",
-  "summary": "WATCHTOWER activity projection is current and now refreshes automatically after canonical walkback promotion. The read-only P3R candidate matcher is corrected and focused-tested; it remains disconnected from attribution and records AF500/EC1 overlap as ambiguous.",
+  "summary": "Activity projection is generic for every active operation, but only WATCHTOWER currently has a live walkback-to-established-operation path. The read-only P3R candidate matcher is corrected and focused-tested; it remains disconnected from attribution and records AF500/EC1 overlap as ambiguous.",
   "tests": {
     "executed": [],
     "result": "not run; read-only 16-mint WATCHTOWER miss analysis"
   },
   "updated_at_utc": "2026-08-25T12:35:13Z",
   "updated_by": "codex",
-  "verdict": "WATCHTOWER_UI_ACTIVITY_AUTO_REFRESH_ACTIVE"
+  "verdict": "GENERIC_UI_PROJECTION_READY_LIVE_CLASSIFICATION_LIMITED_TO_WATCHTOWER"
 }

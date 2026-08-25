@@ -82,7 +82,7 @@
     "verified_ladder": "HboqWvK2... close 34,691,750,098 -> Gre9jF21... transfer 34,691,745,098 -> FwaWYJeu... close 34,691,740,098 -> AerCoA4G... transfer 34,691,735,098 -> 5jFqjJr4... close 34,691,730,098 -> DZtCkaEd... transfer 34,691,725,098 -> 2GH1yDtg... close 34,691,720,098 -> HWse5Gae... transfer 34,691,715,098 -> Ft5Sn8GN..."
   },
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "Review quarantined WATCHTOWER rows only where session and atomic funding-route evidence are complete; re-promote individually or through a bounded approved batch.",
+  "next_action": "Monitor new walkback terminal outcomes: strict route-evidenced WATCHTOWER and exact unambiguous P3R/P3R_13A04 matches should create membership and refresh their activity snapshots automatically.",
   "operations_registry_activity_metrics": {
     "activity_artifact": "/tmp/p3r-registry-migration/active_operations_launch_activity_snapshots.v3.json",
     "activity_artifact_sha256": "4d1bdb9db2e83aba1c2c5fd82ac248abea9ee1b48a391095f01003ea73041ef9",
@@ -1139,7 +1139,14 @@
       ]
     },
     "status": "COMPLETE",
-    "verdict": "687 broad reconciliation rows were retained in the canonical ledger but quarantined as PENDING_REVIEW; confirmed WATCHTOWER registry and detail readers now exclude them."
+    "verdict": "687 broad reconciliation rows were retained in the canonical ledger but quarantined as PENDING_REVIEW; confirmed WATCHTOWER registry and detail readers now exclude them.",
+    "verification": {
+      "confirmed_ui_population": 290,
+      "latest_confirmed_launch_utc": "2026-08-25T09:24:20Z",
+      "pending_review_population": 687,
+      "walkback_worker": "RUNNING",
+      "watchtower_api": "RUNNING"
+    }
   },
   "watchtower_wsol_fingerprint_holdout_20260825": {
     "artifact": "/tmp/watchtower_wsol_fingerprint_holdout.json",

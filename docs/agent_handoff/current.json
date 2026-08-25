@@ -39,7 +39,7 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "Current 24h 2.122039-SOL signature cohort is 16 mints: 2 canonical WATCHTOWER / HIGH and 14 LOW LINEAGE_GAP. All 16 have selected hop-1 evidence; 8 have a selected hop-2 upstream (2 share CAFTSz..., 4 share 6qYNK..., 1 each 88WR... and 7A9w...), while 6 have no selected hop-2. Promotion is intentionally gated on a pre-registered known treasury/sub-provider route and only CANONICAL_OPERATOR_REACHED outcomes enter wt_watchtower_launches; behaviour/amount alone cannot promote.",
+  "blocker": "No blocker; 687 historical broad-reconciliation rows are deliberately held out of confirmed UI pending route-evidence review.",
   "dtuh_af500_ec1_link_check_20260825": {
     "af500_direct_connection": {
       "destination": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ",
@@ -82,7 +82,7 @@
     "verified_ladder": "HboqWvK2... close 34,691,750,098 -> Gre9jF21... transfer 34,691,745,098 -> FwaWYJeu... close 34,691,740,098 -> AerCoA4G... transfer 34,691,735,098 -> 5jFqjJr4... close 34,691,730,098 -> DZtCkaEd... transfer 34,691,725,098 -> 2GH1yDtg... close 34,691,720,098 -> HWse5Gae... transfer 34,691,715,098 -> Ft5Sn8GN..."
   },
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "Decide whether to authorize a read-only candidate-layer design for WATCHTOWER-like structural matches; no provider calls, queue replay, promotion, or identity mutation is authorized.",
+  "next_action": "Review quarantined WATCHTOWER rows only where session and atomic funding-route evidence are complete; re-promote individually or through a bounded approved batch.",
   "operations_registry_activity_metrics": {
     "activity_artifact": "/tmp/p3r-registry-migration/active_operations_launch_activity_snapshots.v3.json",
     "activity_artifact_sha256": "4d1bdb9db2e83aba1c2c5fd82ac248abea9ee1b48a391095f01003ea73041ef9",
@@ -750,7 +750,7 @@
   },
   "updated_at_utc": "2026-08-25T00:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "EC1_DECREMENT_LADDER_FALSE_POSITIVES_PROVEN",
+  "verdict": "PARTIAL",
   "watchtower_2nhz_bjg_gyff_corrected_rpc_confirmation_20260825": {
     "corrected_chain": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT -> GYffSdtiffuTTZpiXqevWCYsSjn11drMoPsky9vsSUnd -> BpnGiweePUnk7ejBxvxokCUiZff3Pq3ftJiajgSEx8C7 -> 2nHZVubjJU144poGfjbiB97tv7CJtvJycvDdYvSxpump",
     "correction": "The earlier conclusion that BJg could not be the upstream source was wrong. The initial pre-anchor page was too dense to reach this transfer; the user-supplied transaction is 1,813 seconds before the anchor and proves BJg -> GYff. The later GYff -> BJg transfer is separate post-launch activity.",
@@ -1122,6 +1122,24 @@
     "next_action": "Model Treasury/Controller as the primary reusable infrastructure anchor, SubProv recurrence as supporting evidence, and downstream funder/creator as per-launch roles in a versioned behavioral candidate layer.",
     "scope": "Read-only role-reuse analysis of canonical WATCHTOWER records and routed behavior-matched LINEAGE_GAP candidates. No database writes or promotion changes.",
     "verdict": "WATCHTOWER_TREASURY_FANOUT_GEOMETRY_SUPPORTED"
+  },
+  "watchtower_ui_quarantine_20260825": {
+    "next_action": "Review quarantined rows only with complete route evidence before any explicit re-promotion.",
+    "production": {
+      "walkback_worker": "unchanged; strict route gate remains active",
+      "watchtower_api": "restarted"
+    },
+    "scope": {
+      "rows": 687,
+      "selection": "creator_extraction_method=WALKBACK_RECOVERED and recorded_at >= 2026-08-25T14:00:00Z",
+      "table": "wt_watchtower_launches",
+      "ui_readers": [
+        "src/ops/manual_registry.py",
+        "src/ops/operator_reader.py"
+      ]
+    },
+    "status": "COMPLETE",
+    "verdict": "687 broad reconciliation rows were retained in the canonical ledger but quarantined as PENDING_REVIEW; confirmed WATCHTOWER registry and detail readers now exclude them."
   },
   "watchtower_wsol_fingerprint_holdout_20260825": {
     "artifact": "/tmp/watchtower_wsol_fingerprint_holdout.json",

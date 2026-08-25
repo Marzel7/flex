@@ -1,0 +1,28 @@
+{
+  "artifact": {
+    "path": "docs/audits/p3r_original_discovery_funnel_recovery.v1.json",
+    "sha256": "baf927a70f4f1b036ca6aa47faff74a5ae7b87874fbac26715a3221ce330715e"
+  },
+  "replay_block_reason": "Frozen original input corpus and tier dependencies are absent; current source state is advanced.",
+  "replay_executed": false,
+  "schema_version": "P3R_ORIGINAL_DISCOVERY_FUNNEL_RECOVERY_MANIFEST.v1",
+  "source_digests": {
+    "historical_candidate_generator": {
+      "path": "scripts/discover_p3r_recurring_patterns.py",
+      "sha256": "87bf70cfe26f6bb0f58db87e0e973b43c0e3739479b581fb815a063adec6bb04"
+    },
+    "historical_tiering": {
+      "path": "scripts/analyze_p3r_watch_now_tiers.py",
+      "sha256": "a338baa36b5f4b836e991c9bf013ceb736eb32d5fa730ac485da128bd0c461f4"
+    },
+    "v1_context_recovery": {
+      "path": "/tmp/p3r-clean-20260824T092959Z/v1_context_recovery/p3r_v1_tier1_context_recovery.v2.json",
+      "sha256": "ec530a4a05e0cf8823bc881e3acc5673d72062e3dc080424a440900d178565a5"
+    },
+    "v1_tier1_recovery": {
+      "path": "docs/audits/p3r_v1_tier1_historical_evidence_recovery.json",
+      "sha256": "718e5e6a5988a06da13f16e36cb147b2c06ca2c8b81329b4c6870fc488ddd3b3"
+    }
+  },
+  "verdict": "P3R_ORIGINAL_DISCOVERY_PROVENANCE_RECOVERED_REPLAY_BLOCKED"
+}

@@ -1,0 +1,230 @@
+{
+  "creator_frequency": {
+    "distribution": "NOT_RECOVERED because the 28,883-row corpus is absent; current database state is advanced and is not a valid substitute.",
+    "requested_distribution": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5+"
+    ],
+    "single_use_creator_rule": "NOT_RECOVERED as an upstream corpus filter.",
+    "surviving_generator_behavior": "The historical generator counts creator reuse for diagnostics but does not exclude single-use creators. It requires each candidate family to have at least 3 distinct creators and at least 3 distinct direct funders."
+  },
+  "family_construction_contract": {
+    "address_behavior": "address-independent candidate rule; address-only reuse groups explicitly are not candidates.",
+    "candidate_id": "p3r-candidate- + SHA-256(canonical([\"p3r-recurring-discovery-v1-exact-raw\", signature, sorted_mints]))[:16]",
+    "minimums": {
+      "distinct_creators": 3,
+      "distinct_direct_funders": 3,
+      "members": 4
+    },
+    "signature": [
+      "edge_count",
+      "max_hop_depth",
+      "parent_count",
+      "ordered selected-edge mechanisms",
+      "ordered raw selected-edge lamport vector"
+    ],
+    "strength": "STRONG if members>=10 and creators>=5 and funders>=5; MODERATE if members>=5; otherwise WEAK",
+    "zero_lamport_handling": "not explicitly filtered by the recovered candidate generator; it groups exact raw vectors. Any later zero-lamport cleaning lineage is not proven tied to this exact run."
+  },
+  "generated_at_utc": "2026-08-25T17:30:38.833239+00:00",
+  "historical_funnel": [
+    {
+      "excluded": "not recovered",
+      "input": null,
+      "output": 40301,
+      "rule": "separate later frozen discovery population; exact selection semantics outside original v1 generator are not recovered",
+      "stage": "large P3R discovery population",
+      "support": "historical handoff summary only"
+    },
+    {
+      "excluded": "not recoverable",
+      "input": "not recoverable from source",
+      "output": 28883,
+      "rule": "frozen feature rows required by original candidate generator",
+      "stage": "historical feature corpus",
+      "support": "generator constant and expected digest; bytes absent"
+    },
+    {
+      "excluded": "records with no selected_edge_observations",
+      "input": 28883,
+      "output": "NOT_RECOVERED",
+      "rule": "candidate generator skips records without selected-edge observations",
+      "stage": "complete selected-edge signature",
+      "support": "historical generator implementation"
+    },
+    {
+      "excluded": "groups with <4 members, <3 creators, or <3 direct funders",
+      "input": "complete selected-edge signature",
+      "output": "NOT_RECOVERED at original generation; 114 later frozen novel behavioural candidates",
+      "rule": "exact raw selected-edge topology + ordered lamport vector + mechanism vector",
+      "stage": "behavioural candidate family",
+      "support": "generator implementation; activity handoff confirms later 114-family universe"
+    },
+    {
+      "excluded": 69,
+      "input": 114,
+      "output": 45,
+      "rule": "activity disposition; HIGH_ACTIVITY plus VERY_HIGH_ACTIVITY",
+      "stage": "WATCH_NOW activity group",
+      "support": "activity handoff: HIGH=30, VERY_HIGH=15"
+    },
+    {
+      "excluded": 41,
+      "input": 45,
+      "output": 4,
+      "rule": "WATCH_NOW + STRONGLY_RECURRENT alternative + ATOMIC_STRONGLY_RECURRENT + FULLY_ADDRESS_BLIND",
+      "stage": "Tier 1 active multi-layer",
+      "support": "historical tiering implementation and committed 6d19e91a summary"
+    },
+    {
+      "excluded": "Tier 1",
+      "input": 45,
+      "output": 14,
+      "rule": "WATCH_NOW + STRONGLY_RECURRENT alternative, not Tier 1",
+      "stage": "Tier 2 active structural",
+      "support": "historical tiering implementation and committed summary"
+    },
+    {
+      "excluded": "Tier 1 or Tier 2",
+      "input": 45,
+      "output": 27,
+      "rule": "remaining WATCH_NOW",
+      "stage": "Tier 3 active base",
+      "support": "historical tiering implementation and committed summary"
+    }
+  ],
+  "historical_groups": {
+    "activity_disposition": {
+      "DORMANT": 18,
+      "HIGH_ACTIVITY": 30,
+      "LOW_ACTIVITY": 4,
+      "REGULAR_ACTIVITY": 47,
+      "VERY_HIGH_ACTIVITY": 15
+    },
+    "candidate_universe": {
+      "families": 114,
+      "member_mints": 1185,
+      "state": "CONTEMPORARY_V1_SUMMARY"
+    },
+    "one_fourteen_and_one_twenty_seven": "NOT_PROVEN to be the same lineage. They are later references only; no surviving frozen membership/manifests bind them to the 114-family tier run.",
+    "other_activity_groups": {
+      "DORMANT": 18,
+      "WATCH_LATER_EQUIVALENT": 51
+    },
+    "tiers": {
+      "TIER_1_ACTIVE_MULTI_LAYER": 4,
+      "TIER_2_ACTIVE_STRUCTURAL": 14,
+      "TIER_3_ACTIVE_BASE": 27
+    },
+    "watch_now": 45
+  },
+  "replayability": {
+    "blocking_dependencies": [
+      "/tmp/p3r-clean-20260824T092959Z/behavioural_corpus/p3r_historical_features.jsonl",
+      "/tmp/p3r-clean-20260824T092959Z/behavioural_corpus/p3r_candidate_operational_family_membership.v1.json",
+      "/tmp/p3r-clean-20260824T092959Z/activity/p3r_watch_now_candidate_membership.v1.json",
+      "/tmp/p3r-clean-20260824T092959Z/activity/tiers/p3r_tier1_candidate_membership.v1.json",
+      "/tmp/p3r-clean-20260824T092959Z/enrichment/p3r_novel_candidate_alternative_recurrence.v1.json",
+      "/tmp/p3r-clean-20260824T092959Z/enrichment/p3r_strong_alternative_atomic_recurrence.v1.json",
+      "/tmp/p3r-clean-20260824T092959Z/enrichment/p3r_atomic_strong_address_blind.v1.json"
+    ],
+    "classification": {
+      "address_blindness": "TEMP_ARTIFACT_MISSING",
+      "alternative_recurrence": "TEMP_ARTIFACT_MISSING",
+      "atomic_recurrence": "TEMP_ARTIFACT_MISSING",
+      "candidate_membership_114": "TEMP_ARTIFACT_MISSING",
+      "corpus_manifest_and_queue": "TEMP_ARTIFACT_MISSING",
+      "current_database": "SOURCE_STATE_ADVANCED",
+      "historical_feature_corpus_28883": "TEMP_ARTIFACT_MISSING",
+      "historical_generator_code": "DURABLE_AND_FROZEN",
+      "historical_tiering_code": "DURABLE_AND_FROZEN",
+      "watch_now_membership_45": "TEMP_ARTIFACT_MISSING"
+    },
+    "result": "Independent original replay is blocked. Running preserved code on current local data would not reproduce the frozen source state and would violate this recovery scope."
+  },
+  "safety": {
+    "operation_promotion": false,
+    "production_runtime_change": false,
+    "provider_or_rpc_calls": 0,
+    "queue_replay": false,
+    "source_table_mutation": false,
+    "tier_or_membership_change": false,
+    "trading_signal": false
+  },
+  "schema_version": "P3R_ORIGINAL_DISCOVERY_FUNNEL_RECOVERY.v1",
+  "scope": "Read-only recovery of the original p3r-candidate historical discovery lineage; canonical v2 was not used as input.",
+  "source_digests": {
+    "historical_candidate_generator": {
+      "path": "scripts/discover_p3r_recurring_patterns.py",
+      "sha256": "87bf70cfe26f6bb0f58db87e0e973b43c0e3739479b581fb815a063adec6bb04"
+    },
+    "historical_tiering": {
+      "path": "scripts/analyze_p3r_watch_now_tiers.py",
+      "sha256": "a338baa36b5f4b836e991c9bf013ceb736eb32d5fa730ac485da128bd0c461f4"
+    },
+    "v1_context_recovery": {
+      "path": "/tmp/p3r-clean-20260824T092959Z/v1_context_recovery/p3r_v1_tier1_context_recovery.v2.json",
+      "sha256": "ec530a4a05e0cf8823bc881e3acc5673d72062e3dc080424a440900d178565a5"
+    },
+    "v1_tier1_recovery": {
+      "path": "docs/audits/p3r_v1_tier1_historical_evidence_recovery.json",
+      "sha256": "718e5e6a5988a06da13f16e36cb147b2c06ca2c8b81329b4c6870fc488ddd3b3"
+    }
+  },
+  "tier_1": {
+    "families": [
+      {
+        "candidate_id": "p3r-candidate-13a04d7da7a1fc55",
+        "mechanism": "LATER_REFERENCE: five-step WSOL ladder, 5,000-lamport decrements",
+        "members": 5,
+        "provenance": "CONTEMPORARY_V1_SUMMARY"
+      },
+      {
+        "candidate_id": "p3r-candidate-af5004dfe42cfe11",
+        "mechanism": "LATER_REFERENCE: WSOL_WRAP_CLOSE, selected amount 99,999,985,000 lamports, five-step atomic sequence",
+        "members": 52,
+        "provenance": "CONTEMPORARY_V1_SUMMARY"
+      },
+      {
+        "candidate_id": "p3r-candidate-bf30e77ee07e312b",
+        "mechanism": "LATER_REFERENCE: WSOL_WRAP_CLOSE, selected amount 999,985,000 lamports, five-step atomic sequence",
+        "members": 14,
+        "provenance": "CONTEMPORARY_V1_SUMMARY"
+      },
+      {
+        "candidate_id": "p3r-candidate-ec1b6cff80643746",
+        "mechanism": "LATER_REFERENCE: WSOL_WRAP_CLOSE, selected amount 99,999,985,000 lamports, five-step atomic sequence",
+        "members": 15,
+        "provenance": "CONTEMPORARY_V1_SUMMARY"
+      }
+    ],
+    "historically_confirmed": true,
+    "membership_lists": "NOT_RECOVERED; no member lists are reconstructed from v2.",
+    "total_members": 86
+  },
+  "upstream_population": {
+    "conclusion": "The remembered approximately 40k-42k population existed as a separately recorded P3R discovery population. The closest recoverable immediate upstream denominator for the historical Tier-1 contract is 28,883; the missing corpus manifest prevents proving how, or whether, 40,301 flowed into it.",
+    "historical_tier_generator_immediate_input": {
+      "count": 28883,
+      "evidence": "historical generator hard-fails unless corpus has exactly 28,883 unique mints and matching frozen SHA-256 38632f80231e29bfe686360898329331f88cf593e7dbac09c4f08a1aa58da651",
+      "state": "TEMP_ARTIFACT_MISSING",
+      "unit": "unique feature-corpus mints"
+    },
+    "large_p3r_population": {
+      "count": 40301,
+      "relationship_to_historical_tier_run": "not proven as the v1 tier generator input",
+      "source": "ops_discovery_p3r_s2a, run local_discovery_20260819T212624Z, manifest 1fa17ad61f35fc948e0c3b81b7cb63df5fe9f106bbbb845128233d0de8324f1e",
+      "state": "DURABLE_AND_FROZEN_SUMMARY_ONLY",
+      "unit": "launch population"
+    }
+  },
+  "v1_v2_comparison": {
+    "demonstrated": "v1 used exact multi-dimensional selected-edge grouping with 114 families and a 45-family WATCH_NOW tiering partition. Canonical v2 uses a separately frozen 220-family lineage with additional canonical evidence rules.",
+    "known_mechanism_reference": "Later evidence notes a mechanism correspondence between v1 AF500/EC1 and v2 c357; this is comparison-only and not identity mapping.",
+    "not_demonstrated": "No member-level v1-to-v2 mapping or assertion that the v1 four Tier-1 identities became any v2 tier is supported, because original v1 memberships are absent."
+  },
+  "verdict": "P3R_ORIGINAL_DISCOVERY_PROVENANCE_RECOVERED_REPLAY_BLOCKED"
+}

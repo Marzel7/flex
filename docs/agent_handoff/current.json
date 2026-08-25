@@ -941,6 +941,21 @@
     "scope": "Read-only bounded RPC probe of all 94 retained confirmed WATCHTOWER launches lacking selected hop-1 evidence, using the temporary environment RPC credential. No operational database writes or identity/promotion changes.",
     "verdict": "WATCHTOWER_HISTORICAL_RPC_EVIDENCE_PARTIALLY_RECOVERED"
   },
+  "watchtower_queue_confirmed_reconciliation_20260825": {
+    "code_change_unactivated": "src/core/watchtower_registry_promotion.py now recognizes only persisted queue intelligence_outcome=WATCHTOWER_CONFIRMED as an additional promotion predicate; worker was intentionally not restarted after discovering reconciliation scope.",
+    "exact_next_action": "Await user instruction: retain and audit the 687 rows, or perform a user-authorized scoped rollback before activating the corrected worker code.",
+    "execution_error": "The one-off reconciler queried all historical missing queue-confirmed rows rather than the intended five recent rows.",
+    "finding": "Five recent wt_walkback_queue rows had intelligence_outcome=WATCHTOWER_CONFIRMED while their wt_attribution_outcomes rows remained UNKNOWN_INFRASTRUCTURE, so the legacy promotion bridge did not admit them.",
+    "ledger_effect": {
+      "after_distinct_mints": 977,
+      "before_distinct_mints": 290,
+      "inserted_historical_rows": 687,
+      "latest_create_utc": "2026-08-25 13:41:41"
+    },
+    "safety_state": "walkback_worker remains on pre-change loaded code; no further queue-confirmed promotions are active from the new predicate.",
+    "status": "HOLD",
+    "verdict": "HOLD_UNINTENDED_BROAD_HISTORICAL_ADMISSION"
+  },
   "watchtower_recent_24h_exact_wsol_cohort_20260825": {
     "interpretation": "All 16 satisfy the entry-level WATCHTOWER-like WSOL funding-branch signal. Ten also satisfy the observed Treasury -> SubProv/direct-funder -> Creator portion of the role geometry; six require upstream enrichment before a complete treasury-anchored route can be recorded. Under a behavior-first policy, all 16 are candidates, not automatically canonical identities.",
     "result": {

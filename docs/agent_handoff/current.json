@@ -39,7 +39,7 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "Recurrent 900b funders overlap four frozen behavioural false positives, so hybrid attribution cannot safely auto-register.",
+  "blocker": "None for provisional review-only visibility; forward walkback evaluator integration remains a separate bounded step.",
   "dtuh_af500_ec1_link_check_20260825": {
     "af500_direct_connection": {
       "destination": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ",
@@ -53,8 +53,8 @@
     "status": "PARTIAL",
     "verdict": "AF500_LINK_CONFIRMED_EC1_LINK_UNPROVEN"
   },
-  "engineering_revision": "26e528b0 (main); 900b hybrid qualification artifact uncommitted in engineering worktree",
-  "exact_next_action": "Keep 900b as a provisional hybrid candidate: behavior + recurrent infrastructure is review-confidence only; behavior + unknown infrastructure remains discovery. Move bounded investigation to another candidate rather than widen 900b infrastructure rules.",
+  "engineering_revision": "26e528b0 (main) + uncommitted provisional-operation implementation",
+  "exact_next_action": "If authorized, connect the frozen 900B_HYBRID_PROVISIONAL.v1 evaluator at the completed-walkback boundary so high-confidence matches enter PROVISIONAL_MATCH_PENDING and unknown-infrastructure matches enter discovery, without confirmed membership or trading effects.",
   "generic_operation_activity_projection_20260825": {
     "exact_next_action": "Evaluate P3R matcher precision on a labelled negative/control cohort and, if authorized, implement an explicit establishment policy that writes operator membership then invokes the generic projection.",
     "implementation": "refresh_operator_activity_snapshot derives WATCHTOWER from its canonical ledger and other operations from retained behavioural-profile members plus explicit operator_launch_membership rows, resolving launch times from the core token ledger.",
@@ -935,6 +935,29 @@
     "status": "PARTIAL",
     "verdict": "900B_HYBRID_OPERATION_PROVISIONAL"
   },
+  "p3r_v2_900b_provisional_operation_implementation_20260825": {
+    "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/provisional_operation_implementation/p3r_v2_900b_provisional_operation_implementation.v1.json",
+    "artifact_sha256": "18710be6fdf40302bb16a2ce8107a75f27ec388768c2cf85e4fe6285b936e8e2",
+    "automation": "REVIEW_ONLY",
+    "benchmark": {
+      "detector_version": "900B_HYBRID_PROVISIONAL.v1",
+      "fn": 5,
+      "fp": 4,
+      "precision": "90.70%",
+      "recall": "88.64%",
+      "tp": 39
+    },
+    "exact_next_action": "If authorized, connect the frozen 900B_HYBRID_PROVISIONAL.v1 evaluator at the completed-walkback boundary so high-confidence matches enter PROVISIONAL_MATCH_PENDING and unknown-infrastructure matches enter discovery, without confirmed membership or trading effects.",
+    "manifest_sha256": "27c866f1811444d95297a39eafcbd25be7108ee20394581cef9f9ac69683ff67",
+    "membership_semantics": "0 confirmed operator_launch_membership rows; historical cohort kept benchmark-only. Pending provisional evidence is separately ledgered and never a trading signal.",
+    "name": "WSOL_PROVISION_CLOSE_1_SOL_MINUS_15K",
+    "operator_id": "70f27e37-83eb-5c97-831c-48189ef98f6c",
+    "parent": "WSOL_PROVISION_CLOSE",
+    "qualification": "PROVISIONAL",
+    "status": "PASS",
+    "tests": "7 passed: provisional states, WATCHTOWER confirmed membership projection, manual registry.",
+    "ui": "Active Operations Registry groups CONFIRMED green and PROVISIONAL amber operations."
+  },
   "p3r_v2_900b_targeted_rpc_discriminator_20260825": {
     "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/targeted_rpc_discriminator/p3r-v2-900b-rpc-discriminator-v1/p3r_v2_900b_targeted_rpc_discriminator.v1.json",
     "artifact_sha256": "bd32f2bcd99c321f6fab719e599ac75c1e5e37dd5b96d4eb15da1856c6ddfd17",
@@ -1399,7 +1422,7 @@
   },
   "updated_at_utc": "2026-08-25T00:00:00Z",
   "updated_by": "codex",
-  "verdict": "PARTIAL",
+  "verdict": "PASS",
   "watchtower_2nhz_bjg_gyff_corrected_rpc_confirmation_20260825": {
     "corrected_chain": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT -> GYffSdtiffuTTZpiXqevWCYsSjn11drMoPsky9vsSUnd -> BpnGiweePUnk7ejBxvxokCUiZff3Pq3ftJiajgSEx8C7 -> 2nHZVubjJU144poGfjbiB97tv7CJtvJycvDdYvSxpump",
     "correction": "The earlier conclusion that BJg could not be the upstream source was wrong. The initial pre-anchor page was too dense to reach this transfer; the user-supplied transaction is 1,813 seconds before the anchor and proves BJg -> GYff. The later GYff -> BJg transfer is separate post-launch activity.",

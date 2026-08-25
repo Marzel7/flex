@@ -602,6 +602,24 @@
     "production_change_authorization": "Explicit user request: test the flow on known WATCHTOWER tokens and add the missed overnight launches to the WATCHTOWER operation.",
     "verdict": "WATCHTOWER_OVERNIGHT_BEHAVIOURAL_LINEAGE_ADMISSION_PASS"
   },
+  "watchtower_cost_controlled_walkback_implementation_20260825": {
+    "scope": "Production implementation and activation of the WATCHTOWER cost-controlled routing path in src/core/walkback_worker.py.",
+    "implementation": {
+      "ordinary_walkback_budget": "unchanged: WALKBACK_SIG_PAGE_COUNT",
+      "candidate_gate": "previously observed WATCHTOWER mechanism plus normalized wrap-close amount; gate creates no attribution by itself",
+      "cache": "canonical wt_watchtower_launches treasury_wallet -> subprov_wallet rows serve as local route cache",
+      "cache_hit": "direct funder already observed as a WATCHTOWER SubProv resolves locally with no upstream signature-history scan",
+      "cache_miss": "only a WATCHTOWER-like handoff receives anchored backward pagination, bounded by WALKBACK_WATCHTOWER_SIG_PAGE_COUNT (default 10)",
+      "confirmation": "a behavior-gated hop-2 wallet already recorded as a canonical WATCHTOWER treasury completes the route; other lineage behavior remains unchanged"
+    },
+    "files": ["src/core/walkback_worker.py"],
+    "runtime": {
+      "service": "walkback_worker",
+      "action": "restarted",
+      "api_listener_unchanged": true
+    },
+    "validation": "No post-deploy replay or test suite run this turn; prior rollback replay for the 14 admitted routes passed."
+  },
   "project": {
     "git_head": "e9d0a404417804faa70586c7b27f6a478028b798",
     "working_branch": "classification-attribution-axis"
@@ -613,7 +631,7 @@
     "executed": [],
     "result": "not run; read-only 16-mint WATCHTOWER miss analysis"
   },
-  "updated_at_utc": "2026-08-25T11:40:00Z",
+  "updated_at_utc": "2026-08-25T12:00:00Z",
   "updated_by": "codex",
-  "verdict": "WATCHTOWER_OVERNIGHT_BEHAVIOURAL_LINEAGE_ADMISSION_PASS"
+  "verdict": "WATCHTOWER_COST_CONTROLLED_WALKBACK_ACTIVE"
 }

@@ -736,6 +736,20 @@
     "safety": "Read-only RPC and /tmp artifacts only; no membership, attribution, resolver, or UI changes.",
     "verdict": "EC1_AMOUNT_FEATURE_FALSE_POSITIVES_PROVEN"
   },
+  "hun_supplied_chain_rpc_check_20260825": {
+    "scope": "Read-only RPC check of the user-supplied HWse5... -> DZtCka... -> 5jFqj... wallet sequence, using ten 100-signature pages per wallet plus shared-transaction balance analysis.",
+    "result": {
+      "HWse5_to_DZtCka_shared_transactions_first_1000": 0,
+      "DZtCka_to_5jFqj_shared_transactions_first_1000": 1,
+      "verified_signature": "2275BGt27qjiWZ1nN6TYiwNibxm8dqwWmCSex43UjUsRTDMFSFCj1zMgH6M5T5PnvW8EeM96vYucdpQFBsjfrk6H",
+      "verified_direction": "5jFqjJr4jvp2Xh85aECuLfxcpr96Dfrnxjfs1oyiS3qf -> DZtCkaEd4y799ZnQzVUSNDhBuLU8PNRbDiEbxeXRaLsX via SPL closeAccount",
+      "destination_balance_credit_lamports": 34691730098,
+      "source_balance_debit_lamports": 34691735098
+    },
+    "interpretation": "The one proven link is opposite the supplied arrow direction and is approximately 34.69173 SOL, not the 99.999995 SOL EC1 provision amount. The full supplied chain and same-amount assertion are not established in the inspected RPC window.",
+    "verdict": "HUN_SUPPLIED_CHAIN_PARTIALLY_DISPROVEN",
+    "exact_next_action": "Provide a transaction signature or corrected adjacent wallet pair for the asserted HWse5/DZtCka relation if a deeper targeted verification is needed."
+  },
   "operators_page_automatic_refresh_20260825": {
     "scope": "Client-side automatic update for the active-operations list.",
     "file": "templates/operators_index.html",
@@ -757,5 +771,5 @@
   },
   "updated_at_utc": "2026-08-25T12:35:13Z",
   "updated_by": "codex",
-  "verdict": "EC1_AMOUNT_FEATURE_FALSE_POSITIVES_PROVEN"
+  "verdict": "HUN_SUPPLIED_CHAIN_PARTIALLY_DISPROVEN"
 }

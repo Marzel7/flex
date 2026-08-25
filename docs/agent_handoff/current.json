@@ -699,6 +699,20 @@
     "verdict": "P3R_13A04_AUTO_ADMISSION_ACTIVE",
     "exact_next_action": "Observe the next qualifying P3R_13A04 walkback and confirm its automatic operator membership and UI snapshot; do not extend auto-admission to AF500/EC1 without resolving their overlap."
   },
+  "p3r_ec1_local_upstream_evidence_check_20260825": {
+    "scope": "Read-only check of the local EC1 retained selected, alternative, provisioning-edge, and root-infrastructure evidence.",
+    "result": {
+      "selected_hop1": "15/15 WSOL_WRAP_CLOSE edges at 99,999,985,000 lamports",
+      "reused_direct_funder": "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5 across 4 launches",
+      "root_wallet": "DuTbZR8VJGsyLvkhcAyiByPwnPRJj1GTmB88ShgAezCX",
+      "root_close_relationships_verified": 9,
+      "materialized_treasury_to_subprov_edges": 1,
+      "materialized_upstream_amount_sol": 0.1
+    },
+    "interpretation": "The local root artifact supports repeated DuTb temporary-account close relationships, but it does not store a repeated same-amount upstream transfer. The repeating 99.999985 SOL amount is currently the downstream SUBPROV_TO_CREATOR leg shared with AF500.",
+    "verdict": "EC1_UPSTREAM_DISCRIMINATOR_PROMISING_BUT_INCOMPLETE",
+    "exact_next_action": "If authorized, perform bounded RPC parsing of the nine DuTb root transactions to recover the transfer amounts and determine whether a repeatable upstream EC1-specific rule exists."
+  },
   "operators_page_automatic_refresh_20260825": {
     "scope": "Client-side automatic update for the active-operations list.",
     "file": "templates/operators_index.html",

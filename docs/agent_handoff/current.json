@@ -82,7 +82,7 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "Detail-page State chip semantics require a follow-up UI decision; activity/list projection is loaded.",
+  "blocker": "None",
   "dtuh_af500_ec1_link_check_20260825": {
     "af500_direct_connection": {
       "destination": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ",
@@ -96,7 +96,7 @@
     "status": "PARTIAL",
     "verdict": "AF500_LINK_CONFIRMED_EC1_LINK_UNPROVEN"
   },
-  "engineering_revision": "26e528b0 (main) + uncommitted provisional activity UI projection",
+  "engineering_revision": "26e528b0 (main) + uncommitted provisional detail evidence projection",
   "exact_next_action": "If authorized, implement completed-walkback insertion into provisional_operation_matches; preserve HISTORICAL_PROVISIONAL_REFERENCE separately from live pending review detections.",
   "generic_operation_activity_projection_20260825": {
     "exact_next_action": "Evaluate P3R matcher precision on a labelled negative/control cohort and, if authorized, implement an explicit establishment policy that writes operator membership then invokes the generic projection.",
@@ -1366,6 +1366,33 @@
     "status": "PASS",
     "tests": "7 passed",
     "ui": "Amber provisional row uses shared total launches / average gap / latest observed layout. Detail reader exposes same snapshot and provisional launch history with state."
+  },
+  "provisional_operation_detail_evidence_projection_900b_20260825": {
+    "evidence_source": [
+      "database/wt_ops_v2.db provisional_operation_activity_observations",
+      "database/wt_ops_v2.db wt_walkback_edge_candidates",
+      "database/wt_ops_v2.db wt_walkback_atomic_flows",
+      "frozen 900b hybrid infrastructure qualification artifact"
+    ],
+    "exact_next_action": "If requested, inspect the rendered detail page and refine only presentation wording; the underlying provisional evidence projection is complete.",
+    "implementation": {
+      "launch_rows": "Display direct funder -> creator -> mint, mechanism, exact amount, retained funding transaction link, selected hop, and explicit historical provisional state.",
+      "reader": "Enriches each historical provisional observation from retained selected hop-1 edge and matching atomic-flow records.",
+      "state_chip": "Detail State renders PROVISIONAL for qualification_category=PROVISIONAL.",
+      "summary": "Displays selected Hop-1 WSOL_WRAP_CLOSE, exact 999985000 lamports / 1 SOL - 15000 lamports, 31/44 dominant five-step lifecycle, 44/44 broad lifecycle, direct-funder recurrence, and frozen H1 context."
+    },
+    "operator_id": "70f27e37-83eb-5c97-831c-48189ef98f6c",
+    "source_candidate_id": "p3r-v2-900b89587c6987d582df",
+    "status": "PASS",
+    "verification": {
+      "membership_mutation": 0,
+      "model_assertion": "PASS: 44 historical provisional rows, retained signatures present, zero confirmed memberships",
+      "rpc_provider_calls": 0,
+      "runtime": "watchtower_api restarted and RUNNING pid 70867",
+      "tests": "7 passed: test_provisional_operations, test_watchtower_confirmed_membership_projection, test_manual_registry",
+      "trading_or_detector_change": false,
+      "watchtower_unchanged": true
+    }
   },
   "schema_version": 1,
   "status": "PASS",

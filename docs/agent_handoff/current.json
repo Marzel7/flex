@@ -5,11 +5,11 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "The ccb7 profile now has retained direct-funder-to-creator signatures and dates, but its upstream anchors remain unqualified LINEAGE_GAP. Durable operation_infrastructure_anchors persistence/migration, variant persistence, full render suite, and performance-gate coverage remain unfinished.",
-  "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e + uncommitted compact Summary with retained direct funding transactions",
-  "exact_next_action": "Refresh ccb7b1b0-56e1-4543-9e95-3f284bed3943 and confirm each direct-funder launch row has a green Solscan Funding Tx link and retained on-chain date.",
+  "blocker": "The P3R fingerprint now explains qualified recurrence, while upstream controller evidence remains partial/unqualified where so recorded. Durable operation_infrastructure_anchors persistence/migration, variant persistence, full render suite, and performance-gate coverage remain unfinished.",
+  "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e + uncommitted qualified P3R behavioural fingerprint panel",
+  "exact_next_action": "Open Analysis for a manually admitted P3R operation and confirm What ties this operation together renders mechanism, funding structure, atomic sequence, address rotation, profile version, and an explicit upstream-evidence limit.",
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "Complete durable anchor persistence and full Summary validation; no provider calls, queue replay, promotion, or identity mutation is authorized.",
+  "next_action": "Complete durable anchor persistence and full Summary/Analysis validation; no provider calls, queue replay, promotion, or identity mutation is authorized.",
   "operations_registry_activity_metrics": {
     "activity_artifact": "/tmp/p3r-registry-migration/active_operations_launch_activity_snapshots.v3.json",
     "activity_artifact_sha256": "4d1bdb9db2e83aba1c2c5fd82ac248abea9ee1b48a391095f01003ea73041ef9",
@@ -386,11 +386,8 @@
   "status": "PASS",
   "summary": "Completed non-production 135-wallet full-history direct-funder tracer preparation. Added script that supports strict 135 membership validation, paginated Helius address-history scan per creator wallet, and output of JSONL result rows. No production code was changed.",
   "tests": {
-    "executed": [
-      "python -m pytest tests/test_operation_summary.py",
-      "python -m py_compile src/ops/operator_reader.py src/ops/operation_summary.py"
-    ],
-    "result": "PASS: 4 tests passed; compilation passed"
+    "executed": [],
+    "result": "not run (presentation-only template change); watchtower_api restarted to load it"
   },
   "updated_at_utc": "2026-08-25T00:00:00Z",
   "updated_by": "codex",

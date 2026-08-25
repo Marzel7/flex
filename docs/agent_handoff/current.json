@@ -654,6 +654,17 @@
     "verdict": "READ_ONLY_MATCHER_TESTED",
     "exact_next_action": "Run the read-only matcher across a frozen candidate/negative cohort and review the P3R_13A04 nominations and AF500/EC1 ambiguous nominations before considering any live resolver wiring."
   },
+  "p3r_13a04_recent_candidate_check_20260825": {
+    "scope": "Read-only 24-hour check of the four-hop P3R_13A04 matcher against retained selected walkback evidence and token_analysis creation times.",
+    "result": {
+      "full_corpus_ladder_matches": 7,
+      "recent_candidate_matches": 1,
+      "mint": "xt7LcG4NxtSSi9u7gWxP5LVZqVLARNLkARQSw8Tpump",
+      "created_at_utc": "2026-08-24T12:34:50Z"
+    },
+    "interpretation": "The mint is a behavioural nomination only. It was not inserted into operator membership, attribution outcomes, or an operational registry.",
+    "verdict": "P3R_13A04_RECENT_BEHAVIOURAL_CANDIDATE_OBSERVED"
+  },
   "project": {
     "git_head": "e9d0a404417804faa70586c7b27f6a478028b798",
     "working_branch": "classification-attribution-axis"

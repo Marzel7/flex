@@ -747,6 +747,52 @@
     "scope": "Historical v1 Tier-1 context and durable-artifact recovery only; no v2 comparison/reconstruction, RPC/provider call, source/runtime mutation, tier change, queue replay, promotion, or trading signal.",
     "verdict": "P3R_V1_TIER1_CONTEXT_RECOVERY_COMPLETE"
   },
+  "p3r_v1_tier1_targeted_v2_signature_probe_20260825": {
+    "artifact": "/tmp/p3r-clean-20260824T092959Z/v1_v2_signature_probe/p3r_v1_tier1_targeted_v2_signature_probe.v1.json",
+    "artifact_sha256": "45790d6671b7c5d5f5aeffeade37116fab4146bf19371502fb3df432320b4009",
+    "explicit_controls": {
+      "canonical_tier_1": "d3de: WSOL_WRAP_CLOSE present in 27 selected rows but 0 exact 99,999,985,000 rows; no 13a04 ladder",
+      "high_activity_top_five": "No family has the exact historical amount-plus-WSOL signature; 9121 has WSOL_WRAP_CLOSE evidence but 0 exact-amount rows."
+    },
+    "historical_provenance": "LATER_REFERENCE; original v1 membership and fingerprint identities remain unrecovered.",
+    "identity_prohibition": "Mechanism correspondence does not establish historical family identity or v1-to-v2 lineage.",
+    "ladder": "No frozen WATCH_NOW family exhibits the complete ordered five-value 5,000-lamport 13a04 ladder.",
+    "manifest": "/tmp/p3r-clean-20260824T092959Z/v1_v2_signature_probe/p3r_v1_tier1_targeted_v2_signature_probe_manifest.v1.json",
+    "manifest_sha256": "3463084bd331e569ed48edae1bfc0dd5432f006ec20ffe0a9f89facf67ec4433",
+    "population": {
+      "atomic_highwater": 7115,
+      "edge_highwater": 60474,
+      "families": 61,
+      "member_mints": 1332,
+      "source_database": "database/wt_ops_v2.db"
+    },
+    "result": {
+      "activity": {
+        "last_24h": 2,
+        "last_30d": 70,
+        "last_7d": 26,
+        "rank": 13
+      },
+      "atomic_five_step_and_creator_close_role": "71/71 OBSERVED_MATCH",
+      "candidate_id": "p3r-v2-c357da9d0d4d560311e4",
+      "classification": "EXACT_DISTINCTIVE_SIGNATURE_MATCH",
+      "distinctive_historical_signature_matches": 1,
+      "exact_amount_lamports": 99999985000,
+      "hop_depth": 1,
+      "member_count": 71,
+      "selected_wsol_wrap_close_rows": 71,
+      "tier": "V2_TIER_3_ACTIVE_BASE"
+    },
+    "safety": {
+      "membership_or_tier_changes": 0,
+      "provider_or_rpc_calls": 0,
+      "queue_replay": 0,
+      "runtime_changes": 0,
+      "source_writes": 0
+    },
+    "scope": "Exact-signature lookup across frozen canonical v2 Tier 1/2/3 WATCH_NOW membership only; no broad mechanism materialization and no lineage inference.",
+    "verdict": "P3R_V1_TIER1_TARGETED_V2_SIGNATURE_PROBE_COMPLETE"
+  },
   "p3r_v1_tier1_to_v2_lineage_20260825": {
     "blocker": "Replay is not deterministic because the provenance query mistakenly counts its own p3r_v2_v1_lineage_reconciliation_runs table as a historical v1 table. The historical v1 membership/tier artifacts remain absent under /tmp and no actual v1 database tables were found.",
     "initial_run_id": "p3r-v2-v1-lineage-c819654681402b561ee0",

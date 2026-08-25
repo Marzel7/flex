@@ -645,18 +645,27 @@
     "verdict": "ONLY_WATCHTOWER_CURRENTLY_CLASSIFIABLE_LIVE",
     "exact_next_action": "For each P3R profile, convert the reviewed fingerprint into an explicit versioned matcher and evaluate it read-only against a labeled holdout before adding any live resolver attribution path."
   },
+  "p3r_read_only_candidate_matcher_20260825": {
+    "scope": "Standalone nomination-only matcher for the three manually admitted P3R profiles; it is intentionally disconnected from walkback attribution, memberships, and registry writes.",
+    "files": ["src/ops/p3r_profile_candidate_matcher.py", "tests/test_p3r_profile_candidate_matcher.py"],
+    "design": "P3R_13A04 requires its four-hop reviewed funding ladder. P3R_AF500 and P3R_EC1 share an identical stored hop-1 WSOL lifecycle and must emit one ambiguous review candidate rather than an attribution.",
+    "corpus_measurement": {"selected_mints": 11893, "p3r_13a04_ladder_matches": 8, "shared_af500_ec1_candidate_matches": 114},
+    "test": "PARTIAL: 0/3 passed. The P3R_13A04 ladder was sliced to four values before indexing position 4, raising IndexError during contract loading.",
+    "verdict": "PARTIAL_UNUSABLE_PENDING_AUTHORIZED_FIX",
+    "exact_next_action": "With user authorization, correct the P3R_13A04 ladder indexing, rerun only tests/test_p3r_profile_candidate_matcher.py, and then report the read-only matcher result."
+  },
   "project": {
     "git_head": "e9d0a404417804faa70586c7b27f6a478028b798",
     "working_branch": "classification-attribution-axis"
   },
   "schema_version": 1,
-  "status": "PASS",
-  "summary": "WATCHTOWER now has 290 admitted canonical launches after the authorized 14-launch behavioral-lineage admission. Its derived activity snapshot was refreshed from the canonical ledger, restoring current list and detail metrics.",
+  "status": "PARTIAL",
+  "summary": "WATCHTOWER activity projection is current. A new read-only P3R candidate matcher has an indexing defect detected by focused tests and is not usable pending an authorized correction.",
   "tests": {
     "executed": [],
     "result": "not run; read-only 16-mint WATCHTOWER miss analysis"
   },
   "updated_at_utc": "2026-08-25T12:35:13Z",
   "updated_by": "codex",
-  "verdict": "WATCHTOWER_ACTIVITY_SNAPSHOT_REFRESHED"
+  "verdict": "P3R_READ_ONLY_MATCHER_PARTIAL"
 }

@@ -82,7 +82,25 @@
     "verified_ladder": "HboqWvK2... close 34,691,750,098 -> Gre9jF21... transfer 34,691,745,098 -> FwaWYJeu... close 34,691,740,098 -> AerCoA4G... transfer 34,691,735,098 -> 5jFqjJr4... close 34,691,730,098 -> DZtCkaEd... transfer 34,691,725,098 -> 2GH1yDtg... close 34,691,720,098 -> HWse5Gae... transfer 34,691,715,098 -> Ft5Sn8GN..."
   },
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "Monitor new walkback terminal outcomes: strict route-evidenced WATCHTOWER and exact unambiguous P3R/P3R_13A04 matches should create membership and refresh their activity snapshots automatically.",
+  "next_action": "Use the Walkback Review Queue for analyst disposition; auto-membership remains limited to strict verified WATCHTOWER routes and exact unambiguous P3R/P3R_13A04 fingerprints.",
+  "operation_walkback_review_queue_20260825": {
+    "next_action": "Extend the review projection when additional non-auto P3R or P3R_13A04 near-match evidence is persisted.",
+    "production": {
+      "watchtower_api": "restarted"
+    },
+    "scope": {
+      "candidate_operator": "WATCHTOWER",
+      "endpoint": "/api/ops/operators/review-queue",
+      "links": [
+        "Solscan mint",
+        "candidate operator profile"
+      ],
+      "membership_effect": "none",
+      "source": "wt_watchtower_launches rows in PENDING_REVIEW"
+    },
+    "status": "COMPLETE",
+    "verdict": "Active Operations Registry now includes a read-only amber Walkback Review Queue below confirmed operations."
+  },
   "operations_registry_activity_metrics": {
     "activity_artifact": "/tmp/p3r-registry-migration/active_operations_launch_activity_snapshots.v3.json",
     "activity_artifact_sha256": "4d1bdb9db2e83aba1c2c5fd82ac248abea9ee1b48a391095f01003ea73041ef9",

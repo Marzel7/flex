@@ -82,22 +82,17 @@
     "verified_ladder": "HboqWvK2... close 34,691,750,098 -> Gre9jF21... transfer 34,691,745,098 -> FwaWYJeu... close 34,691,740,098 -> AerCoA4G... transfer 34,691,735,098 -> 5jFqjJr4... close 34,691,730,098 -> DZtCkaEd... transfer 34,691,725,098 -> 2GH1yDtg... close 34,691,720,098 -> HWse5Gae... transfer 34,691,715,098 -> Ft5Sn8GN..."
   },
   "latest_material_continuation": {
-    "blocker": null,
-    "commit": "26e528b0 Project verified WATCHTOWER confirmations",
+    "blocker": "Dirty worktree prevents a safe branch switch or merge without risking unrelated changes.",
     "engineering_revision": "26e528b0",
-    "milestone": "WATCHTOWER Recent Launches membership-aware projection",
-    "next_action": "Observe UI page and next route-valid WATCHTOWER confirmation.",
+    "milestone": "Merge WATCHTOWER repair into main",
+    "next_action": "User chooses: use a clean worktree for the merge, or explicitly authorize handling the current dirty worktree.",
     "production_flags": {
-      "classifier_changed": false,
-      "membership_mutation": false,
-      "provider_calls": false,
-      "queue_replay": false,
-      "watchtower_api_restarted": true
+      "production_changes": false
     },
-    "status": "PASS",
-    "tests": "direct read-only OperatorReader verification: GShW... is first recent launch",
-    "timestamp_utc": "2026-08-25T19:27:51Z",
-    "verdict": "Recent Launches now unions the legacy ledger with strict confirmed membership-only launches and orders by retained time."
+    "status": "HOLD",
+    "tests": "not run; no source changes",
+    "timestamp_utc": "2026-08-25T19:30:35Z",
+    "verdict": "Merge not attempted because the engineering worktree has extensive unrelated modified and untracked files."
   },
   "milestone": "P3R corrected prospective shadow successor",
   "next_action": "Use the durable v2 shortlist for bounded local evidence review before any separately authorized RPC or operation-attribution action.",

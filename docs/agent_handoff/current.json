@@ -39,7 +39,7 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "None for bounded local hierarchy closure; exposure/activation remain out of scope.",
+  "blocker": "900b/c357 address-blind detector precision is inadequate for safe operation registration.",
   "dtuh_af500_ec1_link_check_20260825": {
     "af500_direct_connection": {
       "destination": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ",
@@ -53,8 +53,8 @@
     "status": "PARTIAL",
     "verdict": "AF500_LINK_CONFIRMED_EC1_LINK_UNPROVEN"
   },
-  "engineering_revision": "26e528b0 (main); hierarchy closure artifacts uncommitted in engineering worktree",
-  "exact_next_action": "If authorized, assess 063e against the parent signature and its different atomic lifecycle before creating any analyst-facing hierarchy view.",
+  "engineering_revision": "26e528b0 (main); failed-safe parent-child qualification artifacts uncommitted in engineering worktree",
+  "exact_next_action": "If authorized, acquire/define a transaction-derived discriminator beyond exact amount plus five-step lifecycle and evaluate it against the 15/43 external exact-amount matches; do not register from the current detector.",
   "generic_operation_activity_projection_20260825": {
     "exact_next_action": "Evaluate P3R matcher precision on a labelled negative/control cohort and, if authorized, implement an explicit establishment policy that writes operator membership then invokes the generic projection.",
     "implementation": "refresh_operator_activity_snapshot derives WATCHTOWER from its canonical ledger and other operations from retained behavioural-profile members plus explicit operator_launch_membership rows, resolving launch times from the core token ledger.",
@@ -1159,6 +1159,21 @@
     "status": "PASS",
     "verdict": "MIXED_HIERARCHY"
   },
+  "p3r_v2_wsol_parent_child_operation_qualification_20260825": {
+    "900b": "REJECTED_LOW_PRECISION",
+    "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/parent_child_operation_qualification/p3r-v2-wsol-parent-child-v1/p3r_v2_wsol_parent_child_operation_qualification.v1.json",
+    "artifact_sha256": "e13eac824e353fb38a4af36320227acf0e37709a909f36e842b7aab8ae338fac",
+    "c357": "REJECTED_LOW_PRECISION",
+    "deterministic_replay": "PASS",
+    "exact_next_action": "If authorized, acquire/define a transaction-derived discriminator beyond exact amount plus five-step lifecycle and evaluate it against the 15/43 external exact-amount matches; do not register from the current detector.",
+    "finding": "Independent address-blind exact-amount replay has perfect recall but low precision. Exact five-step atomic confirmation does not improve precision sufficiently: 900b 31/46 (67.39%), c357 71/114 (62.28%).",
+    "manifest_sha256": "52a0e1a21ba20c6258c3d19e2f5bc8e3acc72f258b251aeb902bcae36ac1e2d7",
+    "parent": "WSOL_PROVISION_CLOSE",
+    "registry_changes": "None. Parent/children not registered; zero memberships added.",
+    "rpc_verdict": "RPC_REQUIRED_FOR_SPECIFIC_GAP",
+    "safety": "No RPC/provider, canonical tier/member/fingerprint/threshold mutation, registry/membership mutation, Watchtower change, queue replay, activation, detector/runtime change, or trading signal.",
+    "status": "HOLD"
+  },
   "p3r_watch_now_tiers_20260824": {
     "artifact_manifest": "/tmp/p3r-clean-20260824T092959Z/activity/tiers/p3r_watch_now_tiering_artifact_manifest.v1.json",
     "artifact_manifest_sha256": "1b14f979105f054f6426a87d5ad9fc83074ef5b7b77e71ae4aa7d1e6b06cb211",
@@ -1321,7 +1336,7 @@
   },
   "updated_at_utc": "2026-08-25T00:00:00Z",
   "updated_by": "codex",
-  "verdict": "PASS",
+  "verdict": "HOLD",
   "watchtower_2nhz_bjg_gyff_corrected_rpc_confirmation_20260825": {
     "corrected_chain": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT -> GYffSdtiffuTTZpiXqevWCYsSjn11drMoPsky9vsSUnd -> BpnGiweePUnk7ejBxvxokCUiZff3Pq3ftJiajgSEx8C7 -> 2nHZVubjJU144poGfjbiB97tv7CJtvJycvDdYvSxpump",
     "correction": "The earlier conclusion that BJg could not be the upstream source was wrong. The initial pre-anchor page was too dense to reach this transfer; the user-supplied transaction is 1,813 seconds before the anchor and proves BJg -> GYff. The later GYff -> BJg transfer is separate post-launch activity.",

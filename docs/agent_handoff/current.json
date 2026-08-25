@@ -463,6 +463,26 @@
     "next_action": "Use this versioned fingerprint only as a provenance-preserving WATCHTOWER-like candidate layer until a separately adjudicated negative/control set establishes precision for promotion.",
     "verdict": "WATCHTOWER_FULL_FAMILY_BEHAVIOURAL_COVERAGE_96_PERCENT"
   },
+  "watchtower_role_geometry_assessment_20260825": {
+    "scope": "Read-only role-reuse analysis of canonical WATCHTOWER records and routed behavior-matched LINEAGE_GAP candidates. No database writes or promotion changes.",
+    "canonical": {
+      "launches": 276,
+      "distinct_treasuries": 15,
+      "distinct_subprovs": 254,
+      "distinct_creators": 276,
+      "missing_recorded_treasury": 0,
+      "missing_recorded_subprov": 18
+    },
+    "behavior_matched_lineage_gap_routed_subset": {
+      "launches": 111,
+      "distinct_upstream_wallets": 27,
+      "distinct_downstream_funders": 111,
+      "geometry": "Each observed routed candidate has a distinct downstream funder while upstream wallets fan out across repeated launches."
+    },
+    "interpretation": "Treasury/controller is the strongest reusable anchor and should be stored as such. It is not literally the only recurring role: a small number of canonical SubProvs repeat, so secondary role-reuse evidence must remain available. The creator is unique across the 276 canonical rows.",
+    "next_action": "Model Treasury/Controller as the primary reusable infrastructure anchor, SubProv recurrence as supporting evidence, and downstream funder/creator as per-launch roles in a versioned behavioral candidate layer.",
+    "verdict": "WATCHTOWER_TREASURY_FANOUT_GEOMETRY_SUPPORTED"
+  },
   "project": {
     "git_head": "e9d0a404417804faa70586c7b27f6a478028b798",
     "working_branch": "classification-attribution-axis"
@@ -474,7 +494,7 @@
     "executed": [],
     "result": "not run; read-only 16-mint WATCHTOWER miss analysis"
   },
-  "updated_at_utc": "2026-08-25T09:25:00Z",
+  "updated_at_utc": "2026-08-25T09:40:00Z",
   "updated_by": "codex",
-  "verdict": "WATCHTOWER_FULL_FAMILY_BEHAVIOURAL_COVERAGE_96_PERCENT"
+  "verdict": "WATCHTOWER_TREASURY_FANOUT_GEOMETRY_SUPPORTED"
 }

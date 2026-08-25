@@ -82,17 +82,19 @@
     "verified_ladder": "HboqWvK2... close 34,691,750,098 -> Gre9jF21... transfer 34,691,745,098 -> FwaWYJeu... close 34,691,740,098 -> AerCoA4G... transfer 34,691,735,098 -> 5jFqjJr4... close 34,691,730,098 -> DZtCkaEd... transfer 34,691,725,098 -> 2GH1yDtg... close 34,691,720,098 -> HWse5Gae... transfer 34,691,715,098 -> Ft5Sn8GN..."
   },
   "latest_material_continuation": {
-    "blocker": "Dirty worktree prevents a safe branch switch or merge without risking unrelated changes.",
+    "blocker": null,
     "engineering_revision": "26e528b0",
-    "milestone": "Merge WATCHTOWER repair into main",
-    "next_action": "User chooses: use a clean worktree for the merge, or explicitly authorize handling the current dirty worktree.",
+    "milestone": "Promote approved WATCHTOWER project state to main",
+    "next_action": "Continue from main or the preserved classification-attribution-axis dirty worktree as appropriate.",
     "production_flags": {
-      "production_changes": false
+      "dirty_worktree_touched": false,
+      "force_push": false,
+      "history_rewrite": false
     },
-    "status": "HOLD",
-    "tests": "not run; no source changes",
-    "timestamp_utc": "2026-08-25T19:30:35Z",
-    "verdict": "Merge not attempted because the engineering worktree has extensive unrelated modified and untracked files."
+    "status": "PASS",
+    "tests": "3 passed: tests/test_watchtower_confirmed_membership_projection.py in clean main worktree",
+    "timestamp_utc": "2026-08-25T19:36:16Z",
+    "verdict": "origin/main fast-forwarded from ef880830 to approved commit 26e528b0 in an isolated clean worktree."
   },
   "milestone": "P3R corrected prospective shadow successor",
   "next_action": "Use the durable v2 shortlist for bounded local evidence review before any separately authorized RPC or operation-attribution action.",
@@ -1117,7 +1119,8 @@
   },
   "project": {
     "branch": "classification-attribution-axis",
-    "git_head": "28d8678cda2456322c5bd2f136bdf26d275394d5"
+    "git_head": "26e528b0ae1fa5ed465c4fe9059a259d903fef29",
+    "main": "26e528b0ae1fa5ed465c4fe9059a259d903fef29"
   },
   "schema_version": 1,
   "status": "PASS",

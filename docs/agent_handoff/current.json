@@ -96,7 +96,7 @@
     "status": "PARTIAL",
     "verdict": "AF500_LINK_CONFIRMED_EC1_LINK_UNPROVEN"
   },
-  "engineering_revision": "26e528b0 (main) + uncommitted provisional detail evidence projection",
+  "engineering_revision": "26e528b0 (main) + uncommitted provisional detail evidence projection root-cause fix",
   "exact_next_action": "If authorized, implement completed-walkback insertion into provisional_operation_matches; preserve HISTORICAL_PROVISIONAL_REFERENCE separately from live pending review detections.",
   "generic_operation_activity_projection_20260825": {
     "exact_next_action": "Evaluate P3R matcher precision on a labelled negative/control cohort and, if authorized, implement an explicit establishment policy that writes operator membership then invokes the generic projection.",
@@ -1382,6 +1382,11 @@
       "summary": "Displays selected Hop-1 WSOL_WRAP_CLOSE, exact 999985000 lamports / 1 SOL - 15000 lamports, 31/44 dominant five-step lifecycle, 44/44 broad lifecycle, direct-funder recurrence, and frozen H1 context."
     },
     "operator_id": "70f27e37-83eb-5c97-831c-48189ef98f6c",
+    "root_cause_fix": {
+      "fix": "operator_page preserves the explicit provisional summary_model; legacy manual fingerprint renderer is skipped for provisional records.",
+      "problem": "operator_page rebuilt and overwrote the reader-provided provisional summary_model with the legacy manual behavioural-profile summary, causing BASELINE rows without routes.",
+      "verification": "7 focused tests passed; watchtower_api restarted and RUNNING pid 71656."
+    },
     "source_candidate_id": "p3r-v2-900b89587c6987d582df",
     "status": "PASS",
     "verification": {

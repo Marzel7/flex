@@ -40,6 +40,19 @@
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
   "blocker": "Current 24h 2.122039-SOL signature cohort is 16 mints: 2 canonical WATCHTOWER / HIGH and 14 LOW LINEAGE_GAP. All 16 have selected hop-1 evidence; 8 have a selected hop-2 upstream (2 share CAFTSz..., 4 share 6qYNK..., 1 each 88WR... and 7A9w...), while 6 have no selected hop-2. Promotion is intentionally gated on a pre-registered known treasury/sub-provider route and only CANONICAL_OPERATOR_REACHED outcomes enter wt_watchtower_launches; behaviour/amount alone cannot promote.",
+  "dtuh_af500_ec1_link_check_20260825": {
+    "af500_direct_connection": {
+      "destination": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ",
+      "lamports": 10000000,
+      "signature": "5Ue3SijGZt4yY6evY5HVTHUT82aynU8mkSYhBSr7DEPjGK1o3T8N3Svd2ScEftrukVErKLcCBcX5pCARdknyBz1J",
+      "source": "DTUHk5617aHaKxDnrpJEG9roohNgrp66qvMiwnWwgtsq"
+    },
+    "ec1_direct_root_result": "No direct co-occurrence in DTUH latest 100 transactions with currently confirmed EC1 root DuTbZR8VJGsyLvkhcAyiByPwnPRJj1GTmB88ShgAezCX or its upstream 8zYqfnBUGbWJFhjSTLqDwqwTBkjeaLAMaSDzhVNvynFk.",
+    "exact_next_action": "Trace DTUH against the complete retained EC1 branch set if an EC1 shared-controller assertion is required.",
+    "production_changes": "None",
+    "status": "PARTIAL",
+    "verdict": "AF500_LINK_CONFIRMED_EC1_LINK_UNPROVEN"
+  },
   "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e + uncommitted compact confirmed-operation Summary",
   "exact_next_action": "If authorized, design a read-only WATCHTOWER-like candidate layer that records the 14 structural matches with their shared-upstream groups and provenance for analyst review, without changing canonical identity or auto-promoting any mint.",
   "generic_operation_activity_projection_20260825": {

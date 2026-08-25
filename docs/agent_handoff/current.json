@@ -39,7 +39,7 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "Authoritative Tier 2 artifact files unavailable in the execution environment.",
+  "blocker": "The authoritative frozen candidate partition and its WATCH_NOW/recurrence/atomic/address-blind input artifacts are absent from durable repository and database sources.",
   "dtuh_af500_ec1_link_check_20260825": {
     "af500_direct_connection": {
       "destination": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ",
@@ -82,7 +82,7 @@
     "verified_ladder": "HboqWvK2... close 34,691,750,098 -> Gre9jF21... transfer 34,691,745,098 -> FwaWYJeu... close 34,691,740,098 -> AerCoA4G... transfer 34,691,735,098 -> 5jFqjJr4... close 34,691,730,098 -> DZtCkaEd... transfer 34,691,725,098 -> 2GH1yDtg... close 34,691,720,098 -> HWse5Gae... transfer 34,691,715,098 -> Ft5Sn8GN..."
   },
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "Provide the two persisted Tier artifacts; verify their supplied SHA-256 values and run the requested read-only Tier 2 assessment.",
+  "next_action": "Recover the missing authoritative upstream P3R tier inputs; do not regenerate tiers from summary counts or current raw evidence.",
   "operation_walkback_review_queue_20260825": {
     "endpoints": [
       "/api/ops/operators/review-queue",
@@ -777,6 +777,40 @@
     ],
     "status": "PARTIAL",
     "verdict": "BLOCKED_SOURCE_UNAVAILABLE"
+  },
+  "tier_artifact_regeneration_20260825": {
+    "actions_not_taken": [
+      "No tier regeneration",
+      "No durable artifact creation",
+      "No database writes",
+      "No provider/RPC calls",
+      "No tier membership changes"
+    ],
+    "durable_sources_examined": [
+      "docs/agent_handoff/current.json",
+      "docs/audits/ops_discovery_p3r_behaviour_assessment.json",
+      "docs/audits/ops_discovery_p3r_p4_readiness.json",
+      "docs/audits/ops_discovery_p3r_local_gap_matrix.json",
+      "docs/audits/ops_discovery_p3r_s2a_blindness_contract.json",
+      "docs/audits/ops_discovery_p3r_s2b_population_manifest.json",
+      "database/wt_ops_v2.db schema"
+    ],
+    "evidence": [
+      "The durable behaviour assessment is NOT_EXECUTED.",
+      "The durable P4 readiness artifact says no frozen request identities existed.",
+      "The S2B population manifest says population_manifest_materialized=false and final_cohort_identities_selected=false.",
+      "No database table stores the frozen 114 candidate partition or candidate-level WATCH_NOW/atomic/address-blind tier inputs."
+    ],
+    "missing_authoritative_dependencies": [
+      "Frozen 114 novel-candidate manifest with candidate identities",
+      "WATCH_NOW membership/activity classification for that frozen population",
+      "Alternative-edge recurrence qualification keyed to the frozen candidates",
+      "Atomic recurrence qualification keyed to the frozen candidates",
+      "Fully-address-blind qualification keyed to the frozen candidates"
+    ],
+    "next_action": "Restore the exact frozen upstream manifest and all candidate-level qualification inputs from backup/versioned storage, then verify their digests before running the deterministic tier generator.",
+    "status": "BLOCKED",
+    "verdict": "P3R_WATCH_NOW_TIER_ARTIFACTS_REGENERATION_BLOCKED"
   },
   "treasury_cluster_link_check_20260825": {
     "af500_limit": "B65 history pagination reached 3,000 newer records without reaching account origin; its immediate pre-launch close-account recycling chain is not treated as a capital-source link.",

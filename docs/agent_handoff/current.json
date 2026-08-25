@@ -426,6 +426,23 @@
     "next_action": "Normalize amount-plus-rent values and define a versioned multi-mechanism candidate fingerprint; evaluate on a frozen holdout before any promotion-policy change.",
     "verdict": "WATCHTOWER_HISTORICAL_MECHANISM_FINGERPRINT_PARTIALLY_RECOVERED"
   },
+  "watchtower_wsol_fingerprint_holdout_20260825": {
+    "scope": "Read-only RPC instruction test of 461 selected-hop-1 WSOL amount-family candidates: 175 canonical WATCHTOWER and 286 currently LINEAGE_GAP/unclassified candidates. No database writes or promotion changes.",
+    "result": {
+      "rpc_calls": 461,
+      "canonical_candidates": 175,
+      "canonical_close_seeded_shape": 174,
+      "lineage_gap_candidates": 286,
+      "lineage_gap_close_seeded_shape": 285,
+      "strict_single_transaction_full_wsol_atomic_canonical": 1,
+      "strict_single_transaction_full_wsol_atomic_lineage_gap": 1
+    },
+    "fingerprint": "For the selected close leg, the stable shape is system:createAccountWithSeed + spl-token:initializeAccount + spl-token:closeAccount. The complete temporary-WSOL provisioning sequence appears only when inspecting a different/linked transaction context, so requiring all instructions in the selected close transaction is invalid.",
+    "interpretation": "The close-leg fingerprint has 99.4% coverage in canonical candidates and 99.65% overlap in the unclassified cohort. This does not measure false positives: LINEAGE_GAP is absence of registered-address attribution, not a verified non-WATCHTOWER label. A real precision test requires independently adjudicated negative families.",
+    "artifact": "/tmp/watchtower_wsol_fingerprint_holdout.json",
+    "next_action": "Create a provenance-preserving WATCHTOWER-like behavioral candidate cohort from the 285 matching LINEAGE_GAP mints; obtain analyst labels for a stratified negative/control sample before using the fingerprint for automatic confirmation.",
+    "verdict": "WATCHTOWER_CLOSE_LEG_BEHAVIOURAL_FINGERPRINT_STRONGLY_SUPPORTED_PRECISION_UNMEASURED"
+  },
   "project": {
     "git_head": "e9d0a404417804faa70586c7b27f6a478028b798",
     "working_branch": "classification-attribution-axis"
@@ -437,7 +454,7 @@
     "executed": [],
     "result": "not run; read-only 16-mint WATCHTOWER miss analysis"
   },
-  "updated_at_utc": "2026-08-25T08:50:00Z",
+  "updated_at_utc": "2026-08-25T09:10:00Z",
   "updated_by": "codex",
-  "verdict": "WATCHTOWER_HISTORICAL_MECHANISM_FINGERPRINT_PARTIALLY_RECOVERED"
+  "verdict": "WATCHTOWER_CLOSE_LEG_BEHAVIOURAL_FINGERPRINT_STRONGLY_SUPPORTED_PRECISION_UNMEASURED"
 }

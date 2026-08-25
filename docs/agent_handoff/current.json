@@ -562,6 +562,26 @@
     "correction": "The earlier conclusion that BJg could not be the upstream source was wrong. The initial pre-anchor page was too dense to reach this transfer; the user-supplied transaction is 1,813 seconds before the anchor and proves BJg -> GYff. The later GYff -> BJg transfer is separate post-launch activity.",
     "verdict": "WATCHTOWER_2NHZ_BJG_TREASURY_CHAIN_RPC_CONFIRMED"
   },
+  "watchtower_recent_six_paginated_treasury_confirmation_20260825": {
+    "scope": "Read-only paginated pre-anchor RPC trace of all six previously hop-2-unresolved current 2.122039-SOL WSOL-close launches. No database writes or promotion changes.",
+    "result": {
+      "launches_traced": 6,
+      "pagination_recovered_upstream": 6,
+      "bjg_treasury_fanout_routes": 5,
+      "separate_88wr_controller_route": 1
+    },
+    "confirmed_routes": {
+      "2nHZVubjJU144poGfjbiB97tv7CJtvJycvDdYvSxpump": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT -> GYffSdtiffuTTZpiXqevWCYsSjn11drMoPsky9vsSUnd -> BpnGiweePUnk7ejBxvxokCUiZff3Pq3ftJiajgSEx8C7 -> mint (1000 SOL treasury top-up)",
+      "3zYhdcR9XeNKgFj2SYeKs2kGKrdduHSf7Y4iRJQZpump": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT -> J99XgJwAkUkgj9bs7epcRdX8jH51diN99oMsXgBia5G8 -> 4zs1UnYSHTahHkkZ4mkquAFNDeJ4o954ZR3kResnfQ9Q -> mint (950 SOL treasury top-up)",
+      "24rX1SutpnUTcDpYLdE6Bg2aK16m2kWYrdyKTfuFpump": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT -> 2hSs96mzJtQpwARyvGyqr4YgScujTYZ5nNSjC2ZqiLj2 -> 22TAZqKtdacu6BQzbrRJvvRMiBAKWFdzmpWY6i8jcPrB -> mint (1000 SOL treasury top-up)",
+      "8JVTevQEykfpiT2kKX1DanzfajPVskPSBmqLqvEjpump": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT -> 53r9F7QveGHTNs5MFjTcpEfhDso5xQD5FrTGE56tKAv2 -> DSMQBBhFtrpvN8kbXeGFn3K96AbmBGRtzhVPfgz7DcMC -> mint (1000 SOL treasury top-up)",
+      "AcVN6TpjNWcj4LirgNdNEjM71j2B2KyAzC1cpTCMpump": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT -> EDC2fb7VweewbJGr4PhZAvrffc27uTMp9Uz2ATXiXWsm -> 7Qgfeqf5rQVoQCM3C6MBDicE9yGxMdY2Ki9R61gZBiVK -> mint (1000 SOL treasury top-up)",
+      "3jfTYj6cNtSepPd29NjNQTWaWXPEm8vjnXR8Bzj9pump": "88WRB31nEcBb5PedLzuyZMTd1r2AYD2FJUQSwNugQUqe -> 354YbdMFPy1GCYhqb6hZNVxGE1iZbMiJCxz1oNN4bwCo -> 4o5RMCkry238CWB2gps7CoSwwfQjWtk4JDECERWHpPJA -> mint (1000 SOL immediate controller top-up)"
+    },
+    "interpretation": "The initial 100-signature direct-funder walkback was insufficient. The correct fingerprint implementation must paginate backward from the anchor until it finds the initial material inbound funding transfer, then preserve the upstream controller/treasury role and amount.",
+    "artifact": "/tmp/watchtower_recent_six_paginated_treasury_rpc.json",
+    "verdict": "WATCHTOWER_RECENT_SIX_UPSTREAM_ROUTES_RPC_CONFIRMED"
+  },
   "project": {
     "git_head": "e9d0a404417804faa70586c7b27f6a478028b798",
     "working_branch": "classification-attribution-axis"
@@ -573,7 +593,7 @@
     "executed": [],
     "result": "not run; read-only 16-mint WATCHTOWER miss analysis"
   },
-  "updated_at_utc": "2026-08-25T11:00:00Z",
+  "updated_at_utc": "2026-08-25T11:20:00Z",
   "updated_by": "codex",
-  "verdict": "WATCHTOWER_2NHZ_BJG_TREASURY_CHAIN_RPC_CONFIRMED"
+  "verdict": "WATCHTOWER_RECENT_SIX_UPSTREAM_ROUTES_RPC_CONFIRMED"
 }

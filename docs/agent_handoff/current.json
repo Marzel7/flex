@@ -483,6 +483,19 @@
     "next_action": "Model Treasury/Controller as the primary reusable infrastructure anchor, SubProv recurrence as supporting evidence, and downstream funder/creator as per-launch roles in a versioned behavioral candidate layer.",
     "verdict": "WATCHTOWER_TREASURY_FANOUT_GEOMETRY_SUPPORTED"
   },
+  "watchtower_recent_24h_exact_wsol_cohort_20260825": {
+    "scope": "Read-only current rolling-24-hour census of selected hop-1 WSOL_WRAP_CLOSE evidence at exactly 2.122039 SOL.",
+    "result": {
+      "launches": 16,
+      "canonical": 2,
+      "lineage_gap": 14,
+      "creator_and_direct_funder_observed": 16,
+      "upstream_treasury_resolved_at_selected_hop2": 10,
+      "upstream_unresolved_after_direct_funder": 6
+    },
+    "interpretation": "All 16 satisfy the entry-level WATCHTOWER-like WSOL funding-branch signal. Ten also satisfy the observed Treasury -> SubProv/direct-funder -> Creator portion of the role geometry; six require upstream enrichment before a complete treasury-anchored route can be recorded. Under a behavior-first policy, all 16 are candidates, not automatically canonical identities.",
+    "verdict": "WATCHTOWER_RECENT_COHORT_BEHAVIOURAL_CANDIDATES_16"
+  },
   "project": {
     "git_head": "e9d0a404417804faa70586c7b27f6a478028b798",
     "working_branch": "classification-attribution-axis"
@@ -494,7 +507,7 @@
     "executed": [],
     "result": "not run; read-only 16-mint WATCHTOWER miss analysis"
   },
-  "updated_at_utc": "2026-08-25T09:40:00Z",
+  "updated_at_utc": "2026-08-25T09:55:00Z",
   "updated_by": "codex",
-  "verdict": "WATCHTOWER_TREASURY_FANOUT_GEOMETRY_SUPPORTED"
+  "verdict": "WATCHTOWER_RECENT_COHORT_BEHAVIOURAL_CANDIDATES_16"
 }

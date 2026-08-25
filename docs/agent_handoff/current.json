@@ -917,6 +917,36 @@
     "verdict": "P3R_V2_C357_TIER1_GAP_ANALYSIS_COMPLETE",
     "why_tier3": "Its sole Tier-1 failure is alternative-edge recurrence: 71/71 member coverage but dominant alternative fingerprint 33/71 (46.48%), below the unchanged >=60% strong-recurrence threshold. All base, activity, atomic, and address-blind gates pass."
   },
+  "p3r_v2_canonical_tier_group_export_20260825": {
+    "activity_annotation_census_run_id": "p3r-v2-census-b16928146d9b6876c44d",
+    "activity_annotation_edge_high_water": 60397,
+    "canonical_manifest_sha256": "930fb7fc462e1464632913f22b28ea8fc419d9ca921f36fe4e798dff51617862",
+    "canonical_run_id": "p3r-v2-2dec1d40604c1f7c08c8",
+    "counts": {
+      "dormant": 33,
+      "families": 220,
+      "member_mints": 2357,
+      "tier_1": 1,
+      "tier_2": 13,
+      "tier_3": 47,
+      "watch_later": 126,
+      "watch_now": 61
+    },
+    "deterministic_replay": "PASS: replay used the same export run ID and reproduced every artifact digest exactly.",
+    "export_manifest": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/tier_group_exports/p3r-v2-tier-groups-59972ce2f9eb3d5e4985/p3r_v2_canonical_tier_group_export_manifest.v1.json",
+    "export_manifest_sha256": "322ff3551e8beb5a9ec017690c33ee0e2025f4453c4f3674c567bd74ef61c392",
+    "export_run_id": "p3r-v2-tier-groups-59972ce2f9eb3d5e4985",
+    "frozen_high_waters": {
+      "atomic": 7095,
+      "edge": 60299,
+      "queue": 32353
+    },
+    "member_integrity": "2357 unique member mints; 0 duplicate canonical membership records",
+    "next_action": "Use frozen exported groups for read-only investigation; do not treat activity annotations as tier inputs.",
+    "safety": "No RPC/provider calls, queue replay, membership/tier mutation, threshold change, source-evidence mutation, operation promotion, or trading signal.",
+    "status": "COMPLETE",
+    "verdict": "P3R_V2_CANONICAL_TIER_GROUPS_RECREATED"
+  },
   "p3r_v2_canonical_tier_reconciliation_20260825": {
     "canonical_manifest_sha256": "930fb7fc462e1464632913f22b28ea8fc419d9ca921f36fe4e798dff51617862",
     "canonical_run_id": "p3r-v2-2dec1d40604c1f7c08c8",
@@ -1143,7 +1173,7 @@
     "verdict": "NO_DIRECT_TREASURY_LINK_ESTABLISHED"
   },
   "updated_at_utc": "2026-08-25T00:00:00Z",
-  "updated_by": "agent_local",
+  "updated_by": "codex",
   "verdict": "PASS",
   "watchtower_2nhz_bjg_gyff_corrected_rpc_confirmation_20260825": {
     "corrected_chain": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT -> GYffSdtiffuTTZpiXqevWCYsSjn11drMoPsky9vsSUnd -> BpnGiweePUnk7ejBxvxokCUiZff3Pq3ftJiajgSEx8C7 -> 2nHZVubjJU144poGfjbiB97tv7CJtvJycvDdYvSxpump",

@@ -633,6 +633,37 @@
     ],
     "status": "COMPLETE"
   },
+  "p3r_unified_operation_merge_20260825": {
+    "automatic_admission": "Unified P3R fingerprint: selected hop-1 WSOL_WRAP_CLOSE amount 99999985000 plus reviewed full-atomic evidence. P3R_13A04 remains a distinct exact-ladder contract. Conflicting existing memberships are retained unchanged.",
+    "canonical_operator": {
+      "display_name": "P3R",
+      "former_profile_aliases": [
+        "P3R_AF500",
+        "P3R_EC1"
+      ],
+      "operator_id": "777211c3-211e-551b-9310-ff9301570627"
+    },
+    "code_changes": [
+      "src/ops/p3r_profile_candidate_matcher.py",
+      "src/core/walkback_worker.py"
+    ],
+    "database_changes": "Both behavioural profiles rehomed to P3R with distinct profile versions; 63 retained profile mints inserted into authoritative operator_launch_membership; canonical snapshot refreshed.",
+    "exact_next_action": "Observe the next naturally completed qualifying walkback; it should enter canonical P3R and refresh its activity snapshot automatically.",
+    "merge_event_id": "38d59eb9-1788-4cf8-8d5f-3f0a2efb9b39",
+    "merged_operator": {
+      "display_name": "P3R_EC1",
+      "operator_id": "4c96fa15-c318-5a09-a4d9-bb9b78a8dd2b",
+      "redirects_to": "777211c3-211e-551b-9310-ff9301570627"
+    },
+    "runtime_changes": [
+      "supervisor restart walkback_worker",
+      "supervisor restart watchtower_api"
+    ],
+    "status": "COMPLETE",
+    "tests": "Not run; user requested the live merge and activation, not a test pass.",
+    "ui": "API restart serves consolidated P3R; operator-list polling and snapshot projection update on subsequent requests.",
+    "verdict": "PASS"
+  },
   "p3r_watch_now_tiers_20260824": {
     "artifact_manifest": "/tmp/p3r-clean-20260824T092959Z/activity/tiers/p3r_watch_now_tiering_artifact_manifest.v1.json",
     "artifact_manifest_sha256": "1b14f979105f054f6426a87d5ad9fc83074ef5b7b77e71ae4aa7d1e6b06cb211",

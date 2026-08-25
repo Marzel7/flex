@@ -977,6 +977,36 @@
       "interpretation": "This is a 12-week historical population, not a same-day backlog.",
       "latest_launch_utc": "2026-08-25 13:41:41"
     },
+    "today_after_1000_bst": [
+      {
+        "launch_utc": "2026-08-25 09:41:07",
+        "mint": "4kdU5fKaRb3ZDP84vAm2N8PY2Bq3PBtT5NkgzfAnpump"
+      },
+      {
+        "launch_utc": "2026-08-25 11:09:55",
+        "mint": "AVKQT851Cn3i1K5wDQsBfomYkiqdciqPE2bhZ5Egpump"
+      },
+      {
+        "launch_utc": "2026-08-25 11:19:21",
+        "mint": "31TBAGQ4cydajbZYCqvuyA9SqmKV7zvtdmohkLAJpump"
+      },
+      {
+        "launch_utc": "2026-08-25 11:23:08",
+        "mint": "AgySAfBHSjaqvgzBWqQfw52EQVEy6Ns7ehHwqWDdpump"
+      },
+      {
+        "launch_utc": "2026-08-25 13:10:40",
+        "mint": "GtVVWAY85x3nLNsP7y98fU51zLmhZMKZPAYzWmvspump"
+      },
+      {
+        "launch_utc": "2026-08-25 13:15:30",
+        "mint": "2iYGJm6RBxMqEJyTUjp751dSsSfYBPGGfrERue3vJiAj"
+      },
+      {
+        "launch_utc": "2026-08-25 13:41:41",
+        "mint": "4Qvcp6WUmtxMp7WttkexnkvCi4ingwNVXoNGCea2pump"
+      }
+    ],
     "verdict": "HOLD_UNINTENDED_BROAD_HISTORICAL_ADMISSION"
   },
   "watchtower_recent_24h_exact_wsol_cohort_20260825": {

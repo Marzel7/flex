@@ -690,18 +690,27 @@
     "verdict": "GENERIC_UI_PROJECTION_READY_LIVE_CLASSIFICATION_LIMITED_TO_WATCHTOWER",
     "exact_next_action": "Evaluate P3R matcher precision on a labelled negative/control cohort and, if authorized, implement an explicit establishment policy that writes operator membership then invokes the generic projection."
   },
+  "p3r_13a04_automatic_walkback_admission_20260825": {
+    "scope": "User-authorized production activation of automatic membership admission for unambiguous P3R_13A04 matcher results.",
+    "implementation": "Each terminal walkback evaluates the read-only P3R matcher. Only the complete four-hop P3R_13A04 ladder writes profile membership and operator_launch_membership, then invokes the generic activity projection. Existing conflicting assignments are retained; P3R_AF500/P3R_EC1 shared matches remain ambiguous and are never auto-admitted.",
+    "files": ["src/core/walkback_worker.py", "src/ops/p3r_profile_candidate_matcher.py"],
+    "runtime": {"service": "walkback_worker", "action": "restarted"},
+    "tests": "No post-activation test or replay run this turn.",
+    "verdict": "P3R_13A04_AUTO_ADMISSION_ACTIVE",
+    "exact_next_action": "Observe the next qualifying P3R_13A04 walkback and confirm its automatic operator membership and UI snapshot; do not extend auto-admission to AF500/EC1 without resolving their overlap."
+  },
   "project": {
     "git_head": "e9d0a404417804faa70586c7b27f6a478028b798",
     "working_branch": "classification-attribution-axis"
   },
   "schema_version": 1,
   "status": "PASS",
-  "summary": "Activity projection is generic for every active operation, but only WATCHTOWER currently has a live walkback-to-established-operation path. The read-only P3R candidate matcher is corrected and focused-tested; it remains disconnected from attribution and records AF500/EC1 overlap as ambiguous.",
+  "summary": "Activity projection is generic for every active operation. WATCHTOWER and unambiguous P3R_13A04 walkback matches now establish membership and refresh UI activity automatically; AF500/EC1 remain nomination-only because their stored fingerprint overlaps.",
   "tests": {
     "executed": [],
     "result": "not run; read-only 16-mint WATCHTOWER miss analysis"
   },
   "updated_at_utc": "2026-08-25T12:35:13Z",
   "updated_by": "codex",
-  "verdict": "GENERIC_UI_PROJECTION_READY_LIVE_CLASSIFICATION_LIMITED_TO_WATCHTOWER"
+  "verdict": "P3R_13A04_AUTO_ADMISSION_ACTIVE"
 }

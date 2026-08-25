@@ -634,6 +634,17 @@
     "projection_contract": "Total uses distinct wt_watchtower_launches mints; cadence and last launch use non-null create_time values from that same canonical ledger.",
     "verdict": "WATCHTOWER_ACTIVITY_SNAPSHOT_REFRESHED"
   },
+  "active_operation_walkback_coverage_20260825": {
+    "scope": "Read-only registry and attribution-outcome check for all four ACTIVE_MANUAL operations.",
+    "result": {
+      "WATCHTOWER": "Live route-aware canonical classification is implemented through wt_watchtower_launches and the cost-controlled WATCHTOWER walkback path.",
+      "P3R_13A04": "Manually admitted profile with 5 retained mints; no live attribution outcomes or prospective walkback classifier.",
+      "P3R_AF500": "Manually admitted profile with 52 retained mints; no live attribution outcomes or prospective walkback classifier.",
+      "P3R_EC1": "Manually admitted profile with 15 retained mints; no live attribution outcomes or prospective walkback classifier."
+    },
+    "verdict": "ONLY_WATCHTOWER_CURRENTLY_CLASSIFIABLE_LIVE",
+    "exact_next_action": "For each P3R profile, convert the reviewed fingerprint into an explicit versioned matcher and evaluate it read-only against a labeled holdout before adding any live resolver attribution path."
+  },
   "project": {
     "git_head": "e9d0a404417804faa70586c7b27f6a478028b798",
     "working_branch": "classification-attribution-axis"

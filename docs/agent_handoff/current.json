@@ -83,7 +83,8 @@
   },
   "latest_material_continuation": {
     "blocker": null,
-    "engineering_revision": "local uncommitted implementation",
+    "commit": "26e528b0 Project verified WATCHTOWER confirmations",
+    "engineering_revision": "26e528b0",
     "milestone": "WATCHTOWER Recent Launches membership-aware projection",
     "next_action": "Observe UI page and next route-valid WATCHTOWER confirmation.",
     "production_flags": {
@@ -95,7 +96,7 @@
     },
     "status": "PASS",
     "tests": "direct read-only OperatorReader verification: GShW... is first recent launch",
-    "timestamp_utc": "2026-08-25T19:23:49Z",
+    "timestamp_utc": "2026-08-25T19:27:51Z",
     "verdict": "Recent Launches now unions the legacy ledger with strict confirmed membership-only launches and orders by retained time."
   },
   "milestone": "P3R corrected prospective shadow successor",

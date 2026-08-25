@@ -31,6 +31,28 @@
     "tests": "7 passed",
     "ui": "Registry groups confirmed green cards separately from amber provisional review-only cards; confirmed count excludes provisional. Detail header shows provisional, parent, source candidate and frozen precision/recall."
   },
+  "active_operations_provisional_ui_reload_20260825": {
+    "exact_next_action": "If authorized, change the detail State chip to display PROVISIONAL for qualification_category=PROVISIONAL while preserving CONFIRMED as lifecycle status only for confirmed operations.",
+    "remaining_discrepancy": "The detail template lifecycle State chip still reads operator.status and therefore can render CONFIRMED for the provisional record. The separate provisional header/badge and review-only copy are present. No follow-up template change was made in this reload-only turn.",
+    "runtime": {
+      "pid": 68436,
+      "service": "watchtower_api",
+      "status": "RUNNING"
+    },
+    "scope": "Restarted watchtower_api to load the already implemented provisional activity UI projection; no source, database, membership, tier, or trading changes.",
+    "status": "PARTIAL",
+    "verified_projection": {
+      "activity_source": "provisional_operation_activity_observations (HISTORICAL_PROVISIONAL_REFERENCE), not operator_launch_membership",
+      "average_gap_hours": 16.9,
+      "last_24h": 5,
+      "last_30d": 43,
+      "last_7d": 29,
+      "latest_launch_utc": "2026-08-25T14:42:34Z",
+      "operator": "WSOL_PROVISION_CLOSE_1_SOL_MINUS_15K",
+      "state": "PROVISIONAL / review-only",
+      "total_launches": 44
+    }
+  },
   "af500_supplied_address_rpc_check_20260825": {
     "confirmed_route": [
       {
@@ -60,7 +82,7 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "None for provisional activity projection.",
+  "blocker": "Detail-page State chip semantics require a follow-up UI decision; activity/list projection is loaded.",
   "dtuh_af500_ec1_link_check_20260825": {
     "af500_direct_connection": {
       "destination": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ",

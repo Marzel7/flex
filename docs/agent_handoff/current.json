@@ -1021,6 +1021,16 @@
     "safety": "No provider/RPC calls, queue replay, membership mutation, promotion, or trading signal.",
     "status": "PARTIAL"
   },
+  "p3r_v2_operation_priority_ranking_20260825": {
+    "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/operation_priority/p3r-v2-operation-priority-20260825/p3r_v2_operation_priority_ranking.v1.json",
+    "artifact_sha256": "f1b80125a83108867c4eec77c0f7963f1ab7a41e276ca49f621bdf0487397887",
+    "blocker": "Atomic coverage was not capped to 1.0 before score calculation; output contains a 104.45 operational-priority score despite the requested 0-100 range.",
+    "engineering_revision": "c00921e7",
+    "next_action": "With user authorization, correct the bounded scoring normalization, regenerate the ranking from the same frozen inputs, and supersede this invalid artifact.",
+    "safety": "No RPC/provider calls, membership/tier/fingerprint/threshold mutation, queue replay, operation activation, production detector, or trading signal.",
+    "status": "PARTIAL",
+    "verdict": "P3R_V2_OPERATION_PRIORITY_RANKING_SCORE_RANGE_DEFECT"
+  },
   "p3r_v2_shortlist_enrichment_20260825": {
     "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/shortlist_enrichment/p3r-v2-enrichment-c03f0fce0b7e3b9d685b/p3r_v2_shortlist_enrichment.v1.json",
     "artifact_sha256": "9ab743c79e7f4f1600f281c14c5294f0f49d4e17f0459b9ae5195f8430c66ff1",

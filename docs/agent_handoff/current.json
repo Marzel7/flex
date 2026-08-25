@@ -82,7 +82,7 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "None for bounded activation; DB_LOCK_ERROR is a runtime observation caveat.",
+  "blocker": "Runtime observation capture was incomplete; no demonstrated 900b contention defect.",
   "dtuh_af500_ec1_link_check_20260825": {
     "af500_direct_connection": {
       "destination": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ",
@@ -1387,6 +1387,58 @@
       "p3r": "PRE_EXISTING_STALE_FIXTURE: 3 failures solely because test fixture lacks operators.status; no production-path regression demonstrated."
     },
     "verdict": "900B_PROVISIONAL_WALKBACK_INTEGRATION_COMPLETE"
+  },
+  "provisional_900b_runtime_stability_20260825": {
+    "900b": {
+      "confirmed_memberships": 0,
+      "live_match": "NO_LIVE_900B_MATCH_OBSERVED",
+      "provisional_matches": 0,
+      "trading_signals": 0
+    },
+    "coexistence": {
+      "p3r": "No live matcher-specific line observed; stale fixture remains unrelated.",
+      "watchtower": "No regression observed in bounded snapshot; focused tests previously passed."
+    },
+    "exact_next_action": "If a full clean consumption verdict is needed, use a durable host-side observer that reliably spans 10 minutes and captures log offset plus queue snapshots.",
+    "lock": {
+      "new_lock_count": "not deterministically captured because long observer yielded no report",
+      "original_attribution": "walkback_worker _ops_conn cross-process lock contention. Retained log identifies external ws_cascade.py and operation_scheduler.py owners in historical events, not the 900b projector.",
+      "result": "No demonstrated causal link to 900b; no lock behavior change made."
+    },
+    "queue": {
+      "baseline": {
+        "complete": 28334,
+        "waiting": 2372
+      },
+      "final": {
+        "complete": 28334,
+        "pending": 1,
+        "waiting": 2372
+      }
+    },
+    "safety": {
+      "code_changes": false,
+      "queue_replay": false,
+      "rpc_provider_calls": 0,
+      "services_restarted": false
+    },
+    "sqlite": {
+      "cli_busy_timeout_ms": 0,
+      "journal_mode": "wal",
+      "worker_connection": "db_connect timeout=30"
+    },
+    "status": "INCONCLUSIVE",
+    "verdict": "900B_WALKBACK_RUNTIME_OBSERVATION_INCONCLUSIVE",
+    "window": {
+      "attempted": "10-minute natural read-only observer",
+      "result": "observer returned without its expected capture; final snapshot occurred at 2026-08-25T21:46:27Z"
+    },
+    "worker": {
+      "normal_activity": "post-batch promoted 58 recurring funders to subprov leads",
+      "pid": 74536,
+      "status": "RUNNING",
+      "uptime_seconds_approx": 392
+    }
   },
   "provisional_operation_activity_ui_projection_20260825": {
     "activity_source": "44 explicit HISTORICAL_PROVISIONAL_REFERENCE rows in provisional_operation_activity_observations; never confirmed membership.",

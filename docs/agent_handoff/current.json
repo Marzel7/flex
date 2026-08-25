@@ -545,6 +545,23 @@
     "next_action": "Treat GYff as the selected funding/distribution role for 2nHZ; retain Treasury unresolved unless a separate repeated-upstream aggregation analysis establishes a controller with temporal and causal support.",
     "verdict": "WATCHTOWER_2NHZ_GYFF_TREASURY_NOT_SINGLE_TRANSFER_RESOLVABLE"
   },
+  "watchtower_2nhz_bjg_gyff_corrected_rpc_confirmation_20260825": {
+    "scope": "Read-only RPC inspection of user-supplied signature 2P7GxNp3XFtjdLMBz5gKMVBpTTdxCsC7CYuyannNbntSBqq76sQkchYA8j5MA2cujpvxRMF8s2SZDr3MK6hLKmRZ.",
+    "result": {
+      "signature": "2P7GxNp3XFtjdLMBz5gKMVBpTTdxCsC7CYuyannNbntSBqq76sQkchYA8j5MA2cujpvxRMF8s2SZDr3MK6hLKmRZ",
+      "time_utc_epoch": 1787636355,
+      "fee_payer": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT",
+      "source": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT",
+      "destination": "GYffSdtiffuTTZpiXqevWCYsSjn11drMoPsky9vsSUnd",
+      "transfer_lamports": 1000000000000,
+      "transfer_sol": 1000.0,
+      "creator_funding_anchor_epoch": 1787638168,
+      "seconds_before_creator_funding_anchor": 1813
+    },
+    "corrected_chain": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT -> GYffSdtiffuTTZpiXqevWCYsSjn11drMoPsky9vsSUnd -> BpnGiweePUnk7ejBxvxokCUiZff3Pq3ftJiajgSEx8C7 -> 2nHZVubjJU144poGfjbiB97tv7CJtvJycvDdYvSxpump",
+    "correction": "The earlier conclusion that BJg could not be the upstream source was wrong. The initial pre-anchor page was too dense to reach this transfer; the user-supplied transaction is 1,813 seconds before the anchor and proves BJg -> GYff. The later GYff -> BJg transfer is separate post-launch activity.",
+    "verdict": "WATCHTOWER_2NHZ_BJG_TREASURY_CHAIN_RPC_CONFIRMED"
+  },
   "project": {
     "git_head": "e9d0a404417804faa70586c7b27f6a478028b798",
     "working_branch": "classification-attribution-axis"
@@ -556,7 +573,7 @@
     "executed": [],
     "result": "not run; read-only 16-mint WATCHTOWER miss analysis"
   },
-  "updated_at_utc": "2026-08-25T10:45:00Z",
+  "updated_at_utc": "2026-08-25T11:00:00Z",
   "updated_by": "codex",
-  "verdict": "WATCHTOWER_2NHZ_GYFF_TREASURY_NOT_SINGLE_TRANSFER_RESOLVABLE"
+  "verdict": "WATCHTOWER_2NHZ_BJG_TREASURY_CHAIN_RPC_CONFIRMED"
 }

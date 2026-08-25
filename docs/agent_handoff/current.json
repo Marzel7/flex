@@ -39,7 +39,7 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "None for bounded local 900b comparator reconciliation; operational activation remains out of scope.",
+  "blocker": "None for bounded local four-family comparison; operation activation remains out of scope.",
   "dtuh_af500_ec1_link_check_20260825": {
     "af500_direct_connection": {
       "destination": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ",
@@ -53,8 +53,8 @@
     "status": "PARTIAL",
     "verdict": "AF500_LINK_CONFIRMED_EC1_LINK_UNPROVEN"
   },
-  "engineering_revision": "26e528b0 (main); 900b comparator reconciliation artifacts uncommitted in engineering worktree",
-  "exact_next_action": "If authorized, perform a separately specified local comparison of amount-scale WSOL variants to establish whether they are distinct operations or a shared broader mechanism; do not activate 900b from this provisional result alone.",
+  "engineering_revision": "26e528b0 (main); four-family local comparison artifacts uncommitted in engineering worktree",
+  "exact_next_action": "If authorized, compare 900b/c357 alternative and role evidence on a specified labelled/control corpus before treating their shared lifecycle as a unified operation.",
   "generic_operation_activity_projection_20260825": {
     "exact_next_action": "Evaluate P3R matcher precision on a labelled negative/control cohort and, if authorized, implement an explicit establishment policy that writes operator membership then invokes the generic projection.",
     "implementation": "refresh_operator_activity_snapshot derives WATCHTOWER from its canonical ledger and other operations from retained behavioural-profile members plus explicit operator_launch_membership rows, resolving launch times from the core token ledger.",
@@ -1116,6 +1116,26 @@
     },
     "status": "COMPLETE",
     "verdict": "P3R_V2_SHORTLIST_ENRICHMENT_COMPLETE"
+  },
+  "p3r_v2_wsol_four_family_comparison_20260825": {
+    "900b_verdict": "900B_DISTINCT_OPERATION_PROVISIONAL",
+    "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/wsol_four_family_comparison/p3r-v2-wsol-four-family-v1/p3r_v2_wsol_four_family_operation_comparison.v1.json",
+    "artifact_sha256": "15cbd62ddd7eb0fd299efba58f9697994d02225e698f083d34a59811cc886f30",
+    "deterministic_replay": "PASS",
+    "exact_next_action": "If authorized, compare 900b/c357 alternative and role evidence on a specified labelled/control corpus before treating their shared lifecycle as a unified operation.",
+    "families": [
+      "p3r-v2-900b89587c6987d582df",
+      "p3r-v2-063e24a2def354f23ec5",
+      "p3r-v2-c357da9d0d4d560311e4",
+      "p3r-v2-9121fbe9e224ed2e42e8"
+    ],
+    "finding": "900b/c357 share retained exact five-step WSOL lifecycle and are RELATED_OPERATION_VARIANTS; 063e uses a materially different retained atomic lifecycle; 9121 has no frozen atomic coverage. No common controller is inferred.",
+    "manifest_sha256": "6825babad841df7c026b641d00dfd54473af1d5fc698df593b29a09c4e50e225",
+    "next_candidate": "p3r-v2-c357da9d0d4d560311e4",
+    "rpc_verdict": "RPC_OPTIONAL_VALIDATION_ONLY",
+    "safety": "No RPC/provider, tier/member/fingerprint/threshold mutation, family merge/split, queue replay, activation, detector/runtime change, or trading signal.",
+    "status": "PASS",
+    "verdict": "MIXED_HIERARCHY"
   },
   "p3r_watch_now_tiers_20260824": {
     "artifact_manifest": "/tmp/p3r-clean-20260824T092959Z/activity/tiers/p3r_watch_now_tiering_artifact_manifest.v1.json",

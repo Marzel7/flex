@@ -959,7 +959,26 @@
       "queue_source": "wt_ops_v2_wallets",
       "queue_state": "CREATE_ANCHORED + WATCHTOWER_CONFIRMED",
       "queue_treasury": "2yBbUPkjVdJiHCNjFMDbSEjN5afRYQ7yQDga4f7LJBpp",
-      "required_fix": "Do not activate the queue-confirmed promotion bridge until it additionally requires retained route evidence or an explicitly approved behavioral lineage predicate."
+      "required_fix": "Do not activate the queue-confirmed promotion bridge until it additionally requires retained route evidence or an explicitly approved behavioral lineage predicate.",
+      "rpc_trace": {
+        "counterparty": "G95BCceRFBTbFFJjzEFgMCmzrsNWctRJkaaDabsRrpd1",
+        "creator": "2bBRwhGoL4fRZk6g8NnhBZywsF8PdLJnBRfWDCEMogD2",
+        "edges": [
+          {
+            "from": "G95BCceRFBTbFFJjzEFgMCmzrsNWctRJkaaDabsRrpd1",
+            "lamports": 18414640,
+            "signature": "2LYbTJY76UK5ofz9NRiVfxjJzZCLs9K5z1rCh4jyF89gPBcxGt5qFoa1zYXX7yRuF4hYJDs4J41YLiY3hXCPxwTu",
+            "to": "2bBRwhGoL4fRZk6g8NnhBZywsF8PdLJnBRfWDCEMogD2"
+          },
+          {
+            "from": "2bBRwhGoL4fRZk6g8NnhBZywsF8PdLJnBRfWDCEMogD2",
+            "lamports": 130759000,
+            "signature": "us76k8SsFHdWhLQDs4ELscJXPZZ3AeQKAbvP1WSMTn69zxHJ2sRGUz7E3LUnz98MTkFXwiV4WHhCBPLTWZDvKAm",
+            "to": "G95BCceRFBTbFFJjzEFgMCmzrsNWctRJkaaDabsRrpd1"
+          }
+        ],
+        "verdict": "Immediate pre-launch funding is a two-wallet cycle; legacy 2yBbUP treasury label is unsupported by this route."
+      }
     },
     "finding": "Five recent wt_walkback_queue rows had intelligence_outcome=WATCHTOWER_CONFIRMED while their wt_attribution_outcomes rows remained UNKNOWN_INFRASTRUCTURE, so the legacy promotion bridge did not admit them.",
     "funding_history_coverage": {

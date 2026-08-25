@@ -754,9 +754,10 @@
   "p3r_ec1_decrement_ladder_cohort_test_20260825": {
     "scope": "User-authorized read-only 12-hop RPC test of the HUN-confirmed 5,000-lamport decrement ladder across the 15 retained EC1 creators.",
     "status": "PARTIAL",
-    "blocker": "The unbatched pass exceeds the execution window. A batch-checkpoint edit contains a serialization defect (time.time referenced instead of time.time()), so it must be corrected before it can persist partial reports.",
+    "attempted_batches": "15/15 creators completed in five 3-creator RPC batches, but results are invalid for coverage inference.",
+    "blocker": "The predecessor filter excludes transactions with block_time equal to the prior hop. HUN's supplied confirmed ladder has multiple distinct transactions at the same timestamp, so the trace records HWse... -> Ft5... then incorrectly stops. All zero-run outputs are therefore invalid.",
     "safety": "No production database, UI, membership, attribution, or resolver changes; RPC reads only.",
-    "exact_next_action": "With user authorization, correct the checkpoint serialization line and run the existing 12-hop EC1 test in small creator batches, then combine the reports."
+    "exact_next_action": "With user authorization, repair same-timestamp predecessor ordering by excluding only the prior signature, not all equal block_time transactions; then rerun the 15 EC1 creator batches."
   },
   "operators_page_automatic_refresh_20260825": {
     "scope": "Client-side automatic update for the active-operations list.",
@@ -772,7 +773,7 @@
   },
   "schema_version": 1,
   "status": "PARTIAL",
-  "summary": "Activity projection is generic for every active operation. WATCHTOWER and unambiguous P3R_13A04 walkback matches now establish membership and refresh UI activity automatically; the operators page polls every 15 seconds. EC1's upstream amount pattern is disproven as EC1-specific. The separate EC1 decrement-ladder cohort test is paused on a checkpoint serialization defect.",
+  "summary": "Activity projection is generic for every active operation. WATCHTOWER and unambiguous P3R_13A04 walkback matches now establish membership and refresh UI activity automatically; the operators page polls every 15 seconds. EC1's upstream amount pattern is disproven as EC1-specific. The separate EC1 decrement-ladder cohort test is invalid pending same-timestamp transaction ordering repair.",
   "tests": {
     "executed": [],
     "result": "not run; read-only 16-mint WATCHTOWER miss analysis"

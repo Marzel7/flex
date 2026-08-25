@@ -105,6 +105,7 @@
       "source": "wt_watchtower_launches rows in PENDING_REVIEW"
     },
     "status": "COMPLETE",
+    "ui_layout": "Amber review rows use the same grid, minimum height, and single-line visual density as confirmed operation rows.",
     "verdict": "Registry review queue is aggregated to one amber row per proposed operation; it links to a dedicated per-operation walkback review page."
   },
   "operations_registry_activity_metrics": {

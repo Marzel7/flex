@@ -409,6 +409,23 @@
     "next_action": "Normalize recovered creator-credit amounts by the rent deposit and parse outer/inner instructions to establish historical mechanism variants before recalculating a behavior-only holdout test.",
     "verdict": "WATCHTOWER_HISTORICAL_RPC_EVIDENCE_PARTIALLY_RECOVERED"
   },
+  "watchtower_missing_hop1_instruction_parse_20260825": {
+    "scope": "Second read-only bounded RPC pass over the same 94 historical confirmed WATCHTOWER launches, parsing outer and inner jsonParsed instruction objects. No database writes or identity/promotion changes.",
+    "result": {
+      "mints_probed": 94,
+      "rpc_calls": 494,
+      "mints_with_prelaunch_candidate": 83,
+      "wsol_provision_close": 52,
+      "seeded_or_account_create_variant": 29,
+      "direct_transfer_or_other_transfer_variant": 2,
+      "no_recoverable_prelaunch_candidate": 11
+    },
+    "canonical_wsol_instruction_set": "system:createAccount + system:transfer + spl-token:initializeAccount3 + spl-token:syncNative + spl-token:closeAccount (with associated-token setup instructions in the observed historical rows)",
+    "finding": "The historical confirmed WATCHTOWER set is a multi-mechanism behavioral family. A single WSOL-close amount is not a complete fingerprint. The 52 parsed WSOL cases have recurring amount families with the 280-lamport rent component; 29 nearest pre-launch transactions are seeded/account-create variants and must be modeled separately.",
+    "artifact": "/tmp/watchtower_missing_hop1_instruction_parse.json",
+    "next_action": "Normalize amount-plus-rent values and define a versioned multi-mechanism candidate fingerprint; evaluate on a frozen holdout before any promotion-policy change.",
+    "verdict": "WATCHTOWER_HISTORICAL_MECHANISM_FINGERPRINT_PARTIALLY_RECOVERED"
+  },
   "project": {
     "git_head": "e9d0a404417804faa70586c7b27f6a478028b798",
     "working_branch": "classification-attribution-axis"
@@ -420,7 +437,7 @@
     "executed": [],
     "result": "not run; read-only 16-mint WATCHTOWER miss analysis"
   },
-  "updated_at_utc": "2026-08-25T08:35:00Z",
+  "updated_at_utc": "2026-08-25T08:50:00Z",
   "updated_by": "codex",
-  "verdict": "WATCHTOWER_HISTORICAL_RPC_EVIDENCE_PARTIALLY_RECOVERED"
+  "verdict": "WATCHTOWER_HISTORICAL_MECHANISM_FINGERPRINT_PARTIALLY_RECOVERED"
 }

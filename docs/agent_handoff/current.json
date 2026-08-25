@@ -661,6 +661,12 @@
         "src/ops/p3r_profile_candidate_matcher.py includes canonical P3R and excludes MERGED identities"
       ],
       "expected_ui": "Three active operations: WATCHTOWER, P3R_13A04, P3R.",
+      "followup": {
+        "code_change": "src/ops/operator_reader.py excludes o.status=MERGED from the endpoint query.",
+        "expected_ui": "P3R_EC1 absent from /intelligence/operators after browser refresh.",
+        "root_cause": "/api/ops/operators uses OperatorReader.fetch_active_manual_operators(), not manual_registry.active().",
+        "runtime_change": "supervisor restart watchtower_api"
+      },
       "issue": "Merged P3R_EC1 retained ACTIVE_MANUAL disposition and appeared in active list; canonical P3R was omitted from matcher because name filter only accepted P3R_ prefix.",
       "runtime_changes": [
         "supervisor restart walkback_worker",

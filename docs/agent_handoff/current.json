@@ -39,7 +39,7 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "Immediate-predecessor address-history study produced zero comparable material inbound TP observations under the frozen rule.",
+  "blocker": "Recurrent 900b funders overlap four frozen behavioural false positives, so hybrid attribution cannot safely auto-register.",
   "dtuh_af500_ec1_link_check_20260825": {
     "af500_direct_connection": {
       "destination": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ",
@@ -53,8 +53,8 @@
     "status": "PARTIAL",
     "verdict": "AF500_LINK_CONFIRMED_EC1_LINK_UNPROVEN"
   },
-  "engineering_revision": "26e528b0 (main); bounded 900b address-history closure artifact uncommitted in engineering worktree",
-  "exact_next_action": "Pause 900b rather than deepen walkback. Investigate the next candidate with stronger retained discrimination, beginning with 063e or a non-WSOL high-priority family.",
+  "engineering_revision": "26e528b0 (main); 900b hybrid qualification artifact uncommitted in engineering worktree",
+  "exact_next_action": "Keep 900b as a provisional hybrid candidate: behavior + recurrent infrastructure is review-confidence only; behavior + unknown infrastructure remains discovery. Move bounded investigation to another candidate rather than widen 900b infrastructure rules.",
   "generic_operation_activity_projection_20260825": {
     "exact_next_action": "Evaluate P3R matcher precision on a labelled negative/control cohort and, if authorized, implement an explicit establishment policy that writes operator membership then invokes the generic projection.",
     "implementation": "refresh_operator_activity_snapshot derives WATCHTOWER from its canonical ledger and other operations from retained behavioural-profile members plus explicit operator_launch_membership rows, resolving launch times from the core token ledger.",
@@ -916,6 +916,25 @@
     "status": "HOLD",
     "verdict": "900B_DISTINCTIVENESS_UNRESOLVED"
   },
+  "p3r_v2_900b_hybrid_infrastructure_qualification_20260825": {
+    "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/hybrid_infrastructure_qualification/p3r-v2-900b-hybrid-v1/p3r_v2_900b_hybrid_infrastructure_qualification.v1.json",
+    "artifact_sha256": "5f0e6243a33c60338b7a512313d5abe69af8fbaad2d7523e08fc7641d3c85406",
+    "cohort": "Frozen 44 TP / 15 FP unchanged.",
+    "direct_funder_role": "candidate_parent",
+    "exact_next_action": "Keep 900b as a provisional hybrid candidate: behavior + recurrent infrastructure is review-confidence only; behavior + unknown infrastructure remains discovery. Move bounded investigation to another candidate rather than widen 900b infrastructure rules.",
+    "finding": "Infrastructure is rotating but recurrent and improves attribution confidence, but known recurrent funders are shared with four frozen FPs so it cannot satisfy the predeclared zero-FP high-confidence gate.",
+    "fp_shared_all10": 6,
+    "fp_shared_recurrent_top5": 4,
+    "manifest_sha256": "9a341fa38d549e4ae47fb352dfe591c6eaa3e5f5aa30f891276e1b0869cdc8d2",
+    "models": {
+      "H0": "44 TP / 15 FP / 74.58% precision / 100% recall",
+      "H1 recurrent >=2": "39 TP / 4 FP / 90.70% precision / 88.64% recall",
+      "H2 all10": "44 TP / 6 FP / 88.00% precision / 100% recall"
+    },
+    "rpc_calls": 0,
+    "status": "PARTIAL",
+    "verdict": "900B_HYBRID_OPERATION_PROVISIONAL"
+  },
   "p3r_v2_900b_targeted_rpc_discriminator_20260825": {
     "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/targeted_rpc_discriminator/p3r-v2-900b-rpc-discriminator-v1/p3r_v2_900b_targeted_rpc_discriminator.v1.json",
     "artifact_sha256": "bd32f2bcd99c321f6fab719e599ac75c1e5e37dd5b96d4eb15da1856c6ddfd17",
@@ -1380,7 +1399,7 @@
   },
   "updated_at_utc": "2026-08-25T00:00:00Z",
   "updated_by": "codex",
-  "verdict": "HOLD",
+  "verdict": "PARTIAL",
   "watchtower_2nhz_bjg_gyff_corrected_rpc_confirmation_20260825": {
     "corrected_chain": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT -> GYffSdtiffuTTZpiXqevWCYsSjn11drMoPsky9vsSUnd -> BpnGiweePUnk7ejBxvxokCUiZff3Pq3ftJiajgSEx8C7 -> 2nHZVubjJU144poGfjbiB97tv7CJtvJycvDdYvSxpump",
     "correction": "The earlier conclusion that BJg could not be the upstream source was wrong. The initial pre-anchor page was too dense to reach this transfer; the user-supplied transaction is 1,813 seconds before the anchor and proves BJg -> GYff. The later GYff -> BJg transfer is separate post-launch activity.",

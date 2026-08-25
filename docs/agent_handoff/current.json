@@ -767,6 +767,13 @@
     "safety": "Only operation_behavioural_profiles.member_mints_json and a derived activity snapshot changed. Raw walkback evidence was retained; no resolver, attribution outcome, or external call changed.",
     "verdict": "EC1_DIRECT_OKH_BRANCHES_DISMISSED"
   },
+  "p3r_ec1_decrement_ladder_af500_contrast_20260825": {
+    "scope": "User-authorized read-only contrast of the EC1 5,000-lamport decrement ladder against retained AF500 members, using the identical signature-ordered 12-hop bounded screen.",
+    "result": {"af500_members_tested": 3, "af500_ladder_matches": 3, "run_lengths": [11, 9, 9], "false_positive_mints": ["DqErYkksQymp8sVr2HkrJbVWkv1YXrz3keWKBfHpump", "Y7u2wWcosZTHagBjua7W3ddwsmD4ZGhZYH2keASpump", "puhW9nSz4rczEtWNM6TH1zYikSmapRu2PxdSXwfpump"]},
+    "conclusion": "The EC1 decrement ladder is not EC1-specific: all first three independently retained AF500 members match with long runs. Further AF500/unlabelled scanning is unnecessary to establish false positives.",
+    "safety": "Read-only RPC and /tmp artifact only; no operation membership, resolver, UI, or profile change.",
+    "verdict": "EC1_DECREMENT_LADDER_FALSE_POSITIVES_PROVEN"
+  },
   "operators_page_automatic_refresh_20260825": {
     "scope": "Client-side automatic update for the active-operations list.",
     "file": "templates/operators_index.html",
@@ -781,12 +788,12 @@
   },
   "schema_version": 1,
   "status": "PASS",
-  "summary": "Activity projection is generic for every active operation. WATCHTOWER and unambiguous P3R_13A04 walkback matches now establish membership and refresh UI activity automatically; the operators page polls every 15 seconds. EC1 now retains 13 members after dismissing two direct-OKH branches; its 5,000-lamport decrement ladder is observed in all 13 retained members pending AF500/negative-cohort contrast.",
+  "summary": "Activity projection is generic for every active operation. WATCHTOWER and unambiguous P3R_13A04 walkback matches now establish membership and refresh UI activity automatically; the operators page polls every 15 seconds. EC1 now retains 13 members after dismissing two direct-OKH branches, but its 5,000-lamport decrement ladder has confirmed AF500 false positives and is not operation-specific.",
   "tests": {
     "executed": [],
     "result": "not run; read-only 16-mint WATCHTOWER miss analysis"
   },
   "updated_at_utc": "2026-08-25T12:35:13Z",
   "updated_by": "codex",
-  "verdict": "EC1_DIRECT_OKH_BRANCHES_DISMISSED"
+  "verdict": "EC1_DECREMENT_LADDER_FALSE_POSITIVES_PROVEN"
 }

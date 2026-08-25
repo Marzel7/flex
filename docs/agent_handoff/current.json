@@ -82,7 +82,7 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "900b live provisional detector is not wired into walkback_worker.",
+  "blocker": "900b projector row-shape defect; do not activate live worker.",
   "dtuh_af500_ec1_link_check_20260825": {
     "af500_direct_connection": {
       "destination": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ",
@@ -1349,14 +1349,16 @@
     "main": "26e528b0ae1fa5ed465c4fe9059a259d903fef29"
   },
   "provisional_900b_live_detector_wiring_20260825": {
-    "evidence": [
-      "classify_900b and record_provisional_match exist only in src/ops/provisional_operations.py",
-      "walkback_worker invokes only admit_unambiguous_p3r_match for P3R profiles",
-      "provisional_operation_matches has zero rows for operator 70f27e37-83eb-5c97-831c-48189ef98f6c"
-    ],
-    "exact_next_action": "If explicitly authorized, wire the bounded 900b evaluator after completed walkback selected-edge persistence to record review-only provisional matches; never create confirmed membership or automation eligibility.",
-    "status": "HOLD",
-    "verdict": "PROVISIONAL_900B_CONTRACT_EXISTS_BUT_NOT_LIVE_WALKBACK_WIRED"
+    "exact_next_action": "With explicit approval, correct the projector to use positional/row-factory-independent extraction, add its regression coverage, rerun the bounded suite, then restart only walkback_worker if all tests pass.",
+    "implementation": "Hook added after completed walkback commit, but focused test found projector assumes mapping-style SQLite rows while walkback_worker uses tuple rows. Worker was not restarted.",
+    "status": "PARTIAL",
+    "test_result": {
+      "failed": 5,
+      "new_900b_failures": 2,
+      "passed": 4,
+      "unrelated_existing_p3r_fixture_failures": 3
+    },
+    "verdict": "IMPLEMENTED_BUT_NOT_SAFE_TO_ACTIVATE"
   },
   "provisional_operation_activity_ui_projection_20260825": {
     "activity_source": "44 explicit HISTORICAL_PROVISIONAL_REFERENCE rows in provisional_operation_activity_observations; never confirmed membership.",

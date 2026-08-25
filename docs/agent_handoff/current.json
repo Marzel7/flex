@@ -746,9 +746,10 @@
       "destination_balance_credit_lamports": 34691730098,
       "source_balance_debit_lamports": 34691735098
     },
-    "interpretation": "The one proven link is opposite the supplied arrow direction and is approximately 34.69173 SOL, not the 99.999995 SOL EC1 provision amount. The full supplied chain and same-amount assertion are not established in the inspected RPC window.",
-    "verdict": "HUN_SUPPLIED_CHAIN_PARTIALLY_DISPROVEN",
-    "exact_next_action": "Provide a transaction signature or corrected adjacent wallet pair for the asserted HWse5/DZtCka relation if a deeper targeted verification is needed."
+    "interpretation": "The initial address-history inference was incomplete. The subsequently supplied eight signatures prove a consecutive alternating transfer/temporary-WSOL-close ladder from Hboq... to Ft5Sn..., with each funding amount decreasing by exactly 5,000 lamports per step.",
+    "verified_ladder": "HboqWvK2... close 34,691,750,098 -> Gre9jF21... transfer 34,691,745,098 -> FwaWYJeu... close 34,691,740,098 -> AerCoA4G... transfer 34,691,735,098 -> 5jFqjJr4... close 34,691,730,098 -> DZtCkaEd... transfer 34,691,725,098 -> 2GH1yDtg... close 34,691,720,098 -> HWse5Gae... transfer 34,691,715,098 -> Ft5Sn8GN...",
+    "verdict": "HUN_UPSTREAM_DECREMENT_LADDER_RPC_CONFIRMED",
+    "exact_next_action": "Trace this alternating 5,000-lamport decrement-ladder feature across known EC1, AF500, and 13A04 members to determine whether it is an operation discriminator or a cross-family workflow variant."
   },
   "operators_page_automatic_refresh_20260825": {
     "scope": "Client-side automatic update for the active-operations list.",
@@ -771,5 +772,5 @@
   },
   "updated_at_utc": "2026-08-25T12:35:13Z",
   "updated_by": "codex",
-  "verdict": "HUN_SUPPLIED_CHAIN_PARTIALLY_DISPROVEN"
+  "verdict": "HUN_UPSTREAM_DECREMENT_LADDER_RPC_CONFIRMED"
 }

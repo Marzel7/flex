@@ -1,4 +1,15 @@
 {
+  "active_operation_walkback_coverage_20260825": {
+    "exact_next_action": "For each P3R profile, convert the reviewed fingerprint into an explicit versioned matcher and evaluate it read-only against a labeled holdout before adding any live resolver attribution path.",
+    "result": {
+      "P3R_13A04": "Manually admitted profile with 5 retained mints; no live attribution outcomes or prospective walkback classifier.",
+      "P3R_AF500": "Manually admitted profile with 52 retained mints; no live attribution outcomes or prospective walkback classifier.",
+      "P3R_EC1": "Manually admitted profile with 15 retained mints; no live attribution outcomes or prospective walkback classifier.",
+      "WATCHTOWER": "Live route-aware canonical classification is implemented through wt_watchtower_launches and the cost-controlled WATCHTOWER walkback path."
+    },
+    "scope": "Read-only registry and attribution-outcome check for all four ACTIVE_MANUAL operations.",
+    "verdict": "ONLY_WATCHTOWER_CURRENTLY_CLASSIFIABLE_LIVE"
+  },
   "artifacts": {
     "corrected_namespace": "/tmp/p3r-clean-20260824T115000Z",
     "invalid_quarantined_namespace": "/tmp/p3r-clean-20260824T114000Z",
@@ -8,6 +19,32 @@
   "blocker": "Current 24h 2.122039-SOL signature cohort is 16 mints: 2 canonical WATCHTOWER / HIGH and 14 LOW LINEAGE_GAP. All 16 have selected hop-1 evidence; 8 have a selected hop-2 upstream (2 share CAFTSz..., 4 share 6qYNK..., 1 each 88WR... and 7A9w...), while 6 have no selected hop-2. Promotion is intentionally gated on a pre-registered known treasury/sub-provider route and only CANONICAL_OPERATOR_REACHED outcomes enter wt_watchtower_launches; behaviour/amount alone cannot promote.",
   "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e + uncommitted compact confirmed-operation Summary",
   "exact_next_action": "If authorized, design a read-only WATCHTOWER-like candidate layer that records the 14 structural matches with their shared-upstream groups and provenance for analyst review, without changing canonical identity or auto-promoting any mint.",
+  "generic_operation_activity_projection_20260825": {
+    "exact_next_action": "Evaluate P3R matcher precision on a labelled negative/control cohort and, if authorized, implement an explicit establishment policy that writes operator membership then invokes the generic projection.",
+    "implementation": "refresh_operator_activity_snapshot derives WATCHTOWER from its canonical ledger and other operations from retained behavioural-profile members plus explicit operator_launch_membership rows, resolving launch times from the core token ledger.",
+    "important_limit": "Only WATCHTOWER currently has a live walkback-to-established-operation path. P3R_13A04, P3R_AF500, and P3R_EC1 still emit nomination-only matches; auto-inserting them as operation members would change attribution policy and requires the requested labelled precision evaluation first.",
+    "runtime": {
+      "action": "restarted",
+      "service": "walkback_worker"
+    },
+    "scope": "Generalized the activity-projection function from WATCHTOWER-only to any active operation.",
+    "verdict": "GENERIC_UI_PROJECTION_READY_LIVE_CLASSIFICATION_LIMITED_TO_WATCHTOWER"
+  },
+  "hun_supplied_chain_rpc_check_20260825": {
+    "exact_next_action": "Trace this alternating 5,000-lamport decrement-ladder feature across known EC1, AF500, and 13A04 members to determine whether it is an operation discriminator or a cross-family workflow variant.",
+    "interpretation": "The initial address-history inference was incomplete. The subsequently supplied eight signatures prove a consecutive alternating transfer/temporary-WSOL-close ladder from Hboq... to Ft5Sn..., with each funding amount decreasing by exactly 5,000 lamports per step.",
+    "result": {
+      "DZtCka_to_5jFqj_shared_transactions_first_1000": 1,
+      "HWse5_to_DZtCka_shared_transactions_first_1000": 0,
+      "destination_balance_credit_lamports": 34691730098,
+      "source_balance_debit_lamports": 34691735098,
+      "verified_direction": "5jFqjJr4jvp2Xh85aECuLfxcpr96Dfrnxjfs1oyiS3qf -> DZtCkaEd4y799ZnQzVUSNDhBuLU8PNRbDiEbxeXRaLsX via SPL closeAccount",
+      "verified_signature": "2275BGt27qjiWZ1nN6TYiwNibxm8dqwWmCSex43UjUsRTDMFSFCj1zMgH6M5T5PnvW8EeM96vYucdpQFBsjfrk6H"
+    },
+    "scope": "Read-only RPC check of the user-supplied HWse5... -> DZtCka... -> 5jFqj... wallet sequence, using ten 100-signature pages per wallet plus shared-transaction balance analysis.",
+    "verdict": "HUN_UPSTREAM_DECREMENT_LADDER_RPC_CONFIRMED",
+    "verified_ladder": "HboqWvK2... close 34,691,750,098 -> Gre9jF21... transfer 34,691,745,098 -> FwaWYJeu... close 34,691,740,098 -> AerCoA4G... transfer 34,691,735,098 -> 5jFqjJr4... close 34,691,730,098 -> DZtCkaEd... transfer 34,691,725,098 -> 2GH1yDtg... close 34,691,720,098 -> HWse5Gae... transfer 34,691,715,098 -> Ft5Sn8GN..."
+  },
   "milestone": "P3R corrected prospective shadow successor",
   "next_action": "Decide whether to authorize a read-only candidate-layer design for WATCHTOWER-like structural matches; no provider calls, queue replay, promotion, or identity mutation is authorized.",
   "operations_registry_activity_metrics": {
@@ -99,6 +136,42 @@
     "status": "LIVE_ENDPOINT_VERIFIED",
     "ui_file": "templates/operators_index.html"
   },
+  "operators_page_automatic_refresh_20260825": {
+    "file": "templates/operators_index.html",
+    "implementation": "Replaced the one-time /api/ops/operators request with an initial request plus a 15-second polling interval.",
+    "operator_experience": "The currently open browser tab needs one reload to receive the updated script; it then refreshes operation counts and latest-launch data automatically every 15 seconds.",
+    "runtime": {
+      "action": "restarted",
+      "service": "watchtower_api"
+    },
+    "scope": "Client-side automatic update for the active-operations list.",
+    "verdict": "OPERATORS_UI_AUTO_REFRESH_ACTIVE"
+  },
+  "p3r_13a04_approved_candidate_member_20260825": {
+    "mint": "xt7LcG4NxtSSi9u7gWxP5LVZqVLARNLkARQSw8Tpump",
+    "provenance": "Approved read-only P3R_13A04 four-hop behavioural candidate. No operator_launch_membership, wt_attribution_outcomes, or live resolver policy row was created.",
+    "result": {
+      "last_observed_launch_utc": "2026-08-24T12:34:50Z",
+      "retained_member_count": 6
+    },
+    "scope": "User-authorized admission of the observed 24-hour P3R_13A04 behavioural candidate into the retained profile membership and its derived UI activity snapshot.",
+    "verdict": "P3R_13A04_UI_MEMBER_COUNT_REFRESHED"
+  },
+  "p3r_13a04_automatic_walkback_admission_20260825": {
+    "exact_next_action": "Observe the next qualifying P3R_13A04 walkback and confirm its automatic operator membership and UI snapshot; do not extend auto-admission to AF500/EC1 without resolving their overlap.",
+    "files": [
+      "src/core/walkback_worker.py",
+      "src/ops/p3r_profile_candidate_matcher.py"
+    ],
+    "implementation": "Each terminal walkback evaluates the read-only P3R matcher. Only the complete four-hop P3R_13A04 ladder writes profile membership and operator_launch_membership, then invokes the generic activity projection. Existing conflicting assignments are retained; P3R_AF500/P3R_EC1 shared matches remain ambiguous and are never auto-admitted.",
+    "runtime": {
+      "action": "restarted",
+      "service": "walkback_worker"
+    },
+    "scope": "User-authorized production activation of automatic membership admission for unambiguous P3R_13A04 matcher results.",
+    "tests": "No post-activation test or replay run this turn.",
+    "verdict": "P3R_13A04_AUTO_ADMISSION_ACTIVE"
+  },
   "p3r_13a04_manual_admission": {
     "active_registry": [
       "P3R_13A04",
@@ -129,6 +202,17 @@
     "historical_member_count": 5,
     "last_7d_count": 5,
     "status": "RESOLVED_NO_CHANGE"
+  },
+  "p3r_13a04_recent_candidate_check_20260825": {
+    "interpretation": "The mint is a behavioural nomination only. It was not inserted into operator membership, attribution outcomes, or an operational registry.",
+    "result": {
+      "created_at_utc": "2026-08-24T12:34:50Z",
+      "full_corpus_ladder_matches": 7,
+      "mint": "xt7LcG4NxtSSi9u7gWxP5LVZqVLARNLkARQSw8Tpump",
+      "recent_candidate_matches": 1
+    },
+    "scope": "Read-only 24-hour check of the four-hop P3R_13A04 matcher against retained selected walkback evidence and token_analysis creation times.",
+    "verdict": "P3R_13A04_RECENT_BEHAVIOURAL_CANDIDATE_OBSERVED"
   },
   "p3r_13a04_upstream_continuation_20260824": {
     "artifact_manifest_sha256": "55ce454ffd1edb21e42eacdc0eb72f5280e3d48e73db495e65e3889e5707dc73",
@@ -303,6 +387,121 @@
     ],
     "status": "RESOLVED_READ_ONLY"
   },
+  "p3r_ec1_decrement_ladder_af500_contrast_20260825": {
+    "conclusion": "The EC1 decrement ladder is not EC1-specific: all first three independently retained AF500 members match with long runs. Further AF500/unlabelled scanning is unnecessary to establish false positives.",
+    "result": {
+      "af500_ladder_matches": 3,
+      "af500_members_tested": 3,
+      "false_positive_mints": [
+        "DqErYkksQymp8sVr2HkrJbVWkv1YXrz3keWKBfHpump",
+        "Y7u2wWcosZTHagBjua7W3ddwsmD4ZGhZYH2keASpump",
+        "puhW9nSz4rczEtWNM6TH1zYikSmapRu2PxdSXwfpump"
+      ],
+      "run_lengths": [
+        11,
+        9,
+        9
+      ]
+    },
+    "safety": "Read-only RPC and /tmp artifact only; no operation membership, resolver, UI, or profile change.",
+    "scope": "User-authorized read-only contrast of the EC1 5,000-lamport decrement ladder against retained AF500 members, using the identical signature-ordered 12-hop bounded screen.",
+    "verdict": "EC1_DECREMENT_LADDER_FALSE_POSITIVES_PROVEN"
+  },
+  "p3r_ec1_decrement_ladder_cohort_test_20260825": {
+    "exact_next_action": "Run the identical bounded decrement-ladder screen across AF500 and an independent negative cohort before using it as an EC1-specific automatic admission feature.",
+    "method": "Signature-ordered, 12-hop maximum, two history pages and ten transaction parses per hop. A no-run result is bounded absence, not a negative claim.",
+    "result": {
+      "creators_traced": 15,
+      "no_run_mints": [
+        "p6Dydex88SswnKT9pRnjPwrCfHpw1c79FAAu81Upump",
+        "x7ofxncQVmMK3PDXVJF76uJ5JkgzX3x3eUGXkjopump"
+      ],
+      "no_run_within_bounds": 2,
+      "observed_exact_5000_lamport_ladder_runs": 13,
+      "run_distribution": {
+        "0": 2,
+        "11": 7,
+        "7": 1,
+        "9": 5
+      }
+    },
+    "safety": "No production database, UI, membership, attribution, or resolver changes; RPC reads only.",
+    "scope": "User-authorized read-only 12-hop RPC test of the HUN-confirmed 5,000-lamport decrement ladder across the 15 retained EC1 creators.",
+    "status": "PARTIAL",
+    "verdict": "EC1_DECREMENT_LADDER_13_OF_15_OBSERVED"
+  },
+  "p3r_ec1_deep_rpc_trace_20260825": {
+    "artifact": "/tmp/p3r-ec1-deep-creator-lineage-20260825.json",
+    "exact_next_action": "Do not promote the amount pattern to an EC1-specific matcher feature; the completed contrast cohort found substantial AF500 and unlabelled overlap. Seek a feature beyond this provision-close workflow.",
+    "finding": "After resolving SPL closeAccount authority, 14/15 EC1 branches contain an exact 99,999,995,000-lamport upstream transfer immediately before the known 99,999,985,000-lamport WSOL close-to-creator leg. The remaining UMVSu... branch has a three-step 7,321.115955669 / 7,321.115965669 / 7,321.115975669 SOL transfer ladder.",
+    "result": {
+      "anchors_traced": 15,
+      "cycle_terminations": 14,
+      "exact_99999995000_lamport_upstream_transfers": 14,
+      "history_limit_terminations": 1,
+      "max_completed_depth": 6,
+      "recovered_first_predecessors": 15
+    },
+    "safety": "Read-only RPC and /tmp artifact only; no production database or resolver changes.",
+    "scope": "User-authorized read-only deep RPC attempt from all 15 retained EC1 creator funding anchors, bounded at 12 upstream levels and 10 signature pages per wallet.",
+    "verdict": "EC1_UPSTREAM_AMOUNT_PATTERN_RPC_CONFIRMED"
+  },
+  "p3r_ec1_direct_okh_member_dismissal_20260825": {
+    "dismissed_mints": [
+      "p6Dydex88SswnKT9pRnjPwrCfHpw1c79FAAu81Upump",
+      "x7ofxncQVmMK3PDXVJF76uJ5JkgzX3x3eUGXkjopump"
+    ],
+    "result": {
+      "activity_snapshot_total": 13,
+      "retained_member_count": 13
+    },
+    "safety": "Only operation_behavioural_profiles.member_mints_json and a derived activity snapshot changed. Raw walkback evidence was retained; no resolver, attribution outcome, or external call changed.",
+    "scope": "User-authorized removal of two direct-OKH branches from retained P3R_EC1 operation membership.",
+    "verdict": "EC1_DIRECT_OKH_BRANCHES_DISMISSED"
+  },
+  "p3r_ec1_local_upstream_evidence_check_20260825": {
+    "exact_next_action": "If authorized, perform bounded RPC parsing of the nine DuTb root transactions to recover the transfer amounts and determine whether a repeatable upstream EC1-specific rule exists.",
+    "interpretation": "The local root artifact supports repeated DuTb temporary-account close relationships, but it does not store a repeated same-amount upstream transfer. The repeating 99.999985 SOL amount is currently the downstream SUBPROV_TO_CREATOR leg shared with AF500.",
+    "result": {
+      "materialized_treasury_to_subprov_edges": 1,
+      "materialized_upstream_amount_sol": 0.1,
+      "reused_direct_funder": "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5 across 4 launches",
+      "root_close_relationships_verified": 9,
+      "root_wallet": "DuTbZR8VJGsyLvkhcAyiByPwnPRJj1GTmB88ShgAezCX",
+      "selected_hop1": "15/15 WSOL_WRAP_CLOSE edges at 99,999,985,000 lamports"
+    },
+    "scope": "Read-only check of the local EC1 retained selected, alternative, provisioning-edge, and root-infrastructure evidence.",
+    "verdict": "EC1_UPSTREAM_DISCRIMINATOR_PROMISING_BUT_INCOMPLETE"
+  },
+  "p3r_ec1_upstream_amount_contrast_cohort_20260825": {
+    "artifacts": "/tmp/p3r-ec1-upstream-pattern-cohort-20260825.<range>.json",
+    "conclusion": "The feature has high EC1 coverage but 41 known-AF500 false positives, plus broad unlabelled overlap. It is a shared provision-close workflow feature and is not safe for EC1-specific attribution or automatic admission.",
+    "feature": "Exact 99,999,995,000-lamport upstream transfer before the 99,999,985,000-lamport WSOL close-to-creator leg.",
+    "result": {
+      "P3R_AF500": {
+        "feature_matches": 41,
+        "nonmatches": 8,
+        "total": 52,
+        "unresolved": 3
+      },
+      "P3R_EC1": {
+        "feature_matches": 14,
+        "nonmatches": 1,
+        "total": 15,
+        "unresolved": 0
+      },
+      "cohort_mints": 114,
+      "unlabelled": {
+        "feature_matches": 39,
+        "nonmatches": 4,
+        "total": 47,
+        "unresolved": 4
+      }
+    },
+    "safety": "Read-only RPC and /tmp artifacts only; no membership, attribution, resolver, or UI changes.",
+    "scope": "User-authorized read-only two-level RPC comparison across the full retained 114-mint shared-fingerprint cohort. Each branch used the same close-account-authority resolution and up to 10 signature pages per predecessor search.",
+    "verdict": "EC1_AMOUNT_FEATURE_FALSE_POSITIVES_PROVEN"
+  },
   "p3r_operator_detail_profile": {
     "detail_payload": [
       "linked behavioural profile",
@@ -324,6 +523,22 @@
     "runtime_verification": "watchtower_api restarted; P3R detail page returned HTTP 200.",
     "scope": "Profile-first panel is conditional on a linked behavioural profile and does not alter legacy WATCHTOWER rendering.",
     "status": "SHARED_LAYOUT_LIVE"
+  },
+  "p3r_read_only_candidate_matcher_20260825": {
+    "corpus_measurement": {
+      "p3r_13a04_ladder_matches": 8,
+      "selected_mints": 11893,
+      "shared_af500_ec1_candidate_matches": 114
+    },
+    "design": "P3R_13A04 requires its four-hop reviewed funding ladder. P3R_AF500 and P3R_EC1 share an identical stored hop-1 WSOL lifecycle and must emit one ambiguous review candidate rather than an attribution.",
+    "exact_next_action": "Run the read-only matcher across a frozen candidate/negative cohort and review the P3R_13A04 nominations and AF500/EC1 ambiguous nominations before considering any live resolver wiring.",
+    "files": [
+      "src/ops/p3r_profile_candidate_matcher.py",
+      "tests/test_p3r_profile_candidate_matcher.py"
+    ],
+    "scope": "Standalone nomination-only matcher for the three manually admitted P3R profiles; it is intentionally disconnected from walkback attribution, memberships, and registry writes.",
+    "test": "PASS: tests/test_p3r_profile_candidate_matcher.py, 3 passed. The authorized P3R_13A04 ladder-indexing correction retained all five provenance values before mapping the four required hops.",
+    "verdict": "READ_ONLY_MATCHER_TESTED"
   },
   "p3r_tier1_four_family_lookup": {
     "families": {
@@ -378,410 +593,6 @@
     "trading_ranking_prediction": false,
     "watchtower_api_restarted": true
   },
-  "watchtower_behavioural_fingerprint_assessment_20260825": {
-    "scope": "Read-only evaluation of retained known WATCHTOWER launches against selected walkback evidence; no provider calls, database writes, registry changes, or promotion changes.",
-    "result": {
-      "known_watchtower_launches": 276,
-      "known_matching_exact_2122039_wsol_close": 65,
-      "non_watchtower_matching_exact_2122039_wsol_close": 72,
-      "known_matching_confirmed_amount_vocabulary": 175,
-      "non_watchtower_matching_confirmed_amount_vocabulary": 286,
-      "known_launches_missing_selected_hop1_evidence": 94,
-      "narrow_exact_amount_fanout_matches": 90,
-      "narrow_exact_amount_fanout_known_watchtower": 59,
-      "narrow_exact_amount_fanout_non_watchtower": 31
-    },
-    "interpretation": "A behavior-only fingerprint is not safe for automatic canonical promotion from current retained data. Amount and WSOL-close behavior are non-unique; generic fanout improves the narrow cohort but still has 31 non-canonical matches. Historical known-launch coverage is incomplete because 94 of 276 lack selected hop-1 evidence.",
-    "next_action": "If authorized, implement a non-promoting WATCHTOWER-like candidate score with provenance and analyst review, then evaluate it on a frozen holdout before any promotion-policy change.",
-    "verdict": "WATCHTOWER_BEHAVIOUR_ONLY_AUTO_PROMOTION_NOT_QUALIFIED"
-  },
-  "watchtower_missing_hop1_rpc_probe_20260825": {
-    "scope": "Read-only bounded RPC probe of all 94 retained confirmed WATCHTOWER launches lacking selected hop-1 evidence, using the temporary environment RPC credential. No operational database writes or identity/promotion changes.",
-    "result": {
-      "mints_probed": 94,
-      "rpc_calls": 494,
-      "creators_with_prelaunch_funding_candidates": 83,
-      "candidate_transactions": 201,
-      "wsol_syncnative_close_detected_by_log_heuristic": 0
-    },
-    "finding": "Historical RPC transactions recover recurring creator credits including 1.112039280, 2.122039280, 0.203039280, 2.023039280, and related values. The trailing 0.000000280 SOL is consistent with the rent-exempt deposit, so stored historic amounts must be normalized before comparison with WSOL-close values. The current log heuristic did not expose SyncNative/CloseAccount markers for this historical slice.",
-    "artifact": "/tmp/watchtower_missing_hop1_rpc_probe.json",
-    "next_action": "Normalize recovered creator-credit amounts by the rent deposit and parse outer/inner instructions to establish historical mechanism variants before recalculating a behavior-only holdout test.",
-    "verdict": "WATCHTOWER_HISTORICAL_RPC_EVIDENCE_PARTIALLY_RECOVERED"
-  },
-  "watchtower_missing_hop1_instruction_parse_20260825": {
-    "scope": "Second read-only bounded RPC pass over the same 94 historical confirmed WATCHTOWER launches, parsing outer and inner jsonParsed instruction objects. No database writes or identity/promotion changes.",
-    "result": {
-      "mints_probed": 94,
-      "rpc_calls": 494,
-      "mints_with_prelaunch_candidate": 83,
-      "wsol_provision_close": 52,
-      "seeded_or_account_create_variant": 29,
-      "direct_transfer_or_other_transfer_variant": 2,
-      "no_recoverable_prelaunch_candidate": 11
-    },
-    "canonical_wsol_instruction_set": "system:createAccount + system:transfer + spl-token:initializeAccount3 + spl-token:syncNative + spl-token:closeAccount (with associated-token setup instructions in the observed historical rows)",
-    "finding": "The historical confirmed WATCHTOWER set is a multi-mechanism behavioral family. A single WSOL-close amount is not a complete fingerprint. The 52 parsed WSOL cases have recurring amount families with the 280-lamport rent component; 29 nearest pre-launch transactions are seeded/account-create variants and must be modeled separately.",
-    "artifact": "/tmp/watchtower_missing_hop1_instruction_parse.json",
-    "next_action": "Normalize amount-plus-rent values and define a versioned multi-mechanism candidate fingerprint; evaluate on a frozen holdout before any promotion-policy change.",
-    "verdict": "WATCHTOWER_HISTORICAL_MECHANISM_FINGERPRINT_PARTIALLY_RECOVERED"
-  },
-  "watchtower_wsol_fingerprint_holdout_20260825": {
-    "scope": "Read-only RPC instruction test of 461 selected-hop-1 WSOL amount-family candidates: 175 canonical WATCHTOWER and 286 currently LINEAGE_GAP/unclassified candidates. No database writes or promotion changes.",
-    "result": {
-      "rpc_calls": 461,
-      "canonical_candidates": 175,
-      "canonical_close_seeded_shape": 174,
-      "lineage_gap_candidates": 286,
-      "lineage_gap_close_seeded_shape": 285,
-      "strict_single_transaction_full_wsol_atomic_canonical": 1,
-      "strict_single_transaction_full_wsol_atomic_lineage_gap": 1
-    },
-    "fingerprint": "For the selected close leg, the stable shape is system:createAccountWithSeed + spl-token:initializeAccount + spl-token:closeAccount. The complete temporary-WSOL provisioning sequence appears only when inspecting a different/linked transaction context, so requiring all instructions in the selected close transaction is invalid.",
-    "interpretation": "The close-leg fingerprint has 99.4% coverage in canonical candidates and 99.65% overlap in the unclassified cohort. This does not measure false positives: LINEAGE_GAP is absence of registered-address attribution, not a verified non-WATCHTOWER label. A real precision test requires independently adjudicated negative families.",
-    "artifact": "/tmp/watchtower_wsol_fingerprint_holdout.json",
-    "next_action": "Create a provenance-preserving WATCHTOWER-like behavioral candidate cohort from the 285 matching LINEAGE_GAP mints; obtain analyst labels for a stratified negative/control sample before using the fingerprint for automatic confirmation.",
-    "verdict": "WATCHTOWER_CLOSE_LEG_BEHAVIOURAL_FINGERPRINT_STRONGLY_SUPPORTED_PRECISION_UNMEASURED"
-  },
-  "watchtower_full_family_fingerprint_evaluation_20260825": {
-    "scope": "Read-only normalized RPC evaluation of all 276 retained known WATCHTOWER launches. Selected hop-1 transaction parsed where available; bounded creator-history fallback used for the 94 without selected hop-1 evidence. No database writes or promotion changes.",
-    "result": {
-      "known_launches": 276,
-      "rpc_calls": 527,
-      "selected_hop1_sources": 182,
-      "creator_history_sources": 94,
-      "wsol_provision_close_full": 53,
-      "wsol_close_leg_seeded": 203,
-      "transfer_style": 9,
-      "unresolved": 11,
-      "behaviorally_classified": 265,
-      "behavioral_coverage_pct": 96.01
-    },
-    "fingerprint_contract": "Versioned family rather than one amount: full temporary-WSOL provision-and-close; seeded WSOL close-leg createAccountWithSeed + initializeAccount + closeAccount; transfer-style variant. Amounts are supporting normalized features, not a single required value.",
-    "interpretation": "The full known WATCHTOWER family has 265/276 read-only behavioral coverage. Eleven launches remain unresolved because bounded retained/RPC creator history yielded no usable pre-launch funding evidence, not because they contradicted the fingerprint.",
-    "artifact": "/tmp/watchtower_full_family_fingerprint_eval.json",
-    "next_action": "Use this versioned fingerprint only as a provenance-preserving WATCHTOWER-like candidate layer until a separately adjudicated negative/control set establishes precision for promotion.",
-    "verdict": "WATCHTOWER_FULL_FAMILY_BEHAVIOURAL_COVERAGE_96_PERCENT"
-  },
-  "watchtower_role_geometry_assessment_20260825": {
-    "scope": "Read-only role-reuse analysis of canonical WATCHTOWER records and routed behavior-matched LINEAGE_GAP candidates. No database writes or promotion changes.",
-    "canonical": {
-      "launches": 276,
-      "distinct_treasuries": 15,
-      "distinct_subprovs": 254,
-      "distinct_creators": 276,
-      "missing_recorded_treasury": 0,
-      "missing_recorded_subprov": 18
-    },
-    "behavior_matched_lineage_gap_routed_subset": {
-      "launches": 111,
-      "distinct_upstream_wallets": 27,
-      "distinct_downstream_funders": 111,
-      "geometry": "Each observed routed candidate has a distinct downstream funder while upstream wallets fan out across repeated launches."
-    },
-    "interpretation": "Treasury/controller is the strongest reusable anchor and should be stored as such. It is not literally the only recurring role: a small number of canonical SubProvs repeat, so secondary role-reuse evidence must remain available. The creator is unique across the 276 canonical rows.",
-    "next_action": "Model Treasury/Controller as the primary reusable infrastructure anchor, SubProv recurrence as supporting evidence, and downstream funder/creator as per-launch roles in a versioned behavioral candidate layer.",
-    "verdict": "WATCHTOWER_TREASURY_FANOUT_GEOMETRY_SUPPORTED"
-  },
-  "watchtower_recent_24h_exact_wsol_cohort_20260825": {
-    "scope": "Read-only current rolling-24-hour census of selected hop-1 WSOL_WRAP_CLOSE evidence at exactly 2.122039 SOL.",
-    "result": {
-      "launches": 16,
-      "canonical": 2,
-      "lineage_gap": 14,
-      "creator_and_direct_funder_observed": 16,
-      "upstream_treasury_resolved_at_selected_hop2": 10,
-      "upstream_unresolved_after_direct_funder": 6
-    },
-    "interpretation": "All 16 satisfy the entry-level WATCHTOWER-like WSOL funding-branch signal. Ten also satisfy the observed Treasury -> SubProv/direct-funder -> Creator portion of the role geometry; six require upstream enrichment before a complete treasury-anchored route can be recorded. Under a behavior-first policy, all 16 are candidates, not automatically canonical identities.",
-    "verdict": "WATCHTOWER_RECENT_COHORT_BEHAVIOURAL_CANDIDATES_16"
-  },
-  "watchtower_recent_six_upstream_rpc_20260825": {
-    "scope": "Read-only RPC trace of the six current 2.122039-SOL WSOL-close cohort members without selected hop-2 evidence. Queried each direct funder's 100-signature history before the creator-funding anchor, then retried including same-timestamp signatures while excluding the anchor itself. No database writes or promotion changes.",
-    "result": {
-      "direct_funders": 6,
-      "rpc_calls_per_pass": 6,
-      "pre_anchor_signatures_found": 0,
-      "upstream_funding_transactions_recovered": 0,
-      "anchor_transactions_rpc_verified": 6,
-      "anchor_fee_payer_equals_direct_funder": 6,
-      "anchor_direct_funder_debit_lamports": 2122049280
-    },
-    "finding": "Each direct funder is a fresh single-use fee payer in the available RPC address history and debits 2.122049280 SOL in the creator-provisioning anchor. No prior or same-timestamp non-anchor signature is exposed, so no upstream treasury may be inferred from these data.",
-    "artifact": "/tmp/watchtower_recent_six_anchor_rpc.json",
-    "next_action": "Keep the six as behaviorally matched candidates with an explicitly unresolved Treasury/Controller role; do not fabricate an upstream link. Resolve only if an independent provenance source or later infrastructure recurrence supplies it.",
-    "verdict": "WATCHTOWER_RECENT_SIX_UPSTREAM_UNRESOLVED_RPC_VERIFIED"
-  },
-  "watchtower_2nhz_bjg_gyff_rpc_reconciliation_20260825": {
-    "scope": "Read-only expanded RPC signature-window intersection for the user-proposed relation between BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT and GYffSdtiffuTTZpiXqevWCYsSjn11drMoPsky9vsSUnd.",
-    "result": {
-      "gyff_signature_window": 1000,
-      "bjg_signature_window": 510,
-      "shared_transactions": 1,
-      "shared_signature": "2LdTDi1mhN7YnRFqXhe6jCGNcA8upaAr7xWDzsEkpUPgCjWZ9Bgpk3o81m2jQa2G3EqvtmSD72nPfwDbKAc18Y7W",
-      "shared_transaction_time_utc": "2026-08-25T06:54:41Z",
-      "gyff_balance_delta_lamports": -1100173077194,
-      "bjg_balance_delta_lamports": 1100173067194,
-      "2nhz_creator_funding_anchor_time_utc": "2026-08-25T06:09:28Z"
-    },
-    "finding": "The shared transaction proves GYffSdt -> BJgZGdZX for approximately 1,100.173067194 SOL, not BJgZGdZX -> GYffSdt. It occurred about 45 minutes after the 2nHZ creator-funding anchor, so it cannot be the upstream funding source for that launch.",
-    "interpretation": "A 100-signature scan was insufficient for this high-volume wallet, but the asserted BJg-to-GYff upstream chain is disproven by RPC direction and chronology. GYff's pre-launch upstream remains unresolved.",
-    "next_action": "If needed, paginate GYff's history backward beyond the first 1,000 signatures, bounded strictly before 2026-08-25T06:09:28Z, and inspect only incoming funding transactions.",
-    "verdict": "WATCHTOWER_2NHZ_PROPOSED_BJG_UPSTREAM_DISPROVEN"
-  },
-  "watchtower_gyff_preanchor_funding_rpc_20260825": {
-    "scope": "Read-only RPC pagination anchored before 2nHZ's creator-funding signature. Inspected the complete first 1,000-signature window immediately preceding the anchor: first 100 then remaining 900. No database writes or promotion changes.",
-    "result": {
-      "signature_window": 1000,
-      "rpc_calls": 1002,
-      "nearest_100_funding_candidates": 0,
-      "remaining_900_funding_candidates": "multiple",
-      "latest_observed_preanchor_credit_time": "2026-08-25T06:01:33Z",
-      "creator_funding_anchor_time": "2026-08-25T06:09:28Z"
-    },
-    "finding": "GYff receives many inbound SOL credits from distinct wallets in the first pre-anchor page, including repeated high-volume activity seconds apart. The observed candidates do not identify one controlling treasury. BJgZGdZX is not an observed pre-anchor funder in this page and the known GYff -> BJg transfer is post-launch.",
-    "interpretation": "The direct-funder-to-creator branch is proven, but Treasury/Controller cannot be assigned from a single immediate inbound transfer for GYff. This address behaves as a high-throughput aggregation/distribution node in the inspected pre-anchor window.",
-    "artifact": "/tmp/watchtower_gyff_preanchor_treasury_rpc.json",
-    "next_action": "Treat GYff as the selected funding/distribution role for 2nHZ; retain Treasury unresolved unless a separate repeated-upstream aggregation analysis establishes a controller with temporal and causal support.",
-    "verdict": "WATCHTOWER_2NHZ_GYFF_TREASURY_NOT_SINGLE_TRANSFER_RESOLVABLE"
-  },
-  "watchtower_2nhz_bjg_gyff_corrected_rpc_confirmation_20260825": {
-    "scope": "Read-only RPC inspection of user-supplied signature 2P7GxNp3XFtjdLMBz5gKMVBpTTdxCsC7CYuyannNbntSBqq76sQkchYA8j5MA2cujpvxRMF8s2SZDr3MK6hLKmRZ.",
-    "result": {
-      "signature": "2P7GxNp3XFtjdLMBz5gKMVBpTTdxCsC7CYuyannNbntSBqq76sQkchYA8j5MA2cujpvxRMF8s2SZDr3MK6hLKmRZ",
-      "time_utc_epoch": 1787636355,
-      "fee_payer": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT",
-      "source": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT",
-      "destination": "GYffSdtiffuTTZpiXqevWCYsSjn11drMoPsky9vsSUnd",
-      "transfer_lamports": 1000000000000,
-      "transfer_sol": 1000.0,
-      "creator_funding_anchor_epoch": 1787638168,
-      "seconds_before_creator_funding_anchor": 1813
-    },
-    "corrected_chain": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT -> GYffSdtiffuTTZpiXqevWCYsSjn11drMoPsky9vsSUnd -> BpnGiweePUnk7ejBxvxokCUiZff3Pq3ftJiajgSEx8C7 -> 2nHZVubjJU144poGfjbiB97tv7CJtvJycvDdYvSxpump",
-    "correction": "The earlier conclusion that BJg could not be the upstream source was wrong. The initial pre-anchor page was too dense to reach this transfer; the user-supplied transaction is 1,813 seconds before the anchor and proves BJg -> GYff. The later GYff -> BJg transfer is separate post-launch activity.",
-    "verdict": "WATCHTOWER_2NHZ_BJG_TREASURY_CHAIN_RPC_CONFIRMED"
-  },
-  "watchtower_recent_six_paginated_treasury_confirmation_20260825": {
-    "scope": "Read-only paginated pre-anchor RPC trace of all six previously hop-2-unresolved current 2.122039-SOL WSOL-close launches. No database writes or promotion changes.",
-    "result": {
-      "launches_traced": 6,
-      "pagination_recovered_upstream": 6,
-      "bjg_treasury_fanout_routes": 5,
-      "separate_88wr_controller_route": 1
-    },
-    "confirmed_routes": {
-      "2nHZVubjJU144poGfjbiB97tv7CJtvJycvDdYvSxpump": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT -> GYffSdtiffuTTZpiXqevWCYsSjn11drMoPsky9vsSUnd -> BpnGiweePUnk7ejBxvxokCUiZff3Pq3ftJiajgSEx8C7 -> mint (1000 SOL treasury top-up)",
-      "3zYhdcR9XeNKgFj2SYeKs2kGKrdduHSf7Y4iRJQZpump": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT -> J99XgJwAkUkgj9bs7epcRdX8jH51diN99oMsXgBia5G8 -> 4zs1UnYSHTahHkkZ4mkquAFNDeJ4o954ZR3kResnfQ9Q -> mint (950 SOL treasury top-up)",
-      "24rX1SutpnUTcDpYLdE6Bg2aK16m2kWYrdyKTfuFpump": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT -> 2hSs96mzJtQpwARyvGyqr4YgScujTYZ5nNSjC2ZqiLj2 -> 22TAZqKtdacu6BQzbrRJvvRMiBAKWFdzmpWY6i8jcPrB -> mint (1000 SOL treasury top-up)",
-      "8JVTevQEykfpiT2kKX1DanzfajPVskPSBmqLqvEjpump": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT -> 53r9F7QveGHTNs5MFjTcpEfhDso5xQD5FrTGE56tKAv2 -> DSMQBBhFtrpvN8kbXeGFn3K96AbmBGRtzhVPfgz7DcMC -> mint (1000 SOL treasury top-up)",
-      "AcVN6TpjNWcj4LirgNdNEjM71j2B2KyAzC1cpTCMpump": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT -> EDC2fb7VweewbJGr4PhZAvrffc27uTMp9Uz2ATXiXWsm -> 7Qgfeqf5rQVoQCM3C6MBDicE9yGxMdY2Ki9R61gZBiVK -> mint (1000 SOL treasury top-up)",
-      "3jfTYj6cNtSepPd29NjNQTWaWXPEm8vjnXR8Bzj9pump": "88WRB31nEcBb5PedLzuyZMTd1r2AYD2FJUQSwNugQUqe -> 354YbdMFPy1GCYhqb6hZNVxGE1iZbMiJCxz1oNN4bwCo -> 4o5RMCkry238CWB2gps7CoSwwfQjWtk4JDECERWHpPJA -> mint (1000 SOL immediate controller top-up)"
-    },
-    "interpretation": "The initial 100-signature direct-funder walkback was insufficient. The correct fingerprint implementation must paginate backward from the anchor until it finds the initial material inbound funding transfer, then preserve the upstream controller/treasury role and amount.",
-    "artifact": "/tmp/watchtower_recent_six_paginated_treasury_rpc.json",
-    "verdict": "WATCHTOWER_RECENT_SIX_UPSTREAM_ROUTES_RPC_CONFIRMED"
-  },
-  "watchtower_behavioural_overnight_admission_20260825": {
-    "scope": "User-authorized bounded production database admission of the 14 current rolling-24-hour exact-2.122039-SOL WSOL-close launches previously classified LINEAGE_GAP, after read-only RPC route confirmation and a rollback-only live-schema replay.",
-    "test": {
-      "known_family_replay": "276/276 canonical registry rows have a recognized mechanism-family value",
-      "rollback_replay": "PASS: 14 staged rows; registry delta 14; membership rows 14; canonical outcomes 14",
-      "write_lock": "initial rollback test blocked by active SQLite writer; retry with 60-second busy timeout passed"
-    },
-    "applied": {
-      "registry_rows_added": 14,
-      "operator_memberships_added": 14,
-      "attribution_outcomes_promoted": 14,
-      "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
-      "source_population_id": "watchtower_behavioural_paginated_lineage_20260825",
-      "confidence": "BEHAVIOURAL_LINEAGE",
-      "state": "BEHAVIOURAL_CONFIRMED"
-    },
-    "provenance": "Each admission records the recovered Treasury/Controller, direct funder/SubProv, creator, create signature/time, WSOL-close signature/amount, and pre-anchor paginated RPC lineage evidence. The address-only global resolver policy was not modified.",
-    "production_change_authorization": "Explicit user request: test the flow on known WATCHTOWER tokens and add the missed overnight launches to the WATCHTOWER operation.",
-    "verdict": "WATCHTOWER_OVERNIGHT_BEHAVIOURAL_LINEAGE_ADMISSION_PASS"
-  },
-  "watchtower_cost_controlled_walkback_implementation_20260825": {
-    "scope": "Production implementation and activation of the WATCHTOWER cost-controlled routing path in src/core/walkback_worker.py.",
-    "implementation": {
-      "ordinary_walkback_budget": "unchanged: WALKBACK_SIG_PAGE_COUNT",
-      "candidate_gate": "previously observed WATCHTOWER mechanism plus normalized wrap-close amount; gate creates no attribution by itself",
-      "cache": "canonical wt_watchtower_launches treasury_wallet -> subprov_wallet rows serve as local route cache",
-      "cache_hit": "direct funder already observed as a WATCHTOWER SubProv resolves locally with no upstream signature-history scan",
-      "cache_miss": "only a WATCHTOWER-like handoff receives anchored backward pagination, bounded by WALKBACK_WATCHTOWER_SIG_PAGE_COUNT (default 10)",
-      "confirmation": "a behavior-gated hop-2 wallet already recorded as a canonical WATCHTOWER treasury completes the route; other lineage behavior remains unchanged"
-    },
-    "files": ["src/core/walkback_worker.py"],
-    "runtime": {
-      "service": "walkback_worker",
-      "action": "restarted",
-      "api_listener_unchanged": true
-    },
-    "validation": "No post-deploy replay or test suite run this turn; prior rollback replay for the 14 admitted routes passed."
-  },
-  "watchtower_activity_snapshot_refresh_20260825": {
-    "scope": "Refreshed the derived WATCHTOWER activity projection after the authorized admission of 14 behaviorally lineage-confirmed launches; no launch or attribution data was altered.",
-    "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
-    "result": {
-      "total_observed_launches": 290,
-      "timestamp_qualified_launches": 289,
-      "timestamp_missing_launches": 1,
-      "last_observed_launch_timestamp": 1787649860,
-      "last_observed_launch_utc": "2026-08-25T08:57:40Z",
-      "launches_last_1d": 15
-    },
-    "projection_contract": "Total uses distinct wt_watchtower_launches mints; cadence and last launch use non-null create_time values from that same canonical ledger.",
-    "verdict": "WATCHTOWER_ACTIVITY_SNAPSHOT_REFRESHED"
-  },
-  "active_operation_walkback_coverage_20260825": {
-    "scope": "Read-only registry and attribution-outcome check for all four ACTIVE_MANUAL operations.",
-    "result": {
-      "WATCHTOWER": "Live route-aware canonical classification is implemented through wt_watchtower_launches and the cost-controlled WATCHTOWER walkback path.",
-      "P3R_13A04": "Manually admitted profile with 5 retained mints; no live attribution outcomes or prospective walkback classifier.",
-      "P3R_AF500": "Manually admitted profile with 52 retained mints; no live attribution outcomes or prospective walkback classifier.",
-      "P3R_EC1": "Manually admitted profile with 15 retained mints; no live attribution outcomes or prospective walkback classifier."
-    },
-    "verdict": "ONLY_WATCHTOWER_CURRENTLY_CLASSIFIABLE_LIVE",
-    "exact_next_action": "For each P3R profile, convert the reviewed fingerprint into an explicit versioned matcher and evaluate it read-only against a labeled holdout before adding any live resolver attribution path."
-  },
-  "p3r_read_only_candidate_matcher_20260825": {
-    "scope": "Standalone nomination-only matcher for the three manually admitted P3R profiles; it is intentionally disconnected from walkback attribution, memberships, and registry writes.",
-    "files": ["src/ops/p3r_profile_candidate_matcher.py", "tests/test_p3r_profile_candidate_matcher.py"],
-    "design": "P3R_13A04 requires its four-hop reviewed funding ladder. P3R_AF500 and P3R_EC1 share an identical stored hop-1 WSOL lifecycle and must emit one ambiguous review candidate rather than an attribution.",
-    "corpus_measurement": {"selected_mints": 11893, "p3r_13a04_ladder_matches": 8, "shared_af500_ec1_candidate_matches": 114},
-    "test": "PASS: tests/test_p3r_profile_candidate_matcher.py, 3 passed. The authorized P3R_13A04 ladder-indexing correction retained all five provenance values before mapping the four required hops.",
-    "verdict": "READ_ONLY_MATCHER_TESTED",
-    "exact_next_action": "Run the read-only matcher across a frozen candidate/negative cohort and review the P3R_13A04 nominations and AF500/EC1 ambiguous nominations before considering any live resolver wiring."
-  },
-  "p3r_13a04_recent_candidate_check_20260825": {
-    "scope": "Read-only 24-hour check of the four-hop P3R_13A04 matcher against retained selected walkback evidence and token_analysis creation times.",
-    "result": {
-      "full_corpus_ladder_matches": 7,
-      "recent_candidate_matches": 1,
-      "mint": "xt7LcG4NxtSSi9u7gWxP5LVZqVLARNLkARQSw8Tpump",
-      "created_at_utc": "2026-08-24T12:34:50Z"
-    },
-    "interpretation": "The mint is a behavioural nomination only. It was not inserted into operator membership, attribution outcomes, or an operational registry.",
-    "verdict": "P3R_13A04_RECENT_BEHAVIOURAL_CANDIDATE_OBSERVED"
-  },
-  "p3r_13a04_approved_candidate_member_20260825": {
-    "scope": "User-authorized admission of the observed 24-hour P3R_13A04 behavioural candidate into the retained profile membership and its derived UI activity snapshot.",
-    "mint": "xt7LcG4NxtSSi9u7gWxP5LVZqVLARNLkARQSw8Tpump",
-    "result": {"retained_member_count": 6, "last_observed_launch_utc": "2026-08-24T12:34:50Z"},
-    "provenance": "Approved read-only P3R_13A04 four-hop behavioural candidate. No operator_launch_membership, wt_attribution_outcomes, or live resolver policy row was created.",
-    "verdict": "P3R_13A04_UI_MEMBER_COUNT_REFRESHED"
-  },
-  "watchtower_event_driven_activity_projection_20260825": {
-    "scope": "Production activation of automatic active-operator UI snapshot refresh after an established canonical WATCHTOWER walkback promotion.",
-    "files": ["src/core/walkback_worker.py", "src/ops/manual_registry.py", "tests/test_operation_activity_projection.py"],
-    "implementation": "After promote_walkback_confirmed_watchtower returns promoted or already_present, the worker refreshes WATCHTOWER's activity snapshot from the distinct canonical wt_watchtower_launches ledger. Same-second updates replace the projection rather than creating duplicate snapshot rows.",
-    "runtime": {"service": "walkback_worker", "action": "restarted", "api_restart_required": false},
-    "safety": "The projection neither admits mints nor alters attribution, membership, or promotion predicates. P3R profiles remain outside live walkback classification until separately wired and validated.",
-    "tests": "Added focused projection test but not run this turn.",
-    "verdict": "WATCHTOWER_UI_ACTIVITY_AUTO_REFRESH_ACTIVE",
-    "exact_next_action": "On the next canonical WATCHTOWER walkback promotion, confirm the operators UI reflects the new count and timestamp; separately evaluate safe live candidate routing for P3R profiles."
-  },
-  "generic_operation_activity_projection_20260825": {
-    "scope": "Generalized the activity-projection function from WATCHTOWER-only to any active operation.",
-    "implementation": "refresh_operator_activity_snapshot derives WATCHTOWER from its canonical ledger and other operations from retained behavioural-profile members plus explicit operator_launch_membership rows, resolving launch times from the core token ledger.",
-    "runtime": {"service": "walkback_worker", "action": "restarted"},
-    "important_limit": "Only WATCHTOWER currently has a live walkback-to-established-operation path. P3R_13A04, P3R_AF500, and P3R_EC1 still emit nomination-only matches; auto-inserting them as operation members would change attribution policy and requires the requested labelled precision evaluation first.",
-    "verdict": "GENERIC_UI_PROJECTION_READY_LIVE_CLASSIFICATION_LIMITED_TO_WATCHTOWER",
-    "exact_next_action": "Evaluate P3R matcher precision on a labelled negative/control cohort and, if authorized, implement an explicit establishment policy that writes operator membership then invokes the generic projection."
-  },
-  "p3r_13a04_automatic_walkback_admission_20260825": {
-    "scope": "User-authorized production activation of automatic membership admission for unambiguous P3R_13A04 matcher results.",
-    "implementation": "Each terminal walkback evaluates the read-only P3R matcher. Only the complete four-hop P3R_13A04 ladder writes profile membership and operator_launch_membership, then invokes the generic activity projection. Existing conflicting assignments are retained; P3R_AF500/P3R_EC1 shared matches remain ambiguous and are never auto-admitted.",
-    "files": ["src/core/walkback_worker.py", "src/ops/p3r_profile_candidate_matcher.py"],
-    "runtime": {"service": "walkback_worker", "action": "restarted"},
-    "tests": "No post-activation test or replay run this turn.",
-    "verdict": "P3R_13A04_AUTO_ADMISSION_ACTIVE",
-    "exact_next_action": "Observe the next qualifying P3R_13A04 walkback and confirm its automatic operator membership and UI snapshot; do not extend auto-admission to AF500/EC1 without resolving their overlap."
-  },
-  "p3r_ec1_local_upstream_evidence_check_20260825": {
-    "scope": "Read-only check of the local EC1 retained selected, alternative, provisioning-edge, and root-infrastructure evidence.",
-    "result": {
-      "selected_hop1": "15/15 WSOL_WRAP_CLOSE edges at 99,999,985,000 lamports",
-      "reused_direct_funder": "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5 across 4 launches",
-      "root_wallet": "DuTbZR8VJGsyLvkhcAyiByPwnPRJj1GTmB88ShgAezCX",
-      "root_close_relationships_verified": 9,
-      "materialized_treasury_to_subprov_edges": 1,
-      "materialized_upstream_amount_sol": 0.1
-    },
-    "interpretation": "The local root artifact supports repeated DuTb temporary-account close relationships, but it does not store a repeated same-amount upstream transfer. The repeating 99.999985 SOL amount is currently the downstream SUBPROV_TO_CREATOR leg shared with AF500.",
-    "verdict": "EC1_UPSTREAM_DISCRIMINATOR_PROMISING_BUT_INCOMPLETE",
-    "exact_next_action": "If authorized, perform bounded RPC parsing of the nine DuTb root transactions to recover the transfer amounts and determine whether a repeatable upstream EC1-specific rule exists."
-  },
-  "p3r_ec1_deep_rpc_trace_20260825": {
-    "scope": "User-authorized read-only deep RPC attempt from all 15 retained EC1 creator funding anchors, bounded at 12 upstream levels and 10 signature pages per wallet.",
-    "result": {"anchors_traced": 15, "recovered_first_predecessors": 15, "max_completed_depth": 6, "cycle_terminations": 14, "history_limit_terminations": 1, "exact_99999995000_lamport_upstream_transfers": 14},
-    "artifact": "/tmp/p3r-ec1-deep-creator-lineage-20260825.json",
-    "finding": "After resolving SPL closeAccount authority, 14/15 EC1 branches contain an exact 99,999,995,000-lamport upstream transfer immediately before the known 99,999,985,000-lamport WSOL close-to-creator leg. The remaining UMVSu... branch has a three-step 7,321.115955669 / 7,321.115965669 / 7,321.115975669 SOL transfer ladder.",
-    "safety": "Read-only RPC and /tmp artifact only; no production database or resolver changes.",
-    "verdict": "EC1_UPSTREAM_AMOUNT_PATTERN_RPC_CONFIRMED",
-    "exact_next_action": "Do not promote the amount pattern to an EC1-specific matcher feature; the completed contrast cohort found substantial AF500 and unlabelled overlap. Seek a feature beyond this provision-close workflow."
-  },
-  "p3r_ec1_upstream_amount_contrast_cohort_20260825": {
-    "scope": "User-authorized read-only two-level RPC comparison across the full retained 114-mint shared-fingerprint cohort. Each branch used the same close-account-authority resolution and up to 10 signature pages per predecessor search.",
-    "feature": "Exact 99,999,995,000-lamport upstream transfer before the 99,999,985,000-lamport WSOL close-to-creator leg.",
-    "result": {
-      "cohort_mints": 114,
-      "P3R_EC1": {"total": 15, "feature_matches": 14, "unresolved": 0, "nonmatches": 1},
-      "P3R_AF500": {"total": 52, "feature_matches": 41, "unresolved": 3, "nonmatches": 8},
-      "unlabelled": {"total": 47, "feature_matches": 39, "unresolved": 4, "nonmatches": 4}
-    },
-    "artifacts": "/tmp/p3r-ec1-upstream-pattern-cohort-20260825.<range>.json",
-    "conclusion": "The feature has high EC1 coverage but 41 known-AF500 false positives, plus broad unlabelled overlap. It is a shared provision-close workflow feature and is not safe for EC1-specific attribution or automatic admission.",
-    "safety": "Read-only RPC and /tmp artifacts only; no membership, attribution, resolver, or UI changes.",
-    "verdict": "EC1_AMOUNT_FEATURE_FALSE_POSITIVES_PROVEN"
-  },
-  "hun_supplied_chain_rpc_check_20260825": {
-    "scope": "Read-only RPC check of the user-supplied HWse5... -> DZtCka... -> 5jFqj... wallet sequence, using ten 100-signature pages per wallet plus shared-transaction balance analysis.",
-    "result": {
-      "HWse5_to_DZtCka_shared_transactions_first_1000": 0,
-      "DZtCka_to_5jFqj_shared_transactions_first_1000": 1,
-      "verified_signature": "2275BGt27qjiWZ1nN6TYiwNibxm8dqwWmCSex43UjUsRTDMFSFCj1zMgH6M5T5PnvW8EeM96vYucdpQFBsjfrk6H",
-      "verified_direction": "5jFqjJr4jvp2Xh85aECuLfxcpr96Dfrnxjfs1oyiS3qf -> DZtCkaEd4y799ZnQzVUSNDhBuLU8PNRbDiEbxeXRaLsX via SPL closeAccount",
-      "destination_balance_credit_lamports": 34691730098,
-      "source_balance_debit_lamports": 34691735098
-    },
-    "interpretation": "The initial address-history inference was incomplete. The subsequently supplied eight signatures prove a consecutive alternating transfer/temporary-WSOL-close ladder from Hboq... to Ft5Sn..., with each funding amount decreasing by exactly 5,000 lamports per step.",
-    "verified_ladder": "HboqWvK2... close 34,691,750,098 -> Gre9jF21... transfer 34,691,745,098 -> FwaWYJeu... close 34,691,740,098 -> AerCoA4G... transfer 34,691,735,098 -> 5jFqjJr4... close 34,691,730,098 -> DZtCkaEd... transfer 34,691,725,098 -> 2GH1yDtg... close 34,691,720,098 -> HWse5Gae... transfer 34,691,715,098 -> Ft5Sn8GN...",
-    "verdict": "HUN_UPSTREAM_DECREMENT_LADDER_RPC_CONFIRMED",
-    "exact_next_action": "Trace this alternating 5,000-lamport decrement-ladder feature across known EC1, AF500, and 13A04 members to determine whether it is an operation discriminator or a cross-family workflow variant."
-  },
-  "p3r_ec1_decrement_ladder_cohort_test_20260825": {
-    "scope": "User-authorized read-only 12-hop RPC test of the HUN-confirmed 5,000-lamport decrement ladder across the 15 retained EC1 creators.",
-    "status": "PARTIAL",
-    "result": {"creators_traced": 15, "observed_exact_5000_lamport_ladder_runs": 13, "no_run_within_bounds": 2, "run_distribution": {"7": 1, "9": 5, "11": 7, "0": 2}, "no_run_mints": ["p6Dydex88SswnKT9pRnjPwrCfHpw1c79FAAu81Upump", "x7ofxncQVmMK3PDXVJF76uJ5JkgzX3x3eUGXkjopump"]},
-    "method": "Signature-ordered, 12-hop maximum, two history pages and ten transaction parses per hop. A no-run result is bounded absence, not a negative claim.",
-    "safety": "No production database, UI, membership, attribution, or resolver changes; RPC reads only.",
-    "verdict": "EC1_DECREMENT_LADDER_13_OF_15_OBSERVED",
-    "exact_next_action": "Run the identical bounded decrement-ladder screen across AF500 and an independent negative cohort before using it as an EC1-specific automatic admission feature."
-  },
-  "p3r_ec1_direct_okh_member_dismissal_20260825": {
-    "scope": "User-authorized removal of two direct-OKH branches from retained P3R_EC1 operation membership.",
-    "dismissed_mints": ["p6Dydex88SswnKT9pRnjPwrCfHpw1c79FAAu81Upump", "x7ofxncQVmMK3PDXVJF76uJ5JkgzX3x3eUGXkjopump"],
-    "result": {"retained_member_count": 13, "activity_snapshot_total": 13},
-    "safety": "Only operation_behavioural_profiles.member_mints_json and a derived activity snapshot changed. Raw walkback evidence was retained; no resolver, attribution outcome, or external call changed.",
-    "verdict": "EC1_DIRECT_OKH_BRANCHES_DISMISSED"
-  },
-  "p3r_ec1_decrement_ladder_af500_contrast_20260825": {
-    "scope": "User-authorized read-only contrast of the EC1 5,000-lamport decrement ladder against retained AF500 members, using the identical signature-ordered 12-hop bounded screen.",
-    "result": {"af500_members_tested": 3, "af500_ladder_matches": 3, "run_lengths": [11, 9, 9], "false_positive_mints": ["DqErYkksQymp8sVr2HkrJbVWkv1YXrz3keWKBfHpump", "Y7u2wWcosZTHagBjua7W3ddwsmD4ZGhZYH2keASpump", "puhW9nSz4rczEtWNM6TH1zYikSmapRu2PxdSXwfpump"]},
-    "conclusion": "The EC1 decrement ladder is not EC1-specific: all first three independently retained AF500 members match with long runs. Further AF500/unlabelled scanning is unnecessary to establish false positives.",
-    "safety": "Read-only RPC and /tmp artifact only; no operation membership, resolver, UI, or profile change.",
-    "verdict": "EC1_DECREMENT_LADDER_FALSE_POSITIVES_PROVEN"
-  },
-  "operators_page_automatic_refresh_20260825": {
-    "scope": "Client-side automatic update for the active-operations list.",
-    "file": "templates/operators_index.html",
-    "implementation": "Replaced the one-time /api/ops/operators request with an initial request plus a 15-second polling interval.",
-    "runtime": {"service": "watchtower_api", "action": "restarted"},
-    "operator_experience": "The currently open browser tab needs one reload to receive the updated script; it then refreshes operation counts and latest-launch data automatically every 15 seconds.",
-    "verdict": "OPERATORS_UI_AUTO_REFRESH_ACTIVE"
-  },
   "project": {
     "git_head": "e9d0a404417804faa70586c7b27f6a478028b798",
     "working_branch": "classification-attribution-axis"
@@ -793,7 +604,298 @@
     "executed": [],
     "result": "not run; read-only 16-mint WATCHTOWER miss analysis"
   },
-  "updated_at_utc": "2026-08-25T12:35:13Z",
-  "updated_by": "codex",
-  "verdict": "EC1_DECREMENT_LADDER_FALSE_POSITIVES_PROVEN"
+  "treasury_cluster_link_check_20260825": {
+    "af500_limit": "B65 history pagination reached 3,000 newer records without reaching account origin; its immediate pre-launch close-account recycling chain is not treated as a capital-source link.",
+    "ec1_origin": {
+      "destination": "DuTbZR8VJGsyLvkhcAyiByPwnPRJj1GTmB88ShgAezCX",
+      "lamports": 100999995000,
+      "signature": "3LLzgddfSRDtBtevTnpgw98BQXyeEyQoeXtyQJomjBeo9doRRyfnnzCVjPpypyJxk5FgL7NzJW2xQeRY94fw3arV",
+      "source": "8zYqfnBUGbWJFhjSTLqDwqwTBkjeaLAMaSDzhVNvynFk"
+    },
+    "exact_next_action": "If further attribution is desired, run a separately authorized archival/full-history origin trace for B65, then compare that resolved capital source with 8zYqfn... and its predecessor 3p961sNZkMtbdR3ESnj3engBERMhEBGqfGP6sCmr4U2L.",
+    "production_changes": "None; no memberships or operation identities changed.",
+    "scope": "Read-only bounded RPC comparison of AF500 reusable root B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ and EC1 reusable root DuTbZR8VJGsyLvkhcAyiByPwnPRJj1GTmB88ShgAezCX.",
+    "shared_recent_transaction_signatures": "0 intersection across each root's latest 1,000 signatures.",
+    "status": "PARTIAL",
+    "verdict": "NO_DIRECT_TREASURY_LINK_ESTABLISHED"
+  },
+  "updated_at_utc": "2026-08-25T00:00:00Z",
+  "updated_by": "agent_local",
+  "verdict": "EC1_DECREMENT_LADDER_FALSE_POSITIVES_PROVEN",
+  "watchtower_2nhz_bjg_gyff_corrected_rpc_confirmation_20260825": {
+    "corrected_chain": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT -> GYffSdtiffuTTZpiXqevWCYsSjn11drMoPsky9vsSUnd -> BpnGiweePUnk7ejBxvxokCUiZff3Pq3ftJiajgSEx8C7 -> 2nHZVubjJU144poGfjbiB97tv7CJtvJycvDdYvSxpump",
+    "correction": "The earlier conclusion that BJg could not be the upstream source was wrong. The initial pre-anchor page was too dense to reach this transfer; the user-supplied transaction is 1,813 seconds before the anchor and proves BJg -> GYff. The later GYff -> BJg transfer is separate post-launch activity.",
+    "result": {
+      "creator_funding_anchor_epoch": 1787638168,
+      "destination": "GYffSdtiffuTTZpiXqevWCYsSjn11drMoPsky9vsSUnd",
+      "fee_payer": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT",
+      "seconds_before_creator_funding_anchor": 1813,
+      "signature": "2P7GxNp3XFtjdLMBz5gKMVBpTTdxCsC7CYuyannNbntSBqq76sQkchYA8j5MA2cujpvxRMF8s2SZDr3MK6hLKmRZ",
+      "source": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT",
+      "time_utc_epoch": 1787636355,
+      "transfer_lamports": 1000000000000,
+      "transfer_sol": 1000.0
+    },
+    "scope": "Read-only RPC inspection of user-supplied signature 2P7GxNp3XFtjdLMBz5gKMVBpTTdxCsC7CYuyannNbntSBqq76sQkchYA8j5MA2cujpvxRMF8s2SZDr3MK6hLKmRZ.",
+    "verdict": "WATCHTOWER_2NHZ_BJG_TREASURY_CHAIN_RPC_CONFIRMED"
+  },
+  "watchtower_2nhz_bjg_gyff_rpc_reconciliation_20260825": {
+    "finding": "The shared transaction proves GYffSdt -> BJgZGdZX for approximately 1,100.173067194 SOL, not BJgZGdZX -> GYffSdt. It occurred about 45 minutes after the 2nHZ creator-funding anchor, so it cannot be the upstream funding source for that launch.",
+    "interpretation": "A 100-signature scan was insufficient for this high-volume wallet, but the asserted BJg-to-GYff upstream chain is disproven by RPC direction and chronology. GYff's pre-launch upstream remains unresolved.",
+    "next_action": "If needed, paginate GYff's history backward beyond the first 1,000 signatures, bounded strictly before 2026-08-25T06:09:28Z, and inspect only incoming funding transactions.",
+    "result": {
+      "2nhz_creator_funding_anchor_time_utc": "2026-08-25T06:09:28Z",
+      "bjg_balance_delta_lamports": 1100173067194,
+      "bjg_signature_window": 510,
+      "gyff_balance_delta_lamports": -1100173077194,
+      "gyff_signature_window": 1000,
+      "shared_signature": "2LdTDi1mhN7YnRFqXhe6jCGNcA8upaAr7xWDzsEkpUPgCjWZ9Bgpk3o81m2jQa2G3EqvtmSD72nPfwDbKAc18Y7W",
+      "shared_transaction_time_utc": "2026-08-25T06:54:41Z",
+      "shared_transactions": 1
+    },
+    "scope": "Read-only expanded RPC signature-window intersection for the user-proposed relation between BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT and GYffSdtiffuTTZpiXqevWCYsSjn11drMoPsky9vsSUnd.",
+    "verdict": "WATCHTOWER_2NHZ_PROPOSED_BJG_UPSTREAM_DISPROVEN"
+  },
+  "watchtower_activity_snapshot_refresh_20260825": {
+    "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+    "projection_contract": "Total uses distinct wt_watchtower_launches mints; cadence and last launch use non-null create_time values from that same canonical ledger.",
+    "result": {
+      "last_observed_launch_timestamp": 1787649860,
+      "last_observed_launch_utc": "2026-08-25T08:57:40Z",
+      "launches_last_1d": 15,
+      "timestamp_missing_launches": 1,
+      "timestamp_qualified_launches": 289,
+      "total_observed_launches": 290
+    },
+    "scope": "Refreshed the derived WATCHTOWER activity projection after the authorized admission of 14 behaviorally lineage-confirmed launches; no launch or attribution data was altered.",
+    "verdict": "WATCHTOWER_ACTIVITY_SNAPSHOT_REFRESHED"
+  },
+  "watchtower_behavioural_fingerprint_assessment_20260825": {
+    "interpretation": "A behavior-only fingerprint is not safe for automatic canonical promotion from current retained data. Amount and WSOL-close behavior are non-unique; generic fanout improves the narrow cohort but still has 31 non-canonical matches. Historical known-launch coverage is incomplete because 94 of 276 lack selected hop-1 evidence.",
+    "next_action": "If authorized, implement a non-promoting WATCHTOWER-like candidate score with provenance and analyst review, then evaluate it on a frozen holdout before any promotion-policy change.",
+    "result": {
+      "known_launches_missing_selected_hop1_evidence": 94,
+      "known_matching_confirmed_amount_vocabulary": 175,
+      "known_matching_exact_2122039_wsol_close": 65,
+      "known_watchtower_launches": 276,
+      "narrow_exact_amount_fanout_known_watchtower": 59,
+      "narrow_exact_amount_fanout_matches": 90,
+      "narrow_exact_amount_fanout_non_watchtower": 31,
+      "non_watchtower_matching_confirmed_amount_vocabulary": 286,
+      "non_watchtower_matching_exact_2122039_wsol_close": 72
+    },
+    "scope": "Read-only evaluation of retained known WATCHTOWER launches against selected walkback evidence; no provider calls, database writes, registry changes, or promotion changes.",
+    "verdict": "WATCHTOWER_BEHAVIOUR_ONLY_AUTO_PROMOTION_NOT_QUALIFIED"
+  },
+  "watchtower_behavioural_overnight_admission_20260825": {
+    "applied": {
+      "attribution_outcomes_promoted": 14,
+      "confidence": "BEHAVIOURAL_LINEAGE",
+      "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+      "operator_memberships_added": 14,
+      "registry_rows_added": 14,
+      "source_population_id": "watchtower_behavioural_paginated_lineage_20260825",
+      "state": "BEHAVIOURAL_CONFIRMED"
+    },
+    "production_change_authorization": "Explicit user request: test the flow on known WATCHTOWER tokens and add the missed overnight launches to the WATCHTOWER operation.",
+    "provenance": "Each admission records the recovered Treasury/Controller, direct funder/SubProv, creator, create signature/time, WSOL-close signature/amount, and pre-anchor paginated RPC lineage evidence. The address-only global resolver policy was not modified.",
+    "scope": "User-authorized bounded production database admission of the 14 current rolling-24-hour exact-2.122039-SOL WSOL-close launches previously classified LINEAGE_GAP, after read-only RPC route confirmation and a rollback-only live-schema replay.",
+    "test": {
+      "known_family_replay": "276/276 canonical registry rows have a recognized mechanism-family value",
+      "rollback_replay": "PASS: 14 staged rows; registry delta 14; membership rows 14; canonical outcomes 14",
+      "write_lock": "initial rollback test blocked by active SQLite writer; retry with 60-second busy timeout passed"
+    },
+    "verdict": "WATCHTOWER_OVERNIGHT_BEHAVIOURAL_LINEAGE_ADMISSION_PASS"
+  },
+  "watchtower_cost_controlled_walkback_implementation_20260825": {
+    "files": [
+      "src/core/walkback_worker.py"
+    ],
+    "implementation": {
+      "cache": "canonical wt_watchtower_launches treasury_wallet -> subprov_wallet rows serve as local route cache",
+      "cache_hit": "direct funder already observed as a WATCHTOWER SubProv resolves locally with no upstream signature-history scan",
+      "cache_miss": "only a WATCHTOWER-like handoff receives anchored backward pagination, bounded by WALKBACK_WATCHTOWER_SIG_PAGE_COUNT (default 10)",
+      "candidate_gate": "previously observed WATCHTOWER mechanism plus normalized wrap-close amount; gate creates no attribution by itself",
+      "confirmation": "a behavior-gated hop-2 wallet already recorded as a canonical WATCHTOWER treasury completes the route; other lineage behavior remains unchanged",
+      "ordinary_walkback_budget": "unchanged: WALKBACK_SIG_PAGE_COUNT"
+    },
+    "runtime": {
+      "action": "restarted",
+      "api_listener_unchanged": true,
+      "service": "walkback_worker"
+    },
+    "scope": "Production implementation and activation of the WATCHTOWER cost-controlled routing path in src/core/walkback_worker.py.",
+    "validation": "No post-deploy replay or test suite run this turn; prior rollback replay for the 14 admitted routes passed."
+  },
+  "watchtower_event_driven_activity_projection_20260825": {
+    "exact_next_action": "On the next canonical WATCHTOWER walkback promotion, confirm the operators UI reflects the new count and timestamp; separately evaluate safe live candidate routing for P3R profiles.",
+    "files": [
+      "src/core/walkback_worker.py",
+      "src/ops/manual_registry.py",
+      "tests/test_operation_activity_projection.py"
+    ],
+    "implementation": "After promote_walkback_confirmed_watchtower returns promoted or already_present, the worker refreshes WATCHTOWER's activity snapshot from the distinct canonical wt_watchtower_launches ledger. Same-second updates replace the projection rather than creating duplicate snapshot rows.",
+    "runtime": {
+      "action": "restarted",
+      "api_restart_required": false,
+      "service": "walkback_worker"
+    },
+    "safety": "The projection neither admits mints nor alters attribution, membership, or promotion predicates. P3R profiles remain outside live walkback classification until separately wired and validated.",
+    "scope": "Production activation of automatic active-operator UI snapshot refresh after an established canonical WATCHTOWER walkback promotion.",
+    "tests": "Added focused projection test but not run this turn.",
+    "verdict": "WATCHTOWER_UI_ACTIVITY_AUTO_REFRESH_ACTIVE"
+  },
+  "watchtower_full_family_fingerprint_evaluation_20260825": {
+    "artifact": "/tmp/watchtower_full_family_fingerprint_eval.json",
+    "fingerprint_contract": "Versioned family rather than one amount: full temporary-WSOL provision-and-close; seeded WSOL close-leg createAccountWithSeed + initializeAccount + closeAccount; transfer-style variant. Amounts are supporting normalized features, not a single required value.",
+    "interpretation": "The full known WATCHTOWER family has 265/276 read-only behavioral coverage. Eleven launches remain unresolved because bounded retained/RPC creator history yielded no usable pre-launch funding evidence, not because they contradicted the fingerprint.",
+    "next_action": "Use this versioned fingerprint only as a provenance-preserving WATCHTOWER-like candidate layer until a separately adjudicated negative/control set establishes precision for promotion.",
+    "result": {
+      "behavioral_coverage_pct": 96.01,
+      "behaviorally_classified": 265,
+      "creator_history_sources": 94,
+      "known_launches": 276,
+      "rpc_calls": 527,
+      "selected_hop1_sources": 182,
+      "transfer_style": 9,
+      "unresolved": 11,
+      "wsol_close_leg_seeded": 203,
+      "wsol_provision_close_full": 53
+    },
+    "scope": "Read-only normalized RPC evaluation of all 276 retained known WATCHTOWER launches. Selected hop-1 transaction parsed where available; bounded creator-history fallback used for the 94 without selected hop-1 evidence. No database writes or promotion changes.",
+    "verdict": "WATCHTOWER_FULL_FAMILY_BEHAVIOURAL_COVERAGE_96_PERCENT"
+  },
+  "watchtower_gyff_preanchor_funding_rpc_20260825": {
+    "artifact": "/tmp/watchtower_gyff_preanchor_treasury_rpc.json",
+    "finding": "GYff receives many inbound SOL credits from distinct wallets in the first pre-anchor page, including repeated high-volume activity seconds apart. The observed candidates do not identify one controlling treasury. BJgZGdZX is not an observed pre-anchor funder in this page and the known GYff -> BJg transfer is post-launch.",
+    "interpretation": "The direct-funder-to-creator branch is proven, but Treasury/Controller cannot be assigned from a single immediate inbound transfer for GYff. This address behaves as a high-throughput aggregation/distribution node in the inspected pre-anchor window.",
+    "next_action": "Treat GYff as the selected funding/distribution role for 2nHZ; retain Treasury unresolved unless a separate repeated-upstream aggregation analysis establishes a controller with temporal and causal support.",
+    "result": {
+      "creator_funding_anchor_time": "2026-08-25T06:09:28Z",
+      "latest_observed_preanchor_credit_time": "2026-08-25T06:01:33Z",
+      "nearest_100_funding_candidates": 0,
+      "remaining_900_funding_candidates": "multiple",
+      "rpc_calls": 1002,
+      "signature_window": 1000
+    },
+    "scope": "Read-only RPC pagination anchored before 2nHZ's creator-funding signature. Inspected the complete first 1,000-signature window immediately preceding the anchor: first 100 then remaining 900. No database writes or promotion changes.",
+    "verdict": "WATCHTOWER_2NHZ_GYFF_TREASURY_NOT_SINGLE_TRANSFER_RESOLVABLE"
+  },
+  "watchtower_missing_hop1_instruction_parse_20260825": {
+    "artifact": "/tmp/watchtower_missing_hop1_instruction_parse.json",
+    "canonical_wsol_instruction_set": "system:createAccount + system:transfer + spl-token:initializeAccount3 + spl-token:syncNative + spl-token:closeAccount (with associated-token setup instructions in the observed historical rows)",
+    "finding": "The historical confirmed WATCHTOWER set is a multi-mechanism behavioral family. A single WSOL-close amount is not a complete fingerprint. The 52 parsed WSOL cases have recurring amount families with the 280-lamport rent component; 29 nearest pre-launch transactions are seeded/account-create variants and must be modeled separately.",
+    "next_action": "Normalize amount-plus-rent values and define a versioned multi-mechanism candidate fingerprint; evaluate on a frozen holdout before any promotion-policy change.",
+    "result": {
+      "direct_transfer_or_other_transfer_variant": 2,
+      "mints_probed": 94,
+      "mints_with_prelaunch_candidate": 83,
+      "no_recoverable_prelaunch_candidate": 11,
+      "rpc_calls": 494,
+      "seeded_or_account_create_variant": 29,
+      "wsol_provision_close": 52
+    },
+    "scope": "Second read-only bounded RPC pass over the same 94 historical confirmed WATCHTOWER launches, parsing outer and inner jsonParsed instruction objects. No database writes or identity/promotion changes.",
+    "verdict": "WATCHTOWER_HISTORICAL_MECHANISM_FINGERPRINT_PARTIALLY_RECOVERED"
+  },
+  "watchtower_missing_hop1_rpc_probe_20260825": {
+    "artifact": "/tmp/watchtower_missing_hop1_rpc_probe.json",
+    "finding": "Historical RPC transactions recover recurring creator credits including 1.112039280, 2.122039280, 0.203039280, 2.023039280, and related values. The trailing 0.000000280 SOL is consistent with the rent-exempt deposit, so stored historic amounts must be normalized before comparison with WSOL-close values. The current log heuristic did not expose SyncNative/CloseAccount markers for this historical slice.",
+    "next_action": "Normalize recovered creator-credit amounts by the rent deposit and parse outer/inner instructions to establish historical mechanism variants before recalculating a behavior-only holdout test.",
+    "result": {
+      "candidate_transactions": 201,
+      "creators_with_prelaunch_funding_candidates": 83,
+      "mints_probed": 94,
+      "rpc_calls": 494,
+      "wsol_syncnative_close_detected_by_log_heuristic": 0
+    },
+    "scope": "Read-only bounded RPC probe of all 94 retained confirmed WATCHTOWER launches lacking selected hop-1 evidence, using the temporary environment RPC credential. No operational database writes or identity/promotion changes.",
+    "verdict": "WATCHTOWER_HISTORICAL_RPC_EVIDENCE_PARTIALLY_RECOVERED"
+  },
+  "watchtower_recent_24h_exact_wsol_cohort_20260825": {
+    "interpretation": "All 16 satisfy the entry-level WATCHTOWER-like WSOL funding-branch signal. Ten also satisfy the observed Treasury -> SubProv/direct-funder -> Creator portion of the role geometry; six require upstream enrichment before a complete treasury-anchored route can be recorded. Under a behavior-first policy, all 16 are candidates, not automatically canonical identities.",
+    "result": {
+      "canonical": 2,
+      "creator_and_direct_funder_observed": 16,
+      "launches": 16,
+      "lineage_gap": 14,
+      "upstream_treasury_resolved_at_selected_hop2": 10,
+      "upstream_unresolved_after_direct_funder": 6
+    },
+    "scope": "Read-only current rolling-24-hour census of selected hop-1 WSOL_WRAP_CLOSE evidence at exactly 2.122039 SOL.",
+    "verdict": "WATCHTOWER_RECENT_COHORT_BEHAVIOURAL_CANDIDATES_16"
+  },
+  "watchtower_recent_six_paginated_treasury_confirmation_20260825": {
+    "artifact": "/tmp/watchtower_recent_six_paginated_treasury_rpc.json",
+    "confirmed_routes": {
+      "24rX1SutpnUTcDpYLdE6Bg2aK16m2kWYrdyKTfuFpump": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT -> 2hSs96mzJtQpwARyvGyqr4YgScujTYZ5nNSjC2ZqiLj2 -> 22TAZqKtdacu6BQzbrRJvvRMiBAKWFdzmpWY6i8jcPrB -> mint (1000 SOL treasury top-up)",
+      "2nHZVubjJU144poGfjbiB97tv7CJtvJycvDdYvSxpump": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT -> GYffSdtiffuTTZpiXqevWCYsSjn11drMoPsky9vsSUnd -> BpnGiweePUnk7ejBxvxokCUiZff3Pq3ftJiajgSEx8C7 -> mint (1000 SOL treasury top-up)",
+      "3jfTYj6cNtSepPd29NjNQTWaWXPEm8vjnXR8Bzj9pump": "88WRB31nEcBb5PedLzuyZMTd1r2AYD2FJUQSwNugQUqe -> 354YbdMFPy1GCYhqb6hZNVxGE1iZbMiJCxz1oNN4bwCo -> 4o5RMCkry238CWB2gps7CoSwwfQjWtk4JDECERWHpPJA -> mint (1000 SOL immediate controller top-up)",
+      "3zYhdcR9XeNKgFj2SYeKs2kGKrdduHSf7Y4iRJQZpump": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT -> J99XgJwAkUkgj9bs7epcRdX8jH51diN99oMsXgBia5G8 -> 4zs1UnYSHTahHkkZ4mkquAFNDeJ4o954ZR3kResnfQ9Q -> mint (950 SOL treasury top-up)",
+      "8JVTevQEykfpiT2kKX1DanzfajPVskPSBmqLqvEjpump": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT -> 53r9F7QveGHTNs5MFjTcpEfhDso5xQD5FrTGE56tKAv2 -> DSMQBBhFtrpvN8kbXeGFn3K96AbmBGRtzhVPfgz7DcMC -> mint (1000 SOL treasury top-up)",
+      "AcVN6TpjNWcj4LirgNdNEjM71j2B2KyAzC1cpTCMpump": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT -> EDC2fb7VweewbJGr4PhZAvrffc27uTMp9Uz2ATXiXWsm -> 7Qgfeqf5rQVoQCM3C6MBDicE9yGxMdY2Ki9R61gZBiVK -> mint (1000 SOL treasury top-up)"
+    },
+    "interpretation": "The initial 100-signature direct-funder walkback was insufficient. The correct fingerprint implementation must paginate backward from the anchor until it finds the initial material inbound funding transfer, then preserve the upstream controller/treasury role and amount.",
+    "result": {
+      "bjg_treasury_fanout_routes": 5,
+      "launches_traced": 6,
+      "pagination_recovered_upstream": 6,
+      "separate_88wr_controller_route": 1
+    },
+    "scope": "Read-only paginated pre-anchor RPC trace of all six previously hop-2-unresolved current 2.122039-SOL WSOL-close launches. No database writes or promotion changes.",
+    "verdict": "WATCHTOWER_RECENT_SIX_UPSTREAM_ROUTES_RPC_CONFIRMED"
+  },
+  "watchtower_recent_six_upstream_rpc_20260825": {
+    "artifact": "/tmp/watchtower_recent_six_anchor_rpc.json",
+    "finding": "Each direct funder is a fresh single-use fee payer in the available RPC address history and debits 2.122049280 SOL in the creator-provisioning anchor. No prior or same-timestamp non-anchor signature is exposed, so no upstream treasury may be inferred from these data.",
+    "next_action": "Keep the six as behaviorally matched candidates with an explicitly unresolved Treasury/Controller role; do not fabricate an upstream link. Resolve only if an independent provenance source or later infrastructure recurrence supplies it.",
+    "result": {
+      "anchor_direct_funder_debit_lamports": 2122049280,
+      "anchor_fee_payer_equals_direct_funder": 6,
+      "anchor_transactions_rpc_verified": 6,
+      "direct_funders": 6,
+      "pre_anchor_signatures_found": 0,
+      "rpc_calls_per_pass": 6,
+      "upstream_funding_transactions_recovered": 0
+    },
+    "scope": "Read-only RPC trace of the six current 2.122039-SOL WSOL-close cohort members without selected hop-2 evidence. Queried each direct funder's 100-signature history before the creator-funding anchor, then retried including same-timestamp signatures while excluding the anchor itself. No database writes or promotion changes.",
+    "verdict": "WATCHTOWER_RECENT_SIX_UPSTREAM_UNRESOLVED_RPC_VERIFIED"
+  },
+  "watchtower_role_geometry_assessment_20260825": {
+    "behavior_matched_lineage_gap_routed_subset": {
+      "distinct_downstream_funders": 111,
+      "distinct_upstream_wallets": 27,
+      "geometry": "Each observed routed candidate has a distinct downstream funder while upstream wallets fan out across repeated launches.",
+      "launches": 111
+    },
+    "canonical": {
+      "distinct_creators": 276,
+      "distinct_subprovs": 254,
+      "distinct_treasuries": 15,
+      "launches": 276,
+      "missing_recorded_subprov": 18,
+      "missing_recorded_treasury": 0
+    },
+    "interpretation": "Treasury/controller is the strongest reusable anchor and should be stored as such. It is not literally the only recurring role: a small number of canonical SubProvs repeat, so secondary role-reuse evidence must remain available. The creator is unique across the 276 canonical rows.",
+    "next_action": "Model Treasury/Controller as the primary reusable infrastructure anchor, SubProv recurrence as supporting evidence, and downstream funder/creator as per-launch roles in a versioned behavioral candidate layer.",
+    "scope": "Read-only role-reuse analysis of canonical WATCHTOWER records and routed behavior-matched LINEAGE_GAP candidates. No database writes or promotion changes.",
+    "verdict": "WATCHTOWER_TREASURY_FANOUT_GEOMETRY_SUPPORTED"
+  },
+  "watchtower_wsol_fingerprint_holdout_20260825": {
+    "artifact": "/tmp/watchtower_wsol_fingerprint_holdout.json",
+    "fingerprint": "For the selected close leg, the stable shape is system:createAccountWithSeed + spl-token:initializeAccount + spl-token:closeAccount. The complete temporary-WSOL provisioning sequence appears only when inspecting a different/linked transaction context, so requiring all instructions in the selected close transaction is invalid.",
+    "interpretation": "The close-leg fingerprint has 99.4% coverage in canonical candidates and 99.65% overlap in the unclassified cohort. This does not measure false positives: LINEAGE_GAP is absence of registered-address attribution, not a verified non-WATCHTOWER label. A real precision test requires independently adjudicated negative families.",
+    "next_action": "Create a provenance-preserving WATCHTOWER-like behavioral candidate cohort from the 285 matching LINEAGE_GAP mints; obtain analyst labels for a stratified negative/control sample before using the fingerprint for automatic confirmation.",
+    "result": {
+      "canonical_candidates": 175,
+      "canonical_close_seeded_shape": 174,
+      "lineage_gap_candidates": 286,
+      "lineage_gap_close_seeded_shape": 285,
+      "rpc_calls": 461,
+      "strict_single_transaction_full_wsol_atomic_canonical": 1,
+      "strict_single_transaction_full_wsol_atomic_lineage_gap": 1
+    },
+    "scope": "Read-only RPC instruction test of 461 selected-hop-1 WSOL amount-family candidates: 175 canonical WATCHTOWER and 286 currently LINEAGE_GAP/unclassified candidates. No database writes or promotion changes.",
+    "verdict": "WATCHTOWER_CLOSE_LEG_BEHAVIOURAL_FINGERPRINT_STRONGLY_SUPPORTED_PRECISION_UNMEASURED"
+  }
 }

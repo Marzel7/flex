@@ -933,6 +933,8 @@
       "watch_now": 61
     },
     "deterministic_replay": "PASS: replay used the same export run ID and reproduced every artifact digest exactly.",
+    "engineering_commit": "Export canonical P3R v2 tier groups",
+    "engineering_revision": "ac2fcf1d",
     "export_manifest": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/tier_group_exports/p3r-v2-tier-groups-59972ce2f9eb3d5e4985/p3r_v2_canonical_tier_group_export_manifest.v1.json",
     "export_manifest_sha256": "322ff3551e8beb5a9ec017690c33ee0e2025f4453c4f3674c567bd74ef61c392",
     "export_run_id": "p3r-v2-tier-groups-59972ce2f9eb3d5e4985",

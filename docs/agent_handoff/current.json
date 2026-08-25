@@ -620,18 +620,32 @@
     },
     "validation": "No post-deploy replay or test suite run this turn; prior rollback replay for the 14 admitted routes passed."
   },
+  "watchtower_activity_snapshot_refresh_20260825": {
+    "scope": "Refreshed the derived WATCHTOWER activity projection after the authorized admission of 14 behaviorally lineage-confirmed launches; no launch or attribution data was altered.",
+    "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+    "result": {
+      "total_observed_launches": 290,
+      "timestamp_qualified_launches": 289,
+      "timestamp_missing_launches": 1,
+      "last_observed_launch_timestamp": 1787649860,
+      "last_observed_launch_utc": "2026-08-25T08:57:40Z",
+      "launches_last_1d": 15
+    },
+    "projection_contract": "Total uses distinct wt_watchtower_launches mints; cadence and last launch use non-null create_time values from that same canonical ledger.",
+    "verdict": "WATCHTOWER_ACTIVITY_SNAPSHOT_REFRESHED"
+  },
   "project": {
     "git_head": "e9d0a404417804faa70586c7b27f6a478028b798",
     "working_branch": "classification-attribution-axis"
   },
   "schema_version": 1,
   "status": "PASS",
-  "summary": "Completed non-production 135-wallet full-history direct-funder tracer preparation. Added script that supports strict 135 membership validation, paginated Helius address-history scan per creator wallet, and output of JSONL result rows. No production code was changed.",
+  "summary": "WATCHTOWER now has 290 admitted canonical launches after the authorized 14-launch behavioral-lineage admission. Its derived activity snapshot was refreshed from the canonical ledger, restoring current list and detail metrics.",
   "tests": {
     "executed": [],
     "result": "not run; read-only 16-mint WATCHTOWER miss analysis"
   },
-  "updated_at_utc": "2026-08-25T12:00:00Z",
+  "updated_at_utc": "2026-08-25T12:35:13Z",
   "updated_by": "codex",
-  "verdict": "WATCHTOWER_COST_CONTROLLED_WALKBACK_ACTIVE"
+  "verdict": "WATCHTOWER_ACTIVITY_SNAPSHOT_REFRESHED"
 }

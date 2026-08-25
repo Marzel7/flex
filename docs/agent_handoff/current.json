@@ -96,7 +96,7 @@
     "status": "PARTIAL",
     "verdict": "AF500_LINK_CONFIRMED_EC1_LINK_UNPROVEN"
   },
-  "engineering_revision": "26e528b0 (main) + uncommitted Potential Operations queue UI",
+  "engineering_revision": "26e528b0 (main) + uncommitted Potential Operations triage UI refinement",
   "exact_next_action": "If authorized, implement completed-walkback insertion into provisional_operation_matches; preserve HISTORICAL_PROVISIONAL_REFERENCE separately from live pending review detections.",
   "generic_operation_activity_projection_20260825": {
     "exact_next_action": "Evaluate P3R matcher precision on a labelled negative/control cohort and, if authorized, implement an explicit establishment policy that writes operator membership then invokes the generic projection.",
@@ -1371,6 +1371,34 @@
       "queued": 58,
       "watch_only": 1
     }
+  },
+  "potential_operations_triage_ui_refinement_20260825": {
+    "exact_next_action": "Optional visual inspection/refinement only.",
+    "route": "/intelligence/potential-operations",
+    "safety": {
+      "active_operations_changed": false,
+      "ranking_or_status_mutated": false,
+      "rpc_provider_calls": 0,
+      "tiers_membership_classifier_trading_changed": false
+    },
+    "status": "PASS",
+    "ui": {
+      "activity": "compact 24h / 7d / 30d",
+      "columns": [
+        "Rank",
+        "Candidate",
+        "Tier",
+        "Status",
+        "Priority",
+        "Activity",
+        "Mechanism",
+        "Next action"
+      ],
+      "details": "Full frozen mechanism, gaps, scores, provenance remain in durable record/detail route",
+      "filters_search": "preserved",
+      "next_to_investigate": "Derived first QUEUED candidate: WSOL_PROVISION_CLOSE_10_SOL_MINUS_15K / p3r-v2-063e24a2def354f23ec5"
+    },
+    "verification": "watchtower_api restarted RUNNING pid 78797"
   },
   "production_flags": {
     "candidate_tuning": false,

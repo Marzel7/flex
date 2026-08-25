@@ -10,6 +10,29 @@
     "scope": "Read-only registry and attribution-outcome check for all four ACTIVE_MANUAL operations.",
     "verdict": "ONLY_WATCHTOWER_CURRENTLY_CLASSIFIABLE_LIVE"
   },
+  "af500_supplied_address_rpc_check_20260825": {
+    "confirmed_route": [
+      {
+        "from": "tVZsHhvavUSpwsHtCAqXG76qtKqsx6yqbZCc1ocxCEk",
+        "funding_lamports": 97960720,
+        "mechanism": "temporary WSOL account close",
+        "signature": "N2AjwZCt51hFdFFxAiq5ufUsg4opPC2LE7wqbfYzzHWchqDCSRaiPxwyvUQh7t8WrDw7Nv9nhHesP3MNbYE2mse",
+        "to": "6gpR19tyXb4KX1q5ZUTNezDruyfpN4fsTNqiC3BU1y43"
+      },
+      {
+        "from": "6gpR19tyXb4KX1q5ZUTNezDruyfpN4fsTNqiC3BU1y43",
+        "lamports": 99995000,
+        "mechanism": "system transfer",
+        "signature": "3U1wC5em5f34Z948tdbxU38D6PcSojjNLKqUQRVgdChWs1gH2jNEFAWjtughP7VhJJCacNQsyxx4MHxBDVvKCQ9C",
+        "to": "8f4YoDezJZxPvQbUsCm3WFwHBeHpHPhc2ccg6moXZgfy"
+      }
+    ],
+    "dtuh": "No transaction connecting DTUHk5617aHaKxDnrpJEG9roohNgrp66qvMiwnWwgtsq to the confirmed two-transaction route was found in the inspected 100-signature DTUH window.",
+    "input_correction": "VZsHhvavUSpwsHtCAqXG76qtKqsx6yqbZCc1ocxCEk decodes to 31 bytes and is invalid. The RPC transaction identifies the valid base/authority as tVZsHhvavUSpwsHtCAqXG76qtKqsx6yqbZCc1ocxCEk.",
+    "production_changes": "None",
+    "status": "PARTIAL",
+    "verdict": "CORRECTED_PARTIAL_ROUTE_CONFIRMED"
+  },
   "artifacts": {
     "corrected_namespace": "/tmp/p3r-clean-20260824T115000Z",
     "invalid_quarantined_namespace": "/tmp/p3r-clean-20260824T114000Z",

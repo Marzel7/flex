@@ -6,8 +6,8 @@
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
   "blocker": null,
-  "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e + uncommitted compact P3R trace UI and merged Evidence panel",
-  "exact_next_action": "Hard-refresh the operator page and select Evidence; Initial Funder Trace appears directly below the resolver Evidence block with 15 matched rows.",
+  "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e + uncommitted compact P3R trace UI and collapsed Summary member list",
+  "exact_next_action": "Refresh P3R_EC1 Summary; three retained launches are visible and the remainder is available through View all 15 retained launches.",
   "milestone": "P3R corrected prospective shadow successor",
   "next_action": "Optional: aggregate repeated initial fee payers across the 15 launches into operator-level relationship counts; no data mutation is authorized or required.",
   "operations_registry_activity_metrics": {
@@ -387,9 +387,9 @@
   "summary": "Completed non-production 135-wallet full-history direct-funder tracer preparation. Added script that supports strict 135 membership validation, paginated Helius address-history scan per creator wallet, and output of JSONL result rows. No production code was changed.",
   "tests": {
     "executed": [],
-    "result": "not run; watchtower_api restarted to load the UI revision"
+    "result": "not run (presentation-only template change); watchtower_api restarted to load it"
   },
   "updated_at_utc": "2026-08-25T00:00:00Z",
   "updated_by": "codex",
-  "verdict": "P3R_INITIAL_FUNDER_TRACE_UI_RELOADED"
+  "verdict": "P3R_SUMMARY_MEMBER_LIST_COLLAPSED"
 }

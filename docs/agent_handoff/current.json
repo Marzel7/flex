@@ -709,7 +709,7 @@
   },
   "p3r_v1_tier1_context_recovery_20260825": {
     "artifact": "/tmp/p3r-clean-20260824T092959Z/v1_context_recovery/p3r_v1_tier1_context_recovery.v2.json",
-    "artifact_sha256": "f8ce10d1ee877292146181d3631f7e96f5203ff4a47cbd674f604048ec3072ca",
+    "artifact_sha256": "ec530a4a05e0cf8823bc881e3acc5673d72062e3dc080424a440900d178565a5",
     "candidates": {
       "p3r-candidate-13a04d7da7a1fc55": {
         "historical_members": 5,

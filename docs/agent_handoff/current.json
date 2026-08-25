@@ -655,6 +655,18 @@
       "operator_id": "4c96fa15-c318-5a09-a4d9-bb9b78a8dd2b",
       "redirects_to": "777211c3-211e-551b-9310-ff9301570627"
     },
+    "post_merge_fix": {
+      "code_changes": [
+        "src/ops/manual_registry.py active() excludes operators.status=MERGED",
+        "src/ops/p3r_profile_candidate_matcher.py includes canonical P3R and excludes MERGED identities"
+      ],
+      "expected_ui": "Three active operations: WATCHTOWER, P3R_13A04, P3R.",
+      "issue": "Merged P3R_EC1 retained ACTIVE_MANUAL disposition and appeared in active list; canonical P3R was omitted from matcher because name filter only accepted P3R_ prefix.",
+      "runtime_changes": [
+        "supervisor restart walkback_worker",
+        "supervisor restart watchtower_api"
+      ]
+    },
     "runtime_changes": [
       "supervisor restart walkback_worker",
       "supervisor restart watchtower_api"

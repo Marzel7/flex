@@ -391,13 +391,18 @@
     "status": "RESOLVED_WALKBACK_EDGE_SCOPE"
   },
   "p3r_af500_ec1_shared_treasury_conflict_20260825": {
+    "additional_cross_cluster_link": {
+      "from": "42sfEbL2sQZm5Hvcnq7PigHTkPURbUbJy1d3wcSvrAvc",
+      "interpretation": "User-provided funding link from an AF500-listed treasury to an EC1-listed treasury. Together with shared DuTbZR..., this is positive cross-cluster evidence, not merely shared behavior.",
+      "to": "C927mKuVcJdZcWGLtGcuW3xtbZ28jmj4B3Ywvu5HGsHC"
+    },
     "af500_labelled_path": "DuTbZR8V... -> 5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn -> BDwpyKpdrVfxjeyeTQNQDd4cacva1xQzcBmiBNpjsnuR -> tpx8GumtoKhXeba859s1ka7grY8m5zcQ8yPnZnSpump",
     "ec1_labelled_path": "DuTbZR8V... -> 54xTpcBEr48Cuis8m2SdeymdQcwvmDR4aegxCPQzUANG -> CZk5uZdVfPUMzmCCDVbWUnom7gSZSbgFJKb37vGwTAt8 -> eMD1zv3m9ArePAtXYEVFG9tbXfwDzY8GyFMxbPopump",
     "exact_next_action": "Review and reconcile the two manual profile labels; do not represent them as distinct operational identities without another discriminator.",
     "production_changes": "None",
     "shared_treasury": "DuTbZR8VJGsyLvkhcAyiByPwnPRJj1GTmB88ShgAezCX",
     "status": "CONFIRMED_FROM_STORED_UI_EVIDENCE",
-    "verdict": "AF500_AND_EC1_ARE_NOT_SEPARABLE_BY_TREASURY_OR_OBSERVED_TOPOLOGY"
+    "verdict": "STRONG_CROSS_TREASURY_EVIDENCE_FOR_ONE_BROADER_OPERATIONAL_NETWORK"
   },
   "p3r_bf30e7_behaviour_binding": {
     "binding": {

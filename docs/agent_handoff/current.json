@@ -708,52 +708,10 @@
     "verdict": "PASS"
   },
   "p3r_v2_active_candidate_tiering_20260825": {
-    "counts": {
-      "dormant": 33,
-      "families": 220,
-      "member_mints": 2357,
-      "tier_1": 1,
-      "tier_2": 13,
-      "tier_3": 47,
-      "watch_later": 126,
-      "watch_now": 61
-    },
-    "durable_state": {
-      "artifact_root": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8",
-      "contract_sha256": "61b5199306ef79b48e007a3910f131510f3f05139b86e81d806c02b8d6f9c47a",
-      "database_tables": [
-        "p3r_v2_runs",
-        "p3r_v2_contracts",
-        "p3r_v2_candidate_families",
-        "p3r_v2_candidate_membership",
-        "p3r_v2_activity",
-        "p3r_v2_tier_membership",
-        "p3r_v2_shortlist"
-      ],
-      "manifest_sha256": "930fb7fc462e1464632913f22b28ea8fc419d9ca921f36fe4e798dff51617862"
-    },
-    "known_v1_references": "UNMAPPED_NOT_FORCED: v1 memberships remain unrecoverable; no old identity was guessed or forced into v2.",
-    "next_action": "Review the v2 shortlist locally; candidate p3r-v2-6f7738e9702395ba8ad3 is closest among active base candidates because it already has high address diversity and retained alternative/atomic observations, but it requires stronger recurrence proof before Tier 2/1.",
-    "reproducibility": {
-      "exact_replay": "PASS: stored high-water replay returned same run ID and manifest SHA-256",
-      "focused_tests": "3 passed (tests/test_p3r_v2_tiering.py)"
-    },
-    "run_id": "p3r-v2-2dec1d40604c1f7c08c8",
-    "safety": {
-      "canonical_promotion": false,
-      "legacy_candidate_or_operation_mutation": false,
-      "provider_or_rpc_calls": false,
-      "queue_replay": false,
-      "source_writes": "Only explicitly authorized p3r_v2_* durable research tables.",
-      "trading_signal": false
-    },
-    "source_snapshot": {
-      "schema_sha256": "dcc038d07998c3d37d0475a7c0fc1d61eaa141401712b3079ec3e465dff3f4ad",
-      "wt_walkback_atomic_flows": 7095,
-      "wt_walkback_edge_candidates": 60299,
-      "wt_walkback_queue": 32353
-    },
+    "engineering_commit": "532faa3d",
+    "next_action": "Use the committed durable v2 artifacts for the Tier-2 assessment; do not alter tier membership without an authorized follow-up.",
     "status": "COMPLETE",
+    "tests": "3 focused deterministic tests passed; exact replay manifest matched",
     "verdict": "P3R_V2_ACTIVE_CANDIDATE_TIERS_QUALIFIED"
   },
   "p3r_watch_now_tiers_20260824": {
@@ -797,7 +755,7 @@
     "watchtower_api_restarted": true
   },
   "project": {
-    "git_head": "e9d0a404417804faa70586c7b27f6a478028b798",
+    "git_head": "532faa3d",
     "working_branch": "classification-attribution-axis"
   },
   "schema_version": 1,

@@ -1333,6 +1333,21 @@
     "v2_scope_recommendation": "TIER_1_FIRST",
     "verdict": "P3R_WATCH_NOW_TIERS_QUALIFIED"
   },
+  "potential_operations_page_lock_fix_20260825": {
+    "fix": "rows() now performs a read-only existence/count check and seeds only when the workflow table is absent or empty.",
+    "root_cause": "Potential Operations attempted durable queue seeding on every HTTP render and collided with an active SQLite writer.",
+    "safety": {
+      "classifier_or_membership_changed": false,
+      "queue_data_changed": false,
+      "rpc_provider_calls": 0,
+      "unrelated_services_restarted": false
+    },
+    "status": "PASS",
+    "verification": {
+      "host_http_status": 200,
+      "watchtower_api": "RUNNING pid 79517"
+    }
+  },
   "potential_operations_queue_ui_20260825": {
     "detail_route": "/intelligence/potential-operations/<candidate_id>",
     "exact_next_action": "If authorized, add bounded workflow-state mutation controls with separate analyst-action audit records.",

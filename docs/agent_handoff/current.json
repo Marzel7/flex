@@ -6,8 +6,8 @@
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
   "blocker": "Durable operation_infrastructure_anchors persistence/migration, variant persistence, full render suite, and performance-gate coverage remain unfinished.",
-  "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e + uncommitted compact Summary with Watchtower-style launch metadata",
-  "exact_next_action": "Refresh a confirmed-operation Summary and confirm each launch row places mechanism, date, and green Funding Tx link in the right metadata column.",
+  "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e + uncommitted compact Summary with Solscan launch-chain links",
+  "exact_next_action": "Refresh a confirmed-operation Summary and confirm all launch-chain wallet, mint, and Funding Tx links open their corresponding Solscan pages.",
   "milestone": "P3R corrected prospective shadow successor",
   "next_action": "Complete durable anchor persistence and full Summary validation; no provider calls, queue replay, promotion, or identity mutation is authorized.",
   "operations_registry_activity_metrics": {

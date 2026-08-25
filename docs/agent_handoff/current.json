@@ -496,6 +496,22 @@
     "interpretation": "All 16 satisfy the entry-level WATCHTOWER-like WSOL funding-branch signal. Ten also satisfy the observed Treasury -> SubProv/direct-funder -> Creator portion of the role geometry; six require upstream enrichment before a complete treasury-anchored route can be recorded. Under a behavior-first policy, all 16 are candidates, not automatically canonical identities.",
     "verdict": "WATCHTOWER_RECENT_COHORT_BEHAVIOURAL_CANDIDATES_16"
   },
+  "watchtower_recent_six_upstream_rpc_20260825": {
+    "scope": "Read-only RPC trace of the six current 2.122039-SOL WSOL-close cohort members without selected hop-2 evidence. Queried each direct funder's 100-signature history before the creator-funding anchor, then retried including same-timestamp signatures while excluding the anchor itself. No database writes or promotion changes.",
+    "result": {
+      "direct_funders": 6,
+      "rpc_calls_per_pass": 6,
+      "pre_anchor_signatures_found": 0,
+      "upstream_funding_transactions_recovered": 0,
+      "anchor_transactions_rpc_verified": 6,
+      "anchor_fee_payer_equals_direct_funder": 6,
+      "anchor_direct_funder_debit_lamports": 2122049280
+    },
+    "finding": "Each direct funder is a fresh single-use fee payer in the available RPC address history and debits 2.122049280 SOL in the creator-provisioning anchor. No prior or same-timestamp non-anchor signature is exposed, so no upstream treasury may be inferred from these data.",
+    "artifact": "/tmp/watchtower_recent_six_anchor_rpc.json",
+    "next_action": "Keep the six as behaviorally matched candidates with an explicitly unresolved Treasury/Controller role; do not fabricate an upstream link. Resolve only if an independent provenance source or later infrastructure recurrence supplies it.",
+    "verdict": "WATCHTOWER_RECENT_SIX_UPSTREAM_UNRESOLVED_RPC_VERIFIED"
+  },
   "project": {
     "git_head": "e9d0a404417804faa70586c7b27f6a478028b798",
     "working_branch": "classification-attribution-axis"
@@ -507,7 +523,7 @@
     "executed": [],
     "result": "not run; read-only 16-mint WATCHTOWER miss analysis"
   },
-  "updated_at_utc": "2026-08-25T09:55:00Z",
+  "updated_at_utc": "2026-08-25T10:10:00Z",
   "updated_by": "codex",
-  "verdict": "WATCHTOWER_RECENT_COHORT_BEHAVIOURAL_CANDIDATES_16"
+  "verdict": "WATCHTOWER_RECENT_SIX_UPSTREAM_UNRESOLVED_RPC_VERIFIED"
 }

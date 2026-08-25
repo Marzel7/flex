@@ -7,9 +7,9 @@
   },
   "blocker": null,
   "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e + uncommitted compact P3R trace UI and merged Evidence panel",
-  "exact_next_action": "Reload the operator page and select Evidence; Initial Funder Trace appears directly below the resolver Evidence block with 15 matched rows.",
+  "exact_next_action": "Hard-refresh the operator page and select Evidence; Initial Funder Trace appears directly below the resolver Evidence block with 15 matched rows.",
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "Optional: aggregate repeated initial fee payers across the 15 launches into operator-level relationship counts; no production change is authorized or required.",
+  "next_action": "Optional: aggregate repeated initial fee payers across the 15 launches into operator-level relationship counts; no data mutation is authorized or required.",
   "operations_registry_activity_metrics": {
     "activity_artifact": "/tmp/p3r-registry-migration/active_operations_launch_activity_snapshots.v3.json",
     "activity_artifact_sha256": "4d1bdb9db2e83aba1c2c5fd82ac248abea9ee1b48a391095f01003ea73041ef9",
@@ -375,7 +375,8 @@
     "production_action": false,
     "provider_network_calls": false,
     "source_table_writes": false,
-    "trading_ranking_prediction": false
+    "trading_ranking_prediction": false,
+    "watchtower_api_restarted": true
   },
   "project": {
     "git_head": "e9d0a404417804faa70586c7b27f6a478028b798",
@@ -386,9 +387,9 @@
   "summary": "Completed non-production 135-wallet full-history direct-funder tracer preparation. Added script that supports strict 135 membership validation, paginated Helius address-history scan per creator wallet, and output of JSONL result rows. No production code was changed.",
   "tests": {
     "executed": [],
-    "result": "not run; data inspection confirmed all 15 P3R_EC1 member mints intersect the supplied CSV"
+    "result": "not run; watchtower_api restarted to load the UI revision"
   },
   "updated_at_utc": "2026-08-25T00:00:00Z",
   "updated_by": "codex",
-  "verdict": "P3R_INITIAL_FUNDER_TRACE_UI_PANEL_MERGED"
+  "verdict": "P3R_INITIAL_FUNDER_TRACE_UI_RELOADED"
 }

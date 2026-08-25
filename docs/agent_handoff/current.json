@@ -5,11 +5,11 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "One-hop earliest evidence for all 91 direct funders is complete, but J37 and 4mm resolve to token-close receipts; the user-supplied 8f4 and B65 accounts are outside the direct-funder set and require a targeted second-hop transaction trace.",
-  "engineering_revision": "current-run-direct-funder-135-trace-only",
-  "exact_next_action": "Run scripts/full_history_direct_funder_trace_135.py with the 135-cohort file and inspect JSONL output; no production code was changed.",
+  "blocker": null,
+  "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e + uncommitted compact initial-funder trace UI",
+  "exact_next_action": "Reload the operator Evidence tab and inspect the compact direct-funder ancestry panel; expand Trace details only when provenance is needed.",
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "Collect target 135-wallet cohort file and run the script once the HELIUS API key is available; this run is non-production/offline-only unless explicitly authorized.",
+  "next_action": "Optional: aggregate repeated initial fee payers across launches into operator-level relationship counts; no production change is authorized or required.",
   "operations_registry_activity_metrics": {
     "activity_artifact": "/tmp/p3r-registry-migration/active_operations_launch_activity_snapshots.v3.json",
     "activity_artifact_sha256": "4d1bdb9db2e83aba1c2c5fd82ac248abea9ee1b48a391095f01003ea73041ef9",
@@ -272,7 +272,7 @@
   },
   "p3r_bf30e7_behaviour_binding": {
     "binding": {
-      "atomic_coverage": 1.0,
+      "atomic_coverage": 1,
       "atomic_sequence": [
         "createAccountWithSeed",
         "initializeAccount3",
@@ -386,9 +386,9 @@
   "summary": "Completed non-production 135-wallet full-history direct-funder tracer preparation. Added script that supports strict 135 membership validation, paginated Helius address-history scan per creator wallet, and output of JSONL result rows. No production code was changed.",
   "tests": {
     "executed": [],
-    "result": "not run (script-only change)"
+    "result": "not run (presentation-only template change)"
   },
   "updated_at_utc": "2026-08-25T00:00:00Z",
   "updated_by": "codex",
-  "verdict": "READY_FULL_HISTORY_DIRECT_FUNDER_TRACE_135_PREP"
+  "verdict": "P3R_INITIAL_FUNDER_TRACE_UI_COMPACTED"
 }

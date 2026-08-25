@@ -707,6 +707,46 @@
     "ui": "API restart serves consolidated P3R; operator-list polling and snapshot projection update on subsequent requests.",
     "verdict": "PASS"
   },
+  "p3r_v1_tier1_context_recovery_20260825": {
+    "artifact": "/tmp/p3r-clean-20260824T092959Z/v1_context_recovery/p3r_v1_tier1_context_recovery.v2.json",
+    "artifact_sha256": "f8ce10d1ee877292146181d3631f7e96f5203ff4a47cbd674f604048ec3072ca",
+    "candidates": {
+      "p3r-candidate-13a04d7da7a1fc55": {
+        "historical_members": 5,
+        "mechanism_recovery": "PARTIAL_MECHANISM_FINGERPRINT_RECOVERED",
+        "member_mints_recovered": 0,
+        "provenance": "LATER_REFERENCE"
+      },
+      "p3r-candidate-af5004dfe42cfe11": {
+        "creator_count": 52,
+        "historical_members": 52,
+        "mechanism_recovery": "PARTIAL_MECHANISM_FINGERPRINT_RECOVERED",
+        "member_mints_recovered": 0,
+        "original_fingerprint_id_or_hash": "NOT_RECOVERED",
+        "provenance": "LATER_REFERENCE",
+        "selected_direct_funder_parent_count": 36
+      },
+      "p3r-candidate-bf30e77ee07e312b": {
+        "historical_members": 14,
+        "mechanism_recovery": "AGGREGATE_STRUCTURE_ONLY",
+        "member_mints_recovered": 0,
+        "provenance": "NOT_RECOVERED"
+      },
+      "p3r-candidate-ec1b6cff80643746": {
+        "historical_members": 15,
+        "mechanism_recovery": "PARTIAL_MECHANISM_FINGERPRINT_RECOVERED",
+        "member_mints_recovered": 0,
+        "provenance": "LATER_REFERENCE"
+      }
+    },
+    "manifest": "/tmp/p3r-clean-20260824T092959Z/v1_context_recovery/p3r_v1_tier1_context_recovery_manifest.v1.json",
+    "manifest_sha256": "bf75495e798fe76f1aeb5c720956b5543db4a3b0515c6467fcf60ac22f5a15d5",
+    "next_action": "If separately authorized, conduct a provenance-aware mechanism-only v2 comparison for 13a04, af500, and ec1; do not map member lineage without original v1 membership artifacts.",
+    "original_v1_fingerprint_ids_or_hashes_recovered": 0,
+    "original_v1_member_lists_recovered": 0,
+    "scope": "Historical v1 Tier-1 context and durable-artifact recovery only; no v2 comparison/reconstruction, RPC/provider call, source/runtime mutation, tier change, queue replay, promotion, or trading signal.",
+    "verdict": "P3R_V1_TIER1_CONTEXT_RECOVERY_COMPLETE"
+  },
   "p3r_v1_tier1_to_v2_lineage_20260825": {
     "blocker": "Replay is not deterministic because the provenance query mistakenly counts its own p3r_v2_v1_lineage_reconciliation_runs table as a historical v1 table. The historical v1 membership/tier artifacts remain absent under /tmp and no actual v1 database tables were found.",
     "initial_run_id": "p3r-v2-v1-lineage-c819654681402b561ee0",

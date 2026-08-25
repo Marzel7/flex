@@ -760,6 +760,13 @@
     "verdict": "EC1_DECREMENT_LADDER_13_OF_15_OBSERVED",
     "exact_next_action": "Run the identical bounded decrement-ladder screen across AF500 and an independent negative cohort before using it as an EC1-specific automatic admission feature."
   },
+  "p3r_ec1_direct_okh_member_dismissal_20260825": {
+    "scope": "User-authorized removal of two direct-OKH branches from retained P3R_EC1 operation membership.",
+    "dismissed_mints": ["p6Dydex88SswnKT9pRnjPwrCfHpw1c79FAAu81Upump", "x7ofxncQVmMK3PDXVJF76uJ5JkgzX3x3eUGXkjopump"],
+    "result": {"retained_member_count": 13, "activity_snapshot_total": 13},
+    "safety": "Only operation_behavioural_profiles.member_mints_json and a derived activity snapshot changed. Raw walkback evidence was retained; no resolver, attribution outcome, or external call changed.",
+    "verdict": "EC1_DIRECT_OKH_BRANCHES_DISMISSED"
+  },
   "operators_page_automatic_refresh_20260825": {
     "scope": "Client-side automatic update for the active-operations list.",
     "file": "templates/operators_index.html",
@@ -774,12 +781,12 @@
   },
   "schema_version": 1,
   "status": "PASS",
-  "summary": "Activity projection is generic for every active operation. WATCHTOWER and unambiguous P3R_13A04 walkback matches now establish membership and refresh UI activity automatically; the operators page polls every 15 seconds. EC1's upstream amount pattern is disproven as EC1-specific, while the distinct 5,000-lamport decrement ladder is observed in 13/15 EC1 creators pending AF500/negative-cohort contrast.",
+  "summary": "Activity projection is generic for every active operation. WATCHTOWER and unambiguous P3R_13A04 walkback matches now establish membership and refresh UI activity automatically; the operators page polls every 15 seconds. EC1 now retains 13 members after dismissing two direct-OKH branches; its 5,000-lamport decrement ladder is observed in all 13 retained members pending AF500/negative-cohort contrast.",
   "tests": {
     "executed": [],
     "result": "not run; read-only 16-mint WATCHTOWER miss analysis"
   },
   "updated_at_utc": "2026-08-25T12:35:13Z",
   "updated_by": "codex",
-  "verdict": "EC1_DECREMENT_LADDER_13_OF_15_OBSERVED"
+  "verdict": "EC1_DIRECT_OKH_BRANCHES_DISMISSED"
 }

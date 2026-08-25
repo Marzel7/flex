@@ -39,7 +39,7 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "The authoritative frozen candidate partition and its WATCH_NOW/recurrence/atomic/address-blind input artifacts are absent from durable repository and database sources.",
+  "blocker": "Exact frozen WATCH_NOW and 114-candidate identity artifacts are absent; surviving code cannot reproduce the historic partition without them.",
   "dtuh_af500_ec1_link_check_20260825": {
     "af500_direct_connection": {
       "destination": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ",
@@ -82,7 +82,7 @@
     "verified_ladder": "HboqWvK2... close 34,691,750,098 -> Gre9jF21... transfer 34,691,745,098 -> FwaWYJeu... close 34,691,740,098 -> AerCoA4G... transfer 34,691,735,098 -> 5jFqjJr4... close 34,691,730,098 -> DZtCkaEd... transfer 34,691,725,098 -> 2GH1yDtg... close 34,691,720,098 -> HWse5Gae... transfer 34,691,715,098 -> Ft5Sn8GN..."
   },
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "Recover the missing authoritative upstream P3R tier inputs; do not regenerate tiers from summary counts or current raw evidence.",
+  "next_action": "Recover an exact historical artifact or all frozen input artifacts from backup before deterministic tier regeneration.",
   "operation_walkback_review_queue_20260825": {
     "endpoints": [
       "/api/ops/operators/review-queue",
@@ -811,6 +811,45 @@
     "next_action": "Restore the exact frozen upstream manifest and all candidate-level qualification inputs from backup/versioned storage, then verify their digests before running the deterministic tier generator.",
     "status": "BLOCKED",
     "verdict": "P3R_WATCH_NOW_TIER_ARTIFACTS_REGENERATION_BLOCKED"
+  },
+  "tier_forensic_recovery_20260825": {
+    "actions_not_taken": [
+      "No regeneration",
+      "No tier artifact creation",
+      "No candidate classification changes",
+      "No provider/RPC calls",
+      "No production writes"
+    ],
+    "checkpoints": {
+      "6d19e91a": "Contains tier counts, exact Tier 1 IDs, original temporary artifact-manifest path, and safety metadata, but no Tier 2/3 identity arrays.",
+      "a3f2cc22": "Contains activity-priority counts and the original temporary artifact-manifest path, but no WATCH_NOW identity array."
+    },
+    "exact_114_membership_survives": false,
+    "next_action": "Recover any one exact historical WATCH_NOW membership artifact or frozen 114 membership manifest plus the versioned alternative/atomic/address-blind artifacts from external backup; then run the surviving deterministic generator and validate the historical digests.",
+    "recovery_surfaces_examined": [
+      "reachable git history including checkpoints and nearby agent-handoff history",
+      "checkpoint commit trees and parents",
+      "reflog",
+      "stash inventory",
+      "dedicated agent worktree",
+      "bounded unreachable commit-tree and blob search",
+      "docs/audits and docs/agent_handoff",
+      "wt_ops_v2.db schema"
+    ],
+    "status": "COMPLETE",
+    "surviving_implementation": {
+      "path": "scripts/analyze_p3r_watch_now_tiers.py",
+      "required_inputs": [
+        "p3r_watch_now_candidate_membership.v1.json",
+        "p3r_candidate_operational_family_membership.v1.json",
+        "p3r_novel_candidate_alternative_recurrence.v1.json",
+        "p3r_strong_alternative_atomic_recurrence.v1.json",
+        "p3r_atomic_strong_address_blind.v1.json"
+      ],
+      "rule": "Tier 1: STRONGLY_RECURRENT alternative + ATOMIC_STRONGLY_RECURRENT + FULLY_ADDRESS_BLIND; Tier 2: STRONGLY_RECURRENT alternative; Tier 3: remaining WATCH_NOW.",
+      "status": "Code survives; all frozen input artifacts are absent from durable repository and inspected local worktrees."
+    },
+    "verdict": "P3R_WATCH_NOW_TIERS_UNRECOVERABLE"
   },
   "treasury_cluster_link_check_20260825": {
     "af500_limit": "B65 history pagination reached 3,000 newer records without reaching account origin; its immediate pre-launch close-account recycling chain is not treated as a capital-source link.",

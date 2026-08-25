@@ -82,7 +82,7 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "900b projector row-shape defect; do not activate live worker.",
+  "blocker": "900b projector remains unvalidated; walkback_worker not restarted.",
   "dtuh_af500_ec1_link_check_20260825": {
     "af500_direct_connection": {
       "destination": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ",
@@ -1349,16 +1349,19 @@
     "main": "26e528b0ae1fa5ed465c4fe9059a259d903fef29"
   },
   "provisional_900b_live_detector_wiring_20260825": {
-    "exact_next_action": "With explicit approval, correct the projector to use positional/row-factory-independent extraction, add its regression coverage, rerun the bounded suite, then restart only walkback_worker if all tests pass.",
-    "implementation": "Hook added after completed walkback commit, but focused test found projector assumes mapping-style SQLite rows while walkback_worker uses tuple rows. Worker was not restarted.",
+    "exact_next_action": "With explicit approval, add selection_status to the fixed projection, catch sqlite3.Error around its retained-edge query, update the malformed-evidence fixture to retain the queried schema, rerun bounded tests, and restart only walkback_worker if green.",
+    "new_defects": [
+      "selected-edge query does not select selection_status required by classify_900b, causing safe not_900b results",
+      "malformed table shape raises SQL error before the adapter can classify it as malformed_selected_edge"
+    ],
+    "p3r_fixture": "PRE_EXISTING_FIXTURE_DEFECT: operators.status absent from fixture; unrelated to 900b row-shape code.",
     "status": "PARTIAL",
     "test_result": {
-      "failed": 5,
-      "new_900b_failures": 2,
-      "passed": 4,
-      "unrelated_existing_p3r_fixture_failures": 3
+      "failed_900b": 3,
+      "failed_p3r_fixture": 3,
+      "passed": 4
     },
-    "verdict": "IMPLEMENTED_BUT_NOT_SAFE_TO_ACTIVATE"
+    "verdict": "ROW_SHAPE_FIX_INCOMPLETE_NOT_ACTIVATED"
   },
   "provisional_operation_activity_ui_projection_20260825": {
     "activity_source": "44 explicit HISTORICAL_PROVISIONAL_REFERENCE rows in provisional_operation_activity_observations; never confirmed membership.",

@@ -608,6 +608,31 @@
     "source_writes": false,
     "status": "RESOLVED_READ_ONLY"
   },
+  "p3r_two_mint_historical_edge_backfill_20260825": {
+    "database": "database/wt_ops_v2.db",
+    "exact_next_action": "Repeat this bounded RPC-and-materialization process for the remaining AF500/EC1 profile members before deciding a canonical merge.",
+    "production_code_changes": "None",
+    "result": "Two edges and one session materialized per mint; missing operator_launch_membership rows inserted without overwriting any existing assignment.",
+    "rpc_verified_and_materialized": [
+      {
+        "creator_close_lamports": 99999984640,
+        "creator_close_signature": "2T551Aj4Bf9UfwQwWxwraYSEv4oggnqrkV13fEt3kK2hfNUVvgfodLSEo9o8UFTuzSbuArnhztNCmBbZaTybdK8n",
+        "mint": "tpx8GumtoKhXeba859s1ka7grY8m5zcQ8yPnZnSpump",
+        "operator": "P3R_AF500",
+        "path": "DuTbZR8V... -> 5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn -> BDwpyKpdrVfxjeyeTQNQDd4cacva1xQzcBmiBNpjsnuR",
+        "treasury_edge_signature": "5iuxC2Nct8UnqzkAQdZM7wnTGzbJMyLDJUGrggt8hm1K4t7Pu2fJqhzPuKe1WutKBEK2yvi316fquqmG4peZJoa9"
+      },
+      {
+        "creator_close_lamports": 99999984640,
+        "creator_close_signature": "N6eptNSshMgxtoFmE2EeQWZVSogQPgYREFuGdRCD8GFqZdT8sPXComQsNWCfz9Ze6SnnmTLwa2zkaPboRR7MCv1",
+        "mint": "eMD1zv3m9ArePAtXYEVFG9tbXfwDzY8GyFMxbPopump",
+        "operator": "P3R_EC1",
+        "path": "DuTbZR8V... -> 54xTpcBEr48Cuis8m2SdeymdQcwvmDR4aegxCPQzUANG -> CZk5uZdVfPUMzmCCDVbWUnom7gSZSbgFJKb37vGwTAt8",
+        "treasury_edge_signature": "2J2Hmb9dgmegNYiSMyDdTYG7WEPKV24YrbuWuYByJz41igAyATc8A4PUD1HNWBgmmKXUmqfQriBKXW2SsFbijFha"
+      }
+    ],
+    "status": "COMPLETE"
+  },
   "p3r_watch_now_tiers_20260824": {
     "artifact_manifest": "/tmp/p3r-clean-20260824T092959Z/activity/tiers/p3r_watch_now_tiering_artifact_manifest.v1.json",
     "artifact_manifest_sha256": "1b14f979105f054f6426a87d5ad9fc83074ef5b7b77e71ae4aa7d1e6b06cb211",

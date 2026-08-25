@@ -807,6 +807,62 @@
     "tests": "3 focused deterministic tests passed; exact replay manifest matched",
     "verdict": "P3R_V2_ACTIVE_CANDIDATE_TIERS_QUALIFIED"
   },
+  "p3r_v2_c357_alternative_variant_decomposition_20260825": {
+    "artifact": "/tmp/p3r-clean-20260824T092959Z/c357_alternative_variant_decomposition/p3r_v2_c357_alternative_variant_decomposition.v1.json",
+    "artifact_sha256": "167af85565b26d0df9f07b25cd9bd8a8197718eddb8a821c3c4a327eeb5af6c5",
+    "candidate": "p3r-v2-c357da9d0d4d560311e4",
+    "canonical_run": "p3r-v2-2dec1d40604c1f7c08c8",
+    "counterfactual_equivalence": {
+      "broader_mechanism": "Not combined; insufficient retained alternate atomic/instruction evidence",
+      "canonical": {
+        "count": 33,
+        "denominator": 71,
+        "share": 0.4647887323943662
+      },
+      "exact_mechanical": "No merged class beyond canonical-identical fingerprint",
+      "exceeds_60_percent": false
+    },
+    "d3de_control": "9/9 homogeneous alternative fingerprint: hop-3 WSOL_WRAP_CLOSE at 14,479,000 lamports.",
+    "final_disposition": "C357_MIXED_EQUIVALENCE_AND_TRUE_HETEROGENEITY",
+    "interpretation": "All variants retain hop-1 PLAIN_XFER mechanics, but non-dominant variants have materially different non-zero amount vectors and/or an extra null-valued edge. Retained evidence does not establish their economic equivalence. No non-dominant recurrent stable subgroup exists.",
+    "manifest": "/tmp/p3r-clean-20260824T092959Z/c357_alternative_variant_decomposition/p3r_v2_c357_alternative_variant_decomposition_manifest.v1.json",
+    "manifest_sha256": "f2b8f7cffb099cc31972ac4016c3a6ff94d1bbf07e08c90a664c9244ce70af60",
+    "next_action": "No automatic contract review. If separately authorized, inspect retained roles/linked records only for the two-member same-10m-plus-null variant; retain canonical Tier 3.",
+    "result": {
+      "alternative_atomic_signature_matches": 0,
+      "alternative_edge_rows": 88,
+      "concentration": {
+        "top_1": 0.4647887323943662,
+        "top_2": 0.49295774647887325,
+        "top_3": 0.5070422535211268,
+        "top_5": 0.5352112676056338
+      },
+      "distinct_fingerprints": 38,
+      "dominant": {
+        "count": 33,
+        "edge": "hop-1 PLAIN_XFER 10000000 lamports",
+        "share": 0.4647887323943662
+      },
+      "entropy_bits": 3.777000556985966,
+      "members": 71,
+      "remaining_singletons": 36,
+      "second": {
+        "count": 2,
+        "edge": "same hop-1 PLAIN_XFER 10000000 plus a null-valued hop-1 PLAIN_XFER edge",
+        "share": 0.028169014084507043
+      }
+    },
+    "safety": {
+      "membership_tier_fingerprint_threshold_mutations": 0,
+      "promotion": 0,
+      "provider_or_rpc_calls": 0,
+      "queue_replay": 0,
+      "runtime_changes": 0,
+      "source_writes": 0,
+      "trading_signal": 0
+    },
+    "verdict": "P3R_V2_C357_ALTERNATIVE_VARIANT_DECOMPOSITION_COMPLETE"
+  },
   "p3r_v2_c357_tier1_gap_analysis_20260825": {
     "artifact": "/tmp/p3r-clean-20260824T092959Z/c357_tier1_gap_analysis/p3r_v2_c357_tier1_gap_analysis.v1.json",
     "artifact_sha256": "d66cec501f35d75d07026c2096a9594d5266a0884856e55d0ff3b03f444fce15",

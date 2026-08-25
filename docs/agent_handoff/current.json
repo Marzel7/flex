@@ -699,18 +699,26 @@
     "verdict": "P3R_13A04_AUTO_ADMISSION_ACTIVE",
     "exact_next_action": "Observe the next qualifying P3R_13A04 walkback and confirm its automatic operator membership and UI snapshot; do not extend auto-admission to AF500/EC1 without resolving their overlap."
   },
+  "operators_page_automatic_refresh_20260825": {
+    "scope": "Client-side automatic update for the active-operations list.",
+    "file": "templates/operators_index.html",
+    "implementation": "Replaced the one-time /api/ops/operators request with an initial request plus a 15-second polling interval.",
+    "runtime": {"service": "watchtower_api", "action": "restarted"},
+    "operator_experience": "The currently open browser tab needs one reload to receive the updated script; it then refreshes operation counts and latest-launch data automatically every 15 seconds.",
+    "verdict": "OPERATORS_UI_AUTO_REFRESH_ACTIVE"
+  },
   "project": {
     "git_head": "e9d0a404417804faa70586c7b27f6a478028b798",
     "working_branch": "classification-attribution-axis"
   },
   "schema_version": 1,
   "status": "PASS",
-  "summary": "Activity projection is generic for every active operation. WATCHTOWER and unambiguous P3R_13A04 walkback matches now establish membership and refresh UI activity automatically; AF500/EC1 remain nomination-only because their stored fingerprint overlaps.",
+  "summary": "Activity projection is generic for every active operation. WATCHTOWER and unambiguous P3R_13A04 walkback matches now establish membership and refresh UI activity automatically; the operators page polls every 15 seconds. AF500/EC1 remain nomination-only because their stored fingerprint overlaps.",
   "tests": {
     "executed": [],
     "result": "not run; read-only 16-mint WATCHTOWER miss analysis"
   },
   "updated_at_utc": "2026-08-25T12:35:13Z",
   "updated_by": "codex",
-  "verdict": "P3R_13A04_AUTO_ADMISSION_ACTIVE"
+  "verdict": "OPERATORS_UI_AUTO_REFRESH_ACTIVE"
 }

@@ -5,9 +5,9 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "EC1 fingerprint now presents the repeated direct-funder amount inline on the semantic role path. Durable operation_infrastructure_anchors persistence/migration, variant persistence, full render suite, and performance-gate coverage remain unfinished.",
-  "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e + uncommitted semantic P3R role path with inline amount",
-  "exact_next_action": "Refresh EC1 Summary and confirm Observed role path reads Initial fee payer to parent direct funder (99.999985 SOL temporary WSOL close to creator) to creator.",
+  "blocker": "EC1 fingerprint prioritizes the bold semantic role path; durable operation_infrastructure_anchors persistence/migration, variant persistence, full render suite, and performance-gate coverage remain unfinished.",
+  "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e + uncommitted P3R fingerprint prioritizing observed role path",
+  "exact_next_action": "Refresh EC1 Summary and confirm the bold Observed role path is first and the generic Funding route bullet is absent.",
   "milestone": "P3R corrected prospective shadow successor",
   "next_action": "Complete durable anchor persistence and full Summary/Analysis validation; no provider calls, queue replay, promotion, or identity mutation is authorized.",
   "operations_registry_activity_metrics": {

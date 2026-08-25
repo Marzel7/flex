@@ -714,6 +714,15 @@
     "tests": "3 focused deterministic tests passed; exact replay manifest matched",
     "verdict": "P3R_V2_ACTIVE_CANDIDATE_TIERS_QUALIFIED"
   },
+  "p3r_v2_local_gap_closure_20260825": {
+    "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/local_gap_closure/p3r-v2-gap-closure-13296e4830c457dbebd7/p3r_v2_local_evidence_gap_closure.v1.json",
+    "base_run_id": "p3r-v2-2dec1d40604c1f7c08c8",
+    "blocker": "Disposition threshold currently overstates sparse contradictory alternative rows when the majority are ambiguous/supportive; do not use this run as final classification.",
+    "closure_run_id": "p3r-v2-gap-closure-13296e4830c457dbebd7",
+    "next_action": "With user approval, correct the local disposition threshold, rerun/replay the same frozen inputs, then publish the final bounded report.",
+    "safety": "No provider/RPC calls, queue replay, membership mutation, promotion, or trading signal.",
+    "status": "PARTIAL"
+  },
   "p3r_v2_shortlist_enrichment_20260825": {
     "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/shortlist_enrichment/p3r-v2-enrichment-c03f0fce0b7e3b9d685b/p3r_v2_shortlist_enrichment.v1.json",
     "artifact_sha256": "9ab743c79e7f4f1600f281c14c5294f0f49d4e17f0459b9ae5195f8430c66ff1",

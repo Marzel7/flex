@@ -60,7 +60,7 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "None for UI grouping correction.",
+  "blocker": "None for provisional activity projection.",
   "dtuh_af500_ec1_link_check_20260825": {
     "af500_direct_connection": {
       "destination": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ",
@@ -74,8 +74,8 @@
     "status": "PARTIAL",
     "verdict": "AF500_LINK_CONFIRMED_EC1_LINK_UNPROVEN"
   },
-  "engineering_revision": "26e528b0 (main) + uncommitted provisional UI grouping correction",
-  "exact_next_action": "If authorized, connect the frozen provisional evaluator to completed walkback outcomes; keep all matches review-only and outside confirmed membership.",
+  "engineering_revision": "26e528b0 (main) + uncommitted provisional activity UI projection",
+  "exact_next_action": "If authorized, implement completed-walkback insertion into provisional_operation_matches; preserve HISTORICAL_PROVISIONAL_REFERENCE separately from live pending review detections.",
   "generic_operation_activity_projection_20260825": {
     "exact_next_action": "Evaluate P3R matcher precision on a labelled negative/control cohort and, if authorized, implement an explicit establishment policy that writes operator membership then invokes the generic projection.",
     "implementation": "refresh_operator_activity_snapshot derives WATCHTOWER from its canonical ledger and other operations from retained behavioural-profile members plus explicit operator_launch_membership rows, resolving launch times from the core token ledger.",
@@ -1325,6 +1325,25 @@
     "branch": "classification-attribution-axis",
     "git_head": "26e528b0ae1fa5ed465c4fe9059a259d903fef29",
     "main": "26e528b0ae1fa5ed465c4fe9059a259d903fef29"
+  },
+  "provisional_operation_activity_ui_projection_20260825": {
+    "activity_source": "44 explicit HISTORICAL_PROVISIONAL_REFERENCE rows in provisional_operation_activity_observations; never confirmed membership.",
+    "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/provisional_operation_implementation/provisional_operation_activity_ui_projection.v1.json",
+    "artifact_sha256": "5c01607a1d9b1b35a0b11951d08540135278b0280b0fdbe7f4572b6584f037ab",
+    "confirmed_memberships": 0,
+    "exact_next_action": "If authorized, implement completed-walkback insertion into provisional_operation_matches; preserve HISTORICAL_PROVISIONAL_REFERENCE separately from live pending review detections.",
+    "metrics": {
+      "average_gap_seconds": 60978.25581395349,
+      "last_24h": 5,
+      "last_30d": 43,
+      "last_7d": 29,
+      "latest": 1787649754,
+      "total": 44
+    },
+    "operator_id": "70f27e37-83eb-5c97-831c-48189ef98f6c",
+    "status": "PASS",
+    "tests": "7 passed",
+    "ui": "Amber provisional row uses shared total launches / average gap / latest observed layout. Detail reader exposes same snapshot and provisional launch history with state."
   },
   "schema_version": 1,
   "status": "PASS",

@@ -807,6 +807,60 @@
     "tests": "3 focused deterministic tests passed; exact replay manifest matched",
     "verdict": "P3R_V2_ACTIVE_CANDIDATE_TIERS_QUALIFIED"
   },
+  "p3r_v2_c357_tier1_gap_analysis_20260825": {
+    "artifact": "/tmp/p3r-clean-20260824T092959Z/c357_tier1_gap_analysis/p3r_v2_c357_tier1_gap_analysis.v1.json",
+    "artifact_sha256": "d66cec501f35d75d07026c2096a9594d5266a0884856e55d0ff3b03f444fce15",
+    "candidate": "p3r-v2-c357da9d0d4d560311e4",
+    "canonical_run": "p3r-v2-2dec1d40604c1f7c08c8",
+    "counterfactual": {
+      "current": {
+        "alternative_coverage": 1.0,
+        "alternative_rows": 88,
+        "atomic_highwater": 7115,
+        "dominant_count": 33,
+        "dominant_share": 0.4647887323943662,
+        "edge_highwater": 60500,
+        "tier": "V2_TIER_3_ACTIVE_BASE"
+      },
+      "frozen": {
+        "alternative_coverage": 1.0,
+        "alternative_rows": 88,
+        "atomic_highwater": 7095,
+        "dominant_count": 33,
+        "dominant_share": 0.4647887323943662,
+        "edge_highwater": 60299,
+        "tier": "V2_TIER_3_ACTIVE_BASE"
+      },
+      "frozen_replay_matches": true
+    },
+    "final_classification": "CORRECTLY_TIER3_BEHAVIOURAL_GAP",
+    "frozen_assignment": {
+      "category": "ACTIVE_BASE_ONLY",
+      "creators": 71,
+      "direct_funders": 49,
+      "members": 71,
+      "missing_tier1_evidence": [
+        "ALTERNATIVE_RECURRENCE_NOT_PROVEN"
+      ],
+      "parents": 49,
+      "tier": "V2_TIER_3_ACTIVE_BASE"
+    },
+    "manifest": "/tmp/p3r-clean-20260824T092959Z/c357_tier1_gap_analysis/p3r_v2_c357_tier1_gap_analysis_manifest.v1.json",
+    "manifest_sha256": "d854f05438253c4229ede3f2e15e46150e950526be1c5a4d9c40158449a3d233",
+    "mechanism_context": "Exact historical af500/ec1 mechanism correspondence remains LATER_REFERENCE only and is not a canonical qualification gate or v1-to-v2 identity proof.",
+    "next_action": "If separately authorized, bounded local decomposition of only c357 alternative-edge variants to explain the observed 33/71 dominance; no promotion or replay.",
+    "safety": {
+      "membership_or_tier_mutation": 0,
+      "promotion": 0,
+      "provider_or_rpc_calls": 0,
+      "queue_replay": 0,
+      "runtime_changes": 0,
+      "source_writes": 0,
+      "trading_signal": 0
+    },
+    "verdict": "P3R_V2_C357_TIER1_GAP_ANALYSIS_COMPLETE",
+    "why_tier3": "Its sole Tier-1 failure is alternative-edge recurrence: 71/71 member coverage but dominant alternative fingerprint 33/71 (46.48%), below the unchanged >=60% strong-recurrence threshold. All base, activity, atomic, and address-blind gates pass."
+  },
   "p3r_v2_canonical_tier_reconciliation_20260825": {
     "canonical_manifest_sha256": "930fb7fc462e1464632913f22b28ea8fc419d9ca921f36fe4e798dff51617862",
     "canonical_run_id": "p3r-v2-2dec1d40604c1f7c08c8",

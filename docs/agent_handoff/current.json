@@ -945,6 +945,22 @@
     "code_change_unactivated": "src/core/watchtower_registry_promotion.py now recognizes only persisted queue intelligence_outcome=WATCHTOWER_CONFIRMED as an additional promotion predicate; worker was intentionally not restarted after discovering reconciliation scope.",
     "exact_next_action": "Await user instruction: retain and audit the 687 rows, or perform a user-authorized scoped rollback before activating the corrected worker code.",
     "execution_error": "The one-off reconciler queried all historical missing queue-confirmed rows rather than the intended five recent rows.",
+    "false_positive_analysis_2iYG": {
+      "cause": "Legacy wallet-association flag was treated as sufficient by the unintended broad reconciler; no complete funding-route evidence was required.",
+      "mint": "2iYGJm6RBxMqEJyTUjp751dSsSfYBPGGfrERue3vJiAj",
+      "missing_evidence": [
+        "subprov",
+        "funding mechanism",
+        "funding signature",
+        "provisioning edges",
+        "atomic WSOL flow",
+        "wt_attribution_outcomes row"
+      ],
+      "queue_source": "wt_ops_v2_wallets",
+      "queue_state": "CREATE_ANCHORED + WATCHTOWER_CONFIRMED",
+      "queue_treasury": "2yBbUPkjVdJiHCNjFMDbSEjN5afRYQ7yQDga4f7LJBpp",
+      "required_fix": "Do not activate the queue-confirmed promotion bridge until it additionally requires retained route evidence or an explicitly approved behavioral lineage predicate."
+    },
     "finding": "Five recent wt_walkback_queue rows had intelligence_outcome=WATCHTOWER_CONFIRMED while their wt_attribution_outcomes rows remained UNKNOWN_INFRASTRUCTURE, so the legacy promotion bridge did not admit them.",
     "funding_history_coverage": {
       "cohort_mints": 687,

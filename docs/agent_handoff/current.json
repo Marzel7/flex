@@ -39,7 +39,7 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "None for the new P3R v2 qualification lineage; v1 Tier 2/3 remain intentionally unrecovered.",
+  "blocker": "P3R 900b distinctiveness closure is blocked on recovering provenance for the stated 27-family comparator population.",
   "dtuh_af500_ec1_link_check_20260825": {
     "af500_direct_connection": {
       "destination": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ",
@@ -53,8 +53,8 @@
     "status": "PARTIAL",
     "verdict": "AF500_LINK_CONFIRMED_EC1_LINK_UNPROVEN"
   },
-  "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e + uncommitted compact confirmed-operation Summary",
-  "exact_next_action": "If authorized, design a read-only WATCHTOWER-like candidate layer that records the 14 structural matches with their shared-upstream groups and provenance for analyst review, without changing canonical identity or auto-promoting any mint.",
+  "engineering_revision": "26e528b0 (main); 900b local read-only distinctiveness closure artifacts uncommitted in engineering worktree",
+  "exact_next_action": "Recover the durable artifact or exact frozen predicate that produced the stated 27-family WATCH_NOW comparator population, then rerun the unchanged local distinctiveness closure.",
   "generic_operation_activity_projection_20260825": {
     "exact_next_action": "Evaluate P3R matcher precision on a labelled negative/control cohort and, if authorized, implement an explicit establishment policy that writes operator membership then invokes the generic projection.",
     "implementation": "refresh_operator_activity_snapshot derives WATCHTOWER from its canonical ledger and other operations from retained behavioural-profile members plus explicit operator_launch_membership rows, resolving launch times from the core token ledger.",
@@ -837,6 +837,21 @@
     "status": "PARTIAL",
     "verdict": "INSUFFICIENT_DURABLE_EVIDENCE_TO_REPRODUCE"
   },
+  "p3r_v2_900b_distinctiveness_closure_20260825": {
+    "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/distinctiveness_closure/p3r-v2-900b-distinctiveness-v1/p3r_v2_900b_distinctiveness_closure.v1.json",
+    "artifact_sha256": "59d314692bb35f1f49db950f6ead42185475ff5000463f1790911e4112376979",
+    "blocker": "AUTHORITATIVE_27_FAMILY_COMPARISON_POPULATION_NOT_RECOVERED",
+    "candidate_id": "p3r-v2-900b89587c6987d582df",
+    "exact_next_action": "Recover the durable artifact or exact frozen predicate that produced the stated 27-family WATCH_NOW comparator population, then rerun the unchanged local distinctiveness closure.",
+    "expected_watch_now_comparator_families": 27,
+    "manifest_sha256": "62fea165c3e9311c10b397b0bbd3ebcb316ab7e0cb410dd9a898404b27ac73e6",
+    "reproduced_alternative_families": 2,
+    "reproduced_frozen_predicate": "selected hop=1 / WSOL_WRAP_CLOSE / 999985000 lamports at edge high-water 60299",
+    "reproduced_selected_families": 1,
+    "safety": "No RPC/provider calls, queue replay, membership/tier/fingerprint/threshold mutation, runtime/production mutation, promotion, or trading signal.",
+    "status": "HOLD",
+    "verdict": "900B_DISTINCTIVENESS_UNRESOLVED"
+  },
   "p3r_v2_active_candidate_tiering_20260825": {
     "engineering_commit": "532faa3d",
     "next_action": "Use the committed durable v2 artifacts for the Tier-2 assessment; do not alter tier membership without an authorized follow-up.",
@@ -1239,7 +1254,7 @@
   },
   "updated_at_utc": "2026-08-25T00:00:00Z",
   "updated_by": "codex",
-  "verdict": "PASS",
+  "verdict": "HOLD",
   "watchtower_2nhz_bjg_gyff_corrected_rpc_confirmation_20260825": {
     "corrected_chain": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT -> GYffSdtiffuTTZpiXqevWCYsSjn11drMoPsky9vsSUnd -> BpnGiweePUnk7ejBxvxokCUiZff3Pq3ftJiajgSEx8C7 -> 2nHZVubjJU144poGfjbiB97tv7CJtvJycvDdYvSxpump",
     "correction": "The earlier conclusion that BJg could not be the upstream source was wrong. The initial pre-anchor page was too dense to reach this transfer; the user-supplied transaction is 1,813 seconds before the anchor and proves BJg -> GYff. The later GYff -> BJg transfer is separate post-launch activity.",

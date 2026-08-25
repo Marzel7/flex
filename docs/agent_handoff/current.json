@@ -39,7 +39,7 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "900b/c357 address-blind detector precision is inadequate for safe operation registration.",
+  "blocker": "No address-independent discriminator found in the 59 selected-hop transactions.",
   "dtuh_af500_ec1_link_check_20260825": {
     "af500_direct_connection": {
       "destination": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ",
@@ -53,8 +53,8 @@
     "status": "PARTIAL",
     "verdict": "AF500_LINK_CONFIRMED_EC1_LINK_UNPROVEN"
   },
-  "engineering_revision": "26e528b0 (main); failed-safe parent-child qualification artifacts uncommitted in engineering worktree",
-  "exact_next_action": "If authorized, acquire/define a transaction-derived discriminator beyond exact amount plus five-step lifecycle and evaluate it against the 15/43 external exact-amount matches; do not register from the current detector.",
+  "engineering_revision": "26e528b0 (main); bounded 900b RPC discriminator artifact uncommitted in engineering worktree",
+  "exact_next_action": "If authorized, conduct a separately bounded study of the minimum linked funding/provenance transaction needed to distinguish the 15 false positives; retain the same frozen cohorts and do not use known address membership as a rule.",
   "generic_operation_activity_projection_20260825": {
     "exact_next_action": "Evaluate P3R matcher precision on a labelled negative/control cohort and, if authorized, implement an explicit establishment policy that writes operator membership then invokes the generic projection.",
     "implementation": "refresh_operator_activity_snapshot derives WATCHTOWER from its canonical ledger and other operations from retained behavioural-profile members plus explicit operator_launch_membership rows, resolving launch times from the core token ledger.",
@@ -898,6 +898,21 @@
     "safety": "No RPC/provider calls, queue replay, membership/tier/fingerprint/threshold mutation, runtime/production mutation, promotion, or trading signal.",
     "status": "HOLD",
     "verdict": "900B_DISTINCTIVENESS_UNRESOLVED"
+  },
+  "p3r_v2_900b_targeted_rpc_discriminator_20260825": {
+    "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/targeted_rpc_discriminator/p3r-v2-900b-rpc-discriminator-v1/p3r_v2_900b_targeted_rpc_discriminator.v1.json",
+    "artifact_sha256": "bd32f2bcd99c321f6fab719e599ac75c1e5e37dd5b96d4eb15da1856c6ddfd17",
+    "calls": 59,
+    "exact_next_action": "If authorized, conduct a separately bounded study of the minimum linked funding/provenance transaction needed to distinguish the 15 false positives; retain the same frozen cohorts and do not use known address membership as a rule.",
+    "failures": 0,
+    "finding": "All tested transaction-structure features were shared by the 15 FPs. Atomic/lifecycle details do not produce an address-independent separator at the selected-hop transaction level.",
+    "manifest_sha256": "cfeb82295aa3cc565b4bb993ecd8fc41853674e33d77353d831b0686534af7c8",
+    "provider": "Helius",
+    "registration": "Not performed; explicitly out of scope and detector did not qualify.",
+    "scope": "59 frozen selected-hop getTransaction calls: 44 TP + 15 FP; no upstream walkback or unrelated enrichment.",
+    "status": "HOLD",
+    "successes": 59,
+    "verdict": "900B_RPC_DISCRIMINATOR_NOT_FOUND"
   },
   "p3r_v2_active_candidate_tiering_20260825": {
     "engineering_commit": "532faa3d",

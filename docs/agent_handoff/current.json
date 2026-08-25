@@ -529,6 +529,22 @@
     "next_action": "If needed, paginate GYff's history backward beyond the first 1,000 signatures, bounded strictly before 2026-08-25T06:09:28Z, and inspect only incoming funding transactions.",
     "verdict": "WATCHTOWER_2NHZ_PROPOSED_BJG_UPSTREAM_DISPROVEN"
   },
+  "watchtower_gyff_preanchor_funding_rpc_20260825": {
+    "scope": "Read-only RPC pagination anchored before 2nHZ's creator-funding signature. Inspected the complete first 1,000-signature window immediately preceding the anchor: first 100 then remaining 900. No database writes or promotion changes.",
+    "result": {
+      "signature_window": 1000,
+      "rpc_calls": 1002,
+      "nearest_100_funding_candidates": 0,
+      "remaining_900_funding_candidates": "multiple",
+      "latest_observed_preanchor_credit_time": "2026-08-25T06:01:33Z",
+      "creator_funding_anchor_time": "2026-08-25T06:09:28Z"
+    },
+    "finding": "GYff receives many inbound SOL credits from distinct wallets in the first pre-anchor page, including repeated high-volume activity seconds apart. The observed candidates do not identify one controlling treasury. BJgZGdZX is not an observed pre-anchor funder in this page and the known GYff -> BJg transfer is post-launch.",
+    "interpretation": "The direct-funder-to-creator branch is proven, but Treasury/Controller cannot be assigned from a single immediate inbound transfer for GYff. This address behaves as a high-throughput aggregation/distribution node in the inspected pre-anchor window.",
+    "artifact": "/tmp/watchtower_gyff_preanchor_treasury_rpc.json",
+    "next_action": "Treat GYff as the selected funding/distribution role for 2nHZ; retain Treasury unresolved unless a separate repeated-upstream aggregation analysis establishes a controller with temporal and causal support.",
+    "verdict": "WATCHTOWER_2NHZ_GYFF_TREASURY_NOT_SINGLE_TRANSFER_RESOLVABLE"
+  },
   "project": {
     "git_head": "e9d0a404417804faa70586c7b27f6a478028b798",
     "working_branch": "classification-attribution-axis"
@@ -540,7 +556,7 @@
     "executed": [],
     "result": "not run; read-only 16-mint WATCHTOWER miss analysis"
   },
-  "updated_at_utc": "2026-08-25T10:25:00Z",
+  "updated_at_utc": "2026-08-25T10:45:00Z",
   "updated_by": "codex",
-  "verdict": "WATCHTOWER_2NHZ_PROPOSED_BJG_UPSTREAM_DISPROVEN"
+  "verdict": "WATCHTOWER_2NHZ_GYFF_TREASURY_NOT_SINGLE_TRANSFER_RESOLVABLE"
 }

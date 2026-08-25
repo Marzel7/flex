@@ -754,10 +754,10 @@
   "p3r_ec1_decrement_ladder_cohort_test_20260825": {
     "scope": "User-authorized read-only 12-hop RPC test of the HUN-confirmed 5,000-lamport decrement ladder across the 15 retained EC1 creators.",
     "status": "PARTIAL",
-    "attempted_batches": "15/15 creators completed in five 3-creator RPC batches, but results are invalid for coverage inference.",
-    "blocker": "Same-timestamp ordering was repaired and the HUN trace now recovers the eight-step ladder. The run scorer is still invalid: upstream traversal produces consecutive -5,000-lamport differences, but the detector searches for +5,000. HUN has seven consecutive -5,000 differences and was incorrectly scored zero. Earlier full-cohort batches used the old timestamp logic and must be rerun after the scorer repair.",
+    "attempted_batches": "Six creators completed after repairing signature ordering and absolute 5,000-lamport scoring. Their consecutive ladder runs are 9, 9, 11, 9, 11, and 11 steps. Batch three stopped on a parser edge case before recording its three creators.",
+    "blocker": "One RPC transaction instruction has parsed as a string rather than an object; the temporary parser calls .get on it and raises AttributeError. Full-cohort coverage remains incomplete.",
     "safety": "No production database, UI, membership, attribution, or resolver changes; RPC reads only.",
-    "exact_next_action": "With user authorization, change the scorer to accept absolute 5,000-lamport steps, rerun the 15 EC1 creator batches with signature ordering, then report valid ladder coverage."
+    "exact_next_action": "With user authorization, add an object-type guard for parsed instructions, rerun batches 3-5 under the existing 12-hop/two-page/10-transaction-per-hop bounded screen, then combine all 15 results."
   },
   "operators_page_automatic_refresh_20260825": {
     "scope": "Client-side automatic update for the active-operations list.",
@@ -773,7 +773,7 @@
   },
   "schema_version": 1,
   "status": "PARTIAL",
-  "summary": "Activity projection is generic for every active operation. WATCHTOWER and unambiguous P3R_13A04 walkback matches now establish membership and refresh UI activity automatically; the operators page polls every 15 seconds. EC1's upstream amount pattern is disproven as EC1-specific. The separate EC1 decrement-ladder cohort test is invalid pending same-timestamp transaction ordering repair.",
+  "summary": "Activity projection is generic for every active operation. WATCHTOWER and unambiguous P3R_13A04 walkback matches now establish membership and refresh UI activity automatically; the operators page polls every 15 seconds. EC1's upstream amount pattern is disproven as EC1-specific. Six EC1 creators show long exact decrement ladders, while the full cohort screen is paused on a parser edge case.",
   "tests": {
     "executed": [],
     "result": "not run; read-only 16-mint WATCHTOWER miss analysis"

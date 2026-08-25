@@ -378,6 +378,23 @@
     "trading_ranking_prediction": false,
     "watchtower_api_restarted": true
   },
+  "watchtower_behavioural_fingerprint_assessment_20260825": {
+    "scope": "Read-only evaluation of retained known WATCHTOWER launches against selected walkback evidence; no provider calls, database writes, registry changes, or promotion changes.",
+    "result": {
+      "known_watchtower_launches": 276,
+      "known_matching_exact_2122039_wsol_close": 65,
+      "non_watchtower_matching_exact_2122039_wsol_close": 72,
+      "known_matching_confirmed_amount_vocabulary": 175,
+      "non_watchtower_matching_confirmed_amount_vocabulary": 286,
+      "known_launches_missing_selected_hop1_evidence": 94,
+      "narrow_exact_amount_fanout_matches": 90,
+      "narrow_exact_amount_fanout_known_watchtower": 59,
+      "narrow_exact_amount_fanout_non_watchtower": 31
+    },
+    "interpretation": "A behavior-only fingerprint is not safe for automatic canonical promotion from current retained data. Amount and WSOL-close behavior are non-unique; generic fanout improves the narrow cohort but still has 31 non-canonical matches. Historical known-launch coverage is incomplete because 94 of 276 lack selected hop-1 evidence.",
+    "next_action": "If authorized, implement a non-promoting WATCHTOWER-like candidate score with provenance and analyst review, then evaluate it on a frozen holdout before any promotion-policy change.",
+    "verdict": "WATCHTOWER_BEHAVIOUR_ONLY_AUTO_PROMOTION_NOT_QUALIFIED"
+  },
   "project": {
     "git_head": "e9d0a404417804faa70586c7b27f6a478028b798",
     "working_branch": "classification-attribution-axis"
@@ -389,7 +406,7 @@
     "executed": [],
     "result": "not run; read-only 16-mint WATCHTOWER miss analysis"
   },
-  "updated_at_utc": "2026-08-25T00:00:00Z",
+  "updated_at_utc": "2026-08-25T08:20:00Z",
   "updated_by": "codex",
-  "verdict": "OPERATION_SUMMARY_SIMPLIFICATION_PARTIAL"
+  "verdict": "WATCHTOWER_BEHAVIOUR_ONLY_AUTO_PROMOTION_NOT_QUALIFIED"
 }

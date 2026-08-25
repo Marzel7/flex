@@ -395,6 +395,15 @@
     "correction": "The prior 42sfEbL2... -> C927mKuV... bridge was user context, not RPC-proven in this work. It must not be used as evidence until verified.",
     "ec1_labelled_path": "DuTbZR8V... -> 54xTpcBEr48Cuis8m2SdeymdQcwvmDR4aegxCPQzUANG -> CZk5uZdVfPUMzmCCDVbWUnom7gSZSbgFJKb37vGwTAt8 -> eMD1zv3m9ArePAtXYEVFG9tbXfwDzY8GyFMxbPopump",
     "exact_next_action": "Review and reconcile the two manual profile labels; do not represent them as distinct operational identities without another discriminator.",
+    "local_data_audit": {
+      "profile_labels_confirmed": {
+        "P3R_AF500": "tpx8GumtoKhXeba859s1ka7grY8m5zcQ8yPnZnSpump",
+        "P3R_EC1": "eMD1zv3m9ArePAtXYEVFG9tbXfwDzY8GyFMxbPopump"
+      },
+      "projection_gap": "Neither of those two profile-member mints has a persisted wt_provisioning_edges row, and the 20 DuTb edge mints are not present in operator_launch_membership. The current database cannot independently reproduce the UI path/profile relationship from one normalized join.",
+      "required_before_merge": "Backfill/materialize the historical walkback edges and launch membership for the profile members, then re-evaluate the merge using normalized evidence.",
+      "shared_controller_ledger": "DuTbZR8V... has 20 persisted provisioning-edge source mints, all WSOL_WRAP_CLOSE at 0.1 SOL."
+    },
     "production_changes": "None",
     "shared_treasury": "DuTbZR8VJGsyLvkhcAyiByPwnPRJj1GTmB88ShgAezCX",
     "status": "CONFIRMED_FROM_STORED_UI_EVIDENCE",

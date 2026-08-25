@@ -6,8 +6,8 @@
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
   "blocker": null,
-  "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e + uncommitted compact initial-funder trace UI",
-  "exact_next_action": "Reload the operator Evidence tab and inspect the compact direct-funder ancestry panel; expand Trace details only when provenance is needed.",
+  "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e + uncommitted P3R member-mint funding-trace UI join",
+  "exact_next_action": "Serve/reload the local UI revision, open P3R_EC1, and select Evidence; the trace rows are joined from behavioural_profile.member_mints to the P3R CSV mint field.",
   "milestone": "P3R corrected prospective shadow successor",
   "next_action": "Optional: aggregate repeated initial fee payers across launches into operator-level relationship counts; no production change is authorized or required.",
   "operations_registry_activity_metrics": {
@@ -386,9 +386,9 @@
   "summary": "Completed non-production 135-wallet full-history direct-funder tracer preparation. Added script that supports strict 135 membership validation, paginated Helius address-history scan per creator wallet, and output of JSONL result rows. No production code was changed.",
   "tests": {
     "executed": [],
-    "result": "not run (presentation-only template change)"
+    "result": "not run (read-time route join and template presentation changes)"
   },
   "updated_at_utc": "2026-08-25T00:00:00Z",
   "updated_by": "codex",
-  "verdict": "P3R_INITIAL_FUNDER_TRACE_UI_COMPACTED"
+  "verdict": "P3R_INITIAL_FUNDER_TRACE_UI_JOIN_FIXED"
 }

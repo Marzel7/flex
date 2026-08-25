@@ -715,12 +715,12 @@
   },
   "p3r_ec1_deep_rpc_trace_20260825": {
     "scope": "User-authorized read-only deep RPC attempt from all 15 retained EC1 creator funding anchors, bounded at 12 upstream levels and 10 signature pages per wallet.",
-    "result": {"anchors_traced": 15, "recovered_first_predecessors": 15, "max_completed_depth": 1, "all_stops": "NO_PREDECESSOR_IN_10_PAGES after first predecessor"},
+    "result": {"anchors_traced": 15, "recovered_first_predecessors": 15, "max_completed_depth": 6, "cycle_terminations": 14, "history_limit_terminations": 1, "exact_99999995000_lamport_upstream_transfers": 14},
     "artifact": "/tmp/p3r-ec1-deep-creator-lineage-20260825.json",
-    "limitation": "Every recovered predecessor is an SPL closeAccount source temporary token account. The initial parser incorrectly followed that token-account address rather than resolving its owner/close authority, so the trace cannot support any upstream pattern conclusion.",
+    "finding": "After resolving SPL closeAccount authority, 14/15 EC1 branches contain an exact 99,999,995,000-lamport upstream transfer immediately before the known 99,999,985,000-lamport WSOL close-to-creator leg. The remaining UMVSu... branch has a three-step 7,321.115955669 / 7,321.115965669 / 7,321.115975669 SOL transfer ladder.",
     "safety": "Read-only RPC and /tmp artifact only; no production database or resolver changes.",
-    "verdict": "PARTIAL_TOKEN_ACCOUNT_OWNER_RESOLUTION_REQUIRED",
-    "exact_next_action": "With user authorization, repair the trace to resolve closeAccount source token-account owner/authority before each recursive hop, then rerun the same bounded 12-hop EC1 analysis."
+    "verdict": "EC1_UPSTREAM_AMOUNT_PATTERN_RPC_CONFIRMED",
+    "exact_next_action": "Compare the same upstream transfer-plus-close pattern against the AF500 retained family and a negative cohort before promoting it to an EC1-specific automatic matcher feature."
   },
   "operators_page_automatic_refresh_20260825": {
     "scope": "Client-side automatic update for the active-operations list.",
@@ -735,13 +735,13 @@
     "working_branch": "classification-attribution-axis"
   },
   "schema_version": 1,
-  "status": "PARTIAL",
-  "summary": "Activity projection is generic for every active operation. WATCHTOWER and unambiguous P3R_13A04 walkback matches now establish membership and refresh UI activity automatically; the operators page polls every 15 seconds. The EC1 deep RPC trace is partial because it must resolve temporary token-account ownership before recursive ancestry can continue.",
+  "status": "PASS",
+  "summary": "Activity projection is generic for every active operation. WATCHTOWER and unambiguous P3R_13A04 walkback matches now establish membership and refresh UI activity automatically; the operators page polls every 15 seconds. Deep EC1 RPC confirms a 14/15 exact 99.999995 SOL upstream transfer pattern before the known WSOL-close leg.",
   "tests": {
     "executed": [],
     "result": "not run; read-only 16-mint WATCHTOWER miss analysis"
   },
   "updated_at_utc": "2026-08-25T12:35:13Z",
   "updated_by": "codex",
-  "verdict": "P3R_EC1_DEEP_RPC_TRACE_PARTIAL"
+  "verdict": "EC1_UPSTREAM_AMOUNT_PATTERN_RPC_CONFIRMED"
 }

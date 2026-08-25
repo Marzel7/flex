@@ -39,7 +39,7 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "Exact frozen WATCH_NOW and 114-candidate identity artifacts are absent; surviving code cannot reproduce the historic partition without them.",
+  "blocker": "None for the new P3R v2 qualification lineage; v1 Tier 2/3 remain intentionally unrecovered.",
   "dtuh_af500_ec1_link_check_20260825": {
     "af500_direct_connection": {
       "destination": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ",
@@ -82,7 +82,7 @@
     "verified_ladder": "HboqWvK2... close 34,691,750,098 -> Gre9jF21... transfer 34,691,745,098 -> FwaWYJeu... close 34,691,740,098 -> AerCoA4G... transfer 34,691,735,098 -> 5jFqjJr4... close 34,691,730,098 -> DZtCkaEd... transfer 34,691,725,098 -> 2GH1yDtg... close 34,691,720,098 -> HWse5Gae... transfer 34,691,715,098 -> Ft5Sn8GN..."
   },
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "Recover an exact historical artifact or all frozen input artifacts from backup before deterministic tier regeneration.",
+  "next_action": "Use the durable v2 shortlist for bounded local evidence review before any separately authorized RPC or operation-attribution action.",
   "operation_walkback_review_queue_20260825": {
     "endpoints": [
       "/api/ops/operators/review-queue",
@@ -707,6 +707,55 @@
     "ui": "API restart serves consolidated P3R; operator-list polling and snapshot projection update on subsequent requests.",
     "verdict": "PASS"
   },
+  "p3r_v2_active_candidate_tiering_20260825": {
+    "counts": {
+      "dormant": 33,
+      "families": 220,
+      "member_mints": 2357,
+      "tier_1": 1,
+      "tier_2": 13,
+      "tier_3": 47,
+      "watch_later": 126,
+      "watch_now": 61
+    },
+    "durable_state": {
+      "artifact_root": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8",
+      "contract_sha256": "61b5199306ef79b48e007a3910f131510f3f05139b86e81d806c02b8d6f9c47a",
+      "database_tables": [
+        "p3r_v2_runs",
+        "p3r_v2_contracts",
+        "p3r_v2_candidate_families",
+        "p3r_v2_candidate_membership",
+        "p3r_v2_activity",
+        "p3r_v2_tier_membership",
+        "p3r_v2_shortlist"
+      ],
+      "manifest_sha256": "930fb7fc462e1464632913f22b28ea8fc419d9ca921f36fe4e798dff51617862"
+    },
+    "known_v1_references": "UNMAPPED_NOT_FORCED: v1 memberships remain unrecoverable; no old identity was guessed or forced into v2.",
+    "next_action": "Review the v2 shortlist locally; candidate p3r-v2-6f7738e9702395ba8ad3 is closest among active base candidates because it already has high address diversity and retained alternative/atomic observations, but it requires stronger recurrence proof before Tier 2/1.",
+    "reproducibility": {
+      "exact_replay": "PASS: stored high-water replay returned same run ID and manifest SHA-256",
+      "focused_tests": "3 passed (tests/test_p3r_v2_tiering.py)"
+    },
+    "run_id": "p3r-v2-2dec1d40604c1f7c08c8",
+    "safety": {
+      "canonical_promotion": false,
+      "legacy_candidate_or_operation_mutation": false,
+      "provider_or_rpc_calls": false,
+      "queue_replay": false,
+      "source_writes": "Only explicitly authorized p3r_v2_* durable research tables.",
+      "trading_signal": false
+    },
+    "source_snapshot": {
+      "schema_sha256": "dcc038d07998c3d37d0475a7c0fc1d61eaa141401712b3079ec3e465dff3f4ad",
+      "wt_walkback_atomic_flows": 7095,
+      "wt_walkback_edge_candidates": 60299,
+      "wt_walkback_queue": 32353
+    },
+    "status": "COMPLETE",
+    "verdict": "P3R_V2_ACTIVE_CANDIDATE_TIERS_QUALIFIED"
+  },
   "p3r_watch_now_tiers_20260824": {
     "artifact_manifest": "/tmp/p3r-clean-20260824T092959Z/activity/tiers/p3r_watch_now_tiering_artifact_manifest.v1.json",
     "artifact_manifest_sha256": "1b14f979105f054f6426a87d5ad9fc83074ef5b7b77e71ae4aa7d1e6b06cb211",
@@ -868,7 +917,7 @@
   },
   "updated_at_utc": "2026-08-25T00:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "PARTIAL",
+  "verdict": "PASS",
   "watchtower_2nhz_bjg_gyff_corrected_rpc_confirmation_20260825": {
     "corrected_chain": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT -> GYffSdtiffuTTZpiXqevWCYsSjn11drMoPsky9vsSUnd -> BpnGiweePUnk7ejBxvxokCUiZff3Pq3ftJiajgSEx8C7 -> 2nHZVubjJU144poGfjbiB97tv7CJtvJycvDdYvSxpump",
     "correction": "The earlier conclusion that BJg could not be the upstream source was wrong. The initial pre-anchor page was too dense to reach this transfer; the user-supplied transaction is 1,813 seconds before the anchor and proves BJg -> GYff. The later GYff -> BJg transfer is separate post-launch activity.",

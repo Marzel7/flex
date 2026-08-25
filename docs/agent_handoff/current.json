@@ -714,6 +714,27 @@
     "tests": "3 focused deterministic tests passed; exact replay manifest matched",
     "verdict": "P3R_V2_ACTIVE_CANDIDATE_TIERS_QUALIFIED"
   },
+  "p3r_v2_canonical_tier_reconciliation_20260825": {
+    "canonical_manifest_sha256": "930fb7fc462e1464632913f22b28ea8fc419d9ca921f36fe4e798dff51617862",
+    "canonical_run_id": "p3r-v2-2dec1d40604c1f7c08c8",
+    "canonical_tier_1": "p3r-v2-d3de29c88fe0ce5fa309",
+    "counts": {
+      "dormant": 33,
+      "families": 220,
+      "member_mints": 2357,
+      "tier_1": 1,
+      "tier_2": 13,
+      "tier_3": 47,
+      "watch_later": 126,
+      "watch_now": 61
+    },
+    "next_action": "Separately correct and replay the enrichment disposition threshold; rename NEAR_TIER_1 to SHORTLIST_NEAR_CANONICAL_TIER_1. Do not alter canonical tiers.",
+    "reconciliation_artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/canonical_reconciliation/p3r-v2-reconcile-05c9c21ecef8f57c3f6b/p3r_v2_canonical_tier_replay_reconciliation.v1.json",
+    "reconciliation_sha256": "07b0e37fda2312878f68dc549fe56366735c0a118a2f12fdfc8709b2effb663e",
+    "replay": "PASS: canonical run ID, manifest digest, counts, tier membership, and shortlist ordering unchanged",
+    "status": "COMPLETE",
+    "verdict": "CANONICAL_TIERS_REPRODUCED_ENRICHMENT_IS_ADDITIONAL_LAYER"
+  },
   "p3r_v2_local_gap_closure_20260825": {
     "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/local_gap_closure/p3r-v2-gap-closure-13296e4830c457dbebd7/p3r_v2_local_evidence_gap_closure.v1.json",
     "base_run_id": "p3r-v2-2dec1d40604c1f7c08c8",

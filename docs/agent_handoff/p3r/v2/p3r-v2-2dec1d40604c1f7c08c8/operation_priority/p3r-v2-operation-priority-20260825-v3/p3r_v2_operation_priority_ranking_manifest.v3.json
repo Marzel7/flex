@@ -1,0 +1,12 @@
+{
+  "artifact": {
+    "path": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/operation_priority/p3r-v2-operation-priority-20260825-v3/p3r_v2_operation_priority_ranking.v3.json",
+    "sha256": "78efef7cb0dbe06210a0f040a25d10ba14321f76e64cdcc58ca9a18de1e0084d"
+  },
+  "validation": {
+    "affected_count": 6,
+    "families": 61,
+    "scores_in_range": true
+  },
+  "verdict": "P3R_V2_OPERATION_PRIORITY_ATOMIC_SCORER_CORRECTED"
+}

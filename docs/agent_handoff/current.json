@@ -5,11 +5,11 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "Enumerated 16 selected 2.122039-SOL WSOL_WRAP_CLOSE mints in the 24-hour retained walkback window: 2 canonical WATCHTOWER and 14 noncanonical shape matches. Upstream amount intentionally excluded from this signature.",
+  "blocker": "Current 24h 2.122039-SOL signature cohort is 16 mints: 2 canonical WATCHTOWER / HIGH and 14 LOW LINEAGE_GAP. All 16 have selected hop-1 evidence; 8 have a selected hop-2 upstream (2 share CAFTSz..., 4 share 6qYNK..., 1 each 88WR... and 7A9w...), while 6 have no selected hop-2. Promotion is intentionally gated on a pre-registered known treasury/sub-provider route and only CANONICAL_OPERATOR_REACHED outcomes enter wt_watchtower_launches; behaviour/amount alone cannot promote.",
   "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e + uncommitted compact confirmed-operation Summary",
-  "exact_next_action": "If desired, authorize a bounded read-only identity-continuity comparison for the 14 noncanonical structural matches; do not auto-classify them as WATCHTOWER.",
+  "exact_next_action": "If authorized, design a read-only WATCHTOWER-like candidate layer that records the 14 structural matches with their shared-upstream groups and provenance for analyst review, without changing canonical identity or auto-promoting any mint.",
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "Decide whether to authorize a bounded read-only comparison of the 14 noncanonical WATCHTOWER-like shape matches; no provider calls, queue replay, promotion, or identity mutation is authorized.",
+  "next_action": "Decide whether to authorize a read-only candidate-layer design for WATCHTOWER-like structural matches; no provider calls, queue replay, promotion, or identity mutation is authorized.",
   "operations_registry_activity_metrics": {
     "activity_artifact": "/tmp/p3r-registry-migration/active_operations_launch_activity_snapshots.v3.json",
     "activity_artifact_sha256": "4d1bdb9db2e83aba1c2c5fd82ac248abea9ee1b48a391095f01003ea73041ef9",
@@ -387,7 +387,7 @@
   "summary": "Completed non-production 135-wallet full-history direct-funder tracer preparation. Added script that supports strict 135 membership validation, paginated Helius address-history scan per creator wallet, and output of JSONL result rows. No production code was changed.",
   "tests": {
     "executed": [],
-    "result": "not run; read-only 24-hour 2.122039-SOL signature enumeration"
+    "result": "not run; read-only 16-mint WATCHTOWER miss analysis"
   },
   "updated_at_utc": "2026-08-25T00:00:00Z",
   "updated_by": "codex",

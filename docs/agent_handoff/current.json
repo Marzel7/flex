@@ -39,7 +39,7 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "No address-independent discriminator found in the 59 selected-hop transactions.",
+  "blocker": "No deterministic comparable upstream signature is retained for the 44 TP cohort.",
   "dtuh_af500_ec1_link_check_20260825": {
     "af500_direct_connection": {
       "destination": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ",
@@ -53,8 +53,8 @@
     "status": "PARTIAL",
     "verdict": "AF500_LINK_CONFIRMED_EC1_LINK_UNPROVEN"
   },
-  "engineering_revision": "26e528b0 (main); bounded 900b RPC discriminator artifact uncommitted in engineering worktree",
-  "exact_next_action": "If authorized, conduct a separately bounded study of the minimum linked funding/provenance transaction needed to distinguish the 15 false positives; retain the same frozen cohorts and do not use known address membership as a rule.",
+  "engineering_revision": "26e528b0 (main); linked-provenance evidence-gap artifact uncommitted in engineering worktree",
+  "exact_next_action": "If authorized, run one bounded deterministic address-history page per frozen TP direct funder to select its immediately preceding material inbound transaction, then issue getTransaction only for those selected signatures; retain the frozen cohort and no recursive walkback.",
   "generic_operation_activity_projection_20260825": {
     "exact_next_action": "Evaluate P3R matcher precision on a labelled negative/control cohort and, if authorized, implement an explicit establishment policy that writes operator membership then invokes the generic projection.",
     "implementation": "refresh_operator_activity_snapshot derives WATCHTOWER from its canonical ledger and other operations from retained behavioural-profile members plus explicit operator_launch_membership rows, resolving launch times from the core token ledger.",
@@ -913,6 +913,18 @@
     "status": "HOLD",
     "successes": 59,
     "verdict": "900B_RPC_DISCRIMINATOR_NOT_FOUND"
+  },
+  "p3r_v2_900b_upstream_provenance_discriminator_20260825": {
+    "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/linked_provenance_discriminator/p3r-v2-900b-upstream-provenance-v1/p3r_v2_900b_upstream_provenance_discriminator.v1.json",
+    "artifact_sha256": "b5bbdd2e709ca2ef79b50b8a7af06dfb36b53ba5579514a7fd0c70b3b6c73df2",
+    "cohort": "Frozen 44 TP / 15 FP unchanged.",
+    "exact_next_action": "If authorized, run one bounded deterministic address-history page per frozen TP direct funder to select its immediately preceding material inbound transaction, then issue getTransaction only for those selected signatures; retain the frozen cohort and no recursive walkback.",
+    "finding": "Deterministic retained hop-2 linking yields 15 FP links and 0 TP links. Queue retains no upstream signature for TPs, so getTransaction-only RPC cannot identify a comparable TP upstream transaction.",
+    "manifest_sha256": "f3f7dbbb713f6710f4dab5dee610c8d73505fbbcfd29f1b308971c38e4bb792a",
+    "reason": "No deterministic TP upstream signature; getSignaturesForAddress/address-history lookup is outside current authorization.",
+    "rpc_calls": 0,
+    "status": "HOLD",
+    "verdict": "900B_UPSTREAM_EVIDENCE_INSUFFICIENT"
   },
   "p3r_v2_active_candidate_tiering_20260825": {
     "engineering_commit": "532faa3d",

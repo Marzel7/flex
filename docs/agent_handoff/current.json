@@ -39,7 +39,7 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "No deterministic comparable upstream signature is retained for the 44 TP cohort.",
+  "blocker": "Immediate-predecessor address-history study produced zero comparable material inbound TP observations under the frozen rule.",
   "dtuh_af500_ec1_link_check_20260825": {
     "af500_direct_connection": {
       "destination": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ",
@@ -53,8 +53,8 @@
     "status": "PARTIAL",
     "verdict": "AF500_LINK_CONFIRMED_EC1_LINK_UNPROVEN"
   },
-  "engineering_revision": "26e528b0 (main); linked-provenance evidence-gap artifact uncommitted in engineering worktree",
-  "exact_next_action": "If authorized, run one bounded deterministic address-history page per frozen TP direct funder to select its immediately preceding material inbound transaction, then issue getTransaction only for those selected signatures; retain the frozen cohort and no recursive walkback.",
+  "engineering_revision": "26e528b0 (main); bounded 900b address-history closure artifact uncommitted in engineering worktree",
+  "exact_next_action": "Pause 900b rather than deepen walkback. Investigate the next candidate with stronger retained discrimination, beginning with 063e or a non-WSOL high-priority family.",
   "generic_operation_activity_projection_20260825": {
     "exact_next_action": "Evaluate P3R matcher precision on a labelled negative/control cohort and, if authorized, implement an explicit establishment policy that writes operator membership then invokes the generic projection.",
     "implementation": "refresh_operator_activity_snapshot derives WATCHTOWER from its canonical ledger and other operations from retained behavioural-profile members plus explicit operator_launch_membership rows, resolving launch times from the core token ledger.",
@@ -836,6 +836,23 @@
     "next_action": "With user approval, exclude p3r_v2_* assessment tables from the historical-v1 table check and rerun/replay the blocked provenance artifact. Do not infer a v1-to-v2 member mapping.",
     "status": "PARTIAL",
     "verdict": "INSUFFICIENT_DURABLE_EVIDENCE_TO_REPRODUCE"
+  },
+  "p3r_v2_900b_address_history_provenance_closure_20260825": {
+    "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/address_history_provenance_closure/p3r-v2-900b-address-history-v1/p3r_v2_900b_address_history_provenance_closure.v1.json",
+    "artifact_sha256": "8c605abf1f4c15000c138289f21dcbdbc185586dfdc495689103c67e39ec491a",
+    "cohort": "Frozen 44 TP / 15 FP unchanged.",
+    "exact_next_action": "Pause 900b rather than deepen walkback. Investigate the next candidate with stronger retained discrimination, beginning with 063e or a non-WSOL high-priority family.",
+    "manifest_sha256": "4c7b935eb431af53df270a16f8e29d35110041a39211c0fa52be948a8da884ba",
+    "result": "24 TP launches had one immediate predecessor in their one-page direct-funder history; 20 were outside the page. None of 24 predecessor transactions had a parsed inbound transfer to the direct funder at the frozen 100000000-lamport material floor, leaving 0 comparable TP provenance observations.",
+    "role_mapping": "candidate_parent is the 10-distinct direct-funder role; selected-edge wallet rotates across 44 creators.",
+    "rpc_counts": {
+      "getSignaturesForAddress": 10,
+      "getTransaction": 24,
+      "total": 34
+    },
+    "status": "HOLD",
+    "verdict": "900B_PROVENANCE_HISTORY_INSUFFICIENT",
+    "workflow_decision": "PAUSE_900B_MOVE_TO_NEXT_CANDIDATE"
   },
   "p3r_v2_900b_c357_hierarchy_closure_20260825": {
     "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/operation_hierarchy_closure/p3r-v2-900b-c357-hierarchy-v1/p3r_v2_900b_c357_operation_hierarchy_closure.v1.json",

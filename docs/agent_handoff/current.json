@@ -665,6 +665,13 @@
     "interpretation": "The mint is a behavioural nomination only. It was not inserted into operator membership, attribution outcomes, or an operational registry.",
     "verdict": "P3R_13A04_RECENT_BEHAVIOURAL_CANDIDATE_OBSERVED"
   },
+  "p3r_13a04_approved_candidate_member_20260825": {
+    "scope": "User-authorized admission of the observed 24-hour P3R_13A04 behavioural candidate into the retained profile membership and its derived UI activity snapshot.",
+    "mint": "xt7LcG4NxtSSi9u7gWxP5LVZqVLARNLkARQSw8Tpump",
+    "result": {"retained_member_count": 6, "last_observed_launch_utc": "2026-08-24T12:34:50Z"},
+    "provenance": "Approved read-only P3R_13A04 four-hop behavioural candidate. No operator_launch_membership, wt_attribution_outcomes, or live resolver policy row was created.",
+    "verdict": "P3R_13A04_UI_MEMBER_COUNT_REFRESHED"
+  },
   "project": {
     "git_head": "e9d0a404417804faa70586c7b27f6a478028b798",
     "working_branch": "classification-attribution-axis"

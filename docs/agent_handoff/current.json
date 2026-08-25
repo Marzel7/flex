@@ -954,6 +954,17 @@
     },
     "safety_state": "walkback_worker remains on pre-change loaded code; no further queue-confirmed promotions are active from the new predicate.",
     "status": "HOLD",
+    "time_scope": {
+      "by_month": {
+        "2026-06": 28,
+        "2026-07": 234,
+        "2026-08": 395,
+        "timestamp_missing": 30
+      },
+      "earliest_launch_utc": "2026-06-02 06:22:27",
+      "interpretation": "This is a 12-week historical population, not a same-day backlog.",
+      "latest_launch_utc": "2026-08-25 13:41:41"
+    },
     "verdict": "HOLD_UNINTENDED_BROAD_HISTORICAL_ADMISSION"
   },
   "watchtower_recent_24h_exact_wsol_cohort_20260825": {

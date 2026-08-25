@@ -604,6 +604,28 @@
     "scope": "Profile-first panel is conditional on a linked behavioural profile and does not alter legacy WATCHTOWER rendering.",
     "status": "SHARED_LAYOUT_LIVE"
   },
+  "p3r_original_discovery_funnel_recovery_20260825": {
+    "artifact": "docs/audits/p3r_original_discovery_funnel_recovery.v1.json",
+    "artifact_sha256": "baf927a70f4f1b036ca6aa47faff74a5ae7b87874fbac26715a3221ce330715e",
+    "engineering_revision": "ffd19319",
+    "historically_confirmed_tiers": {
+      "candidate_universe": 114,
+      "dormant": 18,
+      "tier_1": 4,
+      "tier_2": 14,
+      "tier_3": 27,
+      "watch_later_equivalent": 51,
+      "watch_now": 45
+    },
+    "manifest": "docs/audits/p3r_original_discovery_funnel_recovery_manifest.v1.json",
+    "manifest_sha256": "78c5be86439456b51fe8033830a9b844a5f126a8583eebc4fa6c81f50f98ce7f",
+    "next_action": "Recover exact original frozen artifacts from backup/archive before any independent v1 replay; do not reconstruct from v2.",
+    "recovered_boundary": "historical generator requires frozen 28,883-mint feature corpus; separately recorded 40,301 P3R discovery population not proven as its direct input",
+    "replay": "BLOCKED: original corpus, membership, WATCH_NOW, alternative, atomic, and address-blind artifacts absent; current database is advanced and cannot substitute.",
+    "safety": "No RPC/provider call, queue replay, source mutation, tier/membership mutation, promotion, runtime change, or trading signal.",
+    "status": "COMPLETE",
+    "verdict": "P3R_ORIGINAL_DISCOVERY_PROVENANCE_RECOVERED_REPLAY_BLOCKED"
+  },
   "p3r_read_only_candidate_matcher_20260825": {
     "corpus_measurement": {
       "p3r_13a04_ladder_matches": 8,

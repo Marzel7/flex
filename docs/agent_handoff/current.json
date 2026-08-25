@@ -751,6 +751,13 @@
     "verdict": "HUN_UPSTREAM_DECREMENT_LADDER_RPC_CONFIRMED",
     "exact_next_action": "Trace this alternating 5,000-lamport decrement-ladder feature across known EC1, AF500, and 13A04 members to determine whether it is an operation discriminator or a cross-family workflow variant."
   },
+  "p3r_ec1_decrement_ladder_cohort_test_20260825": {
+    "scope": "User-authorized read-only 12-hop RPC test of the HUN-confirmed 5,000-lamport decrement ladder across the 15 retained EC1 creators.",
+    "status": "PARTIAL",
+    "blocker": "The unbatched pass exceeds the execution window. A batch-checkpoint edit contains a serialization defect (time.time referenced instead of time.time()), so it must be corrected before it can persist partial reports.",
+    "safety": "No production database, UI, membership, attribution, or resolver changes; RPC reads only.",
+    "exact_next_action": "With user authorization, correct the checkpoint serialization line and run the existing 12-hop EC1 test in small creator batches, then combine the reports."
+  },
   "operators_page_automatic_refresh_20260825": {
     "scope": "Client-side automatic update for the active-operations list.",
     "file": "templates/operators_index.html",
@@ -764,13 +771,13 @@
     "working_branch": "classification-attribution-axis"
   },
   "schema_version": 1,
-  "status": "PASS",
-  "summary": "Activity projection is generic for every active operation. WATCHTOWER and unambiguous P3R_13A04 walkback matches now establish membership and refresh UI activity automatically; the operators page polls every 15 seconds. EC1's 14/15 upstream amount pattern is disproven as EC1-specific by 41/52 AF500 and 39/47 unlabelled matches.",
+  "status": "PARTIAL",
+  "summary": "Activity projection is generic for every active operation. WATCHTOWER and unambiguous P3R_13A04 walkback matches now establish membership and refresh UI activity automatically; the operators page polls every 15 seconds. EC1's upstream amount pattern is disproven as EC1-specific. The separate EC1 decrement-ladder cohort test is paused on a checkpoint serialization defect.",
   "tests": {
     "executed": [],
     "result": "not run; read-only 16-mint WATCHTOWER miss analysis"
   },
   "updated_at_utc": "2026-08-25T12:35:13Z",
   "updated_by": "codex",
-  "verdict": "HUN_UPSTREAM_DECREMENT_LADDER_RPC_CONFIRMED"
+  "verdict": "P3R_EC1_DECREMENT_LADDER_COHORT_TEST_PARTIAL"
 }

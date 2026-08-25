@@ -5,11 +5,11 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": null,
+  "blocker": "The captured P3R_EC1 UI is served by an Operations database/runtime not available in this execution window: workspace database has no P3R_EC1 and localhost:5002 rejects connections. The supplied 135-row CSV cannot be reliably linked without that runtime profile or an explicit stable mapping.",
   "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e + uncommitted P3R member-mint funding-trace UI join",
-  "exact_next_action": "Serve/reload the local UI revision, open P3R_EC1, and select Evidence; the trace rows are joined from behavioural_profile.member_mints to the P3R CSV mint field.",
+  "exact_next_action": "Provide or start the runtime serving the captured P3R_EC1 page, then inspect its behavioural_profile.member_mints and map only intersecting CSV rows; do not attach unrelated 135-cohort rows.",
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "Optional: aggregate repeated initial fee payers across launches into operator-level relationship counts; no production change is authorized or required.",
+  "next_action": "Acquire the actual P3R_EC1 runtime profile/mint membership or its configured WT_OPS_DB_PATH, then complete the read-time CSV join.",
   "operations_registry_activity_metrics": {
     "activity_artifact": "/tmp/p3r-registry-migration/active_operations_launch_activity_snapshots.v3.json",
     "activity_artifact_sha256": "4d1bdb9db2e83aba1c2c5fd82ac248abea9ee1b48a391095f01003ea73041ef9",
@@ -386,9 +386,9 @@
   "summary": "Completed non-production 135-wallet full-history direct-funder tracer preparation. Added script that supports strict 135 membership validation, paginated Helius address-history scan per creator wallet, and output of JSONL result rows. No production code was changed.",
   "tests": {
     "executed": [],
-    "result": "not run (read-time route join and template presentation changes)"
+    "result": "not run; diagnostic confirmed the workspace Operations DB has no P3R_EC1 and localhost:5002 is unavailable"
   },
   "updated_at_utc": "2026-08-25T00:00:00Z",
   "updated_by": "codex",
-  "verdict": "P3R_INITIAL_FUNDER_TRACE_UI_JOIN_FIXED"
+  "verdict": "PARTIAL_P3R_TRACE_UI_RUNTIME_DATA_SOURCE_UNAVAILABLE"
 }

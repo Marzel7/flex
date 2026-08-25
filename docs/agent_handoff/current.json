@@ -395,6 +395,20 @@
     "next_action": "If authorized, implement a non-promoting WATCHTOWER-like candidate score with provenance and analyst review, then evaluate it on a frozen holdout before any promotion-policy change.",
     "verdict": "WATCHTOWER_BEHAVIOUR_ONLY_AUTO_PROMOTION_NOT_QUALIFIED"
   },
+  "watchtower_missing_hop1_rpc_probe_20260825": {
+    "scope": "Read-only bounded RPC probe of all 94 retained confirmed WATCHTOWER launches lacking selected hop-1 evidence, using the temporary environment RPC credential. No operational database writes or identity/promotion changes.",
+    "result": {
+      "mints_probed": 94,
+      "rpc_calls": 494,
+      "creators_with_prelaunch_funding_candidates": 83,
+      "candidate_transactions": 201,
+      "wsol_syncnative_close_detected_by_log_heuristic": 0
+    },
+    "finding": "Historical RPC transactions recover recurring creator credits including 1.112039280, 2.122039280, 0.203039280, 2.023039280, and related values. The trailing 0.000000280 SOL is consistent with the rent-exempt deposit, so stored historic amounts must be normalized before comparison with WSOL-close values. The current log heuristic did not expose SyncNative/CloseAccount markers for this historical slice.",
+    "artifact": "/tmp/watchtower_missing_hop1_rpc_probe.json",
+    "next_action": "Normalize recovered creator-credit amounts by the rent deposit and parse outer/inner instructions to establish historical mechanism variants before recalculating a behavior-only holdout test.",
+    "verdict": "WATCHTOWER_HISTORICAL_RPC_EVIDENCE_PARTIALLY_RECOVERED"
+  },
   "project": {
     "git_head": "e9d0a404417804faa70586c7b27f6a478028b798",
     "working_branch": "classification-attribution-axis"
@@ -406,7 +420,7 @@
     "executed": [],
     "result": "not run; read-only 16-mint WATCHTOWER miss analysis"
   },
-  "updated_at_utc": "2026-08-25T08:20:00Z",
+  "updated_at_utc": "2026-08-25T08:35:00Z",
   "updated_by": "codex",
-  "verdict": "WATCHTOWER_BEHAVIOUR_ONLY_AUTO_PROMOTION_NOT_QUALIFIED"
+  "verdict": "WATCHTOWER_HISTORICAL_RPC_EVIDENCE_PARTIALLY_RECOVERED"
 }

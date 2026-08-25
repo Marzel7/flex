@@ -5,11 +5,11 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "The compact Summary currently uses a read-time, evidence-derived generic anchor projection. The requested durable operation_infrastructure_anchors persistence/migration, variant persistence, full render suite, and performance-gate coverage remain unfinished.",
-  "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e + uncommitted compact operation-summary read model/UI",
-  "exact_next_action": "Add migration-safe durable anchor/variant tables and backfill bindings, then add integration/render/performance tests for EC1 and WATCHTOWER before declaring completion.",
+  "blocker": "Durable operation_infrastructure_anchors persistence/migration, variant persistence, full render suite, and performance-gate coverage remain unfinished. WATCHTOWER recent launches are now sourced from its retained canonical wt_watchtower_launches table.",
+  "engineering_revision": "38ddc602d6fb049e385edff51246491fd9fbbd8e + uncommitted compact operation-summary model with WATCHTOWER launch projection",
+  "exact_next_action": "Refresh WATCHTOWER Summary and confirm the latest three retained launches render; then add migration-safe durable anchor/variant tables and full integration/performance tests.",
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "Continue the operation Summary contract with durable anchor persistence and complete validation; no provider calls, queue replay, promotion, or identity mutation is authorized.",
+  "next_action": "Complete durable anchor persistence and full Summary validation; no provider calls, queue replay, promotion, or identity mutation is authorized.",
   "operations_registry_activity_metrics": {
     "activity_artifact": "/tmp/p3r-registry-migration/active_operations_launch_activity_snapshots.v3.json",
     "activity_artifact_sha256": "4d1bdb9db2e83aba1c2c5fd82ac248abea9ee1b48a391095f01003ea73041ef9",
@@ -388,9 +388,9 @@
   "tests": {
     "executed": [
       "python -m pytest tests/test_operation_summary.py tests/test_x75_1_operational_role.py",
-      "python -m py_compile src/ops/operation_summary.py src/ops/operator_routes.py"
+      "python -m py_compile src/ops/operation_summary.py src/ops/operator_reader.py src/ops/operator_routes.py"
     ],
-    "result": "PASS: 9 tests passed; compilation passed"
+    "result": "PASS: 10 tests passed; compilation passed"
   },
   "updated_at_utc": "2026-08-25T00:00:00Z",
   "updated_by": "codex",

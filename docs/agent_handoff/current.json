@@ -81,6 +81,23 @@
     "verdict": "HUN_UPSTREAM_DECREMENT_LADDER_RPC_CONFIRMED",
     "verified_ladder": "HboqWvK2... close 34,691,750,098 -> Gre9jF21... transfer 34,691,745,098 -> FwaWYJeu... close 34,691,740,098 -> AerCoA4G... transfer 34,691,735,098 -> 5jFqjJr4... close 34,691,730,098 -> DZtCkaEd... transfer 34,691,725,098 -> 2GH1yDtg... close 34,691,720,098 -> HWse5Gae... transfer 34,691,715,098 -> Ft5Sn8GN..."
   },
+  "latest_material_continuation": {
+    "blocker": null,
+    "engineering_revision": "local uncommitted implementation",
+    "milestone": "WATCHTOWER confirmed membership projection repair",
+    "next_action": "Observe the next route-valid WATCHTOWER confirmation and verify one automatic membership projection.",
+    "production_flags": {
+      "classifier_changed": false,
+      "provider_calls": false,
+      "queue_replay": false,
+      "unrelated_membership_changes": false,
+      "walkback_worker_restarted": true
+    },
+    "status": "PASS",
+    "tests": "3 passed: tests/test_watchtower_confirmed_membership_projection.py",
+    "timestamp_utc": "2026-08-25T19:20:07Z",
+    "verdict": "Strict route-gated membership projection live; mistaken outcome-only rows removed; UI snapshot refreshed."
+  },
   "milestone": "P3R corrected prospective shadow successor",
   "next_action": "Use the durable v2 shortlist for bounded local evidence review before any separately authorized RPC or operation-attribution action.",
   "operation_walkback_review_queue_20260825": {
@@ -1103,8 +1120,8 @@
     "watchtower_api_restarted": true
   },
   "project": {
-    "git_head": "532faa3d",
-    "working_branch": "classification-attribution-axis"
+    "branch": "classification-attribution-axis",
+    "git_head": "28d8678cda2456322c5bd2f136bdf26d275394d5"
   },
   "schema_version": 1,
   "status": "PASS",

@@ -443,6 +443,26 @@
     "next_action": "Create a provenance-preserving WATCHTOWER-like behavioral candidate cohort from the 285 matching LINEAGE_GAP mints; obtain analyst labels for a stratified negative/control sample before using the fingerprint for automatic confirmation.",
     "verdict": "WATCHTOWER_CLOSE_LEG_BEHAVIOURAL_FINGERPRINT_STRONGLY_SUPPORTED_PRECISION_UNMEASURED"
   },
+  "watchtower_full_family_fingerprint_evaluation_20260825": {
+    "scope": "Read-only normalized RPC evaluation of all 276 retained known WATCHTOWER launches. Selected hop-1 transaction parsed where available; bounded creator-history fallback used for the 94 without selected hop-1 evidence. No database writes or promotion changes.",
+    "result": {
+      "known_launches": 276,
+      "rpc_calls": 527,
+      "selected_hop1_sources": 182,
+      "creator_history_sources": 94,
+      "wsol_provision_close_full": 53,
+      "wsol_close_leg_seeded": 203,
+      "transfer_style": 9,
+      "unresolved": 11,
+      "behaviorally_classified": 265,
+      "behavioral_coverage_pct": 96.01
+    },
+    "fingerprint_contract": "Versioned family rather than one amount: full temporary-WSOL provision-and-close; seeded WSOL close-leg createAccountWithSeed + initializeAccount + closeAccount; transfer-style variant. Amounts are supporting normalized features, not a single required value.",
+    "interpretation": "The full known WATCHTOWER family has 265/276 read-only behavioral coverage. Eleven launches remain unresolved because bounded retained/RPC creator history yielded no usable pre-launch funding evidence, not because they contradicted the fingerprint.",
+    "artifact": "/tmp/watchtower_full_family_fingerprint_eval.json",
+    "next_action": "Use this versioned fingerprint only as a provenance-preserving WATCHTOWER-like candidate layer until a separately adjudicated negative/control set establishes precision for promotion.",
+    "verdict": "WATCHTOWER_FULL_FAMILY_BEHAVIOURAL_COVERAGE_96_PERCENT"
+  },
   "project": {
     "git_head": "e9d0a404417804faa70586c7b27f6a478028b798",
     "working_branch": "classification-attribution-axis"
@@ -454,7 +474,7 @@
     "executed": [],
     "result": "not run; read-only 16-mint WATCHTOWER miss analysis"
   },
-  "updated_at_utc": "2026-08-25T09:10:00Z",
+  "updated_at_utc": "2026-08-25T09:25:00Z",
   "updated_by": "codex",
-  "verdict": "WATCHTOWER_CLOSE_LEG_BEHAVIOURAL_FINGERPRINT_STRONGLY_SUPPORTED_PRECISION_UNMEASURED"
+  "verdict": "WATCHTOWER_FULL_FAMILY_BEHAVIOURAL_COVERAGE_96_PERCENT"
 }

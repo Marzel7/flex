@@ -96,7 +96,7 @@
     "status": "PARTIAL",
     "verdict": "AF500_LINK_CONFIRMED_EC1_LINK_UNPROVEN"
   },
-  "engineering_revision": "p3r-v2-063e-b65c-shared-root-provenance-verification",
+  "engineering_revision": "p3r-v2-063e-cohort-succession-forensics",
   "exact_next_action": "If authorized, implement completed-walkback insertion into provisional_operation_matches; preserve HISTORICAL_PROVISIONAL_REFERENCE separately from live pending review detections.",
   "generic_operation_activity_projection_20260825": {
     "exact_next_action": "Evaluate P3R matcher precision on a labelled negative/control cohort and, if authorized, implement an explicit establishment policy that writes operator membership then invokes the generic projection.",
@@ -150,7 +150,7 @@
     "verdict": "origin/main fast-forwarded from ef880830 to approved commit 26e528b0 in an isolated clean worktree."
   },
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "Keep 063e provisional; use H1 review-only matching and do not use B65c root as a confirming discriminator.",
+  "next_action": "Do not register the combined 41-member canonical family. Separate authorization is required to model the ByZc current and B65c legacy cohorts as related review candidates.",
   "operation_walkback_review_queue_20260825": {
     "endpoints": [
       "/api/ops/operators/review-queue",
@@ -275,6 +275,15 @@
     },
     "scope": "Client-side automatic update for the active-operations list.",
     "verdict": "OPERATORS_UI_AUTO_REFRESH_ACTIVE"
+  },
+  "p3r_063e_cohort_succession": {
+    "current_members": 32,
+    "decision": "TWO_DISTINCT_OPERATIONS_SHARED_DOWNSTREAM_MECHANISM",
+    "handoff_gap_seconds": 1489126,
+    "legacy_members": 9,
+    "report": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/063e_cohort_succession/p3r-v2-063e-cohort-succession-v1/p3r_v2_063e_cohort_succession_forensics.v1.json",
+    "rpc_calls": 0,
+    "status": "COMPLETE"
   },
   "p3r_063e_direct_funder_rpc": {
     "calls": {
@@ -1475,7 +1484,7 @@
     "verification": "watchtower_api restarted RUNNING pid 78797"
   },
   "production_flags": {
-    "provider_calls": 42,
+    "provider_calls": 0,
     "services_restarted": false
   },
   "project": {
@@ -1636,7 +1645,7 @@
   "status": "PASS",
   "summary": "Activity projection is generic for every active operation. WATCHTOWER and unambiguous P3R_13A04 walkback matches now establish membership and refresh UI activity automatically; the operators page polls every 15 seconds. EC1 now retains 13 members after dismissing two direct-OKH branches, but its 5,000-lamport decrement ladder has confirmed AF500 false positives and is not operation-specific.",
   "tests": {
-    "shared_root_forensics": "PASS: bounded account-birth verification and exact selected-edge detector reconciliation"
+    "cohort_succession_replay": "PASS: frozen local chronology, selected-edge, atomic, alternative, and detector analysis completed"
   },
   "tier_2_persisted_assessment_20260825": {
     "actions_not_taken": [
@@ -1748,7 +1757,7 @@
   },
   "updated_at_utc": "2026-08-25T00:00:00Z",
   "updated_by": "codex",
-  "verdict": "063E_PROVISIONAL_OPERATION_STILL_APPROPRIATE",
+  "verdict": "TWO_DISTINCT_OPERATIONS_SHARED_DOWNSTREAM_MECHANISM",
   "watchtower_2nhz_bjg_gyff_corrected_rpc_confirmation_20260825": {
     "corrected_chain": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT -> GYffSdtiffuTTZpiXqevWCYsSjn11drMoPsky9vsSUnd -> BpnGiweePUnk7ejBxvxokCUiZff3Pq3ftJiajgSEx8C7 -> 2nHZVubjJU144poGfjbiB97tv7CJtvJycvDdYvSxpump",
     "correction": "The earlier conclusion that BJg could not be the upstream source was wrong. The initial pre-anchor page was too dense to reach this transfer; the user-supplied transaction is 1,813 seconds before the anchor and proves BJg -> GYff. The later GYff -> BJg transfer is separate post-launch activity.",

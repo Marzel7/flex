@@ -96,7 +96,7 @@
     "status": "PARTIAL",
     "verdict": "AF500_LINK_CONFIRMED_EC1_LINK_UNPROVEN"
   },
-  "engineering_revision": "26e528b0 (main) + uncommitted Potential Operations triage UI refinement",
+  "engineering_revision": "26e528b0 (main) + uncommitted P3R detail membership projection",
   "exact_next_action": "If authorized, implement completed-walkback insertion into provisional_operation_matches; preserve HISTORICAL_PROVISIONAL_REFERENCE separately from live pending review detections.",
   "generic_operation_activity_projection_20260825": {
     "exact_next_action": "Evaluate P3R matcher precision on a labelled negative/control cohort and, if authorized, implement an explicit establishment policy that writes operator membership then invokes the generic projection.",
@@ -524,6 +524,13 @@
       "p3r_tier1_address_rotation.v1.json"
     ],
     "status": "RESOLVED_READ_ONLY"
+  },
+  "p3r_detail_membership_projection_20260826": {
+    "fix": "Reader projects confirmed non-WATCHTOWER memberships with retained queue fields; operation summary merges them by mint and sorts by launch time.",
+    "root_cause": "Operation summary preferred historical CSV/profile launch rows and omitted newer authoritative operator_launch_membership launches.",
+    "safety": "read projection only; no membership/classifier/trading change.",
+    "status": "PASS",
+    "verification": "P3R detail page HTTP response contains qKh3mY3bpbGxoiLeewwSpwsAeDvszCUhrdsuXYApump; watchtower_api RUNNING pid 56429."
   },
   "p3r_ec1_decrement_ladder_af500_contrast_20260825": {
     "conclusion": "The EC1 decrement ladder is not EC1-specific: all first three independently retained AF500 members match with long runs. Further AF500/unlabelled scanning is unnecessary to establish false positives.",

@@ -176,11 +176,11 @@
     "verdict": "origin/main fast-forwarded from ef880830 to approved commit 26e528b0 in an isolated clean worktree."
   },
   "latest_milestone": {
-    "attempted_at_utc": "2026-08-26T22:32:00Z",
-    "blocker": "scripts/adversarial_p3r_v2_d3de_coherence.py failed at report digest serialization: TypeError keys must be str, int, float, bool or None, not tuple. The failure occurred after local reads and before artifact writes. No RPC/provider call, database write, registration, activation, queue replay, membership/tier/fingerprint/evidence mutation, service restart or trading action occurred.",
+    "attempted_at_utc": "2026-08-26T22:34:00Z",
+    "blocker": "First approved serialization fix normalized funding_vector_challenge class_counts, but a second tuple-key diagnostic remains at parent_topology_challenge.raw_vectors. Same TypeError at final digest; still before artifact write. No RPC/provider call, database write, registration, activation, queue replay, membership/tier/fingerprint/evidence mutation, service restart or trading action occurred.",
     "name": "P3R v2 d3de adversarial cohort-split challenge",
-    "next_action": "Await approval to normalize only the diagnostic tuple-key maps to JSON-safe strings, then execute and deterministically replay the bounded reporter.",
-    "scope": "bounded local retained-evidence adversarial reporter; no RPC was necessary before final serialization",
+    "next_action": "Await approval to normalize only parent_topology_challenge.raw_vectors keys to strings, then execute and deterministically replay.",
+    "scope": "bounded local retained-evidence adversarial reporter",
     "status": "PARTIAL"
   },
   "milestone": "P3R corrected prospective shadow successor",

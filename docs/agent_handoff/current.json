@@ -96,7 +96,7 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "Legacy potential-child detail retains one static technical-name backlink; database-driven registry, active detail, and parent projection display Byzantine.",
+  "blocker": null,
   "byzantine_operation_rename": {
     "api_pid": 82277,
     "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/063e_child_qualification/confirmed_registration/byzantine_operation_rename.v1.json",
@@ -122,8 +122,8 @@
     "status": "PARTIAL",
     "verdict": "AF500_LINK_CONFIRMED_EC1_LINK_UNPROVEN"
   },
-  "engineering_revision": "byzantine_operation_rename",
-  "exact_next_action": "With separate authorization, replace the one static legacy-child backlink label with Byzantine; no data or detector change is required.",
+  "engineering_revision": "mission_control_live_ingestion_recovery",
+  "exact_next_action": "Observe normal listener operation; investigate creator_funding_worker lease lifetime only if the same stale-lease symptom recurs.",
   "generic_operation_activity_projection_20260825": {
     "exact_next_action": "Evaluate P3R matcher precision on a labelled negative/control cohort and, if authorized, implement an explicit establishment policy that writes operator membership then invokes the generic projection.",
     "implementation": "refresh_operator_activity_snapshot derives WATCHTOWER from its canonical ledger and other operations from retained behavioural-profile members plus explicit operator_launch_membership rows, resolving launch times from the core token ledger.",
@@ -176,6 +176,19 @@
     "verdict": "origin/main fast-forwarded from ef880830 to approved commit 26e528b0 in an isolated clean worktree."
   },
   "milestone": "P3R corrected prospective shadow successor",
+  "mission_control_live_ingestion_recovery_20260826": {
+    "artifact": "docs/agent_handoff/incidents/mission_control_live_ingestion_recovery_20260826.v1.json",
+    "post_recovery": "latest birth/migration 20:42 UTC; queues 0; health ingestion HEALTHY, capability WARNING while rate window recovers",
+    "repair": "restarted creator_funding_worker then watchtower_listener",
+    "root_cause": "stale cross-process write lease held by creator_funding_worker PID 2840 blocked listener startup",
+    "services": {
+      "creator_funding_worker": 82958,
+      "walkback_worker": 82299,
+      "watchtower_api": 82277,
+      "watchtower_listener": 82980
+    },
+    "tests": "MC focused suite started; initial capability set passed, terminal did not return final summary"
+  },
   "next_action": "Separate authorization required to register P3R_063E_BYZC_CURRENT as confirmed; legacy child remains paused; canonical parent remains unchanged.",
   "operation_walkback_review_queue_20260825": {
     "endpoints": [
@@ -1794,7 +1807,7 @@
   },
   "updated_at_utc": "2026-08-25T00:00:00Z",
   "updated_by": "codex",
-  "verdict": "PARTIAL",
+  "verdict": "PASS",
   "watchtower_2nhz_bjg_gyff_corrected_rpc_confirmation_20260825": {
     "corrected_chain": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT -> GYffSdtiffuTTZpiXqevWCYsSjn11drMoPsky9vsSUnd -> BpnGiweePUnk7ejBxvxokCUiZff3Pq3ftJiajgSEx8C7 -> 2nHZVubjJU144poGfjbiB97tv7CJtvJycvDdYvSxpump",
     "correction": "The earlier conclusion that BJg could not be the upstream source was wrong. The initial pre-anchor page was too dense to reach this transfer; the user-supplied transaction is 1,813 seconds before the anchor and proves BJg -> GYff. The later GYff -> BJg transfer is separate post-launch activity.",

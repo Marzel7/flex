@@ -176,11 +176,12 @@
     "verdict": "origin/main fast-forwarded from ef880830 to approved commit 26e528b0 in an isolated clean worktree."
   },
   "latest_milestone": {
-    "attempted_at_utc": "2026-08-26T22:18:00Z",
-    "blocker": "New reporter scripts/forensic_p3r_v2_d3de_tier1.py failed before data access with ModuleNotFoundError: No module named src. No artifact, database write, RPC call, queue replay, operation registration, tier or membership mutation occurred.",
+    "blocker": "Reporter subcohort key includes optional ancillary atomic records, yielding 7 profiles despite shared selected ladder and dominant principal atomic lifecycle. This makes the emitted MULTIPLE_SUBCOHORTS and OPERATION_EVIDENCE_INSUFFICIENT/workflow READY_FOR_CONFIRMED_REGISTRATION combination internally inconsistent. Do not use that workflow recommendation until a separately authorized minimal correction normalizes subcohort comparison to the selected-ladder atomic lifecycle.",
+    "completed_at_utc": "2026-08-26T22:23:00Z",
     "name": "P3R v2 d3de canonical Tier-1 forensic examination",
-    "next_action": "Await approval to apply the minimal sys.path import-path correction, then execute and deterministically replay the reporter.",
-    "scope": "bounded local read-only forensic reporter",
+    "next_action": "Await authorization to correct only the subcohort/qualification derivation and rerun forensic report; no operation registration or activation has occurred.",
+    "result": "Reporter and deterministic replay produced identical artifact sha256 519f9542112196052d5bebb42efe3f6a0e3ff931499bbe4a772d620e0c2db185. D0-D5 each measured 9 TP, 0 FP, 0 FN over 12041 observable retained mints. Dominant exact ladder is PLAIN_XFER 29999985000 -> WSOL_WRAP_CLOSE 29999990000 -> WSOL_WRAP_CLOSE 14479000 -> WSOL_WRAP_CLOSE 2074000; dominant principal atomic lifecycle is createAccountWithSeed/initializeAccount3/transfer/syncNative/closeAccount, 29997950720 lamports.",
+    "scope": "frozen local highwaters 32353/60299/7095, no RPC or production mutation",
     "status": "PARTIAL"
   },
   "milestone": "P3R corrected prospective shadow successor",

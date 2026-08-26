@@ -96,7 +96,7 @@
     "status": "PARTIAL",
     "verdict": "AF500_LINK_CONFIRMED_EC1_LINK_UNPROVEN"
   },
-  "engineering_revision": "063e-canonical-launches-newest-first-date-display",
+  "engineering_revision": "063e-confirmed-style-recent-launches-layout",
   "exact_next_action": "If authorized, implement completed-walkback insertion into provisional_operation_matches; preserve HISTORICAL_PROVISIONAL_REFERENCE separately from live pending review detections.",
   "generic_operation_activity_projection_20260825": {
     "exact_next_action": "Evaluate P3R matcher precision on a labelled negative/control cohort and, if authorized, implement an explicit establishment policy that writes operator membership then invokes the generic projection.",
@@ -150,7 +150,7 @@
     "verdict": "origin/main fast-forwarded from ef880830 to approved commit 26e528b0 in an isolated clean worktree."
   },
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "Review the 063e Recent Launches tab; no forensic, membership, tier, or classifier state changed.",
+  "next_action": "Review the 063e Recent Launches tab; presentation only, no evidence or operation state changes.",
   "operation_walkback_review_queue_20260825": {
     "endpoints": [
       "/api/ops/operators/review-queue",
@@ -277,9 +277,8 @@
     "verdict": "OPERATORS_UI_AUTO_REFRESH_ACTIVE"
   },
   "p3r_063e_display": {
-    "change": "canonical launch rows sorted by retained observed_at descending; UTC date rendered beside mechanism",
+    "change": "three newest route rows with confirmed-operation layout and expandable full canonical list",
     "files": [
-      "src/ops/potential_operations.py",
       "templates/potential_operation_detail.html"
     ],
     "status": "PASS"
@@ -1452,7 +1451,7 @@
     "verification": "watchtower_api restarted RUNNING pid 78797"
   },
   "production_flags": {
-    "watchtower_api": "RUNNING pid 68186 (reloaded only for candidate date display)"
+    "watchtower_api": "RUNNING pid 70531 (reloaded only for 063e launches presentation)"
   },
   "project": {
     "branch": "classification-attribution-axis",
@@ -1612,7 +1611,7 @@
   "status": "PASS",
   "summary": "Activity projection is generic for every active operation. WATCHTOWER and unambiguous P3R_13A04 walkback matches now establish membership and refresh UI activity automatically; the operators page polls every 15 seconds. EC1 now retains 13 members after dismissing two direct-OKH branches, but its 5,000-lamport decrement ladder has confirmed AF500 false positives and is not operation-specific.",
   "tests": {
-    "063e_detail_http": "PASS: detail page 200; newest-first label and UTC launch date rendered"
+    "063e_detail_http": "PASS: page 200; confirmed-style route, funding transaction, and 41-launch expansion rendered"
   },
   "tier_2_persisted_assessment_20260825": {
     "actions_not_taken": [

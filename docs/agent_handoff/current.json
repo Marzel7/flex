@@ -175,6 +175,14 @@
     "timestamp_utc": "2026-08-25T19:36:16Z",
     "verdict": "origin/main fast-forwarded from ef880830 to approved commit 26e528b0 in an isolated clean worktree."
   },
+  "latest_milestone": {
+    "checked_at_utc": "2026-08-26T22:15:00Z",
+    "name": "WATCHTOWER strict membership omission audit",
+    "next_action": "Continue normal monitored ingestion; investigate only if a completed strict-route-eligible confirmation lacks membership.",
+    "result": "72/72 strict-route-eligible confirmed outcomes are in WATCHTOWER membership; 0 strict-route-eligible omissions. Latest is 9Bg16jZHJS2ypdMzfhSwpfqgr5mbSfh86sU7mWddpump with funding block time 2026-08-26T17:15:54Z and membership assigned 2026-08-26T17:16:40Z.",
+    "scope": "local read-only comparison of completed WATCHTOWER_CONFIRMED walkbacks with strict route eligibility and operator membership",
+    "status": "PASS"
+  },
   "milestone": "P3R corrected prospective shadow successor",
   "mission_control_live_ingestion_recovery_20260826": {
     "artifact": "docs/agent_handoff/incidents/mission_control_live_ingestion_recovery_20260826.v1.json",

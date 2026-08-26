@@ -176,12 +176,12 @@
     "verdict": "origin/main fast-forwarded from ef880830 to approved commit 26e528b0 in an isolated clean worktree."
   },
   "latest_milestone": {
-    "completed_at_utc": "2026-08-26T22:28:00Z",
-    "name": "P3R v2 d3de canonical Tier-1 forensic correction",
-    "next_action": "Await explicit authorization for any separate operation-registration workflow; this run made no database workflow, operation registration, activation, tier, membership, detector, source evidence, queue, service, or trading mutation.",
-    "result": "Principal five-step 29997950720-lamport WSOL lifecycle is 9/9. Ancillary atomic rows are classified supporting and excluded only from mechanism identity. Corrected coherence is ONE_COHERENT_OPERATION; qualification D3DE_CONFIRMED_OPERATION_SUPPORTED; recommendation READY_FOR_CONFIRMED_REGISTRATION. D0-D5 unchanged at 9 TP, 0 FP, 0 FN over 12041 observable retained mints. Deterministic replay matched artifact c9a1c6263c900d221e7b1c476a191cbc5e7e0b712979df650e036cfb0352fb82 and manifest 3af3f02d3badabec4f464b06566b23577662b9219c258cd62d3fd1bde81c0ac2.",
-    "scope": "bounded local correction to subcohort derivation; frozen source highwaters unchanged at 32353/60299/7095",
-    "status": "PASS"
+    "attempted_at_utc": "2026-08-26T22:32:00Z",
+    "blocker": "scripts/adversarial_p3r_v2_d3de_coherence.py failed at report digest serialization: TypeError keys must be str, int, float, bool or None, not tuple. The failure occurred after local reads and before artifact writes. No RPC/provider call, database write, registration, activation, queue replay, membership/tier/fingerprint/evidence mutation, service restart or trading action occurred.",
+    "name": "P3R v2 d3de adversarial cohort-split challenge",
+    "next_action": "Await approval to normalize only the diagnostic tuple-key maps to JSON-safe strings, then execute and deterministically replay the bounded reporter.",
+    "scope": "bounded local retained-evidence adversarial reporter; no RPC was necessary before final serialization",
+    "status": "PARTIAL"
   },
   "milestone": "P3R corrected prospective shadow successor",
   "mission_control_live_ingestion_recovery_20260826": {

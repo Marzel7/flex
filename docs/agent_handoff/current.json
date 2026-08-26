@@ -176,12 +176,12 @@
     "verdict": "origin/main fast-forwarded from ef880830 to approved commit 26e528b0 in an isolated clean worktree."
   },
   "latest_milestone": {
-    "checked_at_utc": "2026-08-26T22:15:00Z",
-    "name": "WATCHTOWER strict membership omission audit",
-    "next_action": "Continue normal monitored ingestion; investigate only if a completed strict-route-eligible confirmation lacks membership.",
-    "result": "72/72 strict-route-eligible confirmed outcomes are in WATCHTOWER membership; 0 strict-route-eligible omissions. Latest is 9Bg16jZHJS2ypdMzfhSwpfqgr5mbSfh86sU7mWddpump with funding block time 2026-08-26T17:15:54Z and membership assigned 2026-08-26T17:16:40Z.",
-    "scope": "local read-only comparison of completed WATCHTOWER_CONFIRMED walkbacks with strict route eligibility and operator membership",
-    "status": "PASS"
+    "attempted_at_utc": "2026-08-26T22:18:00Z",
+    "blocker": "New reporter scripts/forensic_p3r_v2_d3de_tier1.py failed before data access with ModuleNotFoundError: No module named src. No artifact, database write, RPC call, queue replay, operation registration, tier or membership mutation occurred.",
+    "name": "P3R v2 d3de canonical Tier-1 forensic examination",
+    "next_action": "Await approval to apply the minimal sys.path import-path correction, then execute and deterministically replay the reporter.",
+    "scope": "bounded local read-only forensic reporter",
+    "status": "PARTIAL"
   },
   "milestone": "P3R corrected prospective shadow successor",
   "mission_control_live_ingestion_recovery_20260826": {

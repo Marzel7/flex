@@ -1,4 +1,18 @@
 {
+  "063e_potential_operations_deduplication": {
+    "api_pid": 81499,
+    "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/063e_child_qualification/potential_operations_normalization/063e_potential_operations_deduplication.v1.json",
+    "confirmed_members": 32,
+    "confirmed_operator": "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334",
+    "legacy_child": "P3R_063E_B65C_LEGACY",
+    "legacy_members": 9,
+    "legacy_status": "PAUSED_LEGACY",
+    "next_to_investigate": "p3r-v2-8b51ef3055e63a4122ea",
+    "parent": "p3r-v2-063e24a2def354f23ec5",
+    "parent_status": "DECOMPOSED_PARENT",
+    "tests": "9 passed",
+    "visible_potential_count": 61
+  },
   "active_operation_walkback_coverage_20260825": {
     "exact_next_action": "For each P3R profile, convert the reviewed fingerprint into an explicit versioned matcher and evaluate it read-only against a labeled holdout before adding any live resolver attribution path.",
     "result": {
@@ -96,8 +110,8 @@
     "status": "PARTIAL",
     "verdict": "AF500_LINK_CONFIRMED_EC1_LINK_UNPROVEN"
   },
-  "engineering_revision": "wsol_10_sol_four_step_confirmed_registration",
-  "exact_next_action": "Observe normal completed walkbacks; the approved B1 projector is active and will admit only strict 10-SOL four-step matches.",
+  "engineering_revision": "063e_potential_operations_deduplication",
+  "exact_next_action": "Monitor the paused legacy child only through retained/new evidence; do not re-open the decomposed parent as an actionable operation.",
   "generic_operation_activity_projection_20260825": {
     "exact_next_action": "Evaluate P3R matcher precision on a labelled negative/control cohort and, if authorized, implement an explicit establishment policy that writes operator membership then invokes the generic projection.",
     "implementation": "refresh_operator_activity_snapshot derives WATCHTOWER from its canonical ledger and other operations from retained behavioural-profile members plus explicit operator_launch_membership rows, resolving launch times from the core token ledger.",

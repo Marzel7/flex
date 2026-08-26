@@ -176,13 +176,12 @@
     "verdict": "origin/main fast-forwarded from ef880830 to approved commit 26e528b0 in an isolated clean worktree."
   },
   "latest_milestone": {
-    "blocker": "Reporter subcohort key includes optional ancillary atomic records, yielding 7 profiles despite shared selected ladder and dominant principal atomic lifecycle. This makes the emitted MULTIPLE_SUBCOHORTS and OPERATION_EVIDENCE_INSUFFICIENT/workflow READY_FOR_CONFIRMED_REGISTRATION combination internally inconsistent. Do not use that workflow recommendation until a separately authorized minimal correction normalizes subcohort comparison to the selected-ladder atomic lifecycle.",
-    "completed_at_utc": "2026-08-26T22:23:00Z",
-    "name": "P3R v2 d3de canonical Tier-1 forensic examination",
-    "next_action": "Await authorization to correct only the subcohort/qualification derivation and rerun forensic report; no operation registration or activation has occurred.",
-    "result": "Reporter and deterministic replay produced identical artifact sha256 519f9542112196052d5bebb42efe3f6a0e3ff931499bbe4a772d620e0c2db185. D0-D5 each measured 9 TP, 0 FP, 0 FN over 12041 observable retained mints. Dominant exact ladder is PLAIN_XFER 29999985000 -> WSOL_WRAP_CLOSE 29999990000 -> WSOL_WRAP_CLOSE 14479000 -> WSOL_WRAP_CLOSE 2074000; dominant principal atomic lifecycle is createAccountWithSeed/initializeAccount3/transfer/syncNative/closeAccount, 29997950720 lamports.",
-    "scope": "frozen local highwaters 32353/60299/7095, no RPC or production mutation",
-    "status": "PARTIAL"
+    "completed_at_utc": "2026-08-26T22:28:00Z",
+    "name": "P3R v2 d3de canonical Tier-1 forensic correction",
+    "next_action": "Await explicit authorization for any separate operation-registration workflow; this run made no database workflow, operation registration, activation, tier, membership, detector, source evidence, queue, service, or trading mutation.",
+    "result": "Principal five-step 29997950720-lamport WSOL lifecycle is 9/9. Ancillary atomic rows are classified supporting and excluded only from mechanism identity. Corrected coherence is ONE_COHERENT_OPERATION; qualification D3DE_CONFIRMED_OPERATION_SUPPORTED; recommendation READY_FOR_CONFIRMED_REGISTRATION. D0-D5 unchanged at 9 TP, 0 FP, 0 FN over 12041 observable retained mints. Deterministic replay matched artifact c9a1c6263c900d221e7b1c476a191cbc5e7e0b712979df650e036cfb0352fb82 and manifest 3af3f02d3badabec4f464b06566b23577662b9219c258cd62d3fd1bde81c0ac2.",
+    "scope": "bounded local correction to subcohort derivation; frozen source highwaters unchanged at 32353/60299/7095",
+    "status": "PASS"
   },
   "milestone": "P3R corrected prospective shadow successor",
   "mission_control_live_ingestion_recovery_20260826": {

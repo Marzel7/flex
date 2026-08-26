@@ -96,8 +96,8 @@
     "status": "PARTIAL",
     "verdict": "AF500_LINK_CONFIRMED_EC1_LINK_UNPROVEN"
   },
-  "engineering_revision": "p3r-v2-063e-child-operation-qualification",
-  "exact_next_action": "If authorized, implement completed-walkback insertion into provisional_operation_matches; preserve HISTORICAL_PROVISIONAL_REFERENCE separately from live pending review detections.",
+  "engineering_revision": "wsol_10_sol_four_step_confirmed_registration",
+  "exact_next_action": "Observe normal completed walkbacks; the approved B1 projector is active and will admit only strict 10-SOL four-step matches.",
   "generic_operation_activity_projection_20260825": {
     "exact_next_action": "Evaluate P3R matcher precision on a labelled negative/control cohort and, if authorized, implement an explicit establishment policy that writes operator membership then invokes the generic projection.",
     "implementation": "refresh_operator_activity_snapshot derives WATCHTOWER from its canonical ledger and other operations from retained behavioural-profile members plus explicit operator_launch_membership rows, resolving launch times from the core token ledger.",
@@ -1768,7 +1768,7 @@
   },
   "updated_at_utc": "2026-08-25T00:00:00Z",
   "updated_by": "codex",
-  "verdict": "BYZC_CURRENT_OPERATION_CONFIRMED",
+  "verdict": "PASS",
   "watchtower_2nhz_bjg_gyff_corrected_rpc_confirmation_20260825": {
     "corrected_chain": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT -> GYffSdtiffuTTZpiXqevWCYsSjn11drMoPsky9vsSUnd -> BpnGiweePUnk7ejBxvxokCUiZff3Pq3ftJiajgSEx8C7 -> 2nHZVubjJU144poGfjbiB97tv7CJtvJycvDdYvSxpump",
     "correction": "The earlier conclusion that BJg could not be the upstream source was wrong. The initial pre-anchor page was too dense to reach this transfer; the user-supplied transaction is 1,813 seconds before the anchor and proves BJg -> GYff. The later GYff -> BJg transfer is separate post-launch activity.",
@@ -2197,5 +2197,16 @@
     },
     "scope": "Read-only RPC instruction test of 461 selected-hop-1 WSOL amount-family candidates: 175 canonical WATCHTOWER and 286 currently LINEAGE_GAP/unclassified candidates. No database writes or promotion changes.",
     "verdict": "WATCHTOWER_CLOSE_LEG_BEHAVIOURAL_FINGERPRINT_STRONGLY_SUPPORTED_PRECISION_UNMEASURED"
+  },
+  "wsol_10_sol_four_step_confirmed_registration": {
+    "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/063e_child_qualification/confirmed_registration/wsol_10_sol_four_step_confirmed_registration.v1.json",
+    "detector_version": "WSOL_10_SOL_FOUR_STEP_PROVISION_CLOSE.v1",
+    "historical_memberships": 32,
+    "legacy_child_state": "PAUSED_LEGACY",
+    "operator_id": "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334",
+    "source_child_id": "P3R_063E_BYZC_CURRENT",
+    "tests": "11 passed",
+    "ui": "operator and parent pages HTTP 200",
+    "worker_pid": 80101
   }
 }

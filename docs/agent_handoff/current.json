@@ -176,12 +176,12 @@
     "verdict": "origin/main fast-forwarded from ef880830 to approved commit 26e528b0 in an isolated clean worktree."
   },
   "latest_milestone": {
-    "attempted_at_utc": "2026-08-26T22:34:00Z",
-    "blocker": "First approved serialization fix normalized funding_vector_challenge class_counts, but a second tuple-key diagnostic remains at parent_topology_challenge.raw_vectors. Same TypeError at final digest; still before artifact write. No RPC/provider call, database write, registration, activation, queue replay, membership/tier/fingerprint/evidence mutation, service restart or trading action occurred.",
+    "completed_at_utc": "2026-08-26T22:38:00Z",
     "name": "P3R v2 d3de adversarial cohort-split challenge",
-    "next_action": "Await approval to normalize only parent_topology_challenge.raw_vectors keys to strings, then execute and deterministically replay.",
-    "scope": "bounded local retained-evidence adversarial reporter",
-    "status": "PARTIAL"
+    "next_action": "Await explicit authorization for separate confirmed operation registration; no registration/activation or any source/runtime classification mutation occurred.",
+    "result": "D3DE_ONE_OPERATION_ADVERSARIALLY_CONFIRMED. No temporal split (5 active days; maximum gap 104238s), one direct-funder provisioning class, one parent topology template, one exact selected raw vector [29999985000,29999990000,14479000,2074000], 9/9 principal atomic coverage, one alternative route template, one address-independent role graph template, and all 36 pairs operationally equivalent. Ancillary rows 0 for 3 members and 1 for 6, but non-discriminating. D0-D5 unchanged at 9 TP, 0 FP, 0 FN / 12041 observable mints. No RPC needed because retained signed/timestamped provenance reaches four selected hops per member. Deterministic replay matched artifact 2d5b1568ea7a6ce28736b94939546f12f850a8b9022f45cad732b55f4b957f1d and manifest 49653e29d11560cbb1d8cbc23e6abbe50af32dd9e6f6323f9ecf396ee46f5cf9.",
+    "scope": "bounded local retained-evidence adversarial challenge at frozen highwaters 32353/60299/7095",
+    "status": "PASS"
   },
   "milestone": "P3R corrected prospective shadow successor",
   "mission_control_live_ingestion_recovery_20260826": {

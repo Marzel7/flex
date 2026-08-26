@@ -82,7 +82,7 @@
     "manifest_sha256": "551f4e8b621fa5d986e069bb92281952a881aa1b727d2adc72d2998b21bc5972",
     "metrics_sha256": "293917f358ee7d429f8e83a338f232e4dcc00a4cb1566dc765e5f895ca24c840"
   },
-  "blocker": "None",
+  "blocker": null,
   "dtuh_af500_ec1_link_check_20260825": {
     "af500_direct_connection": {
       "destination": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ",
@@ -96,7 +96,7 @@
     "status": "PARTIAL",
     "verdict": "AF500_LINK_CONFIRMED_EC1_LINK_UNPROVEN"
   },
-  "engineering_revision": "26e528b0 (main) + uncommitted P3R detail membership projection",
+  "engineering_revision": "potential-operations-candidate-subpages",
   "exact_next_action": "If authorized, implement completed-walkback insertion into provisional_operation_matches; preserve HISTORICAL_PROVISIONAL_REFERENCE separately from live pending review detections.",
   "generic_operation_activity_projection_20260825": {
     "exact_next_action": "Evaluate P3R matcher precision on a labelled negative/control cohort and, if authorized, implement an explicit establishment policy that writes operator membership then invokes the generic projection.",
@@ -124,6 +124,16 @@
     "verdict": "HUN_UPSTREAM_DECREMENT_LADDER_RPC_CONFIRMED",
     "verified_ladder": "HboqWvK2... close 34,691,750,098 -> Gre9jF21... transfer 34,691,745,098 -> FwaWYJeu... close 34,691,740,098 -> AerCoA4G... transfer 34,691,735,098 -> 5jFqjJr4... close 34,691,730,098 -> DZtCkaEd... transfer 34,691,725,098 -> 2GH1yDtg... close 34,691,720,098 -> HWse5Gae... transfer 34,691,715,098 -> Ft5Sn8GN..."
   },
+  "last_milestone": {
+    "files": [
+      "src/ops/potential_operations.py",
+      "src/ops/operator_routes.py",
+      "templates/potential_operation_detail.html"
+    ],
+    "name": "Potential Operations dedicated candidate subpages",
+    "scope": "Frozen canonical member projection and retained local evidence only; no provider calls or state mutation.",
+    "status": "PASS"
+  },
   "latest_material_continuation": {
     "blocker": null,
     "engineering_revision": "26e528b0",
@@ -140,7 +150,7 @@
     "verdict": "origin/main fast-forwarded from ef880830 to approved commit 26e528b0 in an isolated clean worktree."
   },
   "milestone": "P3R corrected prospective shadow successor",
-  "next_action": "Use the durable v2 shortlist for bounded local evidence review before any separately authorized RPC or operation-attribution action.",
+  "next_action": "Review candidate subpages in the browser; no candidate membership, tier, classifier, or operation state was changed.",
   "operation_walkback_review_queue_20260825": {
     "endpoints": [
       "/api/ops/operators/review-queue",
@@ -1423,14 +1433,7 @@
     "verification": "watchtower_api restarted RUNNING pid 78797"
   },
   "production_flags": {
-    "candidate_tuning": false,
-    "canonical_operation_promotion": false,
-    "identity_attribution": false,
-    "production_action": false,
-    "provider_network_calls": false,
-    "source_table_writes": false,
-    "trading_ranking_prediction": false,
-    "watchtower_api_restarted": true
+    "watchtower_api": "RUNNING pid 64159 (reloaded for candidate detail templates)"
   },
   "project": {
     "branch": "classification-attribution-axis",
@@ -1590,8 +1593,8 @@
   "status": "PASS",
   "summary": "Activity projection is generic for every active operation. WATCHTOWER and unambiguous P3R_13A04 walkback matches now establish membership and refresh UI activity automatically; the operators page polls every 15 seconds. EC1 now retains 13 members after dismissing two direct-OKH branches, but its 5,000-lamport decrement ladder has confirmed AF500 false positives and is not operation-specific.",
   "tests": {
-    "executed": [],
-    "result": "not run; read-only 16-mint WATCHTOWER miss analysis"
+    "candidate_detail_regression": "PASS: 063e canonical members=41; 900b canonical members=44; all retained routes present",
+    "http_routes": "PASS: queue, 063e detail, and 900b detail returned 200 after API reload"
   },
   "tier_2_persisted_assessment_20260825": {
     "actions_not_taken": [

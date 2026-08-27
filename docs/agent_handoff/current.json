@@ -1,4 +1,19 @@
 {
+  "sentinel_evolution_cluster_admission_20260827": {
+    "engineering_revision": "91dd1b21721ac7ae8493813e5f24445fd32c0335",
+    "status": "PASS_WITH_DETAIL_RENDER_LIMITATION",
+    "verdict": "SENTINEL_EVOLUTION_CLUSTER_ADMISSION_COMPLETE",
+    "source": {"reconciliation_commit": "f24e72de", "frozen_highwaters": {"wt_walkback_queue": 35620, "wt_walkback_edge_candidates": 67599, "wt_walkback_atomic_flows": 7747}, "reconciliation_replay": "PASS"},
+    "review": {"sentinel_near_observations": 75, "qualifying_clusters": 2, "non_qualifying_observations": 68, "relationships": "both POTENTIAL_VARIANT_OF_SENTINEL; material coexistence with exact Sentinel rules out successor", "admitted": [{"candidate_id": "p3r-v2-7a791b87d44687dbf407", "name": "Potential variant of Sentinel · 10 SOL Ladder", "observations": 4, "current_activity": "0 / 2 / 4", "workflow": "QUEUED"}, {"candidate_id": "p3r-v2-84551ddfa7b82847ba0f", "name": "Potential variant of Sentinel · 20 SOL Ladder", "observations": 3, "current_activity": "0 / 0 / 3", "workflow": "QUEUED"}], "harbinger": "97 related observations; 0 qualifying clusters; no candidate created"},
+    "qualification": "Existing contract unchanged: >=3 observations, >=2 distinct creators, >=2 direct funders, observable coherent address-independent route, and no exact identity/Potential duplicate. Both admitted variants pass.",
+    "idempotency": "apply first run created 2 workflows; second run created 0 and left both stable.",
+    "membership_neutrality": {"confirmed_membership": [233, 233], "provisional_rows": [1, 1], "potential_workflows": [61, 63], "actionable_potentials": 62, "membership_impact": "NONE"},
+    "ui": "Potential page now shows 2 Admitted Evolution Candidates, current-census provenance, and both human-readable Sentinel variants. Operator reader exposes a read-only Sentinel Evolution Watch with two candidate links. Potential page HTTP 200 rendered both candidates after watchtower_api-only reload; Sentinel/Harbinger detail verification was limited because localhost:5002 later stopped accepting connections while Supervisor still reported the API running; no service repair was authorized.",
+    "tests": "9 passed: potential lifecycle/current-census/Sentinel admission/operator registry projection tests; Potential templates parsed.",
+    "files": ["docs/audits/sentinel_evolution_cluster_admission.v1.json", "scripts/review_sentinel_evolution_admission.py", "src/ops/operator_reader.py", "src/ops/potential_operations.py", "templates/potential_operation_detail.html", "templates/potential_operations.html", "tests/test_operator_registry_identity_projection.py", "tests/test_sentinel_evolution_cluster_admission.py"],
+    "safety": "No Confirmed membership, detector, fingerprint, threshold, WATCHTOWER semantics, RPC/provider, worker/listener, queue, or trading state changed. Only watchtower_api was reloaded. Unrelated walkback_worker and operator_routes work remained unstaged.",
+    "exact_next_action": "If desired, separately diagnose localhost API port liveness before browser-level verification of Sentinel and Harbinger detail pages; do not alter the admission or monitoring semantics."
+  },
   "potential_operations_current_census_reconciliation_20260827": {
     "engineering_revision": "f24e72deb17be0c0b5047df8b4aba8cd652eb2b8",
     "status": "PASS",

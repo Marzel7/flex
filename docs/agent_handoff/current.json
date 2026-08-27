@@ -1,4 +1,21 @@
 {
+  "fresh_operational_snapshot_cohort_contract_20260827": {
+    "engineering_revision": "33006ab516be7d770bcf9024e0fbd43461f919e2",
+    "status": "HOLD",
+    "verdict": "SNAPSHOT_COHORT_CONTRACT_NOT_REPRODUCED",
+    "ingestion_health": "HEALTHY_FOR_SNAPSHOT (health only; not sufficient to bypass cohort comparability)",
+    "authoritative_recovery_artifacts": [
+      "docs/audits/p3r_original_discovery_funnel_recovery.v1.json",
+      "docs/audits/p3r_original_discovery_funnel_recovery_manifest.v1.json"
+    ],
+    "recovery_finding": "The original 28,883-row feature corpus, original candidate/watch-now memberships, and upstream eligibility inputs are TEMP_ARTIFACT_MISSING; current database state is explicitly SOURCE_STATE_ADVANCED and is not a valid substitute.",
+    "single_use_creator_rule": "NOT_RECOVERED as an upstream corpus filter. Surviving generator code only diagnoses creator reuse and cannot prove or reproduce the prior upstream restriction.",
+    "known_recovered_later_rules": "Surviving generator requires complete selected-edge observations, exact raw selected-edge grouping, >=4 members, >=3 distinct creators, and >=3 distinct direct funders; these do not recover all upstream snapshot rules.",
+    "snapshot_1_reproduction": "NOT_EXECUTED: hard gate failed before recomputation because the exact frozen input corpus and all eligibility/condensation inputs are absent.",
+    "snapshot_2": "NOT_CREATED",
+    "safety": "No snapshot artifact, source high-water, membership, provisional/Potential workflow state, detector, fingerprint, threshold, WATCHTOWER semantics, queue, RPC/provider, service, or trading state changed.",
+    "exact_next_action": "Recover the original Snapshot 1 frozen corpus/manifest and all upstream eligibility artifacts from durable backup or authoritative source; then reproduce the selector exactly before authorizing a comparable Snapshot 2."
+  },
   "potential_operations_render_verification_20260827": {"engineering_revision":"33006ab516be7d770bcf9024e0fbd43461f919e2","status":"PASS","served_route":"/intelligence/potential-operations HTTP 200 after watchtower_api-only reload","verification":"Actionable metric and 1 SOL Provision Close rendered; no FOUR_STEP_30_SOL_14_479K_WSOL_LADDER or ACTIVE CONFIRMED rendered in default view.","safety":"read projection only; no membership, detector, fingerprint, queue, RPC, trading, or worker change"},
   "potential_operations_ui_reconciliation_20260827": {"engineering_revision":"87d35eee48fe412d5494c10a7cdc0860f723020e","status":"PASS_BOUNDED","default_view":"ACTIONABLE","rendered_ui":"Actionable Potentials, Queued, Provisional, Mutation / Successor Watch; frozen WATCH_NOW 61 is provenance only.","sentinel":"excluded by PROMOTED_CONFIRMED read-model status","provisional":"1 SOL Provision Close remains ACTIVE_PROVISIONAL","tests":"template parse + 2 lifecycle-base tests passed","safety":"no membership, detector, fingerprint, queue, RPC, service, or trading change"},
   "canonical_operator_naming_20260827": {

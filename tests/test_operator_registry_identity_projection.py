@@ -89,4 +89,5 @@ def test_registry_uses_shared_columns_without_visible_stable_ids():
     assert "related · Unresolved" in template
     assert "row.operation_family||row.operator_id" not in template
     assert "Last launch" in template
-    assert "lastLaunchAge(row.last_observed_launch_timestamp)" in template
+    assert "header.children[4]" in template
+    assert "node.insertBefore(cell,node.querySelector('.registry-open'))" in template

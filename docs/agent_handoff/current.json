@@ -1651,7 +1651,7 @@
   },
   "project": {
     "branch": "classification-attribution-axis",
-    "git_head": "75ebacead89e2e1440d1c77c3ddba26085b7d5aa"
+    "git_head": "846bc55fd30616813f77bd8b96d3b9081df452e1"
   },
   "provisional_900b_live_detector_wiring_20260825": {
     "changed_files": [
@@ -2464,5 +2464,21 @@
     "blocker": "Required integration files src/ops/operation_fingerprint_monitoring.py, src/ops/operator_reader.py, and templates/operator_intelligence.html already contain unrelated uncommitted overlapping edits. Those edits partially alter current-versus-qualified uniqueness presentation but do not establish the requested provenance-backed infrastructure, family, or naming model. Safely extending or committing them cannot be done without ownership/reconciliation direction.",
     "exact_next_action": "Provide the owner/intent for the overlapping dirty UI/data-layer edits, or commit/stash them independently; then implement this bounded metadata/UI refinement on a clean integration surface.",
     "production_flags": {"membership_changed": false, "provisional_state_changed": false, "detector_changed": false, "rpc_provider_calls": false, "trading_state": false}
+  },
+  "live_fingerprint_drift_ui_projection_20260827": {
+    "engineering_revision": "846bc55fd30616813f77bd8b96d3b9081df452e1",
+    "commit": "846bc55fd30616813f77bd8b96d3b9081df452e1",
+    "status": "PASS",
+    "verdict": "LIVE_FINGERPRINT_DRIFT_UI_PROJECTION_COMMITTED",
+    "files": ["src/ops/operation_fingerprint_drift.py", "src/ops/operation_fingerprint_monitoring.py", "src/ops/operator_reader.py", "templates/operator_intelligence.html", "tests/test_operation_fingerprint_monitoring.py"],
+    "tests": "43 passed focused monitoring suites",
+    "read_only_projection": "latest_health uses SELECT-only queries; operator reader projects monitoring state only; template is display-only.",
+    "uniqueness": "Frozen qualified uniqueness remains separate from current persisted monitoring uniqueness.",
+    "watchtower": "DYNAMIC_ROLE_DISCOVERY preserved; no generic WATCHTOWER near-match projection.",
+    "900b": "PROVISIONAL preserved.",
+    "membership_impact": "NONE",
+    "production_flags": {"membership_changed": false, "provisional_state_changed": false, "detector_changed": false, "queue_changed": false, "rpc_provider_calls": false, "service_restarted": false, "trading_state": false},
+    "exact_next_action": "Resume the separately authorized identity-strength/family/naming refinement on this committed base.",
+    "blocker": null
   }
 }

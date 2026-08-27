@@ -2362,7 +2362,11 @@
   },
   "watchtower_observational_reader_20260827": {
     "engineering_revision": "ddebaafb",
+    "commit": "ddebaafbb88d621e7264e42b4c1e940002727dbd",
     "exact_next_action": "Use this task handoff only as a verified read-only observational projection; do not alter WATCHTOWER detection semantics unless re-authorized.",
+    "membership_writer": "NONE",
+    "monitoring_strategy": "DYNAMIC_ROLE_DISCOVERY",
+    "generic_near_match_monitoring": "DISABLED",
     "production_flags": {
       "production_detection_changed": false,
       "role_discovery_changed": false,
@@ -2373,8 +2377,8 @@
       "trading_state": false
     },
     "status": "PASS",
-    "tests": "9 passed",
-    "verdict": "WATCHTOWER_OBSERVATIONAL_READER_COMMITTED",
+    "tests": "9 passed (tests/test_watchtower_observational_reader.py); 3 passed (tests/test_watchtower_confirmed_membership_projection.py)",
+    "verdict": "WATCHTOWER_OBSERVATIONAL_READER_COMPLETE",
     "blocker": null,
     "summary": "Added read-only WATCHTOWER observational reader + focused tests; no production modules modified."
   }

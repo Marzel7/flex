@@ -176,7 +176,13 @@
     "verdict": "origin/main fast-forwarded from ef880830 to approved commit 26e528b0 in an isolated clean worktree."
   },
   "latest_milestone": {
-    "exact_next_action": "With user approval, correct the undefined transaction-map key variable and rerun the same bounded read-only RPC check.",
+    "artifacts": {
+      "manifest": "docs/agent_handoff/p3r/p3r_operator_direct_funder_rpc/p3r_operator_direct_funder_upstream_rpc_manifest.v1.json",
+      "manifest_sha256": "0d5399ed588663bd88a0ee2909bca94b9133880e11990e42634dd0162fac865f",
+      "report": "docs/agent_handoff/p3r/p3r_operator_direct_funder_rpc/p3r_operator_direct_funder_upstream_rpc.v1.json",
+      "report_sha256": "f2adf0fa806297bc427b28effa08f162171c09e9f900104faf8c79ba9ba8caf4"
+    },
+    "exact_next_action": "If authorized, evaluate whether the RPC-derived immediate upstream parents meet a persistence/provenance contract for display in the P3R UI; do not treat them as retained canonical two-hop walkback evidence without such a contract.",
     "name": "P3R direct-funder upstream RPC check",
     "production_flags": {
       "database_mutation": false,
@@ -184,9 +190,9 @@
       "rpc_provider_calls": true,
       "ui_mutation": false
     },
-    "status": "HOLD",
-    "summary": "53 deduplicated funder history reads completed for 78 P3R launch links; the checker stopped before transaction reads or report creation because the new transaction-map comprehension referenced an undefined variable.",
-    "verdict": "SCRIPT_VARIABLE_ERROR"
+    "status": "PASS",
+    "summary": "Read-only RPC provenance check covered 78 P3R launch links through 53 distinct direct funders. All 78 had a material immediate inbound predecessor. Recurrent upstream sources included AGT9dkEZUBPrw5HrDGZTNRhYNMEU5HbRp2E1GdYMSB6r (5 links), 7nUChWZA5wUMWgUjigfkh3MG2FmoVhk47fvqCcPALe5B (4), and three sources with 3 each. No database, UI, membership, queue, or operation mutation occurred.",
+    "verdict": "P3R_DIRECT_FUNDER_UPSTREAM_RPC_COMPLETE"
   },
   "milestone": "P3R corrected prospective shadow successor",
   "mission_control_live_ingestion_recovery_20260826": {

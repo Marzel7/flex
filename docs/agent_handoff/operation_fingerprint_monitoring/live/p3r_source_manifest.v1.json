@@ -1,0 +1,14 @@
+{
+  "address_independent": true,
+  "comparison_source": "not scanned by this P3R-only adapter task",
+  "exact_match_count": 85,
+  "fingerprint_id": "100SOL-WSOL-CLOSE-v1",
+  "member_count": 85,
+  "observable_count": 85,
+  "operation": "P3R",
+  "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+  "positive_reference_source": "current confirmed P3R membership",
+  "provenance_quality": "CURRENT_CONFIRMED_MEMBERSHIP",
+  "technical_detector": "P3R_UNIFIED_WSOL_WRAP_CLOSE_99_999985_SOL.v1",
+  "unobservable_count": 0
+}

@@ -2456,5 +2456,13 @@
     "production_flags": {"live_activation": false, "service_restarted": false, "detector_changed": false, "membership_written_by_monitor": false, "queue_replayed": false, "rpc_provider_calls": false, "trading_state": false},
     "exact_next_action": "Separate explicit authorization is required before any live monitoring activation.",
     "blocker": null
+  },
+  "operation_identity_strength_family_ui_20260827": {
+    "engineering_revision": "75ebacead89e2e1440d1c77c3ddba26085b7d5aa",
+    "status": "HOLD",
+    "verdict": "OPERATION_IDENTITY_STRENGTH_FAMILY_UI_BLOCKED",
+    "blocker": "Required integration files src/ops/operation_fingerprint_monitoring.py, src/ops/operator_reader.py, and templates/operator_intelligence.html already contain unrelated uncommitted overlapping edits. Those edits partially alter current-versus-qualified uniqueness presentation but do not establish the requested provenance-backed infrastructure, family, or naming model. Safely extending or committing them cannot be done without ownership/reconciliation direction.",
+    "exact_next_action": "Provide the owner/intent for the overlapping dirty UI/data-layer edits, or commit/stash them independently; then implement this bounded metadata/UI refinement on a clean integration surface.",
+    "production_flags": {"membership_changed": false, "provisional_state_changed": false, "detector_changed": false, "rpc_provider_calls": false, "trading_state": false}
   }
 }

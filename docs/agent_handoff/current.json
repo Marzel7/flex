@@ -2490,5 +2490,19 @@
     "summary": "Added read-only human-name, family, infrastructure, coverage, and common-root metadata projection; stable technical identities unchanged. watchtower_api reloaded after the committed UI change and verified RUNNING (pid 26512).",
     "production_flags": {"membership_changed": false, "provisional_state_changed": false, "detector_changed": false, "rpc_provider_calls": false, "trading_state": false},
     "blocker": null
+  },
+  "operator_registry_family_and_24h_projection_20260827": {
+    "engineering_revision": "34463adee2f649aa131e6b4b7de0a6780dea645c",
+    "prior_registry_ui_commit": "93fda1cd6ea73aeaefcdc26cc99ff5f5bd7d9b21",
+    "status": "PASS",
+    "verdict": "OPERATOR_REGISTRY_FAMILY_AND_24H_PROJECTION_RELOADED",
+    "files": ["src/ops/operator_reader.py", "tests/test_operator_registry_identity_projection.py"],
+    "summary": "Corrected the live registry route's read-only OperatorReader projection. It now exposes existing persisted launches_last_1d values and identity-derived human names/families consumed by the already-committed registry template.",
+    "live_endpoint_verification": "PASS: WATCHTOWER=28/345, P3R=13/88, Byzantine=2/35, 1 SOL Provision Close=3/45, 30 SOL 14.479K Ladder=0/9, and 30 SOL 5K Ladder=1/6 for 24h/all-time observed launch-token counts. Both ladder operations project family 30 SOL WSOL Ladder.",
+    "tests": "PASS: test_operator_registry_identity_projection.py (1); manual_registry.py's pre-existing unrelated test failure was not repaired or included.",
+    "read_only_safety": "OperatorReader connects mode=ro with PRAGMA query_only and only reads the latest persisted activity snapshot plus identity metadata. It does not refresh snapshots or alter membership.",
+    "production_flags": {"membership_changed": false, "provisional_state_changed": false, "detector_changed": false, "fingerprint_changed": false, "threshold_changed": false, "queue_changed": false, "rpc_provider_calls": false, "trading_state_changed": false, "service_restarted": true},
+    "unrelated_work_protected": "src/core/walkback_worker.py remained dirty and was neither staged nor modified.",
+    "exact_next_action": "No further UI work is required for this projection. Build any later family/infrastructure/naming enhancements on engineering revision 34463ade."
   }
 }

@@ -27,7 +27,7 @@ def _overrides(candidate_id: str) -> dict:
       "p3r-v2-900b89587c6987d582df": {"workflow_status":"ACTIVE_PROVISIONAL","proposed_name":"WSOL_PROVISION_CLOSE_1_SOL_MINUS_15K","parent_mechanism":"WSOL_PROVISION_CLOSE","latest_verdict":"900B_HYBRID_OPERATION_PROVISIONAL","principal_gap":"Residual false positives prevent automatic attribution.","next_action":"Accumulate live provisional evidence / review matches.","rpc_requirement":"PAUSED","related_operator_id":ACTIVE_900B},
       "p3r-v2-c357da9d0d4d560311e4": {"workflow_status":"PAUSED","proposed_name":"WSOL_PROVISION_CLOSE_100_SOL_MINUS_15K","parent_mechanism":"WSOL_PROVISION_CLOSE","latest_verdict":"Related provisional 100-SOL-minus-15k variant; 33/71 alternative dominant fingerprint.","principal_gap":"Variant relationship and alternative recurrence require closure.","next_action":"Paused behind 063e; do not register or create a detector.","rpc_requirement":"NOT_CURRENTLY"},
       "p3r-v2-063e24a2def354f23ec5": {"workflow_status":"QUEUED","proposed_name":"WSOL_PROVISION_CLOSE_10_SOL_MINUS_15K","parent_mechanism":"WSOL_PROVISION_CLOSE","latest_verdict":"Strong 10-SOL-minus-15k candidate with a distinct retained atomic lifecycle.","principal_gap":"Alternative recurrence and address blindness not proven.","next_action":"Determine whether 10-SOL-minus-15k is a third WSOL parent variant or a distinct lifecycle operation.","rpc_requirement":"LIKELY"},
-      "p3r-v2-d3de29c88fe0ce5fa309": {"workflow_status":"WATCH_ONLY","proposed_name":"Canonical Tier-1 reference","parent_mechanism":"Reference control","latest_verdict":"Canonical Tier-1 positive control.","principal_gap":"None retained.","next_action":"Retain as a reference; do not displace new-operation investigation.","rpc_requirement":"NO"},
+      "p3r-v2-d3de29c88fe0ce5fa309": {"workflow_status":"PROMOTED_CONFIRMED","proposed_name":"Sentinel","parent_mechanism":"30 SOL 14.479K Ladder","latest_verdict":"Confirmed operation; retained discovery provenance only.","principal_gap":"None retained.","next_action":"Not actionable — confirmed as Sentinel.","rpc_requirement":"NO"},
     }.get(candidate_id,{})
 
 def normalize_potential_operation_workflows(conn: sqlite3.Connection, *, apply: bool = False) -> dict[str, int]:
@@ -84,6 +84,8 @@ def rows(db_path: str) -> list[dict]:
         for x in source:
             if x["candidate_id"] == DECOMPOSED_063E_PARENT:
                 parent=x
+                continue
+            if x.get("workflow_status") in {"PROMOTED_CONFIRMED", "CLOSED", "EXACT_CONFIRMED_OPERATION_MATCH"}:
                 continue
             out.append(x)
         child_table=conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='potential_operation_child_candidates'").fetchone()

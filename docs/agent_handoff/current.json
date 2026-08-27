@@ -237,6 +237,63 @@
     "tests": "MC focused suite started; initial capability set passed, terminal did not return final summary"
   },
   "next_action": "Separate authorization required to register P3R_063E_BYZC_CURRENT as confirmed; legacy child remains paused; canonical parent remains unchanged.",
+  "operation_fingerprint_monitoring_live_recovery": {
+    "authorization_consumed_at_utc": "2026-08-27T09:00:00Z",
+    "exact_next_action": "Authorize a bounded read-only reconciliation of the four P3R membership rows against P3R matcher records, retained candidate edges and worker logs; do not rerun bootstrap or activate worker until UNKNOWN_CAUSE is resolved.",
+    "milestone": "two-stage durable bootstrap recovery",
+    "prohibitions_observed": [
+      "No RPC/provider calls",
+      "No queue replay",
+      "No detector/fingerprint/threshold changes",
+      "No membership mutation by monitoring",
+      "No worker/API restart",
+      "No trading change"
+    ],
+    "stage_1": {
+      "artifact_status": "RUNNING",
+      "claimed_window_start_epoch": 1787821026,
+      "finding": "All four rows predate bootstrap start by 392-768 seconds. They cannot be causal effects of the interrupted bootstrap. Retained queue outcomes conflict with membership provenance; classification must remain UNKNOWN_CAUSE pending bounded provenance reconciliation.",
+      "four_rows_previously_described_as_window_delta": [
+        {
+          "assigned_at": 1787820258,
+          "membership_row_id": 1107,
+          "mint": "RDsd1qBPMHHmAryvSgajgrBhZNcZCXGfa2Hrdnjpump",
+          "queue_outcome": "LINEAGE_GAP",
+          "source_population_id": "walkback_p3r_unified_matcher_v1"
+        },
+        {
+          "assigned_at": 1787820346,
+          "membership_row_id": 1108,
+          "mint": "hwbbGmQNpio9m5Ug9yEmiUzjEZkTVzh2N1ikpGBpump",
+          "queue_outcome": "LINEAGE_GAP",
+          "source_population_id": "walkback_p3r_unified_matcher_v1"
+        },
+        {
+          "assigned_at": 1787820448,
+          "membership_row_id": 1109,
+          "mint": "EpgCAWwATyXZkqHgvtsv9rUmHByuTr5sXfufaXMpump",
+          "queue_outcome": "LINEAGE_GAP",
+          "source_population_id": "walkback_p3r_unified_matcher_v1"
+        },
+        {
+          "assigned_at": 1787820634,
+          "membership_row_id": 1110,
+          "mint": "w3dYCLYpUHFiZxbgXGaH9stnREEjk7Ms6JupWsTpump",
+          "queue_outcome": "LINEAGE_GAP",
+          "source_population_id": "walkback_p3r_unified_matcher_v1"
+        }
+      ],
+      "monitoring_membership_capability": "NONE observed from static reachable-write audit; not sufficient to override the row-level provenance contradiction",
+      "observed_membership_count": 221,
+      "rows_with_assigned_at_at_or_after_window_start": 0
+    },
+    "stage_2": {
+      "reason": "Stage-1 gate requires UNKNOWN_CAUSE=0; it is not satisfied.",
+      "status": "NOT_STARTED"
+    },
+    "status": "HOLD",
+    "verdict": "BOOTSTRAP_MEMBERSHIP_WINDOW_PROVENANCE_CONTRADICTION"
+  },
   "operation_walkback_review_queue_20260825": {
     "endpoints": [
       "/api/ops/operators/review-queue",
@@ -1851,9 +1908,9 @@
     "status": "PARTIAL",
     "verdict": "NO_DIRECT_TREASURY_LINK_ESTABLISHED"
   },
-  "updated_at_utc": "2026-08-25T00:00:00Z",
+  "updated_at_utc": "2026-08-27T09:00:00Z",
   "updated_by": "codex",
-  "verdict": "PASS",
+  "verdict": "LIVE_OPERATION_FINGERPRINT_DRIFT_MONITORING_BLOCKED",
   "watchtower_2nhz_bjg_gyff_corrected_rpc_confirmation_20260825": {
     "corrected_chain": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT -> GYffSdtiffuTTZpiXqevWCYsSjn11drMoPsky9vsSUnd -> BpnGiweePUnk7ejBxvxokCUiZff3Pq3ftJiajgSEx8C7 -> 2nHZVubjJU144poGfjbiB97tv7CJtvJycvDdYvSxpump",
     "correction": "The earlier conclusion that BJg could not be the upstream source was wrong. The initial pre-anchor page was too dense to reach this transfer; the user-supplied transaction is 1,813 seconds before the anchor and proves BJg -> GYff. The later GYff -> BJg transfer is separate post-launch activity.",

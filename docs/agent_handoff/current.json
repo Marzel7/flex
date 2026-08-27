@@ -161,37 +161,20 @@
     "status": "PASS"
   },
   "latest_continuation": {
-    "engineering_commit": "a5e4402a4ab107a8179c4c2cefd0b14f31a6f552",
-    "milestone": "active operation summary monitoring UI refinement",
-    "next_action": "No action required; future current-uniqueness history may be added through a separately authorized incremental evidence writer.",
-    "population_semantics": {
-      "note": "Legacy observation wording belongs to a separate command-centre API and is removed from default Summary rather than conflated with membership or retained launches.",
-      "recent_launch_projection_cap": 250,
-      "watchtower_operator_evidence_rows_current": 5,
-      "watchtower_retained_confirmed_launch_rows_current": 336
-    },
+    "blocker": "scripts/bootstrap_operation_fingerprint_monitoring.py exited before any database access because direct script execution cannot import src.",
+    "milestone": "live operation fingerprint drift monitoring",
+    "next_action": "Await authorization for a one-line project-root sys.path bootstrap in the bounded script, then rerun membership-neutral bootstrap and activate only walkback_worker if the zero-delta gate passes.",
     "production_flags": {
+      "api_restart": false,
       "membership_mutation": false,
       "queue_replay": false,
       "rpc_provider_calls": false,
-      "trading_state_changed": false,
-      "walkback_worker_restarted": false,
-      "watchtower_api_pid": 33301,
-      "watchtower_api_restarted": true
+      "walkback_worker_restart": false
     },
-    "status": "PASS",
-    "tests": "23 passed: presentation + fingerprint health + P3R + d3de + Byzantine + WATCHTOWER + 900b focused suites",
-    "timestamp_utc": "2026-08-27T08:18:41Z",
-    "ui_verification": {
-      "renderer_markers_served": [
-        "Fingerprint header",
-        "humanized uniqueness history",
-        "retained launch observation label"
-      ],
-      "screenshots": "not captured",
-      "watchtower_summary_http": 200
-    },
-    "verdict": "ACTIVE_OPERATION_SUMMARY_MONITORING_UI_REFINED"
+    "status": "HOLD",
+    "tests": "24 passed; py_compile passed",
+    "timestamp_utc": "2026-08-27T08:28:39Z",
+    "verdict": "BOOTSTRAP_IMPORT_PATH_BLOCKED"
   },
   "latest_material_continuation": {
     "blocker": null,

@@ -1651,7 +1651,7 @@
   },
   "project": {
     "branch": "classification-attribution-axis",
-    "git_head": "8d99bc117046b598bbf2ace527a75244c4bd165d"
+    "git_head": "75ebacead89e2e1440d1c77c3ddba26085b7d5aa"
   },
   "provisional_900b_live_detector_wiring_20260825": {
     "changed_files": [
@@ -2437,6 +2437,24 @@
       "trading_state": false
     },
     "exact_next_action": "Do not activate runtime monitoring or reconstruct historical P3R_13A04 membership without separate authorization.",
+    "blocker": null
+  },
+  "per_fingerprint_monitoring_bootstrap_20260827": {
+    "engineering_revision": "75ebacead89e2e1440d1c77c3ddba26085b7d5aa",
+    "status": "PASS",
+    "verdict": "PER_FINGERPRINT_MONITORING_BOOTSTRAP_COMPLETE",
+    "first_run": "per-fingerprint-bootstrap-ef75ca16b8e6 (7s)",
+    "idempotency_run": "per-fingerprint-bootstrap-cff138d06571 (12s)",
+    "idempotency": "PASS: monitoring rows stable; membership/provisional-state deltas zero",
+    "membership": "228 before/after; BOOTSTRAP_CAUSED=0; UNKNOWN_CAUSE=0",
+    "provisional_state": "1 before/after",
+    "monitoring_rows": "drift evidence 46, health snapshots 6, clusters 0 before/after each run",
+    "watchtower": "DYNAMIC_ROLE_DISCOVERY; generic near match NOT_SUPPORTED",
+    "900b": "PROVISIONAL; frozen behavioural uniqueness 74.58%",
+    "p3r_13a04": "historical baseline NOT_YET_MEASURED; no reconstruction",
+    "tests": "43 passed focused monitoring component suites",
+    "production_flags": {"live_activation": false, "service_restarted": false, "detector_changed": false, "membership_written_by_monitor": false, "queue_replayed": false, "rpc_provider_calls": false, "trading_state": false},
+    "exact_next_action": "Separate explicit authorization is required before any live monitoring activation.",
     "blocker": null
   }
 }

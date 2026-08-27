@@ -1,0 +1,29 @@
+{
+  "operation": "WSOL_PROVISION_CLOSE_1_SOL_MINUS_15K",
+  "qualification": "PROVISIONAL",
+  "fingerprint_id": "1SOL-WSOL-PROVISION-CLOSE-15K-v1",
+  "technical_detector": "900B_HYBRID_PROVISIONAL.v1",
+  "monitoring_strategy": "BEHAVIOURAL_FINGERPRINT_DRIFT",
+  "address_independent_behavioural_status": "YES",
+  "behavioural_inputs": [
+    {"field": "selection_status", "required": true, "literal_address_required": false, "expected": "SELECTED"},
+    {"field": "hop_depth", "required": true, "literal_address_required": false, "expected": 1},
+    {"field": "mechanism", "required": true, "literal_address_required": false, "expected": "WSOL_WRAP_CLOSE"},
+    {"field": "amount_lamports", "required": true, "literal_address_required": false, "expected": 999985000}
+  ],
+  "atomic_lifecycle": {"required_for_behavioural_core": false, "retained_provenance": "createAccountWithSeed -> initializeAccount3 -> transfer -> syncNative -> closeAccount; dominant 31/44, broader WSOL lifecycle 44/44"},
+  "topology": "selected hop-1 edge",
+  "role_structure": "candidate_parent is direct-funder corroboration and selected-edge wallet is rotating creator; neither is a behavioural input",
+  "positive_reference_source": "frozen 900b H0 behavioural TP cohort",
+  "positive_reference_count": 44,
+  "comparison_source": "frozen 900b H0 behaviour-only false-positive cohort",
+  "comparison_count": 15,
+  "baseline_uniqueness": {"capability": "MEASURABLE_FROZEN_REFERENCE", "value_percent": 74.58},
+  "infrastructure_treatment": "CORROBORATION_ONLY",
+  "infrastructure_evidence_source": "candidate_parent compared separately with frozen recurrent-funder set",
+  "current_provisional_source": "provisional_operation_matches, when retained locally",
+  "observability_requirements": "retained selected edge with selection_status, hop_depth, mechanism, and amount_lamports; missing evidence is UNOBSERVABLE",
+  "membership_write_capability": "NONE",
+  "provisional_state_write_capability": "NONE",
+  "provenance_quality": "FROZEN_900B_HYBRID_QUALIFICATION_AND_LOCAL_RETAINED_ROWS"
+}

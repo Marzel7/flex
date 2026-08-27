@@ -1,4 +1,17 @@
 {
+  "confirmed_potential_lifecycle_normalization_20260827": {
+    "engineering_revision": "9d8c6da4beef0558c20d6595dbb66b81a93fd05d",
+    "status": "PASS_BOUNDED",
+    "membership_impact": "NONE",
+    "deduplication": "COMPLETE for the existing 063e confirmed/provenance/legacy-child lifecycle base; audit found no further evidence-backed exact duplicates.",
+    "dormant_reactivation_model": "ACTIVE read model: identity_state is independent from activity_state and evolution_state; reactivated activity maps to REACTIVATED evolution without changing detector or fingerprint.",
+    "canonical_names": ["WATCHTOWER", "Byzantine", "30 SOL 14.479K Ladder", "100 SOL WSOL Close", "30 SOL 5K Ladder", "1 SOL Provision Close"],
+    "relationships": "No Potential↔Confirmed successor/variant relationship was written or inferred because retained evidence did not prove one.",
+    "tests": "3 passed: test_operation_lifecycle_presentation.py and test_operator_registry_identity_projection.py",
+    "files": ["src/ops/operation_identity_metadata.py", "src/ops/operator_reader.py", "tests/test_operation_lifecycle_presentation.py", "tests/test_operator_registry_identity_projection.py"],
+    "safety": "No membership, provisional state, detector, fingerprint, threshold, WATCHTOWER semantics, queue, RPC/provider, service, or trading change; no restart.",
+    "exact_next_action": "Add successor/variant UI only after a separately authorized, evidence-backed confirmed-to-potential relationship record exists."
+  },
   "potential_operations_lifecycle_base_normalized_20260827": {
     "engineering_revision": "a8c5c2b677995384b2ea67e7674cb17733eea19e",
     "status": "PASS",

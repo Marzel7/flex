@@ -227,7 +227,13 @@ class OperatorReader:
                 op["fingerprint_health"] = health
                 from src.ops.operation_identity_metadata import identity_metadata
                 member_count = conn.execute("SELECT COUNT(*) FROM operator_launch_membership WHERE operator_id=?", (operator_id,)).fetchone()[0]
-                op["identity_metadata"] = identity_metadata(conn, op["display_name"], int(member_count))
+                identity = identity_metadata(conn, op["display_name"], int(member_count)) or {}
+                op["identity_metadata"] = identity
+                # The detail route consumes this one-operation projection,
+                # while the registry consumes fetch_active_manual_operators().
+                # Keep both read projections consistent without altering the
+                # durable registry's stable display_name/ID fields.
+                op["human_display_name"] = identity.get("human_name", op["display_name"])
                 return op
         except (sqlite3.Error, OSError, json.JSONDecodeError):
             return None

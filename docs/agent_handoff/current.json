@@ -161,34 +161,20 @@
     "status": "PASS"
   },
   "latest_continuation": {
-    "activation_recommendation": "SAFE_TO_RERUN_BOOTSTRAP_WITH_CAUSAL_MEMBERSHIP_GUARD",
-    "bootstrap_membership_path": "NONE; script reads membership then calls observe_completed_walkback, whose writes are limited to drift evidence, health snapshots, and drift clusters.",
-    "bootstrap_window": {
-      "bootstrap_completion_artifact": "absent due interrupted bootstrap",
-      "monitoring_first_seen_utc": "2026-08-27T08:31:55Z",
-      "monitoring_last_seen_utc": "2026-08-27T08:34:24Z"
-    },
-    "membership_row": {
-      "assigned_utc": "2026-08-27T08:20:42Z",
-      "detector": "strict canonical WATCHTOWER route",
-      "mint": "2GbQAYkdQUpgpZmSvedCPvDVfhHL6TAZfe8FtxNNpump",
-      "operation": "WATCHTOWER",
-      "source_population_id": "walkback_watchtower_confirmed_projection_v1"
-    },
-    "milestone": "fingerprint monitor bootstrap membership delta provenance",
-    "next_action": "If authorized, add a causal before/after membership guard inside bootstrap and rerun the bounded bootstrap before activation.",
+    "blocker": "A dedicated guarded bootstrap process exited without stdout/stderr or the required causal artifact. The pre-guard artifact is invalid, so safe activation cannot be established.",
+    "milestone": "safe live fingerprint drift monitoring activation",
+    "next_action": "Investigate the host/process termination mechanism or run the guarded bootstrap under the project service runner with durable stdout/stderr capture; do not activate worker until a valid causal artifact exists.",
     "production_flags": {
       "api_restart": false,
       "membership_mutation": false,
       "queue_replay": false,
       "rpc_provider_calls": false,
-      "trading_state_changed": false,
       "walkback_worker_restart": false
     },
-    "proof": "Queue outcome WATCHTOWER_CONFIRMED completed at 08:20:41Z; worker log records registry promotion then WATCHTOWER membership projection. The row predates bootstrap by ~11 minutes.",
-    "status": "PASS",
-    "timestamp_utc": "2026-08-27T08:35:31Z",
-    "verdict": "MEMBERSHIP_DELTA_LEGITIMATE_CONCURRENT_PRODUCTION"
+    "status": "HOLD",
+    "tests": "26 passed; py_compile passed",
+    "timestamp_utc": "2026-08-27T08:44:07Z",
+    "verdict": "GUARDED_BOOTSTRAP_COMPLETION_UNAVAILABLE"
   },
   "latest_material_continuation": {
     "blocker": null,

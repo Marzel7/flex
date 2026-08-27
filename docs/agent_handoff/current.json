@@ -161,9 +161,9 @@
     "status": "PASS"
   },
   "latest_continuation": {
-    "blocker": "Test fixture added operators.status but INSERT INTO operators VALUES (?,?) still supplies two positional values.",
+    "blocker": "The remaining test expects retired P3R_AF500/P3R_EC1 profile names, but the current unified P3R contract produces no legacy-profile result.",
     "milestone": "confirmed-operation forward detector audit",
-    "next_action": "Await user authorization to make the one-line fixture insert compatibility correction, rerun the authorized focused suite, then generate/commit the audit artifacts.",
+    "next_action": "Await user direction whether to update the stale test to the approved unified P3R contract or preserve the legacy-profile expectation; do not change matcher behavior without authorization.",
     "production_flags": {
       "api_restart": false,
       "membership_mutation": false,
@@ -172,9 +172,9 @@
       "worker_restart": false
     },
     "status": "HOLD",
-    "tests": "16 passed, 3 failed in tests/test_p3r_profile_candidate_matcher.py",
-    "timestamp_utc": "2026-08-27T07:25:41Z",
-    "verdict": "TEST_FIXTURE_REGRESSION_INTRODUCED"
+    "tests": "18 passed, 1 failed in tests/test_p3r_profile_candidate_matcher.py",
+    "timestamp_utc": "2026-08-27T07:29:30Z",
+    "verdict": "PRE_EXISTING_LEGACY_P3R_TEST_EXPECTATION"
   },
   "latest_material_continuation": {
     "blocker": null,

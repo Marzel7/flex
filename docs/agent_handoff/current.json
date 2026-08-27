@@ -177,28 +177,27 @@
   },
   "latest_milestone": {
     "artifacts": {
-      "engineering_commit": "df66621d",
-      "manifest": "docs/agent_handoff/p3r/post_snapshot_catchup/post_snapshot_operation_catchup_reconciliation_manifest.v1.json",
-      "manifest_sha256": "745cde57133aef1244d8782b154b88b0dc0252db21e245442a0545659b78fa33",
-      "report": "docs/agent_handoff/p3r/post_snapshot_catchup/post_snapshot_operation_catchup_reconciliation.v1.json",
-      "report_sha256": "518902b4d16e4de64e01cf08fcb2415a701ecd823197f14d9adb52ea938983dc"
+      "engineering_commit": "3edccd47",
+      "manifest": "docs/agent_handoff/p3r/legacy_detector_provenance/p3r_legacy_detector_activation_provenance_recovery_manifest.v1.json",
+      "manifest_sha256": "63e8dc876788629c43fa1de061774a80b6f66cda143d29d908c4fce90e0ba128",
+      "report": "docs/agent_handoff/p3r/legacy_detector_provenance/p3r_legacy_detector_activation_provenance_recovery.v1.json",
+      "report_sha256": "d8104a280ff435028d28c1f66698f5ed6f4b29ab4d67f070afa34c7b770a196d"
     },
-    "exact_next_action": "For each future detector registration, execute and retain the documented bounded activation-gap reconciliation before declaring activation complete.",
-    "name": "Non-WATCHTOWER post-snapshot operation catch-up reconciliation",
+    "exact_next_action": "If a durable original P3R qualification high-water or P3R_13A04 activation/runtime record is recovered, run the corresponding exact bounded catch-up; otherwise retain current forward version records only.",
+    "name": "P3R and P3R_13A04 detector activation provenance recovery",
     "production_flags": {
-      "detector_mutation": false,
+      "900b_mutation": false,
+      "byzantine_mutation": false,
+      "d3de_mutation": false,
+      "detector_semantics_changed": false,
       "queue_replay": false,
-      "rpc_provider_calls": false,
-      "tier_mutation": false,
+      "rpc_calls": false,
       "trading_signal": false,
       "watchtower_mutation": false
     },
     "status": "PASS",
-    "summary": "WATCHTOWER excluded. Exact bounded detector scans: Byzantine found 3 exact matches, all newly recovered on the initial pass and already-present/0 added on replay; d3de found 0 matches; 900b found 0 provisional matches. P3R and P3R_13A04 have insufficient durable versioned activation provenance and were audited without inference. No RPC, queue replay, detector/tier mutation, WATCHTOWER mutation, or trading signal.",
-    "tests": {
-      "focused": "15 passed: catch-up guards, d3de, Byzantine, 900b"
-    },
-    "verdict": "POST_SNAPSHOT_OPERATION_CATCHUP_RECONCILIATION_COMPLETE"
+    "summary": "P3R: earliest proven active only, from retained P3R membership log and forward source tag; historical start high-water unrecovered, catch-up not run. P3R_13A04: activation provenance unrecoverable, no retained forward membership/runtime execution and historical start unrecovered, catch-up not run. Added forward-only versioned qualification records with effective_from current recovery time; no retroactive activation claim.",
+    "verdict": "P3R_LEGACY_DETECTOR_ACTIVATION_PROVENANCE_RECOVERY_COMPLETE"
   },
   "milestone": "P3R corrected prospective shadow successor",
   "mission_control_live_ingestion_recovery_20260826": {
@@ -1563,7 +1562,7 @@
   },
   "project": {
     "branch": "classification-attribution-axis",
-    "git_head": "df66621d8dbf330e823baa488e7095b3439c145e",
+    "git_head": "3edccd47dab5f8b189cfcc32e28475233abaed06",
     "main": "26e528b0ae1fa5ed465c4fe9059a259d903fef29"
   },
   "provisional_900b_live_detector_wiring_20260825": {

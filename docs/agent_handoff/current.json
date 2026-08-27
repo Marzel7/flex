@@ -239,7 +239,7 @@
   "next_action": "Separate authorization required to register P3R_063E_BYZC_CURRENT as confirmed; legacy child remains paused; canonical parent remains unchanged.",
   "operation_fingerprint_monitoring_live_recovery": {
     "authorization_consumed_at_utc": "2026-08-27T09:00:00Z",
-    "exact_next_action": "Authorize a bounded read-only reconciliation of the four P3R membership rows against P3R matcher records, retained candidate edges and worker logs; do not rerun bootstrap or activate worker until UNKNOWN_CAUSE is resolved.",
+    "exact_next_action": "Execute the already-authorized durable guarded bootstrap; do not activate worker unless terminal artifact is BOOTSTRAP_COMPLETE with BOOTSTRAP_CAUSED=0 and UNKNOWN_CAUSE=0.",
     "milestone": "two-stage durable bootstrap recovery",
     "prohibitions_observed": [
       "No RPC/provider calls",
@@ -250,49 +250,21 @@
       "No trading change"
     ],
     "stage_1": {
-      "artifact_status": "RUNNING",
-      "claimed_window_start_epoch": 1787821026,
-      "finding": "All four rows predate bootstrap start by 392-768 seconds. They cannot be causal effects of the interrupted bootstrap. Retained queue outcomes conflict with membership provenance; classification must remain UNKNOWN_CAUSE pending bounded provenance reconciliation.",
-      "four_rows_previously_described_as_window_delta": [
-        {
-          "assigned_at": 1787820258,
-          "membership_row_id": 1107,
-          "mint": "RDsd1qBPMHHmAryvSgajgrBhZNcZCXGfa2Hrdnjpump",
-          "queue_outcome": "LINEAGE_GAP",
-          "source_population_id": "walkback_p3r_unified_matcher_v1"
-        },
-        {
-          "assigned_at": 1787820346,
-          "membership_row_id": 1108,
-          "mint": "hwbbGmQNpio9m5Ug9yEmiUzjEZkTVzh2N1ikpGBpump",
-          "queue_outcome": "LINEAGE_GAP",
-          "source_population_id": "walkback_p3r_unified_matcher_v1"
-        },
-        {
-          "assigned_at": 1787820448,
-          "membership_row_id": 1109,
-          "mint": "EpgCAWwATyXZkqHgvtsv9rUmHByuTr5sXfufaXMpump",
-          "queue_outcome": "LINEAGE_GAP",
-          "source_population_id": "walkback_p3r_unified_matcher_v1"
-        },
-        {
-          "assigned_at": 1787820634,
-          "membership_row_id": 1110,
-          "mint": "w3dYCLYpUHFiZxbgXGaH9stnREEjk7Ms6JupWsTpump",
-          "queue_outcome": "LINEAGE_GAP",
-          "source_population_id": "walkback_p3r_unified_matcher_v1"
-        }
-      ],
-      "monitoring_membership_capability": "NONE observed from static reachable-write audit; not sufficient to override the row-level provenance contradiction",
-      "observed_membership_count": 221,
-      "rows_with_assigned_at_at_or_after_window_start": 0
+      "artifact": "docs/agent_handoff/operation_fingerprint_monitoring/live/p3r_four_membership_provenance_reconciliation.v1.json",
+      "artifact_sha256": "c1be959c040f5687adf14cc0fd99d41770f1b75fe9351dffb8bbac0f90cb15d5",
+      "bootstrap_start_epoch": 1787821026,
+      "commit": "27d767d2b1044d97fcf8801aebe2c9c363534931",
+      "four_rows": "all valid P3R memberships; selected WSOL_WRAP_CLOSE=99999985000 and atomic create+sync+close transfer=99997955720; LINEAGE_GAP is non-blocking upstream attribution status",
+      "memberships_at_or_after_bootstrap_start": 0,
+      "monitoring_membership_capability": "NONE",
+      "unknown_cause": 0
     },
     "stage_2": {
-      "reason": "Stage-1 gate requires UNKNOWN_CAUSE=0; it is not satisfied.",
-      "status": "NOT_STARTED"
+      "next_action": "Run durable guarded bootstrap with causal membership capture and terminal artifact, then idempotency check before worker activation.",
+      "status": "AUTHORIZED_NOT_STARTED"
     },
-    "status": "HOLD",
-    "verdict": "BOOTSTRAP_MEMBERSHIP_WINDOW_PROVENANCE_CONTRADICTION"
+    "status": "STAGE_1_COMPLETE_STAGE_2_AUTHORIZED",
+    "verdict": "P3R_ROWS_VALID_BOOTSTRAP_CAUSALITY_CLOSED"
   },
   "operation_walkback_review_queue_20260825": {
     "endpoints": [
@@ -1642,7 +1614,7 @@
   },
   "project": {
     "branch": "classification-attribution-axis",
-    "git_head": "a5e4402a4ab107a8179c4c2cefd0b14f31a6f552"
+    "git_head": "27d767d2b1044d97fcf8801aebe2c9c363534931"
   },
   "provisional_900b_live_detector_wiring_20260825": {
     "changed_files": [
@@ -1908,9 +1880,9 @@
     "status": "PARTIAL",
     "verdict": "NO_DIRECT_TREASURY_LINK_ESTABLISHED"
   },
-  "updated_at_utc": "2026-08-27T09:00:00Z",
+  "updated_at_utc": "2026-08-27T09:10:00Z",
   "updated_by": "codex",
-  "verdict": "LIVE_OPERATION_FINGERPRINT_DRIFT_MONITORING_BLOCKED",
+  "verdict": "P3R_ROWS_VALID_BOOTSTRAP_CAUSALITY_CLOSED",
   "watchtower_2nhz_bjg_gyff_corrected_rpc_confirmation_20260825": {
     "corrected_chain": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT -> GYffSdtiffuTTZpiXqevWCYsSjn11drMoPsky9vsSUnd -> BpnGiweePUnk7ejBxvxokCUiZff3Pq3ftJiajgSEx8C7 -> 2nHZVubjJU144poGfjbiB97tv7CJtvJycvDdYvSxpump",
     "correction": "The earlier conclusion that BJg could not be the upstream source was wrong. The initial pre-anchor page was too dense to reach this transfer; the user-supplied transaction is 1,813 seconds before the anchor and proves BJg -> GYff. The later GYff -> BJg transfer is separate post-launch activity.",

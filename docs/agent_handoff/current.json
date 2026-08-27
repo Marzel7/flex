@@ -176,12 +176,17 @@
     "verdict": "origin/main fast-forwarded from ef880830 to approved commit 26e528b0 in an isolated clean worktree."
   },
   "latest_milestone": {
-    "checked_at_utc": "2026-08-27T00:00:00Z",
-    "name": "P3R upstream funding/UI evidence check",
-    "next_action": "If deeper parent provenance is desired, authorize a separately bounded enrichment/walkback for those direct funders, then render only persisted additional hops.",
-    "result": "The supplied routes already render the retained selected hop-1 direct funder as intermediary: 3ipeLjjg... -> 2bdhxVC... -> qg4fcJ9... and 3ipeLjjg... -> AWvsP5no... -> Kc3RWLHY..., plus HXufNWTd... -> ArodMf2y... -> BXhcEHHY.... Each queue row and selected edge has only hop_depth=1; there is no retained selected parent above 3ipeLjjg or HXufNWTd in wt_walkback_edge_candidates, and no matching wt_ops_v2_edges. No UI change made because an extra upstream node would be fabricated.",
-    "scope": "local read-only check of three supplied P3R mints and the operator summary renderer",
-    "status": "PASS"
+    "exact_next_action": "With user approval, correct the undefined transaction-map key variable and rerun the same bounded read-only RPC check.",
+    "name": "P3R direct-funder upstream RPC check",
+    "production_flags": {
+      "database_mutation": false,
+      "queue_replay": false,
+      "rpc_provider_calls": true,
+      "ui_mutation": false
+    },
+    "status": "HOLD",
+    "summary": "53 deduplicated funder history reads completed for 78 P3R launch links; the checker stopped before transaction reads or report creation because the new transaction-map comprehension referenced an undefined variable.",
+    "verdict": "SCRIPT_VARIABLE_ERROR"
   },
   "milestone": "P3R corrected prospective shadow successor",
   "mission_control_live_ingestion_recovery_20260826": {

@@ -53,7 +53,7 @@ def test_active_registry_projects_identity_family_and_persisted_24h_activity(tmp
 
     row = OperatorReader(str(path)).fetch_active_manual_operators()[0]
 
-    assert row["human_display_name"] == "30 SOL 14.479K Ladder"
+    assert row["human_display_name"] == "FourStep"
     assert row["operation_family"] == "30 SOL WSOL Ladder"
     assert row["launches_last_1d"] == 2
     assert row["total_launches"] == 9

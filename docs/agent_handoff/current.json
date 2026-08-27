@@ -176,17 +176,17 @@
     "verdict": "origin/main fast-forwarded from ef880830 to approved commit 26e528b0 in an isolated clean worktree."
   },
   "latest_milestone": {
-    "exact_next_action": "With user approval, correct the blind-interval calculation and execute the bounded non-WATCHTOWER catch-up run.",
+    "exact_next_action": "With user approval, correct only the reconciliation artifact retention so it preserves initial recovered mints plus idempotency replay, then rerun the exact bounded report scan without adding memberships.",
     "name": "Non-WATCHTOWER post-snapshot operation catch-up reconciliation",
     "production_flags": {
-      "membership_mutation": false,
+      "detector_mutation": false,
       "queue_replay": false,
       "rpc_provider_calls": false,
       "watchtower_mutation": false
     },
     "status": "HOLD",
-    "summary": "Runner was prepared but not executed. A pre-execution defect was identified: blind interval duration was calculated from epoch zero rather than the qualification boundary. No detector invocation, membership/activity/provisional state mutation, queue replay, RPC, or WATCHTOWER change occurred.",
-    "verdict": "POST_SNAPSHOT_OPERATION_CATCHUP_RECONCILIATION_BLOCKED"
+    "summary": "Bounded local scan recovered 3 Byzantine exact detector matches; second identical pass added 0. The runner overwrote the first-run recovered-mint list when writing the second report, so the durable artifact does not preserve both primary and replay outcomes as required. No WATCHTOWER change, RPC, queue replay, detector mutation, or trading signal occurred.",
+    "verdict": "POST_SNAPSHOT_OPERATION_CATCHUP_REPORTING_BLOCKED"
   },
   "milestone": "P3R corrected prospective shadow successor",
   "mission_control_live_ingestion_recovery_20260826": {

@@ -272,13 +272,29 @@ class OperatorReader:
                     (limit,),
                 ).fetchall()
                 result = []
+                from src.ops.operation_identity_metadata import identity_metadata
                 for row in rows:
                     value = dict(row)
                     value["qualification_benchmark"] = json.loads(value.pop("benchmark_json") or "{}")
                     metrics = json.loads(value.pop("metrics_json") or "{}")
                     value["total_launches"] = metrics.get("total_observed_launches")
+                    # These values are read from the latest persisted activity
+                    # snapshot only.  They neither refresh a snapshot nor
+                    # change the operation's established membership.
+                    value["launches_last_1d"] = metrics.get("launches_last_1d")
                     value["average_inter_launch_gap_seconds"] = metrics.get("average_inter_launch_gap_seconds")
                     value["last_observed_launch_timestamp"] = metrics.get("last_observed_launch_timestamp")
+                    membership_count = conn.execute(
+                        "SELECT COUNT(*) FROM operator_launch_membership WHERE operator_id=?",
+                        (value["operator_id"],),
+                    ).fetchone()[0]
+                    identity = identity_metadata(
+                        conn, value["display_name"], int(membership_count)
+                    ) or {}
+                    value["human_display_name"] = identity.get(
+                        "human_name", value["display_name"]
+                    )
+                    value["operation_family"] = identity.get("family")
                     result.append(value)
                 result.sort(
                     key=lambda value: (

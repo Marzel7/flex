@@ -1,7 +1,7 @@
 import json
 import sqlite3
 
-from src.ops.operator_reader import OperatorReader
+from src.ops.operator_reader import OperatorReader, _census_presentation
 
 
 def test_active_registry_projects_identity_family_and_persisted_24h_activity(tmp_path):
@@ -58,3 +58,22 @@ def test_active_registry_projects_identity_family_and_persisted_24h_activity(tmp
     assert row["launches_last_1d"] == 2
     assert row["activity_snapshot_observed_at"] == 2
     assert row["total_launches"] == 9
+    census = row["current_queue_census"]
+    assert census["exact"] == 9
+    assert census["near"] == 75
+    assert census["evolution_watch"]["state"] == "DRIFT_EVIDENCE"
+    assert census["context"]["queue_high_water"] == 35620
+
+
+def test_current_census_harbinger_and_watchtower_labels_are_observational():
+    harbinger = _census_presentation("P3R_13A04")
+    assert harbinger["exact"] == 0
+    assert harbinger["near"] == 97
+    assert harbinger["historical_baseline"] == "Not yet measured"
+    assert harbinger["evolution_watch"]["state"] == "RELATED_ACTIVITY_UNRESOLVED"
+    assert "attribution" in harbinger["evolution_watch"]["detail"]
+
+    watchtower = _census_presentation("WATCHTOWER")
+    assert watchtower["exact"] == 98
+    assert watchtower["evolution_watch"]["state"] == "DYNAMIC_ROLE_MONITORING"
+    assert watchtower["strategy"] == "DYNAMIC_ROLE_DISCOVERY"

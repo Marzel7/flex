@@ -4,6 +4,7 @@ from __future__ import annotations
 import contextlib
 import json
 import sqlite3
+from pathlib import Path
 
 
 _PROVISIONAL_900B = "p3r-v2-900b89587c6987d582df"
@@ -20,6 +21,56 @@ _PROVISIONAL_900B_DETAIL = {
     "analysis": "Behaviour is strongly recurrent and recurrent direct-funder infrastructure improves precision, but the zero-false-positive automatic-attribution gate is not met. Bounded deeper-hop RPC and provenance studies did not close that gap.",
     "history": ["P3R candidate discovery and operation-priority ranking.", "Distinctiveness and bounded RPC discriminator investigations.", "Hybrid recurrent-funder qualification and provisional Active Operations admission."],
 }
+
+_CURRENT_CENSUS_PATH = Path(__file__).resolve().parents[2] / "docs/audits/p3r_current_queue_census.v1.json"
+_CURRENT_CENSUS_CACHE: dict[str, object] = {}
+
+
+def _current_census_by_operation() -> dict[str, dict]:
+    """Read the committed frozen census artifact; never refresh its source."""
+    try:
+        stat = _CURRENT_CENSUS_PATH.stat()
+        if _CURRENT_CENSUS_CACHE.get("mtime_ns") != stat.st_mtime_ns:
+            payload = json.loads(_CURRENT_CENSUS_PATH.read_text())
+            first = payload.get("first", {})
+            _CURRENT_CENSUS_CACHE.clear()
+            _CURRENT_CENSUS_CACHE.update({
+                "mtime_ns": stat.st_mtime_ns,
+                "run_id": payload.get("run_id"),
+                "source": first.get("source_snapshot", {}),
+                "operators": {item.get("operation"): item for item in first.get("operators", [])},
+            })
+        source = _CURRENT_CENSUS_CACHE.get("source") or {}
+        context = {"run_id": _CURRENT_CENSUS_CACHE.get("run_id"), "source": "Current Queue Census",
+                   "queue_high_water": (source.get("highwaters") or {}).get("wt_walkback_queue"),
+                   "database_stat": source.get("database_stat")}
+        return {name: {**item, "context": context} for name, item in (_CURRENT_CENSUS_CACHE.get("operators") or {}).items()}
+    except (OSError, ValueError, TypeError, json.JSONDecodeError):
+        return {}
+
+
+def _census_presentation(display_name: str) -> dict | None:
+    row = _current_census_by_operation().get(display_name)
+    if not row:
+        return None
+    if display_name == "WATCHTOWER":
+        evolution = {"state": "DYNAMIC_ROLE_MONITORING", "label": "Dynamic role monitoring",
+                     "detail": "Mutation monitoring: Dynamic role discovery."}
+    elif display_name == "FOUR_STEP_30_SOL_14_479K_WSOL_LADDER":
+        evolution = {"state": "DRIFT_EVIDENCE", "label": "Drift evidence",
+                     "detail": f"{row.get('near', 0)} near-fingerprint observations. Requires clustering before mutation or variant attribution."}
+    elif display_name == "P3R_13A04":
+        evolution = {"state": "RELATED_ACTIVITY_UNRESOLVED", "label": "Related activity unresolved",
+                     "detail": f"Related 30 SOL ladder behaviour ({row.get('near', 0)}) requires clustering before attribution."}
+    else:
+        evolution = {"state": "NONE_OBSERVED", "label": "None observed", "detail": "No meaningful near-fingerprint evidence observed in this frozen census."}
+    row["evolution_watch"] = evolution
+    row["activity_label"] = "PROVISIONAL" if display_name == "WSOL_PROVISION_CLOSE_1_SOL_MINUS_15K" else row.get("activity_state", "ACTIVITY_UNKNOWN")
+    row["near_label"] = "Related observations" if display_name == "P3R_13A04" else "Near"
+    row["exact_label"] = "Exact behavioural observations" if display_name == "WSOL_PROVISION_CLOSE_1_SOL_MINUS_15K" else "Exact observations"
+    if display_name == "P3R_13A04":
+        row["historical_baseline"] = "Not yet measured"
+    return row
 
 
 class OperatorReader:
@@ -234,6 +285,7 @@ class OperatorReader:
                 # Keep both read projections consistent without altering the
                 # durable registry's stable display_name/ID fields.
                 op["human_display_name"] = identity.get("human_name", op["display_name"])
+                op["current_queue_census"] = _census_presentation(op["display_name"])
                 return op
         except (sqlite3.Error, OSError, json.JSONDecodeError):
             return None
@@ -304,6 +356,7 @@ class OperatorReader:
                         "human_name", value["display_name"]
                     )
                     value["operation_family"] = identity.get("family")
+                    value["current_queue_census"] = _census_presentation(value["display_name"])
                     result.append(value)
                 result.sort(
                     key=lambda value: (

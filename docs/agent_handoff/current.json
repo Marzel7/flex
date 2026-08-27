@@ -1,4 +1,14 @@
 {
+  "canonical_operation_subpage_names_20260827": {
+    "engineering_revision": "80dee7f356b1677c11e17ca55caa04357586b55d",
+    "status": "PASS",
+    "projection": "Operation detail headings, breadcrumbs, and Operations OS titles now prefer the existing read-only human_display_name over the stable internal display_name.",
+    "canonical_labels": {"P3R": "Leviathan", "FOUR_STEP_30_SOL_14_479K_WSOL_LADDER": "Sentinel", "P3R_13A04": "Harbinger"},
+    "files": ["templates/operator_intelligence.html", "templates/ops_shell_operation.html"],
+    "tests": "3 passed: test_operator_registry_identity_projection.py and test_operation_lifecycle_presentation.py; Jinja template parse PASS.",
+    "safety": "Display projection only; no stable IDs, membership, provisional state, detector, fingerprint, threshold, queue, RPC/provider, service, WATCHTOWER semantics, or trading state changed.",
+    "exact_next_action": "Reload the relevant operation page in the browser; no service restart is required for template reload under the normal development server."
+  },
   "fresh_operational_snapshot_cohort_contract_20260827": {
     "engineering_revision": "33006ab516be7d770bcf9024e0fbd43461f919e2",
     "status": "HOLD",

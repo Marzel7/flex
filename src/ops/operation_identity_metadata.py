@@ -12,7 +12,7 @@ IDENTITIES = {
     "P3R": {"human_name": "Monolith", "family": None, "infrastructure": "RECURRING_MULTI_ADDRESS_INFRASTRUCTURE", "common_root": "NOT_PROVEN"},
     "P3R_13A04": {"human_name": "Trident", "family": "30 SOL WSOL Ladder", "family_relation": "MECHANISM_FAMILY", "infrastructure": "INSUFFICIENT_EVIDENCE", "common_root": "INSUFFICIENT_EVIDENCE"},
     "WSOL_PROVISION_CLOSE_1_SOL_MINUS_15K": {"human_name": "1 SOL Provision Close", "family": None, "infrastructure": "SHARED_NON_EXCLUSIVE_INFRASTRUCTURE", "common_root": "NOT_PROVEN", "coverage_note": "39/44 frozen recurrent-infrastructure coverage; corroboration only"},
-    "WATCHTOWER": {"human_name": "WATCHTOWER", "family": "Dynamic Treasury Route", "family_relation": "RELATED_OPERATION_TYPE", "infrastructure": "DYNAMIC_ROLE_INFRASTRUCTURE", "common_root": "NOT_PROVEN"},
+    "WATCHTOWER": {"human_name": "WATCHTOWER", "family": None, "infrastructure": "DYNAMIC_ROLE_INFRASTRUCTURE", "common_root": "NOT_PROVEN"},
 }
 
 def identity_metadata(conn: Any, display_name: str, membership_count: int) -> dict[str, Any] | None:

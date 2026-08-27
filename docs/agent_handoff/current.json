@@ -1,4 +1,25 @@
 {
+  "sqlite_write_starvation_repair_20260827": {
+    "engineering_revision": "78d8ce9bafdbf94b796c66531f495c26eee28b1b",
+    "files": [
+      "src/core/database_write_service.py",
+      "src/core/creator_funding_worker.py",
+      "src/core/creator_resolution_worker.py",
+      "src/core/creator_funding_lifecycle.py",
+      "tests/test_database_write_service.py"
+    ],
+    "root_cause": "The existing aged-priority ticket coordinator was present but DatabaseWriteService did not forward submitted priority to acquire_write_lease, while creator funding/resolution and post-commit lifecycle telemetry used the default P1 path. This allowed background writes to compete with P0 ingestion at every reacquisition boundary.",
+    "repair": "Forward priority through DatabaseWriteService into the cross-process lease; route creator funding, creator resolution, and fail-open lifecycle telemetry through P2 background priority. Queue mutations retain their existing short transaction boundaries; network preparation remains outside them.",
+    "tests": "22 passed: test_x78_20_write_lane_priority.py, test_database_write_service.py, test_x78_17_creator_funding_read_boundary.py; py_compile and git diff --check passed.",
+    "production": {
+      "pre_recovery": "DB pressure evidence included P1 creator-funding lifecycle owner and active birth retry rows.",
+      "targeted_restarts": ["creator_funding_worker", "watchtower_listener"],
+      "post_recovery": "Both services running; lane HEALTHY, no current owner/timeouts, birth queue transitioned from 2 RETRY rows to 240 PROCESSED rows, and new births plus a migration were observed. No broad replay was initiated."
+    },
+    "safety": "No operation membership, detector, fingerprint, provisional state, threshold, queue policy, RPC call, trading state, or other service was changed. Existing durable queue processing alone advanced retry row state.",
+    "status": "PASS",
+    "exact_next_action": "Continue normal passive production monitoring; investigate migration mint extraction separately only if fresh migrations continue to arrive without durable persistence."
+  },
   "063e_potential_operations_deduplication": {
     "api_pid": 81499,
     "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/063e_child_qualification/potential_operations_normalization/063e_potential_operations_deduplication.v1.json",

@@ -84,12 +84,13 @@ def _db_connect(readonly: bool = False, timeout: int = 10):
     """Open a connection via the project's DB wrapper. Always close in finally."""
     try:
         from src.utils.db_locking import db_connect
+        from src.core.database_write_service import PRIORITY_P2_BACKGROUND
         if readonly:
             import sqlite3
             conn = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True, timeout=timeout)
             conn.row_factory = sqlite3.Row
             return conn
-        return db_connect(DB_PATH, timeout=timeout)
+        return db_connect(DB_PATH, timeout=timeout, priority=PRIORITY_P2_BACKGROUND)
     except ImportError:
         import sqlite3
         conn = sqlite3.connect(DB_PATH, timeout=timeout)

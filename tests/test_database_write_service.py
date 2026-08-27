@@ -7,6 +7,7 @@ import pytest
 from src.core.database_write_service import (
     DatabaseWriteService,
     NestedDatabaseWriteError,
+    PRIORITY_P0_CRITICAL_INGESTION,
 )
 
 
@@ -77,6 +78,22 @@ def test_same_database_serializes_and_exposes_owner_and_waiter(tmp_path):
     one.join(timeout=3); two.join(timeout=3)
     with sqlite3.connect(path) as conn:
         assert conn.execute("SELECT value FROM values_table ORDER BY value").fetchall() == [(1,), (2,)]
+
+
+def test_submit_forwards_explicit_priority_to_cross_process_owner(tmp_path):
+    path = tmp_path / "ops.db"
+    _database(path)
+    service = DatabaseWriteService()
+    service.register_database("operations", str(path))
+
+    service.submit(
+        "operations", "critical-ingest-write",
+        lambda conn: conn.execute("INSERT INTO values_table VALUES(1)"),
+        priority=PRIORITY_P0_CRITICAL_INGESTION,
+    )
+
+    record = service.telemetry(database="operations")[-1]
+    assert record["priority"] == PRIORITY_P0_CRITICAL_INGESTION
 
 
 def test_failure_rolls_back_and_records_transaction(tmp_path):

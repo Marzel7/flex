@@ -13,6 +13,17 @@ import time
 from typing import Optional
 
 
+def _background_write_connection(db_path: str, timeout: float) -> sqlite3.Connection:
+    """Open secondary lifecycle telemetry in the background lane.
+
+    Queue mutations are already committed before this fail-open ledger is
+    written.  Telemetry therefore must never compete with P0 ingest writes.
+    """
+    from src.core.database_write_service import PRIORITY_P2_BACKGROUND
+    from src.utils.db_locking import db_connect
+    return db_connect(db_path, timeout=timeout, priority=PRIORITY_P2_BACKGROUND)
+
+
 def work_class(source: Optional[str]) -> str:
     value = (source or "").lower()
     if value.startswith(("pf_ws_", "creator_discovery", "migration_already_known", "mark_token_migrated")):
@@ -143,7 +154,7 @@ def _record_gap_best_effort(
     ).hexdigest()
     conn = None
     try:
-        conn = sqlite3.connect(db_path, timeout=0.2)
+        conn = _background_write_connection(db_path, timeout=0.2)
         if not schema_ready:
             ensure_schema(conn)
         conn.execute(
@@ -175,7 +186,7 @@ def record_event_fail_open(
     event_id = hashlib.sha256(key.encode()).hexdigest()
     conn = None
     try:
-        conn = sqlite3.connect(db_path, timeout=1)
+        conn = _background_write_connection(db_path, timeout=1)
         if not schema_ready:
             ensure_schema(conn)
         conn.execute(

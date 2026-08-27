@@ -999,6 +999,7 @@ class _Command:
     path: str
     command: str
     transaction: Transaction
+    priority: int = DEFAULT_PRIORITY
     transaction_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     submitted_at: float = field(default_factory=time.time)
     submitted_monotonic: float = field(default_factory=time.monotonic)
@@ -1052,6 +1053,7 @@ class DatabaseWriteService:
         transaction: Transaction,
         *,
         path: str | None = None,
+        priority: int = DEFAULT_PRIORITY,
     ) -> Any:
         if path is not None:
             self.register_database(database, path)
@@ -1071,11 +1073,17 @@ class DatabaseWriteService:
                 inner_command=command,
                 outer_database=outer["database"],
             )
-        item = _Command(database, registered, command, transaction)
+        if priority not in (
+            PRIORITY_P0_CRITICAL_INGESTION, PRIORITY_P1_OPERATIONAL,
+            PRIORITY_P2_BACKGROUND, PRIORITY_P3_HOUSEKEEPING,
+        ):
+            raise ValueError(f"unknown database write priority: {priority}")
+        item = _Command(database, registered, command, transaction, priority=priority)
         with self._lock:
             self._waiting.setdefault(registered, []).append({
                 "transaction_id": item.transaction_id,
                 "command": command,
+                "priority": priority,
                 "submitted_at": item.submitted_at,
                 "submitter_thread": item.submitter_thread,
             })
@@ -1115,6 +1123,7 @@ class DatabaseWriteService:
             "submitter_thread": item.submitter_thread,
             "transaction_id": item.transaction_id,
             "command": item.command,
+            "priority": item.priority,
             "queue_wait_ms": round(queue_wait_ms, 3),
             "begin_timestamp": None,
             "commit_timestamp": None,
@@ -1130,7 +1139,8 @@ class DatabaseWriteService:
         conn: sqlite3.Connection | None = None
         try:
             lease = acquire_write_lease(
-                item.database, item.path, item.transaction_id, item.command
+                item.database, item.path, item.transaction_id, item.command,
+                priority=item.priority,
             )
         except CrossProcessDatabaseWriteTimeout as exc:
             # Cross-process health tracking already happened inside

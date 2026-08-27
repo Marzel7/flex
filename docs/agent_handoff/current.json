@@ -2504,5 +2504,16 @@
     "production_flags": {"membership_changed": false, "provisional_state_changed": false, "detector_changed": false, "fingerprint_changed": false, "threshold_changed": false, "queue_changed": false, "rpc_provider_calls": false, "trading_state_changed": false, "service_restarted": true},
     "unrelated_work_protected": "src/core/walkback_worker.py remained dirty and was neither staged nor modified.",
     "exact_next_action": "No further UI work is required for this projection. Build any later family/infrastructure/naming enhancements on engineering revision 34463ade."
+  },
+  "operation_display_name_update_20260827": {
+    "engineering_revision": "a11f0e044bc38f8a5b08a9225e8cfb74f960d05e",
+    "status": "PASS",
+    "verdict": "OPERATION_DISPLAY_NAMES_RELOADED",
+    "display_names": {"P3R": "Monolith", "FOUR_STEP_30_SOL_14_479K_WSOL_LADDER": "FourStep", "P3R_13A04": "Trident"},
+    "family_preservation": "FourStep and Trident remain in the 30 SOL WSOL Ladder family; stable technical identities remain unchanged.",
+    "tests": "PASS: python -m pytest -q tests/test_operator_registry_identity_projection.py (1 passed); py_compile identity metadata.",
+    "live_endpoint_verification": "PASS: local registry endpoint returned Monolith, FourStep, and Trident after watchtower_api reload.",
+    "production_flags": {"membership_changed": false, "provisional_state_changed": false, "detector_changed": false, "fingerprint_changed": false, "threshold_changed": false, "queue_changed": false, "rpc_provider_calls": false, "trading_state_changed": false, "service_restarted": true},
+    "exact_next_action": "No additional action required; use the renamed display labels in the operator UI."
   }
 }

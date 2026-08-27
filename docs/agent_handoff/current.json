@@ -161,32 +161,37 @@
     "status": "PASS"
   },
   "latest_continuation": {
-    "comparison": "Commit 8f89915a changed only read-only monitoring/UI/tests/artifacts. No durable pre-commit database snapshot exists, so exact historical row counts are not reconstructed; no membership write-capable path is present in the commit.",
-    "current_membership_census": {
-      "by_operation": {
-        "Byzantine": 35,
-        "FOUR_STEP_30_SOL_14_479K_WSOL_LADDER": 9,
-        "P3R": 80,
-        "P3R_13A04": 0,
-        "WATCHTOWER": 92
-      },
-      "operator_launch_membership_rows": 216,
-      "provisional_900b_matches": 1,
-      "unique_mints": 216
+    "engineering_commit": "a5e4402a4ab107a8179c4c2cefd0b14f31a6f552",
+    "milestone": "active operation summary monitoring UI refinement",
+    "next_action": "No action required; future current-uniqueness history may be added through a separately authorized incremental evidence writer.",
+    "population_semantics": {
+      "note": "Legacy observation wording belongs to a separate command-centre API and is removed from default Summary rather than conflated with membership or retained launches.",
+      "recent_launch_projection_cap": 250,
+      "watchtower_operator_evidence_rows_current": 5,
+      "watchtower_retained_confirmed_launch_rows_current": 336
     },
-    "detector_integrity": "No detector, worker, projector, threshold, or membership source file was changed.",
-    "milestone": "operation membership integrity check around 8f89915a",
-    "next_action": "No action required; preserve the existing exact detector paths as the only membership writers.",
     "production_flags": {
       "membership_mutation": false,
       "queue_replay": false,
       "rpc_provider_calls": false,
-      "service_restart": false,
-      "trading_state_changed": false
+      "trading_state_changed": false,
+      "walkback_worker_restarted": false,
+      "watchtower_api_pid": 33301,
+      "watchtower_api_restarted": true
     },
     "status": "PASS",
-    "timestamp_utc": "2026-08-27T07:55:02Z",
-    "verdict": "OPERATION_MEMBERSHIP_INTEGRITY_VERIFIED"
+    "tests": "23 passed: presentation + fingerprint health + P3R + d3de + Byzantine + WATCHTOWER + 900b focused suites",
+    "timestamp_utc": "2026-08-27T08:18:41Z",
+    "ui_verification": {
+      "renderer_markers_served": [
+        "Fingerprint header",
+        "humanized uniqueness history",
+        "retained launch observation label"
+      ],
+      "screenshots": "not captured",
+      "watchtower_summary_http": 200
+    },
+    "verdict": "ACTIVE_OPERATION_SUMMARY_MONITORING_UI_REFINED"
   },
   "latest_material_continuation": {
     "blocker": null,
@@ -1590,7 +1595,7 @@
   },
   "project": {
     "branch": "classification-attribution-axis",
-    "git_head": "8f89915a5088e39764f6d0457c4715d83bed5c82"
+    "git_head": "a5e4402a4ab107a8179c4c2cefd0b14f31a6f552"
   },
   "provisional_900b_live_detector_wiring_20260825": {
     "changed_files": [

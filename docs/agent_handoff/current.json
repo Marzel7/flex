@@ -1,4 +1,17 @@
 {
+  "p3r_28883_cohort_forensic_20260827": {
+    "engineering_revision": "fe7b9a715917de165f4dcc6d108442b745137194",
+    "status": "PASS_READ_ONLY",
+    "verdict": "P3R_28883_COHORT_CONTRACT_UNRECOVERED",
+    "old_snapshot_lineage": "OLD_LINEAGE_REFERENCE_ONLY",
+    "represented": "A frozen, mint-ordered 28,883-row historical feature corpus and its 28,883 unique input mints. The corpus is integrity-bound in retained code and handoffs, but the corpus bytes, frozen queue, source manifest, and upstream selector are absent.",
+    "single_use_creator_rule": "UNRECOVERED. No durable selector, creator cardinality, source universe, or high-water proves a global, bounded, or post-filter single-use rule. The surviving candidate generator only reports creator reuse diagnostically.",
+    "recovered_downstream_rules": "Feature extraction reads an already-populated wt_walkback_queue in mint order with 2,000-row checkpointed chunks. Candidate generation skips missing selected-edge observations and requires exact raw selected-edge signature, >=4 members, >=3 distinct creators, and >=3 distinct direct funders. These are downstream rules, not source-cohort eligibility.",
+    "missing_membership_defining_inputs": ["upstream queue producer/query", "source universe and frozen high-water", "creator-count universe and single-use predicate", "other upstream eligibility/exclusion predicates", "frozen_queue.txt", "historical corpus bytes", "checkpoint and clean-rebuild manifest"],
+    "forensics": "Read-only Git history, retained handoffs, scripts, bounded temporary-file paths, reflog, and locally available object search found no recoverable selector or manifest beyond the previously committed funnel-recovery audit ffd19319.",
+    "safety": "No snapshot, source high-water, file artifact, membership, workflow, detector, fingerprint, queue, RPC/provider, service, or trading state changed.",
+    "exact_next_action": "Obtain an authoritative retained backup containing the original frozen queue/corpus plus its source manifest or the upstream selector and high-water. Do not construct a comparable Snapshot 2 or apply a reconstructed selector until those membership-defining inputs are independently verified."
+  },
   "operations_registry_stale_activity_guard_20260827": {
     "engineering_revision": "fe7b9a715917de165f4dcc6d108442b745137194",
     "status": "PASS",

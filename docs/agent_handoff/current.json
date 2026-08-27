@@ -1651,7 +1651,7 @@
   },
   "project": {
     "branch": "classification-attribution-axis",
-    "git_head": "846bc55fd30616813f77bd8b96d3b9081df452e1"
+    "git_head": "f44172c7ca11df500170cd0c7b52c516bcbb3cc0"
   },
   "provisional_900b_live_detector_wiring_20260825": {
     "changed_files": [
@@ -2479,6 +2479,16 @@
     "membership_impact": "NONE",
     "production_flags": {"membership_changed": false, "provisional_state_changed": false, "detector_changed": false, "queue_changed": false, "rpc_provider_calls": false, "service_restarted": false, "trading_state": false},
     "exact_next_action": "Resume the separately authorized identity-strength/family/naming refinement on this committed base.",
+    "blocker": null
+  },
+  "operation_identity_strength_family_ui_20260827_completed": {
+    "engineering_revision": "f44172c7ca11df500170cd0c7b52c516bcbb3cc0",
+    "status": "PASS",
+    "verdict": "OPERATION_IDENTITY_STRENGTH_FAMILY_UI_COMPLETE",
+    "tests": "41 passed focused identity/monitoring suites",
+    "membership_impact": "NONE",
+    "summary": "Added read-only human-name, family, infrastructure, coverage, and common-root metadata projection; stable technical identities unchanged.",
+    "production_flags": {"membership_changed": false, "provisional_state_changed": false, "detector_changed": false, "rpc_provider_calls": false, "trading_state": false},
     "blocker": null
   }
 }

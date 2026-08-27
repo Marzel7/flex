@@ -1,4 +1,14 @@
 {
+  "canonical_operation_detail_reader_fix_20260827": {
+    "engineering_revision": "38997cc41319daeed59676fc663ecb5421ea8b62",
+    "status": "PASS",
+    "root_cause": "The active-operator list projected human_display_name, but fetch_operator() did not. The detail template therefore fell back to the stable raw display_name (P3R).",
+    "fix": "fetch_operator() now derives the same read-only human_display_name from existing identity metadata while retaining display_name and operator_id unchanged.",
+    "live_payload_verification": {"display_name": "P3R", "human_display_name": "Leviathan", "identity_human_name": "Leviathan"},
+    "tests": "3 passed: test_operator_registry_identity_projection.py and test_operation_lifecycle_presentation.py.",
+    "safety": "Read projection only; no membership, provisional state, detector, fingerprint, threshold, queue, RPC/provider, service, WATCHTOWER semantics, or trading state changed.",
+    "exact_next_action": "With separate authorization, reload watchtower_api to serve commit 38997cc4, then verify Leviathan/Sentinel/Harbinger subpage headings via HTTP."
+  },
   "canonical_operation_subpage_names_20260827": {
     "engineering_revision": "80dee7f356b1677c11e17ca55caa04357586b55d",
     "status": "PASS",

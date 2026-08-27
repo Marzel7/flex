@@ -176,18 +176,33 @@
     "verdict": "origin/main fast-forwarded from ef880830 to approved commit 26e528b0 in an isolated clean worktree."
   },
   "latest_milestone": {
-    "exact_next_action": "With user approval, correct the registration script timestamp field and rerun the same registration, historical replay, idempotency, focused checks, and worker activation gate.",
-    "name": "d3de confirmed operation registration and activation",
+    "artifacts": {
+      "engineering_commit": "860ca4ae",
+      "manifest": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/d3de_confirmed_registration/p3r_v2_d3de_confirmed_registration_manifest.v1.json",
+      "manifest_sha256": "40ac9065249a35a937fb3cb04a41ccac4fd9596cd7f616ceecbfbdeb9bf60ab8",
+      "registration": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/d3de_confirmed_registration/p3r_v2_d3de_confirmed_registration.v1.json",
+      "registration_sha256": "079b01cdb3e6c4236930aa21c8922646b4df79a94845059c2798bc9ee2227d22"
+    },
+    "exact_next_action": "Monitor normal completed walkbacks; qualifying complete D0 routes now project automatically to d3de membership without address allowlisting.",
+    "name": "d3de confirmed active operation registration and walkback activation",
     "production_flags": {
-      "membership_mutation": false,
-      "operation_registration": false,
+      "P3R_13A04_mutation": false,
+      "address_requirements": false,
+      "canonical_membership_mutation": false,
+      "canonical_tier_mutation": false,
       "queue_replay": false,
       "rpc_provider_calls": false,
-      "worker_restart": false
+      "trading_signal": false,
+      "walkback_worker_restarted": true,
+      "watchtower_api_restarted": true
     },
-    "status": "HOLD",
-    "summary": "Focused tests: d3de 5 passed; WATCHTOWER/Byzantine/900b 11 passed. Three pre-existing P3R matcher tests fail because their fixture lacks operators.status. Registration validation and controls ran, then the new registration script stopped before commit because frozen member evidence uses a different timestamp key than expected. No d3de operator/profile/membership/workflow mutation committed and no worker restart occurred.",
-    "verdict": "D3DE_CONFIRMED_OPERATION_REGISTRATION_BLOCKED"
+    "status": "PASS",
+    "summary": "Registered FOUR_STEP_30_SOL_14_479K_WSOL_LADDER as confirmed active operation f560f4fa-770b-57aa-83be-954d11d1a3c1. D0 is the exact four selected-edge route only, with no literal-address, atomic, or alternative requirement. Independent historical replay admitted 9/9; repeated replay produced no duplicates. Controls: Byzantine 0/32, WATCHTOWER 0/91, P3R_13A04 0 current observable members, 900b 0 current observable members. d3de workflow is ACTIVE_CONFIRMED. Worker restarted healthy pid 17614 and API restarted healthy pid 17714; operator detail endpoint returned HTTP 200.",
+    "tests": {
+      "focused": "16 passed: d3de, WATCHTOWER projection, Byzantine, 900b",
+      "pre_existing_stale_fixture": "3 P3R matcher fixture failures due to missing operators.status; unrelated to d3de and not changed"
+    },
+    "verdict": "D3DE_CONFIRMED_ACTIVE_OPERATION_COMPLETE"
   },
   "milestone": "P3R corrected prospective shadow successor",
   "mission_control_live_ingestion_recovery_20260826": {
@@ -1552,7 +1567,7 @@
   },
   "project": {
     "branch": "classification-attribution-axis",
-    "git_head": "787b235982d7256cbc9bf1f12135486f43da0928",
+    "git_head": "860ca4ae4ad7c981382d15fbce5e55677a932737",
     "main": "26e528b0ae1fa5ed465c4fe9059a259d903fef29"
   },
   "provisional_900b_live_detector_wiring_20260825": {

@@ -1,4 +1,14 @@
 {
+  "canonical_operator_naming_20260827": {
+    "engineering_revision": "3c3310fcfab84014326472fdf729d1a52428b0a0",
+    "status": "PASS_BOUNDED",
+    "canonical_confirmed_names": {"FOUR_STEP_30_SOL_14_479K_WSOL_LADDER": "Sentinel", "P3R": "Leviathan", "P3R_13A04": "Harbinger"},
+    "mechanisms": {"Sentinel": "30 SOL 14.479K Ladder", "Leviathan": "100 SOL WSOL Close", "Harbinger": "30 SOL 5K Ladder"},
+    "potential_queue": "Confirmed d3de candidate p3r-v2-d3de29c88fe0ce5fa309 is PROMOTED_CONFIRMED provenance and excluded from default actionable rows.",
+    "tests": "5 passed: lifecycle presentation, registry identity projection, 063e potential lifecycle",
+    "safety": "900b remains provisional; no membership, detector, fingerprint, threshold, WATCHTOWER, queue, RPC/provider, service, or trading change.",
+    "exact_next_action": "Apply broader Potential-page layout/metrics reconciliation only if separately authorized."
+  },
   "confirmed_potential_lifecycle_normalization_20260827": {
     "engineering_revision": "9d8c6da4beef0558c20d6595dbb66b81a93fd05d",
     "status": "PASS_BOUNDED",

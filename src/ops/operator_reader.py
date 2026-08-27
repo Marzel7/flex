@@ -284,6 +284,9 @@ class OperatorReader:
                     value["launches_last_1d"] = metrics.get("launches_last_1d")
                     value["average_inter_launch_gap_seconds"] = metrics.get("average_inter_launch_gap_seconds")
                     value["last_observed_launch_timestamp"] = metrics.get("last_observed_launch_timestamp")
+                    value["activity_state"] = value.get("activity_state") or "ACTIVE"
+                    value["identity_state"] = value["qualification_category"]
+                    value["evolution_state"] = "REACTIVATED" if value["activity_state"] == "REACTIVATED" else "STABLE"
                     membership_count = conn.execute(
                         "SELECT COUNT(*) FROM operator_launch_membership WHERE operator_id=?",
                         (value["operator_id"],),

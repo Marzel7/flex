@@ -161,9 +161,9 @@
     "status": "PASS"
   },
   "latest_continuation": {
-    "blocker": "After the authorized unified-contract assertion update, the next adjacent legacy assertion still accesses result.state although the correct result is None.",
+    "blocker": "900b has operators.status=CONFIRMED but qualification_category=PROVISIONAL; audit must exclude provisional qualification rows from the confirmed-operation invariant rather than report a false failure.",
     "milestone": "confirmed-operation forward detector audit",
-    "next_action": "Await user authorization to remove the remaining obsolete legacy state assertion, rerun the authorized suite, generate the deterministic audit, and commit the bounded files.",
+    "next_action": "Await user authorization for the audit-only qualification-category filter correction, then rerun deterministic audit, commit bounded files, and publish PASS handoff.",
     "production_flags": {
       "api_restart": false,
       "membership_mutation": false,
@@ -172,9 +172,9 @@
       "worker_restart": false
     },
     "status": "HOLD",
-    "tests": "18 passed, 1 failed in tests/test_p3r_profile_candidate_matcher.py",
-    "timestamp_utc": "2026-08-27T07:30:25Z",
-    "verdict": "STALE_LEGACY_ASSERTION_REMAINS"
+    "tests": "19 passed in bounded detector suite",
+    "timestamp_utc": "2026-08-27T07:31:49Z",
+    "verdict": "AUDIT_SCOPE_FILTER_REQUIRES_CORRECTION"
   },
   "latest_material_continuation": {
     "blocker": null,

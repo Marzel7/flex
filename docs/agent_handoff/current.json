@@ -237,6 +237,33 @@
     "tests": "MC focused suite started; initial capability set passed, terminal did not return final summary"
   },
   "next_action": "Separate authorization required to register P3R_063E_BYZC_CURRENT as confirmed; legacy child remains paused; canonical parent remains unchanged.",
+  "operation_fingerprint_bootstrap_44_audit": {
+    "activation_implication": "Do not claim all current fingerprints were exercised. The bootstrap validates bounded membership-neutral monitoring writes and exact evidence replay, but route-coverage gap should be addressed before treating it as comprehensive activation coverage. No production action taken.",
+    "comparison_coverage": {
+      "Byzantine": "44 comparisons, 35 exact, 9 no meaningful relationship",
+      "FOUR_STEP_30_SOL_14_479K_WSOL_LADDER": "44 comparisons, 9 exact, 35 no meaningful relationship",
+      "P3R": "44 no meaningful relationship",
+      "P3R_13A04": "44 no meaningful relationship",
+      "WATCHTOWER": "health refreshed only; no expected route is defined in observer",
+      "WSOL_PROVISION_CLOSE_1_SOL_MINUS_15K": "44 no meaningful relationship"
+    },
+    "monitoring_state": {
+      "clusters": 0,
+      "drift_evidence": "44 exact rows = 35 Byzantine + 9 d3de source mints",
+      "health_snapshots": "6, one per active definition",
+      "potential_mutation_links": 0
+    },
+    "next_action": "Await authorization on whether the defined coverage gap blocks idempotency/activation or whether a separately scoped representative retained-input audit is desired.",
+    "observation_definition": "one retained operator_launch_membership mint from the bounded Byzantine+d3de bootstrap source query; it is compared against route-capable active fingerprint definitions",
+    "source_counts": {
+      "Byzantine": 35,
+      "FOUR_STEP_30_SOL_14_479K_WSOL_LADDER": 9,
+      "total": 44
+    },
+    "source_query": "SELECT m.mint FROM operator_launch_membership m JOIN operators o ON o.operator_id=m.operator_id WHERE o.display_name IN (Byzantine, FOUR_STEP_30_SOL_14_479K_WSOL_LADDER) ORDER BY m.mint",
+    "status": "COMPLETE",
+    "verdict": "44_OF_44_COVERAGE_GAP_FOUND"
+  },
   "operation_fingerprint_monitoring_live_recovery": {
     "artifact_integrity_issue": "The prior BOOTSTRAP_FAILED artifact was mistakenly relabeled INTERRUPTED_EXTERNAL_TERMINATION despite containing a terminal database-lock failure. It must be restored deliberately in a separate corrective action; no restoration was performed after discovery.",
     "authorization_consumed_at_utc": "2026-08-27T09:00:00Z",
@@ -1890,9 +1917,9 @@
     "status": "PARTIAL",
     "verdict": "NO_DIRECT_TREASURY_LINK_ESTABLISHED"
   },
-  "updated_at_utc": "2026-08-27T09:30:00Z",
+  "updated_at_utc": "2026-08-27T09:40:00Z",
   "updated_by": "codex",
-  "verdict": "BOOTSTRAP_LOCK_TOLERANCE_REPAIRED",
+  "verdict": "44_OF_44_COVERAGE_GAP_FOUND",
   "watchtower_2nhz_bjg_gyff_corrected_rpc_confirmation_20260825": {
     "corrected_chain": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT -> GYffSdtiffuTTZpiXqevWCYsSjn11drMoPsky9vsSUnd -> BpnGiweePUnk7ejBxvxokCUiZff3Pq3ftJiajgSEx8C7 -> 2nHZVubjJU144poGfjbiB97tv7CJtvJycvDdYvSxpump",
     "correction": "The earlier conclusion that BJg could not be the upstream source was wrong. The initial pre-anchor page was too dense to reach this transfer; the user-supplied transaction is 1,813 seconds before the anchor and proves BJg -> GYff. The later GYff -> BJg transfer is separate post-launch activity.",

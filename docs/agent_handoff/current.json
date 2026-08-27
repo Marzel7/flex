@@ -160,6 +160,22 @@
     "scope": "Frozen canonical member projection and retained local evidence only; no provider calls or state mutation.",
     "status": "PASS"
   },
+  "latest_continuation": {
+    "blocker": "Test fixture added operators.status but INSERT INTO operators VALUES (?,?) still supplies two positional values.",
+    "milestone": "confirmed-operation forward detector audit",
+    "next_action": "Await user authorization to make the one-line fixture insert compatibility correction, rerun the authorized focused suite, then generate/commit the audit artifacts.",
+    "production_flags": {
+      "api_restart": false,
+      "membership_mutation": false,
+      "queue_replay": false,
+      "rpc_provider_calls": false,
+      "worker_restart": false
+    },
+    "status": "HOLD",
+    "tests": "16 passed, 3 failed in tests/test_p3r_profile_candidate_matcher.py",
+    "timestamp_utc": "2026-08-27T07:25:41Z",
+    "verdict": "TEST_FIXTURE_REGRESSION_INTRODUCED"
+  },
   "latest_material_continuation": {
     "blocker": null,
     "engineering_revision": "26e528b0",
@@ -1562,8 +1578,7 @@
   },
   "project": {
     "branch": "classification-attribution-axis",
-    "git_head": "3edccd47dab5f8b189cfcc32e28475233abaed06",
-    "main": "26e528b0ae1fa5ed465c4fe9059a259d903fef29"
+    "git_head": "uncommitted confirmed-operation detector audit worktree"
   },
   "provisional_900b_live_detector_wiring_20260825": {
     "changed_files": [

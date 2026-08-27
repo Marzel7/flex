@@ -2487,7 +2487,7 @@
     "verdict": "OPERATION_IDENTITY_STRENGTH_FAMILY_UI_COMPLETE",
     "tests": "41 passed focused identity/monitoring suites",
     "membership_impact": "NONE",
-    "summary": "Added read-only human-name, family, infrastructure, coverage, and common-root metadata projection; stable technical identities unchanged.",
+    "summary": "Added read-only human-name, family, infrastructure, coverage, and common-root metadata projection; stable technical identities unchanged. watchtower_api reloaded after the committed UI change and verified RUNNING (pid 26512).",
     "production_flags": {"membership_changed": false, "provisional_state_changed": false, "detector_changed": false, "rpc_provider_calls": false, "trading_state": false},
     "blocker": null
   }

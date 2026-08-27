@@ -1,4 +1,13 @@
 {
+  "operations_registry_last_launch_age_20260827": {
+    "engineering_revision": "74d2fe5b9435f71c836fa1172457566f3ed788ff",
+    "status": "PASS",
+    "ui_change": "Active Operations Registry adds Last launch immediately after Total launches, rendered as a relative age from the existing persisted last_observed_launch_timestamp or Not observed.",
+    "files": ["templates/operators_index.html"],
+    "tests": "3 passed: test_operator_registry_identity_projection.py and test_operation_lifecycle_presentation.py; Jinja template parse PASS.",
+    "runtime": "Restarted only watchtower_api (PID 80023); served /intelligence/operators contains lastLaunchAge and Last launch.",
+    "safety": "Display-only projection; no membership, provisional state, detector, fingerprint, threshold, queue, RPC/provider, listener/worker, WATCHTOWER semantics, or trading state changed."
+  },
   "canonical_operation_detail_api_reload_20260827": {
     "engineering_revision": "38997cc41319daeed59676fc663ecb5421ea8b62",
     "status": "PASS",

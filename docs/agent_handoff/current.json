@@ -1,4 +1,21 @@
 {
+  "p3r_current_queue_census_20260827": {
+    "engineering_revision": "e4903984464c9707cca5efbf127938b48e858ee5",
+    "status": "PASS",
+    "verdict": "P3R_CURRENT_QUEUE_CENSUS_COMPLETE",
+    "run_id": "p3r-current-queue-9ed4491c5237",
+    "historical_reference": "28,883 unique mints; LEGACY_P3R_HISTORICAL_REFERENCE only, not cohort-normalized",
+    "queue": {"rows": 33604, "unique_mints": 33604, "duplicates": 0, "net_population_growth": 4721, "highwaters": {"wt_walkback_queue": 35620, "wt_walkback_edge_candidates": 67599, "wt_walkback_atomic_flows": 7747}},
+    "historical_mint_set": "HISTORICAL_MINT_SET_UNRECOVERED; exact post-reference tail unavailable",
+    "families": {"current": 230, "active": 93},
+    "operators": {"WATCHTOWER_exact": 98, "Byzantine_exact": 45, "Sentinel_exact": 9, "Leviathan_exact": 90, "Harbinger_exact": 0, "900b_provisional_exact": 45},
+    "reproducibility": {"first_digest": "904fbdb7f10b74293261d573f1ae630f97ce9f5e2cd22a163b565c78072dc1ff", "replay_digest": "904fbdb7f10b74293261d573f1ae630f97ce9f5e2cd22a163b565c78072dc1ff", "equal": true},
+    "membership_neutrality": {"confirmed_membership": [233, 233], "provisional": [1, 1], "potential_workflows": [61, 61], "census_caused_delta": 0},
+    "incident_caveat": "SQLite repair commit 78d8ce9b is recorded. This retained-queue census does not prove complete capture during the prior ingestion-degradation interval.",
+    "artifacts": ["docs/audits/p3r_current_queue_census.v1.json", "docs/audits/p3r_current_queue_census.replay.v1.json"],
+    "safety": "Read-only SQLite source access only; no membership, provisional state, Potential workflow, queue, detector, fingerprint, threshold, WATCHTOWER semantics, RPC/provider, service, or trading state changed.",
+    "exact_next_action": "Review the report-only top family and potential-candidate evidence; any UI refresh, mutation workflow, family registration, or lifecycle change requires separate authorization."
+  },
   "p3r_28883_cohort_forensic_20260827": {
     "engineering_revision": "fe7b9a715917de165f4dcc6d108442b745137194",
     "status": "PASS_READ_ONLY",

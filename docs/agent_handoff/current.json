@@ -1,4 +1,18 @@
 {
+  "active_operations_current_census_ui_20260827": {
+    "engineering_revision": "a3df56262ee8da8fdb8fa8f5dcb9738989e4dd3f",
+    "status": "PASS_WITH_RENDER_LIMITATION",
+    "verdict": "ACTIVE_OPERATIONS_CURRENT_CENSUS_UI_COMPLETE",
+    "source": "P3R_CURRENT_QUEUE_CENSUS committed artifact; frozen queue high-water 35620",
+    "projection": {"WATCHTOWER": [98, 12, 47, 53, "DYNAMIC_ROLE_MONITORING"], "Byzantine": [45, 1, 12, 36, "NONE_OBSERVED"], "Sentinel": [9, 0, 5, 9, "DRIFT_EVIDENCE"], "Leviathan": [90, 14, 38, 89, "NONE_OBSERVED"], "Harbinger": [0, null, null, null, "RELATED_ACTIVITY_UNRESOLVED"], "1 SOL Provision Close": [45, 0, 29, 44, "NONE_OBSERVED"]},
+    "presentation_guards": "WATCHTOWER retains Dynamic role discovery and never shows generic near=0. Sentinel's 75 is Drift evidence only. Harbinger's 97 is Related activity unresolved with historical baseline Not yet measured. 1 SOL Provision Close remains PROVISIONAL.",
+    "tests": "4 passed: test_operator_registry_identity_projection.py and test_operation_lifecycle_presentation.py; both edited Jinja templates parsed.",
+    "rendering": "API-only reload was performed twice; immediate GET /api/ops/operators HTTP 200 confirmed all six projections. Detail HTTP 200 for Harbinger embedded the census projection. Browser runtime unavailable, and localhost:5002 later ceased accepting connections while Supervisor still reported the API running; no service repair was authorized or attempted.",
+    "membership_neutrality": {"confirmed_membership": [233, 233], "provisional": [1, 1], "potential_workflows": [61, 61], "task_caused_delta": 0},
+    "files": ["src/ops/operator_reader.py", "templates/operators_index.html", "templates/operator_intelligence.html", "tests/test_operator_registry_identity_projection.py"],
+    "safety": "No registry identity, membership, provisional state, Potential workflow, detector, fingerprint, threshold, WATCHTOWER semantics, queue, RPC/provider, worker, or trading state changed. Only watchtower_api was reloaded; watchtower_listener remained untouched.",
+    "exact_next_action": "Separately diagnose the API process/port liveness if required, then visually inspect the client-rendered cards. Do not alter monitoring semantics or Potential workflows without separate authorization."
+  },
   "p3r_current_queue_census_20260827": {
     "engineering_revision": "e4903984464c9707cca5efbf127938b48e858ee5",
     "status": "PASS",

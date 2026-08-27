@@ -1,0 +1,146 @@
+{
+  "bootstrap_caused_membership_changes": 0,
+  "clusters": [],
+  "cross_fingerprint_collisions": [],
+  "duration_seconds": 12,
+  "ended_at": 1787844350,
+  "matrix": [
+    {
+      "baseline_status": "CURRENT_CONFIRMED_REFERENCE",
+      "comparison_inputs": "INSUFFICIENT",
+      "current_uniqueness": null,
+      "exact": 35,
+      "fingerprint_id": "10SOL-WSOL-4STEP-v1",
+      "membership_write_capability": "NONE",
+      "near": 0,
+      "no_relationship": 0,
+      "operation": "Byzantine",
+      "positive_reference_inputs": 35,
+      "qualified_uniqueness": null,
+      "unobservable": 0
+    },
+    {
+      "baseline_status": "CURRENT_CONFIRMED_REFERENCE",
+      "comparison_inputs": "INSUFFICIENT",
+      "current_uniqueness": null,
+      "exact": 9,
+      "fingerprint_id": "30SOL-WSOL-LADDER-14479K-v1",
+      "membership_write_capability": "NONE",
+      "near": 0,
+      "no_relationship": 0,
+      "operation": "FOUR_STEP_30_SOL_14_479K_WSOL_LADDER",
+      "positive_reference_inputs": 9,
+      "qualified_uniqueness": null,
+      "unobservable": 0
+    },
+    {
+      "baseline_status": "CURRENT_CONFIRMED_REFERENCE_COMPARISON_INSUFFICIENT",
+      "comparison_inputs": "INSUFFICIENT",
+      "current_uniqueness": null,
+      "exact": 88,
+      "fingerprint_id": "100SOL-WSOL-CLOSE-v1",
+      "membership_write_capability": "NONE",
+      "near": 0,
+      "no_relationship": 0,
+      "operation": "P3R",
+      "positive_reference_inputs": 88,
+      "qualified_uniqueness": null,
+      "unobservable": 0
+    },
+    {
+      "baseline_status": "DYNAMIC_ROLE_DISCOVERY",
+      "comparison_inputs": "INSUFFICIENT",
+      "current_uniqueness": null,
+      "exact": 82,
+      "fingerprint_id": "WSOL-ROUTE-STRICT-v1",
+      "membership_write_capability": "NONE",
+      "near": 0,
+      "no_relationship": 0,
+      "operation": "WATCHTOWER",
+      "positive_reference_inputs": 96,
+      "qualified_uniqueness": null,
+      "unobservable": 14
+    },
+    {
+      "baseline_status": "FROZEN_BEHAVIOURAL_REFERENCE",
+      "comparison_inputs": 15,
+      "current_uniqueness": 74.58,
+      "exact": 44,
+      "fingerprint_id": "1SOL-WSOL-PROVISION-CLOSE-15K-v1",
+      "membership_write_capability": "NONE",
+      "near": 0,
+      "no_relationship": 0,
+      "operation": "WSOL_PROVISION_CLOSE_1_SOL_MINUS_15K",
+      "positive_reference_inputs": 44,
+      "qualified_uniqueness": 74.58,
+      "unobservable": 0
+    },
+    {
+      "baseline_status": "NOT_YET_MEASURED",
+      "comparison_inputs": "INSUFFICIENT",
+      "current_uniqueness": null,
+      "exact": 0,
+      "fingerprint_id": "30SOL-5K-LADDER-v1",
+      "membership_write_capability": "NONE",
+      "near": 0,
+      "no_relationship": 0,
+      "operation": "P3R_13A04",
+      "positive_reference_inputs": "UNRECOVERED",
+      "qualified_uniqueness": null,
+      "unobservable": 0
+    }
+  ],
+  "membership_after": 228,
+  "membership_before": 228,
+  "membership_deltas": [],
+  "membership_neutral": true,
+  "monitoring_after": {
+    "operation_fingerprint_drift_clusters": 0,
+    "operation_fingerprint_drift_evidence": 46,
+    "operation_fingerprint_health_snapshots": 6
+  },
+  "monitoring_before": {
+    "operation_fingerprint_drift_clusters": 0,
+    "operation_fingerprint_drift_evidence": 46,
+    "operation_fingerprint_health_snapshots": 6
+  },
+  "pid": 20052,
+  "provisional_after": 1,
+  "provisional_before": 1,
+  "run_id": "per-fingerprint-bootstrap-cff138d06571",
+  "sqlite_lock": "PASS timeout=30 busy_timeout=30000",
+  "started_at": 1787844338,
+  "status": "BOOTSTRAP_COMPLETE",
+  "unknown_membership_changes": 0,
+  "watchtower_dynamic_role": {
+    "confirmed_route_method": {
+      "requires_verified_queue_route": true,
+      "route_state_check": "_has_verified_queue_funding_route",
+      "source_tables": [
+        "wt_walkback_queue",
+        "wt_provisioning_sessions"
+      ]
+    },
+    "fingerprint_id": "WSOL-ROUTE-STRICT-v1",
+    "membership_write_capability": "NONE",
+    "monitoring_observation_source": "persisted WALKBACK outcome + walkback route evidence",
+    "monitoring_strategy": "DYNAMIC_ROLE_DISCOVERY",
+    "mutability_coverage": {
+      "confirmed_membership": 96,
+      "confirmed_subproviders": 941,
+      "confirmed_treasuries": 63,
+      "rejected_subproviders": 24,
+      "subprovider_candidates": 8537,
+      "treasury_candidates": 5783
+    },
+    "mutation_resilience": "TREASURY_SUBPROVIDER_CREATOR_ROTATION_SUPPORTED_WITH_DISCOVERY_DELAY",
+    "near_match_monitoring": "DISABLED",
+    "operation": "WATCHTOWER",
+    "operation_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+    "provenance": "CURRENTLY_PERSISTED_FACTS",
+    "unique_state_source": "wt_watchtower_launches + wt_confirmed_treasuries + wt_treasury_review + wt_discovered_subprovs",
+    "uniqueness_capability": "MEASURABLE",
+    "unresolved_lineage_support": true
+  },
+  "watchtower_generic_near_match": "NOT_SUPPORTED"
+}

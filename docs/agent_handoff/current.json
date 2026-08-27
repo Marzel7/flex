@@ -1,4 +1,15 @@
 {
+  "operations_registry_last_launch_display_20260827": {
+    "engineering_revision": "469d652e72d35f2251d6f9744895f0ed9c059880",
+    "status": "PASS",
+    "verdict": "OPERATIONS_REGISTRY_LAST_LAUNCH_DISPLAY_COMPLETE",
+    "change": "Active Operations Registry visibly appends Last launch <relative age> from the existing persisted last_observed_launch_timestamp to every registry row.",
+    "files": ["templates/operators_index.html", "tests/test_operator_registry_identity_projection.py"],
+    "tests": "3 passed: tests/test_operator_registry_identity_projection.py.",
+    "rendering": "Reloaded only watchtower_api; GET /intelligence/operators HTTP 200 served Last launch and lastLaunchAge code. watchtower_listener remained running unchanged.",
+    "safety": "UI-only persisted-timestamp projection. No membership, activity refresh, provisional state, detector, fingerprint, threshold, queue, RPC/provider, worker/listener, WATCHTOWER semantics, or trading state changed.",
+    "exact_next_action": "None for the requested last-launch display."
+  },
   "sentinel_evolution_cluster_admission_20260827": {
     "engineering_revision": "91dd1b21721ac7ae8493813e5f24445fd32c0335",
     "status": "PASS_WITH_DETAIL_RENDER_LIMITATION",

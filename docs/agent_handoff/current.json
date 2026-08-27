@@ -177,22 +177,25 @@
   },
   "latest_milestone": {
     "artifacts": {
-      "manifest": "docs/agent_handoff/p3r/p3r_operator_direct_funder_rpc/p3r_operator_direct_funder_upstream_rpc_manifest.v1.json",
-      "manifest_sha256": "0d5399ed588663bd88a0ee2909bca94b9133880e11990e42634dd0162fac865f",
-      "report": "docs/agent_handoff/p3r/p3r_operator_direct_funder_rpc/p3r_operator_direct_funder_upstream_rpc.v1.json",
-      "report_sha256": "f2adf0fa806297bc427b28effa08f162171c09e9f900104faf8c79ba9ba8caf4"
+      "engineering_commit": "787b2359",
+      "manifest": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/d3de_vs_13a04/p3r_v2_d3de_vs_p3r_13a04_forensic_comparison_manifest.v1.json",
+      "manifest_sha256": "f1c0497a2d227216d18307fec74be452fcff5423577f5fd0d28421571006eb71",
+      "report": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/d3de_vs_13a04/p3r_v2_d3de_vs_p3r_13a04_forensic_comparison.v1.json",
+      "report_sha256": "96b277d71087b187f8995909ffd4be8f2d8845cb8b7399c57c01419b00f882dd"
     },
-    "exact_next_action": "If authorized, evaluate whether the RPC-derived immediate upstream parents meet a persistence/provenance contract for display in the P3R UI; do not treat them as retained canonical two-hop walkback evidence without such a contract.",
-    "name": "P3R direct-funder upstream RPC check",
+    "exact_next_action": "If separately authorized, register d3de as a distinct confirmed operation using the existing forensic contract; do not merge or alter P3R_13A04.",
+    "name": "P3R v2 d3de vs P3R_13A04 forensic comparison",
     "production_flags": {
-      "database_mutation": false,
+      "operation_registration": false,
+      "operator_mutation": false,
       "queue_replay": false,
-      "rpc_provider_calls": true,
-      "ui_mutation": false
+      "rpc_provider_calls": false,
+      "tier_membership_mutation": false,
+      "trading_signal": false
     },
     "status": "PASS",
-    "summary": "Read-only RPC provenance check covered 78 P3R launch links through 53 distinct direct funders. All 78 had a material immediate inbound predecessor. Recurrent upstream sources included AGT9dkEZUBPrw5HrDGZTNRhYNMEU5HbRp2E1GdYMSB6r (5 links), 7nUChWZA5wUMWgUjigfkh3MG2FmoVhk47fvqCcPALe5B (4), and three sources with 3 each. No database, UI, membership, queue, or operation mutation occurred.",
-    "verdict": "P3R_DIRECT_FUNDER_UPSTREAM_RPC_COMPLETE"
+    "summary": "Retained evidence establishes non-subsuming exact four-hop routes. d3de is distinct from P3R_13A04 despite a related generic temporary-WSOL lifecycle. P3R_13A04 has zero current retained launch memberships; its five-step ladder is current profile provenance, while historical member evidence remains later-reference-only. d3de workflow was updated to READY_FOR_CONFIRMED_REGISTRATION; no operation was registered.",
+    "verdict": "P3R_V2_D3DE_VS_P3R_13A04_FORENSIC_COMPARISON_COMPLETE"
   },
   "milestone": "P3R corrected prospective shadow successor",
   "mission_control_live_ingestion_recovery_20260826": {
@@ -1557,7 +1560,7 @@
   },
   "project": {
     "branch": "classification-attribution-axis",
-    "git_head": "26e528b0ae1fa5ed465c4fe9059a259d903fef29",
+    "git_head": "787b235982d7256cbc9bf1f12135486f43da0928",
     "main": "26e528b0ae1fa5ed465c4fe9059a259d903fef29"
   },
   "provisional_900b_live_detector_wiring_20260825": {

@@ -1,4 +1,18 @@
 {
+  "potential_operations_current_census_reconciliation_20260827": {
+    "engineering_revision": "f24e72deb17be0c0b5047df8b4aba8cd652eb2b8",
+    "status": "PASS",
+    "verdict": "POTENTIAL_OPERATIONS_CURRENT_CENSUS_RECONCILIATION_COMPLETE",
+    "frozen_census": {"highwaters": {"wt_walkback_queue": 35620, "wt_walkback_edge_candidates": 67599, "wt_walkback_atomic_flows": 7747}, "reconciliation_digest": "99c91eb8775598704fe7eccf3ec52117da2409bc5b89beb41871580f1fc148b5", "replay_equal": true},
+    "current_evidence": {"coherent_families": 230, "existing_potential_matches": 61, "visible_actionable_rows": 60, "workflow_rows_created_or_updated": 0, "relationship_rows_created_or_updated": 0, "discovery_priority": "frozen and unchanged", "read_projection": "current census evidence and deterministic Current Attention only"},
+    "evolution_clustering": {"Sentinel": {"observations_accounted": "75/75", "clusters": 70, "passes_existing_coherent_family_minimums": 2, "classification": "POTENTIAL_MUTATION observationally; no durable candidate admission performed"}, "Harbinger": {"observations_accounted": "97/97", "clusters": 95, "passes_existing_coherent_family_minimums": 0, "classification": "INSUFFICIENT_EVIDENCE; no attribution to Harbinger"}, "admission_gate": "No separate durable Potential-admission contract was established for automatically creating new workflow candidates; none were created."},
+    "preservation": {"confirmed_membership": [233, 233], "provisional_rows": [1, 1], "potential_workflow_rows": [61, 61], "membership_impact": "NONE", "900b": "ACTIVE_PROVISIONAL unchanged", "WATCHTOWER": "DYNAMIC_ROLE_DISCOVERY unchanged"},
+    "files": ["docs/audits/potential_operations_current_census_reconciliation.v1.json", "scripts/reconcile_potential_current_census.py", "src/ops/potential_operations.py", "templates/potential_operation_detail.html", "templates/potential_operations.html", "tests/test_potential_operations_current_census.py"],
+    "tests": "4 passed: tests/test_063e_potential_operations_deduplication.py and tests/test_potential_operations_current_census.py; both Potential Jinja templates parsed; fixed-bound replay digest equal.",
+    "rendering": "Reloaded only watchtower_api. watchtower_listener remained running unchanged. GET /intelligence/potential-operations rendered Current Queue Census, Current evidence, Next to Investigate, and Mutation / Successor Watch.",
+    "safety": "Fixed-bound SQLite reads used query_only mode. No membership, provisional state, detector, fingerprint, threshold, queue, RPC/provider, worker/listener, WATCHTOWER production semantics, or trading state changed.",
+    "exact_next_action": "A separately authorized lifecycle-admission task may decide whether either observational Sentinel cluster becomes a durable Potential candidate; do not infer admission from this read-model projection."
+  },
   "active_operations_registry_columns_20260827": {
     "engineering_revision": "bb2da534a428394a735cf786e57f42cab523f455",
     "status": "PASS",

@@ -1,4 +1,12 @@
 {
+  "canonical_operation_detail_api_reload_20260827": {
+    "engineering_revision": "38997cc41319daeed59676fc663ecb5421ea8b62",
+    "status": "PASS",
+    "runtime_action": "Restarted only watchtower_api (PID 79478); watchtower_listener and creator_funding_worker remained running and untouched.",
+    "served_verification": "GET /intelligence/operator/777211c3-211e-551b-9310-ff9301570627 renders Confirmed operation with oi-display-name=Leviathan.",
+    "provenance_note": "P3R remains in the explanatory provenance alias text and stable internal fields by design; it is no longer the operation heading.",
+    "safety": "No membership, provisional state, detector, fingerprint, threshold, queue, RPC/provider, listener/worker, WATCHTOWER semantics, or trading state changed."
+  },
   "canonical_operation_detail_reader_fix_20260827": {
     "engineering_revision": "38997cc41319daeed59676fc663ecb5421ea8b62",
     "status": "PASS",

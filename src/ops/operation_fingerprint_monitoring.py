@@ -38,7 +38,7 @@ def _percentage(tp: int | None, external: int | None) -> float | None:
     return None if tp is None or external is None or tp + external == 0 else round(tp * 100 / (tp + external), 2)
 
 
-def build_fingerprint_health(operation: dict[str, Any]) -> dict[str, Any] | None:
+def build_fingerprint_health(operation: dict[str, Any], monitoring: dict[str, Any] | None = None) -> dict[str, Any] | None:
     """Build a transparent projection; near matches never change exact uniqueness."""
     definition = DEFINITIONS.get(operation.get("display_name"))
     if definition is None:
@@ -47,7 +47,7 @@ def build_fingerprint_health(operation: dict[str, Any]) -> dict[str, Any] | None
     benchmark = contract.get("benchmark") or {}
     tp = benchmark.get("tp") if isinstance(benchmark.get("tp"), int) else definition.qualified_tp
     external = benchmark.get("external_exact_matches") if isinstance(benchmark.get("external_exact_matches"), int) else definition.qualified_external_exact_matches
-    return {
+    result = {
         "fingerprint_id": definition.fingerprint_id,
         "description": definition.description,
         "detector_version": contract.get("detector_version"),
@@ -65,6 +65,18 @@ def build_fingerprint_health(operation: dict[str, Any]) -> dict[str, Any] | None
         "potential_relation": None,
         "formula": "TP / (TP + external_exact_matches) * 100; unobservable and near-match rows are excluded.",
     }
+    if monitoring:
+        result.update({
+            "current_uniqueness_percent": monitoring.get("uniqueness_percent"),
+            "matching_operation_launches": monitoring.get("accepted_exact_matches"),
+            "external_exact_matches": monitoring.get("external_exact_matches"),
+            "observable_population": monitoring.get("observable_comparison_count"),
+            "trend": monitoring.get("trend", result["trend"]),
+            "near_match_count": monitoring.get("near_match_count", 0),
+            "drift_status": monitoring.get("drift_status", result["drift_status"]),
+            "potential_relation": monitoring.get("potential_relation"),
+        })
+    return result
 
 
 def audit_confirmed_address_independence() -> list[dict[str, Any]]:

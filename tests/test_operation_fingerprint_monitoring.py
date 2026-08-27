@@ -1,4 +1,5 @@
 from src.ops.operation_fingerprint_monitoring import audit_confirmed_address_independence, build_fingerprint_health
+from src.ops.operation_fingerprint_drift import compare_route
 from pathlib import Path
 
 
@@ -26,3 +27,20 @@ def test_summary_renderer_uses_human_monitoring_language():
     assert "TP / (TP + external_exact_matches)" not in template
     assert "retained launch observations" in template
     assert "oi-command-centre" in template
+
+
+def test_near_match_contract_is_explainable_and_address_independent():
+    expected = ((1, "PLAIN_XFER", 10), (2, "WSOL_WRAP_CLOSE", 20))
+    assert compare_route(expected, ((1, "PLAIN_XFER", 10), (2, "WSOL_WRAP_CLOSE", 21)))[0] == "NEAR_MATCH_ONE_DIMENSION"
+    assert compare_route(expected, ((1, "PLAIN_XFER", 10),))[0] == "NO_MEANINGFUL_RELATIONSHIP"
+    assert compare_route(expected, None)[0] == "UNOBSERVABLE"
+
+
+def test_generic_one_hop_wsol_similarity_is_not_drift():
+    assert compare_route(((1, "WSOL_WRAP_CLOSE", 10),), ((1, "WSOL_WRAP_CLOSE", 11),))[0] == "NO_MEANINGFUL_RELATIONSHIP"
+
+
+def test_summary_makes_current_uniqueness_prominent():
+    template = Path("templates/operator_intelligence.html").read_text()
+    assert "Fingerprint Uniqueness" in template
+    assert "no unresolved external exact fingerprint matches" in template

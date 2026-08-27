@@ -1,4 +1,19 @@
 {
+  "active_operations_registry_columns_20260827": {
+    "engineering_revision": "bb2da534a428394a735cf786e57f42cab523f455",
+    "status": "PASS",
+    "verdict": "ACTIVE_OPERATIONS_REGISTRY_COLUMNS_COMPLETE",
+    "change": "UI-only shared aligned columns replace repeated per-row micro-labels. Stable UUIDs are no longer visibly rendered below operation names; canonical name and supported mechanism/family subtitle remain.",
+    "headers": ["Operator", "Qualification", "Activity 24h / 7d / 30d", "Exact Matches", "Evolution Watch", "Action"],
+    "preserved_values": {"WATCHTOWER": "12 / 47 / 53; 98; Dynamic role monitoring", "Byzantine": "1 / 12 / 36; 45; None observed", "Leviathan": "14 / 38 / 89; 90; None observed", "Sentinel": "0 / 5 / 9; 9; 75 near · Drift evidence", "Harbinger": "Not measured; 0; 97 related · Unresolved", "1 SOL Provision Close": "0 / 29 / 44; 45; None observed; PROVISIONAL"},
+    "census_provenance": "Current Queue Census · frozen high-water 35620 retained.",
+    "tests": "5 passed: test_operator_registry_identity_projection.py and test_operation_lifecycle_presentation.py; registry template parsed.",
+    "rendering": "watchtower_api-only reload; watchtower_listener unchanged. GET /intelligence/operators HTTP 200; served template contained all headers, census provenance, and runtime Sentinel/Harbinger wording. GET /api/ops/operators returned unchanged census values.",
+    "membership_neutrality": {"confirmed_membership": 233, "provisional": 1, "potential_workflows": 61, "task_caused_delta": 0},
+    "files": ["templates/operators_index.html", "tests/test_operator_registry_identity_projection.py"],
+    "safety": "No registry identity, membership, qualification, activity calculation, census data, Potential workflow, detector, fingerprint, threshold, WATCHTOWER semantics, queue, RPC/provider, worker, or trading state changed.",
+    "exact_next_action": "No further action in this UI-only refinement; any monitoring or lifecycle change requires separate authorization."
+  },
   "active_operations_current_census_ui_20260827": {
     "engineering_revision": "a3df56262ee8da8fdb8fa8f5dcb9738989e4dd3f",
     "status": "PASS_WITH_RENDER_LIMITATION",

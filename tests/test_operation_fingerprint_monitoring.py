@@ -42,5 +42,14 @@ def test_generic_one_hop_wsol_similarity_is_not_drift():
 
 def test_summary_makes_current_uniqueness_prominent():
     template = Path("templates/operator_intelligence.html").read_text()
-    assert "Fingerprint Uniqueness" in template
-    assert "no unresolved external exact fingerprint matches" in template
+    assert "Qualified uniqueness:" in template
+    assert "Current uniqueness:" in template
+    assert "Related mechanism; distinct fingerprints and memberships." in template
+
+
+def test_identity_metadata_keeps_technical_identity_and_family_separate():
+    from src.ops.operation_identity_metadata import identity_metadata
+    assert identity_metadata(None, "P3R_13A04", 0)["human_name"] == "30 SOL 5K Ladder"
+    metadata = identity_metadata(None, "WSOL_PROVISION_CLOSE_1_SOL_MINUS_15K", 0)
+    assert metadata["infrastructure"] == "SHARED_NON_EXCLUSIVE_INFRASTRUCTURE"
+    assert metadata["common_root"] == "NOT_PROVEN"

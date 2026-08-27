@@ -225,6 +225,9 @@ class OperatorReader:
                     from src.ops.operation_fingerprint_drift import latest_health
                     health = build_fingerprint_health(op, latest_health(conn, operator_id, health["fingerprint_id"]))
                 op["fingerprint_health"] = health
+                from src.ops.operation_identity_metadata import identity_metadata
+                member_count = conn.execute("SELECT COUNT(*) FROM operator_launch_membership WHERE operator_id=?", (operator_id,)).fetchone()[0]
+                op["identity_metadata"] = identity_metadata(conn, op["display_name"], int(member_count))
                 return op
         except (sqlite3.Error, OSError, json.JSONDecodeError):
             return None

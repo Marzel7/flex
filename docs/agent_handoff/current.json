@@ -176,17 +176,29 @@
     "verdict": "origin/main fast-forwarded from ef880830 to approved commit 26e528b0 in an isolated clean worktree."
   },
   "latest_milestone": {
-    "exact_next_action": "With user approval, correct only the reconciliation artifact retention so it preserves initial recovered mints plus idempotency replay, then rerun the exact bounded report scan without adding memberships.",
+    "artifacts": {
+      "engineering_commit": "df66621d",
+      "manifest": "docs/agent_handoff/p3r/post_snapshot_catchup/post_snapshot_operation_catchup_reconciliation_manifest.v1.json",
+      "manifest_sha256": "745cde57133aef1244d8782b154b88b0dc0252db21e245442a0545659b78fa33",
+      "report": "docs/agent_handoff/p3r/post_snapshot_catchup/post_snapshot_operation_catchup_reconciliation.v1.json",
+      "report_sha256": "518902b4d16e4de64e01cf08fcb2415a701ecd823197f14d9adb52ea938983dc"
+    },
+    "exact_next_action": "For each future detector registration, execute and retain the documented bounded activation-gap reconciliation before declaring activation complete.",
     "name": "Non-WATCHTOWER post-snapshot operation catch-up reconciliation",
     "production_flags": {
       "detector_mutation": false,
       "queue_replay": false,
       "rpc_provider_calls": false,
+      "tier_mutation": false,
+      "trading_signal": false,
       "watchtower_mutation": false
     },
-    "status": "HOLD",
-    "summary": "Bounded local scan recovered 3 Byzantine exact detector matches; second identical pass added 0. The runner overwrote the first-run recovered-mint list when writing the second report, so the durable artifact does not preserve both primary and replay outcomes as required. No WATCHTOWER change, RPC, queue replay, detector mutation, or trading signal occurred.",
-    "verdict": "POST_SNAPSHOT_OPERATION_CATCHUP_REPORTING_BLOCKED"
+    "status": "PASS",
+    "summary": "WATCHTOWER excluded. Exact bounded detector scans: Byzantine found 3 exact matches, all newly recovered on the initial pass and already-present/0 added on replay; d3de found 0 matches; 900b found 0 provisional matches. P3R and P3R_13A04 have insufficient durable versioned activation provenance and were audited without inference. No RPC, queue replay, detector/tier mutation, WATCHTOWER mutation, or trading signal.",
+    "tests": {
+      "focused": "15 passed: catch-up guards, d3de, Byzantine, 900b"
+    },
+    "verdict": "POST_SNAPSHOT_OPERATION_CATCHUP_RECONCILIATION_COMPLETE"
   },
   "milestone": "P3R corrected prospective shadow successor",
   "mission_control_live_ingestion_recovery_20260826": {
@@ -1551,7 +1563,7 @@
   },
   "project": {
     "branch": "classification-attribution-axis",
-    "git_head": "860ca4ae4ad7c981382d15fbce5e55677a932737",
+    "git_head": "df66621d8dbf330e823baa488e7095b3439c145e",
     "main": "26e528b0ae1fa5ed465c4fe9059a259d903fef29"
   },
   "provisional_900b_live_detector_wiring_20260825": {

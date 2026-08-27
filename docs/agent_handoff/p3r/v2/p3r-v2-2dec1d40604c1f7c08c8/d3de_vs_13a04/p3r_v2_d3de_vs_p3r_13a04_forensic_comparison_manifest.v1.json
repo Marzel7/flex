@@ -1,0 +1,24 @@
+{
+  "comparison_script_sha256": "929d36d63dc9bac9c3f2c49048ffaa54f92162d3587a32fef543620c7af8ff00",
+  "deterministic_replay": "rerun against unchanged source snapshot yields identical report SHA-256",
+  "report": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/d3de_vs_13a04/p3r_v2_d3de_vs_p3r_13a04_forensic_comparison.v1.json",
+  "report_sha256": "96b277d71087b187f8995909ffd4be8f2d8845cb8b7399c57c01419b00f882dd",
+  "rpc_calls": 0,
+  "schema_version": "P3R_V2_D3DE_VS_P3R_13A04_FORENSIC_MANIFEST.v1",
+  "source_snapshot": "/tmp/d3de_13a04_comparison_sources.json",
+  "source_snapshot_sha256": "72367a0a64881720568782cc9e6fdb802619ae2eddc142ab6fe5029f2349e320",
+  "verdict": "P3R_V2_D3DE_VS_P3R_13A04_FORENSIC_COMPARISON_COMPLETE",
+  "workflow_record": {
+    "candidate_id": "p3r-v2-d3de29c88fe0ce5fa309",
+    "updated_fields": [
+      "workflow_status",
+      "proposed_name",
+      "parent_mechanism",
+      "latest_verdict",
+      "principal_gap",
+      "next_action",
+      "rpc_requirement",
+      "provenance_json"
+    ]
+  }
+}

@@ -1,0 +1,507 @@
+{
+  "P3R_13A04_current_operation_contract": {
+    "atomic_sequence": [
+      "createAccountWithSeed",
+      "initializeAccount3",
+      "transfer",
+      "syncNative",
+      "closeAccount"
+    ],
+    "confirmation_logic": "all four exact selected edges required; address-independent; analyst-reviewed automatic admission",
+    "current_membership_count": 0,
+    "display_name": "P3R_13A04",
+    "disposition": "ACTIVE_MANUAL",
+    "evidence_provenance": "CURRENT_OPERATION_CONTRACT: profile provenance; HISTORICAL_RECOVERED_REFERENCE: later historical aggregate only",
+    "funding_ladder_lamports": [
+      29999995000,
+      29999990000,
+      29999985000,
+      29999980000,
+      29999975000
+    ],
+    "historical_reference": {
+      "classification": "AGGREGATE_V1_EVIDENCE_ONLY",
+      "evidence_type": "LATER_REFERENCE_TO_HISTORICAL_RESULT",
+      "member_count_reported": 5,
+      "provenance": "git commit 069c3ed2; later handoff states five frozen historical members, but cites absent /tmp v1 artifact and later v2 shadow artifact",
+      "recovered_member_list": null
+    },
+    "matcher_selected_route": [
+      {
+        "amount_lamports": 29999975000,
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER"
+      },
+      {
+        "amount_lamports": 29999980000,
+        "hop_depth": 2,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      {
+        "amount_lamports": 29999985000,
+        "hop_depth": 3,
+        "mechanism": "PLAIN_XFER"
+      },
+      {
+        "amount_lamports": 29999990000,
+        "hop_depth": 4,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      }
+    ],
+    "status": "CONFIRMED"
+  },
+  "atomic_relationship": {
+    "classification": "RELATED_LIFECYCLE",
+    "reason": "Both retain create/initialize/transfer/sync/close WSOL ordering, but only d3de retains a principal amount and complete atomic evidence."
+  },
+  "candidate_id": "p3r-v2-d3de29c88fe0ce5fa309",
+  "common_parent_assessment": {
+    "classification": "NOT_JUSTIFIED",
+    "reason": "A shared generic temporary-WSOL lifecycle or approximately 30-SOL funding is insufficient when the exact ladder semantics and vectors are non-overlapping."
+  },
+  "cross_detector": {
+    "P3R_13A04_on_d3de": {
+      "matches": 0,
+      "non_matches": 9,
+      "observable": 9,
+      "reason": "Every d3de member has the frozen four-hop d3de route, which lacks all required 13A04 exact route elements."
+    },
+    "d3de_on_P3R_13A04": {
+      "classification": "NOT_COMPUTABLE",
+      "matches": 0,
+      "non_matches": 0,
+      "observable_current_members": 0,
+      "reason": "The current operation has no retained membership rows and the five historical mint IDs were not recovered.",
+      "unobservable_historical_members": 5
+    }
+  },
+  "d3de_contract": {
+    "alternative_route": {
+      "coverage": "9/9",
+      "dominant": {
+        "count": 9,
+        "fingerprint": {
+          "contract": "P3R_V2_FINGERPRINT_CONTRACTS.v1",
+          "edges": [
+            {
+              "amount_lamports": 14479000,
+              "hop_depth": 3,
+              "mechanism": "WSOL_WRAP_CLOSE"
+            }
+          ],
+          "kind": "ALTERNATIVE_EDGE"
+        }
+      },
+      "fingerprints": [
+        {
+          "count": 9,
+          "fingerprint": {
+            "contract": "P3R_V2_FINGERPRINT_CONTRACTS.v1",
+            "edges": [
+              {
+                "amount_lamports": 14479000,
+                "hop_depth": 3,
+                "mechanism": "WSOL_WRAP_CLOSE"
+              }
+            ],
+            "kind": "ALTERNATIVE_EDGE"
+          }
+        }
+      ],
+      "verified_hop_3_wsol_wrap_close_14479000": true
+    },
+    "detector_validation": {
+      "D0": {
+        "external_families": [],
+        "external_mints": [],
+        "fn": 0,
+        "fp": 0,
+        "observable_denominator": 12041,
+        "precision": 1.0,
+        "recall": 1.0,
+        "tp": 9
+      },
+      "D1": {
+        "external_families": [],
+        "external_mints": [],
+        "fn": 0,
+        "fp": 0,
+        "observable_denominator": 12041,
+        "precision": 1.0,
+        "recall": 1.0,
+        "tp": 9
+      },
+      "D2": {
+        "external_families": [],
+        "external_mints": [],
+        "fn": 0,
+        "fp": 0,
+        "observable_denominator": 12041,
+        "precision": 1.0,
+        "recall": 1.0,
+        "tp": 9
+      },
+      "D3": {
+        "external_families": [],
+        "external_mints": [],
+        "fn": 0,
+        "fp": 0,
+        "observable_denominator": 12041,
+        "precision": 1.0,
+        "recall": 1.0,
+        "tp": 9
+      },
+      "D4": {
+        "external_families": [],
+        "external_mints": [],
+        "fn": 0,
+        "fp": 0,
+        "observable_denominator": 12041,
+        "precision": 1.0,
+        "recall": 1.0,
+        "tp": 9
+      },
+      "D5": {
+        "external_families": [],
+        "external_mints": [],
+        "fn": 0,
+        "fp": 0,
+        "observable_denominator": 12041,
+        "precision": 1.0,
+        "recall": 1.0,
+        "tp": 9
+      }
+    },
+    "principal_atomic": {
+      "account_role_semantics": "temporary WSOL account is created, initialized, funded, synced, then closed to the selected hop-1 direct funder",
+      "classification": "PRINCIPAL_MECHANISM_DEFINING",
+      "instruction_order": [
+        "createAccountWithSeed",
+        "initializeAccount3",
+        "transfer",
+        "syncNative",
+        "closeAccount"
+      ],
+      "lifecycle_semantics": "single atomic temporary-WSOL provision-and-close lifecycle",
+      "required_flags": {
+        "has_close": true,
+        "has_create": true,
+        "has_sync_native": true
+      },
+      "transfer_lamports": 29997950720
+    },
+    "role_graph": {
+      "address_independent_route": "parent@hop4 -> parent@hop3 -> parent@hop2 -> direct_funder@hop1 -> creator",
+      "classification": "ADDRESS_INDEPENDENT_OPERATION",
+      "creator_reuse": 9,
+      "direct_funder_reuse": 9,
+      "parent_reuse": [
+        [
+          "H24vZYeGs521JUKvuRcaALNTDDwwdL3AZ6yUUFGv3jVV",
+          2
+        ],
+        [
+          "AJ4BbGcqpndcQzZZRqkGxsrHpCgyxEB7XuFqzyTqjFZ9",
+          2
+        ],
+        [
+          "9hwHPNBQmcJPtiFTsTV3gkgZB719LHX85PCpBbsP6a3L",
+          2
+        ],
+        [
+          "Cm7gvM2nWHtybNmQkrsC4mfSxBwzfAwJz2UJUhyETCNH",
+          1
+        ],
+        [
+          "6ChwWa8iXUWcJ37Rm9tETbDVPhX148Ej2xnn4WiEBMTF",
+          1
+        ],
+        [
+          "F8scPWr3BZnn3V3aQPHtSLENkMWXYDPunT6fkZejni7t",
+          1
+        ],
+        [
+          "GsYYTG4QMZhTiFYqwCT13PsaXyzYdNwiugT72PTvvPd6",
+          1
+        ],
+        [
+          "Ec5FnQ91A4U3nGAvLppGPQZ1TY1RSq1uwMR1KjHKFukY",
+          1
+        ],
+        [
+          "GnAZjMbwcwL2mXFy6nB82he5NFbxsw4GwgvTujbZe2qG",
+          1
+        ],
+        [
+          "5GDdDkb7yChhjzHJKxp2NhAPWHDdzZZd69SEnifXhgsh",
+          1
+        ],
+        [
+          "7wgAGzMHUA4U6MYxGQD3EogB2dnEKsV4jhQNdiJXpaZM",
+          1
+        ],
+        [
+          "Dopcntbyk8VkmrFK9KfNpsgJiinzxPXoMQb4Tuieqrkq",
+          1
+        ],
+        [
+          "7HgJtEmzMFdu9emq7xTiCdrgtExFPVdbKVTtx4gV5Wgx",
+          1
+        ],
+        [
+          "ACrDS7PPpavc6Ru1GYUxmdxPMaLAq7twWLHoWYSmVuxa",
+          1
+        ],
+        [
+          "F7yZErKKECuKETYeXf3Z4XazKAE3c156uvtZr3LXV7iW",
+          1
+        ],
+        [
+          "8mcmNq7iNE8XobNiDP4cGwNJ1U7RHYLWiLQgwiRuJLkt",
+          1
+        ],
+        [
+          "C3gVxBPQ2aBXjAowKNsCn1EKtHcvd6qTv3kyeTMX3Efw",
+          1
+        ],
+        [
+          "13qWz7rFwmzyPbcYCUa74QKzF3a7GdQsu6aMUQ1M9PQb",
+          1
+        ],
+        [
+          "GctZnFzjhAeH45YpxadejnNe4QcHU79jUKhnUJ6dDWCX",
+          1
+        ],
+        [
+          "5QWCSZHfqWATRKc3RCLhaazX4kAVXzTpaRBoDf4iFwFY",
+          1
+        ],
+        [
+          "AuuBBj9bebSSSweF2LuyvVuhR83H5rStBQojsbiorm1n",
+          1
+        ],
+        [
+          "4TrgTteMHKABpaTVhL7vLcQwV7LkDMvx7ZhK4dvMLErj",
+          1
+        ],
+        [
+          "8SKTLDZs6EKnjarEibzs3RP6w6uRvpeuiKdaskfpgsMD",
+          1
+        ],
+        [
+          "3CTT2A3bm5FkJ3GrV18wCyNMSyysyETbiGJmYGhRJHwf",
+          1
+        ],
+        [
+          "HMHkmsy73Kv6RYnaoSqMR6xRjB5b3RENakrxg6VJgix5",
+          1
+        ],
+        [
+          "8f4ZjLLwpgpDxbqLazcnLHwTESnBf8yhwWjTcYwaAxp9",
+          1
+        ],
+        [
+          "2KuBnLWuUW5ygnKHqtUWkhsYKaHzy4iYN2sYehXPbSzZ",
+          1
+        ],
+        [
+          "6EdjnAsvdNJoq4eGEW7UP69TMCvxAD2DoNajkQvXaKQh",
+          1
+        ],
+        [
+          "6Nvjhn8mc2q5FUegL7WEn1gXXuvk2ZtTyNhyfDTT8xtv",
+          1
+        ],
+        [
+          "DAUjJumjX2sPujM2vLfzDqrtKkdCS6iG24KaW1zcfjW",
+          1
+        ],
+        [
+          "GP7rkXTvNnYbj7rPe7CCgqKKdBzp1KTK3PPeXnV3hv4s",
+          1
+        ],
+        [
+          "CpCmcPthKR6UNqPFTQev1zQrVkYoM1whLhWyc76VpDbq",
+          1
+        ],
+        [
+          "AspQDNRDLN4qn3YAXbktnh2YtJeuFRD1CmkH9NhxZUjT",
+          1
+        ]
+      ]
+    },
+    "selected_route": [
+      {
+        "amount_lamports": 29999985000,
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER"
+      },
+      {
+        "amount_lamports": 29999990000,
+        "hop_depth": 2,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      {
+        "amount_lamports": 14479000,
+        "hop_depth": 3,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      {
+        "amount_lamports": 2074000,
+        "hop_depth": 4,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      }
+    ],
+    "temporal": {
+      "classification": "PERSISTENT",
+      "current_metrics": {
+        "active_days": 5,
+        "activity_state": "VERY_HIGH_ACTIVITY",
+        "first_observed": 1787116751,
+        "last_14d": 9,
+        "last_1d": 0,
+        "last_30d": 9,
+        "last_3d": 2,
+        "last_7d": 7,
+        "last_observed": 1787584609,
+        "max_rolling_24h": 3,
+        "median_inter_observation_gap_seconds": 52611.0,
+        "observations_per_active_day": 1.8,
+        "time_since_last": 199010,
+        "total_observations": 9
+      },
+      "first_launch": 1787116751,
+      "last_launch": 1787584609,
+      "max_gap_seconds": 104238,
+      "median_gap_seconds": 52611.0
+    }
+  },
+  "duplicate_registration_risk": "NO_DUPLICATION_RISK",
+  "infrastructure_overlap": {
+    "classification": "INSUFFICIENT",
+    "reason": "13A04 current contract retains no historical creator/funder/parent address payload; no common controller is inferred."
+  },
+  "ladder_comparison": [
+    {
+      "P3R_13A04": 4,
+      "d3de": 4,
+      "dimension": "selected hop count",
+      "relationship": "IDENTICAL"
+    },
+    {
+      "P3R_13A04": [
+        29999975000,
+        29999980000,
+        29999985000,
+        29999990000
+      ],
+      "d3de": [
+        29999985000,
+        29999990000,
+        14479000,
+        2074000
+      ],
+      "dimension": "ordered selected amounts",
+      "relationship": "MATERIAL_DIFFERENCE"
+    },
+    {
+      "P3R_13A04": [
+        "PLAIN_XFER",
+        "WSOL_WRAP_CLOSE",
+        "PLAIN_XFER",
+        "WSOL_WRAP_CLOSE"
+      ],
+      "d3de": [
+        "PLAIN_XFER",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE"
+      ],
+      "dimension": "semantic sequence",
+      "relationship": "MATERIAL_DIFFERENCE"
+    },
+    {
+      "P3R_13A04": "five-step 5,000-lamport ladder retained in current profile provenance",
+      "d3de": "30-SOL pair followed by 14,479,000 and 2,074,000 lamports",
+      "dimension": "decrement pattern",
+      "relationship": "MATERIAL_DIFFERENCE"
+    },
+    {
+      "P3R_13A04": [
+        "createAccountWithSeed",
+        "initializeAccount3",
+        "transfer",
+        "syncNative",
+        "closeAccount"
+      ],
+      "d3de": [
+        "createAccountWithSeed",
+        "initializeAccount3",
+        "transfer",
+        "syncNative",
+        "closeAccount"
+      ],
+      "dimension": "principal atomic lifecycle",
+      "relationship": "RELATED"
+    },
+    {
+      "P3R_13A04": "NOT_RETAINED",
+      "d3de": 29997950720,
+      "dimension": "principal atomic transfer",
+      "relationship": "NOT_OBSERVABLE"
+    },
+    {
+      "P3R_13A04": "four-hop address-independent exact matcher",
+      "d3de": "parent@hop4 -> parent@hop3 -> parent@hop2 -> direct_funder@hop1 -> creator",
+      "dimension": "role graph",
+      "relationship": "RELATED"
+    },
+    {
+      "P3R_13A04": "NOT_RETAINED",
+      "d3de": "9/9",
+      "dimension": "alternative recurrence",
+      "relationship": "NOT_OBSERVABLE"
+    }
+  ],
+  "member_overlap": {
+    "current_13a04_members": 0,
+    "d3de_members": 9,
+    "overlap": "NOT_COMPUTABLE_HISTORICAL; 0/9 against current retained membership",
+    "reason": "Historical 13A04 mint IDs are unrecovered."
+  },
+  "naming_recommendation": {
+    "d3de": "FOUR_STEP_30_SOL_14_479K_WSOL_LADDER",
+    "keep_existing": "P3R_13A04",
+    "shared_parent": null
+  },
+  "operator_id": "ccb7b1b0-56e1-4543-9e95-3f284bed3943",
+  "registration_recommendation": "REGISTER_D3DE_AS_DISTINCT_CONFIRMED_OPERATION",
+  "relationship_verdict": "DISTINCT_OPERATIONS",
+  "role_graph_relationship": {
+    "classification": "RELATED_ROLE_GRAPH",
+    "reason": "Both are four-hop address-independent provision-to-creator patterns, but selected semantics and exact amounts differ materially."
+  },
+  "rpc": {
+    "calls": 0,
+    "reason": "No unresolved local evidence dimension is necessary to resolve duplicate-registration risk."
+  },
+  "safety": {
+    "fingerprint_mutation": false,
+    "operation_registration": false,
+    "operator_mutation": false,
+    "queue_replay": false,
+    "tier_membership_mutation": false,
+    "trading_signal": false
+  },
+  "schema_version": "P3R_V2_D3DE_VS_P3R_13A04_FORENSIC_COMPARISON.v1",
+  "temporal_relationship": {
+    "classification": "INSUFFICIENT",
+    "reason": "No retained historical 13A04 member timestamps survive; d3de operated across five days in the frozen census."
+  },
+  "workflow": {
+    "next_action": "Manual registration decision for d3de as a separate confirmed operation; do not alter P3R_13A04.",
+    "provenance": "CANONICAL_TIER1_REFERENCE",
+    "relationship_verdict": "DISTINCT_OPERATIONS",
+    "workflow_status": "READY_FOR_CONFIRMED_REGISTRATION"
+  }
+}

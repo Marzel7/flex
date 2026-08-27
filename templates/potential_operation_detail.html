@@ -5,16 +5,169 @@
 .pod{max-width:1280px}.pod a{color:var(--ip-cyan)}.pod-head{margin:12px 0 16px}.pod-head h1{font-size:22px;margin:5px 0}.pod-id,.pod-note,.empty{color:var(--ip-dim);font:11px ui-monospace,monospace}.pod-strip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border:1px solid var(--ip-border);border-radius:7px;background:var(--ip-card);margin-bottom:16px}.metric{padding:12px;border-right:1px solid var(--ip-border)}.metric:last-child{border:0}.metric b{display:block;font-size:17px}.metric small{color:var(--ip-dim);font-size:9px}.pill{display:inline-block;border:1px solid #38bdf8;color:#38bdf8;border-radius:12px;padding:3px 7px;font:10px ui-monospace,monospace}.pill.provisional{color:#fbbf24;border-color:#f59e0b}.tabs{display:flex;gap:20px;border-bottom:1px solid var(--ip-border);margin:18px 0}.tabs button{border:0;background:none;color:var(--ip-dim);padding:9px 1px;font:700 11px ui-monospace,monospace;cursor:pointer}.tabs button.on{color:#38bdf8;border-bottom:2px solid #38bdf8}.panel{display:none}.panel.on{display:block}.card{border:1px solid var(--ip-border);border-radius:7px;background:var(--ip-card);padding:14px;margin:12px 0}.facts{display:grid;grid-template-columns:180px 1fr;gap:8px;font-size:12px}.facts dt{color:var(--ip-dim)}.members{width:100%;border-collapse:collapse;font-size:11px}.members th,.members td{padding:9px 6px;border-bottom:1px solid var(--ip-border);text-align:left;vertical-align:top}.members th{color:var(--ip-dim);font-size:9px}.members code{font-size:10px}.status{color:#fbbf24}.warning{border-left:3px solid #f59e0b;padding-left:10px;color:var(--ip-dim);font-size:11px}.launch-row{display:grid;grid-template-columns:minmax(0,1fr) 190px;gap:18px;padding:12px 0;border-bottom:1px solid var(--ip-border)}.launch-route{font:12px ui-monospace,monospace;line-height:1.6}.launch-label{color:var(--ip-dim);font-size:10px}.launch-meta{text-align:right;font:700 10px ui-monospace,monospace}.launch-meta .mechanism{color:#9aadc0}.launch-meta .date{color:var(--ip-dim);font-weight:400}.launch-meta .funding{color:#42e879;display:block;margin-top:5px}.launch-hidden{display:none}.launch-more{display:inline-block;margin-top:12px;color:#42e879!important;font-weight:700;font-size:11px;cursor:pointer;background:none;border:0;padding:0}@media(max-width:800px){.pod-strip{grid-template-columns:repeat(2,1fr)}.metric:nth-child(2){border-right:0}.facts{grid-template-columns:1fr}.hide-sm{display:none}.members{font-size:10px}.launch-row{grid-template-columns:1fr}.launch-meta{text-align:left}}
 {% endblock %}
 {% block content %}
-<main class="ip-page pod"><div class="ip-breadcrumb"><a href="/ops-os">Mission Control</a><span class="sep">›</span><a href="/intelligence/potential-operations">Potential Operations</a><span class="sep">›</span><span>{{ candidate.proposed_name or candidate.candidate_id }}</span></div>
-<header class="pod-head"><span class="pill {% if candidate.workflow_status == 'ACTIVE_PROVISIONAL' %}provisional{% endif %}">{{ candidate.workflow_status|replace('_',' ') }}</span><h1>{{ candidate.proposed_name or candidate.candidate_id }}</h1><div class="pod-id">{{ candidate.candidate_id }} · frozen canonical run {{ candidate.canonical_run_id }}</div></header>
-<section class="pod-strip"><div class="metric"><b>T{{ candidate.canonical_tier[8] }}</b><small>Frozen canonical tier</small></div><div class="metric"><b>{{ candidate.canonical_member_count }}</b><small>Frozen canonical members</small></div><div class="metric"><b>{{ candidate.current_evidence.matches }}</b><small>Current census matches</small></div><div class="metric"><b>{{ candidate.current_evidence.metrics.last_1d }} / {{ candidate.current_evidence.metrics.last_7d }} / {{ candidate.current_evidence.metrics.last_30d }}</b><small>Current: 24h / 7d / 30d</small></div><div class="metric"><b>{{ candidate.current_evidence.state }} · {{ candidate.current_evidence.attention }}</b><small>Current evidence / attention</small></div></section>
-{% if candidate.related_operator_id %}<p class="warning">This candidate is linked to the <a href="/intelligence/operator/{{ candidate.related_operator_id }}">active provisional operation</a>. Its canonical members are review evidence, not confirmed operation memberships.</p>{% endif %}
-<nav class="tabs"><button class="on" data-tab="summary">Summary</button><button data-tab="members">Members / Tokens</button><button data-tab="evidence">Evidence</button><button data-tab="analysis">Analysis</button><button data-tab="history">History</button><button data-tab="relationships">Relationships</button></nav>
-<section class="panel on" id="summary"><div class="card"><h2>Operational candidate</h2><dl class="facts"><dt>Parent mechanism</dt><dd>{{ candidate.parent_mechanism or 'Not yet assigned' }}</dd><dt>Frozen fingerprint</dt><dd>{{ candidate.fingerprint.kind or 'Retained selected-edge fingerprint' }}{% for edge in candidate.fingerprint.edges or [] %}: hop {{ edge.hop_depth }}, {{ edge.mechanism }}, {{ edge.amount_lamports }} lamports{% endfor %}</dd><dt>Latest verdict</dt><dd>{{ candidate.latest_verdict }}</dd><dt>Principal evidence gap</dt><dd>{{ candidate.principal_gap }}</dd><dt>Next action</dt><dd>{{ candidate.next_action }}</dd></dl></div>{% if candidate.children %}<div class="card"><h2>Operation-discovery decomposition</h2><p class="pod-note">Canonical P3R family remains {{ candidate.canonical_member_count }} members. These are review-only analytical children, not canonical-family replacements.</p>{% for child in candidate.children %}<div class="launch-row"><div class="launch-route">{% if child.child_id == 'P3R_063E_BYZC_CURRENT' %}<a href="/intelligence/operator/d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334"><strong>{{ child.proposed_name }}</strong></a>{% else %}<strong>{{ child.proposed_name }}</strong>{% endif %}<div class="launch-label">{{ child.child_id }}</div></div><div class="launch-meta"><div class="mechanism">{{ child.workflow_status|replace('_',' ') }}</div><div class="date">{{ child.member_count }} frozen members</div></div></div>{% endfor %}</div>{% endif %}<div class="card"><h2>Recent Launches</h2><p class="pod-note">Frozen canonical members, newest first.</p>{% for member in candidate.members %}<div class="launch-row {% if loop.index > 3 %}launch-hidden{% endif %}" data-launch-row><div class="launch-route"><a href="https://solscan.io/account/{{ member.parent }}" target="_blank" rel="noopener">{{ member.parent_short }}</a> → <a href="https://solscan.io/account/{{ member.creator }}" target="_blank" rel="noopener">{{ member.creator_short }}</a> → <a href="https://solscan.io/token/{{ member.mint }}" target="_blank" rel="noopener">{{ member.mint_short }}</a><div class="launch-label">Observed funding path</div></div><div class="launch-meta"><div class="mechanism">{{ member.mechanism or 'RETAINED ROUTE UNAVAILABLE' }}</div><div class="date">{{ member.observed_at_display or 'Date unavailable' }}</div>{% if member.signature %}<a class="funding" href="https://solscan.io/tx/{{ member.signature }}" target="_blank" rel="noopener">Funding Tx {{ member.signature_short }} ↗</a>{% endif %}</div></div>{% endfor %}{% if candidate.members|length > 3 %}<button class="launch-more" id="launch-more">View all {{ candidate.canonical_member_count }} launches →</button>{% endif %}</div></section>
-<section class="panel" id="members"><div class="card"><h2>Members / Tokens</h2><p class="pod-note">Frozen canonical membership: {{ candidate.canonical_member_count }} mints. This is not an operation membership ledger.</p><table class="members"><thead><tr><th>Mint</th><th>Creator</th><th>Direct funder / parent</th><th class="hide-sm">Retained mechanism</th><th>Evidence</th></tr></thead><tbody>{% for member in candidate.members %}<tr><td><a href="https://solscan.io/token/{{ member.mint }}" target="_blank" rel="noopener"><code>{{ member.mint_short }}</code></a></td><td>{% if member.creator %}<a href="https://solscan.io/account/{{ member.creator }}" target="_blank" rel="noopener"><code>{{ member.creator_short }}</code></a>{% else %}—{% endif %}</td><td>{% if member.parent %}<a href="https://solscan.io/account/{{ member.parent }}" target="_blank" rel="noopener"><code>{{ member.parent_short }}</code></a>{% else %}—{% endif %}</td><td class="hide-sm">{{ member.mechanism or 'Unavailable' }}{% if member.amount_lamports is not none %}<br><span class="pod-note">{{ member.amount_lamports }} lamports</span>{% endif %}</td><td>{% if member.signature %}<a href="https://solscan.io/tx/{{ member.signature }}" target="_blank" rel="noopener">Funding tx ↗</a>{% else %}<span class="empty">No retained selected edge</span>{% endif %}</td></tr>{% endfor %}</tbody></table></div></section>
-<section class="panel" id="evidence"><div class="card"><h2>Retained Evidence</h2><dl class="facts"><dt>Base recurrence</dt><dd>{{ 'Strong' if candidate.evidence.base_strong else 'Not proven' }}</dd><dt>Alternative recurrence</dt><dd>{{ candidate.evidence.alternative_recurrence }} · coverage {{ '%.0f'|format((candidate.evidence.alternative_coverage or 0)*100) }}%</dd><dt>Atomic recurrence</dt><dd>{{ candidate.evidence.atomic_recurrence }} · coverage {{ '%.0f'|format((candidate.evidence.atomic_coverage or 0)*100) }}%</dd><dt>Address blind</dt><dd>{{ 'Proven' if candidate.evidence.address_blind else 'Not proven' }}</dd>{% if candidate.forensic %}<dt>Exact selected recurrence</dt><dd>{{ candidate.forensic.selected_mechanism.exact_10_sol_minus_15k_coverage * 100 }}% · hop-1 WSOL_WRAP_CLOSE · 9,999,985,000 lamports</dd><dt>Dominant atomic lifecycle</dt><dd>{{ candidate.forensic.atomic_decomposition.dominant.sequence|join(' → ') }} · {{ '%.1f'|format(candidate.forensic.atomic_decomposition.dominant.coverage * 100) }}% coverage</dd><dt>Funder concentration</dt><dd>Top 1 {{ '%.1f'|format(candidate.forensic.funder_infrastructure.top_1_concentration * 100) }}% · {{ candidate.forensic.funder_infrastructure.classification }}</dd>{% endif %}</dl></div></section>
-<section class="panel" id="analysis"><div class="card"><h2>Analysis</h2>{% if candidate.forensic %}<dl class="facts"><dt>Forensic verdict</dt><dd>{{ candidate.forensic.forensic_verdict }}</dd><dt>Hierarchy</dt><dd>{{ candidate.forensic.hierarchy_verdict }}</dd><dt>Behaviour-only detector</dt><dd>{{ candidate.forensic.detectors.H0_behaviour_only.TP }} TP / {{ candidate.forensic.detectors.H0_behaviour_only.FP }} FP / {{ candidate.forensic.detectors.H0_behaviour_only.FN }} FN · {{ '%.1f'|format(candidate.forensic.detectors.H0_behaviour_only.precision * 100) }}% precision</dd><dt>Hybrid detector</dt><dd>{{ candidate.forensic.detectors.H1_behaviour_recurrent_funder.TP }} TP / {{ candidate.forensic.detectors.H1_behaviour_recurrent_funder.FP }} FP / {{ candidate.forensic.detectors.H1_behaviour_recurrent_funder.FN }} FN · {{ '%.1f'|format(candidate.forensic.detectors.H1_behaviour_recurrent_funder.precision * 100) }}% precision</dd><dt>Next decision</dt><dd>{{ candidate.forensic.next_decision }}</dd></dl>{% else %}<p>{{ candidate.latest_verdict }}</p>{% endif %}<p class="pod-note">The page does not infer new relationships from missing rows. Review the frozen fingerprint and retained evidence before changing status.</p></div></section>
-<section class="panel" id="history"><div class="card"><h2>History</h2><p>Imported from the frozen canonical v2 run <code>{{ candidate.canonical_run_id }}</code> into the review-only workflow queue.</p><p class="pod-note">No candidate tier, canonical membership, classifier, or operation status is changed here.</p></div></section>
-<section class="panel" id="relationships"><div class="card"><h2>Relationships</h2>{% if candidate.related_operator_id %}<p><a href="/intelligence/operator/{{ candidate.related_operator_id }}">Linked provisional operation →</a></p>{% else %}<p class="empty">No registered operation relationship. This candidate remains review-only.</p>{% endif %}</div></section>
-</main><script>document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.remove('on'));document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));b.classList.add('on');document.getElementById(b.dataset.tab).classList.add('on')});const more=document.querySelector('#launch-more');if(more)more.onclick=()=>{const hidden=[...document.querySelectorAll('.launch-hidden')],open=hidden.some(x=>getComputedStyle(x).display==='none');hidden.forEach(x=>x.style.display=open?'grid':'none');more.textContent=open?'Collapse launches ↑':'View all {{ candidate.canonical_member_count }} launches →'};</script>
+<main class="ip-page pod">
+<div class="ip-breadcrumb">
+<a href="/ops-os">Mission Control</a>
+<span class="sep">›</span>
+<a href="/intelligence/potential-operations">Potential Operations</a>
+<span class="sep">›</span>
+<span>{{ candidate.proposed_name or candidate.candidate_id }}</span>
+</div>
+<header class="pod-head">
+<span class="pill {% if candidate.workflow_status == 'ACTIVE_PROVISIONAL' %}provisional{% endif %}">{{ candidate.workflow_status|replace('_',' ') }}</span>
+<h1>{{ candidate.proposed_name or candidate.candidate_id }}</h1>
+<div class="pod-id">{{ candidate.candidate_id }} · frozen canonical run {{ candidate.canonical_run_id }}</div>
+</header>
+<section class="pod-strip">
+<div class="metric">
+<b>{{ candidate.discovery_label|default('Frozen discovery') }}</b>
+<small>Discovery provenance</small>
+</div>
+<div class="metric">
+<b>{{ candidate.canonical_member_count }}</b>
+<small>Frozen canonical members</small>
+</div>
+<div class="metric">
+<b>{{ candidate.current_evidence.matches }}</b>
+<small>Current census matches</small>
+</div>
+<div class="metric">
+<b>{{ candidate.current_evidence.metrics.last_1d }} / {{ candidate.current_evidence.metrics.last_7d }} / {{ candidate.current_evidence.metrics.last_30d }}</b>
+<small>Current: 24h / 7d / 30d</small>
+</div>
+<div class="metric">
+<b>{{ candidate.current_evidence.state }} · {{ candidate.current_evidence.attention }}</b>
+<small>Current evidence / attention</small>
+</div>
+</section>
+{% if candidate.related_operator_id %}<p class="warning">This candidate is related to the <a href="/intelligence/operator/{{ candidate.related_operator_id }}">active Confirmed operation</a>. Its observations are Potential evidence, not Confirmed operation memberships.</p>{% endif %}
+<nav class="tabs">
+<button class="on" data-tab="summary">Summary</button>
+<button data-tab="members">Members / Tokens</button>
+<button data-tab="evidence">Evidence</button>
+<button data-tab="analysis">Analysis</button>
+<button data-tab="history">History</button>
+<button data-tab="relationships">Relationships</button>
+</nav>
+<section class="panel on" id="summary">
+<div class="card">
+<h2>Operational candidate</h2>
+<dl class="facts">
+<dt>Parent mechanism</dt>
+<dd>{{ candidate.parent_mechanism or 'Not yet assigned' }}</dd>
+<dt>Frozen fingerprint</dt>
+<dd>{{ candidate.fingerprint.kind or 'Retained selected-edge fingerprint' }}{% for edge in candidate.fingerprint.edges or [] %}: hop {{ edge.hop_depth }}, {{ edge.mechanism }}, {{ edge.amount_lamports }} lamports{% endfor %}</dd>
+<dt>Latest verdict</dt>
+<dd>{{ candidate.latest_verdict }}</dd>
+<dt>Principal evidence gap</dt>
+<dd>{{ candidate.principal_gap }}</dd>
+<dt>Next action</dt>
+<dd>{{ candidate.next_action }}</dd>
+</dl>
+</div>{% if candidate.children %}<div class="card">
+<h2>Operation-discovery decomposition</h2>
+<p class="pod-note">Canonical P3R family remains {{ candidate.canonical_member_count }} members. These are review-only analytical children, not canonical-family replacements.</p>{% for child in candidate.children %}<div class="launch-row">
+<div class="launch-route">{% if child.child_id == 'P3R_063E_BYZC_CURRENT' %}<a href="/intelligence/operator/d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334">
+<strong>{{ child.proposed_name }}</strong>
+</a>{% else %}<strong>{{ child.proposed_name }}</strong>{% endif %}<div class="launch-label">{{ child.child_id }}</div>
+</div>
+<div class="launch-meta">
+<div class="mechanism">{{ child.workflow_status|replace('_',' ') }}</div>
+<div class="date">{{ child.member_count }} frozen members</div>
+</div>
+</div>{% endfor %}</div>{% endif %}<div class="card">
+<h2>Recent Launches</h2>
+<p class="pod-note">Frozen canonical members, newest first.</p>{% for member in candidate.members %}<div class="launch-row {% if loop.index > 3 %}launch-hidden{% endif %}" data-launch-row>
+<div class="launch-route">
+<a href="https://solscan.io/account/{{ member.parent }}" target="_blank" rel="noopener">{{ member.parent_short }}</a> → <a href="https://solscan.io/account/{{ member.creator }}" target="_blank" rel="noopener">{{ member.creator_short }}</a> → <a href="https://solscan.io/token/{{ member.mint }}" target="_blank" rel="noopener">{{ member.mint_short }}</a>
+<div class="launch-label">Observed funding path</div>
+</div>
+<div class="launch-meta">
+<div class="mechanism">{{ member.mechanism or 'RETAINED ROUTE UNAVAILABLE' }}</div>
+<div class="date">{{ member.observed_at_display or 'Date unavailable' }}</div>{% if member.signature %}<a class="funding" href="https://solscan.io/tx/{{ member.signature }}" target="_blank" rel="noopener">Funding Tx {{ member.signature_short }} ↗</a>{% endif %}</div>
+</div>{% endfor %}{% if candidate.members|length > 3 %}<button class="launch-more" id="launch-more">View all {{ candidate.canonical_member_count }} launches →</button>{% endif %}</div>
+</section>
+<section class="panel" id="members">
+<div class="card">
+<h2>Members / Tokens</h2>
+<p class="pod-note">Frozen canonical membership: {{ candidate.canonical_member_count }} mints. This is not an operation membership ledger.</p>
+<table class="members">
+<thead>
+<tr>
+<th>Mint</th>
+<th>Creator</th>
+<th>Direct funder / parent</th>
+<th class="hide-sm">Retained mechanism</th>
+<th>Evidence</th>
+</tr>
+</thead>
+<tbody>{% for member in candidate.members %}<tr>
+<td>
+<a href="https://solscan.io/token/{{ member.mint }}" target="_blank" rel="noopener">
+<code>{{ member.mint_short }}</code>
+</a>
+</td>
+<td>{% if member.creator %}<a href="https://solscan.io/account/{{ member.creator }}" target="_blank" rel="noopener">
+<code>{{ member.creator_short }}</code>
+</a>{% else %}—{% endif %}</td>
+<td>{% if member.parent %}<a href="https://solscan.io/account/{{ member.parent }}" target="_blank" rel="noopener">
+<code>{{ member.parent_short }}</code>
+</a>{% else %}—{% endif %}</td>
+<td class="hide-sm">{{ member.mechanism or 'Unavailable' }}{% if member.amount_lamports is not none %}<br>
+<span class="pod-note">{{ member.amount_lamports }} lamports</span>{% endif %}</td>
+<td>{% if member.signature %}<a href="https://solscan.io/tx/{{ member.signature }}" target="_blank" rel="noopener">Funding tx ↗</a>{% else %}<span class="empty">No retained selected edge</span>{% endif %}</td>
+</tr>{% endfor %}</tbody>
+</table>
+</div>
+</section>
+<section class="panel" id="evidence">
+<div class="card">
+<h2>Retained Evidence</h2>
+<dl class="facts">
+<dt>Base recurrence</dt>
+<dd>{{ 'Strong' if candidate.evidence.base_strong else 'Not proven' }}</dd>
+<dt>Alternative recurrence</dt>
+<dd>{{ candidate.evidence.alternative_recurrence }} · coverage {{ '%.0f'|format((candidate.evidence.alternative_coverage or 0)*100) }}%</dd>
+<dt>Atomic recurrence</dt>
+<dd>{{ candidate.evidence.atomic_recurrence }} · coverage {{ '%.0f'|format((candidate.evidence.atomic_coverage or 0)*100) }}%</dd>
+<dt>Address blind</dt>
+<dd>{{ 'Proven' if candidate.evidence.address_blind else 'Not proven' }}</dd>{% if candidate.forensic %}<dt>Exact selected recurrence</dt>
+<dd>{{ candidate.forensic.selected_mechanism.exact_10_sol_minus_15k_coverage * 100 }}% · hop-1 WSOL_WRAP_CLOSE · 9,999,985,000 lamports</dd>
+<dt>Dominant atomic lifecycle</dt>
+<dd>{{ candidate.forensic.atomic_decomposition.dominant.sequence|join(' → ') }} · {{ '%.1f'|format(candidate.forensic.atomic_decomposition.dominant.coverage * 100) }}% coverage</dd>
+<dt>Funder concentration</dt>
+<dd>Top 1 {{ '%.1f'|format(candidate.forensic.funder_infrastructure.top_1_concentration * 100) }}% · {{ candidate.forensic.funder_infrastructure.classification }}</dd>{% endif %}</dl>
+</div>
+</section>
+<section class="panel" id="analysis">
+<div class="card">
+<h2>Analysis</h2>{% if candidate.forensic %}<dl class="facts">
+<dt>Forensic verdict</dt>
+<dd>{{ candidate.forensic.forensic_verdict }}</dd>
+<dt>Hierarchy</dt>
+<dd>{{ candidate.forensic.hierarchy_verdict }}</dd>
+<dt>Behaviour-only detector</dt>
+<dd>{{ candidate.forensic.detectors.H0_behaviour_only.TP }} TP / {{ candidate.forensic.detectors.H0_behaviour_only.FP }} FP / {{ candidate.forensic.detectors.H0_behaviour_only.FN }} FN · {{ '%.1f'|format(candidate.forensic.detectors.H0_behaviour_only.precision * 100) }}% precision</dd>
+<dt>Hybrid detector</dt>
+<dd>{{ candidate.forensic.detectors.H1_behaviour_recurrent_funder.TP }} TP / {{ candidate.forensic.detectors.H1_behaviour_recurrent_funder.FP }} FP / {{ candidate.forensic.detectors.H1_behaviour_recurrent_funder.FN }} FN · {{ '%.1f'|format(candidate.forensic.detectors.H1_behaviour_recurrent_funder.precision * 100) }}% precision</dd>
+<dt>Next decision</dt>
+<dd>{{ candidate.forensic.next_decision }}</dd>
+</dl>{% else %}<p>{{ candidate.latest_verdict }}</p>{% endif %}<p class="pod-note">The page does not infer new relationships from missing rows. Review the frozen fingerprint and retained evidence before changing status.</p>
+</div>
+</section>
+<section class="panel" id="history">
+<div class="card">
+<h2>History</h2>
+<p>Imported from the frozen canonical v2 run <code>{{ candidate.canonical_run_id }}</code> into the review-only workflow queue.</p>
+<p class="pod-note">No candidate tier, canonical membership, classifier, or operation status is changed here.</p>
+</div>
+</section>
+<section class="panel" id="relationships">
+<div class="card">
+<h2>Relationships</h2>{% if candidate.related_operator_id %}<p>
+<a href="/intelligence/operator/{{ candidate.related_operator_id }}">Linked provisional operation →</a>
+</p>{% else %}<p class="empty">No registered operation relationship. This candidate remains review-only.</p>{% endif %}</div>
+</section>
+</main>
+<script>document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.remove('on'));document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));b.classList.add('on');document.getElementById(b.dataset.tab).classList.add('on')});const more=document.querySelector('#launch-more');if(more)more.onclick=()=>{const hidden=[...document.querySelectorAll('.launch-hidden')],open=hidden.some(x=>getComputedStyle(x).display==='none');hidden.forEach(x=>x.style.display=open?'grid':'none');more.textContent=open?'Collapse launches ↑':'View all {{ candidate.canonical_member_count }} launches →'};</script>
 {% endblock %}

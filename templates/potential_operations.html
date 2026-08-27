@@ -1,3 +1,67 @@
 {% extends "base_shell.html" %}
 {% block title %}Potential Operations{% endblock %}
-{% block content %}<main class="ip-page"><div class="ip-breadcrumb"><a href="/ops-os">Mission Control</a> › Potential Operations</div><header class="ip-header"><div class="ip-title-row"><h1 class="ip-title">Potential Operations</h1><span class="ip-ts">Actionable view</span></div><div class="ip-subtitle">Unresolved operational fingerprints and mutation candidates requiring investigation.</div><small>Discovery provenance: original WATCH_NOW cohort 61 · frozen v3 ranking retained. Current evidence: Current Queue Census · high-water 35620.</small></header><div class="ip-strip"><div class="ip-metric"><div class="ip-metric-val">{{ rows|length }}</div><div class="ip-metric-label">Actionable Potentials</div></div><div class="ip-metric"><div class="ip-metric-val">{{ rows|selectattr('workflow_status','equalto','QUEUED')|list|length }}</div><div class="ip-metric-label">Queued</div></div><div class="ip-metric"><div class="ip-metric-val">{{ rows|selectattr('workflow_status','equalto','ACTIVE_PROVISIONAL')|list|length }}</div><div class="ip-metric-label">Provisional</div></div><div class="ip-metric"><div class="ip-metric-val">0</div><div class="ip-metric-label">Mutation / Successor Watch</div></div></div>{% set next = rows|selectattr('workflow_status','equalto','QUEUED')|sort(attribute='current_evidence.attention_rank',reverse=true)|first %}{% if next %}<section class="ip-card"><small>NEXT TO INVESTIGATE · CURRENT ATTENTION {{ next.current_evidence.attention }}</small><h2><a href="/intelligence/potential-operations/{{ next.candidate_id }}">{{ next.proposed_name or next.candidate_id }}</a></h2><small>{{ next.candidate_id }} · Discovery priority {{ '%.2f'|format(next.priority_score) }}</small><p>{{ next.current_evidence.reason }} {{ next.next_action }}</p></section>{% endif %}<h2>Actionable unresolved candidates</h2><table class="ip-table"><thead><tr><th>Candidate</th><th>Workflow</th><th>Current evidence</th><th>Relationship</th><th>Mechanism</th><th>Discovery</th><th>Next action</th></tr></thead><tbody>{% for r in rows %}{% set c=r.current_evidence %}<tr><td><a href="/intelligence/potential-operations/{{ r.candidate_id }}">{{ r.proposed_name or r.candidate_id }}</a><br><small>{{ r.candidate_id }}</small></td><td>{{ r.workflow_status|replace('_',' ') }}</td><td>{{ c.matches }} · {{ c.metrics.last_1d|default(0) }} / {{ c.metrics.last_7d|default(0) }} / {{ c.metrics.last_30d|default(0) }}<br><small>{{ c.state }} · Attention {{ c.attention }}</small></td><td>{% if r.related_operator_id %}Related operation{% else %}Unresolved{% endif %}</td><td>{{ r.parent_mechanism or r.key_mechanism }}</td><td>T{{ r.canonical_tier[8] }} · {{ '%.2f'|format(r.priority_score) }}</td><td>{{ r.next_action }}</td></tr>{% endfor %}</tbody></table></main>{% endblock %}
+{% block content %}<main class="ip-page">
+<div class="ip-breadcrumb">
+<a href="/ops-os">Mission Control</a> › Potential Operations</div>
+<header class="ip-header">
+<div class="ip-title-row">
+<h1 class="ip-title">Potential Operations</h1>
+<span class="ip-ts">Actionable view</span>
+</div>
+<div class="ip-subtitle">Unresolved operational fingerprints and mutation candidates requiring investigation.</div>
+<small>Discovery provenance: original WATCH_NOW cohort 61 · frozen v3 ranking retained. Current evidence: Current Queue Census · high-water 35620.</small>
+</header>
+<div class="ip-strip">
+<div class="ip-metric">
+<div class="ip-metric-val">{{ rows|length }}</div>
+<div class="ip-metric-label">Actionable Potentials</div>
+</div>
+<div class="ip-metric">
+<div class="ip-metric-val">{{ rows|selectattr('workflow_status','equalto','QUEUED')|list|length }}</div>
+<div class="ip-metric-label">Queued</div>
+</div>
+<div class="ip-metric">
+<div class="ip-metric-val">{{ rows|selectattr('workflow_status','equalto','ACTIVE_PROVISIONAL')|list|length }}</div>
+<div class="ip-metric-label">Provisional</div>
+</div>
+<div class="ip-metric">
+{% set evolution = rows|selectattr('latest_verdict','in',['POTENTIAL_VARIANT_OF_SENTINEL','POTENTIAL_MUTATION_OF_SENTINEL','POTENTIAL_SUCCESSOR_TO_SENTINEL'])|list %}<div class="ip-metric-val">{{ evolution|length }}</div>
+<div class="ip-metric-label">Admitted Evolution Candidates</div>
+</div>
+</div>{% set next = rows|selectattr('workflow_status','equalto','QUEUED')|sort(attribute='current_evidence.attention_rank',reverse=true)|first %}{% if next %}<section class="ip-card">
+<small>NEXT TO INVESTIGATE · CURRENT ATTENTION {{ next.current_evidence.attention }}</small>
+<h2>
+<a href="/intelligence/potential-operations/{{ next.candidate_id }}">{{ next.proposed_name or next.candidate_id }}</a>
+</h2>
+<small>{{ next.candidate_id }} · {{ next.discovery_label }}</small>
+<p>{{ next.current_evidence.reason }} {{ next.next_action }}</p>
+</section>{% endif %}<h2>Actionable unresolved candidates</h2>
+<table class="ip-table">
+<thead>
+<tr>
+<th>Candidate</th>
+<th>Workflow</th>
+<th>Current evidence</th>
+<th>Relationship</th>
+<th>Mechanism</th>
+<th>Discovery</th>
+<th>Next action</th>
+</tr>
+</thead>
+<tbody>{% for r in rows %}{% set c=r.current_evidence %}<tr>
+<td>
+<a href="/intelligence/potential-operations/{{ r.candidate_id }}">{{ r.proposed_name or r.candidate_id }}</a>
+<br>
+<small>{{ r.candidate_id }}</small>
+</td>
+<td>{{ r.workflow_status|replace('_',' ') }}</td>
+<td>{{ c.matches }} · {{ c.metrics.last_1d|default(0) }} / {{ c.metrics.last_7d|default(0) }} / {{ c.metrics.last_30d|default(0) }}<br>
+<small>{{ c.state }} · Attention {{ c.attention }}</small>
+</td>
+<td>{% if r.latest_verdict == 'POTENTIAL_VARIANT_OF_SENTINEL' %}Potential variant of Sentinel{% elif r.related_operator_id %}Related operation{% else %}Unresolved{% endif %}</td>
+<td>{{ r.parent_mechanism or r.key_mechanism }}</td>
+<td>{{ r.discovery_label }}</td>
+<td>{{ r.next_action }}</td>
+</tr>{% endfor %}</tbody>
+</table>
+</main>{% endblock %}

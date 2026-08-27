@@ -13,10 +13,20 @@ DECOMPOSED_063E_PARENT="p3r-v2-063e24a2def354f23ec5"
 LEGACY_063E_CHILD="P3R_063E_B65C_LEGACY"
 CONFIRMED_063E_OPERATOR="d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334"
 CENSUS_RECONCILIATION=Path(__file__).resolve().parents[2]/"docs/audits/potential_operations_current_census_reconciliation.v1.json"
+SENTINEL_EVOLUTION_ADMISSIONS=Path(__file__).resolve().parents[2]/"docs/audits/sentinel_evolution_cluster_admission.v1.json"
 
 def _current_census_evidence() -> dict:
     try:
-        return json.loads(CENSUS_RECONCILIATION.read_text()).get("candidate_evidence", {})
+        evidence=json.loads(CENSUS_RECONCILIATION.read_text()).get("candidate_evidence", {})
+        for item in _sentinel_evolution_admissions().values():
+            evidence[item["candidate_id"]]={"candidate_id":item["candidate_id"],"matches":item["observation_count"],"metrics":item["metrics"],"current_evidence_state":"RECURRING"}
+        return evidence
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+def _sentinel_evolution_admissions() -> dict:
+    try:
+        return {item["candidate_id"]:item for item in json.loads(SENTINEL_EVOLUTION_ADMISSIONS.read_text()).get("admitted_candidates", [])}
     except (OSError, json.JSONDecodeError):
         return {}
 
@@ -30,6 +40,9 @@ def _attach_current_evidence(row: dict, evidence: dict) -> dict:
     attention={"HOT":"HIGH","ACTIVE":"HIGH","RECURRING":"MEDIUM","QUIET":"LOW"}.get(state,"LOW")
     row["current_evidence"]={"state":state,"matches":current.get("matches",0),"metrics":metrics,"attention":attention,"attention_rank":{"HIGH":3,"MEDIUM":2,"LOW":1}.get(attention,0),"reason":f"{metrics.get('last_1d',0)} / {metrics.get('last_7d',0)} / {metrics.get('last_30d',0)} current census activity; {state.lower().replace('_',' ')} fingerprint."}
     return row
+
+def _discovery_label(row: dict) -> str:
+    return "Current census" if row.get("canonical_tier") == "CURRENT_CENSUS" else f"T{row['canonical_tier'][8]} · {row['priority_score']:.2f}"
 
 DDL="""CREATE TABLE IF NOT EXISTS potential_operation_workflows(
 candidate_id TEXT PRIMARY KEY, canonical_run_id TEXT NOT NULL, canonical_tier TEXT NOT NULL, priority_rank INTEGER NOT NULL, operational_likeness REAL NOT NULL, activity_score REAL NOT NULL, priority_score REAL NOT NULL, workflow_status TEXT NOT NULL, proposed_name TEXT, parent_mechanism TEXT, latest_verdict TEXT, principal_gap TEXT, next_action TEXT, rpc_requirement TEXT, related_operator_id TEXT, last_investigated_at INTEGER, provenance_json TEXT NOT NULL, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL);"""
@@ -111,12 +124,14 @@ def rows(db_path: str) -> list[dict]:
                 continue
             if x.get("workflow_status") in {"PROMOTED_CONFIRMED", "CLOSED", "EXACT_CONFIRMED_OPERATION_MATCH"}:
                 continue
+            x["discovery_label"]=_discovery_label(x)
             out.append(_attach_current_evidence(x,census_evidence))
         child_table=conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='potential_operation_child_candidates'").fetchone()
         child=conn.execute("SELECT workflow_status,proposed_name,member_mints_json,provenance_json FROM potential_operation_child_candidates WHERE child_id=?",(LEGACY_063E_CHILD,)).fetchone() if child_table else None
         if parent and child and child["workflow_status"] == "PAUSED_LEGACY":
             legacy=dict(parent)
             legacy.update({"candidate_id":LEGACY_063E_CHILD,"workflow_status":"PAUSED_LEGACY","proposed_name":child["proposed_name"],"parent_mechanism":"WSOL_WRAP_CLOSE","latest_verdict":"Historical seeded-transfer 10-SOL provision-and-close candidate.","principal_gap":"Historical cohort is paused; no current recurrence.","next_action":"Monitor historical/retained evidence for additional seeded-transfer operation matches.","rpc_requirement":"NOT_CURRENTLY","related_operator_id":None,"key_mechanism":"hop-1 WSOL_WRAP_CLOSE 9,999,985,000 lamports; seeded transfer lifecycle","launches_24h":0,"launches_7d":0,"launches_30d":0,"legacy_member_count":len(json.loads(child["member_mints_json"])),"parent_candidate_id":DECOMPOSED_063E_PARENT,"provenance":json.loads(child["provenance_json"])})
+            legacy["discovery_label"]=_discovery_label(legacy)
             out.append(_attach_current_evidence(legacy,census_evidence))
         out.sort(key=lambda row:(row["priority_rank"],row["candidate_id"]))
         return out
@@ -154,6 +169,13 @@ def detail(db_path: str, candidate_id: str) -> dict | None:
         return None
     if candidate_id == LEGACY_063E_CHILD:
         return _legacy_063e_detail(db_path, candidate)
+    evolution=_sentinel_evolution_admissions().get(candidate_id)
+    if evolution:
+        candidate.update({"canonical_member_count":evolution["observation_count"],"members":[],"evidence":{},"fingerprint":{"kind":"CURRENT_CENSUS_SENTINEL_VARIANT","edges":[{"hop_depth":hop,"mechanism":mechanism,"amount_lamports":amount} for hop,mechanism,amount in evolution["observed_route"]]},"evolution":evolution,"discovery_label":"Current census"})
+        for member in evolution["members"]:
+            candidate["members"].append({"mint":member["mint"],"mint_short":_short(member["mint"]),"creator":member["creator"],"creator_short":_short(member["creator"]),"parent":member["direct_funder"],"parent_short":_short(member["direct_funder"]),"signature":None,"signature_short":"Retained evidence unavailable","observed_at":member["observed_at"],"observed_at_display":datetime.fromtimestamp(member["observed_at"],timezone.utc).strftime("%d %b %Y %H:%M UTC"),"amount_lamports":None,"mechanism":evolution["mechanism"],"hop_depth":None,"atomic":{}})
+        candidate["members"].sort(key=lambda member:member["observed_at"],reverse=True)
+        return candidate
     family = next((item for item in json.loads(MEMBERSHIP.read_text())["families"]
                    if item["candidate_id"] == candidate_id), None)
     if not family:

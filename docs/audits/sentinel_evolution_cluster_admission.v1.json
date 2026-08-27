@@ -1,0 +1,468 @@
+{
+  "admitted_candidates": [
+    {
+      "candidate_id": "p3r-v2-7a791b87d44687dbf407",
+      "changed_dimensions": [
+        "amount_vector"
+      ],
+      "cluster_id": "FOUR_STEP_30_SOL_14_479K_WSOL_LADDER:b59f41c22f605e9a",
+      "distinct_creators": 4,
+      "distinct_direct_funders": 4,
+      "existing_identity_overlap": {
+        "confirmed": false,
+        "existing_potential": false,
+        "provisional": false,
+        "same_family_only": true
+      },
+      "expected_route": [
+        [
+          1,
+          "PLAIN_XFER",
+          29999985000
+        ],
+        [
+          2,
+          "WSOL_WRAP_CLOSE",
+          29999990000
+        ],
+        [
+          3,
+          "WSOL_WRAP_CLOSE",
+          14479000
+        ],
+        [
+          4,
+          "WSOL_WRAP_CLOSE",
+          2074000
+        ]
+      ],
+      "infrastructure": "UNRESOLVED_CORROBORATION_ONLY",
+      "mechanism": "10 SOL four-step WSOL ladder",
+      "members": [
+        {
+          "creator": "xSXdzKt4xivJFU4KG5m4TbL8xnBJ9kHdfyD56doz7Xx",
+          "direct_funder": "ftaztfxGDimaMwEnk9oMefUQDvXwiZriReHVdCbF9kr",
+          "mint": "b7p23awz5jxLMuqyz8uSRDLd6fzVbiqaJ85cLMnpump",
+          "observed_at": 1786975910,
+          "route": [
+            [
+              1,
+              "PLAIN_XFER",
+              9999985000
+            ],
+            [
+              2,
+              "WSOL_WRAP_CLOSE",
+              9999990000
+            ],
+            [
+              3,
+              "WSOL_WRAP_CLOSE",
+              14479000
+            ],
+            [
+              4,
+              "WSOL_WRAP_CLOSE",
+              2074000
+            ]
+          ]
+        },
+        {
+          "creator": "6aqbdEMx2UMG3YixDxdij5hFEFSgmcKR7fjRGaoN7yoz",
+          "direct_funder": "2kbWLPYWUgc7EMmR4ZQLzN5rSMs8E4PK1rZ8J5NQL3Sk",
+          "mint": "LcMLcnoAd19RcJhwf4GrnFCse5JiVtoUUmCKDFFpump",
+          "observed_at": 1787175981,
+          "route": [
+            [
+              1,
+              "PLAIN_XFER",
+              9999985000
+            ],
+            [
+              2,
+              "WSOL_WRAP_CLOSE",
+              9999990000
+            ],
+            [
+              3,
+              "WSOL_WRAP_CLOSE",
+              14479000
+            ],
+            [
+              4,
+              "WSOL_WRAP_CLOSE",
+              2074000
+            ]
+          ]
+        },
+        {
+          "creator": "3jwpdat3ufKohbjyUxCAR2bLK2B17smsqvH8AWK9Tzj8",
+          "direct_funder": "F5WL5wJkHmMYmuXkUnaUC6d2naVZUo5v7WZkk6B8rLcf",
+          "mint": "To9VBMtMzck9eiLMFFeNrKi81mkCQv7SiFcRNZ1pump",
+          "observed_at": 1787269130,
+          "route": [
+            [
+              1,
+              "PLAIN_XFER",
+              9999985000
+            ],
+            [
+              2,
+              "WSOL_WRAP_CLOSE",
+              9999990000
+            ],
+            [
+              3,
+              "WSOL_WRAP_CLOSE",
+              14479000
+            ],
+            [
+              4,
+              "WSOL_WRAP_CLOSE",
+              2074000
+            ]
+          ]
+        },
+        {
+          "creator": "81315bNeLygNCpHDpK39MPXexBdGiDUPVt3rZvroZkio",
+          "direct_funder": "C6LeHVxZAtYsjKXHJGyiXtegH9c1wyCWgWTf88X6u8iB",
+          "mint": "w3WPpTyAYJWBynjAauA9C4wQ3LUeL3qZzu531sppump",
+          "observed_at": 1787299888,
+          "route": [
+            [
+              1,
+              "PLAIN_XFER",
+              9999985000
+            ],
+            [
+              2,
+              "WSOL_WRAP_CLOSE",
+              9999990000
+            ],
+            [
+              3,
+              "WSOL_WRAP_CLOSE",
+              14479000
+            ],
+            [
+              4,
+              "WSOL_WRAP_CLOSE",
+              2074000
+            ]
+          ]
+        }
+      ],
+      "metrics": {
+        "active_days": 4,
+        "activity_state": "REGULAR_ACTIVITY",
+        "first_observed": 1786975910,
+        "last_14d": 4,
+        "last_1d": 0,
+        "last_30d": 4,
+        "last_3d": 0,
+        "last_7d": 2,
+        "last_observed": 1787299888,
+        "max_rolling_24h": 2,
+        "median_inter_observation_gap_seconds": 93149,
+        "observations_per_active_day": 1.0,
+        "time_since_last": 564856,
+        "total_observations": 4
+      },
+      "name": "Potential variant of Sentinel \u00b7 10 SOL Ladder",
+      "next_action": "Review retained route and infrastructure evidence; do not create a detector or Confirmed membership.",
+      "observation_count": 4,
+      "observed_route": [
+        [
+          1,
+          "PLAIN_XFER",
+          9999985000
+        ],
+        [
+          2,
+          "WSOL_WRAP_CLOSE",
+          9999990000
+        ],
+        [
+          3,
+          "WSOL_WRAP_CLOSE",
+          14479000
+        ],
+        [
+          4,
+          "WSOL_WRAP_CLOSE",
+          2074000
+        ]
+      ],
+      "overlap_exact_sentinel_observations": 17,
+      "preserved_dimensions": [
+        "topology",
+        "semantic_sequence"
+      ],
+      "qualification": {
+        "distinct_creators": {
+          "observed": 4,
+          "pass": true,
+          "required": 2
+        },
+        "distinct_direct_funders": {
+          "observed": 4,
+          "pass": true,
+          "required": 2
+        },
+        "distinct_exact_fingerprint": {
+          "observed": true,
+          "pass": true,
+          "required": true
+        },
+        "existing_potential_deduplication": {
+          "observed": true,
+          "pass": true,
+          "required": true
+        },
+        "member_count": {
+          "observed": 4,
+          "pass": true,
+          "required": 3
+        },
+        "observable_route": {
+          "observed": true,
+          "pass": true,
+          "required": true
+        }
+      },
+      "related_operator": "Sentinel",
+      "related_operator_id": "f560f4fa-770b-57aa-83be-954d11d1a3c1",
+      "relationship": "POTENTIAL_VARIANT_OF_SENTINEL",
+      "route_digest": "74e4896a488fb62aa9ee3cbe8aba446d01bddca33241df27e122e5af218d46ce",
+      "workflow_status": "QUEUED"
+    },
+    {
+      "candidate_id": "p3r-v2-84551ddfa7b82847ba0f",
+      "changed_dimensions": [
+        "amount_vector"
+      ],
+      "cluster_id": "FOUR_STEP_30_SOL_14_479K_WSOL_LADDER:ab6ede7e025a798f",
+      "distinct_creators": 3,
+      "distinct_direct_funders": 3,
+      "existing_identity_overlap": {
+        "confirmed": false,
+        "existing_potential": false,
+        "provisional": false,
+        "same_family_only": true
+      },
+      "expected_route": [
+        [
+          1,
+          "PLAIN_XFER",
+          29999985000
+        ],
+        [
+          2,
+          "WSOL_WRAP_CLOSE",
+          29999990000
+        ],
+        [
+          3,
+          "WSOL_WRAP_CLOSE",
+          14479000
+        ],
+        [
+          4,
+          "WSOL_WRAP_CLOSE",
+          2074000
+        ]
+      ],
+      "infrastructure": "UNRESOLVED_CORROBORATION_ONLY",
+      "mechanism": "20 SOL four-step WSOL ladder",
+      "members": [
+        {
+          "creator": "AETkBjy5BBfKbRn3H9EnU6C4qYZRHRyjc8N7AQkDx6Yy",
+          "direct_funder": "FAayJVEQo6rppdneTbm9rNdN2RPFxqrFjFbbP5dKCdUM",
+          "mint": "uF5dwqg4JkWJ8qAT9FDsYY7XH7h8GjDh7gyyexDpump",
+          "observed_at": 1787127722,
+          "route": [
+            [
+              1,
+              "PLAIN_XFER",
+              19999985000
+            ],
+            [
+              2,
+              "WSOL_WRAP_CLOSE",
+              19999990000
+            ],
+            [
+              3,
+              "WSOL_WRAP_CLOSE",
+              14479000
+            ],
+            [
+              4,
+              "WSOL_WRAP_CLOSE",
+              2074000
+            ]
+          ]
+        },
+        {
+          "creator": "EFDHiScHwtSy24ZFtxmRwzu5Q8t3jA7K5kKtAmNASmsD",
+          "direct_funder": "43BqGGykSC1tfDnWigydsBXAH3Qt4eWVoMGq9HxHEjZL",
+          "mint": "pj7EGDQFQ8Sfq4QXbw4Zczcopwd9Qzvytg2FZvapump",
+          "observed_at": 1787211026,
+          "route": [
+            [
+              1,
+              "PLAIN_XFER",
+              19999985000
+            ],
+            [
+              2,
+              "WSOL_WRAP_CLOSE",
+              19999990000
+            ],
+            [
+              3,
+              "WSOL_WRAP_CLOSE",
+              14479000
+            ],
+            [
+              4,
+              "WSOL_WRAP_CLOSE",
+              2074000
+            ]
+          ]
+        },
+        {
+          "creator": "2aKAs1rCBvvgpT55peztywVtQkY5xMYQjvFD1dV77eLo",
+          "direct_funder": "3GJtRHZFuaDQoLemKuKkH3nGRe72vEDECzzmp74aP9WN",
+          "mint": "orYjkPrkS37g98xGLJUAP4GtsqCKJSy9FW4UQYypump",
+          "observed_at": 1787216798,
+          "route": [
+            [
+              1,
+              "PLAIN_XFER",
+              19999985000
+            ],
+            [
+              2,
+              "WSOL_WRAP_CLOSE",
+              19999990000
+            ],
+            [
+              3,
+              "WSOL_WRAP_CLOSE",
+              14479000
+            ],
+            [
+              4,
+              "WSOL_WRAP_CLOSE",
+              2074000
+            ]
+          ]
+        }
+      ],
+      "metrics": {
+        "active_days": 2,
+        "activity_state": "REGULAR_ACTIVITY",
+        "first_observed": 1787127722,
+        "last_14d": 3,
+        "last_1d": 0,
+        "last_30d": 3,
+        "last_3d": 0,
+        "last_7d": 0,
+        "last_observed": 1787216798,
+        "max_rolling_24h": 2,
+        "median_inter_observation_gap_seconds": 44538.0,
+        "observations_per_active_day": 1.5,
+        "time_since_last": 647946,
+        "total_observations": 3
+      },
+      "name": "Potential variant of Sentinel \u00b7 20 SOL Ladder",
+      "next_action": "Review retained route and infrastructure evidence; do not create a detector or Confirmed membership.",
+      "observation_count": 3,
+      "observed_route": [
+        [
+          1,
+          "PLAIN_XFER",
+          19999985000
+        ],
+        [
+          2,
+          "WSOL_WRAP_CLOSE",
+          19999990000
+        ],
+        [
+          3,
+          "WSOL_WRAP_CLOSE",
+          14479000
+        ],
+        [
+          4,
+          "WSOL_WRAP_CLOSE",
+          2074000
+        ]
+      ],
+      "overlap_exact_sentinel_observations": 8,
+      "preserved_dimensions": [
+        "topology",
+        "semantic_sequence"
+      ],
+      "qualification": {
+        "distinct_creators": {
+          "observed": 3,
+          "pass": true,
+          "required": 2
+        },
+        "distinct_direct_funders": {
+          "observed": 3,
+          "pass": true,
+          "required": 2
+        },
+        "distinct_exact_fingerprint": {
+          "observed": true,
+          "pass": true,
+          "required": true
+        },
+        "existing_potential_deduplication": {
+          "observed": true,
+          "pass": true,
+          "required": true
+        },
+        "member_count": {
+          "observed": 3,
+          "pass": true,
+          "required": 3
+        },
+        "observable_route": {
+          "observed": true,
+          "pass": true,
+          "required": true
+        }
+      },
+      "related_operator": "Sentinel",
+      "related_operator_id": "f560f4fa-770b-57aa-83be-954d11d1a3c1",
+      "relationship": "POTENTIAL_VARIANT_OF_SENTINEL",
+      "route_digest": "dab0ae189959948a20727c9b02d296d776eee813c50d6ee0255d6a632bd13d16",
+      "workflow_status": "QUEUED"
+    }
+  ],
+  "frozen_highwaters": {
+    "wt_walkback_atomic_flows": 7747,
+    "wt_walkback_edge_candidates": 67599,
+    "wt_walkback_queue": 35620
+  },
+  "harbinger": {
+    "qualifying_clusters": 0,
+    "related_observations": 97
+  },
+  "non_qualifying_observations": 68,
+  "review_digest": "b74adbaf77204cfe6ca4990798df9882394288b03e31fbb1a5fbfeeffebbad39",
+  "safety": {
+    "detector_writes": 0,
+    "fingerprint_writes": 0,
+    "membership_writes": 0,
+    "provider_calls": 0
+  },
+  "schema_version": "SENTINEL_EVOLUTION_CLUSTER_ADMISSION.v1",
+  "sentinel_near_observations": 75,
+  "source_commit": "f24e72de"
+}

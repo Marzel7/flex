@@ -62,7 +62,8 @@ def test_active_registry_projects_identity_family_and_persisted_24h_activity(tmp
     census = row["current_queue_census"]
     assert census["exact"] == 9
     assert census["near"] == 75
-    assert census["evolution_watch"]["state"] == "DRIFT_EVIDENCE"
+    assert census["evolution_watch"]["state"] == "QUALIFIED_VARIANTS_ADMITTED"
+    assert len(census["evolution_watch"]["links"]) == 2
     assert census["context"]["queue_high_water"] == 35620
 
 

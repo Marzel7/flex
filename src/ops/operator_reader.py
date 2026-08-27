@@ -23,7 +23,20 @@ _PROVISIONAL_900B_DETAIL = {
 }
 
 _CURRENT_CENSUS_PATH = Path(__file__).resolve().parents[2] / "docs/audits/p3r_current_queue_census.v1.json"
+_SENTINEL_EVOLUTION_ADMISSIONS_PATH = Path(__file__).resolve().parents[2] / "docs/audits/sentinel_evolution_cluster_admission.v1.json"
 _CURRENT_CENSUS_CACHE: dict[str, object] = {}
+
+
+def _sentinel_evolution_presentation() -> dict:
+    """Read the explicit fixed-census review; never mutate registry state."""
+    try:
+        payload=json.loads(_SENTINEL_EVOLUTION_ADMISSIONS_PATH.read_text())
+        candidates=payload.get("admitted_candidates", [])
+        return {"state":"QUALIFIED_VARIANTS_ADMITTED", "label":f"{len(candidates)} admitted Potential variants",
+                "detail":f"75 near observations · 2 qualifying clusters · {len(candidates)} admitted Potential candidates.",
+                "links":[{"label":item["name"],"href":f"/intelligence/potential-operations/{item['candidate_id']}"} for item in candidates]}
+    except (OSError, ValueError, TypeError, json.JSONDecodeError):
+        return {"state":"DRIFT_EVIDENCE", "label":"Drift evidence", "detail":"75 near-fingerprint observations. Requires clustering before mutation or variant attribution."}
 
 
 def _current_census_by_operation() -> dict[str, dict]:
@@ -57,8 +70,7 @@ def _census_presentation(display_name: str) -> dict | None:
         evolution = {"state": "DYNAMIC_ROLE_MONITORING", "label": "Dynamic role monitoring",
                      "detail": "Mutation monitoring: Dynamic role discovery."}
     elif display_name == "FOUR_STEP_30_SOL_14_479K_WSOL_LADDER":
-        evolution = {"state": "DRIFT_EVIDENCE", "label": "Drift evidence",
-                     "detail": f"{row.get('near', 0)} near-fingerprint observations. Requires clustering before mutation or variant attribution."}
+        evolution = _sentinel_evolution_presentation()
     elif display_name == "P3R_13A04":
         evolution = {"state": "RELATED_ACTIVITY_UNRESOLVED", "label": "Related activity unresolved",
                      "detail": f"Related 30 SOL ladder behaviour ({row.get('near', 0)}) requires clustering before attribution."}

@@ -161,20 +161,27 @@
     "status": "PASS"
   },
   "latest_continuation": {
-    "blocker": "900b has operators.status=CONFIRMED but qualification_category=PROVISIONAL; audit must exclude provisional qualification rows from the confirmed-operation invariant rather than report a false failure.",
-    "milestone": "confirmed-operation forward detector audit",
-    "next_action": "Await user authorization for the audit-only qualification-category filter correction, then rerun deterministic audit, commit bounded files, and publish PASS handoff.",
+    "artifacts": {
+      "baseline": "docs/agent_handoff/operation_fingerprint_monitoring/operation_fingerprint_monitoring_baseline.v1.json",
+      "baseline_sha256": "79a346ef3d04d319a9cf9f8d6254a2721154d3eb7e12858185444f0889645282",
+      "manifest": "docs/agent_handoff/operation_fingerprint_monitoring/operation_fingerprint_monitoring_manifest.v1.json",
+      "manifest_sha256": "e6e719e0adcb24cd6733ceb606fd1919170dc4046c3200e9714b3d65c107e548"
+    },
+    "engineering_commit": "8f89915a5088e39764f6d0457c4715d83bed5c82",
+    "milestone": "operation fingerprint monitoring UI",
+    "next_action": "Optionally add an incremental retained-evidence measurement writer for current uniqueness history and near-match relationship rows; this task intentionally ships the safe read-only projection and immutable baseline only.",
     "production_flags": {
-      "api_restart": false,
       "membership_mutation": false,
       "queue_replay": false,
       "rpc_provider_calls": false,
-      "worker_restart": false
+      "trading_state_changed": false,
+      "walkback_worker_restarted": false,
+      "watchtower_api_restarted": true
     },
-    "status": "HOLD",
-    "tests": "19 passed in bounded detector suite",
-    "timestamp_utc": "2026-08-27T07:31:49Z",
-    "verdict": "AUDIT_SCOPE_FILTER_REQUIRES_CORRECTION"
+    "status": "PASS",
+    "tests": "22 passed: fingerprint monitoring + P3R + d3de + Byzantine + WATCHTOWER + 900b focused suites",
+    "timestamp_utc": "2026-08-27T07:49:05Z",
+    "verdict": "OPERATION_FINGERPRINT_MONITORING_UI_COMPLETE"
   },
   "latest_material_continuation": {
     "blocker": null,
@@ -1578,7 +1585,7 @@
   },
   "project": {
     "branch": "classification-attribution-axis",
-    "git_head": "uncommitted confirmed-operation detector audit worktree"
+    "git_head": "8f89915a5088e39764f6d0457c4715d83bed5c82"
   },
   "provisional_900b_live_detector_wiring_20260825": {
     "changed_files": [

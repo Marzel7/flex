@@ -1,0 +1,6 @@
+{
+  "report": "docs/agent_handoff/p3r/legacy_detector_provenance/p3r_legacy_detector_activation_provenance_recovery.v1.json",
+  "report_sha256": "d8104a280ff435028d28c1f66698f5ed6f4b29ab4d67f070afa34c7b770a196d",
+  "script_sha256": "8d8d3e0d29ac282f9df3aceea7e5513b45d6e1ff6029c198a2970893c72bf5e2",
+  "verdict": "P3R_LEGACY_DETECTOR_ACTIVATION_PROVENANCE_RECOVERY_COMPLETE"
+}

@@ -219,6 +219,8 @@ class OperatorReader:
                 if op["identity_lifecycle"]:
                     op["identity_status"] = op["identity_lifecycle"]["identity_status"]
                     op["activity_status"] = op["identity_lifecycle"]["activity_status"]
+                from src.ops.operation_fingerprint_monitoring import build_fingerprint_health
+                op["fingerprint_health"] = build_fingerprint_health(op)
                 return op
         except (sqlite3.Error, OSError, json.JSONDecodeError):
             return None

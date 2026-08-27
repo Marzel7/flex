@@ -1,0 +1,381 @@
+{
+  "artifact_version": "v1",
+  "confirmed_address_independence_audit": [
+    {
+      "classification": "ADDRESS_INDEPENDENT_PASS",
+      "fields": [
+        {
+          "classification": "behavioural/structural",
+          "field": "completed_route_topology",
+          "literal_address_required": false,
+          "required": true
+        },
+        {
+          "classification": "behavioural/structural",
+          "field": "funding_mechanism",
+          "literal_address_required": false,
+          "required": true
+        },
+        {
+          "classification": "behavioural/structural",
+          "field": "route_validation",
+          "literal_address_required": false,
+          "required": true
+        }
+      ],
+      "operation": "WATCHTOWER"
+    },
+    {
+      "classification": "ADDRESS_INDEPENDENT_PASS",
+      "fields": [
+        {
+          "classification": "behavioural/structural",
+          "field": "selected_hop_structure",
+          "literal_address_required": false,
+          "required": true
+        },
+        {
+          "classification": "behavioural/structural",
+          "field": "semantic_sequence",
+          "literal_address_required": false,
+          "required": true
+        },
+        {
+          "classification": "behavioural/structural",
+          "field": "amount_vector",
+          "literal_address_required": false,
+          "required": true
+        },
+        {
+          "classification": "behavioural/structural",
+          "field": "atomic_lifecycle",
+          "literal_address_required": false,
+          "required": true
+        }
+      ],
+      "operation": "Byzantine"
+    },
+    {
+      "classification": "ADDRESS_INDEPENDENT_PASS",
+      "fields": [
+        {
+          "classification": "behavioural/structural",
+          "field": "selected_hop_structure",
+          "literal_address_required": false,
+          "required": true
+        },
+        {
+          "classification": "behavioural/structural",
+          "field": "semantic_sequence",
+          "literal_address_required": false,
+          "required": true
+        },
+        {
+          "classification": "behavioural/structural",
+          "field": "amount_vector",
+          "literal_address_required": false,
+          "required": true
+        },
+        {
+          "classification": "behavioural/structural",
+          "field": "atomic_lifecycle",
+          "literal_address_required": false,
+          "required": true
+        }
+      ],
+      "operation": "FOUR_STEP_30_SOL_14_479K_WSOL_LADDER"
+    },
+    {
+      "classification": "ADDRESS_INDEPENDENT_PASS",
+      "fields": [
+        {
+          "classification": "behavioural/structural",
+          "field": "selected_hop_structure",
+          "literal_address_required": false,
+          "required": true
+        },
+        {
+          "classification": "behavioural/structural",
+          "field": "funding_mechanism",
+          "literal_address_required": false,
+          "required": true
+        },
+        {
+          "classification": "behavioural/structural",
+          "field": "amount_vector",
+          "literal_address_required": false,
+          "required": true
+        },
+        {
+          "classification": "behavioural/structural",
+          "field": "atomic_lifecycle",
+          "literal_address_required": false,
+          "required": true
+        }
+      ],
+      "operation": "P3R"
+    },
+    {
+      "classification": "ADDRESS_INDEPENDENT_PASS",
+      "fields": [
+        {
+          "classification": "behavioural/structural",
+          "field": "selected_hop_structure",
+          "literal_address_required": false,
+          "required": true
+        },
+        {
+          "classification": "behavioural/structural",
+          "field": "semantic_sequence",
+          "literal_address_required": false,
+          "required": true
+        },
+        {
+          "classification": "behavioural/structural",
+          "field": "amount_vector",
+          "literal_address_required": false,
+          "required": true
+        }
+      ],
+      "operation": "P3R_13A04"
+    }
+  ],
+  "drift_model": {
+    "exact": "EXACT_MATCH",
+    "near": [
+      "NEAR_MATCH_ONE_DIMENSION",
+      "NEAR_MATCH_MULTI_DIMENSION"
+    ],
+    "safety": "Near matches cannot create confirmed membership or mutate fingerprint versions."
+  },
+  "generated_at_utc": "2026-08-27T07:47:57Z",
+  "operations": [
+    {
+      "current_uniqueness_percent": null,
+      "description": "Strict completed funding-route lifecycle with rotating launch roles.",
+      "detection_type": "ADDRESS-INDEPENDENT",
+      "detector_fields": [
+        {
+          "classification": "behavioural/structural",
+          "field": "completed_route_topology",
+          "literal_address_required": false
+        },
+        {
+          "classification": "behavioural/structural",
+          "field": "funding_mechanism",
+          "literal_address_required": false
+        },
+        {
+          "classification": "behavioural/structural",
+          "field": "route_validation",
+          "literal_address_required": false
+        }
+      ],
+      "display_name": "WATCHTOWER",
+      "exact_uniqueness_formula": "TP / (TP + external_exact_matches) * 100",
+      "external_exact_matches": null,
+      "fingerprint_id": "WSOL-ROUTE-STRICT-v1",
+      "infrastructure_evidence": {
+        "classification": "ROTATING_INFRASTRUCTURE",
+        "summary": "Rotating route infrastructure corroborates the behavioural fingerprint; no literal account is a detector input."
+      },
+      "near_match_policy": "Near matches are drift evidence only and never change exact uniqueness or confirmed membership.",
+      "observable_population": null,
+      "qualified_uniqueness_percent": null,
+      "trend": "INSUFFICIENT_HISTORY"
+    },
+    {
+      "current_uniqueness_percent": 100.0,
+      "description": "Single funder pattern provisioning rotating creators through an exact 10 SOL four-step WSOL provision-and-close flow.",
+      "detection_type": "ADDRESS-INDEPENDENT",
+      "detector_fields": [
+        {
+          "classification": "behavioural/structural",
+          "field": "selected_hop_structure",
+          "literal_address_required": false
+        },
+        {
+          "classification": "behavioural/structural",
+          "field": "semantic_sequence",
+          "literal_address_required": false
+        },
+        {
+          "classification": "behavioural/structural",
+          "field": "amount_vector",
+          "literal_address_required": false
+        },
+        {
+          "classification": "behavioural/structural",
+          "field": "atomic_lifecycle",
+          "literal_address_required": false
+        }
+      ],
+      "display_name": "Byzantine",
+      "exact_uniqueness_formula": "TP / (TP + external_exact_matches) * 100",
+      "external_exact_matches": 0,
+      "fingerprint_id": "10SOL-WSOL-4STEP-v1",
+      "infrastructure_evidence": {
+        "classification": "STRONG_SHARED_INFRASTRUCTURE",
+        "summary": "32/32 discovery-cohort launches retain shared direct-funder evidence; that address is corroboration, not a detector input."
+      },
+      "near_match_policy": "Near matches are drift evidence only and never change exact uniqueness or confirmed membership.",
+      "observable_population": 12041,
+      "qualified_uniqueness_percent": 100.0,
+      "trend": "INSUFFICIENT_HISTORY"
+    },
+    {
+      "current_uniqueness_percent": 100.0,
+      "description": "Exact four-hop approximately 30 SOL funding ladder followed through a distinctive sequence of WSOL close amounts.",
+      "detection_type": "ADDRESS-INDEPENDENT",
+      "detector_fields": [
+        {
+          "classification": "behavioural/structural",
+          "field": "selected_hop_structure",
+          "literal_address_required": false
+        },
+        {
+          "classification": "behavioural/structural",
+          "field": "semantic_sequence",
+          "literal_address_required": false
+        },
+        {
+          "classification": "behavioural/structural",
+          "field": "amount_vector",
+          "literal_address_required": false
+        },
+        {
+          "classification": "behavioural/structural",
+          "field": "atomic_lifecycle",
+          "literal_address_required": false
+        }
+      ],
+      "display_name": "FOUR_STEP_30_SOL_14_479K_WSOL_LADDER",
+      "exact_uniqueness_formula": "TP / (TP + external_exact_matches) * 100",
+      "external_exact_matches": 0,
+      "fingerprint_id": "30SOL-WSOL-LADDER-14479K-v1",
+      "infrastructure_evidence": {
+        "classification": "ROTATING_INFRASTRUCTURE",
+        "summary": "No shared literal account is required or established; identity is the exact behavioural ladder."
+      },
+      "near_match_policy": "Near matches are drift evidence only and never change exact uniqueness or confirmed membership.",
+      "observable_population": 12041,
+      "qualified_uniqueness_percent": 100.0,
+      "trend": "INSUFFICIENT_HISTORY"
+    },
+    {
+      "current_uniqueness_percent": null,
+      "description": "Exact 99.999985 SOL WSOL close behaviour with its required completed atomic lifecycle.",
+      "detection_type": "ADDRESS-INDEPENDENT",
+      "detector_fields": [
+        {
+          "classification": "behavioural/structural",
+          "field": "selected_hop_structure",
+          "literal_address_required": false
+        },
+        {
+          "classification": "behavioural/structural",
+          "field": "funding_mechanism",
+          "literal_address_required": false
+        },
+        {
+          "classification": "behavioural/structural",
+          "field": "amount_vector",
+          "literal_address_required": false
+        },
+        {
+          "classification": "behavioural/structural",
+          "field": "atomic_lifecycle",
+          "literal_address_required": false
+        }
+      ],
+      "display_name": "P3R",
+      "exact_uniqueness_formula": "TP / (TP + external_exact_matches) * 100",
+      "external_exact_matches": null,
+      "fingerprint_id": "100SOL-WSOL-CLOSE-v1",
+      "infrastructure_evidence": {
+        "classification": "MULTIPLE_RECURRING_ADDRESSES",
+        "summary": "Recurring funding infrastructure is retained as corroboration; rotating addresses are not detector inputs."
+      },
+      "near_match_policy": "Near matches are drift evidence only and never change exact uniqueness or confirmed membership.",
+      "observable_population": null,
+      "qualified_uniqueness_percent": null,
+      "trend": "INSUFFICIENT_HISTORY"
+    },
+    {
+      "current_uniqueness_percent": null,
+      "description": "Four-hop approximately 30 SOL ladder using alternating transfer and WSOL-close steps with fixed 5,000-lamport increments.",
+      "detection_type": "ADDRESS-INDEPENDENT",
+      "detector_fields": [
+        {
+          "classification": "behavioural/structural",
+          "field": "selected_hop_structure",
+          "literal_address_required": false
+        },
+        {
+          "classification": "behavioural/structural",
+          "field": "semantic_sequence",
+          "literal_address_required": false
+        },
+        {
+          "classification": "behavioural/structural",
+          "field": "amount_vector",
+          "literal_address_required": false
+        }
+      ],
+      "display_name": "P3R_13A04",
+      "exact_uniqueness_formula": "TP / (TP + external_exact_matches) * 100",
+      "external_exact_matches": null,
+      "fingerprint_id": "30SOL-5K-LADDER-v1",
+      "infrastructure_evidence": {
+        "classification": "ROTATING_INFRASTRUCTURE",
+        "summary": "No literal address is required; retained route roles rotate across the reference cohort."
+      },
+      "near_match_policy": "Near matches are drift evidence only and never change exact uniqueness or confirmed membership.",
+      "observable_population": null,
+      "qualified_uniqueness_percent": null,
+      "trend": "INSUFFICIENT_HISTORY"
+    },
+    {
+      "current_uniqueness_percent": null,
+      "description": "Near-1-SOL temporary WSOL provision-and-close behaviour with recurring funding infrastructure.",
+      "detection_type": "PROVISIONAL-HYBRID",
+      "detector_fields": [
+        {
+          "classification": "behavioural/structural",
+          "field": "selected_hop_structure",
+          "literal_address_required": false
+        },
+        {
+          "classification": "behavioural/structural",
+          "field": "funding_mechanism",
+          "literal_address_required": false
+        },
+        {
+          "classification": "behavioural/structural",
+          "field": "amount_vector",
+          "literal_address_required": false
+        }
+      ],
+      "display_name": "WSOL_PROVISION_CLOSE_1_SOL_MINUS_15K",
+      "exact_uniqueness_formula": "TP / (TP + external_exact_matches) * 100",
+      "external_exact_matches": null,
+      "fingerprint_id": "1SOL-WSOL-PROVISION-CLOSE-15K-v1",
+      "infrastructure_evidence": {
+        "classification": "SHARED_ADDRESS_EVIDENCE",
+        "summary": "Recurring funder evidence increases review confidence but is not sufficient for confirmed attribution."
+      },
+      "near_match_policy": "Near matches are drift evidence only and never change exact uniqueness or confirmed membership.",
+      "observable_population": null,
+      "qualified_uniqueness_percent": null,
+      "trend": "INSUFFICIENT_HISTORY"
+    }
+  ],
+  "potential_operation_relation_model": [
+    "POTENTIAL_VARIANT",
+    "POTENTIAL_MUTATION",
+    "POTENTIAL_SUCCESSOR",
+    "MECHANISM_CONVERGENCE",
+    "UNRESOLVED"
+  ],
+  "principle": "Confirmed detectors are address-independent; infrastructure is corroborating evidence only."
+}

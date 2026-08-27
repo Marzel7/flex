@@ -1,0 +1,13 @@
+{
+  "artifact": "docs/agent_handoff/operation_fingerprint_monitoring/operation_fingerprint_monitoring_baseline.v1.json",
+  "generated_at_utc": "2026-08-27T07:47:57Z",
+  "implementation": [
+    "src/ops/operation_fingerprint_monitoring.py",
+    "src/ops/operator_reader.py",
+    "templates/operator_intelligence.html"
+  ],
+  "sha256": "79a346ef3d04d319a9cf9f8d6254a2721154d3eb7e12858185444f0889645282",
+  "tests": [
+    "tests/test_operation_fingerprint_monitoring.py"
+  ]
+}

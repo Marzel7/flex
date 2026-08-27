@@ -1,4 +1,12 @@
 {
+  "confirmed_potential_lifecycle_normalization_20260827": {
+    "engineering_revision": "78d8ce9bafdbf94b796c66531f495c26eee28b1b",
+    "status": "HOLD",
+    "blocker": "src/ops/operator_routes.py has mixed uncommitted work. Potential Operations page/detail routes are relevant, but the same diff also adds P3R parent-funder CSV loading, review-queue APIs, changes the default operator-list API source, and changes operation-page summary construction. Ownership and separation are not proven.",
+    "observed_existing_work": "Uncommitted src/ops/potential_operations.py and templates/tests provide a partially implemented workflow queue, including the correct 063e decomposed-parent versus paused-child distinction. It must not be silently absorbed while the route integration is mixed.",
+    "safety": "No source, database, membership, detector, fingerprint, threshold, service, queue, RPC, or trading state was changed.",
+    "exact_next_action": "Perform a read-only hunk provenance audit of src/ops/operator_routes.py and the uncommitted Potential Operations files; then separate only proven lifecycle/UI hunks before implementation."
+  },
   "sqlite_write_starvation_repair_20260827": {
     "engineering_revision": "78d8ce9bafdbf94b796c66531f495c26eee28b1b",
     "files": [

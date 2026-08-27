@@ -2525,5 +2525,17 @@
     "tests": "PASS: identity metadata py_compile and static assertions for WATCHTOWER family absence and Monolith name.",
     "production_flags": {"membership_changed": false, "provisional_state_changed": false, "detector_changed": false, "fingerprint_changed": false, "threshold_changed": false, "queue_changed": false, "rpc_provider_calls": false, "trading_state_changed": false, "service_restarted": true},
     "exact_next_action": "No further action required for the unique WATCHTOWER presentation."
+  },
+  "registry_aggregate_24h_ui_20260827": {
+    "engineering_revision": "93cf885d230ffa2a74320069702c5af208da442f",
+    "status": "PASS",
+    "verdict": "REGISTRY_AGGREGATE_24H_UI_RELOADED",
+    "summary": "Replaced implementation-metadata KPI cards (activity snapshot and behavioural profile coverage) with operator-useful Active Manual Operations, Tokens · 24h, and Total Launches cards.",
+    "calculation": "The browser sums launches_last_1d and total_observed_launches/total_launches from the existing read-only active-operations API rows. It does not call a new endpoint or change persisted snapshots.",
+    "live_values": {"active_manual_operations": 6, "tokens_last_24h": 47, "total_observed_launches": 528},
+    "verification": "Rendered local page contains tokens-24h-count and total-launches-count; legacy snapshot/profile labels absent. The local API was reloaded.",
+    "tests": "Targeted legacy registry suite: 47 passed, 21 failed due to pre-existing stale assertions for an older registry layout (obsolete filters/resolver/recent-activity panel); no related repair was made.",
+    "production_flags": {"membership_changed": false, "provisional_state_changed": false, "detector_changed": false, "fingerprint_changed": false, "threshold_changed": false, "queue_changed": false, "rpc_provider_calls": false, "trading_state_changed": false, "service_restarted": true},
+    "exact_next_action": "No additional action required for this KPI refinement."
   }
 }

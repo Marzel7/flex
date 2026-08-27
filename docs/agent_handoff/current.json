@@ -2506,7 +2506,7 @@
     "exact_next_action": "No further UI work is required for this projection. Build any later family/infrastructure/naming enhancements on engineering revision 34463ade."
   },
   "operation_display_name_update_20260827": {
-    "engineering_revision": "a11f0e044bc38f8a5b08a9225e8cfb74f960d05e",
+    "engineering_revision": "a11f0e049d179d622c0154e7e2b207987df204aa",
     "status": "PASS",
     "verdict": "OPERATION_DISPLAY_NAMES_RELOADED",
     "display_names": {"P3R": "Monolith", "FOUR_STEP_30_SOL_14_479K_WSOL_LADDER": "FourStep", "P3R_13A04": "Trident"},

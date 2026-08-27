@@ -1,0 +1,114 @@
+{
+  "audit": [
+    {
+      "classification": "PRE_EXISTING_CONFIRMED_NO_RECONCILIATION",
+      "excluded": true,
+      "name": "WATCHTOWER",
+      "reason": "Explicit exclusion."
+    },
+    {
+      "classification": "INSUFFICIENT_PROVENANCE",
+      "name": "P3R",
+      "reason": "No versioned qualification contract or durable activation boundary."
+    },
+    {
+      "classification": "INSUFFICIENT_PROVENANCE",
+      "name": "P3R_13A04",
+      "reason": "No versioned qualification contract or durable activation boundary."
+    },
+    {
+      "classification": "NO_FORWARD_DETECTOR",
+      "name": "3SW2",
+      "reason": "Reference-retired operation."
+    }
+  ],
+  "idempotency_replay": {
+    "duplicate_match_rows": 0,
+    "expected": "0 additional memberships on this replay",
+    "new_memberships": 0
+  },
+  "initial_recovery_preserved": {
+    "Byzantine": [
+      "BPg6vtfGWceR9fJda9pT3KKE7REGewKPhxMGaRwGpump",
+      "BnvreAHcoXJBScpjpocULyPsYNQf4jWQVmYayk6xpump",
+      "DtwkHVJK2pqPng3kDvykGCHJvWpRys6rUXRKKbQnpump"
+    ]
+  },
+  "operations": [
+    {
+      "activation_boundary": 1787775659,
+      "already_present": 3,
+      "blind_interval_seconds": 104351,
+      "collisions": [],
+      "detector_version": "WSOL_10_SOL_FOUR_STEP_PROVISION_CLOSE.v1",
+      "fingerprint_matches": 3,
+      "newly_recovered": 0,
+      "observable_launches": 86,
+      "operation": "Byzantine",
+      "operator_id": "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334",
+      "partially_observable": 0,
+      "qualification": "POST_SNAPSHOT_CONFIRMED_RECONCILIATION_REQUIRED",
+      "recovered": [],
+      "start_boundary": {
+        "edge_rowid_exclusive": 60299,
+        "observed_at": 1787671308,
+        "queue_rowid_exclusive": 32353
+      },
+      "unobservable_launches": 1519
+    },
+    {
+      "activation_boundary": 1787813971,
+      "already_present": 0,
+      "blind_interval_seconds": 142663,
+      "collisions": [],
+      "detector_version": "D3DE_D0_EXACT_SELECTED_FOUR_STEP_LADDER.v1",
+      "fingerprint_matches": 0,
+      "newly_recovered": 0,
+      "observable_launches": 2159,
+      "operation": "FOUR_STEP_30_SOL_14_479K_WSOL_LADDER",
+      "operator_id": "f560f4fa-770b-57aa-83be-954d11d1a3c1",
+      "partially_observable": 0,
+      "qualification": "POST_SNAPSHOT_CONFIRMED_RECONCILIATION_REQUIRED",
+      "recovered": [],
+      "start_boundary": {
+        "edge_rowid_exclusive": 60299,
+        "observed_at": 1787671308,
+        "queue_rowid_exclusive": 32353
+      },
+      "unobservable_launches": 0
+    },
+    {
+      "activation_boundary": 1787691446,
+      "already_present": 0,
+      "blind_interval_seconds": 20138,
+      "collisions": [],
+      "detector_version": "900B_HYBRID_PROVISIONAL.v1",
+      "fingerprint_matches": 0,
+      "newly_recovered": 0,
+      "observable_launches": 197,
+      "operation": "WSOL_PROVISION_CLOSE_1_SOL_MINUS_15K",
+      "operator_id": "70f27e37-83eb-5c97-831c-48189ef98f6c",
+      "partially_observable": 0,
+      "qualification": "POST_SNAPSHOT_PROVISIONAL_RECONCILIATION_REQUIRED",
+      "recovered": [],
+      "start_boundary": {
+        "edge_rowid_exclusive": 60299,
+        "observed_at": 1787671308,
+        "queue_rowid_exclusive": 32353
+      },
+      "unobservable_launches": 172
+    }
+  ],
+  "rule": "Whenever a detector is activated from a frozen qualification snapshot, reconcile the bounded snapshot-to-activation interval with that exact detector before declaring activation complete. WATCHTOWER is excluded from this retroactive run.",
+  "run_id": "post-snapshot-catchup-7e9f75d02eeb5c43",
+  "safety": {
+    "detector_mutation": false,
+    "queue_replay": false,
+    "rpc_calls": 0,
+    "tier_mutation": false,
+    "trading_signal": false,
+    "watchtower_mutation": false
+  },
+  "schema_version": "POST_SNAPSHOT_OPERATION_CATCHUP_RECONCILIATION.v1",
+  "watchtower_excluded": true
+}

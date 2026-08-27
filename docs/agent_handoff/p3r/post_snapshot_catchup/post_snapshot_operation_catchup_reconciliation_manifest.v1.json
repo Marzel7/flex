@@ -1,0 +1,11 @@
+{
+  "deterministic_boundaries": {
+    "edges": 60299,
+    "queue": 32353
+  },
+  "report": "docs/agent_handoff/p3r/post_snapshot_catchup/post_snapshot_operation_catchup_reconciliation.v1.json",
+  "report_sha256": "518902b4d16e4de64e01cf08fcb2415a701ecd823197f14d9adb52ea938983dc",
+  "script_sha256": "dfe478beb8318de81a6be50e9de83095e5dfda0c1b0b2870e1ee82bec3bf788a",
+  "verdict": "POST_SNAPSHOT_OPERATION_CATCHUP_RECONCILIATION_COMPLETE",
+  "watchtower_excluded": true
+}

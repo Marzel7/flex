@@ -665,6 +665,17 @@ def _promote_if_canonical_watchtower(ops: sqlite3.Connection, mint: str,
     if not materialized:
         return
 
+    # Review-only 900b projection.  This runs after the terminal walkback
+    # commit, consumes only retained selected-edge evidence, and is independent
+    # of both P3R admission and WATCHTOWER's strict confirmed route gate.
+    try:
+        from src.ops.provisional_operations import project_900b_completed_walkback
+        provisional_action = project_900b_completed_walkback(ops, mint, core_db_path=LIVE_DB_PATH)
+        if provisional_action in {"PROVISIONAL_MATCH_PENDING", "BEHAVIOURAL_MATCH_UNKNOWN_INFRASTRUCTURE"}:
+            print(f"[WALKBACK] 900b provisional review → {mint[:14]}… {provisional_action}", flush=True)
+    except Exception as exc:  # must never affect a completed walkback
+        print(f"[WALKBACK] 900b provisional check failed mint={mint}: {exc}", flush=True)
+
     # P3R and P3R_13A04 have reviewed, address-independent automatic-admission
     # contracts. P3R is the unified former AF500/EC1 identity; 13A04 remains
     # its separate exact-ladder identity. This is independent of WATCHTOWER.
@@ -675,6 +686,26 @@ def _promote_if_canonical_watchtower(ops: sqlite3.Connection, mint: str,
             print(f"[WALKBACK] P3R membership → {mint[:14]}… admitted", flush=True)
     except Exception as exc:  # noqa: BLE001 -- must never break terminal walkback state
         print(f"[WALKBACK] P3R membership check failed mint={mint}: {exc}", flush=True)
+
+    # d3de is a separately confirmed, fully address-independent four-hop
+    # selected-ladder operation. Its strict D0 projector has no literal-wallet
+    # inputs and no dependency on optional atomic or alternative evidence.
+    try:
+        from src.ops.d3de_operation import project_completed_walkback as project_d3de_completed_walkback
+        d3de_action = project_d3de_completed_walkback(ops, mint, core_db_path=LIVE_DB_PATH)
+        if d3de_action == "admitted":
+            print(f"[WALKBACK] d3de membership → {mint[:14]}… admitted", flush=True)
+    except Exception as exc:  # noqa: BLE001 -- must never break terminal walkback state
+        print(f"[WALKBACK] d3de membership check failed mint={mint}: {exc}", flush=True)
+
+    # Approved 063e current-child operation: exact retained B1 route only.
+    try:
+        from src.ops.wsol_10_sol_four_step_operation import project_completed_walkback
+        operation_action = project_completed_walkback(ops, mint, core_db_path=LIVE_DB_PATH)
+        if operation_action == "admitted":
+            print(f"[WALKBACK] Byzantine membership → {mint[:14]}… admitted", flush=True)
+    except Exception as exc:  # noqa: BLE001 -- must never break terminal walkback state
+        print(f"[WALKBACK] Byzantine membership check failed mint={mint}: {exc}", flush=True)
 
     # X67.21 -- shared canonical predicate integration (mode-aware; see
     # src/ops/watchtower_canonical_integration.py). The walkback commit

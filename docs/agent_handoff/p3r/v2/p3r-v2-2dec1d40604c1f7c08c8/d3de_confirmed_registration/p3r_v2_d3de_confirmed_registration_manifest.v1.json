@@ -1,0 +1,17 @@
+{
+  "canonical_run_id": "p3r-v2-2dec1d40604c1f7c08c8",
+  "detector_version": "D3DE_D0_EXACT_SELECTED_FOUR_STEP_LADDER.v1",
+  "operator_id": "f560f4fa-770b-57aa-83be-954d11d1a3c1",
+  "qualification_sources": {
+    "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/d3de_adversarial_coherence/p3r-v2-d3de-adversarial-bfc5e660de16735f8069/p3r_v2_d3de_adversarial_coherence.v1.json": "2d5b1568ea7a6ce28736b94939546f12f850a8b9022f45cad732b55f4b957f1d",
+    "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/d3de_tier1_forensic/p3r-v2-d3de-forensic-48663be8d4182e5613be/p3r_v2_d3de_canonical_tier1_forensic.v1.json": "c9a1c6263c900d221e7b1c476a191cbc5e7e0b712979df650e036cfb0352fb82",
+    "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/d3de_vs_13a04/p3r_v2_d3de_vs_p3r_13a04_forensic_comparison.v1.json": "96b277d71087b187f8995909ffd4be8f2d8845cb8b7399c57c01419b00f882dd"
+  },
+  "queue_replay": false,
+  "registration_artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/d3de_confirmed_registration/p3r_v2_d3de_confirmed_registration.v1.json",
+  "registration_artifact_sha256": "079b01cdb3e6c4236930aa21c8922646b4df79a94845059c2798bc9ee2227d22",
+  "registration_script_sha256": "0f8d90ebf2bc18d5c73162edc12c67e0c36d33a7d3fb4c5913874f7b4fed6b17",
+  "rpc_calls": 0,
+  "schema_version": "P3R_V2_D3DE_CONFIRMED_REGISTRATION_MANIFEST.v1",
+  "worker_activation": "walkback_worker restart is performed only after the focused test gate outside this script."
+}

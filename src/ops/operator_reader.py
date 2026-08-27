@@ -6,6 +6,22 @@ import json
 import sqlite3
 
 
+_PROVISIONAL_900B = "p3r-v2-900b89587c6987d582df"
+_PROVISIONAL_900B_DETAIL = {
+    "selected_funding_pattern": "Hop-1 WSOL_WRAP_CLOSE",
+    "exact_amount_lamports": 999985000,
+    "human_amount": "1 SOL - 15,000 lamports",
+    "atomic_lifecycle": "createAccountWithSeed -> initializeAccount3 -> transfer -> syncNative -> closeAccount",
+    "atomic_dominant_coverage": "31/44",
+    "wsol_lifecycle_coverage": "44/44",
+    "role_pattern": "44 rotating creators; candidate_parent is the direct-funder role; 10 distinct direct funders; top five funders cover 39/44 (88.64%).",
+    "profile": "Recurrent near-1-SOL temporary-WSOL provision-and-close variant with rotating creators and recurrent direct-funder infrastructure.",
+    "validation": {"h0": "Behaviour-only: precision 74.58%, recall 100.00%.", "h1": "Hybrid recurrent-funder review-confidence contract: precision 90.70%, recall 88.64%; 4 known false positives remain."},
+    "analysis": "Behaviour is strongly recurrent and recurrent direct-funder infrastructure improves precision, but the zero-false-positive automatic-attribution gate is not met. Bounded deeper-hop RPC and provenance studies did not close that gap.",
+    "history": ["P3R candidate discovery and operation-priority ranking.", "Distinctiveness and bounded RPC discriminator investigations.", "Hybrid recurrent-funder qualification and provisional Active Operations admission."],
+}
+
+
 class OperatorReader:
     """A pure reader: URI read-only, query-only, no DDL or persistent PRAGMAs."""
 
@@ -31,6 +47,16 @@ class OperatorReader:
                 if not row:
                     return None
                 op = dict(row)
+                qualification = conn.execute(
+                    "SELECT qualification_category,automation_eligibility,detector_version,parent_mechanism,source_candidate_id,benchmark_json "
+                    "FROM operation_qualification_contracts WHERE operator_id=? ORDER BY created_at DESC LIMIT 1",
+                    (operator_id,),
+                ).fetchone()
+                if qualification:
+                    op["qualification_contract"] = {**dict(qualification), "benchmark": json.loads(qualification["benchmark_json"] or "{}")}
+                    op["qualification_category"] = qualification["qualification_category"]
+                else:
+                    op["qualification_category"] = "CONFIRMED"
                 op["entities"] = [dict(r) for r in conn.execute(
                     "SELECT * FROM operator_entities WHERE operator_id = ? "
                     "ORDER BY evidence_count DESC", (operator_id,)
@@ -103,6 +129,51 @@ class OperatorReader:
                         **dict(snapshot),
                         "metrics": json.loads(snapshot["metrics_json"]),
                     }
+                if op.get("qualification_category") == "CONFIRMED" and op.get("display_name") != "WATCHTOWER" and conn.execute(
+                    "SELECT 1 FROM sqlite_master WHERE type='table' AND name='operator_launch_membership'"
+                ).fetchone():
+                    op["recent_launches"] = [dict(r) for r in conn.execute(
+                        "SELECT m.mint,COALESCE(q.creator,'') AS creator_wallet,COALESCE(q.create_anchor_block_time,q.funder_block_time,q.completed_at,m.assigned_at) AS create_time,q.treasury AS treasury_wallet,q.subprov AS subprov_wallet,q.funder_sig AS wrap_close_signature,q.funding_mechanism FROM operator_launch_membership m LEFT JOIN wt_walkback_queue q ON q.mint=m.mint WHERE m.operator_id=? ORDER BY create_time DESC LIMIT 250",
+                        (operator_id,),
+                    ).fetchall()]
+                if (op.get("behavioural_profile", {}).get("provenance", {}).get("detector_version")
+                        == "D3DE_D0_EXACT_SELECTED_FOUR_STEP_LADDER.v1"):
+                    provenance = op["behavioural_profile"]["provenance"]
+                    evidence = provenance.get("historical_member_evidence", [])
+                    op["summary_model"] = {
+                        "activity": {"state": op.get("activity_snapshot", {}).get("activity_state", "ACTIVE"),
+                                     "metrics": op.get("activity_snapshot", {}).get("metrics", {})},
+                        "fingerprint": {
+                            "route": "Parent hop 4 → parent hop 3 → parent hop 2 → direct funder → creator",
+                            "funding": "Exact selected ladder: 29,999,985,000 → 29,999,990,000 → 14,479,000 → 2,074,000 lamports",
+                            "mechanism": "PLAIN_XFER → WSOL_WRAP_CLOSE → WSOL_WRAP_CLOSE → WSOL_WRAP_CLOSE",
+                            "atomic_sequence": provenance.get("atomic_sequence", []),
+                            "address_behaviour": "Address-independent: 9 creators, 9 direct funders, and 33 parents rotate across the frozen cohort.",
+                            "profile": "D0 exact selected route · frozen validation 9 TP / 0 FP / 0 FN across 12,041 observable retained mints.",
+                        },
+                        "all_launches": [{"mint": item["mint"], "creator": item.get("creator"),
+                                          "intermediary": item.get("direct_funder"), "signature": item.get("selected_edges", [{}])[0].get("signature"),
+                                          "create_time": item.get("observed_at"), "mechanism": "D0 CONFIRMED"}
+                                         for item in evidence],
+                    }
+                if op.get("qualification_category") == "PROVISIONAL" and conn.execute(
+                    "SELECT 1 FROM sqlite_master WHERE type='table' AND name='provisional_operation_activity_observations'"
+                ).fetchone():
+                    rows = conn.execute(
+                        "SELECT o.mint,o.observed_at AS create_time,o.state,o.provenance_json,e.wallet AS creator,e.candidate_parent AS direct_funder,e.signature,e.hop_depth AS selected_hop,e.mechanism,e.amount_lamports AS selected_amount_lamports,a.instruction_order_json AS atomic_sequence_json FROM provisional_operation_activity_observations o LEFT JOIN wt_walkback_edge_candidates e ON e.mint=o.mint AND e.selection_status='SELECTED' AND e.hop_depth=1 LEFT JOIN wt_walkback_atomic_flows a ON a.signature=e.signature AND a.mint=o.mint WHERE o.operator_id=? ORDER BY o.observed_at DESC LIMIT 250",
+                        (operator_id,),
+                    ).fetchall()
+                    op["recent_launches"] = []
+                    for row in rows:
+                        launch = dict(row)
+                        launch.update({"intermediary": launch["direct_funder"], "provisional_state": launch["state"], "match": launch["state"].replace("_", " ")})
+                        if launch.get("atomic_sequence_json"):
+                            launch["atomic_sequence"] = json.loads(launch["atomic_sequence_json"])
+                        op["recent_launches"].append(launch)
+                    if op.get("qualification_contract", {}).get("source_candidate_id") == _PROVISIONAL_900B:
+                        op["provisional_detail"] = _PROVISIONAL_900B_DETAIL
+                        op["summary_model"] = {"activity": {"state": "PROVISIONAL", "metrics": op.get("activity_snapshot", {}).get("metrics", {})}, "fingerprint": {"route": "Direct funder -> rotating creator", "funding": "999,985,000 lamports (1 SOL - 15,000 lamports)", "mechanism": "Hop-1 WSOL_WRAP_CLOSE", "atomic_sequence": [_PROVISIONAL_900B_DETAIL["atomic_lifecycle"] + " (31/44)"], "address_behaviour": _PROVISIONAL_900B_DETAIL["role_pattern"] + " Broader WSOL lifecycle 44/44.", "profile": _PROVISIONAL_900B_DETAIL["profile"]}, "recent_launches": op["recent_launches"]}
+                        op["evidence"].append({"evidence_type": "PROVISIONAL_OPERATION_CONTRACT", "details": _PROVISIONAL_900B_DETAIL})
                 # WATCHTOWER's canonical launch ledger predates generic
                 # membership. The display therefore combines ledger entries
                 # with strict confirmed membership-only launches, using their
@@ -179,10 +250,11 @@ class OperatorReader:
             with self._connect() as conn:
                 rows = conn.execute(
                     "SELECT o.*, d.disposition, d.updated_at AS disposition_updated_at, "
-                    "s.metrics_json, s.activity_state "
+                    "COALESCE(q.qualification_category,'CONFIRMED') AS qualification_category, q.automation_eligibility, q.detector_version, q.parent_mechanism, q.benchmark_json, s.metrics_json, s.activity_state "
                     "FROM operators o "
                     "JOIN operation_registry_dispositions d "
                     "ON d.operator_id=o.operator_id "
+                    "LEFT JOIN operation_qualification_contracts q ON q.operator_id=o.operator_id "
                     "LEFT JOIN operation_activity_snapshots s ON s.snapshot_id=("
                     "SELECT snapshot_id FROM operation_activity_snapshots "
                     "WHERE operator_id=o.operator_id ORDER BY observed_at DESC LIMIT 1) "
@@ -193,6 +265,7 @@ class OperatorReader:
                 result = []
                 for row in rows:
                     value = dict(row)
+                    value["qualification_benchmark"] = json.loads(value.pop("benchmark_json") or "{}")
                     metrics = json.loads(value.pop("metrics_json") or "{}")
                     value["total_launches"] = metrics.get("total_observed_launches")
                     value["average_inter_launch_gap_seconds"] = metrics.get("average_inter_launch_gap_seconds")

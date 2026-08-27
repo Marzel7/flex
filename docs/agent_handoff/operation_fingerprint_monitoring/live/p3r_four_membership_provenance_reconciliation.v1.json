@@ -1,0 +1,104 @@
+{
+  "artifact_version": "v1",
+  "verdict": "P3R_ROWS_VALID_BOOTSTRAP_CAUSALITY_CLOSED",
+  "scope": "bounded local read-only provenance reconciliation",
+  "bootstrap": {
+    "run_id": "fingerprint-bootstrap-1787821026",
+    "started_at": 1787821026,
+    "membership_rows_assigned_at_or_after_start": 0,
+    "conclusion": "The four investigated memberships predate the interrupted bootstrap and cannot have been caused by it."
+  },
+  "detector": {
+    "version": "P3R_UNIFIED_WSOL_WRAP_CLOSE_99_999985_SOL.v1",
+    "implemented_predicate": {
+      "selected_edge": {
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "amount_lamports": 99999985000
+      },
+      "atomic_flow": {
+        "has_create": 1,
+        "has_sync_native": 1,
+        "has_close": 1,
+        "transfer_lamports": 99997955720
+      }
+    },
+    "matcher": "src.ops.p3r_profile_candidate_matcher.evaluate_mint"
+  },
+  "rows": [
+    {
+      "membership_row_id": 1107,
+      "mint": "RDsd1qBPMHHmAryvSgajgrBhZNcZCXGfa2Hrdnjpump",
+      "operator_id": "777211c3-211e-551b-9310-ff9301570627",
+      "assigned_at": 1787820258,
+      "source_population_id": "walkback_p3r_unified_matcher_v1",
+      "queue_status": "complete",
+      "queue_outcome": "LINEAGE_GAP",
+      "selected_edge": [1, "WSOL_WRAP_CLOSE", 99999985000],
+      "atomic_flow": [1, 1, 1, 99997955720],
+      "direct_matcher_result": "MATCH:P3R",
+      "classification": "VALID_P3R_MEMBERSHIP_QUEUE_LINEAGE_GAP_NON_BLOCKING"
+    },
+    {
+      "membership_row_id": 1108,
+      "mint": "hwbbGmQNpio9m5Ug9yEmiUzjEZkTVzh2N1ikpGBpump",
+      "operator_id": "777211c3-211e-551b-9310-ff9301570627",
+      "assigned_at": 1787820346,
+      "source_population_id": "walkback_p3r_unified_matcher_v1",
+      "queue_status": "complete",
+      "queue_outcome": "LINEAGE_GAP",
+      "selected_edge": [1, "WSOL_WRAP_CLOSE", 99999985000],
+      "atomic_flow": [1, 1, 1, 99997955720],
+      "direct_matcher_result": "MATCH:P3R",
+      "classification": "VALID_P3R_MEMBERSHIP_QUEUE_LINEAGE_GAP_NON_BLOCKING"
+    },
+    {
+      "membership_row_id": 1109,
+      "mint": "EpgCAWwATyXZkqHgvtsv9rUmHByuTr5sXfufaXMpump",
+      "operator_id": "777211c3-211e-551b-9310-ff9301570627",
+      "assigned_at": 1787820448,
+      "source_population_id": "walkback_p3r_unified_matcher_v1",
+      "queue_status": "complete",
+      "queue_outcome": "LINEAGE_GAP",
+      "selected_edge": [1, "WSOL_WRAP_CLOSE", 99999985000],
+      "atomic_flow": [1, 1, 1, 99997955720],
+      "direct_matcher_result": "MATCH:P3R",
+      "classification": "VALID_P3R_MEMBERSHIP_QUEUE_LINEAGE_GAP_NON_BLOCKING"
+    },
+    {
+      "membership_row_id": 1110,
+      "mint": "w3dYCLYpUHFiZxbgXGaH9stnREEjk7Ms6JupWsTpump",
+      "operator_id": "777211c3-211e-551b-9310-ff9301570627",
+      "assigned_at": 1787820634,
+      "source_population_id": "walkback_p3r_unified_matcher_v1",
+      "queue_status": "complete",
+      "queue_outcome": "LINEAGE_GAP",
+      "selected_edge": [1, "WSOL_WRAP_CLOSE", 99999985000],
+      "atomic_flow": [1, 1, 1, 99997955720],
+      "direct_matcher_result": "MATCH:P3R",
+      "classification": "VALID_P3R_MEMBERSHIP_QUEUE_LINEAGE_GAP_NON_BLOCKING"
+    }
+  ],
+  "state_machine_reconciliation": {
+    "queue_outcome_meaning": "LINEAGE_GAP records unresolved upstream lineage in the generic walkback state machine.",
+    "admission_path": "The worker invokes admit_unambiguous_p3r_match after terminal walkback processing. The P3R matcher evaluates selected-edge plus atomic evidence and does not inspect intelligence_outcome.",
+    "conclusion": "LINEAGE_GAP is non-blocking for this independent, reviewed P3R behavioural admission contract."
+  },
+  "log_evidence": {
+    "exact_mint_lines_available": false,
+    "interpretation": "No exact mint lines survive in retained worker logs; no conclusion is inferred from their absence. Code path, membership source tag, timestamps, selected edges, atomic flows, and direct matcher evaluation establish the result."
+  },
+  "monitoring_causality": {
+    "membership_sql_writers_in_monitoring_or_bootstrap": 0,
+    "conclusion": "MONITORING_MEMBERSHIP_CAPABILITY = NONE"
+  },
+  "activation_recommendation": "SAFE_TO_RERUN_GUARDED_BOOTSTRAP",
+  "prohibitions_observed": [
+    "No membership mutation",
+    "No queue replay",
+    "No service restart",
+    "No detector or threshold change",
+    "No RPC/provider call",
+    "No trading-state change"
+  ]
+}

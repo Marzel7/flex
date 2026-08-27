@@ -2537,5 +2537,14 @@
     "tests": "Targeted legacy registry suite: 47 passed, 21 failed due to pre-existing stale assertions for an older registry layout (obsolete filters/resolver/recent-activity panel); no related repair was made.",
     "production_flags": {"membership_changed": false, "provisional_state_changed": false, "detector_changed": false, "fingerprint_changed": false, "threshold_changed": false, "queue_changed": false, "rpc_provider_calls": false, "trading_state_changed": false, "service_restarted": true},
     "exact_next_action": "No additional action required for this KPI refinement."
+  },
+  "registry_total_launches_card_removal_20260827": {
+    "engineering_revision": "16585f0bdf5b68073d5f7e358c5d05e58647c843",
+    "status": "PASS",
+    "verdict": "REGISTRY_TOTAL_LAUNCHES_CARD_REMOVED",
+    "summary": "Removed the all-time Total Launches KPI card and its unused browser calculation. The registry summary retains Active Manual Operations and Tokens · 24h.",
+    "verification": "PASS: local rendered page contains tokens-24h-count and does not contain total-launches-count after watchtower_api reload.",
+    "production_flags": {"membership_changed": false, "provisional_state_changed": false, "detector_changed": false, "fingerprint_changed": false, "threshold_changed": false, "queue_changed": false, "rpc_provider_calls": false, "trading_state_changed": false, "service_restarted": true},
+    "exact_next_action": "No additional action required."
   }
 }

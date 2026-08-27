@@ -1,4 +1,14 @@
 {
+  "operations_registry_stale_activity_guard_20260827": {
+    "engineering_revision": "fe7b9a715917de165f4dcc6d108442b745137194",
+    "status": "PASS",
+    "root_cause": "Harbinger's latest persisted activity snapshot was observed at 1787652692 and its 1-in-24h count was correct only then; its latest recorded launch timestamp is 1787574890. Rendering the former as current produced a contradiction.",
+    "fix": "Reader projects activity_snapshot_observed_at. Registry displays rolling 24-hour values only when that snapshot is <=24 hours old; stale values render Not observed. The top 24-hour aggregate uses the same guard.",
+    "live_payload": {"operator": "Harbinger", "persisted_launches_last_1d": 1, "activity_snapshot_observed_at": 1787652692, "last_observed_launch_timestamp": 1787574890},
+    "tests": "3 passed: test_operator_registry_identity_projection.py and test_operation_lifecycle_presentation.py; registry template parse PASS.",
+    "runtime": "Restarted only watchtower_api (PID 82406) and confirmed the served freshness rule.",
+    "safety": "Read/UI projection only; no activity snapshot refresh, membership, provisional state, detector, fingerprint, threshold, queue, RPC/provider, listener/worker, WATCHTOWER semantics, or trading state changed."
+  },
   "operations_registry_last_launch_age_20260827": {
     "engineering_revision": "74d2fe5b9435f71c836fa1172457566f3ed788ff",
     "status": "PASS",

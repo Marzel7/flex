@@ -240,7 +240,15 @@
   "operation_fingerprint_monitoring_live_recovery": {
     "artifact_integrity_issue": "The prior BOOTSTRAP_FAILED artifact was mistakenly relabeled INTERRUPTED_EXTERNAL_TERMINATION despite containing a terminal database-lock failure. It must be restored deliberately in a separate corrective action; no restoration was performed after discovery.",
     "authorization_consumed_at_utc": "2026-08-27T09:00:00Z",
-    "exact_next_action": "Await authorization to restore the prior artifact accurately and perform a narrowly scoped SQLite-lock handling/retry design; do not activate worker or rerun bootstrap until then.",
+    "exact_next_action": "Authorize a project-managed durable execution mechanism for the corrected bootstrap, then require BOOTSTRAP_COMPLETE and idempotency before worker activation.",
+    "lock_repair": {
+      "change": "sqlite3 connect timeout=30 and PRAGMA busy_timeout=30000 only",
+      "commit": "b8167425dca4f97b563c0587a10b3913a86ab8f6",
+      "prior_failure_cause": "sqlite3.OperationalError(database is locked)",
+      "restored_prior_artifact_status": "BOOTSTRAP_FAILED",
+      "syntax": "PASS",
+      "tests": "26 passed"
+    },
     "membership_count_after_failed_attempt": 222,
     "milestone": "two-stage durable bootstrap recovery",
     "prohibitions_observed": [
@@ -262,15 +270,11 @@
       "unknown_cause": 0
     },
     "stage_2": {
-      "attempted_pid": 48889,
-      "attempted_run_id": "fingerprint-bootstrap-1787822064",
-      "execution_method": "nohup detached bounded one-shot bootstrap",
-      "result": "process exited before bootstrap start artifact/log; no terminal artifact",
-      "root_cause_discovered": "prior run artifact contains sqlite3.OperationalError(database is locked), not an unqualified external termination",
-      "status": "BLOCKED"
+      "reason": "This authorization repaired and verified the discovered lock/artifact defect; a new durable execution path remains required because the previous nohup process exited before startup artifact creation.",
+      "status": "NOT_RERUN"
     },
-    "status": "HOLD",
-    "verdict": "BOOTSTRAP_DATABASE_LOCK_AND_ARTIFACT_RELABELING_ERROR"
+    "status": "LOCK_REPAIR_COMPLETE_AWAITING_DURABLE_RUN_AUTHORIZATION",
+    "verdict": "BOOTSTRAP_LOCK_TOLERANCE_REPAIRED"
   },
   "operation_walkback_review_queue_20260825": {
     "endpoints": [
@@ -1620,8 +1624,7 @@
   },
   "project": {
     "branch": "classification-attribution-axis",
-    "git_head": "27d767d2b1044d97fcf8801aebe2c9c363534931",
-    "uncommitted_task_changes": "bootstrap durability patch and failed-run artifacts; not committed because a new artifact-state error was discovered"
+    "git_head": "b8167425dca4f97b563c0587a10b3913a86ab8f6"
   },
   "provisional_900b_live_detector_wiring_20260825": {
     "changed_files": [
@@ -1887,9 +1890,9 @@
     "status": "PARTIAL",
     "verdict": "NO_DIRECT_TREASURY_LINK_ESTABLISHED"
   },
-  "updated_at_utc": "2026-08-27T09:20:00Z",
+  "updated_at_utc": "2026-08-27T09:30:00Z",
   "updated_by": "codex",
-  "verdict": "LIVE_OPERATION_FINGERPRINT_DRIFT_MONITORING_BLOCKED",
+  "verdict": "BOOTSTRAP_LOCK_TOLERANCE_REPAIRED",
   "watchtower_2nhz_bjg_gyff_corrected_rpc_confirmation_20260825": {
     "corrected_chain": "BJgZGdZXunPyn4PGJTNcRHSAQqDzBhV74JiHJDfHmWrT -> GYffSdtiffuTTZpiXqevWCYsSjn11drMoPsky9vsSUnd -> BpnGiweePUnk7ejBxvxokCUiZff3Pq3ftJiajgSEx8C7 -> 2nHZVubjJU144poGfjbiB97tv7CJtvJycvDdYvSxpump",
     "correction": "The earlier conclusion that BJg could not be the upstream source was wrong. The initial pre-anchor page was too dense to reach this transfer; the user-supplied transaction is 1,813 seconds before the anchor and proves BJg -> GYff. The later GYff -> BJg transfer is separate post-launch activity.",

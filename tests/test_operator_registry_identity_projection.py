@@ -1,5 +1,6 @@
 import json
 import sqlite3
+from pathlib import Path
 
 from src.ops.operator_reader import OperatorReader, _census_presentation
 
@@ -77,3 +78,12 @@ def test_current_census_harbinger_and_watchtower_labels_are_observational():
     assert watchtower["exact"] == 98
     assert watchtower["evolution_watch"]["state"] == "DYNAMIC_ROLE_MONITORING"
     assert watchtower["strategy"] == "DYNAMIC_ROLE_DISCOVERY"
+
+
+def test_registry_uses_shared_columns_without_visible_stable_ids():
+    template = (Path(__file__).resolve().parents[1] / "templates/operators_index.html").read_text()
+    for label in ("Operator", "Qualification", "Activity 24h / 7d / 30d", "Exact Matches", "Evolution Watch", "Action"):
+        assert label in template
+    assert "near · Drift evidence" in template
+    assert "related · Unresolved" in template
+    assert "row.operation_family||row.operator_id" not in template

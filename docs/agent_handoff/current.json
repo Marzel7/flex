@@ -1,4 +1,15 @@
 {
+  "operations_registry_last_launch_column_20260827": {
+    "engineering_revision": "e40b270edeeae1472b2da7d6b8222f5929614c65",
+    "status": "PASS",
+    "verdict": "OPERATIONS_REGISTRY_LAST_LAUNCH_COLUMN_COMPLETE",
+    "change": "Last launch is now its own aligned registry column immediately before Evolution Watch, rather than text beneath the operator name.",
+    "files": ["templates/operators_index.html", "tests/test_operator_registry_identity_projection.py"],
+    "tests": "3 passed: tests/test_operator_registry_identity_projection.py.",
+    "rendering": "Reloaded only watchtower_api; GET /intelligence/operators HTTP 200 served Last launch column code. No listener or worker restart.",
+    "safety": "UI-only persisted-timestamp projection; no membership, detector, fingerprint, threshold, queue, RPC/provider, service other than API reload, or trading state changed.",
+    "exact_next_action": "None for this requested column-alignment correction."
+  },
   "operations_registry_last_launch_display_20260827": {
     "engineering_revision": "469d652e72d35f2251d6f9744895f0ed9c059880",
     "status": "PASS",

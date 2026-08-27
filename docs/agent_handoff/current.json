@@ -161,9 +161,9 @@
     "status": "PASS"
   },
   "latest_continuation": {
-    "blocker": "The remaining test expects retired P3R_AF500/P3R_EC1 profile names, but the current unified P3R contract produces no legacy-profile result.",
+    "blocker": "After the authorized unified-contract assertion update, the next adjacent legacy assertion still accesses result.state although the correct result is None.",
     "milestone": "confirmed-operation forward detector audit",
-    "next_action": "Await user direction whether to update the stale test to the approved unified P3R contract or preserve the legacy-profile expectation; do not change matcher behavior without authorization.",
+    "next_action": "Await user authorization to remove the remaining obsolete legacy state assertion, rerun the authorized suite, generate the deterministic audit, and commit the bounded files.",
     "production_flags": {
       "api_restart": false,
       "membership_mutation": false,
@@ -173,8 +173,8 @@
     },
     "status": "HOLD",
     "tests": "18 passed, 1 failed in tests/test_p3r_profile_candidate_matcher.py",
-    "timestamp_utc": "2026-08-27T07:29:30Z",
-    "verdict": "PRE_EXISTING_LEGACY_P3R_TEST_EXPECTATION"
+    "timestamp_utc": "2026-08-27T07:30:25Z",
+    "verdict": "STALE_LEGACY_ASSERTION_REMAINS"
   },
   "latest_material_continuation": {
     "blocker": null,

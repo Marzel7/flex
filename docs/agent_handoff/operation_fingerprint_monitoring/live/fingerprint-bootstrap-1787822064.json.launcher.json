@@ -1,0 +1,8 @@
+{
+  "execution_method": "nohup detached bounded one-shot bootstrap",
+  "log": "/tmp/fingerprint-bootstrap-1787822064.log",
+  "output": "docs/agent_handoff/operation_fingerprint_monitoring/live/fingerprint-bootstrap-1787822064.json",
+  "pid": 48889,
+  "run_id": "fingerprint-bootstrap-1787822064",
+  "started_at": 1787822065
+}

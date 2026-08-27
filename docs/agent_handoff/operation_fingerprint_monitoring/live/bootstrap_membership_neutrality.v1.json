@@ -1,0 +1,11 @@
+{
+  "bootstrap_ended_at": 1787821331,
+  "bootstrap_started_at": 1787821026,
+  "error": "OperationalError('database is locked')",
+  "exit_status": 1,
+  "pid": 45030,
+  "run_id": "fingerprint-bootstrap-1787821026",
+  "scope": "bounded existing d3de/Byzantine members",
+  "status": "BOOTSTRAP_FAILED",
+  "traceback": "Traceback (most recent call last):\n  File \"/Users/kevinkeaveney/Dev/claude/flex/scripts/bootstrap_operation_fingerprint_monitoring.py\", line 40, in main\n    outcomes[row[\"mint\"]] = observe_completed_walkback(conn, row[\"mint\"], now=int(time.time()))\n                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/kevinkeaveney/Dev/claude/flex/src/ops/operation_fingerprint_drift.py\", line 173, in observe_completed_walkback\n    _upsert_evidence(conn, operation, mint, classification, matching, differing, observed, expected, rows, now)\n  File \"/Users/kevinkeaveney/Dev/claude/flex/src/ops/operation_fingerprint_drift.py\", line 129, in _upsert_evidence\n    conn.execute(\"INSERT INTO operation_fingerprint_drift_evidence(drift_id,operator_id,fingerprint_id,mint,classification,matching_dimensions_json,differing_dimensions_json,observed_json,expected_json,infrastructure_json,drift_signature,first_seen,latest_seen) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(operator_id,fingerprint_id,mint) DO UPDATE SET latest_seen=excluded.latest_seen\", (drift_id, operation[\"operator_id\"], fingerprint_id, mint, classification, json.dumps(matching), json.dumps(differing), json.dumps(observed), json.dumps(expected), json.dumps(infra), signature, now, now))\nsqlite3.OperationalError: database is locked\n"
+}

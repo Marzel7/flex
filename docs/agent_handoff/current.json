@@ -1651,7 +1651,7 @@
   },
   "project": {
     "branch": "classification-attribution-axis",
-    "git_head": "b8167425dca4f97b563c0587a10b3913a86ab8f6"
+    "git_head": "fcb2d95bc62757f94488e5804203cc4a91091bfb"
   },
   "provisional_900b_live_detector_wiring_20260825": {
     "changed_files": [
@@ -2381,5 +2381,35 @@
     "verdict": "WATCHTOWER_OBSERVATIONAL_READER_COMPLETE",
     "blocker": null,
     "summary": "Added read-only WATCHTOWER observational reader + focused tests; no production modules modified."
+  },
+  "provisional_900b_fingerprint_monitoring_20260827": {
+    "engineering_revision": "fcb2d95bc62757f94488e5804203cc4a91091bfb",
+    "commit": "fcb2d95bc62757f94488e5804203cc4a91091bfb",
+    "status": "PASS",
+    "verdict": "900B_FINGERPRINT_MONITORING_ADAPTER_COMPLETE",
+    "qualification": "PROVISIONAL",
+    "fingerprint_id": "1SOL-WSOL-PROVISION-CLOSE-15K-v1",
+    "technical_detector": "900B_HYBRID_PROVISIONAL.v1",
+    "monitoring_strategy": "BEHAVIOURAL_FINGERPRINT_DRIFT",
+    "address_independent_behavioural_status": "YES",
+    "infrastructure_treatment": "CORROBORATION_ONLY",
+    "positive_reference": "frozen 900b H0 behavioural TP cohort (44)",
+    "comparison_reference": "frozen 900b H0 behaviour-only false-positive cohort (15)",
+    "baseline_uniqueness": "MEASURABLE_FROZEN_REFERENCE: 74.58% (44/(44+15))",
+    "membership_write_capability": "NONE",
+    "provisional_state_write_capability": "NONE",
+    "tests": "13 passed (tests/test_900b_fingerprint_monitoring_adapter.py and tests/test_provisional_operations.py)",
+    "production_flags": {
+      "detector_or_threshold_changed": false,
+      "runtime_monitoring_activated": false,
+      "global_bootstrap_or_idempotency_run": false,
+      "service_restarted": false,
+      "queue_replayed": false,
+      "rpc_provider_calls": false,
+      "membership_or_provisional_state_written_by_monitor": false,
+      "trading_state": false
+    },
+    "exact_next_action": "Do not activate monitoring or alter provisional 900b semantics without a separate authorization.",
+    "blocker": null
   }
 }

@@ -161,9 +161,9 @@
     "status": "PASS"
   },
   "latest_continuation": {
-    "blocker": "A dedicated guarded bootstrap process exited without stdout/stderr or the required causal artifact. The pre-guard artifact is invalid, so safe activation cannot be established.",
-    "milestone": "safe live fingerprint drift monitoring activation",
-    "next_action": "Investigate the host/process termination mechanism or run the guarded bootstrap under the project service runner with durable stdout/stderr capture; do not activate worker until a valid causal artifact exists.",
+    "blocker": "The terminal-reporting repair has a Python indentation SyntaxError at the legacy monitoring cleanup inside main(); it has not executed.",
+    "milestone": "guarded fingerprint bootstrap execution repair",
+    "next_action": "Await authorization for the indentation-only repair, then compile, test, run guarded bootstrap with captured terminal artifact, and activate only if the causal gate passes.",
     "production_flags": {
       "api_restart": false,
       "membership_mutation": false,
@@ -172,9 +172,9 @@
       "walkback_worker_restart": false
     },
     "status": "HOLD",
-    "tests": "26 passed; py_compile passed",
-    "timestamp_utc": "2026-08-27T08:44:07Z",
-    "verdict": "GUARDED_BOOTSTRAP_COMPLETION_UNAVAILABLE"
+    "tests": "not run after syntax failure",
+    "timestamp_utc": "2026-08-27T08:55:44Z",
+    "verdict": "BOOTSTRAP_TERMINAL_REPORTING_SYNTAX_BLOCKED"
   },
   "latest_material_continuation": {
     "blocker": null,

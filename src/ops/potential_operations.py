@@ -79,7 +79,13 @@ def rows(db_path: str) -> list[dict]:
         source = _frozen_workflow_rows() if not exists else []
         if exists:
             for r in conn.execute("SELECT * FROM potential_operation_workflows ORDER BY priority_rank,candidate_id"):
-                x=dict(r); x["provenance"]=json.loads(x.pop("provenance_json")); x.update(x["provenance"]["frozen_row"]); source.append(x)
+                x=dict(r); x["provenance"]=json.loads(x.pop("provenance_json")); x.update(x["provenance"]["frozen_row"])
+                # Lifecycle overrides are read-side canonicalization. Older
+                # explicitly-normalized rows remain provenance; page traffic
+                # never updates them, and current lifecycle visibility never
+                # depends on a historical INSERT OR IGNORE value.
+                x.update(_overrides(x["candidate_id"]))
+                source.append(x)
         out=[]; parent=None
         for x in source:
             if x["candidate_id"] == DECOMPOSED_063E_PARENT:

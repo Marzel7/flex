@@ -1,0 +1,18 @@
+{
+  "operation_id": "ccb7b1b0-56e1-4543-9e95-3f284bed3943",
+  "display_name": "P3R_13A04",
+  "technical_detector": "P3R_13A04_FOUR_STEP_30_SOL_LADDER.v1",
+  "fingerprint_id": "30SOL-5K-LADDER-v1",
+  "qualification": "CONFIRMED",
+  "exact_behavioural_contract": [[1, "PLAIN_XFER", 29999975000], [2, "WSOL_WRAP_CLOSE", 29999980000], [3, "PLAIN_XFER", 29999985000], [4, "WSOL_WRAP_CLOSE", 29999990000]],
+  "historical_positive_reference_source": "UNRECOVERED",
+  "historical_positive_provenance_quality": "INSUFFICIENT",
+  "current_membership_count": 0,
+  "baseline_uniqueness_capability": "NOT_YET_MEASURED",
+  "forward_monitoring": "ENABLED_BY_ADAPTER",
+  "address_independent": true,
+  "membership_write_capability": "NONE",
+  "comparison_fixture_source": "existing d3de exact-route regression fixture only; not a uniqueness denominator",
+  "observability_requirements": "four retained SELECTED edges with hop_depth, mechanism, and amount_lamports in exact order",
+  "provenance_quality": "CURRENT_DETECTOR_CONTRACT_WITH_UNRECOVERED_HISTORICAL_POSITIVES"
+}

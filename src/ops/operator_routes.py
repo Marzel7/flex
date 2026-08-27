@@ -341,6 +341,24 @@ def operators_index():
     from flask import render_template
     return render_template("operators_index.html", active_page="operators")
 
+@operator_bp.route("/intelligence/potential-operations")
+def potential_operations_page():
+    from flask import render_template
+    from src.core.db import OPS_DB_PATH
+    from src.ops.potential_operations import rows
+    return render_template("potential_operations.html", active_page="potential_operations", rows=rows(str(OPS_DB_PATH)))
+
+@operator_bp.route("/intelligence/potential-operations/<candidate_id>")
+def potential_operation_detail(candidate_id: str):
+    from flask import render_template
+    from src.core.db import OPS_DB_PATH
+    from src.ops.potential_operations import detail
+    candidate=detail(str(OPS_DB_PATH),candidate_id)
+    if not candidate: return "Potential operation not found",404
+    if candidate.get("legacy_child"):
+        return render_template("potential_operation_legacy_child_detail.html", active_page="potential_operations", candidate=candidate)
+    return render_template("potential_operation_detail.html", active_page="potential_operations", candidate=candidate)
+
 
 # ── Emerging operators (read-only X20 projection) ───────────────────────────
 

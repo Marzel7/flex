@@ -1,4 +1,20 @@
 {
+  "operator_routes_hunk_provenance_audit_20260827": {
+    "engineering_revision": "78d8ce9bafdbf94b796c66531f495c26eee28b1b",
+    "status": "PASS_READ_ONLY",
+    "overall_recommendation": "SEPARATE_UNRELATED_HUNKS_FIRST",
+    "file_state": "operator_routes.py is unstaged and has four physical dirty diff hunks; no partial staging. None of the added symbols exists in reachable committed history, reflog commits, or durable handoff records.",
+    "lifecycle_region": "The final physical hunk, potential_operations_page and potential_operation_detail, is textually separable and depends on untracked potential_operations.py plus its three templates. It is functionally lifecycle UI, but provenance is only symbol/adjacency based, not durable.",
+    "unrelated_regions": [
+      "P3R parent-funder CSV imports/cache/helpers",
+      "default list_operators active-manual behavior",
+      "review-queue APIs",
+      "operator_page parent-funder summary construction",
+      "operator_review_page"
+    ],
+    "safety": "Route changes are read/UI projections except potential_operations.py, whose rows() lazily seeds a workflow table when invoked. No endpoint was executed during the audit; no repository or production state changed.",
+    "exact_next_action": "With explicit authorization, split the final Potential Operations route hunk and its proven companion files into a lifecycle-only change; retain all earlier operator_routes.py hunks unstaged. Before commit, decide whether lazy workflow-table seeding is permitted by the lifecycle scope."
+  },
   "confirmed_potential_lifecycle_normalization_20260827": {
     "engineering_revision": "78d8ce9bafdbf94b796c66531f495c26eee28b1b",
     "status": "HOLD",

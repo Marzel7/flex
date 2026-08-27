@@ -2546,5 +2546,19 @@
     "verification": "PASS: local rendered page contains tokens-24h-count and does not contain total-launches-count after watchtower_api reload.",
     "production_flags": {"membership_changed": false, "provisional_state_changed": false, "detector_changed": false, "fingerprint_changed": false, "threshold_changed": false, "queue_changed": false, "rpc_provider_calls": false, "trading_state_changed": false, "service_restarted": true},
     "exact_next_action": "No additional action required."
+  },
+  "live_ingestion_forensic_20260827": {
+    "engineering_revision": "16585f0bdf5b68073d5f7e358c5d05e58647c843",
+    "status": "HOLD",
+    "verdict": "LIVE_INGESTION_FAILURE_FORENSIC_COMPLETE",
+    "primary_root_cause": "Sustained SQLite write contention after the 11:26-15:38 service outage/recovery. The listener remains connected and receives events, but bounded logs show repeated database-is-locked failures while persisting births and migration follow-up work.",
+    "current_state": {"disk_free_gib": 24, "memory_free_pct": 37, "swap_used_mib": 2316, "births_5m": 0, "births_15m": 1, "births_60m": 3, "migrations_15m": 0, "migrations_60m": 0, "migrations_120m": 101, "last_birth_utc": "2026-08-27T16:28:56Z", "last_migration_utc": "2026-08-27T15:23:37Z"},
+    "service_facts": "Supervisor reports listener, creator funding/resolution, walkback, API, cascade, operation scheduler, intelligence snapshot scheduler and alert evaluator RUNNING. Listener connections are CONNECTED. Creator funding/resolution heartbeats are fresh. Current DB p99 write wait is 4859.52 ms with status PRESSURE.",
+    "evidence": "Two birth retry rows remain after database-lock failures; listener logs show received births/migration signals plus locked writes. Creator-resolution logs record 60-second cross-process lock timeouts while creator-funding held the tracked DB write lane. Supervisor records forced shutdown/SIGKILL of listener/API/cascade/workers at 11:26-11:27, supervised restart at 11:29, later listener stop at 12:16, and current restart at 15:38. No direct no-space error was found in bounded tails.",
+    "classifications": {"live_ingestion": "CURRENT_REAL_FAILURE", "migration": "MIXED", "creator_funding": "INDEPENDENT_FAILURE", "operational_intelligence": "DOWNSTREAM_SYMPTOM", "infrastructure": "CURRENT_REAL_FAILURE"},
+    "data_loss_evidence": "UNRESOLVED: durable timeline has an outage gap and two retained birth retry rows, but local evidence alone cannot enumerate events never received or determine whether all queued retry events are recoverable.",
+    "recovery_not_executed": "No service control, database write, queue replay, provider request, bootstrap, or operation-monitoring action was performed. Recovery requires separate authorization.",
+    "exact_next_action": "Under separate authorization, first address the identified main-DB write-lane contention, then verify listener birth persistence before restarting only the listener if it remains below baseline; validate migrations next, then creator funding. Do not restart healthy cascade, walkback, creator-resolution, or API merely to clear propagated UI warnings.",
+    "production_flags": {"service_restarted": false, "database_changed": false, "queue_replayed": false, "membership_changed": false, "detector_changed": false, "fingerprint_changed": false, "monitoring_state_changed": false, "rpc_provider_calls": false, "trading_state_changed": false}
   }
 }

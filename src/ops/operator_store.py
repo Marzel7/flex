@@ -345,6 +345,25 @@ class OperatorStore:
         except Exception:
             return []
 
+    def fetch_active_manual_operators(self, *, limit: int = 200) -> list[dict]:
+        """The active registry authority: explicit manual admission only."""
+        try:
+            with self._connect() as conn:
+                from src.ops.manual_registry import active
+                from src.ops.operation_identity_metadata import identity_metadata
+                rows = active(conn)[:limit]
+                for row in rows:
+                    snapshot = conn.execute("SELECT metrics_json,activity_state FROM operation_activity_snapshots WHERE operator_id=? ORDER BY observed_at DESC LIMIT 1", (row["operator_id"],)).fetchone()
+                    metrics = json.loads(snapshot[0]) if snapshot else {}
+                    row.update(metrics)
+                    if snapshot: row["activity_state"] = snapshot[1]
+                    identity = identity_metadata(conn, row.get("display_name"), int(metrics.get("total_observed_launches", 0))) or {}
+                    row["human_display_name"] = identity.get("human_name", row.get("display_name"))
+                    row["operation_family"] = identity.get("family")
+                return rows
+        except Exception:
+            return []
+
     def fetch_by_entity(self, entity_address: str) -> list[dict]:
         """Return all operators that include a given wallet address."""
         try:

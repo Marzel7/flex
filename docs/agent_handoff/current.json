@@ -161,20 +161,27 @@
     "status": "PASS"
   },
   "latest_continuation": {
-    "blocker": "The terminal-reporting repair has a Python indentation SyntaxError at the legacy monitoring cleanup inside main(); it has not executed.",
+    "blocker": "The execution environment terminated the foreground bootstrap before its signal/exception handler or final artifact write. Four concurrent membership rows appeared during the window and must be causally attributed before any activation.",
+    "bootstrap": {
+      "artifact_status": "RUNNING",
+      "pid": 45030,
+      "run_id": "fingerprint-bootstrap-1787821026",
+      "stdout": "[fingerprint-bootstrap] start ...",
+      "terminal_artifact_absent": true
+    },
     "milestone": "guarded fingerprint bootstrap execution repair",
-    "next_action": "Await authorization for the indentation-only repair, then compile, test, run guarded bootstrap with captured terminal artifact, and activate only if the causal gate passes.",
+    "next_action": "Do not activate worker. Await authorization for a bounded performance/host-runner repair that makes bootstrap complete below the execution deadline or runs it in a durable managed process, then perform causal provenance for 217->221.",
     "production_flags": {
       "api_restart": false,
-      "membership_mutation": false,
+      "membership_mutation_by_monitoring": "unproven; membership changed 217->221 while externally-terminated bootstrap was running",
       "queue_replay": false,
       "rpc_provider_calls": false,
       "walkback_worker_restart": false
     },
     "status": "HOLD",
-    "tests": "not run after syntax failure",
-    "timestamp_utc": "2026-08-27T08:55:44Z",
-    "verdict": "BOOTSTRAP_TERMINAL_REPORTING_SYNTAX_BLOCKED"
+    "tests": "26 passed; py_compile passed",
+    "timestamp_utc": "2026-08-27T08:58:07Z",
+    "verdict": "GUARDED_BOOTSTRAP_EXTERNALLY_TERMINATED"
   },
   "latest_material_continuation": {
     "blocker": null,

@@ -1,5 +1,5 @@
 {% extends "base_shell.html" %}
-{% block title %}{{ operation.display_name if operation else 'Error' }} — Operations OS{% endblock %}
+{% block title %}{{ (operation.human_display_name or operation.display_name) if operation else 'Error' }} — Operations OS{% endblock %}
 
 {% block head_extra %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/intel-platform.css') }}">
@@ -203,7 +203,7 @@
   <div class="ip-breadcrumb">
     <a href="/ops-os">Mission Control</a>
     <span class="sep">›</span>
-    <span>{{ operation.display_name }}</span>
+    <span>{{ operation.human_display_name or operation.display_name }}</span>
   </div>
 
   <!-- ── Operation hero (Level 1) ──────────────────────────────────────── -->
@@ -211,7 +211,7 @@
     <div class="op-hero-accent {{ operation.status }}"></div>
     <div class="op-hero-body">
       <div class="op-hero-name-row">
-        <span class="op-hero-name">{{ operation.display_name }}</span>
+        <span class="op-hero-name">{{ operation.human_display_name or operation.display_name }}</span>
         {% if operation.status in ('ACTIVE','INSTRUMENTED') %}
         <span class="ip-badge green live"><span class="dot"></span>LIVE</span>
         {% endif %}

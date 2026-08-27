@@ -12,6 +12,24 @@ ACTIVE_900B="70f27e37-83eb-5c97-831c-48189ef98f6c"
 DECOMPOSED_063E_PARENT="p3r-v2-063e24a2def354f23ec5"
 LEGACY_063E_CHILD="P3R_063E_B65C_LEGACY"
 CONFIRMED_063E_OPERATOR="d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334"
+CENSUS_RECONCILIATION=Path(__file__).resolve().parents[2]/"docs/audits/potential_operations_current_census_reconciliation.v1.json"
+
+def _current_census_evidence() -> dict:
+    try:
+        return json.loads(CENSUS_RECONCILIATION.read_text()).get("candidate_evidence", {})
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+def _attach_current_evidence(row: dict, evidence: dict) -> dict:
+    current=evidence.get(row["candidate_id"])
+    if not current:
+        row["current_evidence"]={"state":"NO_NEW_EVIDENCE","matches":0,"metrics":{},"attention":"LOW","attention_rank":0,"reason":"No deterministic current frozen-census family match."}
+        return row
+    metrics=current.get("metrics", {})
+    state=current.get("current_evidence_state", "UNOBSERVABLE")
+    attention={"HOT":"HIGH","ACTIVE":"HIGH","RECURRING":"MEDIUM","QUIET":"LOW"}.get(state,"LOW")
+    row["current_evidence"]={"state":state,"matches":current.get("matches",0),"metrics":metrics,"attention":attention,"attention_rank":{"HIGH":3,"MEDIUM":2,"LOW":1}.get(attention,0),"reason":f"{metrics.get('last_1d',0)} / {metrics.get('last_7d',0)} / {metrics.get('last_30d',0)} current census activity; {state.lower().replace('_',' ')} fingerprint."}
+    return row
 
 DDL="""CREATE TABLE IF NOT EXISTS potential_operation_workflows(
 candidate_id TEXT PRIMARY KEY, canonical_run_id TEXT NOT NULL, canonical_tier TEXT NOT NULL, priority_rank INTEGER NOT NULL, operational_likeness REAL NOT NULL, activity_score REAL NOT NULL, priority_score REAL NOT NULL, workflow_status TEXT NOT NULL, proposed_name TEXT, parent_mechanism TEXT, latest_verdict TEXT, principal_gap TEXT, next_action TEXT, rpc_requirement TEXT, related_operator_id TEXT, last_investigated_at INTEGER, provenance_json TEXT NOT NULL, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL);"""
@@ -86,20 +104,20 @@ def rows(db_path: str) -> list[dict]:
                 # depends on a historical INSERT OR IGNORE value.
                 x.update(_overrides(x["candidate_id"]))
                 source.append(x)
-        out=[]; parent=None
+        out=[]; parent=None; census_evidence=_current_census_evidence()
         for x in source:
             if x["candidate_id"] == DECOMPOSED_063E_PARENT:
                 parent=x
                 continue
             if x.get("workflow_status") in {"PROMOTED_CONFIRMED", "CLOSED", "EXACT_CONFIRMED_OPERATION_MATCH"}:
                 continue
-            out.append(x)
+            out.append(_attach_current_evidence(x,census_evidence))
         child_table=conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='potential_operation_child_candidates'").fetchone()
         child=conn.execute("SELECT workflow_status,proposed_name,member_mints_json,provenance_json FROM potential_operation_child_candidates WHERE child_id=?",(LEGACY_063E_CHILD,)).fetchone() if child_table else None
         if parent and child and child["workflow_status"] == "PAUSED_LEGACY":
             legacy=dict(parent)
             legacy.update({"candidate_id":LEGACY_063E_CHILD,"workflow_status":"PAUSED_LEGACY","proposed_name":child["proposed_name"],"parent_mechanism":"WSOL_WRAP_CLOSE","latest_verdict":"Historical seeded-transfer 10-SOL provision-and-close candidate.","principal_gap":"Historical cohort is paused; no current recurrence.","next_action":"Monitor historical/retained evidence for additional seeded-transfer operation matches.","rpc_requirement":"NOT_CURRENTLY","related_operator_id":None,"key_mechanism":"hop-1 WSOL_WRAP_CLOSE 9,999,985,000 lamports; seeded transfer lifecycle","launches_24h":0,"launches_7d":0,"launches_30d":0,"legacy_member_count":len(json.loads(child["member_mints_json"])),"parent_candidate_id":DECOMPOSED_063E_PARENT,"provenance":json.loads(child["provenance_json"])})
-            out.append(legacy)
+            out.append(_attach_current_evidence(legacy,census_evidence))
         out.sort(key=lambda row:(row["priority_rank"],row["candidate_id"]))
         return out
     finally: conn.close()

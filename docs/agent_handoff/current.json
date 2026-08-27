@@ -1,4 +1,26 @@
 {
+  "potential_operations_lifecycle_base_normalized_20260827": {
+    "engineering_revision": "a8c5c2b677995384b2ea67e7674cb17733eea19e",
+    "status": "PASS",
+    "potential_page_reads": "READ_ONLY",
+    "workflow_normalization": "COMPLETE",
+    "normalization_counts": {"rows_to_create": 0, "rows_to_update": 0, "rows_unchanged": 61},
+    "idempotency": "Preview, explicit apply, and post-apply preview all reported 0/0/61.",
+    "membership_impact": "NONE",
+    "committed_files": [
+      "src/ops/operator_routes.py (final Potential Operations routes hunk only)",
+      "src/ops/potential_operations.py",
+      "scripts/normalize_potential_operation_workflows.py",
+      "templates/potential_operations.html",
+      "templates/potential_operation_detail.html",
+      "templates/potential_operation_legacy_child_detail.html",
+      "tests/test_063e_potential_operations_deduplication.py"
+    ],
+    "tests": "2 passed: tests/test_063e_potential_operations_deduplication.py",
+    "preserved": "All earlier dirty operator_routes.py hunks (P3R CSV, default list, review queue, summary construction, review page) deliberately remain unstaged; walkback_worker and all other unrelated work untouched.",
+    "safety": "No membership, provisional state, detector, fingerprint, threshold, WATCHTOWER semantics, queue, RPC/provider, service, or trading change. No restart or replay.",
+    "exact_next_action": "Implement confirmed/dormant/reactivated and successor presentation only in a separately authorized lifecycle-normalization task."
+  },
   "potential_operations_lifecycle_base_20260827": {
     "engineering_revision": "78d8ce9bafdbf94b796c66531f495c26eee28b1b",
     "status": "BLOCKED_STAGING_SAFETY",

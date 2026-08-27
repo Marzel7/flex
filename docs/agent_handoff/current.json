@@ -2515,5 +2515,15 @@
     "live_endpoint_verification": "PASS: local registry endpoint returned Monolith, FourStep, and Trident after watchtower_api reload.",
     "production_flags": {"membership_changed": false, "provisional_state_changed": false, "detector_changed": false, "fingerprint_changed": false, "threshold_changed": false, "queue_changed": false, "rpc_provider_calls": false, "trading_state_changed": false, "service_restarted": true},
     "exact_next_action": "No additional action required; use the renamed display labels in the operator UI."
+  },
+  "watchtower_unique_operation_ui_20260827": {
+    "engineering_revision": "889101bab0736a0b0d25e8ba523299adbf9d1bca",
+    "status": "PASS",
+    "verdict": "WATCHTOWER_FAMILY_LABEL_REMOVED",
+    "summary": "Removed WATCHTOWER's presentation-only Dynamic Treasury Route family label. WATCHTOWER remains a unique operation with DYNAMIC_ROLE_INFRASTRUCTURE and its established dynamic-role monitoring semantics.",
+    "live_endpoint_verification": "PASS: WATCHTOWER and Monolith both return operation_family=null after local watchtower_api reload; FourStep and Trident remain the two 30 SOL WSOL Ladder family members.",
+    "tests": "PASS: identity metadata py_compile and static assertions for WATCHTOWER family absence and Monolith name.",
+    "production_flags": {"membership_changed": false, "provisional_state_changed": false, "detector_changed": false, "fingerprint_changed": false, "threshold_changed": false, "queue_changed": false, "rpc_provider_calls": false, "trading_state_changed": false, "service_restarted": true},
+    "exact_next_action": "No further action required for the unique WATCHTOWER presentation."
   }
 }

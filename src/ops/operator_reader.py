@@ -265,7 +265,7 @@ class OperatorReader:
             with self._connect() as conn:
                 rows = conn.execute(
                     "SELECT o.*, d.disposition, d.updated_at AS disposition_updated_at, "
-                    "COALESCE(q.qualification_category,'CONFIRMED') AS qualification_category, q.automation_eligibility, q.detector_version, q.parent_mechanism, q.benchmark_json, s.metrics_json, s.activity_state "
+                    "COALESCE(q.qualification_category,'CONFIRMED') AS qualification_category, q.automation_eligibility, q.detector_version, q.parent_mechanism, q.benchmark_json, s.metrics_json, s.activity_state, s.observed_at AS activity_snapshot_observed_at "
                     "FROM operators o "
                     "JOIN operation_registry_dispositions d "
                     "ON d.operator_id=o.operator_id "

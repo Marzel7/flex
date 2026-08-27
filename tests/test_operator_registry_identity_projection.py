@@ -56,4 +56,5 @@ def test_active_registry_projects_identity_family_and_persisted_24h_activity(tmp
     assert row["human_display_name"] == "Sentinel"
     assert row["operation_family"] == "30 SOL WSOL Ladder"
     assert row["launches_last_1d"] == 2
+    assert row["activity_snapshot_observed_at"] == 2
     assert row["total_launches"] == 9

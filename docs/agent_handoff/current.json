@@ -1,4 +1,13 @@
 {
+  "potential_operations_lifecycle_base_20260827": {
+    "engineering_revision": "78d8ce9bafdbf94b796c66531f495c26eee28b1b",
+    "status": "BLOCKED_STAGING_SAFETY",
+    "read_path_repair": "Implemented locally: rows() no longer seeds; normalize_potential_operation_workflows(conn, apply=False/True) is explicit and idempotent; a command launcher was added.",
+    "verification": "Focused lifecycle tests: 2 passed. Local production normalizer preview/apply/second-preview each reported rows_to_create=0, rows_to_update=0, rows_unchanged=61; existing workflow metadata was already complete.",
+    "blocker": "The staging safety guard rejected an automated hunk filter because it could not prove exclusion of unrelated operator_routes.py changes. No hunk was staged and no lifecycle commit was made.",
+    "safety": "No membership, provisional state, detector, fingerprint, threshold, WATCHTOWER semantics, queue, RPC/provider, service, or trading state changed. The explicit normalizer made no DB changes because its preview was zero.",
+    "exact_next_action": "Use a human-reviewed interactive hunk staging session to stage only operator_routes.py final Potential Operations route hunk, then commit the already-verified lifecycle companion files."
+  },
   "operator_routes_hunk_provenance_audit_20260827": {
     "engineering_revision": "78d8ce9bafdbf94b796c66531f495c26eee28b1b",
     "status": "PASS_READ_ONLY",

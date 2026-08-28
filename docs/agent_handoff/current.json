@@ -1,4 +1,19 @@
 {
+  "focus_next_upstream_funder_rpc_20260828": {
+    "engineering_revision": "3d6dcfcca55c14740c94e87d7805dc3d34d1e592",
+    "status": "PASS_READ_ONLY",
+    "verdict": "FOCUS_NEXT_UPSTREAM_FUNDER_RPC_COMPLETE",
+    "candidate": "p3r-v2-dc4953db7adb853337c4",
+    "artifact": "docs/audits/focus_next_upstream_funder_rpc.v1.json",
+    "digest": "3d2c44e0fc03637ba2caa5435be4933589ba1ea73d82ce006ffd2a6b5ac5623c",
+    "scope": "Read-only, non-recursive account-birth provenance for all 27 frozen direct funders; three history pages/funder maximum, 108 request ceiling, zero retries.",
+    "result": "27/27 earliest reachable histories were exhausted within one page and yielded an initial material native inbound transaction of 497,607,780 lamports. There are 16 distinct upstream accounts; GU93MxGDeTycGPbJoJPMtA7aMZuEuqr79ujFcpXHaBTj funds 8 of 27 direct funders. This is bounded provenance, not an operation identity, membership, or promotion conclusion.",
+    "rpc": {"requests": 54, "getSignaturesForAddress": 27, "getTransaction": 27},
+    "tests": "4 passed: test_focus_next_upstream_funder_rpc.py and test_focus_next_assessment_persistence.py; audit semantic digest verified.",
+    "files": ["scripts/check_focus_next_upstream_funders.py", "docs/audits/focus_next_upstream_funder_rpc.v1.json", "tests/test_focus_next_upstream_funder_rpc.py"],
+    "safety": "No workflow, membership, detector, fingerprint, threshold, queue, service, listener/worker, or trading state changed. No raw RPC payloads or credentials were retained. Unrelated dirty work preserved.",
+    "exact_next_action": "If desired, separately authorize a bounded evidence interpretation or UI provenance projection; do not infer promotion from this read-only result."
+  },
   "potential_detail_gmgn_links_20260828": {
     "engineering_revision": "66cb896aca1dd1b7c497787952469dd149e25be9",
     "status": "PASS",

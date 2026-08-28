@@ -3182,5 +3182,16 @@
     "c357_audited_upstreams_ui": {"engineering_revision":"0dc9983eb295b663f724738f81c881ed045945ec","status":"PASS","summary":"All retained audited upstream-funder mappings are now rendered per Recent Launches path; visible page rows verified after API-only reload.","production_flags":{"workflow_changed":false,"membership_changed":false,"provider_calls":false,"service_restarted":true}},
     "c357_direct_transfer_linkage": {"engineering_revision":"93c1000f33266ff2eef9ee88c58e368f79bf620d","status":"PASS","summary":"Checkpointed read-only history/transaction scan completed and retained direct-transfer evidence among the audited wallet set. Findings establish wallet funding connectivity only; they do not establish common control or alter operation attribution.","production_flags":{"source_db_writes":false,"workflow_writes":false,"provider_mutations":false,"service_restarted":false},"exact_next_action":"Review the direct-transfer report only if a separately authorized attribution-analysis stage is desired."},
     "exact_next_action": "Use Snapshot V2 as the authoritative Potential activity read projection; historical Focus v2 remains an unchanged historical assessment."
+  },
+  "p3r_c357_operational_surfacing_20260828": {
+    "engineering_revision": "bf1baac7",
+    "implementation_state": "UNCOMMITTED_WORKTREE_ONLY",
+    "files": ["src/ops/potential_operations.py", "templates/potential_operations.html", "templates/operators_index.html", "tests/test_c357_operational_surfacing.py"],
+    "presentation": "C357 is surfaced as a registered Leviathan/P3R operational subtype: 56 supported, 50 parent-owned, 105 compatible unresolved, partial attribution, shadow-only.",
+    "tests": "9 passed: C357 surfacing, Potential relationship/visual structure, and P3R C357 subtype read model.",
+    "live_http_check": "HOLD: localhost:5002 was not listening during verification.",
+    "blocker": "Sandbox cannot create .git/index.lock. templates/operators_index.html also contains pre-existing unrelated dirty changes and the C357 insert shares a one-line JavaScript hunk.",
+    "exact_next_action": "Restart or verify the local API service, inspect both pages, then stage only the task-owned C357 hunk from operators_index.html plus the three wholly task-owned files when using a terminal with index-write authority.",
+    "verdict": "PARTIAL_C357_OPERATIONAL_SURFACING_IMPLEMENTED_UNCOMMITTED"
   }
 }

@@ -1,4 +1,13 @@
 {
+  "c357_branch_b_initialization_20260828": {
+    "engineering_revision": "0fa8a5bb",
+    "status": "PASS_READ_ONLY",
+    "verdict": "33MY_TO_HXUF_INITIALIZATION_PROVEN",
+    "result": "The earliest retained HXuf transaction was decoded by RPC. At slot 441404143 / block time 1787578100, 33my was fee payer, created and owned a seeded temporary WSOL account, transferred 3,049,997,960,720 lamports into it, synced native SOL, and closed it to HXuf. The account-creation rent was 2,039,280 lamports, so the close delivers approximately 3,050 SOL to HXuf.",
+    "role_assessment": "At this event, 33my is PROVISIONER, WSOL_CLOSE_SOURCE, and FEE_PAYER; HXuf is WSOL_CLOSE_DESTINATION. This proves a chronological initialization/funding relation and prevents treating CZTx as Branch B root merely from an address sequence. CZTx/HXuf later shared activity remains unresolved pending directional transaction decoding.",
+    "safety": "Two bounded read-only provider calls; no database, workflow, membership, qualification, detector, service, listener/worker, or trading state changed.",
+    "exact_next_action": "Decode the chronologically bounded CZTx/HXuf shared transactions to establish directional flow counts and role-at-time relationship before classifying Branch B."
+  },
   "c357_post_dutb_successor_infrastructure_20260828": {
     "engineering_revision": "0fa8a5bb",
     "status": "PARTIAL",

@@ -1,0 +1,16 @@
+{
+  "schema_version": "C357_HXUF_RECIPIENT_TO_LAUNCH.v1",
+  "frozen_recipient_count": 6,
+  "cutoff_epoch": 1787915578,
+  "recipients": {
+    "CZTxzma6pA9HPwXASpbhuCKNGrH6zgpQ9ARgUqUQwbTy": {"hxuf_transfers": 17, "hxuf_lamports": 58185459915000, "recent_history_examined": 50, "token_interactions": 5, "post_boundary_exact_c357": 0, "result": "NOT_C357: decoded token interactions lack the required createAccountWithSeed/transfer/syncNative/close lifecycle and exact amount"},
+    "DZsGkfu5956SAbPWtwVLr9uWWtRfr9smWPuz8F3o4RK5": {"hxuf_lamports": 9999997955720, "recent_history_examined": 1, "downstream_launches": 0, "result": "NO_DOWNSTREAM_ACTIVITY"},
+    "8JLUkRMGe1YbR77kvD3PTaH4c1sqyYhJR8SK6corsijZ": {"hxuf_lamports": 8594017950720, "recent_history_examined": 1, "downstream_launches": 0, "result": "NO_DOWNSTREAM_ACTIVITY"},
+    "7opZBm5r3NNE865FXbDVZEmamKRkmz3i3hmxVvbnJrs9": {"hxuf_lamports": 774353935720, "recent_history_examined": 1, "downstream_launches": 0, "result": "NO_DOWNSTREAM_ACTIVITY"},
+    "5P9CZK1n7rgiaLTxRMqpyUhtyPoUNbs85Q5FN8Trn84r": {"hxuf_lamports": 225253550280, "recent_history_examined": 1, "downstream_launches": 0, "result": "NO_DOWNSTREAM_ACTIVITY"},
+    "5hMDDjHnAtfVdErVAtHGezQxHjp5KzEkwJZX9o8RdzdU": {"hxuf_lamports": 101072926767, "recent_history_examined": 1, "downstream_launches": 0, "result": "NO_DOWNSTREAM_ACTIVITY"}
+  },
+  "conclusion": {"post_25_aug_exact_c357_matches": 0, "post_25_aug_near_c357_matches": 0, "tracking_loss": "NOT_PROVEN", "hxuf_c357_specificity": "GENERIC_HUB", "c357_status": "C357_LAST_CONFIRMED_25_AUG", "hxuf_wallet_pool_model": "NOT_SUPPORTED", "monitoring_role": "GENERIC_CONTEXT_ONLY", "next": "DECODE_BRANCH_A_C"},
+  "scope": "Six frozen material recipients only; one downstream recipient history page capped at 50 signatures; no recursive counterparty crawl; no provider mutation.",
+  "safety": {"workflow": "PAUSED", "membership_changed": false, "fingerprint_changed": false, "detector_changed": false, "snapshot_v2_changed": false}
+}

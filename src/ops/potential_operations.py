@@ -301,6 +301,8 @@ def detail(db_path: str, candidate_id: str) -> dict | None:
         "evidence": family.get("evidence", {}),
         "fingerprint": family.get("fingerprint", {}),
     })
+    if candidate_id == "p3r-v2-c357da9d0d4d560311e4":
+        candidate["verified_upstreams"] = [{"address": address, "short": _short(address)} for address in sorted(set(C357_UPSTREAMS.values()))]
     forensic = (Path(__file__).resolve().parents[2] / "docs/agent_handoff/p3r/v2" / RUN_ID /
                 "063e_forensic/p3r-v2-063e-forensic-v1/p3r_v2_063e_forensic_operation_investigation.v1.json")
     if candidate_id == "p3r-v2-063e24a2def354f23ec5" and forensic.exists():

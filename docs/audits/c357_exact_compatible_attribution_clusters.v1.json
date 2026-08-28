@@ -1,0 +1,1161 @@
+{
+  "baseline": {
+    "c357": 71,
+    "collisions": 90
+  },
+  "clusters": [
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "297QThTtiuJeBGHSbMZuhVxDPvaMsMW17JaDt8nb5n1E",
+      "matches": 1,
+      "mints": [
+        "C5V2wxMWrxYE18wMH517Ut6nWmZ7ecZhziDvD5Xpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "2GxThYT4CrWmPA39UMAeu7kJBYbbkDaEtSbtJkcJvChD",
+      "matches": 1,
+      "mints": [
+        "AMnRhMEt4QzoKACHuN8nTykxYthscAFyX9fhDNVpump"
+      ]
+    },
+    {
+      "attribution": "AMBIGUOUS_SHARED_FUNDER",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "direct_funder": "2fJCPb27tQhbnX4s3sTJvjzK1deawkREkKjCKS7PjF9g",
+      "matches": 2,
+      "mints": [
+        "zdRcJpYgDgJaGBjHacTDBmDtqvSEH9Tcou6c6CApump",
+        "osxeVkLpan3NyZsRDcdWiEuWBFHA6or59UshcaRpump"
+      ]
+    },
+    {
+      "attribution": "C357_BASELINE_CLUSTER",
+      "baseline_labels": [
+        "C357"
+      ],
+      "direct_funder": "2h2xdvznzmcRi4zNE8A3uwe4Er5e5bf8gTxzXREg9ph5",
+      "matches": 1,
+      "mints": [
+        "keZ4mAQQqREHoZeC3HcZNpVC1qSGX4kiWC7vdtvpump"
+      ]
+    },
+    {
+      "attribution": "C357_BASELINE_CLUSTER",
+      "baseline_labels": [
+        "C357"
+      ],
+      "direct_funder": "397s3pwPhV1A88Fj2EuNoERFYTCLdN5WiUAPvxUxFVST",
+      "matches": 1,
+      "mints": [
+        "DqErYkksQymp8sVr2HkrJbVWkv1YXrz3keWKBfHpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "3BeSWamt3Lvj4cP9MopXgPb9CxjZ29UkZ6qPAc8kskec",
+      "matches": 1,
+      "mints": [
+        "AjSXgwtqKmJ7r4e4DsfTu8xS4ytrHigXhxfLtAwpump"
+      ]
+    },
+    {
+      "attribution": "AMBIGUOUS_SHARED_FUNDER",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "direct_funder": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+      "matches": 5,
+      "mints": [
+        "LyqncnAuRYisshpv1u12B6pCD7SASdyFj1itCUcpump",
+        "oruyBzARjKtPNvRhcT5nR4bzYt5SM8uCv74j84epump",
+        "c9SFiUUHzra78qJinqxSntvpBmJjXdGYDcMMNkXpump",
+        "ZjDVmGGAkmj1aj8Le3uGoaUiz39jEyKH6VP7dzQpump",
+        "o4UAUX9WBkWYRVFmccHQah4UytnKn6hDAj7q4Rmpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "3ipeLjjgX37rqMNf8DV3N4Dufet4Fs1Ho6WyctQAG8FE",
+      "matches": 12,
+      "mints": [
+        "Kc3RWLHYvmfhSk4qW4yYpimyv8794ZQoXBRoBH8pump",
+        "qg4fcJ9sbpWkGjPz4SDm5gzxibaaYs4Cb1pcW3rpump",
+        "kz6rKizdEhKZp6xsTfBgRyukZDUVExGyuSWLuAhpump",
+        "hHFXWyo4ee4wv8QatmtVWuoF1wQ5wZxWmHLpJN9pump",
+        "RDsd1qBPMHHmAryvSgajgrBhZNcZCXGfa2Hrdnjpump",
+        "hwbbGmQNpio9m5Ug9yEmiUzjEZkTVzh2N1ikpGBpump",
+        "EpgCAWwATyXZkqHgvtsv9rUmHByuTr5sXfufaXMpump",
+        "w3dYCLYpUHFiZxbgXGaH9stnREEjk7Ms6JupWsTpump",
+        "UX712XgxEb6GGuJJaEA5uqZMGNTzDy49U3RUEskpump",
+        "rRh6XtjwYRnJc2DoLA1EMjrizERzwfjroW4s2UEpump",
+        "LSA2D6LpguQ65BoSZ9xWAWq1jPtABjqXQRoDCd5pump",
+        "TzNfQvm99gJY8GJ795WzG9N39z58orsCTr84SVcpump"
+      ]
+    },
+    {
+      "attribution": "AMBIGUOUS_SHARED_FUNDER",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "direct_funder": "3thxdSxsHtFuGJroCYe6JmCojPRizUz1GnvQSq5M5JfY",
+      "matches": 2,
+      "mints": [
+        "DRtGHd1dF6Az5vknV188Yk3LQ72rZ4J9CB1WWg8pump",
+        "TwA2K5KnYpyNeu7dxeNY3yS4uCR5KrRRh9FPLDHpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "3uEYFFcX67enN7zNfKZAQcELq7CzbBHfMdwrXRwJtRn8",
+      "matches": 1,
+      "mints": [
+        "oWm6g9tVQsMw5DXNB5wYXRWDHGsgqjXc62Fp2xapump"
+      ]
+    },
+    {
+      "attribution": "AMBIGUOUS_SHARED_FUNDER",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "direct_funder": "49Wo4qJS1CWPd4b8LAezyL4ARPj3fw6N6zPhPV4dQd6V",
+      "matches": 2,
+      "mints": [
+        "NRPBhPtg77cqKofXFDD4tXoKhtesqsNHRzx5hW3pump",
+        "UMVSuCPVE5H1SbEZ5X32iu3Jcs67ySZ1iMuiyaWpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "4YQgJNSVMwfGGDrvBhJ2Wp9Pg2iHM5sH6vtbnChbir7c",
+      "matches": 1,
+      "mints": [
+        "Y1CSAznDYCo22XcvyWSR4RcLvgecSXs9DDDrAsYpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "4mm5ZhprrsZAPti2byzr8j2ZuiawWveKJojHzW5ty4MH",
+      "matches": 1,
+      "mints": [
+        "PeGCj3cD1Zx1WMfhMnhuUxSa3U4mY9Zh6XyvqTRpump"
+      ]
+    },
+    {
+      "attribution": "AMBIGUOUS_SHARED_FUNDER",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "direct_funder": "54xTpcBEr48Cuis8m2SdeymdQcwvmDR4aegxCPQzUANG",
+      "matches": 2,
+      "mints": [
+        "eMD1zv3m9ArePAtXYEVFG9tbXfwDzY8GyFMxbPopump",
+        "yWejG1LK1ntt959iqV11xiKSrdFGE7iLjV4Pwhnpump"
+      ]
+    },
+    {
+      "attribution": "AMBIGUOUS_SHARED_FUNDER",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "direct_funder": "59MGbbjnBsNKNbTXsd4cc83doHgpkJBdotigvZ6WxjLX",
+      "matches": 2,
+      "mints": [
+        "ievXxbA8sjKHggi8YGT4thhEXTc7aEpfwVV4v6rpump",
+        "nobzQmhM6x86Y8WdrgH21AKuVrJ5mJmkBmJU9Lqpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "5HHn2HrMUjkUiB59SZfNNkjhXqXopkvM2HtCEwCdBHeg",
+      "matches": 1,
+      "mints": [
+        "oMLmNMvLqygvkNbBNyMJTdr25r88Es5B4gjUGZzpump"
+      ]
+    },
+    {
+      "attribution": "AMBIGUOUS_SHARED_FUNDER",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "direct_funder": "5PkFFC9FCmm2EUQHMqbF9cwMviSXjgAjeqKEoPoYejuG",
+      "matches": 3,
+      "mints": [
+        "Nru8UYd7haPtkH6iGdgeVbSVu7WhuMMBjbrpRybpump",
+        "WLjqiHSEWgHVkX9JWJXgXDhX9XTCtSSj3EdyB4Cpump",
+        "Y7QgJmhzM63qnXUw7J6baDZG5qLfwnYDdXjNbChpump"
+      ]
+    },
+    {
+      "attribution": "C357_BASELINE_CLUSTER",
+      "baseline_labels": [
+        "C357"
+      ],
+      "direct_funder": "5TR1KXium6nxovUUXbofK2N1uYPh9NA8w9WpvvKZ3Myi",
+      "matches": 2,
+      "mints": [
+        "GkyDShEPTvXw6CacK76yxSzA9seHbyPfpRK1AuTpump",
+        "YBemckTiUgK4sL6Xv2yktkgoYydrSqRmWJyWAZJpump"
+      ]
+    },
+    {
+      "attribution": "C357_BASELINE_CLUSTER",
+      "baseline_labels": [
+        "C357"
+      ],
+      "direct_funder": "5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn",
+      "matches": 3,
+      "mints": [
+        "tpx8GumtoKhXeba859s1ka7grY8m5zcQ8yPnZnSpump",
+        "brj1EEqhenNSLbnjdNyok33yLpxBwvyFheRctCKpump",
+        "S3jLzSX9NKbtdUVGTzoeYFMty5xXRYvzTbFASXUpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "5aKyY4qnEMZnCsvaCCEoEzbnyRa8J8KJGEFVKHe7uxF8",
+      "matches": 1,
+      "mints": [
+        "XRb16PHU7jMDbswDBi18h64nw6gFaSmVmpoenuvpump"
+      ]
+    },
+    {
+      "attribution": "C357_BASELINE_CLUSTER",
+      "baseline_labels": [
+        "C357"
+      ],
+      "direct_funder": "5iDYsDLugMXh1LTRVDmFH8PfQ6ueG5pE9UcfefrnztB6",
+      "matches": 1,
+      "mints": [
+        "apSur7K2VY3XsRUSSFDgJUYhdgW2zfRHLFvKUHKpump"
+      ]
+    },
+    {
+      "attribution": "C357_BASELINE_CLUSTER",
+      "baseline_labels": [
+        "C357"
+      ],
+      "direct_funder": "5sUoQPPvnvS6eXem4TdcjKJ1JZy7uLEhWN3pCA8yNFnc",
+      "matches": 1,
+      "mints": [
+        "HUNHEFrs7pFJpd1R7bYq6vT9GigRk3rV9av63ZVpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "5u25nsdUPraFYayZpPN5G4SigmKtyYiYi7xaaeDTKYXF",
+      "matches": 1,
+      "mints": [
+        "X2xLpFxzPKDsNnGQn6YAar3Ge8MhVquBNR6zwz9pump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "5xfUdLx4edkXEt8d6MjbrDanVkiSGNnpGcKtnjsTybWB",
+      "matches": 3,
+      "mints": [
+        "eMkqusB95bp5GNDLfHmxaRAgmD2f9JVp2kVFvfHpump",
+        "iQSmPeCYvDXLYy1kWuHsbt3eFdMoQ95LzvQxAJzpump",
+        "o9LpxqLwjnt8FWJjRF8ERyAcyphpMnioUDHXfnzpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "6S8Jy28SSYMG8ZNfjkgbxPzVvfBkqBUmrHiUKCXhQTGN",
+      "matches": 1,
+      "mints": [
+        "ovhBXwJSLYZbtgg1LxNoopsZsfe51SLUPWeY7Dzpump"
+      ]
+    },
+    {
+      "attribution": "C357_BASELINE_CLUSTER",
+      "baseline_labels": [
+        "C357"
+      ],
+      "direct_funder": "6hakQXcUcnk1EuuGMHsDPw9iP4GPwjUtHxxPAvGnPj3L",
+      "matches": 1,
+      "mints": [
+        "p6Dydex88SswnKT9pRnjPwrCfHpw1c79FAAu81Upump"
+      ]
+    },
+    {
+      "attribution": "C357_BASELINE_CLUSTER",
+      "baseline_labels": [
+        "C357"
+      ],
+      "direct_funder": "6jJnz6ZQjDZeFLxoDq2RBp4fvsjPfCJmpr1jhQcy2rBk",
+      "matches": 1,
+      "mints": [
+        "VByVzKnqKM6QGCJs9JwxGs4RJC8kdtwtn6FnfXMpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "6nVVHkresDde2BHRw6b6Qfg9UqAJStUQoXv94kopSNBC",
+      "matches": 2,
+      "mints": [
+        "Yj3Si5ze23uxsBkjeeuSu6gFEaRKKPL8SqCoq6ipump",
+        "DdFbtA4xsEZkQvXQdrocU3FVDuUYp8QmrmqjSMypump"
+      ]
+    },
+    {
+      "attribution": "C357_BASELINE_CLUSTER",
+      "baseline_labels": [
+        "C357"
+      ],
+      "direct_funder": "7144mX5peoQoyYq2ncsTmzFciqkLiYzS42XVmvFjGiv4",
+      "matches": 1,
+      "mints": [
+        "CPM7DGwsFCyT2kHqzEwf4moWKnCiYh5czdbyr7apump"
+      ]
+    },
+    {
+      "attribution": "AMBIGUOUS_SHARED_FUNDER",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "direct_funder": "7DifG8cHrQBAAKjqoLCnfzj8khtnYLPE39GnWgEnLP8d",
+      "matches": 2,
+      "mints": [
+        "kzbmCQBMAZ1Eo2cJ8WfrQg9SUQ7QhSpsPCA8jmPpump",
+        "wQFd44Kh6nsrXn49vcu4bpjDCqe18iTGYzTgcWppump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "7QdxX5gpREraXuq8Cxfv9AAYky7c399FAN5XJn12SF6g",
+      "matches": 1,
+      "mints": [
+        "WLeRGPm6vEgA4vFktd8no9ZccDNdKiaqqt3bPXwpump"
+      ]
+    },
+    {
+      "attribution": "C357_BASELINE_CLUSTER",
+      "baseline_labels": [
+        "C357"
+      ],
+      "direct_funder": "7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv",
+      "matches": 2,
+      "mints": [
+        "shhJVNYRrzuBzKCBKcu6yuYEMLicmztd5Wiw6zfpump",
+        "UkCrzRHSB7jDqMzfLEyAA6A68ibzWZpBWvdY2y4pump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "7ujELVUxF7xd7ZFxXEPhhuVThaa5Lx116xphh38cfxM2",
+      "matches": 1,
+      "mints": [
+        "K82ujy1uaxR6fSTpDResq963Kk1NBSu4qniXCigpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "8HA5LkgYxG7dWuTMMJwXfHg6rwMvtvYDJDx2t9GxYzTb",
+      "matches": 1,
+      "mints": [
+        "rXawUDNhif2Lf7NkhsrugKY7rKVeunhUaDFREcqpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "8TyL8PpjabJhMCoKXc3mKVy4jc4YQX4nwTBaUB4RFYKN",
+      "matches": 1,
+      "mints": [
+        "kcqb3cx3KEvo9Kd3jyNZT3BKu9kwWToiyMaeLx3pump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "8YbwFkFnkm43kvp9tP71Cj6qcSKFNe2bS3FqAdJdjs7F",
+      "matches": 1,
+      "mints": [
+        "wCrHmgB2fAbQwtvwK5FLb7WFchFndwtMcvUDHqbpump"
+      ]
+    },
+    {
+      "attribution": "AMBIGUOUS_SHARED_FUNDER",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "direct_funder": "9As8wexRUtoujuYia5WxpiUCbjut75XTb9LknATiXvRW",
+      "matches": 3,
+      "mints": [
+        "FX3fHqPaWXw7DDAofCCotATQg1aQsiwpM5A6TdDpump",
+        "Qqq9SveDjjYJc3jFYwopxEFhuV7SwMtcixr3skdpump",
+        "UroXqz24UCoMy1LpQJVQjJEyeKzBh6aYPq4b487pump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "9UgP4q7QNjSicR7YzkdSU7RLycWrLEPbvi5u6EHaG5M7",
+      "matches": 1,
+      "mints": [
+        "ZfTmRsFsi8x9mYoKn2AYSvt24tEw1hphNVMda6Spump"
+      ]
+    },
+    {
+      "attribution": "AMBIGUOUS_SHARED_FUNDER",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "direct_funder": "9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp",
+      "matches": 4,
+      "mints": [
+        "aReQqWoocmX3hRhyCKjnwEmcxF3masz6amgDG1Gpump",
+        "ZpQmhQvEpasHYF2gDrDJXaYZVDJxJUZRt9vvHbUpump",
+        "FGmjBvJ1i4gXLpcJuijKDdonPMT6Q1MiYVuQHDapump",
+        "puhW9nSz4rczEtWNM6TH1zYikSmapRu2PxdSXwfpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "A4XPmTUoH5VcE9mM2pYLB26yMn3wL5sa2LuuXnngbvZ",
+      "matches": 1,
+      "mints": [
+        "z8ik9e9nrJaT7dez73LY8qVLmMKXuMKDCgFsxxppump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "ACRJhDnjLjH8CAzqb2nbekHKtQkcJgvJJBKEoMHaQiUT",
+      "matches": 1,
+      "mints": [
+        "RB7ptiUkYvkprEXhKnqjhjmm9AwmPEvFk8UnmBfpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "AFMNXaQDhB1qDZk21P8B8uaLNUCYng4sGpTJNHa4ePSn",
+      "matches": 1,
+      "mints": [
+        "SdVHNEwdV3yJ7v24ByoaBUm23Edtoe9em2JbUH8pump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "AQiB8cPxuoXMeVRPNZygXED68VVXj4awgJ6gzz4WHazn",
+      "matches": 1,
+      "mints": [
+        "b735wdJpBVzskwt6UcajryBgszkfR6KPo6E4u83pump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "ASPJLkhCzpEVmsVubeQGuQ2H8U8cHW8mefVq6cJxSef8",
+      "matches": 1,
+      "mints": [
+        "y82JKxrGCeZaQ4ZCQthY4wSRt6MXRHUy2B6ZRwTpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "AVGgJxD5WKA6zkJz1CthVL5B5sUzRN4Qgr1ozgiA6CTq",
+      "matches": 1,
+      "mints": [
+        "Bp1hVhhad7SzDi3h3dvCdMEhANDfN8SqhbhK2ippump"
+      ]
+    },
+    {
+      "attribution": "C357_BASELINE_CLUSTER",
+      "baseline_labels": [
+        "C357"
+      ],
+      "direct_funder": "AW7FZRzGUA8HnRWTsGbEDogAh4Y2Utv2KBqALEvfGLqb",
+      "matches": 3,
+      "mints": [
+        "kZBroKqYaSrHxKV3vLmRGTW7Tw1q2WQ1wte6PNJpump",
+        "o8uMYvNkndS6rSRPrV16d8LgJ1V732RxmZuzT8xpump",
+        "z5vGP66VUGSrT5WyfEs9QGB1VJiKh5Lhx2DeggCpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "AcVg9FuPyFQjA89rnmYwCu2NrS8QTsYvRJxsKGTvQbsB",
+      "matches": 1,
+      "mints": [
+        "Yiv66drmUeMLcgKpuxfcetPQ5PE8Z9GSatsKxP5pump"
+      ]
+    },
+    {
+      "attribution": "AMBIGUOUS_SHARED_FUNDER",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "direct_funder": "AhfDWL1mi2xajF7JWGDzmTiqvtRxD7JDWHkaZVnmUvw7",
+      "matches": 2,
+      "mints": [
+        "c3XhY2caaYZA18qxyioupTZquhjWSKDF1Xt6ZVXpump",
+        "jmM56TE7ko4jUzmzJ523W1b3872jMXKoiwsJLUKpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "AiTkzFK2ASjrhdugedhjqCgXm8V9mn4TSAohY1HcC3HX",
+      "matches": 1,
+      "mints": [
+        "s5zJdLkTLrfnVK1pLw8ToPbHq8nKY93gvauceurpump"
+      ]
+    },
+    {
+      "attribution": "AMBIGUOUS_SHARED_FUNDER",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "direct_funder": "Am3Un7bph5NNWDLCVVVQT1kY4kN3GFPjj31g4DdrNCd4",
+      "matches": 3,
+      "mints": [
+        "ZzWhbH8LrTjx8uCQgE2SEue3jiYWKAm7RGTCYH8pump",
+        "HkkFpHwpERFUkhZhLrFXMbz5J7WA1bZqSKLnP3wpump",
+        "qAvJyjqQdkC1NHantQMV5ehwpCbDiJZcziPgwoppump"
+      ]
+    },
+    {
+      "attribution": "C357_BASELINE_CLUSTER",
+      "baseline_labels": [
+        "C357"
+      ],
+      "direct_funder": "Ao2sUdoFtKW7yix7v6GT8GoWE94LcgHiyjautukHBKAi",
+      "matches": 1,
+      "mints": [
+        "aqu8vj7snoqUJsTuC5UemhvNWeMJzWu6qbpa3jnpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "B6oBat17dkCtpUFe31yc8ExALTBi5QKRx7PwDDebxoXc",
+      "matches": 1,
+      "mints": [
+        "w7f4DGS28KQnQGB8s6jKX7Z3LusY3bEf1aB47P1pump"
+      ]
+    },
+    {
+      "attribution": "AMBIGUOUS_SHARED_FUNDER",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "direct_funder": "BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH",
+      "matches": 3,
+      "mints": [
+        "ugwTkUXE3ckeakLawvoc7inQmtZZQ3K5dYPj4wHpump",
+        "WV1UndBXx7eGbtA7B6Q7HEnX1mN8DL3XdGDN9Jupump",
+        "awwz1zgwET9MtvRSZ9CUZ5QpLFviT9fFv53CpDApump"
+      ]
+    },
+    {
+      "attribution": "AMBIGUOUS_SHARED_FUNDER",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "direct_funder": "BsKEb5qhnHMFP4XUjoXMv5nMxkvuaFtBH5ssuWNMjLbw",
+      "matches": 2,
+      "mints": [
+        "rRGoXVsKJtZGgPqwShxiSD8pcpyH5qXhthqFT5Hpump",
+        "aAusLt3LivQAmeLBjiMHJ9vJsHEKm2wWAZGtkb5pump"
+      ]
+    },
+    {
+      "attribution": "AMBIGUOUS_SHARED_FUNDER",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "direct_funder": "C2W3FExk348T4aNHpJjiCZpNrpd9MNLBBVZAdWCogtBx",
+      "matches": 2,
+      "mints": [
+        "s8Ws5Ld7WAKhsaZnuaZkjbWs9jfSQEzRA2FKS7Mpump",
+        "ZMA7yJNeXUwcUdGWXzw654ZX6k1tj3zgqL7qrFBpump"
+      ]
+    },
+    {
+      "attribution": "AMBIGUOUS_SHARED_FUNDER",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "direct_funder": "C55hxeJepPLMKi4xuKjAFLWmxoSfVrqn2LELi67ixQfe",
+      "matches": 4,
+      "mints": [
+        "KeJkdwZhEG4Bj5Rs1e2RTgyhZe8Mmr9DvTYVNWrpump",
+        "UsCT9cALz6uba94mdUByBLZgP3Dp5sW7Mv7ZgJPpump",
+        "Y61KbxFLkSU8GGiknx2tg2fyPp5gRj1n6EVzuWbpump",
+        "qX9jHURr5UVA7FpoeQdYCGYfR9HYjPhTckPqbRgpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "CB4FsLzRtFFEHKhCqSqbXkHBVL9xxteHogHHpzcRTd4N",
+      "matches": 1,
+      "mints": [
+        "fxL4tAbUwAup8rvh2iR8aoa7Y56C7XMW2PMs1bMpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "CRo4V5iKHCDPK3AK1ULsWa914KyhX1YtcR3cY3e7tr2z",
+      "matches": 1,
+      "mints": [
+        "TXZKp8gZ7pdjXNCvGWfhd4wrChJ6f5AgerAFMBTpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "CT9nGrmkxFSfFTyb2wLEegWhF2e8aVqkLgE1ZJqw6mkY",
+      "matches": 1,
+      "mints": [
+        "iA6gJUg8aQ6VxcdenAzMkNcjueY3L8gSugiVocjpump"
+      ]
+    },
+    {
+      "attribution": "C357_BASELINE_CLUSTER",
+      "baseline_labels": [
+        "C357"
+      ],
+      "direct_funder": "CYnm5v4MiLLLaUvu5VUfYPxszU8RPBzmH3Qkv7QbfcUi",
+      "matches": 1,
+      "mints": [
+        "Cj7up2N4yXdzZmLYNaiPt6zye4VWoWHsyeCobEDpump"
+      ]
+    },
+    {
+      "attribution": "C357_BASELINE_CLUSTER",
+      "baseline_labels": [
+        "C357"
+      ],
+      "direct_funder": "CbMTzd1sG9vuP9Tw2nUNBHUvtsyzr4Hm5rknri4XxXWL",
+      "matches": 1,
+      "mints": [
+        "EakWrE5ehWTkJkhSPp861abPiDg4BDW72KVMR2Qpump"
+      ]
+    },
+    {
+      "attribution": "C357_BASELINE_CLUSTER",
+      "baseline_labels": [
+        "C357"
+      ],
+      "direct_funder": "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5",
+      "matches": 5,
+      "mints": [
+        "x7ofxncQVmMK3PDXVJF76uJ5JkgzX3x3eUGXkjopump",
+        "Q3FHwyr9AFZvFJUyFduoGrnJE5gAgq7UGQWVn2Kpump",
+        "mP4AehV2DV4KdNcZkjih6wwLDE8ouUz6ns2FB3tpump",
+        "JzXZKSJZvtS3scMCcmXWUJGxRTBfnociHXVXKRvpump",
+        "Y7u2wWcosZTHagBjua7W3ddwsmD4ZGhZYH2keASpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "CvLnSRmZHf71LSw1GKedDrMgj2XF4oYL4Qme7QKnWkZw",
+      "matches": 1,
+      "mints": [
+        "iwqT3Dzwx347vbjzW3fmwZZ6hF1juEL92ty4B3qpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "CwY2ejGDsiDhjpEJRK7DQRUEgoCiUpcXGAwpZ8PGdwmL",
+      "matches": 1,
+      "mints": [
+        "qKh3mY3bpbGxoiLeewwSpwsAeDvszCUhrdsuXYApump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "D4iJYcjWZmzDEgnKMHWmpCPZaCiqHSZYtVpLW8zYRHcZ",
+      "matches": 1,
+      "mints": [
+        "a9ybSRCAaaYbxW6dFX2WGRnFGH61yo9gCPZCwtQpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "DFdvh5s5aEFnG9e2T2wdUeazkTrSrhqQ39yMUGXux97y",
+      "matches": 1,
+      "mints": [
+        "byTAnMfxybyaMibXftrT2janFC7v7kavhasgxmRpump"
+      ]
+    },
+    {
+      "attribution": "AMBIGUOUS_SHARED_FUNDER",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "direct_funder": "DPAy3sFUsUWVRCGaMKse2hVYR5kKU7Yr4cE1eM5EwvgA",
+      "matches": 3,
+      "mints": [
+        "uykpcqDmt6B3By6v5ofmBnfsS7Y2V1harccH413pump",
+        "YKA5o87oHTTSAsbq1ZPHq6zF1cCaW8HoyhWcpjkpump",
+        "BT9JV4F3t58yyeELzXo72jL6C1fWp8SQRM3i3B9pump"
+      ]
+    },
+    {
+      "attribution": "C357_BASELINE_CLUSTER",
+      "baseline_labels": [
+        "C357"
+      ],
+      "direct_funder": "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB",
+      "matches": 1,
+      "mints": [
+        "dFf5c8PKTpFcZN64RdVWHkwbCYkxnj9yzPw8QpJpump"
+      ]
+    },
+    {
+      "attribution": "AMBIGUOUS_SHARED_FUNDER",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "direct_funder": "DmfxzqZQTifJQhfrikFdDQXy3Ws6X9H3VX5xkRVTf77y",
+      "matches": 2,
+      "mints": [
+        "jZtQitpweY7gWNcXRDNLNakvNX7i4mu3C3iK9bKpump",
+        "MW7ePAAMjxWyezTKtnvYXewrN5H4CHrv1HYkhabpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "E7VTXaymRDJuWm9URrZY4mpBpN6LpeKJLazCZoBqjbYc",
+      "matches": 2,
+      "mints": [
+        "EZLEDU6yrRfUb31TWdfckLmNjgP1q7Ka1RAsA4bpump",
+        "Se34VBSsFCr76Ce9p3cctmCGTBtYDYHuBaJWx45pump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "EA6UoBrF6rne7BHnfRwX7caEmYV41BaRZP67tFzx1rFJ",
+      "matches": 1,
+      "mints": [
+        "S1Fqsr9XLT9hRXfdJung5Ur5i21VxQiMjtSdcmWpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "EGdwSZPSZNVjMyf5Ggw8RPVRzdybNjTjKfEiqpjeEEnw",
+      "matches": 1,
+      "mints": [
+        "mc85dAXQu6wwAorKeDaj2mCgvbpqR7TzYAf52Gjpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "Eg8bqeWeGFyzNdDPxmm2Xexm2cMcqhP3qbU2MURwV6M7",
+      "matches": 1,
+      "mints": [
+        "WJRzB84RMPjsMCYmrfS7vEUUCBG4d59LBVGZQdvpump"
+      ]
+    },
+    {
+      "attribution": "C357_BASELINE_CLUSTER",
+      "baseline_labels": [
+        "C357"
+      ],
+      "direct_funder": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+      "matches": 1,
+      "mints": [
+        "N2JuKvtCqPyqZbduGD2uhuhWFZ9qARxzuuYYkfBpump"
+      ]
+    },
+    {
+      "attribution": "C357_BASELINE_CLUSTER",
+      "baseline_labels": [
+        "C357"
+      ],
+      "direct_funder": "FJrraJVwKYdcLX4we8UttdJGvxErgUKWf6awnVSsxArH",
+      "matches": 2,
+      "mints": [
+        "UwMkVQDeXLpbCXcHp5P9yVAneejwwbviFfBJFRXpump",
+        "GhvrrotDtMYKFjWpeuTxgskYRji3N2u5TeYToZwpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "FRVRFpNGSquSscfof8p5Dt5utM9Xv5KwdhLVAdw6wMYT",
+      "matches": 1,
+      "mints": [
+        "L1rgkQk2gi9V33qxNvEs5NekCXyDhRb662haL7Rpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "FmGc6uSWowsvBp3oMUQMNvRcPj1noGjFKftoRobKWr5d",
+      "matches": 1,
+      "mints": [
+        "eGmGCD3CXecpXEw1ayQX7Hyk4tzkgxNYLZTgXwVpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "FunzNLf3fXwQSAycdZUXXNGCFw31UNw2a8Ya5VNWVn7R",
+      "matches": 1,
+      "mints": [
+        "Nc9pXTMG4FZc3gyHsDZ15XJZ91c3YDvfTHbHwfFpump"
+      ]
+    },
+    {
+      "attribution": "AMBIGUOUS_SHARED_FUNDER",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "direct_funder": "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD",
+      "matches": 4,
+      "mints": [
+        "RAjnSnVnRmf8Za8MggRPRmjkY2ZQkK7HiXYz4YSpump",
+        "R39ag2yKJVxJiHUxBy1xUEUc55kADNicLb9idNnpump",
+        "g1CbgSCD1H48Mnx9VSL7cpwJ5auX8Ky1cNUH9BQpump",
+        "ZrBqa2cXuDsHq1qayja9e7fjMjM1C4ZLjaYKN6rpump"
+      ]
+    },
+    {
+      "attribution": "C357_BASELINE_CLUSTER",
+      "baseline_labels": [
+        "C357"
+      ],
+      "direct_funder": "G1BJvTetp6YSwaDNSajruPPM1JCTZf5NWeyr6dQN94n7",
+      "matches": 1,
+      "mints": [
+        "wFUJbWiV4wKK6BJJQdojJbgbd4Y51M3i3nA9VKLpump"
+      ]
+    },
+    {
+      "attribution": "C357_BASELINE_CLUSTER",
+      "baseline_labels": [
+        "C357"
+      ],
+      "direct_funder": "G9XSZDgMk8x51uHvFUumZK5AFWJLp3GJCV7VZSkL3uGP",
+      "matches": 1,
+      "mints": [
+        "f73NdtHMKwTeTy3KRpRDxZe7yopu9toZ7P5sFmapump"
+      ]
+    },
+    {
+      "attribution": "C357_BASELINE_CLUSTER",
+      "baseline_labels": [
+        "C357"
+      ],
+      "direct_funder": "GUBtBg8i5wn5ME3vYmgqMZFFuBnDp6i1oa8BPFwoURAP",
+      "matches": 1,
+      "mints": [
+        "qcawC8mNoMy2C597kxDUMHbHJaZ5D4nPR2dvDoXpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "GUYJrty45qyivJ3ubMxqzLwWCqGgTsYvyNHtHDwimTk",
+      "matches": 1,
+      "mints": [
+        "FsmNyDwptiisx4CvTsCK2qzkjQNCL7uW8xjaeCcpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "Giqp6Jpq4rfaTpuQQZNQMZBBpcKn6fygTLhTB8dVVUUB",
+      "matches": 1,
+      "mints": [
+        "GxRt2GsVeRfrDULQAP4u5iz3MHCHo3SPrWb5g32pump"
+      ]
+    },
+    {
+      "attribution": "C357_BASELINE_CLUSTER",
+      "baseline_labels": [
+        "C357"
+      ],
+      "direct_funder": "Gy29oqrQGFsP8cSsZ4eJvmMDMvKeYtWgURGCn5jim9Xn",
+      "matches": 1,
+      "mints": [
+        "JHkAR9egULFbv1PfGLky5NvahfQwWJRDH4zJMsWpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "HKZdVgo9WmLRncFHbWDDYi9p71GCfmZvdJxuRy7jMoh",
+      "matches": 1,
+      "mints": [
+        "G3dE83HcSuzFS53fyJHCFwsKgKC2C5dqGbL1iZipump"
+      ]
+    },
+    {
+      "attribution": "AMBIGUOUS_SHARED_FUNDER",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "direct_funder": "HQ2q5DJuAVf1CrDJpwmeSYsLgvGp9k5cGEPZQsNvcMW9",
+      "matches": 2,
+      "mints": [
+        "svVnLbfCPjKAZ4suNYDfebJZ8AfhiTysVQwn3fZpump",
+        "eNMZVUNbSEH6zVxmvHyTgRAZoBoqGQ4vHEdzHu5pump"
+      ]
+    },
+    {
+      "attribution": "C357_BASELINE_CLUSTER",
+      "baseline_labels": [
+        "C357"
+      ],
+      "direct_funder": "HRneLKJHUHXJr9zb297N44L8WCUqCJYKDsSxDaPv49wS",
+      "matches": 2,
+      "mints": [
+        "aDdwL6dso6ZD6Rag2FZTURzADRiyXxFVeT23ri6pump",
+        "CiKMVEVMCZSTXwQwqrwE3GZLne982oHkAdq7Yz3pump"
+      ]
+    },
+    {
+      "attribution": "C357_BASELINE_CLUSTER",
+      "baseline_labels": [
+        "C357"
+      ],
+      "direct_funder": "HS5GjB4KTJbbBdYHkJV8qDpq8gmU9wck2qsxgz3ifgke",
+      "matches": 1,
+      "mints": [
+        "s26oUz2BVe5gpY3D4qYCXWBPwDDoB9AYfFsHCehpump"
+      ]
+    },
+    {
+      "attribution": "AMBIGUOUS_SHARED_FUNDER",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "direct_funder": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+      "matches": 3,
+      "mints": [
+        "W7Fnj98a3jY9aoP9kd25taK66eJ1uS6b6VjpKtJpump",
+        "yfmKCjYvHsD17w2xvKLBRrmzF58nZyXH25reGwLpump",
+        "BXhcEHHYizRzbB3Bz7NJptoMdXoNquM14WzaxqGpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "HaUoQtNBbNEv3jgLMikQEpyFMTs72eS5DBYJ3j4usiJJ",
+      "matches": 1,
+      "mints": [
+        "F2T4krAdQYF9crCbwUtUfna8g9HRTc878eHuRYFpump"
+      ]
+    },
+    {
+      "attribution": "C357_BASELINE_CLUSTER",
+      "baseline_labels": [
+        "C357"
+      ],
+      "direct_funder": "J37JdYS3hpMB3iW8tgUdfFrrBu4X6o9PT3SguxpHXJVW",
+      "matches": 1,
+      "mints": [
+        "kPTzLD8x9n3xLVrtjdk4qbxUr3it6Ea8ZpkHpCBpump"
+      ]
+    },
+    {
+      "attribution": "C357_BASELINE_CLUSTER",
+      "baseline_labels": [
+        "C357"
+      ],
+      "direct_funder": "J87ewUdaYKXaMVZEdKh14fMcKXaAmzGamzGtaXDop13X",
+      "matches": 1,
+      "mints": [
+        "vKPT1gGoRGsdzaGpQB2K2xAZGtmgjVNm8kNJvSvpump"
+      ]
+    },
+    {
+      "attribution": "AMBIGUOUS_SHARED_FUNDER",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "direct_funder": "NeHjc1yqZXesLZTHtK7jrjyQ3MpFg2TVHpV8QDDAHEm",
+      "matches": 2,
+      "mints": [
+        "so82bQtUVDAjM18N8vs9C3uVcKsJtUARnnAb1UPpump",
+        "SrAJUQS6snqHUATSX4Jmvb4vZpgmQevqeWbzUEVpump"
+      ]
+    },
+    {
+      "attribution": "AMBIGUOUS_SHARED_FUNDER",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "direct_funder": "j6EVoUMZRafJPrdkuoB9PJGXxBGHEsx4VcJq5W3Ft5d",
+      "matches": 2,
+      "mints": [
+        "TGyhawyhLYBfgHSCjomHahMPkntywYJYc7trg8Apump",
+        "nMSCXsLXZ3R7NBKNDiaYw7CZh7KYs4CyWMEVWNbpump"
+      ]
+    },
+    {
+      "attribution": "NON_COHORT_CLUSTER",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "direct_funder": "q52GFwAp9RGdt69kCoEsvZ141Gq6wa4FospsC6PS2wp",
+      "matches": 1,
+      "mints": [
+        "VtbTdPzzoadzpbWo7zVav9pQrcbgaVE5yoaJRUfpump"
+      ]
+    }
+  ],
+  "conclusion": {
+    "behavioural_identity": "C357_COMPATIBLE_ONLY",
+    "direct_funder_feature": "NON_DISCRIMINATIVE_WHEN_CROSS_BOUNDARY",
+    "promotion": "REMAIN_PAUSED",
+    "shared_funder_clusters": 23
+  },
+  "digest": "7ee3e497488743fbd0ab8418de7aa95b4237fa2133336f34fd959134af7bd3ea",
+  "population_count": 161,
+  "schema_version": "C357_EXACT_COMPATIBLE_ATTRIBUTION_CLUSTERS.v1"
+}

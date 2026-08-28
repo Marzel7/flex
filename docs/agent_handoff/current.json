@@ -1,4 +1,15 @@
 {
+  "potential_operations_shared_style_fix_20260828": {
+    "engineering_revision": "f0a19d7907bdd5ae80304701388f18ef7ecc8a39",
+    "status": "PASS",
+    "verdict": "POTENTIAL_OPERATIONS_SHARED_STYLE_FIX_COMPLETE",
+    "diagnosis": "The Potential template used ip-strip/ip-metric/ip-card/ip-table classes but did not include static/css/intel-platform.css, unlike Active Operations Registry. The values therefore rendered as unstyled stacked content.",
+    "change": "Potential Operations now loads the shared intelligence stylesheet and its category sections have explicit border/spacing separation matching the Registry rhythm.",
+    "verification": "Focused tests: 8 passed. API-only reload; GET /intelligence/potential-operations HTTP 200 and GET /static/css/intel-platform.css HTTP 200. Served page includes stylesheet link and renders 62/59/1/2 inside ip-strip/ip-metric components.",
+    "files": ["templates/potential_operations.html", "tests/test_potential_operations_visual_structure.py"],
+    "safety": "Presentation-only. No workflow, membership, queue, detector, fingerprint, threshold, listener/worker, provider, or trading state changed. Only watchtower_api was reloaded; unrelated dirty work preserved.",
+    "exact_next_action": "None; shared visual system is now loaded on Potential Operations."
+  },
   "potential_operations_visual_restructure_20260828": {
     "engineering_revision": "e4dbfc496ef0bebb06a5aa60e5a98382b0a97d5e",
     "status": "PASS_WITH_BROWSER_SURFACE_LIMITATION",

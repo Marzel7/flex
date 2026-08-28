@@ -1,4 +1,14 @@
 {
+  "c357_branch_b_end_to_end_reconstruction_20260828": {
+    "engineering_revision": "0fa8a5bb",
+    "status": "PARTIAL",
+    "verdict": "C357_BRANCH_B_CHRONOLOGICAL_LEDGER_FROZEN",
+    "frozen_subjects": ["33myosxzjbzfx2GcW71zmzvrzibQnnh6njW2vLKiMxr4", "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive", "CZTxzma6pA9HPwXASpbhuCKNGrH6zgpQ9ARgUqUQwbTy"],
+    "window": "1787578100 through 1787580000 inclusive, anchored at the proven 33my-to-HXuf initialization and covering the two Branch B launches plus immediate post-launch activity.",
+    "local_and_provider_progress": "Bounded provider history reads found 4 HXuf and 56 CZTx signatures in the frozen window. HXuf initialization remains proven; 33my history requires bounded historical pagination because its latest page does not reach the window.",
+    "safety": "Read-only local/provider evidence only. C357 remains PAUSED; no membership, fingerprint, detector, queue, service, listener/worker, or trading state changed.",
+    "exact_next_action": "Decode the 60 deduplicated Branch B window signatures into a compact directional temporal graph, then compute CZTx/HXuf directions, amount vectors, roles, launch associations, and replay artifact without new provider calls."
+  },
   "c357_branch_b_initialization_20260828": {
     "engineering_revision": "0fa8a5bb",
     "status": "PASS_READ_ONLY",

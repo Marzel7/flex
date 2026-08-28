@@ -1,4 +1,13 @@
 {
+  "c357_dutb_five_funder_wsol_batch_20260828": {
+    "engineering_revision": "3a19345b plus uncommitted audit work",
+    "status": "PASS_READ_ONLY",
+    "verdict": "DUTB_FIVE_C357_FUNDER_WSOL_BATCH_VERIFIED",
+    "result": "All five supplied valid transactions were decoded. In a 17-second interval, DuTb used the same temporary-WSOL pattern to deliver 0.1 SOL to five C357 direct funders: GUBt, G1BJ, J87e, FJrr, and 54xT. Each transaction includes DuTb funding and owning the temporary WSOL account, then closing it to the named direct-funder recipient.",
+    "interpretation": "This is strong, repeated, transaction-atomic funding coordination across five launch-side C357 funders. It corrects the prior transfer-only audit limitation. It still does not, by itself, authorize operation admission or prove common control outside this bounded funding behaviour.",
+    "safety": "Read-only RPC decoding only; no database, workflow, membership, qualification, provider, service, listener/worker, or trading state changed.",
+    "exact_next_action": "Expand the corrected WSOL-close detector across the remaining C357 funders and surface verified DuTb paths in the detail UI only after a bounded complete audit."
+  },
   "c357_dutb_wsol_close_delivery_20260828": {
     "engineering_revision": "3a19345b plus uncommitted audit work",
     "status": "PASS_READ_ONLY",

@@ -1,4 +1,13 @@
 {
+  "c357_top_level_upstream_connection_scope_20260828": {
+    "engineering_revision": "3a19345b",
+    "status": "PASS_READ_ONLY",
+    "verdict": "C357_TOP_LEVEL_UPSTREAM_CONNECTION_SCOPE_CLARIFIED",
+    "result": "Within the completed bounded direct-transfer audit, the selected top-level upstream had 15 direct transfers from its paired direct funder, totalling about 3,452.901 SOL. No direct transfers were found between it and any other audited top-level upstream wallet; the audit covered 50 distinct audited upstream wallets.",
+    "scope_limit": "The audit examined one history page per audited direct-funder/upstream wallet and only shared signatures, with no recursive tracing. It therefore proves neither a shared root beyond the audited wallets nor lack of any more distant connection.",
+    "safety": "Read-only interpretation of retained audit results. No workflow, membership, qualification, detector, queue, provider, service, listener/worker, or trading state changed.",
+    "exact_next_action": "If a stronger conclusion is needed, separately authorize a bounded recursive provenance study of the top-level upstream wallets."
+  },
   "c357_shared_upstream_launch_marker_20260828": {
     "engineering_revision": "3a19345b",
     "status": "PASS",

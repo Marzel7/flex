@@ -1,4 +1,14 @@
 {
+  "c357_hxuf_recipient_to_launch_20260828": {
+    "engineering_revision": "1ca4824d",
+    "status": "PASS",
+    "verdict": "C357_HXUF_RECIPIENT_TO_LAUNCH_COMPLETE",
+    "result": "All six frozen HXuf material recipients were resolved at the bounded first downstream layer. The five non-CZTx recipients have only the HXuf receipt in their retained current history. CZTx has five token interactions, but decoding shows they do not retain C357's required seeded-account/transfer/sync/close lifecycle or exact amount.",
+    "classification": "POST_25_AUG_EXACT_C357_MATCHES=0; post-boundary near matches=0; C357_TRACKING_LOSS=NOT_PROVEN; HXUF_C357_SPECIFICITY=GENERIC_HUB; C357_CURRENT_STATUS=C357_LAST_CONFIRMED_25_AUG; NEXT=DECODE_BRANCH_A_C.",
+    "artifact": "docs/audits/c357_hxuf_recipient_to_launch.v1.json; 4 focused recipient/live-infrastructure tests passed.",
+    "safety": "C357 remains PAUSED. No membership, fingerprint, detector, threshold, Snapshot V2, queue, service, provider mutation, or trading state changed.",
+    "exact_next_action": "If further C357 continuity evidence is needed, decode Branch A/C under a separately bounded authorization."
+  },
   "c357_hxuf_live_infrastructure_20260828": {
     "engineering_revision": "94dd4f60",
     "status": "PARTIAL",

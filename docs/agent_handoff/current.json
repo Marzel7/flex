@@ -1,4 +1,13 @@
 {
+  "c357_registration_preflight_20260828": {
+    "engineering_revision": "fa4b4cb33fc0893991e720aa196f74cb1c3e20b1",
+    "status": "HOLD",
+    "verdict": "C357_REGISTRATION_PREFLIGHT_BLOCKED",
+    "result": "The read-only preflight recovered registry semantics and reconstructed the 56 unique qualified members (DuTb 48, A 5, B 2, C 1). The registry enforces global mint ownership through operator_launch_membership.mint PRIMARY KEY. Fifty of the proposed 56 mints are already assigned to P3R (operator 777211c3-211e-551b-9310-ff9301570627), a hard unresolved membership conflict. No conflict was changed or reassigned. The 105 unresolved compatible launches can be protected by an explicit allowlist-only writer guard, but registration cannot proceed until the 50 ownership conflicts are separately resolved under an authorized identity/governance decision.",
+    "artifact": "docs/audits/c357_operation_registration_preflight.v1.json digest bf40ab9ec4b62a21ddafc9b76e849bd65bd0bdfb591e30c0635e30a40cb2d83d; offline replay PASS with provider_calls_during_replay=0; 2 focused tests passed.",
+    "safety": "Read-only preflight. No registry, workflow, membership, detector, fingerprint, trading, service, or provider state changed. C357 remains PAUSED and REGISTRATION_MUTATION_AUTHORIZED=NO.",
+    "exact_next_action": "Separately authorize a governance review of the 50 P3R/C357 overlapping mint identities. It must decide whether C357 is a distinct operation, an identity split/relationship, or an incompatible duplicate before any registry mutation is considered."
+  },
   "c357_operation_qualification_review_20260828": {
     "engineering_revision": "6dabc30a4b389d15d76146694c289474d8aed69c",
     "status": "PASS",

@@ -1,4 +1,13 @@
 {
+  "c357_dutb_linked_launch_chronology_20260828": {
+    "engineering_revision": "3a19345b plus uncommitted audit work",
+    "status": "PASS_READ_ONLY",
+    "verdict": "C357_DUTB_LINKED_LAUNCH_CHRONOLOGY_PROJECTED",
+    "result": "The 35 verified DuTb-linked creator-funding wallets correspond to 48 retained C357 member launches, newest retained observation 2026-08-24 12:01:25 UTC and oldest 2026-08-11 06:53:43 UTC. Some funding wallets are reused across multiple launches.",
+    "timestamp_contract": "Chronology uses the Potential detail projection retained observed_at timestamp, not an independently re-fetched on-chain mint-creation timestamp.",
+    "safety": "Read-only projection query only; no database, workflow, membership, qualification, provider, service, listener/worker, or trading state changed.",
+    "exact_next_action": "If needed, independently validate exact on-chain creation slots for this ordered launch list; no state change is authorized."
+  },
   "c357_dutb_all_funder_corrected_audit_20260828": {
     "engineering_revision": "3a19345b plus uncommitted audit work",
     "status": "PASS_READ_ONLY",

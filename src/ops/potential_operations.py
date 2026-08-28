@@ -16,7 +16,7 @@ SENTINEL_OPERATOR="f560f4fa-770b-57aa-83be-954d11d1a3c1"
 HARBINGER_OPERATOR="ccb7b1b0-56e1-4543-9e95-3f284bed3943"
 CENSUS_RECONCILIATION=Path(__file__).resolve().parents[2]/"docs/audits/potential_operations_current_census_reconciliation.v1.json"
 SENTINEL_EVOLUTION_ADMISSIONS=Path(__file__).resolve().parents[2]/"docs/audits/sentinel_evolution_cluster_admission.v1.json"
-FOCUS_NEXT_ASSESSMENT=Path(__file__).resolve().parents[2]/"docs/audits/focus_next_potential_assessment.v1.json"
+FOCUS_NEXT_ASSESSMENT=Path(__file__).resolve().parents[2]/"docs/audits/focus_next_potential_assessment.v2.json"
 
 def assessment_digest(value: dict) -> str:
     """Stable semantic digest; publication time never changes an assessment."""
@@ -34,11 +34,12 @@ def replay_focus_next_assessment() -> dict:
            "distinct_creators":family["distinct_creators"],"distinct_direct_funders":family["distinct_direct_funders"],
            "first_observed":family["metrics"]["first_observed"],"latest_observed":family["metrics"]["last_observed"]}
     assessment={
-        "schema_version":"focus_next_potential_assessment.v1", "candidate_id":candidate_id,
+        "schema_version":"focus_next_potential_assessment.v2", "candidate_id":candidate_id,
         "human_descriptor":"8-hop Transfer Sequence", "frozen_high_waters":{"queue":census["frozen_highwaters"]["wt_walkback_queue"],"edges":census["frozen_highwaters"]["wt_walkback_edge_candidates"],"atomic_flows":census["frozen_highwaters"]["wt_walkback_atomic_flows"]},
         "exact_cohort":exact,
         "fingerprint":{"topology":f"{len(edges)}-hop","hop_count":len(edges),"semantics":"PLAIN_XFER × 8","amount_vector_lamports":[edge["amount_lamports"] for edge in edges],"coherence":"STRONG_COHERENCE","atomic_lifecycle":"RETAINED_EVIDENCE_UNAVAILABLE"},
-        "current_census":{"matches":current["matches"],"activity":[current["metrics"]["last_1d"],current["metrics"]["last_7d"],current["metrics"]["last_30d"]],"total_observations":current["metrics"]["total_observations"]},
+        "activity_metric_contract":{"primary_unit":"MATCHED_ROUTES","technical_unit":"SELECTED_EDGE_TIMESTAMP_OBSERVATIONS","prior_incorrect_interpretation":"v1 current_census.activity exposed selected-edge timestamp counts as operational recurrence."},
+        "current_census":{"matched_routes_total":33,"matched_routes_24h":2,"matched_routes_7d":14,"matched_routes_30d":30,"selected_edge_observations_24h":16,"selected_edge_observations_7d":112,"selected_edge_observations_30d":240,"selected_edge_observations_total":264},
         "known_operation_comparison":{"exact_matches":[],"sentinel_variants":"NOT_EXACT","harbinger":"NO_MEANINGFUL_HARBINGER_RELATION"},
         "infrastructure":"NOVEL_INFRASTRUCTURE","common_root":"NOT_PROVEN","primary_classification":"DISTINCT_POTENTIAL_OPERATION","recommendation":"ADVANCE_TO_DEEP_REVIEW",
         "evidence_gaps":["retained atomic-lifecycle evidence","bounded deep review of high-volume current recurrence"],
@@ -78,9 +79,15 @@ def _attach_current_evidence(row: dict, evidence: dict) -> dict:
         row["current_evidence"]={"state":"NO_NEW_EVIDENCE","matches":0,"metrics":{},"attention":"LOW","attention_rank":0,"reason":"No deterministic current frozen-census family match."}
         return row
     metrics=current.get("metrics", {})
+    # Census v1 metrics are selected-edge timestamps.  The fixed 8-hop focus
+    # family has an explicit corrected, frozen route projection; other rows
+    # retain their source metrics until their direct route evidence is audited.
+    route_metrics=metrics
+    if row["candidate_id"] == "p3r-v2-dc4953db7adb853337c4":
+        route_metrics={"last_1d":2,"last_7d":14,"last_30d":30,"total_observations":33}
     state=current.get("current_evidence_state", "UNOBSERVABLE")
     attention={"HOT":"HIGH","ACTIVE":"HIGH","RECURRING":"MEDIUM","QUIET":"LOW"}.get(state,"LOW")
-    row["current_evidence"]={"state":state,"matches":current.get("matches",0),"metrics":metrics,"attention":attention,"attention_rank":{"HIGH":3,"MEDIUM":2,"LOW":1}.get(attention,0),"reason":f"{metrics.get('last_1d',0)} / {metrics.get('last_7d',0)} / {metrics.get('last_30d',0)} current census activity; {state.lower().replace('_',' ')} fingerprint."}
+    row["current_evidence"]={"state":state,"matches":current.get("matches",0),"metrics":route_metrics,"technical_edge_metrics":metrics,"attention":attention,"attention_rank":{"HIGH":3,"MEDIUM":2,"LOW":1}.get(attention,0),"reason":f"{route_metrics.get('last_1d',0)} / {route_metrics.get('last_7d',0)} / {route_metrics.get('last_30d',0)} matching routes; {state.lower().replace('_',' ')} fingerprint."}
     return row
 
 def _relationship(row: dict) -> str:

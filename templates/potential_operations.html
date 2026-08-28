@@ -6,6 +6,7 @@
 {% endblock %}
 {% block content %}
 <main class="ip-page">
+<style>.po-focus-grid>div:nth-child(2) .po-kicker{font-size:0}.po-focus-grid>div:nth-child(2) .po-kicker:after{content:"Matched routes · 24h / 7d / 30d";font-size:8px}.po-table th:nth-child(3){font-size:0}.po-table th:nth-child(3):after{content:"Matched routes · 24h / 7d / 30d";font-size:9px}</style>
  <div class="ip-breadcrumb"><a href="/ops-os">Mission Control</a><span class="sep">›</span><span>Potential Operations</span></div>
  <header class="ip-header"><div class="ip-title-row"><h1 class="ip-title">Potential Operations</h1></div><div class="ip-subtitle">Operational fingerprints and evolution candidates requiring investigation.</div><div class="po-provenance">Current Queue Census · frozen high-water 35620 <span aria-hidden="true">·</span> historical WATCH_NOW and frozen-v3 provenance retained.</div></header>
  {% set evolution_ids=evolution_watch.sentinel_variants|map(attribute='candidate_id')|list %}{% set evolution = evolution_watch.sentinel_variants %}{% set next = rows|selectattr('workflow_status','equalto','QUEUED')|rejectattr('candidate_id','in',evolution_ids)|first %}

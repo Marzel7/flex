@@ -1,0 +1,15 @@
+{
+  "schema_version": "focus_next_potential_assessment.v2",
+  "candidate_id": "p3r-v2-dc4953db7adb853337c4",
+  "human_descriptor": "8-hop Transfer Sequence",
+  "frozen_high_waters": {"queue": 35620, "edges": 67599, "atomic_flows": 7747},
+  "exact_cohort": {"members": 27, "observable": 27, "unobservable": 0, "distinct_creators": 27, "distinct_direct_funders": 27, "first_observed": 1783571264, "latest_observed": 1787651587},
+  "fingerprint": {"topology": "8-hop", "hop_count": 8, "semantics": "PLAIN_XFER × 8", "amount_vector_lamports": [49719000,12431000,12432000,12433000,49739000,24870000,24875000,24880000], "coherence": "STRONG_COHERENCE", "atomic_lifecycle": "RETAINED_EVIDENCE_UNAVAILABLE"},
+  "activity_metric_contract": {"primary_unit": "MATCHED_ROUTES", "technical_unit": "SELECTED_EDGE_TIMESTAMP_OBSERVATIONS", "prior_incorrect_interpretation": "v1 current_census.activity exposed selected-edge timestamp counts as operational recurrence."},
+  "current_census": {"matched_routes_total": 33, "matched_routes_24h": 2, "matched_routes_7d": 14, "matched_routes_30d": 30, "selected_edge_observations_24h": 16, "selected_edge_observations_7d": 112, "selected_edge_observations_30d": 240, "selected_edge_observations_total": 264},
+  "known_operation_comparison": {"exact_matches": [], "sentinel_variants": "NOT_EXACT", "harbinger": "NO_MEANINGFUL_HARBINGER_RELATION"},
+  "infrastructure": "NOVEL_INFRASTRUCTURE", "common_root": "NOT_PROVEN", "primary_classification": "DISTINCT_POTENTIAL_OPERATION", "recommendation": "ADVANCE_TO_DEEP_REVIEW",
+  "evidence_gaps": ["retained atomic-lifecycle evidence", "bounded deep review of high-volume current recurrence"],
+  "source_provenance": ["docs/audits/potential_operations_current_census_reconciliation.v1.json", "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/p3r_v2_candidate_membership.v1.json"],
+  "assessment_digest": "7fbd18b1c1a32772e0c87e4ff4601c1899a4fb88320637ed024861d055da3947"
+}

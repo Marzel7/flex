@@ -29,17 +29,18 @@
 </div>
 <div class="metric">
 <b>{{ candidate.current_evidence.matches }}</b>
-<small>Current census matches</small>
+<small>Total matching routes</small>
 </div>
 <div class="metric">
 <b>{{ candidate.current_evidence.metrics.last_1d }} / {{ candidate.current_evidence.metrics.last_7d }} / {{ candidate.current_evidence.metrics.last_30d }}</b>
-<small>Current: 24h / 7d / 30d</small>
+<small>Matched routes · 24h / 7d / 30d</small>
 </div>
 <div class="metric">
 <b>{{ candidate.current_evidence.state }} · {{ candidate.current_evidence.attention }}</b>
 <small>Current evidence / attention</small>
 </div>
 </section>
+{% if candidate.current_evidence.technical_edge_metrics %}<p class="pod-note">Route counts represent distinct matching candidate instances; selected-edge counts are technical per-hop evidence ({{ candidate.current_evidence.technical_edge_metrics.last_1d }} / {{ candidate.current_evidence.technical_edge_metrics.last_7d }} / {{ candidate.current_evidence.technical_edge_metrics.last_30d }} selected-edge timestamp observations).</p>{% endif %}
 {% if candidate.relationship_label == 'Variant of Sentinel' %}<p class="warning"><strong>Related Confirmed Operation: Sentinel</strong> · <a href="/intelligence/operator/{{ candidate.related_operator_id }}">View Sentinel →</a>. Its observations are Potential evidence, not Confirmed operation memberships.</p>{% elif candidate.related_operator_id %}<p class="warning">This candidate is related to the <a href="/intelligence/operator/{{ candidate.related_operator_id }}">active Confirmed operation</a>. Its observations are Potential evidence, not Confirmed operation memberships.</p>{% endif %}
 <nav class="tabs">
 <button class="on" data-tab="summary">Summary</button>

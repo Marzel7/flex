@@ -1,4 +1,15 @@
 {
+  "c357_hxuf_live_infrastructure_20260828": {
+    "engineering_revision": "94dd4f60",
+    "status": "PARTIAL",
+    "verdict": "C357_HXUF_LIVE_INFRASTRUCTURE_BOUNDED_CORE_COMPLETE",
+    "result": "A bounded current HXuf page contained 86 signatures. Intersecting it with 17,631 bounded 33my history entries and decoding shared signatures proved 17 repeated 33my-owned temporary-WSOL funding, syncNative, and close-account deliveries to HXuf. HXuf remains ACTIVE through block time 1787915578 and has 22 decoded material outflows of at least 100 SOL, including repeated CZTx settlement/provisioning outflows.",
+    "classification": "33MY_HXUF_PROVISIONING=REPEATED_STRUCTURED_PROVISIONING; HXUF_INFRASTRUCTURE_ROLE=ROLE_ROTATING_HUB. The decoded 0.055-SOL display delta is not present in the lamport movements: transfer plus 2,039,280-lamport rent rounds to a whole-SOL capitalization and HXuf's later outflow commonly differs by 5,000 lamports.",
+    "scope_limit": "No D3eQ-prefixed counterparty appears in the complete current HXuf 86-signature history, and the supplied prefix cannot resolve a full address. No serviced wallet was asserted to launch a token without a separately bounded wallet-to-launch decode; hence post-25-Aug exact-match count is 0 within this scope and tracking loss remains UNRESOLVED.",
+    "artifact": "docs/audits/c357_hxuf_live_infrastructure.v1.json digest c47ceae08e8f9c1876189e3d385c7ecc1cd10e047c57d124d2e9522c6876b81a; offline replay PASS with zero provider calls; 9 focused tests passed together with Branch B tests.",
+    "safety": "C357 remains PAUSED. No membership, fingerprint, detector, thresholds, Snapshot V2, queue, service, provider mutation, or trading state changed.",
+    "exact_next_action": "If authorized, provide a full D3eQ address/signature or execute a separately bounded post-25-Aug HXuf-recipient-to-launch lineage decode."
+  },
   "c357_branch_b_end_to_end_reconstruction_20260828": {
     "engineering_revision": "6723b773",
     "status": "PASS",

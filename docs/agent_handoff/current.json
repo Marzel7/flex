@@ -1,4 +1,22 @@
 {
+  "focus_next_assessment_persisted_ui_20260828": {
+    "engineering_revision": "53ae8d05fa9b55528630cd574bc77b66730894e2",
+    "status": "PASS",
+    "verdict": "FOCUS_NEXT_ASSESSMENT_PERSISTED_UI_COMPLETE",
+    "artifact": "docs/audits/focus_next_potential_assessment.v1.json",
+    "candidate": "p3r-v2-dc4953db7adb853337c4 · 8-hop Transfer Sequence",
+    "frozen_highwaters": {"queue": 35620, "edges": 67599, "atomic_flows": 7747},
+    "digest": "8f4dffee6664bdc1b7b8cc0be9d1f418ace3856e6b9d01cb894150a371ababe9",
+    "reproducibility": "PASS: frozen membership/census replay produced the same semantic digest, 27 retained observable members, 27 creators, 27 direct funders, 33 matches, and 16 / 112 / 240 activity.",
+    "idempotency": "PASS: two loader/materialization reads returned one unchanged artifact and digest; artifact mtime unchanged.",
+    "assessment": "DISTINCT_POTENTIAL_OPERATION; ADVANCE_TO_DEEP_REVIEW; STRONG_COHERENCE; NO_MEANINGFUL_HARBINGER_RELATION; NOVEL_INFRASTRUCTURE; NOT_PROVEN.",
+    "rendering": "watchtower_api-only reload; GET /intelligence/potential-operations and candidate detail both HTTP 200. FOCUS NEXT and Current Assessment rendered persisted values; Sentinel 75→2→2 and Harbinger 97→0→0 remained unchanged.",
+    "tests": "5 passed: test_potential_relationship_focus_ui.py and test_focus_next_assessment_persistence.py.",
+    "neutrality": {"workflow": "QUEUED before/after", "confirmed_membership": [247, 247], "provisional_rows": [46, 46], "potential_workflow_rows": [63, 63], "task_caused_delta": 0},
+    "files": ["docs/audits/focus_next_potential_assessment.v1.json", "src/ops/potential_operations.py", "templates/potential_operations.html", "templates/potential_operation_detail.html", "tests/test_focus_next_assessment_persistence.py"],
+    "safety": "No Potential workflow state, Confirmed membership, detector, fingerprint, threshold, WATCHTOWER semantics, queue, RPC/provider, listener/worker, or trading state changed. Only watchtower_api was reloaded. Unrelated dirty work was preserved.",
+    "exact_next_action": "None; persisted assessment closure is complete."
+  },
   "potential_relationship_focus_ui_20260828": {
     "engineering_revision": "2f61529324a672affee5e6070e5bc3c95f0c9279",
     "status": "PASS",

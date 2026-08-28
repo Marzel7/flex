@@ -12,6 +12,8 @@ ACTIVE_900B="70f27e37-83eb-5c97-831c-48189ef98f6c"
 DECOMPOSED_063E_PARENT="p3r-v2-063e24a2def354f23ec5"
 LEGACY_063E_CHILD="P3R_063E_B65C_LEGACY"
 CONFIRMED_063E_OPERATOR="d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334"
+SENTINEL_OPERATOR="f560f4fa-770b-57aa-83be-954d11d1a3c1"
+HARBINGER_OPERATOR="ccb7b1b0-56e1-4543-9e95-3f284bed3943"
 CENSUS_RECONCILIATION=Path(__file__).resolve().parents[2]/"docs/audits/potential_operations_current_census_reconciliation.v1.json"
 SENTINEL_EVOLUTION_ADMISSIONS=Path(__file__).resolve().parents[2]/"docs/audits/sentinel_evolution_cluster_admission.v1.json"
 FOCUS_NEXT_ASSESSMENT=Path(__file__).resolve().parents[2]/"docs/audits/focus_next_potential_assessment.v1.json"
@@ -91,9 +93,34 @@ def _compact_mechanism(row: dict) -> str:
     mechanism=row.get("parent_mechanism") or row.get("key_mechanism") or "retained fingerprint"
     return f"{mechanism.count(' | ')+1}-hop transfer sequence" if " | " in mechanism else mechanism.replace("WSOL_PROVISION_CLOSE", "WSOL provision close")
 
+def _presentation_name(row: dict) -> str:
+    """Deterministic, relationship-free candidate name for the queue UI."""
+    proposed=row.get("proposed_name")
+    if row.get("latest_verdict") == "POTENTIAL_VARIANT_OF_SENTINEL" and proposed:
+        return proposed.replace("Potential variant of Sentinel · ", "") + " Variant"
+    if proposed:
+        if proposed.startswith("WSOL_PROVISION_CLOSE_"):
+            return "WSOL Close · " + proposed.removeprefix("WSOL_PROVISION_CLOSE_").replace("_MINUS_", " minus ").replace("_", " ")
+        return proposed.replace("_", " ")
+    mechanism=row.get("parent_mechanism") or row.get("key_mechanism") or ""
+    if " | " in mechanism:
+        return f"{mechanism.count(' | ')+1}-hop Transfer Sequence"
+    if mechanism.startswith("hop-1 PLAIN_XFER "):
+        amount=mechanism.split()[2].replace(",", "")
+        try:
+            value=int(amount)
+            if value >= 1_000_000 and value % 1_000_000 == 0:
+                return f"{value // 1_000_000}M-lamport Direct Transfer"
+            if value >= 1000 and value % 1000 == 0:
+                return f"{value // 1000}K-lamport Direct Transfer"
+            return f"Direct Transfer · {value:,} lamports"
+        except ValueError:
+            pass
+    return _compact_mechanism(row).replace("transfer sequence", "Transfer Sequence").replace("WSOL provision close", "WSOL Provision Close")
+
 def _decorate(row: dict) -> dict:
     row["relationship_label"]=_relationship(row); row["compact_mechanism"]=_compact_mechanism(row)
-    row["display_descriptor"]=row.get("proposed_name") or f"Unresolved {row['compact_mechanism']} candidate"
+    row["display_descriptor"]=_presentation_name(row)
     assessment=_persisted_assessment(row["candidate_id"])
     if assessment:
         row["assessment"]=assessment
@@ -101,7 +128,7 @@ def _decorate(row: dict) -> dict:
         row["display_descriptor"]=assessment["human_descriptor"]
         row["relationship_label"]=row["assessment_display"]["classification"]
         row["action_label"]="Deep review →"
-    else: row["action_label"]="Review variant →" if row["relationship_label"] == "Variant of Sentinel" else "Investigate →"
+    else: row["action_label"]="Review variant →" if row["relationship_label"] == "Variant of Sentinel" else "Review evidence →" if row["relationship_label"] == "Provisional operation" else "Investigate →"
     return row
 
 def _current_sort_key(row: dict) -> tuple:
@@ -109,7 +136,7 @@ def _current_sort_key(row: dict) -> tuple:
     return (-metrics.get("last_1d",0),-metrics.get("last_7d",0),-metrics.get("last_30d",0),-row["current_evidence"].get("matches",0),row["priority_rank"],row["candidate_id"])
 
 def evolution_watch(rows: list[dict]) -> dict:
-    return {"sentinel_variants":sorted([row for row in rows if row.get("latest_verdict")=="POTENTIAL_VARIANT_OF_SENTINEL"],key=lambda row:row["candidate_id"]),"harbinger":{"related_observations":97,"qualifying_clusters":0,"admitted_candidates":0}}
+    return {"sentinel_variants":sorted([row for row in rows if row.get("latest_verdict")=="POTENTIAL_VARIANT_OF_SENTINEL"],key=lambda row:row["candidate_id"]),"sentinel_operator_id":SENTINEL_OPERATOR,"harbinger":{"related_observations":97,"qualifying_clusters":0,"admitted_candidates":0,"operator_id":HARBINGER_OPERATOR}}
 
 def _discovery_label(row: dict) -> str:
     return "Current census" if row.get("canonical_tier") == "CURRENT_CENSUS" else f"T{row['canonical_tier'][8]} · {row['priority_score']:.2f}"

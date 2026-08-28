@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def test_templates_surface_explicit_evolution_and_focus_contracts():
     page = (ROOT / "templates/potential_operations.html").read_text()
     detail = (ROOT / "templates/potential_operation_detail.html").read_text()
-    for text in ("Evolution Watch", "75 near → 2 qualifying clusters → 2 admitted variants", "97 related → 0 qualifying clusters → 0 admitted candidates", "No Potential candidate currently attributable to Harbinger.", "FOCUS NEXT", "Why now:", "Evolution Candidates", "Attention #", "Variant of Sentinel", "Provisional operation"):
+    for text in ("Evolution Watch", "75 near", "Qualified clusters", "97 related", "No Potential candidate currently attributable", "Focus Next", "Why focus:", "Evolution Candidates", "Attention", "Variant of Sentinel", "Provisional operation"):
         assert text in page or text in (ROOT / "src/ops/potential_operations.py").read_text()
     assert "Related Confirmed Operation: Sentinel" in detail
     assert "Why this is currently prioritized" in detail

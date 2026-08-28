@@ -1,4 +1,13 @@
 {
+  "p3r_c357_subtype_registration_20260828": {
+    "engineering_revision": "0b0edd23c4b4979e82982b2ac090ffb9c35abaf6",
+    "status": "PASS",
+    "verdict": "P3R_C357_NON_OWNING_SUBTYPE_REGISTERED",
+    "result": "Applied migration 003 and transactionally registered subtype p3r-subtype-03f916dfa97fb93a4b9c beneath P3R. Exactly 56 allowlisted non-owning projections were inserted: 50 overlap P3R primary ownership and 6 remain projection-only. P3R primary membership was measured 109 before and after. The 105 compatible unresolved launches are excluded. The writer derives only from the qualification artifact allowlist and contains no fingerprint/profile/funder/provider expansion path.",
+    "artifact": "docs/audits/p3r_c357_subtype_registration.v1.json digest 5c696af73c5fd2e3e6dc8cecb777f8a629226b440e88e2982c1e3518e1672087; focused registration invariant test passed.",
+    "safety": "No primary membership reassignment, workflow change, detector activation, trading change, service restart, or provider mutation. C357 subtype automation is OFF and monitoring is SHADOW_ONLY.",
+    "exact_next_action": "Implement the separately scoped registry/detail read-model UI for non-owning subtype display if desired; do not alter allowlist or primary ownership."
+  },
   "p3r_c357_subtype_representation_preflight_20260828": {
     "engineering_revision": "badffc0e860697880e6a0c2f456caa3c414fd2f1",
     "status": "PASS_WITH_GUARDS",

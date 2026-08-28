@@ -1,4 +1,13 @@
 {
+  "c357_creator_role_window_shadow_20260828": {
+    "engineering_revision": "be0a8e4b7d76a0b87d43c5a1b2abf97fe5cd2110",
+    "status": "PASS",
+    "verdict": "C357_CREATOR_ROLE_WINDOW_SHADOW_COMPLETE_NON_DISCRIMINATIVE",
+    "result": "A fixed 161-launch creator census used one bounded RPC history page per creator (161 calls, zero errors), then decoded only the 390 unique immediate pre/launch/post transactions selected from that capture (390 calls, zero errors). Launch position was available within the retained single page for 130/161 launches. Direct inbound transfers immediately before launch were absent in both audit-only comparison groups. Post-launch direct outbound activity occurred in both groups (22/38 C357-baseline-cluster rows; 86/123 other exact-compatible rows), so this window is not sufficient to establish a C357 attribution discriminator.",
+    "artifact": "docs/audits/c357_creator_window_shadow_manifest.v1.json; docs/audits/c357_creator_window_shadow_capture.v1.json; docs/audits/c357_creator_window_shadow_decode.v1.json (digest e44a6c8659ed14244bf24b5a77aec30d78f7b935d177eca138d7571ebc7bb3ea). Offline replay PASS with zero provider calls; 2 focused tests passed.",
+    "safety": "Shadow-only. No membership, fingerprint, detector, queue, workflow, production/service, provider configuration, or trading mutation. Comparison metadata is audit-only and is not used as a detector feature.",
+    "exact_next_action": "C357 remains PAUSED. Do not promote this negative role-window result into attribution or detection. Any further discrimination requires separately authorized evidence with an independently defined, bounded source contract."
+  },
   "c357_post_dutb_branches_a_c_reconstruction_20260828": {
     "engineering_revision": "1ca4824d",
     "status": "PARTIAL",

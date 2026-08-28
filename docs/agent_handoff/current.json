@@ -2951,6 +2951,7 @@
     "engineering_revision": "40807f539f240788d0d4f35e88dfd8de0593a202",
     "tests": "11 passed: Snapshot V2 artifact replay/adversarial source-mutation simulation plus Focus/UI focused suite.",
     "render_verification": "watchtower_api only was reloaded; Potential Operations returned HTTP 200 and rendered the Snapshot V2 ordering.",
+    "verified_upstream_launch_ui": {"engineering_revision":"acb7ded1ee1bdcb6aaa471f2a8cae53a8f55e8dd","status":"PASS","summary":"Recent Launches now renders retained verified upstream-to-funder-to-creator paths for the 100 SOL WSOL Provision Close family; no new provider call was made.","tests":"6 focused tests passed.","production_flags":{"workflow_changed":false,"membership_changed":false,"provider_calls":false,"service_restarted":false}},
     "exact_next_action": "Use Snapshot V2 as the authoritative Potential activity read projection; historical Focus v2 remains an unchanged historical assessment."
   }
 }

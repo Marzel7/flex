@@ -1,13 +1,15 @@
 {
   "c357_branch_b_end_to_end_reconstruction_20260828": {
-    "engineering_revision": "0fa8a5bb",
-    "status": "PARTIAL",
-    "verdict": "C357_BRANCH_B_CHRONOLOGICAL_LEDGER_FROZEN",
+    "engineering_revision": "6723b773",
+    "status": "PASS",
+    "verdict": "C357_BRANCH_B_END_TO_END_COMPLETE",
     "frozen_subjects": ["33myosxzjbzfx2GcW71zmzvrzibQnnh6njW2vLKiMxr4", "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive", "CZTxzma6pA9HPwXASpbhuCKNGrH6zgpQ9ARgUqUQwbTy"],
-    "window": "1787578100 through 1787580000 inclusive, anchored at the proven 33my-to-HXuf initialization and covering the two Branch B launches plus immediate post-launch activity.",
-    "local_and_provider_progress": "Bounded provider history reads found 4 HXuf and 56 CZTx signatures in the frozen window. HXuf initialization remains proven; 33my history requires bounded historical pagination because its latest page does not reach the window.",
-    "safety": "Read-only local/provider evidence only. C357 remains PAUSED; no membership, fingerprint, detector, queue, service, listener/worker, or trading state changed.",
-    "exact_next_action": "Decode the 60 deduplicated Branch B window signatures into a compact directional temporal graph, then compute CZTx/HXuf directions, amount vectors, roles, launch associations, and replay artifact without new provider calls."
+    "window": "1787578100 through 1787633800 inclusive, anchored at the proven 33my-to-HXuf initialization and including immediate post-launch activity.",
+    "result": "20 bounded history calls and 376 bounded transaction decodes established 33my's 3,049,997,960,720-lamport WSOL-close delivery to HXuf, followed one second later by HXuf's 3,049,999,995,000-lamport direct transfer to CZTx. Across the window, HXuf transferred 39,280,999,915,000 lamports to CZTx in 17 direct transfers; no CZTx-to-HXuf direct transfer was found. HXuf is the exact direct funder for both retained Branch B C357 launches, each retaining the exact locked lifecycle and 99,999,985,000-lamport fingerprint. The retained local C357 projection reaches these two launches through both HXuf and CZTx, and reaches none through 33my.",
+    "classification": "POST_DUTB_PARALLEL_PROVISIONING_ARCHITECTURE; 33my=C357_PROVISIONER_CANDIDATE; HXuf=ROLE_ROTATING_INFRASTRUCTURE; CZTx=SETTLEMENT_COUNTERPARTY; C357 continuity=YES_MODERATE. This is role/timing evidence, not a claim of wallet ownership, fungible-lamport tracing into a launch, or C357-exclusive infrastructure.",
+    "artifact": "docs/audits/c357_branch_b_chronology.v1.json digest 269eb697cbc43030e953312e0a09fc91a2f60612baf99a1928a4aa9d2c45438a; offline replay PASS with zero provider calls; 8 focused tests passed.",
+    "safety": "Read-only local/provider evidence only. C357 remains PAUSED; no membership, fingerprint, detector, threshold, queue, Snapshot V2, service, listener/worker, provider mutation, or trading state changed.",
+    "exact_next_action": "No further Branch B action is authorized. Any broader post-DuTb infrastructure or monitoring implementation requires a separate bounded authorization."
   },
   "c357_branch_b_initialization_20260828": {
     "engineering_revision": "0fa8a5bb",

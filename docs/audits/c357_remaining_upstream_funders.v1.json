@@ -1,0 +1,578 @@
+{
+  "candidate_id": "p3r-v2-c357da9d0d4d560311e4",
+  "providers": [
+    {
+      "direct_funder": "2fJCPb27tQhbnX4s3sTJvjzK1deawkREkKjCKS7PjF9g",
+      "history_entries": 244,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "67arQDJyzf3wuPNcbGz9zpsvDBYzgpbFKBEtWfzjtAZC",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "direct_funder": "2h2xdvznzmcRi4zNE8A3uwe4Er5e5bf8gTxzXREg9ph5",
+      "history_entries": 59,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "HggCfpEM2uzcpZwU5u3yYxYuniqR7dGtWhvkdruYLsFU",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "direct_funder": "397s3pwPhV1A88Fj2EuNoERFYTCLdN5WiUAPvxUxFVST",
+      "history_entries": 49,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "7VjefJrPMfh6wow3BYr4Qj1vAgnFsAnXBNqphSnpPzUY",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "direct_funder": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+      "history_entries": 74,
+      "launch_linked_material_inbounds": 4,
+      "members": 4,
+      "upstream_provisioners": [
+        {
+          "address": "AGT9dkEZUBPrw5HrDGZTNRhYNMEU5HbRp2E1GdYMSB6r",
+          "count": 4
+        }
+      ]
+    },
+    {
+      "direct_funder": "3thxdSxsHtFuGJroCYe6JmCojPRizUz1GnvQSq5M5JfY",
+      "history_entries": 53,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "FYuGqRUDnVgzHqvQGJvu1GhMPzfyooQdTTfksi8H45rH",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "direct_funder": "49Wo4qJS1CWPd4b8LAezyL4ARPj3fw6N6zPhPV4dQd6V",
+      "history_entries": 29,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "6cbGn9vcTvhR1MuAaS8zKi9Ha5ZUpDLoFPShnJ1e3XwA",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "direct_funder": "54xTpcBEr48Cuis8m2SdeymdQcwvmDR4aegxCPQzUANG",
+      "history_entries": 52,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "3nWUnuGAWdrTA4hmNmKPQsTpwegLN8Pz77VY8cw27pWi",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "direct_funder": "59MGbbjnBsNKNbTXsd4cc83doHgpkJBdotigvZ6WxjLX",
+      "history_entries": 118,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "63H6mHB4tTGbvBzhz19FgHBMnyAjqRNnqxiRWCKfTftQ",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "direct_funder": "5PkFFC9FCmm2EUQHMqbF9cwMviSXjgAjeqKEoPoYejuG",
+      "history_entries": 63,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "8XpDKnEPVLRFMa6ErMbAVfo4yoXEfsQ7yhCaT4imFfLW",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "direct_funder": "5TR1KXium6nxovUUXbofK2N1uYPh9NA8w9WpvvKZ3Myi",
+      "history_entries": 1000,
+      "launch_linked_material_inbounds": 2,
+      "members": 2,
+      "upstream_provisioners": [
+        {
+          "address": "51UmDGr3N3s9sfsYs9jN75fy9e33C1E2m21KfdQSBsAZ",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "direct_funder": "5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn",
+      "history_entries": 64,
+      "launch_linked_material_inbounds": 3,
+      "members": 3,
+      "upstream_provisioners": [
+        {
+          "address": "7u2c2ootN4Wpk1u26XAqnwRvnnRNt2N1WrirHBVHgj3r",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "direct_funder": "5iDYsDLugMXh1LTRVDmFH8PfQ6ueG5pE9UcfefrnztB6",
+      "history_entries": 51,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "DtZuHqiiDzsScMD2dvCr3Jv4n4aZiinLz8Va3Kpv7Cb5",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "direct_funder": "5sUoQPPvnvS6eXem4TdcjKJ1JZy7uLEhWN3pCA8yNFnc",
+      "history_entries": 51,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "65LF4eMd2NRKgA8SHNFfipUFXbntsxcctp4HHqo7dbSu",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "direct_funder": "6hakQXcUcnk1EuuGMHsDPw9iP4GPwjUtHxxPAvGnPj3L",
+      "history_entries": 163,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "E257HACpHcHa5zKPiPjwXyr7fMD7jx7mm6wnTJNssF6t",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "direct_funder": "6jJnz6ZQjDZeFLxoDq2RBp4fvsjPfCJmpr1jhQcy2rBk",
+      "history_entries": 52,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "GvKha8BZH9HUVBMyGwcBnwYs7GyioBhHmrvh2rRVzbv3",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "direct_funder": "7144mX5peoQoyYq2ncsTmzFciqkLiYzS42XVmvFjGiv4",
+      "history_entries": 40,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "F39J3KAgeBhQxmhqhYzBKw565NWhJTMiSnZiVtcYGxb6",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "direct_funder": "7DifG8cHrQBAAKjqoLCnfzj8khtnYLPE39GnWgEnLP8d",
+      "history_entries": 242,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "2MMSdrNnC9CKdbHmeaj5dLoW1LFfUC4jBPfKQZKq2MMW",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "direct_funder": "7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv",
+      "history_entries": 49,
+      "launch_linked_material_inbounds": 2,
+      "members": 2,
+      "upstream_provisioners": [
+        {
+          "address": "7onSgr7qN7C9F7yy2WKYr1VRj3jrhtHoBL5tLQ8KbHUf",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "direct_funder": "9As8wexRUtoujuYia5WxpiUCbjut75XTb9LknATiXvRW",
+      "history_entries": 59,
+      "launch_linked_material_inbounds": 2,
+      "members": 2,
+      "upstream_provisioners": [
+        {
+          "address": "AdH8UqLePYQd69Wp7ovZ14k1aumGhyHcmLj6fyvUGhya",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "direct_funder": "9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp",
+      "history_entries": 63,
+      "launch_linked_material_inbounds": 2,
+      "members": 2,
+      "upstream_provisioners": [
+        {
+          "address": "EDGKu44CYEgzjhFrfX2mpZDgHYu2einGfAwbJ79cw2aM",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "direct_funder": "AW7FZRzGUA8HnRWTsGbEDogAh4Y2Utv2KBqALEvfGLqb",
+      "history_entries": 284,
+      "launch_linked_material_inbounds": 3,
+      "members": 3,
+      "upstream_provisioners": [
+        {
+          "address": "2NhF4V7W6WXPkPvWVFHisveQAKMvcTB4o8AXrxhGLpar",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "direct_funder": "AhfDWL1mi2xajF7JWGDzmTiqvtRxD7JDWHkaZVnmUvw7",
+      "history_entries": 242,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "DwTQbWYemW6JTSJj97xhvPvbYUdqYDxf4ppaapvoqhig",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "direct_funder": "Am3Un7bph5NNWDLCVVVQT1kY4kN3GFPjj31g4DdrNCd4",
+      "history_entries": 64,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "8bHas2MxzzAmcZoHMCNN3NQwUfV2bjawNt6ggy6uP9xh",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "direct_funder": "Ao2sUdoFtKW7yix7v6GT8GoWE94LcgHiyjautukHBKAi",
+      "history_entries": 67,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "FpK8G5iEAydmPF4fNds2rPbCWwMB4YdvDYZ6tCAdKqzM",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "direct_funder": "BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH",
+      "history_entries": 68,
+      "launch_linked_material_inbounds": 2,
+      "members": 2,
+      "upstream_provisioners": [
+        {
+          "address": "J8Vyzh1efuCFiu3NhYkSvNeSWhFvNEE3BN4N9NF8moiR",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "direct_funder": "BsKEb5qhnHMFP4XUjoXMv5nMxkvuaFtBH5ssuWNMjLbw",
+      "history_entries": 43,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "Ge4XLNws9dQddAeBCq3wCNkcYf1mpxNBVNyg4rXGeJ5g",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "direct_funder": "C2W3FExk348T4aNHpJjiCZpNrpd9MNLBBVZAdWCogtBx",
+      "history_entries": 43,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "HErGQyVFFtxTQhWZC2FFpRCspvVvZsSHt7dv1ZHuf3KD",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "direct_funder": "C55hxeJepPLMKi4xuKjAFLWmxoSfVrqn2LELi67ixQfe",
+      "history_entries": 64,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "4gviJWaJP5Mvf1sKhJRZFQU1S4EZkDnJjH4acAZwEsfG",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "direct_funder": "CYnm5v4MiLLLaUvu5VUfYPxszU8RPBzmH3Qkv7QbfcUi",
+      "history_entries": 62,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "9dmPzAuCDC4wsCfexmFcP9tX48cM1ebfbN5uYtXbo2ZB",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "direct_funder": "CbMTzd1sG9vuP9Tw2nUNBHUvtsyzr4Hm5rknri4XxXWL",
+      "history_entries": 47,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "2rbZwmvAGY5q1vhpRgXy3PHtztD8kYbtjbYuVUraLYkQ",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "direct_funder": "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5",
+      "history_entries": 240,
+      "launch_linked_material_inbounds": 5,
+      "members": 5,
+      "upstream_provisioners": [
+        {
+          "address": "7nUChWZA5wUMWgUjigfkh3MG2FmoVhk47fvqCcPALe5B",
+          "count": 5
+        }
+      ]
+    },
+    {
+      "direct_funder": "DPAy3sFUsUWVRCGaMKse2hVYR5kKU7Yr4cE1eM5EwvgA",
+      "history_entries": 258,
+      "launch_linked_material_inbounds": 2,
+      "members": 2,
+      "upstream_provisioners": [
+        {
+          "address": "FQewszHHeYSvAQMTKQjFXwDWQDgB8TXqJzsyavNmYCi9",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "direct_funder": "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB",
+      "history_entries": 1000,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "6kQde5QeXZ4iiAX5dx9mmKERaokLR9D55S14JeUGZTCN",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "direct_funder": "DmfxzqZQTifJQhfrikFdDQXy3Ws6X9H3VX5xkRVTf77y",
+      "history_entries": 53,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "HBa1PoTnhDtbeC6SAL9vrp6gxCWMBbdS4oN6dMD5snq3",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "direct_funder": "FJrraJVwKYdcLX4we8UttdJGvxErgUKWf6awnVSsxArH",
+      "history_entries": 66,
+      "launch_linked_material_inbounds": 2,
+      "members": 2,
+      "upstream_provisioners": [
+        {
+          "address": "8VFreegW9kVfykJJC2ULz82XpRiwGHG3UdETWY4Eowpg",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "direct_funder": "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD",
+      "history_entries": 80,
+      "launch_linked_material_inbounds": 3,
+      "members": 3,
+      "upstream_provisioners": [
+        {
+          "address": "Bn1RAP2D2s4hDUUYzngaBipptN4XfVmXKg7maHjQZ4P1",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "direct_funder": "G1BJvTetp6YSwaDNSajruPPM1JCTZf5NWeyr6dQN94n7",
+      "history_entries": 44,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "AAtEUPcCJ4Jdx3bZvyGK9BGuor1VAksPuFGRrZuQvpo3",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "direct_funder": "G9XSZDgMk8x51uHvFUumZK5AFWJLp3GJCV7VZSkL3uGP",
+      "history_entries": 44,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "6iMNUx2ndPCAopEW48xdAxyCTf7vXRd2FsQ6CHx9MQn5",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "direct_funder": "GUBtBg8i5wn5ME3vYmgqMZFFuBnDp6i1oa8BPFwoURAP",
+      "history_entries": 39,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "73wKoSuH4VvwBaQ68QUNJjWQKFka8ifp9oykJV7yb45E",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "direct_funder": "Gy29oqrQGFsP8cSsZ4eJvmMDMvKeYtWgURGCn5jim9Xn",
+      "history_entries": 48,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "94VEgcJ31hwXWD9aUBNb2XjGewDkquxGUUkNeTfPqeZN",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "direct_funder": "HQ2q5DJuAVf1CrDJpwmeSYsLgvGp9k5cGEPZQsNvcMW9",
+      "history_entries": 45,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "4cVm3jxHmCsK5tCuv92JYCqdXfF9t2eZ1wagUBKf6F4c",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "direct_funder": "HRneLKJHUHXJr9zb297N44L8WCUqCJYKDsSxDaPv49wS",
+      "history_entries": 52,
+      "launch_linked_material_inbounds": 2,
+      "members": 2,
+      "upstream_provisioners": [
+        {
+          "address": "326Sd2gfsXQA7c2XWN88jNTh6bY32pgvJEkk9uWSZ9tc",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "direct_funder": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+      "history_entries": 82,
+      "launch_linked_material_inbounds": 2,
+      "members": 2,
+      "upstream_provisioners": [
+        {
+          "address": "CZTxzma6pA9HPwXASpbhuCKNGrH6zgpQ9ARgUqUQwbTy",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "direct_funder": "J37JdYS3hpMB3iW8tgUdfFrrBu4X6o9PT3SguxpHXJVW",
+      "history_entries": 58,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "7dbf5E7pfNGHoy9F8DUC7KcNyaapa2tC251A4jgAqJXb",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "direct_funder": "J87ewUdaYKXaMVZEdKh14fMcKXaAmzGamzGtaXDop13X",
+      "history_entries": 48,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "Et4WkjpTFwiAPmLbsgt519UBVccnFrW14Hu1VVzDnJDK",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "direct_funder": "NeHjc1yqZXesLZTHtK7jrjyQ3MpFg2TVHpV8QDDAHEm",
+      "history_entries": 35,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "D4g6HvAX7cbjdH1cnVt24y9tC2pTU52eCdNz2wu6H1CN",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "direct_funder": "j6EVoUMZRafJPrdkuoB9PJGXxBGHEsx4VcJq5W3Ft5d",
+      "history_entries": 35,
+      "launch_linked_material_inbounds": 1,
+      "members": 1,
+      "upstream_provisioners": [
+        {
+          "address": "Bdq9PYpY2BViVtthj6WGeqbkixZciunv6dQ6MYXpXet5",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "remaining_funders": 47,
+  "rpc_calls": 116,
+  "safety": {
+    "provider_mutations": 0,
+    "source_db_writes": 0,
+    "workflow_writes": 0
+  },
+  "schema_version": "C357_REMAINING_UPSTREAM_FUNDER_RPC.v1",
+  "scope": "remaining direct funders; one getSignaturesForAddress page and launch-linked getTransaction only; no recursion"
+}

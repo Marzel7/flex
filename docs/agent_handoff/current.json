@@ -1,4 +1,13 @@
 {
+  "c357_dutb_deep_provenance_20260828": {
+    "engineering_revision": "3a19345b plus uncommitted audit work",
+    "status": "PARTIAL",
+    "verdict": "C357_DUTB_DEEP_PROVENANCE_IN_PROGRESS",
+    "completed": "Read-only RPC checks exhausted the returned DuTb history at 2,829 signatures and compared it against five history pages for each of 47 direct funders and 47 immediate upstreams. Five rent-scale transfers from DuTb to C357 direct funders occurred within 12 seconds; no transfers into the seven user-supplied direct funders or any audited immediate upstream were found.",
+    "in_progress": "A first deterministic 100-transaction root-history batch plus all shared signatures inspected 243 transactions and found one inbound native transfer to DuTb. The full root-history transaction inventory did not complete in one fan-out and must resume in deterministic batches before drawing a deeper-root conclusion.",
+    "safety": "RPC reads only; no database, workflow, membership, qualification, provider, service, listener/worker, or trading state changed. Audit script and report are uncommitted pending completion.",
+    "exact_next_action": "Resume the remaining DuTb root-history transaction batches with durable semantic aggregation, then selectively trace material inbound sources; do not infer operation admission from funding evidence alone."
+  },
   "c357_deeper_common_funder_scope_20260828": {
     "engineering_revision": "3a19345b",
     "status": "PASS_READ_ONLY",

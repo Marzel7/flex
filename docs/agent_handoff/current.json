@@ -1,4 +1,13 @@
 {
+  "c357_dutb_wsol_close_delivery_20260828": {
+    "engineering_revision": "3a19345b plus uncommitted audit work",
+    "status": "PASS_READ_ONLY",
+    "verdict": "DUTB_TO_C357_FUNDER_WSOL_DELIVERY_VERIFIED",
+    "result": "A user-supplied transaction was decoded by RPC and proves an atomic path from DuTb to the C357 direct funder GUBt: DuTb creates a seeded WSOL account, transfers 97,960,720 lamports into it, syncs native SOL, then closes the token account to GUBt while DuTb remains the token-account owner. The close redeems 0.1 SOL to GUBt.",
+    "interpretation": "This corrects the prior transfer-only parser limitation: the funding delivery is through a wrapped-SOL close-account instruction, not a direct system transfer to GUBt. It is strong transaction-level funding evidence, but does not alone establish common control or operation admission.",
+    "safety": "Read-only RPC decoding only; no database, workflow, membership, qualification, provider, service, listener/worker, or trading state changed.",
+    "exact_next_action": "Decode the other supplied DuTb transactions with the same WSOL-close path and map each final recipient to C357 funders or other launch-side wallets."
+  },
   "c357_dutb_user_supplied_transaction_verification_20260828": {
     "engineering_revision": "3a19345b plus uncommitted audit work",
     "status": "PASS_READ_ONLY",

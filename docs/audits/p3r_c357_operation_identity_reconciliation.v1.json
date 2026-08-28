@@ -1,0 +1,837 @@
+{
+  "comparisons": {
+    "behaviour": "Same exact WSOL_WRAP_CLOSE 99,999,985,000-lamport ordered lifecycle; C357 supplies a stricter independent branch-attribution layer.",
+    "infrastructure": "C357 independently verifies DuTb/A/B/C; P3R provenance says upstream evidence PARTIAL, so P3R did not establish C357-specific infrastructure as its admission predicate.",
+    "temporal": "P3R profiles contain all 50 overlaps; C357-only B/C launches occur after P3R membership/profiles and are consistent with uncovered subtype continuity."
+  },
+  "detector_implication": "C357 remains a shadow-only subtype attribution classifier; compatibility recognition may be represented beneath P3R but is not membership automation.",
+  "deterministic_digest": "55faa776664ba4817a39a75cf4070784566e8faca77e586d0e14d8d1cdd488ff",
+  "hypotheses": {
+    "C357_SUBTYPE_OF_P3R": "STRONG",
+    "P3R_MEMBERSHIP_OVERAGGREGATED": "WEAK_EVIDENCE",
+    "RELATED_DISTINCT_OPERATIONS": "WEAK",
+    "SAME_OPERATION": "MODERATE"
+  },
+  "identity_verdict": "P3R_PARENT_C357_SUBTYPE",
+  "inputs": [
+    "docs/audits/c357_operation_qualification_review.v1.json",
+    "docs/audits/c357_operation_registration_preflight.v1.json",
+    "docs/audits/c357_dutb_common_funder_rpc.v1.json",
+    "docs/audits/c357_branch_b_chronology.v1.json"
+  ],
+  "membership_blocker_next_action": "no reassignment; design and authorize parent-child subtype representation that references the 56 allowlisted members without creating competing global memberships.",
+  "mode": "READ_ONLY",
+  "overlap_admission": {
+    "CPM7DGwsFCyT2kHqzEwf4moWKnCiYh5czdbyr7apump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "CPM7DGwsFCyT2kHqzEwf4moWKnCiYh5czdbyr7apump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "CiKMVEVMCZSTXwQwqrwE3GZLne982oHkAdq7Yz3pump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "CiKMVEVMCZSTXwQwqrwE3GZLne982oHkAdq7Yz3pump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "Cj7up2N4yXdzZmLYNaiPt6zye4VWoWHsyeCobEDpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "Cj7up2N4yXdzZmLYNaiPt6zye4VWoWHsyeCobEDpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "DqErYkksQymp8sVr2HkrJbVWkv1YXrz3keWKBfHpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "DqErYkksQymp8sVr2HkrJbVWkv1YXrz3keWKBfHpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "EakWrE5ehWTkJkhSPp861abPiDg4BDW72KVMR2Qpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "EakWrE5ehWTkJkhSPp861abPiDg4BDW72KVMR2Qpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "GhvrrotDtMYKFjWpeuTxgskYRji3N2u5TeYToZwpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "GhvrrotDtMYKFjWpeuTxgskYRji3N2u5TeYToZwpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        2
+      ]
+    },
+    "HUNHEFrs7pFJpd1R7bYq6vT9GigRk3rV9av63ZVpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "HUNHEFrs7pFJpd1R7bYq6vT9GigRk3rV9av63ZVpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        2
+      ]
+    },
+    "JHkAR9egULFbv1PfGLky5NvahfQwWJRDH4zJMsWpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "JHkAR9egULFbv1PfGLky5NvahfQwWJRDH4zJMsWpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "JzXZKSJZvtS3scMCcmXWUJGxRTBfnociHXVXKRvpump": {
+      "c357_branch": "A",
+      "c357_evidence": "7nUCh -> Crnc retained upstream/direct-funder path",
+      "mint": "JzXZKSJZvtS3scMCcmXWUJGxRTBfnociHXVXKRvpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        2
+      ]
+    },
+    "LyqncnAuRYisshpv1u12B6pCD7SASdyFj1itCUcpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "LyqncnAuRYisshpv1u12B6pCD7SASdyFj1itCUcpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "MW7ePAAMjxWyezTKtnvYXewrN5H4CHrv1HYkhabpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "MW7ePAAMjxWyezTKtnvYXewrN5H4CHrv1HYkhabpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "Q3FHwyr9AFZvFJUyFduoGrnJE5gAgq7UGQWVn2Kpump": {
+      "c357_branch": "A",
+      "c357_evidence": "7nUCh -> Crnc retained upstream/direct-funder path",
+      "mint": "Q3FHwyr9AFZvFJUyFduoGrnJE5gAgq7UGQWVn2Kpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        2
+      ]
+    },
+    "Qqq9SveDjjYJc3jFYwopxEFhuV7SwMtcixr3skdpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "Qqq9SveDjjYJc3jFYwopxEFhuV7SwMtcixr3skdpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "R39ag2yKJVxJiHUxBy1xUEUc55kADNicLb9idNnpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "R39ag2yKJVxJiHUxBy1xUEUc55kADNicLb9idNnpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "RAjnSnVnRmf8Za8MggRPRmjkY2ZQkK7HiXYz4YSpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "RAjnSnVnRmf8Za8MggRPRmjkY2ZQkK7HiXYz4YSpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "S3jLzSX9NKbtdUVGTzoeYFMty5xXRYvzTbFASXUpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "S3jLzSX9NKbtdUVGTzoeYFMty5xXRYvzTbFASXUpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "SrAJUQS6snqHUATSX4Jmvb4vZpgmQevqeWbzUEVpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "SrAJUQS6snqHUATSX4Jmvb4vZpgmQevqeWbzUEVpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        2
+      ]
+    },
+    "TwA2K5KnYpyNeu7dxeNY3yS4uCR5KrRRh9FPLDHpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "TwA2K5KnYpyNeu7dxeNY3yS4uCR5KrRRh9FPLDHpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "UMVSuCPVE5H1SbEZ5X32iu3Jcs67ySZ1iMuiyaWpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "UMVSuCPVE5H1SbEZ5X32iu3Jcs67ySZ1iMuiyaWpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        2
+      ]
+    },
+    "UkCrzRHSB7jDqMzfLEyAA6A68ibzWZpBWvdY2y4pump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "UkCrzRHSB7jDqMzfLEyAA6A68ibzWZpBWvdY2y4pump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "UroXqz24UCoMy1LpQJVQjJEyeKzBh6aYPq4b487pump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "UroXqz24UCoMy1LpQJVQjJEyeKzBh6aYPq4b487pump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "UsCT9cALz6uba94mdUByBLZgP3Dp5sW7Mv7ZgJPpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "UsCT9cALz6uba94mdUByBLZgP3Dp5sW7Mv7ZgJPpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "UwMkVQDeXLpbCXcHp5P9yVAneejwwbviFfBJFRXpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "UwMkVQDeXLpbCXcHp5P9yVAneejwwbviFfBJFRXpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "VByVzKnqKM6QGCJs9JwxGs4RJC8kdtwtn6FnfXMpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "VByVzKnqKM6QGCJs9JwxGs4RJC8kdtwtn6FnfXMpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        2
+      ]
+    },
+    "WLjqiHSEWgHVkX9JWJXgXDhX9XTCtSSj3EdyB4Cpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "WLjqiHSEWgHVkX9JWJXgXDhX9XTCtSSj3EdyB4Cpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "WV1UndBXx7eGbtA7B6Q7HEnX1mN8DL3XdGDN9Jupump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "WV1UndBXx7eGbtA7B6Q7HEnX1mN8DL3XdGDN9Jupump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "Y7u2wWcosZTHagBjua7W3ddwsmD4ZGhZYH2keASpump": {
+      "c357_branch": "A",
+      "c357_evidence": "7nUCh -> Crnc retained upstream/direct-funder path",
+      "mint": "Y7u2wWcosZTHagBjua7W3ddwsmD4ZGhZYH2keASpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "ZMA7yJNeXUwcUdGWXzw654ZX6k1tj3zgqL7qrFBpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "ZMA7yJNeXUwcUdGWXzw654ZX6k1tj3zgqL7qrFBpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        2
+      ]
+    },
+    "ZjDVmGGAkmj1aj8Le3uGoaUiz39jEyKH6VP7dzQpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "ZjDVmGGAkmj1aj8Le3uGoaUiz39jEyKH6VP7dzQpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "ZpQmhQvEpasHYF2gDrDJXaYZVDJxJUZRt9vvHbUpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "ZpQmhQvEpasHYF2gDrDJXaYZVDJxJUZRt9vvHbUpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "ZzWhbH8LrTjx8uCQgE2SEue3jiYWKAm7RGTCYH8pump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "ZzWhbH8LrTjx8uCQgE2SEue3jiYWKAm7RGTCYH8pump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "aDdwL6dso6ZD6Rag2FZTURzADRiyXxFVeT23ri6pump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "aDdwL6dso6ZD6Rag2FZTURzADRiyXxFVeT23ri6pump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "apSur7K2VY3XsRUSSFDgJUYhdgW2zfRHLFvKUHKpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "apSur7K2VY3XsRUSSFDgJUYhdgW2zfRHLFvKUHKpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "aqu8vj7snoqUJsTuC5UemhvNWeMJzWu6qbpa3jnpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "aqu8vj7snoqUJsTuC5UemhvNWeMJzWu6qbpa3jnpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "awwz1zgwET9MtvRSZ9CUZ5QpLFviT9fFv53CpDApump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "awwz1zgwET9MtvRSZ9CUZ5QpLFviT9fFv53CpDApump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "brj1EEqhenNSLbnjdNyok33yLpxBwvyFheRctCKpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "brj1EEqhenNSLbnjdNyok33yLpxBwvyFheRctCKpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "c9SFiUUHzra78qJinqxSntvpBmJjXdGYDcMMNkXpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "c9SFiUUHzra78qJinqxSntvpBmJjXdGYDcMMNkXpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "eMD1zv3m9ArePAtXYEVFG9tbXfwDzY8GyFMxbPopump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "eMD1zv3m9ArePAtXYEVFG9tbXfwDzY8GyFMxbPopump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        2
+      ]
+    },
+    "f73NdtHMKwTeTy3KRpRDxZe7yopu9toZ7P5sFmapump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "f73NdtHMKwTeTy3KRpRDxZe7yopu9toZ7P5sFmapump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "g1CbgSCD1H48Mnx9VSL7cpwJ5auX8Ky1cNUH9BQpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "g1CbgSCD1H48Mnx9VSL7cpwJ5auX8Ky1cNUH9BQpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "keZ4mAQQqREHoZeC3HcZNpVC1qSGX4kiWC7vdtvpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "keZ4mAQQqREHoZeC3HcZNpVC1qSGX4kiWC7vdtvpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "mP4AehV2DV4KdNcZkjih6wwLDE8ouUz6ns2FB3tpump": {
+      "c357_branch": "A",
+      "c357_evidence": "7nUCh -> Crnc retained upstream/direct-funder path",
+      "mint": "mP4AehV2DV4KdNcZkjih6wwLDE8ouUz6ns2FB3tpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        2
+      ]
+    },
+    "nMSCXsLXZ3R7NBKNDiaYw7CZh7KYs4CyWMEVWNbpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "nMSCXsLXZ3R7NBKNDiaYw7CZh7KYs4CyWMEVWNbpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        2
+      ]
+    },
+    "oruyBzARjKtPNvRhcT5nR4bzYt5SM8uCv74j84epump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "oruyBzARjKtPNvRhcT5nR4bzYt5SM8uCv74j84epump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "puhW9nSz4rczEtWNM6TH1zYikSmapRu2PxdSXwfpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "puhW9nSz4rczEtWNM6TH1zYikSmapRu2PxdSXwfpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "rRGoXVsKJtZGgPqwShxiSD8pcpyH5qXhthqFT5Hpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "rRGoXVsKJtZGgPqwShxiSD8pcpyH5qXhthqFT5Hpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "shhJVNYRrzuBzKCBKcu6yuYEMLicmztd5Wiw6zfpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "shhJVNYRrzuBzKCBKcu6yuYEMLicmztd5Wiw6zfpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "svVnLbfCPjKAZ4suNYDfebJZ8AfhiTysVQwn3fZpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "svVnLbfCPjKAZ4suNYDfebJZ8AfhiTysVQwn3fZpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        2
+      ]
+    },
+    "tpx8GumtoKhXeba859s1ka7grY8m5zcQ8yPnZnSpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "tpx8GumtoKhXeba859s1ka7grY8m5zcQ8yPnZnSpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        1
+      ]
+    },
+    "vKPT1gGoRGsdzaGpQB2K2xAZGtmgjVNm8kNJvSvpump": {
+      "c357_branch": "DUTB_WALLET_POOL",
+      "c357_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+      "mint": "vKPT1gGoRGsdzaGpQB2K2xAZGtmgjVNm8kNJvSvpump",
+      "p3r_admission_basis": "BEHAVIOURAL_FAMILY_MEMBERSHIP_MANUAL_ADMISSION",
+      "p3r_profiles": [
+        2
+      ]
+    }
+  },
+  "ownership_of_50": "P3R_MEMBERSHIP_VALID_C357_SUBTYPE",
+  "p3r_governance": "subtype decomposition/evidence refresh; no membership reassignment now",
+  "p3r_identity_contract": {
+    "meaning": "Manually admitted evidence-bound recurring WSOL_WRAP_CLOSE workflow; explicitly not a real-world identity claim.",
+    "membership_count": 109,
+    "operator": {
+      "automation_eligibility": "ELIGIBLE",
+      "confidence": "HIGH",
+      "contract_json": "{\"principal_atomic_transfer_lamports\": 99997955720, \"selected_route\": [[1, \"WSOL_WRAP_CLOSE\", 99999985000]]}",
+      "created_at": 1787591387,
+      "detector_version": "P3R_UNIFIED_WSOL_WRAP_CLOSE_99_999985_SOL.v1",
+      "display_name": "P3R",
+      "evidence_lineage_json": "{\"basis\": \"version record created after provenance recovery; not a retroactive activation claim\", \"effective_from\": 1787815205}",
+      "first_seen": 1784656971,
+      "last_seen": 1787460211,
+      "operator_id": "777211c3-211e-551b-9310-ff9301570627",
+      "qualification_category": "CONFIRMED",
+      "review_state": "REVIEWED",
+      "status": "CONFIRMED",
+      "summary": "Unified P3R operation; historical profiles P3R_AF500 and P3R_EC1 retained as provenance aliases.",
+      "updated_at": 1787665719
+    },
+    "profiles": [
+      {
+        "members": [
+          "BT9JV4F3t58yyeELzXo72jL6C1fWp8SQRM3i3B9pump",
+          "CPM7DGwsFCyT2kHqzEwf4moWKnCiYh5czdbyr7apump",
+          "CiKMVEVMCZSTXwQwqrwE3GZLne982oHkAdq7Yz3pump",
+          "Cj7up2N4yXdzZmLYNaiPt6zye4VWoWHsyeCobEDpump",
+          "DqErYkksQymp8sVr2HkrJbVWkv1YXrz3keWKBfHpump",
+          "EakWrE5ehWTkJkhSPp861abPiDg4BDW72KVMR2Qpump",
+          "GkyDShEPTvXw6CacK76yxSzA9seHbyPfpRK1AuTpump",
+          "JHkAR9egULFbv1PfGLky5NvahfQwWJRDH4zJMsWpump",
+          "LyqncnAuRYisshpv1u12B6pCD7SASdyFj1itCUcpump",
+          "MW7ePAAMjxWyezTKtnvYXewrN5H4CHrv1HYkhabpump",
+          "N2JuKvtCqPyqZbduGD2uhuhWFZ9qARxzuuYYkfBpump",
+          "Qqq9SveDjjYJc3jFYwopxEFhuV7SwMtcixr3skdpump",
+          "R39ag2yKJVxJiHUxBy1xUEUc55kADNicLb9idNnpump",
+          "RAjnSnVnRmf8Za8MggRPRmjkY2ZQkK7HiXYz4YSpump",
+          "S3jLzSX9NKbtdUVGTzoeYFMty5xXRYvzTbFASXUpump",
+          "TwA2K5KnYpyNeu7dxeNY3yS4uCR5KrRRh9FPLDHpump",
+          "UkCrzRHSB7jDqMzfLEyAA6A68ibzWZpBWvdY2y4pump",
+          "UroXqz24UCoMy1LpQJVQjJEyeKzBh6aYPq4b487pump",
+          "UsCT9cALz6uba94mdUByBLZgP3Dp5sW7Mv7ZgJPpump",
+          "UwMkVQDeXLpbCXcHp5P9yVAneejwwbviFfBJFRXpump",
+          "WLjqiHSEWgHVkX9JWJXgXDhX9XTCtSSj3EdyB4Cpump",
+          "WV1UndBXx7eGbtA7B6Q7HEnX1mN8DL3XdGDN9Jupump",
+          "Y7u2wWcosZTHagBjua7W3ddwsmD4ZGhZYH2keASpump",
+          "YBemckTiUgK4sL6Xv2yktkgoYydrSqRmWJyWAZJpump",
+          "YKA5o87oHTTSAsbq1ZPHq6zF1cCaW8HoyhWcpjkpump",
+          "ZjDVmGGAkmj1aj8Le3uGoaUiz39jEyKH6VP7dzQpump",
+          "ZpQmhQvEpasHYF2gDrDJXaYZVDJxJUZRt9vvHbUpump",
+          "ZzWhbH8LrTjx8uCQgE2SEue3jiYWKAm7RGTCYH8pump",
+          "aDdwL6dso6ZD6Rag2FZTURzADRiyXxFVeT23ri6pump",
+          "apSur7K2VY3XsRUSSFDgJUYhdgW2zfRHLFvKUHKpump",
+          "aqu8vj7snoqUJsTuC5UemhvNWeMJzWu6qbpa3jnpump",
+          "awwz1zgwET9MtvRSZ9CUZ5QpLFviT9fFv53CpDApump",
+          "brj1EEqhenNSLbnjdNyok33yLpxBwvyFheRctCKpump",
+          "c9SFiUUHzra78qJinqxSntvpBmJjXdGYDcMMNkXpump",
+          "dFf5c8PKTpFcZN64RdVWHkwbCYkxnj9yzPw8QpJpump",
+          "f73NdtHMKwTeTy3KRpRDxZe7yopu9toZ7P5sFmapump",
+          "g1CbgSCD1H48Mnx9VSL7cpwJ5auX8Ky1cNUH9BQpump",
+          "jmM56TE7ko4jUzmzJ523W1b3872jMXKoiwsJLUKpump",
+          "kPTzLD8x9n3xLVrtjdk4qbxUr3it6Ea8ZpkHpCBpump",
+          "kZBroKqYaSrHxKV3vLmRGTW7Tw1q2WQ1wte6PNJpump",
+          "keZ4mAQQqREHoZeC3HcZNpVC1qSGX4kiWC7vdtvpump",
+          "nobzQmhM6x86Y8WdrgH21AKuVrJ5mJmkBmJU9Lqpump",
+          "o8uMYvNkndS6rSRPrV16d8LgJ1V732RxmZuzT8xpump",
+          "oruyBzARjKtPNvRhcT5nR4bzYt5SM8uCv74j84epump",
+          "osxeVkLpan3NyZsRDcdWiEuWBFHA6or59UshcaRpump",
+          "puhW9nSz4rczEtWNM6TH1zYikSmapRu2PxdSXwfpump",
+          "rRGoXVsKJtZGgPqwShxiSD8pcpyH5qXhthqFT5Hpump",
+          "s26oUz2BVe5gpY3D4qYCXWBPwDDoB9AYfFsHCehpump",
+          "shhJVNYRrzuBzKCBKcu6yuYEMLicmztd5Wiw6zfpump",
+          "tpx8GumtoKhXeba859s1ka7grY8m5zcQ8yPnZnSpump",
+          "wQFd44Kh6nsrXn49vcu4bpjDCqe18iTGYzTgcWppump",
+          "z5vGP66VUGSrT5WyfEs9QGB1VJiKh5Lhx2DeggCpump"
+        ],
+        "profile_version": 1,
+        "provenance": {
+          "baseline_downstream": {
+            "atomic_sequence": [
+              "createAccountWithSeed",
+              "initializeAccount3",
+              "transfer",
+              "syncNative",
+              "closeAccount"
+            ],
+            "distinct_creators": 52,
+            "distinct_direct_funders": 36,
+            "launches": 52,
+            "mechanism": "WSOL_WRAP_CLOSE",
+            "stored_amount_lamports": 99999985000
+          },
+          "manual_admission_scope": "Evidence-bound recurring operational workflow; not a real-world identity claim.",
+          "proposal_only": true,
+          "remaining39_rpc_manifest": "/tmp/p3r-clean-20260824T092959Z/rpc_af500_remaining39_v1/p3r_af500_remaining39_manifest.v1.json",
+          "remaining39_rpc_manifest_sha256": "f75d0e24ab86cfe3a5c2f702b609333130ec3d94b49274b4a10debd342306b41",
+          "selected_edge_semantics_artifact": "/tmp/p3r-clean-20260824T092959Z/activity/tiers/p3r_af500_selected_edge_semantics.v1.json",
+          "selected_edge_semantics_sha256": "66ca56a720f40300c041e85dde13b9913b776ccca59dd2049ad4eab356376683",
+          "source_candidate_id": "p3r-candidate-af5004dfe42cfe11",
+          "upstream_status": "PARTIAL: structured rapid provision-and-close evidence observed, but full shared ancestry is not established."
+        },
+        "source_candidate_id": "p3r-candidate-af5004dfe42cfe11"
+      },
+      {
+        "members": [
+          "HUNHEFrs7pFJpd1R7bYq6vT9GigRk3rV9av63ZVpump",
+          "SrAJUQS6snqHUATSX4Jmvb4vZpgmQevqeWbzUEVpump",
+          "nMSCXsLXZ3R7NBKNDiaYw7CZh7KYs4CyWMEVWNbpump",
+          "UMVSuCPVE5H1SbEZ5X32iu3Jcs67ySZ1iMuiyaWpump",
+          "ZMA7yJNeXUwcUdGWXzw654ZX6k1tj3zgqL7qrFBpump",
+          "VByVzKnqKM6QGCJs9JwxGs4RJC8kdtwtn6FnfXMpump",
+          "Q3FHwyr9AFZvFJUyFduoGrnJE5gAgq7UGQWVn2Kpump",
+          "mP4AehV2DV4KdNcZkjih6wwLDE8ouUz6ns2FB3tpump",
+          "JzXZKSJZvtS3scMCcmXWUJGxRTBfnociHXVXKRvpump",
+          "eMD1zv3m9ArePAtXYEVFG9tbXfwDzY8GyFMxbPopump",
+          "GhvrrotDtMYKFjWpeuTxgskYRji3N2u5TeYToZwpump",
+          "svVnLbfCPjKAZ4suNYDfebJZ8AfhiTysVQwn3fZpump",
+          "vKPT1gGoRGsdzaGpQB2K2xAZGtmgjVNm8kNJvSvpump"
+        ],
+        "profile_version": 2,
+        "provenance": {
+          "baseline_downstream": {
+            "atomic_sequence": [
+              "createAccountWithSeed",
+              "initializeAccount3",
+              "transfer",
+              "syncNative",
+              "closeAccount"
+            ],
+            "distinct_creators": 15,
+            "distinct_direct_funders": 12,
+            "launches": 15,
+            "mechanism": "WSOL_WRAP_CLOSE",
+            "stored_amount_lamports": 99999985000
+          },
+          "launch_anchor_timestamp_contract": "Selected hop-1 WSOL_WRAP_CLOSE block time.",
+          "manual_admission_scope": "Evidence-bound recurring operational workflow; not a real-world identity claim.",
+          "source_candidate_id": "p3r-candidate-ec1b6cff80643746",
+          "upstream_status": "PARTIAL: several bounded upstream chains are confirmed; cohort-wide shared controller is not established."
+        },
+        "source_candidate_id": "p3r-candidate-ec1b6cff80643746"
+      }
+    ]
+  },
+  "populations": {
+    "c357_compatible_unresolved": 105,
+    "c357_supported_not_p3r": [
+      {
+        "block_time": 1787625830,
+        "branch": "B",
+        "classification": "POST_P3R_EVOLUTION",
+        "creator": "Bo9vgoTpWBsRD1U3jwPRuSh2cZAAZSzSDJgcw1Ah2mCT",
+        "direct_funder": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "33my -> HXuf -> CZTx qualified role chronology; HXuf direct funder",
+        "mint": "W7Fnj98a3jY9aoP9kd25taK66eJ1uS6b6VjpKtJpump",
+        "p3r_exact_criteria_match": true,
+        "p3r_member": false,
+        "signature": "5Li2dxdtdTiVLk7jNTFgAyR6UkvGbsZsJhTpEsVpN53vMVRmQShs17HZv5PSPrurfGYGntTjx6YGXS81DSoZbrSo",
+        "why_not_p3r": "absent from the two manually admitted P3R profile member lists"
+      },
+      {
+        "block_time": 1787450096,
+        "branch": "C",
+        "classification": "POST_P3R_EVOLUTION",
+        "creator": "BxiwCPhgCQbLqSf9ystoYh5uRj4EEvQFcAiXGf2ziM1f",
+        "direct_funder": "6hakQXcUcnk1EuuGMHsDPw9iP4GPwjUtHxxPAvGnPj3L",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "E257 -> 6hak retained upstream/direct-funder path",
+        "mint": "p6Dydex88SswnKT9pRnjPwrCfHpw1c79FAAu81Upump",
+        "p3r_exact_criteria_match": true,
+        "p3r_member": false,
+        "signature": "5XLmpjaeLQBhM9dmMzxd5ktZS9evasxu9aW9VHQW5vKKA17ATwYeoaDhiUUr5pGWn84H1YwUo5fNBAANr1mDjA7V",
+        "why_not_p3r": "absent from the two manually admitted P3R profile member lists"
+      },
+      {
+        "block_time": 1787572885,
+        "branch": "DUTB_WALLET_POOL",
+        "classification": "P3R_FALSE_NEGATIVE",
+        "creator": "HRhj8yPAqPgJnjJ5JKTFogHZ7Pukugco8rzXwsR2a1va",
+        "direct_funder": "GUBtBg8i5wn5ME3vYmgqMZFFuBnDp6i1oa8BPFwoURAP",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "qcawC8mNoMy2C597kxDUMHbHJaZ5D4nPR2dvDoXpump",
+        "p3r_exact_criteria_match": true,
+        "p3r_member": false,
+        "signature": "e3idJ3Gx1ZW6BLpTVbqGCTGXuLLqpjNyNDWGBero8aA4WGzxrJnE3UPDcpmjmoyeAkPMpK88zJ9oY5maUBZ4UFL",
+        "why_not_p3r": "absent from the two manually admitted P3R profile member lists"
+      },
+      {
+        "block_time": 1787564536,
+        "branch": "DUTB_WALLET_POOL",
+        "classification": "P3R_FALSE_NEGATIVE",
+        "creator": "5vVafVudjZJKUagJuuxRTkFgjLQLqMbrEKVFMwNXcbKq",
+        "direct_funder": "G1BJvTetp6YSwaDNSajruPPM1JCTZf5NWeyr6dQN94n7",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "wFUJbWiV4wKK6BJJQdojJbgbd4Y51M3i3nA9VKLpump",
+        "p3r_exact_criteria_match": true,
+        "p3r_member": false,
+        "signature": "36Bg7kHAX7nCDSyU99543J7qi6trPXY5WLuZpBjB2NoCX5Mha9asejWjXyuoTCB83GURNRo6cuNpVAxH75PXjNSs",
+        "why_not_p3r": "absent from the two manually admitted P3R profile member lists"
+      },
+      {
+        "block_time": 1787447649,
+        "branch": "A",
+        "classification": "P3R_FALSE_NEGATIVE",
+        "creator": "D1WebujJc5CJR5eKjnWWfiKbhhjMdyzKgihbmoDmdsEe",
+        "direct_funder": "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "7nUCh -> Crnc retained upstream/direct-funder path",
+        "mint": "x7ofxncQVmMK3PDXVJF76uJ5JkgzX3x3eUGXkjopump",
+        "p3r_exact_criteria_match": true,
+        "p3r_member": false,
+        "signature": "3sXLs5ecH7Dzdug7d5viAkbCn41ejiUhFeS98vKDAGKywBL8CFusfYmfkFbx7RJRcj6oNqFkY3tbyPCa3eMbfW62",
+        "why_not_p3r": "absent from the two manually admitted P3R profile member lists"
+      },
+      {
+        "block_time": 1787632643,
+        "branch": "B",
+        "classification": "POST_P3R_EVOLUTION",
+        "creator": "6cQye5DE7C3xCd7H9pANDfpQd8CTf1XpEGzdcHYmqi8f",
+        "direct_funder": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "33my -> HXuf -> CZTx qualified role chronology; HXuf direct funder",
+        "mint": "yfmKCjYvHsD17w2xvKLBRrmzF58nZyXH25reGwLpump",
+        "p3r_exact_criteria_match": true,
+        "p3r_member": false,
+        "signature": "ZynPwdVZjqFoh4wgbBif1woy41dkjRAX6wthQW6YUg1tHp9Vjt7idE4CEJ4nSGmoXffMm4zh9qKBJS3ehFnVuFc",
+        "why_not_p3r": "absent from the two manually admitted P3R profile member lists"
+      }
+    ],
+    "p3r_and_c357_supported": [
+      "CPM7DGwsFCyT2kHqzEwf4moWKnCiYh5czdbyr7apump",
+      "CiKMVEVMCZSTXwQwqrwE3GZLne982oHkAdq7Yz3pump",
+      "Cj7up2N4yXdzZmLYNaiPt6zye4VWoWHsyeCobEDpump",
+      "DqErYkksQymp8sVr2HkrJbVWkv1YXrz3keWKBfHpump",
+      "EakWrE5ehWTkJkhSPp861abPiDg4BDW72KVMR2Qpump",
+      "GhvrrotDtMYKFjWpeuTxgskYRji3N2u5TeYToZwpump",
+      "HUNHEFrs7pFJpd1R7bYq6vT9GigRk3rV9av63ZVpump",
+      "JHkAR9egULFbv1PfGLky5NvahfQwWJRDH4zJMsWpump",
+      "JzXZKSJZvtS3scMCcmXWUJGxRTBfnociHXVXKRvpump",
+      "LyqncnAuRYisshpv1u12B6pCD7SASdyFj1itCUcpump",
+      "MW7ePAAMjxWyezTKtnvYXewrN5H4CHrv1HYkhabpump",
+      "Q3FHwyr9AFZvFJUyFduoGrnJE5gAgq7UGQWVn2Kpump",
+      "Qqq9SveDjjYJc3jFYwopxEFhuV7SwMtcixr3skdpump",
+      "R39ag2yKJVxJiHUxBy1xUEUc55kADNicLb9idNnpump",
+      "RAjnSnVnRmf8Za8MggRPRmjkY2ZQkK7HiXYz4YSpump",
+      "S3jLzSX9NKbtdUVGTzoeYFMty5xXRYvzTbFASXUpump",
+      "SrAJUQS6snqHUATSX4Jmvb4vZpgmQevqeWbzUEVpump",
+      "TwA2K5KnYpyNeu7dxeNY3yS4uCR5KrRRh9FPLDHpump",
+      "UMVSuCPVE5H1SbEZ5X32iu3Jcs67ySZ1iMuiyaWpump",
+      "UkCrzRHSB7jDqMzfLEyAA6A68ibzWZpBWvdY2y4pump",
+      "UroXqz24UCoMy1LpQJVQjJEyeKzBh6aYPq4b487pump",
+      "UsCT9cALz6uba94mdUByBLZgP3Dp5sW7Mv7ZgJPpump",
+      "UwMkVQDeXLpbCXcHp5P9yVAneejwwbviFfBJFRXpump",
+      "VByVzKnqKM6QGCJs9JwxGs4RJC8kdtwtn6FnfXMpump",
+      "WLjqiHSEWgHVkX9JWJXgXDhX9XTCtSSj3EdyB4Cpump",
+      "WV1UndBXx7eGbtA7B6Q7HEnX1mN8DL3XdGDN9Jupump",
+      "Y7u2wWcosZTHagBjua7W3ddwsmD4ZGhZYH2keASpump",
+      "ZMA7yJNeXUwcUdGWXzw654ZX6k1tj3zgqL7qrFBpump",
+      "ZjDVmGGAkmj1aj8Le3uGoaUiz39jEyKH6VP7dzQpump",
+      "ZpQmhQvEpasHYF2gDrDJXaYZVDJxJUZRt9vvHbUpump",
+      "ZzWhbH8LrTjx8uCQgE2SEue3jiYWKAm7RGTCYH8pump",
+      "aDdwL6dso6ZD6Rag2FZTURzADRiyXxFVeT23ri6pump",
+      "apSur7K2VY3XsRUSSFDgJUYhdgW2zfRHLFvKUHKpump",
+      "aqu8vj7snoqUJsTuC5UemhvNWeMJzWu6qbpa3jnpump",
+      "awwz1zgwET9MtvRSZ9CUZ5QpLFviT9fFv53CpDApump",
+      "brj1EEqhenNSLbnjdNyok33yLpxBwvyFheRctCKpump",
+      "c9SFiUUHzra78qJinqxSntvpBmJjXdGYDcMMNkXpump",
+      "eMD1zv3m9ArePAtXYEVFG9tbXfwDzY8GyFMxbPopump",
+      "f73NdtHMKwTeTy3KRpRDxZe7yopu9toZ7P5sFmapump",
+      "g1CbgSCD1H48Mnx9VSL7cpwJ5auX8Ky1cNUH9BQpump",
+      "keZ4mAQQqREHoZeC3HcZNpVC1qSGX4kiWC7vdtvpump",
+      "mP4AehV2DV4KdNcZkjih6wwLDE8ouUz6ns2FB3tpump",
+      "nMSCXsLXZ3R7NBKNDiaYw7CZh7KYs4CyWMEVWNbpump",
+      "oruyBzARjKtPNvRhcT5nR4bzYt5SM8uCv74j84epump",
+      "puhW9nSz4rczEtWNM6TH1zYikSmapRu2PxdSXwfpump",
+      "rRGoXVsKJtZGgPqwShxiSD8pcpyH5qXhthqFT5Hpump",
+      "shhJVNYRrzuBzKCBKcu6yuYEMLicmztd5Wiw6zfpump",
+      "svVnLbfCPjKAZ4suNYDfebJZ8AfhiTysVQwn3fZpump",
+      "tpx8GumtoKhXeba859s1ka7grY8m5zcQ8yPnZnSpump",
+      "vKPT1gGoRGsdzaGpQB2K2xAZGtmgjVNm8kNJvSvpump"
+    ],
+    "p3r_not_c357_supported": [
+      "AjSXgwtqKmJ7r4e4DsfTu8xS4ytrHigXhxfLtAwpump",
+      "BT9JV4F3t58yyeELzXo72jL6C1fWp8SQRM3i3B9pump",
+      "BXhcEHHYizRzbB3Bz7NJptoMdXoNquM14WzaxqGpump",
+      "Bp1hVhhad7SzDi3h3dvCdMEhANDfN8SqhbhK2ippump",
+      "DdFbtA4xsEZkQvXQdrocU3FVDuUYp8QmrmqjSMypump",
+      "EZLEDU6yrRfUb31TWdfckLmNjgP1q7Ka1RAsA4bpump",
+      "EpgCAWwATyXZkqHgvtsv9rUmHByuTr5sXfufaXMpump",
+      "FsmNyDwptiisx4CvTsCK2qzkjQNCL7uW8xjaeCcpump",
+      "GkyDShEPTvXw6CacK76yxSzA9seHbyPfpRK1AuTpump",
+      "HkkFpHwpERFUkhZhLrFXMbz5J7WA1bZqSKLnP3wpump",
+      "Kc3RWLHYvmfhSk4qW4yYpimyv8794ZQoXBRoBH8pump",
+      "L1rgkQk2gi9V33qxNvEs5NekCXyDhRb662haL7Rpump",
+      "LSA2D6LpguQ65BoSZ9xWAWq1jPtABjqXQRoDCd5pump",
+      "N2JuKvtCqPyqZbduGD2uhuhWFZ9qARxzuuYYkfBpump",
+      "RDsd1qBPMHHmAryvSgajgrBhZNcZCXGfa2Hrdnjpump",
+      "SdVHNEwdV3yJ7v24ByoaBUm23Edtoe9em2JbUH8pump",
+      "Se34VBSsFCr76Ce9p3cctmCGTBtYDYHuBaJWx45pump",
+      "TzNfQvm99gJY8GJ795WzG9N39z58orsCTr84SVcpump",
+      "UX712XgxEb6GGuJJaEA5uqZMGNTzDy49U3RUEskpump",
+      "Y61KbxFLkSU8GGiknx2tg2fyPp5gRj1n6EVzuWbpump",
+      "Y7QgJmhzM63qnXUw7J6baDZG5qLfwnYDdXjNbChpump",
+      "YBemckTiUgK4sL6Xv2yktkgoYydrSqRmWJyWAZJpump",
+      "YKA5o87oHTTSAsbq1ZPHq6zF1cCaW8HoyhWcpjkpump",
+      "Yiv66drmUeMLcgKpuxfcetPQ5PE8Z9GSatsKxP5pump",
+      "Yj3Si5ze23uxsBkjeeuSu6gFEaRKKPL8SqCoq6ipump",
+      "ZrBqa2cXuDsHq1qayja9e7fjMjM1C4ZLjaYKN6rpump",
+      "a9ybSRCAaaYbxW6dFX2WGRnFGH61yo9gCPZCwtQpump",
+      "aAusLt3LivQAmeLBjiMHJ9vJsHEKm2wWAZGtkb5pump",
+      "dFf5c8PKTpFcZN64RdVWHkwbCYkxnj9yzPw8QpJpump",
+      "eGmGCD3CXecpXEw1ayQX7Hyk4tzkgxNYLZTgXwVpump",
+      "eMkqusB95bp5GNDLfHmxaRAgmD2f9JVp2kVFvfHpump",
+      "eNMZVUNbSEH6zVxmvHyTgRAZoBoqGQ4vHEdzHu5pump",
+      "hHFXWyo4ee4wv8QatmtVWuoF1wQ5wZxWmHLpJN9pump",
+      "hwbbGmQNpio9m5Ug9yEmiUzjEZkTVzh2N1ikpGBpump",
+      "iA6gJUg8aQ6VxcdenAzMkNcjueY3L8gSugiVocjpump",
+      "iQSmPeCYvDXLYy1kWuHsbt3eFdMoQ95LzvQxAJzpump",
+      "jmM56TE7ko4jUzmzJ523W1b3872jMXKoiwsJLUKpump",
+      "kPTzLD8x9n3xLVrtjdk4qbxUr3it6Ea8ZpkHpCBpump",
+      "kZBroKqYaSrHxKV3vLmRGTW7Tw1q2WQ1wte6PNJpump",
+      "kz6rKizdEhKZp6xsTfBgRyukZDUVExGyuSWLuAhpump",
+      "mc85dAXQu6wwAorKeDaj2mCgvbpqR7TzYAf52Gjpump",
+      "nobzQmhM6x86Y8WdrgH21AKuVrJ5mJmkBmJU9Lqpump",
+      "o4UAUX9WBkWYRVFmccHQah4UytnKn6hDAj7q4Rmpump",
+      "o8uMYvNkndS6rSRPrV16d8LgJ1V732RxmZuzT8xpump",
+      "o9LpxqLwjnt8FWJjRF8ERyAcyphpMnioUDHXfnzpump",
+      "oMLmNMvLqygvkNbBNyMJTdr25r88Es5B4gjUGZzpump",
+      "osxeVkLpan3NyZsRDcdWiEuWBFHA6or59UshcaRpump",
+      "qAvJyjqQdkC1NHantQMV5ehwpCbDiJZcziPgwoppump",
+      "qKh3mY3bpbGxoiLeewwSpwsAeDvszCUhrdsuXYApump",
+      "qX9jHURr5UVA7FpoeQdYCGYfR9HYjPhTckPqbRgpump",
+      "qg4fcJ9sbpWkGjPz4SDm5gzxibaaYs4Cb1pcW3rpump",
+      "rRh6XtjwYRnJc2DoLA1EMjrizERzwfjroW4s2UEpump",
+      "s26oUz2BVe5gpY3D4qYCXWBPwDDoB9AYfFsHCehpump",
+      "w3dYCLYpUHFiZxbgXGaH9stnREEjk7Ms6JupWsTpump",
+      "wQFd44Kh6nsrXn49vcu4bpjDCqe18iTGYzTgcWppump",
+      "y82JKxrGCeZaQ4ZCQthY4wSRt6MXRHUy2B6ZRwTpump",
+      "yWejG1LK1ntt959iqV11xiKSrdFGE7iLjV4Pwhnpump",
+      "z5vGP66VUGSrT5WyfEs9QGB1VJiKh5Lhx2DeggCpump",
+      "z8ik9e9nrJaT7dez73LY8qVLmMKXuMKDCgFsxxppump"
+    ]
+  },
+  "provider_calls": 0,
+  "registration_recommendation": "REPRESENT_C357_AS_P3R_SUBTYPE",
+  "registry_membership_model": "PARENT_CHILD_OPERATION_MODEL_NEEDED",
+  "relationship": "C357 is a P3R behavioural/infrastructure subtype (exact route family with independently qualified branches), not a competing second owner of the same launches.",
+  "safety": {
+    "detector_change": false,
+    "membership_change": false,
+    "registry_write": false,
+    "trading_change": false,
+    "workflow_change": false
+  },
+  "schema_version": "P3R_C357_OPERATION_IDENTITY_RECONCILIATION.v1",
+  "six_only_registration": "MISLEADING"
+}

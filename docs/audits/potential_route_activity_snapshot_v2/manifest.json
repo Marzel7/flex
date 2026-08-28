@@ -1,0 +1,14 @@
+{
+  "activity_contract": "MATCHED_ROUTES",
+  "high_waters": {
+    "atomic_flows": 7918,
+    "edges": 69156,
+    "queue": 36359
+  },
+  "lineage": "V2",
+  "route_timestamp_contract": "minimum selected-edge transaction block_time per matched mint route",
+  "schema_version": "POTENTIAL_ROUTE_ACTIVITY_SNAPSHOT_V2",
+  "snapshot_cutoff_epoch": 1787905272,
+  "snapshot_cutoff_utc": "2026-08-28T08:21:12+00:00",
+  "snapshot_digest": "7ba80b799c0d3377b1b0d9ab843619bd7da844174eeed7ba98d63db687c88637"
+}

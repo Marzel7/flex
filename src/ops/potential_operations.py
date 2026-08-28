@@ -17,6 +17,7 @@ HARBINGER_OPERATOR="ccb7b1b0-56e1-4543-9e95-3f284bed3943"
 CENSUS_RECONCILIATION=Path(__file__).resolve().parents[2]/"docs/audits/potential_operations_current_census_reconciliation.v1.json"
 SENTINEL_EVOLUTION_ADMISSIONS=Path(__file__).resolve().parents[2]/"docs/audits/sentinel_evolution_cluster_admission.v1.json"
 FOCUS_NEXT_ASSESSMENT=Path(__file__).resolve().parents[2]/"docs/audits/focus_next_potential_assessment.v2.json"
+ROUTE_ACTIVITY_SNAPSHOT=Path(__file__).resolve().parents[2]/"docs/audits/potential_route_activity_snapshot_v2/candidate_census.json"
 
 def assessment_digest(value: dict) -> str:
     """Stable semantic digest; publication time never changes an assessment."""
@@ -60,6 +61,13 @@ def _persisted_assessment(candidate_id: str) -> dict:
 
 def _current_census_evidence() -> dict:
     try:
+        snapshot=json.loads(ROUTE_ACTIVITY_SNAPSHOT.read_text())
+        evidence={}
+        for item in snapshot:
+            activity=item["activity"]
+            evidence[item["candidate_id"]]={"candidate_id":item["candidate_id"],"matches":activity["matched_routes_total"],"metrics":{"last_1d":activity["matched_routes_24h"],"last_7d":activity["matched_routes_7d"],"last_30d":activity["matched_routes_30d"],"total_observations":activity["matched_routes_total"]},"technical_edge_metrics":{"last_1d":activity["technical_selected_edge_timestamps_24h"],"last_7d":activity["technical_selected_edge_timestamps_7d"],"last_30d":activity["technical_selected_edge_timestamps_30d"],"total_observations":activity["technical_selected_edges_total"]},"current_evidence_state":"RECURRING"}
+        if evidence:
+            return evidence
         evidence=json.loads(CENSUS_RECONCILIATION.read_text()).get("candidate_evidence", {})
         for item in _sentinel_evolution_admissions().values():
             evidence[item["candidate_id"]]={"candidate_id":item["candidate_id"],"matches":item["observation_count"],"metrics":item["metrics"],"current_evidence_state":"RECURRING"}
@@ -83,11 +91,11 @@ def _attach_current_evidence(row: dict, evidence: dict) -> dict:
     # family has an explicit corrected, frozen route projection; other rows
     # retain their source metrics until their direct route evidence is audited.
     route_metrics=metrics
-    if row["candidate_id"] == "p3r-v2-dc4953db7adb853337c4":
+    if row["candidate_id"] == "p3r-v2-dc4953db7adb853337c4" and "technical_edge_metrics" not in current:
         route_metrics={"last_1d":2,"last_7d":14,"last_30d":30,"total_observations":33}
     state=current.get("current_evidence_state", "UNOBSERVABLE")
     attention={"HOT":"HIGH","ACTIVE":"HIGH","RECURRING":"MEDIUM","QUIET":"LOW"}.get(state,"LOW")
-    row["current_evidence"]={"state":state,"matches":current.get("matches",0),"metrics":route_metrics,"technical_edge_metrics":metrics,"attention":attention,"attention_rank":{"HIGH":3,"MEDIUM":2,"LOW":1}.get(attention,0),"reason":f"{route_metrics.get('last_1d',0)} / {route_metrics.get('last_7d',0)} / {route_metrics.get('last_30d',0)} matching routes; {state.lower().replace('_',' ')} fingerprint."}
+    row["current_evidence"]={"state":state,"matches":current.get("matches",0),"metrics":route_metrics,"technical_edge_metrics":current.get("technical_edge_metrics",metrics),"attention":attention,"attention_rank":{"HIGH":3,"MEDIUM":2,"LOW":1}.get(attention,0),"reason":f"{route_metrics.get('last_1d',0)} / {route_metrics.get('last_7d',0)} / {route_metrics.get('last_30d',0)} matching routes; {state.lower().replace('_',' ')} fingerprint."}
     return row
 
 def _relationship(row: dict) -> str:

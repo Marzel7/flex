@@ -1,4 +1,14 @@
 {
+  "c357_shared_upstream_launch_marker_20260828": {
+    "engineering_revision": "3a19345b",
+    "status": "PASS",
+    "verdict": "C357_SHARED_UPSTREAM_LAUNCH_MARKER_COMPLETE",
+    "change": "Recent Launches on the C357 Potential detail page now marks a verified upstream funding path only when that same audited upstream wallet appears on more than one displayed launch, including the linked-launch count.",
+    "verification": "6 focused Potential route-activity and Focus assessment tests passed. After an API-only reload, the rendered detail page showed markers including shared upstream with 2 and 5 linked launches.",
+    "files": ["src/ops/potential_operations.py", "templates/potential_operation_detail.html"],
+    "safety": "Presentation/read-projection only. The marker describes shared verified upstream funding infrastructure, not common control, operation attribution, membership, qualification, detector, queue, provider, listener/worker, or trading state. Only watchtower_api was reloaded; unrelated dirty work was preserved.",
+    "exact_next_action": "None; inspect shared-upstream groups in the Potential detail UI as needed."
+  },
   "focus_next_upstream_funder_rpc_20260828": {
     "engineering_revision": "3d6dcfcca55c14740c94e87d7805dc3d34d1e592",
     "status": "PASS_READ_ONLY",

@@ -2940,11 +2940,12 @@
   },
   "potential_route_activity_metric_correction_20260828": {
     "engineering_revision": "1f3548a8631118e64e0da80e27fc035975b0b68b",
-    "status": "PARTIAL",
-    "verdict": "FOCUS_ROUTE_ACTIVITY_CORRECTED_GLOBAL_ROUTE_AUDIT_REMAINS",
+    "status": "HOLD",
+    "verdict": "FOCUS_NEXT_GLOBAL_ACTIVITY_RECONCILIATION_MISMATCH",
     "summary": "Versioned Focus Next activity contract to MATCHED_ROUTES: 2/14/30 routes, 33 total; preserved 16/112/240 selected-edge timestamps as technical evidence.",
     "tests": "9 passed: focus assessment persistence, relationship focus UI, visual structure.",
     "production_flags": {"workflow_changed": false, "membership_changed": false, "detector_changed": false, "fingerprint_changed": false, "threshold_changed": false, "queue_changed": false, "rpc_provider_calls": false, "service_restarted": false, "trading_state_changed": false},
-    "exact_next_action": "Complete the direct, frozen route-level projection for every Potential candidate before representing the queue as globally corrected."
+    "global_audit_evidence": "Against the requested rowid ceilings, direct per-mint minimum selected-edge block_time counts for Focus are 3/14/30; the v1 frozen artifact has edge counts 16/112/240 and v2 preserves the authorized 2/14/30 route contract. Current DB rows at the same rowids now yield 24/112/240 edge timestamps, proving mutable source-field drift within the ceiling.",
+    "exact_next_action": "Human must select the authoritative frozen timestamp snapshot/source for resolving the Focus 2-vs-3 route discrepancy before a global route artifact can be written."
   }
 }

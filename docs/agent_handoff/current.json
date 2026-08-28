@@ -1,4 +1,14 @@
 {
+  "operator_recent_launches_gmgn_link_20260828": {
+    "engineering_revision": "e40b270edeeae1472b2da7d6b8222f5929614c65 (plus uncommitted UI edit)",
+    "status": "PASS_WITH_UNRELATED_LEGACY_TEST_FAILURES",
+    "verdict": "OPERATOR_RECENT_LAUNCHES_GMGN_LINK_COMPLETE",
+    "change": "Each token mint in the Operator Intelligence Recent Launches card now retains its Solscan link and adds a muted ◉ GMGN link to https://gmgn.ai/sol/token/<mint>. The GMGN link has accessible and hover text, opens in a new tab, and uses noopener/noreferrer.",
+    "files": ["templates/operator_intelligence.html"],
+    "tests": "PASS: 6 passed, tests/test_x78_1_operator_command_centre.py. Also ran 62 tests across test_x78_1_operator_command_centre.py and test_ops_x9_operator_workspace.py: 51 passed, 11 failed on legacy removed operator/index labels unrelated to this link; diff --check passed.",
+    "safety": "UI-only external navigation addition. No API, data, provider/RPC, detector, queue, worker/listener, service, or trading state changed.",
+    "exact_next_action": "Reload the Operator Intelligence page and hover/click the muted GMGN dot beside any Recent Launches mint to confirm the external destination in the running UI."
+  },
   "operations_registry_last_launch_column_20260827": {
     "engineering_revision": "e40b270edeeae1472b2da7d6b8222f5929614c65",
     "status": "PASS",

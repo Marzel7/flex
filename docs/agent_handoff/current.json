@@ -2946,6 +2946,7 @@
     "tests": "9 passed: focus assessment persistence, relationship focus UI, visual structure.",
     "production_flags": {"workflow_changed": false, "membership_changed": false, "detector_changed": false, "fingerprint_changed": false, "threshold_changed": false, "queue_changed": false, "rpc_provider_calls": false, "service_restarted": false, "trading_state_changed": false},
     "global_audit_evidence": "Against the requested rowid ceilings, direct per-mint minimum selected-edge block_time counts for Focus are 3/14/30; the v1 frozen artifact has edge counts 16/112/240 and v2 preserves the authorized 2/14/30 route contract. Current DB rows at the same rowids now yield 24/112/240 edge timestamps, proving mutable source-field drift within the ceiling.",
-    "exact_next_action": "Human must select the authoritative frozen timestamp snapshot/source for resolving the Focus 2-vs-3 route discrepancy before a global route artifact can be written."
+    "forensic_provenance": "Read-only recovery found no immutable source containing the historical per-route timestamp population. The discrepancy is consistent with mutable selected-edge inclusion: deep_walkback.persist_edge_candidate updates selection_status/rejection_reason on conflict while preserving the row identity. block_time is transaction-derived; selection_status and last_observed_at are mutable operational fields. Rowid high-water alone is therefore insufficient to freeze activity semantics.",
+    "exact_next_action": "NEW_IMMUTABLE_ROUTE_ACTIVITY_SNAPSHOT_REQUIRED: freeze route identities, selected edge identities and timestamps, cutoff, high-waters, fingerprints and digest as a new lineage before global reconciliation."
   }
 }

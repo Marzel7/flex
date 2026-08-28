@@ -1,0 +1,361 @@
+{
+  "cutoff": {
+    "33my_signatures_examined": 17631,
+    "epoch": 1787915578,
+    "hxuf_signatures_examined": 86,
+    "signature": "2vpbjZbUHaBVEcNwDsn3G5a93J6GvFZgKnDYHDfe6R1dSnizCs72xLmD9ZCqHk5Lw1Tob1nXzD3zYLFTbFCXKbmq"
+  },
+  "cycle_summary": {
+    "classification": "REPEATED_STRUCTURED_PROVISIONING",
+    "count": 17,
+    "delta_interpretation": "The decoded 33my transfer plus 2,039,280-lamport account rent rounds to the displayed whole-SOL amount; the later HXuf outflow is typically whole SOL minus 5,000 lamports. The claimed 0.055 SOL delta is not present in decoded lamport movements.",
+    "maximum_lamports": 6099997960720,
+    "median_lamports": 2899997960720,
+    "minimum_lamports": 997960720,
+    "total_lamports": 39280965332240
+  },
+  "d3eq": {
+    "classification": "INSUFFICIENT_EVIDENCE",
+    "result": "No D3eQ-prefixed counterparty occurred in the complete current 86-signature HXuf history; the supplied prefix is not enough to resolve an address."
+  },
+  "deterministic_digest": "c47ceae08e8f9c1876189e3d385c7ecc1cd10e047c57d124d2e9522c6876b81a",
+  "hxuf": {
+    "current_status": "ACTIVE",
+    "cztx_relationship": "persistent outbound settlement/provisioning counterparty",
+    "infrastructure_role": "ROLE_ROTATING_HUB",
+    "latest_proven_relevant_block_time": 1787915578,
+    "material_outflows": [
+      {
+        "block_time": 1787578101,
+        "destination": "CZTxzma6pA9HPwXASpbhuCKNGrH6zgpQ9ARgUqUQwbTy",
+        "fee_payer": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+        "lamports": 3049999995000,
+        "signature": "5VAHqZmJ6fdGH1n3A1fDdpVHK1HYuS4AcwCHstBAQ86L6c2U4v1ZuuS84CT1JwoH3JYFm4WfwgnKxnE1KmGfqq1E"
+      },
+      {
+        "block_time": 1787579179,
+        "destination": "CZTxzma6pA9HPwXASpbhuCKNGrH6zgpQ9ARgUqUQwbTy",
+        "fee_payer": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+        "lamports": 2999999995000,
+        "signature": "4JruEKjTSogoyPM6qzc43W4989dz9215KqLc2mj59YU95GdYTgwLxdhNeGy9fUounS8XGf3BHdGjpUfYBu3xsUjz"
+      },
+      {
+        "block_time": 1787581152,
+        "destination": "CZTxzma6pA9HPwXASpbhuCKNGrH6zgpQ9ARgUqUQwbTy",
+        "fee_payer": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+        "lamports": 3049999995000,
+        "signature": "8TKJfqTfMZ4uvpigczJuBGsUUUeLy3pU48nDw1rSicmjqLvEzjNcaNDVeEioBZH8bT3fpRf5dQiLxdZitR7pnto"
+      },
+      {
+        "block_time": 1787591224,
+        "destination": "CZTxzma6pA9HPwXASpbhuCKNGrH6zgpQ9ARgUqUQwbTy",
+        "fee_payer": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+        "lamports": 2959999995000,
+        "signature": "4vPcrMJJZmRVsP8v4wLEew8VvwXBCsEQBSiq28hmLkdMEG1JY6H1wy2Ap2Ks5gz5n19etDHtybkVB218e4crniTh"
+      },
+      {
+        "block_time": 1787592643,
+        "destination": "CZTxzma6pA9HPwXASpbhuCKNGrH6zgpQ9ARgUqUQwbTy",
+        "fee_payer": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+        "lamports": 2959999995000,
+        "signature": "4aMMt2Rv4PWMyp6VQRUSeckQVvJ9TF5b1JM4fZFbsgJCqkALQj5WV33ffQEgHkFMXTQTbXmVEqPe6FJBnxywAF5e"
+      },
+      {
+        "block_time": 1787593326,
+        "destination": "CZTxzma6pA9HPwXASpbhuCKNGrH6zgpQ9ARgUqUQwbTy",
+        "fee_payer": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+        "lamports": 2899999995000,
+        "signature": "2HzSj1KTvU22omEdUPVCPbaSpQc4xKFwmtdPWSdDbM8k9XsW6Mf9vtBWJRYQE8Khu1TcxuEQfDvNsUcgNy9MQKEv"
+      },
+      {
+        "block_time": 1787602086,
+        "destination": "CZTxzma6pA9HPwXASpbhuCKNGrH6zgpQ9ARgUqUQwbTy",
+        "fee_payer": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+        "lamports": 2999999995000,
+        "signature": "phCs42Bkpj1kS3DoGowkUTgheKFTt6QyxPDp1pHmkbg8agib9vKXR9N1DBLwn9X5SdnWutHQZDp1KUariErQcVu"
+      },
+      {
+        "block_time": 1787602959,
+        "destination": "CZTxzma6pA9HPwXASpbhuCKNGrH6zgpQ9ARgUqUQwbTy",
+        "fee_payer": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+        "lamports": 2899999995000,
+        "signature": "2jTYtrRafz5eihYj8sAfHRbyVL76nVZqCVjMrHvnd6jDxQ4H1Fyb1qH5geQnbXmknFMGdGB9Z6xcRRVrW3guCYdm"
+      },
+      {
+        "block_time": 1787605574,
+        "destination": "CZTxzma6pA9HPwXASpbhuCKNGrH6zgpQ9ARgUqUQwbTy",
+        "fee_payer": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+        "lamports": 6099999995000,
+        "signature": "5smNk9pn83mQX1NBXxRvoA1TNW2xT7MP8x6vczd4fBuLw3YcLr2yMMWDn2Lsq64MtztdASU6B9dMF5V1j2iBdUTq"
+      },
+      {
+        "block_time": 1787606541,
+        "destination": "CZTxzma6pA9HPwXASpbhuCKNGrH6zgpQ9ARgUqUQwbTy",
+        "fee_payer": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+        "lamports": 2959999995000,
+        "signature": "idEgQ21xDYgkN2wCxvuKCxEBixLhtxEozrJh8LcTdfSq3JZNbnfSpfifVP4w25GG4iPZse8o7Xrnm4cmyWJ5Say"
+      },
+      {
+        "block_time": 1787611207,
+        "destination": "CZTxzma6pA9HPwXASpbhuCKNGrH6zgpQ9ARgUqUQwbTy",
+        "fee_payer": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+        "lamports": 1999999995000,
+        "signature": "64r6vB2s8bMX1CdjvNqktX9PeK9PPZ8ivSsu4JktBVBWskrQeqPaDQdn2jPGrcAfnP53MGPNiV5tancM5w9YMfYU"
+      },
+      {
+        "block_time": 1787612744,
+        "destination": "CZTxzma6pA9HPwXASpbhuCKNGrH6zgpQ9ARgUqUQwbTy",
+        "fee_payer": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+        "lamports": 1999999995000,
+        "signature": "62ij2xcon8eTvd5BCTHKa73VK9aSWj2pPTDoAWbpK4P3aUR3Buo93VLAjp2mUf7wxBvARVJCFW5xFwCJkYphdgN9"
+      },
+      {
+        "block_time": 1787612921,
+        "destination": "CZTxzma6pA9HPwXASpbhuCKNGrH6zgpQ9ARgUqUQwbTy",
+        "fee_payer": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+        "lamports": 2099999995000,
+        "signature": "4veyDDTr187UKbcGP3uiE5kEq2G7rBQc9yGmcuBxC3oyfGNKjeyZ9KH8sFCYqJFuz6RwB9QQi4wjFDoxCYibCViM"
+      },
+      {
+        "block_time": 1787623882,
+        "destination": "5P9CZK1n7rgiaLTxRMqpyUhtyPoUNbs85Q5FN8Trn84r",
+        "fee_payer": "5Gyj5xsHkUJLyEYAXFq66GiV2CBuZumW2kZ9fYfGas2X",
+        "lamports": 225253550280,
+        "signature": "4UCGhHp91GWZKa4AH4AzT4zHgqXNi8dwZteYeDvhEnF4FjTX2Z94wraPXhhFZzRTQBwKcE3pfoemRikgKRC6JBN1"
+      },
+      {
+        "block_time": 1787631392,
+        "destination": "5hMDDjHnAtfVdErVAtHGezQxHjp5KzEkwJZX9o8RdzdU",
+        "fee_payer": "9vwbFoDu9ma4AuEoXqrd58ciC4fNAA8ui9oo94YaphSV",
+        "lamports": 101072926767,
+        "signature": "3f4awo74ZtSgUaXzRSSwKeB2GNbDM2ShFrUj6RKb7tGWn8HHYesRc2JyXs8ctjWEdtrKFmcJmKuJWQ3gGfpvDXhw"
+      },
+      {
+        "block_time": 1787810207,
+        "destination": "CZTxzma6pA9HPwXASpbhuCKNGrH6zgpQ9ARgUqUQwbTy",
+        "fee_payer": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+        "lamports": 291679995000,
+        "signature": "SeYbmm8hXLfpYJGnRwFdZP2NqbLQahHNVdLEQw4EB6aavnCXCmbCNv5NQ79oHKoWXhYR9CUAXkRqPyprKfLK3uz"
+      },
+      {
+        "block_time": 1787813563,
+        "destination": "CZTxzma6pA9HPwXASpbhuCKNGrH6zgpQ9ARgUqUQwbTy",
+        "fee_payer": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+        "lamports": 348239995000,
+        "signature": "2ZEYNku5VdQJuWmeuuCBSR8n9D9iRNYKS5d3J2onAdRc84pdmaghqD66jJrLtKihmHqD42Tb5KTcUL9TBwuugE4r"
+      },
+      {
+        "block_time": 1787820228,
+        "destination": "7opZBm5r3NNE865FXbDVZEmamKRkmz3i3hmxVvbnJrs9",
+        "fee_payer": "Bj7uRMTyuhwuWrjv9Wenu374fvrFu8CpzcArPckBpCC3",
+        "lamports": 774353935720,
+        "signature": "5JRpYt2Xn5v6JGEDBYN8UyrMPhE9rp9xaFepBpor4pSTMqNTTQEcRJgtXZgpvrC9MeiG4WAef6nKt7q3QLVrert2"
+      },
+      {
+        "block_time": 1787822094,
+        "destination": "CZTxzma6pA9HPwXASpbhuCKNGrH6zgpQ9ARgUqUQwbTy",
+        "fee_payer": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+        "lamports": 8565539995000,
+        "signature": "Jzz6XX42etu5HaS2WgrmgTn1oU2oq8bY7vrfvYCxRyRZXy72kz8wHiXCsV9JVkWSiYdccNn7FXVEJ7WWrLUyWXK"
+      },
+      {
+        "block_time": 1787822100,
+        "destination": "8JLUkRMGe1YbR77kvD3PTaH4c1sqyYhJR8SK6corsijZ",
+        "fee_payer": "Bj7uRMTyuhwuWrjv9Wenu374fvrFu8CpzcArPckBpCC3",
+        "lamports": 8594017950720,
+        "signature": "3fTth73PSyFB4PF14siUxq5x7eb6C79fx2WuvUmgRDuMKrxgAiyLzhrn1NXynKvZq1cfYMczb3Ho7CC7CYEoP58p"
+      },
+      {
+        "block_time": 1787915506,
+        "destination": "CZTxzma6pA9HPwXASpbhuCKNGrH6zgpQ9ARgUqUQwbTy",
+        "fee_payer": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+        "lamports": 9999999995000,
+        "signature": "3YdMKeK2QmuJegbYRtA3Wg799PbEnTAxzsHcQuDXkibvuktqNX6ihNYCKFbibnFR97c7cuEcGBFQrMrQBT8dJyBQ"
+      },
+      {
+        "block_time": 1787915578,
+        "destination": "DZsGkfu5956SAbPWtwVLr9uWWtRfr9smWPuz8F3o4RK5",
+        "fee_payer": "D3eQCiLkXQu8UjDPHZgnXgcbH5LKmugwqUjPiF8rcvSB",
+        "lamports": 9999997955720,
+        "signature": "2vpbjZbUHaBVEcNwDsn3G5a93J6GvFZgKnDYHDfe6R1dSnizCs72xLmD9ZCqHk5Lw1Tob1nXzD3zYLFTbFCXKbmq"
+      }
+    ]
+  },
+  "model": "MODEL_PARTIAL",
+  "post_25_aug_recovery": {
+    "exact_c357_matches": 0,
+    "scope": "No post-25-Aug serviced-wallet launch can be claimed without a separately bounded wallet-to-launch decode; none was inferred from transfers alone.",
+    "tracking_loss": "UNRESOLVED"
+  },
+  "provider_calls": {
+    "getSignaturesForAddress": 19,
+    "getTransaction": 103
+  },
+  "repeated_33my_hxuf_cycles": [
+    {
+      "block_time": 1787578100,
+      "fee_payer": "33myosxzjbzfx2GcW71zmzvrzibQnnh6njW2vLKiMxr4",
+      "mechanism": "33my create/fund WSOL, syncNative, close to HXuf",
+      "signature": "4biYhLXswJUbUd58n7F2h8x8sW1of6VH85Kskz5AhWsFYRqMjth3wJqyrqChVhBNidDNeDVCThuSoxi184vdVpBp",
+      "temporary_account": "EyhJuVYvMJmhXGdPqdBDegd1W9v2ssHcJ1Pcuaj1HDXg",
+      "transfer_lamports": 3049997960720
+    },
+    {
+      "block_time": 1787579178,
+      "fee_payer": "33myosxzjbzfx2GcW71zmzvrzibQnnh6njW2vLKiMxr4",
+      "mechanism": "33my create/fund WSOL, syncNative, close to HXuf",
+      "signature": "4gMBWXZMS46paws44KHauYrta8pN7HhZ23DAxxfrwv13iLEeE3w81Wsvp3K3Yztfuu82DkzA8oCxW6ioyaVMurgg",
+      "temporary_account": "Fn47kM2Quh6GxTdipmJPkt3djjdZPmVjmQSbYaixMoZG",
+      "transfer_lamports": 2999997960720
+    },
+    {
+      "block_time": 1787581152,
+      "fee_payer": "33myosxzjbzfx2GcW71zmzvrzibQnnh6njW2vLKiMxr4",
+      "mechanism": "33my create/fund WSOL, syncNative, close to HXuf",
+      "signature": "5syzFJGeFdMz3nfbr5U4xpR54oRnYZgM5RFHcfTMT653BDtHw7SWog54Mefe19CiAozcVi6rVemdcnjZDk4X2bxf",
+      "temporary_account": "74k7DBrmkpo3Ca2dZPQN4ge16mPRj8kmDeoifBXR8orz",
+      "transfer_lamports": 3049997960720
+    },
+    {
+      "block_time": 1787591224,
+      "fee_payer": "33myosxzjbzfx2GcW71zmzvrzibQnnh6njW2vLKiMxr4",
+      "mechanism": "33my create/fund WSOL, syncNative, close to HXuf",
+      "signature": "5TmdG9EptTSEKg5QQ6mnq2bMBDv72Hx5K5mQKLSwnGGboo4nVunUdQ9CHaVUj1jvqLwHire9Kzzfy1EUB8uneAz3",
+      "temporary_account": "CdUtdtVX2YJ5UeiNBtKxFT6q9wUWunyPQr3rrAxUFJf2",
+      "transfer_lamports": 2959997960720
+    },
+    {
+      "block_time": 1787592642,
+      "fee_payer": "33myosxzjbzfx2GcW71zmzvrzibQnnh6njW2vLKiMxr4",
+      "mechanism": "33my create/fund WSOL, syncNative, close to HXuf",
+      "signature": "4szsHEZRnPivtioxPMKhxsCTeUmxzpcLRh2mpFN76HkJsQMkiVveFyQQcAn6xda1yFqhQSEpG53fKaadNtYdmE7J",
+      "temporary_account": "9gvWohjNDfWXiKLjVLEFvRdSRnC9uVcT4AuMt3bFYDqz",
+      "transfer_lamports": 2959997960720
+    },
+    {
+      "block_time": 1787593325,
+      "fee_payer": "33myosxzjbzfx2GcW71zmzvrzibQnnh6njW2vLKiMxr4",
+      "mechanism": "33my create/fund WSOL, syncNative, close to HXuf",
+      "signature": "2XMDFSPhaFF6ZRsWmbUY6KK471uYwrUCHv25UUvEtqQbx2WdWd2L4nktE1qDCbqQndHjxPe1AKgnAHWUPXnNTz13",
+      "temporary_account": "AvrNP4H8fg6dyZe1KwFZMRMmfc6ZqX3F4nNG7GrZhnjU",
+      "transfer_lamports": 2899997960720
+    },
+    {
+      "block_time": 1787602086,
+      "fee_payer": "33myosxzjbzfx2GcW71zmzvrzibQnnh6njW2vLKiMxr4",
+      "mechanism": "33my create/fund WSOL, syncNative, close to HXuf",
+      "signature": "22NgkahRBAbaQ4Njx4ooWpVZn8XUZVyuMdFUcuwi9ztPBNdVdFF29R9Y58D8J8Kj3Bf3UPYU4wXRvGEwtJQjKZJZ",
+      "temporary_account": "5Bxr8fYVbEiy4AM8KaGwgfRAUAxg3WfSAqzZEmuvy6cm",
+      "transfer_lamports": 2999997960720
+    },
+    {
+      "block_time": 1787602958,
+      "fee_payer": "33myosxzjbzfx2GcW71zmzvrzibQnnh6njW2vLKiMxr4",
+      "mechanism": "33my create/fund WSOL, syncNative, close to HXuf",
+      "signature": "4Yzxj8dubdXn2QDS1bFj9HitHPRFCcJ6rBeD1SyLf2nUwRmRLod3QRjyrTykDQA5C32nxn3WqfkuBDDdw9sFwVGX",
+      "temporary_account": "C4B5gff1tzzZS5gxELzfGGRuhYYKqD31Cp77mBCwabei",
+      "transfer_lamports": 2899997960720
+    },
+    {
+      "block_time": 1787605573,
+      "fee_payer": "33myosxzjbzfx2GcW71zmzvrzibQnnh6njW2vLKiMxr4",
+      "mechanism": "33my create/fund WSOL, syncNative, close to HXuf",
+      "signature": "p7EJvKhocuiiHV8sne8sssYAcCZXM5VGbgnEdsJ1xhj21kc8dLVqov8MgHCtKChcenTnmmVF7whHZDx1XgreCN1",
+      "temporary_account": "H5rWR3ftZ6MTLnRzv2xS1MQSFsA4KbLCn6Vi3HkB4tva",
+      "transfer_lamports": 6099997960720
+    },
+    {
+      "block_time": 1787606540,
+      "fee_payer": "33myosxzjbzfx2GcW71zmzvrzibQnnh6njW2vLKiMxr4",
+      "mechanism": "33my create/fund WSOL, syncNative, close to HXuf",
+      "signature": "TA48PS12AKLWEzm58yfCWAniUXxm1V6Y8uzMneodFyTZvpE4X816J3LHQz9iRQzeN6uvogj9EbYb1ZXz1Psq9v1",
+      "temporary_account": "APoPXjqdPqK25cpURd1hZaE79aaYuACjyr5EemuLps71",
+      "transfer_lamports": 2959997960720
+    },
+    {
+      "block_time": 1787611206,
+      "fee_payer": "33myosxzjbzfx2GcW71zmzvrzibQnnh6njW2vLKiMxr4",
+      "mechanism": "33my create/fund WSOL, syncNative, close to HXuf",
+      "signature": "3BtzbFBZaP2fvYoEU5j9J24gMARfc5YYbwRyXaSfwJFAPqQn7dzkp5hUNd5gBjgwz14CRiYAjUWhcQHKyEt4Avg2",
+      "temporary_account": "9P615SsV9ZtaRy1TX6neL4yJVE1NVBoHLNpUfv6skbEj",
+      "transfer_lamports": 1999997960720
+    },
+    {
+      "block_time": 1787612743,
+      "fee_payer": "33myosxzjbzfx2GcW71zmzvrzibQnnh6njW2vLKiMxr4",
+      "mechanism": "33my create/fund WSOL, syncNative, close to HXuf",
+      "signature": "SL1dnTdCGks8gDgPktxfFanZR1TeF6hTa2MDfoZbC36KUgbHNVnpKeMkxiBpJ43FWM57K7wDyrftGxNKSr2kWKu",
+      "temporary_account": "6J4nXa3vr9h959EhjzykbcnJ8vBGSd5VyhYbV72QAif7",
+      "transfer_lamports": 1999997960720
+    },
+    {
+      "block_time": 1787612920,
+      "fee_payer": "33myosxzjbzfx2GcW71zmzvrzibQnnh6njW2vLKiMxr4",
+      "mechanism": "33my create/fund WSOL, syncNative, close to HXuf",
+      "signature": "2vThnrX8K8FCh9yXarMKnEsyy26QiYTNoapTEvxpWYfiFp1EbQoucYjnUBm5dgjmK4ygktm79XBUQCnxx5X2YJa8",
+      "temporary_account": "CwkZ3BPPw9mfGws43hj5jpwpxT88LGmJKj78XoQzbwXJ",
+      "transfer_lamports": 2099997960720
+    },
+    {
+      "block_time": 1787625822,
+      "fee_payer": "33myosxzjbzfx2GcW71zmzvrzibQnnh6njW2vLKiMxr4",
+      "mechanism": "33my create/fund WSOL, syncNative, close to HXuf",
+      "signature": "56tVUi6Jq1NagV6Vszm4YEqaspkoUme8u5Bck1SN3ht2zXKTUW9trucsTwmECdPefQ8K6MLjULzVLdWwckZBrSP6",
+      "temporary_account": "91CBxnPAFnqTXjEBi5WcNU4QJegcuJXnwRF81aoWUc7H",
+      "transfer_lamports": 99997960720
+    },
+    {
+      "block_time": 1787631344,
+      "fee_payer": "33myosxzjbzfx2GcW71zmzvrzibQnnh6njW2vLKiMxr4",
+      "mechanism": "33my create/fund WSOL, syncNative, close to HXuf",
+      "signature": "2neR4Lq7JzR8a37meYWKB5i7UtPPXdsdankt8twRffuhWyAcaqc1iQoSYgauJMgXiW316KdMqqvKnBU6GhjPwbjt",
+      "temporary_account": "8jyseoaDFUmbbgE3VvoPLCeZLDh2FbFbhkc8CdHCuWvo",
+      "transfer_lamports": 99997960720
+    },
+    {
+      "block_time": 1787632574,
+      "fee_payer": "33myosxzjbzfx2GcW71zmzvrzibQnnh6njW2vLKiMxr4",
+      "mechanism": "33my create/fund WSOL, syncNative, close to HXuf",
+      "signature": "Nf2GNtoMob9KAChQ6CF9mzqnamVtBNq5vBErZP4nQVm5UJq5XGLf7qAEcbN4zLw24ER5p7yJzq5CdJ4NLH5UcBR",
+      "temporary_account": "7RFTR1CGxeaEx8gss2xQCZA3YJnwEF7kZnF4McYib8Ej",
+      "transfer_lamports": 99997960720
+    },
+    {
+      "block_time": 1787646070,
+      "fee_payer": "33myosxzjbzfx2GcW71zmzvrzibQnnh6njW2vLKiMxr4",
+      "mechanism": "33my create/fund WSOL, syncNative, close to HXuf",
+      "signature": "jVtnYQtq2XMFrFhyD4GVY1P9huFncSfM7SNeJPKg56GamzJGTaZwwYzXuob3i97Rqwar3tHn1SYSf2FPkwhfC3U",
+      "temporary_account": "4sYyAuRKbeNkeqsedmP8UFxv9bknyhZnTB4dffCg2iPc",
+      "transfer_lamports": 997960720
+    }
+  ],
+  "safety": {
+    "detector_changed": false,
+    "fingerprint_changed": false,
+    "membership_changed": false,
+    "provider_mutations": 0,
+    "snapshot_v2_changed": false,
+    "workflow": "PAUSED"
+  },
+  "schema_version": "C357_HXUF_LIVE_INFRASTRUCTURE.v1",
+  "watch_anchors": [
+    {
+      "evidence_strength": "HIGH",
+      "reason": "17 proven repeated 33my WSOL-close receipts and current material outflows",
+      "role": "ROLE_ROTATING_HUB",
+      "wallet": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive"
+    },
+    {
+      "evidence_strength": "HIGH",
+      "reason": "17 proven WSOL-close cycles to HXuf",
+      "role": "PROVISIONER_CANDIDATE",
+      "wallet": "33myosxzjbzfx2GcW71zmzvrzibQnnh6njW2vLKiMxr4"
+    },
+    {
+      "evidence_strength": "HIGH",
+      "reason": "repeated HXuf outflows",
+      "role": "SETTLEMENT_COUNTERPARTY",
+      "wallet": "CZTxzma6pA9HPwXASpbhuCKNGrH6zgpQ9ARgUqUQwbTy"
+    }
+  ]
+}

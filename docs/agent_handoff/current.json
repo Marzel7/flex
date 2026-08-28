@@ -1,4 +1,16 @@
 {
+  "operations_registry_live_activity_and_badges_20260828": {
+    "engineering_revision": "e40b270edeeae1472b2da7d6b8222f5929614c65 (plus uncommitted UI/read-model edits)",
+    "status": "PASS_WITH_LIVE_RENDER_LIMITATION",
+    "verdict": "OPERATIONS_REGISTRY_LIVE_ACTIVITY_PROJECTION_AND_BADGE_REMOVAL_COMPLETE",
+    "diagnosis": "The registry rendered frozen Current Queue Census counts (Leviathan 14 / 38 / 89 and 90) even while the persisted operation activity snapshot was being refreshed. The latest local Leviathan snapshot is 19 / 45 / 95 and 99 established launches.",
+    "change": "The API now exposes persisted 7d and 30d activity metrics. The registry displays the latest persisted 24h / 7d / 30d values, established-launch total, and last-launch age. It no longer renders redundant CONFIRMED or PROVISIONAL row badges because the sections already separate those populations.",
+    "files": ["src/ops/operator_reader.py", "templates/operators_index.html", "tests/test_operator_registry_identity_projection.py"],
+    "tests": "PASS: 3 passed, tests/test_operator_registry_identity_projection.py; diff --check passed. A broader run had an unrelated failure in tests/test_operation_activity_projection.py because the pre-existing dirty src/ops/manual_registry.py no longer matched that legacy fixture schema.",
+    "runtime": "watchtower_api and watchtower_listener both report RUNNING, but localhost:5002 refused connections during verification. No restart, reload, or other runtime mutation was attempted.",
+    "safety": "Read-model/UI-only change. It neither refreshes snapshots nor changes operation membership, attribution, qualification, census source, detector, queue, RPC/provider, worker/listener, or trading state.",
+    "exact_next_action": "Restore or authorize diagnosis of localhost:5002 liveness, then reload /intelligence/operators and verify the Leviathan row renders the latest persisted snapshot values with no qualification badge."
+  },
   "operator_recent_launches_gmgn_link_20260828": {
     "engineering_revision": "e40b270edeeae1472b2da7d6b8222f5929614c65 (plus uncommitted UI edit)",
     "status": "PASS_WITH_UNRELATED_LEGACY_TEST_FAILURES",

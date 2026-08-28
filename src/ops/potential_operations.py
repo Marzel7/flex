@@ -1,6 +1,6 @@
 """Durable, review-only workflow queue for canonical P3R v2 candidates."""
 from __future__ import annotations
-import json, sqlite3, time
+import hashlib, json, sqlite3, time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -14,6 +14,46 @@ LEGACY_063E_CHILD="P3R_063E_B65C_LEGACY"
 CONFIRMED_063E_OPERATOR="d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334"
 CENSUS_RECONCILIATION=Path(__file__).resolve().parents[2]/"docs/audits/potential_operations_current_census_reconciliation.v1.json"
 SENTINEL_EVOLUTION_ADMISSIONS=Path(__file__).resolve().parents[2]/"docs/audits/sentinel_evolution_cluster_admission.v1.json"
+FOCUS_NEXT_ASSESSMENT=Path(__file__).resolve().parents[2]/"docs/audits/focus_next_potential_assessment.v1.json"
+
+def assessment_digest(value: dict) -> str:
+    """Stable semantic digest; publication time never changes an assessment."""
+    semantic={key:item for key,item in value.items() if key not in {"assessment_digest", "assessment_timestamp_utc"}}
+    return hashlib.sha256(json.dumps(semantic,sort_keys=True,separators=(",", ":")).encode()).hexdigest()
+
+def replay_focus_next_assessment() -> dict:
+    """Rebuild the one approved assessment from its two frozen source artifacts."""
+    candidate_id="p3r-v2-dc4953db7adb853337c4"
+    census=json.loads(CENSUS_RECONCILIATION.read_text())
+    family=next(item for item in json.loads(MEMBERSHIP.read_text())["families"] if item["candidate_id"] == candidate_id)
+    current=census["candidate_evidence"][candidate_id]
+    edges=family["fingerprint"]["edges"]
+    exact={"members":len(family["mints"]),"observable":len(family["mints"]),"unobservable":0,
+           "distinct_creators":family["distinct_creators"],"distinct_direct_funders":family["distinct_direct_funders"],
+           "first_observed":family["metrics"]["first_observed"],"latest_observed":family["metrics"]["last_observed"]}
+    assessment={
+        "schema_version":"focus_next_potential_assessment.v1", "candidate_id":candidate_id,
+        "human_descriptor":"8-hop Transfer Sequence", "frozen_high_waters":{"queue":census["frozen_highwaters"]["wt_walkback_queue"],"edges":census["frozen_highwaters"]["wt_walkback_edge_candidates"],"atomic_flows":census["frozen_highwaters"]["wt_walkback_atomic_flows"]},
+        "exact_cohort":exact,
+        "fingerprint":{"topology":f"{len(edges)}-hop","hop_count":len(edges),"semantics":"PLAIN_XFER × 8","amount_vector_lamports":[edge["amount_lamports"] for edge in edges],"coherence":"STRONG_COHERENCE","atomic_lifecycle":"RETAINED_EVIDENCE_UNAVAILABLE"},
+        "current_census":{"matches":current["matches"],"activity":[current["metrics"]["last_1d"],current["metrics"]["last_7d"],current["metrics"]["last_30d"]],"total_observations":current["metrics"]["total_observations"]},
+        "known_operation_comparison":{"exact_matches":[],"sentinel_variants":"NOT_EXACT","harbinger":"NO_MEANINGFUL_HARBINGER_RELATION"},
+        "infrastructure":"NOVEL_INFRASTRUCTURE","common_root":"NOT_PROVEN","primary_classification":"DISTINCT_POTENTIAL_OPERATION","recommendation":"ADVANCE_TO_DEEP_REVIEW",
+        "evidence_gaps":["retained atomic-lifecycle evidence","bounded deep review of high-volume current recurrence"],
+        "source_provenance":["docs/audits/potential_operations_current_census_reconciliation.v1.json","docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/p3r_v2_candidate_membership.v1.json"],
+    }
+    assessment["assessment_digest"]=assessment_digest(assessment)
+    return assessment
+
+def _assessment_projection(assessment: dict) -> dict:
+    labels={"DISTINCT_POTENTIAL_OPERATION":"Distinct Potential Operation","ADVANCE_TO_DEEP_REVIEW":"Deep review recommended","STRONG_COHERENCE":"Strong coherence","NOVEL_INFRASTRUCTURE":"Novel infrastructure","NOT_PROVEN":"Common root not proven"}
+    return {"classification":labels.get(assessment.get("primary_classification"),assessment.get("primary_classification","")),"recommendation":labels.get(assessment.get("recommendation"),assessment.get("recommendation","")),"coherence":labels.get(assessment.get("fingerprint",{}).get("coherence"),assessment.get("fingerprint",{}).get("coherence","")),"infrastructure":labels.get(assessment.get("infrastructure"),assessment.get("infrastructure","")),"common_root":labels.get(assessment.get("common_root"),assessment.get("common_root",""))}
+
+def _persisted_assessment(candidate_id: str) -> dict:
+    try:
+        value=json.loads(FOCUS_NEXT_ASSESSMENT.read_text())
+        return value if value.get("candidate_id") == candidate_id and value.get("assessment_digest") == assessment_digest(value) else {}
+    except (OSError, json.JSONDecodeError): return {}
 
 def _current_census_evidence() -> dict:
     try:
@@ -54,6 +94,14 @@ def _compact_mechanism(row: dict) -> str:
 def _decorate(row: dict) -> dict:
     row["relationship_label"]=_relationship(row); row["compact_mechanism"]=_compact_mechanism(row)
     row["display_descriptor"]=row.get("proposed_name") or f"Unresolved {row['compact_mechanism']} candidate"
+    assessment=_persisted_assessment(row["candidate_id"])
+    if assessment:
+        row["assessment"]=assessment
+        row["assessment_display"]=_assessment_projection(assessment)
+        row["display_descriptor"]=assessment["human_descriptor"]
+        row["relationship_label"]=row["assessment_display"]["classification"]
+        row["action_label"]="Deep review →"
+    else: row["action_label"]="Review variant →" if row["relationship_label"] == "Variant of Sentinel" else "Investigate →"
     return row
 
 def _current_sort_key(row: dict) -> tuple:

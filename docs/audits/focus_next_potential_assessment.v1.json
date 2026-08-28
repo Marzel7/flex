@@ -1,0 +1,17 @@
+{
+  "schema_version": "focus_next_potential_assessment.v1",
+  "candidate_id": "p3r-v2-dc4953db7adb853337c4",
+  "human_descriptor": "8-hop Transfer Sequence",
+  "frozen_high_waters": {"queue": 35620, "edges": 67599, "atomic_flows": 7747},
+  "exact_cohort": {"members": 27, "observable": 27, "unobservable": 0, "distinct_creators": 27, "distinct_direct_funders": 27, "first_observed": 1783571264, "latest_observed": 1787651587},
+  "fingerprint": {"topology": "8-hop", "hop_count": 8, "semantics": "PLAIN_XFER × 8", "amount_vector_lamports": [49719000,12431000,12432000,12433000,49739000,24870000,24875000,24880000], "coherence": "STRONG_COHERENCE", "atomic_lifecycle": "RETAINED_EVIDENCE_UNAVAILABLE"},
+  "current_census": {"matches": 33, "activity": [16,112,240], "total_observations": 264},
+  "known_operation_comparison": {"exact_matches": [], "sentinel_variants": "NOT_EXACT", "harbinger": "NO_MEANINGFUL_HARBINGER_RELATION"},
+  "infrastructure": "NOVEL_INFRASTRUCTURE",
+  "common_root": "NOT_PROVEN",
+  "primary_classification": "DISTINCT_POTENTIAL_OPERATION",
+  "recommendation": "ADVANCE_TO_DEEP_REVIEW",
+  "evidence_gaps": ["retained atomic-lifecycle evidence", "bounded deep review of high-volume current recurrence"],
+  "source_provenance": ["docs/audits/potential_operations_current_census_reconciliation.v1.json", "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/p3r_v2_candidate_membership.v1.json"],
+  "assessment_digest": "8f4dffee6664bdc1b7b8cc0be9d1f418ace3856e6b9d01cb894150a371ababe9"
+}

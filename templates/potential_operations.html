@@ -29,12 +29,12 @@
 <div class="ip-metric-label">Admitted Evolution Candidates</div>
 </div>
 </div><section class="ip-card"><h2>Evolution Watch</h2><p><strong>Sentinel · 75 near → 2 qualifying clusters → 2 admitted variants</strong>{% for r in evolution_watch.sentinel_variants %}<br><a href="/intelligence/potential-operations/{{ r.candidate_id }}">{{ r.display_descriptor }} · {{ r.current_evidence.matches }} observations</a>{% endfor %}</p><p><strong>Harbinger · 97 related → 0 qualifying clusters → 0 admitted candidates</strong><br><small>No Potential candidate currently attributable to Harbinger.</small></p></section>{% set evolution_ids=evolution_watch.sentinel_variants|map(attribute='candidate_id')|list %}{% set next = rows|selectattr('workflow_status','equalto','QUEUED')|rejectattr('candidate_id','in',evolution_ids)|first %}{% if next %}<section class="ip-card" style="border:2px solid var(--ip-cyan);padding:18px">
-<small>FOCUS NEXT · CURRENT ATTENTION #{{ next.current_attention_rank }}</small>
+<small>FOCUS NEXT · ATTENTION #{{ next.current_attention_rank }} · {{ next.workflow_status }}{% if next.assessment %} · {{ next.assessment_display.classification }}{% endif %}</small>
 <h2>
 <a href="/intelligence/potential-operations/{{ next.candidate_id }}">{{ next.display_descriptor }}</a>
 </h2>
 <small>{{ next.candidate_id }} · {{ next.discovery_label }}</small>
-<p><strong>{{ next.relationship_label }}</strong> · {{ next.current_evidence.metrics.last_1d|default(0) }} / {{ next.current_evidence.metrics.last_7d|default(0) }} / {{ next.current_evidence.metrics.last_30d|default(0) }} · 24h / 7d / 30d</p><p><strong>Why now:</strong> {{ next.current_evidence.reason }} {{ next.current_evidence.matches }} census matches; {{ next.compact_mechanism }}.</p><p><strong>Exact next action:</strong> {{ next.next_action }} <a href="/intelligence/potential-operations/{{ next.candidate_id }}">Investigate →</a></p>
+<p><strong>{{ next.relationship_label }}</strong> · {{ next.current_evidence.metrics.last_1d|default(0) }} / {{ next.current_evidence.metrics.last_7d|default(0) }} / {{ next.current_evidence.metrics.last_30d|default(0) }} · 24h / 7d / 30d{% if next.assessment %} · {{ next.assessment.current_census.matches }} matches · {{ next.assessment_display.coherence }} · {{ next.assessment.exact_cohort.distinct_creators }} creators · {{ next.assessment.exact_cohort.distinct_direct_funders }} funders{% endif %}</p><p><strong>Why now:</strong> {{ next.current_evidence.reason }}</p><p><strong>Recommendation:</strong> {% if next.assessment %}{{ next.assessment_display.recommendation }}{% else %}{{ next.next_action }}{% endif %} <a href="/intelligence/potential-operations/{{ next.candidate_id }}">{{ next.action_label }}</a></p>
 </section>{% endif %}<section class="ip-card"><h2>Evolution Candidates ({{ evolution_watch.sentinel_variants|length }})</h2>{% for r in evolution_watch.sentinel_variants %}<p><a href="/intelligence/potential-operations/{{ r.candidate_id }}"><strong>{{ r.display_descriptor }}</strong></a> · {{ r.workflow_status }} · Variant of Sentinel · {{ r.current_evidence.metrics.last_1d|default(0) }} / {{ r.current_evidence.metrics.last_7d|default(0) }} / {{ r.current_evidence.metrics.last_30d|default(0) }} · {{ r.current_evidence.matches }} observations · {{ r.compact_mechanism }} · <a href="/intelligence/potential-operations/{{ r.candidate_id }}">Review variant →</a></p>{% endfor %}</section><h2>Actionable unresolved candidates</h2>
 <table class="ip-table">
 <thead>
@@ -61,7 +61,7 @@
 <td>{{ r.relationship_label }}</td>
 <td>{{ r.compact_mechanism }}</td>
 <td>{{ r.discovery_label }}</td>
-<td>{{ r.next_action }}</td>
+<td>{{ r.action_label }}</td>
 </tr>{% endfor %}</tbody>
 </table>
 </main>{% endblock %}

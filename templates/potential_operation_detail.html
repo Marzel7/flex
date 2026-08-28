@@ -50,6 +50,7 @@
 <button data-tab="relationships">Relationships</button>
 </nav>
 <section class="panel on" id="summary">
+{% if candidate.assessment %}<div class="card"><h2>Current Assessment</h2><dl class="facts"><dt>Classification</dt><dd>{{ candidate.assessment_display.classification }}</dd><dt>Recommendation</dt><dd>{{ candidate.assessment_display.recommendation }}</dd><dt>Coherence</dt><dd>{{ candidate.assessment_display.coherence }}</dd><dt>Independence</dt><dd>{{ candidate.assessment.exact_cohort.distinct_creators }} creators · {{ candidate.assessment.exact_cohort.distinct_direct_funders }} direct funders</dd><dt>Infrastructure / common root</dt><dd>{{ candidate.assessment_display.infrastructure }} · {{ candidate.assessment_display.common_root }}</dd><dt>Evidence gaps</dt><dd>{{ candidate.assessment.evidence_gaps|join('; ') }}</dd></dl></div>{% endif %}
 <div class="card">
 <h2>Operational candidate</h2>
 <dl class="facts">

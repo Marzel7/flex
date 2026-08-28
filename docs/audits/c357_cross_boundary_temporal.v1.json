@@ -1,0 +1,770 @@
+{
+  "conclusion": {
+    "direct_funder_attribution": "NON_DISCRIMINATIVE",
+    "era_separated": 20,
+    "interleaved": 3
+  },
+  "cross_boundary_funders": 23,
+  "digest": "ed83d74970734719cd09ddcc49c63643f7426f19b76bd90d9929671cade43c9a",
+  "funders": [
+    {
+      "c357": 4,
+      "c357_window": [
+        1786593176,
+        1787194882
+      ],
+      "collision": 1,
+      "collision_window": [
+        1787731551,
+        1787731551
+      ],
+      "funder": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+      "launches": [
+        {
+          "baseline": "C357",
+          "block_time": 1786593176,
+          "mint": "LyqncnAuRYisshpv1u12B6pCD7SASdyFj1itCUcpump",
+          "wallet": "AX93U7LoL2QYWJnuGa1grmqWgtPhG3y6CwqoFanv1ttx"
+        },
+        {
+          "baseline": "C357",
+          "block_time": 1786624697,
+          "mint": "oruyBzARjKtPNvRhcT5nR4bzYt5SM8uCv74j84epump",
+          "wallet": "6pGXCCf44q8XzLVbyfivDV3pLv5rAW6h1xVe8oz2sqzZ"
+        },
+        {
+          "baseline": "C357",
+          "block_time": 1787014489,
+          "mint": "c9SFiUUHzra78qJinqxSntvpBmJjXdGYDcMMNkXpump",
+          "wallet": "CCeL96vXcftteC1DJccNipLio4EMrB1ppqoQL9Rz8nnc"
+        },
+        {
+          "baseline": "C357",
+          "block_time": 1787194882,
+          "mint": "ZjDVmGGAkmj1aj8Le3uGoaUiz39jEyKH6VP7dzQpump",
+          "wallet": "2rKe6oPYrXpRL3CgUVrmsJTGXhNY1Uz17Htf6ZdzXwzJ"
+        },
+        {
+          "baseline": "COLLISION",
+          "block_time": 1787731551,
+          "mint": "o4UAUX9WBkWYRVFmccHQah4UytnKn6hDAj7q4Rmpump",
+          "wallet": "14Das7Ry18Ew31Z8Hkbhy6yfyNPJSm5QGDsqtKJXW8TG"
+        }
+      ],
+      "temporal_classification": "ERA_SEPARATED",
+      "total": 5
+    },
+    {
+      "c357": 3,
+      "c357_window": [
+        1786449676,
+        1786671031
+      ],
+      "collision": 1,
+      "collision_window": [
+        1787901381,
+        1787901381
+      ],
+      "funder": "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD",
+      "launches": [
+        {
+          "baseline": "C357",
+          "block_time": 1786449676,
+          "mint": "RAjnSnVnRmf8Za8MggRPRmjkY2ZQkK7HiXYz4YSpump",
+          "wallet": "E57fshvfneuC7j1m12mXk8GjQcDVTKmKLG24rnbjiQLF"
+        },
+        {
+          "baseline": "C357",
+          "block_time": 1786532598,
+          "mint": "R39ag2yKJVxJiHUxBy1xUEUc55kADNicLb9idNnpump",
+          "wallet": "3kamQ5cB2fo46pDyGnUkHYmnuDZQJWFxmntxRKvDBhY1"
+        },
+        {
+          "baseline": "C357",
+          "block_time": 1786671031,
+          "mint": "g1CbgSCD1H48Mnx9VSL7cpwJ5auX8Ky1cNUH9BQpump",
+          "wallet": "4HnBbcdrzhmSaFx2YExnoXZFAibX4Uf4NdDUTGqPSDVM"
+        },
+        {
+          "baseline": "COLLISION",
+          "block_time": 1787901381,
+          "mint": "ZrBqa2cXuDsHq1qayja9e7fjMjM1C4ZLjaYKN6rpump",
+          "wallet": "8WuQ4jna2QL18wrfxmBmaZxMWbqNo3DH5PirtmkrpGyh"
+        }
+      ],
+      "temporal_classification": "ERA_SEPARATED",
+      "total": 4
+    },
+    {
+      "c357": 2,
+      "c357_window": [
+        1786499927,
+        1787219011
+      ],
+      "collision": 2,
+      "collision_window": [
+        1786498885,
+        1787193048
+      ],
+      "funder": "9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp",
+      "launches": [
+        {
+          "baseline": "COLLISION",
+          "block_time": 1786498885,
+          "mint": "aReQqWoocmX3hRhyCKjnwEmcxF3masz6amgDG1Gpump",
+          "wallet": "3z2psV88YfVLPHoedcNzBfLi3q15Chi9kCRNDmD422ZD"
+        },
+        {
+          "baseline": "C357",
+          "block_time": 1786499927,
+          "mint": "ZpQmhQvEpasHYF2gDrDJXaYZVDJxJUZRt9vvHbUpump",
+          "wallet": "6vJXHimFNCDp1fMY4vuJfNQdbm8cbXrYQGxdzzPz31gt"
+        },
+        {
+          "baseline": "COLLISION",
+          "block_time": 1787193048,
+          "mint": "FGmjBvJ1i4gXLpcJuijKDdonPMT6Q1MiYVuQHDapump",
+          "wallet": "24HkQr3vhP1XyqqBd55gUUvnFuGfyy4knqGSHgv9oPr1"
+        },
+        {
+          "baseline": "C357",
+          "block_time": 1787219011,
+          "mint": "puhW9nSz4rczEtWNM6TH1zYikSmapRu2PxdSXwfpump",
+          "wallet": "HPocCJSYVR5epcdJ3SNdECj1BW3QbwUZJahEX8tNTMMJ"
+        }
+      ],
+      "temporal_classification": "INTERLEAVED",
+      "total": 4
+    },
+    {
+      "c357": 1,
+      "c357_window": [
+        1787203886,
+        1787203886
+      ],
+      "collision": 3,
+      "collision_window": [
+        1786584699,
+        1787897235
+      ],
+      "funder": "C55hxeJepPLMKi4xuKjAFLWmxoSfVrqn2LELi67ixQfe",
+      "launches": [
+        {
+          "baseline": "COLLISION",
+          "block_time": 1786584699,
+          "mint": "KeJkdwZhEG4Bj5Rs1e2RTgyhZe8Mmr9DvTYVNWrpump",
+          "wallet": "6SpfEiYwzxSGkku2bU2TksCMTHnPVApQipT1WgnsZ93u"
+        },
+        {
+          "baseline": "C357",
+          "block_time": 1787203886,
+          "mint": "UsCT9cALz6uba94mdUByBLZgP3Dp5sW7Mv7ZgJPpump",
+          "wallet": "BS2tw7Q4vEgPNemCj8cXNv5TvoyPWyikJbccZapuyQqW"
+        },
+        {
+          "baseline": "COLLISION",
+          "block_time": 1787728624,
+          "mint": "Y61KbxFLkSU8GGiknx2tg2fyPp5gRj1n6EVzuWbpump",
+          "wallet": "6mTrH2GAQhmmiLkkAvPWcZvP7rdvVSAXH4N6zSjeayaj"
+        },
+        {
+          "baseline": "COLLISION",
+          "block_time": 1787897235,
+          "mint": "qX9jHURr5UVA7FpoeQdYCGYfR9HYjPhTckPqbRgpump",
+          "wallet": "8KiR3dcqa9FynCzxJ52z9oFiyNzsWiqi6CADYceSKrKs"
+        }
+      ],
+      "temporal_classification": "INTERLEAVED",
+      "total": 4
+    },
+    {
+      "c357": 2,
+      "c357_window": [
+        1786031058,
+        1786048190
+      ],
+      "collision": 1,
+      "collision_window": [
+        1785893037,
+        1785893037
+      ],
+      "funder": "DPAy3sFUsUWVRCGaMKse2hVYR5kKU7Yr4cE1eM5EwvgA",
+      "launches": [
+        {
+          "baseline": "COLLISION",
+          "block_time": 1785893037,
+          "mint": "uykpcqDmt6B3By6v5ofmBnfsS7Y2V1harccH413pump",
+          "wallet": "2HGPxF2rb51ML2VWtUCWRWfxvqg6aYGkBKvRgRuQ2NLd"
+        },
+        {
+          "baseline": "C357",
+          "block_time": 1786031058,
+          "mint": "YKA5o87oHTTSAsbq1ZPHq6zF1cCaW8HoyhWcpjkpump",
+          "wallet": "8RrP6qzsk32765uyzJgYCPT4LTaUxUBFftoGWuUH7SNr"
+        },
+        {
+          "baseline": "C357",
+          "block_time": 1786048190,
+          "mint": "BT9JV4F3t58yyeELzXo72jL6C1fWp8SQRM3i3B9pump",
+          "wallet": "98TuFX8akWLq7Luqbyg6mZKFxQQwZu2LRSs2ybwrT3nS"
+        }
+      ],
+      "temporal_classification": "ERA_SEPARATED",
+      "total": 3
+    },
+    {
+      "c357": 2,
+      "c357_window": [
+        1786582853,
+        1787047604
+      ],
+      "collision": 1,
+      "collision_window": [
+        1786411112,
+        1786411112
+      ],
+      "funder": "9As8wexRUtoujuYia5WxpiUCbjut75XTb9LknATiXvRW",
+      "launches": [
+        {
+          "baseline": "COLLISION",
+          "block_time": 1786411112,
+          "mint": "FX3fHqPaWXw7DDAofCCotATQg1aQsiwpM5A6TdDpump",
+          "wallet": "EhS1EzxwEftXvTUjknUNtC61sLLDCTqJSo1eecaKZpUk"
+        },
+        {
+          "baseline": "C357",
+          "block_time": 1786582853,
+          "mint": "Qqq9SveDjjYJc3jFYwopxEFhuV7SwMtcixr3skdpump",
+          "wallet": "7v7nDPBG7Qa1wr5GzHAtf2fxfiRzBC5otW68qPcTQpyR"
+        },
+        {
+          "baseline": "C357",
+          "block_time": 1787047604,
+          "mint": "UroXqz24UCoMy1LpQJVQjJEyeKzBh6aYPq4b487pump",
+          "wallet": "2w3ecjBRZ7ZBim1iaXjqv4YKWeHtRk6n3EpBo1MVZBoS"
+        }
+      ],
+      "temporal_classification": "ERA_SEPARATED",
+      "total": 3
+    },
+    {
+      "c357": 1,
+      "c357_window": [
+        1786441003,
+        1786441003
+      ],
+      "collision": 2,
+      "collision_window": [
+        1787723729,
+        1787898343
+      ],
+      "funder": "Am3Un7bph5NNWDLCVVVQT1kY4kN3GFPjj31g4DdrNCd4",
+      "launches": [
+        {
+          "baseline": "C357",
+          "block_time": 1786441003,
+          "mint": "ZzWhbH8LrTjx8uCQgE2SEue3jiYWKAm7RGTCYH8pump",
+          "wallet": "CRz5Kxv9qHini9xhpA2DitjoKySkZPyTbopXCg3W6Xcf"
+        },
+        {
+          "baseline": "COLLISION",
+          "block_time": 1787723729,
+          "mint": "HkkFpHwpERFUkhZhLrFXMbz5J7WA1bZqSKLnP3wpump",
+          "wallet": "FrxdDECnxzE62ZGjNCN4EHM89t7kb1gA1BvxLhrL9KnX"
+        },
+        {
+          "baseline": "COLLISION",
+          "block_time": 1787898343,
+          "mint": "qAvJyjqQdkC1NHantQMV5ehwpCbDiJZcziPgwoppump",
+          "wallet": "Dzg8R6VLC9gbLsHrEenJgxQRsq7VbUHtLDaFNmH4dsQr"
+        }
+      ],
+      "temporal_classification": "ERA_SEPARATED",
+      "total": 3
+    },
+    {
+      "c357": 1,
+      "c357_window": [
+        1786506298,
+        1786506298
+      ],
+      "collision": 2,
+      "collision_window": [
+        1786496294,
+        1787902523
+      ],
+      "funder": "5PkFFC9FCmm2EUQHMqbF9cwMviSXjgAjeqKEoPoYejuG",
+      "launches": [
+        {
+          "baseline": "COLLISION",
+          "block_time": 1786496294,
+          "mint": "Nru8UYd7haPtkH6iGdgeVbSVu7WhuMMBjbrpRybpump",
+          "wallet": "HgQiF2tTYAUoNrYKjtiXhZMvEgUf5MNyR8Sf5wyfFVef"
+        },
+        {
+          "baseline": "C357",
+          "block_time": 1786506298,
+          "mint": "WLjqiHSEWgHVkX9JWJXgXDhX9XTCtSSj3EdyB4Cpump",
+          "wallet": "BHqs7btMbN3iFsndATfadrZogMdtEiqTzFc6qqe6bjQx"
+        },
+        {
+          "baseline": "COLLISION",
+          "block_time": 1787902523,
+          "mint": "Y7QgJmhzM63qnXUw7J6baDZG5qLfwnYDdXjNbChpump",
+          "wallet": "5gGoWuNbvpW2K9ZkvRzW3DVvzmLMQgWM5rDN39gpghCN"
+        }
+      ],
+      "temporal_classification": "INTERLEAVED",
+      "total": 3
+    },
+    {
+      "c357": 2,
+      "c357_window": [
+        1787029469,
+        1787042543
+      ],
+      "collision": 1,
+      "collision_window": [
+        1786526381,
+        1786526381
+      ],
+      "funder": "BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH",
+      "launches": [
+        {
+          "baseline": "COLLISION",
+          "block_time": 1786526381,
+          "mint": "ugwTkUXE3ckeakLawvoc7inQmtZZQ3K5dYPj4wHpump",
+          "wallet": "6NRXqMh5CNCN5bnxUG14rGZrEMb1MrALZ1YtR2HaMdH7"
+        },
+        {
+          "baseline": "C357",
+          "block_time": 1787029469,
+          "mint": "WV1UndBXx7eGbtA7B6Q7HEnX1mN8DL3XdGDN9Jupump",
+          "wallet": "8jLQSAxGfEc1nqX3aPKBHnVXLgbLDwaNdBAFg9XBssyM"
+        },
+        {
+          "baseline": "C357",
+          "block_time": 1787042543,
+          "mint": "awwz1zgwET9MtvRSZ9CUZ5QpLFviT9fFv53CpDApump",
+          "wallet": "2uuJ1sr5bqkfSnMHFUAhFjSwksAvHmH3TU3aU7UWBhFK"
+        }
+      ],
+      "temporal_classification": "ERA_SEPARATED",
+      "total": 3
+    },
+    {
+      "c357": 2,
+      "c357_window": [
+        1787625830,
+        1787632643
+      ],
+      "collision": 1,
+      "collision_window": [
+        1787792575,
+        1787792575
+      ],
+      "funder": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+      "launches": [
+        {
+          "baseline": "C357",
+          "block_time": 1787625830,
+          "mint": "W7Fnj98a3jY9aoP9kd25taK66eJ1uS6b6VjpKtJpump",
+          "wallet": "Bo9vgoTpWBsRD1U3jwPRuSh2cZAAZSzSDJgcw1Ah2mCT"
+        },
+        {
+          "baseline": "C357",
+          "block_time": 1787632643,
+          "mint": "yfmKCjYvHsD17w2xvKLBRrmzF58nZyXH25reGwLpump",
+          "wallet": "6cQye5DE7C3xCd7H9pANDfpQd8CTf1XpEGzdcHYmqi8f"
+        },
+        {
+          "baseline": "COLLISION",
+          "block_time": 1787792575,
+          "mint": "BXhcEHHYizRzbB3Bz7NJptoMdXoNquM14WzaxqGpump",
+          "wallet": "ArodMf2yaxC1DYFpTJc3kMhMBR6JNvjaqxkpV3ktVgyf"
+        }
+      ],
+      "temporal_classification": "ERA_SEPARATED",
+      "total": 3
+    },
+    {
+      "c357": 1,
+      "c357_window": [
+        1785871513,
+        1785871513
+      ],
+      "collision": 1,
+      "collision_window": [
+        1785804687,
+        1785804687
+      ],
+      "funder": "AhfDWL1mi2xajF7JWGDzmTiqvtRxD7JDWHkaZVnmUvw7",
+      "launches": [
+        {
+          "baseline": "COLLISION",
+          "block_time": 1785804687,
+          "mint": "c3XhY2caaYZA18qxyioupTZquhjWSKDF1Xt6ZVXpump",
+          "wallet": "AnrZj8He3aEXnZgsg5fvMvhHQYhjJK1a5xevZJPhgjia"
+        },
+        {
+          "baseline": "C357",
+          "block_time": 1785871513,
+          "mint": "jmM56TE7ko4jUzmzJ523W1b3872jMXKoiwsJLUKpump",
+          "wallet": "FBP2zCEFgcR64bBnoEqKeysYx5d7m5WMmNjRUgp99ddD"
+        }
+      ],
+      "temporal_classification": "ERA_SEPARATED",
+      "total": 2
+    },
+    {
+      "c357": 1,
+      "c357_window": [
+        1785873862,
+        1785873862
+      ],
+      "collision": 1,
+      "collision_window": [
+        1785870896,
+        1785870896
+      ],
+      "funder": "2fJCPb27tQhbnX4s3sTJvjzK1deawkREkKjCKS7PjF9g",
+      "launches": [
+        {
+          "baseline": "COLLISION",
+          "block_time": 1785870896,
+          "mint": "zdRcJpYgDgJaGBjHacTDBmDtqvSEH9Tcou6c6CApump",
+          "wallet": "71WEfT5LcK6wEKnpRHGzp6CAHcwfD5BT8PgTL4rXCaX9"
+        },
+        {
+          "baseline": "C357",
+          "block_time": 1785873862,
+          "mint": "osxeVkLpan3NyZsRDcdWiEuWBFHA6or59UshcaRpump",
+          "wallet": "HqUkaFpvG8KHGDhjM6PPLvzbagXrkdYpJhmeaz1hh6ye"
+        }
+      ],
+      "temporal_classification": "ERA_SEPARATED",
+      "total": 2
+    },
+    {
+      "c357": 1,
+      "c357_window": [
+        1785877775,
+        1785877775
+      ],
+      "collision": 1,
+      "collision_window": [
+        1785873821,
+        1785873821
+      ],
+      "funder": "7DifG8cHrQBAAKjqoLCnfzj8khtnYLPE39GnWgEnLP8d",
+      "launches": [
+        {
+          "baseline": "COLLISION",
+          "block_time": 1785873821,
+          "mint": "kzbmCQBMAZ1Eo2cJ8WfrQg9SUQ7QhSpsPCA8jmPpump",
+          "wallet": "9y4Qxike74jnvD5ZcDDrwm4vyVtiQ9Zhrh8MqfX3iUGi"
+        },
+        {
+          "baseline": "C357",
+          "block_time": 1785877775,
+          "mint": "wQFd44Kh6nsrXn49vcu4bpjDCqe18iTGYzTgcWppump",
+          "wallet": "6GjoAJjEExghzo5AsiJyTV8Txxp9FGSnWsg3qnwn4oyh"
+        }
+      ],
+      "temporal_classification": "ERA_SEPARATED",
+      "total": 2
+    },
+    {
+      "c357": 1,
+      "c357_window": [
+        1786070202,
+        1786070202
+      ],
+      "collision": 1,
+      "collision_window": [
+        1786057890,
+        1786057890
+      ],
+      "funder": "59MGbbjnBsNKNbTXsd4cc83doHgpkJBdotigvZ6WxjLX",
+      "launches": [
+        {
+          "baseline": "COLLISION",
+          "block_time": 1786057890,
+          "mint": "ievXxbA8sjKHggi8YGT4thhEXTc7aEpfwVV4v6rpump",
+          "wallet": "Vr8pbCECKkkxYLCNjpF8EQHfXCnKHav7DnYMbyHmpV9"
+        },
+        {
+          "baseline": "C357",
+          "block_time": 1786070202,
+          "mint": "nobzQmhM6x86Y8WdrgH21AKuVrJ5mJmkBmJU9Lqpump",
+          "wallet": "5no9tT8XE2HQgagWsYGsgcB3ZKt1ZdGkPotYn3P1a47C"
+        }
+      ],
+      "temporal_classification": "ERA_SEPARATED",
+      "total": 2
+    },
+    {
+      "c357": 1,
+      "c357_window": [
+        1786583337,
+        1786583337
+      ],
+      "collision": 1,
+      "collision_window": [
+        1786413923,
+        1786413923
+      ],
+      "funder": "3thxdSxsHtFuGJroCYe6JmCojPRizUz1GnvQSq5M5JfY",
+      "launches": [
+        {
+          "baseline": "COLLISION",
+          "block_time": 1786413923,
+          "mint": "DRtGHd1dF6Az5vknV188Yk3LQ72rZ4J9CB1WWg8pump",
+          "wallet": "HNZkRXW8YGq5xHxz1CGGHDtKB5MGLUtcGoCUz2qsjWuu"
+        },
+        {
+          "baseline": "C357",
+          "block_time": 1786583337,
+          "mint": "TwA2K5KnYpyNeu7dxeNY3yS4uCR5KrRRh9FPLDHpump",
+          "wallet": "9vxWQxQ7t96c8me6weJaUs4wwvqL2dJnborBhAbmBjvU"
+        }
+      ],
+      "temporal_classification": "ERA_SEPARATED",
+      "total": 2
+    },
+    {
+      "c357": 1,
+      "c357_window": [
+        1786623174,
+        1786623174
+      ],
+      "collision": 1,
+      "collision_window": [
+        1786581894,
+        1786581894
+      ],
+      "funder": "DmfxzqZQTifJQhfrikFdDQXy3Ws6X9H3VX5xkRVTf77y",
+      "launches": [
+        {
+          "baseline": "COLLISION",
+          "block_time": 1786581894,
+          "mint": "jZtQitpweY7gWNcXRDNLNakvNX7i4mu3C3iK9bKpump",
+          "wallet": "4wD2AhKSyJ6ert6ypXVScUD9j4pQ44SPhvp89Tde5wS4"
+        },
+        {
+          "baseline": "C357",
+          "block_time": 1786623174,
+          "mint": "MW7ePAAMjxWyezTKtnvYXewrN5H4CHrv1HYkhabpump",
+          "wallet": "9UA4PhjVWhShFgJvpQqyvJoSftQL5757J3buGuATCAi1"
+        }
+      ],
+      "temporal_classification": "ERA_SEPARATED",
+      "total": 2
+    },
+    {
+      "c357": 1,
+      "c357_window": [
+        1786586021,
+        1786586021
+      ],
+      "collision": 1,
+      "collision_window": [
+        1787712265,
+        1787712265
+      ],
+      "funder": "BsKEb5qhnHMFP4XUjoXMv5nMxkvuaFtBH5ssuWNMjLbw",
+      "launches": [
+        {
+          "baseline": "C357",
+          "block_time": 1786586021,
+          "mint": "rRGoXVsKJtZGgPqwShxiSD8pcpyH5qXhthqFT5Hpump",
+          "wallet": "HvrfDJssAXHLzFccnyQDxnWZpFuvj9SS7DcThUPNG4Tz"
+        },
+        {
+          "baseline": "COLLISION",
+          "block_time": 1787712265,
+          "mint": "aAusLt3LivQAmeLBjiMHJ9vJsHEKm2wWAZGtkb5pump",
+          "wallet": "6vnDbqy1cWyGe7ymz2H2AwBhb4ASiqJ6JhiCuMD5K1aM"
+        }
+      ],
+      "temporal_classification": "ERA_SEPARATED",
+      "total": 2
+    },
+    {
+      "c357": 1,
+      "c357_window": [
+        1787370476,
+        1787370476
+      ],
+      "collision": 1,
+      "collision_window": [
+        1786586053,
+        1786586053
+      ],
+      "funder": "j6EVoUMZRafJPrdkuoB9PJGXxBGHEsx4VcJq5W3Ft5d",
+      "launches": [
+        {
+          "baseline": "COLLISION",
+          "block_time": 1786586053,
+          "mint": "TGyhawyhLYBfgHSCjomHahMPkntywYJYc7trg8Apump",
+          "wallet": "BXHs5Y3HMB3uWstCi8bjERZoekZ6oudJQnnj24E7BKn2"
+        },
+        {
+          "baseline": "C357",
+          "block_time": 1787370476,
+          "mint": "nMSCXsLXZ3R7NBKNDiaYw7CZh7KYs4CyWMEVWNbpump",
+          "wallet": "8burxqJyYaEtpSX1THFaRSjYWND12BNHUbJtofA9YfWr"
+        }
+      ],
+      "temporal_classification": "ERA_SEPARATED",
+      "total": 2
+    },
+    {
+      "c357": 1,
+      "c357_window": [
+        1787370510,
+        1787370510
+      ],
+      "collision": 1,
+      "collision_window": [
+        1786586070,
+        1786586070
+      ],
+      "funder": "49Wo4qJS1CWPd4b8LAezyL4ARPj3fw6N6zPhPV4dQd6V",
+      "launches": [
+        {
+          "baseline": "COLLISION",
+          "block_time": 1786586070,
+          "mint": "NRPBhPtg77cqKofXFDD4tXoKhtesqsNHRzx5hW3pump",
+          "wallet": "3bLDgHnzaAFvPQAvSiPJ4tXtAJEr4PybDfRSyuVGDoad"
+        },
+        {
+          "baseline": "C357",
+          "block_time": 1787370510,
+          "mint": "UMVSuCPVE5H1SbEZ5X32iu3Jcs67ySZ1iMuiyaWpump",
+          "wallet": "2QiFAgxAKru3d8oWsL5eEkSAxmQxU6WxHTCoGM6N2VCC"
+        }
+      ],
+      "temporal_classification": "ERA_SEPARATED",
+      "total": 2
+    },
+    {
+      "c357": 1,
+      "c357_window": [
+        1787368455,
+        1787368455
+      ],
+      "collision": 1,
+      "collision_window": [
+        1786611236,
+        1786611236
+      ],
+      "funder": "NeHjc1yqZXesLZTHtK7jrjyQ3MpFg2TVHpV8QDDAHEm",
+      "launches": [
+        {
+          "baseline": "COLLISION",
+          "block_time": 1786611236,
+          "mint": "so82bQtUVDAjM18N8vs9C3uVcKsJtUARnnAb1UPpump",
+          "wallet": "7KUuPwrJE1MFwUeuCqX8LbcM9VcopgehXrraXU4w2ws"
+        },
+        {
+          "baseline": "C357",
+          "block_time": 1787368455,
+          "mint": "SrAJUQS6snqHUATSX4Jmvb4vZpgmQevqeWbzUEVpump",
+          "wallet": "CZW5TGuGBp8N3K9sJjkaq8yrfae8qKEEptFBJPm2hNeb"
+        }
+      ],
+      "temporal_classification": "ERA_SEPARATED",
+      "total": 2
+    },
+    {
+      "c357": 1,
+      "c357_window": [
+        1787373829,
+        1787373829
+      ],
+      "collision": 1,
+      "collision_window": [
+        1787369822,
+        1787369822
+      ],
+      "funder": "C2W3FExk348T4aNHpJjiCZpNrpd9MNLBBVZAdWCogtBx",
+      "launches": [
+        {
+          "baseline": "COLLISION",
+          "block_time": 1787369822,
+          "mint": "s8Ws5Ld7WAKhsaZnuaZkjbWs9jfSQEzRA2FKS7Mpump",
+          "wallet": "JCmfzVDGZHBcjpVZKxmBHKpoDtEWYybxirUbnHERyS8q"
+        },
+        {
+          "baseline": "C357",
+          "block_time": 1787373829,
+          "mint": "ZMA7yJNeXUwcUdGWXzw654ZX6k1tj3zgqL7qrFBpump",
+          "wallet": "GhnaFwBs9oWGrec1xZ18j5xmkS2muLcMWK5DuLtaXz3D"
+        }
+      ],
+      "temporal_classification": "ERA_SEPARATED",
+      "total": 2
+    },
+    {
+      "c357": 1,
+      "c357_window": [
+        1787539057,
+        1787539057
+      ],
+      "collision": 1,
+      "collision_window": [
+        1787885093,
+        1787885093
+      ],
+      "funder": "54xTpcBEr48Cuis8m2SdeymdQcwvmDR4aegxCPQzUANG",
+      "launches": [
+        {
+          "baseline": "C357",
+          "block_time": 1787539057,
+          "mint": "eMD1zv3m9ArePAtXYEVFG9tbXfwDzY8GyFMxbPopump",
+          "wallet": "CZk5uZdVfPUMzmCCDVbWUnom7gSZSbgFJKb37vGwTAt8"
+        },
+        {
+          "baseline": "COLLISION",
+          "block_time": 1787885093,
+          "mint": "yWejG1LK1ntt959iqV11xiKSrdFGE7iLjV4Pwhnpump",
+          "wallet": "6TrZEMKQF3zUpv1vk5uoVTCVPsGPEeuWHn1fs7Sr9UMk"
+        }
+      ],
+      "temporal_classification": "ERA_SEPARATED",
+      "total": 2
+    },
+    {
+      "c357": 1,
+      "c357_window": [
+        1787546235,
+        1787546235
+      ],
+      "collision": 1,
+      "collision_window": [
+        1787913232,
+        1787913232
+      ],
+      "funder": "HQ2q5DJuAVf1CrDJpwmeSYsLgvGp9k5cGEPZQsNvcMW9",
+      "launches": [
+        {
+          "baseline": "C357",
+          "block_time": 1787546235,
+          "mint": "svVnLbfCPjKAZ4suNYDfebJZ8AfhiTysVQwn3fZpump",
+          "wallet": "2BjFyzy337jVzrLzgbfj9vm6j7ZDWyjwDtp8bShkGcnp"
+        },
+        {
+          "baseline": "COLLISION",
+          "block_time": 1787913232,
+          "mint": "eNMZVUNbSEH6zVxmvHyTgRAZoBoqGQ4vHEdzHu5pump",
+          "wallet": "DfMowPzWAR3fVMGFbT2G6ohyF2zyMAAVDEC8MV16QdM"
+        }
+      ],
+      "temporal_classification": "ERA_SEPARATED",
+      "total": 2
+    }
+  ],
+  "population": 161,
+  "schema_version": "C357_CROSS_BOUNDARY_TEMPORAL.v1"
+}

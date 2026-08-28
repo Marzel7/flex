@@ -2940,13 +2940,16 @@
   },
   "potential_route_activity_metric_correction_20260828": {
     "engineering_revision": "1f3548a8631118e64e0da80e27fc035975b0b68b",
-    "status": "HOLD",
-    "verdict": "FOCUS_NEXT_GLOBAL_ACTIVITY_RECONCILIATION_MISMATCH",
+    "status": "PASS",
+    "verdict": "POTENTIAL_ROUTE_ACTIVITY_SNAPSHOT_V2_REPLAY_PASS",
     "summary": "Versioned Focus Next activity contract to MATCHED_ROUTES: 2/14/30 routes, 33 total; preserved 16/112/240 selected-edge timestamps as technical evidence.",
     "tests": "9 passed: focus assessment persistence, relationship focus UI, visual structure.",
     "production_flags": {"workflow_changed": false, "membership_changed": false, "detector_changed": false, "fingerprint_changed": false, "threshold_changed": false, "queue_changed": false, "rpc_provider_calls": false, "service_restarted": false, "trading_state_changed": false},
     "global_audit_evidence": "Against the requested rowid ceilings, direct per-mint minimum selected-edge block_time counts for Focus are 3/14/30; the v1 frozen artifact has edge counts 16/112/240 and v2 preserves the authorized 2/14/30 route contract. Current DB rows at the same rowids now yield 24/112/240 edge timestamps, proving mutable source-field drift within the ceiling.",
     "forensic_provenance": "Read-only recovery found no immutable source containing the historical per-route timestamp population. The discrepancy is consistent with mutable selected-edge inclusion: deep_walkback.persist_edge_candidate updates selection_status/rejection_reason on conflict while preserving the row identity. block_time is transaction-derived; selection_status and last_observed_at are mutable operational fields. Rowid high-water alone is therefore insufficient to freeze activity semantics.",
-    "exact_next_action": "NEW_IMMUTABLE_ROUTE_ACTIVITY_SNAPSHOT_REQUIRED: freeze route identities, selected edge identities and timestamps, cutoff, high-waters, fingerprints and digest as a new lineage before global reconciliation."
+    "snapshot_v2": "New compact value-level immutable lineage created at docs/audits/potential_route_activity_snapshot_v2; route membership, selected-edge values, selection states, block-time route timestamps, cutoff, high-waters and candidate activity are retained for replay without mutable source reads.",
+    "engineering_revision": "40807f539f240788d0d4f35e88dfd8de0593a202",
+    "tests": "11 passed: Snapshot V2 artifact replay/adversarial source-mutation simulation plus Focus/UI focused suite.",
+    "exact_next_action": "Use Snapshot V2 as the authoritative Potential activity read projection; historical Focus v2 remains an unchanged historical assessment."
   }
 }

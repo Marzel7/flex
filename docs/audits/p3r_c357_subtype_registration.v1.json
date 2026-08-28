@@ -1,0 +1,21 @@
+{
+  "allowlist_only_projection": true,
+  "detector": "OFF",
+  "digest": "5c696af73c5fd2e3e6dc8cecb777f8a629226b440e88e2982c1e3518e1672087",
+  "overlap_primary_p3r": 50,
+  "p3r_primary_after": 109,
+  "p3r_primary_before": 109,
+  "parent_operator_id": "777211c3-211e-551b-9310-ff9301570627",
+  "projection_count": 56,
+  "projection_only": 6,
+  "safety": {
+    "detector_changed": false,
+    "primary_membership_changed": false,
+    "trading_changed": false,
+    "workflow_changed": false
+  },
+  "schema_version": "P3R_C357_SUBTYPE_REGISTRATION.v1",
+  "subtype_id": "p3r-subtype-03f916dfa97fb93a4b9c",
+  "trading": "OFF",
+  "unresolved_excluded": 105
+}

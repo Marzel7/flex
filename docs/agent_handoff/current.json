@@ -1,4 +1,12 @@
 {
+  "c357_dutb_linked_population_boundary_20260828": {
+    "engineering_revision": "3a19345b plus uncommitted audit work",
+    "status": "PASS_READ_ONLY",
+    "verdict": "C357_DUTB_LINKED_POPULATION_BOUNDARY_CLARIFIED",
+    "result": "The current retained C357 detail projection has 71 canonical launch members and 49 distinct direct funders. The 48 previously listed launches are those attached to direct funders with verified DuTb WSOL-close funding paths; 23 canonical launches remain without that verified link.",
+    "safety": "Read-only projection query only; no database, workflow, membership, qualification, provider, service, listener/worker, or trading state changed.",
+    "exact_next_action": "If requested, list or investigate the 23 remaining unlinked C357 launches and their alternate funding routes."
+  },
   "c357_dutb_linked_launch_chronology_20260828": {
     "engineering_revision": "3a19345b plus uncommitted audit work",
     "status": "PASS_READ_ONLY",

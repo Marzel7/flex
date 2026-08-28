@@ -1,4 +1,14 @@
 {
+  "c357_dutb_funding_ui_marker_20260828": {
+    "engineering_revision": "0fa8a5bb",
+    "status": "PASS",
+    "verdict": "C357_DUTB_FUNDING_UI_MARKER_COMPLETE",
+    "change": "C357 Potential detail Recent Launches now displays a muted DuTb funding link marker only where the launch-side direct funder has a verified DuTb-owned temporary-WSOL close-account delivery in the retained audit. The marker includes a precise hover explanation.",
+    "verification": "6 focused tests passed. Read projection identified 48 linked members out of 71. After a watchtower_api-only reload, the served detail page contained exactly 48 markers.",
+    "files": ["docs/audits/c357_dutb_common_funder_rpc.v1.json", "scripts/audit_c357_dutb_common_funder.py", "src/ops/potential_operations.py", "templates/potential_operation_detail.html", "tests/test_c357_dutb_funding_ui.py"],
+    "safety": "Read-model/UI projection only. The marker is verified funding-path evidence; it does not itself assert common control, operation membership, qualification, lifecycle admission, detector changes, queue changes, provider calls at page read, or trading state. Only watchtower_api was reloaded; unrelated dirty work was preserved.",
+    "exact_next_action": "None for this UI request; separately investigate the 23 C357 members without a verified DuTb path if desired."
+  },
   "c357_dutb_linked_population_boundary_20260828": {
     "engineering_revision": "3a19345b plus uncommitted audit work",
     "status": "PASS_READ_ONLY",

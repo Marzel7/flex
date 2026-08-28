@@ -1,4 +1,14 @@
 {
+  "p3r_c357_subtype_representation_preflight_20260828": {
+    "engineering_revision": "badffc0e860697880e6a0c2f456caa3c414fd2f1",
+    "status": "PASS_WITH_GUARDS",
+    "verdict": "P3R_C357_SUBTYPE_PREFLIGHT_PASS_WITH_SCHEMA_GUARD",
+    "result": "The actual registry has globally unique primary mint membership and no non-owning subtype projection table. Existing wt_ops_v2_operation_family_links is only partially reusable because it lacks projection members and evidence semantics. The smallest correct future representation is a dedicated C357 subtype record beneath P3R plus non-owning subtype projection rows: 56 allowlisted evidence-backed rows (50 P3R primary members; 6 projection-only) and 105 compatible unresolved excluded. P3R primary membership remains 109; no primary ownership changes are needed.",
+    "guards": "Dedicated subtype writer must admit only the exact 56-mint qualification-artifact allowlist; never derive subtype support from fingerprint, profile, funder, or address. C357 compatibility remains QUALIFIED_COMPATIBILITY_ONLY; C357 attribution remains OFF_NOT_READY; shadow-only monitoring/trading OFF.",
+    "artifact": "docs/audits/p3r_c357_subtype_representation_preflight.v1.json digest 35580d24577970205554ab3b7a389ff830fc8cd39bb82360856ee6136db7ed24; offline replay PASS with provider_calls_during_replay=0; 2 focused tests passed.",
+    "safety": "Read-only. No registry, membership, workflow, detector, fingerprint, service, provider, or trading mutation. C357 remains PAUSED.",
+    "exact_next_action": "If desired, separately authorize implementation of the dedicated non-owning subtype projection schema/writer/read-model with the stated allowlist and side-effect guards."
+  },
   "p3r_c357_identity_reconciliation_20260828": {
     "engineering_revision": "46b3079f60830d069313808eee61ff3f9b4ff7f8",
     "status": "PASS",

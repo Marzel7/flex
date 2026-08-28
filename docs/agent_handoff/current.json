@@ -1,4 +1,12 @@
 {
+  "c357_post_dutb_branches_a_c_reconstruction_20260828": {
+    "engineering_revision": "1ca4824d",
+    "status": "PARTIAL",
+    "verdict": "C357_BRANCH_A_C_SUBJECTS_FROZEN_LOCAL_EVIDENCE_RECOVERED",
+    "result": "Local canonical evidence freezes Branch A as upstream 7nUChWZA5wUMWgUjigfkh3MG2FmoVhk47fvqCcPALe5B, direct funder CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5, five distinct creators and five exact 99,999,985,000-lamport WSOL_WRAP_CLOSE launches. Branch C freezes upstream E257HACpHcHa5zKPiPjwXyr7fMD7jx7mm6wnTJNssF6t, direct funder 6hakQXcUcnk1EuuGMHsDPw9iP4GPwjUtHxxPAvGnPj3L, creator BxiwCPhgCQbLqSf9ystoYh5uRj4EEvQFcAiXGf2ziM1f, and one exact 99,999,985,000-lamport WSOL_WRAP_CLOSE launch. The supplied intermediate shorthand C927/4pzH/7mo6 remains relationship-only until transaction chronology is decoded.",
+    "safety": "Local read-only freeze only. C357 remains PAUSED; no membership, fingerprint, detector, threshold, Snapshot V2, queue, service, provider mutation, or trading state changed.",
+    "exact_next_action": "Decode bounded transaction histories for the frozen A and C subjects, then construct actual directional, initialization, relationship, and role-at-time graphs before any cross-branch classification."
+  },
   "c357_hxuf_recipient_to_launch_20260828": {
     "engineering_revision": "1ca4824d",
     "status": "PASS",

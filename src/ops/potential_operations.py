@@ -1,6 +1,7 @@
 """Durable, review-only workflow queue for canonical P3R v2 candidates."""
 from __future__ import annotations
 import hashlib, json, sqlite3, time
+from functools import lru_cache
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -19,6 +20,20 @@ SENTINEL_EVOLUTION_ADMISSIONS=Path(__file__).resolve().parents[2]/"docs/audits/s
 FOCUS_NEXT_ASSESSMENT=Path(__file__).resolve().parents[2]/"docs/audits/focus_next_potential_assessment.v2.json"
 ROUTE_ACTIVITY_SNAPSHOT=Path(__file__).resolve().parents[2]/"docs/audits/potential_route_activity_snapshot_v2/candidate_census.json"
 C357_UPSTREAMS={"ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY":"Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya","F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229":"3GL5bXdDriApC4J2gn42L9fH2xFxq9Ziifr3pM79hBoi","HS5GjB4KTJbbBdYHkJV8qDpq8gmU9wck2qsxgz3ifgke":"8Bk1fBnoc9Yk3HUz1UWihT2ewgbxMm7LTEoemabUVqmk"}
+C357_UPSTREAM_AUDIT=Path(__file__).resolve().parents[2]/"docs/audits/c357_remaining_upstream_funders.v1.json"
+
+@lru_cache(maxsize=1)
+def _c357_upstream_map() -> dict[str, str]:
+    """Retained launch-linked RPC evidence; never queries a provider on page read."""
+    values=dict(C357_UPSTREAMS)
+    try:
+        for row in json.loads(C357_UPSTREAM_AUDIT.read_text()).get("providers", []):
+            sources=row.get("upstream_provisioners") or []
+            if sources:
+                values[row["direct_funder"]]=sources[0]["address"]
+    except (OSError, json.JSONDecodeError):
+        pass
+    return values
 
 def assessment_digest(value: dict) -> str:
     """Stable semantic digest; publication time never changes an assessment."""
@@ -301,8 +316,9 @@ def detail(db_path: str, candidate_id: str) -> dict | None:
         "evidence": family.get("evidence", {}),
         "fingerprint": family.get("fingerprint", {}),
     })
-    if candidate_id == "p3r-v2-c357da9d0d4d560311e4":
-        candidate["verified_upstreams"] = [{"address": address, "short": _short(address)} for address in sorted(set(C357_UPSTREAMS.values()))]
+    upstreams=_c357_upstream_map() if candidate_id == "p3r-v2-c357da9d0d4d560311e4" else {}
+    if upstreams:
+        candidate["verified_upstream_count"] = len(upstreams)
     forensic = (Path(__file__).resolve().parents[2] / "docs/agent_handoff/p3r/v2" / RUN_ID /
                 "063e_forensic/p3r-v2-063e-forensic-v1/p3r_v2_063e_forensic_operation_investigation.v1.json")
     if candidate_id == "p3r-v2-063e24a2def354f23ec5" and forensic.exists():
@@ -344,7 +360,7 @@ def detail(db_path: str, candidate_id: str) -> dict | None:
         for mint in family["mints"]:
             edge = selected_by_mint.get(mint, {})
             flow = atomic_by_signature.get(edge.get("signature"), {})
-            upstream=C357_UPSTREAMS.get(edge.get("candidate_parent")) if candidate_id == "p3r-v2-c357da9d0d4d560311e4" else None
+            upstream=upstreams.get(edge.get("candidate_parent"))
             candidate["members"].append({
                 "mint": mint,
                 "mint_short": _short(mint),

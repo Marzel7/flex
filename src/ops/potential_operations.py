@@ -379,6 +379,12 @@ def detail(db_path: str, candidate_id: str) -> dict | None:
                 "hop_depth": edge.get("hop_depth"),
                 "atomic": flow,
             })
+        upstream_counts={}
+        for member in candidate["members"]:
+            if member.get("upstream"):
+                upstream_counts[member["upstream"]]=upstream_counts.get(member["upstream"],0)+1
+        for member in candidate["members"]:
+            member["upstream_group_count"]=upstream_counts.get(member.get("upstream"),0)
         candidate["members"].sort(
             key=lambda member: (member["observed_at"] is not None, member["observed_at"] or 0, member["mint"]),
             reverse=True,

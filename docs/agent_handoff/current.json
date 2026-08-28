@@ -1,4 +1,13 @@
 {
+  "c357_dutb_all_funder_corrected_audit_20260828": {
+    "engineering_revision": "3a19345b plus uncommitted audit work",
+    "status": "PASS_READ_ONLY",
+    "verdict": "DUTB_TO_35_OF_50_C357_FUNDERS_VERIFIED",
+    "result": "Corrected WSOL-close parsing, with up to 20 history pages per creator-funding wallet, found 65 DuTb-owned WSOL close-account deliveries into 35 of 50 C357 direct funders. Thirty-five exact 0.1 SOL deliveries occurred within 19 seconds. About 10.5 minutes later, 30 smaller follow-up deliveries reached 30 of those same funders. Total delivered funding represented by the temporary WSOL account funding was about 3.612107774 SOL.",
+    "interpretation": "This is strong repeated, synchronized, transaction-atomic funding coordination across a majority of C357 creator-funding wallets. The 15 remaining funders have no verified DuTb WSOL-close delivery in the bounded account-history coverage. This evidence does not by itself establish common control, operation membership, or lifecycle admission.",
+    "safety": "Read-only RPC audit only; no database, workflow, membership, qualification, provider, service, listener/worker, or trading state changed. Audit script and report remain uncommitted pending a bounded completion/closure decision.",
+    "exact_next_action": "Preserve the corrected report, assess the 15 unlinked funders for alternate funding paths, then separately authorize any UI or Potential-operation evidence projection."
+  },
   "c357_dutb_five_funder_wsol_batch_20260828": {
     "engineering_revision": "3a19345b plus uncommitted audit work",
     "status": "PASS_READ_ONLY",

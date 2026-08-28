@@ -1,4 +1,17 @@
 {
+  "potential_relationship_focus_ui_20260828": {
+    "engineering_revision": "2f61529324a672affee5e6070e5bc3c95f0c9279",
+    "status": "PASS",
+    "verdict": "POTENTIAL_RELATIONSHIP_FOCUS_UI_COMPLETE",
+    "sentinel": "75 near observations → 2 qualifying clusters → 2 admitted variants: p3r-v2-7a791b87d44687dbf407 (10 SOL Ladder, 4 observations) and p3r-v2-84551ddfa7b82847ba0f (20 SOL Ladder, 3 observations).",
+    "harbinger": "97 related observations → 0 qualifying clusters → 0 admitted candidates; no Potential candidate is attributable to Harbinger.",
+    "presentation": "Evolution Watch, separate Evolution Candidates, explicit relationship labels, compact mechanisms, raw IDs secondary, and a single human-readable FOCUS NEXT card with current-attention rank, activity, rationale, and bounded action.",
+    "files": ["src/ops/operator_routes.py", "src/ops/potential_operations.py", "templates/potential_operation_detail.html", "templates/potential_operations.html", "tests/test_potential_relationship_focus_ui.py"],
+    "tests": "6 passed: test_potential_relationship_focus_ui.py, test_potential_operations_current_census.py, test_sentinel_evolution_cluster_admission.py.",
+    "rendering": "Potential Operations rendered HTTP 200 after watchtower_api-only restart; listener/workers untouched.",
+    "safety": "Potential workflow changed: NO. Confirmed membership impact: NONE. No candidate, detector, fingerprint, threshold, WATCHTOWER semantics, queue, RPC/provider, worker/listener, or trading state changed.",
+    "exact_next_action": "None; UI/read-projection refinement is complete."
+  },
   "operations_registry_live_activity_and_badges_20260828": {
     "engineering_revision": "e40b270edeeae1472b2da7d6b8222f5929614c65 (plus uncommitted UI/read-model edits)",
     "status": "PASS_WITH_LIVE_RENDER_LIMITATION",

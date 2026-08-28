@@ -14,6 +14,8 @@ GET  /api/ops/evidence-catalogue             → full evidence type catalogue
 from __future__ import annotations
 
 import time
+import sqlite3
+from pathlib import Path
 from flask import Blueprint, jsonify, redirect, request
 
 from src.ops.operator_model import (
@@ -332,6 +334,21 @@ def operator_page(operator_id: str):
     return render_template("operator_intelligence.html",
                            operator_id=operator_id,
                            operator=op, error=None)
+
+@operator_bp.route("/intelligence/operator/<operator_id>/subtypes/<subtype_id>")
+def operator_subtype_page(operator_id: str, subtype_id: str):
+    """Non-owning subtype projection; never reads or writes primary membership."""
+    from flask import render_template
+    db_path = Path(__file__).resolve().parents[2] / "database/wt_ops_v2.db"
+    conn = sqlite3.connect(db_path); conn.row_factory = sqlite3.Row
+    subtype = conn.execute("SELECT * FROM operator_subtypes WHERE subtype_id=? AND parent_operator_id=?", (subtype_id, operator_id)).fetchone()
+    if not subtype:
+        conn.close(); return render_template("operator_subtype_detail.html", subtype=None, error="Subtype not found"), 404
+    members = [dict(x) for x in conn.execute("SELECT p.*, CASE WHEN m.operator_id=? THEN 1 ELSE 0 END parent_owned FROM operator_subtype_projection p LEFT JOIN operator_launch_membership m ON m.mint=p.mint WHERE p.subtype_id=? ORDER BY p.branch,p.mint", (operator_id, subtype_id))]
+    conn.close()
+    evidence = __import__('json').loads(subtype['evidence_json'])
+    return render_template("operator_subtype_detail.html", subtype=dict(subtype), members=members, evidence=evidence, error=None)
+
 
 
 # ── Operator index page ─────────────────────────────────────────────────────────

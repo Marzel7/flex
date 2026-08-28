@@ -1,4 +1,13 @@
 {
+  "p3r_c357_subtype_read_model_20260828": {
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "verdict": "C357_SUBTYPE_READ_MODEL_UI_COMPLETE",
+    "result": "Committed a read-only subordinate C357 subtype route, detail template, and P3R navigation link. It reads only operator_subtypes/operator_subtype_projection, displays 56 supported rows with 50 P3R-primary and 6 projection-only, and explicitly labels 105 compatible unresolved, attribution OFF, and shadow-only monitoring. All unrelated operator_routes.py hunks remained unstaged.",
+    "verification": "2 focused read-model tests passed. No primary-membership write path exists in the route.",
+    "safety": "No registry/membership/workflow/detector/fingerprint/trading/service/provider mutation. P3R remains primary owner; C357 remains non-owning and shadow-only.",
+    "exact_next_action": "None required for this UI scope."
+  },
   "p3r_c357_subtype_registration_20260828": {
     "engineering_revision": "0b0edd23c4b4979e82982b2ac090ffb9c35abaf6",
     "status": "PASS",

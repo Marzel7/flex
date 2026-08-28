@@ -1,4 +1,13 @@
 {
+  "c357_post_dutb_successor_infrastructure_20260828": {
+    "engineering_revision": "0fa8a5bb",
+    "status": "PARTIAL",
+    "verdict": "C357_POST_DUTB_INFRASTRUCTURE_UNRESOLVED_PRELIMINARY",
+    "completed": "Retained C357 evidence freezes 56 exact launches after the final verified DuTb provisioning burst: 48 use previously DuTb-provisioned funders and 8 use three new direct-funder/immediate-upstream branches. The new branches are 5 launches through one funder/upstream, 2 through another, and 1 through a third; no new root currently reaches multiple new funders. Four bounded RPC history reads established that DuTb has later observed activity than its last provisioning burst, and the three new immediate upstreams also have later observed activity.",
+    "preliminary_assessment": "C357 behavioural continuity outlives the known DuTb provisioning burst. DuTb is DORMANT as a known C357 provisioner, not retired proven. The current evidence is insufficient to identify a successor; separate one-funder branches may be parallel or unresolved infrastructure.",
+    "safety": "Read-only local and provider evidence only. C357 workflow remains PAUSED; no membership, fingerprint, detector, threshold, queue, service, listener/worker, or trading state changed.",
+    "exact_next_action": "Materialize the compact immutable post-DuTb artifact, resolve the three new branches one bounded hop further with transaction-level evidence, replay the classification without provider calls, then decide whether a compact infrastructure UI projection is qualified."
+  },
   "c357_dutb_funding_ui_marker_20260828": {
     "engineering_revision": "0fa8a5bb",
     "status": "PASS",

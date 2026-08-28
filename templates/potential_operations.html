@@ -28,14 +28,14 @@
 {% set evolution = rows|selectattr('latest_verdict','in',['POTENTIAL_VARIANT_OF_SENTINEL','POTENTIAL_MUTATION_OF_SENTINEL','POTENTIAL_SUCCESSOR_TO_SENTINEL'])|list %}<div class="ip-metric-val">{{ evolution|length }}</div>
 <div class="ip-metric-label">Admitted Evolution Candidates</div>
 </div>
-</div>{% set next = rows|selectattr('workflow_status','equalto','QUEUED')|sort(attribute='current_evidence.attention_rank',reverse=true)|first %}{% if next %}<section class="ip-card">
-<small>NEXT TO INVESTIGATE · CURRENT ATTENTION {{ next.current_evidence.attention }}</small>
+</div><section class="ip-card"><h2>Evolution Watch</h2><p><strong>Sentinel · 75 near → 2 qualifying clusters → 2 admitted variants</strong>{% for r in evolution_watch.sentinel_variants %}<br><a href="/intelligence/potential-operations/{{ r.candidate_id }}">{{ r.display_descriptor }} · {{ r.current_evidence.matches }} observations</a>{% endfor %}</p><p><strong>Harbinger · 97 related → 0 qualifying clusters → 0 admitted candidates</strong><br><small>No Potential candidate currently attributable to Harbinger.</small></p></section>{% set evolution_ids=evolution_watch.sentinel_variants|map(attribute='candidate_id')|list %}{% set next = rows|selectattr('workflow_status','equalto','QUEUED')|rejectattr('candidate_id','in',evolution_ids)|first %}{% if next %}<section class="ip-card" style="border:2px solid var(--ip-cyan);padding:18px">
+<small>FOCUS NEXT · CURRENT ATTENTION #{{ next.current_attention_rank }}</small>
 <h2>
-<a href="/intelligence/potential-operations/{{ next.candidate_id }}">{{ next.proposed_name or next.candidate_id }}</a>
+<a href="/intelligence/potential-operations/{{ next.candidate_id }}">{{ next.display_descriptor }}</a>
 </h2>
 <small>{{ next.candidate_id }} · {{ next.discovery_label }}</small>
-<p>{{ next.current_evidence.reason }} {{ next.next_action }}</p>
-</section>{% endif %}<h2>Actionable unresolved candidates</h2>
+<p><strong>{{ next.relationship_label }}</strong> · {{ next.current_evidence.metrics.last_1d|default(0) }} / {{ next.current_evidence.metrics.last_7d|default(0) }} / {{ next.current_evidence.metrics.last_30d|default(0) }} · 24h / 7d / 30d</p><p><strong>Why now:</strong> {{ next.current_evidence.reason }} {{ next.current_evidence.matches }} census matches; {{ next.compact_mechanism }}.</p><p><strong>Exact next action:</strong> {{ next.next_action }} <a href="/intelligence/potential-operations/{{ next.candidate_id }}">Investigate →</a></p>
+</section>{% endif %}<section class="ip-card"><h2>Evolution Candidates ({{ evolution_watch.sentinel_variants|length }})</h2>{% for r in evolution_watch.sentinel_variants %}<p><a href="/intelligence/potential-operations/{{ r.candidate_id }}"><strong>{{ r.display_descriptor }}</strong></a> · {{ r.workflow_status }} · Variant of Sentinel · {{ r.current_evidence.metrics.last_1d|default(0) }} / {{ r.current_evidence.metrics.last_7d|default(0) }} / {{ r.current_evidence.metrics.last_30d|default(0) }} · {{ r.current_evidence.matches }} observations · {{ r.compact_mechanism }} · <a href="/intelligence/potential-operations/{{ r.candidate_id }}">Review variant →</a></p>{% endfor %}</section><h2>Actionable unresolved candidates</h2>
 <table class="ip-table">
 <thead>
 <tr>
@@ -48,18 +48,18 @@
 <th>Next action</th>
 </tr>
 </thead>
-<tbody>{% for r in rows %}{% set c=r.current_evidence %}<tr>
+<tbody>{% for r in rows if r.candidate_id not in evolution_ids %}{% set c=r.current_evidence %}<tr>
 <td>
-<a href="/intelligence/potential-operations/{{ r.candidate_id }}">{{ r.proposed_name or r.candidate_id }}</a>
+<a href="/intelligence/potential-operations/{{ r.candidate_id }}">{{ r.display_descriptor }}</a>
 <br>
 <small>{{ r.candidate_id }}</small>
 </td>
 <td>{{ r.workflow_status|replace('_',' ') }}</td>
 <td>{{ c.matches }} · {{ c.metrics.last_1d|default(0) }} / {{ c.metrics.last_7d|default(0) }} / {{ c.metrics.last_30d|default(0) }}<br>
-<small>{{ c.state }} · Attention {{ c.attention }}</small>
+<small>{{ c.state }} · Attention #{{ r.current_attention_rank }}</small>
 </td>
-<td>{% if r.latest_verdict == 'POTENTIAL_VARIANT_OF_SENTINEL' %}Potential variant of Sentinel{% elif r.related_operator_id %}Related operation{% else %}Unresolved{% endif %}</td>
-<td>{{ r.parent_mechanism or r.key_mechanism }}</td>
+<td>{{ r.relationship_label }}</td>
+<td>{{ r.compact_mechanism }}</td>
 <td>{{ r.discovery_label }}</td>
 <td>{{ r.next_action }}</td>
 </tr>{% endfor %}</tbody>

@@ -345,8 +345,9 @@ def operators_index():
 def potential_operations_page():
     from flask import render_template
     from src.core.db import OPS_DB_PATH
-    from src.ops.potential_operations import rows
-    return render_template("potential_operations.html", active_page="potential_operations", rows=rows(str(OPS_DB_PATH)))
+    from src.ops.potential_operations import rows, evolution_watch
+    projected=rows(str(OPS_DB_PATH))
+    return render_template("potential_operations.html", active_page="potential_operations", rows=projected, evolution_watch=evolution_watch(projected))
 
 @operator_bp.route("/intelligence/potential-operations/<candidate_id>")
 def potential_operation_detail(candidate_id: str):

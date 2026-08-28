@@ -40,7 +40,7 @@
 <small>Current evidence / attention</small>
 </div>
 </section>
-{% if candidate.related_operator_id %}<p class="warning">This candidate is related to the <a href="/intelligence/operator/{{ candidate.related_operator_id }}">active Confirmed operation</a>. Its observations are Potential evidence, not Confirmed operation memberships.</p>{% endif %}
+{% if candidate.relationship_label == 'Variant of Sentinel' %}<p class="warning"><strong>Related Confirmed Operation: Sentinel</strong> · <a href="/intelligence/operator/{{ candidate.related_operator_id }}">View Sentinel →</a>. Its observations are Potential evidence, not Confirmed operation memberships.</p>{% elif candidate.related_operator_id %}<p class="warning">This candidate is related to the <a href="/intelligence/operator/{{ candidate.related_operator_id }}">active Confirmed operation</a>. Its observations are Potential evidence, not Confirmed operation memberships.</p>{% endif %}
 <nav class="tabs">
 <button class="on" data-tab="summary">Summary</button>
 <button data-tab="members">Members / Tokens</button>
@@ -63,6 +63,8 @@
 <dd>{{ candidate.principal_gap }}</dd>
 <dt>Next action</dt>
 <dd>{{ candidate.next_action }}</dd>
+<dt>Why this is currently prioritized</dt>
+<dd>{{ candidate.current_evidence.reason }}{% if candidate.current_attention_rank %} Current Attention #{{ candidate.current_attention_rank }}.{% endif %} Discovery {{ candidate.discovery_label }}.</dd>
 </dl>
 </div>{% if candidate.children %}<div class="card">
 <h2>Operation-discovery decomposition</h2>

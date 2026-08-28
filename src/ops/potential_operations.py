@@ -41,6 +41,28 @@ def _attach_current_evidence(row: dict, evidence: dict) -> dict:
     row["current_evidence"]={"state":state,"matches":current.get("matches",0),"metrics":metrics,"attention":attention,"attention_rank":{"HIGH":3,"MEDIUM":2,"LOW":1}.get(attention,0),"reason":f"{metrics.get('last_1d',0)} / {metrics.get('last_7d',0)} / {metrics.get('last_30d',0)} current census activity; {state.lower().replace('_',' ')} fingerprint."}
     return row
 
+def _relationship(row: dict) -> str:
+    if row.get("latest_verdict") == "POTENTIAL_VARIANT_OF_SENTINEL": return "Variant of Sentinel"
+    if row.get("workflow_status") == "ACTIVE_PROVISIONAL": return "Provisional operation"
+    if row.get("candidate_id") == LEGACY_063E_CHILD: return "Legacy child of Byzantine/063e"
+    return "Unresolved"
+
+def _compact_mechanism(row: dict) -> str:
+    mechanism=row.get("parent_mechanism") or row.get("key_mechanism") or "retained fingerprint"
+    return f"{mechanism.count(' | ')+1}-hop transfer sequence" if " | " in mechanism else mechanism.replace("WSOL_PROVISION_CLOSE", "WSOL provision close")
+
+def _decorate(row: dict) -> dict:
+    row["relationship_label"]=_relationship(row); row["compact_mechanism"]=_compact_mechanism(row)
+    row["display_descriptor"]=row.get("proposed_name") or f"Unresolved {row['compact_mechanism']} candidate"
+    return row
+
+def _current_sort_key(row: dict) -> tuple:
+    metrics=row["current_evidence"].get("metrics", {})
+    return (-metrics.get("last_1d",0),-metrics.get("last_7d",0),-metrics.get("last_30d",0),-row["current_evidence"].get("matches",0),row["priority_rank"],row["candidate_id"])
+
+def evolution_watch(rows: list[dict]) -> dict:
+    return {"sentinel_variants":sorted([row for row in rows if row.get("latest_verdict")=="POTENTIAL_VARIANT_OF_SENTINEL"],key=lambda row:row["candidate_id"]),"harbinger":{"related_observations":97,"qualifying_clusters":0,"admitted_candidates":0}}
+
 def _discovery_label(row: dict) -> str:
     return "Current census" if row.get("canonical_tier") == "CURRENT_CENSUS" else f"T{row['canonical_tier'][8]} · {row['priority_score']:.2f}"
 
@@ -125,15 +147,16 @@ def rows(db_path: str) -> list[dict]:
             if x.get("workflow_status") in {"PROMOTED_CONFIRMED", "CLOSED", "EXACT_CONFIRMED_OPERATION_MATCH"}:
                 continue
             x["discovery_label"]=_discovery_label(x)
-            out.append(_attach_current_evidence(x,census_evidence))
+            out.append(_decorate(_attach_current_evidence(x,census_evidence)))
         child_table=conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='potential_operation_child_candidates'").fetchone()
         child=conn.execute("SELECT workflow_status,proposed_name,member_mints_json,provenance_json FROM potential_operation_child_candidates WHERE child_id=?",(LEGACY_063E_CHILD,)).fetchone() if child_table else None
         if parent and child and child["workflow_status"] == "PAUSED_LEGACY":
             legacy=dict(parent)
             legacy.update({"candidate_id":LEGACY_063E_CHILD,"workflow_status":"PAUSED_LEGACY","proposed_name":child["proposed_name"],"parent_mechanism":"WSOL_WRAP_CLOSE","latest_verdict":"Historical seeded-transfer 10-SOL provision-and-close candidate.","principal_gap":"Historical cohort is paused; no current recurrence.","next_action":"Monitor historical/retained evidence for additional seeded-transfer operation matches.","rpc_requirement":"NOT_CURRENTLY","related_operator_id":None,"key_mechanism":"hop-1 WSOL_WRAP_CLOSE 9,999,985,000 lamports; seeded transfer lifecycle","launches_24h":0,"launches_7d":0,"launches_30d":0,"legacy_member_count":len(json.loads(child["member_mints_json"])),"parent_candidate_id":DECOMPOSED_063E_PARENT,"provenance":json.loads(child["provenance_json"])})
             legacy["discovery_label"]=_discovery_label(legacy)
-            out.append(_attach_current_evidence(legacy,census_evidence))
-        out.sort(key=lambda row:(row["priority_rank"],row["candidate_id"]))
+            out.append(_decorate(_attach_current_evidence(legacy,census_evidence)))
+        out.sort(key=_current_sort_key)
+        for rank,row in enumerate(out, start=1): row["current_attention_rank"]=rank
         return out
     finally: conn.close()
 

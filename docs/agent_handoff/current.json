@@ -1,4 +1,17 @@
 {
+  "potential_operations_visual_restructure_20260828": {
+    "engineering_revision": "e4dbfc496ef0bebb06a5aa60e5a98382b0a97d5e",
+    "status": "PASS_WITH_BROWSER_SURFACE_LIMITATION",
+    "verdict": "POTENTIAL_OPERATIONS_VISUAL_RESTRUCTURE_COMPLETE",
+    "change": "Potential Operations now uses the Active Operations Registry visual language: shared metric cards; a bordered, columnar Focus Next card; structured Evolution Watch and Evolution Candidates tables; and a simplified Actionable Unresolved Candidates table with separate Attention, Activity, Evidence, Relationship, and Action columns.",
+    "presentation": "Deterministic mechanism-derived candidate names remove the redundant Unresolved prefix; relationships remain separate. Sentinel/Harbinger monitor semantics and persisted Focus Next assessment remain unchanged.",
+    "rendering": "watchtower_api-only reload; GET /intelligence/potential-operations and /intelligence/operators both HTTP 200. Served Potential HTML contained ip-strip/ip-metric shared card markers, the Focus grid, all structured section/table headings, 75/2/2, 97/0/0, both variants, Focus values, and no Unresolved candidate names. Interactive browser screenshot inspection was unavailable because no browser binding was available in the execution environment.",
+    "tests": "8 passed: test_potential_relationship_focus_ui.py, test_focus_next_assessment_persistence.py, test_potential_operations_visual_structure.py; Jinja template parsed.",
+    "files": ["src/ops/potential_operations.py", "templates/potential_operations.html", "tests/test_potential_relationship_focus_ui.py", "tests/test_potential_operations_visual_structure.py"],
+    "neutrality": {"focus_workflow": "QUEUED", "confirmed_membership": 249, "provisional_rows": 46, "potential_workflow_rows": 63, "task_caused_delta": 0},
+    "safety": "Presentation/read-projection only. No workflow, membership, candidate identity, detector, fingerprint, threshold, Sentinel/Harbinger/WATCHTOWER semantics, queue, RPC/provider, listener/worker, or trading state changed. Only watchtower_api was reloaded. Unrelated dirty work was preserved.",
+    "exact_next_action": "Optionally inspect the rendered page in a connected browser; no further implementation is required."
+  },
   "focus_next_assessment_persisted_ui_20260828": {
     "engineering_revision": "53ae8d05fa9b55528630cd574bc77b66730894e2",
     "status": "PASS",

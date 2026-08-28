@@ -1,4 +1,14 @@
 {
+  "p3r_c357_identity_reconciliation_20260828": {
+    "engineering_revision": "46b3079f60830d069313808eee61ff3f9b4ff7f8",
+    "status": "PASS",
+    "verdict": "P3R_PARENT_C357_SUBTYPE",
+    "result": "Read-only reconciliation froze P3R membership 109, C357 independently supported 56, overlap 50, C357-only 6, and P3R-only 59. Every overlapping mint was previously admitted through one of P3R's two manually admitted exact WSOL_WRAP_CLOSE behavioural profiles (37 AF500, 13 EC1), not through an independently C357-specific infrastructure predicate. C357 adds the independently qualified DuTb/A/B/C branch-infrastructure layer. The evidence supports C357 as a coherent P3R behavioural/infrastructure subtype rather than a competing second owner. Six-only C357 registration is misleading; P3R overaggregation is weakly evidenced, not established.",
+    "registry_implication": "PARENT_CHILD_OPERATION_MODEL_NEEDED. No reassignment: a future authorized design should represent C357 as a P3R subtype with an allowlisted 56-member evidence projection, retaining global primary operation ownership and C357 attribution detector OFF.",
+    "artifact": "docs/audits/p3r_c357_operation_identity_reconciliation.v1.json digest 55faa776664ba4817a39a75cf4070784566e8faca77e586d0e14d8d1cdd488ff; offline replay PASS with provider_calls_during_replay=0; 2 focused tests passed.",
+    "safety": "No registry, membership, workflow, detector, fingerprint, provider, service, or trading mutation. C357 remains PAUSED.",
+    "exact_next_action": "If desired, separately authorize a bounded parent-child subtype representation design/preflight. It must not register C357 as a competing operation or reassign P3R memberships."
+  },
   "c357_registration_preflight_20260828": {
     "engineering_revision": "fa4b4cb33fc0893991e720aa196f74cb1c3e20b1",
     "status": "HOLD",

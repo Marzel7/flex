@@ -1,4 +1,13 @@
 {
+  "c357_dutb_user_supplied_transaction_verification_20260828": {
+    "engineering_revision": "3a19345b plus uncommitted audit work",
+    "status": "PASS_READ_ONLY",
+    "verdict": "DUTB_COORDINATED_INTERMEDIARY_FUNDING_VERIFIED",
+    "result": "Five user-supplied valid transaction signatures were successfully decoded. Each is an outbound native transfer from the same DuTb wallet of exactly 97,960,720 lamports to a distinct intermediary wallet, with all five occurring within 17 seconds. The sixth supplied string was the DuTb address, not a transaction signature.",
+    "interpretation": "This verifies coordinated intermediary-wallet provisioning by DuTb. It does not yet establish that those intermediaries are the named C357 launch-side funders, common control, or operation membership; their downstream paths require targeted tracing.",
+    "safety": "Read-only RPC decoding only; no database, workflow, membership, qualification, provider, service, listener/worker, or trading state changed.",
+    "exact_next_action": "Trace the five verified intermediary wallets forward to identify any direct or multi-hop intersections with C357 launch-side funders, retaining transaction-level evidence and bounded hop limits."
+  },
   "c357_dutb_deep_provenance_20260828": {
     "engineering_revision": "3a19345b plus uncommitted audit work",
     "status": "PARTIAL",

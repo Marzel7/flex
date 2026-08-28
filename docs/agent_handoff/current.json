@@ -1,4 +1,13 @@
 {
+  "c357_deeper_common_funder_scope_20260828": {
+    "engineering_revision": "3a19345b",
+    "status": "PASS_READ_ONLY",
+    "verdict": "C357_DEEPER_COMMON_FUNDER_NOT_YET_PROVEN",
+    "result": "The seven user-supplied wallets are direct funders in the retained C357 launch provenance, each with a separately selected immediate launch-linked upstream. The retained audit does not place the supplied possible common source at that immediate layer.",
+    "scope_limit": "A possible common source that funded those direct funders would be a deeper or additional funding relation. The completed audit did not recursively trace it, so it neither proves nor disproves that relation.",
+    "safety": "Read-only interpretation of retained audit results. No workflow, membership, qualification, detector, queue, provider, service, listener/worker, or trading state changed.",
+    "exact_next_action": "If authorized, retrieve and verify the relevant direct transfers from the supplied possible common source to the listed direct funders, then trace its own bounded upstream provenance."
+  },
   "c357_top_level_upstream_connection_scope_20260828": {
     "engineering_revision": "3a19345b",
     "status": "PASS_READ_ONLY",

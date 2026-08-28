@@ -1,0 +1,3778 @@
+{
+  "audited_wallets_to_dutb": {
+    "by_wallet": [
+      {
+        "first_block_time": 1786395878,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 3,
+        "wallet": "2h2xdvznzmcRi4zNE8A3uwe4Er5e5bf8gTxzXREg9ph5"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "2rbZwmvAGY5q1vhpRgXy3PHtztD8kYbtjbYuVUraLYkQ"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "326Sd2gfsXQA7c2XWN88jNTh6bY32pgvJEkk9uWSZ9tc"
+      },
+      {
+        "first_block_time": 1786395878,
+        "lamports": 0,
+        "last_block_time": 1786424052,
+        "transfer_count": 3,
+        "wallet": "397s3pwPhV1A88Fj2EuNoERFYTCLdN5WiUAPvxUxFVST"
+      },
+      {
+        "first_block_time": 1786395874,
+        "lamports": 0,
+        "last_block_time": 1786424053,
+        "transfer_count": 3,
+        "wallet": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "3nWUnuGAWdrTA4hmNmKPQsTpwegLN8Pz77VY8cw27pWi"
+      },
+      {
+        "first_block_time": 1786395874,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 3,
+        "wallet": "3thxdSxsHtFuGJroCYe6JmCojPRizUz1GnvQSq5M5JfY"
+      },
+      {
+        "first_block_time": 1786395878,
+        "lamports": 0,
+        "last_block_time": 1786424053,
+        "transfer_count": 3,
+        "wallet": "49Wo4qJS1CWPd4b8LAezyL4ARPj3fw6N6zPhPV4dQd6V"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "4cVm3jxHmCsK5tCuv92JYCqdXfF9t2eZ1wagUBKf6F4c"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "4gviJWaJP5Mvf1sKhJRZFQU1S4EZkDnJjH4acAZwEsfG"
+      },
+      {
+        "first_block_time": 1786395877,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 3,
+        "wallet": "54xTpcBEr48Cuis8m2SdeymdQcwvmDR4aegxCPQzUANG"
+      },
+      {
+        "first_block_time": 1786395878,
+        "lamports": 0,
+        "last_block_time": 1786424053,
+        "transfer_count": 3,
+        "wallet": "5PkFFC9FCmm2EUQHMqbF9cwMviSXjgAjeqKEoPoYejuG"
+      },
+      {
+        "first_block_time": 1786395876,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 3,
+        "wallet": "5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn"
+      },
+      {
+        "first_block_time": 1786395874,
+        "lamports": 0,
+        "last_block_time": 1786424052,
+        "transfer_count": 3,
+        "wallet": "5iDYsDLugMXh1LTRVDmFH8PfQ6ueG5pE9UcfefrnztB6"
+      },
+      {
+        "first_block_time": 1786395876,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 3,
+        "wallet": "5sUoQPPvnvS6eXem4TdcjKJ1JZy7uLEhWN3pCA8yNFnc"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "65LF4eMd2NRKgA8SHNFfipUFXbntsxcctp4HHqo7dbSu"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "6cbGn9vcTvhR1MuAaS8zKi9Ha5ZUpDLoFPShnJ1e3XwA"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "6iMNUx2ndPCAopEW48xdAxyCTf7vXRd2FsQ6CHx9MQn5"
+      },
+      {
+        "first_block_time": 1786395875,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 3,
+        "wallet": "6jJnz6ZQjDZeFLxoDq2RBp4fvsjPfCJmpr1jhQcy2rBk"
+      },
+      {
+        "first_block_time": 1786395875,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 3,
+        "wallet": "7144mX5peoQoyYq2ncsTmzFciqkLiYzS42XVmvFjGiv4"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "73wKoSuH4VvwBaQ68QUNJjWQKFka8ifp9oykJV7yb45E"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "7VjefJrPMfh6wow3BYr4Qj1vAgnFsAnXBNqphSnpPzUY"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "7onSgr7qN7C9F7yy2WKYr1VRj3jrhtHoBL5tLQ8KbHUf"
+      },
+      {
+        "first_block_time": 1786395878,
+        "lamports": 0,
+        "last_block_time": 1786424053,
+        "transfer_count": 3,
+        "wallet": "7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "7u2c2ootN4Wpk1u26XAqnwRvnnRNt2N1WrirHBVHgj3r"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "8VFreegW9kVfykJJC2ULz82XpRiwGHG3UdETWY4Eowpg"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "8XpDKnEPVLRFMa6ErMbAVfo4yoXEfsQ7yhCaT4imFfLW"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "8bHas2MxzzAmcZoHMCNN3NQwUfV2bjawNt6ggy6uP9xh"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "94VEgcJ31hwXWD9aUBNb2XjGewDkquxGUUkNeTfPqeZN"
+      },
+      {
+        "first_block_time": 1786395874,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 3,
+        "wallet": "9As8wexRUtoujuYia5WxpiUCbjut75XTb9LknATiXvRW"
+      },
+      {
+        "first_block_time": 1786395879,
+        "lamports": 0,
+        "last_block_time": 1786424052,
+        "transfer_count": 3,
+        "wallet": "9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "9dmPzAuCDC4wsCfexmFcP9tX48cM1ebfbN5uYtXbo2ZB"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "AAtEUPcCJ4Jdx3bZvyGK9BGuor1VAksPuFGRrZuQvpo3"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "AGT9dkEZUBPrw5HrDGZTNRhYNMEU5HbRp2E1GdYMSB6r"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "AdH8UqLePYQd69Wp7ovZ14k1aumGhyHcmLj6fyvUGhya"
+      },
+      {
+        "first_block_time": 1786395876,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 3,
+        "wallet": "Am3Un7bph5NNWDLCVVVQT1kY4kN3GFPjj31g4DdrNCd4"
+      },
+      {
+        "first_block_time": 1786395876,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 3,
+        "wallet": "Ao2sUdoFtKW7yix7v6GT8GoWE94LcgHiyjautukHBKAi"
+      },
+      {
+        "first_block_time": 1786395878,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 3,
+        "wallet": "BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "Bdq9PYpY2BViVtthj6WGeqbkixZciunv6dQ6MYXpXet5"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "Bn1RAP2D2s4hDUUYzngaBipptN4XfVmXKg7maHjQZ4P1"
+      },
+      {
+        "first_block_time": 1786395877,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 3,
+        "wallet": "BsKEb5qhnHMFP4XUjoXMv5nMxkvuaFtBH5ssuWNMjLbw"
+      },
+      {
+        "first_block_time": 1786395874,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 3,
+        "wallet": "C2W3FExk348T4aNHpJjiCZpNrpd9MNLBBVZAdWCogtBx"
+      },
+      {
+        "first_block_time": 1786395878,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 3,
+        "wallet": "C55hxeJepPLMKi4xuKjAFLWmxoSfVrqn2LELi67ixQfe"
+      },
+      {
+        "first_block_time": 1786395878,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 3,
+        "wallet": "CYnm5v4MiLLLaUvu5VUfYPxszU8RPBzmH3Qkv7QbfcUi"
+      },
+      {
+        "first_block_time": 1786395877,
+        "lamports": 0,
+        "last_block_time": 1786424052,
+        "transfer_count": 3,
+        "wallet": "CbMTzd1sG9vuP9Tw2nUNBHUvtsyzr4Hm5rknri4XxXWL"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "D4g6HvAX7cbjdH1cnVt24y9tC2pTU52eCdNz2wu6H1CN"
+      },
+      {
+        "first_block_time": 1786395874,
+        "lamports": 0,
+        "last_block_time": 1786424053,
+        "transfer_count": 3,
+        "wallet": "DmfxzqZQTifJQhfrikFdDQXy3Ws6X9H3VX5xkRVTf77y"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "DtZuHqiiDzsScMD2dvCr3Jv4n4aZiinLz8Va3Kpv7Cb5"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "EDGKu44CYEgzjhFrfX2mpZDgHYu2einGfAwbJ79cw2aM"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "Et4WkjpTFwiAPmLbsgt519UBVccnFrW14Hu1VVzDnJDK"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "F39J3KAgeBhQxmhqhYzBKw565NWhJTMiSnZiVtcYGxb6"
+      },
+      {
+        "first_block_time": 1786395876,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 3,
+        "wallet": "FJrraJVwKYdcLX4we8UttdJGvxErgUKWf6awnVSsxArH"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "FYuGqRUDnVgzHqvQGJvu1GhMPzfyooQdTTfksi8H45rH"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "FpK8G5iEAydmPF4fNds2rPbCWwMB4YdvDYZ6tCAdKqzM"
+      },
+      {
+        "first_block_time": 1786395876,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 3,
+        "wallet": "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD"
+      },
+      {
+        "first_block_time": 1786395875,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 3,
+        "wallet": "G1BJvTetp6YSwaDNSajruPPM1JCTZf5NWeyr6dQN94n7"
+      },
+      {
+        "first_block_time": 1786395876,
+        "lamports": 0,
+        "last_block_time": 1786424053,
+        "transfer_count": 3,
+        "wallet": "G9XSZDgMk8x51uHvFUumZK5AFWJLp3GJCV7VZSkL3uGP"
+      },
+      {
+        "first_block_time": 1786395877,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 3,
+        "wallet": "GUBtBg8i5wn5ME3vYmgqMZFFuBnDp6i1oa8BPFwoURAP"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "Ge4XLNws9dQddAeBCq3wCNkcYf1mpxNBVNyg4rXGeJ5g"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "GvKha8BZH9HUVBMyGwcBnwYs7GyioBhHmrvh2rRVzbv3"
+      },
+      {
+        "first_block_time": 1786395876,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 3,
+        "wallet": "Gy29oqrQGFsP8cSsZ4eJvmMDMvKeYtWgURGCn5jim9Xn"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "HBa1PoTnhDtbeC6SAL9vrp6gxCWMBbdS4oN6dMD5snq3"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "HErGQyVFFtxTQhWZC2FFpRCspvVvZsSHt7dv1ZHuf3KD"
+      },
+      {
+        "first_block_time": 1786395877,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 3,
+        "wallet": "HQ2q5DJuAVf1CrDJpwmeSYsLgvGp9k5cGEPZQsNvcMW9"
+      },
+      {
+        "first_block_time": 1786395875,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 3,
+        "wallet": "HRneLKJHUHXJr9zb297N44L8WCUqCJYKDsSxDaPv49wS"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "HggCfpEM2uzcpZwU5u3yYxYuniqR7dGtWhvkdruYLsFU"
+      },
+      {
+        "first_block_time": 1786395878,
+        "lamports": 0,
+        "last_block_time": 1786424053,
+        "transfer_count": 3,
+        "wallet": "J87ewUdaYKXaMVZEdKh14fMcKXaAmzGamzGtaXDop13X"
+      },
+      {
+        "first_block_time": 1786423516,
+        "lamports": 0,
+        "last_block_time": 1786423516,
+        "transfer_count": 1,
+        "wallet": "J8Vyzh1efuCFiu3NhYkSvNeSWhFvNEE3BN4N9NF8moiR"
+      },
+      {
+        "first_block_time": 1786395874,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 3,
+        "wallet": "NeHjc1yqZXesLZTHtK7jrjyQ3MpFg2TVHpV8QDDAHEm"
+      },
+      {
+        "first_block_time": 1786395878,
+        "lamports": 0,
+        "last_block_time": 1786424053,
+        "transfer_count": 3,
+        "wallet": "j6EVoUMZRafJPrdkuoB9PJGXxBGHEsx4VcJq5W3Ft5d"
+      }
+    ],
+    "transfers": [
+      {
+        "block_time": 1786395916,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "1K7xHzNqsKMZU4kAkTF1WqkhHNDZFuNrgreo1hcz5AJJTS4FcabY3PhKVWdT3Ycjo2PUtvk8fUsVqop7YvJNU13",
+        "source": "Gy29oqrQGFsP8cSsZ4eJvmMDMvKeYtWgURGCn5jim9Xn",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395916,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "1K7xHzNqsKMZU4kAkTF1WqkhHNDZFuNrgreo1hcz5AJJTS4FcabY3PhKVWdT3Ycjo2PUtvk8fUsVqop7YvJNU13",
+        "source": "Am3Un7bph5NNWDLCVVVQT1kY4kN3GFPjj31g4DdrNCd4",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395916,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "1K7xHzNqsKMZU4kAkTF1WqkhHNDZFuNrgreo1hcz5AJJTS4FcabY3PhKVWdT3Ycjo2PUtvk8fUsVqop7YvJNU13",
+        "source": "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395916,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "1K7xHzNqsKMZU4kAkTF1WqkhHNDZFuNrgreo1hcz5AJJTS4FcabY3PhKVWdT3Ycjo2PUtvk8fUsVqop7YvJNU13",
+        "source": "Ao2sUdoFtKW7yix7v6GT8GoWE94LcgHiyjautukHBKAi",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395874,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "1QvbXYiorbPX2qmVX8LuhiZVb86B6xF4RVx2aSX7bhZTCk89dj5Ep4bhs8QB8BXDtbrupdSLHR29DLGoHPacjNL",
+        "source": "5iDYsDLugMXh1LTRVDmFH8PfQ6ueG5pE9UcfefrnztB6",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786424053,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "21GA53AUBqubFwjzNfkgntXWpwxUQmioaookrHNeHWez66TP2KBmzLg6EtC7v4MQwihU1zBYbVzAPcE6sNtLb92D",
+        "source": "5PkFFC9FCmm2EUQHMqbF9cwMviSXjgAjeqKEoPoYejuG",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786424052,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "21JpjX15DHUhdEZsSGepYEsRt8ARoZmJU2Noa5TQCGea82QqfLsWbpNnxLnedvJwnUb4pmiKw8Q6pDdePzjt5im3",
+        "source": "CbMTzd1sG9vuP9Tw2nUNBHUvtsyzr4Hm5rknri4XxXWL",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2836gSkeADoVSn27sJBZxn596gyhX7idiR5a3317fn1gQK1pYZRqrkLy3BpoZYxtLKd1Br8DA258ZREfjrQwGwYB",
+        "source": "4gviJWaJP5Mvf1sKhJRZFQU1S4EZkDnJjH4acAZwEsfG",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2836gSkeADoVSn27sJBZxn596gyhX7idiR5a3317fn1gQK1pYZRqrkLy3BpoZYxtLKd1Br8DA258ZREfjrQwGwYB",
+        "source": "7VjefJrPMfh6wow3BYr4Qj1vAgnFsAnXBNqphSnpPzUY",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2836gSkeADoVSn27sJBZxn596gyhX7idiR5a3317fn1gQK1pYZRqrkLy3BpoZYxtLKd1Br8DA258ZREfjrQwGwYB",
+        "source": "DtZuHqiiDzsScMD2dvCr3Jv4n4aZiinLz8Va3Kpv7Cb5",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786395916,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2DpDpSPR6J1pNBvVuuRAFfnSshEeHPDEVJaLD4USjTRnnMycC5CEhXPVQdZg1scP5MVj4ny5FQz8wgPHyM8KapDJ",
+        "source": "2h2xdvznzmcRi4zNE8A3uwe4Er5e5bf8gTxzXREg9ph5",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395916,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2DpDpSPR6J1pNBvVuuRAFfnSshEeHPDEVJaLD4USjTRnnMycC5CEhXPVQdZg1scP5MVj4ny5FQz8wgPHyM8KapDJ",
+        "source": "CYnm5v4MiLLLaUvu5VUfYPxszU8RPBzmH3Qkv7QbfcUi",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395916,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2DpDpSPR6J1pNBvVuuRAFfnSshEeHPDEVJaLD4USjTRnnMycC5CEhXPVQdZg1scP5MVj4ny5FQz8wgPHyM8KapDJ",
+        "source": "BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395916,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2FUZ96f4DDSaKGE8VWQP5VEEAp6E8kKZxWhwBhjuYThXYrAqT37DJcbZR4ZxrqrGMjMF6GnLB4L2V1uAZvHyAsJ5",
+        "source": "HQ2q5DJuAVf1CrDJpwmeSYsLgvGp9k5cGEPZQsNvcMW9",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395916,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2FUZ96f4DDSaKGE8VWQP5VEEAp6E8kKZxWhwBhjuYThXYrAqT37DJcbZR4ZxrqrGMjMF6GnLB4L2V1uAZvHyAsJ5",
+        "source": "GUBtBg8i5wn5ME3vYmgqMZFFuBnDp6i1oa8BPFwoURAP",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395916,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2FUZ96f4DDSaKGE8VWQP5VEEAp6E8kKZxWhwBhjuYThXYrAqT37DJcbZR4ZxrqrGMjMF6GnLB4L2V1uAZvHyAsJ5",
+        "source": "BsKEb5qhnHMFP4XUjoXMv5nMxkvuaFtBH5ssuWNMjLbw",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395877,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2Gdv8p58AiWjrFa22Sj9yUKSN9PqN3nu4v8F3aaC2md92Vde98H9uTUHk1YQ6dyQUFVZf7pQKtDfQ6X2Zzc9Ly7t",
+        "source": "HQ2q5DJuAVf1CrDJpwmeSYsLgvGp9k5cGEPZQsNvcMW9",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395877,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2Gdv8p58AiWjrFa22Sj9yUKSN9PqN3nu4v8F3aaC2md92Vde98H9uTUHk1YQ6dyQUFVZf7pQKtDfQ6X2Zzc9Ly7t",
+        "source": "GUBtBg8i5wn5ME3vYmgqMZFFuBnDp6i1oa8BPFwoURAP",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395877,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2Gdv8p58AiWjrFa22Sj9yUKSN9PqN3nu4v8F3aaC2md92Vde98H9uTUHk1YQ6dyQUFVZf7pQKtDfQ6X2Zzc9Ly7t",
+        "source": "BsKEb5qhnHMFP4XUjoXMv5nMxkvuaFtBH5ssuWNMjLbw",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395876,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2J3gxysn9YWs33Bb2HzBXAZ9V4VEDL1ZBtpjT13LWcUxUcMYSoJYKZ9JM7U24yb6RqxBqELTcwBFcrDVWbxkcn6J",
+        "source": "5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395876,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2J3gxysn9YWs33Bb2HzBXAZ9V4VEDL1ZBtpjT13LWcUxUcMYSoJYKZ9JM7U24yb6RqxBqELTcwBFcrDVWbxkcn6J",
+        "source": "Gy29oqrQGFsP8cSsZ4eJvmMDMvKeYtWgURGCn5jim9Xn",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2TdUTHWhFCepatHtvodTfu1jgZMxAXf2oS3EoEyQzas7Lm7inNDudq2FK4e52h46UyK7QtKAcSzhjq4FhWqxvtNd",
+        "source": "7onSgr7qN7C9F7yy2WKYr1VRj3jrhtHoBL5tLQ8KbHUf",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2TdUTHWhFCepatHtvodTfu1jgZMxAXf2oS3EoEyQzas7Lm7inNDudq2FK4e52h46UyK7QtKAcSzhjq4FhWqxvtNd",
+        "source": "Et4WkjpTFwiAPmLbsgt519UBVccnFrW14Hu1VVzDnJDK",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2TdUTHWhFCepatHtvodTfu1jgZMxAXf2oS3EoEyQzas7Lm7inNDudq2FK4e52h46UyK7QtKAcSzhjq4FhWqxvtNd",
+        "source": "AdH8UqLePYQd69Wp7ovZ14k1aumGhyHcmLj6fyvUGhya",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2eEbf8phGYfzEeAKBbcriXxdzr1Y4aQUGt6UtyQqu1FbZMuXWGgLN2MC3xwSZiZUhj8i6Apb41TuB1fgJT9KUZAh",
+        "source": "4cVm3jxHmCsK5tCuv92JYCqdXfF9t2eZ1wagUBKf6F4c",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2eEbf8phGYfzEeAKBbcriXxdzr1Y4aQUGt6UtyQqu1FbZMuXWGgLN2MC3xwSZiZUhj8i6Apb41TuB1fgJT9KUZAh",
+        "source": "73wKoSuH4VvwBaQ68QUNJjWQKFka8ifp9oykJV7yb45E",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2eEbf8phGYfzEeAKBbcriXxdzr1Y4aQUGt6UtyQqu1FbZMuXWGgLN2MC3xwSZiZUhj8i6Apb41TuB1fgJT9KUZAh",
+        "source": "Ge4XLNws9dQddAeBCq3wCNkcYf1mpxNBVNyg4rXGeJ5g",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2eEbf8phGYfzEeAKBbcriXxdzr1Y4aQUGt6UtyQqu1FbZMuXWGgLN2MC3xwSZiZUhj8i6Apb41TuB1fgJT9KUZAh",
+        "source": "Bdq9PYpY2BViVtthj6WGeqbkixZciunv6dQ6MYXpXet5",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2eEbf8phGYfzEeAKBbcriXxdzr1Y4aQUGt6UtyQqu1FbZMuXWGgLN2MC3xwSZiZUhj8i6Apb41TuB1fgJT9KUZAh",
+        "source": "6cbGn9vcTvhR1MuAaS8zKi9Ha5ZUpDLoFPShnJ1e3XwA",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786395874,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2oxtU3n6CJCyxeSAkctN5jLwVi8APZmfHBJ1EXMKr14q6y2yDATYJeqc6KRvHvsAHMPhVcrW1WaB6F37n2kPaMPQ",
+        "source": "DmfxzqZQTifJQhfrikFdDQXy3Ws6X9H3VX5xkRVTf77y",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395874,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2oxtU3n6CJCyxeSAkctN5jLwVi8APZmfHBJ1EXMKr14q6y2yDATYJeqc6KRvHvsAHMPhVcrW1WaB6F37n2kPaMPQ",
+        "source": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786424051,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2ph1j4U2eGvKawds8mi12iAb1AchMFoGsZPxA88amP4MCzzK9W68a7Gp2yHVBwPPDap1BkVyqrQGJvP2KbRCuuno",
+        "source": "9As8wexRUtoujuYia5WxpiUCbjut75XTb9LknATiXvRW",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786424051,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2tKYSYDzaRpuchNUJzdi1TMkuvRqfPBSrqsHUBx38tCTpD5da7ncNGwzGnCCuQnVQFoyS1gonymyJUef5Nuj9GL2",
+        "source": "Am3Un7bph5NNWDLCVVVQT1kY4kN3GFPjj31g4DdrNCd4",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395917,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2tpM2TJMbqFnreG3KsguoixS11bfg2eUQGbnQ67ckUwAoSDZssPddod8CPzfdsVPAvuXCJ3PsyKTjbXpDuC7a8MN",
+        "source": "j6EVoUMZRafJPrdkuoB9PJGXxBGHEsx4VcJq5W3Ft5d",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395917,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2tpM2TJMbqFnreG3KsguoixS11bfg2eUQGbnQ67ckUwAoSDZssPddod8CPzfdsVPAvuXCJ3PsyKTjbXpDuC7a8MN",
+        "source": "49Wo4qJS1CWPd4b8LAezyL4ARPj3fw6N6zPhPV4dQd6V",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786424051,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2vU1ZWdrcLe9pDMCp1u4rh9Qob1UCSFfAqdRiTrWbALesEqRBpZQC8dx2LK7bYKrmJ5TvdspDg6MSC8HSr297Yye",
+        "source": "CYnm5v4MiLLLaUvu5VUfYPxszU8RPBzmH3Qkv7QbfcUi",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786424051,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "3Bye9GLqk7CHBcHWc6U2fkAvnwveYjd1s9m5JAsPtPx1Jn6prLMEocK8ijKFF4WemJ9e3hJ74F3sQPvrGq62SqpF",
+        "source": "3thxdSxsHtFuGJroCYe6JmCojPRizUz1GnvQSq5M5JfY",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "3HGovp1MeDnvua35TXo4ShQJM5mJjgmdXdcgcZChRmSbKnFwrFnMXQFVjkGf1bJNNwdfgotLwT9nYL3RE66bEMYp",
+        "source": "HBa1PoTnhDtbeC6SAL9vrp6gxCWMBbdS4oN6dMD5snq3",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "3HGovp1MeDnvua35TXo4ShQJM5mJjgmdXdcgcZChRmSbKnFwrFnMXQFVjkGf1bJNNwdfgotLwT9nYL3RE66bEMYp",
+        "source": "AGT9dkEZUBPrw5HrDGZTNRhYNMEU5HbRp2E1GdYMSB6r",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "3HGovp1MeDnvua35TXo4ShQJM5mJjgmdXdcgcZChRmSbKnFwrFnMXQFVjkGf1bJNNwdfgotLwT9nYL3RE66bEMYp",
+        "source": "326Sd2gfsXQA7c2XWN88jNTh6bY32pgvJEkk9uWSZ9tc",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786424053,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "3RX2ELb4nuwtP5W2Zg6Jb7LGLECs51yqmWVa1KRBfW23yrbXeFbkvTPGyvuWNmquvxUrCkb1nvqaBpSdwpkQfqZC",
+        "source": "j6EVoUMZRafJPrdkuoB9PJGXxBGHEsx4VcJq5W3Ft5d",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786424051,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "3XQrFNozhfFD3tw5Lz5mgzZCMFVMPwquR4j9BN5fx8V3ttmSPXdB2jDdLAa71K4AAvVrbzhqoYZpC8CV6iVDPWoT",
+        "source": "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395877,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "3hdZ6jztqcCLGmY5MX8sa7bcui1hbXNzgatZv2K93dCmvDbzVgoBotSsBxd7nifdvMBBzERPax48ZmUZ8WJJ5qAk",
+        "source": "CbMTzd1sG9vuP9Tw2nUNBHUvtsyzr4Hm5rknri4XxXWL",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395878,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "3heTjPpxQLzFF5b4v9vSQKCUQ5KPAjZg5er1wUGNpDrTjYMrgz92YHcWzhz2ekvk1LueAGFuv4Dmqu81hg4P1Nck",
+        "source": "2h2xdvznzmcRi4zNE8A3uwe4Er5e5bf8gTxzXREg9ph5",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395878,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "3heTjPpxQLzFF5b4v9vSQKCUQ5KPAjZg5er1wUGNpDrTjYMrgz92YHcWzhz2ekvk1LueAGFuv4Dmqu81hg4P1Nck",
+        "source": "CYnm5v4MiLLLaUvu5VUfYPxszU8RPBzmH3Qkv7QbfcUi",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395878,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "3heTjPpxQLzFF5b4v9vSQKCUQ5KPAjZg5er1wUGNpDrTjYMrgz92YHcWzhz2ekvk1LueAGFuv4Dmqu81hg4P1Nck",
+        "source": "BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786424051,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "3hgMJQ2E5kRS8EyNto3rSduxuLBsQsNw5vgovLeqcFSzcNCdx7aejESeQoxgygbAxGZaLtuMjeWiBzrNtBnTNYfD",
+        "source": "NeHjc1yqZXesLZTHtK7jrjyQ3MpFg2TVHpV8QDDAHEm",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395916,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "3mMGN2okfvyLchWjAFp1X22e1YgB3ZWUkfCprGs5oUxMyLosZirV3grr8ig6vzTg3mBXvcHxzdFxUBGpQ5VaXnXd",
+        "source": "6jJnz6ZQjDZeFLxoDq2RBp4fvsjPfCJmpr1jhQcy2rBk",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395916,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "3mMGN2okfvyLchWjAFp1X22e1YgB3ZWUkfCprGs5oUxMyLosZirV3grr8ig6vzTg3mBXvcHxzdFxUBGpQ5VaXnXd",
+        "source": "FJrraJVwKYdcLX4we8UttdJGvxErgUKWf6awnVSsxArH",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395916,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "3mMGN2okfvyLchWjAFp1X22e1YgB3ZWUkfCprGs5oUxMyLosZirV3grr8ig6vzTg3mBXvcHxzdFxUBGpQ5VaXnXd",
+        "source": "5sUoQPPvnvS6eXem4TdcjKJ1JZy7uLEhWN3pCA8yNFnc",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786424051,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "3mkfqa8nwGaEzV9NUpb2HteVcggoToZThMueNjKV8F9Y9zPnsTwZuNhLQXKJVU62DTphaE5GiwAjfLoVvGfLLLPx",
+        "source": "5sUoQPPvnvS6eXem4TdcjKJ1JZy7uLEhWN3pCA8yNFnc",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395875,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "3nE32FArhQxhEo38EfrsZ8jHaEmaGtH2FBNP1G1wY21x2PhXaRvXYTGWhwjyXRu66SmA7QbPmcJEhczX7GsVuvMn",
+        "source": "HRneLKJHUHXJr9zb297N44L8WCUqCJYKDsSxDaPv49wS",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395875,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "3nE32FArhQxhEo38EfrsZ8jHaEmaGtH2FBNP1G1wY21x2PhXaRvXYTGWhwjyXRu66SmA7QbPmcJEhczX7GsVuvMn",
+        "source": "7144mX5peoQoyYq2ncsTmzFciqkLiYzS42XVmvFjGiv4",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786424053,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "3wekgdc9pe3tQDJJnuebQU8uRsVcs4CHaPjNbvveYp5378qjjJSZZZkhF5LyfhfZ3WkjjvViUZP1KLDZn4Sam2h5",
+        "source": "DmfxzqZQTifJQhfrikFdDQXy3Ws6X9H3VX5xkRVTf77y",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4CdmqGbStLwkduDLp4CtCCiefUR5mxR8ZhBTVhFNDCWPL3uGPJHRtR5JRW5BGaN7Yn3pPDVKfJzKG8Th7DrxtVca",
+        "source": "8bHas2MxzzAmcZoHMCNN3NQwUfV2bjawNt6ggy6uP9xh",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4CdmqGbStLwkduDLp4CtCCiefUR5mxR8ZhBTVhFNDCWPL3uGPJHRtR5JRW5BGaN7Yn3pPDVKfJzKG8Th7DrxtVca",
+        "source": "Bn1RAP2D2s4hDUUYzngaBipptN4XfVmXKg7maHjQZ4P1",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4CdmqGbStLwkduDLp4CtCCiefUR5mxR8ZhBTVhFNDCWPL3uGPJHRtR5JRW5BGaN7Yn3pPDVKfJzKG8Th7DrxtVca",
+        "source": "FpK8G5iEAydmPF4fNds2rPbCWwMB4YdvDYZ6tCAdKqzM",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4CdmqGbStLwkduDLp4CtCCiefUR5mxR8ZhBTVhFNDCWPL3uGPJHRtR5JRW5BGaN7Yn3pPDVKfJzKG8Th7DrxtVca",
+        "source": "HggCfpEM2uzcpZwU5u3yYxYuniqR7dGtWhvkdruYLsFU",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4CdmqGbStLwkduDLp4CtCCiefUR5mxR8ZhBTVhFNDCWPL3uGPJHRtR5JRW5BGaN7Yn3pPDVKfJzKG8Th7DrxtVca",
+        "source": "9dmPzAuCDC4wsCfexmFcP9tX48cM1ebfbN5uYtXbo2ZB",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4CdmqGbStLwkduDLp4CtCCiefUR5mxR8ZhBTVhFNDCWPL3uGPJHRtR5JRW5BGaN7Yn3pPDVKfJzKG8Th7DrxtVca",
+        "source": "J8Vyzh1efuCFiu3NhYkSvNeSWhFvNEE3BN4N9NF8moiR",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786395875,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4EbaPc4Zq4mowSD2ije7e9yDd9HzuJkejgHufX3mciT12i75xfyRVhkwvfQ8CFWiHYsjckjDhLBpMy4KLT3g9tJS",
+        "source": "G1BJvTetp6YSwaDNSajruPPM1JCTZf5NWeyr6dQN94n7",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395875,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4EbaPc4Zq4mowSD2ije7e9yDd9HzuJkejgHufX3mciT12i75xfyRVhkwvfQ8CFWiHYsjckjDhLBpMy4KLT3g9tJS",
+        "source": "6jJnz6ZQjDZeFLxoDq2RBp4fvsjPfCJmpr1jhQcy2rBk",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786424051,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4EgV4PehdB3ziXhX2j2FMcXFE2k5X3QQ8ztD9rzoFzHxu27esjqGDi14GeZyw1UpaffK5DrYPWJasWyzZT2jhjqz",
+        "source": "5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395878,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4LfqfSnuAq3bWxcu32K7AXoaUAf9Yy3NfZ5xec3fZyNpA4V3hu8z7jzvyttQboHfDFii4y9EGDncEvgCFJBfbGpQ",
+        "source": "j6EVoUMZRafJPrdkuoB9PJGXxBGHEsx4VcJq5W3Ft5d",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395878,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4LfqfSnuAq3bWxcu32K7AXoaUAf9Yy3NfZ5xec3fZyNpA4V3hu8z7jzvyttQboHfDFii4y9EGDncEvgCFJBfbGpQ",
+        "source": "49Wo4qJS1CWPd4b8LAezyL4ARPj3fw6N6zPhPV4dQd6V",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786424053,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4NibqeqaR5ksr9BXK1vxyzHoHswwgsYfk6RAXNSKqKE6aTgWZYM2LVgqZMywteC88dyjx4kuR5TBYBUjdZ9BPPbt",
+        "source": "49Wo4qJS1CWPd4b8LAezyL4ARPj3fw6N6zPhPV4dQd6V",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786424052,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4S3xPZiyccFPvairLfpdeKPojvUqLy1KDGPbvAGszkFFSEnCoK3RMyzXmzsBpXVovd3Q1r16Xr8z63SypUj8KLom",
+        "source": "397s3pwPhV1A88Fj2EuNoERFYTCLdN5WiUAPvxUxFVST",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395874,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4S7Mr2nTkEaHdvrRtCsrVXRv4zNTXdLzX2TJLmXucr9Nb4uQpbw1CJqaRHpwz3nMvNNYjtyNWQkR3KPUkK9i3rKt",
+        "source": "NeHjc1yqZXesLZTHtK7jrjyQ3MpFg2TVHpV8QDDAHEm",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395874,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4S7Mr2nTkEaHdvrRtCsrVXRv4zNTXdLzX2TJLmXucr9Nb4uQpbw1CJqaRHpwz3nMvNNYjtyNWQkR3KPUkK9i3rKt",
+        "source": "C2W3FExk348T4aNHpJjiCZpNrpd9MNLBBVZAdWCogtBx",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786424052,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4b2geyonABiJKno5emSVUiV5dQhpeACFqKD98kPpK8jSb1nrPtPHX21kaUtW8YVPHVsXnot79aMsNePohwjSHSji",
+        "source": "9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395914,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4duieU7veiCVbeXdkHxp9fCeQVATJTm4pnKqkcPY9CcUzT6HoUyrBD8snuy4tuyh8DLYDBp1iNiT5nhYainoquZt",
+        "source": "NeHjc1yqZXesLZTHtK7jrjyQ3MpFg2TVHpV8QDDAHEm",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395914,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4duieU7veiCVbeXdkHxp9fCeQVATJTm4pnKqkcPY9CcUzT6HoUyrBD8snuy4tuyh8DLYDBp1iNiT5nhYainoquZt",
+        "source": "C2W3FExk348T4aNHpJjiCZpNrpd9MNLBBVZAdWCogtBx",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4hCGXPa3U65ETz7YYxU7R5EMn6ipXtophteHmZHn9rcLedFJAqt6dkyrGt9XuPH8kb3rahL3TtbE7Xn9KEzNVxMn",
+        "source": "8XpDKnEPVLRFMa6ErMbAVfo4yoXEfsQ7yhCaT4imFfLW",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4hCGXPa3U65ETz7YYxU7R5EMn6ipXtophteHmZHn9rcLedFJAqt6dkyrGt9XuPH8kb3rahL3TtbE7Xn9KEzNVxMn",
+        "source": "EDGKu44CYEgzjhFrfX2mpZDgHYu2einGfAwbJ79cw2aM",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4nBswcRE6ruYL8GaNPn42nYUBNwyojTHU63vedeZ49gVutTRiwLkChFSPyRUpVMGX8gbQ6VK8W2wAqXgz9itSxY9",
+        "source": "FYuGqRUDnVgzHqvQGJvu1GhMPzfyooQdTTfksi8H45rH",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4nBswcRE6ruYL8GaNPn42nYUBNwyojTHU63vedeZ49gVutTRiwLkChFSPyRUpVMGX8gbQ6VK8W2wAqXgz9itSxY9",
+        "source": "7u2c2ootN4Wpk1u26XAqnwRvnnRNt2N1WrirHBVHgj3r",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4nBswcRE6ruYL8GaNPn42nYUBNwyojTHU63vedeZ49gVutTRiwLkChFSPyRUpVMGX8gbQ6VK8W2wAqXgz9itSxY9",
+        "source": "94VEgcJ31hwXWD9aUBNb2XjGewDkquxGUUkNeTfPqeZN",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786424051,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4qVo2q7ox6FFg1wsYjKcrQoBgXMSUNHEmE75tX983Ego8BXkH343mxeYh34SWxx2w14zhrRRZGiddSWULDSGRCWP",
+        "source": "FJrraJVwKYdcLX4we8UttdJGvxErgUKWf6awnVSsxArH",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395917,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4rBpbyWyEbjDEdHitwLDwCKxZVDzaJEw52twiSidxnmGJgfhMkzFvCkr1ycwekQeHKSeoQFG3crDgExsNqZ288sN",
+        "source": "CbMTzd1sG9vuP9Tw2nUNBHUvtsyzr4Hm5rknri4XxXWL",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395917,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4rBpbyWyEbjDEdHitwLDwCKxZVDzaJEw52twiSidxnmGJgfhMkzFvCkr1ycwekQeHKSeoQFG3crDgExsNqZ288sN",
+        "source": "7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395914,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4yh6g6rn5qb9As2MEhuQyEpxhiNkm3jZqQiUAxCGgucwzVHFXnRPBEUcqiyXTSmLW2vsqKi56iBrbErKWwPqX1W6",
+        "source": "5iDYsDLugMXh1LTRVDmFH8PfQ6ueG5pE9UcfefrnztB6",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786424051,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4zWhpMKzc36ewvghtN4Qaxn1F6TeCaai6eyBJdLiEkcdhz17TTv64mPeEnkfViAMBf2sZadDQ4NGKbbcUU9rt8Wy",
+        "source": "GUBtBg8i5wn5ME3vYmgqMZFFuBnDp6i1oa8BPFwoURAP",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786424053,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4zehibKPfs2h17hfL6ULyqSQvmUnncWDoSrVDhoLnShssmFAFLhcEBNamSYns8Zro6wHaUew3SsCfqz6FesE5oop",
+        "source": "J87ewUdaYKXaMVZEdKh14fMcKXaAmzGamzGtaXDop13X",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395878,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "55KyDHCmptdbZBvVawx1F5PJ1wgMqjfGXVWpUa4qWVD73WcigFEtw4vLQM9Bgs6bFhsxUeqczd4wSc1D9rqVV7pi",
+        "source": "7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395878,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "55KyDHCmptdbZBvVawx1F5PJ1wgMqjfGXVWpUa4qWVD73WcigFEtw4vLQM9Bgs6bFhsxUeqczd4wSc1D9rqVV7pi",
+        "source": "J87ewUdaYKXaMVZEdKh14fMcKXaAmzGamzGtaXDop13X",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395911,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "55Zfb4qcVstyoBH48pMuhSrNrb2Zk873iaETML1F2ucMfTUmyb2c7GMk1iRPCs8v1oYEsyxF5WrHmkjB1uvwoEeW",
+        "source": "9As8wexRUtoujuYia5WxpiUCbjut75XTb9LknATiXvRW",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395911,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "55Zfb4qcVstyoBH48pMuhSrNrb2Zk873iaETML1F2ucMfTUmyb2c7GMk1iRPCs8v1oYEsyxF5WrHmkjB1uvwoEeW",
+        "source": "3thxdSxsHtFuGJroCYe6JmCojPRizUz1GnvQSq5M5JfY",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "576gKkk1ZiK2WjKk8c3ruEH4ACCpPJXhUE7b5RRM7gurGruZGpy3wAdmDQaok83WhAssS1LaVyHtsYcRzfHZYo4H",
+        "source": "D4g6HvAX7cbjdH1cnVt24y9tC2pTU52eCdNz2wu6H1CN",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "576gKkk1ZiK2WjKk8c3ruEH4ACCpPJXhUE7b5RRM7gurGruZGpy3wAdmDQaok83WhAssS1LaVyHtsYcRzfHZYo4H",
+        "source": "HErGQyVFFtxTQhWZC2FFpRCspvVvZsSHt7dv1ZHuf3KD",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786395876,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5B6fZTrswipA4EDjaekgHALYCcY7TeKGE1LpKVk7Z6YmDzCFdZ7H3hQSjpf5BEp63FJ5E27i1q5ddECfM6msFRCL",
+        "source": "G9XSZDgMk8x51uHvFUumZK5AFWJLp3GJCV7VZSkL3uGP",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395874,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5BAPi8LZibsH732cipfJ5QTSN4Dpv3uuQDKfpgKvP4DryUCsbZwRjvgGvcnHZSNfxUsxj8rp3FfULsqZ13Kwt2kK",
+        "source": "9As8wexRUtoujuYia5WxpiUCbjut75XTb9LknATiXvRW",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395874,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5BAPi8LZibsH732cipfJ5QTSN4Dpv3uuQDKfpgKvP4DryUCsbZwRjvgGvcnHZSNfxUsxj8rp3FfULsqZ13Kwt2kK",
+        "source": "3thxdSxsHtFuGJroCYe6JmCojPRizUz1GnvQSq5M5JfY",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395878,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5BKt2nhsn8VQsqv3wj97rZxAePJ2reKBtswX8nrvq6qoVQVjs2hpku5JGtYu9bVtUGxJeojYQV2Fr2Yr7kxwCgwM",
+        "source": "5PkFFC9FCmm2EUQHMqbF9cwMviSXjgAjeqKEoPoYejuG",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395916,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5FPEhNpDQDmbWq7xVUvQMQBnGq1c8xmEhKjJWPuhqSX3vAWtScJgWwcUPGDGd138nVnPqUCk7kkX5Goqd8BS6uBR",
+        "source": "7144mX5peoQoyYq2ncsTmzFciqkLiYzS42XVmvFjGiv4",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395916,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5FPEhNpDQDmbWq7xVUvQMQBnGq1c8xmEhKjJWPuhqSX3vAWtScJgWwcUPGDGd138nVnPqUCk7kkX5Goqd8BS6uBR",
+        "source": "G9XSZDgMk8x51uHvFUumZK5AFWJLp3GJCV7VZSkL3uGP",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395876,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5FrZSotTA3NLxh1Ni6NYodkX2GifD3LoGdw3vfoz93ChBfBXVQooxRiLsgu8VqJvH6iyXdeQohdpJPFJnuDaMEe",
+        "source": "FJrraJVwKYdcLX4we8UttdJGvxErgUKWf6awnVSsxArH",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395876,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5FrZSotTA3NLxh1Ni6NYodkX2GifD3LoGdw3vfoz93ChBfBXVQooxRiLsgu8VqJvH6iyXdeQohdpJPFJnuDaMEe",
+        "source": "5sUoQPPvnvS6eXem4TdcjKJ1JZy7uLEhWN3pCA8yNFnc",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786424051,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5HrHff2xSrjh321pD7kNTsmHBa9W2GfXsSS1nSHEn1jSeDYcCHW2DV4U2hdihHZ4nna3VKb3BpDVYkkGBy2krpo9",
+        "source": "Ao2sUdoFtKW7yix7v6GT8GoWE94LcgHiyjautukHBKAi",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786424051,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5K7drfxYev6pfoUHRLhQHiiNjo5c4PAgZGcy4YvUduAtHJTSeJdKDBokZjxDjXUWYFEaq9zsG19H2LxeUMfo4yCB",
+        "source": "BsKEb5qhnHMFP4XUjoXMv5nMxkvuaFtBH5ssuWNMjLbw",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786424051,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5Yx56BDcL7HnpFvBYGcWPVUGGa7ESRq71NgEt1iohB3t9BN9dwtL3tLegpUU6jfF5dXheq5Jk6pfTv66tE7Utb1W",
+        "source": "G1BJvTetp6YSwaDNSajruPPM1JCTZf5NWeyr6dQN94n7",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5f9Z5S4cVric5VTsfSqKcyniw11785tSfQemD37fjNo7pUxGCmz7WMk5fsy68Gtwet9ZkvHdd6GD9QPBgzapTrHX",
+        "source": "AAtEUPcCJ4Jdx3bZvyGK9BGuor1VAksPuFGRrZuQvpo3",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5f9Z5S4cVric5VTsfSqKcyniw11785tSfQemD37fjNo7pUxGCmz7WMk5fsy68Gtwet9ZkvHdd6GD9QPBgzapTrHX",
+        "source": "GvKha8BZH9HUVBMyGwcBnwYs7GyioBhHmrvh2rRVzbv3",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5f9Z5S4cVric5VTsfSqKcyniw11785tSfQemD37fjNo7pUxGCmz7WMk5fsy68Gtwet9ZkvHdd6GD9QPBgzapTrHX",
+        "source": "8VFreegW9kVfykJJC2ULz82XpRiwGHG3UdETWY4Eowpg",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5f9Z5S4cVric5VTsfSqKcyniw11785tSfQemD37fjNo7pUxGCmz7WMk5fsy68Gtwet9ZkvHdd6GD9QPBgzapTrHX",
+        "source": "65LF4eMd2NRKgA8SHNFfipUFXbntsxcctp4HHqo7dbSu",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5f9Z5S4cVric5VTsfSqKcyniw11785tSfQemD37fjNo7pUxGCmz7WMk5fsy68Gtwet9ZkvHdd6GD9QPBgzapTrHX",
+        "source": "3nWUnuGAWdrTA4hmNmKPQsTpwegLN8Pz77VY8cw27pWi",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786424053,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5jyBRLvU9ricsHe31MHVv8fAx3vg77X3K8aaqPfZ4V9JRBUx9C1zX2dbJGyhp9vwHQ3EkBFGF4qM5m718oqWBMg4",
+        "source": "7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786424051,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5rcQbcJKh2RyjNyyUoQZVLP6cReehCpRBBA39BQ23mfvS5PWaMduRjgqbdBxBNskak91BmcrThBPJfyHSBi2KLkR",
+        "source": "54xTpcBEr48Cuis8m2SdeymdQcwvmDR4aegxCPQzUANG",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786424051,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5ykwA2RtcsM9wuHv7JDM7J19dS4chszEVWsAZrv9dWR8DheqMaoWZFh2TZRPe9WStr1y4aSToUEUA4nAGepG36gb",
+        "source": "2h2xdvznzmcRi4zNE8A3uwe4Er5e5bf8gTxzXREg9ph5",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395918,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5zH9fz7uQ7ooUaxfRVuom2faiVro1m6vmm9VKsAkpYzDxyUQS7U7gY4HRtewYU31w4BCx7u1vKKbh12TxQRZ3tZJ",
+        "source": "J87ewUdaYKXaMVZEdKh14fMcKXaAmzGamzGtaXDop13X",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786424053,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "62v2KHCgENTwXbownVzh6nsZdW7pbS9CLZB5L7uMDQ8aCBSpYFWRuRtp6GeaNs9Vq46kfJ1bUxSm2ZBvSWzQzbVv",
+        "source": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395915,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "63JufTcTBCymNttRhaD1dMzpkT6NFB8rJCBB4etsmr5kjZ147A3MA597tNLGaeSBU22nBaxXMgxynoRZNSLXPMdX",
+        "source": "5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786424051,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "64woUcWMDQUFKwNch9KYBuxqbRhqKwDThhGahUGtDbHb6z9qZ5wcGeVmBTW9jAk3nUca9M9NXaGQanL8YnwyMj5M",
+        "source": "BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "67bJGRdJBLkAGS23SG8eLoYB8w9pCt9nQJjkBfeXehpyzrs6mpqzwW2cAG59of6Kh4Z9sYQFmh2RJjvc2BfKuVqw",
+        "source": "F39J3KAgeBhQxmhqhYzBKw565NWhJTMiSnZiVtcYGxb6",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "67bJGRdJBLkAGS23SG8eLoYB8w9pCt9nQJjkBfeXehpyzrs6mpqzwW2cAG59of6Kh4Z9sYQFmh2RJjvc2BfKuVqw",
+        "source": "6iMNUx2ndPCAopEW48xdAxyCTf7vXRd2FsQ6CHx9MQn5",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786423516,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "67bJGRdJBLkAGS23SG8eLoYB8w9pCt9nQJjkBfeXehpyzrs6mpqzwW2cAG59of6Kh4Z9sYQFmh2RJjvc2BfKuVqw",
+        "source": "2rbZwmvAGY5q1vhpRgXy3PHtztD8kYbtjbYuVUraLYkQ",
+        "source_role": "immediate_upstream"
+      },
+      {
+        "block_time": 1786395915,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "67jHtG2YurGWULeaF6TVkUe2Kos8zXhvgFumyTt5ytzD9dkpoPG1AYLoPuuXsro24pqHWjEgBMjPojakn2FH9hH9",
+        "source": "DmfxzqZQTifJQhfrikFdDQXy3Ws6X9H3VX5xkRVTf77y",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395915,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "67jHtG2YurGWULeaF6TVkUe2Kos8zXhvgFumyTt5ytzD9dkpoPG1AYLoPuuXsro24pqHWjEgBMjPojakn2FH9hH9",
+        "source": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395915,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "67jHtG2YurGWULeaF6TVkUe2Kos8zXhvgFumyTt5ytzD9dkpoPG1AYLoPuuXsro24pqHWjEgBMjPojakn2FH9hH9",
+        "source": "HRneLKJHUHXJr9zb297N44L8WCUqCJYKDsSxDaPv49wS",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786424052,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "67mMZu8BrUFYbeddWhAtp9jJpZmse5BpmW2PifoPFKaSBAprThAddMXPjTAXijzM785SyPEAyxkAajmaBb3Vve9u",
+        "source": "5iDYsDLugMXh1LTRVDmFH8PfQ6ueG5pE9UcfefrnztB6",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786424051,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "7Rh3nn8roYACF9Pxtu3GbWfSEmn9izAnWyRRT15LbiZdxgWzKcHn3dxUkNPTso3wLGLeLoiYdwUWWRS778GEKS5",
+        "source": "HQ2q5DJuAVf1CrDJpwmeSYsLgvGp9k5cGEPZQsNvcMW9",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395918,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "8NHqBfXf3Wav7S6uUp2wE2NAWy2YLrv4wPkecEbULUAxaZ1ACXTxg4zTwWWNo5wRLPq7gsEHwZw3P9K4WXGPNhW",
+        "source": "397s3pwPhV1A88Fj2EuNoERFYTCLdN5WiUAPvxUxFVST",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786424053,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "8mZzfKehMH9BJny73HJVmGBG4swxGYx69uh3swaDa8pnK9XQ769MccppQ6kmG3f9Hm2uZy1hTc6bySS6XPE3DC2",
+        "source": "G9XSZDgMk8x51uHvFUumZK5AFWJLp3GJCV7VZSkL3uGP",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395917,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "96KQTzAoR6GS8RwHCB63g8WBLsJRnftSzfUhb7H2nmMtT5PtR1dRmd7Mun6T9SUmLPJyJ3hRdM5ZCNnHwiHnzuE",
+        "source": "54xTpcBEr48Cuis8m2SdeymdQcwvmDR4aegxCPQzUANG",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395917,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "96KQTzAoR6GS8RwHCB63g8WBLsJRnftSzfUhb7H2nmMtT5PtR1dRmd7Mun6T9SUmLPJyJ3hRdM5ZCNnHwiHnzuE",
+        "source": "C55hxeJepPLMKi4xuKjAFLWmxoSfVrqn2LELi67ixQfe",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786424051,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "E7PKp873ozZKNMRoV5hWLCeKwwjtyTPscwHTEFkpQkg5bbpEeuYS1opYtiJbChgU35m1wtw49JxBnmmKbvGuwMz",
+        "source": "Gy29oqrQGFsP8cSsZ4eJvmMDMvKeYtWgURGCn5jim9Xn",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786424051,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "EjF1BacNFYiHM4SkBmVersQSB1uTbTy9e8BwUUm7py5ucr4AziEQuvs5To4J1xTeyzzGwNXA5PwWuC4rCPHzz5w",
+        "source": "HRneLKJHUHXJr9zb297N44L8WCUqCJYKDsSxDaPv49wS",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395876,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "FdkEHG766VPHP1ZtaofRuCPCxjemEbwp2TQUXB5wywJiYwZFZtUqKZk1EnwCNvTbLYyaFwzksGMXXFuvakP6kKY",
+        "source": "Am3Un7bph5NNWDLCVVVQT1kY4kN3GFPjj31g4DdrNCd4",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395876,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "FdkEHG766VPHP1ZtaofRuCPCxjemEbwp2TQUXB5wywJiYwZFZtUqKZk1EnwCNvTbLYyaFwzksGMXXFuvakP6kKY",
+        "source": "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395876,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "FdkEHG766VPHP1ZtaofRuCPCxjemEbwp2TQUXB5wywJiYwZFZtUqKZk1EnwCNvTbLYyaFwzksGMXXFuvakP6kKY",
+        "source": "Ao2sUdoFtKW7yix7v6GT8GoWE94LcgHiyjautukHBKAi",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786424051,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "JaNYBQDxZmbPMGe5s956rSV8bGfgJsMDxPf6dhpyhHd2VaAb7DMZqn3DgZhweJp1YuwkPfWApKfE7hxN3fR7wAu",
+        "source": "7144mX5peoQoyYq2ncsTmzFciqkLiYzS42XVmvFjGiv4",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395879,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "XZsN85C5kYdcRSGkmhSBiEZqgcm8B7VSrHws27cfFVWcqjLZy7nqqrPJbdfNYZo4V8zp5EtHJwF99dRqRpzhJG9",
+        "source": "9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786424051,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "Xk4EkiD8pQ4ra3QdhMXt4z4otaHEPNy5tToahxR6WnXzpL7QhpHKyetJd8xujSUwG82a4hZi2WGckY1vMigrGWg",
+        "source": "6jJnz6ZQjDZeFLxoDq2RBp4fvsjPfCJmpr1jhQcy2rBk",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395915,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "hRgAK7XNdMqfZpvJ4Teq62KUGstPYm4okhZcefGmy3DZyHhQSWeiraVwpnFRUS7oRqp8Gz8UBd5d9ZFeqvaBHee",
+        "source": "G1BJvTetp6YSwaDNSajruPPM1JCTZf5NWeyr6dQN94n7",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395878,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "mwnfiigDyaqBZSF2Sq9p8yjfCjcmbRUFBpNe5TBZJQqeUSAWSKsKhML5SJtrmJdoeFXMr3P1zKhFxUKQhC5MKyP",
+        "source": "C55hxeJepPLMKi4xuKjAFLWmxoSfVrqn2LELi67ixQfe",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395878,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "mwnfiigDyaqBZSF2Sq9p8yjfCjcmbRUFBpNe5TBZJQqeUSAWSKsKhML5SJtrmJdoeFXMr3P1zKhFxUKQhC5MKyP",
+        "source": "397s3pwPhV1A88Fj2EuNoERFYTCLdN5WiUAPvxUxFVST",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395917,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "oRU5gi4LkxXxBifwp3Kop18iTNHxhoBvVo4ho6gJMZqqeuR9xZHg1gm3e9GmqU89MAjQY4pYVDpLB3hoEBPdmwa",
+        "source": "5PkFFC9FCmm2EUQHMqbF9cwMviSXjgAjeqKEoPoYejuG",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395917,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "oRU5gi4LkxXxBifwp3Kop18iTNHxhoBvVo4ho6gJMZqqeuR9xZHg1gm3e9GmqU89MAjQY4pYVDpLB3hoEBPdmwa",
+        "source": "9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786424051,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "sG5DBKEKQf86bqKKUTnmNkEqucbxAQtcHmJigmz5AHkrcgopmLKdWjpdCVqX7H2tp6TsD8ZGfEZ3T2FaooXdw1r",
+        "source": "C2W3FExk348T4aNHpJjiCZpNrpd9MNLBBVZAdWCogtBx",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786424051,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "vP8qp9XdCdKPLFg3AZ5DMRg3JmYRGzks9WMXxZsDuC8ubG76tK1Qi8pJuEUvzgmAmjkcsGN6TKkqDvmDiW7g1UQ",
+        "source": "C55hxeJepPLMKi4xuKjAFLWmxoSfVrqn2LELi67ixQfe",
+        "source_role": "direct_funder"
+      },
+      {
+        "block_time": 1786395877,
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "zBkz4r9uUWzPhcTpBbTSS8KnyJXyS4yio1GuNCVWWy3Qm9NkuCMhSHSbWZkCU7rV9opKUkMx9voxctJZNvnN2Bd",
+        "source": "54xTpcBEr48Cuis8m2SdeymdQcwvmDR4aegxCPQzUANG",
+        "source_role": "direct_funder"
+      }
+    ]
+  },
+  "candidate_id": "p3r-v2-c357da9d0d4d560311e4",
+  "coverage": {
+    "audited_wallet_history_entries": {
+      "2MMSdrNnC9CKdbHmeaj5dLoW1LFfUC4jBPfKQZKq2MMW": 730,
+      "2NhF4V7W6WXPkPvWVFHisveQAKMvcTB4o8AXrxhGLpar": 543,
+      "2fJCPb27tQhbnX4s3sTJvjzK1deawkREkKjCKS7PjF9g": 244,
+      "2h2xdvznzmcRi4zNE8A3uwe4Er5e5bf8gTxzXREg9ph5": 59,
+      "2rbZwmvAGY5q1vhpRgXy3PHtztD8kYbtjbYuVUraLYkQ": 62,
+      "326Sd2gfsXQA7c2XWN88jNTh6bY32pgvJEkk9uWSZ9tc": 71,
+      "397s3pwPhV1A88Fj2EuNoERFYTCLdN5WiUAPvxUxFVST": 49,
+      "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7": 74,
+      "3nWUnuGAWdrTA4hmNmKPQsTpwegLN8Pz77VY8cw27pWi": 64,
+      "3thxdSxsHtFuGJroCYe6JmCojPRizUz1GnvQSq5M5JfY": 53,
+      "49Wo4qJS1CWPd4b8LAezyL4ARPj3fw6N6zPhPV4dQd6V": 29,
+      "4cVm3jxHmCsK5tCuv92JYCqdXfF9t2eZ1wagUBKf6F4c": 2184,
+      "4gviJWaJP5Mvf1sKhJRZFQU1S4EZkDnJjH4acAZwEsfG": 102,
+      "51UmDGr3N3s9sfsYs9jN75fy9e33C1E2m21KfdQSBsAZ": 20000,
+      "54xTpcBEr48Cuis8m2SdeymdQcwvmDR4aegxCPQzUANG": 52,
+      "59MGbbjnBsNKNbTXsd4cc83doHgpkJBdotigvZ6WxjLX": 118,
+      "5PkFFC9FCmm2EUQHMqbF9cwMviSXjgAjeqKEoPoYejuG": 63,
+      "5TR1KXium6nxovUUXbofK2N1uYPh9NA8w9WpvvKZ3Myi": 1078,
+      "5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn": 64,
+      "5iDYsDLugMXh1LTRVDmFH8PfQ6ueG5pE9UcfefrnztB6": 51,
+      "5sUoQPPvnvS6eXem4TdcjKJ1JZy7uLEhWN3pCA8yNFnc": 51,
+      "63H6mHB4tTGbvBzhz19FgHBMnyAjqRNnqxiRWCKfTftQ": 647,
+      "65LF4eMd2NRKgA8SHNFfipUFXbntsxcctp4HHqo7dbSu": 95,
+      "67arQDJyzf3wuPNcbGz9zpsvDBYzgpbFKBEtWfzjtAZC": 758,
+      "6cbGn9vcTvhR1MuAaS8zKi9Ha5ZUpDLoFPShnJ1e3XwA": 20,
+      "6hakQXcUcnk1EuuGMHsDPw9iP4GPwjUtHxxPAvGnPj3L": 163,
+      "6iMNUx2ndPCAopEW48xdAxyCTf7vXRd2FsQ6CHx9MQn5": 65,
+      "6jJnz6ZQjDZeFLxoDq2RBp4fvsjPfCJmpr1jhQcy2rBk": 52,
+      "6kQde5QeXZ4iiAX5dx9mmKERaokLR9D55S14JeUGZTCN": 20000,
+      "7144mX5peoQoyYq2ncsTmzFciqkLiYzS42XVmvFjGiv4": 40,
+      "73wKoSuH4VvwBaQ68QUNJjWQKFka8ifp9oykJV7yb45E": 2157,
+      "7DifG8cHrQBAAKjqoLCnfzj8khtnYLPE39GnWgEnLP8d": 242,
+      "7VjefJrPMfh6wow3BYr4Qj1vAgnFsAnXBNqphSnpPzUY": 65,
+      "7dbf5E7pfNGHoy9F8DUC7KcNyaapa2tC251A4jgAqJXb": 57,
+      "7nUChWZA5wUMWgUjigfkh3MG2FmoVhk47fvqCcPALe5B": 292,
+      "7onSgr7qN7C9F7yy2WKYr1VRj3jrhtHoBL5tLQ8KbHUf": 62,
+      "7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv": 49,
+      "7u2c2ootN4Wpk1u26XAqnwRvnnRNt2N1WrirHBVHgj3r": 75,
+      "8VFreegW9kVfykJJC2ULz82XpRiwGHG3UdETWY4Eowpg": 350,
+      "8XpDKnEPVLRFMa6ErMbAVfo4yoXEfsQ7yhCaT4imFfLW": 107,
+      "8bHas2MxzzAmcZoHMCNN3NQwUfV2bjawNt6ggy6uP9xh": 75,
+      "94VEgcJ31hwXWD9aUBNb2XjGewDkquxGUUkNeTfPqeZN": 67,
+      "9As8wexRUtoujuYia5WxpiUCbjut75XTb9LknATiXvRW": 59,
+      "9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp": 63,
+      "9dmPzAuCDC4wsCfexmFcP9tX48cM1ebfbN5uYtXbo2ZB": 101,
+      "AAtEUPcCJ4Jdx3bZvyGK9BGuor1VAksPuFGRrZuQvpo3": 60,
+      "AGT9dkEZUBPrw5HrDGZTNRhYNMEU5HbRp2E1GdYMSB6r": 117,
+      "AW7FZRzGUA8HnRWTsGbEDogAh4Y2Utv2KBqALEvfGLqb": 284,
+      "AdH8UqLePYQd69Wp7ovZ14k1aumGhyHcmLj6fyvUGhya": 66,
+      "AhfDWL1mi2xajF7JWGDzmTiqvtRxD7JDWHkaZVnmUvw7": 242,
+      "Am3Un7bph5NNWDLCVVVQT1kY4kN3GFPjj31g4DdrNCd4": 64,
+      "Ao2sUdoFtKW7yix7v6GT8GoWE94LcgHiyjautukHBKAi": 67,
+      "BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH": 68,
+      "Bdq9PYpY2BViVtthj6WGeqbkixZciunv6dQ6MYXpXet5": 415,
+      "Bn1RAP2D2s4hDUUYzngaBipptN4XfVmXKg7maHjQZ4P1": 116,
+      "BsKEb5qhnHMFP4XUjoXMv5nMxkvuaFtBH5ssuWNMjLbw": 43,
+      "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY": 5003,
+      "C2W3FExk348T4aNHpJjiCZpNrpd9MNLBBVZAdWCogtBx": 43,
+      "C55hxeJepPLMKi4xuKjAFLWmxoSfVrqn2LELi67ixQfe": 64,
+      "CYnm5v4MiLLLaUvu5VUfYPxszU8RPBzmH3Qkv7QbfcUi": 62,
+      "CZTxzma6pA9HPwXASpbhuCKNGrH6zgpQ9ARgUqUQwbTy": 386,
+      "CbMTzd1sG9vuP9Tw2nUNBHUvtsyzr4Hm5rknri4XxXWL": 47,
+      "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5": 240,
+      "D4g6HvAX7cbjdH1cnVt24y9tC2pTU52eCdNz2wu6H1CN": 25,
+      "DPAy3sFUsUWVRCGaMKse2hVYR5kKU7Yr4cE1eM5EwvgA": 258,
+      "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB": 1098,
+      "DmfxzqZQTifJQhfrikFdDQXy3Ws6X9H3VX5xkRVTf77y": 53,
+      "DtZuHqiiDzsScMD2dvCr3Jv4n4aZiinLz8Va3Kpv7Cb5": 92,
+      "DwTQbWYemW6JTSJj97xhvPvbYUdqYDxf4ppaapvoqhig": 748,
+      "E257HACpHcHa5zKPiPjwXyr7fMD7jx7mm6wnTJNssF6t": 1352,
+      "EDGKu44CYEgzjhFrfX2mpZDgHYu2einGfAwbJ79cw2aM": 79,
+      "Et4WkjpTFwiAPmLbsgt519UBVccnFrW14Hu1VVzDnJDK": 61,
+      "F39J3KAgeBhQxmhqhYzBKw565NWhJTMiSnZiVtcYGxb6": 34,
+      "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229": 1102,
+      "FJrraJVwKYdcLX4we8UttdJGvxErgUKWf6awnVSsxArH": 66,
+      "FQewszHHeYSvAQMTKQjFXwDWQDgB8TXqJzsyavNmYCi9": 516,
+      "FYuGqRUDnVgzHqvQGJvu1GhMPzfyooQdTTfksi8H45rH": 64,
+      "FpK8G5iEAydmPF4fNds2rPbCWwMB4YdvDYZ6tCAdKqzM": 104,
+      "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD": 80,
+      "G1BJvTetp6YSwaDNSajruPPM1JCTZf5NWeyr6dQN94n7": 44,
+      "G9XSZDgMk8x51uHvFUumZK5AFWJLp3GJCV7VZSkL3uGP": 44,
+      "GUBtBg8i5wn5ME3vYmgqMZFFuBnDp6i1oa8BPFwoURAP": 39,
+      "Ge4XLNws9dQddAeBCq3wCNkcYf1mpxNBVNyg4rXGeJ5g": 2168,
+      "GvKha8BZH9HUVBMyGwcBnwYs7GyioBhHmrvh2rRVzbv3": 75,
+      "Gy29oqrQGFsP8cSsZ4eJvmMDMvKeYtWgURGCn5jim9Xn": 48,
+      "HBa1PoTnhDtbeC6SAL9vrp6gxCWMBbdS4oN6dMD5snq3": 99,
+      "HErGQyVFFtxTQhWZC2FFpRCspvVvZsSHt7dv1ZHuf3KD": 29,
+      "HQ2q5DJuAVf1CrDJpwmeSYsLgvGp9k5cGEPZQsNvcMW9": 49,
+      "HRneLKJHUHXJr9zb297N44L8WCUqCJYKDsSxDaPv49wS": 52,
+      "HS5GjB4KTJbbBdYHkJV8qDpq8gmU9wck2qsxgz3ifgke": 1030,
+      "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive": 86,
+      "HggCfpEM2uzcpZwU5u3yYxYuniqR7dGtWhvkdruYLsFU": 105,
+      "J37JdYS3hpMB3iW8tgUdfFrrBu4X6o9PT3SguxpHXJVW": 58,
+      "J87ewUdaYKXaMVZEdKh14fMcKXaAmzGamzGtaXDop13X": 48,
+      "J8Vyzh1efuCFiu3NhYkSvNeSWhFvNEE3BN4N9NF8moiR": 101,
+      "NeHjc1yqZXesLZTHtK7jrjyQ3MpFg2TVHpV8QDDAHEm": 35,
+      "j6EVoUMZRafJPrdkuoB9PJGXxBGHEsx4VcJq5W3Ft5d": 35
+    },
+    "root_history_entries": 2829,
+    "root_history_transactions_inspected": 243,
+    "shared_signatures": 186
+  },
+  "dutb_to_audited_wallets": {
+    "by_wallet": [
+      {
+        "first_block_time": 1786423392,
+        "lamports": 0,
+        "last_block_time": 1786424022,
+        "transfer_count": 2,
+        "wallet": "2h2xdvznzmcRi4zNE8A3uwe4Er5e5bf8gTxzXREg9ph5"
+      },
+      {
+        "first_block_time": 1786423378,
+        "lamports": 0,
+        "last_block_time": 1786424012,
+        "transfer_count": 2,
+        "wallet": "397s3pwPhV1A88Fj2EuNoERFYTCLdN5WiUAPvxUxFVST"
+      },
+      {
+        "first_block_time": 1786423375,
+        "lamports": 0,
+        "last_block_time": 1786424006,
+        "transfer_count": 2,
+        "wallet": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7"
+      },
+      {
+        "first_block_time": 1786423391,
+        "lamports": 0,
+        "last_block_time": 1786424023,
+        "transfer_count": 2,
+        "wallet": "3thxdSxsHtFuGJroCYe6JmCojPRizUz1GnvQSq5M5JfY"
+      },
+      {
+        "first_block_time": 1786423380,
+        "lamports": 0,
+        "last_block_time": 1786424013,
+        "transfer_count": 2,
+        "wallet": "49Wo4qJS1CWPd4b8LAezyL4ARPj3fw6N6zPhPV4dQd6V"
+      },
+      {
+        "first_block_time": 1786423392,
+        "lamports": 0,
+        "last_block_time": 1786424023,
+        "transfer_count": 2,
+        "wallet": "54xTpcBEr48Cuis8m2SdeymdQcwvmDR4aegxCPQzUANG"
+      },
+      {
+        "first_block_time": 1786423378,
+        "lamports": 0,
+        "last_block_time": 1786424011,
+        "transfer_count": 2,
+        "wallet": "5PkFFC9FCmm2EUQHMqbF9cwMviSXjgAjeqKEoPoYejuG"
+      },
+      {
+        "first_block_time": 1786423378,
+        "lamports": 0,
+        "last_block_time": 1786424012,
+        "transfer_count": 2,
+        "wallet": "5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn"
+      },
+      {
+        "first_block_time": 1786423386,
+        "lamports": 1496626,
+        "last_block_time": 1786424015,
+        "transfer_count": 2,
+        "wallet": "5iDYsDLugMXh1LTRVDmFH8PfQ6ueG5pE9UcfefrnztB6"
+      },
+      {
+        "first_block_time": 1786423386,
+        "lamports": 0,
+        "last_block_time": 1786424020,
+        "transfer_count": 2,
+        "wallet": "5sUoQPPvnvS6eXem4TdcjKJ1JZy7uLEhWN3pCA8yNFnc"
+      },
+      {
+        "first_block_time": 1786423380,
+        "lamports": 0,
+        "last_block_time": 1786424014,
+        "transfer_count": 2,
+        "wallet": "6jJnz6ZQjDZeFLxoDq2RBp4fvsjPfCJmpr1jhQcy2rBk"
+      },
+      {
+        "first_block_time": 1786423380,
+        "lamports": 0,
+        "last_block_time": 1786424012,
+        "transfer_count": 2,
+        "wallet": "7144mX5peoQoyYq2ncsTmzFciqkLiYzS42XVmvFjGiv4"
+      },
+      {
+        "first_block_time": 1786423375,
+        "lamports": 0,
+        "last_block_time": 1786424006,
+        "transfer_count": 2,
+        "wallet": "7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv"
+      },
+      {
+        "first_block_time": 1786423386,
+        "lamports": 0,
+        "last_block_time": 1786424021,
+        "transfer_count": 2,
+        "wallet": "9As8wexRUtoujuYia5WxpiUCbjut75XTb9LknATiXvRW"
+      },
+      {
+        "first_block_time": 1786423380,
+        "lamports": 2037576,
+        "last_block_time": 1786424012,
+        "transfer_count": 2,
+        "wallet": "9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp"
+      },
+      {
+        "first_block_time": 1786423381,
+        "lamports": 0,
+        "last_block_time": 1786424015,
+        "transfer_count": 2,
+        "wallet": "Am3Un7bph5NNWDLCVVVQT1kY4kN3GFPjj31g4DdrNCd4"
+      },
+      {
+        "first_block_time": 1786423387,
+        "lamports": 0,
+        "last_block_time": 1786424020,
+        "transfer_count": 2,
+        "wallet": "Ao2sUdoFtKW7yix7v6GT8GoWE94LcgHiyjautukHBKAi"
+      },
+      {
+        "first_block_time": 1786423394,
+        "lamports": 0,
+        "last_block_time": 1786424025,
+        "transfer_count": 2,
+        "wallet": "BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH"
+      },
+      {
+        "first_block_time": 1786423375,
+        "lamports": 1265776,
+        "last_block_time": 1786424006,
+        "transfer_count": 2,
+        "wallet": "BsKEb5qhnHMFP4XUjoXMv5nMxkvuaFtBH5ssuWNMjLbw"
+      },
+      {
+        "first_block_time": 1786423390,
+        "lamports": 0,
+        "last_block_time": 1786424021,
+        "transfer_count": 2,
+        "wallet": "C2W3FExk348T4aNHpJjiCZpNrpd9MNLBBVZAdWCogtBx"
+      },
+      {
+        "first_block_time": 1786423375,
+        "lamports": 0,
+        "last_block_time": 1786424006,
+        "transfer_count": 2,
+        "wallet": "C55hxeJepPLMKi4xuKjAFLWmxoSfVrqn2LELi67ixQfe"
+      },
+      {
+        "first_block_time": 1786423393,
+        "lamports": 0,
+        "last_block_time": 1786424023,
+        "transfer_count": 2,
+        "wallet": "CYnm5v4MiLLLaUvu5VUfYPxszU8RPBzmH3Qkv7QbfcUi"
+      },
+      {
+        "first_block_time": 1786423392,
+        "lamports": 0,
+        "last_block_time": 1786424023,
+        "transfer_count": 2,
+        "wallet": "CbMTzd1sG9vuP9Tw2nUNBHUvtsyzr4Hm5rknri4XxXWL"
+      },
+      {
+        "first_block_time": 1786423394,
+        "lamports": 0,
+        "last_block_time": 1786424023,
+        "transfer_count": 2,
+        "wallet": "DmfxzqZQTifJQhfrikFdDQXy3Ws6X9H3VX5xkRVTf77y"
+      },
+      {
+        "first_block_time": 1786423385,
+        "lamports": 0,
+        "last_block_time": 1786424018,
+        "transfer_count": 2,
+        "wallet": "FJrraJVwKYdcLX4we8UttdJGvxErgUKWf6awnVSsxArH"
+      },
+      {
+        "first_block_time": 1786423386,
+        "lamports": 1095786,
+        "last_block_time": 1786424018,
+        "transfer_count": 2,
+        "wallet": "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD"
+      },
+      {
+        "first_block_time": 1786423378,
+        "lamports": 0,
+        "last_block_time": 1786424012,
+        "transfer_count": 2,
+        "wallet": "G1BJvTetp6YSwaDNSajruPPM1JCTZf5NWeyr6dQN94n7"
+      },
+      {
+        "first_block_time": 1786423381,
+        "lamports": 0,
+        "last_block_time": 1786424014,
+        "transfer_count": 2,
+        "wallet": "G9XSZDgMk8x51uHvFUumZK5AFWJLp3GJCV7VZSkL3uGP"
+      },
+      {
+        "first_block_time": 1786423393,
+        "lamports": 0,
+        "last_block_time": 1786424025,
+        "transfer_count": 2,
+        "wallet": "GUBtBg8i5wn5ME3vYmgqMZFFuBnDp6i1oa8BPFwoURAP"
+      },
+      {
+        "first_block_time": 1786423380,
+        "lamports": 0,
+        "last_block_time": 1786424014,
+        "transfer_count": 2,
+        "wallet": "Gy29oqrQGFsP8cSsZ4eJvmMDMvKeYtWgURGCn5jim9Xn"
+      },
+      {
+        "first_block_time": 1786423392,
+        "lamports": 0,
+        "last_block_time": 1786424023,
+        "transfer_count": 2,
+        "wallet": "HQ2q5DJuAVf1CrDJpwmeSYsLgvGp9k5cGEPZQsNvcMW9"
+      },
+      {
+        "first_block_time": 1786423376,
+        "lamports": 1820814,
+        "last_block_time": 1786424008,
+        "transfer_count": 2,
+        "wallet": "HRneLKJHUHXJr9zb297N44L8WCUqCJYKDsSxDaPv49wS"
+      },
+      {
+        "first_block_time": 1786423376,
+        "lamports": 0,
+        "last_block_time": 1786424008,
+        "transfer_count": 2,
+        "wallet": "J87ewUdaYKXaMVZEdKh14fMcKXaAmzGamzGtaXDop13X"
+      },
+      {
+        "first_block_time": 1786423386,
+        "lamports": 0,
+        "last_block_time": 1786424019,
+        "transfer_count": 2,
+        "wallet": "NeHjc1yqZXesLZTHtK7jrjyQ3MpFg2TVHpV8QDDAHEm"
+      },
+      {
+        "first_block_time": 1786423378,
+        "lamports": 0,
+        "last_block_time": 1786424012,
+        "transfer_count": 2,
+        "wallet": "j6EVoUMZRafJPrdkuoB9PJGXxBGHEsx4VcJq5W3Ft5d"
+      }
+    ],
+    "transfers": [
+      {
+        "block_time": 1786424015,
+        "destination": "Am3Un7bph5NNWDLCVVVQT1kY4kN3GFPjj31g4DdrNCd4",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "29oEp8DFaasZQopaM3m8arQCisCxtme4aUEGZgoXp67crhzAYGUQZLk3ptbwQbr8AThAgoSEJRG4sRfQcbKwCJnU"
+      },
+      {
+        "block_time": 1786424014,
+        "destination": "G9XSZDgMk8x51uHvFUumZK5AFWJLp3GJCV7VZSkL3uGP",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2AEcR4bWAjJgTQCLaPWtEcVRcQQGyJVBrBnFaZiE8MX3JsEiCRAGKzJTijzZ8Np5zZQaekxRJkkc5AshWajZ7i6z"
+      },
+      {
+        "block_time": 1786424023,
+        "destination": "DmfxzqZQTifJQhfrikFdDQXy3Ws6X9H3VX5xkRVTf77y",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2GoeJ95rJEqR7yn4HGxEMviuHKzRFqA1is42ETEtmoxnpbGNmj3SivLDVxTaZZ6ciCjopy4GXLj8Vz3C1jV7rZxD"
+      },
+      {
+        "block_time": 1786424023,
+        "destination": "54xTpcBEr48Cuis8m2SdeymdQcwvmDR4aegxCPQzUANG",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2J2Hmb9dgmegNYiSMyDdTYG7WEPKV24YrbuWuYByJz41igAyATc8A4PUD1HNWBgmmKXUmqfQriBKXW2SsFbijFha"
+      },
+      {
+        "block_time": 1786423378,
+        "destination": "397s3pwPhV1A88Fj2EuNoERFYTCLdN5WiUAPvxUxFVST",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2MYNARYRs28TPSG2H9EgbmbPQaWur1WBvGGgGXr7Zp49BxGkS61rEpkzX4z7jp8X1XVgBoU9TuFbSJrC7dpM6RQ4"
+      },
+      {
+        "block_time": 1786424023,
+        "destination": "HQ2q5DJuAVf1CrDJpwmeSYsLgvGp9k5cGEPZQsNvcMW9",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2VEZTUXo6QQSPNo9rRxiVmbHa57wFWqCMJmYmvHZWN5Pxc5rfBYRpbCztWjYwRVzC4KqgKY1NJ8awuHyXhYdavu4"
+      },
+      {
+        "block_time": 1786423393,
+        "destination": "CYnm5v4MiLLLaUvu5VUfYPxszU8RPBzmH3Qkv7QbfcUi",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2XkRFaVFaApbX6nxLJmcpmDTpVqxLcHNxZ1BFqw5xvS19MvjHfanXSAH1gm5HKkCMfWaEcXu9ActYdgQNnEk2XTm"
+      },
+      {
+        "block_time": 1786423380,
+        "destination": "49Wo4qJS1CWPd4b8LAezyL4ARPj3fw6N6zPhPV4dQd6V",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2b3Wd4AipDFUsaEFigWjMqj3U9AmfAdfKG7X5kd26ce4FJgvVGdW9RVQHxM4AEtZCbFg5jWm9sV1aSCz6CoQm3GA"
+      },
+      {
+        "block_time": 1786423378,
+        "destination": "G1BJvTetp6YSwaDNSajruPPM1JCTZf5NWeyr6dQN94n7",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2e3BKYqqxRdmoBga9vHV1P4FbtgnyHmDqWZdmYaopr21dTJaqL613r7yCHUHwFHq4fN7P5Huv29LPKWGQx9k94nx"
+      },
+      {
+        "block_time": 1786423386,
+        "destination": "5sUoQPPvnvS6eXem4TdcjKJ1JZy7uLEhWN3pCA8yNFnc",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2eHNFDpU9cCpwenNnmXzWh8XLrXFH3i9GGoTLqQdfrL2RuiPgN9JafiaxESN7rVvSVYgH34DsFCZCfTdjki9DqC4"
+      },
+      {
+        "block_time": 1786424011,
+        "destination": "5PkFFC9FCmm2EUQHMqbF9cwMviSXjgAjeqKEoPoYejuG",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "2vQmBizPaG22Skn22U76GgcVTC8sD7RW4NgBP8CtoCTArQkVoGKUmSzamjzizeMJiJ3kC6kEYtCAqZq2ALZUiX32"
+      },
+      {
+        "block_time": 1786424012,
+        "destination": "397s3pwPhV1A88Fj2EuNoERFYTCLdN5WiUAPvxUxFVST",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "3GNW2pmhsTdzkh5mGDLyyJXa2mKdJHKcAbpitUMZC7g2isBntbD9TTmVAzbY6e2W4Q3PSt5yFQxvAiSXv7aJLNsM"
+      },
+      {
+        "block_time": 1786424019,
+        "destination": "NeHjc1yqZXesLZTHtK7jrjyQ3MpFg2TVHpV8QDDAHEm",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "3GX56iK2U7YL1XLuUQvoTwxd7WZzHsRTQsBi38CvwzTCYTEASo7ephN1jDPqkHcwdEnCecHqijU8SkdJxxZLyFJ1"
+      },
+      {
+        "block_time": 1786424020,
+        "destination": "5sUoQPPvnvS6eXem4TdcjKJ1JZy7uLEhWN3pCA8yNFnc",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "3H26NyBps5SsgvES1Hj2c1dgonA2deaQq3cDskEeAeSXT7L2dE1wJrMBAtA2daj45CiQMkf2oKRMeJX5DnbckjCv"
+      },
+      {
+        "block_time": 1786423386,
+        "destination": "9As8wexRUtoujuYia5WxpiUCbjut75XTb9LknATiXvRW",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "3R8fgp6ZhvCDiFkKhfPaEaiXxU9C55YCYFsDbSw1RDHA5GuicFVw8TxVemQGQCyYBa3r5HtwCDVqVJC8e4amUast"
+      },
+      {
+        "block_time": 1786423386,
+        "destination": "5iDYsDLugMXh1LTRVDmFH8PfQ6ueG5pE9UcfefrnztB6",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "3SxupaKFMsdnup7ViMpLnVnRcYu3eQvVV4nM9TiRL3K8iycr7BfqLDJBzsbxDhquo5VNYxRuiTwo6XM3z8PP2F3S"
+      },
+      {
+        "block_time": 1786424008,
+        "destination": "HRneLKJHUHXJr9zb297N44L8WCUqCJYKDsSxDaPv49wS",
+        "destination_role": "direct_funder",
+        "kind": "transfer",
+        "lamports": 1820814,
+        "signature": "3ZwRSjEaC2kzxdhwVTBAWQJBruUfxQ3VQK6dEckPXr594t5adW9u11aHtXh5TZiAA2xkwbJRKzdPPffZkfeMzeGZ"
+      },
+      {
+        "block_time": 1786424025,
+        "destination": "GUBtBg8i5wn5ME3vYmgqMZFFuBnDp6i1oa8BPFwoURAP",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "3bukRAC6Dx8iPjHKZ6nAWHwf8M1Egn6BdB4nD2AUHyVFrHpsHT9KFx3RxDHwtRQWwdHKpjfhUotd2r1fRE7iC84"
+      },
+      {
+        "block_time": 1786423375,
+        "destination": "BsKEb5qhnHMFP4XUjoXMv5nMxkvuaFtBH5ssuWNMjLbw",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "3c795qAWeFV8wug4FDfxaJq2mMiAWe45yeteGHMABXR7aFx57vkUDv7a9StDMVhYbPpDibyxqkjvm4T48zy3qndo"
+      },
+      {
+        "block_time": 1786424022,
+        "destination": "2h2xdvznzmcRi4zNE8A3uwe4Er5e5bf8gTxzXREg9ph5",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "3eGc94wsE5J65rNf8Fsa2gW1NK6EyFpNHV2Fh8wad8VP74X3TSgn4J4i75HDzLqvrw2Gd6fZ4CMM8W2Rd4mfBTvq"
+      },
+      {
+        "block_time": 1786423392,
+        "destination": "HQ2q5DJuAVf1CrDJpwmeSYsLgvGp9k5cGEPZQsNvcMW9",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "3gPbYD3vYeRKdFo8L6PH3ByEjyiizxWy9yiPJaLyorWd5Zdmu3fKqgLYHw1wvbz659eVbH33MLH8hNtMNpNd528M"
+      },
+      {
+        "block_time": 1786423392,
+        "destination": "CbMTzd1sG9vuP9Tw2nUNBHUvtsyzr4Hm5rknri4XxXWL",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "3ncPSuWcfamHqQcSpdhTB8piCKybjkjZLnGHGrPE89NPUjWDUwkiLtUA5vdcSW19a4thp8oQnC9i3d9u7m7Gcx5y"
+      },
+      {
+        "block_time": 1786423376,
+        "destination": "J87ewUdaYKXaMVZEdKh14fMcKXaAmzGamzGtaXDop13X",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "3rryunDgonn78N9Fesz7Ek4MqwhRt5AvnMSgfk436qNJi4cSdBn8a4BBBU3ksiNWweqVkGzmCnso9B2aDvt5iH9t"
+      },
+      {
+        "block_time": 1786423387,
+        "destination": "Ao2sUdoFtKW7yix7v6GT8GoWE94LcgHiyjautukHBKAi",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "3ytgEqk7SYX311ZxgDJmgw9VHPz4SkgbPdwVGm1y5c3ZQHDd1f9HzBJLd8vs1kyZiDEQwNK2WHW4vhJ7gYwcppDs"
+      },
+      {
+        "block_time": 1786424013,
+        "destination": "49Wo4qJS1CWPd4b8LAezyL4ARPj3fw6N6zPhPV4dQd6V",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "43dcmYgJCmBDJDdyRRJFfDw69NnJSUzoY2efzm9tNkKac9QdFzbBQDBs3rvSpKRrGeRBrWfWGntBhMjrLhKx32BW"
+      },
+      {
+        "block_time": 1786424018,
+        "destination": "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD",
+        "destination_role": "direct_funder",
+        "kind": "transfer",
+        "lamports": 1095786,
+        "signature": "457HU4e9FaeWW1B1Rw3qsdzRgRjD4wyn4GqrLrWu4GyTFjbuB3bEAA5HBpQEPaNtdtnnVyUcVXqjiDYtcdkwg4Wv"
+      },
+      {
+        "block_time": 1786423390,
+        "destination": "C2W3FExk348T4aNHpJjiCZpNrpd9MNLBBVZAdWCogtBx",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "45vVm8HUoBgARhJFLxUJfjZ5vwgHMkJQXqxBsnytWuBQj7Rf2QBzszRQcN8FvMxxpxiHXAu8jtxQVJpqPL8c7FSZ"
+      },
+      {
+        "block_time": 1786423380,
+        "destination": "Gy29oqrQGFsP8cSsZ4eJvmMDMvKeYtWgURGCn5jim9Xn",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "49JbzSGpYyLteShaCaPGb4tAZN8LjbqosP7RqkaXjHVgMSxGWkJDwXAfstZ7zTTwChnutZSMeNFCvt9xP5VnFrf5"
+      },
+      {
+        "block_time": 1786424012,
+        "destination": "9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp",
+        "destination_role": "direct_funder",
+        "kind": "transfer",
+        "lamports": 2037576,
+        "signature": "4Crf39Wu5s2cveSHAJyKr6et3r5ahuYEkLnyoYfhDqbbyJCEEx1LC6UqDJ8n7pV5FfyZacqW9uq34XTZSHVHy49K"
+      },
+      {
+        "block_time": 1786423376,
+        "destination": "HRneLKJHUHXJr9zb297N44L8WCUqCJYKDsSxDaPv49wS",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4XM7BvqypYmEGDt3jtioqJPekRowTUKXEj7yEh6NZQTeZVgRqVzDD1pPHPU1ev4Y52yyxy7BQy4iMsHRri3zF2vU"
+      },
+      {
+        "block_time": 1786424012,
+        "destination": "7144mX5peoQoyYq2ncsTmzFciqkLiYzS42XVmvFjGiv4",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4aGn4LoWMQ5TDYZFmybZ7QPrJ8r1fEmEf1Ng1oLrmHFs4v3KP6P4yn3YxJFrv5ai6ST8p7FEUWvzM4CWzSRKHndo"
+      },
+      {
+        "block_time": 1786423394,
+        "destination": "DmfxzqZQTifJQhfrikFdDQXy3Ws6X9H3VX5xkRVTf77y",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4iLE1eVV3EZ8pFdnasfqFzX88KboSght46d4FSL9i4wKtbjz8WHmCVseqCGNAraEoAajARAA2QvCvtRm8tW7ssGH"
+      },
+      {
+        "block_time": 1786423380,
+        "destination": "9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4q9GjQJb71Wc35THYr8UAQXZ1FrYnPcZG334cRESkTZEYdqaCRUntnEweLz9ug38eswm4KtRya11HAsWDSsh8Cnk"
+      },
+      {
+        "block_time": 1786423392,
+        "destination": "2h2xdvznzmcRi4zNE8A3uwe4Er5e5bf8gTxzXREg9ph5",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4uieH1Xj4ErXEwRGUEYcwXz3J91dhnUCuVXoY8pQg3RjsZZZRpWivPUcTFoaFQLozJW6LFDwg6aHJpazbC6vPHmo"
+      },
+      {
+        "block_time": 1786424020,
+        "destination": "Ao2sUdoFtKW7yix7v6GT8GoWE94LcgHiyjautukHBKAi",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4vwUedJVNtY9rQxGHgkQ6cJxxyocgb6sGbkCKMPZUYk4W2EnHfMZ8K3qxLgm9rW5WLwHZUJtGDDarNpDaRCPGTwB"
+      },
+      {
+        "block_time": 1786424023,
+        "destination": "3thxdSxsHtFuGJroCYe6JmCojPRizUz1GnvQSq5M5JfY",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4z3scqqHZX76KRqaR4SQcJ5WJ1SA8X27QuYw7XRtkvD7HAk3ocYPXo6Y45jxQKmK1TnSzwKsSRgDzUagnKxtRKrV"
+      },
+      {
+        "block_time": 1786423378,
+        "destination": "5PkFFC9FCmm2EUQHMqbF9cwMviSXjgAjeqKEoPoYejuG",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "4zqwVG7hrYuBKq72K1T8Lmzn2jANUHVZbBE2LT7uf2gmDgHPuoGg6PJU4cm3BkUN79wj4pLtHLhzUKMwoq4b4eiN"
+      },
+      {
+        "block_time": 1786424006,
+        "destination": "7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "589Q5j6RumrPoRkTvoJQw1wLk4eHNqqyXN26vRZ8RKio6dWS9HCQbQgs6NGuiMqcB5qGBVAB4RikpNNXMDS7Uusg"
+      },
+      {
+        "block_time": 1786423375,
+        "destination": "C55hxeJepPLMKi4xuKjAFLWmxoSfVrqn2LELi67ixQfe",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5DnMSdy8TDpqWtSXEbEZnzZfNU6apDsKnJ4ySXy5D6vdtHs9haDyRrZDsRAKWqGsAGJ1ExwF37YMitLExfwAfWy8"
+      },
+      {
+        "block_time": 1786423381,
+        "destination": "G9XSZDgMk8x51uHvFUumZK5AFWJLp3GJCV7VZSkL3uGP",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5FJMGHADWpAMSioxeRA1rxyp6G771yWcsBuPoquRYNTm4afsDnW2CGRJaRKmuBTvYiLpuqrb2LyF7Y3xGP5y6P64"
+      },
+      {
+        "block_time": 1786423392,
+        "destination": "54xTpcBEr48Cuis8m2SdeymdQcwvmDR4aegxCPQzUANG",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5MvsdhhGBbNCszQuN2LqFbEMCCK2tA1poTKDYQ4Eog4wpHS7nnm2SN2YdVaHCMwZCUTcg7PJGgY5DF3yLQwdLrTD"
+      },
+      {
+        "block_time": 1786424018,
+        "destination": "FJrraJVwKYdcLX4we8UttdJGvxErgUKWf6awnVSsxArH",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5Qgnpv2cuWAgjB72gU2xrjeEsKdxrvTbBRV9e5VtphPG9hy6cnjnvn2mKYqBCw3Bdy89PcCAtVryUPpbwvmqfb3V"
+      },
+      {
+        "block_time": 1786423375,
+        "destination": "7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5TsAh8pr2nkDPWVZAPEcGLrUSm4gejABpKcaVBbHAKYvJFnZyMHbD7Tn3PTvJ5a5HboFfsxJQyZxbwwzYFFUUAmZ"
+      },
+      {
+        "block_time": 1786423394,
+        "destination": "BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5dfFEmnEq7vcuXjjngbtLKYuPhULhAas2JMpaxWHT1uo13GHmLT2ZWkcomaS37kc8XW8F9esyNDcaKzFsyyH3Vpa"
+      },
+      {
+        "block_time": 1786423381,
+        "destination": "Am3Un7bph5NNWDLCVVVQT1kY4kN3GFPjj31g4DdrNCd4",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5gWvYThpVJYgujuJtsyikub21Cf4JGXitb8xTtjLvseJkxsoEE7DMNkPnNEBMd3qNCEUyGqrca92AsLEa8rLNjts"
+      },
+      {
+        "block_time": 1786424014,
+        "destination": "6jJnz6ZQjDZeFLxoDq2RBp4fvsjPfCJmpr1jhQcy2rBk",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5gvzA8BVmypnBp5gUkT9cVkNVCRa5TYE1erfy2JBgE8CVjDQsKaoXSTnesStAY9KX6puyNT4EtukWiaW9QdkKAXv"
+      },
+      {
+        "block_time": 1786423380,
+        "destination": "6jJnz6ZQjDZeFLxoDq2RBp4fvsjPfCJmpr1jhQcy2rBk",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5h35PbVSYQ8yYUMw2oep7eEyYfvYhrC5jFmsB8uVTV6cq61bZ8STUKzP8GbHb6vqQx3hAYvo8DGBGr7TSEHUAaCE"
+      },
+      {
+        "block_time": 1786424012,
+        "destination": "5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5iuxC2Nct8UnqzkAQdZM7wnTGzbJMyLDJUGrggt8hm1K4t7Pu2fJqhzPuKe1WutKBEK2yvi316fquqmG4peZJoa9"
+      },
+      {
+        "block_time": 1786424025,
+        "destination": "BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5mDnFbGi17AArSSdjfWEz4NqaGyAfyJ8YycwN6mQvsoupMqQ2kvWUeNGFAsaRmUm6tny29B6gxXWpM9DpoHLNLyp"
+      },
+      {
+        "block_time": 1786424006,
+        "destination": "BsKEb5qhnHMFP4XUjoXMv5nMxkvuaFtBH5ssuWNMjLbw",
+        "destination_role": "direct_funder",
+        "kind": "transfer",
+        "lamports": 1265776,
+        "signature": "5qQtLuqoTJNmmqdeHj1BftuTY1c5FmRg2mLmUHH1Kpnj59pccHCrhLe77j3XTWMbs58ohKMkFCuYPv6KuFYynqXR"
+      },
+      {
+        "block_time": 1786424006,
+        "destination": "C55hxeJepPLMKi4xuKjAFLWmxoSfVrqn2LELi67ixQfe",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5r6Eyaf9xStXPgU4rMpTfotkjVcoK85ezGYHRQbMFMk8y5FKPiVzP9EExo5aesxQPaVzMgJ6L4JfMtBsUMPgwTrd"
+      },
+      {
+        "block_time": 1786423393,
+        "destination": "GUBtBg8i5wn5ME3vYmgqMZFFuBnDp6i1oa8BPFwoURAP",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5vvqyWDoSzcGkfghhdkErHXadfVB4op6YaWrAkfvtq6cDDRGBtNL9inWgVhcnquDUo9YgrKNi3bLeB3ynPgBqY1i"
+      },
+      {
+        "block_time": 1786424023,
+        "destination": "CbMTzd1sG9vuP9Tw2nUNBHUvtsyzr4Hm5rknri4XxXWL",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "5z59tDKQ41AQnPWutPEDwTCZn2w2uPrkg9ZJUc1Nd9nnNMN1683HmxPqgKi9bENn2F7dkqtKiw9Ur7HMQj4rJhbN"
+      },
+      {
+        "block_time": 1786424006,
+        "destination": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "65k7tuTuvf1CDbTtWGRsUT1gZjxKTy375BRysb3b5ZPkwgdigZpUdhFVziDiCgPZDC8QitKhoRNEXJVFLVfd8okv"
+      },
+      {
+        "block_time": 1786424014,
+        "destination": "Gy29oqrQGFsP8cSsZ4eJvmMDMvKeYtWgURGCn5jim9Xn",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "6kHRhNB8y6cNpbUk4YoCP9iHxvJq2g27UBwynbBS1qZCnfY7GsrvrL4HnH6NfgPaYuPjYf2CrzDvHuvgNJDyaeU"
+      },
+      {
+        "block_time": 1786423380,
+        "destination": "7144mX5peoQoyYq2ncsTmzFciqkLiYzS42XVmvFjGiv4",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "EF2Kp6qVQZdf4QBEFEjx8sNu4PYYCUkYFcGTzqRMzDvBNeRdJ8VbSptyo7vJmDx9d9h8NkQwsz5Dtu2SWj3F5cv"
+      },
+      {
+        "block_time": 1786424023,
+        "destination": "CYnm5v4MiLLLaUvu5VUfYPxszU8RPBzmH3Qkv7QbfcUi",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "FqHxefHmr8uH4MXpDbT4dk75F1m6oRhZoYGo59DtfzwdLtWwz7b3bwRov72b5aUDFrFWCdG7Kw42Zcf2NY5suVt"
+      },
+      {
+        "block_time": 1786423385,
+        "destination": "FJrraJVwKYdcLX4we8UttdJGvxErgUKWf6awnVSsxArH",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "HYQx8644uuuM28SC2PfWXCfsudNdUGcZLUyB5dYuHuLNWzpfk59PyqNfESHAGT8dSRsBHCqF3eZgzQ8yJfhw8r7"
+      },
+      {
+        "block_time": 1786424021,
+        "destination": "9As8wexRUtoujuYia5WxpiUCbjut75XTb9LknATiXvRW",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "PJRq3gseyJ6oJcvLmCmTCD65NMHEeJYBogoTXd4r5XgNK7rThapDNAqEFhqwAhhRb7Y3o7XybjX8Hkmnfwf7Hb7"
+      },
+      {
+        "block_time": 1786424015,
+        "destination": "5iDYsDLugMXh1LTRVDmFH8PfQ6ueG5pE9UcfefrnztB6",
+        "destination_role": "direct_funder",
+        "kind": "transfer",
+        "lamports": 1496626,
+        "signature": "QkXJWmEqZRwaf11QBgujT3MRbZ7RBArdvfa7MDcpHKgy5mZPX8sUR4uLAwNVoybCyjJYc1QjEJSiTP3JEzFCoCK"
+      },
+      {
+        "block_time": 1786423386,
+        "destination": "NeHjc1yqZXesLZTHtK7jrjyQ3MpFg2TVHpV8QDDAHEm",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "RCkTwJWaDXgfgCvrd1ArVKcHhQysbswkTVHKE5gqwKpiLemeqc2PZmiDEnL3GeM1E4rupFTZdkrdQhy9Zg2gbHW"
+      },
+      {
+        "block_time": 1786423386,
+        "destination": "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "VXvo7Nb8axjndWLiFffySRq3T3MaQv7LruPo2YT5UiPXVNHhGSfumJtdZx2FphFNkvGvs3bDwjN8hmfWdxqbCZL"
+      },
+      {
+        "block_time": 1786424012,
+        "destination": "j6EVoUMZRafJPrdkuoB9PJGXxBGHEsx4VcJq5W3Ft5d",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "VsSoov9by3bazLxjrRDZerhLHjxJ1J8GFV8iQkHVMyk3WC5nQEYWwFhAXYU8HLbimBBDSQdXVmg4Xy8X6qkWqSc"
+      },
+      {
+        "block_time": 1786423378,
+        "destination": "5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "W59nvovZuhdnAEG1PuzUviQpG7aRNANoAbq876KE2YVMF8cw4uavFe7njo8kjrtDiKy2HkEN2GwacnALQZ5aUMF"
+      },
+      {
+        "block_time": 1786423391,
+        "destination": "3thxdSxsHtFuGJroCYe6JmCojPRizUz1GnvQSq5M5JfY",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "e2m8C5ZvJwqyDJ7fFL4pZp1dRedZcAkbR1Jtq54QWX1srJrAEUGMNiQ8YTbTyGBgYyXN3aRPgAZRMAZMGTTFm5S"
+      },
+      {
+        "block_time": 1786424021,
+        "destination": "C2W3FExk348T4aNHpJjiCZpNrpd9MNLBBVZAdWCogtBx",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "f7YJQhJTihG8tZxk2AxiHNoeGgx1N165qwDsBQ8scUMDq4visv3o475DLkajYKnHjktkDAgnusSqkpwbeGuwnBV"
+      },
+      {
+        "block_time": 1786424012,
+        "destination": "G1BJvTetp6YSwaDNSajruPPM1JCTZf5NWeyr6dQN94n7",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "hxpxW3SyHE8BF9MqGCerpNQC1uu6Evek8gbSkpwiVvS3xKM7KVrVMnKBf41kr6mqNJy5NiUyPpbFZiedRqZzh3K"
+      },
+      {
+        "block_time": 1786423378,
+        "destination": "j6EVoUMZRafJPrdkuoB9PJGXxBGHEsx4VcJq5W3Ft5d",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "jFZYAsFgQsRxBGE1wEzY6E9E2gKvohi9XnfVKjRUijirJkhSVKq4ieFc215znMitA2VJVz3NdNyeHN7FkYdroei"
+      },
+      {
+        "block_time": 1786424008,
+        "destination": "J87ewUdaYKXaMVZEdKh14fMcKXaAmzGamzGtaXDop13X",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "k5iA9e75KsQPJYhdR84KLd19E8evhpLHmV2ckRmR93pYPd6cVr7iMk3iHexyodCQspxKkNrwd5d3teDj4etKRyW"
+      },
+      {
+        "block_time": 1786423375,
+        "destination": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+        "destination_role": "direct_funder",
+        "kind": "closeAccount",
+        "lamports": null,
+        "signature": "kzZYsKWDPBWsDGgqcS8opohzsS8hUddgKTFkJNBeW8z7x1EWKb3znXVEE7iAGnh1aB2fUkBYmaAGQ4jefXkAhGq"
+      }
+    ]
+  },
+  "dutb_to_direct_funders_via_wsol_close": {
+    "by_funder": [
+      {
+        "first_block_time": 1786423392,
+        "lamports": 0,
+        "last_block_time": 1786424022,
+        "transfer_count": 2,
+        "wallet": "2h2xdvznzmcRi4zNE8A3uwe4Er5e5bf8gTxzXREg9ph5"
+      },
+      {
+        "first_block_time": 1786423378,
+        "lamports": 0,
+        "last_block_time": 1786424012,
+        "transfer_count": 2,
+        "wallet": "397s3pwPhV1A88Fj2EuNoERFYTCLdN5WiUAPvxUxFVST"
+      },
+      {
+        "first_block_time": 1786423375,
+        "lamports": 0,
+        "last_block_time": 1786424006,
+        "transfer_count": 2,
+        "wallet": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7"
+      },
+      {
+        "first_block_time": 1786423391,
+        "lamports": 0,
+        "last_block_time": 1786424023,
+        "transfer_count": 2,
+        "wallet": "3thxdSxsHtFuGJroCYe6JmCojPRizUz1GnvQSq5M5JfY"
+      },
+      {
+        "first_block_time": 1786423380,
+        "lamports": 0,
+        "last_block_time": 1786424013,
+        "transfer_count": 2,
+        "wallet": "49Wo4qJS1CWPd4b8LAezyL4ARPj3fw6N6zPhPV4dQd6V"
+      },
+      {
+        "first_block_time": 1786423392,
+        "lamports": 0,
+        "last_block_time": 1786424023,
+        "transfer_count": 2,
+        "wallet": "54xTpcBEr48Cuis8m2SdeymdQcwvmDR4aegxCPQzUANG"
+      },
+      {
+        "first_block_time": 1786423378,
+        "lamports": 0,
+        "last_block_time": 1786424011,
+        "transfer_count": 2,
+        "wallet": "5PkFFC9FCmm2EUQHMqbF9cwMviSXjgAjeqKEoPoYejuG"
+      },
+      {
+        "first_block_time": 1786423378,
+        "lamports": 0,
+        "last_block_time": 1786424012,
+        "transfer_count": 2,
+        "wallet": "5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn"
+      },
+      {
+        "first_block_time": 1786423386,
+        "lamports": 0,
+        "last_block_time": 1786423386,
+        "transfer_count": 1,
+        "wallet": "5iDYsDLugMXh1LTRVDmFH8PfQ6ueG5pE9UcfefrnztB6"
+      },
+      {
+        "first_block_time": 1786423386,
+        "lamports": 0,
+        "last_block_time": 1786424020,
+        "transfer_count": 2,
+        "wallet": "5sUoQPPvnvS6eXem4TdcjKJ1JZy7uLEhWN3pCA8yNFnc"
+      },
+      {
+        "first_block_time": 1786423380,
+        "lamports": 0,
+        "last_block_time": 1786424014,
+        "transfer_count": 2,
+        "wallet": "6jJnz6ZQjDZeFLxoDq2RBp4fvsjPfCJmpr1jhQcy2rBk"
+      },
+      {
+        "first_block_time": 1786423380,
+        "lamports": 0,
+        "last_block_time": 1786424012,
+        "transfer_count": 2,
+        "wallet": "7144mX5peoQoyYq2ncsTmzFciqkLiYzS42XVmvFjGiv4"
+      },
+      {
+        "first_block_time": 1786423375,
+        "lamports": 0,
+        "last_block_time": 1786424006,
+        "transfer_count": 2,
+        "wallet": "7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv"
+      },
+      {
+        "first_block_time": 1786423386,
+        "lamports": 0,
+        "last_block_time": 1786424021,
+        "transfer_count": 2,
+        "wallet": "9As8wexRUtoujuYia5WxpiUCbjut75XTb9LknATiXvRW"
+      },
+      {
+        "first_block_time": 1786423380,
+        "lamports": 0,
+        "last_block_time": 1786423380,
+        "transfer_count": 1,
+        "wallet": "9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp"
+      },
+      {
+        "first_block_time": 1786423381,
+        "lamports": 0,
+        "last_block_time": 1786424015,
+        "transfer_count": 2,
+        "wallet": "Am3Un7bph5NNWDLCVVVQT1kY4kN3GFPjj31g4DdrNCd4"
+      },
+      {
+        "first_block_time": 1786423387,
+        "lamports": 0,
+        "last_block_time": 1786424020,
+        "transfer_count": 2,
+        "wallet": "Ao2sUdoFtKW7yix7v6GT8GoWE94LcgHiyjautukHBKAi"
+      },
+      {
+        "first_block_time": 1786423394,
+        "lamports": 0,
+        "last_block_time": 1786424025,
+        "transfer_count": 2,
+        "wallet": "BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH"
+      },
+      {
+        "first_block_time": 1786423375,
+        "lamports": 0,
+        "last_block_time": 1786423375,
+        "transfer_count": 1,
+        "wallet": "BsKEb5qhnHMFP4XUjoXMv5nMxkvuaFtBH5ssuWNMjLbw"
+      },
+      {
+        "first_block_time": 1786423390,
+        "lamports": 0,
+        "last_block_time": 1786424021,
+        "transfer_count": 2,
+        "wallet": "C2W3FExk348T4aNHpJjiCZpNrpd9MNLBBVZAdWCogtBx"
+      },
+      {
+        "first_block_time": 1786423375,
+        "lamports": 0,
+        "last_block_time": 1786424006,
+        "transfer_count": 2,
+        "wallet": "C55hxeJepPLMKi4xuKjAFLWmxoSfVrqn2LELi67ixQfe"
+      },
+      {
+        "first_block_time": 1786423393,
+        "lamports": 0,
+        "last_block_time": 1786424023,
+        "transfer_count": 2,
+        "wallet": "CYnm5v4MiLLLaUvu5VUfYPxszU8RPBzmH3Qkv7QbfcUi"
+      },
+      {
+        "first_block_time": 1786423392,
+        "lamports": 0,
+        "last_block_time": 1786424023,
+        "transfer_count": 2,
+        "wallet": "CbMTzd1sG9vuP9Tw2nUNBHUvtsyzr4Hm5rknri4XxXWL"
+      },
+      {
+        "first_block_time": 1786423394,
+        "lamports": 0,
+        "last_block_time": 1786424023,
+        "transfer_count": 2,
+        "wallet": "DmfxzqZQTifJQhfrikFdDQXy3Ws6X9H3VX5xkRVTf77y"
+      },
+      {
+        "first_block_time": 1786423385,
+        "lamports": 0,
+        "last_block_time": 1786424018,
+        "transfer_count": 2,
+        "wallet": "FJrraJVwKYdcLX4we8UttdJGvxErgUKWf6awnVSsxArH"
+      },
+      {
+        "first_block_time": 1786423386,
+        "lamports": 0,
+        "last_block_time": 1786423386,
+        "transfer_count": 1,
+        "wallet": "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD"
+      },
+      {
+        "first_block_time": 1786423378,
+        "lamports": 0,
+        "last_block_time": 1786424012,
+        "transfer_count": 2,
+        "wallet": "G1BJvTetp6YSwaDNSajruPPM1JCTZf5NWeyr6dQN94n7"
+      },
+      {
+        "first_block_time": 1786423381,
+        "lamports": 0,
+        "last_block_time": 1786424014,
+        "transfer_count": 2,
+        "wallet": "G9XSZDgMk8x51uHvFUumZK5AFWJLp3GJCV7VZSkL3uGP"
+      },
+      {
+        "first_block_time": 1786423393,
+        "lamports": 0,
+        "last_block_time": 1786424025,
+        "transfer_count": 2,
+        "wallet": "GUBtBg8i5wn5ME3vYmgqMZFFuBnDp6i1oa8BPFwoURAP"
+      },
+      {
+        "first_block_time": 1786423380,
+        "lamports": 0,
+        "last_block_time": 1786424014,
+        "transfer_count": 2,
+        "wallet": "Gy29oqrQGFsP8cSsZ4eJvmMDMvKeYtWgURGCn5jim9Xn"
+      },
+      {
+        "first_block_time": 1786423392,
+        "lamports": 0,
+        "last_block_time": 1786424023,
+        "transfer_count": 2,
+        "wallet": "HQ2q5DJuAVf1CrDJpwmeSYsLgvGp9k5cGEPZQsNvcMW9"
+      },
+      {
+        "first_block_time": 1786423376,
+        "lamports": 0,
+        "last_block_time": 1786423376,
+        "transfer_count": 1,
+        "wallet": "HRneLKJHUHXJr9zb297N44L8WCUqCJYKDsSxDaPv49wS"
+      },
+      {
+        "first_block_time": 1786423376,
+        "lamports": 0,
+        "last_block_time": 1786424008,
+        "transfer_count": 2,
+        "wallet": "J87ewUdaYKXaMVZEdKh14fMcKXaAmzGamzGtaXDop13X"
+      },
+      {
+        "first_block_time": 1786423386,
+        "lamports": 0,
+        "last_block_time": 1786424019,
+        "transfer_count": 2,
+        "wallet": "NeHjc1yqZXesLZTHtK7jrjyQ3MpFg2TVHpV8QDDAHEm"
+      },
+      {
+        "first_block_time": 1786423378,
+        "lamports": 0,
+        "last_block_time": 1786424012,
+        "transfer_count": 2,
+        "wallet": "j6EVoUMZRafJPrdkuoB9PJGXxBGHEsx4VcJq5W3Ft5d"
+      }
+    ],
+    "deliveries": [
+      {
+        "block_time": 1786424015,
+        "destination": "Am3Un7bph5NNWDLCVVVQT1kY4kN3GFPjj31g4DdrNCd4",
+        "funding_lamports": 3199252,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "29oEp8DFaasZQopaM3m8arQCisCxtme4aUEGZgoXp67crhzAYGUQZLk3ptbwQbr8AThAgoSEJRG4sRfQcbKwCJnU",
+        "temporary_account": "DJTN4Pv4mvUyjZgFscesbREKAseFKSzsKfhuiDzMwFwx"
+      },
+      {
+        "block_time": 1786424014,
+        "destination": "G9XSZDgMk8x51uHvFUumZK5AFWJLp3GJCV7VZSkL3uGP",
+        "funding_lamports": 3994568,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "2AEcR4bWAjJgTQCLaPWtEcVRcQQGyJVBrBnFaZiE8MX3JsEiCRAGKzJTijzZ8Np5zZQaekxRJkkc5AshWajZ7i6z",
+        "temporary_account": "DwwE8JQnq9MVPV7zcxskHEgaBL4wa3gPTxaomPxDoXT8"
+      },
+      {
+        "block_time": 1786424023,
+        "destination": "DmfxzqZQTifJQhfrikFdDQXy3Ws6X9H3VX5xkRVTf77y",
+        "funding_lamports": 4477319,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "2GoeJ95rJEqR7yn4HGxEMviuHKzRFqA1is42ETEtmoxnpbGNmj3SivLDVxTaZZ6ciCjopy4GXLj8Vz3C1jV7rZxD",
+        "temporary_account": "4T1y2isGdoUWtSTbqs8uwNWHqiNQDR3mM5bZ9euAfoie"
+      },
+      {
+        "block_time": 1786424023,
+        "destination": "54xTpcBEr48Cuis8m2SdeymdQcwvmDR4aegxCPQzUANG",
+        "funding_lamports": 3618846,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "2J2Hmb9dgmegNYiSMyDdTYG7WEPKV24YrbuWuYByJz41igAyATc8A4PUD1HNWBgmmKXUmqfQriBKXW2SsFbijFha",
+        "temporary_account": "FC5RxUyFC7PiFsBn21oDWv7GXteFyTScoS6LyjQUq54B"
+      },
+      {
+        "block_time": 1786423378,
+        "destination": "397s3pwPhV1A88Fj2EuNoERFYTCLdN5WiUAPvxUxFVST",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "2MYNARYRs28TPSG2H9EgbmbPQaWur1WBvGGgGXr7Zp49BxGkS61rEpkzX4z7jp8X1XVgBoU9TuFbSJrC7dpM6RQ4",
+        "temporary_account": "88xaSMzN7hpKfyRwve4STaXVag353FAKdTh2qhmhpr8N"
+      },
+      {
+        "block_time": 1786424023,
+        "destination": "HQ2q5DJuAVf1CrDJpwmeSYsLgvGp9k5cGEPZQsNvcMW9",
+        "funding_lamports": 3985565,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "2VEZTUXo6QQSPNo9rRxiVmbHa57wFWqCMJmYmvHZWN5Pxc5rfBYRpbCztWjYwRVzC4KqgKY1NJ8awuHyXhYdavu4",
+        "temporary_account": "CnoxxxCXdpk5tzsSxCesjtVA3796WcEGPJKpzDZN45ph"
+      },
+      {
+        "block_time": 1786423393,
+        "destination": "CYnm5v4MiLLLaUvu5VUfYPxszU8RPBzmH3Qkv7QbfcUi",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "2XkRFaVFaApbX6nxLJmcpmDTpVqxLcHNxZ1BFqw5xvS19MvjHfanXSAH1gm5HKkCMfWaEcXu9ActYdgQNnEk2XTm",
+        "temporary_account": "CQwymQZJajGid4nfyQcjTDK8yWYE9p95SbTPCtfpLq5S"
+      },
+      {
+        "block_time": 1786423380,
+        "destination": "49Wo4qJS1CWPd4b8LAezyL4ARPj3fw6N6zPhPV4dQd6V",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "2b3Wd4AipDFUsaEFigWjMqj3U9AmfAdfKG7X5kd26ce4FJgvVGdW9RVQHxM4AEtZCbFg5jWm9sV1aSCz6CoQm3GA",
+        "temporary_account": "D7K8c1TV5smwcus5cGfECKhJQ2n8HLyq1bMqb4mgEcxo"
+      },
+      {
+        "block_time": 1786423378,
+        "destination": "G1BJvTetp6YSwaDNSajruPPM1JCTZf5NWeyr6dQN94n7",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "2e3BKYqqxRdmoBga9vHV1P4FbtgnyHmDqWZdmYaopr21dTJaqL613r7yCHUHwFHq4fN7P5Huv29LPKWGQx9k94nx",
+        "temporary_account": "5csHaSndtaR45VCLshmtPjkH2m7M9pqpJ8TXrcY5Ekya"
+      },
+      {
+        "block_time": 1786423386,
+        "destination": "5sUoQPPvnvS6eXem4TdcjKJ1JZy7uLEhWN3pCA8yNFnc",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "2eHNFDpU9cCpwenNnmXzWh8XLrXFH3i9GGoTLqQdfrL2RuiPgN9JafiaxESN7rVvSVYgH34DsFCZCfTdjki9DqC4",
+        "temporary_account": "Gc7nxyR7DZWA2jCWfGZJX8SLDYNYRjmjPhms1YFBzt2T"
+      },
+      {
+        "block_time": 1786424011,
+        "destination": "5PkFFC9FCmm2EUQHMqbF9cwMviSXjgAjeqKEoPoYejuG",
+        "funding_lamports": 4472999,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "2vQmBizPaG22Skn22U76GgcVTC8sD7RW4NgBP8CtoCTArQkVoGKUmSzamjzizeMJiJ3kC6kEYtCAqZq2ALZUiX32",
+        "temporary_account": "9uTFSEYTFDmY7EcHWa7c8GfQMduQHEEAgSpJzchhJXv9"
+      },
+      {
+        "block_time": 1786424012,
+        "destination": "397s3pwPhV1A88Fj2EuNoERFYTCLdN5WiUAPvxUxFVST",
+        "funding_lamports": 4465617,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "3GNW2pmhsTdzkh5mGDLyyJXa2mKdJHKcAbpitUMZC7g2isBntbD9TTmVAzbY6e2W4Q3PSt5yFQxvAiSXv7aJLNsM",
+        "temporary_account": "kJKqHcq3UfaxNcXdW2sdmJJZVGjPNR9jPUDqjMue13B"
+      },
+      {
+        "block_time": 1786424019,
+        "destination": "NeHjc1yqZXesLZTHtK7jrjyQ3MpFg2TVHpV8QDDAHEm",
+        "funding_lamports": 4167842,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "3GX56iK2U7YL1XLuUQvoTwxd7WZzHsRTQsBi38CvwzTCYTEASo7ephN1jDPqkHcwdEnCecHqijU8SkdJxxZLyFJ1",
+        "temporary_account": "CBwCdUoZRyxm2Z3HM91feTiviuwVrzgJsqazSGSvU41n"
+      },
+      {
+        "block_time": 1786424020,
+        "destination": "5sUoQPPvnvS6eXem4TdcjKJ1JZy7uLEhWN3pCA8yNFnc",
+        "funding_lamports": 2223693,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "3H26NyBps5SsgvES1Hj2c1dgonA2deaQq3cDskEeAeSXT7L2dE1wJrMBAtA2daj45CiQMkf2oKRMeJX5DnbckjCv",
+        "temporary_account": "Cc23Hrb7ohm9DNKyfdF3b5mEbpvkniiVX1DSL3nSwmoZ"
+      },
+      {
+        "block_time": 1786423386,
+        "destination": "9As8wexRUtoujuYia5WxpiUCbjut75XTb9LknATiXvRW",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "3R8fgp6ZhvCDiFkKhfPaEaiXxU9C55YCYFsDbSw1RDHA5GuicFVw8TxVemQGQCyYBa3r5HtwCDVqVJC8e4amUast",
+        "temporary_account": "GkXLxTyYwBdtz8gs7is5MxJqYKJyWBLv2K3rfv9p9sHi"
+      },
+      {
+        "block_time": 1786423386,
+        "destination": "5iDYsDLugMXh1LTRVDmFH8PfQ6ueG5pE9UcfefrnztB6",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "3SxupaKFMsdnup7ViMpLnVnRcYu3eQvVV4nM9TiRL3K8iycr7BfqLDJBzsbxDhquo5VNYxRuiTwo6XM3z8PP2F3S",
+        "temporary_account": "8o2ZLUtsj3w4GeewpDERz2NCb58GkK38M73VnrsVLKmk"
+      },
+      {
+        "block_time": 1786424025,
+        "destination": "GUBtBg8i5wn5ME3vYmgqMZFFuBnDp6i1oa8BPFwoURAP",
+        "funding_lamports": 4861941,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "3bukRAC6Dx8iPjHKZ6nAWHwf8M1Egn6BdB4nD2AUHyVFrHpsHT9KFx3RxDHwtRQWwdHKpjfhUotd2r1fRE7iC84",
+        "temporary_account": "9mCfqWrpVVRLQ7UHqY2RYVcxnF3f4iVKyz3KHGupgYF9"
+      },
+      {
+        "block_time": 1786423375,
+        "destination": "BsKEb5qhnHMFP4XUjoXMv5nMxkvuaFtBH5ssuWNMjLbw",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "3c795qAWeFV8wug4FDfxaJq2mMiAWe45yeteGHMABXR7aFx57vkUDv7a9StDMVhYbPpDibyxqkjvm4T48zy3qndo",
+        "temporary_account": "AfoVZhUCrmakua2EM2v8G8cxyapAgJEnzHHUCt8YAj64"
+      },
+      {
+        "block_time": 1786424022,
+        "destination": "2h2xdvznzmcRi4zNE8A3uwe4Er5e5bf8gTxzXREg9ph5",
+        "funding_lamports": 4161150,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "3eGc94wsE5J65rNf8Fsa2gW1NK6EyFpNHV2Fh8wad8VP74X3TSgn4J4i75HDzLqvrw2Gd6fZ4CMM8W2Rd4mfBTvq",
+        "temporary_account": "DfGHSA3nqtnyPmH2gqEsrYJgvNHJuMbY3UpqQTu5Z4gg"
+      },
+      {
+        "block_time": 1786423392,
+        "destination": "HQ2q5DJuAVf1CrDJpwmeSYsLgvGp9k5cGEPZQsNvcMW9",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "3gPbYD3vYeRKdFo8L6PH3ByEjyiizxWy9yiPJaLyorWd5Zdmu3fKqgLYHw1wvbz659eVbH33MLH8hNtMNpNd528M",
+        "temporary_account": "92VCzEowpvhancYKTBVSbckZj7uZcugw7sYdZtunYHEb"
+      },
+      {
+        "block_time": 1786423392,
+        "destination": "CbMTzd1sG9vuP9Tw2nUNBHUvtsyzr4Hm5rknri4XxXWL",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "3ncPSuWcfamHqQcSpdhTB8piCKybjkjZLnGHGrPE89NPUjWDUwkiLtUA5vdcSW19a4thp8oQnC9i3d9u7m7Gcx5y",
+        "temporary_account": "EEA4PpxjaWRo8d5N6ieAGhiv5LhqZHq1xZCtUZS5o4UJ"
+      },
+      {
+        "block_time": 1786423376,
+        "destination": "J87ewUdaYKXaMVZEdKh14fMcKXaAmzGamzGtaXDop13X",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "3rryunDgonn78N9Fesz7Ek4MqwhRt5AvnMSgfk436qNJi4cSdBn8a4BBBU3ksiNWweqVkGzmCnso9B2aDvt5iH9t",
+        "temporary_account": "94HxNkpeH3qJJu2i5X2pxEnGQPdz4uAuASMXZKmJ5RYg"
+      },
+      {
+        "block_time": 1786423387,
+        "destination": "Ao2sUdoFtKW7yix7v6GT8GoWE94LcgHiyjautukHBKAi",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "3ytgEqk7SYX311ZxgDJmgw9VHPz4SkgbPdwVGm1y5c3ZQHDd1f9HzBJLd8vs1kyZiDEQwNK2WHW4vhJ7gYwcppDs",
+        "temporary_account": "D5p8okkBaEkiZ4W8FrDy6ouNFGxjMt6Ac1oHMWJqUb3S"
+      },
+      {
+        "block_time": 1786424013,
+        "destination": "49Wo4qJS1CWPd4b8LAezyL4ARPj3fw6N6zPhPV4dQd6V",
+        "funding_lamports": 2255556,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "43dcmYgJCmBDJDdyRRJFfDw69NnJSUzoY2efzm9tNkKac9QdFzbBQDBs3rvSpKRrGeRBrWfWGntBhMjrLhKx32BW",
+        "temporary_account": "94UK9Fjs7TBv3LESHJJdJH2T9oD4QtXpuoDTQMWMnzis"
+      },
+      {
+        "block_time": 1786423390,
+        "destination": "C2W3FExk348T4aNHpJjiCZpNrpd9MNLBBVZAdWCogtBx",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "45vVm8HUoBgARhJFLxUJfjZ5vwgHMkJQXqxBsnytWuBQj7Rf2QBzszRQcN8FvMxxpxiHXAu8jtxQVJpqPL8c7FSZ",
+        "temporary_account": "GXbLk2Xa6e4gqX6ApTWCm5v4qCrwWqsJLWfsPBjPX3bM"
+      },
+      {
+        "block_time": 1786423380,
+        "destination": "Gy29oqrQGFsP8cSsZ4eJvmMDMvKeYtWgURGCn5jim9Xn",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "49JbzSGpYyLteShaCaPGb4tAZN8LjbqosP7RqkaXjHVgMSxGWkJDwXAfstZ7zTTwChnutZSMeNFCvt9xP5VnFrf5",
+        "temporary_account": "CfSPLXMirz51ukw6HVyFMfCuWEDRP9zb6EFuW9MpwJZF"
+      },
+      {
+        "block_time": 1786423376,
+        "destination": "HRneLKJHUHXJr9zb297N44L8WCUqCJYKDsSxDaPv49wS",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "4XM7BvqypYmEGDt3jtioqJPekRowTUKXEj7yEh6NZQTeZVgRqVzDD1pPHPU1ev4Y52yyxy7BQy4iMsHRri3zF2vU",
+        "temporary_account": "EbxvP1a2LaabBgGdMqJhqhSg4Na39c6ugvoJC23Gmqt2"
+      },
+      {
+        "block_time": 1786424012,
+        "destination": "7144mX5peoQoyYq2ncsTmzFciqkLiYzS42XVmvFjGiv4",
+        "funding_lamports": 4366080,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "4aGn4LoWMQ5TDYZFmybZ7QPrJ8r1fEmEf1Ng1oLrmHFs4v3KP6P4yn3YxJFrv5ai6ST8p7FEUWvzM4CWzSRKHndo",
+        "temporary_account": "HRSGeqhA9Lm9SSVAwvXQeWp4kenj89YNWGh9CanxAsJZ"
+      },
+      {
+        "block_time": 1786423394,
+        "destination": "DmfxzqZQTifJQhfrikFdDQXy3Ws6X9H3VX5xkRVTf77y",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "4iLE1eVV3EZ8pFdnasfqFzX88KboSght46d4FSL9i4wKtbjz8WHmCVseqCGNAraEoAajARAA2QvCvtRm8tW7ssGH",
+        "temporary_account": "3iFjZRkQG5fkEU7kyUkjL4XurkF8RBiNHnApmdHxiWdK"
+      },
+      {
+        "block_time": 1786423380,
+        "destination": "9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "4q9GjQJb71Wc35THYr8UAQXZ1FrYnPcZG334cRESkTZEYdqaCRUntnEweLz9ug38eswm4KtRya11HAsWDSsh8Cnk",
+        "temporary_account": "R595X6gqyHwx1DZwF3vhdwSfAZWx1mdpNMVsCKMdr17"
+      },
+      {
+        "block_time": 1786423392,
+        "destination": "2h2xdvznzmcRi4zNE8A3uwe4Er5e5bf8gTxzXREg9ph5",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "4uieH1Xj4ErXEwRGUEYcwXz3J91dhnUCuVXoY8pQg3RjsZZZRpWivPUcTFoaFQLozJW6LFDwg6aHJpazbC6vPHmo",
+        "temporary_account": "62r7AUh9rebMr3qtVKiSMEZLHF4ABEqjubfwr74dRqCs"
+      },
+      {
+        "block_time": 1786424020,
+        "destination": "Ao2sUdoFtKW7yix7v6GT8GoWE94LcgHiyjautukHBKAi",
+        "funding_lamports": 2324478,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "4vwUedJVNtY9rQxGHgkQ6cJxxyocgb6sGbkCKMPZUYk4W2EnHfMZ8K3qxLgm9rW5WLwHZUJtGDDarNpDaRCPGTwB",
+        "temporary_account": "6eXj5xnQmLJdH7yZMy3GhR2B4qgjLrVmUDB4Z7ezBWDB"
+      },
+      {
+        "block_time": 1786424023,
+        "destination": "3thxdSxsHtFuGJroCYe6JmCojPRizUz1GnvQSq5M5JfY",
+        "funding_lamports": 4117304,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "4z3scqqHZX76KRqaR4SQcJ5WJ1SA8X27QuYw7XRtkvD7HAk3ocYPXo6Y45jxQKmK1TnSzwKsSRgDzUagnKxtRKrV",
+        "temporary_account": "7oCowL3PhAYq72SHdm2Moj467DaugxWTs2NjyZzJ582r"
+      },
+      {
+        "block_time": 1786423378,
+        "destination": "5PkFFC9FCmm2EUQHMqbF9cwMviSXjgAjeqKEoPoYejuG",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "4zqwVG7hrYuBKq72K1T8Lmzn2jANUHVZbBE2LT7uf2gmDgHPuoGg6PJU4cm3BkUN79wj4pLtHLhzUKMwoq4b4eiN",
+        "temporary_account": "A8GHApT3ZCf6biQ3gmipGc917GzjjySs6zd2C9wgp6q5"
+      },
+      {
+        "block_time": 1786424006,
+        "destination": "7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv",
+        "funding_lamports": 4925116,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "589Q5j6RumrPoRkTvoJQw1wLk4eHNqqyXN26vRZ8RKio6dWS9HCQbQgs6NGuiMqcB5qGBVAB4RikpNNXMDS7Uusg",
+        "temporary_account": "Dxd2sLhYnVaR5UAETvzUnpxQcS82gVwM23z7XWo2pJVJ"
+      },
+      {
+        "block_time": 1786423375,
+        "destination": "C55hxeJepPLMKi4xuKjAFLWmxoSfVrqn2LELi67ixQfe",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "5DnMSdy8TDpqWtSXEbEZnzZfNU6apDsKnJ4ySXy5D6vdtHs9haDyRrZDsRAKWqGsAGJ1ExwF37YMitLExfwAfWy8",
+        "temporary_account": "A4XGHCuJexQ8ojb4UWo9sCbrWf3XYHWtBJz1WgfKBBn1"
+      },
+      {
+        "block_time": 1786423381,
+        "destination": "G9XSZDgMk8x51uHvFUumZK5AFWJLp3GJCV7VZSkL3uGP",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "5FJMGHADWpAMSioxeRA1rxyp6G771yWcsBuPoquRYNTm4afsDnW2CGRJaRKmuBTvYiLpuqrb2LyF7Y3xGP5y6P64",
+        "temporary_account": "8gZ78vtgrDpQxCQGiqqAAEXf66hGHV7MW72UiBZ7iaYW"
+      },
+      {
+        "block_time": 1786423392,
+        "destination": "54xTpcBEr48Cuis8m2SdeymdQcwvmDR4aegxCPQzUANG",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "5MvsdhhGBbNCszQuN2LqFbEMCCK2tA1poTKDYQ4Eog4wpHS7nnm2SN2YdVaHCMwZCUTcg7PJGgY5DF3yLQwdLrTD",
+        "temporary_account": "26vDUmbBhWaEHM9ZGcL81hXbiRX2xLAUSz7SDKXgBkUX"
+      },
+      {
+        "block_time": 1786424018,
+        "destination": "FJrraJVwKYdcLX4we8UttdJGvxErgUKWf6awnVSsxArH",
+        "funding_lamports": 4108911,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "5Qgnpv2cuWAgjB72gU2xrjeEsKdxrvTbBRV9e5VtphPG9hy6cnjnvn2mKYqBCw3Bdy89PcCAtVryUPpbwvmqfb3V",
+        "temporary_account": "68XESBgw3LPCmAe3ZeAnXwZ5fcXBEvCbQpTeWpBm46XE"
+      },
+      {
+        "block_time": 1786423375,
+        "destination": "7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "5TsAh8pr2nkDPWVZAPEcGLrUSm4gejABpKcaVBbHAKYvJFnZyMHbD7Tn3PTvJ5a5HboFfsxJQyZxbwwzYFFUUAmZ",
+        "temporary_account": "3VSRhgYFnBzAyz7vqNf4hbXoPSJfy87txfhuqMuEwkjX"
+      },
+      {
+        "block_time": 1786423394,
+        "destination": "BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "5dfFEmnEq7vcuXjjngbtLKYuPhULhAas2JMpaxWHT1uo13GHmLT2ZWkcomaS37kc8XW8F9esyNDcaKzFsyyH3Vpa",
+        "temporary_account": "85GwZyqx2pP29XYJ9NE3zPKsydMn9foKGhFxG5wmRFPH"
+      },
+      {
+        "block_time": 1786423381,
+        "destination": "Am3Un7bph5NNWDLCVVVQT1kY4kN3GFPjj31g4DdrNCd4",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "5gWvYThpVJYgujuJtsyikub21Cf4JGXitb8xTtjLvseJkxsoEE7DMNkPnNEBMd3qNCEUyGqrca92AsLEa8rLNjts",
+        "temporary_account": "HFZPXanMJYNkMnftnhery1ZcwDLLwhHVw1apbF1j3FHP"
+      },
+      {
+        "block_time": 1786424014,
+        "destination": "6jJnz6ZQjDZeFLxoDq2RBp4fvsjPfCJmpr1jhQcy2rBk",
+        "funding_lamports": 3744031,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "5gvzA8BVmypnBp5gUkT9cVkNVCRa5TYE1erfy2JBgE8CVjDQsKaoXSTnesStAY9KX6puyNT4EtukWiaW9QdkKAXv",
+        "temporary_account": "2CZjnTXhkabEbidWiaKRtkSeWFFy3pJV2ppzpEFr3wpV"
+      },
+      {
+        "block_time": 1786423380,
+        "destination": "6jJnz6ZQjDZeFLxoDq2RBp4fvsjPfCJmpr1jhQcy2rBk",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "5h35PbVSYQ8yYUMw2oep7eEyYfvYhrC5jFmsB8uVTV6cq61bZ8STUKzP8GbHb6vqQx3hAYvo8DGBGr7TSEHUAaCE",
+        "temporary_account": "2nwEUWeHWNx2fXEk6TGNoFkT5EBAhcxvpGLamLQWt7kg"
+      },
+      {
+        "block_time": 1786424012,
+        "destination": "5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn",
+        "funding_lamports": 2119783,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "5iuxC2Nct8UnqzkAQdZM7wnTGzbJMyLDJUGrggt8hm1K4t7Pu2fJqhzPuKe1WutKBEK2yvi316fquqmG4peZJoa9",
+        "temporary_account": "HsBGVE3PqEVvvMKZXd5eunqqh9juPZwH8YE1PaQy2Mis"
+      },
+      {
+        "block_time": 1786424025,
+        "destination": "BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH",
+        "funding_lamports": 2622762,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "5mDnFbGi17AArSSdjfWEz4NqaGyAfyJ8YycwN6mQvsoupMqQ2kvWUeNGFAsaRmUm6tny29B6gxXWpM9DpoHLNLyp",
+        "temporary_account": "4TJxi99uosuJTAqGXCAAJujmrerh4XSb2YvdcPYunvtU"
+      },
+      {
+        "block_time": 1786424006,
+        "destination": "C55hxeJepPLMKi4xuKjAFLWmxoSfVrqn2LELi67ixQfe",
+        "funding_lamports": 4929551,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "5r6Eyaf9xStXPgU4rMpTfotkjVcoK85ezGYHRQbMFMk8y5FKPiVzP9EExo5aesxQPaVzMgJ6L4JfMtBsUMPgwTrd",
+        "temporary_account": "3ZjVxHxc1abWXvw8yPwaMQaEVbnuXYLBGye2neKUEg9e"
+      },
+      {
+        "block_time": 1786423393,
+        "destination": "GUBtBg8i5wn5ME3vYmgqMZFFuBnDp6i1oa8BPFwoURAP",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "5vvqyWDoSzcGkfghhdkErHXadfVB4op6YaWrAkfvtq6cDDRGBtNL9inWgVhcnquDUo9YgrKNi3bLeB3ynPgBqY1i",
+        "temporary_account": "9avdouUic5uzaDnNiyVUa1pqCYsji3bXcUiesajiuXVy"
+      },
+      {
+        "block_time": 1786424023,
+        "destination": "CbMTzd1sG9vuP9Tw2nUNBHUvtsyzr4Hm5rknri4XxXWL",
+        "funding_lamports": 2199180,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "5z59tDKQ41AQnPWutPEDwTCZn2w2uPrkg9ZJUc1Nd9nnNMN1683HmxPqgKi9bENn2F7dkqtKiw9Ur7HMQj4rJhbN",
+        "temporary_account": "3VZW17yTtCH4ieesWxXyqHKGhGKSSCAtpciw4RyHsB4L"
+      },
+      {
+        "block_time": 1786424006,
+        "destination": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+        "funding_lamports": 4735636,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "65k7tuTuvf1CDbTtWGRsUT1gZjxKTy375BRysb3b5ZPkwgdigZpUdhFVziDiCgPZDC8QitKhoRNEXJVFLVfd8okv",
+        "temporary_account": "H6SBbWj8iLCqgGayN169ssv4ypa9ejpmGT3Bz6T2dt6t"
+      },
+      {
+        "block_time": 1786424014,
+        "destination": "Gy29oqrQGFsP8cSsZ4eJvmMDMvKeYtWgURGCn5jim9Xn",
+        "funding_lamports": 2089525,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "6kHRhNB8y6cNpbUk4YoCP9iHxvJq2g27UBwynbBS1qZCnfY7GsrvrL4HnH6NfgPaYuPjYf2CrzDvHuvgNJDyaeU",
+        "temporary_account": "9WUmUrqZBtedY3ubG11FkDF7PnHaiHvUfV3Rzb4iW3bG"
+      },
+      {
+        "block_time": 1786423380,
+        "destination": "7144mX5peoQoyYq2ncsTmzFciqkLiYzS42XVmvFjGiv4",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "EF2Kp6qVQZdf4QBEFEjx8sNu4PYYCUkYFcGTzqRMzDvBNeRdJ8VbSptyo7vJmDx9d9h8NkQwsz5Dtu2SWj3F5cv",
+        "temporary_account": "6TgKW12oA6KT66vFTDSGc6VyfG1kA3ugyyg357MeB4b8"
+      },
+      {
+        "block_time": 1786424023,
+        "destination": "CYnm5v4MiLLLaUvu5VUfYPxszU8RPBzmH3Qkv7QbfcUi",
+        "funding_lamports": 3993158,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "FqHxefHmr8uH4MXpDbT4dk75F1m6oRhZoYGo59DtfzwdLtWwz7b3bwRov72b5aUDFrFWCdG7Kw42Zcf2NY5suVt",
+        "temporary_account": "37AdJvaQWqoUn1J1bLGr47tt3Yc2ww7adE4o4FwhwDE2"
+      },
+      {
+        "block_time": 1786423385,
+        "destination": "FJrraJVwKYdcLX4we8UttdJGvxErgUKWf6awnVSsxArH",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "HYQx8644uuuM28SC2PfWXCfsudNdUGcZLUyB5dYuHuLNWzpfk59PyqNfESHAGT8dSRsBHCqF3eZgzQ8yJfhw8r7",
+        "temporary_account": "CzY5bFDrnNMyZ8YZQ1nbTcKdNvUDAB61QMHebTiCgRuX"
+      },
+      {
+        "block_time": 1786424021,
+        "destination": "9As8wexRUtoujuYia5WxpiUCbjut75XTb9LknATiXvRW",
+        "funding_lamports": 4902385,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "PJRq3gseyJ6oJcvLmCmTCD65NMHEeJYBogoTXd4r5XgNK7rThapDNAqEFhqwAhhRb7Y3o7XybjX8Hkmnfwf7Hb7",
+        "temporary_account": "FVhKFHkPJ7Ju6YPx52Btz6kZeM2KDH8RuGtZqksH1xst"
+      },
+      {
+        "block_time": 1786423386,
+        "destination": "NeHjc1yqZXesLZTHtK7jrjyQ3MpFg2TVHpV8QDDAHEm",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "RCkTwJWaDXgfgCvrd1ArVKcHhQysbswkTVHKE5gqwKpiLemeqc2PZmiDEnL3GeM1E4rupFTZdkrdQhy9Zg2gbHW",
+        "temporary_account": "887f4Vpeq7TqZpsbnkDAc16aVzvULHACZ6kAFJcQKx8J"
+      },
+      {
+        "block_time": 1786423386,
+        "destination": "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "VXvo7Nb8axjndWLiFffySRq3T3MaQv7LruPo2YT5UiPXVNHhGSfumJtdZx2FphFNkvGvs3bDwjN8hmfWdxqbCZL",
+        "temporary_account": "46CGjzwUcpSUJEQjHuqXFhQFNTKGTppbnitrhuQUNTji"
+      },
+      {
+        "block_time": 1786424012,
+        "destination": "j6EVoUMZRafJPrdkuoB9PJGXxBGHEsx4VcJq5W3Ft5d",
+        "funding_lamports": 3644359,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "VsSoov9by3bazLxjrRDZerhLHjxJ1J8GFV8iQkHVMyk3WC5nQEYWwFhAXYU8HLbimBBDSQdXVmg4Xy8X6qkWqSc",
+        "temporary_account": "98k6UJjnHVKBU7LAwXZNrdexUfyykxeHB7Q78QTbruat"
+      },
+      {
+        "block_time": 1786423378,
+        "destination": "5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "W59nvovZuhdnAEG1PuzUviQpG7aRNANoAbq876KE2YVMF8cw4uavFe7njo8kjrtDiKy2HkEN2GwacnALQZ5aUMF",
+        "temporary_account": "8pW8ozjvfYsVibBj9bVU1Gov9dLHU4ig1TLfoC4HxKSt"
+      },
+      {
+        "block_time": 1786423391,
+        "destination": "3thxdSxsHtFuGJroCYe6JmCojPRizUz1GnvQSq5M5JfY",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "e2m8C5ZvJwqyDJ7fFL4pZp1dRedZcAkbR1Jtq54QWX1srJrAEUGMNiQ8YTbTyGBgYyXN3aRPgAZRMAZMGTTFm5S",
+        "temporary_account": "4mXHgj7ePZHztG7zX1yYYiPkMMGxaKgNempxoj6dwKVp"
+      },
+      {
+        "block_time": 1786424021,
+        "destination": "C2W3FExk348T4aNHpJjiCZpNrpd9MNLBBVZAdWCogtBx",
+        "funding_lamports": 4410327,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "f7YJQhJTihG8tZxk2AxiHNoeGgx1N165qwDsBQ8scUMDq4visv3o475DLkajYKnHjktkDAgnusSqkpwbeGuwnBV",
+        "temporary_account": "2PYJUjTUCabWX21sD6WFjvNoPoNUGzm7kkV7dEj91kdR"
+      },
+      {
+        "block_time": 1786424012,
+        "destination": "G1BJvTetp6YSwaDNSajruPPM1JCTZf5NWeyr6dQN94n7",
+        "funding_lamports": 3140992,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "hxpxW3SyHE8BF9MqGCerpNQC1uu6Evek8gbSkpwiVvS3xKM7KVrVMnKBf41kr6mqNJy5NiUyPpbFZiedRqZzh3K",
+        "temporary_account": "7HCKSQxnDECeWWoRGYLt941Avh8j1mUG5TruCC5jAeeX"
+      },
+      {
+        "block_time": 1786423378,
+        "destination": "j6EVoUMZRafJPrdkuoB9PJGXxBGHEsx4VcJq5W3Ft5d",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "jFZYAsFgQsRxBGE1wEzY6E9E2gKvohi9XnfVKjRUijirJkhSVKq4ieFc215znMitA2VJVz3NdNyeHN7FkYdroei",
+        "temporary_account": "EXWdLD67ZWawZd9Hc3BoK8QfzEnRm2753FKzvCYukuCQ"
+      },
+      {
+        "block_time": 1786424008,
+        "destination": "J87ewUdaYKXaMVZEdKh14fMcKXaAmzGamzGtaXDop13X",
+        "funding_lamports": 3849848,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "k5iA9e75KsQPJYhdR84KLd19E8evhpLHmV2ckRmR93pYPd6cVr7iMk3iHexyodCQspxKkNrwd5d3teDj4etKRyW",
+        "temporary_account": "87QZw6dqK1v16pz6uP3iRLuwZBQp92Goum4vyGHqbp6x"
+      },
+      {
+        "block_time": 1786423375,
+        "destination": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+        "funding_lamports": 100000000,
+        "kind": "DuTb-owned WSOL close",
+        "signature": "kzZYsKWDPBWsDGgqcS8opohzsS8hUddgKTFkJNBeW8z7x1EWKb3znXVEE7iAGnh1aB2fUkBYmaAGQ4jefXkAhGq",
+        "temporary_account": "JT4W1FeGusm5VdxHXXvigacehVEAVh4xU14gsYu3vBy"
+      }
+    ]
+  },
+  "funding_into_dutb": {
+    "by_source": [
+      {
+        "first_block_time": 1786424052,
+        "lamports": 0,
+        "last_block_time": 1786424052,
+        "transfer_count": 1,
+        "wallet": "28nqmFLPzuxsP23dfsN5vnF9dGduX2dFQW7jK8hjNJtx"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "2aEuUnyc6RYZWA9sbGiDYAWw7FPS37WrvHrrDrJYt7PW"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "2h2xdvznzmcRi4zNE8A3uwe4Er5e5bf8gTxzXREg9ph5"
+      },
+      {
+        "first_block_time": 1786424052,
+        "lamports": 0,
+        "last_block_time": 1786424052,
+        "transfer_count": 1,
+        "wallet": "397s3pwPhV1A88Fj2EuNoERFYTCLdN5WiUAPvxUxFVST"
+      },
+      {
+        "first_block_time": 1786424053,
+        "lamports": 0,
+        "last_block_time": 1786424053,
+        "transfer_count": 1,
+        "wallet": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "3eC6Xc4cpJFtEsXuko4tighgqYTjQpQXMWjSoqWEVKaz"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "3uEYFFcX67enN7zNfKZAQcELq7CzbBHfMdwrXRwJtRn8"
+      },
+      {
+        "first_block_time": 1786424053,
+        "lamports": 0,
+        "last_block_time": 1786424053,
+        "transfer_count": 1,
+        "wallet": "42qACuNQWA9XWX7WwKaUEiP5nHW5uYQFtMo1pdL9Dsoi"
+      },
+      {
+        "first_block_time": 1786424053,
+        "lamports": 0,
+        "last_block_time": 1786424053,
+        "transfer_count": 1,
+        "wallet": "49Wo4qJS1CWPd4b8LAezyL4ARPj3fw6N6zPhPV4dQd6V"
+      },
+      {
+        "first_block_time": 1786424053,
+        "lamports": 0,
+        "last_block_time": 1786424053,
+        "transfer_count": 1,
+        "wallet": "4YQgJNSVMwfGGDrvBhJ2Wp9Pg2iHM5sH6vtbnChbir7c"
+      },
+      {
+        "first_block_time": 1786424053,
+        "lamports": 0,
+        "last_block_time": 1786424053,
+        "transfer_count": 1,
+        "wallet": "5PkFFC9FCmm2EUQHMqbF9cwMviSXjgAjeqKEoPoYejuG"
+      },
+      {
+        "first_block_time": 1786424053,
+        "lamports": 0,
+        "last_block_time": 1786424053,
+        "transfer_count": 1,
+        "wallet": "5aKyY4qnEMZnCsvaCCEoEzbnyRa8J8KJGEFVKHe7uxF8"
+      },
+      {
+        "first_block_time": 1786424052,
+        "lamports": 0,
+        "last_block_time": 1786424052,
+        "transfer_count": 1,
+        "wallet": "5iDYsDLugMXh1LTRVDmFH8PfQ6ueG5pE9UcfefrnztB6"
+      },
+      {
+        "first_block_time": 1786424053,
+        "lamports": 0,
+        "last_block_time": 1786424053,
+        "transfer_count": 1,
+        "wallet": "5u25nsdUPraFYayZpPN5G4SigmKtyYiYi7xaaeDTKYXF"
+      },
+      {
+        "first_block_time": 1786424053,
+        "lamports": 0,
+        "last_block_time": 1786424053,
+        "transfer_count": 1,
+        "wallet": "5xfUdLx4edkXEt8d6MjbrDanVkiSGNnpGcKtnjsTybWB"
+      },
+      {
+        "first_block_time": 1786424053,
+        "lamports": 0,
+        "last_block_time": 1786424053,
+        "transfer_count": 1,
+        "wallet": "6S8Jy28SSYMG8ZNfjkgbxPzVvfBkqBUmrHiUKCXhQTGN"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "6jJnz6ZQjDZeFLxoDq2RBp4fvsjPfCJmpr1jhQcy2rBk"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "6nVVHkresDde2BHRw6b6Qfg9UqAJStUQoXv94kopSNBC"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "7144mX5peoQoyYq2ncsTmzFciqkLiYzS42XVmvFjGiv4"
+      },
+      {
+        "first_block_time": 1786424053,
+        "lamports": 0,
+        "last_block_time": 1786424053,
+        "transfer_count": 1,
+        "wallet": "7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv"
+      },
+      {
+        "first_block_time": 1786424053,
+        "lamports": 0,
+        "last_block_time": 1786424053,
+        "transfer_count": 1,
+        "wallet": "7ujELVUxF7xd7ZFxXEPhhuVThaa5Lx116xphh38cfxM2"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "87hEwsn9eYg9iBJyWVvk4jVJspMQRqxtdxaiWC3sUajV"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "8YbXWPFHvPTF2gkKGoBLyHyV57Mkiiw7Ub2tYQ58tzks"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "8cxoiTFDLHFfYVxPaBdfJM8ULHyfeBYF7L6cWX4t5Syq"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "9As8wexRUtoujuYia5WxpiUCbjut75XTb9LknATiXvRW"
+      },
+      {
+        "first_block_time": 1786424052,
+        "lamports": 0,
+        "last_block_time": 1786424052,
+        "transfer_count": 1,
+        "wallet": "9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "9fNVsnzdwcsnK3b4Mx1dnvMVUrt4dNdRxWhvvUWkB1xH"
+      },
+      {
+        "first_block_time": 1786424053,
+        "lamports": 0,
+        "last_block_time": 1786424053,
+        "transfer_count": 1,
+        "wallet": "AFMNXaQDhB1qDZk21P8B8uaLNUCYng4sGpTJNHa4ePSn"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "ASPJLkhCzpEVmsVubeQGuQ2H8U8cHW8mefVq6cJxSef8"
+      },
+      {
+        "first_block_time": 1786424053,
+        "lamports": 0,
+        "last_block_time": 1786424053,
+        "transfer_count": 1,
+        "wallet": "AiTkzFK2ASjrhdugedhjqCgXm8V9mn4TSAohY1HcC3HX"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "Am3Un7bph5NNWDLCVVVQT1kY4kN3GFPjj31g4DdrNCd4"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "Ao2sUdoFtKW7yix7v6GT8GoWE94LcgHiyjautukHBKAi"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "Apwc2GUd4SXuJBQHKL7HckdbwJaMN8H5ejdeNcJJ6YYL"
+      },
+      {
+        "first_block_time": 1786424053,
+        "lamports": 0,
+        "last_block_time": 1786424053,
+        "transfer_count": 1,
+        "wallet": "B6oBat17dkCtpUFe31yc8ExALTBi5QKRx7PwDDebxoXc"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "BsKEb5qhnHMFP4XUjoXMv5nMxkvuaFtBH5ssuWNMjLbw"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "C2W3FExk348T4aNHpJjiCZpNrpd9MNLBBVZAdWCogtBx"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "C55hxeJepPLMKi4xuKjAFLWmxoSfVrqn2LELi67ixQfe"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "CYnm5v4MiLLLaUvu5VUfYPxszU8RPBzmH3Qkv7QbfcUi"
+      },
+      {
+        "first_block_time": 1786424052,
+        "lamports": 0,
+        "last_block_time": 1786424052,
+        "transfer_count": 1,
+        "wallet": "CbMTzd1sG9vuP9Tw2nUNBHUvtsyzr4Hm5rknri4XxXWL"
+      },
+      {
+        "first_block_time": 1786424053,
+        "lamports": 0,
+        "last_block_time": 1786424053,
+        "transfer_count": 1,
+        "wallet": "CnrAe3a9Fo8mKQRVJb273GWai3fzKPNc85PApD6jdSbz"
+      },
+      {
+        "first_block_time": 1786424053,
+        "lamports": 0,
+        "last_block_time": 1786424053,
+        "transfer_count": 1,
+        "wallet": "CyS68vaVhznXnBJK2Mg617Y7tduLvXtzfRLBZP69tnvZ"
+      },
+      {
+        "first_block_time": 1786424053,
+        "lamports": 0,
+        "last_block_time": 1786424053,
+        "transfer_count": 1,
+        "wallet": "DmfxzqZQTifJQhfrikFdDQXy3Ws6X9H3VX5xkRVTf77y"
+      },
+      {
+        "first_block_time": 1786424053,
+        "lamports": 0,
+        "last_block_time": 1786424053,
+        "transfer_count": 1,
+        "wallet": "EC8xjVmdfwg68K22ryvcbhVBkx52ZLEghvgd5WDCvvSq"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "EeTeEaZh13jT3DyRPfjfDfqvtWV5K2BxgKfceFXqVRWQ"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "Eg8bqeWeGFyzNdDPxmm2Xexm2cMcqhP3qbU2MURwV6M7"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "FJrraJVwKYdcLX4we8UttdJGvxErgUKWf6awnVSsxArH"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "FbYxJKJe3nZiUD2gMwY5GwHtzHMk7Eyo95ntwhd62v2Y"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "G1BJvTetp6YSwaDNSajruPPM1JCTZf5NWeyr6dQN94n7"
+      },
+      {
+        "first_block_time": 1786424053,
+        "lamports": 0,
+        "last_block_time": 1786424053,
+        "transfer_count": 1,
+        "wallet": "G9XSZDgMk8x51uHvFUumZK5AFWJLp3GJCV7VZSkL3uGP"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "GHnsX6nS7qysz88BSrFFZjusLrDACr6E5sADirJzUVJy"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "GUBtBg8i5wn5ME3vYmgqMZFFuBnDp6i1oa8BPFwoURAP"
+      },
+      {
+        "first_block_time": 1786802702,
+        "lamports": 255016078,
+        "last_block_time": 1786802702,
+        "transfer_count": 1,
+        "wallet": "GZ3CndL4zEqWntBdLTYWF2HvK4UwKN7XT4HCtPLzJHmq"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "Giqp6Jpq4rfaTpuQQZNQMZBBpcKn6fygTLhTB8dVVUUB"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "Gy29oqrQGFsP8cSsZ4eJvmMDMvKeYtWgURGCn5jim9Xn"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "HQ2q5DJuAVf1CrDJpwmeSYsLgvGp9k5cGEPZQsNvcMW9"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "HRneLKJHUHXJr9zb297N44L8WCUqCJYKDsSxDaPv49wS"
+      },
+      {
+        "first_block_time": 1786424053,
+        "lamports": 0,
+        "last_block_time": 1786424053,
+        "transfer_count": 1,
+        "wallet": "HaUoQtNBbNEv3jgLMikQEpyFMTs72eS5DBYJ3j4usiJJ"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "Hrw39bSJbx97HXSUahn6WuDWU2z15fTag79gsrtxHnSq"
+      },
+      {
+        "first_block_time": 1786424053,
+        "lamports": 0,
+        "last_block_time": 1786424053,
+        "transfer_count": 1,
+        "wallet": "J87ewUdaYKXaMVZEdKh14fMcKXaAmzGamzGtaXDop13X"
+      },
+      {
+        "first_block_time": 1786424051,
+        "lamports": 0,
+        "last_block_time": 1786424051,
+        "transfer_count": 1,
+        "wallet": "NeHjc1yqZXesLZTHtK7jrjyQ3MpFg2TVHpV8QDDAHEm"
+      },
+      {
+        "first_block_time": 1786424053,
+        "lamports": 0,
+        "last_block_time": 1786424053,
+        "transfer_count": 1,
+        "wallet": "j6EVoUMZRafJPrdkuoB9PJGXxBGHEsx4VcJq5W3Ft5d"
+      }
+    ],
+    "event_count": 63
+  },
+  "root_wallet": "DuTbZR8VJGsyLvkhcAyiByPwnPRJj1GTmB88ShgAezCX",
+  "rpc": {
+    "elapsed_seconds": 28.341,
+    "method_counts": {
+      "getSignaturesForAddress": 154,
+      "getTransaction": 243
+    },
+    "request_count": 397
+  },
+  "safety": {
+    "operation_membership_changed": false,
+    "provider_mutations": 0,
+    "source_db_writes": 0,
+    "workflow_writes": 0
+  },
+  "schema_version": "C357_DUTB_COMMON_FUNDER_RPC.v1",
+  "scope": {
+    "direct_funder_history_pages_each": 20,
+    "direct_funders": 50,
+    "immediate_upstreams": 47,
+    "page_size": 1000,
+    "read_only": true,
+    "recursive_walkback": false,
+    "root_history_batch_size": 100,
+    "root_history_offset": 0,
+    "root_history_pages": 20
+  }
+}

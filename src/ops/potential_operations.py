@@ -21,6 +21,7 @@ FOCUS_NEXT_ASSESSMENT=Path(__file__).resolve().parents[2]/"docs/audits/focus_nex
 ROUTE_ACTIVITY_SNAPSHOT=Path(__file__).resolve().parents[2]/"docs/audits/potential_route_activity_snapshot_v2/candidate_census.json"
 C357_UPSTREAMS={"ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY":"Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya","F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229":"3GL5bXdDriApC4J2gn42L9fH2xFxq9Ziifr3pM79hBoi","HS5GjB4KTJbbBdYHkJV8qDpq8gmU9wck2qsxgz3ifgke":"8Bk1fBnoc9Yk3HUz1UWihT2ewgbxMm7LTEoemabUVqmk"}
 C357_UPSTREAM_AUDIT=Path(__file__).resolve().parents[2]/"docs/audits/c357_remaining_upstream_funders.v1.json"
+C357_DUTB_AUDIT=Path(__file__).resolve().parents[2]/"docs/audits/c357_dutb_common_funder_rpc.v1.json"
 
 @lru_cache(maxsize=1)
 def _c357_upstream_map() -> dict[str, str]:
@@ -31,6 +32,23 @@ def _c357_upstream_map() -> dict[str, str]:
             sources=row.get("upstream_provisioners") or []
             if sources:
                 values[row["direct_funder"]]=sources[0]["address"]
+    except (OSError, json.JSONDecodeError):
+        pass
+    return values
+
+@lru_cache(maxsize=1)
+def _c357_dutb_funder_map() -> dict[str, dict]:
+    """Verified DuTb-owned WSOL-close deliveries; never queries a provider on page read."""
+    values: dict[str, dict] = {}
+    try:
+        deliveries=json.loads(C357_DUTB_AUDIT.read_text()).get("dutb_to_direct_funders_via_wsol_close", {}).get("deliveries", [])
+        for delivery in deliveries:
+            funder=delivery.get("destination")
+            if not funder:
+                continue
+            row=values.setdefault(funder, {"delivery_count": 0, "funding_lamports": 0})
+            row["delivery_count"] += 1
+            row["funding_lamports"] += delivery.get("funding_lamports") or 0
     except (OSError, json.JSONDecodeError):
         pass
     return values
@@ -316,7 +334,9 @@ def detail(db_path: str, candidate_id: str) -> dict | None:
         "evidence": family.get("evidence", {}),
         "fingerprint": family.get("fingerprint", {}),
     })
-    upstreams=_c357_upstream_map() if candidate_id == "p3r-v2-c357da9d0d4d560311e4" else {}
+    c357=candidate_id == "p3r-v2-c357da9d0d4d560311e4"
+    upstreams=_c357_upstream_map() if c357 else {}
+    dutb_funders=_c357_dutb_funder_map() if c357 else {}
     if upstreams:
         candidate["verified_upstream_count"] = len(upstreams)
     forensic = (Path(__file__).resolve().parents[2] / "docs/agent_handoff/p3r/v2" / RUN_ID /
@@ -361,6 +381,7 @@ def detail(db_path: str, candidate_id: str) -> dict | None:
             edge = selected_by_mint.get(mint, {})
             flow = atomic_by_signature.get(edge.get("signature"), {})
             upstream=upstreams.get(edge.get("candidate_parent"))
+            dutb_funding=dutb_funders.get(edge.get("candidate_parent"))
             candidate["members"].append({
                 "mint": mint,
                 "mint_short": _short(mint),
@@ -378,6 +399,9 @@ def detail(db_path: str, candidate_id: str) -> dict | None:
                 "mechanism": edge.get("mechanism"),
                 "hop_depth": edge.get("hop_depth"),
                 "atomic": flow,
+                "dutb_funding_link": bool(dutb_funding),
+                "dutb_delivery_count": (dutb_funding or {}).get("delivery_count", 0),
+                "dutb_funding_lamports": (dutb_funding or {}).get("funding_lamports", 0),
             })
         upstream_counts={}
         for member in candidate["members"]:

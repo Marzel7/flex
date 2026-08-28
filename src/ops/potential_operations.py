@@ -18,6 +18,7 @@ CENSUS_RECONCILIATION=Path(__file__).resolve().parents[2]/"docs/audits/potential
 SENTINEL_EVOLUTION_ADMISSIONS=Path(__file__).resolve().parents[2]/"docs/audits/sentinel_evolution_cluster_admission.v1.json"
 FOCUS_NEXT_ASSESSMENT=Path(__file__).resolve().parents[2]/"docs/audits/focus_next_potential_assessment.v2.json"
 ROUTE_ACTIVITY_SNAPSHOT=Path(__file__).resolve().parents[2]/"docs/audits/potential_route_activity_snapshot_v2/candidate_census.json"
+C357_UPSTREAMS={"ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY":"Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya","F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229":"3GL5bXdDriApC4J2gn42L9fH2xFxq9Ziifr3pM79hBoi","HS5GjB4KTJbbBdYHkJV8qDpq8gmU9wck2qsxgz3ifgke":"8Bk1fBnoc9Yk3HUz1UWihT2ewgbxMm7LTEoemabUVqmk"}
 
 def assessment_digest(value: dict) -> str:
     """Stable semantic digest; publication time never changes an assessment."""
@@ -341,6 +342,7 @@ def detail(db_path: str, candidate_id: str) -> dict | None:
         for mint in family["mints"]:
             edge = selected_by_mint.get(mint, {})
             flow = atomic_by_signature.get(edge.get("signature"), {})
+            upstream=C357_UPSTREAMS.get(edge.get("candidate_parent")) if candidate_id == "p3r-v2-c357da9d0d4d560311e4" else None
             candidate["members"].append({
                 "mint": mint,
                 "mint_short": _short(mint),
@@ -348,6 +350,8 @@ def detail(db_path: str, candidate_id: str) -> dict | None:
                 "creator_short": _short(edge.get("wallet")),
                 "parent": edge.get("candidate_parent"),
                 "parent_short": _short(edge.get("candidate_parent")),
+                "upstream": upstream,
+                "upstream_short": _short(upstream),
                 "signature": edge.get("signature") or edge.get("anchor_signature"),
                 "signature_short": _short(edge.get("signature") or edge.get("anchor_signature")),
                 "observed_at": edge.get("observed_at"),

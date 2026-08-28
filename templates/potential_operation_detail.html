@@ -83,8 +83,8 @@
 <h2>Recent Launches</h2>
 <p class="pod-note">Frozen canonical members, newest first.</p>{% for member in candidate.members %}<div class="launch-row {% if loop.index > 3 %}launch-hidden{% endif %}" data-launch-row>
 <div class="launch-route">
-<a href="https://solscan.io/account/{{ member.parent }}" target="_blank" rel="noopener">{{ member.parent_short }}</a> → <a href="https://solscan.io/account/{{ member.creator }}" target="_blank" rel="noopener">{{ member.creator_short }}</a> → <a href="https://solscan.io/token/{{ member.mint }}" target="_blank" rel="noopener">{{ member.mint_short }}</a><a class="gmgn-link" href="https://gmgn.ai/sol/token/{{ member.mint }}" target="_blank" rel="noopener noreferrer" title="Open token chart on GMGN" aria-label="Open token chart on GMGN">◉</a>
-<div class="launch-label">Observed funding path</div>
+{% if member.upstream %}<a href="https://solscan.io/account/{{ member.upstream }}" target="_blank" rel="noopener">{{ member.upstream_short }}</a> → {% endif %}<a href="https://solscan.io/account/{{ member.parent }}" target="_blank" rel="noopener">{{ member.parent_short }}</a> → <a href="https://solscan.io/account/{{ member.creator }}" target="_blank" rel="noopener">{{ member.creator_short }}</a> → <a href="https://solscan.io/token/{{ member.mint }}" target="_blank" rel="noopener">{{ member.mint_short }}</a><a class="gmgn-link" href="https://gmgn.ai/sol/token/{{ member.mint }}" target="_blank" rel="noopener noreferrer" title="Open token chart on GMGN" aria-label="Open token chart on GMGN">◉</a>
+<div class="launch-label">{% if member.upstream %}Verified upstream funding path{% else %}Observed funding path{% endif %}</div>
 </div>
 <div class="launch-meta">
 <div class="mechanism">{{ member.mechanism or 'RETAINED ROUTE UNAVAILABLE' }}</div>

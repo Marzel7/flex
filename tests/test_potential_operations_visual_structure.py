@@ -8,6 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_potential_page_uses_shared_cards_and_structured_sections():
     page = (ROOT / "templates/potential_operations.html").read_text()
+    assert "intel-platform.css" in page
     for text in ("ip-strip", "ip-metric", "Focus Next", "po-focus-grid", "Evolution Watch", "Qualified clusters", "Evolution Candidates", "Actionable Unresolved Candidates", "Attention", "Evidence", "Relationship", "Action"):
         assert text in page
     assert "Mechanism</th>" not in page

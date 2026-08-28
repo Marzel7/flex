@@ -3193,5 +3193,17 @@
     "blocker": "Sandbox cannot create .git/index.lock. templates/operators_index.html also contains pre-existing unrelated dirty changes and the C357 insert shares a one-line JavaScript hunk.",
     "exact_next_action": "Restart or verify the local API service, inspect both pages, then stage only the task-owned C357 hunk from operators_index.html plus the three wholly task-owned files when using a terminal with index-write authority.",
     "verdict": "PARTIAL_C357_OPERATIONAL_SURFACING_IMPLEMENTED_UNCOMMITTED"
+  },
+  "leviathan_post_last_confirmed_recovery_20260828": {
+    "engineering_revision": "bf1baac7",
+    "artifact": "docs/audits/leviathan_post_last_confirmed_recovery.v1.json",
+    "artifact_digest": "e6e97f7fe32c7a8db24eaf7d7d6e3b5bf8b19e3ba0531d056bbda37733289e14",
+    "last_confirmed": "Yiv66drmUeMLcgKpuxfcetPQ5PE8Z9GSatsKxP5pump at 2026-08-28T13:13:07Z, from the current operation activity snapshot's last_observed_launch_timestamp.",
+    "frozen_source": "wt_ops_v2.db queue high-water 37162, selected-edge high-water 71370, atomic-flow high-water 8161; retained edge evidence through 2026-08-28T20:46:32Z.",
+    "result": "150 post-boundary launch mints; zero primary-member exact matches, zero C357-compatible flows, zero known-Leviathan-infrastructure continuities.",
+    "verdict": "LEVIATHAN_OBSERVED_DORMANT; C357_POST_BOUNDARY_STATUS=NO_COMPATIBLE_ACTIVITY_OBSERVED.",
+    "replay": "HOLD: live writer prevented creation of a stable SQLite backup snapshot, so exact same-source replay was not claimed.",
+    "production_flags": {"membership_changed": false, "subtype_projection_changed": false, "detector_changed": false, "provider_calls": 0, "service_restarted": false},
+    "exact_next_action": "When a stable read snapshot can be acquired without affecting production, rerun the recovery twice against that snapshot and require byte-identical artifact output before marking replay PASS."
   }
 }

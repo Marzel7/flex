@@ -1,4 +1,14 @@
 {
+  "c357_operation_qualification_review_20260828": {
+    "engineering_revision": "6dabc30a4b389d15d76146694c289474d8aed69c",
+    "status": "PASS",
+    "verdict": "C357_OPERATION_EXISTENCE_STRONGLY_SUPPORTED",
+    "result": "Retained-evidence-only qualification reconstructed 56 unique independently supported exact-compatible launches: DuTb pool 48, Branch A 5, Branch B 2, Branch C 1; no overlaps. The 105 remaining exact-compatible launches remain C357_COMPATIBLE_UNRESOLVED and outside confirmed membership. DuTb's 35-wallet coordinated seeded-WSOL-close provisioning pool reaches 48 compatible launches, with 48 distinct creators and supported reuse. Independently evidenced A/B/C branches support continuity beyond DuTb; infrastructure rotation is supported. This establishes coordinated operational infrastructure, not common human-controller identity.",
+    "qualification": "C357_ATTRIBUTION_PARTIAL; behaviour detector QUALIFIED_C357_COMPATIBLE; PRODUCTION_ATTRIBUTION_DETECTOR_NOT_READY; COMMON_HUMAN_CONTROLLER=NOT_PROVEN; QUALIFIED_FOR_OPERATION_REGISTRATION_REVIEW; SAFE_INITIAL_OPERATION_POPULATION=56.",
+    "artifact": "docs/audits/c357_operation_qualification_review.v1.json digest 52a61e90b3f41188543b9ab241ad1bc8bd6e9c75e0de160ad1e63e29c45872b2; offline replay PASS with provider_calls_during_replay=0; 2 focused tests passed.",
+    "safety": "No C357 registry, membership, workflow, confirmed membership, detector, fingerprint, threshold, Snapshot V2, queue, service, provider configuration, production alert, or trading mutation. C357 remains PAUSED.",
+    "exact_next_action": "A separately authorized human operation-registration review may consider QUALIFIED_OPERATION_WITH_PARTIAL_ATTRIBUTION. It must retain only the 56 independently supported historical launches, keep the 105 unresolved launches outside membership, and keep production attribution/trading off."
+  },
   "c357_creator_role_window_shadow_20260828": {
     "engineering_revision": "be0a8e4b7d76a0b87d43c5a1b2abf97fe5cd2110",
     "status": "PASS",

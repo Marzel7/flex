@@ -1,0 +1,912 @@
+{
+  "baseline": {
+    "c357": 71,
+    "collisions": 90
+  },
+  "components": [
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "297QThTtiuJeBGHSbMZuhVxDPvaMsMW17JaDt8nb5n1E"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "2GxThYT4CrWmPA39UMAeu7kJBYbbkDaEtSbtJkcJvChD"
+    },
+    {
+      "attribution": "UNRESOLVED_SHARED_INFRASTRUCTURE",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "compatible_launches": 2,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "2fJCPb27tQhbnX4s3sTJvjzK1deawkREkKjCKS7PjF9g"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "C357"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "2h2xdvznzmcRi4zNE8A3uwe4Er5e5bf8gTxzXREg9ph5"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "C357"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "397s3pwPhV1A88Fj2EuNoERFYTCLdN5WiUAPvxUxFVST"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "3BeSWamt3Lvj4cP9MopXgPb9CxjZ29UkZ6qPAc8kskec"
+    },
+    {
+      "attribution": "UNRESOLVED_SHARED_INFRASTRUCTURE",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "compatible_launches": 5,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 12,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "3ipeLjjgX37rqMNf8DV3N4Dufet4Fs1Ho6WyctQAG8FE"
+    },
+    {
+      "attribution": "UNRESOLVED_SHARED_INFRASTRUCTURE",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "compatible_launches": 2,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "3thxdSxsHtFuGJroCYe6JmCojPRizUz1GnvQSq5M5JfY"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "3uEYFFcX67enN7zNfKZAQcELq7CzbBHfMdwrXRwJtRn8"
+    },
+    {
+      "attribution": "UNRESOLVED_SHARED_INFRASTRUCTURE",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "compatible_launches": 2,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "49Wo4qJS1CWPd4b8LAezyL4ARPj3fw6N6zPhPV4dQd6V"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "4YQgJNSVMwfGGDrvBhJ2Wp9Pg2iHM5sH6vtbnChbir7c"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "4mm5ZhprrsZAPti2byzr8j2ZuiawWveKJojHzW5ty4MH"
+    },
+    {
+      "attribution": "UNRESOLVED_SHARED_INFRASTRUCTURE",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "compatible_launches": 2,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "54xTpcBEr48Cuis8m2SdeymdQcwvmDR4aegxCPQzUANG"
+    },
+    {
+      "attribution": "UNRESOLVED_SHARED_INFRASTRUCTURE",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "compatible_launches": 2,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "59MGbbjnBsNKNbTXsd4cc83doHgpkJBdotigvZ6WxjLX"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "5HHn2HrMUjkUiB59SZfNNkjhXqXopkvM2HtCEwCdBHeg"
+    },
+    {
+      "attribution": "UNRESOLVED_SHARED_INFRASTRUCTURE",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "compatible_launches": 3,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "5PkFFC9FCmm2EUQHMqbF9cwMviSXjgAjeqKEoPoYejuG"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "C357"
+      ],
+      "compatible_launches": 2,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "5TR1KXium6nxovUUXbofK2N1uYPh9NA8w9WpvvKZ3Myi"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "C357"
+      ],
+      "compatible_launches": 3,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "5aKyY4qnEMZnCsvaCCEoEzbnyRa8J8KJGEFVKHe7uxF8"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "C357"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "5iDYsDLugMXh1LTRVDmFH8PfQ6ueG5pE9UcfefrnztB6"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "C357"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "5sUoQPPvnvS6eXem4TdcjKJ1JZy7uLEhWN3pCA8yNFnc"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "5u25nsdUPraFYayZpPN5G4SigmKtyYiYi7xaaeDTKYXF"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 3,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "5xfUdLx4edkXEt8d6MjbrDanVkiSGNnpGcKtnjsTybWB"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "6S8Jy28SSYMG8ZNfjkgbxPzVvfBkqBUmrHiUKCXhQTGN"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "C357"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "6hakQXcUcnk1EuuGMHsDPw9iP4GPwjUtHxxPAvGnPj3L"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "C357"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "6jJnz6ZQjDZeFLxoDq2RBp4fvsjPfCJmpr1jhQcy2rBk"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 2,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "6nVVHkresDde2BHRw6b6Qfg9UqAJStUQoXv94kopSNBC"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "C357"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "7144mX5peoQoyYq2ncsTmzFciqkLiYzS42XVmvFjGiv4"
+    },
+    {
+      "attribution": "UNRESOLVED_SHARED_INFRASTRUCTURE",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "compatible_launches": 2,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "7DifG8cHrQBAAKjqoLCnfzj8khtnYLPE39GnWgEnLP8d"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "7QdxX5gpREraXuq8Cxfv9AAYky7c399FAN5XJn12SF6g"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "C357"
+      ],
+      "compatible_launches": 2,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "7ujELVUxF7xd7ZFxXEPhhuVThaa5Lx116xphh38cfxM2"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "8HA5LkgYxG7dWuTMMJwXfHg6rwMvtvYDJDx2t9GxYzTb"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "8TyL8PpjabJhMCoKXc3mKVy4jc4YQX4nwTBaUB4RFYKN"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "8YbwFkFnkm43kvp9tP71Cj6qcSKFNe2bS3FqAdJdjs7F"
+    },
+    {
+      "attribution": "UNRESOLVED_SHARED_INFRASTRUCTURE",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "compatible_launches": 3,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "9As8wexRUtoujuYia5WxpiUCbjut75XTb9LknATiXvRW"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "9UgP4q7QNjSicR7YzkdSU7RLycWrLEPbvi5u6EHaG5M7"
+    },
+    {
+      "attribution": "UNRESOLVED_SHARED_INFRASTRUCTURE",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "compatible_launches": 4,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "A4XPmTUoH5VcE9mM2pYLB26yMn3wL5sa2LuuXnngbvZ"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "ACRJhDnjLjH8CAzqb2nbekHKtQkcJgvJJBKEoMHaQiUT"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "AFMNXaQDhB1qDZk21P8B8uaLNUCYng4sGpTJNHa4ePSn"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "AQiB8cPxuoXMeVRPNZygXED68VVXj4awgJ6gzz4WHazn"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "ASPJLkhCzpEVmsVubeQGuQ2H8U8cHW8mefVq6cJxSef8"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "AVGgJxD5WKA6zkJz1CthVL5B5sUzRN4Qgr1ozgiA6CTq"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "C357"
+      ],
+      "compatible_launches": 3,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "AW7FZRzGUA8HnRWTsGbEDogAh4Y2Utv2KBqALEvfGLqb"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "AcVg9FuPyFQjA89rnmYwCu2NrS8QTsYvRJxsKGTvQbsB"
+    },
+    {
+      "attribution": "UNRESOLVED_SHARED_INFRASTRUCTURE",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "compatible_launches": 2,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "AhfDWL1mi2xajF7JWGDzmTiqvtRxD7JDWHkaZVnmUvw7"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "AiTkzFK2ASjrhdugedhjqCgXm8V9mn4TSAohY1HcC3HX"
+    },
+    {
+      "attribution": "UNRESOLVED_SHARED_INFRASTRUCTURE",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "compatible_launches": 3,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "Am3Un7bph5NNWDLCVVVQT1kY4kN3GFPjj31g4DdrNCd4"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "C357"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "Ao2sUdoFtKW7yix7v6GT8GoWE94LcgHiyjautukHBKAi"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "B6oBat17dkCtpUFe31yc8ExALTBi5QKRx7PwDDebxoXc"
+    },
+    {
+      "attribution": "UNRESOLVED_SHARED_INFRASTRUCTURE",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "compatible_launches": 3,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH"
+    },
+    {
+      "attribution": "UNRESOLVED_SHARED_INFRASTRUCTURE",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "compatible_launches": 2,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "BsKEb5qhnHMFP4XUjoXMv5nMxkvuaFtBH5ssuWNMjLbw"
+    },
+    {
+      "attribution": "UNRESOLVED_SHARED_INFRASTRUCTURE",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "compatible_launches": 2,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "C2W3FExk348T4aNHpJjiCZpNrpd9MNLBBVZAdWCogtBx"
+    },
+    {
+      "attribution": "UNRESOLVED_SHARED_INFRASTRUCTURE",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "compatible_launches": 4,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "C55hxeJepPLMKi4xuKjAFLWmxoSfVrqn2LELi67ixQfe"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "CB4FsLzRtFFEHKhCqSqbXkHBVL9xxteHogHHpzcRTd4N"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "CRo4V5iKHCDPK3AK1ULsWa914KyhX1YtcR3cY3e7tr2z"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "CT9nGrmkxFSfFTyb2wLEegWhF2e8aVqkLgE1ZJqw6mkY"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "C357"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "CYnm5v4MiLLLaUvu5VUfYPxszU8RPBzmH3Qkv7QbfcUi"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "C357"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "CbMTzd1sG9vuP9Tw2nUNBHUvtsyzr4Hm5rknri4XxXWL"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "C357"
+      ],
+      "compatible_launches": 5,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "CvLnSRmZHf71LSw1GKedDrMgj2XF4oYL4Qme7QKnWkZw"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "CwY2ejGDsiDhjpEJRK7DQRUEgoCiUpcXGAwpZ8PGdwmL"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "D4iJYcjWZmzDEgnKMHWmpCPZaCiqHSZYtVpLW8zYRHcZ"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "DFdvh5s5aEFnG9e2T2wdUeazkTrSrhqQ39yMUGXux97y"
+    },
+    {
+      "attribution": "UNRESOLVED_SHARED_INFRASTRUCTURE",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "compatible_launches": 3,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "DPAy3sFUsUWVRCGaMKse2hVYR5kKU7Yr4cE1eM5EwvgA"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "C357"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB"
+    },
+    {
+      "attribution": "UNRESOLVED_SHARED_INFRASTRUCTURE",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "compatible_launches": 2,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "DmfxzqZQTifJQhfrikFdDQXy3Ws6X9H3VX5xkRVTf77y"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 2,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "E7VTXaymRDJuWm9URrZY4mpBpN6LpeKJLazCZoBqjbYc"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "EA6UoBrF6rne7BHnfRwX7caEmYV41BaRZP67tFzx1rFJ"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "EGdwSZPSZNVjMyf5Ggw8RPVRzdybNjTjKfEiqpjeEEnw"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "Eg8bqeWeGFyzNdDPxmm2Xexm2cMcqhP3qbU2MURwV6M7"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "C357"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "C357"
+      ],
+      "compatible_launches": 2,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "FJrraJVwKYdcLX4we8UttdJGvxErgUKWf6awnVSsxArH"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "FRVRFpNGSquSscfof8p5Dt5utM9Xv5KwdhLVAdw6wMYT"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "FmGc6uSWowsvBp3oMUQMNvRcPj1noGjFKftoRobKWr5d"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "FunzNLf3fXwQSAycdZUXXNGCFw31UNw2a8Ya5VNWVn7R"
+    },
+    {
+      "attribution": "UNRESOLVED_SHARED_INFRASTRUCTURE",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "compatible_launches": 4,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "C357"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "G1BJvTetp6YSwaDNSajruPPM1JCTZf5NWeyr6dQN94n7"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "C357"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "G9XSZDgMk8x51uHvFUumZK5AFWJLp3GJCV7VZSkL3uGP"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "C357"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "GUBtBg8i5wn5ME3vYmgqMZFFuBnDp6i1oa8BPFwoURAP"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "GUYJrty45qyivJ3ubMxqzLwWCqGgTsYvyNHtHDwimTk"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "Giqp6Jpq4rfaTpuQQZNQMZBBpcKn6fygTLhTB8dVVUUB"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "C357"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "Gy29oqrQGFsP8cSsZ4eJvmMDMvKeYtWgURGCn5jim9Xn"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "HKZdVgo9WmLRncFHbWDDYi9p71GCfmZvdJxuRy7jMoh"
+    },
+    {
+      "attribution": "UNRESOLVED_SHARED_INFRASTRUCTURE",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "compatible_launches": 2,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "HQ2q5DJuAVf1CrDJpwmeSYsLgvGp9k5cGEPZQsNvcMW9"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "C357"
+      ],
+      "compatible_launches": 2,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "HRneLKJHUHXJr9zb297N44L8WCUqCJYKDsSxDaPv49wS"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "C357"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "HS5GjB4KTJbbBdYHkJV8qDpq8gmU9wck2qsxgz3ifgke"
+    },
+    {
+      "attribution": "UNRESOLVED_SHARED_INFRASTRUCTURE",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "compatible_launches": 3,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "HaUoQtNBbNEv3jgLMikQEpyFMTs72eS5DBYJ3j4usiJJ"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "C357"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "J37JdYS3hpMB3iW8tgUdfFrrBu4X6o9PT3SguxpHXJVW"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "C357"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "J87ewUdaYKXaMVZEdKh14fMcKXaAmzGamzGtaXDop13X"
+    },
+    {
+      "attribution": "UNRESOLVED_SHARED_INFRASTRUCTURE",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "compatible_launches": 2,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "NeHjc1yqZXesLZTHtK7jrjyQ3MpFg2TVHpV8QDDAHEm"
+    },
+    {
+      "attribution": "UNRESOLVED_SHARED_INFRASTRUCTURE",
+      "baseline_labels": [
+        "C357",
+        "COLLISION"
+      ],
+      "compatible_launches": 2,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "j6EVoUMZRafJPrdkuoB9PJGXxBGHEsx4VcJq5W3Ft5d"
+    },
+    {
+      "attribution": "UNRESOLVED",
+      "baseline_labels": [
+        "COLLISION"
+      ],
+      "compatible_launches": 1,
+      "component_evidence": "direct_funder_reuse_only",
+      "direct_funder": "q52GFwAp9RGdt69kCoEsvZ141Gq6wa4FospsC6PS2wp"
+    }
+  ],
+  "contract": {
+    "allowed_edges": [
+      "direct_funder_to_launch",
+      "verified_provisioner_to_funder",
+      "qualified_branch_relationship",
+      "verified_wallet_pool_membership"
+    ],
+    "labels_are_features": false,
+    "workflow": "PAUSED"
+  },
+  "digest": "8da0ecd7e7b3a6834e32db1f43ba8be9c7c02aec1381d10f5ab9eaa97a4d8b6c",
+  "population": 161,
+  "schema_version": "C357_BRANCH_INFRASTRUCTURE_CENSUS.v1",
+  "sources": {
+    "cluster_digest": "7ee3e497488743fbd0ab8418de7aa95b4237fa2133336f34fd959134af7bd3ea",
+    "temporal_digest": "ed83d74970734719cd09ddcc49c63643f7426f19b76bd90d9929671cade43c9a"
+  }
+}

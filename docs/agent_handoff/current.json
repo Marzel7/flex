@@ -3205,5 +3205,18 @@
     "replay": "HOLD: live writer prevented creation of a stable SQLite backup snapshot, so exact same-source replay was not claimed.",
     "production_flags": {"membership_changed": false, "subtype_projection_changed": false, "detector_changed": false, "provider_calls": 0, "service_restarted": false},
     "exact_next_action": "When a stable read snapshot can be acquired without affecting production, rerun the recovery twice against that snapshot and require byte-identical artifact output before marking replay PASS."
+  },
+  "c357_resolved_as_leviathan_behaviour_20260828": {
+    "engineering_revision": "bf1baac7",
+    "state": "RESOLVED_AS_LEVIATHAN_BEHAVIOUR",
+    "artifact": "docs/audits/c357_resolved_as_leviathan_behaviour.v1.json",
+    "artifact_digest": "1d969381485e192b01faa582f4a08d40de4601386351ee2b3c6bf3a22ae13fba",
+    "workflow": "PAUSED -> RESOLVED_AS_LEVIATHAN_BEHAVIOUR, linked to parent 777211c3-211e-551b-9310-ff9301570627.",
+    "invariants": "Leviathan primary membership 111 -> 111; projection 56; overlap 50; projection-only 6; compatible unresolved 105; detector OFF; monitoring SHADOW_ONLY; trading OFF.",
+    "tests": "4 passed: C357 operational surfacing and subtype read model.",
+    "idempotence": "PASS: second execution produced byte-identical resolution artifact and no further workflow/membership mutation.",
+    "render_verification": "HOLD: localhost:5002 was not listening; no service restart performed.",
+    "commit_state": "UNCOMMITTED: local index remains sandbox-blocked; preserve unrelated dirty changes.",
+    "exact_next_action": "Start/verify only the API service if separately needed, HTTP verify the three pages, and commit only task-owned files from an index-write-capable terminal."
   }
 }

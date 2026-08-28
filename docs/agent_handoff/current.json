@@ -1,4 +1,14 @@
 {
+  "potential_detail_gmgn_links_20260828": {
+    "engineering_revision": "66cb896aca1dd1b7c497787952469dd149e25be9",
+    "status": "PASS",
+    "verdict": "POTENTIAL_DETAIL_GMGN_LINKS_COMPLETE",
+    "change": "Each token mint on standard and legacy Potential detail pages now retains its Solscan link and adds a muted ◉ GMGN token-chart link using https://gmgn.ai/sol/token/<mint>, with accessible title/label and noopener/noreferrer.",
+    "verification": "4 focused tests passed. API-only reload; provisional Potential detail and legacy Potential detail both HTTP 200. Rendered provisional page contained 88 GMGN mint links; legacy page contained its GMGN mint link.",
+    "files": ["templates/potential_operation_detail.html", "templates/potential_operation_legacy_child_detail.html", "tests/test_potential_operation_gmgn_links.py"],
+    "safety": "UI-only external navigation. No workflow, membership, detector, queue, provider, listener/worker, or trading state changed. Only watchtower_api was reloaded; unrelated dirty work preserved.",
+    "exact_next_action": "None; GMGN token-chart links are present on Potential detail surfaces."
+  },
   "potential_operations_shared_style_fix_20260828": {
     "engineering_revision": "f0a19d7907bdd5ae80304701388f18ef7ecc8a39",
     "status": "PASS",

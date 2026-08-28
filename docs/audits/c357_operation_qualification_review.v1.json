@@ -1,0 +1,667 @@
+{
+  "alternative_explanation": "ALTERNATIVE_WEAK",
+  "alternative_reason": "A synchronized common-source 35-wallet WSOL-close pool followed by 48 exact launches, plus independently evidenced A/B/C branches, is materially less consistent with isolated coincidental generic-infrastructure use; it does not identify a human controller.",
+  "attribution_detector": "NOT_READY_C357_ATTRIBUTED",
+  "attribution_verdict": "C357_ATTRIBUTION_PARTIAL",
+  "behaviour_detector": "QUALIFIED_C357_COMPATIBLE",
+  "branch_evidence": [
+    {
+      "branch": "DuTb",
+      "compatible_launches": 48,
+      "independent_infrastructure_evidence": "35 direct funders receive verified DuTb temporary seeded-WSOL close deliveries; 65 deliveries including coordinated initial/follow-up waves",
+      "strength": "STRONG",
+      "valid_window": [
+        1786431223,
+        1787572885
+      ]
+    },
+    {
+      "branch": "A",
+      "compatible_launches": 5,
+      "independent_infrastructure_evidence": "7nUCh upstream to Crnc direct funder retained path",
+      "strength": "MODERATE",
+      "valid_window": [
+        1787447649,
+        1787460183
+      ]
+    },
+    {
+      "branch": "B",
+      "compatible_launches": 2,
+      "independent_infrastructure_evidence": "33my provisioned HXuf, HXuf funded CZTx, then HXuf directly funded two exact launches",
+      "strength": "STRONG",
+      "valid_window": [
+        1787625830,
+        1787632643
+      ]
+    },
+    {
+      "branch": "C",
+      "compatible_launches": 1,
+      "independent_infrastructure_evidence": "E257 upstream to 6hak direct funder retained path",
+      "strength": "WEAK",
+      "valid_window": [
+        1787450096,
+        1787450096
+      ]
+    }
+  ],
+  "candidate_id": "p3r-v2-c357da9d0d4d560311e4",
+  "common_human_controller": "NOT_PROVEN",
+  "coordination_dimensions": {
+    "branch_recurrence": "MODERATE",
+    "coordinated_wallet_provisioning": "STRONG",
+    "multi_wallet_recurrence": "STRONG",
+    "post_provisioner_continuity": "MODERATE",
+    "repeated_compatible_launch_behaviour": "STRONG",
+    "reusable_funding_infrastructure": "STRONG",
+    "role_recurrence": "MODERATE",
+    "temporal_persistence": "MODERATE"
+  },
+  "detector_readiness_verdict": "PRODUCTION_ATTRIBUTION_DETECTOR_NOT_READY",
+  "deterministic_digest": "52a61e90b3f41188543b9ab241ad1bc8bd6e9c75e0de160ad1e63e29c45872b2",
+  "dutb_recurrence": {
+    "compatible_launches_reached": 48,
+    "creator_count": 48,
+    "first_launch": 1786431223,
+    "last_launch": 1787572885,
+    "provisioned_wallets": 35,
+    "verdict": "REUSABLE_OPERATIONAL_LAUNCH_INFRASTRUCTURE_STRONGLY_SUPPORTED",
+    "wallet_reuse": 13,
+    "wallets_later_used_for_compatible_launches": 35
+  },
+  "future_branch_policy": "C357_NEW_BRANCH_REVIEW_V1: exact behaviour, coherent multi-wallet evidence, independent continuity, then human attribution review; no automatic membership.",
+  "infrastructure_rotation_supported": "YES",
+  "mode": "RETAINED_EVIDENCE_ONLY",
+  "operation_existence_verdict": "C357_OPERATION_EXISTENCE_STRONGLY_SUPPORTED",
+  "population": {
+    "compatible_unresolved": 105,
+    "exact_compatible_total": 161,
+    "independently_supported": 56,
+    "supported_launches": [
+      {
+        "block_time": 1787215581,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "3NrYxFjqL7NhUPsNmb3Tiiq1m7RHxzqDgGvJXf2RxXMn",
+        "direct_funder": "7144mX5peoQoyYq2ncsTmzFciqkLiYzS42XVmvFjGiv4",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "CPM7DGwsFCyT2kHqzEwf4moWKnCiYh5czdbyr7apump",
+        "signature": "4UTrMShnXJRUjS7YhJMWKvyfXLmBDtYExCiJq5k5QUnnKe6AdTQH4pCdohyJFjhaLVMcjoQQXD5fsYM5ha6Wigur"
+      },
+      {
+        "block_time": 1787015041,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "GEtVX6H7krvHFCasXsnX2wHzm3iZeqxLUUNzmi4HeER4",
+        "direct_funder": "HRneLKJHUHXJr9zb297N44L8WCUqCJYKDsSxDaPv49wS",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "CiKMVEVMCZSTXwQwqrwE3GZLne982oHkAdq7Yz3pump",
+        "signature": "2KVN12ofn1zB2ZfuyXdSVPHWXvuTb2NpGweP9sY9ApwTdEzUPRfCi3ttpco4tiKdwjpLaJj7S5ZD7xZGw2ucwxgG"
+      },
+      {
+        "block_time": 1786531970,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "9qqSas8WY6nmQ3fnisLFDJt89AScjZiqbT1jAA1BUCe8",
+        "direct_funder": "CYnm5v4MiLLLaUvu5VUfYPxszU8RPBzmH3Qkv7QbfcUi",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "Cj7up2N4yXdzZmLYNaiPt6zye4VWoWHsyeCobEDpump",
+        "signature": "4no7LpZipBLnD5oVE9NL2BTiji399jehxjdBniqBjkhZmG4xHgybQKK35ktKEoEjUWmXvRiQfhvztEU5eptNsJLM"
+      },
+      {
+        "block_time": 1787217108,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "8j9q3Rc4zNwNCTLMketLb92LjQroHziHnYs1MKkYkSgN",
+        "direct_funder": "397s3pwPhV1A88Fj2EuNoERFYTCLdN5WiUAPvxUxFVST",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "DqErYkksQymp8sVr2HkrJbVWkv1YXrz3keWKBfHpump",
+        "signature": "2GqtcM9CYkHFKc6B86rXTR2E7iCjMBFbgdBQVGPwAbPrGxwdsZyCxYyxBrVUqixpHLydyu2TCaxHvUfvt9j2T74"
+      },
+      {
+        "block_time": 1787214650,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "9bFEF5DJagnHfuPdUbCtihwYULdTCzp74RQ288Y4eoxe",
+        "direct_funder": "CbMTzd1sG9vuP9Tw2nUNBHUvtsyzr4Hm5rknri4XxXWL",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "EakWrE5ehWTkJkhSPp861abPiDg4BDW72KVMR2Qpump",
+        "signature": "5UQZoTvRreEZArbw22k5ux3ZB6NuEodQktWiED5JkdgM2MbiwytQs6SnozB96eYxP2gEQHnTowP7h9PMWa4Fjuak"
+      },
+      {
+        "block_time": 1787542605,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "7LYzKGRKPCxvfUSuV5pm57MjmUgC6G3sPKeRcTL4CTgD",
+        "direct_funder": "FJrraJVwKYdcLX4we8UttdJGvxErgUKWf6awnVSsxArH",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "GhvrrotDtMYKFjWpeuTxgskYRji3N2u5TeYToZwpump",
+        "signature": "3HwguxzV3rT91PSD9nUk4g6CZgsvboQ1i7noRDESW9v8fpUoS4X3eLiXwbZui3NFz5Qbtx3GZa6aBD636ZM1JK4f"
+      },
+      {
+        "block_time": 1786873024,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "Ft5Sn8GN9BrqGXUyiuvw4WgEP9MUER8hdmZ7oBBEQ1rT",
+        "direct_funder": "5sUoQPPvnvS6eXem4TdcjKJ1JZy7uLEhWN3pCA8yNFnc",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "HUNHEFrs7pFJpd1R7bYq6vT9GigRk3rV9av63ZVpump",
+        "signature": "2HtE82WMYpvpMW4Rxj9cujNYPeYYn15Q2Qh6iFxi46fmqwfNTuGc7KCGZQgGUqcn1ensRbpw9ECw8LRJNrYU41D8"
+      },
+      {
+        "block_time": 1786448112,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "CvQTfPsBj9BrH7VfkkrTAXcE5sBkeoLU42S918BnkJw1",
+        "direct_funder": "Gy29oqrQGFsP8cSsZ4eJvmMDMvKeYtWgURGCn5jim9Xn",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "JHkAR9egULFbv1PfGLky5NvahfQwWJRDH4zJMsWpump",
+        "signature": "r75GRQ939oxV98mYNpgbJpzdKQ5H5YyWXFRofUmuu4iFuh4pUe1E1bRhLhBPqu5SPgBq98YcY8PCuxLPDXMPzaQ"
+      },
+      {
+        "block_time": 1787459721,
+        "branch": "A",
+        "creator": "ABn8WgSFDxiSWchwi4NyAJcYHvbmE3vB86aHRbFgvqi2",
+        "direct_funder": "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "7nUCh -> Crnc retained upstream/direct-funder path",
+        "mint": "JzXZKSJZvtS3scMCcmXWUJGxRTBfnociHXVXKRvpump",
+        "signature": "4orxjwDEAhQHqVu12EejbTyFr2bazWCQR7NBRN3UrA6cxiUzEyrVpzFvzSgWCVQsKxUU571A3R1LvQ5139R9DSEn"
+      },
+      {
+        "block_time": 1786593176,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "AX93U7LoL2QYWJnuGa1grmqWgtPhG3y6CwqoFanv1ttx",
+        "direct_funder": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "LyqncnAuRYisshpv1u12B6pCD7SASdyFj1itCUcpump",
+        "signature": "5KiaT1R4cMerHa7CKmujzNXKt7gtUgDYm9hVkK3MK5o6U3NDda2dWCRCrfNNvB5xuoNFrjEKyzHfMdPik2eafXc6"
+      },
+      {
+        "block_time": 1786623174,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "9UA4PhjVWhShFgJvpQqyvJoSftQL5757J3buGuATCAi1",
+        "direct_funder": "DmfxzqZQTifJQhfrikFdDQXy3Ws6X9H3VX5xkRVTf77y",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "MW7ePAAMjxWyezTKtnvYXewrN5H4CHrv1HYkhabpump",
+        "signature": "4eAuDBDr9DtKEc5C4soRXkkHGK66x5iet2PmEnwFCRjg2QAmWryMn8FEtwyHavVEHa71bdoQsXhVQt1mX1kL5gSt"
+      },
+      {
+        "block_time": 1787456322,
+        "branch": "A",
+        "creator": "xkRXakyCtZyurxF28kUserYZ7ws9NqqTxaEJjSkVaiJ",
+        "direct_funder": "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "7nUCh -> Crnc retained upstream/direct-funder path",
+        "mint": "Q3FHwyr9AFZvFJUyFduoGrnJE5gAgq7UGQWVn2Kpump",
+        "signature": "3NeBxDj2bZUFQdKafvsdbtgh68moKDBnao3QEAtvoch4wWE5sfy9wHUghuwnG8QhBc8u4PfbhFHFURnpfQnAgRzu"
+      },
+      {
+        "block_time": 1786582853,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "7v7nDPBG7Qa1wr5GzHAtf2fxfiRzBC5otW68qPcTQpyR",
+        "direct_funder": "9As8wexRUtoujuYia5WxpiUCbjut75XTb9LknATiXvRW",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "Qqq9SveDjjYJc3jFYwopxEFhuV7SwMtcixr3skdpump",
+        "signature": "WUUSvgPRCiFrAWnSfodzt27TauaZqJdUHLmygp5RsKofbVPGjYza2V3Y24EaaBLz8gQcHwcnKoDC9WZbHjTkb8C"
+      },
+      {
+        "block_time": 1786532598,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "3kamQ5cB2fo46pDyGnUkHYmnuDZQJWFxmntxRKvDBhY1",
+        "direct_funder": "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "R39ag2yKJVxJiHUxBy1xUEUc55kADNicLb9idNnpump",
+        "signature": "4THKNhSQXbtE2Moua51wWdLdoM27DxbvCn8ZUZq5YfHCnQxbpYBiV6ZmRw7kdkvV5mk17fR4tZoGDdmvU48UDHoo"
+      },
+      {
+        "block_time": 1786449676,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "E57fshvfneuC7j1m12mXk8GjQcDVTKmKLG24rnbjiQLF",
+        "direct_funder": "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "RAjnSnVnRmf8Za8MggRPRmjkY2ZQkK7HiXYz4YSpump",
+        "signature": "TmSQpwaBQVnseTDFedYevTSRsKZwqaSrScEMP2EU9AT1MYejmQvmkP5YmdH4eWArNDYjvqzCR4TkKDL376V5CR8"
+      },
+      {
+        "block_time": 1787016609,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "GaCSvrcMmwc8RcbdAnxwBdM2dfzUZN3FkPWCCCCusMbf",
+        "direct_funder": "5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "S3jLzSX9NKbtdUVGTzoeYFMty5xXRYvzTbFASXUpump",
+        "signature": "39votXdvKC6jeTKoBKMh7oBZcFmhPaZfs8o4zfUfKM1wVUtf2ygmRLVkKdTSQ8LpvdvmD2Zu5YLf59tmHjqNxXe7"
+      },
+      {
+        "block_time": 1787368455,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "CZW5TGuGBp8N3K9sJjkaq8yrfae8qKEEptFBJPm2hNeb",
+        "direct_funder": "NeHjc1yqZXesLZTHtK7jrjyQ3MpFg2TVHpV8QDDAHEm",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "SrAJUQS6snqHUATSX4Jmvb4vZpgmQevqeWbzUEVpump",
+        "signature": "2A8UEgddd3PWW8AFF495hBdmqoCwoYWfq7v72Mk6qmM6bah5pJcmmdTiLbahD4yTxJF29qd3vhgWHXj9KdNy4fGz"
+      },
+      {
+        "block_time": 1786583337,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "9vxWQxQ7t96c8me6weJaUs4wwvqL2dJnborBhAbmBjvU",
+        "direct_funder": "3thxdSxsHtFuGJroCYe6JmCojPRizUz1GnvQSq5M5JfY",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "TwA2K5KnYpyNeu7dxeNY3yS4uCR5KrRRh9FPLDHpump",
+        "signature": "E46pnsVJdoSRDVga9WC8bgC9WKnZNzSPuv9GrLuZPSK8XdqWhyHH27M6XvQ92zTAfsTt7Lbmn3fUAZcAQFNokLm"
+      },
+      {
+        "block_time": 1787370510,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "2QiFAgxAKru3d8oWsL5eEkSAxmQxU6WxHTCoGM6N2VCC",
+        "direct_funder": "49Wo4qJS1CWPd4b8LAezyL4ARPj3fw6N6zPhPV4dQd6V",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "UMVSuCPVE5H1SbEZ5X32iu3Jcs67ySZ1iMuiyaWpump",
+        "signature": "3DPNaFit2pjTZS2HGyj2VAHqb55N61GzGQeFtEW2AMk4xQBURmKPw3NGkjMRKNWidFJjThYMTJcTqRzJGRDTccEE"
+      },
+      {
+        "block_time": 1787201170,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "55fXgo7wWvfTd6ZiRNrqoy42Hx7CbfKnSQgMriVStPEB",
+        "direct_funder": "7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "UkCrzRHSB7jDqMzfLEyAA6A68ibzWZpBWvdY2y4pump",
+        "signature": "4rTGnxY2LYSW7bNXshQUEQqY763AERXtufxaeS5shp617xrLeXPvM95JcbJCnCeeetzw5YNRvFZ2qYHL6et2vKoN"
+      },
+      {
+        "block_time": 1787047604,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "2w3ecjBRZ7ZBim1iaXjqv4YKWeHtRk6n3EpBo1MVZBoS",
+        "direct_funder": "9As8wexRUtoujuYia5WxpiUCbjut75XTb9LknATiXvRW",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "UroXqz24UCoMy1LpQJVQjJEyeKzBh6aYPq4b487pump",
+        "signature": "38wZUDU5TDhWRRznvJvmE4CgK7B5vjZB2LJAU3BgPzRyCqWE3wTzDwrUW3Ei6AtPxdqFZeMjo8fBT7CUzmXiMdXz"
+      },
+      {
+        "block_time": 1787203886,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "BS2tw7Q4vEgPNemCj8cXNv5TvoyPWyikJbccZapuyQqW",
+        "direct_funder": "C55hxeJepPLMKi4xuKjAFLWmxoSfVrqn2LELi67ixQfe",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "UsCT9cALz6uba94mdUByBLZgP3Dp5sW7Mv7ZgJPpump",
+        "signature": "4WAdS8z7MRuCnn1sBiMmJnYCnRuntub71qhFdFTHeqDZsnwd7gBtPLvUQjRTPiZptGMWh6fKnfh25BwpuU9jid1o"
+      },
+      {
+        "block_time": 1787051592,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "38aBEtXLDNScjuAcER11UbCpCyovbtrmzod4YAqkAxMz",
+        "direct_funder": "FJrraJVwKYdcLX4we8UttdJGvxErgUKWf6awnVSsxArH",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "UwMkVQDeXLpbCXcHp5P9yVAneejwwbviFfBJFRXpump",
+        "signature": "4NfVTtRXsfmouCq5bgNBJDPXKiqGCUriibijX5ZYNHCShkhTFzDATBUoDvS3YLTdZfCoj2JxyKoptijgGYhkMivr"
+      },
+      {
+        "block_time": 1787376852,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "mMscMXbq3SJM2R6EcL9b8YrgTkDaaPZKiGWHLwcFjzw",
+        "direct_funder": "6jJnz6ZQjDZeFLxoDq2RBp4fvsjPfCJmpr1jhQcy2rBk",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "VByVzKnqKM6QGCJs9JwxGs4RJC8kdtwtn6FnfXMpump",
+        "signature": "2KUPL3zYNafnqKqnHEzg6HyAbwcSbgotzu3BmcAbWjPwUTgE4C5aiytbPftFA6XgXqJ1NwduvMdKePhJk7vkLzdJ"
+      },
+      {
+        "block_time": 1787625830,
+        "branch": "B",
+        "creator": "Bo9vgoTpWBsRD1U3jwPRuSh2cZAAZSzSDJgcw1Ah2mCT",
+        "direct_funder": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "33my -> HXuf -> CZTx qualified role chronology; HXuf direct funder",
+        "mint": "W7Fnj98a3jY9aoP9kd25taK66eJ1uS6b6VjpKtJpump",
+        "signature": "5Li2dxdtdTiVLk7jNTFgAyR6UkvGbsZsJhTpEsVpN53vMVRmQShs17HZv5PSPrurfGYGntTjx6YGXS81DSoZbrSo"
+      },
+      {
+        "block_time": 1786506298,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "BHqs7btMbN3iFsndATfadrZogMdtEiqTzFc6qqe6bjQx",
+        "direct_funder": "5PkFFC9FCmm2EUQHMqbF9cwMviSXjgAjeqKEoPoYejuG",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "WLjqiHSEWgHVkX9JWJXgXDhX9XTCtSSj3EdyB4Cpump",
+        "signature": "Yk7kmEqbDNvzPFoJKpC2oJ5FedrbaMBoHcKo5qJ8kfN7NCDXgDg6tuddJCssKWYHfDktYH4iAusoQzQTyz7t1vE"
+      },
+      {
+        "block_time": 1787029469,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "8jLQSAxGfEc1nqX3aPKBHnVXLgbLDwaNdBAFg9XBssyM",
+        "direct_funder": "BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "WV1UndBXx7eGbtA7B6Q7HEnX1mN8DL3XdGDN9Jupump",
+        "signature": "5Lfp1RwA8YwrZPkDH5SBwwqcTGjEdejPQQCqcRRhtAgtNrp6bBHVLmbwLML7BnAavoAWSJSK4E3W5aTmWEYWLzck"
+      },
+      {
+        "block_time": 1787460183,
+        "branch": "A",
+        "creator": "8PZAEriyoFAGrEttXmtCk6akRPEWF74RYshHutSV53z5",
+        "direct_funder": "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "7nUCh -> Crnc retained upstream/direct-funder path",
+        "mint": "Y7u2wWcosZTHagBjua7W3ddwsmD4ZGhZYH2keASpump",
+        "signature": "4PXB3fGAzNnANhCJgsTqNGamtJYpK6GLRsEQwTscN5ZzwS1ysvSzLffkDjDR4ZKoj7rDHL1EHdsM6cyG1eXgEgcZ"
+      },
+      {
+        "block_time": 1787373829,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "GhnaFwBs9oWGrec1xZ18j5xmkS2muLcMWK5DuLtaXz3D",
+        "direct_funder": "C2W3FExk348T4aNHpJjiCZpNrpd9MNLBBVZAdWCogtBx",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "ZMA7yJNeXUwcUdGWXzw654ZX6k1tj3zgqL7qrFBpump",
+        "signature": "3chRZSVSX2fS9gVNEtNunWgAd2YpmFwngLNi7b5Ef8WjVnhiCgT3vY1WyUbgoo7u6ZppHv5DWo24iwSYRwaPbXzG"
+      },
+      {
+        "block_time": 1787194882,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "2rKe6oPYrXpRL3CgUVrmsJTGXhNY1Uz17Htf6ZdzXwzJ",
+        "direct_funder": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "ZjDVmGGAkmj1aj8Le3uGoaUiz39jEyKH6VP7dzQpump",
+        "signature": "5U8QvwZPsPUueznWzkj78EuYGsSfmqgxC3RMwnPUQfKPkGyhhTsChzbVKNPVKZBZuxwivyU4zEDyZyvHHVasFaR5"
+      },
+      {
+        "block_time": 1786499927,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "6vJXHimFNCDp1fMY4vuJfNQdbm8cbXrYQGxdzzPz31gt",
+        "direct_funder": "9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "ZpQmhQvEpasHYF2gDrDJXaYZVDJxJUZRt9vvHbUpump",
+        "signature": "3K9SwogMShXGjoBQ6LTs1PzMzb5dtgwvuHRABH2C3cT7dbnFzJYrqgipJo5nkmSsR2p7iH6411UV9on5hFQeLK71"
+      },
+      {
+        "block_time": 1786441003,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "CRz5Kxv9qHini9xhpA2DitjoKySkZPyTbopXCg3W6Xcf",
+        "direct_funder": "Am3Un7bph5NNWDLCVVVQT1kY4kN3GFPjj31g4DdrNCd4",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "ZzWhbH8LrTjx8uCQgE2SEue3jiYWKAm7RGTCYH8pump",
+        "signature": "3afxBdEQD8wwq6haY1xM2K5pcSzGpivhux44vLQhwEAuqzjzBk2tYaprPRbywQpJbRhSfWNn13emUbg1nzMiUX4V"
+      },
+      {
+        "block_time": 1786583773,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "9cZq1PZcQ37YkpbDdLZsbWhzHRQgts7xZq46iFzKx3BH",
+        "direct_funder": "HRneLKJHUHXJr9zb297N44L8WCUqCJYKDsSxDaPv49wS",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "aDdwL6dso6ZD6Rag2FZTURzADRiyXxFVeT23ri6pump",
+        "signature": "28ATAVeDzpM68g33niCEYrYuvGkBMspWyDdPRxynyYQyXGE9Jiob1AbNe2kfCQZsvwEbcRuZJDUw1FEZfasK2Msc"
+      },
+      {
+        "block_time": 1787056653,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "FK9wLKizAtRtfNH57Y4J1wmQxpwpZ2EMYNZ1kME2V7hM",
+        "direct_funder": "5iDYsDLugMXh1LTRVDmFH8PfQ6ueG5pE9UcfefrnztB6",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "apSur7K2VY3XsRUSSFDgJUYhdgW2zfRHLFvKUHKpump",
+        "signature": "3mZ14nFmGy7k8aFkmQvwWKjoj7QSgUCMAU1mNcHV3fcd3koVDmQazdgKmCm41H7mA4K3iyzMN5ecDRkApvHkv86x"
+      },
+      {
+        "block_time": 1787029053,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "DSU8DLqBuaFK4Mtw6uGAWBPP1ZhUt5KQYcNvUNZqZKob",
+        "direct_funder": "Ao2sUdoFtKW7yix7v6GT8GoWE94LcgHiyjautukHBKAi",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "aqu8vj7snoqUJsTuC5UemhvNWeMJzWu6qbpa3jnpump",
+        "signature": "5HBnSvXszEgEPAJzfqEVKvR4kGHV7oL36mfmo8xxGsj2izUVHj1QPo2kRRgTjnnWhXBKZJs26iNFnWJVj9q4DV1E"
+      },
+      {
+        "block_time": 1787042543,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "2uuJ1sr5bqkfSnMHFUAhFjSwksAvHmH3TU3aU7UWBhFK",
+        "direct_funder": "BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "awwz1zgwET9MtvRSZ9CUZ5QpLFviT9fFv53CpDApump",
+        "signature": "3bhGeYLuXxKcXuxVyy1wVJHPipz2qAvn125qD4uKdXozzU3cnhT6ucePwPpMoCTNP6EPWqrh99G5y31oVbCHv9Z1"
+      },
+      {
+        "block_time": 1786535126,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "57PuN1WirX56CxshBz7o8fzEVPjY7zUdprsrpUgLjwKA",
+        "direct_funder": "5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "brj1EEqhenNSLbnjdNyok33yLpxBwvyFheRctCKpump",
+        "signature": "2swAqjxDcV36rh28ayAKUicZrhhA4sB8FYsJKX4fprr8cpT3P9bbgqUj18ZmSDm9J6fWqLSYiuWutS2Nr9ZXBNr5"
+      },
+      {
+        "block_time": 1787014489,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "CCeL96vXcftteC1DJccNipLio4EMrB1ppqoQL9Rz8nnc",
+        "direct_funder": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "c9SFiUUHzra78qJinqxSntvpBmJjXdGYDcMMNkXpump",
+        "signature": "5K2wjygZg7BVLmFyaou3Cid74dfACzToZQgQbLDAjuXPArRbvp5qe3GizTbqVKv4ysh9yDvixtHxs26GJ1gtT5Fd"
+      },
+      {
+        "block_time": 1787539057,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "CZk5uZdVfPUMzmCCDVbWUnom7gSZSbgFJKb37vGwTAt8",
+        "direct_funder": "54xTpcBEr48Cuis8m2SdeymdQcwvmDR4aegxCPQzUANG",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "eMD1zv3m9ArePAtXYEVFG9tbXfwDzY8GyFMxbPopump",
+        "signature": "N6eptNSshMgxtoFmE2EeQWZVSogQPgYREFuGdRCD8GFqZdT8sPXComQsNWCfz9Ze6SnnmTLwa2zkaPboRR7MCv1"
+      },
+      {
+        "block_time": 1786593889,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "67VT8Cb6aoH4UeuFW5T1yFP2ToxLpAeh3VRiXp8Rt4nQ",
+        "direct_funder": "G9XSZDgMk8x51uHvFUumZK5AFWJLp3GJCV7VZSkL3uGP",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "f73NdtHMKwTeTy3KRpRDxZe7yopu9toZ7P5sFmapump",
+        "signature": "5iBDqaLWN7JLtEh1z3HJu9Sd4kTzWE6k84xtWoxdvHStzZgAnjkcQ6HNcHuz92JBkGUvzaLttsKWStHm3fSenmVB"
+      },
+      {
+        "block_time": 1786671031,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "4HnBbcdrzhmSaFx2YExnoXZFAibX4Uf4NdDUTGqPSDVM",
+        "direct_funder": "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "g1CbgSCD1H48Mnx9VSL7cpwJ5auX8Ky1cNUH9BQpump",
+        "signature": "5H5PypweFjDkHo6FWMnsPdPPTgUvYqP8kxd36QCfpS9hwbJP5vb29mVHv35wqEJwYgsWEtueGzGc9eou7MMbraKF"
+      },
+      {
+        "block_time": 1786695152,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "9qJM75r8tkUuso35D2RcjoBmLCFy8QDnafbayuwtfUba",
+        "direct_funder": "2h2xdvznzmcRi4zNE8A3uwe4Er5e5bf8gTxzXREg9ph5",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "keZ4mAQQqREHoZeC3HcZNpVC1qSGX4kiWC7vdtvpump",
+        "signature": "53pfUUqLS2XaysDVwpf2ZZ2RM74Gmp1bEBWwcxN49y72tR8cCPRvEEXexTecBgwu5q53T76x1izDytk8HNvX6TBR"
+      },
+      {
+        "block_time": 1787456713,
+        "branch": "A",
+        "creator": "2qX18psDn9K5jqB8G295Z3AQwbV6xi5MezuHd3Kbq1yF",
+        "direct_funder": "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "7nUCh -> Crnc retained upstream/direct-funder path",
+        "mint": "mP4AehV2DV4KdNcZkjih6wwLDE8ouUz6ns2FB3tpump",
+        "signature": "2d8bkCHFAxv1HbxsxeALM5fMyvBKRQ5cVQLrw9NfPwXvfzUmmwMddE8TwcMWyKPrm6SLAQBMzipegkVF4J1pJNHS"
+      },
+      {
+        "block_time": 1787370476,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "8burxqJyYaEtpSX1THFaRSjYWND12BNHUbJtofA9YfWr",
+        "direct_funder": "j6EVoUMZRafJPrdkuoB9PJGXxBGHEsx4VcJq5W3Ft5d",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "nMSCXsLXZ3R7NBKNDiaYw7CZh7KYs4CyWMEVWNbpump",
+        "signature": "3XwPMKQo1QeDWHNZ1JsNiLrqva9STsT8Vg2jwMic2UdP7LowXbd1ny1B2HGVzp9HJqY7AjEoL2UmikfSdt4VVuXd"
+      },
+      {
+        "block_time": 1786624697,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "6pGXCCf44q8XzLVbyfivDV3pLv5rAW6h1xVe8oz2sqzZ",
+        "direct_funder": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "oruyBzARjKtPNvRhcT5nR4bzYt5SM8uCv74j84epump",
+        "signature": "3cFkCLMrsjXcFwKVdxrgmHE4NoJDrYcY8qpLsFxwZoWp6unxQ95viDjPWFZUsvBUS8Rj9FhQvJzuzUPPcK6CzNwb"
+      },
+      {
+        "block_time": 1787450096,
+        "branch": "C",
+        "creator": "BxiwCPhgCQbLqSf9ystoYh5uRj4EEvQFcAiXGf2ziM1f",
+        "direct_funder": "6hakQXcUcnk1EuuGMHsDPw9iP4GPwjUtHxxPAvGnPj3L",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "E257 -> 6hak retained upstream/direct-funder path",
+        "mint": "p6Dydex88SswnKT9pRnjPwrCfHpw1c79FAAu81Upump",
+        "signature": "5XLmpjaeLQBhM9dmMzxd5ktZS9evasxu9aW9VHQW5vKKA17ATwYeoaDhiUUr5pGWn84H1YwUo5fNBAANr1mDjA7V"
+      },
+      {
+        "block_time": 1787219011,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "HPocCJSYVR5epcdJ3SNdECj1BW3QbwUZJahEX8tNTMMJ",
+        "direct_funder": "9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "puhW9nSz4rczEtWNM6TH1zYikSmapRu2PxdSXwfpump",
+        "signature": "52p7M4gNX4VvaL491wwHoNPn7aD2vv41ZnZd5dmodySGZVUaAUCg8F4me7ihxLKAB1Bi4yYZUAigSKxgGZSnwqbn"
+      },
+      {
+        "block_time": 1787572885,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "HRhj8yPAqPgJnjJ5JKTFogHZ7Pukugco8rzXwsR2a1va",
+        "direct_funder": "GUBtBg8i5wn5ME3vYmgqMZFFuBnDp6i1oa8BPFwoURAP",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "qcawC8mNoMy2C597kxDUMHbHJaZ5D4nPR2dvDoXpump",
+        "signature": "e3idJ3Gx1ZW6BLpTVbqGCTGXuLLqpjNyNDWGBero8aA4WGzxrJnE3UPDcpmjmoyeAkPMpK88zJ9oY5maUBZ4UFL"
+      },
+      {
+        "block_time": 1786586021,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "HvrfDJssAXHLzFccnyQDxnWZpFuvj9SS7DcThUPNG4Tz",
+        "direct_funder": "BsKEb5qhnHMFP4XUjoXMv5nMxkvuaFtBH5ssuWNMjLbw",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "rRGoXVsKJtZGgPqwShxiSD8pcpyH5qXhthqFT5Hpump",
+        "signature": "39mBGMvrk6XV88Av7jBNFoxm4PoGiXrpcGyyHd26xXrXRkVDGQ1dSGSeqYRLS9fLKnsCwGA7n46Y1GQaETnNTGVN"
+      },
+      {
+        "block_time": 1786670013,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "REetZZ7KnkkXYqSZAe9B6BdN91E8McDVeSC4RZJQmGa",
+        "direct_funder": "7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "shhJVNYRrzuBzKCBKcu6yuYEMLicmztd5Wiw6zfpump",
+        "signature": "4UNbrwEVFZG9oBwtazzQArtyiK7xTks8Lg9n5GbXJoYFqRhVYybQEKGL14PpP4Dz2H7FSdbGPbWQcZjnZN8xfBGy"
+      },
+      {
+        "block_time": 1787546235,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "2BjFyzy337jVzrLzgbfj9vm6j7ZDWyjwDtp8bShkGcnp",
+        "direct_funder": "HQ2q5DJuAVf1CrDJpwmeSYsLgvGp9k5cGEPZQsNvcMW9",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "svVnLbfCPjKAZ4suNYDfebJZ8AfhiTysVQwn3fZpump",
+        "signature": "2CQkzQAU7CVQZQMsVovRmF4GQbJQdwA7SNdBMR3gYEwQSaJLD99A58btcczmXUHMfqVBjxSzvTDTTvmBpEXgs12M"
+      },
+      {
+        "block_time": 1786431223,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "BDwpyKpdrVfxjeyeTQNQDd4cacva1xQzcBmiBNpjsnuR",
+        "direct_funder": "5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "tpx8GumtoKhXeba859s1ka7grY8m5zcQ8yPnZnSpump",
+        "signature": "2T551Aj4Bf9UfwQwWxwraYSEv4oggnqrkV13fEt3kK2hfNUVvgfodLSEo9o8UFTuzSbuArnhztNCmBbZaTybdK8n"
+      },
+      {
+        "block_time": 1787548938,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "AcGW5iwbnLL6MqnFJckVEunSJsREtUB6twMGXjtSYcjr",
+        "direct_funder": "J87ewUdaYKXaMVZEdKh14fMcKXaAmzGamzGtaXDop13X",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "vKPT1gGoRGsdzaGpQB2K2xAZGtmgjVNm8kNJvSvpump",
+        "signature": "5TzbWbeoTsYTiM9DJhCuMpf8sHVqm6dBLCfGJg97aoyJFsc6Ca9JWRg8VSk3NYQvEdDcDidbYQebkhpouaxrNcEz"
+      },
+      {
+        "block_time": 1787564536,
+        "branch": "DUTB_WALLET_POOL",
+        "creator": "5vVafVudjZJKUagJuuxRTkFgjLQLqMbrEKVFMwNXcbKq",
+        "direct_funder": "G1BJvTetp6YSwaDNSajruPPM1JCTZf5NWeyr6dQN94n7",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "DuTb temporary seeded-WSOL close delivery into direct funder",
+        "mint": "wFUJbWiV4wKK6BJJQdojJbgbd4Y51M3i3nA9VKLpump",
+        "signature": "36Bg7kHAX7nCDSyU99543J7qi6trPXY5WLuZpBjB2NoCX5Mha9asejWjXyuoTCB83GURNRo6cuNpVAxH75PXjNSs"
+      },
+      {
+        "block_time": 1787447649,
+        "branch": "A",
+        "creator": "D1WebujJc5CJR5eKjnWWfiKbhhjMdyzKgihbmoDmdsEe",
+        "direct_funder": "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "7nUCh -> Crnc retained upstream/direct-funder path",
+        "mint": "x7ofxncQVmMK3PDXVJF76uJ5JkgzX3x3eUGXkjopump",
+        "signature": "3sXLs5ecH7Dzdug7d5viAkbCn41ejiUhFeS98vKDAGKywBL8CFusfYmfkFbx7RJRcj6oNqFkY3tbyPCa3eMbfW62"
+      },
+      {
+        "block_time": 1787632643,
+        "branch": "B",
+        "creator": "6cQye5DE7C3xCd7H9pANDfpQd8CTf1XpEGzdcHYmqi8f",
+        "direct_funder": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+        "exact_compatible_behaviour": true,
+        "independent_evidence": "33my -> HXuf -> CZTx qualified role chronology; HXuf direct funder",
+        "mint": "yfmKCjYvHsD17w2xvKLBRrmzF58nZyXH25reGwLpump",
+        "signature": "ZynPwdVZjqFoh4wgbBif1woy41dkjRAX6wthQW6YUg1tHp9Vjt7idE4CEJ4nSGmoXffMm4zh9qKBJS3ehFnVuFc"
+      }
+    ]
+  },
+  "post_dutb_continuity": "OPERATION_CONTINUITY_BEYOND_ORIGINAL_PROVISIONER",
+  "promotion_review_verdict": "QUALIFIED_FOR_OPERATION_REGISTRATION_REVIEW",
+  "provider_calls": 0,
+  "registry_implication": "QUALIFIED_OPERATION_WITH_PARTIAL_ATTRIBUTION; monitoring-only, production attribution off, trading off, unresolved launches excluded.",
+  "safe_initial_operation_population": 56,
+  "safety": {
+    "detector_activation": false,
+    "fingerprint_change": false,
+    "membership_mutation": false,
+    "production_change": false,
+    "queue_change": false,
+    "snapshot_v2_change": false,
+    "trading_change": false,
+    "workflow": "PAUSED"
+  },
+  "schema_version": "C357_OPERATION_QUALIFICATION_REVIEW.v1",
+  "source_artifacts": {
+    "branch_b": "docs/audits/c357_branch_b_chronology.v1.json",
+    "dutb": "docs/audits/c357_dutb_common_funder_rpc.v1.json",
+    "remaining_upstreams": "docs/audits/c357_remaining_upstream_funders.v1.json",
+    "shadow_replay": "docs/audits/c357_shadow_historical_replay.v1.json"
+  },
+  "unresolved_disposition": "C357_COMPATIBLE_UNRESOLVED: outside confirmed membership; shadow monitoring and later independent branch attribution only."
+}

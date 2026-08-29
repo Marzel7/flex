@@ -32514,9 +32514,21 @@
     "blocker": "The requested physical stale post-insert snapshot condition is incompatible with SQLite WAL read-to-write upgrade semantics and the canonical transaction ordering. Production visibility retry cannot be naturally exercised by this interleaving.",
     "exact_next_action": "Review whether the retry path should be removed or replace it with a separately authorized bounded SQLITE_BUSY_SNAPSHOT full-transaction retry; do not run 80+40."
   },
-  "tests": "28 passed: python -m pytest -q tests/test_generic_living_pipeline_v2.py tests/test_generic_living_worker_e2e.py tests/test_generic_living_three_actor_smoke.py tests/test_generic_living_independent_writer.py tests/test_generic_living_multi_member_fixture.py",
+  "generic_living_busy_snapshot_retry": {
+    "milestone": "canonical SQLITE_BUSY_SNAPSHOT transaction restart",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "artifact": "docs/audits/generic_living_busy_snapshot_retry_qualification.v1.json",
+    "artifact_sha256": "581d818dc7f28aac22bc5478a94045d2898f28b466bde067a0fc49f9b6a4eef0",
+    "tests": "27 passed: physical ten-iteration canonical WAL retry, bounded exhaustion, callback, tiny A+B+C, and preservation regressions",
+    "production_flags": "real feature flag OFF; disposable DB only; real DB writes=0; network/RPC calls=0",
+    "result": "SQLite OperationalError code 517 / SQLITE_BUSY_SNAPSHOT is the sole retryable SQLite concurrency signal. Each of ten physical two-writer iterations rolled back attempt 1 and completed attempt 2 with B's committed deterministic association. The visibility-retry path was removed; ordinary SQLITE_BUSY and correctness failures remain non-retryable.",
+    "verdict": "PASS",
+    "blocker": null,
+    "exact_next_action": "Separate authorization is required before the full 80+40 trustworthy failure run; do not run it automatically."
+  },
+  "tests": "27 passed: python -m pytest -q tests/test_generic_living_pipeline_v2.py tests/test_generic_living_worker_e2e.py tests/test_generic_living_three_actor_smoke.py tests/test_generic_living_independent_writer.py tests/test_generic_living_multi_member_fixture.py",
   "updated_at": "2026-08-29T00:00:00Z",
   "updated_at_utc": "2026-08-29T00:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "GENERIC_LIVING_PHYSICAL_TWO_WRITER_VISIBILITY_RACE_HOLD_CORRECTNESS"
+  "verdict": "GENERIC_LIVING_BUSY_SNAPSHOT_RETRY_QUALIFIED"
 }

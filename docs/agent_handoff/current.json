@@ -1,36 +1,5 @@
 {
-  "potential_operations_incremental_matcher_tests": {"status":"PASS","verdict":"POTENTIAL_OPERATIONS_INCREMENTAL_MATCHER_TESTS_QUALIFIED","artifact":"docs/audits/potential_operations_incremental_matcher_tests.v1.json","artifact_sha256":"7a3ac23c52343e6b2a42233c7d15678bfe1120d10a0e1c49bc3d96fe50ad18c9","focused_tests":"12 passed","next_action":"Authorize separately before partial live-activity UI integration."},
-  "potential_operations_incremental_candidate_matcher": {"status":"PARTIAL","verdict":"POTENTIAL_OPERATIONS_INCREMENTAL_MATCHER_QUALIFIED_PARTIAL","artifact":"docs/audits/potential_operations_incremental_candidate_matcher_qualification.v1.json","artifact_sha256":"afdb356c4efe68006821f1e77af6b5d9242cd60f5de6bdf9cf46927f99a464d2","result":"59 qualified exact selected-route signatures; 58/609 unique current 24h assignments; 551 abstentions; no writes.","next_action":"Add focused matcher tests before integrating this read-only partial assignment feed into UI activity."},
-  "potential_operations_creator_adjusted_attention_ui": {"status":"PASS","verdict":"POTENTIAL_OPERATIONS_CREATOR_ADJUSTED_ATTENTION_UI_COMPLETE","artifact":"docs/audits/potential_operations_creator_adjusted_attention_ui.v1.json","artifact_sha256":"b2c3a9caa503f07d00dbc7c6a26a2e9dd17fca6e0420bbe76e66f6d7885aec84","focused_tests":"9 passed","http_render":200,"living_state_unchanged":true,"generic_dispatch_changed":false},
-  "potential_operations_live_activity_priority": {
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "verdict": "POTENTIAL_OPERATIONS_LIVE_ACTIVITY_PRIORITY_COMPLETE",
-    "artifact": "docs/audits/potential_operations_live_activity_priority.v1.json",
-    "artifact_sha256": "091dbfa83320552d8f383a8a1015321285fecee7537fc91e482707de3562b642",
-    "focused_tests": "tests/test_potential_operations_visual_structure.py: 7 passed",
-    "production_flags": {"generic_dispatch": "ON (unchanged)", "detectors": "PAUSED", "real_database_writes": 0},
-    "next_action": "Review the read-only activity labels in the live Potential Operations UI; no ranking or Living publication action is required."
-  },
-  "potential_operations_multi_token_creator_analysis": {
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "verdict": "POTENTIAL_OPERATIONS_MULTI_TOKEN_CREATOR_ANALYSIS_COMPLETE",
-    "artifact": "docs/audits/potential_operations_multi_token_creator_analysis.v1.json",
-    "artifact_sha256": "a69fda1364cb9a035ab7d4f90a7d179fd9a65015637453bbecfc6117090610a5",
-    "result": "62 candidates analyzed read-only: 53 robust, 4 partially creator-driven, 1 heavily creator-driven, 3 creator-dominated, 1 insufficient data. Serious creator threshold is >=6 distinct retained mints.",
-    "safety": {"real_db_writes": 0, "source_table_writes": 0, "living_publications": 0, "ranking_writes": 0, "promotions": 0, "detector_changes": 0},
-    "next_action": "Human review of the read-only creator-adjusted shortlist before any ranking, candidate, or Living assessment change."
-  },
-  "operator_activity_snapshot_diagnosis": {
-    "status": "PASS",
-    "finding": "Operator summary rolling counts are persisted at snapshot creation while last-launch age is rendered against current time; stale snapshots can therefore display a nonzero 24h count beside a last launch older than 24h.",
-    "observed": {"Byzantine": {"snapshot_age_days": 2.1, "last_launch_age_days": 2.1, "stored_24h": 1}, "Sentinel": {"snapshot_age_days": 2.6, "last_launch_age_days": 5.1, "stored_24h": 0}, "Harbinger": {"snapshot_age_days": 4.4, "last_launch_age_days": 5.3, "stored_24h": 1}},
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "implementation": "Operator registry now exposes live_launches_24h/7d/30d, snapshot_launches_24h/7d/30d, snapshot_as_of, last_launch_at, and activity_state_source. It recalculates live activity from retained timestamps and labels snapshot fallback.",
-    "verification": "9 focused tests passed; local API verified Byzantine 0/12/36, Sentinel 0/3/9, Harbinger 0/2/6, all LIVE_RECALCULATED; zero source or snapshot writes.",
-    "next_action": "Continue treating snapshot activity as provenance only; no refresh job is needed for the registry read model."
-  },
+  "potential_operations_partial_live_activity_ui": {"status":"PASS","artifact":"docs/audits/potential_operations_partial_live_activity_ui.v1.json","artifact_sha256":"6201a20837a507b606d0a10adaf6cf5d4e0d34cd92351701fbdf29099db0b5bc","focused_tests":"14 passed","next_action":"Review the read-only partial live-activity UI; no assignment persistence is authorized."},
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "active_observation": {
@@ -979,31 +948,9 @@
       "direct_funder/amount fields not captured in B2Z-P1's stage-output schema (data-capture gap for future calibration)"
     ]
   },
-  "blocker": null,
   "blockers": [
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
-  "confirmed_operation_funding_architecture_baseline": {
-    "artifact": "docs/audits/confirmed_operation_funding_architecture_matrix.v1.json",
-    "artifact_digest": "ba5035b06c33494bf04da65f85169834a0441219226455a2f875cc740d8a8510",
-    "blocker": null,
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "exact_next_action": "NEXT = FUNDING_ARCHITECTURE_POTENTIAL_DISCOVERY; do not activate production matching without separate authorization.",
-    "milestone": "confirmed-operation transaction-level funding architecture baseline",
-    "production_flags": "read-only; 45 getTransaction reads for retained Byzantine/four-step signatures only; no wallet history; no operational database mutation",
-    "result": "Confirmed primary population: Leviathan 119 frozen decoded baseline; WATCHTOWER 125 frozen census; Byzantine 36/36 newly decoded; FOUR_STEP_30_SOL_14_479K_WSOL_LADDER 9/9 newly decoded. Three additional confirmed registry records have zero primary members. Sentinel and Harbinger are not current confirmed top-level registry operations. Exact cross-operation architecture collisions=0; discrimination HIGH; discovery gap interim MAJOR.",
-    "tests": "py_compile census/replay scripts; provider-free replay PASS (matrix, collisions, digest identical)",
-    "verdict": "PASS"
-  },
-  "confirmed_operation_funding_behaviour_qualification": {
-    "artifact": "docs/audits/confirmed_operation_funding_behaviour_qualification.v1.json",
-    "artifact_digest": "23228eb8c942ce0f9d9a179a12dcd783690a549cbe39db269f0f0e53c6f838c3",
-    "exact_next_action": "Review newly admitted current members separately against retained architecture evidence; do not alter membership automatically.",
-    "milestone": "confirmed operation funding behaviour qualification",
-    "production_flags": "read-only qualification; no membership, fingerprint, detector, workflow, or trading mutation",
-    "result": "Four material confirmed operations strengthened; complete cross-operation architecture collisions remain zero; multi-dimensional operation model recommended; replay pass with zero provider calls.",
-    "status": "PASS"
-  },
   "contingent_handoff_note": null,
   "continuation_update": {
     "artifact_digests": {
@@ -1159,7 +1106,6 @@
     "verdict": "SEE docs/audits/storage_lifecycle_p5b_stage3a_pre_switch_reconciliation.json -- Parts 1-11 all PASS, identity reconciliation EXACT_PARITY hard gate PASS, all 3 writer services restored/healthy, no atomic switch performed"
   },
   "current_next_blocker": "B2Z_P2_HELIUS_ENDPOINT was never available during the overnight session. P2 remains frozen at the 19-member manual resume gate, exactly as left. All 12 provider-free workstreams from the overnight prompt were completed: P2 analysis engine, selective-RPC policy (B2Z-P3), historical coverage profile, 2-hop coverage quality, B2Z-2H contract, operation-discovery preparation, candidate funding family analysis (with a real cross-validated finding), raw-transaction cache adapter, RPC savings models, V2 persistent-budget design, edge-case classifier, and roadmap reconciliation. See docs/audits/overnight_human_decision_queue.json for the 5 decisions that actually need you.",
-  "engineering_revision": "bf1baac7",
   "focused_tests": [
     {
       "details": {
@@ -1875,124 +1821,6 @@
         "result": "reprioritized: P2 resume (1) > 56-launch family review (2) > discovery queue next picks (3) > selective-RPC thresholds (4) > B2Z-2H authorization (5) > V2 persistent budget (6)"
       }
     ]
-  },
-  "funding_architecture_audit": {
-    "artifact": "docs/audits/watchtower_funding_transaction_census.v1.json",
-    "artifact_digest": "f4a2f2f28bf0fa551df6991c8ef24c49770a31393e71737ac88a3ee37ca66b82",
-    "blocker": null,
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "exact_next_action": "Do not extend to other operations until explicitly authorized; retain WATCHTOWER census as the completed first-stage denominator.",
-    "milestone": "WATCHTOWER funding-transaction census",
-    "production_flags": "read-only; no wallet-history calls; 125 retained-signature getTransaction reads; no operational database mutation",
-    "result": "125/125 confirmed WATCHTOWER launches had retained paths and signatures and decoded successfully. 90/125 use the supplied 2,122,039,280-lamport createAccountWithSeed -> initializeAccount -> closeAccount architecture. 10 address-blind families; PLAIN_XFER=0 in the strict confirmed WATCHTOWER population; Leviathan exact collisions=0; separation=STRONG.",
-    "tests": "python -m py_compile scripts/audit_watchtower_funding_architecture.py; JSON validation PASS",
-    "verdict": "PASS"
-  },
-  "funding_architecture_potential_discovery": {
-    "artifact": "docs/audits/funding_architecture_potential_discovery.v1.json",
-    "artifact_digest": "8134837a09fd39922929b95abd8d95dd28d13177527e3b0c09d3b17ec84f9af6",
-    "blocker": null,
-    "checkpoint": "docs/audits/funding_architecture_unassigned_facts.v1.jsonl",
-    "checkpoint_rows_observed": 17153,
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "exact_next_action": "No production activation. A separate review should qualify the strongest distinctive clusters using retained evidence before any candidate or membership action.",
-    "frozen_population": "14,245 completed selected-hop-1 unassigned mints with retained signatures; 14,102 distinct signatures",
-    "milestone": "label-blind unassigned funding-architecture discovery",
-    "normalization_result": "14,245/14,245 frozen mints terminally accounted: 14,239 decoded, 6 unresolved provider reads. Blind census: 8,590 exact clusters; 344 >=3-launch, >=3-creator recurrent families; 342 also have >=3 direct funders. Semantic normalization reduces to 8,400 clusters and 321 recurrent families. Recurrent generic suppression: 140 generic, 202 distinctive, 2 ambiguous; 134 distinctive higher-confidence clusters have no existing P3R-v2 overlap.",
-    "replay": "FUNDING_ARCHITECTURE_POTENTIAL_DISCOVERY_REPLAY_PASS; provider_calls=0",
-    "status": "PASS"
-  },
-  "generic_living_active_cutover_components": {
-    "artifact": "docs/audits/generic_living_active_cutover_components_qualification.v1.json",
-    "artifact_sha256": "b291ba8edf8a9caf4fbd9a9d8aaf504caa431c38d34d9467b7095bf065ac3fe3",
-    "status": "HOLD_ADAPTER"
-  },
-  "generic_living_association_persistence": {
-    "artifact": "docs/audits/generic_living_association_persistence_qualification.v1.json",
-    "artifact_sha256": "76383b538437664dde735cbe2bce6a1d77fb97ae5e52a089b4812576c8162dcb",
-    "status": "QUALIFIED"
-  },
-  "generic_living_atomic_publication": {
-    "artifact": "docs/audits/generic_living_atomic_publication_qualification.v1.json",
-    "artifact_sha256": "74c1f57d2b8f870a527409dc7feaa997ff147c88bd48acff4ea3287606150706",
-    "status": "QUALIFIED"
-  },
-  "generic_living_bounded_active_cutover": {
-    "artifact": "docs/audits/generic_living_bounded_active_cutover.v1.json",
-    "artifact_sha256": "70fce14066cdcc18339c29e641beb90927e1e2cff2e66264f79003b6a7c066e1",
-    "executed": false
-  },
-  "generic_living_bounded_active_cutover_attempt": {
-    "activated": false,
-    "artifact": "docs/audits/generic_living_bounded_active_cutover_complete.v1.json",
-    "artifact_sha256": "563656e19d7b2aa32680df4c49daeb7ab1d3df11aed8a3b46ecc111b68a7742f"
-  },
-  "generic_living_forward_cutover": {
-    "artifact": "docs/audits/generic_living_forward_cutover_qualification.v1.json",
-    "artifact_sha256": "965ec480b14bf97513c45d85ed2a09986e980b58cd4148989d5a8d1c017f4355",
-    "cutover_readiness": "HOLD_FORWARD_GENERIC_CUTOVER",
-    "eight_hop_forward_cutover": "PASS",
-    "wsol_forward_cutover": "PASS"
-  },
-  "generic_living_legacy_lineage_backfill": {
-    "artifact": "docs/audits/generic_living_legacy_lineage_backfill.v1.json",
-    "artifact_sha256": "12f561afc0bf92e4b4682ef39bf6e740f4f96810e0209805111e22e2485abc25",
-    "binding_rows": 183,
-    "lineage_rows": 5
-  },
-  "generic_living_lineage_metadata": {
-    "artifact": "docs/audits/generic_living_lineage_metadata_qualification.v1.json",
-    "artifact_sha256": "46ba330c9fbf6152aa1252443a90af603018a77263c6364550a7399d89259a1c",
-    "real_db_writes": 0,
-    "status": "QUALIFIED"
-  },
-  "generic_living_lineage_real_migration": {
-    "artifact": "docs/audits/generic_living_lineage_real_migration.v1.json",
-    "artifact_sha256": "66f1f77a9d082b3fce9b97903009df9a9ec6ab960e65d8ade8ff07d1f364b50a",
-    "binding_rows": 0,
-    "lineage_rows": 0
-  },
-  "generic_living_persisted_source_reader": {
-    "artifact": "docs/audits/generic_living_persisted_source_reader_qualification.v1.json",
-    "artifact_sha256": "7cd0085e41ce76818305ea7b4170180603b717ec5655027f24015a153e479eb6",
-    "status": "QUALIFIED"
-  },
-  "generic_living_real_forward_cutover_preflight": {
-    "artifact": "docs/audits/generic_living_real_forward_cutover_preflight.v1.json",
-    "artifact_sha256": "222fa35a2580b070fc6350aef562c5883b099fa1c265b4633f0dbd1566520255",
-    "real_db_writes": 0
-  },
-  "generic_living_reverse_resolver": {
-    "artifact": "docs/audits/generic_living_reverse_resolver_qualification.v1.json",
-    "artifact_sha256": "10cc27e82db60ec50601b67b3dd0686db64d9a3100ab686e1f6a4ffaf84bdcfb",
-    "status": "QUALIFIED"
-  },
-  "generic_living_runtime_wiring": {
-    "artifact": "docs/audits/generic_living_runtime_wiring_qualification.v1.json",
-    "artifact_sha256": "db3e02a94ecc249f1e67638f9132edf5c58f0c520d843bf17c8de9c7b59c13ab",
-    "status": "HOLD_CORRECTNESS"
-  },
-  "generic_living_runtime_wiring_v2": {
-    "artifact": "docs/audits/generic_living_runtime_wiring_qualification.v2.json",
-    "artifact_sha256": "de6c5ec98bf7032345889d83c80cb7efffbfa6a9da87d45b9e19a12f14f2cce9",
-    "status": "HOLD_CORRECTNESS"
-  },
-  "generic_living_runtime_wiring_v3": {
-    "artifact": "docs/audits/generic_living_runtime_wiring_qualification.v3.json",
-    "artifact_sha256": "6ac75ccc35582d6f80811096c807f3bc03cc8cc145e7d6e8775399e9caf7d2c1",
-    "status": "HOLD_INTEGRATION"
-  },
-  "generic_living_runtime_wiring_v4": {
-    "artifact": "docs/audits/generic_living_runtime_wiring_qualification.v4.json",
-    "artifact_sha256": "08cc955ef1680676803a322282da77033e87241fa53474cf4964cfde34853aef",
-    "status": "QUALIFIED"
-  },
-  "generic_living_source_coverage": {
-    "artifact": "docs/audits/generic_living_association_source_coverage.v1.json",
-    "artifact_sha256": "1310782fe8111ae7e560aed439342dd450432fd748cc6ff9befa5ec7e4ce6f5e",
-    "eight_hop": "55/57",
-    "v2_fixtures_created": false,
-    "wsol": "122/126"
   },
   "h1_last_updated": null,
   "h4r1_cex_infra_eligibility_check_and_of_dv34_p0": {
@@ -29958,23 +29786,6 @@
     }
   },
   "latest_updated": "2026-08-18T13:24:28Z",
-  "living_potential_operation_model_investigation": {
-    "artifact": "docs/audits/living_potential_operation_projection_prototype.v1.json",
-    "artifact_digest": "c1674a74dd2b8e2eecf0257202ddd92574e6445aabcb1e528f40a0f7282329d5",
-    "exact_next_action": "Implement a separate candidate identity, candidate-evidence association, immutable assessment-version, and current-projection read model behind an explicit write authorization; do not repurpose snapshot family hash as stable identity.",
-    "milestone": "living potential operation read-model investigation",
-    "result": "Current UI/workflow is snapshot-bound: frozen membership artifacts feed potential details, while current evidence is display-only enrichment. Read-only prototype proves a stable candidate can preserve frozen version 71 while deriving current retained evidence (284 projection members, 71 selected/atomic members) without changing membership or workflow.",
-    "status": "PASS"
-  },
-  "living_wsol_potential_operation_integration": {
-    "artifact": "docs/audits/wsol_living_potential_operation_integration.v1.json",
-    "artifact_sha256": "ebf3ebe91b78d242b196c830a926f5b7a92c6c9b5dbcd86f9d0bdd2248c2fc6b",
-    "exact_next_action": "Read the persisted current projection from the Potential Operations detail path before authorizing any UI expansion or additional candidates.",
-    "milestone": "first bounded real walkback to Potential Operation integration",
-    "result": "One stable PAUSED WSOL Potential Operation was published from retained local evidence. Three immutable versions are retained because locally observed evidence high-waters advanced during the bounded execution. No promotion, detector activation, registered membership change, or global event hook occurred.",
-    "status": "PASS",
-    "tests": "17 passed focused regressions"
-  },
   "local_operation_discovery_execution_qualification": {
     "56_launch_family_result": "independently rediscovered at much larger scale (575 vs. 56 members) and correctly reclassified SERVICE_DISTRIBUTION_CLUSTER given its full 568-creator fan-out -- original curated 56-member OF-P0 packet preserved unmodified, NOT overwritten, since the two findings represent different confidence tiers",
     "artifacts": [
@@ -30034,8 +29845,10 @@
     }
   },
   "next_action": {
-    "instruction": "Runtime wiring is qualified. A separate explicit authorization is required to enable the real bounded generic dispatch feature flag.",
-    "next_action_code": "AUTHORIZE_BOUNDED_GENERIC_FEATURE_FLAG_ENABLEMENT"
+    "b2n_execution_authorized": false,
+    "decision": "RA4_BOUNDED_WRITER_PRODUCTION_CUTOVER_QUALIFIED",
+    "instruction": "The bounded writer cutover succeeded: legacy retained-acquisition growth is arrested, the bounded V2 writer is confirmed receiving new retention with full evidence parity, and no rollback condition triggered. The legacy 61.3+ GB DB was NOT touched, deleted, or reclaimed -- it is now historical/read-only. Next: qualify RA4-C5 (legacy retained-acquisition archival/retirement) as a SEPARATE future milestone. B2N remains frozen at exactly 1/20 and was NOT resumed automatically -- a separate explicit authorization is required before continuing to ordinal 2.",
+    "next_action_code": "QUALIFY_RA4_C5_LEGACY_RETAINED_DB_RETIREMENT"
   },
   "notes": [
     "PSI0H-H4R generated docs/audits/psi0h_h4r_historical_continuity_review_packet.json and docs/audits/psi0h_h4r_historical_continuity_review_index.json with SHA-256 2ed2edb6b74db6b749166b05b01189328aefdbc85e6e212f762ba9cd5f8e32bb and 5cbba208ad8a4bc217237ba7a50d3ff1a4046f0157943cf062f0e37a04ba4afa respectively.",
@@ -31168,175 +30981,6 @@
     "workstreams_completed": 12
   },
   "pending_human_decisions": 9,
-  "production_flags": {
-    "active_path_cutover": false,
-    "generic_feature_flag": false,
-    "real_db_writes": 0
-  },
-  "generic_living_bounded_active_activation": {
-    "artifact": "docs/audits/generic_living_bounded_active_activation.v1.json",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "qualification_sha256_verified": true,
-    "required_activation_readiness_field_present": false,
-    "real_feature_flag": "OFF",
-    "runtime_configuration_changed": false,
-    "database_writes": 0,
-    "provider_or_rpc_calls": 0,
-    "status": "HOLD",
-    "blocker": "Qualification artifact is hash-valid but lacks the required ACTIVATION_READINESS=ready field; code search also found no walkback_worker call site for handle_walkback_evidence_update.",
-    "next_action": "Repair and re-qualify the artifact contract, then wire and qualify the real worker invocation before re-requesting activation.",
-    "verdict": "GENERIC_LIVING_BOUNDED_ACTIVE_ACTIVATION_HOLD_QUALIFICATION_CONTRACT_INCOMPLETE"
-  },
-  "generic_living_walkback_worker_callsite_qualification": {
-    "artifact": "docs/audits/generic_living_walkback_worker_callsite_qualification.v1.json",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "runtime_qualification_hashes": {
-      "old": "08cc955ef1680676803a322282da77033e87241fa53474cf4964cfde34853aef",
-      "new": "8f70c4682cc08e40b7b98f3b1b51012bfe48d159fba8ea552fc6dfe0d0b83e48"
-    },
-    "metadata_contract_repaired": true,
-    "callsite_connected": true,
-    "callsite_after_source_commit": true,
-    "source_transaction_open_during_living_publication": false,
-    "generic_candidate_branches_in_worker": 0,
-    "focused_tests": "22 passed: transaction boundary + generic living + legacy bridge",
-    "real_feature_flag": "OFF",
-    "real_db_writes": 0,
-    "status": "HOLD",
-    "blocker": "Disposable end-to-end worker-to-generic ON/OFF, unrelated/global-irrelevant, and dedicated WAL telemetry qualification remain unfinished.",
-    "next_action": "Build a fresh WAL disposable source/Living fixture that reaches the worker callsite, then qualify the generic ON path without changing production configuration.",
-    "verdict": "GENERIC_LIVING_WALKBACK_WORKER_CALLSITE_HOLD_CORRECTNESS"
-  },
-  "generic_living_worker_to_generic_e2e_qualification": {
-    "artifact": "docs/audits/generic_living_worker_to_generic_e2e_qualification.v1.json",
-    "callsite_artifact_sha256": "a354098abbb023a011ffab2256361d84198752c291684cf55c85b46b7469a9e2",
-    "environment": "fresh disposable SQLite WAL database only",
-    "source_commit_before_living_callback": true,
-    "source_transaction_open_during_living_publication": false,
-    "flag_off": "PASS",
-    "wsol_generic": "PASS",
-    "eight_hop_generic": "PASS",
-    "unrelated": "NO_PUBLICATION",
-    "global_irrelevant": "NO_PUBLICATION",
-    "no_dual_publication": "PASS for covered fixtures",
-    "focused_tests": "26 passed: worker E2E + transaction boundary + generic living + legacy bridge",
-    "real_feature_flag": "OFF",
-    "real_db_writes": 0,
-    "status": "HOLD",
-    "blocker": "Worker-callback replay, stale/equal-freshness conflict, and concurrent WAL/held-reader stress are still unqualified.",
-    "next_action": "Add disposable worker-callback replay/conflict fixtures and bounded concurrent WAL stress without modifying runtime configuration.",
-    "verdict": "GENERIC_LIVING_WORKER_TO_GENERIC_E2E_HOLD_CORRECTNESS"
-  },
-  "generic_living_worker_to_generic_durability_qualification": {
-    "artifact": "docs/audits/generic_living_worker_to_generic_durability_qualification.v1.json",
-    "worker_callback_replay": "PASS",
-    "worker_callback_stale": "PASS",
-    "equal_freshness_conflict": "NOT_YET_QUALIFIED",
-    "concurrent_wal_stress": "NOT_YET_QUALIFIED",
-    "held_reader_wal": "NOT_YET_QUALIFIED",
-    "focused_tests": "28 passed: worker E2E replay/stale + transaction boundary + generic living + legacy bridge",
-    "real_feature_flag": "OFF",
-    "real_db_writes": 0,
-    "status": "HOLD",
-    "blocker": "Equal-freshness conflict boundary, concurrent writer/held-reader WAL stress, timings, and external consistency observation remain unqualified.",
-    "next_action": "Create an instrumented disposable publisher fixture that reaches the atomic equal-freshness conflict after natural worker relevance, then run bounded concurrent WAL/reader qualification.",
-    "verdict": "GENERIC_LIVING_WORKER_TO_GENERIC_DURABILITY_HOLD_CORRECTNESS"
-  },
-  "generic_living_worker_to_generic_durability_qualification_v2": {
-    "artifact": "docs/audits/generic_living_worker_to_generic_durability_qualification.v2.json",
-    "worker_callback_replay": "PASS",
-    "worker_callback_stale": "PASS",
-    "equal_freshness_runtime_blocked_by_relevance": true,
-    "worker_derived_publisher_equal_freshness_conflict": "PASS",
-    "focused_tests": "29 passed: worker E2E + transaction boundary + generic living + legacy bridge",
-    "real_feature_flag": "OFF",
-    "real_db_writes": 0,
-    "status": "HOLD",
-    "blocker": "Concurrent WAL/held-reader stress, independent external consistency observation, and transaction timing telemetry remain unmeasured.",
-    "next_action": "Run bounded disposable concurrent source/Living writer and held-reader WAL stress with independently observed consistency and per-transaction timing telemetry.",
-    "verdict": "GENERIC_LIVING_WORKER_TO_GENERIC_DURABILITY_HOLD_LOCKING"
-  },
-  "generic_living_worker_to_generic_durability_qualification_v3": {
-    "artifact": "docs/audits/generic_living_worker_to_generic_durability_qualification.v3.json",
-    "status": "HOLD",
-    "real_feature_flag": "OFF",
-    "real_db_writes": 0,
-    "blocker": "The current one-member disposable fixture cannot produce the required repeated natural relevant events for concurrent stress without bypassing source-reader semantics or changing schema.",
-    "next_action": "Build a bounded multi-member disposable fixture using existing schema, then run the concurrent worker/Living/held-reader WAL stress.",
-    "verdict": "GENERIC_LIVING_WORKER_TO_GENERIC_DURABILITY_HOLD_LOCKING"
-  },
-  "generic_living_multi_member_stress_fixture": {
-    "artifact": "docs/audits/generic_living_multi_member_stress_fixture.v1.json",
-    "journal_mode": "WAL",
-    "wsol_synthetic_members": 40,
-    "eight_hop_synthetic_members": 40,
-    "membership_rows": 80,
-    "resolver_validation": "PASS",
-    "source_reader_validation": "PASS",
-    "relevance_validation": "PASS",
-    "worker_path_compatibility": "PASS",
-    "generation_capacity": "50 per candidate",
-    "real_feature_flag": "OFF",
-    "real_db_writes": 0,
-    "next_action": "Add test-only per-actor SQLite connection lifecycle and telemetry wrappers to the fixture (without changing production paths), then run the authorized concurrent worker/Living/held-reader WAL stress.",
-    "stress_execution_blocker": "The current append helper receives a shared SQLite connection and is safe only for one test thread; concurrent use would violate SQLite connection ownership and invalidate lock telemetry.",
-    "verdict": "GENERIC_LIVING_MULTI_MEMBER_STRESS_FIXTURE_READY"
-  },
-  "generic_living_wal_connection_lifecycle": {
-    "artifact": "docs/audits/generic_living_worker_to_generic_durability_qualification.v5.json",
-    "per_actor_connection_lifecycle": "PASS",
-    "connection_cross_thread_reuse": 0,
-    "worker_observer_events": 80,
-    "integrity_check": "ok",
-    "external_invalid_observations": 0,
-    "sqlite_errors": 0,
-    "real_feature_flag": "OFF",
-    "real_db_writes": 0,
-    "status": "PARTIAL",
-    "next_action": "Add independent Living writer and held-reader phases with timing/lock telemetry to complete WAL durability qualification.",
-    "verdict": "GENERIC_LIVING_WORKER_TO_GENERIC_DURABILITY_HOLD_LOCKING"
-  },
-  "generic_living_independent_living_writer_actor": {
-    "artifact": "docs/audits/generic_living_independent_living_writer_actor.v1.json",
-    "status": "PASS",
-    "attempts": 40,
-    "wsol_attempts": 20,
-    "eight_hop_attempts": 20,
-    "connection_cross_thread_reuse": 0,
-    "canonical_publisher_only": true,
-    "integrity_check": "ok",
-    "real_feature_flag": "OFF",
-    "real_db_writes": 0,
-    "next_action": "Compose Actors A, B, and C for the separately authorized three-actor concurrency stress.",
-    "verdict": "GENERIC_LIVING_INDEPENDENT_LIVING_WRITER_READY"
-  },
-  "generic_living_three_actor_composition_smoke": {
-    "artifact": "docs/audits/generic_living_three_actor_composition_smoke.v1.json",
-    "status": "PASS",
-    "actor_a_events": 10,
-    "actor_b_attempts": 10,
-    "actor_c_invalid_observations": 0,
-    "overlap": true,
-    "integrity_check": "ok",
-    "real_feature_flag": "OFF",
-    "real_db_writes": 0,
-    "next_action": "Run bounded full three-actor stress before held-reader WAL longevity.",
-    "verdict": "GENERIC_LIVING_THREE_ACTOR_COMPOSITION_SMOKE_PASS"
-  },
-  "generic_living_three_actor_full_stress": {
-    "artifact": "docs/audits/generic_living_three_actor_concurrency_qualification.v3.json",
-    "worker_events": 80,
-    "living_attempts": 40,
-    "overlap": true,
-    "observer_invalid_observations": 0,
-    "integrity_check": "ok",
-    "real_feature_flag": "OFF",
-    "real_db_writes": 0,
-    "status": "PARTIAL",
-    "blocker": "Failure injection, timing distributions, and expanded lock/retry telemetry are not yet instrumented in the composed stress harness.",
-    "next_action": "Add only the missing telemetry and deterministic failure-injection assertions to the existing composed harness.",
-    "verdict": "GENERIC_LIVING_THREE_ACTOR_FULL_STRESS_HOLD_CORRECTNESS"
-  },
   "production_state": {
     "cohort_mode": "OFF",
     "creator_funding_pid_last_verified": 33383,
@@ -31357,10 +31001,10 @@
   },
   "project": {
     "branch": "classification-attribution-axis",
-    "git_head": "bf1baac7",
+    "git_head": "1e292f254d71163d1935807cf9dc6217b97230d5",
     "name": "flex",
-    "updated_at_utc": "2026-08-29T00:00:00Z",
-    "working_tree": "dirty; disposable generic Living forward-cutover qualification added; no active-path/database changes"
+    "updated_at_utc": "2026-08-17T18:50:18Z",
+    "working_tree": "dirty: H8-to-H4 compatibility adapter added; projection runtime and H4 rerun materialized 150 operations"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "qualified_baselines": [
@@ -32522,114 +32166,72 @@
       "status": "PASS"
     }
   },
-  "generic_living_concurrent_association_visibility_retry": {
-    "milestone": "canonical association visibility retry",
+  "funding_architecture_audit": {
+    "milestone": "WATCHTOWER funding-transaction census",
     "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "artifact": "docs/audits/generic_living_concurrent_association_visibility_retry_qualification.v1.json",
-    "artifact_sha256": "60083aacef7fdf9e460edd732066d673a28c403d9c4b0d354367b28cb55aa37b",
-    "tests": "27 passed: generic pipeline, worker callback, tiny A+B+C, independent writer, multi-member fixture",
-    "production_flags": "LIVING_GENERIC_BOUNDED_DISPATCH_ENABLED=OFF for real runtime; disposable test override only; real DB writes=0; network/RPC calls=0",
-    "result": "Canonical publisher now retries only an explicit concurrent association visibility condition, rolling back and restarting the full transaction with a fresh snapshot; bounded exhaustion is explicit. Tiny 6+4 passes with 1 expected injected callback failure and 0 unexpected failures.",
-    "verdict": "HOLD_CORRECTNESS",
-    "blocker": "The exact physical two-writer WAL ordering was not deterministically induced. The forced explicit-condition regression proves restart semantics, but does not independently prove that SQLite interleaving.",
-    "exact_next_action": "Build an instrumented disposable two-writer WAL ordering test that forces the physical deterministic-ID collision; do not run 80+40."
-  },
-  "generic_living_physical_two_writer_visibility_race": {
-    "milestone": "physical two-writer WAL visibility race",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "artifact": "docs/audits/generic_living_physical_two_writer_visibility_race_qualification.v1.json",
-    "artifact_sha256": "a37df62ff72f97266065bb698402a276a5354ea0d628d1dac5b5e5d3247b1c10",
-    "tests": "28 passed: includes ten physical two-thread, two-connection WAL iterations",
-    "production_flags": "real feature flag OFF; disposable DB only; real DB writes=0; network/RPC calls=0",
-    "result": "A observed absent, B committed the identical association, then A received SQLITE_BUSY_SNAPSHOT before INSERT OR IGNORE in every iteration. SQLite WAL prevents the requested post-conflict stale lookup; canonical publisher also takes a write lock before its association lookup.",
-    "verdict": "HOLD_CORRECTNESS",
-    "blocker": "The requested physical stale post-insert snapshot condition is incompatible with SQLite WAL read-to-write upgrade semantics and the canonical transaction ordering. Production visibility retry cannot be naturally exercised by this interleaving.",
-    "exact_next_action": "Review whether the retry path should be removed or replace it with a separately authorized bounded SQLITE_BUSY_SNAPSHOT full-transaction retry; do not run 80+40."
-  },
-  "generic_living_busy_snapshot_retry": {
-    "milestone": "canonical SQLITE_BUSY_SNAPSHOT transaction restart",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "artifact": "docs/audits/generic_living_busy_snapshot_retry_qualification.v1.json",
-    "artifact_sha256": "581d818dc7f28aac22bc5478a94045d2898f28b466bde067a0fc49f9b6a4eef0",
-    "tests": "27 passed: physical ten-iteration canonical WAL retry, bounded exhaustion, callback, tiny A+B+C, and preservation regressions",
-    "production_flags": "real feature flag OFF; disposable DB only; real DB writes=0; network/RPC calls=0",
-    "result": "SQLite OperationalError code 517 / SQLITE_BUSY_SNAPSHOT is the sole retryable SQLite concurrency signal. Each of ten physical two-writer iterations rolled back attempt 1 and completed attempt 2 with B's committed deterministic association. The visibility-retry path was removed; ordinary SQLITE_BUSY and correctness failures remain non-retryable.",
+    "artifact": "docs/audits/watchtower_funding_transaction_census.v1.json",
+    "artifact_digest": "f4a2f2f28bf0fa551df6991c8ef24c49770a31393e71737ac88a3ee37ca66b82",
+    "tests": "python -m py_compile scripts/audit_watchtower_funding_architecture.py; JSON validation PASS",
+    "production_flags": "read-only; no wallet-history calls; 125 retained-signature getTransaction reads; no operational database mutation",
+    "result": "125/125 confirmed WATCHTOWER launches had retained paths and signatures and decoded successfully. 90/125 use the supplied 2,122,039,280-lamport createAccountWithSeed -> initializeAccount -> closeAccount architecture. 10 address-blind families; PLAIN_XFER=0 in the strict confirmed WATCHTOWER population; Leviathan exact collisions=0; separation=STRONG.",
     "verdict": "PASS",
     "blocker": null,
-    "exact_next_action": "Separate authorization is required before the full 80+40 trustworthy failure run; do not run it automatically."
+    "exact_next_action": "Do not extend to other operations until explicitly authorized; retain WATCHTOWER census as the completed first-stage denominator."
   },
-  "generic_living_three_actor_trustworthy_full_stress": {
-    "milestone": "authorized A+B+C 80+40 trustworthy stress execution",
+  "confirmed_operation_funding_architecture_baseline": {
+    "milestone": "confirmed-operation transaction-level funding architecture baseline",
     "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "artifact": "docs/audits/generic_living_three_actor_trustworthy_full_stress.v1.json",
-    "artifact_sha256": "d70f0b63b9aadae545aba8597762d734ea71e6c5383708c76bd9121c67c98f2f",
-    "tests": "full 80+40 harness executed; FAILED assertion after 2 callback failures",
-    "production_flags": "real feature flag OFF; disposable DB only; real DB writes=0; network/RPC calls=0",
-    "result": "The exactly-one injected after_current_before_commit callback failure occurred, then a later worker callback failed with ordinary sqlite3 OperationalError: database is locked. This is not SQLITE_BUSY_SNAPSHOT and is intentionally not covered by the new canonical retry.",
-    "verdict": "HOLD_LOCKING",
-    "blocker": "UNEXPECTED_CALLBACK_FAILURES=1; full stress requires 0. The failure is an ordinary lock condition, not a recovered BUSY_SNAPSHOT.",
-    "exact_next_action": "Diagnose the ordinary database-is-locked contention and separately authorize any retry-policy or harness change. Do not run held-reader longevity."
-  },
-  "generic_living_ordinary_busy_retry": {
-    "milestone": "canonical ordinary SQLITE_BUSY transaction restart",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "artifact": "docs/audits/generic_living_ordinary_busy_retry_qualification.v1.json",
-    "artifact_sha256": "5bcc1fd6b44cedacab4e240b098a3d2197215fa966a7a07595e3e6d6a5ab50b6",
-    "tests": "27 passed: physical ordinary BUSY recovery/exhaustion, BUSY_SNAPSHOT, conflict preservation, callback, and tiny A+B+C",
-    "production_flags": "real feature flag OFF; disposable DB only; real DB writes=0; network/RPC calls=0",
-    "result": "Physical competing-writer test identifies sqlite3 OperationalError code 5 / SQLITE_BUSY at canonical association INSERT OR IGNORE. It is retry-safe only at the complete canonical publication boundary: rollback, bounded 10ms-increment backoff outside transaction, fresh restart. SQLITE_LOCKED and all other OperationalErrors remain non-retryable.",
+    "artifact": "docs/audits/confirmed_operation_funding_architecture_matrix.v1.json",
+    "artifact_digest": "ba5035b06c33494bf04da65f85169834a0441219226455a2f875cc740d8a8510",
+    "tests": "py_compile census/replay scripts; provider-free replay PASS (matrix, collisions, digest identical)",
+    "production_flags": "read-only; 45 getTransaction reads for retained Byzantine/four-step signatures only; no wallet history; no operational database mutation",
+    "result": "Confirmed primary population: Leviathan 119 frozen decoded baseline; WATCHTOWER 125 frozen census; Byzantine 36/36 newly decoded; FOUR_STEP_30_SOL_14_479K_WSOL_LADDER 9/9 newly decoded. Three additional confirmed registry records have zero primary members. Sentinel and Harbinger are not current confirmed top-level registry operations. Exact cross-operation architecture collisions=0; discrimination HIGH; discovery gap interim MAJOR.",
     "verdict": "PASS",
     "blocker": null,
-    "exact_next_action": "A separate authorization is required to rerun the full 80+40 stress; do not run held-reader longevity first."
+    "exact_next_action": "NEXT = FUNDING_ARCHITECTURE_POTENTIAL_DISCOVERY; do not activate production matching without separate authorization."
   },
-  "generic_living_three_actor_trustworthy_full_stress_v2": {
-    "milestone": "A+B+C 80+40 trustworthy stress rerun after ordinary BUSY qualification",
+  "confirmed_operation_funding_behaviour_qualification": {
+    "milestone": "confirmed operation funding behaviour qualification",
+    "status": "PASS",
+    "artifact": "docs/audits/confirmed_operation_funding_behaviour_qualification.v1.json",
+    "artifact_digest": "23228eb8c942ce0f9d9a179a12dcd783690a549cbe39db269f0f0e53c6f838c3",
+    "result": "Four material confirmed operations strengthened; complete cross-operation architecture collisions remain zero; multi-dimensional operation model recommended; replay pass with zero provider calls.",
+    "production_flags": "read-only qualification; no membership, fingerprint, detector, workflow, or trading mutation",
+    "exact_next_action": "Review newly admitted current members separately against retained architecture evidence; do not alter membership automatically."
+  },
+  "funding_architecture_potential_discovery": {
+    "milestone": "label-blind unassigned funding-architecture discovery",
     "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "artifact": "docs/audits/generic_living_three_actor_trustworthy_full_stress.v2.json",
-    "artifact_sha256": "e607b6b545bc8ad26f6a015e803bf807fb7277b34d41a36cd3d401d56fdb9c2e",
-    "tests": "27 passed: full A+B+C 80+40, physical BUSY/BUSY_SNAPSHOT, callback failure result, canonical injection",
-    "production_flags": "real feature flag OFF; disposable DB only; real DB writes=0; network/RPC calls=0",
-    "result": "A=80, B=40, observer=82962, expected injected callback failure=1, unexpected=0. One ordinary SQLITE_BUSY occurred and recovered with exactly one bounded canonical restart; no retry exhaustion, SQLITE_LOCKED, invalid observer state, dual publication, contamination, or stale/replay regression.",
-    "verdict": "PASS",
+    "status": "PASS",
+    "frozen_population": "14,245 completed selected-hop-1 unassigned mints with retained signatures; 14,102 distinct signatures",
+    "checkpoint": "docs/audits/funding_architecture_unassigned_facts.v1.jsonl",
+    "checkpoint_rows_observed": 17153,
+    "normalization_result": "14,245/14,245 frozen mints terminally accounted: 14,239 decoded, 6 unresolved provider reads. Blind census: 8,590 exact clusters; 344 >=3-launch, >=3-creator recurrent families; 342 also have >=3 direct funders. Semantic normalization reduces to 8,400 clusters and 321 recurrent families. Recurrent generic suppression: 140 generic, 202 distinctive, 2 ambiguous; 134 distinctive higher-confidence clusters have no existing P3R-v2 overlap.",
     "blocker": null,
-    "exact_next_action": "Held-reader WAL longevity requires separate authorization; do not activate the real feature flag."
+    "artifact": "docs/audits/funding_architecture_potential_discovery.v1.json",
+    "artifact_digest": "8134837a09fd39922929b95abd8d95dd28d13177527e3b0c09d3b17ec84f9af6",
+    "replay": "FUNDING_ARCHITECTURE_POTENTIAL_DISCOVERY_REPLAY_PASS; provider_calls=0",
+    "exact_next_action": "No production activation. A separate review should qualify the strongest distinctive clusters using retained evidence before any candidate or membership action."
   },
-  "generic_living_held_reader_wal_longevity": {
-    "milestone": "held-reader WAL longevity qualification",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "artifact": "docs/audits/generic_living_held_reader_wal_longevity_qualification.v1.json",
-    "artifact_sha256": "da8bbb0937dcf693317bd4170a743bb80b6137f0ccf98f91c86716cbcb788fe9",
-    "tests": "20 passed: disposable held-reader WAL longevity + generic pipeline retry regressions",
-    "production_flags": "real feature flag OFF; disposable DB only; real DB writes=0; network/RPC calls=0",
-    "result": "Held read snapshot remained readable while 100 source commits and 60 independent Living attempts completed. WAL peak 6,575,552 bytes; no starvation, deadlock, retry exhaustion, unrecovered lock, invalid state, or cross-thread reuse. Post-release source/Living writes and integrity succeeded.",
-    "verdict": "PASS",
-    "blocker": null,
-    "exact_next_action": "Further activation remains separately authorized; do not enable the real feature flag automatically."
+  "living_potential_operation_model_investigation": {
+    "milestone": "living potential operation read-model investigation",
+    "status": "PASS",
+    "artifact": "docs/audits/living_potential_operation_projection_prototype.v1.json",
+    "artifact_digest": "c1674a74dd2b8e2eecf0257202ddd92574e6445aabcb1e528f40a0f7282329d5",
+    "result": "Current UI/workflow is snapshot-bound: frozen membership artifacts feed potential details, while current evidence is display-only enrichment. Read-only prototype proves a stable candidate can preserve frozen version 71 while deriving current retained evidence (284 projection members, 71 selected/atomic members) without changing membership or workflow.",
+    "exact_next_action": "Implement a separate candidate identity, candidate-evidence association, immutable assessment-version, and current-projection read model behind an explicit write authorization; do not repurpose snapshot family hash as stable identity."
   },
-  "generic_living_bounded_active_activation": {
-    "milestone": "real bounded generic Living dispatch activation",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "artifact": "docs/audits/generic_living_bounded_active_activation.v2.json",
-    "artifact_sha256": "056f953716a567b31a041fc85f72f455cc6a045bda3e6a325482502262d5e5e2",
-    "production_flags": "LIVING_GENERIC_BOUNDED_DISPATCH_ENABLED=true in Supervisor walkback_worker environment; worker restarted and RUNNING",
-    "result": "Exactly two configured candidates active. Activation created no source or Living rows; global Living counts and both current projections unchanged. Both candidates presently classify GLOBAL_HIGH_WATER_ADVANCED_BUT_NOT_RELEVANT, so immediate generic publications=0. Promotion/detector/onboarding remain disabled.",
-    "verdict": "PASS",
-    "blocker": null,
-    "exact_next_action": "Monitor only legitimate future bounded events; rollback remains setting the same flag false and restarting walkback_worker."
+  "living_wsol_potential_operation_integration": {
+    "milestone": "first bounded real walkback to Potential Operation integration",
+    "status": "PASS",
+    "artifact": "docs/audits/wsol_living_potential_operation_integration.v1.json",
+    "artifact_sha256": "ebf3ebe91b78d242b196c830a926f5b7a92c6c9b5dbcd86f9d0bdd2248c2fc6b",
+    "result": "One stable PAUSED WSOL Potential Operation was published from retained local evidence. Three immutable versions are retained because locally observed evidence high-waters advanced during the bounded execution. No promotion, detector activation, registered membership change, or global event hook occurred.",
+    "tests": "17 passed focused regressions",
+    "exact_next_action": "Read the persisted current projection from the Potential Operations detail path before authorizing any UI expansion or additional candidates."
   },
-  "generic_living_overview_ui_refresh": {
-    "milestone": "read-only Potential Operations Living overview refresh",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "artifact": "docs/audits/generic_living_overview_ui_refresh.v1.json",
-    "artifact_sha256": "544a80a404a6e15d9afe1a394fb26285b8ca37cdb10cb16102f1ada2cca4d91d",
-    "tests": "6 passed: potential overview structural and relationship UI",
-    "result": "Living Potential Operations now appears before Evolution Watch with a read-only active-count/generic-dispatch status metric and compact persisted version/evidence/safety rows. Unresolved candidates are limited to top 20 initially. Rendering uses SELECT-only projection; no recompute or publication path.",
-    "verdict": "PASS",
-    "exact_next_action": "Monitor the active bounded pipeline only through legitimate events; no UI action authorizes publication or candidate changes."
-  },
-  "tests": "27 passed: python -m pytest -q -s tests/test_generic_living_three_actor_smoke.py tests/test_generic_living_pipeline_v2.py tests/test_generic_living_worker_e2e.py",
   "updated_at": "2026-08-29T00:00:00Z",
   "updated_at_utc": "2026-08-29T00:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "GENERIC_LIVING_OVERVIEW_UI_REFRESH_PASS"
+  "verdict": "WATCHTOWER_FUNDING_ARCHITECTURE_CENSUS_PASS"
 }

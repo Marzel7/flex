@@ -32550,9 +32550,21 @@
     "blocker": null,
     "exact_next_action": "A separate authorization is required to rerun the full 80+40 stress; do not run held-reader longevity first."
   },
-  "tests": "27 passed: python -m pytest -q -s tests/test_generic_living_pipeline_v2.py tests/test_generic_living_worker_e2e.py tests/test_generic_living_three_actor_smoke.py",
+  "generic_living_three_actor_trustworthy_full_stress_v2": {
+    "milestone": "A+B+C 80+40 trustworthy stress rerun after ordinary BUSY qualification",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "artifact": "docs/audits/generic_living_three_actor_trustworthy_full_stress.v2.json",
+    "artifact_sha256": "e607b6b545bc8ad26f6a015e803bf807fb7277b34d41a36cd3d401d56fdb9c2e",
+    "tests": "27 passed: full A+B+C 80+40, physical BUSY/BUSY_SNAPSHOT, callback failure result, canonical injection",
+    "production_flags": "real feature flag OFF; disposable DB only; real DB writes=0; network/RPC calls=0",
+    "result": "A=80, B=40, observer=82962, expected injected callback failure=1, unexpected=0. One ordinary SQLITE_BUSY occurred and recovered with exactly one bounded canonical restart; no retry exhaustion, SQLITE_LOCKED, invalid observer state, dual publication, contamination, or stale/replay regression.",
+    "verdict": "PASS",
+    "blocker": null,
+    "exact_next_action": "Held-reader WAL longevity requires separate authorization; do not activate the real feature flag."
+  },
+  "tests": "27 passed: python -m pytest -q -s tests/test_generic_living_three_actor_smoke.py tests/test_generic_living_pipeline_v2.py tests/test_generic_living_worker_e2e.py",
   "updated_at": "2026-08-29T00:00:00Z",
   "updated_at_utc": "2026-08-29T00:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "GENERIC_LIVING_ORDINARY_BUSY_RETRY_QUALIFIED"
+  "verdict": "GENERIC_LIVING_THREE_ACTOR_TRUSTWORTHY_FULL_STRESS_QUALIFIED"
 }

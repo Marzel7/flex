@@ -1905,6 +1905,11 @@
     "binding_rows": 0,
     "lineage_rows": 0
   },
+  "generic_living_persisted_source_reader": {
+    "artifact": "docs/audits/generic_living_persisted_source_reader_qualification.v1.json",
+    "artifact_sha256": "7cd0085e41ce76818305ea7b4170180603b717ec5655027f24015a153e479eb6",
+    "status": "QUALIFIED"
+  },
   "generic_living_real_forward_cutover_preflight": {
     "artifact": "docs/audits/generic_living_real_forward_cutover_preflight.v1.json",
     "artifact_sha256": "222fa35a2580b070fc6350aef562c5883b099fa1c265b4633f0dbd1566520255",
@@ -29957,8 +29962,8 @@
     }
   },
   "next_action": {
-    "instruction": "Implement/configure a production persisted-source reader for the generic adapter, then rerun real read-only dry-run and disposable activation qualification.",
-    "next_action_code": "CONNECT_REAL_GENERIC_SOURCE_READER"
+    "instruction": "Production read-only generic source reader is qualified. A separate explicit authorization is required to enable the bounded generic dispatch flag.",
+    "next_action_code": "AUTHORIZE_BOUNDED_ACTIVE_GENERIC_CUTOVER"
   },
   "notes": [
     "PSI0H-H4R generated docs/audits/psi0h_h4r_historical_continuity_review_packet.json and docs/audits/psi0h_h4r_historical_continuity_review_index.json with SHA-256 2ed2edb6b74db6b749166b05b01189328aefdbc85e6e212f762ba9cd5f8e32bb and 5cbba208ad8a4bc217237ba7a50d3ff1a4046f0157943cf062f0e37a04ba4afa respectively.",
@@ -32285,5 +32290,5 @@
   "updated_at": "2026-08-29T00:00:00Z",
   "updated_at_utc": "2026-08-29T00:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "GENERIC_LIVING_ACTIVE_CUTOVER_COMPONENTS_HOLD_ADAPTER"
+  "verdict": "GENERIC_LIVING_PERSISTED_SOURCE_READER_QUALIFIED"
 }

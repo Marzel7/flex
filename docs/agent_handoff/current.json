@@ -31210,6 +31210,20 @@
     "next_action": "Create an instrumented disposable publisher fixture that reaches the atomic equal-freshness conflict after natural worker relevance, then run bounded concurrent WAL/reader qualification.",
     "verdict": "GENERIC_LIVING_WORKER_TO_GENERIC_DURABILITY_HOLD_CORRECTNESS"
   },
+  "generic_living_worker_to_generic_durability_qualification_v2": {
+    "artifact": "docs/audits/generic_living_worker_to_generic_durability_qualification.v2.json",
+    "worker_callback_replay": "PASS",
+    "worker_callback_stale": "PASS",
+    "equal_freshness_runtime_blocked_by_relevance": true,
+    "worker_derived_publisher_equal_freshness_conflict": "PASS",
+    "focused_tests": "29 passed: worker E2E + transaction boundary + generic living + legacy bridge",
+    "real_feature_flag": "OFF",
+    "real_db_writes": 0,
+    "status": "HOLD",
+    "blocker": "Concurrent WAL/held-reader stress, independent external consistency observation, and transaction timing telemetry remain unmeasured.",
+    "next_action": "Run bounded disposable concurrent source/Living writer and held-reader WAL stress with independently observed consistency and per-transaction timing telemetry.",
+    "verdict": "GENERIC_LIVING_WORKER_TO_GENERIC_DURABILITY_HOLD_LOCKING"
+  },
   "production_state": {
     "cohort_mode": "OFF",
     "creator_funding_pid_last_verified": 33383,
@@ -32395,9 +32409,9 @@
       "status": "PASS"
     }
   },
-  "tests": "28 passed: python -m pytest -q tests/test_generic_living_worker_e2e.py tests/test_x77_1_walkback_transaction_boundary.py tests/test_generic_living_pipeline_v2.py tests/test_living_wsol_walkback_integration.py",
+  "tests": "29 passed: python -m pytest -q tests/test_generic_living_worker_e2e.py tests/test_x77_1_walkback_transaction_boundary.py tests/test_generic_living_pipeline_v2.py tests/test_living_wsol_walkback_integration.py",
   "updated_at": "2026-08-29T00:00:00Z",
   "updated_at_utc": "2026-08-29T00:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "GENERIC_LIVING_WORKER_TO_GENERIC_DURABILITY_HOLD_CORRECTNESS"
+  "verdict": "GENERIC_LIVING_WORKER_TO_GENERIC_DURABILITY_HOLD_LOCKING"
 }

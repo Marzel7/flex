@@ -31141,6 +31141,20 @@
     "generic_feature_flag": false,
     "real_db_writes": 0
   },
+  "generic_living_bounded_active_activation": {
+    "artifact": "docs/audits/generic_living_bounded_active_activation.v1.json",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "qualification_sha256_verified": true,
+    "required_activation_readiness_field_present": false,
+    "real_feature_flag": "OFF",
+    "runtime_configuration_changed": false,
+    "database_writes": 0,
+    "provider_or_rpc_calls": 0,
+    "status": "HOLD",
+    "blocker": "Qualification artifact is hash-valid but lacks the required ACTIVATION_READINESS=ready field; code search also found no walkback_worker call site for handle_walkback_evidence_update.",
+    "next_action": "Repair and re-qualify the artifact contract, then wire and qualify the real worker invocation before re-requesting activation.",
+    "verdict": "GENERIC_LIVING_BOUNDED_ACTIVE_ACTIVATION_HOLD_QUALIFICATION_CONTRACT_INCOMPLETE"
+  },
   "production_state": {
     "cohort_mode": "OFF",
     "creator_funding_pid_last_verified": 33383,
@@ -32326,9 +32340,9 @@
       "status": "PASS"
     }
   },
-  "tests": "python -m pytest -q tests/test_generic_living_pipeline_v2.py tests/test_living_wsol_walkback_integration.py: 15 passed",
+  "tests": "Activation stopped at qualification gate; no activation tests run. Prior runtime-wiring suite: python -m pytest -q tests/test_generic_living_pipeline_v2.py tests/test_living_wsol_walkback_integration.py: 15 passed",
   "updated_at": "2026-08-29T00:00:00Z",
   "updated_at_utc": "2026-08-29T00:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "GENERIC_LIVING_RUNTIME_WIRING_QUALIFIED_FOR_ACTIVATION"
+  "verdict": "GENERIC_LIVING_BOUNDED_ACTIVE_ACTIVATION_HOLD_QUALIFICATION_CONTRACT_INCOMPLETE"
 }

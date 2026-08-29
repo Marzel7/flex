@@ -1,4 +1,5 @@
 {
+  "potential_operations_incremental_candidate_matcher": {"status":"PARTIAL","verdict":"POTENTIAL_OPERATIONS_INCREMENTAL_MATCHER_QUALIFIED_PARTIAL","artifact":"docs/audits/potential_operations_incremental_candidate_matcher_qualification.v1.json","artifact_sha256":"afdb356c4efe68006821f1e77af6b5d9242cd60f5de6bdf9cf46927f99a464d2","result":"59 qualified exact selected-route signatures; 58/609 unique current 24h assignments; 551 abstentions; no writes.","next_action":"Add focused matcher tests before integrating this read-only partial assignment feed into UI activity."},
   "potential_operations_creator_adjusted_attention_ui": {"status":"PASS","verdict":"POTENTIAL_OPERATIONS_CREATOR_ADJUSTED_ATTENTION_UI_COMPLETE","artifact":"docs/audits/potential_operations_creator_adjusted_attention_ui.v1.json","artifact_sha256":"b2c3a9caa503f07d00dbc7c6a26a2e9dd17fca6e0420bbe76e66f6d7885aec84","focused_tests":"9 passed","http_render":200,"living_state_unchanged":true,"generic_dispatch_changed":false},
   "potential_operations_live_activity_priority": {
     "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",

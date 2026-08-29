@@ -9,6 +9,13 @@
     "production_flags": {"generic_dispatch": "ON (unchanged)", "detectors": "PAUSED", "real_database_writes": 0},
     "next_action": "Review the read-only activity labels in the live Potential Operations UI; no ranking or Living publication action is required."
   },
+  "operator_activity_snapshot_diagnosis": {
+    "status": "HOLD",
+    "finding": "Operator summary rolling counts are persisted at snapshot creation while last-launch age is rendered against current time; stale snapshots can therefore display a nonzero 24h count beside a last launch older than 24h.",
+    "observed": {"Byzantine": {"snapshot_age_days": 2.1, "last_launch_age_days": 2.1, "stored_24h": 1}, "Sentinel": {"snapshot_age_days": 2.6, "last_launch_age_days": 5.1, "stored_24h": 0}, "Harbinger": {"snapshot_age_days": 4.4, "last_launch_age_days": 5.3, "stored_24h": 1}},
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "next_action": "If authorized, make the UI show snapshot-as-of time or compute time-decayed current windows from retained timestamps; do not relabel stale counts as current activity."
+  },
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "active_observation": {

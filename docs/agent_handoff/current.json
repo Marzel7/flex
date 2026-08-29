@@ -31175,6 +31175,26 @@
     "next_action": "Build a fresh WAL disposable source/Living fixture that reaches the worker callsite, then qualify the generic ON path without changing production configuration.",
     "verdict": "GENERIC_LIVING_WALKBACK_WORKER_CALLSITE_HOLD_CORRECTNESS"
   },
+  "generic_living_worker_to_generic_e2e_qualification": {
+    "artifact": "docs/audits/generic_living_worker_to_generic_e2e_qualification.v1.json",
+    "callsite_artifact_sha256": "a354098abbb023a011ffab2256361d84198752c291684cf55c85b46b7469a9e2",
+    "environment": "fresh disposable SQLite WAL database only",
+    "source_commit_before_living_callback": true,
+    "source_transaction_open_during_living_publication": false,
+    "flag_off": "PASS",
+    "wsol_generic": "PASS",
+    "eight_hop_generic": "PASS",
+    "unrelated": "NO_PUBLICATION",
+    "global_irrelevant": "NO_PUBLICATION",
+    "no_dual_publication": "PASS for covered fixtures",
+    "focused_tests": "26 passed: worker E2E + transaction boundary + generic living + legacy bridge",
+    "real_feature_flag": "OFF",
+    "real_db_writes": 0,
+    "status": "HOLD",
+    "blocker": "Worker-callback replay, stale/equal-freshness conflict, and concurrent WAL/held-reader stress are still unqualified.",
+    "next_action": "Add disposable worker-callback replay/conflict fixtures and bounded concurrent WAL stress without modifying runtime configuration.",
+    "verdict": "GENERIC_LIVING_WORKER_TO_GENERIC_E2E_HOLD_CORRECTNESS"
+  },
   "production_state": {
     "cohort_mode": "OFF",
     "creator_funding_pid_last_verified": 33383,
@@ -32360,9 +32380,9 @@
       "status": "PASS"
     }
   },
-  "tests": "22 passed: python -m pytest -q tests/test_x77_1_walkback_transaction_boundary.py tests/test_generic_living_pipeline_v2.py tests/test_living_wsol_walkback_integration.py",
+  "tests": "26 passed: python -m pytest -q tests/test_generic_living_worker_e2e.py tests/test_x77_1_walkback_transaction_boundary.py tests/test_generic_living_pipeline_v2.py tests/test_living_wsol_walkback_integration.py",
   "updated_at": "2026-08-29T00:00:00Z",
   "updated_at_utc": "2026-08-29T00:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "GENERIC_LIVING_WALKBACK_WORKER_CALLSITE_HOLD_CORRECTNESS"
+  "verdict": "GENERIC_LIVING_WORKER_TO_GENERIC_E2E_HOLD_CORRECTNESS"
 }

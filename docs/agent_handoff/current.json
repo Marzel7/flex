@@ -31224,6 +31224,15 @@
     "next_action": "Run bounded disposable concurrent source/Living writer and held-reader WAL stress with independently observed consistency and per-transaction timing telemetry.",
     "verdict": "GENERIC_LIVING_WORKER_TO_GENERIC_DURABILITY_HOLD_LOCKING"
   },
+  "generic_living_worker_to_generic_durability_qualification_v3": {
+    "artifact": "docs/audits/generic_living_worker_to_generic_durability_qualification.v3.json",
+    "status": "HOLD",
+    "real_feature_flag": "OFF",
+    "real_db_writes": 0,
+    "blocker": "The current one-member disposable fixture cannot produce the required repeated natural relevant events for concurrent stress without bypassing source-reader semantics or changing schema.",
+    "next_action": "Build a bounded multi-member disposable fixture using existing schema, then run the concurrent worker/Living/held-reader WAL stress.",
+    "verdict": "GENERIC_LIVING_WORKER_TO_GENERIC_DURABILITY_HOLD_LOCKING"
+  },
   "production_state": {
     "cohort_mode": "OFF",
     "creator_funding_pid_last_verified": 33383,

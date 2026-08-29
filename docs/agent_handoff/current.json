@@ -31155,6 +31155,26 @@
     "next_action": "Repair and re-qualify the artifact contract, then wire and qualify the real worker invocation before re-requesting activation.",
     "verdict": "GENERIC_LIVING_BOUNDED_ACTIVE_ACTIVATION_HOLD_QUALIFICATION_CONTRACT_INCOMPLETE"
   },
+  "generic_living_walkback_worker_callsite_qualification": {
+    "artifact": "docs/audits/generic_living_walkback_worker_callsite_qualification.v1.json",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "runtime_qualification_hashes": {
+      "old": "08cc955ef1680676803a322282da77033e87241fa53474cf4964cfde34853aef",
+      "new": "8f70c4682cc08e40b7b98f3b1b51012bfe48d159fba8ea552fc6dfe0d0b83e48"
+    },
+    "metadata_contract_repaired": true,
+    "callsite_connected": true,
+    "callsite_after_source_commit": true,
+    "source_transaction_open_during_living_publication": false,
+    "generic_candidate_branches_in_worker": 0,
+    "focused_tests": "22 passed: transaction boundary + generic living + legacy bridge",
+    "real_feature_flag": "OFF",
+    "real_db_writes": 0,
+    "status": "HOLD",
+    "blocker": "Disposable end-to-end worker-to-generic ON/OFF, unrelated/global-irrelevant, and dedicated WAL telemetry qualification remain unfinished.",
+    "next_action": "Build a fresh WAL disposable source/Living fixture that reaches the worker callsite, then qualify the generic ON path without changing production configuration.",
+    "verdict": "GENERIC_LIVING_WALKBACK_WORKER_CALLSITE_HOLD_CORRECTNESS"
+  },
   "production_state": {
     "cohort_mode": "OFF",
     "creator_funding_pid_last_verified": 33383,
@@ -32340,9 +32360,9 @@
       "status": "PASS"
     }
   },
-  "tests": "Activation stopped at qualification gate; no activation tests run. Prior runtime-wiring suite: python -m pytest -q tests/test_generic_living_pipeline_v2.py tests/test_living_wsol_walkback_integration.py: 15 passed",
+  "tests": "22 passed: python -m pytest -q tests/test_x77_1_walkback_transaction_boundary.py tests/test_generic_living_pipeline_v2.py tests/test_living_wsol_walkback_integration.py",
   "updated_at": "2026-08-29T00:00:00Z",
   "updated_at_utc": "2026-08-29T00:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "GENERIC_LIVING_BOUNDED_ACTIVE_ACTIVATION_HOLD_QUALIFICATION_CONTRACT_INCOMPLETE"
+  "verdict": "GENERIC_LIVING_WALKBACK_WORKER_CALLSITE_HOLD_CORRECTNESS"
 }

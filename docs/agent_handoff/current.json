@@ -31233,6 +31233,22 @@
     "next_action": "Build a bounded multi-member disposable fixture using existing schema, then run the concurrent worker/Living/held-reader WAL stress.",
     "verdict": "GENERIC_LIVING_WORKER_TO_GENERIC_DURABILITY_HOLD_LOCKING"
   },
+  "generic_living_multi_member_stress_fixture": {
+    "artifact": "docs/audits/generic_living_multi_member_stress_fixture.v1.json",
+    "journal_mode": "WAL",
+    "wsol_synthetic_members": 40,
+    "eight_hop_synthetic_members": 40,
+    "membership_rows": 80,
+    "resolver_validation": "PASS",
+    "source_reader_validation": "PASS",
+    "relevance_validation": "PASS",
+    "worker_path_compatibility": "PASS",
+    "generation_capacity": "50 per candidate",
+    "real_feature_flag": "OFF",
+    "real_db_writes": 0,
+    "next_action": "Run the separately authorized bounded concurrent worker/Living/held-reader WAL stress using this fixture.",
+    "verdict": "GENERIC_LIVING_MULTI_MEMBER_STRESS_FIXTURE_READY"
+  },
   "production_state": {
     "cohort_mode": "OFF",
     "creator_funding_pid_last_verified": 33383,

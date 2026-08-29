@@ -31246,7 +31246,8 @@
     "generation_capacity": "50 per candidate",
     "real_feature_flag": "OFF",
     "real_db_writes": 0,
-    "next_action": "Run the separately authorized bounded concurrent worker/Living/held-reader WAL stress using this fixture.",
+    "next_action": "Add test-only per-actor SQLite connection lifecycle and telemetry wrappers to the fixture (without changing production paths), then run the authorized concurrent worker/Living/held-reader WAL stress.",
+    "stress_execution_blocker": "The current append helper receives a shared SQLite connection and is safe only for one test thread; concurrent use would violate SQLite connection ownership and invalidate lock telemetry.",
     "verdict": "GENERIC_LIVING_MULTI_MEMBER_STRESS_FIXTURE_READY"
   },
   "production_state": {

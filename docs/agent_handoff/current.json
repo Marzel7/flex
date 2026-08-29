@@ -1,4 +1,14 @@
 {
+  "potential_operations_live_activity_priority": {
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "verdict": "POTENTIAL_OPERATIONS_LIVE_ACTIVITY_PRIORITY_COMPLETE",
+    "artifact": "docs/audits/potential_operations_live_activity_priority.v1.json",
+    "artifact_sha256": "091dbfa83320552d8f383a8a1015321285fecee7537fc91e482707de3562b642",
+    "focused_tests": "tests/test_potential_operations_visual_structure.py: 7 passed",
+    "production_flags": {"generic_dispatch": "ON (unchanged)", "detectors": "PAUSED", "real_database_writes": 0},
+    "next_action": "Review the read-only activity labels in the live Potential Operations UI; no ranking or Living publication action is required."
+  },
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "active_observation": {

@@ -32192,12 +32192,13 @@
   "funding_architecture_potential_discovery": {
     "milestone": "label-blind unassigned funding-architecture discovery",
     "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PARTIAL",
+    "status": "PARTIAL_POST_NORMALIZATION",
     "frozen_population": "14,245 completed selected-hop-1 unassigned mints with retained signatures; 14,102 distinct signatures",
     "checkpoint": "docs/audits/funding_architecture_unassigned_facts.v1.jsonl",
-    "checkpoint_rows_observed": 5757,
-    "blocker": "execution environment terminates the long-lived concurrent provider process at roughly 30 seconds before the frozen population is complete; resumable checkpoint retained",
-    "exact_next_action": "Resume the same frozen retained-signature decode from the checkpoint until all 14,245 frozen mints are normalized, then construct artifacts and provider-free replay. No wallet-history calls."
+    "checkpoint_rows_observed": 17153,
+    "normalization_result": "14,245/14,245 frozen mints terminally accounted: 14,239 decoded, 6 unresolved provider reads. Blind census: 8,590 exact clusters; 344 >=3-launch, >=3-creator recurrent families; 342 also have >=3 direct funders; 177 have no confirmed-operation exact match and no existing P3R-v2 candidate overlap.",
+    "blocker": null,
+    "exact_next_action": "Complete post-normalization blind-cluster overlays: split/merge, top-cluster retained-evidence checks, generic-infrastructure suppression, 24h implications, immutable replay, and final verdict. Do not redo normalization or expand population."
   },
   "updated_at": "2026-08-29T00:00:00Z",
   "updated_at_utc": "2026-08-29T00:00:00Z",

@@ -32585,9 +32585,19 @@
     "blocker": null,
     "exact_next_action": "Monitor only legitimate future bounded events; rollback remains setting the same flag false and restarting walkback_worker."
   },
+  "generic_living_overview_ui_refresh": {
+    "milestone": "read-only Potential Operations Living overview refresh",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "artifact": "docs/audits/generic_living_overview_ui_refresh.v1.json",
+    "artifact_sha256": "544a80a404a6e15d9afe1a394fb26285b8ca37cdb10cb16102f1ada2cca4d91d",
+    "tests": "6 passed: potential overview structural and relationship UI",
+    "result": "Living Potential Operations now appears before Evolution Watch with a read-only active-count/generic-dispatch status metric and compact persisted version/evidence/safety rows. Unresolved candidates are limited to top 20 initially. Rendering uses SELECT-only projection; no recompute or publication path.",
+    "verdict": "PASS",
+    "exact_next_action": "Monitor the active bounded pipeline only through legitimate events; no UI action authorizes publication or candidate changes."
+  },
   "tests": "27 passed: python -m pytest -q -s tests/test_generic_living_three_actor_smoke.py tests/test_generic_living_pipeline_v2.py tests/test_generic_living_worker_e2e.py",
   "updated_at": "2026-08-29T00:00:00Z",
   "updated_at_utc": "2026-08-29T00:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "GENERIC_LIVING_BOUNDED_ACTIVE_ACTIVATION_COMPLETE"
+  "verdict": "GENERIC_LIVING_OVERVIEW_UI_REFRESH_PASS"
 }

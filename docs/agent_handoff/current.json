@@ -32502,9 +32502,21 @@
     "blocker": "The exact physical two-writer WAL ordering was not deterministically induced. The forced explicit-condition regression proves restart semantics, but does not independently prove that SQLite interleaving.",
     "exact_next_action": "Build an instrumented disposable two-writer WAL ordering test that forces the physical deterministic-ID collision; do not run 80+40."
   },
-  "tests": "27 passed: python -m pytest -q tests/test_generic_living_pipeline_v2.py tests/test_generic_living_worker_e2e.py tests/test_generic_living_three_actor_smoke.py tests/test_generic_living_independent_writer.py tests/test_generic_living_multi_member_fixture.py",
+  "generic_living_physical_two_writer_visibility_race": {
+    "milestone": "physical two-writer WAL visibility race",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "artifact": "docs/audits/generic_living_physical_two_writer_visibility_race_qualification.v1.json",
+    "artifact_sha256": "a37df62ff72f97266065bb698402a276a5354ea0d628d1dac5b5e5d3247b1c10",
+    "tests": "28 passed: includes ten physical two-thread, two-connection WAL iterations",
+    "production_flags": "real feature flag OFF; disposable DB only; real DB writes=0; network/RPC calls=0",
+    "result": "A observed absent, B committed the identical association, then A received SQLITE_BUSY_SNAPSHOT before INSERT OR IGNORE in every iteration. SQLite WAL prevents the requested post-conflict stale lookup; canonical publisher also takes a write lock before its association lookup.",
+    "verdict": "HOLD_CORRECTNESS",
+    "blocker": "The requested physical stale post-insert snapshot condition is incompatible with SQLite WAL read-to-write upgrade semantics and the canonical transaction ordering. Production visibility retry cannot be naturally exercised by this interleaving.",
+    "exact_next_action": "Review whether the retry path should be removed or replace it with a separately authorized bounded SQLITE_BUSY_SNAPSHOT full-transaction retry; do not run 80+40."
+  },
+  "tests": "28 passed: python -m pytest -q tests/test_generic_living_pipeline_v2.py tests/test_generic_living_worker_e2e.py tests/test_generic_living_three_actor_smoke.py tests/test_generic_living_independent_writer.py tests/test_generic_living_multi_member_fixture.py",
   "updated_at": "2026-08-29T00:00:00Z",
   "updated_at_utc": "2026-08-29T00:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "GENERIC_LIVING_CONCURRENT_ASSOCIATION_VISIBILITY_RETRY_HOLD_CORRECTNESS"
+  "verdict": "GENERIC_LIVING_PHYSICAL_TWO_WRITER_VISIBILITY_RACE_HOLD_CORRECTNESS"
 }

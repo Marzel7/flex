@@ -32562,9 +32562,21 @@
     "blocker": null,
     "exact_next_action": "Held-reader WAL longevity requires separate authorization; do not activate the real feature flag."
   },
+  "generic_living_held_reader_wal_longevity": {
+    "milestone": "held-reader WAL longevity qualification",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "artifact": "docs/audits/generic_living_held_reader_wal_longevity_qualification.v1.json",
+    "artifact_sha256": "da8bbb0937dcf693317bd4170a743bb80b6137f0ccf98f91c86716cbcb788fe9",
+    "tests": "20 passed: disposable held-reader WAL longevity + generic pipeline retry regressions",
+    "production_flags": "real feature flag OFF; disposable DB only; real DB writes=0; network/RPC calls=0",
+    "result": "Held read snapshot remained readable while 100 source commits and 60 independent Living attempts completed. WAL peak 6,575,552 bytes; no starvation, deadlock, retry exhaustion, unrecovered lock, invalid state, or cross-thread reuse. Post-release source/Living writes and integrity succeeded.",
+    "verdict": "PASS",
+    "blocker": null,
+    "exact_next_action": "Further activation remains separately authorized; do not enable the real feature flag automatically."
+  },
   "tests": "27 passed: python -m pytest -q -s tests/test_generic_living_three_actor_smoke.py tests/test_generic_living_pipeline_v2.py tests/test_generic_living_worker_e2e.py",
   "updated_at": "2026-08-29T00:00:00Z",
   "updated_at_utc": "2026-08-29T00:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "GENERIC_LIVING_THREE_ACTOR_TRUSTWORTHY_FULL_STRESS_QUALIFIED"
+  "verdict": "GENERIC_LIVING_HELD_READER_WAL_LONGEVITY_QUALIFIED"
 }

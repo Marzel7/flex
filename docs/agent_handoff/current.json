@@ -32189,6 +32189,16 @@
     "blocker": null,
     "exact_next_action": "NEXT = FUNDING_ARCHITECTURE_POTENTIAL_DISCOVERY; do not activate production matching without separate authorization."
   },
+  "funding_architecture_potential_discovery": {
+    "milestone": "label-blind unassigned funding-architecture discovery",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PARTIAL",
+    "frozen_population": "14,245 completed selected-hop-1 unassigned mints with retained signatures; 14,102 distinct signatures",
+    "checkpoint": "docs/audits/funding_architecture_unassigned_facts.v1.jsonl",
+    "checkpoint_rows_observed": 5757,
+    "blocker": "execution environment terminates the long-lived concurrent provider process at roughly 30 seconds before the frozen population is complete; resumable checkpoint retained",
+    "exact_next_action": "Resume the same frozen retained-signature decode from the checkpoint until all 14,245 frozen mints are normalized, then construct artifacts and provider-free replay. No wallet-history calls."
+  },
   "updated_at": "2026-08-29T00:00:00Z",
   "updated_at_utc": "2026-08-29T00:00:00Z",
   "updated_by": "agent_local",

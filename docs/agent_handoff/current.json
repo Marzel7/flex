@@ -1877,6 +1877,12 @@
     "eight_hop_forward_cutover": "PASS",
     "wsol_forward_cutover": "PASS"
   },
+  "generic_living_legacy_lineage_backfill": {
+    "artifact": "docs/audits/generic_living_legacy_lineage_backfill.v1.json",
+    "artifact_sha256": "12f561afc0bf92e4b4682ef39bf6e740f4f96810e0209805111e22e2485abc25",
+    "binding_rows": 183,
+    "lineage_rows": 5
+  },
   "generic_living_lineage_metadata": {
     "artifact": "docs/audits/generic_living_lineage_metadata_qualification.v1.json",
     "artifact_sha256": "46ba330c9fbf6152aa1252443a90af603018a77263c6364550a7399d89259a1c",
@@ -29936,8 +29942,8 @@
     }
   },
   "next_action": {
-    "instruction": "Schema is installed empty; separately authorize lineage backfill qualification or forward generic cutover preflight. No active behavior changed.",
-    "next_action_code": "AUTHORIZE_LINEAGE_BACKFILL_OR_FORWARD_CUTOVER_PREFLIGHT"
+    "instruction": "Legacy lineage is attributed; separately authorize a forward generic cutover preflight. Historical unbound versions remain explicitly unavailable.",
+    "next_action_code": "AUTHORIZE_FORWARD_GENERIC_CUTOVER_PREFLIGHT"
   },
   "notes": [
     "PSI0H-H4R generated docs/audits/psi0h_h4r_historical_continuity_review_packet.json and docs/audits/psi0h_h4r_historical_continuity_review_index.json with SHA-256 2ed2edb6b74db6b749166b05b01189328aefdbc85e6e212f762ba9cd5f8e32bb and 5cbba208ad8a4bc217237ba7a50d3ff1a4046f0157943cf062f0e37a04ba4afa respectively.",
@@ -31073,8 +31079,7 @@
   "production_flags": {
     "active_path_cutover": false,
     "generic_assessment_publication": false,
-    "lineage_backfill": false,
-    "real_db_writes": 1
+    "lineage_backfill": true
   },
   "production_state": {
     "cohort_mode": "OFF",
@@ -32265,5 +32270,5 @@
   "updated_at": "2026-08-29T00:00:00Z",
   "updated_at_utc": "2026-08-29T00:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "GENERIC_LIVING_LINEAGE_REAL_MIGRATION_COMPLETE_EMPTY_AND_INERT"
+  "verdict": "GENERIC_LIVING_LEGACY_LINEAGE_BACKFILL_COMPLETE"
 }

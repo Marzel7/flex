@@ -1940,6 +1940,11 @@
     "artifact_sha256": "de6c5ec98bf7032345889d83c80cb7efffbfa6a9da87d45b9e19a12f14f2cce9",
     "status": "HOLD_CORRECTNESS"
   },
+  "generic_living_runtime_wiring_v3": {
+    "artifact": "docs/audits/generic_living_runtime_wiring_qualification.v3.json",
+    "artifact_sha256": "6ac75ccc35582d6f80811096c807f3bc03cc8cc145e7d6e8775399e9caf7d2c1",
+    "status": "HOLD_INTEGRATION"
+  },
   "generic_living_source_coverage": {
     "artifact": "docs/audits/generic_living_association_source_coverage.v1.json",
     "artifact_sha256": "1310782fe8111ae7e560aed439342dd450432fd748cc6ff9befa5ec7e4ce6f5e",
@@ -29987,8 +29992,8 @@
     }
   },
   "next_action": {
-    "instruction": "Wire the now-atomic generic publisher into the actual bounded runtime entry point in disposable/read-only mode; keep the real feature flag OFF.",
-    "next_action_code": "QUALIFY_RUNTIME_WIRING_WITH_ATOMIC_PUBLISHER"
+    "instruction": "Implement a read-only registry-owned resolver index/query primitive for event-key-to-configured-candidate resolution, then retry runtime wiring with the real flag OFF.",
+    "next_action_code": "QUALIFY_GENERIC_RESOLVER_INDEX"
   },
   "notes": [
     "PSI0H-H4R generated docs/audits/psi0h_h4r_historical_continuity_review_packet.json and docs/audits/psi0h_h4r_historical_continuity_review_index.json with SHA-256 2ed2edb6b74db6b749166b05b01189328aefdbc85e6e212f762ba9cd5f8e32bb and 5cbba208ad8a4bc217237ba7a50d3ff1a4046f0157943cf062f0e37a04ba4afa respectively.",
@@ -32315,5 +32320,5 @@
   "updated_at": "2026-08-29T00:00:00Z",
   "updated_at_utc": "2026-08-29T00:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "GENERIC_LIVING_ATOMIC_PUBLICATION_QUALIFIED"
+  "verdict": "GENERIC_LIVING_RUNTIME_WIRING_HOLD_INTEGRATION"
 }

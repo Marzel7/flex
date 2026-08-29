@@ -31250,6 +31250,20 @@
     "stress_execution_blocker": "The current append helper receives a shared SQLite connection and is safe only for one test thread; concurrent use would violate SQLite connection ownership and invalidate lock telemetry.",
     "verdict": "GENERIC_LIVING_MULTI_MEMBER_STRESS_FIXTURE_READY"
   },
+  "generic_living_wal_connection_lifecycle": {
+    "artifact": "docs/audits/generic_living_worker_to_generic_durability_qualification.v5.json",
+    "per_actor_connection_lifecycle": "PASS",
+    "connection_cross_thread_reuse": 0,
+    "worker_observer_events": 80,
+    "integrity_check": "ok",
+    "external_invalid_observations": 0,
+    "sqlite_errors": 0,
+    "real_feature_flag": "OFF",
+    "real_db_writes": 0,
+    "status": "PARTIAL",
+    "next_action": "Add independent Living writer and held-reader phases with timing/lock telemetry to complete WAL durability qualification.",
+    "verdict": "GENERIC_LIVING_WORKER_TO_GENERIC_DURABILITY_HOLD_LOCKING"
+  },
   "production_state": {
     "cohort_mode": "OFF",
     "creator_funding_pid_last_verified": 33383,

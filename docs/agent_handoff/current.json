@@ -9,6 +9,16 @@
     "production_flags": {"generic_dispatch": "ON (unchanged)", "detectors": "PAUSED", "real_database_writes": 0},
     "next_action": "Review the read-only activity labels in the live Potential Operations UI; no ranking or Living publication action is required."
   },
+  "potential_operations_multi_token_creator_analysis": {
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "verdict": "POTENTIAL_OPERATIONS_MULTI_TOKEN_CREATOR_ANALYSIS_COMPLETE",
+    "artifact": "docs/audits/potential_operations_multi_token_creator_analysis.v1.json",
+    "artifact_sha256": "a69fda1364cb9a035ab7d4f90a7d179fd9a65015637453bbecfc6117090610a5",
+    "result": "62 candidates analyzed read-only: 53 robust, 4 partially creator-driven, 1 heavily creator-driven, 3 creator-dominated, 1 insufficient data. Serious creator threshold is >=6 distinct retained mints.",
+    "safety": {"real_db_writes": 0, "source_table_writes": 0, "living_publications": 0, "ranking_writes": 0, "promotions": 0, "detector_changes": 0},
+    "next_action": "Human review of the read-only creator-adjusted shortlist before any ranking, candidate, or Living assessment change."
+  },
   "operator_activity_snapshot_diagnosis": {
     "status": "PASS",
     "finding": "Operator summary rolling counts are persisted at snapshot creation while last-launch age is rendered against current time; stale snapshots can therefore display a nonzero 24h count beside a last launch older than 24h.",

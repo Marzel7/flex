@@ -32538,9 +32538,21 @@
     "blocker": "UNEXPECTED_CALLBACK_FAILURES=1; full stress requires 0. The failure is an ordinary lock condition, not a recovered BUSY_SNAPSHOT.",
     "exact_next_action": "Diagnose the ordinary database-is-locked contention and separately authorize any retry-policy or harness change. Do not run held-reader longevity."
   },
-  "tests": "full 80+40 harness failed correctness acceptance: one expected injected callback failure plus one unexpected ordinary database-is-locked callback failure",
+  "generic_living_ordinary_busy_retry": {
+    "milestone": "canonical ordinary SQLITE_BUSY transaction restart",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "artifact": "docs/audits/generic_living_ordinary_busy_retry_qualification.v1.json",
+    "artifact_sha256": "5bcc1fd6b44cedacab4e240b098a3d2197215fa966a7a07595e3e6d6a5ab50b6",
+    "tests": "27 passed: physical ordinary BUSY recovery/exhaustion, BUSY_SNAPSHOT, conflict preservation, callback, and tiny A+B+C",
+    "production_flags": "real feature flag OFF; disposable DB only; real DB writes=0; network/RPC calls=0",
+    "result": "Physical competing-writer test identifies sqlite3 OperationalError code 5 / SQLITE_BUSY at canonical association INSERT OR IGNORE. It is retry-safe only at the complete canonical publication boundary: rollback, bounded 10ms-increment backoff outside transaction, fresh restart. SQLITE_LOCKED and all other OperationalErrors remain non-retryable.",
+    "verdict": "PASS",
+    "blocker": null,
+    "exact_next_action": "A separate authorization is required to rerun the full 80+40 stress; do not run held-reader longevity first."
+  },
+  "tests": "27 passed: python -m pytest -q -s tests/test_generic_living_pipeline_v2.py tests/test_generic_living_worker_e2e.py tests/test_generic_living_three_actor_smoke.py",
   "updated_at": "2026-08-29T00:00:00Z",
   "updated_at_utc": "2026-08-29T00:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "GENERIC_LIVING_THREE_ACTOR_TRUSTWORTHY_FULL_STRESS_HOLD_LOCKING"
+  "verdict": "GENERIC_LIVING_ORDINARY_BUSY_RETRY_QUALIFIED"
 }

@@ -32574,9 +32574,20 @@
     "blocker": null,
     "exact_next_action": "Further activation remains separately authorized; do not enable the real feature flag automatically."
   },
+  "generic_living_bounded_active_activation": {
+    "milestone": "real bounded generic Living dispatch activation",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "artifact": "docs/audits/generic_living_bounded_active_activation.v2.json",
+    "artifact_sha256": "056f953716a567b31a041fc85f72f455cc6a045bda3e6a325482502262d5e5e2",
+    "production_flags": "LIVING_GENERIC_BOUNDED_DISPATCH_ENABLED=true in Supervisor walkback_worker environment; worker restarted and RUNNING",
+    "result": "Exactly two configured candidates active. Activation created no source or Living rows; global Living counts and both current projections unchanged. Both candidates presently classify GLOBAL_HIGH_WATER_ADVANCED_BUT_NOT_RELEVANT, so immediate generic publications=0. Promotion/detector/onboarding remain disabled.",
+    "verdict": "PASS",
+    "blocker": null,
+    "exact_next_action": "Monitor only legitimate future bounded events; rollback remains setting the same flag false and restarting walkback_worker."
+  },
   "tests": "27 passed: python -m pytest -q -s tests/test_generic_living_three_actor_smoke.py tests/test_generic_living_pipeline_v2.py tests/test_generic_living_worker_e2e.py",
   "updated_at": "2026-08-29T00:00:00Z",
   "updated_at_utc": "2026-08-29T00:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "GENERIC_LIVING_HELD_READER_WAL_LONGEVITY_QUALIFIED"
+  "verdict": "GENERIC_LIVING_BOUNDED_ACTIVE_ACTIVATION_COMPLETE"
 }

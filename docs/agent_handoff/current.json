@@ -32212,6 +32212,14 @@
     "replay": "FUNDING_ARCHITECTURE_POTENTIAL_DISCOVERY_REPLAY_PASS; provider_calls=0",
     "exact_next_action": "No production activation. A separate review should qualify the strongest distinctive clusters using retained evidence before any candidate or membership action."
   },
+  "living_potential_operation_model_investigation": {
+    "milestone": "living potential operation read-model investigation",
+    "status": "PASS",
+    "artifact": "docs/audits/living_potential_operation_projection_prototype.v1.json",
+    "artifact_digest": "c1674a74dd2b8e2eecf0257202ddd92574e6445aabcb1e528f40a0f7282329d5",
+    "result": "Current UI/workflow is snapshot-bound: frozen membership artifacts feed potential details, while current evidence is display-only enrichment. Read-only prototype proves a stable candidate can preserve frozen version 71 while deriving current retained evidence (284 projection members, 71 selected/atomic members) without changing membership or workflow.",
+    "exact_next_action": "Implement a separate candidate identity, candidate-evidence association, immutable assessment-version, and current-projection read model behind an explicit write authorization; do not repurpose snapshot family hash as stable identity."
+  },
   "updated_at": "2026-08-29T00:00:00Z",
   "updated_at_utc": "2026-08-29T00:00:00Z",
   "updated_by": "agent_local",

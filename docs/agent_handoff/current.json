@@ -32526,9 +32526,21 @@
     "blocker": null,
     "exact_next_action": "Separate authorization is required before the full 80+40 trustworthy failure run; do not run it automatically."
   },
-  "tests": "27 passed: python -m pytest -q tests/test_generic_living_pipeline_v2.py tests/test_generic_living_worker_e2e.py tests/test_generic_living_three_actor_smoke.py tests/test_generic_living_independent_writer.py tests/test_generic_living_multi_member_fixture.py",
+  "generic_living_three_actor_trustworthy_full_stress": {
+    "milestone": "authorized A+B+C 80+40 trustworthy stress execution",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "artifact": "docs/audits/generic_living_three_actor_trustworthy_full_stress.v1.json",
+    "artifact_sha256": "d70f0b63b9aadae545aba8597762d734ea71e6c5383708c76bd9121c67c98f2f",
+    "tests": "full 80+40 harness executed; FAILED assertion after 2 callback failures",
+    "production_flags": "real feature flag OFF; disposable DB only; real DB writes=0; network/RPC calls=0",
+    "result": "The exactly-one injected after_current_before_commit callback failure occurred, then a later worker callback failed with ordinary sqlite3 OperationalError: database is locked. This is not SQLITE_BUSY_SNAPSHOT and is intentionally not covered by the new canonical retry.",
+    "verdict": "HOLD_LOCKING",
+    "blocker": "UNEXPECTED_CALLBACK_FAILURES=1; full stress requires 0. The failure is an ordinary lock condition, not a recovered BUSY_SNAPSHOT.",
+    "exact_next_action": "Diagnose the ordinary database-is-locked contention and separately authorize any retry-policy or harness change. Do not run held-reader longevity."
+  },
+  "tests": "full 80+40 harness failed correctness acceptance: one expected injected callback failure plus one unexpected ordinary database-is-locked callback failure",
   "updated_at": "2026-08-29T00:00:00Z",
   "updated_at_utc": "2026-08-29T00:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "GENERIC_LIVING_BUSY_SNAPSHOT_RETRY_QUALIFIED"
+  "verdict": "GENERIC_LIVING_THREE_ACTOR_TRUSTWORTHY_FULL_STRESS_HOLD_LOCKING"
 }

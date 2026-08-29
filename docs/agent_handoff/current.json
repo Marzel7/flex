@@ -1870,6 +1870,11 @@
     "replay": "FUNDING_ARCHITECTURE_POTENTIAL_DISCOVERY_REPLAY_PASS; provider_calls=0",
     "status": "PASS"
   },
+  "generic_living_bounded_active_cutover": {
+    "artifact": "docs/audits/generic_living_bounded_active_cutover.v1.json",
+    "artifact_sha256": "70fce14066cdcc18339c29e641beb90927e1e2cff2e66264f79003b6a7c066e1",
+    "executed": false
+  },
   "generic_living_forward_cutover": {
     "artifact": "docs/audits/generic_living_forward_cutover_qualification.v1.json",
     "artifact_sha256": "965ec480b14bf97513c45d85ed2a09986e980b58cd4148989d5a8d1c017f4355",
@@ -29947,8 +29952,8 @@
     }
   },
   "next_action": {
-    "instruction": "Preflight qualified; a separate explicit authorization is required to change active bounded dispatch. No real generic assessment is currently due.",
-    "next_action_code": "AUTHORIZE_BOUNDED_ACTIVE_GENERIC_CUTOVER"
+    "instruction": "Implement and qualify real generic source adapters plus atomic lineage/binding publisher and a feature-gated rollback dispatcher before retrying active cutover.",
+    "next_action_code": "IMPLEMENT_REAL_GENERIC_LIVING_PUBLISHER"
   },
   "notes": [
     "PSI0H-H4R generated docs/audits/psi0h_h4r_historical_continuity_review_packet.json and docs/audits/psi0h_h4r_historical_continuity_review_index.json with SHA-256 2ed2edb6b74db6b749166b05b01189328aefdbc85e6e212f762ba9cd5f8e32bb and 5cbba208ad8a4bc217237ba7a50d3ff1a4046f0157943cf062f0e37a04ba4afa respectively.",
@@ -32275,5 +32280,5 @@
   "updated_at": "2026-08-29T00:00:00Z",
   "updated_at_utc": "2026-08-29T00:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "GENERIC_LIVING_BOUNDED_ACTIVE_CUTOVER_PREFLIGHT_QUALIFIED"
+  "verdict": "GENERIC_LIVING_BOUNDED_ACTIVE_CUTOVER_HOLD_CORRECTNESS"
 }

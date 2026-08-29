@@ -947,7 +947,7 @@
       "direct_funder/amount fields not captured in B2Z-P1's stage-output schema (data-capture gap for future calibration)"
     ]
   },
-  "blocker": "Current association storage is operation-scoped, not assessment-version-scoped; a safe active cutover requires immutable assessment-association binding and lineage exposure in the history read model.",
+  "blocker": null,
   "blockers": [
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
@@ -1876,6 +1876,12 @@
     "cutover_readiness": "HOLD_FORWARD_GENERIC_CUTOVER",
     "eight_hop_forward_cutover": "PASS",
     "wsol_forward_cutover": "PASS"
+  },
+  "generic_living_lineage_metadata": {
+    "artifact": "docs/audits/generic_living_lineage_metadata_qualification.v1.json",
+    "artifact_sha256": "46ba330c9fbf6152aa1252443a90af603018a77263c6364550a7399d89259a1c",
+    "real_db_writes": 0,
+    "status": "QUALIFIED"
   },
   "generic_living_source_coverage": {
     "artifact": "docs/audits/generic_living_association_source_coverage.v1.json",
@@ -29924,8 +29930,8 @@
     }
   },
   "next_action": {
-    "instruction": "Qualify an additive schema/read-model change binding associations to immutable assessment versions and exposing pipeline lineage, then reassess active forward cutover. Do not rewrite legacy history.",
-    "next_action_code": "QUALIFY_ASSESSMENT_ASSOCIATION_LINEAGE_SCHEMA"
+    "instruction": "Separately review and authorize an additive real-schema migration preflight; do not backfill legacy rows or cut over active behavior.",
+    "next_action_code": "AUTHORIZE_ADDITIVE_LINEAGE_MIGRATION_PREFLIGHT"
   },
   "notes": [
     "PSI0H-H4R generated docs/audits/psi0h_h4r_historical_continuity_review_packet.json and docs/audits/psi0h_h4r_historical_continuity_review_index.json with SHA-256 2ed2edb6b74db6b749166b05b01189328aefdbc85e6e212f762ba9cd5f8e32bb and 5cbba208ad8a4bc217237ba7a50d3ff1a4046f0157943cf062f0e37a04ba4afa respectively.",
@@ -32248,9 +32254,9 @@
       "status": "PASS"
     }
   },
-  "tests": "python -m pytest -q tests/test_generic_living_pipeline_v2.py: 8 passed",
+  "tests": "python -m pytest -q tests/test_generic_living_pipeline_v2.py: 9 passed",
   "updated_at": "2026-08-29T00:00:00Z",
   "updated_at_utc": "2026-08-29T00:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "FORWARD_CUTOVER_REQUIRES_ADDITIVE_LINEAGE_METADATA"
+  "verdict": "GENERIC_LIVING_LINEAGE_METADATA_QUALIFIED_FOR_REAL_MIGRATION"
 }

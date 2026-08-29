@@ -947,9 +947,31 @@
       "direct_funder/amount fields not captured in B2Z-P1's stage-output schema (data-capture gap for future calibration)"
     ]
   },
+  "blocker": "WSOL aggregate source categories EXCLUSION, FALSE_POSITIVE, HISTORICAL_CAVEAT, and MAPPED_POPULATION are absent as underlying same-boundary evidence (122/126 covered); eight-hop CONTRADICTION and MAPPED_POPULATION are absent (55/57 covered). Existing association_inputs were not treated as underlying evidence.",
   "blockers": [
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
+  "confirmed_operation_funding_architecture_baseline": {
+    "artifact": "docs/audits/confirmed_operation_funding_architecture_matrix.v1.json",
+    "artifact_digest": "ba5035b06c33494bf04da65f85169834a0441219226455a2f875cc740d8a8510",
+    "blocker": null,
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "exact_next_action": "NEXT = FUNDING_ARCHITECTURE_POTENTIAL_DISCOVERY; do not activate production matching without separate authorization.",
+    "milestone": "confirmed-operation transaction-level funding architecture baseline",
+    "production_flags": "read-only; 45 getTransaction reads for retained Byzantine/four-step signatures only; no wallet history; no operational database mutation",
+    "result": "Confirmed primary population: Leviathan 119 frozen decoded baseline; WATCHTOWER 125 frozen census; Byzantine 36/36 newly decoded; FOUR_STEP_30_SOL_14_479K_WSOL_LADDER 9/9 newly decoded. Three additional confirmed registry records have zero primary members. Sentinel and Harbinger are not current confirmed top-level registry operations. Exact cross-operation architecture collisions=0; discrimination HIGH; discovery gap interim MAJOR.",
+    "tests": "py_compile census/replay scripts; provider-free replay PASS (matrix, collisions, digest identical)",
+    "verdict": "PASS"
+  },
+  "confirmed_operation_funding_behaviour_qualification": {
+    "artifact": "docs/audits/confirmed_operation_funding_behaviour_qualification.v1.json",
+    "artifact_digest": "23228eb8c942ce0f9d9a179a12dcd783690a549cbe39db269f0f0e53c6f838c3",
+    "exact_next_action": "Review newly admitted current members separately against retained architecture evidence; do not alter membership automatically.",
+    "milestone": "confirmed operation funding behaviour qualification",
+    "production_flags": "read-only qualification; no membership, fingerprint, detector, workflow, or trading mutation",
+    "result": "Four material confirmed operations strengthened; complete cross-operation architecture collisions remain zero; multi-dimensional operation model recommended; replay pass with zero provider calls.",
+    "status": "PASS"
+  },
   "contingent_handoff_note": null,
   "continuation_update": {
     "artifact_digests": {
@@ -1105,6 +1127,7 @@
     "verdict": "SEE docs/audits/storage_lifecycle_p5b_stage3a_pre_switch_reconciliation.json -- Parts 1-11 all PASS, identity reconciliation EXACT_PARITY hard gate PASS, all 3 writer services restored/healthy, no atomic switch performed"
   },
   "current_next_blocker": "B2Z_P2_HELIUS_ENDPOINT was never available during the overnight session. P2 remains frozen at the 19-member manual resume gate, exactly as left. All 12 provider-free workstreams from the overnight prompt were completed: P2 analysis engine, selective-RPC policy (B2Z-P3), historical coverage profile, 2-hop coverage quality, B2Z-2H contract, operation-discovery preparation, candidate funding family analysis (with a real cross-validated finding), raw-transaction cache adapter, RPC savings models, V2 persistent-budget design, edge-case classifier, and roadmap reconciliation. See docs/audits/overnight_human_decision_queue.json for the 5 decisions that actually need you.",
+  "engineering_revision": "bf1baac7",
   "focused_tests": [
     {
       "details": {
@@ -1820,6 +1843,39 @@
         "result": "reprioritized: P2 resume (1) > 56-launch family review (2) > discovery queue next picks (3) > selective-RPC thresholds (4) > B2Z-2H authorization (5) > V2 persistent budget (6)"
       }
     ]
+  },
+  "funding_architecture_audit": {
+    "artifact": "docs/audits/watchtower_funding_transaction_census.v1.json",
+    "artifact_digest": "f4a2f2f28bf0fa551df6991c8ef24c49770a31393e71737ac88a3ee37ca66b82",
+    "blocker": null,
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "exact_next_action": "Do not extend to other operations until explicitly authorized; retain WATCHTOWER census as the completed first-stage denominator.",
+    "milestone": "WATCHTOWER funding-transaction census",
+    "production_flags": "read-only; no wallet-history calls; 125 retained-signature getTransaction reads; no operational database mutation",
+    "result": "125/125 confirmed WATCHTOWER launches had retained paths and signatures and decoded successfully. 90/125 use the supplied 2,122,039,280-lamport createAccountWithSeed -> initializeAccount -> closeAccount architecture. 10 address-blind families; PLAIN_XFER=0 in the strict confirmed WATCHTOWER population; Leviathan exact collisions=0; separation=STRONG.",
+    "tests": "python -m py_compile scripts/audit_watchtower_funding_architecture.py; JSON validation PASS",
+    "verdict": "PASS"
+  },
+  "funding_architecture_potential_discovery": {
+    "artifact": "docs/audits/funding_architecture_potential_discovery.v1.json",
+    "artifact_digest": "8134837a09fd39922929b95abd8d95dd28d13177527e3b0c09d3b17ec84f9af6",
+    "blocker": null,
+    "checkpoint": "docs/audits/funding_architecture_unassigned_facts.v1.jsonl",
+    "checkpoint_rows_observed": 17153,
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "exact_next_action": "No production activation. A separate review should qualify the strongest distinctive clusters using retained evidence before any candidate or membership action.",
+    "frozen_population": "14,245 completed selected-hop-1 unassigned mints with retained signatures; 14,102 distinct signatures",
+    "milestone": "label-blind unassigned funding-architecture discovery",
+    "normalization_result": "14,245/14,245 frozen mints terminally accounted: 14,239 decoded, 6 unresolved provider reads. Blind census: 8,590 exact clusters; 344 >=3-launch, >=3-creator recurrent families; 342 also have >=3 direct funders. Semantic normalization reduces to 8,400 clusters and 321 recurrent families. Recurrent generic suppression: 140 generic, 202 distinctive, 2 ambiguous; 134 distinctive higher-confidence clusters have no existing P3R-v2 overlap.",
+    "replay": "FUNDING_ARCHITECTURE_POTENTIAL_DISCOVERY_REPLAY_PASS; provider_calls=0",
+    "status": "PASS"
+  },
+  "generic_living_source_coverage": {
+    "artifact": "docs/audits/generic_living_association_source_coverage.v1.json",
+    "artifact_sha256": "1310782fe8111ae7e560aed439342dd450432fd748cc6ff9befa5ec7e4ce6f5e",
+    "eight_hop": "55/57",
+    "v2_fixtures_created": false,
+    "wsol": "122/126"
   },
   "h1_last_updated": null,
   "h4r1_cex_infra_eligibility_check_and_of_dv34_p0": {
@@ -29785,6 +29841,23 @@
     }
   },
   "latest_updated": "2026-08-18T13:24:28Z",
+  "living_potential_operation_model_investigation": {
+    "artifact": "docs/audits/living_potential_operation_projection_prototype.v1.json",
+    "artifact_digest": "c1674a74dd2b8e2eecf0257202ddd92574e6445aabcb1e528f40a0f7282329d5",
+    "exact_next_action": "Implement a separate candidate identity, candidate-evidence association, immutable assessment-version, and current-projection read model behind an explicit write authorization; do not repurpose snapshot family hash as stable identity.",
+    "milestone": "living potential operation read-model investigation",
+    "result": "Current UI/workflow is snapshot-bound: frozen membership artifacts feed potential details, while current evidence is display-only enrichment. Read-only prototype proves a stable candidate can preserve frozen version 71 while deriving current retained evidence (284 projection members, 71 selected/atomic members) without changing membership or workflow.",
+    "status": "PASS"
+  },
+  "living_wsol_potential_operation_integration": {
+    "artifact": "docs/audits/wsol_living_potential_operation_integration.v1.json",
+    "artifact_sha256": "ebf3ebe91b78d242b196c830a926f5b7a92c6c9b5dbcd86f9d0bdd2248c2fc6b",
+    "exact_next_action": "Read the persisted current projection from the Potential Operations detail path before authorizing any UI expansion or additional candidates.",
+    "milestone": "first bounded real walkback to Potential Operation integration",
+    "result": "One stable PAUSED WSOL Potential Operation was published from retained local evidence. Three immutable versions are retained because locally observed evidence high-waters advanced during the bounded execution. No promotion, detector activation, registered membership change, or global event hook occurred.",
+    "status": "PASS",
+    "tests": "17 passed focused regressions"
+  },
   "local_operation_discovery_execution_qualification": {
     "56_launch_family_result": "independently rediscovered at much larger scale (575 vs. 56 members) and correctly reclassified SERVICE_DISTRIBUTION_CLUSTER given its full 568-creator fan-out -- original curated 56-member OF-P0 packet preserved unmodified, NOT overwritten, since the two findings represent different confidence tiers",
     "artifacts": [
@@ -29844,10 +29917,8 @@
     }
   },
   "next_action": {
-    "b2n_execution_authorized": false,
-    "decision": "RA4_BOUNDED_WRITER_PRODUCTION_CUTOVER_QUALIFIED",
-    "instruction": "The bounded writer cutover succeeded: legacy retained-acquisition growth is arrested, the bounded V2 writer is confirmed receiving new retention with full evidence parity, and no rollback condition triggered. The legacy 61.3+ GB DB was NOT touched, deleted, or reclaimed -- it is now historical/read-only. Next: qualify RA4-C5 (legacy retained-acquisition archival/retirement) as a SEPARATE future milestone. B2N remains frozen at exactly 1/20 and was NOT resumed automatically -- a separate explicit authorization is required before continuing to ordinal 2.",
-    "next_action_code": "QUALIFY_RA4_C5_LEGACY_RETAINED_DB_RETIREMENT"
+    "instruction": "Locate durable underlying evidence at the exact frozen boundaries for every listed gap; only then create V2 enriched frozen source fixtures and rerun source coverage. Do not run final association equivalence, modify active paths, or write the real DB.",
+    "next_action_code": "RECONSTRUCT_SAME_BOUNDARY_GENERIC_LIVING_SOURCE_CATEGORIES"
   },
   "notes": [
     "PSI0H-H4R generated docs/audits/psi0h_h4r_historical_continuity_review_packet.json and docs/audits/psi0h_h4r_historical_continuity_review_index.json with SHA-256 2ed2edb6b74db6b749166b05b01189328aefdbc85e6e212f762ba9cd5f8e32bb and 5cbba208ad8a4bc217237ba7a50d3ff1a4046f0157943cf062f0e37a04ba4afa respectively.",
@@ -30980,6 +31051,11 @@
     "workstreams_completed": 12
   },
   "pending_human_decisions": 9,
+  "production_flags": {
+    "active_path_cutover": false,
+    "final_association_equivalence_attempted": false,
+    "real_db_writes": 0
+  },
   "production_state": {
     "cohort_mode": "OFF",
     "creator_funding_pid_last_verified": 33383,
@@ -31000,10 +31076,10 @@
   },
   "project": {
     "branch": "classification-attribution-axis",
-    "git_head": "1e292f254d71163d1935807cf9dc6217b97230d5",
+    "git_head": "bf1baac7",
     "name": "flex",
-    "updated_at_utc": "2026-08-17T18:50:18Z",
-    "working_tree": "dirty: H8-to-H4 compatibility adapter added; projection runtime and H4 rerun materialized 150 operations"
+    "updated_at_utc": "2026-08-29T00:00:00Z",
+    "working_tree": "dirty; generic Living frozen-source semantic coverage audit added, no active-path or database changes"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "qualified_baselines": [
@@ -32165,72 +32241,9 @@
       "status": "PASS"
     }
   },
-  "funding_architecture_audit": {
-    "milestone": "WATCHTOWER funding-transaction census",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "artifact": "docs/audits/watchtower_funding_transaction_census.v1.json",
-    "artifact_digest": "f4a2f2f28bf0fa551df6991c8ef24c49770a31393e71737ac88a3ee37ca66b82",
-    "tests": "python -m py_compile scripts/audit_watchtower_funding_architecture.py; JSON validation PASS",
-    "production_flags": "read-only; no wallet-history calls; 125 retained-signature getTransaction reads; no operational database mutation",
-    "result": "125/125 confirmed WATCHTOWER launches had retained paths and signatures and decoded successfully. 90/125 use the supplied 2,122,039,280-lamport createAccountWithSeed -> initializeAccount -> closeAccount architecture. 10 address-blind families; PLAIN_XFER=0 in the strict confirmed WATCHTOWER population; Leviathan exact collisions=0; separation=STRONG.",
-    "verdict": "PASS",
-    "blocker": null,
-    "exact_next_action": "Do not extend to other operations until explicitly authorized; retain WATCHTOWER census as the completed first-stage denominator."
-  },
-  "confirmed_operation_funding_architecture_baseline": {
-    "milestone": "confirmed-operation transaction-level funding architecture baseline",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "artifact": "docs/audits/confirmed_operation_funding_architecture_matrix.v1.json",
-    "artifact_digest": "ba5035b06c33494bf04da65f85169834a0441219226455a2f875cc740d8a8510",
-    "tests": "py_compile census/replay scripts; provider-free replay PASS (matrix, collisions, digest identical)",
-    "production_flags": "read-only; 45 getTransaction reads for retained Byzantine/four-step signatures only; no wallet history; no operational database mutation",
-    "result": "Confirmed primary population: Leviathan 119 frozen decoded baseline; WATCHTOWER 125 frozen census; Byzantine 36/36 newly decoded; FOUR_STEP_30_SOL_14_479K_WSOL_LADDER 9/9 newly decoded. Three additional confirmed registry records have zero primary members. Sentinel and Harbinger are not current confirmed top-level registry operations. Exact cross-operation architecture collisions=0; discrimination HIGH; discovery gap interim MAJOR.",
-    "verdict": "PASS",
-    "blocker": null,
-    "exact_next_action": "NEXT = FUNDING_ARCHITECTURE_POTENTIAL_DISCOVERY; do not activate production matching without separate authorization."
-  },
-  "confirmed_operation_funding_behaviour_qualification": {
-    "milestone": "confirmed operation funding behaviour qualification",
-    "status": "PASS",
-    "artifact": "docs/audits/confirmed_operation_funding_behaviour_qualification.v1.json",
-    "artifact_digest": "23228eb8c942ce0f9d9a179a12dcd783690a549cbe39db269f0f0e53c6f838c3",
-    "result": "Four material confirmed operations strengthened; complete cross-operation architecture collisions remain zero; multi-dimensional operation model recommended; replay pass with zero provider calls.",
-    "production_flags": "read-only qualification; no membership, fingerprint, detector, workflow, or trading mutation",
-    "exact_next_action": "Review newly admitted current members separately against retained architecture evidence; do not alter membership automatically."
-  },
-  "funding_architecture_potential_discovery": {
-    "milestone": "label-blind unassigned funding-architecture discovery",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "frozen_population": "14,245 completed selected-hop-1 unassigned mints with retained signatures; 14,102 distinct signatures",
-    "checkpoint": "docs/audits/funding_architecture_unassigned_facts.v1.jsonl",
-    "checkpoint_rows_observed": 17153,
-    "normalization_result": "14,245/14,245 frozen mints terminally accounted: 14,239 decoded, 6 unresolved provider reads. Blind census: 8,590 exact clusters; 344 >=3-launch, >=3-creator recurrent families; 342 also have >=3 direct funders. Semantic normalization reduces to 8,400 clusters and 321 recurrent families. Recurrent generic suppression: 140 generic, 202 distinctive, 2 ambiguous; 134 distinctive higher-confidence clusters have no existing P3R-v2 overlap.",
-    "blocker": null,
-    "artifact": "docs/audits/funding_architecture_potential_discovery.v1.json",
-    "artifact_digest": "8134837a09fd39922929b95abd8d95dd28d13177527e3b0c09d3b17ec84f9af6",
-    "replay": "FUNDING_ARCHITECTURE_POTENTIAL_DISCOVERY_REPLAY_PASS; provider_calls=0",
-    "exact_next_action": "No production activation. A separate review should qualify the strongest distinctive clusters using retained evidence before any candidate or membership action."
-  },
-  "living_potential_operation_model_investigation": {
-    "milestone": "living potential operation read-model investigation",
-    "status": "PASS",
-    "artifact": "docs/audits/living_potential_operation_projection_prototype.v1.json",
-    "artifact_digest": "c1674a74dd2b8e2eecf0257202ddd92574e6445aabcb1e528f40a0f7282329d5",
-    "result": "Current UI/workflow is snapshot-bound: frozen membership artifacts feed potential details, while current evidence is display-only enrichment. Read-only prototype proves a stable candidate can preserve frozen version 71 while deriving current retained evidence (284 projection members, 71 selected/atomic members) without changing membership or workflow.",
-    "exact_next_action": "Implement a separate candidate identity, candidate-evidence association, immutable assessment-version, and current-projection read model behind an explicit write authorization; do not repurpose snapshot family hash as stable identity."
-  },
-  "living_wsol_potential_operation_integration": {
-    "milestone": "first bounded real walkback to Potential Operation integration",
-    "status": "PASS",
-    "artifact": "docs/audits/wsol_living_potential_operation_integration.v1.json",
-    "artifact_sha256": "ebf3ebe91b78d242b196c830a926f5b7a92c6c9b5dbcd86f9d0bdd2248c2fc6b",
-    "result": "One stable PAUSED WSOL Potential Operation was published from retained local evidence. Three immutable versions are retained because locally observed evidence high-waters advanced during the bounded execution. No promotion, detector activation, registered membership change, or global event hook occurred.",
-    "tests": "17 passed focused regressions",
-    "exact_next_action": "Read the persisted current projection from the Potential Operations detail path before authorizing any UI expansion or additional candidates."
-  },
+  "tests": "python -m pytest -q tests/test_generic_living_pipeline_v2.py: 7 passed",
   "updated_at": "2026-08-29T00:00:00Z",
   "updated_at_utc": "2026-08-29T00:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "WATCHTOWER_FUNDING_ARCHITECTURE_CENSUS_PASS"
+  "verdict": "HOLD_FROZEN_SOURCE_GAP_NOT_RECONSTRUCTABLE"
 }

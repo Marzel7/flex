@@ -1875,6 +1875,11 @@
     "artifact_sha256": "b291ba8edf8a9caf4fbd9a9d8aaf504caa431c38d34d9467b7095bf065ac3fe3",
     "status": "HOLD_ADAPTER"
   },
+  "generic_living_association_persistence": {
+    "artifact": "docs/audits/generic_living_association_persistence_qualification.v1.json",
+    "artifact_sha256": "76383b538437664dde735cbe2bce6a1d77fb97ae5e52a089b4812576c8162dcb",
+    "status": "QUALIFIED"
+  },
   "generic_living_bounded_active_cutover": {
     "artifact": "docs/audits/generic_living_bounded_active_cutover.v1.json",
     "artifact_sha256": "70fce14066cdcc18339c29e641beb90927e1e2cff2e66264f79003b6a7c066e1",
@@ -29972,8 +29977,8 @@
     }
   },
   "next_action": {
-    "instruction": "Implement and qualify atomic generic association persistence with ownership validation before wiring it into the active bounded entry point.",
-    "next_action_code": "COMPLETE_GENERIC_ASSOCIATION_PERSISTENCE_CONTRACT"
+    "instruction": "Connect the qualified ownership-safe generic association persistence into the existing generic publisher and actual bounded entry point in disposable/read-only mode.",
+    "next_action_code": "QUALIFY_RUNTIME_WIRING_WITH_ASSOCIATION_PERSISTENCE"
   },
   "notes": [
     "PSI0H-H4R generated docs/audits/psi0h_h4r_historical_continuity_review_packet.json and docs/audits/psi0h_h4r_historical_continuity_review_index.json with SHA-256 2ed2edb6b74db6b749166b05b01189328aefdbc85e6e212f762ba9cd5f8e32bb and 5cbba208ad8a4bc217237ba7a50d3ff1a4046f0157943cf062f0e37a04ba4afa respectively.",
@@ -32296,9 +32301,9 @@
       "status": "PASS"
     }
   },
-  "tests": "python -m pytest -q tests/test_generic_living_pipeline_v2.py: 10 passed",
+  "tests": "python -m pytest -q tests/test_generic_living_pipeline_v2.py: 11 passed",
   "updated_at": "2026-08-29T00:00:00Z",
   "updated_at_utc": "2026-08-29T00:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "GENERIC_LIVING_RUNTIME_WIRING_HOLD_CORRECTNESS"
+  "verdict": "GENERIC_LIVING_ASSOCIATION_PERSISTENCE_QUALIFIED"
 }

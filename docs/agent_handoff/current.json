@@ -32177,6 +32177,18 @@
     "blocker": null,
     "exact_next_action": "Do not extend to other operations until explicitly authorized; retain WATCHTOWER census as the completed first-stage denominator."
   },
+  "confirmed_operation_funding_architecture_baseline": {
+    "milestone": "confirmed-operation transaction-level funding architecture baseline",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "artifact": "docs/audits/confirmed_operation_funding_architecture_matrix.v1.json",
+    "artifact_digest": "ba5035b06c33494bf04da65f85169834a0441219226455a2f875cc740d8a8510",
+    "tests": "py_compile census/replay scripts; provider-free replay PASS (matrix, collisions, digest identical)",
+    "production_flags": "read-only; 45 getTransaction reads for retained Byzantine/four-step signatures only; no wallet history; no operational database mutation",
+    "result": "Confirmed primary population: Leviathan 119 frozen decoded baseline; WATCHTOWER 125 frozen census; Byzantine 36/36 newly decoded; FOUR_STEP_30_SOL_14_479K_WSOL_LADDER 9/9 newly decoded. Three additional confirmed registry records have zero primary members. Sentinel and Harbinger are not current confirmed top-level registry operations. Exact cross-operation architecture collisions=0; discrimination HIGH; discovery gap interim MAJOR.",
+    "verdict": "PASS",
+    "blocker": null,
+    "exact_next_action": "NEXT = FUNDING_ARCHITECTURE_POTENTIAL_DISCOVERY; do not activate production matching without separate authorization."
+  },
   "updated_at": "2026-08-29T00:00:00Z",
   "updated_at_utc": "2026-08-29T00:00:00Z",
   "updated_by": "agent_local",

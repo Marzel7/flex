@@ -31278,6 +31278,19 @@
     "next_action": "Compose Actors A, B, and C for the separately authorized three-actor concurrency stress.",
     "verdict": "GENERIC_LIVING_INDEPENDENT_LIVING_WRITER_READY"
   },
+  "generic_living_three_actor_composition_smoke": {
+    "artifact": "docs/audits/generic_living_three_actor_composition_smoke.v1.json",
+    "status": "PASS",
+    "actor_a_events": 10,
+    "actor_b_attempts": 10,
+    "actor_c_invalid_observations": 0,
+    "overlap": true,
+    "integrity_check": "ok",
+    "real_feature_flag": "OFF",
+    "real_db_writes": 0,
+    "next_action": "Run bounded full three-actor stress before held-reader WAL longevity.",
+    "verdict": "GENERIC_LIVING_THREE_ACTOR_COMPOSITION_SMOKE_PASS"
+  },
   "production_state": {
     "cohort_mode": "OFF",
     "creator_funding_pid_last_verified": 33383,

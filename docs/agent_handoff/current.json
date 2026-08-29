@@ -32220,6 +32220,15 @@
     "result": "Current UI/workflow is snapshot-bound: frozen membership artifacts feed potential details, while current evidence is display-only enrichment. Read-only prototype proves a stable candidate can preserve frozen version 71 while deriving current retained evidence (284 projection members, 71 selected/atomic members) without changing membership or workflow.",
     "exact_next_action": "Implement a separate candidate identity, candidate-evidence association, immutable assessment-version, and current-projection read model behind an explicit write authorization; do not repurpose snapshot family hash as stable identity."
   },
+  "living_wsol_potential_operation_integration": {
+    "milestone": "first bounded real walkback to Potential Operation integration",
+    "status": "PASS",
+    "artifact": "docs/audits/wsol_living_potential_operation_integration.v1.json",
+    "artifact_sha256": "ebf3ebe91b78d242b196c830a926f5b7a92c6c9b5dbcd86f9d0bdd2248c2fc6b",
+    "result": "One stable PAUSED WSOL Potential Operation was published from retained local evidence. Three immutable versions are retained because locally observed evidence high-waters advanced during the bounded execution. No promotion, detector activation, registered membership change, or global event hook occurred.",
+    "tests": "17 passed focused regressions",
+    "exact_next_action": "Read the persisted current projection from the Potential Operations detail path before authorizing any UI expansion or additional candidates."
+  },
   "updated_at": "2026-08-29T00:00:00Z",
   "updated_at_utc": "2026-08-29T00:00:00Z",
   "updated_by": "agent_local",

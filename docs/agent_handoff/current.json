@@ -1930,6 +1930,11 @@
     "artifact_sha256": "222fa35a2580b070fc6350aef562c5883b099fa1c265b4633f0dbd1566520255",
     "real_db_writes": 0
   },
+  "generic_living_reverse_resolver": {
+    "artifact": "docs/audits/generic_living_reverse_resolver_qualification.v1.json",
+    "artifact_sha256": "10cc27e82db60ec50601b67b3dd0686db64d9a3100ab686e1f6a4ffaf84bdcfb",
+    "status": "QUALIFIED"
+  },
   "generic_living_runtime_wiring": {
     "artifact": "docs/audits/generic_living_runtime_wiring_qualification.v1.json",
     "artifact_sha256": "db3e02a94ecc249f1e67638f9132edf5c58f0c520d843bf17c8de9c7b59c13ab",
@@ -29992,8 +29997,8 @@
     }
   },
   "next_action": {
-    "instruction": "Implement a read-only registry-owned resolver index/query primitive for event-key-to-configured-candidate resolution, then retry runtime wiring with the real flag OFF.",
-    "next_action_code": "QUALIFY_GENERIC_RESOLVER_INDEX"
+    "instruction": "Wire the qualified reverse resolver, persisted source reader, derivation and atomic publisher into the actual bounded entry point in disposable/read-only mode.",
+    "next_action_code": "QUALIFY_RUNTIME_WIRING_WITH_REVERSE_RESOLVER"
   },
   "notes": [
     "PSI0H-H4R generated docs/audits/psi0h_h4r_historical_continuity_review_packet.json and docs/audits/psi0h_h4r_historical_continuity_review_index.json with SHA-256 2ed2edb6b74db6b749166b05b01189328aefdbc85e6e212f762ba9cd5f8e32bb and 5cbba208ad8a4bc217237ba7a50d3ff1a4046f0157943cf062f0e37a04ba4afa respectively.",
@@ -32316,9 +32321,9 @@
       "status": "PASS"
     }
   },
-  "tests": "python -m pytest -q tests/test_generic_living_pipeline_v2.py: 12 passed",
+  "tests": "python -m pytest -q tests/test_generic_living_pipeline_v2.py: 13 passed",
   "updated_at": "2026-08-29T00:00:00Z",
   "updated_at_utc": "2026-08-29T00:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "GENERIC_LIVING_RUNTIME_WIRING_HOLD_INTEGRATION"
+  "verdict": "GENERIC_LIVING_REVERSE_RESOLVER_QUALIFIED"
 }

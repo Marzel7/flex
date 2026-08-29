@@ -32490,9 +32490,21 @@
       "status": "PASS"
     }
   },
-  "tests": "29 passed: python -m pytest -q tests/test_generic_living_worker_e2e.py tests/test_x77_1_walkback_transaction_boundary.py tests/test_generic_living_pipeline_v2.py tests/test_living_wsol_walkback_integration.py",
+  "generic_living_concurrent_association_visibility_retry": {
+    "milestone": "canonical association visibility retry",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "artifact": "docs/audits/generic_living_concurrent_association_visibility_retry_qualification.v1.json",
+    "artifact_sha256": "60083aacef7fdf9e460edd732066d673a28c403d9c4b0d354367b28cb55aa37b",
+    "tests": "27 passed: generic pipeline, worker callback, tiny A+B+C, independent writer, multi-member fixture",
+    "production_flags": "LIVING_GENERIC_BOUNDED_DISPATCH_ENABLED=OFF for real runtime; disposable test override only; real DB writes=0; network/RPC calls=0",
+    "result": "Canonical publisher now retries only an explicit concurrent association visibility condition, rolling back and restarting the full transaction with a fresh snapshot; bounded exhaustion is explicit. Tiny 6+4 passes with 1 expected injected callback failure and 0 unexpected failures.",
+    "verdict": "HOLD_CORRECTNESS",
+    "blocker": "The exact physical two-writer WAL ordering was not deterministically induced. The forced explicit-condition regression proves restart semantics, but does not independently prove that SQLite interleaving.",
+    "exact_next_action": "Build an instrumented disposable two-writer WAL ordering test that forces the physical deterministic-ID collision; do not run 80+40."
+  },
+  "tests": "27 passed: python -m pytest -q tests/test_generic_living_pipeline_v2.py tests/test_generic_living_worker_e2e.py tests/test_generic_living_three_actor_smoke.py tests/test_generic_living_independent_writer.py tests/test_generic_living_multi_member_fixture.py",
   "updated_at": "2026-08-29T00:00:00Z",
   "updated_at_utc": "2026-08-29T00:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "GENERIC_LIVING_WORKER_TO_GENERIC_DURABILITY_HOLD_LOCKING"
+  "verdict": "GENERIC_LIVING_CONCURRENT_ASSOCIATION_VISIBILITY_RETRY_HOLD_CORRECTNESS"
 }

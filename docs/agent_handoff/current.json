@@ -3218,5 +3218,16 @@
     "render_verification": "HOLD: localhost:5002 was not listening; no service restart performed.",
     "commit_state": "UNCOMMITTED: local index remains sandbox-blocked; preserve unrelated dirty changes.",
     "exact_next_action": "Start/verify only the API service if separately needed, HTTP verify the three pages, and commit only task-owned files from an index-write-capable terminal."
+  },
+  "leviathan_behaviour_ui_simplification_20260829": {
+    "engineering_revision": "bf1baac7",
+    "status": "PASS_LOCAL_TESTS_RENDER_HOLD",
+    "presentation": "100 SOL WSOL Provision Close now presents as a qualified Leviathan behaviour with C357 as secondary lineage; headline cards are 56 linked, latest supported use, safe 24h/7d/30d supported counts, and 105 similar unresolved.",
+    "evidence_presentation": "Infrastructure table retains DuTb/A/B/C counts 48/5/2/1. Supported launches are capped at 10 in default view; implementation terms P3R/subtype/projection are removed from the primary page.",
+    "tests": "5 passed: behaviour page, subtype read model, and C357 operational surfacing.",
+    "safety": "No membership, projection, unresolved population, detector, fingerprint, threshold, queue, or trading mutation.",
+    "render_verification": "HOLD: localhost:5002 was not listening; no service restart performed.",
+    "commit_state": "UNCOMMITTED: src/ops/operator_routes.py is a mixed dirty file and the environment index remains sandbox-blocked.",
+    "exact_next_action": "With an index-write-capable terminal, stage only the behaviour-page route hunk plus wholly task-owned template/test files, then start/verify only watchtower_api and HTTP-check the behaviour and parent pages."
   }
 }

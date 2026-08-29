@@ -31291,6 +31291,20 @@
     "next_action": "Run bounded full three-actor stress before held-reader WAL longevity.",
     "verdict": "GENERIC_LIVING_THREE_ACTOR_COMPOSITION_SMOKE_PASS"
   },
+  "generic_living_three_actor_full_stress": {
+    "artifact": "docs/audits/generic_living_three_actor_concurrency_qualification.v3.json",
+    "worker_events": 80,
+    "living_attempts": 40,
+    "overlap": true,
+    "observer_invalid_observations": 0,
+    "integrity_check": "ok",
+    "real_feature_flag": "OFF",
+    "real_db_writes": 0,
+    "status": "PARTIAL",
+    "blocker": "Failure injection, timing distributions, and expanded lock/retry telemetry are not yet instrumented in the composed stress harness.",
+    "next_action": "Add only the missing telemetry and deterministic failure-injection assertions to the existing composed harness.",
+    "verdict": "GENERIC_LIVING_THREE_ACTOR_FULL_STRESS_HOLD_CORRECTNESS"
+  },
   "production_state": {
     "cohort_mode": "OFF",
     "creator_funding_pid_last_verified": 33383,

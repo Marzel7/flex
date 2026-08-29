@@ -32189,6 +32189,15 @@
     "blocker": null,
     "exact_next_action": "NEXT = FUNDING_ARCHITECTURE_POTENTIAL_DISCOVERY; do not activate production matching without separate authorization."
   },
+  "confirmed_operation_funding_behaviour_qualification": {
+    "milestone": "confirmed operation funding behaviour qualification",
+    "status": "PASS",
+    "artifact": "docs/audits/confirmed_operation_funding_behaviour_qualification.v1.json",
+    "artifact_digest": "23228eb8c942ce0f9d9a179a12dcd783690a549cbe39db269f0f0e53c6f838c3",
+    "result": "Four material confirmed operations strengthened; complete cross-operation architecture collisions remain zero; multi-dimensional operation model recommended; replay pass with zero provider calls.",
+    "production_flags": "read-only qualification; no membership, fingerprint, detector, workflow, or trading mutation",
+    "exact_next_action": "Review newly admitted current members separately against retained architecture evidence; do not alter membership automatically."
+  },
   "funding_architecture_potential_discovery": {
     "milestone": "label-blind unassigned funding-architecture discovery",
     "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",

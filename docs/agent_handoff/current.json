@@ -947,7 +947,7 @@
       "direct_funder/amount fields not captured in B2Z-P1's stage-output schema (data-capture gap for future calibration)"
     ]
   },
-  "blocker": "WSOL aggregate source categories EXCLUSION, FALSE_POSITIVE, HISTORICAL_CAVEAT, and MAPPED_POPULATION are absent as underlying same-boundary evidence (122/126 covered); eight-hop CONTRADICTION and MAPPED_POPULATION are absent (55/57 covered). Existing association_inputs were not treated as underlying evidence.",
+  "blocker": "Current association storage is operation-scoped, not assessment-version-scoped; a safe active cutover requires immutable assessment-association binding and lineage exposure in the history read model.",
   "blockers": [
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
@@ -1869,6 +1869,13 @@
     "normalization_result": "14,245/14,245 frozen mints terminally accounted: 14,239 decoded, 6 unresolved provider reads. Blind census: 8,590 exact clusters; 344 >=3-launch, >=3-creator recurrent families; 342 also have >=3 direct funders. Semantic normalization reduces to 8,400 clusters and 321 recurrent families. Recurrent generic suppression: 140 generic, 202 distinctive, 2 ambiguous; 134 distinctive higher-confidence clusters have no existing P3R-v2 overlap.",
     "replay": "FUNDING_ARCHITECTURE_POTENTIAL_DISCOVERY_REPLAY_PASS; provider_calls=0",
     "status": "PASS"
+  },
+  "generic_living_forward_cutover": {
+    "artifact": "docs/audits/generic_living_forward_cutover_qualification.v1.json",
+    "artifact_sha256": "965ec480b14bf97513c45d85ed2a09986e980b58cd4148989d5a8d1c017f4355",
+    "cutover_readiness": "HOLD_FORWARD_GENERIC_CUTOVER",
+    "eight_hop_forward_cutover": "PASS",
+    "wsol_forward_cutover": "PASS"
   },
   "generic_living_source_coverage": {
     "artifact": "docs/audits/generic_living_association_source_coverage.v1.json",
@@ -29917,8 +29924,8 @@
     }
   },
   "next_action": {
-    "instruction": "Locate durable underlying evidence at the exact frozen boundaries for every listed gap; only then create V2 enriched frozen source fixtures and rerun source coverage. Do not run final association equivalence, modify active paths, or write the real DB.",
-    "next_action_code": "RECONSTRUCT_SAME_BOUNDARY_GENERIC_LIVING_SOURCE_CATEGORIES"
+    "instruction": "Qualify an additive schema/read-model change binding associations to immutable assessment versions and exposing pipeline lineage, then reassess active forward cutover. Do not rewrite legacy history.",
+    "next_action_code": "QUALIFY_ASSESSMENT_ASSOCIATION_LINEAGE_SCHEMA"
   },
   "notes": [
     "PSI0H-H4R generated docs/audits/psi0h_h4r_historical_continuity_review_packet.json and docs/audits/psi0h_h4r_historical_continuity_review_index.json with SHA-256 2ed2edb6b74db6b749166b05b01189328aefdbc85e6e212f762ba9cd5f8e32bb and 5cbba208ad8a4bc217237ba7a50d3ff1a4046f0157943cf062f0e37a04ba4afa respectively.",
@@ -31053,7 +31060,7 @@
   "pending_human_decisions": 9,
   "production_flags": {
     "active_path_cutover": false,
-    "final_association_equivalence_attempted": false,
+    "provider_rpc_calls": 0,
     "real_db_writes": 0
   },
   "production_state": {
@@ -31079,7 +31086,7 @@
     "git_head": "bf1baac7",
     "name": "flex",
     "updated_at_utc": "2026-08-29T00:00:00Z",
-    "working_tree": "dirty; generic Living frozen-source semantic coverage audit added, no active-path or database changes"
+    "working_tree": "dirty; disposable generic Living forward-cutover qualification added; no active-path/database changes"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "qualified_baselines": [
@@ -32241,9 +32248,9 @@
       "status": "PASS"
     }
   },
-  "tests": "python -m pytest -q tests/test_generic_living_pipeline_v2.py: 7 passed",
+  "tests": "python -m pytest -q tests/test_generic_living_pipeline_v2.py: 8 passed",
   "updated_at": "2026-08-29T00:00:00Z",
   "updated_at_utc": "2026-08-29T00:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "HOLD_FROZEN_SOURCE_GAP_NOT_RECONSTRUCTABLE"
+  "verdict": "FORWARD_CUTOVER_REQUIRES_ADDITIVE_LINEAGE_METADATA"
 }

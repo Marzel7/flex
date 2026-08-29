@@ -32192,13 +32192,16 @@
   "funding_architecture_potential_discovery": {
     "milestone": "label-blind unassigned funding-architecture discovery",
     "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PARTIAL_POST_NORMALIZATION",
+    "status": "PASS",
     "frozen_population": "14,245 completed selected-hop-1 unassigned mints with retained signatures; 14,102 distinct signatures",
     "checkpoint": "docs/audits/funding_architecture_unassigned_facts.v1.jsonl",
     "checkpoint_rows_observed": 17153,
-    "normalization_result": "14,245/14,245 frozen mints terminally accounted: 14,239 decoded, 6 unresolved provider reads. Blind census: 8,590 exact clusters; 344 >=3-launch, >=3-creator recurrent families; 342 also have >=3 direct funders; 177 have no confirmed-operation exact match and no existing P3R-v2 candidate overlap.",
+    "normalization_result": "14,245/14,245 frozen mints terminally accounted: 14,239 decoded, 6 unresolved provider reads. Blind census: 8,590 exact clusters; 344 >=3-launch, >=3-creator recurrent families; 342 also have >=3 direct funders. Semantic normalization reduces to 8,400 clusters and 321 recurrent families. Recurrent generic suppression: 140 generic, 202 distinctive, 2 ambiguous; 134 distinctive higher-confidence clusters have no existing P3R-v2 overlap.",
     "blocker": null,
-    "exact_next_action": "Complete post-normalization blind-cluster overlays: split/merge, top-cluster retained-evidence checks, generic-infrastructure suppression, 24h implications, immutable replay, and final verdict. Do not redo normalization or expand population."
+    "artifact": "docs/audits/funding_architecture_potential_discovery.v1.json",
+    "artifact_digest": "8134837a09fd39922929b95abd8d95dd28d13177527e3b0c09d3b17ec84f9af6",
+    "replay": "FUNDING_ARCHITECTURE_POTENTIAL_DISCOVERY_REPLAY_PASS; provider_calls=0",
+    "exact_next_action": "No production activation. A separate review should qualify the strongest distinctive clusters using retained evidence before any candidate or membership action."
   },
   "updated_at": "2026-08-29T00:00:00Z",
   "updated_at_utc": "2026-08-29T00:00:00Z",

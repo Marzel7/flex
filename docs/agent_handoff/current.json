@@ -32169,7 +32169,7 @@
     "milestone": "WATCHTOWER funding-transaction census",
     "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
     "artifact": "docs/audits/watchtower_funding_transaction_census.v1.json",
-    "artifact_digest": "2f0d7b3fad09b7875ad3335497b6aff9b8ea0ec95544228d6c48cf6e566d204b",
+    "artifact_digest": "f4a2f2f28bf0fa551df6991c8ef24c49770a31393e71737ac88a3ee37ca66b82",
     "tests": "python -m py_compile scripts/audit_watchtower_funding_architecture.py; JSON validation PASS",
     "production_flags": "read-only; no wallet-history calls; 125 retained-signature getTransaction reads; no operational database mutation",
     "result": "125/125 confirmed WATCHTOWER launches had retained paths and signatures and decoded successfully. 90/125 use the supplied 2,122,039,280-lamport createAccountWithSeed -> initializeAccount -> closeAccount architecture. 10 address-blind families; PLAIN_XFER=0 in the strict confirmed WATCHTOWER population; Leviathan exact collisions=0; separation=STRONG.",

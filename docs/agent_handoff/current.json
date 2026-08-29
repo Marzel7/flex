@@ -1883,6 +1883,12 @@
     "real_db_writes": 0,
     "status": "QUALIFIED"
   },
+  "generic_living_lineage_real_migration": {
+    "artifact": "docs/audits/generic_living_lineage_real_migration.v1.json",
+    "artifact_sha256": "66f1f77a9d082b3fce9b97903009df9a9ec6ab960e65d8ade8ff07d1f364b50a",
+    "binding_rows": 0,
+    "lineage_rows": 0
+  },
   "generic_living_source_coverage": {
     "artifact": "docs/audits/generic_living_association_source_coverage.v1.json",
     "artifact_sha256": "1310782fe8111ae7e560aed439342dd450432fd748cc6ff9befa5ec7e4ce6f5e",
@@ -29930,8 +29936,8 @@
     }
   },
   "next_action": {
-    "instruction": "Separately review and authorize an additive real-schema migration preflight; do not backfill legacy rows or cut over active behavior.",
-    "next_action_code": "AUTHORIZE_ADDITIVE_LINEAGE_MIGRATION_PREFLIGHT"
+    "instruction": "Schema is installed empty; separately authorize lineage backfill qualification or forward generic cutover preflight. No active behavior changed.",
+    "next_action_code": "AUTHORIZE_LINEAGE_BACKFILL_OR_FORWARD_CUTOVER_PREFLIGHT"
   },
   "notes": [
     "PSI0H-H4R generated docs/audits/psi0h_h4r_historical_continuity_review_packet.json and docs/audits/psi0h_h4r_historical_continuity_review_index.json with SHA-256 2ed2edb6b74db6b749166b05b01189328aefdbc85e6e212f762ba9cd5f8e32bb and 5cbba208ad8a4bc217237ba7a50d3ff1a4046f0157943cf062f0e37a04ba4afa respectively.",
@@ -31066,8 +31072,9 @@
   "pending_human_decisions": 9,
   "production_flags": {
     "active_path_cutover": false,
-    "provider_rpc_calls": 0,
-    "real_db_writes": 0
+    "generic_assessment_publication": false,
+    "lineage_backfill": false,
+    "real_db_writes": 1
   },
   "production_state": {
     "cohort_mode": "OFF",
@@ -32258,5 +32265,5 @@
   "updated_at": "2026-08-29T00:00:00Z",
   "updated_at_utc": "2026-08-29T00:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "GENERIC_LIVING_LINEAGE_METADATA_QUALIFIED_FOR_REAL_MIGRATION"
+  "verdict": "GENERIC_LIVING_LINEAGE_REAL_MIGRATION_COMPLETE_EMPTY_AND_INERT"
 }

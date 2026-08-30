@@ -31078,7 +31078,8 @@
     "runner_revision": "uncommitted working-tree change: scripts/reconstruct_6437_funder_infrastructure.py",
     "safety": "read-only; no real DB/source-table/assignment/membership/ranking/Living/generic-dispatch writes",
     "status": "PARTIAL",
-    "stop_reason": "Five high-activity funder history windows remain; F2 is intentionally not started before complete F1."
+    "stop_reason": "Five high-activity funder history windows remain; F2 is intentionally not started before complete F1.",
+    "transaction_resume_semantics": "DECODED and FAILED_TERMINAL are skipped; FAILED_RETRYABLE and NOT_DECODED are eligible, with a durable status persisted after every decode result."
   },
   "potential_operations_activity_horizon_ui_cleanup": {
     "artifact": "docs/audits/potential_operations_activity_horizon_ui_cleanup.v1.json",

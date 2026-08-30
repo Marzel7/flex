@@ -1117,6 +1117,15 @@
     },
     "verdict": "B2N_TECHNICAL_PROVENANCE_BOUND_HUMAN_REVIEW_REQUIRED"
   },
+  "creator_launch_provisioning_promotion_execution": {
+    "artifact": "docs/audits/creator_launch_provisioning_operation_promotion.v1.json",
+    "artifact_sha256": "b3872f937227ad01686ccbf593676b219fd62c9bc624a54d88b6d5ca11cbf116",
+    "blocker": "canonical operator_subtypes.candidate_id UNIQUE prevents two subtype records sharing one required source candidate; role-aware detector/replay implementation absent",
+    "next_action": "Authorize a narrowly scoped canonical schema/detector implementation and replay preflight before promotion.",
+    "prerequisite": "PASS exact SHA and 84/6/3 census; zero membership collisions",
+    "status": "HOLD_CORRECTNESS_PRE_MUTATION",
+    "writes": "all zero"
+  },
   "current_milestone": {
     "all_3_writer_services_confirmed_running": true,
     "final_high_water_captured": 6827280,
@@ -32363,5 +32372,5 @@
   "updated_at": "2026-08-30T15:45:00Z",
   "updated_at_utc": "2026-08-30T15:45:00Z",
   "updated_by": "agent_local",
-  "verdict": "6437_OPERATION_PROMOTION_QUALIFICATION_PASS"
+  "verdict": "CREATOR_LAUNCH_PROVISIONING_PROMOTION_HOLD_CORRECTNESS"
 }

@@ -32448,8 +32448,18 @@
     "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; active_dispatch_changed=false",
     "exact_next_action": "No UI reload work remains; await genuine prospective retained-role capture before changing detector HOLD."
   },
-  "updated_at": "2026-08-30T23:10:00Z",
-  "updated_at_utc": "2026-08-30T23:10:00Z",
+  "creator_provisioning_detail_current_entries": {
+    "milestone": "Creator Launch Provisioning detail current-qualified launch entries",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "result": "Detail launch list now merges retained current qualified route matches for telemetry only, ordered ahead of frozen historical membership evidence. Latest is mint srwsE3…65pump at 2026-08-30T16:53:49Z, funding signature Pq8yNm…anc73M. The old 12:34:48 UTC strict-member signature remains historical evidence, fourth in the current list.",
+    "tests": "3 passed (tests/test_creator_provisioning_active_ops_surface.py)",
+    "service": "watchtower_api restarted and running",
+    "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; active_dispatch_changed=false",
+    "exact_next_action": "Await genuine prospective retained-role capture; current qualified telemetry does not alter frozen membership or detector HOLD."
+  },
+  "updated_at": "2026-08-30T23:20:00Z",
+  "updated_at_utc": "2026-08-30T23:20:00Z",
   "updated_by": "agent_local",
   "verdict": "6437_QVTW_MIGRATION_SEPARATION_PARTIAL"
 }

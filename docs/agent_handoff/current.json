@@ -32377,8 +32377,19 @@
       "status": "PASS"
     }
   },
-  "updated_at": "2026-08-30T15:45:00Z",
-  "updated_at_utc": "2026-08-30T15:45:00Z",
+  "walkback_retained_role_rpc_replay_seam": {
+    "milestone": "explicit local RPC injection seam and retained-role worker replay proof",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "tests": "7 passed (tests/test_walkback_rpc_replay_seam.py)",
+    "result": "Production-default RPC transport preserved; an explicitly supplied local transport reaches getSignaturesForAddress, getTransaction, and getAccountInfo with fail-fast exact fixture matching. The actual worker candidate-selection path persisted a selected edge and decoded role record, committed durably, and was reconstructed retained-only by the strict detector. Route semantics and conflicting-projection rejection were verified.",
+    "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; active_dispatch_changed=false",
+    "activation": "DIRECT_10K_CREATOR_PROVISIONING_ACTIVATION_HOLD_RETAINED_ROLE_EVIDENCE_REQUIRED",
+    "blocker": "No real prospective retained transaction-role evidence exists yet. The unrelated legacy fixture suite has 7 failures because wt_watchtower_launches is not installed in its fixture.",
+    "exact_next_action": "Await a real prospective Walkback observation; retain the activation hold until authoritative transaction-role coverage is present."
+  },
+  "updated_at": "2026-08-30T16:00:00Z",
+  "updated_at_utc": "2026-08-30T16:00:00Z",
   "updated_by": "agent_local",
   "verdict": "6437_QVTW_MIGRATION_SEPARATION_PARTIAL"
 }

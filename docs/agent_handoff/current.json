@@ -32458,8 +32458,20 @@
     "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; active_dispatch_changed=false",
     "exact_next_action": "Await genuine prospective retained-role capture; current qualified telemetry does not alter frozen membership or detector HOLD."
   },
-  "updated_at": "2026-08-30T23:20:00Z",
-  "updated_at_utc": "2026-08-30T23:20:00Z",
+  "creator_provisioning_active_ops_header_coverage": {
+    "milestone": "Creator Launch Provisioning Active Ops aggregate inclusion",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "finding": "The header excluded live current activity through a stale-snapshot guard, and coverage excluded ACTIVE manual registry admissions by requiring operators.status=CONFIRMED.",
+    "correction": "Tokens 24h now sums current live read-model values. Coverage accepts ACTIVE_MANUAL registry disposition, preserving its completed-walkback/member semantics.",
+    "verified_values": "Tokens 24h=41 including Creator Launch Provisioning's 7 qualified current matches; coverage=39/1036 active-admitted assigned completed mints.",
+    "tests": "3 passed (tests/test_creator_provisioning_active_ops_surface.py)",
+    "service": "watchtower_api restarted and running",
+    "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; active_dispatch_changed=false",
+    "exact_next_action": "No remaining aggregate exclusion; await genuine prospective retained-role capture before changing detector HOLD."
+  },
+  "updated_at": "2026-08-30T23:30:00Z",
+  "updated_at_utc": "2026-08-30T23:30:00Z",
   "updated_by": "agent_local",
   "verdict": "6437_QVTW_MIGRATION_SEPARATION_PARTIAL"
 }

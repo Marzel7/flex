@@ -32438,8 +32438,18 @@
     "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; active_dispatch_changed=false",
     "exact_next_action": "Await genuine prospective retained-role capture; current activity telemetry does not change prospective detector HOLD."
   },
-  "updated_at": "2026-08-30T22:20:00Z",
-  "updated_at_utc": "2026-08-30T22:20:00Z",
+  "creator_provisioning_api_reload": {
+    "milestone": "Creator Launch Provisioning stale local UI process reload",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "finding": "Port 5002 was served by the watchtower_api Gunicorn process started before the projection changes, returning stale 6/42/79 telemetry.",
+    "action": "Restarted watchtower_api only.",
+    "verification": "GET /api/ops/operators returns live_launches=7/44/84, last_launch_at=1788108829, activity_state_source=LIVE_QUALIFIED_ROUTE_MATCHER, prospective_detector_status=HOLD.",
+    "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; active_dispatch_changed=false",
+    "exact_next_action": "No UI reload work remains; await genuine prospective retained-role capture before changing detector HOLD."
+  },
+  "updated_at": "2026-08-30T23:10:00Z",
+  "updated_at_utc": "2026-08-30T23:10:00Z",
   "updated_by": "agent_local",
   "verdict": "6437_QVTW_MIGRATION_SEPARATION_PARTIAL"
 }

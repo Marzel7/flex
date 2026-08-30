@@ -31096,7 +31096,7 @@
     "rpc_calls_total": 544,
     "run_id": "6437-deep-funding-7534ffe978b343df",
     "status": "PARTIAL",
-    "tests": "py_compile PASS; ledger arithmetic 544+56=600; 56/56 F0 snapshot rows; 18 decrement rows",
+    "tests": "py_compile PASS; ledger arithmetic 544+56=600; 56/56 F0 snapshot rows; 17 decrement rows",
     "verdict": "MODERATE_FIXED_DECREMENT_FINGERPRINT_PARTIAL"
   },
   "potential_operations_6437_full_funder_infrastructure": {

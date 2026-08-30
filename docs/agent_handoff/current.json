@@ -31090,7 +31090,7 @@
     "exact_next_action": "Use the remaining 56 calls only with explicit scope to retrieve non-duplicative fee/setup evidence or a small local-control comparison; do not infer common control.",
     "milestone": "6437 fixed-decrement funding fingerprint continuation",
     "production_flags": "read-only RPC and audit artifacts only; all production writes zero",
-    "result": "20,100 lamports occurred in 10 evaluable consecutive-hop events across 8/56 strict-core F0 funders; two F0s had repeated consecutive 20,100 sequences. No 10,100 event was observed. Timing: 4 intervals 1-3 days and 11 intervals 3-7 days.",
+    "result": "20,100 lamports occurred in 10 evaluable consecutive-hop events across 8/56 strict-core F0 funders; two F0s had repeated consecutive 20,100 sequences. No 10,100 event was observed. Five 20,100 events had 5,050-lamport fees, leaving 15,050 lamports beyond fee; five pre-existing events lacked retained fee meta. Timing: 4 intervals 1-3 days and 11 intervals 3-7 days.",
     "rpc_calls_before": 316,
     "rpc_calls_remaining": 56,
     "rpc_calls_total": 544,

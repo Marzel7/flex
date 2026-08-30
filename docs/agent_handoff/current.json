@@ -31051,6 +31051,28 @@
     "workstreams_completed": 12
   },
   "pending_human_decisions": 9,
+  "potential_operations_6437_deep_funding_chain_traversal": {
+    "artifacts": [
+      "docs/audits/potential_operations_6437_deep_funding_chain_edges.v1.jsonl",
+      "docs/audits/potential_operations_6437_deep_funding_chains.v1.jsonl",
+      "docs/audits/potential_operations_6437_deep_funding_run_ledger.v1.json",
+      "docs/audits/potential_operations_6437_deep_funding_architecture.v1.json"
+    ],
+    "authorized_rpc_calls": 600,
+    "blocker": "Bounded recent-window analysis did not establish broad 7-9 hop chains; remaining 284 calls deliberately unused after all F0 branches reached terminal boundaries.",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "exact_next_action": "Review retained edge evidence with the 6437 direct-creator and F1 artifacts; do not infer common control from the three-parent recurrence.",
+    "milestone": "6437 deep funding chain traversal",
+    "previous_authorization_status": "RETIRED_UNRECONCILED_NOT_REUSED",
+    "production_flags": "read-only RPC and audit artifacts only; REAL_DB_WRITES=0; SOURCE_TABLE_WRITES=0; ASSIGNMENT_WRITES=0; MEMBERSHIP_WRITES=0; LIVING_PUBLICATIONS=0; RANKING_WRITES=0; PROMOTIONS=0; DETECTOR_CHANGES=0",
+    "result": "17 parent edges across 12/56 F0 funders; depth distribution 0:44, 1:9, 2:1, 3:2; 11 high-activity boundaries and 45 no-parent-found in bounded recent windows; Fp27Bypi9z4PhkC6ydLkh8TTb53zjPC52eRJPUmPti5N recurs as parent of 3 resolved edges.",
+    "rpc_calls_remaining": 284,
+    "rpc_calls_used": 316,
+    "run_id": "6437-deep-funding-7534ffe978b343df",
+    "status": "PARTIAL",
+    "tests": "py_compile PASS; JSON accounting validation PASS; 56/56 F0 rows; 17/17 edge rows reconciled",
+    "verdict": "PARTIAL_BOUNDED_DEEP_CHAIN_EVIDENCE"
+  },
   "potential_operations_6437_f1_budget_control": {
     "next_action": "Repair and offline-qualify collision-safe atomic cache persistence, reconcile the 45 durable attempts/checkpoints, then obtain/confirm continuation authority before more RPC.",
     "reason": "New 400-call durable completion run 6437-f1-completion-1788093071 began and durable ledger now counts 45 attempts (355 remaining), but concurrent cache writers collided on the fixed cache .tmp filename, producing an atomic checkpoint replace failure. Further RPC is halted until cache persistence uses collision-safe unique temp files and the partial checkpoint is reconciled offline.",
@@ -32305,8 +32327,8 @@
       "status": "PASS"
     }
   },
-  "updated_at": "2026-08-29T00:00:00Z",
-  "updated_at_utc": "2026-08-29T00:00:00Z",
+  "updated_at": "2026-08-30T15:25:00Z",
+  "updated_at_utc": "2026-08-30T15:25:00Z",
   "updated_by": "agent_local",
-  "verdict": "WATCHTOWER_FUNDING_ARCHITECTURE_CENSUS_PASS"
+  "verdict": "6437_DEEP_FUNDING_CHAIN_TRAVERSAL_PARTIAL"
 }

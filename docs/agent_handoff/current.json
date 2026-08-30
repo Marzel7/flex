@@ -32429,8 +32429,17 @@
     "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; active_dispatch_changed=false",
     "exact_next_action": "Await genuine prospective retained-role capture; this telemetry-source correction does not alter prospective detector HOLD."
   },
-  "updated_at": "2026-08-30T22:10:00Z",
-  "updated_at_utc": "2026-08-30T22:10:00Z",
+  "creator_provisioning_detail_activity_projection": {
+    "milestone": "Creator Launch Provisioning detail-page current activity correction",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "result": "The detail activity panel now uses qualified live route-matcher telemetry (7/44/84, latest 2026-08-30T16:53:49Z) and labels it Latest Qualified Activity. The older 12:34:48 UTC transaction remains visible only as frozen historical member evidence.",
+    "tests": "3 passed (tests/test_creator_provisioning_active_ops_surface.py)",
+    "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; active_dispatch_changed=false",
+    "exact_next_action": "Await genuine prospective retained-role capture; current activity telemetry does not change prospective detector HOLD."
+  },
+  "updated_at": "2026-08-30T22:20:00Z",
+  "updated_at_utc": "2026-08-30T22:20:00Z",
   "updated_by": "agent_local",
   "verdict": "6437_QVTW_MIGRATION_SEPARATION_PARTIAL"
 }

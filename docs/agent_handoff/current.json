@@ -31138,6 +31138,19 @@
     "stop_reason": "CACHE_ATOMIC_TEMP_NAME_COLLISION",
     "transaction_resume_semantics": "DECODED and FAILED_TERMINAL are skipped; FAILED_RETRYABLE and NOT_DECODED are eligible, with a durable status persisted after every decode result."
   },
+  "potential_operations_6437_operation_promotion_qualification": {
+    "artifact": "docs/audits/potential_operations_6437_operation_promotion_qualification.v1.json",
+    "artifact_sha256": "6c052e68086fdc1a7e7f3f44c6f1d705653e3b814846fd9915350153c3b45739",
+    "blocker": "Separate explicit promotion authorization remains required; common control not proven.",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "exact_next_action": "Human review then separate explicit authorization for any promotion, subtype registration, or production detector/UI change.",
+    "milestone": "6437 read-only operation promotion qualification",
+    "production_flags": "read-only; zero new RPC; all production writes/promotion/detector changes zero",
+    "result": "84/84 strict direct creator-provisioning proofs; 0 contradictions/unresolved; 56 funders serve 84 distinct creators; QVtW coherent variant qualified; three alternates remain outside strict core; decision QUALIFIED_OPERATION_WITH_VARIANTS_READY_FOR_PROMOTION_REVIEW.",
+    "status": "PASS",
+    "tests": "local deterministic assertions PASS: strict extraction, proof purity, creator diversity, funder topology, mechanism/role coverage, scorecard decision",
+    "verdict": "QUALIFIED_OPERATION_WITH_VARIANTS_READY_FOR_PROMOTION_REVIEW"
+  },
   "potential_operations_activity_horizon_ui_cleanup": {
     "artifact": "docs/audits/potential_operations_activity_horizon_ui_cleanup.v1.json",
     "artifact_sha256": "9b31e295b0be2de5d11cb4595d37222b677fb3cd4304b88fc9d0e1bf2d95604d",
@@ -32347,8 +32360,8 @@
       "status": "PASS"
     }
   },
-  "updated_at": "2026-08-30T15:40:00Z",
-  "updated_at_utc": "2026-08-30T15:40:00Z",
+  "updated_at": "2026-08-30T15:45:00Z",
+  "updated_at_utc": "2026-08-30T15:45:00Z",
   "updated_by": "agent_local",
-  "verdict": "6437_FIXED_DECREMENT_FUNDING_FINGERPRINT_PARTIAL"
+  "verdict": "6437_OPERATION_PROMOTION_QUALIFICATION_PASS"
 }

@@ -31052,9 +31052,9 @@
   },
   "pending_human_decisions": 9,
   "potential_operations_6437_f1_budget_control": {
-    "next_action": "Implement and offline-qualify a durable run ledger with a stable run ID and cumulative restart cap, reconcile the recorded 33 calls, then obtain/confirm authorization before further provider acquisition.",
-    "reason": "Authorized live F1 acquisition began after the offline-qualified runner check. Cache records 33 dispatched calls (2 signature pages, 31 transaction decodes) and two legacy-partial histories completed, but the process exited without a durable per-attempt run ledger or terminal report. Restarting with a new 750-call RunLedger could exceed the single authorized 750-call envelope.",
-    "safety": "No production/database/assignment/membership/ranking/Living/generic-dispatch writes; F2 not started.",
+    "next_action": "Reconcile provenance and authorization of the cache mutation (including whether an external/accompanying process executed it) before creating or resuming any durable authorization.",
+    "reason": "During offline durable-ledger recovery, observable cache state changed from the recorded 33-call / 29 COMPLETE / 25 PARTIAL / 5 NOT_STARTED checkpoint to calls.total=750 (getSignaturesForAddress=244, getTransaction=506) and 54 COMPLETE / 1 PARTIAL / 4 NOT_STARTED. No matching durable authorization ledger exists for those 750 recorded calls; this conflicts with the task prerequisite and prevents safe reconstruction of the original authorization envelope.",
+    "safety": "No provider/RPC/network calls were made by the durable-ledger recovery task; F2 not started; no production writes.",
     "status": "HOLD_CORRECTNESS"
   },
   "potential_operations_6437_full_funder_infrastructure": {
@@ -31070,18 +31070,20 @@
       "qualified_launches": 91
     },
     "critical_result": "0.002 SOL appears in 62 launch-linked evidence records but only three direct funders; it is not cohort-wide shared provisioning evidence.",
+    "durable_recovery_attempt": "33-call / 717-remaining ledger generated but NOT qualified because current cache no longer matches its prerequisite state",
     "evidence": "docs/audits/potential_operations_6437_funder_infrastructure_evidence.v2.jsonl",
     "evidence_sha256": "c16af0cf4593b2f206b86db0185abc39c72d133cd92916c84fee9e8fda20c67a",
     "focused_tests": "8 passed (actual orchestration fake-provider suite plus ledger primitives)",
     "live_attempt_breakdown": "getSignaturesForAddress=2, getTransaction=31",
     "live_attempts_recorded_this_authorization": 33,
-    "next_action": "Do not resume provider acquisition or F2.",
+    "next_action": "Do not resume RPC or F2 until cache/authorization provenance is reconciled.",
+    "observed_cache_state_at_durable_recovery": "calls.total=750 (244 signature pages + 506 transactions); COMPLETE=54, PARTIAL=1, NOT_STARTED=4",
     "progress": "targeted 24h-first acquisition: 54/59 funder histories, 1262 decoded transactions; F1 evidence for 34 funders.",
     "provider_calls_this_milestone": 0,
     "runner_checkpoint_integration": "QUALIFIED_OFFLINE",
     "runner_revision": "uncommitted working-tree change: scripts/reconstruct_6437_funder_infrastructure.py",
     "safety": "read-only; no real DB/source-table/assignment/membership/ranking/Living/generic-dispatch writes",
-    "status": "PARTIAL",
+    "status": "HOLD_CORRECTNESS_EXTERNAL_STATE_DISCREPANCY",
     "stop_reason": "HOLD_CORRECTNESS_DURABLE_PER_ATTEMPT_LEDGER_MISSING",
     "transaction_resume_semantics": "DECODED and FAILED_TERMINAL are skipped; FAILED_RETRYABLE and NOT_DECODED are eligible, with a durable status persisted after every decode result."
   },

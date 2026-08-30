@@ -32405,8 +32405,21 @@
     "blocker": "No genuine prospective transaction-role row has yet been observed.",
     "exact_next_action": "Await the first normal prospective Walkback completion that writes a retained transaction-role row, then validate its retained provenance and reconstruction without reacquisition."
   },
-  "updated_at": "2026-08-30T16:15:00Z",
-  "updated_at_utc": "2026-08-30T16:15:00Z",
+  "creator_provisioning_active_ops_surface": {
+    "milestone": "DIRECT_10K_CREATOR_PROVISIONING active-vs-potential UI classification",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "operation_id": "bd7d7479-1454-5d41-9f68-115550348f3e",
+    "candidate_id": "p3r-v2-6437acd385e566e301a7",
+    "result": "Canonical active operation remains the existing 84-member strict registry record. Potential-operation read-side lifecycle canonicalization excludes its candidate in both normalized and frozen fallback views. Active registry exposes live retained-timestamp activity and a separate prospective detector HOLD status.",
+    "activity_windows": "rolling strict greater-than cutoffs (now - 1d/7d/30d); observed current counts 6/42/79; latest timestamp 1788093772",
+    "tests": "3 passed (tests/test_creator_provisioning_active_ops_surface.py)",
+    "preserved": "memberships, QVtW and alternate exclusions, retained-role table, provenance artifacts, and prospective detector hold",
+    "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; active_dispatch_changed=false",
+    "exact_next_action": "Await the first genuine prospective retained transaction-role capture; Active Ops presentation does not alter prospective activation eligibility."
+  },
+  "updated_at": "2026-08-30T16:30:00Z",
+  "updated_at_utc": "2026-08-30T16:30:00Z",
   "updated_by": "agent_local",
   "verdict": "6437_QVTW_MIGRATION_SEPARATION_PARTIAL"
 }

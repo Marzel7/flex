@@ -31052,10 +31052,10 @@
   },
   "pending_human_decisions": 9,
   "potential_operations_6437_f1_budget_control": {
-    "next_action": "Retire the original authorization as exhausted. Any further F1 acquisition requires a new explicit human authorization with a new durable run ID.",
-    "reason": "Zero-network reconciliation proved cache.calls.total=750 is the current invocation RunLedger dispatched-attempt count (244 getSignaturesForAddress + 506 getTransaction), excluding cache hits and including failures. The previous 33-call run cannot be conclusively overlapped due to per-invocation overwrite semantics, so conservative original-authorization consumption is 750 and remaining is 0.",
-    "safety": "No provider/RPC/network calls in reconciliation; F2 not started; no production writes.",
-    "status": "EXHAUSTED_PROVENANCE_RECONCILED"
+    "next_action": "Repair and offline-qualify collision-safe atomic cache persistence, reconcile the 45 durable attempts/checkpoints, then obtain/confirm continuation authority before more RPC.",
+    "reason": "New 400-call durable completion run 6437-f1-completion-1788093071 began and durable ledger now counts 45 attempts (355 remaining), but concurrent cache writers collided on the fixed cache .tmp filename, producing an atomic checkpoint replace failure. Further RPC is halted until cache persistence uses collision-safe unique temp files and the partial checkpoint is reconciled offline.",
+    "safety": "F2 not started; no production writes. Durable reservation preserved all known attempts, favoring over-counting.",
+    "status": "HOLD_CORRECTNESS"
   },
   "potential_operations_6437_full_funder_infrastructure": {
     "artifact": "docs/audits/potential_operations_6437_full_funder_infrastructure.v2.json",
@@ -31079,7 +31079,11 @@
     "focused_tests": "8 passed (actual orchestration fake-provider suite plus ledger primitives)",
     "live_attempt_breakdown": "getSignaturesForAddress=2, getTransaction=31",
     "live_attempts_recorded_this_authorization": 33,
-    "next_action": "No resume under original authorization; request a new explicit authorization only if F1 continuation is desired.",
+    "new_completion_authorization": 400,
+    "new_completion_durable_attempts": 45,
+    "new_completion_remaining": 355,
+    "new_completion_run_id": "6437-f1-completion-1788093071",
+    "next_action": "No F1 resume/F2 until atomic checkpoint collision repair is qualified.",
     "observed_cache_state_at_durable_recovery": "calls.total=750 (244 signature pages + 506 transactions); COMPLETE=54, PARTIAL=1, NOT_STARTED=4",
     "progress": "targeted 24h-first acquisition: 54/59 funder histories, 1262 decoded transactions; F1 evidence for 34 funders.",
     "provenance_reconciliation_artifact": "docs/audits/potential_operations_6437_rpc_provenance_reconciliation.v1.json",
@@ -31088,8 +31092,8 @@
     "runner_checkpoint_integration": "QUALIFIED_OFFLINE",
     "runner_revision": "uncommitted working-tree change: scripts/reconstruct_6437_funder_infrastructure.py",
     "safety": "read-only; no real DB/source-table/assignment/membership/ranking/Living/generic-dispatch writes",
-    "status": "PARTIAL_AUTHORIZATION_EXHAUSTED",
-    "stop_reason": "HOLD_CORRECTNESS_DURABLE_PER_ATTEMPT_LEDGER_MISSING",
+    "status": "PARTIAL_HOLD_CHECKPOINT_ATOMICITY",
+    "stop_reason": "CACHE_ATOMIC_TEMP_NAME_COLLISION",
     "transaction_resume_semantics": "DECODED and FAILED_TERMINAL are skipped; FAILED_RETRYABLE and NOT_DECODED are eligible, with a durable status persisted after every decode result."
   },
   "potential_operations_activity_horizon_ui_cleanup": {

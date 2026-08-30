@@ -31079,6 +31079,26 @@
     "safety": "F2 not started; no production writes. Durable reservation preserved all known attempts, favoring over-counting.",
     "status": "HOLD_CORRECTNESS"
   },
+  "potential_operations_6437_fixed_decrement_funding_fingerprint": {
+    "additional_rpc_calls": 228,
+    "artifacts": [
+      "docs/audits/potential_operations_6437_fixed_decrement_edges.v1.jsonl",
+      "docs/audits/potential_operations_6437_fixed_decrement_funding_analysis.v1.json"
+    ],
+    "blocker": "No local non-6437 control and no retained transaction fee metadata for evaluable decrements; common control not established.",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "exact_next_action": "Use the remaining 56 calls only with explicit scope to retrieve non-duplicative fee/setup evidence or a small local-control comparison; do not infer common control.",
+    "milestone": "6437 fixed-decrement funding fingerprint continuation",
+    "production_flags": "read-only RPC and audit artifacts only; all production writes zero",
+    "result": "20,100 lamports occurred in 10 evaluable consecutive-hop events across 8/56 strict-core F0 funders; two F0s had repeated consecutive 20,100 sequences. No 10,100 event was observed. Timing: 4 intervals 1-3 days and 11 intervals 3-7 days.",
+    "rpc_calls_before": 316,
+    "rpc_calls_remaining": 56,
+    "rpc_calls_total": 544,
+    "run_id": "6437-deep-funding-7534ffe978b343df",
+    "status": "PARTIAL",
+    "tests": "py_compile PASS; ledger arithmetic 544+56=600; 56/56 F0 snapshot rows; 18 decrement rows",
+    "verdict": "MODERATE_FIXED_DECREMENT_FINGERPRINT_PARTIAL"
+  },
   "potential_operations_6437_full_funder_infrastructure": {
     "artifact": "docs/audits/potential_operations_6437_full_funder_infrastructure.v2.json",
     "artifact_sha256": "2b4e2e9674e2324b933225c11c0893a431ba38dfc45f8692f802f61dd4364d62",
@@ -32327,8 +32347,8 @@
       "status": "PASS"
     }
   },
-  "updated_at": "2026-08-30T15:25:00Z",
-  "updated_at_utc": "2026-08-30T15:25:00Z",
+  "updated_at": "2026-08-30T15:40:00Z",
+  "updated_at_utc": "2026-08-30T15:40:00Z",
   "updated_by": "agent_local",
-  "verdict": "6437_DEEP_FUNDING_CHAIN_TRAVERSAL_PARTIAL"
+  "verdict": "6437_FIXED_DECREMENT_FUNDING_FINGERPRINT_PARTIAL"
 }

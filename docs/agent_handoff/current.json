@@ -31060,6 +31060,14 @@
     "workstreams_completed": 12
   },
   "pending_human_decisions": 9,
+  "potential_operations_6437_core_vs_qvtw_migration_timing": {
+    "artifact": "docs/audits/potential_operations_6437_core_vs_qvtw_migration_timing.v1.json",
+    "artifact_sha256": "26ce7f6c2b95edba7a5950e96acb61040529b0e4272184e1d6553a3c9883ed46",
+    "next_action": "Acquire a separately authorized, provenance-qualified common birth/migration timestamp source before testing separation.",
+    "result": "No common authoritative launch/migration timestamp pair is retained for any 84 strict or six QVtW mint; no timing comparison performed.",
+    "safety": "local-only; zero calls and writes",
+    "status": "INSUFFICIENT_MIGRATION_EVIDENCE"
+  },
   "potential_operations_6437_deep_funding_chain_traversal": {
     "artifacts": [
       "docs/audits/potential_operations_6437_deep_funding_chain_edges.v1.jsonl",
@@ -32372,5 +32380,5 @@
   "updated_at": "2026-08-30T15:45:00Z",
   "updated_at_utc": "2026-08-30T15:45:00Z",
   "updated_by": "agent_local",
-  "verdict": "CREATOR_LAUNCH_PROVISIONING_PROMOTION_HOLD_CORRECTNESS"
+  "verdict": "6437_QVTW_MIGRATION_SEPARATION_PARTIAL"
 }

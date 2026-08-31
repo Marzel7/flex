@@ -32569,6 +32569,16 @@
     "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; membership_writes=0; active_dispatch_changed=false",
     "exact_next_action": "Hard-refresh Nexus and inspect the Summary card directly below the activity metrics."
   },
+  "nexus_detector_per_token_marks": {
+    "milestone": "Nexus subtle per-token detector markers",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "result": "Each retained Nexus launch with a v2 replay result now carries a small inline mark beside its mint: green filled dot Exact, amber hollow circle No match, grey question mark Incomplete, red exclamation Ambiguous. Hover text exposes the specific detector reason.",
+    "scope": "Nexus-only Summary launch projection; tokens outside the 93 retained replay inputs remain unmarked rather than inferred.",
+    "verification": "7 focused tests passed; watchtower_api restarted; served page contains the marker mapping and accessible hover labels.",
+    "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; membership_writes=0; active_dispatch_changed=false",
+    "exact_next_action": "Hard-refresh Nexus and inspect marks beside token mints; hover a non-green mark for its retained detector reason."
+  },
   "updated_at": "2026-08-31T10:00:00Z",
   "updated_at_utc": "2026-08-31T10:00:00Z",
   "updated_by": "agent_local",

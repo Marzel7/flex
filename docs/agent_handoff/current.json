@@ -32527,8 +32527,17 @@
     "production_flags": "provider_calls=0; rpc_calls=0; production_db_writes=0; membership_writes=0; active_dispatch_changed=false; watchtower_api_restarted=true",
     "exact_next_action": "Maintain telemetry provenance in coverage responses; do not turn telemetry inclusion into automatic membership admission."
   },
-  "updated_at": "2026-08-31T09:12:00Z",
-  "updated_at_utc": "2026-08-31T09:12:00Z",
+  "c357_detached_subtype_registry_removal": {
+    "milestone": "Detached C357 subtype removal from Leviathan registry UI",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "result": "The C357 subtype presentation link is no longer rendered beneath Leviathan in the Active Operations registry. Retained subtype evidence and shadow-only records were preserved; no registry or membership mutation was made.",
+    "verification": "9 focused tests passed; watchtower_api restarted and running.",
+    "production_flags": "provider_calls=0; rpc_calls=0; production_db_writes=0; membership_writes=0; active_dispatch_changed=false",
+    "exact_next_action": "Keep C357 detached from Leviathan operational presentation unless a separately authorized relationship decision reattaches it."
+  },
+  "updated_at": "2026-08-31T09:17:00Z",
+  "updated_at_utc": "2026-08-31T09:17:00Z",
   "updated_by": "agent_local",
   "verdict": "6437_QVTW_MIGRATION_SEPARATION_PARTIAL"
 }

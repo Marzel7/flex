@@ -32579,6 +32579,16 @@
     "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; membership_writes=0; active_dispatch_changed=false",
     "exact_next_action": "Hard-refresh Nexus and inspect marks beside token mints; hover a non-green mark for its retained detector reason."
   },
+  "nexus_detector_current_observation_mark": {
+    "milestone": "Nexus current observation detector-status clarity",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "finding": "The five newest live route observations are outside the frozen 93-transaction retained replay, so no v2 detector result exists for them and their lack of a symbol appeared ambiguous.",
+    "correction": "They now receive a neutral grey dot with hover text 'not replayed — current observation is outside the retained v2 historical input'. This is not represented as a match, no-match, incomplete, or ambiguous result.",
+    "verification": "7 focused tests passed; watchtower_api restarted; served page contains the neutral-marker contract.",
+    "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; membership_writes=0; active_dispatch_changed=false",
+    "exact_next_action": "Hard-refresh Nexus; hover the grey dot for the explicit retained-evidence boundary."
+  },
   "updated_at": "2026-08-31T10:00:00Z",
   "updated_at_utc": "2026-08-31T10:00:00Z",
   "updated_by": "agent_local",

@@ -32491,8 +32491,17 @@
     "production_flags": "provider_calls=0; rpc_calls=0; production_db_writes=0; active_dispatch_changed=false; watchtower_api_restarted=true",
     "exact_next_action": "Review the resolved subtype page; do not reintroduce the frozen C357 discovery cohort as a potential-operation detail view."
   },
-  "updated_at": "2026-08-31T08:41:00Z",
-  "updated_at_utc": "2026-08-31T08:41:00Z",
+  "c357_living_potential_listing_removal": {
+    "milestone": "C357 resolved-subtype removal from Living Potential Operations",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "result": "The resolved C357 candidate is excluded from the separately assembled Living Potential Operations table. It remains available only through the Leviathan subtype projection, preventing Leviathan launches from being presented as C357 potential-operation activity.",
+    "verification": "4 focused subtype read-model tests passed; live Potential Operations GET rendered GENERIC LIVE · 1 active and no WSOL Close · 100 SOL minus 15k row; its legacy detail URL remains a 302 to the subtype projection.",
+    "production_flags": "provider_calls=0; rpc_calls=0; production_db_writes=0; active_dispatch_changed=false; watchtower_api_restarted=true",
+    "exact_next_action": "Use the Leviathan subtype page for C357 behaviour evidence; keep C357 absent from potential and living-potential lists."
+  },
+  "updated_at": "2026-08-31T08:45:00Z",
+  "updated_at_utc": "2026-08-31T08:45:00Z",
   "updated_by": "agent_local",
   "verdict": "6437_QVTW_MIGRATION_SEPARATION_PARTIAL"
 }

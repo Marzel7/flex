@@ -32559,6 +32559,16 @@
     "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; membership_writes=0; active_dispatch_changed=false",
     "exact_next_action": "Reload the Nexus detail page; retained Match rows should now appear below its operational role."
   },
+  "nexus_detector_summary_card": {
+    "milestone": "Nexus visible retained-detector Summary card",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "finding": "The preserved per-mint Match rows sat below the expanded retained-launch list and were not visible in the daily Summary view.",
+    "correction": "Nexus-only Summary now renders Retained Detector Replay immediately after current activity: Exact, No match, Incomplete, Ambiguous, and Reviewed, with the QVtW intermediary-route explanation.",
+    "verification": "6 focused tests passed; watchtower_api restarted; served template contains the visible Summary card contract. Browser visual automation was unavailable.",
+    "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; membership_writes=0; active_dispatch_changed=false",
+    "exact_next_action": "Hard-refresh Nexus and inspect the Summary card directly below the activity metrics."
+  },
   "updated_at": "2026-08-31T10:00:00Z",
   "updated_at_utc": "2026-08-31T10:00:00Z",
   "updated_by": "agent_local",

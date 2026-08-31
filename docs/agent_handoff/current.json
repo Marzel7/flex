@@ -32549,6 +32549,16 @@
     "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; membership_writes=0; source_writes=0; active_dispatch_changed=false",
     "exact_next_action": "Keep the prospective detector HOLD until a genuine retained transaction-role capture satisfies its separate runtime-evidence gate."
   },
+  "nexus_detector_ui_visibility_fix": {
+    "milestone": "Nexus detector Match UI visibility correction",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "finding": "The compact summary rendered after the Nexus Match projection and removed the whole operational-role mount, making the new UI indistinguishable from the old page.",
+    "correction": "The compact-summary cleanup now preserves that mount only when nexus_detector is present; all other manual P3R profiles retain their prior compact behavior.",
+    "verification": "watchtower_api restarted and running; served Nexus page contains the detector rows and the Nexus-only preservation guard. Browser visual automation was unavailable in this session.",
+    "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; membership_writes=0; active_dispatch_changed=false",
+    "exact_next_action": "Reload the Nexus detail page; retained Match rows should now appear below its operational role."
+  },
   "updated_at": "2026-08-31T10:00:00Z",
   "updated_at_utc": "2026-08-31T10:00:00Z",
   "updated_by": "agent_local",

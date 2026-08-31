@@ -32500,8 +32500,17 @@
     "production_flags": "provider_calls=0; rpc_calls=0; production_db_writes=0; active_dispatch_changed=false; watchtower_api_restarted=true",
     "exact_next_action": "Use the Leviathan subtype page for C357 behaviour evidence; keep C357 absent from potential and living-potential lists."
   },
-  "updated_at": "2026-08-31T08:45:00Z",
-  "updated_at_utc": "2026-08-31T08:45:00Z",
+  "byzantine_infrastructure_activity_projection": {
+    "milestone": "Byzantine shared-infrastructure reactivation telemetry",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "result": "Byzantine Active Ops and detail projections now surface completed launches sharing its retained ByZc sub-provider as explicitly labelled LIVE_BYZANTINE_INFRASTRUCTURE telemetry. Strict Byzantine membership and the exact 10-SOL four-step detector remain unchanged.",
+    "verification": "8 focused tests passed. Live API reports VERY_ACTIVE, current infrastructure windows 6/67/158, 164 retained infrastructure observations, and 36 strict members.",
+    "production_flags": "provider_calls=0; rpc_calls=0; production_db_writes=0; membership_writes=0; active_dispatch_changed=false; watchtower_api_restarted=true",
+    "exact_next_action": "Observe the distinct 20-SOL variants shadow-only; do not auto-admit them to strict Byzantine without their own qualified lifecycle contract."
+  },
+  "updated_at": "2026-08-31T08:58:00Z",
+  "updated_at_utc": "2026-08-31T08:58:00Z",
   "updated_by": "agent_local",
   "verdict": "6437_QVTW_MIGRATION_SEPARATION_PARTIAL"
 }

@@ -1,4 +1,15 @@
 {
+  "wt_farm_launches_evidence_provenance": {
+    "status": "PASS_PROSPECTIVE_RETENTION_HOLD_HISTORICAL_CLASSIFICATION",
+    "engineering_revision": "uncommitted local worktree changes",
+    "artifact": "docs/audits/wt_farm_launches_evidence_provenance.v1.json",
+    "tests": "8 passed: farm evidence retention + Unknown classifier/audit suite",
+    "finding": "farm_detector observes the oldest creator transaction signature and raw jsonParsed transaction, then discards its role/timing fields when it projects to compact wt_farm_launches fields.",
+    "baseline": "58 persistent funders / 460 source rows unchanged",
+    "implementation": "Additive prospective wt_farm_launch_evidence link to canonical wt_walkback_transaction_roles; no new RPC, no filter/ranking/UI activation, no historical backfill.",
+    "current_role_overlap": "42/10079 all farm rows (0.42%); exact historical selected-edge-to-role joins 32; current farm rows have no canonical signature key.",
+    "next_action": "Review/deploy the additive farm detector bridge through normal service lifecycle; then validate its first prospective persisted linkage before any farm-specific classifier activation."
+  },
   "unknown_repeat_funder_spam_filter": {
     "status": "HOLD_FALSE_POSITIVE_SAFETY",
     "engineering_revision": "uncommitted local worktree changes",

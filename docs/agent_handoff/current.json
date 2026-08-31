@@ -32620,8 +32620,20 @@
     "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; membership_writes=0; active_dispatch_changed=false",
     "exact_next_action": "Hard-refresh Nexus; hover the grey dot for the explicit retained-evidence boundary."
   },
-  "updated_at": "2026-08-31T10:00:00Z",
-  "updated_at_utc": "2026-08-31T10:00:00Z",
+  "retained_local_false_dust_extended_audit": {
+    "status": "PASS",
+    "engineering_revision": "bf1baac7",
+    "rule": "Frozen structural full-rule projection unchanged: selected PLAIN_XFER; one edge/mint and one destination/mint; zero retained amount; shallow hop.",
+    "evidence": "Read-only current wt_farm_launches joined same-mint SELECTED wt_walkback_edge_candidates parent.",
+    "result": "7d: 3520 launches, 2172 funders, 1183 qualified genuine controls, 0 matches; 30d: 8960, 5246, 2893, 0; all retained: 10319, 5909, 2893, 0.",
+    "prior_controls": "Matched 4-6 mint 0/29; adjacent 3-10 mint 0/69 preserved.",
+    "production_flags": "retained_local_only=true; incremental_rpc=0; incremental_getTransaction=0; source_or_production_rows_modified=false; suppression_occurred=false",
+    "verdict": "LAST_7D_LAST_30D_ALL_HISTORY_FALSE_DUST_AUDIT_PASS",
+    "blocker": null,
+    "exact_next_action": "If broader lookalike scanning is authorized, retain this frozen rule and do not suppress without a separately authorized per-lookalike review."
+  },
+  "updated_at": "2026-08-31T21:39:45Z",
+  "updated_at_utc": "2026-08-31T21:39:45Z",
   "updated_by": "agent_local",
   "verdict": "NEXUS_DETECTOR_V2_RECONCILIATION_PASS"
 }

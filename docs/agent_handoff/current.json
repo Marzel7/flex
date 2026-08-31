@@ -32481,8 +32481,18 @@
     "service": "watchtower_api restarted and running",
     "exact_next_action": "Await genuine prospective retained-role capture before changing detector HOLD."
   },
-  "updated_at": "2026-08-30T23:40:00Z",
-  "updated_at_utc": "2026-08-30T23:40:00Z",
+  "c357_legacy_potential_detail_redirect": {
+    "milestone": "C357 legacy potential-detail duplicate suppression",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "candidate_id": "p3r-v2-c357da9d0d4d560311e4",
+    "result": "The old potential-operation detail URL now redirects to the registered Leviathan subtype projection. That projection excludes the 50 C357 examples already owned by Leviathan and presents the six subtype-exclusive examples.",
+    "verification": "3 focused subtype read-model tests passed; live GET returned HTTP 302 with Location /intelligence/operator/777211c3-211e-551b-9310-ff9301570627/subtypes/p3r-subtype-03f916dfa97fb93a4b9c.",
+    "production_flags": "provider_calls=0; rpc_calls=0; production_db_writes=0; active_dispatch_changed=false; watchtower_api_restarted=true",
+    "exact_next_action": "Review the resolved subtype page; do not reintroduce the frozen C357 discovery cohort as a potential-operation detail view."
+  },
+  "updated_at": "2026-08-31T08:41:00Z",
+  "updated_at_utc": "2026-08-31T08:41:00Z",
   "updated_by": "agent_local",
   "verdict": "6437_QVTW_MIGRATION_SEPARATION_PARTIAL"
 }

@@ -32518,8 +32518,17 @@
     "production_flags": "provider_calls=0; rpc_calls=0; production_db_writes=0; membership_writes=0; active_dispatch_changed=false; watchtower_api_restarted=true",
     "exact_next_action": "Keep current infrastructure observations separate from strict Byzantine admission until a distinct lifecycle contract is qualified."
   },
-  "updated_at": "2026-08-31T09:06:00Z",
-  "updated_at_utc": "2026-08-31T09:06:00Z",
+  "active_ops_confirmed_telemetry_coverage": {
+    "milestone": "Active Ops coverage includes confirmed Byzantine and Nexus telemetry",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "result": "Coverage now uses the deduplicated union of strict active membership and current qualified telemetry from confirmed Byzantine infrastructure and Nexus, constrained to the same completed-mint 24-hour denominator.",
+    "verification": "8 focused tests passed. Live coverage endpoint reports 48/1036 = 4.6%; composition: 37 membership-backed, 6 Byzantine infrastructure-only, 5 Nexus telemetry-only (after deduplication/denominator constraint).",
+    "production_flags": "provider_calls=0; rpc_calls=0; production_db_writes=0; membership_writes=0; active_dispatch_changed=false; watchtower_api_restarted=true",
+    "exact_next_action": "Maintain telemetry provenance in coverage responses; do not turn telemetry inclusion into automatic membership admission."
+  },
+  "updated_at": "2026-08-31T09:12:00Z",
+  "updated_at_utc": "2026-08-31T09:12:00Z",
   "updated_by": "agent_local",
   "verdict": "6437_QVTW_MIGRATION_SEPARATION_PARTIAL"
 }

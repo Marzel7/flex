@@ -32509,8 +32509,17 @@
     "production_flags": "provider_calls=0; rpc_calls=0; production_db_writes=0; membership_writes=0; active_dispatch_changed=false; watchtower_api_restarted=true",
     "exact_next_action": "Observe the distinct 20-SOL variants shadow-only; do not auto-admit them to strict Byzantine without their own qualified lifecycle contract."
   },
-  "updated_at": "2026-08-31T08:58:00Z",
-  "updated_at_utc": "2026-08-31T08:58:00Z",
+  "byzantine_detail_current_infrastructure_launches": {
+    "milestone": "Byzantine detail retained infrastructure launch timeline",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "result": "The Byzantine detail projection merges completed ByZc-funded launches into its retained launch timeline, ordered by funding time and marked CURRENT_BYZANTINE_INFRASTRUCTURE. These are observational and do not alter strict membership.",
+    "verification": "8 focused tests passed. Live API returns 165 timeline observations; newest is EBK2daxNw6rHfirCyemmvzpDcotvp8wH4fYZqwsVpump with retained signature 36pCJP…A872 and CURRENT_BYZANTINE_INFRASTRUCTURE state.",
+    "production_flags": "provider_calls=0; rpc_calls=0; production_db_writes=0; membership_writes=0; active_dispatch_changed=false; watchtower_api_restarted=true",
+    "exact_next_action": "Keep current infrastructure observations separate from strict Byzantine admission until a distinct lifecycle contract is qualified."
+  },
+  "updated_at": "2026-08-31T09:06:00Z",
+  "updated_at_utc": "2026-08-31T09:06:00Z",
   "updated_by": "agent_local",
   "verdict": "6437_QVTW_MIGRATION_SEPARATION_PARTIAL"
 }

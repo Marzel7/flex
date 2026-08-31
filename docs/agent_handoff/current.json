@@ -1,6 +1,6 @@
 {
   "wt_farm_launches_evidence_provenance": {
-    "status": "DEPLOYED_AWAITING_FIRST_NORMAL_FARM_SCAN",
+    "status": "PARTIAL_AWAITING_FIRST_ORGANIC_FARM_ROW",
     "engineering_revision": "uncommitted local worktree changes",
     "artifact": "docs/audits/wt_farm_launches_evidence_provenance.v1.json",
     "tests": "8 passed: farm evidence retention + Unknown classifier/audit suite",
@@ -8,7 +8,7 @@
     "baseline": "58 persistent funders / 460 source rows unchanged",
     "implementation": "Additive prospective wt_farm_launch_evidence link to canonical wt_walkback_transaction_roles deployed by restart of operation_scheduler (PID 21622); no forced scan/RPC, no filter/ranking/UI activation, no historical backfill.",
     "current_role_overlap": "42/10079 all farm rows (0.42%); exact historical selected-edge-to-role joins 32; current farm rows have no canonical signature key.",
-    "next_action": "After the next normal scheduler farm scan, validate the first prospective wt_farm_launch_evidence linkage and its generic role row; ranking baseline must remain unchanged."
+    "next_action": "After the next normal scheduler farm scan, validate the first prospective wt_farm_launch_evidence linkage and its generic role row; ranking baseline must remain unchanged. A post-deploy observation window saw no organic farm scan; no scan was forced."
   },
   "unknown_repeat_funder_spam_filter": {
     "status": "HOLD_FALSE_POSITIVE_SAFETY",

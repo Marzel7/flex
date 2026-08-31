@@ -32536,8 +32536,21 @@
     "production_flags": "provider_calls=0; rpc_calls=0; production_db_writes=0; membership_writes=0; active_dispatch_changed=false",
     "exact_next_action": "Keep C357 detached from Leviathan operational presentation unless a separately authorized relationship decision reattaches it."
   },
-  "updated_at": "2026-08-31T09:17:00Z",
-  "updated_at_utc": "2026-08-31T09:17:00Z",
+  "nexus_detector_v2_reconciliation": {
+    "milestone": "Nexus retained-evidence detector reconciliation and Match UI",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "operation_id": "bd7d7479-1454-5d41-9f68-115550348f3e",
+    "artifact": "docs/audits/direct_10k_creator_provisioning_detector_results.v2.json",
+    "artifact_digest": "3315107025407d79bc393bc3edf3fff5a39e8ca929771f37299ae3ec17ed6f2d",
+    "result": "93 retained defining transactions replayed twice deterministically: 84 UNIQUE_MATCH, 9 NO_MATCH, 0 INSUFFICIENT_INPUT, 0 AMBIGUOUS. All six QVtW rows resolve to NO_MATCH_INTERMEDIARY_ROUTE.",
+    "ui": "Nexus-only Match labels and compact detector count render from v2; QVtW now shows No rather than Incomplete.",
+    "verification": "5 focused tests passed; JSON validated; local API returned 93 reviewed with 84/9/0/0 and QVtW intermediary-route reasons; watchtower_api restarted and running.",
+    "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; membership_writes=0; source_writes=0; active_dispatch_changed=false",
+    "exact_next_action": "Keep the prospective detector HOLD until a genuine retained transaction-role capture satisfies its separate runtime-evidence gate."
+  },
+  "updated_at": "2026-08-31T10:00:00Z",
+  "updated_at_utc": "2026-08-31T10:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "6437_QVTW_MIGRATION_SEPARATION_PARTIAL"
+  "verdict": "NEXUS_DETECTOR_V2_RECONCILIATION_PASS"
 }

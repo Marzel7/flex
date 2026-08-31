@@ -1,4 +1,16 @@
 {
+  "unknown_repeat_funder_spam_filter": {
+    "status": "HOLD_FALSE_POSITIVE_SAFETY",
+    "engineering_revision": "uncommitted local worktree changes",
+    "tests": "7 passed: tests/test_unknown_funder_edge_quality.py and tests/test_audit_unknown_funder_edge_quality.py",
+    "production_flags": "No RPC, provider, database, ranking, or UI changes; classifier remains shadow-only.",
+    "artifact": "docs/audits/unknown_repeat_funder_edge_quality_qualification.v1.json",
+    "source_of_truth": "wt_ops_v2.db::wt_farm_launches -> _unknown_funder_launches_cte() -> >=3 funder recurrence",
+    "baseline": "58 persistent funders / 460 persistent rows",
+    "safety_result": "406 independently retained genuine farm funding edges qualify; false dust=0; 50 lowest retained controls all qualify.",
+    "blocker": "Known dust evidence and the three reported senders have zero wt_farm_launches rows. Farm rows do not retain the role/timing facts required to distinguish dust safely, so no ranking row can be removed from this source yet.",
+    "next_action": "Extend the farm observation representation with retained transaction-role and launch-timing evidence, map known dust facts onto actual farm rows, then rerun the same audit and activate only with zero genuine false dust and measurable source-population removal."
+  },
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "active_observation": {

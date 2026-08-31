@@ -10,6 +10,14 @@
     "current_role_overlap": "42/10079 all farm rows (0.42%); exact historical selected-edge-to-role joins 32; current farm rows have no canonical signature key.",
     "next_action": "After the next normal scheduler farm scan, validate the first prospective wt_farm_launch_evidence linkage and its generic role row; ranking baseline must remain unchanged. A post-deploy observation window saw no organic farm scan; no scan was forced."
   },
+  "wt_farm_launches_first_link_monitor": {
+    "status": "ACTIVE_HOURLY_SILENT_UNTIL_EVENT",
+    "schedule": "minute 7 hourly via local crontab",
+    "script": "scripts/monitor_first_farm_evidence_link.py",
+    "safety": "read-only; no scan, RPC, service restart, backfill, classifier mutation, or filter activation",
+    "notification": "only first linked row or genuine monitor error; no-row exits silently",
+    "tests": "8 passed including monitor silence fixture"
+  },
   "unknown_repeat_funder_spam_filter": {
     "status": "HOLD_FALSE_POSITIVE_SAFETY",
     "engineering_revision": "uncommitted local worktree changes",

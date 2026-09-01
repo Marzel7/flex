@@ -32383,8 +32383,19 @@
     "safety": "Additive audit artifacts only; no production/source/Walkback/schema/UI/code/classifier/suppression mutation.",
     "exact_next_action": "Obtain explicit authority plus an archive provider/method with documented historical account bytes at end-of-slot 443375106, then retain raw account response and bind its 151-byte schema to active ELF before recalculating buy #1 or MC."
   },
-  "updated_at": "2026-09-01T13:30:00Z",
-  "updated_at_utc": "2026-09-01T12:30:00Z",
+  "pumpfun_historical_account_archive_provider_research": {
+    "milestone": "MACROHARD exact historical-account provider research",
+    "status": "PASS_RESEARCH_ONLY",
+    "verdict": "EXACT_HISTORICAL_SLOT_ACCOUNT_STATE_PROVIDER_IDENTIFIED_UNTESTED_NO_CREDENTIAL",
+    "result": "Alchemy Solana Account Archive documents getAccountInfo with a historical slot parameter: state as of finalized slot S, inclusive, with coverage from July 2025. The target slot 443375106 is within that claimed period. This is categorically different from standard getAccountInfo/minContextSlot.",
+    "blocker": "No local Alchemy credential/endpoint is configured, and the authorization is research-only; no endpoint test or account-state acquisition was attempted.",
+    "artifact": "docs/audits/pumpfun_historical_account_archive_provider_research/manifest.v1.json",
+    "artifact_digest": "af3639c48c9d487ad5b8f1a106334f63870665871db90b82d4f813ca85159ee6",
+    "safety": "No Solana/provider endpoint calls, no production/source/Walkback/schema/UI/code/classifier/suppression mutation.",
+    "exact_next_action": "With explicit credential and provider-test authority, issue one Alchemy getAccountInfo(target curve, {encoding: base64, slot: 443375106}); retain and validate exact historical response before any prestate decode or valuation."
+  },
+  "updated_at": "2026-09-01T13:45:00Z",
+  "updated_at_utc": "2026-09-01T12:45:00Z",
   "updated_by": "agent_local",
   "verdict": "PUMPFUN_FIRST_SLOT_REPLAY_PARTIAL_EXACT_BLOCKER_IDENTIFIED"
 }

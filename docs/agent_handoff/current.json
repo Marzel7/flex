@@ -32710,6 +32710,20 @@
     "blocker": "Explicit authorization is required to redefine the bounded unit from 96 mint cases to the proven 54 unique signatures, with each response mapped back to its 96 affected mint cases; current instruction requires exactly 96 unique signatures.",
     "exact_next_action": "Do not call RPC. Obtain an explicit decision whether to verify the exact 54 unique signatures once each or halt the historical verification."
   },
+  "byzantine_54_unique_signature_bounded_rpc_verification": {
+    "milestone": "Byzantine historical 54-unique-signature verification mapped to 96 frozen mint cases",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "artifact": "docs/audits/byzantine_96_exact_signature_rpc/verification_results.v1.json",
+    "artifact_digest": "eb2444fd7578d5830eb5ea7f8916251e028d24ff81b749d1986baa7aad616265",
+    "result": "54/54 bounded getTransaction calls succeeded and were retained once each. All 96 mapped legacy mint cases decode as Byzantine-funded temporary-WSOL create/sync/close provisioning to the expected creator; zero contradictions, unavailable responses, decode failures, or creator mismatches. Evidence is 54 independent transactions, not 96: 6 cases have direct mint linkage and 90 have creator-level-only linkage.",
+    "replay": "local decoded role/atomic/result replay digests identical: 1dd7e0e74dbb8c9ede8de3f44682fe69558237adad2161edcbf52e4f142bf97e",
+    "compatibility": "182/182 frozen Byzantine mints remain surfaced; zero missing.",
+    "production_flags": "54 getTransaction calls only; non-getTransaction RPC=0; no normal Walkback/source/production/UI/schema/membership/attribution/suppression changes.",
+    "verdict": "BYZANTINE_54_UNIQUE_SIGNATURE_BOUNDED_RPC_VERIFICATION_COMPLETE",
+    "blocker": null,
+    "exact_next_action": "Do not alter the frozen cohort. Any broader historical reconstruction or prospective retention implementation requires separate authorization."
+  },
   "updated_at": "2026-09-01T00:00:00Z",
   "updated_at_utc": "2026-09-01T00:00:00Z",
   "updated_by": "agent_local",

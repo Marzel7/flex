@@ -32860,8 +32860,19 @@
     "blocker": null,
     "exact_next_action": "Operator UI review only; preserve the unpromoted ambiguous evidence state."
   },
-  "updated_at": "2026-09-01T00:00:00Z",
-  "updated_at_utc": "2026-09-01T00:00:00Z",
+  "byzantine_compact_role_layout": {
+    "milestone": "Byzantine compact role layout refinement",
+    "engineering_revision": "uncommitted local worktree changes",
+    "status": "PASS",
+    "result": "The left side now presents only upstream funding and chain state. Creator provisioning is rendered once in the right metadata column. Legacy mechanism/date metadata and Selected Walkback Tx are suppressed whenever retained economic-leg evidence already supplies the same technical trace.",
+    "tests": "tests/test_byzantine_dual_funding_leg_projection.py: 10 passed",
+    "production_flags": "RPC/getTransaction=0; no schema/database/source/normal-Walkback/membership/attribution/suppression changes.",
+    "verdict": "BYZANTINE_COMPACT_ROLE_LAYOUT_IMPLEMENTED",
+    "blocker": null,
+    "exact_next_action": "Reload the operator page and visually review the compact left/right role placement."
+  },
+  "updated_at": "2026-09-01T12:35:00Z",
+  "updated_at_utc": "2026-09-01T11:35:00Z",
   "updated_by": "agent_local",
   "verdict": "NEXUS_DETECTOR_V2_RECONCILIATION_PASS"
 }

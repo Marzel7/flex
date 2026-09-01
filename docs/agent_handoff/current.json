@@ -32632,8 +32632,16 @@
     "blocker": null,
     "exact_next_action": "If broader lookalike scanning is authorized, retain this frozen rule and do not suppress without a separately authorized per-lookalike review."
   },
-  "updated_at": "2026-08-31T21:39:45Z",
-  "updated_at_utc": "2026-08-31T21:39:45Z",
+  "retained_local_current_spam_rule_measurement": {
+    "status": "COMPLETE_WITH_SUPPRESSION_HOLD",
+    "engineering_revision": "bf1baac7",
+    "result": "61,896 eligible unique farm-or-Walkback funders; 139 frozen-structural-rule matches; 0 overlap with 2,953 current all-history same-mint SELECTED genuine controls.",
+    "safety_finding": "Eight structural matches have retained generic transaction-role evidence. This does not contradict the prior genuine-cohort zero-overlap result, but it prevents treating the structural result as a safe suppression label without the missing semantic evidence gates.",
+    "production_flags": "retained_local_only=true; incremental_rpc=0; incremental_getTransaction=0; source_or_production_rows_modified=false; suppression_occurred=false",
+    "exact_next_action": "Keep suppression disabled. If authorized, evaluate the eight role-evidence matches and add a separately qualified semantic gate; do not refit this frozen structural measure in place."
+  },
+  "updated_at": "2026-09-01T00:00:00Z",
+  "updated_at_utc": "2026-09-01T00:00:00Z",
   "updated_by": "agent_local",
   "verdict": "NEXUS_DETECTOR_V2_RECONCILIATION_PASS"
 }

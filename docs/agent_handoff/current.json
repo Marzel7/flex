@@ -32369,8 +32369,22 @@
     "safety": "Additive audit artifacts only; no production/source/Walkback/schema/UI/code/classifier/suppression mutation.",
     "exact_next_action": "Only an authorized archived BondingCurve bytes query at post-ExtendAccount slot 443375106, paired with target-binary-bound schema proof, can qualify the opening MC."
   },
-  "updated_at": "2026-09-01T13:15:00Z",
-  "updated_at_utc": "2026-09-01T12:15:00Z",
+  "pumpfun_target_era_archived_prestate_acquisition": {
+    "milestone": "MACROHARD archived BondingCurve pre-buy state acquisition",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "BLOCKED",
+    "verdict": "BLOCKED_NO_LOCALLY_CONFIGURED_HISTORICAL_ACCOUNT_STATE_METHOD",
+    "result": "The creation transaction is slot 443375106 index 927 and first buy is the next slot 443375107 index 895; therefore an authenticated end-of-slot 443375106 account snapshot would be pre-buy. The configured provider surface is standard Helius JSON-RPC only. Official Solana getAccountInfo has commitment/encoding/dataSlice/minContextSlot but no historical-state slot selector; minContextSlot is a lower bound on returned context, not time travel. No current-state query was made because it would violate the no-substitution requirement.",
+    "blocker": "No locally configured archive-capable account-state provider/method can return exact BondingCurve bytes for slot 443375106. Raw bytes, owner, lamports, data length, and target-specific decode are consequently unavailable.",
+    "artifacts": "docs/audits/pumpfun_target_era_archived_prestate_acquisition/manifest.v1.json",
+    "artifact_digest": "5a0f506655ec7dc085b5b320515606a8bdc138032524e5d9f692985276f3f9e4",
+    "replay": "f40dc8c3dac1eb00a52052d206f545bdd16ed992deb51fc97b28670b9fc982fe twice.",
+    "network": "0 archive/Solana RPC; 1 official Solana RPC documentation lookup; no GMGN/PumpPortal.",
+    "safety": "Additive audit artifacts only; no production/source/Walkback/schema/UI/code/classifier/suppression mutation.",
+    "exact_next_action": "Obtain explicit authority plus an archive provider/method with documented historical account bytes at end-of-slot 443375106, then retain raw account response and bind its 151-byte schema to active ELF before recalculating buy #1 or MC."
+  },
+  "updated_at": "2026-09-01T13:30:00Z",
+  "updated_at_utc": "2026-09-01T12:30:00Z",
   "updated_by": "agent_local",
   "verdict": "PUMPFUN_FIRST_SLOT_REPLAY_PARTIAL_EXACT_BLOCKER_IDENTIFIED"
 }

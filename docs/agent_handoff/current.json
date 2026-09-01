@@ -32650,6 +32650,16 @@
     "production_flags": "retained_local_only=true; incremental_rpc=0; incremental_getTransaction=0; source_or_production_rows_modified=false; suppression_occurred=false; rule_unchanged=true",
     "exact_next_action": "Keep all suppression disabled. Independently verify the three non-target second-pattern accounts before considering any separate classifier qualification."
   },
+  "spam_classification_layer": {
+    "status": "REPLAYABLE_NON_SUPPRESSING_PASS",
+    "engineering_revision": "bf1baac7",
+    "implementation": "src/ops/spam_classification.py; scripts/replay_spam_classification.py; docs/audits/spam_classification_layer.v1.json",
+    "snapshot": "farm_launches=10499; walkback_edges=81556; max_edge_observed=1788246696",
+    "result": "22 asserted confirmed accounts frozen with confirmation-known-but-proof-not-retained provenance; Pattern A=139, Pattern B=2 at the observed snapshot; no A/B overlap or genuine-control overlap; two identical read-only replays produced classification digest 0593ed46b6ed8c979af983d402a84eb4da02739324c357216aa3fca4258e9a1a.",
+    "discrepancy": "The supplied claim of four current Pattern-B matches does not match the observable retained snapshot: only 6y84...AUir and AShP...Eses meet exact B predicates; By3...duq3 and FpRE...Ay51 do not at this high-water.",
+    "production_flags": "retained_local_only=true; incremental_rpc=0; incremental_getTransaction=0; source_or_production_rows_modified=false; suppression_occurred=false",
+    "exact_next_action": "Use the deterministic replayer after a future retained-evidence high-water advance to identify post-freeze A/B deltas; do not poll providers or enable suppression."
+  },
   "updated_at": "2026-09-01T00:00:00Z",
   "updated_at_utc": "2026-09-01T00:00:00Z",
   "updated_by": "agent_local",

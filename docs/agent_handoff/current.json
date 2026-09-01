@@ -32327,8 +32327,23 @@
     "tests": "17 passed focused regressions",
     "exact_next_action": "Read the persisted current projection from the Potential Operations detail path before authorizing any UI expansion or additional candidates."
   },
-  "updated_at": "2026-08-29T00:00:00Z",
-  "updated_at_utc": "2026-08-29T00:00:00Z",
+  "pumpfun_macrohard_first_slot_complete_replay": {
+    "milestone": "bounded complete first trading-slot replay for MACROHARD",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PARTIAL",
+    "verdict": "COMPLETE_TARGET_SLOT_EVENT_INVENTORY_EXACT_VALUATION_BLOCKER_IDENTIFIED",
+    "target": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump; slot 443375107",
+    "result": "The one permitted complete getBlock payload contains 1,831 transactions and 23 target-relevant transactions. It yields 8 successful target TradeEvents (7 buys, 1 sell) and 3 failed buys. No target TradeEvent precedes index 895. Actions 2-8 are event-to-event continuous and arithmetic-exact under the qualified formulas, including the sell. Action 1 cannot be reproduced from the retained creation reserves: it has a 5,255,842,351,635-token mismatch. Therefore historical spot-price, market-cap, USD valuation, and the claimed opening jump remain unqualified.",
+    "network": "1 Helius getBlock only; 0 getTransaction, getSignaturesForAddress, account-state, GMGN, or other provider calls.",
+    "artifacts": "docs/audits/pumpfun_first_slot_complete_replay/manifest.v1.json",
+    "artifact_digest": "020014b76e656ca08c713d2483ec155f38fd5ca7cbf7707b47974af754a058ea",
+    "replay": "Local deterministic replay passed: 04b64e19ca71d5e5372293cedb261b87efeb32a8c1bfa1fd07198d5cc5f8b093 twice.",
+    "safety": "Read-only additive audit artifacts only; no production, source, Walkback, schema, UI, code, classifier, suppression, or frozen-cohort mutation.",
+    "blocker": "The retained creation event's 30 SOL / 1.073e15 virtual-token baseline does not explain the first trade's reported post-trade reserves. The first-slot deployed binary is also still independently unbound. Do not derive MC from execution price or chart pixels.",
+    "exact_next_action": "Only a separately authorized provenance/state investigation may resolve the creation-to-first-trade state discontinuity; do not estimate a historical MC trajectory from this replay."
+  },
+  "updated_at": "2026-09-01T12:45:00Z",
+  "updated_at_utc": "2026-09-01T11:45:00Z",
   "updated_by": "agent_local",
-  "verdict": "WATCHTOWER_FUNDING_ARCHITECTURE_CENSUS_PASS"
+  "verdict": "PUMPFUN_FIRST_SLOT_REPLAY_PARTIAL_EXACT_BLOCKER_IDENTIFIED"
 }

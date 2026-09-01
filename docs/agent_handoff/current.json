@@ -1,4 +1,16 @@
 {
+  "watchtower_byzantine_expanded_opening_sample": {
+    "status": "PARTIAL",
+    "verdict": "WATCHTOWER_BYZANTINE_EXPANDED_OPENING_SAMPLE_PARTIAL",
+    "scope": "Frozen 10-mint WATCHTOWER and 10-mint Byzantine sample; bounded only to retained exact creation references and their creation slots. No broad discovery was authorized.",
+    "watchtower": "All 10 retained creation references were genuine Pump.fun CreateV2 transactions with an embedded buy. Nine yielded standard decoded TradeEvent opening observations: five completed the curve in the creation slot at 410.880168121 SOL; 5G1... saw 6 buys/36.645962739 SOL/end MC 137.983359708 SOL; C6... and Bf... each saw one 11.851851851 SOL buy/end MC 54.413715543 SOL; A46... saw 7 buys/22.169409628 SOL/end MC 84.549465700 SOL. 1jo... requires a target-era event variant decoder. Only BuY3... remains end-to-end strict/replay-qualified with archived evidence.",
+    "byzantine": "Only 3dgG... (MACROHARD) is a valid retained Pump.fun creation anchor and stays the single fully qualified Byzantine reference. The other nine selected token_analysis.create_tx_signature values are successful retained transactions but do not contain Pump creation/buy/sell evidence, so they must not be called births or used for opening-impulse comparison.",
+    "blocker": "The retained Byzantine creation-signature provenance is invalid for 9/10 selected cases. Repair requires locating positively mint-bound local creation anchors or separate authorization for narrowly bounded exact anchors; broad address-history discovery remains out of scope.",
+    "digests": "sample manifest f3dac0118e09570e7c065bca4b1c1fc335f245b3e7bc17d555c73a707758bfde; WATCHTOWER observations 0ae25af93e741dc7e69ff80764bcf77dde31d5359367ff24fb2ec7e3fea4066c; comparison b0bd2bce4f22b3cdad9f22fcd9b82652000431f767e177dfd065fbfb359920c0.",
+    "network": "20 Helius getTransaction calls and 10 Helius getBlock calls; 0 Alchemy, GMGN, getSignaturesForAddress, account-history, or other provider calls.",
+    "safety": "Read-only plus additive JSON audit artifacts only; no production/source/Walkback/schema/UI/code/suppression mutation.",
+    "next_action": "Resolve the nine invalid Byzantine retained anchors from durable local provenance first; then run a new balanced opening comparison without extrapolating the present WATCHTOWER-only observation."
+  },
   "watchtower_byzantine_opening_impulse_reference_pair": {
     "status": "PARTIAL",
     "verdict": "WATCHTOWER_BYZANTINE_OPENING_IMPULSE_REFERENCE_PAIR_READ_ONLY_AUDIT_COMPLETE",

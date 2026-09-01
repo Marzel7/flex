@@ -1,4 +1,17 @@
 {
+  "watchtower_byzantine_opening_impulse_reference_pair": {
+    "status": "PARTIAL",
+    "verdict": "WATCHTOWER_BYZANTINE_OPENING_IMPULSE_REFERENCE_PAIR_READ_ONLY_AUDIT_COMPLETE",
+    "scope": "One fully qualified retained reference mint per operation; this is not a prevalence claim for either operation.",
+    "watchtower": "BuY3...pump: creator-embedded first buy; 5 buys/5 buyers; 85.005359057 SOL; curve completes in creation slot; 410.880168121 SOL migration MC.",
+    "byzantine": "3dgG...pump: creation-only; 7 independent buys + 1 sell in next slot; 1.309602285 SOL; remains on curve at first-slot end (161.005186 SOL).",
+    "finding": "Both references are single trading-slot bursts. Their empirical structures differ as creator-seeded immediate completion (WATCHTOWER) versus independent next-slot curve burst with an interleaved sell (Byzantine), not as WATCHTOWER multi-slot versus Byzantine single-slot.",
+    "artifact": "docs/audits/watchtower_byzantine_opening_impulse_reference_pair.v1.json",
+    "artifact_digest": "2ccb90e69e8a2f5065c9d70f7fe68817aac1a5b85156a83c2c572bd7f13eb747",
+    "replay_digest": "4b9befc312c850a490c14b5e776a53038f138983cf59af500f90169775a8ac1f",
+    "safety": "Retained local evidence only; 0 new provider/RPC/GMGN calls; additive artifact only; no source/production/Walkback/schema/UI/code/suppression change.",
+    "next_action": "If an operation-level claim is required, authorize bounded reconstruction of additional non-extreme samples; do not extrapolate this N=1 reference pair."
+  },
   "watchtower_buy3_opening_mc_convention": {
     "status": "COMPLETE",
     "verdict": "WATCHTOWER_OPENING_MC_CONVENTION_READ_ONLY_AUDIT_COMPLETE",

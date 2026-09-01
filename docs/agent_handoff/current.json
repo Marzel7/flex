@@ -32355,8 +32355,22 @@
     "safety": "Retained-local, read-only, additive artifacts only; no RPC, provider, source/production/Walkback/schema/UI/code/classifier/suppression change.",
     "exact_next_action": "If separately authorized, obtain authoritative target-era CreateEvent/ExtendAccount semantics and authenticated post-creation curve-account state; do not infer an opening MC until then."
   },
-  "updated_at": "2026-09-01T13:00:00Z",
-  "updated_at_utc": "2026-09-01T12:00:00Z",
+  "pumpfun_target_era_extendaccount_audit": {
+    "milestone": "MACROHARD target-era Pump deployment and ExtendAccount semantics audit",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PARTIAL",
+    "verdict": "TARGET_DEPLOYMENT_BOUND_SOURCE_SEMANTICS_NOT_BINARY_BOUND_BOUNDARY_REMAINS_PRECISE",
+    "result": "The active upgradeable Pump ProgramData account is B5MvUwX...2BQu; its current deployment slot 433095571 precedes target slot 443375107 and its ELF SHA-256 is 5d65238ffd3513fa5980c01ba1eb2da9cc050091ad9c46b75916ce4a09b02bbf. Official Pump documentation describes ExtendAccount as growing BondingCurve accounts for creator-fee/future fields, not a reserve transform. Retained ExtendAccountEvent confirms 115→151 bytes and has no reserve field.",
+    "blocker": "No official source commit/build hash binds those semantics to the active ELF, and no authenticated post-ExtendAccount historical curve-account bytes are retained. Thus a target-specific reserve rewrite cannot be excluded even though the documented behavior narrows it strongly.",
+    "artifacts": "docs/audits/pumpfun_target_era_extendaccount_audit/manifest.v1.json",
+    "artifact_digest": "e45e1134cd169f7cc1461eb8e2512b997131dbc6505fc6a679995bd8053fe758",
+    "replay": "4228e886d7c4e7dd6fed9d53e1cc632eee7b8bbc9625dccec9b8916d24e74e2f twice.",
+    "network": "3 program/ProgramData getAccountInfo calls; 0 getTransaction; 7 bounded official-source lookup operations; no GMGN/PumpPortal/history scan.",
+    "safety": "Additive audit artifacts only; no production/source/Walkback/schema/UI/code/classifier/suppression mutation.",
+    "exact_next_action": "Only an authorized archived BondingCurve bytes query at post-ExtendAccount slot 443375106, paired with target-binary-bound schema proof, can qualify the opening MC."
+  },
+  "updated_at": "2026-09-01T13:15:00Z",
+  "updated_at_utc": "2026-09-01T12:15:00Z",
   "updated_by": "agent_local",
   "verdict": "PUMPFUN_FIRST_SLOT_REPLAY_PARTIAL_EXACT_BLOCKER_IDENTIFIED"
 }

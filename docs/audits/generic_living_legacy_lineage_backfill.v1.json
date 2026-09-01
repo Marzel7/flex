@@ -1,0 +1,20 @@
+{
+  "schema_version": "generic_living_legacy_lineage_backfill.v1",
+  "real_db_path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+  "legacy_assessments_to_bind": 5,
+  "lineage_rows": 5,
+  "pipeline_lineage": "LEGACY_CANDIDATE_SPECIFIC",
+  "binding_results": {
+    "wsol_current_504d3159-0b55-536e-bf01-7a80e62e5255": {"status": "EXACT_ASSOCIATION_SET_RECONSTRUCTABLE", "count": 126, "source": "generic_living_wsol_expected_output.v1.json digest matches persisted assessment"},
+    "eight_hop_current_e629a92d-80d5-5e26-9977-0917faca63be": {"status": "EXACT_ASSOCIATION_SET_RECONSTRUCTABLE", "count": 57, "source": "generic_living_eight_hop_expected_output.v1.json digest matches persisted assessment"},
+    "historical_noncurrent_assessments": {"status": "HISTORICAL_ASSOCIATION_BINDING_UNAVAILABLE", "count": 3, "bound_associations": 0}
+  },
+  "post_counts": {"identities": 2, "associations": 183, "assessments": 5, "currents": 2, "lineage": 5, "bindings": 183},
+  "idempotency": "INSERT OR IGNORE unique constraints qualified",
+  "preservation": "assessment IDs, digests, payloads, generations, current pointers, and association rows unchanged",
+  "focused_tests": "python -m pytest -q tests/test_generic_living_pipeline_v2.py: 9 passed",
+  "active_generic_cutover": false,
+  "generic_assessment_publication": false,
+  "automatic_walkback_integration": false,
+  "verdict": "GENERIC_LIVING_LEGACY_LINEAGE_BACKFILL_COMPLETE"
+}

@@ -1,0 +1,9 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5F-R3 deterministic delta resumability repair",
+  "root_cause": "Delta identity used broad run_id, so a later batch in the same resumable run reused a now-closed path.",
+  "repair": "Delta suffix now derives from the immutable selected batch composite-identity digest. run_id remains execution identity; batch digest is segment identity.",
+  "closed_delta_behavior": "Closed segments are never reopened; a new batch receives a distinct deterministic delta path.",
+  "publication_order": "COLD copy -> verify -> close final manifest -> registry/summary -> live reader visibility -> durable PUBLISHED -> exact HOT retirement.",
+  "tests": "35/35 passing (P5D rollover + durable evidence)",
+  "verdict": "RUNNER_SAFETY_INTEGRATION_QUALIFIED"
+}

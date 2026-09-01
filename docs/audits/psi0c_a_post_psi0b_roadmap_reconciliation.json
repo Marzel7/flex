@@ -1,0 +1,142 @@
+{
+  "schema_version": "psi0c-a.roadmap-reconciliation.v1",
+  "milestone": "PSI0C-A",
+  "reconciled_at_utc": "2026-08-15T14:29:00Z",
+  "engineering_commit": "9bbc4c077ecb189952c900539c8a8d0031b59269",
+  "status": "COMPLETE",
+  "verdict": "PSI0C_B_FIXTURE_ONLY_SHADOW_ASSESSMENT_CONTRACT_NEXT",
+  "bound_inputs": {
+    "psi0b_g_closure_artifact": "docs/audits/psi0b_g_final_closure_production_impact_assessment.json",
+    "psi0b_g_closure_digest": "efadf9e061529af1fc690a253be4e8e29d7058d06d6a61be6105890b4e5e90cd",
+    "psi0b_shadow_bundle_digest": "370c815a4bacc640874d798c168ff812c2efd205d6de497fdcfb79b4005351b9",
+    "psi0a_h_closure_artifact": "docs/audits/psi0a_h_preflight_bundle_closure.json",
+    "canonical_roadmap_artifact": "docs/evidence_platform/post_e_eb0_canonical_roadmap.json",
+    "post_eb1_3_shadow_path_source": "docs/agent_handoff/current.json:post_eb1_3_production_readiness_track_decision"
+  },
+  "roadmap_finding": {
+    "completed": [
+      "bounded production schema and high-water compatibility preflight",
+      "bounded query-only production shadow extraction",
+      "immutable isolated shadow bundle and exact replay verification",
+      "production-impact assessment"
+    ],
+    "not_completed": [
+      "qualified coverage, conflict and missingness assessment of shadow content",
+      "shadow assessment disposition",
+      "limited-consumer integration qualification",
+      "Evidence Mirror or Cohort Mode activation qualification",
+      "production activation",
+      "EB2 roadmap entry"
+    ],
+    "next_missing_layer": "A deterministic non-authoritative contract for evaluating coverage, conflicts and missingness without selecting policy, ranking entities, integrating a consumer or granting activation authority."
+  },
+  "next_milestone": {
+    "milestone": "PSI0C-B",
+    "name": "Fixture-only immutable shadow coverage/conflict/missingness assessment contract",
+    "authorization_class": "SAFE_LOCAL_DESIGN_IMPLEMENTATION_TEST_DOCUMENTATION_COMMIT",
+    "objective": "Define and fixture-qualify a deterministic contract that consumes injected synthetic representations of the five frozen PSI0B query outputs and emits an immutable non-authoritative assessment artifact.",
+    "immutable_inputs": [
+      "PSI0B-G closure digest",
+      "PSI0B bundle identity only, without reading its production-derived result rows",
+      "five frozen PSI0A-D query identities and result schemas",
+      "PSI0A-E resource-ceiling identity",
+      "PSI0A-G abort/isolation identity",
+      "caller-supplied frozen synthetic result fixtures"
+    ],
+    "required_outputs": [
+      "per-query and cross-query membership counts",
+      "explicit coverage denominators and numerators",
+      "missingness classes that never convert absence into a negative outcome",
+      "conflict records that preserve every source assertion without silent resolution",
+      "orphan and unmatched-key accounting",
+      "deterministic reason codes",
+      "canonical serialization, per-file hashes and one assessment digest",
+      "false integration, policy, ranking and activation authority"
+    ],
+    "required_tests": [
+      "complete coverage",
+      "empty surfaces",
+      "partial coverage",
+      "duplicate and conflicting source facts",
+      "unmatched and orphan keys",
+      "input-order independence",
+      "missing, extra, altered and stale lineage",
+      "ceiling breach and replay tamper",
+      "no policy, ranking, integration or activation authority"
+    ],
+    "stop_conditions": [
+      "need to inspect production-derived PSI0B result rows",
+      "need to access production/runtime databases or services",
+      "schema or query-identity ambiguity not resolvable from committed contracts",
+      "implicit conflict resolution or negative inference from missingness",
+      "policy, ranking, consumer-integration or activation semantics",
+      "provider/RPC, production mutation or scope expansion"
+    ],
+    "grants_real_bundle_review_authority": false,
+    "grants_integration_authority": false,
+    "grants_activation_authority": false
+  },
+  "separate_human_approval_sequence": [
+    {
+      "order": 1,
+      "milestone": "PSI0C-B",
+      "purpose": "Fixture-only assessment contract qualification",
+      "authority": "safe-local implementation only"
+    },
+    {
+      "order": 2,
+      "milestone": "PSI0C-C",
+      "purpose": "One bounded read-only application of the qualified assessment contract to the immutable PSI0B shadow bundle",
+      "authority": "local immutable-bundle review only; no integration"
+    },
+    {
+      "order": 3,
+      "milestone": "PSI0C-D",
+      "purpose": "Replay-verified shadow assessment closure and disposition",
+      "authority": "may only state whether integration qualification can be separately proposed"
+    },
+    {
+      "order": 4,
+      "milestone": "PSI0D",
+      "purpose": "Separately designed and qualified limited-consumer integration boundary",
+      "authority": "safe-local qualification first; no deployment or activation"
+    },
+    {
+      "order": 5,
+      "milestone": "SEPARATE_PRODUCTION_CONSUMER_DECISION",
+      "purpose": "Explicit decision on any bounded production consumer",
+      "authority": "requires a new production authorization"
+    },
+    {
+      "order": 6,
+      "milestone": "SEPARATE_EVIDENCE_ACTIVATION_DECISION",
+      "purpose": "Evidence Mirror, Cohort Mode or feature activation",
+      "authority": "not implied by integration qualification and requires independent approval"
+    },
+    {
+      "order": 7,
+      "milestone": "SEPARATE_EB2_ROADMAP_RECONCILIATION",
+      "purpose": "Define whether any EB2 namespace is coherent",
+      "authority": "not entered or authorized by PSI0C"
+    }
+  ],
+  "authority_separation": {
+    "shadow_bundle_review": "PSI0C-C only after PSI0C-B qualification",
+    "integration_qualification": "PSI0D only after PSI0C-D disposition",
+    "evidence_mirror_or_cohort_mode_activation": "independent production-changing decision",
+    "production_activation": "independent production-changing decision",
+    "eb2": "independent roadmap decision",
+    "cross_lane_inference_prohibited": true
+  },
+  "actions_performed": {
+    "production_or_runtime_access": 0,
+    "live_telemetry_observations": 0,
+    "shadow_result_rows_inspected": 0,
+    "select_or_explain_executed": 0,
+    "provider_rpc_calls": 0,
+    "production_writes_or_ddl": 0,
+    "service_actions": 0,
+    "configuration_or_flag_changes": 0,
+    "implementation_changes": 0
+  }
+}

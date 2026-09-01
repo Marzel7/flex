@@ -1,0 +1,14 @@
+{
+  "schema_version": "generic_living_runtime_wiring_qualification.v3",
+  "atomic_publication_artifact": {"path": "docs/audits/generic_living_atomic_publication_qualification.v1.json", "sha256": "74c1f57d2b8f870a527409dc7feaa997ff147c88bd48acff4ea3287606150706"},
+  "actual_entry_point": "handle_walkback_evidence_update(path, **context)",
+  "entry_event_contract": "mint/funder/mechanism/amount context; no generic known_mints or registry resolver index",
+  "resolver_contract": "resolve_affected_living_candidates(registry,event) requires event.known_mints keyed by source_candidate_id",
+  "reader_contract": "read_generic_living_source_context(spec, db_path, event_context) is candidate-scoped and only callable after affected candidate resolution",
+  "wiring_blocker": "Resolver-first runtime wiring has a dependency cycle: active event does not supply known_mints, while the bounded persisted reader cannot be invoked until resolution. Pre-reading both candidates would violate the required resolver-first/candidate-scoped contract.",
+  "real_feature_flag": false,
+  "real_db_writes": 0,
+  "real_living_state_unchanged": true,
+  "required_remediation": "Add a read-only, registry-owned resolver index/query primitive that maps event keys to configured candidate IDs before candidate evidence reads; qualify it separately, then wire the canonical ON-path.",
+  "verdict": "GENERIC_LIVING_RUNTIME_WIRING_HOLD_INTEGRATION"
+}

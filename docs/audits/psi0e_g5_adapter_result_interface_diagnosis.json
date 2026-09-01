@@ -1,0 +1,63 @@
+{
+  "schema_version": "psi0e-g5.adapter-result-interface-diagnosis.v1",
+  "milestone": "PSI0E-G5",
+  "diagnosed_at_utc": "2026-08-16T11:44:23Z",
+  "engineering_commit": "0b3687fb0b61529034702f6117eb60071c43074f",
+  "status": "PASS",
+  "verdict": "CALLER_MISUSE_COMMITTED_CONTRACT_INTERFACE_CORRECT_ONE_FRESH_PUBLICATION_MAY_BE_PROPOSED",
+  "bound_inputs": {
+    "psi0e_g3_adapter_contract_digest": "668ddda9b18f9034bdbc595f27b7fa70acc1d8b1a5b298f24a6af38a25d26814",
+    "psi0e_g3_qualification_digest": "bda8785637f2e8f900a3653c7e94997dda7003f99c131574773a3376a8d109bf",
+    "psi0e_g4_closure_digest": "0e7cd7786e36b464a4158dda5f8b4d3b7f02311da2747fcde1a8a02fd2bd9757",
+    "psi0e_e_publication_contract_digest": "b893198fed71329c33083176a7ce93d7c86f119ab66b9488dbf9c42db6435cc3",
+    "expected_psi0e_c_input_digest": "89c8dee5c976bd587aa6fc7ec3a6194e38caeba5508013c8ddca976489038f35",
+    "expected_envelope_digest": "c8827678b2137f1aec864f86623514a92affb0c6df092d13b24c160f8fb90a9d"
+  },
+  "diagnosis": {
+    "adapter_return_type": "DescriptiveIntegrationEnvelope",
+    "exact_result_fields": [
+      "canonical_envelope",
+      "input_digest",
+      "envelope_digest",
+      "contract_digest"
+    ],
+    "incorrect_caller_field": "canonical_input_digest",
+    "correct_caller_field": "input_digest",
+    "adapter_internal_input_digest_verification": true,
+    "adapter_internal_envelope_digest_verification": true,
+    "adapter_internal_contract_digest_verification": true,
+    "publisher_independent_canonical_envelope_digest_verification": true,
+    "committed_contract_or_interface_defect": false,
+    "caller_misuse": true
+  },
+  "stopped_attempt_scope": {
+    "adapter_invoked": true,
+    "publisher_invoked": false,
+    "retry_performed": false,
+    "output_created": false,
+    "staging_created": false,
+    "partial_publication": false,
+    "prior_authorization_reusable": false
+  },
+  "smallest_safe_next_action": {
+    "repair_required": false,
+    "caller_correction": "Use result.input_digest, result.envelope_digest, result.contract_digest and result.canonical_envelope exactly as exposed by DescriptiveIntegrationEnvelope.",
+    "fresh_publication_authorization_required": true,
+    "psi0e_h_appropriate_before_publication": false
+  },
+  "authority": {
+    "policy": false,
+    "ranking": false,
+    "integration": false,
+    "deployment": false,
+    "activation": false
+  },
+  "scope_proof": {
+    "real_psi0d_f_audit_reopened": false,
+    "real_envelope_reconstructed": false,
+    "publisher_invoked": false,
+    "output_or_staging_created": false,
+    "production_or_runtime_access": false,
+    "provider_or_rpc_calls": 0
+  }
+}

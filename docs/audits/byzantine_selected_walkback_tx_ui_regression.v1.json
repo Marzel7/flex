@@ -1,0 +1,82 @@
+{
+  "schema_version": "byzantine-selected-walkback-tx-ui-regression.v1",
+  "status": "COMPLETE_READ_ONLY",
+  "frozen_baseline": {
+    "total": 182,
+    "digest": "b9c88cab4b1d7a90deea64b7d03736cce14b1571a5a797eeb807f26867b055e1",
+    "still_surfaced_total": 182,
+    "missing_total": 0,
+    "missing_identities": [],
+    "compatibility_intact": true
+  },
+  "current_surface": {
+    "unique_mint_total": 188,
+    "new_post_freeze_mint_total": 6,
+    "new_post_freeze_mints": ["6k1w3AeTUHpdrxwvtDaRZiskdaHf2QG75XqWz7w3pump","7SZuy7ccnHwE8tr3b2qmcToNiNW7BbCjPLbrArhUpump","9EPtBAjbsssaaTrBSmzRPyQiWkiazbZBnkiq14S8pump","9mjAP6yYFVwmuc1TAU1RfiPdCwn4pzEdHSekXcHZpump","Az1sJ1jW6ZDhijhn8VEG3X8UT5TvVfLLrgXLjd36pump","GHBjkwQiuky8uMTWkSkU1sJEiqNZFDJK3NoBeEofpump"]
+  },
+  "raw_funder_signature_coverage": {
+    "frozen_with_funder_sig_total": 182,
+    "frozen_without_funder_sig_total": 0,
+    "frozen_without_funder_sig_identities": [],
+    "current_with_funder_sig_total": 188,
+    "current_without_funder_sig_total": 0,
+    "data_regression_present": false,
+    "semantic": "wt_walkback_queue.funder_sig is projected as wrap_close_signature then selected_walkback_tx; it remains the selected hop-1 technical Walkback trace."
+  },
+  "reader_projection": {
+    "reader_returns_raw_funder_sig": true,
+    "reader_returns_selected_walkback_tx": true,
+    "reader_selected_walkback_field_name": "selected_walkback_tx",
+    "reader_funder_sig_overwritten": false,
+    "reader_funder_sig_filtered": false,
+    "reader_funder_sig_shadowed_by_new_fields": false,
+    "reader_path": "operator_launch_membership/wt_walkback_queue.funder_sig AS wrap_close_signature -> _enrich_byzantine_dual_legs() -> selected_walkback_tx"
+  },
+  "template_projection": {
+    "render_condition": "selected_walkback_tx || signature, then removed if economic-leg evidence exists and selected signature equals upstream_funding.signature or creator_provisioning.signature",
+    "always_visible_when_present": false,
+    "collapsed_or_advanced": false,
+    "visually_hidden_by_css": false,
+    "deduplicated": true,
+    "exact_logic": "if (legs && selected && ((x.upstream_funding||{}).signature===selected || (x.creator_provisioning||{}).signature===selected)) tx='';"
+  },
+  "renderable_coverage": {
+    "frozen_rendering_upstream_tx_total": 105,
+    "frozen_rendering_creator_tx_total": 168,
+    "frozen_rendering_selected_walkback_tx_total": 0,
+    "frozen_selected_walkback_deduplicated_total": 182,
+    "frozen_any_tx_link_rendered_total": 182,
+    "frozen_no_tx_link_rendered_total": 0,
+    "frozen_no_tx_link_rendered_identities": [],
+    "current_selected_walkback_tx_rendered_total": 6,
+    "current_selected_walkback_deduplicated_total": 182
+  },
+  "screenshot_sample": {
+    "row_total": 30,
+    "with_funder_sig_total": 30,
+    "with_selected_tx_renderable_total": 6,
+    "with_selected_tx_visible_total": 6,
+    "finding": "Top sample includes the six post-freeze rows without retained economic legs, so their Selected Walkback Tx remains visible. Ten middle and ten lower frozen rows retain funder_sig but have the visible technical link suppressed by duplicate-field logic."
+  },
+  "pre_post_comparison": {
+    "pre_enrichment_source": "wt_walkback_queue.funder_sig / wrap_close_signature",
+    "pre_enrichment_render_count": 182,
+    "post_enrichment_source": "same source projected as selected_walkback_tx",
+    "post_enrichment_render_count": 0,
+    "behavior_changed": true,
+    "change": "The old Funding Tx was relabeled Selected Walkback Tx, then suppressed when equal to a new role-aware transaction. This changed visibility even though neither source data nor reader projection changed."
+  },
+  "x78": {
+    "restart_time": "NOT_REQUIRED_TO_ESTABLISH_PRESENTATION_REGRESSION",
+    "byzantine_funder_sig_changes_after_x78": "NOT_OBSERVED",
+    "post_x78_new_rows_funder_sig_coverage": "6/6",
+    "historical_rows_changed_by_x78": false,
+    "causally_related_to_ui_change": "UNSUPPORTED",
+    "reason": "The suppression is an already-loaded template expression; service restarts do not mutate the reader’s SQLite projection or historical funder_sig values."
+  },
+  "regression": {
+    "class": "PRESENTATION_REGRESSION_SELECTED_TX_HIDDEN",
+    "reason": "All 182 protected historical technical links are hidden by duplicate-signature suppression. The technical trace must remain visible even when an economic role points to the same transaction, because it has a distinct selected-Walkback meaning."
+  },
+  "safety": "Read-only diagnosis plus this additive audit artifact; 0 RPC/provider calls; no code/UI/schema/database/Walkback/service/attribution/membership/suppression mutation."
+}

@@ -1,0 +1,139 @@
+{
+  "schema_version": "b2n.p3i.ordinal2-live-continuation-result.v1",
+  "artifact_type": "B2N_P3I_ORDINAL2_LIVE_CONTINUATION_RESULT",
+  "milestone": "B2N-P3I",
+  "generated_utc": "2026-08-18T22:10:00Z",
+  "run_id": "b2n-p3e-98695fbdf44146c93ff08c8c",
+
+  "prior_state": {
+    "completed_ordinals": [1],
+    "remaining_ordinals": "2..20",
+    "physical_requests_consumed": 1,
+    "remaining_budget": 19
+  },
+
+  "ordinal_2_identity": {
+    "mint": "3hgXvsR8Xh6hnoKyFbPnrMVEkrKGPVbH6EJQkzoNpump",
+    "census_event_id": "3e4dbf40558e85f62d9b22151f7e9077a6fd3b31a3946d871a51336de716edb5",
+    "reviewed_migration_origin_signature": "2aP6mCzC2aoaMn7SZfV4jvYUNeCgoyrsM96iGCThjS6U9if92fZjaxPcMyUh1hdMBR1had8EdD2d9stvw389FkVP",
+    "human_decision": "APPROVED",
+    "reviewer_id": "human_operator",
+    "review_timestamp_utc": "2026-08-18T14:50:31Z",
+    "verified_against": [
+      "docs/evidence_platform/oip_v2_2e_2b2u_b2r_frozen_manifest.json",
+      "docs/audits/b2n_cohort_eligibility_reviewed_provenance_binding.json",
+      "docs/audits/b2n_p3e_bounded_migration_lineage_run_authorization_preflight.json"
+    ],
+    "identity_matched_across_all_three_sources": true
+  },
+
+  "request_event_accounting": {
+    "new_reservations_for_ordinal_2": 1,
+    "new_terminal_events_for_ordinal_2": 1,
+    "terminal_event_type": "ATTEMPT_SUCCEEDED",
+    "new_attempt_ledger_entries_for_ordinal_2": 1,
+    "request_number": 2,
+    "event_utc_ns_reserved": 1787086569131707000,
+    "event_utc_ns_succeeded": 1787086569351956000
+  },
+
+  "provider_result": {
+    "provider": "helius",
+    "method": "getTransaction",
+    "provider_signature": "2aP6mCzC2aoaMn7SZfV4jvYUNeCgoyrsM96iGCThjS6U9if92fZjaxPcMyUh1hdMBR1had8EdD2d9stvw389FkVP",
+    "provider_slot": 438884664,
+    "provider_block_time_utc": null,
+    "request_outcome": "SUCCESS",
+    "request_count": 1
+  },
+
+  "migration_lineage_result": {
+    "observation_required": true,
+    "provenance_complete": true,
+    "evidence_observed": false,
+    "error_class": "B2W_MIGRATION_LINEAGE_ONLY",
+    "note_on_error_class": "this is a semantic sentinel, not a failure -- ordinal 1 (SUCCESS) carries the identical error_class value. It marks that this adapter's contract is migration-lineage-only.",
+    "no_creator_funding_claim": true,
+    "no_creator_funding_evidence_acquired_statement": "NO_CREATOR_FUNDING_EVIDENCE_ACQUIRED_IN_B2N -- confirmed: no creator-funding-related fields, calls, or evidence were produced by this execution"
+  },
+
+  "provenance_closure_recheck": {
+    "closure_state": {"COMPLETE": 20, "PARTIAL": 0, "MISSING": 0, "CONFLICTING": 0},
+    "closure_qualified": true,
+    "unchanged_from_prior_check": true
+  },
+
+  "cumulative_accounting": {
+    "physical_requests_consumed": 2,
+    "remaining_budget": 18,
+    "max_total_requests": 20,
+    "dispatched_ordinals": [1, 2]
+  },
+
+  "ordinal_1_integrity": {
+    "entry_count_unchanged": 1,
+    "provider_signature_unchanged": "3F3Kx3jN8oaKx4w25GAgYwosXtFgiSyKPSmYyUhX3YeqWdR7jNmgBV9gzofyPkKznbP5FZ9f6tFzQQyCCTN4hq8i",
+    "redispatched": false
+  },
+
+  "ordinal_3_plus_untouched_proof": {
+    "attempt_ledger_entries_ordinal_3_plus": 0,
+    "event_ledger_entries_ordinal_3_plus": 0,
+    "confirmed_untouched": true
+  },
+
+  "storage_v2_health_check": {
+    "legacy_db_recreated": false,
+    "creator_funding_worker_pid": 33383,
+    "creator_funding_worker_restarted": false,
+    "compact_historical_index_row_count": 1938017,
+    "compact_historical_index_unchanged": true,
+    "disk_free_gib": 74,
+    "disk_state_unaffected_by_b2n_execution": true
+  },
+
+  "live_artifact_integrity": {
+    "pre_execution_digests": {
+      "attempt_ledger_sha256": "06ea55a8b21a30aec7b81f23737f921b1dcdf5bbe88266671600a25785fe9e0f",
+      "event_ledger_sha256": "f427610ccdae99b033d006fc0423170bcb6780a461c85c13d329c5fda8615071",
+      "live_result_sha256": "675e0bf23c99b70e24db24ef27bf0738f47b0fe69d6200543031ece62fa18767"
+    },
+    "note": "these three digests necessarily changed as a DIRECT, EXPECTED, AUTHORIZED result of this milestone's single append-only continuation step (append to attempt ledger, append two events to event ledger, overwrite the result summary file) -- this is the intended behavior of resume_run(), not a violation. The Part 9 no-drift requirement applied to the PRE-EXECUTION test phase (Part 8, before any live dispatch), where all three digests were reconfirmed byte-identical to their RA4-era values before this live step was taken."
+  },
+
+  "credential_handling": {
+    "credential_env_var": "B2N_P3C_HELIUS_ENDPOINT",
+    "credential_printed_logged_or_serialized": false,
+    "credential_present_in_this_artifact": false,
+    "execution_performed_by": "human operator, manual invocation outside this session, per the exact command presented at the READY_B2N_ORDINAL_2_MANUAL_EXECUTION_GATE"
+  },
+
+  "authority_posture": {
+    "ordinal_1_redispatched": false,
+    "ordinal_3_plus_executed": false,
+    "new_20_request_allowance_created": false,
+    "b2n_ledgers_deleted_reset_or_truncated": false,
+    "retries_performed": 0,
+    "pagination_performed": 0,
+    "fallback_performed": 0,
+    "b2z_executed": false,
+    "watchtower_mutated": false,
+    "existing_operations_mutated": false,
+    "h_series_evidence_altered": false,
+    "trading_policy_state_changed": false,
+    "ra4_reopened": false,
+    "legacy_db_recreated": false,
+    "creator_funding_worker_restarted": false,
+    "v2_retention_routing_changed": false,
+    "v2_cap_reset": false,
+    "handoff_transport_repaired": false
+  },
+
+  "deterministic_digest": "2d1eaf2e3664a7b569220a0a176d9c22b0a745e533c36a292d5e7762b8fc76bf",
+  "deterministic_digest_method": "SHA-256 of canonical JSON (sort_keys, compact separators) of {run_id, processed_ordinal, mint, provider_signature, provider_slot, request_outcome, completed_ordinals, physical_requests_consumed}",
+
+  "blockers": [],
+
+  "verdict": "B2N_ORDINAL_2_LIVE_CONTINUATION_PASS",
+  "verdict_note": "Ordinal 2 was executed exactly once via the qualified resume_run() continuation mechanism, by manual human invocation using the isolated credential environment variable (never read, printed, or logged by this session). Every Part 14 success requirement is independently verified directly from the durable ledgers: exactly one new reservation, one terminal event (ATTEMPT_SUCCEEDED), one new attempt entry; ordinal=2; mint and provider signature match the frozen/reviewed cohort exactly; request_outcome=SUCCESS; request_count=1; provenance_complete=true; no creator-funding evidence acquired. Ordinal 1 is completely unchanged and was not redispatched. Zero ordinal 3+ activity exists in either ledger. Cumulative physical requests: 2/20 consumed, 18 remaining. Storage/V2/RA4 state is entirely unaffected by this B2N step. Per explicit instruction, ordinal 3 was NOT executed and will not be executed without a separate authorization."
+}

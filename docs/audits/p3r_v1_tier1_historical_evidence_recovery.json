@@ -1,0 +1,63 @@
+{
+  "candidates": {
+    "p3r-candidate-13a04d7da7a1fc55": {
+      "classification": "AGGREGATE_V1_EVIDENCE_ONLY",
+      "evidence_type": "LATER_REFERENCE_TO_HISTORICAL_RESULT",
+      "member_count_reported": 5,
+      "provenance": "git commit 069c3ed2; later handoff states five frozen historical members, but cites absent /tmp v1 artifact and later v2 shadow artifact",
+      "recovered_member_list": null
+    },
+    "p3r-candidate-af5004dfe42cfe11": {
+      "classification": "AGGREGATE_V1_EVIDENCE_ONLY",
+      "evidence_type": "LATER_REFERENCE_TO_HISTORICAL_RESULT",
+      "member_count_reported": 52,
+      "provenance": "git commit ca9b69f6; later handoff aggregate reconciliation",
+      "recovered_member_list": null
+    },
+    "p3r-candidate-bf30e77ee07e312b": {
+      "classification": "AGGREGATE_V1_EVIDENCE_ONLY",
+      "evidence_type": "LATER_REFERENCE_TO_HISTORICAL_RESULT",
+      "member_count_reported": 14,
+      "provenance": "git commit e469a6e8; later handoff aggregate reconciliation",
+      "recovered_member_list": null
+    },
+    "p3r-candidate-ec1b6cff80643746": {
+      "classification": "AGGREGATE_V1_EVIDENCE_ONLY",
+      "evidence_type": "LATER_REFERENCE_TO_HISTORICAL_RESULT",
+      "member_count_reported": 15,
+      "provenance": "git commit 30bf8987; later Tier-1 lookup summary",
+      "recovered_member_list": null
+    }
+  },
+  "canonical_sha256": "512d3c8875220436b799bc61d0ccb4c638910752160a9ab29a6ab375c6f70c01",
+  "conclusion": "Original four-candidate Tier-1 result survived as committed aggregate/handoff summaries. No original v1 member-mint list or original v1 artifact bytes were recovered. v1-to-v2 reconciliation remains unsupported.",
+  "investigation": "read_only_historical_evidence_recovery",
+  "original_aggregate_evidence": {
+    "qualification_verdict": "P3R_WATCH_NOW_TIERS_QUALIFIED",
+    "source_commit": "6d19e91a",
+    "tier_1_historical_members": 86,
+    "tier_1_ids": [
+      "p3r-candidate-13a04d7da7a1fc55",
+      "p3r-candidate-af5004dfe42cfe11",
+      "p3r-candidate-bf30e77ee07e312b",
+      "p3r-candidate-ec1b6cff80643746"
+    ],
+    "tier_label": "TIER_1_ACTIVE_MULTI_LAYER"
+  },
+  "original_v1_artifacts_expected_but_absent": [
+    "/tmp/p3r-clean-20260824T092959Z/behavioural_corpus/p3r_candidate_operational_family_membership.v1.json",
+    "/tmp/p3r-clean-20260824T092959Z/activity/tiers/p3r_tier1_candidate_membership.v1.json"
+  ],
+  "overall_classification": "V1_LINEAGE_PARTIALLY_RECOVERABLE",
+  "prohibited_sources_not_used": [
+    "canonical v2 membership",
+    "p3r_v2 assessment/reconciliation tables"
+  ],
+  "report_version": 1,
+  "searched_sources": [
+    "working tree/docs/agent_handoff",
+    "/Users/kevinkeaveney/.claude targeted candidate search",
+    "git all-refs string history",
+    "P3R scripts and temporary-artifact references"
+  ]
+}

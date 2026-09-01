@@ -40,6 +40,67 @@ class MirroringTransactionAcquisition(SharedTransactionAcquisition):
         return response
 
 
+class _ParallelRetainedAcquisitionStore:
+    """Run multiple retention writers for shadow/parallel RA4 activation."""
+
+    def __init__(self, stores: list[Any]) -> None:
+        self.stores = stores
+
+    def _run(self, operation: str, *args: Any, **kwargs: Any) -> None:
+        last_error: Exception | None = None
+        all_failed = True
+        for store in self.stores:
+            try:
+                getattr(store, operation)(*args, **kwargs)
+                all_failed = False
+            except Exception as exc:  # pragma: no cover - defensive path
+                last_error = exc
+        if all_failed and last_error is not None:
+            raise last_error
+
+    def retain(self, *args: Any, **kwargs: Any):
+        return self._run("retain", *args, **kwargs)
+
+    def record_outcome(self, *args: Any, **kwargs: Any):
+        return self._run("record_outcome", *args, **kwargs)
+
+    def combined_accounting(self, *args: Any, **kwargs: Any):
+        for store in self.stores:
+            if hasattr(store, "combined_accounting"):
+                return store.combined_accounting(*args, **kwargs)
+        return {
+            "eligible_total": 0,
+            "retained_total": 0,
+            "failed_with_gap_total": 0,
+            "not_retainable_total": 0,
+            "failed_gap_write_failed_total": 0,
+            "unresolved_durable_total": 0,
+            "invalid_journal_event_total": 0,
+            "accounting_residual": 0,
+        }
+
+    def health(self) -> dict[str, Any]:
+        for store in self.stores:
+            if hasattr(store, "health"):
+                try:
+                    return store.health()
+                except Exception:
+                    continue
+        raise RuntimeError("all_retained_stores_unhealthy")
+
+    def record_gap(self, *args: Any, **kwargs: Any):
+        return self._run("record_gap", *args, **kwargs)
+
+    def get(self, *args: Any, **kwargs: Any):
+        rows: list[Any] = []
+        for store in self.stores:
+            try:
+                rows.extend(store.get(*args, **kwargs))
+            except Exception:
+                continue
+        return rows
+
+
 class RetainingTransactionAcquisition(SharedTransactionAcquisition):
     """Fail-open prospective retention of completed acquisition context."""
     def __init__(self, *args: Any, retained_store: Any, degraded_journal: Any = None, **kwargs: Any) -> None:
@@ -147,14 +208,28 @@ def _configured_mirror() -> Any:
 def _configured_retained_store() -> Any:
     from src.evidence.config import EvidenceConfig
     config = EvidenceConfig.from_env()
-    if not config.retained_acquisition_observations_enabled:
+    if not (config.retained_acquisition_observations_enabled or config.retained_acquisition_v2_shadow_enabled):
         return None
-    from src.acquisition.retained_observations import RetainedAcquisitionStore
-    from src.evidence.artifacts import ArtifactStore
-    store = RetainedAcquisitionStore(
-        config.retained_acquisition_database_path,
-        ArtifactStore(config.artifact_path, enabled=True),
+    from src.acquisition.retained_observations import (
+        RetainedAcquisitionStore,
+        RetainedAcquisitionStoreV2,
     )
+    from src.evidence.artifacts import ArtifactStore
+    stores = []
+    if config.retained_acquisition_observations_enabled:
+        stores.append(RetainedAcquisitionStore(
+            config.retained_acquisition_database_path,
+            ArtifactStore(config.artifact_path, enabled=True),
+        ))
+    if config.retained_acquisition_v2_shadow_enabled:
+        stores.append(RetainedAcquisitionStoreV2(
+            config.retained_acquisition_v2_shadow_database_path,
+            ArtifactStore(config.retained_acquisition_v2_shadow_artifact_path, enabled=True),
+            daily_payload_cap_bytes=config.retained_acquisition_v2_daily_payload_cap_bytes,
+        ))
+    if not stores:
+        return None
+    store = stores[0] if len(stores) == 1 else _ParallelRetainedAcquisitionStore(stores)
     from src.acquisition.degraded_accounting import BoundedDegradedJournalHandoff, DegradedAccountingJournal
     return store, BoundedDegradedJournalHandoff(
         DegradedAccountingJournal(config.retained_acquisition_degraded_path),

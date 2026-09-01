@@ -1,0 +1,97 @@
+{
+  "audit_id": "nexus_leviathan_verified_token_surface.v1",
+  "generated_at": 1788191356,
+  "leviathan_implementation": {
+    "card_component": "verifiedTokenCard('Verified Leviathan Tokens', leviathanDetector.exact_count, 'Verified Leviathan', leviathanDetector.verified_total, description) -- same shared helper as Nexus",
+    "card_implemented": true,
+    "current_exact_count": 209,
+    "current_pending_count": 0,
+    "current_verified_count": 209,
+    "description": "Each displayed token meets the complete Leviathan WSOL wrap-close operation contract. Rejected and ambiguous comparison rows are not included in this Leviathan view.",
+    "detector_state_census": {
+      "EXACT": 209
+    },
+    "member_not_exact_count": 0,
+    "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+    "operation_name": "Leviathan",
+    "token_source": "src/ops/operator_reader.py::_leviathan_detector_projection(conn) -- one row per canonical operator_launch_membership member, evidence checked per-mint via evaluate_mint; NOT operation_behavioural_profiles.member_mints_json"
+  },
+  "nexus_reference": {
+    "card_component": "verifiedTokenCard('Verified Nexus Tokens', nexusDetector.counts.UNIQUE_MATCH, 'Verified Nexus', nexusDetector.counts.UNIQUE_MATCH, description) in templates/operator_intelligence.html::renderCompactSummary",
+    "current_exact_count": 91,
+    "current_verified_count": 91,
+    "description_source": "hardcoded operation-specific copy string in the template call site (semantics only, not the shared presentation)",
+    "exact_count_source": "OP.nexus_detector.counts.UNIQUE_MATCH (src/ops/operator_reader.py::_nexus_detector_projection)",
+    "operation_id": "bd7d7479-1454-5d41-9f68-115550348f3e",
+    "operation_name": "Nexus",
+    "read_model_fields": [
+      "counts.UNIQUE_MATCH",
+      "counts.NO_MATCH",
+      "counts.INSUFFICIENT_INPUT",
+      "counts.AMBIGUOUS",
+      "reviewed",
+      "rows[]"
+    ],
+    "regression_verified": true,
+    "token_collection_source": "model.all_launches || model.recent_launches, filtered to UNIQUE_MATCH rows via detectorByMint",
+    "verified_count_source": "same as exact_count_source (Nexus semantics: exact == verified)"
+  },
+  "nexus_regression": {
+    "description_unchanged": true,
+    "exact_count_unchanged_semantics": true,
+    "green_markers_unaffected": true,
+    "nexus_ui_delta": 0,
+    "title_unchanged": true,
+    "verified_count_unchanged_semantics": true
+  },
+  "old_leviathan_summary_disposition": "REMOVED -- the prior inline 'Detector \u00b7 X exact / X verified [\u00b7 Y pending]' one-line micro-summary was redundant once the Verified Leviathan Tokens card was added, and was removed. A secondary pending-count note (shown only when pending_count > 0) remains, mirroring how Nexus keeps activity/other cards separate from the verified-token card.",
+  "operation_specific_semantics": {
+    "leviathan": "P3R_UNIFIED_WSOL_WRAP_CLOSE_99_999985_SOL.v1 contract, internal detector id not exposed in the primary description text",
+    "nexus": "DIRECT_10K_CREATOR_PROVISIONING contract, unchanged, no shared code with Leviathan's detector"
+  },
+  "other_operations_safety": {
+    "other_operations_ui_delta": 0,
+    "verified_operator": "04265d9f-6eb2-568c-a49e-9253091a4dbb (WATCHTOWER) shows no Verified Tokens card"
+  },
+  "p3r_13a04_safety": {
+    "membership_count": 0,
+    "rows_in_verified_leviathan": 0
+  },
+  "production_write_accounting": {
+    "detector_changes": 0,
+    "dispatch_changes": 0,
+    "membership_deletes": 0,
+    "membership_writes": 0,
+    "operation_identity_writes": 0,
+    "source_evidence_rewrites": 0,
+    "token_analysis_writes": 0
+  },
+  "rejected_lookalikes": {
+    "count": 8,
+    "displayed_in_verified_leviathan": 0
+  },
+  "render": {
+    "leviathan_card_present": true,
+    "leviathan_duplicate_mint_count": 0,
+    "leviathan_green_marker_count": 209,
+    "leviathan_http_status": 200,
+    "leviathan_route": "/intelligence/operator/777211c3-211e-551b-9310-ff9301570627",
+    "nexus_card_present": true,
+    "nexus_http_status": 200,
+    "nexus_route": "/intelligence/operator/bd7d7479-1454-5d41-9f68-115550348f3e"
+  },
+  "shared_presentation": {
+    "call_sites": 2,
+    "helper": "var verifiedTokenCard = function(title, exactCount, verifiedLabel, verifiedCount, description)",
+    "identical_markup_structure": true,
+    "scope": "Nexus and Leviathan only -- not generalized to other operations in this task"
+  },
+  "tests": "23/23 passed -- tests/test_nexus_leviathan_verified_token_surface.py; full related Leviathan+Nexus suite 76/76",
+  "visual_comparison": {
+    "leviathan_green_markers_visible": true,
+    "no_duplicate_leviathan_verification_summary": true,
+    "no_stale_recent_admission_section": true,
+    "operation_specific_copy": true,
+    "same_visual_hierarchy": true
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/parent_child_operation_qualification/p3r-v2-wsol-parent-child-v1/p3r_v2_wsol_parent_child_operation_qualification.v1.json",
+  "artifact_sha256": "e13eac824e353fb38a4af36320227acf0e37709a909f36e842b7aab8ae338fac",
+  "deterministic_replay": "PASS: frozen detector inputs yield the same TP/FP/FN counts.",
+  "source_highwaters": {
+    "atomic_rowid": 7095,
+    "edge_rowid": 60299
+  },
+  "status": "QUALIFICATION_GATES_FAILED_NO_REGISTRY_MUTATION"
+}

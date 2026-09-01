@@ -1,0 +1,18 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5E-R1 -- immutable closed-segment remediation",
+  "timestamp_utc": "2026-08-21T10:12:46Z",
+  "status": "HOLD_P5E_R1_PRE_REPAIR_INVARIANT_UNRESOLVED",
+  "authorized_probe": "Fresh bounded host-side read-only recheck",
+  "result": "NO_USABLE_RESULT_RETURNED",
+  "production_actions": {
+    "cold_base_replaced": false,
+    "delta_published": false,
+    "hot_rows_deleted": 0,
+    "services_restarted": false,
+    "rollback_db_touched": false
+  },
+  "exact_next_action": "Diagnose why bounded read-only SQLite/Supervisor probes complete without returning measurements; rerun and obtain all seven explicit invariant values before physical repair.",
+  "handoff_integrity": {
+    "pre_update_sha256": "36b436df6f4c1783348eedcde1d96698a4fcfb83beaf99de338f6e1fd696132c"
+  }
+}

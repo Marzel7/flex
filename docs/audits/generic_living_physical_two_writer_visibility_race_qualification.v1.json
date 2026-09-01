@@ -1,0 +1,43 @@
+{
+  "artifact_version": "v1",
+  "prior_retry_qualification": {
+    "path": "docs/audits/generic_living_concurrent_association_visibility_retry_qualification.v1.json",
+    "sha256": "60083aacef7fdf9e460edd732066d673a28c403d9c4b0d354367b28cb55aa37b"
+  },
+  "database": "fresh disposable SQLite database using potential_operation_evidence_association schema",
+  "journal_mode": "wal",
+  "writer_topology": "two independent sqlite3.Connection instances, each opened and used in its own thread",
+  "association": "same deterministic candidate-owned identity and identical immutable content",
+  "synchronization": "A BEGIN and pre-insert SELECT absent; B BEGIN/INSERT/COMMIT; A resumes without ending its read transaction",
+  "forced_visibility_retry_hook_used": false,
+  "iterations": 10,
+  "observed_each_iteration": {
+    "a_pre_lookup": "absent",
+    "b_insert": "committed",
+    "a_insert_or_ignore": "not reached successfully",
+    "a_error": "SQLITE_BUSY_SNAPSHOT before INSERT OR IGNORE",
+    "post_insert_same_snapshot_lookup": "unreachable"
+  },
+  "sqlite_constraint": "In WAL mode a read transaction whose snapshot predates B's commit cannot upgrade to a write transaction. SQLite returns SQLITE_BUSY_SNAPSHOT, so the requested stale post-conflict lookup cannot be physically induced. The canonical publisher is stricter: it writes assessment/lineage before association persistence, acquiring the write lock before A's association pre-lookup and preventing B from committing in the requested interval.",
+  "production_retry_naturally_triggered": false,
+  "full_transaction_restart_naturally_observed": false,
+  "lock_telemetry": {
+    "SQLITE_BUSY_SNAPSHOT": 10,
+    "SQLITE_LOCKED": 0,
+    "database_table_is_locked": 0,
+    "visibility_retries": 0,
+    "retry_exhaustion": 0
+  },
+  "integrity_check": "ok each iteration",
+  "controls": {
+    "uncontended_publication": "covered by existing canonical publication regression; retry_count=0",
+    "true_conflict": "covered by existing immutable-content and ownership regressions; not converted to visibility retry",
+    "forced_visibility_restart": "covered by prior qualification; this physical test intentionally does not use it"
+  },
+  "production_safety": {
+    "real_feature_flag": "OFF",
+    "real_db_writes": 0,
+    "provider_rpc_network_calls": 0
+  },
+  "readiness": "HOLD_FULL_80_40_TRUSTWORTHY_FAILURE_RUN: stated physical success criterion is incompatible with SQLite WAL transaction semantics and canonical publisher ordering."
+}

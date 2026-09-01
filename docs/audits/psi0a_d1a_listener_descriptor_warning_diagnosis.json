@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D1A",
+  "status": "COMPLETE",
+  "verdict": "TRANSIENT_DESCRIPTOR_FANOUT_RECOVERED",
+  "observed_at_utc": "2026-08-14T10:04:49Z",
+  "engineering_revision": "7a9c0c2bca9d3936dad482092a9aa2f236cb2303",
+  "scope": {
+    "production_databases_opened": 0,
+    "schema_or_row_queries": 0,
+    "explain_queries": 0,
+    "production_writes_or_ddl": 0,
+    "provider_calls": 0,
+    "service_or_configuration_changes": 0
+  },
+  "measurement_semantics": {
+    "watchdog_measure": "Descriptors whose path exactly equals the primary database file.",
+    "excluded_from_watchdog_measure": ["WAL descriptor", "SHM descriptor"],
+    "correction": "The prior composite lsof count of 11 was not primary_fd_count and could not itself trigger the threshold gate."
+  },
+  "threshold_episode": {
+    "timestamp_epoch": 1786701315.354306,
+    "primary_fd_count": 8,
+    "warning_threshold": 8,
+    "fatal_threshold": 12,
+    "fatal_cycles_before_sample": 0,
+    "registry_count": 1,
+    "registry_fd_delta": 7,
+    "tracked_owner": "vault_discovery.py:969 in discover_and_register_all_pools",
+    "tracked_owner_age_seconds": 37.6,
+    "tracked_owner_state": "OWNER_THREAD_CLEANUP_REQUIRED",
+    "transaction_open": false,
+    "write_lane_owned": false,
+    "attribution_limit": "Seven primary descriptors were outside the managed connection registry at the sample, so exact individual ownership cannot be proven from authorized telemetry."
+  },
+  "recovery": {
+    "next_watchdog_sample_epoch": 1786701365.935056,
+    "next_primary_fd_count": 0,
+    "all_subsequent_samples_below_warning_threshold": true,
+    "latest_three_watchdog_samples": [0, 0, 0],
+    "listener_pid": 9069,
+    "listener_pid_stable": true,
+    "critical_descriptor_event_during_diagnosis": false,
+    "serializer_p95_wait_ms": 10.49,
+    "serializer_p99_wait_ms": 324.55,
+    "serializer_queue_depth": 0,
+    "lock_errors_24h": 1,
+    "services_and_ingestion_healthy": true,
+    "production_impact_observed": false
+  },
+  "assessment": "The warning was transient concurrent descriptor fan-out with one observable long owner-thread-cleanup connection, not a persistent descriptor leak. Exact ownership of the registry delta remains unproven and must not be inferred.",
+  "objective_reauthorization_gate": {
+    "minimum_consecutive_watchdog_samples_below_8": 3,
+    "latest_watchdog_primary_fd_count_below_8": true,
+    "listener_pid_unchanged": true,
+    "critical_descriptor_events": 0,
+    "serializer_p99_wait_ms_below_1000": true,
+    "serializer_queue_depth": 0,
+    "lock_errors_24h_no_new_increment": true,
+    "queue_websocket_ingestion_and_services_healthy": true,
+    "gate_passed": true
+  },
+  "next_action": "Separately authorize one PSI0A-D production metadata-only non-executing query-plan inspection under the existing contract and immediate stop gates."
+}

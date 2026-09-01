@@ -1,0 +1,111 @@
+{
+  "schema_version": "psi0b-e16.diagnosis.v1",
+  "milestone": "PSI0B-E16",
+  "status": "PASS_DIAGNOSIS_CURRENTLY_RECOVERED",
+  "engineering_commit": "9bbc4c077ecb189952c900539c8a8d0031b59269",
+  "bound_inputs": {
+    "authorization_id": "psi0b-shadow-auth-20260815-11",
+    "authorization_digest": "da2ab2d17e630e05e96e290375711310e7501a1b98a5da1ade1c90fe1a95501d",
+    "authorization_consumed": false,
+    "authorization_reusable": false,
+    "attempt_artifact": "docs/audits/psi0b_e_11_production_shadow_attempt.json",
+    "attempt_digest": "b615e1e77daaa80e1e415c0dcddf804af12949d7de01d61881720eb9d23fd94b",
+    "observer_terminal_digest": "a0c7dc980f8dedc99cded31882178fa8f3a01260e2a4bc1495b6a059095d7f31",
+    "observer_ledger_digest": "2566e5268f7e65d504167a027bbf755d25393f61bde514ed52ba644575633c77"
+  },
+  "stopped_attempt": {
+    "first_checkpoint": {
+      "observed_at_epoch": 1786799924.520177,
+      "authoritative_write_lease_state": "ABSENT",
+      "primary_fd_count": 0,
+      "serializer_queue_depth": 0,
+      "decision": "PASS"
+    },
+    "second_checkpoint": {
+      "observed_at_epoch": 1786799955.1978319,
+      "authoritative_write_lease_state": "PRESENT",
+      "primary_fd_count": 5,
+      "serializer_queue_depth": 0,
+      "decision": "PSI0B_E9_AUTHORITATIVE_WRITE_LEASE_PRESENT"
+    },
+    "elapsed_seconds": 30.67765498161316,
+    "production_database_opens": 0,
+    "production_queries": 0,
+    "production_rows_read": 0,
+    "output_published": false
+  },
+  "attribution": {
+    "exact_database": "UNRESOLVED_NOT_RETAINED",
+    "exact_process": "UNRESOLVED_NOT_RETAINED",
+    "exact_task_or_transaction": "UNRESOLVED_NOT_RETAINED",
+    "reason": "The E13 checkpoint ledger retained only the aggregate authoritative_write_lease_state Boolean. It did not retain the authoritative owner-sidecar path, canonical owner contents, database identity, process identity, task identity, transaction identity, or acquisition timestamp.",
+    "classification": "REAL_TRANSIENT_AUTHORITATIVE_OWNER_METADATA_LIFECYCLE",
+    "classification_basis": [
+      "The authoritative state changed from ABSENT to PRESENT between two replay-valid checkpoints.",
+      "The retained RELEASE_PENDING temporary-sidecar component and digest were byte-for-byte unchanged across both checkpoints and are therefore not the trigger.",
+      "Both main and operations database/WAL metadata changed during the interval, so filesystem metadata alone cannot safely attribute the lease to either database.",
+      "No authoritative owner sidecar or physical lock-file descriptor remained at the recovery checks."
+    ],
+    "long_held_transaction_supported": false,
+    "incomplete_cleanup_supported": false,
+    "stale_authoritative_metadata_supported": false,
+    "recurrent_physical_lease_retention_supported": false
+  },
+  "correlation": {
+    "primary_fd_count": 5,
+    "serializer_queue_depth": 0,
+    "assessment": "CONTEMPORANEOUS_NOT_CAUSALLY_ATTRIBUTABLE",
+    "reason": "Five listener primary-database descriptors remained below the warning threshold of eight, while serializer queue depth was zero. The retained evidence does not connect those descriptors to the unidentified cross-process lease owner."
+  },
+  "current_recovery": {
+    "verified_at_utc": "2026-08-15T13:23:04Z",
+    "supervisor_identities": {
+      "watchtower_listener": {
+        "pid": 72232,
+        "state": "RUNNING"
+      },
+      "walkback_worker": {
+        "pid": 70136,
+        "state": "RUNNING"
+      },
+      "ws_cascade": {
+        "pid": 5461,
+        "state": "RUNNING"
+      }
+    },
+    "authoritative_owner_sidecar_count": 0,
+    "physical_lock_file_descriptor_count": 0,
+    "serializer_p99_wait_ms": 13.73,
+    "serializer_p95_wait_ms": 0.04,
+    "serializer_queue_depth": 0,
+    "serializer_lock_errors_24h": 0,
+    "retained_non_authoritative_temporary_sidecar": "database/wt_ops_v2.db.write.lock.owner.41735.8753196096.tmp",
+    "retained_temporary_sidecar_classification": "HISTORICAL_NON_AUTHORITATIVE_DIAGNOSTIC_COMPONENT",
+    "verdict": "CURRENTLY_RECOVERED_NO_PERSISTENT_LEASE_EVIDENCE"
+  },
+  "smallest_safe_next_gate": {
+    "milestone": "PSI0B-E16A",
+    "type": "BOUNDED_PRODUCTION_TELEMETRY_READ_ONLY_RECOVERY_OBSERVATION",
+    "checkpoint_count": 3,
+    "checkpoint_spacing_seconds": 30,
+    "requirements": [
+      "Stable watchtower_listener PID 72232, walkback_worker PID 70136, and ws_cascade PID 5461 at every checkpoint.",
+      "No authoritative owner sidecar and no physical lock-file descriptor at every checkpoint.",
+      "primary_fd_count below 8 at every checkpoint.",
+      "Zero CRITICAL_LISTENER_DB_HANDLE events.",
+      "Serializer p99_wait_ms below 1000, queue_depth zero, and lock_errors_24h unchanged at every checkpoint.",
+      "Healthy PumpPortal, PumpSwap, ingestion, queues, workers, database/WAL metadata, and services at every checkpoint.",
+      "No production impact or observer insufficiency."
+    ],
+    "stop_semantics": "STOP_IMMEDIATELY_ON_FIRST_FAILED_GATE_NO_RETRY",
+    "success_effect": "MAY_PROPOSE_ONE_SEPARATELY_AUTHORIZED_FRESH_PSI0B_E_ATTEMPT_ONLY"
+  },
+  "authority": {
+    "grants_extraction_authority": false,
+    "grants_integration_authority": false,
+    "grants_activation_authority": false,
+    "grants_retry_authority": false,
+    "grants_service_action_authority": false,
+    "grants_production_mutation_authority": false
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": "watchtower-expanded-opening-slot-observations.v1",
+  "evidence":"one bounded Helius getBlock per verified creation slot; target TradeEvents decoded locally",
+  "observations":[
+    {"mint":"BuY3MHzaDEd2ipwub6uAhddH8Ah95oHoZfNDVkVVpump","slot":443452972,"buys":5,"sells":0,"buyers":5,"sol_in":85.005359057,"end_mc_sol":410.880168121,"complete":true},
+    {"mint":"3FiN2FHTKheZUE7njYhsZob1rUoURHK3QTfRpWNFpump","slot":434527275,"buys":5,"sells":0,"buyers":5,"sol_in":85.005359057,"end_mc_sol":410.880168121,"complete":true},
+    {"mint":"9Lua93QysHFz6Qni12T8gW7Z4XmWx9oy7qW1wg4ipump","slot":435142145,"buys":5,"sells":0,"buyers":5,"sol_in":85.005359057,"end_mc_sol":410.880168121,"complete":true},
+    {"mint":"5G1Q6G1e7pV4yfaCXNANwyJCPfvcs8YXYrzyoFcQpump","slot":437303667,"buys":6,"sells":0,"buyers":6,"sol_in":36.645962739,"end_mc_sol":137.983359708,"complete":false},
+    {"mint":"1jo4vqH3Tkth78dTZw482nBr3xJu86Tqoc1hvo9TMGk","slot":438916846,"status":"EVENT_DECODE_UNRESOLVED_VARIANT"},
+    {"mint":"C6UjUyxZhfF5qthtW3CY8twwzPFTHo9HbJyxqDjUS51","slot":440094832,"buys":1,"sells":0,"buyers":1,"sol_in":11.851851851,"end_mc_sol":54.413715543,"complete":false},
+    {"mint":"BfNr6vWmids4gGWeGacqzpxtcjL2YAcAmFWjJYyqXvcF","slot":440374029,"buys":1,"sells":0,"buyers":1,"sol_in":11.851851851,"end_mc_sol":54.413715543,"complete":false},
+    {"mint":"A46e4PSwb3gJYj6HtcpyeQDzsDMeumdVpX4CQbaypump","slot":439433807,"buys":7,"sells":0,"buyers":7,"sol_in":22.169409628,"end_mc_sol":84.5494657,"complete":false},
+    {"mint":"6b6TPYY54JaKztDha5yVZC6x6P7PKbK27jbyeFJRpump","slot":442029876,"buys":5,"sells":0,"buyers":5,"sol_in":85.005359057,"end_mc_sol":410.880168121,"complete":true},
+    {"mint":"BbLB3ikTnLkMH1HCNe1oXYYH29jjes7HP2s5VctApump","slot":443482916,"buys":5,"sells":0,"buyers":5,"sol_in":85.005359057,"end_mc_sol":410.880168121,"complete":true}
+  ],
+  "qualification":"Opening-slot event observations only. Except the existing BuY3 reference, these were not promoted to full creation-to-event replay qualification in this bounded run."
+}

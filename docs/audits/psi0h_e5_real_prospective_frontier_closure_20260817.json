@@ -1,0 +1,77 @@
+{
+  "artifact_name": "PSI0H-E5 frontier closure and sprint pivot",
+  "artifact_type": "immutable_sprint_checkpoint",
+  "scope": "real-prospective-capture",
+  "status": "HOLD",
+  "verdict": "PROSPECTIVE_CAPTURE_BOUNDARY_QUALIFIED_HOLD_EMPTY_FRONTIER",
+  "program": "PSI0H-E5 -> historical expansion pivot",
+  "records": {
+    "windows_executed": [
+      3,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21
+    ],
+    "non_empty_real_frontier_windows": [10],
+    "empty_tail_windows": [7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
+    "provider_calls_by_window": {
+      "10": 5,
+      "non_qualifying_windows": 0
+    },
+    "migrations_selected_by_window": {
+      "3": 0,
+      "5": 7,
+      "6": 7,
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "10": 5,
+      "11": 0,
+      "12": 0,
+      "13": 0,
+      "14": 0,
+      "15": 0,
+      "16": 0,
+      "17": 0,
+      "18": 0,
+      "19": 0,
+      "20": 0,
+      "21": 0
+    }
+  },
+  "controls": {
+    "authorization": {
+      "PSI0H_E5_REAL_RUN_AUTHORIZED": true,
+      "source_read": false,
+      "provider_access": true,
+      "comparison": false,
+      "monitoring": false,
+      "activation": false,
+      "service_changes": false
+    },
+    "contract_preservation": {
+      "max_migrations": 20,
+      "max_provider_requests": 20,
+      "requests_per_migration": 1,
+      "retries_allowed": 0,
+      "pagination_enabled": false,
+      "failover_enabled": false,
+      "real_event_time_derivation": true
+    }
+  },
+  "result": "Real frontier capture machinery is qualified and bounded. Empty-window frontier behavior is deterministic, provider-bounded, and replay-validity-safe. Stop further E5 sweeps until historical discovery pivot is implemented."
+}

@@ -1,0 +1,20 @@
+{
+  "coverage": {
+    "CONFIRMED_LAUNCHES": 0,
+    "EVALUABLE": 0,
+    "FUNDING_PATH_AVAILABLE": 0,
+    "FUNDING_SIGNATURE_AVAILABLE": 0,
+    "LOCAL_DECODED": 0,
+    "RPC_DECODED": 0,
+    "UNRESOLVED": 0
+  },
+  "dominant_coverage": "0/0",
+  "families": [],
+  "mechanisms": {},
+  "operation": "Harbinger",
+  "persistence": "NONE",
+  "records": [],
+  "source": "NOT_CURRENT_CONFIRMED_TOP_LEVEL_OPERATION",
+  "temporal_stability": "NO_STABLE_PATTERN",
+  "unresolved": []
+}

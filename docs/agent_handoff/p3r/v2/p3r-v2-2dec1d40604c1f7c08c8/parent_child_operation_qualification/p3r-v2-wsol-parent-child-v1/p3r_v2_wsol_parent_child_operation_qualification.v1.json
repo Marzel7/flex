@@ -1,0 +1,105 @@
+{
+  "candidate_workflow_records": [
+    {
+      "candidate": "p3r-v2-900b89587c6987d582df",
+      "next_action": "Acquire or define a discriminating local evidence feature without using known addresses.",
+      "status": "INVESTIGATION_CLOSED",
+      "verdict": "REJECTED_LOW_PRECISION"
+    },
+    {
+      "candidate": "p3r-v2-c357da9d0d4d560311e4",
+      "next_action": "Acquire or define a discriminating local evidence feature without using known addresses.",
+      "status": "INVESTIGATION_CLOSED",
+      "verdict": "REJECTED_LOW_PRECISION"
+    }
+  ],
+  "child_contracts": {
+    "WSOL_PROVISION_CLOSE_100_SOL_MINUS_15K": {
+      "atomic_policy_tested": "strong confirmation and mandatory exact-five-step variants",
+      "core": "selected hop-1 WSOL_WRAP_CLOSE exact 99999985000 lamports",
+      "family": "p3r-v2-c357da9d0d4d560311e4"
+    },
+    "WSOL_PROVISION_CLOSE_1_SOL_MINUS_15K": {
+      "atomic_policy_tested": "strong confirmation and mandatory exact-five-step variants",
+      "core": "selected hop-1 WSOL_WRAP_CLOSE exact 999985000 lamports",
+      "family": "p3r-v2-900b89587c6987d582df"
+    }
+  },
+  "deterministic_replay": "PASS: frozen detector inputs yield the same TP/FP/FN counts.",
+  "forward_detection": "DEFERRED; no child qualified and no production detector was added.",
+  "frozen_shadow_replay": {
+    "900b": {
+      "address_blind_ablation": "unchanged because no addresses or membership labels were detector inputs",
+      "core": {
+        "fn": 0,
+        "fp": 15,
+        "matches_outside_source_family": 15,
+        "precision": 0.7457627118644068,
+        "recall": 1.0,
+        "tp": 44
+      },
+      "exact_five_step": {
+        "fn": 13,
+        "fp": 15,
+        "precision": 0.6739130434782609,
+        "recall": 0.7045454545454546,
+        "tp": 31
+      },
+      "verdict": "REJECTED_LOW_PRECISION"
+    },
+    "boundary": {
+      "atomic_rowid": 7095,
+      "edge_rowid": 60299
+    },
+    "c357": {
+      "address_blind_ablation": "unchanged because no addresses or membership labels were detector inputs",
+      "core": {
+        "fn": 0,
+        "fp": 43,
+        "matches_outside_source_family": 43,
+        "precision": 0.6228070175438597,
+        "recall": 1.0,
+        "tp": 71
+      },
+      "exact_five_step": {
+        "fn": 0,
+        "fp": 43,
+        "precision": 0.6228070175438597,
+        "recall": 1.0,
+        "tp": 71
+      },
+      "verdict": "REJECTED_LOW_PRECISION"
+    }
+  },
+  "negative_controls": {
+    "063e_amount": 9999985000,
+    "9121_amount": 2122039000,
+    "result": "Nearby variants do not match either exact child amount, but unrelated external matches at each exact amount prevent qualification.",
+    "wrong_child_assignment": 0
+  },
+  "parent_child_exclusivity": "Exact child amounts are mutually exclusive, but this does not make them sufficiently precise in the full retained detector population. Parent-only matches remain unassigned.",
+  "parent_contract": {
+    "classification": "MECHANISM_PARENT",
+    "meaning": "Temporary-WSOL provision-and-close mechanism only; not controller identity or child attribution.",
+    "name": "WSOL_PROVISION_CLOSE"
+  },
+  "registry_changes": {
+    "children_registered": false,
+    "memberships_added": 0,
+    "parent_registered": false,
+    "reason": "Fail-closed before transaction because independently evaluated precision gates failed."
+  },
+  "rpc_gap": "An additional transaction-derived discriminator beyond exact amount plus five-step lifecycle is required; RPC is not executed by this run.",
+  "rpc_verdict": "RPC_REQUIRED_FOR_SPECIFIC_GAP",
+  "safety_confirmation": {
+    "canonical_membership_tier_fingerprint_threshold_mutation": false,
+    "queue_replay": false,
+    "registry_or_operation_membership_mutation": false,
+    "rpc_provider_calls": false,
+    "trading": false,
+    "watchtower_mutation": false
+  },
+  "schema_version": "P3R_V2_WS0L_PARENT_CHILD_OPERATION_QUALIFICATION.v1",
+  "status": "QUALIFICATION_GATES_FAILED_NO_REGISTRY_MUTATION",
+  "tests": "Frozen independent shadow replay plus address-blind ablation and nearby-variant negative controls executed; no source-code regression test added because no implementation was accepted."
+}

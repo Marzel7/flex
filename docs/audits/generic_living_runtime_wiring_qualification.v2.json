@@ -1,0 +1,12 @@
+{
+  "schema_version": "generic_living_runtime_wiring_qualification.v2",
+  "previous_wiring_hold": {"path": "docs/audits/generic_living_runtime_wiring_qualification.v1.json", "sha256": "db3e02a94ecc249f1e67638f9132edf5c58f0c520d843bf17c8de9c7b59c13ab"},
+  "association_persistence_qualification": {"path": "docs/audits/generic_living_association_persistence_qualification.v1.json", "sha256": "76383b538437664dde735cbe2bce6a1d77fb97ae5e52a089b4812576c8162dcb"},
+  "actual_entry_point_wired": false,
+  "blocker": "persist_generic_associations must participate in exactly the same short transaction as assessment, lineage, bindings, and current update. Existing publish_with_lineage owns and commits its transaction, so composing the current functions would permit partial association persistence if subsequent publication fails.",
+  "required_remediation": "Refactor the existing publisher into a transaction-scoped primitive (no nested begin/commit) and one canonical wrapper that performs assessment, candidate-owned associations, lineage, bindings, freshness decision, and commit atomically; qualify failure rollback before runtime wiring.",
+  "real_feature_flag": false,
+  "real_db_writes": 0,
+  "real_living_state_unchanged": true,
+  "verdict": "GENERIC_LIVING_RUNTIME_WIRING_HOLD_CORRECTNESS"
+}

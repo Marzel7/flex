@@ -1,0 +1,2064 @@
+{
+  "adversarial_matrix": [
+    {
+      "alternative_amount_vector": [
+        14479000,
+        14479000,
+        14479000,
+        14479000
+      ],
+      "alternative_fingerprint": {
+        "contract": "P3R_V2_FINGERPRINT_CONTRACTS.v1",
+        "edges": [
+          {
+            "amount_lamports": 14479000,
+            "hop_depth": 3,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          }
+        ],
+        "kind": "BASE_SELECTED_EDGE"
+      },
+      "alternative_semantics": [
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE"
+      ],
+      "alternative_signatures": [
+        "4zwBhaqe7vgSDZ7Nxq98sGM6XA1qcXCPsgNvqKNC2UPMgkS6po98XXRNNo3oYPjcYXWqv3BWncBQF72SteGeaozE",
+        "55iLMkq6XsMXW2WR8E1BqDEXpg7JrWCB8z79qe3jxyvagBWejrG3XsLjA7BGBRAA19jg1DGDi8UEhTNKf8ieLFG9",
+        "5KzoStiuFHvgKEcFiDAm4gmPa9pqJn3aWNW6UHA9WLRoWhYKbw2VL6nKxDEBLCjdAgUTHWRoHharYxkqCVjBeNXf",
+        "5TpTpbkpiveayAeMVoMLWiKCLTNi7FEaCmb6QisNEy5JrKEK9dNGJ3J5KBXAKyioPS7oPb7h9NPyDK37tFeV51su"
+      ],
+      "alternative_topology": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "ancillary_atomic": [
+        {
+          "authority": "F7yZErKKECuKETYeXf3Z4XazKAE3c156uvtZr3LXV7iW",
+          "block_time": 1787116751,
+          "causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+          "close_destination": "F7yZErKKECuKETYeXf3Z4XazKAE3c156uvtZr3LXV7iW",
+          "has_close": 1,
+          "has_create": 1,
+          "has_sync_native": 1,
+          "instruction_order_json": "[\"createIdempotent\", \"transfer\", \"syncNative\", \"createIdempotent\", \"createIdempotent\", \"closeAccount\", \"getAccountDataSize\", \"createAccount\", \"initializeImmutableOwner\", \"initializeAccount3\", \"getAccountDataSize\", \"createAccount\", \"initializeImmutableOwner\", \"initializeAccount3\", \"transferChecked\", \"transferChecked\", \"transferChecked\", \"transferChecked\", \"transferChecked\"]",
+          "mint": "TtcdL2sYgc6RT45yH7vziNrdSFujgAnHrH7AXkEpump",
+          "net_destination_lamports": -2640381,
+          "owner": "F7yZErKKECuKETYeXf3Z4XazKAE3c156uvtZr3LXV7iW",
+          "signature": "4mLbs6DKhwFbEsq2MXdMZsnRYvrHb2RasR1wizssrRHHyZpN6s1KR7fUimomu4FBDH8EmNVyNBfiW8EFgNMB27mk",
+          "source_wallet": "F7yZErKKECuKETYeXf3Z4XazKAE3c156uvtZr3LXV7iW",
+          "temporary_account": "7Q4gLNzsCpvqwjgM8YGXkhYP5ri3sXTDxH8on5jeaCr",
+          "transfer_lamports": 556055
+        }
+      ],
+      "creator": "5LwD1gPAjS9NYvytwazbKPDtRDuw3voABXHM7A2YDWwo",
+      "direct_funder": "Dopcntbyk8VkmrFK9KfNpsgJiinzxPXoMQb4Tuieqrkq",
+      "mint": "TtcdL2sYgc6RT45yH7vziNrdSFujgAnHrH7AXkEpump",
+      "principal_atomic": [
+        {
+          "authority": "7HgJtEmzMFdu9emq7xTiCdrgtExFPVdbKVTtx4gV5Wgx",
+          "block_time": 1787145189,
+          "causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+          "close_destination": "Dopcntbyk8VkmrFK9KfNpsgJiinzxPXoMQb4Tuieqrkq",
+          "has_close": 1,
+          "has_create": 1,
+          "has_sync_native": 1,
+          "instruction_order_json": "[\"createAccountWithSeed\", \"initializeAccount3\", \"transfer\", \"syncNative\", \"closeAccount\"]",
+          "mint": "TtcdL2sYgc6RT45yH7vziNrdSFujgAnHrH7AXkEpump",
+          "net_destination_lamports": 29999990000,
+          "owner": "7HgJtEmzMFdu9emq7xTiCdrgtExFPVdbKVTtx4gV5Wgx",
+          "signature": "638fTGMyrxEpatt5AqRVdHLtJVEdv9AynavuxpVhSCCxoZGzgJa8i1NGzbxt51KDuiYRPbbPQG6Nt8ZytphWf6BE",
+          "source_wallet": "7HgJtEmzMFdu9emq7xTiCdrgtExFPVdbKVTtx4gV5Wgx",
+          "temporary_account": "BQ6MYpo99oaWsoqe3yqnwGxMmBQnQ2xovE4La9F5eGzG",
+          "transfer_lamports": 29997950720
+        }
+      ],
+      "principal_role_template": [
+        {
+          "authority": "7HgJtEmzMFdu9emq7xTiCdrgtExFPVdbKVTtx4gV5Wgx",
+          "close_destination": "Dopcntbyk8VkmrFK9KfNpsgJiinzxPXoMQb4Tuieqrkq",
+          "owner": "7HgJtEmzMFdu9emq7xTiCdrgtExFPVdbKVTtx4gV5Wgx",
+          "source_wallet": "7HgJtEmzMFdu9emq7xTiCdrgtExFPVdbKVTtx4gV5Wgx"
+        }
+      ],
+      "provenance": {
+        "funder_block_time": 1787145190,
+        "funder_signature": "qi2wius5PsiN6hX3CDHcrJarTj8rEiL5YHDZ2TPvsmayhvoXsBK2RCJc6oMmqFmfSozk1m9FBFsWeWtZXowsNGx",
+        "selected_evidence": "retained selected edges"
+      },
+      "selected_amount_vector": [
+        29999985000,
+        29999990000,
+        14479000,
+        2074000
+      ],
+      "selected_fingerprint": {
+        "contract": "P3R_V2_FINGERPRINT_CONTRACTS.v1",
+        "edges": [
+          {
+            "amount_lamports": 29999985000,
+            "hop_depth": 1,
+            "mechanism": "PLAIN_XFER"
+          },
+          {
+            "amount_lamports": 29999990000,
+            "hop_depth": 2,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          },
+          {
+            "amount_lamports": 14479000,
+            "hop_depth": 3,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          },
+          {
+            "amount_lamports": 2074000,
+            "hop_depth": 4,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          }
+        ],
+        "kind": "BASE_SELECTED_EDGE"
+      },
+      "selected_parents": [
+        "Dopcntbyk8VkmrFK9KfNpsgJiinzxPXoMQb4Tuieqrkq",
+        "7HgJtEmzMFdu9emq7xTiCdrgtExFPVdbKVTtx4gV5Wgx",
+        "ACrDS7PPpavc6Ru1GYUxmdxPMaLAq7twWLHoWYSmVuxa",
+        "F7yZErKKECuKETYeXf3Z4XazKAE3c156uvtZr3LXV7iW"
+      ],
+      "selected_semantics": [
+        "PLAIN_XFER",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE"
+      ],
+      "selected_signatures": [
+        "qi2wius5PsiN6hX3CDHcrJarTj8rEiL5YHDZ2TPvsmayhvoXsBK2RCJc6oMmqFmfSozk1m9FBFsWeWtZXowsNGx",
+        "638fTGMyrxEpatt5AqRVdHLtJVEdv9AynavuxpVhSCCxoZGzgJa8i1NGzbxt51KDuiYRPbbPQG6Nt8ZytphWf6BE",
+        "kYHJ9BE4P6hVdUZL6fSYFXFZnShFixM6A1VERS93TxF4X4VpDPHUacmUvfkMkt9DBcpi3aPDHxfarqu6MkhAmGc",
+        "4mLbs6DKhwFbEsq2MXdMZsnRYvrHb2RasR1wizssrRHHyZpN6s1KR7fUimomu4FBDH8EmNVyNBfiW8EFgNMB27mk"
+      ],
+      "selected_topology": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "timestamp": 1787116751
+    },
+    {
+      "alternative_amount_vector": [
+        14479000,
+        14479000,
+        14479000,
+        14479000
+      ],
+      "alternative_fingerprint": {
+        "contract": "P3R_V2_FINGERPRINT_CONTRACTS.v1",
+        "edges": [
+          {
+            "amount_lamports": 14479000,
+            "hop_depth": 3,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          }
+        ],
+        "kind": "BASE_SELECTED_EDGE"
+      },
+      "alternative_semantics": [
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE"
+      ],
+      "alternative_signatures": [
+        "4Q8PdQmiAi8n2a9vRDeKHcdrJg9Kec4nvwvfLYF8Dct33ZKrZpJTV2jvkqDfzVEqiS8ok13QZGc4kyUegTdsk8p7",
+        "5SsddztJmLikM9LzaM1qNNyx72ULWGFGJVo2rZy8UHjKuyLJ9PJWgfDnsUttG5vuTRmUz1gam3aMkNgU1yQZ4qLZ",
+        "Qw9NHFkK8XhxdVpMuFqoQQZDQgaqqdX9gvkHmwB6ELNqRiN3F3RSdAsQ5ho4voHfCoLt1kVEM4Fp2bFpD6iNdoN",
+        "XWP1kEsSM43U39vDfS7gZMaRRiKGBbE9nQJnJtPFFLnzpL45RpRGQBfvhE3gCdrFaUvZfCmoM3Fi62tYQJJSRyc"
+      ],
+      "alternative_topology": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "ancillary_atomic": [
+        {
+          "authority": "AuuBBj9bebSSSweF2LuyvVuhR83H5rStBQojsbiorm1n",
+          "block_time": 1787133981,
+          "causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+          "close_destination": "AuuBBj9bebSSSweF2LuyvVuhR83H5rStBQojsbiorm1n",
+          "has_close": 1,
+          "has_create": 1,
+          "has_sync_native": 1,
+          "instruction_order_json": "[\"createIdempotent\", \"transfer\", \"syncNative\", \"createIdempotent\", \"createIdempotent\", \"closeAccount\", \"getAccountDataSize\", \"createAccount\", \"initializeImmutableOwner\", \"initializeAccount3\", \"getAccountDataSize\", \"createAccount\", \"initializeImmutableOwner\", \"initializeAccount3\", \"transferChecked\", \"transferChecked\", \"transferChecked\", \"transferChecked\", \"transferChecked\"]",
+          "mint": "aFt6QNDNTCg4CkpT7Z7bcb3V1iXSbvF36ptaTnZpump",
+          "net_destination_lamports": -2586308,
+          "owner": "AuuBBj9bebSSSweF2LuyvVuhR83H5rStBQojsbiorm1n",
+          "signature": "3PfGoT8zoB5LTcgPsGaAGNgcLWhtRJD6jeAbnepGiwtLKgityezJUtkg2LFHdgk9BkzXHrWFMR3turZtq3gudKtv",
+          "source_wallet": "AuuBBj9bebSSSweF2LuyvVuhR83H5rStBQojsbiorm1n",
+          "temporary_account": "28cGNg1kBSCuMRxXvmQdkRyoWzUEwGBsduG43U83wcVK",
+          "transfer_lamports": 515259
+        }
+      ],
+      "creator": "21K1mWQfRRXBBonN3j7XPWafrAUZn9VD8n7uG5JZ5HSt",
+      "direct_funder": "13qWz7rFwmzyPbcYCUa74QKzF3a7GdQsu6aMUQ1M9PQb",
+      "mint": "aFt6QNDNTCg4CkpT7Z7bcb3V1iXSbvF36ptaTnZpump",
+      "principal_atomic": [
+        {
+          "authority": "GctZnFzjhAeH45YpxadejnNe4QcHU79jUKhnUJ6dDWCX",
+          "block_time": 1787144683,
+          "causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+          "close_destination": "13qWz7rFwmzyPbcYCUa74QKzF3a7GdQsu6aMUQ1M9PQb",
+          "has_close": 1,
+          "has_create": 1,
+          "has_sync_native": 1,
+          "instruction_order_json": "[\"createAccountWithSeed\", \"initializeAccount3\", \"transfer\", \"syncNative\", \"closeAccount\"]",
+          "mint": "aFt6QNDNTCg4CkpT7Z7bcb3V1iXSbvF36ptaTnZpump",
+          "net_destination_lamports": 29999990000,
+          "owner": "GctZnFzjhAeH45YpxadejnNe4QcHU79jUKhnUJ6dDWCX",
+          "signature": "2uJKBvr8dvQ9koGmw72XC5EJ34QwmXgJ7YCU3pwQxaYEc7DCw34QD87JSRmjJohmb493RbL4C1EugQtJMfiifH1d",
+          "source_wallet": "GctZnFzjhAeH45YpxadejnNe4QcHU79jUKhnUJ6dDWCX",
+          "temporary_account": "AxCKqfYv7zz6R1GND7ZzrR27v3dj5JJaQbokQP3bSL1K",
+          "transfer_lamports": 29997950720
+        }
+      ],
+      "principal_role_template": [
+        {
+          "authority": "GctZnFzjhAeH45YpxadejnNe4QcHU79jUKhnUJ6dDWCX",
+          "close_destination": "13qWz7rFwmzyPbcYCUa74QKzF3a7GdQsu6aMUQ1M9PQb",
+          "owner": "GctZnFzjhAeH45YpxadejnNe4QcHU79jUKhnUJ6dDWCX",
+          "source_wallet": "GctZnFzjhAeH45YpxadejnNe4QcHU79jUKhnUJ6dDWCX"
+        }
+      ],
+      "provenance": {
+        "funder_block_time": 1787144684,
+        "funder_signature": "2BXMHLFyjw6BBQPtNaNDeiXe4jvV96hRK63rpEjxKVQBL9j2kYuP4BLfNNk7tFec1pjdKfeaTqrxjmfNB3muJo3r",
+        "selected_evidence": "retained selected edges"
+      },
+      "selected_amount_vector": [
+        29999985000,
+        29999990000,
+        14479000,
+        2074000
+      ],
+      "selected_fingerprint": {
+        "contract": "P3R_V2_FINGERPRINT_CONTRACTS.v1",
+        "edges": [
+          {
+            "amount_lamports": 29999985000,
+            "hop_depth": 1,
+            "mechanism": "PLAIN_XFER"
+          },
+          {
+            "amount_lamports": 29999990000,
+            "hop_depth": 2,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          },
+          {
+            "amount_lamports": 14479000,
+            "hop_depth": 3,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          },
+          {
+            "amount_lamports": 2074000,
+            "hop_depth": 4,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          }
+        ],
+        "kind": "BASE_SELECTED_EDGE"
+      },
+      "selected_parents": [
+        "13qWz7rFwmzyPbcYCUa74QKzF3a7GdQsu6aMUQ1M9PQb",
+        "GctZnFzjhAeH45YpxadejnNe4QcHU79jUKhnUJ6dDWCX",
+        "5QWCSZHfqWATRKc3RCLhaazX4kAVXzTpaRBoDf4iFwFY",
+        "AuuBBj9bebSSSweF2LuyvVuhR83H5rStBQojsbiorm1n"
+      ],
+      "selected_semantics": [
+        "PLAIN_XFER",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE"
+      ],
+      "selected_signatures": [
+        "2BXMHLFyjw6BBQPtNaNDeiXe4jvV96hRK63rpEjxKVQBL9j2kYuP4BLfNNk7tFec1pjdKfeaTqrxjmfNB3muJo3r",
+        "2uJKBvr8dvQ9koGmw72XC5EJ34QwmXgJ7YCU3pwQxaYEc7DCw34QD87JSRmjJohmb493RbL4C1EugQtJMfiifH1d",
+        "4jqG2eBPwi3Rg9cFcyHR1SUgtZENcemyjuccEUh6U4wmhzpbag6EsPqsQEMRYMCjHNAQbXmvthAsCNhvZephZxPo",
+        "3PfGoT8zoB5LTcgPsGaAGNgcLWhtRJD6jeAbnepGiwtLKgityezJUtkg2LFHdgk9BkzXHrWFMR3turZtq3gudKtv"
+      ],
+      "selected_topology": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "timestamp": 1787133981
+    },
+    {
+      "alternative_amount_vector": [
+        14479000,
+        14479000,
+        14479000,
+        14479000
+      ],
+      "alternative_fingerprint": {
+        "contract": "P3R_V2_FINGERPRINT_CONTRACTS.v1",
+        "edges": [
+          {
+            "amount_lamports": 14479000,
+            "hop_depth": 3,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          }
+        ],
+        "kind": "BASE_SELECTED_EDGE"
+      },
+      "alternative_semantics": [
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE"
+      ],
+      "alternative_signatures": [
+        "1MsYEzRCcYABb6d44UUSFMLjtCXCEeMzHkCeCEYhVf3DNzZ4sAmQuReNMrXBpi7Wfkr6CsVLaExRD1m3nfMneM7",
+        "3BRV6T3iamp8c517xsdrDiNbC66HVg5UHTVkA7GAVzYHdadhVQeJoTQS3kSCsCE4DtsqkR2tFkkt5RcNGjbdih3E",
+        "3oz92iVRk5wjrNhmsfwJE1M8RFRbxwrMKDk23zvWz5bD4Q5hJfNwDJE59RHesMdyX65wwPYJKzT3pbsoGbDdPHaZ",
+        "5VNKVPRhvk5cLyQcDtgo2WVStZLk4a8ujzXUZwExzWSJ2bGCFJR8xRnoMjSQhyXj72E3MTpDTQz56aPtsBixAubC"
+      ],
+      "alternative_topology": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "ancillary_atomic": [
+        {
+          "authority": "6Nvjhn8mc2q5FUegL7WEn1gXXuvk2ZtTyNhyfDTT8xtv",
+          "block_time": 1787184915,
+          "causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+          "close_destination": "6Nvjhn8mc2q5FUegL7WEn1gXXuvk2ZtTyNhyfDTT8xtv",
+          "has_close": 1,
+          "has_create": 1,
+          "has_sync_native": 1,
+          "instruction_order_json": "[\"createIdempotent\", \"transfer\", \"syncNative\", \"createIdempotent\", \"createIdempotent\", \"closeAccount\", \"getAccountDataSize\", \"createAccount\", \"initializeImmutableOwner\", \"initializeAccount3\", \"getAccountDataSize\", \"createAccount\", \"initializeImmutableOwner\", \"initializeAccount3\", \"transferChecked\", \"transferChecked\", \"transferChecked\", \"transferChecked\", \"transferChecked\"]",
+          "mint": "fYUQSasxSS9oYqtsYnmJEWAHMU2BG4UwcJrXHdtpump",
+          "net_destination_lamports": -3143559,
+          "owner": "6Nvjhn8mc2q5FUegL7WEn1gXXuvk2ZtTyNhyfDTT8xtv",
+          "signature": "433DDzx5XkaeqjqQSMPawPJxnKdcPt4jJ6Rxqh2KmTH2fAu9npnCKihURS7F2dwz3kcFFioTmBYuU1GP6dPugAvd",
+          "source_wallet": "6Nvjhn8mc2q5FUegL7WEn1gXXuvk2ZtTyNhyfDTT8xtv",
+          "temporary_account": "AjyLoRVi9WhW4SqF865kD2ZcwsDe65mH5CjnDY4cdq86",
+          "transfer_lamports": 1041968
+        }
+      ],
+      "creator": "67LzjoKyCmHFLarXsZEPv5X6buqD6xnvh2xsStQWvBDc",
+      "direct_funder": "8f4ZjLLwpgpDxbqLazcnLHwTESnBf8yhwWjTcYwaAxp9",
+      "mint": "fYUQSasxSS9oYqtsYnmJEWAHMU2BG4UwcJrXHdtpump",
+      "principal_atomic": [
+        {
+          "authority": "2KuBnLWuUW5ygnKHqtUWkhsYKaHzy4iYN2sYehXPbSzZ",
+          "block_time": 1787229784,
+          "causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+          "close_destination": "8f4ZjLLwpgpDxbqLazcnLHwTESnBf8yhwWjTcYwaAxp9",
+          "has_close": 1,
+          "has_create": 1,
+          "has_sync_native": 1,
+          "instruction_order_json": "[\"createAccountWithSeed\", \"initializeAccount3\", \"transfer\", \"syncNative\", \"closeAccount\"]",
+          "mint": "fYUQSasxSS9oYqtsYnmJEWAHMU2BG4UwcJrXHdtpump",
+          "net_destination_lamports": 29999990000,
+          "owner": "2KuBnLWuUW5ygnKHqtUWkhsYKaHzy4iYN2sYehXPbSzZ",
+          "signature": "2bPi9Fm8SmFG56vNoA6ruGBoaAyMgTDoUaxaRygbDWnUNTvbnPZ6D3cxWDLNMdi7Swdoye1sYxfPSucemmgXryQ8",
+          "source_wallet": "2KuBnLWuUW5ygnKHqtUWkhsYKaHzy4iYN2sYehXPbSzZ",
+          "temporary_account": "CHo3LwGY8LqzpXidqmL5tL6vzhwQ4peLYYNHgn1deqmy",
+          "transfer_lamports": 29997950720
+        }
+      ],
+      "principal_role_template": [
+        {
+          "authority": "2KuBnLWuUW5ygnKHqtUWkhsYKaHzy4iYN2sYehXPbSzZ",
+          "close_destination": "8f4ZjLLwpgpDxbqLazcnLHwTESnBf8yhwWjTcYwaAxp9",
+          "owner": "2KuBnLWuUW5ygnKHqtUWkhsYKaHzy4iYN2sYehXPbSzZ",
+          "source_wallet": "2KuBnLWuUW5ygnKHqtUWkhsYKaHzy4iYN2sYehXPbSzZ"
+        }
+      ],
+      "provenance": {
+        "funder_block_time": 1787229785,
+        "funder_signature": "62UPgzRAmzZvdFmrB8boZeRCdYCnuACGpnjUWq2vuvBAuRtjPjpxqN8C8FjjFU8HdLyYRra3791HtbotKqhqHvqs",
+        "selected_evidence": "retained selected edges"
+      },
+      "selected_amount_vector": [
+        29999985000,
+        29999990000,
+        14479000,
+        2074000
+      ],
+      "selected_fingerprint": {
+        "contract": "P3R_V2_FINGERPRINT_CONTRACTS.v1",
+        "edges": [
+          {
+            "amount_lamports": 29999985000,
+            "hop_depth": 1,
+            "mechanism": "PLAIN_XFER"
+          },
+          {
+            "amount_lamports": 29999990000,
+            "hop_depth": 2,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          },
+          {
+            "amount_lamports": 14479000,
+            "hop_depth": 3,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          },
+          {
+            "amount_lamports": 2074000,
+            "hop_depth": 4,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          }
+        ],
+        "kind": "BASE_SELECTED_EDGE"
+      },
+      "selected_parents": [
+        "8f4ZjLLwpgpDxbqLazcnLHwTESnBf8yhwWjTcYwaAxp9",
+        "2KuBnLWuUW5ygnKHqtUWkhsYKaHzy4iYN2sYehXPbSzZ",
+        "6EdjnAsvdNJoq4eGEW7UP69TMCvxAD2DoNajkQvXaKQh",
+        "6Nvjhn8mc2q5FUegL7WEn1gXXuvk2ZtTyNhyfDTT8xtv"
+      ],
+      "selected_semantics": [
+        "PLAIN_XFER",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE"
+      ],
+      "selected_signatures": [
+        "62UPgzRAmzZvdFmrB8boZeRCdYCnuACGpnjUWq2vuvBAuRtjPjpxqN8C8FjjFU8HdLyYRra3791HtbotKqhqHvqs",
+        "2bPi9Fm8SmFG56vNoA6ruGBoaAyMgTDoUaxaRygbDWnUNTvbnPZ6D3cxWDLNMdi7Swdoye1sYxfPSucemmgXryQ8",
+        "4Bsi5YrrYZffiRBJvL9ADweWstxC246SftA5XjMTkjRkpeiDScA84X18jKzHfk27kRq1XdNMnv9rbvj3QCY6bX7n",
+        "433DDzx5XkaeqjqQSMPawPJxnKdcPt4jJ6Rxqh2KmTH2fAu9npnCKihURS7F2dwz3kcFFioTmBYuU1GP6dPugAvd"
+      ],
+      "selected_topology": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "timestamp": 1787184915
+    },
+    {
+      "alternative_amount_vector": [
+        14479000,
+        14479000,
+        14479000,
+        14479000
+      ],
+      "alternative_fingerprint": {
+        "contract": "P3R_V2_FINGERPRINT_CONTRACTS.v1",
+        "edges": [
+          {
+            "amount_lamports": 14479000,
+            "hop_depth": 3,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          }
+        ],
+        "kind": "BASE_SELECTED_EDGE"
+      },
+      "alternative_semantics": [
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE"
+      ],
+      "alternative_signatures": [
+        "43mapAERg87jPHcmC9WgKkwvtHQmUzgt6KEjJWkq4yzLEw9vybj7avcnGkFHAm9xQnr9cbJpekRjDHznBafVs6SW",
+        "5hKCwSfnS389WtrUVsCXLWRjAhc88PE7MgdaUy2M5QqsStvnABYBJ6awAojy9GkdY4FfpRpCFWbYQhQbYWFodKVZ",
+        "S8pPLkLUPusozegVvePV35w8HwNYFkdm7khgQHjXPKP9na822eMvgoJtmEGMMXCBsSjo3kWyqp4toCfxzJGtGxm",
+        "oSVgKnGSBceHxYxSgr8VaWokfFhNAMDktmPXAWFgfTTfrTw5e6pvTpD7Hz5ZjKzCWVXh8xrYLvk4RiZhhc2CYTd"
+      ],
+      "alternative_topology": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "ancillary_atomic": [
+        {
+          "authority": "AspQDNRDLN4qn3YAXbktnh2YtJeuFRD1CmkH9NhxZUjT",
+          "block_time": 1787223153,
+          "causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+          "close_destination": "AspQDNRDLN4qn3YAXbktnh2YtJeuFRD1CmkH9NhxZUjT",
+          "has_close": 1,
+          "has_create": 1,
+          "has_sync_native": 1,
+          "instruction_order_json": "[\"createIdempotent\", \"transfer\", \"syncNative\", \"createIdempotent\", \"createIdempotent\", \"closeAccount\", \"getAccountDataSize\", \"createAccount\", \"initializeImmutableOwner\", \"initializeAccount3\", \"getAccountDataSize\", \"createAccount\", \"initializeImmutableOwner\", \"initializeAccount3\", \"transferChecked\", \"transferChecked\", \"transferChecked\", \"transferChecked\", \"transferChecked\"]",
+          "mint": "vccC9NYRktfcDP1NEs96RpTdh26BqYEn2hncTxSpump",
+          "net_destination_lamports": -2831734,
+          "owner": "AspQDNRDLN4qn3YAXbktnh2YtJeuFRD1CmkH9NhxZUjT",
+          "signature": "4c9BFYDVVjvrXm1e4gMKBPKQDWThWS112M1Abs9EUTb58m17SMTjfpnkYfTaJZFSU7RpmrdcSsc9HVF2i9nerjaJ",
+          "source_wallet": "AspQDNRDLN4qn3YAXbktnh2YtJeuFRD1CmkH9NhxZUjT",
+          "temporary_account": "67xVCAE9XHG2X6VdteQs4HwXmPrd1Hk6aKUUi8Smrftw",
+          "transfer_lamports": 774539
+        }
+      ],
+      "creator": "2zs2vssvZGZRsC8bL5fy2oAaceTxnSnJJAQ8Co6NvqNk",
+      "direct_funder": "DAUjJumjX2sPujM2vLfzDqrtKkdCS6iG24KaW1zcfjW",
+      "mint": "vccC9NYRktfcDP1NEs96RpTdh26BqYEn2hncTxSpump",
+      "principal_atomic": [
+        {
+          "authority": "GP7rkXTvNnYbj7rPe7CCgqKKdBzp1KTK3PPeXnV3hv4s",
+          "block_time": 1787234075,
+          "causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+          "close_destination": "DAUjJumjX2sPujM2vLfzDqrtKkdCS6iG24KaW1zcfjW",
+          "has_close": 1,
+          "has_create": 1,
+          "has_sync_native": 1,
+          "instruction_order_json": "[\"createAccountWithSeed\", \"initializeAccount3\", \"transfer\", \"syncNative\", \"closeAccount\"]",
+          "mint": "vccC9NYRktfcDP1NEs96RpTdh26BqYEn2hncTxSpump",
+          "net_destination_lamports": 29999990000,
+          "owner": "GP7rkXTvNnYbj7rPe7CCgqKKdBzp1KTK3PPeXnV3hv4s",
+          "signature": "5JSEhipHFWdbFiU9J93NdfpiZjBW3gJf6ycKqFjWLkZLGLmJUXmm3DpKNxRxhkHTaoLxoUsZeUdUTdR1h61L5Vza",
+          "source_wallet": "GP7rkXTvNnYbj7rPe7CCgqKKdBzp1KTK3PPeXnV3hv4s",
+          "temporary_account": "7u6yXbonqhvsnbVotavHPPsrUukPDEjo8sRDCJqAeqMn",
+          "transfer_lamports": 29997950720
+        }
+      ],
+      "principal_role_template": [
+        {
+          "authority": "GP7rkXTvNnYbj7rPe7CCgqKKdBzp1KTK3PPeXnV3hv4s",
+          "close_destination": "DAUjJumjX2sPujM2vLfzDqrtKkdCS6iG24KaW1zcfjW",
+          "owner": "GP7rkXTvNnYbj7rPe7CCgqKKdBzp1KTK3PPeXnV3hv4s",
+          "source_wallet": "GP7rkXTvNnYbj7rPe7CCgqKKdBzp1KTK3PPeXnV3hv4s"
+        }
+      ],
+      "provenance": {
+        "funder_block_time": 1787234075,
+        "funder_signature": "4piQDcrjnkSXqL3Fn4pX2HY4VrwVKEdGEwfWon4cucy7QqhJBcCUT3qrmuFR5m456JiCV3LkEAJM1w97jttWzgQ6",
+        "selected_evidence": "retained selected edges"
+      },
+      "selected_amount_vector": [
+        29999985000,
+        29999990000,
+        14479000,
+        2074000
+      ],
+      "selected_fingerprint": {
+        "contract": "P3R_V2_FINGERPRINT_CONTRACTS.v1",
+        "edges": [
+          {
+            "amount_lamports": 29999985000,
+            "hop_depth": 1,
+            "mechanism": "PLAIN_XFER"
+          },
+          {
+            "amount_lamports": 29999990000,
+            "hop_depth": 2,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          },
+          {
+            "amount_lamports": 14479000,
+            "hop_depth": 3,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          },
+          {
+            "amount_lamports": 2074000,
+            "hop_depth": 4,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          }
+        ],
+        "kind": "BASE_SELECTED_EDGE"
+      },
+      "selected_parents": [
+        "DAUjJumjX2sPujM2vLfzDqrtKkdCS6iG24KaW1zcfjW",
+        "GP7rkXTvNnYbj7rPe7CCgqKKdBzp1KTK3PPeXnV3hv4s",
+        "CpCmcPthKR6UNqPFTQev1zQrVkYoM1whLhWyc76VpDbq",
+        "AspQDNRDLN4qn3YAXbktnh2YtJeuFRD1CmkH9NhxZUjT"
+      ],
+      "selected_semantics": [
+        "PLAIN_XFER",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE"
+      ],
+      "selected_signatures": [
+        "4piQDcrjnkSXqL3Fn4pX2HY4VrwVKEdGEwfWon4cucy7QqhJBcCUT3qrmuFR5m456JiCV3LkEAJM1w97jttWzgQ6",
+        "5JSEhipHFWdbFiU9J93NdfpiZjBW3gJf6ycKqFjWLkZLGLmJUXmm3DpKNxRxhkHTaoLxoUsZeUdUTdR1h61L5Vza",
+        "3bMDj1B9CjgkdpZq7VjNQYYotYix2ydNN5hMe45xoVv223Ja7sQock9ptJR2RiHDvfV8UM7opg5i4i1ncvAdrLTx",
+        "4c9BFYDVVjvrXm1e4gMKBPKQDWThWS112M1Abs9EUTb58m17SMTjfpnkYfTaJZFSU7RpmrdcSsc9HVF2i9nerjaJ"
+      ],
+      "selected_topology": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "timestamp": 1787223153
+    },
+    {
+      "alternative_amount_vector": [
+        14479000,
+        14479000,
+        14479000,
+        14479000
+      ],
+      "alternative_fingerprint": {
+        "contract": "P3R_V2_FINGERPRINT_CONTRACTS.v1",
+        "edges": [
+          {
+            "amount_lamports": 14479000,
+            "hop_depth": 3,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          }
+        ],
+        "kind": "BASE_SELECTED_EDGE"
+      },
+      "alternative_semantics": [
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE"
+      ],
+      "alternative_signatures": [
+        "34hXuiSoSz4WVy1tjs4FnCxhdFbafH5HEQSSM2NddXrbUk6YP9WsPe5YZ4SBaYieTmEm4PaqAMREwXrvtJ1vmcd8",
+        "5o9QaZcwgavXUrDFVbbYWTz8eXcDDwzJpcEsDfQW49EiUWHX8iZfwfzFkM3YRtUM84BHULJNGphGkoQc1hUwZjbd",
+        "8irqL6jNodR88ZDoxE4tjQpovuKNTUjnUjdTzTPECJMmDMBH9W6nPefaAiPqxHYMW7GTqwPHHPb8gNZrMJoqTkd",
+        "tnn9qeKLFyTjMKkyPmygop8GcfEMiswkWCB2LQwnTiqef2PppKny3gNKLVWoaZGepu8sQgSbvqQ9AHXZ19DqprL"
+      ],
+      "alternative_topology": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "ancillary_atomic": [],
+      "creator": "GL9tAW8jkXBRkmEfLMTM6eQZiyjqq8s1MicaKdauTi8F",
+      "direct_funder": "8mcmNq7iNE8XobNiDP4cGwNJ1U7RHYLWiLQgwiRuJLkt",
+      "mint": "TwES5X8iJL44qq9rBwKiJgyVaXX6vDEjR61WqRopump",
+      "principal_atomic": [
+        {
+          "authority": "H24vZYeGs521JUKvuRcaALNTDDwwdL3AZ6yUUFGv3jVV",
+          "block_time": 1787328311,
+          "causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+          "close_destination": "8mcmNq7iNE8XobNiDP4cGwNJ1U7RHYLWiLQgwiRuJLkt",
+          "has_close": 1,
+          "has_create": 1,
+          "has_sync_native": 1,
+          "instruction_order_json": "[\"createAccountWithSeed\", \"initializeAccount3\", \"transfer\", \"syncNative\", \"closeAccount\"]",
+          "mint": "TwES5X8iJL44qq9rBwKiJgyVaXX6vDEjR61WqRopump",
+          "net_destination_lamports": 29999990000,
+          "owner": "H24vZYeGs521JUKvuRcaALNTDDwwdL3AZ6yUUFGv3jVV",
+          "signature": "QsnHkh9B2Y1hzi6vt1F7D3Gmjqe3tuzMmzf8U82Gg4J5Mq3AN9rnNy73K5DNLdw2dzqCeCTZbatnbmqiBayFB2G",
+          "source_wallet": "H24vZYeGs521JUKvuRcaALNTDDwwdL3AZ6yUUFGv3jVV",
+          "temporary_account": "99Uc3SjXpjT2acQZCGSJY28fiF4pb5U1FWp8xU3N5rGs",
+          "transfer_lamports": 29997950720
+        }
+      ],
+      "principal_role_template": [
+        {
+          "authority": "H24vZYeGs521JUKvuRcaALNTDDwwdL3AZ6yUUFGv3jVV",
+          "close_destination": "8mcmNq7iNE8XobNiDP4cGwNJ1U7RHYLWiLQgwiRuJLkt",
+          "owner": "H24vZYeGs521JUKvuRcaALNTDDwwdL3AZ6yUUFGv3jVV",
+          "source_wallet": "H24vZYeGs521JUKvuRcaALNTDDwwdL3AZ6yUUFGv3jVV"
+        }
+      ],
+      "provenance": {
+        "funder_block_time": 1787328311,
+        "funder_signature": "3UUSPsk4AnVkFFxKTSDHLTvvuVfnf9JYCkQs7i7xgSYVq9JRwuTj3HW2asz4zg8BgKgzqXoGWHeKLRwCHCJqxgaP",
+        "selected_evidence": "retained selected edges"
+      },
+      "selected_amount_vector": [
+        29999985000,
+        29999990000,
+        14479000,
+        2074000
+      ],
+      "selected_fingerprint": {
+        "contract": "P3R_V2_FINGERPRINT_CONTRACTS.v1",
+        "edges": [
+          {
+            "amount_lamports": 29999985000,
+            "hop_depth": 1,
+            "mechanism": "PLAIN_XFER"
+          },
+          {
+            "amount_lamports": 29999990000,
+            "hop_depth": 2,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          },
+          {
+            "amount_lamports": 14479000,
+            "hop_depth": 3,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          },
+          {
+            "amount_lamports": 2074000,
+            "hop_depth": 4,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          }
+        ],
+        "kind": "BASE_SELECTED_EDGE"
+      },
+      "selected_parents": [
+        "8mcmNq7iNE8XobNiDP4cGwNJ1U7RHYLWiLQgwiRuJLkt",
+        "H24vZYeGs521JUKvuRcaALNTDDwwdL3AZ6yUUFGv3jVV",
+        "C3gVxBPQ2aBXjAowKNsCn1EKtHcvd6qTv3kyeTMX3Efw",
+        "H24vZYeGs521JUKvuRcaALNTDDwwdL3AZ6yUUFGv3jVV"
+      ],
+      "selected_semantics": [
+        "PLAIN_XFER",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE"
+      ],
+      "selected_signatures": [
+        "3UUSPsk4AnVkFFxKTSDHLTvvuVfnf9JYCkQs7i7xgSYVq9JRwuTj3HW2asz4zg8BgKgzqXoGWHeKLRwCHCJqxgaP",
+        "QsnHkh9B2Y1hzi6vt1F7D3Gmjqe3tuzMmzf8U82Gg4J5Mq3AN9rnNy73K5DNLdw2dzqCeCTZbatnbmqiBayFB2G",
+        "5BiJcjQ3ha5akSwFUh5d29vZUmy3EW8TTSXENM2VTjXYpYYfDtzjJqNmbVyX3ytsCk6EvLwGMYh4QddsGJHQCApx",
+        "53gYUzxaNGDu2G73xfUcyPnkMbwjH91b5fasV2sMWas8L8SUsd7EWi1XvtDVwdqJvSH1qiatQRhDoec5fqAUQbdx"
+      ],
+      "selected_topology": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "timestamp": 1787297782
+    },
+    {
+      "alternative_amount_vector": [
+        14479000,
+        14479000,
+        14479000,
+        14479000
+      ],
+      "alternative_fingerprint": {
+        "contract": "P3R_V2_FINGERPRINT_CONTRACTS.v1",
+        "edges": [
+          {
+            "amount_lamports": 14479000,
+            "hop_depth": 3,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          }
+        ],
+        "kind": "BASE_SELECTED_EDGE"
+      },
+      "alternative_semantics": [
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE"
+      ],
+      "alternative_signatures": [
+        "476JCHzpWuY9h99dfkdJeTfddXtcdJRpy7oCaG1wioHeSKytX5Kzm65dT1QvdmDAKs56VjPA4NJP4dmuWPU9k8TL",
+        "4ee38Q4AZwLGLSDziRhvdZtwEH73GvPS9xzHWb8CBzYBeZAa5EtF5Ye2mmR7xcWJNfBD4vW7ndj8nPCvxnkBodxJ",
+        "4ucDNoH54cuCaiUYPkbvU9ACGCd48KbyPB582Jtp2cckYSMo4iRe2xF9ap5Jua9KGJwRyKL9iLTzevnMtLcET5a2",
+        "EQsuKbnngwmznoEdxywZbm8Y1ELqtiikJtCuuXHeLVLjavpMiPNXAeHqepb9qbjRWvUBJrEauvgR1ZTBxind6Ls"
+      ],
+      "alternative_topology": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "ancillary_atomic": [
+        {
+          "authority": "7wgAGzMHUA4U6MYxGQD3EogB2dnEKsV4jhQNdiJXpaZM",
+          "block_time": 1787352070,
+          "causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+          "close_destination": "7wgAGzMHUA4U6MYxGQD3EogB2dnEKsV4jhQNdiJXpaZM",
+          "has_close": 1,
+          "has_create": 1,
+          "has_sync_native": 1,
+          "instruction_order_json": "[\"createIdempotent\", \"transfer\", \"syncNative\", \"createIdempotent\", \"createIdempotent\", \"closeAccount\", \"getAccountDataSize\", \"createAccount\", \"initializeImmutableOwner\", \"initializeAccount3\", \"getAccountDataSize\", \"createAccount\", \"initializeImmutableOwner\", \"initializeAccount3\", \"transferChecked\", \"transferChecked\", \"transferChecked\", \"transferChecked\", \"transferChecked\"]",
+          "mint": "TDeELn2vPFQHNPKnY86SZuD395JU8UePb6aknuPpump",
+          "net_destination_lamports": -2798831,
+          "owner": "7wgAGzMHUA4U6MYxGQD3EogB2dnEKsV4jhQNdiJXpaZM",
+          "signature": "42nyrPN1azMS58mUFc3Qd3pmeZEPUxqWaJCGewXqk3jvog3kcPdfWodcaNewHp5QXUyn896HB4oRpVxNDwzJKFcT",
+          "source_wallet": "7wgAGzMHUA4U6MYxGQD3EogB2dnEKsV4jhQNdiJXpaZM",
+          "temporary_account": "A1RcU5u9tx8ZrgubV7wrCATa2WAmkt3bk3rDdFeZfA34",
+          "transfer_lamports": 661234
+        }
+      ],
+      "creator": "5Nn2HAof1K5nbWxNnqnDUqAuyTF5UNj5FE2Tz2TmbnQS",
+      "direct_funder": "Ec5FnQ91A4U3nGAvLppGPQZ1TY1RSq1uwMR1KjHKFukY",
+      "mint": "TDeELn2vPFQHNPKnY86SZuD395JU8UePb6aknuPpump",
+      "principal_atomic": [
+        {
+          "authority": "GnAZjMbwcwL2mXFy6nB82he5NFbxsw4GwgvTujbZe2qG",
+          "block_time": 1787404943,
+          "causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+          "close_destination": "Ec5FnQ91A4U3nGAvLppGPQZ1TY1RSq1uwMR1KjHKFukY",
+          "has_close": 1,
+          "has_create": 1,
+          "has_sync_native": 1,
+          "instruction_order_json": "[\"createAccountWithSeed\", \"initializeAccount3\", \"transfer\", \"syncNative\", \"closeAccount\"]",
+          "mint": "TDeELn2vPFQHNPKnY86SZuD395JU8UePb6aknuPpump",
+          "net_destination_lamports": 29999990000,
+          "owner": "GnAZjMbwcwL2mXFy6nB82he5NFbxsw4GwgvTujbZe2qG",
+          "signature": "4mcRPEXkkqnkJT57HZGyuhLLVp1VHz3R25hR9vvBQjEVhk5HaXL3phbfMvn4ncB2YkrVuegouihCPijKjYQvhvgD",
+          "source_wallet": "GnAZjMbwcwL2mXFy6nB82he5NFbxsw4GwgvTujbZe2qG",
+          "temporary_account": "CqihnzmvT5QZTHskQdECuz5xtnQf4XQZaSKuLayeRgTP",
+          "transfer_lamports": 29997950720
+        }
+      ],
+      "principal_role_template": [
+        {
+          "authority": "GnAZjMbwcwL2mXFy6nB82he5NFbxsw4GwgvTujbZe2qG",
+          "close_destination": "Ec5FnQ91A4U3nGAvLppGPQZ1TY1RSq1uwMR1KjHKFukY",
+          "owner": "GnAZjMbwcwL2mXFy6nB82he5NFbxsw4GwgvTujbZe2qG",
+          "source_wallet": "GnAZjMbwcwL2mXFy6nB82he5NFbxsw4GwgvTujbZe2qG"
+        }
+      ],
+      "provenance": {
+        "funder_block_time": 1787404944,
+        "funder_signature": "5b8aSZxgJdRSLPbAHKhSgDmbKFmcKiJ371K9FreDxaKD35ui88pooLt3ypYr5JMFds7xVvbKnyE91SWJpkmgNv1N",
+        "selected_evidence": "retained selected edges"
+      },
+      "selected_amount_vector": [
+        29999985000,
+        29999990000,
+        14479000,
+        2074000
+      ],
+      "selected_fingerprint": {
+        "contract": "P3R_V2_FINGERPRINT_CONTRACTS.v1",
+        "edges": [
+          {
+            "amount_lamports": 29999985000,
+            "hop_depth": 1,
+            "mechanism": "PLAIN_XFER"
+          },
+          {
+            "amount_lamports": 29999990000,
+            "hop_depth": 2,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          },
+          {
+            "amount_lamports": 14479000,
+            "hop_depth": 3,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          },
+          {
+            "amount_lamports": 2074000,
+            "hop_depth": 4,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          }
+        ],
+        "kind": "BASE_SELECTED_EDGE"
+      },
+      "selected_parents": [
+        "Ec5FnQ91A4U3nGAvLppGPQZ1TY1RSq1uwMR1KjHKFukY",
+        "GnAZjMbwcwL2mXFy6nB82he5NFbxsw4GwgvTujbZe2qG",
+        "5GDdDkb7yChhjzHJKxp2NhAPWHDdzZZd69SEnifXhgsh",
+        "7wgAGzMHUA4U6MYxGQD3EogB2dnEKsV4jhQNdiJXpaZM"
+      ],
+      "selected_semantics": [
+        "PLAIN_XFER",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE"
+      ],
+      "selected_signatures": [
+        "5b8aSZxgJdRSLPbAHKhSgDmbKFmcKiJ371K9FreDxaKD35ui88pooLt3ypYr5JMFds7xVvbKnyE91SWJpkmgNv1N",
+        "4mcRPEXkkqnkJT57HZGyuhLLVp1VHz3R25hR9vvBQjEVhk5HaXL3phbfMvn4ncB2YkrVuegouihCPijKjYQvhvgD",
+        "3CvjbQaLjGWfN1FBQqvxDUp3wseakr18qgoGc5FSiXZ1iYbZJDEBKgjJaC1SjWYSoXby4EW9S6UXr24L4twazhQx",
+        "42nyrPN1azMS58mUFc3Qd3pmeZEPUxqWaJCGewXqk3jvog3kcPdfWodcaNewHp5QXUyn896HB4oRpVxNDwzJKFcT"
+      ],
+      "selected_topology": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "timestamp": 1787352070
+    },
+    {
+      "alternative_amount_vector": [
+        14479000,
+        14479000,
+        14479000,
+        14479000
+      ],
+      "alternative_fingerprint": {
+        "contract": "P3R_V2_FINGERPRINT_CONTRACTS.v1",
+        "edges": [
+          {
+            "amount_lamports": 14479000,
+            "hop_depth": 3,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          }
+        ],
+        "kind": "BASE_SELECTED_EDGE"
+      },
+      "alternative_semantics": [
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE"
+      ],
+      "alternative_signatures": [
+        "4eWhq5mNevPQFCAczC51YvX3tpH324iPC6VqkrtPa2W4g2uxu2d2vh7V9PjnaSbKdE9AfJGQ4WgzA4p19FfDPcS7",
+        "65QMgeBosQ4VkZ4fvdqiHz8Dvt6ofuRpka7p6Xee4pERGatEUuhnkyKkCYeYGQe4VtQ764wCNJSKZDpYS6t1haGS",
+        "65yTdaGBBsA6qDsxsyJmd6i58bVi7vNx4d1PKuJM6Ri8bhoNnb7SCP72QZHDugd1AqCR9Ly4vkHBsCCceAoYUQYd",
+        "nNVmEqcb9JnYm8Sa61JcDJKVgwHDuLq1a713fEHdxJxRFg6qqaacEq5rLBfjij4WJmDBCHGh4dkzRMbJc8CugPX"
+      ],
+      "alternative_topology": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "ancillary_atomic": [
+        {
+          "authority": "GsYYTG4QMZhTiFYqwCT13PsaXyzYdNwiugT72PTvvPd6",
+          "block_time": 1787456308,
+          "causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+          "close_destination": "GsYYTG4QMZhTiFYqwCT13PsaXyzYdNwiugT72PTvvPd6",
+          "has_close": 1,
+          "has_create": 1,
+          "has_sync_native": 1,
+          "instruction_order_json": "[\"createIdempotent\", \"transfer\", \"syncNative\", \"createIdempotent\", \"createIdempotent\", \"closeAccount\", \"getAccountDataSize\", \"createAccount\", \"initializeImmutableOwner\", \"initializeAccount3\", \"getAccountDataSize\", \"createAccount\", \"initializeImmutableOwner\", \"initializeAccount3\", \"transferChecked\", \"transferChecked\", \"transferChecked\", \"transferChecked\", \"transferChecked\"]",
+          "mint": "SHmjdCg1KdcEeLESciT42de7hcpbL4kCRd5AAcUpump",
+          "net_destination_lamports": -2715983,
+          "owner": "GsYYTG4QMZhTiFYqwCT13PsaXyzYdNwiugT72PTvvPd6",
+          "signature": "62dSpXgdh4YmF29ELtTB2UJoprDnApsjcnDk9QSe5MtZTGJZCVfkEzZb1tS34NTVkH2jF745wENQ5KRtMWXmdrtu",
+          "source_wallet": "GsYYTG4QMZhTiFYqwCT13PsaXyzYdNwiugT72PTvvPd6",
+          "temporary_account": "XukZYJ2RLaPQaegHPpwZ8f3wvpPkKmayFqQbe1CbM14",
+          "transfer_lamports": 652998
+        }
+      ],
+      "creator": "7ywwKVuJUTXEtimyuLSCiTeyy7WkWMtSCaZcF5r2UwEd",
+      "direct_funder": "Cm7gvM2nWHtybNmQkrsC4mfSxBwzfAwJz2UJUhyETCNH",
+      "mint": "SHmjdCg1KdcEeLESciT42de7hcpbL4kCRd5AAcUpump",
+      "principal_atomic": [
+        {
+          "authority": "6ChwWa8iXUWcJ37Rm9tETbDVPhX148Ej2xnn4WiEBMTF",
+          "block_time": 1787518390,
+          "causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+          "close_destination": "Cm7gvM2nWHtybNmQkrsC4mfSxBwzfAwJz2UJUhyETCNH",
+          "has_close": 1,
+          "has_create": 1,
+          "has_sync_native": 1,
+          "instruction_order_json": "[\"createAccountWithSeed\", \"initializeAccount3\", \"transfer\", \"syncNative\", \"closeAccount\"]",
+          "mint": "SHmjdCg1KdcEeLESciT42de7hcpbL4kCRd5AAcUpump",
+          "net_destination_lamports": 29999990000,
+          "owner": "6ChwWa8iXUWcJ37Rm9tETbDVPhX148Ej2xnn4WiEBMTF",
+          "signature": "J9ux4J8jmSWG88vWFuKd1fsMEoRkH8PvGs4CeccEtdHrNUL4VeS4VxberYaj5sC6BzeQyc1scwmTw8erKHejXqD",
+          "source_wallet": "6ChwWa8iXUWcJ37Rm9tETbDVPhX148Ej2xnn4WiEBMTF",
+          "temporary_account": "FJYFp1GCHLrHW5sh7jTdveTTZXMyiqMMwuL7qnRYwja8",
+          "transfer_lamports": 29997950720
+        }
+      ],
+      "principal_role_template": [
+        {
+          "authority": "6ChwWa8iXUWcJ37Rm9tETbDVPhX148Ej2xnn4WiEBMTF",
+          "close_destination": "Cm7gvM2nWHtybNmQkrsC4mfSxBwzfAwJz2UJUhyETCNH",
+          "owner": "6ChwWa8iXUWcJ37Rm9tETbDVPhX148Ej2xnn4WiEBMTF",
+          "source_wallet": "6ChwWa8iXUWcJ37Rm9tETbDVPhX148Ej2xnn4WiEBMTF"
+        }
+      ],
+      "provenance": {
+        "funder_block_time": 1787518390,
+        "funder_signature": "3Eu74xK7cYbcQFmgPQ8PaEdurCoc9UWtvpem2ozEtofZmSxFfkGdat28BdKNVjSfBDu8ktyqrtS582esTihn4TbX",
+        "selected_evidence": "retained selected edges"
+      },
+      "selected_amount_vector": [
+        29999985000,
+        29999990000,
+        14479000,
+        2074000
+      ],
+      "selected_fingerprint": {
+        "contract": "P3R_V2_FINGERPRINT_CONTRACTS.v1",
+        "edges": [
+          {
+            "amount_lamports": 29999985000,
+            "hop_depth": 1,
+            "mechanism": "PLAIN_XFER"
+          },
+          {
+            "amount_lamports": 29999990000,
+            "hop_depth": 2,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          },
+          {
+            "amount_lamports": 14479000,
+            "hop_depth": 3,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          },
+          {
+            "amount_lamports": 2074000,
+            "hop_depth": 4,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          }
+        ],
+        "kind": "BASE_SELECTED_EDGE"
+      },
+      "selected_parents": [
+        "Cm7gvM2nWHtybNmQkrsC4mfSxBwzfAwJz2UJUhyETCNH",
+        "6ChwWa8iXUWcJ37Rm9tETbDVPhX148Ej2xnn4WiEBMTF",
+        "F8scPWr3BZnn3V3aQPHtSLENkMWXYDPunT6fkZejni7t",
+        "GsYYTG4QMZhTiFYqwCT13PsaXyzYdNwiugT72PTvvPd6"
+      ],
+      "selected_semantics": [
+        "PLAIN_XFER",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE"
+      ],
+      "selected_signatures": [
+        "3Eu74xK7cYbcQFmgPQ8PaEdurCoc9UWtvpem2ozEtofZmSxFfkGdat28BdKNVjSfBDu8ktyqrtS582esTihn4TbX",
+        "J9ux4J8jmSWG88vWFuKd1fsMEoRkH8PvGs4CeccEtdHrNUL4VeS4VxberYaj5sC6BzeQyc1scwmTw8erKHejXqD",
+        "66op8Bc43NdL6yFJRHaYruPF217fXJe6yiZMwxdvLjRtuicimb3SNsrviXiJ15GRP7gzLuSazKqsXqHfWEio3qS8",
+        "62dSpXgdh4YmF29ELtTB2UJoprDnApsjcnDk9QSe5MtZTGJZCVfkEzZb1tS34NTVkH2jF745wENQ5KRtMWXmdrtu"
+      ],
+      "selected_topology": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "timestamp": 1787456308
+    },
+    {
+      "alternative_amount_vector": [
+        14479000,
+        14479000
+      ],
+      "alternative_fingerprint": {
+        "contract": "P3R_V2_FINGERPRINT_CONTRACTS.v1",
+        "edges": [
+          {
+            "amount_lamports": 14479000,
+            "hop_depth": 3,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          }
+        ],
+        "kind": "BASE_SELECTED_EDGE"
+      },
+      "alternative_semantics": [
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE"
+      ],
+      "alternative_signatures": [
+        "2KVAx3xXag1mBAP1oGQiz2CvprUvguZfUHF3xhrzD11foUxEcZ8ZPfyg6mhWKyJitTBtsp8ZgaoPJiNK1pbL9MbG",
+        "4W5FQPg5XPvbrQhttqNWzye9LNmErf6Q1Jbi38ckGSyTDNhyFVVk4gz1F97oJWsK6kjonoMvvegZqs3jMsoFNmR7"
+      ],
+      "alternative_topology": [
+        3,
+        3
+      ],
+      "ancillary_atomic": [],
+      "creator": "AJ4BbGcqpndcQzZZRqkGxsrHpCgyxEB7XuFqzyTqjFZ9",
+      "direct_funder": "3CTT2A3bm5FkJ3GrV18wCyNMSyysyETbiGJmYGhRJHwf",
+      "mint": "eshSWTWLC8RVsddtLMwaZTtKHhDtzUGT3SzPV28pump",
+      "principal_atomic": [
+        {
+          "authority": "9hwHPNBQmcJPtiFTsTV3gkgZB719LHX85PCpBbsP6a3L",
+          "block_time": 1787584062,
+          "causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+          "close_destination": "3CTT2A3bm5FkJ3GrV18wCyNMSyysyETbiGJmYGhRJHwf",
+          "has_close": 1,
+          "has_create": 1,
+          "has_sync_native": 1,
+          "instruction_order_json": "[\"createAccountWithSeed\", \"initializeAccount3\", \"transfer\", \"syncNative\", \"closeAccount\"]",
+          "mint": "eshSWTWLC8RVsddtLMwaZTtKHhDtzUGT3SzPV28pump",
+          "net_destination_lamports": 29999990000,
+          "owner": "9hwHPNBQmcJPtiFTsTV3gkgZB719LHX85PCpBbsP6a3L",
+          "signature": "3cuauCFp9GXBC7vm7VnBpWpxWo1ExAQWuQqaLgNZ13MwykbQruEiF2qek9TgFz2cuXkdw4c1X3hCXugMyVKngZLG",
+          "source_wallet": "9hwHPNBQmcJPtiFTsTV3gkgZB719LHX85PCpBbsP6a3L",
+          "temporary_account": "3PviXwU9R4HmmYKzhnostrkwh3CR75QKTSUEkRVuuuZb",
+          "transfer_lamports": 29997950720
+        }
+      ],
+      "principal_role_template": [
+        {
+          "authority": "9hwHPNBQmcJPtiFTsTV3gkgZB719LHX85PCpBbsP6a3L",
+          "close_destination": "3CTT2A3bm5FkJ3GrV18wCyNMSyysyETbiGJmYGhRJHwf",
+          "owner": "9hwHPNBQmcJPtiFTsTV3gkgZB719LHX85PCpBbsP6a3L",
+          "source_wallet": "9hwHPNBQmcJPtiFTsTV3gkgZB719LHX85PCpBbsP6a3L"
+        }
+      ],
+      "provenance": {
+        "funder_block_time": 1787584063,
+        "funder_signature": "37j9HETHEDKtkZ7ive2ngDTWvPnDUH2nTRAvdq65FuVv6tddp52nuZPJv8Hg5Mx5QmannLHCH1xV1QnjJ13GAX49",
+        "selected_evidence": "retained selected edges"
+      },
+      "selected_amount_vector": [
+        29999985000,
+        29999990000,
+        14479000,
+        2074000
+      ],
+      "selected_fingerprint": {
+        "contract": "P3R_V2_FINGERPRINT_CONTRACTS.v1",
+        "edges": [
+          {
+            "amount_lamports": 29999985000,
+            "hop_depth": 1,
+            "mechanism": "PLAIN_XFER"
+          },
+          {
+            "amount_lamports": 29999990000,
+            "hop_depth": 2,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          },
+          {
+            "amount_lamports": 14479000,
+            "hop_depth": 3,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          },
+          {
+            "amount_lamports": 2074000,
+            "hop_depth": 4,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          }
+        ],
+        "kind": "BASE_SELECTED_EDGE"
+      },
+      "selected_parents": [
+        "3CTT2A3bm5FkJ3GrV18wCyNMSyysyETbiGJmYGhRJHwf",
+        "9hwHPNBQmcJPtiFTsTV3gkgZB719LHX85PCpBbsP6a3L",
+        "HMHkmsy73Kv6RYnaoSqMR6xRjB5b3RENakrxg6VJgix5",
+        "9hwHPNBQmcJPtiFTsTV3gkgZB719LHX85PCpBbsP6a3L"
+      ],
+      "selected_semantics": [
+        "PLAIN_XFER",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE"
+      ],
+      "selected_signatures": [
+        "37j9HETHEDKtkZ7ive2ngDTWvPnDUH2nTRAvdq65FuVv6tddp52nuZPJv8Hg5Mx5QmannLHCH1xV1QnjJ13GAX49",
+        "3cuauCFp9GXBC7vm7VnBpWpxWo1ExAQWuQqaLgNZ13MwykbQruEiF2qek9TgFz2cuXkdw4c1X3hCXugMyVKngZLG",
+        "2gTNDCbBa4uwboBB9X7CNQssajRCSrrkSq26twGggTzyg1Q3CkQdsLLbYvEVF16hBSbsgRd6eR29Z9JYdvDdNgQN",
+        "4TGc1rDsUPfFj24bCdGgtCCKsjqXgKMUmYnN7fWmyr8wHyeXx1ym23D92wSHT2bWB5R5NAgs1soL3DV1jumQ5iWd"
+      ],
+      "selected_topology": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "timestamp": 1787558403
+    },
+    {
+      "alternative_amount_vector": [
+        14479000,
+        14479000,
+        14479000,
+        14479000
+      ],
+      "alternative_fingerprint": {
+        "contract": "P3R_V2_FINGERPRINT_CONTRACTS.v1",
+        "edges": [
+          {
+            "amount_lamports": 14479000,
+            "hop_depth": 3,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          }
+        ],
+        "kind": "BASE_SELECTED_EDGE"
+      },
+      "alternative_semantics": [
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE"
+      ],
+      "alternative_signatures": [
+        "2ug4pTwgtADD8va1LiNA2tRHeQXniEKzfVyL4Xt7Qj7xXRGJnrsLe98V3xuRcYc8ket5JfKNbzrhfxFfdCUaEJgT",
+        "44xfyDH6FvYjGdiVuqMeyKQ8up9dNwvu7hTULi8EYnxvBX3Rk4AysQ8ZVrAqURMCPx6VTVxjHr5xEMwLJRnmrh2h",
+        "5Z8byJznXwMXc9JsREExeCYEcHEvGU5e4W2Z1iCsCurBCTBy2TedZncvvy5d4Xb6sNTdMHzfdpDVyE3rTNkCfyBj",
+        "FCnoKbYYJZHW8753Q9QUVyPyrAaLryWwkKiSJuQzxi4iec373VshCtQ6LoJAg7KdQLnfKf7zwfdoyC1DipRZcun"
+      ],
+      "alternative_topology": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "ancillary_atomic": [],
+      "creator": "89repYuaP9hCNZpNboj8f1RM53JDHXkh6i3hamyzEBZE",
+      "direct_funder": "4TrgTteMHKABpaTVhL7vLcQwV7LkDMvx7ZhK4dvMLErj",
+      "mint": "cCRsJVpQxfrF2HZ1ZQohHorCXnvr6Vwrf9tTc5Hpump",
+      "principal_atomic": [
+        {
+          "authority": "AJ4BbGcqpndcQzZZRqkGxsrHpCgyxEB7XuFqzyTqjFZ9",
+          "block_time": 1787592648,
+          "causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+          "close_destination": "4TrgTteMHKABpaTVhL7vLcQwV7LkDMvx7ZhK4dvMLErj",
+          "has_close": 1,
+          "has_create": 1,
+          "has_sync_native": 1,
+          "instruction_order_json": "[\"createAccountWithSeed\", \"initializeAccount3\", \"transfer\", \"syncNative\", \"closeAccount\"]",
+          "mint": "cCRsJVpQxfrF2HZ1ZQohHorCXnvr6Vwrf9tTc5Hpump",
+          "net_destination_lamports": 29999990000,
+          "owner": "AJ4BbGcqpndcQzZZRqkGxsrHpCgyxEB7XuFqzyTqjFZ9",
+          "signature": "wm9TJGgy4FxqaUNDm2g8zoYPRHPxBf7UvdHDrfu1dZPH5LBrXfEguaWZfPEZ1TUpmPjdDtjnLjRBjYK9a8q2jwM",
+          "source_wallet": "AJ4BbGcqpndcQzZZRqkGxsrHpCgyxEB7XuFqzyTqjFZ9",
+          "temporary_account": "HsyCAeY8FWYhzmkP7taWVbaMCcmdhmgxooiRcWKiZDSr",
+          "transfer_lamports": 29997950720
+        }
+      ],
+      "principal_role_template": [
+        {
+          "authority": "AJ4BbGcqpndcQzZZRqkGxsrHpCgyxEB7XuFqzyTqjFZ9",
+          "close_destination": "4TrgTteMHKABpaTVhL7vLcQwV7LkDMvx7ZhK4dvMLErj",
+          "owner": "AJ4BbGcqpndcQzZZRqkGxsrHpCgyxEB7XuFqzyTqjFZ9",
+          "source_wallet": "AJ4BbGcqpndcQzZZRqkGxsrHpCgyxEB7XuFqzyTqjFZ9"
+        }
+      ],
+      "provenance": {
+        "funder_block_time": 1787592649,
+        "funder_signature": "66wKHRTcCXKEXo7EAEKZAFRWSSfS6v916bgaSCr4FyStejnr1AGEVDoQyuXa2KY3ixduEf5kRag1pyBuGEyXwuRy",
+        "selected_evidence": "retained selected edges"
+      },
+      "selected_amount_vector": [
+        29999985000,
+        29999990000,
+        14479000,
+        2074000
+      ],
+      "selected_fingerprint": {
+        "contract": "P3R_V2_FINGERPRINT_CONTRACTS.v1",
+        "edges": [
+          {
+            "amount_lamports": 29999985000,
+            "hop_depth": 1,
+            "mechanism": "PLAIN_XFER"
+          },
+          {
+            "amount_lamports": 29999990000,
+            "hop_depth": 2,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          },
+          {
+            "amount_lamports": 14479000,
+            "hop_depth": 3,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          },
+          {
+            "amount_lamports": 2074000,
+            "hop_depth": 4,
+            "mechanism": "WSOL_WRAP_CLOSE"
+          }
+        ],
+        "kind": "BASE_SELECTED_EDGE"
+      },
+      "selected_parents": [
+        "4TrgTteMHKABpaTVhL7vLcQwV7LkDMvx7ZhK4dvMLErj",
+        "AJ4BbGcqpndcQzZZRqkGxsrHpCgyxEB7XuFqzyTqjFZ9",
+        "8SKTLDZs6EKnjarEibzs3RP6w6uRvpeuiKdaskfpgsMD",
+        "AJ4BbGcqpndcQzZZRqkGxsrHpCgyxEB7XuFqzyTqjFZ9"
+      ],
+      "selected_semantics": [
+        "PLAIN_XFER",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE",
+        "WSOL_WRAP_CLOSE"
+      ],
+      "selected_signatures": [
+        "66wKHRTcCXKEXo7EAEKZAFRWSSfS6v916bgaSCr4FyStejnr1AGEVDoQyuXa2KY3ixduEf5kRag1pyBuGEyXwuRy",
+        "wm9TJGgy4FxqaUNDm2g8zoYPRHPxBf7UvdHDrfu1dZPH5LBrXfEguaWZfPEZ1TUpmPjdDtjnLjRBjYK9a8q2jwM",
+        "vioF6ZXvbezUZe1iPhuGe5Wez9wpHvnbUfCJ6oRrX6DVZGDHTEAaWJxBK1fRU5dRKiRL9DxCc5Tb2SCYDHNbzDt",
+        "3mYN8XuNtnzYdQrueiHtSFYGVY526Z9xzq1KjuzCLtgFJuo4BwmAhckaKYRnHpJYMnyYoEWQiPXaYaxFQ4uMPYZ3"
+      ],
+      "selected_topology": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "timestamp": 1787584609
+    }
+  ],
+  "adversarial_verdict": "D3DE_ONE_OPERATION_ADVERSARIALLY_CONFIRMED",
+  "alternative_route_challenge": {
+    "classes": 2,
+    "classification": "DIVERGENT_ALTERNATIVE_ROUTES",
+    "fingerprint": {
+      "contract": "P3R_V2_FINGERPRINT_CONTRACTS.v1",
+      "edges": [
+        {
+          "amount_lamports": 14479000,
+          "hop_depth": 3,
+          "mechanism": "WSOL_WRAP_CLOSE"
+        }
+      ],
+      "kind": "BASE_SELECTED_EDGE"
+    }
+  },
+  "ancillary_atomic_challenge": {
+    "basis": "Ancillary presence does not alter selected vector, alternative vector, principal atomic lifecycle, or role template.",
+    "classification": "ANCILLARY_NON_DISCRIMINATING",
+    "counts_by_mint": {
+      "SHmjdCg1KdcEeLESciT42de7hcpbL4kCRd5AAcUpump": 1,
+      "TDeELn2vPFQHNPKnY86SZuD395JU8UePb6aknuPpump": 1,
+      "TtcdL2sYgc6RT45yH7vziNrdSFujgAnHrH7AXkEpump": 1,
+      "TwES5X8iJL44qq9rBwKiJgyVaXX6vDEjR61WqRopump": 0,
+      "aFt6QNDNTCg4CkpT7Z7bcb3V1iXSbvF36ptaTnZpump": 1,
+      "cCRsJVpQxfrF2HZ1ZQohHorCXnvr6Vwrf9tTc5Hpump": 0,
+      "eshSWTWLC8RVsddtLMwaZTtKHhDtzUGT3SzPV28pump": 0,
+      "fYUQSasxSS9oYqtsYnmJEWAHMU2BG4UwcJrXHdtpump": 1,
+      "vccC9NYRktfcDP1NEs96RpTdh26BqYEn2hncTxSpump": 1
+    },
+    "distribution": {
+      "0": 3,
+      "1": 6
+    }
+  },
+  "attempted_partitions": [
+    {
+      "partition": "early vs late chronology",
+      "reason": "No mechanism, vector, role-graph, or ancillary correlation changes across time.",
+      "result": "REJECTED"
+    },
+    {
+      "partition": "ancillary-record present vs absent",
+      "reason": "Optional records do not correlate with an upstream or principal-mechanism difference.",
+      "result": "REJECTED"
+    }
+  ],
+  "candidate_id": "p3r-v2-d3de29c88fe0ce5fa309",
+  "canonical_manifest_sha256": "930fb7fc462e1464632913f22b28ea8fc419d9ca921f36fe4e798dff51617862",
+  "detector_replay": {
+    "D0": {
+      "fn": 0,
+      "fp": 0,
+      "observable_denominator": 12041,
+      "precision": 1.0,
+      "recall": 1.0,
+      "tp": 9
+    },
+    "D1": {
+      "fn": 0,
+      "fp": 0,
+      "observable_denominator": 12041,
+      "precision": 1.0,
+      "recall": 1.0,
+      "tp": 9
+    },
+    "D2": {
+      "fn": 0,
+      "fp": 0,
+      "observable_denominator": 12041,
+      "precision": 1.0,
+      "recall": 1.0,
+      "tp": 9
+    },
+    "D3": {
+      "fn": 0,
+      "fp": 0,
+      "observable_denominator": 12041,
+      "precision": 1.0,
+      "recall": 1.0,
+      "tp": 9
+    },
+    "D4": {
+      "fn": 0,
+      "fp": 0,
+      "observable_denominator": 12041,
+      "precision": 1.0,
+      "recall": 1.0,
+      "tp": 9
+    },
+    "D5": {
+      "fn": 0,
+      "fp": 0,
+      "observable_denominator": 12041,
+      "precision": 1.0,
+      "recall": 1.0,
+      "tp": 9
+    }
+  },
+  "direct_funder_challenge": {
+    "basis": "Every direct funder is hop-1, fed by the identical retained hop-2/hop-3/hop-4 semantic and raw amount vector; addresses rotate.",
+    "classes": 1,
+    "classification": "ONE_PARAMETERIZED_PROVISIONING_CLASS"
+  },
+  "external_control_search": {
+    "performed": false,
+    "reason": "No genuine subgroup hypothesis survived local comparison."
+  },
+  "funding_vector_challenge": {
+    "class_counts": {
+      "(29999985000, 29999990000, 14479000, 2074000)": 9
+    },
+    "classes": 1,
+    "classification": "ONE_EXACT_RAW_FUNDING_VECTOR",
+    "selected_raw_vector": [
+      29999985000,
+      29999990000,
+      14479000,
+      2074000
+    ]
+  },
+  "infrastructure_challenge": {
+    "basis": "No address reuse is required; all retained role relationships, topology and arithmetic are identical.",
+    "classification": "ONE_ROTATING_INFRASTRUCTURE_MODEL",
+    "shared_literal_nodes_required": false
+  },
+  "pairwise_coherence": [
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "TtcdL2sYgc6RT45yH7vziNrdSFujgAnHrH7AXkEpump",
+      "right": "aFt6QNDNTCg4CkpT7Z7bcb3V1iXSbvF36ptaTnZpump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "TtcdL2sYgc6RT45yH7vziNrdSFujgAnHrH7AXkEpump",
+      "right": "fYUQSasxSS9oYqtsYnmJEWAHMU2BG4UwcJrXHdtpump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "TtcdL2sYgc6RT45yH7vziNrdSFujgAnHrH7AXkEpump",
+      "right": "vccC9NYRktfcDP1NEs96RpTdh26BqYEn2hncTxSpump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "TtcdL2sYgc6RT45yH7vziNrdSFujgAnHrH7AXkEpump",
+      "right": "TwES5X8iJL44qq9rBwKiJgyVaXX6vDEjR61WqRopump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "TtcdL2sYgc6RT45yH7vziNrdSFujgAnHrH7AXkEpump",
+      "right": "TDeELn2vPFQHNPKnY86SZuD395JU8UePb6aknuPpump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "TtcdL2sYgc6RT45yH7vziNrdSFujgAnHrH7AXkEpump",
+      "right": "SHmjdCg1KdcEeLESciT42de7hcpbL4kCRd5AAcUpump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "TtcdL2sYgc6RT45yH7vziNrdSFujgAnHrH7AXkEpump",
+      "right": "eshSWTWLC8RVsddtLMwaZTtKHhDtzUGT3SzPV28pump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "TtcdL2sYgc6RT45yH7vziNrdSFujgAnHrH7AXkEpump",
+      "right": "cCRsJVpQxfrF2HZ1ZQohHorCXnvr6Vwrf9tTc5Hpump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "aFt6QNDNTCg4CkpT7Z7bcb3V1iXSbvF36ptaTnZpump",
+      "right": "fYUQSasxSS9oYqtsYnmJEWAHMU2BG4UwcJrXHdtpump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "aFt6QNDNTCg4CkpT7Z7bcb3V1iXSbvF36ptaTnZpump",
+      "right": "vccC9NYRktfcDP1NEs96RpTdh26BqYEn2hncTxSpump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "aFt6QNDNTCg4CkpT7Z7bcb3V1iXSbvF36ptaTnZpump",
+      "right": "TwES5X8iJL44qq9rBwKiJgyVaXX6vDEjR61WqRopump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "aFt6QNDNTCg4CkpT7Z7bcb3V1iXSbvF36ptaTnZpump",
+      "right": "TDeELn2vPFQHNPKnY86SZuD395JU8UePb6aknuPpump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "aFt6QNDNTCg4CkpT7Z7bcb3V1iXSbvF36ptaTnZpump",
+      "right": "SHmjdCg1KdcEeLESciT42de7hcpbL4kCRd5AAcUpump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "aFt6QNDNTCg4CkpT7Z7bcb3V1iXSbvF36ptaTnZpump",
+      "right": "eshSWTWLC8RVsddtLMwaZTtKHhDtzUGT3SzPV28pump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "aFt6QNDNTCg4CkpT7Z7bcb3V1iXSbvF36ptaTnZpump",
+      "right": "cCRsJVpQxfrF2HZ1ZQohHorCXnvr6Vwrf9tTc5Hpump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "fYUQSasxSS9oYqtsYnmJEWAHMU2BG4UwcJrXHdtpump",
+      "right": "vccC9NYRktfcDP1NEs96RpTdh26BqYEn2hncTxSpump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "fYUQSasxSS9oYqtsYnmJEWAHMU2BG4UwcJrXHdtpump",
+      "right": "TwES5X8iJL44qq9rBwKiJgyVaXX6vDEjR61WqRopump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "fYUQSasxSS9oYqtsYnmJEWAHMU2BG4UwcJrXHdtpump",
+      "right": "TDeELn2vPFQHNPKnY86SZuD395JU8UePb6aknuPpump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "fYUQSasxSS9oYqtsYnmJEWAHMU2BG4UwcJrXHdtpump",
+      "right": "SHmjdCg1KdcEeLESciT42de7hcpbL4kCRd5AAcUpump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "fYUQSasxSS9oYqtsYnmJEWAHMU2BG4UwcJrXHdtpump",
+      "right": "eshSWTWLC8RVsddtLMwaZTtKHhDtzUGT3SzPV28pump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "fYUQSasxSS9oYqtsYnmJEWAHMU2BG4UwcJrXHdtpump",
+      "right": "cCRsJVpQxfrF2HZ1ZQohHorCXnvr6Vwrf9tTc5Hpump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "vccC9NYRktfcDP1NEs96RpTdh26BqYEn2hncTxSpump",
+      "right": "TwES5X8iJL44qq9rBwKiJgyVaXX6vDEjR61WqRopump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "vccC9NYRktfcDP1NEs96RpTdh26BqYEn2hncTxSpump",
+      "right": "TDeELn2vPFQHNPKnY86SZuD395JU8UePb6aknuPpump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "vccC9NYRktfcDP1NEs96RpTdh26BqYEn2hncTxSpump",
+      "right": "SHmjdCg1KdcEeLESciT42de7hcpbL4kCRd5AAcUpump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "vccC9NYRktfcDP1NEs96RpTdh26BqYEn2hncTxSpump",
+      "right": "eshSWTWLC8RVsddtLMwaZTtKHhDtzUGT3SzPV28pump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "vccC9NYRktfcDP1NEs96RpTdh26BqYEn2hncTxSpump",
+      "right": "cCRsJVpQxfrF2HZ1ZQohHorCXnvr6Vwrf9tTc5Hpump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "TwES5X8iJL44qq9rBwKiJgyVaXX6vDEjR61WqRopump",
+      "right": "TDeELn2vPFQHNPKnY86SZuD395JU8UePb6aknuPpump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "TwES5X8iJL44qq9rBwKiJgyVaXX6vDEjR61WqRopump",
+      "right": "SHmjdCg1KdcEeLESciT42de7hcpbL4kCRd5AAcUpump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "TwES5X8iJL44qq9rBwKiJgyVaXX6vDEjR61WqRopump",
+      "right": "eshSWTWLC8RVsddtLMwaZTtKHhDtzUGT3SzPV28pump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "TwES5X8iJL44qq9rBwKiJgyVaXX6vDEjR61WqRopump",
+      "right": "cCRsJVpQxfrF2HZ1ZQohHorCXnvr6Vwrf9tTc5Hpump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "TDeELn2vPFQHNPKnY86SZuD395JU8UePb6aknuPpump",
+      "right": "SHmjdCg1KdcEeLESciT42de7hcpbL4kCRd5AAcUpump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "TDeELn2vPFQHNPKnY86SZuD395JU8UePb6aknuPpump",
+      "right": "eshSWTWLC8RVsddtLMwaZTtKHhDtzUGT3SzPV28pump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "TDeELn2vPFQHNPKnY86SZuD395JU8UePb6aknuPpump",
+      "right": "cCRsJVpQxfrF2HZ1ZQohHorCXnvr6Vwrf9tTc5Hpump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "SHmjdCg1KdcEeLESciT42de7hcpbL4kCRd5AAcUpump",
+      "right": "eshSWTWLC8RVsddtLMwaZTtKHhDtzUGT3SzPV28pump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "SHmjdCg1KdcEeLESciT42de7hcpbL4kCRd5AAcUpump",
+      "right": "cCRsJVpQxfrF2HZ1ZQohHorCXnvr6Vwrf9tTc5Hpump"
+    },
+    {
+      "classification": "OPERATIONALLY_EQUIVALENT",
+      "dimensions": {
+        "alternative_route": true,
+        "atomic_roles": true,
+        "infrastructure_relationship": true,
+        "parent_topology": true,
+        "principal_atomic": true,
+        "role_graph": true,
+        "selected_ladder": true,
+        "temporal_cohort": true,
+        "upstream_funding_vector": true
+      },
+      "left": "eshSWTWLC8RVsddtLMwaZTtKHhDtzUGT3SzPV28pump",
+      "right": "cCRsJVpQxfrF2HZ1ZQohHorCXnvr6Vwrf9tTc5Hpump"
+    }
+  ],
+  "parent_topology_challenge": {
+    "classes": 1,
+    "classification": "ONE_PARENT_TOPOLOGY_TEMPLATE",
+    "parent_depth_vectors": {
+      "(1, 2, 3, 4)": 9
+    },
+    "raw_vectors": {
+      "(29999985000, 29999990000, 14479000, 2074000)": 9
+    },
+    "semantic_vectors": {
+      "('PLAIN_XFER', 'WSOL_WRAP_CLOSE', 'WSOL_WRAP_CLOSE', 'WSOL_WRAP_CLOSE')": 9
+    }
+  },
+  "principal_atomic_challenge": {
+    "classification": "TRANSACTION_LEVEL_EQUIVALENT",
+    "coverage": "9/9",
+    "instruction_order": [
+      "createAccountWithSeed",
+      "initializeAccount3",
+      "transfer",
+      "syncNative",
+      "closeAccount"
+    ],
+    "role_semantics": "principal temporary account is atomically closed to the rotating direct funder for every observable principal record",
+    "transfer_lamports": 29997950720
+  },
+  "proposed_name": "FOUR_STEP_30_SOL_14_479K_WSOL_LADDER",
+  "registration_recommendation": "READY_FOR_CONFIRMED_REGISTRATION",
+  "report_digest": "bfc5e660de16735f806994448134208fec300dc180f4d7fb5a76e6b7b76d236d",
+  "role_graph_challenge": {
+    "classification": "ONE_ADDRESS_INDEPENDENT_ROLE_TEMPLATE",
+    "template": "rotating upstream parent -> rotating direct funder -> creator; principal WSOL temporary account closes to direct funder",
+    "templates": 1
+  },
+  "run_id": "p3r-v2-2dec1d40604c1f7c08c8",
+  "safety": {
+    "activation": false,
+    "fingerprint_mutation": false,
+    "membership_mutation": false,
+    "queue_replay": false,
+    "registration": false,
+    "rpc_calls": 0,
+    "source_evidence_mutation": false,
+    "tier_mutation": false,
+    "trading_signal": false
+  },
+  "schema_version": "P3R_V2_D3DE_ADVERSARIAL_COHERENCE.v1",
+  "source_snapshot": {
+    "database": "database/wt_ops_v2.db",
+    "highwaters": {
+      "wt_walkback_atomic_flows": 7095,
+      "wt_walkback_edge_candidates": 60299,
+      "wt_walkback_queue": 32353
+    },
+    "read_only_source": true,
+    "schema_sha256": "dcc038d07998c3d37d0475a7c0fc1d61eaa141401712b3079ec3e465dff3f4ad"
+  },
+  "temporal_challenge": {
+    "active_days": 5,
+    "classification": "NO_TEMPORAL_SPLIT",
+    "first": 1787116751,
+    "gaps_seconds": [
+      17230,
+      50934,
+      38238,
+      74629,
+      54288,
+      104238,
+      102095,
+      26206
+    ],
+    "last": 1787584609,
+    "maximum_gap_seconds": 104238,
+    "median_gap_seconds": 52611.0
+  },
+  "upstream_provenance": {
+    "maximum_observed_hops": 4,
+    "method": "local retained selected-edge provenance",
+    "reason": "All nine have signed, timestamped selected evidence through four hops; no split hypothesis remains unresolved.",
+    "rpc_required": false
+  },
+  "workflow_update": {
+    "mutated": false,
+    "provenance": "CANONICAL_TIER1_REFERENCE",
+    "state": "READY_FOR_CONFIRMED_REGISTRATION"
+  }
+}

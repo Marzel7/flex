@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D6F",
+  "status": "OBSERVER_FAILURE_STOP",
+  "verdict": "STOP_OBSERVER_MISCLASSIFIED_SINGLE_TRANSIENT_QUEUE_SAMPLE_AS_SUSTAINED",
+  "stopped_at_utc": "2026-08-14T11:51:27Z",
+  "engineering_revision": "c604b6f02a20dd711e334f5921dbd2dfd65a7be5",
+  "authorized_duration_seconds": 900,
+  "observed_duration_seconds": 96.405,
+  "samples_completed": 4,
+  "listener_pid": 42483,
+  "listener_pid_stable": true,
+  "maximum_primary_fd_count": 5,
+  "critical_listener_db_handle_events": 0,
+  "maximum_serializer_p99_wait_ms": 77.02,
+  "serializer_lock_error_increment": 0,
+  "queue_samples": [0, 0, 0, 2],
+  "terminal_observer_reason": "SERIALIZER_QUEUE_NONZERO",
+  "contract_mismatch": "The authorization stops on sustained nonzero queue depth, but the temporary observer stopped on one nonzero checkpoint without requiring persistence across checkpoints.",
+  "production_impact_observed": false,
+  "terminal_recovery_checkpoint": {
+    "serializer_p99_wait_ms": 214.67,
+    "serializer_p95_wait_ms": 15.88,
+    "serializer_queue_depth": 0,
+    "serializer_lock_errors_24h": 0,
+    "listener_pid": 42483,
+    "listener_running": true
+  },
+  "scope": {
+    "production_databases_opened": 0,
+    "schema_or_row_queries": 0,
+    "ddl_or_production_writes": 0,
+    "service_signals_stops_or_restarts": 0,
+    "provider_calls": 0,
+    "configuration_or_threshold_changes": 0,
+    "lock_or_metric_manipulation": 0,
+    "evidence_mirror_or_cohort_activation": false
+  },
+  "next_action": "Separately authorize a corrected fresh observation that defines sustained queue depth deterministically; do not resume or retry D6F."
+}

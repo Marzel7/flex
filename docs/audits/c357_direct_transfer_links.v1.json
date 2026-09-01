@@ -1571,6 +1571,16 @@
       "source": "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD"
     },
     {
+      "destination": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "lamports": 20000000000,
+      "shared_history_wallets": [
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya"
+      ],
+      "signature": "2Tea3Z9KZABEaZe1bvT9chH1U8L2TzrmgDD7HVJJMzLiqEbscE4zgTWPV1S52rzYr7pLsaCppa5GjLCSpf4YDPdL",
+      "source": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya"
+    },
+    {
       "destination": "51UmDGr3N3s9sfsYs9jN75fy9e33C1E2m21KfdQSBsAZ",
       "lamports": 99999995000,
       "shared_history_wallets": [
@@ -4561,16 +4571,6 @@
       "source": "5sUoQPPvnvS6eXem4TdcjKJ1JZy7uLEhWN3pCA8yNFnc"
     },
     {
-      "destination": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
-      "lamports": 20000000000,
-      "shared_history_wallets": [
-        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
-        "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya"
-      ],
-      "signature": "3NhZkxwdpxm4JUhCvCDCS53BQAqF2qy4iHboci91zfeiaRgY5Jih6eK1GsfxVv1j8VEg2txN6erF1cshSWrFMeGA",
-      "source": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya"
-    },
-    {
       "destination": "3GL5bXdDriApC4J2gn42L9fH2xFxq9Ziifr3pM79hBoi",
       "lamports": 39999995000,
       "shared_history_wallets": [
@@ -5759,6 +5759,16 @@
       ],
       "signature": "3mjwmmoZV1k2iS33gwWjPX4ZqpvUCnvctVDiu96EjYur1A9HJEdgJpyXNVo62S2yGDF3npUFYEjXqgZQmqB1LPfR",
       "source": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229"
+    },
+    {
+      "destination": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "lamports": 20000000000,
+      "shared_history_wallets": [
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya"
+      ],
+      "signature": "3mrYVSgcsxd6bzqnL9H5Pqyy2vpbAsm8SDPyncmBT4dzs6QnqssxqiwRX7rmYKLXrNRFCToWwcTkjsjmjDjhK6bG",
+      "source": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya"
     },
     {
       "destination": "3nWUnuGAWdrTA4hmNmKPQsTpwegLN8Pz77VY8cw27pWi",
@@ -8491,16 +8501,6 @@
       "source": "2fJCPb27tQhbnX4s3sTJvjzK1deawkREkKjCKS7PjF9g"
     },
     {
-      "destination": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
-      "lamports": 23803445538,
-      "shared_history_wallets": [
-        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
-        "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya"
-      ],
-      "signature": "4gm9qfoKtsTTzxSW7kC2YCMT8jtkP5VNVKFY6UNhiTq8KYa1DA15qFea7LgzC8DPStwkphaaWK6KwgDFWdvPbUT2",
-      "source": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
-    },
-    {
       "destination": "2NhF4V7W6WXPkPvWVFHisveQAKMvcTB4o8AXrxhGLpar",
       "lamports": 19995000,
       "shared_history_wallets": [
@@ -8841,6 +8841,16 @@
       "source": "AW7FZRzGUA8HnRWTsGbEDogAh4Y2Utv2KBqALEvfGLqb"
     },
     {
+      "destination": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "lamports": 20222374365,
+      "shared_history_wallets": [
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya"
+      ],
+      "signature": "4onSNAdod2rJyJZqvAN7RWT2Y5WVetAVGA6S9BY46oW9TeAmoGzz6xqEz25NkBNhaLNXousKEftLrGGiRuPL4GoR",
+      "source": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
       "destination": "8Bk1fBnoc9Yk3HUz1UWihT2ewgbxMm7LTEoemabUVqmk",
       "lamports": 49999995000,
       "shared_history_wallets": [
@@ -9029,16 +9039,6 @@
       ],
       "signature": "4tE9WCrCioDTBA8SemFC7FkEFKwi1jD99M7cN1ZSKBnF8ZXPHbsH2MbE6DPWfhNnyQCPHgzbJdMAnnTrqAqiJrCi",
       "source": "AhfDWL1mi2xajF7JWGDzmTiqvtRxD7JDWHkaZVnmUvw7"
-    },
-    {
-      "destination": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
-      "lamports": 20000000000,
-      "shared_history_wallets": [
-        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
-        "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya"
-      ],
-      "signature": "4tR1RtE8dBYThUKQLrbDEeezBmaD1duY5e2JNVHBpbKo2kC8na9enD8MuLEeoYDuzFNy4f7kMtctrdcpuHfSMPiy",
-      "source": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya"
     },
     {
       "destination": "E257HACpHcHa5zKPiPjwXyr7fMD7jx7mm6wnTJNssF6t",
@@ -15961,7 +15961,7 @@
       "source": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229"
     }
   ],
-  "rpc_calls": 3961,
+  "rpc_calls": 3960,
   "safety": {
     "provider_mutations": 0,
     "source_db_writes": 0,
@@ -15970,5 +15970,6 @@
   "schema_version": "C357_DIRECT_TRANSFER_LINKS.v1",
   "scope": "one history page per audited direct-funder/upstream wallet; inspect only shared signatures; no recursion",
   "shared_signatures_checked": 3861,
+  "transaction_errors": 1,
   "wallet_count": 100
 }

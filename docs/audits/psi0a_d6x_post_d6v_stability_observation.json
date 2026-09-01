@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D6X",
+  "observed_at_utc": "2026-08-14T14:17:28Z",
+  "engineering_revision": "d0bd5f1d2f0d95cc6026d681bb4c3ee1a619165f",
+  "verdict": "PASS_15_CLEAN_MINUTES",
+  "listener_pid": 15357,
+  "duration_seconds": 913.2,
+  "checkpoint_count": 31,
+  "sample_interval_seconds": 30,
+  "primary_fd_count": {
+    "minimum": 0,
+    "maximum": 6,
+    "warning_threshold": 8,
+    "all_samples_below_threshold": true
+  },
+  "serializer": {
+    "p99_wait_ms_start": 12.13,
+    "p99_wait_ms_terminal": 58.77,
+    "p99_wait_ms_maximum_observed": 78.32,
+    "p99_threshold_ms": 1000,
+    "queue_depth_maximum": 0,
+    "lock_errors_24h_start": 0,
+    "lock_errors_24h_terminal": 0
+  },
+  "critical_listener_db_handle_events": 0,
+  "recurrent_seed_read_opens": 0,
+  "pumpportal_healthy": true,
+  "pumpswap_healthy": true,
+  "ingestion_healthy": true,
+  "listener_supervisor_state": "RUNNING",
+  "evidence_writer": "STOPPED",
+  "observer_complete": true,
+  "production_database_opens_by_codex": 0,
+  "production_writes_by_codex": 0,
+  "provider_calls_by_codex": 0,
+  "service_actions_by_codex": 0,
+  "production_impact": false,
+  "notes": [
+    "The highest descriptor checkpoint was six and recovered to zero at the following checkpoint.",
+    "No queue sample was nonzero, so the sustained-queue rule was never approached.",
+    "Current PumpPortal births and migration/WebSocket evidence continued through the terminal checkpoint.",
+    "This pass qualifies D6V stability only and does not itself authorize PSI0A-D2."
+  ]
+}

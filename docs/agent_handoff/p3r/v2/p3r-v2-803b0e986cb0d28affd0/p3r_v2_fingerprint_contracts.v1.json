@@ -1,0 +1,7 @@
+{
+  "alternative": "Address-free ALTERNATIVE edge structure per member.",
+  "atomic": "Address-free instruction order, create/sync/close flags, and non-zero transfer amount per atomic flow.",
+  "base": "Address-free selected edge structure.",
+  "canonical_serialization": "JSON sort_keys=true, compact separators, ASCII.",
+  "version": "P3R_V2_FINGERPRINT_CONTRACTS.v1"
+}

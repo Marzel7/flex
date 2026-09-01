@@ -1,0 +1,40 @@
+{
+  "artifacts": {
+    "curve_schema_contract": {
+      "path": "docs/audits/pumpfun_virtual_reserve_decoder_qualification_poc/curve_schema_contract.v1.json",
+      "sha256": "c2459a3e282d4b547a809795c734eae96904385eaf7202f35e2be203a1d72929"
+    },
+    "market_cap_trajectory": {
+      "path": "docs/audits/pumpfun_virtual_reserve_decoder_qualification_poc/market_cap_trajectory.v1.json",
+      "sha256": "390bda139e4d27c0a6d1ad5b728fc13ed395b7d859258589d99e253ed8bee2c6"
+    },
+    "reserve_state_evidence": {
+      "path": "docs/audits/pumpfun_virtual_reserve_decoder_qualification_poc/reserve_state_evidence.v1.json",
+      "sha256": "746f8b4402119aa4f3f61ee6339d0a96b73bbbaa16e292d720c0c36f4450eb9c"
+    },
+    "trade_replay_qualification": {
+      "path": "docs/audits/pumpfun_virtual_reserve_decoder_qualification_poc/trade_replay_qualification.v1.json",
+      "sha256": "221176e462d43fc39045da32a4898d520cef19333b5c1ba5afbfd31a39035ee0"
+    }
+  },
+  "historical_account_state": {
+    "exact_slot_supported": false,
+    "limitation": "No documented project/provider integration exposes archived account data at a historical slot. Ordinary getAccountInfo/minContextSlot is not a historical account-state method.",
+    "method": null,
+    "supported": false
+  },
+  "network_accounting": {
+    "account_state_rpc_total": 0,
+    "get_block_call_total": 0,
+    "get_transaction_call_total": 0,
+    "gmgn_api_request_count": 0,
+    "other_helius_rpc_total": 0,
+    "total_helius_request_total": 0
+  },
+  "replay_idempotent": true,
+  "replay_run_1_digest": "b5932735179a22dc3891ed004c4068032409a553baab378167d7e9ab3e182eb1",
+  "replay_run_2_digest": "b5932735179a22dc3891ed004c4068032409a553baab378167d7e9ab3e182eb1",
+  "schema_version": "pumpfun-virtual-reserve-decoder-qualification-manifest.v1",
+  "target_mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+  "verdict": "PRECISE_BLOCKER_IDENTIFIED_NO_QUALIFIED_RESERVE_DECODER_OR_HISTORICAL_STATE"
+}

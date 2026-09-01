@@ -1,0 +1,14 @@
+{
+  "schema_version": "generic_living_atomic_publication_qualification.v1",
+  "wiring_hold": {"path": "docs/audits/generic_living_runtime_wiring_qualification.v2.json", "sha256": "de6c5ec98bf7032345889d83c80cb7efffbfa6a9da87d45b9e19a12f14f2cce9"},
+  "transaction_primitives": ["persist_lineage_tx", "persist_generic_associations", "advance_current_tx"],
+  "canonical_function": "publish_generic_assessment_atomic",
+  "success_atomicity": "PASS: one caller-owned BEGIN/COMMIT spans assessment, lineage, candidate-owned associations, bindings, and conditional current",
+  "failure_injection": "PASS: assessment, association, lineage, binding, and current-stage injected failures roll back all new rows",
+  "ownership": "PASS: validated before BEGIN",
+  "replay": "PASS", "newer_stale_conflict": "freshness guard and equal-generation conflict preserved", "state_transition": "immutable state-scoped association IDs", "shared_evidence": "owner-scoped IDs", "external_visibility": "SQLite transaction atomicity",
+  "real_db_writes": 0,
+  "focused_tests": "python -m pytest -q tests/test_generic_living_pipeline_v2.py: 12 passed",
+  "runtime_wiring_readiness": "READY_FOR_RUNTIME_WIRING_QUALIFICATION",
+  "verdict": "GENERIC_LIVING_ATOMIC_PUBLICATION_QUALIFIED"
+}

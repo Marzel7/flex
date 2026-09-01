@@ -1,0 +1,27 @@
+{
+  "artifact_type": "PUMPFUN_ALCHEMY_HISTORICAL_ACCOUNT_ARCHIVE_PROBE_V1",
+  "conclusion": "Endpoint accepts/recognizes historical-slot configuration but denies it for the configured Free-tier entitlement. Exact account bytes cannot be acquired without an eligible Alchemy plan/key.",
+  "credential_not_recorded": true,
+  "historical_slot_semantics_proven_by_response": true,
+  "http_status": 400,
+  "no_fallback_performed": true,
+  "provider": "Alchemy Solana Account Archive",
+  "raw_account_data_retained": false,
+  "request": {
+    "account": "FJPbTzeUy4pzPT3r7c2fNxccNvvhbC7LJkSqXux8xU1g",
+    "config": {
+      "encoding": "base64",
+      "slot": 443375106
+    },
+    "method": "getAccountInfo"
+  },
+  "response": {
+    "error": {
+      "code": -32600,
+      "message": "The historical slot params for this method are not available on the Free tier - upgrade to Pay As You Go, or Enterprise for access."
+    },
+    "id": "macrohard-historical-prestate",
+    "jsonrpc": "2.0"
+  },
+  "target_slot_account_state_acquired": false
+}

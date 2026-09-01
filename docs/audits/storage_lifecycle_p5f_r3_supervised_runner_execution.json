@@ -1,0 +1,16 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5F-R3 supervised actual production runner execution",
+  "run_id": "storage-lifecycle-20260821T213131Z-6679fdbc",
+  "mode": "RETIRE",
+  "max_rows": 500,
+  "rows_scanned": 500,
+  "pinned_excluded": 500,
+  "selected": 0,
+  "copied": 0,
+  "retired": 0,
+  "result": "CLEAN_NOOP -- all scanned rows pinned/protected; no HOT or COLD mutation",
+  "disk_guard": "OK",
+  "duration_seconds": 0.43880762497428805,
+  "durable_evidence": "PRE_RUN phase persisted; no selected batch means no publication or retirement phases apply.",
+  "automation_active": false
+}

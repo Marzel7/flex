@@ -1,0 +1,96 @@
+{
+  "creation_event_alone_sufficient": "CONDITIONAL_ON_CANONICAL_SCHEMA_AND_COMPLETE_INITIAL_RESERVE_FIELDS",
+  "event_decoder_alone_sufficient": "CONDITIONAL_ON_CREATION_EVENT_EMITTING_INITIAL_RESERVES",
+  "exact_slot_account_state_still_required": "CONDITIONAL",
+  "post_buy_market_cap_supported": false,
+  "post_buy_rows": [
+    {
+      "buy_sequence_number": 1,
+      "market_cap_sol": null,
+      "market_cap_usd": null,
+      "spot_price_sol_per_token": null
+    },
+    {
+      "buy_sequence_number": 2,
+      "market_cap_sol": null,
+      "market_cap_usd": null,
+      "spot_price_sol_per_token": null
+    },
+    {
+      "buy_sequence_number": 3,
+      "market_cap_sol": null,
+      "market_cap_usd": null,
+      "spot_price_sol_per_token": null
+    },
+    {
+      "buy_sequence_number": 4,
+      "market_cap_sol": null,
+      "market_cap_usd": null,
+      "spot_price_sol_per_token": null
+    },
+    {
+      "buy_sequence_number": 5,
+      "market_cap_sol": null,
+      "market_cap_usd": null,
+      "spot_price_sol_per_token": null
+    },
+    {
+      "buy_sequence_number": 6,
+      "market_cap_sol": null,
+      "market_cap_usd": null,
+      "spot_price_sol_per_token": null
+    },
+    {
+      "buy_sequence_number": 7,
+      "market_cap_sol": null,
+      "market_cap_usd": null,
+      "spot_price_sol_per_token": null
+    },
+    {
+      "buy_sequence_number": 8,
+      "market_cap_sol": null,
+      "market_cap_usd": null,
+      "spot_price_sol_per_token": null
+    },
+    {
+      "buy_sequence_number": 9,
+      "market_cap_sol": null,
+      "market_cap_usd": null,
+      "spot_price_sol_per_token": null
+    },
+    {
+      "buy_sequence_number": 10,
+      "market_cap_sol": null,
+      "market_cap_usd": null,
+      "spot_price_sol_per_token": null
+    }
+  ],
+  "post_buy_spot_price_supported": false,
+  "schema_version": "pumpfun-opening-valuation-read-only.v1",
+  "source_digests": {
+    "creation_decoded": {
+      "path": "docs/audits/pumpfun_creation_anchor_poc/3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump.creation.decoded.v1.json",
+      "sha256": "61a70d492880515f62bba1b33466f746b62c1ea0fb07e865861be982cc398758"
+    },
+    "decoded_opening": {
+      "path": "docs/audits/pumpfun_opening_sequence_poc/opening_sequence.decoded.v1.json",
+      "sha256": "66e9a8d37a7d1d06269df16adda0eabd5e7d793f992f7dde36b511a2931bccbc"
+    },
+    "legacy_curve_simulator": {
+      "path": "src/core/watchtower/curve_impact_analyzer.py",
+      "schema_confidence": "NOT_CANONICAL_FOR_TARGET: mismatches 10/10",
+      "sha256": "240fe919cc8e2d6848e8dce67e239129a9b8b80e80c6e37df2d24c9fca219c01"
+    },
+    "legacy_mc_formula": {
+      "path": "src/core/launch_audit.py",
+      "schema_confidence": "NOT_CANONICAL_FOR_TARGET",
+      "sha256": "89484ce68320e2ab4d7c1dda840af83fba60cac003cbafa0a681b38701746b6f"
+    },
+    "raw_opening": {
+      "path": "docs/audits/pumpfun_opening_sequence_poc/opening_sequence.raw.v1.json",
+      "sha256": "9cc7d085f37dfcbd31a3d0777c5fc6494d62b3b303c98527fb50f4816aff8270"
+    }
+  },
+  "target_mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+  "what_is_still_missing_for_exact_opening_mc": "A canonical target-era Pump.fun BondingCurve layout/Event schema plus versioned buy arithmetic, or decoded canonical creation event containing initial reserves. Historical account state is only needed if that canonical event/initialization contract does not establish initial state."
+}

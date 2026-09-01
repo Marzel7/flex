@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D6C",
+  "status": "PARTIAL_STOP",
+  "verdict": "QUIESCENCE_RECOVERED_PRODUCTION_RUNNER_BOUNDARY_MISSING",
+  "engineering_revision": "ac06c781deddbb968babe6bb7a19d1d88cd9cb53",
+  "contract_digest": "a160398c3130dbacf2314bb4046b9bac4865cd9dd421311f2fd999058c0ab9f2",
+  "target_index": "idx_psi0a_token_analysis_migration_tx",
+  "quiescence": {
+    "listener_pid_before": 9069,
+    "listener_stops": 1,
+    "listener_exit_proven": true,
+    "listener_main_database_descriptors_released": true,
+    "owner_guard_empty": true,
+    "other_services_stopped": 0
+  },
+  "attempt": {
+    "launch_rejected_before_execution": true,
+    "rejection_reason": "The immutable PSI0A-D5 entry point and PSI0A-D4 contract are fixture-only and explicitly reject production authorization; pointing that interface at the production database would violate the qualified boundary.",
+    "run_id_materialized": false,
+    "output_directory_created": false,
+    "ledger_created": false,
+    "production_database_connections_opened": 0,
+    "ddl_statements_started": 0,
+    "production_writes": 0,
+    "index_created": false,
+    "retry_count": 0
+  },
+  "recovery": {
+    "listener_starts": 1,
+    "listener_pid_after": 31028,
+    "listener_running": true,
+    "pumpportal_traffic_observed": true,
+    "serializer_snapshot_utc": "2026-08-14T11:18:50Z",
+    "serializer_p99_wait_ms": 31.09,
+    "serializer_p95_wait_ms": 4.28,
+    "serializer_queue_depth": 0,
+    "serializer_lock_errors_24h": 0,
+    "production_flags_changed": false,
+    "service_degradation_observed": false
+  },
+  "next_action": "Separately qualify a production-specific single-index runner contract that preserves D5 durability and exact D4 statement semantics while accepting only an explicit immutable production deployment authorization. Do not reuse the fixture-only authorization marker or retry D6C."
+}

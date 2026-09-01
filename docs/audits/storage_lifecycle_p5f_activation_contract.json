@@ -1,0 +1,58 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5F -- recurring HOT to COLD rollover activation",
+  "timestamp_utc": "2026-08-21T11:19:48Z",
+  "decision": "HOLD_P5F_CAPACITY_REQUALIFICATION_REQUIRED",
+  "activation_state": "NOT_INSTALLED",
+  "qualified_runner_reverification": {
+    "runner": "src/ops/hot_cold_rollover_runner.py",
+    "confirmed": [
+      "90-day retention boundary",
+      "creator_funders, Watchtower operator-entity, and discovery-signature pin dimensions",
+      "five-field composite COLD identity",
+      "closed-base to deterministic DELTA routing",
+      "copy then verify before exact-ID HOT delete",
+      "non-blocking cross-process lease and SQLITE_BUSY rollback/fail-closed behavior",
+      "disk guard, default-safe mode, CLI confirmation plus HOT_COLD_ROLLOVER_CONFIRM double gate"
+    ],
+    "focused_regression": "32/32 passed in P5E-R2"
+  },
+  "preflight": {
+    "hot": {"path": "database/flex_complete_database.db", "max_id": 6910821, "row_count": 3703681, "size_bytes": 14026522624, "wal_size_bytes": 585072},
+    "cold": {"segments": 47, "rows": 1747452, "registry": "PASS -- no rejections", "summaries": "PASS -- all qualified segments digest-bound"},
+    "free_disk_bytes": 36482654208,
+    "writers": "PASS -- watchtower_listener, creator_funding_worker, watchtower_api RUNNING",
+    "rollback": "PASS -- frozen at MAX(id)=6835535, rows=5393999, size=15411294208, mtime unchanged",
+    "existing_heavy_schedule": "03:00 storage_lifecycle cleanup; graph analyzers at 00:00/04:00/etc.; migration audit hourly"
+  },
+  "capacity_gate": {
+    "measurement": "fresh bounded read-only cohort for transfers crossing the 90-day boundary over the preceding 24 hours",
+    "raw_rows": 10498,
+    "pinned_or_held": 1673,
+    "already_cold_composite": 404,
+    "fresh_archival_eligible_rows_per_day": 8421,
+    "qualified_daily_retirement_ceiling": 500,
+    "shortfall_rows_per_day": 7921,
+    "result": "INSUFFICIENT -- a daily 500-row schedule would increase backlog materially"
+  },
+  "model": {
+    "observed": "8421 fresh archival-eligible rows/day in the current boundary cohort",
+    "modelled": "P5D previously estimated a broad 5566-145085 eligible/day range; the fresh result is within that range and confirms 500/day is inadequate.",
+    "backlog_direction_at_500_daily": "grows by approximately 7921 rows/day before any existing backlog is retired",
+    "cold_growth": "approximately 8421 archival rows/day when adequate separately-authorized capacity exists",
+    "hot_growth": "pinned/protected population remains in HOT by design; no pinning rule is weakened"
+  },
+  "installation_preview_not_authorized": {
+    "candidate_schedule": "30 4 * * *",
+    "why_this_time": "would avoid the existing 03:00 cleanup, 04:00 graph analyzer, and hourly 00-minute migration audit",
+    "candidate_command": "cd /Users/kevinkeaveney/Dev/claude/flex && HOT_COLD_ROLLOVER_CONFIRM=YES-RETIRE-PRODUCTION-HOT-ROWS /Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python3 -m src.ops.hot_cold_rollover_runner --once --confirm-retire-hot-rows-in-production --batch-size 500 --max-rows 500 --hot-db-path /Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db --cold-root /Users/kevinkeaveney/Dev/claude/flex/database/_p5a_migration_build/cold_segments --wt-ops-db-path /Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db --discovery-db-path /Users/kevinkeaveney/Dev/claude/flex/database/local_operation_discovery_corpus.db --quiet >> /Users/kevinkeaveney/Dev/claude/flex/logs/hot_cold_rollover_p5f.log 2>&1",
+    "reason_not_installed": "P5F prohibits silently increasing capacity or installing a schedule known to be insufficient."
+  },
+  "disable_contract": {
+    "status": "NO_P5F_ENTRY_EXISTS_TO_DISABLE",
+    "future_disable_command": "crontab -l | grep -v 'hot_cold_rollover_runner' | crontab -",
+    "verification": "crontab -l | grep -F 'hot_cold_rollover_runner' must return no P5F entry",
+    "writer_services": "Do not stop writer services to disable rollover."
+  },
+  "prohibitions_preserved": {"automation_active": false, "batches_run": 0, "hot_rows_deleted": 0, "vacuum": false, "rollback_db_modified": false, "services_restarted": false},
+  "exact_next_action": "Separately qualify the smallest sustainable authority: multiple independently leased 500-row invocations separated in time, or a larger batch size with fresh lock-safety qualification. Do not install any schedule until the capacity gate passes."
+}

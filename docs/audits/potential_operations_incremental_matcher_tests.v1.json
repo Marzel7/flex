@@ -1,0 +1,43 @@
+{
+  "counts": {
+    "ambiguous": 2,
+    "qualified": 59,
+    "unavailable": 1
+  },
+  "focused_tests": "12 passed",
+  "historical_replay": {
+    "ambiguous": 0,
+    "misses": 0,
+    "recovered": 1275,
+    "wrong_candidate": 0
+  },
+  "matcher_module": "src/ops/potential_candidate_matcher.py",
+  "persistence": {
+    "assignment_writes": 0,
+    "living_publications": 0,
+    "membership_writes": 0,
+    "source_table_writes": 0
+  },
+  "prerequisite": {
+    "path": "docs/audits/potential_operations_incremental_candidate_matcher_qualification.v1.json",
+    "sha256": "afdb356c4efe68006821f1e77af6b5d9242cd60f5de6bdf9cf46927f99a464d2"
+  },
+  "readiness": "READY_FOR_PARTIAL_LIVE_ACTIVITY_UI_INTEGRATION",
+  "regressions": [
+    "exact unique",
+    "no-match",
+    "multi-match collision",
+    "insufficient input",
+    "ambiguous/unavailable excluded",
+    "WSOL/eight-hop qualified",
+    "P3R-vs-WSOL separation"
+  ],
+  "result_contract": [
+    "UNIQUE_MATCH",
+    "MULTI_MATCH",
+    "NO_MATCH",
+    "INSUFFICIENT_INPUT"
+  ],
+  "schema_version": "potential_operations_incremental_matcher_tests.v1",
+  "verdict": "POTENTIAL_OPERATIONS_INCREMENTAL_MATCHER_TESTS_QUALIFIED"
+}

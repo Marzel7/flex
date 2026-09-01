@@ -1,0 +1,18 @@
+{
+  "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/wsol_four_family_comparison/p3r-v2-wsol-four-family-v1/p3r_v2_wsol_four_family_operation_comparison.v1.json",
+  "artifact_sha256": "15cbd62ddd7eb0fd299efba58f9697994d02225e698f083d34a59811cc886f30",
+  "canonical_run_id": "p3r-v2-2dec1d40604c1f7c08c8",
+  "deterministic_replay": {
+    "inputs": {
+      "atomic_rowid": 7095,
+      "edge_rowid": 60299
+    },
+    "pair_count": 6,
+    "result": "PASS"
+  },
+  "schema_version": "P3R_V2_WS0L_FOUR_FAMILY_OPERATION_COMPARISON_MANIFEST.v1",
+  "source_highwaters": {
+    "atomic_rowid": 7095,
+    "edge_rowid": 60299
+  }
+}

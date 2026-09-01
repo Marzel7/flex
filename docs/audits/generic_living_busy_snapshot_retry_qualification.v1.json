@@ -1,0 +1,64 @@
+{
+  "artifact_version": "v1",
+  "physical_race_artifact": {
+    "path": "docs/audits/generic_living_physical_two_writer_visibility_race_qualification.v1.json",
+    "sha256": "a37df62ff72f97266065bb698402a276a5354ea0d628d1dac5b5e5d3247b1c10"
+  },
+  "sqlite_exception": {
+    "class": "sqlite3.OperationalError",
+    "sqlite_errorcode": 517,
+    "sqlite_errorname": "SQLITE_BUSY_SNAPSHOT",
+    "message": "database is locked"
+  },
+  "retry_policy": {
+    "retryable": ["SQLITE_BUSY_SNAPSHOT"],
+    "non_retryable": ["SQLITE_BUSY", "SQLITE_LOCKED", "ownership mismatch", "immutable association content conflict", "equal freshness conflict", "schema and programming errors"],
+    "max_retries_after_initial": 3,
+    "max_total_attempts": 4,
+    "backoff_inside_transaction": false,
+    "whole_transaction_restart": true
+  },
+  "implementation": "Canonical publisher persists candidate associations before assessment/lineage, keeping all rows in one atomic transaction. This permits a legitimate WAL read-to-write upgrade race to be observed before the publisher holds a write lock. On SQLITE_BUSY_SNAPSHOT it rolls back and restarts the complete transaction with a fresh snapshot.",
+  "visibility_retry_path": "REMOVED. Physical SQLite evidence shows BUSY_SNAPSHOT is the real signal before write; a missing post-insert row is a hard runtime correctness failure, not a second retry mechanism.",
+  "physical_wal_result": {
+    "iterations": 10,
+    "two_independent_connections": true,
+    "forced_retry_hook_used": false,
+    "a_pre_lookup_absent": 10,
+    "b_identical_association_commits": 10,
+    "busy_snapshot_events": 10,
+    "canonical_retries": 10,
+    "successful_fresh_attempts": 10,
+    "attempt_ids_each": [1, 2],
+    "retry_exhaustions": 0,
+    "partial_failed_attempt_rows": 0,
+    "deterministic_association_rows_each": 1,
+    "integrity_check": "ok"
+  },
+  "bounded_exhaustion": "PASS: controlled SQLITE_BUSY_SNAPSHOT classifier input stops after four total attempts, raises ConcurrentPublicationRetryExhausted, and leaves no canonical publication rows.",
+  "preservation": {
+    "ownership_conflict_retries": 0,
+    "immutable_content_conflict_retries": 0,
+    "equal_freshness_conflict_retries": 0,
+    "replay": "PASS",
+    "stale": "PASS",
+    "second_callback_after_injected_rollback": "PASS",
+    "tiny_6_plus_4": "PASS; A=6, B=4, observer>0, expected injected failures=1, unexpected=0, post-failure progress=PASS"
+  },
+  "telemetry": {
+    "physical_SQLITE_BUSY_SNAPSHOT": 10,
+    "physical_busy_snapshot_retries": 10,
+    "defensive_visibility_retries": 0,
+    "SQLITE_BUSY": 0,
+    "SQLITE_LOCKED": 0,
+    "database_table_is_locked": 0,
+    "retry_exhaustion": 0
+  },
+  "revised_concurrency_acceptance": "A bounded SQLITE_BUSY_SNAPSHOT followed by successful whole-transaction restart is expected/recovered. Retry exhaustion, SQLITE_LOCKED, persistent ordinary lock failures, deadlock, and starvation are unacceptable.",
+  "production_safety": {
+    "real_feature_flag": "OFF",
+    "real_db_writes": 0,
+    "provider_rpc_network_calls": 0
+  },
+  "full_80_40_readiness": "READY_FOR_FULL_80_40_TRUSTWORTHY_FAILURE_RUN, subject to the existing separate authorization; this task does not run it."
+}

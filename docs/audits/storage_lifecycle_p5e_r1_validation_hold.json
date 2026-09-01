@@ -1,0 +1,28 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5E-R1 -- immutable closed-segment remediation",
+  "timestamp_utc": "2026-08-21T10:03:35Z",
+  "status": "HOLD",
+  "terminal_verdict": "HOLD_P5E_HISTORICAL_PARITY",
+  "production_actions": {
+    "hot_rows_deleted": 0,
+    "production_db_mutated": false,
+    "cold_base_replaced": false,
+    "services_restarted": false,
+    "rollback_db_touched": false
+  },
+  "forensic_revalidation": {
+    "base_reconstruction_a": "PASS: 319318 rows, original digest, integrity ok",
+    "base_reconstruction_b": "PASS: 319318 rows, original digest, integrity ok",
+    "frozen_batch": "439 HOT rows present; 433 currently in mutated May base; 6 absent from all COLD"
+  },
+  "implementation_progress": {
+    "closed_segment_delta_routing": "PATCHED_LOCALLY_NOT_ACCEPTED",
+    "five_field_identity": "PATCHED_LOCALLY_NOT_ACCEPTED",
+    "test_result": "30 passed, 1 failed"
+  },
+  "blocker": "The newly added five-field collision test is invalid against the fixture HOT schema, which enforces the existing three-field UNIQUE(signature,source,destination) constraint. The implementation must not be accepted or the physical repair started until the test is redesigned to exercise the real signature-only dedupe failure without contradicting the source schema.",
+  "exact_next_action": "Human decision required: authorize redesigning the regression fixture/test around distinct source/destination legs sharing a signature, or authorize a fixture schema change only if production HOT schema inspection proves five-field-distinct legs can exist. Then rerun the targeted suite before replacing the affected base and replaying the 439 rows to a closed delta segment.",
+  "handoff_integrity": {
+    "pre_update_sha256": "39734f293b0448c3b99b3911e2b6dd573f639f6e77d11ac51820d407393cc1ca"
+  }
+}

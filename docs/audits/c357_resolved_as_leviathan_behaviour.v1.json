@@ -1,0 +1,23 @@
+{
+  "artifact_digest": "1d969381485e192b01faa582f4a08d40de4601386351ee2b3c6bf3a22ae13fba",
+  "behaviour_projection": "p3r-subtype-03f916dfa97fb93a4b9c",
+  "c357_lineage": "p3r-v2-c357da9d0d4d560311e4",
+  "canonical_parent": "777211c3-211e-551b-9310-ff9301570627",
+  "compatible_unresolved": 105,
+  "detector": "OFF",
+  "display_name": "100 SOL WSOL Provision Close",
+  "idempotent": true,
+  "monitoring": "SHADOW_ONLY",
+  "primary_membership_after": 111,
+  "primary_membership_before": 111,
+  "primary_overlap": 50,
+  "projection_only": 6,
+  "provider_calls": 0,
+  "relationship": "RESOLVED_AS_LEVIATHAN_BEHAVIOUR",
+  "schema_version": "C357_RESOLVED_AS_LEVIATHAN_BEHAVIOUR.v1",
+  "supported_projection": 56,
+  "trading": "OFF",
+  "ui_category": "LEVIATHAN_BEHAVIOUR_NOT_ACTIONABLE_POTENTIAL",
+  "workflow_after": "RESOLVED_AS_LEVIATHAN_BEHAVIOUR",
+  "workflow_before": "PAUSED"
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": "potential_operations_partial_live_activity_ui.v1",
+  "verdict": "PARTIAL_LIVE_ACTIVITY_UI_PASS",
+  "prerequisite": {"path": "docs/audits/potential_operations_incremental_matcher_tests.v1.json", "sha256": "7a3ac23c52343e6b2a42233c7d15678bfe1120d10a0e1c49bc3d96fe50ad18c9", "readiness": "READY_FOR_PARTIAL_LIVE_ACTIVITY_UI_INTEGRATION"},
+  "live_activity_source": {"table": "wt_walkback_queue", "timestamp_field": "funder_block_time", "matcher": "potential_candidate_matcher", "qualified": 59, "ambiguous": 2, "unavailable": 1},
+  "windows": {"24h": {"total_retained_launches": 610, "launches_with_matcher_inputs": 600, "unique_matches": 58, "multi_matches": 0, "no_matches": 542, "insufficient_input": 10, "candidate_unique_sum": 58}, "7d": {"total_retained_launches": 4434, "launches_with_matcher_inputs": 4257, "unique_matches": 514, "multi_matches": 0, "no_matches": 3743, "insufficient_input": 177, "candidate_unique_sum": 514}, "30d": {"total_retained_launches": 12634, "launches_with_matcher_inputs": 12146, "unique_matches": 1377, "multi_matches": 0, "no_matches": 10769, "insufficient_input": 488, "candidate_unique_sum": 1377}},
+  "activity_source_semantics": {"LIVE_CURRENT": "qualified matcher aggregated retained launches", "SNAPSHOT_ONLY": "no safe live matcher; snapshot labelled provenance only", "UNKNOWN": "no safe live matcher or snapshot"},
+  "wsol": {"candidate_id": "p3r-v2-c357da9d0d4d560311e4", "source": "LIVE_CURRENT", "activity": [14, 61, 117], "creator_quality": "CREATOR DIVERSE"},
+  "eight_hop": {"candidate_id": "p3r-v2-dc4953db7adb853337c4", "source": "LIVE_CURRENT", "activity": [1, 13, 34], "creator_quality": "CREATOR DIVERSE"},
+  "top_20_before": "creator-artifact/frozen activity ordering retired; it was not a valid current-time source",
+  "top_20_after": ["p3r-v2-6437acd385e566e301a7", "p3r-v2-c357da9d0d4d560311e4", "p3r-v2-6f7738e9702395ba8ad3", "p3r-v2-e6462dd56f2e695fcb6c", "p3r-v2-900b89587c6987d582df", "p3r-v2-be7fa4d6954d52d60bd3", "p3r-v2-ecf7d68639b67310be42", "p3r-v2-b55dad3b9958cfb69cbc", "p3r-v2-711c64846cb08429936f", "p3r-v2-53e48b44fcc08bf9d29b", "p3r-v2-dc4953db7adb853337c4"],
+  "focus_next": {"before": "frozen creator-artifact activity ordering", "after": "p3r-v2-6437acd385e566e301a7", "explanation": "creator group, then LIVE_CURRENT state and current retained unique assignments; creator-dominated excluded"},
+  "safety": {"frozen_creator_activity_used_as_live": false, "assignment_writes": 0, "membership_writes": 0, "source_table_writes": 0, "living_state_unchanged": true, "generic_dispatch_behavior_changed": false, "generic_dispatch_enabled": true},
+  "verification": {"focused_tests": "14 passed", "local_render_http": 200, "creator_quality_preserved": true, "snapshot_only_labeling": "PASS", "unknown_labeling": "PASS", "files_changed": ["src/ops/live_potential_activity.py", "src/ops/potential_operations.py", "templates/potential_operations.html", "tests/test_live_potential_activity.py", "tests/test_potential_operations_visual_structure.py"]}
+}

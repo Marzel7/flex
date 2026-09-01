@@ -1,0 +1,15 @@
+{
+  "artifact_version": "v2",
+  "prerequisites": {
+    "ordinary_busy": {"path": "docs/audits/generic_living_ordinary_busy_retry_qualification.v1.json", "sha256": "5bcc1fd6b44cedacab4e240b098a3d2197215fa966a7a07595e3e6d6a5ab50b6"},
+    "busy_snapshot": {"path": "docs/audits/generic_living_busy_snapshot_retry_qualification.v1.json", "sha256": "581d818dc7f28aac22bc5478a94045d2898f28b466bde067a0fc49f9b6a4eef0"}
+  },
+  "harness": "existing tests/test_generic_living_three_actor_smoke.py disposable A+B+C WAL harness",
+  "workload": {"actor_a_events": 80, "actor_a_mix": {"wsol_relevant": 30, "eight_hop_relevant": 30, "unrelated": 10, "global_only": 10}, "actor_b_attempts": 40, "actor_b_mix": {"new": 30, "replay": 5, "stale": 5}, "actor_c_observer_iterations": 82962},
+  "outcomes": {"actor_overlap": true, "actor_a_completed": 80, "actor_b_completed": 40, "actor_c_clean_exit": true, "callback_success": 79, "expected_injected_failure": 1, "unexpected_callback_failures": 0, "post_failure_progress": "PASS", "partial_living_state": 0},
+  "retry_telemetry": {"SQLITE_BUSY_SNAPSHOT": 0, "busy_snapshot_recoveries": 0, "SQLITE_BUSY": 1, "ordinary_busy_recoveries": 1, "retry_exhaustion": 0, "max_retry_count": 1, "SQLITE_LOCKED": 0, "database_is_locked_unrecovered": 0, "database_table_is_locked_unrecovered": 0, "deadlocks": 0, "writer_starvation": false, "unexpected_sqlite_errors": 0},
+  "timings_ms": {"source": {"count": 80, "min": 0.047459, "median": 0.121417, "p95": 0.356958, "max": 1.447084}, "living": {"count": 80, "min": 4.113042, "median": 10.903146, "p95": 30.323042, "max": 76.587125}, "injected_failed_living": 53.229542, "actor_b": {"count": 40, "min": 0.120125, "median": 0.526896, "p95": 0.928667, "max": 3.109458}},
+  "invariants": {"external_invalid_observations": 0, "legacy_and_generic_both_called": 0, "max_publication_paths_per_event": 1, "cross_candidate_contamination": 0, "replay_duplicate_assessments": 0, "replay_duplicate_associations": 0, "replay_duplicate_lineage": 0, "replay_duplicate_bindings": 0, "stale_current_regressions": 0, "living_visible_before_source_commit": 0, "nested_source_living_write_transaction": false, "integrity_check": "ok"},
+  "safety": {"real_feature_flag": "OFF", "real_db_writes": 0, "real_evidence_table_writes_by_task": 0, "provider_rpc_network_calls": 0},
+  "readiness": "READY_FOR_HELD_READER_WAL_LONGEVITY; that phase was not run in this task."
+}

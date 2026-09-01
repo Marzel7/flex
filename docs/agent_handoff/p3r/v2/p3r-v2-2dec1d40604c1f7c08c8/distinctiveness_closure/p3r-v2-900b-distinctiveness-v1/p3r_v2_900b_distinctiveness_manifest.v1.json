@@ -1,0 +1,41 @@
+{
+  "analysis_code_sha256": "150029d78e43c8b3769ea5150caff24d7905b168638cc4461726f800599deea2",
+  "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/distinctiveness_closure/p3r-v2-900b-distinctiveness-v1/p3r_v2_900b_distinctiveness_closure.v1.json",
+  "artifact_sha256": "59d314692bb35f1f49db950f6ead42185475ff5000463f1790911e4112376979",
+  "denominator_verification": {
+    "exact_replayed_predicate": {
+      "amount_lamports": 999985000,
+      "hop_depth": 1,
+      "mechanism": "WSOL_WRAP_CLOSE",
+      "selection_status": "SELECTED"
+    },
+    "expected_broad_watch_now_family_count": 27,
+    "frozen_edge_high_water": 60299,
+    "reason": "The supplied 27-family comparator population is not reproduced by the frozen canonical selected-edge evidence. The locally reproducible exact predicate contains only the target family; retained alternative-edge evidence contains two families. No durable artifact or exact alternative predicate establishing the supplied 27-family population was recovered.",
+    "reproduced_alternative_family_count": 2,
+    "reproduced_selected_family_count": 1,
+    "status": "DISCREPANCY"
+  },
+  "deterministic_payload_digest": "bffc2fa273e2e7a549b16cead5183917f60fe5cdd1853615606b53aa882141a3",
+  "deterministic_replay": {
+    "qualified_closure": false,
+    "replayed_exact_alternative_family_count": 2,
+    "replayed_exact_selected_family_count": 1,
+    "result": "REPRODUCES_DENOMINATOR_DISCREPANCY"
+  },
+  "input_digests": {
+    "activity_census": "ce0fb8e5df0d106ae5db9158cc649b8846ac52b64703e7a408239da3f80082df",
+    "candidate_membership": "54a7c8b75c58595d2fcaa2de7eb48d1f09d1d7fc85cfb9e0a7d985fd22d6ad33",
+    "tier_membership": "f401ff8b7df23a36f5afca0f7989e7a964fb12e72b1833ef19f2d9d58ab79c92"
+  },
+  "qualification_status": "UNRESOLVED_PENDING_COMPARATOR_PROVENANCE",
+  "schema_version": "P3R_V2_900B_DISTINCTIVENESS_MANIFEST.v1",
+  "source_snapshot": {
+    "highwaters": {
+      "wt_walkback_atomic_flows": 7095,
+      "wt_walkback_edge_candidates": 60299,
+      "wt_walkback_queue": 32353
+    },
+    "read_only_source": true
+  }
+}

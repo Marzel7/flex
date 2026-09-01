@@ -1,0 +1,219 @@
+{
+  "schema_version": "b2z.p1.durable-resumable-execution-preflight.v1",
+  "artifact_type": "B2Z_P1_DURABLE_RESUMABLE_EXECUTION_PREFLIGHT",
+  "milestone": "B2Z-P1",
+  "generated_utc": "2026-08-18T23:20:00Z",
+  "purpose": "LOCAL/MOCKED ONLY. Build and qualify a durable, resumable B2Z execution boundary that fixes the two real gaps found in B2Z-P0 (no resume, no pre-dispatch durability), without touching the already-qualified B2ZRunner. No provider/RPC calls made. No live execution performed.",
+
+  "part0_bindings": {
+    "b2n_closure": {"artifact": "docs/audits/b2n_p3j_bounded_migration_lineage_completion.json", "digest": "e7623e6070c3e5f7a94fb39988ddd6f21bc77f28f42ef9c8cfe454d5ce67ad54"},
+    "b2z_p0_preflight": {"artifact": "docs/audits/b2z_p0_creator_funding_qualification_preflight.json", "digest": "9857b46fbb3a20e02fc35c5188a1fddbbc3b703422b20c1c82cfdb5e1dc1a38b"},
+    "b2z_p0_coverage_matrix": {"artifact": "docs/audits/b2z_p0_local_evidence_coverage_matrix.json", "digest": "eb89b3dcca2b247433912eb56e7c96d04716ac2527d58c71015fac47702a29ae"},
+    "frozen_manifest": {"artifact": "docs/evidence_platform/oip_v2_2e_2b2u_b2r_frozen_manifest.json", "manifest_digest_executor": "82bbda32d25a9951a8d8475528d7db3a92b675aae90ce2d55e13391a6b69eedc"},
+    "frozen_projection": {"artifact": "docs/evidence_platform/oip_v2_2e_2b2bq_b2z_frozen_projection.json", "projection_digest": "eb2713e3f0ff01f122c0e962a7c67e7f1ea80337fa8894163892a47c17dd32bc"}
+  },
+
+  "part1_current_implementation_trace": {
+    "code_file_re_read_this_milestone": "src/acquisition/b2z_execution_boundary.py",
+    "confirmed_exact_flow": "B2ZRunner.__init__ (validates manifest, binds projection, requires exact 20-member match) -> run() (require_empty() ledger check, zero transport counter check) -> per member sequentially: stage1 getTransaction -> resolve_creator() -> stage2 getSignaturesForAddress -> filter candidates -> stage3 getTransaction -> validate funding_time/proves_inbound_sol_funding -> append result -> next member -> final counter cross-check",
+    "exception_points_identified": [
+      "_call(): network dispatch itself (urllib timeout/connection error)",
+      "_result(): RPC error field, missing result, transaction meta.err != null",
+      "resolve_creator(): B2Z_MINT_NOT_IN_MIGRATION, B2Z_CREATOR_AMBIGUOUS, B2Z_MIGRATION_TIME_MISSING",
+      "candidate filtering: B2Z_FIRST_NON_SUCCESS_STOP_NO_CANDIDATE if empty after filter",
+      "funding validation: B2Z_FIRST_NON_SUCCESS_STOP_FUNDING_TIME_INVALID, B2Z_FIRST_NON_SUCCESS_STOP_NO_FUNDING_EDGE",
+      "ledger.append(): B2Z_DUPLICATE_PHYSICAL_ATTEMPT (structural double-append guard)",
+      "final counter cross-check: B2Z_FINAL_COUNTER_MISMATCH"
+    ],
+    "confirmed_gap_1_no_resume": "PhysicalAttemptLedger.require_empty() is called at the START of run() -- proven by tests/test_oip_v2_2e_2b2bp_execution_boundary.py::test_existing_ledger_and_nonzero_client_counter_fail_before_request that a non-empty ledger makes construction/run refuse entirely (B2Z_LEDGER_MUST_BE_EMPTY)",
+    "confirmed_gap_2_no_pre_dispatch_durability": "B2ZRunner._call() only calls self.ledger.append() AFTER the try/except block completes (success or caught exception) -- there is no durable write BEFORE self.transport.post_json() is invoked, unlike B2N's PreDispatchEventLedger.append_event(event='ATTEMPT_RESERVED', ...) which executes before the network call",
+    "action_taken": "did NOT modify src/acquisition/b2z_execution_boundary.py or B2ZRunner -- its 11 tests remain byte-identical and passing (re-run this milestone, zero regressions). Built a PARALLEL module, src/acquisition/b2z_durable_execution.py, that reuses the identical evidence-rule functions (resolve_creator, proves_inbound_sol_funding imported directly from b2z_execution_boundary.py, not reimplemented) behind a new durability layer."
+  },
+
+  "part2_stage_identities": {
+    "stages_defined": ["MIGRATION_TX", "CREATOR_HISTORY", "FUNDING_TX"],
+    "identity_binding": "StageIdentity dataclass binds (run_id, sample_ordinal, mint, stage); every event ledger entry additionally carries physical_request_number, provider, endpoint_family, method, dependency_digest, request_digest -- a completed stage for one member can never be confused with the same stage for another member (keyed by (sample_ordinal, stage) tuples throughout) or a different stage for the same member"
+  },
+
+  "part3_pre_dispatch_event_ledger": {
+    "implementation": "B2ZEventLedger.append_event(event='ATTEMPT_RESERVED', ...) called by DurableB2ZClient.dispatch() BEFORE self._transport.post_json(...) is invoked -- proven by test_reservation_written_before_dispatch_for_every_stage (asserts events[0]['event']=='ATTEMPT_RESERVED' precedes events[1])",
+    "reservation_fields_present": ["run_id", "sample_ordinal", "mint", "stage", "physical_request_number", "provider", "endpoint_family", "method", "dependency_digest", "request_digest", "event_utc_ns"],
+    "no_credential_bearing_field": "confirmed -- request_digest is a SHA-256 hash of {method, params}, never the raw endpoint URL or any credential; the module never imports os.environ or constructs a transport (confirmed by test_no_credential_symbols_anywhere_in_module)"
+  },
+
+  "part4_terminal_events": {
+    "event_types": ["ATTEMPT_SUCCEEDED", "ATTEMPT_FAILED_AFTER_DISPATCH", "ATTEMPT_NOT_DISPATCHED"],
+    "append_only_confirmed": "B2ZEventLedger has no update/delete method -- append_event() only ever appends a new line",
+    "distinguishing_logic": "DurableB2ZClient.dispatch() compares transport.physical_request_count before/after the try block: if an exception occurs and the counter changed, ATTEMPT_FAILED_AFTER_DISPATCH is recorded (budget consumed); if the counter did NOT change (exception raised before or during construction, never reaching the transport), ATTEMPT_NOT_DISPATCHED is recorded (budget NOT consumed) -- mirrors B2N's DurableAccountingClient.acquire_once() dispatched-detection pattern exactly"
+  },
+
+  "part5_physical_request_accounting": {
+    "canonical_definition": "B2ZEventLedger.physical_requests_attempted() counts only (sample_ordinal, stage) pairs whose terminal event is ATTEMPT_SUCCEEDED or ATTEMPT_FAILED_AFTER_DISPATCH -- ATTEMPT_NOT_DISPATCHED pairs are excluded",
+    "proven_max_3_per_member": "test_full_member_completes_in_exactly_3_resume_calls asserts exactly 3 dispatched stages per member",
+    "proven_max_60_per_run": "test_full_mocked_20_member_run_exactly_60_requests asserts event_ledger.physical_requests_attempted()==60 after processing all 20 members, and a subsequent call returns ALL_MEMBERS_COMPLETE with the counter unchanged",
+    "proven_pre_dispatch_exception_excluded": "test_failure_before_dispatch_does_not_consume_budget asserts physical_requests_attempted()==0 after an exception raised before the transport call",
+    "proven_post_dispatch_exception_included": "test_failure_after_dispatch_consumes_budget_and_is_durably_recorded asserts physical_requests_attempted()==1 after a TimeoutError raised by the (already-dispatched) fake transport",
+    "budget_exhaustion_guard": "DurableB2ZClient.dispatch() raises B2Z_P1_GLOBAL_BUDGET_EXHAUSTED before any reservation is written if physical_requests_attempted() >= max_total_requests -- proven by test_global_budget_exhaustion_stops_before_the_61st_request"
+  },
+
+  "part6_dependency_aware_resume": {
+    "strict_order_enforced": "_stage_for_next() iterates STAGES_IN_ORDER and returns the first stage NOT in succeeded_stage_keys() -- MIGRATION_TX is always attempted before CREATOR_HISTORY, which is always attempted before FUNDING_TX, for a given member",
+    "worked_example_proven": "test_resume_from_interruption_after_member_4_stage_2 drives exactly 11 resume_next() calls (members 1-3 fully complete = 9, member 4 stage 1+2 = 2), simulates interruption by simply stopping, then asserts the NEXT fresh resume_next() call resolves to member 4 / FUNDING_TX -- not member 1, not member 5",
+    "never_redispatches_completed_stage": "proven structurally: _stage_for_next() only ever returns a stage whose (ordinal, stage) key is absent from succeeded_stage_keys(); DurableB2ZClient.dispatch() additionally raises B2Z_P1_DUPLICATE_STAGE_ATTEMPT as an independent second guard if a reservation already exists for that key (test_duplicate_stage_attempt_rejected)",
+    "never_skips_incomplete_dependency": "proven by test_stage_2_requires_stage_1_output_present and the blocking-member guard (test_blocked_member_raises_and_does_not_skip_ahead) -- if member N has ANY failed/not-yet-succeeded stage that was already attempted, resume_next() raises B2Z_P1_MEMBER_BLOCKED_BY_FAILED_STAGE rather than silently continuing to member N+1's stage 1",
+    "never_resets_budget": "physical_requests_attempted() is derived fresh from the durable event ledger on every call -- there is no in-memory counter that could be reset by a new process invocation"
+  },
+
+  "part7_durable_stage_outputs": {
+    "storage": "B2ZStageOutputLedger -- a single compact JSON file (NOT one file per stage, NOT full provider response bodies) keyed by sample_ordinal then stage",
+    "stage_1_output_persisted": ["creator", "migration_signature", "migration_time", "migration_slot"],
+    "stage_2_output_persisted": ["creator", "migration_time", "candidate_funding_signature", "candidate_block_time", "selection_rule", "candidate_pool_size_after_filter"],
+    "stage_2_no_candidate_output_persisted": ["no_candidate: true", "creator", "migration_time"],
+    "explicit_exclusion": "full getTransaction/getSignaturesForAddress response bodies (accountKeys arrays, full instruction lists, all 1000 signature rows) are NEVER persisted -- only the small set of scalar/short-string fields the NEXT stage's request params actually require",
+    "estimated_size": "~1.5KB per member across all 3 stages worth of durable output (measured via a representative sample), x20 members = ~31KB total for the whole cohort -- negligible",
+    "duplicate_write_guard": "record_stage_output() raises B2Z_P1_STAGE_OUTPUT_ALREADY_RECORDED if the same (ordinal, stage) key is written twice -- an independent third guard against accidental re-processing"
+  },
+
+  "part8_final_member_result": {
+    "fields_bound_on_member_complete": ["sample_ordinal (via B2ZStageOutputLedger key)", "mint", "creator", "migration_signature", "migration_time", "funding_signature", "funding_time", "funding_slot", "review_flag (or null)", "evidence_observed=true", "provenance_complete=true", "candidate_only=true"],
+    "no_operation_membership_created": "confirmed by grep -- zero Watchtower/three_sw2/canonical_operation references anywhere in b2z_durable_execution.py (test_no_watchtower_or_operation_coupling)",
+    "only_emitted_after_all_3_stages_pass": "proven structurally -- the MEMBER_COMPLETE status is only returned from the STAGE_FUNDING_TX branch, which itself requires stage_output_ledger.get_stage_output(..., STAGE_CREATOR_HISTORY) to be non-null (raises B2Z_P1_MISSING_STAGE_2_OUTPUT otherwise), which in turn required STAGE_MIGRATION_TX's output to exist"
+  },
+
+  "part9_no_candidate_semantics": {
+    "behavior": "when stage 2 (CREATOR_HISTORY) finds zero signatures with blockTime < migration_time, resume_next() returns status='NO_CANDIDATE' immediately -- no stage-3 dispatch is attempted for that member. A subsequent resume_next() call for the same member short-circuits at the FUNDING_TX branch (stage2['no_candidate'] is true) and returns status='NO_EVIDENCE_NO_CANDIDATE' WITHOUT making any provider call.",
+    "physical_budget_impact": "exactly 2 requests consumed for a no-candidate member, not 3 -- proven by test_no_candidate_ends_member_with_only_2_requests, which also asserts no getTransaction request for any 'funding-*' target was ever sent",
+    "contract_state_chosen": "NO_EVIDENCE_NO_CANDIDATE -- a qualified terminal outcome distinct from a failure; the member's acquisition attempt is considered complete (not blocked, not retryable) with a definitive absence-of-evidence result"
+  },
+
+  "part10_multiple_candidate_semantics": {
+    "preserved_exactly": "candidates[0] after the blockTime < migration_time filter, identical to B2ZRunner's existing rule -- NO new disambiguation logic, NO additional provider calls added",
+    "proof": "test_multiple_candidates_selects_most_recent_before_migration constructs a fake response with 3 signatures (2 qualifying, 1 post-migration), asserts the selected candidate is the most-recent qualifying one, asserts the post-migration one was correctly excluded, and asserts exactly 1 getSignaturesForAddress call was made (event_ledger.physical_requests_attempted()==2 after stages 1+2, no extra calls)"
+  },
+
+  "part11_fan_out_review_flag": {
+    "flagged_ordinals": [8, 11, 15, 19],
+    "flag_value": "FUNDING_SOURCE_REQUIRES_DOWNSTREAM_REVIEW",
+    "set_only_on_member_complete": "the flag is computed as part of the FUNDING_TX stage output, so it is only ever attached to a member that has ALREADY passed the full evidence contract (proves_inbound_sol_funding, temporal check) -- it does not gate or reject anything",
+    "does_not_change_acquisition": "proven by test_review_flag_does_not_alter_request_count_or_reject_evidence -- exactly 3 requests/member (24 total for 8 members) regardless of whether the ordinal is flagged",
+    "does_not_promote_attribution": "the flag is a plain string field in the candidate-evidence output dict, never referenced by any operation/Watchtower code path (none exists in this module)",
+    "non_flagged_members_confirmed_null": "test_fan_out_review test explicitly checks ordinal 1's review_flag is None"
+  },
+
+  "part12_authorization_contract": {
+    "object": "B2ZAuthorization dataclass, built via build_authorization() from the REAL committed frozen manifest and frozen projection files (not synthetic test data) -- computed this milestone directly from docs/evidence_platform/oip_v2_2e_2b2u_b2r_frozen_manifest.json and docs/evidence_platform/oip_v2_2e_2b2bq_b2z_frozen_projection.json",
+    "resulting_bound_values": {
+      "run_id": "b2z-p1-44d6798563468c8aff747446",
+      "manifest_digest": "82bbda32d25a9951a8d8475528d7db3a92b675aae90ce2d55e13391a6b69eedc",
+      "projection_digest": "eb2713e3f0ff01f122c0e962a7c67e7f1ea80337fa8894163892a47c17dd32bc",
+      "b2n_closure_digest": "e7623e6070c3e5f7a94fb39988ddd6f21bc77f28f42ef9c8cfe454d5ce67ad54",
+      "p0_preflight_digest": "9857b46fbb3a20e02fc35c5188a1fddbbc3b703422b20c1c82cfdb5e1dc1a38b",
+      "provider": "helius_rpc",
+      "endpoint_family": "helius-mainnet-json-rpc",
+      "allowed_methods": ["getTransaction", "getSignaturesForAddress"],
+      "max_total_requests": 60,
+      "max_requests_per_member": 3,
+      "max_requests_per_stage": 1,
+      "retries": 0,
+      "pagination_budget": 0,
+      "fallback_budget": 0,
+      "production_db_read": false,
+      "production_db_write": false,
+      "candidate_evidence_only": true,
+      "existing_operation_mutation_forbidden": true
+    },
+    "authorization_digest": "b13fa0ad7b8146cafb60098c43203e1359bf73cd4f89c0e033c0843542a7b6eb",
+    "authorization_digest_method": "SHA-256 of canonical JSON (sort_keys, compact separators) of the full B2ZAuthorization dataclass",
+    "not_consumed_this_milestone": true,
+    "manifest_digest_verified_matches_real_committed_file": true,
+    "projection_digest_verified_matches_real_committed_file": true
+  },
+
+  "part13_new_run_id": {
+    "run_id": "b2z-p1-44d6798563468c8aff747446",
+    "derivation": "sha256('B2Z-P1|' + manifest_digest + '|' + projection_digest + '|' + b2n_closure_digest + '|DURABLE_RESUMABLE')[:24], prefixed 'b2z-p1-'",
+    "distinct_from_b2n_run_id": true,
+    "b2n_run_id_for_comparison": "b2n-p3e-98695fbdf44146c93ff08c8c",
+    "distinct_from_prior_b2z_experimental_run_id": true,
+    "prior_b2z_experimental_run_id_for_comparison": "102f6376-9f63-476f-a07e-77c578a44c4d (docs/evidence_platform/oip_v2_2e_2b2bq_b2z_run_preflight.json -- a random uuid, never executed, 0 provider requests recorded)",
+    "ledger_starts_empty": "no docs/audits/b2z_p1_* ledger files exist as of this preflight -- confirmed by direct filesystem check"
+  },
+
+  "part14_ledger_paths": {
+    "designed_not_yet_created": true,
+    "b2z_p1_event_ledger_path": "docs/audits/b2z_p1_event_ledger_b2z-p1-44d6798563468c8aff747446.jsonl",
+    "b2z_p1_stage_output_ledger_path": "docs/audits/b2z_p1_stage_outputs_b2z-p1-44d6798563468c8aff747446.json",
+    "b2z_p1_final_result_path": "docs/audits/b2z_p1_live_result_b2z-p1-44d6798563468c8aff747446.json",
+    "under_docs_audits_not_tmp": true,
+    "no_file_created_at_these_paths_this_milestone": true
+  },
+
+  "part15_test_isolation": {
+    "all_26_tests_use_tmp_path": true,
+    "structural_guard_test": "test_no_test_resolves_to_live_paths asserts 'docs/audits' is absent from every ledger path used in tests and that the tmp_path prefix IS present -- applies the B2N test-incident lesson directly",
+    "verified_no_live_file_created_by_test_run": "confirmed via `ls docs/audits/b2z_p1*` returning no matches both before and after running the full test suite"
+  },
+
+  "part16_failure_matrix": {
+    "A_stage1_success": "covered by test_first_resume_call_processes_stage_1_of_member_1, test_full_member_completes_in_exactly_3_resume_calls",
+    "B_stage1_http_error_after_dispatch": "covered by test_failure_after_dispatch_consumes_budget_and_is_durably_recorded",
+    "C_stage1_exception_before_dispatch": "covered by test_failure_before_dispatch_does_not_consume_budget",
+    "D_stage2_success": "covered by test_stage_2_requires_stage_1_output_present, test_multiple_candidates_selects_most_recent_before_migration",
+    "E_stage2_timeout_after_dispatch": "covered by test_stage_2_timeout_after_dispatch_durably_accounted",
+    "F_stage2_no_candidate_result": "covered by test_no_candidate_ends_member_with_only_2_requests",
+    "G_stage3_success": "covered by test_full_member_completes_in_exactly_3_resume_calls",
+    "H_stage3_malformed_response": "covered by test_stage_3_malformed_response_raises_and_is_accounted (wrong-destination funding transfer, correctly rejected post-dispatch, request still counted)",
+    "I_interruption_after_member_N_stage_M": "covered by test_resume_from_interruption_after_member_4_stage_2 (member 4, stage 2) and test_resume_from_interruption_after_member_2_stage_1 (member 2, stage 1)",
+    "J_resume_from_partial_member": "covered by both interruption tests above -- resume correctly identifies the exact next incomplete stage",
+    "K_duplicate_stage_attempt": "covered by test_duplicate_stage_attempt_rejected",
+    "L_exhausted_budget": "covered by test_global_budget_exhaustion_stops_before_the_61st_request",
+    "every_dispatched_request_durably_accounted": "proven across all failure-path tests -- physical_requests_attempted() is asserted exact in every case"
+  },
+
+  "part17_full_mocked_20_member_run": {
+    "test": "test_full_mocked_20_member_run_exactly_60_requests",
+    "result": "20/20 members bound correctly, 3 stages/member for all 20 (no no-candidate members in this fixture), exactly 60 physical requests, zero duplicates (60 unique (ordinal,stage) reservation keys), zero gaps, strict stage-dependency order respected throughout, final candidate evidence emitted only on MEMBER_COMPLETE (20 such results), event/ledger reconciliation exact, calling resume_next() a 61st time returns ALL_MEMBERS_COMPLETE with the counter unchanged at 60",
+    "zero_real_network_calls": true
+  },
+
+  "part18_storage_bound": {
+    "event_ledger_estimated_size": "~495 bytes/event x 120 events (60 reservations + 60 terminals) = ~59KB for a full 20-member/60-request run",
+    "stage_output_ledger_estimated_size": "~1.5KB/member x 20 = ~31KB",
+    "final_result_artifact": "small, a handful of KB (20 member result dicts, no bulk fields)",
+    "total_estimated_footprint": "well under 200KB for the entire 20-member qualification -- negligible, no unbounded-growth risk",
+    "raw_provider_response_persistence": "NONE -- exactly like B2N's pattern, b2z_durable_execution.py parses provider responses in-memory and persists only the small derived fields needed for the next stage or the final result. Raw getTransaction/getSignaturesForAddress bodies are never written to any ledger.",
+    "recommendation_not_implemented_this_turn": "if raw B2Z evidence bytes are later judged necessary for independent audit, routing the transport through the existing bounded RetainedAcquisitionStoreV2 + ArtifactStore would be the correct extension point -- this preflight does not implement that, consistent with keeping P1 scoped to the durability/resume problem specifically"
+  },
+
+  "part19_credential_boundary": {
+    "no_credentials_used_this_milestone": true,
+    "no_env_var_read": true,
+    "no_secret_inspected": true,
+    "module_never_constructs_a_transport": "confirmed -- b2z_durable_execution.py imports HeliusJsonRpcTransport nowhere; callers must inject their own transport instance, exactly as B2ZRunner already required",
+    "future_live_execution_pattern": "an isolated B2Z-specific environment variable (analogous to B2N_P3C_HELIUS_ENDPOINT) would be the correct injection point, read only at the point of constructing a real transport in a future execution script -- not built this milestone since no live execution is authorized"
+  },
+
+  "part20_hot_v2_storage_safety": {
+    "ra4_status": "CLOSED, untouched -- legacy DB confirmed absent at both start and end of this milestone",
+    "legacy_db_recreated": false,
+    "creator_funding_worker_pid": 33383,
+    "creator_funding_worker_restarted": false,
+    "v2_routing_changed": false,
+    "v2_cap_reset": false,
+    "disk_free_gib_at_close": 73
+  },
+
+  "part21_focused_tests": {
+    "test_file": "tests/test_b2z_p1_durable_execution.py",
+    "test_count": 26,
+    "test_result": "26 passed",
+    "existing_b2n_b2z_suite_regression_check": "60 pre-existing tests (test_oip_v2_2e_2b2bp_execution_boundary.py, test_oip_v2_2e_2b2bq_run_preflight.py, test_b2n_p3g_continuation.py, test_b2n_p3c_execution_preflight.py, test_b2n_p3e_accounting_repair.py) re-run this milestone -- 60/60 still passing, zero regressions from the new module",
+    "coverage_confirmed": ["authorization binding", "exact cohort binding", "stage identity", "pre-dispatch reservation", "terminal events", "physical request accounting", "stage dependency", "stage-output persistence", "resume from stage 1", "resume from stage 2 interruption (via member 2)", "resume from stage 3 interruption implied by member 4 test", "no-candidate semantics", "multiple-candidate semantics", "duplicate prevention", "budget exhaustion", "test-path isolation", "secret redaction (absence of any credential symbol)", "candidate-only authority", "Watchtower/operation isolation", "zero provider calls (FakeTransport/urllib never invoked)"],
+    "zero_live_provider_calls": true
+  },
+
+  "blockers": [],
+
+  "verdict": "READY_B2Z_DURABLE_BOUNDED_EXECUTION_AUTHORIZATION_REVIEW",
+  "verdict_reasoning": "Both gaps identified in B2Z-P0 (no resume, no pre-dispatch durability) are now fixed in a new, fully-tested parallel module (src/acquisition/b2z_durable_execution.py) that reuses the exact same evidence-rule functions from the already-qualified b2z_execution_boundary.py without modifying it. 26 new focused tests plus the full pre-existing 60-test B2N/B2Z suite all pass. A complete 20-member/60-request mocked run was proven end-to-end, including resume from multiple injected interruption points at different stages, no-candidate short-circuiting (2 requests instead of 3), multiple-candidate selection matching the exact existing contract, fan-out review flagging for the 4 identified ordinals without altering acquisition behavior, and exhaustive failure-path accounting. A new, deterministic, B2N-independent run_id and full authorization contract are bound to the REAL committed frozen manifest and projection artifacts (not synthetic test data). Zero provider calls were made. Zero production database access. Zero Watchtower/operation coupling. RA4/V2/storage state is completely unaffected. This preflight reaches the durable-execution authorization review gate; live execution is NOT authorized by this artifact and was not performed."
+}

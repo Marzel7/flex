@@ -1,0 +1,115 @@
+{
+  "artifact_file_sha256": "d1c4d546e06a5a72a6b134e82509afa3fcd5faba85b223876b70cde2532417f2",
+  "boundary_semantic_sha256": "33df1667c5343793e1a9500a24f10117ce21f30fa0fc97306ff1e3cc4eeb84a4",
+  "bounds": {
+    "cleanup_reserve_seconds": 30.0,
+    "execution_deadline_seconds_from_start": 270.0,
+    "max_progress_calls": 500000,
+    "progress_opcode_interval": 1000,
+    "wall_seconds": 300.0
+  },
+  "canonicalization": {
+    "digest": "SHA-256 over newline-delimited canonical rows",
+    "encoding": "utf-8",
+    "field_order": "SURFACES declaration",
+    "null_representation": "JSON null",
+    "row_format": "json array compact separators",
+    "row_order": "primary key mint ASC"
+  },
+  "cohort_formed": false,
+  "elapsed_seconds": 57.655744,
+  "identities_selected_or_frozen": false,
+  "milestone": "OPS-DISCOVERY-P3R-S2B-SOURCE-SNAPSHOT",
+  "population_query_executed": false,
+  "production_writes": 0,
+  "progress_calls": 91882,
+  "provider_calls_made": 0,
+  "read_mode": "sqlite_uri_mode_ro_query_only_single_transaction",
+  "replay_identical": true,
+  "replay_surfaces": {
+    "pumpfun_migration_verification": {
+      "row_count": 43609,
+      "sha256": "b2d43d2ee8f3b2c292040b308d46b66db6cc554bfeed0600a66632b6f5beeb46"
+    },
+    "token_analysis": {
+      "row_count": 2012723,
+      "sha256": "50f6eedb626fb2f70decfe08d0a43d6232ee3cc6c6db61066484b0db512783be"
+    }
+  },
+  "snapshot_path": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T221819272628000Z-16a03978948f3881020440ceeb080e8a/runner_candidate.sqlite",
+  "source_db": "database/flex_complete_database.db",
+  "source_identity_at_read_open": {
+    "data_version": 2,
+    "device": 16777231,
+    "inode": 549513179,
+    "mtime_ns": 1787437096877275653,
+    "schema_version": 816,
+    "size_bytes": 15366832128
+  },
+  "status": "COMPLETE",
+  "surfaces": {
+    "pumpfun_migration_verification": {
+      "columns": [
+        "mint"
+      ],
+      "row_count": 43609,
+      "sha256": "b2d43d2ee8f3b2c292040b308d46b66db6cc554bfeed0600a66632b6f5beeb46",
+      "source_rowid_high_water": 43609
+    },
+    "token_analysis": {
+      "columns": [
+        "mint",
+        "pf_ws_creator"
+      ],
+      "row_count": 2012723,
+      "sha256": "50f6eedb626fb2f70decfe08d0a43d6232ee3cc6c6db61066484b0db512783be",
+      "source_rowid_high_water": 2012844
+    }
+  },
+  "telemetry": {
+    "final_materialization": {
+      "surfaces": {
+        "pumpfun_migration_verification": {
+          "commits": 9,
+          "committed_rows": 43609,
+          "completed_elapsed_seconds": 38.238906,
+          "elapsed_seconds": 0.346101,
+          "started_elapsed_seconds": 37.89281
+        },
+        "token_analysis": {
+          "commits": 403,
+          "committed_rows": 2012723,
+          "completed_elapsed_seconds": 37.88887,
+          "elapsed_seconds": 19.284926,
+          "last_commit_elapsed_seconds": 37.795789,
+          "started_elapsed_seconds": 18.603952
+        }
+      }
+    },
+    "stages": {
+      "digest_and_audit": {
+        "completed_elapsed_seconds": 57.65435,
+        "started_elapsed_seconds": 56.906918
+      },
+      "final_materialization": {
+        "active_surface": "pumpfun_migration_verification",
+        "completed_elapsed_seconds": 47.565107,
+        "progress_elapsed_seconds": 38.238918,
+        "started_elapsed_seconds": 18.599239
+      },
+      "replay": {
+        "completed_elapsed_seconds": 56.903939,
+        "started_elapsed_seconds": 47.567847
+      },
+      "secondary_index": {
+        "completed_elapsed_seconds": 47.018057,
+        "started_elapsed_seconds": 38.239679
+      },
+      "source_capture": {
+        "completed_elapsed_seconds": 18.59136,
+        "rows_captured": 2056332,
+        "started_elapsed_seconds": 0.00033
+      }
+    }
+  }
+}

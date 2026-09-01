@@ -1,0 +1,80 @@
+{
+  "artifact_type": "PUMPFUN_ALCHEMY_ARCHIVED_PREBUY_STATE_AUDIT_RESULT_V1",
+  "target": {
+    "mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+    "bonding_curve": "FJPbTzeUy4pzPT3r7c2fNxccNvvhbC7LJkSqXux8xU1g",
+    "creation_slot": 443375106,
+    "first_buy_slot": 443375107
+  },
+  "archive": {
+    "request_account": "FJPbTzeUy4pzPT3r7c2fNxccNvvhbC7LJkSqXux8xU1g",
+    "request_slot": 443375106,
+    "returned_context_slot": 443375106,
+    "owner": "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+    "lamports": 41087295716,
+    "data_length": 151,
+    "raw_account_bytes_sha256": "66bbeaff4a1a4e8d3a4ddcb3dd822d00efcc39e6d4677d890ef702de0bccf936"
+  },
+  "layout": {
+    "used": "Pump.fun BondingCurve post-Extend 151-byte layout",
+    "confidence": "OFFICIAL_IDL_LAYOUT_EMPIRICALLY_VALIDATED_FOR_THIS_ARCHIVED_STATE",
+    "binary_bound": false,
+    "binary_binding_caveat": "The official IDL is program-bound and all retained events decode exactly, but its source commit is not byte-for-byte bound to the active ELF."
+  },
+  "archived_state": {
+    "virtual_token_reserves": 452835897271945,
+    "virtual_sol_reserves": 71085353876,
+    "real_token_reserves": 172935897271945,
+    "real_sol_reserves": 41085353876,
+    "token_total_supply": 1000000000000000,
+    "complete": false,
+    "creator": "J3yZQYJECzT3PD9BpzQzSM4FKENrDeVSCtmxdFSNThMy",
+    "extra_fields": {"is_mayhem_mode": false, "is_cashback_coin": false, "quote_mint": "11111111111111111111111111111111", "post_extend_bytes_115_150_all_zero": true}
+  },
+  "state_comparison": {
+    "equals_createevent_state": false,
+    "equals_buy1_implied_prestate": true,
+    "archived_minus_createevent": {"virtual_sol_reserves": 41085353876, "virtual_token_reserves": -620164102728055},
+    "archived_minus_buy1_implied_prestate": {"virtual_sol_reserves": 0, "virtual_token_reserves": 0},
+    "boundary_resolved": true,
+    "interpretation": "The authenticated end-of-creation-slot snapshot is exactly the pre-state of buy #1. It proves no unobserved curve state transition between the snapshot and buy #1. It proves the reserve divergence from CreateEvent already existed by end-of-slot 443375106, but does not isolate which creation-transaction instruction produced it."
+  },
+  "buy1_replay": {
+    "formula": "floor((net_sol - 1) * virtual_token_reserves / (virtual_sol_reserves + net_sol - 1))",
+    "gross_sol_lamports": 182250000,
+    "protocol_fee_lamports": 1710000,
+    "creator_fee_lamports": 540000,
+    "net_curve_sol_lamports": 180000000,
+    "model_token_out_raw": 1143759998709,
+    "actual_token_out_raw": 1143759998709,
+    "token_difference_raw": 0,
+    "math_match": true,
+    "post_virtual_sol_reserves": 71265353876,
+    "post_virtual_token_reserves": 451692137273236,
+    "poststate_matches_tradeevent": true
+  },
+  "first_slot": {
+    "full_state_continuity_qualified": true,
+    "buy_sell_math_qualified": true,
+    "qualification_basis": "Archived pre-buy state makes buy #1 exact; retained qualified action 2-8 transitions are exact, including the interleaving sell."
+  },
+  "post_action_market_cap_sol": [
+    {"action": 1, "type": "BUY", "virtual_sol": 71265353876, "virtual_token": 451692137273236, "spot_price_sol_per_token": 0.000000157774174034, "market_cap_sol": 157.774174034},
+    {"action": 2, "type": "BUY", "virtual_sol": 71462884739, "virtual_token": 450443613125893, "spot_price_sol_per_token": 0.000000158650012247, "market_cap_sol": 158.650012247},
+    {"action": 3, "type": "BUY", "virtual_sol": 71650539059, "virtual_token": 449263891507193, "spot_price_sol_per_token": 0.000000159484304021, "market_cap_sol": 159.484304021},
+    {"action": 4, "type": "BUY", "virtual_sol": 71848069922, "virtual_token": 448028736772314, "spot_price_sol_per_token": 0.000000160364869539, "market_cap_sol": 160.364869539},
+    {"action": 5, "type": "BUY", "virtual_sol": 72251674860, "virtual_token": 445526004338332, "spot_price_sol_per_token": 0.000000162171622209, "market_cap_sol": 162.171622209},
+    {"action": 6, "type": "SELL", "virtual_sol": 71848085792, "virtual_token": 448028637822474, "spot_price_sol_per_token": 0.000000160364940378, "market_cap_sol": 160.364940378},
+    {"action": 7, "type": "BUY", "virtual_sol": 71945863569, "virtual_token": 447419746058333, "spot_price_sol_per_token": 0.000000160801717409, "market_cap_sol": 160.801717409},
+    {"action": 8, "type": "BUY", "virtual_sol": 71991367093, "virtual_token": 447136945828598, "spot_price_sol_per_token": 0.000000161005185916, "market_cap_sol": 161.005185916}
+  ],
+  "valuation": {
+    "spot_price_formula": "(virtual_sol_reserves / 1e9) / (virtual_token_reserves / 1e6)",
+    "market_cap_formula": "spot_price_sol_per_token * 1,000,000,000 token supply",
+    "supply_convention": "CreateEvent token_total_supply = 1,000,000,000,000,000 raw units; Pump token decimals = 6.",
+    "sol_usd_value_available": false,
+    "usd_market_cap_qualified": false,
+    "what_caused_approx_13k_opening_move": "No USD conclusion is qualified without a retained contemporaneous SOL/USD observation. In SOL terms, the observed first-slot trajectory is now exact: 157.774174 SOL after buy #1, 162.171622 SOL after buy #5, and 161.005186 SOL at slot end; it is a multi-action opening sequence, not buy #1 alone."
+  },
+  "safety": {"alchemy_archive_requests": 1, "helius_requests": 0, "gmgn_requests": 0, "pumpportal_requests": 0, "production_or_source_rows_modified": false, "walkback_tables_modified": false, "schema_modified": false, "ui_modified": false, "code_modified": false, "suppression_occurred": false}
+}

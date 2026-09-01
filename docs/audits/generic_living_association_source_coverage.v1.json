@@ -1,0 +1,1973 @@
+{
+  "candidate_specific_extraction_branches": 0,
+  "candidates": [
+    {
+      "candidate": "wsol",
+      "expected_associations": 126,
+      "final_extracted_source_categories": [
+        {
+          "association_semantics_supported": [
+            "CANONICAL_SELECTED_MEMBER",
+            "FROZEN_C357_SELECTED_MEMBER"
+          ],
+          "expected_associations_covered_by_source": 71,
+          "extractor": "distinct_values",
+          "record_value_count": 71,
+          "source_key": "canonical"
+        },
+        {
+          "association_semantics_supported": [
+            "DIRECT_FUNDER",
+            "DIRECT_FUNDER_CONNECTIVITY"
+          ],
+          "expected_associations_covered_by_source": 49,
+          "extractor": "records",
+          "record_value_count": 71,
+          "source_key": "direct_funder"
+        },
+        {
+          "association_semantics_supported": [
+            "ALTERNATIVE_EDGE_SUPPORT",
+            "ALTERNATIVE_SUPPORT"
+          ],
+          "expected_associations_covered_by_source": 1,
+          "extractor": "records",
+          "record_value_count": 88,
+          "source_key": "alternative_edge"
+        },
+        {
+          "association_semantics_supported": [
+            "ATOMIC_FLOW_SUPPORT"
+          ],
+          "expected_associations_covered_by_source": 1,
+          "extractor": "records",
+          "record_value_count": 71,
+          "source_key": "atomic_flow"
+        }
+      ],
+      "fixture": {
+        "expected_path": "docs/audits/generic_living_wsol_expected_output.v1.json",
+        "expected_sha256": "7536a3bc515ec516ee7f2a2d16a1279b9a03ff4161dc98a43aed8483e758bb8b",
+        "frozen_boundary": "000000037922:000000073534:000000008354",
+        "source_path": "docs/audits/generic_living_wsol_frozen_source.v1.json",
+        "source_sha256": "c503c84344d4b17a9557a80d855d4323b9dc63f279f779d846c51c7bbc0e0982"
+      },
+      "initially_represented": 122,
+      "initially_unrepresented": 4,
+      "missing_source_categories": [
+        "EXCLUSION",
+        "FALSE_POSITIVE",
+        "HISTORICAL_CAVEAT",
+        "MAPPED_POPULATION"
+      ],
+      "source_inventory": [
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.edges",
+          "evidence_type": "ALTERNATIVE_EDGE_SUPPORT",
+          "expected_association_identity": "population:alternative-edge",
+          "provenance_source_semantic": "alternative_edge",
+          "required_source_category": "alternative_edge",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.atomic_flows",
+          "evidence_type": "ATOMIC_FLOW_SUPPORT",
+          "expected_association_identity": "population:atomic-flow",
+          "provenance_source_semantic": "atomic_flow",
+          "required_source_category": "atomic_flow",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "EXCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": null,
+          "evidence_type": "COMPATIBLE_LAUNCH_SET",
+          "expected_association_identity": "population:compatible-unattributed",
+          "provenance_source_semantic": "EXCLUSION",
+          "required_source_category": "EXCLUSION",
+          "source_category_currently_available": false
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:2fJCPb27tQhbnX4s3sTJvjzK1deawkREkKjCKS7PjF9g",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:2h2xdvznzmcRi4zNE8A3uwe4Er5e5bf8gTxzXREg9ph5",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:397s3pwPhV1A88Fj2EuNoERFYTCLdN5WiUAPvxUxFVST",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:3thxdSxsHtFuGJroCYe6JmCojPRizUz1GnvQSq5M5JfY",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:49Wo4qJS1CWPd4b8LAezyL4ARPj3fw6N6zPhPV4dQd6V",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:54xTpcBEr48Cuis8m2SdeymdQcwvmDR4aegxCPQzUANG",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:59MGbbjnBsNKNbTXsd4cc83doHgpkJBdotigvZ6WxjLX",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:5PkFFC9FCmm2EUQHMqbF9cwMviSXjgAjeqKEoPoYejuG",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:5TR1KXium6nxovUUXbofK2N1uYPh9NA8w9WpvvKZ3Myi",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:5iDYsDLugMXh1LTRVDmFH8PfQ6ueG5pE9UcfefrnztB6",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:5sUoQPPvnvS6eXem4TdcjKJ1JZy7uLEhWN3pCA8yNFnc",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:6hakQXcUcnk1EuuGMHsDPw9iP4GPwjUtHxxPAvGnPj3L",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:6jJnz6ZQjDZeFLxoDq2RBp4fvsjPfCJmpr1jhQcy2rBk",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:7144mX5peoQoyYq2ncsTmzFciqkLiYzS42XVmvFjGiv4",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:7DifG8cHrQBAAKjqoLCnfzj8khtnYLPE39GnWgEnLP8d",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:9As8wexRUtoujuYia5WxpiUCbjut75XTb9LknATiXvRW",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:AW7FZRzGUA8HnRWTsGbEDogAh4Y2Utv2KBqALEvfGLqb",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:AhfDWL1mi2xajF7JWGDzmTiqvtRxD7JDWHkaZVnmUvw7",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:Am3Un7bph5NNWDLCVVVQT1kY4kN3GFPjj31g4DdrNCd4",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:Ao2sUdoFtKW7yix7v6GT8GoWE94LcgHiyjautukHBKAi",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:BsKEb5qhnHMFP4XUjoXMv5nMxkvuaFtBH5ssuWNMjLbw",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:C2W3FExk348T4aNHpJjiCZpNrpd9MNLBBVZAdWCogtBx",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:C55hxeJepPLMKi4xuKjAFLWmxoSfVrqn2LELi67ixQfe",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:CYnm5v4MiLLLaUvu5VUfYPxszU8RPBzmH3Qkv7QbfcUi",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:CbMTzd1sG9vuP9Tw2nUNBHUvtsyzr4Hm5rknri4XxXWL",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:DPAy3sFUsUWVRCGaMKse2hVYR5kKU7Yr4cE1eM5EwvgA",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:DmfxzqZQTifJQhfrikFdDQXy3Ws6X9H3VX5xkRVTf77y",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:FJrraJVwKYdcLX4we8UttdJGvxErgUKWf6awnVSsxArH",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:G1BJvTetp6YSwaDNSajruPPM1JCTZf5NWeyr6dQN94n7",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:G9XSZDgMk8x51uHvFUumZK5AFWJLp3GJCV7VZSkL3uGP",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:GUBtBg8i5wn5ME3vYmgqMZFFuBnDp6i1oa8BPFwoURAP",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:Gy29oqrQGFsP8cSsZ4eJvmMDMvKeYtWgURGCn5jim9Xn",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:HQ2q5DJuAVf1CrDJpwmeSYsLgvGp9k5cGEPZQsNvcMW9",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:HRneLKJHUHXJr9zb297N44L8WCUqCJYKDsSxDaPv49wS",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:HS5GjB4KTJbbBdYHkJV8qDpq8gmU9wck2qsxgz3ifgke",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:J37JdYS3hpMB3iW8tgUdfFrrBu4X6o9PT3SguxpHXJVW",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:J87ewUdaYKXaMVZEdKh14fMcKXaAmzGamzGtaXDop13X",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:NeHjc1yqZXesLZTHtK7jrjyQ3MpFg2TVHpV8QDDAHEm",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+          "expected_association_identity": "funder:j6EVoUMZRafJPrdkuoB9PJGXxBGHEsx4VcJq5W3Ft5d",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "CONTRADICTORY",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": null,
+          "evidence_type": "FALSE_POSITIVE_COMPARISON",
+          "expected_association_identity": "caveat:false-positives",
+          "provenance_source_semantic": "FALSE_POSITIVE",
+          "required_source_category": "FALSE_POSITIVE",
+          "source_category_currently_available": false
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:BT9JV4F3t58yyeELzXo72jL6C1fWp8SQRM3i3B9pump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:CPM7DGwsFCyT2kHqzEwf4moWKnCiYh5czdbyr7apump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:CiKMVEVMCZSTXwQwqrwE3GZLne982oHkAdq7Yz3pump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:Cj7up2N4yXdzZmLYNaiPt6zye4VWoWHsyeCobEDpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:DqErYkksQymp8sVr2HkrJbVWkv1YXrz3keWKBfHpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:EakWrE5ehWTkJkhSPp861abPiDg4BDW72KVMR2Qpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:GhvrrotDtMYKFjWpeuTxgskYRji3N2u5TeYToZwpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:GkyDShEPTvXw6CacK76yxSzA9seHbyPfpRK1AuTpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:HUNHEFrs7pFJpd1R7bYq6vT9GigRk3rV9av63ZVpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:JHkAR9egULFbv1PfGLky5NvahfQwWJRDH4zJMsWpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:JzXZKSJZvtS3scMCcmXWUJGxRTBfnociHXVXKRvpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:LyqncnAuRYisshpv1u12B6pCD7SASdyFj1itCUcpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:MW7ePAAMjxWyezTKtnvYXewrN5H4CHrv1HYkhabpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:N2JuKvtCqPyqZbduGD2uhuhWFZ9qARxzuuYYkfBpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:Q3FHwyr9AFZvFJUyFduoGrnJE5gAgq7UGQWVn2Kpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:Qqq9SveDjjYJc3jFYwopxEFhuV7SwMtcixr3skdpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:R39ag2yKJVxJiHUxBy1xUEUc55kADNicLb9idNnpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:RAjnSnVnRmf8Za8MggRPRmjkY2ZQkK7HiXYz4YSpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:S3jLzSX9NKbtdUVGTzoeYFMty5xXRYvzTbFASXUpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:SrAJUQS6snqHUATSX4Jmvb4vZpgmQevqeWbzUEVpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:TwA2K5KnYpyNeu7dxeNY3yS4uCR5KrRRh9FPLDHpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:UMVSuCPVE5H1SbEZ5X32iu3Jcs67ySZ1iMuiyaWpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:UkCrzRHSB7jDqMzfLEyAA6A68ibzWZpBWvdY2y4pump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:UroXqz24UCoMy1LpQJVQjJEyeKzBh6aYPq4b487pump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:UsCT9cALz6uba94mdUByBLZgP3Dp5sW7Mv7ZgJPpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:UwMkVQDeXLpbCXcHp5P9yVAneejwwbviFfBJFRXpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:VByVzKnqKM6QGCJs9JwxGs4RJC8kdtwtn6FnfXMpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:W7Fnj98a3jY9aoP9kd25taK66eJ1uS6b6VjpKtJpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:WLjqiHSEWgHVkX9JWJXgXDhX9XTCtSSj3EdyB4Cpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:WV1UndBXx7eGbtA7B6Q7HEnX1mN8DL3XdGDN9Jupump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:Y7u2wWcosZTHagBjua7W3ddwsmD4ZGhZYH2keASpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:YBemckTiUgK4sL6Xv2yktkgoYydrSqRmWJyWAZJpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:YKA5o87oHTTSAsbq1ZPHq6zF1cCaW8HoyhWcpjkpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:ZMA7yJNeXUwcUdGWXzw654ZX6k1tj3zgqL7qrFBpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:ZjDVmGGAkmj1aj8Le3uGoaUiz39jEyKH6VP7dzQpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:ZpQmhQvEpasHYF2gDrDJXaYZVDJxJUZRt9vvHbUpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:ZzWhbH8LrTjx8uCQgE2SEue3jiYWKAm7RGTCYH8pump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:aDdwL6dso6ZD6Rag2FZTURzADRiyXxFVeT23ri6pump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:apSur7K2VY3XsRUSSFDgJUYhdgW2zfRHLFvKUHKpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:aqu8vj7snoqUJsTuC5UemhvNWeMJzWu6qbpa3jnpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:awwz1zgwET9MtvRSZ9CUZ5QpLFviT9fFv53CpDApump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:brj1EEqhenNSLbnjdNyok33yLpxBwvyFheRctCKpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:c9SFiUUHzra78qJinqxSntvpBmJjXdGYDcMMNkXpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:dFf5c8PKTpFcZN64RdVWHkwbCYkxnj9yzPw8QpJpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:eMD1zv3m9ArePAtXYEVFG9tbXfwDzY8GyFMxbPopump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:f73NdtHMKwTeTy3KRpRDxZe7yopu9toZ7P5sFmapump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:g1CbgSCD1H48Mnx9VSL7cpwJ5auX8Ky1cNUH9BQpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:jmM56TE7ko4jUzmzJ523W1b3872jMXKoiwsJLUKpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:kPTzLD8x9n3xLVrtjdk4qbxUr3it6Ea8ZpkHpCBpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:kZBroKqYaSrHxKV3vLmRGTW7Tw1q2WQ1wte6PNJpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:keZ4mAQQqREHoZeC3HcZNpVC1qSGX4kiWC7vdtvpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:mP4AehV2DV4KdNcZkjih6wwLDE8ouUz6ns2FB3tpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:nMSCXsLXZ3R7NBKNDiaYw7CZh7KYs4CyWMEVWNbpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:nobzQmhM6x86Y8WdrgH21AKuVrJ5mJmkBmJU9Lqpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:o8uMYvNkndS6rSRPrV16d8LgJ1V732RxmZuzT8xpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:oruyBzARjKtPNvRhcT5nR4bzYt5SM8uCv74j84epump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:osxeVkLpan3NyZsRDcdWiEuWBFHA6or59UshcaRpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:p6Dydex88SswnKT9pRnjPwrCfHpw1c79FAAu81Upump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:puhW9nSz4rczEtWNM6TH1zYikSmapRu2PxdSXwfpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:qcawC8mNoMy2C597kxDUMHbHJaZ5D4nPR2dvDoXpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:rRGoXVsKJtZGgPqwShxiSD8pcpyH5qXhthqFT5Hpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:s26oUz2BVe5gpY3D4qYCXWBPwDDoB9AYfFsHCehpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:shhJVNYRrzuBzKCBKcu6yuYEMLicmztd5Wiw6zfpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:svVnLbfCPjKAZ4suNYDfebJZ8AfhiTysVQwn3fZpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:tpx8GumtoKhXeba859s1ka7grY8m5zcQ8yPnZnSpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:vKPT1gGoRGsdzaGpQB2K2xAZGtmgjVNm8kNJvSvpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:wFUJbWiV4wKK6BJJQdojJbgbd4Y51M3i3nA9VKLpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:wQFd44Kh6nsrXn49vcu4bpjDCqe18iTGYzTgcWppump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:x7ofxncQVmMK3PDXVJF76uJ5JkgzX3x3eUGXkjopump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:yfmKCjYvHsD17w2xvKLBRrmzF58nZyXH25reGwLpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+          "expected_association_identity": "mint:z5vGP66VUGSrT5WyfEs9QGB1VJiKh5Lhx2DeggCpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": null,
+          "evidence_type": "HISTORY_SELECTION_LIMITATION",
+          "expected_association_identity": "caveat:predecessor-window",
+          "provenance_source_semantic": "HISTORICAL_CAVEAT",
+          "required_source_category": "HISTORICAL_CAVEAT",
+          "source_category_currently_available": false
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-c357da9d0d4d560311e4",
+          "current_frozen_source_path": null,
+          "evidence_type": "MAPPED_CANDIDATE_POPULATION",
+          "expected_association_identity": "population:p3r-v2-mapped",
+          "provenance_source_semantic": "MAPPED_POPULATION",
+          "required_source_category": "MAPPED_POPULATION",
+          "source_category_currently_available": false
+        }
+      ],
+      "source_semantic_coverage": {
+        "covered": 122,
+        "total": 126
+      },
+      "v1_already_contained_underlying_data": {
+        "alternative_edge": true,
+        "atomic_flow": true,
+        "canonical": true,
+        "direct_funder": true
+      }
+    },
+    {
+      "candidate": "eight_hop",
+      "expected_associations": 57,
+      "final_extracted_source_categories": [
+        {
+          "association_semantics_supported": [
+            "CANONICAL_SELECTED_MEMBER",
+            "FROZEN_C357_SELECTED_MEMBER"
+          ],
+          "expected_associations_covered_by_source": 27,
+          "extractor": "distinct_values",
+          "record_value_count": 27,
+          "source_key": "canonical"
+        },
+        {
+          "association_semantics_supported": [
+            "DIRECT_FUNDER",
+            "DIRECT_FUNDER_CONNECTIVITY"
+          ],
+          "expected_associations_covered_by_source": 27,
+          "extractor": "records",
+          "record_value_count": 27,
+          "source_key": "direct_funder"
+        },
+        {
+          "association_semantics_supported": [
+            "ALTERNATIVE_EDGE_SUPPORT",
+            "ALTERNATIVE_SUPPORT"
+          ],
+          "expected_associations_covered_by_source": 1,
+          "extractor": "records",
+          "record_value_count": 459,
+          "source_key": "alternative_edge"
+        }
+      ],
+      "fixture": {
+        "expected_path": "docs/audits/generic_living_eight_hop_expected_output.v1.json",
+        "expected_sha256": "87c4a4cb88e9214e92b7e0428b282cb3f902a057433e541fc1d4e4a8702abf01",
+        "frozen_boundary": "000000037934:000000073578:000000008363",
+        "source_path": "docs/audits/generic_living_eight_hop_frozen_source.v1.json",
+        "source_sha256": "2b8e1c4ad9281afe75da8848a25ef31393f8e04ac927d3c1a1261105a27de5b8"
+      },
+      "initially_represented": 55,
+      "initially_unrepresented": 2,
+      "missing_source_categories": [
+        "CONTRADICTION",
+        "MAPPED_POPULATION"
+      ],
+      "source_inventory": [
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.edges",
+          "evidence_type": "ALTERNATIVE_SUPPORT",
+          "expected_association_identity": "population:alternative",
+          "provenance_source_semantic": "alternative_edge",
+          "required_source_category": "alternative_edge",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "CONTRADICTORY",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": null,
+          "evidence_type": "ATTRIBUTION_LIMIT",
+          "expected_association_identity": "caveat:attribution",
+          "provenance_source_semantic": "CONTRADICTION",
+          "required_source_category": "CONTRADICTION",
+          "source_category_currently_available": false
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "CANONICAL_SELECTED_MEMBER",
+          "expected_association_identity": "mint:21JdqREz5YTyNFZKzLTVg3G1xNdjEciyvKJzrR91pump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "CANONICAL_SELECTED_MEMBER",
+          "expected_association_identity": "mint:2GsS7pdaNMpDG34kqQFxUTndF92zPxjm69TQn7rgpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "CANONICAL_SELECTED_MEMBER",
+          "expected_association_identity": "mint:2M7nsQPaUH4iCLxwoRkAmaBN7yqnbAm1hw139pXqpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "CANONICAL_SELECTED_MEMBER",
+          "expected_association_identity": "mint:2Q7MTrjLhPKpnquK75kiFJdDZ9CFTddAUtVnyNEApump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "CANONICAL_SELECTED_MEMBER",
+          "expected_association_identity": "mint:37NYe8E5RdH13uNeKAv6wB4PQ9CANzZFxP9rxoXopump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "CANONICAL_SELECTED_MEMBER",
+          "expected_association_identity": "mint:3rKTe7vKhupBCPbcNzChy2MTMvZ3NAq15DmYrqHGpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "CANONICAL_SELECTED_MEMBER",
+          "expected_association_identity": "mint:5JUwY7ShvKtMjtW7LFd4fv7XVANLr6b3gxuEJEKspump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "CANONICAL_SELECTED_MEMBER",
+          "expected_association_identity": "mint:5b5e5Cmkt12uftQKS6Tw59saLBs4CKw6cErAhqFupump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "CANONICAL_SELECTED_MEMBER",
+          "expected_association_identity": "mint:5mH155ePpNWJb2GktpftLJbcTvoxFaUrv7XkZPDtpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "CANONICAL_SELECTED_MEMBER",
+          "expected_association_identity": "mint:5u2cFYg9GRiP7fheZyEi9WcHUFFb2txFXSLC1uVApump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "CANONICAL_SELECTED_MEMBER",
+          "expected_association_identity": "mint:66ruWUv7KLXkLbHBTnj7PqzEgdue1oZjeA5Z3JMHpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "CANONICAL_SELECTED_MEMBER",
+          "expected_association_identity": "mint:9KDiVdJy4jzCCrKgvJuRVqSwmEEzoemtATkYFjnWpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "CANONICAL_SELECTED_MEMBER",
+          "expected_association_identity": "mint:9M7kg9P23dqSKrVW8D4Fuzjtct7X9hLd1czFbtUqpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "CANONICAL_SELECTED_MEMBER",
+          "expected_association_identity": "mint:AYLYnoTarNCELjVWUnteS1V6mSMEcUqNUPr5uJDspump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "CANONICAL_SELECTED_MEMBER",
+          "expected_association_identity": "mint:BENvc1BhANsA3Qv8rk2JA6qPBC8w3UDaYEpK41Mupump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "CANONICAL_SELECTED_MEMBER",
+          "expected_association_identity": "mint:BtyxJLnLq63yLkopwePPRyKmBYqXUrHUA5FYoH2Npump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "CANONICAL_SELECTED_MEMBER",
+          "expected_association_identity": "mint:E7Kc6aU15bGirh27P6DEgTzuSAQSTtJi7TrKM1wYpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "CANONICAL_SELECTED_MEMBER",
+          "expected_association_identity": "mint:EViLUM6LfoDxfg6jyyvV9WyPGnimNkmLUWcMnu3NvCUU",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "CANONICAL_SELECTED_MEMBER",
+          "expected_association_identity": "mint:FMFdNtM9R7BGgdpY1vEfuo7aSzZuJ5VJY1fgc5Nwpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "CANONICAL_SELECTED_MEMBER",
+          "expected_association_identity": "mint:GowpyeQ44PYXfScJgESPKYKTnXh8XF25d9VwhL7hpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "CANONICAL_SELECTED_MEMBER",
+          "expected_association_identity": "mint:Gv1CqmXkFd8VsUVDiowbfKZAcswMj5dzwL5H9LBRpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "CANONICAL_SELECTED_MEMBER",
+          "expected_association_identity": "mint:H4mPZfgVRdKeq9fGdcrvsNf1pfyxm7LAvZj8d4r3pump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "CANONICAL_SELECTED_MEMBER",
+          "expected_association_identity": "mint:HM75x3BeEtSYfg5GfZWKHdMWPAKWbf8S8h7Gtfhjpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "CANONICAL_SELECTED_MEMBER",
+          "expected_association_identity": "mint:NrAf3LTiep4H6i8dDurXHW975dLA6BZdLH16VRkpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "CANONICAL_SELECTED_MEMBER",
+          "expected_association_identity": "mint:PQSLyQwp93iPieKoqd8nEAUTkqZArRoaAgP6Rahpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "CANONICAL_SELECTED_MEMBER",
+          "expected_association_identity": "mint:VSaKbqzzGLSW1MMSeP61iQvsg2ZppP7ARJ34MwBpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "INCLUDED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.canonical_mints",
+          "evidence_type": "CANONICAL_SELECTED_MEMBER",
+          "expected_association_identity": "mint:k99xd5asJS5fjA7rx1r3ruYztbGuPcTZ6QzHAmMpump",
+          "provenance_source_semantic": "canonical",
+          "required_source_category": "canonical",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER",
+          "expected_association_identity": "funder:2SMZMiof8sAA68KjLF5fyJsVbfsM1Z56Wrs6wX5x7YD6",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER",
+          "expected_association_identity": "funder:3ppv6UQeMMfeAQUJ3TTh2Tp2TZ1QH4nV1eRPWcEXh8Fy",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER",
+          "expected_association_identity": "funder:4BQJQbwH9cwoFenFgg8zEx99jpisb7yhTTQXHwJGHfsQ",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER",
+          "expected_association_identity": "funder:4ijesDzg3Zoc7HaGJGdwnRPQXGEz5WRYJDZAavF6uzyU",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER",
+          "expected_association_identity": "funder:4yGHJEyDxP7CMFmg6uD1RCHWzXUcBJyUtWidzpt29gwb",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER",
+          "expected_association_identity": "funder:53fxReKSQV8oMuLanEk4Au98MUZYGoBexHsfUh711kGh",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER",
+          "expected_association_identity": "funder:5gvYSAue4vbX5M7rhCTWU8pse6WQiV3xZpsUajud8SgX",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER",
+          "expected_association_identity": "funder:5nQrwPh5XzEpSVkdaCnU9kFTjdRSg25xAUMBuxktD7MQ",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER",
+          "expected_association_identity": "funder:6VwcYhxL48Z7WUuceEFSpHyvdaC9bDoM9rqYkp9ATvq6",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER",
+          "expected_association_identity": "funder:77YErjJpeRtubZPhreoDgo45ufgBTVGboWbh9Q9V9DM6",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER",
+          "expected_association_identity": "funder:77c9Y9hUvudhkjpBZcFJdXuBXZCPeUyPZLMo9JPsYF63",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER",
+          "expected_association_identity": "funder:8JP2SBMkV9CoiG4Jg1MRogaAfrFeFvXWMPbpoLrNpzpS",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER",
+          "expected_association_identity": "funder:8ZJyZ7ku54tS5HmEuKc86u1qV6THtbtqtwyRd6yAe5pP",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER",
+          "expected_association_identity": "funder:8ajx4mprBfQh9NwTf9jHPqNEvsTijQ3aWKsS5cYeYe4a",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER",
+          "expected_association_identity": "funder:8j8Y4kCeocbBEq9Laa4N6m9719VDMeSWGvjgYBKxRtdi",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER",
+          "expected_association_identity": "funder:8nwV9FrSdG9KregbqRAGggVv7Jv3SHXCSiweqkvUGw8L",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER",
+          "expected_association_identity": "funder:AJVcYRjbXh7Bu4pEBrvsAW1MCvHzWUYnUZ3y6YfLGvLv",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER",
+          "expected_association_identity": "funder:AboFBGVy4rafKAoJmZfdD5CvTqdnQTmmQJBLCtNf3d5e",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER",
+          "expected_association_identity": "funder:AthZBe1fJ4rGxeKw7tQevomkMmVkQTundueFoWRh5fwk",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER",
+          "expected_association_identity": "funder:Dq1zYQDSPuEpnCrWfgKSYm6JayLNwu1jjLkx3tz25hK",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER",
+          "expected_association_identity": "funder:DxJteCCsGiCNC5pJTomDqTpG9gTd1SFhV5VWkGnF9ifM",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER",
+          "expected_association_identity": "funder:Ems2ia8DrfycFkMtbrY1Jg4aXiCL9nRTf4pCnSsDKc73",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER",
+          "expected_association_identity": "funder:FL6GbGcb8WrrvB5vX9dCvs1AGACL6Cin2MBD7TQXd4wH",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER",
+          "expected_association_identity": "funder:FTaf92H6MZTE4sWv5s4St8cJMpukHAaiPSPdqf8eYzih",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER",
+          "expected_association_identity": "funder:FgEPVQ4bF1fztLaXrPbwBD77Fc2oVouAT8KuvppDqPXV",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER",
+          "expected_association_identity": "funder:HddDmVMJJ2JmiXrfu58Yn4qK5b31RsNQy9CYcTy1VR9R",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": "source_evidence.queue_rows",
+          "evidence_type": "DIRECT_FUNDER",
+          "expected_association_identity": "funder:aQEa92yknJky3WMZA394gxvR4tBXKbuXP6pL8RrYjFQ",
+          "provenance_source_semantic": "direct_funder",
+          "required_source_category": "direct_funder",
+          "source_category_currently_available": true
+        },
+        {
+          "association_state": "UNRESOLVED",
+          "candidate": "p3r-v2-dc4953db7adb853337c4",
+          "current_frozen_source_path": null,
+          "evidence_type": "MAPPED_POPULATION",
+          "expected_association_identity": "population:mapped",
+          "provenance_source_semantic": "MAPPED_POPULATION",
+          "required_source_category": "MAPPED_POPULATION",
+          "source_category_currently_available": false
+        }
+      ],
+      "source_semantic_coverage": {
+        "covered": 55,
+        "total": 57
+      },
+      "v1_already_contained_underlying_data": {
+        "alternative_edge": true,
+        "canonical": true,
+        "direct_funder": true
+      }
+    }
+  ],
+  "exact_next_step": "Capture same-boundary underlying evidence for every listed aggregate caveat/population category, create a V2 enriched source fixture, then rerun source coverage; do not run association equivalence first.",
+  "final_association_equivalence_attempted": false,
+  "real_db_writes": 0,
+  "schema_version": "generic_living_association_source_coverage.v1",
+  "tests": "python -m pytest -q tests/test_generic_living_pipeline_v2.py",
+  "verdict": "HOLD_FROZEN_SOURCE_GAP_NOT_RECONSTRUCTABLE"
+}

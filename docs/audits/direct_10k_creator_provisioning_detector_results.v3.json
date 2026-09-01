@@ -1,0 +1,1760 @@
+{
+  "digest": "3315107025407d79bc393bc3edf3fff5a39e8ca929771f37299ae3ec17ed6f2d",
+  "reason_for_supersession": "v1 lacked resolved QVtW transfer source/destination",
+  "rows": [
+    {
+      "creator": "3UMGqFB9TiSTwnXaCtaJpJCXqqTKzR98tiqU5Epff2ty",
+      "defining_signature": "3vDzqBhK7XugWhPZKywcbxea1FmJbATgnQFDWmrfvRJmLb98hcnCjCGCMjzFXzmFdmg3Ss9w6BhQM1xnbBWeLyQ8",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "3GrrtE8XLAQdvorz2KT7NgpNFXLx8NGzCJ48JbmXA2p2",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "14i7jbnL5khBcnebWjhQ6bXziW3pAptkeaQV9Utvpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "3UMGqFB9TiSTwnXaCtaJpJCXqqTKzR98tiqU5Epff2ty",
+      "transfer_source": "3GrrtE8XLAQdvorz2KT7NgpNFXLx8NGzCJ48JbmXA2p2"
+    },
+    {
+      "creator": "FUZHy49X8m5X8jf2Curr9J4WqSmBU6aHpHGSvdnPmd2t",
+      "defining_signature": "65fsVsjRQqTP8oe1nmBdcS5Yor3ppKjifR416hY3dgRfWn4SHFKsRCSCq9aG366pkLqdW7bT4nfeTkRJJdU5nmF2",
+      "detector_result": "NO_MATCH",
+      "direct_funder": "AtLA7ZEXtEX4finEcNDyEdJ2BzydvX1quu9MUH1KH75v",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "22hwGyN552rCB7GW73GdC839Nkbi881jCXNgvoT5pump",
+      "population": "ALTERNATE",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "NO_MATCH_DESTINATION_ROLE",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "FpsJWjnoP8pVCa8fSPfSv2W3M34aUPwTTnefRFArYVgJ",
+      "transfer_source": "AtLA7ZEXtEX4finEcNDyEdJ2BzydvX1quu9MUH1KH75v"
+    },
+    {
+      "creator": "AMRsSeU5JpqwQWJGNLMpZzRCZSFEwYQYbMnms3dD4311",
+      "defining_signature": "VDYeHRaWHGYV3QnUsaVwFd92Q7Upr5WvyLR7vdQkXTNDxXj4ErsLRJouvfbrDMoZRTQkvg6LwMe2LbSoWjcCrMn",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "QXrQp7xWw4ENvcCcbxuDt7UH5iNsu5P3RcfxuZJaH4w",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "247aEWkHmrna4JTYftxLyRw7Yt2jQ2M4zsGGecoNpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "AMRsSeU5JpqwQWJGNLMpZzRCZSFEwYQYbMnms3dD4311",
+      "transfer_source": "QXrQp7xWw4ENvcCcbxuDt7UH5iNsu5P3RcfxuZJaH4w"
+    },
+    {
+      "creator": "BTdjaPaor31yqs1mggv6eaRJbEox8sE3MbyBCMEjHPbq",
+      "defining_signature": "3YCmCXEnyRpiSNM5nMSXST5B24Dr91cXoM7XLtUQB9oNwYGUrRrXxDHRhYws7n2wEKYJtjbReBPLSeodKZBVc9VK",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "Eyb9j2G42H65XD4o6z8jf8rgcUqqG8kpbcK4y7gysYc5",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "26MGRzYaCX55Nbqc1aNtMRCB6r7E7aLqr8Cwfks2pump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "BTdjaPaor31yqs1mggv6eaRJbEox8sE3MbyBCMEjHPbq",
+      "transfer_source": "Eyb9j2G42H65XD4o6z8jf8rgcUqqG8kpbcK4y7gysYc5"
+    },
+    {
+      "creator": "45RfMKfRZeN8yY1SxwuRVQptSshEMgs1Gw5GuYFDCzDF",
+      "defining_signature": "4C9a24WQxb4xjZ5oeo8sEwhirtfptEmUKcykTon9hCzcLvWc9QgWuyajPWd8DC4kQCnDwpD1aQ381aw8b7CYUJmd",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "DwAbdjwrYi7dVjf96ahE3cKm7wCBzmRog78GviWSAfKz",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "2HEHbuf85uBdW2yu1gRotXD9rveaYcBnvQpVn2zYpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "45RfMKfRZeN8yY1SxwuRVQptSshEMgs1Gw5GuYFDCzDF",
+      "transfer_source": "DwAbdjwrYi7dVjf96ahE3cKm7wCBzmRog78GviWSAfKz"
+    },
+    {
+      "creator": "Ao9D9xuKxhHfTGCd3ZeBPJ3aBRUAicKKnXZ3feH6uuGC",
+      "defining_signature": "2AdxqCnSdeTkZyb8SPbmsn6DPjYAWFrnCmr4DNbFkdnJxgGHPr92qrd3XNrpZGdzXU1741KN9j4PwFLtLKA6iuiS",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "GdJL69RggRerjjPRNkC3jojFBG6AXqA8cgE51Ucie7gA",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "2eyAxcdczf7cmHLkqerjEokhdy2EMPL7w5AKkDK5pump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "Ao9D9xuKxhHfTGCd3ZeBPJ3aBRUAicKKnXZ3feH6uuGC",
+      "transfer_source": "GdJL69RggRerjjPRNkC3jojFBG6AXqA8cgE51Ucie7gA"
+    },
+    {
+      "creator": "GETUQM9v8ix5WCu5NHJRdNmAg1sCwbBoFF4zQaJjuQH6",
+      "defining_signature": "5w7CEJYEbhqRE2dik5cDE3Aq8a4URdFhpEXKa5DrqRojeejNdLwrbN6bbMkdoEriWBC8H1hX36skYPjbfkpKFLNm",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "2uPFEpvFHq5xwDeftjvEPXq5b1t48UqDDJeSN9TsRE9Y",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "3LjjCQbxKDDAXS23ZggfQsNpEQc65JqDVocX1wcVk8t4",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "GETUQM9v8ix5WCu5NHJRdNmAg1sCwbBoFF4zQaJjuQH6",
+      "transfer_source": "2uPFEpvFHq5xwDeftjvEPXq5b1t48UqDDJeSN9TsRE9Y"
+    },
+    {
+      "creator": "Deqxb42pN1f4W3dEN9aiVijaZ8Tkmvby473bubhydfR5",
+      "defining_signature": "3vi2CJ26JyqUW4vLUfwsyfcoAtpRGVkGk1t91Gu7HMmhnNDMtnd11RD55Edb1ujJ8aaTuELyUvkcuegFuCBiK8Cq",
+      "detector_result": "NO_MATCH",
+      "direct_funder": "QVtWcAX3R7Cr51VhAxFSYntoCAmTQzK8Hf4R1TrKNQ4",
+      "intermediary_route": true,
+      "launch_coupled": true,
+      "mint": "3bM3yijpVApAZT5H87hZ4FmjzLiF5Ui6WtSFkG4Npump",
+      "population": "QVtW",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "NO_MATCH_INTERMEDIARY_ROUTE",
+      "transfer_amount_lamports": 10048,
+      "transfer_destination": "Deqxb42pN1f4W3dEN9aiVijaZ8Tkmvby473bubhydfR5",
+      "transfer_source": "hSeWp7kBBHW3VyMdbm6wAsjfR7GJCzdm6muBrra15US"
+    },
+    {
+      "creator": "8WjM6rCwAGsduGyHxkzRfkcphJyzSGS1hA4g5bomc15a",
+      "defining_signature": "21eLYg8LCDrjTHoAtJ9tzzGXf8wVYg7njM1U77WT7B3CALcFDN85qMJrinnUoD3og6DYcoRp6QzHdQ5sgKuKkEg1",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "2uPFEpvFHq5xwDeftjvEPXq5b1t48UqDDJeSN9TsRE9Y",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "3xpZ38num2VYWuRxrF6fqoUE9a35QJeEcQggnmNrTTjK",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "8WjM6rCwAGsduGyHxkzRfkcphJyzSGS1hA4g5bomc15a",
+      "transfer_source": "2uPFEpvFHq5xwDeftjvEPXq5b1t48UqDDJeSN9TsRE9Y"
+    },
+    {
+      "creator": "F4NLCXmMKpasHCZEpXddGbnN2zJxLQ3xiRgagWjstkZw",
+      "defining_signature": "26fvGX1AZfZpk2xJ5V6X8sCmgeDV81KHEKFVn8SDvkhCgXDU5Xbe6MM3ihX7cP8QrNRxthJ8a1ftGJ54bQjvf8bL",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "GZL4dkFRmqnj6cQZpJyTnF1x1nx5JgrYzwQxHknTHkAN",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "44xU1df8XusRRiZhcucfWMMACpbhqdVvHDbG7zRdpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "F4NLCXmMKpasHCZEpXddGbnN2zJxLQ3xiRgagWjstkZw",
+      "transfer_source": "GZL4dkFRmqnj6cQZpJyTnF1x1nx5JgrYzwQxHknTHkAN"
+    },
+    {
+      "creator": "Ex4t6m3MLwaTEqvg2YzN7GEU2JmCHrWZEBzUimVzTnmr",
+      "defining_signature": "3MTGfvussLUGgb8tMmYggbsUk32n1AYmwPUmn9EUwexLy8Bx3uPPjmn7pf1SfCL5YyBvNhu3fEwza5PTpte87kUU",
+      "detector_result": "NO_MATCH",
+      "direct_funder": "4XhHDXZZ2DWQ6mc2LeTz1nSX8pw7wwJzEM7Jk7rArWu8",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "49t113M4eMYfKHVA55BhnFNbBt33reCNDqtd6fkYFT3B",
+      "population": "ALTERNATE",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "NO_MATCH_DESTINATION_ROLE",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "B3EMTddtXJsYwZ1fgLTDJi6tQxtqXN4ddjdRZzXnLX2K",
+      "transfer_source": "4XhHDXZZ2DWQ6mc2LeTz1nSX8pw7wwJzEM7Jk7rArWu8"
+    },
+    {
+      "creator": "6RF8FxAwqnL6GCVhtUnQHFJoCuaFrvvHxYGexcgKWR7L",
+      "defining_signature": "2AsJWGQvnrXQmyfTkFwuLFB6CZctC4NqTiLVANcy2tFQNvaFDtB7fzCgaXZYN4FFxwQPcR3QP9GsbmEfdfM9k6hD",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "2gBhiVzPbaLNwUmELeiHQ94RZmn1ftLqVXpZBhxZhNiw",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "4QoTTjqGmKAURDpVCmpFb8WrkAWJ76crpd67T3KEsXrM",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "6RF8FxAwqnL6GCVhtUnQHFJoCuaFrvvHxYGexcgKWR7L",
+      "transfer_source": "2gBhiVzPbaLNwUmELeiHQ94RZmn1ftLqVXpZBhxZhNiw"
+    },
+    {
+      "creator": "4e6qGn1SEvjw6hFzDcuoabfHptGNmkwryiZzZWmrXJPg",
+      "defining_signature": "HZj9ZFxdqR17fZQVFBbAdLWAk51yyMWG9xTJmtNoYSwhhMwQ72rHF2McH5bvfqaGZPMAA1SwyMRpqvwtHuMH1Ui",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "8V11M8YK7v7xGrSh4KxF7gToMk8BDuDd9tvPKSURqFvE",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "4SfKq9CDSNrDrswXMamCSwnP58jmPYxJcW2ShM4upump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "4e6qGn1SEvjw6hFzDcuoabfHptGNmkwryiZzZWmrXJPg",
+      "transfer_source": "8V11M8YK7v7xGrSh4KxF7gToMk8BDuDd9tvPKSURqFvE"
+    },
+    {
+      "creator": "3E7PXHJGxUrSiWdoSSXtzhoKxXZbY6CoJutz4DqJKjm7",
+      "defining_signature": "39qgXQzbPasLwzfBxFTeN6dZZY51Fg34f1ajeVx3CVqxHqbmUXepMSfLdbDTybcNJzrRkVCQqzuxqXeUg1iGZsJP",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "7MGJ2pMRGKLt4EU3XTCymsmWi7zCi1edwwVGWfBKfdbm",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "5CVYqnp1GvFTTW66uQ67RppPBPMnFfuCYGGXxXUUpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "3E7PXHJGxUrSiWdoSSXtzhoKxXZbY6CoJutz4DqJKjm7",
+      "transfer_source": "7MGJ2pMRGKLt4EU3XTCymsmWi7zCi1edwwVGWfBKfdbm"
+    },
+    {
+      "creator": "EQKcCWpVmdX1mL9piv6Xp77R6BEE3sEvx5pXx1Lo3nHp",
+      "defining_signature": "D8aFdVgaeLq7kLYZBzxDT7r9aSCc5qXDBg8ffABd54p5N3G8tK87FgggB2HvyXKaAhH3yBiwbZALe6MczY1JYDm",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "3tEiWoYHQzopxnzTGUbmgQVB5RpNe2nTLQpqMzioyQc5",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "5s4Zp3zbueZdVJtSxtpnhAdsNAdzd7yTy2hRjJQzuhnH",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "EQKcCWpVmdX1mL9piv6Xp77R6BEE3sEvx5pXx1Lo3nHp",
+      "transfer_source": "3tEiWoYHQzopxnzTGUbmgQVB5RpNe2nTLQpqMzioyQc5"
+    },
+    {
+      "creator": "4e52v4UbKLQ2tiBadEV4uwQ1B6w7aEfkxBMXxvmbbKM8",
+      "defining_signature": "39DArFzGtABUNiwykJFTczD6zowq5T14bDqSDVqqR6Y3zGtww7rNGfE3kGjkz2b4Y8dYjRfZvHCqw8FWUMfGAiA",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "GcuZeV6SgaYcuQB9mTjppNm1vV7rdQxycrVarwEtZTUY",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "64u6ck5Rpn88YpFdALXaoQVY3fF2cneoSWD4sf2epump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "4e52v4UbKLQ2tiBadEV4uwQ1B6w7aEfkxBMXxvmbbKM8",
+      "transfer_source": "GcuZeV6SgaYcuQB9mTjppNm1vV7rdQxycrVarwEtZTUY"
+    },
+    {
+      "creator": "9iLW5FRnZrnEtfri9BHJfcF9S2gnZtTF4bDi7ZKwybLx",
+      "defining_signature": "4Z4cduxvi9Cqgx51F7kVqepwx6CE9nUBBRpTMppbPf6NDtDyLSc9qcr6rZAdgYZaCYStn7HGovDyMSaZgQA3LBMf",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "BrEcnDRpnZchsUzPjKrXmhA9P63KNy4tbge43dk3yRRc",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "68Z6fpmPM7R6T4uGWrFqg82v1iryBfSN4vcoyzZ4pump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "9iLW5FRnZrnEtfri9BHJfcF9S2gnZtTF4bDi7ZKwybLx",
+      "transfer_source": "BrEcnDRpnZchsUzPjKrXmhA9P63KNy4tbge43dk3yRRc"
+    },
+    {
+      "creator": "6KJBbAypiJVmwtbeV5VLp97KWwHKM1uEPQKALzqUaDe9",
+      "defining_signature": "2Cx9AVXjf65GJMZZzNfVdfW8dWXW3VjJCnyTWA711EQiNZBdC6v6JmDPT1ypKqxyj5gmPDuZUd14AmsTb7EKMXqQ",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "65WCzqasz8KLddHvKKHLgny52ZeeGtnvYhMRJJ2Qq6bP",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "69Hxdqmu5Q7f6Hkn5FdVWo9JeL2omWPEdZ5wfEZSpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "6KJBbAypiJVmwtbeV5VLp97KWwHKM1uEPQKALzqUaDe9",
+      "transfer_source": "65WCzqasz8KLddHvKKHLgny52ZeeGtnvYhMRJJ2Qq6bP"
+    },
+    {
+      "creator": "57TWTmFvR1e1uErkkAzUcmr3z1vWnELLRYomFK11hSUt",
+      "defining_signature": "SNFNfncAVqpLeuMtPM6ddVZowtNivC8ZdZneCmNzedtkvfVWrJsyfBxZY5AUk9sbo6KV7evPtF6M5h6NSEo9hnp",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "ezMwtAnPAuJBoHCXUE8RfniWsvgMwkzkFS8tAM3S8by",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "6SdvQpA6QyKX54XQxBSYznQ7nCAg2J2XRZ9hNvjnpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "57TWTmFvR1e1uErkkAzUcmr3z1vWnELLRYomFK11hSUt",
+      "transfer_source": "ezMwtAnPAuJBoHCXUE8RfniWsvgMwkzkFS8tAM3S8by"
+    },
+    {
+      "creator": "DMxij5eesjajGRJzEm5RVTXKjtDG49jwVufUehrhU8Hg",
+      "defining_signature": "384WN6uaRdo2cXfWagFcbs2Z4L7o7BhtTzVkiQTfin3GZPaC1usKcu714F3cT93oKDqciQ3ssusTMsckDnC1zP9W",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "E2PAqE8PDSvkVAHvkvtFpBRM3zXWaRe9ZjnMZagtXbvc",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "6dNmQku2Dnney8LnXUMKBdchqP2hd9xnUJyf8Y9wpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "DMxij5eesjajGRJzEm5RVTXKjtDG49jwVufUehrhU8Hg",
+      "transfer_source": "E2PAqE8PDSvkVAHvkvtFpBRM3zXWaRe9ZjnMZagtXbvc"
+    },
+    {
+      "creator": "6CUxHmvm9MTeW9846mb2PHEkHGknFiHhbyserqejoPXY",
+      "defining_signature": "2W7W2CLXxfFQLYUogsA1tYBk3kvbyy2VyJdiLFbjoiFEYhMpotJhBZudXtvfg47V6rzcdPidDikyV7v4NDF7aULb",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "GgrPgh6e7NfwZ7gaGaRepkXi27b3MzbcU2deUA3X3dZT",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "6dPRZRMgd8iS5f5BeqDDisXhkW5CWSRBHq69iGX4pump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "6CUxHmvm9MTeW9846mb2PHEkHGknFiHhbyserqejoPXY",
+      "transfer_source": "GgrPgh6e7NfwZ7gaGaRepkXi27b3MzbcU2deUA3X3dZT"
+    },
+    {
+      "creator": "A9jjN1i5tgYX8i88BmX5zF8HPjuduU28PRjksTMkQUow",
+      "defining_signature": "9ckkTP3AuudHzHin9wTrsqTZYZqmm6NgwDKh3xrWx57VZheUMEAh1xAh7d8Xid5po7zgogiR2965fg8qjWRwKbw",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "7kJcoBav4yDccZw7YQTiYeiHjz23E9BZ4jojnU5VAVHH",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "6e5a3xFpZBuv41EJTGwKh9ki2zQ7xAcqg6y1cMRmpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "A9jjN1i5tgYX8i88BmX5zF8HPjuduU28PRjksTMkQUow",
+      "transfer_source": "7kJcoBav4yDccZw7YQTiYeiHjz23E9BZ4jojnU5VAVHH"
+    },
+    {
+      "creator": "AufH68UFBGSVVRL9D7u5W6NySCrukL4fWfSRTxDcJC6u",
+      "defining_signature": "5ohC7dZV9uwMawyLFvJeadR1jW1SP5u2qV9nWFrsvt4V2HWA4HFNDsVMbXwKhkvbp5dcTUBRa2bdSmcwrUfrnTwA",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "gangSXcffiVZntzVGYs7kajjVrPkFcTk6AKADCw91RV",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "6gN4hKp17ax1bktM3BxYxuwwMAgBFFT4DShg1cc8pump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "AufH68UFBGSVVRL9D7u5W6NySCrukL4fWfSRTxDcJC6u",
+      "transfer_source": "gangSXcffiVZntzVGYs7kajjVrPkFcTk6AKADCw91RV"
+    },
+    {
+      "creator": "Ez8hFbX9pwy3cXD1iie3T4g4SGADTTfRN53DbKvZc9e4",
+      "defining_signature": "3BBYvZSDbSjtiPjmGcAdZsdFdTsdzxBwoeNn2dG1JGF9WZQ3A1XLW2RtJd3yTjTMBxShLxFbc64mG41zKjbn4ivt",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "Ez5JkNo9ccu2BG9tsc29faokPAdwymT5MnZssF85Dcin",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "6kAYhe9CLYVrRDknUdRUaagVyEjMBWPkrCCEFMKipump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "Ez8hFbX9pwy3cXD1iie3T4g4SGADTTfRN53DbKvZc9e4",
+      "transfer_source": "Ez5JkNo9ccu2BG9tsc29faokPAdwymT5MnZssF85Dcin"
+    },
+    {
+      "creator": "CfQ1p2Nz2UywqP21J9QFwaTwRbxxdHq9BcAB4gjii928",
+      "defining_signature": "4DnnfcN4iiYgSk8DYtB1WhWb3KUr8wMio6r9sSPs3zbbVgDAqRf9xdiqdr4sww89Kwv18Kr5v6XUnHLTBcSaWrPs",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "Gh4wnpFwhDub7cFkDDDapRDuhsFa4EjtDLzBVoNhxxpd",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "79mFmvFew2GzzBmbghw1U2nEoqcEJMaBJ2CNM6gkpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "CfQ1p2Nz2UywqP21J9QFwaTwRbxxdHq9BcAB4gjii928",
+      "transfer_source": "Gh4wnpFwhDub7cFkDDDapRDuhsFa4EjtDLzBVoNhxxpd"
+    },
+    {
+      "creator": "DvSBNjKJU97eNcT97eRJUQUKfdCB4BohPuW2uBfcbBMa",
+      "defining_signature": "4iSoBpYRLxfHBZv7xkivEd4YdqS25oMAnxqdZNpqLw1VU7GYzLoh8BPNxFVXgJ9kto13ZTZovqFsZ2QS7hgpqjUy",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "3tEiWoYHQzopxnzTGUbmgQVB5RpNe2nTLQpqMzioyQc5",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "7vC8HPhWgyR7nJ5eMHQoCBNf1YUBASTDQ6pMd2opump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "DvSBNjKJU97eNcT97eRJUQUKfdCB4BohPuW2uBfcbBMa",
+      "transfer_source": "3tEiWoYHQzopxnzTGUbmgQVB5RpNe2nTLQpqMzioyQc5"
+    },
+    {
+      "creator": "4SEdAeg5ZbTUVXbJo9nczrqP17N324wBDyFZNUpA7UZX",
+      "defining_signature": "JHjnGqnk5GnarSawffjMNThMdqJFqsdUWXwxCpA4BkhjaKEsTRLicBqdYrteWrUpRZC2vWqBZetzm48JWNvnPWd",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "Da76omT5pL44rb5XuPSfu16QuAQtWiYAQqpvDoyofX26",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "7vRYuepuBdgUFiceqC46s2GfW9E9YRbSCYMBGvTRpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "4SEdAeg5ZbTUVXbJo9nczrqP17N324wBDyFZNUpA7UZX",
+      "transfer_source": "Da76omT5pL44rb5XuPSfu16QuAQtWiYAQqpvDoyofX26"
+    },
+    {
+      "creator": "HeagE57wb62U2WXsAc6ZWZEyubBRgfnUqf8ngvBMiGEQ",
+      "defining_signature": "36RDc3xVR1swPLcgFvinkxUnn9H9GxAZtTizHuNqDBnBwe99iFEG2hBBCyk3KXK9exbPUmTE7yyZ6BK7vn5iXAUd",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "GgrPgh6e7NfwZ7gaGaRepkXi27b3MzbcU2deUA3X3dZT",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "7yBAq9MHhjDrvAh3UgZFr1kUoCKcQCdHGfnVMXnXpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "HeagE57wb62U2WXsAc6ZWZEyubBRgfnUqf8ngvBMiGEQ",
+      "transfer_source": "GgrPgh6e7NfwZ7gaGaRepkXi27b3MzbcU2deUA3X3dZT"
+    },
+    {
+      "creator": "9c122cW38DQjCCHwswWyQoWrdZMH8fYfAm5Ee21aq5ZY",
+      "defining_signature": "dVAL5W5ag17psciGms97JKLoKdz9A5KAFGWqn4Uos32eK37czxEzsuN4QVUYuVjAnrVKacqHgyQizJAxNzcCgdT",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "HKRhboQqHSv5qkrJZSXPyaadqLbjTCpEaDMyZrGG7Nnz",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "89LQmLpgxM53SMaNCeX1KuNjUQCTqdqvyt1rzmR1pump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "9c122cW38DQjCCHwswWyQoWrdZMH8fYfAm5Ee21aq5ZY",
+      "transfer_source": "HKRhboQqHSv5qkrJZSXPyaadqLbjTCpEaDMyZrGG7Nnz"
+    },
+    {
+      "creator": "6SEHauVFsfkssSncFqCtoKD9Ne85vsjbCwASWcPEDuEb",
+      "defining_signature": "38KARkyNPFpWnk448SyK5oxb5TB8uKtKvZCEMZuix4o3UbdPRYiL2BTrSxo1qUE7VQNsQUDn9nTgD5CHhqXuoVXY",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "3tEiWoYHQzopxnzTGUbmgQVB5RpNe2nTLQpqMzioyQc5",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "8UbwMGX4R5AUa8L1Wn9bzGy3639AxG42yPYCX8vpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "6SEHauVFsfkssSncFqCtoKD9Ne85vsjbCwASWcPEDuEb",
+      "transfer_source": "3tEiWoYHQzopxnzTGUbmgQVB5RpNe2nTLQpqMzioyQc5"
+    },
+    {
+      "creator": "D5ffVHAm6qP7yAeRG2GebcYzy2df7RLTywpmAYa3pvAu",
+      "defining_signature": "8vKYDBSQm6zHdknytxNiEpujiHvwA1RZrV7G6R6o7dhWPZHF1MUUGBgLeggSSgVHnkuhFEgbhSp78KZx9uSqcqo",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "C3axbh1LCBvg1KuKYgyEQWm11kAhyDGBoUnP5uVkp1kc",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "8jWos15xY4nPUuFcSG9QvpTAbpVYg2Pdr38iQfSpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "D5ffVHAm6qP7yAeRG2GebcYzy2df7RLTywpmAYa3pvAu",
+      "transfer_source": "C3axbh1LCBvg1KuKYgyEQWm11kAhyDGBoUnP5uVkp1kc"
+    },
+    {
+      "creator": "8wH5uUQovtYyAt7KvieqrAfBpFXKRA2M7auYvcANECmG",
+      "defining_signature": "64QqffutwJrRCQATjsmfeGNs1N2te8uGdW2o1RHweUphVjm4vLPgw4bmZtNhVSxKafpz5vTejv6us7MFiUVpouSp",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "AQ14CiHreMa1W1WodahwsKFd57BnrGNqN6dyJuDY8KFQ",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "9sppvFeeQ4eWZVGqQ4uxwKA7TzEAYFgKCx2V54qZf3f",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "8wH5uUQovtYyAt7KvieqrAfBpFXKRA2M7auYvcANECmG",
+      "transfer_source": "AQ14CiHreMa1W1WodahwsKFd57BnrGNqN6dyJuDY8KFQ"
+    },
+    {
+      "creator": "FyzfGEuh7XfX4tAN4vs4K8eQ2CbUYSji3RLkfZybszaj",
+      "defining_signature": "3iZXcdgSws6jfbVQXbhGEWjdE4wDnhPFxHZj2G6zYV9gWc514arFGT82tEnh2qCqQsdSV2sNkVtE8CBUbPyPzoyN",
+      "detector_result": "NO_MATCH",
+      "direct_funder": "QVtWcAX3R7Cr51VhAxFSYntoCAmTQzK8Hf4R1TrKNQ4",
+      "intermediary_route": true,
+      "launch_coupled": true,
+      "mint": "9tTm1ByxUi73Cxxjme8EQU953SD7ekHZW25GNibbpump",
+      "population": "QVtW",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "NO_MATCH_INTERMEDIARY_ROUTE",
+      "transfer_amount_lamports": 10003,
+      "transfer_destination": "FyzfGEuh7XfX4tAN4vs4K8eQ2CbUYSji3RLkfZybszaj",
+      "transfer_source": "5Y13P2yp8JVmdd4cRb6MEA4GXnZZeUibbYSSXh1UiVNu"
+    },
+    {
+      "creator": "ERakYxvh1Sez41oR4xf66dLKHxXyxgASeX5uHgEJyFkY",
+      "defining_signature": "41AkLAHawKVpz9DCyWK9dLhRUD71znuidS5Leffyof8MpdeU8JhQ1K1c4BkqEVcCk4QqMN21iF7fucpy2aqnPvt5",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "HkF8M9ZrVYA7bTDUE6NjPsahHdnyqjLpByt5tKsdTtv6",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "AifhFReXgPPexvqjzxZwbztKZ4xsAaNJbEXdLz1Xpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "ERakYxvh1Sez41oR4xf66dLKHxXyxgASeX5uHgEJyFkY",
+      "transfer_source": "HkF8M9ZrVYA7bTDUE6NjPsahHdnyqjLpByt5tKsdTtv6"
+    },
+    {
+      "creator": "2xkYBhKq87HiXdAYYnVbnWJMknnJzCb6cFq2HtuGm3fD",
+      "defining_signature": "4BYmV5inCtMPyHTktkgzjMgc1z7iCuLFBuS5hNtBBd1sawypwHgAiBA3BKvDaT5R5RqPRaGqfZHMJxKUbKVVZJDd",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "ARfMHhQrrCqg8V1k4hhhE3av7dCcgNvnt5Suv9zys7Ym",
+      "launch_coupled": true,
+      "mint": "AwVrN3kxJw8V1NXUceJxYtBxwuoybG9yocU5n1Tpump",
+      "population": "CURRENT",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "2xkYBhKq87HiXdAYYnVbnWJMknnJzCb6cFq2HtuGm3fD",
+      "transfer_source": "ARfMHhQrrCqg8V1k4hhhE3av7dCcgNvnt5Suv9zys7Ym"
+    },
+    {
+      "creator": "5RQ1UWATaMjjXC34BW6UusEUdEoCuNRECBW8nnHPiCGH",
+      "defining_signature": "Jn9iD53KvkPThqiTcTd293XezjCRsnMmoV6VWuWKXkKEieUenMX4GiwKeaHx6Y227cBJwZYMtBKHZcnScCGx49c",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "5CEb73rjGT4je9McAXJjfRX4neQX7aNFP3rzHdKHSPAG",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "Azv9RJaBkg33ttcaantqXxSTbTTf6tdNDZJkfRWmpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "5RQ1UWATaMjjXC34BW6UusEUdEoCuNRECBW8nnHPiCGH",
+      "transfer_source": "5CEb73rjGT4je9McAXJjfRX4neQX7aNFP3rzHdKHSPAG"
+    },
+    {
+      "creator": "FTroG4aeMrXEVejLYgcwYHB88tbS8os3dDZCzh18MeRh",
+      "defining_signature": "5ZZ6U6HccCznUpWm8jijJ7B3WdgADryUCjSdVdNjemBtCM1rxEjeMR5dGZWBb634brXqRuWpNdB7QTBQp4cNKquz",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "7eTU7wGK8mdZ9bu5A1Aa358XUhJmsuCXm7zxHPtkHrEL",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "BQfvAu9gRQ61mBAKmd6L2J6j9fpUCLbXkjHs4fXUpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "FTroG4aeMrXEVejLYgcwYHB88tbS8os3dDZCzh18MeRh",
+      "transfer_source": "7eTU7wGK8mdZ9bu5A1Aa358XUhJmsuCXm7zxHPtkHrEL"
+    },
+    {
+      "creator": "FTuqW6J148wdknkPvm2EVSJ1EFt4aDhjAYzv6rdjuCRi",
+      "defining_signature": "2DebgGSZuHageGAJZbVDAHu89hHhJmNSxYusFfBp8QVsErSTvwnDYN6aMr3MdyzB5k1Lnhe4cxyLbuR7ofuzqHy8",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "96w1sRfxGAB95Uf4kTvjRjjo3q4aTYF5oX6DqhKPbSxQ",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "BSY3qBRwp1RvcNsFiBUFJTKr7NVDv6PFCejVV6crpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "FTuqW6J148wdknkPvm2EVSJ1EFt4aDhjAYzv6rdjuCRi",
+      "transfer_source": "96w1sRfxGAB95Uf4kTvjRjjo3q4aTYF5oX6DqhKPbSxQ"
+    },
+    {
+      "creator": "timeworn2X1EwMLSzeVhdVTbVSzSCKuibKd2kQ2Lsyn",
+      "defining_signature": "cThevRS2v2u3ESTj4MHkzbqX1tPyBWUywfyvcWVMQg1TUEhFpJ176qkdYPAokYHy2esUUvJzMAYrTfqHZv99xLc",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "9Es4rPu4fhWoMGok1Ts95gBgfJEUG83NKW8XYKVubZwT",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "BaBeW6hdxDSenERN6JcxLY9v27YnZqaAQYWuscUjpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "timeworn2X1EwMLSzeVhdVTbVSzSCKuibKd2kQ2Lsyn",
+      "transfer_source": "9Es4rPu4fhWoMGok1Ts95gBgfJEUG83NKW8XYKVubZwT"
+    },
+    {
+      "creator": "AiMfM8dqQKb1QZE8dKSbQnvTgUM3ALgYrrwE26kPc9Jq",
+      "defining_signature": "4ec21x9WBYkt1v2kd7mxNB77sG1rBoJRcyN3Ldmt9b5aw7AjmF88U8bxSugEgm2bHUSHA8EEEugoRAyGQ3TzHwEu",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "4Ut2Kdvi6GoivQPEVgR1G6nhDeBnRooDkCe8iWHu8ikx",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "Bm1Q81FMSL5aTTCuzLMSYNwxicwzxapy41r9x2Wpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "AiMfM8dqQKb1QZE8dKSbQnvTgUM3ALgYrrwE26kPc9Jq",
+      "transfer_source": "4Ut2Kdvi6GoivQPEVgR1G6nhDeBnRooDkCe8iWHu8ikx"
+    },
+    {
+      "creator": "2M1wm7dXxoAzsgeEu2Vxr8XCLXd8mXwiWi7qmSWBSxSS",
+      "defining_signature": "2ZHHk8Dg8MmiTZs6jBBnNcwY7yDXVmRVsNvcbrEKbrJXkkstTbYqmKvJxFE8kuYkN5PGu1yZTA797HDRsEo2je1y",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "gEham4pvb2xWeSuSRCxfkwHKB737y7ADRWagwLbPfQA",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "C7narw5LL8LLPgUuosa1nKQwdtxEizumTPzfKYVkpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "2M1wm7dXxoAzsgeEu2Vxr8XCLXd8mXwiWi7qmSWBSxSS",
+      "transfer_source": "gEham4pvb2xWeSuSRCxfkwHKB737y7ADRWagwLbPfQA"
+    },
+    {
+      "creator": "3HixvBT57QAWrAb82YuJbBkQBbvspB41vELbGYUaU1Pc",
+      "defining_signature": "3wyueJ5tqZYfPHbLbDJuT6ajFXRSWEzmFz77ZbdszSJPtyRyXJdCJWU8vm9kMZG5jG8VQGatVxDVotC6jKdTXamV",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "3nTEKyixfWGcUSjAHsUZwad8QHrDoNQDWdKVHRXqkHkR",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "CLbs9tM8bCNpE5jdCXFckpmw79TpZSLRSu54Qb7pump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "3HixvBT57QAWrAb82YuJbBkQBbvspB41vELbGYUaU1Pc",
+      "transfer_source": "3nTEKyixfWGcUSjAHsUZwad8QHrDoNQDWdKVHRXqkHkR"
+    },
+    {
+      "creator": "6UDsi1636s5TiCnTMaLx2HkuTUxP7tnZRLEvegLJuwfm",
+      "defining_signature": "X2YbsEmWBppAoyb8PkPrUxc8nhbJPi7DrCD6kBiyok5pTPXBiuj2Hze1en7m7gCRfSr2hndGU5rdfsA7Gs4GD93",
+      "detector_result": "NO_MATCH",
+      "direct_funder": "QVtWcAX3R7Cr51VhAxFSYntoCAmTQzK8Hf4R1TrKNQ4",
+      "intermediary_route": true,
+      "launch_coupled": true,
+      "mint": "CYVCvH1u59vHZv9LiwVgrsuaFDDMCUwWyjjNkT6wpump",
+      "population": "QVtW",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "NO_MATCH_INTERMEDIARY_ROUTE",
+      "transfer_amount_lamports": 10044,
+      "transfer_destination": "6UDsi1636s5TiCnTMaLx2HkuTUxP7tnZRLEvegLJuwfm",
+      "transfer_source": "7o11JHYw3mTfiCc23obbpwKdDRFV2JBaQUQEhXte7ogZ"
+    },
+    {
+      "creator": "E6PWSZXCmz6c1wr51PignxT4Tw5hyBuQzPx7mzpcKx4D",
+      "defining_signature": "aPzqJWJzppJHGUVLcFe1891hG1uBQYoKzPrSbZUmSfv9Ypt4HayjZd8R5QkYkw9ftod7A148ZCZXnp9Uam1Y7zf",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "3tEiWoYHQzopxnzTGUbmgQVB5RpNe2nTLQpqMzioyQc5",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "CmoB5aWFfaCfEHFmwLA3gbnLxiaEDKgiGmXfUgwD7HNw",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "E6PWSZXCmz6c1wr51PignxT4Tw5hyBuQzPx7mzpcKx4D",
+      "transfer_source": "3tEiWoYHQzopxnzTGUbmgQVB5RpNe2nTLQpqMzioyQc5"
+    },
+    {
+      "creator": "CtBedUuKKXyboMNVnDavZMhDtfFmgMoVZURzrbbG4fCw",
+      "defining_signature": "2d3dhPfVFFR8HMk31WUitEPEDxH4g49bDdnoaivJJsFuM39VGTbjXusDGtzj9RUZ5yLPBfxve182pPLVrK56YhfW",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "7ZA7fpKZTNPLbF5aohp9LUhQYF2t6XpR4nUyQWMLUwF3",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "D6aYNcyR3oNiEP63X3SnyCYzEGAKrX7f6951Mrzpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "CtBedUuKKXyboMNVnDavZMhDtfFmgMoVZURzrbbG4fCw",
+      "transfer_source": "7ZA7fpKZTNPLbF5aohp9LUhQYF2t6XpR4nUyQWMLUwF3"
+    },
+    {
+      "creator": "GM9n2JcduyEJ5HWDeRMVqsQQdygw3gneC4NAFeYCbNi7",
+      "defining_signature": "2C14b1jbTQtpQZCoM6vQ6ELUGSQzEnAYhjJ67LfayhtaqwHdZi3jQ69ud2q9SpsorCZoHq8qeAipTYLavZFVzaGF",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "B45FhPEEaYj78L2CK1xHPkdCXgWMNiadsK8fRgGPxKom",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "D7UkWaCWNCukBFP5VUv3ajFQ7PEMjZSSv78y2wHCpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "GM9n2JcduyEJ5HWDeRMVqsQQdygw3gneC4NAFeYCbNi7",
+      "transfer_source": "B45FhPEEaYj78L2CK1xHPkdCXgWMNiadsK8fRgGPxKom"
+    },
+    {
+      "creator": "9qt661UBRaZWSnmq8VWxRAdKyvxtv3BVQKhHApRAksLe",
+      "defining_signature": "GzKfCiF9UTqt8oRkbzPRWnEikvKpFdKpQBJWydP2MKaTLVyz8jSRZfh7UkumygwByeE7zm1DoFiAvcuiX2v4N8T",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "9wQtSxk145qfEPnmHEzv7PHRoBDbELyWGst8T2Umrh7C",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "DNFUP9tDaaHSLGkRfypf4t1u1uNYnFiPKUWFivBWpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "9qt661UBRaZWSnmq8VWxRAdKyvxtv3BVQKhHApRAksLe",
+      "transfer_source": "9wQtSxk145qfEPnmHEzv7PHRoBDbELyWGst8T2Umrh7C"
+    },
+    {
+      "creator": "DaLnySiM14gQQbQLe9KYkWb9VvxRfSe2eJtkQYHv22Ly",
+      "defining_signature": "3CuDEKRacecar4MgQ8pxLyamEjcqmEZ3BFuJrE2FzezecuAzUf67uKffy7Eq6V9MivhqHeRRtt4gU5Wg68hknTBY",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "2uPFEpvFHq5xwDeftjvEPXq5b1t48UqDDJeSN9TsRE9Y",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "DTz7bdX9g7NcFh4wGBpN8UHFW46ztbg2TqkYxsDi3cK3",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "DaLnySiM14gQQbQLe9KYkWb9VvxRfSe2eJtkQYHv22Ly",
+      "transfer_source": "2uPFEpvFHq5xwDeftjvEPXq5b1t48UqDDJeSN9TsRE9Y"
+    },
+    {
+      "creator": "kjcByyimgefWuVutf9e7VK1dsJM9AYoa4EYRHy67dDu",
+      "defining_signature": "3Z24XVTh8xANkPwvzLxYSZdA57njvg2iEUXkTPnKgpPJ5efo4h7rhfqtwNxSzod3hWoyxmC8ZaEwjSUEqQG4DEqj",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "7kJcoBav4yDccZw7YQTiYeiHjz23E9BZ4jojnU5VAVHH",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "DZkxhWCvKE3iuDGfoQcz4akiuBDisvtJ3G9eEpSmpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "kjcByyimgefWuVutf9e7VK1dsJM9AYoa4EYRHy67dDu",
+      "transfer_source": "7kJcoBav4yDccZw7YQTiYeiHjz23E9BZ4jojnU5VAVHH"
+    },
+    {
+      "creator": "EhKK4KsseywDNfbJymRNtnnUpWk6aMxEW7pGmWtYAqRg",
+      "defining_signature": "3DbcY1YrgxFeQ8pZwQjCVKkrgeQ6Q1y5tgkqSRwP2vHbf6aQPZ7oDiCT2j9wHqHy9w2jgU5zv9EMaCA4iNcBmjuu",
+      "detector_result": "NO_MATCH",
+      "direct_funder": "QVtWcAX3R7Cr51VhAxFSYntoCAmTQzK8Hf4R1TrKNQ4",
+      "intermediary_route": true,
+      "launch_coupled": true,
+      "mint": "DgFuSYjwjVYBtD17QrJbFYtDXvjn1hJLErz5DoY9pump",
+      "population": "QVtW",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "NO_MATCH_INTERMEDIARY_ROUTE",
+      "transfer_amount_lamports": 10042,
+      "transfer_destination": "EhKK4KsseywDNfbJymRNtnnUpWk6aMxEW7pGmWtYAqRg",
+      "transfer_source": "Cj31o4oWKZfYJuZZgPP2MBni7vzWy5xQX18sDuF928aq"
+    },
+    {
+      "creator": "5tETTd2FDQfvXS8Rv9gpsGbLFsSeLzKMjwGftYiViAg5",
+      "defining_signature": "ur5seoJMx2sMcBQ8q8HfsPF51e2GrEhxmmg9PR16h8ev4GB8vUKkNY5izea8EdYnRzgxB3SW6W271VJKkub4wt7",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "2uPFEpvFHq5xwDeftjvEPXq5b1t48UqDDJeSN9TsRE9Y",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "Dn1VHNhgQgvYLgHyAhXmgm3cetKJauHmNwU8jyR4R8yv",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "5tETTd2FDQfvXS8Rv9gpsGbLFsSeLzKMjwGftYiViAg5",
+      "transfer_source": "2uPFEpvFHq5xwDeftjvEPXq5b1t48UqDDJeSN9TsRE9Y"
+    },
+    {
+      "creator": "B1g4Nyyu7zJzVv2fQwUdHLfvdjX5p6Uw2V9KxVLxKSmG",
+      "defining_signature": "61JiaS9Qg7RFbzmnAqXWj3CC3M78ghHe3meQNRYeRMdmBZjGvusQpFrMRi49inoMaKh8wrM1HU68cpQxqADbgtXH",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "G76tucLinYTwz8KkV4NXroEZweBS5gb4ZRinbQd1Wjoz",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "E4LLHpFnRgDLiYqyqnMEZ1C2CBmR6CWdcWrT5hpipump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "B1g4Nyyu7zJzVv2fQwUdHLfvdjX5p6Uw2V9KxVLxKSmG",
+      "transfer_source": "G76tucLinYTwz8KkV4NXroEZweBS5gb4ZRinbQd1Wjoz"
+    },
+    {
+      "creator": "9Bbf1QoeY79zsiZFRmGrBDKcjGRNUgaxcCLDf8QpEkpy",
+      "defining_signature": "3nc3yCBjsTXWxtGCJ6btikteuzRb4vor5N3arjAmsENjzaARZZNvi2RiuSzz82rMgHKhYixQsz4rdnLwcSrq2GZg",
+      "detector_result": "NO_MATCH",
+      "direct_funder": "QVtWcAX3R7Cr51VhAxFSYntoCAmTQzK8Hf4R1TrKNQ4",
+      "intermediary_route": true,
+      "launch_coupled": true,
+      "mint": "EL4TQEUGPpW8LZnD7PqZX1hWuqCo64tFsgTJfyGKpump",
+      "population": "QVtW",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "NO_MATCH_INTERMEDIARY_ROUTE",
+      "transfer_amount_lamports": 10046,
+      "transfer_destination": "9Bbf1QoeY79zsiZFRmGrBDKcjGRNUgaxcCLDf8QpEkpy",
+      "transfer_source": "8Ct1VUtmwQWB17XpoFLWF4wB1ZadgjKYq656ExN9JYsT"
+    },
+    {
+      "creator": "D9HkjXkrPpQNhgNMS2S7iTvZv3iEBKyTNMcfgaRjU3v7",
+      "defining_signature": "4yoPRggvwHNsuZNzMjRYt9Cvmmn4y2YxbdZUbz33Tb5d7F4vjcA1nmRFBse1aEcGQHNh2YmJmxPfP59EX38RRwFZ",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "B45FhPEEaYj78L2CK1xHPkdCXgWMNiadsK8fRgGPxKom",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "EUccNFoEHwoQ68tHWXytDrbDkDTY5iKGicuFpA7fpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "D9HkjXkrPpQNhgNMS2S7iTvZv3iEBKyTNMcfgaRjU3v7",
+      "transfer_source": "B45FhPEEaYj78L2CK1xHPkdCXgWMNiadsK8fRgGPxKom"
+    },
+    {
+      "creator": "G8oU5DhkSvd2GTVHRDdaoQoF8esXNfJdSFdsV3rvRxVZ",
+      "defining_signature": "2RAHKfAbDtkFrgUAbdvnaCEkgfbVrGQsJY5g5YGMwCEKwvuff7yusXypDwgqhtv9LBM6MMjhrgdXqPVKwn9UA7K",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "93Go6XduRaVrMrSVrmu6ANbAFb6FVUHa1UWoL967EHxr",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "EUfkzeNzSQ67zHP2oKNKhRFMDgytCCu8DqDPYfBxpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "G8oU5DhkSvd2GTVHRDdaoQoF8esXNfJdSFdsV3rvRxVZ",
+      "transfer_source": "93Go6XduRaVrMrSVrmu6ANbAFb6FVUHa1UWoL967EHxr"
+    },
+    {
+      "creator": "9WK4DPiVvcXDFYvZdeabU5hZ2cLxtoax4EacMSyg4tLE",
+      "defining_signature": "2erqGa9XYvd4jV5GSPWuTppbZdsnaoK8FqJPACeueCgNs8QqMcSEE9BePrfsMPAe3JCz8QFq6Z9qb6daC5mjxux6",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "Bvrc31ZYRAPeuhnkWY8wzUSt57N5CtHCQrxJqaCPAuqN",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "EdGY7F3uVW3LD1485o2CU84agMbJkFahbzJEEyMpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "9WK4DPiVvcXDFYvZdeabU5hZ2cLxtoax4EacMSyg4tLE",
+      "transfer_source": "Bvrc31ZYRAPeuhnkWY8wzUSt57N5CtHCQrxJqaCPAuqN"
+    },
+    {
+      "creator": "ENPmszWSZ3RNUFTwB2cRHYPdgbwocXNqJgWuXSpN7b11",
+      "defining_signature": "2rqqqsdtCwBgzmEdcSfkugP7B7P2sUj21YAnHoDwbtFqLpVgqjMrwdFbe3QUvmBKnUydHB57gcm9xcdQJsiHXkao",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "FpsJrgUH8djJT33jjtLXLbDgpG981ANTNjJ55udAYVgJ",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "EnkmS3jvFqsZb7MSTw9H48cUXfENUd2pBVXLHNmqpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "ENPmszWSZ3RNUFTwB2cRHYPdgbwocXNqJgWuXSpN7b11",
+      "transfer_source": "FpsJrgUH8djJT33jjtLXLbDgpG981ANTNjJ55udAYVgJ"
+    },
+    {
+      "creator": "5qgSs3o9LTUbYE89vB8D4JU6Cw2DECBL9rEBR3pyuvEP",
+      "defining_signature": "5LSkfzUTsCC9rmqNcJUxfgaVhqx9BtV8gJdZDm8YmaxhKVk2vMtZuoHgfMutXgqR3wknuKG8DP3zey68Ci7rCKdE",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "HkF8M9ZrVYA7bTDUE6NjPsahHdnyqjLpByt5tKsdTtv6",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "F5XcqRi6pDQQj8A8WJgSHG83gPue5GK7dbJnCydjpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "5qgSs3o9LTUbYE89vB8D4JU6Cw2DECBL9rEBR3pyuvEP",
+      "transfer_source": "HkF8M9ZrVYA7bTDUE6NjPsahHdnyqjLpByt5tKsdTtv6"
+    },
+    {
+      "creator": "AFVC8jvqWnLuHprHFwLwBh6QtzjfweBZfsFs9vzf6mLk",
+      "defining_signature": "4ZFD9mSQGuby5KkJxuxx7QckHojeu8N3FddgMCrRa58naA1bYAh7QpD4CffEcM36CPn59Hm6FgF3ehzLq6Eh4wYG",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "2uPFEpvFHq5xwDeftjvEPXq5b1t48UqDDJeSN9TsRE9Y",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "FAs4RX3HkHzk1qgTxdEW9vxadnn2FiPP2mC6Tx3hpB67",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "AFVC8jvqWnLuHprHFwLwBh6QtzjfweBZfsFs9vzf6mLk",
+      "transfer_source": "2uPFEpvFHq5xwDeftjvEPXq5b1t48UqDDJeSN9TsRE9Y"
+    },
+    {
+      "creator": "5rh1f51MvPjg2L29Bey8jNJj5TPLEdB62h8BxFXNcRbz",
+      "defining_signature": "5xJZkWwohdzZznK6LU8CZjf3GHNNgx7PJ6ZZM2tvbuJ6StXVS7K3eH6Ydp1jMJnLkQdw13c8g44TU3rLRvd9uLTW",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "GgrPgh6e7NfwZ7gaGaRepkXi27b3MzbcU2deUA3X3dZT",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "FrayVb4QqRjoBovzjaYbmF75LUMwBGpRzYugU4E1pump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "5rh1f51MvPjg2L29Bey8jNJj5TPLEdB62h8BxFXNcRbz",
+      "transfer_source": "GgrPgh6e7NfwZ7gaGaRepkXi27b3MzbcU2deUA3X3dZT"
+    },
+    {
+      "creator": "5hpyCczHrHFBPtfcpgbo4JBGzndCaNcHuSwwPaF1oVMv",
+      "defining_signature": "aeHGqCyJ6BkT3AyayxCWyZuWRd47t5LrXc1Nb4HnCzDJr2ot3wHFR9Hyv2aBvZVHoi3LeG7cJvBMzAKUDC357h7",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "3tEiWoYHQzopxnzTGUbmgQVB5RpNe2nTLQpqMzioyQc5",
+      "launch_coupled": true,
+      "mint": "Fu5Dbfq6jP15aVaSnRmxNyA8DqAsDCiJueTPQM1pump",
+      "population": "CURRENT",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "5hpyCczHrHFBPtfcpgbo4JBGzndCaNcHuSwwPaF1oVMv",
+      "transfer_source": "3tEiWoYHQzopxnzTGUbmgQVB5RpNe2nTLQpqMzioyQc5"
+    },
+    {
+      "creator": "5yh7CQnyiRV2MnocgWJRLq8w8kpdB7p7HbutxC9Eieqn",
+      "defining_signature": "5BKkRREwFsFhHG7zszL4hhXNkaizqy6pKiDCdLbvQbBmSmsiowJuHf733Gg3W44Hjt7qffh7Dp1rXMxn1uuWCMKa",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "HYSqUrKXTF9XgGA8KLGVEDZYTXBmfGSn4885e8ZjoNhb",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "FuWiHaX7DmgF8j3TF5Qg45cua3nvsUnGHtmWkgGkpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "5yh7CQnyiRV2MnocgWJRLq8w8kpdB7p7HbutxC9Eieqn",
+      "transfer_source": "HYSqUrKXTF9XgGA8KLGVEDZYTXBmfGSn4885e8ZjoNhb"
+    },
+    {
+      "creator": "GguKCgLYxwtWgpXzubxkq7E3ZzAYQFbda71DvfbkrKPh",
+      "defining_signature": "2JzgYNvxHgyzZNgEUVPUPpJSporm4nopD2aaCsQXKNE5ypSjWN1wAGYMnU8FYo9dyrGip8w1ycCi5XGcj3KV1eL2",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "G2mg9C9EL8zrxGvR4RSc9tzgraY7jMPmVyDxsFhPCvR4",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "FvTorpDvrDUEBcc8vqAb88g5aehDK6wkA8hyenwLpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "GguKCgLYxwtWgpXzubxkq7E3ZzAYQFbda71DvfbkrKPh",
+      "transfer_source": "G2mg9C9EL8zrxGvR4RSc9tzgraY7jMPmVyDxsFhPCvR4"
+    },
+    {
+      "creator": "N9SyhAXDckG4y2B911paJPpwS7cvxWSxcng53mebXGf",
+      "defining_signature": "2WqSvqMEBbg5gLr2sLh5Ltf1My3EssSXRX6gUdeiZMktzraUmaiRrTxQdxg8uFHYjEWjjLgv6NWYkqYac5CVSApV",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "F91R9XfkXUweZ1dc4urY9N4N7q1Z5vnC5g7uRcGi5mgn",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "GJSmv1ZieC6T7k88aLpVQDB11X2yy2XwFEeJuqqSpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "N9SyhAXDckG4y2B911paJPpwS7cvxWSxcng53mebXGf",
+      "transfer_source": "F91R9XfkXUweZ1dc4urY9N4N7q1Z5vnC5g7uRcGi5mgn"
+    },
+    {
+      "creator": "4wwGjJeSsepdewUgiJAMieBn1ydobFdqZHwpo7uvq4JD",
+      "defining_signature": "5j3QesfPRuC2q8sZbYqSdSo8JrRR3qVJEkxEMrdZ1NU58WT6am39PEqK4PiWSA2ZrB4aptYVchHtQ2BgAW1Xnb3b",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "7kJcoBav4yDccZw7YQTiYeiHjz23E9BZ4jojnU5VAVHH",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "GR3pRwGN34RWwQyE5Xw1exBPzCZ7HhKftMMrzsbspump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "4wwGjJeSsepdewUgiJAMieBn1ydobFdqZHwpo7uvq4JD",
+      "transfer_source": "7kJcoBav4yDccZw7YQTiYeiHjz23E9BZ4jojnU5VAVHH"
+    },
+    {
+      "creator": "TffSohsKbZF1WDFfLEGJV4JE4dWf8yETfQuer8cxU6k",
+      "defining_signature": "2WMGWmpZVkScJc275opMrPHLvwqp5i7dXm9LHEM5iwMdyGEwMy69MSSRgPy3LWJoCPR4LfneJPxnDzapqHgF31x5",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "ApRnYo6eSxdUnghbas6SFcAVh4ro47Vqr95g8MLrHdz1",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "GUrQf9dzcZSrog7YRyx6uZjJfSDZuZrhu7F3S9Xpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "TffSohsKbZF1WDFfLEGJV4JE4dWf8yETfQuer8cxU6k",
+      "transfer_source": "ApRnYo6eSxdUnghbas6SFcAVh4ro47Vqr95g8MLrHdz1"
+    },
+    {
+      "creator": "J6adEwik4yfjjKqbWAMt9GqkhzwcwLBcvaTqD3TJmeYp",
+      "defining_signature": "47WWUUsNcFYrioqrSMvEnrY4aAA1ebbU8qPqC9qkX9anYZd5Tr9qGEiYcenvMxuxz7XoBZoYMkbydNnb5aVfjY9s",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "GB7SxB9hfNTZ3e7nv5JM6Jgr9uJWQZqSSP2Bprh7U28G",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "GtaKydPfLerjvf4fdiCJFbeHgmXzbSEwsLv4yjs5pump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "J6adEwik4yfjjKqbWAMt9GqkhzwcwLBcvaTqD3TJmeYp",
+      "transfer_source": "GB7SxB9hfNTZ3e7nv5JM6Jgr9uJWQZqSSP2Bprh7U28G"
+    },
+    {
+      "creator": "BmfjxXzViPUm8GQX5TPFg8qjczv6fgUShwkE3VujPX6K",
+      "defining_signature": "4EUWsoD9WPiTZDt8iZJZDQZnUFw5A4wsFiCHWVDmoNo2DDCXgBMQjhhDBGpqfRWA8oAYsyX6kPgttVu3g3zwuHMa",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "EC5tdMEvQF2UwzYjTwtLxcPGKKH1rAk1okCEj2eBd48E",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "GxJp64uK69rxBv9xcju3Z2jSTrcfpqi3nT1DLuPpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "BmfjxXzViPUm8GQX5TPFg8qjczv6fgUShwkE3VujPX6K",
+      "transfer_source": "EC5tdMEvQF2UwzYjTwtLxcPGKKH1rAk1okCEj2eBd48E"
+    },
+    {
+      "creator": "EiKD3GXShNZzdbY2THQBwxzbvmbswZryyq8iXZLYEmxj",
+      "defining_signature": "5Mcb668RKKHYkBd8F4Mf3wNX88YDhdRescNBXcCGCdNds9YE9xwegRxzxM8yXhkVR4my5jc2ZWRgdCksxZVYePUX",
+      "detector_result": "NO_MATCH",
+      "direct_funder": "7kJcoBav4yDccZw7YQTiYeiHjz23E9BZ4jojnU5VAVHH",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "GyMC6ay28dxcfdpbYjwqfP8EfjVvrHE4rP6vwoMupump",
+      "population": "ALTERNATE",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "NO_MATCH_DESTINATION_ROLE",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "2J4vPEQyiPyQuds5kukmsHVCbyTz4MJAmxqvS3vvKmdJ",
+      "transfer_source": "7kJcoBav4yDccZw7YQTiYeiHjz23E9BZ4jojnU5VAVHH"
+    },
+    {
+      "creator": "FLYbyPss3iBMpo7J4gTYuJVx9JwNJNXQzobtFPeZR8Y7",
+      "defining_signature": "5DdjqRyrQ3VeP86YfWCoiqPeK8gxoHjVuXpEzSVJjbiFS2vkHzdSPBjXYjGmVSxkgczWjq6u7v6PSovWioTn2EXo",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "GcuZg6tjLCRjyAnv1kXPnQYr67Lp9Druo7xoAdg8E77Y",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "HVXsnbGyNR7cXdj5LhHqLVxNsmGsyH2VwJuD5fHCpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "FLYbyPss3iBMpo7J4gTYuJVx9JwNJNXQzobtFPeZR8Y7",
+      "transfer_source": "GcuZg6tjLCRjyAnv1kXPnQYr67Lp9Druo7xoAdg8E77Y"
+    },
+    {
+      "creator": "7oECTX8YXH9WKR73Bo9hixv69WmsKydaJvtHXHTbaPe1",
+      "defining_signature": "64M3VQipNAfQHSm15ob7ewAvS8Jh7Q3xe1ePuYHtY2yrKSk4McMpJBevz4BtrdjhSYGVLGoFUa6vKhZAP4hnjmjm",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "4ae7rX1CekEAvEG4LzHbRpG6HzSWxuSNq2w8qjZHdBaC",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "HgAuCVvvxorMRA9e3WTk46MFDG2xx7vonVeyyTbx79KK",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "7oECTX8YXH9WKR73Bo9hixv69WmsKydaJvtHXHTbaPe1",
+      "transfer_source": "4ae7rX1CekEAvEG4LzHbRpG6HzSWxuSNq2w8qjZHdBaC"
+    },
+    {
+      "creator": "4V21x3wW4uuYQk6EtzmJsBvq92Qb23Rwa1dga6ebn95A",
+      "defining_signature": "5bhYef1PN9rs2ETUVwyoKJVoSR97vxTB2AefGGdDsnTS7Fef18zXVS7nHdPKweeA5Yc2yyHXjeRDqPb6QSgpHhE",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "3srcryfrBubA2B17EocRyZmk8phbttJPR6QvMr8owAo3",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "J8fqEnjTyhHhj21VrGQS8SPb3A3ectA3EcrPC8Sspump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "4V21x3wW4uuYQk6EtzmJsBvq92Qb23Rwa1dga6ebn95A",
+      "transfer_source": "3srcryfrBubA2B17EocRyZmk8phbttJPR6QvMr8owAo3"
+    },
+    {
+      "creator": "8uiXhSGLUG1v1zeGs4WuC9NUgsFZKe95rKrKD3wQHEex",
+      "defining_signature": "27rZisgFAzQ1yprhaqdSbAhYYzURTBzNmetYttbxkTBXjNhNSSxzTWK6PbeWmov2tfxdkSUtp9Gh17NPD8pVZp3S",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "4ae7rX1CekEAvEG4LzHbRpG6HzSWxuSNq2w8qjZHdBaC",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "JuNoKbB2itT5utvrNEtwJ2Q3WZhtkrDgEwzDf2Spump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "8uiXhSGLUG1v1zeGs4WuC9NUgsFZKe95rKrKD3wQHEex",
+      "transfer_source": "4ae7rX1CekEAvEG4LzHbRpG6HzSWxuSNq2w8qjZHdBaC"
+    },
+    {
+      "creator": "83ootYgrxLnJakKCU2yZHLUk4Ebm7SkuoHUMabx8pqVJ",
+      "defining_signature": "5ygB78Q6n85y29PZHSFp3yXDHGCcdoUYcqCUgR6bZXQZ7S1gPTWqidxkM6ES4m1FxLvCC6kMfHpfV5QrzJZjkv7Z",
+      "detector_result": "NO_MATCH",
+      "direct_funder": "QVtWcAX3R7Cr51VhAxFSYntoCAmTQzK8Hf4R1TrKNQ4",
+      "intermediary_route": true,
+      "launch_coupled": true,
+      "mint": "LWZvn5VWRk23xzzkbrSR1yCaWnKNcU1tFCMAnvppump",
+      "population": "QVtW",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "NO_MATCH_INTERMEDIARY_ROUTE",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "83ootYgrxLnJakKCU2yZHLUk4Ebm7SkuoHUMabx8pqVJ",
+      "transfer_source": "GR126qbPmrePsuBtRqZy12cngtgaNCX21ys3PqNUDDDt"
+    },
+    {
+      "creator": "2oMGQjekEmBYjcmiSLfEzJ9bFuLnTesErq1T3UnyZDRV",
+      "defining_signature": "4b6RhyWLycTYFh7XFMP8LhBPjJShAcyWJjWzoP78SrySALQzagZKzbiyDGjCzGWEz5mjJJie3d9Abp4jWxAE7hHa",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "EvhBmnkNspKPSG7YueTHyDK8RdhB382FEttcGiKeZhnm",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "SpXcEtVQTbrQhwa5ysrn9oyRDyhJ2kBiUDKWFTXpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "2oMGQjekEmBYjcmiSLfEzJ9bFuLnTesErq1T3UnyZDRV",
+      "transfer_source": "EvhBmnkNspKPSG7YueTHyDK8RdhB382FEttcGiKeZhnm"
+    },
+    {
+      "creator": "EiPbzmsn2aeU5KeBnWDkivDeDoQ6oGP1tsJRZmX84u5J",
+      "defining_signature": "3ENZatygKB75od276X6iUbsKpRN53JT8SuD9xGMXEpjrQWFc9HENQ7YAHS9N6amoUk6upkj8T1YWZvcav1hd9JjY",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "F84jY7KxRBM6KKDFSihprAQ9rhf8y4x49MDdB9Cj8315",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "St7XNGmeeDggsGVhM6i75xJ7GDa4vECg7G5hMKdpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "EiPbzmsn2aeU5KeBnWDkivDeDoQ6oGP1tsJRZmX84u5J",
+      "transfer_source": "F84jY7KxRBM6KKDFSihprAQ9rhf8y4x49MDdB9Cj8315"
+    },
+    {
+      "creator": "BvZh6QpZHLq1B4ErBFCe9ACbHDsR2xQ2gE7yNjikdK77",
+      "defining_signature": "3E2dcuzpMHY3cqF41xPU2Tr1NSZpcFooswZELSjZUTn5dZhKXnNjzMekEwm5yFtsGikDxC16QHnPaQ1G9NtVmW1u",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "3tEiWoYHQzopxnzTGUbmgQVB5RpNe2nTLQpqMzioyQc5",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "TA3S3pBqT1Txxg4NF9Beke6WEhkEP9EcxUv2LeFpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "BvZh6QpZHLq1B4ErBFCe9ACbHDsR2xQ2gE7yNjikdK77",
+      "transfer_source": "3tEiWoYHQzopxnzTGUbmgQVB5RpNe2nTLQpqMzioyQc5"
+    },
+    {
+      "creator": "GEJYsLRTH6hQWtSPgq9pphJZrbQsHgFS1UkW19UBYGka",
+      "defining_signature": "AcVM4GQBWpsF7RANCfPuqiA29PtHCfBiPpmFUyFLuU4UgXAQqypZizNY4wzRrznQaJznm5q3pqq3rGgxMtSU1Dd",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "ARfMHhQrrCqg8V1k4hhhE3av7dCcgNvnt5Suv9zys7Ym",
+      "launch_coupled": true,
+      "mint": "UwimTmUom9eyBNs3GKTn2tFgP7nh2SbzpwsMbcPpump",
+      "population": "CURRENT",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "GEJYsLRTH6hQWtSPgq9pphJZrbQsHgFS1UkW19UBYGka",
+      "transfer_source": "ARfMHhQrrCqg8V1k4hhhE3av7dCcgNvnt5Suv9zys7Ym"
+    },
+    {
+      "creator": "EHdfboiMiyEcyxpcyXFeimAqaVTG1wdL6aRHKHvZrWKU",
+      "defining_signature": "4c5zr9rADEpEtfi53MrFJB5W8UY5hhMinAqaZU8umwupCC8tqzSNVSWwbvP9t2LEsfaqmHm2s3ZpXCodCErLHhnh",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "C3axbh1LCBvg1KuKYgyEQWm11kAhyDGBoUnP5uVkp1kc",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "VBrCaWDTRPyW5BvRoTph5BR8KZNstSNzrTdYEgipump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "EHdfboiMiyEcyxpcyXFeimAqaVTG1wdL6aRHKHvZrWKU",
+      "transfer_source": "C3axbh1LCBvg1KuKYgyEQWm11kAhyDGBoUnP5uVkp1kc"
+    },
+    {
+      "creator": "8CeAfjjG6v8xaexLM86sxAr3wWA1qJyhawHsvyz3TQdT",
+      "defining_signature": "4RgMzQ4EYkmxCPWJbjpvV9LDfo7q3xDxqFAK8Ti2kju3LivdBHmMRJcNgk9fSxBZSnFN9JTv1SN4FMqikRkzFFJT",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "HjMnF55dDES6Eica6DBXvEt8fAhtvtiMfLXosewfPiBr",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "Vpm3yhgro67XZUHRX6dM92b2bXdKZpx6t1Ps31Ppump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "8CeAfjjG6v8xaexLM86sxAr3wWA1qJyhawHsvyz3TQdT",
+      "transfer_source": "HjMnF55dDES6Eica6DBXvEt8fAhtvtiMfLXosewfPiBr"
+    },
+    {
+      "creator": "3DiVDqKqbaQbR4SaoXm9YWCPu7be25szvDpwaqLrn3ov",
+      "defining_signature": "rqArswbsuUc9y8996Hs3QsaXLA8LmHe3PDicYNHX3B5m2g1pui6giT6N6npQJZFaNSvdjUbLu7grjh7nvLYUkKe",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "2gBhiVzPbaLNwUmELeiHQ94RZmn1ftLqVXpZBhxZhNiw",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "W71J5wXB6f6kU7g5Jy9VQB9uhR7Z8kXGmeKT1Uopump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "3DiVDqKqbaQbR4SaoXm9YWCPu7be25szvDpwaqLrn3ov",
+      "transfer_source": "2gBhiVzPbaLNwUmELeiHQ94RZmn1ftLqVXpZBhxZhNiw"
+    },
+    {
+      "creator": "9jTGoLKbGvotPJBXc5kWkbN5Q4nTaP3DqVTYii6TahqP",
+      "defining_signature": "55Q5KEXmwSRQMrgkfkKZYu6G7AsS4v1RSSMzAZjQSJzqUuUWRcGyhVZ3JxaSG7aDX4qpTQF8Dv6xwfUox9reMS9g",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "3nTEKyixfWGcUSjAHsUZwad8QHrDoNQDWdKVHRXqkHkR",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "g4hrKKmbKGFhsRzmzyYTS5JX62F7EX3Js1uTXWVpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "9jTGoLKbGvotPJBXc5kWkbN5Q4nTaP3DqVTYii6TahqP",
+      "transfer_source": "3nTEKyixfWGcUSjAHsUZwad8QHrDoNQDWdKVHRXqkHkR"
+    },
+    {
+      "creator": "3rtn6iSjwkwPDKtMNe2rvmhFEJNPoAeXcaDf31qz1jha",
+      "defining_signature": "4ESFpJu3EJT4SH29bS8u1VogEFknthQp3fFH1k7cYySGxUdQEbjzpKkaSBgjhcSRqgxzEHx6CQJ2EZGsjJnRcTqm",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "C3axbh1LCBvg1KuKYgyEQWm11kAhyDGBoUnP5uVkp1kc",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "gBA6YuiJaMGPbSZ8X6Y7LBz9fd2fmtsAivr5QQnpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "3rtn6iSjwkwPDKtMNe2rvmhFEJNPoAeXcaDf31qz1jha",
+      "transfer_source": "C3axbh1LCBvg1KuKYgyEQWm11kAhyDGBoUnP5uVkp1kc"
+    },
+    {
+      "creator": "6xATUn8bUUhGVj3aLKocaayAc65NVd6wbhk7qqGRH7hU",
+      "defining_signature": "2h7ifGj2vbcPu6AmeQAns23DTKAEwCvziDs6BKAcwmd2AfiaPkYw1LzjWjGuKQxADcXqaq5SbbSJ11V1wenNVMvd",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "2uPFEpvFHq5xwDeftjvEPXq5b1t48UqDDJeSN9TsRE9Y",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "gnuvC7NijR3T6JGLrwZgnN1uxEvSFUNZiZL9pKQM8FY",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "6xATUn8bUUhGVj3aLKocaayAc65NVd6wbhk7qqGRH7hU",
+      "transfer_source": "2uPFEpvFHq5xwDeftjvEPXq5b1t48UqDDJeSN9TsRE9Y"
+    },
+    {
+      "creator": "4eJdpr2V462QHNZxn8E28aNqomb9ApwdZJ7ptwD2RbV3",
+      "defining_signature": "2wwTM39m53nrGLbmy953Vbg5CtTR3GX3QuTwXjRMo3PBn9JHm8EVhmPJB3xirai8EF7qmc42VeVDuYAAQ7dMDUCe",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "3nTEKyixfWGcUSjAHsUZwad8QHrDoNQDWdKVHRXqkHkR",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "jH1eyszZ2dApp7Jm5V8GohsEyBhxfucii551TE7pump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "4eJdpr2V462QHNZxn8E28aNqomb9ApwdZJ7ptwD2RbV3",
+      "transfer_source": "3nTEKyixfWGcUSjAHsUZwad8QHrDoNQDWdKVHRXqkHkR"
+    },
+    {
+      "creator": "HQzyqmu3wPShgjbJxqAatLAEhriqzxLH4dSoJqxFhwrF",
+      "defining_signature": "BRrFvzhcDJWTxrsYXfeDTwcwrUB5AwfBS6rmxxMGU95SYpygoy193avYvFCLCCMKVuv5ABNF6Q57XwrrePaEyev",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "HkF8M9ZrVYA7bTDUE6NjPsahHdnyqjLpByt5tKsdTtv6",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "jTpDtR77rrSfoTTfVBUfDSt9tNbji2Fj3MwHcWCpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "HQzyqmu3wPShgjbJxqAatLAEhriqzxLH4dSoJqxFhwrF",
+      "transfer_source": "HkF8M9ZrVYA7bTDUE6NjPsahHdnyqjLpByt5tKsdTtv6"
+    },
+    {
+      "creator": "FzgtEGo3B7FqX3XWqcme7u6nnjyjMABeeYNwdsdXo8So",
+      "defining_signature": "2aWx6tJKudZhNEf9N5YHMKyR8jUikTtsU9KxX88cTgVsYciiVMFXx9CcbzEK9Ahvcmjx6gvZApS1Vzpqfd9VNzzL",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "3nTEKyixfWGcUSjAHsUZwad8QHrDoNQDWdKVHRXqkHkR",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "jqTxh8sCnZL4HFGhbUiDoGmBCtVN8bKUpGsYCL6pump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "FzgtEGo3B7FqX3XWqcme7u6nnjyjMABeeYNwdsdXo8So",
+      "transfer_source": "3nTEKyixfWGcUSjAHsUZwad8QHrDoNQDWdKVHRXqkHkR"
+    },
+    {
+      "creator": "8cbC7zwNNVAXGqEiB64bPJheSr3yVcWysJHgt2sMLjBu",
+      "defining_signature": "4jjrAXqxwRm7hNQ6ZJzUHJ15LX6B89aHHksXJd6opE74nLNGvmeSy1eN4VmvAeepfyrzHvkHhtYsYQk8cQhmp4rj",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "5TjSMWckmCmuyzqDYcvSwvYQZRptdigZWbBc3stLKHkf",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "km5MDvB5vdrUuZ7CMzTE4nSASvmtuFgVDWtfEiopump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "8cbC7zwNNVAXGqEiB64bPJheSr3yVcWysJHgt2sMLjBu",
+      "transfer_source": "5TjSMWckmCmuyzqDYcvSwvYQZRptdigZWbBc3stLKHkf"
+    },
+    {
+      "creator": "G6iRJcuyC4ooWmmjn8hQbUTpqLjVdykLBLFT6toECYfi",
+      "defining_signature": "3u5meAwUCqECiXLrbZpy43n4HrZoZBBFNJvwrr9eKkDFP9Q1BkB1UW4WQ18abGcA1AXczwsHkKhWFSyTU6ESFcVZ",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "Bvrc31ZYRAPeuhnkWY8wzUSt57N5CtHCQrxJqaCPAuqN",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "kqcyNfnQuki1JBjMuSC3XYNSuBBezfKeAnYWtNtpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "G6iRJcuyC4ooWmmjn8hQbUTpqLjVdykLBLFT6toECYfi",
+      "transfer_source": "Bvrc31ZYRAPeuhnkWY8wzUSt57N5CtHCQrxJqaCPAuqN"
+    },
+    {
+      "creator": "8RNrBVQBdp1xAWRekR6f3VFmrtu42JrZaLHjUbWADtY4",
+      "defining_signature": "51JX4Zd2Kpgx53DUrNn7bC4RJ35zNem1mwtvvNKMMyUAX4pcCH6eo9NreS8sMsGxTy1VNHXKUDAeWKTWxRWBbDbU",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "4ae7rX1CekEAvEG4LzHbRpG6HzSWxuSNq2w8qjZHdBaC",
+      "launch_coupled": true,
+      "mint": "mbwsHaW6pwvsjpoteQti3FGfbzQ86o2B51iHeoopump",
+      "population": "CURRENT",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "8RNrBVQBdp1xAWRekR6f3VFmrtu42JrZaLHjUbWADtY4",
+      "transfer_source": "4ae7rX1CekEAvEG4LzHbRpG6HzSWxuSNq2w8qjZHdBaC"
+    },
+    {
+      "creator": "8jdzW4sZirzgz3KoNR2b1pzwpghAessxsHGeqcYtx9VW",
+      "defining_signature": "2AnRCuj7y7tWHcS4JFaX4CG2ufMYz3RyHxnZUr3pby3jmrGPzkbZHMDumAcVzopWFJjevw9Q7nCodc2hCwPB1Fjs",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "4Pu8i9hnwmYaMaDLCaXrTmB6SXJJnUXxtF6HbzeJdycZ",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "norm8mXDK6ndyav2cYriwkDtS2Ti3QScYgTPaavn4Ay",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "8jdzW4sZirzgz3KoNR2b1pzwpghAessxsHGeqcYtx9VW",
+      "transfer_source": "4Pu8i9hnwmYaMaDLCaXrTmB6SXJJnUXxtF6HbzeJdycZ"
+    },
+    {
+      "creator": "Enkp596LAUTZrKxjXMtN8Suhbu16fB8qb3bSyCDtV5L4",
+      "defining_signature": "2oQgEbzYbixFYoL3qwtmLu7hH4Xkda8KvLNkj96uWzp33DM1ULJSDfTxR5XJQUs9Hg28JnVGP3Q6C4DQj9Z182Hf",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "H3mywHLmjvfdTp8Yd14dEeKbECgQdDTpEUTomw2odKwQ",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "oxsBtVM2ph6TWDZjKeLxuq77kQLBNBmdTcZDXcGpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "Enkp596LAUTZrKxjXMtN8Suhbu16fB8qb3bSyCDtV5L4",
+      "transfer_source": "H3mywHLmjvfdTp8Yd14dEeKbECgQdDTpEUTomw2odKwQ"
+    },
+    {
+      "creator": "Af4LKePbhqFCWvoP6CCWCBQeTiNwfFXHxMtWBwYo8M7S",
+      "defining_signature": "QSx1e7wyMCKvyUGKmBjNrVv6q9f4h17cXPhCJa5Tj7kv1o2JCa3TQLX8vEUVsqwZA4Em4oZHs9aFkYmBDnjDddv",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "Cf3ydFVFzpyMS69R856w4WQZKFNX6yhgEokx1jM3nxqh",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "pD28VHG3vGzT4PWFjyd7HRHRpYaGCYD5B565Bv1pump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "Af4LKePbhqFCWvoP6CCWCBQeTiNwfFXHxMtWBwYo8M7S",
+      "transfer_source": "Cf3ydFVFzpyMS69R856w4WQZKFNX6yhgEokx1jM3nxqh"
+    },
+    {
+      "creator": "26xkWqWtwnvbwDZrjMdcvitE3BcYGPAozixyec8o6nco",
+      "defining_signature": "Pq8yNmvpUUAjYv9exLn2SJdXjZm5WvxuoCDoFGcMsa2BjGQFn3k8LQ3xqCSPnV32uB1PHoYjBuNbWSzTpanc73M",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "ARfMHhQrrCqg8V1k4hhhE3av7dCcgNvnt5Suv9zys7Ym",
+      "launch_coupled": true,
+      "mint": "srwsE3Kmer7tnaRisEEisZm8rUjrkmcwETuwn65pump",
+      "population": "CURRENT",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "26xkWqWtwnvbwDZrjMdcvitE3BcYGPAozixyec8o6nco",
+      "transfer_source": "ARfMHhQrrCqg8V1k4hhhE3av7dCcgNvnt5Suv9zys7Ym"
+    },
+    {
+      "creator": "DYAvvJvburBYYKE4oPkMjSJMqiuedV8oBVLX5DJaDQgo",
+      "defining_signature": "5ox5NrzbrTzvx7kZQPHcyE6qCpyL4pyRrGdSKdSGaf9Cb8oriwdYisrk6nYyR31XRK6MWrgy3PN538uLryif12dz",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "3nTEKyixfWGcUSjAHsUZwad8QHrDoNQDWdKVHRXqkHkR",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "tqoujijMHVYCoasNuZLfdsK21BN8YA8rGo6mT7ppump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "DYAvvJvburBYYKE4oPkMjSJMqiuedV8oBVLX5DJaDQgo",
+      "transfer_source": "3nTEKyixfWGcUSjAHsUZwad8QHrDoNQDWdKVHRXqkHkR"
+    },
+    {
+      "creator": "HCgs4dW5tzLeHDoGmVGMBTUSjYEAicnJhqD21HcDCgDq",
+      "defining_signature": "4aCftMK4WGhcneQ8N4Yg4JPLc8gRR3vCDH6qtarJnmp8smsWSuWazpBodQoTWnbLqhKhMKiXBJTT8xKwZaqv6W3p",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "4ae7rX1CekEAvEG4LzHbRpG6HzSWxuSNq2w8qjZHdBaC",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "ua8aPfbcYTJhq4K6w5ZSB9JHSpsGdSLiMojLohCpump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "HCgs4dW5tzLeHDoGmVGMBTUSjYEAicnJhqD21HcDCgDq",
+      "transfer_source": "4ae7rX1CekEAvEG4LzHbRpG6HzSWxuSNq2w8qjZHdBaC"
+    },
+    {
+      "creator": "7ASnmqdNCe4eZVyWrUKHpNyaH4e3z7kWYB2gNq9X8Bzf",
+      "defining_signature": "5eWhrMpandsBV3rBMnyJPdLYjp8nRQ16vYUfrEbM8MaQN687vJLK34VcYX77puWe8xkspLLaS6sVk5k4BTfqbCNr",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "4ae7rX1CekEAvEG4LzHbRpG6HzSWxuSNq2w8qjZHdBaC",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "unCSuxWkbxPg3Xgh3R4dMq5eW1wm3pHHxFaJBmapump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "7ASnmqdNCe4eZVyWrUKHpNyaH4e3z7kWYB2gNq9X8Bzf",
+      "transfer_source": "4ae7rX1CekEAvEG4LzHbRpG6HzSWxuSNq2w8qjZHdBaC"
+    },
+    {
+      "creator": "snFedwvQjBKjLwec8XSFcN9yB3usC1GV2Cwbwbex9pS",
+      "defining_signature": "34XWxrrKy7nEx11FMgr792EYXnvm1uGKyCfmKeNVWwY72ByoezCxTpWtSRP4JK93ETHfWcMBom5DTt2zrdfstwYQ",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "4ae7rX1CekEAvEG4LzHbRpG6HzSWxuSNq2w8qjZHdBaC",
+      "intermediary_route": false,
+      "launch_coupled": true,
+      "mint": "vLwSWRCNXiAiXBuc7iPsiV6LEiEnBKyEqxWMdu4pump",
+      "population": "STRICT",
+      "provenance": {
+        "edges": "potential_operations_6437_funder_creator_edges.v1.jsonl",
+        "raw": "direct_10k_fee_cu_transaction_cache.v1.jsonl"
+      },
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "snFedwvQjBKjLwec8XSFcN9yB3usC1GV2Cwbwbex9pS",
+      "transfer_source": "4ae7rX1CekEAvEG4LzHbRpG6HzSWxuSNq2w8qjZHdBaC"
+    },
+    {
+      "creator": "8XdEmFhJtzj8pFY4DYX5WKbUrKfVeSBBHELNVEo92tso",
+      "defining_signature": "3gkejKzAnXjSNRc2tFcxVejt16aBhP4ZxDYdPak3pYeFJ68zNvzLpzNtJ9kYtukjmYX6d87XKYMgWMQYw5gTPMyX",
+      "detector_result": "UNIQUE_MATCH",
+      "direct_funder": "BRsETG4QLtL73F88zL68hTP2QtiJb8kHj8wAD2yNa83p",
+      "launch_coupled": true,
+      "mint": "UFTx5rtzFddKtELFqJFoD8B1McrLWkV355pakjKpump",
+      "population": "CURRENT",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "transfer_amount_lamports": 10000,
+      "transfer_destination": "8XdEmFhJtzj8pFY4DYX5WKbUrKfVeSBBHELNVEo92tso",
+      "transfer_source": "BRsETG4QLtL73F88zL68hTP2QtiJb8kHj8wAD2yNa83p"
+    }
+  ],
+  "schema_version": "direct-10k-detector-results.v3",
+  "supersedes": "direct_10k_creator_provisioning_detector_results.v2.json"
+}

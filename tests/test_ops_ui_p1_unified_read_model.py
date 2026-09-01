@@ -33,7 +33,7 @@ def test_artifacts_exist():
     assert RESULT_ARTIFACT.exists()
 
 
-def test_dv34_historical_population_never_shown_as_23(read_model_doc):
+def test_dv34_historical_population_documented_baseline_never_shown_as_23(read_model_doc):
     """The core Phase D/K requirement: historical population must be 123, not 23."""
     dv34 = read_model_doc["phase_k_dv34_reference_result"]
     assert dv34["historical_population"]["count"] == 123

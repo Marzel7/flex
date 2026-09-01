@@ -1,0 +1,106 @@
+{
+  "canonical_manifest_sha256": "930fb7fc462e1464632913f22b28ea8fc419d9ca921f36fe4e798dff51617862",
+  "canonical_source_snapshot": {
+    "database": "database/wt_ops_v2.db",
+    "highwaters": {
+      "wt_walkback_atomic_flows": 7095,
+      "wt_walkback_edge_candidates": 60299,
+      "wt_walkback_queue": 32353
+    },
+    "read_only_source": true,
+    "schema_sha256": "dcc038d07998c3d37d0475a7c0fc1d61eaa141401712b3079ec3e465dff3f4ad"
+  },
+  "canonical_v2_run_id": "p3r-v2-2dec1d40604c1f7c08c8",
+  "canonical_v2_tier_1": {
+    "candidate_id": "p3r-v2-d3de29c88fe0ce5fa309",
+    "evidence": {
+      "evidence": {
+        "address_blind": true,
+        "alternative_coverage": 1.0,
+        "alternative_dominant_count": 9,
+        "alternative_recurrence": "STRONGLY_RECURRENT",
+        "atomic_coverage": 1.6666666666666667,
+        "atomic_dominant_count": 9,
+        "atomic_recurrence": "STRONGLY_RECURRENT",
+        "base_strong": true
+      },
+      "missing_tier_1_evidence": []
+    }
+  },
+  "four_to_one_explanation": {
+    "not_determined": [
+      "whether any v1 family split",
+      "whether any v1 families merged",
+      "whether differing thresholds or evidence coverage caused the count change",
+      "whether any current high-activity v2 family descends from a v1 Tier-1 family"
+    ],
+    "observed": "The v1 Tier-1 member artifacts are unrecoverable; canonical v2 independently reproduced one Tier-1 family under its own frozen contract."
+  },
+  "historical_candidates": [
+    {
+      "disposition": "INSUFFICIENT_EVIDENCE_TO_MAP",
+      "historical_candidate_id": "p3r-candidate-13a04d7da7a1fc55",
+      "mechanism_comparison": "INSUFFICIENT_RETAINED_EVIDENCE",
+      "overlap_matrix": "NOT_COMPUTABLE: exact v1 member mint list is unavailable",
+      "v1_member_count": null,
+      "v2_activity_mapping": "NOT_COMPUTABLE without a member correspondence",
+      "v2_members_found": null
+    },
+    {
+      "disposition": "INSUFFICIENT_EVIDENCE_TO_MAP",
+      "historical_candidate_id": "p3r-candidate-af5004dfe42cfe11",
+      "mechanism_comparison": "INSUFFICIENT_RETAINED_EVIDENCE",
+      "overlap_matrix": "NOT_COMPUTABLE: exact v1 member mint list is unavailable",
+      "v1_member_count": null,
+      "v2_activity_mapping": "NOT_COMPUTABLE without a member correspondence",
+      "v2_members_found": null
+    },
+    {
+      "disposition": "INSUFFICIENT_EVIDENCE_TO_MAP",
+      "historical_candidate_id": "p3r-candidate-bf30e77ee07e312b",
+      "mechanism_comparison": "INSUFFICIENT_RETAINED_EVIDENCE",
+      "overlap_matrix": "NOT_COMPUTABLE: exact v1 member mint list is unavailable",
+      "v1_member_count": null,
+      "v2_activity_mapping": "NOT_COMPUTABLE without a member correspondence",
+      "v2_members_found": null
+    },
+    {
+      "disposition": "INSUFFICIENT_EVIDENCE_TO_MAP",
+      "historical_candidate_id": "p3r-candidate-ec1b6cff80643746",
+      "mechanism_comparison": "INSUFFICIENT_RETAINED_EVIDENCE",
+      "overlap_matrix": "NOT_COMPUTABLE: exact v1 member mint list is unavailable",
+      "v1_member_count": null,
+      "v2_activity_mapping": "NOT_COMPUTABLE without a member correspondence",
+      "v2_members_found": null
+    }
+  ],
+  "historical_recovery": {
+    "historical_v1_member_artifact": {
+      "exists": false,
+      "path": "/tmp/p3r-clean-20260824T092959Z/behavioural_corpus/p3r_candidate_operational_family_membership.v1.json"
+    },
+    "historical_v1_tier_artifact": {
+      "exists": false,
+      "path": "/tmp/p3r-clean-20260824T092959Z/activity/tiers/p3r_tier1_candidate_membership.v1.json"
+    },
+    "v1_database_tables": [],
+    "v2_reference_mapping": {
+      "mapping_status": "UNMAPPED_NOT_FORCED",
+      "path": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/p3r_v2_known_v1_reference_mapping.v1.json",
+      "reason": "v1 candidate membership artifacts are unrecoverable; v2 identities are intentionally new and address-independent."
+    }
+  },
+  "outcome": "INSUFFICIENT_DURABLE_EVIDENCE_TO_REPRODUCE",
+  "recommended_next_action": "Do not map or rank the four v1 references. Recover an immutable historical v1 membership artifact from an independently retained backup before a member-overlap or mechanism reconciliation is authorized.",
+  "reconciliation_run_id": "p3r-v2-v1-lineage-c819654681402b561ee0",
+  "safety": {
+    "membership_mutation": false,
+    "operation_promotion": false,
+    "provider_rpc_calls": 0,
+    "queue_replay": false,
+    "tier_mutation": false,
+    "trading_signal": false
+  },
+  "schema_version": "P3R_V1_TIER1_TO_V2_LINEAGE_RECONCILIATION.v1",
+  "tier_one_correspondence": "INSUFFICIENT_RETAINED_EVIDENCE: no historical v1 member/behaviour payload survives for comparison."
+}

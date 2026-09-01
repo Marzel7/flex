@@ -1,0 +1,5 @@
+{
+  "report": "docs/agent_handoff/confirmed_operation_detector_audit/confirmed_operations_forward_detector_audit.v1.json",
+  "report_sha256": "95f024131ccdf35dd7ea252f5716eeca5d0058b9a29ff9392a3b74e13e3977ec",
+  "script_sha256": "c5d8b50528b7d419d5e51f8b1ed810a44d873dea3f2a6afc55be7f4302bfb8e6"
+}

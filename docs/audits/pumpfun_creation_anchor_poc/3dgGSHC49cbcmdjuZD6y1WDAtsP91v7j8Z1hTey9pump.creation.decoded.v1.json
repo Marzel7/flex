@@ -1,0 +1,51 @@
+{
+  "associated_bonding_curve": "3LiBmWqde7CaFW9mogdyRemiXoYxprHSjChzCW4gLejm",
+  "block_time": 1788250333,
+  "bonding_curve": "FJPbTzeUy4pzPT3r7c2fNxccNvvhbC7LJkSqXux8xU1g",
+  "classification": "CREATION_ONLY",
+  "creation_signature": "Zx7653S8uhjSdFPy5915LiswXFo2AFbjoLBrYKQaDAfKvhAz7H3T2eorp3FLAE8rLQzWbVUhB3FLSiJmV3vMtKQ",
+  "creator": "J3yZQYJECzT3PD9BpzQzSM4FKENrDeVSCtmxdFSNThMy",
+  "embedded_buy_buyer": null,
+  "embedded_buy_present": false,
+  "embedded_buy_sol": null,
+  "embedded_buy_token_amount": null,
+  "fee_payer": "J3yZQYJECzT3PD9BpzQzSM4FKENrDeVSCtmxdFSNThMy",
+  "mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+  "program_accounts": [
+    "8PLiVudecJwWXfRZ3rdU7VAenw1uSPU8nbeoMJniiNf",
+    "HFqU5x63VTqvQss8hp11i4wVV8bD44PvwucfZ2bU7gRe",
+    "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+    "TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM",
+    "4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf",
+    "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s",
+    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+    "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+  ],
+  "pumpfun_create_present": true,
+  "pumpfun_program": "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+  "reason": "Pump.fun Create, mint initialization, curve/associated-curve setup and mintTo are present; no Pump.fun buy instruction/log or buyer token-output trade is present.",
+  "schema_version": 1,
+  "signers": [
+    "J3yZQYJECzT3PD9BpzQzSM4FKENrDeVSCtmxdFSNThMy",
+    "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump"
+  ],
+  "slot": 443375106,
+  "system_transfers": [
+    {
+      "destination": "8PLiVudecJwWXfRZ3rdU7VAenw1uSPU8nbeoMJniiNf",
+      "lamports": 15115600,
+      "source": "J3yZQYJECzT3PD9BpzQzSM4FKENrDeVSCtmxdFSNThMy"
+    },
+    {
+      "destination": "FJPbTzeUy4pzPT3r7c2fNxccNvvhbC7LJkSqXux8xU1g",
+      "lamports": 250560,
+      "source": "J3yZQYJECzT3PD9BpzQzSM4FKENrDeVSCtmxdFSNThMy"
+    },
+    {
+      "destination": "HFqU5x63VTqvQss8hp11i4wVV8bD44PvwucfZ2bU7gRe",
+      "lamports": 60000000,
+      "source": "J3yZQYJECzT3PD9BpzQzSM4FKENrDeVSCtmxdFSNThMy"
+    }
+  ],
+  "test_mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump"
+}

@@ -18,6 +18,7 @@ import src.ops.intelligence_snapshots as snap
 @pytest.fixture(autouse=True)
 def _isolated_snapshot_dir(tmp_path, monkeypatch):
     monkeypatch.setattr(snap, "SNAPSHOT_DIR", str(tmp_path / "snapshots"))
+    monkeypatch.setattr(snap, "MIN_FREE_BYTES", 0)
     yield
 
 

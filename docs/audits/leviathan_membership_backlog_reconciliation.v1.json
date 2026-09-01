@@ -1,0 +1,1218 @@
+{
+  "activation_addendum": {
+    "activated_at": 1788188970,
+    "duplicate_admission_result": "NONE -- membership count unchanged across the restart+health-check window",
+    "live_late_evidence_proof": "NOT_OBSERVED_YET",
+    "live_late_evidence_proof_note": "No '[WALKBACK] P3R membership (mid-walk evidence completion)' log line observed in the short post-restart verification window; this does not block activation since the disposable fixture (test_late_evidence_fixture_admits_after_completion) already proved the logic end-to-end.",
+    "live_wt_ops_db_path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+    "membership_count_after_restart": 209,
+    "membership_count_before_restart": 209,
+    "prospective_retrigger_active": true,
+    "safety_confirmed": {
+      "detector_changes": 0,
+      "manual_membership_writes": 0,
+      "operation_identity_writes": 0,
+      "provider_calls": 0,
+      "rpc_calls": 0,
+      "source_evidence_rewrites": 0,
+      "token_analysis_writes": 0
+    },
+    "verification_method": "Imported the live module (src.core.walkback_worker) after restart and confirmed via inspect.getsource that _find_funder_via_rpc contains the admit_unambiguous_p3r_match(ops, source_mint, ...) call scoped to source_mint only, with no broad table scan nearby.",
+    "worker_log_health": {
+      "new_tracebacks_from_new_pid": 0,
+      "note": "All CrossProcessDatabaseWriteTimeout/SQLITE_BUSY/OSError entries found in logs/supervisor/walkback_worker.log are timestamped to the OLD pid 88499, well before this restart, and are unrelated pre-existing historical incidents. Zero errors observed tagged to or occurring after the new pid 96367's start.",
+      "sqlite_busy_count": 0,
+      "sqlite_locked_count": 0
+    },
+    "worker_restart": {
+      "command": "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python -m src.core.walkback_worker --loop",
+      "other_services_restarted": [],
+      "pid_after": 96367,
+      "pid_before": 95671,
+      "restarted_via": "supervisorctl -c config/supervisor/supervisord.conf restart walkback_worker",
+      "start_time_after": "2026-08-31T16:06:02",
+      "start_time_before": "2026-08-31T16:03:16",
+      "workdir": "/Users/kevinkeaveney/Dev/claude/flex"
+    }
+  },
+  "audit_id": "leviathan_membership_backlog_reconciliation.v1",
+  "backlog_candidates": [
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "4S5YqQQBJjbZ6nptHVkWzGrKtjzxWsdtGt5YzHh5LuzCSnLhRnjgUAUVj9VJbnYNENh21jK3QFhuxr21UabVUA4R",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1786046414,
+      "matched_profile": "P3R",
+      "mint": "AMnRhMEt4QzoKACHuN8nTykxYthscAFyX9fhDNVpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "3AQq6TCAcAx6r3XSvA95vSb1243Cv2u4Dfs2kb2nqsjPTmiz5J2WaPZsRah7WAaQFgGTyspnPkFv22H9H4dtseMG",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1786434753,
+      "matched_profile": "P3R",
+      "mint": "C5V2wxMWrxYE18wMH517Ut6nWmZ7ecZhziDvD5Xpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "51yKHf8VdLbKJSL1dkHwwhT7apznguP7ce3igGtn3rR91VR8v2TkkkZyBHrUV4BWE5UmRpMe7zCafMf57oZ7vLFF",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1786413923,
+      "matched_profile": "P3R",
+      "mint": "DRtGHd1dF6Az5vknV188Yk3LQ72rZ4J9CB1WWg8pump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "6QZL4zNWncWKJBtFCrnVKN75K2WSn7wGg9SCqeWrgEnCFQ5ybNmcrxYVC2XwfnrKBsRRRGF9AFva8WX8PzfFZ72",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1786586036,
+      "matched_profile": "P3R",
+      "mint": "F2T4krAdQYF9crCbwUtUfna8g9HRTc878eHuRYFpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "2yi4St7CZQWcVi7FoB1SLZMig8Ee6w4dReitKEXLv4vnorDxePXPu7KLTcgBtUaapf61th9kddbUr34hiyYRHZCr",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1786411112,
+      "matched_profile": "P3R",
+      "mint": "FX3fHqPaWXw7DDAofCCotATQg1aQsiwpM5A6TdDpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "3CwuAgxQa4UMD1cCyYwPp5qRSoZ1jVRzkSZfswSzkCDfcHZE1PLZ9RBGgD5LJyQR6qGSmXf2aTNjJbrkYQz5w4ER",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1785873846,
+      "matched_profile": "P3R",
+      "mint": "G3dE83HcSuzFS53fyJHCFwsKgKC2C5dqGbL1iZipump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "tswsL34FDtyF44pRUkCYQ6ciuP4PwsnmWuo89DuuHZEqdRcxTEznnbuzs3yc5jAeSdrQFuNE8JPvUTrQ5sjUrCJ",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1787193970,
+      "matched_profile": "P3R",
+      "mint": "GxRt2GsVeRfrDULQAP4u5iz3MHCHo3SPrWb5g32pump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "3S1Md5z73GkJWC4AkcuekB8DXoGYZJKurnNXnHWi3za42UWFthacbCnhPgXE7ekpQ1U1YjHoBMwJiVHEkneMqZNk",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1786410237,
+      "matched_profile": "P3R",
+      "mint": "K82ujy1uaxR6fSTpDResq963Kk1NBSu4qniXCigpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "2UBj9SBeLNwrcVJsGpWjm7tff4M7nb5ZPMbwf4yJAFHeXsRk5Wa4Z31DUBBGpTqNztaHqVp8zdJXyzUxgHdigdKz",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1786584699,
+      "matched_profile": "P3R",
+      "mint": "KeJkdwZhEG4Bj5Rs1e2RTgyhZe8Mmr9DvTYVNWrpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "4iWr2bMFwp3mG8Vf2WoMTCYRVU3YdnNuSZ3cNbXLXgPsTuDmzqPs2tbTLEcxcSkW7iSiyXjRkH9trMjtJdNPRYXa",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1786586070,
+      "matched_profile": "P3R",
+      "mint": "NRPBhPtg77cqKofXFDD4tXoKhtesqsNHRzx5hW3pump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "4yCdTGsZGMm8QZhfAFL7hrvMkpUF7sZmdQVwJyvzRBQ78jDtBiYBMCkjrDi8m7amQWwnXtvTQHjY2AdpbHXbrqWm",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1786414572,
+      "matched_profile": "P3R",
+      "mint": "Nc9pXTMG4FZc3gyHsDZ15XJZ91c3YDvfTHbHwfFpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "2oSGLdtZgp6cNumLuktpYPQmm14FhDpspoEXQuLwo2c4bwQsFvhXKkdtUNzBhkfNxzB9eHgppqup58miQs5tkoPq",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1784910262,
+      "matched_profile": "P3R",
+      "mint": "PeGCj3cD1Zx1WMfhMnhuUxSa3U4mY9Zh6XyvqTRpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "K4YcESeTy1qcwGzgGabzkvusd78SragXy4qNSd6G3k6BWChp1q1XXYfp7Hn6K6Ys77SSRjeusMhABS4FojQBnkx",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1786415970,
+      "matched_profile": "P3R",
+      "mint": "RB7ptiUkYvkprEXhKnqjhjmm9AwmPEvFk8UnmBfpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "x3GDimxuW1XD1hFaAipvUmEgPWB5goY3SpuBQ3YifDw7zmJ5tKD3PGXw6iaWwsJ8Sx7KqhyyGkn7m9Qgkp61MwA",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1786447615,
+      "matched_profile": "P3R",
+      "mint": "S1Fqsr9XLT9hRXfdJung5Ur5i21VxQiMjtSdcmWpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "25q1e7GedH6tXMDan6g73GVdEo75jihYmZK2vZ74EVh21oM5WBgfPqC4qBGTJ9z59hE9bVQ8CHydEEJ2hrbVWTae",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1786586053,
+      "matched_profile": "P3R",
+      "mint": "TGyhawyhLYBfgHSCjomHahMPkntywYJYc7trg8Apump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "kaPyHvTjsL17DRghgzspwSMoQfy1Pceci8ja3JTJZefePhHFUnjwvGHWFCYdzv2TjaCSBBSUsckBJCL55TPUPAK",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1784922128,
+      "matched_profile": "P3R",
+      "mint": "TXZKp8gZ7pdjXNCvGWfhd4wrChJ6f5AgerAFMBTpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "jojuntK7ee6MBL8H1uPa1iTAsRnKcZgZbXWKtTCBXSuu1XeQ7aJnQ8Dij2xBEBJPBvYX8p1ynbp9meD165b2pns",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1786049647,
+      "matched_profile": "P3R",
+      "mint": "VtbTdPzzoadzpbWo7zVav9pQrcbgaVE5yoaJRUfpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "5Li2dxdtdTiVLk7jNTFgAyR6UkvGbsZsJhTpEsVpN53vMVRmQShs17HZv5PSPrurfGYGntTjx6YGXS81DSoZbrSo",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1787625830,
+      "matched_profile": "P3R",
+      "mint": "W7Fnj98a3jY9aoP9kd25taK66eJ1uS6b6VjpKtJpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "2pcjQxZPPnZUuwVXAK9C8EpVXy34PxBs1rBsQdSpob51AfVmGuCmhKxhZajhTiqQWuADruJiuuoXJaZmTCDTYPKk",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1787376179,
+      "matched_profile": "P3R",
+      "mint": "WJRzB84RMPjsMCYmrfS7vEUUCBG4d59LBVGZQdvpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "2hwAg3udRyDo16kQ6vTsa4HakbAjQ3rCAPzagBM8PXMM7bS11Kx4634PuZNpbL22imQEr9NfvypQEkvkfXkF6LZJ",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1785974872,
+      "matched_profile": "P3R",
+      "mint": "WLeRGPm6vEgA4vFktd8no9ZccDNdKiaqqt3bPXwpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "jWfjaYEZmsJoEYrK46sVHyX6VaFLv2fBN9RBfpdLvC6CeR3PR2QCy9yR44pmWGBqWzFDfxJCNHVp7hkokqMF84v",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1786503285,
+      "matched_profile": "P3R",
+      "mint": "X2xLpFxzPKDsNnGQn6YAar3Ge8MhVquBNR6zwz9pump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "5imuQA5zR3V4mPx2aLGSBjv35eexFfycdKBqpLxuej5gfYYNr3mVTPzXdJHUDNEexBN7f32DZosW3owurCk6JveV",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1787031423,
+      "matched_profile": "P3R",
+      "mint": "XRb16PHU7jMDbswDBi18h64nw6gFaSmVmpoenuvpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "2A1iZWHh66vF2tW9hXNTbDC9RMx4PiSGPZ5E4Tz3fFNgR8oDmJQRKjjJDgeipKyDWD9kbddMZkjyGeLcjvCfVp7p",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1786686600,
+      "matched_profile": "P3R",
+      "mint": "Y1CSAznDYCo22XcvyWSR4RcLvgecSXs9DDDrAsYpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "3M9rc2EdxznHbWDQwfr7iwPEb962ZEKQw59Q2wJrFhVPBa3EJXsPfi68DYzuh6LzEa3cVeUjCwR5YaRyAU4AzQn7",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1786685076,
+      "matched_profile": "P3R",
+      "mint": "ZfTmRsFsi8x9mYoKn2AYSvt24tEw1hphNVMda6Spump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "65Zbijmpvx72MqsJ9FuCtFqpzFt8rGN1LYbA9WGgkb27Qf9rhKz3ixSAe26f64bPRYxnQrS4APUZiJifH5rvXPda",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1786498885,
+      "matched_profile": "P3R",
+      "mint": "aReQqWoocmX3hRhyCKjnwEmcxF3masz6amgDG1Gpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "4S921VkVuj7DwrjNJoTcZxjbDimXdvAMy37jqD3JvPq2c53Thq7Uxdw7cYx82AHrtx4AD8b88Gtxidf3B9sx9ZMC",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1786584016,
+      "matched_profile": "P3R",
+      "mint": "b735wdJpBVzskwt6UcajryBgszkfR6KPo6E4u83pump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "3NovRNQPtwe16b1fPsFwDBVxXNUNWeX9J7p9nbRtJXA27R8QdX8BiYYQJFJKrWEwAhGgbq624HLRWDZZo28ZhmJU",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1785806025,
+      "matched_profile": "P3R",
+      "mint": "byTAnMfxybyaMibXftrT2janFC7v7kavhasgxmRpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "QbKkf1aFTWb1t9gcUBMhUbTdtRjzVYzPZriuju2cyDjSSfLESyMPesiQmMvxwkfct9684JoBeS9DMMNKhqn3KLG",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1785804687,
+      "matched_profile": "P3R",
+      "mint": "c3XhY2caaYZA18qxyioupTZquhjWSKDF1Xt6ZVXpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "2hf1QUBv2VZS3irxDxVgm43EMS9Qccyq1zxwBNAWBFvjfHvWaRVJgWrYh884sP8sAVgFk6jb4a7bHCL4QPFYDjVr",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1786419164,
+      "matched_profile": "P3R",
+      "mint": "fxL4tAbUwAup8rvh2iR8aoa7Y56C7XMW2PMs1bMpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "8HxjsJhZWD3XSxJA5CH3zvkXYRE8QQ3KrC82BkxeSKjueA8GuWePPEX2C8BAC2KZ8Z7nxURqE1hiXnHtbeVxXFf",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1786057890,
+      "matched_profile": "P3R",
+      "mint": "ievXxbA8sjKHggi8YGT4thhEXTc7aEpfwVV4v6rpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "KWcGAJwLSqfasnDker1QxSKLkce2r3MQMkVrBJ1nqB67R1stp3B41fEpGDvU3L6LpyF4NeU5jSFckBmiXT7qG8z",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1786417642,
+      "matched_profile": "P3R",
+      "mint": "iwqT3Dzwx347vbjzW3fmwZZ6hF1juEL92ty4B3qpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "WsYm2VrT6XRBQgKWcJir461VoTGQEedUtzBFXXF5LFh6PHsEWX6bRm3EUeXy37PrqwumFP3WbZGfx6sxD3VjgRD",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1786581894,
+      "matched_profile": "P3R",
+      "mint": "jZtQitpweY7gWNcXRDNLNakvNX7i4mu3C3iK9bKpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "5ThKHRz9QSWwr5f4zjLkQTqE9wCfLJgh6Mn9cDVBNxAMdqZXzZDr4eKPeDWfsttoGitjqZkvyGLYo1ZqikcasW5G",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1786443924,
+      "matched_profile": "P3R",
+      "mint": "kcqb3cx3KEvo9Kd3jyNZT3BKu9kwWToiyMaeLx3pump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "26PrycUKKFwSHZpiQ26MTFXB7LHYn1cJgmqcFFkUVA2rfQDjRa9hX9E38CSBUr32tRXegXfSSvfEgdaULCHkPpzb",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1785873821,
+      "matched_profile": "P3R",
+      "mint": "kzbmCQBMAZ1Eo2cJ8WfrQg9SUQ7QhSpsPCA8jmPpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "39pydFU2P4Hs5ZDrbhPz9aD7iFUophhuVktUs63tsLbzh7Ub6MMuxM5aMW8GDcCu4UTS98Rmt5vyhxQbsjJWBBhF",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1787050888,
+      "matched_profile": "P3R",
+      "mint": "ovhBXwJSLYZbtgg1LxNoopsZsfe51SLUPWeY7Dzpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "5XLmpjaeLQBhM9dmMzxd5ktZS9evasxu9aW9VHQW5vKKA17ATwYeoaDhiUUr5pGWn84H1YwUo5fNBAANr1mDjA7V",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1787450096,
+      "matched_profile": "P3R",
+      "mint": "p6Dydex88SswnKT9pRnjPwrCfHpw1c79FAAu81Upump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "e3idJ3Gx1ZW6BLpTVbqGCTGXuLLqpjNyNDWGBero8aA4WGzxrJnE3UPDcpmjmoyeAkPMpK88zJ9oY5maUBZ4UFL",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1787572885,
+      "matched_profile": "P3R",
+      "mint": "qcawC8mNoMy2C597kxDUMHbHJaZ5D4nPR2dvDoXpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "47cf1wA4aBJa7B6h37nsRDqAgGoiivkoPRDHZ87JP7WeNt596ksh26sFGd5r2YwS3gYDuvycsCcwcLXvmH9rjG6o",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1785811306,
+      "matched_profile": "P3R",
+      "mint": "rXawUDNhif2Lf7NkhsrugKY7rKVeunhUaDFREcqpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "2cstH6CU9WfkBiXd2DJf6yD6RycB4rmH6fBbu2kNQGFTY6sLp7QE5wUJEcVDDo5nK4yCXW2k3kwW9CCzmWQDcSWQ",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1786410714,
+      "matched_profile": "P3R",
+      "mint": "s5zJdLkTLrfnVK1pLw8ToPbHq8nKY93gvauceurpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "49BJbfmbEMiyXtTxdBJ4GPH1fLsB28UwFYkNjdQUabWvcZVnS2GXWAP8xiZW3KmwTCxh8uavfsHVmxb6Q56xptVT",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1787369822,
+      "matched_profile": "P3R",
+      "mint": "s8Ws5Ld7WAKhsaZnuaZkjbWs9jfSQEzRA2FKS7Mpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "4SM95U6UyPCehGTTHjSndmPGoaQunFuyJwJ6sPh1Ci7PESKAiNRnLxwFLmcNfUTFZrHcvy72LFcJBgahn6MXoGxd",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1786611236,
+      "matched_profile": "P3R",
+      "mint": "so82bQtUVDAjM18N8vs9C3uVcKsJtUARnnAb1UPpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "2MnLfea4HoX7uTGgMBz5zovhfkyAVTMxcuUCvVReeCzM5JqUdxE2aSScJg6sbNvvq8Js9csHFfk89zeZyUCtvCFs",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1786526381,
+      "matched_profile": "P3R",
+      "mint": "ugwTkUXE3ckeakLawvoc7inQmtZZQ3K5dYPj4wHpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "67ZTBjjbkBkJsJwHKpCFjZ1fFoSqTemYPn8cSqjQaymbydtwsxv3TM2KsNUQZkVNz4U3MY3uiYzfWWGgkwBNBG4W",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1785893037,
+      "matched_profile": "P3R",
+      "mint": "uykpcqDmt6B3By6v5ofmBnfsS7Y2V1harccH413pump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "4NgpiRne23Ec5sJEgYXaQYyYpRP1L9fxkp69tBdRLJFSMk9tHLCoaQE7RQYojG8BKqRQRZ4cVPt5PE8jkMuDRsx3",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1786434056,
+      "matched_profile": "P3R",
+      "mint": "w7f4DGS28KQnQGB8s6jKX7Z3LusY3bEf1aB47P1pump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "25FkKNhfCUZxc9CtgHTRGyzoTyNQMYnMLzhiMA3z7buJEarrDWeBzN841vBsaqmWePVJvusLNbNoaZZrakjGvobf",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1784908091,
+      "matched_profile": "P3R",
+      "mint": "wCrHmgB2fAbQwtvwK5FLb7WFchFndwtMcvUDHqbpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "36Bg7kHAX7nCDSyU99543J7qi6trPXY5WLuZpBjB2NoCX5Mha9asejWjXyuoTCB83GURNRo6cuNpVAxH75PXjNSs",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1787564536,
+      "matched_profile": "P3R",
+      "mint": "wFUJbWiV4wKK6BJJQdojJbgbd4Y51M3i3nA9VKLpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "3sXLs5ecH7Dzdug7d5viAkbCn41ejiUhFeS98vKDAGKywBL8CFusfYmfkFbx7RJRcj6oNqFkY3tbyPCa3eMbfW62",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1787447649,
+      "matched_profile": "P3R",
+      "mint": "x7ofxncQVmMK3PDXVJF76uJ5JkgzX3x3eUGXkjopump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "ZynPwdVZjqFoh4wgbBif1woy41dkjRAX6wthQW6YUg1tHp9Vjt7idE4CEJ4nSGmoXffMm4zh9qKBJS3ehFnVuFc",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1787632643,
+      "matched_profile": "P3R",
+      "mint": "yfmKCjYvHsD17w2xvKLBRrmzF58nZyXH25reGwLpump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    },
+    {
+      "atomic_flow_present": true,
+      "current_membership_status": "NOT_MEMBER",
+      "defining_signature": "4dV6ZSq6iVukc1imPVwnWmkmdqWXUWBuVzuARFET8TBtVYZ5Wobg9q6ZtDbCeMSQn3NYsNCaik7GgjKJTQGjrSU2",
+      "detector_result": "EXACT_LEVIATHAN_MATCH",
+      "launch_time": 1785870896,
+      "matched_profile": "P3R",
+      "mint": "zdRcJpYgDgJaGBjHacTDBmDtqvSEH9Tcou6c6CApump",
+      "other_matched_profiles": [],
+      "selected_edge_present": true
+    }
+  ],
+  "backlog_counts": {
+    "backlog_ambiguous_count": 0,
+    "backlog_candidate_count": 49,
+    "backlog_exact_match_count": 49,
+    "backlog_insufficient_count": 0,
+    "backlog_no_match_count": 0
+  },
+  "backlog_root_cause": "EVIDENCE_BACKFILLED_AFTER_HOOK",
+  "canonical_admission_function": {
+    "conflict_behaviour": "returns 'existing_other_operator' and does NOT touch the row if mint already belongs to a different operator_id",
+    "event_publication_side_effects": "refresh_operator_activity_snapshot(conn, operator_id, ...) from src.ops.manual_registry",
+    "idempotency": "ON CONFLICT(mint) DO NOTHING; returns 'already_admitted' if mint already belonged to same operator_id",
+    "inputs": [
+      "conn: sqlite3.Connection",
+      "mint: str",
+      "core_db_path: str | None"
+    ],
+    "match_requirements": "evaluate_mint(mint) must return exactly one matching profile in {('P3R',), ('P3R_13A04',)}",
+    "membership_write_target": "operator_launch_membership (INSERT ... ON CONFLICT(mint) DO NOTHING)",
+    "path": "src.ops.p3r_profile_candidate_matcher.admit_unambiguous_p3r_match",
+    "profile_resolution": "operator_id taken from the single matching contract; P3R_13A04 additionally appends mint to operation_behavioural_profiles.member_mints_json"
+  },
+  "current_live_snapshot": {
+    "membership_count": 209,
+    "note": "209 vs the 208 established immediately after the 49-mint reconciliation commit. The delta of 1 was admitted independently by the live walkback_worker daemon (supervisorctl-managed, running continuously) processing a new real-time launch through the normal terminal admission hook during the interval between commit runs -- not a reconciliation-script side effect. Confirmed: this run's own backlog_candidate_count was 0 and admission_results was empty."
+  },
+  "detector_id": "P3R_UNIFIED_WSOL_WRAP_CLOSE_99_999985_SOL.v1",
+  "determinism": {
+    "deterministic": true,
+    "reconciliation_digest_1": "d462ccb1170775726c5e81378d464782df127588432b94b39c5232a1e57c17bd",
+    "reconciliation_digest_2": "d462ccb1170775726c5e81378d464782df127588432b94b39c5232a1e57c17bd"
+  },
+  "dry_run": {
+    "counts": {
+      "WOULD_ADMIT_LEVIATHAN": 49
+    },
+    "decisions": {
+      "AMnRhMEt4QzoKACHuN8nTykxYthscAFyX9fhDNVpump": "WOULD_ADMIT_LEVIATHAN",
+      "C5V2wxMWrxYE18wMH517Ut6nWmZ7ecZhziDvD5Xpump": "WOULD_ADMIT_LEVIATHAN",
+      "DRtGHd1dF6Az5vknV188Yk3LQ72rZ4J9CB1WWg8pump": "WOULD_ADMIT_LEVIATHAN",
+      "F2T4krAdQYF9crCbwUtUfna8g9HRTc878eHuRYFpump": "WOULD_ADMIT_LEVIATHAN",
+      "FX3fHqPaWXw7DDAofCCotATQg1aQsiwpM5A6TdDpump": "WOULD_ADMIT_LEVIATHAN",
+      "G3dE83HcSuzFS53fyJHCFwsKgKC2C5dqGbL1iZipump": "WOULD_ADMIT_LEVIATHAN",
+      "GxRt2GsVeRfrDULQAP4u5iz3MHCHo3SPrWb5g32pump": "WOULD_ADMIT_LEVIATHAN",
+      "K82ujy1uaxR6fSTpDResq963Kk1NBSu4qniXCigpump": "WOULD_ADMIT_LEVIATHAN",
+      "KeJkdwZhEG4Bj5Rs1e2RTgyhZe8Mmr9DvTYVNWrpump": "WOULD_ADMIT_LEVIATHAN",
+      "NRPBhPtg77cqKofXFDD4tXoKhtesqsNHRzx5hW3pump": "WOULD_ADMIT_LEVIATHAN",
+      "Nc9pXTMG4FZc3gyHsDZ15XJZ91c3YDvfTHbHwfFpump": "WOULD_ADMIT_LEVIATHAN",
+      "PeGCj3cD1Zx1WMfhMnhuUxSa3U4mY9Zh6XyvqTRpump": "WOULD_ADMIT_LEVIATHAN",
+      "RB7ptiUkYvkprEXhKnqjhjmm9AwmPEvFk8UnmBfpump": "WOULD_ADMIT_LEVIATHAN",
+      "S1Fqsr9XLT9hRXfdJung5Ur5i21VxQiMjtSdcmWpump": "WOULD_ADMIT_LEVIATHAN",
+      "TGyhawyhLYBfgHSCjomHahMPkntywYJYc7trg8Apump": "WOULD_ADMIT_LEVIATHAN",
+      "TXZKp8gZ7pdjXNCvGWfhd4wrChJ6f5AgerAFMBTpump": "WOULD_ADMIT_LEVIATHAN",
+      "VtbTdPzzoadzpbWo7zVav9pQrcbgaVE5yoaJRUfpump": "WOULD_ADMIT_LEVIATHAN",
+      "W7Fnj98a3jY9aoP9kd25taK66eJ1uS6b6VjpKtJpump": "WOULD_ADMIT_LEVIATHAN",
+      "WJRzB84RMPjsMCYmrfS7vEUUCBG4d59LBVGZQdvpump": "WOULD_ADMIT_LEVIATHAN",
+      "WLeRGPm6vEgA4vFktd8no9ZccDNdKiaqqt3bPXwpump": "WOULD_ADMIT_LEVIATHAN",
+      "X2xLpFxzPKDsNnGQn6YAar3Ge8MhVquBNR6zwz9pump": "WOULD_ADMIT_LEVIATHAN",
+      "XRb16PHU7jMDbswDBi18h64nw6gFaSmVmpoenuvpump": "WOULD_ADMIT_LEVIATHAN",
+      "Y1CSAznDYCo22XcvyWSR4RcLvgecSXs9DDDrAsYpump": "WOULD_ADMIT_LEVIATHAN",
+      "ZfTmRsFsi8x9mYoKn2AYSvt24tEw1hphNVMda6Spump": "WOULD_ADMIT_LEVIATHAN",
+      "aReQqWoocmX3hRhyCKjnwEmcxF3masz6amgDG1Gpump": "WOULD_ADMIT_LEVIATHAN",
+      "b735wdJpBVzskwt6UcajryBgszkfR6KPo6E4u83pump": "WOULD_ADMIT_LEVIATHAN",
+      "byTAnMfxybyaMibXftrT2janFC7v7kavhasgxmRpump": "WOULD_ADMIT_LEVIATHAN",
+      "c3XhY2caaYZA18qxyioupTZquhjWSKDF1Xt6ZVXpump": "WOULD_ADMIT_LEVIATHAN",
+      "fxL4tAbUwAup8rvh2iR8aoa7Y56C7XMW2PMs1bMpump": "WOULD_ADMIT_LEVIATHAN",
+      "ievXxbA8sjKHggi8YGT4thhEXTc7aEpfwVV4v6rpump": "WOULD_ADMIT_LEVIATHAN",
+      "iwqT3Dzwx347vbjzW3fmwZZ6hF1juEL92ty4B3qpump": "WOULD_ADMIT_LEVIATHAN",
+      "jZtQitpweY7gWNcXRDNLNakvNX7i4mu3C3iK9bKpump": "WOULD_ADMIT_LEVIATHAN",
+      "kcqb3cx3KEvo9Kd3jyNZT3BKu9kwWToiyMaeLx3pump": "WOULD_ADMIT_LEVIATHAN",
+      "kzbmCQBMAZ1Eo2cJ8WfrQg9SUQ7QhSpsPCA8jmPpump": "WOULD_ADMIT_LEVIATHAN",
+      "ovhBXwJSLYZbtgg1LxNoopsZsfe51SLUPWeY7Dzpump": "WOULD_ADMIT_LEVIATHAN",
+      "p6Dydex88SswnKT9pRnjPwrCfHpw1c79FAAu81Upump": "WOULD_ADMIT_LEVIATHAN",
+      "qcawC8mNoMy2C597kxDUMHbHJaZ5D4nPR2dvDoXpump": "WOULD_ADMIT_LEVIATHAN",
+      "rXawUDNhif2Lf7NkhsrugKY7rKVeunhUaDFREcqpump": "WOULD_ADMIT_LEVIATHAN",
+      "s5zJdLkTLrfnVK1pLw8ToPbHq8nKY93gvauceurpump": "WOULD_ADMIT_LEVIATHAN",
+      "s8Ws5Ld7WAKhsaZnuaZkjbWs9jfSQEzRA2FKS7Mpump": "WOULD_ADMIT_LEVIATHAN",
+      "so82bQtUVDAjM18N8vs9C3uVcKsJtUARnnAb1UPpump": "WOULD_ADMIT_LEVIATHAN",
+      "ugwTkUXE3ckeakLawvoc7inQmtZZQ3K5dYPj4wHpump": "WOULD_ADMIT_LEVIATHAN",
+      "uykpcqDmt6B3By6v5ofmBnfsS7Y2V1harccH413pump": "WOULD_ADMIT_LEVIATHAN",
+      "w7f4DGS28KQnQGB8s6jKX7Z3LusY3bEf1aB47P1pump": "WOULD_ADMIT_LEVIATHAN",
+      "wCrHmgB2fAbQwtvwK5FLb7WFchFndwtMcvUDHqbpump": "WOULD_ADMIT_LEVIATHAN",
+      "wFUJbWiV4wKK6BJJQdojJbgbd4Y51M3i3nA9VKLpump": "WOULD_ADMIT_LEVIATHAN",
+      "x7ofxncQVmMK3PDXVJF76uJ5JkgzX3x3eUGXkjopump": "WOULD_ADMIT_LEVIATHAN",
+      "yfmKCjYvHsD17w2xvKLBRrmzF58nZyXH25reGwLpump": "WOULD_ADMIT_LEVIATHAN",
+      "zdRcJpYgDgJaGBjHacTDBmDtqvSEH9Tcou6c6CApump": "WOULD_ADMIT_LEVIATHAN"
+    }
+  },
+  "existing_159_replay": {
+    "all_compatible": true,
+    "exact_count": 159,
+    "total": 159
+  },
+  "existing_membership_collisions": [],
+  "fail_closed_reasons": [],
+  "first_commit_run": {
+    "admission_results": [
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "AMnRhMEt4QzoKACHuN8nTykxYthscAFyX9fhDNVpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "C5V2wxMWrxYE18wMH517Ut6nWmZ7ecZhziDvD5Xpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "DRtGHd1dF6Az5vknV188Yk3LQ72rZ4J9CB1WWg8pump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "F2T4krAdQYF9crCbwUtUfna8g9HRTc878eHuRYFpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "FX3fHqPaWXw7DDAofCCotATQg1aQsiwpM5A6TdDpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "G3dE83HcSuzFS53fyJHCFwsKgKC2C5dqGbL1iZipump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "GxRt2GsVeRfrDULQAP4u5iz3MHCHo3SPrWb5g32pump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "K82ujy1uaxR6fSTpDResq963Kk1NBSu4qniXCigpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "KeJkdwZhEG4Bj5Rs1e2RTgyhZe8Mmr9DvTYVNWrpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "NRPBhPtg77cqKofXFDD4tXoKhtesqsNHRzx5hW3pump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "Nc9pXTMG4FZc3gyHsDZ15XJZ91c3YDvfTHbHwfFpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "PeGCj3cD1Zx1WMfhMnhuUxSa3U4mY9Zh6XyvqTRpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "RB7ptiUkYvkprEXhKnqjhjmm9AwmPEvFk8UnmBfpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "S1Fqsr9XLT9hRXfdJung5Ur5i21VxQiMjtSdcmWpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "TGyhawyhLYBfgHSCjomHahMPkntywYJYc7trg8Apump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "TXZKp8gZ7pdjXNCvGWfhd4wrChJ6f5AgerAFMBTpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "VtbTdPzzoadzpbWo7zVav9pQrcbgaVE5yoaJRUfpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "W7Fnj98a3jY9aoP9kd25taK66eJ1uS6b6VjpKtJpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "WJRzB84RMPjsMCYmrfS7vEUUCBG4d59LBVGZQdvpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "WLeRGPm6vEgA4vFktd8no9ZccDNdKiaqqt3bPXwpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "X2xLpFxzPKDsNnGQn6YAar3Ge8MhVquBNR6zwz9pump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "XRb16PHU7jMDbswDBi18h64nw6gFaSmVmpoenuvpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "Y1CSAznDYCo22XcvyWSR4RcLvgecSXs9DDDrAsYpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "ZfTmRsFsi8x9mYoKn2AYSvt24tEw1hphNVMda6Spump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "aReQqWoocmX3hRhyCKjnwEmcxF3masz6amgDG1Gpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "b735wdJpBVzskwt6UcajryBgszkfR6KPo6E4u83pump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "byTAnMfxybyaMibXftrT2janFC7v7kavhasgxmRpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "c3XhY2caaYZA18qxyioupTZquhjWSKDF1Xt6ZVXpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "fxL4tAbUwAup8rvh2iR8aoa7Y56C7XMW2PMs1bMpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "ievXxbA8sjKHggi8YGT4thhEXTc7aEpfwVV4v6rpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "iwqT3Dzwx347vbjzW3fmwZZ6hF1juEL92ty4B3qpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "jZtQitpweY7gWNcXRDNLNakvNX7i4mu3C3iK9bKpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "kcqb3cx3KEvo9Kd3jyNZT3BKu9kwWToiyMaeLx3pump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "kzbmCQBMAZ1Eo2cJ8WfrQg9SUQ7QhSpsPCA8jmPpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "ovhBXwJSLYZbtgg1LxNoopsZsfe51SLUPWeY7Dzpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "p6Dydex88SswnKT9pRnjPwrCfHpw1c79FAAu81Upump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "qcawC8mNoMy2C597kxDUMHbHJaZ5D4nPR2dvDoXpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "rXawUDNhif2Lf7NkhsrugKY7rKVeunhUaDFREcqpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "s5zJdLkTLrfnVK1pLw8ToPbHq8nKY93gvauceurpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "s8Ws5Ld7WAKhsaZnuaZkjbWs9jfSQEzRA2FKS7Mpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "so82bQtUVDAjM18N8vs9C3uVcKsJtUARnnAb1UPpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "ugwTkUXE3ckeakLawvoc7inQmtZZQ3K5dYPj4wHpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "uykpcqDmt6B3By6v5ofmBnfsS7Y2V1harccH413pump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "w7f4DGS28KQnQGB8s6jKX7Z3LusY3bEf1aB47P1pump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "wCrHmgB2fAbQwtvwK5FLb7WFchFndwtMcvUDHqbpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "wFUJbWiV4wKK6BJJQdojJbgbd4Y51M3i3nA9VKLpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "x7ofxncQVmMK3PDXVJF76uJ5JkgzX3x3eUGXkjopump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "yfmKCjYvHsD17w2xvKLBRrmzF58nZyXH25reGwLpump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      },
+      {
+        "admission_result": "admitted",
+        "evidence_provenance": "wt_walkback_atomic_flows + wt_walkback_edge_candidates (local, retained)",
+        "mint": "zdRcJpYgDgJaGBjHacTDBmDtqvSEH9Tcou6c6CApump",
+        "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+        "profile_id": "P3R",
+        "write_result": "admitted"
+      }
+    ],
+    "membership_count_after": 208,
+    "new_members_admitted": 49,
+    "write_timings_ms": {
+      "max": 1176.145000004908,
+      "median": 11.6983329935465,
+      "sqlite_busy_count": 0,
+      "sqlite_locked_count": 0
+    }
+  },
+  "fixture_proof": {
+    "ambiguous_fixture": "test_ambiguous_fixture_never_admitted_by_late_retrigger -- mint whose edges satisfy both the unified P3R route and a synthetic P3R_13A04 ladder remains AMBIGUOUS_BEHAVIOURAL_CANDIDATE and is never admitted by the retrigger. PASSED.",
+    "failure_isolation_fixture": "test_failure_isolation_does_not_touch_evidence -- a raised exception during admission does not remove or alter the already-committed atomic-flow evidence row. PASSED.",
+    "late_evidence_fixture": "test_late_evidence_fixture_admits_after_completion -- disposable in-memory schema: stage 1 (edge only) does not admit, stage 2 (atomic flow committed) retrigger admits, stage 3 (re-fire) is idempotent with zero new writes. PASSED."
+  },
+  "generated_at": 1788188036,
+  "network_calls": 0,
+  "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+  "operation_name": "Leviathan",
+  "p3r_13a04_safety": {
+    "other_profile_membership_delta": 0,
+    "p3r_13a04_membership_after": 0,
+    "p3r_13a04_membership_before": 0,
+    "p3r_13a04_membership_delta": 0,
+    "p3r_13a04_operator_id": "ccb7b1b0-56e1-4543-9e95-3f284bed3943"
+  },
+  "pre_state": {
+    "activity_before": {
+      "activity_24h": 18,
+      "activity_30d": 158,
+      "activity_7d": 94,
+      "last_launch": 1788176865
+    },
+    "ambiguous_count": 0,
+    "membership_count_before": 159,
+    "membership_digest_before": "65dd3b9605f552be659198b42f745d5d9decba2ca05a5e7f713a58417e40ccd8",
+    "pending_exact_count": 49
+  },
+  "profile_collision": {
+    "ambiguous_profile_count": 0,
+    "leviathan_only_count": 49,
+    "multi_profile_count": 0,
+    "other_profile_only_count": 0
+  },
+  "prospective_fix": {
+    "evidence_completion_trigger": "src.core.deep_walkback.persist_atomic_flows / persist_edge_candidate, called from src.core.walkback_worker._find_funder_via_rpc, committed via ops.commit()",
+    "failure_isolation": "Wrapped in try/except; a raised exception is logged and never propagates to or rolls back the already-committed evidence commit.",
+    "idempotency": "Delegates entirely to admit_unambiguous_p3r_match's own ON CONFLICT(mint) DO NOTHING + already_admitted return path.",
+    "no_bypass": "Uses admit_unambiguous_p3r_match exclusively; no direct INSERT added anywhere.",
+    "post_commit_ordering": "Retrigger reads via admit_unambiguous_p3r_match(ops, source_mint, ...) only AFTER ops.commit() has persisted the edge/atomic-flow evidence in the same connection.",
+    "retrigger_implemented": true,
+    "retrigger_location": "src/core/walkback_worker.py (_find_funder_via_rpc, immediately after ops.commit())",
+    "retrigger_scope": "source_mint only -- never a broad rescan of wt_walkback_atomic_flows"
+  },
+  "provider_calls": 0,
+  "rejected_control": {
+    "rejected_control_admission_count": 0,
+    "rejected_control_count": 8,
+    "rejected_replay": [
+      {
+        "mint": "rpiYNtbA8osAiTR9Rpdj1qM6YpKQN6XJGL5rBAdpump",
+        "state": "NO_MATCH_OTHER_OPERATOR"
+      },
+      {
+        "mint": "fCUriWJdjoKLEqNXfNDW3E9SbBPp1pVmrb2BCiVpump",
+        "state": "NO_MATCH_OTHER_OPERATOR"
+      },
+      {
+        "mint": "aNeKejAKyfqfqikYKc5cjyTTszq85tiw7Rd5xcmpump",
+        "state": "NO_MATCH_OTHER_OPERATOR"
+      },
+      {
+        "mint": "YK8LMUreozV6hra3KCeV8thUHHCp6n5mdvwAZ3Hpump",
+        "state": "NO_MATCH_OTHER_OPERATOR"
+      },
+      {
+        "mint": "kWgPWmLeSu4hMxiW9W5ftWkSF4LZ18PnbYCvGucpump",
+        "state": "NO_MATCH_OTHER_OPERATOR"
+      },
+      {
+        "mint": "NhiZZWbRWihUJLmfQeSegArwtJ4FbUym8nkoj61pump",
+        "state": "NO_MATCH_OTHER_OPERATOR"
+      },
+      {
+        "mint": "UpwBR3SwqQ3TPggNGRJkrThk1To1DGLYW886sQzpump",
+        "state": "NO_MATCH_OTHER_OPERATOR"
+      },
+      {
+        "mint": "xt7LcG4NxtSSi9u7gWxP5LVZqVLARNLkARQSw8Tpump",
+        "state": "NO_MATCH_OTHER_OPERATOR"
+      }
+    ]
+  },
+  "root_cause_trace": [
+    {
+      "atomic_flow_first_observed_at": 1786046662,
+      "atomic_flow_last_observed_at": 1786046662,
+      "classification": "EVIDENCE_BACKFILLED_AFTER_HOOK",
+      "currently_a_member": false,
+      "mint": "AMnRhMEt4QzoKACHuN8nTykxYthscAFyX9fhDNVpump",
+      "note": "wt_walkback_atomic_flows rows carry observation_count/last_observed_at suggesting the full atomic evidence (has_create+has_sync_native+has_close+exact transfer_lamports) may have been completed or corrected by a later observation than the walkback-completion moment when _promote_if_canonical_watchtower's one-shot admit_unambiguous_p3r_match call ran for this mint. No second admission attempt exists in the current architecture \u2014 admission is fired once, at walkback-completion time only."
+    },
+    {
+      "atomic_flow_first_observed_at": 1786434936,
+      "atomic_flow_last_observed_at": 1786434936,
+      "classification": "EVIDENCE_BACKFILLED_AFTER_HOOK",
+      "currently_a_member": false,
+      "mint": "C5V2wxMWrxYE18wMH517Ut6nWmZ7ecZhziDvD5Xpump",
+      "note": "wt_walkback_atomic_flows rows carry observation_count/last_observed_at suggesting the full atomic evidence (has_create+has_sync_native+has_close+exact transfer_lamports) may have been completed or corrected by a later observation than the walkback-completion moment when _promote_if_canonical_watchtower's one-shot admit_unambiguous_p3r_match call ran for this mint. No second admission attempt exists in the current architecture \u2014 admission is fired once, at walkback-completion time only."
+    },
+    {
+      "atomic_flow_first_observed_at": 1786414136,
+      "atomic_flow_last_observed_at": 1786414136,
+      "classification": "EVIDENCE_BACKFILLED_AFTER_HOOK",
+      "currently_a_member": false,
+      "mint": "DRtGHd1dF6Az5vknV188Yk3LQ72rZ4J9CB1WWg8pump",
+      "note": "wt_walkback_atomic_flows rows carry observation_count/last_observed_at suggesting the full atomic evidence (has_create+has_sync_native+has_close+exact transfer_lamports) may have been completed or corrected by a later observation than the walkback-completion moment when _promote_if_canonical_watchtower's one-shot admit_unambiguous_p3r_match call ran for this mint. No second admission attempt exists in the current architecture \u2014 admission is fired once, at walkback-completion time only."
+    },
+    {
+      "atomic_flow_first_observed_at": 1786586977,
+      "atomic_flow_last_observed_at": 1786586977,
+      "classification": "EVIDENCE_BACKFILLED_AFTER_HOOK",
+      "currently_a_member": false,
+      "mint": "F2T4krAdQYF9crCbwUtUfna8g9HRTc878eHuRYFpump",
+      "note": "wt_walkback_atomic_flows rows carry observation_count/last_observed_at suggesting the full atomic evidence (has_create+has_sync_native+has_close+exact transfer_lamports) may have been completed or corrected by a later observation than the walkback-completion moment when _promote_if_canonical_watchtower's one-shot admit_unambiguous_p3r_match call ran for this mint. No second admission attempt exists in the current architecture \u2014 admission is fired once, at walkback-completion time only."
+    },
+    {
+      "atomic_flow_first_observed_at": 1786411260,
+      "atomic_flow_last_observed_at": 1786411260,
+      "classification": "EVIDENCE_BACKFILLED_AFTER_HOOK",
+      "currently_a_member": false,
+      "mint": "FX3fHqPaWXw7DDAofCCotATQg1aQsiwpM5A6TdDpump",
+      "note": "wt_walkback_atomic_flows rows carry observation_count/last_observed_at suggesting the full atomic evidence (has_create+has_sync_native+has_close+exact transfer_lamports) may have been completed or corrected by a later observation than the walkback-completion moment when _promote_if_canonical_watchtower's one-shot admit_unambiguous_p3r_match call ran for this mint. No second admission attempt exists in the current architecture \u2014 admission is fired once, at walkback-completion time only."
+    }
+  ],
+  "rpc_calls": 0,
+  "safety": {
+    "canonical_membership_writes": 49,
+    "detector_changes": 0,
+    "operation_identity_writes": 0,
+    "token_analysis_writes": 0,
+    "walkback_source_writes": 0
+  },
+  "second_run_idempotency_check": {
+    "backlog_candidate_count": 0,
+    "membership_count_after": 208,
+    "new_members_admitted": 0,
+    "result": "IDEMPOTENT_ZERO_NEW_WRITES"
+  }
+}

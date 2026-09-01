@@ -1,0 +1,25 @@
+{
+  "authorized_calls": 600,
+  "calls_remaining": 284,
+  "calls_used": 316,
+  "completed_at": "2026-08-30T15:24:41Z",
+  "core_funder_count": 56,
+  "funders_with_chain_evidence": 12,
+  "max_depth_distribution": {
+    "0": 44,
+    "1": 9,
+    "2": 1,
+    "3": 2
+  },
+  "purpose": "6437_DEEP_FUNDING_CHAIN_TRAVERSAL",
+  "resolved_parent_edges": 17,
+  "run_id": "6437-deep-funding-7534ffe978b343df",
+  "safety": "read-only RPC and audit artifacts only; no database/source/assignment/membership/ranking/Living/detector writes",
+  "shared_deeper_parents": {
+    "Fp27Bypi9z4PhkC6ydLkh8TTb53zjPC52eRJPUmPti5N": 3
+  },
+  "stop_reasons": {
+    "HIGH_ACTIVITY_SERVICE": 11,
+    "NO_PARENT_FOUND": 45
+  }
+}

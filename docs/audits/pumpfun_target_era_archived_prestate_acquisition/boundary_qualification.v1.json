@@ -1,0 +1,13 @@
+{
+  "artifact_type": "PUMPFUN_TARGET_ERA_PRESTATE_QUALIFICATION_V1",
+  "blocker": "No archive-capable historical account-state method is locally configured. Standard Helius/Solana getAccountInfo cannot select slot 443375106.",
+  "buy1_math_match": "unresolved",
+  "buy1_prestate_qualified": false,
+  "creation_to_first_buy_boundary_resolved": false,
+  "extendaccount_exact_evidence_verdict": "No exact post-ExtendAccount bytes acquired. Preserve earlier finding: documentation supports reallocation/future fields; target-binary reserve-mutation proof remains unresolved.",
+  "first_slot_full_state_continuity_now_qualified": false,
+  "first_slot_market_cap_now_supported": false,
+  "next_exact_evidence": "Use an authenticated archival provider whose method documents historical-account bytes at end-of-slot 443375106, then decode with a binary-bound target-era 151-byte BondingCurve schema.",
+  "target_era_layout_bound_to_active_binary": false,
+  "target_era_layout_confidence": "STRUCTURALLY_INFERRED"
+}

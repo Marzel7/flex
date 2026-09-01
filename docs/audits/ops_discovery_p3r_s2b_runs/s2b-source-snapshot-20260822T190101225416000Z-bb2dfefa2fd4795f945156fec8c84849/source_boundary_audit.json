@@ -1,0 +1,26 @@
+{
+  "bounds": {
+    "cleanup_reserve_seconds": 30.0,
+    "execution_deadline_seconds_from_start": 270.0,
+    "max_progress_calls": 500000,
+    "progress_opcode_interval": 1000,
+    "wall_seconds": 300.0
+  },
+  "canonicalization": {
+    "digest": "SHA-256 over newline-delimited canonical rows",
+    "encoding": "utf-8",
+    "field_order": "SURFACES declaration",
+    "null_representation": "JSON null",
+    "row_format": "json array compact separators",
+    "row_order": "primary key mint ASC"
+  },
+  "cohort_formed": false,
+  "identities_selected_or_frozen": false,
+  "milestone": "OPS-DISCOVERY-P3R-S2B-SOURCE-SNAPSHOT",
+  "population_query_executed": false,
+  "production_writes": 0,
+  "provider_calls_made": 0,
+  "read_mode": "sqlite_uri_mode_ro_query_only_single_transaction",
+  "source_db": "database/flex_complete_database.db",
+  "status": "STARTED"
+}

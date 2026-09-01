@@ -1,0 +1,21 @@
+{
+  "schema_version": "generic_living_worker_to_generic_durability_qualification.v1",
+  "prior_e2e_artifact": "docs/audits/generic_living_worker_to_generic_e2e_qualification.v1.json",
+  "prior_e2e_artifact_sha256": "71dbc2e9588749587e8b78cf0cf90691b122fbea4bcea5d46354ce28620cebab",
+  "worker_callback_replay": "PASS: second callback on identical durable source state created no assessment, lineage, association, or binding duplicate and left current unchanged.",
+  "worker_callback_stale": "PASS: current seeded above source generation did not regress and created no generic lineage record.",
+  "worker_callback_equal_freshness_conflict": "NOT_YET_QUALIFIED: existing reader relevance gate correctly rejects equal rowid freshness before publication, so the atomic equal-generation/different-digest conflict boundary was not reached through the worker callback.",
+  "concurrent_stress": "NOT_YET_QUALIFIED",
+  "held_reader_wal_longevity": "NOT_YET_QUALIFIED",
+  "external_invalid_observations": "NOT_MEASURED",
+  "failure_isolation_under_concurrency": "NOT_YET_QUALIFIED",
+  "no_dual_publication_under_stress": "NOT_YET_QUALIFIED",
+  "lock_wal_telemetry": {"sqlite_busy": "NOT_MEASURED", "sqlite_locked": "NOT_MEASURED", "database_is_locked": "NOT_MEASURED", "retry_exhaustion": "NOT_MEASURED"},
+  "transaction_timings": "NOT_MEASURED",
+  "focused_tests": "28 passed: tests/test_generic_living_worker_e2e.py tests/test_x77_1_walkback_transaction_boundary.py tests/test_generic_living_pipeline_v2.py tests/test_living_wsol_walkback_integration.py",
+  "real_feature_flag_state": "OFF",
+  "real_db_writes": 0,
+  "provider_rpc_network_calls": 0,
+  "activation_readiness": "HOLD_REAL_BOUNDED_GENERIC_ACTIVATION",
+  "blocker": "No correctly instrumented disposable publisher fixture yet reaches equal-freshness conflict after a naturally relevant worker event; concurrent writer/held-reader WAL stress and independent consistency observation also remain unperformed."
+}

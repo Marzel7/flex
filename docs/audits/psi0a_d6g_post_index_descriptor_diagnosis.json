@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D6G",
+  "status": "COMPLETE",
+  "verdict": "BLOCKLIST_EXCEPTION_PATH_LEAK_DOMINATES_RESIDUAL_STRUCTURAL_RISK",
+  "engineering_revision": "c604b6f02a20dd711e334f5921dbd2dfd65a7be5",
+  "listener_pid": 42483,
+  "listener_pid_stable": true,
+  "telemetry_scope": {
+    "records": 15668,
+    "open_events": 7800,
+    "close_events": 7787,
+    "watchdog_snapshots": 71,
+    "critical_listener_db_handle_events": 0,
+    "peak_tracked_registry_concurrency": 18
+  },
+  "d6f1_threshold_snapshot": {
+    "primary_fd_count": 10,
+    "registry_count": 6,
+    "registry_fd_delta": 4,
+    "tracked_callers": [
+      "pool_discovery.py:337 in _check_sync (2)",
+      "pumpfun_curve_listener.py:6354 in _check_curve_complete",
+      "price_service.py:721 in _maybe_classify_after_snapshot",
+      "pumpfun_curve_listener.py:173 in _fetch_and_store_symbol",
+      "pumpfun_curve_listener.py:6135 in _write_metadata"
+    ],
+    "oldest_tracked_age_seconds": 3.0,
+    "interpretation": "A normal concurrent burst reached six tracked connections while four additional primary descriptors were outside the live registry summary."
+  },
+  "reconciler_after_index": {
+    "caller": "pumpfun_curve_listener.py:10815 in _reconciler_unseen_sigs",
+    "closed_connections": 17,
+    "average_age_ms": 61.974,
+    "maximum_age_ms": 293.782,
+    "connections_over_one_second": 0,
+    "verdict": "INDEXED_PATH_RECOVERED"
+  },
+  "dominant_structural_residual": {
+    "caller": "pumpfun_curve_listener.py:8143 in _blocklist_write",
+    "unmatched_open_connections": 14,
+    "mode": "read_write",
+    "source_finding": "db_connect is followed by commit and close only on the success path; no finally or context-manager backstop guarantees closure on SELECT, JSON, UPDATE, INSERT or commit exceptions.",
+    "relationship_to_registry_delta": "Consistent with stale/untracked native descriptors contributing to positive registry_fd_delta, although exact descriptor-to-connection identity is not retained after registry loss."
+  },
+  "other_observed_paths": {
+    "seed_read": {
+      "caller": "pumpfun_curve_listener.py:11239 in _seed_read",
+      "closed_connections": 3,
+      "average_age_ms": 41228.663,
+      "maximum_age_ms": 47270.028,
+      "owner_thread_cleanup_observed": true,
+      "present_in_d6f1_threshold_snapshot": false
+    },
+    "pool_shared_account_check": {
+      "caller": "pool_discovery.py:337 in _check_sync",
+      "closed_connections": 180,
+      "average_age_ms": 2535.3,
+      "maximum_age_ms": 11337.636,
+      "finally_close_present": true,
+      "concurrent_instances_in_d6f1_threshold_snapshot": 2
+    }
+  },
+  "smallest_coherent_repair": "Change only _add_rug_creator_to_blocklist._blocklist_write to guarantee closure on every success, return and exception path using managed_db_connect or an explicit finally; preserve behavior and add focused exception/cleanup tests. Reassess descriptors before widening to seed-read indexing or pool-discovery concurrency.",
+  "scope": {
+    "production_databases_opened": 0,
+    "schema_or_row_queries": 0,
+    "ddl_or_production_writes": 0,
+    "service_signals_stops_or_restarts": 0,
+    "provider_calls": 0,
+    "configuration_or_threshold_changes": 0,
+    "lock_or_metric_manipulation": 0,
+    "implementation": 0,
+    "evidence_mirror_or_cohort_activation": false
+  },
+  "next_action": "Separately authorize safe-local guaranteed-close implementation and tests for _blocklist_write; PSI0A-D2 remains blocked."
+}

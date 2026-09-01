@@ -1,0 +1,40 @@
+{
+  "artifact_type": "PUMPFUN_ARCHIVED_PRESTATE_ACQUISITION_ATTEMPT_V1",
+  "method_considered": "getAccountInfo",
+  "provider": "helius standard Solana JSON-RPC",
+  "raw_bytes_retained": false,
+  "request_not_issued_reason": "Standard getAccountInfo accepts minContextSlot as a lower bound on returned context, not an historical-state slot selector. A response now would be current state and cannot be substituted for slot 443375106. No locally configured archive-capable method was found.",
+  "requested_slot": 443375106,
+  "required_future_archive_request": {
+    "account": "FJPbTzeUy4pzPT3r7c2fNxccNvvhbC7LJkSqXux8xU1g",
+    "required_response_fields": [
+      "requested slot semantics",
+      "returned context/slot",
+      "owner",
+      "lamports",
+      "data length",
+      "executable",
+      "rent epoch",
+      "raw base64 bytes"
+    ],
+    "semantics": "historical account bytes exactly at end of slot 443375106 after creation transaction index 927 / ExtendAccount, or state immediately before first buy slot 443375107 index 895"
+  },
+  "returned_slot": null,
+  "source": {
+    "documented_parameters": [
+      "commitment",
+      "encoding",
+      "dataSlice",
+      "minContextSlot"
+    ],
+    "documented_result": "RpcResponse context slot plus account value; no requested historical slot parameter.",
+    "official_solana_rpc_getaccountinfo": "https://solana.com/docs/rpc/http/getaccountinfo",
+    "provider_surface_found": "Existing local Helius standard JSON-RPC adapter only; no locally configured archive-state endpoint/method."
+  },
+  "target_account": "FJPbTzeUy4pzPT3r7c2fNxccNvvhbC7LJkSqXux8xU1g",
+  "target_account_data_length": null,
+  "target_account_owner": null,
+  "target_account_raw_digest": null,
+  "target_slot": 443375106,
+  "target_slot_account_state_acquired": false
+}

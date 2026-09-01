@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D6",
+  "status": "DO_NOT_START_STOP",
+  "verdict": "STOP_SERIALIZER_P99_GATE_FAILED_BEFORE_DATABASE_OPEN",
+  "engineering_revision": "ac06c781deddbb968babe6bb7a19d1d88cd9cb53",
+  "contract_digest": "a160398c3130dbacf2314bb4046b9bac4865cd9dd421311f2fd999058c0ab9f2",
+  "target_index": "idx_psi0a_token_analysis_migration_tx",
+  "checked_at_utc": "2026-08-14T10:38:23Z",
+  "preflight": {
+    "listener_service": "RUNNING",
+    "listener_pid": 9069,
+    "serializer_snapshot_utc": "2026-08-14T10:38:23Z",
+    "serializer_p99_wait_ms": 1056.39,
+    "serializer_p99_do_not_start_threshold_ms": 1000.0,
+    "serializer_p95_wait_ms": 31.32,
+    "serializer_queue_depth": 0,
+    "serializer_lock_errors_24h": 4,
+    "service_status_checked": true
+  },
+  "stop_reason": "The explicit do-not-start condition serializer p99 reaching 1000 ms was already true at the production preflight. The attempt stopped before opening a production database.",
+  "execution": {
+    "production_database_connections_opened": 0,
+    "ddl_statements_started": 0,
+    "production_writes": 0,
+    "index_created": false,
+    "run_id_assigned": false,
+    "attempt_output_directory_created": false,
+    "retry_count": 0,
+    "provider_calls": 0,
+    "service_restarts_or_stops": 0,
+    "configuration_changes": 0
+  },
+  "next_action": "Separately authorize a telemetry-only recovery observation. PSI0A-D6 must not be retried or resumed under the consumed authorization."
+}

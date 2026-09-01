@@ -1,0 +1,37 @@
+{
+  "schema_version": "byzantine-canonical-birth-backfill-pilot.v1",
+  "status": "COMPLETE_METHOD_UNRELIABLE",
+  "pilot": {
+    "mint_total": 10,
+    "known_positive_control": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+    "bad_anchor_targets": ["b6gX6q4MGGpE6eGHdHkrKbasjavzsPThi246hexpump","6X7EhvCPpQcfwfAeQF4drS2x9UnHD8N8BK5QnTtzpump","G8fPzYYkpUSoXyaihxP5UUTzQ9CaPzQkLofMoXPNpump","D1yb7MCFaFq29a2RfGgQ8KNdb3mzpyVJNmBpKfK2pump","5Qsu2YAzTvWxH8MVPW14Hza9bptJATp6NX9xgkHgpump","AqgtHrC5TwPcvTf9dmgQhWwUhmVbaGynop1LxvU9pump","7EPk5q4EN4PL8F1j26SbueqiFekrMva54xbFVms7pump","4JZv85BNGQtJ9ikrKKJs1ptbXP9ghG8H8avV5ZEKpump","3zSPF9RDvLhzvPB8BwqdM3EacsA335xS4KY2gs6Ypump"],
+    "bad_anchor_set_digest": "edda54228e1dd974e2b4d1da9b7137b5a7b8196a0c5bb0fb5b47dce7e12e80b0"
+  },
+  "compatibility": {"frozen_baseline_total":182,"frozen_baseline_still_surfaced_total":182,"frozen_baseline_missing_total":0,"frozen_baseline_missing_identities":[],"frozen_182_compatibility_intact":true,"current_byzantine_mint_total_at_read":190,"new_post_freeze_mint_total_at_read":8},
+  "control": {"mint":"3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump","canonical_create_proven":true,"creation_class":"CREATION_ONLY","first_buy_and_opening_impulse_already_qualified":true,"control_recovery_match":true},
+  "timestamp_to_slot_method": {
+    "description": "For each target, interpolate from the retained migration slot/time, then use four getBlockTime probes to converge to the exact retained timestamp second. The timestamp-to-slot result was exact for 9/9.",
+    "exact_timestamp_slot_matches":9,
+    "finding":"The retained token_analysis.created_at/PumpPortal-normalized value is contemporaneous with migration, not the original Pump.fun Create/CreateV2 event for this target population. Exact slot resolution therefore finds Migrate/MigrateV2/CreatePool/PumpSwap activity instead of token birth."
+  },
+  "bad_anchor_results": [
+    {"mint":"b6gX6q4MGGpE6eGHdHkrKbasjavzsPThi246hexpump","timestamp_slot":437206505,"timestamp_block_time":1785859924,"observed_lifecycle":"PumpSwap/claim activity; no Create/CreateV2","true_create_recovered":false},
+    {"mint":"6X7EhvCPpQcfwfAeQF4drS2x9UnHD8N8BK5QnTtzpump","timestamp_slot":439011768,"timestamp_block_time":1786621412,"observed_lifecycle":"MigrateV2 + CreatePool","true_create_recovered":false},
+    {"mint":"G8fPzYYkpUSoXyaihxP5UUTzQ9CaPzQkLofMoXPNpump","timestamp_slot":439657361,"timestamp_block_time":1786889929,"observed_lifecycle":"No mint-bound Create/CreateV2","true_create_recovered":false},
+    {"mint":"D1yb7MCFaFq29a2RfGgQ8KNdb3mzpyVJNmBpKfK2pump","timestamp_slot":440680154,"timestamp_block_time":1787313072,"observed_lifecycle":"PumpSwap buy/sell activity","true_create_recovered":false},
+    {"mint":"5Qsu2YAzTvWxH8MVPW14Hza9bptJATp6NX9xgkHgpump","timestamp_slot":441107165,"timestamp_block_time":1787469666,"observed_lifecycle":"Migrate/MigrateV2 + CreatePool","true_create_recovered":false},
+    {"mint":"AqgtHrC5TwPcvTf9dmgQhWwUhmVbaGynop1LxvU9pump","timestamp_slot":441575447,"timestamp_block_time":1787640833,"observed_lifecycle":"No mint-bound Create/CreateV2","true_create_recovered":false},
+    {"mint":"7EPk5q4EN4PL8F1j26SbueqiFekrMva54xbFVms7pump","timestamp_slot":442053224,"timestamp_block_time":1787815473,"observed_lifecycle":"PumpSwap buy/sell activity","true_create_recovered":false},
+    {"mint":"4JZv85BNGQtJ9ikrKKJs1ptbXP9ghG8H8avV5ZEKpump","timestamp_slot":442362295,"timestamp_block_time":1787928605,"observed_lifecycle":"PumpSwap buy/sell activity","true_create_recovered":false},
+    {"mint":"3zSPF9RDvLhzvPB8BwqdM3EacsA335xS4KY2gs6Ypump","timestamp_slot":443082785,"timestamp_block_time":1788157560,"observed_lifecycle":"PumpSwap activity; no Create/CreateV2","true_create_recovered":false}
+  ],
+  "canonical_birth_layer": {"created_as_production_schema":false,"audit_record_written":false,"reason":"No new canonical births qualified; an immutable artifact records the negative qualification without mutating legacy source fields."},
+  "opening_impulse": {"bad_anchor_recovered_with_timestamp_to_slot_block_search":0,"pilot_true_creation_recovery_total":1,"pilot_first_buy_reconstructed_total":1,"pilot_opening_mc_reconstructed_total":1,"new_opening_reconstructions":0,"alchemy_archive_request_total":0,"gmgn_api_request_total":0},
+  "qualification": {"historical_byzantine_birth_backfill_method":"UNRELIABLE","full_182_mint_backfill_now_justified":false,"reason":"The proposed timestamp anchor identifies migration rather than creation in all nine target cases. Scaling it would systematically retain the wrong lifecycle event."},
+  "cost_estimate": {"avg_helius_requests_per_bad_anchor_pilot_mint":5,"avg_alchemy_archive_requests_per_bad_anchor_pilot_mint":0,"estimated_helius_requests_for_182_if_unreliable_method_scaled":910,"estimated_alchemy_requests_for_182":0,"estimated_storage_for_182_bytes":0,"note":"A storage estimate for canonical births is not meaningful because this pilot qualified no new birth payloads. The request estimate is a warning, not a proposed run."},
+  "prospective_design": {"prospective_raw_birth_estimated_bytes_per_event":"UNMEASURED_IN_THIS_READ_ONLY_PILOT","model":"At PumpPortal create receipt, retain immutable raw payload plus mint, creator/trader, signature, bonding curve, symbol/name, vSolInBondingCurve, marketCapSol, reserve fields, receipt timestamp, raw digest, and decoder version. Project a separate canonical birth record only after transaction-level Create/CreateV2 validation."},
+  "data_quality": {"legacy_create_tx_signature_should_remain_nonauthoritative":true,"canonical_birth_layer_required":true},
+  "replay": {"run_1_digest":"2c132f774e5c54b0eed497c904c991449d8648db76e714a99f67633a7b62fb50","run_2_digest":"2c132f774e5c54b0eed497c904c991449d8648db76e714a99f67633a7b62fb50","idempotent":true,"scope":"Deterministic retained timestamp/slot and classification output; no new raw canonical birth payload exists to replay."},
+  "network_accounting": {"helius_getBlockTime_total":36,"helius_getBlock_total":9,"helius_getTransaction_total":0,"helius_getSignaturesForAddress_total":0,"total_helius_requests":45,"alchemy_archive_request_total":0,"gmgn_api_request_total":0},
+  "safety":"No production/source/Walkback/schema/UI/code/attribution/classifier/suppression mutation. Legacy token_analysis.create_tx_signature was not overwritten."
+}

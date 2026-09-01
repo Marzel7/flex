@@ -1,0 +1,34 @@
+{
+  "artifact_version": "v1",
+  "scope": "disposable generic Living canonical publisher only",
+  "diagnosed_condition": "INSERT OR IGNORE collision followed by no visible deterministic association row in the current SQLite transaction snapshot",
+  "retry_exception": "ConcurrentAssociationVisibilityRetry",
+  "retry_exhausted_exception": "ConcurrentAssociationVisibilityRetryExhausted",
+  "maximum_visibility_retries": 3,
+  "canonical_contract": "Every retry rolls back and restarts assessment, lineage, associations, bindings, and conditional current advancement in a fresh transaction.",
+  "no_sleep_inside_write_transaction": true,
+  "focused_results": {
+    "forced_visibility_restart": "PASS; attempts [1,2], retry_count=1, full_transaction_restart=true",
+    "fresh_attempt_state": "Attempt 2 has its own assessment and lineage writes; no first-attempt association, binding, or current row survives.",
+    "retry_exhaustion": "PASS; four total attempts, explicit exhausted exception, no rows committed",
+    "ownership_and_immutable_conflicts": "PASS; existing explicit ValueError paths remain non-retryable",
+    "replay_and_stale": "PASS",
+    "two_callback_after_injected_rollback": "PASS",
+    "tiny_6_plus_4": "PASS; 1 expected injected callback failure, 0 unexpected callback failures, observer valid, integrity_check ok"
+  },
+  "important_harness_correction": "Actor B now uses source_key=derived so the two actors model the same deterministic association identity. The earlier actor-b source key created a different deterministic ID while colliding with the schema's natural uniqueness constraint; that condition is an immutable-content conflict, not a visibility retry.",
+  "telemetry": {
+    "tiny_visibility_retries": 0,
+    "tiny_retry_exhaustion": 0,
+    "SQLITE_BUSY": 0,
+    "SQLITE_LOCKED": 0,
+    "database_is_locked": 0,
+    "database_table_is_locked": 0
+  },
+  "production_safety": {
+    "real_feature_flag": "OFF",
+    "real_db_writes": 0,
+    "network_provider_rpc_calls": 0
+  },
+  "full_80_40_readiness": "HOLD: the forced restart condition is qualified and the tiny harness passes, but the exact physical two-writer ordering has not been deterministically induced in SQLite WAL without test instrumentation. Do not scale."
+}

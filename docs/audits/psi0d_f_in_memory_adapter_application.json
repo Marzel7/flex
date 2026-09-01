@@ -1,0 +1,93 @@
+{
+  "schema_version": "psi0d-f.in-memory-application.v1",
+  "milestone": "PSI0D-F",
+  "applied_at_utc": "2026-08-16T12:35:00Z",
+  "engineering_commit": "9ef7467327b74dbf435fc00ddc26c99a77f5b33e",
+  "status": "PASS",
+  "verdict": "BOUNDED_IN_MEMORY_DESCRIPTIVE_PROJECTION_REPLAY_VERIFIED",
+  "bound_inputs": {
+    "psi0d_e_closure_digest": "5452c1f3a00e7fceeb0685c8688f5515f98e60e8030fecd6db34071556dd5729",
+    "psi0d_d_adapter_contract_digest": "48e4480d741793c78dda8413ce8fa233c849d3781538bc32c0283a436f00bd7d",
+    "psi0d_b_consumer_contract_digest": "a9e368cceede689736ca234891394551bda098df3b51ebfebf2e72f32aeb51f6",
+    "psi0c_d_closure_digest": "7e8c4ce4c27aa0d235a39cfe49e4dad4443be0bfae0750d61188a73d2cfeffb2",
+    "psi0c_c_assessment_digest": "b5fb2187ad569b422f1ebbc029b7c619300a153d81b547f178c58769377fc7c4",
+    "psi0c_c_assessment_bundle_digest": "6db46939fdfec9a34a63268809609c9a30a1a7dd86f5504b3d063bd0e8045ac3"
+  },
+  "execution": {
+    "source_files_read_once": true,
+    "adapter_applications": 1,
+    "projection_replay_method": "canonical byte equality and SHA-256 verification without a second adapter invocation",
+    "projection_digest": "482461d10319e657bbb4df37b4cfa4be526ada21b4dbd3186ce43834ecb2d136",
+    "normalized_input_digest": "1c5cfa113b977a44bf47b1276ce4b90a14209daac859dba45876c63d04344c4f",
+    "provenance_class": "PRODUCTION_DERIVED_IMMUTABLE_LOCAL_ASSESSMENT_SUMMARY",
+    "cohort_denominator": 5000
+  },
+  "descriptive_projection": {
+    "creator_selected_cohort": {
+      "row_count": 0,
+      "unique_mint_count": 0,
+      "coverage_numerator": 0,
+      "coverage_denominator": 5000,
+      "duplicate_row_count": 0,
+      "unmatched_row_count": 0,
+      "missingness_semantics": "ABSENT_NOT_NEGATIVE"
+    },
+    "evidence_launch_facts": {
+      "row_count": 0,
+      "unique_mint_count": 0,
+      "coverage_numerator": 0,
+      "coverage_denominator": 5000,
+      "duplicate_row_count": 0,
+      "unmatched_row_count": 0,
+      "missingness_semantics": "ABSENT_NOT_NEGATIVE"
+    },
+    "main_selected_cohort": {
+      "row_count": 5000,
+      "unique_mint_count": 5000,
+      "coverage_numerator": 5000,
+      "coverage_denominator": 5000,
+      "duplicate_row_count": 0,
+      "unmatched_row_count": 0,
+      "missingness_semantics": "ABSENT_NOT_NEGATIVE"
+    },
+    "ops_selected_cohort": {
+      "row_count": 1,
+      "unique_mint_count": 1,
+      "coverage_numerator": 1,
+      "coverage_denominator": 5000,
+      "duplicate_row_count": 0,
+      "unmatched_row_count": 0,
+      "missingness_semantics": "ABSENT_NOT_NEGATIVE"
+    },
+    "snapshot_selected_cohort": {
+      "row_count": 4708,
+      "unique_mint_count": 2442,
+      "coverage_numerator": 2442,
+      "coverage_denominator": 5000,
+      "duplicate_row_count": 2266,
+      "unmatched_row_count": 0,
+      "missingness_semantics": "ABSENT_NOT_NEGATIVE"
+    },
+    "unresolved_conflict_count": 0,
+    "orphan_unmatched_count": 0,
+    "reason_codes": [
+      "PSI0C_B_ABSENCE_IS_NOT_NEGATIVE"
+    ]
+  },
+  "authority": {
+    "policy": false,
+    "ranking": false,
+    "integration": false,
+    "deployment": false,
+    "activation": false
+  },
+  "scope_proof": {
+    "source_values_recorded_or_disclosed": false,
+    "consumer_output_published": false,
+    "consumer_output_directory_created": false,
+    "production_or_runtime_access": false,
+    "database_or_network_calls": 0,
+    "source_bundle_altered": false
+  },
+  "next_action": "HUMAN_APPROVAL_REQUIRED: bounded PSI0D-G read-only application closure and publication-boundary disposition before any local consumer publication or integration milestone."
+}

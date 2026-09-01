@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS transfer_index (
     indexed_at          REAL NOT NULL,
     is_valid            BOOLEAN NOT NULL DEFAULT 1,
     transfer_type       TEXT DEFAULT 'standard',
-    UNIQUE (signature, source, destination)
+    UNIQUE (signature, source, destination, amount_lamports, block_time)
 );
 CREATE INDEX IF NOT EXISTS idx_cold_destination_time ON transfer_index(destination, block_time DESC);
 CREATE INDEX IF NOT EXISTS idx_cold_source_time ON transfer_index(source, block_time DESC);
@@ -48,9 +48,80 @@ CREATE TABLE IF NOT EXISTS segment_manifest (
 );
 """
 
+# STORAGE-LIFECYCLE-P5E-R1: additive manifest columns for the base/delta
+# segment model. A CLOSED cold segment is immutable -- a late-arriving row
+# for an already-closed month must never be appended to that file; it goes
+# into a NEW immutable delta segment instead (see COLD_SEGMENT_IMMUTABILITY_
+# VIOLATION guard in hot_cold_rollover_runner.py). segment_kind is BASE or
+# DELTA; parent_segment_id names the base segment a delta extends (NULL for
+# BASE segments). Added via ALTER TABLE ADD COLUMN so the other pre-existing
+# real segments (which predate this migration and lack these columns) are
+# NOT broken -- ensure_manifest_delta_columns() is idempotent and callers
+# that read segment_kind must treat a missing/NULL value as implicitly
+# "BASE" for backward compatibility (see cold_segment_registry.py).
+_DELTA_COLUMNS = (
+    ("segment_kind", "TEXT"),        # 'BASE' | 'DELTA' ; NULL/missing == BASE
+    ("parent_segment_id", "TEXT"),   # base segment_id this delta extends; NULL for BASE
+)
+
+
+def ensure_manifest_delta_columns(conn: sqlite3.Connection) -> None:
+    """Idempotent additive migration: adds segment_kind/parent_segment_id
+    to segment_manifest if not already present. Safe to call on any cold
+    segment file, including the 44 pre-existing real segments that predate
+    this milestone -- ALTER TABLE ADD COLUMN never touches existing rows'
+    other columns and this function no-ops if the columns already exist."""
+    existing_cols = {row[1] for row in conn.execute("PRAGMA table_info(segment_manifest)")}
+    for col_name, col_type in _DELTA_COLUMNS:
+        if col_name not in existing_cols:
+            conn.execute(f"ALTER TABLE segment_manifest ADD COLUMN {col_name} {col_type}")
+    conn.commit()
+
+
+def delta_segment_id_for(base_segment_id: str, source_run_id: str) -> str:
+    """Deterministic delta segment naming: transfer_index_cold_<month>_delta_
+    <12-hex-char digest of source_run_id>. Deterministic in source_run_id so
+    the SAME run_id always produces the SAME delta segment name (idempotent
+    re-runs never create duplicate delta files), while two different late-
+    arriving batches for the same month (different run_ids) get distinct
+    delta segments. The digest is truncated to 12 hex chars purely for a
+    shorter, still-effectively-unique filename (48 bits of a run_id-derived
+    SHA-256 -- collision risk across a handful of runs per month is
+    negligible; a true collision would only ever cause a harmless re-use of
+    an existing delta file for what would have been the same source_run_id
+    content anyway, since the ALTER-safe delta writer is itself idempotent
+    via INSERT OR IGNORE within one delta build)."""
+    digest = hashlib.sha256(source_run_id.encode()).hexdigest()[:12]
+    return f"{base_segment_id}_delta_{digest}"
+
 
 def segment_name_for_month(year: int, month: int) -> str:
     return f"transfer_index_cold_{year:04d}_{month:02d}.sqlite"
+
+
+class ColdSegmentImmutabilityViolation(RuntimeError):
+    """Raised when any code path attempts to write into a segment whose
+    manifest already has closed_at IS NOT NULL. CLOSED COLD SEGMENT =
+    IMMUTABLE is the core architectural invariant of this milestone --
+    this exception makes violating it structurally impossible to do by
+    accident (every write path in this module and in
+    hot_cold_rollover_runner.py must check is_segment_closed() first, or
+    call assert_writable() below, before opening a write connection)."""
+
+
+def assert_writable(dest_path: str) -> None:
+    """Raises ColdSegmentImmutabilityViolation if dest_path exists and its
+    manifest reports closed_at IS NOT NULL. Safe/no-op if the file does not
+    exist yet (a brand-new segment being created for the first time) or has
+    no manifest row yet (mid-creation, pre-close)."""
+    if not Path(dest_path).is_file():
+        return
+    if is_segment_closed(dest_path):
+        raise ColdSegmentImmutabilityViolation(
+            f"refusing to write into CLOSED cold segment {dest_path!r} -- "
+            "closed segments are immutable; route this write to a new delta "
+            "segment instead (see delta_segment_id_for())."
+        )
 
 
 @dataclass
@@ -62,18 +133,26 @@ class MigrationResult:
     duration_seconds: float
 
 
-def create_cold_segment(dest_path: str, *, month_covered: str) -> None:
+def create_cold_segment(
+    dest_path: str, *, month_covered: str,
+    segment_kind: str = "BASE", parent_segment_id: str | None = None,
+) -> None:
     """Creates a new, empty cold segment file with the standard schema.
     Idempotent: safe to call on an already-created segment (CREATE TABLE
-    IF NOT EXISTS)."""
+    IF NOT EXISTS). Guards against re-creating/writing into an already-
+    CLOSED segment (assert_writable) -- create_cold_segment is only ever
+    valid for a brand-new or still-open (not yet closed) segment."""
+    assert_writable(dest_path)
     conn = sqlite3.connect(dest_path)
     try:
         conn.executescript(COLD_SCHEMA)
+        ensure_manifest_delta_columns(conn)
         segment_id = Path(dest_path).stem
         conn.execute(
             "INSERT OR IGNORE INTO segment_manifest "
-            "(segment_id, created_at, row_count, month_covered) VALUES (?,?,0,?)",
-            (segment_id, time.time(), month_covered),
+            "(segment_id, created_at, row_count, month_covered, segment_kind, parent_segment_id) "
+            "VALUES (?,?,0,?,?,?)",
+            (segment_id, time.time(), month_covered, segment_kind, parent_segment_id),
         )
         conn.commit()
     finally:
@@ -151,12 +230,24 @@ def migrate_rows_to_cold(
     )
 
 
-def close_segment(dest_path: str, *, source_run_id: str) -> None:
+def close_segment(
+    dest_path: str, *, source_run_id: str,
+    segment_kind: str | None = None, parent_segment_id: str | None = None,
+) -> None:
     """Marks a segment closed (immutable) and records the final row count
     + signature digest in the manifest. After this, the segment should
-    never be written to again by any future migration call."""
+    never be written to again by any future migration call (enforced by
+    assert_writable/is_segment_closed at every write entry point in this
+    module and in hot_cold_rollover_runner.py).
+
+    segment_kind/parent_segment_id, when given, are written alongside the
+    close (additive columns -- see ensure_manifest_delta_columns). When
+    omitted, any existing value already in the manifest row is left
+    untouched (so closing a BASE segment created via create_cold_segment
+    with segment_kind='BASE' does not need to repeat it here)."""
     conn = sqlite3.connect(dest_path)
     try:
+        ensure_manifest_delta_columns(conn)
         rows = [r[0] for r in conn.execute("SELECT signature FROM transfer_index ORDER BY signature")]
         digest = hashlib.sha256("\n".join(rows).encode()).hexdigest()
         segment_id = Path(dest_path).stem
@@ -165,11 +256,19 @@ def close_segment(dest_path: str, *, source_run_id: str) -> None:
             "VALUES (?,?,0,'unspecified')",
             (segment_id, time.time()),
         )
-        cursor = conn.execute(
-            "UPDATE segment_manifest SET closed_at=?, row_count=?, "
-            "sha256_of_sorted_signatures=?, source_run_id=? WHERE segment_id=?",
-            (time.time(), len(rows), digest, source_run_id, segment_id),
-        )
+        if segment_kind is not None:
+            cursor = conn.execute(
+                "UPDATE segment_manifest SET closed_at=?, row_count=?, "
+                "sha256_of_sorted_signatures=?, source_run_id=?, segment_kind=?, parent_segment_id=? "
+                "WHERE segment_id=?",
+                (time.time(), len(rows), digest, source_run_id, segment_kind, parent_segment_id, segment_id),
+            )
+        else:
+            cursor = conn.execute(
+                "UPDATE segment_manifest SET closed_at=?, row_count=?, "
+                "sha256_of_sorted_signatures=?, source_run_id=? WHERE segment_id=?",
+                (time.time(), len(rows), digest, source_run_id, segment_id),
+            )
         conn.commit()
         if cursor.rowcount != 1:
             raise RuntimeError(f"close_segment: expected to update exactly 1 manifest row, updated {cursor.rowcount}")

@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D2",
+  "observed_at_utc": "2026-08-14T14:41:04Z",
+  "status": "STOPPED_BEFORE_DATABASE_OPEN",
+  "verdict": "HOLD_EVIDENCE_SOURCE_PATH_UNRESOLVED",
+  "engineering_commit": "91fddb0cfb55e30e55164b83f67135ef6bda571a",
+  "contract_digest": "8ba0259d356c3fd6300f22dbf08b6ca3ea96fd836f94221d4f2499949de4577c",
+  "creator_path_binding": {
+    "path": "/Users/kevinkeaveney/Dev/claude/flex/pumpswap_tokens.db",
+    "digest": "e0f28444336d5b744dbeedf0474b33a9bee1f0c7877477bc069db8b35c12ee4c",
+    "verified": true
+  },
+  "failed_precondition": {
+    "database_id": "evidence",
+    "assumed_path": "/Users/kevinkeaveney/Dev/claude/flex/database/evidence.db",
+    "exists": false,
+    "reason": "SOURCE_PATH_NOT_FOUND"
+  },
+  "health_gate": {
+    "listener_pid": 15357,
+    "latest_three_primary_fd_counts": [0, 0, 1],
+    "serializer_p99_wait_ms": 186.13,
+    "serializer_queue_depth": 0,
+    "serializer_lock_errors_24h": 0,
+    "feeds_and_ingestion_healthy": true,
+    "evidence_writer": "STOPPED"
+  },
+  "execution": {
+    "production_database_connections_opened": 0,
+    "explain_statements": 0,
+    "select_templates_executed": 0,
+    "production_rows_read": 0,
+    "production_writes": 0,
+    "ddl_statements": 0,
+    "retries": 0,
+    "service_actions": 0,
+    "provider_calls": 0
+  },
+  "production_impact": false,
+  "next_action": "Separately authorize a local read-only evidence source-path provenance diagnosis before any new D2 attempt."
+}

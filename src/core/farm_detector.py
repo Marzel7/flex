@@ -24,6 +24,7 @@ import time
 import sqlite3
 import urllib.request
 from collections import defaultdict
+from dataclasses import dataclass
 from typing import Optional
 
 try:
@@ -79,6 +80,28 @@ def ensure_farm_schema(conn) -> None:
         creator TEXT PRIMARY KEY, checked_at INTEGER NOT NULL DEFAULT (strftime('%s','now'))
     )""")
     conn.execute("CREATE INDEX IF NOT EXISTS ix_farm_launch_funder ON wt_farm_launches(funder)")
+    # The farm row remains the compact recurrence projection.  Rich transaction
+    # facts live canonically in wt_walkback_transaction_roles; this table is only
+    # a stable, idempotent link to that evidence for future zero-RPC reuse.
+    conn.execute("""CREATE TABLE IF NOT EXISTS wt_farm_launch_evidence (
+        mint TEXT PRIMARY KEY, funder TEXT NOT NULL, creator TEXT,
+        funding_signature TEXT NOT NULL, role_evidence_key TEXT NOT NULL,
+        transfer_block_time INTEGER, launch_time INTEGER,
+        provenance TEXT NOT NULL, retained_at INTEGER NOT NULL
+    )""")
+    conn.execute("CREATE INDEX IF NOT EXISTS ix_farm_launch_evidence_role ON wt_farm_launch_evidence(role_evidence_key)")
+    conn.commit()
+
+
+def ensure_farm_evidence_schema(conn) -> None:
+    """Additive migration for existing farm databases."""
+    conn.execute("""CREATE TABLE IF NOT EXISTS wt_farm_launch_evidence (
+        mint TEXT PRIMARY KEY, funder TEXT NOT NULL, creator TEXT,
+        funding_signature TEXT NOT NULL, role_evidence_key TEXT NOT NULL,
+        transfer_block_time INTEGER, launch_time INTEGER,
+        provenance TEXT NOT NULL, retained_at INTEGER NOT NULL
+    )""")
+    conn.execute("CREATE INDEX IF NOT EXISTS ix_farm_launch_evidence_role ON wt_farm_launch_evidence(role_evidence_key)")
     conn.commit()
 
 
@@ -98,12 +121,22 @@ def _rpc(method, params, retry=2):
     return None
 
 
-def _trace_funder(creator: str):
+@dataclass(frozen=True)
+class FunderTrace:
+    funder: str | None
+    wrap_close: bool
+    seed_sol: float
+    signature: str | None = None
+    block_time: int | None = None
+    transaction: dict | None = None
+
+
+def _trace_funder_evidence(creator: str) -> FunderTrace:
     """The creator's funder = the SOL sender in its OLDEST tx. Also detect whether that
     funding tx is a wrap-close (syncNative+closeAccount). Returns (funder, wrap_close, seed)."""
     sigs = _rpc("getSignaturesForAddress", [creator, {"limit": 1000}])
     if not sigs:
-        return None, False, 0.0
+        return FunderTrace(None, False, 0.0)
     # page to the true oldest (busy creators rare, but be safe)
     before = sigs[-1]["signature"]
     while len(sigs) == 1000:
@@ -113,7 +146,7 @@ def _trace_funder(creator: str):
         sigs = nx; before = sigs[-1]["signature"]
     tx = _rpc("getTransaction", [sigs[-1]["signature"], {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}])
     if not tx:
-        return None, False, 0.0
+        return FunderTrace(None, False, 0.0, sigs[-1]["signature"])
     meta = tx.get("meta") or {}
     keys = [k.get("pubkey") if isinstance(k, dict) else k
             for k in (tx.get("transaction", {}).get("message", {}).get("accountKeys") or [])]
@@ -127,8 +160,42 @@ def _trace_funder(creator: str):
         seed = (post[ci] - pre[ci]) / 1e9 if ci < min(len(pre), len(post)) else 0.0
         cand = sorted([(keys[i], post[i] - pre[i]) for i in range(min(len(pre), len(post), len(keys)))
                        if keys[i] != creator], key=lambda x: x[1])
-        return (cand[0][0] if cand else None), wc, seed
-    return None, wc, 0.0
+        return FunderTrace(cand[0][0] if cand else None, wc, seed, sigs[-1]["signature"], tx.get("blockTime"), tx)
+    return FunderTrace(None, wc, 0.0, sigs[-1]["signature"], tx.get("blockTime"), tx)
+
+
+def _trace_funder(creator: str):
+    """Compatibility projection of the richer trace used by older callers."""
+    trace = _trace_funder_evidence(creator)
+    return trace.funder, trace.wrap_close, trace.seed_sol
+
+
+def _persist_farm_launch_evidence(conn, *, mint: str, creator: str, trace: FunderTrace,
+                                  launch_time: int | None) -> str | None:
+    """Persist generic roles once, then link the compact farm row to them.
+
+    This is called only after the transaction was already acquired by the farm
+    scanner.  It never performs RPC and is intentionally fail-closed: an absent
+    or undecodable trace results in no link, not inferred quality evidence.
+    """
+    if not trace.funder or not trace.signature or not trace.transaction:
+        return None
+    from src.core.deep_walkback import persist_decoded_transaction_roles
+    role_key = persist_decoded_transaction_roles(
+        conn, mint=mint, signature=trace.signature, anchor_signature=None,
+        tx=trace.transaction,
+    )
+    conn.execute("""INSERT INTO wt_farm_launch_evidence
+        (mint,funder,creator,funding_signature,role_evidence_key,transfer_block_time,launch_time,provenance,retained_at)
+        VALUES (?,?,?,?,?,?,?,?,?)
+        ON CONFLICT(mint) DO UPDATE SET
+          role_evidence_key=excluded.role_evidence_key,
+          transfer_block_time=excluded.transfer_block_time,
+          launch_time=excluded.launch_time,
+          retained_at=excluded.retained_at
+    """, (mint, trace.funder, creator, trace.signature, role_key, trace.block_time,
+          launch_time, "farm_detector_oldest_creator_transaction.v1", int(time.time())))
+    return role_key
 
 
 def run_farm_scan(lookback_days: int = 3, max_rpc: int = 250, quiet: bool = False) -> dict:
@@ -155,6 +222,14 @@ def run_farm_scan(lookback_days: int = 3, max_rpc: int = 250, quiet: bool = Fals
                     ensure_farm_schema(oc); break
                 except Exception:
                     time.sleep(1.5 * (_a + 1))
+    except Exception:
+        pass
+    # Existing installations already have wt_farms, so this separate additive
+    # migration must not be hidden behind the first-install schema branch.
+    try:
+        ensure_farm_evidence_schema(oc)
+        from src.core.deep_walkback import ensure_schema as ensure_walkback_schema
+        ensure_walkback_schema(oc)
     except Exception:
         pass
     try:
@@ -186,12 +261,15 @@ def run_farm_scan(lookback_days: int = 3, max_rpc: int = 250, quiet: bool = Fals
         for mint, creator, peak, mig in rows:
             if creator in checked or rpc_used >= max_rpc:
                 continue
-            funder, wc, seed = _trace_funder(creator)
+            trace = _trace_funder_evidence(creator)
             rpc_used += 2
             checked_rows.append((creator,))
-            if not funder:
+            if not trace.funder:
                 continue
-            launch_rows.append((mint, funder, creator, peak, mig, 1 if wc else 0, round(seed, 4)))
+            launch_rows.append((mint, trace.funder, creator, peak, mig, 1 if trace.wrap_close else 0, round(trace.seed_sol, 4)))
+            # Keep raw transaction objects out of the long RPC loop and persist
+            # them only in the short write transaction below.
+            launch_rows[-1] = launch_rows[-1] + (trace,)
 
         # single short write transaction, retried on lock (ops db is contended by the scheduler)
         for _attempt in range(4):
@@ -202,7 +280,9 @@ def run_farm_scan(lookback_days: int = 3, max_rpc: int = 250, quiet: bool = Fals
                     oc.executemany(
                         "INSERT OR REPLACE INTO wt_farm_launches "
                         "(mint, funder, creator, peak_mc, migrated_at, wrap_close, seed_sol) "
-                        "VALUES (?,?,?,?,?,?,?)", launch_rows)
+                        "VALUES (?,?,?,?,?,?,?)", [row[:7] for row in launch_rows])
+                    for mint, _funder, creator, _peak, mig, _wc, _seed, trace in launch_rows:
+                        _persist_farm_launch_evidence(oc, mint=mint, creator=creator, trace=trace, launch_time=mig)
                 oc.commit()
                 break
             except Exception as e:

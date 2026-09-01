@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D3",
+  "status": "COMPLETE",
+  "verdict": "RECURRENT_RECONCILER_UNINDEXED_MIGRATION_TX_SCAN",
+  "observed_at_utc": "2026-08-14T10:16:08Z",
+  "engineering_revision": "7a9c0c2bca9d3936dad482092a9aa2f236cb2303",
+  "scope": {
+    "production_databases_opened": 0,
+    "schema_or_row_queries": 0,
+    "explain_queries": 0,
+    "production_writes_or_ddl": 0,
+    "provider_calls": 0,
+    "service_or_configuration_changes": 0
+  },
+  "post_d1a_cycles": [
+    {
+      "caller": "pumpfun_curve_listener.py:10815 in _reconciler_unseen_sigs",
+      "connection_lifetime_ms": 67564.359,
+      "owner_cleanup_requested_after_seconds": 25,
+      "maximum_observed_primary_fd_count": 7,
+      "maximum_registry_fd_delta": 6
+    },
+    {
+      "caller": "pumpfun_curve_listener.py:10815 in _reconciler_unseen_sigs",
+      "connection_lifetime_ms": 90061.614,
+      "owner_cleanup_requested_after_seconds": 27,
+      "maximum_observed_primary_fd_count": 9,
+      "maximum_registry_fd_delta": 8
+    },
+    {
+      "caller": "pumpfun_curve_listener.py:10815 in _reconciler_unseen_sigs",
+      "connection_lifetime_ms": 109177.788,
+      "owner_cleanup_requested_after_seconds": 27,
+      "maximum_observed_primary_fd_count": 5,
+      "maximum_registry_fd_delta": 4
+    }
+  ],
+  "current_recurrence": {
+    "new_cycle_observed": true,
+    "caller": "pumpfun_curve_listener.py:10815 in _reconciler_unseen_sigs",
+    "latest_primary_fd_count": 2,
+    "latest_registry_count": 1,
+    "latest_registry_fd_delta": 1
+  },
+  "source_reconciliation": {
+    "loop_interval_seconds_default": 120,
+    "signature_limit_default": 100,
+    "query": "SELECT migration_tx FROM token_analysis WHERE migration_tx IN (<bounded placeholders>)",
+    "connection_mode": "managed read_write default used for a read-only query",
+    "qualified_existing_token_analysis_index_prefix": ["migrated_at", "mint"],
+    "migration_tx_leading_index_supported_by_committed_artifacts": false
+  },
+  "assessment": "The repeated long holder is dominated by the reconciler's bounded but unindexed migration_tx membership query. Short concurrent writers increase the instantaneous descriptor count, but they do not explain the repeating 67-109 second owner-thread-cleanup lifetimes. The registry_fd_delta prevents exact attribution of every descriptor and is retained as an explicit limitation.",
+  "terminal_health": {
+    "listener_pid": 9069,
+    "listener_pid_stable": true,
+    "critical_descriptor_event": false,
+    "serializer_p95_wait_ms": 16.62,
+    "serializer_p99_wait_ms": 500.27,
+    "serializer_queue_depth": 0,
+    "lock_errors_24h": 1,
+    "services_and_ingestion_healthy": true,
+    "production_impact_observed": false
+  },
+  "smallest_coherent_repair_not_implemented": "Qualify a safe-local idempotent additive index contract for main.token_analysis(migration_tx), with frozen/ephemeral fixture proof that the exact reconciler IN query selects the index and rejects schema/conflicting-index drift. Production index deployment and any subsequent PSI0A-D retry remain separately authorized.",
+  "next_action": "Obtain separate safe-local authorization for the migration_tx index repair contract and fixture qualification only."
+}

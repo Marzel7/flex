@@ -1,0 +1,64 @@
+{
+  "milestone": "B2N local contract foundation/preflight",
+  "contract_version": "OIP_v2.2E.2B2N.v1",
+  "phase": "LOCAL_FOUNDATION",
+  "status": "PASS",
+  "frozen_manifest_digest": "82bbda32d25a9951a8d8475528d7db3a92b675aae90ce2d55e13391a6b69eedc",
+  "source_milestone": "OIP v2.2E.2B2R",
+  "required_sample_count": 20,
+  "max_physical_request_budget": 20,
+  "max_request_per_member": 1,
+  "required_outcomes": [
+    "SUCCESS",
+    "CACHE_HIT",
+    "NOT_ATTEMPTED",
+    "TIMEOUT",
+    "RATE_LIMITED",
+    "TRANSPORT_ERROR",
+    "RPC_ERROR",
+    "MALFORMED_RESPONSE",
+    "BUDGET_STOP"
+  ],
+  "forbidden": [
+    "retry",
+    "failover",
+    "pagination",
+    "concurrency",
+    "production_access"
+  ],
+  "manifest_fields": [
+    "sample_ordinal",
+    "mint",
+    "census_event_id",
+    "observation_required"
+  ],
+  "ledger_required_fields": [
+    "contract_version",
+    "run_id",
+    "manifest_digest",
+    "sample_ordinal",
+    "mint",
+    "observation_required",
+    "provider",
+    "request_count",
+    "request_outcome",
+    "provider_signature",
+    "provider_slot",
+    "provider_block_time_utc",
+    "request_started_utc_ns",
+    "response_received_utc_ns",
+    "elapsed_monotonic_ns",
+    "evidence_observed",
+    "provenance_complete",
+    "error_class"
+  ],
+  "stop_conditions": [
+    "non_success",
+    "cache_hit",
+    "evidence_missing",
+    "provenance_missing",
+    "budget_overrun",
+    "counter_mismatch",
+    "preflight_mismatch"
+  ]
+}

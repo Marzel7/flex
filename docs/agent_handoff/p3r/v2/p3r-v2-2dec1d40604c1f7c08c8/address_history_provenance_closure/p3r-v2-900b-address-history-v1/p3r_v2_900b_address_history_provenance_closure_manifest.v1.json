@@ -1,0 +1,10 @@
+{
+  "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/address_history_provenance_closure/p3r-v2-900b-address-history-v1/p3r_v2_900b_address_history_provenance_closure.v1.json",
+  "artifact_sha256": "8c605abf1f4c15000c138289f21dcbdbc185586dfdc495689103c67e39ec491a",
+  "rpc_counts": {
+    "address_history": 10,
+    "get_transaction": 24,
+    "total": 34
+  },
+  "verdict": "900B_PROVENANCE_HISTORY_INSUFFICIENT"
+}

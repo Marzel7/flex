@@ -1,0 +1,15 @@
+{
+  "artifact": "Nexus detector-match UI evidence",
+  "operator_id": "bd7d7479-1454-5d41-9f68-115550348f3e",
+  "source": "direct_10k_creator_provisioning_detector_results.v2.json",
+  "source_digest": "3315107025407d79bc393bc3edf3fff5a39e8ca929771f37299ae3ec17ed6f2d",
+  "projection": {
+    "reviewed": 93,
+    "unique_match": 84,
+    "no_match": 9,
+    "insufficient_input": 0,
+    "ambiguous": 0
+  },
+  "ui_scope": "Nexus-only retained launch rows; Match labels are Exact, No, Incomplete, or Ambiguous.",
+  "write_scope": "Audit artifacts and read-model/template code only; no provider, registry, membership, source, or production-data writes."
+}

@@ -1,0 +1,1712 @@
+{
+  "900b_reason": "900b is locally unique at its exact amount. It shares the five-step lifecycle with c357, but retained role/infrastructure evidence does not establish common control; 063e has a distinct retained atomic lifecycle and 9121 lacks frozen atomic coverage.",
+  "900b_revised_analytical_verdict": "900B_DISTINCT_OPERATION_PROVISIONAL",
+  "amount_construction": {
+    "063e_nominal_minus_15000": 10000000000,
+    "900b_nominal_minus_15000": 1000000000,
+    "9121_nominal_minus_15000": 2122054000,
+    "c357_nominal_minus_15000": 100000000000,
+    "finding": "900b/063e/c357 are exactly 1, 10, and 100 SOL nominal amounts less 15,000 lamports; 9121 is not on that decimal series."
+  },
+  "canonical_run_id": "p3r-v2-2dec1d40604c1f7c08c8",
+  "deterministic_replay": {
+    "inputs": {
+      "atomic_rowid": 7095,
+      "edge_rowid": 60299
+    },
+    "pair_count": 6,
+    "result": "PASS"
+  },
+  "family_descriptors": {
+    "p3r-v2-063e24a2def354f23ec5": {
+      "alternative": {
+        "coverage": 0.95122,
+        "dominant": [
+          {
+            "count": 18,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              0
+            ]
+          }
+        ],
+        "fingerprints": [
+          {
+            "count": 18,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              0
+            ]
+          },
+          {
+            "count": 9,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              10000000
+            ]
+          },
+          {
+            "count": 6,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              9999985000
+            ]
+          },
+          {
+            "count": 4,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              999985000
+            ]
+          },
+          {
+            "count": 3,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              6999985000
+            ]
+          },
+          {
+            "count": 3,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              4999985000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              565522000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              536351000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              310168000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              510626000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              625578000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              578291000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              1774610000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              49292916000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              26066776000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              929195000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              959178000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              10000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              445952000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              264073000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              271357000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              925278000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              79685143000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              545620000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              274680000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              279000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              425915000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              274121000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              1099315000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              586067000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              312437000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              293122000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              1094716000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              340989000
+            ]
+          }
+        ],
+        "variant_count": 34
+      },
+      "atomic": {
+        "atomic_records": 71,
+        "broader_lifecycle_member_coverage": 1.0,
+        "coverage": 1.0,
+        "covered_members": 41,
+        "dominant_count": 48,
+        "dominant_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "dominant_share": 0.676056,
+        "fingerprints": [
+          {
+            "count": 48,
+            "value": [
+              "createAccount",
+              "initializeAccount",
+              "syncNative",
+              "closeAccount"
+            ]
+          },
+          {
+            "count": 13,
+            "value": [
+              "createIdempotent",
+              "closeAccount",
+              "transfer",
+              "getAccountDataSize",
+              "createAccount",
+              "initializeImmutableOwner",
+              "initializeAccount3",
+              "transferChecked"
+            ]
+          },
+          {
+            "count": 9,
+            "value": [
+              "createAccountWithSeed",
+              "initializeAccount3",
+              "transfer",
+              "syncNative",
+              "closeAccount"
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              "createIdempotent",
+              "closeAccount",
+              "getAccountDataSize",
+              "createAccount",
+              "initializeImmutableOwner",
+              "initializeAccount3",
+              "transferChecked"
+            ]
+          }
+        ],
+        "five_step_member_coverage": 0.219512
+      },
+      "candidate_id": "p3r-v2-063e24a2def354f23ec5",
+      "infrastructure": {
+        "direct_funders": 41,
+        "funders": [
+          "241nHsSEqUQnZLNN5Pwak1pKFZkUcfpdDWK5fyqjBny2",
+          "26MEpv6dtUkJDyiTnCVGuH12QTR7bkoGi64T1Aaz2qzr",
+          "2nehEfpafFAPDsZiYUf7VkTkV6xUmiCyXP8NkVj5xhST",
+          "33mpJDnkt5cQyF4teZijP69SHkcV9M54MLDk8FnXtD8J",
+          "46bFhL2ZxppLTyUtPDdkdcUDhnpxb3ht52PCbcb4VzvK",
+          "4Akqpa8imwrZeAsuTZBix7CqVqYYCsDJcTUyMxrFmvPc",
+          "4V9rPaF6poBdoMgczEtG9a9TJUj3FkrhgLLhWeusGQok",
+          "5RCd5gjghzEJkjfHj4DLwpbMsjFb7SMqWkdLwRdbHmzd",
+          "5mhjT56sYttc4JBjbEQ86eST7cj9Nxno1pvPTovdrzhR",
+          "62JTugo7hbRktrJpsxK8ppp9DPYymjUwDpKzbKn5L9T9",
+          "6GZ1r7o1xL3PUVJySRY8pin62xUUTjm3Zh2p6ZZbQxSK",
+          "6HUfTCBn6zHpzHJUjAKArzoBaVG32PXPwyUff1LGzsoN",
+          "6kvWSoDLNbPQonG8Z8ospyfhUN7SGkra9h4hjG3QT2Na",
+          "7FLSPVT7c151543ZLAzak3wqGNj9s7HJUZorUA8pCE5j",
+          "7RBc6dowD2LCkRqpeJFWwcZCcnwppoLdpyuUhEyyQZBg",
+          "7ejoyL1FmREqijuBmUF9AkhgSAU3tSVNfMMoMF6drp5E",
+          "7gcvcAN55Lds4qHVva7Q6iqdTpQzLFRmJhWNU2HuMVge",
+          "7n7D4khVHNqDGFLWxmGrqPk1Qm5QQMNFR7NZCvJAU85U",
+          "8rx3h89wAVM8NejS9t3CLiomLxuWz1QuYAUZD5PEKF3i",
+          "9G9A74hp66cq9heZt3dtUTuaJ2mPna3mhGGs25rj9kAw",
+          "9ode5YqCsrjrVvrQqBMkQRM99jCYUJkjGa3H5TxUs2Ax",
+          "9uCrBdvyFgCJ6hZorPwYB3a57GXiJq5dKTNdPRC8c5qC",
+          "AM9pbMrmyxj5jibiHbjKomEWYmMcPdTHxmGp6r9kDMfZ",
+          "AMGHRLLGCBi5XKygAuRxwQ9hjpdeqcYz3pPskHvCAiFV",
+          "BVKwFxtR8TiBnxsRx3t5CMKu9Jd94xP1C7BoUqQv3EsJ",
+          "BY573Np4CAX3EUm86tYwMqB5t4NPQPy5MykStzmQt9pC",
+          "BuxKVxRNrfUXXgkM96Cajn67ZcpkRGczp3BQBaWbJJPF",
+          "CepREC6grNza4d9YVcSCo76jUY87du7PBkkNXv1zFm1C",
+          "CiyizcdxuuoywJYcvHgs5u9LWhG7NDD1CnHn3aeWjKxX",
+          "EiwpFhN3LmoSTEbygYnpweUJDaHNfXX3Uho2PGRVPmr3",
+          "Ep3Y9xHaRn8t6B3X6W1o2cztnkMFv5VypwPwDq4rdJX6",
+          "F11DPSHnWXkd7WuAf8xZRHXvpDt8M695ZvuApdaD4wj6",
+          "FjNePRYiEbaWWaFuMXFqeGsGWtn5fpndNVy2i2Y69cQ9",
+          "FpA39vmAVdmXbkk4XvL1gppQoQ7dzQbP5oFc4dMWhAZv",
+          "GAx82JYAZNXHofNxN2GzYypQmKYYFarCPHs7uW2Nd3AQ",
+          "H1NNcTBHhoQixmddnHNaNUcqqCpvhNAW4pbAChfTV3Na",
+          "HADJKqJN9xWAnNAm45KFCKXaNdixxcSHJnd1GegooY9Q",
+          "HCBQjnixpBcqBz8jr3kJqgWPJA517w5gz6XxA53H13DY",
+          "HEuVndRjUkVvH3wGFe3xCYYbFzYwkVfZHTy4FE4rF8Jk",
+          "HfBJnWC6AEDeqyK8Jp5DNmuD5jsM6cjeKQzEY3ajMifn",
+          "J8nJcHVgCZbXqwaNAyW4ptFv7ctX1eRmvEFZsbtcMxET"
+        ],
+        "members_per_funder": 1.0,
+        "parents": [
+          "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+          "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB",
+          "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+          "HS5GjB4KTJbbBdYHkJV8qDpq8gmU9wck2qsxgz3ifgke"
+        ],
+        "repeated_funder_count": 0,
+        "top_1_share": 0.02439,
+        "top_2_share": 0.04878,
+        "top_5_share": 0.121951
+      },
+      "population": {
+        "activity": {
+          "candidate_id": "p3r-v2-063e24a2def354f23ec5",
+          "canonical_activity_class": "VERY_HIGH_ACTIVITY",
+          "canonical_tier": "V2_TIER_3_ACTIVE_BASE",
+          "hours_since_most_recent_launch": 5.594444444444444,
+          "last_24h": 3,
+          "last_30d": 37,
+          "last_7d": 11,
+          "lifetime_member_count": 41,
+          "members_with_retained_launch_timestamp": 41,
+          "most_recent_observed_launch": 1787653614,
+          "rank": 8
+        },
+        "distinct_creators": 41,
+        "distinct_direct_funders": 4,
+        "distinct_parents": 4,
+        "members": 41
+      },
+      "role_pattern": {
+        "atomic_role_relation_counts": [
+          {
+            "count": 57,
+            "value": [
+              true,
+              true,
+              true,
+              false
+            ]
+          },
+          {
+            "count": 14,
+            "value": [
+              false,
+              true,
+              true,
+              false
+            ]
+          }
+        ],
+        "interpretation": "Boolean tuple = source=owner, owner=authority, close_destination=direct_funder, close_destination=parent. Address-independent roles only."
+      },
+      "selected": {
+        "coverage": 1.0,
+        "destination_role": "selected edge candidate parent / creator-provisioning parent",
+        "dominant": [
+          {
+            "count": 41,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              9999985000
+            ]
+          }
+        ],
+        "fingerprints": [
+          {
+            "count": 41,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              9999985000
+            ]
+          }
+        ],
+        "source_role": "selected edge wallet / direct funder"
+      },
+      "temporal": {
+        "active_days": 13,
+        "earliest_block_time": 1784996672,
+        "latest_block_time": 1787653614,
+        "observed_rows": 41
+      },
+      "tier": "V2_TIER_3_ACTIVE_BASE"
+    },
+    "p3r-v2-900b89587c6987d582df": {
+      "alternative": {
+        "coverage": 1.0,
+        "dominant": [
+          {
+            "count": 92,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              999985000
+            ]
+          }
+        ],
+        "fingerprints": [
+          {
+            "count": 92,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              999985000
+            ]
+          },
+          {
+            "count": 12,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              0
+            ]
+          },
+          {
+            "count": 5,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              9999985000
+            ]
+          },
+          {
+            "count": 3,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              1009980000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              313044000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              438262000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              257592000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              282368000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              540000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              430846000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              13743349000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              2407944000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              421948000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              416538000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              79436442000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              324991000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              315282000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              329369000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              10000000
+            ]
+          }
+        ],
+        "variant_count": 19
+      },
+      "atomic": {
+        "atomic_records": 148,
+        "broader_lifecycle_member_coverage": 1.0,
+        "coverage": 1.0,
+        "covered_members": 44,
+        "dominant_count": 126,
+        "dominant_sequence": [
+          "createAccountWithSeed",
+          "initializeAccount3",
+          "transfer",
+          "syncNative",
+          "closeAccount"
+        ],
+        "dominant_share": 0.851351,
+        "fingerprints": [
+          {
+            "count": 126,
+            "value": [
+              "createAccountWithSeed",
+              "initializeAccount3",
+              "transfer",
+              "syncNative",
+              "closeAccount"
+            ]
+          },
+          {
+            "count": 18,
+            "value": [
+              "createAccount",
+              "initializeAccount",
+              "syncNative",
+              "closeAccount"
+            ]
+          },
+          {
+            "count": 3,
+            "value": [
+              "createIdempotent",
+              "closeAccount",
+              "transfer",
+              "getAccountDataSize",
+              "createAccount",
+              "initializeImmutableOwner",
+              "initializeAccount3",
+              "transferChecked"
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              "createIdempotent",
+              "closeAccount",
+              "getAccountDataSize",
+              "createAccount",
+              "initializeImmutableOwner",
+              "initializeAccount3",
+              "transferChecked"
+            ]
+          }
+        ],
+        "five_step_member_coverage": 0.704545
+      },
+      "candidate_id": "p3r-v2-900b89587c6987d582df",
+      "infrastructure": {
+        "direct_funders": 44,
+        "funders": [
+          "2Lab4LTHQQNWHTCqNdCy3sm19NBvTpHLjkMr5X9q2oak",
+          "2cWN1ngM9ktRVupRMfiEM5dtZWEpbMrBfRuULwogoku7",
+          "2hHqto7NnDDHnR4ie5QqMgT5mnaAh5RvMAwuezsc2y2M",
+          "2mpe9faoocNbQZePg7jy11h5jwpTfwx88D1uZgwPiDNf",
+          "2rMLD1Vh5JiRtGxF68Y6wQXPbEdE851gtGjcXsuTycm7",
+          "3trZZBiJjWYuq2ssLkJLCfjwff7prWiFqm1x7UBie45Y",
+          "4LUcoS2imfQ14t4dmH273d6FV7Lx16ihV1wdagEdYjmR",
+          "4M47u8mQT27FxgeMVsCct7b3KQJX4rxXUrN2V4W6yTgX",
+          "4kdizgr55UFF3HNKuBgjzQ3Us6N3nAKCM9exGR7yg9oF",
+          "5rk64muJjhMuc9yTvRDEjccBgBKNTzPCehMkAXaFMfCs",
+          "63NMaF5dPN8CGSPzGTDp8VvKCGTj77xrLmRKhi5SLvov",
+          "6H3SC9jHqY815XdFn9snZhHRssWYS1kiVK8ULGmwqzC3",
+          "6d94pMGMxoWpgjVnPVsTPs2ZrypFG9FUWfHD25txpzhi",
+          "7AFAYsUCdbj9SCxSBgMn8XN6dLYMMqu5fJD3KMtgxAw7",
+          "7mqnp6cYq2dd5M3rYiL87Ad88gnp8aChdBJu7gKNv34n",
+          "8DYSbFxVg8zVox6TjrR5aaitv8y5xLH5GtXdxAUjRKc2",
+          "8zcpfPzwTcjY9BU63HRnXXjh1Bqg8pcYPhpSWdJ25Uay",
+          "9tcE3GE5wmxGTxtssiwhQpL9P2AAvu5LEUgSzV2DqYtS",
+          "AKTpFS9Gmqagu3oREP68Q3KpaPMfxabbYCvRerQXbX5e",
+          "AQYyELJQDFiGubZsSwSbxLNrxYgFD2kD5RwgnVnpoj3Z",
+          "AfZBva22bAcjZv6wowVcJJsj9aNcf39qjp7576SERMLr",
+          "AkLcCEej82Cd3HUB4KrAKENBhrKb43U11CynZtDi72pL",
+          "BRAkNDumhiPfhXh67gLsh4a6eWUuxkhexcv21SD8jKks",
+          "CoTUQRiN7xgG2rHgXKJgWXivsd6ryZFSYHkC451RHCJd",
+          "D96eDj9Ey1qv8gGFcdig4jSyL7irKFAonfRGo3WM3HDh",
+          "DBPAhwePAgbHvjomGGrWcR37TVaWY5FfMkfFuV9tj7C2",
+          "DJrfEywDMdTzuuC7LuiMspZakVF5qmnD2pHC9uJLiSyW",
+          "DfHi81NJDDEf6G94VcXkjE6WtYXig6CsMf11JPTQxs2z",
+          "DsKfy17yqjeAtVaZuZHTaB3dd5aEWCWLe9BVd44jCv4G",
+          "DvpKMF5WJPozMqLQQAX4fKtSowQ3csJDq96u6VJ2KBbH",
+          "E83iUWNBtrEVg9qC4aF5XcexwAWvvKvnRVQHnTnMCN9Y",
+          "F9jkv51Q29TF94rSmVNddXHvYHjUUMDbhYNoRXZAGKXn",
+          "FVpwgEoHsdwaUp9cK2AGnAzStA75FYFonzf1L65wBDDY",
+          "Fa2Uu48FuKgKVdtWLoDKQAXTzzubABamegMXhJbe1dYo",
+          "FaXvPsLU4VDnpA6GYaKzWATSirKecKJKtPshNTF5ZyHd",
+          "Fo86vK2eT85S4YFRg3MGK9nog2meb6ZVecWNZh8aQuoB",
+          "G2DxNnTRTG8Tq58PFwtQyuwsgTFaAh1FEmYudTmjsobK",
+          "GBcUwcb5bDMPmgGvRsga1SfVMuHbETrk6uTYJdsM5ERp",
+          "GaaJR7AtKUzkTTwt9nBDncXuaW2wxSb1XKpb8cWDnZNr",
+          "H5A9SWZo6LfZ8byxUPjPFMZTVLeAL1fXu8kEtF9VBfUK",
+          "HSvt8XpvHwTKhkTapsnkkrp5uUZPzxcCmHYVnAxXb42u",
+          "HfRAJKKdoDkjyqzuk5VKz9cj1N5tMdwfJ2NoTZm4eedn",
+          "J3yZQYJECzT3PD9BpzQzSM4FKENrDeVSCtmxdFSNThMy",
+          "JDyCGoUmX8cDdMUi41mR3gUqPEwRzpWgLzerbybYNotZ"
+        ],
+        "members_per_funder": 1.0,
+        "parents": [
+          "3yHmuLdvP5ffJBpNeDvu1SCVJqujb33VdMeQbm837Uuy",
+          "5YJkZrwNVtrjQjuKStFNfuavWNZ2GdDsK3rW8m6dzq45",
+          "6sSFfF9dtpSTx4CgK5XfN7uVxKd6or9sBvvcnPRK76xq",
+          "71ptwE72WhnoAnpPw73RTr8bz5E9PraUyWkXhyhAkNrC",
+          "9P4vzm8kb83nLiGxNKeDX8kxNeNtwRMuLiyJnVVqwQGd",
+          "AQiB8cPxuoXMeVRPNZygXED68VVXj4awgJ6gzz4WHazn",
+          "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+          "C9WLfmaTPXs1vuyuHFHfu7yqWvM8KDoo5SrcADzDjNjY",
+          "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB",
+          "GHDVSqV5TAXXgHUWpFgAeTuuvQ91ixkXDjPYyeYjaTKh"
+        ],
+        "repeated_funder_count": 0,
+        "top_1_share": 0.022727,
+        "top_2_share": 0.045455,
+        "top_5_share": 0.113636
+      },
+      "population": {
+        "activity": {
+          "candidate_id": "p3r-v2-900b89587c6987d582df",
+          "canonical_activity_class": "VERY_HIGH_ACTIVITY",
+          "canonical_tier": "V2_TIER_3_ACTIVE_BASE",
+          "hours_since_most_recent_launch": 6.666666666666667,
+          "last_24h": 5,
+          "last_30d": 43,
+          "last_7d": 28,
+          "lifetime_member_count": 44,
+          "members_with_retained_launch_timestamp": 44,
+          "most_recent_observed_launch": 1787649754,
+          "rank": 3
+        },
+        "distinct_creators": 44,
+        "distinct_direct_funders": 10,
+        "distinct_parents": 10,
+        "members": 44
+      },
+      "role_pattern": {
+        "atomic_role_relation_counts": [
+          {
+            "count": 144,
+            "value": [
+              true,
+              true,
+              true,
+              false
+            ]
+          },
+          {
+            "count": 4,
+            "value": [
+              false,
+              true,
+              true,
+              false
+            ]
+          }
+        ],
+        "interpretation": "Boolean tuple = source=owner, owner=authority, close_destination=direct_funder, close_destination=parent. Address-independent roles only."
+      },
+      "selected": {
+        "coverage": 1.0,
+        "destination_role": "selected edge candidate parent / creator-provisioning parent",
+        "dominant": [
+          {
+            "count": 44,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              999985000
+            ]
+          }
+        ],
+        "fingerprints": [
+          {
+            "count": 44,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              999985000
+            ]
+          }
+        ],
+        "source_role": "selected edge wallet / direct funder"
+      },
+      "temporal": {
+        "active_days": 11,
+        "earliest_block_time": 1785027689,
+        "latest_block_time": 1787649754,
+        "observed_rows": 44
+      },
+      "tier": "V2_TIER_3_ACTIVE_BASE"
+    },
+    "p3r-v2-9121fbe9e224ed2e42e8": {
+      "alternative": {
+        "coverage": 0.0,
+        "dominant": [],
+        "fingerprints": [],
+        "variant_count": 0
+      },
+      "atomic": {
+        "atomic_records": 0,
+        "broader_lifecycle_member_coverage": 0.0,
+        "coverage": 0.0,
+        "covered_members": 0,
+        "dominant_count": 0,
+        "dominant_sequence": [],
+        "dominant_share": 0,
+        "fingerprints": [],
+        "five_step_member_coverage": 0.0
+      },
+      "candidate_id": "p3r-v2-9121fbe9e224ed2e42e8",
+      "infrastructure": {
+        "direct_funders": 44,
+        "funders": [
+          "22TAZqKtdacu6BQzbrRJvvRMiBAKWFdzmpWY6i8jcPrB",
+          "2KDm5iQiG9G1s254eE4o9cANK6jDGEdzaZ6MVFFqw3EA",
+          "2o93MAW3TVMCAVaTi1JGUpBvW5CeNuru3bS432aJS4gy",
+          "38rtgGmFpn2UeauCRRDRqHd36HnPcfNJEBxey6ZhQh9L",
+          "3VSQqXrz2xagpPGWbHhbJDsiska5nihnkjvPvViRW3MY",
+          "3YsrP2ApuiF41cvYHDwaDZByPrUfBcXpvGp6p4Bg9kJX",
+          "3rcp91jyBDfZdKA7xpuJWHeTcz6SPdPM4xrFQLnKmaBZ",
+          "4o5RMCkry238CWB2gps7CoSwwfQjWtk4JDECERWHpPJA",
+          "4zs1UnYSHTahHkkZ4mkquAFNDeJ4o954ZR3kResnfQ9Q",
+          "5jNWKy5eBGANUQYFZ9c3fimEtmdu19v4hKQAbuJ8LiyY",
+          "6Pr1ETwsNkFESiXYPmQsh24tweEcsv7gEy4WgKvgsTuD",
+          "6X1WtksAkB3KYf63BTqWwJb9KWrdrjpEgB5rZJNhz5Ke",
+          "6neW4QXBmmet1w2nujoZWBEQX1UaypjPe1wFGszYgzdY",
+          "6pdjukQP1a1qpuyQDM7drUBmtQhLb9Pkk3LJq7JVGdQv",
+          "782cqn9VXytwvkG8zmFgyhKujAEyXF7RUREeZwj8du2Z",
+          "7FYQUZh6j19oeX8avZookCqk61GxUeww3qj8d2LMzuqi",
+          "7Qgfeqf5rQVoQCM3C6MBDicE9yGxMdY2Ki9R61gZBiVK",
+          "7zozUUxeBjhrVWv36hWj5ycZcK5ZAhVrcKfjFViwNhxp",
+          "8iqkLVoxiSPjzgdeo5eZoTBuZBU6yjBaJsiS3hcVb24B",
+          "8zXNqDTxN2mesvZH7s9PBat9oqPBdtMEEc7bPX5HC8Kg",
+          "9gVCPRjy52CuSjEXiZpgHiGUHrjndfKsmF7rE8WWjxZ7",
+          "9r92bCTJFUp8tp6J1iM9pHCbSK9X2FcWPoQeASo8okYj",
+          "AxUCePqKDDaj8GTY4bPFW8Sn4X55pPoC1qbo9VvBCLW8",
+          "BE5NJi4c2MTpv3uoe5dcSy4zpAbXitMujtoMr6ba7KtE",
+          "BLdRRwStBsvALB5tkLMjDi1S6TdaCHgUxgiEDqa3daB9",
+          "BimCS23o4koK6AT8DpH5aycu26RGznsWLZSQ2UqXWkV7",
+          "BpnGiweePUnk7ejBxvxokCUiZff3Pq3ftJiajgSEx8C7",
+          "CvbgVRtwviVpbioCQ6grRaBJmf3FvcQAJTR6xMcFFQ2E",
+          "DSMQBBhFtrpvN8kbXeGFn3K96AbmBGRtzhVPfgz7DcMC",
+          "DV8LbxMcVkzL6H1f9UDs6XPeutGT8xqGHG4RQnj3Gw9X",
+          "Dbrig5v3nB9WBRP43LPZ3uFmqct2yFaGmFL4RGmn216Y",
+          "E1Gd4YYXTWfmZpq47YdNGnDzQtyAUXMnMYjSmccsnNkv",
+          "EPGsr1RW72VwkwHJXf6Fx9pQkFQhqSc6okJMdobEUrXt",
+          "EUwZWT9BBDSjkTLY8S861CaYAZbfK2cuZNwdzHf8aPhb",
+          "EdecMxUea8A5w1TQN62EH49wkoNKQnBhfCLS1ModbgwV",
+          "FMpZZknP9HJoUoDjAfTF4N6Xxn2BeMgCQUAQ92L5fwCp",
+          "GQ3YS2fJEL9coCEY4G4uVQdVkrggrVred5BQeXksYGXY",
+          "GVE2Fhj7NFyKjUy2iF3FvfFnQY8ynHBHmTR24zvmYtk2",
+          "GpjKTTpjru5kJousjnyzwDS1ovUAHDizQVaykGXmPm5v",
+          "HRqKeaNtxVWoeS7gj8yS3w33h9KEppid3S46YqDr8BCM",
+          "Ha1MaUDWCGurUeHvv9LNpAmfBvxRmQUo1a9zZUTnar23",
+          "HtuYQFce38RvJrKMuRQwmj39tVUbL6XQjGrUbdB5shkc",
+          "J8aPs8YZTS1jejbEKeUwtmScYqWG4Z31v4zshrx9uD8m",
+          "z6f7F9ShPkpx73pHFyMHsuBUS7TwZpLZGDjMUSuNJZm"
+        ],
+        "members_per_funder": 1.0,
+        "parents": [
+          "2hSs96mzJtQpwARyvGyqr4YgScujTYZ5nNSjC2ZqiLj2",
+          "2pdqegFArAS9JqsanLqeD1x1bShnVAddTF9cmwQkB9zW",
+          "2vq6GQJC6gznKXHRBHC7WPFctjTVptgQJxedikdA3LER",
+          "354YbdMFPy1GCYhqb6hZNVxGE1iZbMiJCxz1oNN4bwCo",
+          "3uZEg5WXF8dvkvMXme1n2NrYLTx98NEDj3Z5P3vC9pDo",
+          "53r9F7QveGHTNs5MFjTcpEfhDso5xQD5FrTGE56tKAv2",
+          "5VLRKSKzr8GN13pJGQdUdWV72ZcRo7MRycNFQPdQqrU7",
+          "5ZCFtKtW5mvMjS7FWvKktJK6PcKGQRUGStQKFpAbfvB9",
+          "5hKurjwK4mwhXsmGoAZwPW3rveCPp76tpR1caWPPcCGh",
+          "74NvwqhKJ9ttzFjH9KseQPyUSiE7NDnJZUtWxuHsbhiB",
+          "7PMLwmgFt9h2MvBo8cipAuu4zeRLmLtWMCncXUQYHpNH",
+          "8JhiwxYL3oSsYhPabVtJ7ESDndGAFidR8WbJ2x9CFCHS",
+          "8txZUGSkBdpDhMz4iDvCy6TySFgJSmpzeQZp1E8r6MLq",
+          "9faWPF8EBpMs2VvwLZkwJf3YzTtCUhvrphhaAfFnsoTt",
+          "AEDikG9sZ79U6tiUXqzuLUvSEGgt4KG5x3x9AzUyb4Gh",
+          "AMjK9ZCd11gw1Qci3FkGEm7E7LkHRQEzDS9Qt1AheCQt",
+          "Abs76tLsMkNTrjxN3dq9vHp2CMof9NjNmpq3EWR33Dbf",
+          "Add5WwWu1VcmiarcjK38mxNyHtPM2FkKVL1tcsVNMgPA",
+          "BUhq2DFLvnvEgyGEYrdECsQALGDaE6rj6rVg6kCzcWkn",
+          "Bc4AFD7WT9RQXAJzEH7Nt3Y8eF3r39HDB5foUci4hMMe",
+          "Brz2XRxBcYvSCSKg4AooGTJfv5teofraP2xq42eqFTDh",
+          "C15No9nesimUCBCt6z84UDSfJ7qKw3gnnQ6zLc5X4YWy",
+          "CrfECxyJ1yyh16eTPPWnXmjTicEBWhqHiLSaEnc6d47P",
+          "DSzyg3dZFuLVPJ9PWCCoFM6VHg6NrhMTrdQhsq5SjoCT",
+          "E3KSdHGTNV7fVTpNZFvnGaMNrFLTyGNVWUrCWW3bMx9w",
+          "EDC2fb7VweewbJGr4PhZAvrffc27uTMp9Uz2ATXiXWsm",
+          "GT2uFXdPWLTiPSZWhTXo2GMTnmvjmoK8NWGAV7sZCYxS",
+          "GYffSdtiffuTTZpiXqevWCYsSjn11drMoPsky9vsSUnd",
+          "Gr9kG3GxBaw5tNGWSpZQcAZVY7e1p4GayL8R2nkGtsT5",
+          "GtCpYUTj8ctP26hMFW66bDTwk8mf29CQGG6z8uzTWqK9",
+          "Gu9pshw17h5pFLAFdZJJpcCX89bYN7JD6TnuBRCcWZLX",
+          "HS6GW6KPV4Ex8XrpUUgxhNHmuNUXBsq5GMSQg2CvUPRJ",
+          "J99XgJwAkUkgj9bs7epcRdX8jH51diN99oMsXgBia5G8",
+          "Z3sJhNwMEr7SNDWvHVGTKfzu5423J8THw1PYYpVwy6H",
+          "pUoourSXge1iX2o9aqWmC4vCprpdLgRdXkbZwu95p3w",
+          "zzRHSB99QvUA4uttfFfH8mAGZwjQokWUpj5JvFkYWSo"
+        ],
+        "repeated_funder_count": 0,
+        "top_1_share": 0.022727,
+        "top_2_share": 0.045455,
+        "top_5_share": 0.113636
+      },
+      "population": {
+        "activity": {
+          "candidate_id": "p3r-v2-9121fbe9e224ed2e42e8",
+          "canonical_activity_class": "VERY_HIGH_ACTIVITY",
+          "canonical_tier": "V2_TIER_3_ACTIVE_BASE",
+          "hours_since_most_recent_launch": 9.885,
+          "last_24h": 5,
+          "last_30d": 39,
+          "last_7d": 35,
+          "lifetime_member_count": 44,
+          "members_with_retained_launch_timestamp": 44,
+          "most_recent_observed_launch": 1787638168,
+          "rank": 2
+        },
+        "distinct_creators": 44,
+        "distinct_direct_funders": 36,
+        "distinct_parents": 36,
+        "members": 44
+      },
+      "role_pattern": {
+        "atomic_role_relation_counts": [],
+        "interpretation": "Boolean tuple = source=owner, owner=authority, close_destination=direct_funder, close_destination=parent. Address-independent roles only."
+      },
+      "selected": {
+        "coverage": 1.0,
+        "destination_role": "selected edge candidate parent / creator-provisioning parent",
+        "dominant": [
+          {
+            "count": 44,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              2122039000
+            ]
+          }
+        ],
+        "fingerprints": [
+          {
+            "count": 44,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              2122039000
+            ]
+          }
+        ],
+        "source_role": "selected edge wallet / direct funder"
+      },
+      "temporal": {
+        "active_days": 12,
+        "earliest_block_time": 1784736732,
+        "latest_block_time": 1787638168,
+        "observed_rows": 44
+      },
+      "tier": "V2_TIER_3_ACTIVE_BASE"
+    },
+    "p3r-v2-c357da9d0d4d560311e4": {
+      "alternative": {
+        "coverage": 1.0,
+        "dominant": [
+          {
+            "count": 35,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              10000000
+            ]
+          }
+        ],
+        "fingerprints": [
+          {
+            "count": 35,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              10000000
+            ]
+          },
+          {
+            "count": 17,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              0
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              964472000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              14731329000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              555103000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              413330000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              716429000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              34691715000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              10287000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              169857000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              32489333000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              494469000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              1097045000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              676884000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              614547000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              589575000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              309231000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              820912000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              23512572000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              17659940000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              18688631000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              293594000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              14563110000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              5454354000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              80136733000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              5553225000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              58371978000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              671519000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              5406546000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              99995000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              117784000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              895672000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              655758000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              624840000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              945040000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              722995000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              125415000
+            ]
+          },
+          {
+            "count": 1,
+            "value": [
+              1,
+              "PLAIN_XFER",
+              19743780000
+            ]
+          }
+        ],
+        "variant_count": 38
+      },
+      "atomic": {
+        "atomic_records": 71,
+        "broader_lifecycle_member_coverage": 1.0,
+        "coverage": 1.0,
+        "covered_members": 71,
+        "dominant_count": 71,
+        "dominant_sequence": [
+          "createAccountWithSeed",
+          "initializeAccount3",
+          "transfer",
+          "syncNative",
+          "closeAccount"
+        ],
+        "dominant_share": 1.0,
+        "fingerprints": [
+          {
+            "count": 71,
+            "value": [
+              "createAccountWithSeed",
+              "initializeAccount3",
+              "transfer",
+              "syncNative",
+              "closeAccount"
+            ]
+          }
+        ],
+        "five_step_member_coverage": 1.0
+      },
+      "candidate_id": "p3r-v2-c357da9d0d4d560311e4",
+      "infrastructure": {
+        "direct_funders": 71,
+        "funders": [
+          "2BjFyzy337jVzrLzgbfj9vm6j7ZDWyjwDtp8bShkGcnp",
+          "2QiFAgxAKru3d8oWsL5eEkSAxmQxU6WxHTCoGM6N2VCC",
+          "2qX18psDn9K5jqB8G295Z3AQwbV6xi5MezuHd3Kbq1yF",
+          "2rKe6oPYrXpRL3CgUVrmsJTGXhNY1Uz17Htf6ZdzXwzJ",
+          "2uuJ1sr5bqkfSnMHFUAhFjSwksAvHmH3TU3aU7UWBhFK",
+          "2w3ecjBRZ7ZBim1iaXjqv4YKWeHtRk6n3EpBo1MVZBoS",
+          "38aBEtXLDNScjuAcER11UbCpCyovbtrmzod4YAqkAxMz",
+          "3NrYxFjqL7NhUPsNmb3Tiiq1m7RHxzqDgGvJXf2RxXMn",
+          "3kamQ5cB2fo46pDyGnUkHYmnuDZQJWFxmntxRKvDBhY1",
+          "4HnBbcdrzhmSaFx2YExnoXZFAibX4Uf4NdDUTGqPSDVM",
+          "55fXgo7wWvfTd6ZiRNrqoy42Hx7CbfKnSQgMriVStPEB",
+          "57PuN1WirX56CxshBz7o8fzEVPjY7zUdprsrpUgLjwKA",
+          "5no9tT8XE2HQgagWsYGsgcB3ZKt1ZdGkPotYn3P1a47C",
+          "5vVafVudjZJKUagJuuxRTkFgjLQLqMbrEKVFMwNXcbKq",
+          "67VT8Cb6aoH4UeuFW5T1yFP2ToxLpAeh3VRiXp8Rt4nQ",
+          "6GjoAJjEExghzo5AsiJyTV8Txxp9FGSnWsg3qnwn4oyh",
+          "6cQye5DE7C3xCd7H9pANDfpQd8CTf1XpEGzdcHYmqi8f",
+          "6pGXCCf44q8XzLVbyfivDV3pLv5rAW6h1xVe8oz2sqzZ",
+          "6t5EWE97oCjx7DKAqwMisjwX85VjRPPM4WPj9fLoP7f4",
+          "6vJXHimFNCDp1fMY4vuJfNQdbm8cbXrYQGxdzzPz31gt",
+          "7LYzKGRKPCxvfUSuV5pm57MjmUgC6G3sPKeRcTL4CTgD",
+          "7WFt3jHDWefbVYKPywF57SzQninUrCrZESATTkP881b1",
+          "7d6M8ykfQRYuW7fUqEMESZEpWFBEFDoFPCNQ2U2UUEaM",
+          "7v7nDPBG7Qa1wr5GzHAtf2fxfiRzBC5otW68qPcTQpyR",
+          "8PZAEriyoFAGrEttXmtCk6akRPEWF74RYshHutSV53z5",
+          "8RrP6qzsk32765uyzJgYCPT4LTaUxUBFftoGWuUH7SNr",
+          "8burxqJyYaEtpSX1THFaRSjYWND12BNHUbJtofA9YfWr",
+          "8j9q3Rc4zNwNCTLMketLb92LjQroHziHnYs1MKkYkSgN",
+          "8jLQSAxGfEc1nqX3aPKBHnVXLgbLDwaNdBAFg9XBssyM",
+          "8pJutRGnqvSJuXktHtMwga6Upq5atqZ3Z14ha2N91c8b",
+          "98TuFX8akWLq7Luqbyg6mZKFxQQwZu2LRSs2ybwrT3nS",
+          "9UA4PhjVWhShFgJvpQqyvJoSftQL5757J3buGuATCAi1",
+          "9bFEF5DJagnHfuPdUbCtihwYULdTCzp74RQ288Y4eoxe",
+          "9cZq1PZcQ37YkpbDdLZsbWhzHRQgts7xZq46iFzKx3BH",
+          "9qJM75r8tkUuso35D2RcjoBmLCFy8QDnafbayuwtfUba",
+          "9qqSas8WY6nmQ3fnisLFDJt89AScjZiqbT1jAA1BUCe8",
+          "9vxWQxQ7t96c8me6weJaUs4wwvqL2dJnborBhAbmBjvU",
+          "ABn8WgSFDxiSWchwi4NyAJcYHvbmE3vB86aHRbFgvqi2",
+          "AX93U7LoL2QYWJnuGa1grmqWgtPhG3y6CwqoFanv1ttx",
+          "AcGW5iwbnLL6MqnFJckVEunSJsREtUB6twMGXjtSYcjr",
+          "Aur82G2Zkniy6DVzLa55c1u9rqcX9aZFMG8TS4vMQesN",
+          "BBYghgQV5bZxMJVHhdZZnu9csYo4Yyx5RUYpugTtF4iw",
+          "BDwpyKpdrVfxjeyeTQNQDd4cacva1xQzcBmiBNpjsnuR",
+          "BHqs7btMbN3iFsndATfadrZogMdtEiqTzFc6qqe6bjQx",
+          "BS2tw7Q4vEgPNemCj8cXNv5TvoyPWyikJbccZapuyQqW",
+          "BWPRQ5AgcF75xho5PesYz24UKaXpgzrhc7kEzRkNpTyn",
+          "Bo9vgoTpWBsRD1U3jwPRuSh2cZAAZSzSDJgcw1Ah2mCT",
+          "BxiwCPhgCQbLqSf9ystoYh5uRj4EEvQFcAiXGf2ziM1f",
+          "CCeL96vXcftteC1DJccNipLio4EMrB1ppqoQL9Rz8nnc",
+          "CRz5Kxv9qHini9xhpA2DitjoKySkZPyTbopXCg3W6Xcf",
+          "CZW5TGuGBp8N3K9sJjkaq8yrfae8qKEEptFBJPm2hNeb",
+          "CZk5uZdVfPUMzmCCDVbWUnom7gSZSbgFJKb37vGwTAt8",
+          "CvQTfPsBj9BrH7VfkkrTAXcE5sBkeoLU42S918BnkJw1",
+          "D1WebujJc5CJR5eKjnWWfiKbhhjMdyzKgihbmoDmdsEe",
+          "DSU8DLqBuaFK4Mtw6uGAWBPP1ZhUt5KQYcNvUNZqZKob",
+          "E57fshvfneuC7j1m12mXk8GjQcDVTKmKLG24rnbjiQLF",
+          "FBP2zCEFgcR64bBnoEqKeysYx5d7m5WMmNjRUgp99ddD",
+          "FK9wLKizAtRtfNH57Y4J1wmQxpwpZ2EMYNZ1kME2V7hM",
+          "Ft5Sn8GN9BrqGXUyiuvw4WgEP9MUER8hdmZ7oBBEQ1rT",
+          "FwC68rFq5r4MmsAS3zxEwUSye5JPtYQoL2piJcpKabQB",
+          "GEtVX6H7krvHFCasXsnX2wHzm3iZeqxLUUNzmi4HeER4",
+          "GaCSvrcMmwc8RcbdAnxwBdM2dfzUZN3FkPWCCCCusMbf",
+          "GhnaFwBs9oWGrec1xZ18j5xmkS2muLcMWK5DuLtaXz3D",
+          "HPocCJSYVR5epcdJ3SNdECj1BW3QbwUZJahEX8tNTMMJ",
+          "HRhj8yPAqPgJnjJ5JKTFogHZ7Pukugco8rzXwsR2a1va",
+          "HqUkaFpvG8KHGDhjM6PPLvzbagXrkdYpJhmeaz1hh6ye",
+          "HvrfDJssAXHLzFccnyQDxnWZpFuvj9SS7DcThUPNG4Tz",
+          "REetZZ7KnkkXYqSZAe9B6BdN91E8McDVeSC4RZJQmGa",
+          "UPRCX1GKQxfBzuzenjQ7UkTiBRtPJYDoNH9AsASJoWW",
+          "mMscMXbq3SJM2R6EcL9b8YrgTkDaaPZKiGWHLwcFjzw",
+          "xkRXakyCtZyurxF28kUserYZ7ws9NqqTxaEJjSkVaiJ"
+        ],
+        "members_per_funder": 1.0,
+        "parents": [
+          "2fJCPb27tQhbnX4s3sTJvjzK1deawkREkKjCKS7PjF9g",
+          "2h2xdvznzmcRi4zNE8A3uwe4Er5e5bf8gTxzXREg9ph5",
+          "397s3pwPhV1A88Fj2EuNoERFYTCLdN5WiUAPvxUxFVST",
+          "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+          "3thxdSxsHtFuGJroCYe6JmCojPRizUz1GnvQSq5M5JfY",
+          "49Wo4qJS1CWPd4b8LAezyL4ARPj3fw6N6zPhPV4dQd6V",
+          "54xTpcBEr48Cuis8m2SdeymdQcwvmDR4aegxCPQzUANG",
+          "59MGbbjnBsNKNbTXsd4cc83doHgpkJBdotigvZ6WxjLX",
+          "5PkFFC9FCmm2EUQHMqbF9cwMviSXjgAjeqKEoPoYejuG",
+          "5TR1KXium6nxovUUXbofK2N1uYPh9NA8w9WpvvKZ3Myi",
+          "5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn",
+          "5iDYsDLugMXh1LTRVDmFH8PfQ6ueG5pE9UcfefrnztB6",
+          "5sUoQPPvnvS6eXem4TdcjKJ1JZy7uLEhWN3pCA8yNFnc",
+          "6hakQXcUcnk1EuuGMHsDPw9iP4GPwjUtHxxPAvGnPj3L",
+          "6jJnz6ZQjDZeFLxoDq2RBp4fvsjPfCJmpr1jhQcy2rBk",
+          "7144mX5peoQoyYq2ncsTmzFciqkLiYzS42XVmvFjGiv4",
+          "7DifG8cHrQBAAKjqoLCnfzj8khtnYLPE39GnWgEnLP8d",
+          "7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv",
+          "9As8wexRUtoujuYia5WxpiUCbjut75XTb9LknATiXvRW",
+          "9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp",
+          "AW7FZRzGUA8HnRWTsGbEDogAh4Y2Utv2KBqALEvfGLqb",
+          "AhfDWL1mi2xajF7JWGDzmTiqvtRxD7JDWHkaZVnmUvw7",
+          "Am3Un7bph5NNWDLCVVVQT1kY4kN3GFPjj31g4DdrNCd4",
+          "Ao2sUdoFtKW7yix7v6GT8GoWE94LcgHiyjautukHBKAi",
+          "BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH",
+          "BsKEb5qhnHMFP4XUjoXMv5nMxkvuaFtBH5ssuWNMjLbw",
+          "C2W3FExk348T4aNHpJjiCZpNrpd9MNLBBVZAdWCogtBx",
+          "C55hxeJepPLMKi4xuKjAFLWmxoSfVrqn2LELi67ixQfe",
+          "CYnm5v4MiLLLaUvu5VUfYPxszU8RPBzmH3Qkv7QbfcUi",
+          "CbMTzd1sG9vuP9Tw2nUNBHUvtsyzr4Hm5rknri4XxXWL",
+          "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5",
+          "DPAy3sFUsUWVRCGaMKse2hVYR5kKU7Yr4cE1eM5EwvgA",
+          "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB",
+          "DmfxzqZQTifJQhfrikFdDQXy3Ws6X9H3VX5xkRVTf77y",
+          "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+          "FJrraJVwKYdcLX4we8UttdJGvxErgUKWf6awnVSsxArH",
+          "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD",
+          "G1BJvTetp6YSwaDNSajruPPM1JCTZf5NWeyr6dQN94n7",
+          "G9XSZDgMk8x51uHvFUumZK5AFWJLp3GJCV7VZSkL3uGP",
+          "GUBtBg8i5wn5ME3vYmgqMZFFuBnDp6i1oa8BPFwoURAP",
+          "Gy29oqrQGFsP8cSsZ4eJvmMDMvKeYtWgURGCn5jim9Xn",
+          "HQ2q5DJuAVf1CrDJpwmeSYsLgvGp9k5cGEPZQsNvcMW9",
+          "HRneLKJHUHXJr9zb297N44L8WCUqCJYKDsSxDaPv49wS",
+          "HS5GjB4KTJbbBdYHkJV8qDpq8gmU9wck2qsxgz3ifgke",
+          "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+          "J37JdYS3hpMB3iW8tgUdfFrrBu4X6o9PT3SguxpHXJVW",
+          "J87ewUdaYKXaMVZEdKh14fMcKXaAmzGamzGtaXDop13X",
+          "NeHjc1yqZXesLZTHtK7jrjyQ3MpFg2TVHpV8QDDAHEm",
+          "j6EVoUMZRafJPrdkuoB9PJGXxBGHEsx4VcJq5W3Ft5d"
+        ],
+        "repeated_funder_count": 0,
+        "top_1_share": 0.014085,
+        "top_2_share": 0.028169,
+        "top_5_share": 0.070423
+      },
+      "population": {
+        "activity": {
+          "candidate_id": "p3r-v2-c357da9d0d4d560311e4",
+          "canonical_activity_class": "VERY_HIGH_ACTIVITY",
+          "canonical_tier": "V2_TIER_3_ACTIVE_BASE",
+          "hours_since_most_recent_launch": 11.419722222222223,
+          "last_24h": 2,
+          "last_30d": 70,
+          "last_7d": 26,
+          "lifetime_member_count": 71,
+          "members_with_retained_launch_timestamp": 71,
+          "most_recent_observed_launch": 1787632643,
+          "rank": 13
+        },
+        "distinct_creators": 71,
+        "distinct_direct_funders": 49,
+        "distinct_parents": 49,
+        "members": 71
+      },
+      "role_pattern": {
+        "atomic_role_relation_counts": [
+          {
+            "count": 71,
+            "value": [
+              true,
+              true,
+              true,
+              false
+            ]
+          }
+        ],
+        "interpretation": "Boolean tuple = source=owner, owner=authority, close_destination=direct_funder, close_destination=parent. Address-independent roles only."
+      },
+      "selected": {
+        "coverage": 1.0,
+        "destination_role": "selected edge candidate parent / creator-provisioning parent",
+        "dominant": [
+          {
+            "count": 71,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              99999985000
+            ]
+          }
+        ],
+        "fingerprints": [
+          {
+            "count": 71,
+            "value": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              99999985000
+            ]
+          }
+        ],
+        "source_role": "selected edge wallet / direct funder"
+      },
+      "temporal": {
+        "active_days": 16,
+        "earliest_block_time": 1784656853,
+        "latest_block_time": 1787632643,
+        "observed_rows": 71
+      },
+      "tier": "V2_TIER_3_ACTIVE_BASE"
+    }
+  },
+  "hierarchical_model": {
+    "reason": "The first three amounts are a demonstrated nominal-minus-15000 decimal series. Pairwise local evidence may show lifecycle/role similarity, but retained evidence does not establish common control.",
+    "relationship": "MIXED_HIERARCHY",
+    "supported_hierarchy": "WSOL_PROVISION_CLOSE broad mechanism -> 900b/c357 potential related five-step lifecycle variants; 063e is a decimal-scale amount analogue with a materially different retained atomic lifecycle; 9121 has insufficient frozen atomic evidence for placement."
+  },
+  "next_candidate_recommendation": {
+    "candidate": "p3r-v2-c357da9d0d4d560311e4",
+    "reason": "Largest retained family in the decimal-scale series with complete atomic coverage; resolving its alternative and address-rotation gap is most informative for the shared hierarchy."
+  },
+  "pairwise_similarity_matrix": [
+    {
+      "amount_series_match": true,
+      "atomic_exact_sequence_match": false,
+      "broader_lifecycle_match": true,
+      "caveat": "No controller identity inferred; shared lifecycle or addresses alone is not common control.",
+      "classification": "INSUFFICIENT_EVIDENCE",
+      "family_a": "p3r-v2-900b89587c6987d582df",
+      "family_b": "p3r-v2-063e24a2def354f23ec5",
+      "role_pattern_match": false,
+      "selected_topology": "IDENTICAL_TOPOLOGY_DIFFERENT_EXACT_AMOUNT",
+      "shared_direct_funders": [],
+      "shared_parents": [
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB"
+      ],
+      "temporal_overlap": true
+    },
+    {
+      "amount_series_match": true,
+      "atomic_exact_sequence_match": true,
+      "broader_lifecycle_match": true,
+      "caveat": "No controller identity inferred; shared lifecycle or addresses alone is not common control.",
+      "classification": "RELATED_OPERATION_VARIANTS",
+      "family_a": "p3r-v2-900b89587c6987d582df",
+      "family_b": "p3r-v2-c357da9d0d4d560311e4",
+      "role_pattern_match": false,
+      "selected_topology": "IDENTICAL_TOPOLOGY_DIFFERENT_EXACT_AMOUNT",
+      "shared_direct_funders": [],
+      "shared_parents": [
+        "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB"
+      ],
+      "temporal_overlap": true
+    },
+    {
+      "amount_series_match": false,
+      "atomic_exact_sequence_match": false,
+      "broader_lifecycle_match": false,
+      "caveat": "No controller identity inferred; shared lifecycle or addresses alone is not common control.",
+      "classification": "INSUFFICIENT_EVIDENCE",
+      "family_a": "p3r-v2-900b89587c6987d582df",
+      "family_b": "p3r-v2-9121fbe9e224ed2e42e8",
+      "role_pattern_match": false,
+      "selected_topology": "IDENTICAL_TOPOLOGY_DIFFERENT_EXACT_AMOUNT",
+      "shared_direct_funders": [],
+      "shared_parents": [],
+      "temporal_overlap": true
+    },
+    {
+      "amount_series_match": true,
+      "atomic_exact_sequence_match": false,
+      "broader_lifecycle_match": true,
+      "caveat": "No controller identity inferred; shared lifecycle or addresses alone is not common control.",
+      "classification": "INSUFFICIENT_EVIDENCE",
+      "family_a": "p3r-v2-063e24a2def354f23ec5",
+      "family_b": "p3r-v2-c357da9d0d4d560311e4",
+      "role_pattern_match": false,
+      "selected_topology": "IDENTICAL_TOPOLOGY_DIFFERENT_EXACT_AMOUNT",
+      "shared_direct_funders": [],
+      "shared_parents": [
+        "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB",
+        "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "HS5GjB4KTJbbBdYHkJV8qDpq8gmU9wck2qsxgz3ifgke"
+      ],
+      "temporal_overlap": true
+    },
+    {
+      "amount_series_match": false,
+      "atomic_exact_sequence_match": false,
+      "broader_lifecycle_match": false,
+      "caveat": "No controller identity inferred; shared lifecycle or addresses alone is not common control.",
+      "classification": "INSUFFICIENT_EVIDENCE",
+      "family_a": "p3r-v2-063e24a2def354f23ec5",
+      "family_b": "p3r-v2-9121fbe9e224ed2e42e8",
+      "role_pattern_match": false,
+      "selected_topology": "IDENTICAL_TOPOLOGY_DIFFERENT_EXACT_AMOUNT",
+      "shared_direct_funders": [],
+      "shared_parents": [],
+      "temporal_overlap": true
+    },
+    {
+      "amount_series_match": false,
+      "atomic_exact_sequence_match": false,
+      "broader_lifecycle_match": false,
+      "caveat": "No controller identity inferred; shared lifecycle or addresses alone is not common control.",
+      "classification": "INSUFFICIENT_EVIDENCE",
+      "family_a": "p3r-v2-c357da9d0d4d560311e4",
+      "family_b": "p3r-v2-9121fbe9e224ed2e42e8",
+      "role_pattern_match": false,
+      "selected_topology": "IDENTICAL_TOPOLOGY_DIFFERENT_EXACT_AMOUNT",
+      "shared_direct_funders": [],
+      "shared_parents": [],
+      "temporal_overlap": true
+    }
+  ],
+  "remaining_uncertainty": "Retained local evidence cannot establish common controller identity or fully resolve whether 9121 belongs to the decimal-scale variant set.",
+  "rpc_verdict": "RPC_OPTIONAL_VALIDATION_ONLY",
+  "safety_confirmation": {
+    "family_merge_split": false,
+    "membership_tier_fingerprint_threshold_mutation": false,
+    "operation_activation_detector_runtime_change": false,
+    "queue_replay": false,
+    "rpc_provider_calls": false,
+    "trading_signal": false
+  },
+  "schema_version": "P3R_V2_WS0L_FOUR_FAMILY_OPERATION_COMPARISON.v1",
+  "source_highwaters": {
+    "atomic_rowid": 7095,
+    "edge_rowid": 60299
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "schema_version": "psi0b-g.final-closure.v1",
+  "assessed_at_utc": "2026-08-15T14:20:18Z",
+  "engineering_commit": "9bbc4c077ecb189952c900539c8a8d0031b59269",
+  "authorization_id": "psi0b-shadow-auth-20260815-14",
+  "authorization_digest": "9d7f840b63b0b901899f8059107065c9d759dae159a43711e431d6c5d9ed9da1",
+  "authorization_consumed": true,
+  "authorization_reusable": false,
+  "bound_artifacts": {
+    "attempt": {
+      "path": "docs/audits/psi0b_e_14_production_shadow_attempt.json",
+      "sha256": "d38b2afc3b2ce577f6083656577d13ebbd4446d8b1e8cd2c5290c65364d8b262"
+    },
+    "observer_terminal_digest": "df5a11f975d94a3c3177bd2593df8c850cbe2123ed802cfef01dad3b14c1e968",
+    "observer_terminal_file_sha256": "7f1023ee96b09494062a1ad3c1470ecb6b8062138573a67bf1c19807e0381ca1",
+    "observer_ledger_sha256": "46314e683a4baf58b657b8102a03d1140e7bedae383f7adc3767a88897ede710",
+    "consumption_sha256": "7f2163be0dfd02bbfa90c2ec4b1c9d74d122ed40c4c91e85c6156f77d3b0a926",
+    "bundle_directory": "docs/audits/psi0b_runs/psi0b-shadow-20260814-02",
+    "bundle_digest": "370c815a4bacc640874d798c168ff812c2efd205d6de497fdcfb79b4005351b9"
+  },
+  "bundle_replay": {
+    "status": "PASS",
+    "exact_file_set": [
+      "accounting.json",
+      "hashes.json",
+      "results.json",
+      "run.json"
+    ],
+    "file_sha256": {
+      "accounting.json": "316b1c5cc695c96f6c53415b642f32b292bbeba2a29d21f1361e687490bc5b0c",
+      "hashes.json": "60031d0c322e90b3070c8d69d51da96a01481e55d359357659c6cd9cf6e36d62",
+      "results.json": "eead01c5f86e8f5f997d7bb4a59f6c3415ab8fa1e8af5aa361646fbe87a32c36",
+      "run.json": "26349486615eecff85ccf3468c66e4396d8723f5f0bdb3e6410e4365c7ec2b00"
+    },
+    "preflight_digest": "b2cfd09743c4ba21f7a61a816d8eff8b43e43a1b6e482c4ef9a7f2bd982dcca1",
+    "query_count": 5,
+    "connections_opened": 5,
+    "maximum_concurrent_connections": 1,
+    "total_rows": 9709,
+    "total_canonical_output_bytes": 2590626,
+    "accounting_residual": 0,
+    "sqlite_temporary_bytes": 0,
+    "process_rss_delta_bytes": 60735488,
+    "query_selected_rows": {
+      "creator_selected_cohort": 0,
+      "evidence_launch_facts": 0,
+      "main_selected_cohort": 5000,
+      "ops_selected_cohort": 1,
+      "snapshot_selected_cohort": 4708
+    },
+    "post_run_health": "PASS",
+    "production_writes_or_ddl": 0,
+    "provider_rpc_calls": 0,
+    "service_actions": 0,
+    "grants_integration_authority": false,
+    "grants_activation_authority": false
+  },
+  "current_production_impact_checkpoint": {
+    "watchtower_listener_pid": 72232,
+    "walkback_worker_pid": 70136,
+    "ws_cascade_pid": 5461,
+    "pids_stable": true,
+    "evidence_writer": "STOPPED",
+    "listener_primary_fd_count": 0,
+    "critical_listener_db_handle_events_in_recent_log_window": 0,
+    "serializer_snapshot_epoch": 1786803198,
+    "serializer_p99_wait_ms": 10.99,
+    "serializer_queue_depth": 0,
+    "serializer_lock_errors_24h": 0,
+    "authoritative_owner_sidecars_present": false,
+    "physical_lock_file_descriptors_observed": 0,
+    "database_wal_metadata_healthy": true,
+    "pumpportal_healthy": true,
+    "pumpswap_healthy": true,
+    "ingestion_and_workers_healthy": true,
+    "production_flags_changed": false,
+    "production_impact_observed": false
+  },
+  "closure": {
+    "psi0b_status": "CLOSED_PASS",
+    "verdict": "PSI0B_CLOSED_REPLAY_VERIFIED_QUERY_ONLY_SHADOW_NO_PRODUCTION_IMPACT",
+    "shadow_bundle_immutable": true,
+    "shadow_bundle_integration_authorized": false,
+    "evidence_mirror_authorized": false,
+    "cohort_mode_authorized": false,
+    "production_activation_authorized": false,
+    "eb2_authorized": false,
+    "additional_psi0b_e_attempt_required": false,
+    "all_execution_authorizations_non_reusable": true
+  },
+  "assessment_actions": {
+    "production_database_opens": 0,
+    "production_select_or_explain": 0,
+    "production_writes_or_ddl": 0,
+    "provider_rpc_calls": 0,
+    "service_actions": 0,
+    "bundle_mutations": 0
+  },
+  "next_action": {
+    "status": "SEPARATE_ROADMAP_AUTHORIZATION_REQUIRED",
+    "instruction": "Reconcile the committed roadmap after PSI0B closure before proposing any integration, activation or EB2 work.",
+    "grants_authority": false
+  }
+}

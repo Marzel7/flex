@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D2",
+  "observed_at_utc": "2026-08-14T14:32:41Z",
+  "status": "STOPPED_FIRST_PLAN_NO_RETRY",
+  "verdict": "HOLD_CREATOR_SOURCE_PATH_BINDING_AMBIGUOUS",
+  "engineering_commit": "91fddb0cfb55e30e55164b83f67135ef6bda571a",
+  "contract_digest": "8ba0259d356c3fd6300f22dbf08b6ca3ea96fd836f94221d4f2499949de4577c",
+  "input_gate": {
+    "listener_pid": 15357,
+    "latest_three_primary_fd_counts": [0, 5, 0],
+    "serializer_p99_wait_ms": 105.51,
+    "serializer_queue_depth": 0,
+    "serializer_lock_errors_24h": 0,
+    "feeds_and_ingestion_healthy": true
+  },
+  "attempt": {
+    "first_query_id": "creator_selected_cohort",
+    "database_id": "creator",
+    "resolved_path": "database/pumpswap_tokens.db",
+    "statement_kind": "EXPLAIN_QUERY_PLAN_ONLY",
+    "error": "PSI0A_D_PLAN_INSPECTION_FAILED",
+    "sqlite_cause": "no such table: creator_tokens",
+    "connection_mode": "URI_MODE_RO_QUERY_ONLY",
+    "connection_closed": true,
+    "retry_count": 0
+  },
+  "source_ambiguity": {
+    "canonical_expected_file_name": "pumpswap_tokens.db",
+    "same_named_local_files_observed": [
+      "database/pumpswap_tokens.db",
+      "db_backup/pumpswap_tokens.db",
+      "pumpswap_tokens.db"
+    ],
+    "canonical_host_path_bound": false
+  },
+  "safety": {
+    "select_templates_executed": 0,
+    "production_rows_read": 0,
+    "production_writes": 0,
+    "ddl_statements": 0,
+    "provider_calls": 0,
+    "service_actions": 0,
+    "production_impact": false
+  },
+  "terminal_health": {
+    "listener_pid": 15357,
+    "primary_fd_count": 0,
+    "serializer_p99_wait_ms": 109.09,
+    "serializer_queue_depth": 0,
+    "serializer_lock_errors_24h": 0,
+    "evidence_writer": "STOPPED"
+  },
+  "next_action": "Separately authorize a local read-only source-path provenance diagnosis before any new D2 attempt."
+}

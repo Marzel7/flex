@@ -1,0 +1,56 @@
+{
+  "schema_version": "psi0d-i.qualification-closure.v1",
+  "milestone": "PSI0D-I",
+  "closed_at_utc": "2026-08-16T14:10:00Z",
+  "engineering_commit": "89dd764be84fa5362c54ef5518c23563dacd79d7",
+  "status": "PASS",
+  "verdict": "PSI0D_H_CLOSED_QUALIFIED_ONE_BOUNDED_LOCAL_PROJECTION_PUBLICATION_MAY_BE_PROPOSED",
+  "bound_inputs": {
+    "psi0d_h_publication_contract_digest": "b448d37d6f95a6b92bd838f224e98d1f68e0325cdb2e1827a1ef11c27b583770",
+    "psi0d_h_qualification_digest": "d1396f56f248f5e29f406ba4951cc319d7f051ef60a7fa8dfc42f721c9ddb897",
+    "psi0d_g_closure_digest": "1ba3574d2caff53c538f3990a86604edc48052e7f9fd926e4b8f1242156e468d",
+    "psi0d_f_audit_digest": "9e755dcc6fceef6ef27664eb8531cff0478b0b6cc252ded22ee84adfefd1efac",
+    "expected_projection_digest": "482461d10319e657bbb4df37b4cfa4be526ada21b4dbd3186ce43834ecb2d136",
+    "psi0d_d_adapter_contract_digest": "48e4480d741793c78dda8413ce8fa233c849d3781538bc32c0283a436f00bd7d",
+    "psi0d_b_consumer_contract_digest": "a9e368cceede689736ca234891394551bda098df3b51ebfebf2e72f32aeb51f6"
+  },
+  "replay_verification": {
+    "publication_contract_identity": true,
+    "exact_projection_schema_lineage_provenance_accounting_missingness_interpretation_and_authority_validation": true,
+    "exact_three_file_canonical_bundle": true,
+    "deterministic_file_hashes_and_bundle_digest": true,
+    "atomic_staging_and_rename": true,
+    "file_and_directory_fsync": true,
+    "output_reuse_rejected": true,
+    "retries": false,
+    "post_publication_exact_replay": true,
+    "validation_write_fsync_rename_and_replay_failure_cleanup": true,
+    "source_values_retained": false,
+    "publisher_tests_passed": 19,
+    "combined_psi0d_focused_tests_passed": 51,
+    "psi0_regressions_passed": 389
+  },
+  "authority": {
+    "policy": false,
+    "ranking": false,
+    "integration": false,
+    "deployment": false,
+    "activation": false
+  },
+  "publication_disposition": {
+    "one_bounded_local_projection_publication_is_coherent": true,
+    "projection_reconstruction_basis": "Replay-verified PSI0D-F permitted aggregate audit and committed lineage only; no PSI0C assessment or PSI0B bundle reopen is required.",
+    "proposed_output_directory": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0d_runs/psi0d-projection-20260816-01",
+    "proposed_output_directory_absent_at_closure": true,
+    "publication_authorized_by_this_closure": false,
+    "integration_or_deployment_authorized": false
+  },
+  "scope_proof": {
+    "real_psi0c_assessment_or_psi0b_bundle_opened": false,
+    "real_projection_reconstructed_or_published": false,
+    "consumer_output_created": false,
+    "production_or_runtime_access": false,
+    "provider_or_rpc_calls": 0
+  },
+  "next_action": "HUMAN_APPROVAL_REQUIRED: exactly one bounded safe-local PSI0D-J immutable projection publication to the bound absent output directory, followed by replay verification only."
+}

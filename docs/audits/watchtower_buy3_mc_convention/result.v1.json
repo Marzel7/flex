@@ -1,0 +1,39 @@
+{
+  "schema_version": "watchtower-opening-mc-convention-audit.v1",
+  "test_mint": "BuY3MHzaDEd2ipwub6uAhddH8Ah95oHoZfNDVkVVpump",
+  "frozen_transaction_evidence": {"first_slot_action_total":5,"state_continuity_qualified":true,"buy_sell_math_qualified":true},
+  "current_local_calculation": {
+    "source":"docs/audits/watchtower_buy3_opening_mc/first_slot_decoded_stream.v1.json",
+    "spot_price_formula":"(post_virtual_sol_reserves / 1e9) / (post_virtual_token_reserves / 1e6)",
+    "supply_convention":"Pump.fun CreateEvent token_total_supply",
+    "supply_raw":1000000000000000,
+    "supply_ui":1000000000,
+    "market_cap_formula":"post_spot_price_sol_per_token * 1,000,000,000",
+    "actions":[
+      {"action":1,"price_sol":0.00000003176204916505928,"mc_sol":31.76204916505928,"mc_usd":3221.9422673},
+      {"action":2,"price_sol":0.00000005441371553609628,"mc_sol":54.41371553609628,"mc_usd":5519.72730398},
+      {"action":3,"price_sol":0.00000009975492732118302,"mc_sol":99.75492732118302,"mc_usd":10119.13982746},
+      {"action":4,"price_sol":0.00000020562684624051968,"mc_sol":205.62684624051968,"mc_usd":20858.78728264},
+      {"action":5,"price_sol":0.0000004108801681207574,"mc_sol":410.8801681207574,"mc_usd":41679.68425417}
+    ]
+  },
+  "pumpfun_official_source": {"market_cap_convention_explicitly_defined":false,"finding":"The retained official Pump IDL defines virtual reserves and token_total_supply but does not define a market-cap or FDV display field.","source":"docs/audits/pumpfun_external_canonical_schema_audit/external_schema_provenance.v1.json"},
+  "gmgn": {
+    "requests":2,
+    "token_info_fields":{"launchpad":"pump","launchpad_status":1,"launchpad_progress":1,"migrated_timestamp":1788275105,"pool_exchange":"pump_amm","migration_market_cap":410.84,"migration_market_cap_quote":"SOL","ath_price_usd":0.00027789329,"ath_mc_usd":277893.29,"reported_circulating_supply_ui":985149050,"reported_total_supply_ui":985149050},
+    "field_semantics":"GMGN CLI documentation defines displayed market cap as price × circulating supply, but this token's direct historical fields reveal a distinct fixed-original-supply convention: ath_price_usd × 1,000,000,000 = ath_mc_usd exactly, and migration_market_cap is 410.84 SOL, matching the 1B-supply Pump.fun curve value.",
+    "migration_mc_match":"410.84 SOL GMGN versus 410.880168121 SOL retained on-chain; difference 0.040168121 SOL (rounding).",
+    "first_kline":{"resolution":"30s","first_candle_start":1788275130,"seconds_after_migration":25,"open_usd":0.00013150787,"low_usd":0.00011250693,"high_usd":0.00013717617,"fixed_1b_open_mc_usd":131507.87,"fixed_1b_low_mc_usd":112506.93,"fixed_1b_high_mc_usd":137176.17},
+    "conclusion":"The K-line is post-migration PumpSwap AMM evidence. It begins after the curve-completion timestamp and cannot replace or relabel the Pump.fun curve-implied opening MC."
+  },
+  "supply_comparison_at_action_5": [
+    {"name":"Pump.fun CreateEvent total supply","supply_ui":1000000000,"mc_sol":410.8801681207574,"mc_usd":41679.68425417,"consistent_with_gmgn_migration_mc":true},
+    {"name":"GMGN currently reported supply","supply_ui":985149050,"mc_sol":404.77820728800445,"mc_usd":41060.7013473,"consistent_with_gmgn_migration_mc":false},
+    {"name":"Pump.fun real/distributed token reserve","supply_ui":793100000,"mc_sol":325.8690613365727,"mc_usd":33056.15758198,"consistent_with_gmgn_migration_mc":false},
+    {"name":"initial PumpSwap pool base reserve","supply_ui":206900000,"mc_sol":85.0111067841847,"mc_usd":8623.52667219,"consistent_with_gmgn_migration_mc":false}
+  ],
+  "units": {"token_decimals":6,"raw_supply":1000000000000000,"ui_supply":1000000000,"sol_lamports_per_sol":1000000000,"price_unit":"SOL per UI token","unit_or_decimal_bug_present":false},
+  "canonical_recommendation": {"field":"pumpfun_curve_implied_mc","formula":"((post_virtual_sol_lamports / 1e9) / (post_virtual_token_raw / 1e6)) * CreateEvent.token_total_supply_ui","provenance":"qualified Pump.fun TradeEvent state stream plus CreateEvent total supply","retain_gmgn_separately":true,"gmgn_field":"gmgn_post_migration_amm_price_or_market_cap"},
+  "resolution":"The retained $41.68k is correctly the Pump.fun curve-completion valuation under the 1B-token fixed-supply convention. The visually higher GMGN level is later, post-migration PumpSwap AMM price action; GMGN itself reports the migration valuation as 410.84 SOL, independently corroborating the retained 410.880168 SOL curve value.",
+  "safety":{"source_or_production_rows_modified":false,"normal_walkback_tables_modified":false,"schema_modified":false,"ui_modified":false,"code_modified":false,"suppression_occurred":false,"helius_api_requests":0,"alchemy_api_requests":0,"gmgn_api_requests":2,"external_web_lookups":0}
+}

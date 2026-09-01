@@ -1,0 +1,311 @@
+{
+  "alternate_comparison": [
+    {
+      "cu_limit": "NOT_AVAILABLE_LOCALLY",
+      "cu_price": "NOT_AVAILABLE_LOCALLY",
+      "fee_payer_role": "FUNDER",
+      "inner_count": 0,
+      "match_strict_dominant_pattern": true,
+      "meta_fee": "NOT_AVAILABLE_LOCALLY",
+      "mint": "49t113M4eMYfKHVA55BhnFNbBt33reCNDqtd6fkYFT3B",
+      "outer_count": 3,
+      "signature": "3MTGfvussLUGgb8tMmYggbsUk32n1AYmwPUmn9EUwexLy8Bx3uPPjmn7pf1SfCL5YyBvNhu3fEwza5PTpte87kUU",
+      "signer_count": 1
+    },
+    {
+      "cu_limit": "NOT_AVAILABLE_LOCALLY",
+      "cu_price": "NOT_AVAILABLE_LOCALLY",
+      "fee_payer_role": "FUNDER",
+      "inner_count": 0,
+      "match_strict_dominant_pattern": true,
+      "meta_fee": "NOT_AVAILABLE_LOCALLY",
+      "mint": "GyMC6ay28dxcfdpbYjwqfP8EfjVvrHE4rP6vwoMupump",
+      "outer_count": 3,
+      "signature": "5Mcb668RKKHYkBd8F4Mf3wNX88YDhdRescNBXcCGCdNds9YE9xwegRxzxM8yXhkVR4my5jc2ZWRgdCksxZVYePUX",
+      "signer_count": 1
+    },
+    {
+      "cu_limit": "NOT_AVAILABLE_LOCALLY",
+      "cu_price": "NOT_AVAILABLE_LOCALLY",
+      "fee_payer_role": "FUNDER",
+      "inner_count": 0,
+      "match_strict_dominant_pattern": true,
+      "meta_fee": "NOT_AVAILABLE_LOCALLY",
+      "mint": "22hwGyN552rCB7GW73GdC839Nkbi881jCXNgvoT5pump",
+      "outer_count": 3,
+      "signature": "65fsVsjRQqTP8oe1nmBdcS5Yor3ppKjifR416hY3dgRfWn4SHFKsRCSCq9aG366pkLqdW7bT4nfeTkRJJdU5nmF2",
+      "signer_count": 1
+    }
+  ],
+  "audit_id": "creator_launch_provisioning_fee_compute_fingerprint.v1",
+  "compute_budget_analysis": "NOT_MEASURABLE_LOCALLY \u2014 no ComputeBudget (SetComputeUnitLimit/SetComputeUnitPrice/RequestHeapFrame/SetLoadedAccountsDataSizeLimit) instruction data is retained anywhere locally for this population.",
+  "coverage": {
+    "ALTERNATE": {
+      "compute_unit_limit_present": 0,
+      "compute_unit_price_present": 0,
+      "fee_payer_present": 3,
+      "meta_fee_present": 0,
+      "raw_transaction_present": 0,
+      "signer_set_present": 3,
+      "total": 3
+    },
+    "OUTSIDE_CONTROLS": {
+      "compute_unit_limit_present": 0,
+      "compute_unit_price_present": 0,
+      "fee_payer_present": 0,
+      "meta_fee_present": 0,
+      "note": "No local corpus of complete-input non-DIRECT_10K launches with raw meta.fee/ComputeBudget evidence was found; tf_transaction_cache (the only raw-tx JSON store) does not overlap this population and was not queried further per the RPC-discipline / no-provider-call constraint.",
+      "raw_transaction_present": 0,
+      "signer_set_present": 0,
+      "total": 0
+    },
+    "QVtW": {
+      "compute_unit_limit_present": 0,
+      "compute_unit_price_present": 0,
+      "fee_payer_present": 6,
+      "meta_fee_present": 0,
+      "raw_transaction_present": 0,
+      "signer_set_present": 6,
+      "total": 6
+    },
+    "STRICT": {
+      "compute_unit_limit_present": 0,
+      "compute_unit_price_present": 0,
+      "fee_payer_present": 84,
+      "meta_fee_present": 0,
+      "raw_transaction_present": 0,
+      "signer_set_present": 84,
+      "total": 84
+    }
+  },
+  "detector": "DIRECT_10K_CREATOR_PROVISIONING",
+  "detector_digest": "faaa44199b06f9194e83fcaac2f9bf8ad3b84b75900329e638213f93b2a7eef5",
+  "feature_classification": {
+    "compute_unit_limit": "NOT_USEFUL",
+    "compute_unit_price": "NOT_USEFUL",
+    "full_normalized_fingerprint": "DIAGNOSTIC_ONLY",
+    "funder_fee_payer_role": "SUPPORTING_DETECTOR_FEATURE",
+    "meta_fee": "NOT_USEFUL",
+    "priority_fee": "NOT_USEFUL",
+    "rationale": "signer_count and funder_is_fee_payer are already retained structural shape fields (89.3% of STRICT = signers=1, fee_payer=funder, outer=3, inner=0) and show strong recurrence, but meta_fee/CU_limit/CU_price/priority_fee cannot be classified in any role above NOT_USEFUL because zero local evidence exists to measure stability, recurrence, or genericity \u2014 classifying them higher would be fabrication.",
+    "signer_count": "SUPPORTING_DETECTOR_FEATURE"
+  },
+  "generated_at": "2026-08-31T09:53:19.905111+00:00",
+  "hard_detector_ablation": {
+    "note": "No ablation performed for meta_fee/CU_limit/CU_price/priority_fee \u2014 offline ablation requires measured values for STRICT/QVtW/ALTERNATE to compute STRICT_RECALL_AFTER / QVTW_MATCH_AFTER / ALTERNATE_MATCH_AFTER, none of which exist. Recommending NO hard requirement change; detector left untouched per task rule 23."
+  },
+  "incremental_information_value": "NONE",
+  "incremental_information_value_rationale": "Cannot be assessed above NONE for the fee/CU dimensions specifically because no measurement is possible; the only measurable dimension (structural shape: signer_count=1, funder_is_fee_payer=True, outer=3, inner=0, 89.3% of STRICT) is already captured by the existing detector's compact-instruction-shape characterization referenced in task rule 21, so it adds no NEW information beyond what's already known.",
+  "manual_example": {
+    "cohort": "STRICT",
+    "compute_unit_limit": "NOT_AVAILABLE_LOCALLY",
+    "compute_unit_price_microlamports": "NOT_AVAILABLE_LOCALLY",
+    "found_in_structural_shapes": true,
+    "meta_fee_lamports": "NOT_AVAILABLE_LOCALLY",
+    "mint": "kqcyNfnQuki1JBjMuSC3XYNSuBBezfKeAnYWtNtpump",
+    "note": "Raw transaction JSON for this signature is not present in tf_transaction_cache or any other local cache; only address-blind structural shape metadata (signers/fee_payer/instruction counts) is retained. Solscan-formatted fee text (0.05505 SOL / 0.075 SOL) is explicitly NOT used per task rule 25; no substitute value is fabricated.",
+    "signature": "3u5meAwUCqECiXLrbZpy43n4HrZoZBBFNJvwrr9eKkDFP9Q1BkB1UW4WQ18abGcA1AXczwsHkKhWFSyTU6ESFcVZ",
+    "structural_fields": {
+      "fee_payer": "Bvrc31ZYRAPeuhnkWY8wzUSt57N5CtHCQrxJqaCPAuqN",
+      "funder": "Bvrc31ZYRAPeuhnkWY8wzUSt57N5CtHCQrxJqaCPAuqN",
+      "funder_is_fee_payer": true,
+      "inner_instruction_count": 0,
+      "outer_instruction_count": 3,
+      "signer_count": 1
+    }
+  },
+  "meta_fee_analysis": "NOT_MEASURABLE_LOCALLY \u2014 meta.fee is not retained for any of the 93 population signatures in any local table or artifact.",
+  "negative_controls": {
+    "control_count": 0,
+    "control_matching_any_strict_fingerprint": "UNKNOWN",
+    "control_matching_top_strict_fingerprint": "UNKNOWN",
+    "control_with_complete_fingerprint": 0,
+    "note": "No retained non-DIRECT_10K population with raw meta.fee/ComputeBudget evidence was located; UNKNOWN per task rule 18 rather than assuming zero."
+  },
+  "network_calls": 0,
+  "next_step": "If this fingerprint dimension is still wanted, the only path is a scoped, budgeted RPC acquisition pass (per docs memory 'RPC investigation discipline': 1cr getSignatures+getTransaction only, user-supplied temp key, cache from call #1 into tf_transaction_cache) for exactly the 93 DIRECT_10K population signatures plus a matched outside-control sample, then re-run this same offline analysis. That acquisition step is explicitly OUT OF SCOPE for this task per PROVIDER_CALLS=0 / RPC_CALLS=0 / NETWORK_CALLS=0.",
+  "operation_interpretation": "INSUFFICIENT_EVIDENCE",
+  "populations": {
+    "alternate_population": 3,
+    "qvtw_population": 6,
+    "source": "docs/audits/direct_10k_creator_provisioning_shadow_qualification.v1.json",
+    "strict_population": 84
+  },
+  "production_write_verification": {
+    "assignment_writes": 0,
+    "detector_changes": 0,
+    "living_writes": 0,
+    "membership_writes": 0,
+    "schema_changes": 0,
+    "source_table_writes": 0,
+    "token_analysis_writes": 0
+  },
+  "provider_calls": 0,
+  "qvtw_comparison": [
+    {
+      "cu_limit": "NOT_AVAILABLE_LOCALLY",
+      "cu_price": "NOT_AVAILABLE_LOCALLY",
+      "fee_payer_role": "FUNDER",
+      "inner_count": 0,
+      "meta_fee": "NOT_AVAILABLE_LOCALLY",
+      "mint": "EL4TQEUGPpW8LZnD7PqZX1hWuqCo64tFsgTJfyGKpump",
+      "outer_count": 3,
+      "signature": "3nc3yCBjsTXWxtGCJ6btikteuzRb4vor5N3arjAmsENjzaARZZNvi2RiuSzz82rMgHKhYixQsz4rdnLwcSrq2GZg",
+      "signer_count": 2,
+      "strict_fingerprint_match": "INDETERMINATE_NO_FEE_DATA"
+    },
+    {
+      "cu_limit": "NOT_AVAILABLE_LOCALLY",
+      "cu_price": "NOT_AVAILABLE_LOCALLY",
+      "fee_payer_role": "FUNDER",
+      "inner_count": 0,
+      "meta_fee": "NOT_AVAILABLE_LOCALLY",
+      "mint": "DgFuSYjwjVYBtD17QrJbFYtDXvjn1hJLErz5DoY9pump",
+      "outer_count": 12,
+      "signature": "3DbcY1YrgxFeQ8pZwQjCVKkrgeQ6Q1y5tgkqSRwP2vHbf6aQPZ7oDiCT2j9wHqHy9w2jgU5zv9EMaCA4iNcBmjuu",
+      "signer_count": 5,
+      "strict_fingerprint_match": "INDETERMINATE_NO_FEE_DATA"
+    },
+    {
+      "cu_limit": "NOT_AVAILABLE_LOCALLY",
+      "cu_price": "NOT_AVAILABLE_LOCALLY",
+      "fee_payer_role": "FUNDER",
+      "inner_count": 0,
+      "meta_fee": "NOT_AVAILABLE_LOCALLY",
+      "mint": "CYVCvH1u59vHZv9LiwVgrsuaFDDMCUwWyjjNkT6wpump",
+      "outer_count": 6,
+      "signature": "X2YbsEmWBppAoyb8PkPrUxc8nhbJPi7DrCD6kBiyok5pTPXBiuj2Hze1en7m7gCRfSr2hndGU5rdfsA7Gs4GD93",
+      "signer_count": 3,
+      "strict_fingerprint_match": "INDETERMINATE_NO_FEE_DATA"
+    },
+    {
+      "cu_limit": "NOT_AVAILABLE_LOCALLY",
+      "cu_price": "NOT_AVAILABLE_LOCALLY",
+      "fee_payer_role": "FUNDER",
+      "inner_count": 0,
+      "meta_fee": "NOT_AVAILABLE_LOCALLY",
+      "mint": "3bM3yijpVApAZT5H87hZ4FmjzLiF5Ui6WtSFkG4Npump",
+      "outer_count": 6,
+      "signature": "3vi2CJ26JyqUW4vLUfwsyfcoAtpRGVkGk1t91Gu7HMmhnNDMtnd11RD55Edb1ujJ8aaTuELyUvkcuegFuCBiK8Cq",
+      "signer_count": 3,
+      "strict_fingerprint_match": "INDETERMINATE_NO_FEE_DATA"
+    },
+    {
+      "cu_limit": "NOT_AVAILABLE_LOCALLY",
+      "cu_price": "NOT_AVAILABLE_LOCALLY",
+      "fee_payer_role": "FUNDER",
+      "inner_count": 0,
+      "meta_fee": "NOT_AVAILABLE_LOCALLY",
+      "mint": "9tTm1ByxUi73Cxxjme8EQU953SD7ekHZW25GNibbpump",
+      "outer_count": 15,
+      "signature": "3iZXcdgSws6jfbVQXbhGEWjdE4wDnhPFxHZj2G6zYV9gWc514arFGT82tEnh2qCqQsdSV2sNkVtE8CBUbPyPzoyN",
+      "signer_count": 6,
+      "strict_fingerprint_match": "INDETERMINATE_NO_FEE_DATA"
+    },
+    {
+      "cu_limit": "NOT_AVAILABLE_LOCALLY",
+      "cu_price": "NOT_AVAILABLE_LOCALLY",
+      "fee_payer_role": "FUNDER",
+      "inner_count": 0,
+      "meta_fee": "NOT_AVAILABLE_LOCALLY",
+      "mint": "LWZvn5VWRk23xzzkbrSR1yCaWnKNcU1tFCMAnvppump",
+      "outer_count": 16,
+      "signature": "5ygB78Q6n85y29PZHSFp3yXDHGCcdoUYcqCUgR6bZXQZ7S1gPTWqidxkM6ES4m1FxLvCC6kMfHpfV5QrzJZjkv7Z",
+      "signer_count": 6,
+      "strict_fingerprint_match": "INDETERMINATE_NO_FEE_DATA"
+    }
+  ],
+  "raw_transaction_source_inventory": {
+    "fee_cu_bearing_table": {
+      "compute_units_limit_populated": 0,
+      "distinct_creators_covered": 256,
+      "fee_lamports_populated": 10178,
+      "note": "Disjoint 256-creator watchlist; does not cover the DIRECT_10K STRICT/QVtW/ALTERNATE mints.",
+      "path": "database/flex_complete_database.db",
+      "rows": 12622,
+      "table": "creator_tx_ledger"
+    },
+    "full_raw_tx_json_cache": {
+      "note": "Unrelated corpus; none of the 93 DIRECT_10K population signatures found present.",
+      "path": "database/transaction_first_lineage.db",
+      "population_signatures_present": 0,
+      "rows": 22025,
+      "rows_with_transaction_json": 21994,
+      "table": "tf_transaction_cache"
+    },
+    "structural_shape_source_used_in_this_audit": {
+      "coverage": "93/93 population mints present (84 STRICT, 6 QVtW, 3 ALTERNATE)",
+      "fields_NOT_available": [
+        "meta.fee",
+        "ComputeBudget instructions",
+        "compute_unit_limit",
+        "compute_unit_price_microlamports",
+        "block_time",
+        "slot",
+        "transaction_version"
+      ],
+      "fields_available": [
+        "mint",
+        "funder",
+        "creator",
+        "signature",
+        "fee_payer",
+        "signers",
+        "outer_instruction_count",
+        "inner_instruction_count"
+      ],
+      "path": "docs/audits/potential_operations_6437_defining_transaction_shapes.v1.jsonl"
+    },
+    "walkback_transaction_roles_table": {
+      "note": "Correct schema (fee_payer, signers_json, outer/inner shape json) but empty.",
+      "path": "database/wt_ops_v2.db",
+      "rows": 0,
+      "table": "wt_walkback_transaction_roles"
+    }
+  },
+  "rpc_calls": 0,
+  "structural_fingerprint_strict_no_fee": {
+    "distinct_partial_fingerprint_count": 2,
+    "note": "Address-blind PARTIAL fingerprint using only fields actually retained (signer_count, funder_is_fee_payer, outer/inner instruction counts). meta_fee_lamports and compute_unit_limit/price fields are included as NOT_AVAILABLE_LOCALLY placeholders in the full fingerprint schema but excluded from this computed census since no values exist to differentiate on.",
+    "top_fingerprints": [
+      {
+        "count": 75,
+        "distinct_creators": 75,
+        "distinct_funders": 52,
+        "fingerprint_partial_no_fee": {
+          "compute_unit_limit": "NOT_AVAILABLE_LOCALLY",
+          "compute_unit_price_microlamports": "NOT_AVAILABLE_LOCALLY",
+          "funder_is_fee_payer": true,
+          "inner_instruction_count": 0,
+          "meta_fee_lamports": "NOT_AVAILABLE_LOCALLY",
+          "outer_instruction_count": 3,
+          "signer_count": 1
+        },
+        "percent": 89.3
+      },
+      {
+        "count": 9,
+        "distinct_creators": 9,
+        "distinct_funders": 4,
+        "fingerprint_partial_no_fee": {
+          "compute_unit_limit": "NOT_AVAILABLE_LOCALLY",
+          "compute_unit_price_microlamports": "NOT_AVAILABLE_LOCALLY",
+          "funder_is_fee_payer": true,
+          "inner_instruction_count": 0,
+          "meta_fee_lamports": "NOT_AVAILABLE_LOCALLY",
+          "outer_instruction_count": 1,
+          "signer_count": 1
+        },
+        "percent": 10.7
+      }
+    ]
+  },
+  "supporting_score_recommendation": "NO_ADDITIONAL_VALUE",
+  "temporal_stability": {
+    "cu_limit_temporal_stability": "UNKNOWN_NO_DATA",
+    "cu_price_temporal_stability": "UNKNOWN_NO_DATA",
+    "meta_fee_temporal_stability": "UNKNOWN_NO_DATA"
+  },
+  "ui_recommendation": "NONE \u2014 do not add a 'Fee/CU profile' field until raw meta.fee/ComputeBudget evidence is actually acquired and shown to be stable; a UI field backed by NOT_AVAILABLE_LOCALLY data would be misleading.",
+  "walkback_fee_fingerprint_role": "NO_ROLE"
+}

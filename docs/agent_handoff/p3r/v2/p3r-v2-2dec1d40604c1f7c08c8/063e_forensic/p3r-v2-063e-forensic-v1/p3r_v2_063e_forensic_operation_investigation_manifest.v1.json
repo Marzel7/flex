@@ -1,0 +1,14 @@
+{
+  "deterministic_replay": "Run this script against the same DB high-waters; generated_at_utc is the sole non-semantic field.",
+  "frozen_high_waters": {
+    "atomic_flows": 7095,
+    "edges": 60299
+  },
+  "provider_calls": 0,
+  "report": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/063e_forensic/p3r-v2-063e-forensic-v1/p3r_v2_063e_forensic_operation_investigation.v1.json",
+  "report_sha256": "05833e5787a4735bbd20b1d530ea5ad36c7bffd6f3dc4e54f7f1891a946bde3d",
+  "schema_version": "P3R_V2_063E_FORENSIC_MANIFEST.v1",
+  "source_digests": {
+    "canonical_membership": "54a7c8b75c58595d2fcaa2de7eb48d1f09d1d7fc85cfb9e0a7d985fd22d6ad33"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/provisional_operation_implementation/p3r_v2_900b_provisional_operation_implementation.v1.json",
+  "artifact_sha256": "18710be6fdf40302bb16a2ce8107a75f27ec388768c2cf85e4fe6285b936e8e2",
+  "implementation_files": [
+    "src/ops/provisional_operations.py",
+    "src/ops/operator_reader.py",
+    "templates/operators_index.html"
+  ],
+  "runtime_restart": "not required for template/API source reload in the existing development runtime; no service restart performed",
+  "tests": "7 passed: provisional states, WATCHTOWER confirmed projection, manual registry"
+}

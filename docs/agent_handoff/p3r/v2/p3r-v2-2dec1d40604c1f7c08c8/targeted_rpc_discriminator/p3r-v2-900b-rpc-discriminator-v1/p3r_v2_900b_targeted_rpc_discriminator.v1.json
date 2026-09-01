@@ -1,0 +1,2442 @@
+{
+  "c357_applicability": "UNKNOWN",
+  "candidate_discriminators": [],
+  "cohort": [
+    {
+      "creator_or_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "direct_funder": "G2DxNnTRTG8Tq58PFwtQyuwsgTFaAh1FEmYudTmjsobK",
+      "label": "TP",
+      "mint": "2ukFgVCgXrdijD6qcfV9CnSzGGENkrMFXCurvgUrpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": false,
+        "has_seeded_create": false,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 6,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccount",
+          "spl-token:initializeAccount",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": "legacy",
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "B9XZcMq27uAY2g4b3eK1xxMJ3zba42vwaxf5NutEQ1AXm1xdKtsWdJFkAk2UqgQQnRhSNmwApob1UTQtmN3y6Hs"
+    },
+    {
+      "creator_or_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "direct_funder": "7mqnp6cYq2dd5M3rYiL87Ad88gnp8aChdBJu7gKNv34n",
+      "label": "TP",
+      "mint": "5Q2PmJe7fboykX94gJjYNfN5AgjXDcJDJqeuGUKApump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": false,
+        "has_seeded_create": false,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 6,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccount",
+          "spl-token:initializeAccount",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": "legacy",
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "2DN4a5VC3rfdbas4zbqY3n73QSSM4a8uC2H6yVEmf66xaJRAewK644wo2daMYh1Gz8vCg5w3sB6nGVGpcrFCwLpH"
+    },
+    {
+      "creator_or_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "direct_funder": "AfZBva22bAcjZv6wowVcJJsj9aNcf39qjp7576SERMLr",
+      "label": "TP",
+      "mint": "93Gwy6EzMK2CDJGpTzLAe4fs45GHCzoxbFQcsU6xpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": false,
+        "has_seeded_create": false,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 6,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccount",
+          "spl-token:initializeAccount",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": "legacy",
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "jiS4o6QDcLA8F7gTGAkU1A6viyXT39UB8k8FY3c8RRVRvPQk2Wwnj2DixnEcsrfNHnYEghAxtiVnf81BeKRFBsZ"
+    },
+    {
+      "creator_or_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "direct_funder": "E83iUWNBtrEVg9qC4aF5XcexwAWvvKvnRVQHnTnMCN9Y",
+      "label": "TP",
+      "mint": "9HC9pchPikhAg5CuQxiUFexJe89G8MBfPw4Xx3DLpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": false,
+        "has_seeded_create": false,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 6,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccount",
+          "spl-token:initializeAccount",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": "legacy",
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "BDbYK9zxmcrDBf2i5MzCXV7Z1YeXvN9yZpB6NMf54KLQ1VHM8LGxeTnZMUs9m7jY7NsNzKGqzhkLWCov3koX9Bm"
+    },
+    {
+      "creator_or_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "direct_funder": "4M47u8mQT27FxgeMVsCct7b3KQJX4rxXUrN2V4W6yTgX",
+      "label": "TP",
+      "mint": "9NPivohgTPgvGRFf1zRJkWzRVvzfZQnx4C8SunPspump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": false,
+        "has_seeded_create": false,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 6,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccount",
+          "spl-token:initializeAccount",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": "legacy",
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "5Fp3Da9zVxyrvSY2ae1aYbXUwmmSA4pUFL8YsDm3U2TRos4butQbFTBw9HDA7fUEYsS4g37KWQpjtRVycF4r7egQ"
+    },
+    {
+      "creator_or_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "direct_funder": "2hHqto7NnDDHnR4ie5QqMgT5mnaAh5RvMAwuezsc2y2M",
+      "label": "TP",
+      "mint": "APTsytnD32axqchnou37U1kfXUgUup8zXWzNigDgpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": false,
+        "has_seeded_create": false,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 6,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccount",
+          "spl-token:initializeAccount",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": "legacy",
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "Y8zfq56vFShGKfgWMiF9jyuVsgC2vWNjFdfqDQnuB286dmvY6Ja4399gtbDX1Yk2sK8Fv4jeQmjuJ6SGYvvhYjr"
+    },
+    {
+      "creator_or_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "direct_funder": "6H3SC9jHqY815XdFn9snZhHRssWYS1kiVK8ULGmwqzC3",
+      "label": "TP",
+      "mint": "BHRMJEu8h6xeNMGa5PNgZzNFkv2n7jGjLGPXcEKqpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": false,
+        "has_seeded_create": false,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 6,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccount",
+          "spl-token:initializeAccount",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": "legacy",
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "qLJozeNMUEgJKUNaK5XrJX2hPqrdgHNf2oHSW3kX3wzPZGnk6A84SDQM157A2ELyadromKusg8krKdcrfZqxbWT"
+    },
+    {
+      "creator_or_parent": "5YJkZrwNVtrjQjuKStFNfuavWNZ2GdDsK3rW8m6dzq45",
+      "direct_funder": "F9jkv51Q29TF94rSmVNddXHvYHjUUMDbhYNoRXZAGKXn",
+      "label": "TP",
+      "mint": "BWNBSgKZQfngaJvW3aKgdkLyJoMXRJGg6Ci8LBRpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "399YDak1MmCTV5K4j5GL5eu5buLHpo5YnZeQKsuwTTN5h227owGarc1Ctav8hodG1Uti8exxK2bpKKwwrhk9tEV9"
+    },
+    {
+      "creator_or_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "direct_funder": "DJrfEywDMdTzuuC7LuiMspZakVF5qmnD2pHC9uJLiSyW",
+      "label": "TP",
+      "mint": "C9fC481nRToDRndwD8sXVQ2vcr5sSoP7iwHTnsYTpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": false,
+        "has_seeded_create": false,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 6,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccount",
+          "spl-token:initializeAccount",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": "legacy",
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "KYf9NoBfJm6LBfKXPVYxoLq3tpDtmnTeQup4N8DA9BCQhVyrp5QmmzwNSFiBuyE6FSwonqt6dB88xfXVe1J8QsK"
+    },
+    {
+      "creator_or_parent": "FyuEfKEUwkgg65mR4FGR4JWLi8iF3cB48QqBffittJ2G",
+      "direct_funder": "4SsLBvUSiNJDECUkZJ8LFHRgVJTZotbEn4ruL9JUNtMu",
+      "label": "FP",
+      "mint": "CAjsj4RL3mqDQFcRkjyH1qMVmc8wXDsc3qDhNKwpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "YJNNUT8gNDRVjkQ7efDe7QgfUiU5cKYJb1CqmKnGVKTW4YdgrJqnNVs7Ygw1QMonougrbmtUd2Kb9VPB2egZHJW"
+    },
+    {
+      "creator_or_parent": "GHDVSqV5TAXXgHUWpFgAeTuuvQ91ixkXDjPYyeYjaTKh",
+      "direct_funder": "26VPidBikg47umAQRtSMYBEy3emF1WtcdXiEuBbYJoiR",
+      "label": "FP",
+      "mint": "CmGg1Whq7ewf5xLFPXXfiNc5L2uitu3q8hzTtvTpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "3QGRffKt6F3YZHVMFUBh8LqqwVUxHuHG4Nwf9DHnsZ1dp8LLNazWYuxSF92KGBXycXmRupHrzj38EVcPTYZbbefC"
+    },
+    {
+      "creator_or_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "direct_funder": "AQYyELJQDFiGubZsSwSbxLNrxYgFD2kD5RwgnVnpoj3Z",
+      "label": "TP",
+      "mint": "D1yb7MCFaFq29a2RfGgQ8KNdb3mzpyVJNmBpKfK2pump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": false,
+        "has_seeded_create": false,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 6,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccount",
+          "spl-token:initializeAccount",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": "legacy",
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "ytxNuduB9UsfFA4N34R6jdj28BTVk6z4ATGgoUmA52SFF4tScsdArE2zCMToD8hoN9jJPaoqYZYDptKE3phphQ1"
+    },
+    {
+      "creator_or_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "direct_funder": "J3yZQYJECzT3PD9BpzQzSM4FKENrDeVSCtmxdFSNThMy",
+      "label": "TP",
+      "mint": "DSBi4v66mQVDjLahQhYq3GsdCAPtQh6bg8BQLuWrpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": false,
+        "has_seeded_create": false,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 6,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccount",
+          "spl-token:initializeAccount",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": "legacy",
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "4o1BUBYNaGsiowUZoRmhLat41o7GvFmicKakMphxFM9TXfF4Ryj9Ej8bYS7P5f9kHo5EtGjbQqPRCQavCXvLDhw1"
+    },
+    {
+      "creator_or_parent": "C9WLfmaTPXs1vuyuHFHfu7yqWvM8KDoo5SrcADzDjNjY",
+      "direct_funder": "BRAkNDumhiPfhXh67gLsh4a6eWUuxkhexcv21SD8jKks",
+      "label": "TP",
+      "mint": "DzS6LmHZkTrQH1dm6KB1TZuaRGheX2vSS7EhZFQpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "3BYG18zXNxuB8LzQH2PEo5rxwKG52UBWsWrBnNgyTp5kzVU2k1awBs4SRyj6FLYaAcXfNUgU2z89AhwKQYEZTvKA"
+    },
+    {
+      "creator_or_parent": "3By7ouCvGYhzWEeGny2WCLSTMHLYLxU3VE5yEXtbdqp4",
+      "direct_funder": "D8tTyPFWurhE8C86pa7seVa78iDivHgL7QP2hahiCGiL",
+      "label": "FP",
+      "mint": "Fiw7B6u5XwdnxTfTYzX63deyiwpWdkqBqjjWjXSpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "4Pf5vvnRzfgayHdWKwmz8qB8q614xHK3CZjTt3DnkyyT1LGfPDsVerSdFqBRRYav1oZP4p1LpGNpFwKvBCmhBYiL"
+    },
+    {
+      "creator_or_parent": "5YJkZrwNVtrjQjuKStFNfuavWNZ2GdDsK3rW8m6dzq45",
+      "direct_funder": "6hVghRm3bvJK6dg1Ls2ndsgbVqRnz2eSp2C2JBknD1Bt",
+      "label": "FP",
+      "mint": "GPDZTyHBYWfaQE6N3idv2KxpDbiqLatPNvwAqgkpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "52L122TXngkoGsZu9kYukS7f5Zu3AuioxfyDUDXBEDBPJmPKjUi8JHDTUkPEDA1fUTxfZNmZo6f1C2K7aKTqqtAJ"
+    },
+    {
+      "creator_or_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "direct_funder": "JDyCGoUmX8cDdMUi41mR3gUqPEwRzpWgLzerbybYNotZ",
+      "label": "TP",
+      "mint": "GRzA6upWecidqUTqvNHUw3wvU57f67NksSKjQmYNpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": false,
+        "has_seeded_create": false,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 6,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccount",
+          "spl-token:initializeAccount",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": "legacy",
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "3wFk4pL6YJ79um7r2eD8tok6LP5BvQHrE1ZZWdR3DgUkyLbGEm7kjAjeyY8fR4yEkPkDoVfBGzoipDyGRP6Ck4t8"
+    },
+    {
+      "creator_or_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "direct_funder": "2rMLD1Vh5JiRtGxF68Y6wQXPbEdE851gtGjcXsuTycm7",
+      "label": "TP",
+      "mint": "HFK4THn9RTapetqJfmqNsyMeKXk4QWBVWz7aF8Mhpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": false,
+        "has_seeded_create": false,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 6,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccount",
+          "spl-token:initializeAccount",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": "legacy",
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "34re3n7mrt79LCRRbcbq7awKkeWGWaUz64oWWTmZAMsk8pZ9Pjc5Dr9UwX9q4WmvmLp5aXP1oqCS7gzNKTTx7tpF"
+    },
+    {
+      "creator_or_parent": "71ptwE72WhnoAnpPw73RTr8bz5E9PraUyWkXhyhAkNrC",
+      "direct_funder": "DvpKMF5WJPozMqLQQAX4fKtSowQ3csJDq96u6VJ2KBbH",
+      "label": "TP",
+      "mint": "HNP9RzTDLuUvDKXUWRiQTq8jrR1DSXGbb9TA6BZpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "4un7VtbF8gkZRxiVBGC3Ds9TDptFzFp7SWgCPNaAtZyB5kHTpcrFgm74g6ftYsPAdQycx4Xr2SL8DpNyyp5hUzEV"
+    },
+    {
+      "creator_or_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "direct_funder": "H5A9SWZo6LfZ8byxUPjPFMZTVLeAL1fXu8kEtF9VBfUK",
+      "label": "TP",
+      "mint": "LkGunuxTBzHKbX5b4nj6mhbAKP3qPjFgHaDotN7pump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": false,
+        "has_seeded_create": false,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 6,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccount",
+          "spl-token:initializeAccount",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": "legacy",
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "3shczXBfLH6Y4ntpyfKDCFJu7R4Aid2Th8dMExqZMEdSGt5XYHuoCzFsLJWaLeELTCNjsUubQ7m6AKSSrmpypmU4"
+    },
+    {
+      "creator_or_parent": "71ptwE72WhnoAnpPw73RTr8bz5E9PraUyWkXhyhAkNrC",
+      "direct_funder": "DVVohuXNKDspAihQ9WxqUZiYi6eRLrAJQM1uqF9aUnz4",
+      "label": "FP",
+      "mint": "M7A3PQFy7uKRUkwNf7YbkALi1dyQ7kjd8PmHj3Hpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "cfWMLkVrGyUEL4BFDXC1qJUgWoMDmkFnuka59ntzcH7o93ZUJqGr6QEcSLKsJBjSnrherL7HuKbDC2jx4WEbZzc"
+    },
+    {
+      "creator_or_parent": "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB",
+      "direct_funder": "4LUcoS2imfQ14t4dmH273d6FV7Lx16ihV1wdagEdYjmR",
+      "label": "TP",
+      "mint": "NccxjFzp4wzSHskQWncatvaGJfGX3hpbvaosc9Mpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "4C8zBZijhDSR3N3ofi8R4RkN89iiFjH65nEbfYyZdejje9vZAhb3eLSzYUKsSpp3zBxAKDWQYjDhMGumzbXG6sCA"
+    },
+    {
+      "creator_or_parent": "9P4vzm8kb83nLiGxNKeDX8kxNeNtwRMuLiyJnVVqwQGd",
+      "direct_funder": "DptoU1uSVfbqWWZRq6vCctZoFt9okVL25sSCeQPLr5pW",
+      "label": "FP",
+      "mint": "UXkXEB4AdLDvXEb5zvJ4BLSk5sh3T8wcLxxN2YEpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "3wegtTvz4JysXRX5F3zDqTYUSdD2kT5knAAC4a8WtjPwC8JpoRwmriY1PcoYhoJGFfGcGkgasBtWtyjhYhHHJ7EK"
+    },
+    {
+      "creator_or_parent": "6sSFfF9dtpSTx4CgK5XfN7uVxKd6or9sBvvcnPRK76xq",
+      "direct_funder": "CoTUQRiN7xgG2rHgXKJgWXivsd6ryZFSYHkC451RHCJd",
+      "label": "TP",
+      "mint": "UhoyBoAqgz5Ehmnmvo8EVfUzRkszhL592fi9fSwpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "5ZCjZMeiNNoWnE4z1nHUthaKr8vvMRUBaQPHDNQMFPJPbkj4EcSx6E6jp4rjV5uUHBZk9L445yyETE6ZucKWgsYB"
+    },
+    {
+      "creator_or_parent": "71ptwE72WhnoAnpPw73RTr8bz5E9PraUyWkXhyhAkNrC",
+      "direct_funder": "7AFAYsUCdbj9SCxSBgMn8XN6dLYMMqu5fJD3KMtgxAw7",
+      "label": "TP",
+      "mint": "Vc5sfpeuozdcPE8dw5eBrSSd4dufdk6vqbqCNibpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "4rEA4LN4gKeRXujWGtB4QKDS2KpPbJGSTbqtw4V8ESKSXcYv6kTxiqgdqCFFjtgwGopAjo4oHUCEPXkAD7hMLoyk"
+    },
+    {
+      "creator_or_parent": "HX8KfJhDkLffRbvR9LguozkS21TYBfaFLjYqT5pPqrNV",
+      "direct_funder": "7Mn1e7LmSsvjzNywBktLYZyU3QbbrKaaQmErSjAK5bxy",
+      "label": "FP",
+      "mint": "Vh2sB6qLyMBevQ2JUmPzPDnUjefqZG8CHUbKY6Gpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "4ZXKAkTHtn7nx6qMxT8YzqGSvcZ7KMeLDsMLfUveswTprKRoBzNNkyJBf29NozLKA2VB57ArUUh639D96BLMWr3D"
+    },
+    {
+      "creator_or_parent": "71ptwE72WhnoAnpPw73RTr8bz5E9PraUyWkXhyhAkNrC",
+      "direct_funder": "DsKfy17yqjeAtVaZuZHTaB3dd5aEWCWLe9BVd44jCv4G",
+      "label": "TP",
+      "mint": "WFrNrYnF4cabLY5qvZWtZ4SSC74UyVyS5q9hTG5pump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "3XvwMgVKmryYwYQwUjkJEfCYyAcLjcW2BELP9zn59cU9bi4hAKvMuQUaUFKrBQJRun44vRh5xmdCk4TSDXDWiLrJ"
+    },
+    {
+      "creator_or_parent": "AQiB8cPxuoXMeVRPNZygXED68VVXj4awgJ6gzz4WHazn",
+      "direct_funder": "6d94pMGMxoWpgjVnPVsTPs2ZrypFG9FUWfHD25txpzhi",
+      "label": "TP",
+      "mint": "Wq2Gi2RFva9gtJBHdYF3vbbgqQJ1LCBLTikx7QRpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "4c8WfcsCgEA4z8rZJaJDSbF54pQGJQ3CYa3EP8KmkM4qQkgEa8etSahKE2BJ9MYRVpzzCBSW9rb5MndkZMXo9BHV"
+    },
+    {
+      "creator_or_parent": "71ptwE72WhnoAnpPw73RTr8bz5E9PraUyWkXhyhAkNrC",
+      "direct_funder": "D96eDj9Ey1qv8gGFcdig4jSyL7irKFAonfRGo3WM3HDh",
+      "label": "TP",
+      "mint": "WsiiQ5D1ZSVZQGR6xS63GH8NDEZWX1Ca4bMmc94pump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "27Ws8rMoH38SzLPD1ZPmAWDnJgDoxkNtvAm8jWoZEyq36VC7XY12BFN46SzPTYCvTPGA3D5asievzHK4Shyir6aT"
+    },
+    {
+      "creator_or_parent": "3yHmuLdvP5ffJBpNeDvu1SCVJqujb33VdMeQbm837Uuy",
+      "direct_funder": "2mpe9faoocNbQZePg7jy11h5jwpTfwx88D1uZgwPiDNf",
+      "label": "TP",
+      "mint": "Wsuh6EaGf3x2Z5JnqeB14qcDP9MpQdXUZnsp2Udpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "3pAqtDH6wLqXvjWHEMDEUigvWgJ8Tj1LFuZCm8JDJK7XgsoqD5zdnhkNDZDG3YAXeLUjZ7xmo9FcDG3XzqtGGemq"
+    },
+    {
+      "creator_or_parent": "5YJkZrwNVtrjQjuKStFNfuavWNZ2GdDsK3rW8m6dzq45",
+      "direct_funder": "DfHi81NJDDEf6G94VcXkjE6WtYXig6CsMf11JPTQxs2z",
+      "label": "TP",
+      "mint": "YqTPAwoiCdKrwk8whUqSZsKBbjyCkexKvAjMnrPpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "3iuWGre3nb2Bc3MncocWmaXXESNMvXHWADxmT3PFfvc3dTEYJs4mfFVHvPibUQ6r4zDhfU88YjJFympsjTVsvHdy"
+    },
+    {
+      "creator_or_parent": "GHDVSqV5TAXXgHUWpFgAeTuuvQ91ixkXDjPYyeYjaTKh",
+      "direct_funder": "GBcUwcb5bDMPmgGvRsga1SfVMuHbETrk6uTYJdsM5ERp",
+      "label": "TP",
+      "mint": "a6x3wAFmCSr8sJn2PMNrCZ94jNXkhKS8oY2V2dopump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "2RMwizk8tZZ9tmwnSAW64t9Y37uEpCA8VGzTSZH2ZkSv4T8hyjcKq57fnewdx2MugRtSAqzpkTP6wbVi6AEazeqP"
+    },
+    {
+      "creator_or_parent": "71ptwE72WhnoAnpPw73RTr8bz5E9PraUyWkXhyhAkNrC",
+      "direct_funder": "9tcE3GE5wmxGTxtssiwhQpL9P2AAvu5LEUgSzV2DqYtS",
+      "label": "TP",
+      "mint": "brbu7o1QRLwzisr17hp5vD4hTienxT3qRHSAu4Wpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "3UnF4sa4dVHiGqkjhFcyysRmydybinHgsvfwtNZDko4PWUWJY76NpvcKZqBUvMPNoW3HosrEyRDYuhcRprmbYXaV"
+    },
+    {
+      "creator_or_parent": "2oqD3czK3DmEf12i5TCXAxq98XAwQrGNTG7A8LeCtjiJ",
+      "direct_funder": "4dTBwKJ3kUWXHJ6xmdbopmRP9iUeopTAeGsUHvpBNR7r",
+      "label": "FP",
+      "mint": "bu7rZ9rAai9L6juMp5k7knWhTT3QXeoXZZuxfQMpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "3D6tVQwRQkt3ML3pt8ticp8gkWVyiZeL5uFzRDsLDJPBVGUiQV9oHfyUdYWKz8wFVc8SThVgGFkVeGqq9sLDKZWB"
+    },
+    {
+      "creator_or_parent": "9FxHUXPj7RiG7Y2BK9BuW3mPpbzezNEiK5Q7G7zCWYE1",
+      "direct_funder": "5N7WnVFWxMjnpUdkhd3W5YzteMQr68qpKrhsznGouxzc",
+      "label": "FP",
+      "mint": "bvJjwrxqvZSp7eW69BxFj4YSGniLFysNgPXrwqYpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "yivDcu5waF5uGsJfGtyeVws29zCYJpuwLZc88uNVdutTYSWBMo4pbfyLEPzsgBx877gCSsQspw4MjNLegXRwJHG"
+    },
+    {
+      "creator_or_parent": "71ptwE72WhnoAnpPw73RTr8bz5E9PraUyWkXhyhAkNrC",
+      "direct_funder": "5rk64muJjhMuc9yTvRDEjccBgBKNTzPCehMkAXaFMfCs",
+      "label": "TP",
+      "mint": "bwuf2oW5UzT6g1L8VUTfxkHYCRuLm9CnYk9ydfupump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "4Kdvq6Dw7PiV5pqX6Hbwj88hXWbpvwjkpCCorav4eRkMmBmPhHD8rWoq8VRNewbhciduQPun1BWJwihVicnNMRg7"
+    },
+    {
+      "creator_or_parent": "G1K5YFU4d68nNWLUKSxNTuVsZUXDATSd2dDCpWyEUiDe",
+      "direct_funder": "FVwggNdCeBM4g6j4dS1oYPibiduAnntgWXuWWpM2zGiT",
+      "label": "FP",
+      "mint": "dwqmMVHZ7w84AFgaJ7wNceMQGS5rriiwaFVJCsdpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "4KgYVs2kNtoZfRHpYoixoUUQmK6seonss2tdcdgmJWfqhCfnpXMmsWp8k28S4Sd8GyZ2v3r51V9MZ79fKWqBzrLM"
+    },
+    {
+      "creator_or_parent": "6sSFfF9dtpSTx4CgK5XfN7uVxKd6or9sBvvcnPRK76xq",
+      "direct_funder": "AKTpFS9Gmqagu3oREP68Q3KpaPMfxabbYCvRerQXbX5e",
+      "label": "TP",
+      "mint": "ewmHUkHACmKkGpJMXxShFpNUQMoKmA7vVZadAfFpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "537Xi1LHtaBuCNteuTt62JzyGNkB3reeeMFfJEJ6eQcP6y8YbHvRPUhJwxYqke2j8XHweRcfNmCqmvoU7bN1VNcX"
+    },
+    {
+      "creator_or_parent": "71ptwE72WhnoAnpPw73RTr8bz5E9PraUyWkXhyhAkNrC",
+      "direct_funder": "8DYSbFxVg8zVox6TjrR5aaitv8y5xLH5GtXdxAUjRKc2",
+      "label": "TP",
+      "mint": "fYYPZ3tRBgHzk2dCGE45Ewkmg5gniDYwmstQS8Tpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "bDVVYmMZPoCHXxTiUhTuNJTyGndCEd9Tkspd2Nu77sbUz5pG1qMN77occ7KagwzKcMHW66hJvYV7bk6esCa4W7h"
+    },
+    {
+      "creator_or_parent": "6sSFfF9dtpSTx4CgK5XfN7uVxKd6or9sBvvcnPRK76xq",
+      "direct_funder": "4FDkmbGxfUKVa5ZZJLjKZP7y4EgnJ4RcLuqLutJxyMf4",
+      "label": "FP",
+      "mint": "hv7RU5m4WahioRBqeaf3Jk7udMm19YGPaT24oxvpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "5dBxgHrC5e2pSJeMRAJ893TopBG6BspjHfLvZs4R4aARHhSayzUxBjTEupkek6SujVVDQ7irKByjbCb3JAiT7fyD"
+    },
+    {
+      "creator_or_parent": "71ptwE72WhnoAnpPw73RTr8bz5E9PraUyWkXhyhAkNrC",
+      "direct_funder": "GaaJR7AtKUzkTTwt9nBDncXuaW2wxSb1XKpb8cWDnZNr",
+      "label": "TP",
+      "mint": "ihCMCGWTLYLBzfyBHQCVEZiFdVWwRXW8UPQGjMUpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "3AVpq45AmDeL3RNq8p2JfVES2k63qX5kHXBgNqHKMA1PzS7tjM2iUVL9i1tAUssBEiQtCh15nQtcVXa5fJQUztp1"
+    },
+    {
+      "creator_or_parent": "9P4vzm8kb83nLiGxNKeDX8kxNeNtwRMuLiyJnVVqwQGd",
+      "direct_funder": "FaXvPsLU4VDnpA6GYaKzWATSirKecKJKtPshNTF5ZyHd",
+      "label": "TP",
+      "mint": "itD6Zu8wc5oYuCKfCJ7Ecdx6uSz4ePcx9PgWW8Ypump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "3bgDJkSHEQw5kUXy8gvjATa7wGzCs12mbGS28dfoSPJw9TX7vwopHXPz6jiEupKVDeESLJkASaedpfDAbYJs9Kfh"
+    },
+    {
+      "creator_or_parent": "5YJkZrwNVtrjQjuKStFNfuavWNZ2GdDsK3rW8m6dzq45",
+      "direct_funder": "4kdizgr55UFF3HNKuBgjzQ3Us6N3nAKCM9exGR7yg9oF",
+      "label": "TP",
+      "mint": "maCqH3yPdxeKufYC9Qwr58G5PJRAbwaM3X5C5D1pump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "2tC3UQ1MPwSYZ1VzMUtSpscTVyyhAtaM8QmM5CVEao78uoSEi4PG5UiXCak9i5NhsJujcrrrMiTMBDTA8H9FAWYj"
+    },
+    {
+      "creator_or_parent": "6FGZtW5QDX1tnJXRptPDSdioZ5riQjCHDJM2KYGDUCbQ",
+      "direct_funder": "AeGYFqKfw2k59E4QfVzDQZyb4nMY396ZCCzN5VmykdVS",
+      "label": "FP",
+      "mint": "mxey3nTKBsqa6fQYC7g8RrVM36UT9XJGUCT8ur5pump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "SYA86vYMP2NaANgkTS7mfe76FmCbAx7Cm1GitHJD6NuXV65WmJYc8bWcRWDLW6q7aZfWM1dwGgzkNm5RLhEDVjg"
+    },
+    {
+      "creator_or_parent": "5YJkZrwNVtrjQjuKStFNfuavWNZ2GdDsK3rW8m6dzq45",
+      "direct_funder": "2Lab4LTHQQNWHTCqNdCy3sm19NBvTpHLjkMr5X9q2oak",
+      "label": "TP",
+      "mint": "myT9rohG76nmQ9uPnnGiBA61jvSLoV1csrDUMWfpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "5TyGZRr7T3fUDYJh5yudkkYHghAGXExTifaHYZ991FmZgEzwve1H84v7gemnehgHScUGiceA56THGQBtni7CdmEN"
+    },
+    {
+      "creator_or_parent": "GHDVSqV5TAXXgHUWpFgAeTuuvQ91ixkXDjPYyeYjaTKh",
+      "direct_funder": "63NMaF5dPN8CGSPzGTDp8VvKCGTj77xrLmRKhi5SLvov",
+      "label": "TP",
+      "mint": "oHnNdDhd6YEE4TU9i6YHNjJkeTAQTnzVznGv3Edpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "2D8YFUxafWYXLAUbxxuQWuP9iLyKN84NUa53skSzLKKjghSwzpDytx8t5fWT2weaJrpS5PkN8xgNAXJbsPyTcrVr"
+    },
+    {
+      "creator_or_parent": "GHDVSqV5TAXXgHUWpFgAeTuuvQ91ixkXDjPYyeYjaTKh",
+      "direct_funder": "8zcpfPzwTcjY9BU63HRnXXjh1Bqg8pcYPhpSWdJ25Uay",
+      "label": "TP",
+      "mint": "ojzpe5qJXhN2JWwzj57wEvqmuiVy37aZuZfrQPCpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "5Wg1wMCQ95dyipkLyfaRE8NRyMK7zL9Qth6Q2UvaoF8zASFitBdHLx6sNsazc5uxU7bjTPAe6KqKqgtcewRjUmY2"
+    },
+    {
+      "creator_or_parent": "71ptwE72WhnoAnpPw73RTr8bz5E9PraUyWkXhyhAkNrC",
+      "direct_funder": "HSvt8XpvHwTKhkTapsnkkrp5uUZPzxcCmHYVnAxXb42u",
+      "label": "TP",
+      "mint": "p5HJBxcLPm2xR3jzdNkJtFkY8iqNixmYgevGwzkpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "42m2A3Ushjx8xqRMpXK3YUqnJwP4Lsdwp82zoBdXm6dvnbKkSMmQ8HDfTkPQ4BQvMCGSBctTuV8SGuP8oCYWNphi"
+    },
+    {
+      "creator_or_parent": "5YJkZrwNVtrjQjuKStFNfuavWNZ2GdDsK3rW8m6dzq45",
+      "direct_funder": "2cWN1ngM9ktRVupRMfiEM5dtZWEpbMrBfRuULwogoku7",
+      "label": "TP",
+      "mint": "qEFfQSVcvosEt47VczY1xsqB3YXsEW39MucAEnWpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "4TDxQLG1bftitLok5kHVRDhrEtSQ3qtjR2GqDrr9xQuZ1gFFqNYPG92viaLsXej4Dyy1ASLHrDgBFwjfDsDS7j8F"
+    },
+    {
+      "creator_or_parent": "3yHmuLdvP5ffJBpNeDvu1SCVJqujb33VdMeQbm837Uuy",
+      "direct_funder": "FChCzcTZiVxYpwkTALotD16kwDwACdxQTUHJThKqG6Dj",
+      "label": "FP",
+      "mint": "qgiXEYJD6mXjHqzJJksX1yjYtownjLXFHAtD7KApump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "3dcBuPJ9VdWWkeCAFvuvsn5BSSC64omwvUo3zYmHgREFV1oPV2CXPPm4oyHUtpfYKDivwzVZWnLQxjs5SbPUfk85"
+    },
+    {
+      "creator_or_parent": "5YJkZrwNVtrjQjuKStFNfuavWNZ2GdDsK3rW8m6dzq45",
+      "direct_funder": "HfRAJKKdoDkjyqzuk5VKz9cj1N5tMdwfJ2NoTZm4eedn",
+      "label": "TP",
+      "mint": "tw3ZTi9DNnjhdvPecDUcPoywBMC2DCsxgMtF4XFpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "WvFvFVU6ixtLgcepJ7FiC31UDX8Nvhm2e79519MCz1RCZc6iPokZUeyJ9TJpbyGq6TT4tWWLTyhGWMniuBHXtLe"
+    },
+    {
+      "creator_or_parent": "71ptwE72WhnoAnpPw73RTr8bz5E9PraUyWkXhyhAkNrC",
+      "direct_funder": "DBPAhwePAgbHvjomGGrWcR37TVaWY5FfMkfFuV9tj7C2",
+      "label": "TP",
+      "mint": "vMag4KyyrahegKTDfPzR7oRUnaDZ88faicQBEh9pump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "3bYy4LDyCLeomW4ZuDhqALjgmm4mxXgkwBjkp5DjKnC9TUSHhhYHXp5Gmgx85TbbxGmyu2mG2PaMBsBxB1AzA5kd"
+    },
+    {
+      "creator_or_parent": "3W1iZe2Poeux1Fiaqe3nguaJmDcrsDrDSaoQ9mCERsj9",
+      "direct_funder": "7DAzA57pQRmCso8N35QiywxHM2Mqmok8D5DYE2cderHJ",
+      "label": "FP",
+      "mint": "vTyCy4iNKXQAUFLDPa2m28XNZk1KxzA3FiG7FWrpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "zV6NfuYUbJEEZn6FCRkP8N5rqWv9bfL1HuQqyvNMSsr7WwczE36WQnjbDkJxNkKoE3LhNXeez9wdWFoRAKUWLMN"
+    },
+    {
+      "creator_or_parent": "Ex1xfJVZE9DmMM7TH8YSWRGKMA7YLTYq4bE7yB3qGSL7",
+      "direct_funder": "8MqLdZBBnju927bA73Bm5gZmdsbPsKbGks3qkW4M265y",
+      "label": "FP",
+      "mint": "vdTLLLpo3Ag5sRw8HFMEt6DpFV1VK9B5jeQfK3Kpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "5kNRyyvNiPrvX1q6j8ixtq8GeUehctMJnNpLC1Ns5r1tM35uPZ9wV2RzMEtJAKGy3Ma97ciceqxaGdw2SrKqXMGg"
+    },
+    {
+      "creator_or_parent": "6sSFfF9dtpSTx4CgK5XfN7uVxKd6or9sBvvcnPRK76xq",
+      "direct_funder": "FVpwgEoHsdwaUp9cK2AGnAzStA75FYFonzf1L65wBDDY",
+      "label": "TP",
+      "mint": "xACutJEAhmu4RaRJ8MxS3fcXUW5z1T4A6ao82Pppump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "5beqqm26nVwr46VPqY8dHrt49zqqYAu7KfQpvqYnA3yevxJNnZJGocysE3i7ydHY5TBTRwefZBWtZTGQCdrH1DFD"
+    },
+    {
+      "creator_or_parent": "6sSFfF9dtpSTx4CgK5XfN7uVxKd6or9sBvvcnPRK76xq",
+      "direct_funder": "3trZZBiJjWYuq2ssLkJLCfjwff7prWiFqm1x7UBie45Y",
+      "label": "TP",
+      "mint": "y9bx4XGNCGQhZaBGPuP6tjKq8cjnxyjmvFurigipump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "3YrsfrecGFN2qfhHmoPBe4TZedoexT4D7nheoJjacZggcJ2bdiZeCNp67bHnJvyRYiR8uwFZJ2gYNXRvn3CvCkmW"
+    },
+    {
+      "creator_or_parent": "6sSFfF9dtpSTx4CgK5XfN7uVxKd6or9sBvvcnPRK76xq",
+      "direct_funder": "AkLcCEej82Cd3HUB4KrAKENBhrKb43U11CynZtDi72pL",
+      "label": "TP",
+      "mint": "zMyrnG4fYX9tPCvkEdnu56qtW6Nx45sPnfCZemZpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "2zdnGPRkS3px5tMuAkpvHQ6E2Qt7arsZkugmCrGwkhg7Ghn3ck72Tfsytz44MXMgoG8YhfQV7eYY2qJSBdt4Xcnq"
+    },
+    {
+      "creator_or_parent": "6sSFfF9dtpSTx4CgK5XfN7uVxKd6or9sBvvcnPRK76xq",
+      "direct_funder": "Fo86vK2eT85S4YFRg3MGK9nog2meb6ZVecWNZh8aQuoB",
+      "label": "TP",
+      "mint": "zbSkawMqEPRzYFEEG1iGuuC1SB7gCtx3rLGHYknpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "672TmRXm6DqLPfZUbProDsGVy3LcSLyf2NCbJq3MZYr7vtPpdSztgXnJ6fxQi8B6HfVcmN796ewKvqTTRNpohQzf"
+    },
+    {
+      "creator_or_parent": "5YJkZrwNVtrjQjuKStFNfuavWNZ2GdDsK3rW8m6dzq45",
+      "direct_funder": "Fa2Uu48FuKgKVdtWLoDKQAXTzzubABamegMXhJbe1dYo",
+      "label": "TP",
+      "mint": "zqt2G95SLtff7hGLohVV71YcHbGx49iFsPARqHdpump",
+      "rpc_features": {
+        "five_step_outer": false,
+        "has_close": true,
+        "has_create": true,
+        "has_init3": true,
+        "has_seeded_create": true,
+        "has_sync": true,
+        "inner_group_count": 0,
+        "observable": true,
+        "outer_instruction_count": 7,
+        "outer_program_type_order": [
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "ComputeBudget111111111111111111111111111111:unknown",
+          "system:createAccountWithSeed",
+          "spl-token:initializeAccount3",
+          "system:transfer",
+          "spl-token:syncNative",
+          "spl-token:closeAccount"
+        ],
+        "signer_count": 2,
+        "version": 0,
+        "writable_count": 3
+      },
+      "selected_edge": {
+        "amount": 999985000,
+        "hop": 1,
+        "mechanism": "WSOL_WRAP_CLOSE"
+      },
+      "signature": "5swqqGrYRz8cufQdYW58LBHMXsFv5xpVEySzRh5dQbzKhJMBxrxL36Ht4N5uggKd4Dra5LkjVSkD7vB7LuMiMxjL"
+    }
+  ],
+  "feature_matrix": [
+    {
+      "feature": "has_seeded_create",
+      "fp_match": 15,
+      "fp_observed": 15,
+      "fp_rate": 1.0,
+      "tp_match": 31,
+      "tp_modal_value": true,
+      "tp_observed": 44,
+      "tp_rate": 0.7045454545454546
+    },
+    {
+      "feature": "has_create",
+      "fp_match": 15,
+      "fp_observed": 15,
+      "fp_rate": 1.0,
+      "tp_match": 44,
+      "tp_modal_value": true,
+      "tp_observed": 44,
+      "tp_rate": 1.0
+    },
+    {
+      "feature": "has_init3",
+      "fp_match": 15,
+      "fp_observed": 15,
+      "fp_rate": 1.0,
+      "tp_match": 31,
+      "tp_modal_value": true,
+      "tp_observed": 44,
+      "tp_rate": 0.7045454545454546
+    },
+    {
+      "feature": "has_sync",
+      "fp_match": 15,
+      "fp_observed": 15,
+      "fp_rate": 1.0,
+      "tp_match": 44,
+      "tp_modal_value": true,
+      "tp_observed": 44,
+      "tp_rate": 1.0
+    },
+    {
+      "feature": "has_close",
+      "fp_match": 15,
+      "fp_observed": 15,
+      "fp_rate": 1.0,
+      "tp_match": 44,
+      "tp_modal_value": true,
+      "tp_observed": 44,
+      "tp_rate": 1.0
+    },
+    {
+      "feature": "five_step_outer",
+      "fp_match": 15,
+      "fp_observed": 15,
+      "fp_rate": 1.0,
+      "tp_match": 44,
+      "tp_modal_value": false,
+      "tp_observed": 44,
+      "tp_rate": 1.0
+    },
+    {
+      "feature": "outer_instruction_count",
+      "fp_match": 15,
+      "fp_observed": 15,
+      "fp_rate": 1.0,
+      "tp_match": 31,
+      "tp_modal_value": 7,
+      "tp_observed": 44,
+      "tp_rate": 0.7045454545454546
+    },
+    {
+      "feature": "inner_group_count",
+      "fp_match": 15,
+      "fp_observed": 15,
+      "fp_rate": 1.0,
+      "tp_match": 44,
+      "tp_modal_value": 0,
+      "tp_observed": 44,
+      "tp_rate": 1.0
+    },
+    {
+      "feature": "signer_count",
+      "fp_match": 15,
+      "fp_observed": 15,
+      "fp_rate": 1.0,
+      "tp_match": 44,
+      "tp_modal_value": 2,
+      "tp_observed": 44,
+      "tp_rate": 1.0
+    },
+    {
+      "feature": "writable_count",
+      "fp_match": 15,
+      "fp_observed": 15,
+      "fp_rate": 1.0,
+      "tp_match": 44,
+      "tp_modal_value": 3,
+      "tp_observed": 44,
+      "tp_rate": 1.0
+    },
+    {
+      "feature": "outer_program_type_order",
+      "fp_match": 15,
+      "fp_observed": 15,
+      "fp_rate": 1.0,
+      "tp_match": 31,
+      "tp_modal_value": "[\"ComputeBudget111111111111111111111111111111:unknown\", \"ComputeBudget111111111111111111111111111111:unknown\", \"system:createAccountWithSeed\", \"spl-token:initializeAccount3\", \"system:transfer\", \"spl-token:syncNative\", \"spl-token:closeAccount\"]",
+      "tp_observed": 44,
+      "tp_rate": 0.7045454545454546
+    }
+  ],
+  "frozen_boundary": {
+    "edge_rowid": 60299
+  },
+  "holdout": "Not meaningful: no candidate discriminator met predeclared >=90% TP / 0% FP acceptance gate.",
+  "registration": "NOT_AUTHORIZED_IN_THIS_RUN",
+  "rpc_manifest": {
+    "calls": [
+      {
+        "signature": "27Ws8rMoH38SzLPD1ZPmAWDnJgDoxkNtvAm8jWoZEyq36VC7XY12BFN46SzPTYCvTPGA3D5asievzHK4Shyir6aT",
+        "status": "OK"
+      },
+      {
+        "signature": "2D8YFUxafWYXLAUbxxuQWuP9iLyKN84NUa53skSzLKKjghSwzpDytx8t5fWT2weaJrpS5PkN8xgNAXJbsPyTcrVr",
+        "status": "OK"
+      },
+      {
+        "signature": "2DN4a5VC3rfdbas4zbqY3n73QSSM4a8uC2H6yVEmf66xaJRAewK644wo2daMYh1Gz8vCg5w3sB6nGVGpcrFCwLpH",
+        "status": "OK"
+      },
+      {
+        "signature": "2RMwizk8tZZ9tmwnSAW64t9Y37uEpCA8VGzTSZH2ZkSv4T8hyjcKq57fnewdx2MugRtSAqzpkTP6wbVi6AEazeqP",
+        "status": "OK"
+      },
+      {
+        "signature": "2tC3UQ1MPwSYZ1VzMUtSpscTVyyhAtaM8QmM5CVEao78uoSEi4PG5UiXCak9i5NhsJujcrrrMiTMBDTA8H9FAWYj",
+        "status": "OK"
+      },
+      {
+        "signature": "2zdnGPRkS3px5tMuAkpvHQ6E2Qt7arsZkugmCrGwkhg7Ghn3ck72Tfsytz44MXMgoG8YhfQV7eYY2qJSBdt4Xcnq",
+        "status": "OK"
+      },
+      {
+        "signature": "34re3n7mrt79LCRRbcbq7awKkeWGWaUz64oWWTmZAMsk8pZ9Pjc5Dr9UwX9q4WmvmLp5aXP1oqCS7gzNKTTx7tpF",
+        "status": "OK"
+      },
+      {
+        "signature": "399YDak1MmCTV5K4j5GL5eu5buLHpo5YnZeQKsuwTTN5h227owGarc1Ctav8hodG1Uti8exxK2bpKKwwrhk9tEV9",
+        "status": "OK"
+      },
+      {
+        "signature": "3AVpq45AmDeL3RNq8p2JfVES2k63qX5kHXBgNqHKMA1PzS7tjM2iUVL9i1tAUssBEiQtCh15nQtcVXa5fJQUztp1",
+        "status": "OK"
+      },
+      {
+        "signature": "3BYG18zXNxuB8LzQH2PEo5rxwKG52UBWsWrBnNgyTp5kzVU2k1awBs4SRyj6FLYaAcXfNUgU2z89AhwKQYEZTvKA",
+        "status": "OK"
+      },
+      {
+        "signature": "3D6tVQwRQkt3ML3pt8ticp8gkWVyiZeL5uFzRDsLDJPBVGUiQV9oHfyUdYWKz8wFVc8SThVgGFkVeGqq9sLDKZWB",
+        "status": "OK"
+      },
+      {
+        "signature": "3QGRffKt6F3YZHVMFUBh8LqqwVUxHuHG4Nwf9DHnsZ1dp8LLNazWYuxSF92KGBXycXmRupHrzj38EVcPTYZbbefC",
+        "status": "OK"
+      },
+      {
+        "signature": "3UnF4sa4dVHiGqkjhFcyysRmydybinHgsvfwtNZDko4PWUWJY76NpvcKZqBUvMPNoW3HosrEyRDYuhcRprmbYXaV",
+        "status": "OK"
+      },
+      {
+        "signature": "3XvwMgVKmryYwYQwUjkJEfCYyAcLjcW2BELP9zn59cU9bi4hAKvMuQUaUFKrBQJRun44vRh5xmdCk4TSDXDWiLrJ",
+        "status": "OK"
+      },
+      {
+        "signature": "3YrsfrecGFN2qfhHmoPBe4TZedoexT4D7nheoJjacZggcJ2bdiZeCNp67bHnJvyRYiR8uwFZJ2gYNXRvn3CvCkmW",
+        "status": "OK"
+      },
+      {
+        "signature": "3bYy4LDyCLeomW4ZuDhqALjgmm4mxXgkwBjkp5DjKnC9TUSHhhYHXp5Gmgx85TbbxGmyu2mG2PaMBsBxB1AzA5kd",
+        "status": "OK"
+      },
+      {
+        "signature": "3bgDJkSHEQw5kUXy8gvjATa7wGzCs12mbGS28dfoSPJw9TX7vwopHXPz6jiEupKVDeESLJkASaedpfDAbYJs9Kfh",
+        "status": "OK"
+      },
+      {
+        "signature": "3dcBuPJ9VdWWkeCAFvuvsn5BSSC64omwvUo3zYmHgREFV1oPV2CXPPm4oyHUtpfYKDivwzVZWnLQxjs5SbPUfk85",
+        "status": "OK"
+      },
+      {
+        "signature": "3iuWGre3nb2Bc3MncocWmaXXESNMvXHWADxmT3PFfvc3dTEYJs4mfFVHvPibUQ6r4zDhfU88YjJFympsjTVsvHdy",
+        "status": "OK"
+      },
+      {
+        "signature": "3pAqtDH6wLqXvjWHEMDEUigvWgJ8Tj1LFuZCm8JDJK7XgsoqD5zdnhkNDZDG3YAXeLUjZ7xmo9FcDG3XzqtGGemq",
+        "status": "OK"
+      },
+      {
+        "signature": "3shczXBfLH6Y4ntpyfKDCFJu7R4Aid2Th8dMExqZMEdSGt5XYHuoCzFsLJWaLeELTCNjsUubQ7m6AKSSrmpypmU4",
+        "status": "OK"
+      },
+      {
+        "signature": "3wFk4pL6YJ79um7r2eD8tok6LP5BvQHrE1ZZWdR3DgUkyLbGEm7kjAjeyY8fR4yEkPkDoVfBGzoipDyGRP6Ck4t8",
+        "status": "OK"
+      },
+      {
+        "signature": "3wegtTvz4JysXRX5F3zDqTYUSdD2kT5knAAC4a8WtjPwC8JpoRwmriY1PcoYhoJGFfGcGkgasBtWtyjhYhHHJ7EK",
+        "status": "OK"
+      },
+      {
+        "signature": "42m2A3Ushjx8xqRMpXK3YUqnJwP4Lsdwp82zoBdXm6dvnbKkSMmQ8HDfTkPQ4BQvMCGSBctTuV8SGuP8oCYWNphi",
+        "status": "OK"
+      },
+      {
+        "signature": "4C8zBZijhDSR3N3ofi8R4RkN89iiFjH65nEbfYyZdejje9vZAhb3eLSzYUKsSpp3zBxAKDWQYjDhMGumzbXG6sCA",
+        "status": "OK"
+      },
+      {
+        "signature": "4Kdvq6Dw7PiV5pqX6Hbwj88hXWbpvwjkpCCorav4eRkMmBmPhHD8rWoq8VRNewbhciduQPun1BWJwihVicnNMRg7",
+        "status": "OK"
+      },
+      {
+        "signature": "4KgYVs2kNtoZfRHpYoixoUUQmK6seonss2tdcdgmJWfqhCfnpXMmsWp8k28S4Sd8GyZ2v3r51V9MZ79fKWqBzrLM",
+        "status": "OK"
+      },
+      {
+        "signature": "4Pf5vvnRzfgayHdWKwmz8qB8q614xHK3CZjTt3DnkyyT1LGfPDsVerSdFqBRRYav1oZP4p1LpGNpFwKvBCmhBYiL",
+        "status": "OK"
+      },
+      {
+        "signature": "4TDxQLG1bftitLok5kHVRDhrEtSQ3qtjR2GqDrr9xQuZ1gFFqNYPG92viaLsXej4Dyy1ASLHrDgBFwjfDsDS7j8F",
+        "status": "OK"
+      },
+      {
+        "signature": "4ZXKAkTHtn7nx6qMxT8YzqGSvcZ7KMeLDsMLfUveswTprKRoBzNNkyJBf29NozLKA2VB57ArUUh639D96BLMWr3D",
+        "status": "OK"
+      },
+      {
+        "signature": "4c8WfcsCgEA4z8rZJaJDSbF54pQGJQ3CYa3EP8KmkM4qQkgEa8etSahKE2BJ9MYRVpzzCBSW9rb5MndkZMXo9BHV",
+        "status": "OK"
+      },
+      {
+        "signature": "4o1BUBYNaGsiowUZoRmhLat41o7GvFmicKakMphxFM9TXfF4Ryj9Ej8bYS7P5f9kHo5EtGjbQqPRCQavCXvLDhw1",
+        "status": "OK"
+      },
+      {
+        "signature": "4rEA4LN4gKeRXujWGtB4QKDS2KpPbJGSTbqtw4V8ESKSXcYv6kTxiqgdqCFFjtgwGopAjo4oHUCEPXkAD7hMLoyk",
+        "status": "OK"
+      },
+      {
+        "signature": "4un7VtbF8gkZRxiVBGC3Ds9TDptFzFp7SWgCPNaAtZyB5kHTpcrFgm74g6ftYsPAdQycx4Xr2SL8DpNyyp5hUzEV",
+        "status": "OK"
+      },
+      {
+        "signature": "52L122TXngkoGsZu9kYukS7f5Zu3AuioxfyDUDXBEDBPJmPKjUi8JHDTUkPEDA1fUTxfZNmZo6f1C2K7aKTqqtAJ",
+        "status": "OK"
+      },
+      {
+        "signature": "537Xi1LHtaBuCNteuTt62JzyGNkB3reeeMFfJEJ6eQcP6y8YbHvRPUhJwxYqke2j8XHweRcfNmCqmvoU7bN1VNcX",
+        "status": "OK"
+      },
+      {
+        "signature": "5Fp3Da9zVxyrvSY2ae1aYbXUwmmSA4pUFL8YsDm3U2TRos4butQbFTBw9HDA7fUEYsS4g37KWQpjtRVycF4r7egQ",
+        "status": "OK"
+      },
+      {
+        "signature": "5TyGZRr7T3fUDYJh5yudkkYHghAGXExTifaHYZ991FmZgEzwve1H84v7gemnehgHScUGiceA56THGQBtni7CdmEN",
+        "status": "OK"
+      },
+      {
+        "signature": "5Wg1wMCQ95dyipkLyfaRE8NRyMK7zL9Qth6Q2UvaoF8zASFitBdHLx6sNsazc5uxU7bjTPAe6KqKqgtcewRjUmY2",
+        "status": "OK"
+      },
+      {
+        "signature": "5ZCjZMeiNNoWnE4z1nHUthaKr8vvMRUBaQPHDNQMFPJPbkj4EcSx6E6jp4rjV5uUHBZk9L445yyETE6ZucKWgsYB",
+        "status": "OK"
+      },
+      {
+        "signature": "5beqqm26nVwr46VPqY8dHrt49zqqYAu7KfQpvqYnA3yevxJNnZJGocysE3i7ydHY5TBTRwefZBWtZTGQCdrH1DFD",
+        "status": "OK"
+      },
+      {
+        "signature": "5dBxgHrC5e2pSJeMRAJ893TopBG6BspjHfLvZs4R4aARHhSayzUxBjTEupkek6SujVVDQ7irKByjbCb3JAiT7fyD",
+        "status": "OK"
+      },
+      {
+        "signature": "5kNRyyvNiPrvX1q6j8ixtq8GeUehctMJnNpLC1Ns5r1tM35uPZ9wV2RzMEtJAKGy3Ma97ciceqxaGdw2SrKqXMGg",
+        "status": "OK"
+      },
+      {
+        "signature": "5swqqGrYRz8cufQdYW58LBHMXsFv5xpVEySzRh5dQbzKhJMBxrxL36Ht4N5uggKd4Dra5LkjVSkD7vB7LuMiMxjL",
+        "status": "OK"
+      },
+      {
+        "signature": "672TmRXm6DqLPfZUbProDsGVy3LcSLyf2NCbJq3MZYr7vtPpdSztgXnJ6fxQi8B6HfVcmN796ewKvqTTRNpohQzf",
+        "status": "OK"
+      },
+      {
+        "signature": "B9XZcMq27uAY2g4b3eK1xxMJ3zba42vwaxf5NutEQ1AXm1xdKtsWdJFkAk2UqgQQnRhSNmwApob1UTQtmN3y6Hs",
+        "status": "OK"
+      },
+      {
+        "signature": "BDbYK9zxmcrDBf2i5MzCXV7Z1YeXvN9yZpB6NMf54KLQ1VHM8LGxeTnZMUs9m7jY7NsNzKGqzhkLWCov3koX9Bm",
+        "status": "OK"
+      },
+      {
+        "signature": "KYf9NoBfJm6LBfKXPVYxoLq3tpDtmnTeQup4N8DA9BCQhVyrp5QmmzwNSFiBuyE6FSwonqt6dB88xfXVe1J8QsK",
+        "status": "OK"
+      },
+      {
+        "signature": "SYA86vYMP2NaANgkTS7mfe76FmCbAx7Cm1GitHJD6NuXV65WmJYc8bWcRWDLW6q7aZfWM1dwGgzkNm5RLhEDVjg",
+        "status": "OK"
+      },
+      {
+        "signature": "WvFvFVU6ixtLgcepJ7FiC31UDX8Nvhm2e79519MCz1RCZc6iPokZUeyJ9TJpbyGq6TT4tWWLTyhGWMniuBHXtLe",
+        "status": "OK"
+      },
+      {
+        "signature": "Y8zfq56vFShGKfgWMiF9jyuVsgC2vWNjFdfqDQnuB286dmvY6Ja4399gtbDX1Yk2sK8Fv4jeQmjuJ6SGYvvhYjr",
+        "status": "OK"
+      },
+      {
+        "signature": "YJNNUT8gNDRVjkQ7efDe7QgfUiU5cKYJb1CqmKnGVKTW4YdgrJqnNVs7Ygw1QMonougrbmtUd2Kb9VPB2egZHJW",
+        "status": "OK"
+      },
+      {
+        "signature": "bDVVYmMZPoCHXxTiUhTuNJTyGndCEd9Tkspd2Nu77sbUz5pG1qMN77occ7KagwzKcMHW66hJvYV7bk6esCa4W7h",
+        "status": "OK"
+      },
+      {
+        "signature": "cfWMLkVrGyUEL4BFDXC1qJUgWoMDmkFnuka59ntzcH7o93ZUJqGr6QEcSLKsJBjSnrherL7HuKbDC2jx4WEbZzc",
+        "status": "OK"
+      },
+      {
+        "signature": "jiS4o6QDcLA8F7gTGAkU1A6viyXT39UB8k8FY3c8RRVRvPQk2Wwnj2DixnEcsrfNHnYEghAxtiVnf81BeKRFBsZ",
+        "status": "OK"
+      },
+      {
+        "signature": "qLJozeNMUEgJKUNaK5XrJX2hPqrdgHNf2oHSW3kX3wzPZGnk6A84SDQM157A2ELyadromKusg8krKdcrfZqxbWT",
+        "status": "OK"
+      },
+      {
+        "signature": "yivDcu5waF5uGsJfGtyeVws29zCYJpuwLZc88uNVdutTYSWBMo4pbfyLEPzsgBx877gCSsQspw4MjNLegXRwJHG",
+        "status": "OK"
+      },
+      {
+        "signature": "ytxNuduB9UsfFA4N34R6jdj28BTVk6z4ATGgoUmA52SFF4tScsdArE2zCMToD8hoN9jJPaoqYZYDptKE3phphQ1",
+        "status": "OK"
+      },
+      {
+        "signature": "zV6NfuYUbJEEZn6FCRkP8N5rqWv9bfL1HuQqyvNMSsr7WwczE36WQnjbDkJxNkKoE3LhNXeez9wdWFoRAKUWLMN",
+        "status": "OK"
+      }
+    ],
+    "failures": 0,
+    "successes": 59
+  },
+  "rpc_scope": {
+    "fields_missing_locally": "parsed outer transaction instruction/program layout, signer/writable layout, transaction version, inner grouping",
+    "maximum_authorized": 59,
+    "method": "getTransaction",
+    "provider": "HELIUS_RPC_URL",
+    "requested_signatures": 59,
+    "retries": 0,
+    "upstream_walkback": false
+  },
+  "safety": {
+    "canonical_mutation": false,
+    "queue_replay": false,
+    "registration": false,
+    "trading": false
+  },
+  "schema_version": "P3R_V2_900B_TARGETED_RPC_DISCRIMINATOR.v1",
+  "v1": {
+    "fn": 0,
+    "fp": 15,
+    "precision": 0.7457627118644068,
+    "recall": 1.0,
+    "tp": 44
+  },
+  "v2": null,
+  "verdict": "900B_RPC_DISCRIMINATOR_NOT_FOUND"
+}

@@ -1,0 +1,12 @@
+{"data":{"authorization_digest":"670c2ff5f48b08475133210f7f7e14edba0babdee0f9074db4e4c866405a1b4e","authorization_id":"psi0a-d6e-authorized-2cc4b21d","d4_contract_digest":"a160398c3130dbacf2314bb4046b9bac4865cd9dd421311f2fd999058c0ab9f2","database_id":"main","database_path_fingerprint":"095e2c241320817e9d6422fc7d8a3d3543fe245c176b205feecc326326d8adae","deadline_seconds":60.0,"grants_activation_authority":false,"grants_extraction_authority":false,"index_name":"idx_psi0a_token_analysis_migration_tx","lock_timeout_ms":250,"maximum_statements":1,"output_directory_fingerprint":"9488df664995d981be6e7708aa7d898b6b392199d87db3b9766680957d15d5c1","relation_name":"token_analysis","retry_count":0,"run_id":"2cc4b21d-8a18-496e-93a4-72abf3303b39","runner_version":"psi0a-d6d.v1","statement_digest":"c6245843a06539aee8b35952ae81dcb325071179cb7e6c941e729e9e7a8bb020"},"event":"STARTED","sequence":0}
+{"data":{"row_count_before":1777184},"event":"SCHEMA_PRECONDITION_VERIFIED","sequence":1}
+{"data":{"transaction":"BEGIN IMMEDIATE"},"event":"LOCK_ACQUIRED","sequence":2}
+{"data":{"statement_digest":"c6245843a06539aee8b35952ae81dcb325071179cb7e6c941e729e9e7a8bb020"},"event":"DDL_STARTED","sequence":3}
+{"data":{"statements_executed":1},"event":"DDL_SUCCEEDED","sequence":4}
+{"data":{"committed":true},"event":"COMMIT_SUCCEEDED","sequence":5}
+{"data":{"removed":true},"event":"PROGRESS_HANDLER_REMOVED","sequence":6}
+{"data":{"closed":true},"event":"CONNECTION_CLOSED","sequence":7}
+{"data":{"removed":true},"event":"POSTCONDITION_PROGRESS_HANDLER_REMOVED","sequence":8}
+{"data":{"closed":true},"event":"POSTCONDITION_CONNECTION_CLOSED","sequence":9}
+{"data":{"index_present":true,"indexed_search":true,"reconciler_plan":["SEARCH token_analysis USING COVERING INDEX idx_psi0a_token_analysis_migration_tx (migration_tx=?)"],"row_count_after":1777184,"rows_preserved":true},"event":"POSTCONDITION_VERIFIED","sequence":10}
+{"data":{"preterminal_digest":"9aa25794f023c16eb425a9757359699558bf920b642eface44a1ff2c7af208b8","status":"SUCCEEDED"},"event":"TERMINAL","sequence":11}

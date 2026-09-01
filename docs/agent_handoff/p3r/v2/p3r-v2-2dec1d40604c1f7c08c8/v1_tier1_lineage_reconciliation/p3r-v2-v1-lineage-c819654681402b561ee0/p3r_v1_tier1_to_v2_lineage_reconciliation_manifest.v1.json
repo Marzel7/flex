@@ -1,0 +1,26 @@
+{
+  "artifact": {
+    "path": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/v1_tier1_lineage_reconciliation/p3r-v2-v1-lineage-c819654681402b561ee0/p3r_v1_tier1_to_v2_lineage_reconciliation.v1.json",
+    "sha256": "ee1f8730d15910151aedf8ecb06963d0ea13c07531c0c3d759ffdf474035d3fc"
+  },
+  "canonical_manifest_sha256": "930fb7fc462e1464632913f22b28ea8fc419d9ca921f36fe4e798dff51617862",
+  "canonical_v2_run_id": "p3r-v2-2dec1d40604c1f7c08c8",
+  "provenance": {
+    "historical_v1_member_artifact": {
+      "exists": false,
+      "path": "/tmp/p3r-clean-20260824T092959Z/behavioural_corpus/p3r_candidate_operational_family_membership.v1.json"
+    },
+    "historical_v1_tier_artifact": {
+      "exists": false,
+      "path": "/tmp/p3r-clean-20260824T092959Z/activity/tiers/p3r_tier1_candidate_membership.v1.json"
+    },
+    "v1_database_tables": [],
+    "v2_reference_mapping": {
+      "mapping_status": "UNMAPPED_NOT_FORCED",
+      "path": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/p3r_v2_known_v1_reference_mapping.v1.json",
+      "reason": "v1 candidate membership artifacts are unrecoverable; v2 identities are intentionally new and address-independent."
+    }
+  },
+  "reconciliation_run_id": "p3r-v2-v1-lineage-c819654681402b561ee0",
+  "result_digest": "c6c743b4e2f547e4c9879a086eb98c258ed8ec6f8e5b3628c179b07d7b0f22cd"
+}

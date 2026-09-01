@@ -1,0 +1,2111 @@
+{
+  "amounts": {
+    "sol_lamports": [
+      [
+        2000000,
+        62
+      ],
+      [
+        1063850,
+        10
+      ],
+      [
+        331100,
+        7
+      ],
+      [
+        1179400,
+        5
+      ],
+      [
+        1300000,
+        4
+      ],
+      [
+        326450,
+        4
+      ],
+      [
+        321200,
+        4
+      ],
+      [
+        331300,
+        3
+      ],
+      [
+        321400,
+        3
+      ],
+      [
+        1159400,
+        3
+      ],
+      [
+        151100,
+        2
+      ],
+      [
+        321600,
+        2
+      ],
+      [
+        331500,
+        2
+      ],
+      [
+        1279900,
+        2
+      ],
+      [
+        1124250,
+        2
+      ],
+      [
+        1008700,
+        2
+      ],
+      [
+        1239700,
+        1
+      ],
+      [
+        1124150,
+        1
+      ],
+      [
+        321100,
+        1
+      ],
+      [
+        326150,
+        1
+      ]
+    ],
+    "usdc": [
+      [
+        0.018,
+        4
+      ],
+      [
+        0.02,
+        2
+      ],
+      [
+        0.015,
+        1
+      ],
+      [
+        0.0198,
+        1
+      ],
+      [
+        0.0143,
+        1
+      ],
+      [
+        0.0187,
+        1
+      ],
+      [
+        0.0166,
+        1
+      ],
+      [
+        0.0154,
+        1
+      ],
+      [
+        0.0066,
+        1
+      ]
+    ]
+  },
+  "analysis_cutoff": 1788094599,
+  "cache_hits": 0,
+  "cohort": {
+    "candidate_id": "p3r-v2-6437acd385e566e301a7",
+    "distinct_creators": 93,
+    "distinct_funders": 59,
+    "earliest_launch": 1776626940,
+    "latest_launch": 1788093288,
+    "launch_count": 93,
+    "launches": [
+      {
+        "creator": "6RF8FxAwqnL6GCVhtUnQHFJoCuaFrvvHxYGexcgKWR7L",
+        "funder": "2gBhiVzPbaLNwUmELeiHQ94RZmn1ftLqVXpZBhxZhNiw",
+        "launch_signature": "2AsJWGQvnrXQmyfTkFwuLFB6CZctC4NqTiLVANcy2tFQNvaFDtB7fzCgaXZYN4FFxwQPcR3QP9GsbmEfdfM9k6hD",
+        "launch_time": 1787795663,
+        "mint": "4QoTTjqGmKAURDpVCmpFb8WrkAWJ76crpd67T3KEsXrM",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "3DiVDqKqbaQbR4SaoXm9YWCPu7be25szvDpwaqLrn3ov",
+        "funder": "2gBhiVzPbaLNwUmELeiHQ94RZmn1ftLqVXpZBhxZhNiw",
+        "launch_signature": "rqArswbsuUc9y8996Hs3QsaXLA8LmHe3PDicYNHX3B5m2g1pui6giT6N6npQJZFaNSvdjUbLu7grjh7nvLYUkKe",
+        "launch_time": 1787839516,
+        "mint": "W71J5wXB6f6kU7g5Jy9VQB9uhR7Z8kXGmeKT1Uopump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "8WjM6rCwAGsduGyHxkzRfkcphJyzSGS1hA4g5bomc15a",
+        "funder": "2uPFEpvFHq5xwDeftjvEPXq5b1t48UqDDJeSN9TsRE9Y",
+        "launch_signature": "21eLYg8LCDrjTHoAtJ9tzzGXf8wVYg7njM1U77WT7B3CALcFDN85qMJrinnUoD3og6DYcoRp6QzHdQ5sgKuKkEg1",
+        "launch_time": 1787033647,
+        "mint": "3xpZ38num2VYWuRxrF6fqoUE9a35QJeEcQggnmNrTTjK",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "AFVC8jvqWnLuHprHFwLwBh6QtzjfweBZfsFs9vzf6mLk",
+        "funder": "2uPFEpvFHq5xwDeftjvEPXq5b1t48UqDDJeSN9TsRE9Y",
+        "launch_signature": "4ZFD9mSQGuby5KkJxuxx7QckHojeu8N3FddgMCrRa58naA1bYAh7QpD4CffEcM36CPn59Hm6FgF3ehzLq6Eh4wYG",
+        "launch_time": 1787103250,
+        "mint": "FAs4RX3HkHzk1qgTxdEW9vxadnn2FiPP2mC6Tx3hpB67",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "6xATUn8bUUhGVj3aLKocaayAc65NVd6wbhk7qqGRH7hU",
+        "funder": "2uPFEpvFHq5xwDeftjvEPXq5b1t48UqDDJeSN9TsRE9Y",
+        "launch_signature": "2h7ifGj2vbcPu6AmeQAns23DTKAEwCvziDs6BKAcwmd2AfiaPkYw1LzjWjGuKQxADcXqaq5SbbSJ11V1wenNVMvd",
+        "launch_time": 1787105271,
+        "mint": "gnuvC7NijR3T6JGLrwZgnN1uxEvSFUNZiZL9pKQM8FY",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "5tETTd2FDQfvXS8Rv9gpsGbLFsSeLzKMjwGftYiViAg5",
+        "funder": "2uPFEpvFHq5xwDeftjvEPXq5b1t48UqDDJeSN9TsRE9Y",
+        "launch_signature": "ur5seoJMx2sMcBQ8q8HfsPF51e2GrEhxmmg9PR16h8ev4GB8vUKkNY5izea8EdYnRzgxB3SW6W271VJKkub4wt7",
+        "launch_time": 1787107578,
+        "mint": "Dn1VHNhgQgvYLgHyAhXmgm3cetKJauHmNwU8jyR4R8yv",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "DaLnySiM14gQQbQLe9KYkWb9VvxRfSe2eJtkQYHv22Ly",
+        "funder": "2uPFEpvFHq5xwDeftjvEPXq5b1t48UqDDJeSN9TsRE9Y",
+        "launch_signature": "3CuDEKRacecar4MgQ8pxLyamEjcqmEZ3BFuJrE2FzezecuAzUf67uKffy7Eq6V9MivhqHeRRtt4gU5Wg68hknTBY",
+        "launch_time": 1787128426,
+        "mint": "DTz7bdX9g7NcFh4wGBpN8UHFW46ztbg2TqkYxsDi3cK3",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "GETUQM9v8ix5WCu5NHJRdNmAg1sCwbBoFF4zQaJjuQH6",
+        "funder": "2uPFEpvFHq5xwDeftjvEPXq5b1t48UqDDJeSN9TsRE9Y",
+        "launch_signature": "5w7CEJYEbhqRE2dik5cDE3Aq8a4URdFhpEXKa5DrqRojeejNdLwrbN6bbMkdoEriWBC8H1hX36skYPjbfkpKFLNm",
+        "launch_time": 1787160627,
+        "mint": "3LjjCQbxKDDAXS23ZggfQsNpEQc65JqDVocX1wcVk8t4",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "3UMGqFB9TiSTwnXaCtaJpJCXqqTKzR98tiqU5Epff2ty",
+        "funder": "3GrrtE8XLAQdvorz2KT7NgpNFXLx8NGzCJ48JbmXA2p2",
+        "launch_signature": "3vDzqBhK7XugWhPZKywcbxea1FmJbATgnQFDWmrfvRJmLb98hcnCjCGCMjzFXzmFdmg3Ss9w6BhQM1xnbBWeLyQ8",
+        "launch_time": 1787743949,
+        "mint": "14i7jbnL5khBcnebWjhQ6bXziW3pAptkeaQV9Utvpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "DYAvvJvburBYYKE4oPkMjSJMqiuedV8oBVLX5DJaDQgo",
+        "funder": "3nTEKyixfWGcUSjAHsUZwad8QHrDoNQDWdKVHRXqkHkR",
+        "launch_signature": "5ox5NrzbrTzvx7kZQPHcyE6qCpyL4pyRrGdSKdSGaf9Cb8oriwdYisrk6nYyR31XRK6MWrgy3PN538uLryif12dz",
+        "launch_time": 1788016398,
+        "mint": "tqoujijMHVYCoasNuZLfdsK21BN8YA8rGo6mT7ppump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "FzgtEGo3B7FqX3XWqcme7u6nnjyjMABeeYNwdsdXo8So",
+        "funder": "3nTEKyixfWGcUSjAHsUZwad8QHrDoNQDWdKVHRXqkHkR",
+        "launch_signature": "2aWx6tJKudZhNEf9N5YHMKyR8jUikTtsU9KxX88cTgVsYciiVMFXx9CcbzEK9Ahvcmjx6gvZApS1Vzpqfd9VNzzL",
+        "launch_time": 1788023584,
+        "mint": "jqTxh8sCnZL4HFGhbUiDoGmBCtVN8bKUpGsYCL6pump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "3HixvBT57QAWrAb82YuJbBkQBbvspB41vELbGYUaU1Pc",
+        "funder": "3nTEKyixfWGcUSjAHsUZwad8QHrDoNQDWdKVHRXqkHkR",
+        "launch_signature": "3wyueJ5tqZYfPHbLbDJuT6ajFXRSWEzmFz77ZbdszSJPtyRyXJdCJWU8vm9kMZG5jG8VQGatVxDVotC6jKdTXamV",
+        "launch_time": 1788026628,
+        "mint": "CLbs9tM8bCNpE5jdCXFckpmw79TpZSLRSu54Qb7pump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "4eJdpr2V462QHNZxn8E28aNqomb9ApwdZJ7ptwD2RbV3",
+        "funder": "3nTEKyixfWGcUSjAHsUZwad8QHrDoNQDWdKVHRXqkHkR",
+        "launch_signature": "2wwTM39m53nrGLbmy953Vbg5CtTR3GX3QuTwXjRMo3PBn9JHm8EVhmPJB3xirai8EF7qmc42VeVDuYAAQ7dMDUCe",
+        "launch_time": 1788041070,
+        "mint": "jH1eyszZ2dApp7Jm5V8GohsEyBhxfucii551TE7pump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "9jTGoLKbGvotPJBXc5kWkbN5Q4nTaP3DqVTYii6TahqP",
+        "funder": "3nTEKyixfWGcUSjAHsUZwad8QHrDoNQDWdKVHRXqkHkR",
+        "launch_signature": "55Q5KEXmwSRQMrgkfkKZYu6G7AsS4v1RSSMzAZjQSJzqUuUWRcGyhVZ3JxaSG7aDX4qpTQF8Dv6xwfUox9reMS9g",
+        "launch_time": 1788045989,
+        "mint": "g4hrKKmbKGFhsRzmzyYTS5JX62F7EX3Js1uTXWVpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "4V21x3wW4uuYQk6EtzmJsBvq92Qb23Rwa1dga6ebn95A",
+        "funder": "3srcryfrBubA2B17EocRyZmk8phbttJPR6QvMr8owAo3",
+        "launch_signature": "5bhYef1PN9rs2ETUVwyoKJVoSR97vxTB2AefGGdDsnTS7Fef18zXVS7nHdPKweeA5Yc2yyHXjeRDqPb6QSgpHhE",
+        "launch_time": 1787125223,
+        "mint": "J8fqEnjTyhHhj21VrGQS8SPb3A3ectA3EcrPC8Sspump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "BvZh6QpZHLq1B4ErBFCe9ACbHDsR2xQ2gE7yNjikdK77",
+        "funder": "3tEiWoYHQzopxnzTGUbmgQVB5RpNe2nTLQpqMzioyQc5",
+        "launch_signature": "3E2dcuzpMHY3cqF41xPU2Tr1NSZpcFooswZELSjZUTn5dZhKXnNjzMekEwm5yFtsGikDxC16QHnPaQ1G9NtVmW1u",
+        "launch_time": 1787942930,
+        "mint": "TA3S3pBqT1Txxg4NF9Beke6WEhkEP9EcxUv2LeFpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "DvSBNjKJU97eNcT97eRJUQUKfdCB4BohPuW2uBfcbBMa",
+        "funder": "3tEiWoYHQzopxnzTGUbmgQVB5RpNe2nTLQpqMzioyQc5",
+        "launch_signature": "4iSoBpYRLxfHBZv7xkivEd4YdqS25oMAnxqdZNpqLw1VU7GYzLoh8BPNxFVXgJ9kto13ZTZovqFsZ2QS7hgpqjUy",
+        "launch_time": 1787962342,
+        "mint": "7vC8HPhWgyR7nJ5eMHQoCBNf1YUBASTDQ6pMd2opump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "6SEHauVFsfkssSncFqCtoKD9Ne85vsjbCwASWcPEDuEb",
+        "funder": "3tEiWoYHQzopxnzTGUbmgQVB5RpNe2nTLQpqMzioyQc5",
+        "launch_signature": "38KARkyNPFpWnk448SyK5oxb5TB8uKtKvZCEMZuix4o3UbdPRYiL2BTrSxo1qUE7VQNsQUDn9nTgD5CHhqXuoVXY",
+        "launch_time": 1787990208,
+        "mint": "8UbwMGX4R5AUa8L1Wn9bzGy3639AxG42yPYCX8vpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "EQKcCWpVmdX1mL9piv6Xp77R6BEE3sEvx5pXx1Lo3nHp",
+        "funder": "3tEiWoYHQzopxnzTGUbmgQVB5RpNe2nTLQpqMzioyQc5",
+        "launch_signature": "D8aFdVgaeLq7kLYZBzxDT7r9aSCc5qXDBg8ffABd54p5N3G8tK87FgggB2HvyXKaAhH3yBiwbZALe6MczY1JYDm",
+        "launch_time": 1787994712,
+        "mint": "5s4Zp3zbueZdVJtSxtpnhAdsNAdzd7yTy2hRjJQzuhnH",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "E6PWSZXCmz6c1wr51PignxT4Tw5hyBuQzPx7mzpcKx4D",
+        "funder": "3tEiWoYHQzopxnzTGUbmgQVB5RpNe2nTLQpqMzioyQc5",
+        "launch_signature": "aPzqJWJzppJHGUVLcFe1891hG1uBQYoKzPrSbZUmSfv9Ypt4HayjZd8R5QkYkw9ftod7A148ZCZXnp9Uam1Y7zf",
+        "launch_time": 1787999394,
+        "mint": "CmoB5aWFfaCfEHFmwLA3gbnLxiaEDKgiGmXfUgwD7HNw",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "8jdzW4sZirzgz3KoNR2b1pzwpghAessxsHGeqcYtx9VW",
+        "funder": "4Pu8i9hnwmYaMaDLCaXrTmB6SXJJnUXxtF6HbzeJdycZ",
+        "launch_signature": "2AnRCuj7y7tWHcS4JFaX4CG2ufMYz3RyHxnZUr3pby3jmrGPzkbZHMDumAcVzopWFJjevw9Q7nCodc2hCwPB1Fjs",
+        "launch_time": 1786750660,
+        "mint": "norm8mXDK6ndyav2cYriwkDtS2Ti3QScYgTPaavn4Ay",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "AiMfM8dqQKb1QZE8dKSbQnvTgUM3ALgYrrwE26kPc9Jq",
+        "funder": "4Ut2Kdvi6GoivQPEVgR1G6nhDeBnRooDkCe8iWHu8ikx",
+        "launch_signature": "4ec21x9WBYkt1v2kd7mxNB77sG1rBoJRcyN3Ldmt9b5aw7AjmF88U8bxSugEgm2bHUSHA8EEEugoRAyGQ3TzHwEu",
+        "launch_time": 1787907830,
+        "mint": "Bm1Q81FMSL5aTTCuzLMSYNwxicwzxapy41r9x2Wpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "Ex4t6m3MLwaTEqvg2YzN7GEU2JmCHrWZEBzUimVzTnmr",
+        "funder": "4XhHDXZZ2DWQ6mc2LeTz1nSX8pw7wwJzEM7Jk7rArWu8",
+        "launch_signature": "3MTGfvussLUGgb8tMmYggbsUk32n1AYmwPUmn9EUwexLy8Bx3uPPjmn7pf1SfCL5YyBvNhu3fEwza5PTpte87kUU",
+        "launch_time": 1786267499,
+        "mint": "49t113M4eMYfKHVA55BhnFNbBt33reCNDqtd6fkYFT3B",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "7oECTX8YXH9WKR73Bo9hixv69WmsKydaJvtHXHTbaPe1",
+        "funder": "4ae7rX1CekEAvEG4LzHbRpG6HzSWxuSNq2w8qjZHdBaC",
+        "launch_signature": "64M3VQipNAfQHSm15ob7ewAvS8Jh7Q3xe1ePuYHtY2yrKSk4McMpJBevz4BtrdjhSYGVLGoFUa6vKhZAP4hnjmjm",
+        "launch_time": 1787980799,
+        "mint": "HgAuCVvvxorMRA9e3WTk46MFDG2xx7vonVeyyTbx79KK",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "7ASnmqdNCe4eZVyWrUKHpNyaH4e3z7kWYB2gNq9X8Bzf",
+        "funder": "4ae7rX1CekEAvEG4LzHbRpG6HzSWxuSNq2w8qjZHdBaC",
+        "launch_signature": "5eWhrMpandsBV3rBMnyJPdLYjp8nRQ16vYUfrEbM8MaQN687vJLK34VcYX77puWe8xkspLLaS6sVk5k4BTfqbCNr",
+        "launch_time": 1787981977,
+        "mint": "unCSuxWkbxPg3Xgh3R4dMq5eW1wm3pHHxFaJBmapump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "HCgs4dW5tzLeHDoGmVGMBTUSjYEAicnJhqD21HcDCgDq",
+        "funder": "4ae7rX1CekEAvEG4LzHbRpG6HzSWxuSNq2w8qjZHdBaC",
+        "launch_signature": "4aCftMK4WGhcneQ8N4Yg4JPLc8gRR3vCDH6qtarJnmp8smsWSuWazpBodQoTWnbLqhKhMKiXBJTT8xKwZaqv6W3p",
+        "launch_time": 1788002337,
+        "mint": "ua8aPfbcYTJhq4K6w5ZSB9JHSpsGdSLiMojLohCpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "snFedwvQjBKjLwec8XSFcN9yB3usC1GV2Cwbwbex9pS",
+        "funder": "4ae7rX1CekEAvEG4LzHbRpG6HzSWxuSNq2w8qjZHdBaC",
+        "launch_signature": "34XWxrrKy7nEx11FMgr792EYXnvm1uGKyCfmKeNVWwY72ByoezCxTpWtSRP4JK93ETHfWcMBom5DTt2zrdfstwYQ",
+        "launch_time": 1788005294,
+        "mint": "vLwSWRCNXiAiXBuc7iPsiV6LEiEnBKyEqxWMdu4pump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "8uiXhSGLUG1v1zeGs4WuC9NUgsFZKe95rKrKD3wQHEex",
+        "funder": "4ae7rX1CekEAvEG4LzHbRpG6HzSWxuSNq2w8qjZHdBaC",
+        "launch_signature": "27rZisgFAzQ1yprhaqdSbAhYYzURTBzNmetYttbxkTBXjNhNSSxzTWK6PbeWmov2tfxdkSUtp9Gh17NPD8pVZp3S",
+        "launch_time": 1788087884,
+        "mint": "JuNoKbB2itT5utvrNEtwJ2Q3WZhtkrDgEwzDf2Spump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "5RQ1UWATaMjjXC34BW6UusEUdEoCuNRECBW8nnHPiCGH",
+        "funder": "5CEb73rjGT4je9McAXJjfRX4neQX7aNFP3rzHdKHSPAG",
+        "launch_signature": "Jn9iD53KvkPThqiTcTd293XezjCRsnMmoV6VWuWKXkKEieUenMX4GiwKeaHx6Y227cBJwZYMtBKHZcnScCGx49c",
+        "launch_time": 1787326471,
+        "mint": "Azv9RJaBkg33ttcaantqXxSTbTTf6tdNDZJkfRWmpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "8cbC7zwNNVAXGqEiB64bPJheSr3yVcWysJHgt2sMLjBu",
+        "funder": "5TjSMWckmCmuyzqDYcvSwvYQZRptdigZWbBc3stLKHkf",
+        "launch_signature": "4jjrAXqxwRm7hNQ6ZJzUHJ15LX6B89aHHksXJd6opE74nLNGvmeSy1eN4VmvAeepfyrzHvkHhtYsYQk8cQhmp4rj",
+        "launch_time": 1787920597,
+        "mint": "km5MDvB5vdrUuZ7CMzTE4nSASvmtuFgVDWtfEiopump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "6KJBbAypiJVmwtbeV5VLp97KWwHKM1uEPQKALzqUaDe9",
+        "funder": "65WCzqasz8KLddHvKKHLgny52ZeeGtnvYhMRJJ2Qq6bP",
+        "launch_signature": "2Cx9AVXjf65GJMZZzNfVdfW8dWXW3VjJCnyTWA711EQiNZBdC6v6JmDPT1ypKqxyj5gmPDuZUd14AmsTb7EKMXqQ",
+        "launch_time": 1786432685,
+        "mint": "69Hxdqmu5Q7f6Hkn5FdVWo9JeL2omWPEdZ5wfEZSpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "3E7PXHJGxUrSiWdoSSXtzhoKxXZbY6CoJutz4DqJKjm7",
+        "funder": "7MGJ2pMRGKLt4EU3XTCymsmWi7zCi1edwwVGWfBKfdbm",
+        "launch_signature": "39qgXQzbPasLwzfBxFTeN6dZZY51Fg34f1ajeVx3CVqxHqbmUXepMSfLdbDTybcNJzrRkVCQqzuxqXeUg1iGZsJP",
+        "launch_time": 1785617364,
+        "mint": "5CVYqnp1GvFTTW66uQ67RppPBPMnFfuCYGGXxXUUpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "CtBedUuKKXyboMNVnDavZMhDtfFmgMoVZURzrbbG4fCw",
+        "funder": "7ZA7fpKZTNPLbF5aohp9LUhQYF2t6XpR4nUyQWMLUwF3",
+        "launch_signature": "2d3dhPfVFFR8HMk31WUitEPEDxH4g49bDdnoaivJJsFuM39VGTbjXusDGtzj9RUZ5yLPBfxve182pPLVrK56YhfW",
+        "launch_time": 1786440823,
+        "mint": "D6aYNcyR3oNiEP63X3SnyCYzEGAKrX7f6951Mrzpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "FTroG4aeMrXEVejLYgcwYHB88tbS8os3dDZCzh18MeRh",
+        "funder": "7eTU7wGK8mdZ9bu5A1Aa358XUhJmsuCXm7zxHPtkHrEL",
+        "launch_signature": "5ZZ6U6HccCznUpWm8jijJ7B3WdgADryUCjSdVdNjemBtCM1rxEjeMR5dGZWBb634brXqRuWpNdB7QTBQp4cNKquz",
+        "launch_time": 1784843557,
+        "mint": "BQfvAu9gRQ61mBAKmd6L2J6j9fpUCLbXkjHs4fXUpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "EiKD3GXShNZzdbY2THQBwxzbvmbswZryyq8iXZLYEmxj",
+        "funder": "7kJcoBav4yDccZw7YQTiYeiHjz23E9BZ4jojnU5VAVHH",
+        "launch_signature": "5Mcb668RKKHYkBd8F4Mf3wNX88YDhdRescNBXcCGCdNds9YE9xwegRxzxM8yXhkVR4my5jc2ZWRgdCksxZVYePUX",
+        "launch_time": 1786827064,
+        "mint": "GyMC6ay28dxcfdpbYjwqfP8EfjVvrHE4rP6vwoMupump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "kjcByyimgefWuVutf9e7VK1dsJM9AYoa4EYRHy67dDu",
+        "funder": "7kJcoBav4yDccZw7YQTiYeiHjz23E9BZ4jojnU5VAVHH",
+        "launch_signature": "3Z24XVTh8xANkPwvzLxYSZdA57njvg2iEUXkTPnKgpPJ5efo4h7rhfqtwNxSzod3hWoyxmC8ZaEwjSUEqQG4DEqj",
+        "launch_time": 1787103132,
+        "mint": "DZkxhWCvKE3iuDGfoQcz4akiuBDisvtJ3G9eEpSmpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "4wwGjJeSsepdewUgiJAMieBn1ydobFdqZHwpo7uvq4JD",
+        "funder": "7kJcoBav4yDccZw7YQTiYeiHjz23E9BZ4jojnU5VAVHH",
+        "launch_signature": "5j3QesfPRuC2q8sZbYqSdSo8JrRR3qVJEkxEMrdZ1NU58WT6am39PEqK4PiWSA2ZrB4aptYVchHtQ2BgAW1Xnb3b",
+        "launch_time": 1787810757,
+        "mint": "GR3pRwGN34RWwQyE5Xw1exBPzCZ7HhKftMMrzsbspump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "A9jjN1i5tgYX8i88BmX5zF8HPjuduU28PRjksTMkQUow",
+        "funder": "7kJcoBav4yDccZw7YQTiYeiHjz23E9BZ4jojnU5VAVHH",
+        "launch_signature": "9ckkTP3AuudHzHin9wTrsqTZYZqmm6NgwDKh3xrWx57VZheUMEAh1xAh7d8Xid5po7zgogiR2965fg8qjWRwKbw",
+        "launch_time": 1787859149,
+        "mint": "6e5a3xFpZBuv41EJTGwKh9ki2zQ7xAcqg6y1cMRmpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "4e6qGn1SEvjw6hFzDcuoabfHptGNmkwryiZzZWmrXJPg",
+        "funder": "8V11M8YK7v7xGrSh4KxF7gToMk8BDuDd9tvPKSURqFvE",
+        "launch_signature": "HZj9ZFxdqR17fZQVFBbAdLWAk51yyMWG9xTJmtNoYSwhhMwQ72rHF2McH5bvfqaGZPMAA1SwyMRpqvwtHuMH1Ui",
+        "launch_time": 1780414247,
+        "mint": "4SfKq9CDSNrDrswXMamCSwnP58jmPYxJcW2ShM4upump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "G8oU5DhkSvd2GTVHRDdaoQoF8esXNfJdSFdsV3rvRxVZ",
+        "funder": "93Go6XduRaVrMrSVrmu6ANbAFb6FVUHa1UWoL967EHxr",
+        "launch_signature": "2RAHKfAbDtkFrgUAbdvnaCEkgfbVrGQsJY5g5YGMwCEKwvuff7yusXypDwgqhtv9LBM6MMjhrgdXqPVKwn9UA7K",
+        "launch_time": 1786738580,
+        "mint": "EUfkzeNzSQ67zHP2oKNKhRFMDgytCCu8DqDPYfBxpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "FTuqW6J148wdknkPvm2EVSJ1EFt4aDhjAYzv6rdjuCRi",
+        "funder": "96w1sRfxGAB95Uf4kTvjRjjo3q4aTYF5oX6DqhKPbSxQ",
+        "launch_signature": "2DebgGSZuHageGAJZbVDAHu89hHhJmNSxYusFfBp8QVsErSTvwnDYN6aMr3MdyzB5k1Lnhe4cxyLbuR7ofuzqHy8",
+        "launch_time": 1787161765,
+        "mint": "BSY3qBRwp1RvcNsFiBUFJTKr7NVDv6PFCejVV6crpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "timeworn2X1EwMLSzeVhdVTbVSzSCKuibKd2kQ2Lsyn",
+        "funder": "9Es4rPu4fhWoMGok1Ts95gBgfJEUG83NKW8XYKVubZwT",
+        "launch_signature": "cThevRS2v2u3ESTj4MHkzbqX1tPyBWUywfyvcWVMQg1TUEhFpJ176qkdYPAokYHy2esUUvJzMAYrTfqHZv99xLc",
+        "launch_time": 1787406321,
+        "mint": "BaBeW6hdxDSenERN6JcxLY9v27YnZqaAQYWuscUjpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "9qt661UBRaZWSnmq8VWxRAdKyvxtv3BVQKhHApRAksLe",
+        "funder": "9wQtSxk145qfEPnmHEzv7PHRoBDbELyWGst8T2Umrh7C",
+        "launch_signature": "GzKfCiF9UTqt8oRkbzPRWnEikvKpFdKpQBJWydP2MKaTLVyz8jSRZfh7UkumygwByeE7zm1DoFiAvcuiX2v4N8T",
+        "launch_time": 1786491711,
+        "mint": "DNFUP9tDaaHSLGkRfypf4t1u1uNYnFiPKUWFivBWpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "8wH5uUQovtYyAt7KvieqrAfBpFXKRA2M7auYvcANECmG",
+        "funder": "AQ14CiHreMa1W1WodahwsKFd57BnrGNqN6dyJuDY8KFQ",
+        "launch_signature": "64QqffutwJrRCQATjsmfeGNs1N2te8uGdW2o1RHweUphVjm4vLPgw4bmZtNhVSxKafpz5vTejv6us7MFiUVpouSp",
+        "launch_time": 1785027603,
+        "mint": "9sppvFeeQ4eWZVGqQ4uxwKA7TzEAYFgKCx2V54qZf3f",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "TffSohsKbZF1WDFfLEGJV4JE4dWf8yETfQuer8cxU6k",
+        "funder": "ApRnYo6eSxdUnghbas6SFcAVh4ro47Vqr95g8MLrHdz1",
+        "launch_signature": "2WMGWmpZVkScJc275opMrPHLvwqp5i7dXm9LHEM5iwMdyGEwMy69MSSRgPy3LWJoCPR4LfneJPxnDzapqHgF31x5",
+        "launch_time": 1787640925,
+        "mint": "GUrQf9dzcZSrog7YRyx6uZjJfSDZuZrhu7F3S9Xpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "FUZHy49X8m5X8jf2Curr9J4WqSmBU6aHpHGSvdnPmd2t",
+        "funder": "AtLA7ZEXtEX4finEcNDyEdJ2BzydvX1quu9MUH1KH75v",
+        "launch_signature": "65fsVsjRQqTP8oe1nmBdcS5Yor3ppKjifR416hY3dgRfWn4SHFKsRCSCq9aG366pkLqdW7bT4nfeTkRJJdU5nmF2",
+        "launch_time": 1787791572,
+        "mint": "22hwGyN552rCB7GW73GdC839Nkbi881jCXNgvoT5pump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "D9HkjXkrPpQNhgNMS2S7iTvZv3iEBKyTNMcfgaRjU3v7",
+        "funder": "B45FhPEEaYj78L2CK1xHPkdCXgWMNiadsK8fRgGPxKom",
+        "launch_signature": "4yoPRggvwHNsuZNzMjRYt9Cvmmn4y2YxbdZUbz33Tb5d7F4vjcA1nmRFBse1aEcGQHNh2YmJmxPfP59EX38RRwFZ",
+        "launch_time": 1786492063,
+        "mint": "EUccNFoEHwoQ68tHWXytDrbDkDTY5iKGicuFpA7fpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "GM9n2JcduyEJ5HWDeRMVqsQQdygw3gneC4NAFeYCbNi7",
+        "funder": "B45FhPEEaYj78L2CK1xHPkdCXgWMNiadsK8fRgGPxKom",
+        "launch_signature": "2C14b1jbTQtpQZCoM6vQ6ELUGSQzEnAYhjJ67LfayhtaqwHdZi3jQ69ud2q9SpsorCZoHq8qeAipTYLavZFVzaGF",
+        "launch_time": 1786494577,
+        "mint": "D7UkWaCWNCukBFP5VUv3ajFQ7PEMjZSSv78y2wHCpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "9iLW5FRnZrnEtfri9BHJfcF9S2gnZtTF4bDi7ZKwybLx",
+        "funder": "BrEcnDRpnZchsUzPjKrXmhA9P63KNy4tbge43dk3yRRc",
+        "launch_signature": "4Z4cduxvi9Cqgx51F7kVqepwx6CE9nUBBRpTMppbPf6NDtDyLSc9qcr6rZAdgYZaCYStn7HGovDyMSaZgQA3LBMf",
+        "launch_time": 1786597877,
+        "mint": "68Z6fpmPM7R6T4uGWrFqg82v1iryBfSN4vcoyzZ4pump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "9WK4DPiVvcXDFYvZdeabU5hZ2cLxtoax4EacMSyg4tLE",
+        "funder": "Bvrc31ZYRAPeuhnkWY8wzUSt57N5CtHCQrxJqaCPAuqN",
+        "launch_signature": "2erqGa9XYvd4jV5GSPWuTppbZdsnaoK8FqJPACeueCgNs8QqMcSEE9BePrfsMPAe3JCz8QFq6Z9qb6daC5mjxux6",
+        "launch_time": 1788079893,
+        "mint": "EdGY7F3uVW3LD1485o2CU84agMbJkFahbzJEEyMpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "G6iRJcuyC4ooWmmjn8hQbUTpqLjVdykLBLFT6toECYfi",
+        "funder": "Bvrc31ZYRAPeuhnkWY8wzUSt57N5CtHCQrxJqaCPAuqN",
+        "launch_signature": "3u5meAwUCqECiXLrbZpy43n4HrZoZBBFNJvwrr9eKkDFP9Q1BkB1UW4WQ18abGcA1AXczwsHkKhWFSyTU6ESFcVZ",
+        "launch_time": 1788093288,
+        "mint": "kqcyNfnQuki1JBjMuSC3XYNSuBBezfKeAnYWtNtpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "EHdfboiMiyEcyxpcyXFeimAqaVTG1wdL6aRHKHvZrWKU",
+        "funder": "C3axbh1LCBvg1KuKYgyEQWm11kAhyDGBoUnP5uVkp1kc",
+        "launch_signature": "4c5zr9rADEpEtfi53MrFJB5W8UY5hhMinAqaZU8umwupCC8tqzSNVSWwbvP9t2LEsfaqmHm2s3ZpXCodCErLHhnh",
+        "launch_time": 1787986204,
+        "mint": "VBrCaWDTRPyW5BvRoTph5BR8KZNstSNzrTdYEgipump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "3rtn6iSjwkwPDKtMNe2rvmhFEJNPoAeXcaDf31qz1jha",
+        "funder": "C3axbh1LCBvg1KuKYgyEQWm11kAhyDGBoUnP5uVkp1kc",
+        "launch_signature": "4ESFpJu3EJT4SH29bS8u1VogEFknthQp3fFH1k7cYySGxUdQEbjzpKkaSBgjhcSRqgxzEHx6CQJ2EZGsjJnRcTqm",
+        "launch_time": 1787990709,
+        "mint": "gBA6YuiJaMGPbSZ8X6Y7LBz9fd2fmtsAivr5QQnpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "D5ffVHAm6qP7yAeRG2GebcYzy2df7RLTywpmAYa3pvAu",
+        "funder": "C3axbh1LCBvg1KuKYgyEQWm11kAhyDGBoUnP5uVkp1kc",
+        "launch_signature": "8vKYDBSQm6zHdknytxNiEpujiHvwA1RZrV7G6R6o7dhWPZHF1MUUGBgLeggSSgVHnkuhFEgbhSp78KZx9uSqcqo",
+        "launch_time": 1788004038,
+        "mint": "8jWos15xY4nPUuFcSG9QvpTAbpVYg2Pdr38iQfSpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "Af4LKePbhqFCWvoP6CCWCBQeTiNwfFXHxMtWBwYo8M7S",
+        "funder": "Cf3ydFVFzpyMS69R856w4WQZKFNX6yhgEokx1jM3nxqh",
+        "launch_signature": "QSx1e7wyMCKvyUGKmBjNrVv6q9f4h17cXPhCJa5Tj7kv1o2JCa3TQLX8vEUVsqwZA4Em4oZHs9aFkYmBDnjDddv",
+        "launch_time": 1787803480,
+        "mint": "pD28VHG3vGzT4PWFjyd7HRHRpYaGCYD5B565Bv1pump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "4SEdAeg5ZbTUVXbJo9nczrqP17N324wBDyFZNUpA7UZX",
+        "funder": "Da76omT5pL44rb5XuPSfu16QuAQtWiYAQqpvDoyofX26",
+        "launch_signature": "JHjnGqnk5GnarSawffjMNThMdqJFqsdUWXwxCpA4BkhjaKEsTRLicBqdYrteWrUpRZC2vWqBZetzm48JWNvnPWd",
+        "launch_time": 1786513059,
+        "mint": "7vRYuepuBdgUFiceqC46s2GfW9E9YRbSCYMBGvTRpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "45RfMKfRZeN8yY1SxwuRVQptSshEMgs1Gw5GuYFDCzDF",
+        "funder": "DwAbdjwrYi7dVjf96ahE3cKm7wCBzmRog78GviWSAfKz",
+        "launch_signature": "4C9a24WQxb4xjZ5oeo8sEwhirtfptEmUKcykTon9hCzcLvWc9QgWuyajPWd8DC4kQCnDwpD1aQ381aw8b7CYUJmd",
+        "launch_time": 1788039545,
+        "mint": "2HEHbuf85uBdW2yu1gRotXD9rveaYcBnvQpVn2zYpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "DMxij5eesjajGRJzEm5RVTXKjtDG49jwVufUehrhU8Hg",
+        "funder": "E2PAqE8PDSvkVAHvkvtFpBRM3zXWaRe9ZjnMZagtXbvc",
+        "launch_signature": "384WN6uaRdo2cXfWagFcbs2Z4L7o7BhtTzVkiQTfin3GZPaC1usKcu714F3cT93oKDqciQ3ssusTMsckDnC1zP9W",
+        "launch_time": 1787157611,
+        "mint": "6dNmQku2Dnney8LnXUMKBdchqP2hd9xnUJyf8Y9wpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "BmfjxXzViPUm8GQX5TPFg8qjczv6fgUShwkE3VujPX6K",
+        "funder": "EC5tdMEvQF2UwzYjTwtLxcPGKKH1rAk1okCEj2eBd48E",
+        "launch_signature": "4EUWsoD9WPiTZDt8iZJZDQZnUFw5A4wsFiCHWVDmoNo2DDCXgBMQjhhDBGpqfRWA8oAYsyX6kPgttVu3g3zwuHMa",
+        "launch_time": 1785866207,
+        "mint": "GxJp64uK69rxBv9xcju3Z2jSTrcfpqi3nT1DLuPpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "2oMGQjekEmBYjcmiSLfEzJ9bFuLnTesErq1T3UnyZDRV",
+        "funder": "EvhBmnkNspKPSG7YueTHyDK8RdhB382FEttcGiKeZhnm",
+        "launch_signature": "4b6RhyWLycTYFh7XFMP8LhBPjJShAcyWJjWzoP78SrySALQzagZKzbiyDGjCzGWEz5mjJJie3d9Abp4jWxAE7hHa",
+        "launch_time": 1787996395,
+        "mint": "SpXcEtVQTbrQhwa5ysrn9oyRDyhJ2kBiUDKWFTXpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "BTdjaPaor31yqs1mggv6eaRJbEox8sE3MbyBCMEjHPbq",
+        "funder": "Eyb9j2G42H65XD4o6z8jf8rgcUqqG8kpbcK4y7gysYc5",
+        "launch_signature": "3YCmCXEnyRpiSNM5nMSXST5B24Dr91cXoM7XLtUQB9oNwYGUrRrXxDHRhYws7n2wEKYJtjbReBPLSeodKZBVc9VK",
+        "launch_time": 1784653717,
+        "mint": "26MGRzYaCX55Nbqc1aNtMRCB6r7E7aLqr8Cwfks2pump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "Ez8hFbX9pwy3cXD1iie3T4g4SGADTTfRN53DbKvZc9e4",
+        "funder": "Ez5JkNo9ccu2BG9tsc29faokPAdwymT5MnZssF85Dcin",
+        "launch_signature": "3BBYvZSDbSjtiPjmGcAdZsdFdTsdzxBwoeNn2dG1JGF9WZQ3A1XLW2RtJd3yTjTMBxShLxFbc64mG41zKjbn4ivt",
+        "launch_time": 1787067168,
+        "mint": "6kAYhe9CLYVrRDknUdRUaagVyEjMBWPkrCCEFMKipump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "EiPbzmsn2aeU5KeBnWDkivDeDoQ6oGP1tsJRZmX84u5J",
+        "funder": "F84jY7KxRBM6KKDFSihprAQ9rhf8y4x49MDdB9Cj8315",
+        "launch_signature": "3ENZatygKB75od276X6iUbsKpRN53JT8SuD9xGMXEpjrQWFc9HENQ7YAHS9N6amoUk6upkj8T1YWZvcav1hd9JjY",
+        "launch_time": 1787743952,
+        "mint": "St7XNGmeeDggsGVhM6i75xJ7GDa4vECg7G5hMKdpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "N9SyhAXDckG4y2B911paJPpwS7cvxWSxcng53mebXGf",
+        "funder": "F91R9XfkXUweZ1dc4urY9N4N7q1Z5vnC5g7uRcGi5mgn",
+        "launch_signature": "2WqSvqMEBbg5gLr2sLh5Ltf1My3EssSXRX6gUdeiZMktzraUmaiRrTxQdxg8uFHYjEWjjLgv6NWYkqYac5CVSApV",
+        "launch_time": 1787558962,
+        "mint": "GJSmv1ZieC6T7k88aLpVQDB11X2yy2XwFEeJuqqSpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "ENPmszWSZ3RNUFTwB2cRHYPdgbwocXNqJgWuXSpN7b11",
+        "funder": "FpsJrgUH8djJT33jjtLXLbDgpG981ANTNjJ55udAYVgJ",
+        "launch_signature": "2rqqqsdtCwBgzmEdcSfkugP7B7P2sUj21YAnHoDwbtFqLpVgqjMrwdFbe3QUvmBKnUydHB57gcm9xcdQJsiHXkao",
+        "launch_time": 1777500541,
+        "mint": "EnkmS3jvFqsZb7MSTw9H48cUXfENUd2pBVXLHNmqpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "GguKCgLYxwtWgpXzubxkq7E3ZzAYQFbda71DvfbkrKPh",
+        "funder": "G2mg9C9EL8zrxGvR4RSc9tzgraY7jMPmVyDxsFhPCvR4",
+        "launch_signature": "2JzgYNvxHgyzZNgEUVPUPpJSporm4nopD2aaCsQXKNE5ypSjWN1wAGYMnU8FYo9dyrGip8w1ycCi5XGcj3KV1eL2",
+        "launch_time": 1787745220,
+        "mint": "FvTorpDvrDUEBcc8vqAb88g5aehDK6wkA8hyenwLpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "B1g4Nyyu7zJzVv2fQwUdHLfvdjX5p6Uw2V9KxVLxKSmG",
+        "funder": "G76tucLinYTwz8KkV4NXroEZweBS5gb4ZRinbQd1Wjoz",
+        "launch_signature": "61JiaS9Qg7RFbzmnAqXWj3CC3M78ghHe3meQNRYeRMdmBZjGvusQpFrMRi49inoMaKh8wrM1HU68cpQxqADbgtXH",
+        "launch_time": 1786485600,
+        "mint": "E4LLHpFnRgDLiYqyqnMEZ1C2CBmR6CWdcWrT5hpipump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "J6adEwik4yfjjKqbWAMt9GqkhzwcwLBcvaTqD3TJmeYp",
+        "funder": "GB7SxB9hfNTZ3e7nv5JM6Jgr9uJWQZqSSP2Bprh7U28G",
+        "launch_signature": "47WWUUsNcFYrioqrSMvEnrY4aAA1ebbU8qPqC9qkX9anYZd5Tr9qGEiYcenvMxuxz7XoBZoYMkbydNnb5aVfjY9s",
+        "launch_time": 1785828931,
+        "mint": "GtaKydPfLerjvf4fdiCJFbeHgmXzbSEwsLv4yjs5pump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "F4NLCXmMKpasHCZEpXddGbnN2zJxLQ3xiRgagWjstkZw",
+        "funder": "GZL4dkFRmqnj6cQZpJyTnF1x1nx5JgrYzwQxHknTHkAN",
+        "launch_signature": "26fvGX1AZfZpk2xJ5V6X8sCmgeDV81KHEKFVn8SDvkhCgXDU5Xbe6MM3ihX7cP8QrNRxthJ8a1ftGJ54bQjvf8bL",
+        "launch_time": 1786125730,
+        "mint": "44xU1df8XusRRiZhcucfWMMACpbhqdVvHDbG7zRdpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "4e52v4UbKLQ2tiBadEV4uwQ1B6w7aEfkxBMXxvmbbKM8",
+        "funder": "GcuZeV6SgaYcuQB9mTjppNm1vV7rdQxycrVarwEtZTUY",
+        "launch_signature": "39DArFzGtABUNiwykJFTczD6zowq5T14bDqSDVqqR6Y3zGtww7rNGfE3kGjkz2b4Y8dYjRfZvHCqw8FWUMfGAiA",
+        "launch_time": 1787199768,
+        "mint": "64u6ck5Rpn88YpFdALXaoQVY3fF2cneoSWD4sf2epump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "FLYbyPss3iBMpo7J4gTYuJVx9JwNJNXQzobtFPeZR8Y7",
+        "funder": "GcuZg6tjLCRjyAnv1kXPnQYr67Lp9Druo7xoAdg8E77Y",
+        "launch_signature": "5DdjqRyrQ3VeP86YfWCoiqPeK8gxoHjVuXpEzSVJjbiFS2vkHzdSPBjXYjGmVSxkgczWjq6u7v6PSovWioTn2EXo",
+        "launch_time": 1787458879,
+        "mint": "HVXsnbGyNR7cXdj5LhHqLVxNsmGsyH2VwJuD5fHCpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "Ao9D9xuKxhHfTGCd3ZeBPJ3aBRUAicKKnXZ3feH6uuGC",
+        "funder": "GdJL69RggRerjjPRNkC3jojFBG6AXqA8cgE51Ucie7gA",
+        "launch_signature": "2AdxqCnSdeTkZyb8SPbmsn6DPjYAWFrnCmr4DNbFkdnJxgGHPr92qrd3XNrpZGdzXU1741KN9j4PwFLtLKA6iuiS",
+        "launch_time": 1786693477,
+        "mint": "2eyAxcdczf7cmHLkqerjEokhdy2EMPL7w5AKkDK5pump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "6CUxHmvm9MTeW9846mb2PHEkHGknFiHhbyserqejoPXY",
+        "funder": "GgrPgh6e7NfwZ7gaGaRepkXi27b3MzbcU2deUA3X3dZT",
+        "launch_signature": "2W7W2CLXxfFQLYUogsA1tYBk3kvbyy2VyJdiLFbjoiFEYhMpotJhBZudXtvfg47V6rzcdPidDikyV7v4NDF7aULb",
+        "launch_time": 1787669231,
+        "mint": "6dPRZRMgd8iS5f5BeqDDisXhkW5CWSRBHq69iGX4pump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "5rh1f51MvPjg2L29Bey8jNJj5TPLEdB62h8BxFXNcRbz",
+        "funder": "GgrPgh6e7NfwZ7gaGaRepkXi27b3MzbcU2deUA3X3dZT",
+        "launch_signature": "5xJZkWwohdzZznK6LU8CZjf3GHNNgx7PJ6ZZM2tvbuJ6StXVS7K3eH6Ydp1jMJnLkQdw13c8g44TU3rLRvd9uLTW",
+        "launch_time": 1787669919,
+        "mint": "FrayVb4QqRjoBovzjaYbmF75LUMwBGpRzYugU4E1pump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "HeagE57wb62U2WXsAc6ZWZEyubBRgfnUqf8ngvBMiGEQ",
+        "funder": "GgrPgh6e7NfwZ7gaGaRepkXi27b3MzbcU2deUA3X3dZT",
+        "launch_signature": "36RDc3xVR1swPLcgFvinkxUnn9H9GxAZtTizHuNqDBnBwe99iFEG2hBBCyk3KXK9exbPUmTE7yyZ6BK7vn5iXAUd",
+        "launch_time": 1787670923,
+        "mint": "7yBAq9MHhjDrvAh3UgZFr1kUoCKcQCdHGfnVMXnXpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "CfQ1p2Nz2UywqP21J9QFwaTwRbxxdHq9BcAB4gjii928",
+        "funder": "Gh4wnpFwhDub7cFkDDDapRDuhsFa4EjtDLzBVoNhxxpd",
+        "launch_signature": "4DnnfcN4iiYgSk8DYtB1WhWb3KUr8wMio6r9sSPs3zbbVgDAqRf9xdiqdr4sww89Kwv18Kr5v6XUnHLTBcSaWrPs",
+        "launch_time": 1785052307,
+        "mint": "79mFmvFew2GzzBmbghw1U2nEoqcEJMaBJ2CNM6gkpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "Enkp596LAUTZrKxjXMtN8Suhbu16fB8qb3bSyCDtV5L4",
+        "funder": "H3mywHLmjvfdTp8Yd14dEeKbECgQdDTpEUTomw2odKwQ",
+        "launch_signature": "2oQgEbzYbixFYoL3qwtmLu7hH4Xkda8KvLNkj96uWzp33DM1ULJSDfTxR5XJQUs9Hg28JnVGP3Q6C4DQj9Z182Hf",
+        "launch_time": 1786035107,
+        "mint": "oxsBtVM2ph6TWDZjKeLxuq77kQLBNBmdTcZDXcGpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "9c122cW38DQjCCHwswWyQoWrdZMH8fYfAm5Ee21aq5ZY",
+        "funder": "HKRhboQqHSv5qkrJZSXPyaadqLbjTCpEaDMyZrGG7Nnz",
+        "launch_signature": "dVAL5W5ag17psciGms97JKLoKdz9A5KAFGWqn4Uos32eK37czxEzsuN4QVUYuVjAnrVKacqHgyQizJAxNzcCgdT",
+        "launch_time": 1786087413,
+        "mint": "89LQmLpgxM53SMaNCeX1KuNjUQCTqdqvyt1rzmR1pump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "5yh7CQnyiRV2MnocgWJRLq8w8kpdB7p7HbutxC9Eieqn",
+        "funder": "HYSqUrKXTF9XgGA8KLGVEDZYTXBmfGSn4885e8ZjoNhb",
+        "launch_signature": "5BKkRREwFsFhHG7zszL4hhXNkaizqy6pKiDCdLbvQbBmSmsiowJuHf733Gg3W44Hjt7qffh7Dp1rXMxn1uuWCMKa",
+        "launch_time": 1786408003,
+        "mint": "FuWiHaX7DmgF8j3TF5Qg45cua3nvsUnGHtmWkgGkpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "8CeAfjjG6v8xaexLM86sxAr3wWA1qJyhawHsvyz3TQdT",
+        "funder": "HjMnF55dDES6Eica6DBXvEt8fAhtvtiMfLXosewfPiBr",
+        "launch_signature": "4RgMzQ4EYkmxCPWJbjpvV9LDfo7q3xDxqFAK8Ti2kju3LivdBHmMRJcNgk9fSxBZSnFN9JTv1SN4FMqikRkzFFJT",
+        "launch_time": 1787257760,
+        "mint": "Vpm3yhgro67XZUHRX6dM92b2bXdKZpx6t1Ps31Ppump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "ERakYxvh1Sez41oR4xf66dLKHxXyxgASeX5uHgEJyFkY",
+        "funder": "HkF8M9ZrVYA7bTDUE6NjPsahHdnyqjLpByt5tKsdTtv6",
+        "launch_signature": "41AkLAHawKVpz9DCyWK9dLhRUD71znuidS5Leffyof8MpdeU8JhQ1K1c4BkqEVcCk4QqMN21iF7fucpy2aqnPvt5",
+        "launch_time": 1787325755,
+        "mint": "AifhFReXgPPexvqjzxZwbztKZ4xsAaNJbEXdLz1Xpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "HQzyqmu3wPShgjbJxqAatLAEhriqzxLH4dSoJqxFhwrF",
+        "funder": "HkF8M9ZrVYA7bTDUE6NjPsahHdnyqjLpByt5tKsdTtv6",
+        "launch_signature": "BRrFvzhcDJWTxrsYXfeDTwcwrUB5AwfBS6rmxxMGU95SYpygoy193avYvFCLCCMKVuv5ABNF6Q57XwrrePaEyev",
+        "launch_time": 1787673630,
+        "mint": "jTpDtR77rrSfoTTfVBUfDSt9tNbji2Fj3MwHcWCpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "5qgSs3o9LTUbYE89vB8D4JU6Cw2DECBL9rEBR3pyuvEP",
+        "funder": "HkF8M9ZrVYA7bTDUE6NjPsahHdnyqjLpByt5tKsdTtv6",
+        "launch_signature": "5LSkfzUTsCC9rmqNcJUxfgaVhqx9BtV8gJdZDm8YmaxhKVk2vMtZuoHgfMutXgqR3wknuKG8DP3zey68Ci7rCKdE",
+        "launch_time": 1788027175,
+        "mint": "F5XcqRi6pDQQj8A8WJgSHG83gPue5GK7dbJnCydjpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "9Bbf1QoeY79zsiZFRmGrBDKcjGRNUgaxcCLDf8QpEkpy",
+        "funder": "QVtWcAX3R7Cr51VhAxFSYntoCAmTQzK8Hf4R1TrKNQ4",
+        "launch_signature": "3nc3yCBjsTXWxtGCJ6btikteuzRb4vor5N3arjAmsENjzaARZZNvi2RiuSzz82rMgHKhYixQsz4rdnLwcSrq2GZg",
+        "launch_time": 1776626940,
+        "mint": "EL4TQEUGPpW8LZnD7PqZX1hWuqCo64tFsgTJfyGKpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "EhKK4KsseywDNfbJymRNtnnUpWk6aMxEW7pGmWtYAqRg",
+        "funder": "QVtWcAX3R7Cr51VhAxFSYntoCAmTQzK8Hf4R1TrKNQ4",
+        "launch_signature": "3DbcY1YrgxFeQ8pZwQjCVKkrgeQ6Q1y5tgkqSRwP2vHbf6aQPZ7oDiCT2j9wHqHy9w2jgU5zv9EMaCA4iNcBmjuu",
+        "launch_time": 1776631895,
+        "mint": "DgFuSYjwjVYBtD17QrJbFYtDXvjn1hJLErz5DoY9pump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "6UDsi1636s5TiCnTMaLx2HkuTUxP7tnZRLEvegLJuwfm",
+        "funder": "QVtWcAX3R7Cr51VhAxFSYntoCAmTQzK8Hf4R1TrKNQ4",
+        "launch_signature": "X2YbsEmWBppAoyb8PkPrUxc8nhbJPi7DrCD6kBiyok5pTPXBiuj2Hze1en7m7gCRfSr2hndGU5rdfsA7Gs4GD93",
+        "launch_time": 1776647295,
+        "mint": "CYVCvH1u59vHZv9LiwVgrsuaFDDMCUwWyjjNkT6wpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "Deqxb42pN1f4W3dEN9aiVijaZ8Tkmvby473bubhydfR5",
+        "funder": "QVtWcAX3R7Cr51VhAxFSYntoCAmTQzK8Hf4R1TrKNQ4",
+        "launch_signature": "3vi2CJ26JyqUW4vLUfwsyfcoAtpRGVkGk1t91Gu7HMmhnNDMtnd11RD55Edb1ujJ8aaTuELyUvkcuegFuCBiK8Cq",
+        "launch_time": 1776656126,
+        "mint": "3bM3yijpVApAZT5H87hZ4FmjzLiF5Ui6WtSFkG4Npump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "FyzfGEuh7XfX4tAN4vs4K8eQ2CbUYSji3RLkfZybszaj",
+        "funder": "QVtWcAX3R7Cr51VhAxFSYntoCAmTQzK8Hf4R1TrKNQ4",
+        "launch_signature": "3iZXcdgSws6jfbVQXbhGEWjdE4wDnhPFxHZj2G6zYV9gWc514arFGT82tEnh2qCqQsdSV2sNkVtE8CBUbPyPzoyN",
+        "launch_time": 1777574429,
+        "mint": "9tTm1ByxUi73Cxxjme8EQU953SD7ekHZW25GNibbpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "83ootYgrxLnJakKCU2yZHLUk4Ebm7SkuoHUMabx8pqVJ",
+        "funder": "QVtWcAX3R7Cr51VhAxFSYntoCAmTQzK8Hf4R1TrKNQ4",
+        "launch_signature": "5ygB78Q6n85y29PZHSFp3yXDHGCcdoUYcqCUgR6bZXQZ7S1gPTWqidxkM6ES4m1FxLvCC6kMfHpfV5QrzJZjkv7Z",
+        "launch_time": 1777849780,
+        "mint": "LWZvn5VWRk23xzzkbrSR1yCaWnKNcU1tFCMAnvppump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "AMRsSeU5JpqwQWJGNLMpZzRCZSFEwYQYbMnms3dD4311",
+        "funder": "QXrQp7xWw4ENvcCcbxuDt7UH5iNsu5P3RcfxuZJaH4w",
+        "launch_signature": "VDYeHRaWHGYV3QnUsaVwFd92Q7Upr5WvyLR7vdQkXTNDxXj4ErsLRJouvfbrDMoZRTQkvg6LwMe2LbSoWjcCrMn",
+        "launch_time": 1786568034,
+        "mint": "247aEWkHmrna4JTYftxLyRw7Yt2jQ2M4zsGGecoNpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "57TWTmFvR1e1uErkkAzUcmr3z1vWnELLRYomFK11hSUt",
+        "funder": "ezMwtAnPAuJBoHCXUE8RfniWsvgMwkzkFS8tAM3S8by",
+        "launch_signature": "SNFNfncAVqpLeuMtPM6ddVZowtNivC8ZdZneCmNzedtkvfVWrJsyfBxZY5AUk9sbo6KV7evPtF6M5h6NSEo9hnp",
+        "launch_time": 1787053119,
+        "mint": "6SdvQpA6QyKX54XQxBSYznQ7nCAg2J2XRZ9hNvjnpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "2M1wm7dXxoAzsgeEu2Vxr8XCLXd8mXwiWi7qmSWBSxSS",
+        "funder": "gEham4pvb2xWeSuSRCxfkwHKB737y7ADRWagwLbPfQA",
+        "launch_signature": "2ZHHk8Dg8MmiTZs6jBBnNcwY7yDXVmRVsNvcbrEKbrJXkkstTbYqmKvJxFE8kuYkN5PGu1yZTA797HDRsEo2je1y",
+        "launch_time": 1787890391,
+        "mint": "C7narw5LL8LLPgUuosa1nKQwdtxEizumTPzfKYVkpump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      },
+      {
+        "creator": "AufH68UFBGSVVRL9D7u5W6NySCrukL4fWfSRTxDcJC6u",
+        "funder": "gangSXcffiVZntzVGYs7kajjVrPkFcTk6AKADCw91RV",
+        "launch_signature": "5ohC7dZV9uwMawyLFvJeadR1jW1SP5u2qV9nWFrsvt4V2HWA4HFNDsVMbXwKhkvbp5dcTUBRa2bdSmcwrUfrnTwA",
+        "launch_time": 1787156310,
+        "mint": "6gN4hKp17ax1bktM3BxYxuwwMAgBFFT4DShg1cc8pump",
+        "route_signature": [
+          [
+            1,
+            "PLAIN_XFER",
+            10000
+          ]
+        ]
+      }
+    ]
+  },
+  "decoded_transactions": 1263,
+  "f1_upstreams": [
+    {
+      "cohort_share": 0.05084745762711865,
+      "funders_reached": 3,
+      "wallet": "Fp27Bypi9z4PhkC6ydLkh8TTb53zjPC52eRJPUmPti5N"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "27mCF3RUbDYvjj7wW5u8tgY72PYcyjsHipEwtrQoE57k"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "2To1pVA4LSJYeg3e1Z7dGmHqggZvmKABSyvq47Cy3Ke6"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "32jMunQ9eV7bd8APTQTK5obbDWKgZEGDLeMcQfwhmWfY"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "37fohKakcSvUUCUm4bcraa9cLGiNyHTwLcoMBxAfda3A"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "37qzNewHXzszh24c41HLZcCbFvV2UwqxuF1fKnz1ApD6"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "3RycrhnVQN5DGcpJ3UUmdyHEbTnWHQWwPFKVJg8k11ya"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "3f9ivkyGvpVDUwW54JRSGCJ7HqkdXMRgY5m368jJreNa"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "49y9QxSwW1UoVKCmjb1uRxCC6hc1pJAe8rBKRSjbtkRv"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "4AFo1eaf2roqsSG2WunS7vFPCq4DGNWW8zcdNBfFoFjz"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "5YEje8tjpft7Xpevah3hovExPCSbzNkNqcuYXbd9G1YG"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "5ngUQ4LAMHGdrf1yFu8zho3bv6pEhbGtVsgALhQdaH7j"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "5xoa66bLFAAJCViwGG5sjRUtQcMhMm4Ctw3bTuig5exL"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "5y7Xe8q1TtvaM8tLDztoTmoHEAjQUzbEyzaaxEH4bHmH"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "6TY5qfFQDvR9TeZuDvfHXxvxdnRvsBqJ2kRUp9pXiboC"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "6hcPR8XYVL6Jbo8FiqrHevwxdqA4gHf2Lq9Zivc95Vbw"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "71M6UMQNDF5q6Z4ucCDVJWkgoPC7v6e4w5fxAHJ4XBdY"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "7zfY7tbAAKNxwCqbwkhM56xiobe51VzqjQVDhDQNB6J8"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "8CbFLHzg6MK3ToFKd6TthHCTJSBkHKNZ6mqFiQL3LECn"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "8n4ijX1N7eBWsjZMFMXFhFZq5CiHEzP7QRtkPxrrX5w3"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "923uEGBePgXx7kkbx7kivXmkiKR5NiMHMcNMjAAppH2m"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "AC25XBUGmvcNwK4ii4hVMkfN34qCUMytGYRi2dd4u2Xs"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "B1e1pksY8tUo96CMdtuUN7W7pzVJdk6pVLvDw1eoxVbB"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "B43rBhrS442LqtQWLZK5g3f4ZCDJLKqCG5YPck8ViiMs"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "BF8BWvWrivQKfPC5HfHoA1CfY6tJH8VAVSoqXA981dsa"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "BWM7FBCJM7c3pfjr4zrGTPk3vnKsERpoesx3H5TjB58E"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "BjzwbLYrXnxjGLfZaoYeDAeYmiSCcuBbhgLXra4KvqRD"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "BrayimeCgbfQjgfzFWhUiC8jx1336ed7JdinkGabFGW9"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "C2hgBGEK2cBnqWpN5Q2UvPwXSEy8FMeKpjkDPcHU8T7c"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "CWnfjiNFJKSG4TimLjDxEsqQicjeqQXmqRGaUSMvhLxa"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "Cs7ZCojy3vp4JSJLShmn2wPfgN9y2j5PyQYHooyx8A98"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "CuwdRMbsf9zb4reNqqMzz3YLLrQ3KTXDSV3sbzDQADuS"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "D57aTsAk9rnf2cLZhnxivdutQDRedrFdeNTG9SdiH5QC"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "D6g87nUp49Q6Z9v8mNum1oTnF9qD33hJuQiYQYWty4F1"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "D7orbFsH6C43j7P2ttqRRjxy2YfLN2ES7HdnMUPcRgjn"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "DYHS1ZKnwtjW4hHy2Lxq2SSSyh7th2ra5aBLa7TVqgFC"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "EBkaMFGAy1K4PYGSegnBg8gKJCSX2n6oMxCz6MxdZChq"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "EbTpVxSSjZ4sLhJRPoBE2RgHtUizeRNvSRXFf4aKfN3L"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "FAsDoYm1o2vJ1Z4EuJAoDgEN8Nf3kxjax1x9UG1hYa1K"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "FBRZJD2YwCResBHwWy39x1VeJZF5TBTcB2wWp5iPZbxo"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "FeVwE95VRBCREhTftEyqLcVVqjqUHVzViWYrfvyE3ixN"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "Fi5STYSC22tRYcsZXfMMsArkzpWLWSmUXxy3ttZd977a"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "FrLHtLUpAE96yZEPbVWHmnMqkyJYoz85XUzcF9ktqEXV"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "G2FtxHfCQSPvjKJ5g5ZJfTx5yxVD9x42RBJmbw4gzNBN"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "GHY1S85GVnCRWNbLwqvpKErztGqgg6xZF9wRiidqceRw"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "GPwA21iUGLkskm2Eyp6VNHDKDmbKyeVro2dumSXfaKPw"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "GQmLYkEGYpd62By11ahuh9m4CZZQYTjkH6PgAu8H9EMt"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "HMHqhYXRK2VTM8zfxu4iR57hTTR1i7uDykihgPTNwbHt"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "HSZCjCbfwGf4kEhnussjRYr3PA81t1naUnL2RsHFqup2"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "HaUoLNj8hZGwPmokiDoBkNNNW28WHKVJLvvAJQ5doFAY"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "HowkKdAxWwibNm5SMPHtW9vKYyznLStko6DT4pxdx5Mi"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "HrD1kayH7iVDECaF81kNXcim7cCC6ttaNdLghMqGi6xp"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "dYAfcoA6edaXyRtdb9xAaM5CsAVtkcvUPvUraw11Ye9"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "gC23iR5kR6DidURnv7frpgamNYAysUyamNW3HwtppnG"
+    },
+    {
+      "cohort_share": 0.01694915254237288,
+      "funders_reached": 1,
+      "wallet": "qV8bs9T59asJJa2wvUyKEsrrqi2VttudZrdrAXP1Wvp"
+    }
+  ],
+  "f2_upstreams": [],
+  "funder_windows": {
+    "2gBhiVzPbaLNwUmELeiHQ94RZmn1ftLqVXpZBhxZhNiw": [
+      [
+        1787190863,
+        1787925916
+      ]
+    ],
+    "2uPFEpvFHq5xwDeftjvEPXq5b1t48UqDDJeSN9TsRE9Y": [
+      [
+        1786428847,
+        1787247027
+      ]
+    ],
+    "3GrrtE8XLAQdvorz2KT7NgpNFXLx8NGzCJ48JbmXA2p2": [
+      [
+        1787139149,
+        1787830349
+      ]
+    ],
+    "3nTEKyixfWGcUSjAHsUZwad8QHrDoNQDWdKVHRXqkHkR": [
+      [
+        1787411598,
+        1788132389
+      ]
+    ],
+    "3srcryfrBubA2B17EocRyZmk8phbttJPR6QvMr8owAo3": [
+      [
+        1786520423,
+        1787211623
+      ]
+    ],
+    "3tEiWoYHQzopxnzTGUbmgQVB5RpNe2nTLQpqMzioyQc5": [
+      [
+        1787338130,
+        1788085794
+      ]
+    ],
+    "4Pu8i9hnwmYaMaDLCaXrTmB6SXJJnUXxtF6HbzeJdycZ": [
+      [
+        1786145860,
+        1786837060
+      ]
+    ],
+    "4Ut2Kdvi6GoivQPEVgR1G6nhDeBnRooDkCe8iWHu8ikx": [
+      [
+        1787303030,
+        1787994230
+      ]
+    ],
+    "4XhHDXZZ2DWQ6mc2LeTz1nSX8pw7wwJzEM7Jk7rArWu8": [
+      [
+        1785662699,
+        1786353899
+      ]
+    ],
+    "4ae7rX1CekEAvEG4LzHbRpG6HzSWxuSNq2w8qjZHdBaC": [
+      [
+        1787375999,
+        1788174284
+      ]
+    ],
+    "5CEb73rjGT4je9McAXJjfRX4neQX7aNFP3rzHdKHSPAG": [
+      [
+        1786721671,
+        1787412871
+      ]
+    ],
+    "5TjSMWckmCmuyzqDYcvSwvYQZRptdigZWbBc3stLKHkf": [
+      [
+        1787315797,
+        1788006997
+      ]
+    ],
+    "65WCzqasz8KLddHvKKHLgny52ZeeGtnvYhMRJJ2Qq6bP": [
+      [
+        1785827885,
+        1786519085
+      ]
+    ],
+    "7MGJ2pMRGKLt4EU3XTCymsmWi7zCi1edwwVGWfBKfdbm": [
+      [
+        1785012564,
+        1785703764
+      ]
+    ],
+    "7ZA7fpKZTNPLbF5aohp9LUhQYF2t6XpR4nUyQWMLUwF3": [
+      [
+        1785836023,
+        1786527223
+      ]
+    ],
+    "7eTU7wGK8mdZ9bu5A1Aa358XUhJmsuCXm7zxHPtkHrEL": [
+      [
+        1784238757,
+        1784929957
+      ]
+    ],
+    "7kJcoBav4yDccZw7YQTiYeiHjz23E9BZ4jojnU5VAVHH": [
+      [
+        1786222264,
+        1787189532
+      ],
+      [
+        1787205957,
+        1787945549
+      ]
+    ],
+    "8V11M8YK7v7xGrSh4KxF7gToMk8BDuDd9tvPKSURqFvE": [
+      [
+        1779809447,
+        1780500647
+      ]
+    ],
+    "93Go6XduRaVrMrSVrmu6ANbAFb6FVUHa1UWoL967EHxr": [
+      [
+        1786133780,
+        1786824980
+      ]
+    ],
+    "96w1sRfxGAB95Uf4kTvjRjjo3q4aTYF5oX6DqhKPbSxQ": [
+      [
+        1786556965,
+        1787248165
+      ]
+    ],
+    "9Es4rPu4fhWoMGok1Ts95gBgfJEUG83NKW8XYKVubZwT": [
+      [
+        1786801521,
+        1787492721
+      ]
+    ],
+    "9wQtSxk145qfEPnmHEzv7PHRoBDbELyWGst8T2Umrh7C": [
+      [
+        1785886911,
+        1786578111
+      ]
+    ],
+    "AQ14CiHreMa1W1WodahwsKFd57BnrGNqN6dyJuDY8KFQ": [
+      [
+        1784422803,
+        1785114003
+      ]
+    ],
+    "ApRnYo6eSxdUnghbas6SFcAVh4ro47Vqr95g8MLrHdz1": [
+      [
+        1787036125,
+        1787727325
+      ]
+    ],
+    "AtLA7ZEXtEX4finEcNDyEdJ2BzydvX1quu9MUH1KH75v": [
+      [
+        1787186772,
+        1787877972
+      ]
+    ],
+    "B45FhPEEaYj78L2CK1xHPkdCXgWMNiadsK8fRgGPxKom": [
+      [
+        1785887263,
+        1786580977
+      ]
+    ],
+    "BrEcnDRpnZchsUzPjKrXmhA9P63KNy4tbge43dk3yRRc": [
+      [
+        1785993077,
+        1786684277
+      ]
+    ],
+    "Bvrc31ZYRAPeuhnkWY8wzUSt57N5CtHCQrxJqaCPAuqN": [
+      [
+        1787475093,
+        1788179688
+      ]
+    ],
+    "C3axbh1LCBvg1KuKYgyEQWm11kAhyDGBoUnP5uVkp1kc": [
+      [
+        1787381404,
+        1788090438
+      ]
+    ],
+    "Cf3ydFVFzpyMS69R856w4WQZKFNX6yhgEokx1jM3nxqh": [
+      [
+        1787198680,
+        1787889880
+      ]
+    ],
+    "Da76omT5pL44rb5XuPSfu16QuAQtWiYAQqpvDoyofX26": [
+      [
+        1785908259,
+        1786599459
+      ]
+    ],
+    "DwAbdjwrYi7dVjf96ahE3cKm7wCBzmRog78GviWSAfKz": [
+      [
+        1787434745,
+        1788125945
+      ]
+    ],
+    "E2PAqE8PDSvkVAHvkvtFpBRM3zXWaRe9ZjnMZagtXbvc": [
+      [
+        1786552811,
+        1787244011
+      ]
+    ],
+    "EC5tdMEvQF2UwzYjTwtLxcPGKKH1rAk1okCEj2eBd48E": [
+      [
+        1785261407,
+        1785952607
+      ]
+    ],
+    "EvhBmnkNspKPSG7YueTHyDK8RdhB382FEttcGiKeZhnm": [
+      [
+        1787391595,
+        1788082795
+      ]
+    ],
+    "Eyb9j2G42H65XD4o6z8jf8rgcUqqG8kpbcK4y7gysYc5": [
+      [
+        1784048917,
+        1784740117
+      ]
+    ],
+    "Ez5JkNo9ccu2BG9tsc29faokPAdwymT5MnZssF85Dcin": [
+      [
+        1786462368,
+        1787153568
+      ]
+    ],
+    "F84jY7KxRBM6KKDFSihprAQ9rhf8y4x49MDdB9Cj8315": [
+      [
+        1787139152,
+        1787830352
+      ]
+    ],
+    "F91R9XfkXUweZ1dc4urY9N4N7q1Z5vnC5g7uRcGi5mgn": [
+      [
+        1786954162,
+        1787645362
+      ]
+    ],
+    "FpsJrgUH8djJT33jjtLXLbDgpG981ANTNjJ55udAYVgJ": [
+      [
+        1776895741,
+        1777586941
+      ]
+    ],
+    "G2mg9C9EL8zrxGvR4RSc9tzgraY7jMPmVyDxsFhPCvR4": [
+      [
+        1787140420,
+        1787831620
+      ]
+    ],
+    "G76tucLinYTwz8KkV4NXroEZweBS5gb4ZRinbQd1Wjoz": [
+      [
+        1785880800,
+        1786572000
+      ]
+    ],
+    "GB7SxB9hfNTZ3e7nv5JM6Jgr9uJWQZqSSP2Bprh7U28G": [
+      [
+        1785224131,
+        1785915331
+      ]
+    ],
+    "GZL4dkFRmqnj6cQZpJyTnF1x1nx5JgrYzwQxHknTHkAN": [
+      [
+        1785520930,
+        1786212130
+      ]
+    ],
+    "GcuZeV6SgaYcuQB9mTjppNm1vV7rdQxycrVarwEtZTUY": [
+      [
+        1786594968,
+        1787286168
+      ]
+    ],
+    "GcuZg6tjLCRjyAnv1kXPnQYr67Lp9Druo7xoAdg8E77Y": [
+      [
+        1786854079,
+        1787545279
+      ]
+    ],
+    "GdJL69RggRerjjPRNkC3jojFBG6AXqA8cgE51Ucie7gA": [
+      [
+        1786088677,
+        1786779877
+      ]
+    ],
+    "GgrPgh6e7NfwZ7gaGaRepkXi27b3MzbcU2deUA3X3dZT": [
+      [
+        1787064431,
+        1787757323
+      ]
+    ],
+    "Gh4wnpFwhDub7cFkDDDapRDuhsFa4EjtDLzBVoNhxxpd": [
+      [
+        1784447507,
+        1785138707
+      ]
+    ],
+    "H3mywHLmjvfdTp8Yd14dEeKbECgQdDTpEUTomw2odKwQ": [
+      [
+        1785430307,
+        1786121507
+      ]
+    ],
+    "HKRhboQqHSv5qkrJZSXPyaadqLbjTCpEaDMyZrGG7Nnz": [
+      [
+        1785482613,
+        1786173813
+      ]
+    ],
+    "HYSqUrKXTF9XgGA8KLGVEDZYTXBmfGSn4885e8ZjoNhb": [
+      [
+        1785803203,
+        1786494403
+      ]
+    ],
+    "HjMnF55dDES6Eica6DBXvEt8fAhtvtiMfLXosewfPiBr": [
+      [
+        1786652960,
+        1787344160
+      ]
+    ],
+    "HkF8M9ZrVYA7bTDUE6NjPsahHdnyqjLpByt5tKsdTtv6": [
+      [
+        1786720955,
+        1788113575
+      ]
+    ],
+    "QVtWcAX3R7Cr51VhAxFSYntoCAmTQzK8Hf4R1TrKNQ4": [
+      [
+        1776022140,
+        1776742526
+      ],
+      [
+        1776969629,
+        1777936180
+      ]
+    ],
+    "QXrQp7xWw4ENvcCcbxuDt7UH5iNsu5P3RcfxuZJaH4w": [
+      [
+        1785963234,
+        1786654434
+      ]
+    ],
+    "ezMwtAnPAuJBoHCXUE8RfniWsvgMwkzkFS8tAM3S8by": [
+      [
+        1786448319,
+        1787139519
+      ]
+    ],
+    "gEham4pvb2xWeSuSRCxfkwHKB737y7ADRWagwLbPfQA": [
+      [
+        1787285591,
+        1787976791
+      ]
+    ],
+    "gangSXcffiVZntzVGYs7kajjVrPkFcTk6AKADCw91RV": [
+      [
+        1786551510,
+        1787242710
+      ]
+    ]
+  },
+  "limitations": [
+    "F2 requires targeted histories of recurrent F1 wallets and is deferred until F1 records are actually acquired.",
+    "Token-account ownership is derived from transaction token balance metadata when present; absent metadata is not inferred."
+  ],
+  "provider_accounting": {
+    "getSignaturesForAddress": 113,
+    "getTransaction": 1,
+    "total": 114
+  },
+  "recurrence_distribution": {
+    "1 launch": 47,
+    "2 launches": 3,
+    "3-5": 7,
+    "6-10": 2,
+    ">10": 0
+  },
+  "result_digest": "c99c82775eaa57c5bd7cf29fc9d3aa91820b4949f67c652f75239a017729fb4b",
+  "safety": {
+    "assignment_writes": 0,
+    "generic_dispatch_changes": 0,
+    "living_publications": 0,
+    "membership_writes": 0,
+    "ranking_writes": 0,
+    "real_db_writes": 0,
+    "source_table_writes": 0
+  },
+  "schema_version": "potential_operations_6437_full_funder_infrastructure.v1",
+  "shared_authorities": [],
+  "shared_fee_payers": [],
+  "status": "PARTIAL"
+}

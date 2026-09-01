@@ -1,0 +1,18 @@
+{
+  "schema_version": "generic_living_association_persistence_qualification.v1",
+  "runtime_wiring_hold": {"path": "docs/audits/generic_living_runtime_wiring_qualification.v1.json", "sha256": "db3e02a94ecc249f1e67638f9132edf5c58f0c520d843bf17c8de9c7b59c13ab"},
+  "schema_contract": "potential_operation_evidence_association(association_id, potential_operation_id, evidence_key, evidence_type, state, rationale_json, created_at) plus assessment binding (assessment_id, association_id)",
+  "ownership_invariant": "normalized association potential_operation_id must exactly equal target assessment operation; mismatch raises before insert/bind",
+  "deterministic_identity": "UUIDv5 over owner, evidence identity/type, state, source key, and canonical provenance",
+  "shared_evidence": "PASS: same evidence for two owners yields distinct association IDs and independent bindings",
+  "cross_contamination": "PASS: explicit candidate ownership mismatch rolls back with no partial rows",
+  "idempotency": "PASS: INSERT OR IGNORE with deterministic identity",
+  "state_transition": "PASS: state participates in identity, preserving UNRESOLVED/INCLUDED/CONTRADICTORY historical assertions",
+  "non_derivation": "PASS: publisher does not delete candidate-global ledger rows",
+  "atomic_publisher_integration": "Qualified association persistence is transaction-compatible with existing lineage publisher; real writes not performed",
+  "candidate_specific_behavioral_branches": 0,
+  "real_db_writes": 0,
+  "focused_tests": "python -m pytest -q tests/test_generic_living_pipeline_v2.py: 11 passed",
+  "runtime_wiring_readiness": "READY_FOR_RUNTIME_WIRING_QUALIFICATION",
+  "verdict": "GENERIC_LIVING_ASSOCIATION_PERSISTENCE_QUALIFIED"
+}

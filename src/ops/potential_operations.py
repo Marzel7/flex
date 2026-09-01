@@ -19,9 +19,15 @@ CENSUS_RECONCILIATION=Path(__file__).resolve().parents[2]/"docs/audits/potential
 SENTINEL_EVOLUTION_ADMISSIONS=Path(__file__).resolve().parents[2]/"docs/audits/sentinel_evolution_cluster_admission.v1.json"
 FOCUS_NEXT_ASSESSMENT=Path(__file__).resolve().parents[2]/"docs/audits/focus_next_potential_assessment.v2.json"
 ROUTE_ACTIVITY_SNAPSHOT=Path(__file__).resolve().parents[2]/"docs/audits/potential_route_activity_snapshot_v2/candidate_census.json"
+CREATOR_ANALYSIS=Path(__file__).resolve().parents[2]/"docs/audits/potential_operations_multi_token_creator_analysis.v1.json"
 C357_UPSTREAMS={"ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY":"Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya","F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229":"3GL5bXdDriApC4J2gn42L9fH2xFxq9Ziifr3pM79hBoi","HS5GjB4KTJbbBdYHkJV8qDpq8gmU9wck2qsxgz3ifgke":"8Bk1fBnoc9Yk3HUz1UWihT2ewgbxMm7LTEoemabUVqmk"}
 C357_UPSTREAM_AUDIT=Path(__file__).resolve().parents[2]/"docs/audits/c357_remaining_upstream_funders.v1.json"
 C357_DUTB_AUDIT=Path(__file__).resolve().parents[2]/"docs/audits/c357_dutb_common_funder_rpc.v1.json"
+C357_CANDIDATE="p3r-v2-c357da9d0d4d560311e4"
+C357_PARENT_OPERATOR="777211c3-211e-551b-9310-ff9301570627"
+C357_SUBTYPE_ID="p3r-subtype-03f916dfa97fb93a4b9c"
+CREATOR_PROVISIONING_CANDIDATE="p3r-v2-6437acd385e566e301a7"
+CREATOR_PROVISIONING_OPERATOR="bd7d7479-1454-5d41-9f68-115550348f3e"
 
 @lru_cache(maxsize=1)
 def _c357_upstream_map() -> dict[str, str]:
@@ -115,24 +121,75 @@ def _sentinel_evolution_admissions() -> dict:
     except (OSError, json.JSONDecodeError):
         return {}
 
-def _attach_current_evidence(row: dict, evidence: dict) -> dict:
+def activity_state(metrics: dict | None) -> str:
+    """Describe retained route activity without changing attention ordering.
+
+    The snapshot has a natural immediate-activity break at three 24-hour
+    matches (seven of 62 families); all remaining labels are simply presence
+    checks over the same candidate-relevant route windows.
+    """
+    if metrics is None:
+        return "UNKNOWN"
+    a24 = metrics.get("last_1d", 0)
+    a7 = metrics.get("last_7d", 0)
+    a30 = metrics.get("last_30d", 0)
+    if a24 >= 3:
+        return "VERY_ACTIVE"
+    if a24 or a7:
+        return "ACTIVE"
+    if a30:
+        return "COOLING"
+    return "DORMANT"
+
+def activity_label(state: str, metrics: dict | None = None) -> str:
+    """Operator display only; ranking and activity calculations stay unchanged."""
+    return {"VERY_ACTIVE": "VERY ACTIVE 24H", "ACTIVE": "ACTIVE 24H", "COOLING": "COOLING 30D", "DORMANT": "DORMANT"}.get(state, state.replace("_", " ")) if (state != "ACTIVE" or (metrics or {}).get("last_1d", 0)) else "ACTIVE 7D"
+
+@lru_cache(maxsize=1)
+def _creator_analysis() -> dict[str, dict]:
+    try:
+        payload=json.loads(CREATOR_ANALYSIS.read_text())
+        return {row["candidate_id"]: row for row in payload["candidates"]}
+    except (OSError, ValueError, KeyError):
+        return {}
+
+def _creator_quality(row: dict) -> dict:
+    labels={"ROBUST_TO_MULTI_CREATOR_FILTER":"CREATOR DIVERSE","PARTIALLY_CREATOR_DRIVEN":"PARTIAL CREATOR DEPENDENCE","HEAVILY_CREATOR_DRIVEN":"HEAVILY CREATOR-DRIVEN","CREATOR_DOMINATED":"CREATOR DOMINATED","INSUFFICIENT_DATA":"CREATOR DATA LIMITED"}
+    value=_creator_analysis().get(row["candidate_id"])
+    if not value:return {"creator_risk_class":"INSUFFICIENT_DATA","creator_quality_label":"CREATOR DATA LIMITED"}
+    return {**value,"creator_risk_class":value["creator_risk_classification"],"creator_quality_label":labels[value["creator_risk_classification"]]}
+
+def _attach_current_evidence(row: dict, evidence: dict, live_activity: dict | None = None) -> dict:
     current=evidence.get(row["candidate_id"])
     if not current:
         row["current_evidence"]={"state":"NO_NEW_EVIDENCE","matches":0,"metrics":{},"attention":"LOW","attention_rank":0,"reason":"No deterministic current frozen-census family match."}
-        return row
-    metrics=current.get("metrics", {})
-    # Census v1 metrics are selected-edge timestamps.  The fixed 8-hop focus
-    # family has an explicit corrected, frozen route projection; other rows
-    # retain their source metrics until their direct route evidence is audited.
-    route_metrics=metrics
-    if row["candidate_id"] == "p3r-v2-dc4953db7adb853337c4" and "technical_edge_metrics" not in current:
-        route_metrics={"last_1d":2,"last_7d":14,"last_30d":30,"total_observations":33}
-    state=current.get("current_evidence_state", "UNOBSERVABLE")
-    attention={"HOT":"HIGH","ACTIVE":"HIGH","RECURRING":"MEDIUM","QUIET":"LOW"}.get(state,"LOW")
-    row["current_evidence"]={"state":state,"matches":current.get("matches",0),"metrics":route_metrics,"technical_edge_metrics":current.get("technical_edge_metrics",metrics),"attention":attention,"attention_rank":{"HIGH":3,"MEDIUM":2,"LOW":1}.get(attention,0),"reason":f"{route_metrics.get('last_1d',0)} / {route_metrics.get('last_7d',0)} / {route_metrics.get('last_30d',0)} matching routes; {state.lower().replace('_',' ')} fingerprint."}
+    else:
+        metrics=current.get("metrics", {})
+        # Census v1 metrics are selected-edge timestamps.  They are retained
+        # provenance only; the canonical live activity below supersedes them
+        # when a qualified matcher is available.
+        route_metrics=metrics
+        if row["candidate_id"] == "p3r-v2-dc4953db7adb853337c4" and "technical_edge_metrics" not in current:
+            route_metrics={"last_1d":2,"last_7d":14,"last_30d":30,"total_observations":33}
+        state=current.get("current_evidence_state", "UNOBSERVABLE")
+        attention={"HOT":"HIGH","ACTIVE":"HIGH","RECURRING":"MEDIUM","QUIET":"LOW"}.get(state,"LOW")
+        a24,a7,a30=(route_metrics.get(key,0) for key in ('last_1d','last_7d','last_30d'))
+        row["current_evidence"]={"state":state,"activity_state":activity_state(route_metrics),"matches":current.get("matches",0),"metrics":route_metrics,"technical_edge_metrics":current.get("technical_edge_metrics",metrics),"attention":attention,"attention_rank":{"HIGH":3,"MEDIUM":2,"LOW":1}.get(attention,0),"reason":f"Retained snapshot evidence: {a24} / {a7} / {a30} matched routes; not presented as live activity."}
+    creator=_creator_quality(row)
+    row["creator_quality"]=creator
+    live=(live_activity or {}).get(row["candidate_id"])
+    if live and live["activity_source"] == "LIVE_CURRENT":
+        metrics={"last_1d":live["live_launches_24h"],"last_7d":live["live_launches_7d"],"last_30d":live["live_launches_30d"]}
+        row["current_evidence"].update({"metrics":metrics,"activity_state":live["live_activity_state"],"activity_source":"LIVE_CURRENT","last_live_launch_at":live["last_live_launch_at"],"reason":f"Current retained launches uniquely matched by the qualified incremental matcher: {metrics['last_1d']} / {metrics['last_7d']} / {metrics['last_30d']}."})
+    elif live:
+        row["current_evidence"].update({"metrics":{},"activity_state":"SNAPSHOT_ONLY","activity_source":"SNAPSHOT_ONLY","snapshot_as_of":live["snapshot_as_of"],"reason":"No qualified unique live matcher; retained snapshot is provenance only and is not presented as current activity."})
+    else:
+        row["current_evidence"].update({"metrics":{},"activity_state":"UNKNOWN","activity_source":"UNKNOWN","reason":"No safe live matcher or retained snapshot is available."})
     return row
 
 def _relationship(row: dict) -> str:
+    if row.get("registered_subtype"):
+        return "Resolved Leviathan behaviour"
     if row.get("latest_verdict") == "POTENTIAL_VARIANT_OF_SENTINEL": return "Variant of Sentinel"
     if row.get("workflow_status") == "ACTIVE_PROVISIONAL": return "Provisional operation"
     if row.get("candidate_id") == LEGACY_063E_CHILD: return "Legacy child of Byzantine/063e"
@@ -168,6 +225,10 @@ def _presentation_name(row: dict) -> str:
     return _compact_mechanism(row).replace("transfer sequence", "Transfer Sequence").replace("WSOL provision close", "WSOL Provision Close")
 
 def _decorate(row: dict) -> dict:
+    if row["candidate_id"] == C357_CANDIDATE:
+        row.update({"registered_subtype": True, "parent_operator_id": C357_PARENT_OPERATOR,
+                    "subtype_id": C357_SUBTYPE_ID, "supported_launches": 56,
+                    "parent_owned_launches": 50, "compatible_unresolved_launches": 105})
     row["relationship_label"]=_relationship(row); row["compact_mechanism"]=_compact_mechanism(row)
     row["display_descriptor"]=_presentation_name(row)
     assessment=_persisted_assessment(row["candidate_id"])
@@ -177,12 +238,22 @@ def _decorate(row: dict) -> dict:
         row["display_descriptor"]=assessment["human_descriptor"]
         row["relationship_label"]=row["assessment_display"]["classification"]
         row["action_label"]="Deep review →"
+    elif row.get("registered_subtype"):
+        row["action_label"]="View Leviathan behaviour →"
+        row["subtype_url"]=f"/intelligence/operator/{row['parent_operator_id']}/subtypes/{row['subtype_id']}"
     else: row["action_label"]="Review variant →" if row["relationship_label"] == "Variant of Sentinel" else "Review evidence →" if row["relationship_label"] == "Provisional operation" else "Investigate →"
     return row
 
 def _current_sort_key(row: dict) -> tuple:
     metrics=row["current_evidence"].get("metrics", {})
     return (-metrics.get("last_1d",0),-metrics.get("last_7d",0),-metrics.get("last_30d",0),-row["current_evidence"].get("matches",0),row["priority_rank"],row["candidate_id"])
+
+def _attention_sort_key(row: dict) -> tuple:
+    creator={"ROBUST_TO_MULTI_CREATOR_FILTER":0,"PARTIALLY_CREATOR_DRIVEN":1,"HEAVILY_CREATOR_DRIVEN":2,"CREATOR_DOMINATED":3,"INSUFFICIENT_DATA":4}
+    activity={"VERY_ACTIVE":0,"ACTIVE":1,"COOLING":2,"DORMANT":3}
+    c=row.get("creator_quality",{}).get("creator_risk_class","INSUFFICIENT_DATA")
+    source=row["current_evidence"].get("activity_source","UNKNOWN")
+    return (creator[c], 0 if source == "LIVE_CURRENT" else 1, activity.get(row["current_evidence"].get("activity_state"), 4), *_current_sort_key(row))
 
 def evolution_watch(rows: list[dict]) -> dict:
     return {"sentinel_variants":sorted([row for row in rows if row.get("latest_verdict")=="POTENTIAL_VARIANT_OF_SENTINEL"],key=lambda row:row["candidate_id"]),"sentinel_operator_id":SENTINEL_OPERATOR,"harbinger":{"related_observations":97,"qualifying_clusters":0,"admitted_candidates":0,"operator_id":HARBINGER_OPERATOR}}
@@ -202,9 +273,10 @@ def _ranking_source() -> str:
 def _overrides(candidate_id: str) -> dict:
     return {
       "p3r-v2-900b89587c6987d582df": {"workflow_status":"ACTIVE_PROVISIONAL","proposed_name":"1 SOL Provision Close","parent_mechanism":"WSOL_PROVISION_CLOSE","latest_verdict":"900B_HYBRID_OPERATION_PROVISIONAL","principal_gap":"Residual false positives prevent automatic attribution.","next_action":"Accumulate live provisional evidence / review matches.","rpc_requirement":"PAUSED","related_operator_id":ACTIVE_900B},
-      "p3r-v2-c357da9d0d4d560311e4": {"workflow_status":"PAUSED","proposed_name":"WSOL_PROVISION_CLOSE_100_SOL_MINUS_15K","parent_mechanism":"WSOL_PROVISION_CLOSE","latest_verdict":"Related provisional 100-SOL-minus-15k variant; 33/71 alternative dominant fingerprint.","principal_gap":"Variant relationship and alternative recurrence require closure.","next_action":"Paused behind 063e; do not register or create a detector.","rpc_requirement":"NOT_CURRENTLY"},
+      C357_CANDIDATE: {"workflow_status":"RESOLVED_AS_LEVIATHAN_BEHAVIOUR","proposed_name":"WSOL_PROVISION_CLOSE_100_SOL_MINUS_15K","parent_mechanism":"WSOL_PROVISION_CLOSE","latest_verdict":"Evidence-backed Leviathan behaviour; C357 lineage retained. 56 supported examples, with partial attribution.","principal_gap":"105 compatible launches remain unresolved and automatic attribution remains off.","next_action":"View the Leviathan behaviour projection; keep attribution shadow-only.","rpc_requirement":"NOT_CURRENTLY","related_operator_id":C357_PARENT_OPERATOR},
       "p3r-v2-063e24a2def354f23ec5": {"workflow_status":"QUEUED","proposed_name":"WSOL_PROVISION_CLOSE_10_SOL_MINUS_15K","parent_mechanism":"WSOL_PROVISION_CLOSE","latest_verdict":"Strong 10-SOL-minus-15k candidate with a distinct retained atomic lifecycle.","principal_gap":"Alternative recurrence and address blindness not proven.","next_action":"Determine whether 10-SOL-minus-15k is a third WSOL parent variant or a distinct lifecycle operation.","rpc_requirement":"LIKELY"},
       "p3r-v2-d3de29c88fe0ce5fa309": {"workflow_status":"PROMOTED_CONFIRMED","proposed_name":"Sentinel","parent_mechanism":"30 SOL 14.479K Ladder","latest_verdict":"Confirmed operation; retained discovery provenance only.","principal_gap":"None retained.","next_action":"Not actionable — confirmed as Sentinel.","rpc_requirement":"NO"},
+      CREATOR_PROVISIONING_CANDIDATE: {"workflow_status":"PROMOTED_CONFIRMED","proposed_name":"Direct 10K Creator Provisioning","parent_mechanism":"DIRECT_10K_CREATOR_PROVISIONING","latest_verdict":"Historically established strict 84-member operation; displayed in Active Operations.","principal_gap":"Prospective strict dispatch remains held pending genuine retained transaction-role evidence.","next_action":"View the Active Operations registry; do not activate prospective dispatch.","rpc_requirement":"HOLD_RETAINED_ROLE_EVIDENCE_REQUIRED","related_operator_id":CREATOR_PROVISIONING_OPERATOR},
     }.get(candidate_id,{})
 
 def normalize_potential_operation_workflows(conn: sqlite3.Connection, *, apply: bool = False) -> dict[str, int]:
@@ -264,22 +336,27 @@ def rows(db_path: str) -> list[dict]:
                 x.update(_overrides(x["candidate_id"]))
                 source.append(x)
         out=[]; parent=None; census_evidence=_current_census_evidence()
+        from src.ops.live_potential_activity import aggregate
+        live_activity, _ = aggregate(db_path)
         for x in source:
+            # Lifecycle classification is read-side canonicalization for both
+            # normalized workflow rows and frozen fallback rows.
+            x = {**x, **_overrides(x["candidate_id"])}
             if x["candidate_id"] == DECOMPOSED_063E_PARENT:
                 parent=x
                 continue
             if x.get("workflow_status") in {"PROMOTED_CONFIRMED", "CLOSED", "EXACT_CONFIRMED_OPERATION_MATCH"}:
                 continue
             x["discovery_label"]=_discovery_label(x)
-            out.append(_decorate(_attach_current_evidence(x,census_evidence)))
+            out.append(_decorate(_attach_current_evidence(x,census_evidence,live_activity)))
         child_table=conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='potential_operation_child_candidates'").fetchone()
         child=conn.execute("SELECT workflow_status,proposed_name,member_mints_json,provenance_json FROM potential_operation_child_candidates WHERE child_id=?",(LEGACY_063E_CHILD,)).fetchone() if child_table else None
         if parent and child and child["workflow_status"] == "PAUSED_LEGACY":
             legacy=dict(parent)
             legacy.update({"candidate_id":LEGACY_063E_CHILD,"workflow_status":"PAUSED_LEGACY","proposed_name":child["proposed_name"],"parent_mechanism":"WSOL_WRAP_CLOSE","latest_verdict":"Historical seeded-transfer 10-SOL provision-and-close candidate.","principal_gap":"Historical cohort is paused; no current recurrence.","next_action":"Monitor historical/retained evidence for additional seeded-transfer operation matches.","rpc_requirement":"NOT_CURRENTLY","related_operator_id":None,"key_mechanism":"hop-1 WSOL_WRAP_CLOSE 9,999,985,000 lamports; seeded transfer lifecycle","launches_24h":0,"launches_7d":0,"launches_30d":0,"legacy_member_count":len(json.loads(child["member_mints_json"])),"parent_candidate_id":DECOMPOSED_063E_PARENT,"provenance":json.loads(child["provenance_json"])})
             legacy["discovery_label"]=_discovery_label(legacy)
-            out.append(_decorate(_attach_current_evidence(legacy,census_evidence)))
-        out.sort(key=_current_sort_key)
+            out.append(_decorate(_attach_current_evidence(legacy,census_evidence,live_activity)))
+        out.sort(key=_attention_sort_key)
         for rank,row in enumerate(out, start=1): row["current_attention_rank"]=rank
         return out
     finally: conn.close()
@@ -314,6 +391,14 @@ def detail(db_path: str, candidate_id: str) -> dict | None:
     candidate = one(db_path, candidate_id)
     if not candidate:
         return None
+    # Optional Living projection: page reads are observational and legacy
+    # candidates retain their frozen detail unchanged.
+    if candidate_id in {C357_CANDIDATE, "p3r-v2-dc4953db7adb853337c4"}:
+        try:
+            from src.ops.living_potential_operations import living_detail_projection, TRANSFER_POTENTIAL_OPERATION_ID
+            candidate["living"] = living_detail_projection(db_path, TRANSFER_POTENTIAL_OPERATION_ID if candidate_id == "p3r-v2-dc4953db7adb853337c4" else None)
+        except (sqlite3.Error, ValueError, OSError, json.JSONDecodeError) as exc:
+            candidate["living"] = {"unavailable": str(exc)}
     if candidate_id == LEGACY_063E_CHILD:
         return _legacy_063e_detail(db_path, candidate)
     evolution=_sentinel_evolution_admissions().get(candidate_id)
@@ -402,13 +487,51 @@ def detail(db_path: str, candidate_id: str) -> dict | None:
                 "dutb_funding_link": bool(dutb_funding),
                 "dutb_delivery_count": (dutb_funding or {}).get("delivery_count", 0),
                 "dutb_funding_lamports": (dutb_funding or {}).get("funding_lamports", 0),
+                "launch_provenance": "HISTORICAL_MEMBER",
             })
+        # Qualified current matcher assignments supplement frozen historical
+        # membership for the Recent Launches view only.  They are never
+        # persisted or treated as candidate-membership mutations.
+        from src.ops.live_potential_activity import aggregate
+        live_activity, _ = aggregate(db_path)
+        live = live_activity.get(candidate_id, {})
+        if live.get("activity_source") == "LIVE_CURRENT":
+            live_mints = [item["mint"] for item in live.get("live_matches", [])]
+            if live_mints:
+                markers = ",".join("?" for _ in live_mints)
+                live_edges = conn.execute(f"""
+                    SELECT mint, wallet, candidate_parent, signature, anchor_signature,
+                           amount_lamports, mechanism, hop_depth
+                    FROM wt_walkback_edge_candidates
+                    WHERE selection_status='SELECTED' AND mint IN ({markers})
+                    ORDER BY mint, hop_depth, signature
+                """, live_mints).fetchall()
+                live_by_mint = {row["mint"]: dict(row) for row in live_edges}
+                live_times = {item["mint"]: item["funder_block_time"] for item in live["live_matches"]}
+                historical = {member["mint"]: member for member in candidate["members"]}
+                for mint, timestamp in live_times.items():
+                    edge = live_by_mint.get(mint, {})
+                    existing = historical.get(mint)
+                    if existing:
+                        existing.update({"observed_at": timestamp, "observed_at_display": datetime.fromtimestamp(timestamp, timezone.utc).strftime("%d %b %Y %H:%M UTC"), "launch_provenance": "LIVE_MATCH + HISTORICAL_MEMBER"})
+                        continue
+                    candidate["members"].append({
+                        "mint": mint, "mint_short": _short(mint), "creator": edge.get("wallet"), "creator_short": _short(edge.get("wallet")),
+                        "parent": edge.get("candidate_parent"), "parent_short": _short(edge.get("candidate_parent")),
+                        "upstream": None, "upstream_short": _short(None), "signature": edge.get("signature") or edge.get("anchor_signature"),
+                        "signature_short": _short(edge.get("signature") or edge.get("anchor_signature")), "observed_at": timestamp,
+                        "observed_at_display": datetime.fromtimestamp(timestamp, timezone.utc).strftime("%d %b %Y %H:%M UTC"),
+                        "amount_lamports": edge.get("amount_lamports"), "mechanism": edge.get("mechanism"), "hop_depth": edge.get("hop_depth"),
+                        "atomic": {}, "dutb_funding_link": False, "dutb_delivery_count": 0, "dutb_funding_lamports": 0,
+                        "launch_provenance": "LIVE_MATCH",
+                    })
         upstream_counts={}
         for member in candidate["members"]:
             if member.get("upstream"):
                 upstream_counts[member["upstream"]]=upstream_counts.get(member["upstream"],0)+1
         for member in candidate["members"]:
             member["upstream_group_count"]=upstream_counts.get(member.get("upstream"),0)
+        candidate["recent_launch_count"] = len(candidate["members"])
         candidate["members"].sort(
             key=lambda member: (member["observed_at"] is not None, member["observed_at"] or 0, member["mint"]),
             reverse=True,

@@ -1,0 +1,3251 @@
+{
+  "artifact_digest": "6755aaed833353346b2f6d1820888d89b0276ff371d8d2bb071018a37ff01fab",
+  "distinct_funder_block_time_total": 181,
+  "extracted_at": 1788255576,
+  "launches": [
+    {
+      "creator": "7ejoyL1FmREqijuBmUF9AkhgSAU3tSVNfMMoMF6drp5E",
+      "current_ui_included": true,
+      "funder_block_time": 1786786539,
+      "funder_sig": "9E3C4LrUEM4NEG1Ghy6TxZUF8kHLsFdh4Ez5KjTsBDbN2HnH9zrKGbWaM8xckF8XuP5aMewMfCp8tF7NAewusoo",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "2Br5iZyB5w7W2LhXhKVo6NFUFmoyjWmuDyQR1Edspump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "9E3C4LrUEM4NEG1Ghy6TxZUF8kHLsFdh4Ez5KjTsBDbN2HnH9zrKGbWaM8xckF8XuP5aMewMfCp8tF7NAewusoo"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "7ejoyL1FmREqijuBmUF9AkhgSAU3tSVNfMMoMF6drp5E",
+      "current_ui_included": true,
+      "funder_block_time": 1788209042,
+      "funder_sig": "27JHZxRtpQ3tsoR7yDoZs7d394o7AWvESBesBNCJvGUZPnJHBjdcXCoW2sENpSqKzYaHTCmBABV4xPKBUWEUhPzs",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "2GAd4qECH8cN4oQWwhiaBMADNupKCv8h9m9x3a4mpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "27JHZxRtpQ3tsoR7yDoZs7d394o7AWvESBesBNCJvGUZPnJHBjdcXCoW2sENpSqKzYaHTCmBABV4xPKBUWEUhPzs"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "5RCd5gjghzEJkjfHj4DLwpbMsjFb7SMqWkdLwRdbHmzd",
+      "current_ui_included": true,
+      "funder_block_time": 1787564567,
+      "funder_sig": "5XpeAbgRouKLMYh6Hx1yFMiz3Vhgovyx7A8LgScgAsznxjBogtrkAsA6xkhesCMkrKyA1ZrDZL1hrBfm4iRrsWLA",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "2GwJo5TgJFzim7dxRot2enEutP16CMNi2hystB5Wpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "5XpeAbgRouKLMYh6Hx1yFMiz3Vhgovyx7A8LgScgAsznxjBogtrkAsA6xkhesCMkrKyA1ZrDZL1hrBfm4iRrsWLA"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "46bFhL2ZxppLTyUtPDdkdcUDhnpxb3ht52PCbcb4VzvK",
+      "current_ui_included": true,
+      "funder_block_time": 1786619862,
+      "funder_sig": "3aee7PDvzMAtmrAzKc5ecWE2VVEZofiu153TahrtzHqbjHs1T9h53K1HHanYNhaCkGXvtmHiYR86dF5j2sD5MgtQ",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "2J7PmgeseQtUfKr1i5BU4k1UDn5Yaf4FYGwAJ6Eupump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "3aee7PDvzMAtmrAzKc5ecWE2VVEZofiu153TahrtzHqbjHs1T9h53K1HHanYNhaCkGXvtmHiYR86dF5j2sD5MgtQ"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "FpA39vmAVdmXbkk4XvL1gppQoQ7dzQbP5oFc4dMWhAZv",
+      "current_ui_included": true,
+      "funder_block_time": 1787903173,
+      "funder_sig": "3NyG4ZqgC8f5QkRmtkrTGdAVsbyxpcmZ8gGXAUYWZdFmkx7LyyJrk3qfGSJh9b9zunC58sshmjyxmtQxCh8Vsor9",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "2LVeMoPyJiYKtGhNZPouwCSFYT8Z47d8885V4aadpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "3NyG4ZqgC8f5QkRmtkrTGdAVsbyxpcmZ8gGXAUYWZdFmkx7LyyJrk3qfGSJh9b9zunC58sshmjyxmtQxCh8Vsor9"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "46bFhL2ZxppLTyUtPDdkdcUDhnpxb3ht52PCbcb4VzvK",
+      "current_ui_included": true,
+      "funder_block_time": 1787992501,
+      "funder_sig": "4mmrJ2JAAJspzuSotznjCuAT6z8EModkUVpfGff7UdPjs69nCqE1wBSDQndAPLrvCw8kh2Gsz9cCnK6tjVBMr8g7",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "2MmEYtGfRFLd5L6d9Veg1WLcH23NSxQKVhR7y1Bhpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "4mmrJ2JAAJspzuSotznjCuAT6z8EModkUVpfGff7UdPjs69nCqE1wBSDQndAPLrvCw8kh2Gsz9cCnK6tjVBMr8g7"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "8XbfH3fHK7dNw1p9woMBcHJM3D1PDS9De852ugLkdE4e",
+      "current_ui_included": true,
+      "funder_block_time": 1788209559,
+      "funder_sig": "4e77UYH1CQwkSZPLnDsiwc42pQSTbLFVipMEjMLPsh9icWsoyV14fDzymE7ZZtRnqcfGvJcBzS2euZBmtdFJwLCc",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "2NEKPJQz3d29oXZNGS2ronvM3tfgCtkbPAtGEgEjpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "4e77UYH1CQwkSZPLnDsiwc42pQSTbLFVipMEjMLPsh9icWsoyV14fDzymE7ZZtRnqcfGvJcBzS2euZBmtdFJwLCc"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "6PJncLcfXcjzCEmCdRMmxqaKDDdc5t12iga1ckqrGg7P",
+      "current_ui_included": true,
+      "funder_block_time": 1786351142,
+      "funder_sig": "4EtG7yXEhdey44kAjnHkMrLgPwYXfKMvVbu75wq2Psiz3KmuPEQeTzmKkJAR99oEuGnQc1aeFTajW3d9fkcrWSwL",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "2PVCVbFa6JyRssCrNmuaRmqGqL5B4eTLenNHgF4apump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "4EtG7yXEhdey44kAjnHkMrLgPwYXfKMvVbu75wq2Psiz3KmuPEQeTzmKkJAR99oEuGnQc1aeFTajW3d9fkcrWSwL"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "HfBJnWC6AEDeqyK8Jp5DNmuD5jsM6cjeKQzEY3ajMifn",
+      "current_ui_included": true,
+      "funder_block_time": 1788155232,
+      "funder_sig": "5ChNG9whZK7kvBnLjcsfctzF821UvUT954jmnrxdggrhfBU9gDLciQxqcCuPh9Hep5TiuerEUi2NCLDaHyuYu9Uw",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "2WSPxpq8CdPujQmo4u1NT1zWG9xCQ2DEMT6Yn9V7pump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "5ChNG9whZK7kvBnLjcsfctzF821UvUT954jmnrxdggrhfBU9gDLciQxqcCuPh9Hep5TiuerEUi2NCLDaHyuYu9Uw"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "H53NZRyTQp9h5BY6Urmh3iP65PMikpntnS2t9sUoBzqa",
+      "current_ui_included": true,
+      "funder_block_time": 1787907801,
+      "funder_sig": "376GZW1vJnTUtgqzw6MGcr5Q3BXnuBiJ9ntccrvuxKpxpUiN66NmzykJjbWyjCzxiFGVWqSKFqvdWC2obsx6b2sK",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "2X2e7U6qmLCBFx1bJBb3kvCB2hbkLhtw5QVdmoKRpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "376GZW1vJnTUtgqzw6MGcr5Q3BXnuBiJ9ntccrvuxKpxpUiN66NmzykJjbWyjCzxiFGVWqSKFqvdWC2obsx6b2sK"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "26MEpv6dtUkJDyiTnCVGuH12QTR7bkoGi64T1Aaz2qzr",
+      "current_ui_included": true,
+      "funder_block_time": 1787909364,
+      "funder_sig": "24qkx46XnsdirH1svGVfWWRZEvFVUwf9cGJUEcLhwLPbuaZmVrMzxiGdLLHMLHxqnvD3Y93MTySpeQLnb6xcBUDi",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "2Zeehi85tbTQR2HyjQZkY5DwJQv33gSGQrPxcah3pump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "24qkx46XnsdirH1svGVfWWRZEvFVUwf9cGJUEcLhwLPbuaZmVrMzxiGdLLHMLHxqnvD3Y93MTySpeQLnb6xcBUDi"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "5Bqgq9hcXdWhLpmzp7pjWJcyWReeZi5cgMmXHZC1HBQX",
+      "current_ui_included": true,
+      "funder_block_time": 1787303846,
+      "funder_sig": "127gMVCJxMAP9jbS4aixFazgkBbU8jsQ51VbvqbbsPVELVj79FP4PUZ2GNRvYC3FsFYscRSjtM76VMqqwvHjwZYu",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "2cmZ8FierNbYXGTdZSimbd7rWSRmU93nrL32tNCgpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "127gMVCJxMAP9jbS4aixFazgkBbU8jsQ51VbvqbbsPVELVj79FP4PUZ2GNRvYC3FsFYscRSjtM76VMqqwvHjwZYu"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "CN8hvc5RY8GwTTJWjasauu73DU3abxbodaCbPTaLEEUH",
+      "current_ui_included": true,
+      "funder_block_time": 1787738978,
+      "funder_sig": "qYWDK3HbG9YL8ph53d9WHwmNsuHyaxRiqqWdc6hLKbvobFT8XdHYpJ2rkA4RARWkoHJgyfVy3CWvE5wLSiMufT6",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "2nzxMoPuXcr79m85crwCmKHRf7tLvVBsnaDkNjLmpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "qYWDK3HbG9YL8ph53d9WHwmNsuHyaxRiqqWdc6hLKbvobFT8XdHYpJ2rkA4RARWkoHJgyfVy3CWvE5wLSiMufT6"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "FcrfAXfcXFqCBfNuqMXg75C3y4SRAoTi6SjoPS4McfKF",
+      "current_ui_included": true,
+      "funder_block_time": 1788009974,
+      "funder_sig": "487KgCPDjxFsRuYxb2mWp6tnDo5uQ6JXYxFGv6H1cWWm8KdVt7ZiojhJ7zBtVcvmfSXMRWJipoz7HVD28qq3sBrR",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "2rz25DqDgGEYVHKHnX4sWZSvcSdHbA7cm6H575Capump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "487KgCPDjxFsRuYxb2mWp6tnDo5uQ6JXYxFGv6H1cWWm8KdVt7ZiojhJ7zBtVcvmfSXMRWJipoz7HVD28qq3sBrR"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "G2DxNnTRTG8Tq58PFwtQyuwsgTFaAh1FEmYudTmjsobK",
+      "current_ui_included": true,
+      "funder_block_time": 1787304668,
+      "funder_sig": "B9XZcMq27uAY2g4b3eK1xxMJ3zba42vwaxf5NutEQ1AXm1xdKtsWdJFkAk2UqgQQnRhSNmwApob1UTQtmN3y6Hs",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "2ukFgVCgXrdijD6qcfV9CnSzGGENkrMFXCurvgUrpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "B9XZcMq27uAY2g4b3eK1xxMJ3zba42vwaxf5NutEQ1AXm1xdKtsWdJFkAk2UqgQQnRhSNmwApob1UTQtmN3y6Hs"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "6GZ1r7o1xL3PUVJySRY8pin62xUUTjm3Zh2p6ZZbQxSK",
+      "current_ui_included": true,
+      "funder_block_time": 1786691406,
+      "funder_sig": "4CnfqykYiBMEETFA3W8qL1Fh8MeRJ9QLsRUKKDSuSeBcb6MSd37gfzuK2R2sPznYmBo59heb3qh175m9w8V3E88B",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "32JYTad94RuoXZnuwfAyD3137d7qpUgVKSfm8BFrpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "4CnfqykYiBMEETFA3W8qL1Fh8MeRJ9QLsRUKKDSuSeBcb6MSd37gfzuK2R2sPznYmBo59heb3qh175m9w8V3E88B"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "61xHM4s8XDhC7P7okpDdvqFGomd3fXX5QCLyNVpPd7cV",
+      "current_ui_included": true,
+      "funder_block_time": 1787863868,
+      "funder_sig": "2oSZqCKfh6gTxHTkhpSt3YnBZT5UybmfYLwYChvdLP8uvbUmRPddosj3wc7dMKXZstXvWrTNzpTvf7vZVgTpCuTp",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "33uRB1M14AWpqFey58LYaGeQzvPv8BrKHuY6pLzKpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "2oSZqCKfh6gTxHTkhpSt3YnBZT5UybmfYLwYChvdLP8uvbUmRPddosj3wc7dMKXZstXvWrTNzpTvf7vZVgTpCuTp"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "HnEZjV3g1JB7xv7UwxRV6Hbi747ydkAVB4U8gpF1DiWD",
+      "current_ui_included": true,
+      "funder_block_time": 1787678482,
+      "funder_sig": "jRpaatfrAPa3jGRSM1nwtwcpYwht5KL3Y11yu7A6ahnEQqfAMktCx7p4gHwE3etNyhKA78it4yRBPdjixwhco3a",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "3CCFFVtM1gS4ZU9Go146iDYut6VuNLG4NDgQWh3Rpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "jRpaatfrAPa3jGRSM1nwtwcpYwht5KL3Y11yu7A6ahnEQqfAMktCx7p4gHwE3etNyhKA78it4yRBPdjixwhco3a"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "BuxKVxRNrfUXXgkM96Cajn67ZcpkRGczp3BQBaWbJJPF",
+      "current_ui_included": true,
+      "funder_block_time": 1787743967,
+      "funder_sig": "sAoFkjRkF3syws2FZsvo7ETgvfz9tPK5CqVNcYGvacvTQkgzmLmbvUz5M1Ga1KdJxLTKfYEugLYnY2Fi7aFpUBR",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "3JBpGNXfAdT9RyFnKx35qnM3ZNQV9LrAaukLtPw5pump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "sAoFkjRkF3syws2FZsvo7ETgvfz9tPK5CqVNcYGvacvTQkgzmLmbvUz5M1Ga1KdJxLTKfYEugLYnY2Fi7aFpUBR"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "61xHM4s8XDhC7P7okpDdvqFGomd3fXX5QCLyNVpPd7cV",
+      "current_ui_included": true,
+      "funder_block_time": 1787561110,
+      "funder_sig": "2Fbaot3qyUgBZEStQjTW1CRubS2JiLmMbaYJDMiTcPdRQK9hf5cErd7jLWvNgrHmEfJziGbahksTG4HodsqAHExt",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "3LxujnGCusS6LLE8KPpZwWooxBFjautwKrEH8cAfpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "2Fbaot3qyUgBZEStQjTW1CRubS2JiLmMbaYJDMiTcPdRQK9hf5cErd7jLWvNgrHmEfJziGbahksTG4HodsqAHExt"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "8XrSxN92F98HyWFmJD7ZeyFf8MaHAJxGeWsRnNLjrLU2",
+      "current_ui_included": true,
+      "funder_block_time": 1787745580,
+      "funder_sig": "32KXBnmQRfw63Zix3YVTVVYo3ZLFwKa3X48524r3wgU41k4WuqFhbE7Y7w9kDbogmnZosDxwAuAfSDvApviaxPkk",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "3U1ipqFamzZnwjqWAkpnZ8BbTBLgwf1Ncf7RyzDYpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "32KXBnmQRfw63Zix3YVTVVYo3ZLFwKa3X48524r3wgU41k4WuqFhbE7Y7w9kDbogmnZosDxwAuAfSDvApviaxPkk"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "J3yZQYJECzT3PD9BpzQzSM4FKENrDeVSCtmxdFSNThMy",
+      "current_ui_included": true,
+      "funder_block_time": 1788250154,
+      "funder_sig": "5MJE8Xd8HpASjtsPuuvPiQG2hcvCn5EQNz48wyUFRYTdkg5RsNuWfnbvoQWQh1jjhajoeLWQL5akKyZwdp6P1SYy",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "5MJE8Xd8HpASjtsPuuvPiQG2hcvCn5EQNz48wyUFRYTdkg5RsNuWfnbvoQWQh1jjhajoeLWQL5akKyZwdp6P1SYy"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "7CTNDhG9qkEwiCWpG3d6CQy66WurZ3WtTkxcDFtpNDpE",
+      "current_ui_included": true,
+      "funder_block_time": 1786198866,
+      "funder_sig": "5Y2V2X4wMkuPFPr6ezWpKgHbSzhnSPp8txpNEZrtZBiHJ2NWyzAVxpj64jkKUySvn6GKjgMcqjjcQRqXjSrBYzS8",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "3ecE1DRqKV7dzxLeyMYHV4dbb7DmfiZ74TZv6sbJpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "5Y2V2X4wMkuPFPr6ezWpKgHbSzhnSPp8txpNEZrtZBiHJ2NWyzAVxpj64jkKUySvn6GKjgMcqjjcQRqXjSrBYzS8"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "7n7D4khVHNqDGFLWxmGrqPk1Qm5QQMNFR7NZCvJAU85U",
+      "current_ui_included": true,
+      "funder_block_time": 1786893031,
+      "funder_sig": "2aRFAfdf9uiKU8Fu5mvGBeCTwb7YuyTv48yLoC786wis5LQSVP9BpiGhCRj2cWTS3QBzFah5az6vLfYzUDzao2sh",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "3g18VhKdwnwZAiN5MMwrGbrmv2BQMu6pcpjudmHwpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "2aRFAfdf9uiKU8Fu5mvGBeCTwb7YuyTv48yLoC786wis5LQSVP9BpiGhCRj2cWTS3QBzFah5az6vLfYzUDzao2sh"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "H1NNcTBHhoQixmddnHNaNUcqqCpvhNAW4pbAChfTV3Na",
+      "current_ui_included": true,
+      "funder_block_time": 1787047763,
+      "funder_sig": "G4woRUgku5HRhV4apSpWQY375SdXywT3yVAArjkEEfm4opcB8qmhDtVvHGvo7uC84ha3euQXsk4qGKkWy3WvDa3",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "3xreqNTWpkSG9YJ2Ura582dSTUdN1vqB5eerKsXSpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "G4woRUgku5HRhV4apSpWQY375SdXywT3yVAArjkEEfm4opcB8qmhDtVvHGvo7uC84ha3euQXsk4qGKkWy3WvDa3"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "9uCrBdvyFgCJ6hZorPwYB3a57GXiJq5dKTNdPRC8c5qC",
+      "current_ui_included": true,
+      "funder_block_time": 1788157376,
+      "funder_sig": "5xYviBWpK35Kz37ZpMNiJYR1sABigxLZTXpmyfZfYmM7ieg55nPUNL8KM6Bk4Pp7pKMYACGKbQBYuep4pjL7vfvZ",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "3zSPF9RDvLhzvPB8BwqdM3EacsA335xS4KY2gs6Ypump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "5xYviBWpK35Kz37ZpMNiJYR1sABigxLZTXpmyfZfYmM7ieg55nPUNL8KM6Bk4Pp7pKMYACGKbQBYuep4pjL7vfvZ"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "B8oEj1CM7J2R8m2CKRbEDrmYMzH7vyFETWTmzrP8kcxm",
+      "current_ui_included": true,
+      "funder_block_time": 1787433458,
+      "funder_sig": "mTGKVvK2VBzMmypWEHANLWby4XVQ9vXB8ZqMG1M652EiQTrfbxZdebS3tyYDSwi4Zr2ue3CDwt3iybMeW1LDVnJ",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "3zT72nudq9NLBPoLF7XMHxDC9dntVKGAMHiTCbWTpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "mTGKVvK2VBzMmypWEHANLWby4XVQ9vXB8ZqMG1M652EiQTrfbxZdebS3tyYDSwi4Zr2ue3CDwt3iybMeW1LDVnJ"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "46bFhL2ZxppLTyUtPDdkdcUDhnpxb3ht52PCbcb4VzvK",
+      "current_ui_included": true,
+      "funder_block_time": 1788243980,
+      "funder_sig": "5kYYsct1dPv35uoa8dpWEDKUzAkPLDgTCYAcrdtzTLt8uED63AiuQQe32Dh1SDCdpMJRkGCUJACzVNHLkMFURhtc",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "4AB7xdAuoDac6k23JdqJeXbPhqYctgDvG4u2rZd9pump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "5kYYsct1dPv35uoa8dpWEDKUzAkPLDgTCYAcrdtzTLt8uED63AiuQQe32Dh1SDCdpMJRkGCUJACzVNHLkMFURhtc"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "8Sx2uKViNFriE4b7Z7bXX6UgVAP65bWZDCJjfePdunP8",
+      "current_ui_included": true,
+      "funder_block_time": 1788183301,
+      "funder_sig": "4VDfdSUC4Laag4mQvqQa4iqUhkxcym49mqtDUhzmBaPJoTaPwVu2JRrcKuYsgwzJkztxXiVGva9P2BZVuvWj3h1P",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "4Br5uAvyWD6s84FQtB5SS39xxGVuDQhSeHs5oArypump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "4VDfdSUC4Laag4mQvqQa4iqUhkxcym49mqtDUhzmBaPJoTaPwVu2JRrcKuYsgwzJkztxXiVGva9P2BZVuvWj3h1P"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "4ymWS2cciqMG3iMiqLtshNGS6MezGRhRWHuSxNnHLfWz",
+      "current_ui_included": true,
+      "funder_block_time": 1784471322,
+      "funder_sig": "4vbTNkucnyGehVuK668Pz9Jbw7aYJTYn6qoz66QGSmZMWC3CPrnSTuo6WbitSj9RPZTwGZYCAT5QnZFd1eX9wD7A",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "4Hh9xsTTmC2hiYFo7BfL3Lc8cfMe8fGUq4iRdnZipump",
+      "selected_edge": null,
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "3F8m5wT8umEvfjwwdKq1YEuR39U1U1tPUj4Kcq6YhBQs",
+      "current_ui_included": true,
+      "funder_block_time": 1787928500,
+      "funder_sig": "43xgYeVWmTnRvS7s1jb7GrubazTeq3uox4GqsVGWWpM89sGC7RNyJDYRkCjNzWbgRUGhNNWG2xngfbrWfFHfXXdR",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "4JZv85BNGQtJ9ikrKKJs1ptbXP9ghG8H8avV5ZEKpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "43xgYeVWmTnRvS7s1jb7GrubazTeq3uox4GqsVGWWpM89sGC7RNyJDYRkCjNzWbgRUGhNNWG2xngfbrWfFHfXXdR"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "CN8hvc5RY8GwTTJWjasauu73DU3abxbodaCbPTaLEEUH",
+      "current_ui_included": true,
+      "funder_block_time": 1787074226,
+      "funder_sig": "55rV7it1rXkXvMwMZJYJStT1XDWwg3AwGkiLnt9q1D7eLWntiUVEBNypi85iKyw4iaEo28Gs8sHieMV4wGzBEaFt",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "4ZX6tYHowWFoGnHh44HtR54x8ictQWKBHbYPbuKApump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "55rV7it1rXkXvMwMZJYJStT1XDWwg3AwGkiLnt9q1D7eLWntiUVEBNypi85iKyw4iaEo28Gs8sHieMV4wGzBEaFt"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "HnEZjV3g1JB7xv7UwxRV6Hbi747ydkAVB4U8gpF1DiWD",
+      "current_ui_included": true,
+      "funder_block_time": 1786808727,
+      "funder_sig": "3q4kkQiem4BtNJULHL6wYJge4Aky3hezX55yej1boqQWob7xqPKo7wQwSUJWg3T1QNicwdqQLiq7spGhSnu1YRRf",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "4jTsXySe87yy1DrMBCbJ4LDCaPu1aBfTcgddGC3Upump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "3q4kkQiem4BtNJULHL6wYJge4Aky3hezX55yej1boqQWob7xqPKo7wQwSUJWg3T1QNicwdqQLiq7spGhSnu1YRRf"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "CiyizcdxuuoywJYcvHgs5u9LWhG7NDD1CnHn3aeWjKxX",
+      "current_ui_included": true,
+      "funder_block_time": 1787813585,
+      "funder_sig": "4rMGHAfzVCwAMqg9UAaZxp3768Noj3GuSwubW1UTWYZWFXvXnjk1KxBWmUBc7yvgdcRTQet6G2EvmNJSa14HXn3o",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "4k8h9jFthdjuKMdJcLbdYpjUE73QATeiUx6gxLr5pump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "4rMGHAfzVCwAMqg9UAaZxp3768Noj3GuSwubW1UTWYZWFXvXnjk1KxBWmUBc7yvgdcRTQet6G2EvmNJSa14HXn3o"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "DJrfEywDMdTzuuC7LuiMspZakVF5qmnD2pHC9uJLiSyW",
+      "current_ui_included": true,
+      "funder_block_time": 1788246574,
+      "funder_sig": "3DTSaakUCf7X1Mi92UFSH5m3ZkHaNzZsknJzN9mcMJK7rDZ9huMLg7pZ97Vwb957R5tFZ7cfqZuNTHWVQWN3tsPE",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "4mwhLcfmHdkpseeQKvSf8toAQuudhJh2ULhX5Ycypump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "3DTSaakUCf7X1Mi92UFSH5m3ZkHaNzZsknJzN9mcMJK7rDZ9huMLg7pZ97Vwb957R5tFZ7cfqZuNTHWVQWN3tsPE"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "9G9A74hp66cq9heZt3dtUTuaJ2mPna3mhGGs25rj9kAw",
+      "current_ui_included": true,
+      "funder_block_time": 1787048276,
+      "funder_sig": "4B2wRQHcS45EgG9DDDvnd64d6uSQtfm7C9urmNhmyXRSDEQXs9n92ryP6pqMFi1ny8wgY2UMRsTsGeNPfrsdMsrB",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "4rifET4ASNWE339PeJMMZAPLv4u1LH1naSnrxMLXpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "4B2wRQHcS45EgG9DDDvnd64d6uSQtfm7C9urmNhmyXRSDEQXs9n92ryP6pqMFi1ny8wgY2UMRsTsGeNPfrsdMsrB"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "BVKwFxtR8TiBnxsRx3t5CMKu9Jd94xP1C7BoUqQv3EsJ",
+      "current_ui_included": true,
+      "funder_block_time": 1788247039,
+      "funder_sig": "5EBEpHnTU6eKRFMsN8k2YCoMKCY5cb5Y5S5SD1dSVASBfshL7dx8SynznGUeq4w2m93f33EU85i7wWA1QEdpP5ka",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "4t1BKf7bPDWCGx8Dmdwfw3oZvM7uPmEqiJaHKRm6pump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "5EBEpHnTU6eKRFMsN8k2YCoMKCY5cb5Y5S5SD1dSVASBfshL7dx8SynznGUeq4w2m93f33EU85i7wWA1QEdpP5ka"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "M4BCPx9ieyvGhFb2dz1RBQNGWiYDmif6GQHGwNUpftA",
+      "current_ui_included": true,
+      "funder_block_time": 1788188672,
+      "funder_sig": "29nHSoBCAq3D5BJ7Z4AiG68wZwoPEZsDLEKwiTaRcWANgvGFw6UsDBnPw3JVU3BNTUArF8hfAhWPEGXaxrEHRGdY",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "562X5wMppGeBuvcBbdjxMn61fAHoksaLqu6hAfXcpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "29nHSoBCAq3D5BJ7Z4AiG68wZwoPEZsDLEKwiTaRcWANgvGFw6UsDBnPw3JVU3BNTUArF8hfAhWPEGXaxrEHRGdY"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "3WL1hxTeWdVJoUc9jxFnNLaeV35xc55donpDGxjwxKxN",
+      "current_ui_included": true,
+      "funder_block_time": 1787997841,
+      "funder_sig": "mmHXHoqBppHu5X8MgxUEP2VPUugo46DKTRfnkJBeTEJhkAJxRTg2jvoh8GW163DxrgguiFbSJAy5fjBt9rQ2WUe",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "5BP7PPMU7krfnHrfR6QeToZe1k3nV9Sq5EgkohKXpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "mmHXHoqBppHu5X8MgxUEP2VPUugo46DKTRfnkJBeTEJhkAJxRTg2jvoh8GW163DxrgguiFbSJAy5fjBt9rQ2WUe"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "7mqnp6cYq2dd5M3rYiL87Ad88gnp8aChdBJu7gKNv34n",
+      "current_ui_included": true,
+      "funder_block_time": 1787434200,
+      "funder_sig": "2DN4a5VC3rfdbas4zbqY3n73QSSM4a8uC2H6yVEmf66xaJRAewK644wo2daMYh1Gz8vCg5w3sB6nGVGpcrFCwLpH",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "5Q2PmJe7fboykX94gJjYNfN5AgjXDcJDJqeuGUKApump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "2DN4a5VC3rfdbas4zbqY3n73QSSM4a8uC2H6yVEmf66xaJRAewK644wo2daMYh1Gz8vCg5w3sB6nGVGpcrFCwLpH"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "4ymWS2cciqMG3iMiqLtshNGS6MezGRhRWHuSxNnHLfWz",
+      "current_ui_included": true,
+      "funder_block_time": 1787469358,
+      "funder_sig": "3dESDjbz2w1HxfKeuSN83qCr5fi8evbeqivRex2TNmDF8eq1m4bUNty2g8C81kft5c1ABWQ4NXfTvihs6xkBJFxz",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "5Qsu2YAzTvWxH8MVPW14Hza9bptJATp6NX9xgkHgpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "3dESDjbz2w1HxfKeuSN83qCr5fi8evbeqivRex2TNmDF8eq1m4bUNty2g8C81kft5c1ABWQ4NXfTvihs6xkBJFxz"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "CgwrhDkZtNGXPLciWNGYUZRQQmfkVd4UbDtsk21f6AGN",
+      "current_ui_included": true,
+      "funder_block_time": 1787776532,
+      "funder_sig": "2ybqvgGqyAbfNGJyX5n8UunvGtAa8XAashYJRKcxMcbh23ANXFiXQ5tffG6d7fwaEfFqvnk4Nt6zhzHwBdgwAw2E",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "5S4uXbg7zuC2D73RYq1Pa28cfTePVjck68TP2YFEpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "2ybqvgGqyAbfNGJyX5n8UunvGtAa8XAashYJRKcxMcbh23ANXFiXQ5tffG6d7fwaEfFqvnk4Nt6zhzHwBdgwAw2E"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "4M47u8mQT27FxgeMVsCct7b3KQJX4rxXUrN2V4W6yTgX",
+      "current_ui_included": true,
+      "funder_block_time": 1788206980,
+      "funder_sig": "5hQ4wXUh4dSptKgS8cNb2uyaCzYYtpic6s8aWJyALXmJk93C7C9wqexbRxaoWf64HBA9kfKB3ve5zmsqwYgMz1k9",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "5goZFhxf8iwjh7rAjhRD3HRurNBJuobj2mLtvDQ3pump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "5hQ4wXUh4dSptKgS8cNb2uyaCzYYtpic6s8aWJyALXmJk93C7C9wqexbRxaoWf64HBA9kfKB3ve5zmsqwYgMz1k9"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "8XrSxN92F98HyWFmJD7ZeyFf8MaHAJxGeWsRnNLjrLU2",
+      "current_ui_included": true,
+      "funder_block_time": 1787910909,
+      "funder_sig": "3FQfTRG1anRjpgyRALn6A4owPUy5cLd1axhxB3yM6sSjgQ9Cjwfqihu6UEXgmy2DP3BWtytpoMPmvP1MXib4J2aS",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "5ki1MDAUMAvQUyNshmfsE3gMdwGi7VT2L3tNh3YDpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "3FQfTRG1anRjpgyRALn6A4owPUy5cLd1axhxB3yM6sSjgQ9Cjwfqihu6UEXgmy2DP3BWtytpoMPmvP1MXib4J2aS"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "9VmUQW4h43B1QqvYRqLSqdbc6wGEQM4SFVkUsQcBDGE6",
+      "current_ui_included": true,
+      "funder_block_time": 1783416561,
+      "funder_sig": "yYpNRBkB3iAH9GWR3SDXwjKw9LVZH8amspPRbAGiNRKhQBN8cVVZSkwwEN1pXsdtziUn3tzUjUWT58wiu78rWMQ",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "5oSNoyG6ne5ms6CP1evU4ZA8kmijP5ftXB2UqrFcpump",
+      "selected_edge": null,
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "61xHM4s8XDhC7P7okpDdvqFGomd3fXX5QCLyNVpPd7cV",
+      "current_ui_included": true,
+      "funder_block_time": 1786362894,
+      "funder_sig": "4jUvycqNTTguk7kjTwBPAGfm3qYijphGQpv1biEZTDMNWKXzR63cMPYWuEAcKvctYYkxxHD6HoeAr5GQYp7vKGDU",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "5tBzboa6mU2Vzi8aPn3Nndv41z84WYZevQ1zf3apump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "4jUvycqNTTguk7kjTwBPAGfm3qYijphGQpv1biEZTDMNWKXzR63cMPYWuEAcKvctYYkxxHD6HoeAr5GQYp7vKGDU"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "8XrSxN92F98HyWFmJD7ZeyFf8MaHAJxGeWsRnNLjrLU2",
+      "current_ui_included": true,
+      "funder_block_time": 1786366473,
+      "funder_sig": "5DexmiX7ur5h13tnSF7sgeFPswbu8ajUkzFYBGLGkEo4qNLu7sHdrE93uCGjYGqgrthb9ioMALyofdjkrpADyg1j",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "5xPKgM8QQ7iNqmu9egGPrPFq3KPNaxVr51Bz2NLXpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "5DexmiX7ur5h13tnSF7sgeFPswbu8ajUkzFYBGLGkEo4qNLu7sHdrE93uCGjYGqgrthb9ioMALyofdjkrpADyg1j"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "HCBQjnixpBcqBz8jr3kJqgWPJA517w5gz6XxA53H13DY",
+      "current_ui_included": true,
+      "funder_block_time": 1786789013,
+      "funder_sig": "42UqTzcxNgfZaEaijPdgyeWf7MomZGBPS3irBZ3CuXbYh7mjgy62knDDW2ZSqAQ65aNtWMvwzSodeyCLzaBcxTof",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "5xw6fuaC68HX6oabZrGEVgVrur4Ae882NoCDHMbPpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "42UqTzcxNgfZaEaijPdgyeWf7MomZGBPS3irBZ3CuXbYh7mjgy62knDDW2ZSqAQ65aNtWMvwzSodeyCLzaBcxTof"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "6H3SC9jHqY815XdFn9snZhHRssWYS1kiVK8ULGmwqzC3",
+      "current_ui_included": true,
+      "funder_block_time": 1787817218,
+      "funder_sig": "4AYpdGcTJveThQWtQHUCKCic2VCZZwQfszgRdtvn4hRWWkT5HjPCV97CLtQMa5Bs7XLehbcCpH3YaZUpLkyf6YnC",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "68nM7H8ntVSv6rBQJgb15Bm7PSoyTrW3zpdAqFPRpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "4AYpdGcTJveThQWtQHUCKCic2VCZZwQfszgRdtvn4hRWWkT5HjPCV97CLtQMa5Bs7XLehbcCpH3YaZUpLkyf6YnC"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "4M47u8mQT27FxgeMVsCct7b3KQJX4rxXUrN2V4W6yTgX",
+      "current_ui_included": true,
+      "funder_block_time": 1787927715,
+      "funder_sig": "675FDTeyUHooQAbxkMCNiydhLKriEFhjcy92xRzsuytZ5jPQNeFk7hprNtqpB8FPPwJdZz6pu1jj5QEmEkZhkock",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "6Bw6Y9F9adxsKBfNZ2aMaddVxmQ9tK6HDJBdCNe2pump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "675FDTeyUHooQAbxkMCNiydhLKriEFhjcy92xRzsuytZ5jPQNeFk7hprNtqpB8FPPwJdZz6pu1jj5QEmEkZhkock"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "B8oEj1CM7J2R8m2CKRbEDrmYMzH7vyFETWTmzrP8kcxm",
+      "current_ui_included": true,
+      "funder_block_time": 1788190362,
+      "funder_sig": "4tptuYyB8uueYQtGVBMHkdt95sCobM7HmqyX1gA47KhFZGYKmZjLLbt27LW8XvvCmPb1w5DYsQ1JWN3edxytYYNV",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "6EJcr6T6Fbny6gcUWWBvKRX2uXx1FC7Ctt1X4KpNpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "4tptuYyB8uueYQtGVBMHkdt95sCobM7HmqyX1gA47KhFZGYKmZjLLbt27LW8XvvCmPb1w5DYsQ1JWN3edxytYYNV"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "CN8hvc5RY8GwTTJWjasauu73DU3abxbodaCbPTaLEEUH",
+      "current_ui_included": true,
+      "funder_block_time": 1787918466,
+      "funder_sig": "4tR1RtE8dBYThUKQLrbDEeezBmaD1duY5e2JNVHBpbKo2kC8na9enD8MuLEeoYDuzFNy4f7kMtctrdcpuHfSMPiy",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "6MiSBTBS2MU3gi23j6zEx8Ad7rPfcW6miHkmxjiPpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "4tR1RtE8dBYThUKQLrbDEeezBmaD1duY5e2JNVHBpbKo2kC8na9enD8MuLEeoYDuzFNy4f7kMtctrdcpuHfSMPiy"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "GqpjYV88bTzxYxHEskudyWZ9T5kxtBpehXdkQS2KKJiM",
+      "current_ui_included": true,
+      "funder_block_time": 1786621099,
+      "funder_sig": "2Vp7uAQBUZ1s1pcDUCsmhBJokHdwJjDZC8vecvpFna1Au5HcDgY6kv95c21zwdHQRR4o7fktLzNhTpaAuHjz5rtZ",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "6X7EhvCPpQcfwfAeQF4drS2x9UnHD8N8BK5QnTtzpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "2Vp7uAQBUZ1s1pcDUCsmhBJokHdwJjDZC8vecvpFna1Au5HcDgY6kv95c21zwdHQRR4o7fktLzNhTpaAuHjz5rtZ"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "7mqnp6cYq2dd5M3rYiL87Ad88gnp8aChdBJu7gKNv34n",
+      "current_ui_included": true,
+      "funder_block_time": 1788189523,
+      "funder_sig": "5poTc4XSWAnBvtK5eRTzqkUpwTDVK6UD4QgxEqwo52EyaNHZwyfrq75rLT1zNNS8AXxE6NVLcHWjgQw8AqEwHroq",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "6go3rVxoUVLJbZxjAxeEwqMP8WQt7ey6g2a4c8fkpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "5poTc4XSWAnBvtK5eRTzqkUpwTDVK6UD4QgxEqwo52EyaNHZwyfrq75rLT1zNNS8AXxE6NVLcHWjgQw8AqEwHroq"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "FJCmBNQaashUAaQskWL78xiGg7Njh7xZN3icrhuuxv3g",
+      "current_ui_included": true,
+      "funder_block_time": 1788188052,
+      "funder_sig": "mpPQ17DPAMZib7FeMAC7pNEpRQztukFdHKWDzaxKrcSzEjXRYPWcwYQQ4roGpv4os53h32AH8yyRcSwTtPC4LHL",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "6x625gS9ZDNw4GZniij4zEfuC7PF6syZ8KM8RmqGpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "mpPQ17DPAMZib7FeMAC7pNEpRQztukFdHKWDzaxKrcSzEjXRYPWcwYQQ4roGpv4os53h32AH8yyRcSwTtPC4LHL"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "AMGHRLLGCBi5XKygAuRxwQ9hjpdeqcYz3pPskHvCAiFV",
+      "current_ui_included": true,
+      "funder_block_time": 1787324367,
+      "funder_sig": "5CB3gadszBtZq4PWpjPrWaNB4JrcgRtajNCvufnM6Htvk4PjFE2obcfmaayijCfLuQSRyKtf63pc7aYqacEnBHvA",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "73o1LeTK7E2WkVdEyTmd5TxzqVLcAFm2cn1GahN2pump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "5CB3gadszBtZq4PWpjPrWaNB4JrcgRtajNCvufnM6Htvk4PjFE2obcfmaayijCfLuQSRyKtf63pc7aYqacEnBHvA"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "6HUfTCBn6zHpzHJUjAKArzoBaVG32PXPwyUff1LGzsoN",
+      "current_ui_included": true,
+      "funder_block_time": 1788012314,
+      "funder_sig": "FjgwFxe7gsRpiyJp8ABd4PCTzU1rPVn6ySb6pwjMRYqmEHdkoDxJEmaMHP4bxzwhRYNbgPUGDqkPbjcQMyJvSjZ",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "78FRWVpjK476fLThDU2U8V4Y1CTnvhtqboNmY4NSpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "FjgwFxe7gsRpiyJp8ABd4PCTzU1rPVn6ySb6pwjMRYqmEHdkoDxJEmaMHP4bxzwhRYNbgPUGDqkPbjcQMyJvSjZ"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "241nHsSEqUQnZLNN5Pwak1pKFZkUcfpdDWK5fyqjBny2",
+      "current_ui_included": true,
+      "funder_block_time": 1787829550,
+      "funder_sig": "bwxwq4GHkNTbeH9HqDu1ofckvWiTsmowEhT9FzXkE81Db5p5vVTDMS6kNrffbMGxhKgxdTsziEuhP1nQ2JGeWJA",
+      "funder_wallet": "241nHsSEqUQnZLNN5Pwak1pKFZkUcfpdDWK5fyqjBny2",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "79RRj8QP21vRqZYuf1RWyNa78JfdSudp2QiwPkrhpump",
+      "selected_edge": {
+        "candidate_parent": "241nHsSEqUQnZLNN5Pwak1pKFZkUcfpdDWK5fyqjBny2",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "bwxwq4GHkNTbeH9HqDu1ofckvWiTsmowEhT9FzXkE81Db5p5vVTDMS6kNrffbMGxhKgxdTsziEuhP1nQ2JGeWJA"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "AMGHRLLGCBi5XKygAuRxwQ9hjpdeqcYz3pPskHvCAiFV",
+      "current_ui_included": true,
+      "funder_block_time": 1787070061,
+      "funder_sig": "2Pnvj2oAT4wGY7TNSiM6YxH8yqsokiG11SwFBLdQjrBbHbu4JutS9SEVdnhUwrCScFwYCvufm9AgihQryEzaD5Cf",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "7CGiA4cdtprHDyZ8CC316tovjLcMd4KMf4b2ArAWpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "2Pnvj2oAT4wGY7TNSiM6YxH8yqsokiG11SwFBLdQjrBbHbu4JutS9SEVdnhUwrCScFwYCvufm9AgihQryEzaD5Cf"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "8Sx2uKViNFriE4b7Z7bXX6UgVAP65bWZDCJjfePdunP8",
+      "current_ui_included": true,
+      "funder_block_time": 1787908391,
+      "funder_sig": "5pZX3NCzGK2wCXbeqRM3LzDhMSLe91EJqX7n7FEL7X186fBqvF2z3XHwJ9fe68So7yEADNsUhkzRZFbynHCRapnw",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "7DEPL1SmGtGd8V9sV1VG9LBvjYiMJJm9wRY88f3Wpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "5pZX3NCzGK2wCXbeqRM3LzDhMSLe91EJqX7n7FEL7X186fBqvF2z3XHwJ9fe68So7yEADNsUhkzRZFbynHCRapnw"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "515BoMyrL4CaqXUJxMLGALzMHfGQjz3kku4rB38Q8JdT",
+      "current_ui_included": true,
+      "funder_block_time": 1787814695,
+      "funder_sig": "2SiotkfByBjfPavDdMCnMCmxvAqkdm7pzsZJAwLmwYTNkhfRaEv8mqjLWzdHeN35Ben75NSZTX12aQsiczFqAVEx",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "7EPk5q4EN4PL8F1j26SbueqiFekrMva54xbFVms7pump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "2SiotkfByBjfPavDdMCnMCmxvAqkdm7pzsZJAwLmwYTNkhfRaEv8mqjLWzdHeN35Ben75NSZTX12aQsiczFqAVEx"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "CN8hvc5RY8GwTTJWjasauu73DU3abxbodaCbPTaLEEUH",
+      "current_ui_included": true,
+      "funder_block_time": 1786519178,
+      "funder_sig": "3mk3bvXKvqbRdyJULWVjo8sZ2FvHWvrVch5tXRyQBzNvmnEuKGZim8qjxjdnmiZqJADCUNXwqL162BrJyiFaTGWx",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "7FGyGwzqTLfwbLKwFbibXneYcK2JR6HPQyn4ATHpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "3mk3bvXKvqbRdyJULWVjo8sZ2FvHWvrVch5tXRyQBzNvmnEuKGZim8qjxjdnmiZqJADCUNXwqL162BrJyiFaTGWx"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "CgwrhDkZtNGXPLciWNGYUZRQQmfkVd4UbDtsk21f6AGN",
+      "current_ui_included": true,
+      "funder_block_time": 1788193929,
+      "funder_sig": "2xyeNeuuazWgf6bkuxbRD6cchjSAxfbhKnGrzGuT48x5mGW5GCCE8nCvqKJvm3KZc4KcePipCkn4dHEMLEYpgYVo",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "7Mg1xDrE1Q5UrKtNsD4DLedkDWJzxwU3pwqEFqwVpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "2xyeNeuuazWgf6bkuxbRD6cchjSAxfbhKnGrzGuT48x5mGW5GCCE8nCvqKJvm3KZc4KcePipCkn4dHEMLEYpgYVo"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "6PJncLcfXcjzCEmCdRMmxqaKDDdc5t12iga1ckqrGg7P",
+      "current_ui_included": true,
+      "funder_block_time": 1786780550,
+      "funder_sig": "64n3VcVrhhT7KBr1H2gH2MuMNW5eJCrcTkDKjJMeEX8G1WU9Ky2pLYsCCwmCefLwW2y6krdrhTtYyUnxaivz5FP7",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "7QjUZLTvpM52WGTMfFjH6eAK18yXKMxt3CH4UkAGpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "64n3VcVrhhT7KBr1H2gH2MuMNW5eJCrcTkDKjJMeEX8G1WU9Ky2pLYsCCwmCefLwW2y6krdrhTtYyUnxaivz5FP7"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "8rx3h89wAVM8NejS9t3CLiomLxuWz1QuYAUZD5PEKF3i",
+      "current_ui_included": true,
+      "funder_block_time": 1786706331,
+      "funder_sig": "4rAz3q72a3MTDJst4dU3TH5jRQtaqyWAgxAqUdHMe6YxjcqKpd4E6dyu1WKXZQgPDph7vUoZfpebbeaF6uurgu3Y",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "7Rx2pnzVjwW49VEh1mRhYuufmYdXftcd5qnHqTcrpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "4rAz3q72a3MTDJst4dU3TH5jRQtaqyWAgxAqUdHMe6YxjcqKpd4E6dyu1WKXZQgPDph7vUoZfpebbeaF6uurgu3Y"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "FjNePRYiEbaWWaFuMXFqeGsGWtn5fpndNVy2i2Y69cQ9",
+      "current_ui_included": true,
+      "funder_block_time": 1788158780,
+      "funder_sig": "51s19JLCr5JT4Vcvcwqa1TUrAHrsvYzhxzQELnDizQcAP7s3DRyqcESe73crkPda5PV6kSy6T5wBeVU5fpkKUUdN",
+      "funder_wallet": "FjNePRYiEbaWWaFuMXFqeGsGWtn5fpndNVy2i2Y69cQ9",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "7T6Kw5qjyp74L8fvtMWud8GLsXhgWcxY9BijrrgUpump",
+      "selected_edge": null,
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "3F8m5wT8umEvfjwwdKq1YEuR39U1U1tPUj4Kcq6YhBQs",
+      "current_ui_included": true,
+      "funder_block_time": 1788207476,
+      "funder_sig": "MZBXeS8Ude2XGoFMBjvJsUnLoDmPhZdkrsmZ4VPho6pQRt1CRE8JiAQKS87XXk3sJtRXDrou7gSgwr5hDjf52ao",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "7ToRppTULnMuGh4tbnHGe4Gatoqe6jcVtacz4mzBpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "MZBXeS8Ude2XGoFMBjvJsUnLoDmPhZdkrsmZ4VPho6pQRt1CRE8JiAQKS87XXk3sJtRXDrou7gSgwr5hDjf52ao"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "BuxKVxRNrfUXXgkM96Cajn67ZcpkRGczp3BQBaWbJJPF",
+      "current_ui_included": true,
+      "funder_block_time": 1787308839,
+      "funder_sig": "rUo81KwkA4DApafKZDfJVZNtzm2PPuR9BBQKYRHepV3fpHMw1R6fCWanzEQLqStYegAiLTAqFDC9WVWWdYmbxFw",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "7WgJ7vfquErSiFSz9SfJy2TvjyUBSLLhTss7uLaWpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "rUo81KwkA4DApafKZDfJVZNtzm2PPuR9BBQKYRHepV3fpHMw1R6fCWanzEQLqStYegAiLTAqFDC9WVWWdYmbxFw"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "8mxNwB5cJE4V9tc3KUK2vFbyekma9nsHqqCRc7Kx9ECb",
+      "current_ui_included": true,
+      "funder_block_time": 1783576411,
+      "funder_sig": "29fW3AXgqhxWZyzRvmQR2tVfFnvWyvh4e76siS3WHAGU8G7fNrfdAYoWwfQf6eHH1zSDNmatmj5mak5gxvjEJyxz",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "7XddUHrcc4YZe5eyVR1JVAfPSTHuzUrA9pv1og4Gpump",
+      "selected_edge": null,
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "FpA39vmAVdmXbkk4XvL1gppQoQ7dzQbP5oFc4dMWhAZv",
+      "current_ui_included": true,
+      "funder_block_time": 1787758198,
+      "funder_sig": "57F21UBRm6Equ5kXauEXinjwVa8YhrrJUhmTPWG6QjMSCwF5JGMRMRiTPJ44B1sQnPFoitf8e4Bvh5wRibJKiT6V",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "7d99GPVVbin3wVzRbJWQ6rHRTvZ2tmEsnYFyunzBpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "57F21UBRm6Equ5kXauEXinjwVa8YhrrJUhmTPWG6QjMSCwF5JGMRMRiTPJ44B1sQnPFoitf8e4Bvh5wRibJKiT6V"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "2apszvsMyyJxjYkwb2xQYv8dEgxFr46U5CSAMYikHSGS",
+      "current_ui_included": true,
+      "funder_block_time": 1787307932,
+      "funder_sig": "4gpsuggRGqcrfrGSQW8UEAaTWrFr1hHu1d4RaQ2JgAubJ773k2fKUWtdjSsMnTuW7a5qi3FU53Y6rLLzGNc9ihNa",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "7pBjpn2BX7gKfMmHH4TqZzNbztyC2ffAkkWtkMF5pump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "4gpsuggRGqcrfrGSQW8UEAaTWrFr1hHu1d4RaQ2JgAubJ773k2fKUWtdjSsMnTuW7a5qi3FU53Y6rLLzGNc9ihNa"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "DzT1xMn6Eoc6VAbbmJe3qKys5WJrkDHwkPAejLd2C14z",
+      "current_ui_included": true,
+      "funder_block_time": 1787929044,
+      "funder_sig": "3DUwnyztHmEUrYJnMXg3YEdwZUp12CMSNBRezkieLPASysiw7uChun5cDPjWukeSrERxpUEU1wWZ1BYJBTtQ9tkJ",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "81hKGaQuDRwTmsesUZL6bchnFdKWP38adMSh6wT8pump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "3DUwnyztHmEUrYJnMXg3YEdwZUp12CMSNBRezkieLPASysiw7uChun5cDPjWukeSrERxpUEU1wWZ1BYJBTtQ9tkJ"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "8rx3h89wAVM8NejS9t3CLiomLxuWz1QuYAUZD5PEKF3i",
+      "current_ui_included": true,
+      "funder_block_time": 1787340987,
+      "funder_sig": "67WPF4zNuNdgwNKmZE9zXXvYreQuV1W8xvb1YKVoqoDUZ9m5SdZNBr9MgHMnyxn2L5QrnFqTufDxe5EZMGXCzVTb",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "8JdWj6G2X9ByPPcKpaLUEso3w62yNnbVwmzXmhAEpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "67WPF4zNuNdgwNKmZE9zXXvYreQuV1W8xvb1YKVoqoDUZ9m5SdZNBr9MgHMnyxn2L5QrnFqTufDxe5EZMGXCzVTb"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "26MEpv6dtUkJDyiTnCVGuH12QTR7bkoGi64T1Aaz2qzr",
+      "current_ui_included": true,
+      "funder_block_time": 1787053262,
+      "funder_sig": "4aKFbGR9cc9BKo92QcmvZnE4VhBVTvL8SmYGX1h3ordBBMWYMp8QjPAyvAdWaz1dyHeUsEe9rrPJ8KeuRWhu9PYe",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "8UrQLojCQzUWnVp3GGzniK7WmdsT2SC7GXHjF3Ejpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "4aKFbGR9cc9BKo92QcmvZnE4VhBVTvL8SmYGX1h3ordBBMWYMp8QjPAyvAdWaz1dyHeUsEe9rrPJ8KeuRWhu9PYe"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "515BoMyrL4CaqXUJxMLGALzMHfGQjz3kku4rB38Q8JdT",
+      "current_ui_included": true,
+      "funder_block_time": 1786006867,
+      "funder_sig": "4k1uWtR8pZwG1DUAWafbjzoJpai1aytHpFMkZcQLEWNwpD4dQUv64vfjbQSXE88emEbABXRxRb9kjaEQpUxC1Shd",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "8eLQuZE56yMRP9dBHuT9V47U5jgA3uWvYoQ377c6pump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "4k1uWtR8pZwG1DUAWafbjzoJpai1aytHpFMkZcQLEWNwpD4dQUv64vfjbQSXE88emEbABXRxRb9kjaEQpUxC1Shd"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "8rx3h89wAVM8NejS9t3CLiomLxuWz1QuYAUZD5PEKF3i",
+      "current_ui_included": true,
+      "funder_block_time": 1786704766,
+      "funder_sig": "37mBv5GNYohKXY1BozW4ZBUcRwjXc7eaqjqdN6y7KyZ2UrRpCLnk8U4vH1LBRojmyFBZ1qCqugTe2qGhvsYxfvyV",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "8iYLQhReo1vzHp6xPLhXNJhHb87UynRb2ofDr2Sipump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "37mBv5GNYohKXY1BozW4ZBUcRwjXc7eaqjqdN6y7KyZ2UrRpCLnk8U4vH1LBRojmyFBZ1qCqugTe2qGhvsYxfvyV"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "CiyizcdxuuoywJYcvHgs5u9LWhG7NDD1CnHn3aeWjKxX",
+      "current_ui_included": true,
+      "funder_block_time": 1787051048,
+      "funder_sig": "3Yd3mLn19cD9HFGFLarv48ojXMKk9cgt5AYjEvxJTAyoaeBC8zXcUnF1AWP1YB83BpTx24YLZGaYQJHJZ8fGTv5m",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "8nuZuTv4yrf8yEK8fnKjJmne5sAUTFtttZfbeM7gpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "3Yd3mLn19cD9HFGFLarv48ojXMKk9cgt5AYjEvxJTAyoaeBC8zXcUnF1AWP1YB83BpTx24YLZGaYQJHJZ8fGTv5m"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "3MVXdRf2gAahYumumNqCRmQL1xapUFSqw7ZY4nuAK56j",
+      "current_ui_included": true,
+      "funder_block_time": 1788002910,
+      "funder_sig": "2AzseTxvKX4TFQJyvRC4kshwNvXPz26kGs4UvDCLAx9UEkuZbL32uKrLQ3nJWZsBJSYq3WVeSyE7nKHRWrE4yTj6",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "8v7Ro7WX3eMJC27HdSEUeAnDFLdHp2EUpWGc8ukWpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "2AzseTxvKX4TFQJyvRC4kshwNvXPz26kGs4UvDCLAx9UEkuZbL32uKrLQ3nJWZsBJSYq3WVeSyE7nKHRWrE4yTj6"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "HfBJnWC6AEDeqyK8Jp5DNmuD5jsM6cjeKQzEY3ajMifn",
+      "current_ui_included": true,
+      "funder_block_time": 1786626637,
+      "funder_sig": "2Tch4XVLJ8rqnJvbJ2FyYgrWJVMZTWHMKG9mMtvK27wtBQBgJZwKYtSjri4BahiJc9KthY1efxkXBwC3iCqgMX5Y",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "8zjSm6qXuhgJ6hMfKNNsiht3vFcY7QVxJt7YZVw1pump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "2Tch4XVLJ8rqnJvbJ2FyYgrWJVMZTWHMKG9mMtvK27wtBQBgJZwKYtSjri4BahiJc9KthY1efxkXBwC3iCqgMX5Y"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "B8oEj1CM7J2R8m2CKRbEDrmYMzH7vyFETWTmzrP8kcxm",
+      "current_ui_included": true,
+      "funder_block_time": 1787484764,
+      "funder_sig": "4DSQNa8iZY3FHJ9X7JiNRpMpfSKVUCqH7emo9MzSaohnTE8r2pjtcPWjatgVvU2VBWPvpymSMiMAZDm3QWreCctk",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "92AMV2rW95NMaoGeS5WTB7TYRsDgNk3Yc1rdRebDpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "4DSQNa8iZY3FHJ9X7JiNRpMpfSKVUCqH7emo9MzSaohnTE8r2pjtcPWjatgVvU2VBWPvpymSMiMAZDm3QWreCctk"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "AfZBva22bAcjZv6wowVcJJsj9aNcf39qjp7576SERMLr",
+      "current_ui_included": true,
+      "funder_block_time": 1787343881,
+      "funder_sig": "jiS4o6QDcLA8F7gTGAkU1A6viyXT39UB8k8FY3c8RRVRvPQk2Wwnj2DixnEcsrfNHnYEghAxtiVnf81BeKRFBsZ",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "93Gwy6EzMK2CDJGpTzLAe4fs45GHCzoxbFQcsU6xpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "jiS4o6QDcLA8F7gTGAkU1A6viyXT39UB8k8FY3c8RRVRvPQk2Wwnj2DixnEcsrfNHnYEghAxtiVnf81BeKRFBsZ"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "7gcvcAN55Lds4qHVva7Q6iqdTpQzLFRmJhWNU2HuMVge",
+      "current_ui_included": true,
+      "funder_block_time": 1786892552,
+      "funder_sig": "3VG9eiyqWC8EuY4N8V7n4J2V6Whg9vtLaNx5jAQmUs4wPpAZ8QXUxokXubuATtciMk5JDdcnF76BGBmU8xErjcYH",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "998RhDdzrBAQj6rC4Mu9N6vMpyVV8gMKrh98FsN6pump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "3VG9eiyqWC8EuY4N8V7n4J2V6Whg9vtLaNx5jAQmUs4wPpAZ8QXUxokXubuATtciMk5JDdcnF76BGBmU8xErjcYH"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "HfBJnWC6AEDeqyK8Jp5DNmuD5jsM6cjeKQzEY3ajMifn",
+      "current_ui_included": true,
+      "funder_block_time": 1787072818,
+      "funder_sig": "4ur75bhQos6W7Xcv2Edva1jQe1ztSbEPopiwnxfde1pAEXAcvexgUbVmvaFZyiTAoV83zuHRuFc5ofLHt5GSu64N",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "9AnnqC2iCs9gnTXFPJwRsCi8gwXhupmFAc55yPu2pump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "4ur75bhQos6W7Xcv2Edva1jQe1ztSbEPopiwnxfde1pAEXAcvexgUbVmvaFZyiTAoV83zuHRuFc5ofLHt5GSu64N"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "4ymWS2cciqMG3iMiqLtshNGS6MezGRhRWHuSxNnHLfWz",
+      "current_ui_included": true,
+      "funder_block_time": 1787820754,
+      "funder_sig": "5PfnsSRoDDdBKLtJpUdaEceMfj6VuBm4Df8dTjsuEaZAdVxzfPwu5FjZPPyJaBsR77fbAgariqazDnydTu8hZ7QV",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "9CdNt849fPAFxg2VXb1xhocF4FZEyiC6t7LKpgMWpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "5PfnsSRoDDdBKLtJpUdaEceMfj6VuBm4Df8dTjsuEaZAdVxzfPwu5FjZPPyJaBsR77fbAgariqazDnydTu8hZ7QV"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "E83iUWNBtrEVg9qC4aF5XcexwAWvvKvnRVQHnTnMCN9Y",
+      "current_ui_included": true,
+      "funder_block_time": 1787314895,
+      "funder_sig": "BDbYK9zxmcrDBf2i5MzCXV7Z1YeXvN9yZpB6NMf54KLQ1VHM8LGxeTnZMUs9m7jY7NsNzKGqzhkLWCov3koX9Bm",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "9HC9pchPikhAg5CuQxiUFexJe89G8MBfPw4Xx3DLpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "BDbYK9zxmcrDBf2i5MzCXV7Z1YeXvN9yZpB6NMf54KLQ1VHM8LGxeTnZMUs9m7jY7NsNzKGqzhkLWCov3koX9Bm"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "F11DPSHnWXkd7WuAf8xZRHXvpDt8M695ZvuApdaD4wj6",
+      "current_ui_included": true,
+      "funder_block_time": 1787822394,
+      "funder_sig": "2hUkeiMUt8Qm8CLXQy7oFZ3wXHPNYYfq5axtu18qYQvVQV8e6ppqgvRskgwmwNH56NC7HfFbPaHuoGv8rSKDVqhM",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "9LBzAqVUtpggTvsA5dDhGhgw1L1uQZG8WiUxMiKspump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "2hUkeiMUt8Qm8CLXQy7oFZ3wXHPNYYfq5axtu18qYQvVQV8e6ppqgvRskgwmwNH56NC7HfFbPaHuoGv8rSKDVqhM"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "4M47u8mQT27FxgeMVsCct7b3KQJX4rxXUrN2V4W6yTgX",
+      "current_ui_included": true,
+      "funder_block_time": 1787479506,
+      "funder_sig": "5Fp3Da9zVxyrvSY2ae1aYbXUwmmSA4pUFL8YsDm3U2TRos4butQbFTBw9HDA7fUEYsS4g37KWQpjtRVycF4r7egQ",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "9NPivohgTPgvGRFf1zRJkWzRVvzfZQnx4C8SunPspump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "5Fp3Da9zVxyrvSY2ae1aYbXUwmmSA4pUFL8YsDm3U2TRos4butQbFTBw9HDA7fUEYsS4g37KWQpjtRVycF4r7egQ"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "9uCrBdvyFgCJ6hZorPwYB3a57GXiJq5dKTNdPRC8c5qC",
+      "current_ui_included": true,
+      "funder_block_time": 1786622544,
+      "funder_sig": "3qfxsDVetYfFYEex81mR2jYHS5o5UucjMqPGbGVRucaAaGxYzEWcMLBR1WeogyhupnWFmjdypSABQ4eTm8pvkoZZ",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "9WyEujHDjPk4RrgVqeBDa1bWDMzevXN1pAhqJ4KEpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "3qfxsDVetYfFYEex81mR2jYHS5o5UucjMqPGbGVRucaAaGxYzEWcMLBR1WeogyhupnWFmjdypSABQ4eTm8pvkoZZ"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "2apszvsMyyJxjYkwb2xQYv8dEgxFr46U5CSAMYikHSGS",
+      "current_ui_included": true,
+      "funder_block_time": 1787576650,
+      "funder_sig": "5QxzkFwqFM99PvoXqnPhRy7T2Mwtcq3VFLzjQsysvhhUdxQM9A2drMNgekX5mF2BgmpaKx18goiRrizeBz2Qbguf",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "9YgWq5REvBhviYXMyUmNAugVzyCYhu6H49LgxFT9pump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "5QxzkFwqFM99PvoXqnPhRy7T2Mwtcq3VFLzjQsysvhhUdxQM9A2drMNgekX5mF2BgmpaKx18goiRrizeBz2Qbguf"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "H53NZRyTQp9h5BY6Urmh3iP65PMikpntnS2t9sUoBzqa",
+      "current_ui_included": true,
+      "funder_block_time": 1788187439,
+      "funder_sig": "5rpHTfgvNHzKNLiVSodbgmu2PMgasiDfRnhj5SAwKGdE4bRqQa2G2MmMGCGPcYciNWMeSRXaXXndE5tv5UX7nQuR",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "9aCyHxnttKHkZXadfenoiURo2Jdmv2VgQqJ4jWZnpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "5rpHTfgvNHzKNLiVSodbgmu2PMgasiDfRnhj5SAwKGdE4bRqQa2G2MmMGCGPcYciNWMeSRXaXXndE5tv5UX7nQuR"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "62JTugo7hbRktrJpsxK8ppp9DPYymjUwDpKzbKn5L9T9",
+      "current_ui_included": true,
+      "funder_block_time": 1787492659,
+      "funder_sig": "2QdHPypVrb71oSo6mq7e6gk2cQH36dh7cG4DAUBEEH75BXncrTVTyCLVcVuomHznMz6oqm54CU4GXY6QnDWhxEGT",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "9hLwy4Y8L31NimtyBdhuecBSTSUP6uRxjaDHSjfvpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "2QdHPypVrb71oSo6mq7e6gk2cQH36dh7cG4DAUBEEH75BXncrTVTyCLVcVuomHznMz6oqm54CU4GXY6QnDWhxEGT"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "BjoJGWwnG8hfsirWwsqMB6VReSDZz4JAdPWRPqsDZYZT",
+      "current_ui_included": true,
+      "funder_block_time": 1787860151,
+      "funder_sig": "67gxqhGUoiJ9Cd4htQGe1xnbGjQQTsPzKupW3xXe5YK2QG6szvDbfXGvJP94XEMvG9dintNB6ZMHGGgAaZkp5ubE",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "9rC3LY5maQX3v43FWdjnVGPt9A2aZZ2Yxxe6EVm4pump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "67gxqhGUoiJ9Cd4htQGe1xnbGjQQTsPzKupW3xXe5YK2QG6szvDbfXGvJP94XEMvG9dintNB6ZMHGGgAaZkp5ubE"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "Ep3Y9xHaRn8t6B3X6W1o2cztnkMFv5VypwPwDq4rdJX6",
+      "current_ui_included": true,
+      "funder_block_time": 1787575001,
+      "funder_sig": "43saiMHeBdBtGAX16KRay7YFoFL94s7oVNnYpf4inB3JCvh1fKSEofzDMJJGPuvwJVpVKEdSwfbMNj6oKAkFLrPx",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "9tQDRJzS8yeijskpk8x5Fz8hrsu7thpRtcPNwcdTpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "43saiMHeBdBtGAX16KRay7YFoFL94s7oVNnYpf4inB3JCvh1fKSEofzDMJJGPuvwJVpVKEdSwfbMNj6oKAkFLrPx"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "2hHqto7NnDDHnR4ie5QqMgT5mnaAh5RvMAwuezsc2y2M",
+      "current_ui_included": true,
+      "funder_block_time": 1787345422,
+      "funder_sig": "Y8zfq56vFShGKfgWMiF9jyuVsgC2vWNjFdfqDQnuB286dmvY6Ja4399gtbDX1Yk2sK8Fv4jeQmjuJ6SGYvvhYjr",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "APTsytnD32axqchnou37U1kfXUgUup8zXWzNigDgpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "Y8zfq56vFShGKfgWMiF9jyuVsgC2vWNjFdfqDQnuB286dmvY6Ja4399gtbDX1Yk2sK8Fv4jeQmjuJ6SGYvvhYjr"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "5mhjT56sYttc4JBjbEQ86eST7cj9Nxno1pvPTovdrzhR",
+      "current_ui_included": true,
+      "funder_block_time": 1787651971,
+      "funder_sig": "2fHcQH9hhPwWQJttRLazwwPoRyQM2L2GcBD71BZKMag8WbhtXw7uJvdQB7V4pWkYZRmSXm5Smo5UTVGwreVY68Jw",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "AQeT2Yu43rfF2CjMcJ2mqHJsGQ7c4znoo2qErzr6pump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "2fHcQH9hhPwWQJttRLazwwPoRyQM2L2GcBD71BZKMag8WbhtXw7uJvdQB7V4pWkYZRmSXm5Smo5UTVGwreVY68Jw"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "6GZ1r7o1xL3PUVJySRY8pin62xUUTjm3Zh2p6ZZbQxSK",
+      "current_ui_included": true,
+      "funder_block_time": 1787910245,
+      "funder_sig": "2C7Ucr3RwJo51YGHjKrk3dc9AUDyEV37cBLXk58t2mNCrHFLUtTp4Z7u53uTPe2Mq4Qs8QPCE583saPgUxcWuVB",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "AU4Gcdn2oNX6Si9hh3cimgt4w7skXUy3ResH6TeJpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "2C7Ucr3RwJo51YGHjKrk3dc9AUDyEV37cBLXk58t2mNCrHFLUtTp4Z7u53uTPe2Mq4Qs8QPCE583saPgUxcWuVB"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "5mhjT56sYttc4JBjbEQ86eST7cj9Nxno1pvPTovdrzhR",
+      "current_ui_included": true,
+      "funder_block_time": 1788110926,
+      "funder_sig": "5WkHDzw8fbavmtgXrADDfRxC1WctZ8xQfccaizekMBzmCr1iLJydd27wgwXGTmrKvdVNUQUZp9ABRwpTPAxENQ1T",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "AiSiwKxkbNg4TGMHq8GEvwf8mpma1a3Ee7m3TB4rpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "5WkHDzw8fbavmtgXrADDfRxC1WctZ8xQfccaizekMBzmCr1iLJydd27wgwXGTmrKvdVNUQUZp9ABRwpTPAxENQ1T"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "B8oEj1CM7J2R8m2CKRbEDrmYMzH7vyFETWTmzrP8kcxm",
+      "current_ui_included": true,
+      "funder_block_time": 1786563997,
+      "funder_sig": "51ULTTKGVfaBHHknDUHmjv8u8k5MUFiHUe4kC4tTBUjaJpgHGZv4fQbof79uktC9DPrTYYSgh4KrtTSKsGaPqPjp",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "AjncCC3Va16CoozKkNHsXxdcuaq51ywSd15DKBA7pump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "51ULTTKGVfaBHHknDUHmjv8u8k5MUFiHUe4kC4tTBUjaJpgHGZv4fQbof79uktC9DPrTYYSgh4KrtTSKsGaPqPjp"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "FpA39vmAVdmXbkk4XvL1gppQoQ7dzQbP5oFc4dMWhAZv",
+      "current_ui_included": true,
+      "funder_block_time": 1786600869,
+      "funder_sig": "56TPEyrx3nso4V73v8ijopcgATaLWXZmzLdvVU9jLvmVbs6Jj2CQcSRmhNd7bk1RtezC7nPkwDQ1UzvYW1EebRFv",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "AkaX24vosnfyEsCGUkMwYRJq9pg14sNTXBBte3xpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "56TPEyrx3nso4V73v8ijopcgATaLWXZmzLdvVU9jLvmVbs6Jj2CQcSRmhNd7bk1RtezC7nPkwDQ1UzvYW1EebRFv"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "241nHsSEqUQnZLNN5Pwak1pKFZkUcfpdDWK5fyqjBny2",
+      "current_ui_included": true,
+      "funder_block_time": 1787640146,
+      "funder_sig": "3YxnVTUCQ7a8GQYE97uqNtMtQVToH5vjff8kwzg2isfLfwRAftjUUymgmcVfNYPEtmfuKUBG59qonM5ustiode5F",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "AqgtHrC5TwPcvTf9dmgQhWwUhmVbaGynop1LxvU9pump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "3YxnVTUCQ7a8GQYE97uqNtMtQVToH5vjff8kwzg2isfLfwRAftjUUymgmcVfNYPEtmfuKUBG59qonM5ustiode5F"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "FpA39vmAVdmXbkk4XvL1gppQoQ7dzQbP5oFc4dMWhAZv",
+      "current_ui_included": true,
+      "funder_block_time": 1786880686,
+      "funder_sig": "5okeM1DSTPhreRB5eSKgPWEMjDyf4iTHyX5srExnwXD1uedvbkkUsxw1mubbEAAYL63E1py6NtegUBBxCDF3kaFZ",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "ArPCQxF4TWzbhJJZpNxAgXUvM52t4rWpgUTTPw4vpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "5okeM1DSTPhreRB5eSKgPWEMjDyf4iTHyX5srExnwXD1uedvbkkUsxw1mubbEAAYL63E1py6NtegUBBxCDF3kaFZ"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "2hHqto7NnDDHnR4ie5QqMgT5mnaAh5RvMAwuezsc2y2M",
+      "current_ui_included": true,
+      "funder_block_time": 1788210196,
+      "funder_sig": "FLCmaJAXJNb2oZqzP1KYiWuJPwwScg6YRFaLNtoLJEuWxx3yN1fbDTUrn5gD6pjDbugTB2gE4CQBxtbFtvtKPPS",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "AuSgaCKhVMQH7CrQhZCZRxSBNyN8DBNbSvyCM1EGpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "FLCmaJAXJNb2oZqzP1KYiWuJPwwScg6YRFaLNtoLJEuWxx3yN1fbDTUrn5gD6pjDbugTB2gE4CQBxtbFtvtKPPS"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "5zSUPCnZvEmqafwndBSwrWZrdZAQQBXsBqaGjmiuNLqt",
+      "current_ui_included": true,
+      "funder_block_time": 1787912027,
+      "funder_sig": "3NhZkxwdpxm4JUhCvCDCS53BQAqF2qy4iHboci91zfeiaRgY5Jih6eK1GsfxVv1j8VEg2txN6erF1cshSWrFMeGA",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "B1CUo3hXFA5hgTGd1pgbyvpjtWjjRbwMdc8BmdKgpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "3NhZkxwdpxm4JUhCvCDCS53BQAqF2qy4iHboci91zfeiaRgY5Jih6eK1GsfxVv1j8VEg2txN6erF1cshSWrFMeGA"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "EMjSd3v9Jmx4xhgphh5LdmK4iFfJoydCDBTAshQVNrJa",
+      "current_ui_included": true,
+      "funder_block_time": 1783518527,
+      "funder_sig": "Aqon7N4Sf5waLgNDST7NzQkZBtWzHtRam4QeqzoQhxXjxHYeZapgLqJ3MGmpQzsi4N4LgSwLtw2F3EzhwkBsk1g",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "B5Qt34UghoLQAkVWEYqTkcV8tjH24HefqRGtM9hSpump",
+      "selected_edge": null,
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "EuKP5pam1znh2FTzUs5bz7YA9xQd3A4LDJc2DQq7XGve",
+      "current_ui_included": true,
+      "funder_block_time": 1783507009,
+      "funder_sig": "63cc2jpdxHCxUJKGVP2CXrQGzEjbLSr2BMUmHHsfVN4wZUSu8bh2Bk635YJBi1bFLaZ29oXg96nBgz5Yc7CJ4y4J",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "B69fvpeHS4CU3QTSMVRjedhAYtckYrF69xYV2H2zpump",
+      "selected_edge": null,
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "6H3SC9jHqY815XdFn9snZhHRssWYS1kiVK8ULGmwqzC3",
+      "current_ui_included": true,
+      "funder_block_time": 1787381549,
+      "funder_sig": "qLJozeNMUEgJKUNaK5XrJX2hPqrdgHNf2oHSW3kX3wzPZGnk6A84SDQM157A2ELyadromKusg8krKdcrfZqxbWT",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "BHRMJEu8h6xeNMGa5PNgZzNFkv2n7jGjLGPXcEKqpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "qLJozeNMUEgJKUNaK5XrJX2hPqrdgHNf2oHSW3kX3wzPZGnk6A84SDQM157A2ELyadromKusg8krKdcrfZqxbWT"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "CiyizcdxuuoywJYcvHgs5u9LWhG7NDD1CnHn3aeWjKxX",
+      "current_ui_included": true,
+      "funder_block_time": 1787325871,
+      "funder_sig": "2z24SLRvaeKKPatHPzMPRfEGw22Pm8RZMngizCAK9P9eMeQL54sd4x44PktT9CWy6ej2BUwdGtfEwQc6zA1eqgkz",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "BLN8AEp7XvYoY1ZcqAgc99JnQY4WgmcWtbUcPv9vpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "2z24SLRvaeKKPatHPzMPRfEGw22Pm8RZMngizCAK9P9eMeQL54sd4x44PktT9CWy6ej2BUwdGtfEwQc6zA1eqgkz"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "9uCrBdvyFgCJ6hZorPwYB3a57GXiJq5dKTNdPRC8c5qC",
+      "current_ui_included": true,
+      "funder_block_time": 1787683609,
+      "funder_sig": "PLedaTCsKBAp6Pyz4Ps5PuQP4qCmsUpfy5y8vRN5TqJJzHo5rd4w3kok4gzLz6yJ9xiGsR5QrCHvo1rfVHqbkCs",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "BNPi6iiBYSm8K7iqyzk35Cad4yZoxehkeV1oyByhpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "PLedaTCsKBAp6Pyz4Ps5PuQP4qCmsUpfy5y8vRN5TqJJzHo5rd4w3kok4gzLz6yJ9xiGsR5QrCHvo1rfVHqbkCs"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "8Sx2uKViNFriE4b7Z7bXX6UgVAP65bWZDCJjfePdunP8",
+      "current_ui_included": true,
+      "funder_block_time": 1787726081,
+      "funder_sig": "55RvciKgCLKATXrfYthUvpgwDefgYoizjQv7yTgkb6gNXLhEUjEY2pQP1mStP3BzsbUsroZAmstbKLggwGXafcf2",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "BPg6vtfGWceR9fJda9pT3KKE7REGewKPhxMGaRwGpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "55RvciKgCLKATXrfYthUvpgwDefgYoizjQv7yTgkb6gNXLhEUjEY2pQP1mStP3BzsbUsroZAmstbKLggwGXafcf2"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "7gcvcAN55Lds4qHVva7Q6iqdTpQzLFRmJhWNU2HuMVge",
+      "current_ui_included": true,
+      "funder_block_time": 1787342278,
+      "funder_sig": "4mf8sMjWxT16tQYt8PzTQrmAibieG5Lrccr6xvN8CYq7tuFKcGkBZpeMWvJkvrDQSLr7pi9CgRTQV6duXqPKRA1X",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "BVUtgycfTSQK7FWjdgKr3stwfdiq81h9a2nAXBSCpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "4mf8sMjWxT16tQYt8PzTQrmAibieG5Lrccr6xvN8CYq7tuFKcGkBZpeMWvJkvrDQSLr7pi9CgRTQV6duXqPKRA1X"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "H5A9SWZo6LfZ8byxUPjPFMZTVLeAL1fXu8kEtF9VBfUK",
+      "current_ui_included": true,
+      "funder_block_time": 1788184820,
+      "funder_sig": "3nC8EmrQ843HY7vjAgLWn7WdDGw6LVB3HEFZR6buma6z4UpGFNkjUjS8dRSup2BtffPAmSLmL4pEpw79u5tJAMuL",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "BW56hShMFBoG2NmnMztbMtCq5jnwjZHVVLd2TPiipump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "3nC8EmrQ843HY7vjAgLWn7WdDGw6LVB3HEFZR6buma6z4UpGFNkjUjS8dRSup2BtffPAmSLmL4pEpw79u5tJAMuL"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "DJrfEywDMdTzuuC7LuiMspZakVF5qmnD2pHC9uJLiSyW",
+      "current_ui_included": true,
+      "funder_block_time": 1787929521,
+      "funder_sig": "5MjQLhvMs29A6wPxJrydDbgJ5o7qEQVcebRfe17km3d8JNEcV7vYx7KVV7LRsrMKxU76Xj78QoH6baRuJaWBhhCb",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "BcDPqKckJc2gHQbfWRQDxyU9vznvftLpPfqgoZVxpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "5MjQLhvMs29A6wPxJrydDbgJ5o7qEQVcebRfe17km3d8JNEcV7vYx7KVV7LRsrMKxU76Xj78QoH6baRuJaWBhhCb"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "6PJncLcfXcjzCEmCdRMmxqaKDDdc5t12iga1ckqrGg7P",
+      "current_ui_included": true,
+      "funder_block_time": 1787993934,
+      "funder_sig": "3XKJbPHa9AWYiakNMRm4aZg2oKpC8jJLfQJMhEWveJjR86fvS1CQzqCCivcRgWMR4s31sajiNdyG9JGAZC18nXCT",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "BcjdUFj55iPELWDJreoyTMfa2v3X7shnDXYYpx6rpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "3XKJbPHa9AWYiakNMRm4aZg2oKpC8jJLfQJMhEWveJjR86fvS1CQzqCCivcRgWMR4s31sajiNdyG9JGAZC18nXCT"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "GqpjYV88bTzxYxHEskudyWZ9T5kxtBpehXdkQS2KKJiM",
+      "current_ui_included": true,
+      "funder_block_time": 1786522622,
+      "funder_sig": "6PpHZXCYPb4Zx6LZfuy4vpH1t3ZE5834PtDWhevoaSezGeVBiA6YFVUHHicbsNu2kPYtkSiWxPntJ5Hx8GhUEq2",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "BcsXxh9Yinqy47GDhvExiZhpikRmtxQK9aWtYdgXpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "6PpHZXCYPb4Zx6LZfuy4vpH1t3ZE5834PtDWhevoaSezGeVBiA6YFVUHHicbsNu2kPYtkSiWxPntJ5Hx8GhUEq2"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "5Bqgq9hcXdWhLpmzp7pjWJcyWReeZi5cgMmXHZC1HBQX",
+      "current_ui_included": true,
+      "funder_block_time": 1786179338,
+      "funder_sig": "7Fa1U5iws9uj4uxb8byEHcFcqZWgccEkAGjEBTq35aTMtyt8TCSKxaKhHSY326ZUrtniuQ85qqUwRkk2sZwjHpy",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "Bgg4hBhWDoYz9Mw9tAM5cxG79qem7dAJEzk5RFHspump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "7Fa1U5iws9uj4uxb8byEHcFcqZWgccEkAGjEBTq35aTMtyt8TCSKxaKhHSY326ZUrtniuQ85qqUwRkk2sZwjHpy"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "CgwrhDkZtNGXPLciWNGYUZRQQmfkVd4UbDtsk21f6AGN",
+      "current_ui_included": true,
+      "funder_block_time": 1787758881,
+      "funder_sig": "g5zkkWuK72j8k6FHskNeTr1dZfcbMqy5nYW5SCLL9fkaWD6G5h6M2QNywMtx97i1kqrQxiA9E5wFz8i7FyRbfQh",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "BnvreAHcoXJBScpjpocULyPsYNQf4jWQVmYayk6xpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "g5zkkWuK72j8k6FHskNeTr1dZfcbMqy5nYW5SCLL9fkaWD6G5h6M2QNywMtx97i1kqrQxiA9E5wFz8i7FyRbfQh"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "F11DPSHnWXkd7WuAf8xZRHXvpDt8M695ZvuApdaD4wj6",
+      "current_ui_included": true,
+      "funder_block_time": 1787493472,
+      "funder_sig": "2i9RHZASHwj3A8ecaDVNFGF6X2BkqM77HkiGThg6aewTDqPw7bHXbXZdRRNpP5b9eDpFvW7YGQ7wxoBPbeZvTPna",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "BoRvUzird5hH8S9vM6n2rDFddkWv769eB2q4PADTpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "2i9RHZASHwj3A8ecaDVNFGF6X2BkqM77HkiGThg6aewTDqPw7bHXbXZdRRNpP5b9eDpFvW7YGQ7wxoBPbeZvTPna"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "26MEpv6dtUkJDyiTnCVGuH12QTR7bkoGi64T1Aaz2qzr",
+      "current_ui_included": true,
+      "funder_block_time": 1786811890,
+      "funder_sig": "4dCsbvhjrgEnLecQBSLwMovyPPUwoTVumioPXqk5tnarkdDZSTenfyQtyMwQymEpQYUas4Xj1vmTtByCvpewWeeq",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "C5ecc42Lg2M6sP1uSPLN9qxER4PJLobc9VVGQURSpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "4dCsbvhjrgEnLecQBSLwMovyPPUwoTVumioPXqk5tnarkdDZSTenfyQtyMwQymEpQYUas4Xj1vmTtByCvpewWeeq"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "6TcAr4PH2dr49u6yAKmc5syfAzma1KaZ2Svprn4cgHh7",
+      "current_ui_included": true,
+      "funder_block_time": 1783537134,
+      "funder_sig": "3w97DmmVmNo8ogsVyhv4yDHJjLZHH81RKAa3oKV7h7mhq18M8jRivYa8EbkwtWth7ptdkzn35s6TBXAxLpUyAG9T",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "C8H8uh9F3SQjBSBSVnwX6hYD34nqUsxi4XrHZpM7pump",
+      "selected_edge": null,
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "DJrfEywDMdTzuuC7LuiMspZakVF5qmnD2pHC9uJLiSyW",
+      "current_ui_included": true,
+      "funder_block_time": 1787344768,
+      "funder_sig": "KYf9NoBfJm6LBfKXPVYxoLq3tpDtmnTeQup4N8DA9BCQhVyrp5QmmzwNSFiBuyE6FSwonqt6dB88xfXVe1J8QsK",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "C9fC481nRToDRndwD8sXVQ2vcr5sSoP7iwHTnsYTpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "KYf9NoBfJm6LBfKXPVYxoLq3tpDtmnTeQup4N8DA9BCQhVyrp5QmmzwNSFiBuyE6FSwonqt6dB88xfXVe1J8QsK"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "6PJncLcfXcjzCEmCdRMmxqaKDDdc5t12iga1ckqrGg7P",
+      "current_ui_included": true,
+      "funder_block_time": 1787577636,
+      "funder_sig": "3MNpkuVfJacbDrxiQav47NUSXWtXgeTzmd7UgraK3U6Z3g1TFsp86doQXDoWJdK3eG5dWuF62Pv7Yc1hV5yRhVs9",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "CMxSLxSpuerSR7sQC7JPkpp1Czy1oXjmkyAJDFzrpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "3MNpkuVfJacbDrxiQav47NUSXWtXgeTzmd7UgraK3U6Z3g1TFsp86doQXDoWJdK3eG5dWuF62Pv7Yc1hV5yRhVs9"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "H1NNcTBHhoQixmddnHNaNUcqqCpvhNAW4pbAChfTV3Na",
+      "current_ui_included": true,
+      "funder_block_time": 1787472202,
+      "funder_sig": "5kKkwUJGRJijUhjuUUtTsAceDnfbEAZjvRg4cxPvL5boRJ1YmTCo8W98nCy5bmLQXBecuA6TghTWG787qMKuF6ac",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "CadTuDtqkiQo9NV36tRGjsfCL5ZRLzWPNDrYtH15pump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "5kKkwUJGRJijUhjuUUtTsAceDnfbEAZjvRg4cxPvL5boRJ1YmTCo8W98nCy5bmLQXBecuA6TghTWG787qMKuF6ac"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "AM9pbMrmyxj5jibiHbjKomEWYmMcPdTHxmGp6r9kDMfZ",
+      "current_ui_included": true,
+      "funder_block_time": 1786692729,
+      "funder_sig": "hPwjUrKeiKHQPw1ThAKqKFFaBoQyL8hK7Q4bbVJwJ3wP6P5njFpgW64t6rnv8EoG2iqxbpys1gbSGVcr8gYWyEY",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "Cc6SynbtrCNJMH3ZJXVax77WiL8LmzsPWBJhBeqApump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "hPwjUrKeiKHQPw1ThAKqKFFaBoQyL8hK7Q4bbVJwJ3wP6P5njFpgW64t6rnv8EoG2iqxbpys1gbSGVcr8gYWyEY"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "5Bqgq9hcXdWhLpmzp7pjWJcyWReeZi5cgMmXHZC1HBQX",
+      "current_ui_included": true,
+      "funder_block_time": 1787501122,
+      "funder_sig": "5kbsJMCdZXgSeV9wgpLjuFRoDxSLRWfxgmB9ZQUyhPK3xNe7vqedscxtKEt25rVxyWgGmpgH8UGCNYE8MiJfAwMy",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "Cea1ARnQfq2L2LxKwhCQ1hVdfTvKYnHfnYLxQVe3pump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "5kbsJMCdZXgSeV9wgpLjuFRoDxSLRWfxgmB9ZQUyhPK3xNe7vqedscxtKEt25rVxyWgGmpgH8UGCNYE8MiJfAwMy"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "HnEZjV3g1JB7xv7UwxRV6Hbi747ydkAVB4U8gpF1DiWD",
+      "current_ui_included": true,
+      "funder_block_time": 1786543833,
+      "funder_sig": "4dT5MFGeBVm5Z9VFbLGutyZxBJGBJAnaPzRJrC49Ux1NytcauBYnpuckR4b6jNiX57qn3tJcv9AcCsbB81d5ovU4",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "Cpx4xpSEx9pGnNicLvRprxWusHvpwjP2p3hTM51pump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "4dT5MFGeBVm5Z9VFbLGutyZxBJGBJAnaPzRJrC49Ux1NytcauBYnpuckR4b6jNiX57qn3tJcv9AcCsbB81d5ovU4"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "AQYyELJQDFiGubZsSwSbxLNrxYgFD2kD5RwgnVnpoj3Z",
+      "current_ui_included": true,
+      "funder_block_time": 1787312831,
+      "funder_sig": "ytxNuduB9UsfFA4N34R6jdj28BTVk6z4ATGgoUmA52SFF4tScsdArE2zCMToD8hoN9jJPaoqYZYDptKE3phphQ1",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "D1yb7MCFaFq29a2RfGgQ8KNdb3mzpyVJNmBpKfK2pump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "ytxNuduB9UsfFA4N34R6jdj28BTVk6z4ATGgoUmA52SFF4tScsdArE2zCMToD8hoN9jJPaoqYZYDptKE3phphQ1"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "9G9A74hp66cq9heZt3dtUTuaJ2mPna3mhGGs25rj9kAw",
+      "current_ui_included": true,
+      "funder_block_time": 1787726599,
+      "funder_sig": "JbxVf6tFWsyJKQ6yZzxsjvZ8XNFa4BoVjQwhia6c9sEgLTt1QZoqTQMmqibXwZwuTabkYpT7yKvpe72M3vSBATb",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "D2UVXhxLs6aY5kyWe8VZbsDcsNMDCUz1pu45zXcbpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "JbxVf6tFWsyJKQ6yZzxsjvZ8XNFa4BoVjQwhia6c9sEgLTt1QZoqTQMmqibXwZwuTabkYpT7yKvpe72M3vSBATb"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "3MVXdRf2gAahYumumNqCRmQL1xapUFSqw7ZY4nuAK56j",
+      "current_ui_included": true,
+      "funder_block_time": 1786544960,
+      "funder_sig": "jcLSoVKFpfvcKzvGnEJVF9pnx3sEkFxSc9kpux2oicB52STZzvAu4MXU3cQQn3pEAXDpw77UPZTZJuruqT9QoKb",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "D5uNnpzz3UX3qPwpyu6GAjS7VquUVwQNqqmCLYHTpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "jcLSoVKFpfvcKzvGnEJVF9pnx3sEkFxSc9kpux2oicB52STZzvAu4MXU3cQQn3pEAXDpw77UPZTZJuruqT9QoKb"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "4V9rPaF6poBdoMgczEtG9a9TJUj3FkrhgLLhWeusGQok",
+      "current_ui_included": true,
+      "funder_block_time": 1787578229,
+      "funder_sig": "nt9MU2LTojKzy6B8M5FN5bKsqutXWzFtg5K5vVKSeYyHUhfrwPwMRnkyV6UgLQtYBM4BmL2HEzb5LuzLdrSYVaW",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "D9Y1iWrqMBtbRyZYSCh2h67ZTncu4EUQzFsY2XL8pump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "nt9MU2LTojKzy6B8M5FN5bKsqutXWzFtg5K5vVKSeYyHUhfrwPwMRnkyV6UgLQtYBM4BmL2HEzb5LuzLdrSYVaW"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "515BoMyrL4CaqXUJxMLGALzMHfGQjz3kku4rB38Q8JdT",
+      "current_ui_included": true,
+      "funder_block_time": 1786884938,
+      "funder_sig": "5jvH62LD8rQweSwTVbkUt6XEg634B3zSpVs3mEpXiyv19Dy7zPT3hHjMEt8Csnf4paYbUatGcBHUF3PKfTipEutG",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "DCkpVjmqScBF3A8zoT75cCbgpUPHF4Y2xCL9xDcTpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "5jvH62LD8rQweSwTVbkUt6XEg634B3zSpVs3mEpXiyv19Dy7zPT3hHjMEt8Csnf4paYbUatGcBHUF3PKfTipEutG"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "6HUfTCBn6zHpzHJUjAKArzoBaVG32PXPwyUff1LGzsoN",
+      "current_ui_included": true,
+      "funder_block_time": 1787149901,
+      "funder_sig": "48ctkPi7Fb1hdJ9oRqr5HY5GVbHDoZ68nM1WbvFamcRvYhcbqNRmWGpNGwb6FSdVyoNP9yzzqtgLGYhtQhk1mfeH",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "DCuGvhXueDqPBQfCf23P4np9w6HYjHsv46jzn5hdpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "48ctkPi7Fb1hdJ9oRqr5HY5GVbHDoZ68nM1WbvFamcRvYhcbqNRmWGpNGwb6FSdVyoNP9yzzqtgLGYhtQhk1mfeH"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "4Akqpa8imwrZeAsuTZBix7CqVqYYCsDJcTUyMxrFmvPc",
+      "current_ui_included": true,
+      "funder_block_time": 1787152351,
+      "funder_sig": "3KwinEhe332wBJDbJyVuCZsAj54mdCoWiFJeJbruKCeFQt3SdrpcyAFa2y55GshMeM9mqC6jmezWKwc5nnz8tP6A",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "DLfqN87F8eToqfGjrJbrnXxuAhs7tRv5B2W4qVA7pump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "3KwinEhe332wBJDbJyVuCZsAj54mdCoWiFJeJbruKCeFQt3SdrpcyAFa2y55GshMeM9mqC6jmezWKwc5nnz8tP6A"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "J3yZQYJECzT3PD9BpzQzSM4FKENrDeVSCtmxdFSNThMy",
+      "current_ui_included": true,
+      "funder_block_time": 1787390821,
+      "funder_sig": "4o1BUBYNaGsiowUZoRmhLat41o7GvFmicKakMphxFM9TXfF4Ryj9Ej8bYS7P5f9kHo5EtGjbQqPRCQavCXvLDhw1",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "DSBi4v66mQVDjLahQhYq3GsdCAPtQh6bg8BQLuWrpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "4o1BUBYNaGsiowUZoRmhLat41o7GvFmicKakMphxFM9TXfF4Ryj9Ej8bYS7P5f9kHo5EtGjbQqPRCQavCXvLDhw1"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "7CTNDhG9qkEwiCWpG3d6CQy66WurZ3WtTkxcDFtpNDpE",
+      "current_ui_included": true,
+      "funder_block_time": 1787296605,
+      "funder_sig": "4Uosj1V3yufMib5yuSVtEmWjLBdVrztbSNZiEzrQbDAYHd6x53zLAVnnXKjdi9yxFfVhbWFhGjHWTw6VQpq3NuY5",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "DYC73EsP12U583M626SGRGEJ6hT539MSuqGt83nWpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "4Uosj1V3yufMib5yuSVtEmWjLBdVrztbSNZiEzrQbDAYHd6x53zLAVnnXKjdi9yxFfVhbWFhGjHWTw6VQpq3NuY5"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "CugxmV7YKY7zt389Yvd4xiiYGWfuE6n21zUKx5UKfsHy",
+      "current_ui_included": true,
+      "funder_block_time": 1786807049,
+      "funder_sig": "53qbhrKpgwexdpRzm1gXQK42XPU5Yr4Tc961oNXZWJh3HwXqipw2skkrCdqyCEurqqmBu2zzjjkkS66Ck1625Pew",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "DZJRL4PfPAZNL8cHTL7ejoFpC162kjv44BtsMEDwpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "53qbhrKpgwexdpRzm1gXQK42XPU5Yr4Tc961oNXZWJh3HwXqipw2skkrCdqyCEurqqmBu2zzjjkkS66Ck1625Pew"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "4V9rPaF6poBdoMgczEtG9a9TJUj3FkrhgLLhWeusGQok",
+      "current_ui_included": true,
+      "funder_block_time": 1786879155,
+      "funder_sig": "5k5puzRHDdBqheYNmqN6dj4sE8CextTRNfvRtPbD4U39J18XbjcEMFdKQYNZ1HZx4QvYmvhQDoKjogCgX7ut5wfC",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "DhBr9uG4mE9dxehD24TW37uoVY1eDRPgDD942VVepump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "5k5puzRHDdBqheYNmqN6dj4sE8CextTRNfvRtPbD4U39J18XbjcEMFdKQYNZ1HZx4QvYmvhQDoKjogCgX7ut5wfC"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "2apszvsMyyJxjYkwb2xQYv8dEgxFr46U5CSAMYikHSGS",
+      "current_ui_included": true,
+      "funder_block_time": 1786186560,
+      "funder_sig": "2qZke5Di8TftEhNExq9cuSTKQpyqyUqi1mQqCesxtzjCZH99U3FpP4Ja1nuBG7FvMxhYhZ1LYZBrgvKESj7ZvXyR",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "DkzxJvxwq8rdSUDpk6usD2G6K5fch5EMSJTc2hpfpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "2qZke5Di8TftEhNExq9cuSTKQpyqyUqi1mQqCesxtzjCZH99U3FpP4Ja1nuBG7FvMxhYhZ1LYZBrgvKESj7ZvXyR"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "3F8m5wT8umEvfjwwdKq1YEuR39U1U1tPUj4Kcq6YhBQs",
+      "current_ui_included": true,
+      "funder_block_time": 1787392165,
+      "funder_sig": "RAkGhCaY9e9ByJEVGgs1sUrKatXVwFu3FWNfMgz5NietEzaguWbJYehR1Lig2i4PideCnrnRZWEGKjsFUaoBok3",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "DnjjGyuLVfQFZoQAJv2gNGcAzhyc4CdFaKHMMcWdpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "RAkGhCaY9e9ByJEVGgs1sUrKatXVwFu3FWNfMgz5NietEzaguWbJYehR1Lig2i4PideCnrnRZWEGKjsFUaoBok3"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "5zSUPCnZvEmqafwndBSwrWZrdZAQQBXsBqaGjmiuNLqt",
+      "current_ui_included": true,
+      "funder_block_time": 1787738443,
+      "funder_sig": "Q8DNVQWqq1W5uvza8sNEiuo76CEVmoXmXzgCUR57Yn4G1DW2oWskvpooe9VeUFeUZwQD3U4sdukR38tAy2rLiK3",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "DtwkHVJK2pqPng3kDvykGCHJvWpRys6rUXRKKbQnpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "Q8DNVQWqq1W5uvza8sNEiuo76CEVmoXmXzgCUR57Yn4G1DW2oWskvpooe9VeUFeUZwQD3U4sdukR38tAy2rLiK3"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "6PJncLcfXcjzCEmCdRMmxqaKDDdc5t12iga1ckqrGg7P",
+      "current_ui_included": true,
+      "funder_block_time": 1787298132,
+      "funder_sig": "2Vw7YvsD7DTyRera66eRm1oc95LsMi7fhnsAEDqhWNaY7YwawrZ9ux4AnRdffePdKaEdNW6apD9AJnaBPq2rLSuN",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "DuBvNAiYxP3xHUJ4ovZaVt9XNKNhAehzrJb4Tjpppump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "2Vw7YvsD7DTyRera66eRm1oc95LsMi7fhnsAEDqhWNaY7YwawrZ9ux4AnRdffePdKaEdNW6apD9AJnaBPq2rLSuN"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "7CTNDhG9qkEwiCWpG3d6CQy66WurZ3WtTkxcDFtpNDpE",
+      "current_ui_included": true,
+      "funder_block_time": 1787926438,
+      "funder_sig": "3v24aNNZQpCbSdcU3pKVE4ELMvT45zFdayEerLUDTSBzauLXKVTv8tob1rdqsNnSMwgsBJvJCzF97ZXuYyN6UXtV",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "DuJcUZ22wBLPBVUH5M5T8QrPfeir7A9sUbzwnK8Gpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "3v24aNNZQpCbSdcU3pKVE4ELMvT45zFdayEerLUDTSBzauLXKVTv8tob1rdqsNnSMwgsBJvJCzF97ZXuYyN6UXtV"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "26MEpv6dtUkJDyiTnCVGuH12QTR7bkoGi64T1Aaz2qzr",
+      "current_ui_included": true,
+      "funder_block_time": 1788016637,
+      "funder_sig": "4ijAEPcmR7Wzk8XvvHkkL7YKoS3XUZCUEZRsWLzoFikT1p5dqodZTYiS6CeSux7bdP54VYMCBigaiV3BehDh2nvB",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "DyfGK1hobTQjhp6CpSUTTznzQuq649xFoMTnygBapump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "4ijAEPcmR7Wzk8XvvHkkL7YKoS3XUZCUEZRsWLzoFikT1p5dqodZTYiS6CeSux7bdP54VYMCBigaiV3BehDh2nvB"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "33mpJDnkt5cQyF4teZijP69SHkcV9M54MLDk8FnXtD8J",
+      "current_ui_included": true,
+      "funder_block_time": 1786955612,
+      "funder_sig": "3WYvax9xi2Xs7TbJZkRbdLR4Bn8wMbzfeztjJh4dHwZDQteAoxSkXAADKx61BDtKzsi3jX8bKekoiuZ2AosJr5C4",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "E3uCWNm5Ykq7CiPqyZLUezZNDjcHSSd7YyZ45vBRpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "3WYvax9xi2Xs7TbJZkRbdLR4Bn8wMbzfeztjJh4dHwZDQteAoxSkXAADKx61BDtKzsi3jX8bKekoiuZ2AosJr5C4"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "8XbfH3fHK7dNw1p9woMBcHJM3D1PDS9De852ugLkdE4e",
+      "current_ui_included": true,
+      "funder_block_time": 1787346718,
+      "funder_sig": "DypXF4ZaiGvFaiXqj5r5JNN8G4L2u416M39ej5MTUAS6Ls9bZSvDrNbTcdptzMvwsJtKVqBPrDGuYeM7aaNduDn",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "E8cqgjpEfM3iuArpVpXyPjTQwfgfB4vkJo5oH33zpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "DypXF4ZaiGvFaiXqj5r5JNN8G4L2u416M39ej5MTUAS6Ls9bZSvDrNbTcdptzMvwsJtKVqBPrDGuYeM7aaNduDn"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "BuxKVxRNrfUXXgkM96Cajn67ZcpkRGczp3BQBaWbJJPF",
+      "current_ui_included": true,
+      "funder_block_time": 1788159489,
+      "funder_sig": "36pCJPBibBNER3tF5b4tJ4WgEqnSwLQ7Zte4vrfWaYpvr9oYcsPgcqNTKmjAE5rBENcXhvXafTQh2o1U2cFdA872",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "EBK2daxNw6rHfirCyemmvzpDcotvp8wH4fYZqwsVpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "36pCJPBibBNER3tF5b4tJ4WgEqnSwLQ7Zte4vrfWaYpvr9oYcsPgcqNTKmjAE5rBENcXhvXafTQh2o1U2cFdA872"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "BuxKVxRNrfUXXgkM96Cajn67ZcpkRGczp3BQBaWbJJPF",
+      "current_ui_included": true,
+      "funder_block_time": 1787592988,
+      "funder_sig": "2Qy7P16yzhJu2T3nUPAPxi3ACun2gkE7Gcb49QRGm3YHkL9wT1Jpxe6MjLtAvndtNPFLhZ2yfb71uCXgFzFqWGsJ",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "EgEF7Ni6q3bjCoywd4Rsumyt6eeXJDHb1PHjR9Pgpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "2Qy7P16yzhJu2T3nUPAPxi3ACun2gkE7Gcb49QRGm3YHkL9wT1Jpxe6MjLtAvndtNPFLhZ2yfb71uCXgFzFqWGsJ"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "DzT1xMn6Eoc6VAbbmJe3qKys5WJrkDHwkPAejLd2C14z",
+      "current_ui_included": true,
+      "funder_block_time": 1787402963,
+      "funder_sig": "5A7riZqANbHT3gH4LR2sgyu4M8LrZ4ksGZkAckBeYuVDvwvNCS7KonoQpzwHtZArDKj3oM2zQUuTW87DUYGbaZjP",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "EiBfdoq7yaDaL28JaJ3QQWoNe3EWaE2TtvPjRa1Tpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "5A7riZqANbHT3gH4LR2sgyu4M8LrZ4ksGZkAckBeYuVDvwvNCS7KonoQpzwHtZArDKj3oM2zQUuTW87DUYGbaZjP"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "8XrSxN92F98HyWFmJD7ZeyFf8MaHAJxGeWsRnNLjrLU2",
+      "current_ui_included": true,
+      "funder_block_time": 1787686833,
+      "funder_sig": "5erceChZbMLJHK9jGzajJBAfQv18UQFusbKJ3QSnj12kz5CDt7vEP5xjDDV26pLpyXcEsj6oHuZHFhdMZ4HJd4ms",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "En9sQtnHpByLEE7ykhFQ25PirV54rYegEJCjBV87pump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "5erceChZbMLJHK9jGzajJBAfQv18UQFusbKJ3QSnj12kz5CDt7vEP5xjDDV26pLpyXcEsj6oHuZHFhdMZ4HJd4ms"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "3F8m5wT8umEvfjwwdKq1YEuR39U1U1tPUj4Kcq6YhBQs",
+      "current_ui_included": true,
+      "funder_block_time": 1787724831,
+      "funder_sig": "3YzScg115FxnSUMqVJrVPNYQAEmwK6rvgdmkMRn69nNqA3QFBHLYMzmmTEC5krSaCrNiTrtPyTjJYgC9GSgyhNvv",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "F41p9Ar8kRQbGUmYzXkFpEwhkFHgbZDGokm7bQ1Xpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "3YzScg115FxnSUMqVJrVPNYQAEmwK6rvgdmkMRn69nNqA3QFBHLYMzmmTEC5krSaCrNiTrtPyTjJYgC9GSgyhNvv"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "BuxKVxRNrfUXXgkM96Cajn67ZcpkRGczp3BQBaWbJJPF",
+      "current_ui_included": true,
+      "funder_block_time": 1786810936,
+      "funder_sig": "47R5hiiFbAS2U2behMN8MazDTNkSq3mEhxC49nnY1E2ZJtrXnSC9kqGYbqETMz9QW1THHpK5xotZqA6aN2A2dSeF",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "F44x336AH1Gp58mPurxbnDFNVuTYEeK6RBJtLTwgpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "47R5hiiFbAS2U2behMN8MazDTNkSq3mEhxC49nnY1E2ZJtrXnSC9kqGYbqETMz9QW1THHpK5xotZqA6aN2A2dSeF"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "CugxmV7YKY7zt389Yvd4xiiYGWfuE6n21zUKx5UKfsHy",
+      "current_ui_included": true,
+      "funder_block_time": 1786187315,
+      "funder_sig": "3EqQcmAkdSVZxv8ZyVAzpKvWkKGtwwYqAFUQ4K8Yu2QbczR8CNEF5aZCs8Nn7AeBSe5oibqA7FBWyBBSMeQDLJUi",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "F9BDTb6rWPZyBKpuvniEYWtox33jsMdYTPNgpRtDpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "3EqQcmAkdSVZxv8ZyVAzpKvWkKGtwwYqAFUQ4K8Yu2QbczR8CNEF5aZCs8Nn7AeBSe5oibqA7FBWyBBSMeQDLJUi"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "8XbfH3fHK7dNw1p9woMBcHJM3D1PDS9De852ugLkdE4e",
+      "current_ui_included": true,
+      "funder_block_time": 1786189014,
+      "funder_sig": "2GGkWoiVBPo1y5jEPwDfYUWTfkHjSegY9YaaTMzDJpMmSBAazGXXggDeeb6jaftvkX6R2E6x2Szsm3M55RRFd9LQ",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "FWhgjF6YMjfiHN3Wcv6PfPiX7PrRZfeWoDiRuDDUpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "2GGkWoiVBPo1y5jEPwDfYUWTfkHjSegY9YaaTMzDJpMmSBAazGXXggDeeb6jaftvkX6R2E6x2Szsm3M55RRFd9LQ"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "AfZBva22bAcjZv6wowVcJJsj9aNcf39qjp7576SERMLr",
+      "current_ui_included": true,
+      "funder_block_time": 1787557620,
+      "funder_sig": "556Z1nGgwsiGF9HZn8MT1DaMi3viybdtmqAuxto3nPbhh4Y5EraXRZCZMW8cyg1imd9PaSagLbKpBiNn9W1riTp9",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "FcU4YYWZAy4CzKZPBtG12PmJBM1K4uQqv8srabHEpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "556Z1nGgwsiGF9HZn8MT1DaMi3viybdtmqAuxto3nPbhh4Y5EraXRZCZMW8cyg1imd9PaSagLbKpBiNn9W1riTp9"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "26MEpv6dtUkJDyiTnCVGuH12QTR7bkoGi64T1Aaz2qzr",
+      "current_ui_included": true,
+      "funder_block_time": 1788016637,
+      "funder_sig": "4ijAEPcmR7Wzk8XvvHkkL7YKoS3XUZCUEZRsWLzoFikT1p5dqodZTYiS6CeSux7bdP54VYMCBigaiV3BehDh2nvB",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "FkM6ZxDkpW2dAtt8QfiPsFG1aRtdgk6HPzrADzzEpump",
+      "selected_edge": null,
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "HfBJnWC6AEDeqyK8Jp5DNmuD5jsM6cjeKQzEY3ajMifn",
+      "current_ui_included": true,
+      "funder_block_time": 1786689679,
+      "funder_sig": "5zh2vs9FrJ8Q7Eb2R86zXakSQJNfBSbuV78onER6ckfnNbNzpQmC3oF9rwtieJsCoq3HARPqdiLf4dYL8WKNWuNX",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "FnXa8yo4UZL7gZvCD15PfekxymSxKRJPNikRwHTgpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "5zh2vs9FrJ8Q7Eb2R86zXakSQJNfBSbuV78onER6ckfnNbNzpQmC3oF9rwtieJsCoq3HARPqdiLf4dYL8WKNWuNX"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "BVKwFxtR8TiBnxsRx3t5CMKu9Jd94xP1C7BoUqQv3EsJ",
+      "current_ui_included": true,
+      "funder_block_time": 1787487801,
+      "funder_sig": "5kv4pC7BcxLpsYPejbPui8pPYP2MKWt5nhDUZnsoesee3p4RhqSXwHi7GtB4ByWBoL9Jq8ne9PCB2RApsXQkkvUn",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "G36HqqU3C9uDswj839apMc65fZkj5R82Stu3XRCApump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "5kv4pC7BcxLpsYPejbPui8pPYP2MKWt5nhDUZnsoesee3p4RhqSXwHi7GtB4ByWBoL9Jq8ne9PCB2RApsXQkkvUn"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "2apszvsMyyJxjYkwb2xQYv8dEgxFr46U5CSAMYikHSGS",
+      "current_ui_included": true,
+      "funder_block_time": 1786889763,
+      "funder_sig": "y77oKxJ2DG5uZf23d7u9fFzidwThCN6tBRpv8bYTzsBFsKG9c2yqsGk4YS3gcqp1dwiF46KYZcygaYLGcyxeuhq",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "G8fPzYYkpUSoXyaihxP5UUTzQ9CaPzQkLofMoXPNpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "y77oKxJ2DG5uZf23d7u9fFzidwThCN6tBRpv8bYTzsBFsKG9c2yqsGk4YS3gcqp1dwiF46KYZcygaYLGcyxeuhq"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "FcrfAXfcXFqCBfNuqMXg75C3y4SRAoTi6SjoPS4McfKF",
+      "current_ui_included": true,
+      "funder_block_time": 1787862542,
+      "funder_sig": "4KzAr8z5gYiSZeFHSCeL4oz4zXz3yQEJkBxAMtG2HGq9ctvZUyMC7SQAwaDZiSEgxmGxvB9e7Ck3BDCFGt7AyCd7",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "GAh1kGbMpfnfEWFMDH4j9tc2nsyeFoGUe7pizrw9pump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "4KzAr8z5gYiSZeFHSCeL4oz4zXz3yQEJkBxAMtG2HGq9ctvZUyMC7SQAwaDZiSEgxmGxvB9e7Ck3BDCFGt7AyCd7"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "HCBQjnixpBcqBz8jr3kJqgWPJA517w5gz6XxA53H13DY",
+      "current_ui_included": true,
+      "funder_block_time": 1787483393,
+      "funder_sig": "5LMw29NLsTs5XHtnBZYodkPNEHgyLD8wb7uNEvJiuJGowNL461vWbtjQNMFbxnJnhrVRkJk3iwDi6pU3EXRugMHy",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "GMnMLBmet424A6FtVoLfhc8HN7Ziv8F2VPdRqxABpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "5LMw29NLsTs5XHtnBZYodkPNEHgyLD8wb7uNEvJiuJGowNL461vWbtjQNMFbxnJnhrVRkJk3iwDi6pU3EXRugMHy"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "7ejoyL1FmREqijuBmUF9AkhgSAU3tSVNfMMoMF6drp5E",
+      "current_ui_included": true,
+      "funder_block_time": 1787398091,
+      "funder_sig": "3zvTCDfYX21P6p3KgCukVJq4hyPquPkBUy8s6zybCXdRQdDUP58xiTxiiQWVDoHXDAjpRWxKfANjsAxvffuFPPRh",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "GNYZqt9h2ZW7Y9JDtrfQC397ujTAv8ULgtTqXhhgpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "3zvTCDfYX21P6p3KgCukVJq4hyPquPkBUy8s6zybCXdRQdDUP58xiTxiiQWVDoHXDAjpRWxKfANjsAxvffuFPPRh"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "JDyCGoUmX8cDdMUi41mR3gUqPEwRzpWgLzerbybYNotZ",
+      "current_ui_included": true,
+      "funder_block_time": 1787400421,
+      "funder_sig": "3wFk4pL6YJ79um7r2eD8tok6LP5BvQHrE1ZZWdR3DgUkyLbGEm7kjAjeyY8fR4yEkPkDoVfBGzoipDyGRP6Ck4t8",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "GRzA6upWecidqUTqvNHUw3wvU57f67NksSKjQmYNpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "3wFk4pL6YJ79um7r2eD8tok6LP5BvQHrE1ZZWdR3DgUkyLbGEm7kjAjeyY8fR4yEkPkDoVfBGzoipDyGRP6Ck4t8"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "46bFhL2ZxppLTyUtPDdkdcUDhnpxb3ht52PCbcb4VzvK",
+      "current_ui_included": true,
+      "funder_block_time": 1786961433,
+      "funder_sig": "ThhfDaDrRHcsngZ5srPtaW3fBCZjMxMuv5cU4J5UPzNfdnUYmVwzepf6yDaLCMaS1kuCzT2kYvXd38ZUMUG5QuU",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "GSokbJVA1P9tAPffqpiTN7b4XnEh8mNKQQ4cBkNNpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "ThhfDaDrRHcsngZ5srPtaW3fBCZjMxMuv5cU4J5UPzNfdnUYmVwzepf6yDaLCMaS1kuCzT2kYvXd38ZUMUG5QuU"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "7RBc6dowD2LCkRqpeJFWwcZCcnwppoLdpyuUhEyyQZBg",
+      "current_ui_included": true,
+      "funder_block_time": 1786698475,
+      "funder_sig": "3ydTJ1XjpdCPhcD9DjujGLnEVEkuivEsVrvbwVnotpsncXCgQLiShkyaMKEHkQAPAFNCB6c8dWBXsZsHqewvhTfp",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "H9gmHWRWmPWJBUKDoRsaqmohLjtKG9bnwZVnbCkpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "3ydTJ1XjpdCPhcD9DjujGLnEVEkuivEsVrvbwVnotpsncXCgQLiShkyaMKEHkQAPAFNCB6c8dWBXsZsHqewvhTfp"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "2rMLD1Vh5JiRtGxF68Y6wQXPbEdE851gtGjcXsuTycm7",
+      "current_ui_included": true,
+      "funder_block_time": 1787398866,
+      "funder_sig": "34re3n7mrt79LCRRbcbq7awKkeWGWaUz64oWWTmZAMsk8pZ9Pjc5Dr9UwX9q4WmvmLp5aXP1oqCS7gzNKTTx7tpF",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "HFK4THn9RTapetqJfmqNsyMeKXk4QWBVWz7aF8Mhpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "34re3n7mrt79LCRRbcbq7awKkeWGWaUz64oWWTmZAMsk8pZ9Pjc5Dr9UwX9q4WmvmLp5aXP1oqCS7gzNKTTx7tpF"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "HnEZjV3g1JB7xv7UwxRV6Hbi747ydkAVB4U8gpF1DiWD",
+      "current_ui_included": true,
+      "funder_block_time": 1787655610,
+      "funder_sig": "4nibXEYFPtSDznQvtsNnAyJJDXvbQnhDd1CumLYYpabZwPCCoNyVZ8GXizJGjVv82fGQg2uBs9Zay4ebmH9tVPwg",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "HXk8YdpbLSrn2G9vewr5YmUTF152gUTSdT7JX32zpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "4nibXEYFPtSDznQvtsNnAyJJDXvbQnhDd1CumLYYpabZwPCCoNyVZ8GXizJGjVv82fGQg2uBs9Zay4ebmH9tVPwg"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "2apszvsMyyJxjYkwb2xQYv8dEgxFr46U5CSAMYikHSGS",
+      "current_ui_included": true,
+      "funder_block_time": 1787999829,
+      "funder_sig": "5BvqRmt9ZtAWCW43aHFbQBRvm1wus1Q4FJEweEy7vX2Acpycbhz74DYCKPgqGvTTE66iPVRFak9hLcQq3TxP4nJg",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "HZP4kShA6AeiaKhUVjBaZtNphMQFd463H96X81wGpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "5BvqRmt9ZtAWCW43aHFbQBRvm1wus1Q4FJEweEy7vX2Acpycbhz74DYCKPgqGvTTE66iPVRFak9hLcQq3TxP4nJg"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "BSRVNXtJCheRxG1DVhh9H86w7qfCcB1bySJ8hj6voebp",
+      "current_ui_included": true,
+      "funder_block_time": 1787858083,
+      "funder_sig": "3xPmtogZ1cnLr3Q7wQ391Ms5XEBUdGgEBXYKhaFJoCSi86pjTmoSJMYrNaBbiekp3iGxSBLievWza5PmtKuxk26X",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "He3hE11JoFVRnUESc7U1B4aspNtcDc6L2WDiTJZepump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "3xPmtogZ1cnLr3Q7wQ391Ms5XEBUdGgEBXYKhaFJoCSi86pjTmoSJMYrNaBbiekp3iGxSBLievWza5PmtKuxk26X"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "Ep3Y9xHaRn8t6B3X6W1o2cztnkMFv5VypwPwDq4rdJX6",
+      "current_ui_included": true,
+      "funder_block_time": 1787899553,
+      "funder_sig": "qJn6Fn91D3S7WkRV6e7qu7a8UtvaheXycgWe1TjiSLkSPyeEUsfHsFDFXNST85qnJ3j4QpAyJrURkpckoPPTvdz",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "HfaEr6jyk7yRC3kj6tvLgoHrZxsVCbMpvtwCpPYVpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "qJn6Fn91D3S7WkRV6e7qu7a8UtvaheXycgWe1TjiSLkSPyeEUsfHsFDFXNST85qnJ3j4QpAyJrURkpckoPPTvdz"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "DzT1xMn6Eoc6VAbbmJe3qKys5WJrkDHwkPAejLd2C14z",
+      "current_ui_included": true,
+      "funder_block_time": 1786196058,
+      "funder_sig": "2o6ouPoPXxodRMiX5bD7cFb81GphxaBA7jYKjn48i1nuvgg9LXRdDohprJoUPcNXxfYNyZvV9DekXj2L6fnUC8sq",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "Hm6jGFsB7DiL5Uv2SjaKsN1GMqGxscAcWRcz6UJqpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "2o6ouPoPXxodRMiX5bD7cFb81GphxaBA7jYKjn48i1nuvgg9LXRdDohprJoUPcNXxfYNyZvV9DekXj2L6fnUC8sq"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "3MVXdRf2gAahYumumNqCRmQL1xapUFSqw7ZY4nuAK56j",
+      "current_ui_included": true,
+      "funder_block_time": 1787582777,
+      "funder_sig": "5QfFSoi3bJV7UqToMsGhGLT76ikCzswumg46UWaczraofBjcTV6dwR5GRMvGuoZ86nxZXh1XSmqeVgiNEFNJmxhp",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "HnftgdJEXnLNoVUnstqjxGeNwgnAjT1TJoa2hTenpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "5QfFSoi3bJV7UqToMsGhGLT76ikCzswumg46UWaczraofBjcTV6dwR5GRMvGuoZ86nxZXh1XSmqeVgiNEFNJmxhp"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "EiwpFhN3LmoSTEbygYnpweUJDaHNfXX3Uho2PGRVPmr3",
+      "current_ui_included": true,
+      "funder_block_time": 1786980426,
+      "funder_sig": "3qN6iVvREdWBUBs5T2M6yLFQ4AJve8N8YSHgvdwzPteUxFHd6J4QwYzXJXrpvRHB5fjq4CaCxAaew6nMhvu1byEi",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "J59LUFm5eG6ABGFmiDsqXS8ANrRMtgigeB5Bpvnkpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "3qN6iVvREdWBUBs5T2M6yLFQ4AJve8N8YSHgvdwzPteUxFHd6J4QwYzXJXrpvRHB5fjq4CaCxAaew6nMhvu1byEi"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "8XrSxN92F98HyWFmJD7ZeyFf8MaHAJxGeWsRnNLjrLU2",
+      "current_ui_included": true,
+      "funder_block_time": 1788104860,
+      "funder_sig": "M19UrScet5b6omdqtdXXacQqK1Z1fNmrPyqU78fwYrqdS3a99iHttfFNFC6u3dkHbXFG4RfeHqyJdK8Ba211Az2",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "J7FpJHX682txbKcGHXLGZVn8kGChCTS5Yo6Soptnpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "M19UrScet5b6omdqtdXXacQqK1Z1fNmrPyqU78fwYrqdS3a99iHttfFNFC6u3dkHbXFG4RfeHqyJdK8Ba211Az2"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "62JTugo7hbRktrJpsxK8ppp9DPYymjUwDpKzbKn5L9T9",
+      "current_ui_included": true,
+      "funder_block_time": 1787933921,
+      "funder_sig": "5UtNEft3TU5WQtYQQcNXo2pFUPiTUWLEsMbKNv5XL95K67PLz4qUgxTHKki4q3bwcJwXQyAY3yygmwNCJgJS4ffq",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "J9yAET3prH1vEsTndjUx8tuRqdx6obWgViRVsGMCpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "5UtNEft3TU5WQtYQQcNXo2pFUPiTUWLEsMbKNv5XL95K67PLz4qUgxTHKki4q3bwcJwXQyAY3yygmwNCJgJS4ffq"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "DzT1xMn6Eoc6VAbbmJe3qKys5WJrkDHwkPAejLd2C14z",
+      "current_ui_included": true,
+      "funder_block_time": 1787996018,
+      "funder_sig": "5Z7B3uVunR7iFeNdJb2LhXSF2hZG7SGSDxCR4MGf1fKBHzrrMR5pFzxGWwNsqzETUdkfn3g7CPvCrpatXy8bYwmU",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "JBVUw7mQvD3rFcZVBaeXTwNBmz9m7YMDxaYfT7Tkpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "5Z7B3uVunR7iFeNdJb2LhXSF2hZG7SGSDxCR4MGf1fKBHzrrMR5pFzxGWwNsqzETUdkfn3g7CPvCrpatXy8bYwmU"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "HnEZjV3g1JB7xv7UwxRV6Hbi747ydkAVB4U8gpF1DiWD",
+      "current_ui_included": true,
+      "funder_block_time": 1788009143,
+      "funder_sig": "4W9grpeQeJkZx3ZGD3wHwtDmyWgJgYNxGwMy7EjtZXpKt7Ag963xWhiXWqbJYzMFTJQF71WjpnhArnTno6HTZoHJ",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "JF6uGCFNhmu3yuSZVZnA4fJysbjNLjcxWckapFkpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "4W9grpeQeJkZx3ZGD3wHwtDmyWgJgYNxGwMy7EjtZXpKt7Ag963xWhiXWqbJYzMFTJQF71WjpnhArnTno6HTZoHJ"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "H5A9SWZo6LfZ8byxUPjPFMZTVLeAL1fXu8kEtF9VBfUK",
+      "current_ui_included": true,
+      "funder_block_time": 1787301627,
+      "funder_sig": "3shczXBfLH6Y4ntpyfKDCFJu7R4Aid2Th8dMExqZMEdSGt5XYHuoCzFsLJWaLeELTCNjsUubQ7m6AKSSrmpypmU4",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "LkGunuxTBzHKbX5b4nj6mhbAKP3qPjFgHaDotN7pump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "3shczXBfLH6Y4ntpyfKDCFJu7R4Aid2Th8dMExqZMEdSGt5XYHuoCzFsLJWaLeELTCNjsUubQ7m6AKSSrmpypmU4"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "FjNePRYiEbaWWaFuMXFqeGsGWtn5fpndNVy2i2Y69cQ9",
+      "current_ui_included": true,
+      "funder_block_time": 1787653614,
+      "funder_sig": "2AYrdwXPMiB74aEQS2fj7V3k9KXeVxqEbJ6vEUb6NwxgpRQ4WpqiNMtz7qd7iorG3Zo5n9ZDEyE1xRx1hjvfjp4v",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "TGhykTFggPdDSkmLaCCKZSn61FeShyVNSFM36vepump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "2AYrdwXPMiB74aEQS2fj7V3k9KXeVxqEbJ6vEUb6NwxgpRQ4WpqiNMtz7qd7iorG3Zo5n9ZDEyE1xRx1hjvfjp4v"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "AMGHRLLGCBi5XKygAuRxwQ9hjpdeqcYz3pPskHvCAiFV",
+      "current_ui_included": true,
+      "funder_block_time": 1787652751,
+      "funder_sig": "2LLJJz7Gd9e1dM7eAJ87b3E3uK5CKurLJEhc4bbUZuD72nChwZscUsdYJsFSEGPnAoEpriuRJkHGN7aahac8j2Wk",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "V6hhzCkoBqaiw5E8bdKoaMo7VrS1f29tGBn7LC1pump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "2LLJJz7Gd9e1dM7eAJ87b3E3uK5CKurLJEhc4bbUZuD72nChwZscUsdYJsFSEGPnAoEpriuRJkHGN7aahac8j2Wk"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "3F8m5wT8umEvfjwwdKq1YEuR39U1U1tPUj4Kcq6YhBQs",
+      "current_ui_included": true,
+      "funder_block_time": 1785859861,
+      "funder_sig": "2k77abYECaSxfyDVT7Q3mDYZz8xSvSAAHuTJrbRd2JPoFNmcxQhExYav2213zNMkWQxnJAf9ohV2eozR5k4L1c2K",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "b6gX6q4MGGpE6eGHdHkrKbasjavzsPThi246hexpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "2k77abYECaSxfyDVT7Q3mDYZz8xSvSAAHuTJrbRd2JPoFNmcxQhExYav2213zNMkWQxnJAf9ohV2eozR5k4L1c2K"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "HADJKqJN9xWAnNAm45KFCKXaNdixxcSHJnd1GegooY9Q",
+      "current_ui_included": true,
+      "funder_block_time": 1786605534,
+      "funder_sig": "3ui3j931avugo1L637dFvUwvBVZXhG5tEETUAy2mm8HyzfSSqK4ABKpQXn56SkBwnqH4MCf9RyRMjgBgcrQH83M2",
+      "funder_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "mint": "fy9W7kCAWDBehUFzaCyUQiRD8g3K6LiNaaJf4mRpump",
+      "selected_edge": {
+        "candidate_parent": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "signature": "3ui3j931avugo1L637dFvUwvBVZXhG5tEETUAy2mm8HyzfSSqK4ABKpQXn56SkBwnqH4MCf9RyRMjgBgcrQH83M2"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "9G9A74hp66cq9heZt3dtUTuaJ2mPna3mhGGs25rj9kAw",
+      "current_ui_included": true,
+      "funder_block_time": 1788014606,
+      "funder_sig": "4tLqNkuL4Nxd5DwBhRasX8CJRBN2e3B2eRk8Dfd1pXi2jAKoTM1JfqRqf9yrMHFjaeWuLrx1HbdVTtSjic2ebpDm",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "kDhik8Hd1sVkSH3kNyksxbKkK9ueSKXLj2GSN2Tpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "4tLqNkuL4Nxd5DwBhRasX8CJRBN2e3B2eRk8Dfd1pXi2jAKoTM1JfqRqf9yrMHFjaeWuLrx1HbdVTtSjic2ebpDm"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    },
+    {
+      "creator": "CugxmV7YKY7zt389Yvd4xiiYGWfuE6n21zUKx5UKfsHy",
+      "current_ui_included": true,
+      "funder_block_time": 1787499580,
+      "funder_sig": "3dC6yQKy34NW4CiS46AfWSojXcBoxo6grLtXve8WvdZyWqWRVskN5AEGVjfBuVum5PVDfpH1a2Xi8MH6Bv4MWWzd",
+      "funder_wallet": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "funding_mechanism": "PLAIN_XFER",
+      "mint": "yJffhBfxNAawPtnD9DvVmvFPi1rPTK6Mh9pkyUPpump",
+      "selected_edge": {
+        "candidate_parent": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "signature": "3dC6yQKy34NW4CiS46AfWSojXcBoxo6grLtXve8WvdZyWqWRVskN5AEGVjfBuVum5PVDfpH1a2Xi8MH6Bv4MWWzd"
+      },
+      "source_provenance": "wt_walkback_queue.subprov/status complete",
+      "status": "complete",
+      "subprov": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
+    }
+  ],
+  "purpose": "Byzantine surfaced-cohort compatibility freeze",
+  "query_path": "operator_reader._byzantine_infrastructure_activity -> wt_walkback_queue WHERE subprov=ByZc7...HTY AND status=complete",
+  "raw_row_total": 182,
+  "schema_version": "v1",
+  "semantic_warning": "subprov is preserved as WATCHTOWER-derived compatibility telemetry and is not asserted here as generic Byzantine membership or funding proof",
+  "sorted_mint_membership_digest": "b9c88cab4b1d7a90deea64b7d03736cce14b1571a5a797eeb807f26867b055e1",
+  "source_db": "database/wt_ops_v2.db",
+  "unique_mint_total": 182
+}

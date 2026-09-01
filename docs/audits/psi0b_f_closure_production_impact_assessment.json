@@ -1,0 +1,101 @@
+{
+  "schema_version": "psi0b-f.closure-impact.v1",
+  "assessed_at_utc": "2026-08-15T14:04:47Z",
+  "engineering_commit": "9bbc4c077ecb189952c900539c8a8d0031b59269",
+  "authorization_id": "psi0b-shadow-auth-20260815-13",
+  "authorization_digest": "23b75cf41e96fe72198a8fa392e94f041912873baf86bd1d334b821a6108378a",
+  "authorization_consumed": true,
+  "authorization_reusable": false,
+  "bound_artifacts": {
+    "attempt": {
+      "path": "docs/audits/psi0b_e_13_production_shadow_attempt.json",
+      "sha256": "8ea47cc877cfef8de300bc52d0f83b44f9db4f7b7341424ba793395a93018625"
+    },
+    "observer_terminal_digest": "71e84e3a0feaab1eb42bea43ed53da87d1c0d638dd56b6fc9af67ed1c4886a01",
+    "observer_ledger_sha256": "24f3eaa70548da672e7ae3bdf44f611ea5436a9949c323136397ee7015d0f645",
+    "consumption_sha256": "4eda5e82bbcdb60450555d48e0fc434f395c3ec369ccbdf7996a2604ce9d2427"
+  },
+  "attempt_closure": {
+    "preflight_replay": "PASS",
+    "prestart_checkpoints_passed": 3,
+    "completed_queries": [
+      "creator_selected_cohort"
+    ],
+    "completed_query_accounting_retained": false,
+    "completed_query_rows_published": false,
+    "completed_query_cleanup": {
+      "progress_handler_removed": true,
+      "read_transaction_rolled_back": true,
+      "connection_closed": true,
+      "basis": "The next template active-health callback is reachable only after the prior query's nested finally cleanup and resource probe complete."
+    },
+    "not_started_queries": [
+      "evidence_launch_facts",
+      "main_selected_cohort",
+      "ops_selected_cohort",
+      "snapshot_selected_cohort"
+    ],
+    "stop_query_boundary": "before_evidence_launch_facts_source_open",
+    "stop_reason": "PSI0B_E9_AUTHORITATIVE_WRITE_LEASE_PRESENT",
+    "output_directory_absent": true,
+    "partial_bundle_published": false,
+    "temporary_or_abort_output_retained": false,
+    "production_writes_or_ddl": 0,
+    "provider_rpc_calls": 0,
+    "service_actions": 0
+  },
+  "lease_classification": {
+    "checkpoint_4_absent_at_epoch": 1786802041.1216729,
+    "checkpoint_5_present_at_epoch": 1786802041.255185,
+    "maximum_observed_transition_interval_ms": 133.512,
+    "owning_database": "UNRESOLVED_NOT_RETAINED",
+    "owning_process": "UNRESOLVED_NOT_RETAINED",
+    "owning_task_or_transaction": "UNRESOLVED_NOT_RETAINED",
+    "authoritative_owner_payload_retained": false,
+    "classification": "LEGITIMATE_TRANSIENT_WRITE_ACTIVITY_NO_RETAINED_LONG_HOLD_EVIDENCE",
+    "basis": [
+      "The authoritative owner was absent at the immediately preceding active checkpoint and present 133.512 ms later.",
+      "Both database/WAL classifications, all service identities, feeds, serializer queue and listener descriptor gates remained healthy at the stop.",
+      "The authoritative owner sidecars and physical lock descriptors are absent at closure assessment.",
+      "No serializer lock error, queue growth, PID change, critical listener descriptor event or feed degradation corroborates contention or retained ownership."
+    ]
+  },
+  "current_recovery": {
+    "watchtower_listener_pid": 72232,
+    "walkback_worker_pid": 70136,
+    "ws_cascade_pid": 5461,
+    "pids_stable": true,
+    "listener_primary_fd_count": 0,
+    "critical_listener_db_handle_events_since_attempt": 0,
+    "serializer_snapshot_epoch": 1786802612,
+    "serializer_p99_wait_ms": 28.91,
+    "serializer_queue_depth": 0,
+    "serializer_lock_errors_24h": 0,
+    "authoritative_owner_sidecars_present": false,
+    "physical_lock_file_descriptors_observed": 0,
+    "database_wal_metadata_healthy": true,
+    "pumpportal_healthy": true,
+    "pumpswap_healthy": true,
+    "ingestion_and_workers_healthy": true,
+    "evidence_writer": "STOPPED",
+    "production_flags_changed": false
+  },
+  "production_impact": {
+    "observed": false,
+    "details": "The shadow reader stopped before its second source open. Production services, feeds, serializer, descriptors and database/WAL activity remained healthy and recovered without intervention."
+  },
+  "verdict": "PSI0B_E13_CLOSED_SAFE_FAILED_ATTEMPT_NO_PUBLICATION_NO_PRODUCTION_IMPACT",
+  "programme_status": "PSI0B_SHADOW_EXTRACTION_NOT_COMPLETE",
+  "next_action": {
+    "fresh_psi0b_e_attempt_may_be_separately_proposed": true,
+    "requires_new_authorization_id": true,
+    "requires_new_empty_consumption_directory": true,
+    "requires_new_empty_observer_directory": true,
+    "requires_still_absent_output_directory": true,
+    "requires_three_fresh_prestart_checkpoints": true,
+    "reuse_of_any_prior_authorization_permitted": false,
+    "grants_extraction_authority": false,
+    "grants_integration_authority": false,
+    "grants_activation_authority": false
+  }
+}

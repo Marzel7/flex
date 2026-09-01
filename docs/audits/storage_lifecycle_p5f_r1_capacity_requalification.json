@@ -1,0 +1,25 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5F-R1 -- recurring rollover capacity requalification",
+  "timestamp_utc": "2026-08-21T11:30:00Z",
+  "fresh_flow_revalidation": {
+    "observation_window": "24 hours immediately preceding the moving 90-day boundary",
+    "rows_becoming_older_than_90_days": 10498,
+    "pinned_or_held_exclusions": 1673,
+    "already_cold_composite_exclusions": 404,
+    "net_new_archival_eligible_rows_per_day": 8421,
+    "confidence": "single bounded 24-hour cohort; sufficient to reject 500/day, not sufficient alone to calibrate a high-frequency schedule without repeated-run qualification"
+  },
+  "capacity_evaluation": {
+    "preserved_transaction_ceiling": 500,
+    "daily_capacity_options": {"17_runs": 8500, "18_runs": 9000, "20_runs": 10000},
+    "preferred_provisional_target": "20 independent 500-row invocations/day (10000/day; 1579/day headroom)",
+    "schedule_not_proposed_as_ready": "The target requires successful multi-run production qualification and a durable file-backed execution channel first."
+  },
+  "lock_exposure_model": {
+    "observed_r2_transaction_seconds": 0.4450892499880865,
+    "20_runs_observed_rate_seconds_per_day": 8.90178499976173,
+    "interpretation": "model only; each future run remains independently leased and fail-closed."
+  },
+  "terminal_verdict": "HOLD_P5F_MULTI_RUN_QUALIFICATION_EXECUTION_EVIDENCE_UNRESOLVED",
+  "exact_next_action": "Restore a persistent/file-backed execution mechanism that can capture all required per-run fields before authorizing any further P5F-R1 batch. Do not install a scheduler."
+}

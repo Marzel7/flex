@@ -1,0 +1,6617 @@
+{
+  "base_run_id": "p3r-v2-2dec1d40604c1f7c08c8",
+  "closure_run_id": "p3r-v2-gap-closure-13296e4830c457dbebd7",
+  "contract": {
+    "base_run": "p3r-v2-2dec1d40604c1f7c08c8",
+    "code_sha256": "678f318d9ee7ea7a57559541051ae008862c91f919dbfe46da9e6af4221695ab",
+    "enrichment_run": "p3r-v2-enrichment-c03f0fce0b7e3b9d685b",
+    "prohibitions": {
+      "membership_mutation": false,
+      "provider_rpc_calls": 0,
+      "queue_replay": false,
+      "tier_or_operation_promotion": false,
+      "trading_signal": false
+    },
+    "source_scope": "retained local wt_walkback_queue, wt_walkback_edge_candidates, wt_walkback_atomic_flows only at frozen high-waters",
+    "targets": [
+      "p3r-v2-5a23bde39497a50696cf",
+      "p3r-v2-6437acd385e566e301a7",
+      "p3r-v2-e6462dd56f2e695fcb6c",
+      "p3r-v2-6f7738e9702395ba8ad3"
+    ],
+    "version": "P3R_V2_LOCAL_EVIDENCE_GAP_CLOSURE.v1"
+  },
+  "enrichment_run_id": "p3r-v2-enrichment-c03f0fce0b7e3b9d685b",
+  "results": [
+    {
+      "address_rotation": {
+        "atomic_owners": {
+          "distinct": 1,
+          "max_share": 1.0,
+          "observations": 1
+        },
+        "atomic_sources": {
+          "distinct": 1,
+          "max_share": 1.0,
+          "observations": 1
+        },
+        "atomic_temporary_accounts": {
+          "distinct": 1,
+          "max_share": 1.0,
+          "observations": 1
+        },
+        "creators": {
+          "distinct": 94,
+          "max_share": 0.010638297872340425,
+          "observations": 94
+        },
+        "direct_funders": {
+          "distinct": 37,
+          "max_share": 0.5425531914893617,
+          "observations": 94
+        },
+        "selected_parents": {
+          "distinct": 37,
+          "max_share": 0.5425531914893617,
+          "observations": 94
+        },
+        "selected_wallets": {
+          "distinct": 94,
+          "max_share": 0.010638297872340425,
+          "observations": 94
+        }
+      },
+      "alternative_discrimination": {
+        "alternative_rows": 0,
+        "classification_counts": {},
+        "members_with_alternatives": 0,
+        "per_member": [],
+        "shape_comparisons": []
+      },
+      "ambiguous_or_not_retained": [
+        "EVIDENCE_NOT_RETAINED: no alternative-edge rows exist for this candidate-member set."
+      ],
+      "atomic": {
+        "flags": {
+          "has_close": 1,
+          "has_create": 1,
+          "has_sync_native": 1
+        },
+        "instruction_sequences": [
+          {
+            "instruction_order": [
+              "transfer",
+              "createIdempotent",
+              "transfer",
+              "syncNative",
+              "closeAccount",
+              "getAccountDataSize",
+              "createAccount",
+              "initializeImmutableOwner",
+              "initializeAccount3"
+            ],
+            "rows": 1
+          }
+        ],
+        "members": 1,
+        "rows": 1,
+        "signatures": 1
+      },
+      "candidate_id": "p3r-v2-5a23bde39497a50696cf",
+      "contradictory": [],
+      "denominators": {
+        "candidate_members": 94,
+        "members_with_alternatives_retained": 0,
+        "members_with_atomic_retained": 1,
+        "members_with_selected_edges": 94,
+        "raw_transaction_instruction_table_available": false
+      },
+      "disposition": "LOCAL_SUPPORT_STRENGTHENED",
+      "material_tier_progress": "No: no new strongly recurrent atomic behaviour was established from retained local evidence.",
+      "member_count": 94,
+      "member_mints": [
+        "22iWTKcSLWNQqSBChezTW8rQzi9RuD43NQYe5tnypump",
+        "26w7qBovfKv4zprC7wmPQx9McchzdzNoZYz7SXpupump",
+        "29GNbtEamnJ2Btd6kASfKM4RBcTvKhtHv9Xt657Epump",
+        "2Dgvn5ktX6DnEY4wEBrevCutgUxuZUtbzVHKXp78pump",
+        "2FW3eNWNKSkJFdrSUwPC2U8zxu9MjExgVYxR5Wd7pump",
+        "2NU9N5XgsVVxZPx2UhqzepUKp5ppDVpvBm2PU4Depump",
+        "2U75GgW2W53MZMuH2jSDxcekjFF6Vw4Q7KxYBw5Ypump",
+        "2XGu8wU3CF22jfcCoywuRky6B8s9ws5jp8aEwJpJpump",
+        "2m3WKc6FB8KfU2zXA1yYBxh5hZJfqzoyx97DqYoepump",
+        "2sgbfjkAyjAw1GKeLUz97xnBWkbwtor3utRbL46gpump",
+        "2tgMDcVU5e6E9tSDRHzQr8597C6aVtt9ABArFA5Apump",
+        "2z2B5Zoz16gQ5uDXLq6qQEB6QSeiWPKwNxXyUaTapump",
+        "39dsjtSjwUvT1kAfGtYcMR8x1fxhdkftZJyWyeaDpump",
+        "3RvpiEiMXkS5mKuKWMa6pMYcuTtJ2FRS5kREiRFVpump",
+        "3gosQAi7WAKRnkCibW2hamv9NkVvFLXePAPQZb5Gpump",
+        "3zUqCv6rsqxvPJSLf1SetgYqjXBLqbuWyJqchnZfpump",
+        "4BQ7xDWWL7aQhST6zKVQMQFnfLvZmogrsakpCbz1pump",
+        "4HoUp5FkWNs69hoCNx7kEYJLFGN5KHSyw5xejfv7pump",
+        "4JGvYrTbLw8yUduczE551CxCVbNbES3r448fM64Ypump",
+        "4Ynf2tJqQ76Wk8WcP1bHdBCD78nikhJfEiz6g7VNpump",
+        "4of1UgnA7fCQwmsCAojtG9AVVcVYbeTVynvrw7mZpump",
+        "5DaN2m9fbVEUauahVcmNYve96epyt8TgPoFmQveMpump",
+        "5Ma1VrMGSSgpfd3HbrbQiNBiVtLaBCc9vWfuapiWpump",
+        "5STRSXMndEbWFhJyGHNNBD1E687Bt8r8hwcU4Lcqpump",
+        "5XofojPbCuAa3PtWjqUsnyoK62QJpqGNSM875Cxzpump",
+        "5fkE6w1Z6p3LSiSGnmt7pwFANi6pVKcyyM8YiicSpump",
+        "5nRGHJZ93pMKJo2ayCBxvKqWCsZKCbzQBrBave5xpump",
+        "6ABMQVGdHCzrmTdj31eZFctPtrsXT7LJZ8YGRc1ypump",
+        "6CpVLDKyWcEeJ7Ypvghc645Mg2TjbuABztqXqK5Jpump",
+        "6ewKfuRRkMx4aE8Yhv3CLscd5SUdsARGvUfEfvarpump",
+        "6n7RMRDhGJf1CEbz1YYs7fiZPPHYc77NqrqXL44Mpump",
+        "7RuKSuywEi3S4urccQXHgUZRGVYdspwQS9CD4KCJpump",
+        "7S6B6F5yDqHoGM3HWLZGhgvaRKacSeVuGDzLhMYJpump",
+        "7THiP6ev2GD2Qaoz3MdH5f7VhxwWqqWvJiKU9Mi4pump",
+        "7iLe8gak6XAcRA6xx4YSnPK4XHjiHyEbq5rqUJ95pump",
+        "7z4cgsb7egGx4iWXioU5agYP2cU5tyoXZakSCxafpump",
+        "8BHgfFFRB9NiawMgTApjsqd2uUKcW4syU2gdqCjfpump",
+        "8JwsfQ1Nt4dCUvVhCskg4MBpV9wJ1ctud7w7K2sipump",
+        "8VydTp4WxMszBLSDeUQhYxk5ShLZ5ZkZM32S8rYZpump",
+        "8WrMtDYHM2yr3Q8FkxNNtUAhfZsgiu2LNHX5N7gSpump",
+        "8tWvW4TdAv19gwkug1S16gvQdd44Ggpby13RCFEQpump",
+        "8uRGSHstoEMSC4f9yCJd7Xvj4f2SBHwZ6Nj7Qgz7pump",
+        "91MRDfBFUTQFYastSfKPK2DSvr4AEuK6E5wCcho8pump",
+        "92EpuApFu8VkmQEPF95F9nbXFQ2h9VGpJR2Ycmtnpump",
+        "9KbvJ3RitJ8rFDAM6rEVKKJV8Y4sKsawnYJR4QKHpump",
+        "9SWb78tBD1FZEQSMVk6C56A7NT1QwSNBWFRg4ASBpump",
+        "9ijhsVMAe5YasK9hhPN655eM1nMB5k4jYdDtX2fFpump",
+        "9kzsKcPFYrHGv2XviBSTRXKyKpRmgP5Rw3oFvY8Dpump",
+        "AFnCQjbWGkVvP1ZrQjbx2LqSJF5fwLTntDiauXXspump",
+        "AJUskpVtW3TBr58ynZ9phVPbh3M7SZV8THLX69FLpump",
+        "ARy1yY1JCLzNLe45ULnDQUhn6PyZbKeyYcmxWjKppump",
+        "AhpgnEtm2768xJwG5kCK18qHhd6naMKjTpoiCQcjpump",
+        "Ar3vVpZt2xZB5Z52F2tkWAXRiYM6umWUhRBJvUVXpump",
+        "AuD4BEQaNUcLzqKSVANe4UGZVUTZcpamuNBAfBFdpump",
+        "BT3X6i8JzQQDLgKDqQsHp5wPtSRN3as5VzYpnVEJpump",
+        "BVeEzH4USexqb2A16QQ6sQ7KbzPMkzJwNVjV8m6dpump",
+        "Bcp1E1yb8Q9VdqMGNuHT45QaHCBwzqVXdpJo6rs8pump",
+        "Bh819rWjgJvWKeu5G38AcdZm7aKq8RdSfF7stGREpump",
+        "C65gw5k88heBcebgtvDwztk1wS1Luo4Zg7pu7oFnpump",
+        "C8mV6Dgc8uX9GQf2PUAUJmRR8en7WejjKL18X4oXpump",
+        "CHfa3StfTzbYhBNXhStoqgNDJ23obwq8GVfQsSQWpump",
+        "CUXHBsEHvGSRaAyqw7tyeVrJzq9dtNJKhiQXPs1apump",
+        "CX5bNC78TSgfJiTYpFvCYNemfHRimhVr8XRJAio8pump",
+        "CemGgV19naMKqxHT9H7RbekuUvHx6Hk2J6KxFJzspump",
+        "CkjVr4ZFrCFvy9k6yt6w31R6ZKyDfFokusKw3A7Upump",
+        "Cwt4zYUsNM4JbjaRZ1VgYQYtWBbLXZW8MAHYe9hypump",
+        "D5Z6sxoGMeyTsC6zVxK4vBjKGQQFSYivXRDj58bCpump",
+        "DimyNkABRwrdyKJhrCn1JYXtX8B4VybjWzy5j2ugpump",
+        "DvjAtw5JgxeCD9XMxwxzMTXoqbprwdtUa5yEha9npump",
+        "E39j4UBmyLjBNqarsh3boJcUqPN82GgZkg2oQ4Afpump",
+        "E6x9rPwbWv85tP1N8AcmZ5g5HhALVpVZDvzD1g6qpump",
+        "E7AweQ7EayaHkR7qgi1fGcNhBhQxKjncVcQqk3eVpump",
+        "E9jov4Pnr2F518gmcb5Br2U6fQFbMP92h3FxZSMzpump",
+        "EAb3BdU6pv3hfvA6X1tFvp6QQBJxrvUWCW5BaKgDpump",
+        "EGnhXEwz5jfZL3LfFgNKDhAcwNvh7oWCe86SpPTbpump",
+        "EJ3F7vDGyCzykEKWgM112cd3GBWawP6pZm6hKuVxpump",
+        "Fm7CB5gEjC6Ase6wykJHhCqPz7HKnK1BeVS95njcpump",
+        "FnZfD1mVTDMcNs3ExCjpK9MdBosR51QJQmNF54UBpump",
+        "FnjLE4joyVihNMmp6bvYZSyMhy7jT5YHCTwQBBadpump",
+        "FxoSCwn1bBi3PvmHMmxHEyAnzJ1K1KXqWNyaxHXRpump",
+        "G9SMBm6bxBpBNuDA5d7MTN5HfGKP7nnHp84KgJqGpump",
+        "GcksQehNFe3FktQMfoKnDTqL9rjt8LDwywyiwcwipump",
+        "GmcJeW8RVpZd9kusjgzdkstByhmKA2uaEQ2QRDEqpump",
+        "GtpUa2zbVcyJdvk2PRADam5uUcQsx8KAndMWUCMTpump",
+        "GxSCeYibL7AFeDYQC1P2wR2pYFqAo7DvSR6imKqMpump",
+        "H55qUAeK313XyTrhxeMVQgBrogdGG9biyAVfmDQipump",
+        "H6jR4eKYVAr9MQ385Cmvo3SogLiYeUX8ECsxqihApump",
+        "HJQC4xW9k3gxstQ65UjAwq7D9EQ38NaJiQNayjPopump",
+        "HKkJjZTiUoGzZMhBxQL3NQJgAZbSUq6Hhiqfh32Ppump",
+        "HXD5YL3rwv1mrHC4giBkAb1pxW6ohCQppJsxrzJZpump",
+        "g6n3DTMqhvn6wbiHPueAzCQi3oee2xrCqEL2wdtpump",
+        "mReC6EP5fcyFPo32AhndzKh3248q4Ne666Tp6G7pump",
+        "wGEyTQEyhE5sQUTsq9f2A3nnEu2EPTsAetmurRCpump",
+        "wSNtLYAEoVFBPAERJyYmtkK5RnsK8Xsm4efhtEapump"
+      ],
+      "membership_digest": "a92d2d27552ff0aeb9756975130c17cd4c116d52dd346cac6c055e1c34f8fd23",
+      "near_tier_1": false,
+      "selected_edge": {
+        "rows": 94,
+        "shapes": [
+          {
+            "amount_lamports": 1112039000,
+            "hop_depth": 1,
+            "mechanism": "WSOL_WRAP_CLOSE",
+            "rows": 94
+          }
+        ],
+        "signatures": 94,
+        "timing_seconds_from_anchor": {
+          "count": 0,
+          "distinct": [],
+          "max": null,
+          "min": null
+        }
+      },
+      "supportive": [
+        "EVIDENCE_PRESENT_SUPPORTIVE: selected-edge shape and exact amount recurrence are retained across the candidate-member denominator.",
+        "EVIDENCE_PRESENT_SUPPORTIVE: atomic instruction evidence exists, but only for its atomic-retained denominator."
+      ]
+    },
+    {
+      "address_rotation": {
+        "atomic_owners": {
+          "distinct": 4,
+          "max_share": 0.25,
+          "observations": 4
+        },
+        "atomic_sources": {
+          "distinct": 4,
+          "max_share": 0.25,
+          "observations": 4
+        },
+        "atomic_temporary_accounts": {
+          "distinct": 4,
+          "max_share": 0.25,
+          "observations": 4
+        },
+        "creators": {
+          "distinct": 53,
+          "max_share": 0.018867924528301886,
+          "observations": 53
+        },
+        "direct_funders": {
+          "distinct": 40,
+          "max_share": 0.11320754716981132,
+          "observations": 53
+        },
+        "selected_parents": {
+          "distinct": 40,
+          "max_share": 0.11320754716981132,
+          "observations": 53
+        },
+        "selected_wallets": {
+          "distinct": 53,
+          "max_share": 0.018867924528301886,
+          "observations": 53
+        }
+      },
+      "alternative_discrimination": {
+        "alternative_rows": 62,
+        "classification_counts": {
+          "EVIDENCE_PRESENT_AMBIGUOUS": 47,
+          "EVIDENCE_PRESENT_CONTRADICTORY": 4,
+          "EVIDENCE_PRESENT_SUPPORTIVE": 11
+        },
+        "members_with_alternatives": 35,
+        "per_member": [
+          {
+            "alternative_shape": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              1555494000
+            ],
+            "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+            "mint": "26MGRzYaCX55Nbqc1aNtMRCB6r7E7aLqr8Cwfks2pump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              80000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "26MGRzYaCX55Nbqc1aNtMRCB6r7E7aLqr8Cwfks2pump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              18518801000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "3bM3yijpVApAZT5H87hZ4FmjzLiF5Ui6WtSFkG4Npump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              10000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "44xU1df8XusRRiZhcucfWMMACpbhqdVvHDbG7zRdpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              4602165000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "49t113M4eMYfKHVA55BhnFNbBt33reCNDqtd6fkYFT3B",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              12808065000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "49t113M4eMYfKHVA55BhnFNbBt33reCNDqtd6fkYFT3B",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              21000756000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "49t113M4eMYfKHVA55BhnFNbBt33reCNDqtd6fkYFT3B",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              2149375000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "5CVYqnp1GvFTTW66uQ67RppPBPMnFfuCYGGXxXUUpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              319214000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "5CVYqnp1GvFTTW66uQ67RppPBPMnFfuCYGGXxXUUpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              5000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "68Z6fpmPM7R6T4uGWrFqg82v1iryBfSN4vcoyzZ4pump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              222299000
+            ],
+            "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+            "mint": "69Hxdqmu5Q7f6Hkn5FdVWo9JeL2omWPEdZ5wfEZSpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              10000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "69Hxdqmu5Q7f6Hkn5FdVWo9JeL2omWPEdZ5wfEZSpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              10000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "6dNmQku2Dnney8LnXUMKBdchqP2hd9xnUJyf8Y9wpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              1000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "6dPRZRMgd8iS5f5BeqDDisXhkW5CWSRBHq69iGX4pump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              100000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "6dPRZRMgd8iS5f5BeqDDisXhkW5CWSRBHq69iGX4pump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              1000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "6kAYhe9CLYVrRDknUdRUaagVyEjMBWPkrCCEFMKipump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              81000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "6kAYhe9CLYVrRDknUdRUaagVyEjMBWPkrCCEFMKipump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              5690695000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "79mFmvFew2GzzBmbghw1U2nEoqcEJMaBJ2CNM6gkpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              440535482000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "7vRYuepuBdgUFiceqC46s2GfW9E9YRbSCYMBGvTRpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              1000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "7yBAq9MHhjDrvAh3UgZFr1kUoCKcQCdHGfnVMXnXpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              100000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "7yBAq9MHhjDrvAh3UgZFr1kUoCKcQCdHGfnVMXnXpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              9404601000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "89LQmLpgxM53SMaNCeX1KuNjUQCTqdqvyt1rzmR1pump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              10000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "9sppvFeeQ4eWZVGqQ4uxwKA7TzEAYFgKCx2V54qZf3f",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              10000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "9tTm1ByxUi73Cxxjme8EQU953SD7ekHZW25GNibbpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              15000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "9tTm1ByxUi73Cxxjme8EQU953SD7ekHZW25GNibbpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              100160063000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "AifhFReXgPPexvqjzxZwbztKZ4xsAaNJbEXdLz1Xpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              10000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "BQfvAu9gRQ61mBAKmd6L2J6j9fpUCLbXkjHs4fXUpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              497000
+            ],
+            "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+            "mint": "BQfvAu9gRQ61mBAKmd6L2J6j9fpUCLbXkjHs4fXUpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              3000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "BQfvAu9gRQ61mBAKmd6L2J6j9fpUCLbXkjHs4fXUpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              70107000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "BaBeW6hdxDSenERN6JcxLY9v27YnZqaAQYWuscUjpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              10000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "CYVCvH1u59vHZv9LiwVgrsuaFDDMCUwWyjjNkT6wpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              null
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "CYVCvH1u59vHZv9LiwVgrsuaFDDMCUwWyjjNkT6wpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              10438666000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "CYVCvH1u59vHZv9LiwVgrsuaFDDMCUwWyjjNkT6wpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              100000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "D6aYNcyR3oNiEP63X3SnyCYzEGAKrX7f6951Mrzpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              7000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "D7UkWaCWNCukBFP5VUv3ajFQ7PEMjZSSv78y2wHCpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              1000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "DNFUP9tDaaHSLGkRfypf4t1u1uNYnFiPKUWFivBWpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              4986222000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "DNFUP9tDaaHSLGkRfypf4t1u1uNYnFiPKUWFivBWpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              10000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "DZkxhWCvKE3iuDGfoQcz4akiuBDisvtJ3G9eEpSmpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              10000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "DZkxhWCvKE3iuDGfoQcz4akiuBDisvtJ3G9eEpSmpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              891000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "DZkxhWCvKE3iuDGfoQcz4akiuBDisvtJ3G9eEpSmpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              null
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "EL4TQEUGPpW8LZnD7PqZX1hWuqCo64tFsgTJfyGKpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              250000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "EL4TQEUGPpW8LZnD7PqZX1hWuqCo64tFsgTJfyGKpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              10000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "EnkmS3jvFqsZb7MSTw9H48cUXfENUd2pBVXLHNmqpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              10000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "EnkmS3jvFqsZb7MSTw9H48cUXfENUd2pBVXLHNmqpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              null
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "EnkmS3jvFqsZb7MSTw9H48cUXfENUd2pBVXLHNmqpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              15000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "EnkmS3jvFqsZb7MSTw9H48cUXfENUd2pBVXLHNmqpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              100000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "FrayVb4QqRjoBovzjaYbmF75LUMwBGpRzYugU4E1pump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              10000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "FuWiHaX7DmgF8j3TF5Qg45cua3nvsUnGHtmWkgGkpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              10000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "FuWiHaX7DmgF8j3TF5Qg45cua3nvsUnGHtmWkgGkpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              1000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "FuWiHaX7DmgF8j3TF5Qg45cua3nvsUnGHtmWkgGkpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              4000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "FuWiHaX7DmgF8j3TF5Qg45cua3nvsUnGHtmWkgGkpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              22000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "GyMC6ay28dxcfdpbYjwqfP8EfjVvrHE4rP6vwoMupump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              1000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "HVXsnbGyNR7cXdj5LhHqLVxNsmGsyH2VwJuD5fHCpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              8000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "J8fqEnjTyhHhj21VrGQS8SPb3A3ectA3EcrPC8Sspump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              500036000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "J8fqEnjTyhHhj21VrGQS8SPb3A3ectA3EcrPC8Sspump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              462209000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "LWZvn5VWRk23xzzkbrSR1yCaWnKNcU1tFCMAnvppump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              4406000
+            ],
+            "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+            "mint": "Vpm3yhgro67XZUHRX6dM92b2bXdKZpx6t1Ps31Ppump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              1000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "Vpm3yhgro67XZUHRX6dM92b2bXdKZpx6t1Ps31Ppump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              25000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "Vpm3yhgro67XZUHRX6dM92b2bXdKZpx6t1Ps31Ppump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              20121494000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "norm8mXDK6ndyav2cYriwkDtS2Ti3QScYgTPaavn4Ay",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              14620184000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "norm8mXDK6ndyav2cYriwkDtS2Ti3QScYgTPaavn4Ay",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              99999995000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "oxsBtVM2ph6TWDZjKeLxuq77kQLBNBmdTcZDXcGpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                10000
+              ]
+            ]
+          }
+        ],
+        "shape_comparisons": [
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                100000000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 4
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                10000000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 2
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                1000000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                10000
+              ],
+              "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 11
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                1000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 6
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                100160063000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                10438666000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                12808065000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                14620184000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                15000000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 2
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                18518801000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                20121494000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                21000756000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                2149375000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                22000000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                25000000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                250000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                3000000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                319214000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                4000000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                440535482000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                4602165000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                462209000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                4986222000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                5000000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                500036000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                5690695000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                7000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                70107000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                80000000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                8000000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                81000000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                891000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                9404601000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                99999995000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                null
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 3
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "WSOL_WRAP_CLOSE",
+                1555494000
+              ],
+              "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "WSOL_WRAP_CLOSE",
+                222299000
+              ],
+              "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "WSOL_WRAP_CLOSE",
+                4406000
+              ],
+              "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "WSOL_WRAP_CLOSE",
+                497000
+              ],
+              "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  10000
+                ]
+              ]
+            },
+            "count": 1
+          }
+        ]
+      },
+      "ambiguous_or_not_retained": [
+        "EVIDENCE_PRESENT_AMBIGUOUS: 47/62 retained alternative rows when compared with each member's selected shape."
+      ],
+      "atomic": {
+        "flags": {
+          "has_close": 4,
+          "has_create": 4,
+          "has_sync_native": 0
+        },
+        "instruction_sequences": [
+          {
+            "instruction_order": [
+              "create",
+              "closeAccount",
+              "getAccountDataSize",
+              "createAccount",
+              "initializeImmutableOwner",
+              "initializeAccount3",
+              "transferChecked"
+            ],
+            "rows": 1
+          },
+          {
+            "instruction_order": [
+              "create",
+              "closeAccount",
+              "transfer",
+              "getAccountDataSize",
+              "createAccount",
+              "initializeImmutableOwner",
+              "initializeAccount3",
+              "transferChecked"
+            ],
+            "rows": 1
+          },
+          {
+            "instruction_order": [
+              "createIdempotent",
+              "closeAccount",
+              "getAccountDataSize",
+              "createAccount",
+              "initializeImmutableOwner",
+              "initializeAccount3",
+              "transfer",
+              "transferChecked"
+            ],
+            "rows": 1
+          },
+          {
+            "instruction_order": [
+              "createIdempotent",
+              "createIdempotent",
+              "closeAccount",
+              "getAccountDataSize",
+              "createAccount",
+              "initializeImmutableOwner",
+              "initializeAccount3",
+              "getAccountDataSize",
+              "createAccount",
+              "initializeImmutableOwner",
+              "initializeAccount3",
+              "transfer",
+              "transferChecked"
+            ],
+            "rows": 1
+          }
+        ],
+        "members": 4,
+        "rows": 4,
+        "signatures": 4
+      },
+      "candidate_id": "p3r-v2-6437acd385e566e301a7",
+      "contradictory": [
+        "EVIDENCE_PRESENT_CONTRADICTORY: 4/62 retained alternative rows when compared with each member's selected shape."
+      ],
+      "denominators": {
+        "candidate_members": 53,
+        "members_with_alternatives_retained": 35,
+        "members_with_atomic_retained": 4,
+        "members_with_selected_edges": 53,
+        "raw_transaction_instruction_table_available": false
+      },
+      "disposition": "LOCAL_CONTRADICTION_STRENGTHENED",
+      "material_tier_progress": "No: no new strongly recurrent atomic behaviour was established from retained local evidence.",
+      "member_count": 53,
+      "member_mints": [
+        "247aEWkHmrna4JTYftxLyRw7Yt2jQ2M4zsGGecoNpump",
+        "26MGRzYaCX55Nbqc1aNtMRCB6r7E7aLqr8Cwfks2pump",
+        "2eyAxcdczf7cmHLkqerjEokhdy2EMPL7w5AKkDK5pump",
+        "3LjjCQbxKDDAXS23ZggfQsNpEQc65JqDVocX1wcVk8t4",
+        "3bM3yijpVApAZT5H87hZ4FmjzLiF5Ui6WtSFkG4Npump",
+        "3xpZ38num2VYWuRxrF6fqoUE9a35QJeEcQggnmNrTTjK",
+        "44xU1df8XusRRiZhcucfWMMACpbhqdVvHDbG7zRdpump",
+        "49t113M4eMYfKHVA55BhnFNbBt33reCNDqtd6fkYFT3B",
+        "5CVYqnp1GvFTTW66uQ67RppPBPMnFfuCYGGXxXUUpump",
+        "64u6ck5Rpn88YpFdALXaoQVY3fF2cneoSWD4sf2epump",
+        "68Z6fpmPM7R6T4uGWrFqg82v1iryBfSN4vcoyzZ4pump",
+        "69Hxdqmu5Q7f6Hkn5FdVWo9JeL2omWPEdZ5wfEZSpump",
+        "6SdvQpA6QyKX54XQxBSYznQ7nCAg2J2XRZ9hNvjnpump",
+        "6dNmQku2Dnney8LnXUMKBdchqP2hd9xnUJyf8Y9wpump",
+        "6dPRZRMgd8iS5f5BeqDDisXhkW5CWSRBHq69iGX4pump",
+        "6gN4hKp17ax1bktM3BxYxuwwMAgBFFT4DShg1cc8pump",
+        "6kAYhe9CLYVrRDknUdRUaagVyEjMBWPkrCCEFMKipump",
+        "79mFmvFew2GzzBmbghw1U2nEoqcEJMaBJ2CNM6gkpump",
+        "7vRYuepuBdgUFiceqC46s2GfW9E9YRbSCYMBGvTRpump",
+        "7yBAq9MHhjDrvAh3UgZFr1kUoCKcQCdHGfnVMXnXpump",
+        "89LQmLpgxM53SMaNCeX1KuNjUQCTqdqvyt1rzmR1pump",
+        "9sppvFeeQ4eWZVGqQ4uxwKA7TzEAYFgKCx2V54qZf3f",
+        "9tTm1ByxUi73Cxxjme8EQU953SD7ekHZW25GNibbpump",
+        "AifhFReXgPPexvqjzxZwbztKZ4xsAaNJbEXdLz1Xpump",
+        "Azv9RJaBkg33ttcaantqXxSTbTTf6tdNDZJkfRWmpump",
+        "BQfvAu9gRQ61mBAKmd6L2J6j9fpUCLbXkjHs4fXUpump",
+        "BSY3qBRwp1RvcNsFiBUFJTKr7NVDv6PFCejVV6crpump",
+        "BaBeW6hdxDSenERN6JcxLY9v27YnZqaAQYWuscUjpump",
+        "CYVCvH1u59vHZv9LiwVgrsuaFDDMCUwWyjjNkT6wpump",
+        "D6aYNcyR3oNiEP63X3SnyCYzEGAKrX7f6951Mrzpump",
+        "D7UkWaCWNCukBFP5VUv3ajFQ7PEMjZSSv78y2wHCpump",
+        "DNFUP9tDaaHSLGkRfypf4t1u1uNYnFiPKUWFivBWpump",
+        "DTz7bdX9g7NcFh4wGBpN8UHFW46ztbg2TqkYxsDi3cK3",
+        "DZkxhWCvKE3iuDGfoQcz4akiuBDisvtJ3G9eEpSmpump",
+        "Dn1VHNhgQgvYLgHyAhXmgm3cetKJauHmNwU8jyR4R8yv",
+        "E4LLHpFnRgDLiYqyqnMEZ1C2CBmR6CWdcWrT5hpipump",
+        "EL4TQEUGPpW8LZnD7PqZX1hWuqCo64tFsgTJfyGKpump",
+        "EUccNFoEHwoQ68tHWXytDrbDkDTY5iKGicuFpA7fpump",
+        "EnkmS3jvFqsZb7MSTw9H48cUXfENUd2pBVXLHNmqpump",
+        "FAs4RX3HkHzk1qgTxdEW9vxadnn2FiPP2mC6Tx3hpB67",
+        "FrayVb4QqRjoBovzjaYbmF75LUMwBGpRzYugU4E1pump",
+        "FuWiHaX7DmgF8j3TF5Qg45cua3nvsUnGHtmWkgGkpump",
+        "GJSmv1ZieC6T7k88aLpVQDB11X2yy2XwFEeJuqqSpump",
+        "GtaKydPfLerjvf4fdiCJFbeHgmXzbSEwsLv4yjs5pump",
+        "GxJp64uK69rxBv9xcju3Z2jSTrcfpqi3nT1DLuPpump",
+        "GyMC6ay28dxcfdpbYjwqfP8EfjVvrHE4rP6vwoMupump",
+        "HVXsnbGyNR7cXdj5LhHqLVxNsmGsyH2VwJuD5fHCpump",
+        "J8fqEnjTyhHhj21VrGQS8SPb3A3ectA3EcrPC8Sspump",
+        "LWZvn5VWRk23xzzkbrSR1yCaWnKNcU1tFCMAnvppump",
+        "Vpm3yhgro67XZUHRX6dM92b2bXdKZpx6t1Ps31Ppump",
+        "gnuvC7NijR3T6JGLrwZgnN1uxEvSFUNZiZL9pKQM8FY",
+        "norm8mXDK6ndyav2cYriwkDtS2Ti3QScYgTPaavn4Ay",
+        "oxsBtVM2ph6TWDZjKeLxuq77kQLBNBmdTcZDXcGpump"
+      ],
+      "membership_digest": "5dd595ec50f95710e34fc990a98cabfbe76c7fe7015b4992b24b7dd94e4bf49d",
+      "near_tier_1": false,
+      "selected_edge": {
+        "rows": 53,
+        "shapes": [
+          {
+            "amount_lamports": 10000,
+            "hop_depth": 1,
+            "mechanism": "PLAIN_XFER",
+            "rows": 53
+          }
+        ],
+        "signatures": 53,
+        "timing_seconds_from_anchor": {
+          "count": 0,
+          "distinct": [],
+          "max": null,
+          "min": null
+        }
+      },
+      "supportive": [
+        "EVIDENCE_PRESENT_SUPPORTIVE: selected-edge shape and exact amount recurrence are retained across the candidate-member denominator.",
+        "EVIDENCE_PRESENT_SUPPORTIVE: atomic instruction evidence exists, but only for its atomic-retained denominator.",
+        "EVIDENCE_PRESENT_SUPPORTIVE: 11/62 retained alternative rows when compared with each member's selected shape."
+      ]
+    },
+    {
+      "address_rotation": {
+        "atomic_owners": {
+          "distinct": 4,
+          "max_share": 0.25,
+          "observations": 4
+        },
+        "atomic_sources": {
+          "distinct": 4,
+          "max_share": 0.25,
+          "observations": 4
+        },
+        "atomic_temporary_accounts": {
+          "distinct": 4,
+          "max_share": 0.25,
+          "observations": 4
+        },
+        "creators": {
+          "distinct": 55,
+          "max_share": 0.03076923076923077,
+          "observations": 65
+        },
+        "direct_funders": {
+          "distinct": 54,
+          "max_share": 0.06153846153846154,
+          "observations": 65
+        },
+        "selected_parents": {
+          "distinct": 54,
+          "max_share": 0.06153846153846154,
+          "observations": 65
+        },
+        "selected_wallets": {
+          "distinct": 51,
+          "max_share": 0.1076923076923077,
+          "observations": 65
+        }
+      },
+      "alternative_discrimination": {
+        "alternative_rows": 35,
+        "classification_counts": {
+          "EVIDENCE_PRESENT_CONTRADICTORY": 14,
+          "EVIDENCE_PRESENT_SUPPORTIVE": 21
+        },
+        "members_with_alternatives": 19,
+        "per_member": [
+          {
+            "alternative_shape": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              2039000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "436DxP4mYsRWRUB81T1LhaNzhi8fzvnZYUgQCBznpump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              2039000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "436DxP4mYsRWRUB81T1LhaNzhi8fzvnZYUgQCBznpump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              2039000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "4PQuvvwEa8X3wzyLVNN8qi5oNM5CcbYNhSWzNhGwpump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              2039000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "51g7Wmz1FFgKsMf85Nt7cmR3QPnwSz3xU2sFsFk8pump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              256610000
+            ],
+            "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+            "mint": "5YZ2Yb5tn4RExRdshA7bCMB8wa9SR7ro7rBPgCCRpump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              128600011000
+            ],
+            "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+            "mint": "5YZ2Yb5tn4RExRdshA7bCMB8wa9SR7ro7rBPgCCRpump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              2039000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "7CqtozyB9CpaRfUZQo462BJbLsgJL9c8sRkb6AqSpump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              2039000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "7CqtozyB9CpaRfUZQo462BJbLsgJL9c8sRkb6AqSpump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              2039000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "7CrhoFZbj7DHuiaToi6CjeQP6YFsTJU7gkSw4hGMpump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              2039000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "8nS4mcACckzz1kowwsC2qKJEbyfe7VXLVT9tgy61pump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              1150000000
+            ],
+            "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+            "mint": "8tmDSpbTnLjjNyJVTqf3Y4BaV8ygsMNTKp3uqZAMpump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              81254000
+            ],
+            "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+            "mint": "8tmDSpbTnLjjNyJVTqf3Y4BaV8ygsMNTKp3uqZAMpump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              105407000
+            ],
+            "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+            "mint": "8tmDSpbTnLjjNyJVTqf3Y4BaV8ygsMNTKp3uqZAMpump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              1823210000
+            ],
+            "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+            "mint": "8tmDSpbTnLjjNyJVTqf3Y4BaV8ygsMNTKp3uqZAMpump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              2039000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "9RtNH9BAb9bP1Ycg774hSeso6Vd8gcbTfFDNEiMgpump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              2039000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "9e6B1z5dp6e5WBis5ZsenyXgoxgJAVCNE6hX1wt7pump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              2039000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "9qn4DVYUVxJZTeRTFqTHDxQw12yWoUEJzd15tNS2pump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              3000001000
+            ],
+            "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+            "mint": "C5pvGwaxQST4R6gekXEkJtvYUzLp3Atz8NavEji6pump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              2039000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "CE9Md2anQgH9sTCsKQmU7MPyF3eYPwPGRhpj2Vinpump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              2039000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "CWvLbAPRdkPiaVr6m8hrny6fee5fytiZLXx43QBrpump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              2039000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "CWvLbAPRdkPiaVr6m8hrny6fee5fytiZLXx43QBrpump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              2039000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "CWvLbAPRdkPiaVr6m8hrny6fee5fytiZLXx43QBrpump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              2039000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "CWvLbAPRdkPiaVr6m8hrny6fee5fytiZLXx43QBrpump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              2039000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "CXDoos6XmeA8bz6gMPQ4A21wBq8v6zTfCjdthzaopump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              614995000
+            ],
+            "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+            "mint": "EMW65HnSYcAmv94y1Zb78vGxSBGhgSKXEQbpJUxPpump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              982076000
+            ],
+            "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+            "mint": "EMW65HnSYcAmv94y1Zb78vGxSBGhgSKXEQbpJUxPpump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              null
+            ],
+            "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+            "mint": "GLZ4g1CzrXdqfkgndWR8gcydEY85DgetNk2ZYJKepump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              2039000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "Mpud9iintB49wjgkzXHqpoc4BSbFEiyAMWtwwhQpump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              2039000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "Mpud9iintB49wjgkzXHqpoc4BSbFEiyAMWtwwhQpump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              2039000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "Mpud9iintB49wjgkzXHqpoc4BSbFEiyAMWtwwhQpump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              2039000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "Mpud9iintB49wjgkzXHqpoc4BSbFEiyAMWtwwhQpump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              60424000
+            ],
+            "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+            "mint": "mZsNNMEz9RnvrXuhbZ4aXeUDVFamc1de5omXHDdpump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              345622000
+            ],
+            "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+            "mint": "mZsNNMEz9RnvrXuhbZ4aXeUDVFamc1de5omXHDdpump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              108525000
+            ],
+            "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+            "mint": "mZsNNMEz9RnvrXuhbZ4aXeUDVFamc1de5omXHDdpump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              304559000
+            ],
+            "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+            "mint": "mZsNNMEz9RnvrXuhbZ4aXeUDVFamc1de5omXHDdpump",
+            "selected_shapes": [
+              [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ]
+            ]
+          }
+        ],
+        "shape_comparisons": [
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                105407000
+              ],
+              "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+              "selected": [
+                [
+                  1,
+                  "WSOL_WRAP_CLOSE",
+                  2039000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                108525000
+              ],
+              "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+              "selected": [
+                [
+                  1,
+                  "WSOL_WRAP_CLOSE",
+                  2039000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                1150000000
+              ],
+              "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+              "selected": [
+                [
+                  1,
+                  "WSOL_WRAP_CLOSE",
+                  2039000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                128600011000
+              ],
+              "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+              "selected": [
+                [
+                  1,
+                  "WSOL_WRAP_CLOSE",
+                  2039000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                1823210000
+              ],
+              "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+              "selected": [
+                [
+                  1,
+                  "WSOL_WRAP_CLOSE",
+                  2039000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                256610000
+              ],
+              "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+              "selected": [
+                [
+                  1,
+                  "WSOL_WRAP_CLOSE",
+                  2039000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                3000001000
+              ],
+              "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+              "selected": [
+                [
+                  1,
+                  "WSOL_WRAP_CLOSE",
+                  2039000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                304559000
+              ],
+              "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+              "selected": [
+                [
+                  1,
+                  "WSOL_WRAP_CLOSE",
+                  2039000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                345622000
+              ],
+              "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+              "selected": [
+                [
+                  1,
+                  "WSOL_WRAP_CLOSE",
+                  2039000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                60424000
+              ],
+              "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+              "selected": [
+                [
+                  1,
+                  "WSOL_WRAP_CLOSE",
+                  2039000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                614995000
+              ],
+              "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+              "selected": [
+                [
+                  1,
+                  "WSOL_WRAP_CLOSE",
+                  2039000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                81254000
+              ],
+              "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+              "selected": [
+                [
+                  1,
+                  "WSOL_WRAP_CLOSE",
+                  2039000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                982076000
+              ],
+              "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+              "selected": [
+                [
+                  1,
+                  "WSOL_WRAP_CLOSE",
+                  2039000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                null
+              ],
+              "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+              "selected": [
+                [
+                  1,
+                  "WSOL_WRAP_CLOSE",
+                  2039000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "WSOL_WRAP_CLOSE",
+                2039000
+              ],
+              "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+              "selected": [
+                [
+                  1,
+                  "WSOL_WRAP_CLOSE",
+                  2039000
+                ]
+              ]
+            },
+            "count": 21
+          }
+        ]
+      },
+      "ambiguous_or_not_retained": [],
+      "atomic": {
+        "flags": {
+          "has_close": 4,
+          "has_create": 4,
+          "has_sync_native": 3
+        },
+        "instruction_sequences": [
+          {
+            "instruction_order": [
+              "createIdempotent",
+              "createIdempotent",
+              "closeAccount",
+              "getAccountDataSize",
+              "createAccount",
+              "initializeImmutableOwner",
+              "initializeAccount3",
+              "getAccountDataSize",
+              "createAccount",
+              "initializeImmutableOwner",
+              "initializeAccount3",
+              "transfer",
+              "transferChecked"
+            ],
+            "rows": 1
+          },
+          {
+            "instruction_order": [
+              "createIdempotent",
+              "createIdempotent",
+              "createIdempotent",
+              "createIdempotent",
+              "transferChecked",
+              "getAccountDataSize",
+              "createAccount",
+              "initializeImmutableOwner",
+              "initializeAccount3",
+              "transferChecked",
+              "transfer",
+              "syncNative",
+              "transfer",
+              "transfer",
+              "closeAccount"
+            ],
+            "rows": 1
+          },
+          {
+            "instruction_order": [
+              "createIdempotent",
+              "createIdempotent",
+              "createIdempotent",
+              "createIdempotent",
+              "transferChecked",
+              "transfer",
+              "getAccountDataSize",
+              "createAccount",
+              "initializeImmutableOwner",
+              "initializeAccount3",
+              "transferChecked",
+              "transfer",
+              "syncNative",
+              "transfer",
+              "transfer",
+              "closeAccount"
+            ],
+            "rows": 1
+          },
+          {
+            "instruction_order": [
+              "createIdempotent",
+              "createIdempotent",
+              "createIdempotent",
+              "createIdempotent",
+              "transferChecked",
+              "transfer",
+              "getAccountDataSize",
+              "createAccount",
+              "initializeImmutableOwner",
+              "initializeAccount3",
+              "transferChecked",
+              "transfer",
+              "transfer",
+              "syncNative",
+              "transfer",
+              "transfer",
+              "closeAccount"
+            ],
+            "rows": 1
+          }
+        ],
+        "members": 4,
+        "rows": 4,
+        "signatures": 4
+      },
+      "candidate_id": "p3r-v2-e6462dd56f2e695fcb6c",
+      "contradictory": [
+        "EVIDENCE_PRESENT_CONTRADICTORY: 14/35 retained alternative rows when compared with each member's selected shape."
+      ],
+      "denominators": {
+        "candidate_members": 65,
+        "members_with_alternatives_retained": 19,
+        "members_with_atomic_retained": 4,
+        "members_with_selected_edges": 65,
+        "raw_transaction_instruction_table_available": false
+      },
+      "disposition": "INSUFFICIENT_RETAINED_EVIDENCE",
+      "material_tier_progress": "No: no new strongly recurrent atomic behaviour was established from retained local evidence.",
+      "member_count": 65,
+      "member_mints": [
+        "2CgigKt4YKLLQh8pkkaWqMxZZohG8okVJ774DtT9pump",
+        "2Yuhu3TP25pfkoH8y9fRgRbMFxvWSCJzuH1abmezpump",
+        "2oeKR8h1FKJGX97VTuKFdJ97cqA3QcxVKNukgbXmpump",
+        "3JPWzgsKQtoMsbGEHrb6JRqw6gZjWk2hdcPCsM1Jpump",
+        "3PmfdaVCWmcsDJvdrLhvPw9FQMuPd3won6apTGBcpump",
+        "436DxP4mYsRWRUB81T1LhaNzhi8fzvnZYUgQCBznpump",
+        "4PQuvvwEa8X3wzyLVNN8qi5oNM5CcbYNhSWzNhGwpump",
+        "4ay386mUJo1KGBt4SWMrGEVATbQsU7VDsBqt1sbWpump",
+        "51g7Wmz1FFgKsMf85Nt7cmR3QPnwSz3xU2sFsFk8pump",
+        "51tVNDHNWbL5KhxfRehd1qRed4cWBWzrDRfMT476pump",
+        "5PGiCpNHMzeDE2SuR71JqoG1vSbjZu8DNQ38k6DBpump",
+        "5YZ2Yb5tn4RExRdshA7bCMB8wa9SR7ro7rBPgCCRpump",
+        "5ZnVRdvBtufQUqbJVXJosHXESnQfE7vazu5cYCJnpump",
+        "5uzAbtTTXGzUAhRACnEBznY12GmeEoAjUCa1FT4dpump",
+        "7CqtozyB9CpaRfUZQo462BJbLsgJL9c8sRkb6AqSpump",
+        "7CrhoFZbj7DHuiaToi6CjeQP6YFsTJU7gkSw4hGMpump",
+        "7cDT9NQw2V1Voj32LefYAycAUurqEMPcEXb213Yapump",
+        "7kuBs5F5am8aoWoAZk8mS4sdU1RD2rHwD3CLqVUTpump",
+        "84RD8D3LxNvsbVNdecnMF8UN21zvz5hDuir32zcjpump",
+        "87KTfXVAeoTdg1AgZ6oQay8UUk1cpW3qkAFAwk3Lpump",
+        "8BMV6PPBMVRk1xhFuydG3PGGAvVcwuaQy3zbNJ57pump",
+        "8DwrsxDNDAE4A5pACvgErJn6ZG26am427KZbjR8Hpump",
+        "8P7eSgDevGe1ths1xq1p3pTLkCzvwXeHLh3SUhRopump",
+        "8aTMUFK8UL5LmSGacwknNu8vnFjR8okPU66jUsuWpump",
+        "8nS4mcACckzz1kowwsC2qKJEbyfe7VXLVT9tgy61pump",
+        "8oNzM4qoF8MMZtfxg9AHaRgsFqyVnFE51Yd2Tfzxpump",
+        "8tmDSpbTnLjjNyJVTqf3Y4BaV8ygsMNTKp3uqZAMpump",
+        "98F8neMUvMuywDzaEMCmvQFMXEgGhMscgg21BBVEpump",
+        "9RtNH9BAb9bP1Ycg774hSeso6Vd8gcbTfFDNEiMgpump",
+        "9e6B1z5dp6e5WBis5ZsenyXgoxgJAVCNE6hX1wt7pump",
+        "9m2pDfCMauQrH2uGjvEJEYQp53Y1wy2a8xLKSBpMpump",
+        "9qn4DVYUVxJZTeRTFqTHDxQw12yWoUEJzd15tNS2pump",
+        "ABm8dC2ckKAWqdYrRvbQ9gbVsWdcd8bQmmNY5VzXpump",
+        "ASRqPsvpZg5nE6WpW8EgWDCcwk7bnGbA9D7oWheqpump",
+        "AgbrT1oMkShLZVc1bcNNQyxiyv6D6DjSUzF3uenjpump",
+        "B28BKBSCYefGt9jEwunuVzYxvvzd674V6jhYKcyApump",
+        "BfMAB2qBxttE48JQATcFNpyaMMdrGapWQcPHV5TWpump",
+        "Bjp2FtPoi4MxHBVS252fWwU24K92ryBLTj3zy929pump",
+        "C46q8GSYYE3qh8ev3WccmhF7GQKqnU5ycXsw47Xrpump",
+        "C5pvGwaxQST4R6gekXEkJtvYUzLp3Atz8NavEji6pump",
+        "CDbD9B1Zncw3roGfRiPU79Gt29Zh9NeVYZMw4Kvpump",
+        "CE9Md2anQgH9sTCsKQmU7MPyF3eYPwPGRhpj2Vinpump",
+        "CJE54Ec62XxaXkWNxZYGtTKhQVKZeVPsRAay2dokpump",
+        "CWvLbAPRdkPiaVr6m8hrny6fee5fytiZLXx43QBrpump",
+        "CXDoos6XmeA8bz6gMPQ4A21wBq8v6zTfCjdthzaopump",
+        "Cg2rqZv8BENNiNakEfkS9HbH6QNuLcZU4kjaFg5apump",
+        "DdBE1F7gr68ybXPVXD9DV5TdwGcDq8iumosH443xpump",
+        "DjkQ93DoLgfc2Rnm3GD4PwMGbMH9MxznRtSE7D59pump",
+        "E5KZHt5KeoTTbaSHyfKqRQuVcXzYDLTK4nHTTs6jpump",
+        "EMW65HnSYcAmv94y1Zb78vGxSBGhgSKXEQbpJUxPpump",
+        "FFjEGz4bfufznxKvDm4zQssEhkdkSu4uQn6knwoGpump",
+        "FW6FKCgVQ1qknqj2FY5W1yzf1r99yjGKLcD56JTApump",
+        "FeKFqZzzGW54vgnhCLY1Tig5cnZcuMZvWLMRadvppump",
+        "FriqXZ6PRN5oD47R8AndQTP9E2gV3SbfcTEavTe6pump",
+        "GLZ4g1CzrXdqfkgndWR8gcydEY85DgetNk2ZYJKepump",
+        "Gtu1434oeovwcJseGxTrRE3jyDkmxq7N7KfzXEBHpump",
+        "Gug2rXngXz18eDop6WD68cg6v5qwWYwyVmsyjSeTpump",
+        "Gw75pygmah6UaRn1tqAa1jjhwMYibN7f58yofjZdpump",
+        "HL4x3JDqhdXRJXq1jLnh1TRUR1YwbDA87arfa7S2pump",
+        "HWa9eeJZFjH1i8KtnNRggY8uHTyejcASMrMVxAcYpump",
+        "HjhCWRRFD2B7G7D2pR6xtjvg6qNDgAVUZoGyHEFVpump",
+        "Mpud9iintB49wjgkzXHqpoc4BSbFEiyAMWtwwhQpump",
+        "QEGeG1RqDXNnMFUYY2XwVmkJkWiCSxhJAgVkPiYpump",
+        "mZsNNMEz9RnvrXuhbZ4aXeUDVFamc1de5omXHDdpump",
+        "xFHg5i5Nykmhdd7sEkt7oocLV2tPEx2JZ97HAUwpump"
+      ],
+      "membership_digest": "4ff77c10426a9920448388ad9fedc51adb920c1d61553ccbeb19a90cb3caa240",
+      "near_tier_1": false,
+      "selected_edge": {
+        "rows": 65,
+        "shapes": [
+          {
+            "amount_lamports": 2039000,
+            "hop_depth": 1,
+            "mechanism": "WSOL_WRAP_CLOSE",
+            "rows": 65
+          }
+        ],
+        "signatures": 65,
+        "timing_seconds_from_anchor": {
+          "count": 0,
+          "distinct": [],
+          "max": null,
+          "min": null
+        }
+      },
+      "supportive": [
+        "EVIDENCE_PRESENT_SUPPORTIVE: selected-edge shape and exact amount recurrence are retained across the candidate-member denominator.",
+        "EVIDENCE_PRESENT_SUPPORTIVE: atomic instruction evidence exists, but only for its atomic-retained denominator.",
+        "EVIDENCE_PRESENT_SUPPORTIVE: 21/35 retained alternative rows when compared with each member's selected shape."
+      ]
+    },
+    {
+      "address_rotation": {
+        "atomic_owners": {
+          "distinct": 2,
+          "max_share": 0.5,
+          "observations": 2
+        },
+        "atomic_sources": {
+          "distinct": 2,
+          "max_share": 0.5,
+          "observations": 2
+        },
+        "atomic_temporary_accounts": {
+          "distinct": 2,
+          "max_share": 0.5,
+          "observations": 2
+        },
+        "creators": {
+          "distinct": 79,
+          "max_share": 0.024390243902439025,
+          "observations": 82
+        },
+        "direct_funders": {
+          "distinct": 73,
+          "max_share": 0.036585365853658534,
+          "observations": 82
+        },
+        "selected_parents": {
+          "distinct": 73,
+          "max_share": 0.036585365853658534,
+          "observations": 82
+        },
+        "selected_wallets": {
+          "distinct": 79,
+          "max_share": 0.024390243902439025,
+          "observations": 82
+        }
+      },
+      "alternative_discrimination": {
+        "alternative_rows": 106,
+        "classification_counts": {
+          "EVIDENCE_PRESENT_AMBIGUOUS": 96,
+          "EVIDENCE_PRESENT_CONTRADICTORY": 4,
+          "EVIDENCE_PRESENT_SUPPORTIVE": 6
+        },
+        "members_with_alternatives": 62,
+        "per_member": [
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              1404537000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "23CqAGKfV7qDkNWTyWbRq67NLxpudquosqq8dkxVpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              12000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "2CQPWcLvfHWCFVKNKGPHHcUUwY6gR6ZXReuKAKb3pump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              108000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "2KFJncuBgyyEvk5cWzp9fAxbY6VGj4S3UoTFJHZjpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              2097000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "2KFJncuBgyyEvk5cWzp9fAxbY6VGj4S3UoTFJHZjpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              15000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "2ngQ3JcurN9GZsiTwgpDjkmDeiMDeMAGqHNFmvH6pump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              79000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "2ngQ3JcurN9GZsiTwgpDjkmDeiMDeMAGqHNFmvH6pump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              1950000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "2tWazQL5WZD7mX6viCE9LVhdmvYyPK9ws1mvPHarpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              1950000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "2tWazQL5WZD7mX6viCE9LVhdmvYyPK9ws1mvPHarpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              6000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "2tWazQL5WZD7mX6viCE9LVhdmvYyPK9ws1mvPHarpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              1000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "38D3bkkDT942ugccsWVdZ9VFM4mKQNAdvqroFBSepump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              1000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "38D3bkkDT942ugccsWVdZ9VFM4mKQNAdvqroFBSepump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              10000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "3kqgTodNuXXYdaL6jCCnn9hCyQqbjAsfUhotGYpApump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              10000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "3kqgTodNuXXYdaL6jCCnn9hCyQqbjAsfUhotGYpApump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              6450000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "4HKGqTLEj6ERc4JLwL561aJJ3eqAXfUrHE5WfifNpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              150000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "4j3WHDvFCZdwuBWFE2QLnhnGHSTuT8ez585AJ8YmfUuK",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              1500000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "5Qybdnke58XViLJiuzLSxLz8unj7k9NDU9mhyU68pump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              1000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "5Qybdnke58XViLJiuzLSxLz8unj7k9NDU9mhyU68pump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              2000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "5f1kYqUmzkEsZMBuyw7bSsmfzfFLNtrBdngLmYdSpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              null
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "5f1kYqUmzkEsZMBuyw7bSsmfzfFLNtrBdngLmYdSpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              null
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "5f1kYqUmzkEsZMBuyw7bSsmfzfFLNtrBdngLmYdSpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              1100000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "72oeKPqhzacsmHvVoS7LnqbFMYfprtYJpNPULSUcpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              10000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "7ArcgAn86dNW7ApxY4At29ZKWskmDos4ttdGZ87rpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              15335909000
+            ],
+            "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+            "mint": "7kkys3mptnDxyHAWtNaFo2z6k6TPvFfoic8QmZtdpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              85532038000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "7kkys3mptnDxyHAWtNaFo2z6k6TPvFfoic8QmZtdpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              2000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "7t78Jm8rKPe23MUc1qkSkwcU5NrAREyeLojtNKwYpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              900000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "87GpMQP3mcQP86a1ZZSTicxwh6LR47VGXuJmuxJ7pump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              1219810000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "87GpMQP3mcQP86a1ZZSTicxwh6LR47VGXuJmuxJ7pump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              7000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "8SVVLmvr9pRQXEptmmRD6ZhN5D9eb72K93sF8ctVpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              29000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "8SVVLmvr9pRQXEptmmRD6ZhN5D9eb72K93sF8ctVpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              150000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "8vGRm48fKLH1Nu4up3muME5TwtdoZbaq4ezVTuvXceVv",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              10000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "9hXQs3hGq46UENuzv6xZ8BHWyFeKF2EbPmBbekx9pump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              5003564000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "9sbwNmXAFWUeFCdhDS6ijsCy7PYXehUd7yrwF6kbpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              10000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "AGMbrYDzfVD4w7Ko6Hy4LMkYHaL863ELLC8fnEmJpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              10000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "AGMbrYDzfVD4w7Ko6Hy4LMkYHaL863ELLC8fnEmJpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              null
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "AGMbrYDzfVD4w7Ko6Hy4LMkYHaL863ELLC8fnEmJpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              19674900000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "AJZs4cKC8SKGRP7rX91Q8ymw8Hm2WD5d15511PuMpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              21510947000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "AJcmwzgHSFxAZMbrArGkQFgDVdXybGXNKS3EBYCopump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              164200000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "Aa4u4PatH2ETWzywhYn8orB4AstYkn39b69XBm7cpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              32800000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "Aa4u4PatH2ETWzywhYn8orB4AstYkn39b69XBm7cpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              65800000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "Aa4u4PatH2ETWzywhYn8orB4AstYkn39b69XBm7cpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              1000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "Abtqxwyd2jUXRe6DumktmsnZmYt5DPffcMqveGnspump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              332482000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "AcUCdbkkm7XxTF5DoHBxw23eEjkpH7Gucogq3azvpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              1000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "AcUCdbkkm7XxTF5DoHBxw23eEjkpH7Gucogq3azvpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              1000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "Ad4FJptknXNWn8CfFNoHeBybNJYik4NkTvTsoo8Spump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              1000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "Ad4FJptknXNWn8CfFNoHeBybNJYik4NkTvTsoo8Spump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              383162000
+            ],
+            "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+            "mint": "BRUUdArBUMS59Rz4ijudSUPYTSQ2DUEHbdgBimqspump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              10000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "BRUUdArBUMS59Rz4ijudSUPYTSQ2DUEHbdgBimqspump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              null
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "BRUUdArBUMS59Rz4ijudSUPYTSQ2DUEHbdgBimqspump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              29000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "BRUUdArBUMS59Rz4ijudSUPYTSQ2DUEHbdgBimqspump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              354617000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "BSAYvqYzRQxYGPUupFFhS74AdPxp5TXoBZPmbpvnpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              10000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "Bv3yDoULwxn6Uz9FyhmvQgJvFrip9QAnvLcfoHHxpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              10000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "Bv3yDoULwxn6Uz9FyhmvQgJvFrip9QAnvLcfoHHxpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              30000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "Bv3yDoULwxn6Uz9FyhmvQgJvFrip9QAnvLcfoHHxpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              3291000
+            ],
+            "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+            "mint": "C7mc7oz3crRgfeGWkgbieMdeehEU2NqL6g87abvapump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              null
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "C7mc7oz3crRgfeGWkgbieMdeehEU2NqL6g87abvapump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              600000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "C7mc7oz3crRgfeGWkgbieMdeehEU2NqL6g87abvapump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              2231051000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "CRvWBQDWKEVLU9qiPGHRHxwPQiFVmsfmX72LSEYrpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              200000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "CoVSP4TDivcDQdfBDK3QcJqxNPeFHmJurgHtD18Dpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              78000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "CoVSP4TDivcDQdfBDK3QcJqxNPeFHmJurgHtD18Dpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              1814347000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "CoVSP4TDivcDQdfBDK3QcJqxNPeFHmJurgHtD18Dpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              5000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "CsJFPg96KiBsxyZntkZqT7xHob1Z5tftTge8cdA8pump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              30647000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "DQkmbKM21tegRheCiX7DT7xqCB4TvD7DJKNaxkHXpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              10000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "DeAmUGdqYJV5QqGD86uwvMzgYKoZkkVKDbwqFHTApump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              10000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "DeAmUGdqYJV5QqGD86uwvMzgYKoZkkVKDbwqFHTApump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              1000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "DeAmUGdqYJV5QqGD86uwvMzgYKoZkkVKDbwqFHTApump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              1000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "DohHmpjshLaY2Gqeu2aq3qFvae1pyV8T4En4uda5pump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              4060778000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "Dqq8U6wntss75umw1fZbrmN1dwbqxdsRChE35jyHpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              10000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "Du9GtdceGBnZCw4hBGC8Ytn1YghVWyVJhWZguNCKpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              10000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "Du9GtdceGBnZCw4hBGC8Ytn1YghVWyVJhWZguNCKpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              13617308000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "Du9GtdceGBnZCw4hBGC8Ytn1YghVWyVJhWZguNCKpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              10000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "EgEFvTz49M1A5Wh1EkHwjSEq4Fqqa3Lh3UqwUUddpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              null
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "EgEFvTz49M1A5Wh1EkHwjSEq4Fqqa3Lh3UqwUUddpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              11000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "EgoSDG6a32hjzTjDnB6M1HjYm4hvGNx9fXAhsqTMpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              20000156000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "EjGiz53D7JKy6PAK9sQgM8BRim6KisM6vbeKJ3Zhpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              172228385000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "EkXPmp3ruiA5z74Dp8u5vxcSqbXeRVPKHSNdsHRtpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              5000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "F3StXVFSiMGEqQV6vRVGY8uZediQQ2ZL4bf3howkpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              null
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "F3StXVFSiMGEqQV6vRVGY8uZediQQ2ZL4bf3howkpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              10000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "F8tgVFnqDuBepAdh7w9gRhSLhWxGCMTzwEwTt8zzpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              584400000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "FK6s99UrfoAVnLTZxJuB4547JK95hTdbkcZhNdpFpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              150000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "FLCZk2CRwxymQEhY3jRqbJ1GwEcZVEQFNH1T146uDDf5",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              2500000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "FTnzLJYFBKcmnvD2n4H1tGrvUPU3AAHSF7411Upcpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              1000
+            ],
+            "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+            "mint": "FTnzLJYFBKcmnvD2n4H1tGrvUPU3AAHSF7411Upcpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              3950000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "FTnzLJYFBKcmnvD2n4H1tGrvUPU3AAHSF7411Upcpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              4999991000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "Ft9SNGXt29RJ5PKW2PA86ANUKSSkJi2HMcwyHP31pump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              7700000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "FxnN4Mr4swvvPVjJ2aNoE6ht2xbCSjftQSRaRR46pump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              321987000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "G2rkkf17XjnQq7eeEKsjNL7XD4FeytKoToxeYd55pump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              321987000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "G2rkkf17XjnQq7eeEKsjNL7XD4FeytKoToxeYd55pump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              321987000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "G2rkkf17XjnQq7eeEKsjNL7XD4FeytKoToxeYd55pump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              321987000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "G2rkkf17XjnQq7eeEKsjNL7XD4FeytKoToxeYd55pump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              null
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "GYHDCV7xndx81GEaHHXrR2cFMXkXWXLpNKAvXbHRpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              6000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "GaeGrbi5yFoy2tXwvaMWApgihm55EzZUmcX5m42kpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              500000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "GjZ7Yd1pfqjBvj8vjJQJj1cdukF5fo5VXRmHRt8Jpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              1000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "HG6dbpS5NS6eaL1eGQhySa3NGX83s58eowg5ucCcpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              10000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "HG6dbpS5NS6eaL1eGQhySa3NGX83s58eowg5ucCcpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              10475644000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "HG6dbpS5NS6eaL1eGQhySa3NGX83s58eowg5ucCcpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              4330000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "HG6dbpS5NS6eaL1eGQhySa3NGX83s58eowg5ucCcpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              147968000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "HG9KQ2ecX4augzcDZNrQzbN8YeGaLB9VH8Dm6xq9pump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              2624681662000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "HXQFQkXV2DcUJU9i3oqxKufwuRSV6LbFGWZzMXjSpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              3827620000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "HrmesQMieZeYyDr2jFcnBFgo9pwiD8UsNTESvpaypump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              249800000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "J953vebSPKitXaPBWC4qdSEKzoB52KQtLX8tR8WKpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "WSOL_WRAP_CLOSE",
+              10365000
+            ],
+            "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+            "mint": "eaUtnD6aBoQznUQ6WnAw1aMtFMTY4VGFMLWytDTpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              15000000000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "eaUtnD6aBoQznUQ6WnAw1aMtFMTY4VGFMLWytDTpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              8757610000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "rmSC1vM5MjkQ3DS2PWnJ3AWmvM1vLfo7gsu4usqpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              4422667000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "rmSC1vM5MjkQ3DS2PWnJ3AWmvM1vLfo7gsu4usqpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              862114000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "rmSC1vM5MjkQ3DS2PWnJ3AWmvM1vLfo7gsu4usqpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          },
+          {
+            "alternative_shape": [
+              1,
+              "PLAIN_XFER",
+              391584000
+            ],
+            "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+            "mint": "tTDWXGdUqUysgtCERuZbGni7xKC7xtknJFxDgocpump",
+            "selected_shapes": [
+              [
+                1,
+                "PLAIN_XFER",
+                1000
+              ]
+            ]
+          }
+        ],
+        "shape_comparisons": [
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                1000000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 5
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                10000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 16
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                1000
+              ],
+              "classification": "EVIDENCE_PRESENT_SUPPORTIVE",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 6
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                10475644000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                108000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                11000000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                1100000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                12000000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                1219810000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                13617308000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                1404537000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                147968000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                15000000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 2
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                1500000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                150000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 3
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                164200000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                172228385000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                1814347000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                1950000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 2
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                19674900000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                2000000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 2
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                200000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                20000156000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                2097000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                21510947000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                2231051000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                249800000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                2500000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                2624681662000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                29000000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 2
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                30000000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                30647000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                321987000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 4
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                32800000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                332482000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                354617000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                3827620000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                391584000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                3950000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                4060778000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                4330000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                4422667000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                4999991000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                5000000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 2
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                500000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                5003564000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                584400000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                6000000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 2
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                600000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                6450000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                65800000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                7000000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                7700000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                78000000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                79000000000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                85532038000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                862114000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                8757610000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                900000
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "PLAIN_XFER",
+                null
+              ],
+              "classification": "EVIDENCE_PRESENT_AMBIGUOUS",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 8
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "WSOL_WRAP_CLOSE",
+                10365000
+              ],
+              "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "WSOL_WRAP_CLOSE",
+                15335909000
+              ],
+              "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "WSOL_WRAP_CLOSE",
+                3291000
+              ],
+              "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          },
+          {
+            "comparison": {
+              "alternative": [
+                1,
+                "WSOL_WRAP_CLOSE",
+                383162000
+              ],
+              "classification": "EVIDENCE_PRESENT_CONTRADICTORY",
+              "selected": [
+                [
+                  1,
+                  "PLAIN_XFER",
+                  1000
+                ]
+              ]
+            },
+            "count": 1
+          }
+        ]
+      },
+      "ambiguous_or_not_retained": [
+        "EVIDENCE_PRESENT_AMBIGUOUS: 96/106 retained alternative rows when compared with each member's selected shape."
+      ],
+      "atomic": {
+        "flags": {
+          "has_close": 2,
+          "has_create": 2,
+          "has_sync_native": 0
+        },
+        "instruction_sequences": [
+          {
+            "instruction_order": [
+              "createIdempotent",
+              "closeAccount",
+              "transfer",
+              "transfer",
+              "getAccountDataSize",
+              "createAccount",
+              "initializeImmutableOwner",
+              "initializeAccount3",
+              "transferChecked"
+            ],
+            "rows": 1
+          },
+          {
+            "instruction_order": [
+              "createIdempotent",
+              "createIdempotent",
+              "closeAccount",
+              "getAccountDataSize",
+              "createAccount",
+              "initializeImmutableOwner",
+              "initializeAccount3",
+              "transferChecked"
+            ],
+            "rows": 1
+          }
+        ],
+        "members": 2,
+        "rows": 2,
+        "signatures": 2
+      },
+      "candidate_id": "p3r-v2-6f7738e9702395ba8ad3",
+      "contradictory": [
+        "EVIDENCE_PRESENT_CONTRADICTORY: 4/106 retained alternative rows when compared with each member's selected shape."
+      ],
+      "denominators": {
+        "candidate_members": 82,
+        "members_with_alternatives_retained": 62,
+        "members_with_atomic_retained": 2,
+        "members_with_selected_edges": 82,
+        "raw_transaction_instruction_table_available": false
+      },
+      "disposition": "LOCAL_CONTRADICTION_STRENGTHENED",
+      "material_tier_progress": "No: no new strongly recurrent atomic behaviour was established from retained local evidence.",
+      "member_count": 82,
+      "member_mints": [
+        "23CqAGKfV7qDkNWTyWbRq67NLxpudquosqq8dkxVpump",
+        "2CQPWcLvfHWCFVKNKGPHHcUUwY6gR6ZXReuKAKb3pump",
+        "2KFJncuBgyyEvk5cWzp9fAxbY6VGj4S3UoTFJHZjpump",
+        "2bV9YpF2sGhcb5cQP77F2BBR4jBGWw9uTHRE5ghCpump",
+        "2ngQ3JcurN9GZsiTwgpDjkmDeiMDeMAGqHNFmvH6pump",
+        "2tWazQL5WZD7mX6viCE9LVhdmvYyPK9ws1mvPHarpump",
+        "2y8NPbGKV1wSMLsJCTixEzgRJqNnNYgB6q9Nq3aqpump",
+        "38D3bkkDT942ugccsWVdZ9VFM4mKQNAdvqroFBSepump",
+        "3kqgTodNuXXYdaL6jCCnn9hCyQqbjAsfUhotGYpApump",
+        "4FBvQXfmNJBkcUCqjNXod2g9Yteqve1xnp1SWVvnpump",
+        "4HKGqTLEj6ERc4JLwL561aJJ3eqAXfUrHE5WfifNpump",
+        "4RWPxYvaugMXBTjVa4m9mKwiBXLJXqN2czo65Z9Npump",
+        "4j3WHDvFCZdwuBWFE2QLnhnGHSTuT8ez585AJ8YmfUuK",
+        "5Qybdnke58XViLJiuzLSxLz8unj7k9NDU9mhyU68pump",
+        "5f1kYqUmzkEsZMBuyw7bSsmfzfFLNtrBdngLmYdSpump",
+        "6Y59T5dK1DNFvu2iCfNpLVwWdA2HdnyAf7YNjHsMpump",
+        "6qYAezXfHgskyRGEA4tBtvwhxTdKSdQ8nb2CQyfApump",
+        "72oeKPqhzacsmHvVoS7LnqbFMYfprtYJpNPULSUcpump",
+        "754aJvu6ws2kJz6xH5CkvbCCRnyZVzjjBRvAxiW7pump",
+        "7ArcgAn86dNW7ApxY4At29ZKWskmDos4ttdGZ87rpump",
+        "7kkys3mptnDxyHAWtNaFo2z6k6TPvFfoic8QmZtdpump",
+        "7pUceSM7nWXxJKsSdV4nLvTysqNUqdaRw55i9A5Ppump",
+        "7t78Jm8rKPe23MUc1qkSkwcU5NrAREyeLojtNKwYpump",
+        "87GpMQP3mcQP86a1ZZSTicxwh6LR47VGXuJmuxJ7pump",
+        "8SVVLmvr9pRQXEptmmRD6ZhN5D9eb72K93sF8ctVpump",
+        "8vGRm48fKLH1Nu4up3muME5TwtdoZbaq4ezVTuvXceVv",
+        "9hXQs3hGq46UENuzv6xZ8BHWyFeKF2EbPmBbekx9pump",
+        "9mHyZ8kMfNetdUTTxzkSsu2Cnrq57japmnEiSVMa1bKY",
+        "9sbwNmXAFWUeFCdhDS6ijsCy7PYXehUd7yrwF6kbpump",
+        "AGMbrYDzfVD4w7Ko6Hy4LMkYHaL863ELLC8fnEmJpump",
+        "AJZs4cKC8SKGRP7rX91Q8ymw8Hm2WD5d15511PuMpump",
+        "AJcmwzgHSFxAZMbrArGkQFgDVdXybGXNKS3EBYCopump",
+        "ASSkom4qgi4mXdnYXsgwdP1QfpgWVMMbztLu3Fk5pump",
+        "Aa4u4PatH2ETWzywhYn8orB4AstYkn39b69XBm7cpump",
+        "Abtqxwyd2jUXRe6DumktmsnZmYt5DPffcMqveGnspump",
+        "AcUCdbkkm7XxTF5DoHBxw23eEjkpH7Gucogq3azvpump",
+        "Ad4FJptknXNWn8CfFNoHeBybNJYik4NkTvTsoo8Spump",
+        "At5ayKS1tMqwLyc32ZnTpZJ94z3PTrSAnWEatFRtpump",
+        "B4Nq6JGiri3QF3bB14bm5wSmQFc7tmb74RaMhGmMpump",
+        "BRUUdArBUMS59Rz4ijudSUPYTSQ2DUEHbdgBimqspump",
+        "BSAYvqYzRQxYGPUupFFhS74AdPxp5TXoBZPmbpvnpump",
+        "BXxVPZpSeGtp6gDDy77qyiMd2XMFdcXETArzLWkFNgoH",
+        "Bv3yDoULwxn6Uz9FyhmvQgJvFrip9QAnvLcfoHHxpump",
+        "C7mc7oz3crRgfeGWkgbieMdeehEU2NqL6g87abvapump",
+        "CRvWBQDWKEVLU9qiPGHRHxwPQiFVmsfmX72LSEYrpump",
+        "CoVSP4TDivcDQdfBDK3QcJqxNPeFHmJurgHtD18Dpump",
+        "CsJFPg96KiBsxyZntkZqT7xHob1Z5tftTge8cdA8pump",
+        "DCy3NCMXDiCnfMXNinAp6ve2tfz6RMZAgAGafA37pump",
+        "DQkmbKM21tegRheCiX7DT7xqCB4TvD7DJKNaxkHXpump",
+        "DeAmUGdqYJV5QqGD86uwvMzgYKoZkkVKDbwqFHTApump",
+        "DohHmpjshLaY2Gqeu2aq3qFvae1pyV8T4En4uda5pump",
+        "Dqq8U6wntss75umw1fZbrmN1dwbqxdsRChE35jyHpump",
+        "Du9GtdceGBnZCw4hBGC8Ytn1YghVWyVJhWZguNCKpump",
+        "EgEFvTz49M1A5Wh1EkHwjSEq4Fqqa3Lh3UqwUUddpump",
+        "EgoSDG6a32hjzTjDnB6M1HjYm4hvGNx9fXAhsqTMpump",
+        "EjGiz53D7JKy6PAK9sQgM8BRim6KisM6vbeKJ3Zhpump",
+        "EjZvuqwTVtszs2P5PmE4YkDvdTR3yVSEaNnk8gW6nCPo",
+        "EkXPmp3ruiA5z74Dp8u5vxcSqbXeRVPKHSNdsHRtpump",
+        "F3StXVFSiMGEqQV6vRVGY8uZediQQ2ZL4bf3howkpump",
+        "F8tgVFnqDuBepAdh7w9gRhSLhWxGCMTzwEwTt8zzpump",
+        "FE5HFEFHsKes7C1nJDjoquKCAKy38U4TeRJAANvEpump",
+        "FK6s99UrfoAVnLTZxJuB4547JK95hTdbkcZhNdpFpump",
+        "FLCZk2CRwxymQEhY3jRqbJ1GwEcZVEQFNH1T146uDDf5",
+        "FTnzLJYFBKcmnvD2n4H1tGrvUPU3AAHSF7411Upcpump",
+        "Ft9SNGXt29RJ5PKW2PA86ANUKSSkJi2HMcwyHP31pump",
+        "FxnN4Mr4swvvPVjJ2aNoE6ht2xbCSjftQSRaRR46pump",
+        "G2rkkf17XjnQq7eeEKsjNL7XD4FeytKoToxeYd55pump",
+        "GUvGLRKzHSH1mptfEeXeWDKMdAfev5b1UdfTdCgnpump",
+        "GYHDCV7xndx81GEaHHXrR2cFMXkXWXLpNKAvXbHRpump",
+        "GaeGrbi5yFoy2tXwvaMWApgihm55EzZUmcX5m42kpump",
+        "GjZ7Yd1pfqjBvj8vjJQJj1cdukF5fo5VXRmHRt8Jpump",
+        "HG6dbpS5NS6eaL1eGQhySa3NGX83s58eowg5ucCcpump",
+        "HG9KQ2ecX4augzcDZNrQzbN8YeGaLB9VH8Dm6xq9pump",
+        "HXQFQkXV2DcUJU9i3oqxKufwuRSV6LbFGWZzMXjSpump",
+        "Ho4XiR8k1ontjRiGhvy3yVGAK7j4F4TkHXgatt1ppump",
+        "HrmesQMieZeYyDr2jFcnBFgo9pwiD8UsNTESvpaypump",
+        "J953vebSPKitXaPBWC4qdSEKzoB52KQtLX8tR8WKpump",
+        "cB71ramHP3wJU1CuV2keLgz5P2iLBfTJ9CdorzWpump",
+        "eaUtnD6aBoQznUQ6WnAw1aMtFMTY4VGFMLWytDTpump",
+        "hyyTdYTsRHCgsuXHgYiMfPF94Eqd1iX2E6HYzp8pump",
+        "rmSC1vM5MjkQ3DS2PWnJ3AWmvM1vLfo7gsu4usqpump",
+        "tTDWXGdUqUysgtCERuZbGni7xKC7xtknJFxDgocpump"
+      ],
+      "membership_digest": "d47a47715b6afd2bdb467d922627631bd080b6b42dcb983823f88c17c539301f",
+      "near_tier_1": false,
+      "selected_edge": {
+        "rows": 82,
+        "shapes": [
+          {
+            "amount_lamports": 1000,
+            "hop_depth": 1,
+            "mechanism": "PLAIN_XFER",
+            "rows": 82
+          }
+        ],
+        "signatures": 82,
+        "timing_seconds_from_anchor": {
+          "count": 0,
+          "distinct": [],
+          "max": null,
+          "min": null
+        }
+      },
+      "supportive": [
+        "EVIDENCE_PRESENT_SUPPORTIVE: selected-edge shape and exact amount recurrence are retained across the candidate-member denominator.",
+        "EVIDENCE_PRESENT_SUPPORTIVE: atomic instruction evidence exists, but only for its atomic-retained denominator.",
+        "EVIDENCE_PRESENT_SUPPORTIVE: 6/106 retained alternative rows when compared with each member's selected shape."
+      ]
+    }
+  ],
+  "rpc_handoff": [
+    {
+      "candidate_id": "p3r-v2-5a23bde39497a50696cf",
+      "contradict_result": "Multiple incompatible paths persist at >=50% observable member coverage with no dominant behavioural fingerprint.",
+      "estimated_bounded_calls": 94,
+      "local_boundary": "No retained raw transaction/instruction table exists beyond selected/alternative edge rows and atomic-flow rows.",
+      "member_subset_requiring_retrieval": [
+        "22iWTKcSLWNQqSBChezTW8rQzi9RuD43NQYe5tnypump",
+        "26w7qBovfKv4zprC7wmPQx9McchzdzNoZYz7SXpupump",
+        "29GNbtEamnJ2Btd6kASfKM4RBcTvKhtHv9Xt657Epump",
+        "2Dgvn5ktX6DnEY4wEBrevCutgUxuZUtbzVHKXp78pump",
+        "2FW3eNWNKSkJFdrSUwPC2U8zxu9MjExgVYxR5Wd7pump",
+        "2NU9N5XgsVVxZPx2UhqzepUKp5ppDVpvBm2PU4Depump",
+        "2U75GgW2W53MZMuH2jSDxcekjFF6Vw4Q7KxYBw5Ypump",
+        "2XGu8wU3CF22jfcCoywuRky6B8s9ws5jp8aEwJpJpump",
+        "2m3WKc6FB8KfU2zXA1yYBxh5hZJfqzoyx97DqYoepump",
+        "2sgbfjkAyjAw1GKeLUz97xnBWkbwtor3utRbL46gpump",
+        "2tgMDcVU5e6E9tSDRHzQr8597C6aVtt9ABArFA5Apump",
+        "2z2B5Zoz16gQ5uDXLq6qQEB6QSeiWPKwNxXyUaTapump",
+        "39dsjtSjwUvT1kAfGtYcMR8x1fxhdkftZJyWyeaDpump",
+        "3RvpiEiMXkS5mKuKWMa6pMYcuTtJ2FRS5kREiRFVpump",
+        "3gosQAi7WAKRnkCibW2hamv9NkVvFLXePAPQZb5Gpump",
+        "3zUqCv6rsqxvPJSLf1SetgYqjXBLqbuWyJqchnZfpump",
+        "4BQ7xDWWL7aQhST6zKVQMQFnfLvZmogrsakpCbz1pump",
+        "4HoUp5FkWNs69hoCNx7kEYJLFGN5KHSyw5xejfv7pump",
+        "4JGvYrTbLw8yUduczE551CxCVbNbES3r448fM64Ypump",
+        "4Ynf2tJqQ76Wk8WcP1bHdBCD78nikhJfEiz6g7VNpump",
+        "4of1UgnA7fCQwmsCAojtG9AVVcVYbeTVynvrw7mZpump",
+        "5DaN2m9fbVEUauahVcmNYve96epyt8TgPoFmQveMpump",
+        "5Ma1VrMGSSgpfd3HbrbQiNBiVtLaBCc9vWfuapiWpump",
+        "5STRSXMndEbWFhJyGHNNBD1E687Bt8r8hwcU4Lcqpump",
+        "5XofojPbCuAa3PtWjqUsnyoK62QJpqGNSM875Cxzpump",
+        "5fkE6w1Z6p3LSiSGnmt7pwFANi6pVKcyyM8YiicSpump",
+        "5nRGHJZ93pMKJo2ayCBxvKqWCsZKCbzQBrBave5xpump",
+        "6ABMQVGdHCzrmTdj31eZFctPtrsXT7LJZ8YGRc1ypump",
+        "6CpVLDKyWcEeJ7Ypvghc645Mg2TjbuABztqXqK5Jpump",
+        "6ewKfuRRkMx4aE8Yhv3CLscd5SUdsARGvUfEfvarpump",
+        "6n7RMRDhGJf1CEbz1YYs7fiZPPHYc77NqrqXL44Mpump",
+        "7RuKSuywEi3S4urccQXHgUZRGVYdspwQS9CD4KCJpump",
+        "7S6B6F5yDqHoGM3HWLZGhgvaRKacSeVuGDzLhMYJpump",
+        "7THiP6ev2GD2Qaoz3MdH5f7VhxwWqqWvJiKU9Mi4pump",
+        "7iLe8gak6XAcRA6xx4YSnPK4XHjiHyEbq5rqUJ95pump",
+        "7z4cgsb7egGx4iWXioU5agYP2cU5tyoXZakSCxafpump",
+        "8BHgfFFRB9NiawMgTApjsqd2uUKcW4syU2gdqCjfpump",
+        "8JwsfQ1Nt4dCUvVhCskg4MBpV9wJ1ctud7w7K2sipump",
+        "8VydTp4WxMszBLSDeUQhYxk5ShLZ5ZkZM32S8rYZpump",
+        "8WrMtDYHM2yr3Q8FkxNNtUAhfZsgiu2LNHX5N7gSpump",
+        "8tWvW4TdAv19gwkug1S16gvQdd44Ggpby13RCFEQpump",
+        "8uRGSHstoEMSC4f9yCJd7Xvj4f2SBHwZ6Nj7Qgz7pump",
+        "91MRDfBFUTQFYastSfKPK2DSvr4AEuK6E5wCcho8pump",
+        "92EpuApFu8VkmQEPF95F9nbXFQ2h9VGpJR2Ycmtnpump",
+        "9KbvJ3RitJ8rFDAM6rEVKKJV8Y4sKsawnYJR4QKHpump",
+        "9SWb78tBD1FZEQSMVk6C56A7NT1QwSNBWFRg4ASBpump",
+        "9ijhsVMAe5YasK9hhPN655eM1nMB5k4jYdDtX2fFpump",
+        "9kzsKcPFYrHGv2XviBSTRXKyKpRmgP5Rw3oFvY8Dpump",
+        "AFnCQjbWGkVvP1ZrQjbx2LqSJF5fwLTntDiauXXspump",
+        "AJUskpVtW3TBr58ynZ9phVPbh3M7SZV8THLX69FLpump",
+        "ARy1yY1JCLzNLe45ULnDQUhn6PyZbKeyYcmxWjKppump",
+        "AhpgnEtm2768xJwG5kCK18qHhd6naMKjTpoiCQcjpump",
+        "Ar3vVpZt2xZB5Z52F2tkWAXRiYM6umWUhRBJvUVXpump",
+        "AuD4BEQaNUcLzqKSVANe4UGZVUTZcpamuNBAfBFdpump",
+        "BT3X6i8JzQQDLgKDqQsHp5wPtSRN3as5VzYpnVEJpump",
+        "BVeEzH4USexqb2A16QQ6sQ7KbzPMkzJwNVjV8m6dpump",
+        "Bcp1E1yb8Q9VdqMGNuHT45QaHCBwzqVXdpJo6rs8pump",
+        "Bh819rWjgJvWKeu5G38AcdZm7aKq8RdSfF7stGREpump",
+        "C65gw5k88heBcebgtvDwztk1wS1Luo4Zg7pu7oFnpump",
+        "C8mV6Dgc8uX9GQf2PUAUJmRR8en7WejjKL18X4oXpump",
+        "CHfa3StfTzbYhBNXhStoqgNDJ23obwq8GVfQsSQWpump",
+        "CUXHBsEHvGSRaAyqw7tyeVrJzq9dtNJKhiQXPs1apump",
+        "CX5bNC78TSgfJiTYpFvCYNemfHRimhVr8XRJAio8pump",
+        "CemGgV19naMKqxHT9H7RbekuUvHx6Hk2J6KxFJzspump",
+        "CkjVr4ZFrCFvy9k6yt6w31R6ZKyDfFokusKw3A7Upump",
+        "Cwt4zYUsNM4JbjaRZ1VgYQYtWBbLXZW8MAHYe9hypump",
+        "D5Z6sxoGMeyTsC6zVxK4vBjKGQQFSYivXRDj58bCpump",
+        "DimyNkABRwrdyKJhrCn1JYXtX8B4VybjWzy5j2ugpump",
+        "DvjAtw5JgxeCD9XMxwxzMTXoqbprwdtUa5yEha9npump",
+        "E39j4UBmyLjBNqarsh3boJcUqPN82GgZkg2oQ4Afpump",
+        "E6x9rPwbWv85tP1N8AcmZ5g5HhALVpVZDvzD1g6qpump",
+        "E7AweQ7EayaHkR7qgi1fGcNhBhQxKjncVcQqk3eVpump",
+        "E9jov4Pnr2F518gmcb5Br2U6fQFbMP92h3FxZSMzpump",
+        "EAb3BdU6pv3hfvA6X1tFvp6QQBJxrvUWCW5BaKgDpump",
+        "EGnhXEwz5jfZL3LfFgNKDhAcwNvh7oWCe86SpPTbpump",
+        "EJ3F7vDGyCzykEKWgM112cd3GBWawP6pZm6hKuVxpump",
+        "Fm7CB5gEjC6Ase6wykJHhCqPz7HKnK1BeVS95njcpump",
+        "FnZfD1mVTDMcNs3ExCjpK9MdBosR51QJQmNF54UBpump",
+        "FnjLE4joyVihNMmp6bvYZSyMhy7jT5YHCTwQBBadpump",
+        "FxoSCwn1bBi3PvmHMmxHEyAnzJ1K1KXqWNyaxHXRpump",
+        "G9SMBm6bxBpBNuDA5d7MTN5HfGKP7nnHp84KgJqGpump",
+        "GcksQehNFe3FktQMfoKnDTqL9rjt8LDwywyiwcwipump",
+        "GmcJeW8RVpZd9kusjgzdkstByhmKA2uaEQ2QRDEqpump",
+        "GtpUa2zbVcyJdvk2PRADam5uUcQsx8KAndMWUCMTpump",
+        "GxSCeYibL7AFeDYQC1P2wR2pYFqAo7DvSR6imKqMpump",
+        "H55qUAeK313XyTrhxeMVQgBrogdGG9biyAVfmDQipump",
+        "H6jR4eKYVAr9MQ385Cmvo3SogLiYeUX8ECsxqihApump",
+        "HJQC4xW9k3gxstQ65UjAwq7D9EQ38NaJiQNayjPopump",
+        "HKkJjZTiUoGzZMhBxQL3NQJgAZbSUq6Hhiqfh32Ppump",
+        "HXD5YL3rwv1mrHC4giBkAb1pxW6ohCQppJsxrzJZpump",
+        "g6n3DTMqhvn6wbiHPueAzCQi3oee2xrCqEL2wdtpump",
+        "mReC6EP5fcyFPo32AhndzKh3248q4Ne666Tp6G7pump",
+        "wGEyTQEyhE5sQUTsq9f2A3nnEu2EPTsAetmurRCpump",
+        "wSNtLYAEoVFBPAERJyYmtkK5RnsK8Xsm4efhtEapump"
+      ],
+      "minimum_rpc_evidence": "One pre-launch funding transaction parse per listed member, including outer/inner instructions and balance deltas; retain selected and alternative causal edges.",
+      "support_result": "A single address-independent alternative/atomic fingerprint meeting the frozen >=3, >=50% coverage, >=60% dominant-share threshold.",
+      "unresolved_questions": [
+        "Are alternative funding paths recurrent across the frozen member set?",
+        "Does a recurrent atomic provisioning/close sequence exist across at least half of members?"
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-32aa0d5125ef777cfd1e",
+      "contradict_result": "Sustained incompatible paths at adequate coverage.",
+      "estimated_bounded_calls": 33,
+      "local_boundary": "Frozen enrichment artifact establishes no sufficient retained local evidence.",
+      "member_subset_requiring_retrieval": [
+        "2pVVVVxXZ4xg9Y7YZPMQh4yDkstkRBD8APr11NUPpump",
+        "2yGsvtnYAgdBpstEkJRLacc6jfaszHj9bU4FzuXNpump",
+        "3L6XGXK95vajA4b9MmGQywMPgzQqqTnJUoZvt2rfpump",
+        "3ck4GcvQcmUqqKraKV3fK6AmWbpr9EE7fdqRPvYupump",
+        "4UMcvUAHgADKJa8tjQGRtU6sKx9kQgWX69ygdr8Npump",
+        "4wQBGvSeX8QmsLxsobVh2RqjKHujwpWLgCHK7Kwppump",
+        "5AKiLBNATnNpHKdSedRXQmzz8hyoPf34BM8rTh6Cpump",
+        "5uVwVUvzXsYP9Cc1sjRgVJE1zX3xfi3pArJNg9RNpump",
+        "6783msTvUxPTSon67SZXPMvHUETudP8KuTaRoRcepump",
+        "6QQQsJsHkcnk8iLwyJUYAyR7LtxsWNkXhwQfy7s3pump",
+        "6viwViudfDz2s9C7CoqUTPVHZDksywbaf1sxTH9jpump",
+        "7Dxr19j2PHovdocuQfvySft7M2XuP5pr6x8YAWHPpump",
+        "7M5k3bTN8kJj3eU5CEoL8p12nKFXSFewkdGi4kxKpump",
+        "7NPL6KHj9mGzEA843DpvC6demi2VT3kzv7GQo7JBpump",
+        "8bCwuJpqtx3xd33SRvhxPzSJRQuijCZCjY3KH4LCpump",
+        "8iH4WriRszKUSPBNmKabRaoC8eJsmKsRBbCYAhqvpump",
+        "9Lua93QysHFz6Qni12T8gW7Z4XmWx9oy7qW1wg4ipump",
+        "9uZGenBKKUXbCqM7Uh9jtTtRajD3PzHHyZmrAGBNpump",
+        "Ag4dogFXT8BkdZe8gHcs7SDkXKR2wn3RbkyrpbqYpump",
+        "DFK5gy669SF7FVzJJuboTxnh7VVBXY5ZP37fok3tpump",
+        "DQGc8ko8Kn8WKF5oHBGKUaaU9ET5ZLCh8rH4xzCEpump",
+        "E3boCNiAtAJ8iUW5cavxk5gkav5bYKP9UV35srCYpump",
+        "Ehjqf14dNJnigNCNqQ2mcFa842k73L9HKVxXKHq5pump",
+        "FRS2TzZZGv4X4kx9a2wiMWyrTBRN9CYDRmp9quUTpump",
+        "FnTzTiWvTJugJP3HtVqtpWqj6MuGLk4ZM5TyfGJvpump",
+        "Gh99PvKLnm9JBC9t4udunTgBvkAxCnyBZby3N6Atpump",
+        "GyrPx2REsimD1akdvUZgj8NHxCK7Fer8sbSSD1N2pump",
+        "HDd3UaJ4SnoBHpRBharo2xgAyNemYtQgkMNEPecpump",
+        "JBWzQjpJ5BegHuJfUzAAG9a27iXB9m3tvREepccBpump",
+        "emrYBbUY1wey4g3Fc1xazZ5qu6v2Q3GDG12fgRJpump",
+        "h6QBPEi1Wq4YAwL6dM1nB76iC6hENpn3rXpV8wzpump",
+        "q23J3Uw3Mscbe3rcvYxaAjNYBnJmLdLGULmTowWpump",
+        "wKnPvBvDJDWWF3ryK6QGCuJoJPxtQU9mxTAAv57pump"
+      ],
+      "minimum_rpc_evidence": "Pre-launch funding transaction parse per member.",
+      "support_result": "Address-independent atomic/alternative recurrence at the frozen threshold.",
+      "unresolved_questions": [
+        "Retained local atomic/alternative evidence is absent or below the frozen recurrence coverage threshold."
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-70a238399aebef5b72dd",
+      "contradict_result": "Sustained incompatible paths at adequate coverage.",
+      "estimated_bounded_calls": 36,
+      "local_boundary": "Frozen enrichment artifact establishes no sufficient retained local evidence.",
+      "member_subset_requiring_retrieval": [
+        "26EBs7kLCaN5HoGy45GAMtPWvQG8E4yXUyUNajw5pump",
+        "3BJGrMooDU1SVnExKRd19KwydvGfaYWB8JGQynbzpump",
+        "3qR3KXWfVp2JsZ9UY5VEwL2b9X1G3k8pLn79Yxqypump",
+        "3u9x8csjqBXUNyfd5UDpytRHYBcfT71CPsE8Kd4vpump",
+        "4urRBVZoLyoDXVtqogdhtGuG8rtC4GWbj3PeKzPFpump",
+        "57WHxsaStrFBTKwciDAzrLk9f9AxrNwg2kmPjpvmpump",
+        "5ekd8wHHiVGTjPgebbeyiCVcT1Bm6WcnCzFETF3QpiMS",
+        "5geVBi3XgVwtW6A9xtTmno7KL6cpoMvwzJzK15Lpump",
+        "5scDagkC98Voo4DYu8NRhvcXVkwwTd5o8eNUBR7qpump",
+        "673DziKBfRoGccE2gUQBeBjnS8jTYgoQicLx1jUfpump",
+        "7o1S4HRhVoJimnEpNcoHMoYGCVwooWX8edhzsZCxpump",
+        "8Y7dK25t9hffm9uDNMuqvt5PfgPirQWFCxGCQaispump",
+        "8vWsFgTrwNG22mEH4rzYpz4mN5mrvUZ8VhwLLHYpump",
+        "9T4YdEdiRHimcyM9H94TnTK1fhfHRhH3kvhMPaQypump",
+        "9pTAaqanrdPh4r1NYsDEBu2s5oEYRhqbZuCzeBaepump",
+        "APhY6KEUnpuBMxe6TiZyAiBfNge7SQhBg94fTAzopump",
+        "AWBYM6X9ZsTZAMC6uxx7JNUbwZjsL9xJ6Y2PEjCqpump",
+        "B9iymvGmFZoxUn8g1RizhGZVZFZ2dKn5JdN6eNeupump",
+        "BqmF13Lh2pTLrJfLXG4ei8GvPYPEwEhzF6VRbpKFBAGo",
+        "BuAC9fbPcYfrmjsCb6MVhd7caV3Q52wYXeLNiywUpump",
+        "CRFjYGMQdSzGHotsK3Pu97c4h8ZsJqrdceEj1i99pump",
+        "CXLUdYfnZG4fp8mLLKoutogkNAAtjTqjrSdW7rMmpump",
+        "CiB5FRD2SsLHh37m3XwWxNMD95b3mt8KVxRjffKMpump",
+        "D7AXAUpsrXALGwrUWsvtdhAfEinnpao5zEDUMctopump",
+        "DtuU48d86wE9Vu2bbYoCspXpWLFHLo6fiuefyAftpump",
+        "EYU5ABwKTCpmuE9TvJQHAztukiQxvVJkfwgLmdrnpump",
+        "FSoQ3DEcB6Xs9eNcuy2pqeMj48dTjSJz1hwCcX3jpump",
+        "FZBZsX19QMtQsEd6DWfwGxtvh4EsTrPt8Vngjhagpump",
+        "Fm8CzixLYBSpFtCPHiQCEiYfwM8bNpgJAghsSugGpump",
+        "HtMBpBFdFL5mSPGVKNGxG46CCD2oxgyvGMJN4YKepump",
+        "J1R2c5WuvQbYDKU2rimfFV2dpSP7eJ8Ef2bJsCiPpump",
+        "eWdXSK6NeZinnrS2gNGFUUKtsZtdHgFeWx4gfF8pump",
+        "fWWXHkZpUKfpyHDabiXfjwb2GFszx6VGez7uStApump",
+        "gZzUk6CFzkdmywKhGN1qXsaMHierfqwq3xCoExMpump",
+        "kixQpBBB2irCqqi1HTrrQA7h6hcgGU9Y7rvmFb6pump",
+        "ojvzqkkUsQMmbqYamWBGYacCwAd3Wm8p5N2dHw9pump"
+      ],
+      "minimum_rpc_evidence": "Pre-launch funding transaction parse per member.",
+      "support_result": "Address-independent atomic/alternative recurrence at the frozen threshold.",
+      "unresolved_questions": [
+        "Retained local atomic/alternative evidence is absent or below the frozen recurrence coverage threshold."
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-3af3f42197d1681c6933",
+      "contradict_result": "Sustained incompatible paths at adequate coverage.",
+      "estimated_bounded_calls": 30,
+      "local_boundary": "Frozen enrichment artifact establishes no sufficient retained local evidence.",
+      "member_subset_requiring_retrieval": [
+        "2SUVAUSQqDaJdfDDEf1tx4ML2L3Vcqor8XyMKKpjpump",
+        "2cmZ8FierNbYXGTdZSimbd7rWSRmU93nrL32tNCgpump",
+        "3zT72nudq9NLBPoLF7XMHxDC9dntVKGAMHiTCbWTpump",
+        "4Vi2K4YJ47VB3QDvUhNir1URKv1TcYLtui6Jy1bopump",
+        "5Qsu2YAzTvWxH8MVPW14Hza9bptJATp6NX9xgkHgpump",
+        "69oPHd5kDNR5GH9Avj6eueSJKUYrNiqibmEDCWudpump",
+        "73o1LeTK7E2WkVdEyTmd5TxzqVLcAFm2cn1GahN2pump",
+        "7WgJ7vfquErSiFSz9SfJy2TvjyUBSLLhTss7uLaWpump",
+        "7pBjpn2BX7gKfMmHH4TqZzNbztyC2ffAkkWtkMF5pump",
+        "8JdWj6G2X9ByPPcKpaLUEso3w62yNnbVwmzXmhAEpump",
+        "8WuLpdRCi4ZVzQu3KJsL9FDMtcMJTYYhxHvGNjkWpump",
+        "92AMV2rW95NMaoGeS5WTB7TYRsDgNk3Yc1rdRebDpump",
+        "B2U3KT4hGA5vwwWtxay3aWzgS9ZZs5HvrDrAdDgGpump",
+        "BLN8AEp7XvYoY1ZcqAgc99JnQY4WgmcWtbUcPv9vpump",
+        "BVUtgycfTSQK7FWjdgKr3stwfdiq81h9a2nAXBSCpump",
+        "BVVVp5RUsQZBPF2QgVor537Drk8evsqHCCB7vXZfpump",
+        "CadTuDtqkiQo9NV36tRGjsfCL5ZRLzWPNDrYtH15pump",
+        "DW4vLdSyrjkkPRVfNv8nxgmhmJ1bDorYSAWUR158pump",
+        "DYC73EsP12U583M626SGRGEJ6hT539MSuqGt83nWpump",
+        "DnjjGyuLVfQFZoQAJv2gNGcAzhyc4CdFaKHMMcWdpump",
+        "DuBvNAiYxP3xHUJ4ovZaVt9XNKNhAehzrJb4Tjpppump",
+        "E8cqgjpEfM3iuArpVpXyPjTQwfgfB4vkJo5oH33zpump",
+        "EiBfdoq7yaDaL28JaJ3QQWoNe3EWaE2TtvPjRa1Tpump",
+        "GMnMLBmet424A6FtVoLfhc8HN7Ziv8F2VPdRqxABpump",
+        "GNYZqt9h2ZW7Y9JDtrfQC397ujTAv8ULgtTqXhhgpump",
+        "SDNGQiCFca2AEvZqu66LK4c6YVpEFJiHbv5XAmepump",
+        "Tx67Fs4TSEnYiPzZyThExpwLabNbDy74nof9JUdpump",
+        "UPwxM8cK6u4WP8dzs7T3oAKgJQVQMaGSixakKtkpump",
+        "YNiobysTKWKMAejc7USXUxNU9HXbzuxXLA1UreWpump",
+        "jr4VS3dRJd93SbcBpwcUpRzFsfcwFQFwhMTTHQgpump"
+      ],
+      "minimum_rpc_evidence": "Pre-launch funding transaction parse per member.",
+      "support_result": "Address-independent atomic/alternative recurrence at the frozen threshold.",
+      "unresolved_questions": [
+        "Retained local atomic/alternative evidence is absent or below the frozen recurrence coverage threshold."
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-711c64846cb08429936f",
+      "contradict_result": "Sustained incompatible paths at adequate coverage.",
+      "estimated_bounded_calls": 28,
+      "local_boundary": "Frozen enrichment artifact establishes no sufficient retained local evidence.",
+      "member_subset_requiring_retrieval": [
+        "2N2fSMcAGukuc94j9Xgs1WHGmFgSjQhZmES84G2Nnggf",
+        "2geMxGZfEFkdmjVQoG2gjz9fo6PT1ewtj3YPx77Hwger",
+        "3RUXCjJyz7QqtnaLT8wKRbcaUmLcEZtEJEzoU83jpAAX",
+        "3go3xCcPGHhWBadYUZcachLuDdTanEj8hTcjmnSJ2TDW",
+        "4uC16DfJePiYY28BRYLeU5Mn5GX43YUJXgyNdv6eT3No",
+        "5h7Awk8nrKgeQ19xaeS9Y8LsYgFSYHDqj441sxbgnQEH",
+        "5rgXYZoaFXbc4L2ZUkV6V8iV66Jbd2w5oXL2XGvL5tsC",
+        "5xe24cPXcEj1hKLrUBzgP3P1dUYp1N5afDheYde8sfGa",
+        "6VHn2bKf7C9r3F6zoJ8wyuXEaRBEHrtaKsXcF9HVjsRs",
+        "6gJpoMt2kMPxs4pAAgg7cgZRJ6jDSGSWuaLXBbmac4gg",
+        "6m3k9kRqAavaB6NPLa6B8RG6eJGZcRRnj5p798JFziHx",
+        "7fDdLy2rmQKsPCkqUXEd1mN7yDfEzArc4VrctWmfkJBK",
+        "899rGNLAh6kA8M5KBFbekRDQcDBakVUgqcS5fxwjrWr1",
+        "8SFexpaBMvVStRzFMASSP8w76Q4bFSj5YXfGmKPg9w9F",
+        "8WFB64D5Fvu5TaQjpnH3kLyby18J6L6CA2Fe6JeAmPqB",
+        "8dcEdmQC8A9AiiHwpTG1pUf7DqH3XkXhZHAUtr2KUXg4",
+        "9CcEUZ8WChzkexFuYhogbfFf7PmhCde1fweDUa4hddGz",
+        "AjuxNxNUHPDpgG1mRXYqDwvUWWzWX73VEHkjWV1qiHS",
+        "CGmBrG4GRiMvFSGaEiB7cwEd9uDYiqrXzkoyR2Qa3KrC",
+        "CTFaKHRfEUy5irjJMRMv5XKzLBYYAT47s3w8h4zXTw6D",
+        "Cm9V32RuvLDfYGDVJXUZ9VQSpB6Q2jpQERRaSeZHvoTT",
+        "ENsrjo3Pg1joSqvprkKWf7sctzb9QU7ZgmhN73Rjis9T",
+        "EbtdB3TdYWD3MGn1UCkEUEPwAWj4godwmuf3janmw6JX",
+        "Eme822muEhzokFAv281vkxQA95QHusrzRmsNmD4pVQz5",
+        "FtateF34Xzawa91bpbVNdX72hZYo9cymRDYqBreHHbJi",
+        "GAgdCzpVERu6NHHf2Fk694BP3sLnRbmRU2qmTqeBXghs",
+        "GfU6Ec5p4jtJA4wdJeCsjXEtGdDomtDKsfEMZP3LTq3u",
+        "RmtMAYVTTFv2iK9muMrXEoAnSSsZPPgRPbqZCKwNDYk"
+      ],
+      "minimum_rpc_evidence": "Pre-launch funding transaction parse per member.",
+      "support_result": "Address-independent atomic/alternative recurrence at the frozen threshold.",
+      "unresolved_questions": [
+        "Retained local atomic/alternative evidence is absent or below the frozen recurrence coverage threshold."
+      ]
+    }
+  ],
+  "safety_confirmation": {
+    "membership_mutation": false,
+    "provider_rpc_calls": 0,
+    "queue_replay": false,
+    "tier_or_operation_promotion": false,
+    "trading_signal": false
+  },
+  "schema_version": "P3R_V2_LOCAL_EVIDENCE_GAP_CLOSURE.v1",
+  "source_snapshot": {
+    "database": "database/wt_ops_v2.db",
+    "highwaters": {
+      "wt_walkback_atomic_flows": 7095,
+      "wt_walkback_edge_candidates": 60299,
+      "wt_walkback_queue": 32353
+    },
+    "read_only_source": true,
+    "schema_sha256": "dcc038d07998c3d37d0475a7c0fc1d61eaa141401712b3079ec3e465dff3f4ad"
+  },
+  "verdict": "P3R_V2_LOCAL_EVIDENCE_GAP_CLOSURE_COMPLETE"
+}

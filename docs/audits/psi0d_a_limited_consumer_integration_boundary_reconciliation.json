@@ -1,0 +1,177 @@
+{
+  "schema_version": "psi0d-a.integration-boundary-reconciliation.v1",
+  "milestone": "PSI0D-A",
+  "reconciled_at_utc": "2026-08-16T10:25:00Z",
+  "engineering_commit": "256e9e4cad35a6334578efacb431fd403c4874b9",
+  "status": "COMPLETE",
+  "verdict": "PSI0D_B_FIXTURE_ONLY_ASSESSMENT_SUMMARY_CONSUMER_CONTRACT_NEXT",
+  "bound_inputs": {
+    "psi0c_d_closure_artifact": "docs/audits/psi0c_d_replay_verified_closure_disposition.json",
+    "psi0c_d_closure_digest": "7e8c4ce4c27aa0d235a39cfe49e4dad4443be0bfae0750d61188a73d2cfeffb2",
+    "psi0c_c_assessment_digest": "b5fb2187ad569b422f1ebbc029b7c619300a153d81b547f178c58769377fc7c4",
+    "psi0c_c_assessment_bundle_digest": "6db46939fdfec9a34a63268809609c9a30a1a7dd86f5504b3d063bd0e8045ac3",
+    "psi0c_b_contract_digest": "3f2d112ba18b190e7acdf9c0dd9ddf552258b7ed75295ccb7cc470a981cc70e1",
+    "psi0b_g_closure_digest": "efadf9e061529af1fc690a253be4e8e29d7058d06d6a61be6105890b4e5e90cd",
+    "roadmap_artifacts": [
+      "docs/audits/psi0c_a_post_psi0b_roadmap_reconciliation.json",
+      "docs/evidence_platform/post_e_eb0_canonical_roadmap.json",
+      "docs/evidence_platform/ep1_0_foundation.md",
+      "docs/evidence_platform/ep1_2_asynchronous_evidence_mirror.md",
+      "docs/evidence_platform/eb1_0c_verified_bundle_summary_adapters.md",
+      "docs/evidence_platform/eb1_3a_evidence_fulfillment_planning_proposal_contract.md"
+    ]
+  },
+  "roadmap_finding": {
+    "completed": [
+      "query-only production shadow extraction",
+      "immutable shadow bundle replay verification",
+      "non-authoritative coverage, conflict and missingness assessment",
+      "PSI0C replay-verified closure and disposition"
+    ],
+    "not_completed": [
+      "fixture-qualified limited assessment-summary consumer boundary",
+      "application of any consumer to the real PSI0C assessment",
+      "consumer deployment or production integration",
+      "Evidence Mirror or Cohort Mode activation qualification",
+      "production activation",
+      "EB2 roadmap entry"
+    ],
+    "smallest_missing_layer": "A pure fixture-only contract that consumes an injected canonical non-authoritative PSI0C assessment summary and emits a deterministic descriptive consumer projection without thresholds, ranking, policy, selection or activation."
+  },
+  "next_milestone": {
+    "milestone": "PSI0D-B",
+    "name": "Fixture-only non-authoritative assessment-summary consumer contract",
+    "authorization_class": "SAFE_LOCAL_DESIGN_IMPLEMENTATION_TEST_DOCUMENTATION_COMMIT",
+    "objective": "Define and fixture-qualify a pure default-off consumer contract over injected synthetic PSI0C assessment summaries only.",
+    "immutable_identity_inputs": [
+      "PSI0D-A reconciliation digest",
+      "PSI0C-D closure digest",
+      "PSI0C-B contract digest",
+      "PSI0C-C assessment identity and bundle identity only",
+      "five frozen query identities",
+      "caller-supplied frozen synthetic assessment-summary fixtures"
+    ],
+    "accepted_aggregate_fields": [
+      "provenance class and fixture-only marker",
+      "cohort denominator",
+      "per-query row count",
+      "per-query unique-mint count",
+      "per-query coverage numerator and denominator",
+      "per-query duplicate-row count",
+      "per-query unmatched-row count",
+      "aggregate unresolved-conflict count",
+      "aggregate orphan/unmatched count",
+      "missingness reason codes including ABSENT_NOT_NEGATIVE",
+      "false policy, ranking, integration and activation authority"
+    ],
+    "prohibited_inputs": [
+      "source result rows or field values",
+      "mint, address, signature or payload values",
+      "provider or acquisition instructions",
+      "policy thresholds, scores, rankings or selections",
+      "production paths, credentials or service controls"
+    ],
+    "required_output": [
+      "canonical descriptive per-surface availability summary",
+      "coverage fractions copied without threshold interpretation",
+      "duplicate counts preserved without deduplication or entity inference",
+      "ABSENT_NOT_NEGATIVE preserved without negative inference",
+      "conflict and unmatched counts preserved without resolution",
+      "deterministic reason codes",
+      "per-file hashes and one replay digest",
+      "false policy, ranking, integration, deployment and activation authority"
+    ],
+    "consumer_boundary": {
+      "pure": true,
+      "read_only": true,
+      "fixture_only": true,
+      "default_off": true,
+      "non_authoritative": true,
+      "accepts_real_psi0c_bundle": false,
+      "performs_file_or_network_io": false,
+      "grants_integration_authority": false,
+      "grants_deployment_authority": false,
+      "grants_activation_authority": false
+    },
+    "required_tests": [
+      "complete, empty and partial surface coverage",
+      "ABSENT_NOT_NEGATIVE preservation",
+      "duplicate counts retained without collapse",
+      "conflict and unmatched counts retained without resolution",
+      "input-order independence",
+      "missing, extra, stale or altered lineage",
+      "unknown query or aggregate field",
+      "negative, inconsistent or overflowing accounting",
+      "authority, threshold, ranking, policy or selection drift",
+      "canonical replay tamper",
+      "no file, database, network, service or configuration access"
+    ],
+    "stop_conditions": [
+      "need to inspect the real PSI0C assessment bundle or source rows",
+      "semantic interpretation requires field values",
+      "coverage threshold, ranking, policy or selection is introduced",
+      "duplicates are silently collapsed or missingness becomes negative inference",
+      "consumer integration, deployment, Evidence-mode or activation semantics",
+      "provider, production, runtime or EB2 scope"
+    ]
+  },
+  "separate_human_approval_sequence": [
+    {
+      "order": 1,
+      "milestone": "PSI0D-B",
+      "purpose": "Fixture-only pure assessment-summary consumer qualification",
+      "authority": "safe-local implementation only"
+    },
+    {
+      "order": 2,
+      "milestone": "PSI0D-C",
+      "purpose": "Replay-verified qualification closure and decision whether one local immutable-assessment application may be proposed",
+      "authority": "closure only; no real application"
+    },
+    {
+      "order": 3,
+      "milestone": "SEPARATE_LOCAL_CONSUMER_APPLICATION",
+      "purpose": "One bounded application to the immutable PSI0C assessment if separately qualified and authorized",
+      "authority": "isolated local descriptive output only"
+    },
+    {
+      "order": 4,
+      "milestone": "SEPARATE_PRODUCTION_CONSUMER_DECISION",
+      "purpose": "Any deployment or production consumer integration",
+      "authority": "new production-changing authorization"
+    },
+    {
+      "order": 5,
+      "milestone": "SEPARATE_EVIDENCE_ACTIVATION_DECISION",
+      "purpose": "Evidence Mirror, Cohort Mode or other feature activation",
+      "authority": "independent production-changing authorization"
+    },
+    {
+      "order": 6,
+      "milestone": "SEPARATE_EB2_ROADMAP_RECONCILIATION",
+      "purpose": "Determine whether any EB2 namespace is coherent",
+      "authority": "not entered or authorized by PSI0D"
+    }
+  ],
+  "authority_separation": {
+    "fixture_qualification": "PSI0D-B only",
+    "real_assessment_application": "later independent bounded local authorization",
+    "consumer_deployment": "later independent production authorization",
+    "evidence_mirror_or_cohort_mode": "independent production-changing decision",
+    "production_activation": "independent production-changing decision",
+    "eb2": "independent roadmap reconciliation",
+    "cross_lane_inference_prohibited": true
+  },
+  "actions_performed": {
+    "immutable_bundles_opened_or_altered": 0,
+    "source_result_rows_inspected": 0,
+    "integration_outputs_created": 0,
+    "production_or_runtime_access": 0,
+    "live_telemetry_observations": 0,
+    "select_or_explain_executed": 0,
+    "provider_rpc_calls": 0,
+    "production_writes_or_ddl": 0,
+    "service_or_configuration_actions": 0,
+    "consumer_integration_or_activation_actions": 0
+  }
+}

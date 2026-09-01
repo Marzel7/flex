@@ -1,0 +1,40 @@
+{
+  "artifact_type": "PUMPFUN_ARCHIVED_BONDING_CURVE_DECODE_V1",
+  "raw_artifact": "docs/audits/pumpfun_archived_prebuy_state/3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump.slot_443375106.alchemy.raw.v1.json",
+  "raw_decoded_account_bytes_sha256": "66bbeaff4a1a4e8d3a4ddcb3dd822d00efcc39e6d4677d890ef702de0bccf936",
+  "account_discriminator_hex": "17b7f83760d8ac60",
+  "account_size": 151,
+  "post_extend_size_matches": true,
+  "layout": {
+    "name": "Pump.fun BondingCurve 151-byte layout",
+    "source": "docs/audits/pumpfun_external_canonical_schema_audit/external_schema_provenance.v1.json and docs/audits/pumpfun_target_era_extendaccount_audit/account_layout_comparison.v1.json",
+    "confidence": "OFFICIAL_IDL_LAYOUT_EMPIRICALLY_VALIDATED_FOR_THIS_ARCHIVED_STATE",
+    "bound_to_active_binary": false,
+    "caveat": "The official target-era IDL was not byte-for-byte bound to the active ELF. The decoded fields are nevertheless independently corroborated by the exact qualified buy-#1 TradeEvent transition."
+  },
+  "decoded": {
+    "virtual_token_reserves": 452835897271945,
+    "virtual_sol_reserves": 71085353876,
+    "real_token_reserves": 172935897271945,
+    "real_sol_reserves": 41085353876,
+    "token_total_supply": 1000000000000000,
+    "complete": false,
+    "creator": "J3yZQYJECzT3PD9BpzQzSM4FKENrDeVSCtmxdFSNThMy",
+    "is_mayhem_mode": false,
+    "is_cashback_coin": false,
+    "quote_mint": "11111111111111111111111111111111",
+    "post_extend_bytes_115_150_hex": "000000000000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "offsets": {
+    "virtual_token_reserves": 8,
+    "virtual_sol_reserves": 16,
+    "real_token_reserves": 24,
+    "real_sol_reserves": 32,
+    "token_total_supply": 40,
+    "complete": 48,
+    "creator": 49,
+    "is_mayhem_mode": 81,
+    "is_cashback_coin": 82,
+    "quote_mint": 83
+  }
+}

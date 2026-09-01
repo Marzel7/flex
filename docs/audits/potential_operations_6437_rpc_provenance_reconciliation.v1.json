@@ -1,0 +1,122 @@
+{
+  "absent_funders": [
+    {
+      "decoded_transactions_cached": false,
+      "minimum_work": "one signature-page call",
+      "signatures_cached": false,
+      "wallet": "QXrQp7xWw4ENvcCcbxuDt7UH5iNsu5P3RcfxuZJaH4w"
+    },
+    {
+      "decoded_transactions_cached": false,
+      "minimum_work": "one signature-page call",
+      "signatures_cached": false,
+      "wallet": "ezMwtAnPAuJBoHCXUE8RfniWsvgMwkzkFS8tAM3S8by"
+    },
+    {
+      "decoded_transactions_cached": false,
+      "minimum_work": "one signature-page call",
+      "signatures_cached": false,
+      "wallet": "gEham4pvb2xWeSuSRCxfkwHKB737y7ADRWagwLbPfQA"
+    },
+    {
+      "decoded_transactions_cached": false,
+      "minimum_work": "one signature-page call",
+      "signatures_cached": false,
+      "wallet": "gangSXcffiVZntzVGYs7kajjVrPkFcTk6AKADCw91RV"
+    }
+  ],
+  "anomaly_898_to_2500": "The legacy cache calls field was overwritten from a fresh in-memory RunLedger with call-ceiling 2500 during pagination; its absence of a durable run ID/page checkpoint made the 898 base and 2500 terminal values non-auditable across invocations. It was not signature-count reuse.",
+  "authorization_status": "AUTHORIZED_RUN_EXHAUSTED",
+  "cache_750_semantics": "750 is an exact exhausted per-invocation RunLedger count (244 signature pages + 506 transaction attempts); it excludes cache hits and includes failed dispatched attempts. It is not a retained cumulative counter, but is insufficiently bound to a durable run ID.",
+  "cache_counter_fields": [
+    {
+      "current_value": 750,
+      "field": "calls.total",
+      "meaning": "current in-memory RunLedger physical dispatched attempts, overwritten per invocation",
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/potential_operations_6437_funder_infrastructure_cache.v1.json",
+      "writer": "FunderAcquirer._save and rpc"
+    },
+    {
+      "current_value": 244,
+      "field": "calls.getSignaturesForAddress",
+      "meaning": "per-invocation physical signature-page attempts",
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/potential_operations_6437_funder_infrastructure_cache.v1.json",
+      "writer": "FunderAcquirer._save/rpc"
+    },
+    {
+      "current_value": 506,
+      "field": "calls.getTransaction",
+      "meaning": "per-invocation physical decode attempts",
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/potential_operations_6437_funder_infrastructure_cache.v1.json",
+      "writer": "FunderAcquirer._save/rpc"
+    }
+  ],
+  "call_33_overlap_with_cache_750": "CANNOT_DETERMINE: calls.total is overwritten per invocation, so retained evidence cannot prove whether the prior 33 are included in, separate from, or overlap the later 750-attempt invocation.",
+  "canonical_funder_state": {
+    "COMPLETE": 54,
+    "LEGACY_COMPLETE_UNVERIFIED": 0,
+    "NOT_STARTED": 4,
+    "PARTIAL": 1
+  },
+  "certain_consumed_calls": 750,
+  "f2_analysis_started": false,
+  "files_changed": [
+    "src/ops/rpc_acquisition_checkpoint.py",
+    "scripts/reconstruct_6437_funder_infrastructure.py",
+    "scripts/reconcile_6437_rpc_provenance.py",
+    "tests/test_durable_rpc_authorization.py"
+  ],
+  "focused_tests": "15 passed",
+  "known_33_call_reconstruction": {
+    "exact_targets": "two completed history targets and 31 status-tagged transaction signatures were locally recoverable, but no durable chronological original run ledger exists",
+    "known_minimum": 33,
+    "signature_pages": 2,
+    "transactions": 31
+  },
+  "network_call_count_this_task": 0,
+  "partial_funder": {
+    "cursor": "2VwBqp8hiJgpRJCFxCUksRvBMQhQ6387XmEZdctco9jUGcc6vm1b42mLU7UroVVFaGVu4przMhGYqZQpXS338f5Q",
+    "pages_retained": 217,
+    "remaining_requirement": "oldest_block_time_reached remains after launch_window_start; continue only under new explicit authorization",
+    "signatures_retained": 217000,
+    "wallet": "QVtWcAX3R7Cr51VhAxFSYntoCAmTQzK8Hf4R1TrKNQ4"
+  },
+  "possible_additional_consumed_calls": 33,
+  "provenance_timeline": [
+    {
+      "artifact": "legacy cache v1",
+      "counter": "898 then 2500 reported in handoff",
+      "semantics": "in-memory counter without durable run identity",
+      "state": "27 complete / 27 partial / 5 not started (interim reinterpretation)"
+    },
+    {
+      "artifact": "33-call interrupted run",
+      "counter": "33",
+      "semantics": "known minimum, no durable per-attempt record",
+      "state": "29/25/5 reported"
+    },
+    {
+      "artifact": "current cache v1",
+      "counter": 750,
+      "semantics": "current invocation RunLedger, exhausted",
+      "state": "54/1/4"
+    }
+  ],
+  "provider_call_count_this_task": 0,
+  "rpc_call_count_this_task": 0,
+  "runner_fail_closed": "RPC_AUTHORIZATION_PROVENANCE_UNRESOLVED when cache calls.total exceeds durable authorization attempts",
+  "safe_authorization_consumed": 750,
+  "safe_authorization_remaining": 0,
+  "safety": {
+    "assignment_writes": 0,
+    "generic_dispatch_changes": 0,
+    "living_publications": 0,
+    "membership_writes": 0,
+    "ranking_writes": 0,
+    "real_db_writes": 0,
+    "source_table_writes": 0
+  },
+  "schema_version": "potential_operations_6437_rpc_provenance_reconciliation.v1",
+  "sha256": "b2cd9e9c7baec16a26801a984668027d34f0fe36a6b8dac0513395258565f026",
+  "state_discrepancy_root_cause": "The previous 29/25/5 classification was an interim legacy-list reinterpretation before a later 750-attempt runner invocation atomically migrated/rewrote 55 history checkpoints. Current explicit checkpoint states are authoritative; four cohort funders have no cache entry."
+}

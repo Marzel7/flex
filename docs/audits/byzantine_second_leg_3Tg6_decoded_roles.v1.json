@@ -1,0 +1,39 @@
+{
+  "artifact_type": "BYZANTINE_SECOND_LEG_DETERMINISTIC_ROLE_DECODE_V1",
+  "block_time": 1788250155,
+  "close_destination": "J3yZQYJECzT3PD9BpzQzSM4FKENrDeVSCtmxdFSNThMy",
+  "close_redeemed_lamports": 14999985000,
+  "create_account_lamports": 14999985000,
+  "creator": "J3yZQYJECzT3PD9BpzQzSM4FKENrDeVSCtmxdFSNThMy",
+  "decode_status": "COMPLETE_DETERMINISTIC_LOCAL_DECODE",
+  "fee_payer": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+  "inner_instruction_count": 0,
+  "meta_balance_deltas_lamports": {
+    "4vEXGJ5h46jqnqTbo2XUtwpd9gzrar5hvMTuDn8w18B6": 0,
+    "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY": -15000000000,
+    "J3yZQYJECzT3PD9BpzQzSM4FKENrDeVSCtmxdFSNThMy": 14999985000
+  },
+  "mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+  "outer_instruction_sequence": [
+    "compute_budget",
+    "compute_budget",
+    "system.createAccount",
+    "spl_token.initializeAccount",
+    "spl_token.syncNative",
+    "spl_token.closeAccount"
+  ],
+  "raw_rpc_artifact": "docs/audits/byzantine_second_leg_3Tg6_raw_rpc.v1.json",
+  "raw_rpc_sha256": "0a906dd621e2e7f4b207950cb6b4e08c76d676c0828119bac05f8ea88ab036f4",
+  "rpc_calls_this_decode": 0,
+  "signature": "3Tg6LkBYDhj1ZK2DipMfCFyUDkfdfPDH6wxs6W5XdfMgponC9XTAFpGEWWbUqLfSHhepgaJus4GTUB3oPwe4yrW7",
+  "signers": [
+    "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+    "4vEXGJ5h46jqnqTbo2XUtwpd9gzrar5hvMTuDn8w18B6"
+  ],
+  "slot": 443374546,
+  "sol_source": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+  "temporary_account_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+  "temporary_wsol_account": "4vEXGJ5h46jqnqTbo2XUtwpd9gzrar5hvMTuDn8w18B6",
+  "transaction_fee_lamports": 15000,
+  "wsol_mint": "So11111111111111111111111111111111111111112"
+}

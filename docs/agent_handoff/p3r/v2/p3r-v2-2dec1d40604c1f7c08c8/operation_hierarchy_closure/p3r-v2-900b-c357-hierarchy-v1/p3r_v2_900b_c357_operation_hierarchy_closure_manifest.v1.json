@@ -1,0 +1,17 @@
+{
+  "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/operation_hierarchy_closure/p3r-v2-900b-c357-hierarchy-v1/p3r_v2_900b_c357_operation_hierarchy_closure.v1.json",
+  "artifact_sha256": "396ac8b1532e7c2970725fcaea1fcac5f9c02c9b7b2d3ba61d18d3cd736f1f2a",
+  "canonical_run_id": "p3r-v2-2dec1d40604c1f7c08c8",
+  "deterministic_replay": {
+    "inputs": {
+      "atomic": 7095,
+      "edge": 60299,
+      "run": "p3r-v2-2dec1d40604c1f7c08c8"
+    },
+    "result": "PASS"
+  },
+  "source_highwaters": {
+    "atomic_rowid": 7095,
+    "edge_rowid": 60299
+  }
+}

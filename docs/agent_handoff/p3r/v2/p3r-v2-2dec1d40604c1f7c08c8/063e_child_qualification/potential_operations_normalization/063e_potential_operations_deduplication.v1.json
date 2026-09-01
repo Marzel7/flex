@@ -1,0 +1,11 @@
+{
+  "confirmed_member_count": 32,
+  "confirmed_operator_id": "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334",
+  "legacy_child_id": "P3R_063E_B65C_LEGACY",
+  "legacy_member_count": 9,
+  "legacy_workflow_status": "PAUSED_LEGACY",
+  "normalized_at": 1787776314,
+  "parent_candidate_id": "p3r-v2-063e24a2def354f23ec5",
+  "parent_workflow_status": "DECOMPOSED_PARENT",
+  "schema_version": "063E_POTENTIAL_OPERATIONS_DEDUPLICATION.v1"
+}

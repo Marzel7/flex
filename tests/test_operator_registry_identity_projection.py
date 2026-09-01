@@ -57,6 +57,8 @@ def test_active_registry_projects_identity_family_and_persisted_24h_activity(tmp
     assert row["human_display_name"] == "Sentinel"
     assert row["operation_family"] == "30 SOL WSOL Ladder"
     assert row["launches_last_1d"] == 2
+    assert row["launches_last_7d"] is None
+    assert row["launches_last_30d"] is None
     assert row["activity_snapshot_observed_at"] == 2
     assert row["total_launches"] == 9
     census = row["current_queue_census"]
@@ -83,11 +85,12 @@ def test_current_census_harbinger_and_watchtower_labels_are_observational():
 
 def test_registry_uses_shared_columns_without_visible_stable_ids():
     template = (Path(__file__).resolve().parents[1] / "templates/operators_index.html").read_text()
-    for label in ("Operator", "Qualification", "Activity 24h / 7d / 30d", "Exact Matches", "Evolution Watch", "Action"):
+    for label in ("Operator", "Activity 24h / 7d / 30d", "Established launches", "Last launch", "Evolution Watch", "Action"):
         assert label in template
     assert "near · Drift evidence" in template
     assert "related · Unresolved" in template
     assert "row.operation_family||row.operator_id" not in template
     assert "Last launch" in template
-    assert "header.children[4]" in template
-    assert "node.insertBefore(cell,node.querySelector('.registry-open'))" in template
+    assert "row.launches_last_7d" in template
+    assert "row.launches_last_30d" in template
+    assert '<span class="registry-badge\'+cls+\'">' not in template

@@ -1,0 +1,386 @@
+{
+  "bonding_curve": {
+    "account_discriminator": "17b7f83760d8ac60",
+    "borsh_minimum_serialized_account_bytes": 115,
+    "deployment_account_size_attested_by_source": false,
+    "field_offsets": [
+      {
+        "name": "virtual_token_reserves",
+        "offset": 8,
+        "size": 8,
+        "type": "u64"
+      },
+      {
+        "name": "virtual_quote_reserves",
+        "offset": 16,
+        "size": 8,
+        "type": "u64"
+      },
+      {
+        "name": "real_token_reserves",
+        "offset": 24,
+        "size": 8,
+        "type": "u64"
+      },
+      {
+        "name": "real_quote_reserves",
+        "offset": 32,
+        "size": 8,
+        "type": "u64"
+      },
+      {
+        "name": "token_total_supply",
+        "offset": 40,
+        "size": 8,
+        "type": "u64"
+      },
+      {
+        "name": "complete",
+        "offset": 48,
+        "size": 1,
+        "type": "bool"
+      },
+      {
+        "name": "creator",
+        "offset": 49,
+        "size": 32,
+        "type": "pubkey"
+      },
+      {
+        "name": "is_mayhem_mode",
+        "offset": 81,
+        "size": 1,
+        "type": "bool"
+      },
+      {
+        "name": "is_cashback_coin",
+        "offset": 82,
+        "size": 1,
+        "type": "bool"
+      },
+      {
+        "name": "quote_mint",
+        "offset": 83,
+        "size": 32,
+        "type": "pubkey"
+      }
+    ],
+    "field_order": [
+      "virtual_token_reserves",
+      "virtual_quote_reserves",
+      "real_token_reserves",
+      "real_quote_reserves",
+      "token_total_supply",
+      "complete",
+      "creator",
+      "is_mayhem_mode",
+      "is_cashback_coin",
+      "quote_mint"
+    ],
+    "field_types": [
+      "u64",
+      "u64",
+      "u64",
+      "u64",
+      "u64",
+      "bool",
+      "pubkey",
+      "bool",
+      "bool",
+      "pubkey"
+    ]
+  },
+  "external_source": {
+    "commit": "9c82f61cb711b044a17f770ab8ce9f9bdf78f333",
+    "commit_author_timestamp": "2026-07-15T18:22:27Z",
+    "confidence": "OFFICIAL_PROGRAM_BOUND_IDL; target-slot program binary/deployment upgrade binding is not independently proven.",
+    "idl_sha256": "b90bc471327f671449271d5d1d42354d1fae6f5a06502f5834459a3108138e49",
+    "metadata": {
+      "description": "Created with Anchor",
+      "name": "pump",
+      "spec": "0.1.0",
+      "version": "0.1.0"
+    },
+    "program_id": "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+    "raw_url": "https://raw.githubusercontent.com/pump-fun/pump-public-docs/refs/heads/main/idl/pump.json",
+    "repository": "pump-fun/pump-public-docs",
+    "url": "https://github.com/pump-fun/pump-public-docs/blob/main/idl/pump.json"
+  },
+  "instructions": {
+    "buy": {
+      "accounts": [
+        "global",
+        "fee_recipient",
+        "mint",
+        "bonding_curve",
+        "associated_bonding_curve",
+        "associated_user",
+        "user",
+        "system_program",
+        "token_program",
+        "creator_vault",
+        "event_authority",
+        "program",
+        "global_volume_accumulator",
+        "user_volume_accumulator",
+        "fee_config",
+        "fee_program"
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "max_sol_cost",
+          "type": "u64"
+        },
+        {
+          "name": "track_volume",
+          "type": {
+            "defined": {
+              "name": "OptionBool"
+            }
+          }
+        }
+      ],
+      "discriminator": "66063d1201daebea"
+    },
+    "buy_exact_quote_in_v2": {
+      "accounts": [
+        "global",
+        "base_mint",
+        "quote_mint",
+        "base_token_program",
+        "quote_token_program",
+        "associated_token_program",
+        "fee_recipient",
+        "associated_quote_fee_recipient",
+        "buyback_fee_recipient",
+        "associated_quote_buyback_fee_recipient",
+        "bonding_curve",
+        "associated_base_bonding_curve",
+        "associated_quote_bonding_curve",
+        "user",
+        "associated_base_user",
+        "associated_quote_user",
+        "creator_vault",
+        "associated_creator_vault",
+        "sharing_config",
+        "global_volume_accumulator",
+        "user_volume_accumulator",
+        "associated_user_volume_accumulator",
+        "fee_config",
+        "fee_program",
+        "system_program",
+        "event_authority",
+        "program"
+      ],
+      "args": [
+        {
+          "name": "spendable_quote_in",
+          "type": "u64"
+        },
+        {
+          "name": "min_tokens_out",
+          "type": "u64"
+        }
+      ],
+      "discriminator": "c2ab1c46684d5b2f"
+    },
+    "buy_exact_sol_in": {
+      "accounts": [
+        "global",
+        "fee_recipient",
+        "mint",
+        "bonding_curve",
+        "associated_bonding_curve",
+        "associated_user",
+        "user",
+        "system_program",
+        "token_program",
+        "creator_vault",
+        "event_authority",
+        "program",
+        "global_volume_accumulator",
+        "user_volume_accumulator",
+        "fee_config",
+        "fee_program"
+      ],
+      "args": [
+        {
+          "name": "spendable_sol_in",
+          "type": "u64"
+        },
+        {
+          "name": "min_tokens_out",
+          "type": "u64"
+        },
+        {
+          "name": "track_volume",
+          "type": {
+            "defined": {
+              "name": "OptionBool"
+            }
+          }
+        }
+      ],
+      "discriminator": "38fc74089edfcd5f"
+    }
+  },
+  "program_id_match": true,
+  "program_version_at_target_slot_identified": false,
+  "program_version_binding_evidence": "The official IDL commit predates target time, but no permitted on-chain ProgramData/deployment-history query establishes bytecode/IDL identity at slot 443375107.",
+  "schema_version": "pumpfun-external-canonical-provenance.v1",
+  "sources_local": {
+    "docs/audits/pumpfun_creation_anchor_poc/3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump.creation.raw.v1.json": "cad2699c0a1c69a4991141ec21d0ef297bbc7c8f843c4f62e422cc862c470c6b",
+    "docs/audits/pumpfun_opening_sequence_poc/opening_sequence.decoded.v1.json": "66e9a8d37a7d1d06269df16adda0eabd5e7d793f992f7dde36b511a2931bccbc",
+    "docs/audits/pumpfun_opening_sequence_poc/opening_sequence.raw.v1.json": "9cc7d085f37dfcbd31a3d0777c5fc6494d62b3b303c98527fb50f4816aff8270"
+  },
+  "target_slot": 443375107,
+  "trade_event_schema": {
+    "docs": [
+      "ix_name: \"buy\" | \"sell\" | \"buy_exact_sol_in\""
+    ],
+    "name": "TradeEvent",
+    "type": {
+      "fields": [
+        {
+          "name": "mint",
+          "type": "pubkey"
+        },
+        {
+          "name": "sol_amount",
+          "type": "u64"
+        },
+        {
+          "name": "token_amount",
+          "type": "u64"
+        },
+        {
+          "name": "is_buy",
+          "type": "bool"
+        },
+        {
+          "name": "user",
+          "type": "pubkey"
+        },
+        {
+          "name": "timestamp",
+          "type": "i64"
+        },
+        {
+          "name": "virtual_sol_reserves",
+          "type": "u64"
+        },
+        {
+          "name": "virtual_token_reserves",
+          "type": "u64"
+        },
+        {
+          "name": "real_sol_reserves",
+          "type": "u64"
+        },
+        {
+          "name": "real_token_reserves",
+          "type": "u64"
+        },
+        {
+          "name": "fee_recipient",
+          "type": "pubkey"
+        },
+        {
+          "name": "fee_basis_points",
+          "type": "u64"
+        },
+        {
+          "name": "fee",
+          "type": "u64"
+        },
+        {
+          "name": "creator",
+          "type": "pubkey"
+        },
+        {
+          "name": "creator_fee_basis_points",
+          "type": "u64"
+        },
+        {
+          "name": "creator_fee",
+          "type": "u64"
+        },
+        {
+          "name": "track_volume",
+          "type": "bool"
+        },
+        {
+          "name": "total_unclaimed_tokens",
+          "type": "u64"
+        },
+        {
+          "name": "total_claimed_tokens",
+          "type": "u64"
+        },
+        {
+          "name": "current_sol_volume",
+          "type": "u64"
+        },
+        {
+          "name": "last_update_timestamp",
+          "type": "i64"
+        },
+        {
+          "name": "ix_name",
+          "type": "string"
+        },
+        {
+          "name": "mayhem_mode",
+          "type": "bool"
+        },
+        {
+          "name": "cashback_fee_basis_points",
+          "type": "u64"
+        },
+        {
+          "name": "cashback",
+          "type": "u64"
+        },
+        {
+          "name": "buyback_fee_basis_points",
+          "type": "u64"
+        },
+        {
+          "name": "buyback_fee",
+          "type": "u64"
+        },
+        {
+          "name": "shareholders",
+          "type": {
+            "vec": {
+              "defined": {
+                "name": "Shareholder"
+              }
+            }
+          }
+        },
+        {
+          "name": "quote_mint",
+          "type": "pubkey"
+        },
+        {
+          "name": "quote_amount",
+          "type": "u64"
+        },
+        {
+          "name": "virtual_quote_reserves",
+          "type": "u64"
+        },
+        {
+          "name": "real_quote_reserves",
+          "type": "u64"
+        }
+      ],
+      "kind": "struct"
+    }
+  }
+}

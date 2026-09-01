@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D6",
+  "authorization_sequence": 2,
+  "status": "DO_NOT_START_STOP",
+  "verdict": "STOP_SERIALIZER_P99_AND_PRIMARY_DESCRIPTOR_GATES_FAILED",
+  "engineering_revision": "ac06c781deddbb968babe6bb7a19d1d88cd9cb53",
+  "contract_digest": "a160398c3130dbacf2314bb4046b9bac4865cd9dd421311f2fd999058c0ab9f2",
+  "target_index": "idx_psi0a_token_analysis_migration_tx",
+  "checked_at_utc": "2026-08-14T10:44:57Z",
+  "preflight": {
+    "listener_service": "RUNNING",
+    "listener_pid": 9069,
+    "serializer_snapshot_utc": "2026-08-14T10:44:57Z",
+    "serializer_p99_wait_ms": 1044.2,
+    "serializer_p99_do_not_start_threshold_ms": 1000.0,
+    "serializer_p95_wait_ms": 32.2,
+    "serializer_queue_depth": 0,
+    "serializer_lock_errors_24h": 4,
+    "watchdog_primary_fd_count_reached": 8,
+    "primary_fd_do_not_start_threshold": 8
+  },
+  "stop_reasons": [
+    "Serializer p99 was at or above the explicit 1000 ms do-not-start threshold.",
+    "The listener watchdog reached the explicit primary_fd_count threshold of 8."
+  ],
+  "execution": {
+    "production_database_connections_opened": 0,
+    "ddl_statements_started": 0,
+    "production_writes": 0,
+    "index_created": false,
+    "run_id_assigned": false,
+    "attempt_output_directory_created": false,
+    "retry_count_under_this_authorization": 0,
+    "provider_calls": 0,
+    "service_restarts_or_stops": 0,
+    "configuration_changes": 0
+  },
+  "next_action": "Separately authorize the telemetry-only PSI0A-D6A recovery observation. Do not reauthorize another immediate D6 attempt without proving a clean recovery window."
+}

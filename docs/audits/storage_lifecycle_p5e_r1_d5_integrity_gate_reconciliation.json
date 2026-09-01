@@ -1,0 +1,55 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5E-R1-D5 -- integrity-gate reconciliation under harness limitation",
+  "timestamp_utc": "2026-08-21T10:40:00Z",
+  "affected_may_segment": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2026_05.sqlite",
+  "historical_full_integrity_evidence": {
+    "artifact": "/tmp/storage_p5a/p5e_r1_probe_phase_1.json",
+    "state_class": "post-incident 433-row appended May segment",
+    "path": "/Users/kevinkeaveney/Dev/claude/flex/database/_p5a_migration_build/cold_segments/transfer_index_cold_2026_05.sqlite",
+    "integrity_check": "ok",
+    "actual_row_count": 319751,
+    "manifest_row_count": 319318,
+    "manifest_digest": "448cf42d9b47886e4676d57e292fa0202a4780a4cf29084cb596ac64691fb7d0",
+    "size_bytes": 194195456,
+    "mtime_ns": 1787305212445293962,
+    "interpretation": "The file-backed Phase 1 result completed after the incident append. Its size and mtime exactly match the later fresh Phase 1A metadata, so no unknown mutation intervened."
+  },
+  "fresh_current_structural_evidence": {
+    "quick_check": "ok",
+    "foreign_key_check_rows": 0,
+    "schema_and_indexes": "PASS",
+    "boundary_reads": "PASS",
+    "sqlite_read_errors": 0,
+    "actual_row_count": 319751,
+    "manifest_row_count": 319318,
+    "stored_manifest_digest": "448cf42d9b47886e4676d57e292fa0202a4780a4cf29084cb596ac64691fb7d0",
+    "actual_sorted_signature_digest": "773d09b3679428660c7fb4ab319101c23c7894e1ffcf20e8167ad983f2ee6fb2",
+    "size_bytes": 194195456,
+    "mtime_ns": 1787305212445293962
+  },
+  "harness_limitation": {
+    "full_current_integrity_check": "NOT_COMPLETABLE_IN_CURRENT_HARNESS",
+    "evidence": "Foreground read-only integrity_check recorded STARTED but was externally terminated before RESULT, EXCEPTION, or FINISHED. Independently tested background child execution is unreliable.",
+    "not_evidence_of": ["SQLite corruption", "database locking", "schema drift", "path failure", "file disappearance"]
+  },
+  "gate_decision": "P5E_R1_INTEGRITY_GATE_SATISFIED_WITH_HARNESS_LIMITATION",
+  "current_structural_integrity": "PASS",
+  "remaining_file_backed_invariants": {
+    "recomputed_actual_may_digest": "PASS -- 773d09b3679428660c7fb4ab319101c23c7894e1ffcf20e8167ad983f2ee6fb2",
+    "base_reconstruction_candidates": "PASS -- both candidates: 319318 rows, integrity_check=ok, original manifest digest",
+    "hot_frozen_batch": "PASS -- HOT_BATCH_PRESENT=439/439, 439 full composite identities",
+    "incident_appended_set": "PASS -- INCIDENT_APPENDED_SET=EXACT_433; 433 batch members; 0 unrelated",
+    "false_already_cold_signature_collision": "PASS -- six specified HOT rows absent from all qualified COLD by full identity and explained by shared-signature collision",
+    "rollback_db": "PASS -- MAX(id)=6835535, row_count=5393999",
+    "service_health": "PASS -- watchtower_listener, creator_funding_worker, watchtower_api RUNNING"
+  },
+  "production_actions_to_this_point": {
+    "cold_base_replaced": false,
+    "delta_published": false,
+    "hot_rows_deleted": 0,
+    "services_restarted": false,
+    "rollback_db_modified": false
+  },
+  "terminal_verdict": "P5E_R1_PRE_REPAIR_INVARIANTS_RECONFIRMED",
+  "exact_next_action": "Perform the already-authorized R1 repair only: quarantine the mutated May base, atomically install a verified 319318-row reconstruction, publish exactly the proven 433-row immutable delta, then run required parity/idempotence and preservation checks. HOT retirement remains forbidden."
+}

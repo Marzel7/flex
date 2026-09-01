@@ -1,0 +1,83 @@
+{
+  "schema_version": "ra4.c5.legacy-retirement-preflight-post-manifest.v1",
+  "artifact_type": "RA4_C5_LEGACY_RETIREMENT_PREFLIGHT_POST_MANIFEST",
+  "milestone": "RA4-C5B (successor to RA4-C5, RA4-C5A)",
+  "generated_utc": "2026-08-18T21:41:00Z",
+  "purpose": "Successor retirement preflight synthesizing RA4-C5 (design), RA4-C5A (V2 cap/fallback production proof), and RA4-C5B (compact manifest materialization) into a single deletion-authorization-review record. Re-evaluates ONLY what changed since RA4-C5 rather than reopening already-qualified areas.",
+
+  "carried_forward_unchanged_from_c5": {
+    "legacy_identity": {"path": "database/evidence_platform/production/retained_acquisition.db", "size_bytes": 66155503616, "mtime_epoch": 1787077699, "inode": 487625267},
+    "content_classification": "raw response bytes REDUNDANT (artifact-store-recoverable); correlation/lineage index REQUIRED_UNIQUE -- both from RA4-C5 Part 6, unchanged",
+    "b2n_b2z_watchtower_h_series_dependency": "zero, unchanged from RA4-C5 Part 15/16",
+    "historical_population": {"observations": 1938017, "distinct_mints": 6311, "outcomes_retained": 1937940, "gaps": 0}
+  },
+
+  "resolved_since_c5": [
+    {"item": "V2 daily payload cap reaching its threshold under real traffic", "was": "NOT_YET_REACHED (30.3% consumed at RA4-C5 close)", "now": "V2_PRODUCTION_CAP_REACHED = true, resolved in RA4-C5A"},
+    {"item": "V2 hot-payload fallback firing under real production load", "was": "unobserved", "now": "V2_PRODUCTION_FALLBACK_VERIFIED = true, resolved in RA4-C5A"},
+    {"item": "compact correlation/lineage retirement manifest", "was": "DESIGNED, NOT MATERIALIZED", "now": "MATERIALIZED and VERIFIED in RA4-C5B, 1,938,017/1,938,017 rows, exact accounting match"}
+  ],
+
+  "c5b_materialization_summary": {
+    "compact_artifact_path": "database/evidence_platform/archive/retained_acquisition_legacy_compact.db",
+    "compact_artifact_size_bytes": 1776209920,
+    "compact_artifact_sha256": "60a323261910b4c1847e3289c473bbc9eaf957a456332aba0962484683063bec",
+    "materialization_preflight_artifact": "docs/audits/ra4_c5b_compact_retirement_manifest_materialization.json",
+    "materialization_preflight_sha256": "e1dbd5560d529ef5d0c08429f2e494b9fc98ef2b682e180c875e5071f1184ce5",
+    "accounting_match": "exact -- 1938017 observations, 6311 mints, 1937940 RETAINED outcomes, 0 gaps, source and compact identical",
+    "artifact_coverage": "10/10 combined samples (5 RA4-C5 legacy + 5 RA4-C5B post-materialization) resolved with full SHA-256 integrity",
+    "replay_without_legacy": "COMPACT_REPLAY_WITHOUT_LEGACY = PASS",
+    "helper_fix": "_observation_from_payload() hot-payload top-level identity bug fixed, 2 focused tests added, 25/25 total suite passing, non-blocking (data was never actually lost, only a helper's read path was incomplete)"
+  },
+
+  "c5a_production_proof_summary": {
+    "v2_cap_bytes": 1073741824,
+    "cap_accounting_classification": "CAP_ENFORCEMENT_PASS",
+    "restart_cap_persistence": "RESTART_CAP_PERSISTENCE_FALSE_BY_DESIGN (code-proven; follow-up engineering item recorded, not expanded into this milestone's scope)",
+    "post_cap_replay_check": "5/5 genuine post-cap V2 rows verified with full artifact resolution and replay-required field presence"
+  },
+
+  "reclaim_calculation_final": {
+    "legacy_db_gib": 61.61,
+    "compact_artifact_gib": 1.65,
+    "expected_reclaim_gib": 59.96,
+    "expected_reclaim_percent": 97.32,
+    "measured_not_estimated": true
+  },
+
+  "v2_current_health": {
+    "creator_funding_worker_pid": 33383,
+    "restarted_during_c5_c5a_c5b": false,
+    "legacy_writer": "OFF",
+    "v2_writer": "ON",
+    "v2_row_count_latest": 53637,
+    "evidence_loss_signals": "none"
+  },
+
+  "b2n_state_final": {
+    "run_id": "b2n-p3e-98695fbdf44146c93ff08c8c",
+    "completed": 1,
+    "remaining": 19,
+    "digests_unchanged_across_c5_c5a_c5b": true,
+    "b2n_resumed": false
+  },
+
+  "dependency_recheck_final": {
+    "legacy_active_writers": 0,
+    "legacy_active_readers": 0,
+    "b2n_dependency": "none",
+    "b2z_dependency": "none",
+    "watchtower_dependency": "none",
+    "canonical_operation_dependency": "none",
+    "h_series_dependency": "none"
+  },
+
+  "recovery_model": "post-deletion recovery relies on: (1) the compact index for identity/lineage/accounting, (2) the ArtifactStore for raw evidence bytes via digest, (3) V2's own store for all post-cutover data, (4) the full audit-artifact trail (RA4-C3 through C5B) as provenance of the retirement decision itself. This is semantic/evidentiary recovery, not byte-for-byte SQLite file reconstruction -- documented explicitly, not overclaimed.",
+
+  "disk_state": {"free_gib_at_close": 12, "floor_required_gib": 10, "floor_met": true},
+
+  "blockers": [],
+
+  "verdict": "READY_RA4_LEGACY_DB_DELETION_AUTHORIZATION_REVIEW",
+  "verdict_note": "Every prerequisite identified across RA4-C5, RA4-C5A, and RA4-C5B is now satisfied with direct measured evidence, not projection. This artifact reaches the deletion AUTHORIZATION REVIEW gate. Per explicit instruction, the legacy database is NOT deleted this turn or any prior turn -- a separate, explicit human GO is required before that action, and this milestone stops here to request it."
+}

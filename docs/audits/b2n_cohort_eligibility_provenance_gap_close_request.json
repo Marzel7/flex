@@ -1,0 +1,474 @@
+{
+  "artifact_type": "b2n_provenance_gap_close_request",
+  "milestone": "B2N_COHORT_ELIGIBILITY_PROVENANCE_MISSING",
+  "contract_version": "OIP_v2.2E.2B2N.v1",
+  "status": "OPEN",
+  "request_created_utc": "2026-08-18T14:07:28Z",
+  "scope": {
+    "source_artifact": "docs/evidence_platform/oip_v2_2e_2b2u_b2r_frozen_manifest.json",
+    "source_artifact_digest": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+    "source_milestone": "OIP v2.2E.2B2R",
+    "required_source_milestone": "OIP v2.2E.2B2R",
+    "manifest_digest": "82bbda32d25a9951a8d8475528d7db3a92b675aae90ce2d55e13391a6b69eedc",
+    "required_sample_count": 20,
+    "max_physical_request_budget": 20,
+    "max_request_per_member": 1
+  },
+  "required_evidence_fields": {
+    "reviewed_migration_origin": false,
+    "human_approval_decision_record": false,
+    "immutable_source_checkpoint_id": false,
+    "source_binding": true,
+    "member_set": true,
+    "member_ordinals": "1..20",
+    "provider_authority": false,
+    "production_authority": false
+  },
+  "member_set": {
+    "required_count": 20,
+    "members": [
+      {
+        "sample_ordinal": 1,
+        "mint": "66ruWUv7KLXkLbHBTnj7PqzEgdue1oZjeA5Z3JMHpump",
+        "census_event_id": "b223a9f4f6123b98e67c8ba0d8f19d57a7dd1676a9b80b15a8d04a9cfb431aec",
+        "observation_required": true
+      },
+      {
+        "sample_ordinal": 2,
+        "mint": "3hgXvsR8Xh6hnoKyFbPnrMVEkrKGPVbH6EJQkzoNpump",
+        "census_event_id": "3e4dbf40558e85f62d9b22151f7e9077a6fd3b31a3946d871a51336de716edb5",
+        "observation_required": true
+      },
+      {
+        "sample_ordinal": 3,
+        "mint": "5BQpi43RtPxsw7jw3dpeE7duQAXcNYhw9MD6KUxGpump",
+        "census_event_id": "21c8cfa392903e39e866598cebf2ae08e0f0b553f4e0485b2bcdc29fb6d5a966",
+        "observation_required": true
+      },
+      {
+        "sample_ordinal": 4,
+        "mint": "59hy2QNgTB6vvXJqayUk4RgtJ4wCCniwbHpg8Q5gpump",
+        "census_event_id": "ff681631e3ccf77207381fdebc0a7d5543a3562f26fde09948a3a0a3da78520e",
+        "observation_required": true
+      },
+      {
+        "sample_ordinal": 5,
+        "mint": "6V4rTJ9M4ZNUjvRMvBPiGia5Ju3TutG2nNatRdq1pump",
+        "census_event_id": "18cb1a5556e7eea974f5a572a06e82f6c2e9e49f3a2ea35f33f6c0bd18859b6e",
+        "observation_required": true
+      },
+      {
+        "sample_ordinal": 6,
+        "mint": "FzKMeRzbfD1wbVf2ZxfdFgYirLLnVwzspt6gJRVTA8WU",
+        "census_event_id": "20cce44c2ec91673280a2743f791aafb6090a75bf5cfa7bbf1c851e31b837e0f",
+        "observation_required": true
+      },
+      {
+        "sample_ordinal": 7,
+        "mint": "AGfrbmkuqf3UYG5UXEkTpCtw5UMn62Bc9NrAo6rdpump",
+        "census_event_id": "f154ee9501abac5ad69e7221eea9db0abc2dbf43e22a9223f3a4e6f31f8c90ba",
+        "observation_required": true
+      },
+      {
+        "sample_ordinal": 8,
+        "mint": "qgiXEYJD6mXjHqzJJksX1yjYtownjLXFHAtD7KApump",
+        "census_event_id": "ba42821acc1b64e9f360e962fe403b4a4ff4ca7830c0ae77a99372cd6044e8a0",
+        "observation_required": true
+      },
+      {
+        "sample_ordinal": 9,
+        "mint": "DU8u7EvQsG3GovXDknrcdV8dQfAie7MMY5keqT2Fpump",
+        "census_event_id": "ce5e2df758814e3d9c610ae806c5942b2adea1ab4234201df1bf9bdff63c4b6f",
+        "observation_required": true
+      },
+      {
+        "sample_ordinal": 10,
+        "mint": "Gb71a9p2wfCcuBhHJ2zbG6pchnFGDrocGRAJjZh4pump",
+        "census_event_id": "6061d9ed3cb61ae5d40d1703de785e4d3b1bef466c05d0e4a2d7c968441edb37",
+        "observation_required": true
+      },
+      {
+        "sample_ordinal": 11,
+        "mint": "CNCTqxJ2ug2Cg35Z4UwhggmXdfLSTQ4eQgskVdEspump",
+        "census_event_id": "8bdfb1de92627f69137070b3f976d1689350ca34af2d9810b368d199ec8c2b47",
+        "observation_required": true
+      },
+      {
+        "sample_ordinal": 12,
+        "mint": "DykmoWpVtaKN9R5vurKk2TWgBX2WvvnbMkJMd7gcpump",
+        "census_event_id": "7a9dd1838a2986aee354edb5e44536407c58dcf30abb6e00a6a6e63851043c42",
+        "observation_required": true
+      },
+      {
+        "sample_ordinal": 13,
+        "mint": "E1TTBe4a7qRbLXJ2ef8zUaHE99CqM98oKhCn7YGUpump",
+        "census_event_id": "b4e81e3b547b31ff09171b3f222929faf69078c4a9d4818d3e5f9d81e3eaa0d4",
+        "observation_required": true
+      },
+      {
+        "sample_ordinal": 14,
+        "mint": "TmzQHAfT2MeuW5mgMP7HK4nZogfrGVxrzYHQBkqpump",
+        "census_event_id": "0177a62c18dc35d32b8d116e0a69504a8b3f8d74560bde9d3bc2080d6497e655",
+        "observation_required": true
+      },
+      {
+        "sample_ordinal": 15,
+        "mint": "2grdcnAX48SivhXjB4WkzKHzsz6b9BMWp1EipZWdpump",
+        "census_event_id": "ec9e402b7e32441599f9aab258e4818f83e3e51c87be3966d5f8c1e3652c4354",
+        "observation_required": true
+      },
+      {
+        "sample_ordinal": 16,
+        "mint": "D62UbUSyC78Ucdr9jmrCy9veFuuoQEvuL7NYJCNTpump",
+        "census_event_id": "050a34d4f50dae7dad3497bb33cab2a15991a4ab28d1b6ee6f2c7f2cc9212500",
+        "observation_required": true
+      },
+      {
+        "sample_ordinal": 17,
+        "mint": "9S4dmRLq3SmonrBi6ybxV5LW7M2c68NcGfYb6iFepump",
+        "census_event_id": "30b7f301b7a3c9424a0f51bcffc0dac9a9c965a3fc2e59b1c11df1b8e10587bd",
+        "observation_required": true
+      },
+      {
+        "sample_ordinal": 18,
+        "mint": "CzQDFKURcQHdRgpBib4kyDtmAcWFg9jRQ7Rw3TzGfRGU",
+        "census_event_id": "3fafb5cfed47d912330e216f8315021276d465c78e0858cc95eeec9e4c5af283",
+        "observation_required": true
+      },
+      {
+        "sample_ordinal": 19,
+        "mint": "p5HJBxcLPm2xR3jzdNkJtFkY8iqNixmYgevGwzkpump",
+        "census_event_id": "7f7103791e68f19cc2722652671ad1560044df72b9a1a7d119dd67fed3dd0e26",
+        "observation_required": true
+      },
+      {
+        "sample_ordinal": 20,
+        "mint": "w9qiqygRmeiYxFFGR6Lf5zcPautE9NDVDX2RG2Lpump",
+        "census_event_id": "0ffa96e36e71253aae8d7e05a884426dcd494097b4c87d738bd85c382c15e2bc",
+        "observation_required": true
+      }
+    ],
+    "distinct_member_count": 20
+  },
+  "review_provenance": {
+    "summary": {
+      "members_total": 20,
+      "members_with_reviewed_origin": 0,
+      "members_missing_review_provenance": 20,
+      "reviewed_origin_coverage_ratio": 0.0
+    },
+    "required_fields": {
+      "reviewed_migration_origin": false,
+      "human_approval_decision_record": false,
+      "immutable_source_checkpoint_id": false
+    },
+    "per_member": [
+      {
+        "sample_ordinal": 1,
+        "mint": "66ruWUv7KLXkLbHBTnj7PqzEgdue1oZjeA5Z3JMHpump",
+        "census_event_id": "b223a9f4f6123b98e67c8ba0d8f19d57a7dd1676a9b80b15a8d04a9cfb431aec",
+        "observation_required": true,
+        "reviewed_migration_origin_present": false,
+        "human_approval_decision_record_present": false,
+        "immutable_source_checkpoint_id_present": false,
+        "evidence_binding_present": false,
+        "missing": [
+          "reviewed_migration_origin",
+          "human_approval_decision_record",
+          "immutable_source_checkpoint_id"
+        ]
+      },
+      {
+        "sample_ordinal": 2,
+        "mint": "3hgXvsR8Xh6hnoKyFbPnrMVEkrKGPVbH6EJQkzoNpump",
+        "census_event_id": "3e4dbf40558e85f62d9b22151f7e9077a6fd3b31a3946d871a51336de716edb5",
+        "observation_required": true,
+        "reviewed_migration_origin_present": false,
+        "human_approval_decision_record_present": false,
+        "immutable_source_checkpoint_id_present": false,
+        "evidence_binding_present": false,
+        "missing": [
+          "reviewed_migration_origin",
+          "human_approval_decision_record",
+          "immutable_source_checkpoint_id"
+        ]
+      },
+      {
+        "sample_ordinal": 3,
+        "mint": "5BQpi43RtPxsw7jw3dpeE7duQAXcNYhw9MD6KUxGpump",
+        "census_event_id": "21c8cfa392903e39e866598cebf2ae08e0f0b553f4e0485b2bcdc29fb6d5a966",
+        "observation_required": true,
+        "reviewed_migration_origin_present": false,
+        "human_approval_decision_record_present": false,
+        "immutable_source_checkpoint_id_present": false,
+        "evidence_binding_present": false,
+        "missing": [
+          "reviewed_migration_origin",
+          "human_approval_decision_record",
+          "immutable_source_checkpoint_id"
+        ]
+      },
+      {
+        "sample_ordinal": 4,
+        "mint": "59hy2QNgTB6vvXJqayUk4RgtJ4wCCniwbHpg8Q5gpump",
+        "census_event_id": "ff681631e3ccf77207381fdebc0a7d5543a3562f26fde09948a3a0a3da78520e",
+        "observation_required": true,
+        "reviewed_migration_origin_present": false,
+        "human_approval_decision_record_present": false,
+        "immutable_source_checkpoint_id_present": false,
+        "evidence_binding_present": false,
+        "missing": [
+          "reviewed_migration_origin",
+          "human_approval_decision_record",
+          "immutable_source_checkpoint_id"
+        ]
+      },
+      {
+        "sample_ordinal": 5,
+        "mint": "6V4rTJ9M4ZNUjvRMvBPiGia5Ju3TutG2nNatRdq1pump",
+        "census_event_id": "18cb1a5556e7eea974f5a572a06e82f6c2e9e49f3a2ea35f33f6c0bd18859b6e",
+        "observation_required": true,
+        "reviewed_migration_origin_present": false,
+        "human_approval_decision_record_present": false,
+        "immutable_source_checkpoint_id_present": false,
+        "evidence_binding_present": false,
+        "missing": [
+          "reviewed_migration_origin",
+          "human_approval_decision_record",
+          "immutable_source_checkpoint_id"
+        ]
+      },
+      {
+        "sample_ordinal": 6,
+        "mint": "FzKMeRzbfD1wbVf2ZxfdFgYirLLnVwzspt6gJRVTA8WU",
+        "census_event_id": "20cce44c2ec91673280a2743f791aafb6090a75bf5cfa7bbf1c851e31b837e0f",
+        "observation_required": true,
+        "reviewed_migration_origin_present": false,
+        "human_approval_decision_record_present": false,
+        "immutable_source_checkpoint_id_present": false,
+        "evidence_binding_present": false,
+        "missing": [
+          "reviewed_migration_origin",
+          "human_approval_decision_record",
+          "immutable_source_checkpoint_id"
+        ]
+      },
+      {
+        "sample_ordinal": 7,
+        "mint": "AGfrbmkuqf3UYG5UXEkTpCtw5UMn62Bc9NrAo6rdpump",
+        "census_event_id": "f154ee9501abac5ad69e7221eea9db0abc2dbf43e22a9223f3a4e6f31f8c90ba",
+        "observation_required": true,
+        "reviewed_migration_origin_present": false,
+        "human_approval_decision_record_present": false,
+        "immutable_source_checkpoint_id_present": false,
+        "evidence_binding_present": false,
+        "missing": [
+          "reviewed_migration_origin",
+          "human_approval_decision_record",
+          "immutable_source_checkpoint_id"
+        ]
+      },
+      {
+        "sample_ordinal": 8,
+        "mint": "qgiXEYJD6mXjHqzJJksX1yjYtownjLXFHAtD7KApump",
+        "census_event_id": "ba42821acc1b64e9f360e962fe403b4a4ff4ca7830c0ae77a99372cd6044e8a0",
+        "observation_required": true,
+        "reviewed_migration_origin_present": false,
+        "human_approval_decision_record_present": false,
+        "immutable_source_checkpoint_id_present": false,
+        "evidence_binding_present": false,
+        "missing": [
+          "reviewed_migration_origin",
+          "human_approval_decision_record",
+          "immutable_source_checkpoint_id"
+        ]
+      },
+      {
+        "sample_ordinal": 9,
+        "mint": "DU8u7EvQsG3GovXDknrcdV8dQfAie7MMY5keqT2Fpump",
+        "census_event_id": "ce5e2df758814e3d9c610ae806c5942b2adea1ab4234201df1bf9bdff63c4b6f",
+        "observation_required": true,
+        "reviewed_migration_origin_present": false,
+        "human_approval_decision_record_present": false,
+        "immutable_source_checkpoint_id_present": false,
+        "evidence_binding_present": false,
+        "missing": [
+          "reviewed_migration_origin",
+          "human_approval_decision_record",
+          "immutable_source_checkpoint_id"
+        ]
+      },
+      {
+        "sample_ordinal": 10,
+        "mint": "Gb71a9p2wfCcuBhHJ2zbG6pchnFGDrocGRAJjZh4pump",
+        "census_event_id": "6061d9ed3cb61ae5d40d1703de785e4d3b1bef466c05d0e4a2d7c968441edb37",
+        "observation_required": true,
+        "reviewed_migration_origin_present": false,
+        "human_approval_decision_record_present": false,
+        "immutable_source_checkpoint_id_present": false,
+        "evidence_binding_present": false,
+        "missing": [
+          "reviewed_migration_origin",
+          "human_approval_decision_record",
+          "immutable_source_checkpoint_id"
+        ]
+      },
+      {
+        "sample_ordinal": 11,
+        "mint": "CNCTqxJ2ug2Cg35Z4UwhggmXdfLSTQ4eQgskVdEspump",
+        "census_event_id": "8bdfb1de92627f69137070b3f976d1689350ca34af2d9810b368d199ec8c2b47",
+        "observation_required": true,
+        "reviewed_migration_origin_present": false,
+        "human_approval_decision_record_present": false,
+        "immutable_source_checkpoint_id_present": false,
+        "evidence_binding_present": false,
+        "missing": [
+          "reviewed_migration_origin",
+          "human_approval_decision_record",
+          "immutable_source_checkpoint_id"
+        ]
+      },
+      {
+        "sample_ordinal": 12,
+        "mint": "DykmoWpVtaKN9R5vurKk2TWgBX2WvvnbMkJMd7gcpump",
+        "census_event_id": "7a9dd1838a2986aee354edb5e44536407c58dcf30abb6e00a6a6e63851043c42",
+        "observation_required": true,
+        "reviewed_migration_origin_present": false,
+        "human_approval_decision_record_present": false,
+        "immutable_source_checkpoint_id_present": false,
+        "evidence_binding_present": false,
+        "missing": [
+          "reviewed_migration_origin",
+          "human_approval_decision_record",
+          "immutable_source_checkpoint_id"
+        ]
+      },
+      {
+        "sample_ordinal": 13,
+        "mint": "E1TTBe4a7qRbLXJ2ef8zUaHE99CqM98oKhCn7YGUpump",
+        "census_event_id": "b4e81e3b547b31ff09171b3f222929faf69078c4a9d4818d3e5f9d81e3eaa0d4",
+        "observation_required": true,
+        "reviewed_migration_origin_present": false,
+        "human_approval_decision_record_present": false,
+        "immutable_source_checkpoint_id_present": false,
+        "evidence_binding_present": false,
+        "missing": [
+          "reviewed_migration_origin",
+          "human_approval_decision_record",
+          "immutable_source_checkpoint_id"
+        ]
+      },
+      {
+        "sample_ordinal": 14,
+        "mint": "TmzQHAfT2MeuW5mgMP7HK4nZogfrGVxrzYHQBkqpump",
+        "census_event_id": "0177a62c18dc35d32b8d116e0a69504a8b3f8d74560bde9d3bc2080d6497e655",
+        "observation_required": true,
+        "reviewed_migration_origin_present": false,
+        "human_approval_decision_record_present": false,
+        "immutable_source_checkpoint_id_present": false,
+        "evidence_binding_present": false,
+        "missing": [
+          "reviewed_migration_origin",
+          "human_approval_decision_record",
+          "immutable_source_checkpoint_id"
+        ]
+      },
+      {
+        "sample_ordinal": 15,
+        "mint": "2grdcnAX48SivhXjB4WkzKHzsz6b9BMWp1EipZWdpump",
+        "census_event_id": "ec9e402b7e32441599f9aab258e4818f83e3e51c87be3966d5f8c1e3652c4354",
+        "observation_required": true,
+        "reviewed_migration_origin_present": false,
+        "human_approval_decision_record_present": false,
+        "immutable_source_checkpoint_id_present": false,
+        "evidence_binding_present": false,
+        "missing": [
+          "reviewed_migration_origin",
+          "human_approval_decision_record",
+          "immutable_source_checkpoint_id"
+        ]
+      },
+      {
+        "sample_ordinal": 16,
+        "mint": "D62UbUSyC78Ucdr9jmrCy9veFuuoQEvuL7NYJCNTpump",
+        "census_event_id": "050a34d4f50dae7dad3497bb33cab2a15991a4ab28d1b6ee6f2c7f2cc9212500",
+        "observation_required": true,
+        "reviewed_migration_origin_present": false,
+        "human_approval_decision_record_present": false,
+        "immutable_source_checkpoint_id_present": false,
+        "evidence_binding_present": false,
+        "missing": [
+          "reviewed_migration_origin",
+          "human_approval_decision_record",
+          "immutable_source_checkpoint_id"
+        ]
+      },
+      {
+        "sample_ordinal": 17,
+        "mint": "9S4dmRLq3SmonrBi6ybxV5LW7M2c68NcGfYb6iFepump",
+        "census_event_id": "30b7f301b7a3c9424a0f51bcffc0dac9a9c965a3fc2e59b1c11df1b8e10587bd",
+        "observation_required": true,
+        "reviewed_migration_origin_present": false,
+        "human_approval_decision_record_present": false,
+        "immutable_source_checkpoint_id_present": false,
+        "evidence_binding_present": false,
+        "missing": [
+          "reviewed_migration_origin",
+          "human_approval_decision_record",
+          "immutable_source_checkpoint_id"
+        ]
+      },
+      {
+        "sample_ordinal": 18,
+        "mint": "CzQDFKURcQHdRgpBib4kyDtmAcWFg9jRQ7Rw3TzGfRGU",
+        "census_event_id": "3fafb5cfed47d912330e216f8315021276d465c78e0858cc95eeec9e4c5af283",
+        "observation_required": true,
+        "reviewed_migration_origin_present": false,
+        "human_approval_decision_record_present": false,
+        "immutable_source_checkpoint_id_present": false,
+        "evidence_binding_present": false,
+        "missing": [
+          "reviewed_migration_origin",
+          "human_approval_decision_record",
+          "immutable_source_checkpoint_id"
+        ]
+      },
+      {
+        "sample_ordinal": 19,
+        "mint": "p5HJBxcLPm2xR3jzdNkJtFkY8iqNixmYgevGwzkpump",
+        "census_event_id": "7f7103791e68f19cc2722652671ad1560044df72b9a1a7d119dd67fed3dd0e26",
+        "observation_required": true,
+        "reviewed_migration_origin_present": false,
+        "human_approval_decision_record_present": false,
+        "immutable_source_checkpoint_id_present": false,
+        "evidence_binding_present": false,
+        "missing": [
+          "reviewed_migration_origin",
+          "human_approval_decision_record",
+          "immutable_source_checkpoint_id"
+        ]
+      },
+      {
+        "sample_ordinal": 20,
+        "mint": "w9qiqygRmeiYxFFGR6Lf5zcPautE9NDVDX2RG2Lpump",
+        "census_event_id": "0ffa96e36e71253aae8d7e05a884426dcd494097b4c87d738bd85c382c15e2bc",
+        "observation_required": true,
+        "reviewed_migration_origin_present": false,
+        "human_approval_decision_record_present": false,
+        "immutable_source_checkpoint_id_present": false,
+        "evidence_binding_present": false,
+        "missing": [
+          "reviewed_migration_origin",
+          "human_approval_decision_record",
+          "immutable_source_checkpoint_id"
+        ]
+      }
+    ]
+  },
+  "approval_evidence": {
+    "human_approval_artifact_present": false,
+    "approval_path": null,
+    "approval_digest": null
+  },
+  "next_action": "Collect deterministic reviewed provenance artifacts (reviewed_migration_origin, human approval disposition record, immutable source checkpoint id) and rerun this request in a blocker-aware handoff step before authorization or provider-bound execution."
+}

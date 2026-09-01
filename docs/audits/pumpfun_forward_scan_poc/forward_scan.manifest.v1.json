@@ -1,0 +1,74 @@
+{
+  "blocks": [
+    {
+      "block_fetch_success": true,
+      "block_time": 1788250333,
+      "slot": 443375107,
+      "target_relevant_tx_total": 3,
+      "transaction_total": 1831
+    }
+  ],
+  "creation_slot": 443375106,
+  "filtered_candidates": [
+    {
+      "associated_curve_match": false,
+      "block_time": 1788250333,
+      "bonding_curve_match": false,
+      "buy_instruction_present": false,
+      "buyer": "H8UKNvUeaqpVT7DZ8TXJVreSQEXDjTA7fEv8hjD3FzHm",
+      "candidate_class": "UNRESOLVED",
+      "exclusion_reason": "No successful target Pump.fun Buy instruction with target curve/mint.",
+      "pumpfun_program_present": false,
+      "signature": "5g957jiZBcXt2nysvpVNQ4Jth6tRp67wBVftv4igufyB6ZnHSMxnCzMDUDqYRRPxLkzCycAa7QhatLNSE258TZNA",
+      "slot": 443375107,
+      "target_mint_match": true,
+      "transaction_index": 59
+    },
+    {
+      "associated_curve_match": false,
+      "block_time": 1788250333,
+      "bonding_curve_match": true,
+      "buy_instruction_present": false,
+      "buyer": "2KP9miexioqgNbjPwysggcbi3sKqhH8JsPaDmFxRPURD",
+      "candidate_class": "UNRESOLVED",
+      "exclusion_reason": "No successful target Pump.fun Buy instruction with target curve/mint.",
+      "pumpfun_program_present": false,
+      "signature": "JqFwQhAPqSMaNwDnAbRsmjGUmeMoh3AMdcw9gYQ9GyM8GcgDdYCvisT77iToYFLtSpi3nFgx4wUQDyESuAsuqJ7",
+      "slot": 443375107,
+      "target_mint_match": true,
+      "transaction_index": 697
+    },
+    {
+      "associated_curve_match": true,
+      "block_time": 1788250333,
+      "bonding_curve_match": true,
+      "buy_instruction_present": true,
+      "buyer": "Eqk3ht8ADsrigNrVPqKZ3bST9VosebkMxmwE11cnKhar",
+      "candidate_class": "PUMPFUN_BUY",
+      "pumpfun_program_present": true,
+      "signature": "4Qyht4ZXtt8t11Jc6v3UkDWBTzCUUWfYG1Xywyym5NLRsonyG5nBvoFyztQCNhqd1Ku2jt1VW81N7vzB9or4bcoJ",
+      "slot": 443375107,
+      "sol_in_lamports": 185789280,
+      "target_mint_match": true,
+      "token_out_raw": 1143759998709,
+      "transaction_index": 895
+    }
+  ],
+  "filtered_relevant_transaction_total": 3,
+  "first_buy_decoded_sha256": "a31de738b35a7048117fbedb70aab620d8a86bad94775cd2819ae57edc971ad1",
+  "first_buy_found": true,
+  "initial_mc_derivation": "docs/audits/pumpfun_forward_scan_poc/initial_mc_derivation.v1.json",
+  "initial_mc_derivation_sha256": "7dff7b311ddad866d4720ba898b34c84dcea0a80c7b9db0fcfe9dcf3e7febb76",
+  "mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+  "rpc": {
+    "failure": 0,
+    "getBlock": 1,
+    "getBlockTime": 0,
+    "getTransaction": 0,
+    "success": 1,
+    "total": 1
+  },
+  "scan_start_slot": 443375107,
+  "scan_stop_slot": 443375107,
+  "schema_version": 1
+}

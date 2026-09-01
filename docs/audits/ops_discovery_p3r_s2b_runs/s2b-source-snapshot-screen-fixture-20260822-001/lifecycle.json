@@ -1,0 +1,100 @@
+{
+  "authoritative_snapshot": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-screen-fixture-20260822-001/snapshot.sqlite",
+  "bindings": {
+    "dry_run": true,
+    "source_contract": {
+      "canonicalization": "unchanged_runner_canonical_json_array_newline_sha256",
+      "read_semantics": "sqlite_uri_mode_ro_query_only_single_transaction",
+      "surfaces": [
+        {
+          "columns": [
+            "mint",
+            "pf_ws_creator"
+          ],
+          "order": "mint ASC",
+          "table": "token_analysis"
+        },
+        {
+          "columns": [
+            "mint"
+          ],
+          "order": "mint ASC",
+          "table": "pumpfun_migration_verification"
+        }
+      ],
+      "wall_seconds": 300
+    },
+    "source_db": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db"
+  },
+  "exit_code": 0,
+  "launcher": {
+    "cwd": "/Users/kevinkeaveney/Dev/claude/flex",
+    "pid": 93463,
+    "ppid": 93458,
+    "started_at_utc": "2026-08-22T14:54:29.155653Z"
+  },
+  "legacy_quarantine_excluded": {
+    "temporary_snapshot": {
+      "path": "docs/audits/ops_discovery_p3r_s2b_source_snapshot.sqlite.tmp",
+      "sha256": "8812ad675a1de997fa5dd7bb506e1446ff72c43a353308f2a8d98d69a49f942e"
+    },
+    "terminal_audit": {
+      "path": "docs/audits/ops_discovery_p3r_s2b_source_boundary_snapshot.json",
+      "sha256": "d585d353af6d4e4a64c026ef7c1fbe77472abfd77e687b5e0983b02659abfa58"
+    }
+  },
+  "ownership": {
+    "promotion": "wrapper only after runner COMPLETE, replay_identical true, and exit code zero",
+    "snapshot_runner": [
+      "temporary_snapshot",
+      "capture_snapshot",
+      "runner_candidate_snapshot",
+      "runner_audit"
+    ],
+    "wrapper": [
+      "namespace",
+      "lifecycle",
+      "stdout",
+      "stderr",
+      "final_snapshot"
+    ]
+  },
+  "paths": {
+    "capture_snapshot": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-screen-fixture-20260822-001/runner_candidate.sqlite.capture.sqlite",
+    "final_snapshot": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-screen-fixture-20260822-001/snapshot.sqlite",
+    "lifecycle": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-screen-fixture-20260822-001/lifecycle.json",
+    "namespace": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-screen-fixture-20260822-001",
+    "runner_audit": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-screen-fixture-20260822-001/source_boundary_audit.json",
+    "runner_candidate_snapshot": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-screen-fixture-20260822-001/runner_candidate.sqlite",
+    "stderr": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-screen-fixture-20260822-001/stderr.log",
+    "stdout": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-screen-fixture-20260822-001/stdout.log",
+    "temporary_snapshot": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-screen-fixture-20260822-001/runner_candidate.sqlite.tmp"
+  },
+  "run_id": "s2b-source-snapshot-screen-fixture-20260822-001",
+  "runner": {
+    "command": [
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-c",
+      "import json,os,sys; tmp,audit,outcome,run_id=sys.argv[1:]; open(tmp,'wb').write(b'fixture-only-source-snapshot\\n'); status='COMPLETE' if outcome=='pass' else 'HOLD'; json.dump({'status':status,'fixture_only':True,'run_id':run_id,'replay_identical':outcome=='pass','failure_reason':None if outcome=='pass' else 'INTERRUPTED_FIXTURE'},open(audit,'w')); print('fixture-run-id='+run_id); sys.exit(0 if outcome=='pass' else 3)",
+      "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-screen-fixture-20260822-001/runner_candidate.sqlite.tmp",
+      "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-screen-fixture-20260822-001/source_boundary_audit.json",
+      "pass",
+      "s2b-source-snapshot-screen-fixture-20260822-001"
+    ],
+    "path": "/Users/kevinkeaveney/Dev/claude/flex/scripts/freeze_ops_discovery_p3r_s2b_source_boundary.py",
+    "pid": 93610,
+    "ppid": 93463,
+    "sha256": "02101c5b8184b504af94b957457145c226fdafa2ef7c7f4dbc85bc3406373e31",
+    "started_at_utc": "2026-08-22T14:54:29.165691Z"
+  },
+  "runner_terminal_audit": {
+    "failure_reason": null,
+    "fixture_only": true,
+    "replay_identical": true,
+    "run_id": "s2b-source-snapshot-screen-fixture-20260822-001",
+    "status": "COMPLETE"
+  },
+  "status": "PASS",
+  "temporary_snapshot_non_authoritative": false,
+  "terminal_at_utc": "2026-08-22T14:54:29.218473Z"
+}

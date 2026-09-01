@@ -1,0 +1,64 @@
+{
+  "schema_version": "psi0e-d.closure-disposition.v1",
+  "milestone": "PSI0E-D",
+  "closed_at_utc": "2026-08-16T10:49:15Z",
+  "engineering_commit": "d2f2c72aa0083bc62950fbfcf2940111d9d8e358",
+  "status": "PASS",
+  "verdict": "PSI0E_C_CLOSED_FIXTURE_ONLY_ATOMIC_ENVELOPE_PUBLICATION_CONTRACT_MAY_BE_QUALIFIED",
+  "bound_inputs": {
+    "psi0e_b_closure_digest": "5067a9668afd21fcb4f92442ced9ad8726b1ecde9855bd251d291fd9ce7bf8f8",
+    "psi0e_a_contract_digest": "2c8b2a296cb55ceb7da59ea4b063557749842041ba35251ec605e3f5f231350f",
+    "psi0e_a_qualification_digest": "69b4133f7d43029bcf08a1ee1143d8704e5a503558b8e2f3bcca6626fc97c57f",
+    "psi0e_c_input_digest": "89c8dee5c976bd587aa6fc7ec3a6194e38caeba5508013c8ddca976489038f35",
+    "psi0e_c_envelope_digest": "c8827678b2137f1aec864f86623514a92affb0c6df092d13b24c160f8fb90a9d",
+    "psi0d_bundle_digest": "4f208d7cc00e7b451c796ad16b5c28862cd79c30e476f41c22d7b4fa589e9477",
+    "psi0d_projection_digest": "482461d10319e657bbb4df37b4cfa4be526ada21b4dbd3186ce43834ecb2d136"
+  },
+  "replay_verification": {
+    "integration_envelope_contract_replayed": true,
+    "qualification_and_closure_identities_match": true,
+    "canonical_input_digest_matches": true,
+    "canonical_envelope_digest_matches": true,
+    "default_off": true,
+    "consumer_enabled": false,
+    "provenance_class": "PRODUCTION_DERIVED_IMMUTABLE_LOCAL_DESCRIPTIVE_INTEGRATION_ENVELOPE",
+    "source_provenance_class": "PRODUCTION_DERIVED_IMMUTABLE_LOCAL_ASSESSMENT_SUMMARY",
+    "cohort_denominator": 5000,
+    "total_rows": 9709,
+    "duplicate_rows_preserved": 2266,
+    "unresolved_conflicts": 0,
+    "unmatched_rows": 0,
+    "missingness_semantics": "ABSENT_NOT_NEGATIVE",
+    "source_values_retained_or_disclosed": false
+  },
+  "authority": {
+    "policy": false,
+    "ranking": false,
+    "integration": false,
+    "deployment": false,
+    "activation": false
+  },
+  "publication_disposition": {
+    "fixture_only_atomic_publication_contract_is_coherent": true,
+    "smallest_next_milestone": "PSI0E-E",
+    "qualification_scope": "Safe-local design and fixture qualification of an immutable integration-envelope publisher accepting injected synthetic canonical envelope bytes and writing an exact replayable bundle atomically to a caller-supplied new absent fixture directory.",
+    "required_properties": [
+      "exact envelope contract and lineage identities",
+      "canonical bytes and deterministic per-file hashes",
+      "one bundle digest and exact replay",
+      "atomic no-partial publication with output-reuse rejection",
+      "unconditional staging cleanup under write, fsync, rename and replay faults",
+      "preserved default-off consumer-disabled state and false policy ranking integration deployment and activation authority"
+    ],
+    "publishing_real_envelope_authorized": false,
+    "consumer_integration_or_deployment_authorized": false
+  },
+  "scope_proof": {
+    "psi0d_psi0c_or_psi0b_bundle_reopened": false,
+    "envelope_reconstructed_or_published": false,
+    "integration_output_created": false,
+    "production_or_runtime_access": false,
+    "provider_or_rpc_calls": 0
+  },
+  "next_action": "HUMAN_APPROVAL_REQUIRED: PSI0E-E fixture-only immutable atomic integration-envelope publication contract qualification."
+}

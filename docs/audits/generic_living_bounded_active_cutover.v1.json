@@ -1,0 +1,19 @@
+{
+  "schema_version": "generic_living_bounded_active_cutover.v1",
+  "preflight_artifact": {"path": "docs/audits/generic_living_real_forward_cutover_preflight.v1.json", "sha256": "222fa35a2580b070fc6350aef562c5883b099fa1c265b4633f0dbd1566520255", "verified": true},
+  "pre_cutover_baseline": {"identities": 2, "associations": 183, "assessments": 5, "currents": 2, "lineage": 5, "bindings": 183},
+  "active_dispatch_inspection": {
+    "legacy_bridge": "src/ops/living_potential_operations.py:handle_walkback_evidence_update dispatches directly to bootstrap_wsol_potential_operation/bootstrap_transfer_potential_operation",
+    "generic_handler": "src/ops/generic_living_pipeline_v2.py:handle_walkback_evidence_update_generic is disposable-only and does not publish lineage/bindings to the real schema",
+    "generic_source_adapter": "absent for current real candidate evidence"
+  },
+  "cutover_executed": false,
+  "reason": "Activating the current generic handler would make the future bounded path unable to atomically publish GENERIC_DECLARATIVE_V2 assessment lineage and assessment-association bindings from real evidence.",
+  "real_generic_publications": 0,
+  "real_living_state_unchanged": true,
+  "promotion": "NO",
+  "detector": "NO",
+  "global_automatic_walkback_integration": "NO",
+  "required_before_activation": ["real read-only generic source adapter for both configured candidates", "real generic publisher using potential_operation_assessment_lineage and assessment-association binding transaction", "feature-gated generic/legacy dispatcher with disposable rollback rehearsal"],
+  "verdict": "GENERIC_LIVING_BOUNDED_ACTIVE_CUTOVER_HOLD_CORRECTNESS"
+}

@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D2",
+  "observed_at_utc": "2026-08-14T14:21:37Z",
+  "status": "STOPPED_BEFORE_DATABASE_OPEN",
+  "verdict": "HOLD_CONTRACT_IDENTITY_DRIFT",
+  "authorized_engineering_revision": "d0bd5f1d2f0d95cc6026d681bb4c3ee1a619165f",
+  "authorized_contract_digest": "5d35498800f5c3d65ab972fd3fa593ca768eeaf79be2e2813a9c0d7192d718df",
+  "contract_replay": {
+    "authorized_digest_engineering_revision": "0ab2e8e7",
+    "digest_at_authorized_current_revision": "8ba0259d356c3fd6300f22dbf08b6ca3ea96fd836f94221d4f2499949de4577c",
+    "matches": false,
+    "stop_reason": "PSI0A_D_CONTRACT_REPLAY_MISMATCH"
+  },
+  "preflight_health": {
+    "listener_pid": 15357,
+    "latest_three_primary_fd_counts": [3, 3, 0],
+    "serializer_p99_wait_ms": 57.31,
+    "serializer_queue_depth": 0,
+    "serializer_lock_errors_24h": 0,
+    "pumpportal_pumpswap_ingestion_healthy": true,
+    "evidence_writer": "STOPPED"
+  },
+  "execution": {
+    "production_database_connections_opened": 0,
+    "explain_query_plan_statements": 0,
+    "select_templates_executed": 0,
+    "production_rows_read": 0,
+    "production_writes": 0,
+    "ddl_statements": 0,
+    "retries": 0,
+    "service_actions": 0,
+    "provider_calls": 0
+  },
+  "production_impact": false,
+  "next_action": "Separately authorize a safe-local immutable PSI0A-D contract identity rebind to the current engineering revision, preserving the exact five templates and all authority constraints; then re-propose one production metadata-only D2 attempt with the resulting replay-verified digest."
+}

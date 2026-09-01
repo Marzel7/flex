@@ -1,0 +1,30 @@
+{
+  "artifact_version": "v1",
+  "busy_snapshot_prerequisite": {
+    "path": "docs/audits/generic_living_busy_snapshot_retry_qualification.v1.json",
+    "sha256": "581d818dc7f28aac22bc5478a94045d2898f28b466bde067a0fc49f9b6a4eef0",
+    "readiness": "ready"
+  },
+  "harness": "tests/test_generic_living_three_actor_smoke.py; existing disposable A+B+C WAL harness scaled to authorized 80 worker events and 40 Actor B attempts",
+  "workload": {
+    "actor_a": "30 WSOL relevant, 30 eight-hop relevant, 10 unrelated, 10 global-only",
+    "actor_b": "40 qualified newer/replay/stale attempts",
+    "actor_c": "continuous read-only observer",
+    "injected_failure": "exactly one after_current_before_commit callback injector"
+  },
+  "result": "HOLD_LOCKING",
+  "executed_failure": {
+    "expected_injected_callback_failures": 1,
+    "unexpected_callback_failures": 1,
+    "unexpected_failure": "sqlite3 OperationalError: database is locked during later worker callback",
+    "classification": "ordinary SQLite lock failure, not SQLITE_BUSY_SNAPSHOT; canonical retry intentionally did not handle it",
+    "assertion": "expected exactly one callback failure; observed two"
+  },
+  "safety": {
+    "real_feature_flag": "OFF",
+    "real_db_writes": 0,
+    "real_evidence_table_writes_by_task": 0,
+    "provider_rpc_network_calls": 0
+  },
+  "next_action": "Diagnose ordinary SQLITE_BUSY/database-is-locked contention and decide separately whether a bounded canonical retry or harness scheduling correction is appropriate. Do not run held-reader WAL longevity."
+}

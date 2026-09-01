@@ -1,0 +1,11 @@
+{
+  "average_execution_price_sol_per_token": 1.5737567339579282e-07,
+  "first_buy_signature": "4Qyht4ZXtt8t11Jc6v3UkDWBTzCUUWfYG1Xywyym5NLRsonyG5nBvoFyztQCNhqd1Ku2jt1VW81N7vzB9or4bcoJ",
+  "initial_market_cap_after_first_buy_sol": null,
+  "initial_market_cap_after_first_buy_usd": null,
+  "mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+  "post_buy_price_sol": null,
+  "price_or_market_cap_derivation_status": "UNSUPPORTED",
+  "reason": "The bounded block payload establishes executed trade flow but does not provide a decoded Pump.fun virtual-reserve state. Spot post-buy price and market cap cannot be safely derived from buyer spend or curve lamport balance alone.",
+  "schema_version": 1
+}

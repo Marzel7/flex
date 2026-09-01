@@ -1,0 +1,220 @@
+{
+  "canonical_event_decoder_found": false,
+  "event_reserve_state_available": false,
+  "event_reserve_state_coverage_buy_total": 0,
+  "rows": [
+    {
+      "buy_sequence_number": 1,
+      "event_byte_length": [
+        373
+      ],
+      "event_decode_success": false,
+      "event_discriminator_hex": [
+        "bddb7fd34ee661ee"
+      ],
+      "event_fields": null,
+      "event_type": null,
+      "instruction_discriminators_hex": [
+        "c2ab1c46684d5b2f"
+      ],
+      "instruction_name_from_log": "BuyExactQuoteInV2",
+      "program_data_log_total": 1,
+      "reason": "No canonical local IDL/event Borsh layout for target program/version.",
+      "signature": "4Qyht4ZXtt8t11Jc6v3UkDWBTzCUUWfYG1Xywyym5NLRsonyG5nBvoFyztQCNhqd1Ku2jt1VW81N7vzB9or4bcoJ"
+    },
+    {
+      "buy_sequence_number": 2,
+      "event_byte_length": [
+        371
+      ],
+      "event_decode_success": false,
+      "event_discriminator_hex": [
+        "bddb7fd34ee661ee"
+      ],
+      "event_fields": null,
+      "event_type": null,
+      "instruction_discriminators_hex": [
+        "38fc74089edfcd5f"
+      ],
+      "instruction_name_from_log": "BuyExactSolIn",
+      "program_data_log_total": 1,
+      "reason": "No canonical local IDL/event Borsh layout for target program/version.",
+      "signature": "tWgCFsQJ12RtMMoVnYXT6QADTXBZczAMMaECDPaPYJ1Lg4KKVCUjAnHcQMqVhCnwYPFucv6fWvzcosgBircB3Tv"
+    },
+    {
+      "buy_sequence_number": 3,
+      "event_byte_length": [
+        358
+      ],
+      "event_decode_success": false,
+      "event_discriminator_hex": [
+        "bddb7fd34ee661ee"
+      ],
+      "event_fields": null,
+      "event_type": null,
+      "instruction_discriminators_hex": [],
+      "instruction_name_from_log": "Buy",
+      "program_data_log_total": 1,
+      "reason": "No canonical local IDL/event Borsh layout for target program/version.",
+      "signature": "4ZziePa9dzTTZkGe1t5RxXjxNySQfqWGFDiCnjTi77q39FaUbdSRGdnBb98UgqNAwjF1v3TsT5WpHWMACBKNvofQ"
+    },
+    {
+      "buy_sequence_number": 4,
+      "event_byte_length": [
+        373
+      ],
+      "event_decode_success": false,
+      "event_discriminator_hex": [
+        "bddb7fd34ee661ee"
+      ],
+      "event_fields": null,
+      "event_type": null,
+      "instruction_discriminators_hex": [
+        "c2ab1c46684d5b2f"
+      ],
+      "instruction_name_from_log": "BuyExactQuoteInV2",
+      "program_data_log_total": 1,
+      "reason": "No canonical local IDL/event Borsh layout for target program/version.",
+      "signature": "62adVnZ1gJNHgsx7HJSezqMri3AJjNK8BEkRpGZQHZegXpjHToNjaaGc3b7BJXMmKv4Mk3rYsv7RcmVcj94CX9H"
+    },
+    {
+      "buy_sequence_number": 5,
+      "event_byte_length": [
+        371
+      ],
+      "event_decode_success": false,
+      "event_discriminator_hex": [
+        "bddb7fd34ee661ee"
+      ],
+      "event_fields": null,
+      "event_type": null,
+      "instruction_discriminators_hex": [
+        "38fc74089edfcd5f"
+      ],
+      "instruction_name_from_log": "BuyExactSolIn",
+      "program_data_log_total": 1,
+      "reason": "No canonical local IDL/event Borsh layout for target program/version.",
+      "signature": "3Vh1DPYrpyf4vvGeQ1oHdST3TR46tFzdmTceHej3PURG1dxd5DAn1FZpNsiWm7TN8uPXqBskrCrQfuF8UZPWikRF"
+    },
+    {
+      "buy_sequence_number": 6,
+      "event_byte_length": [
+        371
+      ],
+      "event_decode_success": false,
+      "event_discriminator_hex": [
+        "bddb7fd34ee661ee"
+      ],
+      "event_fields": null,
+      "event_type": null,
+      "instruction_discriminators_hex": [
+        "38fc74089edfcd5f"
+      ],
+      "instruction_name_from_log": "BuyExactSolIn",
+      "program_data_log_total": 1,
+      "reason": "No canonical local IDL/event Borsh layout for target program/version.",
+      "signature": "5TE8e4F3WYuQ7WkCKFsyMxD2rWSj9Aj8L1vPnSbXvoUD1AqzcHcCNa4gjEv8SK5cgeEoJ3CHzAK5EYZ1epzNKNmX"
+    },
+    {
+      "buy_sequence_number": 7,
+      "event_byte_length": [
+        358
+      ],
+      "event_decode_success": false,
+      "event_discriminator_hex": [
+        "bddb7fd34ee661ee"
+      ],
+      "event_fields": null,
+      "event_type": null,
+      "instruction_discriminators_hex": [],
+      "instruction_name_from_log": "Buy",
+      "program_data_log_total": 1,
+      "reason": "No canonical local IDL/event Borsh layout for target program/version.",
+      "signature": "powWW5oe4VVkbbXrCR4ep9h4zAqu7ZCoPrDmp6E8KifKWbdvw9WqPY1PhwNKGzMtJhRGFqbHLrFrMXEWuKQRhLf"
+    },
+    {
+      "buy_sequence_number": 8,
+      "event_byte_length": [
+        371
+      ],
+      "event_decode_success": false,
+      "event_discriminator_hex": [
+        "bddb7fd34ee661ee"
+      ],
+      "event_fields": null,
+      "event_type": null,
+      "instruction_discriminators_hex": [
+        "38fc74089edfcd5f"
+      ],
+      "instruction_name_from_log": "BuyExactSolIn",
+      "program_data_log_total": 1,
+      "reason": "No canonical local IDL/event Borsh layout for target program/version.",
+      "signature": "uqX2fwKbbY3iKSDjFGL2aSAevfeUBRrt1vZ58hTUZBeS3YYA2rzyJDm8hjwz8uWs3LgMicWeaiJKkLghH2Cpyx5"
+    },
+    {
+      "buy_sequence_number": 9,
+      "event_byte_length": [
+        358
+      ],
+      "event_decode_success": false,
+      "event_discriminator_hex": [
+        "bddb7fd34ee661ee"
+      ],
+      "event_fields": null,
+      "event_type": null,
+      "instruction_discriminators_hex": [
+        "66063d1201daebea"
+      ],
+      "instruction_name_from_log": "Buy",
+      "program_data_log_total": 1,
+      "reason": "No canonical local IDL/event Borsh layout for target program/version.",
+      "signature": "vVVBhFgUxUPK7TWaMsZjFboujCqDqGGC1um8HZDkciQFr261j8jyxGUzzXpfAshyYgaX7UH2mE8TvLt2mZs6QVJ"
+    },
+    {
+      "buy_sequence_number": 10,
+      "event_byte_length": [
+        371
+      ],
+      "event_decode_success": false,
+      "event_discriminator_hex": [
+        "bddb7fd34ee661ee"
+      ],
+      "event_fields": null,
+      "event_type": null,
+      "instruction_discriminators_hex": [
+        "38fc74089edfcd5f"
+      ],
+      "instruction_name_from_log": "BuyExactSolIn",
+      "program_data_log_total": 1,
+      "reason": "No canonical local IDL/event Borsh layout for target program/version.",
+      "signature": "4cbezsirR3hKGkyGox1bCtLU3teUfaKyX5a3H69WV56WUwu3TRwu3LhMkLsGzQmJYkpdqDGvqrU37rFiEq8nuEiS"
+    }
+  ],
+  "schema_version": "pumpfun-canonical-event-corpus-read-only.v1",
+  "source_digests": {
+    "creation_decoded": {
+      "path": "docs/audits/pumpfun_creation_anchor_poc/3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump.creation.decoded.v1.json",
+      "sha256": "61a70d492880515f62bba1b33466f746b62c1ea0fb07e865861be982cc398758"
+    },
+    "decoded_opening": {
+      "path": "docs/audits/pumpfun_opening_sequence_poc/opening_sequence.decoded.v1.json",
+      "sha256": "66e9a8d37a7d1d06269df16adda0eabd5e7d793f992f7dde36b511a2931bccbc"
+    },
+    "legacy_curve_simulator": {
+      "path": "src/core/watchtower/curve_impact_analyzer.py",
+      "schema_confidence": "NOT_CANONICAL_FOR_TARGET: mismatches 10/10",
+      "sha256": "240fe919cc8e2d6848e8dce67e239129a9b8b80e80c6e37df2d24c9fca219c01"
+    },
+    "legacy_mc_formula": {
+      "path": "src/core/launch_audit.py",
+      "schema_confidence": "NOT_CANONICAL_FOR_TARGET",
+      "sha256": "89484ce68320e2ab4d7c1dda840af83fba60cac003cbafa0a681b38701746b6f"
+    },
+    "raw_opening": {
+      "path": "docs/audits/pumpfun_opening_sequence_poc/opening_sequence.raw.v1.json",
+      "sha256": "9cc7d085f37dfcbd31a3d0777c5fc6494d62b3b303c98527fb50f4816aff8270"
+    }
+  },
+  "target_program_id": "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+  "target_schema_version_required": "Target-era schema which maps event discriminator bddb7fd34ee661ee and instruction discriminators observed in retained slot-443375107..111 transactions."
+}

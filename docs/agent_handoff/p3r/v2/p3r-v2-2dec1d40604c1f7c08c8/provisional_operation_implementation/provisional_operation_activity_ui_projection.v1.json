@@ -1,0 +1,12 @@
+{
+  "activity_source": "provisional_operation_activity_observations:HISTORICAL_PROVISIONAL_REFERENCE",
+  "average_gap_seconds": 60978.25581395349,
+  "confirmed_memberships": 0,
+  "last_24h": 5,
+  "last_30d": 43,
+  "last_7d": 29,
+  "latest_observed": 1787649754,
+  "operator_id": "70f27e37-83eb-5c97-831c-48189ef98f6c",
+  "tests": "7 passed",
+  "total_launches": 44
+}

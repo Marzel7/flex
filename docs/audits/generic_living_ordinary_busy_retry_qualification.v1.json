@@ -1,0 +1,55 @@
+{
+  "artifact_version": "v1",
+  "prior_full_stress": {
+    "path": "docs/audits/generic_living_three_actor_trustworthy_full_stress.v1.json",
+    "sha256": "d70f0b63b9aadae545aba8597762d734ea71e6c5383708c76bd9121c67c98f2f"
+  },
+  "original_observation": "A later worker callback from _generic_runtime reported sqlite3 OperationalError: database is locked. The prior harness recorded only its message; normalized callback results now preserve sqlite_errorcode and sqlite_errorname.",
+  "physical_diagnosis": {
+    "exception_class": "sqlite3.OperationalError",
+    "sqlite_errorcode": 5,
+    "sqlite_errorname": "SQLITE_BUSY",
+    "message": "database is locked",
+    "location": "src/ops/generic_living_active_components.py, persist_generic_associations, real INSERT OR IGNORE into potential_operation_evidence_association",
+    "contention": "canonical Living writer versus an independent Writer B holding BEGIN IMMEDIATE",
+    "transaction_boundary": "A begins canonical transaction, reaches association INSERT OR IGNORE while B owns the WAL writer lock"
+  },
+  "connection_policy": {
+    "production_living": "db_connect(timeout=30), PRAGMA busy_timeout=30000",
+    "prior_disposable_source_and_actor_b": "bare sqlite3.connect(timeout=10), no explicit busy_timeout PRAGMA",
+    "journal_mode": "WAL",
+    "begin_modes": "canonical BEGIN deferred; competitor BEGIN IMMEDIATE"
+  },
+  "distinction": {
+    "SQLITE_BUSY_SNAPSHOT": "code 517; stale read-to-write snapshot upgrade; already qualified",
+    "SQLITE_BUSY": "code 5; transient competing writer ownership; qualified here",
+    "SQLITE_LOCKED": "not retryable",
+    "broad_operational_error_retry": false
+  },
+  "retry_policy": {
+    "retryable_extended_names": ["SQLITE_BUSY_SNAPSHOT", "SQLITE_BUSY"],
+    "max_retries_after_initial": 3,
+    "max_total_attempts": 4,
+    "ordinary_busy_backoff": "10ms multiplied by retry number after rollback and before fresh BEGIN",
+    "backoff_inside_transaction": false,
+    "scope": "complete canonical publication transaction only"
+  },
+  "physical_ordinary_busy": {
+    "observed": true,
+    "recovery": "PASS; first and, depending on release timing, second attempts receive SQLITE_BUSY; later fresh attempt succeeds",
+    "failed_attempt_partial_rows": 0,
+    "exhaustion": "PASS; held writer through four total attempts raises ConcurrentPublicationRetryExhausted with no canonical assessment, lineage, binding, or current rows",
+    "controls": "uncontended, ownership conflict, immutable content conflict, and equal freshness conflict retain retry_count=0"
+  },
+  "callback_and_tiny": {
+    "callback_failure_result_metadata": "sqlite_errorcode/sqlite_errorname retained",
+    "tiny_6_plus_4": "PASS; expected injected failures=1, unexpected=0, post-failure progress PASS, integrity_check ok"
+  },
+  "future_acceptance": "Recovered bounded SQLITE_BUSY_SNAPSHOT and SQLITE_BUSY are acceptable. Retry exhaustion, SQLITE_LOCKED, persistent ordinary lock failures, deadlock, starvation, and other SQLite errors are unacceptable.",
+  "production_safety": {
+    "real_feature_flag": "OFF",
+    "real_db_writes": 0,
+    "provider_rpc_network_calls": 0
+  },
+  "full_80_40_readiness": "READY_FOR_AUTHORIZED_RERUN: ordinary busy retry is focused-qualified; this task did not rerun 80+40."
+}

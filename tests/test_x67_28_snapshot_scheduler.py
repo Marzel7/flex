@@ -25,6 +25,7 @@ def isolated_snapshot_dirs(tmp_path, monkeypatch):
     snap_dir = str(tmp_path / "snapshots")
     lock_dir = str(tmp_path / "locks")
     monkeypatch.setattr(intelligence_snapshots, "SNAPSHOT_DIR", snap_dir)
+    monkeypatch.setattr(intelligence_snapshots, "MIN_FREE_BYTES", 0)
     monkeypatch.setattr(scheduler, "LOCK_DIR", lock_dir)
     return snap_dir, lock_dir
 

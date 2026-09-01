@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D6E",
+  "status": "COMPLETE",
+  "verdict": "PASS_SINGLE_INDEX_DEPLOYED_AND_LISTENER_RECOVERED",
+  "completed_at_utc": "2026-08-14T11:39:05Z",
+  "engineering_revision": "c604b6f02a20dd711e334f5921dbd2dfd65a7be5",
+  "d4_contract_digest": "a160398c3130dbacf2314bb4046b9bac4865cd9dd421311f2fd999058c0ab9f2",
+  "runner_version": "psi0a-d6d.v1",
+  "authorization": {
+    "authorization_id": "psi0a-d6e-authorized-2cc4b21d",
+    "authorization_digest": "670c2ff5f48b08475133210f7f7e14edba0babdee0f9074db4e4c866405a1b4e",
+    "run_id": "2cc4b21d-8a18-496e-93a4-72abf3303b39",
+    "database_path_fingerprint": "095e2c241320817e9d6422fc7d8a3d3543fe245c176b205feecc326326d8adae",
+    "output_directory_fingerprint": "9488df664995d981be6e7708aa7d898b6b392199d87db3b9766680957d15d5c1",
+    "maximum_statements": 1,
+    "retry_count": 0,
+    "lock_timeout_ms": 250,
+    "maximum_deadline_seconds": 60
+  },
+  "quiescence": {
+    "listener_pid_before": 31028,
+    "listener_stops": 1,
+    "listener_exit_proven": true,
+    "listener_primary_database_descriptors_released": true,
+    "owner_guard_bytes": 0,
+    "other_services_stopped": 0
+  },
+  "attempt": {
+    "database": "main",
+    "relation": "token_analysis",
+    "column": "migration_tx",
+    "index": "idx_psi0a_token_analysis_migration_tx",
+    "statements_executed": 1,
+    "terminal_status": "SUCCEEDED",
+    "ledger_digest": "6019a723aea87175d0f4c42e86b5a9936a36335d1f8213279d24beb7fba51fef",
+    "ledger_replay_verified": true,
+    "row_count_before": 1777184,
+    "row_count_after": 1777184,
+    "rows_preserved": true,
+    "indexed_reconciler_plan": "SEARCH token_analysis USING COVERING INDEX idx_psi0a_token_analysis_migration_tx (migration_tx=?)",
+    "output_directory": "docs/audits/psi0a_d6e_runs/2cc4b21d-8a18-496e-93a4-72abf3303b39"
+  },
+  "recovery": {
+    "listener_starts": 1,
+    "listener_pid_after": 42483,
+    "listener_stable": true,
+    "pumpportal_connected": true,
+    "pumpswap_connected_and_subscribed": true,
+    "live_migration_processing_resumed": true,
+    "terminal_primary_database_descriptor_count": 0,
+    "serializer_p99_wait_ms": 498.83,
+    "serializer_p95_wait_ms": 4.5,
+    "serializer_queue_depth": 0,
+    "serializer_lock_errors_24h": 0,
+    "production_flags_changed": false,
+    "other_services_restarted_or_stopped": 0
+  },
+  "scope": {
+    "provider_calls": 0,
+    "other_ddl_or_production_writes": 0,
+    "configuration_changes": 0,
+    "lock_manipulation": 0,
+    "high_water_recapture": 0,
+    "canonical_evidence_extraction": 0,
+    "shadow_output": 0,
+    "evidence_mirror_activated": false,
+    "cohort_mode_activated": false,
+    "production_activation": false,
+    "eb2_work": false
+  },
+  "next_action": "Separately authorize a bounded telemetry-only post-deployment stability observation before reauthorizing the PSI0A-D2 metadata-only query-plan qualification."
+}

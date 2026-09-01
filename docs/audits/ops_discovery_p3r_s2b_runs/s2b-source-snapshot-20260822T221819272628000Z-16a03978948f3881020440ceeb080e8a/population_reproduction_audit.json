@@ -1,0 +1,22 @@
+{
+  "bounds": {
+    "max_progress_calls_per_pass": 100000,
+    "passes": 2,
+    "progress_opcode_interval": 1000,
+    "wall_seconds": 120.0
+  },
+  "elapsed_seconds": 120.109872,
+  "equivalence_artifact_sha256": "733a6c2a799b01632b48801c476826cb722f10bee5c29c6aaad74d37122e5cd8",
+  "exception": "interrupted",
+  "exception_type": "OperationalError",
+  "failure_reason": "BOUND_EXCEEDED",
+  "identity_boundary": "Canonical population manifest only; no labels, ranks, quotas, or cohort selection.",
+  "milestone": "OPS-DISCOVERY-P3R-S2B-REPRODUCTION",
+  "production_writes": 0,
+  "provider_calls_made": 0,
+  "query": "SELECT ta.mint, ta.pf_ws_creator\nFROM token_analysis AS ta INDEXED BY idx_ta_pf_ws_creator\nWHERE ta.pf_ws_creator IS NOT NULL\n  AND EXISTS (\n      SELECT 1 FROM pumpfun_migration_verification AS pmv\n      WHERE pmv.mint = ta.mint\n  )\nORDER BY ta.mint ASC, ta.pf_ws_creator ASC",
+  "query_sha256": "76398c241b7211c253199a45813effce8a7dcd394d8744380dd0b79bc7fc8031",
+  "read_mode": "sqlite_uri_mode_ro_query_only",
+  "source_db": "docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T221819272628000Z-16a03978948f3881020440ceeb080e8a/snapshot.sqlite",
+  "status": "HOLD"
+}

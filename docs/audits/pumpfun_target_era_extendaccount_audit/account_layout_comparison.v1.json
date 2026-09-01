@@ -1,0 +1,70 @@
+{
+  "artifact_type": "PUMPFUN_ACCOUNT_LAYOUT_COMPARISON_V1",
+  "common_field_offsets_changed": "NOT_PROVEN; no official source evidence that preceding reserve offsets are rewritten.",
+  "createevent_or_account_layout_version_mismatch_identified": false,
+  "post_extend_account_size": 151,
+  "post_extend_field_layout": "UNPROVEN: source describes extension to allow future fields, but no target-binary-bound account schema or retained post-extension account bytes establish fields/offsets 115..150.",
+  "pre_extend_account_size": 115,
+  "pre_extend_field_layout": [
+    {
+      "field": "virtual_token_reserves",
+      "offset": 8,
+      "type": "u64"
+    },
+    {
+      "field": "virtual_quote_reserves",
+      "offset": 16,
+      "type": "u64"
+    },
+    {
+      "field": "real_token_reserves",
+      "offset": 24,
+      "type": "u64"
+    },
+    {
+      "field": "real_quote_reserves",
+      "offset": 32,
+      "type": "u64"
+    },
+    {
+      "field": "token_total_supply",
+      "offset": 40,
+      "type": "u64"
+    },
+    {
+      "field": "complete",
+      "offset": 48,
+      "type": "bool"
+    },
+    {
+      "field": "creator",
+      "offset": 49,
+      "type": "pubkey"
+    },
+    {
+      "field": "is_mayhem_mode",
+      "offset": 81,
+      "type": "bool"
+    },
+    {
+      "field": "is_cashback_coin",
+      "offset": 82,
+      "type": "bool"
+    },
+    {
+      "field": "quote_mint",
+      "offset": 83,
+      "type": "pubkey"
+    }
+  ],
+  "real_sol_field_offset_after": "UNPROVEN_TARGET_BINARY",
+  "real_sol_field_offset_before": 32,
+  "real_token_field_offset_after": "UNPROVEN_TARGET_BINARY",
+  "real_token_field_offset_before": 24,
+  "supply_field_offset_after": "UNPROVEN_TARGET_BINARY",
+  "supply_field_offset_before": 40,
+  "virtual_sol_field_offset_after": "UNPROVEN_TARGET_BINARY",
+  "virtual_sol_field_offset_before": 16,
+  "virtual_token_field_offset_after": "UNPROVEN_TARGET_BINARY",
+  "virtual_token_field_offset_before": 8
+}

@@ -1,0 +1,149 @@
+{
+  "buy_math_qualified": false,
+  "canonical_model_mismatch_total": null,
+  "canonical_model_reproduces_buy_total": null,
+  "initial_curve_state": {
+    "real_token_reserves": 793100000000000,
+    "token_total_supply": 1000000000000000,
+    "virtual_quote_reserves": 30000000000,
+    "virtual_sol_reserves": 30000000000,
+    "virtual_token_reserves": 1073000000000000
+  },
+  "observed_fee_state": [
+    {
+      "buy_sequence_number": 1,
+      "buyback_fee": 855000,
+      "buyback_fee_basis_points": 5000,
+      "creator_fee": 540000,
+      "creator_fee_bps": 30,
+      "protocol_fee": 1710000,
+      "protocol_fee_bps": 95
+    },
+    {
+      "buy_sequence_number": 2,
+      "buyback_fee": 938272,
+      "buyback_fee_basis_points": 5000,
+      "creator_fee": 592593,
+      "creator_fee_bps": 30,
+      "protocol_fee": 1876544,
+      "protocol_fee_bps": 95
+    },
+    {
+      "buy_sequence_number": 3,
+      "buyback_fee": 891358,
+      "buyback_fee_basis_points": 5000,
+      "creator_fee": 562963,
+      "creator_fee_bps": 30,
+      "protocol_fee": 1782717,
+      "protocol_fee_bps": 95
+    },
+    {
+      "buy_sequence_number": 4,
+      "buyback_fee": 938272,
+      "buyback_fee_basis_points": 5000,
+      "creator_fee": 592593,
+      "creator_fee_bps": 30,
+      "protocol_fee": 1876544,
+      "protocol_fee_bps": 95
+    },
+    {
+      "buy_sequence_number": 5,
+      "buyback_fee": 1917123,
+      "buyback_fee_basis_points": 5000,
+      "creator_fee": 1210815,
+      "creator_fee_bps": 30,
+      "protocol_fee": 3834247,
+      "protocol_fee_bps": 95
+    },
+    {
+      "buy_sequence_number": 6,
+      "buyback_fee": 464444,
+      "buyback_fee_basis_points": 5000,
+      "creator_fee": 293334,
+      "creator_fee_bps": 30,
+      "protocol_fee": 928889,
+      "protocol_fee_bps": 95
+    },
+    {
+      "buy_sequence_number": 7,
+      "buyback_fee": 216142,
+      "buyback_fee_basis_points": 5000,
+      "creator_fee": 136511,
+      "creator_fee_bps": 30,
+      "protocol_fee": 432284,
+      "protocol_fee_bps": 95
+    },
+    {
+      "buy_sequence_number": 8,
+      "buyback_fee": 469136,
+      "buyback_fee_basis_points": 5000,
+      "creator_fee": 296297,
+      "creator_fee_bps": 30,
+      "protocol_fee": 938272,
+      "protocol_fee_bps": 95
+    },
+    {
+      "buy_sequence_number": 9,
+      "buyback_fee": 211676,
+      "buyback_fee_basis_points": 5000,
+      "creator_fee": 133691,
+      "creator_fee_bps": 30,
+      "protocol_fee": 423353,
+      "protocol_fee_bps": 95
+    },
+    {
+      "buy_sequence_number": 10,
+      "buyback_fee": 703704,
+      "buyback_fee_basis_points": 5000,
+      "creator_fee": 444445,
+      "creator_fee_bps": 30,
+      "protocol_fee": 1407408,
+      "protocol_fee_bps": 95
+    }
+  ],
+  "official_documented_buy_exact_sol_in_formula": [
+    "Given a budget of spendable SOL, buy at least min_tokens_out tokens.",
+    "Fees are deducted from spendable_sol_in.",
+    "",
+    "# Quote formulas",
+    "Where:",
+    "- total_fee_bps = protocol_fee_bps + creator_fee_bps (creator_fee_bps is 0 if no creator)",
+    "- floor(a/b) = a / b (integer division)",
+    "- ceil(a/b) = (a + b - 1) / b",
+    "",
+    "SOL \u2192 tokens quote",
+    "To calculate tokens_out for a given spendable_sol_in:",
+    "1. net_sol = floor(spendable_sol_in * 10_000 / (10_000 + total_fee_bps))",
+    "2. fees = ceil(net_sol * protocol_fee_bps / 10_000) + ceil(net_sol * creator_fee_bps / 10_000) (creator_fee_bps is 0 if no creator)",
+    "3. if net_sol + fees > spendable_sol_in: net_sol = net_sol - (net_sol + fees - spendable_sol_in)",
+    "4. tokens_out = floor((net_sol - 1) * virtual_token_reserves / (virtual_sol_reserves + net_sol - 1))",
+    "",
+    "Reverse quote (tokens \u2192 SOL)",
+    "To calculate spendable_sol_in for a desired number of tokens:",
+    "1. net_sol = ceil(tokens * virtual_sol_reserves / (virtual_token_reserves - tokens)) + 1",
+    "2. spendable_sol_in = ceil(net_sol * (10_000 + total_fee_bps) / 10_000)",
+    "",
+    "Rent",
+    "Separately make sure the instruction's payer has enough SOL to cover rent for:",
+    "- creator_vault: rent.minimum_balance(0)",
+    "- user_volume_accumulator: rent.minimum_balance(UserVolumeAccumulator::LEN)"
+  ],
+  "reason": "Official IDL proves event/schema and documents buy_exact_sol_in quote math, but it does not prove target-slot program binary identity; retained selected buy stream is non-contiguous from create\u2192buy #1 and has one decoded sell between buy #5 and #6. Full deterministic replay without unretained preceding/intervening curve actions is not qualified.",
+  "schema_version": "pumpfun-official-idl-buy-math-qualification.v1",
+  "source": {
+    "commit": "9c82f61cb711b044a17f770ab8ce9f9bdf78f333",
+    "commit_author_timestamp": "2026-07-15T18:22:27Z",
+    "confidence": "OFFICIAL_PROGRAM_BOUND_IDL; target-slot program binary/deployment upgrade binding is not independently proven.",
+    "idl_sha256": "b90bc471327f671449271d5d1d42354d1fae6f5a06502f5834459a3108138e49",
+    "metadata": {
+      "description": "Created with Anchor",
+      "name": "pump",
+      "spec": "0.1.0",
+      "version": "0.1.0"
+    },
+    "program_id": "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+    "raw_url": "https://raw.githubusercontent.com/pump-fun/pump-public-docs/refs/heads/main/idl/pump.json",
+    "repository": "pump-fun/pump-public-docs",
+    "url": "https://github.com/pump-fun/pump-public-docs/blob/main/idl/pump.json"
+  }
+}

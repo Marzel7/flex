@@ -1,0 +1,12 @@
+{
+  "activation": "HOLD",
+  "cohort_full_creator_call_proxy_avoided": 290415.8,
+  "cold_target_launches": 3257,
+  "deferred_next_migrations": 2,
+  "false_deprioritization_migration_pct": 0.061,
+  "full_creator_calls_per_target_proxy": 89.167,
+  "immediate_pct": 94.586,
+  "immediate_target_launches": 56901,
+  "operational_hourly_load_model": "NOT_COMPUTED: this historical cohort is not a live birth rate and must not be treated as an hourly forecast",
+  "policy": "DEPRIORITIZE_ONLY zero-migration creators with >=10 strictly prior launches; capture all births and do not delete"
+}

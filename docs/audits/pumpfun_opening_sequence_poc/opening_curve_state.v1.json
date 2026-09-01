@@ -1,0 +1,5 @@
+{
+  "reason": "No retained local Pump.fun virtual-reserve event/account-state decoder; jsonParsed block payload does not expose virtual reserve state.",
+  "schema_version": 2,
+  "status": "UNRESOLVED"
+}

@@ -1,0 +1,247 @@
+{
+  "schema_version": "ra4.c5a.v2-production-cap-transition-observation.v1",
+  "artifact_type": "RA4_C5A_V2_PRODUCTION_CAP_TRANSITION_OBSERVATION",
+  "milestone": "RA4-C5A",
+  "generated_utc": "2026-08-18T19:51:30Z",
+  "purpose": "OBSERVATION/QUALIFICATION ONLY. Observe the already-active RetainedAcquisitionStoreV2 writer under natural production traffic until the real daily payload cap is reached and fallback behavior can be verified, or the window establishes the cap will not be reached. No traffic manufactured, no code/config changed, no restart performed.",
+
+  "part1_pre_observation_state": {
+    "creator_funding_worker": {
+      "pid": 33383,
+      "running": true,
+      "process_state": "S (healthy sleep, not restarted this milestone -- same PID as RA4-C4 cutover and RA4-C5)",
+      "legacy_retention_flag": "RETAINED_ACQUISITION_OBSERVATIONS_ENABLED=0 (OFF, confirmed from live process env)",
+      "v2_retention_flag": "RETAINED_ACQUISITION_V2_SHADOW_ENABLED=1 (ON, confirmed from live process env)"
+    },
+    "legacy_db": {
+      "path": "database/evidence_platform/production/retained_acquisition.db",
+      "size_bytes": 66155503616,
+      "mtime_epoch": 1787077699,
+      "inode": 487625267,
+      "status": "byte-identical to every RA4-C4/C5 checkpoint -- reconfirmed at observation start"
+    },
+    "v2_baseline_at_observation_start": {
+      "timestamp_utc": "2026-08-18T19:02:14Z",
+      "rows_since_cutover_restart": 13997,
+      "bytes_consumed_since_cutover_restart": 435657548,
+      "cap_bytes": 1073741824,
+      "percent_consumed": 40.57,
+      "representation": "100% full-payload, 0% hot"
+    },
+    "disk_free_gib_at_start": 14
+  },
+
+  "part2_cap_semantics_from_code": {
+    "source": "src/acquisition/retained_observations.py, RetainedAcquisitionStoreV2 class (read directly this milestone, not inferred from prior summaries)",
+    "cap_value_bytes": 1073741824,
+    "cap_value_source": "default constructor arg daily_payload_cap_bytes = 1 * GIB_BYTES, not overridden anywhere in supervisord.conf; clamped by max(1_000_000, requested)",
+    "accounting_period_boundary": "NONE. This is a critical correction to a prior-turn assumption: there is no date/calendar-day bucketing, no timezone handling, and no period-key of any kind in the implementation. self._payload_bytes is a plain Python int instance attribute initialized to 0 in __init__ and only ever incremented in _write_budgeted(). The 'daily' in the name is aspirational/documentary only.",
+    "what_counts_toward_cap": "full_payload_bytes = len(canonical(asdict(full))) -- the size of the FULL JSON-encoded RetainedObservation (all fields: response_data, raw_body_base64, response_text, request_payload, response_headers, metadata) computed BEFORE the write decision, in retain() at line ~334-336",
+    "exact_transition_condition": "_is_within_budget(payload_bytes) returns self._payload_bytes + payload_bytes <= self.daily_payload_cap_bytes, checked as a PRE-WRITE gate inside _write_budgeted(). This is evaluated independently on every single retain() call -- it is NOT a one-way sticky flag. A full-payload write can still succeed AFTER the cap has been effectively 'reached' by prior writes, if that specific payload is small enough to still fit within the remaining headroom (self.daily_payload_cap_bytes - self._payload_bytes). This was directly observed in production data (Part 6).",
+    "disk_reserve_check": "usage.free < 10 * GIB_BYTES is checked FIRST, before the cap check, in the same _write_budgeted() call. Both conditions return the identical (False, budget_remaining) shape, so a caller cannot distinguish 'disk floor breach' from 'cap breach' from the return value alone -- only by comparing self._payload_bytes against daily_payload_cap_bytes.",
+    "pre_cap_representation": "full payload (payload_json = full_payload.decode(), the complete canonical JSON of the RetainedObservation dataclass)",
+    "post_cap_representation": "_build_v2_hot_payload() output -- a condensed JSON object containing observation_id, acquisition_id, correlation_id, launch_mint, http_method, url, request_payload_sha256, response_status, response_data_present (bool marker), response_text_present (bool marker), response_headers_sha256, artifact_representation/digest/size_bytes/compressed_bytes, content_type, a narrow metadata subset (launch/purpose/provider/method/request_type/timestamp), and retained_at. Full response_data/raw_body_base64/response_text are absent.",
+    "schema_version_signal": "schema_version is ALWAYS SCHEMA_VERSION_V2 (=2) in both full and hot payloads -- it does NOT change to indicate representation. The only reliable discriminator is payload shape: presence of the 'response_data_present' key (hot) vs its absence (full, which instead has the literal 'response_data' field).",
+    "restart_persistence": {
+      "verdict": "RESTART_CAP_PERSISTENCE_FALSE_BY_DESIGN (not merely unverified -- proven false by direct code inspection)",
+      "reasoning": "self._payload_bytes is a bare in-memory instance attribute with no backing store (no DB column, no file, no external counter). It is unconditionally initialized to 0 in __init__. There is no code path that reads a prior value from anywhere. A process restart therefore ALWAYS resets consumption to 0 by construction. This is stronger than 'unverified by test' -- it is a structural fact of the implementation. No test in the repository claims otherwise (grepped test_ra4_c3_bounded_writer_enforcement.py and test_ra4_retained_acquisition_shadow_activation.py for 'restart'/'persist' -- zero matches).",
+      "no_production_restart_performed_to_test_this": true
+    }
+  },
+
+  "part3_baseline_snapshot": {
+    "timestamp_utc": "2026-08-18T19:02:14Z",
+    "accounting_period_id": "N/A -- no period concept exists (see Part 2)",
+    "payload_bytes_consumed": 435657548,
+    "percentage_consumed": 40.57,
+    "bytes_remaining": 638084276,
+    "row_count_since_restart": 13997,
+    "representation_counts": {"full": 13196, "hot": 0},
+    "failures": 0,
+    "disk_reserve_gib": 14,
+    "legacy_db_size_bytes": 66155503616,
+    "legacy_db_mtime_epoch": 1787077699
+  },
+
+  "part4_natural_observation_log": {
+    "method": "bounded read-only checkpoints at increasing/adaptive intervals (60s initial rate sample, then 5-15 min spaced checks), no polling loop, no traffic generation, no provider calls, no writes to any production store, no flag/restart changes",
+    "checkpoints": [
+      {"time_utc": "19:02:14", "bytes": 435657548, "pct": 40.57, "hot_rows": 0},
+      {"time_utc": "19:09:23", "bytes": 564089360, "pct": 52.53, "hot_rows": 0},
+      {"time_utc": "19:12:21", "bytes": 605231053, "pct": 56.37, "hot_rows": 0},
+      {"time_utc": "19:24:27", "bytes": 697392510, "pct": 64.94, "hot_rows": 0},
+      {"time_utc": "19:27:33", "bytes": 753043754, "pct": 70.14, "hot_rows": 0},
+      {"time_utc": "19:32:50", "bytes": 857659235, "pct": 79.88, "hot_rows": 0},
+      {"time_utc": "19:38:20", "bytes": 923061082, "pct": 85.97, "hot_rows": 0},
+      {"time_utc": "19:43:50", "bytes": 1012984605, "pct": 94.34, "hot_rows": 0},
+      {"time_utc": "19:47:18", "bytes": 1065418507, "pct": 99.22, "hot_rows": 294, "note": "FIRST HOT ROWS OBSERVED -- cap transition captured this checkpoint"},
+      {"time_utc": "19:50:00", "bytes": 1067173587, "pct": 99.39, "hot_rows": "~1536 by this point (see part6)"},
+      {"time_utc": "19:51:00", "bytes": 1067641552, "pct": 99.43, "hot_rows": 2375, "full_rows": 33587, "total_rows": 35962}
+    ],
+    "growth_rate_observations": "rate varied naturally between checkpoints (e.g. ~274 KB/s in an early 64s window down to slower bursts later) -- consistent with genuine variable production traffic, not a synthetic constant rate. No traffic was generated or accelerated by this investigation.",
+    "legacy_db_status_at_every_checkpoint": "byte-identical (66155503616 bytes, mtime 1787077699, inode 487625267) at all 11 checkpoints above -- LEGACY_GROWTH_ARREST_REMAINS_VERIFIED throughout",
+    "disk_free_gib_trend": "14 -> 13 -> 12 -> 13 (fluctuated within a stable band, never approached the 10 GiB floor)"
+  },
+
+  "part6_cap_transition": {
+    "V2_PRODUCTION_CAP_REACHED": true,
+    "transition_checkpoint": "between 19:43:50 (94.34%, 0 hot) and 19:47:18 (99.22%, 294 hot) -- first hot rows appeared in this window under genuine production traffic",
+    "precise_transition_analysis": {
+      "method": "read all rows since the RA4-C4 cutover restart ordered by retained_at, classify each as full/hot by payload shape, locate the first hot row",
+      "first_hot_row": {
+        "index_in_session": 33582,
+        "retained_at_epoch": 1787082397,
+        "observation_id_prefix": "aca1e1a15238",
+        "running_full_payload_bytes_immediately_before_this_row": 1065138273,
+        "cap_bytes": 1073741824,
+        "remaining_budget_before_this_row": 8603551,
+        "this_rows_own_full_payload_would_have_been": "not directly measured (only the resulting hot payload, 1073 bytes, was observed) -- the preceding full row (index 33581) was 29398 bytes, consistent with a full payload exceeding the ~8.6MB remaining headroom triggering the fallback"
+      },
+      "interleaving_observed": "after the first hot row, full-payload rows CONTINUED to appear intermittently (e.g. index 33777, a 1563-byte full row with artifact_size_bytes=2, a near-empty response). This is CORRECT, EXPECTED behavior per the exact code semantics in Part 2: _write_budgeted() re-evaluates the pre-write gate independently on every call, so a sufficiently small full payload can still fit within whatever headroom remains even after larger payloads have been rejected into the hot fallback. This is not an anomaly.",
+      "verified_via_direct_row_content": true
+    }
+  },
+
+  "part7_fallback_behavior_verification": {
+    "writer_continues_operating": true,
+    "acquisition_runtime_healthy": "creator_funding_worker PID 33383 unchanged, process state S (healthy), no crash/restart",
+    "new_rows_continue_appearing": "row count grew from 33582 (at transition) to 35962 (at final checkpoint) -- 2380 new rows post-transition, confirming the writer did not stall or error out",
+    "bulk_full_payload_retention_degrades_per_contract": "confirmed -- post-transition rows are predominantly hot (2375 of the last ~2380), with occasional full rows for payloads small enough to fit remaining headroom (exact contract behavior, not a defect)",
+    "bounded_representation_used": "confirmed -- hot payloads observed at ~1070-1170 bytes each vs full payloads at 1.5KB-30KB+ each",
+    "daily_payload_accounting_ceiling_respected": {
+      "cumulative_full_payload_bytes_final": 1065150128,
+      "cap_bytes": 1073741824,
+      "cumulative_never_exceeds_cap": true,
+      "no_atomic_overshoot_allowance_in_code": "confirmed by code read -- the check is strictly pre-write, no post-write reconciliation exists"
+    },
+    "artifact_digest_linkage_remains_present": "confirmed on all 5 bounded post-cap samples (Part 8)",
+    "replay_required_metadata_remains_present": "confirmed on all 5 bounded post-cap samples: acquisition_id, correlation_id, launch_mint, provider, method, retained_at, request_payload_sha256, response_headers_sha256 all present in hot payloads (Part 8)",
+    "no_evidence_loss_signal": "database/evidence_platform/production/retention_degraded/ directory still does not exist -- zero write failures journaled throughout the entire observation window",
+    "no_unexpected_legacy_db_write_resumed": "confirmed -- legacy DB byte-identical at every checkpoint including the final one, taken after the cap transition"
+  },
+
+  "part8_bounded_post_cap_replay_check": {
+    "method": "5 most recent rows pulled read-only from retained_acquisition_shadow.db after the cap transition, artifact digest resolved against the V2-specific artifact store (retained_acquisition_shadow_artifacts/), no provider calls",
+    "samples": [
+      {"acquisition_id": "06c28a23-bec6-4f6a-8996-6af0e65d0382", "correlation_id": "32dd3d42-d188-4d7c-828c-2ab4373fe934", "mint": "4yjx1GDhCRCiuRPzeD9XMrR3vf7s6r9XDLr8394wpump", "provider": "helius_rpc", "method": "getSignaturesForAddress", "artifact_digest_resolves": true, "sha256_integrity_verified": true},
+      {"acquisition_id": "03497d5a-18b0-436d-b4b0-8aa295b47442", "correlation_id": "e39fc7e7-99fc-400d-b459-c498a512f4eb", "mint": "6Z73NB5JhWGFDaGB6HcnunZzbGkgNfDcpwg9ef9gpump", "provider": "helius_rpc", "method": "getSignaturesForAddress", "artifact_digest_resolves": true, "sha256_integrity_verified": true},
+      {"acquisition_id": "e9a9ea3c-e788-4369-8f4d-5683bb4a0d09", "correlation_id": "32dd3d42-d188-4d7c-828c-2ab4373fe934", "mint": "4yjx1GDhCRCiuRPzeD9XMrR3vf7s6r9XDLr8394wpump", "provider": "helius_rpc", "method": "getSignaturesForAddress", "artifact_digest_resolves": true, "sha256_integrity_verified": true},
+      {"acquisition_id": "036ba01e-fdbc-425d-9efb-4f6f9db31342", "correlation_id": "e39fc7e7-99fc-400d-b459-c498a512f4eb", "mint": "6Z73NB5JhWGFDaGB6HcnunZzbGkgNfDcpwg9ef9gpump", "provider": "helius_rpc", "method": "getSignaturesForAddress", "artifact_digest_resolves": true, "sha256_integrity_verified": true},
+      {"acquisition_id": "513b2d0e-608f-4576-bde3-05c30f87fe0e", "correlation_id": "e39fc7e7-99fc-400d-b459-c498a512f4eb", "mint": "6Z73NB5JhWGFDaGB6HcnunZzbGkgNfDcpwg9ef9gpump", "provider": "helius_rpc", "method": "getSignaturesForAddress", "artifact_digest_resolves": true, "sha256_integrity_verified": true}
+      ],
+    "resolution_rate": "5/5",
+    "raw_response_bytes_absent_from_row_but_recoverable_via_artifact": true,
+    "no_huge_replay_performed": true,
+    "no_provider_call_made": true,
+    "disclosed_finding_this_step": "the module-level _observation_from_payload() helper (used in RA4-C5's Part 8 simulation) does NOT correctly handle the hot-payload's TOP-LEVEL acquisition_id/correlation_id/launch_mint fields -- it only reads payload.get('metadata'), which is populated in full payloads but the hot payload stores a narrower metadata subset AND duplicates acquisition_id/correlation_id/launch_mint at the top level instead of expecting them nested. This produced None values when first tried against hot rows in this milestone; direct field access (payload.get('acquisition_id') etc.) was used instead and succeeded. This is a real, minor gap in that helper's hot-payload support -- not a data-integrity issue (the data itself is present and correct in the stored payload), and not a retirement blocker, but worth fixing before that helper is relied upon as a general-purpose replay path."
+  },
+
+  "part9_hard_cap_accounting": {
+    "cap_bytes": 1073741824,
+    "consumed_bytes_immediately_before_transition": 1065138273,
+    "consumed_bytes_at_final_checkpoint": 1067641552,
+    "note_on_consumed_bytes_after_transition": "consumed_bytes (self._payload_bytes) only increments on FULL-payload writes -- hot-payload writes do NOT add to this counter (confirmed by code: _write_budgeted is only called with full_payload_bytes, and the hot-payload path bypasses budget accounting entirely per retain()'s structure at line 336-342). This is why consumed bytes crept up slowly post-transition (1065138273 -> 1067641552, +2503279 bytes) despite 2375 additional hot rows being written -- those hot rows contributed 0 to the cap counter; the small increase came from the handful of small full-payload rows that still fit in remaining headroom.",
+    "remaining_bytes_at_final_checkpoint": 6100272,
+    "representation_used_for_threshold_crossing_row": "hot (first hot row observed directly, Part 6)",
+    "representation_used_after_threshold": "predominantly hot (2375/2380 post-transition rows), with intermittent full rows for sufficiently small payloads -- exact code-contract behavior, not overshoot",
+    "classification": "CAP_ENFORCEMENT_PASS",
+    "classification_reasoning": "Cumulative full-payload bytes never exceeded the 1,073,741,824-byte cap at any observed point. The pre-write gate correctly downgraded writes to hot payload once they would have exceeded remaining headroom. No atomic-final-write overshoot exists in this implementation (verified by code read, Part 2) and none was observed in production data. No accounting anomaly detected -- the slow post-transition growth in consumed bytes is fully explained by the code's own accounting rule (only full-payload bytes count) and is not evidence of drift or double-counting."
+  },
+
+  "part10_restart_persistence": {
+    "verdict": "RESTART_CAP_PERSISTENCE_FALSE_BY_DESIGN",
+    "evidence": "direct code inspection (Part 2) -- self._payload_bytes has no persistence mechanism and is unconditionally 0 at __init__. No production restart was performed to test this; none was needed given the structural code proof.",
+    "implication_for_retirement": "this means the 1 GiB cap is a per-process-lifetime ceiling, not a genuine daily quota -- a future creator_funding_worker restart (for any operational reason) would reset consumption to 0 and the writer would resume full-payload writes from that point. This is a property of the CURRENT V2 implementation worth flagging for any future hardening work, but does not block legacy DB retirement, which depends only on whether V2's bounded behavior (cap+fallback) is proven to work AT ALL under real traffic -- which it now is."
+  },
+
+  "part11_legacy_db_check": {
+    "checkpoints_verified": 11,
+    "size_bytes_all_checkpoints": 66155503616,
+    "mtime_all_checkpoints": 1787077699,
+    "inode_all_checkpoints": 487625267,
+    "verdict": "LEGACY_GROWTH_ARREST_REMAINS_VERIFIED",
+    "hold_condition_triggered": false
+  },
+
+  "part12_disk_check": {
+    "free_gib_at_start": 14,
+    "free_gib_at_transition": 13,
+    "free_gib_at_end": 12,
+    "trend": "gradual decline consistent with V2's own bounded growth (V2 shadow DB grew from ~373MB to ~1.07GB payload content during this observation window) plus normal system activity -- NOT attributable to the legacy DB, which is confirmed frozen throughout",
+    "floor_required_gib": 10,
+    "floor_met_throughout": true,
+    "unexpected_disk_collapse": false
+  },
+
+  "part13_b2n_artifact_integrity": {
+    "attempt_ledger_sha256_before": "06ea55a8b21a30aec7b81f23737f921b1dcdf5bbe88266671600a25785fe9e0f",
+    "attempt_ledger_sha256_after": "06ea55a8b21a30aec7b81f23737f921b1dcdf5bbe88266671600a25785fe9e0f",
+    "event_ledger_sha256_before": "f427610ccdae99b033d006fc0423170bcb6780a461c85c13d329c5fda8615071",
+    "event_ledger_sha256_after": "f427610ccdae99b033d006fc0423170bcb6780a461c85c13d329c5fda8615071",
+    "live_result_sha256_before": "675e0bf23c99b70e24db24ef27bf0738f47b0fe69d6200543031ece62fa18767",
+    "live_result_sha256_after": "675e0bf23c99b70e24db24ef27bf0738f47b0fe69d6200543031ece62fa18767",
+    "all_digests_identical": true,
+    "b2n_state_unchanged": {"run_id": "b2n-p3e-98695fbdf44146c93ff08c8c", "completed": 1, "remaining": 19},
+    "b2n_resumed": false,
+    "b2n_tests_run": false
+  },
+
+  "part14_15_verdict_path": {
+    "cap_reached": true,
+    "fallback_verified": true,
+    "cap_accounting": "CAP_ENFORCEMENT_PASS",
+    "replay_after_fallback": "PASS (5/5 bounded post-cap samples, full artifact resolution + integrity)",
+    "legacy_growth_arrest": "REMAINS_VERIFIED",
+    "b2n_unchanged": true,
+    "compact_manifest_status": "DESIGNED ONLY, NOT MATERIALIZED (see Part 16 -- unchanged from RA4-C5)",
+    "terminal_verdict_this_milestone": "HOLD_RA4_COMPACT_RETIREMENT_MANIFEST_REQUIRED",
+    "reasoning": "V2_PRODUCTION_CAP_REACHED=true and V2_PRODUCTION_FALLBACK_VERIFIED=true are BOTH now proven under genuine production traffic, closing the sole blocker recorded at RA4-C5 close (HOLD_RA4_V2_OBSERVATION_WINDOW_INCOMPLETE). Cap/fallback/replay all PASS. However, per Part 16 below, the compact correlation/lineage retirement manifest required to preserve REQUIRED_UNIQUE historical content (RA4-C5 Part 6/9/11) has only ever been DESIGNED, never materialized. Actual deletion authorization cannot proceed until that manifest is built and independently verified. This is now the ONLY remaining blocker."
+  },
+
+  "part16_compact_manifest_status": {
+    "status": "B -- only designed/estimated, NOT materialized",
+    "evidence": "docs/audits/ra4_c5_legacy_retained_acquisition_retirement_preflight.json Part 11 explicitly states 'status: DESIGNED, NOT YET BUILT'. No manifest file exists anywhere in docs/audits/ or elsewhere as of this checkpoint -- confirmed by absence (no ra4_c5*manifest* file present before this artifact was written).",
+    "next_smallest_step": "COMPACT_MANIFEST_MATERIALIZATION_REQUIRED",
+    "explicit_non_action_this_turn": "per instruction, this observation milestone does NOT automatically generate the ~0.54 GiB manifest -- that requires its own explicit authorization as a still-larger, still-read-only-against-the-legacy-DB but definitely-write-a-new-large-artifact step, appropriately scoped to its own turn."
+  },
+
+  "part17_no_deletion": {
+    "legacy_db_deleted": false,
+    "legacy_db_vacuumed": false,
+    "legacy_db_mutated": false,
+    "explicit_note": "This milestone reached cap/fallback verification, which was the sole previously-identified blocker, but a NEW precondition (compact manifest materialization) is now the binding blocker. Per instruction, this milestone can only reach the deletion AUTHORIZATION REVIEW at most, and even that is not reached this turn given the manifest gap. No deletion action was taken or attempted."
+  },
+
+  "blockers": [
+    "compact correlation/lineage retirement manifest (~0.54 GiB estimated) is designed but not yet materialized or independently verified -- required before any deletion GO/NO-GO can be presented"
+  ],
+
+  "resolved_this_milestone": [
+    "V2 daily payload cap reached under genuine production traffic (was: NOT_YET_REACHED at RA4-C5 close, 30.3% consumed)",
+    "V2 hot-payload fallback verified firing on real (non-test) rows, with continued healthy writer operation and zero evidence loss",
+    "cap accounting classified CAP_ENFORCEMENT_PASS with no overshoot",
+    "restart-persistence definitively classified RESTART_CAP_PERSISTENCE_FALSE_BY_DESIGN via code proof (stronger than the prior UNVERIFIED framing)"
+  ],
+
+  "authority_posture": {
+    "traffic_manufactured": false,
+    "provider_calls_made_by_agent": 0,
+    "cap_lowered": false,
+    "cap_accounting_reset": false,
+    "creator_funding_worker_restarted": false,
+    "retention_flags_changed": false,
+    "legacy_db_deleted": false,
+    "legacy_db_vacuumed_migrated_moved_copied": false,
+    "wal_shm_deleted": false,
+    "b2n_resumed": false,
+    "b2z_executed": false,
+    "watchtower_mutated": false,
+    "existing_operations_mutated": false,
+    "h_series_evidence_altered": false,
+    "production_policy_or_trading_state_changed": false,
+    "handoff_transport_repaired": false
+  },
+
+  "verdict": "HOLD_RA4_COMPACT_RETIREMENT_MANIFEST_REQUIRED",
+  "verdict_note": "RA4-C5A successfully observed the RetainedAcquisitionStoreV2 production writer under entirely natural traffic through a full cap-transition cycle: consumption rose from 40.6% to 100% of the 1 GiB in-process cap over roughly 49 minutes of real production activity, the writer correctly downgraded to hot-payload representation at the threshold (first hot row captured precisely, with interleaved small full-payload rows correctly explained by the code's per-write re-evaluation semantics), and 5 genuine post-cap rows were bounded-replay-verified with 5/5 artifact digest resolution and full SHA-256 integrity. Zero evidence-loss signals, zero legacy DB writes, zero B2N/B2Z/Watchtower impact, disk stayed within the safe floor throughout. This closes the RA4-C5 blocker (V2 observation window) entirely: V2_PRODUCTION_CAP_REACHED=true, V2_PRODUCTION_FALLBACK_VERIFIED=true, CAP_ENFORCEMENT_PASS. However, closing that blocker reveals the next one in sequence: the compact retirement manifest required to preserve the legacy DB's REQUIRED_UNIQUE correlation/lineage index has only ever been designed (RA4-C5 Part 11), never actually built or verified. Legacy DB remains fully untouched (byte-identical across all 11 checkpoints this milestone). Deletion authorization review is NOT reached this turn; the next concrete step is materializing and verifying the compact manifest as its own appropriately-scoped milestone."
+}

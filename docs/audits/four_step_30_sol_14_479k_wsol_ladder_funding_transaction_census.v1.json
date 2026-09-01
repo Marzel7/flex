@@ -1,0 +1,288 @@
+{
+  "coverage": {
+    "CONFIRMED_LAUNCHES": 9,
+    "EVALUABLE": 9,
+    "FUNDING_PATH_AVAILABLE": 9,
+    "FUNDING_SIGNATURE_AVAILABLE": 9,
+    "LOCAL_DECODED": 0,
+    "RPC_DECODED": 9,
+    "UNRESOLVED": 0
+  },
+  "dominant_coverage": "9/9",
+  "families": [
+    {
+      "architecture_id": "FOUR_STEP_30_SOL_14_479K_WSOL_LADDER_ARCH_01",
+      "definition": {
+        "close": false,
+        "continuity": false,
+        "create": [],
+        "deposit": [],
+        "mechanism": "PLAIN_XFER",
+        "sequence": [
+          "transfer"
+        ],
+        "sync": false,
+        "transfer": [
+          29999985000
+        ]
+      },
+      "earliest": 1787144684,
+      "latest": 1787592649,
+      "launch_count": 9,
+      "percentage": 100.0
+    }
+  ],
+  "mechanisms": {
+    "PLAIN_XFER": 9
+  },
+  "operation": "FOUR_STEP_30_SOL_14_479K_WSOL_LADDER",
+  "persistence": "HIGH",
+  "records": [
+    {
+      "_family_key": "{\"close\": false, \"close_destination\": \"UNAVAILABLE\", \"continuity\": false, \"create\": [], \"deposits\": [], \"mechanism\": \"PLAIN_XFER\", \"sequence\": [\"transfer\"], \"source_owner\": false, \"sync\": false, \"transfers\": [29999985000]}",
+      "close_account": false,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "UNAVAILABLE",
+      "close_redeemed_lamports": null,
+      "create_methods": [],
+      "creation_deposit_lamports": [],
+      "decode_source": "RPC",
+      "fee_payer_role": "OTHER",
+      "funding_signature": "3Eu74xK7cYbcQFmgPQ8PaEdurCoc9UWtvpem2ozEtofZmSxFfkGdat28BdKNVjSfBDu8ktyqrtS582esTihn4TbX",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "transfer"
+      ],
+      "launch_timestamp": 1787518390,
+      "mint": "SHmjdCg1KdcEeLESciT42de7hcpbL4kCRd5AAcUpump",
+      "ordered_transfer_lamports": [
+        29999985000
+      ],
+      "retained_mechanism": "PLAIN_XFER",
+      "same_temporary_account_continuity": false,
+      "separate_transfer_count": 1,
+      "signature_source": "RETAINED_HOP1_EDGE",
+      "sync_native": false,
+      "temporary_account_owner_role": "UNAVAILABLE"
+    },
+    {
+      "_family_key": "{\"close\": false, \"close_destination\": \"UNAVAILABLE\", \"continuity\": false, \"create\": [], \"deposits\": [], \"mechanism\": \"PLAIN_XFER\", \"sequence\": [\"transfer\"], \"source_owner\": false, \"sync\": false, \"transfers\": [29999985000]}",
+      "close_account": false,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "UNAVAILABLE",
+      "close_redeemed_lamports": null,
+      "create_methods": [],
+      "creation_deposit_lamports": [],
+      "decode_source": "RPC",
+      "fee_payer_role": "OTHER",
+      "funding_signature": "5b8aSZxgJdRSLPbAHKhSgDmbKFmcKiJ371K9FreDxaKD35ui88pooLt3ypYr5JMFds7xVvbKnyE91SWJpkmgNv1N",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "transfer"
+      ],
+      "launch_timestamp": 1787404944,
+      "mint": "TDeELn2vPFQHNPKnY86SZuD395JU8UePb6aknuPpump",
+      "ordered_transfer_lamports": [
+        29999985000
+      ],
+      "retained_mechanism": "PLAIN_XFER",
+      "same_temporary_account_continuity": false,
+      "separate_transfer_count": 1,
+      "signature_source": "RETAINED_HOP1_EDGE",
+      "sync_native": false,
+      "temporary_account_owner_role": "UNAVAILABLE"
+    },
+    {
+      "_family_key": "{\"close\": false, \"close_destination\": \"UNAVAILABLE\", \"continuity\": false, \"create\": [], \"deposits\": [], \"mechanism\": \"PLAIN_XFER\", \"sequence\": [\"transfer\"], \"source_owner\": false, \"sync\": false, \"transfers\": [29999985000]}",
+      "close_account": false,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "UNAVAILABLE",
+      "close_redeemed_lamports": null,
+      "create_methods": [],
+      "creation_deposit_lamports": [],
+      "decode_source": "RPC",
+      "fee_payer_role": "OTHER",
+      "funding_signature": "qi2wius5PsiN6hX3CDHcrJarTj8rEiL5YHDZ2TPvsmayhvoXsBK2RCJc6oMmqFmfSozk1m9FBFsWeWtZXowsNGx",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "transfer"
+      ],
+      "launch_timestamp": 1787145190,
+      "mint": "TtcdL2sYgc6RT45yH7vziNrdSFujgAnHrH7AXkEpump",
+      "ordered_transfer_lamports": [
+        29999985000
+      ],
+      "retained_mechanism": "PLAIN_XFER",
+      "same_temporary_account_continuity": false,
+      "separate_transfer_count": 1,
+      "signature_source": "RETAINED_HOP1_EDGE",
+      "sync_native": false,
+      "temporary_account_owner_role": "UNAVAILABLE"
+    },
+    {
+      "_family_key": "{\"close\": false, \"close_destination\": \"UNAVAILABLE\", \"continuity\": false, \"create\": [], \"deposits\": [], \"mechanism\": \"PLAIN_XFER\", \"sequence\": [\"transfer\"], \"source_owner\": false, \"sync\": false, \"transfers\": [29999985000]}",
+      "close_account": false,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "UNAVAILABLE",
+      "close_redeemed_lamports": null,
+      "create_methods": [],
+      "creation_deposit_lamports": [],
+      "decode_source": "RPC",
+      "fee_payer_role": "OTHER",
+      "funding_signature": "3UUSPsk4AnVkFFxKTSDHLTvvuVfnf9JYCkQs7i7xgSYVq9JRwuTj3HW2asz4zg8BgKgzqXoGWHeKLRwCHCJqxgaP",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "transfer"
+      ],
+      "launch_timestamp": 1787328311,
+      "mint": "TwES5X8iJL44qq9rBwKiJgyVaXX6vDEjR61WqRopump",
+      "ordered_transfer_lamports": [
+        29999985000
+      ],
+      "retained_mechanism": "PLAIN_XFER",
+      "same_temporary_account_continuity": false,
+      "separate_transfer_count": 1,
+      "signature_source": "RETAINED_HOP1_EDGE",
+      "sync_native": false,
+      "temporary_account_owner_role": "UNAVAILABLE"
+    },
+    {
+      "_family_key": "{\"close\": false, \"close_destination\": \"UNAVAILABLE\", \"continuity\": false, \"create\": [], \"deposits\": [], \"mechanism\": \"PLAIN_XFER\", \"sequence\": [\"transfer\"], \"source_owner\": false, \"sync\": false, \"transfers\": [29999985000]}",
+      "close_account": false,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "UNAVAILABLE",
+      "close_redeemed_lamports": null,
+      "create_methods": [],
+      "creation_deposit_lamports": [],
+      "decode_source": "RPC",
+      "fee_payer_role": "OTHER",
+      "funding_signature": "2BXMHLFyjw6BBQPtNaNDeiXe4jvV96hRK63rpEjxKVQBL9j2kYuP4BLfNNk7tFec1pjdKfeaTqrxjmfNB3muJo3r",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "transfer"
+      ],
+      "launch_timestamp": 1787144684,
+      "mint": "aFt6QNDNTCg4CkpT7Z7bcb3V1iXSbvF36ptaTnZpump",
+      "ordered_transfer_lamports": [
+        29999985000
+      ],
+      "retained_mechanism": "PLAIN_XFER",
+      "same_temporary_account_continuity": false,
+      "separate_transfer_count": 1,
+      "signature_source": "RETAINED_HOP1_EDGE",
+      "sync_native": false,
+      "temporary_account_owner_role": "UNAVAILABLE"
+    },
+    {
+      "_family_key": "{\"close\": false, \"close_destination\": \"UNAVAILABLE\", \"continuity\": false, \"create\": [], \"deposits\": [], \"mechanism\": \"PLAIN_XFER\", \"sequence\": [\"transfer\"], \"source_owner\": false, \"sync\": false, \"transfers\": [29999985000]}",
+      "close_account": false,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "UNAVAILABLE",
+      "close_redeemed_lamports": null,
+      "create_methods": [],
+      "creation_deposit_lamports": [],
+      "decode_source": "RPC",
+      "fee_payer_role": "OTHER",
+      "funding_signature": "66wKHRTcCXKEXo7EAEKZAFRWSSfS6v916bgaSCr4FyStejnr1AGEVDoQyuXa2KY3ixduEf5kRag1pyBuGEyXwuRy",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "transfer"
+      ],
+      "launch_timestamp": 1787592649,
+      "mint": "cCRsJVpQxfrF2HZ1ZQohHorCXnvr6Vwrf9tTc5Hpump",
+      "ordered_transfer_lamports": [
+        29999985000
+      ],
+      "retained_mechanism": "PLAIN_XFER",
+      "same_temporary_account_continuity": false,
+      "separate_transfer_count": 1,
+      "signature_source": "RETAINED_HOP1_EDGE",
+      "sync_native": false,
+      "temporary_account_owner_role": "UNAVAILABLE"
+    },
+    {
+      "_family_key": "{\"close\": false, \"close_destination\": \"UNAVAILABLE\", \"continuity\": false, \"create\": [], \"deposits\": [], \"mechanism\": \"PLAIN_XFER\", \"sequence\": [\"transfer\"], \"source_owner\": false, \"sync\": false, \"transfers\": [29999985000]}",
+      "close_account": false,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "UNAVAILABLE",
+      "close_redeemed_lamports": null,
+      "create_methods": [],
+      "creation_deposit_lamports": [],
+      "decode_source": "RPC",
+      "fee_payer_role": "OTHER",
+      "funding_signature": "37j9HETHEDKtkZ7ive2ngDTWvPnDUH2nTRAvdq65FuVv6tddp52nuZPJv8Hg5Mx5QmannLHCH1xV1QnjJ13GAX49",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "transfer"
+      ],
+      "launch_timestamp": 1787584063,
+      "mint": "eshSWTWLC8RVsddtLMwaZTtKHhDtzUGT3SzPV28pump",
+      "ordered_transfer_lamports": [
+        29999985000
+      ],
+      "retained_mechanism": "PLAIN_XFER",
+      "same_temporary_account_continuity": false,
+      "separate_transfer_count": 1,
+      "signature_source": "RETAINED_HOP1_EDGE",
+      "sync_native": false,
+      "temporary_account_owner_role": "UNAVAILABLE"
+    },
+    {
+      "_family_key": "{\"close\": false, \"close_destination\": \"UNAVAILABLE\", \"continuity\": false, \"create\": [], \"deposits\": [], \"mechanism\": \"PLAIN_XFER\", \"sequence\": [\"transfer\"], \"source_owner\": false, \"sync\": false, \"transfers\": [29999985000]}",
+      "close_account": false,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "UNAVAILABLE",
+      "close_redeemed_lamports": null,
+      "create_methods": [],
+      "creation_deposit_lamports": [],
+      "decode_source": "RPC",
+      "fee_payer_role": "OTHER",
+      "funding_signature": "62UPgzRAmzZvdFmrB8boZeRCdYCnuACGpnjUWq2vuvBAuRtjPjpxqN8C8FjjFU8HdLyYRra3791HtbotKqhqHvqs",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "transfer"
+      ],
+      "launch_timestamp": 1787229785,
+      "mint": "fYUQSasxSS9oYqtsYnmJEWAHMU2BG4UwcJrXHdtpump",
+      "ordered_transfer_lamports": [
+        29999985000
+      ],
+      "retained_mechanism": "PLAIN_XFER",
+      "same_temporary_account_continuity": false,
+      "separate_transfer_count": 1,
+      "signature_source": "RETAINED_HOP1_EDGE",
+      "sync_native": false,
+      "temporary_account_owner_role": "UNAVAILABLE"
+    },
+    {
+      "_family_key": "{\"close\": false, \"close_destination\": \"UNAVAILABLE\", \"continuity\": false, \"create\": [], \"deposits\": [], \"mechanism\": \"PLAIN_XFER\", \"sequence\": [\"transfer\"], \"source_owner\": false, \"sync\": false, \"transfers\": [29999985000]}",
+      "close_account": false,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "UNAVAILABLE",
+      "close_redeemed_lamports": null,
+      "create_methods": [],
+      "creation_deposit_lamports": [],
+      "decode_source": "RPC",
+      "fee_payer_role": "OTHER",
+      "funding_signature": "4piQDcrjnkSXqL3Fn4pX2HY4VrwVKEdGEwfWon4cucy7QqhJBcCUT3qrmuFR5m456JiCV3LkEAJM1w97jttWzgQ6",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "transfer"
+      ],
+      "launch_timestamp": 1787234075,
+      "mint": "vccC9NYRktfcDP1NEs96RpTdh26BqYEn2hncTxSpump",
+      "ordered_transfer_lamports": [
+        29999985000
+      ],
+      "retained_mechanism": "PLAIN_XFER",
+      "same_temporary_account_continuity": false,
+      "separate_transfer_count": 1,
+      "signature_source": "RETAINED_HOP1_EDGE",
+      "sync_native": false,
+      "temporary_account_owner_role": "UNAVAILABLE"
+    }
+  ],
+  "source": "RETAINED_HOP1_SIGNATURES",
+  "temporal_stability": "STABLE",
+  "unresolved": []
+}

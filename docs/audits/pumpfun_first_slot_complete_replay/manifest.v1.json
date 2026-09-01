@@ -1,0 +1,32 @@
+{
+  "artifact_type": "PUMPFUN_MACROHARD_FIRST_SLOT_COMPLETE_REPLAY_MANIFEST_V1",
+  "artifacts": {
+    "first_slot_event_inventory.v1.json": {
+      "path": "docs/audits/pumpfun_first_slot_complete_replay/first_slot_event_inventory.v1.json",
+      "sha256": "8328d3cee676fe106ec53b03a22c6b47e0f79fbb9af1c084dd102b909274a2d3"
+    },
+    "first_slot_math_replay.v1.json": {
+      "path": "docs/audits/pumpfun_first_slot_complete_replay/first_slot_math_replay.v1.json",
+      "sha256": "fed639e6342371b14c27f67868d2d1ad9fa5cb2a610805d20c27124addc0e0f9"
+    },
+    "first_slot_mc_trajectory_or_blocker.v1.json": {
+      "path": "docs/audits/pumpfun_first_slot_complete_replay/first_slot_mc_trajectory_or_blocker.v1.json",
+      "sha256": "daf242654b098e2a688592f3e15667522cbf304654d1a6719cda28ce77d6cbca"
+    },
+    "first_slot_state_stream.v1.json": {
+      "path": "docs/audits/pumpfun_first_slot_complete_replay/first_slot_state_stream.v1.json",
+      "sha256": "08105bee739a06f68060d2cc2825d06f762e6636c074d2d35a209e8188822b30"
+    }
+  },
+  "deterministic_replay_digest": "91bcedc8e4c6d171b17bd5a11ba004d7c3e27391c6410151777c1d7bbb3231df",
+  "input_raw_sha256": "0c9a6f3d86f5bd2c4cb102dd6f51459e10efa8220118794e0ab36cb0c83b21aa",
+  "network_accounting": {
+    "accountState": 0,
+    "getBlock": 1,
+    "getSignaturesForAddress": 0,
+    "getTransaction": 0,
+    "gmgn": 0,
+    "total_helius_requests": 1
+  },
+  "result": "COMPLETE_TARGET_SLOT_INVENTORY_WITH_EXACT_REMAINING_VALUATION_BLOCKER"
+}

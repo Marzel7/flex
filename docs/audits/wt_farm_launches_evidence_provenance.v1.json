@@ -1,0 +1,1117 @@
+{
+  "FILTER_ACTIVATED": false,
+  "UNKNOWN_RANKING_MUTATION": 0,
+  "current_58_funder_census": [
+    {
+      "DISTINCT_CREATORS": 38,
+      "DISTINCT_MINTS": 38,
+      "FARM_LAUNCH_COUNT": 38,
+      "INSUFFICIENT_ROW_COUNT": 38,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "4AV2Qzp3N4c9RfzyEbNZs2wqWfW4EwKnnxFAZCndvfGh"
+    },
+    {
+      "DISTINCT_CREATORS": 35,
+      "DISTINCT_MINTS": 35,
+      "FARM_LAUNCH_COUNT": 35,
+      "INSUFFICIENT_ROW_COUNT": 35,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "HY7XjEiWhFGJQYEVo3wQBBF3MmNcBC6mP1pNGXJbP8WX"
+    },
+    {
+      "DISTINCT_CREATORS": 28,
+      "DISTINCT_MINTS": 28,
+      "FARM_LAUNCH_COUNT": 28,
+      "INSUFFICIENT_ROW_COUNT": 24,
+      "MAX_AMOUNT": 10104008000,
+      "MIN_AMOUNT": 55256000,
+      "ROLE_EVIDENCE_COVERAGE": 4,
+      "funder": "2AQdpHJ2JpcEgPiATUXjQxA8QmafFegfQwSLWSprPicm"
+    },
+    {
+      "DISTINCT_CREATORS": 23,
+      "DISTINCT_MINTS": 23,
+      "FARM_LAUNCH_COUNT": 23,
+      "INSUFFICIENT_ROW_COUNT": 15,
+      "MAX_AMOUNT": 40000000000,
+      "MIN_AMOUNT": 29924000,
+      "ROLE_EVIDENCE_COVERAGE": 8,
+      "funder": "9obNtb5GyUegcs3a1CbBkLuc5hEWynWfJC6gjz5uWQkE"
+    },
+    {
+      "DISTINCT_CREATORS": 21,
+      "DISTINCT_MINTS": 21,
+      "FARM_LAUNCH_COUNT": 21,
+      "INSUFFICIENT_ROW_COUNT": 20,
+      "MAX_AMOUNT": 315000000,
+      "MIN_AMOUNT": 315000000,
+      "ROLE_EVIDENCE_COVERAGE": 1,
+      "funder": "A5oSjxvVgyca4XTBmusAh6rzpuhVTubqiD8ymuMH1o35"
+    },
+    {
+      "DISTINCT_CREATORS": 21,
+      "DISTINCT_MINTS": 21,
+      "FARM_LAUNCH_COUNT": 21,
+      "INSUFFICIENT_ROW_COUNT": 21,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "AgmLJBMDCqWynYnQiPCuj9ewsNNsBJXyzoUhD9LJzN51"
+    },
+    {
+      "DISTINCT_CREATORS": 18,
+      "DISTINCT_MINTS": 18,
+      "FARM_LAUNCH_COUNT": 18,
+      "INSUFFICIENT_ROW_COUNT": 18,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "4hevjavYZS25ZRPAgUgJjdTBrh32Auwf5EvW62LG55L9"
+    },
+    {
+      "DISTINCT_CREATORS": 14,
+      "DISTINCT_MINTS": 14,
+      "FARM_LAUNCH_COUNT": 14,
+      "INSUFFICIENT_ROW_COUNT": 14,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "Hmc2dLxZZ4xfHqn2wFCTBu11oCpYiuwsj23JBjJmD4ni"
+    },
+    {
+      "DISTINCT_CREATORS": 13,
+      "DISTINCT_MINTS": 13,
+      "FARM_LAUNCH_COUNT": 13,
+      "INSUFFICIENT_ROW_COUNT": 10,
+      "MAX_AMOUNT": 1215780000,
+      "MIN_AMOUNT": 196300000,
+      "ROLE_EVIDENCE_COVERAGE": 3,
+      "funder": "DwdrYTtTWHfnfJBiN2RH6EgPbquDQLjZTfTwpykPEq1g"
+    },
+    {
+      "DISTINCT_CREATORS": 12,
+      "DISTINCT_MINTS": 12,
+      "FARM_LAUNCH_COUNT": 12,
+      "INSUFFICIENT_ROW_COUNT": 8,
+      "MAX_AMOUNT": 2990000000,
+      "MIN_AMOUNT": 290000000,
+      "ROLE_EVIDENCE_COVERAGE": 4,
+      "funder": "AobVSwdW9BbpMdJvTqeCN4hPAmh4rHm7vwLnQ5ATSyrS"
+    },
+    {
+      "DISTINCT_CREATORS": 12,
+      "DISTINCT_MINTS": 12,
+      "FARM_LAUNCH_COUNT": 12,
+      "INSUFFICIENT_ROW_COUNT": 12,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "G2YxRa6wt1qePMwfJzdXZG62ej4qaTC7YURzuh2Lwd3t"
+    },
+    {
+      "DISTINCT_CREATORS": 11,
+      "DISTINCT_MINTS": 11,
+      "FARM_LAUNCH_COUNT": 11,
+      "INSUFFICIENT_ROW_COUNT": 10,
+      "MAX_AMOUNT": 10365487000,
+      "MIN_AMOUNT": 10365487000,
+      "ROLE_EVIDENCE_COVERAGE": 1,
+      "funder": "AC5RDfQFmDS1deWZos921JfqscXdByf8BKHs5ACWjtW2"
+    },
+    {
+      "DISTINCT_CREATORS": 10,
+      "DISTINCT_MINTS": 10,
+      "FARM_LAUNCH_COUNT": 10,
+      "INSUFFICIENT_ROW_COUNT": 10,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "EGHUDjMNg6NXCp54pGfA5qA5v7hmyqA4U6nEfTSqEE45"
+    },
+    {
+      "DISTINCT_CREATORS": 10,
+      "DISTINCT_MINTS": 10,
+      "FARM_LAUNCH_COUNT": 10,
+      "INSUFFICIENT_ROW_COUNT": 10,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "FpjZrDQS3DGgyBmfscqzVR7hVRy1JzxDoGYq54FYQCTH"
+    },
+    {
+      "DISTINCT_CREATORS": 9,
+      "DISTINCT_MINTS": 9,
+      "FARM_LAUNCH_COUNT": 9,
+      "INSUFFICIENT_ROW_COUNT": 9,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "4tTFM8uqZTbtdE5wF3iu1FbN37qfsRLRsfGZKrfkeAmZ"
+    },
+    {
+      "DISTINCT_CREATORS": 9,
+      "DISTINCT_MINTS": 9,
+      "FARM_LAUNCH_COUNT": 9,
+      "INSUFFICIENT_ROW_COUNT": 9,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "66CEvnrSurdVgYNkAnRoqcjS3wFvm58iEQqbC2iLK8Yv"
+    },
+    {
+      "DISTINCT_CREATORS": 9,
+      "DISTINCT_MINTS": 9,
+      "FARM_LAUNCH_COUNT": 9,
+      "INSUFFICIENT_ROW_COUNT": 6,
+      "MAX_AMOUNT": 40062288000,
+      "MIN_AMOUNT": 4526940000,
+      "ROLE_EVIDENCE_COVERAGE": 3,
+      "funder": "DQ5JWbJyWdJeyBxZuuyu36sUBud6L6wo3aN1QC1bRmsR"
+    },
+    {
+      "DISTINCT_CREATORS": 7,
+      "DISTINCT_MINTS": 7,
+      "FARM_LAUNCH_COUNT": 7,
+      "INSUFFICIENT_ROW_COUNT": 7,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "RCjyRgkysmqPbz17uJrKAyoBSLU2Bsc7SR2DCPnrKRL"
+    },
+    {
+      "DISTINCT_CREATORS": 6,
+      "DISTINCT_MINTS": 6,
+      "FARM_LAUNCH_COUNT": 6,
+      "INSUFFICIENT_ROW_COUNT": 6,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "2uPFJbcK9X4w93C3uE9iJzb9vqENbPPM19ZpvH17KgQY"
+    },
+    {
+      "DISTINCT_CREATORS": 6,
+      "DISTINCT_MINTS": 6,
+      "FARM_LAUNCH_COUNT": 6,
+      "INSUFFICIENT_ROW_COUNT": 4,
+      "MAX_AMOUNT": 4276082000,
+      "MIN_AMOUNT": 1166090000,
+      "ROLE_EVIDENCE_COVERAGE": 2,
+      "funder": "ABNL41SwMLVRaCq6okEWsWyvLwm56nazUNwMrTHgmuyf"
+    },
+    {
+      "DISTINCT_CREATORS": 6,
+      "DISTINCT_MINTS": 6,
+      "FARM_LAUNCH_COUNT": 6,
+      "INSUFFICIENT_ROW_COUNT": 6,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "D5ZNDwESkRzdCnCwz45Qcihe7x3WA5kfTk2UZKeDLHzE"
+    },
+    {
+      "DISTINCT_CREATORS": 6,
+      "DISTINCT_MINTS": 6,
+      "FARM_LAUNCH_COUNT": 6,
+      "INSUFFICIENT_ROW_COUNT": 6,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "DjdRjaoe5eMyBg6aXsfNKnBquCg1en1KFtGptJv1JfGc"
+    },
+    {
+      "DISTINCT_CREATORS": 5,
+      "DISTINCT_MINTS": 5,
+      "FARM_LAUNCH_COUNT": 5,
+      "INSUFFICIENT_ROW_COUNT": 4,
+      "MAX_AMOUNT": 6795513000,
+      "MIN_AMOUNT": 6795513000,
+      "ROLE_EVIDENCE_COVERAGE": 1,
+      "funder": "2snHHreXbpJ7UwZxPe37gnUNf7Wx7wv6UKDSR2JckKuS"
+    },
+    {
+      "DISTINCT_CREATORS": 5,
+      "DISTINCT_MINTS": 5,
+      "FARM_LAUNCH_COUNT": 5,
+      "INSUFFICIENT_ROW_COUNT": 5,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "4VYE2yak8XgKAeK7VzzjcqK7kjSwhFQuc1p986Vq9hp3"
+    },
+    {
+      "DISTINCT_CREATORS": 5,
+      "DISTINCT_MINTS": 5,
+      "FARM_LAUNCH_COUNT": 5,
+      "INSUFFICIENT_ROW_COUNT": 5,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "5TjSh51DeZfDF2mWTYPDWzJhYkNkMQk3ZHfq13JaKHkf"
+    },
+    {
+      "DISTINCT_CREATORS": 5,
+      "DISTINCT_MINTS": 5,
+      "FARM_LAUNCH_COUNT": 5,
+      "INSUFFICIENT_ROW_COUNT": 5,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "AhtcFyNkcgrVBiJw4oe4sF3nwwZmKNCcFmyrsG7S4dLy"
+    },
+    {
+      "DISTINCT_CREATORS": 5,
+      "DISTINCT_MINTS": 5,
+      "FARM_LAUNCH_COUNT": 5,
+      "INSUFFICIENT_ROW_COUNT": 5,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "BY4StcU9Y2BpgH8quZzorg31EGE4L1rjomN8FNsCBEcx"
+    },
+    {
+      "DISTINCT_CREATORS": 5,
+      "DISTINCT_MINTS": 5,
+      "FARM_LAUNCH_COUNT": 5,
+      "INSUFFICIENT_ROW_COUNT": 5,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "ErA4DHLxtaiXfibQcV8UMYhjXYNgX3WGeU2iBEcuUZBt"
+    },
+    {
+      "DISTINCT_CREATORS": 5,
+      "DISTINCT_MINTS": 5,
+      "FARM_LAUNCH_COUNT": 5,
+      "INSUFFICIENT_ROW_COUNT": 5,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9"
+    },
+    {
+      "DISTINCT_CREATORS": 5,
+      "DISTINCT_MINTS": 5,
+      "FARM_LAUNCH_COUNT": 5,
+      "INSUFFICIENT_ROW_COUNT": 5,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "FWznbcNXWQuHTawe9RxvQ2LdCENssh12dsznf4RiouN5"
+    },
+    {
+      "DISTINCT_CREATORS": 5,
+      "DISTINCT_MINTS": 5,
+      "FARM_LAUNCH_COUNT": 5,
+      "INSUFFICIENT_ROW_COUNT": 5,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "GhB74cEfMLZjtxFUBYKdZzs7eKpWuJXFu9HcJY7uJSp9"
+    },
+    {
+      "DISTINCT_CREATORS": 4,
+      "DISTINCT_MINTS": 4,
+      "FARM_LAUNCH_COUNT": 4,
+      "INSUFFICIENT_ROW_COUNT": 4,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "6ZRCB7AAqGre6c72PRz3MHLC73VMYvJ8bi9KHf1HFpNk"
+    },
+    {
+      "DISTINCT_CREATORS": 4,
+      "DISTINCT_MINTS": 4,
+      "FARM_LAUNCH_COUNT": 4,
+      "INSUFFICIENT_ROW_COUNT": 3,
+      "MAX_AMOUNT": 242105000,
+      "MIN_AMOUNT": 242105000,
+      "ROLE_EVIDENCE_COVERAGE": 1,
+      "funder": "8d9FNC7AgKLTCPKNd3MMkLLXZYLmiYFYR3vfXMBNJVNx"
+    },
+    {
+      "DISTINCT_CREATORS": 4,
+      "DISTINCT_MINTS": 4,
+      "FARM_LAUNCH_COUNT": 4,
+      "INSUFFICIENT_ROW_COUNT": 4,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "AWCc52TYTrrzAbRPqiSf1knAumSkmZJnabGNctkJGKuv"
+    },
+    {
+      "DISTINCT_CREATORS": 4,
+      "DISTINCT_MINTS": 4,
+      "FARM_LAUNCH_COUNT": 4,
+      "INSUFFICIENT_ROW_COUNT": 4,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "BJugHjfMsmbK6973G35Y2GSsXNEYr2hABanqtjRGkbH9"
+    },
+    {
+      "DISTINCT_CREATORS": 4,
+      "DISTINCT_MINTS": 4,
+      "FARM_LAUNCH_COUNT": 4,
+      "INSUFFICIENT_ROW_COUNT": 4,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "CrfuXrpyfhyU4Mc8R3FdF5kX2VWqVpb7PGNTxDBhefEY"
+    },
+    {
+      "DISTINCT_CREATORS": 4,
+      "DISTINCT_MINTS": 4,
+      "FARM_LAUNCH_COUNT": 4,
+      "INSUFFICIENT_ROW_COUNT": 4,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "DRjtQh54eQ7Q1pyz3YkXvoCt9xY7jzSAXjuqBsc64SNe"
+    },
+    {
+      "DISTINCT_CREATORS": 4,
+      "DISTINCT_MINTS": 4,
+      "FARM_LAUNCH_COUNT": 4,
+      "INSUFFICIENT_ROW_COUNT": 4,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "GT2zuHVaZQYZSyQMgJPLzvkmyztfyXg2NJunqFp4p3A4"
+    },
+    {
+      "DISTINCT_CREATORS": 4,
+      "DISTINCT_MINTS": 4,
+      "FARM_LAUNCH_COUNT": 4,
+      "INSUFFICIENT_ROW_COUNT": 4,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "H292B1VbSvD6GuUmSvUvfQstg1Acfzog796uQ7d1ccCw"
+    },
+    {
+      "DISTINCT_CREATORS": 4,
+      "DISTINCT_MINTS": 4,
+      "FARM_LAUNCH_COUNT": 4,
+      "INSUFFICIENT_ROW_COUNT": 4,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "HkF8L8P24ZEd8SmjRbVzwqe34tiVfMN1p3pafHduTtv6"
+    },
+    {
+      "DISTINCT_CREATORS": 4,
+      "DISTINCT_MINTS": 4,
+      "FARM_LAUNCH_COUNT": 4,
+      "INSUFFICIENT_ROW_COUNT": 4,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "J1h8hFoqRSjJVT4it2vqY96jtzGQdTLrvxKTGYpNzryh"
+    },
+    {
+      "DISTINCT_CREATORS": 3,
+      "DISTINCT_MINTS": 3,
+      "FARM_LAUNCH_COUNT": 3,
+      "INSUFFICIENT_ROW_COUNT": 3,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "2RxaPmTaXeP57CpHgGtwGkpTxg8QC8981JHsd3r3UFmj"
+    },
+    {
+      "DISTINCT_CREATORS": 3,
+      "DISTINCT_MINTS": 3,
+      "FARM_LAUNCH_COUNT": 3,
+      "INSUFFICIENT_ROW_COUNT": 3,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "2ojv9BAiHUrvsm9gxDe7fJSzbNZSJcxZvf8dqmWGHG8S"
+    },
+    {
+      "DISTINCT_CREATORS": 3,
+      "DISTINCT_MINTS": 3,
+      "FARM_LAUNCH_COUNT": 3,
+      "INSUFFICIENT_ROW_COUNT": 3,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "4iieWMwLjxHpZLfChMTwJaaBnRUVAFQFpFfTuZ7rFLSb"
+    },
+    {
+      "DISTINCT_CREATORS": 3,
+      "DISTINCT_MINTS": 3,
+      "FARM_LAUNCH_COUNT": 3,
+      "INSUFFICIENT_ROW_COUNT": 3,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "53unSgGWqEWANcPYRF35B2Bgf8BkszUtcccKiXwGGLyr"
+    },
+    {
+      "DISTINCT_CREATORS": 3,
+      "DISTINCT_MINTS": 3,
+      "FARM_LAUNCH_COUNT": 3,
+      "INSUFFICIENT_ROW_COUNT": 3,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "54Pz1e35z9uoFdnxtzjp7xZQoFiofqhdayQWBMN7dsuy"
+    },
+    {
+      "DISTINCT_CREATORS": 3,
+      "DISTINCT_MINTS": 3,
+      "FARM_LAUNCH_COUNT": 3,
+      "INSUFFICIENT_ROW_COUNT": 3,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "72LXu4ifyBj5Vd8CrvwBGGLGojVsniVQjzeJ6fRFg2dR"
+    },
+    {
+      "DISTINCT_CREATORS": 3,
+      "DISTINCT_MINTS": 3,
+      "FARM_LAUNCH_COUNT": 3,
+      "INSUFFICIENT_ROW_COUNT": 3,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "96xWBVeodSYU5nDeHZfmPQ3bNutUAuqHb8iuZci1viLq"
+    },
+    {
+      "DISTINCT_CREATORS": 3,
+      "DISTINCT_MINTS": 3,
+      "FARM_LAUNCH_COUNT": 3,
+      "INSUFFICIENT_ROW_COUNT": 3,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "9eopQbZdGDnTyXdEDeDbFqfcVYJ4CyAfS3anEr2JAjHo"
+    },
+    {
+      "DISTINCT_CREATORS": 3,
+      "DISTINCT_MINTS": 3,
+      "FARM_LAUNCH_COUNT": 3,
+      "INSUFFICIENT_ROW_COUNT": 3,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "AxiomRYAid8ZDhS1bJUAzEaNSr69aTWB9ATfdDLfUbnc"
+    },
+    {
+      "DISTINCT_CREATORS": 3,
+      "DISTINCT_MINTS": 3,
+      "FARM_LAUNCH_COUNT": 3,
+      "INSUFFICIENT_ROW_COUNT": 3,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "ChqkWUCLXe3wvS1uG4HTazowVKoeVq9dAK9Urxkh7QxZ"
+    },
+    {
+      "DISTINCT_CREATORS": 3,
+      "DISTINCT_MINTS": 3,
+      "FARM_LAUNCH_COUNT": 3,
+      "INSUFFICIENT_ROW_COUNT": 3,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "DAqCpTpQN1JNCDYLXWir28q1J2eXSufiNNADsSnUQTBZ"
+    },
+    {
+      "DISTINCT_CREATORS": 3,
+      "DISTINCT_MINTS": 3,
+      "FARM_LAUNCH_COUNT": 3,
+      "INSUFFICIENT_ROW_COUNT": 3,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "FUxHfVUMTG8RQvGXjgb1HMLaCbkEm2K7DTL4sF6TFVUa"
+    },
+    {
+      "DISTINCT_CREATORS": 3,
+      "DISTINCT_MINTS": 3,
+      "FARM_LAUNCH_COUNT": 3,
+      "INSUFFICIENT_ROW_COUNT": 3,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "Ggr6Se6Kwm1S9cv3CNaLemai7zHFy6nZSbbW8s173dZT"
+    },
+    {
+      "DISTINCT_CREATORS": 3,
+      "DISTINCT_MINTS": 3,
+      "FARM_LAUNCH_COUNT": 3,
+      "INSUFFICIENT_ROW_COUNT": 3,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "H7sWT7eP83vkim7Gp81qsPwQzuzJK3E6Ps9KLbUezoCc"
+    },
+    {
+      "DISTINCT_CREATORS": 3,
+      "DISTINCT_MINTS": 3,
+      "FARM_LAUNCH_COUNT": 3,
+      "INSUFFICIENT_ROW_COUNT": 3,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "HWjmoUNYckccg9Qrwi43JTzBcGcM1nbdAtATf9GXmz16"
+    },
+    {
+      "DISTINCT_CREATORS": 3,
+      "DISTINCT_MINTS": 3,
+      "FARM_LAUNCH_COUNT": 3,
+      "INSUFFICIENT_ROW_COUNT": 3,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "HWtCBwNtm8ixvaweyJoaXD4KjMfV5LemppwMnuXx1MNk"
+    },
+    {
+      "DISTINCT_CREATORS": 3,
+      "DISTINCT_MINTS": 3,
+      "FARM_LAUNCH_COUNT": 3,
+      "INSUFFICIENT_ROW_COUNT": 3,
+      "MAX_AMOUNT": null,
+      "MIN_AMOUNT": null,
+      "ROLE_EVIDENCE_COVERAGE": 0,
+      "funder": "boysdovRN1SCGaz9PuhcrpTNT6DPxcpfuh8VcUfjhvo"
+    }
+  ],
+  "current_unknown_baseline": {
+    "FARM_LAUNCH_ROWS": 460,
+    "PERSISTENT_REPEAT_FUNDERS": 58
+  },
+  "evidence_loss": {
+    "EXACT_STAGE_WHERE_FIELDS_ARE_DROPPED": "legacy tuple/projection into launch_rows",
+    "FIELDS_DROPPED": [
+      "funding_signature",
+      "raw transaction",
+      "blockTime",
+      "signers",
+      "fee payer",
+      "parsed transfer source/destination",
+      "instruction shapes",
+      "route semantics"
+    ],
+    "FIRST_STAGE_WITH_RICH_EVIDENCE": "_trace_funder_evidence after getTransaction",
+    "LAST_STAGE_WITH_RICH_EVIDENCE": "in-memory FunderTrace before short persistence transaction",
+    "WHY": "original compact farm aggregation stored only cluster fields",
+    "result": "FARM_LAUNCH_EVIDENCE_PARTIALLY_OBSERVED"
+  },
+  "join_key": {
+    "BEST_JOIN_KEY": "mint + funding_signature via new wt_farm_launch_evidence linkage",
+    "CURRENT_JOIN_KEY_COVERAGE": 0,
+    "HISTORICAL_EXACT_ROLE_JOIN": 32,
+    "HISTORICAL_SELECTED_EDGE_FALLBACK": 4522,
+    "JOIN_KEY_AMBIGUITY": "farm rows presently retain no signature"
+  },
+  "live_flow": [
+    "token_analysis: mint, earliest_tx_creator, peak, migrated_at",
+    "run_farm_scan filters recent single-use creators",
+    "_trace_funder_evidence: getSignaturesForAddress creator -> oldest signature -> getTransaction jsonParsed",
+    "in-memory raw tx, signature, blockTime, account keys, balances, parsed types",
+    "legacy funder projection: lowest non-creator balance delta; wrap_close; seed_sol",
+    "wt_farm_launches compact insert"
+  ],
+  "mode": "READ_ONLY",
+  "pre_insert_fields": {
+    "CREATOR_AVAILABLE": true,
+    "DEFINING_SIGNATURE_AVAILABLE": false,
+    "FEE_PAYER_AVAILABLE": "RAW_TX_ONLY",
+    "FUNDER_AVAILABLE": true,
+    "FUNDING_SIGNATURE_AVAILABLE": true,
+    "INNER_INSTRUCTIONS_AVAILABLE": "RAW_TX_ONLY",
+    "INTERMEDIARY_ROUTE_AVAILABLE": "RAW_TX_ONLY",
+    "LAUNCH_COUPLING_AVAILABLE": "creator oldest tx relation",
+    "LAUNCH_TIME_AVAILABLE": "MIGRATION_TIME_ONLY",
+    "MINT_AVAILABLE": true,
+    "OUTER_INSTRUCTIONS_AVAILABLE": "RAW_TX_ONLY",
+    "RAW_TRANSACTION_AVAILABLE": true,
+    "SIGNERS_AVAILABLE": "RAW_TX_ONLY",
+    "TRANSFER_AMOUNT_AVAILABLE": "BALANCE_DELTA_ONLY",
+    "TRANSFER_DESTINATION_AVAILABLE": "RAW_TX_AVAILABLE_BUT_NOT_SEMANTICALLY_DECODED_BY_LEGACY_FARM_PROJECTION",
+    "TRANSFER_SOURCE_AVAILABLE": "RAW_TX_AVAILABLE_BUT_NOT_SEMANTICALLY_DECODED_BY_LEGACY_FARM_PROJECTION",
+    "TRANSFER_TIME_AVAILABLE": true
+  },
+  "recommendation": {
+    "HISTORICAL_INSUFFICIENT_COUNT": 460,
+    "HISTORICAL_LOCAL_BACKFILL_COUNT": 0,
+    "HISTORICAL_RPC_BACKFILL_REQUIRED_COUNT": "NOT_AUTHORIZED_NOT_PERFORMED",
+    "RECOMMENDED_READER_OWNER": "future farm edge-quality projection",
+    "RECOMMENDED_RETENTION_MODEL": "OPTION_D: canonical generic role row plus additive farm-to-role linkage",
+    "RECOMMENDED_WRITER_OWNER": "farm_detector after its existing getTransaction",
+    "TARGET_TABLE_OR_PROJECTION": "wt_farm_launch_evidence -> wt_walkback_transaction_roles",
+    "ZERO_EXTRA_RPC_FEASIBLE": true,
+    "conditions": "only for prospective farm rows whose existing scanner transaction is decoded and linked; unresolved transactions remain INSUFFICIENT_TO_CLASSIFY"
+  },
+  "representative_rows": [
+    {
+      "creator": "79zUzfETJgeumwWmBTJ9Z9T6UdTuLUEVAWVgrctMrYu1",
+      "detected_at": 1781605534,
+      "funder": "FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9",
+      "migrated_at": 1781548907,
+      "mint": "DuamrFMW6RKXieEino683F7VbwXSX7e9CuhnZ3i8pump",
+      "seed_sol": -0.6023
+    },
+    {
+      "creator": "BM8HPfv2z9kh5NebxH3FtfSHjeSpGFBzjx5b6xwv5vqL",
+      "detected_at": 1781605540,
+      "funder": "FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9",
+      "migrated_at": 1781544826,
+      "mint": "82yNj9h8q1MDb9mT1MaPY6WhSi6QLg8WEiLw3JpFpump",
+      "seed_sol": -0.0622
+    },
+    {
+      "creator": "AHbGnU8GGYJ5wCV5TGQmPcQyNNVjRZPC54FnLYyrPKuD",
+      "detected_at": 1781605591,
+      "funder": "FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9",
+      "migrated_at": 1781412957,
+      "mint": "FJ7RE91UbxQ6t5tbXo1itprkUqZAV1LPEWM85G2qpump",
+      "seed_sol": -0.0602
+    },
+    {
+      "creator": "7XNCfL1W3xk89oBqpTx3fSA23SSB4NxpWPSK4B8YRVAW",
+      "detected_at": 1781605559,
+      "funder": "FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9",
+      "migrated_at": 1781499149,
+      "mint": "DnnUGDJ34bkYD252j7Uicfi3mT2trry6snVfynN7pump",
+      "seed_sol": -0.004
+    },
+    {
+      "creator": "AsK1HAHtURNaWXae2vgqewMK2Lu7Ci9UpmWG5aqfEUrM",
+      "detected_at": 1781605602,
+      "funder": "FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9",
+      "migrated_at": 1781375076,
+      "mint": "6yV9ukrWJcUiZnFZDxuW8pSgX47u6u1kiBzxZ28Spump",
+      "seed_sol": -0.003
+    },
+    {
+      "creator": "Bh6sj463e6CRZ4Taefscu2twEspr3hXva4Kewjh8WSLF",
+      "detected_at": 1781605604,
+      "funder": "BJugHjfMsmbK6973G35Y2GSsXNEYr2hABanqtjRGkbH9",
+      "migrated_at": 1781373830,
+      "mint": "Gp7Ke62udVPYEMg7B13Vm38WHCD7KVAPktL9ktaKpump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "8d8AtXbAVwP4qwFQxJLkZcT4BgfkuPUKiafCCiScWGf",
+      "detected_at": 1781605598,
+      "funder": "BJugHjfMsmbK6973G35Y2GSsXNEYr2hABanqtjRGkbH9",
+      "migrated_at": 1781389194,
+      "mint": "AQnQEnGQZJu2JXZwC5USzQ6YUuXCUSk7KbaX5PAepump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "C2TFeiRyzzApUxvjrfaXF1RLfad2SfaHvSqGaEPmmxfv",
+      "detected_at": 1781605582,
+      "funder": "BJugHjfMsmbK6973G35Y2GSsXNEYr2hABanqtjRGkbH9",
+      "migrated_at": 1781449712,
+      "mint": "DK7dthSmHEAHRSASSJaJdT37S6NdAgAQtCgNLJympump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "Gotnp2we6gkSBQRxFPBPLVx7Efew2yadJJBo78M4Shn7",
+      "detected_at": 1781605549,
+      "funder": "BJugHjfMsmbK6973G35Y2GSsXNEYr2hABanqtjRGkbH9",
+      "migrated_at": 1781534823,
+      "mint": "63pWiBNCEW4RkYTDBG9dcabzdiHdVZMHnauKGhcWpump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "HnWpMzbiBZsJH1X9N9GQDJBLc1J4jLFT7N5oiUrC82KM",
+      "detected_at": 1781984217,
+      "funder": "GT2zuHVaZQYZSyQMgJPLzvkmyztfyXg2NJunqFp4p3A4",
+      "migrated_at": 1781984126,
+      "mint": "J7nejjwUAxiSbX3DpvTkURscfFSrK33saNoU2ovHpump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "Cett7QqNo6Yf9MxACPyAGBrxXK9Z9kyK8n7883pEfJHF",
+      "detected_at": 1782429208,
+      "funder": "BY4StcU9Y2BpgH8quZzorg31EGE4L1rjomN8FNsCBEcx",
+      "migrated_at": 1782399184,
+      "mint": "6ZSfRJX6aJjnHBEbEnPUhbAoMe3UqGkDfyY8KhShBBJw",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "GA6pG2SaCXws7PxY2vDAA3ZuJEhXgfiyZrHjFuPw1TCF",
+      "detected_at": 1782587762,
+      "funder": "54Pz1e35z9uoFdnxtzjp7xZQoFiofqhdayQWBMN7dsuy",
+      "migrated_at": 1782586754,
+      "mint": "BwSBbpfaNymtTizXNE6L6AXDu77u2v3TMPteGdsWoRLD",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "AhZoWEMbCnuJrvWvya9r1zGd6f5p4pMgvnedFwhc77iL",
+      "detected_at": 1782800795,
+      "funder": "AgmLJBMDCqWynYnQiPCuj9ewsNNsBJXyzoUhD9LJzN51",
+      "migrated_at": 1782775188,
+      "mint": "EyscKnGPbxVjGx4AgJqpYqtWmtnw2PpzRpvqShBQpump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "EmfYATLLQWYPDiqHxBFFKNzPFZTEPLupknMWAJZLzgwP",
+      "detected_at": 1782805963,
+      "funder": "AgmLJBMDCqWynYnQiPCuj9ewsNNsBJXyzoUhD9LJzN51",
+      "migrated_at": 1782805115,
+      "mint": "43sSuhMnbXL4AmXFgZQT6ojPV5i4Yw9bjmZUSa3npump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "JCkBXTNQB1WxR8w9p3JfGEd6ydenAq4NQTgAzqQJHemi",
+      "detected_at": 1782844129,
+      "funder": "2AQdpHJ2JpcEgPiATUXjQxA8QmafFegfQwSLWSprPicm",
+      "migrated_at": 1782841172,
+      "mint": "67mUDZxgXBGhuwPpb4aYLHpKZfQQdx1a87ykH5Ngpump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "4HctkwL4NFH81SXA3R47SVAce9kEeFYD7WRcFHYRuByz",
+      "detected_at": 1786190350,
+      "funder": "AWCc52TYTrrzAbRPqiSf1knAumSkmZJnabGNctkJGKuv",
+      "migrated_at": 1785931536,
+      "mint": "EdSV7ZE9zZWUZrQfr6chjUEwV89p4h2LPU9N3JD9pump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "AVDsf3e3sjh7QniJuNhRMmhrUF3cTwJYR6QbRD577N9Z",
+      "detected_at": 1786190350,
+      "funder": "AWCc52TYTrrzAbRPqiSf1knAumSkmZJnabGNctkJGKuv",
+      "migrated_at": 1785968084,
+      "mint": "EjKtPmBsGy5ZKBvrQ5q4dToioP7Wob53v1p5zmQ8pump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "58LexJsVn4J4HZS9REubA99hQN6Cc4LCUqiXZgTWD7b1",
+      "detected_at": 1786189050,
+      "funder": "AgmLJBMDCqWynYnQiPCuj9ewsNNsBJXyzoUhD9LJzN51",
+      "migrated_at": 1785995473,
+      "mint": "Htko8AFLnLitNMeSsW7BNKT6r5wEFxdrWpAph1gmpump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "AtVnpUQv9kJxcRULgghdVvGPw4fkRWa3wiKBRkZ76e3W",
+      "detected_at": 1786181437,
+      "funder": "FUxHfVUMTG8RQvGXjgb1HMLaCbkEm2K7DTL4sF6TFVUa",
+      "migrated_at": 1786031684,
+      "mint": "7kxXt15GW9GYpf7RAQ8PWHHNcHhXbgnaiDRyKab6pump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "CY44FUs3uNE9CXzrW1vkzbiXw84qB7tQZWUkQR1Np5dW",
+      "detected_at": 1786262583,
+      "funder": "ErA4DHLxtaiXfibQcV8UMYhjXYNgX3WGeU2iBEcuUZBt",
+      "migrated_at": 1786082082,
+      "mint": "8VuGfeW47uDVoMTvHjzC2p1rdTC22QgafPqeYXdgpump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "4gMNs6jB3Zk2aRxJP8eVMPXsCyU5Se8oZpQ2rHEUnt6z",
+      "detected_at": 1786247936,
+      "funder": "AWCc52TYTrrzAbRPqiSf1knAumSkmZJnabGNctkJGKuv",
+      "migrated_at": 1786114196,
+      "mint": "3b6u8kaLkE8bV66BXmKzYTxUiYdXUnZCFpwHbbkgpump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "Ewiin8qtAyC2n8yZoUgQ1U1RP7YmeB9nPXLKSZbXmUXW",
+      "detected_at": 1786234905,
+      "funder": "AWCc52TYTrrzAbRPqiSf1knAumSkmZJnabGNctkJGKuv",
+      "migrated_at": 1786130831,
+      "mint": "5JgHXDpAFsmgVjoNxsfdKFhR59pSTpTn8XYfeGSspump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "3H5NwsTiqkj8D2vMoPqxzr1t5eJt8JtAJgerKp2Vzikt",
+      "detected_at": 1786905985,
+      "funder": "FUxHfVUMTG8RQvGXjgb1HMLaCbkEm2K7DTL4sF6TFVUa",
+      "migrated_at": 1786780574,
+      "mint": "8rkeFJEPYs83fNek8zZE6gW8LVLaREaHv9UJiXwTpump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "GMhyK924ek1szGnTcDDrKbyk1y4P6wutjsf6yJFAzYRD",
+      "detected_at": 1786873285,
+      "funder": "GT2zuHVaZQYZSyQMgJPLzvkmyztfyXg2NJunqFp4p3A4",
+      "migrated_at": 1786810443,
+      "mint": "E11PrpcisMC8NqKhXwu5S93A9X11yj8s5tRm4Np3pump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "3vGp4xgKjh3j9rakhckkaSvHkUbV3QjK81VD78JPDdr7",
+      "detected_at": 1786873285,
+      "funder": "FUxHfVUMTG8RQvGXjgb1HMLaCbkEm2K7DTL4sF6TFVUa",
+      "migrated_at": 1786812211,
+      "mint": "4YC6WTT7vjCoePqrp38VXaHisoUc1PsqEeHh7dBwpump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "9WYf4xPw59bMmjrKfWyN2nY9dyRJEgDc2kvqhBaoZWpL",
+      "detected_at": 1786964541,
+      "funder": "AgmLJBMDCqWynYnQiPCuj9ewsNNsBJXyzoUhD9LJzN51",
+      "migrated_at": 1786906724,
+      "mint": "6oodnVEfzeQ6uriHvvcCnMh3wsk9NJkKCKza4i4Qpump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "8pPGgsHHvZyYi9UQDgt5TUrpkYgcggkvG2UctzQopdtP",
+      "detected_at": 1786959064,
+      "funder": "AgmLJBMDCqWynYnQiPCuj9ewsNNsBJXyzoUhD9LJzN51",
+      "migrated_at": 1786955027,
+      "mint": "qs62EDzBeQhHrw8iJJQJJmtCz23AeUSt4dXGmJfpump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "J5v5xGH476wi2gGwAiVWbQyAr8eX6pwjSUYcczhRxHpB",
+      "detected_at": 1786962133,
+      "funder": "AxiomRYAid8ZDhS1bJUAzEaNSr69aTWB9ATfdDLfUbnc",
+      "migrated_at": 1786958067,
+      "mint": "AZ5xJ64MjKR5YTwgrw7dKRWwwAdkeedXwuSmV6ZUpump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "A1Zxy794SEKBnm78s29F4cRG8vabYfmbLKoV4z73G4LV",
+      "detected_at": 1786988786,
+      "funder": "AgmLJBMDCqWynYnQiPCuj9ewsNNsBJXyzoUhD9LJzN51",
+      "migrated_at": 1786981900,
+      "mint": "J5vsc17G5Uv5kCWTNUndGDoGurvwnE55cy6gxvjFpump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "Gi85amcGyNRZ9DGJN4Xzvg28thByw3gKF2KbRbgGrL3v",
+      "detected_at": 1787015967,
+      "funder": "ErA4DHLxtaiXfibQcV8UMYhjXYNgX3WGeU2iBEcuUZBt",
+      "migrated_at": 1787013129,
+      "mint": "GDbwtm7p6DNhzzCHWsSboy68qjLKKxDKLBBjedZopump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "DLS79CycdyqbzVjZtL6Wr6TW2ZU2YR6SCF5nfCDWsNpx",
+      "detected_at": 1787021306,
+      "funder": "AgmLJBMDCqWynYnQiPCuj9ewsNNsBJXyzoUhD9LJzN51",
+      "migrated_at": 1787020530,
+      "mint": "6swUx9bYhJArb3gUj5k94UizuNHvhuazeAbC4Nghpump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "8fB99pcFyKxiW1jEaLxtXBSkj3nseZvpuRKbRHYSFKM5",
+      "detected_at": 1787046552,
+      "funder": "AgmLJBMDCqWynYnQiPCuj9ewsNNsBJXyzoUhD9LJzN51",
+      "migrated_at": 1787022903,
+      "mint": "5R4E9MmnQi8jKXMLFHMhpFMZXScMUe3MDvsaFrkDpump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "AdBF3i2zArq9QeQpt6Vdx5jtxVSF1QxdHg2wQycnimhW",
+      "detected_at": 1787032764,
+      "funder": "DAqCpTpQN1JNCDYLXWir28q1J2eXSufiNNADsSnUQTBZ",
+      "migrated_at": 1787028135,
+      "mint": "4ePL4Ncpg6pvSkDdLUuHUa7VcU7uJGXt4bQUrPrcpump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "C1GNhpHZMW5VGuZCcKJXLFN5vsuQmmXqwYVhmtYQdZg9",
+      "detected_at": 1787071206,
+      "funder": "GT2zuHVaZQYZSyQMgJPLzvkmyztfyXg2NJunqFp4p3A4",
+      "migrated_at": 1787063066,
+      "mint": "FXCKsoVfaF5qWG33hi8rqaWrV53RQHGipLHZq5G1pump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "7Rkve87JPMLtFTJBcAjKSxuMX2YEQwXgAPg1pQYAaNRn",
+      "detected_at": 1787098114,
+      "funder": "Hmc2dLxZZ4xfHqn2wFCTBu11oCpYiuwsj23JBjJmD4ni",
+      "migrated_at": 1787087023,
+      "mint": "8kybLALGMgx3iFbCQV6te5w8arR5S5SYwBpyNtKjpump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "vTW2kscPz9iVZnNJmRK63z9uMJzcdnTtu8Y6Ap3xtte",
+      "detected_at": 1787101941,
+      "funder": "Hmc2dLxZZ4xfHqn2wFCTBu11oCpYiuwsj23JBjJmD4ni",
+      "migrated_at": 1787101659,
+      "mint": "Eikvj7xcM918iB2Q8TecUKvwSos437Sonm3A3SD3pump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "5AL42FwirSJhR6CPjTvvh5Re6bDr4ViMf9ytn8SfgCCq",
+      "detected_at": 1787110087,
+      "funder": "AgmLJBMDCqWynYnQiPCuj9ewsNNsBJXyzoUhD9LJzN51",
+      "migrated_at": 1787107690,
+      "mint": "Hswe9ZShgn7iBfyVc52usR5M9yY9WMwR94X6fLC9pump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "5aE9jeRmLD1Gk2exbHXXjoXtwGAZSg6TZVfmqkwz4UJn",
+      "detected_at": 1787114030,
+      "funder": "AgmLJBMDCqWynYnQiPCuj9ewsNNsBJXyzoUhD9LJzN51",
+      "migrated_at": 1787113121,
+      "mint": "ELGBWxgA1ZHSTos9kQ88RGSB4SFuS5UbjNXvFATcpump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "BBfJv7tGhqe5Tegdpkey4MZRbCmVR4x5XQLDwi7oRHFX",
+      "detected_at": 1787208167,
+      "funder": "2AQdpHJ2JpcEgPiATUXjQxA8QmafFegfQwSLWSprPicm",
+      "migrated_at": 1787205763,
+      "mint": "v9K7fEfBcJVczd3atRpcbsmUgoSBA3Xok3mHytNpump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "7AweBPTewSG5b2bSN8hsnSrjPBHSiEq76Q6B7bCToiPQ",
+      "detected_at": 1787280219,
+      "funder": "AgmLJBMDCqWynYnQiPCuj9ewsNNsBJXyzoUhD9LJzN51",
+      "migrated_at": 1787217589,
+      "mint": "7TJasd2LPe9kBoKS6BPNCFEiRDYnzHxnRSV67uqppump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "BuLL7nohvuknpA2TdYAjMofFYygXeGe9WSXC9F9VmhUu",
+      "detected_at": 1787231086,
+      "funder": "9obNtb5GyUegcs3a1CbBkLuc5hEWynWfJC6gjz5uWQkE",
+      "migrated_at": 1787220100,
+      "mint": "EgH6xVPfVmSvfPuLiHJCEE9mXtjaSoViSq3GXPQYpump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "AXUNKhBZ8zeZUCwLfEChjT3jWoLmgWR2Qn7ZYZvR8ycC",
+      "detected_at": 1787280219,
+      "funder": "AgmLJBMDCqWynYnQiPCuj9ewsNNsBJXyzoUhD9LJzN51",
+      "migrated_at": 1787277456,
+      "mint": "ArzF5nQPUvUvLQQHKNqpxgzvPBqCNLiYSqJYRrwapump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "F1Cf4DTAof9FHSemxcEMG3ZQrw7T2NDZJDnMk3p3iVff",
+      "detected_at": 1787283103,
+      "funder": "Hmc2dLxZZ4xfHqn2wFCTBu11oCpYiuwsj23JBjJmD4ni",
+      "migrated_at": 1787280250,
+      "mint": "94p1Wm4uqfcgm7r7euN7efMpokNcqoMuxHVb7n8Lpump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "DEos4HLTzna6wsoKP9kFvKiFH5xdi8pP2Sf3yYojA6Vk",
+      "detected_at": 1787294637,
+      "funder": "AgmLJBMDCqWynYnQiPCuj9ewsNNsBJXyzoUhD9LJzN51",
+      "migrated_at": 1787294162,
+      "mint": "9q6srn1qHmZQcp9Pkau8TwESwvj62j6fSgz5E3hZpump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "JDbYEetBYj7fdmWfm4bTK64fVkLPGgLfs7m1C5xCP9CS",
+      "detected_at": 1787397959,
+      "funder": "AgmLJBMDCqWynYnQiPCuj9ewsNNsBJXyzoUhD9LJzN51",
+      "migrated_at": 1787342646,
+      "mint": "9skAP1dcUvTzLnyxdpbigfL7H3MkrtZKoyL9jgdJpump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "J8A3sG9wmCyYkyMRNWNtYCmfkeo1myTSykwBY5en2hxJ",
+      "detected_at": 1787397959,
+      "funder": "H292B1VbSvD6GuUmSvUvfQstg1Acfzog796uQ7d1ccCw",
+      "migrated_at": 1787344579,
+      "mint": "8YiJafyVr8U2H5fSJePCXLGXZNSYXYEKcSNtpVJxpump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "HqR6ix5A1VAnygsW7TyxESPMjLjJoExj4TcY6YmRyk24",
+      "detected_at": 1787391984,
+      "funder": "Hmc2dLxZZ4xfHqn2wFCTBu11oCpYiuwsj23JBjJmD4ni",
+      "migrated_at": 1787387475,
+      "mint": "BKeFvPBKTTdh1nu9wJL6cpHaxBWc5kKc2w1ePEzGpump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "AP3NXwqTHCyro8eYYwBuYKNAVUmt2wuX2Uwftbw3Lsat",
+      "detected_at": 1787438200,
+      "funder": "DAqCpTpQN1JNCDYLXWir28q1J2eXSufiNNADsSnUQTBZ",
+      "migrated_at": 1787430896,
+      "mint": "AN26Pn3XyMSrWcdCGwVpVmFmS8fyAHvohgeFMEaDpump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "5Cc5yy71hW6fpsu3SSELNSPUgVDE5AGPGLwovrNuxwiw",
+      "detected_at": 1787442450,
+      "funder": "Hmc2dLxZZ4xfHqn2wFCTBu11oCpYiuwsj23JBjJmD4ni",
+      "migrated_at": 1787440203,
+      "mint": "CELU1ac3ci8iuBiaz6XfzyyWPyLg268qXbqJE8d9pump",
+      "seed_sol": 0.0
+    },
+    {
+      "creator": "EYPxRz19yoaUiQXLUYdG7AejH6RFHaPuSTnN48qNvne9",
+      "detected_at": 1787442450,
+      "funder": "Hmc2dLxZZ4xfHqn2wFCTBu11oCpYiuwsj23JBjJmD4ni",
+      "migrated_at": 1787441608,
+      "mint": "FBD55fa8uy6HFK1adV3C2TyEKKYedsUye8D63eBrpump",
+      "seed_sol": 0.0
+    }
+  ],
+  "role_table": {
+    "DISTINCT_MINT_COUNT": 93,
+    "DISTINCT_SIGNATURE_COUNT": 379,
+    "FARM_ROW_OVERLAP_COUNT": 42,
+    "FARM_ROW_OVERLAP_PERCENT": 0.42,
+    "MAX_RETAINED_AT": 1788195030,
+    "MIN_RETAINED_AT": 1788185993,
+    "ROW_COUNT": 388
+  },
+  "schema": {
+    "COLUMN_NAMES": [
+      "mint",
+      "funder",
+      "creator",
+      "peak_mc",
+      "migrated_at",
+      "wrap_close",
+      "seed_sol",
+      "detected_at"
+    ],
+    "FOREIGN_KEYS": [],
+    "INDEXES": [
+      {
+        "name": "ix_farm_launch_funder",
+        "origin": "c",
+        "partial": 0,
+        "seq": 0,
+        "unique": 0
+      },
+      {
+        "name": "sqlite_autoindex_wt_farm_launches_1",
+        "origin": "pk",
+        "partial": 0,
+        "seq": 1,
+        "unique": 1
+      }
+    ],
+    "MAX_CREATE_TIME": "NOT_RETAINED",
+    "MAX_MIGRATED_AT": 1788192324,
+    "MIN_CREATE_TIME": "NOT_RETAINED",
+    "MIN_MIGRATED_AT": 1781348886,
+    "PRIMARY_KEY": [
+      "mint"
+    ],
+    "ROW_COUNT": 10079,
+    "UNIQUE_CONSTRAINTS": [
+      "mint primary key"
+    ]
+  },
+  "schema_version": "wt_farm_launches_evidence_provenance.v1",
+  "writers": [
+    {
+      "caller": "src/core/operation_scheduler.py intake cadence; module __main__",
+      "database": "OPS_DB / database/wt_ops_v2.db",
+      "function": "run_farm_scan",
+      "input": "token_analysis row + _trace_funder_evidence creator oldest transaction",
+      "path": "src/core/farm_detector.py",
+      "sql": "INSERT OR REPLACE INTO wt_farm_launches (mint,funder,creator,peak_mc,migrated_at,wrap_close,seed_sol) VALUES (?,?,?,?,?,?,?)",
+      "transaction": "short post-RPC ops-db transaction",
+      "trigger": "recent migrated single-use creator token"
+    }
+  ]
+}

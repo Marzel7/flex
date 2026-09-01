@@ -1,0 +1,79 @@
+{
+  "schema": "psi0b.e6b.restart-sequence-reconciliation.v1",
+  "milestone": "PSI0B-E6B",
+  "status": "COMPLETE",
+  "verdict": "RESTART_SEQUENCE_RECONCILED_REMAINING_PRE_REPAIR_WRITER_RELOAD_REQUIRED",
+  "engineering_commit": "3862e7dfcc2fcc6293a433c14566303124683476",
+  "authorization_anchors": {
+    "walkback_worker_pid": 70136,
+    "watchtower_listener_pid": 72232
+  },
+  "timeline": [
+    {
+      "at": "2026-08-15T08:45:42Z",
+      "event": "AUTHORIZED_WALKBACK_RESTART",
+      "old_pid": 41735,
+      "new_pid": 69361
+    },
+    {
+      "at": "2026-08-15T08:46:43Z",
+      "event": "WALKBACK_STARTUP_EXIT",
+      "pid": 69361,
+      "cause": "60.003-second operations flock timeout with current_owner=null"
+    },
+    {
+      "at": "2026-08-15T08:46:43Z",
+      "event": "SUPERVISOR_AUTORESTART",
+      "service": "walkback_worker",
+      "new_pid": 70136
+    },
+    {
+      "at": "2026-08-15T08:49:03Z",
+      "event": "UNEXPECTED_LISTENER_EXIT",
+      "pid": 15357,
+      "cause": "main-database descriptor watchdog reached fd_count=59 for three fatal cycles during concurrent symbol/price callback fan-out"
+    },
+    {
+      "at": "2026-08-15T08:49:03Z",
+      "event": "SUPERVISOR_AUTORESTART",
+      "service": "watchtower_listener",
+      "new_pid": 72232
+    }
+  ],
+  "physical_lock_finding": {
+    "physical_contention_proven": true,
+    "diagnostic_owner_absent": true,
+    "exact_holding_process_recoverable": false,
+    "lock_file_replacement_evidence": false,
+    "descriptor_inheritance_evidence": false,
+    "best_supported_explanation": "A pre-PSI0B-E5 operations writer retained or repeatedly acquired the physical flock while owner metadata was absent. The pre-repair listener and ws_cascade are both viable writers; missing metadata prevents retrospective attribution.",
+    "lock_inode_last_observed": 445589615,
+    "remaining_pre_repair_operations_writer": {
+      "service": "ws_cascade",
+      "pid": 41781,
+      "uptime_at_terminal_checkpoint": "4 days, 21:47:53"
+    }
+  },
+  "recovery": {
+    "walkback_worker_pid": 70136,
+    "walkback_cycles_observed": true,
+    "walkback_queue_empty_cycles_observed": true,
+    "watchtower_listener_pid": 72232,
+    "new_listener_connection_close_pairing_observed": true,
+    "serializer_p99_wait_ms": 3.07,
+    "serializer_queue_depth": 0,
+    "serializer_lock_errors_24h": 0,
+    "current_recovery_is_sufficient_for_psi0b_e": false,
+    "reason": "ws_cascade remains a live pre-E5 operations writer and therefore retains the diagnosed release-path recurrence risk."
+  },
+  "smallest_safe_next_boundary": "Exactly one ws_cascade restart to load PSI0B-E5 commit 3862e7dfcc2fcc6293a433c14566303124683476, followed by a bounded telemetry-only stability observation covering stable service identities, operations-lock release, zero 60-second enqueue timeouts, descriptors, serializer, queues, feeds and ingestion.",
+  "safety": {
+    "production_database_opened": false,
+    "schema_or_rows_inspected": false,
+    "lease_lock_or_sidecar_manipulated": false,
+    "service_actions": 0,
+    "production_writes": 0,
+    "provider_rpc_calls": 0,
+    "psi0b_e_executed": false
+  }
+}

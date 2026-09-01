@@ -1,0 +1,15 @@
+{
+  "confirmed": [
+    "WATCHTOWER",
+    "P3R_13A04",
+    "P3R"
+  ],
+  "confirmed_count": 3,
+  "membership_mutations": 0,
+  "provisional": [
+    "WSOL_PROVISION_CLOSE_1_SOL_MINUS_15K"
+  ],
+  "provisional_count": 1,
+  "semantics": "Confirmed green versus provisional amber/review-only; provisional is excluded from confirmed count.",
+  "tests": "7 passed"
+}

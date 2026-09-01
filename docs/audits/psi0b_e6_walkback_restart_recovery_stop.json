@@ -1,0 +1,42 @@
+{
+  "schema": "psi0b.e6.walkback-restart-recovery.v1",
+  "milestone": "PSI0B-E6",
+  "status": "HOLD",
+  "verdict": "RESTART_STARTUP_LEASE_TIMEOUT_STOP",
+  "engineering_commit": "3862e7dfcc2fcc6293a433c14566303124683476",
+  "authorized_restart_count": 1,
+  "restart_result": {
+    "old_pid": 41735,
+    "first_new_pid": 69361,
+    "listener_pid": 15357,
+    "evidence_writer": "STOPPED",
+    "old_transaction_id": "81aa002e-a509-431a-9af6-0d0fad24e352",
+    "old_owner_sidecar_present_after_restart": false,
+    "old_release_pending_temporary_metadata_present_after_restart": true
+  },
+  "pre_observation_gate": {
+    "serializer_p99_wait_ms": 2.9,
+    "serializer_queue_depth": 0,
+    "serializer_lock_errors_24h": 2,
+    "listener_primary_fd_count_latest": 0
+  },
+  "stop": {
+    "occurred_before_observation_start": true,
+    "reason_code": "WALKBACK_STARTUP_WRITE_LEASE_TIMEOUT",
+    "detail": "PID 69361 timed out after 60.003 seconds acquiring the operations write lease during startup schema assurance; diagnostic ownership was null. Supervisor subsequently autorestarted the configured service as PID 70136. No Codex-initiated second restart occurred.",
+    "fifteen_minute_observation_started": false,
+    "psi0b_e_executed": false
+  },
+  "production_actions": {
+    "services_restarted_by_codex": [
+      "walkback_worker"
+    ],
+    "restart_count": 1,
+    "database_opened_by_codex": false,
+    "production_queries_by_codex": 0,
+    "production_writes_by_codex": 0,
+    "lock_or_metadata_manipulation": false,
+    "provider_rpc_calls_by_codex": 0
+  },
+  "next_action": "Bounded telemetry/filesystem-only diagnosis of the null-owner physical operations-lock timeout and Supervisor autorestart sequence before any further service action or PSI0B-E attempt."
+}

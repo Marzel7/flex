@@ -1,0 +1,21 @@
+{
+  "anchor_assessment": {
+    "associated_bonding_curve": "3LiBmWqde7CaFW9mogdyRemiXoYxprHSjChzCW4gLejm",
+    "block_time": 1788250333,
+    "bonding_curve": "FJPbTzeUy4pzPT3r7c2fNxccNvvhbC7LJkSqXux8xU1g",
+    "forward_search_anchor": "SUFFICIENT_FOR_TRANSACTION_FILTERING_BUT_SLOT_WINDOW_COST_UNMEASURED",
+    "slot": 443375106
+  },
+  "decoded_artifact": "docs/audits/pumpfun_creation_anchor_poc/3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump.creation.decoded.v1.json",
+  "decoded_sha256": "61a70d492880515f62bba1b33466f746b62c1ea0fb07e865861be982cc398758",
+  "network_calls": {
+    "getBlock": 0,
+    "getSignaturesForAddress": 0,
+    "gmgn": 0,
+    "helius_getTransaction": 1
+  },
+  "purpose": "bounded Pump.fun creation-anchor POC",
+  "raw_artifact": "docs/audits/pumpfun_creation_anchor_poc/3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump.creation.raw.v1.json",
+  "raw_sha256": "cad2699c0a1c69a4991141ec21d0ef297bbc7c8f843c4f62e422cc862c470c6b",
+  "schema_version": 1
+}

@@ -1,0 +1,88 @@
+{
+  "schema_version": "psi0b-e16a.observation.v1",
+  "milestone": "PSI0B-E16A",
+  "status": "STOPPED",
+  "verdict": "PHYSICAL_LOCK_FILE_DESCRIPTOR_PRESENT_AT_CHECKPOINT_3",
+  "engineering_commit": "9bbc4c077ecb189952c900539c8a8d0031b59269",
+  "bound_diagnosis": {
+    "artifact": "docs/audits/psi0b_e16_authoritative_write_lease_diagnosis.json",
+    "digest": "102c3282aafc15c340054f705ce3f2630d81f31fcd101adaa51adbceac385ce8"
+  },
+  "authorization_id_permanently_non_reusable": "psi0b-shadow-auth-20260815-11",
+  "required_supervisor_pids": {
+    "watchtower_listener": 72232,
+    "walkback_worker": 70136,
+    "ws_cascade": 5461
+  },
+  "checkpoints": [
+    {
+      "sequence": 1,
+      "observed_at_utc": "2026-08-15T13:27:27Z",
+      "checkpoint_digest": "6f3500f8608c526ba0e08a71830aa372ed317d0a5790fb29f854552825f815de",
+      "decision": "PASS",
+      "primary_fd_count": 0,
+      "serializer_p99_wait_ms": 21.08,
+      "serializer_queue_depth": 0,
+      "serializer_lock_errors": 0,
+      "authoritative_write_lease_state": "ABSENT",
+      "physical_lock_descriptor_count": 0,
+      "critical_listener_db_handle_count": 0,
+      "database_wal_state": "HEALTHY",
+      "pumpportal_state": "HEALTHY",
+      "pumpswap_state": "HEALTHY",
+      "ingestion_state": "HEALTHY",
+      "worker_queue_service_state": "HEALTHY"
+    },
+    {
+      "sequence": 2,
+      "observed_at_utc": "2026-08-15T13:27:58Z",
+      "checkpoint_digest": "5262cc8e5627a7d05f22b43e1e7166c6b26ddeabc41c0c65b7ed89e6e580110e",
+      "decision": "PASS",
+      "primary_fd_count": 0,
+      "serializer_p99_wait_ms": 21.08,
+      "serializer_queue_depth": 0,
+      "serializer_lock_errors": 0,
+      "authoritative_write_lease_state": "ABSENT",
+      "physical_lock_descriptor_count": 0,
+      "critical_listener_db_handle_count": 0,
+      "database_wal_state": "HEALTHY",
+      "pumpportal_state": "HEALTHY",
+      "pumpswap_state": "HEALTHY",
+      "ingestion_state": "HEALTHY",
+      "worker_queue_service_state": "HEALTHY"
+    },
+    {
+      "sequence": 3,
+      "decision": "STOP",
+      "reason_code": "PSI0B_E16A_PHYSICAL_LOCK_FILE_DESCRIPTOR_PRESENT",
+      "observer_checkpoint_collection_completed_before_descriptor_probe": true,
+      "observer_checkpoint_details_persisted": false,
+      "physical_lock_descriptor_count": "GREATER_THAN_ZERO",
+      "exact_lock_path_process_and_task": "NOT_RETAINED_BY_STOPPING_PROBE",
+      "retry_performed": false
+    }
+  ],
+  "accounting": {
+    "production_database_opens": 0,
+    "production_queries": 0,
+    "production_rows_read": 0,
+    "production_writes_or_ddl": 0,
+    "provider_rpc_calls": 0,
+    "service_actions": 0,
+    "authorization_materialized_or_consumed": false,
+    "shadow_output_created": false
+  },
+  "closure": {
+    "recovery_declared": false,
+    "fresh_psi0b_e_attempt_may_be_proposed": false,
+    "smallest_safe_next_action": "A separately authorized telemetry/filesystem-metadata diagnosis must identify the checkpoint-three lock-file descriptor path, process and lifecycle and distinguish an ordinary short acquisition from ownerless physical retention before another recovery observation or PSI0B-E attempt."
+  },
+  "authority": {
+    "grants_extraction_authority": false,
+    "grants_integration_authority": false,
+    "grants_activation_authority": false,
+    "grants_retry_authority": false,
+    "grants_service_action_authority": false,
+    "grants_production_mutation_authority": false
+  }
+}

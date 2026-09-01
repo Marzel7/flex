@@ -428,7 +428,7 @@ def test_segment_closure_and_registry_correctness(tmp_path):
     )
     assert report.segments_touched
     seg = report.segments_touched[0]
-    assert not is_segment_closed(seg)  # rolling accumulation: not yet closed
+    assert is_segment_closed(seg)  # publication is complete before any retirement
     close_segment(seg, source_run_id=report.run_id)
     assert is_segment_closed(seg)
 
@@ -436,6 +436,101 @@ def test_segment_closure_and_registry_correctness(tmp_path):
     registry = ColdSegmentRegistry(cold_root=str(cold_root)).build()
     assert registry.segment_count == 1
     registry.close()
+
+
+def test_closed_month_routes_late_rows_to_delta_segment(tmp_path):
+    from src.ops.transfer_cold_store import close_segment
+    rows = rowgen(1, bt=old_bt(400), sig_prefix="base")
+    hot = make_hot_db(tmp_path / "hot.db", rows)
+    hot.close()
+    make_wt_ops_db(tmp_path / "wt.db")
+    cold_root = tmp_path / "cold"
+    cold_root.mkdir()
+    base = cold_root / time.strftime("transfer_index_cold_%Y_%m.sqlite", time.gmtime(old_bt(400)))
+    from src.ops.transfer_cold_store import create_cold_segment
+    create_cold_segment(str(base), month_covered=time.strftime("%Y_%m", time.gmtime(old_bt(400))))
+    close_segment(str(base), source_run_id="closed-base")
+
+    report = run_rollover(
+        hot_db_path=str(tmp_path / "hot.db"), cold_root=str(cold_root),
+        checkpoint_path=str(tmp_path / "ckpt.json"), ledger_path=str(tmp_path / "ledger.jsonl"),
+        lease_path=str(tmp_path / "lease"), wt_ops_db_path=str(tmp_path / "wt.db"),
+        discovery_db_path=None, batch_size=100, copy_verify_only=True, run_id="late-row",
+    )
+    assert report.copied == 1
+    assert len(report.segments_touched) == 1
+    assert report.segments_touched[0] != str(base)
+    delta = sqlite3.connect(report.segments_touched[0])
+    assert delta.execute("SELECT segment_kind, parent_segment_id FROM segment_manifest").fetchone() == ("DELTA", base.stem)
+    delta.close()
+    assert sqlite3.connect(f"file:{base}?mode=ro", uri=True).execute("SELECT COUNT(*) FROM transfer_index").fetchone()[0] == 0
+
+
+def test_shared_signature_distinct_leg_is_not_suppressed_by_cold_dedup(tmp_path):
+    bt = old_bt(400)
+    rows = [
+        ("SIG_X", "SRC_A", "DST_A", 1, 0, bt, time.time(), 1, "standard"),
+        ("SIG_X", "SRC_B", "DST_B", 2, 0, bt + 1, time.time(), 1, "standard"),
+    ]
+    hot = make_hot_db(tmp_path / "hot.db", rows)
+    hot.close()
+    make_wt_ops_db(tmp_path / "wt.db")
+    cold_root = tmp_path / "cold"
+    cold_root.mkdir()
+    from src.ops.transfer_cold_store import create_cold_segment
+    month = time.strftime("%Y_%m", time.gmtime(bt))
+    segment_path = cold_root / time.strftime("transfer_index_cold_%Y_%m.sqlite", time.gmtime(bt))
+    create_cold_segment(str(segment_path), month_covered=month)
+    cold = sqlite3.connect(segment_path)
+    cold.execute(
+        "INSERT INTO transfer_index (signature, source, destination, amount_lamports, slot, block_time, indexed_at, is_valid, transfer_type) VALUES (?,?,?,?,?,?,?,?,?)",
+        rows[0],
+    )
+    cold.commit()
+    cold.close()
+    report = run_rollover(
+        hot_db_path=str(tmp_path / "hot.db"), cold_root=str(cold_root),
+        checkpoint_path=str(tmp_path / "ckpt.json"), ledger_path=str(tmp_path / "ledger.jsonl"),
+        lease_path=str(tmp_path / "lease"), wt_ops_db_path=str(tmp_path / "wt.db"),
+        discovery_db_path=None, batch_size=100, copy_verify_only=True,
+    )
+    assert report.already_cold == 1
+    assert report.copied == 1
+    segment = sqlite3.connect(segment_path)
+    assert segment.execute("SELECT COUNT(*) FROM transfer_index").fetchone()[0] == 2
+    segment.close()
+
+
+def test_exact_hot_cold_duplicate_is_not_copied_again(tmp_path):
+    bt = old_bt(400)
+    row = ("SIG_DUP", "SRC", "DST", 1, 0, bt, time.time(), 1, "standard")
+    hot = make_hot_db(tmp_path / "hot.db", [row])
+    hot.close()
+    make_wt_ops_db(tmp_path / "wt.db")
+    cold_root = tmp_path / "cold"
+    cold_root.mkdir()
+    from src.ops.transfer_cold_store import create_cold_segment
+    month = time.strftime("%Y_%m", time.gmtime(bt))
+    segment_path = cold_root / time.strftime("transfer_index_cold_%Y_%m.sqlite", time.gmtime(bt))
+    create_cold_segment(str(segment_path), month_covered=month)
+    cold = sqlite3.connect(segment_path)
+    cold.execute(
+        "INSERT INTO transfer_index (signature, source, destination, amount_lamports, slot, block_time, indexed_at, is_valid, transfer_type) VALUES (?,?,?,?,?,?,?,?,?)",
+        row,
+    )
+    cold.commit()
+    cold.close()
+    report = run_rollover(
+        hot_db_path=str(tmp_path / "hot.db"), cold_root=str(cold_root),
+        checkpoint_path=str(tmp_path / "ckpt.json"), ledger_path=str(tmp_path / "ledger.jsonl"),
+        lease_path=str(tmp_path / "lease"), wt_ops_db_path=str(tmp_path / "wt.db"),
+        discovery_db_path=None, batch_size=100, copy_verify_only=True,
+    )
+    assert report.already_cold == 1
+    assert report.copied == 0
+    segment = sqlite3.connect(segment_path)
+    assert segment.execute("SELECT COUNT(*) FROM transfer_index").fetchone()[0] == 1
+    segment.close()
 
 
 # ---------------------------------------------------------------------

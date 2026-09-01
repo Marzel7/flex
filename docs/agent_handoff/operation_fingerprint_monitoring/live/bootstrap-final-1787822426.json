@@ -1,0 +1,210 @@
+{
+  "bootstrap_caused_membership_changes": 0,
+  "bootstrap_ended_at": 1787822604,
+  "bootstrap_started_at": 1787822426,
+  "current_phase": "TERMINAL",
+  "drift_cluster_rows": 0,
+  "drift_cluster_rows_before": 0,
+  "drift_evidence_rows": 44,
+  "drift_evidence_rows_before": 44,
+  "duration_seconds": 178,
+  "exit_status": 0,
+  "health_snapshot_rows": 6,
+  "health_snapshot_rows_before": 6,
+  "heartbeat_at": 1787822604,
+  "membership_after": 222,
+  "membership_before": 222,
+  "membership_delta": 0,
+  "membership_rows_during_window": [],
+  "mints_observed": 44,
+  "mints_planned": 44,
+  "monitoring_before": {
+    "drift_cluster_rows": 0,
+    "drift_evidence_rows": 44,
+    "health_snapshot_rows": 6
+  },
+  "observed": 44,
+  "outcomes": {
+    "2Br5iZyB5w7W2LhXhKVo6NFUFmoyjWmuDyQR1Edspump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "2GwJo5TgJFzim7dxRot2enEutP16CMNi2hystB5Wpump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "2J7PmgeseQtUfKr1i5BU4k1UDn5Yaf4FYGwAJ6Eupump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "32JYTad94RuoXZnuwfAyD3137d7qpUgVKSfm8BFrpump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "3g18VhKdwnwZAiN5MMwrGbrmv2BQMu6pcpjudmHwpump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "3xreqNTWpkSG9YJ2Ura582dSTUdN1vqB5eerKsXSpump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "4rifET4ASNWE339PeJMMZAPLv4u1LH1naSnrxMLXpump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "5xw6fuaC68HX6oabZrGEVgVrur4Ae882NoCDHMbPpump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "7CGiA4cdtprHDyZ8CC316tovjLcMd4KMf4b2ArAWpump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "8iYLQhReo1vzHp6xPLhXNJhHb87UynRb2ofDr2Sipump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "8nuZuTv4yrf8yEK8fnKjJmne5sAUTFtttZfbeM7gpump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "8zjSm6qXuhgJ6hMfKNNsiht3vFcY7QVxJt7YZVw1pump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "998RhDdzrBAQj6rC4Mu9N6vMpyVV8gMKrh98FsN6pump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "9WyEujHDjPk4RrgVqeBDa1bWDMzevXN1pAhqJ4KEpump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "9hLwy4Y8L31NimtyBdhuecBSTSUP6uRxjaDHSjfvpump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "9tQDRJzS8yeijskpk8x5Fz8hrsu7thpRtcPNwcdTpump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "AQeT2Yu43rfF2CjMcJ2mqHJsGQ7c4znoo2qErzr6pump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "AkaX24vosnfyEsCGUkMwYRJq9pg14sNTXBBte3xpump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "AqgtHrC5TwPcvTf9dmgQhWwUhmVbaGynop1LxvU9pump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "BPg6vtfGWceR9fJda9pT3KKE7REGewKPhxMGaRwGpump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "BnvreAHcoXJBScpjpocULyPsYNQf4jWQVmYayk6xpump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "BoRvUzird5hH8S9vM6n2rDFddkWv769eB2q4PADTpump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "C5ecc42Lg2M6sP1uSPLN9qxER4PJLobc9VVGQURSpump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "Cc6SynbtrCNJMH3ZJXVax77WiL8LmzsPWBJhBeqApump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "DCuGvhXueDqPBQfCf23P4np9w6HYjHsv46jzn5hdpump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "DLfqN87F8eToqfGjrJbrnXxuAhs7tRv5B2W4qVA7pump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "DhBr9uG4mE9dxehD24TW37uoVY1eDRPgDD942VVepump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "DtwkHVJK2pqPng3kDvykGCHJvWpRys6rUXRKKbQnpump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "E3uCWNm5Ykq7CiPqyZLUezZNDjcHSSd7YyZ45vBRpump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "F44x336AH1Gp58mPurxbnDFNVuTYEeK6RBJtLTwgpump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "G36HqqU3C9uDswj839apMc65fZkj5R82Stu3XRCApump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "H9gmHWRWmPWJBUKDoRsaqmohLjtKG9bnwZVnbCkpump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "J59LUFm5eG6ABGFmiDsqXS8ANrRMtgigeB5Bpvnkpump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "SHmjdCg1KdcEeLESciT42de7hcpbL4kCRd5AAcUpump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "TDeELn2vPFQHNPKnY86SZuD395JU8UePb6aknuPpump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "TGhykTFggPdDSkmLaCCKZSn61FeShyVNSFM36vepump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "TtcdL2sYgc6RT45yH7vziNrdSFujgAnHrH7AXkEpump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "TwES5X8iJL44qq9rBwKiJgyVaXX6vDEjR61WqRopump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "aFt6QNDNTCg4CkpT7Z7bcb3V1iXSbvF36ptaTnZpump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "cCRsJVpQxfrF2HZ1ZQohHorCXnvr6Vwrf9tTc5Hpump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "eshSWTWLC8RVsddtLMwaZTtKHhDtzUGT3SzPV28pump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "fYUQSasxSS9oYqtsYnmJEWAHMU2BG4UwcJrXHdtpump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "fy9W7kCAWDBehUFzaCyUQiRD8g3K6LiNaaJf4mRpump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    },
+    "vccC9NYRktfcDP1NEs96RpTdh26BqYEn2hncTxSpump": {
+      "EXACT_MATCH": 1,
+      "NO_MEANINGFUL_RELATIONSHIP": 4
+    }
+  },
+  "pid": 50531,
+  "run_id": "fingerprint-bootstrap-1787822426",
+  "scope": "bounded existing d3de/Byzantine members",
+  "status": "BOOTSTRAP_COMPLETE",
+  "unknown_membership_changes": 0
+}

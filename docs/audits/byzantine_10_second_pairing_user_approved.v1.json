@@ -1,0 +1,25 @@
+{
+  "artifact_type": "BYZANTINE_USER_APPROVED_10_SECOND_PAIRING_BOUNDARY_V1",
+  "creator": "GqpjYV88bTzxYxHEskudyWZ9T5kxtBpehXdkQS2KKJiM",
+  "creator_provision_signature": null,
+  "mint": "6X7EhvCPpQcfwfAeQF4drS2x9UnHD8N8BK5QnTtzpump",
+  "reason": "Explicit user-approved 10-second boundary extension; direct Df8->Byzantine, precedes provisioning, and exact 15,000-lamport continuity.",
+  "result": "PROVEN_SERIAL_DF8_BYZ_CREATOR",
+  "revised_total_fully_serial_chains": 47,
+  "safety": {
+    "funder_sig_changed": false,
+    "membership_changed": false,
+    "production_writes": false,
+    "rpc": 0
+  },
+  "selected_upstream_candidate": {
+    "amount": 7.0,
+    "diff": 1.5000000000320313e-05,
+    "exact": true,
+    "offset": 10,
+    "signature": "2eafRdLjDN4gFjYqGYcGtK99AT1kttKpCgL2YR1mZpdbwZ89qbMbHGUCi6pnawizzGvGJ2D6SSR1oM479uxPpSo2",
+    "time": 1786522612
+  },
+  "supersedes_nothing": "Original strict 6-8 second audit remains preserved.",
+  "user_decision": "Approve 10-second exact-fee-continuity candidate for this specific mint only."
+}

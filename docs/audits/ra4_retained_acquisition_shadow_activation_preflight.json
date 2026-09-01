@@ -1,0 +1,36 @@
+{
+  "milestone": "RA4 — bounded retained-acquisition production shadow activation",
+  "verdict": "READY_BOUNDED_RETENTION_IMPLEMENTATION",
+  "status": "PARTIAL",
+  "scope": "production-safe shadow-path enablement only; legacy 61GB DB untouched",
+  "implemented_controls": {
+    "legacy_flag_unchanged": true,
+    "shadow_flag": "RETAINED_ACQUISITION_V2_SHADOW_ENABLED",
+    "shadow_database_path": "database/evidence_platform/production/retained_acquisition_shadow.db",
+    "shadow_artifact_path": "database/evidence_platform/production/retained_acquisition_shadow_artifacts",
+    "daily_payload_cap_bytes": 1073741824,
+    "disk_floor_bytes": 10737418240,
+    "parallel_writer_support": true
+  },
+  "runtime_guard": {
+    "legacy_writer_untouched": true,
+    "shadow_writer_separate_db": true,
+    "rollback_available": "drop RA4 env vars or replace with legacy-only flags",
+    "production_migration_requested": false,
+    "destructive_migration_planned": false
+  },
+  "tested": {
+    "tests": [
+      "tests/test_ra4_retained_acquisition_shadow_activation.py",
+      "tests/test_ra2_retained_acquisition_replay.py"
+    ],
+    "passed": 15,
+    "status": "PASS"
+  },
+  "blocked_conditions": [
+    "RETAINED_ACQUISITION_DB_STORAGE_AMPLIFICATION_UNBOUNDED",
+    "H11_ON_HOLD_UNTIL_RETENTION_GROWTH_BOUND",
+    "RA4_HARDENING_NOT_EXECUTED"
+  ],
+  "next_required_decision": "Execute bounded production RA4 writer activation run and capture an explicit evidence artifact before any authoritative cutover"
+}

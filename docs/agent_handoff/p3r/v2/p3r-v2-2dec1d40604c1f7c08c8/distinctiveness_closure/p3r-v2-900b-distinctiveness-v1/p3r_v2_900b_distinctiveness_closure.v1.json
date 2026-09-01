@@ -1,0 +1,909 @@
+{
+  "address_assisted": {
+    "known_direct_funders": [
+      "3yHmuLdvP5ffJBpNeDvu1SCVJqujb33VdMeQbm837Uuy",
+      "5YJkZrwNVtrjQjuKStFNfuavWNZ2GdDsK3rW8m6dzq45",
+      "6sSFfF9dtpSTx4CgK5XfN7uVxKd6or9sBvvcnPRK76xq",
+      "71ptwE72WhnoAnpPw73RTr8bz5E9PraUyWkXhyhAkNrC",
+      "9P4vzm8kb83nLiGxNKeDX8kxNeNtwRMuLiyJnVVqwQGd",
+      "AQiB8cPxuoXMeVRPNZygXED68VVXj4awgJ6gzz4WHazn",
+      "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "C9WLfmaTPXs1vuyuHFHfu7yqWvM8KDoo5SrcADzDjNjY",
+      "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB",
+      "GHDVSqV5TAXXgHUWpFgAeTuuvQ91ixkXDjPYyeYjaTKh"
+    ],
+    "note": "Corroborative only; not used by the selected minimum signature.",
+    "target_coverage": 1.0
+  },
+  "address_blind": {
+    "classification": "NOT_ASSESSABLE_AGAINST_REQUESTED_COMPARATOR",
+    "reason": "The required 27-family comparator population did not reproduce from frozen retained evidence."
+  },
+  "alternative_decomposition": {
+    "classification": "STABLE_MULTI_PATH",
+    "members_with_alternatives": 44,
+    "variants": [
+      {
+        "associated_atomic_variants": {
+          "createAccountWithSeed > initializeAccount3 > transfer > syncNative > closeAccount": 121
+        },
+        "associated_funders": {
+          "3yHmuLdvP5ffJBpNeDvu1SCVJqujb33VdMeQbm837Uuy": 3,
+          "5YJkZrwNVtrjQjuKStFNfuavWNZ2GdDsK3rW8m6dzq45": 26,
+          "6sSFfF9dtpSTx4CgK5XfN7uVxKd6or9sBvvcnPRK76xq": 18,
+          "71ptwE72WhnoAnpPw73RTr8bz5E9PraUyWkXhyhAkNrC": 30,
+          "9P4vzm8kb83nLiGxNKeDX8kxNeNtwRMuLiyJnVVqwQGd": 3,
+          "AQiB8cPxuoXMeVRPNZygXED68VVXj4awgJ6gzz4WHazn": 3,
+          "GHDVSqV5TAXXgHUWpFgAeTuuvQ91ixkXDjPYyeYjaTKh": 9
+        },
+        "count": 92,
+        "fingerprint": {
+          "amount_lamports": 999985000,
+          "hop": 1,
+          "semantic": "WSOL_WRAP_CLOSE"
+        },
+        "member_coverage": 0.6590909090909091,
+        "share": 0.7244094488188977
+      },
+      {
+        "associated_atomic_variants": {
+          "createAccount > initializeAccount > syncNative > closeAccount": 4,
+          "createAccountWithSeed > initializeAccount3 > transfer > syncNative > closeAccount": 24,
+          "createIdempotent > closeAccount > getAccountDataSize > createAccount > initializeImmutableOwner > initializeAccount3 > transferChecked": 1
+        },
+        "associated_funders": {
+          "5YJkZrwNVtrjQjuKStFNfuavWNZ2GdDsK3rW8m6dzq45": 2,
+          "6sSFfF9dtpSTx4CgK5XfN7uVxKd6or9sBvvcnPRK76xq": 2,
+          "71ptwE72WhnoAnpPw73RTr8bz5E9PraUyWkXhyhAkNrC": 2,
+          "AQiB8cPxuoXMeVRPNZygXED68VVXj4awgJ6gzz4WHazn": 1,
+          "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY": 4,
+          "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB": 1
+        },
+        "count": 12,
+        "fingerprint": {
+          "amount_lamports": 0,
+          "hop": 1,
+          "semantic": "PLAIN_XFER"
+        },
+        "member_coverage": 0.25,
+        "share": 0.09448818897637795
+      },
+      {
+        "associated_atomic_variants": {
+          "createAccount > initializeAccount > syncNative > closeAccount": 10,
+          "createIdempotent > closeAccount > transfer > getAccountDataSize > createAccount > initializeImmutableOwner > initializeAccount3 > transferChecked": 2
+        },
+        "associated_funders": {
+          "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY": 5
+        },
+        "count": 5,
+        "fingerprint": {
+          "amount_lamports": 9999985000,
+          "hop": 1,
+          "semantic": "WSOL_WRAP_CLOSE"
+        },
+        "member_coverage": 0.11363636363636363,
+        "share": 0.03937007874015748
+      },
+      {
+        "associated_atomic_variants": {
+          "createAccountWithSeed > initializeAccount3 > transfer > syncNative > closeAccount": 4
+        },
+        "associated_funders": {
+          "C9WLfmaTPXs1vuyuHFHfu7yqWvM8KDoo5SrcADzDjNjY": 3
+        },
+        "count": 3,
+        "fingerprint": {
+          "amount_lamports": 1009980000,
+          "hop": 1,
+          "semantic": "WSOL_WRAP_CLOSE"
+        },
+        "member_coverage": 0.022727272727272728,
+        "share": 0.023622047244094488
+      },
+      {
+        "associated_atomic_variants": {
+          "createAccount > initializeAccount > syncNative > closeAccount": 1
+        },
+        "associated_funders": {
+          "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY": 1
+        },
+        "count": 1,
+        "fingerprint": {
+          "amount_lamports": 540000,
+          "hop": 1,
+          "semantic": "PLAIN_XFER"
+        },
+        "member_coverage": 0.022727272727272728,
+        "share": 0.007874015748031496
+      },
+      {
+        "associated_atomic_variants": {
+          "createAccountWithSeed > initializeAccount3 > transfer > syncNative > closeAccount": 1
+        },
+        "associated_funders": {
+          "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB": 1
+        },
+        "count": 1,
+        "fingerprint": {
+          "amount_lamports": 10000000,
+          "hop": 1,
+          "semantic": "PLAIN_XFER"
+        },
+        "member_coverage": 0.022727272727272728,
+        "share": 0.007874015748031496
+      },
+      {
+        "associated_atomic_variants": {
+          "createAccount > initializeAccount > syncNative > closeAccount": 1
+        },
+        "associated_funders": {
+          "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY": 1
+        },
+        "count": 1,
+        "fingerprint": {
+          "amount_lamports": 257592000,
+          "hop": 1,
+          "semantic": "PLAIN_XFER"
+        },
+        "member_coverage": 0.022727272727272728,
+        "share": 0.007874015748031496
+      },
+      {
+        "associated_atomic_variants": {
+          "createAccount > initializeAccount > syncNative > closeAccount": 2
+        },
+        "associated_funders": {
+          "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY": 1
+        },
+        "count": 1,
+        "fingerprint": {
+          "amount_lamports": 282368000,
+          "hop": 1,
+          "semantic": "PLAIN_XFER"
+        },
+        "member_coverage": 0.022727272727272728,
+        "share": 0.007874015748031496
+      },
+      {
+        "associated_atomic_variants": {
+          "createAccount > initializeAccount > syncNative > closeAccount": 2
+        },
+        "associated_funders": {
+          "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY": 1
+        },
+        "count": 1,
+        "fingerprint": {
+          "amount_lamports": 313044000,
+          "hop": 1,
+          "semantic": "PLAIN_XFER"
+        },
+        "member_coverage": 0.022727272727272728,
+        "share": 0.007874015748031496
+      },
+      {
+        "associated_atomic_variants": {
+          "createAccount > initializeAccount > syncNative > closeAccount": 2
+        },
+        "associated_funders": {
+          "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY": 1
+        },
+        "count": 1,
+        "fingerprint": {
+          "amount_lamports": 315282000,
+          "hop": 1,
+          "semantic": "PLAIN_XFER"
+        },
+        "member_coverage": 0.022727272727272728,
+        "share": 0.007874015748031496
+      },
+      {
+        "associated_atomic_variants": {
+          "createAccount > initializeAccount > syncNative > closeAccount": 1
+        },
+        "associated_funders": {
+          "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY": 1
+        },
+        "count": 1,
+        "fingerprint": {
+          "amount_lamports": 324991000,
+          "hop": 1,
+          "semantic": "PLAIN_XFER"
+        },
+        "member_coverage": 0.022727272727272728,
+        "share": 0.007874015748031496
+      },
+      {
+        "associated_atomic_variants": {
+          "createAccount > initializeAccount > syncNative > closeAccount": 1
+        },
+        "associated_funders": {
+          "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY": 1
+        },
+        "count": 1,
+        "fingerprint": {
+          "amount_lamports": 329369000,
+          "hop": 1,
+          "semantic": "PLAIN_XFER"
+        },
+        "member_coverage": 0.022727272727272728,
+        "share": 0.007874015748031496
+      },
+      {
+        "associated_atomic_variants": {
+          "createAccount > initializeAccount > syncNative > closeAccount": 1
+        },
+        "associated_funders": {
+          "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY": 1
+        },
+        "count": 1,
+        "fingerprint": {
+          "amount_lamports": 421948000,
+          "hop": 1,
+          "semantic": "PLAIN_XFER"
+        },
+        "member_coverage": 0.022727272727272728,
+        "share": 0.007874015748031496
+      },
+      {
+        "associated_atomic_variants": {
+          "createAccount > initializeAccount > syncNative > closeAccount": 1
+        },
+        "associated_funders": {
+          "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY": 1
+        },
+        "count": 1,
+        "fingerprint": {
+          "amount_lamports": 430846000,
+          "hop": 1,
+          "semantic": "PLAIN_XFER"
+        },
+        "member_coverage": 0.022727272727272728,
+        "share": 0.007874015748031496
+      },
+      {
+        "associated_atomic_variants": {
+          "createAccount > initializeAccount > syncNative > closeAccount": 1
+        },
+        "associated_funders": {
+          "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY": 1
+        },
+        "count": 1,
+        "fingerprint": {
+          "amount_lamports": 2407944000,
+          "hop": 1,
+          "semantic": "PLAIN_XFER"
+        },
+        "member_coverage": 0.022727272727272728,
+        "share": 0.007874015748031496
+      },
+      {
+        "associated_atomic_variants": {
+          "createAccount > initializeAccount > syncNative > closeAccount": 2,
+          "createIdempotent > closeAccount > transfer > getAccountDataSize > createAccount > initializeImmutableOwner > initializeAccount3 > transferChecked": 1
+        },
+        "associated_funders": {
+          "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY": 1
+        },
+        "count": 1,
+        "fingerprint": {
+          "amount_lamports": 416538000,
+          "hop": 1,
+          "semantic": "WSOL_WRAP_CLOSE"
+        },
+        "member_coverage": 0.022727272727272728,
+        "share": 0.007874015748031496
+      },
+      {
+        "associated_atomic_variants": {
+          "createAccount > initializeAccount > syncNative > closeAccount": 2,
+          "createIdempotent > closeAccount > transfer > getAccountDataSize > createAccount > initializeImmutableOwner > initializeAccount3 > transferChecked": 1
+        },
+        "associated_funders": {
+          "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY": 1
+        },
+        "count": 1,
+        "fingerprint": {
+          "amount_lamports": 438262000,
+          "hop": 1,
+          "semantic": "WSOL_WRAP_CLOSE"
+        },
+        "member_coverage": 0.022727272727272728,
+        "share": 0.007874015748031496
+      },
+      {
+        "associated_atomic_variants": {
+          "createAccount > initializeAccount > syncNative > closeAccount": 1,
+          "createIdempotent > closeAccount > transfer > getAccountDataSize > createAccount > initializeImmutableOwner > initializeAccount3 > transferChecked": 1
+        },
+        "associated_funders": {
+          "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY": 1
+        },
+        "count": 1,
+        "fingerprint": {
+          "amount_lamports": 13743349000,
+          "hop": 1,
+          "semantic": "WSOL_WRAP_CLOSE"
+        },
+        "member_coverage": 0.022727272727272728,
+        "share": 0.007874015748031496
+      },
+      {
+        "associated_atomic_variants": {
+          "createAccount > initializeAccount > syncNative > closeAccount": 1,
+          "createIdempotent > closeAccount > getAccountDataSize > createAccount > initializeImmutableOwner > initializeAccount3 > transferChecked": 1
+        },
+        "associated_funders": {
+          "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY": 1
+        },
+        "count": 1,
+        "fingerprint": {
+          "amount_lamports": 79436442000,
+          "hop": 1,
+          "semantic": "WSOL_WRAP_CLOSE"
+        },
+        "member_coverage": 0.022727272727272728,
+        "share": 0.007874015748031496
+      }
+    ]
+  },
+  "broad_condition": {
+    "amount_lamports": 999985000,
+    "hop_depth": 1,
+    "mechanism": "WSOL_WRAP_CLOSE"
+  },
+  "broad_watch_now_count": 1,
+  "broad_watch_now_population": [
+    {
+      "activity": {
+        "last_1d": 0,
+        "last_30d": 43,
+        "last_7d": 28
+      },
+      "alternative_coverage": 44,
+      "atomic_coverage": 44,
+      "canonical_tier": "V2_TIER_3_ACTIVE_BASE",
+      "dominant_alternative": [
+        1,
+        "WSOL_WRAP_CLOSE",
+        999985000
+      ],
+      "dominant_atomic_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount3",
+        "transfer",
+        "syncNative",
+        "closeAccount"
+      ],
+      "dominant_atomic_share": 0.8513513513513513,
+      "family_id": "p3r-v2-900b89587c6987d582df",
+      "matching_member_count": 44,
+      "member_count": 44,
+      "role_evidence": {
+        "creators": 44,
+        "direct_funders": 10
+      },
+      "selected_amount_lamports": 999985000,
+      "selected_hop": 1,
+      "selected_semantic": "WSOL_WRAP_CLOSE"
+    }
+  ],
+  "canonical_run_id": "p3r-v2-2dec1d40604c1f7c08c8",
+  "comparison_scope": {
+    "reason": "The reproduced broad selected-edge set has one family, so it cannot supply the requested 900b-versus-26 discrimination test.",
+    "valid_for_900b_local_description": true,
+    "valid_for_distinctiveness_or_false_positive_claims": false
+  },
+  "denominator_verification": {
+    "exact_replayed_predicate": {
+      "amount_lamports": 999985000,
+      "hop_depth": 1,
+      "mechanism": "WSOL_WRAP_CLOSE",
+      "selection_status": "SELECTED"
+    },
+    "expected_broad_watch_now_family_count": 27,
+    "frozen_edge_high_water": 60299,
+    "reason": "The supplied 27-family comparator population is not reproduced by the frozen canonical selected-edge evidence. The locally reproducible exact predicate contains only the target family; retained alternative-edge evidence contains two families. No durable artifact or exact alternative predicate establishing the supplied 27-family population was recovered.",
+    "reproduced_alternative_family_count": 2,
+    "reproduced_selected_family_count": 1,
+    "status": "DISCREPANCY"
+  },
+  "deterministic_replay": {
+    "qualified_closure": false,
+    "replayed_exact_alternative_family_count": 2,
+    "replayed_exact_selected_family_count": 1,
+    "result": "REPRODUCES_DENOMINATOR_DISCREPANCY"
+  },
+  "discrimination_matrix": [
+    {
+      "description": "broad selected edge",
+      "external_matching_members": 0,
+      "external_tiers": {},
+      "family_level_precision": 1.0,
+      "member_level_precision": 1.0,
+      "other_matching_watch_now_families": [],
+      "signature": "S0",
+      "target_coverage": 1.0,
+      "target_matches": 44
+    },
+    {
+      "description": "S0 + dominant exact atomic sequence",
+      "external_matching_members": 0,
+      "external_tiers": {},
+      "family_level_precision": 1.0,
+      "member_level_precision": 1.0,
+      "other_matching_watch_now_families": [],
+      "signature": "S1",
+      "target_coverage": 0.7045454545454546,
+      "target_matches": 31
+    },
+    {
+      "description": "S0 + all-create/sync/close retained lifecycle",
+      "external_matching_members": 0,
+      "external_tiers": {},
+      "family_level_precision": 1.0,
+      "member_level_precision": 1.0,
+      "other_matching_watch_now_families": [],
+      "signature": "S2",
+      "target_coverage": 1.0,
+      "target_matches": 44
+    },
+    {
+      "description": "S0 + direct-funder funds/owns/authorizes temp WSOL that closes to creator",
+      "external_matching_members": 0,
+      "external_tiers": {},
+      "family_level_precision": 1.0,
+      "member_level_precision": 1.0,
+      "other_matching_watch_now_families": [],
+      "signature": "S3",
+      "target_coverage": 1.0,
+      "target_matches": 44
+    },
+    {
+      "description": "S0 + lifecycle + role",
+      "external_matching_members": 0,
+      "external_tiers": {},
+      "family_level_precision": 1.0,
+      "member_level_precision": 1.0,
+      "other_matching_watch_now_families": [],
+      "signature": "S4",
+      "target_coverage": 1.0,
+      "target_matches": 44
+    },
+    {
+      "description": "S4 + dominant alternative edge",
+      "external_matching_members": 0,
+      "external_tiers": {},
+      "family_level_precision": 1.0,
+      "member_level_precision": 1.0,
+      "other_matching_watch_now_families": [],
+      "signature": "S5",
+      "target_coverage": 0.6590909090909091,
+      "target_matches": 29
+    }
+  ],
+  "full_local_false_positive_check": {
+    "external_matches": [
+      {
+        "family_id": "p3r-v2-84135dbb32e9daa13722",
+        "matching_members": [
+          "CAjsj4RL3mqDQFcRkjyH1qMVmc8wXDsc3qDhNKwpump",
+          "GPDZTyHBYWfaQE6N3idv2KxpDbiqLatPNvwAqgkpump",
+          "mxey3nTKBsqa6fQYC7g8RrVM36UT9XJGUCT8ur5pump"
+        ],
+        "tier": "V2_WATCH_LATER"
+      },
+      {
+        "family_id": "p3r-v2-b43fe5cd33b138775e76",
+        "matching_members": [
+          "Fiw7B6u5XwdnxTfTYzX63deyiwpWdkqBqjjWjXSpump",
+          "M7A3PQFy7uKRUkwNf7YbkALi1dyQ7kjd8PmHj3Hpump",
+          "Vh2sB6qLyMBevQ2JUmPzPDnUjefqZG8CHUbKY6Gpump",
+          "bvJjwrxqvZSp7eW69BxFj4YSGniLFysNgPXrwqYpump",
+          "hv7RU5m4WahioRBqeaf3Jk7udMm19YGPaT24oxvpump",
+          "qgiXEYJD6mXjHqzJJksX1yjYtownjLXFHAtD7KApump",
+          "vTyCy4iNKXQAUFLDPa2m28XNZk1KxzA3FiG7FWrpump",
+          "vdTLLLpo3Ag5sRw8HFMEt6DpFV1VK9B5jeQfK3Kpump"
+        ],
+        "tier": "V2_WATCH_LATER"
+      }
+    ],
+    "matches": [
+      {
+        "family_id": "p3r-v2-84135dbb32e9daa13722",
+        "matching_members": [
+          "CAjsj4RL3mqDQFcRkjyH1qMVmc8wXDsc3qDhNKwpump",
+          "GPDZTyHBYWfaQE6N3idv2KxpDbiqLatPNvwAqgkpump",
+          "mxey3nTKBsqa6fQYC7g8RrVM36UT9XJGUCT8ur5pump"
+        ],
+        "tier": "V2_WATCH_LATER"
+      },
+      {
+        "family_id": "p3r-v2-900b89587c6987d582df",
+        "matching_members": [
+          "2ukFgVCgXrdijD6qcfV9CnSzGGENkrMFXCurvgUrpump",
+          "5Q2PmJe7fboykX94gJjYNfN5AgjXDcJDJqeuGUKApump",
+          "93Gwy6EzMK2CDJGpTzLAe4fs45GHCzoxbFQcsU6xpump",
+          "9HC9pchPikhAg5CuQxiUFexJe89G8MBfPw4Xx3DLpump",
+          "9NPivohgTPgvGRFf1zRJkWzRVvzfZQnx4C8SunPspump",
+          "APTsytnD32axqchnou37U1kfXUgUup8zXWzNigDgpump",
+          "BHRMJEu8h6xeNMGa5PNgZzNFkv2n7jGjLGPXcEKqpump",
+          "BWNBSgKZQfngaJvW3aKgdkLyJoMXRJGg6Ci8LBRpump",
+          "C9fC481nRToDRndwD8sXVQ2vcr5sSoP7iwHTnsYTpump",
+          "D1yb7MCFaFq29a2RfGgQ8KNdb3mzpyVJNmBpKfK2pump",
+          "DSBi4v66mQVDjLahQhYq3GsdCAPtQh6bg8BQLuWrpump",
+          "DzS6LmHZkTrQH1dm6KB1TZuaRGheX2vSS7EhZFQpump",
+          "GRzA6upWecidqUTqvNHUw3wvU57f67NksSKjQmYNpump",
+          "HFK4THn9RTapetqJfmqNsyMeKXk4QWBVWz7aF8Mhpump",
+          "HNP9RzTDLuUvDKXUWRiQTq8jrR1DSXGbb9TA6BZpump",
+          "LkGunuxTBzHKbX5b4nj6mhbAKP3qPjFgHaDotN7pump",
+          "NccxjFzp4wzSHskQWncatvaGJfGX3hpbvaosc9Mpump",
+          "UhoyBoAqgz5Ehmnmvo8EVfUzRkszhL592fi9fSwpump",
+          "Vc5sfpeuozdcPE8dw5eBrSSd4dufdk6vqbqCNibpump",
+          "WFrNrYnF4cabLY5qvZWtZ4SSC74UyVyS5q9hTG5pump",
+          "Wq2Gi2RFva9gtJBHdYF3vbbgqQJ1LCBLTikx7QRpump",
+          "WsiiQ5D1ZSVZQGR6xS63GH8NDEZWX1Ca4bMmc94pump",
+          "Wsuh6EaGf3x2Z5JnqeB14qcDP9MpQdXUZnsp2Udpump",
+          "YqTPAwoiCdKrwk8whUqSZsKBbjyCkexKvAjMnrPpump",
+          "a6x3wAFmCSr8sJn2PMNrCZ94jNXkhKS8oY2V2dopump",
+          "brbu7o1QRLwzisr17hp5vD4hTienxT3qRHSAu4Wpump",
+          "bwuf2oW5UzT6g1L8VUTfxkHYCRuLm9CnYk9ydfupump",
+          "ewmHUkHACmKkGpJMXxShFpNUQMoKmA7vVZadAfFpump",
+          "fYYPZ3tRBgHzk2dCGE45Ewkmg5gniDYwmstQS8Tpump",
+          "ihCMCGWTLYLBzfyBHQCVEZiFdVWwRXW8UPQGjMUpump",
+          "itD6Zu8wc5oYuCKfCJ7Ecdx6uSz4ePcx9PgWW8Ypump",
+          "maCqH3yPdxeKufYC9Qwr58G5PJRAbwaM3X5C5D1pump",
+          "myT9rohG76nmQ9uPnnGiBA61jvSLoV1csrDUMWfpump",
+          "oHnNdDhd6YEE4TU9i6YHNjJkeTAQTnzVznGv3Edpump",
+          "ojzpe5qJXhN2JWwzj57wEvqmuiVy37aZuZfrQPCpump",
+          "p5HJBxcLPm2xR3jzdNkJtFkY8iqNixmYgevGwzkpump",
+          "qEFfQSVcvosEt47VczY1xsqB3YXsEW39MucAEnWpump",
+          "tw3ZTi9DNnjhdvPecDUcPoywBMC2DCsxgMtF4XFpump",
+          "vMag4KyyrahegKTDfPzR7oRUnaDZ88faicQBEh9pump",
+          "xACutJEAhmu4RaRJ8MxS3fcXUW5z1T4A6ao82Pppump",
+          "y9bx4XGNCGQhZaBGPuP6tjKq8cjnxyjmvFurigipump",
+          "zMyrnG4fYX9tPCvkEdnu56qtW6Nx45sPnfCZemZpump",
+          "zbSkawMqEPRzYFEEG1iGuuC1SB7gCtx3rLGHYknpump",
+          "zqt2G95SLtff7hGLohVV71YcHbGx49iFsPARqHdpump"
+        ],
+        "tier": "V2_TIER_3_ACTIVE_BASE"
+      },
+      {
+        "family_id": "p3r-v2-b43fe5cd33b138775e76",
+        "matching_members": [
+          "Fiw7B6u5XwdnxTfTYzX63deyiwpWdkqBqjjWjXSpump",
+          "M7A3PQFy7uKRUkwNf7YbkALi1dyQ7kjd8PmHj3Hpump",
+          "Vh2sB6qLyMBevQ2JUmPzPDnUjefqZG8CHUbKY6Gpump",
+          "bvJjwrxqvZSp7eW69BxFj4YSGniLFysNgPXrwqYpump",
+          "hv7RU5m4WahioRBqeaf3Jk7udMm19YGPaT24oxvpump",
+          "qgiXEYJD6mXjHqzJJksX1yjYtownjLXFHAtD7KApump",
+          "vTyCy4iNKXQAUFLDPa2m28XNZk1KxzA3FiG7FWrpump",
+          "vdTLLLpo3Ag5sRw8HFMEt6DpFV1VK9B5jeQfK3Kpump"
+        ],
+        "tier": "V2_WATCH_LATER"
+      }
+    ],
+    "observable_population": "all 220 frozen canonical families; retained high-water eligible evidence",
+    "reason": "The supplied 27-family comparator population is not reproduced by the frozen canonical selected-edge evidence. The locally reproducible exact predicate contains only the target family; retained alternative-edge evidence contains two families. No durable artifact or exact alternative predicate establishing the supplied 27-family population was recovered.",
+    "total_matching_families": 3,
+    "validity": "NOT_VALID_FOR_REQUESTED_27_FAMILY_COMPARISON"
+  },
+  "minimum_sufficient_signature": null,
+  "nearby_wsol_comparison": [
+    {
+      "classification": "DISTINCT_OPERATION",
+      "family_id": "p3r-v2-c357da9d0d4d560311e4",
+      "matches_minimum_signature": 0,
+      "member_count": 71,
+      "tier": "V2_TIER_3_ACTIVE_BASE"
+    },
+    {
+      "classification": "DISTINCT_OPERATION",
+      "family_id": "p3r-v2-063e24a2def354f23ec5",
+      "matches_minimum_signature": 0,
+      "member_count": 41,
+      "tier": "V2_TIER_3_ACTIVE_BASE"
+    },
+    {
+      "classification": "DISTINCT_OPERATION",
+      "family_id": "p3r-v2-9121fbe9e224ed2e42e8",
+      "matches_minimum_signature": 0,
+      "member_count": 44,
+      "tier": "V2_TIER_3_ACTIVE_BASE"
+    }
+  ],
+  "proposed_signature": null,
+  "provisional_operation_name": null,
+  "qualification_blocker": "AUTHORITATIVE_27_FAMILY_COMPARISON_POPULATION_NOT_RECOVERED",
+  "qualification_verdict": "900B_DISTINCTIVENESS_UNRESOLVED",
+  "recommended_next_bounded_action": "Recover the durable artifact or exact frozen predicate that produced the stated 27-family WATCH_NOW comparator population, then rerun the unchanged local distinctiveness closure against that recovered population.",
+  "role_pattern": {
+    "coverage": 1.0,
+    "derived_conditions": [
+      "atomic source equals retained direct funder",
+      "temporary account owner and authority equal source",
+      "close destination equals retained creator"
+    ],
+    "matching_members": [
+      "2ukFgVCgXrdijD6qcfV9CnSzGGENkrMFXCurvgUrpump",
+      "5Q2PmJe7fboykX94gJjYNfN5AgjXDcJDJqeuGUKApump",
+      "93Gwy6EzMK2CDJGpTzLAe4fs45GHCzoxbFQcsU6xpump",
+      "9HC9pchPikhAg5CuQxiUFexJe89G8MBfPw4Xx3DLpump",
+      "9NPivohgTPgvGRFf1zRJkWzRVvzfZQnx4C8SunPspump",
+      "APTsytnD32axqchnou37U1kfXUgUup8zXWzNigDgpump",
+      "BHRMJEu8h6xeNMGa5PNgZzNFkv2n7jGjLGPXcEKqpump",
+      "BWNBSgKZQfngaJvW3aKgdkLyJoMXRJGg6Ci8LBRpump",
+      "C9fC481nRToDRndwD8sXVQ2vcr5sSoP7iwHTnsYTpump",
+      "D1yb7MCFaFq29a2RfGgQ8KNdb3mzpyVJNmBpKfK2pump",
+      "DSBi4v66mQVDjLahQhYq3GsdCAPtQh6bg8BQLuWrpump",
+      "DzS6LmHZkTrQH1dm6KB1TZuaRGheX2vSS7EhZFQpump",
+      "GRzA6upWecidqUTqvNHUw3wvU57f67NksSKjQmYNpump",
+      "HFK4THn9RTapetqJfmqNsyMeKXk4QWBVWz7aF8Mhpump",
+      "HNP9RzTDLuUvDKXUWRiQTq8jrR1DSXGbb9TA6BZpump",
+      "LkGunuxTBzHKbX5b4nj6mhbAKP3qPjFgHaDotN7pump",
+      "NccxjFzp4wzSHskQWncatvaGJfGX3hpbvaosc9Mpump",
+      "UhoyBoAqgz5Ehmnmvo8EVfUzRkszhL592fi9fSwpump",
+      "Vc5sfpeuozdcPE8dw5eBrSSd4dufdk6vqbqCNibpump",
+      "WFrNrYnF4cabLY5qvZWtZ4SSC74UyVyS5q9hTG5pump",
+      "Wq2Gi2RFva9gtJBHdYF3vbbgqQJ1LCBLTikx7QRpump",
+      "WsiiQ5D1ZSVZQGR6xS63GH8NDEZWX1Ca4bMmc94pump",
+      "Wsuh6EaGf3x2Z5JnqeB14qcDP9MpQdXUZnsp2Udpump",
+      "YqTPAwoiCdKrwk8whUqSZsKBbjyCkexKvAjMnrPpump",
+      "a6x3wAFmCSr8sJn2PMNrCZ94jNXkhKS8oY2V2dopump",
+      "brbu7o1QRLwzisr17hp5vD4hTienxT3qRHSAu4Wpump",
+      "bwuf2oW5UzT6g1L8VUTfxkHYCRuLm9CnYk9ydfupump",
+      "ewmHUkHACmKkGpJMXxShFpNUQMoKmA7vVZadAfFpump",
+      "fYYPZ3tRBgHzk2dCGE45Ewkmg5gniDYwmstQS8Tpump",
+      "ihCMCGWTLYLBzfyBHQCVEZiFdVWwRXW8UPQGjMUpump",
+      "itD6Zu8wc5oYuCKfCJ7Ecdx6uSz4ePcx9PgWW8Ypump",
+      "maCqH3yPdxeKufYC9Qwr58G5PJRAbwaM3X5C5D1pump",
+      "myT9rohG76nmQ9uPnnGiBA61jvSLoV1csrDUMWfpump",
+      "oHnNdDhd6YEE4TU9i6YHNjJkeTAQTnzVznGv3Edpump",
+      "ojzpe5qJXhN2JWwzj57wEvqmuiVy37aZuZfrQPCpump",
+      "p5HJBxcLPm2xR3jzdNkJtFkY8iqNixmYgevGwzkpump",
+      "qEFfQSVcvosEt47VczY1xsqB3YXsEW39MucAEnWpump",
+      "tw3ZTi9DNnjhdvPecDUcPoywBMC2DCsxgMtF4XFpump",
+      "vMag4KyyrahegKTDfPzR7oRUnaDZ88faicQBEh9pump",
+      "xACutJEAhmu4RaRJ8MxS3fcXUW5z1T4A6ao82Pppump",
+      "y9bx4XGNCGQhZaBGPuP6tjKq8cjnxyjmvFurigipump",
+      "zMyrnG4fYX9tPCvkEdnu56qtW6Nx45sPnfCZemZpump",
+      "zbSkawMqEPRzYFEEG1iGuuC1SB7gCtx3rLGHYknpump",
+      "zqt2G95SLtff7hGLohVV71YcHbGx49iFsPARqHdpump"
+    ],
+    "pattern": "direct funder -> temporary WSOL account -> creator close destination"
+  },
+  "rpc_verdict": "RPC_NOT_REQUIRED",
+  "safety_confirmation": {
+    "fingerprint_or_threshold_mutation": false,
+    "membership_mutation": false,
+    "queue_replay": false,
+    "rpc_or_provider_calls": false,
+    "runtime_or_production_mutation": false,
+    "tier_mutation": false
+  },
+  "schema_version": "P3R_V2_900B_DISTINCTIVENESS_CLOSURE.v1",
+  "source_snapshot": {
+    "highwaters": {
+      "wt_walkback_atomic_flows": 7095,
+      "wt_walkback_edge_candidates": 60299,
+      "wt_walkback_queue": 32353
+    },
+    "read_only_source": true
+  },
+  "target": "p3r-v2-900b89587c6987d582df",
+  "target_atomic_decomposition": {
+    "broader_lifecycle_coverage": 1.0,
+    "coverage": 1.0,
+    "dominant_count": 126,
+    "dominant_sequence": [
+      "createAccountWithSeed",
+      "initializeAccount3",
+      "transfer",
+      "syncNative",
+      "closeAccount"
+    ],
+    "dominant_share": 0.8513513513513513,
+    "variants": [
+      {
+        "atomic_sequence": [
+          "createAccountWithSeed",
+          "initializeAccount3",
+          "transfer",
+          "syncNative",
+          "closeAccount"
+        ],
+        "classification": "SAME_OPERATIONAL_LIFECYCLE_DIFFERENT_ENCODING",
+        "close_account": true,
+        "close_destinations": {
+          "2Lab4LTHQQNWHTCqNdCy3sm19NBvTpHLjkMr5X9q2oak": 3,
+          "2cWN1ngM9ktRVupRMfiEM5dtZWEpbMrBfRuULwogoku7": 5,
+          "2mpe9faoocNbQZePg7jy11h5jwpTfwx88D1uZgwPiDNf": 4,
+          "3trZZBiJjWYuq2ssLkJLCfjwff7prWiFqm1x7UBie45Y": 4,
+          "4LUcoS2imfQ14t4dmH273d6FV7Lx16ihV1wdagEdYjmR": 1,
+          "4kdizgr55UFF3HNKuBgjzQ3Us6N3nAKCM9exGR7yg9oF": 5,
+          "5rk64muJjhMuc9yTvRDEjccBgBKNTzPCehMkAXaFMfCs": 4,
+          "63NMaF5dPN8CGSPzGTDp8VvKCGTj77xrLmRKhi5SLvov": 4,
+          "6d94pMGMxoWpgjVnPVsTPs2ZrypFG9FUWfHD25txpzhi": 4,
+          "7AFAYsUCdbj9SCxSBgMn8XN6dLYMMqu5fJD3KMtgxAw7": 4,
+          "8DYSbFxVg8zVox6TjrR5aaitv8y5xLH5GtXdxAUjRKc2": 4,
+          "8zcpfPzwTcjY9BU63HRnXXjh1Bqg8pcYPhpSWdJ25Uay": 4,
+          "9tcE3GE5wmxGTxtssiwhQpL9P2AAvu5LEUgSzV2DqYtS": 4,
+          "AKTpFS9Gmqagu3oREP68Q3KpaPMfxabbYCvRerQXbX5e": 4,
+          "AkLcCEej82Cd3HUB4KrAKENBhrKb43U11CynZtDi72pL": 4,
+          "BRAkNDumhiPfhXh67gLsh4a6eWUuxkhexcv21SD8jKks": 4,
+          "CoTUQRiN7xgG2rHgXKJgWXivsd6ryZFSYHkC451RHCJd": 4,
+          "D96eDj9Ey1qv8gGFcdig4jSyL7irKFAonfRGo3WM3HDh": 4,
+          "DBPAhwePAgbHvjomGGrWcR37TVaWY5FfMkfFuV9tj7C2": 4,
+          "DfHi81NJDDEf6G94VcXkjE6WtYXig6CsMf11JPTQxs2z": 5,
+          "DsKfy17yqjeAtVaZuZHTaB3dd5aEWCWLe9BVd44jCv4G": 4,
+          "DvpKMF5WJPozMqLQQAX4fKtSowQ3csJDq96u6VJ2KBbH": 4,
+          "F9jkv51Q29TF94rSmVNddXHvYHjUUMDbhYNoRXZAGKXn": 5,
+          "FVpwgEoHsdwaUp9cK2AGnAzStA75FYFonzf1L65wBDDY": 4,
+          "Fa2Uu48FuKgKVdtWLoDKQAXTzzubABamegMXhJbe1dYo": 5,
+          "FaXvPsLU4VDnpA6GYaKzWATSirKecKJKtPshNTF5ZyHd": 4,
+          "Fo86vK2eT85S4YFRg3MGK9nog2meb6ZVecWNZh8aQuoB": 4,
+          "GBcUwcb5bDMPmgGvRsga1SfVMuHbETrk6uTYJdsM5ERp": 4,
+          "GaaJR7AtKUzkTTwt9nBDncXuaW2wxSb1XKpb8cWDnZNr": 4,
+          "HSvt8XpvHwTKhkTapsnkkrp5uUZPzxcCmHYVnAxXb42u": 4,
+          "HfRAJKKdoDkjyqzuk5VKz9cj1N5tMdwfJ2NoTZm4eedn": 5
+        },
+        "count": 126,
+        "initialization_method": "initializeAccount3",
+        "owners": {
+          "31ATTcokbbrHAaQLz5JEku4ERKgC86aw9iG2oZVYJYH7": 3,
+          "3D6SdtrhB5WyRbaxCXVqbAJUYpSQcWKtyo8xtjZZvqj6": 6,
+          "3Lqfv7P5BSBZbeNrV8riR81FBdiAN5J6tfkc99mWoVxW": 3,
+          "3yHmuLdvP5ffJBpNeDvu1SCVJqujb33VdMeQbm837Uuy": 2,
+          "4wZqEsQmVzmfKBGAn3N3AB382oRBULtjJtZtZ4jAypRN": 17,
+          "5YJkZrwNVtrjQjuKStFNfuavWNZ2GdDsK3rW8m6dzq45": 7,
+          "5i5LBDz9ExqceEeDSrU5dgASxR9th9o2knFFgX8wpKye": 1,
+          "6sSFfF9dtpSTx4CgK5XfN7uVxKd6or9sBvvcnPRK76xq": 17,
+          "71ptwE72WhnoAnpPw73RTr8bz5E9PraUyWkXhyhAkNrC": 17,
+          "7KLXEAm8YQZWcEavHqrPdraQs93LqnemzZiTXUSM4cuV": 6,
+          "7kyysBXmXhHNpuhoHoJ2qEjSCiShA7EjdD9z8C1mrYHo": 7,
+          "8Dy3qwbHjZa2mNRGYw8a19JCCtkQVhHFUAVth5XiZ4F4": 1,
+          "9P4vzm8kb83nLiGxNKeDX8kxNeNtwRMuLiyJnVVqwQGd": 1,
+          "9W9FHM51zUZZoTdbFURCgN5iK4WZDSmBKziG7XP2EZS1": 16,
+          "9q8vDCnnnbhK38fpSuowbRbpEb2qZnSSHtQoaU9uZKDK": 3,
+          "AQiB8cPxuoXMeVRPNZygXED68VVXj4awgJ6gzz4WHazn": 2,
+          "C9WLfmaTPXs1vuyuHFHfu7yqWvM8KDoo5SrcADzDjNjY": 1,
+          "DEFj7wS5Ry6yxL1sDn7bsCNb8FCc7jtHbNGktcgVse74": 7,
+          "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB": 1,
+          "Ei1pkSwx6YHAkfixVbiUjEV35D3mPjvzsbqF1L3T25W8": 1,
+          "EuDm4G8PpasRjFQ7f7xzo3zAe4WrBi74fhV446FYPB34": 2,
+          "GHDVSqV5TAXXgHUWpFgAeTuuvQ91ixkXDjPYyeYjaTKh": 3,
+          "HAYJaeDjXuKk7j7TZUHgD9mZxGeKcxSenEfyHmo9Cypw": 2
+        },
+        "share": 0.8513513513513513,
+        "signers": {
+          "31ATTcokbbrHAaQLz5JEku4ERKgC86aw9iG2oZVYJYH7": 3,
+          "3D6SdtrhB5WyRbaxCXVqbAJUYpSQcWKtyo8xtjZZvqj6": 6,
+          "3Lqfv7P5BSBZbeNrV8riR81FBdiAN5J6tfkc99mWoVxW": 3,
+          "3yHmuLdvP5ffJBpNeDvu1SCVJqujb33VdMeQbm837Uuy": 2,
+          "4wZqEsQmVzmfKBGAn3N3AB382oRBULtjJtZtZ4jAypRN": 17,
+          "5YJkZrwNVtrjQjuKStFNfuavWNZ2GdDsK3rW8m6dzq45": 7,
+          "5i5LBDz9ExqceEeDSrU5dgASxR9th9o2knFFgX8wpKye": 1,
+          "6sSFfF9dtpSTx4CgK5XfN7uVxKd6or9sBvvcnPRK76xq": 17,
+          "71ptwE72WhnoAnpPw73RTr8bz5E9PraUyWkXhyhAkNrC": 17,
+          "7KLXEAm8YQZWcEavHqrPdraQs93LqnemzZiTXUSM4cuV": 6,
+          "7kyysBXmXhHNpuhoHoJ2qEjSCiShA7EjdD9z8C1mrYHo": 7,
+          "8Dy3qwbHjZa2mNRGYw8a19JCCtkQVhHFUAVth5XiZ4F4": 1,
+          "9P4vzm8kb83nLiGxNKeDX8kxNeNtwRMuLiyJnVVqwQGd": 1,
+          "9W9FHM51zUZZoTdbFURCgN5iK4WZDSmBKziG7XP2EZS1": 16,
+          "9q8vDCnnnbhK38fpSuowbRbpEb2qZnSSHtQoaU9uZKDK": 3,
+          "AQiB8cPxuoXMeVRPNZygXED68VVXj4awgJ6gzz4WHazn": 2,
+          "C9WLfmaTPXs1vuyuHFHfu7yqWvM8KDoo5SrcADzDjNjY": 1,
+          "DEFj7wS5Ry6yxL1sDn7bsCNb8FCc7jtHbNGktcgVse74": 7,
+          "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB": 1,
+          "Ei1pkSwx6YHAkfixVbiUjEV35D3mPjvzsbqF1L3T25W8": 1,
+          "EuDm4G8PpasRjFQ7f7xzo3zAe4WrBi74fhV446FYPB34": 2,
+          "GHDVSqV5TAXXgHUWpFgAeTuuvQ91ixkXDjPYyeYjaTKh": 3,
+          "HAYJaeDjXuKk7j7TZUHgD9mZxGeKcxSenEfyHmo9Cypw": 2
+        },
+        "sync_native": true,
+        "temporary_account_creation_method": "createAccountWithSeed",
+        "transfer_form": "transfer"
+      },
+      {
+        "atomic_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "classification": "SAME_OPERATIONAL_LIFECYCLE_DIFFERENT_ENCODING",
+        "close_account": true,
+        "close_destinations": {
+          "2hHqto7NnDDHnR4ie5QqMgT5mnaAh5RvMAwuezsc2y2M": 1,
+          "2rMLD1Vh5JiRtGxF68Y6wQXPbEdE851gtGjcXsuTycm7": 2,
+          "4M47u8mQT27FxgeMVsCct7b3KQJX4rxXUrN2V4W6yTgX": 1,
+          "6H3SC9jHqY815XdFn9snZhHRssWYS1kiVK8ULGmwqzC3": 1,
+          "7mqnp6cYq2dd5M3rYiL87Ad88gnp8aChdBJu7gKNv34n": 2,
+          "AQYyELJQDFiGubZsSwSbxLNrxYgFD2kD5RwgnVnpoj3Z": 2,
+          "AfZBva22bAcjZv6wowVcJJsj9aNcf39qjp7576SERMLr": 1,
+          "DJrfEywDMdTzuuC7LuiMspZakVF5qmnD2pHC9uJLiSyW": 1,
+          "E83iUWNBtrEVg9qC4aF5XcexwAWvvKvnRVQHnTnMCN9Y": 2,
+          "G2DxNnTRTG8Tq58PFwtQyuwsgTFaAh1FEmYudTmjsobK": 2,
+          "H5A9SWZo6LfZ8byxUPjPFMZTVLeAL1fXu8kEtF9VBfUK": 1,
+          "J3yZQYJECzT3PD9BpzQzSM4FKENrDeVSCtmxdFSNThMy": 1,
+          "JDyCGoUmX8cDdMUi41mR3gUqPEwRzpWgLzerbybYNotZ": 1
+        },
+        "count": 18,
+        "initialization_method": "initializeAccount",
+        "owners": {
+          "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY": 18
+        },
+        "share": 0.12162162162162163,
+        "signers": {
+          "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY": 18
+        },
+        "sync_native": true,
+        "temporary_account_creation_method": null,
+        "transfer_form": null
+      },
+      {
+        "atomic_sequence": [
+          "createIdempotent",
+          "closeAccount",
+          "transfer",
+          "getAccountDataSize",
+          "createAccount",
+          "initializeImmutableOwner",
+          "initializeAccount3",
+          "transferChecked"
+        ],
+        "classification": "AMBIGUOUS",
+        "close_account": true,
+        "close_destinations": {
+          "2hHqto7NnDDHnR4ie5QqMgT5mnaAh5RvMAwuezsc2y2M": 1,
+          "7mqnp6cYq2dd5M3rYiL87Ad88gnp8aChdBJu7gKNv34n": 1,
+          "AQYyELJQDFiGubZsSwSbxLNrxYgFD2kD5RwgnVnpoj3Z": 1
+        },
+        "count": 3,
+        "initialization_method": "initializeImmutableOwner",
+        "owners": {
+          "2hHqto7NnDDHnR4ie5QqMgT5mnaAh5RvMAwuezsc2y2M": 1,
+          "7mqnp6cYq2dd5M3rYiL87Ad88gnp8aChdBJu7gKNv34n": 1,
+          "AQYyELJQDFiGubZsSwSbxLNrxYgFD2kD5RwgnVnpoj3Z": 1
+        },
+        "share": 0.02027027027027027,
+        "signers": {
+          "2hHqto7NnDDHnR4ie5QqMgT5mnaAh5RvMAwuezsc2y2M": 1,
+          "7mqnp6cYq2dd5M3rYiL87Ad88gnp8aChdBJu7gKNv34n": 1,
+          "AQYyELJQDFiGubZsSwSbxLNrxYgFD2kD5RwgnVnpoj3Z": 1
+        },
+        "sync_native": false,
+        "temporary_account_creation_method": null,
+        "transfer_form": "transfer"
+      },
+      {
+        "atomic_sequence": [
+          "createIdempotent",
+          "closeAccount",
+          "getAccountDataSize",
+          "createAccount",
+          "initializeImmutableOwner",
+          "initializeAccount3",
+          "transferChecked"
+        ],
+        "classification": "AMBIGUOUS",
+        "close_account": true,
+        "close_destinations": {
+          "J3yZQYJECzT3PD9BpzQzSM4FKENrDeVSCtmxdFSNThMy": 1
+        },
+        "count": 1,
+        "initialization_method": "initializeImmutableOwner",
+        "owners": {
+          "J3yZQYJECzT3PD9BpzQzSM4FKENrDeVSCtmxdFSNThMy": 1
+        },
+        "share": 0.006756756756756757,
+        "signers": {
+          "J3yZQYJECzT3PD9BpzQzSM4FKENrDeVSCtmxdFSNThMy": 1
+        },
+        "sync_native": false,
+        "temporary_account_creation_method": null,
+        "transfer_form": null
+      }
+    ]
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5E-R1 -- immutable May segment repair execution",
+  "timestamp_utc": "2026-08-21T10:50:00Z",
+  "repair_result_artifact": "/tmp/storage_p5a/p5e_r1_repair_result.json",
+  "post_repair_verification_artifact": "/tmp/storage_p5a/p5e_r1_post_repair_verify.json",
+  "integrity_gate": "P5E_R1_INTEGRITY_GATE_SATISFIED_WITH_HARNESS_LIMITATION",
+  "base_repair": {
+    "active_path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2026_05.sqlite",
+    "forensic_quarantine_path": "database/_p5a_migration_build/cold_segments/_p5e_r1_work/transfer_index_cold_2026_05.incident_mutated.sqlite",
+    "method": "hard-link forensic quarantine followed by atomic os.replace of the verified reconstruction",
+    "row_count": 319318,
+    "integrity_check": "ok",
+    "digest": "448cf42d9b47886e4676d57e292fa0202a4780a4cf29084cb596ac64691fb7d0"
+  },
+  "immutable_delta": {
+    "segment_id": "transfer_index_cold_2026_05_delta_bfbfb2121047",
+    "path": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2026_05_delta_bfbfb2121047.sqlite",
+    "source_run_id": "p5e-r1-20260821-433-immutable-repair",
+    "segment_kind": "DELTA",
+    "parent_segment_id": "transfer_index_cold_2026_05",
+    "row_count": 433,
+    "integrity_check": "ok",
+    "digest": "7ee95dae8dc3b3553a5dfb49f684a8a3c181c2cb2072dc4e0853d21a9e17ce85",
+    "summary": "built and digest-bound verified"
+  },
+  "parity_and_idempotence": {
+    "base_plus_delta_full_identity_parity": "PASS -- 319751/319751 identities equal forensic incident file",
+    "combined_sorted_signature_digest": "PASS -- 773d09b3679428660c7fb4ab319101c23c7894e1ffcf20e8167ad983f2ee6fb2",
+    "identity_overlap_base_delta": 0,
+    "registry_qualification": "PASS",
+    "production_reader_cold_only_lookup": "PASS -- one known COLD-only row",
+    "closed_delta_idempotence_guard": "PASS -- closed delta rejected a create attempt without mtime change"
+  },
+  "protected_store_readback": {
+    "method": "bounded read-only SELECT COUNT(*) and SELECT 1; repair process did not open either store for writing",
+    "watchtower": {"database": "database/wt_ops_v2.db", "table": "operator_entities", "row_count": 70, "select_one": 1},
+    "three_sw2": {"database": "database/evidence_platform/three_sw2_shadow_ep3_2a/evidence.db", "table": "primitive_observations", "row_count": 858, "select_one": 1}
+  },
+  "prohibited_actions": {
+    "hot_rows_deleted": 0,
+    "hot_retirement": false,
+    "services_restarted": false,
+    "rollback_db_modified": false
+  },
+  "terminal_verdict": "READY_P5E_FIRST_LIVE_RETIREMENT_RETRY",
+  "exact_next_action": "A first live HOT retirement retry remains separately human-gated. It may copy only eligible rows under the fixed composite identity rule and must not retire any HOT row without fresh explicit authorization."
+}

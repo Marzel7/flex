@@ -1,0 +1,21 @@
+{
+  "schema_version": "generic_living_lineage_real_migration.v1",
+  "qualification_artifact": {"path": "docs/audits/generic_living_lineage_metadata_qualification.v1.json", "sha256": "46ba330c9fbf6152aa1252443a90af603018a77263c6364550a7399d89259a1c", "verified": true},
+  "real_db_path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+  "sql_classification": {"potential_operation_assessment_lineage": "NEW_TABLE_CREATE", "potential_operation_assessment_association_binding": "NEW_TABLE_CREATE", "ix_poa_lineage_operation": "NEW_INDEX_CREATE", "non_additive_statements": 0},
+  "migration_committed": true,
+  "migration_duration_seconds": 0.019792,
+  "pre_and_post_global_counts": {"identity": 2, "association": 183, "assessment": 5, "current": 2},
+  "lineage_rows": 0,
+  "association_binding_rows": 0,
+  "existing_living_state_unchanged": true,
+  "focused_tests": "python -m pytest -q tests/test_generic_living_pipeline_v2.py: 9 passed",
+  "real_db_changed_during_tests": false,
+  "lineage_backfill": false,
+  "active_generic_cutover": false,
+  "generic_assessment_publication": false,
+  "automatic_global_walkback_integration": false,
+  "promotion": false,
+  "detector_changes": false,
+  "verdict": "GENERIC_LIVING_LINEAGE_REAL_MIGRATION_COMPLETE_EMPTY_AND_INERT"
+}

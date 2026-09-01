@@ -1,0 +1,1936 @@
+{
+  "candidate_count": 62,
+  "collision_groups": [],
+  "current_24h": {
+    "by_candidate": {
+      "p3r-v2-3af3f42197d1681c6933": 1,
+      "p3r-v2-53e48b44fcc08bf9d29b": 1,
+      "p3r-v2-6437acd385e566e301a7": 16,
+      "p3r-v2-654b6bcf35e1d5a4ad8b": 1,
+      "p3r-v2-6f7738e9702395ba8ad3": 10,
+      "p3r-v2-711c64846cb08429936f": 1,
+      "p3r-v2-900b89587c6987d582df": 2,
+      "p3r-v2-a026d58c103a32233b3d": 1,
+      "p3r-v2-b55dad3b9958cfb69cbc": 1,
+      "p3r-v2-b6dd1a66d2211681e8d0": 1,
+      "p3r-v2-be7fa4d6954d52d60bd3": 2,
+      "p3r-v2-c357da9d0d4d560311e4": 14,
+      "p3r-v2-d441fde74eef19f00f5b": 1,
+      "p3r-v2-dc4953db7adb853337c4": 1,
+      "p3r-v2-e6462dd56f2e695fcb6c": 2,
+      "p3r-v2-e88e260d301257b3b8e0": 1,
+      "p3r-v2-ecf7d68639b67310be42": 2
+    },
+    "coverage_percent": 9.523809523809524,
+    "multi": 0,
+    "no_match": 551,
+    "total": 609,
+    "unique": 58,
+    "with_matcher_inputs": 599
+  },
+  "definition_inventory": [
+    {
+      "candidate_id": "P3R_063E_B65C_LEGACY",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "NO_MATCH_DEFINITION",
+      "member_mints": 0,
+      "mode_coverage": 0,
+      "signature": []
+    },
+    {
+      "candidate_id": "p3r-v2-03db4da5752899df4cfe",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 27,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "WSOL_WRAP_CLOSE",
+          1000000000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-067dc9bbc54650d49ee0",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 7,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          29999975000
+        ],
+        [
+          2,
+          "WSOL_WRAP_CLOSE",
+          29999980000
+        ],
+        [
+          3,
+          "PLAIN_XFER",
+          29999985000
+        ],
+        [
+          4,
+          "WSOL_WRAP_CLOSE",
+          29999990000
+        ],
+        [
+          5,
+          "WSOL_WRAP_CLOSE",
+          14479000
+        ],
+        [
+          6,
+          "WSOL_WRAP_CLOSE",
+          2074000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-073c6d6b539829776a7e",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 8,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          100000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-08842a46a1f5b44e9790",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 6,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          200000000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-0d71bea4eaa5a67ffb47",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 6,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          9999935000
+        ],
+        [
+          2,
+          "WSOL_WRAP_CLOSE",
+          9999940000
+        ],
+        [
+          3,
+          "PLAIN_XFER",
+          9999945000
+        ],
+        [
+          4,
+          "WSOL_WRAP_CLOSE",
+          9999950000
+        ],
+        [
+          5,
+          "PLAIN_XFER",
+          9999955000
+        ],
+        [
+          6,
+          "WSOL_WRAP_CLOSE",
+          9999960000
+        ],
+        [
+          7,
+          "PLAIN_XFER",
+          9999965000
+        ],
+        [
+          8,
+          "WSOL_WRAP_CLOSE",
+          9999970000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-1f6727de9b454636f25d",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 10,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          9999955000
+        ],
+        [
+          2,
+          "WSOL_WRAP_CLOSE",
+          9999960000
+        ],
+        [
+          3,
+          "PLAIN_XFER",
+          9999965000
+        ],
+        [
+          4,
+          "WSOL_WRAP_CLOSE",
+          9999970000
+        ],
+        [
+          5,
+          "PLAIN_XFER",
+          9999975000
+        ],
+        [
+          6,
+          "WSOL_WRAP_CLOSE",
+          9999980000
+        ],
+        [
+          7,
+          "PLAIN_XFER",
+          9999985000
+        ],
+        [
+          8,
+          "WSOL_WRAP_CLOSE",
+          9999990000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-1fca884a1f8d8329eb33",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 5,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "WSOL_WRAP_CLOSE",
+          2122039000
+        ],
+        [
+          2,
+          "PLAIN_XFER",
+          650000000000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-20f7d4056f9a44e9304d",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 12,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "WSOL_WRAP_CLOSE",
+          2122039000
+        ],
+        [
+          2,
+          "PLAIN_XFER",
+          1000000000000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-22703d3753f9c6df48b0",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 13,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "WSOL_WRAP_CLOSE",
+          203039000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-2a99f24a0cbd1b1906e8",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 16,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          110864000
+        ],
+        [
+          2,
+          "PLAIN_XFER",
+          27717000
+        ],
+        [
+          3,
+          "PLAIN_XFER",
+          27718000
+        ],
+        [
+          4,
+          "PLAIN_XFER",
+          27720000
+        ],
+        [
+          5,
+          "PLAIN_XFER",
+          110884000
+        ],
+        [
+          6,
+          "PLAIN_XFER",
+          55443000
+        ],
+        [
+          7,
+          "PLAIN_XFER",
+          55448000
+        ],
+        [
+          8,
+          "PLAIN_XFER",
+          55453000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-2ec628744afcb6c23007",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 6,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          4999925000
+        ],
+        [
+          2,
+          "WSOL_WRAP_CLOSE",
+          4999930000
+        ],
+        [
+          3,
+          "PLAIN_XFER",
+          4999935000
+        ],
+        [
+          4,
+          "WSOL_WRAP_CLOSE",
+          4999940000
+        ],
+        [
+          5,
+          "PLAIN_XFER",
+          4999945000
+        ],
+        [
+          6,
+          "WSOL_WRAP_CLOSE",
+          4999950000
+        ],
+        [
+          7,
+          "PLAIN_XFER",
+          4999955000
+        ],
+        [
+          8,
+          "WSOL_WRAP_CLOSE",
+          4999960000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-32aa0d5125ef777cfd1e",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 33,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "WSOL_WRAP_CLOSE",
+          607039000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-32ed99f7595a2a46fe71",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 10,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "WSOL_WRAP_CLOSE",
+          148000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-3769f52ee84b9ee34c09",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 26,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "WSOL_WRAP_CLOSE",
+          2069000
+        ],
+        [
+          2,
+          "WSOL_WRAP_CLOSE",
+          2074000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-3af3f42197d1681c6933",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 30,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          1000000000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-4b5f957111bcd255e12d",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 5,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          25000000000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-53e48b44fcc08bf9d29b",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 30,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "WSOL_WRAP_CLOSE",
+          2122039000
+        ],
+        [
+          2,
+          "PLAIN_XFER",
+          700000000000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-56003df78c4783df67e7",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 7,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          4999945000
+        ],
+        [
+          2,
+          "WSOL_WRAP_CLOSE",
+          4999950000
+        ],
+        [
+          3,
+          "PLAIN_XFER",
+          4999955000
+        ],
+        [
+          4,
+          "WSOL_WRAP_CLOSE",
+          4999960000
+        ],
+        [
+          5,
+          "PLAIN_XFER",
+          4999965000
+        ],
+        [
+          6,
+          "WSOL_WRAP_CLOSE",
+          4999970000
+        ],
+        [
+          7,
+          "PLAIN_XFER",
+          4999975000
+        ],
+        [
+          8,
+          "WSOL_WRAP_CLOSE",
+          4999980000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-56fb2e33e3bc61766551",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 8,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          200000000000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-5a23bde39497a50696cf",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 94,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "WSOL_WRAP_CLOSE",
+          1112039000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-5d61141f96fd1493acf1",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 12,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          150000000000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-5e897ac3fce9452dab26",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 5,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          4999935000
+        ],
+        [
+          2,
+          "WSOL_WRAP_CLOSE",
+          4999940000
+        ],
+        [
+          3,
+          "PLAIN_XFER",
+          4999945000
+        ],
+        [
+          4,
+          "WSOL_WRAP_CLOSE",
+          4999950000
+        ],
+        [
+          5,
+          "PLAIN_XFER",
+          4999955000
+        ],
+        [
+          6,
+          "WSOL_WRAP_CLOSE",
+          4999960000
+        ],
+        [
+          7,
+          "PLAIN_XFER",
+          4999965000
+        ],
+        [
+          8,
+          "WSOL_WRAP_CLOSE",
+          4999970000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-6437acd385e566e301a7",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 53,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          10000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-654b6bcf35e1d5a4ad8b",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 12,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          951276000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-6e48109132b69890bd6b",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 18,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "WSOL_WRAP_CLOSE",
+          112139000
+        ],
+        [
+          2,
+          "PLAIN_XFER",
+          700000000000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-6f7738e9702395ba8ad3",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 82,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          1000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-70a238399aebef5b72dd",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 36,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          0
+        ],
+        [
+          2,
+          "PLAIN_XFER",
+          22836000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-70c8d3a711cb5b34c795",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 8,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "WSOL_WRAP_CLOSE",
+          123039000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-711c64846cb08429936f",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 28,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          951155000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-7a791b87d44687dbf407",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 4,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          9999985000
+        ],
+        [
+          2,
+          "WSOL_WRAP_CLOSE",
+          9999990000
+        ],
+        [
+          3,
+          "WSOL_WRAP_CLOSE",
+          14479000
+        ],
+        [
+          4,
+          "WSOL_WRAP_CLOSE",
+          2074000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-8094ac7ee7989318639b",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 20,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "WSOL_WRAP_CLOSE",
+          1000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-84551ddfa7b82847ba0f",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 3,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          19999985000
+        ],
+        [
+          2,
+          "WSOL_WRAP_CLOSE",
+          19999990000
+        ],
+        [
+          3,
+          "WSOL_WRAP_CLOSE",
+          14479000
+        ],
+        [
+          4,
+          "WSOL_WRAP_CLOSE",
+          2074000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-8b51ef3055e63a4122ea",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 8,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          9999965000
+        ],
+        [
+          2,
+          "WSOL_WRAP_CLOSE",
+          9999970000
+        ],
+        [
+          3,
+          "PLAIN_XFER",
+          9999975000
+        ],
+        [
+          4,
+          "WSOL_WRAP_CLOSE",
+          9999980000
+        ],
+        [
+          5,
+          "PLAIN_XFER",
+          9999985000
+        ],
+        [
+          6,
+          "WSOL_WRAP_CLOSE",
+          9999990000
+        ],
+        [
+          7,
+          "WSOL_WRAP_CLOSE",
+          14479000
+        ],
+        [
+          8,
+          "WSOL_WRAP_CLOSE",
+          2074000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-8f3e805e1c94eabe77d4",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 17,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          80001000
+        ],
+        [
+          2,
+          "PLAIN_XFER",
+          20001000
+        ],
+        [
+          3,
+          "PLAIN_XFER",
+          20003000
+        ],
+        [
+          4,
+          "PLAIN_XFER",
+          20004000
+        ],
+        [
+          5,
+          "PLAIN_XFER",
+          80021000
+        ],
+        [
+          6,
+          "PLAIN_XFER",
+          40011000
+        ],
+        [
+          7,
+          "PLAIN_XFER",
+          40016000
+        ],
+        [
+          8,
+          "PLAIN_XFER",
+          40021000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-900b89587c6987d582df",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 44,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "WSOL_WRAP_CLOSE",
+          999985000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-9121fbe9e224ed2e42e8",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 44,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "WSOL_WRAP_CLOSE",
+          2122039000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-a026d58c103a32233b3d",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 41,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          99999995000
+        ],
+        [
+          2,
+          "WSOL_WRAP_CLOSE",
+          100000000000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-b55dad3b9958cfb69cbc",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 42,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          90000000000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-b6dd1a66d2211681e8d0",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 15,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          174400000
+        ],
+        [
+          2,
+          "PLAIN_XFER",
+          43601000
+        ],
+        [
+          3,
+          "PLAIN_XFER",
+          43602000
+        ],
+        [
+          4,
+          "PLAIN_XFER",
+          43604000
+        ],
+        [
+          5,
+          "PLAIN_XFER",
+          174420000
+        ],
+        [
+          6,
+          "PLAIN_XFER",
+          87211000
+        ],
+        [
+          7,
+          "PLAIN_XFER",
+          87216000
+        ],
+        [
+          8,
+          "PLAIN_XFER",
+          87221000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-bbe80289e6b889103a94",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 9,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "WSOL_WRAP_CLOSE",
+          4105000
+        ],
+        [
+          2,
+          "WSOL_WRAP_CLOSE",
+          2074000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-be7fa4d6954d52d60bd3",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 12,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "WSOL_WRAP_CLOSE",
+          100000000000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-c357da9d0d4d560311e4",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 71,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "WSOL_WRAP_CLOSE",
+          99999985000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-d305f6271ab7d64321d7",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 8,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          20001000
+        ],
+        [
+          2,
+          "PLAIN_XFER",
+          5001000
+        ],
+        [
+          3,
+          "PLAIN_XFER",
+          5003000
+        ],
+        [
+          4,
+          "PLAIN_XFER",
+          5004000
+        ],
+        [
+          5,
+          "PLAIN_XFER",
+          20021000
+        ],
+        [
+          6,
+          "PLAIN_XFER",
+          10011000
+        ],
+        [
+          7,
+          "PLAIN_XFER",
+          10016000
+        ],
+        [
+          8,
+          "PLAIN_XFER",
+          10021000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-d441fde74eef19f00f5b",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 11,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          2000000000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-d6919b6f33dd87174456",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 12,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          10000
+        ],
+        [
+          2,
+          "PLAIN_XFER",
+          2000000
+        ],
+        [
+          3,
+          "PLAIN_XFER",
+          1995000
+        ],
+        [
+          4,
+          "PLAIN_XFER",
+          2000000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-d94eaea53c788cd520bc",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 11,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "WSOL_WRAP_CLOSE",
+          2074000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-dc4953db7adb853337c4",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 27,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          49719000
+        ],
+        [
+          2,
+          "PLAIN_XFER",
+          12431000
+        ],
+        [
+          3,
+          "PLAIN_XFER",
+          12432000
+        ],
+        [
+          4,
+          "PLAIN_XFER",
+          12433000
+        ],
+        [
+          5,
+          "PLAIN_XFER",
+          49739000
+        ],
+        [
+          6,
+          "PLAIN_XFER",
+          24870000
+        ],
+        [
+          7,
+          "PLAIN_XFER",
+          24875000
+        ],
+        [
+          8,
+          "PLAIN_XFER",
+          24880000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-dcc7e137eebfbc0afa58",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 6,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          891000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-dd92327f72519e579ca6",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 10,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "WSOL_WRAP_CLOSE",
+          1112039000
+        ],
+        [
+          2,
+          "PLAIN_XFER",
+          650000000000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-e216132639f1adcc3e6c",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 23,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          9999945000
+        ],
+        [
+          2,
+          "WSOL_WRAP_CLOSE",
+          9999950000
+        ],
+        [
+          3,
+          "PLAIN_XFER",
+          9999955000
+        ],
+        [
+          4,
+          "WSOL_WRAP_CLOSE",
+          9999960000
+        ],
+        [
+          5,
+          "PLAIN_XFER",
+          9999965000
+        ],
+        [
+          6,
+          "WSOL_WRAP_CLOSE",
+          9999970000
+        ],
+        [
+          7,
+          "PLAIN_XFER",
+          9999975000
+        ],
+        [
+          8,
+          "WSOL_WRAP_CLOSE",
+          9999980000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-e4e8184c063efd245ae2",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 5,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "WSOL_WRAP_CLOSE",
+          123039000
+        ],
+        [
+          2,
+          "PLAIN_XFER",
+          1000000000000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-e6462dd56f2e695fcb6c",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 65,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "WSOL_WRAP_CLOSE",
+          2039000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-e8186e82444a13d718d6",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "AMBIGUOUS_SIGNATURE",
+      "member_mints": 6,
+      "mode_coverage": 0.8333333333333334,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          100000
+        ],
+        [
+          2,
+          "PLAIN_XFER",
+          2000000
+        ],
+        [
+          3,
+          "PLAIN_XFER",
+          1890000
+        ],
+        [
+          4,
+          "PLAIN_XFER",
+          2000000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-e84bbea930130be3208b",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 9,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          99999995000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-e88e260d301257b3b8e0",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 5,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          80001000
+        ],
+        [
+          2,
+          "PLAIN_XFER",
+          20002000
+        ],
+        [
+          3,
+          "PLAIN_XFER",
+          20003000
+        ],
+        [
+          4,
+          "PLAIN_XFER",
+          20004000
+        ],
+        [
+          5,
+          "PLAIN_XFER",
+          80021000
+        ],
+        [
+          6,
+          "PLAIN_XFER",
+          40011000
+        ],
+        [
+          7,
+          "PLAIN_XFER",
+          40016000
+        ],
+        [
+          8,
+          "PLAIN_XFER",
+          40021000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-ea4f673412819493513f",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 8,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "WSOL_WRAP_CLOSE",
+          5000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-ecf7d68639b67310be42",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 18,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          50000000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-eecac338295fc52242dc",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 30,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          100000000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-eee8d016af070a17af02",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 53,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          100000000000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-f35489c6284c60873835",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "DERIVABLE_CANONICAL_SIGNATURE",
+      "member_mints": 31,
+      "mode_coverage": 1.0,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          10000000000
+        ]
+      ]
+    },
+    {
+      "candidate_id": "p3r-v2-fd279eef1235edd96ba5",
+      "definition_source": "frozen member selected-route evidence",
+      "definition_type": "AMBIGUOUS_SIGNATURE",
+      "member_mints": 8,
+      "mode_coverage": 0.875,
+      "signature": [
+        [
+          1,
+          "PLAIN_XFER",
+          100000
+        ],
+        [
+          2,
+          "PLAIN_XFER",
+          2000000
+        ],
+        [
+          3,
+          "PLAIN_XFER",
+          1995000
+        ],
+        [
+          4,
+          "PLAIN_XFER",
+          2000000
+        ]
+      ]
+    }
+  ],
+  "eight_hop_matcher_status": "MATCHER_QUALIFIED",
+  "historical_replay": [
+    {
+      "candidate_id": "p3r-v2-03db4da5752899df4cfe",
+      "members": 27,
+      "misses": 0,
+      "recovered": 27,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-067dc9bbc54650d49ee0",
+      "members": 7,
+      "misses": 0,
+      "recovered": 7,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-073c6d6b539829776a7e",
+      "members": 8,
+      "misses": 0,
+      "recovered": 8,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-08842a46a1f5b44e9790",
+      "members": 6,
+      "misses": 0,
+      "recovered": 6,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-0d71bea4eaa5a67ffb47",
+      "members": 6,
+      "misses": 0,
+      "recovered": 6,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-1f6727de9b454636f25d",
+      "members": 10,
+      "misses": 0,
+      "recovered": 10,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-1fca884a1f8d8329eb33",
+      "members": 5,
+      "misses": 0,
+      "recovered": 5,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-20f7d4056f9a44e9304d",
+      "members": 12,
+      "misses": 0,
+      "recovered": 12,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-22703d3753f9c6df48b0",
+      "members": 13,
+      "misses": 0,
+      "recovered": 13,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-2a99f24a0cbd1b1906e8",
+      "members": 16,
+      "misses": 0,
+      "recovered": 16,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-2ec628744afcb6c23007",
+      "members": 6,
+      "misses": 0,
+      "recovered": 6,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-32aa0d5125ef777cfd1e",
+      "members": 33,
+      "misses": 0,
+      "recovered": 33,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-32ed99f7595a2a46fe71",
+      "members": 10,
+      "misses": 0,
+      "recovered": 10,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-3769f52ee84b9ee34c09",
+      "members": 26,
+      "misses": 0,
+      "recovered": 26,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-3af3f42197d1681c6933",
+      "members": 30,
+      "misses": 0,
+      "recovered": 30,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-4b5f957111bcd255e12d",
+      "members": 5,
+      "misses": 0,
+      "recovered": 5,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-53e48b44fcc08bf9d29b",
+      "members": 30,
+      "misses": 0,
+      "recovered": 30,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-56003df78c4783df67e7",
+      "members": 7,
+      "misses": 0,
+      "recovered": 7,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-56fb2e33e3bc61766551",
+      "members": 8,
+      "misses": 0,
+      "recovered": 8,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-5a23bde39497a50696cf",
+      "members": 94,
+      "misses": 0,
+      "recovered": 94,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-5d61141f96fd1493acf1",
+      "members": 12,
+      "misses": 0,
+      "recovered": 12,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-5e897ac3fce9452dab26",
+      "members": 5,
+      "misses": 0,
+      "recovered": 5,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-6437acd385e566e301a7",
+      "members": 53,
+      "misses": 0,
+      "recovered": 53,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-654b6bcf35e1d5a4ad8b",
+      "members": 12,
+      "misses": 0,
+      "recovered": 12,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-6e48109132b69890bd6b",
+      "members": 18,
+      "misses": 0,
+      "recovered": 18,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-6f7738e9702395ba8ad3",
+      "members": 82,
+      "misses": 0,
+      "recovered": 82,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-70a238399aebef5b72dd",
+      "members": 36,
+      "misses": 0,
+      "recovered": 36,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-70c8d3a711cb5b34c795",
+      "members": 8,
+      "misses": 0,
+      "recovered": 8,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-711c64846cb08429936f",
+      "members": 28,
+      "misses": 0,
+      "recovered": 28,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-7a791b87d44687dbf407",
+      "members": 4,
+      "misses": 0,
+      "recovered": 4,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-8094ac7ee7989318639b",
+      "members": 20,
+      "misses": 0,
+      "recovered": 20,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-84551ddfa7b82847ba0f",
+      "members": 3,
+      "misses": 0,
+      "recovered": 3,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-8b51ef3055e63a4122ea",
+      "members": 8,
+      "misses": 0,
+      "recovered": 8,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-8f3e805e1c94eabe77d4",
+      "members": 17,
+      "misses": 0,
+      "recovered": 17,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-900b89587c6987d582df",
+      "members": 44,
+      "misses": 0,
+      "recovered": 44,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-9121fbe9e224ed2e42e8",
+      "members": 44,
+      "misses": 0,
+      "recovered": 44,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-a026d58c103a32233b3d",
+      "members": 41,
+      "misses": 0,
+      "recovered": 41,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-b55dad3b9958cfb69cbc",
+      "members": 42,
+      "misses": 0,
+      "recovered": 42,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-b6dd1a66d2211681e8d0",
+      "members": 15,
+      "misses": 0,
+      "recovered": 15,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-bbe80289e6b889103a94",
+      "members": 9,
+      "misses": 0,
+      "recovered": 9,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-be7fa4d6954d52d60bd3",
+      "members": 12,
+      "misses": 0,
+      "recovered": 12,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-c357da9d0d4d560311e4",
+      "members": 71,
+      "misses": 0,
+      "recovered": 71,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-d305f6271ab7d64321d7",
+      "members": 8,
+      "misses": 0,
+      "recovered": 8,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-d441fde74eef19f00f5b",
+      "members": 11,
+      "misses": 0,
+      "recovered": 11,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-d6919b6f33dd87174456",
+      "members": 12,
+      "misses": 0,
+      "recovered": 12,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-d94eaea53c788cd520bc",
+      "members": 11,
+      "misses": 0,
+      "recovered": 11,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-dc4953db7adb853337c4",
+      "members": 27,
+      "misses": 0,
+      "recovered": 27,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-dcc7e137eebfbc0afa58",
+      "members": 6,
+      "misses": 0,
+      "recovered": 6,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-dd92327f72519e579ca6",
+      "members": 10,
+      "misses": 0,
+      "recovered": 10,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-e216132639f1adcc3e6c",
+      "members": 23,
+      "misses": 0,
+      "recovered": 23,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-e4e8184c063efd245ae2",
+      "members": 5,
+      "misses": 0,
+      "recovered": 5,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-e6462dd56f2e695fcb6c",
+      "members": 65,
+      "misses": 0,
+      "recovered": 65,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-e84bbea930130be3208b",
+      "members": 9,
+      "misses": 0,
+      "recovered": 9,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-e88e260d301257b3b8e0",
+      "members": 5,
+      "misses": 0,
+      "recovered": 5,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-ea4f673412819493513f",
+      "members": 8,
+      "misses": 0,
+      "recovered": 8,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-ecf7d68639b67310be42",
+      "members": 18,
+      "misses": 0,
+      "recovered": 18,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-eecac338295fc52242dc",
+      "members": 30,
+      "misses": 0,
+      "recovered": 30,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-eee8d016af070a17af02",
+      "members": 53,
+      "misses": 0,
+      "recovered": 53,
+      "wrong_candidate_matches": 0
+    },
+    {
+      "candidate_id": "p3r-v2-f35489c6284c60873835",
+      "members": 31,
+      "misses": 0,
+      "recovered": 31,
+      "wrong_candidate_matches": 0
+    }
+  ],
+  "negative_control": {
+    "wrong_candidate_matches": 0
+  },
+  "p3r_vs_wsol": "SEPARATE: P3R active matcher is an operation contract; this matcher derives candidate routes from frozen evidence.",
+  "qualification_counts": {
+    "MATCHER_AMBIGUOUS": 2,
+    "MATCHER_PARTIAL": 0,
+    "MATCHER_QUALIFIED": 59,
+    "MATCHER_UNAVAILABLE": 1
+  },
+  "recommended_architecture": "B: read-only live assignment only for unique MATCHER_QUALIFIED candidates; UNKNOWN for others.",
+  "safety": {
+    "db_writes": 0,
+    "living_publications": 0,
+    "membership_writes": 0,
+    "network_calls": 0
+  },
+  "schema_version": "potential_operations_incremental_candidate_matcher_qualification.v1",
+  "verdict": "POTENTIAL_OPERATIONS_INCREMENTAL_MATCHER_QUALIFIED_PARTIAL",
+  "wsol_potential_matcher_status": "MATCHER_QUALIFIED"
+}

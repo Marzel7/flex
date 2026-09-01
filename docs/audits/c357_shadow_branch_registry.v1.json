@@ -1,0 +1,13 @@
+{
+  "schema_version": "C357_SHADOW_BRANCH_REGISTRY_V1",
+  "candidate_id": "p3r-v2-c357da9d0d4d560311e4",
+  "workflow": "PAUSED",
+  "evidence_rule": "Only launches independently connected to qualified DuTb pool or Branch A/B/C evidence may be positive shadow attribution controls; baseline labels are excluded.",
+  "qualified_branches": [
+    {"branch": "DUTB_WALLET_POOL", "evidence": "verified temporary-WSOL close provisioning into audited direct-funder pool", "launch_count": 48},
+    {"branch": "A", "evidence": "five exact launches with retained Crnc direct-funder path", "launch_count": 5},
+    {"branch": "B", "evidence": "two exact launches with qualified 33my/HXuf/CZTx role chronology", "launch_count": 2},
+    {"branch": "C", "evidence": "one exact launch with retained 6hak direct-funder path", "launch_count": 1}
+  ],
+  "safety": {"membership_mutation": false, "shadow_only": true}
+}

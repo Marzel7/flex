@@ -1,0 +1,47 @@
+{
+  "schema_version": "b2z.p1.mock-execution-reconciliation.v1",
+  "artifact_type": "B2Z_P1_MOCK_EXECUTION_RECONCILIATION",
+  "milestone": "B2Z-P1",
+  "generated_utc": "2026-08-18T23:22:00Z",
+  "purpose": "Independent, freshly-run reconciliation of a full mocked 20-member/60-request B2Z-P1 execution, captured as evidence separate from the pytest suite. All members use a synthetic 20-mint fixture identical in shape to the real frozen cohort (structurally interchangeable for reconciliation purposes -- the real cohort binding itself is verified separately in the main preflight's Part 12 against the actual committed manifest/projection files).",
+
+  "run_summary": {
+    "authorization_run_id_this_reconciliation_run": "b2z-p1-92d4f29d36f5804840134baf",
+    "note_on_run_id": "this differs from the run_id bound in the main preflight (b2z-p1-44d6798563468c8aff747446) because this reconciliation script used placeholder b2n_closure_digest/p0_preflight_digest strings ('fake-b2n-digest'/'fake-p0-digest') rather than the real committed artifact digests -- the run_id derivation is correctly sensitive to its inputs, which is itself a confirming property. The main preflight's Part 12 used the REAL digests and is the authoritative binding.",
+    "total_resume_calls_made": 60,
+    "member_complete_count": 20,
+    "physical_requests_attempted_final": 60,
+    "total_reservation_events": 60,
+    "unique_reservation_keys": 60,
+    "duplicates_found": 0,
+    "all_terminal_events_succeeded": true,
+    "ordinals_completed": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
+    "ordinals_missing": [],
+    "gaps_found": 0,
+    "call_61_status": "ALL_MEMBERS_COMPLETE",
+    "call_61_made_any_dispatch": false
+  },
+
+  "stage_dependency_verification": {
+    "method": "every ordinal's 3 reservation events were checked to occur in MIGRATION_TX -> CREATOR_HISTORY -> FUNDING_TX order with no interleaving of a later member's stage 1 before an earlier member's stage 3",
+    "result": "confirmed -- resume_next()'s per-member-then-next-member iteration order in the manifest.members loop guarantees this structurally, and was independently observed in the reservation event sequence"
+  },
+
+  "budget_reconciliation": {
+    "max_total_requests": 60,
+    "actual_requests_used": 60,
+    "remaining": 0,
+    "max_per_member": 3,
+    "actual_per_member": "exactly 3 for all 20 members in this fixture (no no-candidate members present)",
+    "over_budget_incidents": 0
+  },
+
+  "zero_network_calls": {
+    "transport_used": "in-process FakeTransport (pure Python dict responses, no sockets, no urllib)",
+    "confirmed": true
+  },
+
+  "relationship_to_pytest_suite": "this reconciliation was run as an independent, standalone script invocation (not via pytest) to provide a second, differently-constructed confirmation of the same properties tests/test_b2z_p1_durable_execution.py::test_full_mocked_20_member_run_exactly_60_requests already proves -- both converge on the identical result (20/20 members, 60/60 requests, 0 duplicates, 0 gaps)",
+
+  "verdict": "MOCK_EXECUTION_RECONCILIATION_PASS"
+}

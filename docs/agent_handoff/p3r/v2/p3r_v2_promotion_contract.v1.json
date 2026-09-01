@@ -1,0 +1,7 @@
+{
+  "dormant_to_reactivated": "Receive new retained selected-edge activity after the snapshot cutoff; reclassify activity only, then re-evaluate existing evidence.",
+  "tier_2_to_tier_1": "Retain tier-2 evidence; add strong atomic recurrence and address-independent persistence. Activity alone never promotes.",
+  "tier_3_to_tier_2": "Retain WATCH_NOW and strong base; add strong alternative-edge recurrence. Activity alone never promotes.",
+  "version": "P3R_V2_PROMOTION_CONTRACT.v1",
+  "watch_later_to_watch_now": "Meet the versioned HIGH_ACTIVITY or VERY_HIGH_ACTIVITY thresholds; this does not promote behavioural tier."
+}

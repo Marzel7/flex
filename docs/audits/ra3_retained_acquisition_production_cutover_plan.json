@@ -1,0 +1,145 @@
+{
+  "schema_version": "ra3_retained_acquisition_production_cutover_plan.v1",
+  "programme": "retained-acquisition resilience",
+  "milestone": "RA3 — production-safe cutover planning and guardrails",
+  "status": "HOLD",
+  "verdict": "PLAN_REQUIRES_HUMAN_GO_NO_GO_BEFORE_PROD_WRITES",
+  "objective": "Provide an exact, bounded, rollback-safe production introduction path for RA2 hot/cold retention without mutating legacy retained_acquisition.db in place.",
+  "do_not_operate": [
+    "no_retain_db_transform",
+    "no_in_place_schema_change",
+    "no_retained_acquisition_db_copy_within_repo",
+    "no_retained_acquisition_writer_enable_without_plan_gate",
+    "no_vacuum_or_delete_on_retained_acquisition_db"
+  ],
+  "current_blockers": [
+    "RETAINED_ACQUISITION_DB_STORAGE_AMPLIFICATION_UNBOUNDED",
+    "H11_ON_HOLD_UNTIL_RETENTION_GROWTH_BOUND"
+  ],
+  "accepted_criteria_for_ra3": {
+    "replay_correctness_preserved": "RA2 replay-equivalence checks pass on fixture and bounded synthetic windows",
+    "no_silent_evidence_loss": "All production-path artifacts emitted with deterministic digestable identity and archival outcomes",
+    "growth_capability": "Projected storage growth bounded to <= 1 GiB/day under RA2 budget + reserve gates (evidence, not assumptions)",
+    "disk_reserve_respected": "free-space gates identical to RA1/RA2 policy and verified at each phase transition",
+    "writer_compatibility": "Existing production writer path remains active until RA4 explicit authorization"
+  },
+  "production_rollout_pattern": {
+    "topology": "parallel_shadow",
+    "legacy_writer": {
+      "status": "active",
+      "db_target": "database/evidence_platform/production/retained_acquisition.db",
+      "mutations": ["append only as-is"],
+      "immutability_guard": "no in-place migration or schema edits"
+    },
+    "new_writer": {
+      "status": "standby_then_shadow",
+      "entry_condition": "RA3 go/no-go with explicit authorization",
+      "source": "existing production request stream",
+      "destination": "new retained acquisition path designed for hot/cold split",
+      "ordering": "archive-before-retire ordering required per acquisition + correlation lineage",
+      "rollback": "single flag toggle to disable new writer; all production reads remain on legacy path"
+    },
+    "transition_phasing": [
+      {
+        "phase": "preflight",
+        "actions": [
+          "run bounded RA0/RA1/RA2 evidence locally and record artifacts",
+          "confirm production reserved disk and reserve gates are above RA1 minimum",
+          "freeze execution artifact identities and include commit hashes in handoff"
+        ]
+      },
+      {
+        "phase": "shadow_dry_run",
+        "actions": [
+          "enable new writer only with explicit no-op sink and bounded telemetry",
+          "do not write to retained_acquisition.db",
+          "emit deterministic RA2 hot-row digests and full replay digests for diffing"
+        ],
+        "acceptance": [
+          "no production schema or file writes in 61GB DB",
+          "no increased write latency above defined service budget",
+          "sampled replay diff hash continuity for all mirrored rows in bounded window"
+        ]
+      },
+      {
+        "phase": "dual_path_observation",
+        "actions": [
+          "run new path with full write + legacy path concurrently",
+          "compare bounded replay outputs for identical acquisition identities",
+          "record deterministic mismatch report with artifact identity, artifact digests, response signatures"
+        ],
+        "acceptance": [
+          "zero REQUIRED mismatches",
+          "no silent drop in acquisition IDs for bounded windows",
+          "replay outputs match by defined canonical signature"
+        ]
+      },
+      {
+        "phase": "bounded_readiness_pause",
+        "actions": [
+          "keep legacy writer on, new writer in readiness state only",
+          "enforce storage reserve and hotstore cap on both systems",
+          "hold if any critical guard fails"
+        ],
+        "acceptance": [
+          "projected daily growth <= 1 GiB/day",
+          "daily retention budget and reserve gates observed"
+        ]
+      }
+    ]
+  },
+  "hard_gates_before_ra4": {
+    "replay_equivalence": {
+      "required": true,
+      "evidence": [
+        "deterministic preflight replay digest from RA2 fixture checks",
+        "artifact-level canonical signatures compared for bounded windows"
+      ]
+    },
+    "evidence_continuity": {
+      "required": true,
+      "evidence": [
+        "one acquisition identity per acquisition preserved",
+        "per-correlation and per-mint cap behavior matches policy"
+      ]
+    },
+    "storage_growth_bound": {
+      "required": true,
+      "limit_bytes_per_day": 1073741824,
+      "evidence": [
+        "bounded projection from RA1/RA2",
+        "operational budget and observed hot-row byte measurements"
+      ]
+    },
+    "disk_reserve": {
+      "required": true,
+      "normal_min_free_bytes": 21474836480,
+      "retry_min_free_bytes": 2147483648,
+      "hard_floor_bytes": 1073741824,
+      "policy_reference": "RA1 resource policy"
+    },
+    "rollback_readiness": {
+      "required": true,
+      "required_controls": [
+        "single authorization to flip new_writer_enabled",
+        "no-op mode remains default",
+        "legacy path remains authoritative source of truth until RA4"
+      ]
+    }
+  },
+  "go_no_go_items": {
+    "required_for_go": [
+      "All RA3 preflight artifacts generated and reviewed",
+      "No production writes enabled to retained_acquisition.db outside current legacy path",
+      "Signed human decision for RA3->RA4 authorization"
+    ],
+    "must_hold_without_go": [
+      "anything that triggers full DB rewrite",
+      "any storage gate failure",
+      "any evidence loss risk or replay divergence in bounded windows"
+    ]
+  },
+  "next_step": "RA4 only after explicit authorization, with RA3 artifacts linked in handoff",
+  "created_at_utc": "2026-08-18T12:10:40Z",
+  "updated_at_utc": "2026-08-18T12:10:40Z"
+}

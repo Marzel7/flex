@@ -1,0 +1,1445 @@
+{
+  "B65C_LEGACY_COHORT": {
+    "member_forensics": [
+      {
+        "atomic_authority": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccountWithSeed",
+          "initializeAccount3",
+          "transfer",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "atomic_source_wallet": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "close_destination": "",
+        "creator": "BY573Np4CAX3EUm86tYwMqB5t4NPQPy5MykStzmQt9pC",
+        "direct_funder": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1785091021,
+        "mint": "Cvd75rzwC6YsMAh8tmVKx4ahPXzCq6uAxbpMpzipump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "5hQYobKtzs1UWCL1yvzD7E2zb5ivGwRgtnYvsvetUR7BQ2AiCx1nkBnJowyjukHPT8Yz5JJ8RzZtDaACPLuSziM8",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccountWithSeed",
+          "initializeAccount3",
+          "transfer",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "atomic_source_wallet": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "close_destination": "",
+        "creator": "7FLSPVT7c151543ZLAzak3wqGNj9s7HJUZorUA8pCE5j",
+        "direct_funder": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1784996672,
+        "mint": "PcoqZSj1ncvQ548bc797WZTuvvMxXfxwKsdsNqHpump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "A7rboRA9giHDZx5i9uBzBMrcrpe8HZw8A8PecyB6Yo7tk57RBVsNTc3v1qeRF5qNhLzuScjb2pCjc4NNi8Liwb6",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccountWithSeed",
+          "initializeAccount3",
+          "transfer",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "atomic_source_wallet": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "close_destination": "",
+        "creator": "9ode5YqCsrjrVvrQqBMkQRM99jCYUJkjGa3H5TxUs2Ax",
+        "direct_funder": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1785006836,
+        "mint": "S2ZaeLS4VkwThyCLHqLwo1Wn9wyTuyBMKqZaD6rpump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "4K2DiiVF4asg4UZ8GGix7JLo6vU48hv5s9Dc8YxFe75pD6vEnXJ13cjcqZoBjdS2FVGgsxAf5SiEnKkCzuKiJWqa",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccountWithSeed",
+          "initializeAccount3",
+          "transfer",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB",
+        "atomic_source_wallet": "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB",
+        "close_destination": "",
+        "creator": "6kvWSoDLNbPQonG8Z8ospyfhUN7SGkra9h4hjG3QT2Na",
+        "direct_funder": "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1785023867,
+        "mint": "XiVWYGjHkzikjtemH14wkKKcBDaLMrmqU9VwD8vpump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "4Q6fCR6yBymLjoLqyRcV3kBUvZfxNqYhvQbhanrr7Nh26T5cMuCBRSsCAWCRLFmKermgrbAWihNwdMVdxmuv5bQT",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccountWithSeed",
+          "initializeAccount3",
+          "transfer",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "atomic_source_wallet": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "close_destination": "",
+        "creator": "CepREC6grNza4d9YVcSCo76jUY87du7PBkkNXv1zFm1C",
+        "direct_funder": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1785089953,
+        "mint": "ZmEQVoF6r3qPTKdtxr7KXPn7bs6YnjNd2qoQetspump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "4fApRZkTzsZp7rDkfLhphwJ5kTSruUk4ztCTJykFbC5KSr6tK716fYterv9PAHgaWTeAsGjooSHGig2DiSQnpZFK",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccountWithSeed",
+          "initializeAccount3",
+          "transfer",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "atomic_source_wallet": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "close_destination": "",
+        "creator": "HEuVndRjUkVvH3wGFe3xCYYbFzYwkVfZHTy4FE4rF8Jk",
+        "direct_funder": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1785111743,
+        "mint": "bC52XQwEBBT6dubGfHHaNBQr5vjuyoRnqaJr2wVpump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "5dJ726kmjNnm9BJ3LvJNrnHccJJDV2F35Uvo9GdewyXRbr9M93U6SfA7ym9wXk3bHXyA6tZSt8ey3y6stDLNWfBo",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "HS5GjB4KTJbbBdYHkJV8qDpq8gmU9wck2qsxgz3ifgke",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccountWithSeed",
+          "initializeAccount3",
+          "transfer",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "HS5GjB4KTJbbBdYHkJV8qDpq8gmU9wck2qsxgz3ifgke",
+        "atomic_source_wallet": "HS5GjB4KTJbbBdYHkJV8qDpq8gmU9wck2qsxgz3ifgke",
+        "close_destination": "",
+        "creator": "GAx82JYAZNXHofNxN2GzYypQmKYYFarCPHs7uW2Nd3AQ",
+        "direct_funder": "HS5GjB4KTJbbBdYHkJV8qDpq8gmU9wck2qsxgz3ifgke",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1785084676,
+        "mint": "k7WU6tjsraNF2uQFwnvkJLBkRtgkg3WcNPL3FEppump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "4xHZiB82W7fruGecGenFbbXVnuZ46GvA7pEZ8bYmKTpTZcWGVnWwmmefBQtcYWufLGCF3nbMfWdux9HKeUVB5w7P",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccountWithSeed",
+          "initializeAccount3",
+          "transfer",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "atomic_source_wallet": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "close_destination": "",
+        "creator": "J8nJcHVgCZbXqwaNAyW4ptFv7ctX1eRmvEFZsbtcMxET",
+        "direct_funder": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1785077409,
+        "mint": "xYgAYMtyEEBSMNrzsCX4kjuNSGLssSXpVFg5GUNpump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "4wTLwdBx54jHLdCw95vWQWSyWyahrdajFqDEEqkYZBEtsdSpPZtVcNak9FRkXjoMuVaKvXq7uBwQoK9uP4rNC7fs",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccountWithSeed",
+          "initializeAccount3",
+          "transfer",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "atomic_source_wallet": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "close_destination": "",
+        "creator": "2nehEfpafFAPDsZiYUf7VkTkV6xUmiCyXP8NkVj5xhST",
+        "direct_funder": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1785101015,
+        "mint": "zndMRL63LwABVBRDgnSP7dUkcR9jjELE5D4qeAcpump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "32smbvXzSToGB3K4ntWnCBAfgmEUyzXXnPCNo9RfXeHrAdRnEe7dQLxsJvvmQm8dWUriwhRBbBRwo8tpc4GHWLP",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      }
+    ],
+    "registration": "KEEP_PAUSED",
+    "temporal": {
+      "active_days": 3,
+      "atomic_sequences": [
+        {
+          "count": 9,
+          "sequence": [
+            "createAccountWithSeed",
+            "initializeAccount3",
+            "transfer",
+            "syncNative",
+            "closeAccount"
+          ],
+          "share": 1.0
+        }
+      ],
+      "current_inactivity_seconds": 2559565,
+      "first_launch": "2026-07-25T16:24:32+00:00",
+      "last_launch": "2026-07-27T00:22:23+00:00",
+      "launches_24h": 0,
+      "launches_30d": 5,
+      "launches_7d": 0,
+      "launches_by_day": {
+        "2026-07-25": 3,
+        "2026-07-26": 5,
+        "2026-07-27": 1
+      },
+      "maximum_gap_seconds": 53542,
+      "median_gap_seconds": 10079.0,
+      "members": 9
+    },
+    "verdict": "B65C_LEGACY_DISTINCT_OPERATION_CANDIDATE"
+  },
+  "BYZC_CURRENT_COHORT": {
+    "alternatives": {
+      "coverage": 0.9375,
+      "fingerprints": [
+        {
+          "count": 9,
+          "fingerprint": "hop-1|PLAIN_XFER|0",
+          "share": 0.16981132075471697
+        },
+        {
+          "count": 6,
+          "fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+          "share": 0.11320754716981132
+        },
+        {
+          "count": 4,
+          "fingerprint": "hop-1|WSOL_WRAP_CLOSE|999985000",
+          "share": 0.07547169811320754
+        },
+        {
+          "count": 3,
+          "fingerprint": "hop-1|WSOL_WRAP_CLOSE|6999985000",
+          "share": 0.05660377358490566
+        },
+        {
+          "count": 3,
+          "fingerprint": "hop-1|WSOL_WRAP_CLOSE|4999985000",
+          "share": 0.05660377358490566
+        },
+        {
+          "count": 1,
+          "fingerprint": "hop-1|PLAIN_XFER|565522000",
+          "share": 0.018867924528301886
+        },
+        {
+          "count": 1,
+          "fingerprint": "hop-1|WSOL_WRAP_CLOSE|536351000",
+          "share": 0.018867924528301886
+        },
+        {
+          "count": 1,
+          "fingerprint": "hop-1|PLAIN_XFER|310168000",
+          "share": 0.018867924528301886
+        },
+        {
+          "count": 1,
+          "fingerprint": "hop-1|PLAIN_XFER|510626000",
+          "share": 0.018867924528301886
+        },
+        {
+          "count": 1,
+          "fingerprint": "hop-1|PLAIN_XFER|625578000",
+          "share": 0.018867924528301886
+        },
+        {
+          "count": 1,
+          "fingerprint": "hop-1|PLAIN_XFER|578291000",
+          "share": 0.018867924528301886
+        },
+        {
+          "count": 1,
+          "fingerprint": "hop-1|PLAIN_XFER|1774610000",
+          "share": 0.018867924528301886
+        },
+        {
+          "count": 1,
+          "fingerprint": "hop-1|WSOL_WRAP_CLOSE|49292916000",
+          "share": 0.018867924528301886
+        },
+        {
+          "count": 1,
+          "fingerprint": "hop-1|WSOL_WRAP_CLOSE|26066776000",
+          "share": 0.018867924528301886
+        },
+        {
+          "count": 1,
+          "fingerprint": "hop-1|WSOL_WRAP_CLOSE|929195000",
+          "share": 0.018867924528301886
+        },
+        {
+          "count": 1,
+          "fingerprint": "hop-1|PLAIN_XFER|959178000",
+          "share": 0.018867924528301886
+        },
+        {
+          "count": 1,
+          "fingerprint": "hop-1|PLAIN_XFER|10000",
+          "share": 0.018867924528301886
+        },
+        {
+          "count": 1,
+          "fingerprint": "hop-1|WSOL_WRAP_CLOSE|445952000",
+          "share": 0.018867924528301886
+        },
+        {
+          "count": 1,
+          "fingerprint": "hop-1|PLAIN_XFER|264073000",
+          "share": 0.018867924528301886
+        },
+        {
+          "count": 1,
+          "fingerprint": "hop-1|WSOL_WRAP_CLOSE|271357000",
+          "share": 0.018867924528301886
+        },
+        {
+          "count": 1,
+          "fingerprint": "hop-1|WSOL_WRAP_CLOSE|925278000",
+          "share": 0.018867924528301886
+        },
+        {
+          "count": 1,
+          "fingerprint": "hop-1|WSOL_WRAP_CLOSE|79685143000",
+          "share": 0.018867924528301886
+        },
+        {
+          "count": 1,
+          "fingerprint": "hop-1|WSOL_WRAP_CLOSE|545620000",
+          "share": 0.018867924528301886
+        },
+        {
+          "count": 1,
+          "fingerprint": "hop-1|WSOL_WRAP_CLOSE|274680000",
+          "share": 0.018867924528301886
+        },
+        {
+          "count": 1,
+          "fingerprint": "hop-1|PLAIN_XFER|279000",
+          "share": 0.018867924528301886
+        },
+        {
+          "count": 1,
+          "fingerprint": "hop-1|PLAIN_XFER|425915000",
+          "share": 0.018867924528301886
+        },
+        {
+          "count": 1,
+          "fingerprint": "hop-1|PLAIN_XFER|274121000",
+          "share": 0.018867924528301886
+        },
+        {
+          "count": 1,
+          "fingerprint": "hop-1|WSOL_WRAP_CLOSE|1099315000",
+          "share": 0.018867924528301886
+        },
+        {
+          "count": 1,
+          "fingerprint": "hop-1|WSOL_WRAP_CLOSE|586067000",
+          "share": 0.018867924528301886
+        },
+        {
+          "count": 1,
+          "fingerprint": "hop-1|WSOL_WRAP_CLOSE|312437000",
+          "share": 0.018867924528301886
+        },
+        {
+          "count": 1,
+          "fingerprint": "hop-1|PLAIN_XFER|293122000",
+          "share": 0.018867924528301886
+        },
+        {
+          "count": 1,
+          "fingerprint": "hop-1|PLAIN_XFER|1094716000",
+          "share": 0.018867924528301886
+        },
+        {
+          "count": 1,
+          "fingerprint": "hop-1|WSOL_WRAP_CLOSE|340989000",
+          "share": 0.018867924528301886
+        }
+      ],
+      "variant_count": 33
+    },
+    "detectors": {
+      "B0_downstream_only": {
+        "FN": 0,
+        "FP": 14,
+        "TP": 32,
+        "external_mints": [
+          "Cvd75rzwC6YsMAh8tmVKx4ahPXzCq6uAxbpMpzipump",
+          "PcoqZSj1ncvQ548bc797WZTuvvMxXfxwKsdsNqHpump",
+          "S2ZaeLS4VkwThyCLHqLwo1Wn9wyTuyBMKqZaD6rpump",
+          "SJgswjPZfBQrBuYEtf8CAgbGFqiTikHrEodrNBKpump",
+          "XiVWYGjHkzikjtemH14wkKKcBDaLMrmqU9VwD8vpump",
+          "ZmEQVoF6r3qPTKdtxr7KXPn7bs6YnjNd2qoQetspump",
+          "ZrZy8Q1uXG2PSPn7X4NaMQMRa11paZ2xReKNsVFpump",
+          "bC52XQwEBBT6dubGfHHaNBQr5vjuyoRnqaJr2wVpump",
+          "k7WU6tjsraNF2uQFwnvkJLBkRtgkg3WcNPL3FEppump",
+          "sMy6gCcxTAoFfWNVz8XhfJb2TjmyuzUJKX76YN1pump",
+          "sx8X3b7f11NAzdMSu4oj3mF8wPcRXn8PqY4AVnXpump",
+          "xYgAYMtyEEBSMNrzsCX4kjuNSGLssSXpVFg5GUNpump",
+          "zPWJT6arRxz3kYBy15m4TxQPzPMMsofyDcSwz4Tpump",
+          "zndMRL63LwABVBRDgnSP7dUkcR9jjELE5D4qeAcpump"
+        ],
+        "observable_denominator": 46,
+        "precision": 0.6956521739130435,
+        "recall": 1.0
+      },
+      "B1_downstream_atomic": {
+        "FN": 0,
+        "FP": 0,
+        "TP": 32,
+        "external_mints": [],
+        "observable_denominator": 46,
+        "precision": 1.0,
+        "recall": 1.0
+      },
+      "B2_replenishment_transformation": {
+        "FN": 16,
+        "FP": "UNOBSERVABLE_EXTERNAL",
+        "TP": 16,
+        "observable_denominator": 16,
+        "precision": "NOT_MEASURABLE",
+        "recall": 0.5
+      },
+      "B3_atomic_replenishment": "NOT_MEASURABLE_EXTERNAL",
+      "B4_role_graph": "NOT_MEASURABLE_EXTERNAL",
+      "B5_immediate_provisioner": "KNOWN_INFRASTRUCTURE_ROUTE_ONLY",
+      "I1_direct_funder_ByZc": {
+        "FN": 0,
+        "FP": 0,
+        "TP": 32,
+        "external_mints": [],
+        "observable_denominator": 46,
+        "precision": 1.0,
+        "recall": 1.0
+      },
+      "I2_immediate_provisioner_Df8": "NOT_MEASURABLE_EXTERNAL",
+      "I3_known_route": "NOT_MEASURABLE_EXTERNAL"
+    },
+    "false_positive_classification": {
+      "legacy_like": [
+        "SJgswjPZfBQrBuYEtf8CAgbGFqiTikHrEodrNBKpump"
+      ],
+      "unrelated_common_wsol": [
+        "Cvd75rzwC6YsMAh8tmVKx4ahPXzCq6uAxbpMpzipump",
+        "PcoqZSj1ncvQ548bc797WZTuvvMxXfxwKsdsNqHpump",
+        "S2ZaeLS4VkwThyCLHqLwo1Wn9wyTuyBMKqZaD6rpump",
+        "XiVWYGjHkzikjtemH14wkKKcBDaLMrmqU9VwD8vpump",
+        "ZmEQVoF6r3qPTKdtxr7KXPn7bs6YnjNd2qoQetspump",
+        "ZrZy8Q1uXG2PSPn7X4NaMQMRa11paZ2xReKNsVFpump",
+        "bC52XQwEBBT6dubGfHHaNBQr5vjuyoRnqaJr2wVpump",
+        "k7WU6tjsraNF2uQFwnvkJLBkRtgkg3WcNPL3FEppump",
+        "sMy6gCcxTAoFfWNVz8XhfJb2TjmyuzUJKX76YN1pump",
+        "sx8X3b7f11NAzdMSu4oj3mF8wPcRXn8PqY4AVnXpump",
+        "xYgAYMtyEEBSMNrzsCX4kjuNSGLssSXpVFg5GUNpump",
+        "zPWJT6arRxz3kYBy15m4TxQPzPMMsofyDcSwz4Tpump",
+        "zndMRL63LwABVBRDgnSP7dUkcR9jjELE5D4qeAcpump"
+      ]
+    },
+    "fingerprint": {
+      "atomic": "createAccount \u2192 initializeAccount \u2192 syncNative \u2192 closeAccount",
+      "launch_time_provisioner": "Df8CJQR \u2192 ByZc",
+      "replenishment": "10,000,000,000 \u2192 9,999,985,000 (15,000 difference)",
+      "selected": "hop-1 WSOL_WRAP_CLOSE 9,999,985,000"
+    },
+    "member_forensics": [
+      {
+        "atomic_authority": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_source_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "close_destination": "",
+        "creator": "7ejoyL1FmREqijuBmUF9AkhgSAU3tSVNfMMoMF6drp5E",
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1786786539,
+        "mint": "2Br5iZyB5w7W2LhXhKVo6NFUFmoyjWmuDyQR1Edspump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "9E3C4LrUEM4NEG1Ghy6TxZUF8kHLsFdh4Ez5KjTsBDbN2HnH9zrKGbWaM8xckF8XuP5aMewMfCp8tF7NAewusoo",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_source_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "close_destination": "",
+        "creator": "5RCd5gjghzEJkjfHj4DLwpbMsjFb7SMqWkdLwRdbHmzd",
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1787564567,
+        "mint": "2GwJo5TgJFzim7dxRot2enEutP16CMNi2hystB5Wpump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "5XpeAbgRouKLMYh6Hx1yFMiz3Vhgovyx7A8LgScgAsznxjBogtrkAsA6xkhesCMkrKyA1ZrDZL1hrBfm4iRrsWLA",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_source_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "close_destination": "",
+        "creator": "46bFhL2ZxppLTyUtPDdkdcUDhnpxb3ht52PCbcb4VzvK",
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1786619862,
+        "mint": "2J7PmgeseQtUfKr1i5BU4k1UDn5Yaf4FYGwAJ6Eupump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "3aee7PDvzMAtmrAzKc5ecWE2VVEZofiu153TahrtzHqbjHs1T9h53K1HHanYNhaCkGXvtmHiYR86dF5j2sD5MgtQ",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_source_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "close_destination": "",
+        "creator": "6GZ1r7o1xL3PUVJySRY8pin62xUUTjm3Zh2p6ZZbQxSK",
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1786691406,
+        "mint": "32JYTad94RuoXZnuwfAyD3137d7qpUgVKSfm8BFrpump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "4CnfqykYiBMEETFA3W8qL1Fh8MeRJ9QLsRUKKDSuSeBcb6MSd37gfzuK2R2sPznYmBo59heb3qh175m9w8V3E88B",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_source_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "close_destination": "",
+        "creator": "7n7D4khVHNqDGFLWxmGrqPk1Qm5QQMNFR7NZCvJAU85U",
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1786893031,
+        "mint": "3g18VhKdwnwZAiN5MMwrGbrmv2BQMu6pcpjudmHwpump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "2aRFAfdf9uiKU8Fu5mvGBeCTwb7YuyTv48yLoC786wis5LQSVP9BpiGhCRj2cWTS3QBzFah5az6vLfYzUDzao2sh",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_source_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "close_destination": "",
+        "creator": "H1NNcTBHhoQixmddnHNaNUcqqCpvhNAW4pbAChfTV3Na",
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1787047763,
+        "mint": "3xreqNTWpkSG9YJ2Ura582dSTUdN1vqB5eerKsXSpump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "G4woRUgku5HRhV4apSpWQY375SdXywT3yVAArjkEEfm4opcB8qmhDtVvHGvo7uC84ha3euQXsk4qGKkWy3WvDa3",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_source_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "close_destination": "",
+        "creator": "9G9A74hp66cq9heZt3dtUTuaJ2mPna3mhGGs25rj9kAw",
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1787048276,
+        "mint": "4rifET4ASNWE339PeJMMZAPLv4u1LH1naSnrxMLXpump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "4B2wRQHcS45EgG9DDDvnd64d6uSQtfm7C9urmNhmyXRSDEQXs9n92ryP6pqMFi1ny8wgY2UMRsTsGeNPfrsdMsrB",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_source_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "close_destination": "",
+        "creator": "HCBQjnixpBcqBz8jr3kJqgWPJA517w5gz6XxA53H13DY",
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1786789013,
+        "mint": "5xw6fuaC68HX6oabZrGEVgVrur4Ae882NoCDHMbPpump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "42UqTzcxNgfZaEaijPdgyeWf7MomZGBPS3irBZ3CuXbYh7mjgy62knDDW2ZSqAQ65aNtWMvwzSodeyCLzaBcxTof",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_source_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "close_destination": "",
+        "creator": "AMGHRLLGCBi5XKygAuRxwQ9hjpdeqcYz3pPskHvCAiFV",
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1787070061,
+        "mint": "7CGiA4cdtprHDyZ8CC316tovjLcMd4KMf4b2ArAWpump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "2Pnvj2oAT4wGY7TNSiM6YxH8yqsokiG11SwFBLdQjrBbHbu4JutS9SEVdnhUwrCScFwYCvufm9AgihQryEzaD5Cf",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_source_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "close_destination": "",
+        "creator": "8rx3h89wAVM8NejS9t3CLiomLxuWz1QuYAUZD5PEKF3i",
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1786704766,
+        "mint": "8iYLQhReo1vzHp6xPLhXNJhHb87UynRb2ofDr2Sipump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "37mBv5GNYohKXY1BozW4ZBUcRwjXc7eaqjqdN6y7KyZ2UrRpCLnk8U4vH1LBRojmyFBZ1qCqugTe2qGhvsYxfvyV",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_source_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "close_destination": "",
+        "creator": "CiyizcdxuuoywJYcvHgs5u9LWhG7NDD1CnHn3aeWjKxX",
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1787051048,
+        "mint": "8nuZuTv4yrf8yEK8fnKjJmne5sAUTFtttZfbeM7gpump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "3Yd3mLn19cD9HFGFLarv48ojXMKk9cgt5AYjEvxJTAyoaeBC8zXcUnF1AWP1YB83BpTx24YLZGaYQJHJZ8fGTv5m",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_source_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "close_destination": "",
+        "creator": "HfBJnWC6AEDeqyK8Jp5DNmuD5jsM6cjeKQzEY3ajMifn",
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1786626637,
+        "mint": "8zjSm6qXuhgJ6hMfKNNsiht3vFcY7QVxJt7YZVw1pump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "2Tch4XVLJ8rqnJvbJ2FyYgrWJVMZTWHMKG9mMtvK27wtBQBgJZwKYtSjri4BahiJc9KthY1efxkXBwC3iCqgMX5Y",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_source_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "close_destination": "",
+        "creator": "7gcvcAN55Lds4qHVva7Q6iqdTpQzLFRmJhWNU2HuMVge",
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1786892552,
+        "mint": "998RhDdzrBAQj6rC4Mu9N6vMpyVV8gMKrh98FsN6pump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "3VG9eiyqWC8EuY4N8V7n4J2V6Whg9vtLaNx5jAQmUs4wPpAZ8QXUxokXubuATtciMk5JDdcnF76BGBmU8xErjcYH",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_source_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "close_destination": "",
+        "creator": "9uCrBdvyFgCJ6hZorPwYB3a57GXiJq5dKTNdPRC8c5qC",
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1786622544,
+        "mint": "9WyEujHDjPk4RrgVqeBDa1bWDMzevXN1pAhqJ4KEpump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "3qfxsDVetYfFYEex81mR2jYHS5o5UucjMqPGbGVRucaAaGxYzEWcMLBR1WeogyhupnWFmjdypSABQ4eTm8pvkoZZ",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_source_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "close_destination": "",
+        "creator": "62JTugo7hbRktrJpsxK8ppp9DPYymjUwDpKzbKn5L9T9",
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1787492659,
+        "mint": "9hLwy4Y8L31NimtyBdhuecBSTSUP6uRxjaDHSjfvpump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "2QdHPypVrb71oSo6mq7e6gk2cQH36dh7cG4DAUBEEH75BXncrTVTyCLVcVuomHznMz6oqm54CU4GXY6QnDWhxEGT",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_source_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "close_destination": "",
+        "creator": "Ep3Y9xHaRn8t6B3X6W1o2cztnkMFv5VypwPwDq4rdJX6",
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1787575001,
+        "mint": "9tQDRJzS8yeijskpk8x5Fz8hrsu7thpRtcPNwcdTpump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "43saiMHeBdBtGAX16KRay7YFoFL94s7oVNnYpf4inB3JCvh1fKSEofzDMJJGPuvwJVpVKEdSwfbMNj6oKAkFLrPx",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_source_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "close_destination": "",
+        "creator": "5mhjT56sYttc4JBjbEQ86eST7cj9Nxno1pvPTovdrzhR",
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1787651971,
+        "mint": "AQeT2Yu43rfF2CjMcJ2mqHJsGQ7c4znoo2qErzr6pump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "2fHcQH9hhPwWQJttRLazwwPoRyQM2L2GcBD71BZKMag8WbhtXw7uJvdQB7V4pWkYZRmSXm5Smo5UTVGwreVY68Jw",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_source_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "close_destination": "",
+        "creator": "FpA39vmAVdmXbkk4XvL1gppQoQ7dzQbP5oFc4dMWhAZv",
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1786600869,
+        "mint": "AkaX24vosnfyEsCGUkMwYRJq9pg14sNTXBBte3xpump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "56TPEyrx3nso4V73v8ijopcgATaLWXZmzLdvVU9jLvmVbs6Jj2CQcSRmhNd7bk1RtezC7nPkwDQ1UzvYW1EebRFv",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_source_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "close_destination": "",
+        "creator": "241nHsSEqUQnZLNN5Pwak1pKFZkUcfpdDWK5fyqjBny2",
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1787640146,
+        "mint": "AqgtHrC5TwPcvTf9dmgQhWwUhmVbaGynop1LxvU9pump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "3YxnVTUCQ7a8GQYE97uqNtMtQVToH5vjff8kwzg2isfLfwRAftjUUymgmcVfNYPEtmfuKUBG59qonM5ustiode5F",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_source_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "close_destination": "",
+        "creator": "F11DPSHnWXkd7WuAf8xZRHXvpDt8M695ZvuApdaD4wj6",
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1787493472,
+        "mint": "BoRvUzird5hH8S9vM6n2rDFddkWv769eB2q4PADTpump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "2i9RHZASHwj3A8ecaDVNFGF6X2BkqM77HkiGThg6aewTDqPw7bHXbXZdRRNpP5b9eDpFvW7YGQ7wxoBPbeZvTPna",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_source_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "close_destination": "",
+        "creator": "26MEpv6dtUkJDyiTnCVGuH12QTR7bkoGi64T1Aaz2qzr",
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1786811890,
+        "mint": "C5ecc42Lg2M6sP1uSPLN9qxER4PJLobc9VVGQURSpump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "4dCsbvhjrgEnLecQBSLwMovyPPUwoTVumioPXqk5tnarkdDZSTenfyQtyMwQymEpQYUas4Xj1vmTtByCvpewWeeq",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_source_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "close_destination": "",
+        "creator": "AM9pbMrmyxj5jibiHbjKomEWYmMcPdTHxmGp6r9kDMfZ",
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1786692729,
+        "mint": "Cc6SynbtrCNJMH3ZJXVax77WiL8LmzsPWBJhBeqApump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "hPwjUrKeiKHQPw1ThAKqKFFaBoQyL8hK7Q4bbVJwJ3wP6P5njFpgW64t6rnv8EoG2iqxbpys1gbSGVcr8gYWyEY",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_source_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "close_destination": "",
+        "creator": "6HUfTCBn6zHpzHJUjAKArzoBaVG32PXPwyUff1LGzsoN",
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1787149901,
+        "mint": "DCuGvhXueDqPBQfCf23P4np9w6HYjHsv46jzn5hdpump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "48ctkPi7Fb1hdJ9oRqr5HY5GVbHDoZ68nM1WbvFamcRvYhcbqNRmWGpNGwb6FSdVyoNP9yzzqtgLGYhtQhk1mfeH",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_source_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "close_destination": "",
+        "creator": "4Akqpa8imwrZeAsuTZBix7CqVqYYCsDJcTUyMxrFmvPc",
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1787152351,
+        "mint": "DLfqN87F8eToqfGjrJbrnXxuAhs7tRv5B2W4qVA7pump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "3KwinEhe332wBJDbJyVuCZsAj54mdCoWiFJeJbruKCeFQt3SdrpcyAFa2y55GshMeM9mqC6jmezWKwc5nnz8tP6A",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_source_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "close_destination": "",
+        "creator": "4V9rPaF6poBdoMgczEtG9a9TJUj3FkrhgLLhWeusGQok",
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1786879155,
+        "mint": "DhBr9uG4mE9dxehD24TW37uoVY1eDRPgDD942VVepump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "5k5puzRHDdBqheYNmqN6dj4sE8CextTRNfvRtPbD4U39J18XbjcEMFdKQYNZ1HZx4QvYmvhQDoKjogCgX7ut5wfC",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_source_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "close_destination": "",
+        "creator": "33mpJDnkt5cQyF4teZijP69SHkcV9M54MLDk8FnXtD8J",
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1786955612,
+        "mint": "E3uCWNm5Ykq7CiPqyZLUezZNDjcHSSd7YyZ45vBRpump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "3WYvax9xi2Xs7TbJZkRbdLR4Bn8wMbzfeztjJh4dHwZDQteAoxSkXAADKx61BDtKzsi3jX8bKekoiuZ2AosJr5C4",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_source_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "close_destination": "",
+        "creator": "BuxKVxRNrfUXXgkM96Cajn67ZcpkRGczp3BQBaWbJJPF",
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1786810936,
+        "mint": "F44x336AH1Gp58mPurxbnDFNVuTYEeK6RBJtLTwgpump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "47R5hiiFbAS2U2behMN8MazDTNkSq3mEhxC49nnY1E2ZJtrXnSC9kqGYbqETMz9QW1THHpK5xotZqA6aN2A2dSeF",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_source_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "close_destination": "",
+        "creator": "BVKwFxtR8TiBnxsRx3t5CMKu9Jd94xP1C7BoUqQv3EsJ",
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1787487801,
+        "mint": "G36HqqU3C9uDswj839apMc65fZkj5R82Stu3XRCApump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "5kv4pC7BcxLpsYPejbPui8pPYP2MKWt5nhDUZnsoesee3p4RhqSXwHi7GtB4ByWBoL9Jq8ne9PCB2RApsXQkkvUn",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_source_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "close_destination": "",
+        "creator": "7RBc6dowD2LCkRqpeJFWwcZCcnwppoLdpyuUhEyyQZBg",
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1786698475,
+        "mint": "H9gmHWRWmPWJBUKDoRsaqmohLjtKG9bnwZVnbCkpump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "3ydTJ1XjpdCPhcD9DjujGLnEVEkuivEsVrvbwVnotpsncXCgQLiShkyaMKEHkQAPAFNCB6c8dWBXsZsHqewvhTfp",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_source_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "close_destination": "",
+        "creator": "EiwpFhN3LmoSTEbygYnpweUJDaHNfXX3Uho2PGRVPmr3",
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1786980426,
+        "mint": "J59LUFm5eG6ABGFmiDsqXS8ANrRMtgigeB5Bpvnkpump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "3qN6iVvREdWBUBs5T2M6yLFQ4AJve8N8YSHgvdwzPteUxFHd6J4QwYzXJXrpvRHB5fjq4CaCxAaew6nMhvu1byEi",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_source_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "close_destination": "",
+        "creator": "FjNePRYiEbaWWaFuMXFqeGsGWtn5fpndNVy2i2Y69cQ9",
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1787653614,
+        "mint": "TGhykTFggPdDSkmLaCCKZSn61FeShyVNSFM36vepump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "2AYrdwXPMiB74aEQS2fj7V3k9KXeVxqEbJ6vEUb6NwxgpRQ4WpqiNMtz7qd7iorG3Zo5n9ZDEyE1xRx1hjvfjp4v",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      },
+      {
+        "atomic_authority": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_causal_interpretation": "SOURCE_FUNDS_TEMPORARY_WSOL_OWNED_BY_OWNER_CLOSES_TO_DESTINATION",
+        "atomic_instruction_sequence": [
+          "createAccount",
+          "initializeAccount",
+          "syncNative",
+          "closeAccount"
+        ],
+        "atomic_owner": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "atomic_source_wallet": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "close_destination": "",
+        "creator": "HADJKqJN9xWAnNAm45KFCKXaNdixxcSHJnd1GegooY9Q",
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "evidence_provenance": "wt_walkback_edge_candidates + wt_walkback_atomic_flows, frozen high-waters",
+        "launch_timestamp": 1786605534,
+        "mint": "fy9W7kCAWDBehUFzaCyUQiRD8g3K6LiNaaJf4mRpump",
+        "selected_fingerprint": "hop-1|WSOL_WRAP_CLOSE|9999985000",
+        "selected_hop": 1,
+        "selected_lamports": 9999985000,
+        "selected_semantic": "WSOL_WRAP_CLOSE",
+        "selected_signature": "3ui3j931avugo1L637dFvUwvBVZXhG5tEETUAy2mm8HyzfSSqK4ABKpQXn56SkBwnqH4MCf9RyRMjgBgcrQH83M2",
+        "selected_wallet_role": "retained selected-edge wallet/creator",
+        "temporary_wsol_account": ""
+      }
+    ],
+    "registration": "READY_FOR_CONFIRMED_REGISTRATION",
+    "role_consistency": {
+      "atomic_coverage": 1.0,
+      "direct_funder_coverage": 1.0,
+      "role_fingerprint": "Df8 launch-time provisioner \u2192 ByZc direct funder \u2192 four-step WSOL lifecycle \u2192 creator"
+    },
+    "route_structurality": "ADDRESS_INDEPENDENT_STRUCTURAL",
+    "temporal": {
+      "active_days": 10,
+      "atomic_sequences": [
+        {
+          "count": 32,
+          "sequence": [
+            "createAccount",
+            "initializeAccount",
+            "syncNative",
+            "closeAccount"
+          ],
+          "share": 1.0
+        }
+      ],
+      "current_inactivity_seconds": 17694,
+      "first_launch": "2026-08-13T06:01:09+00:00",
+      "last_launch": "2026-08-25T10:26:54+00:00",
+      "launches_24h": 3,
+      "launches_30d": 32,
+      "launches_7d": 11,
+      "launches_by_day": {
+        "2026-08-13": 5,
+        "2026-08-14": 4,
+        "2026-08-15": 4,
+        "2026-08-16": 3,
+        "2026-08-17": 2,
+        "2026-08-18": 4,
+        "2026-08-19": 2,
+        "2026-08-23": 3,
+        "2026-08-24": 2,
+        "2026-08-25": 3
+      },
+      "maximum_gap_seconds": 335450,
+      "median_gap_seconds": 10434,
+      "members": 32
+    },
+    "verdict": "BYZC_CURRENT_OPERATION_CONFIRMED"
+  },
+  "canonical_parent": {
+    "candidate_id": "p3r-v2-063e24a2def354f23ec5",
+    "members": 41,
+    "unchanged": true
+  },
+  "children": [
+    {
+      "child_id": "P3R_063E_BYZC_CURRENT",
+      "members": [
+        "2Br5iZyB5w7W2LhXhKVo6NFUFmoyjWmuDyQR1Edspump",
+        "2GwJo5TgJFzim7dxRot2enEutP16CMNi2hystB5Wpump",
+        "2J7PmgeseQtUfKr1i5BU4k1UDn5Yaf4FYGwAJ6Eupump",
+        "32JYTad94RuoXZnuwfAyD3137d7qpUgVKSfm8BFrpump",
+        "3g18VhKdwnwZAiN5MMwrGbrmv2BQMu6pcpjudmHwpump",
+        "3xreqNTWpkSG9YJ2Ura582dSTUdN1vqB5eerKsXSpump",
+        "4rifET4ASNWE339PeJMMZAPLv4u1LH1naSnrxMLXpump",
+        "5xw6fuaC68HX6oabZrGEVgVrur4Ae882NoCDHMbPpump",
+        "7CGiA4cdtprHDyZ8CC316tovjLcMd4KMf4b2ArAWpump",
+        "8iYLQhReo1vzHp6xPLhXNJhHb87UynRb2ofDr2Sipump",
+        "8nuZuTv4yrf8yEK8fnKjJmne5sAUTFtttZfbeM7gpump",
+        "8zjSm6qXuhgJ6hMfKNNsiht3vFcY7QVxJt7YZVw1pump",
+        "998RhDdzrBAQj6rC4Mu9N6vMpyVV8gMKrh98FsN6pump",
+        "9WyEujHDjPk4RrgVqeBDa1bWDMzevXN1pAhqJ4KEpump",
+        "9hLwy4Y8L31NimtyBdhuecBSTSUP6uRxjaDHSjfvpump",
+        "9tQDRJzS8yeijskpk8x5Fz8hrsu7thpRtcPNwcdTpump",
+        "AQeT2Yu43rfF2CjMcJ2mqHJsGQ7c4znoo2qErzr6pump",
+        "AkaX24vosnfyEsCGUkMwYRJq9pg14sNTXBBte3xpump",
+        "AqgtHrC5TwPcvTf9dmgQhWwUhmVbaGynop1LxvU9pump",
+        "BoRvUzird5hH8S9vM6n2rDFddkWv769eB2q4PADTpump",
+        "C5ecc42Lg2M6sP1uSPLN9qxER4PJLobc9VVGQURSpump",
+        "Cc6SynbtrCNJMH3ZJXVax77WiL8LmzsPWBJhBeqApump",
+        "DCuGvhXueDqPBQfCf23P4np9w6HYjHsv46jzn5hdpump",
+        "DLfqN87F8eToqfGjrJbrnXxuAhs7tRv5B2W4qVA7pump",
+        "DhBr9uG4mE9dxehD24TW37uoVY1eDRPgDD942VVepump",
+        "E3uCWNm5Ykq7CiPqyZLUezZNDjcHSSd7YyZ45vBRpump",
+        "F44x336AH1Gp58mPurxbnDFNVuTYEeK6RBJtLTwgpump",
+        "G36HqqU3C9uDswj839apMc65fZkj5R82Stu3XRCApump",
+        "H9gmHWRWmPWJBUKDoRsaqmohLjtKG9bnwZVnbCkpump",
+        "J59LUFm5eG6ABGFmiDsqXS8ANrRMtgigeB5Bpvnkpump",
+        "TGhykTFggPdDSkmLaCCKZSn61FeShyVNSFM36vepump",
+        "fy9W7kCAWDBehUFzaCyUQiRD8g3K6LiNaaJf4mRpump"
+      ],
+      "parent_candidate_id": "p3r-v2-063e24a2def354f23ec5",
+      "proposed_name": "WSOL_10_SOL_FOUR_STEP_PROVISION_CLOSE",
+      "status": "READY_FOR_CONFIRMED_REGISTRATION"
+    },
+    {
+      "child_id": "P3R_063E_B65C_LEGACY",
+      "members": [
+        "Cvd75rzwC6YsMAh8tmVKx4ahPXzCq6uAxbpMpzipump",
+        "PcoqZSj1ncvQ548bc797WZTuvvMxXfxwKsdsNqHpump",
+        "S2ZaeLS4VkwThyCLHqLwo1Wn9wyTuyBMKqZaD6rpump",
+        "XiVWYGjHkzikjtemH14wkKKcBDaLMrmqU9VwD8vpump",
+        "ZmEQVoF6r3qPTKdtxr7KXPn7bs6YnjNd2qoQetspump",
+        "bC52XQwEBBT6dubGfHHaNBQr5vjuyoRnqaJr2wVpump",
+        "k7WU6tjsraNF2uQFwnvkJLBkRtgkg3WcNPL3FEppump",
+        "xYgAYMtyEEBSMNrzsCX4kjuNSGLssSXpVFg5GUNpump",
+        "zndMRL63LwABVBRDgnSP7dUkcR9jjELE5D4qeAcpump"
+      ],
+      "parent_candidate_id": "p3r-v2-063e24a2def354f23ec5",
+      "proposed_name": "WSOL_10_SOL_SEEDED_TRANSFER_PROVISION_CLOSE",
+      "status": "PAUSED_LEGACY"
+    }
+  ],
+  "distinctness": "DISTINCT_OPERATION_CONFIRMED_ANALYTICALLY",
+  "remaining_uncertainty": "Replenishment/role features are supplementary and not comparably retained for every external row, but they are not required: B1 is fully observable and clean across the frozen B0 denominator. Prospective runtime atomic retention remains the operational dependency.",
+  "rpc_manifest": {
+    "provider_calls": 0,
+    "reason": "No provider acquisition required: B1 is fully observable across the retained B0 denominator."
+  },
+  "schema_version": "P3R_V2_063E_CHILD_QUALIFICATION.v1"
+}

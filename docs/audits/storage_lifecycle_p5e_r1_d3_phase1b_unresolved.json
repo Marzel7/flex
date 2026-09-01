@@ -1,0 +1,29 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5E-R1-D3 -- file-backed invariant probe recovery",
+  "timestamp_utc": "2026-08-21T10:29:56Z",
+  "terminal_verdict": "HOLD_P5E_R1_PHASE_1B_UNRESOLVED",
+  "phase_results": {
+    "channel_test": "PASS: visible file-backed JSON",
+    "phase_1a": "PASS: 319751 rows and expected immutable manifest values",
+    "phase_1b": "UNRESOLVED"
+  },
+  "phase_1b_diagnosis": {
+    "background_pid": 46178,
+    "process_state_after_poll": "not present",
+    "result_file": "absent",
+    "exception_file": "absent",
+    "nohup_log_bytes": 0,
+    "interpretation": "The harness/background-process lifecycle ended the read-only integrity process before it wrote either result or exception. This is not evidence of integrity failure or data drift."
+  },
+  "production_actions": {
+    "cold_base_replaced": false,
+    "delta_published": false,
+    "hot_rows_deleted": 0,
+    "services_restarted": false,
+    "rollback_db_touched": false
+  },
+  "exact_next_action": "Use a host-external or persistent-session execution mechanism that guarantees background child survival and file result capture for integrity/digest scans; do not advance phases or repair until Phase 1B has an explicit result.",
+  "handoff_integrity": {
+    "pre_update_sha256": "fdfa9e7f2463357148c4ac33cfe7d4fa1f2dfa3c3c1555254b70670dba09eda5"
+  }
+}

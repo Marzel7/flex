@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D6O startup usage-tracker wait diagnosis",
+  "observed_at_utc": "2026-08-14T13:08:06Z",
+  "engineering_revision": "718fa6078f264dff36ba741de82413e51e4a3b00",
+  "status": "PARTIAL_STOP",
+  "verdict": "USAGE_TRACKER_ORDERING_IDENTIFIED_STOP_VAULT_DESCRIPTOR_14",
+  "listener_pid": 88910,
+  "usage_tracker_finding": {
+    "long_connection_age_ms": 30838.579,
+    "overlapping_seed_read_age_seconds": 46.6,
+    "steady_state_later_flush_ms": [28.948, 22.2, 34.024],
+    "implementation_order": [
+      "open write-capable connection and serializer lane",
+      "PRAGMA journal_mode=WAL",
+      "PRAGMA synchronous=NORMAL",
+      "insert batch",
+      "commit",
+      "finally close"
+    ],
+    "interpretation": "Repeating journal-mode assurance inside every five-second flush can wait behind the startup read while retaining the serialized write lane and delaying unrelated writers.",
+    "smallest_safe_local_repair": "Move one-time journal-mode assurance out of steady-state _flush and retain a bounded managed/finally connection scope for insert and commit only."
+  },
+  "pool_discovery_d6m_verification": {
+    "events_observed": true,
+    "recurrent_99_second_holder": false,
+    "observed_close_range": "approximately 0.1 to 1.0 seconds",
+    "verdict": "REPAIR_BEHAVING_AS_DESIGNED"
+  },
+  "stop_event": {
+    "primary_fd_count": 14,
+    "threshold": 8,
+    "dominant_tracked_caller": "vault_discovery.py:969 in discover_and_register_all_pools",
+    "tracked_connection_age_seconds": 22.0,
+    "registry_count": 1,
+    "registry_fd_delta": 13
+  },
+  "terminal_serializer_snapshot_before_stop_discovery": {
+    "p99_wait_ms": 1345.85,
+    "p95_wait_ms": 270.12,
+    "queue_depth": 0,
+    "lock_errors_24h": 0
+  },
+  "scope_evidence": {
+    "production_database_queries": 0,
+    "ddl_or_production_writes": 0,
+    "service_restart_or_stop": 0,
+    "provider_calls": 0,
+    "configuration_changes": 0
+  }
+}

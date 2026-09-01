@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D2B",
+  "observed_at_utc": "2026-08-14T14:36:09Z",
+  "status": "COMPLETE",
+  "verdict": "CALLER_PATH_CORRECTION_ONLY",
+  "authoritative_creator_source": {
+    "logical_source": "creator",
+    "expected_file_name": "pumpswap_tokens.db",
+    "absolute_path": "/Users/kevinkeaveney/Dev/claude/flex/pumpswap_tokens.db",
+    "path_binding_digest": "e0f28444336d5b744dbeedf0474b33a9bee1f0c7877477bc069db8b35c12ee4c",
+    "observed_file_identity_digest": "352fb18c6f77b9ccc65e213135a37c3cb875734bd50ff82b164bf291abb16bcb",
+    "filesystem_metadata": {
+      "device": 16777234,
+      "inode": 364534729,
+      "size_bytes": 24178688,
+      "mtime_epoch": 1786637047,
+      "birth_epoch": 1776795721
+    }
+  },
+  "provenance": [
+    "src/core/pumpfun_curve_listener.py derives CREATOR_DB_PATH from the repository root plus pumpswap_tokens.db unless explicitly overridden.",
+    "src/ops/launcher_observatory_routes.py derives its creator database from repository root plus pumpswap_tokens.db.",
+    "config/supervisor/supervisord.conf runs watchtower_listener with the repository root as its working directory and does not override CREATOR_DB_PATH.",
+    "docs/audits/psi0a_b_production_schema_compatibility.json explicitly records that creator_tokens is in the root pumpswap_tokens.db, not the zero-byte database/pumpswap_tokens.db placeholder."
+  ],
+  "other_same_named_files": [
+    {
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/database/pumpswap_tokens.db",
+      "size_bytes": 0,
+      "classification": "ZERO_BYTE_PLACEHOLDER_NOT_AUTHORITATIVE"
+    },
+    {
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/db_backup/pumpswap_tokens.db",
+      "size_bytes": 1171456,
+      "classification": "BACKUP_NOT_RUNTIME_SOURCE"
+    }
+  ],
+  "root_cause": "D2 caller incorrectly prepended database/ to a manifest filename whose committed provenance already resolved to repository root.",
+  "smallest_repair": "Correct the caller-supplied creator source path and bind its path digest in the next authorization/input fingerprint. No capture-input manifest or query-contract amendment is required.",
+  "database_connections_opened": 0,
+  "schema_or_row_queries": 0,
+  "production_writes": 0,
+  "provider_calls": 0,
+  "service_actions": 0,
+  "d2_retried": false,
+  "production_impact": false
+}

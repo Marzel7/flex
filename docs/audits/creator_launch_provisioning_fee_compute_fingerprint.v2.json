@@ -1,0 +1,536 @@
+{
+  "acquisition_run_ledger": "docs/audits/direct_10k_fee_cu_acquisition_run_ledger.v1.json",
+  "alternate_comparison": [
+    {
+      "cu_limit": 1000000,
+      "cu_price": 50,
+      "fee_payer_role": "FUNDER",
+      "full_fingerprint": {
+        "compute_unit_limit": 1000000,
+        "compute_unit_price_microlamports": 50,
+        "funder_is_fee_payer": true,
+        "inner_instruction_count": 0,
+        "meta_fee_lamports": 5050,
+        "outer_instruction_count": 3,
+        "signer_count": 1
+      },
+      "inner_count": 0,
+      "matches_any_strict_fingerprint": true,
+      "matches_dominant_strict_fingerprint": true,
+      "meta_fee": 5050,
+      "mint": "49t113M4eMYfKHVA55BhnFNbBt33reCNDqtd6fkYFT3B",
+      "outer_count": 3,
+      "signer_count": 1
+    },
+    {
+      "cu_limit": 1000000,
+      "cu_price": 50,
+      "fee_payer_role": "FUNDER",
+      "full_fingerprint": {
+        "compute_unit_limit": 1000000,
+        "compute_unit_price_microlamports": 50,
+        "funder_is_fee_payer": true,
+        "inner_instruction_count": 0,
+        "meta_fee_lamports": 5050,
+        "outer_instruction_count": 3,
+        "signer_count": 1
+      },
+      "inner_count": 0,
+      "matches_any_strict_fingerprint": true,
+      "matches_dominant_strict_fingerprint": true,
+      "meta_fee": 5050,
+      "mint": "GyMC6ay28dxcfdpbYjwqfP8EfjVvrHE4rP6vwoMupump",
+      "outer_count": 3,
+      "signer_count": 1
+    },
+    {
+      "cu_limit": 1000000,
+      "cu_price": 50,
+      "fee_payer_role": "FUNDER",
+      "full_fingerprint": {
+        "compute_unit_limit": 1000000,
+        "compute_unit_price_microlamports": 50,
+        "funder_is_fee_payer": true,
+        "inner_instruction_count": 0,
+        "meta_fee_lamports": 5050,
+        "outer_instruction_count": 3,
+        "signer_count": 1
+      },
+      "inner_count": 0,
+      "matches_any_strict_fingerprint": true,
+      "matches_dominant_strict_fingerprint": true,
+      "meta_fee": 5050,
+      "mint": "22hwGyN552rCB7GW73GdC839Nkbi881jCXNgvoT5pump",
+      "outer_count": 3,
+      "signer_count": 1
+    }
+  ],
+  "audit_id": "creator_launch_provisioning_fee_compute_fingerprint.v2",
+  "coverage": {
+    "ALTERNATE": {
+      "raw_transaction_present": 3,
+      "total": 3
+    },
+    "QVtW": {
+      "raw_transaction_present": 6,
+      "total": 6
+    },
+    "STRICT": {
+      "compute_unit_limit_present": 75,
+      "compute_unit_price_present": 75,
+      "meta_fee_present": 84,
+      "raw_transaction_present": 84,
+      "total": 84
+    }
+  },
+  "cross_funder_analysis": {
+    "cross_funder_shared_fingerprint_count": 2,
+    "largest_cross_funder_fingerprint": {
+      "creator_count": 74,
+      "fingerprint": {
+        "compute_unit_limit": 1000000,
+        "compute_unit_price_microlamports": 50,
+        "funder_is_fee_payer": true,
+        "inner_instruction_count": 0,
+        "meta_fee_lamports": 5050,
+        "outer_instruction_count": 3,
+        "signer_count": 1
+      },
+      "funder_count": 51,
+      "launch_count": 74
+    },
+    "recurrence_classification": {
+      "(1, True, 5000, 1000000, 0, 3, 0)": "SINGLE_CREATOR",
+      "(1, True, 5000, None, None, 1, 0)": "CROSS_FUNDER_CROSS_CREATOR",
+      "(1, True, 5050, 1000000, 50, 3, 0)": "CROSS_FUNDER_CROSS_CREATOR"
+    }
+  },
+  "detector": "DIRECT_10K_CREATOR_PROVISIONING",
+  "detector_digest": "faaa44199b06f9194e83fcaac2f9bf8ad3b84b75900329e638213f93b2a7eef5",
+  "distinct_strict_fingerprint_count": 3,
+  "feature_classification": {
+    "compute_unit_limit": "SUPPORTING_DETECTOR_FEATURE",
+    "compute_unit_price": "DIAGNOSTIC_ONLY",
+    "full_normalized_fingerprint": "SUPPORTING_DETECTOR_FEATURE",
+    "funder_fee_payer_role": "SUPPORTING_DETECTOR_FEATURE",
+    "meta_fee": "DIAGNOSTIC_ONLY",
+    "priority_fee": "DIAGNOSTIC_ONLY",
+    "signer_count": "SUPPORTING_DETECTOR_FEATURE"
+  },
+  "genericity": {
+    "control_prevalence_percent": 0.0,
+    "enrichment_ratio": "INFINITE_CONTROL_ZERO",
+    "strict_prevalence_percent": 88.1
+  },
+  "hard_detector_ablation": [
+    {
+      "alternate_match_after": "3/3",
+      "feature": "cu_limit_equals_dominant",
+      "qvtw_match_after": "0/6",
+      "strict_recall_after": "75/84"
+    },
+    {
+      "alternate_match_after": "3/3",
+      "feature": "cu_price_equals_dominant",
+      "qvtw_match_after": "0/6",
+      "strict_recall_after": "74/84"
+    },
+    {
+      "alternate_match_after": "3/3",
+      "feature": "full_fingerprint_equals_dominant",
+      "qvtw_match_after": "0/6",
+      "strict_recall_after": "74/84"
+    }
+  ],
+  "largest_fingerprint": {
+    "count": 74,
+    "distinct_creators": 74,
+    "distinct_funders": 51,
+    "fingerprint": {
+      "compute_unit_limit": 1000000,
+      "compute_unit_price_microlamports": 50,
+      "funder_is_fee_payer": true,
+      "inner_instruction_count": 0,
+      "meta_fee_lamports": 5050,
+      "outer_instruction_count": 3,
+      "signer_count": 1
+    },
+    "first_seen": 1784653717,
+    "last_seen": 1788093288,
+    "percent": 88.1
+  },
+  "manual_example": {
+    "compute_unit_limit": 1000000,
+    "compute_unit_price_microlamports": 50,
+    "fee_payer_is_funder": true,
+    "inner_instruction_count": 0,
+    "matches_dominant_strict_fingerprint": true,
+    "meta_fee_lamports": 5050,
+    "meta_fee_sol": 5.05e-06,
+    "mint": "kqcyNfnQuki1JBjMuSC3XYNSuBBezfKeAnYWtNtpump",
+    "normalized_fingerprint": {
+      "compute_unit_limit": 1000000,
+      "compute_unit_price_microlamports": 50,
+      "funder_is_fee_payer": true,
+      "inner_instruction_count": 0,
+      "meta_fee_lamports": 5050,
+      "outer_instruction_count": 3,
+      "signer_count": 1
+    },
+    "note": "Raw meta.fee=5050 lamports (0.00000505 SOL). Explorer-rendered figures 0.05505 SOL / 0.075 SOL are NOT used or reproduced as data; the true on-chain fee is roughly 4 orders of magnitude smaller, confirming the task's warning about explorer decimal/formatting confusion.",
+    "outer_instruction_count": 3,
+    "population": "STRICT",
+    "signature": "3u5meAwUCqECiXLrbZpy43n4HrZoZBBFNJvwrr9eKkDFP9Q1BkB1UW4WQ18abGcA1AXczwsHkKhWFSyTU6ESFcVZ",
+    "signer_count": 1
+  },
+  "outside_controls": {
+    "control_count": 30,
+    "control_matching_any_strict_fingerprint": 0,
+    "control_matching_dominant_strict_fingerprint": 0,
+    "control_raw_coverage": 30,
+    "source": "docs/audits/canonical_birth_transaction_cache.v1.jsonl (already-cached, zero additional RPC)"
+  },
+  "populations": {
+    "alternate_population": 3,
+    "qvtw_population": 6,
+    "strict_population": 84
+  },
+  "production_write_verification": {
+    "assignment_writes": 0,
+    "detector_changes": 0,
+    "living_writes": 0,
+    "membership_writes": 0,
+    "operation_status_writes": 0,
+    "schema_changes": 0,
+    "source_table_writes": 0,
+    "token_analysis_writes": 0
+  },
+  "provider_calls_this_analysis_script": 0,
+  "qvtw_comparison": [
+    {
+      "cu_limit": null,
+      "cu_price": null,
+      "fee_payer_role": "FUNDER",
+      "full_fingerprint": {
+        "compute_unit_limit": null,
+        "compute_unit_price_microlamports": null,
+        "funder_is_fee_payer": true,
+        "inner_instruction_count": 0,
+        "meta_fee_lamports": 10000,
+        "outer_instruction_count": 3,
+        "signer_count": 2
+      },
+      "inner_count": 0,
+      "matches_any_strict_fingerprint": false,
+      "matches_dominant_strict_fingerprint": false,
+      "meta_fee": 10000,
+      "mint": "EL4TQEUGPpW8LZnD7PqZX1hWuqCo64tFsgTJfyGKpump",
+      "outer_count": 3,
+      "signer_count": 2
+    },
+    {
+      "cu_limit": null,
+      "cu_price": null,
+      "fee_payer_role": "FUNDER",
+      "full_fingerprint": {
+        "compute_unit_limit": null,
+        "compute_unit_price_microlamports": null,
+        "funder_is_fee_payer": true,
+        "inner_instruction_count": 0,
+        "meta_fee_lamports": 25000,
+        "outer_instruction_count": 12,
+        "signer_count": 5
+      },
+      "inner_count": 0,
+      "matches_any_strict_fingerprint": false,
+      "matches_dominant_strict_fingerprint": false,
+      "meta_fee": 25000,
+      "mint": "DgFuSYjwjVYBtD17QrJbFYtDXvjn1hJLErz5DoY9pump",
+      "outer_count": 12,
+      "signer_count": 5
+    },
+    {
+      "cu_limit": null,
+      "cu_price": null,
+      "fee_payer_role": "FUNDER",
+      "full_fingerprint": {
+        "compute_unit_limit": null,
+        "compute_unit_price_microlamports": null,
+        "funder_is_fee_payer": true,
+        "inner_instruction_count": 0,
+        "meta_fee_lamports": 15000,
+        "outer_instruction_count": 6,
+        "signer_count": 3
+      },
+      "inner_count": 0,
+      "matches_any_strict_fingerprint": false,
+      "matches_dominant_strict_fingerprint": false,
+      "meta_fee": 15000,
+      "mint": "CYVCvH1u59vHZv9LiwVgrsuaFDDMCUwWyjjNkT6wpump",
+      "outer_count": 6,
+      "signer_count": 3
+    },
+    {
+      "cu_limit": null,
+      "cu_price": null,
+      "fee_payer_role": "FUNDER",
+      "full_fingerprint": {
+        "compute_unit_limit": null,
+        "compute_unit_price_microlamports": null,
+        "funder_is_fee_payer": true,
+        "inner_instruction_count": 0,
+        "meta_fee_lamports": 15000,
+        "outer_instruction_count": 6,
+        "signer_count": 3
+      },
+      "inner_count": 0,
+      "matches_any_strict_fingerprint": false,
+      "matches_dominant_strict_fingerprint": false,
+      "meta_fee": 15000,
+      "mint": "3bM3yijpVApAZT5H87hZ4FmjzLiF5Ui6WtSFkG4Npump",
+      "outer_count": 6,
+      "signer_count": 3
+    },
+    {
+      "cu_limit": null,
+      "cu_price": null,
+      "fee_payer_role": "FUNDER",
+      "full_fingerprint": {
+        "compute_unit_limit": null,
+        "compute_unit_price_microlamports": null,
+        "funder_is_fee_payer": true,
+        "inner_instruction_count": 0,
+        "meta_fee_lamports": 30000,
+        "outer_instruction_count": 15,
+        "signer_count": 6
+      },
+      "inner_count": 0,
+      "matches_any_strict_fingerprint": false,
+      "matches_dominant_strict_fingerprint": false,
+      "meta_fee": 30000,
+      "mint": "9tTm1ByxUi73Cxxjme8EQU953SD7ekHZW25GNibbpump",
+      "outer_count": 15,
+      "signer_count": 6
+    },
+    {
+      "cu_limit": null,
+      "cu_price": 1,
+      "fee_payer_role": "FUNDER",
+      "full_fingerprint": {
+        "compute_unit_limit": null,
+        "compute_unit_price_microlamports": 1,
+        "funder_is_fee_payer": true,
+        "inner_instruction_count": 0,
+        "meta_fee_lamports": 30001,
+        "outer_instruction_count": 16,
+        "signer_count": 6
+      },
+      "inner_count": 0,
+      "matches_any_strict_fingerprint": false,
+      "matches_dominant_strict_fingerprint": false,
+      "meta_fee": 30001,
+      "mint": "LWZvn5VWRk23xzzkbrSR1yCaWnKNcU1tFCMAnvppump",
+      "outer_count": 16,
+      "signer_count": 6
+    }
+  ],
+  "repeat_funder_consistency": {
+    "2gBhiVzPbaLNwUmELeiHQ94RZmn1ftLqVXpZBhxZhNiw": {
+      "cu_limit": "CONSTANT",
+      "cu_price": "CONSTANT",
+      "full_fingerprint": "CONSTANT",
+      "launch_count": 2,
+      "meta_fee": "CONSTANT"
+    },
+    "2uPFEpvFHq5xwDeftjvEPXq5b1t48UqDDJeSN9TsRE9Y": {
+      "cu_limit": "CONSTANT",
+      "cu_price": "CONSTANT",
+      "full_fingerprint": "CONSTANT",
+      "launch_count": 6,
+      "meta_fee": "CONSTANT"
+    },
+    "3nTEKyixfWGcUSjAHsUZwad8QHrDoNQDWdKVHRXqkHkR": {
+      "cu_limit": "CONSTANT",
+      "cu_price": "CONSTANT",
+      "full_fingerprint": "CONSTANT",
+      "launch_count": 5,
+      "meta_fee": "CONSTANT"
+    },
+    "3tEiWoYHQzopxnzTGUbmgQVB5RpNe2nTLQpqMzioyQc5": {
+      "cu_limit": "CONSTANT",
+      "cu_price": "CONSTANT",
+      "full_fingerprint": "CONSTANT",
+      "launch_count": 5,
+      "meta_fee": "CONSTANT"
+    },
+    "4ae7rX1CekEAvEG4LzHbRpG6HzSWxuSNq2w8qjZHdBaC": {
+      "cu_limit": "CONSTANT",
+      "cu_price": "CONSTANT",
+      "full_fingerprint": "CONSTANT",
+      "launch_count": 5,
+      "meta_fee": "CONSTANT"
+    },
+    "7kJcoBav4yDccZw7YQTiYeiHjz23E9BZ4jojnU5VAVHH": {
+      "cu_limit": "CONSTANT",
+      "cu_price": "CONSTANT",
+      "full_fingerprint": "CONSTANT",
+      "launch_count": 3,
+      "meta_fee": "CONSTANT"
+    },
+    "B45FhPEEaYj78L2CK1xHPkdCXgWMNiadsK8fRgGPxKom": {
+      "cu_limit": "CONSTANT",
+      "cu_price": "CONSTANT",
+      "full_fingerprint": "CONSTANT",
+      "launch_count": 2,
+      "meta_fee": "CONSTANT"
+    },
+    "Bvrc31ZYRAPeuhnkWY8wzUSt57N5CtHCQrxJqaCPAuqN": {
+      "cu_limit": "CONSTANT",
+      "cu_price": "CONSTANT",
+      "full_fingerprint": "CONSTANT",
+      "launch_count": 2,
+      "meta_fee": "CONSTANT"
+    },
+    "C3axbh1LCBvg1KuKYgyEQWm11kAhyDGBoUnP5uVkp1kc": {
+      "cu_limit": "CONSTANT",
+      "cu_price": "CONSTANT",
+      "full_fingerprint": "CONSTANT",
+      "launch_count": 3,
+      "meta_fee": "CONSTANT"
+    },
+    "GgrPgh6e7NfwZ7gaGaRepkXi27b3MzbcU2deUA3X3dZT": {
+      "cu_limit": "CONSTANT",
+      "cu_price": "CONSTANT",
+      "full_fingerprint": "CONSTANT",
+      "launch_count": 3,
+      "meta_fee": "CONSTANT"
+    },
+    "HkF8M9ZrVYA7bTDUE6NjPsahHdnyqjLpByt5tKsdTtv6": {
+      "cu_limit": "CONSTANT",
+      "cu_price": "CONSTANT",
+      "full_fingerprint": "CONSTANT",
+      "launch_count": 3,
+      "meta_fee": "CONSTANT"
+    }
+  },
+  "strict_cu_limit": {
+    "absent_count": 9,
+    "distinct_values": 1,
+    "most_common_count": 75,
+    "most_common_percent": 100.0,
+    "most_common_value": 1000000,
+    "present_count": 75,
+    "top_values": [
+      {
+        "count": 75,
+        "percent": 100.0,
+        "value": 1000000
+      }
+    ]
+  },
+  "strict_cu_price": {
+    "absent_count": 9,
+    "distinct_values": 2,
+    "most_common_count": 74,
+    "most_common_percent": 98.7,
+    "most_common_value": 50,
+    "present_count": 75,
+    "top_values": [
+      {
+        "count": 74,
+        "percent": 98.7,
+        "value": 50
+      },
+      {
+        "count": 1,
+        "percent": 1.3,
+        "value": 0
+      }
+    ]
+  },
+  "strict_meta_fee_distribution": {
+    "count": 84,
+    "max": 5050,
+    "median": 5050.0,
+    "min": 5000,
+    "p10": 5000.0,
+    "p25": 5050.0,
+    "p75": 5050.0,
+    "p90": 5050.0,
+    "p95": 5050.0
+  },
+  "strict_meta_fee_top_values": [
+    {
+      "count": 74,
+      "percent": 88.1,
+      "value": 5050
+    },
+    {
+      "count": 10,
+      "percent": 11.9,
+      "value": 5000
+    }
+  ],
+  "supersedes": "docs/audits/creator_launch_provisioning_fee_compute_fingerprint.v1.json",
+  "temporal_stability": {
+    "cu_limit_temporal_stability": "STABLE",
+    "cu_price_temporal_stability": "MODERATELY_VARIABLE",
+    "early_period_count": 29,
+    "late_period_count": 27,
+    "meta_fee_temporal_stability": "MODERATELY_VARIABLE",
+    "middle_period_count": 28
+  },
+  "top_strict_fingerprints": [
+    {
+      "count": 74,
+      "distinct_creators": 74,
+      "distinct_funders": 51,
+      "fingerprint": {
+        "compute_unit_limit": 1000000,
+        "compute_unit_price_microlamports": 50,
+        "funder_is_fee_payer": true,
+        "inner_instruction_count": 0,
+        "meta_fee_lamports": 5050,
+        "outer_instruction_count": 3,
+        "signer_count": 1
+      },
+      "first_seen": 1784653717,
+      "last_seen": 1788093288,
+      "percent": 88.1
+    },
+    {
+      "count": 9,
+      "distinct_creators": 9,
+      "distinct_funders": 4,
+      "fingerprint": {
+        "compute_unit_limit": null,
+        "compute_unit_price_microlamports": null,
+        "funder_is_fee_payer": true,
+        "inner_instruction_count": 0,
+        "meta_fee_lamports": 5000,
+        "outer_instruction_count": 1,
+        "signer_count": 1
+      },
+      "first_seen": 1780414247,
+      "last_seen": 1787199768,
+      "percent": 10.7
+    },
+    {
+      "count": 1,
+      "distinct_creators": 1,
+      "distinct_funders": 1,
+      "fingerprint": {
+        "compute_unit_limit": 1000000,
+        "compute_unit_price_microlamports": 0,
+        "funder_is_fee_payer": true,
+        "inner_instruction_count": 0,
+        "meta_fee_lamports": 5000,
+        "outer_instruction_count": 3,
+        "signer_count": 1
+      },
+      "first_seen": 1777500541,
+      "last_seen": 1777500541,
+      "percent": 1.2
+    }
+  ]
+}

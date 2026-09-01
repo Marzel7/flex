@@ -1,0 +1,188 @@
+{
+  "schema_version": "b2z.p0.creator-funding-qualification-preflight.v1",
+  "artifact_type": "B2Z_P0_CREATOR_FUNDING_QUALIFICATION_PREFLIGHT",
+  "milestone": "B2Z-P0",
+  "generated_utc": "2026-08-18T23:05:00Z",
+  "purpose": "PREFLIGHT ONLY. No provider/RPC calls made. No live B2Z execution. Determines exactly what B2Z needs, what exists locally, what genuinely requires provider access, and the smallest safe bounded authorization.",
+
+  "part1_existing_b2z_contract": {
+    "code_file": "src/acquisition/b2z_execution_boundary.py",
+    "contract_version": "OIP_v2.2E.2B2Z.v1",
+    "provider": "helius_rpc",
+    "max_requests_constant": 60,
+    "input_contract": "B2NManifest (20 frozen members) + B2WInputProjection (mint->migration_signature binding), both already qualified and frozen",
+    "output_contract": "list of dicts per successful member: {sample_ordinal, mint, migration_signature, creator, funding_signature, evidence_observed:true, provenance_complete:true}",
+    "provider_methods_used": ["getTransaction (migration signature)", "getSignaturesForAddress (creator)", "getTransaction (candidate funding signature)"],
+    "sequential_request_dependencies": "strict -- request 2 needs the creator resolved from request 1's response; request 3 needs the candidate signature selected from request 2's response",
+    "request_count_per_member": 3,
+    "total_request_ceiling": "MAX_REQUESTS = 60 (module constant, exactly 3x20)",
+    "ledger_semantics": "PhysicalAttemptLedger (JSONL, append-only). require_empty() is called at the START of every B2ZRunner.run() -- a NON-EMPTY ledger makes the run refuse to start at all (B2Z_LEDGER_MUST_BE_EMPTY). This is proven by tests/test_oip_v2_2e_2b2bp_execution_boundary.py::test_existing_ledger_and_nonzero_client_counter_fail_before_request.",
+    "stop_conditions": ["B2Z_GLOBAL_BUDGET_EXHAUSTED", "B2Z_CLIENT_COUNTER_MISMATCH", "B2Z_FIRST_NON_SUCCESS_STOP (any RPC error, HTTP failure, malformed response, or business-rule failure for ANY member)", "B2Z_MINT_NOT_IN_MIGRATION", "B2Z_CREATOR_AMBIGUOUS (more than one signer key)", "B2Z_MIGRATION_TIME_MISSING", "B2Z_FIRST_NON_SUCCESS_STOP_NO_CANDIDATE (no funding candidate before migration time)", "B2Z_FIRST_NON_SUCCESS_STOP_FUNDING_TIME_INVALID", "B2Z_FIRST_NON_SUCCESS_STOP_NO_FUNDING_EDGE"],
+    "evidence_requirements": "single unambiguous transaction signer as creator; a System Program transfer/transferWithSeed instruction (top-level or inner) with positive lamports and destination==creator, occurring strictly before migration blockTime",
+    "provenance_requirements": "provenance_complete=true only set on full 3-request success with all validations passed",
+    "cache_semantics": "NONE -- no caching anywhere in this module",
+    "retry_behavior": "NONE -- a single failed physical attempt immediately raises and stops the entire run",
+    "pagination_behavior": "NONE -- getSignaturesForAddress uses a fixed {limit: 1000}, no cursor/before/until pagination",
+    "fallback_behavior": "NONE -- single provider, single endpoint, no failover",
+    "production_read_write_authority": "NONE in the code itself -- B2ZRunner takes only manifest/projection/transport/ledger as constructor args, no DB or environment coupling",
+    "critical_finding_no_resume_mechanism": "B2ZRunner.run() has NO continuation/resume capability whatsoever, unlike B2N's P3G-qualified resume_run(). Any interruption (crash, timeout, single-member failure) leaves a non-empty ledger that BLOCKS any future run attempt (require_empty() raises). This directly conflicts with this milestone's Part 8-10 requirements and must be resolved (either by extending the code with a resume path analogous to B2N's, or by explicitly authorizing a design where a fresh empty ledger is required for every future attempt) before ANY live execution -- it is a genuine engineering gap, not something this preflight can paper over."
+  },
+
+  "part2_three_request_shape_reconciled": {
+    "claimed_shape_in_prior_prompt": "REQUEST 1: getTransaction(migration_signature); REQUEST 2: creator-address history/signatures query; REQUEST 3: getTransaction(candidate_funding_signature)",
+    "actual_shape_proven_from_code": {
+      "request_1": {"method": "getTransaction", "params": ["migration_signature", {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}], "purpose": "fetch full migration transaction; resolve_creator() extracts the single signer account as creator, and blockTime as migration_time"},
+      "request_2": {"method": "getSignaturesForAddress", "params": ["creator", {"limit": 1000}], "purpose": "fetch up to 1000 recent signatures for the resolved creator address; filter client-side to blockTime < migration_time; select candidates[0] (the most recent qualifying signature) unconditionally", "depends_on": "request_1's resolved creator address and migration_time"},
+      "request_3": {"method": "getTransaction", "params": ["candidate_signature", {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}], "purpose": "fetch the candidate funding transaction; validate funding_time < migration_time AND proves_inbound_sol_funding(funding, creator)", "depends_on": "request_2's selected candidate signature"}
+    },
+    "shape_matches_prior_claim": true,
+    "dependency_chain_confirmed": "strict sequential, each request's params depend on the immediately preceding request's parsed response -- cannot be reordered, parallelized, or precomputed"
+  },
+
+  "part3_b2n_reuse_determination": {
+    "classification": "B2N_OUTPUT_NOT_SUFFICIENT",
+    "reasoning": [
+      "B2N's MigrationGetTransactionAdapter.acquire_once() (src/acquisition/b2w_projection.py) calls the identical getTransaction RPC for the identical migration_signature, but DISCARDS the parsed transaction body after extracting only: whether the mint appears in accountKeys, and the slot number. It returns a thin OneRequestResponse dataclass, never the full result.",
+      "B2N's execution script (scripts/run_b2n_p3c_migration_lineage_run.py) has ZERO retention/artifact-store coupling -- confirmed by direct grep, no RetainedAcquisitionStore or ArtifactStore reference anywhere in that file.",
+      "B2N's durable attempt ledger (docs/audits/b2n_p3c_live_ledger_...) contains only: observation_id-equivalent fields, mint, provider_signature, provider_slot, request_outcome, request_count, provenance_complete, error_class -- confirmed by direct field inspection of a live entry. No accountKeys, no signer flags, no full blockTime (provider_block_time_utc is null on all 20 entries).",
+      "B2Z's resolve_creator() specifically requires accountKeys with signer flags (to find the unique signer) and an integer blockTime (to establish migration_time) -- fields B2N never captured or persisted anywhere."
+    ],
+    "conclusion": "B2Z Request 1 (getTransaction for the migration signature) MUST be re-executed live for all 20 members. This is not a redundant refetch of data we already possess -- the earlier fetch's response body was never retained.",
+    "b2z_frozen_projection_reuse": "The migration_signature-to-mint BINDING itself (not the transaction content) is fully reusable: docs/evidence_platform/oip_v2_2e_2b2bq_b2z_frozen_projection.json was independently verified this milestone to match B2N's live-qualified output exactly for all 20 members (same manifest_digest, same 20 mint->signature pairs). This projection can be used as B2Z's input directly, with no re-derivation needed."
+  },
+
+  "part4_5_local_evidence_search": {
+    "matrix_artifact": "docs/audits/b2z_p0_local_evidence_coverage_matrix.json",
+    "matrix_artifact_sha256": "eb89b3dcca2b247433912eb56e7c96d04716ac2527d58c71015fac47702a29ae",
+    "sources_checked": [
+      "V2 retained store (retained_acquisition_shadow.db) -- post-cutover, only contains data from unrelated acquisition flows since 2026-08-18T19:28, not B2N's execution",
+      "compact historical index (retained_acquisition_legacy_compact.db) -- pre-June retention data, no signature column, not applicable to this cohort",
+      "token_analysis.pf_ws_creator / earliest_tx_creator -- populated for all 20 mints, BUT this is a real-time WebSocket-listener-derived hint, not an on-chain-verified creator per B2Z's own contract (which requires deriving the creator from the migration transaction's unique signer)",
+      "creator_funders -- has funder_address/amount_sol summary rows for all 20 candidate creators (1 to 510 rows each), but the table SCHEMA HAS NO transaction_signature COLUMN AT ALL (confirmed via .schema; this differs from what docs/CLAUDE.md documents, which is stale relative to the current live schema)",
+      "creator_inbound_transfers -- DOES have a transaction_signature column, but has ZERO rows for any of the 20 candidate creator addresses (confirmed via direct query) -- this extraction path has simply never run for this cohort",
+      "pumpfun_migration_verification -- confirms mint<->migration_tx binding for a spot-checked subset, cross-validates B2N's signatures, but carries no creator/funding fields"
+    ],
+    "summary_verdict": "zero of the 20 members have provider-independent, on-chain-verified creator-funding evidence available locally"
+  },
+
+  "part6_provider_requirement_calculation": {
+    "members_requiring_0_calls": 0,
+    "members_requiring_1_call": 0,
+    "members_requiring_2_calls": 0,
+    "members_requiring_3_calls": 20,
+    "exact_required_budget": 60,
+    "reduction_achieved_vs_full_contract": 0,
+    "explicit_statement": "The full 60-request budget genuinely reflects what this cohort requires -- it is not an unexamined default. Local evidence was searched exhaustively (Part 4/5) and found insufficient for every member, for the specific reasons documented per-member in the coverage matrix."
+  },
+
+  "part7_provider_method_compatibility": {
+    "provider": "helius",
+    "endpoint_family": "helius-mainnet-json-rpc",
+    "methods_required": ["getTransaction", "getSignaturesForAddress"],
+    "getTransaction_request_shape": "{jsonrpc:2.0, method:getTransaction, params:[signature, {encoding:jsonParsed, maxSupportedTransactionVersion:0}]}",
+    "getTransaction_response_fields_required": "result.blockTime (int), result.slot, result.transaction.message.accountKeys (list of {pubkey, signer}), result.transaction.message.instructions, result.meta.innerInstructions, result.meta.err (must be null for success)",
+    "getSignaturesForAddress_request_shape": "{jsonrpc:2.0, method:getSignaturesForAddress, params:[address, {limit:1000}]}",
+    "getSignaturesForAddress_response_fields_required": "result (array or {value: array}) of {signature: str, blockTime: int}",
+    "cache_hit_semantics": "not applicable -- B2Z has no cache layer",
+    "rate_limit_considerations": "60 sequential single-attempt requests, no concurrency, no documented rate-limit handling in this module -- a 429/rate-limit response would surface as a normal RPC error and trigger B2Z_FIRST_NON_SUCCESS_STOP (no backoff/retry)",
+    "existing_isolated_helius_credential_compatibility": "the same B2N_P3C_HELIUS_ENDPOINT-style isolated credential pattern is directly compatible -- HeliusJsonRpcTransport in b2z_execution_boundary.py requires only an https:// endpoint string, identical shape to B2N's RedactingJsonRpcTransport dependency",
+    "static_analysis_only_no_live_calls_made": true
+  },
+
+  "part8_9_10_ledger_and_resume_design": {
+    "status": "DESIGN PROPOSED, NOT IMPLEMENTED -- this is the single largest gap between B2Z's current code and this milestone's required safety bar",
+    "new_run_id_required": true,
+    "reasoning_for_new_run_id": "B2N's run_id (b2n-p3e-98695fbdf44146c93ff08c8c) is exhausted (20/20, 0 remaining) and scoped to a DIFFERENT contract (migration-lineage-only, 1 request/member). B2Z needs its own independent authorization, budget, and ledger identity -- never reuse B2N's exhausted budget.",
+    "proposed_authorization_object_fields": ["run_id (new, derived deterministically from a B2Z-specific seed analogous to B2N's derivation)", "provider=helius", "endpoint_family=helius-mainnet-json-rpc", "manifest_digest (bound to the same 82bbda32... B2N manifest)", "projection_digest (bound to the existing eb2713e3... frozen projection)", "max_total_requests=60", "max_requests_per_member=3", "retry_budget=0", "pagination_budget=0", "fallback_budget=0"],
+    "request_stage_identity_proposal": "each physical attempt must be tagged with an explicit stage name distinguishing the three sequential calls per member -- proposed names matching the existing Attempt.member_request_number semantics: MIGRATION_TX (member_request_number=1), CREATOR_HISTORY (member_request_number=2), FUNDING_TX (member_request_number=3)",
+    "required_code_change_for_resume": [
+      "Add a resume-capable entry point analogous to B2N's resume_run(): read the existing (possibly non-empty) PhysicalAttemptLedger, determine the highest completed (ordinal, stage) pair, and compute the deterministic next (ordinal, stage) to attempt.",
+      "Because a member's 3 stages depend on each other's RESPONSE CONTENT (not just success/failure), a resume implementation must persist enough of each stage's parsed output (creator address after stage 1, candidate signature after stage 2) to resume mid-member without re-deriving it from a lost response -- the current Attempt dataclass does NOT carry this (it has target/outcome/error_class but no parsed creator/candidate fields). This is a real design gap: B2N's resume worked because each member was a single independent request; B2Z's resume is harder because of intra-member sequential dependency.",
+      "Proposed minimal fix: extend the per-member ledger entry (or a parallel small JSON side-file, append-only, keyed by ordinal) to durably record {ordinal, stage, resolved_creator (after stage 1), migration_time (after stage 1), candidate_signature (after stage 2)} the moment each stage succeeds -- so a resume can reconstruct the exact next request's params without re-fetching an already-completed stage.",
+      "Pre-dispatch durable reservation (an ATTEMPT_RESERVED-equivalent event written BEFORE the network call) must be added -- B2Z's current _call() only appends to the ledger AFTER the attempt completes (success or failure), which means a crash DURING a network call leaves ZERO ledger evidence of the attempt, unlike B2N's PreDispatchEventLedger which durably reserves first. This is a second real gap versus B2N's durability lessons (Part 9's explicit requirement)."
+    ],
+    "duplicate_stage_prevention_proposal": "mirror B2N's DurableAccountingClient pattern: refuse to re-dispatch a (ordinal, stage) pair that already has a terminal event in the durable ledger",
+    "explicit_conclusion": "Building this resume-capable design properly is real engineering work, not something to fabricate as already-existing. This preflight documents the design; it does not claim the design is implemented or tested. A safe path forward is to execute B2Z's EXISTING all-or-nothing runner (which the code and tests already qualify) for a SINGLE session, accepting that a stop mid-run requires manual ledger archival + fresh start for the remainder -- OR to invest in the resume extension first. This choice is presented as a decision point, not resolved unilaterally here."
+  },
+
+  "part11_creator_funding_evidence_contract": {
+    "source": "directly extracted from src/acquisition/b2z_execution_boundary.py -- existing repository contract, not invented",
+    "creator_identity_requirement": "exactly one signer account key in the migration transaction (resolve_creator raises B2Z_CREATOR_AMBIGUOUS if signer count != 1)",
+    "candidate_funding_transaction_requirement": "a signature from getSignaturesForAddress(creator) with blockTime < migration_time, selected as the single most-recent qualifying candidate (candidates[0])",
+    "funding_source_requirement": "the transaction's parsed System Program transfer/transferWithSeed instruction (top-level or nested in meta.innerInstructions) with info.destination == creator and integer info.lamports > 0 -- the 'source' field is NOT itself validated or required to be present in the funding_edge check (proves_inbound_sol_funding does not assert on info.source)",
+    "amount_requirement": "lamports > 0 only -- no minimum threshold, no maximum, no plausibility check",
+    "timestamp_requirement": "funding transaction's own blockTime must be strictly less than migration transaction's blockTime (funding_time < migration_time in run(), also re-checked identically as part of the stop condition)",
+    "transaction_success_requirement": "_result() raises B2Z_TRANSACTION_FAILED if result.meta.err is not null -- both migration and funding transactions must have succeeded on-chain",
+    "provenance_source": "the raw provider getTransaction response itself, validated at request time -- no separate provenance/confidence scoring beyond binary pass/fail",
+    "confidence_state": "binary only -- evidence_observed=true and provenance_complete=true are set together only on full 3-stage success; there is no partial-confidence or lower-tier evidence state in this contract",
+    "no_new_semantics_invented": true
+  },
+
+  "part12_temporal_semantics": {
+    "lookback_window": "UNBOUNDED -- getSignaturesForAddress uses only {limit: 1000}, no before/until timestamp bound; the client-side filter (blockTime < migration_time) is the ONLY temporal constraint, applied to whatever signatures the 1000-row page happens to contain",
+    "timestamp_boundary": "strict less-than (funding_time < migration_time), not less-than-or-equal",
+    "ordering": "getSignaturesForAddress returns signatures in reverse-chronological order (Solana RPC default) -- the client code takes the list as-given and filters, so candidates[0] after filtering is the MOST RECENT signature strictly before migration_time",
+    "same_slot_semantics": "not explicitly handled -- if a funding transaction and the migration transaction occurred in the same slot but funding's blockTime happens to equal migration's blockTime (same-second resolution), the strict < comparison would exclude it. blockTime has only 1-second resolution on Solana, so same-second-different-order transactions are a real, if narrow, edge case the code does not specially address.",
+    "multiple_candidate_handling": "NONE beyond taking the single most-recent qualifying signature -- if that specific transaction's parsed content fails proves_inbound_sol_funding() (e.g. it turns out to be a token transfer, or funds someone else), the ENTIRE member fails via B2Z_FIRST_NON_SUCCESS_STOP_NO_FUNDING_EDGE. There is NO fallback to try candidates[1], candidates[2], etc. This is a real precision/recall tradeoff in the existing contract, not something this preflight is introducing.",
+    "no_candidate_behavior": "member fails immediately via B2Z_FIRST_NON_SUCCESS_STOP_NO_CANDIDATE if the filtered candidate list is empty"
+  },
+
+  "part13_multiple_funding_candidates": {
+    "current_code_behavior": "as documented in Part 12 -- only the single most-recent pre-migration signature is ever attempted; no ranking, no retry across candidates, no self-funding exclusion, no CEX/service-wallet exclusion, no SOL-vs-token disambiguation before dispatch (disambiguation only happens post-fetch, and failure there kills the whole member)",
+    "self_funding_risk": "NOT excluded by the code -- if a creator's own wallet or a wallet they control sent the 'funding' transaction to itself in a way that satisfies proves_inbound_sol_funding's destination check, it would pass. The coverage matrix (Part 4/5) flagged ordinals 8, 11, 15, 19 as having unusually wide local funder fan-outs (52, 510, 47, 53 rows) resembling known distribution/subprov patterns from prior WATCHTOWER classification work -- these are exactly the members most likely to trip this gap if the most-recent-pre-migration signature happens to be a dust/distribution transfer rather than a genuine funding relationship.",
+    "service_exchange_wallet_handling": "NOT distinguished -- no CEX/service address list is consulted anywhere in b2z_execution_boundary.py",
+    "token_vs_sol_transfers": "explicitly distinguished -- proves_inbound_sol_funding only accepts program=='system' transfer/transferWithSeed instructions; an SPL token transfer (program=='spl-token') is correctly excluded (proven by test_funding_parser_requires_positive_inbound_system_sol_transfer)",
+    "failed_transactions": "excluded at the _result() layer for BOTH migration and funding transactions (meta.err must be null)",
+    "irrelevant_transactions": "excluded only via the destination==creator + lamports>0 + timestamp check -- an SOL transfer that satisfies all three checks but happens to be unrelated fan-out dust would still pass",
+    "explicit_flag_for_this_milestone": "the existing contract does NOT let B2Z silently choose among multiple candidates using an undocumented rule -- it deterministically picks the single most recent one and has a hard pass/fail gate. But this preflight explicitly notes the candidate-selection logic is UNSOPHISTICATED relative to the known funding-pattern complexity documented elsewhere in this repository (treasury-vs-subprov, distribution fan-out, self-funding schemes) -- live execution results for the flagged wide-fan-out ordinals should be reviewed with extra scrutiny before being treated as ground truth."
+  },
+
+  "part14_existing_operation_isolation": {
+    "classification": "CANDIDATE_EVIDENCE_ONLY",
+    "proof": "B2ZRunner's output is a plain list of dicts (sample_ordinal, mint, migration_signature, creator, funding_signature, evidence_observed, provenance_complete) returned from run(), written only to the isolated PhysicalAttemptLedger JSONL file and whatever local result path the caller chooses. Nothing in b2z_execution_boundary.py imports or references Watchtower, three_sw2, wt_operations, canonical_operation, operation membership, or operation attribution modules -- confirmed via grep (zero matches).",
+    "b2z_output_authority": "candidate creator-funding evidence only -- any eventual promotion to an operation identity would require a separate, later review/evidence stage not present in this module"
+  },
+
+  "part15_production_database_authority": {
+    "production_db_read_required": false,
+    "production_db_write_required": false,
+    "reasoning": "B2ZRunner's constructor takes only manifest, projection, transport, ledger, run_id -- all either in-memory frozen data structures or local file paths supplied by the caller. No src.database or connection-string dependency exists in b2z_execution_boundary.py.",
+    "local_evidence_reads_used_for_this_preflight": "flex_complete_database.db (read-only, for the coverage matrix only -- B2Z's OWN runtime does not read this database)",
+    "explicit_binding": {"production_db_read": false, "production_db_write": false}
+  },
+
+  "part16_storage_impact": {
+    "expected_ledger_size": "60 Attempt entries x ~350-400 bytes/entry (canonical JSON, no bulk payload fields -- Attempt dataclass has no response-body field) = approximately 21-24 KB for the full ledger -- negligible",
+    "evidence_artifact_size": "the 20-member results list itself is small (a handful of KB); RAW getTransaction/getSignaturesForAddress response bodies are NOT persisted anywhere by B2ZRunner as currently written -- they are parsed in-memory and discarded, exactly like B2N's pattern",
+    "provider_response_storage_behavior": "NONE -- b2z_execution_boundary.py has zero ArtifactStore or RetainedAcquisitionStore coupling, confirmed via grep. This means a live B2Z run would face the SAME evidence-loss-after-parsing issue that made B2N's output insufficient for B2Z reuse (Part 3) -- a future stage needing the raw B2Z response bodies would face an identical gap.",
+    "routes_through_v2_bounded_retention": false,
+    "worst_case_qualification_footprint": "well under 1 MB total for ledger + result artifacts across all 20 members -- RA4's unbounded-growth concern does not apply here, since B2Z (as currently coded) does not persist raw provider bytes at all",
+    "recommendation_not_executed_this_turn": "if raw B2Z evidence bytes are later judged necessary to retain (e.g. for independent audit of the creator/funding determination), routing B2Z's transport through the existing bounded RetainedAcquisitionStoreV2 + ArtifactStore (the same pattern B2N could have used but didn't) would be the correct fix -- flagged as a design option, not implemented in this preflight."
+  },
+
+  "part17_local_dry_run_contract": {
+    "status": "VERIFIED VIA EXISTING TEST SUITE, not a new script built this turn",
+    "existing_dry_run_capability": "tests/test_oip_v2_2e_2b2bp_execution_boundary.py::test_full_fake_run_is_exactly_60_ordered_attempts already exercises the exact 20-member cohort binding, the full 3-request-per-member sequence, and the exact 60-physical-attempt accounting using a FakeTransport -- zero network calls, zero credentials, fully deterministic.",
+    "confirms": ["exact 20-member cohort binding", "B2N/projection input consumption (manifest+projection construction)", "provider request construction without sending (via the fake transport's captured .requests list)", "exact budget calculation (60)", "ledger path validation (tmp_path-scoped)", "zero network calls (FakeTransport, no urllib usage)"],
+    "gap_relative_to_part17_requirement": "the existing test fixture uses SYNTHETIC per-member mints (mint-1..mint-20) and a FakeTransport, not the REAL 20-member frozen cohort/projection -- a dedicated dry-run invocation binding the actual frozen manifest+projection with a fake transport was not built this turn (would be a small, safe addition if desired, but is not strictly required to answer this preflight's questions, since the underlying mechanics are already proven against a structurally-identical 20-member fixture)"
+  },
+
+  "part18_tests": {
+    "existing_coverage_reused": "tests/test_oip_v2_2e_2b2bp_execution_boundary.py (7 tests) + tests/test_oip_v2_2e_2b2bq_run_preflight.py (4 tests) = 11 tests, all passing, covering exact 20-member cohort binding, budget accounting, pre/post-dispatch ledgering as currently implemented, no-candidate stop, transport-failure stop, duplicate/nonzero-counter refusal, funding parser SOL/token/inner-instruction cases, HTTPS transport construction",
+    "no_new_tests_added_this_turn": "correct for a preflight-only milestone -- Part 8-10's resume design is PROPOSED, not implemented, so there is no new code to test yet. Writing tests against an unimplemented resume mechanism would be premature and could misleadingly suggest the capability exists.",
+    "zero_real_network_calls_confirmed": "all 11 existing tests use FakeTransport or a monkeypatched urllib.request.urlopen -- confirmed by direct test-file inspection",
+    "no_credential_leakage_confirmed": "no B2N_P3C_HELIUS_ENDPOINT or similar credential reference anywhere in the B2Z test files or execution boundary module"
+  },
+
+  "blockers": [
+    "B2ZRunner has no resume/continuation mechanism (Part 8-10) -- a live run must currently be all-or-nothing across all 20 members and 60 requests, or require manual ledger archival to retry the remainder from scratch. This is a genuine capability gap versus B2N's qualified resume design, not something this preflight can resolve without either (a) accepting the all-or-nothing risk for a single execution session, or (b) authorizing a separate implementation milestone for B2Z resume support first.",
+    "B2ZRunner has no pre-dispatch durable reservation (writes to the ledger only AFTER each attempt completes) -- a crash mid-network-call would leave zero ledger evidence of that specific attempt, unlike B2N's ATTEMPT_RESERVED-before-dispatch pattern.",
+    "Candidate-selection logic (Part 13) is unsophisticated relative to known funding-pattern complexity in this repository (self-funding, distribution fan-out, subprov hubs) -- 4 of 20 members (ordinals 8, 11, 15, 19) show wide local funder fan-out patterns that warrant extra scrutiny of their live B2Z results before treating them as ground truth."
+  ],
+
+  "verdict": "READY_B2Z_BOUNDED_PROVIDER_AUTHORIZATION_REVIEW",
+  "verdict_reasoning": "The B2Z contract, request shape, cohort binding, evidence/temporal/candidate semantics, storage impact, and production-authority scope are all fully resolved directly from the existing qualified code and tests -- no ambiguity remains in what B2Z does or requires. Local evidence coverage was exhaustively searched and found genuinely insufficient for all 20 members (not assumed), so the full 60-request budget is the correct, measured requirement, matching (not exceeding) the existing MAX_REQUESTS=60 contract. The blockers listed above are real and must be weighed as part of the GO/NO-GO decision, but they do not represent unresolved AMBIGUITY in what B2Z needs or how much it costs -- they represent a genuine safety/robustness gap in the CURRENT B2Z code (no resume, no pre-dispatch durability) that the human authorizing execution should explicitly accept or address first.",
+
+  "deterministic_digest": null,
+  "deterministic_digest_note": "computed and appended after this artifact's SHA-256 is known, per the pattern used in prior milestones -- see the accompanying handoff entry for the final artifact digest"
+}

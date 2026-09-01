@@ -1,0 +1,54 @@
+{
+  "schema_version": "psi0d-e.qualification-closure.v1",
+  "milestone": "PSI0D-E",
+  "closed_at_utc": "2026-08-16T12:10:00Z",
+  "engineering_commit": "9ef7467327b74dbf435fc00ddc26c99a77f5b33e",
+  "status": "PASS",
+  "verdict": "PSI0D_D_CLOSED_QUALIFIED_ONE_BOUNDED_IN_MEMORY_APPLICATION_MAY_BE_PROPOSED",
+  "bound_inputs": {
+    "psi0d_d_adapter_contract_digest": "48e4480d741793c78dda8413ce8fa233c849d3781538bc32c0283a436f00bd7d",
+    "psi0d_d_qualification_digest": "b918f495bb34858b9dce86b61f657d530e0db47ba1f36f17095e0250d9ec9265",
+    "psi0d_b_consumer_contract_digest": "a9e368cceede689736ca234891394551bda098df3b51ebfebf2e72f32aeb51f6",
+    "psi0d_c_closure_digest": "6ee6424e38734ed5624c17ceb20b5ff45d071fa0ba5b754fd0df546d669221b8",
+    "psi0c_d_closure_digest": "7e8c4ce4c27aa0d235a39cfe49e4dad4443be0bfae0750d61188a73d2cfeffb2",
+    "expected_psi0c_c_assessment_digest": "b5fb2187ad569b422f1ebbc029b7c619300a153d81b547f178c58769377fc7c4",
+    "expected_psi0c_c_assessment_bundle_digest": "6db46939fdfec9a34a63268809609c9a30a1a7dd86f5504b3d063bd0e8045ac3"
+  },
+  "replay_verification": {
+    "adapter_contract_identity": true,
+    "consumer_contract_identity": true,
+    "exact_three_file_injected_bundle_schema": true,
+    "canonical_bytes_hash_and_digest_checks": true,
+    "source_provenance": "PRODUCTION_DERIVED_IMMUTABLE_LOCAL_BUNDLE",
+    "output_provenance": "PRODUCTION_DERIVED_IMMUTABLE_LOCAL_ASSESSMENT_SUMMARY",
+    "source_values_retained_or_emitted": false,
+    "fixture_entry_point_unchanged_and_fail_closed": true,
+    "pure_projection_performs_io": false,
+    "deterministic_replay": true,
+    "fail_closed_file_contract_lineage_provenance_authority_schema_accounting_and_tamper_paths": true
+  },
+  "tests": {
+    "adapter_tests_passed": 15,
+    "combined_focused_tests_passed": 32,
+    "psi0_regressions_passed": 370
+  },
+  "authority": {
+    "policy": false,
+    "ranking": false,
+    "integration": false,
+    "deployment": false,
+    "activation": false
+  },
+  "scope_proof": {
+    "real_psi0c_assessment_opened": false,
+    "real_psi0b_bundle_opened": false,
+    "consumer_output_created": false,
+    "production_or_runtime_access": false,
+    "provider_or_rpc_calls": 0
+  },
+  "next_action": {
+    "milestone": "PSI0D-F",
+    "authorization_required": true,
+    "coherent_scope": "Exactly one bounded safe-local read-only in-memory application of the committed adapter to the immutable PSI0C assessment, with read-once replay verification and no file publication, integration, deployment or activation authority."
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": "generic_living_worker_to_generic_durability_qualification.v3",
+  "prior_artifact": "docs/audits/generic_living_worker_to_generic_durability_qualification.v2.json",
+  "prior_artifact_sha256": "325575089a8c73a7a0e38d0e33db91faf3d94c0cfe2036d07e6233acf94d5624",
+  "execution_status": "HOLD_BEFORE_STRESS",
+  "reason": "The existing disposable source fixture has one immutable membership mint per candidate. Repeated natural relevant worker events require a bounded multi-member source fixture and concurrent instrumentation; manufacturing repeated relevance by altering schema or bypassing source-reader semantics would violate the qualification contract.",
+  "concurrent_stress": "NOT_RUN",
+  "held_reader_wal_longevity": "NOT_RUN",
+  "lock_wal_telemetry": "NOT_MEASURED",
+  "transaction_timings": "NOT_MEASURED",
+  "external_consistency_observations": "NOT_MEASURED",
+  "failure_isolation_under_concurrency": "NOT_RUN",
+  "real_feature_flag_state": "OFF",
+  "real_db_writes": 0,
+  "provider_rpc_network_calls": 0,
+  "activation_readiness": "HOLD_REAL_BOUNDED_GENERIC_ACTIVATION",
+  "next_action": "Build a bounded multi-member disposable source fixture using only existing source/Living schema, then execute the prescribed concurrent worker/Living/reader WAL stress."
+}

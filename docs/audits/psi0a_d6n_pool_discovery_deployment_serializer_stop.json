@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D6N pool-discovery repair deployment",
+  "observed_at_utc": "2026-08-14T13:04:50Z",
+  "engineering_revision": "718fa6078f264dff36ba741de82413e51e4a3b00",
+  "status": "PARTIAL_STOP",
+  "verdict": "REPAIR_LOADED_STOP_NEW_SERIALIZER_WAIT_EPISODE",
+  "listener_pid_before": 82095,
+  "listener_restarts": 1,
+  "listener_pid_after": 88910,
+  "second_restart_performed": false,
+  "evidence_writer_state": "STOPPED",
+  "feeds": {
+    "pumpportal_subscribed": true,
+    "pumpswap_subscribed": true,
+    "live_birth_ingestion_observed": true,
+    "migration_ingestion_observed": true
+  },
+  "serializer": {
+    "uptime_min": 1.0,
+    "p99_wait_ms": 9192.59,
+    "p95_wait_ms": 50.54,
+    "queue_depth": 2,
+    "max_queue_depth": 2,
+    "lock_errors_24h": 0
+  },
+  "descriptor_evidence": {
+    "maximum_primary_fd_count": 5,
+    "critical_events": 0,
+    "seed_read_age_seconds": 46.6,
+    "usage_tracker_close_age_ms": 30838.579,
+    "usage_tracker_transaction_open_and_write_lane_owned": true
+  },
+  "pool_discovery_repair_evidence": {
+    "repair_loaded": true,
+    "new_pid_pool_discovery_event_observed": false,
+    "recurrent_pool_discovery_long_holder_observed": false,
+    "pairing_verdict": "NOT_OBSERVED_NO_NEW_PID_POOL_DISCOVERY_EVENT"
+  },
+  "scope_evidence": {
+    "other_service_restart_or_stop": 0,
+    "production_database_queries": 0,
+    "ddl_or_production_writes": 0,
+    "provider_calls": 0,
+    "configuration_changes": 0
+  }
+}

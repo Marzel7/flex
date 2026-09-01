@@ -1,0 +1,18 @@
+{
+  "artifact_type": "PUMPFUN_TARGET_ERA_BOUNDARY_STATE_QUALIFICATION_V1",
+  "createevent_values_expected_to_match_prebuy_account_state": "NOT_PROVEN",
+  "creation_to_first_buy_boundary_resolved": false,
+  "exact_slot_account_state_query_still_required": true,
+  "extend_account_semantics_qualified": false,
+  "opening_mc_supported": false,
+  "other_creation_boundary_mechanism_identified": false,
+  "post_extend_state_matches_buy1_prestate": false,
+  "required_archived_state_account": "FJPbTzeUy4pzPT3r7c2fNxccNvvhbC7LJkSqXux8xU1g",
+  "required_archived_state_reason": "Exact bytes after ExtendAccount and before slot 443375107 buy #1 are required to distinguish CreateEvent semantic/layout mismatch from an undocumented initialization transform.",
+  "required_archived_state_slot": 443375106,
+  "target_active_deployment_identified": true,
+  "target_era_createevent_reserve_semantic": "UNRESOLVED: source docs/IDL decode the fields but do not assert they equal final post-ExtendAccount state for this exact ELF.",
+  "target_era_source_bound_to_deployment": false,
+  "what_extendaccount_did_at_target_slot": "Proven: successful Pump account extension from 115 to 151 bytes. Official documentation supports its role as a creator-fee/future-field account reallocation. Unproven: any target-binary-specific reserve-field rewrite or initial reserve transform.",
+  "what_is_still_missing_for_exact_opening_mc": "A binary-bound target-era account schema plus authenticated historical BondingCurve bytes after ExtendAccount (slot 443375106) / immediately before buy #1."
+}

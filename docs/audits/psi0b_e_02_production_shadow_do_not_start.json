@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0B-E",
+  "attempt": "psi0b-shadow-20260814-02",
+  "authorization_id": "psi0b-shadow-auth-20260814-02",
+  "observed_at_utc": "2026-08-14T18:37:55Z",
+  "engineering_revision": "894124e2cd9b1dcff9988457e221aa5c13873564",
+  "verdict": "DO_NOT_START_WRITE_LEASE_HEALTH_UNPROVEN",
+  "stop_phase": "PSI0A-F_PRESTART_HEALTH_GATE",
+  "production_database_opened": false,
+  "production_queries_executed": 0,
+  "production_rows_read": 0,
+  "production_writes": 0,
+  "authorization_record_materialized": false,
+  "output_directory_created": false,
+  "retry_performed": false,
+  "observations": {
+    "listener_pid": 15357,
+    "listener_state": "RUNNING",
+    "evidence_writer_state": "STOPPED",
+    "walkback_worker_pid": 41735,
+    "walkback_worker_state": "RUNNING",
+    "serializer_p99_wait_ms_samples": [2.67, 2.68, 2.68],
+    "serializer_queue_depth_samples": [0, 0, 1],
+    "serializer_lock_errors_24h": 2,
+    "primary_fd_count_samples": [0, 0, 0],
+    "checkpoint_spacing_seconds": [30.2266512, 29.896457],
+    "critical_listener_db_handle_events": 0,
+    "feeds_observed_active": true,
+    "database_files_present": true,
+    "journal_files_present": false,
+    "operations_write_lease_owner_pid": 41735,
+    "operations_write_lease_command": "walkback_worker.py:482 in _ops_conn",
+    "operations_write_lease_state": "ACTIVE",
+    "listener_walkback_enqueue_lock_timeout_seconds": 60.0,
+    "listener_walkback_enqueue_lock_timeouts_repeated": true
+  },
+  "reason_codes": [
+    "PSI0A_F_WRITE_LEASE_UNHEALTHY_OR_UNKNOWN",
+    "PSI0A_F_QUEUE_HEALTH_UNPROVEN"
+  ],
+  "production_impact": false,
+  "notes": [
+    "The listener, serializer p99 and descriptor gates were within their numeric thresholds.",
+    "The final serializer queue sample was transiently nonzero and did not satisfy the two-consecutive-sample sustained-queue definition, but queue health was not declared healthy while the operations lease remained active with repeated listener lock timeouts.",
+    "The exact output directory remained absent and the production execution authorization was not materialized or consumed.",
+    "The attempt stopped before any SQLite connection was opened by Codex."
+  ]
+}

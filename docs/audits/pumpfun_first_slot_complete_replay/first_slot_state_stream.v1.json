@@ -1,0 +1,407 @@
+{
+  "artifact_type": "PUMPFUN_MACROHARD_FIRST_SLOT_ORDERED_STATE_STREAM_V1",
+  "continuity": {
+    "creation_to_action_1_math_match": false,
+    "event_to_event_exact_links": 7,
+    "initial_to_action_1_observed_state_difference": {
+      "real_token": -621307862726764,
+      "virtual_sol": 41265353876,
+      "virtual_token": -621307862726764
+    },
+    "qualification": "NOT_QUALIFIED: first TradeEvent reserve transition cannot be reproduced from qualified creation state; links action 1\u21928 are exact by reserve-delta arithmetic."
+  },
+  "failed_target_actions": [
+    {
+      "classification": "BUY_FAILED",
+      "error": {
+        "InstructionError": [
+          4,
+          {
+            "Custom": 6002
+          }
+        ]
+      },
+      "fee_payer": "6iuhuVyE7PMTLraNud7FH64byeNgdxJm1NfJNVPd1dyS",
+      "pump_instruction": "Buy",
+      "pump_log_present": true,
+      "signature": "cEWUXkUn8j6hC9b13z3Y8FqU5qiAe3t6ahSEmttLGogsQ8qTq6ojVWfpdxjhQjFgdQ5u7Z4Ls9ofUgsMEStXuXp",
+      "signers": [
+        "6iuhuVyE7PMTLraNud7FH64byeNgdxJm1NfJNVPd1dyS"
+      ],
+      "success": false,
+      "target_curve_present": true,
+      "target_mint_present": true,
+      "target_trade_event_count": 0,
+      "transaction_index": 1117
+    },
+    {
+      "classification": "BUY_FAILED",
+      "classification_reason": "PumpDash wrapper invokes Pump Buy, which fails with TooMuchSolRequired (custom 6002); no TradeEvent and no state mutation.",
+      "error": {
+        "InstructionError": [
+          6,
+          {
+            "Custom": 6002
+          }
+        ]
+      },
+      "fee_payer": "ATQfqM1KjEv3hMhRX3NUaCa5V9sYgC2gk6YJKNr4R3uq",
+      "pump_instruction": "PumpDash; Buy",
+      "pump_log_present": true,
+      "signature": "3YphhyZqhSj73zBmUxFh3L7cHEEySBmJnpxHdgg5qZ9XMswyC98PHD3icRuQNmeg2KaSVNQmtT1UM8hWW6six433",
+      "signers": [
+        "ATQfqM1KjEv3hMhRX3NUaCa5V9sYgC2gk6YJKNr4R3uq"
+      ],
+      "success": false,
+      "target_curve_present": true,
+      "target_mint_present": true,
+      "target_trade_event_count": 0,
+      "transaction_index": 1352
+    },
+    {
+      "classification": "BUY_FAILED",
+      "error": {
+        "InstructionError": [
+          6,
+          {
+            "Custom": 6042
+          }
+        ]
+      },
+      "fee_payer": "DG62nV46Lb7s6d3CGG9w5QKGVo4MmjjJhiAAn3fxchxw",
+      "pump_instruction": "BuyExactSolIn",
+      "pump_log_present": true,
+      "signature": "3K7SgwEcXug9qDsUb7NV7Fx2RCZTdgyCpHZaRtVtogJ9scvWtSqwZMJHJipccT2enEsHZep3QM9fdQm8VycgtyDg",
+      "signers": [
+        "DG62nV46Lb7s6d3CGG9w5QKGVo4MmjjJhiAAn3fxchxw"
+      ],
+      "success": false,
+      "target_curve_present": true,
+      "target_mint_present": true,
+      "target_trade_event_count": 0,
+      "transaction_index": 1808
+    }
+  ],
+  "failed_target_actions_note": "Failed actions are listed separately and do not advance curve state.",
+  "interpretation": "No earlier target TradeEvent occurred in this slot. The initial mismatch proves a state/provenance gap between the retained creation state and first target TradeEvent, not that any selected action is safe to omit.",
+  "previous_first_buy_really_first_target_trade_event_in_slot": true,
+  "qualified_creation_state": {
+    "real_token_reserves": 793100000000000,
+    "virtual_sol_reserves": 30000000000,
+    "virtual_token_reserves": 1073000000000000
+  },
+  "state_changing_events_before_prior_index_895": [],
+  "successful_state_actions": [
+    {
+      "action_number": 1,
+      "action_type": "BUY",
+      "difference_raw": {
+        "sol": 0,
+        "token": 5255842351635
+      },
+      "event_fee_fields": {
+        "creator_fee_basis_points": 30,
+        "creator_fee_lamports": 540000,
+        "note": "TradeEvent includes additional fields; only named official fee/creator_fee values are surfaced.",
+        "other_fee_lamports": null,
+        "protocol_fee_basis_points": 95,
+        "protocol_fee_lamports": 1710000
+      },
+      "event_timestamp_or_slot_context": {
+        "block_time": 1788250333,
+        "event_timestamp": 1788250333,
+        "slot": 443375107
+      },
+      "instruction_name": "BuyExactQuoteInV2",
+      "model_sol_amount": 180000000,
+      "model_token_amount": 6399602350344,
+      "observed_sol_amount": 180000000,
+      "observed_token_amount": 1143759998709,
+      "post_real_sol_reserves": 41265353876,
+      "post_real_token_reserves": 171792137273236,
+      "post_virtual_sol_reserves": 71265353876,
+      "post_virtual_token_reserves": 451692137273236,
+      "pre_virtual_sol_reserves": 30000000000,
+      "pre_virtual_token_reserves": 1073000000000000,
+      "reserve_transition_math_status": "MISMATCH",
+      "signature": "4Qyht4ZXtt8t11Jc6v3UkDWBTzCUUWfYG1Xywyym5NLRsonyG5nBvoFyztQCNhqd1Ku2jt1VW81N7vzB9or4bcoJ",
+      "sol_in_or_out_lamports": 180000000,
+      "token_in_or_out_raw": 1143759998709,
+      "transaction_index": 895,
+      "user": "Eqk3ht8ADsrigNrVPqKZ3bST9VosebkMxmwE11cnKhar"
+    },
+    {
+      "action_number": 2,
+      "action_type": "BUY",
+      "difference_raw": {
+        "sol": 0,
+        "token": 0
+      },
+      "event_fee_fields": {
+        "creator_fee_basis_points": 30,
+        "creator_fee_lamports": 592593,
+        "note": "TradeEvent includes additional fields; only named official fee/creator_fee values are surfaced.",
+        "other_fee_lamports": null,
+        "protocol_fee_basis_points": 95,
+        "protocol_fee_lamports": 1876544
+      },
+      "event_timestamp_or_slot_context": {
+        "block_time": 1788250333,
+        "event_timestamp": 1788250333,
+        "slot": 443375107
+      },
+      "instruction_name": "BuyExactSolIn",
+      "model_sol_amount": 197530863,
+      "model_token_amount": 1248524147343,
+      "observed_sol_amount": 197530863,
+      "observed_token_amount": 1248524147343,
+      "post_real_sol_reserves": 41462884739,
+      "post_real_token_reserves": 170543613125893,
+      "post_virtual_sol_reserves": 71462884739,
+      "post_virtual_token_reserves": 450443613125893,
+      "pre_virtual_sol_reserves": 71265353876,
+      "pre_virtual_token_reserves": 451692137273236,
+      "reserve_transition_math_status": "EXACT",
+      "signature": "tWgCFsQJ12RtMMoVnYXT6QADTXBZczAMMaECDPaPYJ1Lg4KKVCUjAnHcQMqVhCnwYPFucv6fWvzcosgBircB3Tv",
+      "sol_in_or_out_lamports": 197530863,
+      "token_in_or_out_raw": 1248524147343,
+      "transaction_index": 896,
+      "user": "B7ZpuaXBwC71Fw11fF5RdjyvDTpLt8AhBDpRNnuXTHsz"
+    },
+    {
+      "action_number": 3,
+      "action_type": "BUY",
+      "difference_raw": {
+        "sol": 0,
+        "token": 0
+      },
+      "event_fee_fields": {
+        "creator_fee_basis_points": 30,
+        "creator_fee_lamports": 562963,
+        "note": "TradeEvent includes additional fields; only named official fee/creator_fee values are surfaced.",
+        "other_fee_lamports": null,
+        "protocol_fee_basis_points": 95,
+        "protocol_fee_lamports": 1782717
+      },
+      "event_timestamp_or_slot_context": {
+        "block_time": 1788250333,
+        "event_timestamp": 1788250333,
+        "slot": 443375107
+      },
+      "instruction_name": "Buy",
+      "model_sol_amount": 187654320,
+      "model_token_amount": 1179721618700,
+      "observed_sol_amount": 187654320,
+      "observed_token_amount": 1179721618700,
+      "post_real_sol_reserves": 41650539059,
+      "post_real_token_reserves": 169363891507193,
+      "post_virtual_sol_reserves": 71650539059,
+      "post_virtual_token_reserves": 449263891507193,
+      "pre_virtual_sol_reserves": 71462884739,
+      "pre_virtual_token_reserves": 450443613125893,
+      "reserve_transition_math_status": "EXACT",
+      "signature": "4ZziePa9dzTTZkGe1t5RxXjxNySQfqWGFDiCnjTi77q39FaUbdSRGdnBb98UgqNAwjF1v3TsT5WpHWMACBKNvofQ",
+      "sol_in_or_out_lamports": 187654320,
+      "token_in_or_out_raw": 1179721618700,
+      "transaction_index": 899,
+      "user": "A8Ep5jMbD4Pb8PjRQKaymYhdbonKmgGnWmAE7e3jAMmS"
+    },
+    {
+      "action_number": 4,
+      "action_type": "BUY",
+      "difference_raw": {
+        "sol": 0,
+        "token": 0
+      },
+      "event_fee_fields": {
+        "creator_fee_basis_points": 30,
+        "creator_fee_lamports": 592593,
+        "note": "TradeEvent includes additional fields; only named official fee/creator_fee values are surfaced.",
+        "other_fee_lamports": null,
+        "protocol_fee_basis_points": 95,
+        "protocol_fee_lamports": 1876544
+      },
+      "event_timestamp_or_slot_context": {
+        "block_time": 1788250333,
+        "event_timestamp": 1788250333,
+        "slot": 443375107
+      },
+      "instruction_name": "BuyExactQuoteInV2",
+      "model_sol_amount": 197530863,
+      "model_token_amount": 1235154734879,
+      "observed_sol_amount": 197530863,
+      "observed_token_amount": 1235154734879,
+      "post_real_sol_reserves": 41848069922,
+      "post_real_token_reserves": 168128736772314,
+      "post_virtual_sol_reserves": 71848069922,
+      "post_virtual_token_reserves": 448028736772314,
+      "pre_virtual_sol_reserves": 71650539059,
+      "pre_virtual_token_reserves": 449263891507193,
+      "reserve_transition_math_status": "EXACT",
+      "signature": "62adVnZ1gJNHgsx7HJSezqMri3AJjNK8BEkRpGZQHZegXpjHToNjaaGc3b7BJXMmKv4Mk3rYsv7RcmVcj94CX9H",
+      "sol_in_or_out_lamports": 197530863,
+      "token_in_or_out_raw": 1235154734879,
+      "transaction_index": 904,
+      "user": "5C21rRQuYr9t6fXCq51afv1t4TL3QGYE5KJjRPwgMCDS"
+    },
+    {
+      "action_number": 5,
+      "action_type": "BUY",
+      "difference_raw": {
+        "sol": 0,
+        "token": 0
+      },
+      "event_fee_fields": {
+        "creator_fee_basis_points": 30,
+        "creator_fee_lamports": 1210815,
+        "note": "TradeEvent includes additional fields; only named official fee/creator_fee values are surfaced.",
+        "other_fee_lamports": null,
+        "protocol_fee_basis_points": 95,
+        "protocol_fee_lamports": 3834247
+      },
+      "event_timestamp_or_slot_context": {
+        "block_time": 1788250333,
+        "event_timestamp": 1788250333,
+        "slot": 443375107
+      },
+      "instruction_name": "BuyExactSolIn",
+      "model_sol_amount": 403604938,
+      "model_token_amount": 2502732433982,
+      "observed_sol_amount": 403604938,
+      "observed_token_amount": 2502732433982,
+      "post_real_sol_reserves": 42251674860,
+      "post_real_token_reserves": 165626004338332,
+      "post_virtual_sol_reserves": 72251674860,
+      "post_virtual_token_reserves": 445526004338332,
+      "pre_virtual_sol_reserves": 71848069922,
+      "pre_virtual_token_reserves": 448028736772314,
+      "reserve_transition_math_status": "EXACT",
+      "signature": "3Vh1DPYrpyf4vvGeQ1oHdST3TR46tFzdmTceHej3PURG1dxd5DAn1FZpNsiWm7TN8uPXqBskrCrQfuF8UZPWikRF",
+      "sol_in_or_out_lamports": 403604938,
+      "token_in_or_out_raw": 2502732433982,
+      "transaction_index": 906,
+      "user": "E9te8g9Xv56YPdrDsYxzeRT9c9th1WTUwnymCyDsLFU2"
+    },
+    {
+      "action_number": 6,
+      "action_type": "SELL",
+      "difference_raw": {
+        "sol": 0,
+        "token": 0
+      },
+      "event_fee_fields": {
+        "creator_fee_basis_points": 30,
+        "creator_fee_lamports": 1210768,
+        "note": "TradeEvent includes additional fields; only named official fee/creator_fee values are surfaced.",
+        "other_fee_lamports": null,
+        "protocol_fee_basis_points": 95,
+        "protocol_fee_lamports": 3834097
+      },
+      "event_timestamp_or_slot_context": {
+        "block_time": 1788250333,
+        "event_timestamp": 1788250333,
+        "slot": 443375107
+      },
+      "instruction_name": "Sell",
+      "model_sol_amount": 403589068,
+      "model_token_amount": 2502633484142,
+      "observed_sol_amount": 403589068,
+      "observed_token_amount": 2502633484142,
+      "post_real_sol_reserves": 41848085792,
+      "post_real_token_reserves": 168128637822474,
+      "post_virtual_sol_reserves": 71848085792,
+      "post_virtual_token_reserves": 448028637822474,
+      "pre_virtual_sol_reserves": 72251674860,
+      "pre_virtual_token_reserves": 445526004338332,
+      "reserve_transition_math_status": "EXACT",
+      "signature": "5mYtZDGAGV3Pk6sb1VHQCmDiunofDYKyZb9RRCkNptTZ4JudUjZ6JrCvjsiGg3DueMjqoJrKQ158E63WrmGquMF5",
+      "sol_in_or_out_lamports": 403589068,
+      "token_in_or_out_raw": 2502633484142,
+      "transaction_index": 910,
+      "user": "HV4ZT4QpEW54rywbnigQUadJ4aK1JgieQjXSZ6o7Jy1y"
+    },
+    {
+      "action_number": 7,
+      "action_type": "BUY",
+      "difference_raw": {
+        "sol": 0,
+        "token": 0
+      },
+      "event_fee_fields": {
+        "creator_fee_basis_points": 30,
+        "creator_fee_lamports": 293334,
+        "note": "TradeEvent includes additional fields; only named official fee/creator_fee values are surfaced.",
+        "other_fee_lamports": null,
+        "protocol_fee_basis_points": 95,
+        "protocol_fee_lamports": 928889
+      },
+      "event_timestamp_or_slot_context": {
+        "block_time": 1788250333,
+        "event_timestamp": 1788250333,
+        "slot": 443375107
+      },
+      "instruction_name": "BuyExactSolIn",
+      "model_sol_amount": 97777777,
+      "model_token_amount": 608891764141,
+      "observed_sol_amount": 97777777,
+      "observed_token_amount": 608891764141,
+      "post_real_sol_reserves": 41945863569,
+      "post_real_token_reserves": 167519746058333,
+      "post_virtual_sol_reserves": 71945863569,
+      "post_virtual_token_reserves": 447419746058333,
+      "pre_virtual_sol_reserves": 71848085792,
+      "pre_virtual_token_reserves": 448028637822474,
+      "reserve_transition_math_status": "EXACT",
+      "signature": "5TE8e4F3WYuQ7WkCKFsyMxD2rWSj9Aj8L1vPnSbXvoUD1AqzcHcCNa4gjEv8SK5cgeEoJ3CHzAK5EYZ1epzNKNmX",
+      "sol_in_or_out_lamports": 97777777,
+      "token_in_or_out_raw": 608891764141,
+      "transaction_index": 1520,
+      "user": "3JtGsWzBwfCtT3kbs1EciqkXET8wTG1ufUZ8AvqQeeRz"
+    },
+    {
+      "action_number": 8,
+      "action_type": "BUY",
+      "difference_raw": {
+        "sol": 0,
+        "token": 0
+      },
+      "event_fee_fields": {
+        "creator_fee_basis_points": 30,
+        "creator_fee_lamports": 136511,
+        "note": "TradeEvent includes additional fields; only named official fee/creator_fee values are surfaced.",
+        "other_fee_lamports": null,
+        "protocol_fee_basis_points": 95,
+        "protocol_fee_lamports": 432284
+      },
+      "event_timestamp_or_slot_context": {
+        "block_time": 1788250333,
+        "event_timestamp": 1788250333,
+        "slot": 443375107
+      },
+      "instruction_name": "Buy",
+      "model_sol_amount": 45503524,
+      "model_token_amount": 282800229735,
+      "observed_sol_amount": 45503524,
+      "observed_token_amount": 282800229735,
+      "post_real_sol_reserves": 41991367093,
+      "post_real_token_reserves": 167236945828598,
+      "post_virtual_sol_reserves": 71991367093,
+      "post_virtual_token_reserves": 447136945828598,
+      "pre_virtual_sol_reserves": 71945863569,
+      "pre_virtual_token_reserves": 447419746058333,
+      "reserve_transition_math_status": "EXACT",
+      "signature": "powWW5oe4VVkbbXrCR4ep9h4zAqu7ZCoPrDmp6E8KifKWbdvw9WqPY1PhwNKGzMtJhRGFqbHLrFrMXEWuKQRhLf",
+      "sol_in_or_out_lamports": 45503524,
+      "token_in_or_out_raw": 282800229735,
+      "transaction_index": 1803,
+      "user": "GToobpEPPMFwZd6K3K9i2zRFVM56kSR2DgfS5uSDqxcb"
+    }
+  ],
+  "target": {
+    "associated_curve": "3LiBmWqde7CaFW9mogdyRemiXoYxprHSjChzCW4gLejm",
+    "creation_slot": 443375106,
+    "curve": "FJPbTzeUy4pzPT3r7c2fNxccNvvhbC7LJkSqXux8xU1g",
+    "mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+    "slot": 443375107
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "base_fingerprint": "Sorted unique (hop_depth, mechanism, amount_lamports); amount 0/null is normalized to null and never positive evidence.",
+  "family_minimums": {
+    "distinct_creators": 2,
+    "distinct_direct_funders": 2,
+    "members": 3
+  },
+  "source": "Selected retained walkback edges with non-null creator and direct funder from wt_walkback_queue.",
+  "topology": "Only documented hop_depth from retained selected edges; no legacy topology vector is used.",
+  "version": "P3R_V2_CANDIDATE_DISCOVERY_CONTRACT.v1"
+}

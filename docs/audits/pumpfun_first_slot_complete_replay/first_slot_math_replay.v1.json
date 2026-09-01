@@ -1,0 +1,136 @@
+{
+  "actions": [
+    {
+      "action_number": 1,
+      "action_type": "BUY",
+      "difference_raw": {
+        "sol": 0,
+        "token": 5255842351635
+      },
+      "model_sol_amount": 180000000,
+      "model_token_amount": 6399602350344,
+      "observed_sol_amount": 180000000,
+      "observed_token_amount": 1143759998709,
+      "result": "MISMATCH",
+      "signature": "4Qyht4ZXtt8t11Jc6v3UkDWBTzCUUWfYG1Xywyym5NLRsonyG5nBvoFyztQCNhqd1Ku2jt1VW81N7vzB9or4bcoJ",
+      "transaction_index": 895
+    },
+    {
+      "action_number": 2,
+      "action_type": "BUY",
+      "difference_raw": {
+        "sol": 0,
+        "token": 0
+      },
+      "model_sol_amount": 197530863,
+      "model_token_amount": 1248524147343,
+      "observed_sol_amount": 197530863,
+      "observed_token_amount": 1248524147343,
+      "result": "EXACT",
+      "signature": "tWgCFsQJ12RtMMoVnYXT6QADTXBZczAMMaECDPaPYJ1Lg4KKVCUjAnHcQMqVhCnwYPFucv6fWvzcosgBircB3Tv",
+      "transaction_index": 896
+    },
+    {
+      "action_number": 3,
+      "action_type": "BUY",
+      "difference_raw": {
+        "sol": 0,
+        "token": 0
+      },
+      "model_sol_amount": 187654320,
+      "model_token_amount": 1179721618700,
+      "observed_sol_amount": 187654320,
+      "observed_token_amount": 1179721618700,
+      "result": "EXACT",
+      "signature": "4ZziePa9dzTTZkGe1t5RxXjxNySQfqWGFDiCnjTi77q39FaUbdSRGdnBb98UgqNAwjF1v3TsT5WpHWMACBKNvofQ",
+      "transaction_index": 899
+    },
+    {
+      "action_number": 4,
+      "action_type": "BUY",
+      "difference_raw": {
+        "sol": 0,
+        "token": 0
+      },
+      "model_sol_amount": 197530863,
+      "model_token_amount": 1235154734879,
+      "observed_sol_amount": 197530863,
+      "observed_token_amount": 1235154734879,
+      "result": "EXACT",
+      "signature": "62adVnZ1gJNHgsx7HJSezqMri3AJjNK8BEkRpGZQHZegXpjHToNjaaGc3b7BJXMmKv4Mk3rYsv7RcmVcj94CX9H",
+      "transaction_index": 904
+    },
+    {
+      "action_number": 5,
+      "action_type": "BUY",
+      "difference_raw": {
+        "sol": 0,
+        "token": 0
+      },
+      "model_sol_amount": 403604938,
+      "model_token_amount": 2502732433982,
+      "observed_sol_amount": 403604938,
+      "observed_token_amount": 2502732433982,
+      "result": "EXACT",
+      "signature": "3Vh1DPYrpyf4vvGeQ1oHdST3TR46tFzdmTceHej3PURG1dxd5DAn1FZpNsiWm7TN8uPXqBskrCrQfuF8UZPWikRF",
+      "transaction_index": 906
+    },
+    {
+      "action_number": 6,
+      "action_type": "SELL",
+      "difference_raw": {
+        "sol": 0,
+        "token": 0
+      },
+      "model_sol_amount": 403589068,
+      "model_token_amount": 2502633484142,
+      "observed_sol_amount": 403589068,
+      "observed_token_amount": 2502633484142,
+      "result": "EXACT",
+      "signature": "5mYtZDGAGV3Pk6sb1VHQCmDiunofDYKyZb9RRCkNptTZ4JudUjZ6JrCvjsiGg3DueMjqoJrKQ158E63WrmGquMF5",
+      "transaction_index": 910
+    },
+    {
+      "action_number": 7,
+      "action_type": "BUY",
+      "difference_raw": {
+        "sol": 0,
+        "token": 0
+      },
+      "model_sol_amount": 97777777,
+      "model_token_amount": 608891764141,
+      "observed_sol_amount": 97777777,
+      "observed_token_amount": 608891764141,
+      "result": "EXACT",
+      "signature": "5TE8e4F3WYuQ7WkCKFsyMxD2rWSj9Aj8L1vPnSbXvoUD1AqzcHcCNa4gjEv8SK5cgeEoJ3CHzAK5EYZ1epzNKNmX",
+      "transaction_index": 1520
+    },
+    {
+      "action_number": 8,
+      "action_type": "BUY",
+      "difference_raw": {
+        "sol": 0,
+        "token": 0
+      },
+      "model_sol_amount": 45503524,
+      "model_token_amount": 282800229735,
+      "observed_sol_amount": 45503524,
+      "observed_token_amount": 282800229735,
+      "result": "EXACT",
+      "signature": "powWW5oe4VVkbbXrCR4ep9h4zAqu7ZCoPrDmp6E8KifKWbdvw9WqPY1PhwNKGzMtJhRGFqbHLrFrMXEWuKQRhLf",
+      "transaction_index": 1803
+    }
+  ],
+  "artifact_type": "PUMPFUN_MACROHARD_FIRST_SLOT_MATH_REPLAY_V1",
+  "math_match_total": 7,
+  "math_mismatch_total": 1,
+  "model_source": "Official Pump.fun IDL documentation buy formula (BuyExactSolIn/BuyExactQuoteInV2) and legacy Buy reserve formula with its distinct rounding convention, evaluated against predecessor reserves; constant-product sell reserve identity for the one sell.",
+  "qualification": "NOT_QUALIFIED: actions 2-8 reproduce exactly from their predecessor event state, but action 1 does not reproduce from the qualified creation state. Target-slot deployed binary remains independently unbound.",
+  "target": {
+    "associated_curve": "3LiBmWqde7CaFW9mogdyRemiXoYxprHSjChzCW4gLejm",
+    "creation_slot": 443375106,
+    "curve": "FJPbTzeUy4pzPT3r7c2fNxccNvvhbC7LJkSqXux8xU1g",
+    "mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+    "slot": 443375107
+  }
+}

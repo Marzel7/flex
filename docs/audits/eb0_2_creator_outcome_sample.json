@@ -1,0 +1,5005 @@
+{
+  "rows": [
+    {
+      "bucket": "INSUFFICIENT_HISTORY",
+      "creator": "21uh9UQr9R5mqui4g2KdpzTtjedehPJHqZ89Qr4bLCuT",
+      "migrated": 0,
+      "mint": "8YrZ29KWS7uvg3zp3vTNXtZ26CMtnJzKo4b3sy2Gpump",
+      "ordinal": 2,
+      "peak_mc": 0.0,
+      "prior_launches": 1,
+      "prior_migration_rate": 0.0
+    },
+    {
+      "bucket": "INSUFFICIENT_HISTORY",
+      "creator": "21uh9UQr9R5mqui4g2KdpzTtjedehPJHqZ89Qr4bLCuT",
+      "migrated": 0,
+      "mint": "FRtwtQcGt81CttsML1WAn9WSecRntprxHG8Qs9Pxpump",
+      "ordinal": 3,
+      "peak_mc": 0.0,
+      "prior_launches": 2,
+      "prior_migration_rate": 0.0
+    },
+    {
+      "bucket": "INSUFFICIENT_HISTORY",
+      "creator": "21uh9UQr9R5mqui4g2KdpzTtjedehPJHqZ89Qr4bLCuT",
+      "migrated": 0,
+      "mint": "AbHzySRKFiTNiAxjf4WNrn8RN4WgQnr47VDALu9Vpump",
+      "ordinal": 4,
+      "peak_mc": 0.0,
+      "prior_launches": 3,
+      "prior_migration_rate": 0.0
+    },
+    {
+      "bucket": "INSUFFICIENT_HISTORY",
+      "creator": "21uh9UQr9R5mqui4g2KdpzTtjedehPJHqZ89Qr4bLCuT",
+      "migrated": 0,
+      "mint": "DjZb5rtb4G4ocozF5UyveLr3wz4YVVCK5L9NvXEfpump",
+      "ordinal": 5,
+      "peak_mc": 0.0,
+      "prior_launches": 4,
+      "prior_migration_rate": 0.0
+    },
+    {
+      "bucket": "INSUFFICIENT_HISTORY",
+      "creator": "23ndrvtkvLy6oV1i5t3LTVRZDUW8GtiRp8yk8ENbp71v",
+      "migrated": 0,
+      "mint": "4qbZynLHx1h2U5T7sErxDueubStPyXnbfWPiCfnNpump",
+      "ordinal": 2,
+      "peak_mc": 0.0,
+      "prior_launches": 1,
+      "prior_migration_rate": 0.0
+    },
+    {
+      "bucket": "INSUFFICIENT_HISTORY",
+      "creator": "23ndrvtkvLy6oV1i5t3LTVRZDUW8GtiRp8yk8ENbp71v",
+      "migrated": 0,
+      "mint": "CRbCmk3gFp7FSpeo3YQRDkh5h7fWBaEbmwKiQvskpump",
+      "ordinal": 3,
+      "peak_mc": 0.0,
+      "prior_launches": 2,
+      "prior_migration_rate": 0.0
+    },
+    {
+      "bucket": "INSUFFICIENT_HISTORY",
+      "creator": "23ndrvtkvLy6oV1i5t3LTVRZDUW8GtiRp8yk8ENbp71v",
+      "migrated": 0,
+      "mint": "GunwAaf1ssDnuPR6yVzU4Xo5QrGkpYMXPF6XJ7zzpump",
+      "ordinal": 4,
+      "peak_mc": 0.0,
+      "prior_launches": 3,
+      "prior_migration_rate": 0.0
+    },
+    {
+      "bucket": "INSUFFICIENT_HISTORY",
+      "creator": "25ntUMfCByb8wtWLyonZLmTNNuqBMcR2G4VHHKPLPAtC",
+      "migrated": 0,
+      "mint": "CJswpneEtEq8ELMD8H1faFZ71jbRobFPFCUZsmLe2fbV",
+      "ordinal": 2,
+      "peak_mc": 0.0,
+      "prior_launches": 1,
+      "prior_migration_rate": 0.0
+    },
+    {
+      "bucket": "INSUFFICIENT_HISTORY",
+      "creator": "25ntUMfCByb8wtWLyonZLmTNNuqBMcR2G4VHHKPLPAtC",
+      "migrated": 0,
+      "mint": "B2EUk6V1icMkWSnKUSjn6r6RoK8MjAoG6UZu75m3Xf6U",
+      "ordinal": 3,
+      "peak_mc": 0.0,
+      "prior_launches": 2,
+      "prior_migration_rate": 0.0
+    },
+    {
+      "bucket": "INSUFFICIENT_HISTORY",
+      "creator": "25ntUMfCByb8wtWLyonZLmTNNuqBMcR2G4VHHKPLPAtC",
+      "migrated": 0,
+      "mint": "AmN75ouhKoiKmtLXZj1d8Jug8YcZKrHViPQErYKVqiAv",
+      "ordinal": 4,
+      "peak_mc": 0.0,
+      "prior_launches": 3,
+      "prior_migration_rate": 0.0
+    },
+    {
+      "bucket": "INSUFFICIENT_HISTORY",
+      "creator": "25ntUMfCByb8wtWLyonZLmTNNuqBMcR2G4VHHKPLPAtC",
+      "migrated": 0,
+      "mint": "3tUBDrx3mmhnEdqhSSQYk3C5LJ4Wzj7TmJrJKHPAqP4P",
+      "ordinal": 5,
+      "peak_mc": 0.0,
+      "prior_launches": 4,
+      "prior_migration_rate": 0.0
+    },
+    {
+      "bucket": "VERY_POOR_HISTORY",
+      "creator": "25ntUMfCByb8wtWLyonZLmTNNuqBMcR2G4VHHKPLPAtC",
+      "migrated": 0,
+      "mint": "65pyJgaRFD8K2n2T1kQDtZVg4evo3YXfXDSYiHmHA4xA",
+      "ordinal": 6,
+      "peak_mc": 0.0,
+      "prior_launches": 5,
+      "prior_migration_rate": 0.0
+    },
+    {
+      "bucket": "INSUFFICIENT_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "2HtKisMDFdQ3KWaPtv87TCeX8vS3BtBdMenf68ZSpump",
+      "ordinal": 2,
+      "peak_mc": 18461.19,
+      "prior_launches": 1,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "INSUFFICIENT_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "2RC4zgW6jwnw8drykQ3Lfwsi8pU6VJXAZZjbaA3jpump",
+      "ordinal": 3,
+      "peak_mc": 108981.2267642198,
+      "prior_launches": 2,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "INSUFFICIENT_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "2ZjWqBYNMVt5sNBdQj8by4pkasQBzvBZyBoHwPJQpump",
+      "ordinal": 4,
+      "peak_mc": 0.0,
+      "prior_launches": 3,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "INSUFFICIENT_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "2jPPEtKcr1DCiBu9KDkK9xwfhr6mCpVVL3TERXLJpump",
+      "ordinal": 5,
+      "peak_mc": 25105.91,
+      "prior_launches": 4,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "33HTFhU27NLcf5GkVHZ5AqE9beGohb1dsLSDaHgGpump",
+      "ordinal": 6,
+      "peak_mc": 27854.53,
+      "prior_launches": 5,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "38g1nbKpqwXmSVufZUC2ftZLQKgor99g8NUW6UpBpump",
+      "ordinal": 7,
+      "peak_mc": 18240.52,
+      "prior_launches": 6,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "3BzpTwLCTBu1FCTEBQgW9u3wugpwDq6ZVmsUMiyGpump",
+      "ordinal": 8,
+      "peak_mc": 25745.75,
+      "prior_launches": 7,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "3FRuk4wusqQ7koJtFXqMTjT2aaMjeNPkkvF57m1Xpump",
+      "ordinal": 9,
+      "peak_mc": 66327.2798972869,
+      "prior_launches": 8,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "3LAmxkAZGMxYYCPcvfYsaoxTPw43syY9QT791PTYpump",
+      "ordinal": 10,
+      "peak_mc": 28815.67,
+      "prior_launches": 9,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "3LzGkjiKoDbHCQpghMXY6VLPJWGRmfH7QvDTSmjJpump",
+      "ordinal": 11,
+      "peak_mc": 20492.01,
+      "prior_launches": 10,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "3MEEuA4AqM9MxxM6dJ8H5gdWpiKy2HxNDiBZ4u4Gpump",
+      "ordinal": 12,
+      "peak_mc": 23442.45674429846,
+      "prior_launches": 11,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "3Nn53d4XqrnuGVGoqKY92XXNBgKaFsz82kgPEG43pump",
+      "ordinal": 13,
+      "peak_mc": 24745.24,
+      "prior_launches": 12,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "3bZWWwyw6GKtRHHNmpM3BwC36Q3DqaKK7Ei9km4Hpump",
+      "ordinal": 14,
+      "peak_mc": 73421.54111979502,
+      "prior_launches": 13,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "3wKQS23hDeBS37qgfwJZxPa81TPdF1htUQrDF8rhpump",
+      "ordinal": 15,
+      "peak_mc": 8198.84,
+      "prior_launches": 14,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "4MpMPRkkSWEy4JC9FTcgYBgx5WfUH9VY9e5uuUKMpump",
+      "ordinal": 16,
+      "peak_mc": 28249.23,
+      "prior_launches": 15,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "4RDHEUabxyBV2yLRMBJjeJ6ERV6wmZGZHP1wXEeLpump",
+      "ordinal": 17,
+      "peak_mc": 24208.39,
+      "prior_launches": 16,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "4jkrKrWjL9xfAeryNqnFxjEVPKdTK1jij8ULrS9Ypump",
+      "ordinal": 18,
+      "peak_mc": 24526.82,
+      "prior_launches": 17,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "5FHrn9gaeWEVNP9Z2VbNmfAMxz4RTiYU85qXEn56pump",
+      "ordinal": 19,
+      "peak_mc": 25645.31,
+      "prior_launches": 18,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "5Whz58r9is2UBFD2ZpaHpGYKn6edA9HL65gmBcx8pump",
+      "ordinal": 20,
+      "peak_mc": 17932.35,
+      "prior_launches": 19,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "5rnjWSd5gtAQFtFWHsZVWHxgYMPHwFzb4RR4KoUjpump",
+      "ordinal": 21,
+      "peak_mc": 42608.834342017835,
+      "prior_launches": 20,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "6DP81vVNPBgKm2oQcwBzW8NXfEcNMTyGgLk35Wncpump",
+      "ordinal": 22,
+      "peak_mc": 17379.1,
+      "prior_launches": 21,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "6MbDfi8uMvyxpUcc1UKPQFpWg6WZpq4szGtg3arFpump",
+      "ordinal": 23,
+      "peak_mc": 15411.94,
+      "prior_launches": 22,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "6QSbUhu9yfWRf15eZoXFhMdApLYRmBghsfYpaHiSpump",
+      "ordinal": 24,
+      "peak_mc": 29611.75,
+      "prior_launches": 23,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "6eK4hUHBrxiTCNwEmWmTjZMeuhRip3GH1veQjtpspump",
+      "ordinal": 25,
+      "peak_mc": 26977.684248162746,
+      "prior_launches": 24,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "6qKuf3zdUpDBnDahqX4qDbasNLSE3ZiyUHcKk3o4pump",
+      "ordinal": 26,
+      "peak_mc": 24979.3,
+      "prior_launches": 25,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "77ChDpN1EcrwSvBMjuc1UzGfmpzXAhrkt7Uk9Nxtpump",
+      "ordinal": 27,
+      "peak_mc": 28155.19,
+      "prior_launches": 26,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "81thxVdQByiDe8fY16ThwJ2xVj2QSRhkMo8u76SHpump",
+      "ordinal": 28,
+      "peak_mc": 23273.92,
+      "prior_launches": 27,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "8BVd9PCBPPReLy5DvScWkitLAMVRkkUzvQ22Xxhgpump",
+      "ordinal": 29,
+      "peak_mc": 27749.85,
+      "prior_launches": 28,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "8E2nPMR6jzhMyUaGoxoQGCS6QujTxvbC6QdETeM2pump",
+      "ordinal": 30,
+      "peak_mc": 43139.19562212044,
+      "prior_launches": 29,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "8JmTNgLaGgEYNTYVAc5cmVSGCZJz9TR8pLxmov6Lpump",
+      "ordinal": 31,
+      "peak_mc": 22641.98,
+      "prior_launches": 30,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "97rxiakd5z38rfsJunWkmJYjPtQZHwkhATgBXg3dpump",
+      "ordinal": 32,
+      "peak_mc": 5470.110690500854,
+      "prior_launches": 31,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "9cEVQL4eTyLvqjoRo4pYUhwJZ6ampRsSxdixCdd6pump",
+      "ordinal": 33,
+      "peak_mc": 115092.89931644297,
+      "prior_launches": 32,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "9gwWth3jCiwD5UZLvNc35obMbrj7mox22aCuAoGxpump",
+      "ordinal": 34,
+      "peak_mc": 28113.29,
+      "prior_launches": 33,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "AeZDPw9yvXh2HWMDJNA8UbHMcuiKCJv59weXgKQupump",
+      "ordinal": 35,
+      "peak_mc": 17830.37,
+      "prior_launches": 34,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "AkZCTXVYv7vg6KRqztDvTbZmfN6UiL731JS6xGVKpump",
+      "ordinal": 36,
+      "peak_mc": 31836.65,
+      "prior_launches": 35,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "AwRfA9TqgQE8Mp6wsin6i1LMKBwtKE3xYDP6PoCEpump",
+      "ordinal": 37,
+      "peak_mc": 24646.66,
+      "prior_launches": 36,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "BCDp6xA3NeFzfjMYPuw79k39gFJSjBpr4YgTEDBFpump",
+      "ordinal": 38,
+      "peak_mc": 19489.1,
+      "prior_launches": 37,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "BDZSkMRULMqFfbwBsw4nQ3A6Na8LHtSso6NmYQ7opump",
+      "ordinal": 39,
+      "peak_mc": 21995.07,
+      "prior_launches": 38,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "BVr3RjxQgt7cebXCEDmKF12TiiA1Y4vjrcjZZx1Ppump",
+      "ordinal": 40,
+      "peak_mc": 30683.96,
+      "prior_launches": 39,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "BqD36oDy12LmmjyrPp2y24HEcQ5huGE8geSV2VXDpump",
+      "ordinal": 41,
+      "peak_mc": 28401.98,
+      "prior_launches": 40,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "CTcscdySaho72vBMXWMM9Hm76BKuDiyXtKnxnTw6pump",
+      "ordinal": 42,
+      "peak_mc": 214616.40674605774,
+      "prior_launches": 41,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "CvaJnZ87K2N8muVJxFe8TpwuKMdufHPnBJbEAABTpump",
+      "ordinal": 43,
+      "peak_mc": 16987.21,
+      "prior_launches": 42,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "E1tBbRBw3KHgveqxHHNPTvRwB4Nc4wGAv6Eo3MJepump",
+      "ordinal": 44,
+      "peak_mc": 23099.41,
+      "prior_launches": 43,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "E3zNpCExP6Vd9Y1RhHwASR77uYNMCGTBpwp55UqUpump",
+      "ordinal": 45,
+      "peak_mc": 22064.39,
+      "prior_launches": 44,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "EFgoCtHRU9vbHuk97oGm99tQ8tGkXZ9fEcWVa2czpump",
+      "ordinal": 46,
+      "peak_mc": 28221.31,
+      "prior_launches": 45,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "F27GQb9sZgc9LmVkGzKsMoptDrsrd2naVQHPtc6Mpump",
+      "ordinal": 47,
+      "peak_mc": 26292.16,
+      "prior_launches": 46,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "FGCBkWiTu8rSQXVfsVAXowYDYsDA3rEd1vkHQJ9Upump",
+      "ordinal": 48,
+      "peak_mc": 24493.13,
+      "prior_launches": 47,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "GUQRgZqmTRB9UhD8wzRgmAwyToJWEHXLZCtTSz5Wpump",
+      "ordinal": 49,
+      "peak_mc": 27866.28,
+      "prior_launches": 48,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "GUkMvcxXPv5BesCVMah9nYs6v3xyxB2whGuchUMipump",
+      "ordinal": 50,
+      "peak_mc": 22552.45,
+      "prior_launches": 49,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "HBrfYZgeLKdSvBBGnGkvAK4563pq8oBGpgNFAaespump",
+      "ordinal": 51,
+      "peak_mc": 26771.1,
+      "prior_launches": 50,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "HoKD1DDKsLQr8zsB3k6LLEwj73xbTYyBkdsA562Upump",
+      "ordinal": 52,
+      "peak_mc": 26726.24,
+      "prior_launches": 51,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "gifhXF3dEz4j6NAQBw33LdtLcmU3mtnWNuL3Mtqpump",
+      "ordinal": 53,
+      "peak_mc": 25319.82,
+      "prior_launches": 52,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "jKzHf3R19xcZpXx3Vr8Dpocnch79YKX5vkSJsSnpump",
+      "ordinal": 54,
+      "peak_mc": 23327.62,
+      "prior_launches": 53,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "DiAc3rB1JdgPbQZdrs8TCmHoz4LXNB2zuksPVx3tpump",
+      "ordinal": 55,
+      "peak_mc": 0.0,
+      "prior_launches": 54,
+      "prior_migration_rate": 1.0
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "BkkZzKD4ZNaPUvPxwcCBW9hDb5pFXJFUTovKyCDhpump",
+      "ordinal": 56,
+      "peak_mc": 0.0,
+      "prior_launches": 55,
+      "prior_migration_rate": 0.9818181818181818
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "HuUqp9rVEwuyNnqE6mYYFXkkExaMqMJex38NYd1ypump",
+      "ordinal": 57,
+      "peak_mc": 0.0,
+      "prior_launches": 56,
+      "prior_migration_rate": 0.9642857142857143
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "5Lxkkbqavpzk8fYhregUuVCc8e7Bbe7sB327SL9Fpump",
+      "ordinal": 58,
+      "peak_mc": 0.0,
+      "prior_launches": 57,
+      "prior_migration_rate": 0.9473684210526315
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "Hi1x7dkmYwofAaqz3eeNZEE6PYys8cPDYr4X9sgJpump",
+      "ordinal": 59,
+      "peak_mc": 0.0,
+      "prior_launches": 58,
+      "prior_migration_rate": 0.9310344827586207
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "6TbxAi9vmr3GqdKrzjpqR5dSTQ3NPWp2yTaha7Vrpump",
+      "ordinal": 60,
+      "peak_mc": 0.0,
+      "prior_launches": 59,
+      "prior_migration_rate": 0.9152542372881356
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "4JxrEcayW2VAtxg98Ct4qKoZJ2Sf2CnvFrvL6po9pump",
+      "ordinal": 61,
+      "peak_mc": 0.0,
+      "prior_launches": 60,
+      "prior_migration_rate": 0.9
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "3TkXM63Y1f8zoDq9LpAmVR8TnDefhfUYuuP8jUCupump",
+      "ordinal": 62,
+      "peak_mc": 0.0,
+      "prior_launches": 61,
+      "prior_migration_rate": 0.8852459016393442
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "2CbqsS5Yn7n2aTpahhtwwkmDMFpMPiynW4iCFAvJpump",
+      "ordinal": 63,
+      "peak_mc": 0.0,
+      "prior_launches": 62,
+      "prior_migration_rate": 0.8709677419354839
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "HcR4RE3vXwdgppmotkCAMvenuaakUDR61j4SRnMppump",
+      "ordinal": 64,
+      "peak_mc": 0.0,
+      "prior_launches": 63,
+      "prior_migration_rate": 0.8571428571428571
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "H8LBe6Zbw6KMGBmdD2aHCUyvqw4RJi8dWNo8WdnXpump",
+      "ordinal": 65,
+      "peak_mc": 0.0,
+      "prior_launches": 64,
+      "prior_migration_rate": 0.84375
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "FxWP1yfZzx3pftu9acxGQ5VCfEc8d3vJZkcEqAfJpump",
+      "ordinal": 66,
+      "peak_mc": 0.0,
+      "prior_launches": 65,
+      "prior_migration_rate": 0.8307692307692308
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "8iJvSfdai1GnHMGmNU9wE4DVHznc2DE9W2tsp2PTpump",
+      "ordinal": 67,
+      "peak_mc": 0.0,
+      "prior_launches": 66,
+      "prior_migration_rate": 0.8181818181818182
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "6yJe1unknJcSUZuKVVhk1nxkBMxwcyATx55YbJUjpump",
+      "ordinal": 68,
+      "peak_mc": 0.0,
+      "prior_launches": 67,
+      "prior_migration_rate": 0.8059701492537313
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "53tsrhamJYzMMkQ1N7ArwNBX242yDVfwrPeNCkcxpump",
+      "ordinal": 69,
+      "peak_mc": 0.0,
+      "prior_launches": 68,
+      "prior_migration_rate": 0.7941176470588235
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "55kwn4PY4NntnpYca14mnf3q9WbTNphFudr5tEKQpump",
+      "ordinal": 70,
+      "peak_mc": 0.0,
+      "prior_launches": 69,
+      "prior_migration_rate": 0.782608695652174
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "JBXy4KnEiwuTermeMeCbJqarKqwzbSkidQ7hiUSgpump",
+      "ordinal": 71,
+      "peak_mc": 0.0,
+      "prior_launches": 70,
+      "prior_migration_rate": 0.7714285714285715
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "G2MmaEyDavZUdGyoPijubfbGtbqobK5y89dXZsdDpump",
+      "ordinal": 72,
+      "peak_mc": 0.0,
+      "prior_launches": 71,
+      "prior_migration_rate": 0.7605633802816901
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "73tWPqu1BKiAsF3cGXMoaSSFNf5E5xdaZyHLp8zqpump",
+      "ordinal": 73,
+      "peak_mc": 0.0,
+      "prior_launches": 72,
+      "prior_migration_rate": 0.75
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "GeSaeDdsEvTXR4rgTsovW3oXyi3MXMMEqo4CBT1cpump",
+      "ordinal": 74,
+      "peak_mc": 0.0,
+      "prior_launches": 73,
+      "prior_migration_rate": 0.7397260273972602
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "JA5h3RzU22h8JsC2szYcMz9aXBFNotSwKgszrqh8pump",
+      "ordinal": 75,
+      "peak_mc": 0.0,
+      "prior_launches": 74,
+      "prior_migration_rate": 0.7297297297297297
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "5MEtaMMSCTBt4SG2WJtYU43MtRVPBtxi6J3goXx1pump",
+      "ordinal": 76,
+      "peak_mc": 0.0,
+      "prior_launches": 75,
+      "prior_migration_rate": 0.72
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "HNw9pdVjmTp6jrUHdJ5PMQTbPhcsGeHnsx3dpruHpump",
+      "ordinal": 77,
+      "peak_mc": 0.0,
+      "prior_launches": 76,
+      "prior_migration_rate": 0.7105263157894737
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "BwrjTKUsKhmtSk95oMvd52z2Zbo6FaobjV7jyT58pump",
+      "ordinal": 78,
+      "peak_mc": 0.0,
+      "prior_launches": 77,
+      "prior_migration_rate": 0.7012987012987013
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "AhDbSdXX57q1NAXSiApB7q4CdqU9ZycEnQdXSUEypump",
+      "ordinal": 79,
+      "peak_mc": 0.0,
+      "prior_launches": 78,
+      "prior_migration_rate": 0.6923076923076923
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "azbVwLoUUziBJc1YLukjNJtcYwM6n3Gs9QZgXAUpump",
+      "ordinal": 80,
+      "peak_mc": 0.0,
+      "prior_launches": 79,
+      "prior_migration_rate": 0.6835443037974683
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "GnnaEaJ2htNM9d7z3QgZKWDCAkwwJwc2V2ekg7Dopump",
+      "ordinal": 81,
+      "peak_mc": 0.0,
+      "prior_launches": 80,
+      "prior_migration_rate": 0.675
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "CKVwDF7U9YPnqJFBdJgjM4dRT2nEUsxFVM2ab1Jipump",
+      "ordinal": 82,
+      "peak_mc": 0.0,
+      "prior_launches": 81,
+      "prior_migration_rate": 0.6666666666666666
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "C5CSs2iNKoiRsFzC4R12LoQfthX8Scivpno5rZtgpump",
+      "ordinal": 83,
+      "peak_mc": 0.0,
+      "prior_launches": 82,
+      "prior_migration_rate": 0.6585365853658537
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "AWo87fiTN5sPemhb8rF83D4vjkTtzVpQ4E7Nwnvxpump",
+      "ordinal": 84,
+      "peak_mc": 0.0,
+      "prior_launches": 83,
+      "prior_migration_rate": 0.6506024096385542
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "DQ287YuqhoefvjbC92yi5Gt5pW5jGJxZVksvbTbCpump",
+      "ordinal": 85,
+      "peak_mc": 0.0,
+      "prior_launches": 84,
+      "prior_migration_rate": 0.6428571428571429
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "CvqwDv8ToX71LoFjHR8SDN5aWnwSy3SdhswhdRuupump",
+      "ordinal": 86,
+      "peak_mc": 0.0,
+      "prior_launches": 85,
+      "prior_migration_rate": 0.6352941176470588
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "4c7DqWzvWW3viExDc6RamEUrNHkLEhKGz3KEFECQpump",
+      "ordinal": 87,
+      "peak_mc": 0.0,
+      "prior_launches": 86,
+      "prior_migration_rate": 0.627906976744186
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "22keUwNKeD4q8sxE4oGSyUPM8K8xm8FhK64ztHtNpump",
+      "ordinal": 88,
+      "peak_mc": 0.0,
+      "prior_launches": 87,
+      "prior_migration_rate": 0.6206896551724138
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "7YFeC1GBFb8KXkpSkhwMa6K8UtRbMNXnKFnhmVWppump",
+      "ordinal": 89,
+      "peak_mc": 0.0,
+      "prior_launches": 88,
+      "prior_migration_rate": 0.6136363636363636
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "GX6FBKUXAHhz1UGmKb9c2nDCxmCfvNMtv9Guey58pump",
+      "ordinal": 90,
+      "peak_mc": 0.0,
+      "prior_launches": 89,
+      "prior_migration_rate": 0.6067415730337079
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "74F5b7dz3NzHhSXd7nNRRoC35MZkRcx5k1Mi3HKgpump",
+      "ordinal": 91,
+      "peak_mc": 0.0,
+      "prior_launches": 90,
+      "prior_migration_rate": 0.6
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "GH9Ju9rxYbttBSQHbzgkG4VWfDSymELfQg4R9K53pump",
+      "ordinal": 92,
+      "peak_mc": 0.0,
+      "prior_launches": 91,
+      "prior_migration_rate": 0.5934065934065934
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "J33Bw5CwduU3wyoaubc9uEnPnpuRf4PSisYGGnBFpump",
+      "ordinal": 93,
+      "peak_mc": 0.0,
+      "prior_launches": 92,
+      "prior_migration_rate": 0.5869565217391305
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "u21whNDq2XmFjNy3yMcq6sTW8Qjn7zx3ssn5Bcepump",
+      "ordinal": 94,
+      "peak_mc": 0.0,
+      "prior_launches": 93,
+      "prior_migration_rate": 0.5806451612903226
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "G8x9tDuVZG6xxto6S2FF7UnDSn8YMjP3ryAnudtQpump",
+      "ordinal": 95,
+      "peak_mc": 0.0,
+      "prior_launches": 94,
+      "prior_migration_rate": 0.574468085106383
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "8Rb1hskDN116szDk2G6Ukr8QYgWWuSxKRY6RB8ripump",
+      "ordinal": 96,
+      "peak_mc": 0.0,
+      "prior_launches": 95,
+      "prior_migration_rate": 0.5684210526315789
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "HFy6qyAx2rYvAwHhzwrLEHvkBRD6Y1xR7LSyCC44pump",
+      "ordinal": 97,
+      "peak_mc": 0.0,
+      "prior_launches": 96,
+      "prior_migration_rate": 0.5625
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "dY8NpyWYV11EqT8Dci6JJ8G11miFPxmgsfro8Sxpump",
+      "ordinal": 98,
+      "peak_mc": 0.0,
+      "prior_launches": 97,
+      "prior_migration_rate": 0.5567010309278351
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "EjKWs7X2nctFLom7QtY8sA12wF42v8ZbScbjQ7Lupump",
+      "ordinal": 99,
+      "peak_mc": 0.0,
+      "prior_launches": 98,
+      "prior_migration_rate": 0.5510204081632653
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "7rp4xasLZKAsBWiA6bPsz9tVZBzkCvKdDKhARaS5pump",
+      "ordinal": 100,
+      "peak_mc": 0.0,
+      "prior_launches": 99,
+      "prior_migration_rate": 0.5454545454545454
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "8f15mKLoVXDf3tpV2mrgjiubC1AuMoSEb8J7YUCapump",
+      "ordinal": 101,
+      "peak_mc": 0.0,
+      "prior_launches": 100,
+      "prior_migration_rate": 0.54
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "CB6MPH3QCPRgS1unS5LuJrtPFHmBks9Lz6Nk12FZpump",
+      "ordinal": 102,
+      "peak_mc": 0.0,
+      "prior_launches": 101,
+      "prior_migration_rate": 0.5346534653465347
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "3p39XReHgCLdvXJpYyQuaTGBMj8h56Jb282WNfqVpump",
+      "ordinal": 103,
+      "peak_mc": 0.0,
+      "prior_launches": 102,
+      "prior_migration_rate": 0.5294117647058824
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "8YmFyG6B77d3ZwK2PRAVLRFMdkYBtdVAf8bhFfLbpump",
+      "ordinal": 104,
+      "peak_mc": 0.0,
+      "prior_launches": 103,
+      "prior_migration_rate": 0.5242718446601942
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "Gd4jmJZYZfvWudwYoRZw7X2rTkaoSZZo9jkJUp5Jpump",
+      "ordinal": 105,
+      "peak_mc": 0.0,
+      "prior_launches": 104,
+      "prior_migration_rate": 0.5192307692307693
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "D3HvCf116GdTz9w8gSLeDU1QN8qUjhk8Jnjfs3kPpump",
+      "ordinal": 106,
+      "peak_mc": 0.0,
+      "prior_launches": 105,
+      "prior_migration_rate": 0.5142857142857142
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "2tTqZVexTmspWwaCRoNBZJkbZvJG6pvKk3JRhVA5pump",
+      "ordinal": 107,
+      "peak_mc": 0.0,
+      "prior_launches": 106,
+      "prior_migration_rate": 0.5094339622641509
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "D5eb23yoQ4xEQK7vfZEiaTMM61nsqqnUYBF9wQQwpump",
+      "ordinal": 108,
+      "peak_mc": 0.0,
+      "prior_launches": 107,
+      "prior_migration_rate": 0.5046728971962616
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "BzfYdznsmqzZ5wCK6os1kRDYyKfQFDsp3FoWGoA1pump",
+      "ordinal": 109,
+      "peak_mc": 0.0,
+      "prior_launches": 108,
+      "prior_migration_rate": 0.5
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "9S77LV385684X8GUJ9hyzueUfDYqfGo2pZq5sccnpump",
+      "ordinal": 110,
+      "peak_mc": 0.0,
+      "prior_launches": 109,
+      "prior_migration_rate": 0.4954128440366973
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "41XPT68gFGSwGYvFrV5gU15hJeudaPyfgPkAggkXpump",
+      "ordinal": 111,
+      "peak_mc": 0.0,
+      "prior_launches": 110,
+      "prior_migration_rate": 0.4909090909090909
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "Ceghh5DAchGRtXnvjkcFDc9sp9B7mcgjucSpH7Lupump",
+      "ordinal": 112,
+      "peak_mc": 0.0,
+      "prior_launches": 111,
+      "prior_migration_rate": 0.4864864864864865
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "6MgVxA4Ks2H2wcVsG7uqzRLKniMykQffcxw91zpMpump",
+      "ordinal": 113,
+      "peak_mc": 0.0,
+      "prior_launches": 112,
+      "prior_migration_rate": 0.48214285714285715
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "C4ZqZooc1qYGnLZNPwQQ39gQRMfYUwz4kysjKfJ9pump",
+      "ordinal": 114,
+      "peak_mc": 0.0,
+      "prior_launches": 113,
+      "prior_migration_rate": 0.4778761061946903
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "GZTkmYej3jmYonb3yj9PQwLm3LjporPrUtxiMJUQpump",
+      "ordinal": 115,
+      "peak_mc": 0.0,
+      "prior_launches": 114,
+      "prior_migration_rate": 0.47368421052631576
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "J6DfgugLHqdt6X7vJouXUoPgn7Gk8FWmSZemFK1Zpump",
+      "ordinal": 116,
+      "peak_mc": 0.0,
+      "prior_launches": 115,
+      "prior_migration_rate": 0.46956521739130436
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "AHaG21FXYwUYW3dgKepfmgS3ABuXXyYqAcLjh6RCpump",
+      "ordinal": 117,
+      "peak_mc": 0.0,
+      "prior_launches": 116,
+      "prior_migration_rate": 0.46551724137931033
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "4FasC62GN1Vx8YK5b7UaLNZrwyyhgehd2i98RYtGpump",
+      "ordinal": 118,
+      "peak_mc": 0.0,
+      "prior_launches": 117,
+      "prior_migration_rate": 0.46153846153846156
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "7NaVLUahzEc8WxXbV4RzzWUBrgaA43TMT2adWbahpump",
+      "ordinal": 119,
+      "peak_mc": 0.0,
+      "prior_launches": 118,
+      "prior_migration_rate": 0.4576271186440678
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "VZg7oQTBLqi5c9oUTAC4VFCjnRDxD5KyFGVp7n8pump",
+      "ordinal": 120,
+      "peak_mc": 0.0,
+      "prior_launches": 119,
+      "prior_migration_rate": 0.453781512605042
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "4XdH5eWWe6qMkUSDFeNggCG66nwKnHxtwLeXnjpapump",
+      "ordinal": 121,
+      "peak_mc": 0.0,
+      "prior_launches": 120,
+      "prior_migration_rate": 0.45
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "4E73won6UcpUmjtNpdx5CB3j43AxUb96aNiMeg3apump",
+      "ordinal": 122,
+      "peak_mc": 0.0,
+      "prior_launches": 121,
+      "prior_migration_rate": 0.4462809917355372
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "Fh2dxEuL7ann9Dko77pcucFoAjnWAp5WQMfC9eWipump",
+      "ordinal": 123,
+      "peak_mc": 0.0,
+      "prior_launches": 122,
+      "prior_migration_rate": 0.4426229508196721
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "ELW5o6k8XyczwcTRQiDPR2sAQVxAAop1S8itQSMXpump",
+      "ordinal": 124,
+      "peak_mc": 0.0,
+      "prior_launches": 123,
+      "prior_migration_rate": 0.43902439024390244
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "Eg9y25RNHVptzoEmj6XCruroZP8ToWfAm77iXA15pump",
+      "ordinal": 125,
+      "peak_mc": 0.0,
+      "prior_launches": 124,
+      "prior_migration_rate": 0.43548387096774194
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "3kVpxD7uRj4EqvRctokjFcAbyTisszUvhkh7AAYfbonk",
+      "ordinal": 126,
+      "peak_mc": 0.0,
+      "prior_launches": 125,
+      "prior_migration_rate": 0.432
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "2kisZgcJ5wSHKuqxq9qkBHKrxEvNbxpMqE1uFCBKpump",
+      "ordinal": 127,
+      "peak_mc": 0.0,
+      "prior_launches": 126,
+      "prior_migration_rate": 0.42857142857142855
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "58Nj15hTHM1R2MjHAXB1YNEsHtoKevB67EBELqGSpump",
+      "ordinal": 128,
+      "peak_mc": 0.0,
+      "prior_launches": 127,
+      "prior_migration_rate": 0.4251968503937008
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "3pQV5ZfJG8RpjkEySPNkPoAwK6pqnhWBGUGXFPDSpump",
+      "ordinal": 129,
+      "peak_mc": 0.0,
+      "prior_launches": 128,
+      "prior_migration_rate": 0.421875
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "BY8e2XzMhJHmuJuw5p9LLP4T4f1dS2SxaMnBtBNapump",
+      "ordinal": 130,
+      "peak_mc": 0.0,
+      "prior_launches": 129,
+      "prior_migration_rate": 0.4186046511627907
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "CtRYyCgjFbuTSpsoAJSBzSEAAqcRttSwkftvpEQFpump",
+      "ordinal": 131,
+      "peak_mc": 0.0,
+      "prior_launches": 130,
+      "prior_migration_rate": 0.4153846153846154
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "2Eg49b811feaYgFDV4GC3BpnWUasHsDNxzWpmaXdpump",
+      "ordinal": 132,
+      "peak_mc": 0.0,
+      "prior_launches": 131,
+      "prior_migration_rate": 0.4122137404580153
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "Cdm8sxv3myYmJJb3inVsXBoMautbipEXwyytnziJpump",
+      "ordinal": 133,
+      "peak_mc": 0.0,
+      "prior_launches": 132,
+      "prior_migration_rate": 0.4090909090909091
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "5SRDhxpMe4DLFeZteJnXzhiezYbPZXU4Exuqsds2pump",
+      "ordinal": 134,
+      "peak_mc": 0.0,
+      "prior_launches": 133,
+      "prior_migration_rate": 0.40601503759398494
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "Ftwthx6sXWoCxwk6jZhfh8meugTWCfaczm38gTE5pump",
+      "ordinal": 135,
+      "peak_mc": 0.0,
+      "prior_launches": 134,
+      "prior_migration_rate": 0.40298507462686567
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "7Q1vZqNgTxncvPsU3YLE5JFKtDKGdnHJpre4mSDupump",
+      "ordinal": 136,
+      "peak_mc": 0.0,
+      "prior_launches": 135,
+      "prior_migration_rate": 0.4
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "ABFWSuE2e7VHPR3NHfYKsmJYM9C24CJhjdLoJPRHpump",
+      "ordinal": 137,
+      "peak_mc": 0.0,
+      "prior_launches": 136,
+      "prior_migration_rate": 0.39705882352941174
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "JCcRHGp8QTmLuL55knNP3KAV5JEZpyyGyQzpFnZmpump",
+      "ordinal": 138,
+      "peak_mc": 0.0,
+      "prior_launches": 137,
+      "prior_migration_rate": 0.39416058394160586
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "DFTEjbRCqGw8nmBN3rCrdsCucYDqE2Y7S4Q8493opump",
+      "ordinal": 139,
+      "peak_mc": 0.0,
+      "prior_launches": 138,
+      "prior_migration_rate": 0.391304347826087
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "BfgK453CUcK5AFQxmXG5xuuUCbn3KhWbEv4LtxVKpump",
+      "ordinal": 140,
+      "peak_mc": 0.0,
+      "prior_launches": 139,
+      "prior_migration_rate": 0.38848920863309355
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "Hwit6PXDowqtX3ZL5KUUFsDUKrmHpk1fgzmyDSWdpump",
+      "ordinal": 141,
+      "peak_mc": 0.0,
+      "prior_launches": 140,
+      "prior_migration_rate": 0.38571428571428573
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "CfVm2y6BVMikMHzAra2fLK9DvhR5PCdGr9RYNq8apump",
+      "ordinal": 142,
+      "peak_mc": 0.0,
+      "prior_launches": 141,
+      "prior_migration_rate": 0.3829787234042553
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "2Z4vu5CSL3GRG9sCbawvmU1Tq7ewgktmZkpZ5kA5bonk",
+      "ordinal": 143,
+      "peak_mc": 0.0,
+      "prior_launches": 142,
+      "prior_migration_rate": 0.38028169014084506
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "7CctnzgaJx8iqQz4oQf3YpEMjLt2yJBZLj1svhP9pump",
+      "ordinal": 144,
+      "peak_mc": 0.0,
+      "prior_launches": 143,
+      "prior_migration_rate": 0.3776223776223776
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "CX4CRwAgSw28SGC1knAwNaS2ehfrzpVQtyxd2CNhpump",
+      "ordinal": 145,
+      "peak_mc": 0.0,
+      "prior_launches": 144,
+      "prior_migration_rate": 0.375
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "DKuhUi9iCcTeE4b9f4h77spnsUi3G4TBXA9riwDjpump",
+      "ordinal": 146,
+      "peak_mc": 0.0,
+      "prior_launches": 145,
+      "prior_migration_rate": 0.3724137931034483
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "EwX18kao7iaRtb448qLNNc43RXBHxC6REeqw7JiLpump",
+      "ordinal": 147,
+      "peak_mc": 0.0,
+      "prior_launches": 146,
+      "prior_migration_rate": 0.3698630136986301
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "4ErbVHhugbLbs9D4gDkBmjysY45bJEJtrSsVgDBwpump",
+      "ordinal": 148,
+      "peak_mc": 0.0,
+      "prior_launches": 147,
+      "prior_migration_rate": 0.3673469387755102
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "ADfmqGtGPBDG7CuqaXNG1xt1wmTehQCBAx8k6zeppump",
+      "ordinal": 149,
+      "peak_mc": 0.0,
+      "prior_launches": 148,
+      "prior_migration_rate": 0.36486486486486486
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "6QUpqajpcuq9TRfcgmToV2dLuXdVW9naTVYpdFJZpump",
+      "ordinal": 150,
+      "peak_mc": 0.0,
+      "prior_launches": 149,
+      "prior_migration_rate": 0.3624161073825503
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "CnogVnn34nmVUcmKFvDhhhA8XBy14VDBfmFQ7L8Epump",
+      "ordinal": 151,
+      "peak_mc": 0.0,
+      "prior_launches": 150,
+      "prior_migration_rate": 0.36
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "9HzQuHrqxdLy95TKpWjHqGL5XPFRW5TqDnDHL4ewpump",
+      "ordinal": 152,
+      "peak_mc": 0.0,
+      "prior_launches": 151,
+      "prior_migration_rate": 0.3576158940397351
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "8xzMKY9Czna3CavzrUG9xNFarfVdExtzPnLMFgPDpump",
+      "ordinal": 153,
+      "peak_mc": 0.0,
+      "prior_launches": 152,
+      "prior_migration_rate": 0.35526315789473684
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "EZsUs56fmFA7Zs4wWocd4sBfTyuRvrSgyxCFMCvppump",
+      "ordinal": 154,
+      "peak_mc": 0.0,
+      "prior_launches": 153,
+      "prior_migration_rate": 0.35294117647058826
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "CZN6JArQYGgLMXCtzUNK4xKAwnUXp6Dg6GmUqzTGpump",
+      "ordinal": 155,
+      "peak_mc": 0.0,
+      "prior_launches": 154,
+      "prior_migration_rate": 0.35064935064935066
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "Gt1fUZZpxFoCmXJiZMRyyWNoVfMtCqwKeCW9X3Ygpump",
+      "ordinal": 156,
+      "peak_mc": 0.0,
+      "prior_launches": 155,
+      "prior_migration_rate": 0.34838709677419355
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "D8rsB5rNx3CCj7EcWCnkRa4uM287CjA8h78wTy9opump",
+      "ordinal": 157,
+      "peak_mc": 0.0,
+      "prior_launches": 156,
+      "prior_migration_rate": 0.34615384615384615
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "2qHUFbbCmp53iJmwpXBLLLVjT1c4vUNJf1vnzRbapump",
+      "ordinal": 158,
+      "peak_mc": 0.0,
+      "prior_launches": 157,
+      "prior_migration_rate": 0.34394904458598724
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "HbwVixWguck5KEdKapyVh7NfQ1QQh7QayeM5dDn2pump",
+      "ordinal": 159,
+      "peak_mc": 0.0,
+      "prior_launches": 158,
+      "prior_migration_rate": 0.34177215189873417
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "7hRa9JrWAgNAKyXnYg1gGseCWAVwE4rPC3ptd6T3pump",
+      "ordinal": 160,
+      "peak_mc": 0.0,
+      "prior_launches": 159,
+      "prior_migration_rate": 0.33962264150943394
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "6twMtmKAgUR5W1tL3B9mj8aKq2x8MSkCxdv8DtUbpump",
+      "ordinal": 161,
+      "peak_mc": 0.0,
+      "prior_launches": 160,
+      "prior_migration_rate": 0.3375
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "AnrRi7gBfhQ6edzrobMJgnD5sc4smcJAJsgtMsxmpump",
+      "ordinal": 162,
+      "peak_mc": 0.0,
+      "prior_launches": 161,
+      "prior_migration_rate": 0.33540372670807456
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "J7pemsCa3s7kbHAPZFwFbGDLhKv3Ckin4UejSutvpump",
+      "ordinal": 163,
+      "peak_mc": 0.0,
+      "prior_launches": 162,
+      "prior_migration_rate": 0.3333333333333333
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "333xwZ2hj4uH3Jf2EKzpFnKe8evPqgkg2mr45PTBpump",
+      "ordinal": 164,
+      "peak_mc": 0.0,
+      "prior_launches": 163,
+      "prior_migration_rate": 0.3312883435582822
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "BPbDf4fpYA8HEX6S84YP5rSSQYtrP7D8cZp4qkr2pump",
+      "ordinal": 165,
+      "peak_mc": 0.0,
+      "prior_launches": 164,
+      "prior_migration_rate": 0.32926829268292684
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "JEEKyp1cjLuzZKVeEXS6kDzvxL7bHxQXnQUNCtqJbonk",
+      "ordinal": 166,
+      "peak_mc": 0.0,
+      "prior_launches": 165,
+      "prior_migration_rate": 0.32727272727272727
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "CjVKWQ8wbDBHgeT1gyyKmDegdE6VYTHBAc1guLpwpump",
+      "ordinal": 167,
+      "peak_mc": 0.0,
+      "prior_launches": 166,
+      "prior_migration_rate": 0.3253012048192771
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "7fNRdfsjmySMwTdDNM2a3WxsU1GQ4H2RLgGtpiV1pump",
+      "ordinal": 168,
+      "peak_mc": 0.0,
+      "prior_launches": 167,
+      "prior_migration_rate": 0.32335329341317365
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "42mgZSYNKTNu12rrrjceoEK6QWVX5ep9o2HzHzSNpump",
+      "ordinal": 169,
+      "peak_mc": 0.0,
+      "prior_launches": 168,
+      "prior_migration_rate": 0.32142857142857145
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "3ftfbXfHzfBwmqxJwTsL87qUEEGSn9sa8JzK2A56pump",
+      "ordinal": 170,
+      "peak_mc": 0.0,
+      "prior_launches": 169,
+      "prior_migration_rate": 0.31952662721893493
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "ACW5NfXkMLPUp8ZXe3XffR2D7aXV7b4UTameyCbspump",
+      "ordinal": 171,
+      "peak_mc": 0.0,
+      "prior_launches": 170,
+      "prior_migration_rate": 0.3176470588235294
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "4mghHEiDTpFzTT7Fitfidxbzd1ogypsvDYMysrqDpump",
+      "ordinal": 172,
+      "peak_mc": 0.0,
+      "prior_launches": 171,
+      "prior_migration_rate": 0.3157894736842105
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "48XjUB3pnrUS8Bh6WPXtBrjtyxznMVAea4BS7nGtpump",
+      "ordinal": 173,
+      "peak_mc": 0.0,
+      "prior_launches": 172,
+      "prior_migration_rate": 0.313953488372093
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "JDdZ6dYtaViTzQeMX6K2wqQmpu6e1NAQ5EjNQURJpump",
+      "ordinal": 174,
+      "peak_mc": 0.0,
+      "prior_launches": 173,
+      "prior_migration_rate": 0.31213872832369943
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "EXWCYiDMECf4efeeWtaqYpWtrvcnyJHLTxQVDmUhpump",
+      "ordinal": 175,
+      "peak_mc": 0.0,
+      "prior_launches": 174,
+      "prior_migration_rate": 0.3103448275862069
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "9nj5epEALBbCwci8E42cByzvJgs3RR7EuaZsAszLpump",
+      "ordinal": 176,
+      "peak_mc": 0.0,
+      "prior_launches": 175,
+      "prior_migration_rate": 0.30857142857142855
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "FWKDmSH5PXsfWkL1vwByTYGBnnKvDRHno4jYWYdWpump",
+      "ordinal": 177,
+      "peak_mc": 0.0,
+      "prior_launches": 176,
+      "prior_migration_rate": 0.3068181818181818
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "8Q9avCWvFe1pPsZx8QQYwUjqKnhpCs4qt4h9S3Ropump",
+      "ordinal": 178,
+      "peak_mc": 0.0,
+      "prior_launches": 177,
+      "prior_migration_rate": 0.3050847457627119
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "81UZQRACyY6RjfeFMFrUp7Vitaz4yLVdPv9URca2pump",
+      "ordinal": 179,
+      "peak_mc": 0.0,
+      "prior_launches": 178,
+      "prior_migration_rate": 0.30337078651685395
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "FedGmwzuTkgjtUuset6aDhAfTXCsAHEu9YuqQmaobonk",
+      "ordinal": 180,
+      "peak_mc": 0.0,
+      "prior_launches": 179,
+      "prior_migration_rate": 0.3016759776536313
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "82f9t1F365bqhg1NGMJ8LS6JMuo4AUwReZEqBdUdbonk",
+      "ordinal": 181,
+      "peak_mc": 0.0,
+      "prior_launches": 180,
+      "prior_migration_rate": 0.3
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "FmndKSsPMppSbXkTxhN69AmMhmc98P1JWqo8oz5Xbonk",
+      "ordinal": 182,
+      "peak_mc": 0.0,
+      "prior_launches": 181,
+      "prior_migration_rate": 0.2983425414364641
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "7W2r82XC8R2Ah2MvBtui1adhtjMbv4pDSyQkWHFLbonk",
+      "ordinal": 183,
+      "peak_mc": 0.0,
+      "prior_launches": 182,
+      "prior_migration_rate": 0.2967032967032967
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "HQaHDQikJK9fBtWNCskEF5184yNeaTTerHaD4oezbonk",
+      "ordinal": 184,
+      "peak_mc": 0.0,
+      "prior_launches": 183,
+      "prior_migration_rate": 0.29508196721311475
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "CxYstW1sfcKzvWFznbDeN5VStadvaBXUCPdXE9Qmpump",
+      "ordinal": 185,
+      "peak_mc": 0.0,
+      "prior_launches": 184,
+      "prior_migration_rate": 0.29347826086956524
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "Ab6rek7qYhPa5Z9KWU6fufE84Zr6qyKevUVbLKcvpump",
+      "ordinal": 186,
+      "peak_mc": 0.0,
+      "prior_launches": 185,
+      "prior_migration_rate": 0.2918918918918919
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "3iDvLFf7JCrusHtthoRu4V6osL6CfKYCCDgJQHBKpump",
+      "ordinal": 187,
+      "peak_mc": 0.0,
+      "prior_launches": 186,
+      "prior_migration_rate": 0.2903225806451613
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "H8cATcfCGBLKEV2kDDogUTt2xiLepNnrhXMUxFktpump",
+      "ordinal": 188,
+      "peak_mc": 0.0,
+      "prior_launches": 187,
+      "prior_migration_rate": 0.2887700534759358
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "3LBt9Rao33uAVjZKofD7AtPnsACrByHWuGV3SCsZpump",
+      "ordinal": 189,
+      "peak_mc": 0.0,
+      "prior_launches": 188,
+      "prior_migration_rate": 0.2872340425531915
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "9Zswz9r6AcjfdhUGcdH57zDAgNvtudf17GanAiGTpump",
+      "ordinal": 190,
+      "peak_mc": 0.0,
+      "prior_launches": 189,
+      "prior_migration_rate": 0.2857142857142857
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "CG4HGiRzRVQwgdka4feZvh1K9vLi9JnArBNYd3MMfomo",
+      "ordinal": 191,
+      "peak_mc": 0.0,
+      "prior_launches": 190,
+      "prior_migration_rate": 0.28421052631578947
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "BYxhtFgR1Fcvx1UvKj9oHioRCb8UVtvHv33SSToJpump",
+      "ordinal": 192,
+      "peak_mc": 0.0,
+      "prior_launches": 191,
+      "prior_migration_rate": 0.28272251308900526
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "AJiPT8LyrXUPPmcaAjMmwasZZEZA7JXPbwSKbxuopump",
+      "ordinal": 193,
+      "peak_mc": 0.0,
+      "prior_launches": 192,
+      "prior_migration_rate": 0.28125
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "6Jhg6jLokq9GRWssFeKwStMLgSY9P4b9oFjaNJ1xpump",
+      "ordinal": 194,
+      "peak_mc": 0.0,
+      "prior_launches": 193,
+      "prior_migration_rate": 0.27979274611398963
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "45noe8vtyU9YMF2m4khAK6gq4DoSiaPAfb8oVdGTpump",
+      "ordinal": 195,
+      "peak_mc": 0.0,
+      "prior_launches": 194,
+      "prior_migration_rate": 0.27835051546391754
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "2dVmzouFRy2MNHSXwLc9fJbQ2P5j8buqhTZSXeMRpump",
+      "ordinal": 196,
+      "peak_mc": 0.0,
+      "prior_launches": 195,
+      "prior_migration_rate": 0.27692307692307694
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "HA57Wnp9WmYKqhcELCPvuRyJDf9GbXH4fXvucqZVpump",
+      "ordinal": 197,
+      "peak_mc": 0.0,
+      "prior_launches": 196,
+      "prior_migration_rate": 0.2755102040816326
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "HTBiRpA2fcRxWMvRpUWxfXmSFLbWg9aPVuGimJskpump",
+      "ordinal": 198,
+      "peak_mc": 0.0,
+      "prior_launches": 197,
+      "prior_migration_rate": 0.27411167512690354
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "AyqFCYoDEaKfBVfJvwLgwdPESPbGLVN3wmkb2Xq9pump",
+      "ordinal": 199,
+      "peak_mc": 0.0,
+      "prior_launches": 198,
+      "prior_migration_rate": 0.2727272727272727
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "2i2wED7KYKdBu2ihR2JxcAaCacDyKxrESCmeTFNkpump",
+      "ordinal": 200,
+      "peak_mc": 0.0,
+      "prior_launches": 199,
+      "prior_migration_rate": 0.271356783919598
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "DpxsmztxxsG623z11r38whjCWpebSYWejWskTgMKpump",
+      "ordinal": 201,
+      "peak_mc": 0.0,
+      "prior_launches": 200,
+      "prior_migration_rate": 0.27
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "BcPUG8rpQ28zzaP3jsKEDbr1f2eaC1giKhdwsDdmpump",
+      "ordinal": 202,
+      "peak_mc": 0.0,
+      "prior_launches": 201,
+      "prior_migration_rate": 0.26865671641791045
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "EGzbWU5KbdNuSeAozT8hZMhkB347L25bELxuNK2Ypump",
+      "ordinal": 203,
+      "peak_mc": 0.0,
+      "prior_launches": 202,
+      "prior_migration_rate": 0.26732673267326734
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "6Jk3xooVgNPLXvhYaK3sMHeYXhEESipwV2GbbXYupump",
+      "ordinal": 204,
+      "peak_mc": 0.0,
+      "prior_launches": 203,
+      "prior_migration_rate": 0.2660098522167488
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "29XunmfvzvCo142ZhH2ZJj46EhaFaaqGVQ2py9zypump",
+      "ordinal": 205,
+      "peak_mc": 0.0,
+      "prior_launches": 204,
+      "prior_migration_rate": 0.2647058823529412
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "6HG82ULUCXaScB1V9Dibux6Ct1PW4QKjiRaVMx7Hpump",
+      "ordinal": 206,
+      "peak_mc": 0.0,
+      "prior_launches": 205,
+      "prior_migration_rate": 0.2634146341463415
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "3Mi8UEaeE2Din2SLZhcYpYbA87EeAunmtV5UmPH4pump",
+      "ordinal": 207,
+      "peak_mc": 0.0,
+      "prior_launches": 206,
+      "prior_migration_rate": 0.2621359223300971
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "HG3NkAuoeXXAcAmze9HFYM1ag6FKcWgDeCrnk2Tfpump",
+      "ordinal": 208,
+      "peak_mc": 0.0,
+      "prior_launches": 207,
+      "prior_migration_rate": 0.2608695652173913
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "D7tYrcnuVjPwG2f7xTqVofHqmy22AzQpSiN4JuU1pump",
+      "ordinal": 209,
+      "peak_mc": 0.0,
+      "prior_launches": 208,
+      "prior_migration_rate": 0.25961538461538464
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "9mHQjWUfvX5sX3MadJyBD71iARpfq9cCeg41sWa7pump",
+      "ordinal": 210,
+      "peak_mc": 0.0,
+      "prior_launches": 209,
+      "prior_migration_rate": 0.2583732057416268
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "B2NfxAEABqLJQ1Rh7b21UFBTNSWAJFKADYyLUbnKpump",
+      "ordinal": 211,
+      "peak_mc": 0.0,
+      "prior_launches": 210,
+      "prior_migration_rate": 0.2571428571428571
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "EfayS4TQLoU4omX2WZgaefH5hqgkthWRFF6DKzVepump",
+      "ordinal": 212,
+      "peak_mc": 0.0,
+      "prior_launches": 211,
+      "prior_migration_rate": 0.2559241706161137
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "74XYhHi7Gb4C1n7zqLnWaV5znjtiqbfGovB6kqXLpump",
+      "ordinal": 213,
+      "peak_mc": 0.0,
+      "prior_launches": 212,
+      "prior_migration_rate": 0.25471698113207547
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "AHMkWupryvTPM2zsfGfKcC8x5HjGi68jrEaGUg8Qpump",
+      "ordinal": 214,
+      "peak_mc": 0.0,
+      "prior_launches": 213,
+      "prior_migration_rate": 0.2535211267605634
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "HU9GwdijCmrjhgbWt3Mi5WrPoy3uVQeLiE5JYR8Hpump",
+      "ordinal": 215,
+      "peak_mc": 0.0,
+      "prior_launches": 214,
+      "prior_migration_rate": 0.2523364485981308
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "wVtAYUXAw7bK5cfQ8QTuJXrUEeiuVv8GUEynApkpump",
+      "ordinal": 216,
+      "peak_mc": 0.0,
+      "prior_launches": 215,
+      "prior_migration_rate": 0.25116279069767444
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "963Bh4N5EWhyJVrXiVkcUXm7TN89sdkWvqTXcvsspump",
+      "ordinal": 217,
+      "peak_mc": 0.0,
+      "prior_launches": 216,
+      "prior_migration_rate": 0.25
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "HxCFJhDHKVFqdQ7dc6qa1wDb8UFYMAhx2vXEYNC2pump",
+      "ordinal": 218,
+      "peak_mc": 0.0,
+      "prior_launches": 217,
+      "prior_migration_rate": 0.2488479262672811
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "56SeNLkoMpwqEh34U2uTyDvxXVHNsFXZKUHrcB7Upump",
+      "ordinal": 219,
+      "peak_mc": 0.0,
+      "prior_launches": 218,
+      "prior_migration_rate": 0.24770642201834864
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "64VNtP1bqH1cU1Nm4a2W3PJPNZMsqkkUVuHYnB2pump",
+      "ordinal": 220,
+      "peak_mc": 0.0,
+      "prior_launches": 219,
+      "prior_migration_rate": 0.2465753424657534
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "7fVBAHvpp3VTZCLwW9DAQeBHugFJ5q4akSSyUNUgpump",
+      "ordinal": 221,
+      "peak_mc": 0.0,
+      "prior_launches": 220,
+      "prior_migration_rate": 0.24545454545454545
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "EUfHNanegT3axzsamcRV5WtRCunerdWfoHwGq17Upump",
+      "ordinal": 222,
+      "peak_mc": 0.0,
+      "prior_launches": 221,
+      "prior_migration_rate": 0.24434389140271492
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "7xoQ2SYvJveX1vkha7DKVXp98rZpP5a3P8fV3Hm2pump",
+      "ordinal": 223,
+      "peak_mc": 0.0,
+      "prior_launches": 222,
+      "prior_migration_rate": 0.24324324324324326
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "9CFjz2uKNwUFejV6CS3nMhEmGScLUDa66nJ7Zueapump",
+      "ordinal": 224,
+      "peak_mc": 0.0,
+      "prior_launches": 223,
+      "prior_migration_rate": 0.242152466367713
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "9ZW123Dkmq4ZGetdfZ2H2SX9bXig1eWyxEfU7Dfpump",
+      "ordinal": 225,
+      "peak_mc": 0.0,
+      "prior_launches": 224,
+      "prior_migration_rate": 0.24107142857142858
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "HM57YoK8YDJ7jUEpmKoLHag1p8mVaZhdaC8wbtPipump",
+      "ordinal": 226,
+      "peak_mc": 0.0,
+      "prior_launches": 225,
+      "prior_migration_rate": 0.24
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "Bz73FfUSKEXP35KiEeicAw85mtyfaiD3dYbBmXKLpump",
+      "ordinal": 227,
+      "peak_mc": 0.0,
+      "prior_launches": 226,
+      "prior_migration_rate": 0.23893805309734514
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "9NMqpa3S1RVakvLqJcviqrpiLmDv5pXFiv7ihygSpump",
+      "ordinal": 228,
+      "peak_mc": 0.0,
+      "prior_launches": 227,
+      "prior_migration_rate": 0.23788546255506607
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "Hqv1duavGfAF8griuZY9EaW42FEwJDitJ7XfxgQ9pump",
+      "ordinal": 229,
+      "peak_mc": 0.0,
+      "prior_launches": 228,
+      "prior_migration_rate": 0.23684210526315788
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "86ELmiMjDJdUSseWS1pMsgrpzSsmk85NqXZVmHxSpump",
+      "ordinal": 230,
+      "peak_mc": 0.0,
+      "prior_launches": 229,
+      "prior_migration_rate": 0.23580786026200873
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "9sjBsWxKuqgSff1eciybUc9TGLTLUKxLgxiMu1f1pump",
+      "ordinal": 231,
+      "peak_mc": 0.0,
+      "prior_launches": 230,
+      "prior_migration_rate": 0.23478260869565218
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "9uTvAQgsYMHFHaBnkPx5qZNwuLmdU8BgvN4SEDMgpump",
+      "ordinal": 232,
+      "peak_mc": 0.0,
+      "prior_launches": 231,
+      "prior_migration_rate": 0.23376623376623376
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "9RpATtomXKHHnxdtCiHyLmHBQM27fBVnxhoiQxkhpump",
+      "ordinal": 233,
+      "peak_mc": 0.0,
+      "prior_launches": 232,
+      "prior_migration_rate": 0.23275862068965517
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "FYjpdQZBqSYC7udL9ZqFFg1aVbk1cF8z9q99LQYKpump",
+      "ordinal": 234,
+      "peak_mc": 0.0,
+      "prior_launches": 233,
+      "prior_migration_rate": 0.2317596566523605
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "DkVgL9bnebHYiPSGbeAjUWbBtbgmHh3Gizhzvh8Ppump",
+      "ordinal": 235,
+      "peak_mc": 0.0,
+      "prior_launches": 234,
+      "prior_migration_rate": 0.23076923076923078
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "2NcgXfvfCFhqjB2qzpXhGs9HLFqBHaTcWjt6eWLLpump",
+      "ordinal": 236,
+      "peak_mc": 0.0,
+      "prior_launches": 235,
+      "prior_migration_rate": 0.2297872340425532
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "3izHVzEMiCRar77WZED4QEYVriZ6TW6DKP8XLcWdpump",
+      "ordinal": 237,
+      "peak_mc": 0.0,
+      "prior_launches": 236,
+      "prior_migration_rate": 0.2288135593220339
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "ELQikWUWosEgvMY9ngWMutKNx1JVVEqC2MpecPxGpump",
+      "ordinal": 238,
+      "peak_mc": 0.0,
+      "prior_launches": 237,
+      "prior_migration_rate": 0.22784810126582278
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "DcRFWYLtX6t6Jg6ggjQxcegN6TGejt8YUFB57Tt5pump",
+      "ordinal": 239,
+      "peak_mc": 0.0,
+      "prior_launches": 238,
+      "prior_migration_rate": 0.226890756302521
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "FGhQbsZRrUqw4BvkNja3fnjq8NXfFi1diGo8sVdSpump",
+      "ordinal": 240,
+      "peak_mc": 0.0,
+      "prior_launches": 239,
+      "prior_migration_rate": 0.22594142259414227
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "66yhWsp9uCeCFwKgz426169nBDtt8wTrvV45UHcqpump",
+      "ordinal": 241,
+      "peak_mc": 0.0,
+      "prior_launches": 240,
+      "prior_migration_rate": 0.225
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "BF6ME4Q3yFK8S3QKrKW3VtLUXHLXtEoPJ8wXZEwfpump",
+      "ordinal": 242,
+      "peak_mc": 0.0,
+      "prior_launches": 241,
+      "prior_migration_rate": 0.22406639004149378
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "p4T6SiVT8nhPSdEnGqDkErRiedymhvoxNYdTingpump",
+      "ordinal": 243,
+      "peak_mc": 0.0,
+      "prior_launches": 242,
+      "prior_migration_rate": 0.2231404958677686
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "CWbTrd93ZyAzCrUCtRByTAU9tvj6eQTrHF4ydCdfpump",
+      "ordinal": 244,
+      "peak_mc": 0.0,
+      "prior_launches": 243,
+      "prior_migration_rate": 0.2222222222222222
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "DQLZAnjjGvUtrkxRMt5n27sfjh1qQZcyTLScfBxEpump",
+      "ordinal": 245,
+      "peak_mc": 0.0,
+      "prior_launches": 244,
+      "prior_migration_rate": 0.22131147540983606
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "7LrqDyJdiNxsw3KPnSuGWCVL59ETnX4c81cwwtBWpump",
+      "ordinal": 246,
+      "peak_mc": 0.0,
+      "prior_launches": 245,
+      "prior_migration_rate": 0.22040816326530613
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "2gJWyi6ENaTzpi4rswexBm25KKexKnPpCHgsGvGhpump",
+      "ordinal": 247,
+      "peak_mc": 0.0,
+      "prior_launches": 246,
+      "prior_migration_rate": 0.21951219512195122
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "9c1CMbkeZnvP4zX5Z6HrN9hV6iKxxYUYSzi3KojEpump",
+      "ordinal": 248,
+      "peak_mc": 0.0,
+      "prior_launches": 247,
+      "prior_migration_rate": 0.21862348178137653
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "4RvdxB6zF6AwfsPzLcTQ8SFyL64QWqygmn6yH2iMpump",
+      "ordinal": 249,
+      "peak_mc": 0.0,
+      "prior_launches": 248,
+      "prior_migration_rate": 0.21774193548387097
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "2EydBzo7oZSmZxcBBRqkwVLWfJvUR1RGQFjwhDqLpump",
+      "ordinal": 250,
+      "peak_mc": 0.0,
+      "prior_launches": 249,
+      "prior_migration_rate": 0.21686746987951808
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "8HQSvzPogyn2Z15qDA378gUNyHZNeaXPumsBsZokpump",
+      "ordinal": 251,
+      "peak_mc": 0.0,
+      "prior_launches": 250,
+      "prior_migration_rate": 0.216
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "HzPiPU2oeVrjSPzMoTwoX57E3pY9zMcsLEgKffHypump",
+      "ordinal": 252,
+      "peak_mc": 0.0,
+      "prior_launches": 251,
+      "prior_migration_rate": 0.2151394422310757
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "EQQtcRFmuUQidcehbhxoXiF8JuuCHKFjqKRfUangpump",
+      "ordinal": 253,
+      "peak_mc": 0.0,
+      "prior_launches": 252,
+      "prior_migration_rate": 0.21428571428571427
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "2DGVXdVvxRcrKBDP9FPNGrLksN3Uaot11o8pQNjfpump",
+      "ordinal": 254,
+      "peak_mc": 0.0,
+      "prior_launches": 253,
+      "prior_migration_rate": 0.2134387351778656
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "FscPzDAsF4AR2qHJdXzAoYzuk9NEEHbPtL1JGbsKpump",
+      "ordinal": 255,
+      "peak_mc": 0.0,
+      "prior_launches": 254,
+      "prior_migration_rate": 0.2125984251968504
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "BJCc7FqCiyEUgecp4rQTey2tqV1ansRrKoaKjcndpump",
+      "ordinal": 256,
+      "peak_mc": 0.0,
+      "prior_launches": 255,
+      "prior_migration_rate": 0.21176470588235294
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "54mHTofstvN2XvAZgg3oDRMrRTmMkvHFVh1fGCyYpump",
+      "ordinal": 257,
+      "peak_mc": 0.0,
+      "prior_launches": 256,
+      "prior_migration_rate": 0.2109375
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "HaUSCWsLJvhtYySTb3cFHmugi16djErCetAm8bYopump",
+      "ordinal": 258,
+      "peak_mc": 0.0,
+      "prior_launches": 257,
+      "prior_migration_rate": 0.21011673151750973
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "2Ap1dnojfwFJ5Hs6wsFcN6RMf3sqeNn4UDdjNUD7pump",
+      "ordinal": 259,
+      "peak_mc": 0.0,
+      "prior_launches": 258,
+      "prior_migration_rate": 0.20930232558139536
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "5HFvVuaMSh9sFPtukaFP77Fquzwitre5gFLHuCBDpump",
+      "ordinal": 260,
+      "peak_mc": 0.0,
+      "prior_launches": 259,
+      "prior_migration_rate": 0.2084942084942085
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "4XUVgnzLxTvrbRH5v6Vqz7WkdhpnzyLromgEzFampump",
+      "ordinal": 261,
+      "peak_mc": 0.0,
+      "prior_launches": 260,
+      "prior_migration_rate": 0.2076923076923077
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "6mVZpGv5qzSu5NZwDDRPWKgYFugJ9yVUdMD2qtdFpump",
+      "ordinal": 262,
+      "peak_mc": 0.0,
+      "prior_launches": 261,
+      "prior_migration_rate": 0.20689655172413793
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "63yrdLdiBxLarespZAk3KGQF8KNTszXB9PLzkFzVpump",
+      "ordinal": 263,
+      "peak_mc": 0.0,
+      "prior_launches": 262,
+      "prior_migration_rate": 0.20610687022900764
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "HRftLG4C2DGJk3uKVX7Npdb1fTStbrNA8AGQatmbpump",
+      "ordinal": 264,
+      "peak_mc": 0.0,
+      "prior_launches": 263,
+      "prior_migration_rate": 0.20532319391634982
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "HmcueAF8KmR789AAwxzUtqp4LfC8kMzbXuLcz9Tgpump",
+      "ordinal": 265,
+      "peak_mc": 0.0,
+      "prior_launches": 264,
+      "prior_migration_rate": 0.20454545454545456
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "AFi2R7fXLnNwWCkLyJYfjNMACD8tUApaejQ6hNcdpump",
+      "ordinal": 266,
+      "peak_mc": 0.0,
+      "prior_launches": 265,
+      "prior_migration_rate": 0.2037735849056604
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "2r9KuyrfKbZhzRrh5qX6BLVLSvYo12s4quhMqg1Fpump",
+      "ordinal": 267,
+      "peak_mc": 0.0,
+      "prior_launches": 266,
+      "prior_migration_rate": 0.20300751879699247
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "AfnavrGQ9t2rGnCugiR76GKRGsbfrHapwMZ6GXDNpump",
+      "ordinal": 268,
+      "peak_mc": 0.0,
+      "prior_launches": 267,
+      "prior_migration_rate": 0.20224719101123595
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "2H1iJG3t4oDwuuY1FJHYpbNfjaCqf9wQbfFH9B4Ypump",
+      "ordinal": 269,
+      "peak_mc": 0.0,
+      "prior_launches": 268,
+      "prior_migration_rate": 0.20149253731343283
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "JLHMmPK5DjTZWni1mSxQunNkCCrTGMWifhbxiBTpump",
+      "ordinal": 270,
+      "peak_mc": 0.0,
+      "prior_launches": 269,
+      "prior_migration_rate": 0.20074349442379183
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "Dq5vqruE5XZTp2wGzEn9G8aDwrnasjtJ52bYDdNypump",
+      "ordinal": 271,
+      "peak_mc": 0.0,
+      "prior_launches": 270,
+      "prior_migration_rate": 0.2
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "2YoM4jznZEgmgDeGCkVRJ1T1NT9EQEozsu5AXL6dpump",
+      "ordinal": 272,
+      "peak_mc": 24414.0,
+      "prior_launches": 271,
+      "prior_migration_rate": 0.1992619926199262
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "Fp2JmU73mYNY78bEshvZQFypkw11yDZBcfGf4sywpump",
+      "ordinal": 273,
+      "peak_mc": 0.0,
+      "prior_launches": 272,
+      "prior_migration_rate": 0.20220588235294118
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "DCXX4AR8Yzwb75QtEJgvbofz82VkLMEGRapVu49hpump",
+      "ordinal": 274,
+      "peak_mc": 0.0,
+      "prior_launches": 273,
+      "prior_migration_rate": 0.20146520146520147
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "3TaHLBCkAHy7iVjysDTaKeUcFejT6stB5Q8bTJNYpump",
+      "ordinal": 275,
+      "peak_mc": 0.0,
+      "prior_launches": 274,
+      "prior_migration_rate": 0.20072992700729927
+    },
+    {
+      "bucket": "GOOD_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "AufreW7ayk43jt2abydMzVgkGeGqccCzE1i6NFxGpump",
+      "ordinal": 276,
+      "peak_mc": 0.0,
+      "prior_launches": 275,
+      "prior_migration_rate": 0.2
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "9nkcZ1nM5Vbk9f1QjR15ARAuWWFYccWdGygbWgRopump",
+      "ordinal": 277,
+      "peak_mc": 0.0,
+      "prior_launches": 276,
+      "prior_migration_rate": 0.19927536231884058
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "9J1LYXgpeUHDhNNL1pMWPUvgfcgWtQ4LcKmAn5z8pump",
+      "ordinal": 278,
+      "peak_mc": 0.0,
+      "prior_launches": 277,
+      "prior_migration_rate": 0.19855595667870035
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "EioFVDUfCPkSXr2LniJedwzPQbkF37G8AZb8P4Xapump",
+      "ordinal": 279,
+      "peak_mc": 0.0,
+      "prior_launches": 278,
+      "prior_migration_rate": 0.19784172661870503
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "CrxXmtPdRcvED9JGtw4ZTxPQFsCCSppBoVRYdWfXpump",
+      "ordinal": 280,
+      "peak_mc": 0.0,
+      "prior_launches": 279,
+      "prior_migration_rate": 0.1971326164874552
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "7yodzhVj3ATLJPELSF8cSTUXuoHNyerrfAn7dy1Vpump",
+      "ordinal": 281,
+      "peak_mc": 0.0,
+      "prior_launches": 280,
+      "prior_migration_rate": 0.19642857142857142
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "2ktqdvN7uZTCmxkyGqNH4dnX1ReR8SvEtR7bqZeZpump",
+      "ordinal": 282,
+      "peak_mc": 0.0,
+      "prior_launches": 281,
+      "prior_migration_rate": 0.19572953736654805
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "8LfRsA9PaEGiArxzJQw1xUHBzUhZ2wWhAxvirJ7jpump",
+      "ordinal": 283,
+      "peak_mc": 0.0,
+      "prior_launches": 282,
+      "prior_migration_rate": 0.1950354609929078
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "3DjwyXLrJK1cH2zHxS2SMkUUN3mcjTN2H4JWvCv7pump",
+      "ordinal": 284,
+      "peak_mc": 0.0,
+      "prior_launches": 283,
+      "prior_migration_rate": 0.19434628975265017
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "CTfigQQyAhqYavC3L6sSHcYWzQwGV9S56iZbZp1Upump",
+      "ordinal": 285,
+      "peak_mc": 0.0,
+      "prior_launches": 284,
+      "prior_migration_rate": 0.1936619718309859
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "9bTrPbtvTvT8B86LRrdTp73SJnuWceiqpbcvzx3jpump",
+      "ordinal": 286,
+      "peak_mc": 0.0,
+      "prior_launches": 285,
+      "prior_migration_rate": 0.19298245614035087
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "EsWHsRk4aYpux4BthqeKzGhQZrZWLBG6V8GvMY37pump",
+      "ordinal": 287,
+      "peak_mc": 0.0,
+      "prior_launches": 286,
+      "prior_migration_rate": 0.19230769230769232
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "EHtMAKoiq7Y9dfDgR94swSJwnBnAPJM4Nerbnkttpump",
+      "ordinal": 288,
+      "peak_mc": 0.0,
+      "prior_launches": 287,
+      "prior_migration_rate": 0.1916376306620209
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "9dGcpvnmEfW1AZZ64MGEbJFAFAU8UTY8f1MraK5Cpump",
+      "ordinal": 289,
+      "peak_mc": 0.0,
+      "prior_launches": 288,
+      "prior_migration_rate": 0.1909722222222222
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "CYUDE5231yGrNGoVfiF9pX7pbFfAkzyvvA5Mi7Lxpump",
+      "ordinal": 290,
+      "peak_mc": 0.0,
+      "prior_launches": 289,
+      "prior_migration_rate": 0.1903114186851211
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "ANCnzqGZp6n7cv5u5RTmoDWbLxbTgu4DjDZjTAr5pump",
+      "ordinal": 291,
+      "peak_mc": 0.0,
+      "prior_launches": 290,
+      "prior_migration_rate": 0.1896551724137931
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "jvVFAQRRt8W4dKZfS53WYNrqfjZGaezUjeKwpKppump",
+      "ordinal": 292,
+      "peak_mc": 0.0,
+      "prior_launches": 291,
+      "prior_migration_rate": 0.18900343642611683
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "4KmTBGDVruPxqfs3taCFV6ZyKXzN7PnJ9J3szV1tpump",
+      "ordinal": 293,
+      "peak_mc": 0.0,
+      "prior_launches": 292,
+      "prior_migration_rate": 0.18835616438356165
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "2y64TpwtFvn7ihq3ixxKapAp8rCkEEgL7QorJZvJpump",
+      "ordinal": 294,
+      "peak_mc": 0.0,
+      "prior_launches": 293,
+      "prior_migration_rate": 0.18771331058020477
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "BwL6itMVb94fLXF2uhZ5VqK2auMUqt7JN26nuJnLpump",
+      "ordinal": 295,
+      "peak_mc": 0.0,
+      "prior_launches": 294,
+      "prior_migration_rate": 0.1870748299319728
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "3YJKcR21uD666F8u8YAcFVTpHtZZzgWWNZ2ZQ2GCpump",
+      "ordinal": 296,
+      "peak_mc": 0.0,
+      "prior_launches": 295,
+      "prior_migration_rate": 0.1864406779661017
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "Dnq6Z6GCtfC6V6iUV4PNNZeD8Hnyhg5mLzy1YmZ4pump",
+      "ordinal": 297,
+      "peak_mc": 0.0,
+      "prior_launches": 296,
+      "prior_migration_rate": 0.1858108108108108
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "5PQBkaR9oRpgRXPkbk1LBRRdcxNDPuwL4mgZtKMjpump",
+      "ordinal": 298,
+      "peak_mc": 0.0,
+      "prior_launches": 297,
+      "prior_migration_rate": 0.18518518518518517
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "2tTvguBPuQvVgBF1rqM3MHyapu9YnzYYwLTFVQ9Mpump",
+      "ordinal": 299,
+      "peak_mc": 0.0,
+      "prior_launches": 298,
+      "prior_migration_rate": 0.18456375838926176
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "9rYdHkRRpT2G6sV6XgmFii6PYXsuWC4fBLmsWbcvpump",
+      "ordinal": 300,
+      "peak_mc": 0.0,
+      "prior_launches": 299,
+      "prior_migration_rate": 0.18394648829431437
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "9FAqj7ajo4nUgHkib3gegBxRWQ58AsNZMxic9h1vpump",
+      "ordinal": 301,
+      "peak_mc": 0.0,
+      "prior_launches": 300,
+      "prior_migration_rate": 0.18333333333333332
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "Cz1NJyANJCZWya9oguDaqk5PzvQeQ29UXEGh44iJpump",
+      "ordinal": 302,
+      "peak_mc": 0.0,
+      "prior_launches": 301,
+      "prior_migration_rate": 0.18272425249169436
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "5mQ1NbgVCvXyr28q9PB8QqZNCgiG2VDwZu4P4HFTpump",
+      "ordinal": 303,
+      "peak_mc": 0.0,
+      "prior_launches": 302,
+      "prior_migration_rate": 0.18211920529801323
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "7v4ow5RQ9KNMHuGJaV3NRn7HzM1pZwL6bJ6iirt3pump",
+      "ordinal": 304,
+      "peak_mc": 0.0,
+      "prior_launches": 303,
+      "prior_migration_rate": 0.18151815181518152
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "Hw9GcHkMLb8BYJcFYafEVRcYTjxfYFyScxs88V49pump",
+      "ordinal": 305,
+      "peak_mc": 0.0,
+      "prior_launches": 304,
+      "prior_migration_rate": 0.18092105263157895
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "6PuSF1GyiUdXssCT2bCciBwjyShrX3tJsvd213A8pump",
+      "ordinal": 306,
+      "peak_mc": 0.0,
+      "prior_launches": 305,
+      "prior_migration_rate": 0.18032786885245902
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "3mH8KbvRSNtRPJheVRD4D9zox2R3DDKqS3YHQwG2pump",
+      "ordinal": 307,
+      "peak_mc": 0.0,
+      "prior_launches": 306,
+      "prior_migration_rate": 0.17973856209150327
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "FnPWRRDpz38BD9j3ZDAJxGFaU37ghKUAPJHH2V9Vpump",
+      "ordinal": 308,
+      "peak_mc": 0.0,
+      "prior_launches": 307,
+      "prior_migration_rate": 0.1791530944625407
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "6TjfY7Hk243Mwb1f447f2T4d1US1o3PM2vxeMvuHpump",
+      "ordinal": 309,
+      "peak_mc": 0.0,
+      "prior_launches": 308,
+      "prior_migration_rate": 0.17857142857142858
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "1TdvwD8n388HeFxMBUBsWZx8vQrqAiFQYfpY4tkpump",
+      "ordinal": 310,
+      "peak_mc": 0.0,
+      "prior_launches": 309,
+      "prior_migration_rate": 0.1779935275080906
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "7pY5jMpyqn3tQwXPLx7P32uq1Fx6z77JL3BLW48Epump",
+      "ordinal": 311,
+      "peak_mc": 0.0,
+      "prior_launches": 310,
+      "prior_migration_rate": 0.1774193548387097
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "2Q54NfgTumM1QtQ8VD7YK9dLKY5EqkYohPgKfE17pump",
+      "ordinal": 312,
+      "peak_mc": 0.0,
+      "prior_launches": 311,
+      "prior_migration_rate": 0.17684887459807075
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "5jwmZhzDVUBecfzUEPttRC1eSvmQ4d8bopkcessJpump",
+      "ordinal": 313,
+      "peak_mc": 0.0,
+      "prior_launches": 312,
+      "prior_migration_rate": 0.1762820512820513
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "9LT9am3BZWuwEgoTFWwSv22NNXNV1SXvv34y1Hs3pump",
+      "ordinal": 314,
+      "peak_mc": 0.0,
+      "prior_launches": 313,
+      "prior_migration_rate": 0.1757188498402556
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "Hqc5d3ZknZ7Wa713js76YRqoCD3TJj9gJAkxPSqFpump",
+      "ordinal": 315,
+      "peak_mc": 0.0,
+      "prior_launches": 314,
+      "prior_migration_rate": 0.1751592356687898
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "DWC5S4VqZMZeXgDvhUiMFKFvVJc9iX62fiRHyZKfpump",
+      "ordinal": 316,
+      "peak_mc": 0.0,
+      "prior_launches": 315,
+      "prior_migration_rate": 0.1746031746031746
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "27vcpFc3cKmhJMAdHgxP8j1L3X8TRrt9hYZzwKDapump",
+      "ordinal": 317,
+      "peak_mc": 0.0,
+      "prior_launches": 316,
+      "prior_migration_rate": 0.17405063291139242
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "AveK8DyuTcpHF5KDSjf9FMmEDHM6KkqqMFUFxg9Spump",
+      "ordinal": 318,
+      "peak_mc": 0.0,
+      "prior_launches": 317,
+      "prior_migration_rate": 0.17350157728706625
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "FPxJkEcMy1Ls8uMMxmzxUr6B5Wto3tvWytQN8Cjhpump",
+      "ordinal": 319,
+      "peak_mc": 0.0,
+      "prior_launches": 318,
+      "prior_migration_rate": 0.17295597484276728
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "8K496NFox8V8fy2V85h3AHbN5AKwiPab91EJd7HFpump",
+      "ordinal": 320,
+      "peak_mc": 0.0,
+      "prior_launches": 319,
+      "prior_migration_rate": 0.1724137931034483
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "CQV6gXSuY5RsVSvmwt6V7SGJCkPgSf7ZrsM35oqFpump",
+      "ordinal": 321,
+      "peak_mc": 0.0,
+      "prior_launches": 320,
+      "prior_migration_rate": 0.171875
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "G7SDXveyXcuVYX7og6yixC5zpLgXCeiKgFn1XmGpump",
+      "ordinal": 322,
+      "peak_mc": 0.0,
+      "prior_launches": 321,
+      "prior_migration_rate": 0.17133956386292834
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "2zyXCfGbjzATmiLUpNigAZb6gBhSBbgL15X9DQB1pump",
+      "ordinal": 323,
+      "peak_mc": 0.0,
+      "prior_launches": 322,
+      "prior_migration_rate": 0.17080745341614906
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "4sGYv8WGhZawWqH9KkpikwFwdJt9LbphYvB3RYrNpump",
+      "ordinal": 324,
+      "peak_mc": 0.0,
+      "prior_launches": 323,
+      "prior_migration_rate": 0.17027863777089783
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "BMK87xmCfG2uwQMSM5DnHbcTJ18FMAiaBwFRYDpxpump",
+      "ordinal": 325,
+      "peak_mc": 0.0,
+      "prior_launches": 324,
+      "prior_migration_rate": 0.1697530864197531
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "EMjR2hMtQXsoKUvzxanSrJdp4rk14zPDiS5iDRVkpump",
+      "ordinal": 326,
+      "peak_mc": 0.0,
+      "prior_launches": 325,
+      "prior_migration_rate": 0.16923076923076924
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "526ToG5GjfEb8gVa5E6icJW8iQC8kmzGV8ZNmp9wpump",
+      "ordinal": 327,
+      "peak_mc": 0.0,
+      "prior_launches": 326,
+      "prior_migration_rate": 0.1687116564417178
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "FcciSTKJWCeT6wdpeSAEZtsTsrrpUxZCFKtvJVhhpump",
+      "ordinal": 328,
+      "peak_mc": 0.0,
+      "prior_launches": 327,
+      "prior_migration_rate": 0.16819571865443425
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "2ic8ngJEbbUNgcxp4G7o1r4Q4wAc9MxNDXhQhu2ppump",
+      "ordinal": 329,
+      "peak_mc": 0.0,
+      "prior_launches": 328,
+      "prior_migration_rate": 0.1676829268292683
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "8TtSuNmjDpQ9sDXwpDjepd8V6kQit1X36pfaexnVpump",
+      "ordinal": 330,
+      "peak_mc": 0.0,
+      "prior_launches": 329,
+      "prior_migration_rate": 0.16717325227963525
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "7hXAf4XQhepVyuyfP6ugo3gEG7KQjfTXRziL5Wsrpump",
+      "ordinal": 331,
+      "peak_mc": 0.0,
+      "prior_launches": 330,
+      "prior_migration_rate": 0.16666666666666666
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "3dVN7s3f9Dqd8Myug19kd7etBcmY297NfFTptM1Vpump",
+      "ordinal": 332,
+      "peak_mc": 0.0,
+      "prior_launches": 331,
+      "prior_migration_rate": 0.1661631419939577
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "9Z4EWPNC46u6HP11SgGWVZ1LDxeKXyMkYvnfTWZipump",
+      "ordinal": 333,
+      "peak_mc": 0.0,
+      "prior_launches": 332,
+      "prior_migration_rate": 0.16566265060240964
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "3wsqCX3A1QGpPRLSuyfviRDE11kZ81pxDHvi5VBMpump",
+      "ordinal": 334,
+      "peak_mc": 0.0,
+      "prior_launches": 333,
+      "prior_migration_rate": 0.16516516516516516
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "2fafuUx1r9KepmHzpb9hJrMFkqjuXeXJUb6aQYQUpump",
+      "ordinal": 335,
+      "peak_mc": 0.0,
+      "prior_launches": 334,
+      "prior_migration_rate": 0.16467065868263472
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "8rvo2Zg3H1ujm9Bsah3VNiyCTXfvEg1bcHGyjZYKpump",
+      "ordinal": 336,
+      "peak_mc": 0.0,
+      "prior_launches": 335,
+      "prior_migration_rate": 0.16417910447761194
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "8zVuW12PVHLhW6nJkvbbpQMDQU5x38RW9K4b4oTTpump",
+      "ordinal": 337,
+      "peak_mc": 0.0,
+      "prior_launches": 336,
+      "prior_migration_rate": 0.1636904761904762
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "J17dAzXDNSsCu99FrdWkhGu9JtW2aCoYTKQ6i3uspump",
+      "ordinal": 338,
+      "peak_mc": 0.0,
+      "prior_launches": 337,
+      "prior_migration_rate": 0.1632047477744807
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "DM4BK2k9JLCdJfM5QQjqVgXp7acwvSTY8XhNStE9pump",
+      "ordinal": 339,
+      "peak_mc": 0.0,
+      "prior_launches": 338,
+      "prior_migration_rate": 0.16272189349112426
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "3CDWJ1M4dmDSW9G5tRpCpxRsxJYbFVw8YXSQxQkNpump",
+      "ordinal": 340,
+      "peak_mc": 0.0,
+      "prior_launches": 339,
+      "prior_migration_rate": 0.16224188790560473
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "9P2VCFo91NCg57De6FAgTmafWzsFWgU7wP78ytoApump",
+      "ordinal": 341,
+      "peak_mc": 0.0,
+      "prior_launches": 340,
+      "prior_migration_rate": 0.16176470588235295
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "4WvTvSwTHWbdsssc1V2xKUtViNngwaLXiwDy2bmQpump",
+      "ordinal": 342,
+      "peak_mc": 0.0,
+      "prior_launches": 341,
+      "prior_migration_rate": 0.16129032258064516
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "6KdqrNXjfNEuNCayPqXjDoj6pTzp2tBgzDTKFNJ1pump",
+      "ordinal": 343,
+      "peak_mc": 0.0,
+      "prior_launches": 342,
+      "prior_migration_rate": 0.1608187134502924
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "AnRcL8QU6G6rjkTzHrFwWTZCHLEXYZ97AkyYkdiipump",
+      "ordinal": 344,
+      "peak_mc": 0.0,
+      "prior_launches": 343,
+      "prior_migration_rate": 0.16034985422740525
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "8ur9Epg1iKbwa3chaGK1hkFygrevMNLixiT2QLjipump",
+      "ordinal": 345,
+      "peak_mc": 0.0,
+      "prior_launches": 344,
+      "prior_migration_rate": 0.15988372093023256
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "EiJgs129gMqGdtNvhSkUFHMw3bgJtwT4di34z1sEpump",
+      "ordinal": 346,
+      "peak_mc": 0.0,
+      "prior_launches": 345,
+      "prior_migration_rate": 0.15942028985507245
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "8UaHFJ9UPeXjjrBtx3FT6XpZA6SRsJaiSWGxERRGpump",
+      "ordinal": 347,
+      "peak_mc": 0.0,
+      "prior_launches": 346,
+      "prior_migration_rate": 0.15895953757225434
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "7bmTiquBoLaTVF13XVYcfcBNF1tHEsJUNQSMVNLLpump",
+      "ordinal": 348,
+      "peak_mc": 0.0,
+      "prior_launches": 347,
+      "prior_migration_rate": 0.1585014409221902
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "HWvXCaS4eMZxfjqtkNqpyPW3ePLurDLY2WuoP5opump",
+      "ordinal": 349,
+      "peak_mc": 0.0,
+      "prior_launches": 348,
+      "prior_migration_rate": 0.15804597701149425
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "3JCJi34TLPm5tam4whJ9LSKcBwVSgQnZuYmZJWZ8pump",
+      "ordinal": 350,
+      "peak_mc": 0.0,
+      "prior_launches": 349,
+      "prior_migration_rate": 0.15759312320916904
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "HjpPTXLJQ9gJNw8ZLMsdnaDuz8i8xT6tQdFesGGHpump",
+      "ordinal": 351,
+      "peak_mc": 0.0,
+      "prior_launches": 350,
+      "prior_migration_rate": 0.15714285714285714
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "C5EZ6YpEgFV8uApSccXqA16kFMPFFzapzKMZFWoMpump",
+      "ordinal": 352,
+      "peak_mc": 0.0,
+      "prior_launches": 351,
+      "prior_migration_rate": 0.15669515669515668
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "BdnEACCKhYDM1kKEFyVi3ZZmNjHTStSiY7YcTGKtpump",
+      "ordinal": 353,
+      "peak_mc": 0.0,
+      "prior_launches": 352,
+      "prior_migration_rate": 0.15625
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "8YdCaFvV2qPUo6qSXAo3QEtAo2sWhbtNmKHaeqbFpump",
+      "ordinal": 354,
+      "peak_mc": 0.0,
+      "prior_launches": 353,
+      "prior_migration_rate": 0.1558073654390935
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "Cd5uBpUXRFDpLNJJniUUZHeKbMpKe3e4pPMu2xUfpump",
+      "ordinal": 355,
+      "peak_mc": 0.0,
+      "prior_launches": 354,
+      "prior_migration_rate": 0.1553672316384181
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "CapYbXLUQDywovuHfiehQyFVjP22jfE2cnVYoJK9pump",
+      "ordinal": 356,
+      "peak_mc": 0.0,
+      "prior_launches": 355,
+      "prior_migration_rate": 0.15492957746478872
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "4X9nbHdqh1aZBKzGgSazb7DVmYBgLSCZUBM89MbBpump",
+      "ordinal": 357,
+      "peak_mc": 0.0,
+      "prior_launches": 356,
+      "prior_migration_rate": 0.1544943820224719
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "CkjcMTLFD5MRrgbP9BTrcPEq6zutcGSiuWMirRbapump",
+      "ordinal": 358,
+      "peak_mc": 0.0,
+      "prior_launches": 357,
+      "prior_migration_rate": 0.15406162464985995
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "HrA1a4W81ztTCsksHHczXL1cNrjKNVk9qxbHfBEGpump",
+      "ordinal": 359,
+      "peak_mc": 0.0,
+      "prior_launches": 358,
+      "prior_migration_rate": 0.15363128491620112
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "7bEoReJvuwM4USAjKfiMSeY1hsRzG3WC5GkLV4GJpump",
+      "ordinal": 360,
+      "peak_mc": 0.0,
+      "prior_launches": 359,
+      "prior_migration_rate": 0.1532033426183844
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "DyZRMkNJs16BMWjowXTVxV7Tq1uzGo1stheRR34fpump",
+      "ordinal": 361,
+      "peak_mc": 0.0,
+      "prior_launches": 360,
+      "prior_migration_rate": 0.1527777777777778
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "237STXAXdbofLKDnMsDKFTDXew6ehJrHKsxnHbWspump",
+      "ordinal": 362,
+      "peak_mc": 0.0,
+      "prior_launches": 361,
+      "prior_migration_rate": 0.1523545706371191
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "evfYbumhHMKu8mWeNyN5WzRqd1CrpRTJXx4ZZYopump",
+      "ordinal": 363,
+      "peak_mc": 0.0,
+      "prior_launches": 362,
+      "prior_migration_rate": 0.15193370165745856
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "9deYJpQo1AcY99ffhJr6d5D3fLxVEs8pgpPwvgLopump",
+      "ordinal": 364,
+      "peak_mc": 0.0,
+      "prior_launches": 363,
+      "prior_migration_rate": 0.15151515151515152
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "ChoUUWGHscB29YkHpkaZGtBtgM7nkMq5eV8FYVjipump",
+      "ordinal": 365,
+      "peak_mc": 0.0,
+      "prior_launches": 364,
+      "prior_migration_rate": 0.1510989010989011
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "9nHSogfL7XNCoPZtwzu5oxpn8JP4iWPM3E8DWX6Npump",
+      "ordinal": 366,
+      "peak_mc": 0.0,
+      "prior_launches": 365,
+      "prior_migration_rate": 0.1506849315068493
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "3T7Be8pETqeLvE9Z4vWM8kgx9nWgPwuxQLQWcSrfpump",
+      "ordinal": 367,
+      "peak_mc": 0.0,
+      "prior_launches": 366,
+      "prior_migration_rate": 0.15027322404371585
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "7fYYNFYi9azSXpSBGecDcEedqCmdoyYY26T6u9bPpump",
+      "ordinal": 368,
+      "peak_mc": 0.0,
+      "prior_launches": 367,
+      "prior_migration_rate": 0.14986376021798364
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "pSjNXF4c82QKkeD8wKrkwsJ24vNFB8qX9LGSWs7pump",
+      "ordinal": 369,
+      "peak_mc": 0.0,
+      "prior_launches": 368,
+      "prior_migration_rate": 0.14945652173913043
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "DcpxoDkUFgPQzBroynHuZ7zTxKBJTn8XgihtjWVzpump",
+      "ordinal": 370,
+      "peak_mc": 0.0,
+      "prior_launches": 369,
+      "prior_migration_rate": 0.14905149051490515
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "657J7hkw8jLL3kNx4PiweqVz7RfSdZtt7i6EyjiCpump",
+      "ordinal": 371,
+      "peak_mc": 0.0,
+      "prior_launches": 370,
+      "prior_migration_rate": 0.14864864864864866
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "CRXybqAvNJzTJG36qiYvsgXUdsqr2NSGDijYQfUepump",
+      "ordinal": 372,
+      "peak_mc": 0.0,
+      "prior_launches": 371,
+      "prior_migration_rate": 0.14824797843665768
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "6uapswj8fnoBWzxUmGLcimnDSyCdQdcLhwuhkRhApump",
+      "ordinal": 373,
+      "peak_mc": 0.0,
+      "prior_launches": 372,
+      "prior_migration_rate": 0.1478494623655914
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "DdsnEG3JKDnmdd6c73BpQv4paEsW6otEtqfA6bbDpump",
+      "ordinal": 374,
+      "peak_mc": 0.0,
+      "prior_launches": 373,
+      "prior_migration_rate": 0.14745308310991956
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "HCPXZ1hYfKGmRynbQT4C7TQ56A74oo878KmDg7ofpump",
+      "ordinal": 375,
+      "peak_mc": 0.0,
+      "prior_launches": 374,
+      "prior_migration_rate": 0.14705882352941177
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "7hCzC3jh2ogWa5ptbKRBkVsRNNKq7MV7TJS8JqRtpump",
+      "ordinal": 376,
+      "peak_mc": 0.0,
+      "prior_launches": 375,
+      "prior_migration_rate": 0.14666666666666667
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "Btex9xNfhZ6qJ7irbJSYH2uigZKTtVhbXD8vW4Bdpump",
+      "ordinal": 377,
+      "peak_mc": 0.0,
+      "prior_launches": 376,
+      "prior_migration_rate": 0.14627659574468085
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "k15bQgJahcTFvVcejAuxaPYxAuvR9dds6iTgZWipump",
+      "ordinal": 378,
+      "peak_mc": 0.0,
+      "prior_launches": 377,
+      "prior_migration_rate": 0.14588859416445624
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "5qTYyNkLmP5GjwrTawh3qtxPxCBWGywGzZd1NBS5pump",
+      "ordinal": 379,
+      "peak_mc": 0.0,
+      "prior_launches": 378,
+      "prior_migration_rate": 0.1455026455026455
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "7UCswJg1SpD4Frif4D5n2c1cNDV8pMQhnd99FRnWpump",
+      "ordinal": 380,
+      "peak_mc": 0.0,
+      "prior_launches": 379,
+      "prior_migration_rate": 0.14511873350923482
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "6fynMhnrXCtbT6E1NntpEcs2VbXivyVRt9JykNxEpump",
+      "ordinal": 381,
+      "peak_mc": 0.0,
+      "prior_launches": 380,
+      "prior_migration_rate": 0.14473684210526316
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "ESqdLzT6uzvhokZH39UfNrYMtC8NNCe14bbEMKQhpump",
+      "ordinal": 382,
+      "peak_mc": 0.0,
+      "prior_launches": 381,
+      "prior_migration_rate": 0.14435695538057744
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "FAfLq2uvTBNoznnh1A5Ukr2KhwTWGh2zHkKtqFSjpump",
+      "ordinal": 383,
+      "peak_mc": 0.0,
+      "prior_launches": 382,
+      "prior_migration_rate": 0.14397905759162305
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "G5VwTdbcEzdm4VxekKQmDXnMJukDJxCk49mM78Bupump",
+      "ordinal": 384,
+      "peak_mc": 0.0,
+      "prior_launches": 383,
+      "prior_migration_rate": 0.14360313315926893
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "2ZeUuym6UzwczQNNknFtYfxtMVR55qXPnmSNj8Whpump",
+      "ordinal": 385,
+      "peak_mc": 0.0,
+      "prior_launches": 384,
+      "prior_migration_rate": 0.14322916666666666
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "o1t7Y88ey86zXmxZwyqCkqn266Ns8eYhB2eG7Uwpump",
+      "ordinal": 386,
+      "peak_mc": 0.0,
+      "prior_launches": 385,
+      "prior_migration_rate": 0.14285714285714285
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "FYcWDG2YZnc8FQsvwhBKkdSJHXJAzeoPLzNCKN9rpump",
+      "ordinal": 387,
+      "peak_mc": 0.0,
+      "prior_launches": 386,
+      "prior_migration_rate": 0.14248704663212436
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "9VvW69z7it1M2zbDpnrQfuHXpp5RytyAk9k9Cw3Lpump",
+      "ordinal": 388,
+      "peak_mc": 0.0,
+      "prior_launches": 387,
+      "prior_migration_rate": 0.1421188630490956
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "DfqG2gHXZRpYwPH5CDsedr4ffRzjBDuPkArwnYKJpump",
+      "ordinal": 389,
+      "peak_mc": 0.0,
+      "prior_launches": 388,
+      "prior_migration_rate": 0.14175257731958762
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "EL1TwEaZzdp9weGDaciJC6xS6W6bYw2cNLxg5Vdzpump",
+      "ordinal": 390,
+      "peak_mc": 0.0,
+      "prior_launches": 389,
+      "prior_migration_rate": 0.14138817480719795
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "9Wb5W9VjXbBz9fx86D1BeLWbk1MomzkGw6F1PSiDpump",
+      "ordinal": 391,
+      "peak_mc": 0.0,
+      "prior_launches": 390,
+      "prior_migration_rate": 0.14102564102564102
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "9jrxb5Cy86BRDCvDipQr3gegtSYFvfyJG4it1kEDpump",
+      "ordinal": 392,
+      "peak_mc": 30372.148095686414,
+      "prior_launches": 391,
+      "prior_migration_rate": 0.14066496163682865
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "DuVXDTY9JTXsWqzp6nY3KurQZQEJucHqwgy5hAe1pump",
+      "ordinal": 393,
+      "peak_mc": 0.0,
+      "prior_launches": 392,
+      "prior_migration_rate": 0.14285714285714285
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "APz75fHiA6u1kKbgh9JSJHQBG37amR6oLr95uH9epump",
+      "ordinal": 394,
+      "peak_mc": 0.0,
+      "prior_launches": 393,
+      "prior_migration_rate": 0.14249363867684478
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "BhPZvA315ZUZEYSZFViD8Kx8UkdmcmXpZTKXainppump",
+      "ordinal": 395,
+      "peak_mc": 0.0,
+      "prior_launches": 394,
+      "prior_migration_rate": 0.14213197969543148
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "neUMoaYNNUSWySDoYbeMJUMP8fd5GLzuMv2NvSbpump",
+      "ordinal": 396,
+      "peak_mc": 0.0,
+      "prior_launches": 395,
+      "prior_migration_rate": 0.14177215189873418
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "GW9gDRALswVqMZ13QAT7b61EgiNEdrqAfqeoJfH9pump",
+      "ordinal": 397,
+      "peak_mc": 0.0,
+      "prior_launches": 396,
+      "prior_migration_rate": 0.1414141414141414
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "9kQ9XF7SaTcMeTsA1tK39yoXmMCjbKjDGTi6MiFBpump",
+      "ordinal": 398,
+      "peak_mc": 0.0,
+      "prior_launches": 397,
+      "prior_migration_rate": 0.14105793450881612
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "9Z4MPZ8uu3KaL8HxuvMrvb7JodZTEu3YtH3Q3VC1pump",
+      "ordinal": 399,
+      "peak_mc": 0.0,
+      "prior_launches": 398,
+      "prior_migration_rate": 0.1407035175879397
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "CQ6UKbaQYQdaGLmrhqr6TCkSfTAzo6xihb2NY9Q4pump",
+      "ordinal": 400,
+      "peak_mc": 0.0,
+      "prior_launches": 399,
+      "prior_migration_rate": 0.14035087719298245
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "6WEjsrKoYEEpwsyY2TK89z6fNBwZrG2ihHjj2TDepump",
+      "ordinal": 401,
+      "peak_mc": 0.0,
+      "prior_launches": 400,
+      "prior_migration_rate": 0.14
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "EwMZDShdEQdVqGi2eS92Z5L6x7cMiouCwU8Z3h7hpump",
+      "ordinal": 402,
+      "peak_mc": 0.0,
+      "prior_launches": 401,
+      "prior_migration_rate": 0.1396508728179551
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "64nmFi5mKgEdEb1Zd1t9P5cgBtgvK5i59jsH2JhWpump",
+      "ordinal": 403,
+      "peak_mc": 0.0,
+      "prior_launches": 402,
+      "prior_migration_rate": 0.13930348258706468
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "BPCEPeuuUcGDMr8CcHVcWwTrxKwDoXiK84YosNsMpump",
+      "ordinal": 404,
+      "peak_mc": 0.0,
+      "prior_launches": 403,
+      "prior_migration_rate": 0.13895781637717122
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "CPb2ejQwN1AeZb18YorWyGjLfKtxULvvExCSXJPZpump",
+      "ordinal": 405,
+      "peak_mc": 0.0,
+      "prior_launches": 404,
+      "prior_migration_rate": 0.13861386138613863
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "FB37gkz7yprsq2yYJXZPSJzEbTt1vb9T7XUxmrJ4pump",
+      "ordinal": 406,
+      "peak_mc": 0.0,
+      "prior_launches": 405,
+      "prior_migration_rate": 0.1382716049382716
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "E7tZDxT3ZnBuxVdhz8tA2h2wQJiEdETfL7yVPoBmpump",
+      "ordinal": 407,
+      "peak_mc": 0.0,
+      "prior_launches": 406,
+      "prior_migration_rate": 0.13793103448275862
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "EWrnGyZV9Dj1LsEyFjFwPKuuiyk5UKuTFiU1YKoYpump",
+      "ordinal": 408,
+      "peak_mc": 0.0,
+      "prior_launches": 407,
+      "prior_migration_rate": 0.1375921375921376
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "4mMtj7YP2jQ9YU4v61Wf8gBWxpDu4mbeGrvyvexWpump",
+      "ordinal": 409,
+      "peak_mc": 0.0,
+      "prior_launches": 408,
+      "prior_migration_rate": 0.13725490196078433
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "5cY86JqQcGVT1AevhuaWZbG9415X68CDjpVyET8dpump",
+      "ordinal": 410,
+      "peak_mc": 0.0,
+      "prior_launches": 409,
+      "prior_migration_rate": 0.13691931540342298
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "GdcoojyydyAjdkEVVBaW7sYGWJNCFZt6EVyD3WNVpump",
+      "ordinal": 411,
+      "peak_mc": 0.0,
+      "prior_launches": 410,
+      "prior_migration_rate": 0.13658536585365855
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "H1iFjagdK2vtBGpUCNf1jtcjt8EeEPUiEBckHju5pump",
+      "ordinal": 412,
+      "peak_mc": 0.0,
+      "prior_launches": 411,
+      "prior_migration_rate": 0.1362530413625304
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "3X5C2TvxBcus1eyfEuskpz5yG9kh1QWDp2AvR15npump",
+      "ordinal": 413,
+      "peak_mc": 0.0,
+      "prior_launches": 412,
+      "prior_migration_rate": 0.13592233009708737
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "Ac21zHnFZY1swAr4Atr2AsoGH94pngnescLtqQP2pump",
+      "ordinal": 414,
+      "peak_mc": 0.0,
+      "prior_launches": 413,
+      "prior_migration_rate": 0.13559322033898305
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "AZeagGXN3kn23CL1JY7Ug1EakZcMXfMNUQ8zog9zpump",
+      "ordinal": 415,
+      "peak_mc": 0.0,
+      "prior_launches": 414,
+      "prior_migration_rate": 0.13526570048309178
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "9neUgZnCxqM5HqcTZuqZM91jK8AziNyVhAZ8cxy6pump",
+      "ordinal": 416,
+      "peak_mc": 0.0,
+      "prior_launches": 415,
+      "prior_migration_rate": 0.13493975903614458
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "2E9zkkofj8eUigSs6kjCQK3VLcQvApenhPsuzViGpump",
+      "ordinal": 417,
+      "peak_mc": 0.0,
+      "prior_launches": 416,
+      "prior_migration_rate": 0.1346153846153846
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "ERugmu6eVS2AhswQnBb2jhUcUb63psfAvkwTs3RTpump",
+      "ordinal": 418,
+      "peak_mc": 0.0,
+      "prior_launches": 417,
+      "prior_migration_rate": 0.1342925659472422
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "13NHb5WzfMhkdPGfNm5tEWpYsumA4kXvfmy8nB6spump",
+      "ordinal": 419,
+      "peak_mc": 0.0,
+      "prior_launches": 418,
+      "prior_migration_rate": 0.1339712918660287
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "Gp3W6ir8atDJvJbGypvukQB1bt842ieEovNbr6FXpump",
+      "ordinal": 420,
+      "peak_mc": 0.0,
+      "prior_launches": 419,
+      "prior_migration_rate": 0.13365155131264916
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "GdoW67EpMS1qFcicjjQvQ4HjWj7k2bEqbNipqaGMpump",
+      "ordinal": 421,
+      "peak_mc": 0.0,
+      "prior_launches": 420,
+      "prior_migration_rate": 0.13333333333333333
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "26XACMVfRL52YrCU5EBMxJ7Xhc9qhZnR7uZWchuLpump",
+      "ordinal": 422,
+      "peak_mc": 0.0,
+      "prior_launches": 421,
+      "prior_migration_rate": 0.1330166270783848
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "5RgNVwh9Y4bec4oS5GVufskBtqUWetguMeqUUP7xpump",
+      "ordinal": 423,
+      "peak_mc": 0.0,
+      "prior_launches": 422,
+      "prior_migration_rate": 0.13270142180094788
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "CR2neLbFmF72GUXV5x1C1jG3QqkdmK9V6sP2e3Jzpump",
+      "ordinal": 424,
+      "peak_mc": 0.0,
+      "prior_launches": 423,
+      "prior_migration_rate": 0.13238770685579196
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "FxogRfHGZHKAyi6LdCy122vGgBMKVJ95zqnb9oydpump",
+      "ordinal": 425,
+      "peak_mc": 0.0,
+      "prior_launches": 424,
+      "prior_migration_rate": 0.1320754716981132
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "2SHST97KMtiBXbhBZ5WJDRhcBe4LWN9ZjrH5n3qEpump",
+      "ordinal": 426,
+      "peak_mc": 0.0,
+      "prior_launches": 425,
+      "prior_migration_rate": 0.13176470588235295
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "8AixMJhnYjC4oSYRAAzrxmgL1CjVT5PUBmHXgk6vpump",
+      "ordinal": 427,
+      "peak_mc": 0.0,
+      "prior_launches": 426,
+      "prior_migration_rate": 0.13145539906103287
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "C88aBcd2g1Jx3j9x9KnWQw9FsMKvTnUkTYZ9gWNQpump",
+      "ordinal": 428,
+      "peak_mc": 0.0,
+      "prior_launches": 427,
+      "prior_migration_rate": 0.13114754098360656
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "5Abfuz46PVaTtKhr6ZEanspgFj1WpPuVzmDkU6yRpump",
+      "ordinal": 429,
+      "peak_mc": 0.0,
+      "prior_launches": 428,
+      "prior_migration_rate": 0.1308411214953271
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "BdSD43e9da1VMEX9GnmRxUtJTyCgx4bCX9ubbt9npump",
+      "ordinal": 430,
+      "peak_mc": 0.0,
+      "prior_launches": 429,
+      "prior_migration_rate": 0.13053613053613053
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "7TBznmTyvUiWoVjgXDu6F71DyebWMNG6Xsb3RD2Tpump",
+      "ordinal": 431,
+      "peak_mc": 0.0,
+      "prior_launches": 430,
+      "prior_migration_rate": 0.13023255813953488
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "8aFmh7ABdigwpiacKAj3iVb3EKBbxMaRfFD2MzEmpump",
+      "ordinal": 432,
+      "peak_mc": 0.0,
+      "prior_launches": 431,
+      "prior_migration_rate": 0.12993039443155452
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "HBDmXECDS1inSKLzd9h1cHM5NMVEokSw7zPv9wcppump",
+      "ordinal": 433,
+      "peak_mc": 0.0,
+      "prior_launches": 432,
+      "prior_migration_rate": 0.12962962962962962
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "2rFvig9y5KNK1bRcAKBsy6Q6jqWRMT4vu5By81eFpump",
+      "ordinal": 434,
+      "peak_mc": 0.0,
+      "prior_launches": 433,
+      "prior_migration_rate": 0.12933025404157045
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "72HpDTiCvRDUJuyHH2cicQPbAMbbDFBu6g49aQWBpump",
+      "ordinal": 435,
+      "peak_mc": 0.0,
+      "prior_launches": 434,
+      "prior_migration_rate": 0.12903225806451613
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "GG6r1VM7brf4z3Hton1vZ72k3kir2rygz6E8sw4Gpump",
+      "ordinal": 436,
+      "peak_mc": 0.0,
+      "prior_launches": 435,
+      "prior_migration_rate": 0.12873563218390804
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "5aogrqtgyXaVHkukSHzvoYvLwWB5RfBFNZzxHUFRpump",
+      "ordinal": 437,
+      "peak_mc": 0.0,
+      "prior_launches": 436,
+      "prior_migration_rate": 0.12844036697247707
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "6p7DUoHVDk7zv8fZ3AyCeW9akiUhXvbwaP3ahuARpump",
+      "ordinal": 438,
+      "peak_mc": 0.0,
+      "prior_launches": 437,
+      "prior_migration_rate": 0.12814645308924486
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "4zG5JDR8sLaQBGYtKJoMSHtXoPyGUku2HGNfyHKspump",
+      "ordinal": 439,
+      "peak_mc": 0.0,
+      "prior_launches": 438,
+      "prior_migration_rate": 0.1278538812785388
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "HMhZnhUUApPuvrQThwH6faEiSGmVMLzGtCxBJL2opump",
+      "ordinal": 440,
+      "peak_mc": 0.0,
+      "prior_launches": 439,
+      "prior_migration_rate": 0.1275626423690205
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "428oXikpxMZ64JNKTQk88Pgs2BFy9894Dc2n7Jcjpump",
+      "ordinal": 441,
+      "peak_mc": 0.0,
+      "prior_launches": 440,
+      "prior_migration_rate": 0.12727272727272726
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "4wcYJGWJBS14WT8MXQWt6XEkDSF1PDykuJvrsv6cpump",
+      "ordinal": 442,
+      "peak_mc": 0.0,
+      "prior_launches": 441,
+      "prior_migration_rate": 0.12698412698412698
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "BWouMxy7FH4AsLNNGdVf76LhAHqGvfx8kMg7GVC2pump",
+      "ordinal": 443,
+      "peak_mc": 0.0,
+      "prior_launches": 442,
+      "prior_migration_rate": 0.12669683257918551
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "7nxhxNammxz4HGKphEjoBqj2EUoy9P5Y58JC4Vi9pump",
+      "ordinal": 444,
+      "peak_mc": 0.0,
+      "prior_launches": 443,
+      "prior_migration_rate": 0.12641083521444696
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "DE4RQGAsRVQB6YfwJgfpoFbrVRto9EHbhcjZYYLypump",
+      "ordinal": 445,
+      "peak_mc": 0.0,
+      "prior_launches": 444,
+      "prior_migration_rate": 0.12612612612612611
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "4WhHEQKpmS8t7ngnNyCbXLyCFTsg3MiqudcfFReCpump",
+      "ordinal": 446,
+      "peak_mc": 0.0,
+      "prior_launches": 445,
+      "prior_migration_rate": 0.1258426966292135
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "QfJpMyx9qXCh9UPmCcPuMDFJxw5zHtyJGdRynZqpump",
+      "ordinal": 447,
+      "peak_mc": 0.0,
+      "prior_launches": 446,
+      "prior_migration_rate": 0.12556053811659193
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "HwNLGfPzgc8ejTWc6CGnHYHJpViyFyQ6Aovey2DNpump",
+      "ordinal": 448,
+      "peak_mc": 0.0,
+      "prior_launches": 447,
+      "prior_migration_rate": 0.12527964205816555
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "2MLYsVgwwTwPv7Ee8cecbBwyfZu8uLHNZvMrspdipump",
+      "ordinal": 449,
+      "peak_mc": 0.0,
+      "prior_launches": 448,
+      "prior_migration_rate": 0.125
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "7am5shKn7BkU9bX8k43jhk413baBocvuwKfwEUYPpump",
+      "ordinal": 450,
+      "peak_mc": 0.0,
+      "prior_launches": 449,
+      "prior_migration_rate": 0.12472160356347439
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "nmGWjbYnCcUWFTuqRP9ZsBuyEoFxQMMxvTyr7o8pump",
+      "ordinal": 451,
+      "peak_mc": 0.0,
+      "prior_launches": 450,
+      "prior_migration_rate": 0.12444444444444444
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "64muQf9ZvMcAmrt5nGrTcJCHLCqKSq5p3HfwDaJVpump",
+      "ordinal": 452,
+      "peak_mc": 0.0,
+      "prior_launches": 451,
+      "prior_migration_rate": 0.12416851441241686
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "21SWtxsAj2ALAUnYTJfTgy9A9fxBbXJMpp54JsoHpump",
+      "ordinal": 453,
+      "peak_mc": 0.0,
+      "prior_launches": 452,
+      "prior_migration_rate": 0.12389380530973451
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "864wFYtMhbxDd27ewz6JzkHbsRRhNsp54k2qCDb8pump",
+      "ordinal": 454,
+      "peak_mc": 0.0,
+      "prior_launches": 453,
+      "prior_migration_rate": 0.12362030905077263
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "HFvxSidcHfBm5azF8EvZGVkG7EvH4QMYLxBzW3UTpump",
+      "ordinal": 455,
+      "peak_mc": 0.0,
+      "prior_launches": 454,
+      "prior_migration_rate": 0.12334801762114538
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "Aj29WGKRzLfFGkvudVo89B8fJoJLiBnbA8KwWCGApump",
+      "ordinal": 456,
+      "peak_mc": 0.0,
+      "prior_launches": 455,
+      "prior_migration_rate": 0.12307692307692308
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "Ex3QYYdCA2e2UjHsbGLF5XxKdYN8kgpB7jqsuMkpump",
+      "ordinal": 457,
+      "peak_mc": 0.0,
+      "prior_launches": 456,
+      "prior_migration_rate": 0.12280701754385964
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "CSb24kbuzhWi1gzYKir2SsEHnNLt3hmdZwma7n8Wpump",
+      "ordinal": 458,
+      "peak_mc": 0.0,
+      "prior_launches": 457,
+      "prior_migration_rate": 0.12253829321663019
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "92YVTBeA3gC14zyKhZZTiug2uPV6B3kkCMkhG2Dfpump",
+      "ordinal": 459,
+      "peak_mc": 0.0,
+      "prior_launches": 458,
+      "prior_migration_rate": 0.1222707423580786
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "6hVPxK4945cinCZycffbCorHdStpunRxAPQMLkUUpump",
+      "ordinal": 460,
+      "peak_mc": 0.0,
+      "prior_launches": 459,
+      "prior_migration_rate": 0.12200435729847495
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "4LCAaRQW5Q48ZR6VA9V9MPV5uXqrowp8RaTEqDWipump",
+      "ordinal": 461,
+      "peak_mc": 0.0,
+      "prior_launches": 460,
+      "prior_migration_rate": 0.12173913043478261
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "6MbfHc5nU1TKxsWUka4Sxg5nwjuuhiNExACEDedGpump",
+      "ordinal": 462,
+      "peak_mc": 0.0,
+      "prior_launches": 461,
+      "prior_migration_rate": 0.12147505422993492
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "FmjFCPF7SeUgfkMej6n1NrLyoWT35enLvz9StE4spump",
+      "ordinal": 463,
+      "peak_mc": 0.0,
+      "prior_launches": 462,
+      "prior_migration_rate": 0.12121212121212122
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "31nYD89K3xNnL53nCbytZegpwZvs5xDy6oULmq8Cpump",
+      "ordinal": 464,
+      "peak_mc": 0.0,
+      "prior_launches": 463,
+      "prior_migration_rate": 0.12095032397408208
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "3XhtFJCVFweuGAbutt8iuMDVV2iY8qxahG3ktZ2kpump",
+      "ordinal": 465,
+      "peak_mc": 0.0,
+      "prior_launches": 464,
+      "prior_migration_rate": 0.1206896551724138
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "Gp5evBHwtaRFA6dgpbJ1o8s1HgQAVveCUe8184gApump",
+      "ordinal": 466,
+      "peak_mc": 0.0,
+      "prior_launches": 465,
+      "prior_migration_rate": 0.12043010752688173
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "EjiYThGCGe1ZEprc82EQ5sUUoVHCwNEnHZxrfCwEpump",
+      "ordinal": 467,
+      "peak_mc": 0.0,
+      "prior_launches": 466,
+      "prior_migration_rate": 0.12017167381974249
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "AGjUEvUTsFuThrmGFS6WcCLQAUUyBBejMPNyqx9jpump",
+      "ordinal": 468,
+      "peak_mc": 0.0,
+      "prior_launches": 467,
+      "prior_migration_rate": 0.11991434689507495
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "H3nqtoankBKohKnEvqHLbxN3mhTScurLtJTkoRfNpump",
+      "ordinal": 469,
+      "peak_mc": 0.0,
+      "prior_launches": 468,
+      "prior_migration_rate": 0.11965811965811966
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "2Gp1trAtvyHCH6HtrfS7wCFqgU7nZXRTueGiD4B2pump",
+      "ordinal": 470,
+      "peak_mc": 0.0,
+      "prior_launches": 469,
+      "prior_migration_rate": 0.11940298507462686
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "3V34YbwwaHgkwpgbYTNziRgAMDkg8rtN6f49VyeNpump",
+      "ordinal": 471,
+      "peak_mc": 0.0,
+      "prior_launches": 470,
+      "prior_migration_rate": 0.11914893617021277
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "AbcZYG7D7vX14jh6PPoN6c3xpC7tdckumTCP2uespump",
+      "ordinal": 472,
+      "peak_mc": 0.0,
+      "prior_launches": 471,
+      "prior_migration_rate": 0.11889596602972399
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "5xH581oFmLRvdxRc67tS4XpYDbWnsFgBnZoneLc4pump",
+      "ordinal": 473,
+      "peak_mc": 0.0,
+      "prior_launches": 472,
+      "prior_migration_rate": 0.11864406779661017
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "7cy4HF28yyUtJnTqCn6fRCTAu3XtcFnTh2gXXPqopump",
+      "ordinal": 474,
+      "peak_mc": 0.0,
+      "prior_launches": 473,
+      "prior_migration_rate": 0.11839323467230443
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "J3JaCy1SYgpcBZkn29U6EkMmUxfgPy2DMeAL4xGipump",
+      "ordinal": 475,
+      "peak_mc": 0.0,
+      "prior_launches": 474,
+      "prior_migration_rate": 0.11814345991561181
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "9Egu6ppknFtKdUEH1A6ejeAEtsgyBmYjQcStKR1hpump",
+      "ordinal": 476,
+      "peak_mc": 0.0,
+      "prior_launches": 475,
+      "prior_migration_rate": 0.11789473684210526
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "5tHRtVwwGVGNJkDuAvK9vcDJsqg6T4z7E7aSkMSapump",
+      "ordinal": 477,
+      "peak_mc": 0.0,
+      "prior_launches": 476,
+      "prior_migration_rate": 0.11764705882352941
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "GiGU65otZ6PRVY8kPNwvZEe1DSDhXmLBwCQAr5KCpump",
+      "ordinal": 478,
+      "peak_mc": 0.0,
+      "prior_launches": 477,
+      "prior_migration_rate": 0.11740041928721175
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "EtBALYhE277tFd5PDRogvTc2X9ZWsS8X6MNVGaAhpump",
+      "ordinal": 479,
+      "peak_mc": 0.0,
+      "prior_launches": 478,
+      "prior_migration_rate": 0.11715481171548117
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "GgNAydDkjG9YztAuEasRzod9NHVTEqobWHXEhWDmpump",
+      "ordinal": 480,
+      "peak_mc": 0.0,
+      "prior_launches": 479,
+      "prior_migration_rate": 0.11691022964509394
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "9vgHADYt4Xa1ijwL9zre6X2JmaYWHhmF7skJ7YR4pump",
+      "ordinal": 481,
+      "peak_mc": 0.0,
+      "prior_launches": 480,
+      "prior_migration_rate": 0.11666666666666667
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "4hdYzhorHoczQviAdRdVNdKSAjz6vincio16Vtc2pump",
+      "ordinal": 482,
+      "peak_mc": 0.0,
+      "prior_launches": 481,
+      "prior_migration_rate": 0.11642411642411643
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "3rMBpf9WUd1F7PL3SZLywEyj5Cfgkgr2swdR4LCtpump",
+      "ordinal": 483,
+      "peak_mc": 0.0,
+      "prior_launches": 482,
+      "prior_migration_rate": 0.11618257261410789
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "BcCCMo9vxts92jo253rJreLMcjvZCibkXjQVQ9Svpump",
+      "ordinal": 484,
+      "peak_mc": 0.0,
+      "prior_launches": 483,
+      "prior_migration_rate": 0.11594202898550725
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 1,
+      "mint": "E3gb7tyST4JCdsPk8v5D6htYeLup7UmAHTVfZrCRpump",
+      "ordinal": 485,
+      "peak_mc": 14558.338004872625,
+      "prior_launches": 484,
+      "prior_migration_rate": 0.11570247933884298
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "3zEhVZnVANT4FbPhe8AX2ruisCAyRb9yjryokT51pump",
+      "ordinal": 486,
+      "peak_mc": 0.0,
+      "prior_launches": 485,
+      "prior_migration_rate": 0.11752577319587629
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "BvUHeXo8ioFKzjPJpQXCuCehgcV3X9KJCFBs5Nw2pump",
+      "ordinal": 487,
+      "peak_mc": 0.0,
+      "prior_launches": 486,
+      "prior_migration_rate": 0.11728395061728394
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "B284YGzMSk9CzWVgo3b5WVN9iB5ek9cUBHvPFWsupump",
+      "ordinal": 488,
+      "peak_mc": 0.0,
+      "prior_launches": 487,
+      "prior_migration_rate": 0.11704312114989733
+    },
+    {
+      "bucket": "MIXED_HISTORY",
+      "creator": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+      "migrated": 0,
+      "mint": "7LP4JBVorkX3SYNTYrVux937daZppyYHLEC4eKZfpump",
+      "ordinal": 489,
+      "peak_mc": 0.0,
+      "prior_launches": 488,
+      "prior_migration_rate": 0.1168032786885246
+    }
+  ],
+  "sample_size": 500
+}

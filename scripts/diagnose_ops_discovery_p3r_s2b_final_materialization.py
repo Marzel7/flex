@@ -10,10 +10,13 @@ def percentile(values, p):
     if not values: return 0.0
     return sorted(values)[min(len(values)-1, int((len(values)-1)*p))]
 
-def build(source, target, token_limit, with_index):
+def build(source, target, token_limit, with_index, journal_off=False, cache_spill_off=False):
     target.unlink(missing_ok=True)
     src=sqlite3.connect(f'file:{source.resolve()}?mode=ro',uri=True); src.execute('pragma query_only=on')
-    dst=sqlite3.connect(target); dst.execute('PRAGMA synchronous=OFF'); dst.execute('PRAGMA cache_size=-262144')
+    dst=sqlite3.connect(target)
+    if journal_off: dst.execute('PRAGMA journal_mode=OFF')
+    dst.execute('PRAGMA synchronous=OFF'); dst.execute('PRAGMA cache_size=-262144')
+    if cache_spill_off: dst.execute('PRAGMA cache_spill=OFF')
     progress_calls=0; last_progress=None; max_progress_gap=0.0
     def progress():
         nonlocal progress_calls,last_progress,max_progress_gap
@@ -45,11 +48,11 @@ def build(source, target, token_limit, with_index):
     return {'with_index_during_insert':with_index,'sha256':sha,'wall_seconds':wall,'cpu_seconds':cpu,'cpu_to_wall_ratio':cpu/wall if wall else 0,'progress_calls':progress_calls,'progress_opcode_interval':1000,'max_progress_gap_seconds':max_progress_gap,'surfaces':surfaces,'commit_summary':{'count':len(vals),'total_seconds':sum(vals),'min_seconds':min(vals),'median_seconds':statistics.median(vals),'p95_seconds':percentile(vals,.95),'max_seconds':max(vals),'samples':commits},'page_samples':sample_pages,'sqlite_settings':settings,'file_size_bytes':target.stat().st_size}
 
 def main():
-    ap=argparse.ArgumentParser(); ap.add_argument('--capture-db',required=True); ap.add_argument('--output-dir',required=True); ap.add_argument('--token-row-limit',type=int,default=545000); args=ap.parse_args()
+    ap=argparse.ArgumentParser(); ap.add_argument('--capture-db',required=True); ap.add_argument('--output-dir',required=True); ap.add_argument('--token-row-limit',type=int,default=545000); ap.add_argument('--journal-off-only',action='store_true'); ap.add_argument('--cache-spill-off',action='store_true'); args=ap.parse_args()
     capture=Path(args.capture_db).resolve(); out=Path(args.output_dir).resolve(); out.mkdir(parents=True,exist_ok=True)
-    reference=build(capture,out/'reference.sqlite',args.token_row_limit,True)
-    no_index=build(capture,out/'diagnostic_no_index.sqlite',args.token_row_limit,False)
-    result={'milestone':'OPS-DISCOVERY-P3R-S2B-FINAL-MATERIALIZATION-ROOT-CAUSE-DIAGNOSIS','capture_db':str(capture),'capture_read_only':True,'token_row_limit':args.token_row_limit,'provider_calls_made':0,'production_writes':0,'reference':reference,'diagnostic_no_index':no_index,'reference_expected_sha256':EXPECTED_REFERENCE_SHA256,'reference_byte_identity_pass':reference['sha256']==EXPECTED_REFERENCE_SHA256,'index_maintenance_attribution_seconds':reference['surfaces']['token_analysis']['insert_execution_seconds']-no_index['surfaces']['token_analysis']['insert_execution_seconds'],'host_observation':{'ru_oublock':resource.getrusage(resource.RUSAGE_SELF).ru_oublock,'ru_inblock':resource.getrusage(resource.RUSAGE_SELF).ru_inblock}}
+    reference=build(capture,out/'reference.sqlite',args.token_row_limit,True,args.journal_off_only,args.cache_spill_off)
+    no_index=None if args.journal_off_only else build(capture,out/'diagnostic_no_index.sqlite',args.token_row_limit,False)
+    result={'milestone':'OPS-DISCOVERY-P3R-S2B-FINAL-MATERIALIZATION-ROOT-CAUSE-DIAGNOSIS','capture_db':str(capture),'capture_read_only':True,'token_row_limit':args.token_row_limit,'journal_off_only':args.journal_off_only,'cache_spill_off':args.cache_spill_off,'provider_calls_made':0,'production_writes':0,'reference':reference,'diagnostic_no_index':no_index,'reference_expected_sha256':EXPECTED_REFERENCE_SHA256,'reference_byte_identity_pass':reference['sha256']==EXPECTED_REFERENCE_SHA256,'index_maintenance_attribution_seconds':None if no_index is None else reference['surfaces']['token_analysis']['insert_execution_seconds']-no_index['surfaces']['token_analysis']['insert_execution_seconds'],'host_observation':{'ru_oublock':resource.getrusage(resource.RUSAGE_SELF).ru_oublock,'ru_inblock':resource.getrusage(resource.RUSAGE_SELF).ru_inblock}}
     (out/'result.json').write_text(json.dumps(result,indent=2,sort_keys=True)+'\n'); print(json.dumps(result,sort_keys=True))
     return 0 if result['reference_byte_identity_pass'] else 2
 if __name__=='__main__': raise SystemExit(main())

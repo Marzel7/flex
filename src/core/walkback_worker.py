@@ -25,7 +25,7 @@ import urllib.request
 import sqlite3
 import argparse
 import contextvars
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 from src.utils.db_locking import db_connect
 from src.core import deep_walkback
 
@@ -102,19 +102,24 @@ def _rpc(method: str, params: list) -> Optional[object]:
         return None
 
 
+RpcTransport = Callable[[str, list], Optional[object]]
+
+
 def _get_sigs(wallet: str, limit: int = SIG_LIMIT,
-              before: Optional[str] = None) -> list:
+              before: Optional[str] = None, *,
+              rpc_transport: Optional[RpcTransport] = None) -> list:
     """getSignaturesForAddress — 1cr."""
     options = {"limit": limit, "commitment": "confirmed"}
     if before:
         options["before"] = before
-    result = _rpc("getSignaturesForAddress", [wallet, options])
+    result = (rpc_transport or _rpc)("getSignaturesForAddress", [wallet, options])
     return result or []
 
 
 def _collect_signature_window(wallet: str, rpc_counter: list, *,
                               before_signature: Optional[str] = None,
-                              page_count: Optional[int] = None) -> list:
+                              page_count: Optional[int] = None,
+                              rpc_transport: Optional[RpcTransport] = None) -> list:
     """Return a bounded, transaction-anchored wallet history window.
 
     High-throughput provisioning wallets can execute hundreds of transactions
@@ -126,7 +131,8 @@ def _collect_signature_window(wallet: str, rpc_counter: list, *,
     entries: list[dict] = []
     cursor = before_signature
     for _ in range(page_count or SIG_PAGE_COUNT):
-        page = _get_sigs(wallet, SIG_PAGE_LIMIT, before=cursor)
+        page = _get_sigs(wallet, SIG_PAGE_LIMIT, before=cursor,
+                         rpc_transport=rpc_transport)
         rpc_counter[0] += 1
         if not page:
             break
@@ -139,9 +145,9 @@ def _collect_signature_window(wallet: str, rpc_counter: list, *,
     return entries
 
 
-def _get_tx(sig: str) -> Optional[dict]:
+def _get_tx(sig: str, *, rpc_transport: Optional[RpcTransport] = None) -> Optional[dict]:
     """getTransaction — 1cr. Never uses the enhanced endpoint."""
-    return _rpc("getTransaction", [sig, {
+    return (rpc_transport or _rpc)("getTransaction", [sig, {
         "encoding": "jsonParsed",
         "maxSupportedTransactionVersion": 0,
         "commitment": "confirmed",
@@ -151,12 +157,13 @@ def _get_tx(sig: str) -> Optional[dict]:
 _SYSTEM_PROGRAM = "11111111111111111111111111111111"
 _TOKEN_PROGRAM  = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
 
-def _get_account_owner(wallet: str, rpc_counter: list) -> Optional[str]:
+def _get_account_owner(wallet: str, rpc_counter: list, *,
+                       rpc_transport: Optional[RpcTransport] = None) -> Optional[str]:
     """
     getAccountInfo — 1cr. Returns the owner program of wallet, or None on error.
     System Program-owned = regular wallet. Token Program-owned = token/WSOL ATA.
     """
-    result = _rpc("getAccountInfo", [wallet, {"encoding": "base64", "commitment": "confirmed"}])
+    result = (rpc_transport or _rpc)("getAccountInfo", [wallet, {"encoding": "base64", "commitment": "confirmed"}])
     rpc_counter[0] += 1
     if not result:
         return None
@@ -177,7 +184,8 @@ def _is_program_owned(wallet: str, rpc_counter: list) -> bool:
     return owner != _SYSTEM_PROGRAM
 
 
-def _resolve_ata_owner(ata: str, rpc_counter: list) -> Optional[str]:
+def _resolve_ata_owner(ata: str, rpc_counter: list, *,
+                       rpc_transport: Optional[RpcTransport] = None) -> Optional[str]:
     """
     For a Token Program-owned ATA, return the wallet that holds it.
     getAccountInfo with jsonParsed encoding — 1cr.
@@ -185,7 +193,7 @@ def _resolve_ata_owner(ata: str, rpc_counter: list) -> Optional[str]:
     The SPL token account's parsed.info.owner is the controlling wallet.
     We then verify that wallet is System Program-owned (a real wallet, not a PDA).
     """
-    result = _rpc("getAccountInfo", [ata, {"encoding": "jsonParsed", "commitment": "confirmed"}])
+    result = (rpc_transport or _rpc)("getAccountInfo", [ata, {"encoding": "jsonParsed", "commitment": "confirmed"}])
     rpc_counter[0] += 1
     if not result:
         return None
@@ -198,7 +206,7 @@ def _resolve_ata_owner(ata: str, rpc_counter: list) -> Optional[str]:
     if not owner:
         return None
     # Verify the owner wallet is itself system-program-owned (real wallet, not a PDA)
-    owner_result = _rpc("getAccountInfo", [owner, {"encoding": "base64", "commitment": "confirmed"}])
+    owner_result = (rpc_transport or _rpc)("getAccountInfo", [owner, {"encoding": "base64", "commitment": "confirmed"}])
     rpc_counter[0] += 1
     if not owner_result:
         return owner  # RPC error — return owner rather than silently drop
@@ -346,10 +354,12 @@ def _is_disposable_subprov_handoff(mechanism: Optional[str]) -> bool:
 
 def _find_with_evidence(wallet: str, rpc_counter: list,
                         ops: Optional[sqlite3.Connection], *, source_mint: str,
-                        hop_depth: int, **search_options) -> FunderInfo:
+                        hop_depth: int, rpc_transport: Optional[RpcTransport] = None,
+                        **search_options) -> FunderInfo:
     token = _EVIDENCE_CONTEXT.set((source_mint, hop_depth))
     try:
-        return _find_funder_via_rpc(wallet, rpc_counter, ops, **search_options)
+        return _find_funder_via_rpc(wallet, rpc_counter, ops,
+                                    rpc_transport=rpc_transport, **search_options)
     finally:
         _EVIDENCE_CONTEXT.reset(token)
 
@@ -361,7 +371,8 @@ def _find_funder_via_rpc(wallet: str, rpc_counter: list,
                          source_mint: Optional[str] = None,
                          hop_depth: int = 0,
                          signature_page_count: Optional[int] = None,
-                         tx_fetch_limit: Optional[int] = None) -> FunderInfo:
+                         tx_fetch_limit: Optional[int] = None,
+                         rpc_transport: Optional[RpcTransport] = None) -> FunderInfo:
     """
     Collect all valid funders within the bounded tx window then select the strongest.
 
@@ -385,7 +396,7 @@ def _find_funder_via_rpc(wallet: str, rpc_counter: list,
     hop_depth = hop_depth or context_depth
     sigs = _collect_signature_window(
         wallet, rpc_counter, before_signature=before_signature,
-        page_count=signature_page_count)
+        page_count=signature_page_count, rpc_transport=rpc_transport)
     _empty: FunderInfo = (None, None, None, None, None, None)
     if not sigs:
         return _empty
@@ -404,7 +415,7 @@ def _find_funder_via_rpc(wallet: str, rpc_counter: list,
         sig = entry.get("signature")
         if not sig:
             continue
-        tx = _get_tx(sig)
+        tx = _get_tx(sig, rpc_transport=rpc_transport)
         rpc_counter[0] += 1
         if not tx:
             continue
@@ -421,11 +432,12 @@ def _find_funder_via_rpc(wallet: str, rpc_counter: list,
             record_spam_transfer(ops, sender, wallet)
             print(f"[WALKBACK] IGNORED_SPAM_SENDER sender={sender[:14]}… wallet={wallet[:14]}…", flush=True)
             continue
-        owner = _get_account_owner(sender, rpc_counter)
+        owner = _get_account_owner(sender, rpc_counter, rpc_transport=rpc_transport)
         if owner is None or owner == _SYSTEM_PROGRAM:
             pass  # regular wallet
         elif owner == _TOKEN_PROGRAM:
-            real_sender = _resolve_ata_owner(sender, rpc_counter)
+            real_sender = _resolve_ata_owner(sender, rpc_counter,
+                                             rpc_transport=rpc_transport)
             if not real_sender or real_sender in _FUNDER_BLOCKLIST:
                 continue
             sender = real_sender
@@ -474,9 +486,29 @@ def _find_funder_via_rpc(wallet: str, rpc_counter: list,
                 rejection_reason="" if candidate == best else "LOWER_RANKED_BUT_RETAINED")
             tx = candidate_txs.get(sig or "")
             if tx:
+                # Retain authoritative decoded transaction roles in the same
+                # transaction as selected-edge evidence; no later inference.
+                deep_walkback.persist_decoded_transaction_roles(
+                    ops, mint=source_mint, signature=sig or "",
+                    anchor_signature=before_signature, tx=tx)
                 flows = deep_walkback.materialize_atomic_wsol(tx, sig or "")
                 deep_walkback.persist_atomic_flows(ops, source_mint, flows)
         ops.commit()
+        # Evidence completion for source_mint can happen here, independently of
+        # (and possibly after) the one-shot terminal-walkback P3R admission
+        # attempt in _promote_if_canonical_watchtower. Without this retrigger,
+        # a mint whose full atomic WSOL_WRAP_CLOSE evidence only becomes
+        # complete mid-walk (rather than by the time the walk terminates)
+        # would never be re-evaluated and would sit as a permanent, silent
+        # admission backlog (see docs/audits/leviathan_membership_backlog_reconciliation.v1.json).
+        # Scoped to source_mint only — never a broad rescan.
+        try:
+            from src.ops.p3r_profile_candidate_matcher import admit_unambiguous_p3r_match
+            p3r_action = admit_unambiguous_p3r_match(ops, source_mint, core_db_path=LIVE_DB_PATH)
+            if p3r_action == "admitted":
+                print(f"[WALKBACK] P3R membership (mid-walk evidence completion) → {source_mint[:14]}… admitted", flush=True)
+        except Exception as exc:  # noqa: BLE001 -- must never affect the funding-edge commit that already succeeded
+            print(f"[WALKBACK] P3R mid-walk admission check failed mint={source_mint}: {exc}", flush=True)
     reason = _PRIORITY_REASON.get(best_priority, "PLAIN_XFER")
     print(f"[WALKBACK] selected_funder={best[0][:14]}… reason={reason} "
           f"candidates_seen={len(candidates)} wallet={wallet[:14]}…", flush=True)
@@ -761,6 +793,7 @@ def _promote_if_canonical_watchtower(ops: sqlite3.Connection, mint: str,
             )
 
     if not _should_attempt_promotion:
+        _observe_fingerprint_drift(ops, mint)
         return
 
     try:
@@ -787,6 +820,59 @@ def _promote_if_canonical_watchtower(ops: sqlite3.Connection, mint: str,
                 print(f"[WALKBACK] WATCHTOWER membership projection → {mint[:14]}…", flush=True)
     except Exception as exc:  # noqa: BLE001 -- must never break the caller's terminal transition
         print(f"[WALKBACK] registry promotion call failed mint={mint}: {exc}", flush=True)
+    _observe_fingerprint_drift(ops, mint)
+
+
+def _observe_fingerprint_drift(ops: sqlite3.Connection, mint: str) -> None:
+    """Secondary monitoring only; it cannot affect a completed walkback."""
+    try:
+        from src.ops.operation_fingerprint_drift import observe_completed_walkback
+        result = observe_completed_walkback(ops, mint)
+        if result.get("NEAR_MATCH_ONE_DIMENSION") or result.get("NEAR_MATCH_MULTI_DIMENSION"):
+            print(f"[WALKBACK] fingerprint drift observed → {mint[:14]}… {result}", flush=True)
+    except (sqlite3.OperationalError, ValueError, KeyError, json.JSONDecodeError) as exc:
+        print(f"[WALKBACK] fingerprint monitoring unavailable mint={mint}: {exc}", flush=True)
+
+
+def _notify_living_after_walkback_commit(ops: sqlite3.Connection, mint: str, test_failure_injector=None) -> dict:
+    """Best-effort bounded Living dispatch after source evidence is committed.
+
+    The callback is deliberately outside the source transaction. It carries
+    only durable queue identities; reverse resolution and persisted reads stay
+    in the bounded Living handler. Its failure is logged and cannot undo the
+    completed walkback or cause a worker retry loop.
+    """
+    try:
+        row = ops.execute(
+            "SELECT mint,creator,funder_wallet,funding_mechanism,funder_sig "
+            "FROM wt_walkback_queue WHERE mint=?", (mint,)
+        ).fetchone()
+        if row is None:
+            return {"status": "NO_DURABLE_EVENT", "mint": mint}
+        event = {"mint": row["mint"], "creator": row["creator"],
+                 "funder": row["funder_wallet"], "mechanism": row["funding_mechanism"],
+                 "edge_identity": row["funder_sig"], "source_event_type": "WALKBACK_COMMITTED"}
+        from src.ops.living_potential_operations import handle_walkback_evidence_update
+        result = handle_walkback_evidence_update(OPS_DB_PATH, test_failure_injector=test_failure_injector, **event)
+        candidates = result.get("candidates", ()) if isinstance(result, dict) else ()
+        published = [x.get("assessment_id") for x in candidates if x.get("published") and x.get("assessment_id")]
+        attempted = any(x.get("relevance") == "RELEVANT_NEW_EVIDENCE" for x in candidates)
+        resolved = result.get("resolved_candidate_ids", result.get("affected_potential_operation_ids", ())) if isinstance(result, dict) else ()
+        noop = None if attempted else ("UNRELATED" if not resolved else next((x.get("relevance") for x in candidates), "LEGACY_NO_ADVANCE"))
+        return {"status": "DISPATCHED", "invoked": True, "success": True, "event": event,
+                "dispatch_mode": result.get("dispatch_mode", "LEGACY") if isinstance(result, dict) else "LEGACY",
+                "resolved_candidates": list(resolved), "publication_attempted": attempted,
+                "published_assessment_ids": published, "no_op_reason": noop,
+                "error_type": None, "error_message": None, "error_stage": None, "result": result}
+    except Exception as exc:  # post-commit isolation is intentional
+        print(f"[WALKBACK] Living callback failed after committed evidence mint={mint}: {exc}", flush=True)
+        return {"status": "FAILED", "invoked": True, "success": False, "mint": mint,
+                "dispatch_mode": None, "resolved_candidates": [], "publication_attempted": test_failure_injector is not None,
+                "published_assessment_ids": [], "no_op_reason": None,
+                "error_type": type(exc).__name__, "error_message": str(exc)[:500],
+                "sqlite_errorcode": getattr(exc, "sqlite_errorcode", None),
+                "sqlite_errorname": getattr(exc, "sqlite_errorname", None),
+                "error_stage": "PUBLISHER" if test_failure_injector is not None else "LIVING_HANDLER", "error": str(exc)[:500]}
 
 
 def _mark_complete(ops: sqlite3.Connection, mint: str, outcome: str,
@@ -851,6 +937,14 @@ def _mark_complete(ops: sqlite3.Connection, mint: str, outcome: str,
     from src.ops.watchtower_candidates import sync_walkback_result
     sync_walkback_result(ops, mint)
     ops.commit()
+    _notify_living_after_walkback_commit(ops, mint)
+    # Generic retained-role operation projectors run only after the durable
+    # Walkback commit; they must never affect completion of the walkback.
+    try:
+        from src.ops.post_walkback_projection import project_retained_operation_evidence
+        project_retained_operation_evidence(ops, mint)
+    except Exception as exc:
+        print(f"[WALKBACK] retained operation projection failed mint={mint}: {exc}", flush=True)
     _promote_if_canonical_watchtower(ops, mint, materialized)
 
 
@@ -866,6 +960,7 @@ def _mark_failed(ops: sqlite3.Connection, mint: str, error: str, rpc_used: int) 
     from src.ops.watchtower_candidates import sync_walkback_result
     sync_walkback_result(ops, mint)
     ops.commit()
+    _notify_living_after_walkback_commit(ops, mint)
     _promote_if_canonical_watchtower(ops, mint, materialized)
 
 
@@ -883,6 +978,7 @@ def _mark_exhausted(ops: sqlite3.Connection, mint: str, rpc_used: int) -> None:
     from src.ops.watchtower_candidates import sync_walkback_result
     sync_walkback_result(ops, mint)
     ops.commit()
+    _notify_living_after_walkback_commit(ops, mint)
     _promote_if_canonical_watchtower(ops, mint, materialized)
 
 

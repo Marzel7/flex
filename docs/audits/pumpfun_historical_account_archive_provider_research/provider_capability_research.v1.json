@@ -1,0 +1,28 @@
+{
+  "api_docs": "https://www.alchemy.com/docs/chains/solana/solana-api-endpoints/get-account-info?explorer=true",
+  "coverage_claim": "Since July 2025, growing/never pruned according to provider documentation. MACROHARD target slot 443375106 is after that stated coverage start.",
+  "credential_configured_locally": false,
+  "documented_semantics": "State as of finalized slot S, inclusive: latest write with slot <= S. Historical parameters slot, lastUpdateBeforeSlot, firstUpdateAfterSlot are mutually exclusive with minContextSlot.",
+  "endpoint_tested": false,
+  "historical_method": "getAccountInfo",
+  "historical_parameter": "slot",
+  "not_suitable": [
+    "Standard Helius/Solana getAccountInfo: minContextSlot is not historical selection.",
+    "Helius historical transaction APIs: transaction history, not historical raw account bytes.",
+    "GMGN/PumpPortal: not an account-state archive source."
+  ],
+  "provider": "Alchemy Solana Account Archive",
+  "provider_docs": "https://www.alchemy.com/docs/solana/account-archive",
+  "required_request_shape": {
+    "method": "getAccountInfo",
+    "params": [
+      "FJPbTzeUy4pzPT3r7c2fNxccNvvhbC7LJkSqXux8xU1g",
+      {
+        "encoding": "base64",
+        "slot": 443375106
+      }
+    ]
+  },
+  "validity_caveat": "Inclusive slot semantics yield end-of-slot state. It is valid pre-buy because buy #1 is next slot 443375107, subject to retained creation/first-buy ordering already established.",
+  "why_not_tested": "Research-only authorization and no configured Alchemy credential; no provider request made."
+}

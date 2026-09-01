@@ -1,0 +1,16 @@
+{
+  "schema_version": "watchtower-opening-mc-first-slot-stream.v1",
+  "mint": "BuY3MHzaDEd2ipwub6uAhddH8Ah95oHoZfNDVkVVpump",
+  "slot": 443452972,
+  "block_time": 1788275105,
+  "creation_state": {"virtual_sol_reserves": 30000000000, "virtual_token_reserves": 1073000000000000, "real_token_reserves": 793100000000000, "real_sol_reserves": 0, "token_total_supply": 1000000000000000},
+  "actions": [
+    {"number":1,"type":"BUY","signature":"2m5b23jPBJv47FwSBRS8aTbHKpLH76iGtZWv5kRzM5fN6Qb3FtUneuLdJ94S51hjud1yX3Ggx24T6vpVb7tpJZxZ","transaction_index":1436,"buyer":"ErakdZBCte7528cWXCeQddxu8ehHsk2Snp6A2Qkb6dmm","sol_lamports":1975308640,"token_raw":66285714223523,"post_virtual_sol_reserves":31975308640,"post_virtual_token_reserves":1006714285776477,"post_real_sol_reserves":1975308640,"post_real_token_reserves":726814285776477,"post_market_cap_sol":31.76204916505928},
+    {"number":2,"type":"BUY","signature":"3ZThWHfsPbkjiajJvSQuZE7K8y8HBVKYypqGVHC3HdRvkAcMxsFzSgjJRfnheCLN141HaA8y5XBn8iY4KyVGcXuX","transaction_index":1437,"buyer":"DzVRD5tcci4An7YQ3Pacj1VRrDUcpdnEs84KJku6gQVy","sol_lamports":9876543208,"token_raw":237572692785334,"post_virtual_sol_reserves":41851851848,"post_virtual_token_reserves":769141592991143,"post_real_sol_reserves":11851851848,"post_real_token_reserves":489241592991143,"post_market_cap_sol":54.41371553609628},
+    {"number":3,"type":"BUY","signature":"3ZThWHfsPbkjiajJvSQuZE7K8y8HBVKYypqGVHC3HdRvkAcMxsFzSgjJRfnheCLN141HaA8y5XBn8iY4KyVGcXuX","transaction_index":1437,"buyer":"2CunY4Nyp4XpGZXwuBmUKrDg8rc1vQn4BoS3dGuBgEft","sol_lamports":14814814813,"token_raw":201082769404924,"post_virtual_sol_reserves":56666666661,"post_virtual_token_reserves":568058823586219,"post_real_sol_reserves":26666666661,"post_real_token_reserves":288158823586219,"post_market_cap_sol":99.75492732118302},
+    {"number":4,"type":"BUY","signature":"4dFn5cw3uyU6CfuwVUqD4eeqanvAxtxfVEN7kS1KncrjvUKNL4Pr24veJrS82cnE8ZLrxnSFVnPvixLRHc8MW5Gj","transaction_index":1438,"buyer":"3mbVJGNgGa3UxBXFNc6VUG3NsPohdz2Xh2HEus67cKbs","sol_lamports":24691358023,"token_raw":172400249954076,"post_virtual_sol_reserves":81358024684,"post_virtual_token_reserves":395658573632143,"post_real_sol_reserves":51358024684,"post_real_token_reserves":115758573632143,"post_market_cap_sol":205.62684624051968},
+    {"number":5,"type":"BUY","signature":"4dFn5cw3uyU6CfuwVUqD4eeqanvAxtxfVEN7kS1KncrjvUKNL4Pr24veJrS82cnE8ZLrxnSFVnPvixLRHc8MW5Gj","transaction_index":1438,"buyer":"CKiBodgURu2KX23zxCgotRmsYy7RoeWXMZq2sPnS3BMi","sol_lamports":33647334373,"token_raw":115758573632143,"post_virtual_sol_reserves":115005359057,"post_virtual_token_reserves":279900000000000,"post_real_sol_reserves":85005359057,"post_real_token_reserves":0,"post_market_cap_sol":410.8801681207574}
+  ],
+  "counts": {"successful_buy":5,"successful_sell":0,"failed_buy":0,"failed_sell":0,"other_target_state_changing":0},
+  "post_slot": "Pump.fun real token reserves are zero: curve completion occurred in the opening slot. A subsequent same-slot PumpSwap buy is deliberately excluded from the Pump.fun opening sequence."
+}

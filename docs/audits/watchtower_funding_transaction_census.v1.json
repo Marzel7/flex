@@ -1,0 +1,4217 @@
+{
+  "WATCHTOWER_FUNDING_ARCHITECTURE_FAMILIES": 10,
+  "denominators": {
+    "WATCHTOWER_CONFIRMED_LAUNCHES": 125,
+    "WATCHTOWER_EVALUABLE": 125,
+    "WATCHTOWER_FUNDING_PATH_AVAILABLE": 125,
+    "WATCHTOWER_FUNDING_SIGNATURE_AVAILABLE": 125,
+    "WATCHTOWER_LOCAL_DECODED": 0,
+    "WATCHTOWER_RPC_DECODED": 125,
+    "WATCHTOWER_UNRESOLVED": 0
+  },
+  "digest": "f4a2f2f28bf0fa551df6991c8ef24c49770a31393e71737ac88a3ee37ca66b82",
+  "families": [
+    {
+      "amount_structure": {
+        "creation_deposit_lamports": [
+          2122039280
+        ],
+        "ordered_transfer_lamports": []
+      },
+      "architecture_id": "WT_ARCH_01",
+      "earliest_occurrence": 1784721188,
+      "instruction_structure": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "latest_occurrence": 1787986973,
+      "launch_count": 85,
+      "members": [
+        "24rX1SutpnUTcDpYLdE6Bg2aK16m2kWYrdyKTfuFpump",
+        "2nHZVubjJU144poGfjbiB97tv7CJtvJycvDdYvSxpump",
+        "3jfTYj6cNtSepPd29NjNQTWaWXPEm8vjnXR8Bzj9pump",
+        "3zYhdcR9XeNKgFj2SYeKs2kGKrdduHSf7Y4iRJQZpump",
+        "5xrGXVNZjdyuGerGcLuGqk5tg38BG3eK5kTcF8QGpump",
+        "7KD8NNW93eh7mBdh8zRce6B3fS5bLoFamyz9Qormpump",
+        "7xpKxK2ktFXtPLQBAPcaLp71a5CU1UdvyfgQ3dWJpump",
+        "8JVTevQEykfpiT2kKX1DanzfajPVskPSBmqLqvEjpump",
+        "91yLYAgwX5dYx7d3YNVGRRC69gpCKc1dg7wkxtqMpump",
+        "AcVN6TpjNWcj4LirgNdNEjM71j2B2KyAzC1cpTCMpump",
+        "C88xj9onk6JCStA8HQwqj8TeU2k6E3sP5Ji8RKMqpump",
+        "EZW4pq5vMqkk8v6x56XDsNqn665GoRg3z7dknq6opump",
+        "HBDkJT9kMc12usUrcZDpWyfr7kvTTEfvbeyofL1gpump",
+        "HZgqRhopNn2C3KmN9KgvjoTmtnczXFDCcGLnidojpump",
+        "89qcc8eGRUeWNjD9zu7XYjpgDKEXFWFAHyHD2mRGpump",
+        "A4LETVGg8u5GB2jLbkfgtHc4G1TMf8e34yi2QX1Lpump",
+        "71PGedbfS1HDiBiKVfdeeHdEC8w7NfqG8UwDBxaupump",
+        "AUk4rL7aCKxFit8LVivMLnYo5Basr8N5wqNokKmBpump",
+        "3zK5g1qZy2MEhAy3J5JJExUgwfSAp2j4hgqVkh1Zpump",
+        "Cwbyy3TgHSTY5z8Xk3UQQmLGq7E51MX74JFfb4N1pump",
+        "87JaVR1WSBjME37Ef1Fp5bzrK1vwe59f81LDiGnZpump",
+        "B5RMggYagf8A77GnX82HfvE57fVQqCmGPZWvcbw8pump",
+        "EV3wbTo13C6xkTshUZaH3LJeStYgiKR7mY8B7am6pump",
+        "4kdU5fKaRb3ZDP84vAm2N8PY2Bq3PBtT5NkgzfAnpump",
+        "AVKQT851Cn3i1K5wDQsBfomYkiqdciqPE2bhZ5Egpump",
+        "31TBAGQ4cydajbZYCqvuyA9SqmKV7zvtdmohkLAJpump",
+        "AgySAfBHSjaqvgzBWqQfw52EQVEy6Ns7ehHwqWDdpump",
+        "4Qvcp6WUmtxMp7WttkexnkvCi4ingwNVXoNGCea2pump",
+        "5fB8j8FDPfgHDtVSub6qEN77g1g5KoEMcFtQPmyrpump",
+        "EEJyQtPkJt95ayvM2hVV5xe2yC2eRPxh6DzwBhPdpump",
+        "3oXS3fySUBHjanN3EAPb7Mf5tSYoEb9P64EFjNbGpump",
+        "7MhgNYMLYbFqkL1CikXTvMFbC6wbwKJq41mq6DPbpump",
+        "DPxk9o57vZPpSBHrTF1DaTWMV6vziQq3zN36EY8kpump",
+        "2UJ8DeZiuVdGFR8226sQ8ezHWhzpbSwyAf4xQ1PPpump",
+        "DNrdAqfcj4ZaiYCkPYZ5t7eEtxRZgqy41hQuGgpKpump",
+        "G5jV5wtNvUais1iaRnJsuRa8Q2DCubcaZ1Ftjxaapump",
+        "4nEHzcnm2jrnEPSfbp9Ex3ge2BbYZYRFuzoFrPCRpump",
+        "GJziw7YtsrxqLLmH9ntfJHcFkvtFc9zK5JHf2T2Ppump",
+        "HLD7wcQciQxbUFLi5rVJ26WVkFQEksBkt3MxZSERpump",
+        "CsVBNQijeDY28yG4GLkeGE5p3Nic1BPv5M4mX6wTpump",
+        "Tp9oSiVHasHgKcHoV723krRmnWvvewap97cnsjWpump",
+        "4AtayUU6mSoEWWNeJbtc21fYLPArvpUBYebpkDXBpump",
+        "CShtC5BK4PzpMgH7oKZNtULqyu78ssBaByZhpLJHpump",
+        "G6iuKxHsQ5L4ak5SfkdMurDyGbaQMRetrwio31NXpump",
+        "GW7oTjyMfjdS91akDWVre4KQNmnD3ckZeSti74BDpump",
+        "9Bg16jZHJS2ypdMzfhSwpfqgr5mbSfh86sU7mWddpump",
+        "GRaDw88ScWtEH53nYXW1QYko5pNX8qrhgQLNz1vtpump",
+        "8JkwcwMwuxkYYFjL3QB6iMnMgsWjgMP6acS5axnRpump",
+        "wzjjr5TW1pxTpi1Dk5VS12oxSFhYncp68RXxe81pump",
+        "6b6TPYY54JaKztDha5yVZC6x6P7PKbK27jbyeFJRpump",
+        "9Hb1BLjhD7pQFGA8Cbz2kpYs5ijxVrLoPQf9Ey12pump",
+        "2KUandNPdhonJCkTzEWkciq4mN9hsUJUmKtZhNZ1pump",
+        "2GbQAYkdQUpgpZmSvedCPvDVfhHL6TAZfe8FtxNNpump",
+        "6tNfHSjsXweAxh7zxocLdskziAuvwChvEDKU3oYzpump",
+        "2MAev5HgRE1jx3v1hrpsreG1XursUkdmC7VBMZEspump",
+        "63n3utZFV3XykM5THqq7SXvay7Dex1oZMWkwV6j3pump",
+        "7nd3XqSSYS3bUmxbj3ykUuFwRAf8kRgM1oBZB6xjpump",
+        "EhHJSjF7EzHognd9DwjUJAMtFpEudjMoXZcZgbyBpump",
+        "3nhip2jg7nCYj2Y2WdmLyMkbxnKUCibp1XmJKrBNpump",
+        "3UbRRV1m62dfPzJz19nGk31Aw3ZBPBGwod3KZvSXpump",
+        "4cWuTWnUUK1TcNgGCLu2kq4XRBLbokQJbqXkhd5Wpump",
+        "AWRzDWGg2D3qcgHiPYnbUW7hVHQWDE3ePimfuzaGpump",
+        "ALryq6MuYTt6nXEsXFTUFXbdburCPpe7uhi941Pmpump",
+        "8HxzrtZDEKYc8zGTAHMAW1sB45diK8YXRfM5UndSpump",
+        "94WDg1ADhs1Te5Z3CdVrgShgmeppFKE3QLWNYUP2pump",
+        "Hhi32rdSGcqkeggbFnkZcSmqt3n4RyYxAFYBbVjDpump",
+        "Av2KSwkP4RH5zkUzDL51NyWmsLsEpGZ2GEW8CU8Vpump",
+        "2qYek7Z5UUosvs4F8RqbTPJMEZHMpHussXaU7bvNpump",
+        "2hFwasSw8pzaX5TXLd2M3xiU6nvZjSYaEJcgvqfRpump",
+        "CXhGXSQE4sXDH1YdxThQVq3oN8tUSDz7zLet2Em5pump",
+        "DeiQTbmVQ4u9vuPNJHV6C9NJ5DT4HNw5PsGcKrp2pump",
+        "9XdvTDzrXmnaDHiC2w7H7iqkMe3smaZHhHDjCMEkpump",
+        "7RvESRnwVdJK5BeJjzEysCFmp15ShYAotwr8wZ75pump",
+        "3aSJABF75PfXpkPVsQtZqpW2jm4NajjQsuziPKQXpump",
+        "A7mTBXj5J4D92BkTVQEzbF4d7gvbEPFbotgmjad9pump",
+        "4qnhhZAyj85ETHXJxmndyCyVtFkWQ3FbLhJQryVapump",
+        "216khC5czWce344BXeUYf2e8zz2sUMyTkQ1UdLorpump",
+        "9w3CKbRXT1bSdu6wmUiwPAwt6J5KHK2GAK5kCusspump",
+        "GatGP4jT91irAoFbSzLdXnCietkvbg2HDEDXTeNKpump",
+        "DjWDHAKtZhkWmDPwsuCraMcY88VKMV6S4mZE9bMxpump",
+        "9XQY27MwxB8BugAte6MfbdDWeazSbKhH2PGdWUR5pump",
+        "AQCAF9kCm5myNjg2XuJxrQVrYrLmTRwgKw4oTbydpump",
+        "DTdDsWkaXimkyMQgr6mKTiTfsuFQBM6dHS478N6Apump",
+        "8aCLZyDWjB4ZqpSHQu5Tqum3SzNQFCLoZrgKgpFZpump",
+        "BZ8k8ospJiz2r98h6GC8ZtGAvPaHTi8GjxZQr88npump"
+      ],
+      "percentage_of_evaluable": 68.0,
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "role_structure": {
+        "close_authority_role": "UNAVAILABLE",
+        "close_destination_role": "CREATOR",
+        "fee_payer_role": "CREATE_SOURCE",
+        "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+        "temporary_account_owner_role": "CLOSE_OWNER"
+      }
+    },
+    {
+      "amount_structure": {
+        "creation_deposit_lamports": [
+          123039280
+        ],
+        "ordered_transfer_lamports": []
+      },
+      "architecture_id": "WT_ARCH_02",
+      "earliest_occurrence": 1784669929,
+      "instruction_structure": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "latest_occurrence": 1786379250,
+      "launch_count": 15,
+      "members": [
+        "2bFc6R3Wr8e9frH5BDNHoD3vcLQk1DBQzUkrSdADpump",
+        "3qc4StQhMtbrCD74umCsC2X1sGwZTy8dq1QqnwHmpump",
+        "9QRxnG9CkEE47ghdG8Jhbx9aoGCVw3woBM9Rdrv9pump",
+        "FqG8PWuoj1zeXVG1i13fZSaBhqfNTcVcRfAFvGkqpump",
+        "GeUtuRJFSdzceWbwC8rC6idbDRUmyxuFDBQxAxB2pump",
+        "DEB716JxwWmb2XmEJkEBoxm1SFYGg6g9Fg8rPCHepump",
+        "FJ6XzNmeFtcKfbLMfQDkeyAVwEnyyhLW87DGdi4Qpump",
+        "Gtxz1uCBCRn9edK1eXpnqbqv3PRcdjkS9JLuXn99pump",
+        "HdNzQja3sHeGv6dbXc2uff87NFBPZBephDaJwkBNpump",
+        "EVzdJv1kRnGem8xuTNiTnDW6BeJSUfH3gJ8oS3Xjpump",
+        "9ghptGzBCRiHe3eMvjkBqrHE8oodbVZjD1BYzqLdpump",
+        "T4jnL2TRXLfD7KUXxyLLrgGBpCauX1cMHVMpHSXpump",
+        "GuXiRMUJSSRGUqe4BZGPokxBUg4EDZfoH5EBt7hopump",
+        "EaHKRd62bxJBP6VMwoeWLy1uYKkwSX92ux2gQ7JBpump",
+        "AwY8BPDdrn8P8RzJdPVpc88XR4nPzcpXzeiqwMJEpump"
+      ],
+      "percentage_of_evaluable": 12.0,
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "role_structure": {
+        "close_authority_role": "UNAVAILABLE",
+        "close_destination_role": "CREATOR",
+        "fee_payer_role": "CREATE_SOURCE",
+        "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+        "temporary_account_owner_role": "CLOSE_OWNER"
+      }
+    },
+    {
+      "amount_structure": {
+        "creation_deposit_lamports": [
+          112139280
+        ],
+        "ordered_transfer_lamports": []
+      },
+      "architecture_id": "WT_ARCH_03",
+      "earliest_occurrence": 1784670469,
+      "instruction_structure": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "latest_occurrence": 1785110807,
+      "launch_count": 8,
+      "members": [
+        "2HBTVUsaorJ1axpMxkqBv1c85nyXp34GFMnrSA2ipump",
+        "2Sp8jLCaPF4GsS4NiBiAhiPVLtYttozEn49SVZm3pump",
+        "Qs3Zkx6PBTSATurFNwkGJHBk8yjKRekUS6o5oRZpump",
+        "FNS1uTEXGCCZXYzGgzemxsFxjDowGbLpmAJ1Ehdupump",
+        "Fyj27HvNPeYXktGa9ifAvwmFnhxNkUr3yUCciZ6jpump",
+        "Fu5TWyRRYcxA3X46VmWBpvkQsFtPiqMj5QFLYgH9pump",
+        "9322oFgMN66r7EyuEn4Vh5khU7mJaN8gpUgUCmWnpump",
+        "3MHZzkmgxguPpq7RRzczjzLRDaJwcyGtyFUgbXMEpump"
+      ],
+      "percentage_of_evaluable": 6.4,
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "role_structure": {
+        "close_authority_role": "UNAVAILABLE",
+        "close_destination_role": "CREATOR",
+        "fee_payer_role": "CREATE_SOURCE",
+        "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+        "temporary_account_owner_role": "CLOSE_OWNER"
+      }
+    },
+    {
+      "amount_structure": {
+        "creation_deposit_lamports": [
+          233339280
+        ],
+        "ordered_transfer_lamports": []
+      },
+      "architecture_id": "WT_ARCH_04",
+      "earliest_occurrence": 1784784354,
+      "instruction_structure": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "latest_occurrence": 1784978876,
+      "launch_count": 6,
+      "members": [
+        "GTP5PX2pUpwdGV17KnugQh8yQENz1FcVzrjcwvYxpump",
+        "qnPzgfxz41em1i8jK2g8pgs1ejuntoSxLf1mDUgpump",
+        "5saAXYWpQvMB5MLi1xUBUTWz2DFBb65fbNJx7kEXpump",
+        "7Cj9EczteUsSu1vgPXoLdVcxLqpCWwyYWn8kgwDwpump",
+        "4tr1bN3B7szr6ZgxXYJKhCooP9HPNS4nCwzK47hupump",
+        "69AcrB5P8pn5rzMvWKuNngvJ5K9QiNts7TpCUuFJpump"
+      ],
+      "percentage_of_evaluable": 4.8,
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "role_structure": {
+        "close_authority_role": "UNAVAILABLE",
+        "close_destination_role": "CREATOR",
+        "fee_payer_role": "CREATE_SOURCE",
+        "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+        "temporary_account_owner_role": "CLOSE_OWNER"
+      }
+    },
+    {
+      "amount_structure": {
+        "creation_deposit_lamports": [
+          2122039280
+        ],
+        "ordered_transfer_lamports": []
+      },
+      "architecture_id": "WT_ARCH_05",
+      "earliest_occurrence": 1787667150,
+      "instruction_structure": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "latest_occurrence": 1787682757,
+      "launch_count": 5,
+      "members": [
+        "EyomCvLAhDB5qHQWYAAcv83Z6ZUKaUFkjWwBcePupump",
+        "9orRZbVL3zontHSVC92p9LSUTdCFbYtqCdSDdKPpump",
+        "77h2fNcZspf4rvak7A8x8ozbJj8wCcbLQUxYS7ffpump",
+        "3478WdM3ebwCMe14UF9K8tpDsJJMHGkt8iQVjaLfpump",
+        "GShWswpuW27nadAacS1mMEhxvrYe9Db2QpfK7Hwrpump"
+      ],
+      "percentage_of_evaluable": 4.0,
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "role_structure": {
+        "close_authority_role": "UNAVAILABLE",
+        "close_destination_role": "DISTINCT_OTHER",
+        "fee_payer_role": "CREATE_SOURCE",
+        "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+        "temporary_account_owner_role": "CLOSE_OWNER"
+      }
+    },
+    {
+      "amount_structure": {
+        "creation_deposit_lamports": [
+          253539280
+        ],
+        "ordered_transfer_lamports": []
+      },
+      "architecture_id": "WT_ARCH_06",
+      "earliest_occurrence": 1784665832,
+      "instruction_structure": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "latest_occurrence": 1784730873,
+      "launch_count": 2,
+      "members": [
+        "5KtNnnPt7xM8DtTjFDRuVvw3gpfCwvBGH4V7xZAGpump",
+        "3FiN2FHTKheZUE7njYhsZob1rUoURHK3QTfRpWNFpump"
+      ],
+      "percentage_of_evaluable": 1.6,
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "role_structure": {
+        "close_authority_role": "UNAVAILABLE",
+        "close_destination_role": "CREATOR",
+        "fee_payer_role": "CREATE_SOURCE",
+        "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+        "temporary_account_owner_role": "CLOSE_OWNER"
+      }
+    },
+    {
+      "amount_structure": {
+        "creation_deposit_lamports": [
+          2039280
+        ],
+        "ordered_transfer_lamports": [
+          1112039280,
+          1110000000
+        ]
+      },
+      "architecture_id": "WT_ARCH_07",
+      "earliest_occurrence": 1784642576,
+      "instruction_structure": [
+        "transfer",
+        "createIdempotent",
+        "getAccountDataSize",
+        "createAccount",
+        "initializeImmutableOwner",
+        "initializeAccount3",
+        "transfer",
+        "syncNative",
+        "closeAccount"
+      ],
+      "latest_occurrence": 1784642576,
+      "launch_count": 1,
+      "members": [
+        "65kXV5tUz6wEaC6rP4QqMxN6MssWTs1J56NqeHvNpump"
+      ],
+      "percentage_of_evaluable": 0.8,
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "role_structure": {
+        "close_authority_role": "UNAVAILABLE",
+        "close_destination_role": "CREATOR",
+        "fee_payer_role": "OTHER",
+        "funding_source_role": "TEMP_OWNER",
+        "temporary_account_owner_role": "CLOSE_OWNER"
+      }
+    },
+    {
+      "amount_structure": {
+        "creation_deposit_lamports": [
+          203039280
+        ],
+        "ordered_transfer_lamports": []
+      },
+      "architecture_id": "WT_ARCH_08",
+      "earliest_occurrence": 1785076014,
+      "instruction_structure": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "latest_occurrence": 1785076014,
+      "launch_count": 1,
+      "members": [
+        "9AX92xMkM5Z26nQzmJfb5wRZsLSs4n4fTJxMNom2pump"
+      ],
+      "percentage_of_evaluable": 0.8,
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "role_structure": {
+        "close_authority_role": "UNAVAILABLE",
+        "close_destination_role": "CREATOR",
+        "fee_payer_role": "CREATE_SOURCE",
+        "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+        "temporary_account_owner_role": "CLOSE_OWNER"
+      }
+    },
+    {
+      "amount_structure": {
+        "creation_deposit_lamports": [
+          213139280
+        ],
+        "ordered_transfer_lamports": []
+      },
+      "architecture_id": "WT_ARCH_09",
+      "earliest_occurrence": 1784945567,
+      "instruction_structure": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "latest_occurrence": 1784945567,
+      "launch_count": 1,
+      "members": [
+        "CjA1dq97veyqr2h9VQVzT1fnu3keVQjWYjtH3BbDpump"
+      ],
+      "percentage_of_evaluable": 0.8,
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "role_structure": {
+        "close_authority_role": "UNAVAILABLE",
+        "close_destination_role": "CREATOR",
+        "fee_payer_role": "CREATE_SOURCE",
+        "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+        "temporary_account_owner_role": "CLOSE_OWNER"
+      }
+    },
+    {
+      "amount_structure": {
+        "creation_deposit_lamports": [
+          263639280
+        ],
+        "ordered_transfer_lamports": []
+      },
+      "architecture_id": "WT_ARCH_10",
+      "earliest_occurrence": 1784667323,
+      "instruction_structure": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "latest_occurrence": 1784667323,
+      "launch_count": 1,
+      "members": [
+        "EnEgmM4Eb6x6uoWZgFtffGJTJc27bDxBR5pmqKDWpump"
+      ],
+      "percentage_of_evaluable": 0.8,
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "role_structure": {
+        "close_authority_role": "UNAVAILABLE",
+        "close_destination_role": "CREATOR",
+        "fee_payer_role": "CREATE_SOURCE",
+        "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+        "temporary_account_owner_role": "CLOSE_OWNER"
+      }
+    }
+  ],
+  "generated_at": 1787989473,
+  "leviathan_comparison": {
+    "LEVIATHAN_WATCHTOWER_EXACT_ARCHITECTURE_COLLISIONS": 0,
+    "LEVIATHAN_WATCHTOWER_FUNDING_ARCHITECTURE_SEPARATION": "STRONG",
+    "established_lifecycle": {
+      "close_account": true,
+      "close_destination": "DISTINCT_LAUNCH_ASSOCIATED",
+      "create_method": "createAccountWithSeed",
+      "creation_deposit_lamports": 2039280,
+      "same_temporary_account_continuity": true,
+      "separate_transfer_lamports": 99997955720,
+      "source_equals_owner": true,
+      "sync_native": true
+    }
+  },
+  "mechanism_counts": {
+    "WATCHTOWER_OTHER": 0,
+    "WATCHTOWER_PLAIN_XFER": 0,
+    "WATCHTOWER_WSOL_WRAP_CLOSE": 125
+  },
+  "records": [
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "38YEpU7wyRf1hXra7tD9ZfVXhV2QCwRbbitfFD1GcTtFvcf2RUxwMxaVGnQaDYSVeSgY2T6TsVBzgXyZPVh7j9Np",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787611836,
+      "mint": "24rX1SutpnUTcDpYLdE6Bg2aK16m2kWYrdyKTfuFpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "2jAgQUAJRqkcTCNCfBpHgr1P56Ctf1Q5fYAD6uJUY2b7rFaATiX4SiLdvEMiUPEgzb3xMQaP7pPUW1FhxtMTfjNJ",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787638169,
+      "mint": "2nHZVubjJU144poGfjbiB97tv7CJtvJycvDdYvSxpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "2cTtz3XZm1GZhzfmHtqpScmq7JaEqi9yKF1Qv5gjSTgVZdJYX7iQxqVPhftJSB4Kt3eoaqQNzYJb2E1vkvsCSgDy",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787630542,
+      "mint": "3jfTYj6cNtSepPd29NjNQTWaWXPEm8vjnXR8Bzj9pump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "2sAzj5xJc8E6Nhd9vpPeZvLP12ZyD3CQN6uw13TJVDp9ibHWjiqSVJWvYJ86uRCsUJdUFuD5HNVsMNFdGfRpkkLD",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787585843,
+      "mint": "3zYhdcR9XeNKgFj2SYeKs2kGKrdduHSf7Y4iRJQZpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "VbUb3etDt5VKxEMRrEJfiByjDNnCppyW3c5dhtMRuw1bsD2QQLZh1raYLsbRJSRvGEaRfii4h81yGzDjuPQ1JZt",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787634227,
+      "mint": "5xrGXVNZjdyuGerGcLuGqk5tg38BG3eK5kTcF8QGpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "5jWxk7U8bF8hjYfXVPFmzrcGEqoCJjGHt4jzF2coiirekEL9zBeeuuyefevkkGY678V541g3GLrUgL4zfj51GCvU",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787573534,
+      "mint": "7KD8NNW93eh7mBdh8zRce6B3fS5bLoFamyz9Qormpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "58rDy8JCAKS7XRsJpPYeBeUb6TgZRh2WgvJnwSt3UU99SnCyfiWwcCstDp6uGZDXwnDzr9yHSUYaBTdkqyJrz2dc",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787649860,
+      "mint": "7xpKxK2ktFXtPLQBAPcaLp71a5CU1UdvyfgQ3dWJpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "5eMTa2aNbtyM9G5gUh1Cej9DoydH96HSVWuVj411FzfXveo4kpLeMNbK5X3GEXi7e5qssRc8k1o8UevYxB9SeSvm",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787618913,
+      "mint": "8JVTevQEykfpiT2kKX1DanzfajPVskPSBmqLqvEjpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "2ztnZ7P1A1Ygqhpzy2HQbUhRZhQWcYvKJcoJiYPDcBQVbCo81BjeLHyM3iXKWjPabswZH2sVX4oqr8ZcD21nEduM",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787647770,
+      "mint": "91yLYAgwX5dYx7d3YNVGRRC69gpCKc1dg7wkxtqMpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "4xJvU2gq7TTV9o8VNy8iGXxPXMxkyAbH7w53bMkAn8nFUHvQU3G7S3ES7v6xSxW4BHU3kQXMPt3i2K3gKVYATgRc",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787620486,
+      "mint": "AcVN6TpjNWcj4LirgNdNEjM71j2B2KyAzC1cpTCMpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "3HaMoyz4BQniL52XxJF331VwRu7uwCynMQSq2c1tCqQhhGjKu5w5j17UFFJXFz6Lse8Ja9kC3Cavzf6ssav7bT1",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787564968,
+      "mint": "C88xj9onk6JCStA8HQwqj8TeU2k6E3sP5Ji8RKMqpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "2BxC7u3mN8Ft2Lb9bybKhDwvxv5TVyzq9jBhBGr3kQsS6SZHLcNCE3KNdikxR59TJHXLdENtSwZd4Wc9Awo1uJb9",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787642703,
+      "mint": "EZW4pq5vMqkk8v6x56XDsNqn665GoRg3z7dknq6opump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "4fKGUp2PjxraDiSmyTVdQiE48K1CMBFLKzcTb1vV2WmAtSc2KNg7WKFRi9zmjZudGESSFd37unh3qcmb23ZyKH7M",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787585202,
+      "mint": "HBDkJT9kMc12usUrcZDpWyfr7kvTTEfvbeyofL1gpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "2bGwXV4UqxW9aZA3FrRUmGj4LZpkDJoXihNBD13sxxS4aAUbrW4JSVQ3ZJVKwdLpj4Ht6C8UpHV918WGyCX24MYq",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787636882,
+      "mint": "HZgqRhopNn2C3KmN9KgvjoTmtnczXFDCcGLnidojpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 1112039280,
+      "create_methods": [
+        "createAccount"
+      ],
+      "creation_deposit_lamports": [
+        2039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "OTHER",
+      "funding_signature": "2oTqrq32QWUowmKdr53Qg7xXCwziGoViAvG7CSMfLCzM8poVPAxFrZhUZLBviisMPohFaUsXApEsXvxsgu5Z1r5v",
+      "funding_source_role": "TEMP_OWNER",
+      "instruction_sequence": [
+        "transfer",
+        "createIdempotent",
+        "getAccountDataSize",
+        "createAccount",
+        "initializeImmutableOwner",
+        "initializeAccount3",
+        "transfer",
+        "syncNative",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784642576,
+      "mint": "65kXV5tUz6wEaC6rP4QqMxN6MssWTs1J56NqeHvNpump",
+      "ordered_transfer_lamports": [
+        1112039280,
+        1110000000
+      ],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 2,
+      "signature_source": "REGISTRY",
+      "sync_native": true,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 253539280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        253539280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "H8x5bTD6bx8ddWnuKm7G6eLzAPDYj7PdRU4jXAkHQqffS8uBup55S5PXno7PDV3of3dn41wL9wG9hf8qVtRWt5B",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784665832,
+      "mint": "5KtNnnPt7xM8DtTjFDRuVvw3gpfCwvBGH4V7xZAGpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 263639280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        263639280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "4bxYAPmKCNCiyf5UbWpQgZr6yE11Jp6y95NCKpvTFcjgNnaq8Cz7Z1SmaoCHmqJh3VjaHMPgyAkvQzzykketDquC",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784667323,
+      "mint": "EnEgmM4Eb6x6uoWZgFtffGJTJc27bDxBR5pmqKDWpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 123039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        123039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "Mo2tNamn8bzpN15x1WFVtnj1KnQVpbN9eGnd6WS25v6VNtJZz1VzKZQsaZqipZYexhCLdCfLtcUa1pQjigWC47W",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784669929,
+      "mint": "2bFc6R3Wr8e9frH5BDNHoD3vcLQk1DBQzUkrSdADpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 112139280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        112139280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "2yURPaSzon6QECYnH2gav1GfavdSzMrsuc8zRqhRCFcinDqyCsKR1aCWDshke9SMRfkTwfMgAyJexbpDi4Y89ora",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784670469,
+      "mint": "2HBTVUsaorJ1axpMxkqBv1c85nyXp34GFMnrSA2ipump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 123039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        123039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "5jBmLXxago8CmhuHRqChZ7Q2WtH7WvmxjWuoqJqVWruPUaD6NdoLAJt7Boadajp56zujRe5MMDksdLF5VVz94jaM",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784718252,
+      "mint": "3qc4StQhMtbrCD74umCsC2X1sGwZTy8dq1QqnwHmpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "36xo42tfhuwRcpbt5in3dP4YyYLfWHP6vVyWSK2yph6dFxdNtAvb1FwNqrg4hW2jVoVKw6dMhg7YQ4rzYXzcgBb7",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784721188,
+      "mint": "89qcc8eGRUeWNjD9zu7XYjpgDKEXFWFAHyHD2mRGpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "4T1k1baQXndZ5qHbmPCAzxMvGgaAKqAk1KF5dWAGiXkPnmuTPShvawb3GmPPzF2WyzyG6rQAM5j9yiR9W8zKxde2",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784729142,
+      "mint": "A4LETVGg8u5GB2jLbkfgtHc4G1TMf8e34yi2QX1Lpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 253539280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        253539280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "21cXwREMCiTjtUreokfyUPbUva6RQYCpLxZfcQB4heKtjcv9X9Q1b4MJBKLU9JDWgtgKzsLYDhErHEYkaVXWGnQG",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784730873,
+      "mint": "3FiN2FHTKheZUE7njYhsZob1rUoURHK3QTfRpWNFpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 112139280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        112139280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "4mjsbqopd13E1xEKXtKo6UD4xhFj4eKMjATeXismHEvamXB7vqN2Jis3doFhtUXSGtdFKUDTU9355viJvqQeFtsa",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784731731,
+      "mint": "2Sp8jLCaPF4GsS4NiBiAhiPVLtYttozEn49SVZm3pump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 112139280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        112139280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "8MU95EAbL8Ko1op85LX9hgp2vHa3iWhBgub3muoCUWf9yYf473MpTQxSn9uAbERqnV3xwxZHx7avcRZfR5ovgq7",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784739959,
+      "mint": "Qs3Zkx6PBTSATurFNwkGJHBk8yjKRekUS6o5oRZpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 233339280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        233339280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "3Xcf8SDFPVdk59y6AddwjK7361JKumGrgacdE3LhoVxaskJtoam2tbN1RWwb1Do2bnkfAdwFx68egUcx8Vdc1xvN",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784784354,
+      "mint": "GTP5PX2pUpwdGV17KnugQh8yQENz1FcVzrjcwvYxpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 233339280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        233339280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "4nJPeZJoDoUuQbC5SdSo1mV5rvknNrMZWwEy5PY7b8L7hQuyZgphZV96nf2Eg2gkGtsquYKNsF1D9rCwTYECFokE",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784801133,
+      "mint": "qnPzgfxz41em1i8jK2g8pgs1ejuntoSxLf1mDUgpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 123039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        123039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "3J9KTr2F2sZhojtPAxAEoF3phhDh43hTazwa3SyFfindGcSQA9Np17E9pD3GkjsiVWDTriGFHycyHF1ncqys3aLm",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784814702,
+      "mint": "9QRxnG9CkEE47ghdG8Jhbx9aoGCVw3woBM9Rdrv9pump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "3wrhXKFwqz9nACH7F8SiE691ZoktzwE6jPM7ShwH6V2Gn3EyLaHdS9D1yK1taEDu6B8zoacJAPEti128C54R67GV",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784822619,
+      "mint": "71PGedbfS1HDiBiKVfdeeHdEC8w7NfqG8UwDBxaupump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 112139280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        112139280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "3PWaq25mjW2r2YjzATbQWZUjworAskKa4LjMmHcjr7Ym5jSwDwJG1BsBWy7tQjbV76wPFSHE8kjc235AVZdJStBf",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784832546,
+      "mint": "FNS1uTEXGCCZXYzGgzemxsFxjDowGbLpmAJ1Ehdupump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "4JJf6KDn64o1JU7P9DyJESF7HSkg7nRSMzrG8KUrdPEQcjjTH9tFH1Rpsqct5PypqPrnydnSnmWccVea4cuBEKzg",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784838415,
+      "mint": "AUk4rL7aCKxFit8LVivMLnYo5Basr8N5wqNokKmBpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "4gerBDWRXFKViUJ3UqskZzaVf8WqqSfaVdvSdYMwsHbc6TDmv4pfeKEZjyP13ZLYQjztk5K24NqTUEvrdxUDd15Z",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784840879,
+      "mint": "3zK5g1qZy2MEhAy3J5JJExUgwfSAp2j4hgqVkh1Zpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 123039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        123039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "2tXhCuHmyWCDFMvRG1iuQCq34Z2bgPuGi4TZLmXTY2U63t3JK6NL2sC2wFCcfCfYiNzcnyXturNc9gi9MnuRkhZq",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784861892,
+      "mint": "FqG8PWuoj1zeXVG1i13fZSaBhqfNTcVcRfAFvGkqpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 123039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        123039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "3RdfSbV1QsXmJbR6B9rnxkLzRU2uaZFU6EJUsGCTBTRcJAsyE4mEACmFRPGdgH1KfSeMtutRYKi2yZRACkR4QsE4",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784866340,
+      "mint": "GeUtuRJFSdzceWbwC8rC6idbDRUmyxuFDBQxAxB2pump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 233339280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        233339280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "2q5krcD1fJxjzPoJ7H44n3JKpviMRys8RZj8RNV5H2NAfMyDQztfLKajAwLuxcXytstRsWzXwY32dMYvv8w9py2G",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784871072,
+      "mint": "5saAXYWpQvMB5MLi1xUBUTWz2DFBb65fbNJx7kEXpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 233339280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        233339280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "5RGjqAYhaqnq3ejuMxoNR7dtzRVY8CRff1mwJ3KHpyPUJfsweKyCFxUUaZH8TKCzvh97UdZv6BMBQLxtAWrzbjyh",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784890150,
+      "mint": "7Cj9EczteUsSu1vgPXoLdVcxLqpCWwyYWn8kgwDwpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 123039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        123039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "5QF4ZN9pXdxxddzpTcawAqzfoPZXGpx9dL9yAWza5Zdhe5mwAYNFBBzDgstJpQ2u7mogXD6be5vNgqPSjdXxEkk3",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784900647,
+      "mint": "DEB716JxwWmb2XmEJkEBoxm1SFYGg6g9Fg8rPCHepump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 112139280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        112139280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "5FGxyfLgze6r3o8tsCFoPD6QrHy9abXWoLudFUrxEwnRJiYonaAGBFrq5gyTHZDvSAsKA6TUwgm1yRZ1J2DJE2Gn",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784904124,
+      "mint": "Fyj27HvNPeYXktGa9ifAvwmFnhxNkUr3yUCciZ6jpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 123039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        123039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "5Jfr32vd1emdMHuuUs5FH6nKe9ay9qiLxgEvyxGE6L9CmseJi6MzW7SzQfzNxbviDpo77gEwPq3BBsYGz4Ew6MMe",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784915508,
+      "mint": "FJ6XzNmeFtcKfbLMfQDkeyAVwEnyyhLW87DGdi4Qpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "5fV2ZkRAiPjQUwK4XMMqhh23TyZUdHvtkCnqgQG7ZDuftjmXZ3z423bPcUQaH8v1JcnHgGRwzno2RrzoZe46P7L4",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784922649,
+      "mint": "Cwbyy3TgHSTY5z8Xk3UQQmLGq7E51MX74JFfb4N1pump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 123039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        123039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "35etbwXeZPPBQnGuGVaKSeL4Sk6E6fKsrTpKNZfa9tT357aqy8BQXhhqtgUxbncL4Hg6Foj6p4aH9GvuiY3Dx2mD",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784924458,
+      "mint": "Gtxz1uCBCRn9edK1eXpnqbqv3PRcdjkS9JLuXn99pump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 123039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        123039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "2a34RpYjYZLcQvv5gEa9U2xMD9yyKuTQqWGP3ar3x73hGk5RDD89gdWqY25iRsMeqiYUkCJGTZWBdeHw5hNVRbtK",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784939988,
+      "mint": "HdNzQja3sHeGv6dbXc2uff87NFBPZBephDaJwkBNpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "sFxfgK3v7ivSYgZXic5wgmABqHGfSE8BXSTWJpEE9MqPaQJULyPVc9Bj8prLG5MTPTh4FbACoizbeXizgYxgvZg",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784940543,
+      "mint": "87JaVR1WSBjME37Ef1Fp5bzrK1vwe59f81LDiGnZpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 213139280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        213139280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "QHCcsMXqjSindbfuGgYRQNXGexzBhzzUB82JRiN4CWuCogipZPAJoPRHhbZmtHEjMuUBbosKKdZyhP8gXEevyGJ",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784945567,
+      "mint": "CjA1dq97veyqr2h9VQVzT1fnu3keVQjWYjtH3BbDpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 233339280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        233339280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "4c2x4Pvq2LxRHVLA9aSkmfArXmsum7tqQuvu3363WmvMQEJKpGSH7V2WFDqDdfNGsrUfeszETj4DEGivt75kRYfW",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784967382,
+      "mint": "4tr1bN3B7szr6ZgxXYJKhCooP9HPNS4nCwzK47hupump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "5oZHukTN8dViwMC2EeTBiyrJWJ2wYJkESKuPccDdPKu3VoVofTZTxc6srbW4Yp559cgd2pZTSv4B211A6665gJ7N",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784967572,
+      "mint": "B5RMggYagf8A77GnX82HfvE57fVQqCmGPZWvcbw8pump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 233339280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        233339280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "HmPd5FJg77KfqNEe5DvmoNaPCnzBLYNYa4hZ4wcMrEKe3eVvMmcebXSW84JcBN1iSJ94H9zAceyrsMkgda3eyAG",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1784978876,
+      "mint": "69AcrB5P8pn5rzMvWKuNngvJ5K9QiNts7TpCUuFJpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 112139280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        112139280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "nbZEs1FZoJXUvjUT96paZwU3eZ28hkXxz4atKP6K2bAZh6U2LSjATW6q4UdoTk5MwsTBcD35dQfVJwxvNZqc7kx",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1785002177,
+      "mint": "Fu5TWyRRYcxA3X46VmWBpvkQsFtPiqMj5QFLYgH9pump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 123039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        123039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "2dzPFCWNSdwTqRjTeKnM7CquBXGTnf9vVtiz7QKPn7KemdVdAUv3iCPTBXUkUj7NLRZgrR8yNh7Z2UbB1wFF9UXE",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1785027771,
+      "mint": "EVzdJv1kRnGem8xuTNiTnDW6BeJSUfH3gJ8oS3Xjpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 123039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        123039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "YHWZA6ZSQanzAimapdq5dgVRxzwvkETCaQq2NFqEFEtdXGkAt4pfkGGcJftoNJrDi297fDwhibvX8of2X5S7gVz",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1785033181,
+      "mint": "9ghptGzBCRiHe3eMvjkBqrHE8oodbVZjD1BYzqLdpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 203039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        203039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "9KM3ZxMykKhNkCpZxeMnF7PsT1odebrjEWMhnHekikVExcorm8ZvnzQBnRVdUf4kurnVUL2w774jBE7Z4z1u6XF",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1785076014,
+      "mint": "9AX92xMkM5Z26nQzmJfb5wRZsLSs4n4fTJxMNom2pump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 123039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        123039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "29tamF76bAaeqwt8DhXrbUwa3EQ4jNcG3L5tCLgA3S4oYnPVUZDKWbxwawqs8oXLonYy3hzyuRZfcecczAh38rdB",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1785081443,
+      "mint": "T4jnL2TRXLfD7KUXxyLLrgGBpCauX1cMHVMpHSXpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 123039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        123039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "5YeqHUWSQUYaLVHubgYqksdsuSuVwcBBBYvCszkj4BFYMVcCU1mmPYmQK7dEfcLaLJU8gAz64deKgJ62tPewKs8a",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1785085127,
+      "mint": "GuXiRMUJSSRGUqe4BZGPokxBUg4EDZfoH5EBt7hopump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 112139280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        112139280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "3AEBJQ7Ecp3ksp6ggHSFX7gFcZmRqGi3wiWGAj7RCwWbAXYXoVHZSSQJaCcTefgSP2FtdQEvnQU3YS7FRgK15X1r",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1785093155,
+      "mint": "9322oFgMN66r7EyuEn4Vh5khU7mJaN8gpUgUCmWnpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "d1yrmmph9UUpTsoBM6BQ2u536ZPHhgUG14bHdekGBxa4hKNZ5bmGdpw1YVg4JCtMTusMcG3uUJBn8xewZiMtSCf",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1785099917,
+      "mint": "EV3wbTo13C6xkTshUZaH3LJeStYgiKR7mY8B7am6pump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 112139280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        112139280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "1UkACp8Nf32DsUZRMWWXia7tQYsAfwAUc9pLZ2k9pX5vcxtyv52dGBySpUxbw4jD8pq6eUux2VAmcZgqZXoWY7Z",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1785110807,
+      "mint": "3MHZzkmgxguPpq7RRzczjzLRDaJwcyGtyFUgbXMEpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 123039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        123039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "3xzLx2W3HKzjUjoV1WNgQDTuxyaVGAL6m7cpoTL8j16JTv92Jn4FrTQz3GufogbiJtThmBNoMfzUkyRZsdAAA8eF",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1785132103,
+      "mint": "EaHKRd62bxJBP6VMwoeWLy1uYKkwSX92ux2gQ7JBpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 123039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        123039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "4jC9vBo3juh7nNkDzfDKFLSfNJc1uDe9GKaSxinTsSGJ8cpmepJ4fmyMP9pH6zcMuuVbTzEc5nra1pZNmCoCAAUE",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1786379250,
+      "mint": "AwY8BPDdrn8P8RzJdPVpc88XR4nPzcpXzeiqwMJEpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "5Bo3W1a3hH3KzZ7MEH5ogn75qzYq3cxPYqJSqPHYHwjajnEfhAmzPiNtj3co555Bs3iuhL2zTfnv9x6jAzNZYJqF",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787650867,
+      "mint": "4kdU5fKaRb3ZDP84vAm2N8PY2Bq3PBtT5NkgzfAnpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "62DmXeQY219LvFiLMW7cJUSiB4vcXPD9mAMpVB2jinbYb6jzjUbS1ekr3mYpCnLpcffut7YTJep3co2yK2jMTCta",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787656195,
+      "mint": "AVKQT851Cn3i1K5wDQsBfomYkiqdciqPE2bhZ5Egpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "3KSPSnM5memLAadeoU9dpiEcmCy858Taw31nnwnZA1VL4C4gkuLu98vbmL7w8DE3MAn8Gr12VvHfg3Bt64hFciHF",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787656761,
+      "mint": "31TBAGQ4cydajbZYCqvuyA9SqmKV7zvtdmohkLAJpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "5UjWEHaXSPjMcF7e68CHKrmZVqJEsgqBu9S6mTD9FfD4jJJjCEf5yFET88ngt9A7LLyi7TyHue9odR31DYBrtpsD",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787656988,
+      "mint": "AgySAfBHSjaqvgzBWqQfw52EQVEy6Ns7ehHwqWDdpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "81DF2mjwAMsF3oG8UFLSe9YfUqJnYpKbJM7X76qn1wNmZaMF1KgKDNHLJwMhp3CjB59HjTyKKPnMDZ9Z4XSZAb2",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787665301,
+      "mint": "4Qvcp6WUmtxMp7WttkexnkvCi4ingwNVXoNGCea2pump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "DISTINCT_OTHER",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "X54D5uxLDTRii9NmwREy4YQr3Gn5DWEGts68L5dkfPXHGmzyWEbrtBqZR9wxXWtbU2NEJ57Ga1wsHQ1mw4uQReH",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787667150,
+      "mint": "EyomCvLAhDB5qHQWYAAcv83Z6ZUKaUFkjWwBcePupump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "RETAINED_HOP1_EDGE",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "DISTINCT_OTHER",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "44CG8apXSWLNkLKvxL5uq3aWqJT9dKh5nayvbMGnNGuHhoBVK78vo6eMR5oRaK3F9Wc8hWJmzjSptLN3nncHGSoZ",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787669449,
+      "mint": "9orRZbVL3zontHSVC92p9LSUTdCFbYtqCdSDdKPpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "RETAINED_HOP1_EDGE",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "DISTINCT_OTHER",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "4yCAkYZTB7zK2yshKqZR7rnt8myaCYucXGxMdSipQjRmTfxmJ5WY2XEjut2vK6dLA9ZDwnV4UG6YZxfSEA8FnuRy",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787669656,
+      "mint": "77h2fNcZspf4rvak7A8x8ozbJj8wCcbLQUxYS7ffpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "RETAINED_HOP1_EDGE",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "DISTINCT_OTHER",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "2fnSQntqaB6jXMxbs4Hh8Gz2tUp8jtPqjZnaczokWFtrCptBnJfsz8b6zBMVaMsF3Zi5JsfuUApG3xfgLN4PBWnk",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787672415,
+      "mint": "3478WdM3ebwCMe14UF9K8tpDsJJMHGkt8iQVjaLfpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "RETAINED_HOP1_EDGE",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "DISTINCT_OTHER",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "4BEcbEHY2n3zRoHeaytq1Avr1zVQgj3rR6puTpwFnLTcP82xuoThCLYZkfERXnPcYiRYLnnP4JNLk2ySKtaJQutf",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787682757,
+      "mint": "GShWswpuW27nadAacS1mMEhxvrYe9Db2QpfK7Hwrpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "RETAINED_HOP1_EDGE",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "4fMGLz2iTdiLsZud3XLR9sUmMX5N7jsuGnUxBhZTmGrbPrt5MZgwwAmbU9FkW8iYgHjJtryNUmxPMhoCCkt7kw6F",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787689785,
+      "mint": "5fB8j8FDPfgHDtVSub6qEN77g1g5KoEMcFtQPmyrpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "3zoSFMteFe6b71DF9KF9YdVabWVL8YedmosioytBmdeuKAf25Tuy6PbJBQePoR9SJFp9eKUXheWbiV2Uybb1PGb5",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787706035,
+      "mint": "EEJyQtPkJt95ayvM2hVV5xe2yC2eRPxh6DzwBhPdpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "5QkECNfaF1K9pQuU1zTrzGebejWbTwNUdA39YpfR66NojU2uVXzJSi6P4Gpenf1YVbQspBnn9zBWxhNeRcK1yaRx",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787707420,
+      "mint": "3oXS3fySUBHjanN3EAPb7Mf5tSYoEb9P64EFjNbGpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "3m1Muvg55EgYzGd3nhcxYkiNHeJYMy7xL5JtVn1o9NemuUobkKtodRSLXp3URFc2ykDSAHLUMF2aJwtQymkL8rcF",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787710348,
+      "mint": "7MhgNYMLYbFqkL1CikXTvMFbC6wbwKJq41mq6DPbpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "4wtTkaVy22S3CmLp962Hc1EnY88vdkgBhcb76osKgMjUytc8QxThUAhZ1AfwAhpAqWTg7VKYgMoWdgFHgnATg8c5",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787717032,
+      "mint": "DPxk9o57vZPpSBHrTF1DaTWMV6vziQq3zN36EY8kpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "3hJEyWnr8wXyW23Eccj2HoHY5EDZtjnMz4yCwXitzEP2RvtcR1e2dAZ8YQF4vNAvWLEAFVfeNU4Cvf7vCUqgyBPw",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787721649,
+      "mint": "2UJ8DeZiuVdGFR8226sQ8ezHWhzpbSwyAf4xQ1PPpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "22K1meUKyeskTR6srVwBNCDWAwLQqba3nBrg2vwhTqXcrbVH7pNU8wxmbW5bfzaZPzjEVDo2e4fhmERd3ukLme9D",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787726169,
+      "mint": "DNrdAqfcj4ZaiYCkPYZ5t7eEtxRZgqy41hQuGgpKpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "3xrx4E2rtP3h2GXBa2gq2v57LDksex9XgA8uhsC1r9YUAoVJX7kEnD4gVAwvxU3HJVUTvrPnRS6jKJYPQiaQg3g7",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787732193,
+      "mint": "G5jV5wtNvUais1iaRnJsuRa8Q2DCubcaZ1Ftjxaapump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "52xmwrYVhd58QjHACcToYQaSWfJcFWXDFndXCSE6ZUT65QJ7FoUFfpRuj4kScpq5J8e8npVmRV8yvUArGU6zPorF",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787736144,
+      "mint": "4nEHzcnm2jrnEPSfbp9Ex3ge2BbYZYRFuzoFrPCRpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "2RLGP9spj86tjQctCgVwfyULxv7AGCpXWDRHuGWPLxNUVDfSiPYAxRhdU25nNWuSi2SLtdTGRv9zcEzQHJ4n5ewD",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787740024,
+      "mint": "GJziw7YtsrxqLLmH9ntfJHcFkvtFc9zK5JHf2T2Ppump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "iuoY8ZvizK4khHSCjcn69hF4FxysXx2PRmL8UEHPmkjF5mZTgEC7BuEmqTMJxcAe66vxkXkiobeecV6HusbfYnd",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787741355,
+      "mint": "HLD7wcQciQxbUFLi5rVJ26WVkFQEksBkt3MxZSERpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "46eXQssRmEKFss5CxvqZm3Qpy4ked8Ct8m4ZAr9sCzea7vgwcCzzCMarqtEvgAUCRRWzjkKXbbEbP6ao661oWdy",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787744824,
+      "mint": "CsVBNQijeDY28yG4GLkeGE5p3Nic1BPv5M4mX6wTpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "2iW8wfAVJAoBcQ71ehb5mAVNb8W3FWS787aA9VARJd2vkPu2syMN7TeGi5X1xrp1uTuJ9SQtV1iVtMrGBBnmbtYj",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787745269,
+      "mint": "Tp9oSiVHasHgKcHoV723krRmnWvvewap97cnsjWpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "4dwsYvQRFVKQbPDr1dNEMiaaU3ap5enSCYD2icN4F86GR3rjTZzUN2qUUg7tBau9VpxsXXDEjZ9VYS1VmrTidJbz",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787748112,
+      "mint": "4AtayUU6mSoEWWNeJbtc21fYLPArvpUBYebpkDXBpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "2mkSFbUyz2EYjS5MexToAHBrdL8xUuitERd192fwAUi8fQgCerSPknZCdVokC1stfUqbC7HPg9muqQsqyt2z1rPq",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787753366,
+      "mint": "CShtC5BK4PzpMgH7oKZNtULqyu78ssBaByZhpLJHpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "2FErTxJf6hm36JAw3mHJFv9d3KsjWmZZAdiHyt94amVEQqHMrMvdJMiLfUe9g1SHjcqjM786HHR8XJqT6qdAzLDs",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787753495,
+      "mint": "G6iuKxHsQ5L4ak5SfkdMurDyGbaQMRetrwio31NXpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "2WgPZiPfwxsuDF1QuzX8erSYAMY8LnyGQmaK6HQoHzy3TPqu6YmA8zeFVxXcnqmAxdeQ1r94Ca1WnY1nshQR9Ba6",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787762287,
+      "mint": "GW7oTjyMfjdS91akDWVre4KQNmnD3ckZeSti74BDpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "5YN6Pfc2LndwkDjL9qQWqcQH8tZSN9KZPsKYBEPptzDxVN2k3xAtYrEFRotu9Bqo7Fhm6bMqkYbaPUdVZDwEaeqx",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787764599,
+      "mint": "9Bg16jZHJS2ypdMzfhSwpfqgr5mbSfh86sU7mWddpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "4MCnPvAkngxRqk7i5cBg58GAYKsfHji1Bc6sGU1AEYuwQYrbGSTQ8K3Gy7GGtp9qeX3hoQ4zhmJ9f5qctfKL28q",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787782549,
+      "mint": "GRaDw88ScWtEH53nYXW1QYko5pNX8qrhgQLNz1vtpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "KctvdQLCGEfpeD5dzVW7kG32Nz3smab31Luqs7dzGPsL5iqE2YHjEhxfsfRZHNtAyEP8YFWYCvu3ePgmwQnQtem",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787790500,
+      "mint": "8JkwcwMwuxkYYFjL3QB6iMnMgsWjgMP6acS5axnRpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "rCHA7USPXD8rVRNimHpnxWdK1qRymPQ13v3ssQgJXtqwTZKieA8iYrQmDTmqm8HeEk1z38JUhqDzwoBGvPXnP7r",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787794518,
+      "mint": "wzjjr5TW1pxTpi1Dk5VS12oxSFhYncp68RXxe81pump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "2Qoo6XwHz7FekBav4iWBp1BV6b9NHHU1mzGgdbNXnj92pzC5dF2fLu2oqhRY4YSB2p5NngFTDgkkzHJKD6Fetamj",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787807030,
+      "mint": "6b6TPYY54JaKztDha5yVZC6x6P7PKbK27jbyeFJRpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "2kgNgogWiiEFULQJj1Z2D7ScECqSweCnUtp4sP9SwngYx2gRZ5oFDm4R83VFXZuwGgPPm4XafyVxLSf9CUikcRon",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787808719,
+      "mint": "9Hb1BLjhD7pQFGA8Cbz2kpYs5ijxVrLoPQf9Ey12pump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "3x6hdbSS1aqZgvMwHBDVg7tioBoQRp8LetTBFuwyQBHaDFv54jpi2CjJVtokchQQwm2569uBMnemjyw1oYePMUq1",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787814175,
+      "mint": "2KUandNPdhonJCkTzEWkciq4mN9hsUJUmKtZhNZ1pump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "5UUDHewCQSDoBpeLndowqcSrUSfU9FUV5LpNosEKLwnpfZuTQK52EW3e3vzjv25DTm7DpPaibWRG44rVhfTF9wW",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787818841,
+      "mint": "2GbQAYkdQUpgpZmSvedCPvDVfhHL6TAZfe8FtxNNpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "5eEZigWQxpqNysHizEDohMWWDyhffJPvdxqr1sB17ZScfjYjQhgGZdxyZvokJAn7j1Lb8WTbCzc8E1nM4DCfvbYj",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787822658,
+      "mint": "6tNfHSjsXweAxh7zxocLdskziAuvwChvEDKU3oYzpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "46Q8dba5Y3eaQNhMDF4VE5zyfsvfkA6Th8s8zCRdfo7VJ61qjdaC3hcPYwheUARQ2uP74sBNYkbAM5BNqWr8Vcnz",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787824241,
+      "mint": "2MAev5HgRE1jx3v1hrpsreG1XursUkdmC7VBMZEspump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "5fWsRfLiA1FrCkJKBQbDLzQegeXiaGvVpdWmfD4dkmntPqypNcnMnMeLBBtw5DY4hm4KLRX4Gw1vGXwmCsytguR1",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787828796,
+      "mint": "63n3utZFV3XykM5THqq7SXvay7Dex1oZMWkwV6j3pump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "3mMZBnMcasCS2MuCDyGbmGP8tmMjKSXuih6gq2L3Lus69NpVqfFooVLBUKfNX6AYzUrxgvHf5SojmNJ32VNLKUjP",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787849704,
+      "mint": "7nd3XqSSYS3bUmxbj3ykUuFwRAf8kRgM1oBZB6xjpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "3xtcTg8PzYBaZgwMxvebw5nD7af5ooyaPwS8sygee8TgF71DT6BSQgpi199M6Sb8muchSYEMXKurHeojyUazNrkp",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787863878,
+      "mint": "EhHJSjF7EzHognd9DwjUJAMtFpEudjMoXZcZgbyBpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "5TBNzbgaaytU3NP1f6DV5grfEZaxK5qSdXKK9FVhGSGdMsb3r3zUcuCpGNBCPznBGebZqzZHWYWDt5hPnLCZ3pP1",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787873505,
+      "mint": "3nhip2jg7nCYj2Y2WdmLyMkbxnKUCibp1XmJKrBNpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "664sR6WhASUA7ziCrbo9GeMaCYpmNV3SKX4ivukamuFiTDCDXKEL5HKFH5HHW8yPz8g8p4Xh1vWjpaRVRpUpnJ5d",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787884948,
+      "mint": "3UbRRV1m62dfPzJz19nGk31Aw3ZBPBGwod3KZvSXpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "26ENbbRL3ymCWf2JCsix7TvQciJoJYAVAyfNgseKiZm5VzQCwZN8RrvvjgqBi1ARHWxbvJRc4xATfBCYnNqHko5p",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787896997,
+      "mint": "4cWuTWnUUK1TcNgGCLu2kq4XRBLbokQJbqXkhd5Wpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "5KL4PXPVoS4vbnaLhSrG4obfM3QuLUeQDXV8WbFt463TmpmDFGSkTYHkBfpuDaMrnTiF2tZzmtaVrZuQ26zL5E9r",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787899910,
+      "mint": "AWRzDWGg2D3qcgHiPYnbUW7hVHQWDE3ePimfuzaGpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "472xhaGVsc86KhyadvEXfuNiTJyQWyVqBkmWEY2SoQc4Xoe3tv7qLoD3Rbjz5wsj61VE8o6DKgd3MqsWwARhKjoV",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787901618,
+      "mint": "ALryq6MuYTt6nXEsXFTUFXbdburCPpe7uhi941Pmpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "4wSXFtFJk8wqyMvT3FALHpenEkLMGmFT9Re9ikwj3LEMRLGG8GZneoPfYKQtJnHZCCfpwfWhxco7MU77UR6kT5EY",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787903778,
+      "mint": "8HxzrtZDEKYc8zGTAHMAW1sB45diK8YXRfM5UndSpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "3aTcn7Um2soZpLmRGfNZJH3fM1s7mSnMUWLD4DZKp9xBbtTZt8b8Fwzqn92rSrWgpQXagrcbMBrngrPpqLa5XKKS",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787910730,
+      "mint": "94WDg1ADhs1Te5Z3CdVrgShgmeppFKE3QLWNYUP2pump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "3SQMHZVW5Z6gzXkaCS6CE3312ueW6Bjo94U9BcFMKu51x1UsvjWGfYrtRSYyaaaSC55VSAAe338kL5SH3GcJEYgY",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787913036,
+      "mint": "Hhi32rdSGcqkeggbFnkZcSmqt3n4RyYxAFYBbVjDpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "59GsgENjUEJR6UXtc9zn12YsSDxHQbJiW81EUDo9oWQepSr6Q1jPg8pQSDqgnPqaLLBzuPYEFyhCrf8tdZka3TvW",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787919205,
+      "mint": "Av2KSwkP4RH5zkUzDL51NyWmsLsEpGZ2GEW8CU8Vpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "5Qh2wdEccbraAjP9pqFbUpZrYMcTUmBZFL8Rs1reJckxuGHYeyTkYWPM1eNv6DQmLQEYMct9jeJd6vhYubvfaKL8",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787923710,
+      "mint": "2qYek7Z5UUosvs4F8RqbTPJMEZHMpHussXaU7bvNpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "4Yc5D6VBWaQSd29qvth2CvSMdqKtfHvkQu4HHxEJfmm11JTpmEEZxxndwoHrWVkQzX4eKdFrAnyvf6twEBwQoAV6",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787929930,
+      "mint": "2hFwasSw8pzaX5TXLd2M3xiU6nvZjSYaEJcgvqfRpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "568rov8F6nJeX8DbCkrBb13ymuGmL3NHYaZErpZSWNM4d4Qn3LP68sP3BCfofh6u6aDyiwRVKAgvSZPfjRo36mYe",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787936081,
+      "mint": "CXhGXSQE4sXDH1YdxThQVq3oN8tUSDz7zLet2Em5pump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "3wjY1xcW4zjtUkciPxbRGfjKGpHxsoK6jefwiuh8FwfhDHRkSiQHsw3LTjkjGhVTwUA2KsDsZ47xfRyDsnAtFcSt",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787940578,
+      "mint": "DeiQTbmVQ4u9vuPNJHV6C9NJ5DT4HNw5PsGcKrp2pump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "2ZzyLHY3gkXJwNPgdocP3S2vFQCUK2A2d7Rd8QtbQRSjgNTJCRyd3CS3mYgukN5JmDVVBdas6g3RWhWHLkHZYwZJ",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787942975,
+      "mint": "9XdvTDzrXmnaDHiC2w7H7iqkMe3smaZHhHDjCMEkpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "KD6ZTSLnyEs8BtpzgKunF9hK988tyeqTt8TLVKHALtXzrKmLr7hyGdupSoCCYhSQA2wCVUimQNh2ameuMYrc67N",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787947472,
+      "mint": "7RvESRnwVdJK5BeJjzEysCFmp15ShYAotwr8wZ75pump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "CnAjVY47NVfvfsufJjG53EaVkXjR89QuGQhET9VvVSv1VXaSoWCCJrJPh8fWkFe4qvhPh9oS8bqmYTSSiF18Sbu",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787948505,
+      "mint": "3aSJABF75PfXpkPVsQtZqpW2jm4NajjQsuziPKQXpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "48yRvR7nRzmjprNjHLvREikVmZCCupXbbbvCtAruvYi4weVcHiatY3CABjU7YENvaqFpEFDt29xQHTNm3J8EtAV4",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787950574,
+      "mint": "A7mTBXj5J4D92BkTVQEzbF4d7gvbEPFbotgmjad9pump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "3SHb1LiNVSr32cj7yV86suGjc72LeqzGVtgJRLGVMP4bAksAeLJ8LPZWHNZPs2fsCg3zMdoS8ykNbtoEjBj3negJ",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787957828,
+      "mint": "4qnhhZAyj85ETHXJxmndyCyVtFkWQ3FbLhJQryVapump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "srUAyvbTkGbYaAJiqhUYVdg33dHJbEHWNwkMEB9hnAHRfPDeUZqh71Natf7upLH6cPp1qfPRbBRDTbLGitHHPN9",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787958960,
+      "mint": "216khC5czWce344BXeUYf2e8zz2sUMyTkQ1UdLorpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "5cDsTSJR1WiMBFCiM135kspLAgznNBGNkcT6na8tHioD4mDcAZX3nbjvHTmfLGTrMgykSxQM9yWCiUH2HRVP4YBL",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787966268,
+      "mint": "9w3CKbRXT1bSdu6wmUiwPAwt6J5KHK2GAK5kCusspump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "3ywcJVarHLDBCeproFhsQ2Ymc6YxTfwJ6smgJAMyVkYG5u1mBy9WfAEhhtvSoXSTTyox7TGsi22tKYAZFg5H5RyS",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787973875,
+      "mint": "GatGP4jT91irAoFbSzLdXnCietkvbg2HDEDXTeNKpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "5zE5fA12rbPa9qQoTJEhaa3oysBtuStPvMHKKRLgssL3fSaAKf5K8jtFsGLJA1sLyRETjWjPidgTUh6aS86kPFGm",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787976563,
+      "mint": "DjWDHAKtZhkWmDPwsuCraMcY88VKMV6S4mZE9bMxpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "NoxEgRbcBi18NzGy11E5vrLnyt4jt4hSZbTJFKZWSgEmfc7LTypTi2B8fVoeZUEsSDChnoThGq2jUxPY7aeCBzN",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787981318,
+      "mint": "9XQY27MwxB8BugAte6MfbdDWeazSbKhH2PGdWUR5pump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "2ukhFrXsNvXHuvRtWoAKrJg3GUb7GUr5qoVc7ciVggc91HHLGrFwsv9C87naFrjUuFBDmB3HjmjBb9jYZoFzhJ7z",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787982261,
+      "mint": "AQCAF9kCm5myNjg2XuJxrQVrYrLmTRwgKw4oTbydpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "36rkoreT8gUuvAxc4QbXbT3w2S6t2HrD3Q885TJeoKoeiwYtmyN2yeFZBS9c7PMuukM9vTe8Fy5UiMnGvya1bmwk",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787984602,
+      "mint": "DTdDsWkaXimkyMQgr6mKTiTfsuFQBM6dHS478N6Apump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "5WpJ8mm4JFV45XpxkNmvewvJZEUW6NfWt7nQH1MrurfCRzuRUPrEyHpAiKFX49SYUn4bDrCV6RWGczEKdbGN4mhe",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787985427,
+      "mint": "8aCLZyDWjB4ZqpSHQu5Tqum3SzNQFCLoZrgKgpFZpump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    },
+    {
+      "close_account": true,
+      "close_authority_role": "UNAVAILABLE",
+      "close_destination_role": "CREATOR",
+      "close_redeemed_lamports": 2122039280,
+      "create_methods": [
+        "createAccountWithSeed"
+      ],
+      "creation_deposit_lamports": [
+        2122039280
+      ],
+      "decode_source": "RPC",
+      "fee_payer_role": "CREATE_SOURCE",
+      "funding_signature": "4RzUEB3PtjeBBGQf6F26FQU3ToMFDtdMCtwQACvUKEbmpDhZaxebq7BSL9qUeAGaHJeAxJmTTDaymCxcAWkjyLUw",
+      "funding_source_role": "DISTINCT_FROM_TEMP_OWNER",
+      "instruction_sequence": [
+        "createAccountWithSeed",
+        "initializeAccount",
+        "closeAccount"
+      ],
+      "launch_timestamp": 1787986973,
+      "mint": "BZ8k8ospJiz2r98h6GC8ZtGAvPaHTi8GjxZQr88npump",
+      "ordered_transfer_lamports": [],
+      "retained_mechanism": "WSOL_WRAP_CLOSE",
+      "same_temporary_account_continuity": true,
+      "separate_transfer_count": 0,
+      "signature_source": "REGISTRY",
+      "sync_native": false,
+      "temporary_account_owner_role": "CLOSE_OWNER"
+    }
+  ],
+  "research_only": true,
+  "rpc_method": "getTransaction",
+  "schema_version": "WATCHTOWER_FUNDING_TRANSACTION_CENSUS_V1",
+  "scope": "current canonical confirmed WATCHTOWER membership; retained funding signatures only",
+  "supplied_2_12203928_SOL_create_close_count": 90,
+  "unresolved": [],
+  "wallet_history_calls": 0
+}

@@ -1,0 +1,104 @@
+{
+  "additional_calls": 228,
+  "calls_after": 544,
+  "calls_before": 316,
+  "calls_remaining": 56,
+  "chain_coverage_after": 36,
+  "chain_coverage_before": 12,
+  "completed_at": "2026-08-30T15:39:08Z",
+  "control_result": "INSUFFICIENT_LOCAL_CONTROL",
+  "decrement_10100_funders": [],
+  "decrement_20100_funders": [
+    "3GrrtE8XLAQdvorz2KT7NgpNFXLx8NGzCJ48JbmXA2p2",
+    "3nTEKyixfWGcUSjAHsUZwad8QHrDoNQDWdKVHRXqkHkR",
+    "3srcryfrBubA2B17EocRyZmk8phbttJPR6QvMr8owAo3",
+    "Da76omT5pL44rb5XuPSfu16QuAQtWiYAQqpvDoyofX26",
+    "Eyb9j2G42H65XD4o6z8jf8rgcUqqG8kpbcK4y7gysYc5",
+    "GdJL69RggRerjjPRNkC3jojFBG6AXqA8cgE51Ucie7gA",
+    "GgrPgh6e7NfwZ7gaGaRepkXi27b3MzbcU2deUA3X3dZT",
+    "Gh4wnpFwhDub7cFkDDDapRDuhsFa4EjtDLzBVoNhxxpd"
+  ],
+  "exact_decrement_census": {
+    "-150700": {
+      "depths_observed": [
+        2
+      ],
+      "distinct_chain_count": 1,
+      "distinct_core_funder_count": 1,
+      "event_count": 1
+    },
+    "20100": {
+      "depths_observed": [
+        2,
+        3
+      ],
+      "distinct_chain_count": 8,
+      "distinct_core_funder_count": 8,
+      "event_count": 10
+    },
+    "752750": {
+      "depths_observed": [
+        2
+      ],
+      "distinct_chain_count": 1,
+      "distinct_core_funder_count": 1,
+      "event_count": 1
+    },
+    "803250": {
+      "depths_observed": [
+        2
+      ],
+      "distinct_chain_count": 1,
+      "distinct_core_funder_count": 1,
+      "event_count": 1
+    },
+    "948400": {
+      "depths_observed": [
+        2
+      ],
+      "distinct_chain_count": 1,
+      "distinct_core_funder_count": 1,
+      "event_count": 1
+    },
+    "958800": {
+      "depths_observed": [
+        2
+      ],
+      "distinct_chain_count": 1,
+      "distinct_core_funder_count": 1,
+      "event_count": 1
+    },
+    "968400": {
+      "depths_observed": [
+        2
+      ],
+      "distinct_chain_count": 1,
+      "distinct_core_funder_count": 1,
+      "event_count": 1
+    },
+    "968900": {
+      "depths_observed": [
+        2
+      ],
+      "distinct_chain_count": 1,
+      "distinct_core_funder_count": 1,
+      "event_count": 1
+    }
+  },
+  "fee_explanation": "Among 10 exact 20,100 decrement events, 5 parent transactions have an observed 5,050-lamport fee and 5 pre-existing edges lack retained meta. For the observed-fee subset, decrement minus fee = 15,050 lamports; 20,100 is therefore materially larger than the transaction fee. Account/rent/setup causation was not established.",
+  "fp27_decay_result": "No evaluable >=2-edge Fp27 path; no fixed decrement established",
+  "funders_with_2plus_edges": 15,
+  "interpretation": "MODERATE_FIXED_DECREMENT_FINGERPRINT",
+  "linearity": "STRICT_LINEAR within each selected bounded evidence chain",
+  "repeated_fixed_decrement_chains": [
+    "Da76omT5pL44rb5XuPSfu16QuAQtWiYAQqpvDoyofX26",
+    "Eyb9j2G42H65XD4o6z8jf8rgcUqqG8kpbcK4y7gysYc5"
+  ],
+  "run_id": "6437-deep-funding-7534ffe978b343df",
+  "safety": "read-only RPC and audit artifacts only; all production writes zero",
+  "sparsity": "UNKNOWN: no full signature/lifetime census performed",
+  "timing_buckets": {
+    "1-3d": 4,
+    "3-7d": 11
+  }
+}

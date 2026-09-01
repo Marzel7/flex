@@ -1,0 +1,65 @@
+{
+  "milestone": "EB0.3 — PumpPortal Birth Valuation & First-Seen Opportunity Audit",
+  "mode": "READ_ONLY_AUDIT_WITH_UNDEPLOYED_SHADOW_INSTRUMENTATION",
+  "x78_40_protection": "No service was restarted and no production flag was enabled. The active X78.40 qualification window remains untouched.",
+  "pumpportal_receive_path": [
+    "listen_pumpportal_websocket",
+    "subscribeNewToken",
+    "ws.recv",
+    "json.loads",
+    "create handler",
+    "_insert_bonding_curve_token",
+    "token_analysis or birth_persist_queue fallback"
+  ],
+  "observed_or_handled_create_payload_fields": {
+    "directly_consumed": ["txType", "signature", "mint", "traderPublicKey", "bondingCurveKey", "symbol", "name", "vSolInBondingCurve", "marketCapSol"],
+    "not_proven_from_retained_create_payloads": ["slot", "chain timestamp", "associated bonding curve", "virtual token reserves", "real SOL reserves", "real token reserves", "token total supply", "creator SOL spent", "creator token amount", "market cap USD", "price", "liquidity"],
+    "note": "The listener retains raw retry payloads only when the primary birth insert fails. There is no durable normal-path raw PumpPortal payload archive."
+  },
+  "field_matrix": [
+    {"field":"mint","raw":true,"parsed":true,"persisted":"token_analysis.mint","derivable":false,"precision":"exact"},
+    {"field":"creator","raw":true,"parsed":"traderPublicKey","persisted":"token_analysis.pf_ws_creator / earliest_tx_creator","derivable":false,"precision":"provider supplied"},
+    {"field":"create signature","raw":true,"parsed":true,"persisted":"token_analysis.create_tx_signature","derivable":false,"precision":"exact"},
+    {"field":"bonding curve","raw":true,"parsed":"bondingCurveKey","persisted":"token_analysis.bonding_curve_pda","derivable":false,"precision":"provider supplied"},
+    {"field":"PumpPortal receive time","raw":"available only in process boundary","parsed":true,"persisted":"EB0.1 file when enabled","derivable":false,"precision":"UTC+monotonic ns"},
+    {"field":"market cap SOL","raw":true,"parsed":"marketCapSol","persisted":false,"derivable":"semantic formula not established","precision":"provider numeric field"},
+    {"field":"virtual SOL reserves","raw":true,"parsed":"vSolInBondingCurve","persisted":false,"derivable":false,"precision":"provider numeric field"},
+    {"field":"market cap USD","raw":false,"parsed":false,"persisted":"later market_cap_current only","derivable":"requires contemporaneous SOL/USD","precision":"not a birth fact"},
+    {"field":"creator initial buy","raw":"not proven","parsed":false,"persisted":false,"derivable":"requires creation transaction or additional provider fields","precision":"unavailable"}
+  ],
+  "semantics": {
+    "market_cap_sol": "PumpPortal supplies marketCapSol on the received create event. Existing code does not document whether this is pre-buy or post-buy state, and no deterministic formula is retained to reconstruct either side.",
+    "pre_vs_post_creator_buy": "NOT DETERMINABLE from currently retained evidence.",
+    "sol_usd": "No contemporaneous SOL/USD value is present at normal birth persistence. Historical USD conversion must not use current SOL price."
+  },
+  "historical_recoverability": {
+    "token_analysis_rows": 1654026,
+    "rows_with_first_observed_mc": 18992,
+    "first_observed_mc_coverage_percent": 1.148,
+    "rows_with_market_cap_highest": 24121,
+    "peak_mc_coverage_percent": 1.458,
+    "classification": "D — NOT_RECOVERABLE for exact birth MC; later first_observed_mc and market_cap_highest are not birth valuation evidence."
+  },
+  "future_contract": {
+    "immutable_first_seen_fields_supported_now": ["mint", "creator", "signature", "pumpportal_received_at_utc", "pumpportal_received_monotonic_ns", "market_cap_sol", "virtual_sol_reserves", "bonding_curve", "source", "schema_version"],
+    "deferred_until_supported": ["pre_creator_buy_market_cap_sol", "post_creator_buy_market_cap_sol", "real reserves", "creator_initial_sol", "creator_initial_tokens", "creator_initial_supply_pct", "USD fields"],
+    "opportunity_metrics": ["first_seen_market_cap", "future_peak_market_cap", "actionable_multiple", "time_to_1_5x", "time_to_2x", "time_to_3x", "time_to_5x", "time_to_peak"],
+    "checkpoint_recommendation": "Do not reactivate broad price tracking. Prefer a later bounded subscription or selected-candidate checkpoint design; all-birth Helius polling would scale with roughly 18 births/minute and is explicitly rejected."
+  },
+  "shadow_instrumentation": {
+    "implementation":"src/core/pumpportal_birth_audit.py now accepts the already-received market_cap_sol, virtual_sol_reserves and bonding_curve values and appends them only when EB0_1_BIRTH_AUDIT_ENABLED=1.",
+    "runtime_cost":"One bounded in-memory enqueue and append-only file write per create event; zero RPC, zero DB writes, zero Creator Funding actions, zero scoring.",
+    "deployment":"HOLD. It requires a listener restart and must not be deployed during the active X78.40 window.",
+    "rollback":"Keep EB0_1_BIRTH_AUDIT_ENABLED=0 or restart the listener with the flag disabled after X78.40."
+  },
+  "verdicts": {
+    "pumpportal_economic_payload":"B — SUFFICIENT_WITH_LIMITATIONS",
+    "birth_mc_reconstruction":"D — NOT_POSSIBLE historically; live first-seen provider MC can be captured without RPC but its pre/post-buy semantics are not established",
+    "first_seen_mc":"B — MEASURABLE_WITH_LIMITATION after deferred shadow deployment",
+    "initial_creator_buy":"D — NOT_MEASURABLE",
+    "historical_recoverability":"D — NONE for exact birth MC",
+    "future_all_birth_capture_cost":"A — NEGLIGIBLE for retained PumpPortal fields only",
+    "production_activation":"HOLD until X78.40 completes"
+  },
+  "tests":"tests/test_eb0_1_pumpportal_birth_audit.py — 2 passed; shadow collector remains disabled in production."
+}

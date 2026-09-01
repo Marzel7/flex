@@ -1,0 +1,32 @@
+{
+  "schema_version": "LIVING_POTENTIAL_OPERATION_PHASE1_QUALIFICATION_V1",
+  "status": "QUALIFIED_FOR_REAL_LOCAL_MIGRATION",
+  "qualified_for_real_local_migration": true,
+  "real_local_migration_performed": false,
+  "automatic_walkback_integration_performed": false,
+  "candidate_backfill_performed": false,
+  "production_activation_performed": false,
+  "implementation": "src/ops/living_potential_operations.py",
+  "scope": "disposable WAL qualification only; no real-local migration or production activation",
+  "gates": {
+    "deterministic_publication": "PASS",
+    "idempotent_replay": "PASS",
+    "stale_version_race": "PASS",
+    "newer_generation_advancement": "PASS",
+    "equal_generation_conflict": "PASS",
+    "multi_candidate_concurrency": "PASS",
+    "reader_publisher": "PASS",
+    "failure_rollback": "PASS",
+    "walkback_like_writer": "PASS",
+    "atomic_visibility": "PASS",
+    "wal_longevity": "PASS",
+    "focused_regressions": "PASS (15 passed)"
+  },
+  "freshness": {"key": "monotonic evidence_generation", "stale_advanced_current": false, "equal_freshness_different_digest": "explicit conflict", "commit_order_is_freshness": false},
+  "atomicity": {"stress": "V1 then V2..V39", "invalid_observations": 0, "missing_referenced_assessment": false, "freshness_mismatch": false},
+  "wal": {"publications": 100, "peak_bytes": 2179512, "median_write_ms": 2.42, "max_write_ms": 28.04, "writer_starvation": false, "unintended_long_lived_transaction": false},
+  "lock_telemetry": {"SQLITE_BUSY": 0, "SQLITE_LOCKED": 0, "database_is_locked": 0, "database_table_is_locked": 0, "retry_exhaustion": 0, "retries": "not fully persisted across one-off harnesses"},
+  "fixture_drift": {"test": "tests/test_x77_1_walkback_transaction_boundary.py", "repairs": ["wt_watchtower_launches table", "recorded_at", "wrap_close_sol", "subprov_funding_sol"], "final": "4 passed"},
+  "focused_regressions": ["test_p3r_profile_candidate_matcher.py: 3 passed", "test_potential_route_activity_snapshot_v2.py: 2 passed", "test_x78_35a_nonblocking_wal_checkpoint.py: 6 passed", "test_x77_1_walkback_transaction_boundary.py: 4 passed"],
+  "verdict": "LIVING_POTENTIAL_OPERATION_PHASE1_QUALIFIED_FOR_REAL_LOCAL_MIGRATION"
+}

@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D2D",
+  "observed_at_utc": "2026-08-14T14:54:16Z",
+  "status": "COMPLETE",
+  "verdict": "D2_PLAN_EVIDENCE_ACCEPTED_NO_RETRY_REQUIRED",
+  "d2_qualification_digest": "38d0605e77e1503e9d5e952d13a3e1501aacf6c84db7a3debc334bca8fc484ce",
+  "threshold_sample": {
+    "timestamp_epoch": 1786719001.606882,
+    "timestamp_utc": "2026-08-14T14:50:01Z",
+    "listener_pid": 15357,
+    "primary_fd_count": 8,
+    "registry_count": 2,
+    "registry_fd_delta": 6,
+    "warning_threshold": 8,
+    "critical_threshold": 12,
+    "tracked_connections": [
+      {
+        "caller": "pool_discovery.py:339 in _check_sync",
+        "thread": "asyncio_exec_3",
+        "mode": "read_write",
+        "transaction_open": false,
+        "write_lane_owned": false,
+        "age_at_sample_ms": 479,
+        "total_lifetime_ms": 699.455,
+        "terminal_state": "CLOSED"
+      },
+      {
+        "caller": "pool_discovery.py:339 in _check_sync",
+        "thread": "asyncio_exec_9",
+        "mode": "read_write",
+        "transaction_open": false,
+        "write_lane_owned": false,
+        "age_at_sample_ms": 478,
+        "total_lifetime_ms": 700.566,
+        "terminal_state": "CLOSED"
+      }
+    ],
+    "untracked_physical_descriptor_count": 6,
+    "concurrent_activity": [
+      "short price and symbol callbacks",
+      "creator-funding lifecycle recording",
+      "migration persistence and telemetry",
+      "RPC metrics recording",
+      "queue work"
+    ],
+    "long_connection_present": false,
+    "open_transaction_present": false,
+    "write_lane_holder_present": false,
+    "critical_event_present": false
+  },
+  "causality": {
+    "classification": "UNRELATED_TRANSIENT_LISTENER_LOCAL_FAN_OUT",
+    "d2_process_was_listener_process": false,
+    "d2_connections_visible_in_listener_registry": false,
+    "reasoning": "primary_fd_count measures descriptors owned by watchtower_listener PID 15357. D2 opened five sequential short-lived URI mode=ro/query_only connections in the separate qualification process, so those descriptors cannot contribute to PID 15357's count. The threshold snapshot itself identifies listener-local pool-discovery work and concurrent listener callbacks.",
+    "d2_induced_contention_evidence": false
+  },
+  "recovery": {
+    "tracked_pool_connections_closed_within_ms": 701,
+    "next_sample_primary_fd_count": 0,
+    "latest_five_primary_fd_counts": [0, 0, 0, 0, 1],
+    "listener_pid_stable": true,
+    "serializer_p99_wait_ms": 222.62,
+    "serializer_queue_depth": 0,
+    "serializer_lock_errors_24h": 0,
+    "critical_descriptor_events": 0,
+    "feeds_and_ingestion_healthy": true,
+    "services_running": true,
+    "evidence_writer_stopped": true
+  },
+  "decision": {
+    "d2_plan_evidence_replay_verified": true,
+    "compatible_query_count": 5,
+    "incompatible_query_count": 0,
+    "full_target_relation_scans": 0,
+    "select_templates_executed": 0,
+    "production_rows_read": 0,
+    "d2_retry_required": false,
+    "psi0a_d_closed": true,
+    "basis": "The terminal warning was transient, listener-local and causally independent of D2. Repeating the already replay-verified production metadata inspection would add production contact without adding evidence."
+  },
+  "safety": {
+    "production_database_connections_opened": 0,
+    "schema_or_row_queries": 0,
+    "explain_or_select_statements": 0,
+    "production_writes_or_ddl": 0,
+    "provider_calls": 0,
+    "service_actions": 0,
+    "configuration_changes": 0,
+    "production_impact": false
+  },
+  "next_action": "Separately authorize safe-local PSI0A-E resource-ceiling contract qualification; do not repeat PSI0A-D2."
+}

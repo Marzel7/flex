@@ -1,0 +1,41 @@
+{
+  "artifact_type": "b2n_eligibility_decision_record_contract",
+  "artifact_version": "1",
+  "schema_version": "b2n-cohort-eligibility-human-decision-contract.v1",
+  "milestone": "B2N-P2",
+  "generated_utc": "2026-08-18T14:11:33Z",
+  "contract_version": "OIP_v2.2E.2B2N.v1",
+  "decision_scope": {
+    "member_set_path": "docs/evidence_platform/oip_v2_2e_2b2u_b2r_frozen_manifest.json",
+    "member_set_digest": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+    "expected_member_count": 20,
+    "member_ordinals": "1..20",
+    "no_provider_or_production_authority": true,
+    "no_invented_provenance": true
+  },
+  "decision_record_template": {
+    "type": "B2N_COHORT_ELIGIBILITY_DECISION",
+    "required_fields": [
+      "sample_ordinal",
+      "mint",
+      "census_event_id",
+      "reviewed_migration_origin",
+      "human_approval_decision_record",
+      "immutable_source_checkpoint_id",
+      "reviewer_id",
+      "review_timestamp_utc",
+      "decision"
+    ],
+    "decision_states": [
+      "APPROVED",
+      "DENIED",
+      "REQUIRES_REVIEW",
+      "HUMAN_DECISIONS_REQUIRED"
+    ],
+    "default_state": "HUMAN_DECISIONS_REQUIRED",
+    "provenance_gate": "all_review_fields_present_and_non_null_or_run_stays_blocked"
+  },
+  "status": "OPEN",
+  "reason": "No reviewed migration provenance present for any member yet; only human-disposition scaffold may be appended once authoritative evidence is provided.",
+  "next_action": "Await authoritative reviewed-migration provenance artifacts and approval decisions, then re-run provenance-binding preflight and contract execution preflight."
+}

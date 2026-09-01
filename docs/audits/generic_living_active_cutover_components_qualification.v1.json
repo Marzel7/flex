@@ -1,0 +1,15 @@
+{
+  "schema_version": "generic_living_active_cutover_components_qualification.v1",
+  "previous_hold": {"path": "docs/audits/generic_living_bounded_active_cutover.v1.json", "sha256": "70fce14066cdcc18339c29e641beb90927e1e2cff2e66264f79003b6a7c066e1"},
+  "generic_source_adapter": "PASS as generic source_reader contract; no candidate-specific branches",
+  "relevance_classifier": "PASS: NO_NEW_EVIDENCE/GLOBAL_HIGH_WATER_ADVANCED_BUT_NOT_RELEVANT/RELEVANT_NEW_EVIDENCE",
+  "atomic_publication": "PASS in disposable WAL: assessment + GENERIC_DECLARATIVE_V2 lineage + bindings + conditional current",
+  "feature_gate": {"name": "LIVING_GENERIC_BOUNDED_DISPATCH_ENABLED", "default": false, "no_dual_publication": true, "legacy_fallback": true},
+  "disposable_rehearsal": "PASS: flag OFF selects legacy; flag ON resolves only the relevant configured candidate and is idempotent",
+  "real_dry_run": "Existing real source inspection remains GLOBAL_HIGH_WATER_ADVANCED_BUT_NOT_RELEVANT for both candidates; no real writes.",
+  "real_db_writes": 0,
+  "candidate_specific_behavioral_branches": 0,
+  "focused_tests": "python -m pytest -q tests/test_generic_living_pipeline_v2.py: 10 passed",
+  "blocker": "No production-configured persisted-source reader has yet been connected to build_generic_evidence_context; activating the flag would not satisfy real source-adapter requirements.",
+  "verdict": "GENERIC_LIVING_ACTIVE_CUTOVER_COMPONENTS_HOLD_ADAPTER"
+}

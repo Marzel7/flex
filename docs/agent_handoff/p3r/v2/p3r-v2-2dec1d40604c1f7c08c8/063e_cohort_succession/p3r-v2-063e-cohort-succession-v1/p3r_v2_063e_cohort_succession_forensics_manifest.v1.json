@@ -1,0 +1,12 @@
+{
+  "canonical_edge_high_water": 60299,
+  "provider_calls": 0,
+  "report": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/063e_cohort_succession/p3r-v2-063e-cohort-succession-v1/p3r_v2_063e_cohort_succession_forensics.v1.json",
+  "report_sha256": "50bfe15d1458d5f973d9b9e84beb4dd861a7566a526145343eb10aa8680589b0",
+  "schema_version": "P3R_V2_063E_COHORT_SUCCESSION_MANIFEST.v1",
+  "source_digests": {
+    "forensic": "05833e5787a4735bbd20b1d530ea5ad36c7bffd6f3dc4e54f7f1891a946bde3d",
+    "funder_rpc": "4f2c894e365a73414f3ae9f2a7f12c0e0fa85cc72287b8a77d9effd3b35fbbe5",
+    "shared_root": "0773dd736b8286be6066f7f5bf4362484d7d1b0f9c2553c859ca246d3709f6be"
+  }
+}

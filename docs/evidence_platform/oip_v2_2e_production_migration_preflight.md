@@ -19,7 +19,7 @@ Choosing a corpus based on recency or size would invent production authority. Ad
 - Installed no migration record, delta outbox, sidecar, trigger, or control switch.
 - Paused no writers and restarted no services.
 - Performed no acquisition and deleted no canonical data.
-
+å
 ## Required before retry
 
 - Explicitly configure and prove one authoritative production Evidence database.

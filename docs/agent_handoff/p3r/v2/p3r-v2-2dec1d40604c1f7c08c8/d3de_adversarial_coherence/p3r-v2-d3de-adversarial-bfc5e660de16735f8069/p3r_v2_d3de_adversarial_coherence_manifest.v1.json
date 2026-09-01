@@ -1,0 +1,32 @@
+{
+  "artifact": {
+    "path": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/d3de_adversarial_coherence/p3r-v2-d3de-adversarial-bfc5e660de16735f8069/p3r_v2_d3de_adversarial_coherence.v1.json",
+    "sha256": "2d5b1568ea7a6ce28736b94939546f12f850a8b9022f45cad732b55f4b957f1d"
+  },
+  "candidate_id": "p3r-v2-d3de29c88fe0ce5fa309",
+  "code_sha256": "258d991e164a6378d125873ad569d98f15b48c3e0fccd08974a3883ec9d689ce",
+  "report_digest": "bfc5e660de16735f806994448134208fec300dc180f4d7fb5a76e6b7b76d236d",
+  "report_id": "p3r-v2-d3de-adversarial-bfc5e660de16735f8069",
+  "run_id": "p3r-v2-2dec1d40604c1f7c08c8",
+  "safety": {
+    "activation": false,
+    "fingerprint_mutation": false,
+    "membership_mutation": false,
+    "queue_replay": false,
+    "registration": false,
+    "rpc_calls": 0,
+    "source_evidence_mutation": false,
+    "tier_mutation": false,
+    "trading_signal": false
+  },
+  "source_snapshot": {
+    "database": "database/wt_ops_v2.db",
+    "highwaters": {
+      "wt_walkback_atomic_flows": 7095,
+      "wt_walkback_edge_candidates": 60299,
+      "wt_walkback_queue": 32353
+    },
+    "read_only_source": true,
+    "schema_sha256": "dcc038d07998c3d37d0475a7c0fc1d61eaa141401712b3079ec3e465dff3f4ad"
+  }
+}

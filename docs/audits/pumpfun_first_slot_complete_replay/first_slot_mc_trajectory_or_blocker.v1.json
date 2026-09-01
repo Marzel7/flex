@@ -1,0 +1,15 @@
+{
+  "artifact_type": "PUMPFUN_MACROHARD_FIRST_SLOT_MARKET_CAP_TRAJECTORY_BLOCKER_V1",
+  "chart_context_only": "A near-$13k opening chart observation cannot supply authoritative reserve or price data.",
+  "market_cap_reconstructed": false,
+  "reason": "The first successful action has an unexplained creation-state-to-event-state discontinuity. Therefore an exact first-slot reserve replay and canonical spot-price/market-cap derivation are not qualified. No USD price lookup was made.",
+  "sol_usd_source": null,
+  "sol_usd_value_available": false,
+  "target": {
+    "associated_curve": "3LiBmWqde7CaFW9mogdyRemiXoYxprHSjChzCW4gLejm",
+    "creation_slot": 443375106,
+    "curve": "FJPbTzeUy4pzPT3r7c2fNxccNvvhbC7LJkSqXux8xU1g",
+    "mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+    "slot": 443375107
+  }
+}

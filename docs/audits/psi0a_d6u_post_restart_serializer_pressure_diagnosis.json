@@ -1,0 +1,63 @@
+{
+  "artifact": "PSI0A-D6U",
+  "created_at": "2026-08-14T13:38:49Z",
+  "engineering_revision": "c449b221c4e5cf4916b38f41251a7b193ffecd71",
+  "scope": "bounded local and production-telemetry read-only serializer-pressure diagnosis",
+  "verdict": "RECOVERED_ROLLING_WINDOW_RESIDUE_SEED_READ_DEADLINE_REPAIR_NEXT",
+  "listener": {
+    "pid": 1595,
+    "pid_stable": true,
+    "evidence_writer": "STOPPED"
+  },
+  "serializer": {
+    "initial_post_restart_p99_wait_ms": 0.57,
+    "d6t_stop_p99_wait_ms": 1075.63,
+    "latest_p99_wait_ms": 471.03,
+    "latest_p95_wait_ms": 51.29,
+    "latest_queue_depth": 0,
+    "latest_lock_errors_24h": 0,
+    "sample_window": "last 5000 in-process write-lane acquisition samples",
+    "window_reset": "process restart only",
+    "interpretation": "p99 declined as newer samples diluted startup outliers; no current queued writer or lock-error evidence",
+    "dominant_aggregate_writer": {
+      "writer": "usage_tracker",
+      "write_count": 74,
+      "average_wait_ms": 236.41,
+      "total_wait_ms": 17494.7
+    },
+    "causality_limit": "aggregate telemetry does not retain individual wait samples, so exact attribution of the percentile outlier is unavailable"
+  },
+  "seed_read": {
+    "connection_id": "ca0a1ef9-a70f-4d75-8e5d-b517fc0f2dab",
+    "opened_at": 1786714181.042047,
+    "owner_cleanup_requested_at": 1786714206.117654,
+    "closed_at": 1786714234.170144,
+    "lifetime_ms": 53128.09,
+    "close_thread_matches_owner": true,
+    "transaction_open_at_close": false,
+    "write_lane_owned_at_close": false,
+    "classification": "startup-only long-running managed read, not a persistent connection leak",
+    "query_deadline_present": false
+  },
+  "descriptor_recovery": {
+    "peak_primary_fd_count": 10,
+    "peak_registry_count": 1,
+    "peak_registry_fd_delta": 9,
+    "post_close_primary_fd_samples": [2, 3, 3, 0, 0, 0, 4, 5, 0, 0, 0],
+    "latest_three_primary_fd_samples": [0, 0, 0],
+    "recurrent_seed_read": false
+  },
+  "objective_safe_local_gate": {
+    "listener_pid_stable": true,
+    "latest_three_primary_fd_samples_below_8": true,
+    "serializer_p99_below_1000_and_recovering": true,
+    "serializer_queue_depth_zero": true,
+    "lock_errors_zero": true,
+    "result": "PASS_FOR_SEPARATE_SAFE_LOCAL_SEED_READ_DEADLINE_REPAIR"
+  },
+  "smallest_repair": "add a positive bounded monotonic deadline enforced by SQLite progress handler only around _seed_read, with unconditional handler removal and managed connection closure; retain fail-open deferred subscription behavior",
+  "production_database_queries": 0,
+  "production_mutations": 0,
+  "service_actions": 0,
+  "provider_calls": 0
+}

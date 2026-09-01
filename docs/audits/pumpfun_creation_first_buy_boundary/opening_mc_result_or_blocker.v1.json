@@ -1,0 +1,9 @@
+{
+  "artifact_type": "PUMPFUN_OPENING_MC_RESULT_OR_BLOCKER_V1",
+  "exact_deployment_history_query_required": true,
+  "exact_slot_account_state_query_required": true,
+  "first_slot_market_cap_now_supported": false,
+  "sol_usd_value_available": false,
+  "what_caused_approx_13k_opening_move": "UNRESOLVED_DUE_TO_CREATION_BOUNDARY: the complete first trading slot is known, but its first post-trade curve state cannot be authoritatively connected to the decoded creation reserves.",
+  "what_is_still_missing_for_opening_mc": "Target-era canonical CreateEvent/ExtendAccount semantics plus either an authenticated final curve-account state after creation or a proven initialization transform. Exact deployed-binary binding is required if those semantics differ by program version."
+}

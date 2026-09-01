@@ -1,0 +1,267 @@
+{
+  "schema_version": "ra4.c5b.compact-manifest-materialization.v1",
+  "artifact_type": "RA4_C5B_COMPACT_RETIREMENT_MANIFEST_MATERIALIZATION",
+  "milestone": "RA4-C5B",
+  "generated_utc": "2026-08-18T21:40:00Z",
+  "purpose": "Materialize and verify the smallest deterministic historical correlation/lineage representation required to make the 61.6 GiB legacy retained_acquisition.db unnecessary, per the sole blocker identified at RA4-C5A close (HOLD_RA4_COMPACT_RETIREMENT_MANIFEST_REQUIRED).",
+
+  "part1_legacy_identity_revalidation": {
+    "path": "database/evidence_platform/production/retained_acquisition.db",
+    "size_bytes": 66155503616,
+    "mtime_epoch": 1787077699,
+    "inode": 487625267,
+    "schema_fingerprint": "page_size=4096, page_count=16151246 (unchanged from RA4-C5/C5A)",
+    "identity_matches_prior_checkpoints": true,
+    "active_writers_before_open": 0,
+    "active_readers_before_open": 0,
+    "v2_flag_state": "RETAINED_ACQUISITION_V2_SHADOW_ENABLED=1 (ON)",
+    "legacy_flag_state": "RETAINED_ACQUISITION_OBSERVATIONS_ENABLED=0 (OFF)",
+    "verdict": "IDENTITY_CONFIRMED -- no HOLD_RA4_LEGACY_SOURCE_IDENTITY_DRIFT"
+  },
+
+  "part2_disk_headroom_revalidation": {
+    "command": "df -h /System/Volumes/Data",
+    "free_at_start": "13Gi",
+    "floor_required_gib": 10,
+    "floor_preferred_gib": 12,
+    "floor_met": true,
+    "preferred_met": true,
+    "verdict": "no HOLD_RA4_HOST_STORAGE_FLOOR"
+  },
+
+  "part3_compact_contract": {
+    "retained_fields_and_reasons": [
+      {"field": "observation_id", "reason": "legacy primary key identity -- required to prove 1:1 source coverage and support dedupe-safe lookups"},
+      {"field": "source_schema_version", "reason": "provenance of the originating legacy row shape"},
+      {"field": "acquisition_id", "reason": "REQUIRED_UNIQUE correlation/lineage index (C5 Part 6)"},
+      {"field": "correlation_id", "reason": "REQUIRED_UNIQUE correlation/lineage index (C5 Part 6)"},
+      {"field": "launch_mint", "reason": "REQUIRED_UNIQUE mint-indexed lookup -- was the legacy DB's only actual secondary index"},
+      {"field": "retained_at", "reason": "timestamp/history lookup"},
+      {"field": "source_timestamp", "reason": "acquisition-time timestamp from legacy metadata, distinct from retained_at (ingestion time)"},
+      {"field": "provider, method", "reason": "provider/method lineage, required for historical accounting"},
+      {"field": "purpose, request_type, creator", "reason": "additional lineage context present in legacy metadata not carried by V2's narrower hot-payload contract; preserved since it is cheap and would otherwise be lost entirely"},
+      {"field": "http_method, response_status", "reason": "minimal replay-relevant request/response identity"},
+      {"field": "url (sanitized)", "reason": "endpoint identity with credentials stripped via the existing sanitize_url() convention"},
+      {"field": "artifact_digest, artifact_size_bytes, artifact_compressed_bytes, artifact_representation, content_type", "reason": "required to resolve raw bytes independently via ArtifactStore"},
+      {"field": "request_payload_sha256, response_headers_sha256", "reason": "request/response identity digests computed at materialization time using the same canonical()/sha256 scheme V2's hot payload already uses, without duplicating the full bodies"}
+    ],
+    "omitted_fields_and_recovery_path": [
+      {"field": "response_data (full parsed JSON)", "recovery_path": "artifact_digest -> ArtifactStore -> decompress -> exact bytes (proven Part 7)"},
+      {"field": "raw_body_base64", "recovery_path": "same as response_data -- the artifact store holds the canonical raw bytes"},
+      {"field": "response_text", "recovery_path": "same as response_data"},
+      {"field": "request_payload (full body)", "recovery_path": "request_payload_sha256 provides identity/integrity verification; legacy GET requests (the vast majority) had no body at all"},
+      {"field": "response_headers (full dict)", "recovery_path": "response_headers_sha256 provides identity/integrity verification; individual header values were not classified REQUIRED_UNIQUE"}
+    ]
+  },
+
+  "part4_no_raw_payload_duplication": {
+    "confirmed_excluded": ["response_data", "raw_body_base64", "response_text", "full request_payload bodies", "full response_headers dicts"],
+    "verified_by": "compact_observations schema (Part 5) has no columns for these fields; verified via direct row inspection post-materialization"
+  },
+
+  "part5_storage_format": {
+    "chosen_format": "SQLite (matches existing repository convention, e.g. database/evidence_platform/oip_v2_2b_compact_provenance/compact_provenance.sqlite)",
+    "path": "database/evidence_platform/archive/retained_acquisition_legacy_compact.db",
+    "reasoning": "1.9M rows require efficient indexed lookup by mint/acquisition/correlation/timestamp; SQLite provides this natively with bounded memory via streaming cursor reads and batched inserts, matches an already-established repository pattern, and needs no new dependency",
+    "schema": {
+      "compact_observations": "primary table, PK observation_id, indexes on launch_mint/acquisition_id/correlation_id/retained_at",
+      "compact_outcomes_summary": "aggregate outcome counts (outcome, count) -- not 1.9M individual rows, since C5 found outcomes 100% uniform (Part 9 reasoning)",
+      "compact_gaps": "full per-gap rows preserved (0 rows currently -- cheap to keep verbatim given zero volume)",
+      "manifest_metadata": "key/value table binding this compact DB to its exact source identity and materialization time"
+    },
+    "integrity_metadata_present": true,
+    "source_identity_binding_present": true
+  },
+
+  "part6_streaming_materialization": {
+    "method": "server-side SQLite cursor (fetchmany, chunk size 2000), never fetchall() on the source table; batched executemany() inserts into the compact DB per chunk with commit-per-chunk; no full-table sort/GROUP BY used against the 1.9M-row legacy table",
+    "script": "scripts/run_ra4_c5b_compact_manifest_materialization.py",
+    "fixture_tested_before_running_against_production": true,
+    "fixture_test_caught_a_real_bug": "an initial column-count mismatch (22-column schema vs a 21-placeholder INSERT) was caught and fixed against a tiny synthetic fixture BEFORE any run against the real legacy DB -- disclosed per this session's discipline",
+    "run_duration_seconds": 2016.7,
+    "rows_processed": 1938017,
+    "legacy_db_opened_read_only": "confirmed via lsof during the run: fd 4 showed mode 'r' (read-only), and legacy size/mtime/inode were unchanged at every checkpoint during and after the run",
+    "fail_closed_on_conflict": "script checks COMPACT_PATH.exists() and exits 1 before writing if a prior output already exists -- verified no pre-existing conflicting artifact existed before this run"
+  },
+
+  "part7_artifact_linkage_proof": {
+    "method": "5 deterministic samples from the compact DB (3 unordered LIMIT, 2 via observation_id LIKE '5%'), artifact_digest resolved against database/evidence_platform/artifacts/ (the legacy/shared artifact root, correct for legacy-sourced rows)",
+    "samples_resolved": "5/5",
+    "sha256_integrity_verified": "5/5",
+    "no_full_artifact_scan_performed": true
+  },
+
+  "part8_correlation_lineage_preservation": {
+    "indexes_created": ["idx_compact_mint on launch_mint", "idx_compact_acquisition on acquisition_id", "idx_compact_correlation on correlation_id", "idx_compact_retained_at on retained_at"],
+    "supports": ["acquisition lookup", "correlation lookup", "mint lookup", "provider/method lineage (columns present, queryable)", "timestamp/history lookup", "replay source binding via observation_id + artifact_digest", "downstream historical evidence tracing"]
+  },
+
+  "part9_outcome_preservation": {
+    "decision": "aggregate representation (compact_outcomes_summary: outcome, count) rather than 1.9M individual per-acquisition outcome rows",
+    "reasoning": "C5 established outcomes are 100% uniform (1,937,940 RETAINED, 0 of any other type) across the entire legacy dataset. A per-row outcome column would add zero additional information beyond the aggregate given this uniformity, while a global invariant (RETAINED unless otherwise noted) plus an explicit exception table would be the theoretically minimal representation. Since there are currently 0 gap/exception rows, the aggregate table already IS the minimal exact representation -- it fully proves historical accounting (1,937,940 RETAINED, 0 else) without storing redundant per-row uniformity.",
+    "gaps_table": "preserved verbatim (0 rows) since it costs nothing at this volume and would matter if the source ever had non-zero gaps",
+    "accounting_provable": true
+  },
+
+  "part10_materialization_output": {
+    "compact_artifact_path": "database/evidence_platform/archive/retained_acquisition_legacy_compact.db",
+    "compact_artifact_size_bytes": 1776209920,
+    "preflight_artifact_path": "docs/audits/ra4_c5b_compact_retirement_manifest_materialization.json",
+    "conflict_check": "no pre-existing conflicting artifact was found at either path before this run -- fail-closed check passed"
+  },
+
+  "part11_materialization_accounting": {
+    "source_observations_expected": 1938017,
+    "compact_observations_actual": 1938017,
+    "match": true,
+    "source_distinct_mints_expected": 6311,
+    "compact_distinct_mints_actual": 6311,
+    "match_mints": true,
+    "outcome_accounting": {"legacy": {"RETAINED": 1937940}, "compact": {"RETAINED": 1937940}, "match": true},
+    "gap_accounting": {"legacy": 0, "compact": 0, "match": true},
+    "unexplained_residual": "none",
+    "classification": "no HOLD_RA4_COMPACT_MANIFEST_ACCOUNTING_MISMATCH -- all counts match exactly"
+  },
+
+  "part12_deterministic_digests": {
+    "compact_db_file_sha256": "60a323261910b4c1847e3289c473bbc9eaf957a456332aba0962484683063bec",
+    "logical_content_digest": "NOT COMPUTED -- an attempted row-order-independent logical digest (SHA-256 over PK-ordered observation_id/acquisition_id/correlation_id/launch_mint/retained_at/artifact_digest tuples) timed out after 2 minutes despite using the primary-key index (confirmed via EXPLAIN QUERY PLAN showing an index scan, not a table scan) -- the cost is the sheer volume of 1.9M Python-side hash updates against a freshly-VACUUMed, cold-cache file, not a query-plan problem. Judged not worth a longer blocking run given the file-level SHA-256 already provides a strong, verifiable identity binding, and the exact accounting match (Part 11) plus the 5/5 bounded field-level verification (Part 13) together provide independent semantic-correctness evidence that does not depend on file layout.",
+    "source_identity_bundle_sha256": "computed inline as manifest_metadata rows inside the compact DB itself (source_path/source_size_bytes/source_mtime/source_inode/source_row_count) -- queryable, not a separate detached digest artifact",
+    "note": "file-level SHA-256 is sufficient for detecting any future accidental mutation of this specific compact file (e.g. if someone re-VACUUMs or edits it); it does not by itself prove semantic correctness relative to the source -- that is established by Parts 11 and 13 instead"
+  },
+
+  "part13_bounded_source_to_compact_verification": {
+    "samples_checked": 5,
+    "sample_selection": "1 unordered LIMIT-1 row (early), 2 rows via observation_id LIKE '5%' (spread), 2 rows via observation_id LIKE '9%' (spread) -- covering distinct mints, distinct acquisition/correlation IDs, all sharing provider=helius_rpc/method=getSignaturesForAddress (the dominant method in the sampled window)",
+    "fields_verified_per_sample": ["launch_mint", "acquisition_id", "correlation_id", "retained_at", "provider", "method", "artifact_digest", "artifact_size_bytes"],
+    "result": "5/5 exact match on every retained field, source vs compact",
+    "verdict": "no HOLD_RA4_ARTIFACT_COVERAGE_INCOMPLETE"
+  },
+
+  "part14_replay_without_legacy": {
+    "method": "reconstruction performed using ONLY the compact DB (opened read-only via its own path) and the ArtifactStore (database/evidence_platform/artifacts/) -- the legacy DB path was never opened or referenced in this reconstruction code path",
+    "sample_reconstructed": {
+      "observation_id": "7476386b170b3bfb7ffceee42ef236bdf6f4b7bd5b165969671f1e9a4b771cb2",
+      "acquisition_id": "2867a120-aff0-4ba4-bee7-35768c933653",
+      "correlation_id": "21ef12a4-9571-4b79-86c1-c6e8cb949e19",
+      "launch_mint": "S1Fqsr9XLT9hRXfdJung5Ur5i21VxQiMjtSdcmWpump",
+      "provider_method": "helius_rpc / helius_enhanced_oldest_transaction",
+      "artifact_digest_verified": true,
+      "raw_evidence_recovered": true
+    },
+    "verdict": "COMPACT_REPLAY_WITHOUT_LEGACY = PASS",
+    "legacy_db_renamed_or_removed": false,
+    "explicit_exclusion_method": "the reconstruction code simply never opened the legacy DB path -- no fixture renaming or removal of the real file was needed or performed"
+  },
+
+  "part15_hot_payload_helper_fix": {
+    "issue": "_observation_from_payload() in src/acquisition/retained_observations.py did not read V2 hot-payload top-level acquisition_id/correlation_id/launch_mint fields, only the nested 'metadata' dict that full payloads populate differently",
+    "fix_applied": true,
+    "fix_description": "backfill acquisition_id/correlation_id/launch (mint) into the metadata dict via dict.setdefault() when not already present -- additive only, does not override full-payload values that are already correctly nested",
+    "file_changed": "src/acquisition/retained_observations.py",
+    "lines_changed": "~7 lines added inside _observation_from_payload()",
+    "backwards_compatible": true,
+    "tests_added": [
+      "test_observation_from_payload_reads_hot_payload_top_level_identity",
+      "test_observation_from_payload_full_payload_unaffected_by_hot_backfill"
+    ],
+    "test_file": "tests/test_ra4_c5_legacy_retirement_qualification.py",
+    "full_test_suite_result": "25 passed (5 in the C5/C5B test file including the 2 new tests, plus 20 in test_ra4_c3_bounded_writer_enforcement.py, test_ra4_retained_acquisition_shadow_activation.py, test_oip_v2_2e_1c1_retained_observations.py -- zero regressions)",
+    "production_restart_performed_for_this_fix": false,
+    "did_this_block_retirement_or_replay_qualification": false,
+    "reasoning": "this was a helper-function gap, not an evidence-loss issue -- the underlying hot-payload data was always present and correct in storage (proven directly via raw JSON field access throughout RA4-C5A and this milestone). The fix improves a future general-purpose replay helper but was not required to reach any of C5B's verification results, all of which used direct field access or the compact DB's own explicit columns rather than this helper."
+  },
+
+  "part16_reclaim_calculation": {
+    "legacy_db_bytes": 66155503616,
+    "legacy_db_gib": 61.61,
+    "compact_artifact_bytes": 1776209920,
+    "compact_artifact_gib": 1.65,
+    "supporting_manifest_bytes": "manifest metadata is stored inline inside the compact DB itself (Part 5) -- no separate large supporting file exists beyond the preflight JSON artifacts (~tens of KB, negligible)",
+    "total_retirement_preservation_bytes": 1776209920,
+    "expected_reclaimable_bytes": 64379293696,
+    "expected_reclaimable_gib": 59.96,
+    "expected_reclaimable_percent": 97.32,
+    "note_on_estimate_vs_actual": "RA4-C5's design-time estimate projected ~0.54 GiB (~99.1% reclaim) based on a narrower per-row byte estimate. The actual materialized compact DB is 1.65 GiB (~97.3% reclaim) -- larger than estimated because the final schema retained more fields than the original narrow projection (additional lineage context: purpose, request_type, creator, source_timestamp) plus 4 real B-tree indexes, which add meaningful overhead at 1.9M rows. This is the ACTUAL MEASURED result, not the earlier estimate -- reported honestly per instruction not to assume the original estimate holds."
+  },
+
+  "part17_legacy_db_post_materialization_check": {
+    "size_bytes": 66155503616,
+    "mtime_epoch": 1787077699,
+    "inode": 487625267,
+    "identical_to_pre_materialization_identity": true,
+    "read_activity_occurred": true,
+    "write_activity_occurred": false
+  },
+
+  "part18_v2_health_check": {
+    "creator_funding_worker_pid": 33383,
+    "pid_unchanged_throughout_materialization": true,
+    "process_restarted": false,
+    "legacy_writer_flag": "OFF (RETAINED_ACQUISITION_OBSERVATIONS_ENABLED=0)",
+    "v2_writer_flag": "ON (RETAINED_ACQUISITION_V2_SHADOW_ENABLED=1)",
+    "v2_accepting_natural_rows": true,
+    "v2_row_count_at_check": 53637,
+    "v2_still_in_post_cap_hot_fallback_state": true,
+    "cap_reset_occurred": false,
+    "cap_reset_reasoning": "no restart occurred (same PID throughout), and per the code proof in RA4-C5A, cap state can only reset via restart -- so it did not and could not have reset here",
+    "no_evidence_loss_signals": "retention_degraded/ directory still does not exist"
+  },
+
+  "part19_b2n_integrity": {
+    "attempt_ledger_sha256_before_and_after": "06ea55a8b21a30aec7b81f23737f921b1dcdf5bbe88266671600a25785fe9e0f",
+    "event_ledger_sha256_before_and_after": "f427610ccdae99b033d006fc0423170bcb6780a461c85c13d329c5fda8615071",
+    "live_result_sha256_before_and_after": "675e0bf23c99b70e24db24ef27bf0738f47b0fe69d6200543031ece62fa18767",
+    "all_digests_identical": true,
+    "b2n_state": {"run_id": "b2n-p3e-98695fbdf44146c93ff08c8c", "completed": 1, "remaining": 19, "physical_requests_consumed": 1, "remaining_budget": 19},
+    "b2n_resumed": false
+  },
+
+  "part20_active_dependency_recheck": {
+    "legacy_active_writers": 0,
+    "legacy_active_readers_after_c5b_closed_its_handle": 0,
+    "lsof_check": "empty result -- confirmed via lsof against the exact legacy DB path after the materialization process exited",
+    "b2n_dependency": "none",
+    "b2z_dependency": "none",
+    "watchtower_dependency": "none",
+    "canonical_operation_dependency": "none",
+    "h_series_runtime_dependency": "none",
+    "new_dependency_appeared": false
+  },
+
+  "part21_deletion_recovery_model": {
+    "what_remains_after_eventual_deletion": [
+      "compact historical index (database/evidence_platform/archive/retained_acquisition_legacy_compact.db, 1.65 GiB) -- observation identity, acquisition/correlation/mint lineage, provider/method, timestamps, artifact linkage, outcome/gap accounting",
+      "ArtifactStore (database/evidence_platform/artifacts/) -- raw response bytes, independently content-addressed and integrity-verified, resolvable via artifact_digest from the compact index",
+      "V2 bounded production store (retained_acquisition_shadow.db + its own artifact root) -- all NEW observations since the RA4-C4 cutover, going forward",
+      "immutable evidence/audit artifacts already committed (docs/audits/*, this milestone's outputs, RA4-C3/C4/C5/C5A/C5B artifacts) -- provenance of the entire retirement decision itself"
+    ],
+    "sufficiency_claim": "this set is sufficient for the qualified historical use cases established in RA4-C5/C5B: mint/acquisition/correlation lookup (compact index), raw evidence recovery (artifact store + digest), and accounting/outcome verification (compact aggregate tables) -- all proven working via the bounded replay-without-legacy check (Part 14) and the 5/5 field+artifact verification samples (Parts 7 and 13)",
+    "explicit_non_claim": "this does NOT claim the original 61.6 GiB SQLite file can be reconstructed byte-for-byte, nor that its exact page layout, WAL history, or unindexed convenience fields (full response_headers dicts, full request bodies) are recoverable. The recovery model is semantic/evidentiary equivalence for the qualified use cases, not physical file reconstruction -- consistent with the instruction not to claim more than is actually true."
+  },
+
+  "part22_deletion_preconditions_checklist": {
+    "legacy_writer_zero": true,
+    "legacy_reader_zero": true,
+    "source_identity_frozen": true,
+    "compact_materialization_complete": true,
+    "source_compact_counts_match": true,
+    "required_lineage_preserved": true,
+    "artifact_linkage_verified": true,
+    "bounded_replay_without_legacy_pass": true,
+    "v2_production_cap_fallback_pass": true,
+    "v2_currently_healthy": true,
+    "operation_h_series_safety_pass": true,
+    "b2n_b2z_dependency_none": true,
+    "b2n_artifacts_unchanged": true,
+    "expected_reclaim_quantified": true,
+    "recovery_model_documented": true,
+    "disk_floor_healthy": true,
+    "all_true": true
+  },
+
+  "blockers": [],
+
+  "verdict": "READY_RA4_LEGACY_DB_DELETION_AUTHORIZATION_REVIEW",
+  "verdict_note": "All 16 deletion preconditions in Part 22 are satisfied with direct, measured evidence: exact row/mint/outcome/gap accounting match (1,938,017 observations, 6,311 mints, 1,937,940 RETAINED, 0 gaps -- zero discrepancy), 5/5 bounded field-level and artifact-level verification samples all passing, a genuine replay-without-legacy-DB reconstruction proven end-to-end, zero active legacy readers/writers, zero B2N/B2Z/Watchtower/canonical-operation/H-series dependency, B2N digests unchanged, V2 confirmed healthy and still in its proven post-cap fallback state with no restart, and a measured (not estimated) reclaim of 97.32% (~59.96 GiB). The legacy 61.6 GiB database remains completely untouched -- byte-identical across every checkpoint in this milestone. This verdict reaches the deletion AUTHORIZATION REVIEW gate only. Per explicit instruction, no deletion is performed or will be performed without a separate, explicit human GO."
+}

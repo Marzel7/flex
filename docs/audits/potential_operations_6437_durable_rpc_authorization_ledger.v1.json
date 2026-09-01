@@ -1,0 +1,706 @@
+{
+  "authorization": {
+    "attempts": [
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "known completed post-interruption page"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getSignaturesForAddress",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 1,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "2gBhiVzPbaLNwUmELeiHQ94RZmn1ftLqVXpZBhxZhNiw",
+        "timestamp": 1788092433
+      },
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "known completed post-interruption page"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getSignaturesForAddress",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 2,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "2uPFEpvFHq5xwDeftjvEPXq5b1t48UqDDJeSN9TsRE9Y",
+        "timestamp": 1788092433
+      },
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "durably decoded post-interruption transaction"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getTransaction",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 3,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "214W5ZLRLQ48piXNZdaqb1auA2uH9JM9N7Bqrpu9b7V9jGwYFNwKmUcbqhekpeCP6n3kRcusFqm2dxi4VtpkZHc7",
+        "timestamp": 1788092433
+      },
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "durably decoded post-interruption transaction"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getTransaction",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 4,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "21eLYg8LCDrjTHoAtJ9tzzGXf8wVYg7njM1U77WT7B3CALcFDN85qMJrinnUoD3og6DYcoRp6QzHdQ5sgKuKkEg1",
+        "timestamp": 1788092433
+      },
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "durably decoded post-interruption transaction"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getTransaction",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 5,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "21tAkzyDL6VWSaGw7ssdaek3DSSqLsYyy98cLWiuKYe3CzbL2sauQRxRrKwvapy5ZXQTfPNzwGPHzQq8G8FC4Uzp",
+        "timestamp": 1788092433
+      },
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "durably decoded post-interruption transaction"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getTransaction",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 6,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "227nMXHwbtADdEfn8hsDqGRAXBSLwcSkv4y4E8HX7KbyxHb1ki2uJLbSbp6kUFVjaMmfnZwsENBRCY1zRByFed91",
+        "timestamp": 1788092433
+      },
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "durably decoded post-interruption transaction"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getTransaction",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 7,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "22pdhS9gbkCCKiHTwhT3jhe9Y9muNHgxmMc8tb2eMLvw5Rt2SfThJag5LAEJ35caaCneoegXcJP2R41uDtagaegE",
+        "timestamp": 1788092433
+      },
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "durably decoded post-interruption transaction"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getTransaction",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 8,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "22qoK1YdAnYbfxrbtekFSArRvfpzWAwtWLo2vHfffnRn6UoaeqZcuihxffbmjaWMYW2Y3euCd8Ugkn29pnGHYaG9",
+        "timestamp": 1788092433
+      },
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "durably decoded post-interruption transaction"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getTransaction",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 9,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "232VdMt3KGVJXJfyv3N2jDjDW4FnZkyRZpNaFbhRCuTqQL97594pYDv2qT75KVSfVgEJrJwYq7p6UBCCURApQ6WP",
+        "timestamp": 1788092433
+      },
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "durably decoded post-interruption transaction"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getTransaction",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 10,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "2331yYFNuKGSvhSpfvWVQqvv5qxTa2QCPPU2oLRomZPgd8YfFtg4bgL6VBgo3F6WnAWxc4QDdq8f2Gc6yuuk2jyL",
+        "timestamp": 1788092433
+      },
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "durably decoded post-interruption transaction"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getTransaction",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 11,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "23Av5zxH7pJRn2bKRqp2Kcas8gUvFQWjshaESvptv2NDxcjbhPXF6ym9VH1Frf1W8ahGmb1p6wBqNvxnZuUcDRCz",
+        "timestamp": 1788092433
+      },
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "durably decoded post-interruption transaction"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getTransaction",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 12,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "25iz7m8VG7YYLYcnPH7bQefpDDQnGzE22TgWSxd7rBrTmFrUBUWvzhTuevNi1RC1HQc7w933eUvqLPxMyCjz3ZMc",
+        "timestamp": 1788092433
+      },
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "durably decoded post-interruption transaction"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getTransaction",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 13,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "26M3NyhMbRds43FoncKL2aXZ4vWTtG63QxtCbQL2YpJF7rVFQLuPLi9V3d6a4qXDKiGYVfVAD7Lv9LcQH4rtFg8o",
+        "timestamp": 1788092433
+      },
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "durably decoded post-interruption transaction"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getTransaction",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 14,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "26chXHxGhM5U715ompPu1Biou8QL2fnequ551VM8MP6K8c3xLkPaiWmMmmRpF41GfRM6FcNLrNKuvgcAFAjtn3v1",
+        "timestamp": 1788092433
+      },
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "durably decoded post-interruption transaction"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getTransaction",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 15,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "26cv39xitZiw8dDw62wX1KSEBU17bk7dFsvMr7oYkunL8XE76N7t1TjyoPbSnJCK4ZruPg9pDgKnC7ookzUN45cc",
+        "timestamp": 1788092433
+      },
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "durably decoded post-interruption transaction"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getTransaction",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 16,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "26fvGX1AZfZpk2xJ5V6X8sCmgeDV81KHEKFVn8SDvkhCgXDU5Xbe6MM3ihX7cP8QrNRxthJ8a1ftGJ54bQjvf8bL",
+        "timestamp": 1788092433
+      },
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "durably decoded post-interruption transaction"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getTransaction",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 17,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "27g6TAYMCvpMN44g39nDh72sqAFPwGrbFkr2hkgWACaLhyiAAHWmjDSEEQ3x5qz1LtB4pNwoZdiexTBBTo8vhK1H",
+        "timestamp": 1788092433
+      },
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "durably decoded post-interruption transaction"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getTransaction",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 18,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "28FWWviqHY5TRrDcmcC32X1dscxcS1uy48ggMCko845q72eQeT6CoqF2wGeLi6gnNBAJmJW8Qe9a1FbkxyGHMSxJ",
+        "timestamp": 1788092433
+      },
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "durably decoded post-interruption transaction"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getTransaction",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 19,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "28L9Hg3hH6Zh29aE51VUHs14FdSVALaPVj5xNYEUwLVfrzc6rBpsg28fWN8Rgw39BZZxUkjoz3PcNMcpwAxQKKCe",
+        "timestamp": 1788092433
+      },
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "durably decoded post-interruption transaction"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getTransaction",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 20,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "28ji7Rfsqm4GR8CgRw4qoGiq6YT3C3TeRwri7S9eDZAgDY9wvDLfSvKvLswJJcuFLMZzJCg8a1BJiAamtcACk334",
+        "timestamp": 1788092433
+      },
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "durably decoded post-interruption transaction"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getTransaction",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 21,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "29YNJpLazRhC2h2jkif6ZcDn6FLJpzERU9FQA4s1zYXyxCF6DaUHYFv45264qB7hQ9ckwpaiW5FJ8ad8skecqQAk",
+        "timestamp": 1788092433
+      },
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "durably decoded post-interruption transaction"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getTransaction",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 22,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "29hRTw2CGrkKN9FqiQnnBSemHWbyA5Dd6sut5TjFCRFLswfpb7YFcq2G29F7Gc6KrQ8dRtrw6hS4XzaQB7TVvG1b",
+        "timestamp": 1788092433
+      },
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "durably decoded post-interruption transaction"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getTransaction",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 23,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "2AG4Th9PRVrS55VQiWwzeMRQoUkQg1N7iocKtMFdALm3MvRGJQFzW6JBgUy3LSvGSq3j7Wv7yBvBTov8PFXC5wDk",
+        "timestamp": 1788092433
+      },
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "durably decoded post-interruption transaction"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getTransaction",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 24,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "2AdxqCnSdeTkZyb8SPbmsn6DPjYAWFrnCmr4DNbFkdnJxgGHPr92qrd3XNrpZGdzXU1741KN9j4PwFLtLKA6iuiS",
+        "timestamp": 1788092433
+      },
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "durably decoded post-interruption transaction"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getTransaction",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 25,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "2AnRCuj7y7tWHcS4JFaX4CG2ufMYz3RyHxnZUr3pby3jmrGPzkbZHMDumAcVzopWFJjevw9Q7nCodc2hCwPB1Fjs",
+        "timestamp": 1788092433
+      },
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "durably decoded post-interruption transaction"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getTransaction",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 26,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "2AsJWGQvnrXQmyfTkFwuLFB6CZctC4NqTiLVANcy2tFQNvaFDtB7fzCgaXZYN4FFxwQPcR3QP9GsbmEfdfM9k6hD",
+        "timestamp": 1788092433
+      },
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "durably decoded post-interruption transaction"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getTransaction",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 27,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "2B1Tr2JXyMTfwsHyhB6vXCRhp8CBuVuQXwFTaNNLVH6TqJeXAYFR7ADW6LRdJads6f4w7VKDFhwFabeTyLb6nhzb",
+        "timestamp": 1788092433
+      },
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "durably decoded post-interruption transaction"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getTransaction",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 28,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "2B3dUNy81QcxZv9RAa4gXiXgcww5wbyrFY9VSDJwLcX747QCpvNU5sJkdv3LW99JemANTkTRxrr8CAJun6orPd9i",
+        "timestamp": 1788092433
+      },
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "durably decoded post-interruption transaction"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getTransaction",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 29,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "2C14b1jbTQtpQZCoM6vQ6ELUGSQzEnAYhjJ67LfayhtaqwHdZi3jQ69ud2q9SpsorCZoHq8qeAipTYLavZFVzaGF",
+        "timestamp": 1788092433
+      },
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "durably decoded post-interruption transaction"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getTransaction",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 30,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "2CUvzcCg5PWQRadcYxG26iyaU6EEE3pfZYkcZzvjfcdjW5KFrkSEXmfKadt549ifKu3aFuyHpWAWzNTaVPUdtUor",
+        "timestamp": 1788092433
+      },
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "durably decoded post-interruption transaction"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getTransaction",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 31,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "2Cx9AVXjf65GJMZZzNfVdfW8dWXW3VjJCnyTWA711EQiNZBdC6v6JmDPT1ypKqxyj5gmPDuZUd14AmsTb7EKMXqQ",
+        "timestamp": 1788092433
+      },
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "durably decoded post-interruption transaction"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getTransaction",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 32,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "2DebgGSZuHageGAJZbVDAHu89hHhJmNSxYusFfBp8QVsErSTvwnDYN6aMr3MdyzB5k1Lnhe4cxyLbuR7ofuzqHy8",
+        "timestamp": 1788092433
+      },
+      {
+        "attempt_number": 1,
+        "context": {
+          "recovery": "durably decoded post-interruption transaction"
+        },
+        "error_code": null,
+        "error_message": null,
+        "error_name": null,
+        "provider": "helius",
+        "recovery_note": "Recovered known dispatched attempt; terminal metadata unavailable.",
+        "rpc_method": "getTransaction",
+        "run_id": "6437-f1-original-750-recovered",
+        "sequence_number": 33,
+        "state": "RECOVERED_HISTORICAL_ATTEMPT",
+        "success": null,
+        "target": "2DrEs57jnFidshGHMsaSpqpTteaesjeNnJJ77hn3rgVR3iAjUfUGWj7PdCY6GfKyffngx58Y7hzuCWbdU8gwbXa5",
+        "timestamp": 1788092433
+      }
+    ],
+    "authorization_created_at": 1788092433,
+    "authorized_max_network_calls": 750,
+    "calls_attempted": 33,
+    "calls_failed": 0,
+    "calls_remaining": 717,
+    "calls_succeeded": 0,
+    "candidate_id": "p3r-v2-6437acd385e566e301a7",
+    "completed_at": null,
+    "last_updated_at": 1788092433,
+    "purpose": "6437_F1_HISTORY_ACQUISITION",
+    "run_id": "6437-f1-original-750-recovered",
+    "schema_version": "durable_rpc_authorization.v1",
+    "started_at": 1788092433,
+    "status": "ACTIVE",
+    "stop_reason": null
+  },
+  "canonical_funder_state": {
+    "COMPLETE": 54,
+    "NOT_STARTED": 4,
+    "PARTIAL": 1
+  },
+  "current_717_sufficiency": "CURRENT_717_LIKELY_SUFFICIENT",
+  "estimated_base_calls_to_complete_f1": 5,
+  "estimated_max_calls_to_complete_f1": 139,
+  "f1_analytical_state_preserved": true,
+  "f2_analysis_started": false,
+  "files_changed": [
+    "src/ops/rpc_acquisition_checkpoint.py",
+    "scripts/reconstruct_6437_funder_infrastructure.py",
+    "scripts/recover_6437_f1_authorization.py",
+    "tests/test_durable_rpc_authorization.py"
+  ],
+  "focused_tests": "14 passed",
+  "immutable_authorization": true,
+  "implicit_budget_renewal": false,
+  "incomplete_workload": [
+    {
+      "decoded_signatures": 0,
+      "funder": "QVtWcAX3R7Cr51VhAxFSYntoCAmTQzK8Hf4R1TrKNQ4",
+      "launches": 6,
+      "next_before_cursor": "2VwBqp8hiJgpRJCFxCUksRvBMQhQ6387XmEZdctco9jUGcc6vm1b42mLU7UroVVFaGVu4przMhGYqZQpXS338f5Q",
+      "pages_retained": 217,
+      "remaining_window_start": 1776022140,
+      "signatures_retained": 217000,
+      "state": "PARTIAL"
+    },
+    {
+      "decoded_signatures": 0,
+      "funder": "QXrQp7xWw4ENvcCcbxuDt7UH5iNsu5P3RcfxuZJaH4w",
+      "launches": 1,
+      "next_before_cursor": null,
+      "pages_retained": 0,
+      "remaining_window_start": 1785963234,
+      "signatures_retained": 0,
+      "state": "NOT_STARTED"
+    },
+    {
+      "decoded_signatures": 0,
+      "funder": "ezMwtAnPAuJBoHCXUE8RfniWsvgMwkzkFS8tAM3S8by",
+      "launches": 1,
+      "next_before_cursor": null,
+      "pages_retained": 0,
+      "remaining_window_start": 1786448319,
+      "signatures_retained": 0,
+      "state": "NOT_STARTED"
+    },
+    {
+      "decoded_signatures": 0,
+      "funder": "gEham4pvb2xWeSuSRCxfkwHKB737y7ADRWagwLbPfQA",
+      "launches": 1,
+      "next_before_cursor": null,
+      "pages_retained": 0,
+      "remaining_window_start": 1787285591,
+      "signatures_retained": 0,
+      "state": "NOT_STARTED"
+    },
+    {
+      "decoded_signatures": 0,
+      "funder": "gangSXcffiVZntzVGYs7kajjVrPkFcTk6AKADCw91RV",
+      "launches": 1,
+      "next_before_cursor": null,
+      "pages_retained": 0,
+      "remaining_window_start": 1786551510,
+      "signatures_retained": 0,
+      "state": "NOT_STARTED"
+    }
+  ],
+  "network_call_count_this_task": 0,
+  "provider_call_count_this_task": 0,
+  "purpose": "6437_F1_HISTORY_ACQUISITION",
+  "recovered_prior_calls": 33,
+  "reservation_before_network": true,
+  "restart_remaining_proof": 717,
+  "rpc_call_count_this_task": 0,
+  "run_id": "6437-f1-original-750-recovered",
+  "safety": {
+    "assignment_writes": 0,
+    "generic_dispatch_changes": 0,
+    "living_publications": 0,
+    "membership_writes": 0,
+    "ranking_writes": 0,
+    "real_db_writes": 0,
+    "source_table_writes": 0
+  },
+  "schema_version": "potential_operations_6437_durable_rpc_authorization_ledger.v1",
+  "sha256": "b1ea429b424aaf8868c93d41b352b3aed4d920dffa9634a06f0141df026374fc",
+  "verdict": "DURABLE_AUTHORIZATION_LEDGER_PASS"
+}

@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D6W",
+  "observed_at_utc": "2026-08-14T13:50:22Z",
+  "engineering_revision": "d0bd5f1d2f0d95cc6026d681bb4c3ee1a619165f",
+  "verdict": "PASS_BOUNDED_RESTART_VERIFICATION",
+  "restart_count": 1,
+  "listener": {
+    "previous_pid": 1595,
+    "new_pid": 15357,
+    "supervisor_state": "RUNNING",
+    "stable_uptime_seconds_at_terminal_check": 64
+  },
+  "seed_read": {
+    "outcome": "PSI0A_D6V_SEED_READ_DEADLINE_EXCEEDED",
+    "connection_id": "f1d42344-2bd9-4626-a4a9-7ea83d6b9e1f",
+    "connection_lifetime_ms": 1998.235,
+    "native_close_state": "CLOSED",
+    "transaction_open_at_close": false,
+    "write_lane_owned_at_close": false,
+    "subscription_send_after_deadline": false
+  },
+  "terminal_health": {
+    "primary_fd_count": 0,
+    "primary_fd_warning_threshold": 8,
+    "serializer_p95_wait_ms": 0.02,
+    "serializer_p99_wait_ms": 70.35,
+    "serializer_queue_depth": 0,
+    "serializer_lock_errors_24h": 0,
+    "pumpportal_active": true,
+    "pumpswap_active": true,
+    "ingestion_active": true,
+    "evidence_writer": "STOPPED"
+  },
+  "production_flags_changed": false,
+  "production_database_queries_by_codex": 0,
+  "production_writes_by_codex": 0,
+  "provider_qualification_calls_by_codex": 0,
+  "notes": [
+    "The single authorized restart was consumed; no second restart occurred.",
+    "D6Q and D6R remained loaded. Usage-tracker lifecycle closed normally when naturally exercised; vault-discovery ordering was not required to be forced.",
+    "This immediate verification does not constitute the longer stability observation or authorize PSI0A-D2."
+  ]
+}

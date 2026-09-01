@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D6P vault-discovery descriptor diagnosis",
+  "observed_at_utc": "2026-08-14T13:12:08Z",
+  "engineering_revision": "718fa6078f264dff36ba741de82413e51e4a3b00",
+  "status": "COMPLETE",
+  "verdict": "TRANSIENT_LONG_HELD_VAULT_CONNECTION_SCOPE_IDENTIFIED",
+  "listener_pid": 88910,
+  "preflight": {
+    "p99_wait_ms": 969.1,
+    "p95_wait_ms": 175.28,
+    "queue_depth": 1,
+    "lock_errors_24h": 0
+  },
+  "descriptor_event": {
+    "primary_fd_count": 14,
+    "registry_count": 1,
+    "registry_fd_delta": 13,
+    "tracked_caller": "vault_discovery.py:969 in discover_and_register_all_pools",
+    "tracked_age_seconds": 22.0,
+    "connection_later_closed": true
+  },
+  "source_ordering": [
+    "open SQLite connection and cursor",
+    "await largest-account provider discovery",
+    "await candidate validation",
+    "await quote-vault resolution and validation for each candidate",
+    "perform database inserts and commits",
+    "close connection near function return"
+  ],
+  "classification": {
+    "permanent_connection_leak": false,
+    "transient_long_held_connection": true,
+    "descriptor_multiplication": "main/WAL/SHM and concurrent raw/untracked SQLite handles make physical descriptors exceed the single logical registry entry",
+    "root_cause": "database scope begins before network discovery and spans multiple provider awaits"
+  },
+  "smallest_safe_local_repair": "Complete provider discovery and validation without a database connection, then open one short managed connection only for final database mutations and guarantee close on every return/exception path.",
+  "preserved_followup": "Remove per-batch usage_tracker journal PRAGMAs in a separate safe-local milestone after vault-discovery scope repair qualification.",
+  "scope_evidence": {
+    "production_database_queries": 0,
+    "ddl_or_production_writes": 0,
+    "service_restart_or_stop": 0,
+    "provider_calls": 0,
+    "configuration_changes": 0
+  }
+}

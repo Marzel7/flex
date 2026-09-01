@@ -1,0 +1,40 @@
+{
+  "schema": "psi0b.e6a.null-owner-lock-diagnosis.v1",
+  "milestone": "PSI0B-E6A",
+  "status": "HOLD",
+  "verdict": "LISTENER_PID_CHANGE_STOP",
+  "engineering_commit": "3862e7dfcc2fcc6293a433c14566303124683476",
+  "observed_at_utc": "2026-08-15T08:16:58Z",
+  "authorized_baseline": {
+    "walkback_worker_pid": 70136,
+    "listener_pid": 15357
+  },
+  "terminal_checkpoint": {
+    "walkback_worker_pid": 70136,
+    "walkback_worker_uptime": "0:30:23",
+    "listener_pid": 72232,
+    "listener_uptime": "0:28:03",
+    "evidence_writer": "STOPPED",
+    "serializer_p99_wait_ms": 2.14,
+    "serializer_queue_depth": 0,
+    "serializer_lock_errors_24h": 0,
+    "operations_lock_inode": 445589615,
+    "operations_database_inode": 421043107,
+    "operations_wal_inode": 512511222
+  },
+  "stop": {
+    "reason_code": "LISTENER_PID_CHANGED_FROM_AUTHORIZED_BASELINE",
+    "detail": "The first Supervisor checkpoint found watchtower_listener PID 72232 rather than authorized baseline PID 15357. The diagnosis stopped before lock-owner correlation or recovery conclusions.",
+    "diagnosis_complete": false
+  },
+  "safety": {
+    "production_database_opened": false,
+    "schema_or_rows_inspected": false,
+    "lease_or_lock_acquired_or_manipulated": false,
+    "service_actions": 0,
+    "production_writes": 0,
+    "provider_rpc_calls": 0,
+    "psi0b_e_executed": false
+  },
+  "next_action": "Separately authorize a telemetry/filesystem-only restart-sequence reconciliation anchored to current listener PID 72232 and walkback-worker PID 70136, with no service action or database opening."
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": "generic_living_bounded_active_cutover_complete.v1",
+  "qualification_artifact": {"path": "docs/audits/generic_living_persisted_source_reader_qualification.v1.json", "sha256": "7cd0085e41ce76818305ea7b4170180603b717ec5655027f24015a153e479eb6", "verified": true},
+  "pre_cutover_state": {"identities": 2, "associations": 183, "assessments": 5, "currents": 2, "lineage": 5, "bindings": 183},
+  "feature_flag_before": false,
+  "feature_flag_after": false,
+  "activation_attempted": false,
+  "blocker": "The active bounded bridge remains src/ops/living_potential_operations.py:handle_walkback_evidence_update, which directly invokes legacy bootstrap functions. It does not invoke dispatch_bounded_living, does not load a generic registry, and does not supply the persisted source reader. The feature flag is therefore not a real runtime switch.",
+  "real_generic_publications": 0,
+  "post_cutover_state": {"identities": 2, "associations": 183, "assessments": 5, "currents": 2, "lineage": 5, "bindings": 183},
+  "promotion": "NO", "detector": "NO", "global_automatic_walkback_integration": "NO",
+  "required_fix": "Wire the real registry, persisted source reader, generic derivation and atomic publisher into the active bounded bridge before enabling the flag; then rerun cutover authorization.",
+  "verdict": "GENERIC_LIVING_BOUNDED_ACTIVE_CUTOVER_ROLLED_BACK_CORRECTNESS"
+}

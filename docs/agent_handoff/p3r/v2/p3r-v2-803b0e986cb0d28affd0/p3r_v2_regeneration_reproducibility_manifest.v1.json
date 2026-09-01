@@ -1,0 +1,102 @@
+{
+  "artifacts": {
+    "activity_contract": {
+      "path": "docs/agent_handoff/p3r/v2/p3r-v2-803b0e986cb0d28affd0/p3r_v2_activity_contract.v1.json",
+      "sha256": "90b889e9dfd3aac0b602f2f21ffdf77b0ec1637df3118d1eac2ab0d4e816a776"
+    },
+    "discovery_contract": {
+      "path": "docs/agent_handoff/p3r/v2/p3r-v2-803b0e986cb0d28affd0/p3r_v2_candidate_discovery_contract.v1.json",
+      "sha256": "b5384c9bd87c1349ee18ff93405b8bb5e625bbf6571d5739c354ee4c614818fd"
+    },
+    "fingerprint_contracts": {
+      "path": "docs/agent_handoff/p3r/v2/p3r-v2-803b0e986cb0d28affd0/p3r_v2_fingerprint_contracts.v1.json",
+      "sha256": "85ac5fdbed068331d2fe002183f0abaddbf3384037a0550416dd1f5260ed1c50"
+    },
+    "membership": {
+      "path": "docs/agent_handoff/p3r/v2/p3r-v2-803b0e986cb0d28affd0/p3r_v2_candidate_membership.v1.json",
+      "sha256": "ca612f679acbc667cc7dc249bfe698ac62a66821f67469473c70b3b3a0ce65d5"
+    },
+    "promotion_contract": {
+      "path": "docs/agent_handoff/p3r/v2/p3r-v2-803b0e986cb0d28affd0/p3r_v2_promotion_contract.v1.json",
+      "sha256": "cf2c0b8141ac5df5336683bf008c518abb85e9d2f1d8a7316a5561c8dbb2602d"
+    },
+    "shortlist": {
+      "path": "docs/agent_handoff/p3r/v2/p3r-v2-803b0e986cb0d28affd0/p3r_v2_next_investigation_shortlist.v1.json",
+      "sha256": "891001d0941972b3529ccf30ef7525ca741acc74eec485899ee070b3422943fc"
+    },
+    "tiers": {
+      "path": "docs/agent_handoff/p3r/v2/p3r-v2-803b0e986cb0d28affd0/p3r_v2_tier_membership.v1.json",
+      "sha256": "f67c256d885d1e15dfe1ebf5e68a37a453a46199a5ea2edfee12b030d0b394ef"
+    }
+  },
+  "contract": {
+    "activity": {
+      "states": {
+        "DORMANT": "last_30d = 0",
+        "HIGH_ACTIVITY": "last_7d >= 3 and max_rolling_24h >= 1",
+        "LOW_ACTIVITY": "remaining observed",
+        "REGULAR_ACTIVITY": "last_30d >= 2",
+        "VERY_HIGH_ACTIVITY": "last_7d >= 7 and max_rolling_24h >= 2"
+      },
+      "timestamp": "MIN(selected wt_walkback_edge_candidates.block_time) per mint; observed activity proxy, not token launch time.",
+      "version": "P3R_V2_ACTIVITY.v1"
+    },
+    "discovery": {
+      "base_fingerprint": "Sorted unique (hop_depth, mechanism, amount_lamports); amount 0/null is normalized to null and never positive evidence.",
+      "family_minimums": {
+        "distinct_creators": 2,
+        "distinct_direct_funders": 2,
+        "members": 3
+      },
+      "source": "Selected retained walkback edges with non-null creator and direct funder from wt_walkback_queue.",
+      "topology": "Only documented hop_depth from retained selected edges; no legacy topology vector is used.",
+      "version": "P3R_V2_CANDIDATE_DISCOVERY_CONTRACT.v1"
+    },
+    "fingerprints": {
+      "alternative": "Address-free ALTERNATIVE edge structure per member.",
+      "atomic": "Address-free instruction order, create/sync/close flags, and non-zero transfer amount per atomic flow.",
+      "base": "Address-free selected edge structure.",
+      "canonical_serialization": "JSON sort_keys=true, compact separators, ASCII.",
+      "version": "P3R_V2_FINGERPRINT_CONTRACTS.v1"
+    },
+    "promotion": {
+      "dormant_to_reactivated": "Receive new retained selected-edge activity after the snapshot cutoff; reclassify activity only, then re-evaluate existing evidence.",
+      "tier_2_to_tier_1": "Retain tier-2 evidence; add strong atomic recurrence and address-independent persistence. Activity alone never promotes.",
+      "tier_3_to_tier_2": "Retain WATCH_NOW and strong base; add strong alternative-edge recurrence. Activity alone never promotes.",
+      "version": "P3R_V2_PROMOTION_CONTRACT.v1",
+      "watch_later_to_watch_now": "Meet the versioned HIGH_ACTIVITY or VERY_HIGH_ACTIVITY thresholds; this does not promote behavioural tier."
+    },
+    "tiers": {
+      "address_blind": "at least 3 distinct creators, direct funders, and selected parents; no one address occupies more than 50% of its populated role observations",
+      "strong_recurrence": "at least 3 observations, at least 50% member coverage, dominant fingerprint at least 3 observations and at least 60% of observed fingerprints",
+      "tier_1": "WATCH_NOW + strong base + strong alternative + strong atomic + address blind",
+      "tier_2": "WATCH_NOW + strong base + strong alternative, not tier 1",
+      "tier_3": "WATCH_NOW + strong base, not tier 1/2",
+      "version": "P3R_V2_EVIDENCE_TIERS.v1"
+    }
+  },
+  "contract_digest": "eea1bb2448277ac8d902a17e84f9e15ffdde65a3d37c4c7d13795059245d59e1",
+  "counts": {
+    "V2_DORMANT": 34,
+    "V2_TIER_1_ACTIVE_MULTI_LAYER": 1,
+    "V2_TIER_2_ACTIVE_STRUCTURAL": 13,
+    "V2_TIER_3_ACTIVE_BASE": 47,
+    "V2_WATCH_LATER": 125,
+    "families": 220,
+    "member_mints": 2355,
+    "watch_now": 61
+  },
+  "created_at": 1787671295,
+  "run_id": "p3r-v2-803b0e986cb0d28affd0",
+  "schema_version": "P3R_V2_REGENERATION_MANIFEST.v1",
+  "source_snapshot": {
+    "database": "database/wt_ops_v2.db",
+    "highwaters": {
+      "wt_walkback_atomic_flows": 7094,
+      "wt_walkback_edge_candidates": 60296,
+      "wt_walkback_queue": 32353
+    },
+    "read_only_source": true,
+    "schema_sha256": "dcc038d07998c3d37d0475a7c0fc1d61eaa141401712b3079ec3e465dff3f4ad"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "artifact": "PSI0A-D6S",
+  "created_at": "2026-08-14T13:30:43Z",
+  "engineering_revision": "c449b221c4e5cf4916b38f41251a7b193ffecd71",
+  "scope": "exactly one watchtower_listener restart and immediate bounded local verification",
+  "verdict": "PARTIAL_STOP_DESCRIPTOR_THRESHOLD",
+  "restart": {
+    "authorized_count": 1,
+    "executed_count": 1,
+    "second_restart_executed": false,
+    "old_pid": 88910,
+    "new_pid": 1595,
+    "new_pid_stable_at_initial_checkpoint": true
+  },
+  "verified": {
+    "pumpportal_connected_and_subscribed": true,
+    "pumpswap_connected_and_subscribed": true,
+    "birth_ingestion_continuing": true,
+    "migration_ingestion_continuing": true,
+    "evidence_writer_stopped": true,
+    "serializer_p99_wait_ms": 0.57,
+    "serializer_p95_wait_ms": 0.11,
+    "serializer_queue_depth": 0,
+    "serializer_lock_errors_24h": 0,
+    "usage_tracker_flush_samples": 7,
+    "usage_tracker_longest_close_age_ms": 551.137,
+    "usage_tracker_transaction_retained_at_close": false,
+    "usage_tracker_write_lane_retained_at_close": false,
+    "production_flags_changed": false
+  },
+  "not_observed": {
+    "vault_discovery_natural_exercise": true,
+    "reason": "descriptor stop condition occurred before sufficient natural exercise evidence"
+  },
+  "stop": {
+    "condition": "primary_fd_count reached or exceeded 8",
+    "primary_fd_count": 10,
+    "registry_count": 1,
+    "registry_fd_delta": 9,
+    "tracked_caller": "pumpfun_curve_listener.py:11241 in _seed_read",
+    "tracked_age_seconds": 43.2,
+    "tracked_state": "OWNER_THREAD_CLEANUP_REQUIRED",
+    "transaction_open": false,
+    "write_lane_owned": false
+  },
+  "production_database_queries": 0,
+  "provider_qualification_calls": 0,
+  "production_writes_or_ddl": 0,
+  "configuration_changes": 0,
+  "additional_service_actions": 0
+}

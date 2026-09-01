@@ -1,0 +1,14 @@
+#!/usr/bin/env python3
+"""Idempotent display-name rename; detector identity and memberships are immutable."""
+from __future__ import annotations
+import hashlib,json,sqlite3,time
+from pathlib import Path
+ROOT=Path(__file__).resolve().parents[1]; DB=ROOT/'database/wt_ops_v2.db'; OP='d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334'; CHILD='P3R_063E_BYZC_CURRENT'; ALIAS='WSOL_10_SOL_FOUR_STEP_PROVISION_CLOSE'; OUT=ROOT/'docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/063e_child_qualification/confirmed_registration/byzantine_operation_rename.v1.json'
+conn=sqlite3.connect(DB); conn.row_factory=sqlite3.Row; now=int(time.time())
+try:
+ before=conn.execute("SELECT COUNT(*) n FROM operator_launch_membership WHERE operator_id=?",(OP,)).fetchone()['n']; contract=conn.execute("SELECT detector_version,contract_json,benchmark_json FROM operation_qualification_contracts WHERE operator_id=?",(OP,)).fetchone()
+ conn.execute("UPDATE operators SET display_name='Byzantine',summary='Byzantine: confirmed address-independent 10-SOL four-step WSOL provision/close operation. ByZc is historical corroborating infrastructure only.',updated_at=? WHERE operator_id=?",(now,OP))
+ profile=conn.execute("SELECT profile_id,provenance_json FROM operation_behavioural_profiles WHERE operator_id=? ORDER BY profile_version DESC LIMIT 1",(OP,)).fetchone(); provenance=json.loads(profile['provenance_json']); provenance.update({'display_name':'Byzantine','technical_legacy_alias':ALIAS,'historical_recurring_direct_funder':'ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY'}); conn.execute("UPDATE operation_behavioural_profiles SET provenance_json=?,reviewed_at=?,reviewer=? WHERE profile_id=?",(json.dumps(provenance,sort_keys=True),now,'approved_byzantine_rename',profile['profile_id']))
+ child=conn.execute("SELECT provenance_json FROM potential_operation_child_candidates WHERE child_id=?",(CHILD,)).fetchone(); child_prov=json.loads(child['provenance_json']); child_prov.update({'promoted_to_active_operation':'Byzantine','technical_legacy_alias':ALIAS}); conn.execute("UPDATE potential_operation_child_candidates SET proposed_name='Byzantine',provenance_json=?,updated_at=? WHERE child_id=?",(json.dumps(child_prov,sort_keys=True),now,CHILD)); conn.commit()
+ after=conn.execute("SELECT COUNT(*) n FROM operator_launch_membership WHERE operator_id=?",(OP,)).fetchone()['n']; result={'schema_version':'BYZANTINE_OPERATION_RENAME.v1','renamed_at':now,'operator_id':OP,'display_name':'Byzantine','technical_legacy_alias':ALIAS,'membership_before':before,'membership_after':after,'detector_version':contract['detector_version'],'contract_json':json.loads(contract['contract_json']),'benchmark_json':json.loads(contract['benchmark_json']),'child_id':CHILD}; OUT.write_text(json.dumps(result,indent=2,sort_keys=True)+'\n'); print(json.dumps({'artifact':str(OUT),'sha256':hashlib.sha256(OUT.read_bytes()).hexdigest(),'memberships':after},sort_keys=True))
+finally: conn.close()

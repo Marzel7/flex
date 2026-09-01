@@ -1,0 +1,64 @@
+{
+  "active_path_cutover": false,
+  "bridge": {
+    "unrelated_none": true,
+    "wsol_only": true
+  },
+  "cutover_compatibility": "FORWARD_CUTOVER_REQUIRES_ADDITIVE_LINEAGE_METADATA",
+  "cutover_readiness": "HOLD_FORWARD_GENERIC_CUTOVER",
+  "eight_hop": {
+    "current_generic": true,
+    "generic_associations": 54,
+    "generic_id": "e3456508185400aaa2df5830919c1507591a41cdb6532d2c084e914b8d9bb9dd",
+    "idempotent_version_count": true,
+    "inherited_context": 2,
+    "legacy_associations": 57,
+    "legacy_id": "e64cecad35c9a85665f5c82fc1bc09d83d7657f95489b52876d7a520e05aadd7",
+    "legacy_unchanged": true,
+    "lineages": [
+      "GENERIC_DECLARATIVE_V2",
+      "LEGACY_IMMUTABLE"
+    ],
+    "mapped_non_membership": true,
+    "newer": true,
+    "stale_did_not_regress": true
+  },
+  "exact_next_step": "Qualify a real-schema additive assessment-association lineage migration and read-model projection before any active-path cutover.",
+  "historical_context_model": "HISTORICAL_INHERITED_CONTEXT is payload context only, never a newly-derived association.",
+  "historical_reconstruction_requirement": "HISTORICAL_EXACT_RECONSTRUCTION_NOT_REQUIRED",
+  "historical_source_limitation": "Missing aggregate categories have no independently persisted same-boundary underlying evidence; association_inputs were not reused as source evidence.",
+  "minimum_additive_metadata_requirement": "Bind every association row to assessment_id (or persist an equivalent immutable assessment-association version) and expose pipeline_lineage in the history read model.",
+  "real_db_writes": 0,
+  "schema_version": "generic_living_forward_cutover_qualification.v1",
+  "source_coverage": {
+    "eight_hop": "55/57",
+    "wsol": "122/126"
+  },
+  "tests": "python -m pytest -q tests/test_generic_living_pipeline_v2.py",
+  "ui_history_projection": {
+    "current_generic_visible": true,
+    "detector_activation": "NO",
+    "legacy_and_generic_versions_visible": true,
+    "pipeline_lineage_visible": true,
+    "promotion": "NO",
+    "status": "PAUSED"
+  },
+  "verdict": "FORWARD_CUTOVER_REQUIRES_ADDITIVE_LINEAGE_METADATA",
+  "wsol": {
+    "current_generic": true,
+    "generic_associations": 120,
+    "generic_id": "d1fd139838539fc5f65b3d3480d55efccb672aed2e229a53a5ac43dcef6c1539",
+    "idempotent_version_count": true,
+    "inherited_context": 4,
+    "legacy_associations": 126,
+    "legacy_id": "4c0276000f0f669bf9e05af08d52a0632359149e39bba42afef8a95fcc19f6ca",
+    "legacy_unchanged": true,
+    "lineages": [
+      "GENERIC_DECLARATIVE_V2",
+      "LEGACY_IMMUTABLE"
+    ],
+    "mapped_non_membership": true,
+    "newer": true,
+    "stale_did_not_regress": true
+  }
+}

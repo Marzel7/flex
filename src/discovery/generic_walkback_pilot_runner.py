@@ -165,3 +165,31 @@ class PilotRunner:
         digests['run']=digest({'manifest':digest(self.manifest),**digests})
         self._write('digests.json', digests); self._write('replay.json', {'provider_disabled':True, **digests}); self._event('PASS', run_sha256=digests['run'])
         return edges, digests
+
+    def run_acquisition(self, adapter, *, contract_bindings=None):
+        """Canonical production acquisition: depth 1 then sorted unique depth 2."""
+        self.start()
+        edges=[]; traces=[]; seed_edges={}
+        for depth, wallets in ((1, self.manifest),):
+            self._event('DEPTH_1_STARTED')
+            for wallet in wallets:
+                edge=self.production_lookup(adapter, wallet, depth)
+                edge['rpc_transcript']=list(adapter.last_transcript); edge['rpc_transcript_sha256']=digest(edge['rpc_transcript'])
+                records=[adapter.transport.replay(rid) for rid in edge['transport_request_ids']]
+                edge['supporting_request_ids']=edge.pop('transport_request_ids')
+                edge['supporting_response_digests']=[r['response_sha256'] for r in records]
+                edge['edge_sha256']=digest({k:edge.get(k) for k in sorted(edge)})
+                trace={'run_id':self.run_id,'initial_seed':wallet,'wallet':wallet,'depth':depth,'request_ids':edge['supporting_request_ids'],'response_digests':edge['supporting_response_digests'],'disposition':edge['state'],'parent_wallet':edge['parent_wallet'],'edge_sha256':edge['edge_sha256'],'rpc_transcript_sha256':edge['rpc_transcript_sha256'],'rpc_transcript':edge['rpc_transcript']}
+                traces.append(trace); edges.append(edge); seed_edges[wallet]=[edge]
+            self._event('DEPTH_1_COMPLETE')
+        parents=sorted({e['parent_wallet'] for e in edges if e.get('parent_wallet')})
+        self._event('DEPTH_2_STARTED',seed_count=len(parents))
+        for wallet in parents:
+            edge=self.production_lookup(adapter,wallet,2); edge['rpc_transcript']=list(adapter.last_transcript); edge['rpc_transcript_sha256']=digest(edge['rpc_transcript']); records=[adapter.transport.replay(rid) for rid in edge['transport_request_ids']]
+            edge['supporting_request_ids']=edge.pop('transport_request_ids');edge['supporting_response_digests']=[r['response_sha256'] for r in records];edge['edge_sha256']=digest({k:edge.get(k) for k in sorted(edge)})
+            traces.append({'run_id':self.run_id,'initial_seed':None,'wallet':wallet,'depth':2,'request_ids':edge['supporting_request_ids'],'response_digests':edge['supporting_response_digests'],'disposition':edge['state'],'parent_wallet':edge['parent_wallet'],'edge_sha256':edge['edge_sha256'],'rpc_transcript_sha256':edge['rpc_transcript_sha256'],'rpc_transcript':edge['rpc_transcript']});edges.append(edge)
+        self._event('DEPTH_2_COMPLETE')
+        paths={seed:{'seed':seed,'edge_digests':[e['edge_sha256'] for e in es],'terminal_disposition':es[-1]['state']} for seed,es in seed_edges.items()}
+        req=[r['request_sha256'] for r in adapter.transport.records()];resp=[r['response_sha256'] for r in adapter.transport.records()];ed=[e['edge_sha256'] for e in edges];pd={k:digest(v) for k,v in paths.items()}
+        digests={'requests':digest(req),'responses':digest(resp),'edges':digest(ed),'paths':digest(pd)};digests['run']=digest({'manifest':digest(self.manifest),'contract':contract_bindings or {},**digests})
+        self._write('traces.json',traces);self._write('edges.json',edges);self._write('paths.json',paths);self._write('digests.json',digests);self._event('PASS',run_sha256=digests['run']);return {'state':'PASS','depth_1_seeds':list(self.manifest),'depth_1_seed_count':len(self.manifest),'edges':edges,'traces':traces,'paths':paths,'digests':digests}

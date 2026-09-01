@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D6B",
+  "status": "COMPLETE",
+  "verdict": "CONTROLLED_LISTENER_QUIESCENCE_REQUIRED_FOR_SINGLE_INDEX_DEPLOYMENT",
+  "engineering_revision": "ac06c781deddbb968babe6bb7a19d1d88cd9cb53",
+  "diagnosis_window_end_utc": "2026-08-14T10:56:05Z",
+  "production_database_connections_opened": 0,
+  "findings": {
+    "serializer_p99_is_not_only_stale_history": true,
+    "evidence": [
+      "p99 rose from 1044.20 ms to 1476.68 ms and then 1789.67 ms during fresh checkpoints",
+      "lock_errors_24h rose from 4 to 5 and then 9",
+      "slow commits over 1000 ms reached 19",
+      "queue depth was transiently 2 and later returned to zero"
+    ],
+    "recent_listener_connections_analyzed": 2656,
+    "dominant_long_connection_paths": [
+      {
+        "caller": "pumpfun_curve_listener.py:10815 in _reconciler_unseen_sigs",
+        "count": 5,
+        "maximum_age_ms": 86027.068,
+        "average_age_ms": 71268.1,
+        "connections_at_or_above_10_seconds": 5,
+        "interpretation": "The exact unindexed migration_tx IN query identified by PSI0A-D3; PSI0A-D4/D5 qualify its index repair and durable attempt boundary."
+      },
+      {
+        "caller": "usage_tracker.py:81 in _flush",
+        "count": 93,
+        "maximum_age_ms": 154563.422,
+        "average_age_ms": 2933.4,
+        "connections_at_or_above_10_seconds": 4,
+        "interpretation": "Primarily a waiting victim: cumulative average write-lane wait was 468.78 ms while average commit duration was 8.3 ms."
+      },
+      {
+        "caller": "pumpfun_curve_listener.py:6174 in _do_write",
+        "count": 310,
+        "maximum_age_ms": 31847.874,
+        "connections_at_or_above_10_seconds": 4,
+        "interpretation": "High-volume ingestion writer participating in the contention fan-out."
+      }
+    ],
+    "additional_connection_lifecycle_defect": {
+      "caller": "pumpfun_curve_listener.py:8143 in _blocklist_write",
+      "observed_unmatched_connections": 5,
+      "observed_ages_seconds": [49.0, 89.5, 286.8, 487.6, 857.8],
+      "source_finding": "The connection is closed only on the success path; exceptions during SELECT, UPDATE/INSERT or COMMIT can leave it open.",
+      "scope_effect": "This is a separate guaranteed-close repair candidate and is not fixed by the migration_tx index."
+    },
+    "lease_owner_correlation": [
+      "listener _do_write and symbol-write transactions",
+      "creator_funding_worker _db_connect transactions",
+      "creator_resolution queue/worker waiters entering owner-thread cleanup"
+    ],
+    "descriptor_peak": 13,
+    "descriptor_fatal_cycle_peak": "1/3",
+    "terminal_descriptor_state": "Recovered transiently; no main-database descriptors were returned by the terminal lsof checkpoint while PID 9069 remained stable.",
+    "terminal_serializer_p99_wait_ms": 1363.93,
+    "terminal_serializer_queue_depth": 0,
+    "terminal_lock_errors_24h": 9
+  },
+  "deployment_boundary": {
+    "natural_clean_gate_achievable": true,
+    "natural_clean_gate_durable_enough_for_existing_d6_contract": false,
+    "smallest_coherent_boundary": "Exactly one controlled watchtower_listener quiescence window: stop only the listener, prove its main-database descriptors and lease are released, execute one D5-ledgered migration_tx index statement with the existing limits, restart only the listener, and immediately verify plan, descriptors, serializer, ingestion and services.",
+    "retry_count": 0,
+    "stop_if_other_writer_prevents_lock": true,
+    "post_deployment_followup": "Separately safe-local qualify guaranteed close for _blocklist_write, then deploy it under a later explicit listener restart if the descriptor issue persists."
+  },
+  "scope": {
+    "ddl_or_production_writes": 0,
+    "signals_or_service_restarts": 0,
+    "configuration_changes": 0,
+    "provider_calls": 0,
+    "evidence_extractions": 0
+  }
+}

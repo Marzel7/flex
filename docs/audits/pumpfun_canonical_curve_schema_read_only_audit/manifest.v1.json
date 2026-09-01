@@ -1,0 +1,31 @@
+{
+  "artifacts": {
+    "buy_math": {
+      "path": "docs/audits/pumpfun_canonical_curve_schema_read_only_audit/canonical_buy_math_qualification.v1.json",
+      "sha256": "6a9403bce21111d2dbe8055c6c2e90229d2521bc3ea39110a63ebd6bed7af217"
+    },
+    "events": {
+      "path": "docs/audits/pumpfun_canonical_curve_schema_read_only_audit/decoded_event_corpus.v1.json",
+      "sha256": "96798f114dd8809e42a0598537ccbff75ce6025e7a7c5d309a8c17ca2341be3d"
+    },
+    "provenance": {
+      "path": "docs/audits/pumpfun_canonical_curve_schema_read_only_audit/canonical_schema_provenance.v1.json",
+      "sha256": "3ea837188818f4d4344902e5c566dddacf034e1b5bb6ace9737869f2793c7037"
+    },
+    "valuation": {
+      "path": "docs/audits/pumpfun_canonical_curve_schema_read_only_audit/opening_valuation_result.v1.json",
+      "sha256": "c5e3e27c6699c22671f692f09b671c937e5f2f12c8a16d60320ebdf5b472aed4"
+    }
+  },
+  "network": {
+    "gmgn_api_request_count": 0,
+    "helius_api_request_count": 0,
+    "incremental_gettransaction_count": 0,
+    "incremental_solana_rpc_count": 0
+  },
+  "replay_idempotent": true,
+  "replay_run_1_digest": "2783b058df39b70426acdf3f407a5d12fc64feaceb47cc9a0fe7f0ea7107e63e",
+  "replay_run_2_digest": "2783b058df39b70426acdf3f407a5d12fc64feaceb47cc9a0fe7f0ea7107e63e",
+  "schema_version": "pumpfun-canonical-schema-read-only-manifest.v1",
+  "verdict": "EXACT_EXTERNAL_AUTHORITATIVE_SOURCE_IDENTIFIED_BUT_NOT_AVAILABLE_LOCALLY"
+}

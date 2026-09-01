@@ -145,8 +145,20 @@ def store_migration(conn, mint, creator, migration_tx=None, migration_time=None,
     try:
         from src.core.walkback_queue import enqueue_migration
         enqueue_migration(conn, mint=mint, creator=creator)
-    except Exception:
-        pass
+    except Exception as exc:
+        # Migration is already durable.  Retain a bounded, queryable recovery
+        # record rather than silently losing the independent enqueue failure.
+        conn.execute("""CREATE TABLE IF NOT EXISTS wt_walkback_enqueue_failures (
+            mint TEXT PRIMARY KEY, migration_signature TEXT, source TEXT NOT NULL,
+            error_type TEXT NOT NULL, error_message TEXT NOT NULL, observed_at INTEGER NOT NULL)""")
+        conn.execute("""INSERT INTO wt_walkback_enqueue_failures
+            (mint,migration_signature,source,error_type,error_message,observed_at)
+            VALUES (?,?,?,?,?,?) ON CONFLICT(mint) DO UPDATE SET
+            migration_signature=excluded.migration_signature,error_type=excluded.error_type,
+            error_message=excluded.error_message,observed_at=excluded.observed_at""",
+            (mint, migration_tx, source, type(exc).__name__, str(exc)[:512], int(time.time())))
+        conn.commit()
+        print(f"[WALKBACK_ENQUEUE_FAILURE] mint={mint} migration_signature={migration_tx or ''} error={type(exc).__name__}", flush=True)
 
     # X64.7A Phase 3 — migration coverage check: does the canonical CREATE
     # ledger already have a row for this mint? Never blocks migration

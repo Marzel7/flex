@@ -1,0 +1,85 @@
+{
+  "gmgn_first_covered_mc_or_price": null,
+  "onchain_opening_sequence_to_gmgn_comparison": "NOT_COMPARABLE: retained GMGN coverage begins after the requested opening state and no qualified opening MC exists.",
+  "post_buy_market_cap_reconstructed": false,
+  "post_buy_rows": [
+    {
+      "buy_sequence_number": 1,
+      "post_buy_market_cap_sol": null,
+      "post_buy_market_cap_usd": null,
+      "post_buy_price_sol_per_token": null
+    },
+    {
+      "buy_sequence_number": 2,
+      "post_buy_market_cap_sol": null,
+      "post_buy_market_cap_usd": null,
+      "post_buy_price_sol_per_token": null
+    },
+    {
+      "buy_sequence_number": 3,
+      "post_buy_market_cap_sol": null,
+      "post_buy_market_cap_usd": null,
+      "post_buy_price_sol_per_token": null
+    },
+    {
+      "buy_sequence_number": 4,
+      "post_buy_market_cap_sol": null,
+      "post_buy_market_cap_usd": null,
+      "post_buy_price_sol_per_token": null
+    },
+    {
+      "buy_sequence_number": 5,
+      "post_buy_market_cap_sol": null,
+      "post_buy_market_cap_usd": null,
+      "post_buy_price_sol_per_token": null
+    },
+    {
+      "buy_sequence_number": 6,
+      "post_buy_market_cap_sol": null,
+      "post_buy_market_cap_usd": null,
+      "post_buy_price_sol_per_token": null
+    },
+    {
+      "buy_sequence_number": 7,
+      "post_buy_market_cap_sol": null,
+      "post_buy_market_cap_usd": null,
+      "post_buy_price_sol_per_token": null
+    },
+    {
+      "buy_sequence_number": 8,
+      "post_buy_market_cap_sol": null,
+      "post_buy_market_cap_usd": null,
+      "post_buy_price_sol_per_token": null
+    },
+    {
+      "buy_sequence_number": 9,
+      "post_buy_market_cap_sol": null,
+      "post_buy_market_cap_usd": null,
+      "post_buy_price_sol_per_token": null
+    },
+    {
+      "buy_sequence_number": 10,
+      "post_buy_market_cap_sol": null,
+      "post_buy_market_cap_usd": null,
+      "post_buy_price_sol_per_token": null
+    }
+  ],
+  "post_buy_spot_price_reconstructed": false,
+  "pumpfun_market_cap_formula": "UNQUALIFIED_FOR_TARGET: legacy code uses spot price * 1,000,000,000 tokens * SOL/USD",
+  "pumpfun_market_cap_supply_convention": null,
+  "pumpfun_market_cap_supply_value": null,
+  "pumpfun_spot_price_formula": "UNQUALIFIED_FOR_TARGET: legacy code uses virtual_sol_reserves / virtual_token_reserves after unit conversion",
+  "schema_version": "pumpfun-opening-mc-trajectory.v1",
+  "sol_usd_source": null,
+  "sol_usd_temporally_appropriate": false,
+  "sol_usd_timestamp": null,
+  "source_digests": {
+    "docs/audits/pumpfun_creation_anchor_poc/3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump.creation.decoded.v1.json": "61a70d492880515f62bba1b33466f746b62c1ea0fb07e865861be982cc398758",
+    "docs/audits/pumpfun_opening_sequence_poc/opening_sequence.decoded.v1.json": "66e9a8d37a7d1d06269df16adda0eabd5e7d793f992f7dde36b511a2931bccbc",
+    "docs/audits/pumpfun_opening_sequence_poc/opening_sequence.raw.v1.json": "9cc7d085f37dfcbd31a3d0777c5fc6494d62b3b303c98527fb50f4816aff8270",
+    "src/core/launch_audit.py": "89484ce68320e2ab4d7c1dda840af83fba60cac003cbafa0a681b38701746b6f",
+    "src/core/watchtower/curve_impact_analyzer.py": "240fe919cc8e2d6848e8dce67e239129a9b8b80e80c6e37df2d24c9fca219c01"
+  },
+  "target_mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+  "what_caused_the_opening_mc_jump": "UNRESOLVED: exact trade order/amounts are known, but no qualified post-buy reserve/price/MC sequence exists."
+}

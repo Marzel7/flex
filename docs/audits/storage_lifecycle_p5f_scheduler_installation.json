@@ -1,0 +1,18 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5F scheduler installation",
+  "timestamp_utc": "2026-08-21T11:19:48Z",
+  "installation_state": "INSTALLED",
+  "scheduler": "crontab tagged P5F HOT-COLD ROLLOVER block",
+  "times_local": ["00:30", "01:42", "02:54", "04:06", "05:18", "06:30", "07:42", "08:54", "10:06", "11:18", "12:30", "13:42", "14:54", "16:06", "17:18", "18:30", "19:42", "20:54", "22:06", "23:18"],
+  "runs_per_day": 20,
+  "max_rows_per_run": 500,
+  "theoretical_capacity_per_day": 10000,
+  "double_confirmation": "CLI --confirm-retire-hot-rows-in-production plus HOT_COLD_ROLLOVER_CONFIRM=YES-RETIRE-PRODUCTION-HOT-ROWS",
+  "log_path": "/Users/kevinkeaveney/Dev/claude/flex/logs/hot_cold_rollover.log",
+  "crontab_mutated": true,
+  "existing_crontab_preserved": true,
+  "active_p5f_entries": 20,
+  "automation_active": true,
+  "disable_command": "crontab -l | sed '/# P5F HOT-COLD ROLLOVER BEGIN/,/# P5F HOT-COLD ROLLOVER END/d' | crontab -",
+  "exact_next_action": "Observe the first natural scheduled invocation; do not manually drain backlog."
+}

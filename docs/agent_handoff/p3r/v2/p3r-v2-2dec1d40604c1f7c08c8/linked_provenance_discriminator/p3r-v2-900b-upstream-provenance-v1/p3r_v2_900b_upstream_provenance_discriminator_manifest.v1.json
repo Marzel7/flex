@@ -1,0 +1,7 @@
+{
+  "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/linked_provenance_discriminator/p3r-v2-900b-upstream-provenance-v1/p3r_v2_900b_upstream_provenance_discriminator.v1.json",
+  "artifact_sha256": "b5bbdd2e709ca2ef79b50b8a7af06dfb36b53ba5579514a7fd0c70b3b6c73df2",
+  "deterministic_replay": "PASS: same frozen core/hop-2 query returns 0 TP and 15 FP linked rows.",
+  "frozen_edge_highwater": 60299,
+  "verdict": "900B_UPSTREAM_EVIDENCE_INSUFFICIENT"
+}

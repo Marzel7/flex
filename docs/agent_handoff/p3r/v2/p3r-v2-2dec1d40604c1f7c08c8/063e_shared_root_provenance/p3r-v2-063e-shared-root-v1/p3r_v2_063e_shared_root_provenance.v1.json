@@ -1,0 +1,489 @@
+{
+  "birth_profiles": {
+    "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY": {
+      "address": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "block_time": 1780475486,
+      "direct": false,
+      "earliest_block_time": 1780475486,
+      "earliest_signature": "JiRDkFRSRL1DiM3b5qqFRqtgah4BsY9Uvkm59bnzjJ8Xdyx5ZeirSaTcdR3CVLTvfFJodyFv5R5BFzQbTuAW5VE",
+      "earliest_slot": 423990963,
+      "history_entries": 4730,
+      "history_exhausted": true,
+      "history_pages": 5,
+      "raw_lamports": 1000000000,
+      "signatures": [
+        "JiRDkFRSRL1DiM3b5qqFRqtgah4BsY9Uvkm59bnzjJ8Xdyx5ZeirSaTcdR3CVLTvfFJodyFv5R5BFzQbTuAW5VE"
+      ],
+      "slot": 423990963,
+      "status": "NOT_VERIFIED",
+      "upstream_source": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya"
+    },
+    "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB": {
+      "address": "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB",
+      "block_time": 1784924519,
+      "direct": true,
+      "earliest_block_time": 1784924519,
+      "earliest_signature": "2yxm5BPDBLzxLtGofH4c43wa1FjfmpCrZ3EZfhLftatBLVUySX5VimhLKri9PxLKLQKWP2h8RWnp4cxDm1VHi25G",
+      "earliest_slot": 434988729,
+      "history_entries": 1098,
+      "history_exhausted": true,
+      "history_pages": 2,
+      "raw_lamports": 200000000,
+      "signatures": [
+        "2yxm5BPDBLzxLtGofH4c43wa1FjfmpCrZ3EZfhLftatBLVUySX5VimhLKri9PxLKLQKWP2h8RWnp4cxDm1VHi25G"
+      ],
+      "slot": 434988729,
+      "status": "DIRECT_INITIAL_FUNDER_VERIFIED",
+      "upstream_source": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ"
+    },
+    "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229": {
+      "address": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+      "block_time": 1784924521,
+      "direct": true,
+      "earliest_block_time": 1784924521,
+      "earliest_signature": "QtpquVVp2Dbq2QEaMqQenSymzDPhwrZWnVUCSZ2znSwvhg4FDpgEkrBuiMKBSvHzXw2ZYtsvrojmTAih7mTv9zM",
+      "earliest_slot": 434988733,
+      "history_entries": 1102,
+      "history_exhausted": true,
+      "history_pages": 2,
+      "raw_lamports": 200000000,
+      "signatures": [
+        "QtpquVVp2Dbq2QEaMqQenSymzDPhwrZWnVUCSZ2znSwvhg4FDpgEkrBuiMKBSvHzXw2ZYtsvrojmTAih7mTv9zM"
+      ],
+      "slot": 434988733,
+      "status": "DIRECT_INITIAL_FUNDER_VERIFIED",
+      "upstream_source": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ"
+    },
+    "HS5GjB4KTJbbBdYHkJV8qDpq8gmU9wck2qsxgz3ifgke": {
+      "address": "HS5GjB4KTJbbBdYHkJV8qDpq8gmU9wck2qsxgz3ifgke",
+      "block_time": 1784924522,
+      "direct": true,
+      "earliest_block_time": 1784924522,
+      "earliest_signature": "2e2VVpE1ZpRPd3ejMcprNh5nNzzwf9JFAoDXPuSPbF2VfjpxLbQGhykyaPXV9VXGdiXfVVJUNKdHCawgjgxSr6qQ",
+      "earliest_slot": 434988737,
+      "history_entries": 1030,
+      "history_exhausted": true,
+      "history_pages": 2,
+      "raw_lamports": 200000000,
+      "signatures": [
+        "2e2VVpE1ZpRPd3ejMcprNh5nNzzwf9JFAoDXPuSPbF2VfjpxLbQGhykyaPXV9VXGdiXfVVJUNKdHCawgjgxSr6qQ"
+      ],
+      "slot": 434988737,
+      "status": "DIRECT_INITIAL_FUNDER_VERIFIED",
+      "upstream_source": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ"
+    }
+  },
+  "byzc_bounded_provenance": {
+    "ByZc_connected_within_two_hops": false,
+    "Df8_birth": {
+      "address": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "block_time": 1787738353,
+      "direct": false,
+      "earliest_block_time": 1787738353,
+      "earliest_signature": "5ebWV9jrwB7Ta6pU7bHcmhPNonCgPcvqAQ1JT5EVd4Mb4XCy4e4VvTWSz2bhMZ6Sk26aswkw5PexyTCN9z2DupMZ",
+      "earliest_slot": 441842417,
+      "history_entries": 10000,
+      "history_exhausted": false,
+      "history_pages": 10,
+      "raw_lamports": -3660010000,
+      "signatures": [
+        "5ebWV9jrwB7Ta6pU7bHcmhPNonCgPcvqAQ1JT5EVd4Mb4XCy4e4VvTWSz2bhMZ6Sk26aswkw5PexyTCN9z2DupMZ"
+      ],
+      "slot": 441842417,
+      "status": "HISTORY_INSUFFICIENT",
+      "upstream_source": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya"
+    },
+    "direct_B65c_to_ByZc": false,
+    "known_path": "B65c \u2192 Df8CJQR \u2192 ByZc tested via Df8 account birth only"
+  },
+  "candidate_id": "p3r-v2-063e24a2def354f23ec5",
+  "detectors": {
+    "R0_behaviour_only": {
+      "FN": 0,
+      "FP": 5,
+      "TP": 41,
+      "precision": 0.8913043478260869,
+      "recall": 1.0
+    },
+    "R1_recurrent_funder": {
+      "FN": 2,
+      "FP": 0,
+      "TP": 39,
+      "precision": 1.0,
+      "recall": 0.9512195121951219
+    },
+    "R2_verified_B65c_root": {
+      "FN": 32,
+      "FP": 1,
+      "TP": 9,
+      "precision": 0.9,
+      "recall": 0.21951219512195122
+    },
+    "R3_recurrent_or_B65c_root": {
+      "FN": 0,
+      "FP": 1,
+      "TP": 41,
+      "precision": 0.9761904761904762,
+      "recall": 1.0
+    },
+    "R4_route_provenance": {
+      "FN": 32,
+      "FP": 1,
+      "TP": 9,
+      "precision": 0.9,
+      "recall": 0.21951219512195122
+    }
+  },
+  "false_positive_root_comparison": {
+    "B65c_direct_root_funders": [
+      "3Khd8Fw3a4v5qnt1wRu6nm3LdDRs2y89Skh47NKKGdiB",
+      "4KfJR3edxBXDqH8WyWDokB4UrDPVWiQ7FdNtHEhrva63",
+      "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB",
+      "PJkdBjBmiptrvb89joLztep8sD6mkB7sY9yR6Juw9cF"
+    ],
+    "birth_profiles": {
+      "3Khd8Fw3a4v5qnt1wRu6nm3LdDRs2y89Skh47NKKGdiB": {
+        "address": "3Khd8Fw3a4v5qnt1wRu6nm3LdDRs2y89Skh47NKKGdiB",
+        "block_time": 1784924530,
+        "direct": true,
+        "earliest_block_time": 1784924530,
+        "earliest_signature": "3Z8UQT9sS3Fhq3bFcsPDBsLbXm3UPuY9TK5BZqPb4ScnC5G3VoLMbLxnxAbUq8MW1eAEiPhMsgTHns5jdRqUzEtM",
+        "earliest_slot": 434988754,
+        "history_entries": 727,
+        "history_exhausted": true,
+        "history_pages": 1,
+        "raw_lamports": 200000000,
+        "signatures": [
+          "3Z8UQT9sS3Fhq3bFcsPDBsLbXm3UPuY9TK5BZqPb4ScnC5G3VoLMbLxnxAbUq8MW1eAEiPhMsgTHns5jdRqUzEtM"
+        ],
+        "slot": 434988754,
+        "status": "DIRECT_INITIAL_FUNDER_VERIFIED",
+        "upstream_source": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ"
+      },
+      "4KfJR3edxBXDqH8WyWDokB4UrDPVWiQ7FdNtHEhrva63": {
+        "address": "4KfJR3edxBXDqH8WyWDokB4UrDPVWiQ7FdNtHEhrva63",
+        "block_time": 1784924527,
+        "direct": true,
+        "earliest_block_time": 1784924527,
+        "earliest_signature": "5G1DZSusnrnTCi18VjnUKTHEHY5p3qzU46aJ8xMQS2dxouh5mTme1jR4D4ScD7b7Ubm4K6wwsYd7ekc1VB6u78w6",
+        "earliest_slot": 434988748,
+        "history_entries": 1066,
+        "history_exhausted": true,
+        "history_pages": 2,
+        "raw_lamports": 200000000,
+        "signatures": [
+          "5G1DZSusnrnTCi18VjnUKTHEHY5p3qzU46aJ8xMQS2dxouh5mTme1jR4D4ScD7b7Ubm4K6wwsYd7ekc1VB6u78w6"
+        ],
+        "slot": 434988748,
+        "status": "DIRECT_INITIAL_FUNDER_VERIFIED",
+        "upstream_source": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ"
+      },
+      "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ": {
+        "address": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ",
+        "block_time": 1784937209,
+        "direct": false,
+        "earliest_block_time": 1784937209,
+        "earliest_signature": "fkSZEkff4WuGw4JvnNaTq4fpdnKApa95TVRd59Gx1pn2MgYTqtZo2HqZXeLGvKGBWhBrYyrj843vTiN4wAk49cm",
+        "earliest_slot": 435018973,
+        "history_entries": 3000,
+        "history_exhausted": false,
+        "history_pages": 3,
+        "raw_lamports": -20005000,
+        "signatures": [
+          "fkSZEkff4WuGw4JvnNaTq4fpdnKApa95TVRd59Gx1pn2MgYTqtZo2HqZXeLGvKGBWhBrYyrj843vTiN4wAk49cm"
+        ],
+        "slot": 435018973,
+        "status": "HISTORY_INSUFFICIENT",
+        "upstream_source": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ"
+      },
+      "FfQitRnEJ3pa8hjfnWwwmscSv6jUPLqigZaEkMng84UB": {
+        "address": "FfQitRnEJ3pa8hjfnWwwmscSv6jUPLqigZaEkMng84UB",
+        "block_time": 1785417120,
+        "direct": false,
+        "earliest_block_time": 1785417120,
+        "earliest_signature": "4pQbz6czKXi6viX95HcgcpeMaWG2Je8g9w4989TwMTB6DvHRGZ7UEVzKJf6rrpBucfD3fw9LSvwzwqGcjo5D5Gj2",
+        "earliest_slot": 436158050,
+        "history_entries": 440,
+        "history_exhausted": true,
+        "history_pages": 1,
+        "raw_lamports": 200000000,
+        "signatures": [
+          "4pQbz6czKXi6viX95HcgcpeMaWG2Je8g9w4989TwMTB6DvHRGZ7UEVzKJf6rrpBucfD3fw9LSvwzwqGcjo5D5Gj2"
+        ],
+        "slot": 436158050,
+        "status": "NOT_VERIFIED",
+        "upstream_source": "FEMsZ4GA2Sd2AGC2FAQPTKFNEzF5LXr4bAPqi3JsZsxG"
+      },
+      "PJkdBjBmiptrvb89joLztep8sD6mkB7sY9yR6Juw9cF": {
+        "address": "PJkdBjBmiptrvb89joLztep8sD6mkB7sY9yR6Juw9cF",
+        "block_time": 1784853987,
+        "direct": true,
+        "earliest_block_time": 1784853987,
+        "earliest_signature": "3ZHuWDw1Vr7KkJt8xfa7Hsc4UK9xK7PdRomeJrJmJKReVjySu8x3Z11fSeerWc8yfP1ur2KSL5ii5u41Gi3Ddod8",
+        "earliest_slot": 434820583,
+        "history_entries": 66,
+        "history_exhausted": true,
+        "history_pages": 1,
+        "raw_lamports": 50000000000,
+        "signatures": [
+          "3ZHuWDw1Vr7KkJt8xfa7Hsc4UK9xK7PdRomeJrJmJKReVjySu8x3Z11fSeerWc8yfP1ur2KSL5ii5u41Gi3Ddod8"
+        ],
+        "slot": 434820583,
+        "status": "DIRECT_INITIAL_FUNDER_VERIFIED",
+        "upstream_source": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ"
+      },
+      "V3P8QJgTWKd67VuPdo1Tqczttav2Rk7xgjRbvqD6U3z": {
+        "address": "V3P8QJgTWKd67VuPdo1Tqczttav2Rk7xgjRbvqD6U3z",
+        "block_time": 1785417121,
+        "direct": false,
+        "earliest_block_time": 1785417121,
+        "earliest_signature": "3ZCcTzaWawAbhqG5DVmGFawDSY9BYAqsSftFKeLkFsrP6CvnsbiiXh3uKdnBS51ZbWdFuwiwnPFXS5mjX4tZtf1R",
+        "earliest_slot": 436158052,
+        "history_entries": 1387,
+        "history_exhausted": true,
+        "history_pages": 2,
+        "raw_lamports": 199995000,
+        "signatures": [
+          "3ZCcTzaWawAbhqG5DVmGFawDSY9BYAqsSftFKeLkFsrP6CvnsbiiXh3uKdnBS51ZbWdFuwiwnPFXS5mjX4tZtf1R"
+        ],
+        "slot": 436158052,
+        "status": "NOT_VERIFIED",
+        "upstream_source": "FfQitRnEJ3pa8hjfnWwwmscSv6jUPLqigZaEkMng84UB"
+      }
+    },
+    "direct_funders": [
+      "3Khd8Fw3a4v5qnt1wRu6nm3LdDRs2y89Skh47NKKGdiB",
+      "4KfJR3edxBXDqH8WyWDokB4UrDPVWiQ7FdNtHEhrva63",
+      "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB",
+      "FfQitRnEJ3pa8hjfnWwwmscSv6jUPLqigZaEkMng84UB",
+      "PJkdBjBmiptrvb89joLztep8sD6mkB7sY9yR6Juw9cF"
+    ],
+    "frozen_false_positive_mints": [
+      "SJgswjPZfBQrBuYEtf8CAgbGFqiTikHrEodrNBKpump",
+      "ZrZy8Q1uXG2PSPn7X4NaMQMRa11paZ2xReKNsVFpump",
+      "sMy6gCcxTAoFfWNVz8XhfJb2TjmyuzUJKX76YN1pump",
+      "sx8X3b7f11NAzdMSu4oj3mF8wPcRXn8PqY4AVnXpump",
+      "zPWJT6arRxz3kYBy15m4TxQPzPMMsofyDcSwz4Tpump"
+    ]
+  },
+  "initial_funding_definition": "Earliest economically material inbound transaction reached within the per-address page cap, requiring positive native balance delta into the recipient and a negative balance delta from the source; dust/rent/later replenishment excluded.",
+  "initial_vs_launch_time": {
+    "initial_root_layer": {
+      "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY": {
+        "address": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "block_time": 1780475486,
+        "direct": false,
+        "earliest_block_time": 1780475486,
+        "earliest_signature": "JiRDkFRSRL1DiM3b5qqFRqtgah4BsY9Uvkm59bnzjJ8Xdyx5ZeirSaTcdR3CVLTvfFJodyFv5R5BFzQbTuAW5VE",
+        "earliest_slot": 423990963,
+        "history_entries": 4730,
+        "history_exhausted": true,
+        "history_pages": 5,
+        "raw_lamports": 1000000000,
+        "signatures": [
+          "JiRDkFRSRL1DiM3b5qqFRqtgah4BsY9Uvkm59bnzjJ8Xdyx5ZeirSaTcdR3CVLTvfFJodyFv5R5BFzQbTuAW5VE"
+        ],
+        "slot": 423990963,
+        "status": "NOT_VERIFIED",
+        "upstream_source": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya"
+      },
+      "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB": {
+        "address": "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB",
+        "block_time": 1784924519,
+        "direct": true,
+        "earliest_block_time": 1784924519,
+        "earliest_signature": "2yxm5BPDBLzxLtGofH4c43wa1FjfmpCrZ3EZfhLftatBLVUySX5VimhLKri9PxLKLQKWP2h8RWnp4cxDm1VHi25G",
+        "earliest_slot": 434988729,
+        "history_entries": 1098,
+        "history_exhausted": true,
+        "history_pages": 2,
+        "raw_lamports": 200000000,
+        "signatures": [
+          "2yxm5BPDBLzxLtGofH4c43wa1FjfmpCrZ3EZfhLftatBLVUySX5VimhLKri9PxLKLQKWP2h8RWnp4cxDm1VHi25G"
+        ],
+        "slot": 434988729,
+        "status": "DIRECT_INITIAL_FUNDER_VERIFIED",
+        "upstream_source": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ"
+      },
+      "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229": {
+        "address": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "block_time": 1784924521,
+        "direct": true,
+        "earliest_block_time": 1784924521,
+        "earliest_signature": "QtpquVVp2Dbq2QEaMqQenSymzDPhwrZWnVUCSZ2znSwvhg4FDpgEkrBuiMKBSvHzXw2ZYtsvrojmTAih7mTv9zM",
+        "earliest_slot": 434988733,
+        "history_entries": 1102,
+        "history_exhausted": true,
+        "history_pages": 2,
+        "raw_lamports": 200000000,
+        "signatures": [
+          "QtpquVVp2Dbq2QEaMqQenSymzDPhwrZWnVUCSZ2znSwvhg4FDpgEkrBuiMKBSvHzXw2ZYtsvrojmTAih7mTv9zM"
+        ],
+        "slot": 434988733,
+        "status": "DIRECT_INITIAL_FUNDER_VERIFIED",
+        "upstream_source": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ"
+      },
+      "HS5GjB4KTJbbBdYHkJV8qDpq8gmU9wck2qsxgz3ifgke": {
+        "address": "HS5GjB4KTJbbBdYHkJV8qDpq8gmU9wck2qsxgz3ifgke",
+        "block_time": 1784924522,
+        "direct": true,
+        "earliest_block_time": 1784924522,
+        "earliest_signature": "2e2VVpE1ZpRPd3ejMcprNh5nNzzwf9JFAoDXPuSPbF2VfjpxLbQGhykyaPXV9VXGdiXfVVJUNKdHCawgjgxSr6qQ",
+        "earliest_slot": 434988737,
+        "history_entries": 1030,
+        "history_exhausted": true,
+        "history_pages": 2,
+        "raw_lamports": 200000000,
+        "signatures": [
+          "2e2VVpE1ZpRPd3ejMcprNh5nNzzwf9JFAoDXPuSPbF2VfjpxLbQGhykyaPXV9VXGdiXfVVJUNKdHCawgjgxSr6qQ"
+        ],
+        "slot": 434988737,
+        "status": "DIRECT_INITIAL_FUNDER_VERIFIED",
+        "upstream_source": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ"
+      }
+    },
+    "launch_time_layer": [
+      {
+        "direct_funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "first_observed": "2026-08-13T06:01:09+00:00",
+        "history_entries": 1000,
+        "inbound_amounts": [
+          {
+            "count": 16,
+            "lamports": 10000000000
+          }
+        ],
+        "last_observed": "2026-08-25T10:26:54+00:00",
+        "launches_with_candidate": 16,
+        "material_inbound_resolved": 16,
+        "median_replenishment_to_launch_seconds": 1,
+        "members": 32,
+        "share": 0.7804878048780488,
+        "upstream_provisioners": [
+          {
+            "address": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+            "count": 16
+          }
+        ]
+      },
+      {
+        "direct_funder": "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB",
+        "first_observed": "2026-07-25T23:57:47+00:00",
+        "history_entries": 1000,
+        "inbound_amounts": [],
+        "last_observed": "2026-07-25T23:57:47+00:00",
+        "launches_with_candidate": 0,
+        "material_inbound_resolved": 0,
+        "median_replenishment_to_launch_seconds": null,
+        "members": 1,
+        "share": 0.024390243902439025,
+        "upstream_provisioners": []
+      },
+      {
+        "direct_funder": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "first_observed": "2026-07-25T16:24:32+00:00",
+        "history_entries": 1000,
+        "inbound_amounts": [
+          {
+            "count": 5,
+            "lamports": 9999995000
+          }
+        ],
+        "last_observed": "2026-07-27T00:22:23+00:00",
+        "launches_with_candidate": 5,
+        "material_inbound_resolved": 5,
+        "median_replenishment_to_launch_seconds": 1,
+        "members": 7,
+        "share": 0.17073170731707318,
+        "upstream_provisioners": [
+          {
+            "address": "3GL5bXdDriApC4J2gn42L9fH2xFxq9Ziifr3pM79hBoi",
+            "count": 5
+          }
+        ]
+      },
+      {
+        "direct_funder": "HS5GjB4KTJbbBdYHkJV8qDpq8gmU9wck2qsxgz3ifgke",
+        "first_observed": "2026-07-26T16:51:16+00:00",
+        "history_entries": 1000,
+        "inbound_amounts": [
+          {
+            "count": 1,
+            "lamports": 9999995000
+          }
+        ],
+        "last_observed": "2026-07-26T16:51:16+00:00",
+        "launches_with_candidate": 1,
+        "material_inbound_resolved": 1,
+        "median_replenishment_to_launch_seconds": 1,
+        "members": 1,
+        "share": 0.024390243902439025,
+        "upstream_provisioners": [
+          {
+            "address": "8Bk1fBnoc9Yk3HUz1UWihT2ewgbxMm7LTEoemabUVqmk",
+            "count": 1
+          }
+        ]
+      }
+    ]
+  },
+  "next_action": "Keep 063e provisional. Retain H1 recurrent-funder matching for review only; do not use B65c root as a confirming discriminator.",
+  "provenance_graph": [
+    {
+      "amount": 1000000000,
+      "from": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "kind": "initial_material_funding",
+      "signature": "JiRDkFRSRL1DiM3b5qqFRqtgah4BsY9Uvkm59bnzjJ8Xdyx5ZeirSaTcdR3CVLTvfFJodyFv5R5BFzQbTuAW5VE",
+      "to": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "verified_direct_root": false
+    },
+    {
+      "amount": 200000000,
+      "from": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ",
+      "kind": "initial_material_funding",
+      "signature": "2yxm5BPDBLzxLtGofH4c43wa1FjfmpCrZ3EZfhLftatBLVUySX5VimhLKri9PxLKLQKWP2h8RWnp4cxDm1VHi25G",
+      "to": "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB",
+      "verified_direct_root": true
+    },
+    {
+      "amount": 200000000,
+      "from": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ",
+      "kind": "initial_material_funding",
+      "signature": "QtpquVVp2Dbq2QEaMqQenSymzDPhwrZWnVUCSZ2znSwvhg4FDpgEkrBuiMKBSvHzXw2ZYtsvrojmTAih7mTv9zM",
+      "to": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+      "verified_direct_root": true
+    },
+    {
+      "amount": 200000000,
+      "from": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ",
+      "kind": "initial_material_funding",
+      "signature": "2e2VVpE1ZpRPd3ejMcprNh5nNzzwf9JFAoDXPuSPbF2VfjpxLbQGhykyaPXV9VXGdiXfVVJUNKdHCawgjgxSr6qQ",
+      "to": "HS5GjB4KTJbbBdYHkJV8qDpq8gmU9wck2qsxgz3ifgke",
+      "verified_direct_root": true
+    },
+    {
+      "amount": -3660010000,
+      "from": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "kind": "ByZc_known_immediate_provisioner_birth",
+      "signature": "5ebWV9jrwB7Ta6pU7bHcmhPNonCgPcvqAQ1JT5EVd4Mb4XCy4e4VvTWSz2bhMZ6Sk26aswkw5PexyTCN9z2DupMZ",
+      "to": "Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya",
+      "verified_direct_root": false
+    }
+  ],
+  "qualification": "063E_PROVISIONAL_OPERATION_STILL_APPROPRIATE",
+  "registration_recommendation": "READY_FOR_PROVISIONAL_REGISTRATION",
+  "remaining_uncertainty": "A B65c-rooted singleton (Deri1) funds one frozen H0 false positive; ByZc/Df8 root provenance remains insufficient within the cap. No broader recursive history was used.",
+  "root_wallet": "B65cQ7sVquQ1VRYYK4m4zdPDfMwqxthycqraSWmkXptQ",
+  "rotation_analysis": {
+    "captures_H1_false_negatives": 2,
+    "note": "Root verification can add a new funder only when its bounded initial route is independently observed; it is not a static list.",
+    "verified_root_descendants": [
+      "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB",
+      "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+      "HS5GjB4KTJbbBdYHkJV8qDpq8gmU9wck2qsxgz3ifgke"
+    ]
+  },
+  "route_dependence": "HYBRID_ROUTE_AND_BEHAVIOUR",
+  "schema_version": "P3R_V2_063E_SHARED_ROOT_PROVENANCE.v1",
+  "watchtower_comparison": "063e has a deterministic route candidate but does not reach WATCHTOWER-like address-blind structural confirmation unless all funders and frozen false positives are discriminated by the root route."
+}

@@ -1,0 +1,1600 @@
+{
+  "attempts": [
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 1,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "2AsJWGQvnrXQmyfTkFwuLFB6CZctC4NqTiLVANcy2tFQNvaFDtB7fzCgaXZYN4FFxwQPcR3QP9GsbmEfdfM9k6hD",
+      "timestamp": 1788171407
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 2,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "rqArswbsuUc9y8996Hs3QsaXLA8LmHe3PDicYNHX3B5m2g1pui6giT6N6npQJZFaNSvdjUbLu7grjh7nvLYUkKe",
+      "timestamp": 1788171408
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 3,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "21eLYg8LCDrjTHoAtJ9tzzGXf8wVYg7njM1U77WT7B3CALcFDN85qMJrinnUoD3og6DYcoRp6QzHdQ5sgKuKkEg1",
+      "timestamp": 1788171408
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 4,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "4ZFD9mSQGuby5KkJxuxx7QckHojeu8N3FddgMCrRa58naA1bYAh7QpD4CffEcM36CPn59Hm6FgF3ehzLq6Eh4wYG",
+      "timestamp": 1788171408
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 5,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "2h7ifGj2vbcPu6AmeQAns23DTKAEwCvziDs6BKAcwmd2AfiaPkYw1LzjWjGuKQxADcXqaq5SbbSJ11V1wenNVMvd",
+      "timestamp": 1788171408
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 6,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "ur5seoJMx2sMcBQ8q8HfsPF51e2GrEhxmmg9PR16h8ev4GB8vUKkNY5izea8EdYnRzgxB3SW6W271VJKkub4wt7",
+      "timestamp": 1788171409
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 7,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "3CuDEKRacecar4MgQ8pxLyamEjcqmEZ3BFuJrE2FzezecuAzUf67uKffy7Eq6V9MivhqHeRRtt4gU5Wg68hknTBY",
+      "timestamp": 1788171409
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 8,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "5w7CEJYEbhqRE2dik5cDE3Aq8a4URdFhpEXKa5DrqRojeejNdLwrbN6bbMkdoEriWBC8H1hX36skYPjbfkpKFLNm",
+      "timestamp": 1788171409
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 9,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "3vDzqBhK7XugWhPZKywcbxea1FmJbATgnQFDWmrfvRJmLb98hcnCjCGCMjzFXzmFdmg3Ss9w6BhQM1xnbBWeLyQ8",
+      "timestamp": 1788171409
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 10,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "5ox5NrzbrTzvx7kZQPHcyE6qCpyL4pyRrGdSKdSGaf9Cb8oriwdYisrk6nYyR31XRK6MWrgy3PN538uLryif12dz",
+      "timestamp": 1788171410
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 11,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "2aWx6tJKudZhNEf9N5YHMKyR8jUikTtsU9KxX88cTgVsYciiVMFXx9CcbzEK9Ahvcmjx6gvZApS1Vzpqfd9VNzzL",
+      "timestamp": 1788171410
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 12,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "3wyueJ5tqZYfPHbLbDJuT6ajFXRSWEzmFz77ZbdszSJPtyRyXJdCJWU8vm9kMZG5jG8VQGatVxDVotC6jKdTXamV",
+      "timestamp": 1788171410
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 13,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "2wwTM39m53nrGLbmy953Vbg5CtTR3GX3QuTwXjRMo3PBn9JHm8EVhmPJB3xirai8EF7qmc42VeVDuYAAQ7dMDUCe",
+      "timestamp": 1788171410
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 14,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "55Q5KEXmwSRQMrgkfkKZYu6G7AsS4v1RSSMzAZjQSJzqUuUWRcGyhVZ3JxaSG7aDX4qpTQF8Dv6xwfUox9reMS9g",
+      "timestamp": 1788171411
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 15,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "5bhYef1PN9rs2ETUVwyoKJVoSR97vxTB2AefGGdDsnTS7Fef18zXVS7nHdPKweeA5Yc2yyHXjeRDqPb6QSgpHhE",
+      "timestamp": 1788171411
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 16,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "3E2dcuzpMHY3cqF41xPU2Tr1NSZpcFooswZELSjZUTn5dZhKXnNjzMekEwm5yFtsGikDxC16QHnPaQ1G9NtVmW1u",
+      "timestamp": 1788171411
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 17,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "4iSoBpYRLxfHBZv7xkivEd4YdqS25oMAnxqdZNpqLw1VU7GYzLoh8BPNxFVXgJ9kto13ZTZovqFsZ2QS7hgpqjUy",
+      "timestamp": 1788171412
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 18,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "38KARkyNPFpWnk448SyK5oxb5TB8uKtKvZCEMZuix4o3UbdPRYiL2BTrSxo1qUE7VQNsQUDn9nTgD5CHhqXuoVXY",
+      "timestamp": 1788171412
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 19,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "D8aFdVgaeLq7kLYZBzxDT7r9aSCc5qXDBg8ffABd54p5N3G8tK87FgggB2HvyXKaAhH3yBiwbZALe6MczY1JYDm",
+      "timestamp": 1788171412
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 20,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "aPzqJWJzppJHGUVLcFe1891hG1uBQYoKzPrSbZUmSfv9Ypt4HayjZd8R5QkYkw9ftod7A148ZCZXnp9Uam1Y7zf",
+      "timestamp": 1788171412
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 21,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "2AnRCuj7y7tWHcS4JFaX4CG2ufMYz3RyHxnZUr3pby3jmrGPzkbZHMDumAcVzopWFJjevw9Q7nCodc2hCwPB1Fjs",
+      "timestamp": 1788171413
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 22,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "4ec21x9WBYkt1v2kd7mxNB77sG1rBoJRcyN3Ldmt9b5aw7AjmF88U8bxSugEgm2bHUSHA8EEEugoRAyGQ3TzHwEu",
+      "timestamp": 1788171413
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 23,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "3MTGfvussLUGgb8tMmYggbsUk32n1AYmwPUmn9EUwexLy8Bx3uPPjmn7pf1SfCL5YyBvNhu3fEwza5PTpte87kUU",
+      "timestamp": 1788171413
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 24,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "64M3VQipNAfQHSm15ob7ewAvS8Jh7Q3xe1ePuYHtY2yrKSk4McMpJBevz4BtrdjhSYGVLGoFUa6vKhZAP4hnjmjm",
+      "timestamp": 1788171413
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 25,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "5eWhrMpandsBV3rBMnyJPdLYjp8nRQ16vYUfrEbM8MaQN687vJLK34VcYX77puWe8xkspLLaS6sVk5k4BTfqbCNr",
+      "timestamp": 1788171414
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 26,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "4aCftMK4WGhcneQ8N4Yg4JPLc8gRR3vCDH6qtarJnmp8smsWSuWazpBodQoTWnbLqhKhMKiXBJTT8xKwZaqv6W3p",
+      "timestamp": 1788171414
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 27,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "34XWxrrKy7nEx11FMgr792EYXnvm1uGKyCfmKeNVWwY72ByoezCxTpWtSRP4JK93ETHfWcMBom5DTt2zrdfstwYQ",
+      "timestamp": 1788171414
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 28,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "27rZisgFAzQ1yprhaqdSbAhYYzURTBzNmetYttbxkTBXjNhNSSxzTWK6PbeWmov2tfxdkSUtp9Gh17NPD8pVZp3S",
+      "timestamp": 1788171414
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 29,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "Jn9iD53KvkPThqiTcTd293XezjCRsnMmoV6VWuWKXkKEieUenMX4GiwKeaHx6Y227cBJwZYMtBKHZcnScCGx49c",
+      "timestamp": 1788171415
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 30,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "4jjrAXqxwRm7hNQ6ZJzUHJ15LX6B89aHHksXJd6opE74nLNGvmeSy1eN4VmvAeepfyrzHvkHhtYsYQk8cQhmp4rj",
+      "timestamp": 1788171415
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 31,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "2Cx9AVXjf65GJMZZzNfVdfW8dWXW3VjJCnyTWA711EQiNZBdC6v6JmDPT1ypKqxyj5gmPDuZUd14AmsTb7EKMXqQ",
+      "timestamp": 1788171415
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 32,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "39qgXQzbPasLwzfBxFTeN6dZZY51Fg34f1ajeVx3CVqxHqbmUXepMSfLdbDTybcNJzrRkVCQqzuxqXeUg1iGZsJP",
+      "timestamp": 1788171415
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 33,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "2d3dhPfVFFR8HMk31WUitEPEDxH4g49bDdnoaivJJsFuM39VGTbjXusDGtzj9RUZ5yLPBfxve182pPLVrK56YhfW",
+      "timestamp": 1788171416
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 34,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "5ZZ6U6HccCznUpWm8jijJ7B3WdgADryUCjSdVdNjemBtCM1rxEjeMR5dGZWBb634brXqRuWpNdB7QTBQp4cNKquz",
+      "timestamp": 1788171416
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 35,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "5Mcb668RKKHYkBd8F4Mf3wNX88YDhdRescNBXcCGCdNds9YE9xwegRxzxM8yXhkVR4my5jc2ZWRgdCksxZVYePUX",
+      "timestamp": 1788171416
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 36,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "3Z24XVTh8xANkPwvzLxYSZdA57njvg2iEUXkTPnKgpPJ5efo4h7rhfqtwNxSzod3hWoyxmC8ZaEwjSUEqQG4DEqj",
+      "timestamp": 1788171416
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 37,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "5j3QesfPRuC2q8sZbYqSdSo8JrRR3qVJEkxEMrdZ1NU58WT6am39PEqK4PiWSA2ZrB4aptYVchHtQ2BgAW1Xnb3b",
+      "timestamp": 1788171417
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 38,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "9ckkTP3AuudHzHin9wTrsqTZYZqmm6NgwDKh3xrWx57VZheUMEAh1xAh7d8Xid5po7zgogiR2965fg8qjWRwKbw",
+      "timestamp": 1788171417
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 39,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "HZj9ZFxdqR17fZQVFBbAdLWAk51yyMWG9xTJmtNoYSwhhMwQ72rHF2McH5bvfqaGZPMAA1SwyMRpqvwtHuMH1Ui",
+      "timestamp": 1788171417
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 40,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "2RAHKfAbDtkFrgUAbdvnaCEkgfbVrGQsJY5g5YGMwCEKwvuff7yusXypDwgqhtv9LBM6MMjhrgdXqPVKwn9UA7K",
+      "timestamp": 1788171417
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 41,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "2DebgGSZuHageGAJZbVDAHu89hHhJmNSxYusFfBp8QVsErSTvwnDYN6aMr3MdyzB5k1Lnhe4cxyLbuR7ofuzqHy8",
+      "timestamp": 1788171418
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 42,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "cThevRS2v2u3ESTj4MHkzbqX1tPyBWUywfyvcWVMQg1TUEhFpJ176qkdYPAokYHy2esUUvJzMAYrTfqHZv99xLc",
+      "timestamp": 1788171418
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 43,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "GzKfCiF9UTqt8oRkbzPRWnEikvKpFdKpQBJWydP2MKaTLVyz8jSRZfh7UkumygwByeE7zm1DoFiAvcuiX2v4N8T",
+      "timestamp": 1788171418
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 44,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "64QqffutwJrRCQATjsmfeGNs1N2te8uGdW2o1RHweUphVjm4vLPgw4bmZtNhVSxKafpz5vTejv6us7MFiUVpouSp",
+      "timestamp": 1788171418
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 45,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "2WMGWmpZVkScJc275opMrPHLvwqp5i7dXm9LHEM5iwMdyGEwMy69MSSRgPy3LWJoCPR4LfneJPxnDzapqHgF31x5",
+      "timestamp": 1788171419
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 46,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "65fsVsjRQqTP8oe1nmBdcS5Yor3ppKjifR416hY3dgRfWn4SHFKsRCSCq9aG366pkLqdW7bT4nfeTkRJJdU5nmF2",
+      "timestamp": 1788171419
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 47,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "4yoPRggvwHNsuZNzMjRYt9Cvmmn4y2YxbdZUbz33Tb5d7F4vjcA1nmRFBse1aEcGQHNh2YmJmxPfP59EX38RRwFZ",
+      "timestamp": 1788171419
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 48,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "2C14b1jbTQtpQZCoM6vQ6ELUGSQzEnAYhjJ67LfayhtaqwHdZi3jQ69ud2q9SpsorCZoHq8qeAipTYLavZFVzaGF",
+      "timestamp": 1788171419
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 49,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "4Z4cduxvi9Cqgx51F7kVqepwx6CE9nUBBRpTMppbPf6NDtDyLSc9qcr6rZAdgYZaCYStn7HGovDyMSaZgQA3LBMf",
+      "timestamp": 1788171420
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 50,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "2erqGa9XYvd4jV5GSPWuTppbZdsnaoK8FqJPACeueCgNs8QqMcSEE9BePrfsMPAe3JCz8QFq6Z9qb6daC5mjxux6",
+      "timestamp": 1788171420
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 51,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "3u5meAwUCqECiXLrbZpy43n4HrZoZBBFNJvwrr9eKkDFP9Q1BkB1UW4WQ18abGcA1AXczwsHkKhWFSyTU6ESFcVZ",
+      "timestamp": 1788171420
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 52,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "4c5zr9rADEpEtfi53MrFJB5W8UY5hhMinAqaZU8umwupCC8tqzSNVSWwbvP9t2LEsfaqmHm2s3ZpXCodCErLHhnh",
+      "timestamp": 1788171420
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 53,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "4ESFpJu3EJT4SH29bS8u1VogEFknthQp3fFH1k7cYySGxUdQEbjzpKkaSBgjhcSRqgxzEHx6CQJ2EZGsjJnRcTqm",
+      "timestamp": 1788171421
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 54,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "8vKYDBSQm6zHdknytxNiEpujiHvwA1RZrV7G6R6o7dhWPZHF1MUUGBgLeggSSgVHnkuhFEgbhSp78KZx9uSqcqo",
+      "timestamp": 1788171421
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 55,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "QSx1e7wyMCKvyUGKmBjNrVv6q9f4h17cXPhCJa5Tj7kv1o2JCa3TQLX8vEUVsqwZA4Em4oZHs9aFkYmBDnjDddv",
+      "timestamp": 1788171421
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 56,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "JHjnGqnk5GnarSawffjMNThMdqJFqsdUWXwxCpA4BkhjaKEsTRLicBqdYrteWrUpRZC2vWqBZetzm48JWNvnPWd",
+      "timestamp": 1788171421
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 57,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "4C9a24WQxb4xjZ5oeo8sEwhirtfptEmUKcykTon9hCzcLvWc9QgWuyajPWd8DC4kQCnDwpD1aQ381aw8b7CYUJmd",
+      "timestamp": 1788171422
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 58,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "384WN6uaRdo2cXfWagFcbs2Z4L7o7BhtTzVkiQTfin3GZPaC1usKcu714F3cT93oKDqciQ3ssusTMsckDnC1zP9W",
+      "timestamp": 1788171422
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 59,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "4EUWsoD9WPiTZDt8iZJZDQZnUFw5A4wsFiCHWVDmoNo2DDCXgBMQjhhDBGpqfRWA8oAYsyX6kPgttVu3g3zwuHMa",
+      "timestamp": 1788171422
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 60,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "4b6RhyWLycTYFh7XFMP8LhBPjJShAcyWJjWzoP78SrySALQzagZKzbiyDGjCzGWEz5mjJJie3d9Abp4jWxAE7hHa",
+      "timestamp": 1788171422
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 61,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "3YCmCXEnyRpiSNM5nMSXST5B24Dr91cXoM7XLtUQB9oNwYGUrRrXxDHRhYws7n2wEKYJtjbReBPLSeodKZBVc9VK",
+      "timestamp": 1788171423
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 62,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "3BBYvZSDbSjtiPjmGcAdZsdFdTsdzxBwoeNn2dG1JGF9WZQ3A1XLW2RtJd3yTjTMBxShLxFbc64mG41zKjbn4ivt",
+      "timestamp": 1788171423
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 63,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "3ENZatygKB75od276X6iUbsKpRN53JT8SuD9xGMXEpjrQWFc9HENQ7YAHS9N6amoUk6upkj8T1YWZvcav1hd9JjY",
+      "timestamp": 1788171423
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 64,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "2WqSvqMEBbg5gLr2sLh5Ltf1My3EssSXRX6gUdeiZMktzraUmaiRrTxQdxg8uFHYjEWjjLgv6NWYkqYac5CVSApV",
+      "timestamp": 1788171423
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 65,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "2rqqqsdtCwBgzmEdcSfkugP7B7P2sUj21YAnHoDwbtFqLpVgqjMrwdFbe3QUvmBKnUydHB57gcm9xcdQJsiHXkao",
+      "timestamp": 1788171424
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 66,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "2JzgYNvxHgyzZNgEUVPUPpJSporm4nopD2aaCsQXKNE5ypSjWN1wAGYMnU8FYo9dyrGip8w1ycCi5XGcj3KV1eL2",
+      "timestamp": 1788171424
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 67,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "61JiaS9Qg7RFbzmnAqXWj3CC3M78ghHe3meQNRYeRMdmBZjGvusQpFrMRi49inoMaKh8wrM1HU68cpQxqADbgtXH",
+      "timestamp": 1788171424
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 68,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "47WWUUsNcFYrioqrSMvEnrY4aAA1ebbU8qPqC9qkX9anYZd5Tr9qGEiYcenvMxuxz7XoBZoYMkbydNnb5aVfjY9s",
+      "timestamp": 1788171424
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 69,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "26fvGX1AZfZpk2xJ5V6X8sCmgeDV81KHEKFVn8SDvkhCgXDU5Xbe6MM3ihX7cP8QrNRxthJ8a1ftGJ54bQjvf8bL",
+      "timestamp": 1788171425
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 70,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "39DArFzGtABUNiwykJFTczD6zowq5T14bDqSDVqqR6Y3zGtww7rNGfE3kGjkz2b4Y8dYjRfZvHCqw8FWUMfGAiA",
+      "timestamp": 1788171425
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 71,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "5DdjqRyrQ3VeP86YfWCoiqPeK8gxoHjVuXpEzSVJjbiFS2vkHzdSPBjXYjGmVSxkgczWjq6u7v6PSovWioTn2EXo",
+      "timestamp": 1788171425
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 72,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "2AdxqCnSdeTkZyb8SPbmsn6DPjYAWFrnCmr4DNbFkdnJxgGHPr92qrd3XNrpZGdzXU1741KN9j4PwFLtLKA6iuiS",
+      "timestamp": 1788171426
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 73,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "2W7W2CLXxfFQLYUogsA1tYBk3kvbyy2VyJdiLFbjoiFEYhMpotJhBZudXtvfg47V6rzcdPidDikyV7v4NDF7aULb",
+      "timestamp": 1788171426
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 74,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "5xJZkWwohdzZznK6LU8CZjf3GHNNgx7PJ6ZZM2tvbuJ6StXVS7K3eH6Ydp1jMJnLkQdw13c8g44TU3rLRvd9uLTW",
+      "timestamp": 1788171426
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 75,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "36RDc3xVR1swPLcgFvinkxUnn9H9GxAZtTizHuNqDBnBwe99iFEG2hBBCyk3KXK9exbPUmTE7yyZ6BK7vn5iXAUd",
+      "timestamp": 1788171426
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 76,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "4DnnfcN4iiYgSk8DYtB1WhWb3KUr8wMio6r9sSPs3zbbVgDAqRf9xdiqdr4sww89Kwv18Kr5v6XUnHLTBcSaWrPs",
+      "timestamp": 1788171427
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 77,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "2oQgEbzYbixFYoL3qwtmLu7hH4Xkda8KvLNkj96uWzp33DM1ULJSDfTxR5XJQUs9Hg28JnVGP3Q6C4DQj9Z182Hf",
+      "timestamp": 1788171427
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 78,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "dVAL5W5ag17psciGms97JKLoKdz9A5KAFGWqn4Uos32eK37czxEzsuN4QVUYuVjAnrVKacqHgyQizJAxNzcCgdT",
+      "timestamp": 1788171427
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 79,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "5BKkRREwFsFhHG7zszL4hhXNkaizqy6pKiDCdLbvQbBmSmsiowJuHf733Gg3W44Hjt7qffh7Dp1rXMxn1uuWCMKa",
+      "timestamp": 1788171427
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 80,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "4RgMzQ4EYkmxCPWJbjpvV9LDfo7q3xDxqFAK8Ti2kju3LivdBHmMRJcNgk9fSxBZSnFN9JTv1SN4FMqikRkzFFJT",
+      "timestamp": 1788171428
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 81,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "41AkLAHawKVpz9DCyWK9dLhRUD71znuidS5Leffyof8MpdeU8JhQ1K1c4BkqEVcCk4QqMN21iF7fucpy2aqnPvt5",
+      "timestamp": 1788171428
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 82,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "BRrFvzhcDJWTxrsYXfeDTwcwrUB5AwfBS6rmxxMGU95SYpygoy193avYvFCLCCMKVuv5ABNF6Q57XwrrePaEyev",
+      "timestamp": 1788171428
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 83,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "5LSkfzUTsCC9rmqNcJUxfgaVhqx9BtV8gJdZDm8YmaxhKVk2vMtZuoHgfMutXgqR3wknuKG8DP3zey68Ci7rCKdE",
+      "timestamp": 1788171428
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 84,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "3nc3yCBjsTXWxtGCJ6btikteuzRb4vor5N3arjAmsENjzaARZZNvi2RiuSzz82rMgHKhYixQsz4rdnLwcSrq2GZg",
+      "timestamp": 1788171429
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 85,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "3DbcY1YrgxFeQ8pZwQjCVKkrgeQ6Q1y5tgkqSRwP2vHbf6aQPZ7oDiCT2j9wHqHy9w2jgU5zv9EMaCA4iNcBmjuu",
+      "timestamp": 1788171429
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 86,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "X2YbsEmWBppAoyb8PkPrUxc8nhbJPi7DrCD6kBiyok5pTPXBiuj2Hze1en7m7gCRfSr2hndGU5rdfsA7Gs4GD93",
+      "timestamp": 1788171429
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 87,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "3vi2CJ26JyqUW4vLUfwsyfcoAtpRGVkGk1t91Gu7HMmhnNDMtnd11RD55Edb1ujJ8aaTuELyUvkcuegFuCBiK8Cq",
+      "timestamp": 1788171429
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 88,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "3iZXcdgSws6jfbVQXbhGEWjdE4wDnhPFxHZj2G6zYV9gWc514arFGT82tEnh2qCqQsdSV2sNkVtE8CBUbPyPzoyN",
+      "timestamp": 1788171430
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 89,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "5ygB78Q6n85y29PZHSFp3yXDHGCcdoUYcqCUgR6bZXQZ7S1gPTWqidxkM6ES4m1FxLvCC6kMfHpfV5QrzJZjkv7Z",
+      "timestamp": 1788171430
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 90,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "VDYeHRaWHGYV3QnUsaVwFd92Q7Upr5WvyLR7vdQkXTNDxXj4ErsLRJouvfbrDMoZRTQkvg6LwMe2LbSoWjcCrMn",
+      "timestamp": 1788171430
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 91,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "SNFNfncAVqpLeuMtPM6ddVZowtNivC8ZdZneCmNzedtkvfVWrJsyfBxZY5AUk9sbo6KV7evPtF6M5h6NSEo9hnp",
+      "timestamp": 1788171430
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 92,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "2ZHHk8Dg8MmiTZs6jBBnNcwY7yDXVmRVsNvcbrEKbrJXkkstTbYqmKvJxFE8kuYkN5PGu1yZTA797HDRsEo2je1y",
+      "timestamp": 1788171431
+    },
+    {
+      "attempt_number": 1,
+      "context": {
+        "purpose": "population_defining_tx"
+      },
+      "error_code": null,
+      "error_message": null,
+      "error_name": null,
+      "provider": "helius",
+      "rpc_method": "getTransaction",
+      "run_id": "direct-10k-fee-cu-acquisition-v1",
+      "sequence_number": 93,
+      "state": "SUCCESS",
+      "success": true,
+      "target": "5ohC7dZV9uwMawyLFvJeadR1jW1SP5u2qV9nWFrsvt4V2HWA4HFNDsVMbXwKhkvbp5dcTUBRa2bdSmcwrUfrnTwA",
+      "timestamp": 1788171431
+    }
+  ],
+  "authorization_created_at": 1788171407,
+  "authorized_max_network_calls": 150,
+  "calls_attempted": 93,
+  "calls_failed": 0,
+  "calls_remaining": 57,
+  "calls_succeeded": 93,
+  "candidate_id": "direct_10k_creator_provisioning_93_population",
+  "completed_at": 1788171431,
+  "last_updated_at": 1788171431,
+  "purpose": "DIRECT_10K_FEE_CU_RAW_TX_ACQUISITION",
+  "run_id": "direct-10k-fee-cu-acquisition-v1",
+  "schema_version": "durable_rpc_authorization.v1",
+  "started_at": 1788171407,
+  "status": "COMPLETE",
+  "stop_reason": null
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": "generic_living_runtime_wiring_qualification.v1",
+  "previous_cutover_attempt": {"path": "docs/audits/generic_living_bounded_active_cutover_complete.v1.json", "sha256": "563656e19d7b2aa32680df4c49daeb7ab1d3df11aed8a3b46ecc111b68a7742f"},
+  "actual_runtime_entry_point": "src/ops/living_potential_operations.py:handle_walkback_evidence_update(path, **context)",
+  "legacy_off_path": "resolve_potential_operations then direct bootstrap_wsol_potential_operation/bootstrap_transfer_potential_operation publication",
+  "generic_on_path_status": "NOT WIRED",
+  "integration_blockers": [
+    "The active entry point has no generic registry/source-reader/adapter delegation.",
+    "publish_generic_living_assessment binds caller-supplied association IDs but does not persist derived generic association rows or establish candidate ownership; future generic associations therefore cannot satisfy required immutable binding semantics."
+  ],
+  "real_feature_flag": false,
+  "real_db_writes": 0,
+  "real_living_state_unchanged": true,
+  "pre_existing_evidence_table_writes": 0,
+  "canonical_generic_path": false,
+  "activation_readiness": "HOLD",
+  "verdict": "GENERIC_LIVING_RUNTIME_WIRING_HOLD_CORRECTNESS"
+}

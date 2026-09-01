@@ -1,0 +1,170 @@
+{
+  "milestone": "RA0-I1 \u2014 retained-acquisition source integrity read-only preflight",
+  "status": "HOLD_RESOURCE_LIMIT",
+  "classification": "SOURCE_INTEGRITY_OK",
+  "resource_state": {
+    "free_disk_bytes": 6046973952,
+    "free_disk_gib": 5.64,
+    "resource_floor_bytes": 2147483648,
+    "resource_floor_gib": 2,
+    "resource_floor_met": true,
+    "authoritative_gating": "do_not_bypass_disk_gate"
+  },
+  "source_identity": {
+    "absolute_path": "/Users/kevinkeaveney/Dev/claude/flex/database/evidence_platform/production/retained_acquisition.db",
+    "device": 16777231,
+    "inode": 487625267,
+    "size_bytes": 61724901376,
+    "size_gib": 57.5,
+    "mtime_ns": 1787050742674992685,
+    "size_delta_from_reported_last_observed_bytes": 1171456,
+    "size_delta_from_reported_last_observed_description": "source identity changed since prior observed 61723729920 bytes"
+  },
+  "source_auxiliary_files": {
+    "wal": {
+      "exists": true,
+      "size_bytes": 92189152,
+      "mtime_ns": 1787050802532405210,
+      "inode": 529333030
+    },
+    "shm": {
+      "exists": true,
+      "size_bytes": 196608,
+      "mtime_ns": 1787050697331464263,
+      "inode": 529333031
+    },
+    "journal": {
+      "exists": false
+    }
+  },
+  "active_access_posture": {
+    "detected_open_handles": [
+      {
+        "pid": 79882,
+        "path": "database/evidence_platform/production/retained_acquisition.db",
+        "mode": "read/write via fd 3r",
+        "notes": "open with db-wal-shm handles present"
+      },
+      {
+        "pid": 80554,
+        "path": "database/evidence_platform/production/retained_acquisition.db",
+        "mode": "read/write via fd 3r",
+        "notes": "open with db-wal-shm handles present"
+      },
+      {
+        "pid": 81015,
+        "path": "database/evidence_platform/production/retained_acquisition.db",
+        "mode": "read/write via fd 3r",
+        "notes": "open with db-wal-shm handles present"
+      }
+    ],
+    "expected_writer_service_from_committed_config": "creator_funding_worker/evidence_writer stack has retained acquisition path configured; exact process mapping to retention path not proven from this read-only snapshot",
+    "limitation": "ps command unavailable in this environment (operation not permitted), cannot map PIDs to exact service names from this host snapshot"
+  },
+  "sqlite_cheapest_checks_read_only": {
+    "read_only_uri": "file:/Users/kevinkeaveney/Dev/claude/flex/database/evidence_platform/production/retained_acquisition.db?mode=ro",
+    "read_only_immutable_uri": "file:/Users/kevinkeaveney/Dev/claude/flex/database/evidence_platform/production/retained_acquisition.db?mode=ro&immutable=1",
+    "read_only_results": {
+      "sqlite_version": "3.41.2",
+      "page_size": 4096,
+      "page_count": 15077477,
+      "freelist_count": 0,
+      "schema_version": 4,
+      "user_version": 0,
+      "sqlite_master_table_names": [
+        "retained_acquisition_by_mint",
+        "retained_acquisition_gaps",
+        "retained_acquisition_observations",
+        "retained_acquisition_outcomes"
+      ],
+      "first_failure": null
+    },
+    "read_only_immutable_results": {
+      "sqlite_version": "3.41.2",
+      "page_size": 4096,
+      "page_count": 15065227,
+      "freelist_count": 0,
+      "schema_version": 4,
+      "user_version": 0,
+      "sqlite_master_table_names": [
+        "retained_acquisition_by_mint",
+        "retained_acquisition_gaps",
+        "retained_acquisition_observations",
+        "retained_acquisition_outcomes"
+      ],
+      "first_failure": null
+    },
+    "note_on_read_only_variance": "page_count differs between consecutive immutable and non-immutable opens while both return immediate metadata and no malformed-image errors, indicating snapshot-state differences under concurrent WAL activity"
+  },
+  "quick_check": {
+    "executed": true,
+    "mode": "read_only_uri",
+    "result": "ok",
+    "statement": "PRAGMA quick_check",
+    "exact_row": "ok"
+  },
+  "bounded_readability_matrix": [
+    {
+      "table": "retained_acquisition_observations",
+      "query": "SELECT rowid, payload_json FROM retained_acquisition_observations LIMIT 1",
+      "status": "ok",
+      "row_count": 1
+    },
+    {
+      "table": "retained_acquisition_observations",
+      "query": "SELECT rowid, payload_json FROM retained_acquisition_observations LIMIT 10",
+      "status": "ok",
+      "row_count": 10
+    },
+    {
+      "table": "retained_acquisition_outcomes",
+      "query": "SELECT rowid, payload_json FROM retained_acquisition_outcomes LIMIT 1",
+      "status": "error",
+      "error": "OperationalError: no such column: payload_json"
+    },
+    {
+      "table": "retained_acquisition_gaps",
+      "query": "SELECT rowid, payload_json FROM retained_acquisition_gaps LIMIT 1",
+      "status": "error",
+      "error": "OperationalError: no such column: payload_json"
+    }
+  ],
+  "ra0_runner_read_path_review": {
+    "script": "scripts/run_ra0_retained_acquisition_bounded_experiment.py",
+    "connection_mode_used_by_runner": "file:<path>?mode=ro&immutable=1",
+    "runner_statements": [
+      "SELECT COALESCE(MIN(rowid),0) FROM retained_acquisition_observations",
+      "SELECT COALESCE(MAX(rowid),0) FROM retained_acquisition_observations",
+      "SELECT COUNT(*) FROM retained_acquisition_observations",
+      "SELECT datetime(MIN(retained_at),'unixepoch') FROM retained_acquisition_observations",
+      "SELECT datetime(MAX(retained_at),'unixepoch') FROM retained_acquisition_observations",
+      "SELECT rowid FROM retained_acquisition_observations WHERE rowid >= ? ORDER BY rowid LIMIT 1",
+      "SELECT rowid FROM retained_acquisition_observations ORDER BY rowid LIMIT ?",
+      "SELECT rowid, payload_json FROM retained_acquisition_observations WHERE rowid IN (...) ORDER BY rowid"
+    ],
+    "runner_read_path_defect_detected": null,
+    "runner_vs_direct_check_delta": "direct bounded checks using read-only (including immutable) succeeded for observations metadata/table reads; this run does not reproduce malformed_image. prior malformed event remains classified as environment/state-sensitive until reproduced"
+  },
+  "wal_snapshot_consistency_assessment": {
+    "immutable_wal_risk": "potential",
+    "basis": "WAL exists and is non-empty; immutable mode was used while other process writes/rotates may be active",
+    "journal_mode": "WAL in use (journal file absent)",
+    "recommendation_for_next_ra0": "avoid immutable=1 when performing concurrent read on live WAL DB unless snapshot consistency is explicit"
+  },
+  "authority_posture": {
+    "mutations_performed": false,
+    "vacuum_or_repair_performed": false,
+    "full_export_performed": false,
+    "checkpoint_performed": false,
+    "services_restarted": false,
+    "provider_calls": false,
+    "h10_h11_executed": false
+  },
+  "blockers": [
+    "RETAINED_ACQUISITION_DB_STORAGE_AMPLIFICATION_UNBOUNDED",
+    "RETAINED_ACQUISITION_SOURCE_INTEGRITY_UNRESOLVED",
+    "RA0_DIAGNOSTIC_RESOURCE_FLOOR_NOT_MET",
+    "H11_ON_HOLD_UNTIL_RETENTION_GROWTH_BOUND"
+  ],
+  "next_action": "Do not run RA0 bounded experiment in this turn. Re-run RA0-I1 read-only checks after writer/write activity quiets and with evidence collection in a stable read window, then decide whether to attempt the bounded experiment under conservative floor."
+}

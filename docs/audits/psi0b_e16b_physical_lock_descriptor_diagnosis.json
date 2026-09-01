@@ -1,0 +1,85 @@
+{
+  "schema_version": "psi0b-e16b.diagnosis.v1",
+  "milestone": "PSI0B-E16B",
+  "status": "PASS_DIAGNOSIS",
+  "verdict": "E16A_DESCRIPTOR_GATE_FALSE_POSITIVE_PHYSICAL_FLOCK_NOT_ESTABLISHED",
+  "engineering_commit": "9bbc4c077ecb189952c900539c8a8d0031b59269",
+  "bound_inputs": {
+    "e16a_artifact": "docs/audits/psi0b_e16a_write_lease_recovery_observation.json",
+    "e16a_digest": "b63f046d4942fb2967da36888ad20a1381a673e582f05e66e3a995c06eca0ae5",
+    "e16_diagnosis_digest": "102c3282aafc15c340054f705ce3f2630d81f31fcd101adaa51adbceac385ce8",
+    "authorization_id_permanently_non_reusable": "psi0b-shadow-auth-20260815-11"
+  },
+  "checkpoint_three_attribution": {
+    "exact_lock_path": "UNRESOLVED_NOT_RETAINED",
+    "exact_process": "UNRESOLVED_NOT_RETAINED",
+    "exact_task": "UNRESOLVED_NOT_RETAINED",
+    "physical_flock_held": "NOT_ESTABLISHED",
+    "reason": "The E16A stopping probe counted non-header lsof rows but did not persist those rows or their FD lock-mode field. An open lock-file descriptor is not proof that flock is held."
+  },
+  "source_lifecycle_finding": {
+    "lock_file_open_before_flock_attempt": true,
+    "waiting_contenders_keep_open_descriptor": true,
+    "successful_release_calls_lock_un_and_close": true,
+    "timeout_path_closes_descriptor": true,
+    "diagnostic_owner_metadata_non_authoritative": true,
+    "conclusion": "Any writer or waiter can transiently appear as a lock-file opener without owning the physical flock. Therefore physical_lock_descriptor_count greater than zero is not a valid ownership or health predicate."
+  },
+  "production_telemetry_findings": {
+    "stable_supervisor_pids": {
+      "watchtower_listener": 72232,
+      "walkback_worker": 70136,
+      "ws_cascade": 5461
+    },
+    "current_serializer_p99_wait_ms": 25.73,
+    "current_serializer_p95_wait_ms": 0.4,
+    "current_serializer_queue_depth": 0,
+    "current_serializer_lock_errors_24h": 0,
+    "current_authoritative_owner_sidecars": 0,
+    "current_persistent_physical_descriptor_supported": false,
+    "five_one_second_descriptor_samples": {
+      "descriptor_rows_observed": 0,
+      "authoritative_owner_sidecar_transient_samples": 1,
+      "authoritative_owner_sidecar_present_at_following_sample": false
+    },
+    "retained_non_authoritative_temporary_sidecar_unchanged": true,
+    "feed_ingestion_service_state": "HEALTHY",
+    "production_impact_detected": false
+  },
+  "classification": {
+    "checkpoint_three_event": "LEGITIMATE_TRANSIENT_LOCK_FILE_OPEN_OR_WAIT_LIFECYCLE",
+    "ownerless_retained_descriptor_supported": false,
+    "incomplete_release_supported": false,
+    "recurrent_contention_supported": false,
+    "gate_defect": "E16A conflated an open lock-file descriptor with kernel flock ownership."
+  },
+  "smallest_safe_next_action": {
+    "milestone": "PSI0B-E16C",
+    "type": "SAFE_LOCAL_RECOVERY_GATE_CONTRACT_AMENDMENT",
+    "required_change": "Remove only the no-open-lock-file-descriptor predicate from the E16A recovery gate. Preserve the authoritative owner-sidecar absence gate and every PID, descriptor-threshold, critical-event, serializer, queue, database/WAL, feed, ingestion, worker and service gate.",
+    "required_proofs": [
+      "A transient opener without authoritative ownership does not fail health.",
+      "Authoritative owner presence still fails health.",
+      "Malformed or unavailable descriptor/owner telemetry fails closed.",
+      "No lock acquisition, lock manipulation, database open, production action or authority expansion occurs."
+    ],
+    "success_effect": "MAY_PROPOSE_ONE_SEPARATELY_AUTHORIZED_THREE_CHECKPOINT_RECOVERY_OBSERVATION_ONLY"
+  },
+  "accounting": {
+    "production_database_opens": 0,
+    "production_queries": 0,
+    "production_rows_read": 0,
+    "production_writes_or_ddl": 0,
+    "provider_rpc_calls": 0,
+    "service_actions": 0,
+    "locks_or_sidecars_manipulated": false
+  },
+  "authority": {
+    "grants_extraction_authority": false,
+    "grants_integration_authority": false,
+    "grants_activation_authority": false,
+    "grants_retry_authority": false,
+    "grants_service_action_authority": false,
+    "grants_production_mutation_authority": false
+  }
+}

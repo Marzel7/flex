@@ -1,0 +1,9 @@
+{
+  "schema_version": "expanded-opening-impulse-sample-manifest.v1",
+  "selection": "deterministic evenly-spaced retained creation-signature rows, forcing each prior reference mint into its operation sample",
+  "watchtower_sample_total": 10,
+  "byzantine_sample_total": 10,
+  "watchtower_mints": ["BuY3MHzaDEd2ipwub6uAhddH8Ah95oHoZfNDVkVVpump","3FiN2FHTKheZUE7njYhsZob1rUoURHK3QTfRpWNFpump","9Lua93QysHFz6Qni12T8gW7Z4XmWx9oy7qW1wg4ipump","5G1Q6G1e7pV4yfaCXNANwyJCPfvcs8YXYrzyoFcQpump","1jo4vqH3Tkth78dTZw482nBr3xJu86Tqoc1hvo9TMGk","C6UjUyxZhfF5qthtW3CY8twwzPFTHo9HbJyxqDjUS51","BfNr6vWmids4gGWeGacqzpxtcjL2YAcAmFWjJYyqXvcF","A46e4PSwb3gJYj6HtcpyeQDzsDMeumdVpX4CQbaypump","6b6TPYY54JaKztDha5yVZC6x6P7PKbK27jbyeFJRpump","BbLB3ikTnLkMH1HCNe1oXYYH29jjes7HP2s5VctApump"],
+  "byzantine_mints": ["b6gX6q4MGGpE6eGHdHkrKbasjavzsPThi246hexpump","6X7EhvCPpQcfwfAeQF4drS2x9UnHD8N8BK5QnTtzpump","G8fPzYYkpUSoXyaihxP5UUTzQ9CaPzQkLofMoXPNpump","D1yb7MCFaFq29a2RfGgQ8KNdb3mzpyVJNmBpKfK2pump","5Qsu2YAzTvWxH8MVPW14Hza9bptJATp6NX9xgkHgpump","AqgtHrC5TwPcvTf9dmgQhWwUhmVbaGynop1LxvU9pump","7EPk5q4EN4PL8F1j26SbueqiFekrMva54xbFVms7pump","4JZv85BNGQtJ9ikrKKJs1ptbXP9ghG8H8avV5ZEKpump","3zSPF9RDvLhzvPB8BwqdM3EacsA335xS4KY2gs6Ypump","3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump"],
+  "critical_validation": "All 10 WATCHTOWER retained signatures are actual Pump.fun CreateV2 transactions with an embedded buy. Nine of 10 selected Byzantine retained token_analysis.create_tx_signature values contain no Pump.fun create/buy/sell instruction and therefore cannot serve as a birth anchor. The sole fully qualified Byzantine reference remains 3dgG...pump."
+}

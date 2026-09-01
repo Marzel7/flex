@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D6L automatic listener restart boundary diagnosis",
+  "observed_at_utc": "2026-08-14T12:48:09Z",
+  "engineering_revision": "e7544005b69595ae041129892b4c906a63759de6",
+  "status": "STOPPED",
+  "verdict": "ACTIVE_POOL_DISCOVERY_LONG_HOLDER_IDENTIFIED",
+  "listener_pid": 82095,
+  "listener_pid_stable_during_diagnosis": true,
+  "serializer": {
+    "uptime_min": 5.7,
+    "p99_wait_ms": 29280.91,
+    "p95_wait_ms": 46.37,
+    "queue_depth": 5,
+    "max_queue_depth": 5,
+    "lock_errors_24h": 5
+  },
+  "dominant_holder": {
+    "caller": "pool_discovery.py:982 in _do_db_write",
+    "age_seconds": 99.5,
+    "native_close_state": "OWNER_THREAD_CLEANUP_REQUIRED",
+    "transaction_open": true,
+    "write_lane_owned": true,
+    "writer_wait_ms": 33146.59
+  },
+  "secondary_waiter": {
+    "caller": "usage_tracker.py:81 in _flush",
+    "age_seconds": 97.3,
+    "native_close_state": "OWNER_THREAD_CLEANUP_REQUIRED",
+    "transaction_open": true,
+    "write_lane_owned": false,
+    "writer_total_wait_ms": 71169.8
+  },
+  "interpretation": "The automatic restart only reset the metric window. The same class of pressure recurred under PID 82095. pool_discovery._do_db_write is the observable active transaction/write-lane holder; usage_tracker is a blocked secondary waiter. The window is not recovered.",
+  "scope_evidence": {
+    "codex_initiated_restart_or_stop": 0,
+    "production_database_queries": 0,
+    "ddl_or_production_writes": 0,
+    "provider_calls": 0,
+    "configuration_changes": 0
+  }
+}

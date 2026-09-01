@@ -1,0 +1,7 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5F-R2 supervised production runner execution",
+  "state": "NOT_RUN",
+  "reason": "Blocked by focused test regression in close/publish-before-retire integration.",
+  "automation_active": false,
+  "production_rows_retired": 0
+}

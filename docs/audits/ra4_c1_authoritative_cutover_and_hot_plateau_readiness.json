@@ -1,0 +1,78 @@
+{
+  "growth_projection": {
+    "bounded_growth_estimate_label": "BOUNDED_DUPLICATION_ESTIMATE",
+    "label": "bounded_sample_only",
+    "projected_ra2_daily_gb": 0.0017601571356256802
+  },
+  "limitations": {
+    "bounded_sample_only": true,
+    "confidence": "bounded_sample_only",
+    "scope": "local_fixture"
+  },
+  "milestone": "RA4-C1 authoritative cutover and hot-store plateau readiness",
+  "plateau_metrics": {
+    "archive_before_replay_failures": 0,
+    "bounded_duplication_ratio": 0.1142996913388181,
+    "hot_store_bytes": 3241861,
+    "hot_store_cap_bytes": 5242880,
+    "retired_full_rows": 0,
+    "retired_unverified_rows": 0,
+    "max_hot_bytes": 3241861,
+    "final_segment_growth_slope": 321.74632790789997,
+    "cold_archived_bytes": 3241861,
+    "failure_matrix": {
+      "record_full_rows": 1152,
+      "record_metadata_only_rows": 8928,
+      "archive_before_replay_failed_rows": 0,
+      "replay_mismatches": 0,
+      "oversized_payload_fallback_rows": 120,
+      "per_correlation_cap_metadata_only_rows": 240,
+      "per_mint_cap_metadata_only_rows": 240,
+      "disk_pressure_metadata_only_rows": 120,
+      "status": "PASS",
+      "PASS": true
+    }
+  },
+  "readiness_replay_metrics": {
+    "preserved_acquisition_identity_rows": 5040,
+    "cold_replay_equivalence": "PASS",
+    "records_checked": 1152,
+    "records_mismatched": 0
+  },
+  "recommendation": {
+    "readiness": "READY_FOR_BOUNDED_PRODUCTION_TRIAL",
+    "next_milestone": "RA4-C1S",
+    "diagnosis": "UNIQUE_VOLUME_DOMINANT",
+    "recommended_retention_v2_path": "ra2_hot_metadata_cold_payload",
+    "replay": "PASSED_IN_FIXTURE",
+    "HOT_STORE_PLATEAUS": false
+  },
+  "resource_controls": {
+    "daily_payload_cap_bytes": 1073741824,
+    "hot_store_cap_bytes": 5368709120,
+    "resource_policy": {
+      "critical_min_free_bytes": 10737418240,
+      "degraded_min_free_bytes": 16106127360,
+      "hard_floor_bytes": 1073741824,
+      "normal_min_free_bytes": 21474836480
+    }
+  },
+  "sample": {
+    "bounded_duplication_label": "BOUNDED_DUPLICATION_ESTIMATE",
+    "bounded_duplication_ratio": 0.1143,
+    "sample_method": "deterministic_scaled_fixture",
+    "sample_size": 10080
+  },
+  "schema_version": "ra4_c1_hot_plateau_readiness.v1",
+  "source_identity": {
+    "high_water_rowid": 10080,
+    "rowid_min": 1,
+    "rowid_max": 10080,
+    "source": "local_fixture_scaled",
+    "sample_size": 10080
+  },
+  "status": "PASS",
+  "verdict": "HOLD_RA4_HOT_STORE_PLATEAU_NOT_PROVEN",
+  "source_artifact": "docs/audits/ra4_c1_scaled_plateau_stress.json",
+  "source_artifact_digest_sha256": "c7cadd31630f63bcc3ce942e3459ae24adeda21aa9742fb4730e38f271c2afec"
+}

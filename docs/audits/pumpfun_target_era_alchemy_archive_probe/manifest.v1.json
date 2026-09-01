@@ -1,0 +1,15 @@
+{
+  "artifact_type": "PUMPFUN_ALCHEMY_HISTORICAL_ACCOUNT_ARCHIVE_PROBE_MANIFEST_V1",
+  "network_accounting": {
+    "alchemy_historical_getAccountInfo": 1,
+    "other_provider_calls": 0,
+    "solana_getTransaction": 0,
+    "total_provider_calls": 1
+  },
+  "probe_digest": "035043d06c1700c8b09f64a0a31f366aa8d3ca9c0b0352b31e72fe0dae54e7ad",
+  "probe_path": "docs/audits/pumpfun_target_era_alchemy_archive_probe/alchemy_historical_account_probe.v1.json",
+  "replay_idempotent": true,
+  "replay_run_1_digest": "be68eafc1d51049d117bf1629f17499ab7bd38583b94c4ffe24e62eba702e408",
+  "replay_run_2_digest": "be68eafc1d51049d117bf1629f17499ab7bd38583b94c4ffe24e62eba702e408",
+  "status": "BLOCKED_ALCHEMY_HISTORICAL_ACCOUNT_ARCHIVE_TIER_ENTITLEMENT"
+}

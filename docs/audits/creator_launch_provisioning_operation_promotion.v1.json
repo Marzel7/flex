@@ -1,0 +1,20 @@
+{
+  "census": {
+    "excluded": 3,
+    "promoted": 90,
+    "qvtw": 6,
+    "strict": 84
+  },
+  "fail_closed_reason": "operator_subtypes.candidate_id is UNIQUE, so the existing canonical subtype model cannot retain two qualified subtype records with the same required source potential candidate. No existing role-aware detector implementation supports required 84/6/3 replay and excluded-case guard.",
+  "membership_collisions": 0,
+  "network_calls": 0,
+  "prerequisite_sha256": "6c052e68086fdc1a7e7f3f44c6f1d705653e3b814846fd9915350153c3b45739",
+  "prerequisite_verified": true,
+  "status": "HOLD_CORRECTNESS_PRE_MUTATION",
+  "writes": {
+    "living": 0,
+    "operation_membership": 0,
+    "other_production": 0,
+    "source_tables": 0
+  }
+}

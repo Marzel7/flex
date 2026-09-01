@@ -1,0 +1,11 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5F-R1-E1 durable execution evidence",
+  "implementation": "src/ops/durable_execution_evidence.py PhaseEvidenceStore",
+  "tests": "35/35 passed: durable phase tests plus P5D rollover regression",
+  "phase_contract": ["PRE_RUN", "SELECTED", "COPIED", "VERIFIED", "PUBLISHED", "LEASE_ACQUIRED", "HOT_RETIRE_BEGIN", "HOT_RETIRE_COMMIT", "POST_PARITY", "COLD_READ", "COMPLETE"],
+  "recovery_behavior": "A process terminated after HOT_RETIRE_COMMIT leaves atomic phase files with the frozen manifest, COLD destination, committed-delete marker, and timing. Recovery appends parity/COLD_READ/COMPLETE only after read-only validation.",
+  "run2": {"retired": 500, "lease_seconds": 0.0007154999766498804, "retirement_seconds": 0.5664579580188729, "sqlite_busy": 0, "parity": "PASS", "cold_read": "PASS"},
+  "run3": {"retired": 500, "lease_seconds": 0.00009320798562839627, "retirement_seconds": 0.49699612497352064, "sqlite_busy": 0, "parity": "PASS", "cold_read": "PASS"},
+  "timing_distribution_runs_2_3": {"min": 0.49699612497352064, "median": 0.5317270414961968, "max": 0.5664579580188729},
+  "conclusion": "Durable phase evidence is qualified; no run relies on stdout or a sole final JSON artifact."
+}

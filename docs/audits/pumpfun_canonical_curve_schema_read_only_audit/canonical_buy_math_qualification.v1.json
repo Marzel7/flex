@@ -1,0 +1,46 @@
+{
+  "buy_exact_quote_in_v2_semantics": "UNRESOLVED_NO_CANONICAL_TARGET_ERA_IDL_OR_PROGRAM_SOURCE",
+  "buy_math_qualified": false,
+  "canonical_buy_formula": null,
+  "canonical_buy_math_source": null,
+  "canonical_creator_fee_bps": null,
+  "canonical_model_mismatch_total": null,
+  "canonical_model_reproduces_buy_total": 0,
+  "canonical_other_fee_bps": null,
+  "canonical_protocol_fee_bps": null,
+  "canonical_rounding_rules": null,
+  "initial_curve_state_recoverable": false,
+  "initial_curve_state_source": null,
+  "initial_real_sol_reserves": null,
+  "initial_real_token_reserves": null,
+  "initial_token_total_supply": null,
+  "initial_virtual_sol_reserves": null,
+  "initial_virtual_token_reserves": null,
+  "reason": "Canonical versioned schema/math is absent locally. Existing legacy model mismatches all 10 observed outputs and was deliberately not refit.",
+  "schema_version": "pumpfun-canonical-buy-math-qualification.v1",
+  "source_digests": {
+    "creation_decoded": {
+      "path": "docs/audits/pumpfun_creation_anchor_poc/3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump.creation.decoded.v1.json",
+      "sha256": "61a70d492880515f62bba1b33466f746b62c1ea0fb07e865861be982cc398758"
+    },
+    "decoded_opening": {
+      "path": "docs/audits/pumpfun_opening_sequence_poc/opening_sequence.decoded.v1.json",
+      "sha256": "66e9a8d37a7d1d06269df16adda0eabd5e7d793f992f7dde36b511a2931bccbc"
+    },
+    "legacy_curve_simulator": {
+      "path": "src/core/watchtower/curve_impact_analyzer.py",
+      "schema_confidence": "NOT_CANONICAL_FOR_TARGET: mismatches 10/10",
+      "sha256": "240fe919cc8e2d6848e8dce67e239129a9b8b80e80c6e37df2d24c9fca219c01"
+    },
+    "legacy_mc_formula": {
+      "path": "src/core/launch_audit.py",
+      "schema_confidence": "NOT_CANONICAL_FOR_TARGET",
+      "sha256": "89484ce68320e2ab4d7c1dda840af83fba60cac003cbafa0a681b38701746b6f"
+    },
+    "raw_opening": {
+      "path": "docs/audits/pumpfun_opening_sequence_poc/opening_sequence.raw.v1.json",
+      "sha256": "9cc7d085f37dfcbd31a3d0777c5fc6494d62b3b303c98527fb50f4816aff8270"
+    }
+  },
+  "target_program_id": "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
+}

@@ -1,0 +1,65 @@
+{
+  "candidate_sources": [
+    {
+      "program_id": null,
+      "schema_confidence": "REJECTED_FOR_TARGET_OUTPUT_MISMATCH",
+      "source_path": "src/core/watchtower/curve_impact_analyzer.py",
+      "source_type": "legacy heuristic simulator",
+      "version_or_commit": null
+    },
+    {
+      "program_id": null,
+      "schema_confidence": "DEPENDENT_ON_UNQUALIFIED_LEGACY_SIMULATOR",
+      "source_path": "src/core/launch_audit.py",
+      "source_type": "legacy market-cap helper",
+      "version_or_commit": null
+    },
+    {
+      "program_id": null,
+      "schema_confidence": "LIVE_PROVIDER_FIELDS_ONLY; no Borsh account/event schema",
+      "source_path": "src/core/pumpfun_curve_listener.py",
+      "source_type": "PumpPortal live-event consumer",
+      "version_or_commit": null
+    }
+  ],
+  "canonical_schema_found_locally": false,
+  "canonical_schema_local_sources": [],
+  "external_canonical_schema_lookup_required": true,
+  "required_external_source_type": "Official, versioned Pump.fun IDL/program source tied to 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P deployment active at slot 443375107; must include BondingCurve account, TradeEvent event, and BuyExactQuoteInV2/BuyExactSolIn/Buy instruction definitions and arithmetic.",
+  "schema_version": "pumpfun-canonical-schema-provenance-read-only.v1",
+  "source_digests": {
+    "creation_decoded": {
+      "path": "docs/audits/pumpfun_creation_anchor_poc/3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump.creation.decoded.v1.json",
+      "sha256": "61a70d492880515f62bba1b33466f746b62c1ea0fb07e865861be982cc398758"
+    },
+    "decoded_opening": {
+      "path": "docs/audits/pumpfun_opening_sequence_poc/opening_sequence.decoded.v1.json",
+      "sha256": "66e9a8d37a7d1d06269df16adda0eabd5e7d793f992f7dde36b511a2931bccbc"
+    },
+    "legacy_curve_simulator": {
+      "path": "src/core/watchtower/curve_impact_analyzer.py",
+      "schema_confidence": "NOT_CANONICAL_FOR_TARGET: mismatches 10/10",
+      "sha256": "240fe919cc8e2d6848e8dce67e239129a9b8b80e80c6e37df2d24c9fca219c01"
+    },
+    "legacy_mc_formula": {
+      "path": "src/core/launch_audit.py",
+      "schema_confidence": "NOT_CANONICAL_FOR_TARGET",
+      "sha256": "89484ce68320e2ab4d7c1dda840af83fba60cac003cbafa0a681b38701746b6f"
+    },
+    "raw_opening": {
+      "path": "docs/audits/pumpfun_opening_sequence_poc/opening_sequence.raw.v1.json",
+      "sha256": "9cc7d085f37dfcbd31a3d0777c5fc6494d62b3b303c98527fb50f4816aff8270"
+    }
+  },
+  "target": {
+    "creation_slot": 443375106,
+    "mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+    "opening_slots": [
+      443375107,
+      443375108,
+      443375110,
+      443375111
+    ],
+    "program_id": "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
+  }
+}

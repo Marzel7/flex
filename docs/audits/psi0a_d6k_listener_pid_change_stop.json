@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D6K active serializer pressure diagnosis",
+  "observed_at_utc": "2026-08-14T12:45:00Z",
+  "engineering_revision": "e7544005b69595ae041129892b4c906a63759de6",
+  "status": "STOPPED",
+  "verdict": "STOP_LISTENER_PID_CHANGED_BEFORE_ATTRIBUTION",
+  "listener_pid_prior": 76939,
+  "listener_pid_observed": 82095,
+  "listener_uptime_observed": "0:01:39",
+  "evidence_writer_state": "STOPPED",
+  "fresh_serializer_window": {
+    "uptime_min": 1.2,
+    "p99_wait_ms": 115.03,
+    "p95_wait_ms": 9.16,
+    "queue_depth": 0,
+    "lock_errors_24h": 0,
+    "max_queue_depth": 2,
+    "top_writer": "listener"
+  },
+  "interpretation": "The prior p99=3753.89 and lock-error episode belonged to the prior process window. The automatic listener PID change reset the in-process serializer window, so attribution cannot be completed from the new snapshot without separately authorized restart-boundary diagnosis.",
+  "scope_evidence": {
+    "codex_initiated_restart_or_stop": 0,
+    "production_database_queries": 0,
+    "ddl_or_production_writes": 0,
+    "provider_calls": 0,
+    "configuration_changes": 0
+  }
+}

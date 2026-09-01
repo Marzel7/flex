@@ -51,6 +51,12 @@
 <button data-tab="relationships">Relationships</button>
 </nav>
 <section class="panel on" id="summary">
+{% if candidate.living %}{% if candidate.living.unavailable %}<div class="card warning"><strong>Living assessment unavailable.</strong> Existing frozen evidence remains available; the page did not recompute it.</div>{% else %}<div class="card">
+<h2>Living Assessment</h2><p class="pod-note">Living persistence is active. Global automatic walkback updates: {{ candidate.living.global_automatic_walkback_updates }}.</p>
+<dl class="facts"><dt>Potential Operation ID</dt><dd><code>{{ candidate.living.current.potential_operation_id }}</code></dd><dt>Workflow</dt><dd class="status">{{ candidate.living.current.status }}</dd><dt>Current assessment</dt><dd><code>{{ candidate.living.current.assessment_id }}</code></dd><dt>Evidence generation</dt><dd><code>{{ candidate.living.current.freshness_key }}</code></dd><dt>Immutable assessment history</dt><dd>{{ candidate.living.history_count }} versions; current is the latest retained generation.</dd><dt>Evidence associations</dt><dd>{{ candidate.living.association_counts.INCLUDED|default(0) }} included · {{ candidate.living.association_counts.EXCLUDED|default(0) }} excluded · {{ candidate.living.association_counts.UNRESOLVED|default(0) }} unresolved · {{ candidate.living.association_counts.CONTRADICTORY|default(0) }} contradictory. These are associations, not proven members.</dd></dl>
+<h3>Typed evidence populations</h3><dl class="facts">{% for label, item in candidate.living.current.payload.typed_populations.items() %}<dt>{{ label|replace('_',' ')|title }}</dt><dd>{{ item.count }}{% if item.denominator %} / {{ item.denominator }}{% endif %} <span class="pod-note">· {{ item.source }}{% if item.not_proven_membership %} · mapped population, not membership{% endif %}</span></dd>{% endfor %}</dl>
+<div class="warning">PAUSED · promotion: NO · detector: NO · {{ candidate.living.current.payload.get('attribution', {}).get('conclusion', 'Review-only association; common control not proven') }}. Funding connectivity does not prove common control. Five historical false-positive comparisons remain; one direct-funder overlap and bounded predecessor-history limitations remain.</div>
+</div>{% endif %}{% endif %}
 {% if candidate.assessment %}<div class="card"><h2>Current Assessment</h2><dl class="facts"><dt>Classification</dt><dd>{{ candidate.assessment_display.classification }}</dd><dt>Recommendation</dt><dd>{{ candidate.assessment_display.recommendation }}</dd><dt>Coherence</dt><dd>{{ candidate.assessment_display.coherence }}</dd><dt>Independence</dt><dd>{{ candidate.assessment.exact_cohort.distinct_creators }} creators · {{ candidate.assessment.exact_cohort.distinct_direct_funders }} direct funders</dd><dt>Infrastructure / common root</dt><dd>{{ candidate.assessment_display.infrastructure }} · {{ candidate.assessment_display.common_root }}</dd><dt>Evidence gaps</dt><dd>{{ candidate.assessment.evidence_gaps|join('; ') }}</dd></dl></div>{% endif %}
 <div class="card">
 <h2>Operational candidate</h2>
@@ -81,15 +87,15 @@
 </div>
 </div>{% endfor %}</div>{% endif %}<div class="card">
 <h2>Recent Launches</h2>
-<p class="pod-note">Frozen canonical members, newest first.</p>{% if candidate.verified_upstream_count %}<p class="pod-note">{{ candidate.verified_upstream_count }} verified upstream provisioners resolved; shown in each funding path.</p>{% endif %}{% for member in candidate.members %}<div class="launch-row {% if loop.index > 3 %}launch-hidden{% endif %}" data-launch-row>
+<p class="pod-note">Qualified live matches and frozen historical members, newest first. Live launch time uses retained funder-block time.</p>{% if candidate.verified_upstream_count %}<p class="pod-note">{{ candidate.verified_upstream_count }} verified upstream provisioners resolved; shown in each funding path.</p>{% endif %}{% for member in candidate.members %}<div class="launch-row {% if loop.index > 3 %}launch-hidden{% endif %}" data-launch-row>
 <div class="launch-route">
 {% if member.upstream %}<a href="https://solscan.io/account/{{ member.upstream }}" target="_blank" rel="noopener">{{ member.upstream_short }}</a> → {% endif %}<a href="https://solscan.io/account/{{ member.parent }}" target="_blank" rel="noopener">{{ member.parent_short }}</a> → <a href="https://solscan.io/account/{{ member.creator }}" target="_blank" rel="noopener">{{ member.creator_short }}</a> → <a href="https://solscan.io/token/{{ member.mint }}" target="_blank" rel="noopener">{{ member.mint_short }}</a><a class="gmgn-link" href="https://gmgn.ai/sol/token/{{ member.mint }}" target="_blank" rel="noopener noreferrer" title="Open token chart on GMGN" aria-label="Open token chart on GMGN">◉</a>
-<div class="launch-label">{% if member.upstream %}Verified upstream funding path{% if member.upstream_group_count > 1 %} <span style="color:#9aadc0">· shared upstream · {{ member.upstream_group_count }} linked launches</span>{% endif %}{% else %}Observed funding path{% endif %}{% if member.dutb_funding_link %} <span style="color:#9aadc0" title="Verified DuTb-owned temporary-WSOL close delivered funding to this creator-funding wallet">· DuTb funding link</span>{% endif %}</div>
+<div class="launch-label"><span class="ip-badge {% if member.launch_provenance.startswith('LIVE') %}cyan{% else %}dim{% endif %}">{{ member.launch_provenance|replace('_', ' ') }}</span> {% if member.upstream %}Verified upstream funding path{% if member.upstream_group_count > 1 %} <span style="color:#9aadc0">· shared upstream · {{ member.upstream_group_count }} linked launches</span>{% endif %}{% else %}Observed funding path{% endif %}{% if member.dutb_funding_link %} <span style="color:#9aadc0" title="Verified DuTb-owned temporary-WSOL close delivered funding to this creator-funding wallet">· DuTb funding link</span>{% endif %}</div>
 </div>
 <div class="launch-meta">
 <div class="mechanism">{{ member.mechanism or 'RETAINED ROUTE UNAVAILABLE' }}</div>
 <div class="date">{{ member.observed_at_display or 'Date unavailable' }}</div>{% if member.signature %}<a class="funding" href="https://solscan.io/tx/{{ member.signature }}" target="_blank" rel="noopener">Funding Tx {{ member.signature_short }} ↗</a>{% endif %}</div>
-</div>{% endfor %}{% if candidate.members|length > 3 %}<button class="launch-more" id="launch-more">View all {{ candidate.canonical_member_count }} launches →</button>{% endif %}</div>
+</div>{% endfor %}{% if candidate.members|length > 3 %}<button class="launch-more" id="launch-more">View all {{ candidate.recent_launch_count|default(candidate.members|length) }} launches →</button>{% endif %}</div>
 </section>
 <section class="panel" id="members">
 <div class="card">
@@ -162,6 +168,7 @@
 <section class="panel" id="history">
 <div class="card">
 <h2>History</h2>
+{% if candidate.living and not candidate.living.unavailable %}<table class="members"><thead><tr><th>Assessment</th><th>Evidence generation</th><th>Recorded</th><th>Status</th></tr></thead><tbody>{% for version in candidate.living.history %}<tr><td><code>{{ version.assessment_id[:12] }}…</code></td><td><code>{{ version.freshness_key }}</code></td><td>{{ version.created_at }}</td><td>{% if version.current %}<span class="pill">Current</span>{% else %}Historical retained statement{% endif %}</td></tr>{% endfor %}</tbody></table><p class="pod-note">Earlier versions are retained evidence statements, not errors. This page does not infer an unrecorded cause for generation changes.</p>{% endif %}
 <p>Imported from the frozen canonical v2 run <code>{{ candidate.canonical_run_id }}</code> into the review-only workflow queue.</p>
 <p class="pod-note">No candidate tier, canonical membership, classifier, or operation status is changed here.</p>
 </div>

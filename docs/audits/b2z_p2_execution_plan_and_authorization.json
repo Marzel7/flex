@@ -1,0 +1,144 @@
+{
+  "schema_version": "b2z.p2.execution-plan-and-authorization.v1",
+  "artifact_type": "B2Z_P2_EXECUTION_PLAN_AND_AUTHORIZATION",
+  "milestone": "B2Z-P2",
+  "phase": "A",
+  "generated_utc": "2026-08-19T01:45:00Z",
+
+  "bindings": {
+    "b2n_closure": {"artifact": "docs/audits/b2n_p3j_bounded_migration_lineage_completion.json", "digest": "e7623e6070c3e5f7a94fb39988ddd6f21bc77f28f42ef9c8cfe454d5ce67ad54"},
+    "b2z_p0_preflight": {"artifact": "docs/audits/b2z_p0_creator_funding_qualification_preflight.json", "digest": "9857b46fbb3a20e02fc35c5188a1fddbbc3b703422b20c1c82cfdb5e1dc1a38b"},
+    "b2z_p0_coverage_matrix": {"artifact": "docs/audits/b2z_p0_local_evidence_coverage_matrix.json", "digest": "eb89b3dcca2b247433912eb56e7c96d04716ac2527d58c71015fac47702a29ae"},
+    "b2z_p1_preflight": {"artifact": "docs/audits/b2z_p1_durable_resumable_execution_preflight.json", "digest": "544533a2a7d78600ef7a97a0e71e69156f8d42ba98f528ce20911a03d2192c1b"},
+    "b2z_p1_mock_reconciliation": {"artifact": "docs/audits/b2z_p1_mock_execution_reconciliation.json", "digest": "4cd16ee56e34b37a9cf76872a555dfa44fcdb699319766a460e1f637da82d08c"},
+    "b2z_p1_5": {"artifact": "docs/audits/b2z_p1_5_exhaustive_local_evidence_reconciliation.json", "digest": "a14012748ebed4002e73cb105dbac2fab7364bbd903cf746fdb194c1f7184033"},
+    "b2z_p1_6": {"artifact": "docs/audits/b2z_p1_6_historical_creator_funding_data_lineage_reconstruction.json", "digest": "393bcd0bdac973b60a33e21e628076626743ad9d12291e4204073f279efdcdb5"},
+    "b2z_p1_7": {"artifact": "docs/audits/b2z_p1_7_historical_one_hop_two_hop_funding_reconciliation.json", "digest": "4b647c2df1d777940c88067359f85224d6ab8820aab40f5111bf69f6de6eece4"},
+    "b2z_p1_8": {"artifact": "docs/audits/b2z_p1_8_operation_discovery_evidence_standard_rpc_scaling_reconciliation.json", "digest": "a7ae8e603ca2f642700d5d9bd55340e114ce5cb12bfebdbc62f7903ecf36b17d"},
+    "b2z_p2_local_prediction_freeze": {"artifact": "docs/audits/b2z_p2_local_prediction_freeze.json", "digest": "e403f46f5ebe08332bfeae9089f341b9b1e49d70f737cbd7e386f2fa62de19b3", "predictions_array_digest": "11357ddcc73ae45d947a3412ef3255952cc491969ae3005b2b81daaef8d487cc"}
+  },
+
+  "cohort_binding": {
+    "run_id": "b2n-p3e-98695fbdf44146c93ff08c8c",
+    "member_count": 20,
+    "no_substitutions": true
+  },
+
+  "part3_frozen_execution_plan": {
+    "totals": {"MIGRATION_TX": 20, "CREATOR_HISTORY": 10, "FUNDING_TX": 20, "TOTAL_MAXIMUM": 50},
+    "matches_required_50": true,
+    "drift_detected": false,
+    "plan_digest": "646758c961e97f52b87082810bfb43da8b2571cecec66829ebf429c488ef38d0",
+    "stage2_skip_ordinals": [1, 2, 4, 7, 10, 12, 13, 14, 17, 20],
+    "stage2_live_ordinals": [3, 5, 6, 8, 9, 11, 15, 16, 18, 19],
+    "per_member_plan": [
+      {"ordinal": 1, "mint": "66ruWUv7KLXkLbHBTnj7PqzEgdue1oZjeA5Z3JMHpump", "stages": ["MIGRATION_TX", "FUNDING_TX"], "expected_requests": 2, "frozen_stage3_signature": "56tgtHZHG3iWNPvmwhnwKj1guUQfsEMd4hY4HB2VyaMuU2Vqq7w9FpAZdn4qAtF6KsFRbZdppCH4S61QHpYgrdto"},
+      {"ordinal": 2, "mint": "3hgXvsR8Xh6hnoKyFbPnrMVEkrKGPVbH6EJQkzoNpump", "stages": ["MIGRATION_TX", "FUNDING_TX"], "expected_requests": 2, "frozen_stage3_signature": "5NFxWxuRQE4NDfYoWcUNJue3CHQNjPq9m3mhGZLpofBJNbkMi9oibAJkife2ME7U7LjiD62qQTuX5QErmGtBDZno"},
+      {"ordinal": 3, "mint": "5BQpi43RtPxsw7jw3dpeE7duQAXcNYhw9MD6KUxGpump", "stages": ["MIGRATION_TX", "CREATOR_HISTORY", "FUNDING_TX"], "expected_requests": 3, "frozen_stage3_signature": null},
+      {"ordinal": 4, "mint": "59hy2QNgTB6vvXJqayUk4RgtJ4wCCniwbHpg8Q5gpump", "stages": ["MIGRATION_TX", "FUNDING_TX"], "expected_requests": 2, "frozen_stage3_signature": "wiQmiNt869no5Za2PUxFfk8wowA2AJh33PJjHAvipD3gSDjRSrUuBa6vo1GNpR5vjD6k2eAWqt9dgLZbFKfCynQ"},
+      {"ordinal": 5, "mint": "6V4rTJ9M4ZNUjvRMvBPiGia5Ju3TutG2nNatRdq1pump", "stages": ["MIGRATION_TX", "CREATOR_HISTORY", "FUNDING_TX"], "expected_requests": 3, "frozen_stage3_signature": null},
+      {"ordinal": 6, "mint": "FzKMeRzbfD1wbVf2ZxfdFgYirLLnVwzspt6gJRVTA8WU", "stages": ["MIGRATION_TX", "CREATOR_HISTORY", "FUNDING_TX"], "expected_requests": 3, "frozen_stage3_signature": null},
+      {"ordinal": 7, "mint": "AGfrbmkuqf3UYG5UXEkTpCtw5UMn62Bc9NrAo6rdpump", "stages": ["MIGRATION_TX", "FUNDING_TX"], "expected_requests": 2, "frozen_stage3_signature": "2zTVy5o9nU6T9AKj8d4d8YmMsyoFKAmK89a1jfmkzmkKD1aWbtz6TNRQUvV4iHe3cC6miarFaBzkEVJUfWtCUx2F"},
+      {"ordinal": 8, "mint": "qgiXEYJD6mXjHqzJJksX1yjYtownjLXFHAtD7KApump", "stages": ["MIGRATION_TX", "CREATOR_HISTORY", "FUNDING_TX"], "expected_requests": 3, "frozen_stage3_signature": null, "fan_out_review": true},
+      {"ordinal": 9, "mint": "DU8u7EvQsG3GovXDknrcdV8dQfAie7MMY5keqT2Fpump", "stages": ["MIGRATION_TX", "CREATOR_HISTORY", "FUNDING_TX"], "expected_requests": 3, "frozen_stage3_signature": null},
+      {"ordinal": 10, "mint": "Gb71a9p2wfCcuBhHJ2zbG6pchnFGDrocGRAJjZh4pump", "stages": ["MIGRATION_TX", "FUNDING_TX"], "expected_requests": 2, "frozen_stage3_signature": "3fVbw8vBZkhsRGfoSdzNNeCQmd9RDbkHw3vS3WuBNXRojc2ndgqmKjfURpdR5gBZkX8K55NayF986yXBcjnu5ZVu"},
+      {"ordinal": 11, "mint": "CNCTqxJ2ug2Cg35Z4UwhggmXdfLSTQ4eQgskVdEspump", "stages": ["MIGRATION_TX", "CREATOR_HISTORY", "FUNDING_TX"], "expected_requests": 3, "frozen_stage3_signature": null, "fan_out_review": true},
+      {"ordinal": 12, "mint": "DykmoWpVtaKN9R5vurKk2TWgBX2WvvnbMkJMd7gcpump", "stages": ["MIGRATION_TX", "FUNDING_TX"], "expected_requests": 2, "frozen_stage3_signature": "3z9xsxZA2doN2ZpXvrWvKDm6NFWdsG6UBaGX1qJRJKwEVhNoEtEDr565VTAUMs5kR6CpYppu4XUDVU9EQDtGBtm3"},
+      {"ordinal": 13, "mint": "E1TTBe4a7qRbLXJ2ef8zUaHE99CqM98oKhCn7YGUpump", "stages": ["MIGRATION_TX", "FUNDING_TX"], "expected_requests": 2, "frozen_stage3_signature": "35yuHPECZCuUfLtnhncpK29sqXgLQW131MmVt5c3ruwBaqdm4ZeGoZ2hbHNKeWRgd6k8keRmXdveweucd2pS5muy"},
+      {"ordinal": 14, "mint": "TmzQHAfT2MeuW5mgMP7HK4nZogfrGVxrzYHQBkqpump", "stages": ["MIGRATION_TX", "FUNDING_TX"], "expected_requests": 2, "frozen_stage3_signature": "5B7YV3byJbvBkxD4qxtWjxPND4hNieZejDy5bjehxrALXhTcJoNdy3bsk6GM8xDLx1k71GPdvbpC6m1Eicym19Ds"},
+      {"ordinal": 15, "mint": "2grdcnAX48SivhXjB4WkzKHzsz6b9BMWp1EipZWdpump", "stages": ["MIGRATION_TX", "CREATOR_HISTORY", "FUNDING_TX"], "expected_requests": 3, "frozen_stage3_signature": null, "fan_out_review": true},
+      {"ordinal": 16, "mint": "D62UbUSyC78Ucdr9jmrCy9veFuuoQEvuL7NYJCNTpump", "stages": ["MIGRATION_TX", "CREATOR_HISTORY", "FUNDING_TX"], "expected_requests": 3, "frozen_stage3_signature": null},
+      {"ordinal": 17, "mint": "9S4dmRLq3SmonrBi6ybxV5LW7M2c68NcGfYb6iFepump", "stages": ["MIGRATION_TX", "FUNDING_TX"], "expected_requests": 2, "frozen_stage3_signature": "5qzEbBKhWYBoegNgPf5H7DqA4J7DQ1gV8hE3sCAunfigj9hkRAzTYgsu7pQw3P8eNbLJTLHUhNAcrKpitb9nojU9"},
+      {"ordinal": 18, "mint": "CzQDFKURcQHdRgpBib4kyDtmAcWFg9jRQ7Rw3TzGfRGU", "stages": ["MIGRATION_TX", "CREATOR_HISTORY", "FUNDING_TX"], "expected_requests": 3, "frozen_stage3_signature": null, "fan_out_review": true},
+      {"ordinal": 19, "mint": "p5HJBxcLPm2xR3jzdNkJtFkY8iqNixmYgevGwzkpump", "stages": ["MIGRATION_TX", "CREATOR_HISTORY", "FUNDING_TX"], "expected_requests": 3, "frozen_stage3_signature": null, "fan_out_review": true},
+      {"ordinal": 20, "mint": "w9qiqygRmeiYxFFGR6Lf5zcPautE9NDVDX2RG2Lpump", "stages": ["MIGRATION_TX", "FUNDING_TX"], "expected_requests": 2, "frozen_stage3_signature": "3VmVoEYQWuP6oLPPm5pKkwNLLCTQ8gvzg19PM1bhknwfuYCPcY6AyDz3kWW77BQybeDowWMDjGoTA7T3BNh81vuT"}
+    ]
+  },
+
+  "part4_authorization": {
+    "run_id": "b2z-p1-44d6798563468c8aff747446",
+    "run_id_source": "REUSED from qualified B2Z-P1 -- calibration executes against the identical frozen manifest/projection/cohort, not a new discovery run, so a new run_id is not required per the P1.7 architectural precedent (a new run_id is only warranted for a genuinely distinct budget/contract)",
+    "manifest_digest": "82bbda32d25a9951a8d8475528d7db3a92b675aae90ce2d55e13391a6b69eedc",
+    "projection_digest": "eb2713e3f0ff01f122c0e962a7c67e7f1ea80337fa8894163892a47c17dd32bc",
+    "provider": "helius_rpc",
+    "endpoint_family": "helius-mainnet-json-rpc",
+    "allowed_methods": ["getTransaction", "getSignaturesForAddress"],
+    "max_total_requests": 50,
+    "max_total_requests_source": "P2-SPECIFIC fail-closed ceiling, constructed via dataclasses.replace() on the base B2ZAuthorization -- strictly enforced by DurableB2ZClient.dispatch()'s own budget check against authorization.max_total_requests, NOT the module's MAX_TOTAL_REQUESTS=60 constant. The runner's 60 remains an unrelated, unused, higher ceiling for this specific authorization object.",
+    "max_requests_per_member": 3,
+    "max_requests_per_stage": 1,
+    "retries": 0,
+    "pagination_budget": 0,
+    "fallback_budget": 0,
+    "production_db_read": false,
+    "production_db_write": false,
+    "candidate_evidence_only": true,
+    "existing_operation_mutation_forbidden": true,
+    "authorization_digest": "6e457e9cdf39c49b41bda0ef8cac390cf71e2320d5dda74a0b5b5656a1686550",
+    "not_consumed_this_milestone": true
+  },
+
+  "part5_ledger_emptiness_verified": {
+    "event_ledger_path": "docs/audits/b2z_p1_event_ledger_b2z-p1-44d6798563468c8aff747446.jsonl",
+    "event_ledger_exists": false,
+    "stage_output_ledger_path": "docs/audits/b2z_p1_stage_outputs_b2z-p1-44d6798563468c8aff747446.json",
+    "stage_output_ledger_exists": false,
+    "final_result_path": "docs/audits/b2z_p1_live_result_b2z-p1-44d6798563468c8aff747446.json",
+    "final_result_exists": false,
+    "verified_via": "direct filesystem check, no deletion/reset performed (nothing existed to delete)"
+  },
+
+  "part6_durability_resume_revalidated": {
+    "pre_dispatch_reservation": "confirmed via code read + test_reservation_written_before_dispatch_for_every_stage (still passing)",
+    "terminal_event_after_outcome": "confirmed",
+    "physical_accounting_dispatch_based": "confirmed -- LOCAL_PREDICTION_SEEDED events explicitly excluded from dispatched_stage_keys()/physical_requests_attempted()",
+    "dependency_aware_resume": "confirmed, extended to correctly skip a seeded CREATOR_HISTORY stage (new test: test_resume_after_interruption_correctly_resumes_past_a_seeded_stage)",
+    "completed_stage_never_repeated": "confirmed -- duplicate-stage guard (B2Z_P1_DUPLICATE_STAGE_ATTEMPT) plus the new seed-specific guard (B2Z_P2_STAGE_ALREADY_HAS_EVENTS)",
+    "budget_never_reset": "confirmed -- derived fresh from durable ledger on every call",
+    "interruption_resumes_exact_next_stage": "confirmed",
+    "no_test_touches_canonical_live_paths": "confirmed -- all P1/P2 tests use tmp_path"
+  },
+
+  "part7_calibration_specific_safety": {
+    "prediction_corpus_read_only_during_execution": "the freeze artifact (docs/audits/b2z_p2_local_prediction_freeze.json) is read by the calibration script ONLY to obtain frozen_funding_signature values for seeding -- it is never written to by any execution code path",
+    "raw_result_cannot_mutate_prediction": "confirmed structurally -- B2ZStageOutputLedger.record_stage_output() raises B2ZP1Error if a stage output already exists (no overwrite path exists anywhere in the module)",
+    "stage2_skip_uses_frozen_signature": "confirmed -- seed_frozen_creator_history_from_local_prediction() writes candidate_funding_signature=frozen_funding_signature verbatim, and Stage 3 reads it via stage_output_ledger.get_stage_output(), never re-deriving it",
+    "disagreement_recorded_not_corrected": "confirmed via test_raw_disagreement_with_frozen_prediction_is_not_silently_corrected -- a raw result that fails proves_inbound_sol_funding() against the frozen signature RAISES (B2Z_P1_NO_FUNDING_EDGE), it does not silently substitute a different signature or pass",
+    "missing_local_prediction_remains_missing": "no member in the freeze has missing_fields non-empty (all 20 have local evidence per P1.6/P1.7), so this specific run has no missing-prediction case to exercise, but the seed function requires an explicit frozen_funding_signature argument -- there is no code path that could silently synthesize one",
+    "raw_result_stored_separately": "raw Stage 1/3 outputs are written to the stage-output ledger (docs/audits/b2z_p1_stage_outputs_...) and the final per-member result, entirely separate from the frozen prediction file",
+    "comparison_only_after_raw_result_available": "the comparison artifact (b2z_p2_local_vs_raw_calibration_result.json) is explicitly NOT created in Phase A -- it can only be built after live execution produces real raw results"
+  },
+
+  "part8_focused_tests": {
+    "test_file": "tests/test_b2z_p2_calibration.py",
+    "test_file_sha256": "2c354edf5021573a76d6bfada9859197a39711c79221162d8ec235b9040009bd",
+    "test_count": 9,
+    "test_result": "9 passed",
+    "combined_suite_result": "95/95 passed (26 P1 tests + 9 P2 tests + 60 pre-existing B2N/B2Z tests), zero regressions",
+    "coverage_confirmed": ["exact 50-request end-to-end plan", "seeded stage excluded from physical budget", "frozen signature is the exact Stage 3 target", "seed refuses to overwrite existing stage", "disagreement raises rather than silently correcting", "P2 authorization ceiling (50) strictly narrower than runner ceiling (60)", "51st request refused under a tiny test ceiling", "resume correctly skips a seeded stage after interruption", "no test resolves to live canonical paths"]
+  },
+
+  "part9_storage_ra4_health": {
+    "legacy_db_recreated": false,
+    "compact_index_row_count": 1938017,
+    "creator_funding_worker_pid": 33383,
+    "creator_funding_worker_restarted": false,
+    "disk_free_gib": 71
+  },
+
+  "part10_existing_operation_safety": "EXISTING_OPERATION_SEMANTICS_UNCHANGED -- confirmed zero Watchtower/three_sw2/operation-membership/canonical-attribution coupling anywhere in the new or modified code",
+
+  "part11_credential_boundary": {
+    "credential_env_var": "B2Z_P2_HELIUS_ENDPOINT (new, isolated, distinct from B2N_P3C_HELIUS_ENDPOINT)",
+    "credential_present_in_this_session": false,
+    "no_env_file_read": true,
+    "no_supervisor_secrets_read": true,
+    "no_credential_printed_or_persisted": true,
+    "manual_execution_command": "cd /Users/kevinkeaveney/Dev/claude/flex\nread -s B2Z_P2_HELIUS_ENDPOINT\nexport B2Z_P2_HELIUS_ENDPOINT\necho\nfor i in $(seq 1 50); do\n  python3 scripts/run_b2z_p2_calibration.py --resume\n  rc=$?\n  if [ $rc -ne 0 ]; then echo \"STOPPED at invocation $i, exit code $rc\"; break; fi\ndone\nunset B2Z_P2_HELIUS_ENDPOINT"
+  },
+
+  "blockers": [],
+
+  "phase_a_verdict": "READY_B2Z_P2_MANUAL_CALIBRATION_EXECUTION_GATE",
+  "phase_a_verdict_note": "All Phase-A gates pass: local predictions frozen and digest-verified (11357ddc...), exact 50-request plan confirmed with zero drift (20 MIGRATION_TX + 10 CREATOR_HISTORY + 20 FUNDING_TX), P2-specific authorization constructed with a fail-closed 50-request ceiling strictly narrower than the runner's 60-request hard ceiling, live ledgers confirmed empty/nonexistent, durability/resume protections reconfirmed and extended (with 9 new passing tests, 95/95 combined suite), calibration-specific anti-circularity safety proven (frozen signatures used verbatim, disagreements raise rather than silently correct, prediction corpus never written by execution code), RA4/V2/storage confirmed healthy and unaffected, existing-operation safety confirmed unchanged. The isolated B2Z_P2_HELIUS_ENDPOINT credential is NOT present in this execution environment -- per instruction, this milestone stops here and does not request it in chat. The exact manual command is provided above for the human to run in an environment where the credential is available."
+}

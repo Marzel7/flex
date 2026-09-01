@@ -1,0 +1,28 @@
+{
+  "complete": true,
+  "run_id": "byzantine-114-ui-funding-signatures-v1",
+  "summary": {
+    "coverage_percent_of_182": 56.593407,
+    "df8_amounts": {
+      "1.0": 18,
+      "10.0": 39,
+      "20.0": 32
+    },
+    "mint_case_counts": {
+      "BYZ_TO_CREATOR_WSOL": 23,
+      "DF8_TO_BYZ_PLAIN_XFER": 90,
+      "OTHER_UPSTREAM_TO_BYZ": 2
+    },
+    "new_df8_mint_cases": 90,
+    "new_df8_unique": 89,
+    "preexisting_df8_mints": 13,
+    "replay_digest": "79e7aee92cbc7061c1081f80a0a0dfb924c610d1a7fd8a6a980760048d96257b",
+    "run_id": "byzantine-114-ui-funding-signatures-v1",
+    "total_df8_mints": 103,
+    "unique_counts": {
+      "BYZ_TO_CREATOR_WSOL": 23,
+      "DF8_TO_BYZ_PLAIN_XFER": 89,
+      "OTHER_UPSTREAM_TO_BYZ": 2
+    }
+  }
+}

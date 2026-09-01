@@ -1,0 +1,127 @@
+{
+  "authoritative_snapshot": null,
+  "bindings": {
+    "dry_run": false,
+    "source_contract": {
+      "canonicalization": "unchanged_runner_canonical_json_array_newline_sha256",
+      "read_semantics": "sqlite_uri_mode_ro_query_only_single_transaction",
+      "surfaces": [
+        {
+          "columns": [
+            "mint",
+            "pf_ws_creator"
+          ],
+          "order": "mint ASC",
+          "table": "token_analysis"
+        },
+        {
+          "columns": [
+            "mint"
+          ],
+          "order": "mint ASC",
+          "table": "pumpfun_migration_verification"
+        }
+      ],
+      "wall_seconds": 300
+    },
+    "source_db": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+    "wrapper_cleanup_reserve_seconds": 30,
+    "wrapper_execution_deadline_seconds": 270,
+    "wrapper_hard_ceiling_seconds": 300
+  },
+  "exit_code": -15,
+  "launcher": {
+    "cwd": "/Users/kevinkeaveney/Dev/claude/flex",
+    "pid": 28232,
+    "ppid": 28231,
+    "started_at_utc": "2026-08-22T19:01:02.404047Z"
+  },
+  "legacy_quarantine_excluded": {
+    "temporary_snapshot": {
+      "path": "docs/audits/ops_discovery_p3r_s2b_source_snapshot.sqlite.tmp",
+      "sha256": "8812ad675a1de997fa5dd7bb506e1446ff72c43a353308f2a8d98d69a49f942e"
+    },
+    "terminal_audit": {
+      "path": "docs/audits/ops_discovery_p3r_s2b_source_boundary_snapshot.json",
+      "sha256": "d585d353af6d4e4a64c026ef7c1fbe77472abfd77e687b5e0983b02659abfa58"
+    }
+  },
+  "ownership": {
+    "promotion": "wrapper only after runner COMPLETE, replay_identical true, and exit code zero",
+    "snapshot_runner": [
+      "temporary_snapshot",
+      "capture_snapshot",
+      "runner_candidate_snapshot",
+      "runner_audit"
+    ],
+    "wrapper": [
+      "namespace",
+      "lifecycle",
+      "stdout",
+      "stderr",
+      "final_snapshot"
+    ]
+  },
+  "paths": {
+    "capture_snapshot": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T190101225416000Z-bb2dfefa2fd4795f945156fec8c84849/runner_candidate.sqlite.capture.sqlite",
+    "final_snapshot": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T190101225416000Z-bb2dfefa2fd4795f945156fec8c84849/snapshot.sqlite",
+    "lifecycle": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T190101225416000Z-bb2dfefa2fd4795f945156fec8c84849/lifecycle.json",
+    "namespace": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T190101225416000Z-bb2dfefa2fd4795f945156fec8c84849",
+    "runner_audit": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T190101225416000Z-bb2dfefa2fd4795f945156fec8c84849/source_boundary_audit.json",
+    "runner_candidate_snapshot": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T190101225416000Z-bb2dfefa2fd4795f945156fec8c84849/runner_candidate.sqlite",
+    "stderr": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T190101225416000Z-bb2dfefa2fd4795f945156fec8c84849/stderr.log",
+    "stdout": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T190101225416000Z-bb2dfefa2fd4795f945156fec8c84849/stdout.log",
+    "temporary_snapshot": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T190101225416000Z-bb2dfefa2fd4795f945156fec8c84849/runner_candidate.sqlite.tmp"
+  },
+  "run_id": "s2b-source-snapshot-20260822T190101225416000Z-bb2dfefa2fd4795f945156fec8c84849",
+  "runner": {
+    "command": [
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "/Users/kevinkeaveney/Dev/claude/flex/scripts/freeze_ops_discovery_p3r_s2b_source_boundary.py",
+      "--source-db",
+      "database/flex_complete_database.db",
+      "--snapshot-db",
+      "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T190101225416000Z-bb2dfefa2fd4795f945156fec8c84849/runner_candidate.sqlite",
+      "--audit-path",
+      "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T190101225416000Z-bb2dfefa2fd4795f945156fec8c84849/source_boundary_audit.json",
+      "--wall-seconds",
+      "300",
+      "--max-progress-calls",
+      "500000"
+    ],
+    "path": "/Users/kevinkeaveney/Dev/claude/flex/scripts/freeze_ops_discovery_p3r_s2b_source_boundary.py",
+    "pid": 28243,
+    "ppid": 28232,
+    "sha256": "a346bdd4a6125c008ac5cd861fd33af565f6ecfdb47a4c0c43c8847b7a7eeeda",
+    "started_at_utc": "2026-08-22T19:01:02.410013Z"
+  },
+  "runner_terminal_audit": {
+    "bounds": {
+      "cleanup_reserve_seconds": 30.0,
+      "execution_deadline_seconds_from_start": 270.0,
+      "max_progress_calls": 500000,
+      "progress_opcode_interval": 1000,
+      "wall_seconds": 300.0
+    },
+    "canonicalization": {
+      "digest": "SHA-256 over newline-delimited canonical rows",
+      "encoding": "utf-8",
+      "field_order": "SURFACES declaration",
+      "null_representation": "JSON null",
+      "row_format": "json array compact separators",
+      "row_order": "primary key mint ASC"
+    },
+    "cohort_formed": false,
+    "identities_selected_or_frozen": false,
+    "milestone": "OPS-DISCOVERY-P3R-S2B-SOURCE-SNAPSHOT",
+    "population_query_executed": false,
+    "production_writes": 0,
+    "provider_calls_made": 0,
+    "read_mode": "sqlite_uri_mode_ro_query_only_single_transaction",
+    "source_db": "database/flex_complete_database.db",
+    "status": "STARTED"
+  },
+  "status": "HOLD_BOUND_EXCEEDED",
+  "temporary_snapshot_non_authoritative": true,
+  "terminal_at_utc": "2026-08-22T19:05:32.614475Z"
+}

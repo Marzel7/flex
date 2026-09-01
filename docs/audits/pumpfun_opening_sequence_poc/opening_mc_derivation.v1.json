@@ -1,0 +1,5 @@
+{
+  "reason": "No virtual reserve state, so no post-buy spot price or market cap derived. Average execution price intentionally not used as curve price.",
+  "schema_version": 2,
+  "status": "UNSUPPORTED"
+}

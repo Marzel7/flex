@@ -1,0 +1,391 @@
+{
+  "c357_applicability": "HYBRID_MODEL_LIKELY_APPLICABLE_TO_C357",
+  "cohorts": {
+    "fp_mints": [
+      "CAjsj4RL3mqDQFcRkjyH1qMVmc8wXDsc3qDhNKwpump",
+      "CmGg1Whq7ewf5xLFPXXfiNc5L2uitu3q8hzTtvTpump",
+      "Fiw7B6u5XwdnxTfTYzX63deyiwpWdkqBqjjWjXSpump",
+      "GPDZTyHBYWfaQE6N3idv2KxpDbiqLatPNvwAqgkpump",
+      "M7A3PQFy7uKRUkwNf7YbkALi1dyQ7kjd8PmHj3Hpump",
+      "UXkXEB4AdLDvXEb5zvJ4BLSk5sh3T8wcLxxN2YEpump",
+      "Vh2sB6qLyMBevQ2JUmPzPDnUjefqZG8CHUbKY6Gpump",
+      "bu7rZ9rAai9L6juMp5k7knWhTT3QXeoXZZuxfQMpump",
+      "bvJjwrxqvZSp7eW69BxFj4YSGniLFysNgPXrwqYpump",
+      "dwqmMVHZ7w84AFgaJ7wNceMQGS5rriiwaFVJCsdpump",
+      "hv7RU5m4WahioRBqeaf3Jk7udMm19YGPaT24oxvpump",
+      "mxey3nTKBsqa6fQYC7g8RrVM36UT9XJGUCT8ur5pump",
+      "qgiXEYJD6mXjHqzJJksX1yjYtownjLXFHAtD7KApump",
+      "vTyCy4iNKXQAUFLDPa2m28XNZk1KxzA3FiG7FWrpump",
+      "vdTLLLpo3Ag5sRw8HFMEt6DpFV1VK9B5jeQfK3Kpump"
+    ],
+    "tp_mints": [
+      "2ukFgVCgXrdijD6qcfV9CnSzGGENkrMFXCurvgUrpump",
+      "5Q2PmJe7fboykX94gJjYNfN5AgjXDcJDJqeuGUKApump",
+      "93Gwy6EzMK2CDJGpTzLAe4fs45GHCzoxbFQcsU6xpump",
+      "9HC9pchPikhAg5CuQxiUFexJe89G8MBfPw4Xx3DLpump",
+      "9NPivohgTPgvGRFf1zRJkWzRVvzfZQnx4C8SunPspump",
+      "APTsytnD32axqchnou37U1kfXUgUup8zXWzNigDgpump",
+      "BHRMJEu8h6xeNMGa5PNgZzNFkv2n7jGjLGPXcEKqpump",
+      "BWNBSgKZQfngaJvW3aKgdkLyJoMXRJGg6Ci8LBRpump",
+      "C9fC481nRToDRndwD8sXVQ2vcr5sSoP7iwHTnsYTpump",
+      "D1yb7MCFaFq29a2RfGgQ8KNdb3mzpyVJNmBpKfK2pump",
+      "DSBi4v66mQVDjLahQhYq3GsdCAPtQh6bg8BQLuWrpump",
+      "DzS6LmHZkTrQH1dm6KB1TZuaRGheX2vSS7EhZFQpump",
+      "GRzA6upWecidqUTqvNHUw3wvU57f67NksSKjQmYNpump",
+      "HFK4THn9RTapetqJfmqNsyMeKXk4QWBVWz7aF8Mhpump",
+      "HNP9RzTDLuUvDKXUWRiQTq8jrR1DSXGbb9TA6BZpump",
+      "LkGunuxTBzHKbX5b4nj6mhbAKP3qPjFgHaDotN7pump",
+      "NccxjFzp4wzSHskQWncatvaGJfGX3hpbvaosc9Mpump",
+      "UhoyBoAqgz5Ehmnmvo8EVfUzRkszhL592fi9fSwpump",
+      "Vc5sfpeuozdcPE8dw5eBrSSd4dufdk6vqbqCNibpump",
+      "WFrNrYnF4cabLY5qvZWtZ4SSC74UyVyS5q9hTG5pump",
+      "Wq2Gi2RFva9gtJBHdYF3vbbgqQJ1LCBLTikx7QRpump",
+      "WsiiQ5D1ZSVZQGR6xS63GH8NDEZWX1Ca4bMmc94pump",
+      "Wsuh6EaGf3x2Z5JnqeB14qcDP9MpQdXUZnsp2Udpump",
+      "YqTPAwoiCdKrwk8whUqSZsKBbjyCkexKvAjMnrPpump",
+      "a6x3wAFmCSr8sJn2PMNrCZ94jNXkhKS8oY2V2dopump",
+      "brbu7o1QRLwzisr17hp5vD4hTienxT3qRHSAu4Wpump",
+      "bwuf2oW5UzT6g1L8VUTfxkHYCRuLm9CnYk9ydfupump",
+      "ewmHUkHACmKkGpJMXxShFpNUQMoKmA7vVZadAfFpump",
+      "fYYPZ3tRBgHzk2dCGE45Ewkmg5gniDYwmstQS8Tpump",
+      "ihCMCGWTLYLBzfyBHQCVEZiFdVWwRXW8UPQGjMUpump",
+      "itD6Zu8wc5oYuCKfCJ7Ecdx6uSz4ePcx9PgWW8Ypump",
+      "maCqH3yPdxeKufYC9Qwr58G5PJRAbwaM3X5C5D1pump",
+      "myT9rohG76nmQ9uPnnGiBA61jvSLoV1csrDUMWfpump",
+      "oHnNdDhd6YEE4TU9i6YHNjJkeTAQTnzVznGv3Edpump",
+      "ojzpe5qJXhN2JWwzj57wEvqmuiVy37aZuZfrQPCpump",
+      "p5HJBxcLPm2xR3jzdNkJtFkY8iqNixmYgevGwzkpump",
+      "qEFfQSVcvosEt47VczY1xsqB3YXsEW39MucAEnWpump",
+      "tw3ZTi9DNnjhdvPecDUcPoywBMC2DCsxgMtF4XFpump",
+      "vMag4KyyrahegKTDfPzR7oRUnaDZ88faicQBEh9pump",
+      "xACutJEAhmu4RaRJ8MxS3fcXUW5z1T4A6ao82Pppump",
+      "y9bx4XGNCGQhZaBGPuP6tjKq8cjnxyjmvFurigipump",
+      "zMyrnG4fYX9tPCvkEdnu56qtW6Nx45sPnfCZemZpump",
+      "zbSkawMqEPRzYFEEG1iGuuC1SB7gCtx3rLGHYknpump",
+      "zqt2G95SLtff7hGLohVV71YcHbGx49iFsPARqHdpump"
+    ]
+  },
+  "cross_family_contamination": {
+    "3yHmuLdvP5ffJBpNeDvu1SCVJqujb33VdMeQbm837Uuy": {
+      "classification": "900B_DOMINANT_BUT_SHARED",
+      "other_families": {
+        "p3r-v2-b43fe5cd33b138775e76": 1
+      },
+      "tp_members": 1
+    },
+    "5YJkZrwNVtrjQjuKStFNfuavWNZ2GdDsK3rW8m6dzq45": {
+      "classification": "900B_DOMINANT_BUT_SHARED",
+      "other_families": {
+        "p3r-v2-84135dbb32e9daa13722": 1
+      },
+      "tp_members": 7
+    },
+    "6sSFfF9dtpSTx4CgK5XfN7uVxKd6or9sBvvcnPRK76xq": {
+      "classification": "900B_DOMINANT_BUT_SHARED",
+      "other_families": {
+        "p3r-v2-b43fe5cd33b138775e76": 1
+      },
+      "tp_members": 6
+    },
+    "71ptwE72WhnoAnpPw73RTr8bz5E9PraUyWkXhyhAkNrC": {
+      "classification": "900B_DOMINANT_BUT_SHARED",
+      "other_families": {
+        "p3r-v2-b43fe5cd33b138775e76": 1
+      },
+      "tp_members": 10
+    },
+    "9P4vzm8kb83nLiGxNKeDX8kxNeNtwRMuLiyJnVVqwQGd": {
+      "classification": "900B_SPECIFIC_INFRASTRUCTURE",
+      "other_families": {},
+      "tp_members": 1
+    },
+    "AQiB8cPxuoXMeVRPNZygXED68VVXj4awgJ6gzz4WHazn": {
+      "classification": "900B_DOMINANT_BUT_SHARED",
+      "other_families": {
+        "p3r-v2-c3b0a81812a990ee2932": 1
+      },
+      "tp_members": 1
+    },
+    "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY": {
+      "classification": "900B_DOMINANT_BUT_SHARED",
+      "other_families": {
+        "p3r-v2-063e24a2def354f23ec5": 32
+      },
+      "tp_members": 13
+    },
+    "C9WLfmaTPXs1vuyuHFHfu7yqWvM8KDoo5SrcADzDjNjY": {
+      "classification": "900B_SPECIFIC_INFRASTRUCTURE",
+      "other_families": {},
+      "tp_members": 1
+    },
+    "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB": {
+      "classification": "900B_DOMINANT_BUT_SHARED",
+      "other_families": {
+        "p3r-v2-063e24a2def354f23ec5": 1,
+        "p3r-v2-55fab7dd0a72a9ad214e": 1,
+        "p3r-v2-c357da9d0d4d560311e4": 1,
+        "p3r-v2-c35af444426de60ffa86": 1
+      },
+      "tp_members": 1
+    },
+    "GHDVSqV5TAXXgHUWpFgAeTuuvQ91ixkXDjPYyeYjaTKh": {
+      "classification": "900B_SPECIFIC_INFRASTRUCTURE",
+      "other_families": {},
+      "tp_members": 3
+    }
+  },
+  "current_validation": {
+    "high_confidence_all_known": 44,
+    "high_confidence_known_recurrent": 39,
+    "note": "Current post-freeze launch cutoff unavailable in retained edge schema; counts are frozen qualification surface, not new membership.",
+    "unknown_infrastructure_discovery": 15
+  },
+  "deterministic_replay": "PASS using frozen edge high-water 60299.",
+  "fp_funders": [
+    [
+      "G1K5YFU4d68nNWLUKSxNTuVsZUXDATSd2dDCpWyEUiDe",
+      1
+    ],
+    [
+      "9P4vzm8kb83nLiGxNKeDX8kxNeNtwRMuLiyJnVVqwQGd",
+      1
+    ],
+    [
+      "GHDVSqV5TAXXgHUWpFgAeTuuvQ91ixkXDjPYyeYjaTKh",
+      1
+    ],
+    [
+      "5YJkZrwNVtrjQjuKStFNfuavWNZ2GdDsK3rW8m6dzq45",
+      1
+    ],
+    [
+      "HX8KfJhDkLffRbvR9LguozkS21TYBfaFLjYqT5pPqrNV",
+      1
+    ],
+    [
+      "Ex1xfJVZE9DmMM7TH8YSWRGKMA7YLTYq4bE7yB3qGSL7",
+      1
+    ],
+    [
+      "9FxHUXPj7RiG7Y2BK9BuW3mPpbzezNEiK5Q7G7zCWYE1",
+      1
+    ],
+    [
+      "3W1iZe2Poeux1Fiaqe3nguaJmDcrsDrDSaoQ9mCERsj9",
+      1
+    ],
+    [
+      "3By7ouCvGYhzWEeGny2WCLSTMHLYLxU3VE5yEXtbdqp4",
+      1
+    ],
+    [
+      "71ptwE72WhnoAnpPw73RTr8bz5E9PraUyWkXhyhAkNrC",
+      1
+    ],
+    [
+      "3yHmuLdvP5ffJBpNeDvu1SCVJqujb33VdMeQbm837Uuy",
+      1
+    ],
+    [
+      "2oqD3czK3DmEf12i5TCXAxq98XAwQrGNTG7A8LeCtjiJ",
+      1
+    ],
+    [
+      "6FGZtW5QDX1tnJXRptPDSdioZ5riQjCHDJM2KYGDUCbQ",
+      1
+    ],
+    [
+      "FyuEfKEUwkgg65mR4FGR4JWLi8iF3cB48QqBffittJ2G",
+      1
+    ],
+    [
+      "6sSFfF9dtpSTx4CgK5XfN7uVxKd6or9sBvvcnPRK76xq",
+      1
+    ]
+  ],
+  "fp_shared_with_tp_funders": [
+    "CmGg1Whq7ewf5xLFPXXfiNc5L2uitu3q8hzTtvTpump",
+    "GPDZTyHBYWfaQE6N3idv2KxpDbiqLatPNvwAqgkpump",
+    "M7A3PQFy7uKRUkwNf7YbkALi1dyQ7kjd8PmHj3Hpump",
+    "UXkXEB4AdLDvXEb5zvJ4BLSk5sh3T8wcLxxN2YEpump",
+    "hv7RU5m4WahioRBqeaf3Jk7udMm19YGPaT24oxvpump",
+    "qgiXEYJD6mXjHqzJJksX1yjYtownjLXFHAtD7KApump"
+  ],
+  "gates_predeclared": {
+    "precision": 1.0,
+    "recall_minimum": 0.8,
+    "recurrent_rule": "direct funder has >=2 frozen TP members"
+  },
+  "hybrid_contract": {
+    "address_dependency": "Hybrid attribution is address-assisted; behavioural-only remains discovery-only.",
+    "core": "selected hop-1 WSOL_WRAP_CLOSE exact 999985000 lamports",
+    "discovery_state": "900B_BEHAVIOURAL_MATCH_UNKNOWN_INFRASTRUCTURE for core matches outside recurrent set; no automatic membership",
+    "high_confidence": "core AND direct-funder role in frozen recurrent set (>=2 TP members)",
+    "name": "900B_HYBRID_ATTRIBUTION.v1"
+  },
+  "infrastructure_sets": {
+    "all_10": [
+      "3yHmuLdvP5ffJBpNeDvu1SCVJqujb33VdMeQbm837Uuy",
+      "5YJkZrwNVtrjQjuKStFNfuavWNZ2GdDsK3rW8m6dzq45",
+      "6sSFfF9dtpSTx4CgK5XfN7uVxKd6or9sBvvcnPRK76xq",
+      "71ptwE72WhnoAnpPw73RTr8bz5E9PraUyWkXhyhAkNrC",
+      "9P4vzm8kb83nLiGxNKeDX8kxNeNtwRMuLiyJnVVqwQGd",
+      "AQiB8cPxuoXMeVRPNZygXED68VVXj4awgJ6gzz4WHazn",
+      "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "C9WLfmaTPXs1vuyuHFHfu7yqWvM8KDoo5SrcADzDjNjY",
+      "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB",
+      "GHDVSqV5TAXXgHUWpFgAeTuuvQ91ixkXDjPYyeYjaTKh"
+    ],
+    "recurrent_ge_2": [
+      "5YJkZrwNVtrjQjuKStFNfuavWNZ2GdDsK3rW8m6dzq45",
+      "6sSFfF9dtpSTx4CgK5XfN7uVxKd6or9sBvvcnPRK76xq",
+      "71ptwE72WhnoAnpPw73RTr8bz5E9PraUyWkXhyhAkNrC",
+      "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "GHDVSqV5TAXXgHUWpFgAeTuuvQ91ixkXDjPYyeYjaTKh"
+    ],
+    "top_five": [
+      "5YJkZrwNVtrjQjuKStFNfuavWNZ2GdDsK3rW8m6dzq45",
+      "6sSFfF9dtpSTx4CgK5XfN7uVxKd6or9sBvvcnPRK76xq",
+      "71ptwE72WhnoAnpPw73RTr8bz5E9PraUyWkXhyhAkNrC",
+      "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "GHDVSqV5TAXXgHUWpFgAeTuuvQ91ixkXDjPYyeYjaTKh"
+    ]
+  },
+  "infrastructure_stability": "ROTATING_BUT_RECURRENT_CLUSTER",
+  "models": {
+    "H0_behaviour_only": {
+      "fn": 0,
+      "fp": 15,
+      "precision": 0.7457627118644068,
+      "recall": 1.0,
+      "tp": 44
+    },
+    "H1_recurrent_ge_2": {
+      "fn": 5,
+      "fp": 4,
+      "matched_fp_mints": [
+        "CmGg1Whq7ewf5xLFPXXfiNc5L2uitu3q8hzTtvTpump",
+        "GPDZTyHBYWfaQE6N3idv2KxpDbiqLatPNvwAqgkpump",
+        "M7A3PQFy7uKRUkwNf7YbkALi1dyQ7kjd8PmHj3Hpump",
+        "hv7RU5m4WahioRBqeaf3Jk7udMm19YGPaT24oxvpump"
+      ],
+      "precision": 0.9069767441860465,
+      "recall": 0.8863636363636364,
+      "tp": 39
+    },
+    "H2_all_10": {
+      "fn": 0,
+      "fp": 6,
+      "matched_fp_mints": [
+        "CmGg1Whq7ewf5xLFPXXfiNc5L2uitu3q8hzTtvTpump",
+        "GPDZTyHBYWfaQE6N3idv2KxpDbiqLatPNvwAqgkpump",
+        "M7A3PQFy7uKRUkwNf7YbkALi1dyQ7kjd8PmHj3Hpump",
+        "UXkXEB4AdLDvXEb5zvJ4BLSk5sh3T8wcLxxN2YEpump",
+        "hv7RU5m4WahioRBqeaf3Jk7udMm19YGPaT24oxvpump",
+        "qgiXEYJD6mXjHqzJJksX1yjYtownjLXFHAtD7KApump"
+      ],
+      "precision": 0.88,
+      "recall": 1.0,
+      "tp": 44
+    },
+    "H3_top_five": {
+      "fn": 5,
+      "fp": 4,
+      "matched_fp_mints": [
+        "CmGg1Whq7ewf5xLFPXXfiNc5L2uitu3q8hzTtvTpump",
+        "GPDZTyHBYWfaQE6N3idv2KxpDbiqLatPNvwAqgkpump",
+        "M7A3PQFy7uKRUkwNf7YbkALi1dyQ7kjd8PmHj3Hpump",
+        "hv7RU5m4WahioRBqeaf3Jk7udMm19YGPaT24oxvpump"
+      ],
+      "precision": 0.9069767441860465,
+      "recall": 0.8863636363636364,
+      "tp": 39
+    }
+  },
+  "registration": "prohibited; not performed",
+  "role_semantics": "candidate_parent=direct funder; selected-edge wallet=rotating creator role",
+  "rpc_manifest": {
+    "calls": 0,
+    "reason": "All TP/FP direct-funder roles and canonical contamination fields retained locally."
+  },
+  "safety": {
+    "canonical_mutation": false,
+    "queue_replay": false,
+    "registration": false,
+    "trading": false
+  },
+  "schema_version": "P3R_V2_900B_HYBRID_INFRASTRUCTURE_QUALIFICATION.v1",
+  "tp_funders": [
+    {
+      "first_observed": 1787301627,
+      "funder": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+      "last_observed": 1787479506,
+      "share": 0.29545454545454547,
+      "tp_members": 13
+    },
+    {
+      "first_observed": 1786569449,
+      "funder": "71ptwE72WhnoAnpPw73RTr8bz5E9PraUyWkXhyhAkNrC",
+      "last_observed": 1787641670,
+      "share": 0.22727272727272727,
+      "tp_members": 10
+    },
+    {
+      "first_observed": 1786444150,
+      "funder": "5YJkZrwNVtrjQjuKStFNfuavWNZ2GdDsK3rW8m6dzq45",
+      "last_observed": 1787622262,
+      "share": 0.1590909090909091,
+      "tp_members": 7
+    },
+    {
+      "first_observed": 1787452504,
+      "funder": "6sSFfF9dtpSTx4CgK5XfN7uVxKd6or9sBvvcnPRK76xq",
+      "last_observed": 1787649754,
+      "share": 0.13636363636363635,
+      "tp_members": 6
+    },
+    {
+      "first_observed": 1786480028,
+      "funder": "GHDVSqV5TAXXgHUWpFgAeTuuvQ91ixkXDjPYyeYjaTKh",
+      "last_observed": 1787057920,
+      "share": 0.06818181818181818,
+      "tp_members": 3
+    },
+    {
+      "first_observed": 1785027689,
+      "funder": "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB",
+      "last_observed": 1785027689,
+      "share": 0.022727272727272728,
+      "tp_members": 1
+    },
+    {
+      "first_observed": 1786399699,
+      "funder": "9P4vzm8kb83nLiGxNKeDX8kxNeNtwRMuLiyJnVVqwQGd",
+      "last_observed": 1786399699,
+      "share": 0.022727272727272728,
+      "tp_members": 1
+    },
+    {
+      "first_observed": 1786710327,
+      "funder": "C9WLfmaTPXs1vuyuHFHfu7yqWvM8KDoo5SrcADzDjNjY",
+      "last_observed": 1786710327,
+      "share": 0.022727272727272728,
+      "tp_members": 1
+    },
+    {
+      "first_observed": 1787534602,
+      "funder": "3yHmuLdvP5ffJBpNeDvu1SCVJqujb33VdMeQbm837Uuy",
+      "last_observed": 1787534602,
+      "share": 0.022727272727272728,
+      "tp_members": 1
+    },
+    {
+      "first_observed": 1787536133,
+      "funder": "AQiB8cPxuoXMeVRPNZygXED68VVXj4awgJ6gzz4WHazn",
+      "last_observed": 1787536133,
+      "share": 0.022727272727272728,
+      "tp_members": 1
+    }
+  ],
+  "verdict": "900B_HYBRID_OPERATION_PROVISIONAL"
+}

@@ -1,0 +1,1 @@
+{"batch_size": 100, "max_rows": 50000, "mode": "COPY_VERIFY_ONLY", "phase": "PRE_RUN", "sequence": 1, "timestamp_utc": "2026-08-21T21:24:47Z"}

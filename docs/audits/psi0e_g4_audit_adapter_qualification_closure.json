@@ -1,0 +1,65 @@
+{
+  "schema_version": "psi0e-g4.qualification-closure.v1",
+  "milestone": "PSI0E-G4",
+  "closed_at_utc": "2026-08-16T11:38:10Z",
+  "engineering_commit": "0b3687fb0b61529034702f6117eb60071c43074f",
+  "status": "PASS",
+  "verdict": "PSI0E_G3_CLOSED_QUALIFIED_ONE_FRESH_BOUNDED_LOCAL_PUBLICATION_MAY_BE_PROPOSED",
+  "bound_inputs": {
+    "psi0e_g3_adapter_contract_digest": "668ddda9b18f9034bdbc595f27b7fa70acc1d8b1a5b298f24a6af38a25d26814",
+    "psi0e_g3_qualification_digest": "bda8785637f2e8f900a3653c7e94997dda7003f99c131574773a3376a8d109bf",
+    "psi0e_g2_diagnosis_digest": "cd05b86b26313152e704bd556454d6d8e620b3ab5cec26a375ff99f6d6826cdb",
+    "psi0e_f_closure_digest": "533ee09789ec52b87350cac49ff5664484d827898cc98b5341c59662a4d35ad1",
+    "expected_psi0d_f_audit_digest": "9e755dcc6fceef6ef27664eb8531cff0478b0b6cc252ded22ee84adfefd1efac",
+    "psi0e_c_input_digest": "89c8dee5c976bd587aa6fc7ec3a6194e38caeba5508013c8ddca976489038f35",
+    "expected_envelope_digest": "c8827678b2137f1aec864f86623514a92affb0c6df092d13b24c160f8fb90a9d",
+    "psi0e_a_contract_digest": "2c8b2a296cb55ceb7da59ea4b063557749842041ba35251ec605e3f5f231350f"
+  },
+  "replay_verification": {
+    "adapter_contract_identity": true,
+    "exact_injected_audit_and_nested_schema": true,
+    "engineering_contract_and_lineage_validation": true,
+    "five_surface_cohort_conflict_unmatched_and_reason_accounting": true,
+    "single_application_provenance": true,
+    "false_authority_and_no_output_scope_proof": true,
+    "deterministic_canonical_psi0d_wrapper_reconstruction": true,
+    "projection_digest_verification": true,
+    "unchanged_psi0e_a_pure_core": true,
+    "exact_input_and_envelope_digest_replay": true,
+    "default_off": true,
+    "consumer_enabled": false,
+    "performs_io": false,
+    "source_values_retained_or_emitted": false,
+    "adapter_tests_passed": 19,
+    "combined_psi0d_psi0e_tests_passed": 111,
+    "psi0_regressions_passed": 459,
+    "state_coupled_legacy_psi0b_failures": 27,
+    "legacy_failures_are_psi0e_g3_regressions": false
+  },
+  "authority": {
+    "policy": false,
+    "ranking": false,
+    "integration": false,
+    "deployment": false,
+    "activation": false
+  },
+  "publication_disposition": {
+    "one_fresh_bounded_local_publication_is_coherent": true,
+    "publication_authorized_by_this_closure": false,
+    "output_parent": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0e_runs",
+    "output_parent_is_empty_non_symlink_directory": true,
+    "output": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0e_runs/psi0e-envelope-20260816-01",
+    "output_exists": false,
+    "required_path": "Read the real PSI0D-F audit exactly once, apply the committed G3 adapter once, require exact envelope digest, then invoke the committed E publisher once.",
+    "consumer_integration_or_deployment_authorized": false
+  },
+  "scope_proof": {
+    "real_psi0d_f_audit_opened": false,
+    "real_envelope_reconstructed_or_published": false,
+    "psi0d_psi0c_or_psi0b_bundle_opened": false,
+    "integration_output_created": false,
+    "production_or_runtime_access": false,
+    "provider_or_rpc_calls": 0
+  },
+  "next_action": "HUMAN_APPROVAL_REQUIRED: one fresh bounded PSI0E-G publication through the G3 adapter and E publisher."
+}

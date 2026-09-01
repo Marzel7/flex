@@ -1,0 +1,93 @@
+{
+  "schema_version": "psi0c-d.closure-disposition.v1",
+  "milestone": "PSI0C-D",
+  "assessed_at_utc": "2026-08-16T10:10:00Z",
+  "engineering_commit": "256e9e4cad35a6334578efacb431fd403c4874b9",
+  "status": "COMPLETE",
+  "verdict": "PSI0C_CLOSED_NON_AUTHORITATIVE_PSI0D_A_MAY_BE_SEPARATELY_PROPOSED",
+  "bound_inputs": {
+    "psi0c_c2c_adapter_contract_digest": "977043b77ef7a97d23b021bbb4b4150b0f9dc6495421e42352662f0ea7285278",
+    "psi0c_c_assessment_path": "docs/audits/psi0c_runs/psi0c-c-assessment-20260815-01",
+    "psi0c_c_assessment_digest": "b5fb2187ad569b422f1ebbc029b7c619300a153d81b547f178c58769377fc7c4",
+    "psi0c_c_assessment_bundle_digest": "6db46939fdfec9a34a63268809609c9a30a1a7dd86f5504b3d063bd0e8045ac3",
+    "psi0c_b_contract_digest": "3f2d112ba18b190e7acdf9c0dd9ddf552258b7ed75295ccb7cc470a981cc70e1",
+    "psi0b_g_closure_digest": "efadf9e061529af1fc690a253be4e8e29d7058d06d6a61be6105890b4e5e90cd",
+    "psi0b_source_bundle_digest": "370c815a4bacc640874d798c168ff812c2efd205d6de497fdcfb79b4005351b9"
+  },
+  "replay_verification": {
+    "exact_file_set": [
+      "assessment.json",
+      "contract.json",
+      "hashes.json"
+    ],
+    "canonical_bytes": true,
+    "file_hashes": true,
+    "bundle_digest": true,
+    "assessment_digest": true,
+    "lineage": true,
+    "provenance_class": "PRODUCTION_DERIVED_IMMUTABLE_LOCAL_BUNDLE",
+    "fixture_only": false,
+    "cohort_denominator": 5000,
+    "coverage": {
+      "creator_selected_cohort": "0/5000",
+      "evidence_launch_facts": "0/5000",
+      "main_selected_cohort": "5000/5000",
+      "ops_selected_cohort": "1/5000",
+      "snapshot_selected_cohort": "2442/5000"
+    },
+    "snapshot_duplicate_rows": 2266,
+    "unresolved_conflicts": 0,
+    "unmatched_rows": 0,
+    "reason_codes": [
+      "PSI0C_B_ABSENCE_IS_NOT_NEGATIVE"
+    ],
+    "authority": {
+      "policy": false,
+      "ranking": false,
+      "integration": false,
+      "activation": false
+    }
+  },
+  "disposition": {
+    "psi0c_closed": true,
+    "classification": "COMPLETE_NON_AUTHORITATIVE_SHADOW_ASSESSMENT",
+    "missing_creator_evidence_and_ops_coverage": "ABSENT_NOT_NEGATIVE",
+    "negative_outcome_inference_allowed": false,
+    "conflict_resolution_performed": false,
+    "integration_qualified": false,
+    "evidence_mirror_or_cohort_mode_qualified": false,
+    "production_activation_qualified": false,
+    "eb2_entered": false
+  },
+  "smallest_safe_next_milestone": {
+    "milestone": "PSI0D-A",
+    "name": "Limited-consumer integration-boundary roadmap reconciliation",
+    "authorization_class": "BOUNDED_SAFE_LOCAL_READ_ONLY",
+    "objective": "Reconcile committed PSI0C closure and integration roadmap artifacts into one immutable, non-executing qualification plan before any consumer implementation.",
+    "may_only_propose": "A later separately authorized safe-local fixture-only limited-consumer integration contract qualification.",
+    "grants_integration_authority": false,
+    "grants_deployment_authority": false,
+    "grants_evidence_mode_authority": false,
+    "grants_production_activation_authority": false,
+    "grants_eb2_authority": false
+  },
+  "authority_separation": {
+    "shadow_assessment_closure": "complete in PSI0C-D",
+    "integration_qualification": "not begun; PSI0D-A must reconcile the safe-local boundary first",
+    "consumer_integration_or_deployment": "requires later independent authorization",
+    "evidence_mirror_or_cohort_mode_activation": "independent production-changing authorization",
+    "production_activation": "independent production-changing authorization",
+    "eb2": "independent roadmap reconciliation"
+  },
+  "actions_performed": {
+    "source_field_values_inspected_or_disclosed": 0,
+    "production_or_runtime_access": 0,
+    "live_telemetry_observations": 0,
+    "select_or_explain_executed": 0,
+    "provider_rpc_calls": 0,
+    "production_writes_or_ddl": 0,
+    "service_or_configuration_actions": 0,
+    "bundle_mutations": 0,
+    "integration_or_activation_actions": 0
+  }
+}

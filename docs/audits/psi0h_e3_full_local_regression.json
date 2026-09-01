@@ -1,0 +1,29 @@
+{
+  "milestone": "PSI0H all-local and full-repo execution sweep",
+  "engineering_commit": "62e204747fa12dea10322ca0361252f588396117",
+  "mode": "safe-local",
+  "scope": "python -m pytest -q tests/test_psi0h*.py; python scripts/run_psi0h_d_prospective_derivation_qualification.py; python scripts/run_psi0h_e1_source_collector_preflight.py; python scripts/run_psi0h_e2_census_transaction_adapter_qualification.py; python scripts/run_psi0h_e3_real_run_preflight_qualification.py; python -m pytest -q",
+  "results": {
+    "psi0h_test_suite": {
+      "selected": 41,
+      "passed": 41,
+      "status": "PASS"
+    },
+    "full_pytest": {
+      "selected": 5212,
+      "status": "FAILED_TO_COLLECT",
+      "error_count": 3,
+      "errors": [
+        "tests/test_helius_analysis.py: module import failed (analyze_creator_wallet missing)",
+        "tests/test_pumpswap_detection.py: module import failed (main missing)",
+        "tests/test_pumpswap_phase2.py: module import failed (main missing)"
+      ]
+    }
+  },
+  "status": "PARTIAL",
+  "verdict": "PSI0H-E4-boundary execution evidence ready; production-census preflight still pending explicit authorization",
+  "notes": [
+    "PSI0H-D/E1/E2/E3 qualification scripts PASS as designed and fixture-safe",
+    "No provider calls or production writes requested during this run"
+  ]
+}

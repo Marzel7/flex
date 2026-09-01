@@ -1,0 +1,16 @@
+{
+  "active_binary_sha256": "5d65238ffd3513fa5980c01ba1eb2da9cc050091ad9c46b75916ce4a09b02bbf",
+  "active_deployment_slot": 433095571,
+  "artifact_type": "PUMPFUN_TARGET_DEPLOYMENT_BINDING_V1",
+  "program_upgradeable": true,
+  "programdata_account": "B5MvUwXdiW1NMM6QFFD3ssPKBujD4zMohncbM73Z2BQu",
+  "programdata_payload_sha256": "ead956366bbdfc5e06c25deabca92e29f3b2c159f1ef22c5095c9199ac8b5a80",
+  "provenance": "Three bounded finalized getAccountInfo calls: program account, ProgramData account, ProgramData fingerprint. ProgramData deployment slot precedes target slot; current ProgramData header is the active upgradeable-loader deployment state.",
+  "target_active_binary_hash_or_id": "sha256:5d65238ffd3513fa5980c01ba1eb2da9cc050091ad9c46b75916ce4a09b02bbf",
+  "target_active_deployment_identified": true,
+  "target_era_source_bound_to_deployment": false,
+  "target_program_id": "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+  "target_slot": 443375107,
+  "upgrade_authority": "7gZufwwAo17y5kg8FMyJy2phgpvv9RSdzWtdXiWHjFr8",
+  "why_source_not_bound": "No official build artifact/hash or signed release links the current official IDL/docs commit to the active ProgramData ELF hash."
+}

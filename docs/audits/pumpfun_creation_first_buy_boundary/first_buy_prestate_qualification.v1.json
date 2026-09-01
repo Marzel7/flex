@@ -1,0 +1,14 @@
+{
+  "artifact_type": "PUMPFUN_FIRST_BUY_PRESTATE_QUALIFICATION_V1",
+  "derived_prestate": {
+    "real_sol_reserves": 41085353876,
+    "real_token_reserves": 172935897271945,
+    "virtual_sol_reserves": 71085353876,
+    "virtual_token_reserves": 452835897271945
+  },
+  "first_buy_prestate_derivable_from_event": true,
+  "first_buy_prestate_qualified_as_authoritative": false,
+  "semantic_source": "Action 2-8 each exactly transform prior post-event reserves by their event deltas; official IDL field names alone do not label reserve phase.",
+  "tradeevent_reserves_are_pre_or_post": "POST_ACTION_EMPIRICALLY_QUALIFIED",
+  "why_not": "Derived from an event transition, not retained historical curve account state; the CreateEvent-to-derived-prestate transition remains semantically unbound."
+}

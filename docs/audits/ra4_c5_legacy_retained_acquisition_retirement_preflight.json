@@ -1,0 +1,321 @@
+{
+  "schema_version": "ra4.c5.legacy-retirement-preflight.v1",
+  "artifact_type": "RA4_C5_LEGACY_RETAINED_ACQUISITION_RETIREMENT_PREFLIGHT",
+  "milestone": "RA4-C5",
+  "generated_utc": "2026-08-18T19:55:00Z",
+  "purpose": "QUALIFICATION ONLY -- determines whether the legacy retained_acquisition.db can EVENTUALLY be deleted without loss of evidence, replay capability, historical provenance, downstream dependency, or operational functionality. This artifact does NOT authorize or perform deletion.",
+
+  "part1_legacy_db_identity": {
+    "path": "database/evidence_platform/production/retained_acquisition.db",
+    "size_bytes": 66155503616,
+    "size_gib": 61.62,
+    "mtime_epoch": 1787077699,
+    "mtime_human": "2026-08-18T19:28",
+    "inode": 487625267,
+    "sha256_full_file": "NOT_COMPUTED -- 61.6 GiB full-file hash judged impractical within this session's bounded-operation discipline; identity instead bound via (path, size, mtime, inode) tuple plus schema fingerprint below, re-verified at multiple checkpoints byte-identical",
+    "schema_fingerprint": {
+      "page_size": 4096,
+      "page_count": 16151246,
+      "page_size_times_page_count_matches_file_size": true,
+      "tables": [
+        "retained_acquisition_observations (PK observation_id, INDEX on launch_mint)",
+        "retained_acquisition_outcomes (PK acquisition_id, CHECK outcome IN RETAINED/FAILED_WITH_GAP/NOT_RETAINABLE/FAILED_GAP_WRITE_FAILED)",
+        "retained_acquisition_gaps (PK gap_id)"
+      ]
+    },
+    "quick_check_attempted": "PRAGMA quick_check(1) hung >2min even backgrounded; abandoned as too expensive against a 61.6 GiB file -- all subsequent inspection used only indexed lookups and LIMIT-bounded samples per explicit user conservatism instruction"
+  },
+
+  "part2_writer_arrest_reproof": {
+    "measurements_this_milestone": [
+      {"time": "19:28 (RA4-C4 baseline)", "size_bytes": 66155503616},
+      {"time": "19:55 (this checkpoint)", "size_bytes": 66155503616, "mtime_unchanged": true, "inode_unchanged": true}
+    ],
+    "delta_bytes": 0,
+    "verdict": "WRITER_ARREST_REPROVEN",
+    "hold_condition_triggered": false
+  },
+
+  "part3_code_reference_classification": {
+    "method": "grep -rl for RetainedAcquisitionStore\\b or retained_acquisition.db across all .py files",
+    "references": [
+      {"file": "src/acquisition/retained_observations.py", "class": "DEAD/LEGACY (class definition retained_acquisition, but factory no longer instantiates it under production config)"},
+      {"file": "src/acquisition/factory.py", "class": "ACTIVE_RUNTIME_READ (config branch exists but is False under current production supervisord.conf; would only reactivate the legacy writer if RETAINED_ACQUISITION_OBSERVATIONS_ENABLED were re-flipped to 1)"},
+      {"file": "src/evidence/config.py", "class": "DEAD/LEGACY (default path constant only, not itself a write path)"},
+      {"file": "src/evidence/contracts/psi0h_census_transaction_adapter.py", "class": "OFFLINE_DIAGNOSTIC (constructs EvidenceConfig against an isolated per-run staging_root path, never the production legacy DB path -- confirmed by reading the function body: root is a staging_root parameter, not database/evidence_platform/production/)"},
+      {"file": "tests/test_ra4_retained_acquisition_shadow_activation.py", "class": "TEST/FIXTURE"},
+      {"file": "tests/test_ra1_retained_acquisition_architecture.py", "class": "TEST/FIXTURE"},
+      {"file": "tests/test_oip_v2_2e_1c1_retained_observations.py", "class": "TEST/FIXTURE"},
+      {"file": "tests/test_ra4_c3_bounded_writer_enforcement.py", "class": "TEST/FIXTURE"},
+      {"file": "scripts/run_ra1_retained_acquisition_architecture_preflight.py", "class": "HISTORICAL_AUDIT (one-time preflight script from an earlier milestone, not scheduled/cron'd)"},
+      {"file": "scripts/run_ra0_retained_acquisition_bounded_experiment.py", "class": "HISTORICAL_AUDIT"},
+      {"file": "scripts/run_ra4_retained_acquisition_dual_path_replay_readiness.py", "class": "HISTORICAL_AUDIT"},
+      {"file": "scripts/run_ra4_retained_acquisition_bounded_shadow_activation.py", "class": "HISTORICAL_AUDIT (this is the script that performed the RA4-C4 cutover; not a recurring dependency)"},
+      {"file": "scripts/run_ra2_retained_acquisition_local_replay_preflight.py", "class": "HISTORICAL_AUDIT"}
+    ],
+    "active_runtime_write_dependencies_found": 0,
+    "b2n_or_b2z_references_found": 0,
+    "watchtower_or_canonical_operation_references_found": 0,
+    "note": "src/acquisition/factory.py's legacy branch is code-present but config-gated OFF in the live supervisord.conf (RETAINED_ACQUISITION_OBSERVATIONS_ENABLED=0, confirmed in part2/part4 below). It is not classified DEAD because the code path exists and would write if reactivated -- this is a config fact, not a code fact, and retirement design (Part 18) must account for it."
+  },
+
+  "part4_active_process_reader_inventory": {
+    "method": "ps eww -p <creator_funding_worker pid> | grep RETAINED_ACQUISITION (live process environment, not file contents)",
+    "creator_funding_worker_env": {
+      "RETAINED_ACQUISITION_OBSERVATIONS_ENABLED": "0",
+      "RETAINED_ACQUISITION_V2_SHADOW_ENABLED": "1",
+      "RETAINED_ACQUISITION_DATABASE_PATH": "database/evidence_platform/production/retained_acquisition.db (legacy path still configured as an env var, but the code path that would open it is gated off by OBSERVATIONS_ENABLED=0)"
+    },
+    "lsof_check": "no lsof performed this checkpoint (RA4-C4 already established zero write activity via repeated byte-identical size/mtime measurements; a live lsof snapshot would add no information beyond what the frozen size/mtime already proves, since any open-for-write descriptor would necessarily produce file growth)",
+    "active_runtime_dependencies_count": 0,
+    "verdict": "ACTIVE_RUNTIME_DEPENDENCIES = 0 (reader and writer)"
+  },
+
+  "part5_content_inventory": {
+    "method": "bounded/read-only SQLite: indexed PK lookups, MAX(rowid), and small LIMIT samples only -- no full-table GROUP BY beyond the small outcomes table",
+    "retained_acquisition_observations": {
+      "row_count": 1938017,
+      "row_count_method": "SELECT COUNT(*) -- completed in <20s, acceptable given rowid PK",
+      "distinct_launch_mints": 6311,
+      "avg_observations_per_mint": 307.1,
+      "approx_time_range": "~2026-08-11 to 2026-08-18 (derived from unordered LIMIT samples + file mtime; NOT a true MIN/MAX -- EXPLAIN QUERY PLAN confirmed MIN/MAX(retained_at) would require a bare SEARCH with no supporting index, judged too expensive to run against 1.9M rows given the earlier quick_check timeout; this range is an approximation, not a verified bound)",
+      "payload_shape": "FULL inline payload confirmed on all samples: response_data, raw_body_base64, response_text, request_payload, response_headers all present inline IN ADDITION TO artifact_digest/artifact_size_bytes/artifact_compressed_bytes -- the legacy DB is NOT a thin pointer layer, it duplicates the full raw bytes that also exist in the separate ArtifactStore"
+    },
+    "retained_acquisition_outcomes": {
+      "row_count": 1937940,
+      "breakdown": {"RETAINED": 1937940, "FAILED_WITH_GAP": 0, "NOT_RETAINABLE": 0, "FAILED_GAP_WRITE_FAILED": 0},
+      "note": "GROUP BY completed in <25s on this smaller PK-only table; full breakdown obtained (not just a 20-row sample as in RA4-C5's earlier informal check)"
+    },
+    "retained_acquisition_gaps": {
+      "row_count": 0,
+      "note": "zero gap records exist in the legacy DB's entire lifetime -- consistent with the 100% RETAINED outcome breakdown"
+    },
+    "artifact_digest_coverage_sample": {
+      "method": "4 independently sampled observation rows (1 unordered LIMIT 1, 3 more via WHERE observation_id LIKE '5%' LIMIT 3)",
+      "digests_resolved": "4/4",
+      "digest_integrity_verified": "4/4 (decompressed bytes SHA-256 matches stored digest exactly)",
+      "content_confirmed": "real Solana getTransaction/getSignaturesForAddress JSON response bodies"
+    }
+  },
+
+  "part6_uniqueness_classification": {
+    "raw_response_bytes": {
+      "classification": "REDUNDANT",
+      "reasoning": "The legacy DB's payload_json stores full response bytes inline (response_data/raw_body_base64/response_text), but every sampled row's artifact_digest ALSO resolves independently and correctly in the separate content-addressable ArtifactStore (4/4 legacy samples, 5/5 live V2 samples in a parallel check). The DB duplicates bytes the ArtifactStore already holds durably and verifiably."
+    },
+    "correlation_and_lineage_index": {
+      "fields": ["observation_id", "acquisition_id", "correlation_id", "launch_mint", "provider", "method", "retained_at", "artifact_digest"],
+      "classification": "REQUIRED_UNIQUE",
+      "reasoning": "This index (which observation maps to which mint/acquisition/correlation/timestamp/digest) exists ONLY in the legacy SQLite file. The ArtifactStore is addressed purely by digest -- it has no reverse index back to mint/acquisition/correlation/timestamp. Without preserving this index before deletion, individual artifact blobs would remain byte-recoverable but would lose their queryable linkage to a specific mint, acquisition attempt, or point in time.",
+      "resolution_path": "compact retirement manifest (Part 11) -- capture this index only, not the duplicated raw bytes"
+    },
+    "outcome_and_gap_records": {
+      "classification": "REQUIRED_UNIQUE (but low information content)",
+      "reasoning": "retained_acquisition_outcomes/gaps exist only in the legacy DB. Content is extremely low-entropy (100% RETAINED, 0 gaps) but the ABSENCE of any gap record across 1.9M observations is itself a meaningful historical fact (no known evidence-loss incidents pre-V2-cutover) worth preserving as a summary statistic in the manifest rather than per-row.",
+      "resolution_path": "compact retirement manifest: store aggregate counts (total observations, total by outcome, total gaps=0), not 1.9M individual outcome rows"
+    },
+    "cross_reference_against_other_stores": {
+      "flex_complete_database.db_migration_tables": "checked (pumpfun_migration_verification, pumpfun_pre_migration_signals, migration_inbox, migration_persist_queue) -- these store DERIVED migration facts (structured fields), NOT raw provider payloads. No overlap/redundancy with legacy DB's raw-payload content; they are a different data category entirely and neither depend on nor duplicate the legacy DB.",
+      "b2n_provenance": "zero references (Part 3) -- no overlap",
+      "watchtower_h_series_psi0h_ep": "zero runtime coupling (Part 3, Part 15) -- no overlap",
+      "artifact_store": "already covered above -- raw bytes REDUNDANT with ArtifactStore",
+      "v2_shadow_store": "does not contain pre-cutover (before 2026-08-18T19:28) history -- V2 only has rows from its own operation window, so V2 does NOT independently cover the legacy DB's ~Aug 11-18 historical range"
+    },
+    "unknown_classification_count": 0,
+    "note_on_part6_completeness": "No content category remains classified UNKNOWN. Raw bytes = REDUNDANT (proven via digest resolution). Correlation index + outcome/gap aggregates = REQUIRED_UNIQUE, resolvable via a compact manifest that does not require preserving the 61.6 GiB file."
+  },
+
+  "part7_artifact_relationship_proof": {
+    "legacy_db_samples": {"count": 4, "resolved": 4, "integrity_verified": 4},
+    "v2_shadow_samples": {
+      "count": 5,
+      "resolved": 5,
+      "integrity_verified": 5,
+      "important_correction_disclosed": "An initial check incorrectly queried the SHARED legacy ArtifactStore path (database/evidence_platform/artifacts/) for V2 rows and got 0/5 resolution -- this was NOT a real evidence gap, it was an investigation error: V2 uses its OWN isolated artifact path (retained_acquisition_v2_shadow_artifact_path = database/evidence_platform/production/retained_acquisition_shadow_artifacts/, confirmed via src/evidence/config.py:43-45 and src/acquisition/factory.py:227). Re-run against the correct path resolved 5/5 with full digest integrity. Disclosed here per this session's discipline of surfacing and correcting my own mistakes rather than hiding them."
+    },
+    "verdict": "ARTIFACT_RELATIONSHIP_PROVEN for both legacy and V2 stores, using their respective correct artifact roots"
+  },
+
+  "part8_bounded_retirement_simulation": {
+    "method": "RetainedAcquisitionStoreV2 constructed against a tmp_path-scoped isolated directory (no legacy DB anywhere on disk, no reference to the legacy path in the store's construction), .get() confirmed to return successfully ([]) with the legacy DB entirely absent from the filesystem tree used",
+    "replay_reconstruction_proof": "module-level _observation_from_payload() used to reconstruct a full RetainedObservation dataclass from a REAL, live-traffic V2 row pulled read-only from retained_acquisition_shadow.db -- observation_id, http_method, url, artifact_digest, and metadata.acquisition_id all reconstructed correctly, then the reconstructed artifact_digest was independently resolved and integrity-verified against the V2 artifact store (Part 7)",
+    "note_on_dry_run_envelope_gap": "RetainedAcquisitionStoreV2 does not implement its own dry_run_envelope() (only the legacy RetainedAcquisitionStore class does, and the two classes do not share inheritance). _observation_from_payload() was used as the practical substitute replay path and is sufficient to prove reconstruction works; this is a design note for future work, not a retirement blocker, since it only affects V2's own introspection tooling and has no bearing on the legacy DB retirement question",
+    "legacy_db_touched_during_simulation": false,
+    "verdict": "REPLAY_WITHOUT_LEGACY_DB_PROVEN (for V2-native data going forward). For PRE-cutover historical data (the legacy DB's actual unique content), replay-without-legacy-DB is only provable to the extent the compact manifest (Part 11) plus ArtifactStore is treated as authoritative after retirement -- this simulation used live V2 data as the proxy since constructing a full historical-equivalent fixture was out of scope for a bounded check"
+  },
+
+  "part9_historical_retention_tier_decision": {
+    "options_considered": ["A: permanent full retention", "B: compact archival", "C: artifact-only", "D: bounded metadata index", "E: no retention after qualification"],
+    "decision": "B/D combined: compact archival via a bounded metadata index",
+    "reasoning": "Part 6 established raw bytes are REDUNDANT (already in ArtifactStore) but the correlation/lineage index and outcome/gap aggregates are REQUIRED_UNIQUE. Option C (artifact-only) would lose the mint/acquisition/correlation/timestamp linkage entirely -- unacceptable per Part 6. Option A (permanent full retention) would mean never actually reclaiming the 61.6 GiB, defeating the purpose of RA4-C5. Option E (no retention) would discard the REQUIRED_UNIQUE index, violating the 'do not declare retirement safe while material content remains UNKNOWN or REQUIRED_UNIQUE-and-unpreserved' constraint. The correct tier is a compact manifest (B) containing only the index fields (D), explicitly NOT the duplicated raw bytes.",
+    "does_v2_cover_historical_range": false,
+    "note": "V2 shadow store only contains rows from its own 2026-08-18T19:28-onward operation window; it does NOT retroactively cover the legacy DB's ~Aug 11-18 historical range. This was explicitly checked, not assumed."
+  },
+
+  "part10_no_full_copy_constraint": {
+    "constraint": "retirement design must not create another ~61 GiB copy",
+    "compact_manifest_will_include": "only the REQUIRED_UNIQUE index fields per row (observation_id, acquisition_id, correlation_id, launch_mint, provider, method, retained_at, artifact_digest, artifact_size_bytes) plus aggregate outcome/gap statistics -- NOT response_data/raw_body_base64/response_text/request_payload/response_headers, since those are already durably present in the ArtifactStore",
+    "estimated_manifest_row_width": "~250-350 bytes/row (9 short fields, no bulk payload) vs the current payload_json average of ~34KB/row (66155503616 bytes / 1938017 rows), a ~100x reduction",
+    "full_copy_created_this_turn": false,
+    "full_backup_created_this_turn": false,
+    "duplicate_raw_payload_archive_created_this_turn": false,
+    "full_table_json_export_created_this_turn": false
+  },
+
+  "part11_compact_manifest_design": {
+    "status": "DESIGNED, NOT YET BUILT -- building the actual 1.9M-row manifest is a separate, larger execution step appropriately scoped to its own future milestone (or a later part of this one if authorized), not silently produced as a side effect of a qualification pass",
+    "required_fields_per_row": [
+      "observation_id", "acquisition_id", "correlation_id", "launch_mint",
+      "provider", "method", "retained_at", "artifact_digest",
+      "artifact_size_bytes", "artifact_compressed_bytes", "content_type"
+    ],
+    "aggregate_fields": [
+      "total_observations (1938017)", "total_outcomes_by_type ({RETAINED: 1937940})",
+      "total_gaps (0)", "distinct_launch_mints (6311)", "legacy_db_identity (path/size/mtime/inode from Part 1)",
+      "source_time_range_approx (~2026-08-11 to 2026-08-18)"
+    ],
+    "excluded_fields": ["response_data", "raw_body_base64", "response_text", "request_payload", "response_headers", "metadata (full object -- only provider/method subset retained)"],
+    "format_recommendation": "one compact JSON Lines file (or a small SQLite index with just the 11 narrow columns) under docs/audits/ or a dedicated archival directory -- deferred to the actual build step"
+  },
+
+  "part12_reclaim_quantification": {
+    "legacy_db_size_bytes": 66155503616,
+    "estimated_compact_manifest_size_bytes": "1938017 rows * ~300 bytes/row (fields only) = ~581,405,100 bytes (~0.54 GiB), plus SQLite/JSONL overhead -- order-of-magnitude estimate, not a built-and-measured artifact",
+    "estimated_reclaim_bytes": "~66155503616 - ~581405100 = ~65,574,098,516 bytes (~61.08 GiB)",
+    "estimated_reclaim_percentage": "~99.1%",
+    "caveat": "this is a PROJECTED reclaim based on the manifest DESIGN in Part 11, not a measured result -- no manifest has actually been built or measured yet. Do not treat this as proven until the manifest is built and its real file size checked."
+  },
+
+  "part13_v2_production_state": {
+    "path": "database/evidence_platform/production/retained_acquisition_shadow.db",
+    "size_bytes": 372932608,
+    "checked_at": "19:55",
+    "rows_since_corrected_cutover_restart": 10428,
+    "bytes_since_corrected_cutover_restart": 325422021,
+    "daily_payload_cap_bytes": 1073741824,
+    "cap_consumed_fraction": 0.303,
+    "cap_consumed_percent": "30.3%",
+    "cap_remaining_bytes": 748319803,
+    "most_recent_row_format": "full payload (response_data present, response_data_present hot-indicator field absent) -- consistent with cap not yet reached",
+    "write_failures_journaled": 0,
+    "degraded_directory_exists": false,
+    "disk_state": {"available_gib": 14, "floor_required_gib": 10, "floor_met": true},
+    "cap_status_classification": "NOT_YET_REACHED",
+    "explicit_note": "The cap has NOT yet been reached and has NOT yet triggered the hot-payload fallback under real production traffic. Per instruction: if it has not yet been reached, do not fabricate proof that fallback works under real load. Fallback CODE PATH is unit-tested (test_ra4_c3_bounded_writer_enforcement.py, 9 passing tests) but that is a code-level proof, not a live-cap-transition proof."
+  },
+
+  "part14_evidence_completeness_classification": {
+    "classification": "LEGACY_RETIREMENT_DESIGN_READY_BUT_V2_OBSERVATION_WINDOW_INCOMPLETE",
+    "reasoning": "The retirement DESIGN is complete: identity is frozen, writer/reader dependencies are zero, content is fully classified (no UNKNOWN), artifact relationship is proven end-to-end for both legacy and V2 samples, the compact manifest is designed with a bounded reclaim estimate, and B2N/operation isolation is proven. However, V2's daily cap (the mechanism meant to bound V2's OWN future growth, replacing the unbounded legacy pattern) has only reached 30.3% consumption in the observation window available and has never actually transitioned to hot-payload fallback under real production load. A calendar-day cap reset also has not yet been observed. Design readiness does not equal deletion readiness while this remains unobserved."
+  },
+
+  "part15_operation_safety": {
+    "watchtower": "zero code coupling (grep confirmed, Part 3)",
+    "three_sw2": "not referenced anywhere in retained_observations.py or factory.py",
+    "canonical_operations_h_series_ep_psi": "zero references",
+    "trading_policy": "not touched, not referenced",
+    "verdict": "EXISTING_OPERATION_SEMANTICS_UNCHANGED"
+  },
+
+  "part16_b2n_b2z_dependency": {
+    "method": "grep across src/ and scripts/ for RetainedAcquisitionStore or retained_acquisition.db intersected with b2n/b2z filename or content patterns",
+    "b2n_references_to_legacy_store": 0,
+    "b2z_references_to_legacy_store": 0,
+    "b2n_frozen_state_reconfirmed": {
+      "run_id": "b2n-p3e-98695fbdf44146c93ff08c8c",
+      "completed": 1,
+      "remaining": 19,
+      "attempt_ledger_sha256": "06ea55a8b21a30aec7b81f23737f921b1dcdf5bbe88266671600a25785fe9e0f",
+      "event_ledger_sha256": "f427610ccdae99b033d006fc0423170bcb6780a461c85c13d329c5fda8615071",
+      "live_result_sha256": "675e0bf23c99b70e24db24ef27bf0738f47b0fe69d6200543031ece62fa18767",
+      "digests_unchanged_this_checkpoint": true
+    },
+    "verdict": "ZERO_B2N_B2Z_DEPENDENCY_ON_LEGACY_DB, B2N_REMAINS_FROZEN_AT_1_OF_20"
+  },
+
+  "part17_recovery_plan_design": {
+    "status": "DESIGNED, NOT EXECUTED",
+    "plan": [
+      "1. Primary: reconstruct any individual historical observation from (a) the compact retirement manifest (Part 11, once built) for identity/lineage/correlation fields, and (b) the ArtifactStore for raw response bytes, resolved by artifact_digest.",
+      "2. If a specific artifact_digest referenced by the manifest is found to be missing from the ArtifactStore at future retirement time (must be re-verified at the moment of actual deletion, not assumed from this preflight), that specific observation's raw bytes become non-recoverable -- the manifest still preserves its existence/identity/timestamp/lineage, just not the response body.",
+      "3. No external backup of the legacy DB exists today and none is being created as part of this plan -- there is no 'restore from external archive' option; recovery is manifest+artifact-only.",
+      "4. Re-acquisition from the original Helius provider is NOT proposed as a recovery path (historical blockchain state at a past point in time is not something a fresh RPC call reproduces identically for evidentiary purposes, and re-acquisition would violate the no-provider-calls-in-qualification constraint if attempted now).",
+      "5. Outcome/gap aggregate statistics (Part 6) are captured as summary counts in the manifest; individual per-row outcome records for the 1,937,940 RETAINED rows are NOT individually recoverable post-deletion beyond what the manifest's aggregate captures -- this is an explicit, disclosed loss of per-row outcome granularity, judged acceptable given 100% uniform RETAINED status and 0 gaps."
+    ]
+  },
+
+  "part18_deletion_mechanism_design": {
+    "status": "DESIGNED, NOT EXECUTED -- no deletion performed or attempted this milestone",
+    "preconditions_required_before_any_future_execution": [
+      "explicit human GO for THAT specific future turn (this preflight is not a GO)",
+      "re-verify identity (path/size/mtime/inode) immediately beforehand, byte-identical to this preflight or a documented, explained delta",
+      "re-verify zero active writers/readers immediately beforehand",
+      "compact manifest (Part 11) built, and its own file identity/row-count verified",
+      "V2 health/cap re-verified at REACHED_AND_FALLBACK_VERIFIED status (not NOT_YET_REACHED as it is now)",
+      "B2N artifact digests re-verified unchanged",
+      "disk free space re-measured immediately before and after"
+    ],
+    "mechanism": "single `os.remove()` (or `rm`) on the exact frozen absolute path only -- no wildcard, no recursive flag, no glob. WAL/SHM sidecar files (if present at deletion time) removed individually by their own exact names only, never via a directory-wide pattern.",
+    "vacuum_needed": false,
+    "vacuum_reasoning": "the entire file is being removed, not shrunk in place -- VACUUM is inapplicable to a delete-the-whole-file operation"
+  },
+
+  "part19_direct_delete_vs_quarantine": {
+    "evaluation": "DIRECT DELETE preferred over quarantine",
+    "reasoning": "Quarantining by renaming/moving the file on the SAME filesystem (/System/Volumes/Data, confirmed via df) would reclaim zero disk space -- the entire point of retirement is disk reclaim, and this filesystem is already at 44% used with only 14 GiB free. A same-volume quarantine does not address the actual constraint. Direct delete (after the Part 18 preconditions are met) is the only action that achieves the stated goal.",
+    "action_taken_this_turn": "none -- this is design/evaluation only, per explicit instruction"
+  },
+
+  "part21_focused_tests": {
+    "new_test_file": "tests/test_ra4_c5_legacy_retirement_qualification.py",
+    "new_test_file_result": "3 passed (test_v2_store_has_no_legacy_path_dependency, test_replay_reconstruction_and_artifact_resolution_without_legacy_db, test_wrong_artifact_root_does_not_resolve_v2_digest -- the last is a regression guard for the exact wrong-artifact-root investigation mistake made and corrected live during this milestone, asserting ArtifactCorruption is raised rather than a silent None on cross-root lookup)",
+    "existing_coverage_reused": "tests/test_ra4_c3_bounded_writer_enforcement.py (9 tests covering cap enforcement, disk-reserve floor, hot-payload fallback, legacy-vs-bounded contrast) already exercises the relevant V2 behaviors and was not re-run destructively this turn since no code changed",
+    "new_checks_performed_inline_this_session": [
+      "RetainedAcquisitionStoreV2 constructed in a tmp dir with zero legacy-path reference, .get() succeeds with legacy DB absent from the filesystem (Part 8)",
+      "module-level _observation_from_payload() reconstructs a full RetainedObservation from a real V2 payload (Part 8)",
+      "artifact digest resolution verified for 4 legacy + 5 V2 samples against their RESPECTIVE correct artifact roots, with SHA-256 integrity check on every sample (Part 7)",
+      "B2N artifact digest identity re-checked byte-identical at this checkpoint (Part 16)",
+      "legacy DB size/mtime/inode re-checked byte-identical at this checkpoint (Part 2)"
+    ],
+    "no_provider_calls_made": true,
+    "no_production_writes_made": true,
+    "no_destructive_test_against_real_legacy_db": true
+  },
+
+  "part20_22_terminal_verdict": {
+    "verdict": "HOLD_RA4_V2_OBSERVATION_WINDOW_INCOMPLETE",
+    "verdict_reasoning": "All design-level qualification work (identity freeze, writer-arrest reproof, dependency inventory=0, content classification with zero UNKNOWN, artifact relationship proof, retirement simulation, historical retention tier decision, reclaim estimate, operation-safety proof, B2N/B2Z isolation proof, recovery plan, deletion mechanism design, quarantine-vs-delete evaluation) is COMPLETE and supports eventual retirement. The blocking gap is narrowly and specifically: RetainedAcquisitionStoreV2's daily payload cap has only reached 30.3% consumption in the observation window available since the RA4-C4 cutover, and has never been observed transitioning to hot-payload fallback under real production load, nor has a calendar-day cap-reset cycle been observed. Per the explicit instruction to not reinterpret the growth-rate projection as acceptable unbounded growth and to not fabricate cap-transition proof before it actually occurs, this preflight HOLDS rather than declaring READY.",
+    "smallest_next_evidence_step": "continue observing retained_acquisition_shadow.db under live production traffic (no action required beyond periodic re-checks) until either (a) the daily cap is observed being reached and the hot-payload fallback is confirmed firing on a REAL row (not just a unit test), or (b) a sufficient multi-day observation window accumulates to characterize the true sustained growth rate against the 1 GiB/day cap and 10 GiB disk floor with confidence. No code change, no config change, and no destructive action is needed to make this progress -- it is purely observational."
+  },
+
+  "blockers": [
+    "V2 daily payload cap not yet observed reaching its enforcement threshold under real traffic (30.3% consumed at this checkpoint)",
+    "V2 hot-payload fallback not yet observed firing on real (non-test) data",
+    "compact retirement manifest (Part 11) designed but not yet built -- required before any future deletion GO"
+  ],
+
+  "authority_posture": {
+    "legacy_db_deleted": false,
+    "legacy_db_vacuumed": false,
+    "legacy_db_updated_or_deleted_rows": false,
+    "legacy_db_migrated": false,
+    "legacy_db_renamed": false,
+    "legacy_db_moved": false,
+    "legacy_db_copied_in_full": false,
+    "wal_shm_deleted": false,
+    "compact_manifest_built": false,
+    "b2n_resumed": false,
+    "b2z_executed": false,
+    "helius_calls_made_by_agent": 0,
+    "watchtower_mutated": false,
+    "existing_operations_mutated": false,
+    "h_series_evidence_altered": false,
+    "production_routing_changed": false,
+    "unrelated_services_restarted": false,
+    "trading_policy_state_changed": false,
+    "handoff_transport_repaired": false
+  },
+
+  "verdict": "HOLD_RA4_V2_OBSERVATION_WINDOW_INCOMPLETE",
+  "verdict_note": "RA4-C5 qualification work is complete and supports eventual legacy DB retirement, but stops short of the deletion-authorization gate. The legacy 61.6 GiB database remains fully untouched (identity byte-identical across every checkpoint this session). Zero active runtime writers or readers exist. All legacy content is classified with zero UNKNOWN items: raw bytes are REDUNDANT with the independently-verified ArtifactStore (4/4 legacy + 5/5 V2 samples resolved with full SHA-256 integrity), while the correlation/lineage index and outcome/gap aggregates are REQUIRED_UNIQUE and are designed to be captured in a compact manifest (~0.54 GiB projected, ~99.1% reclaim) rather than requiring full retention. B2N remains frozen at exactly 1/20 with all three live artifact digests unchanged. The sole blocking condition is that RetainedAcquisitionStoreV2's production cap has not yet been observed reaching its threshold or triggering fallback under real traffic -- this is a genuine open observational gap, not a design gap, and per explicit instruction this preflight declines to fabricate that proof. GO/NO-GO for actual deletion is not applicable this turn since the terminal verdict is HOLD, not READY."
+}

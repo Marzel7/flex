@@ -1,0 +1,216 @@
+{
+  "authoritative_snapshot": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T221819272628000Z-16a03978948f3881020440ceeb080e8a/snapshot.sqlite",
+  "bindings": {
+    "dry_run": false,
+    "source_contract": {
+      "canonicalization": "unchanged_runner_canonical_json_array_newline_sha256",
+      "read_semantics": "sqlite_uri_mode_ro_query_only_single_transaction",
+      "surfaces": [
+        {
+          "columns": [
+            "mint",
+            "pf_ws_creator"
+          ],
+          "order": "mint ASC",
+          "table": "token_analysis"
+        },
+        {
+          "columns": [
+            "mint"
+          ],
+          "order": "mint ASC",
+          "table": "pumpfun_migration_verification"
+        }
+      ],
+      "wall_seconds": 300
+    },
+    "source_db": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+    "wrapper_cleanup_reserve_seconds": 30,
+    "wrapper_execution_deadline_seconds": 270,
+    "wrapper_hard_ceiling_seconds": 300
+  },
+  "exit_code": 0,
+  "launcher": {
+    "cwd": "/Users/kevinkeaveney/Dev/claude/flex",
+    "pid": 45250,
+    "ppid": 45249,
+    "started_at_utc": "2026-08-22T22:18:20.226715Z"
+  },
+  "legacy_quarantine_excluded": {
+    "temporary_snapshot": {
+      "path": "docs/audits/ops_discovery_p3r_s2b_source_snapshot.sqlite.tmp",
+      "sha256": "8812ad675a1de997fa5dd7bb506e1446ff72c43a353308f2a8d98d69a49f942e"
+    },
+    "terminal_audit": {
+      "path": "docs/audits/ops_discovery_p3r_s2b_source_boundary_snapshot.json",
+      "sha256": "d585d353af6d4e4a64c026ef7c1fbe77472abfd77e687b5e0983b02659abfa58"
+    }
+  },
+  "ownership": {
+    "promotion": "wrapper only after runner COMPLETE, replay_identical true, and exit code zero",
+    "snapshot_runner": [
+      "temporary_snapshot",
+      "capture_snapshot",
+      "runner_candidate_snapshot",
+      "runner_audit"
+    ],
+    "wrapper": [
+      "namespace",
+      "lifecycle",
+      "stdout",
+      "stderr",
+      "final_snapshot"
+    ]
+  },
+  "paths": {
+    "capture_snapshot": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T221819272628000Z-16a03978948f3881020440ceeb080e8a/runner_candidate.sqlite.capture.sqlite",
+    "final_snapshot": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T221819272628000Z-16a03978948f3881020440ceeb080e8a/snapshot.sqlite",
+    "lifecycle": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T221819272628000Z-16a03978948f3881020440ceeb080e8a/lifecycle.json",
+    "namespace": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T221819272628000Z-16a03978948f3881020440ceeb080e8a",
+    "runner_audit": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T221819272628000Z-16a03978948f3881020440ceeb080e8a/source_boundary_audit.json",
+    "runner_candidate_snapshot": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T221819272628000Z-16a03978948f3881020440ceeb080e8a/runner_candidate.sqlite",
+    "stderr": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T221819272628000Z-16a03978948f3881020440ceeb080e8a/stderr.log",
+    "stdout": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T221819272628000Z-16a03978948f3881020440ceeb080e8a/stdout.log",
+    "temporary_snapshot": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T221819272628000Z-16a03978948f3881020440ceeb080e8a/runner_candidate.sqlite.tmp"
+  },
+  "run_id": "s2b-source-snapshot-20260822T221819272628000Z-16a03978948f3881020440ceeb080e8a",
+  "runner": {
+    "command": [
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "/Users/kevinkeaveney/Dev/claude/flex/scripts/freeze_ops_discovery_p3r_s2b_source_boundary.py",
+      "--source-db",
+      "database/flex_complete_database.db",
+      "--snapshot-db",
+      "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T221819272628000Z-16a03978948f3881020440ceeb080e8a/runner_candidate.sqlite",
+      "--audit-path",
+      "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T221819272628000Z-16a03978948f3881020440ceeb080e8a/source_boundary_audit.json",
+      "--wall-seconds",
+      "300",
+      "--max-progress-calls",
+      "500000"
+    ],
+    "path": "/Users/kevinkeaveney/Dev/claude/flex/scripts/freeze_ops_discovery_p3r_s2b_source_boundary.py",
+    "pid": 45259,
+    "ppid": 45250,
+    "sha256": "9bc8ca91594a403c6c885dcfe35e15b57a2a7d390cb3bf316aea26acd9ad1c70",
+    "started_at_utc": "2026-08-22T22:18:20.231811Z"
+  },
+  "runner_terminal_audit": {
+    "artifact_file_sha256": "d1c4d546e06a5a72a6b134e82509afa3fcd5faba85b223876b70cde2532417f2",
+    "boundary_semantic_sha256": "33df1667c5343793e1a9500a24f10117ce21f30fa0fc97306ff1e3cc4eeb84a4",
+    "bounds": {
+      "cleanup_reserve_seconds": 30.0,
+      "execution_deadline_seconds_from_start": 270.0,
+      "max_progress_calls": 500000,
+      "progress_opcode_interval": 1000,
+      "wall_seconds": 300.0
+    },
+    "canonicalization": {
+      "digest": "SHA-256 over newline-delimited canonical rows",
+      "encoding": "utf-8",
+      "field_order": "SURFACES declaration",
+      "null_representation": "JSON null",
+      "row_format": "json array compact separators",
+      "row_order": "primary key mint ASC"
+    },
+    "cohort_formed": false,
+    "elapsed_seconds": 57.655744,
+    "identities_selected_or_frozen": false,
+    "milestone": "OPS-DISCOVERY-P3R-S2B-SOURCE-SNAPSHOT",
+    "population_query_executed": false,
+    "production_writes": 0,
+    "progress_calls": 91882,
+    "provider_calls_made": 0,
+    "read_mode": "sqlite_uri_mode_ro_query_only_single_transaction",
+    "replay_identical": true,
+    "replay_surfaces": {
+      "pumpfun_migration_verification": {
+        "row_count": 43609,
+        "sha256": "b2d43d2ee8f3b2c292040b308d46b66db6cc554bfeed0600a66632b6f5beeb46"
+      },
+      "token_analysis": {
+        "row_count": 2012723,
+        "sha256": "50f6eedb626fb2f70decfe08d0a43d6232ee3cc6c6db61066484b0db512783be"
+      }
+    },
+    "snapshot_path": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-20260822T221819272628000Z-16a03978948f3881020440ceeb080e8a/runner_candidate.sqlite",
+    "source_db": "database/flex_complete_database.db",
+    "source_identity_at_read_open": {
+      "data_version": 2,
+      "device": 16777231,
+      "inode": 549513179,
+      "mtime_ns": 1787437096877275653,
+      "schema_version": 816,
+      "size_bytes": 15366832128
+    },
+    "status": "COMPLETE",
+    "surfaces": {
+      "pumpfun_migration_verification": {
+        "columns": [
+          "mint"
+        ],
+        "row_count": 43609,
+        "sha256": "b2d43d2ee8f3b2c292040b308d46b66db6cc554bfeed0600a66632b6f5beeb46",
+        "source_rowid_high_water": 43609
+      },
+      "token_analysis": {
+        "columns": [
+          "mint",
+          "pf_ws_creator"
+        ],
+        "row_count": 2012723,
+        "sha256": "50f6eedb626fb2f70decfe08d0a43d6232ee3cc6c6db61066484b0db512783be",
+        "source_rowid_high_water": 2012844
+      }
+    },
+    "telemetry": {
+      "final_materialization": {
+        "surfaces": {
+          "pumpfun_migration_verification": {
+            "commits": 9,
+            "committed_rows": 43609,
+            "completed_elapsed_seconds": 38.238906,
+            "elapsed_seconds": 0.346101,
+            "started_elapsed_seconds": 37.89281
+          },
+          "token_analysis": {
+            "commits": 403,
+            "committed_rows": 2012723,
+            "completed_elapsed_seconds": 37.88887,
+            "elapsed_seconds": 19.284926,
+            "last_commit_elapsed_seconds": 37.795789,
+            "started_elapsed_seconds": 18.603952
+          }
+        }
+      },
+      "stages": {
+        "digest_and_audit": {
+          "completed_elapsed_seconds": 57.65435,
+          "started_elapsed_seconds": 56.906918
+        },
+        "final_materialization": {
+          "active_surface": "pumpfun_migration_verification",
+          "completed_elapsed_seconds": 47.565107,
+          "progress_elapsed_seconds": 38.238918,
+          "started_elapsed_seconds": 18.599239
+        },
+        "replay": {
+          "completed_elapsed_seconds": 56.903939,
+          "started_elapsed_seconds": 47.567847
+        },
+        "secondary_index": {
+          "completed_elapsed_seconds": 47.018057,
+          "started_elapsed_seconds": 38.239679
+        },
+        "source_capture": {
+          "completed_elapsed_seconds": 18.59136,
+          "rows_captured": 2056332,
+          "started_elapsed_seconds": 0.00033
+        }
+      }
+    }
+  },
+  "status": "PASS",
+  "temporary_snapshot_non_authoritative": false,
+  "terminal_at_utc": "2026-08-22T22:19:18.541730Z"
+}

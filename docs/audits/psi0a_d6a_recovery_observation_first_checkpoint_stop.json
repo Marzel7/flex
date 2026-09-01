@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D6A",
+  "status": "FAILED_FIRST_CHECKPOINT_STOP",
+  "verdict": "STOP_ACTIVE_SERIALIZER_AND_DESCRIPTOR_PRESSURE",
+  "engineering_revision": "ac06c781deddbb968babe6bb7a19d1d88cd9cb53",
+  "checkpoint_utc": "2026-08-14T10:48:14Z",
+  "samples_completed": 1,
+  "observation_duration_seconds": 0,
+  "telemetry": {
+    "listener_pid": 9069,
+    "listener_pid_stable": true,
+    "serializer_p99_wait_ms": 1476.68,
+    "serializer_p95_wait_ms": 35.32,
+    "serializer_queue_depth": 2,
+    "serializer_lock_errors_24h": 5,
+    "prior_lock_errors_24h": 4,
+    "lock_error_increment": 1,
+    "latest_primary_fd_count": 10,
+    "primary_fd_threshold": 8,
+    "pumpportal_traffic_observed": true,
+    "named_services_running": true,
+    "wal_bytes": 38674472
+  },
+  "failed_gates": [
+    "serializer p99 reached or exceeded 1000 ms",
+    "serializer lock-error count increased",
+    "primary_fd_count reached or exceeded 8"
+  ],
+  "scope": {
+    "production_database_connections_opened": 0,
+    "schema_or_row_queries": 0,
+    "ddl_or_production_writes": 0,
+    "provider_calls": 0,
+    "signals_or_service_restarts": 0,
+    "configuration_changes": 0,
+    "retry_count": 0
+  },
+  "next_action": "Do not repeat the recovery observation or D6 deployment immediately. Separately authorize telemetry-only diagnosis of the active descriptor/serializer/lock episode and determination of the smallest safe deployment-window or controlled-quiescence contract."
+}

@@ -1,0 +1,10 @@
+{
+  "provider_calls": 0,
+  "report": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/063e_child_qualification/p3r-v2-063e-child-qualification-v1/p3r_v2_063e_child_operation_qualification.v1.json",
+  "report_sha256": "b6f3e6473632f2e52e7a378c53c38ea96abb6593115506a703b59079ddf9ddef",
+  "schema_version": "P3R_V2_063E_CHILD_QUALIFICATION_MANIFEST.v1",
+  "source_digests": {
+    "cohort": "50bfe15d1458d5f973d9b9e84beb4dd861a7566a526145343eb10aa8680589b0",
+    "funder": "4f2c894e365a73414f3ae9f2a7f12c0e0fa85cc72287b8a77d9effd3b35fbbe5"
+  }
+}

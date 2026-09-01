@@ -1,0 +1,324 @@
+{
+  "rows": [
+    {
+      "BEST_CANDIDATE_SIGNATURE": "2euekiBanRVYvJzVi7Lzb7yfVSYFfJw62i9j7cYyoSn5zGxMetRiaJnKWGj26yS1ePE7R8UHuVKXNi6veoJWLg64",
+      "CANDIDATES": [
+        {
+          "amount": 7.0,
+          "diff": 1.5000000000320313e-05,
+          "exact": true,
+          "offset": 7,
+          "signature": "2euekiBanRVYvJzVi7Lzb7yfVSYFfJw62i9j7cYyoSn5zGxMetRiaJnKWGj26yS1ePE7R8UHuVKXNi6veoJWLg64",
+          "time": 1786366466
+        },
+        {
+          "amount": 7.0,
+          "diff": 1.5000000000320313e-05,
+          "exact": true,
+          "offset": 3587,
+          "signature": "2Rh1RDtpNQ8VpUp3am1GxKiJaq3wL3KDnsvxie5uykCx61NHbM5GiTQSzCHmqUQWD3p7FWBikSaULiXStSJ5C9j5",
+          "time": 1786362886
+        }
+      ],
+      "CREATOR": "8XrSxN92F98HyWFmJD7ZeyFf8MaHAJxGeWsRnNLjrLU2",
+      "DISAMBIGUATION_CLASS": "AMBIGUITY_RESOLVED_PROVEN_SERIAL",
+      "MINT": "3U1ipqFamzZnwjqWAkpnZ8BbTBLgwf1Ncf7RyzDYpump",
+      "SERIAL_CHAIN_NOW_PROVEN": true
+    },
+    {
+      "BEST_CANDIDATE_SIGNATURE": "2euekiBanRVYvJzVi7Lzb7yfVSYFfJw62i9j7cYyoSn5zGxMetRiaJnKWGj26yS1ePE7R8UHuVKXNi6veoJWLg64",
+      "CANDIDATES": [
+        {
+          "amount": 7.0,
+          "diff": 1.5000000000320313e-05,
+          "exact": true,
+          "offset": 7,
+          "signature": "2euekiBanRVYvJzVi7Lzb7yfVSYFfJw62i9j7cYyoSn5zGxMetRiaJnKWGj26yS1ePE7R8UHuVKXNi6veoJWLg64",
+          "time": 1786366466
+        },
+        {
+          "amount": 7.0,
+          "diff": 1.5000000000320313e-05,
+          "exact": true,
+          "offset": 3587,
+          "signature": "2Rh1RDtpNQ8VpUp3am1GxKiJaq3wL3KDnsvxie5uykCx61NHbM5GiTQSzCHmqUQWD3p7FWBikSaULiXStSJ5C9j5",
+          "time": 1786362886
+        }
+      ],
+      "CREATOR": "8XrSxN92F98HyWFmJD7ZeyFf8MaHAJxGeWsRnNLjrLU2",
+      "DISAMBIGUATION_CLASS": "AMBIGUITY_RESOLVED_PROVEN_SERIAL",
+      "MINT": "5ki1MDAUMAvQUyNshmfsE3gMdwGi7VT2L3tNh3YDpump",
+      "SERIAL_CHAIN_NOW_PROVEN": true
+    },
+    {
+      "BEST_CANDIDATE_SIGNATURE": "2eafRdLjDN4gFjYqGYcGtK99AT1kttKpCgL2YR1mZpdbwZ89qbMbHGUCi6pnawizzGvGJ2D6SSR1oM479uxPpSo2",
+      "CANDIDATES": [
+        {
+          "amount": 7.0,
+          "diff": 1.5000000000320313e-05,
+          "exact": true,
+          "offset": 10,
+          "signature": "2eafRdLjDN4gFjYqGYcGtK99AT1kttKpCgL2YR1mZpdbwZ89qbMbHGUCi6pnawizzGvGJ2D6SSR1oM479uxPpSo2",
+          "time": 1786522612
+        },
+        {
+          "amount": 7.0,
+          "diff": 1.5000000000320313e-05,
+          "exact": true,
+          "offset": 3451,
+          "signature": "3zMdrxiSrHn9WnvVnR2RRcmuzXBJvDnGLLAbMTRUwhhy1yVTyXMugkxHWtCNPNnMjPrSv7s2ucA7zq8k2WoE3a8k",
+          "time": 1786519171
+        }
+      ],
+      "CREATOR": "GqpjYV88bTzxYxHEskudyWZ9T5kxtBpehXdkQS2KKJiM",
+      "DISAMBIGUATION_CLASS": "NO_CANDIDATE_SURVIVES_DISAMBIGUATION",
+      "MINT": "6X7EhvCPpQcfwfAeQF4drS2x9UnHD8N8BK5QnTtzpump",
+      "SERIAL_CHAIN_NOW_PROVEN": false
+    },
+    {
+      "BEST_CANDIDATE_SIGNATURE": "2v6m73MLMLFrZHevhvx7nMy98MrvN8wQyt1srxucSjQiX9tyV21A4AkEGfveA7StqjdvYz54p2nAtR6vmuzRJmTp",
+      "CANDIDATES": [
+        {
+          "amount": 7.0,
+          "diff": 1.5000000000320313e-05,
+          "exact": true,
+          "offset": 7,
+          "signature": "2v6m73MLMLFrZHevhvx7nMy98MrvN8wQyt1srxucSjQiX9tyV21A4AkEGfveA7StqjdvYz54p2nAtR6vmuzRJmTp",
+          "time": 1786544953
+        },
+        {
+          "amount": 7.0,
+          "diff": 1.5000000000320313e-05,
+          "exact": true,
+          "offset": 1133,
+          "signature": "33q6gmDs4QjvE5nVBtf3TtRLd574WaEBjYJ7do1p15ADpWNg1JcieoxNmX2w9iTHyMWRvVdyypkPbFhqEkY7dmYj",
+          "time": 1786543827
+        }
+      ],
+      "CREATOR": "3MVXdRf2gAahYumumNqCRmQL1xapUFSqw7ZY4nuAK56j",
+      "DISAMBIGUATION_CLASS": "AMBIGUITY_RESOLVED_PROVEN_SERIAL",
+      "MINT": "8v7Ro7WX3eMJC27HdSEUeAnDFLdHp2EUpWGc8ukWpump",
+      "SERIAL_CHAIN_NOW_PROVEN": true
+    },
+    {
+      "BEST_CANDIDATE_SIGNATURE": "5Nhs4tNBrJmfNmcR9pwzR4Ri94dZJN3QTtggzfb2CUDJwRDgTjFcoB3CGeM6ak58dFkja84KdXJ8imHLtVpwD8z1",
+      "CANDIDATES": [
+        {
+          "amount": 7.0,
+          "diff": 1.5000000000320313e-05,
+          "exact": true,
+          "offset": 6,
+          "signature": "5Nhs4tNBrJmfNmcR9pwzR4Ri94dZJN3QTtggzfb2CUDJwRDgTjFcoB3CGeM6ak58dFkja84KdXJ8imHLtVpwD8z1",
+          "time": 1786198860
+        },
+        {
+          "amount": 7.0,
+          "diff": 1.5000000000320313e-05,
+          "exact": true,
+          "offset": 2814,
+          "signature": "2mSFLs4vQ8QN2yQRevBw7g6C11NiJSZBPZ4SatCVzptUsAMYjx4XARjBTmb8GQboWHuXYMcQ8aYDQspgCDRpTf6E",
+          "time": 1786196052
+        }
+      ],
+      "CREATOR": "7CTNDhG9qkEwiCWpG3d6CQy66WurZ3WtTkxcDFtpNDpE",
+      "DISAMBIGUATION_CLASS": "AMBIGUITY_RESOLVED_PROVEN_SERIAL",
+      "MINT": "DYC73EsP12U583M626SGRGEJ6hT539MSuqGt83nWpump",
+      "SERIAL_CHAIN_NOW_PROVEN": true
+    },
+    {
+      "BEST_CANDIDATE_SIGNATURE": "54MAZKQfDfXVefccQnqbLbXKcs4pP47jJJWKSSN24QeD5vFXEyKTKRTy1SJpU2XY8PnPJJJ82cmLNqxJbzspfs86",
+      "CANDIDATES": [
+        {
+          "amount": 7.0,
+          "diff": 1.5000000000320313e-05,
+          "exact": true,
+          "offset": 7,
+          "signature": "54MAZKQfDfXVefccQnqbLbXKcs4pP47jJJWKSSN24QeD5vFXEyKTKRTy1SJpU2XY8PnPJJJ82cmLNqxJbzspfs86",
+          "time": 1786187308
+        },
+        {
+          "amount": 7.0,
+          "diff": 1.5000000000320313e-05,
+          "exact": true,
+          "offset": 761,
+          "signature": "4Z8CBVeXPicKz4jhuXR5JAwDfJHov214SFeSSs2gNSQA9vJiB463dcTxoXpHEifiiyVgU5kWQADQs6k7rob11Dqv",
+          "time": 1786186554
+        }
+      ],
+      "CREATOR": "CugxmV7YKY7zt389Yvd4xiiYGWfuE6n21zUKx5UKfsHy",
+      "DISAMBIGUATION_CLASS": "AMBIGUITY_RESOLVED_PROVEN_SERIAL",
+      "MINT": "DZJRL4PfPAZNL8cHTL7ejoFpC162kjv44BtsMEDwpump",
+      "SERIAL_CHAIN_NOW_PROVEN": true
+    },
+    {
+      "BEST_CANDIDATE_SIGNATURE": "5Nhs4tNBrJmfNmcR9pwzR4Ri94dZJN3QTtggzfb2CUDJwRDgTjFcoB3CGeM6ak58dFkja84KdXJ8imHLtVpwD8z1",
+      "CANDIDATES": [
+        {
+          "amount": 7.0,
+          "diff": 1.5000000000320313e-05,
+          "exact": true,
+          "offset": 6,
+          "signature": "5Nhs4tNBrJmfNmcR9pwzR4Ri94dZJN3QTtggzfb2CUDJwRDgTjFcoB3CGeM6ak58dFkja84KdXJ8imHLtVpwD8z1",
+          "time": 1786198860
+        },
+        {
+          "amount": 7.0,
+          "diff": 1.5000000000320313e-05,
+          "exact": true,
+          "offset": 2814,
+          "signature": "2mSFLs4vQ8QN2yQRevBw7g6C11NiJSZBPZ4SatCVzptUsAMYjx4XARjBTmb8GQboWHuXYMcQ8aYDQspgCDRpTf6E",
+          "time": 1786196052
+        }
+      ],
+      "CREATOR": "7CTNDhG9qkEwiCWpG3d6CQy66WurZ3WtTkxcDFtpNDpE",
+      "DISAMBIGUATION_CLASS": "AMBIGUITY_RESOLVED_PROVEN_SERIAL",
+      "MINT": "DuJcUZ22wBLPBVUH5M5T8QrPfeir7A9sUbzwnK8Gpump",
+      "SERIAL_CHAIN_NOW_PROVEN": true
+    },
+    {
+      "BEST_CANDIDATE_SIGNATURE": "5VfN3QtYbqkZsmL5oAEkhN78UeSeLtuH2cavrKEu1tGqe7FkziemEoq2ztbWXSmMbR3CEqDvdv2tyZKGRgAkHW2g",
+      "CANDIDATES": [
+        {
+          "amount": 7.0,
+          "diff": 1.5000000000320313e-05,
+          "exact": true,
+          "offset": 6,
+          "signature": "5VfN3QtYbqkZsmL5oAEkhN78UeSeLtuH2cavrKEu1tGqe7FkziemEoq2ztbWXSmMbR3CEqDvdv2tyZKGRgAkHW2g",
+          "time": 1786189008
+        },
+        {
+          "amount": 7.0,
+          "diff": 1.5000000000320313e-05,
+          "exact": true,
+          "offset": 7,
+          "signature": "54MAZKQfDfXVefccQnqbLbXKcs4pP47jJJWKSSN24QeD5vFXEyKTKRTy1SJpU2XY8PnPJJJ82cmLNqxJbzspfs86",
+          "time": 1786187308
+        },
+        {
+          "amount": 7.0,
+          "diff": 1.5000000000320313e-05,
+          "exact": true,
+          "offset": 761,
+          "signature": "4Z8CBVeXPicKz4jhuXR5JAwDfJHov214SFeSSs2gNSQA9vJiB463dcTxoXpHEifiiyVgU5kWQADQs6k7rob11Dqv",
+          "time": 1786186554
+        }
+      ],
+      "CREATOR": "8XbfH3fHK7dNw1p9woMBcHJM3D1PDS9De852ugLkdE4e",
+      "DISAMBIGUATION_CLASS": "AMBIGUITY_RESOLVED_PROVEN_SERIAL",
+      "MINT": "E8cqgjpEfM3iuArpVpXyPjTQwfgfB4vkJo5oH33zpump",
+      "SERIAL_CHAIN_NOW_PROVEN": true
+    },
+    {
+      "BEST_CANDIDATE_SIGNATURE": "2euekiBanRVYvJzVi7Lzb7yfVSYFfJw62i9j7cYyoSn5zGxMetRiaJnKWGj26yS1ePE7R8UHuVKXNi6veoJWLg64",
+      "CANDIDATES": [
+        {
+          "amount": 7.0,
+          "diff": 1.5000000000320313e-05,
+          "exact": true,
+          "offset": 7,
+          "signature": "2euekiBanRVYvJzVi7Lzb7yfVSYFfJw62i9j7cYyoSn5zGxMetRiaJnKWGj26yS1ePE7R8UHuVKXNi6veoJWLg64",
+          "time": 1786366466
+        },
+        {
+          "amount": 7.0,
+          "diff": 1.5000000000320313e-05,
+          "exact": true,
+          "offset": 3587,
+          "signature": "2Rh1RDtpNQ8VpUp3am1GxKiJaq3wL3KDnsvxie5uykCx61NHbM5GiTQSzCHmqUQWD3p7FWBikSaULiXStSJ5C9j5",
+          "time": 1786362886
+        }
+      ],
+      "CREATOR": "8XrSxN92F98HyWFmJD7ZeyFf8MaHAJxGeWsRnNLjrLU2",
+      "DISAMBIGUATION_CLASS": "AMBIGUITY_RESOLVED_PROVEN_SERIAL",
+      "MINT": "En9sQtnHpByLEE7ykhFQ25PirV54rYegEJCjBV87pump",
+      "SERIAL_CHAIN_NOW_PROVEN": true
+    },
+    {
+      "BEST_CANDIDATE_SIGNATURE": "2v6m73MLMLFrZHevhvx7nMy98MrvN8wQyt1srxucSjQiX9tyV21A4AkEGfveA7StqjdvYz54p2nAtR6vmuzRJmTp",
+      "CANDIDATES": [
+        {
+          "amount": 7.0,
+          "diff": 1.5000000000320313e-05,
+          "exact": true,
+          "offset": 7,
+          "signature": "2v6m73MLMLFrZHevhvx7nMy98MrvN8wQyt1srxucSjQiX9tyV21A4AkEGfveA7StqjdvYz54p2nAtR6vmuzRJmTp",
+          "time": 1786544953
+        },
+        {
+          "amount": 7.0,
+          "diff": 1.5000000000320313e-05,
+          "exact": true,
+          "offset": 1133,
+          "signature": "33q6gmDs4QjvE5nVBtf3TtRLd574WaEBjYJ7do1p15ADpWNg1JcieoxNmX2w9iTHyMWRvVdyypkPbFhqEkY7dmYj",
+          "time": 1786543827
+        }
+      ],
+      "CREATOR": "3MVXdRf2gAahYumumNqCRmQL1xapUFSqw7ZY4nuAK56j",
+      "DISAMBIGUATION_CLASS": "AMBIGUITY_RESOLVED_PROVEN_SERIAL",
+      "MINT": "HnftgdJEXnLNoVUnstqjxGeNwgnAjT1TJoa2hTenpump",
+      "SERIAL_CHAIN_NOW_PROVEN": true
+    },
+    {
+      "BEST_CANDIDATE_SIGNATURE": "2euekiBanRVYvJzVi7Lzb7yfVSYFfJw62i9j7cYyoSn5zGxMetRiaJnKWGj26yS1ePE7R8UHuVKXNi6veoJWLg64",
+      "CANDIDATES": [
+        {
+          "amount": 7.0,
+          "diff": 1.5000000000320313e-05,
+          "exact": true,
+          "offset": 7,
+          "signature": "2euekiBanRVYvJzVi7Lzb7yfVSYFfJw62i9j7cYyoSn5zGxMetRiaJnKWGj26yS1ePE7R8UHuVKXNi6veoJWLg64",
+          "time": 1786366466
+        },
+        {
+          "amount": 7.0,
+          "diff": 1.5000000000320313e-05,
+          "exact": true,
+          "offset": 3587,
+          "signature": "2Rh1RDtpNQ8VpUp3am1GxKiJaq3wL3KDnsvxie5uykCx61NHbM5GiTQSzCHmqUQWD3p7FWBikSaULiXStSJ5C9j5",
+          "time": 1786362886
+        }
+      ],
+      "CREATOR": "8XrSxN92F98HyWFmJD7ZeyFf8MaHAJxGeWsRnNLjrLU2",
+      "DISAMBIGUATION_CLASS": "AMBIGUITY_RESOLVED_PROVEN_SERIAL",
+      "MINT": "J7FpJHX682txbKcGHXLGZVn8kGChCTS5Yo6Soptnpump",
+      "SERIAL_CHAIN_NOW_PROVEN": true
+    },
+    {
+      "BEST_CANDIDATE_SIGNATURE": "54MAZKQfDfXVefccQnqbLbXKcs4pP47jJJWKSSN24QeD5vFXEyKTKRTy1SJpU2XY8PnPJJJ82cmLNqxJbzspfs86",
+      "CANDIDATES": [
+        {
+          "amount": 7.0,
+          "diff": 1.5000000000320313e-05,
+          "exact": true,
+          "offset": 7,
+          "signature": "54MAZKQfDfXVefccQnqbLbXKcs4pP47jJJWKSSN24QeD5vFXEyKTKRTy1SJpU2XY8PnPJJJ82cmLNqxJbzspfs86",
+          "time": 1786187308
+        },
+        {
+          "amount": 7.0,
+          "diff": 1.5000000000320313e-05,
+          "exact": true,
+          "offset": 761,
+          "signature": "4Z8CBVeXPicKz4jhuXR5JAwDfJHov214SFeSSs2gNSQA9vJiB463dcTxoXpHEifiiyVgU5kWQADQs6k7rob11Dqv",
+          "time": 1786186554
+        }
+      ],
+      "CREATOR": "CugxmV7YKY7zt389Yvd4xiiYGWfuE6n21zUKx5UKfsHy",
+      "DISAMBIGUATION_CLASS": "AMBIGUITY_RESOLVED_PROVEN_SERIAL",
+      "MINT": "yJffhBfxNAawPtnD9DvVmvFPi1rPTK6Mh9pkyUPpump",
+      "SERIAL_CHAIN_NOW_PROVEN": true
+    }
+  ],
+  "summary": {
+    "classes": {
+      "AMBIGUITY_RESOLVED_PROVEN_SERIAL": 11,
+      "NO_CANDIDATE_SURVIVES_DISAMBIGUATION": 1
+    },
+    "new_serial": 11,
+    "profile_max": 8,
+    "profile_median": 6.0,
+    "profile_min": 6,
+    "replay_digest": "c35ff1762a0118b5f640acb45fa1a0534e87dd393190a64935c6650557e10788",
+    "target": 12
+  }
+}

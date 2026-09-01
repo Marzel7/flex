@@ -1,0 +1,11 @@
+{
+  "methods": {
+    "getSignaturesForAddress": 53,
+    "getTransaction": 78
+  },
+  "report": "docs/agent_handoff/p3r/p3r_operator_direct_funder_rpc/p3r_operator_direct_funder_upstream_rpc.v1.json",
+  "report_sha256": "f2adf0fa806297bc427b28effa08f162171c09e9f900104faf8c79ba9ba8caf4",
+  "result_digest": "f3c4730d4fc03c91ac5d7e2d3fdfcd0f3a5aa6c4c746011969104a1a57bef33a",
+  "rpc_calls": 131,
+  "selection_rule": "immediate ledger entry older than the selected creator-funding signature; accept only positive native balance delta into direct funder"
+}

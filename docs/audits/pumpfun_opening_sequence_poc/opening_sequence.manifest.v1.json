@@ -1,0 +1,20 @@
+{
+  "curve_sha256": "6a19eb9d2cbd4f6b092c71ecbb139a1f120d6a3e1c87cc1f172d9032ffb7437e",
+  "decoded_sha256": "66e9a8d37a7d1d06269df16adda0eabd5e7d793f992f7dde36b511a2931bccbc",
+  "exact_transaction_index_repaired": 23,
+  "mc_sha256": "15e75a497daaa1bd05939ca7d43d87db02c18e9bcaaff3e7675f181b456dc608",
+  "raw_sha256": "9cc7d085f37dfcbd31a3d0777c5fc6494d62b3b303c98527fb50f4816aff8270",
+  "rpc": {
+    "accountState": 0,
+    "failure": 0,
+    "getBlock_index_repair": 1,
+    "getBlock_new": 4,
+    "getBlock_reused": 1,
+    "getBlock_total": 6,
+    "getTransaction": 0,
+    "success": 4,
+    "total_new": 4
+  },
+  "schema_version": 2,
+  "successful_buy_count": 10
+}

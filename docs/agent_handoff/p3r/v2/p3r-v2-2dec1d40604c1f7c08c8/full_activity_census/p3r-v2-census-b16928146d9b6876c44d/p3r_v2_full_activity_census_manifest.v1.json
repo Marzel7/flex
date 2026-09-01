@@ -1,0 +1,28 @@
+{
+  "artifact": {
+    "path": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/full_activity_census/p3r-v2-census-b16928146d9b6876c44d/p3r_v2_full_activity_census.v1.json",
+    "sha256": "ce0fb8e5df0d106ae5db9158cc649b8846ac52b64703e7a408239da3f80082df"
+  },
+  "canonical_manifest_sha256": "930fb7fc462e1464632913f22b28ea8fc419d9ca921f36fe4e798dff51617862",
+  "canonical_run_id": "p3r-v2-2dec1d40604c1f7c08c8",
+  "census_run_id": "p3r-v2-census-b16928146d9b6876c44d",
+  "census_timestamp": 1787673754,
+  "contract_digest": "f3bdc858cf455b8326ccc3d89a007c5ba4222346e3c62d92c28b03ff8fedd52c",
+  "family_count": 220,
+  "ranking_digest": "8256106869f34e0d2548775b4a11c15136b5af8fd47554304f79623dbf1089bf",
+  "source_snapshot": {
+    "activity_edge_highwater": 60397,
+    "activity_timestamp_source": "explicit Unix UTC census timestamp",
+    "canonical_manifest_sha256": "930fb7fc462e1464632913f22b28ea8fc419d9ca921f36fe4e798dff51617862",
+    "canonical_source_snapshot": {
+      "database": "database/wt_ops_v2.db",
+      "highwaters": {
+        "wt_walkback_atomic_flows": 7095,
+        "wt_walkback_edge_candidates": 60299,
+        "wt_walkback_queue": 32353
+      },
+      "read_only_source": true,
+      "schema_sha256": "dcc038d07998c3d37d0475a7c0fc1d61eaa141401712b3079ec3e465dff3f4ad"
+    }
+  }
+}

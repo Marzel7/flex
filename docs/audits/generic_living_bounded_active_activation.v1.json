@@ -1,0 +1,16 @@
+{
+  "schema_version": "generic_living_bounded_active_activation.v1",
+  "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+  "qualification_artifact": "docs/audits/generic_living_runtime_wiring_qualification.v4.json",
+  "qualification_artifact_sha256": "08cc955ef1680676803a322282da77033e87241fa53474cf4964cfde34853aef",
+  "qualification_hash_verified": true,
+  "required_activation_readiness_field": "ACTIVATION_READINESS",
+  "activation_readiness_field_present": false,
+  "real_feature_flag_before": "OFF",
+  "real_feature_flag_after": "OFF",
+  "runtime_configuration_changed": false,
+  "database_writes": 0,
+  "provider_or_rpc_calls": 0,
+  "verdict": "GENERIC_LIVING_BOUNDED_ACTIVE_ACTIVATION_HOLD_QUALIFICATION_CONTRACT_INCOMPLETE",
+  "blocker": "The supplied qualification artifact has the required SHA-256 but contains no ACTIVATION_READINESS field. The activation procedure requires that field to equal ready before any flag change. Independent code search also found no production call site from walkback_worker to handle_walkback_evidence_update, so supervisor flagging would not establish the claimed active dispatch."
+}

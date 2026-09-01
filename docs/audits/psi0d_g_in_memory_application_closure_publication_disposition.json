@@ -1,0 +1,61 @@
+{
+  "schema_version": "psi0d-g.closure-disposition.v1",
+  "milestone": "PSI0D-G",
+  "closed_at_utc": "2026-08-16T13:00:00Z",
+  "engineering_commit": "9ef7467327b74dbf435fc00ddc26c99a77f5b33e",
+  "status": "PASS",
+  "verdict": "PSI0D_F_CLOSED_FIXTURE_ONLY_ATOMIC_PUBLICATION_CONTRACT_MAY_BE_QUALIFIED",
+  "bound_inputs": {
+    "psi0d_f_audit_digest": "9e755dcc6fceef6ef27664eb8531cff0478b0b6cc252ded22ee84adfefd1efac",
+    "projection_digest": "482461d10319e657bbb4df37b4cfa4be526ada21b4dbd3186ce43834ecb2d136",
+    "psi0d_e_closure_digest": "5452c1f3a00e7fceeb0685c8688f5515f98e60e8030fecd6db34071556dd5729",
+    "psi0d_d_adapter_contract_digest": "48e4480d741793c78dda8413ce8fa233c849d3781538bc32c0283a436f00bd7d",
+    "psi0d_b_consumer_contract_digest": "a9e368cceede689736ca234891394551bda098df3b51ebfebf2e72f32aeb51f6",
+    "psi0c_d_closure_digest": "7e8c4ce4c27aa0d235a39cfe49e4dad4443be0bfae0750d61188a73d2cfeffb2",
+    "psi0c_c_assessment_digest": "b5fb2187ad569b422f1ebbc029b7c619300a153d81b547f178c58769377fc7c4",
+    "psi0c_c_assessment_bundle_digest": "6db46939fdfec9a34a63268809609c9a30a1a7dd86f5504b3d063bd0e8045ac3"
+  },
+  "replay_verification": {
+    "audit_digest_matches": true,
+    "adapter_and_consumer_contracts_replay": true,
+    "canonical_projection_reconstructed_from_permitted_aggregates": true,
+    "projection_digest_matches": true,
+    "cohort_denominator": 5000,
+    "total_rows": 9709,
+    "duplicate_rows_preserved": 2266,
+    "unresolved_conflicts": 0,
+    "unmatched_rows": 0,
+    "missingness_semantics": "ABSENT_NOT_NEGATIVE",
+    "source_values_retained_or_disclosed": false,
+    "focused_tests_passed": 32
+  },
+  "authority": {
+    "policy": false,
+    "ranking": false,
+    "integration": false,
+    "deployment": false,
+    "activation": false
+  },
+  "publication_disposition": {
+    "fixture_only_atomic_publication_contract_is_coherent": true,
+    "smallest_next_milestone": "PSI0D-H",
+    "qualification_scope": "Safe-local design and fixture qualification of an immutable descriptive-projection publisher accepting injected synthetic projection bytes and writing canonical files atomically to a caller-supplied new empty fixture directory.",
+    "required_properties": [
+      "exact projection and lineage identities",
+      "canonical bytes and per-file hashes",
+      "one bundle digest and exact replay",
+      "atomic no-partial publication",
+      "fail-closed output reuse and fault cleanup",
+      "false policy ranking integration deployment and activation authority"
+    ],
+    "publishing_real_projection_authorized": false,
+    "consumer_integration_authorized": false
+  },
+  "scope_proof": {
+    "psi0c_assessment_or_psi0b_bundle_reopened": false,
+    "consumer_output_created": false,
+    "production_or_runtime_access": false,
+    "provider_or_rpc_calls": 0
+  },
+  "next_action": "HUMAN_APPROVAL_REQUIRED: PSI0D-H fixture-only immutable descriptive-projection publication contract qualification."
+}

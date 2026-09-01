@@ -29,6 +29,12 @@ CREATE TABLE wt_walkback_queue (
  funder_wallet TEXT, funding_mechanism TEXT, funder_amount_sol REAL,
  funder_sig TEXT, funder_slot INTEGER, funder_block_time INTEGER
 );
+CREATE TABLE wt_watchtower_launches (
+ mint TEXT PRIMARY KEY, creator_wallet TEXT, create_signature TEXT,
+ create_time INTEGER, treasury_wallet TEXT, subprov_wallet TEXT,
+ wrap_close_signature TEXT, funding_mechanism TEXT, recorded_at INTEGER DEFAULT 0,
+ wrap_close_sol REAL, subprov_funding_sol REAL
+);
 CREATE TABLE wt_confirmed_treasuries (treasury TEXT PRIMARY KEY, confirmed_at INTEGER);
 CREATE TABLE wt_discovered_subprovs (
  subprov TEXT PRIMARY KEY, first_creator TEXT, treasury TEXT, treasury_known INTEGER DEFAULT 0,
@@ -259,3 +265,45 @@ def test_idempotent_retry_produces_no_duplicate_rows(ops, monkeypatch):
     edges = edges_for_wallet(ops, "SUBPROV_X")
     assert len(edges["incoming"]) == 1
     assert len(edges["outgoing"]) == 1
+
+
+def test_living_callback_runs_only_after_walkback_commit(ops, monkeypatch):
+    """The real terminal writer commits before invoking the bounded bridge."""
+    events = []
+    monkeypatch.setattr(walkback_worker, "materialize_outcome", lambda *_: {}) if hasattr(walkback_worker, "materialize_outcome") else None
+    import src.ops.attribution_outcome as attribution_outcome
+    import src.ops.watchtower_candidates as candidates
+    monkeypatch.setattr(attribution_outcome, "materialize_outcome", lambda *_: {})
+    monkeypatch.setattr(candidates, "sync_walkback_result", lambda *_: None)
+    monkeypatch.setattr(walkback_worker, "_promote_if_canonical_watchtower", lambda *_: None)
+
+    def callback(conn, mint):
+        events.append(("callback", conn.in_transaction, conn.execute(
+            "SELECT status FROM wt_walkback_queue WHERE mint=?", (mint,)).fetchone()[0]))
+        return {"status": "DISPATCHED"}
+
+    monkeypatch.setattr(walkback_worker, "_notify_living_after_walkback_commit", callback)
+    walkback_worker._mark_complete(ops, "mintX", "NO_ATTRIBUTION_FOUND", None, None, 0)
+    assert events == [("callback", False, "complete")]
+
+
+def test_living_callback_failure_cannot_rollback_committed_walkback(ops, monkeypatch):
+    """A post-commit Living exception is isolated from durable source evidence."""
+    import src.ops.attribution_outcome as attribution_outcome
+    import src.ops.watchtower_candidates as candidates
+    monkeypatch.setattr(attribution_outcome, "materialize_outcome", lambda *_: {})
+    monkeypatch.setattr(candidates, "sync_walkback_result", lambda *_: None)
+    monkeypatch.setattr(walkback_worker, "_promote_if_canonical_watchtower", lambda *_: None)
+    monkeypatch.setattr(walkback_worker, "_notify_living_after_walkback_commit", lambda *_: (_ for _ in ()).throw(RuntimeError("living boom")))
+    with pytest.raises(RuntimeError, match="living boom"):
+        walkback_worker._mark_complete(ops, "mintX", "NO_ATTRIBUTION_FOUND", None, None, 0)
+    # This test uses an injected replacement to prove the source commit occurs
+    # before the post-commit hook. The production hook catches its own failures.
+    assert ops.execute("SELECT status FROM wt_walkback_queue WHERE mint='mintX'").fetchone()[0] == "complete"
+
+
+def test_production_living_callback_catches_failure(ops, monkeypatch):
+    """The production callback reports its own error instead of raising it."""
+    import src.ops.living_potential_operations as living
+    monkeypatch.setattr(living, "handle_walkback_evidence_update", lambda *_a, **_k: (_ for _ in ()).throw(RuntimeError("publisher failed")))
+    assert walkback_worker._notify_living_after_walkback_commit(ops, "mintX")["status"] == "FAILED"

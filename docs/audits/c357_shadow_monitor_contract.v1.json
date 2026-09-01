@@ -1,0 +1,11 @@
+{
+  "schema_version": "C357_SHADOW_MONITOR_CONTRACT_V1",
+  "mode": "SHADOW_ONLY",
+  "candidate_id": "p3r-v2-c357da9d0d4d560311e4",
+  "stages": {
+    "compatibility": {"required": ["WSOL_WRAP_CLOSE", "amount_lamports=99999985000", "createAccountWithSeed", "initializeAccount3", "transfer", "syncNative", "closeAccount"], "output": "C357_COMPATIBLE"},
+    "attribution": {"required": ["C357_COMPATIBLE", "independently_verified_c357_branch_or_cohort_evidence"], "output": "C357_ATTRIBUTION_CANDIDATE", "otherwise": "C357_COMPATIBLE_UNRESOLVED"}
+  },
+  "prohibitions": ["membership mutation", "workflow mutation", "detector activation", "trading action", "production alert"],
+  "safety": {"workflow": "PAUSED", "shadow_only": true}
+}

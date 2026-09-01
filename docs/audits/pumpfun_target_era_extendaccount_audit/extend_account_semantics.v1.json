@@ -1,0 +1,46 @@
+{
+  "artifact_type": "PUMPFUN_EXTENDACCOUNT_SEMANTICS_AUDIT_V1",
+  "conclusion": "Official documentation supports reallocation for creator-fee-era fields, not reserve rewriting. It therefore does not explain the observed CreateEvent\u2192buy#1 reserve transformation.",
+  "extend_account_initializes_new_fields": "SOURCE_DOCS_DESCRIBE_CAPACITY_FOR_NEW_FIELDS; target binary-specific initializer not independently proven",
+  "extend_account_other_state_effects": "A system-program rent transfer to the curve accompanies extension; the retained event records only account size change and timestamp. No retained event reports reserve values or a reserve transform.",
+  "extend_account_reallocation_only": true,
+  "extend_account_reserve_transform_formula": null,
+  "extend_account_rewrites_reserve_fields": "NO_OFFICIAL_SOURCE_EVIDENCE; NOT_ASSERTED_AS_BINARY_PROOF",
+  "qualified_level": "SOURCE_SUPPORTED_BUT_TARGET_BINARY_UNBOUND",
+  "retained_target_event": {
+    "contains_layout_marker": true,
+    "contains_reserve_state": false,
+    "contains_version_marker": false,
+    "decoded_fields": {
+      "account": "FJPbTzeUy4pzPT3r7c2fNxccNvvhbC7LJkSqXux8xU1g",
+      "new_account_size_bytes": 151,
+      "old_account_size_bytes": 115,
+      "timestamp": 1788250333,
+      "user": "J3yZQYJECzT3PD9BpzQzSM4FKENrDeVSCtmxdFSNThMy"
+    },
+    "event_discriminator": "6161d7905d92167c",
+    "event_name": "ExtendAccountEvent"
+  },
+  "target_era_source": {
+    "creator_fee_doc_url": "https://github.com/pump-fun/pump-public-docs/blob/main/docs/PUMP_CREATOR_FEE_README.md",
+    "extracted_official_facts": {
+      "documented_creator_fee_layout_effect": "BondingCurve gains creator: Pubkey; creator-vault derivation uses that field.",
+      "documented_purpose": "Extend BondingCurve accounts to support future protocol fields, including the creator fee update.",
+      "documented_reserve_rewrite_or_transform": null,
+      "extend_account_accounts": [
+        "account (writable)",
+        "user (signer)",
+        "system_program",
+        "event_authority",
+        "program"
+      ],
+      "extend_account_args": [],
+      "extend_account_discriminator": "ea66c2cb96483ee5",
+      "source_limit": "Official current documentation describes intended behavior but provides no binary hash or target-slot deployment binding."
+    },
+    "idl_url": "https://raw.githubusercontent.com/pump-fun/pump-public-docs/main/idl/pump.json",
+    "official_repository": "pump-fun/pump-public-docs",
+    "prior_retained_idl_sha256": "b90bc471327f671449271d5d1d42354d1fae6f5a06502f5834459a3108138e49",
+    "prior_retained_official_idl_commit": "9c82f61cb711b044a17f770ab8ce9f9bdf78f333"
+  }
+}

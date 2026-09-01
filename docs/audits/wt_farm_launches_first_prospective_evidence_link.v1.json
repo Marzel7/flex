@@ -1,0 +1,54 @@
+{
+  "schema_version": "wt_farm_launches_first_prospective_evidence_link.v1",
+  "qualification_status": "PARTIAL_AWAITING_ORGANIC_FARM_ROW",
+  "scheduler": {
+    "pid": 21622,
+    "command": "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python -m src.core.operation_scheduler --loop",
+    "start_time": "2026-08-31T16:53:07Z",
+    "current_source_active": true
+  },
+  "before": {
+    "wt_farm_launches_row_count": 10079,
+    "linked_farm_row_count": 0,
+    "unknown_repeat_funder_count": 58,
+    "unknown_farm_row_count": 460,
+    "spam_filter_active": false
+  },
+  "linkage_contract": {
+    "target": "wt_farm_launch_evidence -> wt_walkback_transaction_roles",
+    "key": "mint + funding_signature + role_evidence_key",
+    "fields": ["mint", "funder", "creator", "funding_signature", "role_evidence_key", "transfer_block_time", "launch_time", "provenance", "retained_at"],
+    "generic_evidence_source": "wt_walkback_transaction_roles",
+    "classifier_input_source": "generic role row reached through wt_farm_launch_evidence"
+  },
+  "live_prospective_row": "NOT_OBSERVED_YET",
+  "rpc_accounting": {
+    "normal_scheduler_rpc_calls": "NOT_OBSERVED_FOR_POST_DEPLOY_FARM_SCAN",
+    "incremental_edge_quality_rpc_calls": 0,
+    "extra_getTransaction_for_classifier": 0
+  },
+  "idempotency": "FIXTURE_PASS; LIVE_ROW_NOT_AVAILABLE",
+  "conflict_safety": "GENERIC_ROLE_PROJECTION_FAILS_CLOSED_ON_CONFLICT; LIVE_ROW_NOT_AVAILABLE",
+  "regression": {
+    "known_genuine_false_dust_count": 0,
+    "genuine_control_result": "PASS (prior qualified corpus, no classifier change)",
+    "known_dust_fixture_result": "DUST_SPAM_EDGE (prior qualified fixture, no classifier change)"
+  },
+  "after": {
+    "unknown_repeat_funder_count": 58,
+    "unknown_farm_row_count": 460,
+    "unknown_ranking_delta_from_filter": 0,
+    "filter_activated": false,
+    "historical_backfill_writes": 0,
+    "historical_rpc_calls": 0
+  },
+  "performance": {
+    "link_write_ms": "NOT_OBSERVED_YET",
+    "classifier_ms": "NOT_OBSERVED_YET",
+    "total_edge_quality_ms": "NOT_OBSERVED_YET",
+    "sqlite_busy_count": 0,
+    "sqlite_locked_count": 0
+  },
+  "focused_tests": "8 passed: farm evidence retention + Unknown classifier/audit suite",
+  "next_step": "Wait for the next normal farm scan. If it produces a new row, verify exactly one durable linkage and classify only from retained evidence; do not force a scan."
+}

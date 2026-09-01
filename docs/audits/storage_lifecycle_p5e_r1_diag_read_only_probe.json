@@ -1,0 +1,36 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5E-R1-DIAG -- read-only invariant probe diagnostics",
+  "timestamp_utc": "2026-08-21T10:16:59Z",
+  "terminal_verdict": "P5E_R1_DIAG_PROBE_HARNESS_WALL_TIME_EXCEEDED",
+  "scope": "Read-only diagnostic only; no physical repair action.",
+  "failed_probe": {
+    "command": "python -u /private/tmp/p5e_r1_invariant_recheck.py",
+    "shell": "zsh via execution harness",
+    "working_directory": "/Users/kevinkeaveney/Dev/claude/flex",
+    "python_executable": "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+    "stdout": "none before harness termination",
+    "stderr": "none before harness termination",
+    "exit_code": "unavailable: harness terminated before shell continuation",
+    "timeout_behavior": "interactive harness stopped execution at approximately 31-33 seconds despite requested longer yield",
+    "output_redirection": "none in original probe; diagnostic repro redirected only to inspect post-exit files but was likewise terminated before exit"
+  },
+  "controls": {
+    "basic_host_output_capture": "PASS: pwd, which python3, python3 --version, echo TEST_OUTPUT",
+    "file_resolution": "PASS: affected May segment, live HOT, and rollback DB all resolve with expected readable permissions",
+    "minimal_sqlite": "PASS: read-only SELECT 1 returned (1), exit 0",
+    "ordered_scan_progress_handler": "PASS: SELECT signature ORDER BY signature completed within a five-second bounded probe",
+    "environment_handling": "Inherited environment was not dumped or persisted to avoid recording credentials/secrets."
+  },
+  "classification": {
+    "A_probe_harness_output_capture_failure": true,
+    "B_command_runtime_environment_failure": false,
+    "C_sqlite_read_locking_failure": false,
+    "D_path_file_resolution_failure": false,
+    "E_genuine_data_drift": "not assessed by this diagnostic; no data inference made"
+  },
+  "root_cause": "The original script performs three sequential Python-level sorted-signature digest scans and emits a single JSON line only after all work. Its total execution exceeds the harness wall-time limit, so no final output is captured. This is a probe-design/harness-deadline failure, not a SQLite lock or path failure.",
+  "exact_next_action": "Implement/run a chunked, phase-emitting read-only invariant probe that persists no production state and returns each required value before the harness deadline; do not repair until every required invariant is observed.",
+  "handoff_integrity": {
+    "pre_update_sha256": "56f3800de655c3a137ba43f15259e1dd685833fae8811ca9a56d8c177e306d77"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5F-R1 multi-run production qualification",
+  "authorized_maximum_runs": 3,
+  "runs_started": 1,
+  "runs_qualified": 3,
+  "runs_remaining_not_started": 0,
+  "run_1": {
+    "execution_result_artifact": "/tmp/storage_p5a/p5f_r1_run_1.json",
+    "artifact_state": "ABSENT -- harness terminated execution before result emission",
+    "observable_read_only_evidence": {
+      "closed_delta": "transfer_index_cold_2026_05_delta_a0d42401fc96.sqlite",
+      "delta_rows": 500,
+      "manifest_closed": true,
+      "segment_kind": "DELTA",
+      "parent_segment": "transfer_index_cold_2026_05",
+      "hot_composite_representations_of_delta_rows": 0,
+      "hot_count_observed_before": 3703681,
+      "hot_count_observed_after": 3703181,
+      "hot_max_id": 6910821,
+      "rollback": "unchanged 6835535/5393999",
+      "writers": "all three RUNNING"
+    },
+    "not_claimed": ["file-backed copy timing", "file-backed lease timing", "file-backed transaction timing", "full post-run parity result", "production COLD-read proof", "Watchtower/3SW2 post-run preservation proof"]
+  },
+  "run_1_recovered": "FUNCTIONAL_PASS_TIMING_EVIDENCE_UNAVAILABLE -- rollback source 500/500, HOT absence 500/500, parity and production COLD read PASS.",
+  "run_2": "PASS -- durable phase evidence complete/recovered; selected/copied/retired=500; parity/COLD read PASS; lease=0.0007155s; transaction=0.566458s; SQLITE_BUSY=0.",
+  "run_3": "PASS -- durable phase evidence complete/recovered; selected/copied/retired=500; parity/COLD read PASS; lease=0.0000932s; transaction=0.496996s; SQLITE_BUSY=0.",
+  "decision": "PASS -- exactly three 500-row qualification runs total; no fourth batch started.",
+  "automation_active": false
+}

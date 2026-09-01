@@ -1,0 +1,8 @@
+{
+  "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/targeted_rpc_discriminator/p3r-v2-900b-rpc-discriminator-v1/p3r_v2_900b_targeted_rpc_discriminator.v1.json",
+  "artifact_sha256": "bd32f2bcd99c321f6fab719e599ac75c1e5e37dd5b96d4eb15da1856c6ddfd17",
+  "failures": 0,
+  "rpc_calls": 59,
+  "successes": 59,
+  "verdict": "900B_RPC_DISCRIMINATOR_NOT_FOUND"
+}

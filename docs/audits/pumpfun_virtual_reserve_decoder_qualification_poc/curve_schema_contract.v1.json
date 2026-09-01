@@ -1,0 +1,44 @@
+{
+  "local_implementation_inventory": {
+    "bonding_curve_account_schema": {
+      "fields": {
+        "complete": null,
+        "real_sol_reserves": null,
+        "real_token_reserves": null,
+        "token_total_supply": null,
+        "virtual_sol_reserves": null,
+        "virtual_token_reserves": null
+      },
+      "identified": false,
+      "offsets_or_types": null,
+      "reason": "No retained canonical Pump.fun IDL/account-layout decoder was located; source comments/constants are not an account schema.",
+      "version": null
+    },
+    "buy_math_exists": true,
+    "buy_math_path": "src/core/watchtower/curve_impact_analyzer.py::_curve_buy",
+    "curve_decoder_exists": false,
+    "curve_decoder_path": null,
+    "market_cap_formula_exists": true,
+    "market_cap_formula_path": "src/core/launch_audit.py::mc_from_curve",
+    "simulator_constants": {
+      "fee_rate": 0.01,
+      "virtual_sol_init_lamports": 30000000000,
+      "virtual_token_init_raw": 1073000191000000
+    },
+    "simulator_contract_binding": "NOT_PROVEN_FOR_TARGET_PUMP_PROGRAM_VERSION"
+  },
+  "schema_version": "pumpfun-virtual-reserve-decoder-qualification.v1",
+  "source_digests": {
+    "docs/audits/pumpfun_creation_anchor_poc/3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump.creation.decoded.v1.json": "61a70d492880515f62bba1b33466f746b62c1ea0fb07e865861be982cc398758",
+    "docs/audits/pumpfun_opening_sequence_poc/opening_sequence.decoded.v1.json": "66e9a8d37a7d1d06269df16adda0eabd5e7d793f992f7dde36b511a2931bccbc",
+    "docs/audits/pumpfun_opening_sequence_poc/opening_sequence.raw.v1.json": "9cc7d085f37dfcbd31a3d0777c5fc6494d62b3b303c98527fb50f4816aff8270",
+    "src/core/launch_audit.py": "89484ce68320e2ab4d7c1dda840af83fba60cac003cbafa0a681b38701746b6f",
+    "src/core/watchtower/curve_impact_analyzer.py": "240fe919cc8e2d6848e8dce67e239129a9b8b80e80c6e37df2d24c9fca219c01"
+  },
+  "target": {
+    "associated_curve": "3LiBmWqde7CaFW9mogdyRemiXoYxprHSjChzCW4gLejm",
+    "creation_slot": 443375106,
+    "curve": "FJPbTzeUy4pzPT3r7c2fNxccNvvhbC7LJkSqXux8xU1g",
+    "mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "authorized_calls": 600,
+  "calls_attempted": 544,
+  "calls_remaining": 56,
+  "checkpoint_at": "2026-08-30T15:24:38Z",
+  "completed_at": "2026-08-30T15:39:08Z",
+  "last_dispatch": {
+    "at": "2026-08-30T15:39:08Z",
+    "method": "getTransaction"
+  },
+  "purpose": "6437_DEEP_FUNDING_CHAIN_TRAVERSAL",
+  "run_id": "6437-deep-funding-7534ffe978b343df",
+  "started_at": "2026-08-30T15:23:23Z",
+  "status": "COMPLETE_POSITIVE_CHAIN_DEEPENING"
+}

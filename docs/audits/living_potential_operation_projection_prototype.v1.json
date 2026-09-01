@@ -1,0 +1,78 @@
+{
+  "derived_current_assessment": {
+    "alternative_edge_members": 71,
+    "assessment": "RESOLVED_AS_LEVIATHAN_BEHAVIOUR",
+    "atomic_flow_members": 71,
+    "candidate_id": "p3r-v2-c357da9d0d4d560311e4",
+    "candidate_membership_projection": 284,
+    "last_evidence_update": 1787997921,
+    "qualification": "shadow-only; no membership or detector effect",
+    "selected_creators": 71,
+    "selected_direct_funders": 49,
+    "selected_edge_members": 71,
+    "selected_signatures": 71,
+    "version": "derived_current"
+  },
+  "digest": "c1674a74dd2b8e2eecf0257202ddd92574e6445aabcb1e528f40a0f7282329d5",
+  "lineage": {
+    "immutable_snapshot_run": "p3r-v2-2dec1d40604c1f7c08c8",
+    "recompute_scope": "candidate member set plus selected/alternative edges and atomic flows for affected mints",
+    "workflow_provenance": {
+      "frozen_row": {
+        "activity_rank": 13,
+        "activity_score": 53.23,
+        "address_persistence": "FULLY_ADDRESS_BLIND",
+        "alternative_coverage_capped": 1,
+        "alternative_dominant_count": 33,
+        "alternative_recurrence": "OBSERVED_NOT_STRONGLY_RECURRENT",
+        "atomic_correction_delta": 10,
+        "atomic_coverage_capped": 1,
+        "atomic_dominant_count": 71,
+        "atomic_recurrence": "STRONGLY_RECURRENT",
+        "base_recurrence": "STRONGLY_RECURRENT",
+        "candidate_id": "p3r-v2-c357da9d0d4d560311e4",
+        "canonical_tier": "V2_TIER_3_ACTIVE_BASE",
+        "classification": "OPERATION_CANDIDATE_A",
+        "distinct_creators": 71,
+        "distinct_direct_funders": 49,
+        "distinct_parents": 49,
+        "key_mechanism": "hop-1 WSOL_WRAP_CLOSE 99999985000 lamports",
+        "launches_24h": 2,
+        "launches_30d": 70,
+        "launches_7d": 26,
+        "mechanism_strength": "VERY_STRONG_OPERATIONAL_MECHANISM",
+        "member_count": 71,
+        "new_rank": 2,
+        "operation_priority_rank": 2,
+        "operation_priority_score": 81.07,
+        "operational_likeness": 93.0,
+        "operational_score_components": {
+          "address_blind": 20,
+          "alternative": 8,
+          "atomic": 25,
+          "quality": 10.0,
+          "selected_base": 20,
+          "structural": 10
+        },
+        "principal_gap": "ALTERNATIVE_RECURRENCE_NOT_PROVEN"
+      },
+      "ranking_source": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/operation_priority/p3r-v2-operation-priority-20260825-v3/p3r_v2_operation_priority_ranking.v3.json"
+    }
+  },
+  "previous_assessment_version": {
+    "distinct_direct_funders": 49,
+    "member_tokens": 71,
+    "source": "immutable C357 frozen evidence",
+    "version": "frozen_c357_cohort"
+  },
+  "propagation_contract": [
+    "new edge for mint -> candidate membership resolver",
+    "affected candidate recompute only",
+    "append immutable assessment version",
+    "current projection pointer advances or reverses based on evidence"
+  ],
+  "read_only": true,
+  "safety": "no database write; no provider call; no membership/promotion/detector change",
+  "schema": "LIVING_POTENTIAL_OPERATION_PROJECTION_PROTOTYPE_V1",
+  "stable_candidate_identity": "p3r-v2-c357da9d0d4d560311e4"
+}

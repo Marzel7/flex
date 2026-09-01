@@ -1,0 +1,7 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5F first natural scheduled run",
+  "state": "PENDING_FIRST_SCHEDULED_RUN",
+  "reason": "Scheduler installed; awaiting first natural cron invocation.",
+  "automation_active": true,
+  "fabricated_result": false
+}

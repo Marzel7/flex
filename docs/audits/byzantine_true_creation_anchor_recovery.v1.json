@@ -1,0 +1,34 @@
+{
+  "schema_version": "byzantine-true-creation-anchor-recovery.v1",
+  "status": "PARTIAL_NO_TRUE_CREATION_RECOVERED_WITHIN_BOUNDS",
+  "target_invalid_byzantine_anchor_total": 9,
+  "target_invalid_byzantine_set_digest": "edda54228e1dd974e2b4d1da9b7137b5a7b8196a0c5bb0fb5b47dce7e12e80b0",
+  "method": "Retained local birth/canonical-cache search, then exactly two mint-scoped getSignaturesForAddress pages per mint, one timestamp-adjacent getTransaction candidate per mint, and two narrowly timestamp-derived getBlock checks per mint. Create/CreateV2 was required; no oldest-signature inference was used.",
+  "local_search": {
+    "metadata_cache_pumpfun_birth_matches": 0,
+    "birth_persist_queue_matches": 0,
+    "canonical_birth_cache_mint_matches": 0,
+    "transaction_first_lineage_verified_launch_matches": 1,
+    "finding": "The sole local lineage row repeats the already-invalid token_analysis signature; it is not independent birth provenance."
+  },
+  "cases": [
+    {"mint":"b6gX6q4MGGpE6eGHdHkrKbasjavzsPThi246hexpump","creator":"3F8m5wT8umEvfjwwdKq1YEuR39U1U1tPUj4Kcq6YhBQs","created_at":"2026-08-04T16:12:04Z","old_signature":"43jD1SGbexCDHsBmQ84QoddjgNKM8ZsV11gvMfhvQS7wnMWw7zmdVnceWmnJCaSpk367vRVicv8EJdVSLS9bjGea","old_signature_tx_class":"NON_PUMPFUN_TOKEN_INTERACTION","recovery_status":"NO_CREATE_FOUND_WITHIN_BOUNDS"},
+    {"mint":"6X7EhvCPpQcfwfAeQF4drS2x9UnHD8N8BK5QnTtzpump","creator":"GqpjYV88bTzxYxHEskudyWZ9T5kxtBpehXdkQS2KKJiM","created_at":"2026-08-13T11:43:32Z","old_signature":"4tT7DwuqsfdJPqGP3NndsJ1zi4YkYnwCivnJ3ic23C9ms93rBKfhbBVFb9RkYUYgDN7NwVfXnhopXZtZAndxhEUe","old_signature_tx_class":"NON_PUMPFUN_TOKEN_INTERACTION","recovery_status":"NO_CREATE_FOUND_WITHIN_BOUNDS"},
+    {"mint":"G8fPzYYkpUSoXyaihxP5UUTzQ9CaPzQkLofMoXPNpump","creator":"2apszvsMyyJxjYkwb2xQYv8dEgxFr46U5CSAMYikHSGS","created_at":"2026-08-16T14:18:49Z","old_signature":"2dGTR78iD2tiEz7S8qjuMjnELQvvUiFViG7WeKDV3Jk7RqrGLgDXXE2P4aEkEeakFnduNgq2A4mPTaHgMXoYrWYP","old_signature_tx_class":"NON_PUMPFUN_TOKEN_INTERACTION","recovery_status":"NO_CREATE_FOUND_WITHIN_BOUNDS"},
+    {"mint":"D1yb7MCFaFq29a2RfGgQ8KNdb3mzpyVJNmBpKfK2pump","creator":"AQYyELJQDFiGubZsSwSbxLNrxYgFD2kD5RwgnVnpoj3Z","created_at":"2026-08-21T11:51:12Z","old_signature":"4Z57MmJEFsUu6Maur7wwPXbwvrYBYrBwDwGzizM2Ts6MUBeSrkAhPresmXej7U3mqvZQxFsP5VSHvAoBnTxpsdXG","old_signature_tx_class":"NON_PUMPFUN_TOKEN_INTERACTION","recovery_status":"NO_CREATE_FOUND_WITHIN_BOUNDS"},
+    {"mint":"5Qsu2YAzTvWxH8MVPW14Hza9bptJATp6NX9xgkHgpump","creator":"4ymWS2cciqMG3iMiqLtshNGS6MezGRhRWHuSxNnHLfWz","created_at":"2026-08-23T07:21:06Z","old_signature":"2cTr7D5RtxBx6a6QbuCy2jLuJtzhDr6srd2sXovXekxsgNo95t3qQNx71GbV18d5iFRprARZijKTdB2GbzSJmd65","old_signature_tx_class":"NON_PUMPFUN_TOKEN_INTERACTION","recovery_status":"NO_CREATE_FOUND_WITHIN_BOUNDS"},
+    {"mint":"AqgtHrC5TwPcvTf9dmgQhWwUhmVbaGynop1LxvU9pump","creator":"241nHsSEqUQnZLNN5Pwak1pKFZkUcfpdDWK5fyqjBny2","created_at":"2026-08-25T06:53:53Z","old_signature":"5ebWahMDwNUDxBFwFpeNJJXind2TCmYKPSu4UPxRZriPQuRJS2X5hbFXeA38i411QrrfFZ8vHRhwjGfGdd9Knzpt","old_signature_tx_class":"NON_PUMPFUN_TOKEN_INTERACTION","recovery_status":"NO_CREATE_FOUND_WITHIN_BOUNDS"},
+    {"mint":"7EPk5q4EN4PL8F1j26SbueqiFekrMva54xbFVms7pump","creator":"515BoMyrL4CaqXUJxMLGALzMHfGQjz3kku4rB38Q8JdT","created_at":"2026-08-27T07:24:33Z","old_signature":"34Gf5PWgCu67vtu3351MiXk2a4eoQ8n3jR6pw8EUxhscLDhSXSrquaoWdLjBu8Y4FnFUHxpHnQ3eWZTJKCjDhpQq","old_signature_tx_class":"NON_PUMPFUN_TOKEN_INTERACTION","recovery_status":"NO_CREATE_FOUND_WITHIN_BOUNDS"},
+    {"mint":"4JZv85BNGQtJ9ikrKKJs1ptbXP9ghG8H8avV5ZEKpump","creator":"3F8m5wT8umEvfjwwdKq1YEuR39U1U1tPUj4Kcq6YhBQs","created_at":"2026-08-28T14:50:05Z","old_signature":"42tvqaJmtqp1oJ2s8HKLLMraWMV78xSCMJhxj4qNJqmA3Pggf5c7dQKoP52pG9L4MutXHegKvZMzMynSKniqs5yK","old_signature_tx_class":"NON_PUMPFUN_TOKEN_INTERACTION","recovery_status":"NO_CREATE_FOUND_WITHIN_BOUNDS"},
+    {"mint":"3zSPF9RDvLhzvPB8BwqdM3EacsA335xS4KY2gs6Ypump","creator":"9uCrBdvyFgCJ6hZorPwYB3a57GXiJq5dKTNdPRC8c5qC","created_at":"2026-08-31T06:26:00Z","old_signature":"4drgbneYiJGbaFKCf9M9zAm1yr2wp1x5VaMdtJmPGJreihJwGxq4GksM4uEFAVJnkHksn5QZMFeBBZkN5G2iM4Gg","old_signature_tx_class":"NON_PUMPFUN_TOKEN_INTERACTION","recovery_status":"NO_CREATE_FOUND_WITHIN_BOUNDS"}
+  ],
+  "old_field_provenance": {
+    "writer_path": "Historical token_analysis ingestion/legacy post-migration analysis; the current schema retains no per-field assignment-source or overwrite history.",
+    "assignment_source": "NOT_RECOVERABLE_FROM_RETAINED_LOCAL_EVIDENCE",
+    "overwrite_or_misassociation_present": "PROVEN_BAD_BIRTH_FIELD_VALUE; exact writer/cause unproven",
+    "likely_cause": "LEGACY_BACKFILL_AMBIGUITY_OR_LATER_TOKEN_INTERACTION_MISASSOCIATION"
+  },
+  "recovery_totals": {"recovered_true_create_local":0,"recovered_true_create_bounded_rpc":0,"multiple_plausible_create_candidates":0,"no_create_found_within_bounds":9,"valid_byzantine_creation_anchor_total_after_recovery":1,"qualified_byzantine_sample_available_total":1,"comparison_can_resume":false},
+  "network_accounting": {"helius_getSignaturesForAddress_total":18,"helius_getTransaction_total":9,"helius_getBlock_total":27,"total_helius_request_total":54,"alchemy_total":0,"gmgn_total":0},
+  "safety": "No source/production/Walkback/schema/UI/code/attribution/classifier/suppression mutation. The old token_analysis.create_tx_signature values were not changed."
+}

@@ -1,0 +1,106 @@
+{
+  "schema_version": "psi0b-e16c.observation.v1",
+  "milestone": "PSI0B-E16C",
+  "status": "PASS",
+  "verdict": "THREE_CLEAN_CHECKPOINTS_RECOVERY_CONFIRMED",
+  "engineering_commit": "9bbc4c077ecb189952c900539c8a8d0031b59269",
+  "bound_diagnosis": {
+    "artifact": "docs/audits/psi0b_e16b_physical_lock_descriptor_diagnosis.json",
+    "digest": "b6a5d8f03b901bf8bed149dfe99beae90d2054290ef28314a3f2fbe0f99e7ed1"
+  },
+  "authorization_id_permanently_non_reusable": "psi0b-shadow-auth-20260815-11",
+  "required_supervisor_pids": {
+    "watchtower_listener": 72232,
+    "walkback_worker": 70136,
+    "ws_cascade": 5461
+  },
+  "checkpoints": [
+    {
+      "sequence": 1,
+      "observed_at_utc": "2026-08-15T13:36:01Z",
+      "observed_at_epoch": 1786800961.50283,
+      "checkpoint_digest": "27cd8f1fee47f1be9d9e3c22ef0f1af9d02488242608540373a4c28aafc30fe4",
+      "decision": "PASS",
+      "primary_fd_count": 0,
+      "serializer_p99_wait_ms": 29.96,
+      "serializer_queue_depth": 0,
+      "serializer_lock_errors": 0,
+      "authoritative_write_lease_state": "ABSENT",
+      "lock_descriptor_components": [],
+      "critical_listener_db_handle_count": 0,
+      "database_wal_state": "HEALTHY",
+      "pumpportal_state": "HEALTHY",
+      "pumpswap_state": "HEALTHY",
+      "ingestion_state": "HEALTHY",
+      "worker_queue_service_state": "HEALTHY"
+    },
+    {
+      "sequence": 2,
+      "observed_at_utc": "2026-08-15T13:36:31Z",
+      "observed_at_epoch": 1786800991.999274,
+      "checkpoint_digest": "6fe30832962c39bde3f110ce67fe2493cc2387166ffb139e52fdf2beb817a750",
+      "decision": "PASS",
+      "primary_fd_count": 0,
+      "serializer_p99_wait_ms": 28.58,
+      "serializer_queue_depth": 0,
+      "serializer_lock_errors": 0,
+      "authoritative_write_lease_state": "ABSENT",
+      "lock_descriptor_components": [],
+      "critical_listener_db_handle_count": 0,
+      "database_wal_state": "HEALTHY",
+      "pumpportal_state": "HEALTHY",
+      "pumpswap_state": "HEALTHY",
+      "ingestion_state": "HEALTHY",
+      "worker_queue_service_state": "HEALTHY"
+    },
+    {
+      "sequence": 3,
+      "observed_at_utc": "2026-08-15T13:37:02Z",
+      "observed_at_epoch": 1786801022.7122319,
+      "checkpoint_digest": "26435223845c93453d7bb7fd1d81f1c7f48fd41715b24abfeedc734886749cd0",
+      "decision": "PASS",
+      "primary_fd_count": 0,
+      "serializer_p99_wait_ms": 28.91,
+      "serializer_queue_depth": 0,
+      "serializer_lock_errors": 0,
+      "authoritative_write_lease_state": "ABSENT",
+      "lock_descriptor_components": [],
+      "critical_listener_db_handle_count": 0,
+      "database_wal_state": "HEALTHY",
+      "pumpportal_state": "HEALTHY",
+      "pumpswap_state": "HEALTHY",
+      "ingestion_state": "HEALTHY",
+      "worker_queue_service_state": "HEALTHY"
+    }
+  ],
+  "release_pending_metadata": {
+    "components_unchanged_at_all_checkpoints": true,
+    "retained_component": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db.write.lock.owner.41735.8753196096.tmp",
+    "classification": "HISTORICAL_NON_AUTHORITATIVE_DIAGNOSTIC_COMPONENT"
+  },
+  "accounting": {
+    "production_database_opens": 0,
+    "production_queries": 0,
+    "production_rows_read": 0,
+    "production_writes_or_ddl": 0,
+    "provider_rpc_calls": 0,
+    "service_actions": 0,
+    "authorization_materialized_or_consumed": false,
+    "shadow_output_created": false,
+    "retry_performed": false
+  },
+  "closure": {
+    "recovery_declared": true,
+    "fresh_psi0b_e_attempt_may_be_separately_proposed": true,
+    "required_fresh_authorization_id": "psi0b-shadow-auth-20260815-12",
+    "output_directory_verified_absent": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0b_runs/psi0b-shadow-20260814-02"
+  },
+  "authority": {
+    "grants_extraction_authority": false,
+    "grants_integration_authority": false,
+    "grants_activation_authority": false,
+    "grants_retry_authority": false,
+    "grants_service_action_authority": false,
+    "grants_production_mutation_authority": false
+  }
+}

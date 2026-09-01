@@ -1,0 +1,17 @@
+{
+  "schema_version": "wsol_living_potential_operation_integration.v1",
+  "potential_operation_id": "potential-wsol-provision-close-100-sol-minus-15k",
+  "candidate_lineage": {"candidate_id": "p3r-v2-c357da9d0d4d560311e4", "canonical_run_id": "p3r-v2-2dec1d40604c1f7c08c8"},
+  "workflow_status": "PAUSED",
+  "promotion": "NO",
+  "detector_activation": "NO",
+  "automatic_global_walkback_integration": false,
+  "v1": {"assessment_id": "86d706e5-f230-586d-a49f-8b207d777f5b", "evidence_generation": "000000037922:000000073513:000000008351"},
+  "real_later_evidence": {"found": true, "result": "V2 and V3 immutable versions retained as live local walkback high-waters advanced", "v2_assessment_id": "d49f85fc-a283-540d-a8b7-1129812289b3", "current_assessment_id": "504d3159-0b55-536e-bf01-7a80e62e5255", "current_evidence_generation": "000000037922:000000073534:000000008354"},
+  "typed_populations": {"frozen_canonical_c357_cohort": 71, "frozen_distinct_direct_funders": 49, "persisted_mapped_candidate_population": 284, "selected_edge_members": 71, "alternative_edge_members": 71, "atomic_flow_members": 71, "snapshot_v2_matched_routes": 99, "remaining_upstreams_resolved": "69/69", "ui_rendered_upstream_mappings": 50},
+  "association_counts": {"INCLUDED": 72, "EXCLUDED": 1, "UNRESOLVED": 52, "CONTRADICTORY": 1},
+  "bridge": {"function": "handle_walkback_evidence_update", "reverse_lookup": "mint/funder/WSOL architecture association", "unrelated_evidence_result": "no affected candidate and no recompute"},
+  "preservation": {"pre_existing_evidence_table_writes_by_this_task": 0, "authorized_phase1_tables_written": ["potential_operation_identity", "potential_operation_evidence_association", "potential_operation_assessment_version", "potential_operation_current"], "note": "concurrent worker changes to evidence tables were observed and are not attributed to this task"},
+  "sqlite_telemetry": {"initial_publication_write_seconds": 0.011627458, "later_publication_write_seconds": 0.00378175, "SQLITE_BUSY": 0, "SQLITE_LOCKED": 0, "database_is_locked": 0, "retry_count": 0, "retry_exhaustion": 0},
+  "focused_tests": "17 passed: WSOL integration (2), P3R matcher (3), route activity (2), x77.1 (4), x78.35a (6)"
+}

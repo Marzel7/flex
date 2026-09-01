@@ -1,0 +1,36 @@
+{
+  "artifact_type": "PUMPFUN_CREATION_FIRST_BUY_BOUNDARY_MANIFEST_V1",
+  "artifacts": {
+    "boundary_semantics_analysis.v1.json": {
+      "path": "docs/audits/pumpfun_creation_first_buy_boundary/boundary_semantics_analysis.v1.json",
+      "sha256": "88feb55557c2f2d23565abb683d9a4f3ba331de44a5b659cd8d7c079013555c1"
+    },
+    "creation_boundary_inventory.v1.json": {
+      "path": "docs/audits/pumpfun_creation_first_buy_boundary/creation_boundary_inventory.v1.json",
+      "sha256": "f8a9041b9526708eac4a0423ed7089b88caf17d7963bef577d514e5090ea4207"
+    },
+    "first_buy_prestate_qualification.v1.json": {
+      "path": "docs/audits/pumpfun_creation_first_buy_boundary/first_buy_prestate_qualification.v1.json",
+      "sha256": "f4085960502d8ff714cbdf82327b9a1e782590391798b35a504cfe4fa8372aa1"
+    },
+    "implied_state_diagnostic.v1.json": {
+      "path": "docs/audits/pumpfun_creation_first_buy_boundary/implied_state_diagnostic.v1.json",
+      "sha256": "5cc6fc77ed5d35cacad3278406df02b2fb5d9f0c51efb11a66817effa727545b"
+    },
+    "opening_mc_result_or_blocker.v1.json": {
+      "path": "docs/audits/pumpfun_creation_first_buy_boundary/opening_mc_result_or_blocker.v1.json",
+      "sha256": "7559a705e305e600a07f0f4e78555b2fb169883a223823294437e69afa2bb631"
+    }
+  },
+  "network_accounting": {
+    "gmgn_api_requests": 0,
+    "helius_api_requests": 0,
+    "incremental_getTransaction": 0,
+    "incremental_solana_rpc": 0,
+    "pumpportal_api_requests": 0
+  },
+  "replay_idempotent": true,
+  "replay_run_1_digest": "025459ead48d3a34ac9ba5890646513bd72b566058926e8073bfed3f7f6a601b",
+  "replay_run_2_digest": "025459ead48d3a34ac9ba5890646513bd72b566058926e8073bfed3f7f6a601b",
+  "status": "BOUNDARY_STILL_UNRESOLVED_PRECISE_EXTERNAL_REQUIREMENT_IDENTIFIED"
+}

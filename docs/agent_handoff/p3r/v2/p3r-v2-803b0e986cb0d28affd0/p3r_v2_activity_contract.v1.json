@@ -1,0 +1,11 @@
+{
+  "states": {
+    "DORMANT": "last_30d = 0",
+    "HIGH_ACTIVITY": "last_7d >= 3 and max_rolling_24h >= 1",
+    "LOW_ACTIVITY": "remaining observed",
+    "REGULAR_ACTIVITY": "last_30d >= 2",
+    "VERY_HIGH_ACTIVITY": "last_7d >= 7 and max_rolling_24h >= 2"
+  },
+  "timestamp": "MIN(selected wt_walkback_edge_candidates.block_time) per mint; observed activity proxy, not token launch time.",
+  "version": "P3R_V2_ACTIVITY.v1"
+}

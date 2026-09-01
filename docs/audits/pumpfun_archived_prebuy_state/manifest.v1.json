@@ -1,0 +1,14 @@
+{
+  "artifact_type": "PUMPFUN_ALCHEMY_ARCHIVED_PREBUY_STATE_AUDIT_MANIFEST_V1",
+  "status": "PUMPFUN_ALCHEMY_ARCHIVED_PREBUY_STATE_AND_OPENING_MC_AUDIT_COMPLETE",
+  "target": {"mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump", "bonding_curve": "FJPbTzeUy4pzPT3r7c2fNxccNvvhbC7LJkSqXux8xU1g", "slot": 443375106},
+  "artifacts": {
+    "raw": {"path": "docs/audits/pumpfun_archived_prebuy_state/3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump.slot_443375106.alchemy.raw.v1.json", "sha256": "642c7b43d650491ebe9368a607f76c480dddfe3db94b29e4a97de216cd2e2f46"},
+    "decoded": {"path": "docs/audits/pumpfun_archived_prebuy_state/3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump.slot_443375106.decoded.v1.json", "sha256": "09d42565be00471e4418875cf3ac89df7ca0b8c1d38e9d4af03c883ff4fa6dda"},
+    "result": {"path": "docs/audits/pumpfun_archived_prebuy_state/audit_result.v1.json", "sha256": "7a63853b61cd79537dc641343c0ea80729c6b87e29fef6682edb073719eee721"}
+  },
+  "replay": {"run_1_digest": "a7caaae1a2a56e5389f64518dbb7479db54d5308e991e6de110a9da9c56ee524", "run_2_digest": "a7caaae1a2a56e5389f64518dbb7479db54d5308e991e6de110a9da9c56ee524", "idempotent": true, "additional_network_requests": 0},
+  "result": {"archived_prebuy_state_qualified": true, "creation_to_first_buy_boundary_resolved": true, "buy1_math_match": true, "first_slot_full_state_continuity_qualified": true, "first_slot_market_cap_supported_in_sol": true, "usd_market_cap_supported": false},
+  "network_accounting": {"alchemy_getAccountInfo": 1, "helius": 0, "gmgn": 0, "pumpportal": 0},
+  "safety": "Additive audit artifacts only; no current-state substitution, production/source/Walkback/schema/UI/code mutation, or suppression."
+}

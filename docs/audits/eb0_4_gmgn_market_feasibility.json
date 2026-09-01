@@ -1,0 +1,54 @@
+{
+  "milestone": "EB0.4 — GMGN Historical Market Data Feasibility & Birth-to-Peak Opportunity Reconstruction",
+  "mode": "READ_ONLY_BOUNDED_FEASIBILITY",
+  "production_protection": "No services restarted; no EB0.3 deployment; no production configuration, queue, Evidence or acquisition changes; zero GMGN and zero Helius requests issued.",
+  "access_audit": {
+    "repository_integration": false,
+    "configured_credentials": false,
+    "installed_client_or_sdk": false,
+    "configured_market_data_endpoint": false,
+    "external_observation_cache": false,
+    "status": "UNAVAILABLE"
+  },
+  "documented_contract": {
+    "official_gmgn_docs": {
+      "data_api": "Official Q&A states that GMGN has no plan to open a general data API; it describes a possible IP whitelist for trading users.",
+      "trading_api": "Official Cooperation API documents a permissioned trading API, API key header x-route-key, and one call per five seconds per key. It does not establish an accessible historical OHLCV/market-outcome API for this platform.",
+      "chart_embed": "Official chart documentation supports an embeddable kline URL and interval presentation controls. It is not a documented structured historical-data extraction contract."
+    },
+    "not_proven": ["Solana mint OHLCV API", "historical pagination", "maximum lookback", "market-cap history", "ATH semantics", "rate/cost model for data extraction", "non-migrated Pump.fun coverage", "1-minute exportable candle history"]
+  },
+  "request_budget": {
+    "maximum_requests": 0,
+    "retries": 0,
+    "runtime": "0 seconds",
+    "reason": "No legitimate configured or documented structured market-data access. Undocumented endpoint probing is not a feasibility test."
+  },
+  "sample": {
+    "status": "NOT_EXECUTED",
+    "reason": "A frozen stratified sample would be misleading without an authorized endpoint or credentialed capability to query."
+  },
+  "required_measurements_unavailable": [
+    "earliest GMGN observation versus chain birth", "migrated versus non-migrated coverage", "pre-migration history", "1m/5m/15m/1h outcomes", "observed peak/ATH", "time-to-peak", "creator-history opportunity comparison", "request bytes/latency/rate limits/cost"
+  ],
+  "design_if_access_is_later_authorized": {
+    "source_role": "GMGN may provide external market observations only; creator-to-mint identity remains platform-derived.",
+    "minimum_external_observation": ["mint", "provider", "provider_version", "resolution", "earliest_observed_at", "earliest_price", "earliest_market_cap_if_explicit", "OHLCV window", "last_active_at", "fetch provenance", "history completeness"],
+    "comparison_rule": "Never label earliest GMGN candle as birth MC unless timing and semantics prove it. Use GMGN_EARLIEST_OBSERVED.",
+    "preferred_future_join": "PumpPortal immutable first-seen MC plus GMGN future observed history, yielding first-seen actionable multiple without making GMGN creator authority.",
+    "staged_backfill": "Only after a successful small credentialed sample: recent repeat creators, then >=10-launch creators, then EB0.2 validation cohorts."
+  },
+  "stop_conditions_met": ["no authorized structured historical access", "unknown non-migrated coverage", "unknown early-history timing", "unknown resolution", "unknown market-cap semantics", "no rate-limit/cost contract"],
+  "verdicts": {
+    "gmgn_access": "D — UNAVAILABLE",
+    "non_migrated_coverage": "D — UNSUITABLE until a documented sample proves otherwise",
+    "early_history_coverage": "D — NOT_AVAILABLE",
+    "pre_migration_coverage": "D — NONE demonstrated",
+    "historical_resolution": "D — NOT_AVAILABLE",
+    "peak_ath": "D — NOT_RELIABLE",
+    "creator_opportunity_analysis": "D — NOT_SUPPORTED",
+    "backfill_feasibility": "D — IMPRACTICAL",
+    "production_activation": "HOLD"
+  },
+  "next_gate": "Obtain explicit GMGN data-access authorization and a documented structured endpoint contract. Then freeze a 30–50 mint stratified sample and execute a separately approved bounded request budget."
+}

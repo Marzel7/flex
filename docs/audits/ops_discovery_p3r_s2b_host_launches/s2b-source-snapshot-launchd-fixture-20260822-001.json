@@ -1,0 +1,43 @@
+{
+  "adapter": {
+    "cwd": "/Users/kevinkeaveney/Dev/claude/flex",
+    "interpreter": "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+    "pgid": 92978,
+    "pid": 92978,
+    "ppid": 28434,
+    "sid": 92978
+  },
+  "automatic_retry": false,
+  "bound_seconds": 300,
+  "fixture_delay_seconds": 45,
+  "launchctl_command": [
+    "/bin/launchctl",
+    "submit",
+    "-l",
+    "com.flex.ops-discovery-p3r-s2b.s2b-source-snapshot-launchd-fixture-20260822-001",
+    "-o",
+    "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_host_launches/s2b-source-snapshot-launchd-fixture-20260822-001.stdout",
+    "-e",
+    "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_host_launches/s2b-source-snapshot-launchd-fixture-20260822-001.stderr",
+    "--",
+    "/bin/zsh",
+    "-lc",
+    "cd /Users/kevinkeaveney/Dev/claude/flex && sleep 45; exec /opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/bin/python3.14 /Users/kevinkeaveney/Dev/claude/flex/scripts/run_ops_discovery_p3r_s2b_source_snapshot_isolated.py --run-id s2b-source-snapshot-launchd-fixture-20260822-001 --output-root /Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs --dry-run --dry-run-outcome pass"
+  ],
+  "launchctl_returncode": 0,
+  "launchctl_stderr": "",
+  "launchctl_stdout": "",
+  "launchd_label": "com.flex.ops-discovery-p3r-s2b.s2b-source-snapshot-launchd-fixture-20260822-001",
+  "mode": "fixture",
+  "outer_stderr": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_host_launches/s2b-source-snapshot-launchd-fixture-20260822-001.stderr",
+  "outer_stdout": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_host_launches/s2b-source-snapshot-launchd-fixture-20260822-001.stdout",
+  "requested_at_utc": "2026-08-22T14:51:32.283023Z",
+  "run_id": "s2b-source-snapshot-launchd-fixture-20260822-001",
+  "status": "SUBMITTED",
+  "submitted_at_utc": "2026-08-22T14:51:32.427557Z",
+  "wrapper": {
+    "path": "/Users/kevinkeaveney/Dev/claude/flex/scripts/run_ops_discovery_p3r_s2b_source_snapshot_isolated.py",
+    "run_namespace": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/ops_discovery_p3r_s2b_runs/s2b-source-snapshot-launchd-fixture-20260822-001",
+    "sha256": "073ae8b271b2261d11e0ae55ac12c8c70af08b983243e3a07e96e7c7fb509a22"
+  }
+}

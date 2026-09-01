@@ -1,0 +1,146 @@
+{
+  "event_rows": [
+    {
+      "account_state_embedded": false,
+      "buy_event_present": true,
+      "buy_sequence_number": 1,
+      "event_fields": null,
+      "event_type": "OPAQUE_PROGRAM_DATA_UNDECODED",
+      "program_data_payload_sha256": [
+        "da71cccd93be7b21bb0743d45ebd74c385680c059d6d88884c39507e33de9ed9"
+      ],
+      "reserve_fields_decoded": false,
+      "return_data_present": false,
+      "signature": "4Qyht4ZXtt8t11Jc6v3UkDWBTzCUUWfYG1Xywyym5NLRsonyG5nBvoFyztQCNhqd1Ku2jt1VW81N7vzB9or4bcoJ"
+    },
+    {
+      "account_state_embedded": false,
+      "buy_event_present": true,
+      "buy_sequence_number": 2,
+      "event_fields": null,
+      "event_type": "OPAQUE_PROGRAM_DATA_UNDECODED",
+      "program_data_payload_sha256": [
+        "cf179c79817fe42c55b5c1e689b0059be4fe7f3df05d58fc819dd13b999ddedd"
+      ],
+      "reserve_fields_decoded": false,
+      "return_data_present": false,
+      "signature": "tWgCFsQJ12RtMMoVnYXT6QADTXBZczAMMaECDPaPYJ1Lg4KKVCUjAnHcQMqVhCnwYPFucv6fWvzcosgBircB3Tv"
+    },
+    {
+      "account_state_embedded": false,
+      "buy_event_present": true,
+      "buy_sequence_number": 3,
+      "event_fields": null,
+      "event_type": "OPAQUE_PROGRAM_DATA_UNDECODED",
+      "program_data_payload_sha256": [
+        "3b1efbf66ecbb8f3e15559be70ee4fff84e42d99e622e76fb4639fd852cf4c25"
+      ],
+      "reserve_fields_decoded": false,
+      "return_data_present": false,
+      "signature": "4ZziePa9dzTTZkGe1t5RxXjxNySQfqWGFDiCnjTi77q39FaUbdSRGdnBb98UgqNAwjF1v3TsT5WpHWMACBKNvofQ"
+    },
+    {
+      "account_state_embedded": false,
+      "buy_event_present": true,
+      "buy_sequence_number": 4,
+      "event_fields": null,
+      "event_type": "OPAQUE_PROGRAM_DATA_UNDECODED",
+      "program_data_payload_sha256": [
+        "7e21885c8ec75286383d042321896af31f83a1ed6823bc4cfd3d4ee841caff10"
+      ],
+      "reserve_fields_decoded": false,
+      "return_data_present": false,
+      "signature": "62adVnZ1gJNHgsx7HJSezqMri3AJjNK8BEkRpGZQHZegXpjHToNjaaGc3b7BJXMmKv4Mk3rYsv7RcmVcj94CX9H"
+    },
+    {
+      "account_state_embedded": false,
+      "buy_event_present": true,
+      "buy_sequence_number": 5,
+      "event_fields": null,
+      "event_type": "OPAQUE_PROGRAM_DATA_UNDECODED",
+      "program_data_payload_sha256": [
+        "da4b4869c90bdeae4f8d512162325b9dd2d61324e9554786fdf518a5f54955b9"
+      ],
+      "reserve_fields_decoded": false,
+      "return_data_present": false,
+      "signature": "3Vh1DPYrpyf4vvGeQ1oHdST3TR46tFzdmTceHej3PURG1dxd5DAn1FZpNsiWm7TN8uPXqBskrCrQfuF8UZPWikRF"
+    },
+    {
+      "account_state_embedded": false,
+      "buy_event_present": true,
+      "buy_sequence_number": 6,
+      "event_fields": null,
+      "event_type": "OPAQUE_PROGRAM_DATA_UNDECODED",
+      "program_data_payload_sha256": [
+        "f81a69e69303968280f43aa20ac6c6a434f136cd93ea12cbe5e2ecab580ad8a3"
+      ],
+      "reserve_fields_decoded": false,
+      "return_data_present": false,
+      "signature": "5TE8e4F3WYuQ7WkCKFsyMxD2rWSj9Aj8L1vPnSbXvoUD1AqzcHcCNa4gjEv8SK5cgeEoJ3CHzAK5EYZ1epzNKNmX"
+    },
+    {
+      "account_state_embedded": false,
+      "buy_event_present": true,
+      "buy_sequence_number": 7,
+      "event_fields": null,
+      "event_type": "OPAQUE_PROGRAM_DATA_UNDECODED",
+      "program_data_payload_sha256": [
+        "7d2694f935b9a8541c0f37c9bf06f56de4f6b9dc73937fa8f3934b049153b542"
+      ],
+      "reserve_fields_decoded": false,
+      "return_data_present": false,
+      "signature": "powWW5oe4VVkbbXrCR4ep9h4zAqu7ZCoPrDmp6E8KifKWbdvw9WqPY1PhwNKGzMtJhRGFqbHLrFrMXEWuKQRhLf"
+    },
+    {
+      "account_state_embedded": false,
+      "buy_event_present": true,
+      "buy_sequence_number": 8,
+      "event_fields": null,
+      "event_type": "OPAQUE_PROGRAM_DATA_UNDECODED",
+      "program_data_payload_sha256": [
+        "05bf9b61392c3df4fda94a378578769d29ac67cb1355c86609fae7fd8c041c5f"
+      ],
+      "reserve_fields_decoded": false,
+      "return_data_present": false,
+      "signature": "uqX2fwKbbY3iKSDjFGL2aSAevfeUBRrt1vZ58hTUZBeS3YYA2rzyJDm8hjwz8uWs3LgMicWeaiJKkLghH2Cpyx5"
+    },
+    {
+      "account_state_embedded": false,
+      "buy_event_present": true,
+      "buy_sequence_number": 9,
+      "event_fields": null,
+      "event_type": "OPAQUE_PROGRAM_DATA_UNDECODED",
+      "program_data_payload_sha256": [
+        "ba974452c473e1f94e6747dc2333e4e7d518e3dec59e4f3c85998483903931c1"
+      ],
+      "reserve_fields_decoded": false,
+      "return_data_present": false,
+      "signature": "vVVBhFgUxUPK7TWaMsZjFboujCqDqGGC1um8HZDkciQFr261j8jyxGUzzXpfAshyYgaX7UH2mE8TvLt2mZs6QVJ"
+    },
+    {
+      "account_state_embedded": false,
+      "buy_event_present": true,
+      "buy_sequence_number": 10,
+      "event_fields": null,
+      "event_type": "OPAQUE_PROGRAM_DATA_UNDECODED",
+      "program_data_payload_sha256": [
+        "a4ffaa2ddea512cc25f0bd13e63b400ced8fef3749d204105768ce9337d261db"
+      ],
+      "reserve_fields_decoded": false,
+      "return_data_present": false,
+      "signature": "4cbezsirR3hKGkyGox1bCtLU3teUfaKyX5a3H69WV56WUwu3TRwu3LhMkLsGzQmJYkpdqDGvqrU37rFiEq8nuEiS"
+    }
+  ],
+  "reason": "All ten successful buys contain one opaque Program data payload, but no locally retained event schema/decoder identifies reserve fields. jsonParsed transaction/block metadata has balances and token balances, not curve-account state snapshots.",
+  "reserve_state_available_from_events": false,
+  "reserve_state_event_coverage_buy_total": 0,
+  "schema_version": "pumpfun-virtual-reserve-evidence.v1",
+  "source_digests": {
+    "docs/audits/pumpfun_creation_anchor_poc/3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump.creation.decoded.v1.json": "61a70d492880515f62bba1b33466f746b62c1ea0fb07e865861be982cc398758",
+    "docs/audits/pumpfun_opening_sequence_poc/opening_sequence.decoded.v1.json": "66e9a8d37a7d1d06269df16adda0eabd5e7d793f992f7dde36b511a2931bccbc",
+    "docs/audits/pumpfun_opening_sequence_poc/opening_sequence.raw.v1.json": "9cc7d085f37dfcbd31a3d0777c5fc6494d62b3b303c98527fb50f4816aff8270",
+    "src/core/launch_audit.py": "89484ce68320e2ab4d7c1dda840af83fba60cac003cbafa0a681b38701746b6f",
+    "src/core/watchtower/curve_impact_analyzer.py": "240fe919cc8e2d6848e8dce67e239129a9b8b80e80c6e37df2d24c9fca219c01"
+  },
+  "target_mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump"
+}

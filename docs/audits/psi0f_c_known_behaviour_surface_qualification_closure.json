@@ -1,0 +1,75 @@
+{
+  "schema_version": "psi0f-c.qualification-closure.v1",
+  "milestone": "PSI0F-C",
+  "closed_at_utc": "2026-08-16T12:12:44Z",
+  "engineering_commit": "3013be47017a000c1db3c70fbf323102d0fc40d3",
+  "status": "PASS",
+  "verdict": "PSI0F_B_CLOSED_QUALIFIED_ONE_FIXTURE_ONLY_IMMUTABLE_SUMMARY_ADAPTER_DESIGN_MAY_BE_PROPOSED",
+  "bound_inputs": {
+    "psi0f_b_contract_digest": "042568c68b0eb86ef41bc65037568d65214d02d9d9753988adf88c86c14222ef",
+    "psi0f_b_qualification_digest": "9fd40a793285039c0f717ce9d1d4a022b828f22381006aa4d7ed574c73170b2b",
+    "psi0f_a_reconciliation_digest": "c68d273ceb8248521b330f7fe06ee6ed21614b07df783496f23f4de36cae0534",
+    "psi0e_h_closure_digest": "ae0994f1f3647f53fbcd3cabf0c8e46efa26b504805fecb95e8d2851d9e98c16",
+    "psi0e_bundle_identity": "88c7de3156a4dc07b3c3b2461b4e1e37e85d5bd06d217d904472e4f4bc6f4d9c",
+    "psi0e_envelope_identity": "c8827678b2137f1aec864f86623514a92affb0c6df092d13b24c160f8fb90a9d"
+  },
+  "replay_verification": {
+    "committed_contract_identity": true,
+    "exact_synthetic_psi0e_schema": true,
+    "exact_synthetic_eb0_4_family_schema": true,
+    "platform_operation_id_basis": true,
+    "primary_role_axis": true,
+    "proposed_and_supported_preserved": true,
+    "edge_mechanism_temporal_preserved": true,
+    "quality_completeness_conflicts_preserved": true,
+    "psi0e_context_separately_labelled_global_only": true,
+    "absence_duplicate_conflict_unmatched_preserved": true,
+    "cross_layer_join_performed": false,
+    "deterministic_canonical_replay": true,
+    "input_order_independent": true,
+    "source_values_retained": false,
+    "performs_io": false,
+    "default_off": true,
+    "consumer_enabled": false,
+    "focused_tests_passed": 21,
+    "combined_psi0d_e_f_tests_passed": 98,
+    "broader_psi0_tests_passed": 480,
+    "unchanged_historical_psi0b_failures": 27,
+    "historical_failures_are_psi0f_regressions": false
+  },
+  "fail_closed_proof": {
+    "topology_only_support": true,
+    "operator_identity_or_attribution": true,
+    "ranking_scoring_policy_or_selection": true,
+    "operation_specific_coverage_inference": true,
+    "malformed_or_unknown_schema": true,
+    "lineage_or_authority_drift": true,
+    "replay_tamper": true
+  },
+  "authority": {
+    "policy": false,
+    "ranking": false,
+    "attribution": false,
+    "integration": false,
+    "deployment": false,
+    "activation": false,
+    "evidence_mirror": false,
+    "cohort_mode": false,
+    "eb2": false
+  },
+  "adapter_disposition": {
+    "bounded_fixture_only_adapter_design_is_coherent": true,
+    "proposed_milestone": "PSI0F-D",
+    "scope": "Provenance-preserving adapters over injected frozen byte representations of exact immutable PSI0E envelope and EB0.4 operational-family summary schemas, producing only PSI0F-B synthetic aggregate inputs without opening real bundles.",
+    "must_preserve_separate_layers": true,
+    "operation_specific_join_allowed": false,
+    "adapter_designed_or_implemented_by_psi0f_c": false,
+    "separate_human_authorization_required": true
+  },
+  "scope_proof": {
+    "real_psi0e_or_eb0_4_bundle_read": false,
+    "operational_output_created": false,
+    "production_or_runtime_access": false,
+    "provider_or_rpc_calls": 0
+  }
+}

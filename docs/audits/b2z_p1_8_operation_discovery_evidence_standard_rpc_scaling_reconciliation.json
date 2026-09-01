@@ -1,0 +1,176 @@
+{
+  "schema_version": "b2z.p1_8.operation-discovery-evidence-standard-rpc-scaling-reconciliation.v1",
+  "artifact_type": "B2Z_P1_8_OPERATION_DISCOVERY_EVIDENCE_STANDARD_RPC_SCALING_RECONCILIATION",
+  "milestone": "B2Z-P1.8",
+  "generated_utc": "2026-08-19T01:10:00Z",
+  "purpose": "Determine the ACTUAL evidence standard used by existing operation discovery (Watchtower, three_sw2, EP3/EP4), whether normalized local funding evidence already suffices, and whether raw B2Z-style RPC verification should be universal or selective at true historical scale. No provider/RPC calls made. No production data modified.",
+
+  "part1_2_3_watchtower_evidence_model": {
+    "source_documents": ["docs/evidence_platform/ep3_1_watchtower_operation_contract_v1.md", "WATCH_WATCHTOWER_TRANSACTION_EVIDENCE.md (a real, dated historical investigation)"],
+    "critical_finding": "'Legacy WATCHTOWER remains authoritative' -- the EP3.1 contract is an explicitly SEPARATE, newer, SHADOW-ONLY reimplementation. It does NOT describe how the real, canonical, production Watchtower was actually built.",
+    "legacy_watchtower_actual_evidence_model_traced_from_real_investigation_doc": "the dated WATCH_WATCHTOWER_TRANSACTION_EVIDENCE.md investigation (2026-06-02) is a genuine worked example of how Watchtower funding chains were actually established in production practice: multi-hop (4-layer) funding chain tracing built ENTIRELY from local normalized transfer records (embedded SQL queries reference sol_transfers, creator_outgoing_transfers, wt_interceptor_validation) -- amounts, directions, and aggregation patterns were all derived from LOCAL DATA, not from a systematic per-transaction raw RPC re-verification pass. This is direct, dated, primary evidence of the ACTUAL historical practice, not an inference.",
+    "ep3_1_shadow_contract_evidence_model": "topology limited to PROVEN SYSTEM_TRANSFER edges (raw-RPC-verified, signature-anchored primitive) -- but even this NEWER, STRICTER shadow contract only achieves LAUNCH_SIGNER coverage for 136/176 (77.3%) of its frozen comparison population; the remaining 40 (22.7%) are explicitly classified 'Missing Evidence' and are NOT blocking, NOT backfilled with weaker data, and NOT treated as a discovery failure -- they are simply reported as gaps.",
+    "legacy_vs_ep3_1_divergence": "EP3.1's own documentation explicitly states legacy provisioning-edge identity and campaign grouping (the REAL historical Watchtower's actual classification method) is a 'Known legacy limitation' because 'Primitive Contract v1 has no approved primitive that reproduces those legacy interpretations' -- i.e. the ACTUAL historical Watchtower used interpretive/behavioral criteria beyond what pure raw-transaction primitives capture, and the newer strict-primitive system cannot even fully reconstruct it.",
+    "watchtower_operation_discovery_evidence_model": "WATCHTOWER_OPERATION_DISCOVERY_EVIDENCE_MODEL = LOCAL_NORMALIZED_MULTI_HOP_TRANSFER_ANALYSIS_WITH_HUMAN_INVESTIGATIVE_REVIEW, NOT raw-RPC-first. Confidence/authority language in the historical doc ('HIGH confidence', 'CONFIRMED') was investigator-assigned based on multi-hop pattern strength (circular funding, dual-role creators, aggregation fan-in), not per-edge raw-transaction proof.",
+    "could_watchtower_be_reconstructed_today_from_local_evidence_only": "PARTIALLY -- the same class of local surfaces used in 2026-06 (transfer-level tables, creator funding tables) still exist and are larger now (transfer_index alone: 4,964,041 rows / 1,478,440 distinct destinations). A similar investigative multi-hop trace could be reconstructed today using local data alone. Full RAW_ONCHAIN_EVIDENCE-tier reconstruction of every edge would still require targeted RPC for specific ambiguous or high-value edges, exactly as the original investigation flagged unresolved questions requiring 'further investigation' rather than treating local evidence as automatically sufficient for every claim."
+  },
+
+  "part4_three_sw2_evidence_model": {
+    "source": "docs/evidence_platform/ep3_2_three_sw2_operation_contract_v1.md",
+    "topology": "strictly Controller -> Creator -> Launch, requiring a PROVEN SYSTEM_TRANSFER (controller edge) and a PROVEN LAUNCH_SIGNER (creator-to-launch edge) -- explicitly 'No treasury or intermediate provisioner is inferred'",
+    "evidence_model": "three_sw2 is STRICTER than legacy Watchtower by design -- it requires raw-verified primitives for every edge it materializes, with NO fallback to derived/normalized-only evidence and NO interpretive/behavioral inference layer",
+    "actual_acquisition_cost_measured": "16 bounded RPC calls total for 13 real historical launches (30 credits for missing transaction/signature recovery + 130 credits for 13 required creator histories) -- approximately 1.2 calls/launch, NOT 3/launch, because the acquisition script (materialize_three_sw2_shadow_corpus.py) uses a CACHE-FIRST design against a dedicated 1.4GB raw-transaction cache (database/transaction_first_lineage.db, table tf_transaction_cache, 22,025 rows, 21,994 already rpc_verified=1) -- RPC was spent ONLY for the specific signatures genuinely missing from that cache, not blindly for every launch.",
+    "material_difference_from_watchtower": "YES, materially different: three_sw2 requires PROVEN evidence for every materialized edge (no interpretive shortcuts), whereas legacy Watchtower's real historical practice tolerated normalized/derived evidence combined with human investigative judgment. Both, however, share the SAME underlying architectural pattern of using a bounded, cache-first, selective RPC acquisition rather than blind per-token reverification."
+  },
+
+  "part5_two_evidence_levels_confirmed_from_repository": {
+    "repository_terminology_found": "the repository ALREADY has this exact distinction, expressed through the primitive/evidence family authority contracts (src/evidence/primitives/authority.py) and the tf_edges.rpc_verified / tf_transaction_cache.rpc_verified columns",
+    "level_a_operation_discovery_evidence": {
+      "repository_name": "candidate discovery / motif canonicalization layer (EP4.0/EP4.1)",
+      "uses": "normalized signature-bound transfers (transfer_index, tf_edges even where rpc_verified may vary in principle though in practice all 14,062 current tf_edges rows ARE verified), creator/funder relationships (creator_funders), 2-hop topology (funder_upstream_links), timing, repeated-funder behavior, shared upstream sources",
+      "purpose": "EP4.0 already surfaces 'candidate' subgraphs; EP4.1's MotifCanonicalizer already processed 14,203 raw candidates into 1,379 motifs (10.3x compression) in one validated run -- explicitly 'non-authoritative', 'not an identity, an Operation classification, or a governance recommendation'"
+    },
+    "level_b_raw_transaction_verification": {
+      "repository_name": "PROVEN primitives (SYSTEM_TRANSFER, LAUNCH_SIGNER) under the Primitive Authority Contract, EVENT_FACT / IMMUTABLE_DERIVATION semantic types, grouped by (signature, source, destination)",
+      "uses": "raw getTransaction, signer/account validation, instruction-level transfer proof (exactly what B2Z's proves_inbound_sol_funding validates)",
+      "purpose": "upgrade confidence/provenance for SELECTED relationships -- used by three_sw2's strict topology and by EP3.1's stricter (but partially-missing-evidence-tolerant) Watchtower shadow contract"
+    },
+    "no_new_authority_states_invented": true
+  },
+
+  "part6_core_answers": {
+    "RAW_RPC_REQUIRED_FOR_OPERATION_DISCOVERY": "FALSE -- confirmed by EP4.0/EP4.1's own validated zero-RPC discovery run against 14,203 real candidates, and by legacy Watchtower's actual historical practice of local-normalized-evidence-first investigation",
+    "RAW_RPC_REQUIRED_FOR_CANONICAL_OPERATION_ATTRIBUTION": "CONDITIONAL -- both EP3.1 (Watchtower shadow) and three_sw2 require PROVEN primitives for the specific edges they materialize into topology, but EITHER tolerates explicit 'Missing Evidence' gaps (EP3.1: 40/176, 22.7%) without blocking discovery, OR uses cache-first selective acquisition to fill only what's genuinely missing (three_sw2: 16 calls for 13 launches, not 39). No contract requires raw RPC for EVERY edge before ANY attribution can occur -- attribution is edge-scoped, not population-scoped.",
+    "RAW_RPC_REQUIRED_FOR_HIGH_CONFIDENCE_EVIDENCE_UPGRADE": "TRUE, by design -- this is exactly what SYSTEM_TRANSFER/LAUNCH_SIGNER primitives and B2Z's own contract exist for: upgrading a normalized (Level A) relationship to a proven (Level B) one, applied selectively to relationships that matter (ambiguous, high-value, or slated for canonical attribution), not universally."
+  },
+
+  "part7_direct_funding_coverage_at_scale": {
+    "denominators_measured_directly": {
+      "tracked_tokens": 53025,
+      "token_analysis_total_rows": 1893864,
+      "token_analysis_with_pf_ws_creator_resolved": 1852564,
+      "pf_ws_creator_coverage_percent": 97.8,
+      "distinct_creators_in_creator_funders": 20572,
+      "creator_funding_queue_status_breakdown": {"complete": 16504, "expired": 17075, "failed": 642, "pending": 18, "retry": 29, "running": 1},
+      "transfer_index_total_rows": 4964041,
+      "transfer_index_distinct_destinations": 1478440
+    },
+    "explicit_correction_of_prior_assumption": "the compact retained-DB figure of 6,311 mints (RA4 era) is NOT the system's total historical population -- token_analysis alone has 1,893,864 rows, ~300x larger. The B2N/B2Z 20-member cohort and even RA4's 6,311-mint compact index are narrow, recent slices, not the full historical scale.",
+    "missing_direct_funding": "17,075 creator_funding_queue jobs EXPIRED (never completed extraction in time) + 642 permanently FAILED -- a real, measurable 17,717-token gap in the derived-information layer alone, before any raw-RPC question is even asked"
+  },
+
+  "part8_two_hop_coverage_at_scale": {
+    "funder_upstream_links_total_rows": 19769,
+    "distinct_direct_funders_reached": 3147,
+    "distinct_upstream_sources": 16313,
+    "excluded_as_infra_or_hub": 14594,
+    "excluded_percent": 73.8,
+    "non_excluded_usable_bridges": 5175,
+    "creator_second_hop_rows": 463,
+    "self_loops_dust_mega_hubs": "this milestone's OWN P1.7 raw relational check already directly demonstrated self-loop false positives exist in this exact data pattern (3 of 9 raw candidates for the 20-member cohort) -- the pre-built funder_upstream_links table's volume gate (2-50 qualifying funders) is the production system's own mechanism for excluding both one-off noise and mega-hubs, and it excludes 73.8% of raw candidate pairs as a result",
+    "missing_2hop_coverage": "the 20-member B2Z cohort itself has essentially ZERO pre-built second-hop coverage (P1.7 finding, reconfirmed) -- the periodic whole-DB rebuild has not yet processed this specific recent cohort, illustrating that 2-hop coverage lags behind fresh acquisition even where the underlying transfer_index data exists"
+    },
+
+  "part9_local_only_discovery_already_proven": {
+    "ep4_0_ep4_1_validated_result": "EP4.1's MotifCanonicalizer processed 14,203 raw discovery candidates into 1,379 canonical motifs (10.30x compression, largest motif 961 occurrences, 972 singletons) in ~27.3 seconds, using ONLY frozen local evidence -- zero RPC calls, zero production DB reads/writes, zero Operation Contract loading, zero identity promotion -- explicitly validated and documented (docs/evidence_platform/ep4_1_motif_validation.json)",
+    "conclusion": "a provider-free historical operation-discovery pass is NOT hypothetical -- it has ALREADY been built, run, and validated at a scale (14,203 candidates) exceeding the 20-member B2Z cohort by 3 orders of magnitude. This directly answers Part 9: YES, such a pass can be (and has been) constructed from creator_funders/transfer_index/second-hop-expansion/EP4 motif surfaces without any provider call.",
+    "not_executed_this_milestone": "this reconciliation did not run a NEW discovery pass -- it confirms the existing validated one as evidence that the architecture supports and has already exercised this exact pattern"
+  },
+
+  "part10_rpc_value_classification": {
+    "criteria": "deterministic, based on existing evidence quality signals already present in the data (temporal gap to reference event, source row-count/volume, documented extraction failure, self-loop detection, is_excluded flag)",
+    "LOCAL_EVIDENCE_SUFFICIENT_FOR_DISCOVERY": "any relationship with a signature-bound transfer_index row and NO documented extraction failure -- sufficient for Level A candidate discovery / motif canonicalization / topology hypothesis generation. Applies broadly (millions of transfer_index rows).",
+    "LOCAL_EVIDENCE_SUFFICIENT_BUT_RAW_VERIFICATION_DESIRABLE": "relationships slated for canonical attribution, cross-cohort comparison, or public/high-stakes claims -- the 10 HIGH-confidence-completeness B2Z-P1.6 members are a concrete example: local evidence is plausible and low-risk, but upgrading to Level B strengthens the eventual claim",
+    "AMBIGUOUS_REQUIRES_RPC": "self-loop candidates (P1.7's 3 false positives), weak 1-lamport 'dust' candidates (P1.7's 3 of 5 upstream matches), and any relationship where the local temporal/amount signal is implausible on its face -- raw verification is the ONLY way to resolve these, not a preference",
+    "MISSING_REQUIRES_RPC": "the 3 B2Z-P1.6 members whose creator_funding_queue extraction directly timed out (11, 15, 18) and any of the 17,717 expired/failed creator_funding_queue jobs at scale -- local evidence is genuinely absent or incomplete, not merely unverified",
+    "SERVICE_OR_DISTRIBUTION_REVIEW_REQUIRED": "the fan-out ordinals (8, 11, 15, 18, 19) and any upstream source failing the volume-gate MAX_UPSTREAM_FUNDERS=50 threshold -- review metadata, not automatic rejection, consistent with B2Z-P1's existing FAN_OUT_REVIEW_ORDINALS pattern"
+  },
+
+  "part11_exception_driven_architecture_evaluated": {
+    "compatible_with_existing_contracts": true,
+    "evidence": "this is not a new proposal -- it is the ALREADY-OPERATING pattern in three_sw2's cache-first acquisition (16 calls for 13 launches, RPC spent only on genuinely missing signatures) and in the tf_launches acquisition_state model itself (RPC_PENDING_BUDGET as an explicit, first-class state distinct from EVIDENCE_UNAVAILABLE and PERSISTED_EVIDENCE_RECONSTRUCTED -- the architecture already models RPC spend as a rationed, trackable budget applied selectively, not a blanket requirement)",
+    "proposed_flow": "local evidence -> candidate operation discovery (EP4.0/4.1, already proven) -> identify ambiguous/high-value/missing relationships (Part 10 classification) -> RPC verify ONLY those, using the qualified B2Z-P1 durable/resumable runner as the verification executor"
+  },
+
+  "part12_full_scale_rpc_estimates": {
+    "model_a_blind_raw_reverification": {
+      "population": "token_analysis total rows requiring funding verification",
+      "population_size": 1893864,
+      "calls_per_token_b2z_contract": 3,
+      "total_requests_at_3_per_token": 5681592,
+      "total_requests_at_2_5_per_token_avg": 4734660,
+      "characterization": "genuinely infeasible -- multiple MILLIONS of requests, not the 'tens or hundreds of thousands' the milestone prompt itself estimated as a worst case. The true scale is roughly 50-100x larger than that estimate."
+    },
+    "model_b_selective_verification": {
+      "basis": "measured local coverage (Part 7/8), not extrapolation from the 20-member cohort alone",
+      "step_1_no_rpc_needed_for_discovery": "up to ~1,852,564 tokens with pf_ws_creator + up to 4,964,041 transfer_index rows already support Level A candidate discovery with ZERO additional RPC (EP4.0/4.1 already proved this at 14,203-candidate scale)",
+      "step_2_selective_verification_target": "only relationships that are (a) slated for canonical attribution, (b) ambiguous/ self-loop/dust-flagged, or (c) missing entirely (the 17,717 expired/failed creator_funding_queue jobs) would warrant RPC -- NOT the full 1.89M population",
+      "illustrative_calculation_using_20_member_ratios": "if the 20-member cohort's measured pattern (50 requests needed of a possible 60, i.e. ~17% local-evidence stage-2 reduction, PLUS an unknown but likely similar proportion of AMBIGUOUS/MISSING cases across the wider population) were representative, selective verification of even a meaningfully large audit sample (e.g. 1,000-10,000 highest-value/most-ambiguous relationships) would cost on the order of 2,000-30,000 requests -- ORDERS OF MAGNITUDE below Model A, and this number is itself illustrative/bounded by choice of sample size, not a fixed system requirement",
+      "explicit_caveat": "no claim is made that Model B's exact total is precisely computable without first running the Level A discovery pass at full scale to count actual ambiguous/missing relationships -- this estimate is directional, not a final budget"
+    }
+  },
+
+  "part13_b2z_20_member_role": {
+    "determination": "C. CALIBRATION COHORT for determining false-positive/error rates, secondarily D. evidence-upgrade qualification for exactly these 20 members",
+    "reasoning": "given Part 9's proof that local-only discovery is already architecturally sufficient and already validated at scale, the 20-member B2Z run's primary VALUE is no longer 'discover funding from scratch' (local evidence already provides candidate creator/funder/amount/signature for 19/20 members) -- its value is measuring how often local normalized evidence AGREES with raw on-chain verification, which directly informs how aggressively Model B's selective-verification thresholds can be set for the wider population",
+    "not_a_precursor_requirement_for_discovery": "confirmed -- operation discovery does not need to wait for or depend on this 20-member run; EP4.0/4.1 discovery already operates independently of it"
+  },
+
+  "part14_local_vs_raw_comparison_design": {
+    "purpose_reframed": "CALIBRATE_LOCAL_EVIDENCE_ACCURACY -- this framing is CORRECT given Part 13's determination",
+    "comparison_fields": {
+      "local_historical_claim": ["creator (pf_ws_creator, from CREATE tx)", "direct_funder (transfer_index.source)", "signature (transfer_index.signature)", "amount (transfer_index.amount_lamports/amount_sol)", "block_time (transfer_index.block_time)"],
+      "raw_b2z_verification": ["creator (from migration tx signer, resolve_creator())", "selected funding signature (candidates[0] from live getSignaturesForAddress)", "raw funding source (parsed instruction info.source)", "destination (parsed instruction info.destination)", "amount (parsed instruction info.lamports)", "time (raw transaction blockTime)"]
+    },
+    "not_executed_this_milestone": true
+  },
+
+  "part15_calibration_metrics_defined_not_measured": {
+    "creator_agreement_rate": "percent of members where pf_ws_creator (CREATE-tx-derived) matches B2Z's migration-tx-derived creator -- tests P1.6's flagged structural assumption directly",
+    "funding_signature_agreement_rate": "percent of members where transfer_index's most-recent-pre-migration candidate matches B2Z's live-selected candidates[0]",
+    "funder_agreement_rate": "percent where local source == raw parsed instruction source",
+    "amount_agreement": "percent (or distribution of deviation) where local amount_lamports matches raw parsed instruction lamports exactly",
+    "temporal_agreement": "percent where local block_time matches raw transaction blockTime exactly (should be near-100% if the underlying signature is correct, since block_time is itself an on-chain fact -- disagreement here would indicate a DIFFERENT transaction was matched, not measurement noise)",
+    "local_evidence_false_positive_rate": "fraction of local HIGH-confidence candidates (P1.6's 10) that FAIL B2Z's raw proves_inbound_sol_funding() check",
+    "local_evidence_false_negative_rate": "not directly measurable from the 20-member run alone (would require members with NO local candidate that raw RPC then finds a valid one for) -- flagged as a measurement limitation, not silently assumed to be zero",
+    "service_distribution_ambiguity_rate": "fraction of the 5 fan-out-flagged members where raw funding evidence, once obtained, reveals a service/bot/distribution pattern requiring downstream review vs a clean single-funder relationship"
+  },
+
+  "part16_2hop_sequencing": {
+    "recommendation": "local direct funding -> local 2-hop discovery -> candidate operation -> selective raw verification, in that order, for BOTH the direct and upstream hops",
+    "reasoning": "raw B2Z verification of every token's direct funding BEFORE any 2-hop discovery would only make sense if 2-hop discovery required raw-verified direct edges as an input -- it does not: SecondHopExpansionBuilder's actual SQL join (Part 1, established in P1.7) operates on creator_funders (a Level-A derived table) and transfer_index (signature-bound but not raw-instruction-verified), never on B2Z's raw-verified output. Sequencing raw verification first would gate 2-hop discovery on an unnecessary and vastly more expensive precondition.",
+    "authority_boundary": "2-hop discovery, exactly like direct discovery, remains CANDIDATE_EVIDENCE_ONLY at every stage until a SEPARATE selective-verification step (using B2Z-P1's or a future B2Z-2H's durable runner) upgrades specific selected edges to Level B"
+  },
+
+  "part17_operation_safety_preserved": {
+    "watchtower_unaltered": true,
+    "three_sw2_unaltered": true,
+    "no_canonical_mutation_authority_granted_by_this_reconciliation": true,
+    "authority_chain_reaffirmed": "local normalized evidence (Level A) -> candidate/motif observation (EP4.0/4.1, already non-authoritative by design) -> proposal/review stage -> ONLY THEN, through separately-gated review, possible canonical attribution -- unchanged from P1.7's Part 14 finding, now further reinforced by EP3.1/three_sw2's own explicit non-authoritative, no-automatic-governance design"
+  },
+
+  "part18_recommended_architecture": {
+    "choice": "LOCAL_DISCOVERY_THEN_SELECTIVE_RPC_VERIFICATION",
+    "reasoning": {
+      "evidence_quality": "Level A local evidence (transfer_index, creator_funders, funder_upstream_links) is signature-bound and adequate for candidate discovery; Level B raw verification remains available and valuable for specific high-stakes edges -- this is not a false binary, both tiers are real, both are already used in the existing architecture",
+      "provider_volume": "Model A (blind) requires ~5.68M requests; Model B (selective) is orders of magnitude smaller and scoped to what actually needs it -- the difference is not marginal, it is the difference between feasible and completely infeasible",
+      "cost_and_runtime": "at even a generous 10 req/sec sustained rate, Model A would take ~6.6 days of continuous RPC traffic and proportional cost; Model B's illustrative 2,000-30,000 range would take minutes to a few hours",
+      "provenance": "selective verification still produces genuine RAW_ONCHAIN_EVIDENCE-tier provenance for every relationship it touches -- it does not weaken evidence standards, it applies the SAME B2Z-P1 evidence bar, just to a rationally-chosen subset",
+      "false_positives": "Part 10's classification explicitly routes self-loop/dust/ambiguous cases INTO the RPC-required bucket rather than accepting them at face value -- this is a false-positive-reduction mechanism, not a shortcut around it",
+      "operation_safety": "unchanged regardless of model choice -- both remain CANDIDATE_EVIDENCE_ONLY until separate review/authorization",
+      "2hop_usefulness": "2-hop discovery is already local-evidence-capable (SecondHopExpansionBuilder) and does not require direct-hop raw verification as a precondition, supporting the LOCAL_DISCOVERY_THEN_SELECTIVE_RPC_VERIFICATION sequencing",
+      "historical_scale": "the true population (1.89M tokens, not 6,311 or 20) makes blind reverification categorically infeasible; this is the single strongest argument for the selective model, and it was confirmed by direct measurement in this milestone, not assumed"
+    }
+  },
+
+  "part19_b2z_p1_runner_preserved": {
+    "modified_this_milestone": false,
+    "future_role": "the qualified durable/resumable B2Z-P1 execution boundary (src/acquisition/b2z_durable_execution.py) becomes the EVIDENCE-UPGRADE EXECUTOR for selectively-chosen relationships under the LOCAL_DISCOVERY_THEN_SELECTIVE_RPC_VERIFICATION model -- its pre-dispatch durability, resume semantics, and 60-request safety ceiling remain exactly as valuable (arguably more valuable, since selective runs are likely to be smaller, frequent, and interruptible) as they were designed for a single 20-member direct-B2Z run",
+    "not_removed_or_weakened": true
+  },
+
+  "blockers": [],
+
+  "verdict": "READY_LOCAL_OPERATION_DISCOVERY_WITH_SELECTIVE_RPC_VERIFICATION",
+  "verdict_note": "Tracing the ACTUAL historical evidence models of Watchtower (via a real, dated 2026-06-02 investigation document) and three_sw2 (via its own governing contract and measured acquisition cost: 16 RPC calls for 13 launches, not 39) confirms the existing production architecture NEVER required blind, universal raw-RPC reverification for operation discovery. EP4.0/EP4.1's already-validated 14,203-candidate motif canonicalization run (zero RPC, zero production writes) proves a provider-free discovery pass is not merely theoretically possible but has ALREADY BEEN BUILT AND RUN at a scale 3 orders of magnitude larger than the 20-member B2Z cohort. Measuring the TRUE historical population directly (token_analysis: 1,893,864 rows, not 6,311) confirms blind reverification would require approximately 5.68 MILLION provider requests -- categorically infeasible, and far larger than even the milestone's own worst-case estimate. Selective, exception-driven verification -- routing self-loop/dust/ambiguous/missing relationships to RPC while accepting Level-A local evidence for discovery -- is not a new proposal but the SAME pattern three_sw2's own acquisition script already implements via a cache-first design. The 20-member B2Z cohort's role is reframed, correctly, from 'discover funding from scratch' to CALIBRATE_LOCAL_EVIDENCE_ACCURACY: measuring how often transfer_index-derived local claims agree with raw on-chain verification, which will inform selective-verification thresholds for the wider population. Direct 2-hop-before-verification sequencing is confirmed safe and more efficient, since SecondHopExpansionBuilder already operates on Level-A local data, not raw-verified B2Z output. Operation safety (candidate-only, no automatic canonical mutation) is confirmed intact across every evidence surface examined. The qualified B2Z-P1 durable runner is unmodified and gains a clearer, more valuable future role as the selective evidence-upgrade executor. No provider calls were made. No production data was modified. No canonical operation was touched."
+}

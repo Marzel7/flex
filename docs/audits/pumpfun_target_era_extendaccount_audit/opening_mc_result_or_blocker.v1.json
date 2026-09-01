@@ -1,0 +1,5 @@
+{
+  "artifact_type": "PUMPFUN_TARGET_ERA_OPENING_MC_BLOCKER_V1",
+  "first_slot_market_cap_now_supported": false,
+  "reason": "A binary-bound target-era account schema plus authenticated historical BondingCurve bytes after ExtendAccount (slot 443375106) / immediately before buy #1."
+}

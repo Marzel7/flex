@@ -1,0 +1,828 @@
+{
+  "baseline": {
+    "persistent_funders": 58,
+    "persistent_rows": 460,
+    "threshold": 3
+  },
+  "blocker": "Known dust evidence has zero rows in wt_farm_launches, while this source does not retain the transaction/temporal facts required to safely classify its other rows.",
+  "dust_fixture_replay": {
+    "farm_overlap_rows": 0,
+    "fixtures": [
+      {
+        "amount_values": 1,
+        "classifier_result": "DUST_SPAM_EDGE",
+        "funder": "43P1jMnMwNSJEpK9vW9c9fZuQzQXNCsurgN8XQ8vPy3D",
+        "max_amount": 1000,
+        "observations": 27,
+        "reason_codes": [
+          "BROADCAST_STYLE_AMOUNT_PATTERN",
+          "BROAD_UNRELATED_CREATOR_FANOUT",
+          "NO_CREATOR_SPECIFIC_LAUNCH_COUPLING",
+          "REPEATED_UNSOLICITED_TINY_TRANSFERS",
+          "WEAK_LAUNCH_SEMANTICS"
+        ],
+        "recipients": 22
+      }
+    ],
+    "reported_sender_source_trace": [
+      {
+        "funder": "6y84CxtWjKaPN87yZx234rFx4EBJeYgtj8Tcsn97AUir",
+        "walkback_candidate_rows": 6,
+        "walkback_queue_rows": 5,
+        "wt_farm_launches_rows": 0
+      },
+      {
+        "funder": "H4Eq5Gj9Fgic2fMiRNn4TTpY9AmihpS2gJPmb37YeWRE",
+        "walkback_candidate_rows": 3,
+        "walkback_queue_rows": 3,
+        "wt_farm_launches_rows": 0
+      },
+      {
+        "funder": "6X5JuZ3Abh7QkEYiGhU8pY9THnFyM6zZhrGtm9XgjuUE",
+        "walkback_candidate_rows": 4,
+        "walkback_queue_rows": 4,
+        "wt_farm_launches_rows": 0
+      }
+    ]
+  },
+  "genuine_control_population": {
+    "CONFIRMED_OPERATION_FUNDER_PASS_RATE": "93/93 (100.0%)",
+    "GENUINE_DUST_CLASSIFIED_COUNT": 0,
+    "GENUINE_ENVIRONMENTAL_CLASSIFIED_COUNT": 0,
+    "GENUINE_FUNDER_COUNT": 388,
+    "GENUINE_FUNDING_EDGE_COUNT": 406,
+    "GENUINE_INSUFFICIENT_COUNT": 0,
+    "GENUINE_QUALIFYING_PASS_COUNT": 406,
+    "KNOWN_GENUINE_FALSE_DUST_COUNT": 0,
+    "KNOWN_REPEAT_FUNDER_PASS_RATE": "28/28 (100.0%)",
+    "LOWEST_50_GENUINE_FUNDING_EDGES": [
+      {
+        "AMOUNT_LAMPORTS": 2039000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "CuLxAPaBvn1SAXtEGH8x9ffaceAnvDUTNWiov6g8MU7C",
+        "FUNDER": "EvNzFL26CcfuQADUwNVAYLbY1KftCD5qFmzTEBaTV1Fr",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "C73E563rmUUYMgLijncvecteLSGSZscRwG6TSvi2pump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 2074000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "AXHLqZkAWRg5SB4azF4bvtVL7d512t2KYiHKdfSRrb1G",
+        "FUNDER": "8RKSsNyUqHbGzJZjkbC3xtPHFFdr5oVjXmgPY5QoK8CU",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "DEmuS68zyQewuuSYgNqnZpf6CoNz6tiJ9QzM5oDwpump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 7011000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "AUBcUQx2973ijLV5VgfDWftEHPR1yRQWGDig52RyBdyo",
+        "FUNDER": "7dPSeqPvNg5TbaUV8Ug2m7nvGoWYUkJRPQtvuKZfLCSr",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "BxPZP8e5ZeykkR8feTSWTjwDERmFRJAwtu76ggN5pump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 20200000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "EqReD17ZhFDwH31mTYBKR9w2hLifdgAJXyamdZR67ubE",
+        "FUNDER": "4BW4KnP8h9WKsoa9oJNdoBtkViLoKC7DnDjnavXqKsXz",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "5gkuTAKAskEhhc1D6ACtF6mmstfCg2Ldm5qT4C84pump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 29924000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "6P28ZkhmagyLMvQ47AwapwFeVwya6fFbMSB7btzJiApL",
+        "FUNDER": "9obNtb5GyUegcs3a1CbBkLuc5hEWynWfJC6gjz5uWQkE",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "GpunGt2wLGLcC8ZB3Y8Ez6tAs1rgcFPo24dKu2qMpump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 44000000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "4PBwWTpMfsSG4YV7t8AY4LAmS46sim2M6yZgVK5TysFB",
+        "FUNDER": "GUhWs2JQukS3deRGtAJzxg3kj2tUbTaKVQYaGzsCuTTk",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "D2ggjPpSBVNHpEmdVLbBkRBevfNaBGuMMQPLnLcqpump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 48427000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "6LN4kK5T1yYczYa6GRP2cgfGMT6xH1M91bVwKdniKad5",
+        "FUNDER": "2Gu285QgUFiitf2ZKagDUj1qujc3mRoXs728HUESMdZe",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "3u6jLya7GV2eUs8sjRWQsMxjNTYTuDpwBKFVrSbYpump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 52237000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "GM2ojM4ynYDfSfwUjrdYSbeMDA48Y8cTzDDjBdDZzAL3",
+        "FUNDER": "DoAsxPQgiyAxyaJNvpAAUb2ups6rbJRdYrCPyWxwRxBb",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "24jZo85STCXFNpgE1Py5B7u9rsh7H2AztdfWadnqpump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 55256000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "DfvbkXojEzsQF7fEFYdq8XwRXXiDMjuhHQNxfxQRw6KX",
+        "FUNDER": "2AQdpHJ2JpcEgPiATUXjQxA8QmafFegfQwSLWSprPicm",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "4D4hQepQ7ogWKWcSbAikk778xZDteNWLtBvWvFHApump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 57800000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "9XHksqegA2CsW1mqGMcsa96szRJ6Av9fJGHKvVUUJUn3",
+        "FUNDER": "5NSTPYTHW6qzMMJkEKSjH52TGcWY8Y71arnh55HUxm6G",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "B4AvqRvV115Wse5ZkbZxctfRRNs9mrrtQZuKAraJpump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 60000000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "2Rz8FrPZpXUatLpmXaVP5WjCHP3TJZzazwVgvj4KY6gq",
+        "FUNDER": "7xZdSvwGNAKcmDoQQt3TPsgo5VyCAjDq2arNa53F3sVp",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "5Cg1ceYYn6sKD5Wtv87ak7dCxxAhseghdS38Kz4Hpump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 90796000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "4CAaP3FUkFZWt87dyhC9eAXyosiQVuP4zuPSQyvqHE9q",
+        "FUNDER": "2zSBCbBTy1VD7dHWrU5JJYPeE1CEKkuhQXTgCTenNr9N",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "3SG1iTfKmvqfnNCJzv5CTcfsHckKohFPfPsHmuaTpump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 95117000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "C66f5mq97pgwCtH4pQkmWXtiHsRsSxM6sLdpzDiwimoM",
+        "FUNDER": "ABUrMbNVbZVEnqNTSqFaqdkmsLUPvj1EUReUyeX2g7zQ",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "GNy5FNFm1SKANSPKB1UNNRw4jrwsE8qa951AUHxTpump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 100000000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "BRVNZCcnWgrxdWciCiVet6ozHpnuRnCSUL2WN7HFoNQS",
+        "FUNDER": "GMUyFqWvaN2RfddRzHWrF9nthXHt41X64N1KHx5mM4kQ",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "DLYQBXkRo43Ct96fd9Cr7y5tZP5yQKUBLMTZU92epump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 112139000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "jSXKdjbkWyJP56vwZUMZaGj7XmVeLBd7L1Kbqyjum2T",
+        "FUNDER": "UbwjuE3W4NFqc9ZkX3FgWkEpsRKcdQkHyZyM2ijuK8X",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "4A4Ejew2JyhrZ4n3DXBRe6ZQ5azphizT9ZdahZahpump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 112139000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "6brXLxZ7hSp9wdoSoJod21EZebd4npWgbYBFZo4wLB5L",
+        "FUNDER": "75cZ52pS4UYswvPKjNVqf8uXu28KjvG23oKpE9SNpp8b",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "4qd3Nevi1jRetspRr4cu9sCEaQJ7XzTT8kUmn2Hrpump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 112139000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "2L9SMwDGLkwh1hy3aRAJWmCXjbVbmgxaDPAz5KHQZ3iW",
+        "FUNDER": "GnUAg4Yd7e3xE6HLdBjBc4xcxikFq5dqvfE2d927EwLx",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "4s9LfXuYzbTLEfnoGa8WiKvwuwo7ERK9bZCDXpfxpump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 112139000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "5fkjiureb72T3qUNpxXcANenLv1Vyyt3CeLnjUzrp3oL",
+        "FUNDER": "2ibs3BbLAnUadKG9EDLusooXJSJKqTXGYTgnqWfQE9AB",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "5TrT61zqFxPHugukVD8Ce6TimgaHT5Sdqz4zfenfpump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 112139000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "6be8mjS3bvtmoV7MsNr5EwXVFjPq1tFEtHs2SrafAx3u",
+        "FUNDER": "8CFSBErBpuQTLRjx2EHsSaqEmoiTPnryP3cptGrWbgss",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "6motEwiLLAjQWFkY6GPFFQJQT758YVEB7whb37Q8pump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 112139000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "8Wu5e7dLUCb3oKSrhXUZE3HSJahVyweKAkkqHi4Dmwoi",
+        "FUNDER": "sjtC94mK6K53n9SvBVf7wHdGVMFiwdfCgMVTeMhVRL7",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "8HWzVHr3vYVAKohiKw9GEQw5Ntg42ccdMrxgmPYkpump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 112139000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "5Mo5iE5iyLagsEyavbdmKE2wSLtxUxsMJf1HW1NgQKko",
+        "FUNDER": "3jCjh7po4trYw8VP2kxxFKhguzzLq2ycpoXHkruBUftm",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "9m5nwkpKjyv8SRY7M1cTVCbMVv38j97YQqS4iwtvpump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 112139000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "8khpv2Wg2H4er76BdftCta3gCRhuiYgdHEpXtDcrytWR",
+        "FUNDER": "9T44st8napYQ7Aarxjb4m6AhnckV3ChkUiZTC3FQMXqP",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "BhY2FZWdqd6P91peYRqwZ4dA9gLV54CsGLCfPn9zpump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 112139000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "J4D3rq8RhsEpiP4vHHPXn8NEzfziQdSTpFhBpYEXo9xR",
+        "FUNDER": "3gxQRAR9BeVpgYpK4XNWCa9VRDLkjy6ujuFfuKEDqkcW",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "GdMx76BW2NYPH8ipDwXjCvZiXXhFDQnfec9TKVU7pump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 112139000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "Gtggd74HhnHugwexyu3vNr1PtwgxPz9hxSHbpHfmvai5",
+        "FUNDER": "BnKDtK6AJu8WKLRkEYoxvXfPJy16op187LAs53bCbvpX",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "HeXxaXU7jZS5LWjgCGSjSFjFPyzTkMkaJ4jHirzApump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 129540000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "FtZ9ucb85wcixicrUqDQc96mKNwky6rtogNq8Jqigcc4",
+        "FUNDER": "HABD5qFtgqERgkwb1Z8FBaXfjWEaCUkcgEiVJkEHNYAo",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "4ECmxCXwzuNAA3BswvD5ZGDHYxtHfZX36yyBTkJHpump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 150000000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "bWzXJ55dHJyJVtvdHW9WBDEN4YdE7VfPtxtjG1fZBDP",
+        "FUNDER": "6baMfb4Y4kmFsLGArfcpxG4CZwBysRKPCwEWiccFbk35",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "3B7tFjJP523snfbPZntBGd8xU32eL8oFmqkHzPBZpump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 150000000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "AwUAPjRs5aQ3NqSryTzpvibovWZWp7aTLGkLCsqMJ8CZ",
+        "FUNDER": "FU5Rgz1CZkKWF6XaeJjW3dqcxWxioa2jJwbPN1RG3sP7",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "HShM39ypjgvkUHU5xBqFY1sAr2JocuqPAgVWjqphpump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 151814000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "9dtXzVp6sETp4g6camAvHuFNrE3T4xMVrANAPKpqSmx7",
+        "FUNDER": "9obNtb5GyUegcs3a1CbBkLuc5hEWynWfJC6gjz5uWQkE",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "FXQTTCKruGi3RiuVXKrag5ZJw2eh9VPSTavm7X2pump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 163137000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "3LTbDP4FdVEgMNfix9aLeTBmk39zKasTz18dqz6MokS2",
+        "FUNDER": "DPHMNidXx4ds38vA53nQYnpsZgWVnjiqLVs5m1NJWGE1",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "G8mrY1k2vM8SHDFabWXUqTuzJBVyB7tLBm21kswBpump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 173723000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "DKPaPoo9pRr5NY89ZfAKR5ALxo2JCE65YhxUnVxkrL53",
+        "FUNDER": "CYi1bP2FMnFgRPH9MUBbThoExKGqQj4MKAEcWTY1xncE",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "CWvuAn35krfxWRSNe6rujSrvYaN8XnT6XRwFeQ62pump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 196300000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "5DXmBEgfXNqGjUcBehem8Ydd487wKCzpzViWzP37ovPS",
+        "FUNDER": "DwdrYTtTWHfnfJBiN2RH6EgPbquDQLjZTfTwpykPEq1g",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "4292SH91J3i8Ba8SXff8dBzqAfG5m4sxXLUeWyEfpump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 203039000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "AQ9nRDuQ8YbzF5EaFDta2UjwAjYGtAo1xQiqjx3UFrGa",
+        "FUNDER": "6sHzzvSo1ZrNcMSfKpj2aZuM1391bBcwrQReFqJfpt6D",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "2wCrpiFDT6FwrhW9kgFNv28NgyxnajLZW1AFFBrvpump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 203039000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "H3FrX77mqWX6Hz9kJaVwVHi2X8C8pq81d1Xnofp9DZcP",
+        "FUNDER": "ByXdJEtTJ8PVEAfVmMkZvHMvUgLD6wHXc6YWQkefCivx",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "3JKhx3e5pPbDkwUP7oP4JFXGwk23z2NtrHWVKPVYpump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 203039000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "7n8PJR9wvXE5P7HMwu1T3aF2VZg42QAG7tpNJAwKaN2T",
+        "FUNDER": "7RfpN81B2oK513eQcgDVeQRWcVWkrUHMafViYhmxEZxQ",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "4cvZwC17oMiUA7peKX5GhbaUWv4U5Lwrd8118xnFpump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 203039000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "KNjjJvU3QaYZT6tHLvW5tGRNnN8pvh6VpLdsrKThJ1i",
+        "FUNDER": "DMnirF1b1YrzdcEYSriAKcYMSysM1mF6ikbzF3Qp4DuC",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "DDKhCDMfXdnZQft8UUaQTNX4xVbbxj2E4b324zt3pump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 203039000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "CyxT7JHVpmwYQYrn5ZTKNtKCZY5mx2xQVweN6tRMBvJe",
+        "FUNDER": "2N9MnpdkDffFSmqCe7S6hUBPaLfhYa4c6yRm1CnKD8Ke",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "S98Vfo1hLHu1kxFujoNrSbmWkw1ShSntx1YEFDtpump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 213139000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "6cCVsM7a7zP83uEyJAgArG1viD83QVWL1QuyEVHrHr1q",
+        "FUNDER": "QX21vcmFQ89NDimUSe6HZd2ANiD5HW5rubbe57aLsK3",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "GiAXHqgpNXcjMTRVDvUk2kr4ZnARePn8Zg7nCTTZpump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 219000000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "AwWwXmqyWoKhgrgoSdM3HyJLagqquNqNDTyQbCPDwUrT",
+        "FUNDER": "AeBwztwXScyNNuQCEdhS54wttRQrw3Nj1UtqddzB4C7b",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "4h3KCgPgmgniTjjr17wHybQB2xDFQRCe1KKQ9sA1pump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 242105000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "A9kep6TCxH1dNVU2Yu2JyTMFdSmvei7HF1BD2QqZvycZ",
+        "FUNDER": "8d9FNC7AgKLTCPKNd3MMkLLXZYLmiYFYR3vfXMBNJVNx",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "pPvUZDcS2BzQh7ofCFqwEzYZhY3bkrjiGQPKAQopump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 290000000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "6r6vt1UqXrHiQjWdv1eqtQ13crRg99VHBRRX1KcniEY4",
+        "FUNDER": "AobVSwdW9BbpMdJvTqeCN4hPAmh4rHm7vwLnQ5ATSyrS",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "5s5W3VNTvppyTZTBej5Gjmhbp6GW7SaTBsuzbCvppump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 304039000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "H6WgCrAGxJkLpLF27dgx2D3WdWcmhZo8iHKU8YV1FPQ1",
+        "FUNDER": "8ubzL4Jc7By4kkDBub5VHDnBLgPTXd5ZYYzQ5e4sdgPh",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "2UKkazisyXfWUyLT4eqCgvEV6KNaxqwkHU49htQppump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 315000000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "D2rvE3XJdwxUaxPLYMxKjwnEwJ6BgcJbFP1nzLiKJzqh",
+        "FUNDER": "A5oSjxvVgyca4XTBmusAh6rzpuhVTubqiD8ymuMH1o35",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "FnJtiozK4Di2zyWFucjzwRXsaesj5En3qTdGmiqdpump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 348568000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "9CGsHvTk7TWm1qGgpc7RbnSYFw1EiiyHgEugbDDzqgkH",
+        "FUNDER": "95ipm63sgxs1oHtn9rHfuvPKRRA6ZGeL7yBni8aynDW5",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "FY3Z7zn7q4uix42DkCLjnPceffPLgdQpTdmB9GQLpump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 362061000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "HnCF8KcvpYtcbTnk1e3NXsRgUT5MCxuGYMBNmWaoGGBK",
+        "FUNDER": "AobVSwdW9BbpMdJvTqeCN4hPAmh4rHm7vwLnQ5ATSyrS",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "9mLT5GfEoD7wSrwAoqAMK8y53cQKeBwFoUk8Y1Epump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 435845000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "HHJP3CDTtzyfC7N4TacLP29RLycMSie3jA2zx8tCzyEV",
+        "FUNDER": "GEaRk63n8r94NEyQYzNSbZeCB8kSWxifeMfbbRKBV6y3",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "BZeUX8DyibPZUNctNpXhMJ6NsqUGemzyKsHrk6gNpump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 453309000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "2mP96jeC8k3dabxMfkfQSe4oFtE95UNfMUUKPkAqtR2z",
+        "FUNDER": "8CB4i3G7F8qWCejgfHyVrTkpJvSqAyex7watdb6wY7gk",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "AnPkBHk7GtdN1YXQZTJWbdj2EtbZbEtvEaJHJHiSpump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 486320000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "EL8ak6hc2ySgW6ucLQYmapiAF4DJitmne9ZeUT6aSBJy",
+        "FUNDER": "DwdrYTtTWHfnfJBiN2RH6EgPbquDQLjZTfTwpykPEq1g",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "7vc8kbAMFkvkAin81GXHhAgmHwzWtdbVR8GtUoYppump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 490550000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "8jZEnXN53jgUN5K9RRB55kXZzaN6e74VtR7UkhWhDigu",
+        "FUNDER": "BStVhKLmj7xVVRUxW6bnhCUD6DVLu49cH9tVmC5oiTmi",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "AZB3NCwGRcFJhSXut7GSMECNc1DUEbAHVdgKG7evpump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 506039000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "GApyEMACgddcLni36B4Fn2hJRWr6PtAFDRaPVR2BMVjm",
+        "FUNDER": "GwshoHZtfiY8DGFunkYJdMY8VSrGCcqsvTcrspZGzPUm",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "33PngJ2Jgi8HvdpEeBsSqRPa9btTcVdhqZbnzsGApump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      },
+      {
+        "AMOUNT_LAMPORTS": 541865000,
+        "CLASSIFIER_RESULT": "QUALIFYING_FUNDING_EDGE",
+        "CREATOR": "8saiZrwg7eWy91LSKNvPvT3Uyk1grvJZM3gBpjcqD2yx",
+        "FUNDER": "2UL8hbNaoErAYNePqgQYPP9yDCDRZGWbzKW4krLqkhNL",
+        "FUNDER_ACCOUNT_AGE": "NOT_RETAINED",
+        "LAUNCH_COUPLING": true,
+        "MINT": "GrNZ56oUsZSjYUePTjMzMoHiQBGBuEvqF2bjJoEUpump",
+        "REASON_CODES": [
+          "LAUNCH_COUPLING",
+          "PROVEN_FUNDING_ROLE",
+          "TRANSACTION_ROLE_CONSISTENT"
+        ],
+        "ROLE_EVIDENCE": "SELECTED_WALKBACK_EDGE"
+      }
+    ],
+    "LOW_AMOUNT_AND_NEW_ACCOUNT_GENUINE_FUNDER_COUNT": "NOT_PROVABLE_FROM_RETAINED_FARM_EVIDENCE",
+    "LOW_AMOUNT_GENUINE_FUNDER_COUNT": 47,
+    "LOW_VALUE_GENUINE_PASS_RATE": "50/50 (100.0%)",
+    "NEW_ACCOUNT_GENUINE_FUNDER_COUNT": "NOT_PROVABLE_FROM_RETAINED_FARM_EVIDENCE",
+    "NEW_ACCOUNT_GENUINE_PASS_RATE": "NOT_PROVABLE_FROM_RETAINED_FARM_EVIDENCE",
+    "QUALIFIED_POTENTIAL_FUNDER_PASS_RATE": "NOT_PROVABLE",
+    "definition": "farm row whose funder is independently retained as selected Walkback edge for the same mint"
+  },
+  "mode": "READ_ONLY_SHADOW_NO_ACTIVATION",
+  "next_action": "Persist source transaction-role/temporal facts alongside farm-launch observations, then rerun this exact audit and activate only if known-dust farm rows are excluded with zero genuine dust classifications.",
+  "schema_version": "unknown_repeat_funder_edge_quality_qualification.v1",
+  "sha256_without_digest": "4f6663c853eb51b1a62a37320db76dffb4506c217ca3061db9765f85393fc948",
+  "shadow_result": {
+    "eligible_rows_after_filter": "UNCHANGED: every farm row without strong retained semantics is INSUFFICIENT_TO_CLASSIFY",
+    "ranking_change": "NONE"
+  },
+  "source_of_truth": "wt_ops_v2.db::wt_farm_launches -> _unknown_funder_launches_cte -> >=3 recurrence",
+  "verdict": "HOLD_UNKNOWN_REPEAT_FUNDER_SPAM_FILTER_EVIDENCE_NOT_JOINABLE_TO_FARM_SOURCE"
+}

@@ -1,0 +1,20 @@
+{
+  "artifact": {
+    "path": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/shortlist_enrichment/p3r-v2-enrichment-c03f0fce0b7e3b9d685b/p3r_v2_shortlist_enrichment.v1.json",
+    "sha256": "9ab743c79e7f4f1600f281c14c5294f0f49d4e17f0459b9ae5195f8430c66ff1"
+  },
+  "assessment_run_id": "p3r-v2-enrichment-c03f0fce0b7e3b9d685b",
+  "base_run_id": "p3r-v2-2dec1d40604c1f7c08c8",
+  "contract_digest": "ecf682c86ecd726c13b4748ab1c3c9d947ac3e50fe51fc7f360270a56e8e4287",
+  "result_digest": "cd6567669350a7a5f3f57a927dc08548842356d8a50e4d87541364ab630b4b8a",
+  "source_snapshot": {
+    "database": "database/wt_ops_v2.db",
+    "highwaters": {
+      "wt_walkback_atomic_flows": 7095,
+      "wt_walkback_edge_candidates": 60299,
+      "wt_walkback_queue": 32353
+    },
+    "read_only_source": true,
+    "schema_sha256": "dcc038d07998c3d37d0475a7c0fc1d61eaa141401712b3079ec3e465dff3f4ad"
+  }
+}

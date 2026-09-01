@@ -1,0 +1,13 @@
+{
+  "metrics": {
+    "direct_funding_tokens": 29,
+    "one_hop_note": "upstream_edges is one-hop; multi-parent semantics retained as sets; no unknown candidates evaluated",
+    "production_source_writes": 0,
+    "provider_calls": 0,
+    "unique_direct_funders": 26,
+    "unique_upstream_funders": 50,
+    "upstream_coverage_tokens": 29,
+    "watchtower_tokens": 271
+  },
+  "status": "PARTIAL_REFERENCE_METRICS"
+}

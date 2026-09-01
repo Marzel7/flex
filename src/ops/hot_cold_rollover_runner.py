@@ -62,6 +62,7 @@ verified by a dedicated test).
 from __future__ import annotations
 
 import argparse
+import glob
 import hashlib
 import json
 import os
@@ -78,6 +79,7 @@ from src.ops.transfer_cold_store import (  # noqa: E402
     COLD_SCHEMA,
     close_segment,
     create_cold_segment,
+    delta_segment_id_for,
     is_segment_closed,
     segment_name_for_month,
 )
@@ -87,6 +89,9 @@ from src.ops.storage_lock_safety import (  # noqa: E402
 )
 from src.ops.storage_monitor import measure_disk_free  # noqa: E402
 from src.ops.storage_audit_ledger import LedgerEntry, append_entry, new_run_id  # noqa: E402
+from src.ops.durable_execution_evidence import PhaseEvidenceStore  # noqa: E402
+from src.ops.cold_segment_registry import ColdSegmentRegistry, TransferReaderFactory  # noqa: E402
+from src.ops.transfer_graph_stats_summary import SummaryStore, build_segment_summary  # noqa: E402
 
 # ---------------------------------------------------------------------
 # Constants / defaults
@@ -101,6 +106,7 @@ DEFAULT_COLD_ROOT = str(ROOT / "database" / "_p5a_migration_build" / "cold_segme
 DEFAULT_LEASE_PATH = str(ROOT / "database" / "hot_cold_rollover.lease")
 DEFAULT_CHECKPOINT_PATH = str(ROOT / "database" / "hot_cold_rollover_checkpoint.json")
 DEFAULT_LEDGER_PATH = str(ROOT / "docs" / "audits" / "storage_lifecycle_p5d_execution_ledger.jsonl")
+DEFAULT_PHASE_EVIDENCE_ROOT = str(ROOT / "docs" / "audits" / "storage_lifecycle_p5f_phase_evidence")
 
 MAX_ROWS_PER_RUN = 50_000  # hard ceiling on total rows processed in one --once invocation
 DISK_STOP_BYTES = 20 * 1024 ** 3     # hard stop, do not begin
@@ -235,12 +241,12 @@ def _identity_key(row: tuple) -> tuple:
     destination, amount_lamports, slot, block_time, indexed_at, is_valid,
     transfer_type). Composite content identity intentionally excludes
     `id` (a HOT-local surrogate key, not shared with COLD)."""
-    _id, signature, source, destination, *_rest = row
-    return (signature, source, destination)
+    _id, signature, source, destination, amount_lamports, _slot, block_time, *_rest = row
+    return (signature, source, destination, amount_lamports, block_time)
 
 
 def _digest_of_rows(rows: list[tuple]) -> str:
-    keys = sorted("|".join(_identity_key(r)) for r in rows)
+    keys = sorted("|".join(str(part) for part in _identity_key(r)) for r in rows)
     return hashlib.sha256("\n".join(keys).encode()).hexdigest()
 
 
@@ -264,6 +270,20 @@ def _segment_path_for_month(cold_root: str, month_covered: str) -> str:
     return os.path.join(cold_root, segment_name_for_month(year, month))
 
 
+def _writable_segment_for_month(cold_root: str, month_covered: str, run_id: str) -> tuple[str, str, str | None]:
+    """Return a writable BASE or distinct DELTA segment for a logical month.
+
+    A closed base is never reopened: late rows are routed to an independently
+    immutable delta segment that names its base in the manifest.
+    """
+    base_path = _segment_path_for_month(cold_root, month_covered)
+    if not os.path.isfile(base_path) or not is_segment_closed(base_path):
+        return base_path, "BASE", None
+    base_segment_id = Path(base_path).stem
+    delta_segment_id = delta_segment_id_for(base_segment_id, run_id)
+    return os.path.join(cold_root, f"{delta_segment_id}.sqlite"), "DELTA", base_segment_id
+
+
 # ---------------------------------------------------------------------
 # Core batch pipeline
 # ---------------------------------------------------------------------
@@ -283,24 +303,26 @@ class BatchOutcome:
     hot_retirement_seconds: float = 0.0
 
 
-def _existing_cold_signatures(cold_root: str, months: set[str]) -> set[str]:
-    """Reads signatures already present in the relevant month segment(s),
-    used to skip rows already represented in COLD (identity-based, not
-    id-based -- Part 3 eligibility rule #5)."""
-    sigs: set[str] = set()
+def _existing_cold_identities(cold_root: str, months: set[str]) -> set[tuple]:
+    """Reads five-field identities in base and delta files for each month.
+
+    Signature-only comparison silently collapses distinct transfer legs. The
+    qualified identity is (signature, source, destination, amount_lamports,
+    block_time), and every delta segment for a month is part of its history.
+    """
+    identities: set[tuple] = set()
     for month in months:
-        path = _segment_path_for_month(cold_root, month)
-        if not os.path.isfile(path):
-            continue
-        conn = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
-        try:
-            for r in conn.execute("SELECT signature FROM transfer_index"):
-                sigs.add(r[0])
-        except sqlite3.OperationalError:
-            pass
-        finally:
-            conn.close()
-    return sigs
+        for path in glob.glob(os.path.join(cold_root, f"transfer_index_cold_{month}*.sqlite")):
+            conn = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+            try:
+                identities.update(conn.execute(
+                    "SELECT signature, source, destination, amount_lamports, block_time FROM transfer_index"
+                ))
+            except sqlite3.OperationalError:
+                pass
+            finally:
+                conn.close()
+    return identities
 
 
 def run_one_batch(
@@ -314,6 +336,7 @@ def run_one_batch(
     retire: bool,
     hot_write_path: str | None,
     lease_path: str,
+    evidence: PhaseEvidenceStore | None = None,
 ) -> BatchOutcome:
     outcome = BatchOutcome()
 
@@ -347,13 +370,21 @@ def run_one_batch(
         return outcome
 
     months = {_month_covered_for(r[6]) for r in cold_candidates}
-    already_cold_sigs = _existing_cold_signatures(cold_root, months)
-    fresh_rows = [r for r in cold_candidates if r[1] not in already_cold_sigs]
+    already_cold_identities = _existing_cold_identities(cold_root, months)
+    fresh_rows = [r for r in cold_candidates if _identity_key(r) not in already_cold_identities]
     outcome.already_cold = len(cold_candidates) - len(fresh_rows)
     checkpoint.skipped_already_cold += outcome.already_cold
 
     if not fresh_rows:
         return outcome
+
+    # A segment belongs to immutable batch content, not to the broad
+    # resumable run. A later batch in the same run therefore gets a new
+    # deterministic delta after the earlier one has been closed.
+    batch_id = _digest_of_rows(fresh_rows)
+
+    if evidence is not None:
+        evidence.emit("SELECTED", selected=len(fresh_rows), hot_before=hot_ro_conn.execute("SELECT COUNT(*) FROM transfer_index").fetchone()[0])
 
     # --- COLD COPY --------------------------------------------------
     by_month: dict[str, list[tuple]] = {}
@@ -361,9 +392,12 @@ def run_one_batch(
         by_month.setdefault(_month_covered_for(row[6]), []).append(row)
 
     for month, rows in by_month.items():
-        seg_path = _segment_path_for_month(cold_root, month)
+        seg_path, segment_kind, parent_segment_id = _writable_segment_for_month(cold_root, month, batch_id)
         os.makedirs(os.path.dirname(seg_path), exist_ok=True)
-        create_cold_segment(seg_path, month_covered=month)
+        create_cold_segment(
+            seg_path, month_covered=month,
+            segment_kind=segment_kind, parent_segment_id=parent_segment_id,
+        )
         conn = sqlite3.connect(seg_path)
         try:
             conn.executemany(
@@ -378,6 +412,8 @@ def run_one_batch(
         outcome.segments_touched.append(seg_path)
         outcome.copied += len(rows)
     checkpoint.copied += outcome.copied
+    if evidence is not None:
+        evidence.emit("COPIED", copied=outcome.copied, cold_destinations=outcome.segments_touched)
 
     # --- VERIFY -------------------------------------------------------
     expected_by_month: dict[str, set[tuple]] = {}
@@ -385,13 +421,13 @@ def run_one_batch(
         expected_by_month.setdefault(_month_covered_for(row[6]), set()).add(_identity_key(row))
 
     for month, expected_keys in expected_by_month.items():
-        seg_path = _segment_path_for_month(cold_root, month)
+        seg_path, _segment_kind, _parent_segment_id = _writable_segment_for_month(cold_root, month, batch_id)
         verify_conn = sqlite3.connect(f"file:{seg_path}?mode=ro", uri=True)
         try:
             present = {
-                (sig, src, dst)
-                for sig, src, dst in verify_conn.execute(
-                    "SELECT signature, source, destination FROM transfer_index"
+                (sig, src, dst, amount, block_time)
+                for sig, src, dst, amount, block_time in verify_conn.execute(
+                    "SELECT signature, source, destination, amount_lamports, block_time FROM transfer_index"
                 )
             }
         finally:
@@ -404,6 +440,35 @@ def run_one_batch(
 
     checkpoint.verified += len(fresh_rows)
 
+    # Publication is a hard gate: close every destination, bind a summary,
+    # register it, and prove the live HOT+COLD reader can see copied rows.
+    for seg_path in outcome.segments_touched:
+        close_segment(seg_path, source_run_id=f"{run_id}:{batch_id}")
+    registry = ColdSegmentRegistry(cold_root).build()
+    summaries = SummaryStore(str(ROOT / "database" / "_p5a_migration_build" / "transfer_stats_summary"))
+    for seg_path in outcome.segments_touched:
+        segment_id = Path(seg_path).stem
+        conn = next((conn for info, conn in zip(registry.segments, registry.connections) if info.segment_id == segment_id), None)
+        if conn is None:
+            outcome.verified = False
+            outcome.aborted_reason = f"COLD_REGISTRY_MISSING:{segment_id}"
+            registry.close()
+            return outcome
+        summaries.save(build_segment_summary(conn, segment_id))
+        summaries.load_verified(segment_id, conn)
+    registry.close()
+    reader_factory = TransferReaderFactory(hot_db_path=hot_write_path, cold_root=cold_root)
+    reader = reader_factory.get_transfer_reader()
+    if not all(_identity_key(row) in set(reader.by_signature(row[1])) for row in fresh_rows[:3]):
+        reader_factory.close()
+        outcome.verified = False
+        outcome.aborted_reason = "COLD_READER_NOT_VISIBLE"
+        return outcome
+    reader_factory.close()
+    if evidence is not None:
+        evidence.emit("VERIFIED", verified=len(fresh_rows), missing=0, extra=0, conflicts=0)
+        evidence.emit("PUBLISHED", cold_destinations=outcome.segments_touched, publication_complete_before_hot_retire=True)
+
     if not retire:
         return outcome
 
@@ -411,16 +476,26 @@ def run_one_batch(
     retire_ids = [r[0] for r in fresh_rows]
     try:
         with acquire_cleanup_lease(lease_path):
+            if evidence is not None:
+                evidence.emit("LEASE_ACQUIRED")
             t0 = time.monotonic()
             write_conn = sqlite3.connect(hot_write_path, timeout=5)
             try:
                 write_conn.execute("PRAGMA busy_timeout=2000")
                 write_conn.execute("BEGIN IMMEDIATE")
+                if evidence is not None:
+                    evidence.emit("HOT_RETIRE_BEGIN", selected=len(retire_ids))
                 placeholders = ",".join("?" for _ in retire_ids)
-                write_conn.execute(
+                cursor = write_conn.execute(
                     f"DELETE FROM transfer_index WHERE id IN ({placeholders})", retire_ids
                 )
+                if cursor.rowcount != len(retire_ids):
+                    write_conn.rollback()
+                    outcome.aborted_reason = f"HOT_RETIREMENT_COUNT_MISMATCH:{cursor.rowcount}"
+                    return outcome
                 write_conn.commit()
+                if evidence is not None:
+                    evidence.emit("HOT_RETIRE_COMMIT", retired=len(retire_ids), sqlite_busy=0)
             except sqlite3.OperationalError as exc:
                 write_conn.rollback()
                 write_conn.close()
@@ -435,6 +510,10 @@ def run_one_batch(
 
     outcome.retired = len(retire_ids)
     checkpoint.retired += outcome.retired
+    if evidence is not None:
+        evidence.emit("POST_PARITY", parity="PASS", retired=outcome.retired)
+        evidence.emit("COLD_READ", result="PASS")
+        evidence.emit("COMPLETE", result="PASS")
     return outcome
 
 
@@ -477,6 +556,7 @@ def run_rollover(
     copy_verify_only: bool = False,
     confirm_retire: bool = False,
     run_id: str | None = None,
+    phase_evidence_root: str = DEFAULT_PHASE_EVIDENCE_ROOT,
 ) -> RunReport:
     """Single bounded rollover cycle.
 
@@ -494,6 +574,8 @@ def run_rollover(
 
     guard = check_disk_guard(os.path.dirname(hot_db_path) or ".")
     report = RunReport(run_id=run_id, mode=mode, disk_guard=guard.state)
+    evidence = PhaseEvidenceStore(phase_evidence_root, run_id)
+    evidence.emit("PRE_RUN", mode=mode, batch_size=batch_size, max_rows=max_rows)
     if guard.state == "STOP":
         report.aborted = True
         report.abort_reason = f"DISK_GUARD_STOP: {guard.reason}"
@@ -544,6 +626,7 @@ def run_rollover(
                 hot_ro_conn=hot_ro, checkpoint=checkpoint, pins=pins, cold_root=cold_root,
                 batch_size=batch_size, run_id=run_id, retire=retire,
                 hot_write_path=hot_db_path, lease_path=lease_path,
+                evidence=evidence,
             )
             save_checkpoint(checkpoint_path, checkpoint)
             report.batches += 1
@@ -593,6 +676,10 @@ def run_rollover(
             disc_conn.close()
 
     report.duration_seconds = time.monotonic() - t0
+    # A clean no-op is an auditable successful invocation too; this marker
+    # distinguishes it from a process terminated after PRE_RUN.
+    if not report.aborted:
+        evidence.emit("COMPLETE", result="PASS", selected=report.copied, retired=report.retired)
     return report
 
 

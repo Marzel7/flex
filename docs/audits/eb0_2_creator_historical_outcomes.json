@@ -1,0 +1,179 @@
+{
+  "baseline": {
+    "eb0_1": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/eb0_1_birth_latency_creator_audit.json",
+    "git_head": "cb1fc110e105436c4baa9fe15f956628f80db3ce",
+    "worktree": "dirty pre-existing"
+  },
+  "gmgn_capability": {
+    "bounded_experiment": {
+      "budget": 0,
+      "reason": "No actual configured client/endpoint/authentication tier exists; undocumented API probing is not a feasibility test.",
+      "used": 0
+    },
+    "cache_table_located": false,
+    "credentials_located": false,
+    "documented_endpoint_located": false,
+    "integration_located": false,
+    "verdict": "D \u2014 UNSUITABLE_OR_UNAVAILABLE"
+  },
+  "local_outcome_source": {
+    "creator_token_relationship": "token_analysis.pf_ws_creator/earliest_tx_creator",
+    "market_peak": "market_cap_highest",
+    "migration": "lifecycle_stage/migrated_at/migration_tx",
+    "outcome_limitations": [
+      "No retained price/candlestick history table exists.",
+      "market_cap_highest is a legacy observed maximum without fixed 1m/5m/15m/1h windows.",
+      "Quick death and survival windows cannot be reconstructed honestly."
+    ]
+  },
+  "milestone": "EB0.2 \u2014 Creator Historical Outcome & GMGN Feasibility Audit",
+  "mode": "READ_ONLY_SHADOW",
+  "next_milestone": "EB0.3 should establish a configured, documented market-outcome source and bounded historical-window validation before any creator-performance priority policy.",
+  "observed_at": 1786433250.683699,
+  "outcomes": {
+    "migration_bucket_next_launch": {
+      "GOOD_HISTORY": {
+        "next_migration_rate_pct": 14.276,
+        "next_nonmigration_rate_pct": 85.724,
+        "target_launches": 4567
+      },
+      "INSUFFICIENT_HISTORY": {
+        "next_migration_rate_pct": 34.244,
+        "next_nonmigration_rate_pct": 65.756,
+        "target_launches": 1025
+      },
+      "MIXED_HISTORY": {
+        "next_migration_rate_pct": 0.438,
+        "next_nonmigration_rate_pct": 99.562,
+        "target_launches": 11653
+      },
+      "POOR_HISTORY": {
+        "next_migration_rate_pct": 0.137,
+        "next_nonmigration_rate_pct": 99.863,
+        "target_launches": 39470
+      },
+      "VERY_POOR_HISTORY": {
+        "next_migration_rate_pct": 0.087,
+        "next_nonmigration_rate_pct": 99.913,
+        "target_launches": 3443
+      }
+    },
+    "peak_coverage_pct": 1.503,
+    "peak_distribution_observed": {
+      "count": 1094,
+      "p50": 23486.73,
+      "p90": 66697.17981866465,
+      "p99": 331962.2515329565
+    },
+    "poor_streak_next_migration": {
+      "10": {
+        "next_migration_rate_pct": 0.192,
+        "next_nonmigration_rate_pct": 99.808,
+        "target_launches": 55867
+      },
+      "25": {
+        "next_migration_rate_pct": 0.157,
+        "next_nonmigration_rate_pct": 99.843,
+        "target_launches": 52374
+      },
+      "5": {
+        "next_migration_rate_pct": 0.22,
+        "next_nonmigration_rate_pct": 99.78,
+        "target_launches": 57309
+      }
+    },
+    "prior_sample_size_next_migration": {
+      "10-24": {
+        "next_migration_rate_pct": 12.765,
+        "next_nonmigration_rate_pct": 87.235,
+        "target_launches": 2358
+      },
+      "100+": {
+        "next_migration_rate_pct": 0.197,
+        "next_nonmigration_rate_pct": 99.803,
+        "target_launches": 47650
+      },
+      "2-4": {
+        "next_migration_rate_pct": 34.244,
+        "next_nonmigration_rate_pct": 65.756,
+        "target_launches": 1025
+      },
+      "25-49": {
+        "next_migration_rate_pct": 4.089,
+        "next_nonmigration_rate_pct": 95.911,
+        "target_launches": 3106
+      },
+      "5-9": {
+        "next_migration_rate_pct": 22.0,
+        "next_nonmigration_rate_pct": 78.0,
+        "target_launches": 950
+      },
+      "50-99": {
+        "next_migration_rate_pct": 0.572,
+        "next_nonmigration_rate_pct": 99.428,
+        "target_launches": 5069
+      }
+    },
+    "recent_vs_lifetime_next_migration": {
+      "recent5_better": {
+        "next_migration_rate_pct": 19.601,
+        "next_nonmigration_rate_pct": 80.399,
+        "target_launches": 602
+      },
+      "recent5_not_better": {
+        "next_migration_rate_pct": 1.667,
+        "next_nonmigration_rate_pct": 98.333,
+        "target_launches": 59556
+      }
+    }
+  },
+  "recommended_profile_schema": [
+    "creator",
+    "launch_count",
+    "observed_outcome_count",
+    "migration_count",
+    "migration_rate",
+    "median_peak_mc",
+    "p90_peak_mc",
+    "max_peak_mc",
+    "recent_5_migration_rate",
+    "recent_10_migration_rate",
+    "last_success_at",
+    "last_launch_at",
+    "profile_version",
+    "outcome_source",
+    "updated_at"
+  ],
+  "sample": {
+    "chronological_next_launch_targets": 60158,
+    "eligible_repeat_creators": 318,
+    "launches_with_chronology": 60582,
+    "recent_24h_creators": 9187,
+    "selected_creators": 400,
+    "strata": {
+      "('repeat_24h', 'funded')": 428,
+      "('repeat_24h', 'unfunded')": 2943,
+      "('single_24h', 'funded')": 114,
+      "('single_24h', 'unfunded')": 5702
+    }
+  },
+  "simulation": {
+    "activation": "HOLD",
+    "cohort_full_creator_call_proxy_avoided": 290415.8,
+    "cold_target_launches": 3257,
+    "deferred_next_migrations": 2,
+    "false_deprioritization_migration_pct": 0.061,
+    "full_creator_calls_per_target_proxy": 89.167,
+    "immediate_pct": 94.586,
+    "immediate_target_launches": 56901,
+    "operational_hourly_load_model": "NOT_COMPUTED: this historical cohort is not a live birth rate and must not be treated as an hourly forecast",
+    "policy": "DEPRIORITIZE_ONLY zero-migration creators with >=10 strictly prior launches; capture all births and do not delete"
+  },
+  "verdicts": {
+    "creator_history_predictiveness": "C \u2014 WEAK pending outcome coverage beyond migration",
+    "helius_load_reduction": "C \u2014 LIMITED from local migration-only prior",
+    "poor_creator_deprioritization": "C \u2014 HIGH_FALSE_DEPRIORITIZATION_RISK until market/survival outcomes exist",
+    "production_activation": "HOLD",
+    "successful_creator_prioritization": "D \u2014 NOT_PROVEN"
+  }
+}

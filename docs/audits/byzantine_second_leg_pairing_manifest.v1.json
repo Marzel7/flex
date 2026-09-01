@@ -1,0 +1,18 @@
+{
+  "artifact_type": "BYZANTINE_SECOND_LEG_PAIRING_MANIFEST_V1",
+  "compatibility_reconciliation": "PASS",
+  "creator": "J3yZQYJECzT3PD9BpzQzSM4FKENrDeVSCtmxdFSNThMy",
+  "current_extra_vs_frozen": [],
+  "current_subprov_cohort_count": 182,
+  "first_leg_signature": "5MJE8Xd8HpASjtsPuuvPiQG2hcvCn5EQNz48wyUFRYTdkg5RsNuWfnbvoQWQh1jjhajoeLWQL5akKyZwdp6P1SYy",
+  "flow_artifact": "docs/audits/byzantine_atomic_funding_flow_3dgGSH.v1.json",
+  "frozen_cohort_actual_count": 182,
+  "frozen_cohort_digest": "b9c88cab4b1d7a90deea64b7d03736cce14b1571a5a797eeb807f26867b055e1",
+  "frozen_cohort_expected_count": 182,
+  "frozen_missing_from_current": [],
+  "mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+  "retained_local_decode_runs": 2,
+  "role_artifact": "docs/audits/byzantine_second_leg_3Tg6_decoded_roles.v1.json",
+  "target_mint_in_frozen_cohort": true,
+  "target_signature": "3Tg6LkBYDhj1ZK2DipMfCFyUDkfdfPDH6wxs6W5XdfMgponC9XTAFpGEWWbUqLfSHhepgaJus4GTUB3oPwe4yrW7"
+}

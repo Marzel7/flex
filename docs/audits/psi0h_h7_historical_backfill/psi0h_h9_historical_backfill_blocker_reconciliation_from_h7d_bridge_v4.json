@@ -1,0 +1,83 @@
+{
+  "schema_version": "psi0h-h9.historical-backfill-blocker-reconciliation.v1",
+  "milestone": "PSI0H-H9",
+  "run_id": "psi0h-h9-historical-backfill-blocker-reconciliation",
+  "status": "PASS",
+  "verdict": "PSI0H_H9_NO_ACTION_NEEDED",
+  "h7_artifact": "docs/audits/psi0h_h7_bounded_historical_backfill_preflight_from_h7d_bridge.json",
+  "h8_artifact": "70219c6e6ac2a82449048486491a9637460f104fb6b5948aa4bd38319260bf08",
+  "execution_status": "HALT",
+  "h7_selection_count": 1,
+  "h8_source_rows": 150,
+  "h8_primitive_rows": 150,
+  "diagnostics": [
+    {
+      "source_path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+      "row_ceiling": 300,
+      "h7_blockers": [],
+      "h7_reconstructable": true,
+      "h8_selection": {
+        "evidence_rows": 150,
+        "primitive_rows": 150
+      },
+      "source_opened": true,
+      "evidence_family_present": false,
+      "primitive_table_present": false,
+      "primitive_row_available": false,
+      "required_fields_present": false,
+      "event_lineage_present": false,
+      "reasons": [
+        "EVENT_LINEAGE_MISSING",
+        "REQUIRED_OPERATION_FAMILY_FIELDS_MISSING",
+        "SOURCE_EMPTY"
+      ],
+      "recommendation": "Reconcile H7 source selection and rerun H8 with split evidence/primitive ceilings."
+    }
+  ],
+  "blockers": [],
+  "reason_counts": {
+    "EVENT_LINEAGE_MISSING": 1,
+    "REQUIRED_OPERATION_FAMILY_FIELDS_MISSING": 1,
+    "SOURCE_EMPTY": 1
+  },
+  "reconstructable_source_count": 0,
+  "next_action": {
+    "decision": "STOP_AND_RECONCILE_BEFORE_NEXT_H8",
+    "instruction": "Classify and apply source/budget/fields adjustments before any additional H8 boundary run. No source writes, provider calls, comparison, or candidate disposition is allowed.",
+    "verdict": "PSI0H_H9_NO_ACTION_NEEDED",
+    "recommended_next": [
+      "rerun H9 after H7 plan correction",
+      "bind explicit primitive budget strategy before another H8",
+      "if no reconcilable sources remain, locate alternate source artifacts (older pre-E groups)"
+    ]
+  },
+  "scope": {
+    "comparison": false,
+    "candidate_generation": false,
+    "candidate_disposition": false,
+    "monitoring": false,
+    "policy": false,
+    "provider_access": false,
+    "source_read": true,
+    "service_changes": false,
+    "activation": false
+  },
+  "authority": {
+    "comparison": false,
+    "candidate_generation": false,
+    "candidate_disposition": false,
+    "supported": false,
+    "same_operation": false,
+    "same_human": false,
+    "alerting": false,
+    "monitoring": false,
+    "consumer": false,
+    "policy": false,
+    "ranking": false,
+    "trading": false,
+    "integration": false,
+    "deployment": false,
+    "activation": false
+  },
+  "artifact_digest": "8f933c8849d57e29cb91bf4b1e41535c1273765aec76fcba0f3e971710818738"
+}

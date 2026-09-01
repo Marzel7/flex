@@ -1,0 +1,55 @@
+{
+  "baseline_metadata": {
+    "c357": 71,
+    "collisions": 90
+  },
+  "contract": {
+    "candidate_id": "p3r-v2-c357da9d0d4d560311e4",
+    "mode": "SHADOW_ONLY",
+    "prohibitions": [
+      "membership mutation",
+      "workflow mutation",
+      "detector activation",
+      "trading action",
+      "production alert"
+    ],
+    "safety": {
+      "shadow_only": true,
+      "workflow": "PAUSED"
+    },
+    "schema_version": "C357_SHADOW_MONITOR_CONTRACT_V1",
+    "stages": {
+      "attribution": {
+        "otherwise": "C357_COMPATIBLE_UNRESOLVED",
+        "output": "C357_ATTRIBUTION_CANDIDATE",
+        "required": [
+          "C357_COMPATIBLE",
+          "independently_verified_c357_branch_or_cohort_evidence"
+        ]
+      },
+      "compatibility": {
+        "output": "C357_COMPATIBLE",
+        "required": [
+          "WSOL_WRAP_CLOSE",
+          "amount_lamports=99999985000",
+          "createAccountWithSeed",
+          "initializeAccount3",
+          "transfer",
+          "syncNative",
+          "closeAccount"
+        ]
+      }
+    }
+  },
+  "digest": "393606f4198a514b1e3fffff87d228744836163027d59fc701362628893741a4",
+  "population": 161,
+  "results": {
+    "attribution_candidates": 0,
+    "compatible": 161,
+    "compatible_unresolved": 161,
+    "positive_branch_recognition": "NOT_EXECUTED: census has no independently materialized branch edges beyond labels",
+    "safe_abstention_on_shared_infrastructure": true
+  },
+  "schema_version": "C357_SHADOW_HISTORICAL_QUALIFICATION.v1",
+  "verdict": "PARTIAL_HISTORICAL_QUALIFICATION_NO_LIVE_SHADOW_AUTHORIZED"
+}

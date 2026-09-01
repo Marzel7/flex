@@ -1,0 +1,26 @@
+{
+  "schema_version": "generic_living_real_forward_cutover_preflight.v1",
+  "legacy_backfill_artifact": {"path": "docs/audits/generic_living_legacy_lineage_backfill.v1.json", "sha256": "12f561afc0bf92e4b4682ef39bf6e740f4f96810e0209805111e22e2485abc25", "verified": true},
+  "real_db_read_only": true,
+  "baseline": {"identities": 2, "associations": 183, "assessments": 5, "currents": 2, "lineage": 5, "bindings": 183},
+  "source_highwaters": {"queue": 38093, "edge": 73969, "atomic_flow": 8397},
+  "candidate_relevance": {
+    "wsol": {"legacy_generation": "000000037922:000000073534:000000008354", "classification": "GLOBAL_HIGH_WATER_ADVANCED_BUT_NOT_RELEVANT", "new_queue_rows": 0, "new_edge_rows": 0, "new_atomic_rows": 0, "would_publish": false},
+    "eight_hop": {"legacy_generation": "000000037934:000000073578:000000008363", "classification": "GLOBAL_HIGH_WATER_ADVANCED_BUT_NOT_RELEVANT", "new_queue_rows": 0, "new_edge_rows": 0, "new_atomic_rows": 0, "would_publish": false}
+  },
+  "publication_safety": "Mechanism qualified previously in disposable WAL; no candidate has relevant newer real source evidence to publish now.",
+  "disposable_publication": "Prior forward-cutover qualification PASS; not rerun against a nonexistent relevant real event.",
+  "cross_candidate_isolation": "PASS: neither candidate selected for unrelated global source growth.",
+  "bridge_simulation": "Generic resolver must dispatch only candidates with candidate-relevant new evidence; no global recompute.",
+  "ui_history": "Lineage-aware history distinguishes legacy bindings from unavailable historical binding context.",
+  "active_cutover_code_surface": ["src/ops/living_potential_operations.py: handle_walkback_evidence_update", "src/ops/generic_living_pipeline_v2.py: handle_walkback_evidence_update_generic", "src/ops/living_potential_operations.py: living_detail_projection"],
+  "rollback_plan": "Restore legacy bounded dispatch only; retain legitimately published generic immutable versions and lineage, never rewrite history.",
+  "real_db_writes": 0,
+  "pre_existing_evidence_table_writes_by_task": 0,
+  "active_generic_cutover": false,
+  "generic_assessment_publication": false,
+  "automatic_global_walkback_integration": false,
+  "focused_tests": "python -m pytest -q tests/test_generic_living_pipeline_v2.py: 9 passed",
+  "cutover_readiness": "READY_FOR_BOUNDED_ACTIVE_GENERIC_CUTOVER",
+  "verdict": "GENERIC_LIVING_BOUNDED_ACTIVE_CUTOVER_PREFLIGHT_QUALIFIED"
+}

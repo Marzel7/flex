@@ -1,0 +1,17 @@
+{
+  "schema_version": "generic_living_persisted_source_reader_qualification.v1",
+  "prior_artifact": {"path": "docs/audits/generic_living_active_cutover_components_qualification.v1.json", "sha256": "b291ba8edf8a9caf4fbd9a9d8aaf504caa431c38d34d9467b7095bf065ac3fe3"},
+  "authoritative_source_tables": ["p3r_v2_candidate_membership", "wt_walkback_queue", "wt_walkback_edge_candidates", "wt_walkback_atomic_flows"],
+  "reader_contract": "read_generic_living_source_context(spec, db_path, event_context); SQLite URI mode=ro; candidate membership bounded queries only",
+  "read_only_enforcement": "PASS: URI mode=ro and SELECT-only implementation",
+  "real_highwaters": {"queue": 38093, "edges": 73969, "atomic": 8397},
+  "real_dry_run": {"wsol": "GLOBAL_HIGH_WATER_ADVANCED_BUT_NOT_RELEVANT", "eight_hop": "GLOBAL_HIGH_WATER_ADVANCED_BUT_NOT_RELEVANT"},
+  "feature_flag": {"name": "LIVING_GENERIC_BOUNDED_DISPATCH_ENABLED", "state": false},
+  "real_db_writes": 0,
+  "source_table_writes": 0,
+  "candidate_specific_behavioral_branches": 0,
+  "reader_timings": "bounded real reads completed under 0.5 seconds per candidate",
+  "focused_tests": "python -m pytest -q tests/test_generic_living_pipeline_v2.py: 10 passed",
+  "cutover_readiness": "READY_FOR_BOUNDED_ACTIVE_GENERIC_CUTOVER",
+  "verdict": "GENERIC_LIVING_PERSISTED_SOURCE_READER_QUALIFIED"
+}

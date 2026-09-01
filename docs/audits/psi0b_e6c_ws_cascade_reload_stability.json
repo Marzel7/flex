@@ -1,0 +1,67 @@
+{
+  "schema_version": "psi0b-e6c.stability.v1",
+  "milestone": "PSI0B-E6C",
+  "verdict": "PASS_15_CLEAN_MINUTES_ALL_E5_OPERATIONS_WRITERS_RELOADED",
+  "engineering_commit": "3862e7dfcc2fcc6293a433c14566303124683476",
+  "observation": {
+    "started_at_utc": "2026-08-15T08:28:47Z",
+    "completed_at_utc": "2026-08-15T08:44:00Z",
+    "duration_seconds": 913,
+    "checkpoint_count": 31,
+    "checkpoint_spacing_seconds": 30
+  },
+  "service_action": {
+    "service": "ws_cascade",
+    "authorized_restart_count": 1,
+    "actual_restart_count": 1,
+    "old_pid": 41781,
+    "new_pid": 5461,
+    "old_process_stop": "Supervisor graceful-stop window expired and Supervisor terminated the old process with SIGKILL before starting the replacement",
+    "replacement_started_at_local": "2026-08-15T09:27:23+01:00",
+    "replacement_running": true,
+    "loaded_engineering_revision": "3862e7dfcc2fcc6293a433c14566303124683476"
+  },
+  "stable_service_identities": {
+    "watchtower_listener_pid": 72232,
+    "walkback_worker_pid": 70136,
+    "ws_cascade_pid": 5461,
+    "evidence_writer": "STOPPED",
+    "pid_changes_during_observation": 0
+  },
+  "gates": {
+    "primary_fd_count_maximum": 4,
+    "primary_fd_count_terminal": 0,
+    "critical_listener_db_handle_increment": 0,
+    "serializer_p99_wait_ms_maximum": 4.09,
+    "serializer_p99_wait_ms_terminal": 3.72,
+    "serializer_queue_depth_maximum": 2,
+    "serializer_queue_nonzero_checkpoints": 1,
+    "sustained_nonzero_serializer_queue": false,
+    "serializer_lock_error_increment": 0,
+    "new_60_second_operations_lock_timeouts": 0,
+    "new_listener_walkback_enqueue_timeouts": 0,
+    "recurrent_orphan_release_pending_metadata": false,
+    "pre_existing_inert_release_pending_temporary_metadata_preserved": true,
+    "walkback_cycles_successful": true,
+    "pumpportal_pumpswap_ingestion_healthy": true,
+    "websocket_cascade_processing_healthy": true,
+    "production_impact": false
+  },
+  "authority": {
+    "production_database_opened_by_codex": false,
+    "production_rows_or_schema_read_by_codex": false,
+    "production_writes_or_ddl_by_codex": 0,
+    "provider_qualification_calls_by_codex": 0,
+    "psi0b_execution_authorization_materialized": false,
+    "psi0b_e_executed": false,
+    "evidence_mirror_activated": false,
+    "cohort_mode_activated": false,
+    "production_activation_authorized": false
+  },
+  "closure": {
+    "all_known_operations_writers_loaded_e5_release_failsafe": true,
+    "fresh_psi0b_e_may_be_separately_proposed": true,
+    "fresh_psi0b_e_authorized": false,
+    "output_directory_verified_absent": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0b_runs/psi0b-shadow-20260814-02"
+  }
+}

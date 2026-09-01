@@ -1,0 +1,34 @@
+{
+  "milestone": "OIP v2.2E — Controlled Production Migration Preflight, Phase 1 rerun",
+  "baseline_commit": "ad3719f59ac9541e3550fad22866efe0cab5466c",
+  "baseline_tag": "oip-v2.2e-phase1-baseline",
+  "result": "HOLD",
+  "deployment_baseline": "A — reproducible qualified X78/OIP baseline established; no restart was performed.",
+  "current_health": "X78.40/44 remains the controlling healthy baseline. Creator Funding, Creator Resolution, listener, API and intelligence scheduler are supervised and running.",
+  "blocker": {
+    "title": "BLOCKER: bounded cohort admission is absent from the live Evidence mirror",
+    "evidence": [
+      "src/acquisition/factory.py::_configured_mirror enables MirroringTransactionAcquisition solely when EVIDENCE_PLATFORM_ENABLED and EVIDENCE_MIRROR_ENABLED are true.",
+      "MirroringTransactionAcquisition.request_once publishes every completed shared-acquisition response.",
+      "EvidenceConfig has no cohort allowlist, cohort manifest, maximum-envelope counter, or closed-cohort state.",
+      "Therefore enabling the existing mirror would observe all Creator Funding shared acquisition traffic, not the Phase 1 maximum of 50 deterministic migrated tokens."
+    ],
+    "next_e_impact": "A global mirror cannot satisfy the canonical bounded-shadow, deterministic cohort, stop-boundary, per-cohort equivalence, or measured-load requirements. Activating it would be broader than authorized.",
+    "minimum_remediation": "Implement and test a default-OFF, deterministic Evidence mirror cohort gate before writer supervision or feature activation. The gate must admit only an immutable manifest/allowlist, preserve fail-open behaviour, and expose explicit excluded/accepted accounting."
+  },
+  "not_performed": [
+    "No Evidence schema/database authority created",
+    "No writer process configured or started",
+    "No feature flags enabled",
+    "No live cohort selected or mirrored",
+    "No new RPC",
+    "No production restart, queue change, or authority mutation"
+  ],
+  "verdicts": {
+    "production_evidence_authority": "D — FAILED (not yet established)",
+    "writer_supervision": "D — FAILED (not yet configured)",
+    "phase_1": "HOLD",
+    "evidence_broad_activation": "HOLD_BROAD_ACTIVATION",
+    "acquisition": "HOLD_ACQUISITION"
+  }
+}

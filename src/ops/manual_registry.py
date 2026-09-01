@@ -56,10 +56,20 @@ def refresh_operator_activity_snapshot(conn, operator_id, core_db_path=None, now
   mints=set(json.loads(profile[0])) if profile else set()
   if conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='operator_launch_membership'").fetchone():
    mints.update(item[0] for item in conn.execute("SELECT mint FROM operator_launch_membership WHERE operator_id=?",(operator_id,)))
-  rows=[(mint,None) for mint in sorted(mints)]
-  times=[]
+  provisional_rows=[]
+  if conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='operation_qualification_contracts'").fetchone():
+   provisional=conn.execute("SELECT qualification_category FROM operation_qualification_contracts WHERE operator_id=? ORDER BY created_at DESC LIMIT 1",(operator_id,)).fetchone()
+   if provisional and provisional[0]=='PROVISIONAL' and conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='provisional_operation_activity_observations'").fetchone():
+    provisional_rows=conn.execute("SELECT mint,observed_at FROM provisional_operation_activity_observations WHERE operator_id=? AND state!='PROVISIONAL_MATCH_REJECTED' ORDER BY observed_at",(operator_id,)).fetchall()
+  if provisional_rows:
+   rows=[(item[0],None) for item in provisional_rows]
+   times=[int(item[1]) for item in provisional_rows]
+   source={'contract':'explicit provisional activity observations; not confirmed membership','total_population':f'{len(rows)} distinct provisional observations'}
+  else:
+   rows=[(mint,None) for mint in sorted(mints)]
+   times=[]
   path=core_db_path or os.environ.get('DB_PATH',os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),'database','flex_complete_database.db'))
-  if mints and os.path.exists(path):
+  if not provisional_rows and mints and os.path.exists(path):
    core=sqlite3.connect(path)
    try:
     marks=','.join('?' for _ in mints)
@@ -67,7 +77,7 @@ def refresh_operator_activity_snapshot(conn, operator_id, core_db_path=None, now
      value=core.execute("SELECT strftime('%s',?)",(created_at,)).fetchone()[0]
      if value is not None: times.append(int(value))
    finally: core.close()
-  source={'contract':'retained behavioural profile members plus operator_launch_membership','total_population':f'{len(rows)} distinct member mints'}
+  if not provisional_rows: source={'contract':'retained behavioural profile members plus operator_launch_membership','total_population':f'{len(rows)} distinct member mints'}
  data=metrics(times,now)
  data.update({'total_observed_launches':len(rows),'timestamp_qualified_launches':len(times),'timestamp_missing_launches':len(rows)-len(times),'source_provenance':source})
  semantics=f'Total: distinct established operation member mints. Cadence/last launch: available launch timestamps on {len(times)} members.'

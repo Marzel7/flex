@@ -1,0 +1,66 @@
+{
+  "schema_version": "psi0e-h.publication-closure-disposition.v1",
+  "milestone": "PSI0E-H",
+  "closed_at_utc": "2026-08-16T11:55:44Z",
+  "engineering_commit": "0b3687fb0b61529034702f6117eb60071c43074f",
+  "status": "PASS",
+  "verdict": "PSI0E_CLOSED_COMPLETE_NON_AUTHORITATIVE_DEFAULT_OFF_IMMUTABLE_LOCAL_ENVELOPE_PUBLICATION",
+  "published_bundle": {
+    "path": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0e_runs/psi0e-envelope-20260816-01",
+    "bundle_digest": "88c7de3156a4dc07b3c3b2461b4e1e37e85d5bd06d217d904472e4f4bc6f4d9c",
+    "envelope_digest": "c8827678b2137f1aec864f86623514a92affb0c6df092d13b24c160f8fb90a9d",
+    "contract_file_digest": "84cbc69f1d6120624727a5d0faeb3a0d02734eb62d0986d9e70879fa2ca6a748",
+    "hashes_file_digest": "26b1d454e295f622bb9d1e6b44ccc2197f5ad01c91f61aa8ad7333678722f56d",
+    "exact_files": [
+      "contract.json",
+      "envelope.json",
+      "hashes.json"
+    ]
+  },
+  "replay_verification": {
+    "each_file_read_once": true,
+    "canonical_bytes": true,
+    "file_hashes": true,
+    "bundle_digest": true,
+    "contract_and_source_lineage": true,
+    "input_digest": "89c8dee5c976bd587aa6fc7ec3a6194e38caeba5508013c8ddca976489038f35",
+    "output_provenance": "PRODUCTION_DERIVED_IMMUTABLE_LOCAL_DESCRIPTIVE_INTEGRATION_ENVELOPE",
+    "source_provenance": "PRODUCTION_DERIVED_IMMUTABLE_LOCAL_ASSESSMENT_SUMMARY",
+    "default_off": true,
+    "consumer_enabled": false,
+    "cohort_count": 5000,
+    "surface_count": 5,
+    "unresolved_conflict_count": 0,
+    "orphan_unmatched_count": 0,
+    "reason_codes": [
+      "PSI0C_B_ABSENCE_IS_NOT_NEGATIVE"
+    ],
+    "snapshot_duplicate_row_count": 2266,
+    "all_missingness_absent_not_negative": true,
+    "staging_or_partial_output_present": false
+  },
+  "surface_coverage": {
+    "creator_selected_cohort": [0, 5000],
+    "evidence_launch_facts": [0, 5000],
+    "main_selected_cohort": [5000, 5000],
+    "ops_selected_cohort": [1, 5000],
+    "snapshot_selected_cohort": [2442, 5000]
+  },
+  "authority": {
+    "policy": false,
+    "ranking": false,
+    "integration": false,
+    "deployment": false,
+    "activation": false,
+    "evidence_mirror": false,
+    "cohort_mode": false,
+    "eb2": false
+  },
+  "disposition": {
+    "psi0e_closed": true,
+    "consumer_integrated_or_deployed": false,
+    "smallest_next_milestone": "PSI0F-A known-behaviour operational-surfacing roadmap reconciliation",
+    "next_milestone_scope": "Read committed PSI0E closure and EB0.4 operational-semantics roadmap artifacts only; define a fixture-only, default-off, non-authoritative surfacing qualification boundary without implementing it.",
+    "separate_human_authorization_required": true
+  }
+}

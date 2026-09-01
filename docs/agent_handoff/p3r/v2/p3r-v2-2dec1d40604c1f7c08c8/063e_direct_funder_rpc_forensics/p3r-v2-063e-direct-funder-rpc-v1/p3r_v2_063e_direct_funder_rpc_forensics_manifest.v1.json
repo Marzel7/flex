@@ -1,0 +1,12 @@
+{
+  "provider_call_count": 26,
+  "provider_methods": {
+    "getSignaturesForAddress": 4,
+    "getTransaction": 22
+  },
+  "report": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/063e_direct_funder_rpc_forensics/p3r-v2-063e-direct-funder-rpc-v1/p3r_v2_063e_direct_funder_rpc_forensics.v1.json",
+  "report_sha256": "4f2c894e365a73414f3ae9f2a7f12c0e0fa85cc72287b8a77d9effd3b35fbbe5",
+  "schema_version": "P3R_V2_063E_DIRECT_FUNDER_RPC_FORENSICS_MANIFEST.v1",
+  "selection_rule": "Immediate ledger entry older than the direct funder launch transaction; accept only positive native balance delta into the funder.",
+  "source_forensic_sha256": "05833e5787a4735bbd20b1d530ea5ad36c7bffd6f3dc4e54f7f1891a946bde3d"
+}

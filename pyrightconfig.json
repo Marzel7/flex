@@ -1,0 +1,10 @@
+{
+  "exclude": [
+    "logs",
+    "rpc_monitor_logs",
+    ".logs",
+    "database/evidence_platform/artifacts",
+    ".git",
+    "**/__pycache__"
+  ]
+}

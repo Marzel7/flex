@@ -1,0 +1,114 @@
+{
+  "schema_version": "psi0f-a.known-behaviour-operational-surfacing-roadmap.v1",
+  "milestone": "PSI0F-A",
+  "reconciled_at_utc": "2026-08-16T11:58:14Z",
+  "engineering_commit": "0b3687fb0b61529034702f6117eb60071c43074f",
+  "status": "PASS",
+  "verdict": "NEXT_PSI0F_B_FIXTURE_ONLY_KNOWN_BEHAVIOUR_OPERATIONAL_SURFACE_CONTRACT",
+  "bound_inputs": {
+    "psi0e_h_closure_digest": "ae0994f1f3647f53fbcd3cabf0c8e46efa26b504805fecb95e8d2851d9e98c16",
+    "psi0e_bundle_digest": "88c7de3156a4dc07b3c3b2461b4e1e37e85d5bd06d217d904472e4f4bc6f4d9c",
+    "psi0e_envelope_digest": "c8827678b2137f1aec864f86623514a92affb0c6df092d13b24c160f8fb90a9d",
+    "roadmap_inputs": [
+      "docs/evidence_platform/post_e_eb0_canonical_roadmap.json",
+      "docs/evidence_platform/eb0_4a_operational_family_nomination_contract.md",
+      "docs/evidence_platform/eb0_4c_operational_family_adapters.md",
+      "docs/evidence_platform/eb0_4d_operational_family_manifest.md",
+      "docs/evidence_platform/eb0_4e_operational_family_corpus.md",
+      "docs/evidence_platform/eb0_4f_frozen_stack_extractor_preflight.md",
+      "docs/evidence_platform/eb0_4g_query_only_operational_family_extractor.md",
+      "docs/evidence_platform/eb0_4h_immutable_operational_family_bundle.md"
+    ]
+  },
+  "reconciliation": {
+    "psi0e_information_level": "AGGREGATE_AVAILABILITY_ONLY",
+    "eb0_4_information_level": "OPERATION_ROLE_AND_NON_AUTHORITATIVE_BEHAVIOUR_FAMILY_NOMINATION",
+    "operation_specific_psi0e_join_available": false,
+    "safe_composition": "Display fixture-only EB0.4 known-behaviour operation summaries beside separately labelled PSI0E aggregate evidence availability context.",
+    "unsafe_composition": "Infer operation-specific evidence coverage, identity, performance, risk, ranking or policy from PSI0E aggregate coverage."
+  },
+  "next_milestone": {
+    "milestone": "PSI0F-B",
+    "name": "Pure fixture-only known-behaviour operational-surface contract",
+    "authorization_class": "SAFE_LOCAL_IMPLEMENTATION_TEST_DOCUMENTATION_NARROW_COMMIT",
+    "immutable_inputs": [
+      "Caller-injected frozen synthetic PSI0E envelope summary with exact lineage, five surface aggregates, ABSENT_NOT_NEGATIVE semantics, duplicate/conflict/unmatched accounting, default_off=true, consumer_enabled=false and false authority.",
+      "Caller-injected frozen synthetic EB0.4 operational-family summary with PLATFORM_OPERATION_ID, primary role, nomination state, supporting fact identities, shared edge/mechanism/temporal descriptors, versioned sources, quality, completeness, conflicts and false operator-identity authority.",
+      "Explicit fixture_only=true marker and deterministic contract identities."
+    ],
+    "accepted_operational_descriptors": {
+      "identity_basis": "PLATFORM_OPERATION_ID",
+      "primary_axis": "role",
+      "relationship_metadata": "edge descriptors",
+      "behaviour_metadata": [
+        "mechanism descriptors",
+        "temporal descriptors"
+      ],
+      "nomination_states": [
+        "PROPOSED",
+        "SUPPORTED"
+      ],
+      "required_evidence_state": [
+        "source and version",
+        "quality",
+        "completeness",
+        "conflict preservation"
+      ]
+    },
+    "deterministic_output": {
+      "type": "DESCRIPTIVE_DEFAULT_OFF_KNOWN_BEHAVIOUR_OPERATIONAL_SURFACE",
+      "content": [
+        "Canonical operation and nomination counts grouped by primary role",
+        "Explicit shared edge, mechanism and temporal descriptors",
+        "Supporting fact and source counts without source payload values",
+        "Quality, completeness and unresolved-conflict counts",
+        "Separately labelled PSI0E aggregate availability context",
+        "ABSENT_NOT_NEGATIVE, duplicate and unmatched accounting",
+        "Deterministic reason codes, canonical bytes and replay digest"
+      ],
+      "cross_layer_join": false,
+      "default_off": true,
+      "consumer_enabled": false
+    },
+    "required_tests": [
+      "Complete, partial and empty operational-family fixtures",
+      "PROPOSED and SUPPORTED nomination preservation",
+      "Role/edge/mechanism/temporal descriptor preservation",
+      "Topology-only support rejection",
+      "ABSENT_NOT_NEGATIVE preservation without operation-specific inference",
+      "Duplicate, conflict, orphan and unmatched preservation",
+      "Missing, extra, stale, malformed or altered lineage and schema",
+      "Operator identity, attribution, threshold, rank, score, policy, selection, profitability and cashflow rejection",
+      "Input-order independence, canonical replay and tamper rejection",
+      "Pure no-I/O, default-off and source-value non-retention proof"
+    ],
+    "stop_conditions": [
+      "Need to read the real PSI0E or EB0.4 bundle",
+      "Need for operation-specific linkage absent from immutable inputs",
+      "Identity, attribution, ranking, scoring, policy or selection inference",
+      "Unknown descriptor or nomination state",
+      "Negative inference from absence",
+      "Implicit conflict or duplicate resolution",
+      "Authority drift, I/O or scope expansion"
+    ]
+  },
+  "authority_boundary": {
+    "fixture_qualification_authorized_by_psi0f_a": false,
+    "real_bundle_application": false,
+    "real_operational_surface_publication": false,
+    "consumer_integration": false,
+    "deployment": false,
+    "operator_identity_or_attribution": false,
+    "ranking_or_policy": false,
+    "evidence_mirror": false,
+    "cohort_mode": false,
+    "production_activation": false,
+    "eb2": false
+  },
+  "approval_sequence": [
+    "PSI0F-B: separately authorize fixture-only pure contract qualification.",
+    "PSI0F-C: separately authorize replay-verified qualification closure.",
+    "Only after closure, separately reconcile whether a local adapter to immutable real summaries is coherent.",
+    "Any real application, publication, integration, deployment, Evidence mode, production activation or EB2 remains independently human-gated."
+  ]
+}

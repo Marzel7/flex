@@ -1,0 +1,7 @@
+{
+  "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/hybrid_infrastructure_qualification/p3r-v2-900b-hybrid-v1/p3r_v2_900b_hybrid_infrastructure_qualification.v1.json",
+  "artifact_sha256": "5f0e6243a33c60338b7a512313d5abe69af8fbaad2d7523e08fc7641d3c85406",
+  "deterministic_replay": "PASS using frozen edge high-water 60299.",
+  "frozen_edge_highwater": 60299,
+  "verdict": "900B_HYBRID_OPERATION_PROVISIONAL"
+}

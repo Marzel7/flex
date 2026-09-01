@@ -104,12 +104,25 @@ CREATE TABLE IF NOT EXISTS wt_infrastructure_candidate_reviews (
  review_notes TEXT, evidence_snapshot_json TEXT NOT NULL, created_at INTEGER NOT NULL,
  updated_at INTEGER NOT NULL
 );
+CREATE TABLE IF NOT EXISTS wt_walkback_transaction_roles (
+ evidence_key TEXT PRIMARY KEY, projection_version TEXT NOT NULL, mint TEXT NOT NULL, signature TEXT NOT NULL,
+ anchor_signature TEXT, transfer_source TEXT, transfer_destination TEXT, transfer_lamports INTEGER,
+ fee_payer TEXT, signers_json TEXT NOT NULL, outer_shape_json TEXT NOT NULL, inner_shape_json TEXT NOT NULL,
+ route_semantics TEXT NOT NULL, provenance_digest TEXT NOT NULL, first_observed_at INTEGER NOT NULL,
+ last_observed_at INTEGER NOT NULL, observation_count INTEGER NOT NULL DEFAULT 1,
+ UNIQUE(mint,signature,transfer_source,transfer_destination,transfer_lamports)
+);
+CREATE INDEX IF NOT EXISTS ix_wwtr_mint ON wt_walkback_transaction_roles(mint,signature);
 """
 
 
 def ensure_schema(conn) -> None:
     conn.executescript(SCHEMA)
-    columns = {r[1] for r in conn.execute("PRAGMA table_info(wt_walkback_queue)")}
+    # Some focused/offline fixtures intentionally contain only this module's
+    # retained tables.  Legacy queue upgrades apply only when that base table
+    # is present; production bootstrap always supplies it.
+    queue_exists = conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='wt_walkback_queue'").fetchone()
+    columns = {r[1] for r in conn.execute("PRAGMA table_info(wt_walkback_queue)")} if queue_exists else set()
     additions = {
         "claimed_by": "TEXT", "claimed_at": "INTEGER", "lease_expires_at": "INTEGER",
         "next_retry_at": "INTEGER", "path_state": "TEXT",
@@ -118,9 +131,49 @@ def ensure_schema(conn) -> None:
         "create_anchor_source": "TEXT", "create_anchor_audit_state": "TEXT",
     }
     for name, sql_type in additions.items():
-        if name not in columns:
+        if queue_exists and name not in columns:
             conn.execute(f"ALTER TABLE wt_walkback_queue ADD COLUMN {name} {sql_type}")
     conn.commit()
+
+def persist_transaction_roles(conn, *, mint: str, signature: str, anchor_signature: str | None,
+                              transfer_source: str | None, transfer_destination: str | None,
+                              transfer_lamports: int | None, fee_payer: str | None, signers: list[str],
+                              outer_shape: list[dict], inner_shape: list[dict], route_semantics: str) -> str:
+    """Persist normalized decoded roles; conflicts fail closed rather than overwrite."""
+    # Schema installation is deliberately outside the evidence transaction.
+    # Callers which persist roles (the worker and tests) install it before
+    # writing, so a first projection cannot commit an already-written edge.
+    now=int(time.time()); signers=list(dict.fromkeys(signers))
+    digest=evidence_key('transaction-role-v1',signature,mint,transfer_source,transfer_destination,transfer_lamports,fee_payer,json.dumps(signers,separators=(',',':')),json.dumps(outer_shape,sort_keys=True),json.dumps(inner_shape,sort_keys=True),route_semantics)
+    key=evidence_key('transaction-role-v1',mint,signature,transfer_source,transfer_destination,transfer_lamports)
+    row=conn.execute('SELECT provenance_digest FROM wt_walkback_transaction_roles WHERE evidence_key=?',(key,)).fetchone()
+    if row and row[0]!=digest: raise ValueError('conflicting authoritative transaction-role projection')
+    conn.execute("INSERT INTO wt_walkback_transaction_roles VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,1) ON CONFLICT(evidence_key) DO UPDATE SET last_observed_at=excluded.last_observed_at,observation_count=wt_walkback_transaction_roles.observation_count+1",(key,'transaction-role-v1',mint,signature,anchor_signature,transfer_source,transfer_destination,transfer_lamports,fee_payer,json.dumps(signers,separators=(',',':')),json.dumps(outer_shape,sort_keys=True,separators=(',',':')),json.dumps(inner_shape,sort_keys=True,separators=(',',':')),route_semantics,digest,now,now)); return key
+
+def persist_decoded_transaction_roles(conn, *, mint: str, signature: str, anchor_signature: str | None, tx: dict) -> str:
+    """Normalize authoritative jsonParsed transaction roles without inference."""
+    msg=(tx.get('transaction') or {}).get('message') or {}; meta=tx.get('meta') or {}
+    keys=msg.get('accountKeys') or []; pub=lambda x: x.get('pubkey') if isinstance(x,dict) else x
+    signers=[pub(x) for x in keys if isinstance(x,dict) and x.get('signer') and pub(x)]
+    fee=pub(keys[0]) if keys else None
+    outer=[]; inner=[]; transfers=[]
+    def norm(ix, parent, target):
+        parsed=ix.get('parsed') if isinstance(ix,dict) else None; info=parsed.get('info') if isinstance(parsed,dict) else {}
+        typ=parsed.get('type') if isinstance(parsed,dict) else None; row={'index':len(target),'parent_index':parent,'program_id':ix.get('programId') if isinstance(ix,dict) else None,'type':typ}
+        target.append(row)
+        if typ in ('transfer','transferChecked') and isinstance(info,dict):
+            amount=info.get('lamports',info.get('tokenAmount',{}).get('amount') if isinstance(info.get('tokenAmount'),dict) else None)
+            try: amount=int(amount)
+            except (TypeError,ValueError): amount=None
+            transfers.append((info.get('source'),info.get('destination'),amount,parent))
+    for i,ix in enumerate(msg.get('instructions') or []): norm(ix,i,outer)
+    for block in meta.get('innerInstructions') or []:
+        for ix in block.get('instructions') or []: norm(ix,int(block.get('index',-1)),inner)
+    # DIRECT only when exactly one explicit system transfer is decoded; otherwise fail closed.
+    source=destination=amount=None; route='AMBIGUOUS_OR_UNSUPPORTED'
+    if len(transfers)==1: source,destination,amount,_=transfers[0]; route='DIRECT'
+    elif len(transfers)>1: route='INTERMEDIARY'
+    return persist_transaction_roles(conn,mint=mint,signature=signature,anchor_signature=anchor_signature,transfer_source=source,transfer_destination=destination,transfer_lamports=amount,fee_payer=fee,signers=signers,outer_shape=outer,inner_shape=inner,route_semantics=route)
 
 
 def valid_signature(signature: Optional[str]) -> bool:

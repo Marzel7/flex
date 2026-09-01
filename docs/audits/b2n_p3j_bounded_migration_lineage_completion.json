@@ -1,0 +1,140 @@
+{
+  "schema_version": "b2n.p3j.bounded-migration-lineage-completion.v1",
+  "artifact_type": "B2N_P3J_BOUNDED_MIGRATION_LINEAGE_COMPLETION",
+  "milestone": "B2N-P3J",
+  "generated_utc": "2026-08-18T22:35:00Z",
+  "run_id": "b2n-p3e-98695fbdf44146c93ff08c8c",
+
+  "cohort_identity": {
+    "frozen_manifest_path": "docs/evidence_platform/oip_v2_2e_2b2u_b2r_frozen_manifest.json",
+    "frozen_manifest_file_sha256": "54481980e0eab82670baf5396e9c520e2f6ed72dbe6ec6d09825c4b09cae4d4c",
+    "b2n_manifest_digest_executor": "82bbda32d25a9951a8d8475528d7db3a92b675aae90ce2d55e13391a6b69eedc",
+    "reviewed_provenance_binding_path": "docs/audits/b2n_cohort_eligibility_reviewed_provenance_binding.json",
+    "member_count": 20,
+    "all_20_mint_and_signature_bindings_verified_exact_match": true
+  },
+
+  "provenance_closure": {
+    "closure_state": {"COMPLETE": 20, "PARTIAL": 0, "MISSING": 0, "CONFLICTING": 0},
+    "closure_qualified": true,
+    "reconfirmed_unchanged_throughout_p3j": true
+  },
+
+  "execution_summary": {
+    "method": "sequential manual --resume invocations, one per shell loop iteration, each a fresh process that independently re-reads and reconciles the real durable ledgers from disk before dispatching -- no batch code path, no blind loop without reconciliation",
+    "invocation_count": 20,
+    "note_on_process": "ordinal 3 was executed as a standalone manual invocation after a shell scripting error (zsh read-only 'status' variable) halted the first attempted loop after only 1 iteration; ordinals 4-20 were then executed via a corrected 17-iteration loop with a renamed variable. Disclosed for full transparency -- the error was in the wrapper shell script, not in B2N execution or ledger integrity. All 20 ordinals were independently reconciled directly from the ledgers after both the interrupted first attempt and the completed second attempt, and no anomaly was found at either checkpoint."
+  },
+
+  "completed_ordinals": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
+  "completed_count": 20,
+  "remaining_count": 0,
+
+  "per_member_outcomes": [
+    {"ordinal": 1, "mint": "66ruWUv7KLXkLbHBTnj7PqzEgdue1oZjeA5Z3JMHpump", "provider_signature": "3F3Kx3jN8oaKx4w25GAgYwosXtFgiSyKPSmYyUhX3YeqWdR7jNmgBV9gzofyPkKznbP5FZ9f6tFzQQyCCTN4hq8i", "provider_slot": 438884281, "request_outcome": "SUCCESS", "request_count": 1, "provenance_complete": true},
+    {"ordinal": 2, "mint": "3hgXvsR8Xh6hnoKyFbPnrMVEkrKGPVbH6EJQkzoNpump", "provider_signature": "2aP6mCzC2aoaMn7SZfV4jvYUNeCgoyrsM96iGCThjS6U9if92fZjaxPcMyUh1hdMBR1had8EdD2d9stvw389FkVP", "provider_slot": 438884664, "request_outcome": "SUCCESS", "request_count": 1, "provenance_complete": true},
+    {"ordinal": 3, "mint": "5BQpi43RtPxsw7jw3dpeE7duQAXcNYhw9MD6KUxGpump", "provider_signature": "5i5H2vfw7o89B79beo38FHAAE8NzBDdW2KafXxLeYAQ1sS5WCJa8fRuS9SC56hUMBSqXQkGUW8Uea4knhirCXw6N", "provider_slot": 438884680, "request_outcome": "SUCCESS", "request_count": 1, "provenance_complete": true},
+    {"ordinal": 4, "mint": "59hy2QNgTB6vvXJqayUk4RgtJ4wCCniwbHpg8Q5gpump", "provider_signature": "Dee584VJB7PcmXxAJxd9MEaF3EXKTi4WoRiDf6ZJYQz5FbkEhnd6qBRjiP52yxXsVNtXXPAgbDE3b98i3YmpunL", "provider_slot": 438884891, "request_outcome": "SUCCESS", "request_count": 1, "provenance_complete": true},
+    {"ordinal": 5, "mint": "6V4rTJ9M4ZNUjvRMvBPiGia5Ju3TutG2nNatRdq1pump", "provider_signature": "31nh1aW7qJxphgnLMNnAmxCsuTqWKHLEEu3fr23gVrPFZHHcKLp1z6fmJhmR7wAJjb8u5Dz5mxaHcFgU1VuvUk9Z", "provider_slot": 438885339, "request_outcome": "SUCCESS", "request_count": 1, "provenance_complete": true},
+    {"ordinal": 6, "mint": "FzKMeRzbfD1wbVf2ZxfdFgYirLLnVwzspt6gJRVTA8WU", "provider_signature": "4Y2LXDq8u8Jd9Vy4RLJXasF746iZ91rLmhUogSH7pJy2T8NNDqg7Jn7iD9hBSW2Hf9wF7JC76LL1ATrosaVFxM5V", "provider_slot": 438885962, "request_outcome": "SUCCESS", "request_count": 1, "provenance_complete": true},
+    {"ordinal": 7, "mint": "AGfrbmkuqf3UYG5UXEkTpCtw5UMn62Bc9NrAo6rdpump", "provider_signature": "9LEnii6ZR5YzDTrKP8nAv64Zj3XJaBdQcRTBqc5t4AmKefZBsEYyUgYPjfKr38hDHa8T7kKedFTdkBXqnx1QW8f", "provider_slot": 438886258, "request_outcome": "SUCCESS", "request_count": 1, "provenance_complete": true},
+    {"ordinal": 8, "mint": "qgiXEYJD6mXjHqzJJksX1yjYtownjLXFHAtD7KApump", "provider_signature": "2RJoBHPmncEkQYyLNH4hVzh5Z4pQiEYNNuahEcGqs4DYCSNjVxzd88nW24PHYGzQciYuvD1Fvfv9LhufsSAfWN6h", "provider_slot": 438886604, "request_outcome": "SUCCESS", "request_count": 1, "provenance_complete": true},
+    {"ordinal": 9, "mint": "DU8u7EvQsG3GovXDknrcdV8dQfAie7MMY5keqT2Fpump", "provider_signature": "t3Aok52hDtN9rHhjEKCcB4q7g6hChe5os1Hahf48qU4fictSNTxyaX3rKmiaXXfBb2Dhw8nE3yXxzMy2Bf98Tuy", "provider_slot": 438886669, "request_outcome": "SUCCESS", "request_count": 1, "provenance_complete": true},
+    {"ordinal": 10, "mint": "Gb71a9p2wfCcuBhHJ2zbG6pchnFGDrocGRAJjZh4pump", "provider_signature": "5p6YMv1izrWFHRqhrwXEcWJshfvrYauFsChp6LrovwoM8MqhmjJVJaPnsEx3EQM1qiS2Y9vUhZpnZmi1xoSu4uV3", "provider_slot": 438886712, "request_outcome": "SUCCESS", "request_count": 1, "provenance_complete": true},
+    {"ordinal": 11, "mint": "CNCTqxJ2ug2Cg35Z4UwhggmXdfLSTQ4eQgskVdEspump", "provider_signature": "5fQqxsakF7XJiUg4TaDPHEbBA69QeCDVKTERQmU9SXJSZftvSsJLqdS6BVsNDEJ9dpGpkqX4QVTRRRiuD2Hbs42o", "provider_slot": 438886739, "request_outcome": "SUCCESS", "request_count": 1, "provenance_complete": true},
+    {"ordinal": 12, "mint": "DykmoWpVtaKN9R5vurKk2TWgBX2WvvnbMkJMd7gcpump", "provider_signature": "EdUFG5wpsoS18UrgBuoYYPARe8LwxcZbf8Z4B9AXYV7crrrUGrZeDdd4roCSMKXEUdfHNsnnynbmzRffLvRXWgB", "provider_slot": 438886861, "request_outcome": "SUCCESS", "request_count": 1, "provenance_complete": true},
+    {"ordinal": 13, "mint": "E1TTBe4a7qRbLXJ2ef8zUaHE99CqM98oKhCn7YGUpump", "provider_signature": "3SetG5n9psXDdELTrHKtho1Fn8qP5Qcyho98YeYxqBLHbsJJaYAcu2HisknZd169iWjb31Uggpzp42WXpxWw9QbJ", "provider_slot": 438886884, "request_outcome": "SUCCESS", "request_count": 1, "provenance_complete": true},
+    {"ordinal": 14, "mint": "TmzQHAfT2MeuW5mgMP7HK4nZogfrGVxrzYHQBkqpump", "provider_signature": "3rweMFqFKYn2ahLZGw8SBXa3Dw1cvY4n4gG8pWELDhYBrwNZ9bLMRiGsEAgj4KPKe1F3gboc4CTooyRjiCGarp1R", "provider_slot": 438887433, "request_outcome": "SUCCESS", "request_count": 1, "provenance_complete": true},
+    {"ordinal": 15, "mint": "2grdcnAX48SivhXjB4WkzKHzsz6b9BMWp1EipZWdpump", "provider_signature": "3xYs5NbD4EpfYKQ6UuvJSCGraz3MCak4wbXuzQvQjw83H9Q8Ar9Kv2ChDyTiZCugjiZFuRJbfNcL9qvg64F9wf8m", "provider_slot": 438887536, "request_outcome": "SUCCESS", "request_count": 1, "provenance_complete": true},
+    {"ordinal": 16, "mint": "D62UbUSyC78Ucdr9jmrCy9veFuuoQEvuL7NYJCNTpump", "provider_signature": "Gvy2hQfCq3GSjScBWtoukBT2mrQ3d3Gxo6JxfhVKJSPjUnxm5g3iYKQGoQungH1iEcuvypSf7DyVYpYxf9zDcMY", "provider_slot": 438887636, "request_outcome": "SUCCESS", "request_count": 1, "provenance_complete": true},
+    {"ordinal": 17, "mint": "9S4dmRLq3SmonrBi6ybxV5LW7M2c68NcGfYb6iFepump", "provider_signature": "3ee8Xa6qsMb9kU1qJ6tNEKgr3Pcf9S5eZm3r8crmWNKmBGuLLBYEWJmEGdhmEwGLFvq2XjEexVZyVoDy67usZKq4", "provider_slot": 438887714, "request_outcome": "SUCCESS", "request_count": 1, "provenance_complete": true},
+    {"ordinal": 18, "mint": "CzQDFKURcQHdRgpBib4kyDtmAcWFg9jRQ7Rw3TzGfRGU", "provider_signature": "463HdXVPfw1DJJZUZTSqEUQfppc8LyeTZrAgDCF3Qc5CEhjYhwZDMv1Pg82LdtunSgZpHyAuAqjoNiiyTAG3wFNR", "provider_slot": 438887736, "request_outcome": "SUCCESS", "request_count": 1, "provenance_complete": true},
+    {"ordinal": 19, "mint": "p5HJBxcLPm2xR3jzdNkJtFkY8iqNixmYgevGwzkpump", "provider_signature": "hCBhz6CYEcakbw8dctTydPNrxVa9p3oXdWp9VGgARMZfs2j2z7dAafpGYxFKnPdC2CVkm2tuLYZqXpJWimemQ6t", "provider_slot": 438887872, "request_outcome": "SUCCESS", "request_count": 1, "provenance_complete": true},
+    {"ordinal": 20, "mint": "w9qiqygRmeiYxFFGR6Lf5zcPautE9NDVDX2RG2Lpump", "provider_signature": "5X5viSu1mc4bCjx4mf4UxzbSJUDqUA13SMChTXkvUjzwgh7bCaJfDzYqzpr2GRunTPDzcxHxL24zuMBsXQYipWDr", "provider_slot": 438888220, "request_outcome": "SUCCESS", "request_count": 1, "provenance_complete": true}
+  ],
+
+  "request_budget_reconciliation": {
+    "max_total_requests": 20,
+    "total_physical_requests_consumed": 20,
+    "remaining_budget": 0,
+    "max_requests_per_member": 1,
+    "all_members_used_exactly_1_request": true,
+    "retries_performed": 0,
+    "pagination_performed": 0,
+    "fallback_performed": 0,
+    "new_20_request_allowance_created": false
+  },
+
+  "ledger_event_reconciliation": {
+    "attempt_ledger_entry_count": 20,
+    "attempt_ledger_ordinals": "exactly 1..20, no gaps, no duplicates",
+    "event_ledger_total_events": 40,
+    "reservation_events": 20,
+    "terminal_events": 20,
+    "terminal_event_types": {"ATTEMPT_SUCCEEDED": 20, "ATTEMPT_FAILED": 0, "ATTEMPT_NOT_DISPATCHED": 0},
+    "reservations_per_ordinal": "exactly 1 for every ordinal",
+    "terminal_events_per_ordinal": "exactly 1 for every ordinal",
+    "unexplained_events": 0,
+    "run_id_consistency": "single run_id (b2n-p3e-98695fbdf44146c93ff08c8c) across every entry/event, no drift"
+  },
+
+  "migration_lineage_result": {
+    "all_20_outcomes": "SUCCESS",
+    "all_20_provenance_complete": true,
+    "all_20_mint_signature_bindings_verified": true,
+    "error_class_note": "all 20 entries carry error_class=B2W_MIGRATION_LINEAGE_ONLY -- a semantic sentinel marking this adapter's migration-lineage-only contract scope, present on every SUCCESS entry including ordinal 1; not a failure indicator"
+  },
+
+  "no_creator_funding_assertion": {
+    "statement": "NO_CREATOR_FUNDING_EVIDENCE_ACQUIRED_IN_B2N",
+    "verified": true,
+    "method": "scanned all 20 attempt ledger entries for any creator-funding-related field/value -- zero matches. Creator-funding acquisition remains scoped exclusively to the future B2Z stage, not executed or touched in B2N."
+  },
+
+  "existing_operation_safety": {
+    "watchtower_coupling": "zero -- confirmed via code inspection of the executed script",
+    "canonical_operation_coupling": "zero",
+    "h_series_ep3_ep4_coupling": "zero",
+    "trading_policy_state_touched": false,
+    "verdict": "EXISTING_OPERATION_SEMANTICS_UNCHANGED"
+  },
+
+  "storage_ra4_status": {
+    "legacy_db_recreated": false,
+    "creator_funding_worker_pid": 33383,
+    "creator_funding_worker_restarted": false,
+    "compact_historical_index_row_count": 1938017,
+    "compact_historical_index_unchanged": true,
+    "disk_free_gib": 74,
+    "ra4_reopened": false,
+    "v2_retention_routing_changed": false
+  },
+
+  "authority_posture": {
+    "ordinal_1_redispatched": false,
+    "ordinal_2_redispatched": false,
+    "retries_performed": 0,
+    "pagination_performed": 0,
+    "fallback_performed": 0,
+    "new_authorization_created": false,
+    "b2z_executed": false,
+    "creator_funding_evidence_acquired": false,
+    "watchtower_mutated": false,
+    "existing_operations_mutated": false,
+    "h_series_evidence_altered": false,
+    "ra4_reopened": false,
+    "legacy_db_recreated": false,
+    "creator_funding_worker_restarted": false,
+    "v2_routing_changed": false,
+    "trading_policy_state_changed": false,
+    "handoff_transport_repaired": false
+  },
+
+  "blockers": [],
+
+  "deterministic_digest": "60371ea29274848d9faebb249e99a284310c7c43cd2e9ecd750338f951374ddd",
+  "deterministic_digest_method": "SHA-256 of canonical JSON (sort_keys, compact separators) of {run_id, completed_ordinals, total_physical_requests, members: [{ordinal, mint, provider_signature, provider_slot, request_outcome, request_count, provenance_complete} for all 20]}",
+
+  "verdict": "B2N_BOUNDED_MIGRATION_LINEAGE_QUALIFIED",
+  "verdict_note": "All 20 cohort members completed successfully under the existing, unwidened 20-request authorization (b2n-p3e-98695fbdf44146c93ff08c8c). Every member's outcome, ledger entry, and event pair was independently verified directly from the durable ledgers, not from printed summaries: 20 unique ordinals 1-20 with no gaps or duplicates, 20 reservations, 20 terminal events (all ATTEMPT_SUCCEEDED), 20/20 physical requests consumed, 0 remaining budget, all mint/signature bindings matching the frozen manifest and human-reviewed provenance exactly, zero retries/pagination/fallback anywhere, zero creator-funding evidence acquired. Existing-operation safety (Watchtower/canonical-operations/H-series) is unchanged. RA4/storage state (legacy DB retired, compact index intact, V2 healthy, 74 GiB free) is entirely unaffected by this B2N execution. B2N (BOUNDED_MIGRATION_LINEAGE_QUALIFICATION) is now closed. Per explicit instruction, B2Z (creator-funding qualification) was NOT executed and requires separate authorization."
+}

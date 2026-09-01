@@ -1,0 +1,95 @@
+{
+  "schema_version": "b2z.p1_5.exhaustive-local-evidence-reconciliation.v1",
+  "artifact_type": "B2Z_P1_5_EXHAUSTIVE_LOCAL_EVIDENCE_RECONCILIATION",
+  "milestone": "B2Z-P1.5",
+  "generated_utc": "2026-08-19T00:00:00Z",
+  "purpose": "Exhaustively search the WIDE local database landscape (not just the handful of tables P0 spot-checked) for pre-existing migration transaction content, on-chain-verified creator identity, and signature-bound funding evidence for the 20 B2N-qualified members, before authorizing any live provider spend. No provider/RPC calls made.",
+
+  "method": {
+    "step_1": "enumerated all 278 tables in database/flex_complete_database.db",
+    "step_2": "programmatically identified every table with a mint-shaped column (14 matched with non-zero rows for our 20 mints) and every table with a creator/address-shaped column combined with a signature/transaction-shaped column (18 candidate tables)",
+    "step_3": "checked each candidate table's actual row content against the 20 mints and/or the 20 candidate creator addresses (not just presence/absence -- inspected real row values)",
+    "step_4": "checked database/flex_investigation_archive.db (cold archive) -- only table is funder_networks, a network-graph clustering table with no signature/transaction fields",
+    "step_5": "re-checked database/evidence_platform/production/retained_acquisition_shadow.db (V2 store, full scan of all rows, not sampled) for any of the 20 exact migration signatures -- zero matches, confirming the post-RA4-cutover production acquisition traffic never independently re-fetched these specific transactions",
+    "step_6": "re-confirmed the compact historical retirement index (retained_acquisition_legacy_compact.db) has no signature column at all, ruling it out structurally"
+  },
+
+  "tables_examined_beyond_p0": [
+    "creator_funding_lifecycle_events (116 matching rows -- workflow status-transition events, no signature/transaction fields, not evidence)",
+    "creator_tx_ledger (per-creator transaction ledger with signature/blockTime -- only 1 of 18 unique creators has ANY row, and that row's blockTime is March 2026, months before this August migration cohort -- not usable)",
+    "funder_incoming_transfers (funder's OWN inbound history, reverse direction from what B2Z needs -- has transaction_signature column but was not populated for the funder addresses relevant to this cohort)",
+    "creator_outgoing_transfers (creator's outbound transfers, not inbound funding -- wrong direction for B2Z's evidence requirement)",
+    "creator_sol_transfers (aggregated creator->destination totals, no per-transaction signature)",
+    "creator_second_hop (funding-network graph edges with confidence scores, no signature/timestamp)",
+    "funder_rpc_scan_cache (cached upstream-funder scan results keyed by funder_address, not creator_address -- no hit for this cohort's creators)",
+    "creator_service_history (behavioral tagging table, e.g. uses_jitotip_other -- spot-checked the one apparent match for ordinal 15's creator and found it to be Jito-tip/token-transfer noise unrelated to launch funding, with mint=NULL; not usable)",
+    "creator_funding_queue (all 20 mints present; create_tx_signature is the TOKEN CREATION transaction, not migration or funding -- a different signature entirely, confirmed identical to token_analysis.create_tx_signature; status=complete for 17/20, status=failed attempts=5 for 3/20 -- exactly ordinals 11, 15, 18)",
+    "token_analysis (network_funder_address is NULL for all 20 -- ruling out that potential shortcut field)",
+    "token_resolution_telemetry, token_rescore_queue, token_price_snapshots, token_liquidity_snapshots, token_pool_accounts, token_market_cap_peaks, token_snapshot_counts, metadata_cache, tracked_tokens (all confirmed to have zero transaction-signature or funding-relevant fields upon schema inspection)"
+  ],
+
+  "confirmed_finding": "The exhaustive sweep across all 278 tables in the main database, plus the cold archive and both retention stores, surfaces NO signature-bound, on-chain-verified migration transaction content, NO on-chain-verified creator identity (only the same pf_ws_creator listener-derived hint P0 already found), and NO signature-bound funding transaction for any of the 20 members. This is a STRONGER conclusion than P0's, not merely a repeat: P0 checked ~5 tables; this pass checked every table in the schema with a plausible column shape and inspected actual row content for the ones that matched, including several genuinely new candidates (creator_tx_ledger, creator_funding_lifecycle_events, funder_incoming_transfers, creator_outgoing_transfers, creator_second_hop, funder_rpc_scan_cache) that turned out, on inspection, to be either wrong-direction, wrong-signature-type, or simply empty for this specific cohort.",
+
+  "per_member_matrix": [
+    {"ordinal": 1, "mint": "66ruWUv7KLXkLbHBTnj7PqzEgdue1oZjeA5Z3JMHpump", "candidate_creator": "Duv7cX9jphKaPV89FsfsgQyhWkePS5vk2aBEj9LnUTuy", "creator_funding_queue_status": "complete", "creator_tx_ledger_rows": 0, "creator_inbound_transfers_rows": 0, "provider_calls_required": 3},
+    {"ordinal": 2, "mint": "3hgXvsR8Xh6hnoKyFbPnrMVEkrKGPVbH6EJQkzoNpump", "candidate_creator": "5CcDWYv3ctLYmRkZntRnLLuD5KVvnCdGnGdrNxxCUt6L", "creator_funding_queue_status": "complete", "creator_tx_ledger_rows": 0, "creator_inbound_transfers_rows": 0, "provider_calls_required": 3},
+    {"ordinal": 3, "mint": "5BQpi43RtPxsw7jw3dpeE7duQAXcNYhw9MD6KUxGpump", "candidate_creator": "7VJPjQZyH9yYGYMv1BYrxXdEkU749Ra9zebSeiHWpKKy", "creator_funding_queue_status": "complete", "creator_tx_ledger_rows": 0, "creator_inbound_transfers_rows": 0, "provider_calls_required": 3},
+    {"ordinal": 4, "mint": "59hy2QNgTB6vvXJqayUk4RgtJ4wCCniwbHpg8Q5gpump", "candidate_creator": "DoTKDtHMXvUXCjpDFfQWTLxqzoNXiGXJYWBNHfaJyeAr", "creator_funding_queue_status": "complete", "creator_tx_ledger_rows": 0, "creator_inbound_transfers_rows": 0, "provider_calls_required": 3},
+    {"ordinal": 5, "mint": "6V4rTJ9M4ZNUjvRMvBPiGia5Ju3TutG2nNatRdq1pump", "candidate_creator": "FtgrFX9PMr4YY2B4KC358RLZykNNkC6k7Qs1mRVmCAXo", "creator_funding_queue_status": "complete", "creator_tx_ledger_rows": 0, "creator_inbound_transfers_rows": 0, "provider_calls_required": 3},
+    {"ordinal": 6, "mint": "FzKMeRzbfD1wbVf2ZxfdFgYirLLnVwzspt6gJRVTA8WU", "candidate_creator": "yHCxHBEaJW5tbndqC8JciSThr7U1cqLpdcsvHcx6PRe", "creator_funding_queue_status": "complete", "creator_tx_ledger_rows": 0, "creator_inbound_transfers_rows": 0, "provider_calls_required": 3},
+    {"ordinal": 7, "mint": "AGfrbmkuqf3UYG5UXEkTpCtw5UMn62Bc9NrAo6rdpump", "candidate_creator": "9TvQa8S9mgvMKpGmZgxAd4ZdjG6NuDpVGWh5PScdAehw", "creator_funding_queue_status": "complete", "creator_tx_ledger_rows": 0, "creator_inbound_transfers_rows": 0, "provider_calls_required": 3},
+    {"ordinal": 8, "mint": "qgiXEYJD6mXjHqzJJksX1yjYtownjLXFHAtD7KApump", "candidate_creator": "FChCzcTZiVxYpwkTALotD16kwDwACdxQTUHJThKqG6Dj", "creator_funding_queue_status": "complete", "creator_tx_ledger_rows": 0, "creator_inbound_transfers_rows": 0, "provider_calls_required": 3, "note": "fan-out review ordinal (P0/P1)"},
+    {"ordinal": 9, "mint": "DU8u7EvQsG3GovXDknrcdV8dQfAie7MMY5keqT2Fpump", "candidate_creator": "BFNftwFLD6LDt4WCgbFWWPDUsBr5pypJKJxNoJBQqeaD", "creator_funding_queue_status": "complete", "creator_tx_ledger_rows": 0, "creator_inbound_transfers_rows": 0, "provider_calls_required": 3},
+    {"ordinal": 10, "mint": "Gb71a9p2wfCcuBhHJ2zbG6pchnFGDrocGRAJjZh4pump", "candidate_creator": "ErSPUW74BHRRe8vW9VTeNGXqasFiJNzE1nSHxtFVWy3E", "creator_funding_queue_status": "complete", "creator_tx_ledger_rows": 0, "creator_inbound_transfers_rows": 0, "provider_calls_required": 3},
+    {"ordinal": 11, "mint": "CNCTqxJ2ug2Cg35Z4UwhggmXdfLSTQ4eQgskVdEspump", "candidate_creator": "whamNNP9tHoxLg92yHvJPdYhghEoCg1qYTsh5a2oLbx", "creator_funding_queue_status": "failed (5 attempts)", "creator_tx_ledger_rows": 1, "creator_tx_ledger_note": "1 row, blockTime=1772686324 (~March 2026) -- months before this migration cohort, not usable", "creator_inbound_transfers_rows": 0, "provider_calls_required": 3, "note": "fan-out review ordinal (P0/P1); AUTOMATED EXTRACTION ALREADY FAILED for this creator -- strong independent corroboration this is a genuinely hard case, not just a local-coverage gap"},
+    {"ordinal": 12, "mint": "DykmoWpVtaKN9R5vurKk2TWgBX2WvvnbMkJMd7gcpump", "candidate_creator": "9hQ7qiNYyh4S2pPN5jhYLLqbweTekgeKJYaLQjMUz5x4", "creator_funding_queue_status": "complete", "creator_tx_ledger_rows": 0, "creator_inbound_transfers_rows": 0, "provider_calls_required": 3},
+    {"ordinal": 13, "mint": "E1TTBe4a7qRbLXJ2ef8zUaHE99CqM98oKhCn7YGUpump", "candidate_creator": "4QVZcVzT6VhTHxXb98YwswnX1GQZhQSFsTqomCKYN48G", "creator_funding_queue_status": "complete", "creator_tx_ledger_rows": 0, "creator_inbound_transfers_rows": 0, "provider_calls_required": 3},
+    {"ordinal": 14, "mint": "TmzQHAfT2MeuW5mgMP7HK4nZogfrGVxrzYHQBkqpump", "candidate_creator": "EkSVFNgQzAbShi1QAPSZchj7zdRjzaPLTAWpxn8snjUu", "creator_funding_queue_status": "complete", "creator_tx_ledger_rows": 0, "creator_inbound_transfers_rows": 0, "provider_calls_required": 3},
+    {"ordinal": 15, "mint": "2grdcnAX48SivhXjB4WkzKHzsz6b9BMWp1EipZWdpump", "candidate_creator": "5SW7p56x22LKj8gYcE8DVVd1S59UJUGR9jKq2PFdKiKg", "creator_funding_queue_status": "failed (5 attempts)", "creator_tx_ledger_rows": 0, "creator_inbound_transfers_rows": 0, "provider_calls_required": 3, "note": "fan-out review ordinal (P0/P1); AUTOMATED EXTRACTION ALREADY FAILED. creator_service_history has thousands of Jito-tip rows for this address (all mint=NULL, unrelated noise) -- confirms this is a very high-volume bot/service-pattern wallet"},
+    {"ordinal": 16, "mint": "D62UbUSyC78Ucdr9jmrCy9veFuuoQEvuL7NYJCNTpump", "candidate_creator": "7VJPjQZyH9yYGYMv1BYrxXdEkU749Ra9zebSeiHWpKKy", "creator_funding_queue_status": "complete", "creator_tx_ledger_rows": 0, "creator_inbound_transfers_rows": 0, "provider_calls_required": 3, "note": "SAME candidate_creator as ordinal 3 -- confirmed genuine serial-creator overlap, not a query artifact; both entries independently present in creator_funding_queue"},
+    {"ordinal": 17, "mint": "9S4dmRLq3SmonrBi6ybxV5LW7M2c68NcGfYb6iFepump", "candidate_creator": "7D7NEk5kbQtp7jjdknwh7j42Ka5wVoVdwAT4TtuLhnL5", "creator_funding_queue_status": "complete", "creator_tx_ledger_rows": 0, "creator_inbound_transfers_rows": 0, "provider_calls_required": 3},
+    {"ordinal": 18, "mint": "CzQDFKURcQHdRgpBib4kyDtmAcWFg9jRQ7Rw3TzGfRGU", "candidate_creator": "C8BdBLW1GdnCR86nSpcfRMbshvHqwKq9qSTTdSn71AeV", "creator_funding_queue_status": "failed (5 attempts)", "creator_tx_ledger_rows": 0, "creator_inbound_transfers_rows": 0, "provider_calls_required": 3, "note": "newly identified third failed-extraction ordinal, NOT among P0's original 4 fan-out-flagged ordinals (8,11,15,19) -- ordinal 18 was flagged only 3 funder rows in P0 (low fan-out) but its AUTOMATED CREATOR-FUNDING EXTRACTION STILL FAILED. Recommend adding ordinal 18 to the downstream review set alongside 8/11/15/19."},
+    {"ordinal": 19, "mint": "p5HJBxcLPm2xR3jzdNkJtFkY8iqNixmYgevGwzkpump", "candidate_creator": "HSvt8XpvHwTKhkTapsnkkrp5uUZPzxcCmHYVnAxXb42u", "creator_funding_queue_status": "complete", "creator_tx_ledger_rows": 0, "creator_inbound_transfers_rows": 0, "provider_calls_required": 3, "note": "fan-out review ordinal (P0/P1)"},
+    {"ordinal": 20, "mint": "w9qiqygRmeiYxFFGR6Lf5zcPautE9NDVDX2RG2Lpump", "candidate_creator": "13v2e9TSEjrxh2kAfUevPyBddTWyqCAjCrs41Q2SBgZo", "creator_funding_queue_status": "complete", "creator_tx_ledger_rows": 0, "creator_inbound_transfers_rows": 0, "provider_calls_required": 3}
+  ],
+
+  "recalculated_provider_requirement": {
+    "members_requiring_0_calls": 0,
+    "members_requiring_1_call": 0,
+    "members_requiring_2_calls": 0,
+    "members_requiring_3_calls": 20,
+    "total_physical_request_budget_required": 60,
+    "change_from_p0": "NONE -- the exhaustive reconciliation confirms, rather than reduces, P0's original 60-request requirement. This is the correct and honest result of actually searching exhaustively, not an assumption carried over unexamined.",
+    "explicit_statement": "Every avenue that could plausibly have contained a shortcut (creator_tx_ledger, funder_incoming_transfers, creator_funding_lifecycle_events, token_analysis.network_funder_address, the V2 retention store, the compact historical index, the cold archive) was checked and found either empty for this cohort, wrong-direction, or referencing a different transaction (token creation, not migration or funding). Zero local shortcuts exist."
+  },
+
+  "new_findings_beyond_p0": {
+    "finding_1": "3 of 20 members (ordinals 11, 15, 18) have a creator_funding_queue status of 'failed' after 5 automated extraction attempts -- this is INDEPENDENT corroboration, from the production creator-funding pipeline itself, that these are genuinely hard cases (not merely under-covered by ad-hoc local lookups). Ordinals 11 and 15 were already in P0's fan-out review set; ordinal 18 is NEW and was not flagged by P0's funder-row-count heuristic alone (it only had 3 local funder rows, which looked unremarkable) -- but its extraction independently failed 5 times. RECOMMENDATION: extend the fan-out review flag set from {8, 11, 15, 19} to {8, 11, 15, 18, 19} for B2Z's live execution.",
+    "finding_2": "ordinals 3 and 16 share the identical candidate_creator (7VJPjQZyH9yYGYMv1BYrxXdEkU749Ra9zebSeiHWpKKy) -- confirmed as a genuine serial-creator pattern (both present independently in creator_funding_queue with distinct mints), not a query bug. Not itself evidence of anything problematic (serial creators are common), but worth noting for anyone reviewing the eventual B2Z output.",
+    "finding_3": "the V2 production retention store was fully scanned (not sampled) for all 20 exact migration signatures and found zero matches -- definitively confirming no accidental/incidental re-acquisition of this cohort's migration transactions has occurred since the RA4 cutover."
+  },
+
+  "recommendation_for_fan_out_review_set": {
+    "current_p1_set": [8, 11, 15, 19],
+    "recommended_updated_set": [8, 11, 15, 18, 19],
+    "reasoning": "ordinal 18's independent extraction-pipeline failure (5/5 attempts) is a stronger and more direct signal than the funder-row-count heuristic alone -- both signals should be honored",
+    "implementation_note": "this would require a one-line change to FAN_OUT_REVIEW_ORDINALS in src/acquisition/b2z_durable_execution.py -- NOT made in this milestone since it is a candidate/review-flag adjustment (not a change to acquisition/candidate-selection semantics) and the user should confirm before any code change, however small"
+  },
+
+  "no_shortcut_available": {
+    "verdict": "confirmed -- all 20 members require the full 3-stage acquisition chain",
+    "total_budget_unchanged": 60,
+    "b2z_durable_resumable_path_ready": "the B2Z-P1 qualified durable/resumable execution boundary (src/acquisition/b2z_durable_execution.py) remains the correct and only path for the eventual live execution -- nothing in this reconciliation changes its design"
+  },
+
+  "authority_posture": {
+    "provider_calls_made": 0,
+    "database_access": "read-only against database/flex_complete_database.db and database/flex_investigation_archive.db and the V2 retention store",
+    "no_writes_performed": true,
+    "no_code_changed_this_milestone": true,
+    "ra4_v2_untouched": true
+  },
+
+  "verdict": "B2Z_LOCAL_EVIDENCE_EXHAUSTIVELY_CONFIRMED_INSUFFICIENT",
+  "verdict_note": "An exhaustive, schema-wide search of all 278 tables in the main database, the cold archive, and a full (non-sampled) scan of the V2 production retention store confirms -- rather than merely repeats -- B2Z-P0's conclusion: zero of the 20 B2N-qualified members have locally-available, signature-bound, on-chain-verified migration transaction content, creator identity, or funding transaction evidence. The full 60-request provider budget genuinely reflects what this specific cohort requires; no reduction is possible without acquiring new evidence via the provider. Two new, useful findings surfaced: independent corroboration (via creator_funding_queue's own failed-extraction status) that 3 members are genuinely hard cases, including one (ordinal 18) not previously flagged by the funder-fan-out heuristic alone -- recommended for addition to the downstream review set. No provider calls were made. No code was changed. Live B2Z execution authorization decision returns to the human with this additional confirmation in hand."
+}

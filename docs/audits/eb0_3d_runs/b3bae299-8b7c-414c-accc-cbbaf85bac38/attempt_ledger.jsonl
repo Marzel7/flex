@@ -1,0 +1,1 @@
+{"run_id":"b3bae299-8b7c-414c-accc-cbbaf85bac38","physical_request_sequence":1,"provider":"gmgn","endpoint_id":"market-kline","started_at_utc":"2026-08-13T18:29:06Z","completed_at_utc":"2026-08-13T18:29:12Z","outcome":"SUCCESS","request_cost_units":2,"http_requests_observed":1,"retry":false,"failover":false,"pagination":false,"returned_rows":4,"credential_fields_retained":false}

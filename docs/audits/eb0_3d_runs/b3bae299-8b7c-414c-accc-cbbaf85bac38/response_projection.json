@@ -1,0 +1,26 @@
+{
+  "schema_version": "eb0.3c.market-kline-projection.v1",
+  "platform_mint": "8TQAPEgP8jcWPeLTiQhFCFtPYwKhpjRvTngoPAmjpump",
+  "provider": "gmgn",
+  "provider_version": "gmgn-cli-1.5.6",
+  "endpoint_id": "market-kline",
+  "endpoint_version": "v1",
+  "interval": "1m",
+  "request_from_ms": 1785699480000,
+  "request_to_ms": 1785703080000,
+  "observed_at_ms": 1786645752000,
+  "request_run_id": "b3bae299-8b7c-414c-accc-cbbaf85bac38",
+  "physical_request_sequence": 1,
+  "request_cost_units": 2,
+  "response_digest": "25259fd1f8321e5d719571aea68cd88c106b2af272f48dee235158a7032c7754",
+  "quality_state": "OBSERVED",
+  "completeness_state": "PARTIAL_INTERVAL",
+  "conflict_group_id": null,
+  "earliest_observation_semantics": "PAGE_EARLIEST_NOT_HISTORY",
+  "candles": [
+    {"time_ms": 1785699480000, "open": "0.0000016471438", "high": "0.0000016471438", "low": "0.0000016274139", "close": "0.0000016274139", "volume": "0.022857001"},
+    {"time_ms": 1785699780000, "open": "0.0000016274139", "high": "0.0000016274139", "low": "0.0000016262948", "close": "0.0000016262948", "volume": "0.40352834"},
+    {"time_ms": 1785702300000, "open": "0.0000016262948", "high": "0.0000016453527", "low": "0.0000016262948", "close": "0.0000016453527", "volume": "0.13670983"},
+    {"time_ms": 1785702600000, "open": "0.0000016453527", "high": "0.0000016453527", "low": "0.0000016239269", "close": "0.0000016239269", "volume": "0.62761676"}
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D1",
+  "status": "STOPPED",
+  "verdict": "PSI0A_D1_HOLD_DESCRIPTOR_WARNING_GATE_REACHED",
+  "observed_at_utc": "2026-08-14T09:58:19Z",
+  "engineering_revision": "7a9c0c2bca9d3936dad482092a9aa2f236cb2303",
+  "scope": {
+    "production_databases_opened": 0,
+    "schema_or_row_queries": 0,
+    "explain_queries": 0,
+    "production_writes_or_ddl": 0,
+    "provider_calls": 0,
+    "service_or_configuration_changes": 0
+  },
+  "partial_lock_diagnosis": {
+    "lock_errors_24h_at_psi0a_c16": 0,
+    "lock_errors_24h_at_psi0a_d_gate": 1,
+    "lock_errors_24h_at_terminal_checkpoint": 1,
+    "recorded_operation": "pumpfun_curve_listener.py:173 in _fetch_and_store_symbol",
+    "preceding_observation": "A 6408 ms listener _do_write commit immediately preceded the sole current-listener DB_LOCK_ERROR log entry.",
+    "metric_semantics": "lock_errors_24h is an in-process rolling timestamp count; the unchanged value can retain a recovered episode and is not, by itself, proof of current contention.",
+    "current_serializer": {
+      "snapshot_at_epoch": 1786701497,
+      "p95_wait_ms": 6.14,
+      "p99_wait_ms": 185.69,
+      "queue_depth": 0,
+      "lock_errors_24h": 1
+    }
+  },
+  "mandatory_stop": {
+    "condition": "primary_fd_count reaching warning threshold 8",
+    "observed_composite_database_wal_shm_lsof_lines": 11,
+    "measurement_correction": "The composite lsof count included primary database, WAL and SHM descriptors and is not the listener watchdog primary_fd_count. PSI0A-D1A subsequently established that the last true watchdog threshold sample was primary_fd_count=8 before D1, followed by recovery below threshold.",
+    "listener_watchdog_warning_threshold": 8,
+    "watchdog_evidence": "Current-listener telemetry includes a pre-D1 HIGH_LISTENER_DB_FD_COUNT sample at fd_count=8; later samples were below threshold.",
+    "listener_pid": 9069,
+    "action": "Diagnosis stopped immediately; no recovery declaration and no PSI0A-D production plan inspection."
+  },
+  "blocker": "The descriptor warning gate failed before the lock episode could be declared safely recovered.",
+  "next_action": "Obtain separate authorization for a bounded telemetry-only diagnosis of the current listener descriptor warning, then re-propose PSI0A-D1 or PSI0A-D only after an objective clean recovery gate passes."
+}

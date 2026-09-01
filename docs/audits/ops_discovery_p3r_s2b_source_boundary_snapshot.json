@@ -13,12 +13,17 @@
     "row_order": "primary key mint ASC"
   },
   "cohort_formed": false,
+  "elapsed_seconds": 300.356458,
+  "exception": "interrupted",
+  "exception_type": "OperationalError",
+  "failure_reason": "BOUND_EXCEEDED",
   "identities_selected_or_frozen": false,
   "milestone": "OPS-DISCOVERY-P3R-S2B-SOURCE-SNAPSHOT",
   "population_query_executed": false,
   "production_writes": 0,
+  "progress_calls": 1733,
   "provider_calls_made": 0,
   "read_mode": "sqlite_uri_mode_ro_query_only_single_transaction",
   "source_db": "database/flex_complete_database.db",
-  "status": "STARTED"
+  "status": "HOLD"
 }

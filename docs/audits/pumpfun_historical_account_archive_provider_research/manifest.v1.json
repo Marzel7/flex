@@ -1,0 +1,22 @@
+{
+  "artifact_type": "PUMPFUN_HISTORICAL_ACCOUNT_ARCHIVE_PROVIDER_RESEARCH_MANIFEST_V1",
+  "artifacts": {
+    "provider_capability_research.v1.json": {
+      "path": "docs/audits/pumpfun_historical_account_archive_provider_research/provider_capability_research.v1.json",
+      "sha256": "9a902de1635c00f944878103e72b2323a3193fb3f7c7082f68f6e9e51916535c"
+    },
+    "research_verdict.v1.json": {
+      "path": "docs/audits/pumpfun_historical_account_archive_provider_research/research_verdict.v1.json",
+      "sha256": "301b5b3d1020499d57c01f625b636d96baf1960b200a5eb83959d45fbc3a9225"
+    }
+  },
+  "network_accounting": {
+    "official_source_lookups": 1,
+    "provider_calls": 0,
+    "total_network": 1
+  },
+  "replay_idempotent": true,
+  "replay_run_1_digest": "df8ffb0e28ee5b1862c9ecf54748ba21bbd72ea5e6e91c505efea8d55e494554",
+  "replay_run_2_digest": "df8ffb0e28ee5b1862c9ecf54748ba21bbd72ea5e6e91c505efea8d55e494554",
+  "status": "EXACT_HISTORICAL_SLOT_ACCOUNT_STATE_PROVIDER_IDENTIFIED_UNTESTED_NO_CREDENTIAL"
+}

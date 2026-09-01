@@ -1,0 +1,32 @@
+{
+  "artifact": {
+    "path": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/d3de_tier1_forensic/p3r-v2-d3de-forensic-48663be8d4182e5613be/p3r_v2_d3de_canonical_tier1_forensic.v1.json",
+    "sha256": "c9a1c6263c900d221e7b1c476a191cbc5e7e0b712979df650e036cfb0352fb82"
+  },
+  "candidate_id": "p3r-v2-d3de29c88fe0ce5fa309",
+  "canonical_run_id": "p3r-v2-2dec1d40604c1f7c08c8",
+  "census_timestamp": 1787783619,
+  "code_sha256": "68f8a27208ae34857b1b9d62c6c45893fc3e03b895a0fb4f5c533eb0179e619a",
+  "report_digest": "48663be8d4182e5613be41edbc3d5bfbff29390170d6b9bc8b1b2e5e35249185",
+  "report_id": "p3r-v2-d3de-forensic-48663be8d4182e5613be",
+  "safety": {
+    "fingerprint_mutation": false,
+    "membership_mutation": false,
+    "operation_activation": false,
+    "operation_registration": false,
+    "provider_rpc_calls": 0,
+    "queue_replay": false,
+    "tier_mutation": false,
+    "trading_signal": false
+  },
+  "source_snapshot": {
+    "database": "database/wt_ops_v2.db",
+    "highwaters": {
+      "wt_walkback_atomic_flows": 7095,
+      "wt_walkback_edge_candidates": 60299,
+      "wt_walkback_queue": 32353
+    },
+    "read_only_source": true,
+    "schema_sha256": "dcc038d07998c3d37d0475a7c0fc1d61eaa141401712b3079ec3e465dff3f4ad"
+  }
+}

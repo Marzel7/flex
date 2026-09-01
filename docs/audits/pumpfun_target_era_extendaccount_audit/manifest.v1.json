@@ -1,0 +1,41 @@
+{
+  "artifact_type": "PUMPFUN_TARGET_ERA_EXTENDACCOUNT_AUDIT_MANIFEST_V1",
+  "artifacts": {
+    "account_layout_comparison.v1.json": {
+      "path": "docs/audits/pumpfun_target_era_extendaccount_audit/account_layout_comparison.v1.json",
+      "sha256": "ef635eaef5f17b47873cd874fe750ffb679e908f5d27b284d1c1357440ae2b71"
+    },
+    "boundary_state_qualification.v1.json": {
+      "path": "docs/audits/pumpfun_target_era_extendaccount_audit/boundary_state_qualification.v1.json",
+      "sha256": "8d95bfd548aa9c8601bbfdc93abf0f53c414640e1832dc2091e553e3f5e0e33d"
+    },
+    "deployment_binding.v1.json": {
+      "path": "docs/audits/pumpfun_target_era_extendaccount_audit/deployment_binding.v1.json",
+      "sha256": "790f033f25d9d1f087b4c785534840c1ab064ca21de7195b8eebc8208ee9823b"
+    },
+    "extend_account_semantics.v1.json": {
+      "path": "docs/audits/pumpfun_target_era_extendaccount_audit/extend_account_semantics.v1.json",
+      "sha256": "44a3358d3b2bb1dd77955eb3099f3f26467736580a3f7c248be2b1c4c4485c82"
+    },
+    "opening_mc_result_or_blocker.v1.json": {
+      "path": "docs/audits/pumpfun_target_era_extendaccount_audit/opening_mc_result_or_blocker.v1.json",
+      "sha256": "4e1f07b0a1fc4830ca8823b0bf49c972f3cf627278bdef602ba6467805ff7829"
+    },
+    "target_era_schema_provenance.v1.json": {
+      "path": "docs/audits/pumpfun_target_era_extendaccount_audit/target_era_schema_provenance.v1.json",
+      "sha256": "2d16873971be64f19bca4d46068e976142bcff2ad15e7e945f0d98380f4485ac"
+    }
+  },
+  "network_accounting": {
+    "external_source_lookup_total": 7,
+    "gmgn": 0,
+    "program_metadata_rpc_total": 3,
+    "pumpportal": 0,
+    "total_network_request_total": 10,
+    "upgrade_tx_getTransaction_total": 0
+  },
+  "replay_idempotent": true,
+  "replay_run_1_digest": "4228e886d7c4e7dd6fed9d53e1cc632eee7b8bbc9625dccec9b8916d24e74e2f",
+  "replay_run_2_digest": "4228e886d7c4e7dd6fed9d53e1cc632eee7b8bbc9625dccec9b8916d24e74e2f",
+  "status": "TARGET_DEPLOYMENT_BOUND_SOURCE_SEMANTICS_NOT_BINARY_BOUND_BOUNDARY_REMAINS_PRECISE"
+}

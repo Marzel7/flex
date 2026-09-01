@@ -1,0 +1,1454 @@
+{
+  "alternative_relationship": {
+    "900b": [
+      [
+        [
+          1,
+          "WSOL_WRAP_CLOSE",
+          999985000
+        ],
+        92
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          0
+        ],
+        12
+      ],
+      [
+        [
+          1,
+          "WSOL_WRAP_CLOSE",
+          9999985000
+        ],
+        5
+      ],
+      [
+        [
+          1,
+          "WSOL_WRAP_CLOSE",
+          1009980000
+        ],
+        3
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          313044000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "WSOL_WRAP_CLOSE",
+          438262000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          257592000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          282368000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          540000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          430846000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "WSOL_WRAP_CLOSE",
+          13743349000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          2407944000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          421948000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "WSOL_WRAP_CLOSE",
+          416538000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "WSOL_WRAP_CLOSE",
+          79436442000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          324991000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          315282000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          329369000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          10000000
+        ],
+        1
+      ]
+    ],
+    "c357": [
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          10000000
+        ],
+        35
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          0
+        ],
+        17
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          964472000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          14731329000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          555103000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          413330000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          716429000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          34691715000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          10287000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          169857000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          32489333000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          494469000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          1097045000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          676884000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          614547000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          589575000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          309231000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          820912000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          23512572000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          17659940000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          18688631000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          293594000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          14563110000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          5454354000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          80136733000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          5553225000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          58371978000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          671519000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          5406546000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          99995000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          117784000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          895672000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          655758000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          624840000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          945040000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          722995000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          125415000
+        ],
+        1
+      ],
+      [
+        [
+          1,
+          "PLAIN_XFER",
+          19743780000
+        ],
+        1
+      ]
+    ],
+    "classification": "DIFFERENT_ALTERNATIVE_STRUCTURE"
+  },
+  "amount_parameterization": {
+    "900b": {
+      "amount": 999985000,
+      "nominal_sol": 1,
+      "offset_lamports": 15000
+    },
+    "c357": {
+      "amount": 99999985000,
+      "nominal_sol": 100,
+      "offset_lamports": 15000
+    },
+    "caveat": "The numeric rule does not establish common controller identity.",
+    "classification": "SAME_PARAMETERIZED_AMOUNT_RULE"
+  },
+  "analytical_verdicts": {
+    "900b": "PROVISIONAL_OPERATION_VARIANT",
+    "c357": "PROVISIONAL_OPERATION_VARIANT"
+  },
+  "atomic_equivalence": {
+    "900b_non_dominant_note": "All retained 900b members satisfy broader create+syncNative+close lifecycle; non-dominant records are lifecycle variants.",
+    "broader_shared_lifecycle": {
+      "900b_coverage": 1.0,
+      "c357_coverage": 1.0
+    },
+    "exact_shared_class": {
+      "900b_coverage": 0.7045454545454546,
+      "c357_coverage": 1.0,
+      "sequence": [
+        "createAccountWithSeed",
+        "initializeAccount3",
+        "transfer",
+        "syncNative",
+        "closeAccount"
+      ]
+    }
+  },
+  "broad_signature_false_positive_search": {
+    "all_220_family_count": 24,
+    "all_220_matches": {
+      "p3r-v2-03db4da5752899df4cfe": 4,
+      "p3r-v2-063e24a2def354f23ec5": 9,
+      "p3r-v2-178b3e5b2d90cf1fbbd8": 7,
+      "p3r-v2-3588cc051521b809388a": 5,
+      "p3r-v2-46d96390b9e8a5718dd3": 4,
+      "p3r-v2-4930b1793fcf37b8bc0b": 3,
+      "p3r-v2-4c2e1bf4a4f00d9a1948": 4,
+      "p3r-v2-4cbd5a7042f7668d17cf": 8,
+      "p3r-v2-5099994b7d5369d9591d": 3,
+      "p3r-v2-55fab7dd0a72a9ad214e": 4,
+      "p3r-v2-5aa141ce0cb94b55fffc": 45,
+      "p3r-v2-5ef1a836094e8634c66d": 3,
+      "p3r-v2-84135dbb32e9daa13722": 3,
+      "p3r-v2-88b7c2d82ab396e1ee21": 3,
+      "p3r-v2-900b89587c6987d582df": 31,
+      "p3r-v2-9f06e89e2e059eb4fb9f": 3,
+      "p3r-v2-b43fe5cd33b138775e76": 8,
+      "p3r-v2-bc71cb3ad161fe88ca7a": 17,
+      "p3r-v2-be7fa4d6954d52d60bd3": 12,
+      "p3r-v2-bed283370d8628d1bda1": 3,
+      "p3r-v2-c357da9d0d4d560311e4": 71,
+      "p3r-v2-c35af444426de60ffa86": 3,
+      "p3r-v2-c3b0a81812a990ee2932": 3,
+      "p3r-v2-c62577bb1de24fced5bb": 5
+    },
+    "scope_limit": "Observable retained atomic records only.",
+    "signature": "selected hop-1 WSOL_WRAP_CLOSE plus exact five-step atomic lifecycle on same member; excludes amount",
+    "watch_now_family_count": 5,
+    "watch_now_matches": {
+      "p3r-v2-03db4da5752899df4cfe": 4,
+      "p3r-v2-063e24a2def354f23ec5": 9,
+      "p3r-v2-900b89587c6987d582df": 31,
+      "p3r-v2-be7fa4d6954d52d60bd3": 12,
+      "p3r-v2-c357da9d0d4d560311e4": 71
+    }
+  },
+  "canonical_run_id": "p3r-v2-2dec1d40604c1f7c08c8",
+  "common_mechanism_comparison": {
+    "common_core": "Selected hop-1 WSOL_WRAP_CLOSE with temporary WSOL create/initialize/transfer/syncNative/close lifecycle.",
+    "feature_comparison": {
+      "alternatives": "DIFFERENT_ALTERNATIVE_STRUCTURE",
+      "amount_rule": "SAME_PARAMETERIZED_AMOUNT_RULE: N SOL minus 15000 lamports for N=1 and N=100",
+      "broader_lifecycle": "IDENTICAL at common create+sync+close class",
+      "exact_amount": "PARAMETERIZED_DIFFERENCE",
+      "exact_atomic_five_step": "IDENTICAL for observed exact-class members",
+      "infrastructure": "PARTIAL_INFRASTRUCTURE_OVERLAP",
+      "role_graph": "PARTIAL_ROLE_OVERLAP",
+      "selected_hop": "IDENTICAL",
+      "selected_semantic": "IDENTICAL",
+      "temporal": "PARTIALLY_OVERLAPPING"
+    },
+    "shared_direct_funders": [],
+    "shared_parents": [
+      "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB"
+    ]
+  },
+  "deterministic_replay": {
+    "inputs": {
+      "atomic": 7095,
+      "edge": 60299,
+      "run": "p3r-v2-2dec1d40604c1f7c08c8"
+    },
+    "result": "PASS"
+  },
+  "exposure_recommendation": "EXPOSE_PARENT_AND_VARIANTS",
+  "families": {
+    "p3r-v2-900b89587c6987d582df": {
+      "alternative_coverage": 1.0,
+      "alternatives": [
+        [
+          [
+            1,
+            "WSOL_WRAP_CLOSE",
+            999985000
+          ],
+          92
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            0
+          ],
+          12
+        ],
+        [
+          [
+            1,
+            "WSOL_WRAP_CLOSE",
+            9999985000
+          ],
+          5
+        ],
+        [
+          [
+            1,
+            "WSOL_WRAP_CLOSE",
+            1009980000
+          ],
+          3
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            313044000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "WSOL_WRAP_CLOSE",
+            438262000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            257592000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            282368000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            540000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            430846000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "WSOL_WRAP_CLOSE",
+            13743349000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            2407944000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            421948000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "WSOL_WRAP_CLOSE",
+            416538000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "WSOL_WRAP_CLOSE",
+            79436442000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            324991000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            315282000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            329369000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            10000000
+          ],
+          1
+        ]
+      ],
+      "atomic_sequences": [
+        [
+          [
+            "createAccountWithSeed",
+            "initializeAccount3",
+            "transfer",
+            "syncNative",
+            "closeAccount"
+          ],
+          126
+        ],
+        [
+          [
+            "createAccount",
+            "initializeAccount",
+            "syncNative",
+            "closeAccount"
+          ],
+          18
+        ],
+        [
+          [
+            "createIdempotent",
+            "closeAccount",
+            "transfer",
+            "getAccountDataSize",
+            "createAccount",
+            "initializeImmutableOwner",
+            "initializeAccount3",
+            "transferChecked"
+          ],
+          3
+        ],
+        [
+          [
+            "createIdempotent",
+            "closeAccount",
+            "getAccountDataSize",
+            "createAccount",
+            "initializeImmutableOwner",
+            "initializeAccount3",
+            "transferChecked"
+          ],
+          1
+        ]
+      ],
+      "broader_create_sync_close_members": 44,
+      "exact_five_step_members": 31,
+      "funder_concentration": {
+        "top1": [
+          [
+            "G2DxNnTRTG8Tq58PFwtQyuwsgTFaAh1FEmYudTmjsobK",
+            1
+          ]
+        ],
+        "top5": [
+          [
+            "G2DxNnTRTG8Tq58PFwtQyuwsgTFaAh1FEmYudTmjsobK",
+            1
+          ],
+          [
+            "7mqnp6cYq2dd5M3rYiL87Ad88gnp8aChdBJu7gKNv34n",
+            1
+          ],
+          [
+            "AfZBva22bAcjZv6wowVcJJsj9aNcf39qjp7576SERMLr",
+            1
+          ],
+          [
+            "E83iUWNBtrEVg9qC4aF5XcexwAWvvKvnRVQHnTnMCN9Y",
+            1
+          ],
+          [
+            "4M47u8mQT27FxgeMVsCct7b3KQJX4rxXUrN2V4W6yTgX",
+            1
+          ]
+        ]
+      },
+      "funders": [
+        "2Lab4LTHQQNWHTCqNdCy3sm19NBvTpHLjkMr5X9q2oak",
+        "2cWN1ngM9ktRVupRMfiEM5dtZWEpbMrBfRuULwogoku7",
+        "2hHqto7NnDDHnR4ie5QqMgT5mnaAh5RvMAwuezsc2y2M",
+        "2mpe9faoocNbQZePg7jy11h5jwpTfwx88D1uZgwPiDNf",
+        "2rMLD1Vh5JiRtGxF68Y6wQXPbEdE851gtGjcXsuTycm7",
+        "3trZZBiJjWYuq2ssLkJLCfjwff7prWiFqm1x7UBie45Y",
+        "4LUcoS2imfQ14t4dmH273d6FV7Lx16ihV1wdagEdYjmR",
+        "4M47u8mQT27FxgeMVsCct7b3KQJX4rxXUrN2V4W6yTgX",
+        "4kdizgr55UFF3HNKuBgjzQ3Us6N3nAKCM9exGR7yg9oF",
+        "5rk64muJjhMuc9yTvRDEjccBgBKNTzPCehMkAXaFMfCs",
+        "63NMaF5dPN8CGSPzGTDp8VvKCGTj77xrLmRKhi5SLvov",
+        "6H3SC9jHqY815XdFn9snZhHRssWYS1kiVK8ULGmwqzC3",
+        "6d94pMGMxoWpgjVnPVsTPs2ZrypFG9FUWfHD25txpzhi",
+        "7AFAYsUCdbj9SCxSBgMn8XN6dLYMMqu5fJD3KMtgxAw7",
+        "7mqnp6cYq2dd5M3rYiL87Ad88gnp8aChdBJu7gKNv34n",
+        "8DYSbFxVg8zVox6TjrR5aaitv8y5xLH5GtXdxAUjRKc2",
+        "8zcpfPzwTcjY9BU63HRnXXjh1Bqg8pcYPhpSWdJ25Uay",
+        "9tcE3GE5wmxGTxtssiwhQpL9P2AAvu5LEUgSzV2DqYtS",
+        "AKTpFS9Gmqagu3oREP68Q3KpaPMfxabbYCvRerQXbX5e",
+        "AQYyELJQDFiGubZsSwSbxLNrxYgFD2kD5RwgnVnpoj3Z",
+        "AfZBva22bAcjZv6wowVcJJsj9aNcf39qjp7576SERMLr",
+        "AkLcCEej82Cd3HUB4KrAKENBhrKb43U11CynZtDi72pL",
+        "BRAkNDumhiPfhXh67gLsh4a6eWUuxkhexcv21SD8jKks",
+        "CoTUQRiN7xgG2rHgXKJgWXivsd6ryZFSYHkC451RHCJd",
+        "D96eDj9Ey1qv8gGFcdig4jSyL7irKFAonfRGo3WM3HDh",
+        "DBPAhwePAgbHvjomGGrWcR37TVaWY5FfMkfFuV9tj7C2",
+        "DJrfEywDMdTzuuC7LuiMspZakVF5qmnD2pHC9uJLiSyW",
+        "DfHi81NJDDEf6G94VcXkjE6WtYXig6CsMf11JPTQxs2z",
+        "DsKfy17yqjeAtVaZuZHTaB3dd5aEWCWLe9BVd44jCv4G",
+        "DvpKMF5WJPozMqLQQAX4fKtSowQ3csJDq96u6VJ2KBbH",
+        "E83iUWNBtrEVg9qC4aF5XcexwAWvvKvnRVQHnTnMCN9Y",
+        "F9jkv51Q29TF94rSmVNddXHvYHjUUMDbhYNoRXZAGKXn",
+        "FVpwgEoHsdwaUp9cK2AGnAzStA75FYFonzf1L65wBDDY",
+        "Fa2Uu48FuKgKVdtWLoDKQAXTzzubABamegMXhJbe1dYo",
+        "FaXvPsLU4VDnpA6GYaKzWATSirKecKJKtPshNTF5ZyHd",
+        "Fo86vK2eT85S4YFRg3MGK9nog2meb6ZVecWNZh8aQuoB",
+        "G2DxNnTRTG8Tq58PFwtQyuwsgTFaAh1FEmYudTmjsobK",
+        "GBcUwcb5bDMPmgGvRsga1SfVMuHbETrk6uTYJdsM5ERp",
+        "GaaJR7AtKUzkTTwt9nBDncXuaW2wxSb1XKpb8cWDnZNr",
+        "H5A9SWZo6LfZ8byxUPjPFMZTVLeAL1fXu8kEtF9VBfUK",
+        "HSvt8XpvHwTKhkTapsnkkrp5uUZPzxcCmHYVnAxXb42u",
+        "HfRAJKKdoDkjyqzuk5VKz9cj1N5tMdwfJ2NoTZm4eedn",
+        "J3yZQYJECzT3PD9BpzQzSM4FKENrDeVSCtmxdFSNThMy",
+        "JDyCGoUmX8cDdMUi41mR3gUqPEwRzpWgLzerbybYNotZ"
+      ],
+      "members": 44,
+      "parents": [
+        "3yHmuLdvP5ffJBpNeDvu1SCVJqujb33VdMeQbm837Uuy",
+        "5YJkZrwNVtrjQjuKStFNfuavWNZ2GdDsK3rW8m6dzq45",
+        "6sSFfF9dtpSTx4CgK5XfN7uVxKd6or9sBvvcnPRK76xq",
+        "71ptwE72WhnoAnpPw73RTr8bz5E9PraUyWkXhyhAkNrC",
+        "9P4vzm8kb83nLiGxNKeDX8kxNeNtwRMuLiyJnVVqwQGd",
+        "AQiB8cPxuoXMeVRPNZygXED68VVXj4awgJ6gzz4WHazn",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        "C9WLfmaTPXs1vuyuHFHfu7yqWvM8KDoo5SrcADzDjNjY",
+        "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB",
+        "GHDVSqV5TAXXgHUWpFgAeTuuvQ91ixkXDjPYyeYjaTKh"
+      ],
+      "role_relations": [
+        [
+          [
+            true,
+            true
+          ],
+          144
+        ],
+        [
+          [
+            false,
+            true
+          ],
+          4
+        ]
+      ],
+      "selected_coverage": 1.0,
+      "selected_fingerprints": [
+        [
+          [
+            1,
+            "WSOL_WRAP_CLOSE",
+            999985000
+          ],
+          44
+        ]
+      ],
+      "temporal": {
+        "days": 11,
+        "first": 1785027689,
+        "last": 1787649754
+      }
+    },
+    "p3r-v2-c357da9d0d4d560311e4": {
+      "alternative_coverage": 1.0,
+      "alternatives": [
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            10000000
+          ],
+          35
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            0
+          ],
+          17
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            964472000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            14731329000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            555103000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            413330000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            716429000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            34691715000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            10287000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            169857000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            32489333000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            494469000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            1097045000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            676884000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            614547000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            589575000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            309231000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            820912000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            23512572000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            17659940000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            18688631000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            293594000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            14563110000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            5454354000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            80136733000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            5553225000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            58371978000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            671519000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            5406546000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            99995000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            117784000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            895672000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            655758000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            624840000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            945040000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            722995000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            125415000
+          ],
+          1
+        ],
+        [
+          [
+            1,
+            "PLAIN_XFER",
+            19743780000
+          ],
+          1
+        ]
+      ],
+      "atomic_sequences": [
+        [
+          [
+            "createAccountWithSeed",
+            "initializeAccount3",
+            "transfer",
+            "syncNative",
+            "closeAccount"
+          ],
+          71
+        ]
+      ],
+      "broader_create_sync_close_members": 71,
+      "exact_five_step_members": 71,
+      "funder_concentration": {
+        "top1": [
+          [
+            "98TuFX8akWLq7Luqbyg6mZKFxQQwZu2LRSs2ybwrT3nS",
+            1
+          ]
+        ],
+        "top5": [
+          [
+            "98TuFX8akWLq7Luqbyg6mZKFxQQwZu2LRSs2ybwrT3nS",
+            1
+          ],
+          [
+            "3NrYxFjqL7NhUPsNmb3Tiiq1m7RHxzqDgGvJXf2RxXMn",
+            1
+          ],
+          [
+            "GEtVX6H7krvHFCasXsnX2wHzm3iZeqxLUUNzmi4HeER4",
+            1
+          ],
+          [
+            "9qqSas8WY6nmQ3fnisLFDJt89AScjZiqbT1jAA1BUCe8",
+            1
+          ],
+          [
+            "8j9q3Rc4zNwNCTLMketLb92LjQroHziHnYs1MKkYkSgN",
+            1
+          ]
+        ]
+      },
+      "funders": [
+        "2BjFyzy337jVzrLzgbfj9vm6j7ZDWyjwDtp8bShkGcnp",
+        "2QiFAgxAKru3d8oWsL5eEkSAxmQxU6WxHTCoGM6N2VCC",
+        "2qX18psDn9K5jqB8G295Z3AQwbV6xi5MezuHd3Kbq1yF",
+        "2rKe6oPYrXpRL3CgUVrmsJTGXhNY1Uz17Htf6ZdzXwzJ",
+        "2uuJ1sr5bqkfSnMHFUAhFjSwksAvHmH3TU3aU7UWBhFK",
+        "2w3ecjBRZ7ZBim1iaXjqv4YKWeHtRk6n3EpBo1MVZBoS",
+        "38aBEtXLDNScjuAcER11UbCpCyovbtrmzod4YAqkAxMz",
+        "3NrYxFjqL7NhUPsNmb3Tiiq1m7RHxzqDgGvJXf2RxXMn",
+        "3kamQ5cB2fo46pDyGnUkHYmnuDZQJWFxmntxRKvDBhY1",
+        "4HnBbcdrzhmSaFx2YExnoXZFAibX4Uf4NdDUTGqPSDVM",
+        "55fXgo7wWvfTd6ZiRNrqoy42Hx7CbfKnSQgMriVStPEB",
+        "57PuN1WirX56CxshBz7o8fzEVPjY7zUdprsrpUgLjwKA",
+        "5no9tT8XE2HQgagWsYGsgcB3ZKt1ZdGkPotYn3P1a47C",
+        "5vVafVudjZJKUagJuuxRTkFgjLQLqMbrEKVFMwNXcbKq",
+        "67VT8Cb6aoH4UeuFW5T1yFP2ToxLpAeh3VRiXp8Rt4nQ",
+        "6GjoAJjEExghzo5AsiJyTV8Txxp9FGSnWsg3qnwn4oyh",
+        "6cQye5DE7C3xCd7H9pANDfpQd8CTf1XpEGzdcHYmqi8f",
+        "6pGXCCf44q8XzLVbyfivDV3pLv5rAW6h1xVe8oz2sqzZ",
+        "6t5EWE97oCjx7DKAqwMisjwX85VjRPPM4WPj9fLoP7f4",
+        "6vJXHimFNCDp1fMY4vuJfNQdbm8cbXrYQGxdzzPz31gt",
+        "7LYzKGRKPCxvfUSuV5pm57MjmUgC6G3sPKeRcTL4CTgD",
+        "7WFt3jHDWefbVYKPywF57SzQninUrCrZESATTkP881b1",
+        "7d6M8ykfQRYuW7fUqEMESZEpWFBEFDoFPCNQ2U2UUEaM",
+        "7v7nDPBG7Qa1wr5GzHAtf2fxfiRzBC5otW68qPcTQpyR",
+        "8PZAEriyoFAGrEttXmtCk6akRPEWF74RYshHutSV53z5",
+        "8RrP6qzsk32765uyzJgYCPT4LTaUxUBFftoGWuUH7SNr",
+        "8burxqJyYaEtpSX1THFaRSjYWND12BNHUbJtofA9YfWr",
+        "8j9q3Rc4zNwNCTLMketLb92LjQroHziHnYs1MKkYkSgN",
+        "8jLQSAxGfEc1nqX3aPKBHnVXLgbLDwaNdBAFg9XBssyM",
+        "8pJutRGnqvSJuXktHtMwga6Upq5atqZ3Z14ha2N91c8b",
+        "98TuFX8akWLq7Luqbyg6mZKFxQQwZu2LRSs2ybwrT3nS",
+        "9UA4PhjVWhShFgJvpQqyvJoSftQL5757J3buGuATCAi1",
+        "9bFEF5DJagnHfuPdUbCtihwYULdTCzp74RQ288Y4eoxe",
+        "9cZq1PZcQ37YkpbDdLZsbWhzHRQgts7xZq46iFzKx3BH",
+        "9qJM75r8tkUuso35D2RcjoBmLCFy8QDnafbayuwtfUba",
+        "9qqSas8WY6nmQ3fnisLFDJt89AScjZiqbT1jAA1BUCe8",
+        "9vxWQxQ7t96c8me6weJaUs4wwvqL2dJnborBhAbmBjvU",
+        "ABn8WgSFDxiSWchwi4NyAJcYHvbmE3vB86aHRbFgvqi2",
+        "AX93U7LoL2QYWJnuGa1grmqWgtPhG3y6CwqoFanv1ttx",
+        "AcGW5iwbnLL6MqnFJckVEunSJsREtUB6twMGXjtSYcjr",
+        "Aur82G2Zkniy6DVzLa55c1u9rqcX9aZFMG8TS4vMQesN",
+        "BBYghgQV5bZxMJVHhdZZnu9csYo4Yyx5RUYpugTtF4iw",
+        "BDwpyKpdrVfxjeyeTQNQDd4cacva1xQzcBmiBNpjsnuR",
+        "BHqs7btMbN3iFsndATfadrZogMdtEiqTzFc6qqe6bjQx",
+        "BS2tw7Q4vEgPNemCj8cXNv5TvoyPWyikJbccZapuyQqW",
+        "BWPRQ5AgcF75xho5PesYz24UKaXpgzrhc7kEzRkNpTyn",
+        "Bo9vgoTpWBsRD1U3jwPRuSh2cZAAZSzSDJgcw1Ah2mCT",
+        "BxiwCPhgCQbLqSf9ystoYh5uRj4EEvQFcAiXGf2ziM1f",
+        "CCeL96vXcftteC1DJccNipLio4EMrB1ppqoQL9Rz8nnc",
+        "CRz5Kxv9qHini9xhpA2DitjoKySkZPyTbopXCg3W6Xcf",
+        "CZW5TGuGBp8N3K9sJjkaq8yrfae8qKEEptFBJPm2hNeb",
+        "CZk5uZdVfPUMzmCCDVbWUnom7gSZSbgFJKb37vGwTAt8",
+        "CvQTfPsBj9BrH7VfkkrTAXcE5sBkeoLU42S918BnkJw1",
+        "D1WebujJc5CJR5eKjnWWfiKbhhjMdyzKgihbmoDmdsEe",
+        "DSU8DLqBuaFK4Mtw6uGAWBPP1ZhUt5KQYcNvUNZqZKob",
+        "E57fshvfneuC7j1m12mXk8GjQcDVTKmKLG24rnbjiQLF",
+        "FBP2zCEFgcR64bBnoEqKeysYx5d7m5WMmNjRUgp99ddD",
+        "FK9wLKizAtRtfNH57Y4J1wmQxpwpZ2EMYNZ1kME2V7hM",
+        "Ft5Sn8GN9BrqGXUyiuvw4WgEP9MUER8hdmZ7oBBEQ1rT",
+        "FwC68rFq5r4MmsAS3zxEwUSye5JPtYQoL2piJcpKabQB",
+        "GEtVX6H7krvHFCasXsnX2wHzm3iZeqxLUUNzmi4HeER4",
+        "GaCSvrcMmwc8RcbdAnxwBdM2dfzUZN3FkPWCCCCusMbf",
+        "GhnaFwBs9oWGrec1xZ18j5xmkS2muLcMWK5DuLtaXz3D",
+        "HPocCJSYVR5epcdJ3SNdECj1BW3QbwUZJahEX8tNTMMJ",
+        "HRhj8yPAqPgJnjJ5JKTFogHZ7Pukugco8rzXwsR2a1va",
+        "HqUkaFpvG8KHGDhjM6PPLvzbagXrkdYpJhmeaz1hh6ye",
+        "HvrfDJssAXHLzFccnyQDxnWZpFuvj9SS7DcThUPNG4Tz",
+        "REetZZ7KnkkXYqSZAe9B6BdN91E8McDVeSC4RZJQmGa",
+        "UPRCX1GKQxfBzuzenjQ7UkTiBRtPJYDoNH9AsASJoWW",
+        "mMscMXbq3SJM2R6EcL9b8YrgTkDaaPZKiGWHLwcFjzw",
+        "xkRXakyCtZyurxF28kUserYZ7ws9NqqTxaEJjSkVaiJ"
+      ],
+      "members": 71,
+      "parents": [
+        "2fJCPb27tQhbnX4s3sTJvjzK1deawkREkKjCKS7PjF9g",
+        "2h2xdvznzmcRi4zNE8A3uwe4Er5e5bf8gTxzXREg9ph5",
+        "397s3pwPhV1A88Fj2EuNoERFYTCLdN5WiUAPvxUxFVST",
+        "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+        "3thxdSxsHtFuGJroCYe6JmCojPRizUz1GnvQSq5M5JfY",
+        "49Wo4qJS1CWPd4b8LAezyL4ARPj3fw6N6zPhPV4dQd6V",
+        "54xTpcBEr48Cuis8m2SdeymdQcwvmDR4aegxCPQzUANG",
+        "59MGbbjnBsNKNbTXsd4cc83doHgpkJBdotigvZ6WxjLX",
+        "5PkFFC9FCmm2EUQHMqbF9cwMviSXjgAjeqKEoPoYejuG",
+        "5TR1KXium6nxovUUXbofK2N1uYPh9NA8w9WpvvKZ3Myi",
+        "5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn",
+        "5iDYsDLugMXh1LTRVDmFH8PfQ6ueG5pE9UcfefrnztB6",
+        "5sUoQPPvnvS6eXem4TdcjKJ1JZy7uLEhWN3pCA8yNFnc",
+        "6hakQXcUcnk1EuuGMHsDPw9iP4GPwjUtHxxPAvGnPj3L",
+        "6jJnz6ZQjDZeFLxoDq2RBp4fvsjPfCJmpr1jhQcy2rBk",
+        "7144mX5peoQoyYq2ncsTmzFciqkLiYzS42XVmvFjGiv4",
+        "7DifG8cHrQBAAKjqoLCnfzj8khtnYLPE39GnWgEnLP8d",
+        "7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv",
+        "9As8wexRUtoujuYia5WxpiUCbjut75XTb9LknATiXvRW",
+        "9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp",
+        "AW7FZRzGUA8HnRWTsGbEDogAh4Y2Utv2KBqALEvfGLqb",
+        "AhfDWL1mi2xajF7JWGDzmTiqvtRxD7JDWHkaZVnmUvw7",
+        "Am3Un7bph5NNWDLCVVVQT1kY4kN3GFPjj31g4DdrNCd4",
+        "Ao2sUdoFtKW7yix7v6GT8GoWE94LcgHiyjautukHBKAi",
+        "BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH",
+        "BsKEb5qhnHMFP4XUjoXMv5nMxkvuaFtBH5ssuWNMjLbw",
+        "C2W3FExk348T4aNHpJjiCZpNrpd9MNLBBVZAdWCogtBx",
+        "C55hxeJepPLMKi4xuKjAFLWmxoSfVrqn2LELi67ixQfe",
+        "CYnm5v4MiLLLaUvu5VUfYPxszU8RPBzmH3Qkv7QbfcUi",
+        "CbMTzd1sG9vuP9Tw2nUNBHUvtsyzr4Hm5rknri4XxXWL",
+        "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5",
+        "DPAy3sFUsUWVRCGaMKse2hVYR5kKU7Yr4cE1eM5EwvgA",
+        "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB",
+        "DmfxzqZQTifJQhfrikFdDQXy3Ws6X9H3VX5xkRVTf77y",
+        "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "FJrraJVwKYdcLX4we8UttdJGvxErgUKWf6awnVSsxArH",
+        "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD",
+        "G1BJvTetp6YSwaDNSajruPPM1JCTZf5NWeyr6dQN94n7",
+        "G9XSZDgMk8x51uHvFUumZK5AFWJLp3GJCV7VZSkL3uGP",
+        "GUBtBg8i5wn5ME3vYmgqMZFFuBnDp6i1oa8BPFwoURAP",
+        "Gy29oqrQGFsP8cSsZ4eJvmMDMvKeYtWgURGCn5jim9Xn",
+        "HQ2q5DJuAVf1CrDJpwmeSYsLgvGp9k5cGEPZQsNvcMW9",
+        "HRneLKJHUHXJr9zb297N44L8WCUqCJYKDsSxDaPv49wS",
+        "HS5GjB4KTJbbBdYHkJV8qDpq8gmU9wck2qsxgz3ifgke",
+        "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+        "J37JdYS3hpMB3iW8tgUdfFrrBu4X6o9PT3SguxpHXJVW",
+        "J87ewUdaYKXaMVZEdKh14fMcKXaAmzGamzGtaXDop13X",
+        "NeHjc1yqZXesLZTHtK7jrjyQ3MpFg2TVHpV8QDDAHEm",
+        "j6EVoUMZRafJPrdkuoB9PJGXxBGHEsx4VcJq5W3Ft5d"
+      ],
+      "role_relations": [
+        [
+          [
+            true,
+            true
+          ],
+          71
+        ]
+      ],
+      "selected_coverage": 1.0,
+      "selected_fingerprints": [
+        [
+          [
+            1,
+            "WSOL_WRAP_CLOSE",
+            99999985000
+          ],
+          71
+        ]
+      ],
+      "temporal": {
+        "days": 16,
+        "first": 1784656853,
+        "last": 1787632643
+      }
+    }
+  },
+  "hierarchy_verdict": "ONE_BROAD_MECHANISM_TWO_PROVISIONAL_VARIANTS",
+  "next_family": "p3r-v2-063e24a2def354f23ec5",
+  "next_reason": "It tests whether the decimal amount series spans materially different lifecycle implementations.",
+  "recommended_hierarchy": {
+    "children": [
+      "WSOL_PROVISION_CLOSE_1_SOL_MINUS_15K",
+      "WSOL_PROVISION_CLOSE_100_SOL_MINUS_15K"
+    ],
+    "parent": "WSOL_PROVISION_CLOSE",
+    "parent_required_core": "hop-1 WSOL close plus observed temporary-account lifecycle; do not use as a controller identity",
+    "variants": "exact selected amount is mandatory for child attribution"
+  },
+  "remaining_uncertainty": "No retained role/infrastructure evidence establishes shared control; broader signature external matches constrain parent specificity.",
+  "rpc_verdict": "RPC_OPTIONAL_VALIDATION_ONLY",
+  "safety_confirmation": {
+    "family_merge_split": false,
+    "membership_tier_fingerprint_threshold_mutation": false,
+    "operation_activation_detector_runtime_change": false,
+    "queue_replay": false,
+    "rpc_provider_calls": false,
+    "trading_signal": false
+  },
+  "schema_version": "P3R_V2_900B_C357_OPERATION_HIERARCHY_CLOSURE.v1",
+  "source_highwaters": {
+    "atomic_rowid": 7095,
+    "edge_rowid": 60299
+  },
+  "temporal_relationship": {
+    "900b": {
+      "days": 11,
+      "first": 1785027689,
+      "last": 1787649754
+    },
+    "c357": {
+      "days": 16,
+      "first": 1784656853,
+      "last": 1787632643
+    },
+    "classification": "PARTIALLY_OVERLAPPING"
+  },
+  "variant_signature_test": {
+    "900b": {
+      "atomic_exact_member_coverage": 0.7045454545454546,
+      "coverage": "44/44 selected exact amount",
+      "external_canonical_matches": 0,
+      "local_precision": 1.0
+    },
+    "c357": {
+      "atomic_exact_member_coverage": 1.0,
+      "coverage": "71/71 selected exact amount",
+      "external_canonical_matches": 0,
+      "local_precision": 1.0
+    }
+  }
+}

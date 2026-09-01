@@ -1,0 +1,33 @@
+{
+  "artifact_type": "MACROHARD_SOL_USD_HISTORICAL_LOCAL_AUDIT_V1",
+  "target_timestamp": 1788250333,
+  "target_mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+  "sources": [
+    {"source_name": "PoolPriceCalculator current SOL/USD fetcher", "producer_path": "src/core/pool_price_engine.py::PoolPriceCalculator.fetch_sol_price_usd", "storage": "none", "mode": "live", "timestamp_field": "in-memory last_update", "price_field": "SolPriceCache.price", "retention_depth": "20-second process-local TTL", "provenance_quality": "CURRENT_ONLY; CoinGecko primary, Binance fallback"},
+    {"source_name": "SolPriceCache", "producer_path": "src/core/sol_price_cache.py", "storage": "process memory only", "mode": "live", "timestamp_field": "last_update", "price_field": "price", "retention_depth": "none across restart", "provenance_quality": "NOT_HISTORICAL"},
+    {"source_name": "token_price_snapshots implied SOL/USD", "producer_path": "src/core/price_service.py::_store_snapshot", "storage": "database/flex_complete_database.db::token_price_snapshots", "mode": "historical", "timestamp_field": "captured_at", "price_field": "price_usd / price_sol", "retention_depth": "per-token historical rows subject to retention", "provenance_quality": "DERIVED_FROM_TIMESTAMPED_DEXSCREENER_TOKEN_SNAPSHOT"}
+  ],
+  "current_system": {"source": "CoinGecko primary / Binance fallback through SolPriceCache", "producer_path": "src/core/pool_price_engine.py and src/core/sol_price_cache.py", "current_value": null, "current_timestamp": null, "reason_unavailable": "Current cache is in-process only and was not queried or refreshed during this read-only audit."},
+  "candidate_observations_within_30_seconds": [
+    {"source": "token_price_snapshots:cached", "mint": "2buMKEfRY7CAQuL1N5c7BH1YTQSaf72RXt271Rvhpump", "price_usd": 0.0000007341, "price_sol": 0.000000007148003894839338, "implied_sol_usd": 102.7, "observed_at": 1788250336, "offset_seconds": 3, "raw_provenance": "local SQLite row copied from direct DexScreener observation", "direct_or_derived": "DERIVED_CACHED", "quality_state": "CORROBORATING_ONLY"},
+    {"source": "token_price_snapshots:dexscreener", "mint": "2buMKEfRY7CAQuL1N5c7BH1YTQSaf72RXt271Rvhpump", "price_usd": 0.0000007341, "price_sol": 0.000000007148003894839338, "implied_sol_usd": 102.7, "observed_at": 1788250326, "offset_seconds": -7, "raw_provenance": "database/flex_complete_database.db::token_price_snapshots, source=dexscreener", "direct_or_derived": "DERIVED_FROM_DIRECT_TIMESTAMPED_SNAPSHOT", "quality_state": "QUALIFIED"},
+    {"source": "token_price_snapshots:cached", "mint": "6sv6m8jDNtQDPLLLDXSGUBi2DaV8Ve7X5ki74WoRpump", "implied_sol_usd": 102.7, "observed_at": 1788250313, "offset_seconds": -20, "raw_provenance": "local SQLite row", "direct_or_derived": "DERIVED_CACHED", "quality_state": "CORROBORATING_ONLY"},
+    {"source": "token_price_snapshots:cached", "mint": "HpCSDkF5uGzSXXzn9CoBeLtFmra9KvM5AH2za3CHpump", "implied_sol_usd": 102.7, "observed_at": 1788250313, "offset_seconds": -20, "raw_provenance": "local SQLite row", "direct_or_derived": "DERIVED_CACHED", "quality_state": "CORROBORATING_ONLY"},
+    {"source": "token_price_snapshots:cached", "mint": "jSmHPZhNHAYARLLbq671zYcMxeuyscSMcmR51nTpump", "implied_sol_usd": 102.7, "observed_at": 1788250313, "offset_seconds": -20, "raw_provenance": "local SQLite row", "direct_or_derived": "DERIVED_CACHED", "quality_state": "CORROBORATING_ONLY"}
+  ],
+  "selection": {"available": true, "source": "token_price_snapshots:dexscreener", "sol_usd": 102.7, "timestamp": 1788250326, "offset_seconds": -7, "temporal_quality": "WITHIN_30_SECONDS", "provenance": "same-row price_usd / price_sol ratio from retained direct DexScreener snapshot", "multiple_independent_sources": false, "source_disagreement_pct": 0.0},
+  "valuation": [
+    {"action": 1, "type": "BUY", "market_cap_sol": 157.774174034, "sol_usd": 102.7, "market_cap_usd": 16203.407673292},
+    {"action": 2, "type": "BUY", "market_cap_sol": 158.650012247, "sol_usd": 102.7, "market_cap_usd": 16293.356257767},
+    {"action": 3, "type": "BUY", "market_cap_sol": 159.484304021, "sol_usd": 102.7, "market_cap_usd": 16379.038022957},
+    {"action": 4, "type": "BUY", "market_cap_sol": 160.364869539, "sol_usd": 102.7, "market_cap_usd": 16469.472101655},
+    {"action": 5, "type": "BUY", "market_cap_sol": 162.171622209, "sol_usd": 102.7, "market_cap_usd": 16655.025600864},
+    {"action": 6, "type": "SELL", "market_cap_sol": 160.364940378, "sol_usd": 102.7, "market_cap_usd": 16469.479376821},
+    {"action": 7, "type": "BUY", "market_cap_sol": 160.801717409, "sol_usd": 102.7, "market_cap_usd": 16514.336377904},
+    {"action": 8, "type": "BUY", "market_cap_sol": 161.005185916, "sol_usd": 102.7, "market_cap_usd": 16535.232593573}
+  ],
+  "thresholds": {"first_action_reaching_10000_usd": 1, "first_action_reaching_13000_usd": 1, "first_action_reaching_15000_usd": 1, "seconds_to_each_at_block_time_precision": 0, "limitation": "Creation and first trading slot share the same integer block-time second; intra-second action timing is not asserted."},
+  "context_only_100_97": {"historically_qualified": false, "mc_after_buy_1_usd": 15930.458352213, "first_slot_peak_usd": 16374.468694443},
+  "future_backfill": {"existing_store_suitable": false, "reason": "The store can occasionally yield an implied historical SOL/USD ratio when a timestamped token snapshot has both USD and SOL values, but coverage is opportunistic, per-token, retention-managed, and not an authoritative SOL/USD series. A broad historical backfill needs a dedicated timestamped SOL/USD source."},
+  "safety": {"external_price_api_requests": 0, "helius_requests": 0, "alchemy_requests": 0, "gmgn_requests": 0, "incremental_solana_rpc": 0, "production_or_source_rows_modified": false, "walkback_tables_modified": false, "schema_modified": false, "ui_modified": false, "code_modified": false, "suppression_occurred": false}
+}

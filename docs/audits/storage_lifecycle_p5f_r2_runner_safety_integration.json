@@ -1,0 +1,11 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5F-R2 -- production runner safety integration",
+  "verdict": "HOLD_P5F_COLD_PUBLICATION_ORDERING",
+  "implementation_attempt": "Added durable PhaseEvidenceStore integration and close/publish-before-retire logic to src/ops/hot_cold_rollover_runner.py.",
+  "focused_tests": "30 passed, 5 failed",
+  "real_correctness_failure": "Closing a same-run delta before the runner's resumable checkpoint advances makes the next batch route to the deterministic same-run delta filename and attempt to write a CLOSED segment. This raises ColdSegmentImmutabilityViolation.",
+  "failing_regressions": ["keyset batching", "max rows ceiling", "segment closure semantics", "crash recovery", "concurrent writers"],
+  "safety_decision": "No supervised production runner execution performed. No cron installed. Tests were not weakened and no workaround was applied.",
+  "required_design_fix": "Make publication idempotent across resumable batches, e.g. a distinct immutable delta per batch identity with an advanced checkpoint, or a durable recovery path that never reopens a published segment. Requalify all existing resumability tests before production use.",
+  "automation_active": false
+}

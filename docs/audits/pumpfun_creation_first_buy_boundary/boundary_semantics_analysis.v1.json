@@ -1,0 +1,168 @@
+{
+  "artifact_type": "PUMPFUN_CREATION_TO_FIRST_BUY_BOUNDARY_SEMANTICS_V1",
+  "buy1_dynamic_config_accounts": [
+    {
+      "account": "4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf",
+      "role": "global"
+    },
+    {
+      "account": "62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV",
+      "role": "fee_recipient"
+    },
+    {
+      "account": "5YxQFdt3Tr9zJLvkFccqXVUwhdTWJQc1fFg2YPbxvxeD",
+      "role": "buyback_fee_recipient"
+    },
+    {
+      "account": "EXzXVZ9Hzyo5wedDeEqRxFcg8LKZbmDW47H5BtjzPJcU",
+      "role": "creator_vault"
+    },
+    {
+      "account": "3cJNxt3rxCiLuEvj2m1JRiZGxkKXVspEyCkrRRaL7vX6",
+      "role": "sharing_config"
+    },
+    {
+      "account": "Hq2wp8uJ9jCPsYgNHex8RtqdvMPfVGoYwjvF1ATiwn2Y",
+      "role": "global_volume_accumulator"
+    },
+    {
+      "account": "C3kBNzKMAnvuso9tNo1EoS5cnJqakfz1ArJUK4FGNktb",
+      "role": "user_volume_accumulator"
+    },
+    {
+      "account": "8Wf5TiAheLUqBrKXeYg2JtAFFMWtKdG2BSFgqUcPVwTt",
+      "role": "fee_config"
+    },
+    {
+      "account": "pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ",
+      "role": "fee_program"
+    }
+  ],
+  "buy1_non_curve_state_inputs": [
+    {
+      "account": "4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf",
+      "role": "global"
+    },
+    {
+      "account": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+      "role": "base_mint"
+    },
+    {
+      "account": "So11111111111111111111111111111111111111112",
+      "role": "quote_mint"
+    },
+    {
+      "account": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "role": "base_token_program"
+    },
+    {
+      "account": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "role": "quote_token_program"
+    },
+    {
+      "account": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+      "role": "associated_token_program"
+    },
+    {
+      "account": "62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV",
+      "role": "fee_recipient"
+    },
+    {
+      "account": "94qWNrtmfn42h3ZjUZwWvK1MEo9uVmmrBPd2hpNjYDjb",
+      "role": "associated_quote_fee_recipient"
+    },
+    {
+      "account": "5YxQFdt3Tr9zJLvkFccqXVUwhdTWJQc1fFg2YPbxvxeD",
+      "role": "buyback_fee_recipient"
+    },
+    {
+      "account": "HjQjngTDqoHE6aaGhUqfz9aQ7WZcBRjy5xB8PScLSr8i",
+      "role": "associated_quote_buyback_fee_recipient"
+    },
+    {
+      "account": "FJPbTzeUy4pzPT3r7c2fNxccNvvhbC7LJkSqXux8xU1g",
+      "role": "bonding_curve"
+    },
+    {
+      "account": "3LiBmWqde7CaFW9mogdyRemiXoYxprHSjChzCW4gLejm",
+      "role": "associated_base_bonding_curve"
+    },
+    {
+      "account": "6QwZh9VHwiAqpppP9JowS7u93zhdECb8nEfoY8BaKX9o",
+      "role": "associated_quote_bonding_curve"
+    },
+    {
+      "account": "Eqk3ht8ADsrigNrVPqKZ3bST9VosebkMxmwE11cnKhar",
+      "role": "user"
+    },
+    {
+      "account": "HGeYNWjRZ6nVU7Tfh4fMNt2gx1uG7nACxJtMwwC8fNFG",
+      "role": "associated_base_user"
+    },
+    {
+      "account": "EucVNqh2gPL11mSM1VJv2EZVjH2hHkjKjEzvHvw3yjgW",
+      "role": "associated_quote_user"
+    },
+    {
+      "account": "EXzXVZ9Hzyo5wedDeEqRxFcg8LKZbmDW47H5BtjzPJcU",
+      "role": "creator_vault"
+    },
+    {
+      "account": "4tz75sYedJ5KMc1dgWocksrjUCZh8pDodGAU9q9Ka3h3",
+      "role": "associated_creator_vault"
+    },
+    {
+      "account": "3cJNxt3rxCiLuEvj2m1JRiZGxkKXVspEyCkrRRaL7vX6",
+      "role": "sharing_config"
+    },
+    {
+      "account": "Hq2wp8uJ9jCPsYgNHex8RtqdvMPfVGoYwjvF1ATiwn2Y",
+      "role": "global_volume_accumulator"
+    },
+    {
+      "account": "C3kBNzKMAnvuso9tNo1EoS5cnJqakfz1ArJUK4FGNktb",
+      "role": "user_volume_accumulator"
+    },
+    {
+      "account": "4MUuHtmxcQmxcBiPFZ8TszT1dpam44KmDXkqvX7KWm2M",
+      "role": "associated_user_volume_accumulator"
+    },
+    {
+      "account": "8Wf5TiAheLUqBrKXeYg2JtAFFMWtKdG2BSFgqUcPVwTt",
+      "role": "fee_config"
+    },
+    {
+      "account": "pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ",
+      "role": "fee_program"
+    },
+    {
+      "account": "11111111111111111111111111111111",
+      "role": "system_program"
+    },
+    {
+      "account": "Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1",
+      "role": "event_authority"
+    },
+    {
+      "account": "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+      "role": "program"
+    }
+  ],
+  "classification": "BOUNDARY_STILL_UNRESOLVED",
+  "createevent_reserve_semantic": "UNPROVEN_AS_FINAL_ACCOUNT_STATE: labels decode exactly, but retained source does not document that CreateEvent reserves are the final post-extend curve-account state.",
+  "proven_facts": {
+    "creation_has_embedded_trade_event": false,
+    "first_buy_event_creator_fee_lamports": 540000,
+    "first_buy_event_fee_lamports": 1710000,
+    "first_buy_event_net_curve_sol_lamports": 180000000,
+    "first_buy_event_reserve_phase": "post-action empirically qualified by exact action 2-8 reserve continuity.",
+    "first_buy_spendable_quote_in_lamports": 182250000,
+    "first_buy_variant": "buy_exact_quote_in_v2",
+    "post_createevent_mutation_detail": "Successful extend_account immediately follows create and emits ExtendAccountEvent resizing the Pump-owned curve account from 115 to 151 bytes. The retained authoritative source subset does not define its fields or prove whether it rewrites reserve fields.",
+    "post_createevent_state_mutating_instruction_names": [
+      "extend_account"
+    ],
+    "post_createevent_state_mutating_instruction_present": true
+  },
+  "reason": "Creation-time ExtendAccount is a proven post-Create mutation, but no retained final curve-account payload or target-era exact instruction/account schema ties it to the observed first-buy prestate. Dynamic fee/config accounts explain the 2.25m lamport gross-to-net difference but do not independently establish the 41.085353876 SOL / 620.164102728055T virtual-reserve divergence."
+}

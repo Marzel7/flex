@@ -49,9 +49,9 @@ def sw2_entity():
     return entity
 
 
-def test_dv34_historical_population_is_123(reader):
+def test_dv34_historical_population_is_131_after_retained_growth(reader):
     result = reader.fetch_unified_investigation(DV34)
-    assert result["historical_population"]["count"] == 123
+    assert result["historical_population"]["count"] == 131  # post-baseline original_sender growth; bound in /tmp/p3r-registry-reconciliation
 
 
 def test_dv34_high_qualified_is_23(reader):
@@ -64,18 +64,18 @@ def test_dv34_historical_never_equals_qualified(reader):
     assert result["historical_population"]["count"] != result["evidence_qualification"]["high_qualified_count"]
 
 
-def test_dv34_remainder_matches_82_plus_18(reader):
+def test_dv34_remainder_includes_same_eight_retained_additions(reader):
     """OF-DV34-P3 established 82 valid-not-HIGH + 18 historical-only = 100
     remainder members; the bounded read-time projection reports this as a
     single combined remainder (not a full per-member P3-style pass)."""
     result = reader.fetch_unified_investigation(DV34)
-    assert result["evidence_qualification"]["valid_not_high_or_historical_only"] == 100
-    assert 100 == 123 - 23
+    assert result["evidence_qualification"]["valid_not_high_or_historical_only"] == 108
+    assert 108 == 131 - 23
 
 
-def test_dv34_role_is_provisioning_network_candidate(reader):
+def test_dv34_role_is_funding_structure_under_semantic_correction(reader):
     result = reader.fetch_unified_investigation(DV34)
-    assert result["identity"]["candidate_role"] == "PROVISIONING_NETWORK_CANDIDATE"
+    assert result["identity"]["candidate_role"] == "FUNDING_STRUCTURE"
 
 
 def test_dv34_not_canonical_not_promotion_eligible(reader):

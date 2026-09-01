@@ -1,0 +1,157 @@
+{
+  "affected_path": "listener -> birth persistence -> migration detection -> Mission Control health projection",
+  "births": {
+    "last_15m": 192,
+    "last_1h": 192,
+    "last_1m": 35,
+    "last_5m": 192,
+    "latest_utc": "2026-08-26 20:44:25"
+  },
+  "health_api": {
+    "ingestion": {
+      "birth_queue_pending": 0,
+      "last_birth_age_secs": 0,
+      "last_birth_at": 1787776974,
+      "last_birth_at_utc": "20:42:54Z",
+      "last_migration_age_secs": 10,
+      "last_migration_at": 1787776964,
+      "last_migration_at_utc": "20:42:44Z",
+      "listener_log_age_secs": 0,
+      "lock_errors_since_start": 0,
+      "migration_queue_pending": 0,
+      "price_worker_enabled": null,
+      "pumpportal": "CONNECTED",
+      "pumpswap": "CONNECTED",
+      "status": "HEALTHY"
+    },
+    "live_ingestion": {
+      "degraded_by": null,
+      "evidence": {
+        "abnormal": 1,
+        "total": 6
+      },
+      "flow_metrics": {
+        "births": {
+          "expected_per_min": 24.6667,
+          "last_birth_age_secs": 0,
+          "mode": "rate",
+          "observed_per_min": 8.6667
+        },
+        "migrations": {
+          "band": "dormant",
+          "elapsed_min": 0.2,
+          "last_migration_age_secs": 10,
+          "mode": "elapsed_policy",
+          "status": "HEALTHY"
+        }
+      },
+      "signals": [
+        {
+          "abnormal": true,
+          "detail": "observed 8.67/min vs expected 24.67/min baseline (primary signal)",
+          "name": "birth_rate_collapse"
+        },
+        {
+          "abnormal": false,
+          "detail": "0.2min since last migration (band=dormant)",
+          "name": "migration_health"
+        },
+        {
+          "abnormal": false,
+          "detail": "CONNECTED",
+          "name": "pumpportal_connection"
+        },
+        {
+          "abnormal": false,
+          "detail": "CONNECTED",
+          "name": "pumpswap_connection"
+        },
+        {
+          "abnormal": false,
+          "detail": "listener_log_age_secs=0",
+          "name": "listener_log_freshness"
+        },
+        {
+          "abnormal": false,
+          "detail": "birth_queue_pending=0 migration_queue_pending=0",
+          "name": "queue_backlog"
+        }
+      ],
+      "status": "WARNING",
+      "trend": {
+        "births": {
+          "current_vs_prior_5m": {
+            "current": 25.8,
+            "prior": 0.0
+          },
+          "direction": "improving",
+          "expected_per_min": 24.666666666666668,
+          "pct_of_baseline": 104.6,
+          "rates_per_min": {
+            "15m": 8.6,
+            "24h": 27.42361111111111,
+            "5m": 25.8,
+            "60m": 2.15
+          }
+        },
+        "migrations": {
+          "current_vs_prior_5m": {
+            "current": 8.0,
+            "prior": 0.0
+          },
+          "direction": "improving",
+          "expected_per_min": 0.8,
+          "pct_of_baseline": 1000.0,
+          "rates_per_min": {
+            "15m": 2.6666666666666665,
+            "24h": 1.0333333333333334,
+            "5m": 8.0,
+            "60m": 0.6666666666666666
+          }
+        }
+      }
+    }
+  },
+  "migrations": {
+    "last_1h": 44,
+    "latest_utc": "2026-08-26 20:44:54"
+  },
+  "prohibitions_observed": [
+    "no queue replay",
+    "no membership change",
+    "no WATCHTOWER/Byzantine/900b/P3R mutation",
+    "no trading state change",
+    "no RPC/provider call"
+  ],
+  "queues": {
+    "birth_persist_queue": [
+      {
+        "count": 225,
+        "latest_processed": "2026-08-26 20:40:57",
+        "latest_received": "2026-08-26 17:55:01",
+        "status": "PROCESSED"
+      }
+    ],
+    "migration_persist_queue": [
+      {
+        "count": 31,
+        "latest_processed": "2026-08-16 23:18:22",
+        "latest_received": "2026-08-16 22:32:18",
+        "status": "PROCESSED"
+      }
+    ]
+  },
+  "recorded_at": 1787777077,
+  "repair": "Restarted only creator_funding_worker to release stale lease, then watchtower_listener. No code/query/config change.",
+  "root_cause": "creator_funding_worker PID 2840 held a stale cross-process write lease from 2026-08-25, causing pumpfun_curve_listener startup CrossProcessDatabaseWriteTimeout and an autorestart loop.",
+  "schema_version": "MISSION_CONTROL_LIVE_INGESTION_RECOVERY.v1",
+  "services_restarted": [
+    "creator_funding_worker",
+    "watchtower_listener"
+  ],
+  "source_before": {
+    "births_recent": 0,
+    "latest_birth_utc": "2026-08-26T17:47:42Z",
+    "latest_migration": "none"
+  }
+}

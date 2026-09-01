@@ -1,0 +1,30 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5E-R1-D4 -- integrity-check execution recovery",
+  "timestamp_utc": "2026-08-21T10:32:57Z",
+  "terminal_verdict": "HOLD_P5E_R1_INTEGRITY_EXECUTION_ENVIRONMENT",
+  "background_child_test": "BACKGROUND_CHILD_EXECUTION_UNRELIABLE: trivial sleep/write child did not create its file",
+  "fast_structural_checks": {
+    "quick_check": "ok",
+    "foreign_key_check_rows": 0,
+    "sqlite_master": "expected transfer_index and segment_manifest schema/indexes",
+    "boundary_reads": "PASS"
+  },
+  "full_integrity_foreground": {
+    "started_marker": true,
+    "result_marker": false,
+    "exception_marker": false,
+    "finished_marker": false,
+    "interpretation": "Foreground read-only PRAGMA integrity_check was externally terminated by the execution harness after STARTED but before any SQLite result/exception/finally marker. This is environmental execution evidence, not an integrity result."
+  },
+  "production_actions": {
+    "cold_base_replaced": false,
+    "delta_published": false,
+    "hot_rows_deleted": 0,
+    "services_restarted": false,
+    "rollback_db_touched": false
+  },
+  "exact_next_action": "Run the required full integrity_check through a persistent host execution environment outside this short-lived harness, preserving the same read-only URI and file-backed markers. Do not advance P5E repair until a fresh integrity_check=ok is captured.",
+  "handoff_integrity": {
+    "pre_update_sha256": "04ea70b8dc6bd76f87a9ed5c7b1b58be0e549ad76dae7c6c890022be48a9357c"
+  }
+}

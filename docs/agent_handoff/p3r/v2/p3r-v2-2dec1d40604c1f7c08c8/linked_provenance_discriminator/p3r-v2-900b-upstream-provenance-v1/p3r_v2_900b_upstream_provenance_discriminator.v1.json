@@ -1,0 +1,53 @@
+{
+  "amount_vector_analysis": "Not assessable for TP: no immediate upstream transaction link is retained.",
+  "c357_applicability": "UNKNOWN",
+  "continue_pause_decision": "CONTINUE_ONE_SPECIFIC_EVIDENCE_GAP",
+  "deterministic_replay": "PASS: same frozen core/hop-2 query returns 0 TP and 15 FP linked rows.",
+  "feature_matrix": {
+    "retained_hop2_presence": {
+      "fp_match": 15,
+      "fp_observable": 15,
+      "interpretation": "Asymmetric observability, not a valid detector feature. Missing TP links are not evidence of absence.",
+      "tp_match": null,
+      "tp_observable": 0
+    }
+  },
+  "frozen_cohort": {
+    "fn": 0,
+    "fp": 15,
+    "identity_source": "p3r_v2_900b_targeted_rpc_discriminator.v1.json",
+    "tp": 44
+  },
+  "local_evidence_availability": {
+    "FP": "LOCAL_COMPLETE for 15/15 via retained matching hop-2 edge.",
+    "TP": "UPSTREAM_LINK_UNAVAILABLE for 44/44: queue retains selected funder_sig/create anchor but no upstream transaction signature."
+  },
+  "qualification_verdict": "900B_UPSTREAM_EVIDENCE_INSUFFICIENT",
+  "registration": "Not performed; prohibited in this run.",
+  "rpc_scope": {
+    "authorized_method": "getTransaction only for deterministically linked upstream signatures",
+    "calls_made": 0,
+    "reason": "No deterministically linked upstream transaction signature exists for any TP. Address-history pagination/getSignaturesForAddress would be required to select one, which is outside this tightly bounded getTransaction authorization."
+  },
+  "safety_confirmation": {
+    "canonical_membership_tier_fingerprint_threshold_mutation": false,
+    "operation_registration_activation": false,
+    "queue_replay": false,
+    "rpc_provider_calls": false,
+    "trading": false,
+    "unrelated_rpc_enrichment": false
+  },
+  "schema_version": "P3R_V2_900B_UPSTREAM_PROVENANCE_DISCRIMINATOR.v1",
+  "specific_gap": "One deterministic, bounded address-history lookup per TP direct funder is required to locate the immediately preceding material inbound funding transaction before a getTransaction-only comparison can be run.",
+  "upstream_link_rule": {
+    "frozen_edge_highwater": 60299,
+    "result": {
+      "fp_linked": 15,
+      "fp_upstream_link_available": 15,
+      "linked_rows": 15,
+      "tp_linked": 0,
+      "tp_upstream_link_unavailable": 44
+    },
+    "rule": "For a core selected hop-1 edge, use exactly one retained hop-2 edge for the same mint whose wallet equals selected candidate_parent."
+  }
+}

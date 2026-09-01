@@ -13,6 +13,8 @@ GET  /api/ops/evidence-catalogue             → full evidence type catalogue
 """
 from __future__ import annotations
 
+import csv
+import os
 import time
 import sqlite3
 from pathlib import Path
@@ -27,11 +29,82 @@ from src.ops.operator_resolver import OperatorResolver
 
 operator_bp = Blueprint("operators", __name__)
 
+
+@operator_bp.app_template_filter("datetimeformat")
+def _operator_datetimeformat(value):
+    """Compact UTC display for intelligence templates that carry epoch seconds."""
+    return time.strftime("%d %b %Y %H:%M UTC", time.gmtime(int(value))) if value else "Unavailable"
+
 _store: OperatorReader | None = None
 _promotion_service = None
 _emerging_service = None
 _governance_service = None
 _investigation_lifecycle_service = None
+_p3r_parent_funder_cache: dict[str, object] = {}
+
+
+def _p3r_parent_funder_csv_path() -> str | None:
+    return (
+        os.environ.get("P3R_PARENT_FUNDER_CSV_PATH")
+        or "/tmp/p3r-clean-20260824T092959Z/exact_amount_99999985000_v1/p3r_exact_amount_99999985000_mint_creator_initial_funder.v1.csv"
+    )
+
+
+def _load_p3r_parent_funder_rows() -> list[dict[str, str]]:
+    global _p3r_parent_funder_cache
+    path = _p3r_parent_funder_csv_path()
+    if not path:
+        return []
+
+    try:
+        stat = Path(path).stat()
+        c_mtime = _p3r_parent_funder_cache.get("mtime")
+        if (
+            isinstance(c_mtime, float)
+            and c_mtime == stat.st_mtime
+            and _p3r_parent_funder_cache.get("path") == path
+        ):
+            return _p3r_parent_funder_cache.get("rows", [])  # type: ignore[return-value]
+
+        with open(path, "r", encoding="utf-8") as handle:
+            rows: list[dict[str, str]] = []
+            for row in csv.DictReader(handle):
+                candidate = (row.get("stored_candidate_parent_direct_funder") or "").strip()
+                if not candidate:
+                    continue
+                rows.append({
+                    "mint": (row.get("mint") or "").strip(),
+                    "creator_wallet": (row.get("creator_wallet") or "").strip(),
+                    "stored_candidate_parent_direct_funder": candidate,
+                    "parent_first_funder_fee_payer": (row.get("parent_first_funder_fee_payer") or "").strip(),
+                    "parent_first_funder_signature": (row.get("parent_first_funder_signature") or "").strip(),
+                    "parent_first_funder_timestamp": (row.get("parent_first_funder_timestamp") or "").strip(),
+                    "parent_first_funder_slot": (row.get("parent_first_funder_slot") or "").strip(),
+                    "parent_first_funder_intermediate_source": (row.get("parent_first_funder_intermediate_source") or "").strip(),
+                    "parent_first_funder": (row.get("parent_first_funder") or "").strip(),
+                    "mechanism": (row.get("mechanism") or "").strip(),
+                })
+        _p3r_parent_funder_cache = {
+            "path": path,
+            "mtime": stat.st_mtime,
+            "rows": rows,
+        }
+        return rows
+    except OSError:
+        return []
+
+
+def _parent_funder_records_for(
+    operator_id: str, member_mints: list[str] | None = None,
+) -> list[dict[str, str]]:
+    known_mints = set(member_mints or [])
+    return [
+        row for row in _load_p3r_parent_funder_rows()
+        if (
+            row.get("stored_candidate_parent_direct_funder") == operator_id
+            or row.get("mint") in known_mints
+        )
+    ]
 
 
 def _get_store() -> OperatorReader:
@@ -106,7 +179,7 @@ def list_operators():
     store = _get_store()
     limit = min(int(request.args.get("limit", 100)), 500)
     include_rejected = request.args.get("include_rejected", "false").lower() == "true"
-    rows = store.fetch_all_operators(exclude_rejected=not include_rejected, limit=limit)
+    rows = store.fetch_all_operators(exclude_rejected=not include_rejected, limit=limit) if include_rejected else store.fetch_active_manual_operators(limit=limit)
     return jsonify({
         "ok":          True,
         "operators":   rows,
@@ -122,6 +195,89 @@ def operator_summary():
     summary["ok"]           = True
     summary["generated_at"] = int(time.time())
     return jsonify(summary)
+
+
+@operator_bp.route("/api/ops/operators/coverage-24h")
+def operator_coverage_24h():
+    """Read-only coverage of completed mints by confirmed-operation evidence."""
+    from src.core.db import OPS_DB_PATH
+    cutoff = int(time.time()) - 86400
+    conn = sqlite3.connect(OPS_DB_PATH)
+    try:
+        rows = conn.execute("""
+            SELECT q.mint, m.operator_id FROM wt_walkback_queue q
+            LEFT JOIN operator_launch_membership m ON m.mint=q.mint
+            LEFT JOIN operators o ON o.operator_id=m.operator_id
+            LEFT JOIN operation_registry_dispositions d ON d.operator_id=m.operator_id
+            WHERE q.status='complete' AND q.completed_at>=?
+              AND (m.operator_id IS NULL OR d.disposition='ACTIVE_MANUAL')
+        """, (cutoff,)).fetchall()
+        eligible = {row[0] for row in rows}
+        assigned = {row[0] for row in rows if row[1]}
+        # Confirmed operations may surface current qualified telemetry before a
+        # strict membership admission.  Include those retained observations in
+        # coverage, but only as a deduplicated mint union and only when they
+        # are already in the completed-mint denominator.
+        from src.ops.live_potential_activity import aggregate as aggregate_live_activity
+        from src.ops.potential_operations import CREATOR_PROVISIONING_CANDIDATE
+        byzantine = {row[0] for row in conn.execute(
+            "SELECT mint FROM wt_walkback_queue WHERE subprov=? AND status='complete' AND funder_block_time>=?",
+            ("ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY", cutoff),
+        )}
+        try:
+            live_activity, _ = aggregate_live_activity(str(OPS_DB_PATH))
+            nexus = {
+                row["mint"] for row in live_activity.get(CREATOR_PROVISIONING_CANDIDATE, {}).get("live_matches", [])
+                if row.get("funder_block_time", 0) >= cutoff
+            }
+        except (sqlite3.Error, OSError, ValueError, KeyError):
+            nexus = set()
+        covered = assigned | (byzantine & eligible) | (nexus & eligible)
+        from src.utils.infra_mapping import get_funder_label
+        funders = {row[0]: row[1] for row in conn.execute(
+            "SELECT mint,funder_wallet FROM wt_walkback_queue WHERE mint IN (%s)" % ",".join("?" * len(eligible)), tuple(eligible)
+        )} if eligible else {}
+        cex_infra = {mint for mint in (eligible - covered) if funders.get(mint) and get_funder_label(funders[mint])}
+        unknown = eligible - covered - cex_infra
+        return jsonify({"ok": True, "cutoff": cutoff, "eligible": len(eligible),
+                        "assigned": len(covered), "unassigned": len(eligible-covered),
+                        "membership_assigned": len(assigned),
+                        "byzantine_infrastructure_covered": len((byzantine & eligible) - assigned),
+                        "nexus_telemetry_covered": len((nexus & eligible) - assigned),
+                        "cex_infrastructure": len(cex_infra), "unknown": len(unknown),
+                        "cex_infrastructure_percentage": round(100 * len(cex_infra) / len(eligible), 1) if eligible else None,
+                        "unknown_percentage": round(100 * len(unknown) / len(eligible), 1) if eligible else None,
+                        "coverage_semantics": "distinct completed mints with confirmed-operation membership or current qualified confirmed-operation telemetry",
+                        "percentage": round(100 * len(covered) / len(eligible), 1) if eligible else None})
+    finally:
+        conn.close()
+
+
+@operator_bp.route("/api/ops/operators/review-queue")
+def operation_review_queue():
+    store = _get_store()
+    limit = min(int(request.args.get("limit", 12)), 100)
+    rows = store.fetch_operation_review_queue(limit=limit)
+    return jsonify({
+        "ok": True,
+        "candidates": rows,
+        "count": len(rows),
+        "generated_at": int(time.time()),
+    })
+
+
+@operator_bp.route("/api/ops/operators/<operator_id>/review-queue")
+def operator_review_candidates(operator_id: str):
+    store = _get_store()
+    limit = min(int(request.args.get("limit", 500)), 1000)
+    rows = store.fetch_operator_review_candidates(operator_id, limit=limit)
+    return jsonify({
+        "ok": True,
+        "operator_id": operator_id,
+        "candidates": rows,
+        "count": len(rows),
+        "generated_at": int(time.time()),
+    })
 
 
 # ── Single operator ────────────────────────────────────────────────────────────
@@ -331,9 +487,20 @@ def operator_page(operator_id: str):
         return render_template("operator_intelligence.html",
                                operator_id=operator_id,
                                operator=None, error="Operator not found"), 404
+    profile = op.get("behavioural_profile") or {}
+    op["p3r_parent_funder_records"] = _parent_funder_records_for(
+        operator_id, profile.get("member_mints"),
+    )
+    from src.ops.operation_summary import build_operation_summary
+    # Provisional operations carry an explicit review-only evidence model
+    # sourced from retained selected edges. Do not overwrite it with the
+    # legacy behavioural-profile summary, which has no per-launch route data.
+    if op.get("qualification_category") != "PROVISIONAL":
+        op["summary_model"] = build_operation_summary(op, op["p3r_parent_funder_records"])
     return render_template("operator_intelligence.html",
                            operator_id=operator_id,
                            operator=op, error=None)
+
 
 @operator_bp.route("/intelligence/operator/<operator_id>/subtypes/<subtype_id>")
 def operator_subtype_page(operator_id: str, subtype_id: str):
@@ -344,11 +511,29 @@ def operator_subtype_page(operator_id: str, subtype_id: str):
     subtype = conn.execute("SELECT * FROM operator_subtypes WHERE subtype_id=? AND parent_operator_id=?", (subtype_id, operator_id)).fetchone()
     if not subtype:
         conn.close(); return render_template("operator_subtype_detail.html", subtype=None, error="Subtype not found"), 404
-    members = [dict(x) for x in conn.execute("SELECT p.*, CASE WHEN m.operator_id=? THEN 1 ELSE 0 END parent_owned FROM operator_subtype_projection p LEFT JOIN operator_launch_membership m ON m.mint=p.mint WHERE p.subtype_id=? ORDER BY p.branch,p.mint", (operator_id, subtype_id))]
+    overlap_count = conn.execute("SELECT COUNT(*) FROM operator_subtype_projection p JOIN operator_launch_membership m ON m.mint=p.mint AND m.operator_id=? WHERE p.subtype_id=?", (operator_id, subtype_id)).fetchone()[0]
+    members = [dict(x) for x in conn.execute("SELECT p.*, 0 AS parent_owned, MAX(COALESCE(e.anchor_block_time,e.block_time)) observed_at FROM operator_subtype_projection p LEFT JOIN operator_launch_membership m ON m.mint=p.mint AND m.operator_id=? LEFT JOIN wt_walkback_edge_candidates e ON e.mint=p.mint WHERE p.subtype_id=? AND m.mint IS NULL GROUP BY p.mint,p.subtype_id,p.branch,p.evidence_reference ORDER BY observed_at DESC,p.mint", (operator_id, subtype_id))]
+    now = int(time.time())
+    timestamps = [member["observed_at"] for member in members if member.get("observed_at")]
+    activity = {"latest": max(timestamps) if timestamps else None,
+                "last_1d": sum(value >= now - 86400 for value in timestamps),
+                "last_7d": sum(value >= now - 7 * 86400 for value in timestamps),
+                "last_30d": sum(value >= now - 30 * 86400 for value in timestamps)}
     conn.close()
     evidence = __import__('json').loads(subtype['evidence_json'])
-    return render_template("operator_subtype_detail.html", subtype=dict(subtype), members=members, evidence=evidence, error=None)
+    return render_template("operator_subtype_detail.html", subtype=dict(subtype), members=members, overlap_count=overlap_count, evidence=evidence, activity=activity, error=None)
 
+
+@operator_bp.route("/intelligence/operator/<operator_id>/review")
+def operator_review_page(operator_id: str):
+    from flask import render_template
+    store = _get_store()
+    op = store.fetch_operator(operator_id)
+    if not op:
+        return render_template("operator_walkback_review.html", operator_id=operator_id,
+                               operator_name="Unknown operation", error="Operator not found"), 404
+    return render_template("operator_walkback_review.html", operator_id=operator_id,
+                           operator_name=op.get("display_name") or operator_id, error=None)
 
 
 # ── Operator index page ─────────────────────────────────────────────────────────
@@ -362,15 +547,47 @@ def operators_index():
 def potential_operations_page():
     from flask import render_template
     from src.core.db import OPS_DB_PATH
-    from src.ops.potential_operations import rows, evolution_watch
+    from src.ops.potential_operations import C357_CANDIDATE, rows, evolution_watch, activity_label
+    from src.ops.generic_living_active_components import generic_dispatch_enabled
+    import sqlite3
     projected=rows(str(OPS_DB_PATH))
-    return render_template("potential_operations.html", active_page="potential_operations", rows=projected, evolution_watch=evolution_watch(projected))
+    activity_by_candidate={row["candidate_id"]: {**row["current_evidence"], "creator_quality": row.get("creator_quality", {})} for row in projected}
+    c=sqlite3.connect(str(OPS_DB_PATH)); c.row_factory=sqlite3.Row
+    try:
+        living=[]
+        for op,name,candidate_id in (("potential-wsol-provision-close-100-sol-minus-15k","WSOL Close · 100 SOL minus 15k","p3r-v2-c357da9d0d4d560311e4"),("potential-eight-hop-plain-transfer-sequence","8-hop Plain Transfer Sequence","p3r-v2-dc4953db7adb853337c4")):
+            # C357 is a resolved Leviathan subtype, not a potential operation.
+            # Its legacy living record must not present Leviathan-owned launches
+            # as a second prospective operation.
+            if candidate_id == C357_CANDIDATE:
+                continue
+            current=c.execute("SELECT v.assessment_id,v.freshness_key FROM potential_operation_current x JOIN potential_operation_assessment_version v ON v.assessment_id=x.assessment_id WHERE x.potential_operation_id=?",(op,)).fetchone()
+            if not current: continue
+            history=c.execute("SELECT count(*) FROM potential_operation_assessment_version WHERE potential_operation_id=?",(op,)).fetchone()[0]
+            associations=c.execute("SELECT count(*) FROM potential_operation_evidence_association WHERE potential_operation_id=?",(op,)).fetchone()[0]
+            bindings=c.execute("SELECT count(*) FROM potential_operation_assessment_association_binding b JOIN potential_operation_assessment_version v ON v.assessment_id=b.assessment_id WHERE v.potential_operation_id=? AND v.assessment_id=?",(op,current['assessment_id'])).fetchone()[0]
+            living.append(dict(operation_id=op,name=name,candidate_id=candidate_id,version=history,generation=current['freshness_key'],associations=associations,bindings=bindings,activity=activity_by_candidate.get(candidate_id)))
+    finally: c.close()
+    return render_template("potential_operations.html", active_page="potential_operations", rows=projected, evolution_watch=evolution_watch(projected), living=living, living_dispatch=generic_dispatch_enabled(), activity_label=activity_label)
 
 @operator_bp.route("/intelligence/potential-operations/<candidate_id>")
 def potential_operation_detail(candidate_id: str):
     from flask import render_template
     from src.core.db import OPS_DB_PATH
-    from src.ops.potential_operations import detail
+    from src.ops.potential_operations import (
+        C357_CANDIDATE,
+        C357_PARENT_OPERATOR,
+        C357_SUBTYPE_ID,
+        detail,
+    )
+    # C357 has been resolved as a Leviathan subtype.  The old potential-detail
+    # page contains its frozen discovery cohort, including parent-owned mints;
+    # send that legacy URL to the subtype projection, which excludes them.
+    if candidate_id == C357_CANDIDATE:
+        return redirect(
+            f"/intelligence/operator/{C357_PARENT_OPERATOR}/subtypes/{C357_SUBTYPE_ID}",
+            code=302,
+        )
     candidate=detail(str(OPS_DB_PATH),candidate_id)
     if not candidate: return "Potential operation not found",404
     if candidate.get("legacy_child"):

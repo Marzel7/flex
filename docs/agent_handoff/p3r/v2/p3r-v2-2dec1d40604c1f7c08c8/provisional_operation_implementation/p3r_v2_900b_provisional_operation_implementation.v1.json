@@ -1,0 +1,29 @@
+{
+  "automation": "REVIEW_ONLY",
+  "benchmark": {
+    "fn": 5,
+    "fp": 4,
+    "frozen_edge_highwater": 60299,
+    "precision": 0.9069767441860465,
+    "recall": 0.8863636363636364,
+    "tp": 39
+  },
+  "historical_members": "benchmark-only; no operator_launch_membership seeded",
+  "name": "WSOL_PROVISION_CLOSE_1_SOL_MINUS_15K",
+  "operator_id": "70f27e37-83eb-5c97-831c-48189ef98f6c",
+  "parent": "WSOL_PROVISION_CLOSE",
+  "qualification": "PROVISIONAL",
+  "states": [
+    "PROVISIONAL_MATCH_PENDING",
+    "PROVISIONAL_MATCH_CONFIRMED",
+    "PROVISIONAL_MATCH_REJECTED",
+    "BEHAVIOURAL_MATCH_UNKNOWN_INFRASTRUCTURE"
+  ],
+  "verification": {
+    "confirmed_operator_launch_memberships": 0,
+    "provisional_match_rows": 0,
+    "qualification_contract_rows": 1,
+    "watchtower_qualification_category": "CONFIRMED"
+  },
+  "watchtower": "unchanged strict confirmed classifier"
+}

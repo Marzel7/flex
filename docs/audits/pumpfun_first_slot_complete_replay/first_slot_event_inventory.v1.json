@@ -1,0 +1,636 @@
+{
+  "artifact_type": "PUMPFUN_MACROHARD_FIRST_SLOT_COMPLETE_TRANSACTION_EVENT_INVENTORY_V1",
+  "block_transaction_total": 1831,
+  "classification_notes": {
+    "event_schema": "official Pump.fun IDL TradeEvent fixed Borsh prefix; event reserve fields are empirically post-action because action 2-8 exact deltas match predecessor post-state.",
+    "scope": "Every transaction in retained full getBlock result was inspected; target relevance is account-key mint/curve/associated-curve or decoded target TradeEvent."
+  },
+  "decoded_target_trade_event_total": 8,
+  "decoded_target_trade_events": [
+    {
+      "creator": "J3yZQYJECzT3PD9BpzQzSM4FKENrDeVSCtmxdFSNThMy",
+      "creator_fee": 540000,
+      "creator_fee_basis_points": 30,
+      "event_payload_bytes": 373,
+      "fee": 1710000,
+      "fee_basis_points": 95,
+      "fee_recipient": "62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV",
+      "instruction_name": "BuyExactQuoteInV2",
+      "is_buy": true,
+      "mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+      "real_sol_reserves": 41265353876,
+      "real_token_reserves": 171792137273236,
+      "signature": "4Qyht4ZXtt8t11Jc6v3UkDWBTzCUUWfYG1Xywyym5NLRsonyG5nBvoFyztQCNhqd1Ku2jt1VW81N7vzB9or4bcoJ",
+      "sol_amount": 180000000,
+      "success": true,
+      "timestamp": 1788250333,
+      "token_amount": 1143759998709,
+      "transaction_index": 895,
+      "user": "Eqk3ht8ADsrigNrVPqKZ3bST9VosebkMxmwE11cnKhar",
+      "virtual_sol_reserves": 71265353876,
+      "virtual_token_reserves": 451692137273236
+    },
+    {
+      "creator": "J3yZQYJECzT3PD9BpzQzSM4FKENrDeVSCtmxdFSNThMy",
+      "creator_fee": 592593,
+      "creator_fee_basis_points": 30,
+      "event_payload_bytes": 371,
+      "fee": 1876544,
+      "fee_basis_points": 95,
+      "fee_recipient": "62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV",
+      "instruction_name": "BuyExactSolIn",
+      "is_buy": true,
+      "mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+      "real_sol_reserves": 41462884739,
+      "real_token_reserves": 170543613125893,
+      "signature": "tWgCFsQJ12RtMMoVnYXT6QADTXBZczAMMaECDPaPYJ1Lg4KKVCUjAnHcQMqVhCnwYPFucv6fWvzcosgBircB3Tv",
+      "sol_amount": 197530863,
+      "success": true,
+      "timestamp": 1788250333,
+      "token_amount": 1248524147343,
+      "transaction_index": 896,
+      "user": "B7ZpuaXBwC71Fw11fF5RdjyvDTpLt8AhBDpRNnuXTHsz",
+      "virtual_sol_reserves": 71462884739,
+      "virtual_token_reserves": 450443613125893
+    },
+    {
+      "creator": "J3yZQYJECzT3PD9BpzQzSM4FKENrDeVSCtmxdFSNThMy",
+      "creator_fee": 562963,
+      "creator_fee_basis_points": 30,
+      "event_payload_bytes": 358,
+      "fee": 1782717,
+      "fee_basis_points": 95,
+      "fee_recipient": "7VtfL8fvgNfhz17qKRMjzQEXgbdpnHHHQRh54R9jP2RJ",
+      "instruction_name": "Buy",
+      "is_buy": true,
+      "mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+      "real_sol_reserves": 41650539059,
+      "real_token_reserves": 169363891507193,
+      "signature": "4ZziePa9dzTTZkGe1t5RxXjxNySQfqWGFDiCnjTi77q39FaUbdSRGdnBb98UgqNAwjF1v3TsT5WpHWMACBKNvofQ",
+      "sol_amount": 187654320,
+      "success": true,
+      "timestamp": 1788250333,
+      "token_amount": 1179721618700,
+      "transaction_index": 899,
+      "user": "A8Ep5jMbD4Pb8PjRQKaymYhdbonKmgGnWmAE7e3jAMmS",
+      "virtual_sol_reserves": 71650539059,
+      "virtual_token_reserves": 449263891507193
+    },
+    {
+      "creator": "J3yZQYJECzT3PD9BpzQzSM4FKENrDeVSCtmxdFSNThMy",
+      "creator_fee": 592593,
+      "creator_fee_basis_points": 30,
+      "event_payload_bytes": 373,
+      "fee": 1876544,
+      "fee_basis_points": 95,
+      "fee_recipient": "FWsW1xNtWscwNmKv6wVsU1iTzRN6wmmk3MjxRP5tT7hz",
+      "instruction_name": "BuyExactQuoteInV2",
+      "is_buy": true,
+      "mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+      "real_sol_reserves": 41848069922,
+      "real_token_reserves": 168128736772314,
+      "signature": "62adVnZ1gJNHgsx7HJSezqMri3AJjNK8BEkRpGZQHZegXpjHToNjaaGc3b7BJXMmKv4Mk3rYsv7RcmVcj94CX9H",
+      "sol_amount": 197530863,
+      "success": true,
+      "timestamp": 1788250333,
+      "token_amount": 1235154734879,
+      "transaction_index": 904,
+      "user": "5C21rRQuYr9t6fXCq51afv1t4TL3QGYE5KJjRPwgMCDS",
+      "virtual_sol_reserves": 71848069922,
+      "virtual_token_reserves": 448028736772314
+    },
+    {
+      "creator": "J3yZQYJECzT3PD9BpzQzSM4FKENrDeVSCtmxdFSNThMy",
+      "creator_fee": 1210815,
+      "creator_fee_basis_points": 30,
+      "event_payload_bytes": 371,
+      "fee": 3834247,
+      "fee_basis_points": 95,
+      "fee_recipient": "CebN5WGQ4jvEPvsVU4EoHEpgzq1VV7AbicfhtW4xC9iM",
+      "instruction_name": "BuyExactSolIn",
+      "is_buy": true,
+      "mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+      "real_sol_reserves": 42251674860,
+      "real_token_reserves": 165626004338332,
+      "signature": "3Vh1DPYrpyf4vvGeQ1oHdST3TR46tFzdmTceHej3PURG1dxd5DAn1FZpNsiWm7TN8uPXqBskrCrQfuF8UZPWikRF",
+      "sol_amount": 403604938,
+      "success": true,
+      "timestamp": 1788250333,
+      "token_amount": 2502732433982,
+      "transaction_index": 906,
+      "user": "E9te8g9Xv56YPdrDsYxzeRT9c9th1WTUwnymCyDsLFU2",
+      "virtual_sol_reserves": 72251674860,
+      "virtual_token_reserves": 445526004338332
+    },
+    {
+      "creator": "J3yZQYJECzT3PD9BpzQzSM4FKENrDeVSCtmxdFSNThMy",
+      "creator_fee": 1210768,
+      "creator_fee_basis_points": 30,
+      "event_payload_bytes": 359,
+      "fee": 3834097,
+      "fee_basis_points": 95,
+      "fee_recipient": "CebN5WGQ4jvEPvsVU4EoHEpgzq1VV7AbicfhtW4xC9iM",
+      "instruction_name": "Sell",
+      "is_buy": false,
+      "mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+      "real_sol_reserves": 41848085792,
+      "real_token_reserves": 168128637822474,
+      "signature": "5mYtZDGAGV3Pk6sb1VHQCmDiunofDYKyZb9RRCkNptTZ4JudUjZ6JrCvjsiGg3DueMjqoJrKQ158E63WrmGquMF5",
+      "sol_amount": 403589068,
+      "success": true,
+      "timestamp": 1788250333,
+      "token_amount": 2502633484142,
+      "transaction_index": 910,
+      "user": "HV4ZT4QpEW54rywbnigQUadJ4aK1JgieQjXSZ6o7Jy1y",
+      "virtual_sol_reserves": 71848085792,
+      "virtual_token_reserves": 448028637822474
+    },
+    {
+      "creator": "J3yZQYJECzT3PD9BpzQzSM4FKENrDeVSCtmxdFSNThMy",
+      "creator_fee": 293334,
+      "creator_fee_basis_points": 30,
+      "event_payload_bytes": 371,
+      "fee": 928889,
+      "fee_basis_points": 95,
+      "fee_recipient": "62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV",
+      "instruction_name": "BuyExactSolIn",
+      "is_buy": true,
+      "mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+      "real_sol_reserves": 41945863569,
+      "real_token_reserves": 167519746058333,
+      "signature": "5TE8e4F3WYuQ7WkCKFsyMxD2rWSj9Aj8L1vPnSbXvoUD1AqzcHcCNa4gjEv8SK5cgeEoJ3CHzAK5EYZ1epzNKNmX",
+      "sol_amount": 97777777,
+      "success": true,
+      "timestamp": 1788250333,
+      "token_amount": 608891764141,
+      "transaction_index": 1520,
+      "user": "3JtGsWzBwfCtT3kbs1EciqkXET8wTG1ufUZ8AvqQeeRz",
+      "virtual_sol_reserves": 71945863569,
+      "virtual_token_reserves": 447419746058333
+    },
+    {
+      "creator": "J3yZQYJECzT3PD9BpzQzSM4FKENrDeVSCtmxdFSNThMy",
+      "creator_fee": 136511,
+      "creator_fee_basis_points": 30,
+      "event_payload_bytes": 358,
+      "fee": 432284,
+      "fee_basis_points": 95,
+      "fee_recipient": "7VtfL8fvgNfhz17qKRMjzQEXgbdpnHHHQRh54R9jP2RJ",
+      "instruction_name": "Buy",
+      "is_buy": true,
+      "mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+      "real_sol_reserves": 41991367093,
+      "real_token_reserves": 167236945828598,
+      "signature": "powWW5oe4VVkbbXrCR4ep9h4zAqu7ZCoPrDmp6E8KifKWbdvw9WqPY1PhwNKGzMtJhRGFqbHLrFrMXEWuKQRhLf",
+      "sol_amount": 45503524,
+      "success": true,
+      "timestamp": 1788250333,
+      "token_amount": 282800229735,
+      "transaction_index": 1803,
+      "user": "GToobpEPPMFwZd6K3K9i2zRFVM56kSR2DgfS5uSDqxcb",
+      "virtual_sol_reserves": 71991367093,
+      "virtual_token_reserves": 447136945828598
+    }
+  ],
+  "raw_block_payload_path": "docs/audits/pumpfun_first_slot_complete_replay/slot_443375107.raw_rpc.v1.json",
+  "raw_block_payload_sha256": "0c9a6f3d86f5bd2c4cb102dd6f51459e10efa8220118794e0ab36cb0c83b21aa",
+  "target": {
+    "associated_curve": "3LiBmWqde7CaFW9mogdyRemiXoYxprHSjChzCW4gLejm",
+    "creation_slot": 443375106,
+    "curve": "FJPbTzeUy4pzPT3r7c2fNxccNvvhbC7LJkSqXux8xU1g",
+    "mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+    "slot": 443375107
+  },
+  "target_relevant_transaction_total": 23,
+  "target_relevant_transactions": [
+    {
+      "classification": "NON_STATE_CHANGING",
+      "error": null,
+      "fee_payer": "H8UKNvUeaqpVT7DZ8TXJVreSQEXDjTA7fEv8hjD3FzHm",
+      "pump_instruction": null,
+      "pump_log_present": false,
+      "signature": "5g957jiZBcXt2nysvpVNQ4Jth6tRp67wBVftv4igufyB6ZnHSMxnCzMDUDqYRRPxLkzCycAa7QhatLNSE258TZNA",
+      "signers": [
+        "H8UKNvUeaqpVT7DZ8TXJVreSQEXDjTA7fEv8hjD3FzHm",
+        "Bw41ajZMXPT4J8nDLaeMGq25vtqRbcCb3F85ay8sNkMQ",
+        "Fzo9V7Qe8u2RLJ6o8Jhm2SyzNF1LQohnKvCEL4wzQBWK",
+        "GxDyPFCjDZe3vYN3auEfUDRiSft6KGHz4gYessBTWkh3"
+      ],
+      "success": true,
+      "target_curve_present": false,
+      "target_mint_present": true,
+      "target_trade_event_count": 0,
+      "transaction_index": 59
+    },
+    {
+      "classification": "NON_STATE_CHANGING",
+      "error": null,
+      "fee_payer": "2KP9miexioqgNbjPwysggcbi3sKqhH8JsPaDmFxRPURD",
+      "pump_instruction": null,
+      "pump_log_present": false,
+      "signature": "JqFwQhAPqSMaNwDnAbRsmjGUmeMoh3AMdcw9gYQ9GyM8GcgDdYCvisT77iToYFLtSpi3nFgx4wUQDyESuAsuqJ7",
+      "signers": [
+        "2KP9miexioqgNbjPwysggcbi3sKqhH8JsPaDmFxRPURD"
+      ],
+      "success": true,
+      "target_curve_present": true,
+      "target_mint_present": true,
+      "target_trade_event_count": 0,
+      "transaction_index": 697
+    },
+    {
+      "classification": "BUY",
+      "error": null,
+      "fee_payer": "Eqk3ht8ADsrigNrVPqKZ3bST9VosebkMxmwE11cnKhar",
+      "pump_instruction": "BuyExactQuoteInV2",
+      "pump_log_present": true,
+      "signature": "4Qyht4ZXtt8t11Jc6v3UkDWBTzCUUWfYG1Xywyym5NLRsonyG5nBvoFyztQCNhqd1Ku2jt1VW81N7vzB9or4bcoJ",
+      "signers": [
+        "Eqk3ht8ADsrigNrVPqKZ3bST9VosebkMxmwE11cnKhar"
+      ],
+      "success": true,
+      "target_curve_present": true,
+      "target_mint_present": true,
+      "target_trade_event_count": 1,
+      "transaction_index": 895
+    },
+    {
+      "classification": "BUY",
+      "error": null,
+      "fee_payer": "B7ZpuaXBwC71Fw11fF5RdjyvDTpLt8AhBDpRNnuXTHsz",
+      "pump_instruction": "BuyExactSolIn",
+      "pump_log_present": true,
+      "signature": "tWgCFsQJ12RtMMoVnYXT6QADTXBZczAMMaECDPaPYJ1Lg4KKVCUjAnHcQMqVhCnwYPFucv6fWvzcosgBircB3Tv",
+      "signers": [
+        "B7ZpuaXBwC71Fw11fF5RdjyvDTpLt8AhBDpRNnuXTHsz"
+      ],
+      "success": true,
+      "target_curve_present": true,
+      "target_mint_present": true,
+      "target_trade_event_count": 1,
+      "transaction_index": 896
+    },
+    {
+      "classification": "BUY",
+      "error": null,
+      "fee_payer": "A8Ep5jMbD4Pb8PjRQKaymYhdbonKmgGnWmAE7e3jAMmS",
+      "pump_instruction": "Buy",
+      "pump_log_present": true,
+      "signature": "4ZziePa9dzTTZkGe1t5RxXjxNySQfqWGFDiCnjTi77q39FaUbdSRGdnBb98UgqNAwjF1v3TsT5WpHWMACBKNvofQ",
+      "signers": [
+        "A8Ep5jMbD4Pb8PjRQKaymYhdbonKmgGnWmAE7e3jAMmS"
+      ],
+      "success": true,
+      "target_curve_present": true,
+      "target_mint_present": true,
+      "target_trade_event_count": 1,
+      "transaction_index": 899
+    },
+    {
+      "classification": "BUY",
+      "error": null,
+      "fee_payer": "5C21rRQuYr9t6fXCq51afv1t4TL3QGYE5KJjRPwgMCDS",
+      "pump_instruction": "BuyExactQuoteInV2",
+      "pump_log_present": true,
+      "signature": "62adVnZ1gJNHgsx7HJSezqMri3AJjNK8BEkRpGZQHZegXpjHToNjaaGc3b7BJXMmKv4Mk3rYsv7RcmVcj94CX9H",
+      "signers": [
+        "5C21rRQuYr9t6fXCq51afv1t4TL3QGYE5KJjRPwgMCDS"
+      ],
+      "success": true,
+      "target_curve_present": true,
+      "target_mint_present": true,
+      "target_trade_event_count": 1,
+      "transaction_index": 904
+    },
+    {
+      "classification": "BUY",
+      "error": null,
+      "fee_payer": "E9te8g9Xv56YPdrDsYxzeRT9c9th1WTUwnymCyDsLFU2",
+      "pump_instruction": "BuyExactSolIn",
+      "pump_log_present": true,
+      "signature": "3Vh1DPYrpyf4vvGeQ1oHdST3TR46tFzdmTceHej3PURG1dxd5DAn1FZpNsiWm7TN8uPXqBskrCrQfuF8UZPWikRF",
+      "signers": [
+        "E9te8g9Xv56YPdrDsYxzeRT9c9th1WTUwnymCyDsLFU2"
+      ],
+      "success": true,
+      "target_curve_present": true,
+      "target_mint_present": true,
+      "target_trade_event_count": 1,
+      "transaction_index": 906
+    },
+    {
+      "classification": "SELL",
+      "error": null,
+      "fee_payer": "HV4ZT4QpEW54rywbnigQUadJ4aK1JgieQjXSZ6o7Jy1y",
+      "pump_instruction": "Sell",
+      "pump_log_present": true,
+      "signature": "5mYtZDGAGV3Pk6sb1VHQCmDiunofDYKyZb9RRCkNptTZ4JudUjZ6JrCvjsiGg3DueMjqoJrKQ158E63WrmGquMF5",
+      "signers": [
+        "HV4ZT4QpEW54rywbnigQUadJ4aK1JgieQjXSZ6o7Jy1y"
+      ],
+      "success": true,
+      "target_curve_present": true,
+      "target_mint_present": true,
+      "target_trade_event_count": 1,
+      "transaction_index": 910
+    },
+    {
+      "classification": "NON_STATE_CHANGING",
+      "error": null,
+      "fee_payer": "5kgarSeDaJd15uSfeZS6TpdwdizH9dpAYBbeHsp5ZTjY",
+      "pump_instruction": null,
+      "pump_log_present": false,
+      "signature": "3BwFesxeygLgwwZtW1KkSD3GqXryLgRe6dis3XHohEkc3wK44hoQJVERUsvx54SdwuzdWX3dpNzV1zAWBvDmLKJj",
+      "signers": [
+        "5kgarSeDaJd15uSfeZS6TpdwdizH9dpAYBbeHsp5ZTjY",
+        "Dejg1c3zS1SdebTNpS3D5r219sWw42uWKuaCqCCFs96e"
+      ],
+      "success": true,
+      "target_curve_present": false,
+      "target_mint_present": true,
+      "target_trade_event_count": 0,
+      "transaction_index": 1052
+    },
+    {
+      "classification": "NON_STATE_CHANGING",
+      "error": null,
+      "fee_payer": "2UcS1C7PoEodaZ4hBu3QjSBvTmii73AAPSuMFER4tfEb",
+      "pump_instruction": null,
+      "pump_log_present": false,
+      "signature": "55hhomZhyoH98ZCmERS1HDBa4Rf53R7bnVHHuT6ayL573K7FrGWUzyHaQuEQ4YPiHpun1sGdY9zU4h7aLTx6tGUc",
+      "signers": [
+        "2UcS1C7PoEodaZ4hBu3QjSBvTmii73AAPSuMFER4tfEb"
+      ],
+      "success": true,
+      "target_curve_present": false,
+      "target_mint_present": true,
+      "target_trade_event_count": 0,
+      "transaction_index": 1054
+    },
+    {
+      "classification": "NON_STATE_CHANGING",
+      "error": null,
+      "fee_payer": "2UcS1C7PoEodaZ4hBu3QjSBvTmii73AAPSuMFER4tfEb",
+      "pump_instruction": null,
+      "pump_log_present": false,
+      "signature": "4q5uHpesGqRXm21SxoiPAQvGw3gvs2Tp9PYzqhDEvewm7kEMsLNbCYoA4bDYCATGQ3wDMCkthEXrWTHoHYomntVw",
+      "signers": [
+        "2UcS1C7PoEodaZ4hBu3QjSBvTmii73AAPSuMFER4tfEb"
+      ],
+      "success": true,
+      "target_curve_present": false,
+      "target_mint_present": true,
+      "target_trade_event_count": 0,
+      "transaction_index": 1076
+    },
+    {
+      "classification": "NON_STATE_CHANGING",
+      "error": null,
+      "fee_payer": "5kgarSeDaJd15uSfeZS6TpdwdizH9dpAYBbeHsp5ZTjY",
+      "pump_instruction": null,
+      "pump_log_present": false,
+      "signature": "WR8PsxE2hUnw6pc7AUWWDXgUuCpWBgwSLupfPE1yDvSSvSZS5AzHJtUd4JH3Z9AaUZbQUNqxUi59PHDPsXFD8To",
+      "signers": [
+        "5kgarSeDaJd15uSfeZS6TpdwdizH9dpAYBbeHsp5ZTjY",
+        "6TicU6PremSeSe69pd64LioJ5bS8W41AsCFHaA7mVuru"
+      ],
+      "success": true,
+      "target_curve_present": false,
+      "target_mint_present": true,
+      "target_trade_event_count": 0,
+      "transaction_index": 1092
+    },
+    {
+      "classification": "BUY_FAILED",
+      "error": {
+        "InstructionError": [
+          4,
+          {
+            "Custom": 6002
+          }
+        ]
+      },
+      "fee_payer": "6iuhuVyE7PMTLraNud7FH64byeNgdxJm1NfJNVPd1dyS",
+      "pump_instruction": "Buy",
+      "pump_log_present": true,
+      "signature": "cEWUXkUn8j6hC9b13z3Y8FqU5qiAe3t6ahSEmttLGogsQ8qTq6ojVWfpdxjhQjFgdQ5u7Z4Ls9ofUgsMEStXuXp",
+      "signers": [
+        "6iuhuVyE7PMTLraNud7FH64byeNgdxJm1NfJNVPd1dyS"
+      ],
+      "success": false,
+      "target_curve_present": true,
+      "target_mint_present": true,
+      "target_trade_event_count": 0,
+      "transaction_index": 1117
+    },
+    {
+      "classification": "UNRESOLVED",
+      "error": {
+        "InstructionError": [
+          3,
+          "IncorrectProgramId"
+        ]
+      },
+      "fee_payer": "9FQnf1QFTg8TZ6AJEffsfa7CNQJGALecmPtkYoTYUPFj",
+      "pump_instruction": "GetAccountDataSize",
+      "pump_log_present": false,
+      "signature": "cEQNrYwaCiyvLY2cNSPbBRkW1r22ptkWFyZBp6PC3yLk9rTiwBtBUdSSPP4yUXQV9TnWmwDxhyVG224LmP1LqPN",
+      "signers": [
+        "9FQnf1QFTg8TZ6AJEffsfa7CNQJGALecmPtkYoTYUPFj"
+      ],
+      "success": false,
+      "target_curve_present": true,
+      "target_mint_present": true,
+      "target_trade_event_count": 0,
+      "transaction_index": 1241
+    },
+    {
+      "classification": "UNRESOLVED",
+      "error": {
+        "InstructionError": [
+          3,
+          {
+            "Custom": 13
+          }
+        ]
+      },
+      "fee_payer": "5L7aqweEkQWzogyyqi1xs2oU2ePseSXQnpnxYrg2aBUD",
+      "pump_instruction": null,
+      "pump_log_present": false,
+      "signature": "5RewMPy7FboRjGT4TAPMvADjLNRKw1BtjasfV3QuUBNEUW4LkTpiMczSwkbzCZKjVdXJiko99jfvihMK7tnRuiN1",
+      "signers": [
+        "5L7aqweEkQWzogyyqi1xs2oU2ePseSXQnpnxYrg2aBUD"
+      ],
+      "success": false,
+      "target_curve_present": true,
+      "target_mint_present": true,
+      "target_trade_event_count": 0,
+      "transaction_index": 1274
+    },
+    {
+      "classification": "BUY_FAILED",
+      "classification_reason": "PumpDash wrapper invokes Pump Buy, which fails with TooMuchSolRequired (custom 6002); no TradeEvent and no state mutation.",
+      "error": {
+        "InstructionError": [
+          6,
+          {
+            "Custom": 6002
+          }
+        ]
+      },
+      "fee_payer": "ATQfqM1KjEv3hMhRX3NUaCa5V9sYgC2gk6YJKNr4R3uq",
+      "pump_instruction": "PumpDash; Buy",
+      "pump_log_present": true,
+      "signature": "3YphhyZqhSj73zBmUxFh3L7cHEEySBmJnpxHdgg5qZ9XMswyC98PHD3icRuQNmeg2KaSVNQmtT1UM8hWW6six433",
+      "signers": [
+        "ATQfqM1KjEv3hMhRX3NUaCa5V9sYgC2gk6YJKNr4R3uq"
+      ],
+      "success": false,
+      "target_curve_present": true,
+      "target_mint_present": true,
+      "target_trade_event_count": 0,
+      "transaction_index": 1352
+    },
+    {
+      "classification": "BUY",
+      "error": null,
+      "fee_payer": "3JtGsWzBwfCtT3kbs1EciqkXET8wTG1ufUZ8AvqQeeRz",
+      "pump_instruction": "BuyExactSolIn",
+      "pump_log_present": true,
+      "signature": "5TE8e4F3WYuQ7WkCKFsyMxD2rWSj9Aj8L1vPnSbXvoUD1AqzcHcCNa4gjEv8SK5cgeEoJ3CHzAK5EYZ1epzNKNmX",
+      "signers": [
+        "3JtGsWzBwfCtT3kbs1EciqkXET8wTG1ufUZ8AvqQeeRz",
+        "5XKwhbAuGEVAXMbMVKQ2FbdF9urY4NxsVWvU1nTyL2tB"
+      ],
+      "success": true,
+      "target_curve_present": true,
+      "target_mint_present": true,
+      "target_trade_event_count": 1,
+      "transaction_index": 1520
+    },
+    {
+      "classification": "UNRESOLVED",
+      "error": {
+        "InstructionError": [
+          3,
+          {
+            "Custom": 13
+          }
+        ]
+      },
+      "fee_payer": "3crj9TB2QitxSKBCTz9wSFR4wvEcK3RqEdhHtSxEfhgS",
+      "pump_instruction": null,
+      "pump_log_present": false,
+      "signature": "5yxyJZFmSnDoJuE9k388GqxV8pQHejyWVyo2DtqwLavAeCAx5hH2k1ByEV68mCh9zpGvw1wpz9bignAuPtAM7FoQ",
+      "signers": [
+        "3crj9TB2QitxSKBCTz9wSFR4wvEcK3RqEdhHtSxEfhgS"
+      ],
+      "success": false,
+      "target_curve_present": true,
+      "target_mint_present": true,
+      "target_trade_event_count": 0,
+      "transaction_index": 1580
+    },
+    {
+      "classification": "UNRESOLVED",
+      "error": {
+        "InstructionError": [
+          3,
+          {
+            "Custom": 13
+          }
+        ]
+      },
+      "fee_payer": "7iyYn4gshakdEUkF2bfV4pU3oaYBmg9ktJwGW8kQ9z96",
+      "pump_instruction": null,
+      "pump_log_present": false,
+      "signature": "3DK2FTxCDE69fEWAM55Aq2vnpGEs5ZQN1Z1yMxdAs5sPTVR8yWV8REVyn93PKmD4BMhav7brRPJJDxjG1ogZLPh1",
+      "signers": [
+        "7iyYn4gshakdEUkF2bfV4pU3oaYBmg9ktJwGW8kQ9z96"
+      ],
+      "success": false,
+      "target_curve_present": true,
+      "target_mint_present": true,
+      "target_trade_event_count": 0,
+      "transaction_index": 1608
+    },
+    {
+      "classification": "UNRESOLVED",
+      "error": {
+        "InstructionError": [
+          3,
+          {
+            "Custom": 13
+          }
+        ]
+      },
+      "fee_payer": "7iyYn4gshakdEUkF2bfV4pU3oaYBmg9ktJwGW8kQ9z96",
+      "pump_instruction": null,
+      "pump_log_present": false,
+      "signature": "4KaE6eBUJFckVg8mhgn7v4QBcxpnCJ5ZAjHYhUzxyewZfxH8SejvRspLGCgY18mXwfmoHFZoiBPPB2uA9HN6tDE5",
+      "signers": [
+        "7iyYn4gshakdEUkF2bfV4pU3oaYBmg9ktJwGW8kQ9z96"
+      ],
+      "success": false,
+      "target_curve_present": true,
+      "target_mint_present": true,
+      "target_trade_event_count": 0,
+      "transaction_index": 1626
+    },
+    {
+      "classification": "NON_STATE_CHANGING",
+      "error": null,
+      "fee_payer": "2KP9miexioqgNbjPwysggcbi3sKqhH8JsPaDmFxRPURD",
+      "pump_instruction": null,
+      "pump_log_present": false,
+      "signature": "5zH9ivhByWDHg8gs4GBnCH9pkE6Npg41FUKpL9Ca5pKTgPaFR88NanHLn4XV45pH4j2TPdN7XmxJfoyZDvcdbLat",
+      "signers": [
+        "2KP9miexioqgNbjPwysggcbi3sKqhH8JsPaDmFxRPURD"
+      ],
+      "success": true,
+      "target_curve_present": true,
+      "target_mint_present": true,
+      "target_trade_event_count": 0,
+      "transaction_index": 1778
+    },
+    {
+      "classification": "BUY",
+      "error": null,
+      "fee_payer": "GToobpEPPMFwZd6K3K9i2zRFVM56kSR2DgfS5uSDqxcb",
+      "pump_instruction": "Buy",
+      "pump_log_present": true,
+      "signature": "powWW5oe4VVkbbXrCR4ep9h4zAqu7ZCoPrDmp6E8KifKWbdvw9WqPY1PhwNKGzMtJhRGFqbHLrFrMXEWuKQRhLf",
+      "signers": [
+        "GToobpEPPMFwZd6K3K9i2zRFVM56kSR2DgfS5uSDqxcb"
+      ],
+      "success": true,
+      "target_curve_present": true,
+      "target_mint_present": true,
+      "target_trade_event_count": 1,
+      "transaction_index": 1803
+    },
+    {
+      "classification": "BUY_FAILED",
+      "error": {
+        "InstructionError": [
+          6,
+          {
+            "Custom": 6042
+          }
+        ]
+      },
+      "fee_payer": "DG62nV46Lb7s6d3CGG9w5QKGVo4MmjjJhiAAn3fxchxw",
+      "pump_instruction": "BuyExactSolIn",
+      "pump_log_present": true,
+      "signature": "3K7SgwEcXug9qDsUb7NV7Fx2RCZTdgyCpHZaRtVtogJ9scvWtSqwZMJHJipccT2enEsHZep3QM9fdQm8VycgtyDg",
+      "signers": [
+        "DG62nV46Lb7s6d3CGG9w5QKGVo4MmjjJhiAAn3fxchxw"
+      ],
+      "success": false,
+      "target_curve_present": true,
+      "target_mint_present": true,
+      "target_trade_event_count": 0,
+      "transaction_index": 1808
+    }
+  ]
+}

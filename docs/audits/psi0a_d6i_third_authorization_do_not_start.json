@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D6I third authorization",
+  "observed_at_utc": "2026-08-14T12:40:27Z",
+  "engineering_revision": "e7544005b69595ae041129892b4c906a63759de6",
+  "status": "DO_NOT_START",
+  "verdict": "STOP_SERIALIZER_P99_AND_LOCK_GATE_FAILED",
+  "restart_performed": false,
+  "telemetry": {
+    "p99_wait_ms": 3753.89,
+    "p95_wait_ms": 49.32,
+    "queue_depth": 0,
+    "lock_errors_24h": 4,
+    "snapshot_file_mtime_utc": "2026-08-14T12:40:27.116076+00:00"
+  },
+  "stop_reasons": [
+    "serializer p99 exceeded the authorized 1000 ms ceiling",
+    "serializer lock-error count increased from 3 to 4"
+  ],
+  "scope_evidence": {
+    "service_restart_or_stop": 0,
+    "production_database_queries": 0,
+    "ddl_or_production_writes": 0,
+    "provider_calls": 0,
+    "configuration_changes": 0
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5E-R2 -- first live HOT retirement retry after immutable-segment remediation",
+  "timestamp_utc": "2026-08-21T11:00:00Z",
+  "focused_tests": "32/32 passed in tests/test_storage_lifecycle_p5d_hot_cold_rollover.py",
+  "pre_run_health": {
+    "hot_row_count": 3699696,
+    "hot_max_id": 6906172,
+    "hot_size_bytes": 14009831424,
+    "wal_size_bytes": 3258952,
+    "cold_segment_count": 46,
+    "cold_total_rows": 1746952,
+    "free_disk_bytes": 36510965760,
+    "rollback": {"max_id": 6835535, "row_count": 5393999, "size_bytes": 15411294208, "mtime_ns": 1787299626772714331},
+    "writers": "watchtower_listener, creator_funding_worker, watchtower_api all RUNNING"
+  },
+  "frozen_batch": {
+    "manifest": "/tmp/storage_p5a/p5e_r2_frozen_batch_manifest.json",
+    "count": 500,
+    "month_covered": "2026_05",
+    "selection": "deterministic IDs immediately after prior checkpoint cursor 2891535; older than 90 days; fresh pin-set classification; absent from COLD by five-field composite identity",
+    "pinned_row_retirement_violations": 0
+  },
+  "copy_publish_verify": {
+    "copied": 500,
+    "represented": 500,
+    "missing": 0,
+    "extra": 0,
+    "conflicts": 0,
+    "cold_segment": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2026_05_delta_7b8efffd1b33.sqlite",
+    "segment_kind": "DELTA",
+    "parent_segment": "transfer_index_cold_2026_05",
+    "closed_manifest_row_count": 500,
+    "summary_binding": "PASS",
+    "registry": "PASS",
+    "pre_retire_cold_read": "PASS"
+  },
+  "single_hot_retirement": {
+    "retired": 500,
+    "delete_method": "one BEGIN IMMEDIATE transaction with exact frozen id list",
+    "lease_acquisition_seconds": 0.00024050002684816718,
+    "transaction_seconds": 0.4450892499880865,
+    "sqlite_busy_count": 0,
+    "wal_before_bytes": 1676872,
+    "wal_after_bytes": 6868072,
+    "zero_sustained_db_lock_regression": "PASS"
+  },
+  "post_retire_accounting": {
+    "boundary_high_water_id": 6906172,
+    "hot_before_at_boundary": 3699696,
+    "retired": 500,
+    "hot_after_at_boundary": 3699196,
+    "hot_equation": "PASS -- 3699696 - 500 = 3699196",
+    "cold_before": 1746952,
+    "cold_after": 1747452,
+    "logical_history_before_at_boundary": 5446648,
+    "logical_history_after_at_boundary": 5446648,
+    "logical_history_parity": "PASS",
+    "concurrent_new_hot_rows_excluded_from_boundary_equation": 20,
+    "note": "The raw live count rose by 20 because writers continued producing new IDs after the pre-run high-water. This is not a historical parity failure; the required fixed-boundary equation passes exactly."
+  },
+  "post_retire_controls": {
+    "post_retire_cold_read": "PASS -- five retired rows absent from HOT and content-exact through live HOT+COLD reader",
+    "representative_source_and_destination_reads": "PASS",
+    "watchtower_canonical_history_preservation": "PASS -- no Watchtower write connection opened; bounded read succeeded",
+    "three_sw2": "PASS -- no 3SW2 write connection opened; bounded read succeeded",
+    "writers": "PASS -- all three RUNNING; HOT MAX(id) advanced 6906172 to 6906196",
+    "rollback_db": "PASS -- MAX(id)=6835535, rows=5393999, size/mtime unchanged"
+  },
+  "scope_controls": {
+    "batches_run": 1,
+    "recurring_automation_active": false,
+    "vacuum_run": false,
+    "services_restarted": false,
+    "rollback_db_modified": false,
+    "remaining_eligible_backlog": "not re-enumerated after the one authorized batch; intentionally not scanned further to honor STOP AFTER ONE BATCH"
+  },
+  "terminal_verdict": "READY_P5F_RECURRING_HOT_COLD_ROLLOVER_ACTIVATION_REVIEW",
+  "exact_next_action": "Human review and separate explicit authorization are required before installing or activating any recurring HOT/COLD rollover automation."
+}

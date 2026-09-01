@@ -1,0 +1,84 @@
+{
+  "schema_version": "psi0d-c.qualification-closure.v1",
+  "milestone": "PSI0D-C",
+  "closed_at_utc": "2026-08-16T11:10:00Z",
+  "engineering_commit": "3843a0ffca345344f4d914a4ffff16fe12c7fda9",
+  "status": "COMPLETE",
+  "verdict": "PSI0D_B_CLOSED_PSI0D_D_FIXTURE_ADAPTER_QUALIFICATION_MAY_BE_PROPOSED",
+  "bound_inputs": {
+    "psi0d_b_contract_digest": "a9e368cceede689736ca234891394551bda098df3b51ebfebf2e72f32aeb51f6",
+    "psi0d_b_qualification_artifact": "docs/audits/psi0d_b_assessment_summary_consumer_qualification.json",
+    "psi0d_b_qualification_digest": "bb05f1b719a518776da4e5b6116ee42c2de32c5149820eec2bb583d4605d4fea",
+    "psi0d_a_reconciliation_digest": "e19dc0179d292d80535e7aa453a98693d98bb2f0c07e59e7f559aa7d39cb2b76",
+    "psi0c_d_closure_digest": "7e8c4ce4c27aa0d235a39cfe49e4dad4443be0bfae0750d61188a73d2cfeffb2",
+    "psi0c_c_assessment_identity": "b5fb2187ad569b422f1ebbc029b7c619300a153d81b547f178c58769377fc7c4",
+    "psi0c_c_bundle_identity": "6db46939fdfec9a34a63268809609c9a30a1a7dd86f5504b3d063bd0e8045ac3"
+  },
+  "replay_verification": {
+    "contract_identity": true,
+    "exact_synthetic_aggregate_schema": true,
+    "canonical_projection_and_digests": true,
+    "fixture_only": true,
+    "default_off": true,
+    "performs_io": false,
+    "absent_not_negative_preserved": true,
+    "duplicates_conflicts_and_unmatched_preserved": true,
+    "input_order_independent": true,
+    "lineage_schema_accounting_authority_and_replay_fail_closed": true,
+    "focused_tests_passed": 17,
+    "psi0_regressions_passed": 355,
+    "authority": {
+      "policy": false,
+      "ranking": false,
+      "integration": false,
+      "deployment": false,
+      "activation": false
+    }
+  },
+  "closure": {
+    "psi0d_b_qualified": true,
+    "classification": "PURE_FIXTURE_ONLY_NON_AUTHORITATIVE_ASSESSMENT_SUMMARY_CONSUMER",
+    "real_assessment_application_performed": false,
+    "integration_output_created": false,
+    "consumer_integrated_or_deployed": false,
+    "evidence_mode_or_production_activation": false,
+    "eb2_entered": false
+  },
+  "next_milestone": {
+    "milestone": "PSI0D-D",
+    "name": "Provenance-preserving immutable-assessment summary adapter qualification",
+    "authorization_class": "SAFE_LOCAL_DESIGN_IMPLEMENTATION_TEST_DOCUMENTATION_COMMIT",
+    "objective": "Fixture-qualify an adapter from an injected frozen representation of the exact PSI0C three-file assessment bundle to the PSI0D-B synthetic aggregate schema without applying it to the real bundle.",
+    "required_boundary": [
+      "accept injected bytes for exactly assessment.json, contract.json and hashes.json",
+      "replay-verify canonical bytes, per-file hashes, assessment bundle digest, assessment digest, lineage, provenance and false authority",
+      "derive only permitted aggregate counts and reason codes",
+      "never retain or emit mints, addresses, signatures, payloads, conflict assertions or other field values",
+      "bind output as PRODUCTION_DERIVED_IMMUTABLE_LOCAL_ASSESSMENT_SUMMARY rather than fixture provenance",
+      "invoke a shared pure projection core without weakening the fixture-only PSI0D-B entry point",
+      "grant no integration, deployment or activation authority"
+    ],
+    "real_bundle_application_authorized": false
+  },
+  "authority_separation": {
+    "psi0d_d_fixture_adapter_qualification": "may be separately proposed",
+    "real_psi0c_assessment_read": "requires a later independent bounded local authorization",
+    "local_consumer_output": "requires later independent authorization",
+    "consumer_integration_or_deployment": "requires production-changing authorization",
+    "evidence_mirror_or_cohort_mode": "independent production-changing authorization",
+    "production_activation": "independent production-changing authorization",
+    "eb2": "independent roadmap reconciliation"
+  },
+  "actions_performed": {
+    "real_psi0c_assessment_or_psi0b_bundle_opened": 0,
+    "source_result_values_inspected": 0,
+    "integration_outputs_created": 0,
+    "production_or_runtime_access": 0,
+    "live_telemetry": 0,
+    "select_or_explain": 0,
+    "provider_rpc_calls": 0,
+    "production_writes_or_ddl": 0,
+    "service_or_configuration_actions": 0,
+    "integration_deployment_or_activation_actions": 0
+  }
+}

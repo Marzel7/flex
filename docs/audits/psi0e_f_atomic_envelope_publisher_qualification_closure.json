@@ -1,0 +1,66 @@
+{
+  "schema_version": "psi0e-f.qualification-closure.v1",
+  "milestone": "PSI0E-F",
+  "closed_at_utc": "2026-08-16T11:17:18Z",
+  "engineering_commit": "145363100675244dea8f616c4c0af63bc928ceb9",
+  "status": "PASS",
+  "verdict": "PSI0E_E_CLOSED_QUALIFIED_LOCAL_ENVELOPE_PUBLICATION_COHERENT_AFTER_PARENT_PREPARATION",
+  "bound_inputs": {
+    "psi0e_e_publication_contract_digest": "b893198fed71329c33083176a7ce93d7c86f119ab66b9488dbf9c42db6435cc3",
+    "psi0e_e_qualification_digest": "c36797426684302ccffaefe031f5c142ddb2df546fb30b3cafac2ce79b4f0129",
+    "psi0e_d_closure_digest": "8834859723b64ce18c323cfd0b404f47e888805c05e620afcbb844ec057396a7",
+    "psi0e_c_input_digest": "89c8dee5c976bd587aa6fc7ec3a6194e38caeba5508013c8ddca976489038f35",
+    "expected_envelope_digest": "c8827678b2137f1aec864f86623514a92affb0c6df092d13b24c160f8fb90a9d",
+    "psi0e_a_contract_digest": "2c8b2a296cb55ceb7da59ea4b063557749842041ba35251ec605e3f5f231350f",
+    "psi0e_b_closure_digest": "5067a9668afd21fcb4f92442ced9ad8726b1ecde9855bd251d291fd9ce7bf8f8"
+  },
+  "replay_verification": {
+    "publication_contract_identity": true,
+    "exact_injected_envelope_schema_and_canonical_replay": true,
+    "contract_source_lineage_and_provenance": true,
+    "default_off": true,
+    "consumer_enabled": false,
+    "cohort_surface_and_missingness_accounting": true,
+    "duplicates_conflicts_and_unmatched_preserved": true,
+    "interpretation_and_authority_false": true,
+    "exact_three_file_bundle": true,
+    "deterministic_hashes_and_bundle_digest": true,
+    "atomic_staging_rename_and_fsync": true,
+    "output_reuse_rejected": true,
+    "retries_allowed": false,
+    "post_publication_replay": true,
+    "failure_cleanup": true,
+    "source_values_retained_or_emitted": false,
+    "publisher_tests_passed": 23,
+    "combined_psi0d_psi0e_focused_tests_passed": 92,
+    "psi0_regressions_passed": 440,
+    "state_coupled_legacy_psi0b_failures": 27,
+    "legacy_failures_are_psi0e_e_regressions": false
+  },
+  "authority": {
+    "policy": false,
+    "ranking": false,
+    "integration": false,
+    "deployment": false,
+    "activation": false
+  },
+  "publication_disposition": {
+    "one_bounded_local_envelope_publication_is_coherent": true,
+    "publication_authorized_by_this_closure": false,
+    "proposed_output_parent": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0e_runs",
+    "proposed_output": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0e_runs/psi0e-envelope-20260816-01",
+    "output_parent_exists": false,
+    "output_exists": false,
+    "smallest_next_action": "PSI0E-G1_BOUNDED_EMPTY_PARENT_DIRECTORY_PREPARATION",
+    "publication_requires_fresh_authorization_after_preparation": true,
+    "consumer_integration_or_deployment_authorized": false
+  },
+  "scope_proof": {
+    "real_envelope_reconstructed_or_published": false,
+    "psi0d_psi0c_or_psi0b_bundle_reopened": false,
+    "integration_output_created": false,
+    "production_or_runtime_access": false,
+    "provider_or_rpc_calls": 0
+  },
+  "next_action": "HUMAN_APPROVAL_REQUIRED: PSI0E-G1 create and verify only the absent empty psi0e_runs parent; then request a fresh PSI0E-G publication authorization."
+}

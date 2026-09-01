@@ -1,0 +1,190 @@
+{
+  "birth_rate_per_minute": {
+    "births": 1091,
+    "maximum": 40,
+    "mean": 18.183,
+    "p50": 17,
+    "p90": 27,
+    "p95": 33,
+    "p99": 40,
+    "projected_per_day": 26184,
+    "sampled_minutes": 61
+  },
+  "delivery_reliability": {
+    "duplicates": "NOT_MEASURABLE from token_analysis because UPSERT deduplicates by mint",
+    "missed_births": "NOT_MEASURABLE; reconciler is disabled and no independent low-cost population exists",
+    "reconnects": "NOT_MEASURABLE from retained DB rows; log-only events are not an audit corpus"
+  },
+  "implementation_revision": "working-tree",
+  "known_creator_classification": {
+    "births": {
+      "A_NEVER_SEEN_CREATOR": 319,
+      "B_KNOWN_CREATOR_NO_FUNDING": 527,
+      "C_KNOWN_CREATOR_WITH_CREATOR_FUNDERS": 205,
+      "D_KNOWN_CREATOR_WITH_NETWORK_RELATIONSHIP_STATE": 40
+    },
+    "creator_funders_birth_share_pct": 22.456,
+    "creator_funders_births": 245,
+    "definition": "current local state; A means no launch outside this observation window, not a historical chain claim"
+  },
+  "latency_distribution": {
+    "chain_to_persisted": "UNAVAILABLE",
+    "chain_to_pumpportal_receive": "UNAVAILABLE",
+    "parsed_to_persisted": "UNAVAILABLE",
+    "pumpportal_receive_to_parsed": "UNAVAILABLE",
+    "reason": "historical rows do not carry raw receive or authoritative on-chain time"
+  },
+  "limitations": [
+    "Historical `analyzed_at` is a local post-receive/persistence timestamp, not chain or raw socket receive time.",
+    "Creator classification uses current local positive evidence and current all-time launch counts; it does not assert historical freshness.",
+    "No all-birth reconciliation is active, so delivery completeness cannot be estimated."
+  ],
+  "milestone": "EB0.1 \u2014 Pump.fun Birth Feed Latency & Creator Population Audit",
+  "mode": "READ_ONLY_HISTORICAL_INTERIM",
+  "new_expensive_creator_pressure": {
+    "births_per_minute": 18.183,
+    "known_unfunded_creators_per_minute": 2.517,
+    "never_seen_creators_per_minute": 3.267,
+    "unique_creators_per_minute": 6.75,
+    "unknown_unfunded_unique_creators": 347
+  },
+  "observation_window": {
+    "end_utc": 1786431989.493685,
+    "hours": 1.0,
+    "population": "token_analysis pumpfun/bonding_curve rows ordered by analyzed_at",
+    "start_utc": 1786428389.493685
+  },
+  "policy_simulation": {
+    "A_ALL_BIRTHS": {
+      "full_creator_rpc_calls_hour_proxy": 97281.2,
+      "immediate_enrichment": 1091
+    },
+    "B_UNIQUE_CREATOR": {
+      "full_creator_rpc_calls_hour_proxy": 36112.6,
+      "immediate_enrichment": 405
+    },
+    "C_UNKNOWN_UNFUNDED_CREATOR": {
+      "full_creator_rpc_calls_hour_proxy": 30940.9,
+      "immediate_enrichment": 347
+    },
+    "D_UNKNOWN_PLUS_WATCHTOWER_PRIORITY": {
+      "full_creator_rpc_calls_hour_proxy": 17476.7,
+      "other_captured_deferred": 772,
+      "priority_immediate": 196
+    },
+    "E_CAPACITY_AWARE": {
+      "status": "NOT_MEASURABLE while X78.40 clean capacity window is pending"
+    }
+  },
+  "pumpportal_path": {
+    "birth_handler": "listen_pumpportal_websocket -> _insert_bonding_curve_token",
+    "persistence": "token_analysis; birth_persist_queue fallback",
+    "reconciler": "disabled in run_listener.sh",
+    "subscription": [
+      "subscribeNewToken",
+      "subscribeMigration"
+    ],
+    "transport": "wss://pumpportal.fun/api/data"
+  },
+  "repeat_creator_distribution": {
+    "births_by_current_launch_count": {
+      "1": 139,
+      "10-24": 112,
+      "100+": 362,
+      "2-4": 143,
+      "25-49": 146,
+      "5-9": 120,
+      "50-99": 69
+    },
+    "concentration": {
+      "top_10_pct_creators": {
+        "birth_share_pct": 46.379,
+        "births": 506,
+        "creator_count": 41
+      },
+      "top_1_pct_creators": {
+        "birth_share_pct": 18.148,
+        "births": 198,
+        "creator_count": 5
+      },
+      "top_5_pct_creators": {
+        "birth_share_pct": 35.197,
+        "births": 384,
+        "creator_count": 21
+      }
+    },
+    "repeat_birth_share_pct": 87.259,
+    "repeat_births": 952,
+    "short_interval": {
+      "15m": {
+        "births_from_creators": 826,
+        "creators": 153
+      },
+      "1h": {
+        "births_from_creators": 851,
+        "creators": 165
+      },
+      "5m": {
+        "births_from_creators": 788,
+        "creators": 139
+      },
+      "6h": {
+        "births_from_creators": 851,
+        "creators": 165
+      }
+    }
+  },
+  "safety": {
+    "additional_rpc_calls": 0,
+    "listener_instrumentation_enabled": false,
+    "production_database_writes": 0,
+    "production_restarts": 0,
+    "x78_40_window": "unmodified"
+  },
+  "timestamp_contract": {
+    "future_instrumentation": {
+      "flag": "EB0_1_BIRTH_AUDIT_ENABLED=0",
+      "module": "src/core/pumpportal_birth_audit.py",
+      "precision": "UTC and monotonic nanoseconds at ws.recv boundary; before JSON parsing",
+      "status": "implemented but not enabled or deployed"
+    },
+    "historical": {
+      "available": [
+        "token_analysis.analyzed_at (local persistence-time, millisecond-ish)",
+        "token_analysis.created_at (local wall-clock seconds)",
+        "create_tx_signature",
+        "creator"
+      ],
+      "missing": [
+        "raw PumpPortal receive UTC",
+        "monotonic receive time",
+        "authoritative chain block time/slot"
+      ]
+    },
+    "latency_verdict": "D \u2014 NOT_MEASURABLE from historical data; no RPC validation sample executed because this is an independent no-restart interim audit"
+  },
+  "unique_creator_rate_per_minute": {
+    "births_per_unique_creator": 2.694,
+    "maximum": 25,
+    "mean": 6.75,
+    "p50": 12,
+    "p95": 21,
+    "unique_creators": 405
+  },
+  "verdicts": {
+    "birth_census_feasibility": "C \u2014 MATERIAL_GAPS",
+    "creator_reuse_potential": "B \u2014 MATERIAL",
+    "helius_expansion_pressure": "C \u2014 HIGH_REQUIRES_STRICT_PRIORITIZATION",
+    "latency_measurement": "D \u2014 NOT_RELIABLE",
+    "pumpportal_birth_delivery": "D \u2014 NOT_MEASURABLE"
+  },
+  "x78_real_cost_context": {
+    "dominant_long_tail": "outgoing_transfer_scan; model must keep it separate",
+    "full_creator_extractions": 108,
+    "observed_calls_per_full_creator": 89.167,
+    "p50_full_seconds": 21.525713,
+    "p95_full_seconds": 65.153485,
+    "rpc_calls": 9630,
+    "source": "x78_34_qualification.json"
+  }
+}

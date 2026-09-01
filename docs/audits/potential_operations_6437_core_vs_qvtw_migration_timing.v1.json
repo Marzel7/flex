@@ -1,0 +1,30 @@
+{
+  "birth_candidate_rejected": {
+    "field": "token_analysis.created_at",
+    "reason": "record creation/observation time, not launch birth; observed delays core min/median/max 0/2/24 seconds and QVtW [1,1,1,1,1,2] seconds demonstrate observation-to-migration ingestion timing, not token lifecycle duration"
+  },
+  "calls": {
+    "network": 0,
+    "provider": 0,
+    "rpc": 0
+  },
+  "canonical_migration": {
+    "coverage": {
+      "qvtw": {
+        "present": 6,
+        "total": 6
+      },
+      "strict": {
+        "present": 83,
+        "total": 84
+      }
+    },
+    "db": "database/flex_complete_database.db",
+    "field": "migrated_at",
+    "semantic": "recorded migration lifecycle time",
+    "table": "token_analysis"
+  },
+  "decision": "INSUFFICIENT_CANONICAL_BIRTH_FOR_MIGRATION_DELAY_COMPARISON",
+  "status": "PARTIAL_CANONICAL_MIGRATION_FOUND_BIRTH_UNQUALIFIED",
+  "writes": 0
+}

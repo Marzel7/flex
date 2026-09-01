@@ -1,0 +1,15 @@
+{
+  "drift_cluster_rows": 0,
+  "drift_evidence_rows": 44,
+  "health_snapshot_rows": 6,
+  "membership_by_operation": {
+    "Byzantine": 35,
+    "FOUR_STEP_30_SOL_14_479K_WSOL_LADDER": 9,
+    "P3R": 85,
+    "WATCHTOWER": 93
+  },
+  "membership_rows": 222,
+  "provisional_operations": 0,
+  "timestamp": 1787822426,
+  "unique_member_mints": 222
+}

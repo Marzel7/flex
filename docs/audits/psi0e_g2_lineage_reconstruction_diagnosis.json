@@ -1,0 +1,75 @@
+{
+  "schema_version": "psi0e-g2.reconstruction-diagnosis.v1",
+  "milestone": "PSI0E-G2",
+  "diagnosed_at_utc": "2026-08-16T11:30:07Z",
+  "engineering_commit": "145363100675244dea8f616c4c0af63bc928ceb9",
+  "status": "PASS",
+  "verdict": "EXACT_RECONSTRUCTION_DATA_RETAINED_STRICT_AUDIT_TO_ENVELOPE_ADAPTER_REQUIRED",
+  "bound_inputs": {
+    "psi0e_f_closure_digest": "533ee09789ec52b87350cac49ff5664484d827898cc98b5341c59662a4d35ad1",
+    "psi0e_e_publication_contract_digest": "b893198fed71329c33083176a7ce93d7c86f119ab66b9488dbf9c42db6435cc3",
+    "psi0e_c_input_digest": "89c8dee5c976bd587aa6fc7ec3a6194e38caeba5508013c8ddca976489038f35",
+    "expected_envelope_digest": "c8827678b2137f1aec864f86623514a92affb0c6df092d13b24c160f8fb90a9d",
+    "psi0d_f_audit_digest": "9e755dcc6fceef6ef27664eb8531cff0478b0b6cc252ded22ee84adfefd1efac"
+  },
+  "observed_representation": {
+    "audit_has_complete_canonical_psi0d_projection_document": false,
+    "audit_has_all_five_surface_aggregate_objects": true,
+    "surface_fields_match_envelope_core_inputs": true,
+    "audit_has_unresolved_conflict_count": true,
+    "audit_has_orphan_unmatched_count": true,
+    "audit_has_reason_codes": true,
+    "audit_has_cohort_denominator": true,
+    "audit_has_projection_digest": true,
+    "audit_has_production_derived_provenance": true,
+    "audit_has_false_authority": true,
+    "source_values_required": false
+  },
+  "representation_boundary": {
+    "aggregate_location": "descriptive_projection",
+    "cohort_location": "execution.cohort_denominator",
+    "projection_identity_location": "execution.projection_digest",
+    "provenance_location": "execution.provenance_class",
+    "missing_canonical_wrapper_fields": [
+      "schema_version",
+      "contract_digest",
+      "input_lineage",
+      "fixture_only",
+      "default_off",
+      "provenance_class",
+      "cohort_count",
+      "surfaces",
+      "interpretation"
+    ],
+    "wrapper_authority_location_differs": true,
+    "all_missing_wrapper_values_are_deterministic_from_committed_contracts_and_verified_audit_fields": true
+  },
+  "repair_disposition": {
+    "smallest_safe_repair": "PSI0D_F_AUDIT_TO_PSI0E_ENVELOPE_RECONSTRUCTION_ADAPTER",
+    "new_psi0e_c_application_audit_required": false,
+    "superseding_immutable_input_required": false,
+    "adapter_requirements": [
+      "accept injected frozen audit bytes only",
+      "verify exact audit digest schema bound lineage provenance accounting authority and scope proof",
+      "map descriptive_projection surfaces and aggregate fields without retaining source values",
+      "bind cohort from execution.cohort_denominator and projection identity from execution.projection_digest",
+      "derive wrapper and envelope lineage only from committed PSI0D-B and PSI0E-A contracts",
+      "produce canonical envelope bytes through the existing pure envelope core",
+      "require exact input and envelope digests",
+      "leave the existing PSI0E-A bundle entry point unchanged and fail closed",
+      "perform no file database network service or configuration I/O in the pure adapter"
+    ],
+    "implementation_authorized_by_this_diagnosis": false,
+    "publication_authorized_by_this_diagnosis": false
+  },
+  "scope_proof": {
+    "real_envelope_reconstructed_or_published": false,
+    "publisher_invoked": false,
+    "psi0d_psi0c_or_psi0b_bundle_opened": false,
+    "source_values_inspected": false,
+    "integration_output_created": false,
+    "production_or_runtime_access": false,
+    "provider_or_rpc_calls": 0
+  },
+  "next_action": "HUMAN_APPROVAL_REQUIRED: PSI0E-G3 safe-local fixture qualification of the strict PSI0D-F-audit-to-PSI0E-envelope reconstruction adapter."
+}

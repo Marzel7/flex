@@ -1,0 +1,536 @@
+{
+  "duplicate_signature_groups": 25,
+  "entries": [
+    {
+      "mint_cases": [
+        "7XddUHrcc4YZe5eyVR1JVAfPSTHuzUrA9pv1og4Gpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/29fW3AXgqhxWZyzRvmQR2tVfFnvWyvh4e76siS3WHAGU8G7fNrfdAYoWwfQf6eHH1zSDNmatmj5mak5gxvjEJyxz.json",
+      "raw_sha256": "164aa08c1512ef1469da818b14a1ac5d7e4c179d1ce8c5a9e52493152fbe34ec",
+      "signature": "29fW3AXgqhxWZyzRvmQR2tVfFnvWyvh4e76siS3WHAGU8G7fNrfdAYoWwfQf6eHH1zSDNmatmj5mak5gxvjEJyxz",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "7T6Kw5qjyp74L8fvtMWud8GLsXhgWcxY9BijrrgUpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/2AYrdwXPMiB74aEQS2fj7V3k9KXeVxqEbJ6vEUb6NwxgpRQ4WpqiNMtz7qd7iorG3Zo5n9ZDEyE1xRx1hjvfjp4v.json",
+      "raw_sha256": "5f996e4fba76bb7d8f6bbce4b5a746652f729bf548e67a6fe9e72d72520a09ab",
+      "signature": "2AYrdwXPMiB74aEQS2fj7V3k9KXeVxqEbJ6vEUb6NwxgpRQ4WpqiNMtz7qd7iorG3Zo5n9ZDEyE1xRx1hjvfjp4v",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "E8cqgjpEfM3iuArpVpXyPjTQwfgfB4vkJo5oH33zpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/2GGkWoiVBPo1y5jEPwDfYUWTfkHjSegY9YaaTMzDJpMmSBAazGXXggDeeb6jaftvkX6R2E6x2Szsm3M55RRFd9LQ.json",
+      "raw_sha256": "a449eb33544b79acab09b81b281f8ef5dd9dcaee058a758b4c7511695a830106",
+      "signature": "2GGkWoiVBPo1y5jEPwDfYUWTfkHjSegY9YaaTMzDJpMmSBAazGXXggDeeb6jaftvkX6R2E6x2Szsm3M55RRFd9LQ",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "73o1LeTK7E2WkVdEyTmd5TxzqVLcAFm2cn1GahN2pump",
+        "V6hhzCkoBqaiw5E8bdKoaMo7VrS1f29tGBn7LC1pump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/2Pnvj2oAT4wGY7TNSiM6YxH8yqsokiG11SwFBLdQjrBbHbu4JutS9SEVdnhUwrCScFwYCvufm9AgihQryEzaD5Cf.json",
+      "raw_sha256": "2768e05f3ce383c680766d07a303c7467d475126536a562991d42bd457e69ced",
+      "signature": "2Pnvj2oAT4wGY7TNSiM6YxH8yqsokiG11SwFBLdQjrBbHbu4JutS9SEVdnhUwrCScFwYCvufm9AgihQryEzaD5Cf",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "J9yAET3prH1vEsTndjUx8tuRqdx6obWgViRVsGMCpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/2QdHPypVrb71oSo6mq7e6gk2cQH36dh7cG4DAUBEEH75BXncrTVTyCLVcVuomHznMz6oqm54CU4GXY6QnDWhxEGT.json",
+      "raw_sha256": "eddb0909b427ea804fd55cc44956bd407737398b1ec5de523ba4e8da790b01e0",
+      "signature": "2QdHPypVrb71oSo6mq7e6gk2cQH36dh7cG4DAUBEEH75BXncrTVTyCLVcVuomHznMz6oqm54CU4GXY6QnDWhxEGT",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "2WSPxpq8CdPujQmo4u1NT1zWG9xCQ2DEMT6Yn9V7pump",
+        "9AnnqC2iCs9gnTXFPJwRsCi8gwXhupmFAc55yPu2pump",
+        "FnXa8yo4UZL7gZvCD15PfekxymSxKRJPNikRwHTgpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/2Tch4XVLJ8rqnJvbJ2FyYgrWJVMZTWHMKG9mMtvK27wtBQBgJZwKYtSjri4BahiJc9KthY1efxkXBwC3iCqgMX5Y.json",
+      "raw_sha256": "7076b555a5a599861e423da2ecd48b3e9b3069c82146fc1242b03ca091d374fe",
+      "signature": "2Tch4XVLJ8rqnJvbJ2FyYgrWJVMZTWHMKG9mMtvK27wtBQBgJZwKYtSjri4BahiJc9KthY1efxkXBwC3iCqgMX5Y",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "AiSiwKxkbNg4TGMHq8GEvwf8mpma1a3Ee7m3TB4rpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/2fHcQH9hhPwWQJttRLazwwPoRyQM2L2GcBD71BZKMag8WbhtXw7uJvdQB7V4pWkYZRmSXm5Smo5UTVGwreVY68Jw.json",
+      "raw_sha256": "56b3f34604436c4c98f57d27aa064b53e4e1ff03187cb2bac91ec286facb3308",
+      "signature": "2fHcQH9hhPwWQJttRLazwwPoRyQM2L2GcBD71BZKMag8WbhtXw7uJvdQB7V4pWkYZRmSXm5Smo5UTVGwreVY68Jw",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "9LBzAqVUtpggTvsA5dDhGhgw1L1uQZG8WiUxMiKspump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/2i9RHZASHwj3A8ecaDVNFGF6X2BkqM77HkiGThg6aewTDqPw7bHXbXZdRRNpP5b9eDpFvW7YGQ7wxoBPbeZvTPna.json",
+      "raw_sha256": "f2ae7049d9a0d518b77cc768623a0b240954b11138f33048cc78ec96b8fdb521",
+      "signature": "2i9RHZASHwj3A8ecaDVNFGF6X2BkqM77HkiGThg6aewTDqPw7bHXbXZdRRNpP5b9eDpFvW7YGQ7wxoBPbeZvTPna",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "4JZv85BNGQtJ9ikrKKJs1ptbXP9ghG8H8avV5ZEKpump",
+        "DnjjGyuLVfQFZoQAJv2gNGcAzhyc4CdFaKHMMcWdpump",
+        "F41p9Ar8kRQbGUmYzXkFpEwhkFHgbZDGokm7bQ1Xpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/2k77abYECaSxfyDVT7Q3mDYZz8xSvSAAHuTJrbRd2JPoFNmcxQhExYav2213zNMkWQxnJAf9ohV2eozR5k4L1c2K.json",
+      "raw_sha256": "a8c64e745e5a6f079db27fe0fdfb37b0e3d6f75a2b0b4aa4d3ea88d147ddc180",
+      "signature": "2k77abYECaSxfyDVT7Q3mDYZz8xSvSAAHuTJrbRd2JPoFNmcxQhExYav2213zNMkWQxnJAf9ohV2eozR5k4L1c2K",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "81hKGaQuDRwTmsesUZL6bchnFdKWP38adMSh6wT8pump",
+        "EiBfdoq7yaDaL28JaJ3QQWoNe3EWaE2TtvPjRa1Tpump",
+        "JBVUw7mQvD3rFcZVBaeXTwNBmz9m7YMDxaYfT7Tkpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/2o6ouPoPXxodRMiX5bD7cFb81GphxaBA7jYKjn48i1nuvgg9LXRdDohprJoUPcNXxfYNyZvV9DekXj2L6fnUC8sq.json",
+      "raw_sha256": "215950cf89dbbbba026579bd0dda5907fdd0e70452e9cdfca432293ad31125a4",
+      "signature": "2o6ouPoPXxodRMiX5bD7cFb81GphxaBA7jYKjn48i1nuvgg9LXRdDohprJoUPcNXxfYNyZvV9DekXj2L6fnUC8sq",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "7pBjpn2BX7gKfMmHH4TqZzNbztyC2ffAkkWtkMF5pump",
+        "9YgWq5REvBhviYXMyUmNAugVzyCYhu6H49LgxFT9pump",
+        "G8fPzYYkpUSoXyaihxP5UUTzQ9CaPzQkLofMoXPNpump",
+        "HZP4kShA6AeiaKhUVjBaZtNphMQFd463H96X81wGpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/2qZke5Di8TftEhNExq9cuSTKQpyqyUqi1mQqCesxtzjCZH99U3FpP4Ja1nuBG7FvMxhYhZ1LYZBrgvKESj7ZvXyR.json",
+      "raw_sha256": "c9be859bccfc1c4749cbb14b3711ecf67d21c227b538ca926fa9ab46897659ea",
+      "signature": "2qZke5Di8TftEhNExq9cuSTKQpyqyUqi1mQqCesxtzjCZH99U3FpP4Ja1nuBG7FvMxhYhZ1LYZBrgvKESj7ZvXyR",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "7Rx2pnzVjwW49VEh1mRhYuufmYdXftcd5qnHqTcrpump",
+        "8JdWj6G2X9ByPPcKpaLUEso3w62yNnbVwmzXmhAEpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/37mBv5GNYohKXY1BozW4ZBUcRwjXc7eaqjqdN6y7KyZ2UrRpCLnk8U4vH1LBRojmyFBZ1qCqugTe2qGhvsYxfvyV.json",
+      "raw_sha256": "185715498106a980ce6de0d7f61a61f472175735d69b72631534dbe4f51c64f0",
+      "signature": "37mBv5GNYohKXY1BozW4ZBUcRwjXc7eaqjqdN6y7KyZ2UrRpCLnk8U4vH1LBRojmyFBZ1qCqugTe2qGhvsYxfvyV",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "DZJRL4PfPAZNL8cHTL7ejoFpC162kjv44BtsMEDwpump",
+        "yJffhBfxNAawPtnD9DvVmvFPi1rPTK6Mh9pkyUPpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/3EqQcmAkdSVZxv8ZyVAzpKvWkKGtwwYqAFUQ4K8Yu2QbczR8CNEF5aZCs8Nn7AeBSe5oibqA7FBWyBBSMeQDLJUi.json",
+      "raw_sha256": "eec1774bcdc9a9343a189ab8a821ad39b18b08a4200deaab3bbee995b7b7170a",
+      "signature": "3EqQcmAkdSVZxv8ZyVAzpKvWkKGtwwYqAFUQ4K8Yu2QbczR8CNEF5aZCs8Nn7AeBSe5oibqA7FBWyBBSMeQDLJUi",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "BVUtgycfTSQK7FWjdgKr3stwfdiq81h9a2nAXBSCpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/3VG9eiyqWC8EuY4N8V7n4J2V6Whg9vtLaNx5jAQmUs4wPpAZ8QXUxokXubuATtciMk5JDdcnF76BGBmU8xErjcYH.json",
+      "raw_sha256": "943d5a076c6177b4fbce86bb559fae343ffa0b4a19c2f0fd570c63c9e8b63e52",
+      "signature": "3VG9eiyqWC8EuY4N8V7n4J2V6Whg9vtLaNx5jAQmUs4wPpAZ8QXUxokXubuATtciMk5JDdcnF76BGBmU8xErjcYH",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "4k8h9jFthdjuKMdJcLbdYpjUE73QATeiUx6gxLr5pump",
+        "BLN8AEp7XvYoY1ZcqAgc99JnQY4WgmcWtbUcPv9vpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/3Yd3mLn19cD9HFGFLarv48ojXMKk9cgt5AYjEvxJTAyoaeBC8zXcUnF1AWP1YB83BpTx24YLZGaYQJHJZ8fGTv5m.json",
+      "raw_sha256": "e21f264dff8a06c4de995ed31c27d8ce3c40cc9f2c255fad62e432e0dc55182b",
+      "signature": "3Yd3mLn19cD9HFGFLarv48ojXMKk9cgt5AYjEvxJTAyoaeBC8zXcUnF1AWP1YB83BpTx24YLZGaYQJHJZ8fGTv5m",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "79RRj8QP21vRqZYuf1RWyNa78JfdSudp2QiwPkrhpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/3YxnVTUCQ7a8GQYE97uqNtMtQVToH5vjff8kwzg2isfLfwRAftjUUymgmcVfNYPEtmfuKUBG59qonM5ustiode5F.json",
+      "raw_sha256": "9917169d141181f1856f274a09adcf4d0e03f63bd92aa053310efc1432a0e181",
+      "signature": "3YxnVTUCQ7a8GQYE97uqNtMtQVToH5vjff8kwzg2isfLfwRAftjUUymgmcVfNYPEtmfuKUBG59qonM5ustiode5F",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "2MmEYtGfRFLd5L6d9Veg1WLcH23NSxQKVhR7y1Bhpump",
+        "GSokbJVA1P9tAPffqpiTN7b4XnEh8mNKQQ4cBkNNpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/3aee7PDvzMAtmrAzKc5ecWE2VVEZofiu153TahrtzHqbjHs1T9h53K1HHanYNhaCkGXvtmHiYR86dF5j2sD5MgtQ.json",
+      "raw_sha256": "a27a61366b4be6666856c3ca355b769aee0d41982bfe0d9c147a808418f4eaf9",
+      "signature": "3aee7PDvzMAtmrAzKc5ecWE2VVEZofiu153TahrtzHqbjHs1T9h53K1HHanYNhaCkGXvtmHiYR86dF5j2sD5MgtQ",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "2nzxMoPuXcr79m85crwCmKHRf7tLvVBsnaDkNjLmpump",
+        "4ZX6tYHowWFoGnHh44HtR54x8ictQWKBHbYPbuKApump",
+        "6MiSBTBS2MU3gi23j6zEx8Ad7rPfcW6miHkmxjiPpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/3mk3bvXKvqbRdyJULWVjo8sZ2FvHWvrVch5tXRyQBzNvmnEuKGZim8qjxjdnmiZqJADCUNXwqL162BrJyiFaTGWx.json",
+      "raw_sha256": "0b7b300a279541c723cfa5a773aad0813e2c02a79ed9f69b6e72dfd2d2543629",
+      "signature": "3mk3bvXKvqbRdyJULWVjo8sZ2FvHWvrVch5tXRyQBzNvmnEuKGZim8qjxjdnmiZqJADCUNXwqL162BrJyiFaTGWx",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "3zSPF9RDvLhzvPB8BwqdM3EacsA335xS4KY2gs6Ypump",
+        "BNPi6iiBYSm8K7iqyzk35Cad4yZoxehkeV1oyByhpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/3qfxsDVetYfFYEex81mR2jYHS5o5UucjMqPGbGVRucaAaGxYzEWcMLBR1WeogyhupnWFmjdypSABQ4eTm8pvkoZZ.json",
+      "raw_sha256": "6b26fe6442b6dfcf811709be7d1ccf6bce85c491a3af51487ad3819f40fc7177",
+      "signature": "3qfxsDVetYfFYEex81mR2jYHS5o5UucjMqPGbGVRucaAaGxYzEWcMLBR1WeogyhupnWFmjdypSABQ4eTm8pvkoZZ",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "BW56hShMFBoG2NmnMztbMtCq5jnwjZHVVLd2TPiipump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/3shczXBfLH6Y4ntpyfKDCFJu7R4Aid2Th8dMExqZMEdSGt5XYHuoCzFsLJWaLeELTCNjsUubQ7m6AKSSrmpypmU4.json",
+      "raw_sha256": "43b527e6d9354688a9777c279c4aaf57e19b5df7dacdbcabe2fa4002937d75d8",
+      "signature": "3shczXBfLH6Y4ntpyfKDCFJu7R4Aid2Th8dMExqZMEdSGt5XYHuoCzFsLJWaLeELTCNjsUubQ7m6AKSSrmpypmU4",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "C8H8uh9F3SQjBSBSVnwX6hYD34nqUsxi4XrHZpM7pump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/3w97DmmVmNo8ogsVyhv4yDHJjLZHH81RKAa3oKV7h7mhq18M8jRivYa8EbkwtWth7ptdkzn35s6TBXAxLpUyAG9T.json",
+      "raw_sha256": "d70dea2f969ca24e135202134e0a3fe630f01ae5922e19608d9241a0164c0f0e",
+      "signature": "3w97DmmVmNo8ogsVyhv4yDHJjLZHH81RKAa3oKV7h7mhq18M8jRivYa8EbkwtWth7ptdkzn35s6TBXAxLpUyAG9T",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "GMnMLBmet424A6FtVoLfhc8HN7Ziv8F2VPdRqxABpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/42UqTzcxNgfZaEaijPdgyeWf7MomZGBPS3irBZ3CuXbYh7mjgy62knDDW2ZSqAQ65aNtWMvwzSodeyCLzaBcxTof.json",
+      "raw_sha256": "155ca7994b030675766ab7f33e25eb566b409a597b31b35a42ec99f5a3f57f33",
+      "signature": "42UqTzcxNgfZaEaijPdgyeWf7MomZGBPS3irBZ3CuXbYh7mjgy62knDDW2ZSqAQ65aNtWMvwzSodeyCLzaBcxTof",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "HfaEr6jyk7yRC3kj6tvLgoHrZxsVCbMpvtwCpPYVpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/43saiMHeBdBtGAX16KRay7YFoFL94s7oVNnYpf4inB3JCvh1fKSEofzDMJJGPuvwJVpVKEdSwfbMNj6oKAkFLrPx.json",
+      "raw_sha256": "684aea64e6d676e653652ca763c38d1de7c9f66916a1d3c8badda922026b8fbe",
+      "signature": "43saiMHeBdBtGAX16KRay7YFoFL94s7oVNnYpf4inB3JCvh1fKSEofzDMJJGPuvwJVpVKEdSwfbMNj6oKAkFLrPx",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "3JBpGNXfAdT9RyFnKx35qnM3ZNQV9LrAaukLtPw5pump",
+        "7WgJ7vfquErSiFSz9SfJy2TvjyUBSLLhTss7uLaWpump",
+        "EBK2daxNw6rHfirCyemmvzpDcotvp8wH4fYZqwsVpump",
+        "EgEF7Ni6q3bjCoywd4Rsumyt6eeXJDHb1PHjR9Pgpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/47R5hiiFbAS2U2behMN8MazDTNkSq3mEhxC49nnY1E2ZJtrXnSC9kqGYbqETMz9QW1THHpK5xotZqA6aN2A2dSeF.json",
+      "raw_sha256": "8d358049832090e3a9b15ebb8b454971c7cd99c823418e1877575b2187f18cb9",
+      "signature": "47R5hiiFbAS2U2behMN8MazDTNkSq3mEhxC49nnY1E2ZJtrXnSC9kqGYbqETMz9QW1THHpK5xotZqA6aN2A2dSeF",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "78FRWVpjK476fLThDU2U8V4Y1CTnvhtqboNmY4NSpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/48ctkPi7Fb1hdJ9oRqr5HY5GVbHDoZ68nM1WbvFamcRvYhcbqNRmWGpNGwb6FSdVyoNP9yzzqtgLGYhtQhk1mfeH.json",
+      "raw_sha256": "9a7f2c19e94c96dfe0bb86f6edff26f333fa49ea1e88317c9e5a0136b2912ba5",
+      "signature": "48ctkPi7Fb1hdJ9oRqr5HY5GVbHDoZ68nM1WbvFamcRvYhcbqNRmWGpNGwb6FSdVyoNP9yzzqtgLGYhtQhk1mfeH",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "D2UVXhxLs6aY5kyWe8VZbsDcsNMDCUz1pu45zXcbpump",
+        "kDhik8Hd1sVkSH3kNyksxbKkK9ueSKXLj2GSN2Tpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/4B2wRQHcS45EgG9DDDvnd64d6uSQtfm7C9urmNhmyXRSDEQXs9n92ryP6pqMFi1ny8wgY2UMRsTsGeNPfrsdMsrB.json",
+      "raw_sha256": "a622a26e78e9d85298c1780d08a8e4dd90d7af462e798c5e5072ffa82366b015",
+      "signature": "4B2wRQHcS45EgG9DDDvnd64d6uSQtfm7C9urmNhmyXRSDEQXs9n92ryP6pqMFi1ny8wgY2UMRsTsGeNPfrsdMsrB",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "AU4Gcdn2oNX6Si9hh3cimgt4w7skXUy3ResH6TeJpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/4CnfqykYiBMEETFA3W8qL1Fh8MeRJ9QLsRUKKDSuSeBcb6MSd37gfzuK2R2sPznYmBo59heb3qh175m9w8V3E88B.json",
+      "raw_sha256": "6e7282b691cf4cbedc9f526da0a9273ac6d350e1e4dea2ca6ce9ec307293cb7d",
+      "signature": "4CnfqykYiBMEETFA3W8qL1Fh8MeRJ9QLsRUKKDSuSeBcb6MSd37gfzuK2R2sPznYmBo59heb3qh175m9w8V3E88B",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "7QjUZLTvpM52WGTMfFjH6eAK18yXKMxt3CH4UkAGpump",
+        "BcjdUFj55iPELWDJreoyTMfa2v3X7shnDXYYpx6rpump",
+        "CMxSLxSpuerSR7sQC7JPkpp1Czy1oXjmkyAJDFzrpump",
+        "DuBvNAiYxP3xHUJ4ovZaVt9XNKNhAehzrJb4Tjpppump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/4EtG7yXEhdey44kAjnHkMrLgPwYXfKMvVbu75wq2Psiz3KmuPEQeTzmKkJAR99oEuGnQc1aeFTajW3d9fkcrWSwL.json",
+      "raw_sha256": "2605ae38050f7e051a34ba1fd600303609731805aa00abe72845c42e1d836223",
+      "signature": "4EtG7yXEhdey44kAjnHkMrLgPwYXfKMvVbu75wq2Psiz3KmuPEQeTzmKkJAR99oEuGnQc1aeFTajW3d9fkcrWSwL",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "2rz25DqDgGEYVHKHnX4sWZSvcSdHbA7cm6H575Capump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/4KzAr8z5gYiSZeFHSCeL4oz4zXz3yQEJkBxAMtG2HGq9ctvZUyMC7SQAwaDZiSEgxmGxvB9e7Ck3BDCFGt7AyCd7.json",
+      "raw_sha256": "9549f63e22afe82e3d345b1a88ebf35dfec4373baa99edc56683c9e64bc27420",
+      "signature": "4KzAr8z5gYiSZeFHSCeL4oz4zXz3yQEJkBxAMtG2HGq9ctvZUyMC7SQAwaDZiSEgxmGxvB9e7Ck3BDCFGt7AyCd7",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "2Zeehi85tbTQR2HyjQZkY5DwJQv33gSGQrPxcah3pump",
+        "8UrQLojCQzUWnVp3GGzniK7WmdsT2SC7GXHjF3Ejpump",
+        "DyfGK1hobTQjhp6CpSUTTznzQuq649xFoMTnygBapump",
+        "FkM6ZxDkpW2dAtt8QfiPsFG1aRtdgk6HPzrADzzEpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/4dCsbvhjrgEnLecQBSLwMovyPPUwoTVumioPXqk5tnarkdDZSTenfyQtyMwQymEpQYUas4Xj1vmTtByCvpewWeeq.json",
+      "raw_sha256": "ec81bae55aede2a99c58201ce39cd96fb7096e1cd871226ed145a061801b24de",
+      "signature": "4dCsbvhjrgEnLecQBSLwMovyPPUwoTVumioPXqk5tnarkdDZSTenfyQtyMwQymEpQYUas4Xj1vmTtByCvpewWeeq",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "3CCFFVtM1gS4ZU9Go146iDYut6VuNLG4NDgQWh3Rpump",
+        "4jTsXySe87yy1DrMBCbJ4LDCaPu1aBfTcgddGC3Upump",
+        "HXk8YdpbLSrn2G9vewr5YmUTF152gUTSdT7JX32zpump",
+        "JF6uGCFNhmu3yuSZVZnA4fJysbjNLjcxWckapFkpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/4dT5MFGeBVm5Z9VFbLGutyZxBJGBJAnaPzRJrC49Ux1NytcauBYnpuckR4b6jNiX57qn3tJcv9AcCsbB81d5ovU4.json",
+      "raw_sha256": "9189723e1d0655c2a541ddaf4652ec78ed879088897650da1b90ec5af667c91b",
+      "signature": "4dT5MFGeBVm5Z9VFbLGutyZxBJGBJAnaPzRJrC49Ux1NytcauBYnpuckR4b6jNiX57qn3tJcv9AcCsbB81d5ovU4",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "33uRB1M14AWpqFey58LYaGeQzvPv8BrKHuY6pLzKpump",
+        "3LxujnGCusS6LLE8KPpZwWooxBFjautwKrEH8cAfpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/4jUvycqNTTguk7kjTwBPAGfm3qYijphGQpv1biEZTDMNWKXzR63cMPYWuEAcKvctYYkxxHD6HoeAr5GQYp7vKGDU.json",
+      "raw_sha256": "be00c156ac15a326b398e62bac48e7a68a6ca3010230d08e8385a2be63ad9dec",
+      "signature": "4jUvycqNTTguk7kjTwBPAGfm3qYijphGQpv1biEZTDMNWKXzR63cMPYWuEAcKvctYYkxxHD6HoeAr5GQYp7vKGDU",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "7EPk5q4EN4PL8F1j26SbueqiFekrMva54xbFVms7pump",
+        "DCkpVjmqScBF3A8zoT75cCbgpUPHF4Y2xCL9xDcTpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/4k1uWtR8pZwG1DUAWafbjzoJpai1aytHpFMkZcQLEWNwpD4dQUv64vfjbQSXE88emEbABXRxRb9kjaEQpUxC1Shd.json",
+      "raw_sha256": "68d1def73282b8d4bc58ec624b9fdaaae5274c1780f763f980297434706a41c0",
+      "signature": "4k1uWtR8pZwG1DUAWafbjzoJpai1aytHpFMkZcQLEWNwpD4dQUv64vfjbQSXE88emEbABXRxRb9kjaEQpUxC1Shd",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "4Hh9xsTTmC2hiYFo7BfL3Lc8cfMe8fGUq4iRdnZipump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/4vbTNkucnyGehVuK668Pz9Jbw7aYJTYn6qoz66QGSmZMWC3CPrnSTuo6WbitSj9RPZTwGZYCAT5QnZFd1eX9wD7A.json",
+      "raw_sha256": "9bb02d43a47bfed7425a3737b95488cc73de7682e91476b9dddb951262ec13b0",
+      "signature": "4vbTNkucnyGehVuK668Pz9Jbw7aYJTYn6qoz66QGSmZMWC3CPrnSTuo6WbitSj9RPZTwGZYCAT5QnZFd1eX9wD7A",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "3zT72nudq9NLBPoLF7XMHxDC9dntVKGAMHiTCbWTpump",
+        "92AMV2rW95NMaoGeS5WTB7TYRsDgNk3Yc1rdRebDpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/51ULTTKGVfaBHHknDUHmjv8u8k5MUFiHUe4kC4tTBUjaJpgHGZv4fQbof79uktC9DPrTYYSgh4KrtTSKsGaPqPjp.json",
+      "raw_sha256": "5b8ef5c23f335bacae2e3408a4802d7a41ab255d286f09e659c0c6232b2a4175",
+      "signature": "51ULTTKGVfaBHHknDUHmjv8u8k5MUFiHUe4kC4tTBUjaJpgHGZv4fQbof79uktC9DPrTYYSgh4KrtTSKsGaPqPjp",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "4Br5uAvyWD6s84FQtB5SS39xxGVuDQhSeHs5oArypump",
+        "7DEPL1SmGtGd8V9sV1VG9LBvjYiMJJm9wRY88f3Wpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/55RvciKgCLKATXrfYthUvpgwDefgYoizjQv7yTgkb6gNXLhEUjEY2pQP1mStP3BzsbUsroZAmstbKLggwGXafcf2.json",
+      "raw_sha256": "6ccbab41491b967fda03bb9bf3f0f51f1e7577220e75dda8831ae8a304413036",
+      "signature": "55RvciKgCLKATXrfYthUvpgwDefgYoizjQv7yTgkb6gNXLhEUjEY2pQP1mStP3BzsbUsroZAmstbKLggwGXafcf2",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "2LVeMoPyJiYKtGhNZPouwCSFYT8Z47d8885V4aadpump",
+        "7d99GPVVbin3wVzRbJWQ6rHRTvZ2tmEsnYFyunzBpump",
+        "ArPCQxF4TWzbhJJZpNxAgXUvM52t4rWpgUTTPw4vpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/56TPEyrx3nso4V73v8ijopcgATaLWXZmzLdvVU9jLvmVbs6Jj2CQcSRmhNd7bk1RtezC7nPkwDQ1UzvYW1EebRFv.json",
+      "raw_sha256": "23a0ce8e46027ff69051955a6a0e634d766bd3ac8cf7a71f6776121df54757ed",
+      "signature": "56TPEyrx3nso4V73v8ijopcgATaLWXZmzLdvVU9jLvmVbs6Jj2CQcSRmhNd7bk1RtezC7nPkwDQ1UzvYW1EebRFv",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "3U1ipqFamzZnwjqWAkpnZ8BbTBLgwf1Ncf7RyzDYpump",
+        "5ki1MDAUMAvQUyNshmfsE3gMdwGi7VT2L3tNh3YDpump",
+        "En9sQtnHpByLEE7ykhFQ25PirV54rYegEJCjBV87pump",
+        "J7FpJHX682txbKcGHXLGZVn8kGChCTS5Yo6Soptnpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/5DexmiX7ur5h13tnSF7sgeFPswbu8ajUkzFYBGLGkEo4qNLu7sHdrE93uCGjYGqgrthb9ioMALyofdjkrpADyg1j.json",
+      "raw_sha256": "a0b3fbc59f3e0ada49086e777463e143a80bcfca5fd18051c5e367c735e20ed1",
+      "signature": "5DexmiX7ur5h13tnSF7sgeFPswbu8ajUkzFYBGLGkEo4qNLu7sHdrE93uCGjYGqgrthb9ioMALyofdjkrpADyg1j",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "6Bw6Y9F9adxsKBfNZ2aMaddVxmQ9tK6HDJBdCNe2pump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/5Fp3Da9zVxyrvSY2ae1aYbXUwmmSA4pUFL8YsDm3U2TRos4butQbFTBw9HDA7fUEYsS4g37KWQpjtRVycF4r7egQ.json",
+      "raw_sha256": "f7db954dc00e67d9bcb73dbca974ce9eff4b032c4798cce76f1d049ba4eefff2",
+      "signature": "5Fp3Da9zVxyrvSY2ae1aYbXUwmmSA4pUFL8YsDm3U2TRos4butQbFTBw9HDA7fUEYsS4g37KWQpjtRVycF4r7egQ",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "DYC73EsP12U583M626SGRGEJ6hT539MSuqGt83nWpump",
+        "DuJcUZ22wBLPBVUH5M5T8QrPfeir7A9sUbzwnK8Gpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/5Y2V2X4wMkuPFPr6ezWpKgHbSzhnSPp8txpNEZrtZBiHJ2NWyzAVxpj64jkKUySvn6GKjgMcqjjcQRqXjSrBYzS8.json",
+      "raw_sha256": "c4b9838008f1a75df58c1e6f36d8904e359e57d47bfe90b65d94cbe717a259e6",
+      "signature": "5Y2V2X4wMkuPFPr6ezWpKgHbSzhnSPp8txpNEZrtZBiHJ2NWyzAVxpj64jkKUySvn6GKjgMcqjjcQRqXjSrBYzS8",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "D9Y1iWrqMBtbRyZYSCh2h67ZTncu4EUQzFsY2XL8pump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/5k5puzRHDdBqheYNmqN6dj4sE8CextTRNfvRtPbD4U39J18XbjcEMFdKQYNZ1HZx4QvYmvhQDoKjogCgX7ut5wfC.json",
+      "raw_sha256": "cd50023cb947be9343e91f2300cf3d783cbbd126c7d08a47cda57d5f7999a4ce",
+      "signature": "5k5puzRHDdBqheYNmqN6dj4sE8CextTRNfvRtPbD4U39J18XbjcEMFdKQYNZ1HZx4QvYmvhQDoKjogCgX7ut5wfC",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "B69fvpeHS4CU3QTSMVRjedhAYtckYrF69xYV2H2zpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/63cc2jpdxHCxUJKGVP2CXrQGzEjbLSr2BMUmHHsfVN4wZUSu8bh2Bk635YJBi1bFLaZ29oXg96nBgz5Yc7CJ4y4J.json",
+      "raw_sha256": "92c4f3dbf912810aa4e2b5e35a97e25a737cce1a3b5230f83a0f4b2279f07b6b",
+      "signature": "63cc2jpdxHCxUJKGVP2CXrQGzEjbLSr2BMUmHHsfVN4wZUSu8bh2Bk635YJBi1bFLaZ29oXg96nBgz5Yc7CJ4y4J",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "6X7EhvCPpQcfwfAeQF4drS2x9UnHD8N8BK5QnTtzpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/6PpHZXCYPb4Zx6LZfuy4vpH1t3ZE5834PtDWhevoaSezGeVBiA6YFVUHHicbsNu2kPYtkSiWxPntJ5Hx8GhUEq2.json",
+      "raw_sha256": "216e462b04f479e4bc347b95b20d614a2d8f9646ae59260b8ee9707c960246b6",
+      "signature": "6PpHZXCYPb4Zx6LZfuy4vpH1t3ZE5834PtDWhevoaSezGeVBiA6YFVUHHicbsNu2kPYtkSiWxPntJ5Hx8GhUEq2",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "2cmZ8FierNbYXGTdZSimbd7rWSRmU93nrL32tNCgpump",
+        "Cea1ARnQfq2L2LxKwhCQ1hVdfTvKYnHfnYLxQVe3pump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/7Fa1U5iws9uj4uxb8byEHcFcqZWgccEkAGjEBTq35aTMtyt8TCSKxaKhHSY326ZUrtniuQ85qqUwRkk2sZwjHpy.json",
+      "raw_sha256": "0efcbea0b84aec4eb83045d5f20b9dabedc953c966a56162422ed1eecff314ca",
+      "signature": "7Fa1U5iws9uj4uxb8byEHcFcqZWgccEkAGjEBTq35aTMtyt8TCSKxaKhHSY326ZUrtniuQ85qqUwRkk2sZwjHpy",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "GNYZqt9h2ZW7Y9JDtrfQC397ujTAv8ULgtTqXhhgpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/9E3C4LrUEM4NEG1Ghy6TxZUF8kHLsFdh4Ez5KjTsBDbN2HnH9zrKGbWaM8xckF8XuP5aMewMfCp8tF7NAewusoo.json",
+      "raw_sha256": "4100f805234a6d702c29761f4e964f5486257f5df3dc35c2e61a479904134e9f",
+      "signature": "9E3C4LrUEM4NEG1Ghy6TxZUF8kHLsFdh4Ez5KjTsBDbN2HnH9zrKGbWaM8xckF8XuP5aMewMfCp8tF7NAewusoo",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "B5Qt34UghoLQAkVWEYqTkcV8tjH24HefqRGtM9hSpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/Aqon7N4Sf5waLgNDST7NzQkZBtWzHtRam4QeqzoQhxXjxHYeZapgLqJ3MGmpQzsi4N4LgSwLtw2F3EzhwkBsk1g.json",
+      "raw_sha256": "144b7e94cffa2218c6a7b153b76456ebc89e2f8963f0e2acd5a6e9c671282067",
+      "signature": "Aqon7N4Sf5waLgNDST7NzQkZBtWzHtRam4QeqzoQhxXjxHYeZapgLqJ3MGmpQzsi4N4LgSwLtw2F3EzhwkBsk1g",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "CadTuDtqkiQo9NV36tRGjsfCL5ZRLzWPNDrYtH15pump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/G4woRUgku5HRhV4apSpWQY375SdXywT3yVAArjkEEfm4opcB8qmhDtVvHGvo7uC84ha3euQXsk4qGKkWy3WvDa3.json",
+      "raw_sha256": "42955d3f91f86d081cc24b3abfa82aa09d72332122e5711d396fc8a92c82a66e",
+      "signature": "G4woRUgku5HRhV4apSpWQY375SdXywT3yVAArjkEEfm4opcB8qmhDtVvHGvo7uC84ha3euQXsk4qGKkWy3WvDa3",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "BcDPqKckJc2gHQbfWRQDxyU9vznvftLpPfqgoZVxpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/KYf9NoBfJm6LBfKXPVYxoLq3tpDtmnTeQup4N8DA9BCQhVyrp5QmmzwNSFiBuyE6FSwonqt6dB88xfXVe1J8QsK.json",
+      "raw_sha256": "d22caca9904928927f75e233e7098afabedae0165c49c723c75ef627e7cc616a",
+      "signature": "KYf9NoBfJm6LBfKXPVYxoLq3tpDtmnTeQup4N8DA9BCQhVyrp5QmmzwNSFiBuyE6FSwonqt6dB88xfXVe1J8QsK",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "B1CUo3hXFA5hgTGd1pgbyvpjtWjjRbwMdc8BmdKgpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/Q8DNVQWqq1W5uvza8sNEiuo76CEVmoXmXzgCUR57Yn4G1DW2oWskvpooe9VeUFeUZwQD3U4sdukR38tAy2rLiK3.json",
+      "raw_sha256": "76e1bcf8d2d390882e459b1f58b09314ed56b7eeb28cc55695e7de1ef3041356",
+      "signature": "Q8DNVQWqq1W5uvza8sNEiuo76CEVmoXmXzgCUR57Yn4G1DW2oWskvpooe9VeUFeUZwQD3U4sdukR38tAy2rLiK3",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "5S4uXbg7zuC2D73RYq1Pa28cfTePVjck68TP2YFEpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/g5zkkWuK72j8k6FHskNeTr1dZfcbMqy5nYW5SCLL9fkaWD6G5h6M2QNywMtx97i1kqrQxiA9E5wFz8i7FyRbfQh.json",
+      "raw_sha256": "1a601878a684e2e88d1be3af60165eec5c9330b1a6ae50547c715f47b8731dec",
+      "signature": "g5zkkWuK72j8k6FHskNeTr1dZfcbMqy5nYW5SCLL9fkaWD6G5h6M2QNywMtx97i1kqrQxiA9E5wFz8i7FyRbfQh",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "8v7Ro7WX3eMJC27HdSEUeAnDFLdHp2EUpWGc8ukWpump",
+        "HnftgdJEXnLNoVUnstqjxGeNwgnAjT1TJoa2hTenpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/jcLSoVKFpfvcKzvGnEJVF9pnx3sEkFxSc9kpux2oicB52STZzvAu4MXU3cQQn3pEAXDpw77UPZTZJuruqT9QoKb.json",
+      "raw_sha256": "6cb5d1901ac00830755ab5520a0233b593e20c562b3c1b650536c0f5692a82dc",
+      "signature": "jcLSoVKFpfvcKzvGnEJVF9pnx3sEkFxSc9kpux2oicB52STZzvAu4MXU3cQQn3pEAXDpw77UPZTZJuruqT9QoKb",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "FcU4YYWZAy4CzKZPBtG12PmJBM1K4uQqv8srabHEpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/jiS4o6QDcLA8F7gTGAkU1A6viyXT39UB8k8FY3c8RRVRvPQk2Wwnj2DixnEcsrfNHnYEghAxtiVnf81BeKRFBsZ.json",
+      "raw_sha256": "da297a5df7357a0c080f96cc5590fd83ae7e5528ea7f542026d276124ca58989",
+      "signature": "jiS4o6QDcLA8F7gTGAkU1A6viyXT39UB8k8FY3c8RRVRvPQk2Wwnj2DixnEcsrfNHnYEghAxtiVnf81BeKRFBsZ",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "68nM7H8ntVSv6rBQJgb15Bm7PSoyTrW3zpdAqFPRpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/qLJozeNMUEgJKUNaK5XrJX2hPqrdgHNf2oHSW3kX3wzPZGnk6A84SDQM157A2ELyadromKusg8krKdcrfZqxbWT.json",
+      "raw_sha256": "1233f4c045f92b69746990ff330300de25e1179606ca2a43ce948bf83701e40d",
+      "signature": "qLJozeNMUEgJKUNaK5XrJX2hPqrdgHNf2oHSW3kX3wzPZGnk6A84SDQM157A2ELyadromKusg8krKdcrfZqxbWT",
+      "status": "SUCCESS"
+    },
+    {
+      "mint_cases": [
+        "5oSNoyG6ne5ms6CP1evU4ZA8kmijP5ftXB2UqrFcpump"
+      ],
+      "raw_path": "docs/audits/byzantine_96_exact_signature_rpc/raw/yYpNRBkB3iAH9GWR3SDXwjKw9LVZH8amspPRbAGiNRKhQBN8cVVZSkwwEN1pXsdtziUn3tzUjUWT58wiu78rWMQ.json",
+      "raw_sha256": "906a1dd9add42073abefc0e77a344085acf5c38b739f18f77e3f4eee0385d077",
+      "signature": "yYpNRBkB3iAH9GWR3SDXwjKw9LVZH8amspPRbAGiNRKhQBN8cVVZSkwwEN1pXsdtziUn3tzUjUWT58wiu78rWMQ",
+      "status": "SUCCESS"
+    }
+  ],
+  "run_id": "byzantine-96-exact-signature-v1",
+  "target_mint_cases": 96,
+  "unique_signatures": 54
+}

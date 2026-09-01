@@ -1,0 +1,8 @@
+{
+  "eligible_inflow_per_day": 8421,
+  "proposed_capacity_per_day": 10000,
+  "headroom_per_day": 1579,
+  "backlog_direction_if_safely_activated": "DECREASING_OR_STABLE",
+  "observation_state": "No scheduled observation is available because activation is safely held.",
+  "automation_active": false
+}

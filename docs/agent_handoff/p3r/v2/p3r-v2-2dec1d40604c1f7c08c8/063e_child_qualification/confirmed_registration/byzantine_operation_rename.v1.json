@@ -1,0 +1,28 @@
+{
+  "benchmark_json": {
+    "historical_positive": 32,
+    "legacy_five_step_rejected": 9,
+    "same_amount_non_four_step_rejected": 14
+  },
+  "child_id": "P3R_063E_BYZC_CURRENT",
+  "contract_json": {
+    "amount_lamports": 9999985000,
+    "atomic_sequence": [
+      "createAccount",
+      "initializeAccount",
+      "syncNative",
+      "closeAccount"
+    ],
+    "hop_depth": 1,
+    "mechanism": "WSOL_WRAP_CLOSE",
+    "selection_status": "SELECTED"
+  },
+  "detector_version": "WSOL_10_SOL_FOUR_STEP_PROVISION_CLOSE.v1",
+  "display_name": "Byzantine",
+  "membership_after": 32,
+  "membership_before": 32,
+  "operator_id": "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334",
+  "renamed_at": 1787776604,
+  "schema_version": "BYZANTINE_OPERATION_RENAME.v1",
+  "technical_legacy_alias": "WSOL_10_SOL_FOUR_STEP_PROVISION_CLOSE"
+}

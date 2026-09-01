@@ -1,0 +1,27 @@
+{
+  "artifact_type": "PUMPFUN_ALCHEMY_HISTORICAL_ACCOUNT_ARCHIVE_PROBE_V2",
+  "provider": "Alchemy Solana Account Archive",
+  "credential_not_recorded": true,
+  "request": {
+    "method": "getAccountInfo",
+    "account": "FJPbTzeUy4pzPT3r7c2fNxccNvvhbC7LJkSqXux8xU1g",
+    "config": {"encoding": "base64", "slot": 443375106}
+  },
+  "response_summary": {
+    "http_status": 200,
+    "historical_context_slot": 443375106,
+    "account_value_present": true,
+    "owner": "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+    "base64_payload_character_length": 204
+  },
+  "historical_slot_semantics_proven": true,
+  "target_slot_account_state_acquired": true,
+  "raw_account_payload_retained": false,
+  "reason_raw_payload_not_retained": "This entitlement-verification probe reported only safe response metadata; a separately authorized evidence-acquisition/decode run should make the retained raw snapshot and bind it to the target-era schema.",
+  "network_accounting": {
+    "alchemy_getAccountInfo": 1,
+    "solana_getTransaction": 0,
+    "other_provider_calls": 0
+  },
+  "safety": "No fallback current-state read, production/source/Walkback/schema/UI/code/classifier/suppression mutation, or credential retention."
+}

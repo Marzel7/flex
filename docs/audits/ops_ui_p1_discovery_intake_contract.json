@@ -96,9 +96,10 @@
   },
 
   "role_taxonomy": {
-    "states": ["PROVISIONING_NETWORK_CANDIDATE", "OPERATION_IDENTITY_UNRESOLVED", "OPERATION_CANDIDATE", "CONFIRMED_OPERATION"],
+    "states": ["FUNDING_STRUCTURE", "PRIVATE_PROVISIONER", "PROVISIONING_NETWORK", "TREASURY_CANDIDATE", "SUB_PROVISIONER", "STRUCTURED_FUNDING_HUB", "CEX_INFRASTRUCTURE", "SERVICE_INFRA_REVIEW", "ROLE_UNRESOLVED", "OPERATION_CANDIDATE", "CONFIRMED_OPERATION"],
     "not_forced_binary": true,
-    "note": "A provisioner (funding-only role) is deliberately kept distinct from an operation candidate (independently-established coherent identity behind one or more launches). Dv34 sits at PROVISIONING_NETWORK_CANDIDATE, not OPERATION_CANDIDATE, because no independent operation-identity evidence (beyond shared funding lineage) has been established -- see Phase H in the read-model artifact."
+    "hierarchy": ["FUNDING_STRUCTURE", "ENTITY_ROLE", "OPERATION_CANDIDATE", "CONFIRMED_OPERATION"],
+    "note": "FUNDING_STRUCTURE is the neutral base classification for a recurring funding relationship. It does not establish common operation identity or any specific entity role. An entity role may later be independently established; OPERATION_CANDIDATE requires multiple independent operational signals; CONFIRMED_OPERATION retains the existing human-review authority gate."
   },
 
   "intake_funnel_summary": {

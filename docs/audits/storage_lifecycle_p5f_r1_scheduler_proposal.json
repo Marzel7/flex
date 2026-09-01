@@ -1,0 +1,10 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5F-R1 scheduler proposal",
+  "state": "NOT_READY_NOT_INSTALLED",
+  "provisional_capacity_target": "20 independent invocations/day x 500 rows = 10000 rows/day",
+  "measured_flow": "8421 rows/day",
+  "headroom": "1579 rows/day",
+  "blocking_condition": "Multi-run production qualification is incomplete because the first harness-executed run did not emit its mandatory result artifact.",
+  "automation_active": false,
+  "exact_next_action": "Do not install any cron entry. Requalify through a durable execution/audit channel, then produce exact non-overlapping cron times and command."
+}

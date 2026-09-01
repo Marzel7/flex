@@ -1,0 +1,10 @@
+{
+  "schema_version":"potential_operations_creator_adjusted_attention_ui.v1",
+  "verdict":"POTENTIAL_OPERATIONS_CREATOR_ADJUSTED_ATTENTION_UI_COMPLETE",
+  "prerequisite":{"path":"docs/audits/potential_operations_multi_token_creator_analysis.v1.json","sha256":"a69fda1364cb9a035ab7d4f90a7d179fd9a65015637453bbecfc6117090610a5"},
+  "implementation":{"attention_model":"creator quality group then existing recency/evidence comparator","current_activity":"qualified retained-timestamp original_activity; historical snapshot retained only as provenance","labels":{"ROBUST_TO_MULTI_CREATOR_FILTER":"CREATOR DIVERSE","PARTIALLY_CREATOR_DRIVEN":"PARTIAL CREATOR DEPENDENCE","HEAVILY_CREATOR_DRIVEN":"HEAVILY CREATOR-DRIVEN","CREATOR_DOMINATED":"CREATOR DOMINATED","INSUFFICIENT_DATA":"CREATOR DATA LIMITED"},"colors":{"robust":"green","partial":"amber","heavy":"orange","dominated":"red","limited":"dim"}},
+  "render":{"http_status":200,"wsol_creator_fields":"CREATOR DIVERSE; 71 creators / 71 members","eight_hop_creator_fields":"CREATOR DIVERSE; 27 creators / 27 members","focused_tests":"9 passed"},
+  "living_pre_post":{"assessment_versions":5,"currents":2,"associations":183,"bindings":183,"wsol_current":"504d3159-0b55-536e-bf01-7a80e62e5255","eight_hop_current":"e629a92d-80d5-5e26-9977-0917faca63be","unchanged":true},
+  "safety":{"page_writes":0,"source_table_writes":0,"living_publications":0,"living_recomputes_during_render":0,"real_db_writes_by_ui_task":0,"generic_dispatch_behavior_changed":false,"dispatch_enabled":true},
+  "files_changed":["src/ops/potential_operations.py","src/ops/operator_routes.py","templates/potential_operations.html","static/css/intel-platform.css","tests/test_potential_operations_visual_structure.py","tests/test_potential_creator_exposure.py","docs/audits/potential_operations_creator_adjusted_attention_ui.v1.json"]
+}

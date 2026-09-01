@@ -1,0 +1,20 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5F-R1-E1 Run 1 post-hoc evidence recovery",
+  "delta": "database/_p5a_migration_build/cold_segments/transfer_index_cold_2026_05_delta_a0d42401fc96.sqlite",
+  "segment_id": "transfer_index_cold_2026_05_delta_a0d42401fc96",
+  "source_run_id": "p5f-r1-20260821-qual-1",
+  "row_count": 500,
+  "unique_composite_identities": 500,
+  "manifest_digest": "1d34d05e2b93afee6932d21fb10f328bfe1743dd71c400cabdd9ddfde3c444dc",
+  "actual_digest": "1d34d05e2b93afee6932d21fb10f328bfe1743dd71c400cabdd9ddfde3c444dc",
+  "closed": true,
+  "quick_check": "ok",
+  "source_truth_recovered": "500/500 from rollback snapshot",
+  "hot_absence": "500/500",
+  "logical_parity": "PASS -- missing=0 extra=0 conflicts=0",
+  "production_cold_read": "PASS",
+  "watchtower": "PASS -- bounded read; no rollover write path",
+  "three_sw2": "PASS -- bounded read; no rollover write path",
+  "timing_evidence": "UNAVAILABLE -- no original final result artifact",
+  "decision": "RUN1_FUNCTIONAL_PASS_TIMING_EVIDENCE_UNAVAILABLE"
+}

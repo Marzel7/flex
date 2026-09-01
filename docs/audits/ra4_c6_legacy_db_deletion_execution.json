@@ -1,0 +1,96 @@
+{
+  "schema_version": "ra4.c6.legacy-db-deletion-execution.v1",
+  "artifact_type": "RA4_C6_LEGACY_DB_DELETION_EXECUTION",
+  "milestone": "RA4-C6",
+  "generated_utc": "2026-08-18T21:55:00Z",
+  "purpose": "Record of the explicit-GO-authorized deletion of the legacy retained_acquisition.db, closing the RA4 storage-retirement problem.",
+  "authorization": "Explicit human GO received, conditioned on an immediate just-in-time revalidation of 12 named invariants and inspection (not blind deletion) of WAL/SHM sidecars before removal.",
+
+  "pre_deletion_revalidation": {
+    "legacy_path_matches": true,
+    "legacy_size_bytes": 66155503616,
+    "legacy_size_matches_expected": true,
+    "legacy_mtime_epoch": 1787077699,
+    "legacy_inode": 487625267,
+    "identity_matches_all_prior_checkpoints": true,
+    "active_writers": 0,
+    "active_readers": 0,
+    "sidecar_inspection": {
+      "wal_bytes": 0,
+      "wal_note": "empty -- nothing to replay, safe to remove",
+      "shm_bytes": 32768,
+      "shm_note": "standard fixed-size SQLite shared-memory index header, consistent with zero active connections -- safe to remove"
+    },
+    "compact_db_exists": true,
+    "compact_db_sha256": "60a323261910b4c1847e3289c473bbc9eaf957a456332aba0962484683063bec",
+    "compact_db_sha256_matches_expected": true,
+    "compact_counts_recheck": {"observations": 1938017, "distinct_mints": 6311, "match_expected": true},
+    "v2_writer_healthy": true,
+    "v2_writer_pid": 33383,
+    "legacy_writer_flag": "OFF",
+    "b2n_digests_unchanged": true,
+    "disk_free_gib_before": 12,
+    "all_12_invariants_passed": true
+  },
+
+  "deletion_action": {
+    "method": "individual rm -- <exact_path> for each of 3 files (main DB, -wal, -shm) -- no wildcard, no recursive flag, no glob",
+    "files_removed": [
+      "database/evidence_platform/production/retained_acquisition.db",
+      "database/evidence_platform/production/retained_acquisition.db-wal",
+      "database/evidence_platform/production/retained_acquisition.db-shm"
+    ],
+    "exit_code": 0,
+    "no_vacuum_performed": "correct -- whole file removed, VACUUM inapplicable"
+  },
+
+  "post_deletion_verification": {
+    "legacy_db_absent": true,
+    "legacy_wal_absent": true,
+    "legacy_shm_absent": true,
+    "legacy_path_not_recreated_on_recheck": true,
+    "compact_db_intact": true,
+    "compact_db_sha256_post": "60a323261910b4c1847e3289c473bbc9eaf957a456332aba0962484683063bec",
+    "compact_db_sha256_unchanged": true,
+    "compact_row_count_post": 1938017,
+    "v2_still_writing": true,
+    "v2_pid_unchanged": 33383,
+    "v2_row_count_post": 72513,
+    "v2_max_retained_at_post": 1787086033,
+    "b2n_attempt_ledger_sha256_post": "06ea55a8b21a30aec7b81f23737f921b1dcdf5bbe88266671600a25785fe9e0f",
+    "b2n_event_ledger_sha256_post": "f427610ccdae99b033d006fc0423170bcb6780a461c85c13d329c5fda8615071",
+    "b2n_live_result_sha256_post": "675e0bf23c99b70e24db24ef27bf0738f47b0fe69d6200543031ece62fa18767",
+    "b2n_digests_all_unchanged": true,
+    "b2n_state_unchanged": {"run_id": "b2n-p3e-98695fbdf44146c93ff08c8c", "completed": 1, "remaining": 19}
+  },
+
+  "disk_reclaim": {
+    "avail_kb_before": 12367576,
+    "avail_kb_after": 77229556,
+    "reclaimed_kb": 64861980,
+    "reclaimed_gib": 61.86,
+    "free_gib_after": 74,
+    "note": "reclaim (61.86 GiB) closely matches the legacy file's own size (61.61 GiB) plus small WAL/SHM sidecars -- clean, complete reclaim with no unexpected residual"
+  },
+
+  "authority_posture": {
+    "legacy_db_deleted": true,
+    "deletion_explicitly_human_authorized": true,
+    "legacy_db_vacuumed": false,
+    "wildcard_or_recursive_delete_used": false,
+    "b2n_resumed": false,
+    "b2n_ledgers_modified": false,
+    "helius_calls_made_by_agent": 0,
+    "b2z_executed": false,
+    "watchtower_mutated": false,
+    "existing_operations_mutated": false,
+    "h_series_evidence_altered": false,
+    "production_routing_changed": false,
+    "unrelated_services_restarted": false,
+    "trading_policy_state_changed": false,
+    "handoff_transport_repaired": false
+  },
+
+  "verdict": "RA4_LEGACY_DB_DELETION_COMPLETE",
+  "verdict_note": "The legacy retained_acquisition.db (61.61 GiB) has been deleted following explicit human GO authorization and a full 12-point just-in-time revalidation. All post-deletion verifications pass: legacy absent and not recreated, compact retirement index intact and byte-identical (1,938,017 observations preserved), V2 production writer continues operating normally under the same process (no restart), B2N remains untouched at exactly 1/20 with all three artifact digests unchanged, and disk shows a clean ~61.86 GiB reclaim. This closes the RA4 storage-retirement problem (RA4-C3 through RA4-C6). B2N may now resume at ordinal 2 of 20 under a separate, explicitly authorized continuation."
+}

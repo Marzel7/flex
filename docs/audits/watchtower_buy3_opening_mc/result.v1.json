@@ -1,0 +1,53 @@
+{
+  "schema_version": "watchtower-opening-mc-result.v1",
+  "test_mint": "BuY3MHzaDEd2ipwub6uAhddH8Ah95oHoZfNDVkVVpump",
+  "operation": "WATCHTOWER",
+  "creator": "ErakdZBCte7528cWXCeQddxu8ehHsk2Snp6A2Qkb6dmm",
+  "retained_creation_signature": "2m5b23jPBJv47FwSBRS8aTbHKpLH76iGtZWv5kRzM5fN6Qb3FtUneuLdJ94S51hjud1yX3Ggx24T6vpVb7tpJZxZ",
+  "creation_signature_provenance": "token_analysis.create_tx_signature; normalized PumpPortal/WebSocket pumpfun birth record",
+  "local_birth_time": "2026-09-01T15:05:05Z",
+  "creation_slot": 443452972,
+  "creation_block_time": 1788275105,
+  "creation_tx_class": "CREATION_WITH_BUY",
+  "bonding_curve": "776PqgJmvBpVUmcEpqyztGsxBjCubbkwfNinwDjtVwUX",
+  "associated_bonding_curve": "3VAxJ8vMVU41uRnR1Y1dvZMgo7Sd6bBg2PWgCuRUUDF3",
+  "first_genuine_buy": {
+    "proven": true,
+    "signature": "2m5b23jPBJv47FwSBRS8aTbHKpLH76iGtZWv5kRzM5fN6Qb3FtUneuLdJ94S51hjud1yX3Ggx24T6vpVb7tpJZxZ",
+    "slot": 443452972,
+    "block_time": 1788275105,
+    "seconds_after_creation": 0,
+    "buyer": "ErakdZBCte7528cWXCeQddxu8ehHsk2Snp6A2Qkb6dmm",
+    "is_creator": true,
+    "is_independent_market_buy": false,
+    "gross_sol_in_lamports": 2000000000,
+    "curve_sol_in_lamports": 1975308640,
+    "token_out_raw": 66285714223523,
+    "token_out_ui": 66285714.223523,
+    "model_token_out_raw": 66285714223523,
+    "math_match": true
+  },
+  "first_slot": {
+    "successful_buy_total": 5,
+    "successful_sell_total": 0,
+    "failed_buy_total": 0,
+    "failed_sell_total": 0,
+    "state_continuity_qualified": true,
+    "math_qualified": true,
+    "pumpfun_mc_sol": {"after_buy_1":31.76204916505928,"after_first_3_buys":99.75492732118302,"peak":410.8801681207574,"end":410.8801681207574,"peak_action_number":5}
+  },
+  "historical_sol_usd": {
+    "available": true,
+    "price": 101.44,
+    "timestamp": 1788275210,
+    "offset_seconds": 105,
+    "temporal_quality": "WITHIN_5_MINUTES",
+    "retained_source": "token_price_snapshots:dexscreener; implied from price_usd / price_sol"
+  },
+  "market_cap_usd": {"after_buy_1":3221.94,"peak":41679.68,"end":41679.68,"first_action_reaching_10k":3,"first_action_reaching_15k":4,"first_action_reaching_20k":4,"first_action_reaching_30k":5},
+  "archive": {"request_success":true,"context_slot":443452972,"account_owner":"6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P","account_data_length":151,"raw_digest":"49812911ef652646a9b98529d3455099b5d84944c75ba8e71c6c537315f48f1c","prebuy_state_from_archive":false,"reason":"The valid archive response is end-of-slot, after the embedded creation buy and all four later opening-slot buys."},
+  "gmgn": {"token_info_available":false,"reason":"No retained GMGN record was found and no GMGN request was made under this bounded on-chain reconstruction."},
+  "causal_conclusion": "The creator's first buy alone moved Pump.fun MC to 31.762049 SOL (~$3.22k at the retained +105s SOL/USD observation). The immediate high opening MC was caused by a five-buy burst in the creation slot: action 3 crossed ~$10k, action 4 crossed ~$20k, and action 5 completed the curve at 410.880168 SOL (~$41.68k).",
+  "request_accounting": {"helius_get_transaction":1,"helius_get_block":3,"alchemy_archive_request":2,"gmgn_api_request":0,"non_get_transaction_rpc":3},
+  "safety": {"source_or_production_rows_modified":false,"normal_walkback_tables_modified":false,"schema_modified":false,"ui_modified":false,"code_modified":false,"suppression_occurred":false}
+}

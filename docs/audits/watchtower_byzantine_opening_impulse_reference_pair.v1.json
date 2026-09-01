@@ -1,0 +1,46 @@
+{
+  "schema_version": "watchtower-byzantine-opening-impulse-reference-pair.v1",
+  "scope": "read-only retained-local qualified reference-pair comparison; not an operation-wide prevalence estimate",
+  "samples": [
+    {
+      "mint": "BuY3MHzaDEd2ipwub6uAhddH8Ah95oHoZfNDVkVVpump",
+      "operation": "WATCHTOWER",
+      "creation_slot": 443452972,
+      "creation_time": 1788275105,
+      "migration_time": 1788275105,
+      "creation_tx_class": "CREATION_WITH_BUY",
+      "actions": {"successful_buys":5,"successful_sells":0,"failed_buys":0,"first_slot_buyers":5,"creator_buy_present":true,"creator_buy_gross_sol":2,"buy_sol_total":85.005359057},
+      "window_metrics": {"buy_count_slot_0":5,"buy_count_slot_1":0,"buy_count_first_2_slots":5,"buy_count_first_5_slots":5,"buy_count_first_10_slots":5,"buy_count_first_1s":5,"buy_count_first_2s":5,"buy_count_first_5s":5,"buy_count_first_10s":5,"sol_in_slot_0":85.005359057,"sol_in_first_5s":85.005359057,"distinct_buyers_first_5s":5},
+      "market_cap": {"first_buy_sol":31.76204916505928,"first_slot_sol":410.8801681207574,"migration_sol":410.8801681207574,"pct_migration_after_first_buy":7.7302,"pct_migration_after_first_slot":100,"slots_to_25pct":0,"slots_to_50pct":0,"slots_to_75pct":0,"slots_to_90pct":0,"slots_to_100pct":0},
+      "impulse_end": {"slot":443452972,"time":1788275105,"reason":"migration/completion in creation slot; no post-burst gap is needed to delimit the Pump.fun phase"},
+      "gmgn": {"first_coverage_time":1788275130,"delay_seconds":25,"first_30s_candle_fixed_1b_range_usd":[112506.93,137176.17],"relationship":"post-migration PumpSwap AMM; separate from curve impulse"}
+    },
+    {
+      "mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+      "operation": "BYZANTINE",
+      "creation_slot": 443375106,
+      "creation_time": 1788250333,
+      "migration_time": null,
+      "creation_tx_class": "CREATION_ONLY",
+      "actions": {"successful_buys":7,"successful_sells":1,"failed_buys":3,"first_slot_buyers":7,"creator_buy_present":false,"creator_buy_gross_sol":0,"buy_sol_total":1.309602285},
+      "window_metrics": {"buy_count_slot_0":0,"buy_count_slot_1":7,"buy_count_first_2_slots":7,"buy_count_first_5_slots":7,"buy_count_first_10_slots":7,"buy_count_first_1s":7,"buy_count_first_2s":7,"buy_count_first_5s":7,"buy_count_first_10s":7,"sol_in_slot_0":0,"sol_in_slot_1":1.309602285,"sol_in_first_5s":1.309602285,"distinct_buyers_first_5s":7},
+      "market_cap": {"first_buy_sol":157.774174034,"first_slot_peak_sol":162.171622209,"first_slot_end_sol":161.005185916,"migration_sol":null,"percent_of_migration":null,"reason":"no retained migration/completion anchor in this bounded reference stream"},
+      "impulse_end": {"slot":443375107,"time":1788250333,"reason":"all retained opening actions are in the first trading slot; block-time precision cannot distinguish intra-slot gaps"},
+      "gmgn": {"first_coverage_time":null,"delay_seconds":null,"relationship":"not evaluated; no retained bounded GMGN coverage used"}
+    }
+  ],
+  "comparison": {
+    "measured_reference_pair_finding":"Both reference launches concentrate their qualified Pump.fun impulse in one trading slot, but their structures differ sharply. WATCHTOWER embeds a creator seed buy and reaches migration with 85.005359057 SOL across five buyers. The Byzantine reference is creation-only, begins one slot later with seven independent buyers, receives 1.309602285 SOL, includes an intervening sell, and remains on the curve at first-slot end.",
+    "watchtower_more_multi_slot_than_byzantine":false,
+    "watchtower_more_buyer_fanout_than_byzantine":false,
+    "byzantine_more_single_slot_concentrated":false,
+    "opening_impulse_shapes_materially_differ":true,
+    "why":"The distinction is creator-seeded immediate completion versus independent next-slot curve burst, not multi-slot versus single-slot. N=1 per operation cannot establish prevalence.",
+    "recommended_watchtower_metrics":["creator_seed_buy","first-slot buys","first 5s buys","buyer fan-out","curve-completion MC","post-migration AMM MC separately"],
+    "recommended_byzantine_metrics":["first independent buy","first-trading-slot buy/sell stream","first-slot curve MC","buyer fan-out","short-session provisioning intensity","impulse-end curve MC"],
+    "recommended_cross_operation_metric":"opening_impulse_curve_mc",
+    "recommended_cross_operation_definition":"Pump.fun curve-implied MC at the earliest defensible impulse endpoint: migration/completion when it occurs inside the burst, otherwise the last successful action before a qualified time/slot gap. Preserve first-buy MC, first-slot MC and migration MC separately."
+  },
+  "sources": ["docs/audits/watchtower_buy3_opening_mc/first_slot_decoded_stream.v1.json","docs/audits/pumpfun_archived_prebuy_state/audit_result.v1.json","docs/audits/pumpfun_first_slot_complete_replay/first_slot_state_stream.v1.json"],
+  "safety": {"retained_local_only":true,"helius_get_transaction":0,"helius_get_block":0,"alchemy_archive_requests":0,"gmgn_api_requests":0,"source_or_production_rows_modified":false,"normal_walkback_tables_modified":false,"schema_modified":false,"ui_modified":false,"code_modified":false,"suppression_occurred":false}
+}

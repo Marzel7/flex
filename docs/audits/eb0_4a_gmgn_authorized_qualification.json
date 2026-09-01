@@ -1,0 +1,52 @@
+{
+  "audit": "EB0.4A — Authorized GMGN Historical Market Outcome Qualification",
+  "status": "BLOCKED_PROVIDER_RATE_LIMIT",
+  "run_date": "2026-08-11",
+  "authorisation": {
+    "provider": "GMGN",
+    "credential_configured_out_of_band": true,
+    "credential_recorded": false,
+    "production_services_modified": false,
+    "helius_used": false
+  },
+  "request_accounting": {
+    "successful_token_detail_probes": 1,
+    "successful_kline_probes": 1,
+    "sample_kline_attempts_with_invalid_seconds_parameters": 40,
+    "sample_kline_retries_with_milliseconds_parameters": 40,
+    "sample_kline_responses_rate_limited": 40,
+    "sample_request_retry_policy": "No further retry: each sample request has consumed its permitted retry.",
+    "maximum_authorised_requests": 200
+  },
+  "provider_findings": {
+    "structured_historical_ohlcv_available": true,
+    "kline_endpoint": "market kline",
+    "supported_probe_resolution": "1m",
+    "time_parameter_compatibility": "Provider rejected Unix seconds and accepted Unix milliseconds; local client documentation must be corrected before another pilot.",
+    "historical_market_cap_directly_available": false,
+    "historical_liquidity_directly_available": false,
+    "provider_rate_limit": "RATE_LIMIT_BANNED after the bounded concurrent retry batch; no further request was issued."
+  },
+  "successful_probe": {
+    "mint": "8TQAPEgP8jcWPeLTiQhFCFtPYwKhpjRvTngoPAmjpump",
+    "token_creation_timestamp": 1784221231,
+    "token_migration_timestamp": 1784286882,
+    "earliest_returned_one_minute_candle_timestamp": 1785699480,
+    "earliest_candle_after_creation_seconds": 1478249,
+    "earliest_candle_after_creation_days": 17.1094,
+    "interpretation": "This proves the endpoint can return structured OHLCV, but not birth-window or pre-migration coverage for this probe."
+  },
+  "sample": {
+    "frozen_mints": 40,
+    "migrated": 10,
+    "non_migrated": 30,
+    "kline_results_completed": 0,
+    "sampling_qualification": "Coverage-only sample. Local created_at values were not reliable Unix creation timestamps and the sample was not yet stratified by creator-outcome quality; no false-deprioritisation conclusion is permitted."
+  },
+  "conclusions": {
+    "birth_to_peak_outcomes_qualified": false,
+    "poor_creator_opportunity_qualified": false,
+    "attribution_or_production_logic_changed": false,
+    "next_safe_step": "Wait for the provider ban to expire, correct the client time-unit contract, and start a new explicitly approved low-concurrency pilot rather than retrying this exhausted sample."
+  }
+}

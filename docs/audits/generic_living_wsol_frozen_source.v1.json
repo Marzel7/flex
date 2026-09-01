@@ -1,0 +1,3618 @@
+{
+  "association_inputs": [
+    {
+      "evidence_key": "population:alternative-edge",
+      "evidence_type": "ALTERNATIVE_EDGE_SUPPORT",
+      "rationale_json": "{\"count\": 71}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "population:atomic-flow",
+      "evidence_type": "ATOMIC_FLOW_SUPPORT",
+      "rationale_json": "{\"count\": 71}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "population:compatible-unattributed",
+      "evidence_type": "COMPATIBLE_LAUNCH_SET",
+      "rationale_json": "{\"reason\": \"compatible behaviour is not automatic attribution\"}",
+      "state": "EXCLUDED"
+    },
+    {
+      "evidence_key": "funder:2fJCPb27tQhbnX4s3sTJvjzK1deawkREkKjCKS7PjF9g",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:2h2xdvznzmcRi4zNE8A3uwe4Er5e5bf8gTxzXREg9ph5",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:397s3pwPhV1A88Fj2EuNoERFYTCLdN5WiUAPvxUxFVST",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:3thxdSxsHtFuGJroCYe6JmCojPRizUz1GnvQSq5M5JfY",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:49Wo4qJS1CWPd4b8LAezyL4ARPj3fw6N6zPhPV4dQd6V",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:54xTpcBEr48Cuis8m2SdeymdQcwvmDR4aegxCPQzUANG",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:59MGbbjnBsNKNbTXsd4cc83doHgpkJBdotigvZ6WxjLX",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:5PkFFC9FCmm2EUQHMqbF9cwMviSXjgAjeqKEoPoYejuG",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:5TR1KXium6nxovUUXbofK2N1uYPh9NA8w9WpvvKZ3Myi",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:5iDYsDLugMXh1LTRVDmFH8PfQ6ueG5pE9UcfefrnztB6",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:5sUoQPPvnvS6eXem4TdcjKJ1JZy7uLEhWN3pCA8yNFnc",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:6hakQXcUcnk1EuuGMHsDPw9iP4GPwjUtHxxPAvGnPj3L",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:6jJnz6ZQjDZeFLxoDq2RBp4fvsjPfCJmpr1jhQcy2rBk",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:7144mX5peoQoyYq2ncsTmzFciqkLiYzS42XVmvFjGiv4",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:7DifG8cHrQBAAKjqoLCnfzj8khtnYLPE39GnWgEnLP8d",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:9As8wexRUtoujuYia5WxpiUCbjut75XTb9LknATiXvRW",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:AW7FZRzGUA8HnRWTsGbEDogAh4Y2Utv2KBqALEvfGLqb",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:AhfDWL1mi2xajF7JWGDzmTiqvtRxD7JDWHkaZVnmUvw7",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:Am3Un7bph5NNWDLCVVVQT1kY4kN3GFPjj31g4DdrNCd4",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:Ao2sUdoFtKW7yix7v6GT8GoWE94LcgHiyjautukHBKAi",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:BsKEb5qhnHMFP4XUjoXMv5nMxkvuaFtBH5ssuWNMjLbw",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:C2W3FExk348T4aNHpJjiCZpNrpd9MNLBBVZAdWCogtBx",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:C55hxeJepPLMKi4xuKjAFLWmxoSfVrqn2LELi67ixQfe",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:CYnm5v4MiLLLaUvu5VUfYPxszU8RPBzmH3Qkv7QbfcUi",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:CbMTzd1sG9vuP9Tw2nUNBHUvtsyzr4Hm5rknri4XxXWL",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:DPAy3sFUsUWVRCGaMKse2hVYR5kKU7Yr4cE1eM5EwvgA",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:DmfxzqZQTifJQhfrikFdDQXy3Ws6X9H3VX5xkRVTf77y",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:FJrraJVwKYdcLX4we8UttdJGvxErgUKWf6awnVSsxArH",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:G1BJvTetp6YSwaDNSajruPPM1JCTZf5NWeyr6dQN94n7",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:G9XSZDgMk8x51uHvFUumZK5AFWJLp3GJCV7VZSkL3uGP",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:GUBtBg8i5wn5ME3vYmgqMZFFuBnDp6i1oa8BPFwoURAP",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:Gy29oqrQGFsP8cSsZ4eJvmMDMvKeYtWgURGCn5jim9Xn",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:HQ2q5DJuAVf1CrDJpwmeSYsLgvGp9k5cGEPZQsNvcMW9",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:HRneLKJHUHXJr9zb297N44L8WCUqCJYKDsSxDaPv49wS",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:HS5GjB4KTJbbBdYHkJV8qDpq8gmU9wck2qsxgz3ifgke",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:J37JdYS3hpMB3iW8tgUdfFrrBu4X6o9PT3SguxpHXJVW",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:J87ewUdaYKXaMVZEdKh14fMcKXaAmzGamzGtaXDop13X",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:NeHjc1yqZXesLZTHtK7jrjyQ3MpFg2TVHpV8QDDAHEm",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:j6EVoUMZRafJPrdkuoB9PJGXxBGHEsx4VcJq5W3Ft5d",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "caveat:false-positives",
+      "evidence_type": "FALSE_POSITIVE_COMPARISON",
+      "rationale_json": "{\"count\": 5, \"histories_rpc_audited\": false}",
+      "state": "CONTRADICTORY"
+    },
+    {
+      "evidence_key": "mint:BT9JV4F3t58yyeELzXo72jL6C1fWp8SQRM3i3B9pump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:CPM7DGwsFCyT2kHqzEwf4moWKnCiYh5czdbyr7apump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:CiKMVEVMCZSTXwQwqrwE3GZLne982oHkAdq7Yz3pump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:Cj7up2N4yXdzZmLYNaiPt6zye4VWoWHsyeCobEDpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:DqErYkksQymp8sVr2HkrJbVWkv1YXrz3keWKBfHpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:EakWrE5ehWTkJkhSPp861abPiDg4BDW72KVMR2Qpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:GhvrrotDtMYKFjWpeuTxgskYRji3N2u5TeYToZwpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:GkyDShEPTvXw6CacK76yxSzA9seHbyPfpRK1AuTpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:HUNHEFrs7pFJpd1R7bYq6vT9GigRk3rV9av63ZVpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:JHkAR9egULFbv1PfGLky5NvahfQwWJRDH4zJMsWpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:JzXZKSJZvtS3scMCcmXWUJGxRTBfnociHXVXKRvpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:LyqncnAuRYisshpv1u12B6pCD7SASdyFj1itCUcpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:MW7ePAAMjxWyezTKtnvYXewrN5H4CHrv1HYkhabpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:N2JuKvtCqPyqZbduGD2uhuhWFZ9qARxzuuYYkfBpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:Q3FHwyr9AFZvFJUyFduoGrnJE5gAgq7UGQWVn2Kpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:Qqq9SveDjjYJc3jFYwopxEFhuV7SwMtcixr3skdpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:R39ag2yKJVxJiHUxBy1xUEUc55kADNicLb9idNnpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:RAjnSnVnRmf8Za8MggRPRmjkY2ZQkK7HiXYz4YSpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:S3jLzSX9NKbtdUVGTzoeYFMty5xXRYvzTbFASXUpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:SrAJUQS6snqHUATSX4Jmvb4vZpgmQevqeWbzUEVpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:TwA2K5KnYpyNeu7dxeNY3yS4uCR5KrRRh9FPLDHpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:UMVSuCPVE5H1SbEZ5X32iu3Jcs67ySZ1iMuiyaWpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:UkCrzRHSB7jDqMzfLEyAA6A68ibzWZpBWvdY2y4pump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:UroXqz24UCoMy1LpQJVQjJEyeKzBh6aYPq4b487pump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:UsCT9cALz6uba94mdUByBLZgP3Dp5sW7Mv7ZgJPpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:UwMkVQDeXLpbCXcHp5P9yVAneejwwbviFfBJFRXpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:VByVzKnqKM6QGCJs9JwxGs4RJC8kdtwtn6FnfXMpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:W7Fnj98a3jY9aoP9kd25taK66eJ1uS6b6VjpKtJpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:WLjqiHSEWgHVkX9JWJXgXDhX9XTCtSSj3EdyB4Cpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:WV1UndBXx7eGbtA7B6Q7HEnX1mN8DL3XdGDN9Jupump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:Y7u2wWcosZTHagBjua7W3ddwsmD4ZGhZYH2keASpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:YBemckTiUgK4sL6Xv2yktkgoYydrSqRmWJyWAZJpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:YKA5o87oHTTSAsbq1ZPHq6zF1cCaW8HoyhWcpjkpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:ZMA7yJNeXUwcUdGWXzw654ZX6k1tj3zgqL7qrFBpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:ZjDVmGGAkmj1aj8Le3uGoaUiz39jEyKH6VP7dzQpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:ZpQmhQvEpasHYF2gDrDJXaYZVDJxJUZRt9vvHbUpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:ZzWhbH8LrTjx8uCQgE2SEue3jiYWKAm7RGTCYH8pump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:aDdwL6dso6ZD6Rag2FZTURzADRiyXxFVeT23ri6pump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:apSur7K2VY3XsRUSSFDgJUYhdgW2zfRHLFvKUHKpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:aqu8vj7snoqUJsTuC5UemhvNWeMJzWu6qbpa3jnpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:awwz1zgwET9MtvRSZ9CUZ5QpLFviT9fFv53CpDApump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:brj1EEqhenNSLbnjdNyok33yLpxBwvyFheRctCKpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:c9SFiUUHzra78qJinqxSntvpBmJjXdGYDcMMNkXpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:dFf5c8PKTpFcZN64RdVWHkwbCYkxnj9yzPw8QpJpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:eMD1zv3m9ArePAtXYEVFG9tbXfwDzY8GyFMxbPopump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:f73NdtHMKwTeTy3KRpRDxZe7yopu9toZ7P5sFmapump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:g1CbgSCD1H48Mnx9VSL7cpwJ5auX8Ky1cNUH9BQpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:jmM56TE7ko4jUzmzJ523W1b3872jMXKoiwsJLUKpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:kPTzLD8x9n3xLVrtjdk4qbxUr3it6Ea8ZpkHpCBpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:kZBroKqYaSrHxKV3vLmRGTW7Tw1q2WQ1wte6PNJpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:keZ4mAQQqREHoZeC3HcZNpVC1qSGX4kiWC7vdtvpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:mP4AehV2DV4KdNcZkjih6wwLDE8ouUz6ns2FB3tpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:nMSCXsLXZ3R7NBKNDiaYw7CZh7KYs4CyWMEVWNbpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:nobzQmhM6x86Y8WdrgH21AKuVrJ5mJmkBmJU9Lqpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:o8uMYvNkndS6rSRPrV16d8LgJ1V732RxmZuzT8xpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:oruyBzARjKtPNvRhcT5nR4bzYt5SM8uCv74j84epump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:osxeVkLpan3NyZsRDcdWiEuWBFHA6or59UshcaRpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:p6Dydex88SswnKT9pRnjPwrCfHpw1c79FAAu81Upump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:puhW9nSz4rczEtWNM6TH1zYikSmapRu2PxdSXwfpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:qcawC8mNoMy2C597kxDUMHbHJaZ5D4nPR2dvDoXpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:rRGoXVsKJtZGgPqwShxiSD8pcpyH5qXhthqFT5Hpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:s26oUz2BVe5gpY3D4qYCXWBPwDDoB9AYfFsHCehpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:shhJVNYRrzuBzKCBKcu6yuYEMLicmztd5Wiw6zfpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:svVnLbfCPjKAZ4suNYDfebJZ8AfhiTysVQwn3fZpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:tpx8GumtoKhXeba859s1ka7grY8m5zcQ8yPnZnSpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:vKPT1gGoRGsdzaGpQB2K2xAZGtmgjVNm8kNJvSvpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:wFUJbWiV4wKK6BJJQdojJbgbd4Y51M3i3nA9VKLpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:wQFd44Kh6nsrXn49vcu4bpjDCqe18iTGYzTgcWppump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:x7ofxncQVmMK3PDXVJF76uJ5JkgzX3x3eUGXkjopump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:yfmKCjYvHsD17w2xvKLBRrmzF58nZyXH25reGwLpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:z5vGP66VUGSrT5WyfEs9QGB1VJiKh5Lhx2DeggCpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "caveat:predecessor-window",
+      "evidence_type": "HISTORY_SELECTION_LIMITATION",
+      "rationale_json": "{\"bounded_window\": true}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "population:p3r-v2-mapped",
+      "evidence_type": "MAPPED_CANDIDATE_POPULATION",
+      "rationale_json": "{\"count\": 284, \"not_membership\": true}",
+      "state": "UNRESOLVED"
+    }
+  ],
+  "candidate_id": "p3r-v2-c357da9d0d4d560311e4",
+  "capture_method": "read-only local source tables; active generic v2 not used",
+  "frozen_boundary": "000000037922:000000073534:000000008354",
+  "potential_operation_id": "potential-wsol-provision-close-100-sol-minus-15k",
+  "schema_version": "generic_living_frozen_source.v1",
+  "source_evidence": {
+    "atomic_flows": [
+      {
+        "evidence_key": "00f6c41edbd2015d9c536819b23f40f1645613d201703a580c8a4c596e1462bb",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "Y7u2wWcosZTHagBjua7W3ddwsmD4ZGhZYH2keASpump",
+        "signature": "4PXB3fGAzNnANhCJgsTqNGamtJYpK6GLRsEQwTscN5ZzwS1ysvSzLffkDjDR4ZKoj7rDHL1EHdsM6cyG1eXgEgcZ",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "0626658755f4d59a5e2fa57cb4adb16bcb4bd124668ff1f6a8a91a9d5ebb8cbc",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "UMVSuCPVE5H1SbEZ5X32iu3Jcs67ySZ1iMuiyaWpump",
+        "signature": "3DPNaFit2pjTZS2HGyj2VAHqb55N61GzGQeFtEW2AMk4xQBURmKPw3NGkjMRKNWidFJjThYMTJcTqRzJGRDTccEE",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "07fb7317448939d1e0b6ff74186c5612e6537c5dab10c1e278dad184e30a3d6e",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "TwA2K5KnYpyNeu7dxeNY3yS4uCR5KrRRh9FPLDHpump",
+        "signature": "E46pnsVJdoSRDVga9WC8bgC9WKnZNzSPuv9GrLuZPSK8XdqWhyHH27M6XvQ92zTAfsTt7Lbmn3fUAZcAQFNokLm",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "0e3ef3cbecf18efe4a18ee3df51b45d130d4d5435d18e515f6af57e7340269f0",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "p6Dydex88SswnKT9pRnjPwrCfHpw1c79FAAu81Upump",
+        "signature": "5XLmpjaeLQBhM9dmMzxd5ktZS9evasxu9aW9VHQW5vKKA17ATwYeoaDhiUUr5pGWn84H1YwUo5fNBAANr1mDjA7V",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "101d248ccfe9e29de3a48d36fd12f0827eba58aaa4a7152f9829c8c51997b453",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "c9SFiUUHzra78qJinqxSntvpBmJjXdGYDcMMNkXpump",
+        "signature": "5K2wjygZg7BVLmFyaou3Cid74dfACzToZQgQbLDAjuXPArRbvp5qe3GizTbqVKv4ysh9yDvixtHxs26GJ1gtT5Fd",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "11d3b668207567427871a7493a2ca968014e3fe94a7eee5e59d0a98462af7fdf",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "shhJVNYRrzuBzKCBKcu6yuYEMLicmztd5Wiw6zfpump",
+        "signature": "4UNbrwEVFZG9oBwtazzQArtyiK7xTks8Lg9n5GbXJoYFqRhVYybQEKGL14PpP4Dz2H7FSdbGPbWQcZjnZN8xfBGy",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "1509e30003cb1925eaf9799d3d03705bc82a486f949bce1c7c74019f72c4c680",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "eMD1zv3m9ArePAtXYEVFG9tbXfwDzY8GyFMxbPopump",
+        "signature": "N6eptNSshMgxtoFmE2EeQWZVSogQPgYREFuGdRCD8GFqZdT8sPXComQsNWCfz9Ze6SnnmTLwa2zkaPboRR7MCv1",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "1b2fe445ef7f9136c75a182fe02530f2172f0cb49eeba598cab894d561fc59d4",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "Cj7up2N4yXdzZmLYNaiPt6zye4VWoWHsyeCobEDpump",
+        "signature": "4no7LpZipBLnD5oVE9NL2BTiji399jehxjdBniqBjkhZmG4xHgybQKK35ktKEoEjUWmXvRiQfhvztEU5eptNsJLM",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "1bd9c7058cec5b3cace97019ed329b2654096a08e0dba4677feea8d427713edc",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "WV1UndBXx7eGbtA7B6Q7HEnX1mN8DL3XdGDN9Jupump",
+        "signature": "5Lfp1RwA8YwrZPkDH5SBwwqcTGjEdejPQQCqcRRhtAgtNrp6bBHVLmbwLML7BnAavoAWSJSK4E3W5aTmWEYWLzck",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "2438ae1c6da41f18e237ac99418fc1ff22b74ff651f2eb6b8fe43ca27e123c15",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "vKPT1gGoRGsdzaGpQB2K2xAZGtmgjVNm8kNJvSvpump",
+        "signature": "5TzbWbeoTsYTiM9DJhCuMpf8sHVqm6dBLCfGJg97aoyJFsc6Ca9JWRg8VSk3NYQvEdDcDidbYQebkhpouaxrNcEz",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "298ebaacb96b814bfd41dfbfb85679395390f910d3c3ab8b08de9c84ff907def",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "Qqq9SveDjjYJc3jFYwopxEFhuV7SwMtcixr3skdpump",
+        "signature": "WUUSvgPRCiFrAWnSfodzt27TauaZqJdUHLmygp5RsKofbVPGjYza2V3Y24EaaBLz8gQcHwcnKoDC9WZbHjTkb8C",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "2e0b58a03f68b5edd916e795efcbd7d7a6d6a7c6e5fa55a8a0282c86afd8de62",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "kPTzLD8x9n3xLVrtjdk4qbxUr3it6Ea8ZpkHpCBpump",
+        "signature": "Qi2Jc1NRJJVLbYoAafL7hMCojqiBjLYRtv8WrRVW6FceB3vVHVT18TohbiiLuvFwo7gvmxGVieytVYXcZgbTApG",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "38d5665809d3ff7df6dcb9081500babcf78d0896e080b0d064f54634625d7a38",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "ZjDVmGGAkmj1aj8Le3uGoaUiz39jEyKH6VP7dzQpump",
+        "signature": "5U8QvwZPsPUueznWzkj78EuYGsSfmqgxC3RMwnPUQfKPkGyhhTsChzbVKNPVKZBZuxwivyU4zEDyZyvHHVasFaR5",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "39924a82b02d7e44dee53c10420cc7467feed9f2302bcae67a2f0396639d7cdb",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "BT9JV4F3t58yyeELzXo72jL6C1fWp8SQRM3i3B9pump",
+        "signature": "3aXF7MZhnCCtPq1H5MHS5TsbWKYSHAoy4n4Y9QMRm4wUGpT5HksvugHHUeM6m6UvRctvkFURiKPTjPjtvqVSBf3M",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "3cc5745c7a6a23bdce647a9a74bfe6baa3548faf163c042fe077b55bdf483eaa",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "nobzQmhM6x86Y8WdrgH21AKuVrJ5mJmkBmJU9Lqpump",
+        "signature": "63zUE3kiPfWpUeREcP3ZgSGU9Prsj6NmLDuZthdg3wQpDxvCY5L6ozRvKQTBVytw2XkUT2MDtBxQfzzLXUbujoHe",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "3d2b939b17dccfd484358b1958d912d889bb7771bc87a81a07b450256d701150",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "GhvrrotDtMYKFjWpeuTxgskYRji3N2u5TeYToZwpump",
+        "signature": "3HwguxzV3rT91PSD9nUk4g6CZgsvboQ1i7noRDESW9v8fpUoS4X3eLiXwbZui3NFz5Qbtx3GZa6aBD636ZM1JK4f",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "44c05a3c8003e25da9f2c737d83c358d913493fd979c70bf12a180085d3080f2",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "f73NdtHMKwTeTy3KRpRDxZe7yopu9toZ7P5sFmapump",
+        "signature": "5iBDqaLWN7JLtEh1z3HJu9Sd4kTzWE6k84xtWoxdvHStzZgAnjkcQ6HNcHuz92JBkGUvzaLttsKWStHm3fSenmVB",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "4903a048e800b6641bc0b868f26cb680d28830c92c208c3d5e8d8954daf16b02",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "keZ4mAQQqREHoZeC3HcZNpVC1qSGX4kiWC7vdtvpump",
+        "signature": "53pfUUqLS2XaysDVwpf2ZZ2RM74Gmp1bEBWwcxN49y72tR8cCPRvEEXexTecBgwu5q53T76x1izDytk8HNvX6TBR",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "4b843835596d140490d154dcb28d5403128781ef5f5716c47347a717a6015be8",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "apSur7K2VY3XsRUSSFDgJUYhdgW2zfRHLFvKUHKpump",
+        "signature": "3mZ14nFmGy7k8aFkmQvwWKjoj7QSgUCMAU1mNcHV3fcd3koVDmQazdgKmCm41H7mA4K3iyzMN5ecDRkApvHkv86x",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "4f128714661fd3040faf0b059bbd7b06701836c5d03b40501c034bd98369120e",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "UwMkVQDeXLpbCXcHp5P9yVAneejwwbviFfBJFRXpump",
+        "signature": "4NfVTtRXsfmouCq5bgNBJDPXKiqGCUriibijX5ZYNHCShkhTFzDATBUoDvS3YLTdZfCoj2JxyKoptijgGYhkMivr",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "52625e6f4714c4d4deab7ef7117a54fbbefbaa518a19e337ee4c4504796812ba",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "oruyBzARjKtPNvRhcT5nR4bzYt5SM8uCv74j84epump",
+        "signature": "3cFkCLMrsjXcFwKVdxrgmHE4NoJDrYcY8qpLsFxwZoWp6unxQ95viDjPWFZUsvBUS8Rj9FhQvJzuzUPPcK6CzNwb",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "5629dedc06bb227fe833039cb553b60938e6d783dd8c09d15a1b8b45a9c2d406",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "JHkAR9egULFbv1PfGLky5NvahfQwWJRDH4zJMsWpump",
+        "signature": "r75GRQ939oxV98mYNpgbJpzdKQ5H5YyWXFRofUmuu4iFuh4pUe1E1bRhLhBPqu5SPgBq98YcY8PCuxLPDXMPzaQ",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "57f25fbfacf655ba9152b32b12250d14445e60c9fca955b103146e78767dd950",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "tpx8GumtoKhXeba859s1ka7grY8m5zcQ8yPnZnSpump",
+        "signature": "2T551Aj4Bf9UfwQwWxwraYSEv4oggnqrkV13fEt3kK2hfNUVvgfodLSEo9o8UFTuzSbuArnhztNCmBbZaTybdK8n",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "643f67e88abf4e416336360a3d0a945068e02a010f463d9e71cc63cdce49dfbd",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "SrAJUQS6snqHUATSX4Jmvb4vZpgmQevqeWbzUEVpump",
+        "signature": "2A8UEgddd3PWW8AFF495hBdmqoCwoYWfq7v72Mk6qmM6bah5pJcmmdTiLbahD4yTxJF29qd3vhgWHXj9KdNy4fGz",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "6473d75cf88fc4672fc1f7857f7c0aff560ce9c429f3e4aa8af288a7d2a79308",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "osxeVkLpan3NyZsRDcdWiEuWBFHA6or59UshcaRpump",
+        "signature": "5LGW81NQA4ps6QXdVsfXS79XVYYgyQmLWzHDFAndnjTvSwKg9SiSsfPWqy3GLPdj7ph7sBU1qWzPkk8DufS6X7Y4",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "66f99c7e7166294457528f393ef07521b1f3cfbb10564ddf0b08e43436974bf3",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "UroXqz24UCoMy1LpQJVQjJEyeKzBh6aYPq4b487pump",
+        "signature": "38wZUDU5TDhWRRznvJvmE4CgK7B5vjZB2LJAU3BgPzRyCqWE3wTzDwrUW3Ei6AtPxdqFZeMjo8fBT7CUzmXiMdXz",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "6cbfc9a5a83215adf95c31faa7107edf9ca8f4c6cfc8d76fd9689a2e1fcf5e34",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "LyqncnAuRYisshpv1u12B6pCD7SASdyFj1itCUcpump",
+        "signature": "5KiaT1R4cMerHa7CKmujzNXKt7gtUgDYm9hVkK3MK5o6U3NDda2dWCRCrfNNvB5xuoNFrjEKyzHfMdPik2eafXc6",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "762925afc7a2705c28c14f61e95a7d56a539a4433f74be508718ac1f48df9781",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "nMSCXsLXZ3R7NBKNDiaYw7CZh7KYs4CyWMEVWNbpump",
+        "signature": "3XwPMKQo1QeDWHNZ1JsNiLrqva9STsT8Vg2jwMic2UdP7LowXbd1ny1B2HGVzp9HJqY7AjEoL2UmikfSdt4VVuXd",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "76adfad00b560480d1ea71e0f41962411983068c5dad31b03a894e6b1af7a9b4",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "qcawC8mNoMy2C597kxDUMHbHJaZ5D4nPR2dvDoXpump",
+        "signature": "e3idJ3Gx1ZW6BLpTVbqGCTGXuLLqpjNyNDWGBero8aA4WGzxrJnE3UPDcpmjmoyeAkPMpK88zJ9oY5maUBZ4UFL",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "802abff02134ea28f09a40831ef9b1bf8942c5820be25b53a6ce27d9bc1b6931",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "z5vGP66VUGSrT5WyfEs9QGB1VJiKh5Lhx2DeggCpump",
+        "signature": "5rE4ycyQjjAGEPUNHgKADrD4vjZJHCRbus9URidznc5xr8Z1mMAA3knLvuYyHqbHw8JfVhtmXRFdbdMKc8b9pAFy",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "81cee8ca435cb5c68614470b73051087fcbd64fc7b2a91418fd75eaaccbd3152",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "wFUJbWiV4wKK6BJJQdojJbgbd4Y51M3i3nA9VKLpump",
+        "signature": "36Bg7kHAX7nCDSyU99543J7qi6trPXY5WLuZpBjB2NoCX5Mha9asejWjXyuoTCB83GURNRo6cuNpVAxH75PXjNSs",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "85e25248584112253bca19ed949fe999d5595b76057ec8c2e8b5252e40ec943b",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "ZpQmhQvEpasHYF2gDrDJXaYZVDJxJUZRt9vvHbUpump",
+        "signature": "3K9SwogMShXGjoBQ6LTs1PzMzb5dtgwvuHRABH2C3cT7dbnFzJYrqgipJo5nkmSsR2p7iH6411UV9on5hFQeLK71",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "8f0b97ccf2604a67a38cafb91fe405349b284e330016e23c7d1fffff02c5c4f6",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "brj1EEqhenNSLbnjdNyok33yLpxBwvyFheRctCKpump",
+        "signature": "2swAqjxDcV36rh28ayAKUicZrhhA4sB8FYsJKX4fprr8cpT3P9bbgqUj18ZmSDm9J6fWqLSYiuWutS2Nr9ZXBNr5",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "922c43a3ef1b444bc6cc6de5f3039e65b69bc239d5133a90d73a4a9137163fe5",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "x7ofxncQVmMK3PDXVJF76uJ5JkgzX3x3eUGXkjopump",
+        "signature": "3sXLs5ecH7Dzdug7d5viAkbCn41ejiUhFeS98vKDAGKywBL8CFusfYmfkFbx7RJRcj6oNqFkY3tbyPCa3eMbfW62",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "92691970676bf08046526fd3f9054263f9c8c99eb0513fb38036fed91497a632",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "svVnLbfCPjKAZ4suNYDfebJZ8AfhiTysVQwn3fZpump",
+        "signature": "2CQkzQAU7CVQZQMsVovRmF4GQbJQdwA7SNdBMR3gYEwQSaJLD99A58btcczmXUHMfqVBjxSzvTDTTvmBpEXgs12M",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "9a6bca62fe2709404d39021f50fa785eb6b837393c4c136b812676c112b77580",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "ZMA7yJNeXUwcUdGWXzw654ZX6k1tj3zgqL7qrFBpump",
+        "signature": "3chRZSVSX2fS9gVNEtNunWgAd2YpmFwngLNi7b5Ef8WjVnhiCgT3vY1WyUbgoo7u6ZppHv5DWo24iwSYRwaPbXzG",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "9ce928eb8cf854f07e4063b7c663207798c1f38ee7094a2c438d1514e0e36421",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "RAjnSnVnRmf8Za8MggRPRmjkY2ZQkK7HiXYz4YSpump",
+        "signature": "TmSQpwaBQVnseTDFedYevTSRsKZwqaSrScEMP2EU9AT1MYejmQvmkP5YmdH4eWArNDYjvqzCR4TkKDL376V5CR8",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "a535a14a624f0964fdfb2a9b61603a1c9368d7d728dd3d00639c8b39c234c06b",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "VByVzKnqKM6QGCJs9JwxGs4RJC8kdtwtn6FnfXMpump",
+        "signature": "2KUPL3zYNafnqKqnHEzg6HyAbwcSbgotzu3BmcAbWjPwUTgE4C5aiytbPftFA6XgXqJ1NwduvMdKePhJk7vkLzdJ",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "aa9db0f0c4eacc57e6a692c03cdf910e8193bba47ed805f5e4c5d0bf5a836b3a",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "WLjqiHSEWgHVkX9JWJXgXDhX9XTCtSSj3EdyB4Cpump",
+        "signature": "Yk7kmEqbDNvzPFoJKpC2oJ5FedrbaMBoHcKo5qJ8kfN7NCDXgDg6tuddJCssKWYHfDktYH4iAusoQzQTyz7t1vE",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "ad615f268d935c4330ecb588efd3cfa767353ad8c8e01004006c2a9dc535d1c8",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "g1CbgSCD1H48Mnx9VSL7cpwJ5auX8Ky1cNUH9BQpump",
+        "signature": "5H5PypweFjDkHo6FWMnsPdPPTgUvYqP8kxd36QCfpS9hwbJP5vb29mVHv35wqEJwYgsWEtueGzGc9eou7MMbraKF",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "af5be0a54efe517622fa436d693e3f3321b0f53b61ed8f1c58d3c05497ae2910",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "S3jLzSX9NKbtdUVGTzoeYFMty5xXRYvzTbFASXUpump",
+        "signature": "39votXdvKC6jeTKoBKMh7oBZcFmhPaZfs8o4zfUfKM1wVUtf2ygmRLVkKdTSQ8LpvdvmD2Zu5YLf59tmHjqNxXe7",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "b177ca169c51d54379c9095802d5c5df46eac27c0c20ce327f9586869515f2af",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "YBemckTiUgK4sL6Xv2yktkgoYydrSqRmWJyWAZJpump",
+        "signature": "3bKGcV1nKxEqmwmZzZ8tMDdC1EoukEoq1s9vjCdtbR3rgGTUBBMbdxHtfg9bgMCgYfV8beXEBQxpRtBsfvsRuqYW",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "b6b81cd70ea3991fb0cf8be324c0aa705f1506510660357270f4d264726d6a5e",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "wQFd44Kh6nsrXn49vcu4bpjDCqe18iTGYzTgcWppump",
+        "signature": "3R96FWHgUMtueaETJyb9aSoMTfqRwjzbaN1ADisRK3V88yHtFezXq6rLmktvbSWUhRiU2wkeYeGiPBbnq4hUBmSi",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "b8c6ab53a9e4605c464845aae648a36858e23297329d9071c3bbc6ea91391e97",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "DqErYkksQymp8sVr2HkrJbVWkv1YXrz3keWKBfHpump",
+        "signature": "2GqtcM9CYkHFKc6B86rXTR2E7iCjMBFbgdBQVGPwAbPrGxwdsZyCxYyxBrVUqixpHLydyu2TCaxHvUfvt9j2T74",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "c431a542479ce826441b64fb9f7130d68c4aaeb18584b7ce3cb933f2fd89b5f4",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "R39ag2yKJVxJiHUxBy1xUEUc55kADNicLb9idNnpump",
+        "signature": "4THKNhSQXbtE2Moua51wWdLdoM27DxbvCn8ZUZq5YfHCnQxbpYBiV6ZmRw7kdkvV5mk17fR4tZoGDdmvU48UDHoo",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "c434e5f89faf97cd17c3d52649e7f113155f9aff653f0c15456d1caea047d464",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "rRGoXVsKJtZGgPqwShxiSD8pcpyH5qXhthqFT5Hpump",
+        "signature": "39mBGMvrk6XV88Av7jBNFoxm4PoGiXrpcGyyHd26xXrXRkVDGQ1dSGSeqYRLS9fLKnsCwGA7n46Y1GQaETnNTGVN",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "c5dc30461df3d794119a312f2df4adf1f9d062056e142af4087b495947efd9eb",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "aqu8vj7snoqUJsTuC5UemhvNWeMJzWu6qbpa3jnpump",
+        "signature": "5HBnSvXszEgEPAJzfqEVKvR4kGHV7oL36mfmo8xxGsj2izUVHj1QPo2kRRgTjnnWhXBKZJs26iNFnWJVj9q4DV1E",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "c96678aeb574b20884449768013f95fb5cb2eda531573d9bdb34087127fd2830",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "yfmKCjYvHsD17w2xvKLBRrmzF58nZyXH25reGwLpump",
+        "signature": "ZynPwdVZjqFoh4wgbBif1woy41dkjRAX6wthQW6YUg1tHp9Vjt7idE4CEJ4nSGmoXffMm4zh9qKBJS3ehFnVuFc",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "ce9da24d8a1ce7b9498ab93ee15b66b102e3d212003cc161d952ab7a5daeab55",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "N2JuKvtCqPyqZbduGD2uhuhWFZ9qARxzuuYYkfBpump",
+        "signature": "3TpFPoGwL6YJrPGy2iBqCBPrg55fF79Sw2rEUPt8gWpbnR8h3rrHz7yhEM8j5VbgNzakkhnJxav2hYNkKT22gjDR",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "d1f8128ddaec24347e2a1052d3dbdab62311848b47536fe54acf0ad0932d3a7a",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "UkCrzRHSB7jDqMzfLEyAA6A68ibzWZpBWvdY2y4pump",
+        "signature": "4rTGnxY2LYSW7bNXshQUEQqY763AERXtufxaeS5shp617xrLeXPvM95JcbJCnCeeetzw5YNRvFZ2qYHL6et2vKoN",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "d3e6f653e2fb9e99ce0bb79bb879f8609f4b19b6229701eff2dd7f1257fcbbe4",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "s26oUz2BVe5gpY3D4qYCXWBPwDDoB9AYfFsHCehpump",
+        "signature": "43761uNojjmgQWP1977VJtiE3cF629FmtStJBFYkWe5L185TYq94B7g731jvQdonXApQzEruLEXzq7e4gkxDLSAZ",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "d443fce1469f4f6635ace1f9da001350dca1177ac5f31f96abca0faa3948287b",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "CPM7DGwsFCyT2kHqzEwf4moWKnCiYh5czdbyr7apump",
+        "signature": "4UTrMShnXJRUjS7YhJMWKvyfXLmBDtYExCiJq5k5QUnnKe6AdTQH4pCdohyJFjhaLVMcjoQQXD5fsYM5ha6Wigur",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "d4440cb4e6f286e55211bd28305f91f8787b59558c6669d78401e33bb9f7b722",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "mP4AehV2DV4KdNcZkjih6wwLDE8ouUz6ns2FB3tpump",
+        "signature": "2d8bkCHFAxv1HbxsxeALM5fMyvBKRQ5cVQLrw9NfPwXvfzUmmwMddE8TwcMWyKPrm6SLAQBMzipegkVF4J1pJNHS",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "d4496571bb1e0bccf4e60da94a75953d8edb70dc9904fd9837435bab63a3f3b0",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "puhW9nSz4rczEtWNM6TH1zYikSmapRu2PxdSXwfpump",
+        "signature": "52p7M4gNX4VvaL491wwHoNPn7aD2vv41ZnZd5dmodySGZVUaAUCg8F4me7ihxLKAB1Bi4yYZUAigSKxgGZSnwqbn",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "d8b96891712b7ce3e316062aee25bd5fd40080f0fd4734d83c0c7fa74e4e7f7b",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "EakWrE5ehWTkJkhSPp861abPiDg4BDW72KVMR2Qpump",
+        "signature": "5UQZoTvRreEZArbw22k5ux3ZB6NuEodQktWiED5JkdgM2MbiwytQs6SnozB96eYxP2gEQHnTowP7h9PMWa4Fjuak",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "d9da11aa17f639c7f5aeb86db0bdf6593600f128a16417032235bf5fd9ee516c",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "dFf5c8PKTpFcZN64RdVWHkwbCYkxnj9yzPw8QpJpump",
+        "signature": "33GKUM6HBHNKhabNpAF9hK5vvxuUNsqCJD3LvPRfBQQteu7R4Y2rnVryNGvPjRTQ7VrSKtrCkwYSLX8w2h6q7Eoz",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "daec02274de751052350202762f34425ed9a1ef47a1d3187603a6dbaa6639452",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "YKA5o87oHTTSAsbq1ZPHq6zF1cCaW8HoyhWcpjkpump",
+        "signature": "4bgJafu4qAdTF9Lfc6zwWT7MtzDDPHLHZpu8iGdUXsFd5TzRGFWWkJXrp2vUqiupwbH9nkgFHsgcysjacX9c5xGP",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "de7cbf9ceced35003e054c54adc95092096a197b005028639eede0bd427c4738",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "o8uMYvNkndS6rSRPrV16d8LgJ1V732RxmZuzT8xpump",
+        "signature": "pnc8z7hoLn7kg9dGSL3cjFfqWXRrPdmyuC5S5oRZfzL1x41qX2znqVkWcdwRtr2sfYHemfTWfPLW6KyL7e4QC3c",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "de7ddbfae1d10d929cdbca7cad17da73436b59dce4bbbed506d4a8303b8265d2",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "ZzWhbH8LrTjx8uCQgE2SEue3jiYWKAm7RGTCYH8pump",
+        "signature": "3afxBdEQD8wwq6haY1xM2K5pcSzGpivhux44vLQhwEAuqzjzBk2tYaprPRbywQpJbRhSfWNn13emUbg1nzMiUX4V",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "dfb755d62fd1f6045c2bd9b3cd4a1f23db0cbde7ea343e4170b1f1aaf4d72bcc",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "JzXZKSJZvtS3scMCcmXWUJGxRTBfnociHXVXKRvpump",
+        "signature": "4orxjwDEAhQHqVu12EejbTyFr2bazWCQR7NBRN3UrA6cxiUzEyrVpzFvzSgWCVQsKxUU571A3R1LvQ5139R9DSEn",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "dfd3c763492eefcbb0211b15de3f344741d5d46577279a9b6e569de6e614c872",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "jmM56TE7ko4jUzmzJ523W1b3872jMXKoiwsJLUKpump",
+        "signature": "62X9S27tdEq6MqxncGgYbV7KDxt6tasmZHn5eijeBFk7hZEB1YwtJtQDJwaZNpWma6Gqu7ezn1Ykx2RFrGgqLiH6",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "e417ab6780d424b51d1aad041b87802b2c2f7d78dff71a1d8ad80ca37a169961",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "awwz1zgwET9MtvRSZ9CUZ5QpLFviT9fFv53CpDApump",
+        "signature": "3bhGeYLuXxKcXuxVyy1wVJHPipz2qAvn125qD4uKdXozzU3cnhT6ucePwPpMoCTNP6EPWqrh99G5y31oVbCHv9Z1",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "e7620894b01b9e50a1201c59cd1c58ef5aa8fc770d2f87f1bd451002852cbd8a",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "GkyDShEPTvXw6CacK76yxSzA9seHbyPfpRK1AuTpump",
+        "signature": "HfFNGZmxxwwvcHXZqdRYpPE5Kksv1noy9dpDfQG5H1xtaj7ugE1AWPGkD4TbaVKvwjn3nVXT1HX9Kz7o9rT6fao",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "eae14e26a9e1fdc1facbd63f2cf5f7c069d5424546efa08aa4e3863c010721ae",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "Q3FHwyr9AFZvFJUyFduoGrnJE5gAgq7UGQWVn2Kpump",
+        "signature": "3NeBxDj2bZUFQdKafvsdbtgh68moKDBnao3QEAtvoch4wWE5sfy9wHUghuwnG8QhBc8u4PfbhFHFURnpfQnAgRzu",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "eb24034521c12bd357c898cb82d28f49b662aad75f82f8c570fa505426b5ebdf",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "HUNHEFrs7pFJpd1R7bYq6vT9GigRk3rV9av63ZVpump",
+        "signature": "2HtE82WMYpvpMW4Rxj9cujNYPeYYn15Q2Qh6iFxi46fmqwfNTuGc7KCGZQgGUqcn1ensRbpw9ECw8LRJNrYU41D8",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "ed442f1619babb788c7af2bc0dbbc511b95744a3f6a19d0cc43c75ceb7f5ccf0",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "kZBroKqYaSrHxKV3vLmRGTW7Tw1q2WQ1wte6PNJpump",
+        "signature": "ipZUeUo3bQEUTuZBdpEp9KgcoNomCihz9jWnwL27fMSQ7s7DXzTyyvD7ZLpDHajB6XprJSXwDt2YuvPZs6y7JaM",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "ef4769de8e190ddd9dba6c3358342287c2e1f54f1e1cf752261ba5e1851ebb57",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "UsCT9cALz6uba94mdUByBLZgP3Dp5sW7Mv7ZgJPpump",
+        "signature": "4WAdS8z7MRuCnn1sBiMmJnYCnRuntub71qhFdFTHeqDZsnwd7gBtPLvUQjRTPiZptGMWh6fKnfh25BwpuU9jid1o",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "f2a6bb91008795761f5556c0b15fd6ed9fbdfd2cc8cbbc998f923f843d2f12ff",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "CiKMVEVMCZSTXwQwqrwE3GZLne982oHkAdq7Yz3pump",
+        "signature": "2KVN12ofn1zB2ZfuyXdSVPHWXvuTb2NpGweP9sY9ApwTdEzUPRfCi3ttpco4tiKdwjpLaJj7S5ZD7xZGw2ucwxgG",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "f6db56641e27000b5db72f9f36dd03acef3220d0e80f6742d6dd4ae22b43128d",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "aDdwL6dso6ZD6Rag2FZTURzADRiyXxFVeT23ri6pump",
+        "signature": "28ATAVeDzpM68g33niCEYrYuvGkBMspWyDdPRxynyYQyXGE9Jiob1AbNe2kfCQZsvwEbcRuZJDUw1FEZfasK2Msc",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "f97b516bbe519bf304e602a837418a69b0b568a1c3c5d0ae526e90688f2b1139",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "W7Fnj98a3jY9aoP9kd25taK66eJ1uS6b6VjpKtJpump",
+        "signature": "5Li2dxdtdTiVLk7jNTFgAyR6UkvGbsZsJhTpEsVpN53vMVRmQShs17HZv5PSPrurfGYGntTjx6YGXS81DSoZbrSo",
+        "transfer_lamports": 99997955720
+      },
+      {
+        "evidence_key": "fb585a8e403940ca05cd3e9356d62ffa2dcaac629680dcd8ffd9e54ba5675d19",
+        "has_close": 1,
+        "has_create": 1,
+        "has_sync_native": 1,
+        "mint": "MW7ePAAMjxWyezTKtnvYXewrN5H4CHrv1HYkhabpump",
+        "signature": "4eAuDBDr9DtKEc5C4soRXkkHGK66x5iet2PmEnwFCRjg2QAmWryMn8FEtwyHavVEHa71bdoQsXhVQt1mX1kL5gSt",
+        "transfer_lamports": 99997955720
+      }
+    ],
+    "canonical_mints": [
+      "BT9JV4F3t58yyeELzXo72jL6C1fWp8SQRM3i3B9pump",
+      "CPM7DGwsFCyT2kHqzEwf4moWKnCiYh5czdbyr7apump",
+      "CiKMVEVMCZSTXwQwqrwE3GZLne982oHkAdq7Yz3pump",
+      "Cj7up2N4yXdzZmLYNaiPt6zye4VWoWHsyeCobEDpump",
+      "DqErYkksQymp8sVr2HkrJbVWkv1YXrz3keWKBfHpump",
+      "EakWrE5ehWTkJkhSPp861abPiDg4BDW72KVMR2Qpump",
+      "GhvrrotDtMYKFjWpeuTxgskYRji3N2u5TeYToZwpump",
+      "GkyDShEPTvXw6CacK76yxSzA9seHbyPfpRK1AuTpump",
+      "HUNHEFrs7pFJpd1R7bYq6vT9GigRk3rV9av63ZVpump",
+      "JHkAR9egULFbv1PfGLky5NvahfQwWJRDH4zJMsWpump",
+      "JzXZKSJZvtS3scMCcmXWUJGxRTBfnociHXVXKRvpump",
+      "LyqncnAuRYisshpv1u12B6pCD7SASdyFj1itCUcpump",
+      "MW7ePAAMjxWyezTKtnvYXewrN5H4CHrv1HYkhabpump",
+      "N2JuKvtCqPyqZbduGD2uhuhWFZ9qARxzuuYYkfBpump",
+      "Q3FHwyr9AFZvFJUyFduoGrnJE5gAgq7UGQWVn2Kpump",
+      "Qqq9SveDjjYJc3jFYwopxEFhuV7SwMtcixr3skdpump",
+      "R39ag2yKJVxJiHUxBy1xUEUc55kADNicLb9idNnpump",
+      "RAjnSnVnRmf8Za8MggRPRmjkY2ZQkK7HiXYz4YSpump",
+      "S3jLzSX9NKbtdUVGTzoeYFMty5xXRYvzTbFASXUpump",
+      "SrAJUQS6snqHUATSX4Jmvb4vZpgmQevqeWbzUEVpump",
+      "TwA2K5KnYpyNeu7dxeNY3yS4uCR5KrRRh9FPLDHpump",
+      "UMVSuCPVE5H1SbEZ5X32iu3Jcs67ySZ1iMuiyaWpump",
+      "UkCrzRHSB7jDqMzfLEyAA6A68ibzWZpBWvdY2y4pump",
+      "UroXqz24UCoMy1LpQJVQjJEyeKzBh6aYPq4b487pump",
+      "UsCT9cALz6uba94mdUByBLZgP3Dp5sW7Mv7ZgJPpump",
+      "UwMkVQDeXLpbCXcHp5P9yVAneejwwbviFfBJFRXpump",
+      "VByVzKnqKM6QGCJs9JwxGs4RJC8kdtwtn6FnfXMpump",
+      "W7Fnj98a3jY9aoP9kd25taK66eJ1uS6b6VjpKtJpump",
+      "WLjqiHSEWgHVkX9JWJXgXDhX9XTCtSSj3EdyB4Cpump",
+      "WV1UndBXx7eGbtA7B6Q7HEnX1mN8DL3XdGDN9Jupump",
+      "Y7u2wWcosZTHagBjua7W3ddwsmD4ZGhZYH2keASpump",
+      "YBemckTiUgK4sL6Xv2yktkgoYydrSqRmWJyWAZJpump",
+      "YKA5o87oHTTSAsbq1ZPHq6zF1cCaW8HoyhWcpjkpump",
+      "ZMA7yJNeXUwcUdGWXzw654ZX6k1tj3zgqL7qrFBpump",
+      "ZjDVmGGAkmj1aj8Le3uGoaUiz39jEyKH6VP7dzQpump",
+      "ZpQmhQvEpasHYF2gDrDJXaYZVDJxJUZRt9vvHbUpump",
+      "ZzWhbH8LrTjx8uCQgE2SEue3jiYWKAm7RGTCYH8pump",
+      "aDdwL6dso6ZD6Rag2FZTURzADRiyXxFVeT23ri6pump",
+      "apSur7K2VY3XsRUSSFDgJUYhdgW2zfRHLFvKUHKpump",
+      "aqu8vj7snoqUJsTuC5UemhvNWeMJzWu6qbpa3jnpump",
+      "awwz1zgwET9MtvRSZ9CUZ5QpLFviT9fFv53CpDApump",
+      "brj1EEqhenNSLbnjdNyok33yLpxBwvyFheRctCKpump",
+      "c9SFiUUHzra78qJinqxSntvpBmJjXdGYDcMMNkXpump",
+      "dFf5c8PKTpFcZN64RdVWHkwbCYkxnj9yzPw8QpJpump",
+      "eMD1zv3m9ArePAtXYEVFG9tbXfwDzY8GyFMxbPopump",
+      "f73NdtHMKwTeTy3KRpRDxZe7yopu9toZ7P5sFmapump",
+      "g1CbgSCD1H48Mnx9VSL7cpwJ5auX8Ky1cNUH9BQpump",
+      "jmM56TE7ko4jUzmzJ523W1b3872jMXKoiwsJLUKpump",
+      "kPTzLD8x9n3xLVrtjdk4qbxUr3it6Ea8ZpkHpCBpump",
+      "kZBroKqYaSrHxKV3vLmRGTW7Tw1q2WQ1wte6PNJpump",
+      "keZ4mAQQqREHoZeC3HcZNpVC1qSGX4kiWC7vdtvpump",
+      "mP4AehV2DV4KdNcZkjih6wwLDE8ouUz6ns2FB3tpump",
+      "nMSCXsLXZ3R7NBKNDiaYw7CZh7KYs4CyWMEVWNbpump",
+      "nobzQmhM6x86Y8WdrgH21AKuVrJ5mJmkBmJU9Lqpump",
+      "o8uMYvNkndS6rSRPrV16d8LgJ1V732RxmZuzT8xpump",
+      "oruyBzARjKtPNvRhcT5nR4bzYt5SM8uCv74j84epump",
+      "osxeVkLpan3NyZsRDcdWiEuWBFHA6or59UshcaRpump",
+      "p6Dydex88SswnKT9pRnjPwrCfHpw1c79FAAu81Upump",
+      "puhW9nSz4rczEtWNM6TH1zYikSmapRu2PxdSXwfpump",
+      "qcawC8mNoMy2C597kxDUMHbHJaZ5D4nPR2dvDoXpump",
+      "rRGoXVsKJtZGgPqwShxiSD8pcpyH5qXhthqFT5Hpump",
+      "s26oUz2BVe5gpY3D4qYCXWBPwDDoB9AYfFsHCehpump",
+      "shhJVNYRrzuBzKCBKcu6yuYEMLicmztd5Wiw6zfpump",
+      "svVnLbfCPjKAZ4suNYDfebJZ8AfhiTysVQwn3fZpump",
+      "tpx8GumtoKhXeba859s1ka7grY8m5zcQ8yPnZnSpump",
+      "vKPT1gGoRGsdzaGpQB2K2xAZGtmgjVNm8kNJvSvpump",
+      "wFUJbWiV4wKK6BJJQdojJbgbd4Y51M3i3nA9VKLpump",
+      "wQFd44Kh6nsrXn49vcu4bpjDCqe18iTGYzTgcWppump",
+      "x7ofxncQVmMK3PDXVJF76uJ5JkgzX3x3eUGXkjopump",
+      "yfmKCjYvHsD17w2xvKLBRrmzF58nZyXH25reGwLpump",
+      "z5vGP66VUGSrT5WyfEs9QGB1VJiKh5Lhx2DeggCpump"
+    ],
+    "edges": [
+      {
+        "amount_lamports": 14563110000,
+        "candidate_parent": "DpNXmmnCoFjoRVX7b1ZyPMrNu7vtKDxNpqZcsemnPJ4A",
+        "evidence_key": "05d5cca1b3d56e8663bacb3aaf83801b373428eda46d38a30fba30143541ac77",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "ZjDVmGGAkmj1aj8Le3uGoaUiz39jEyKH6VP7dzQpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "5sJ6tpPHebnYgx4eGfCQLGUDEbxfTu7yBb3LihBxmHknaER9EBAX7YVZbSvjj1Tgtu28wLbJyfRPPsqBTWPmqGS7",
+        "wallet": "2rKe6oPYrXpRL3CgUVrmsJTGXhNY1Uz17Htf6ZdzXwzJ"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV",
+        "evidence_key": "077f469c919eff945e96f91e132a5d3c7914a9234230fce472e6d9425bd4ffba",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "GkyDShEPTvXw6CacK76yxSzA9seHbyPfpRK1AuTpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "4EzTirZNSQKmbsvz6mznUWXXyVo9QgvqLDjXsFqRjtmjsgvZwStzEQWMmnibSXkPhpJiDugfqEGwnouMQXhrCkUQ",
+        "wallet": "6t5EWE97oCjx7DKAqwMisjwX85VjRPPM4WPj9fLoP7f4"
+      },
+      {
+        "amount_lamports": 18688631000,
+        "candidate_parent": "DeoNVsnhJ2RAUv9hxqstpaNiqoU6QzcgxB3FgPUsSw4A",
+        "evidence_key": "0a845b2a9ef61639a8d13d90f32845539944804578bef7c98a7f7a6e92672a59",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "Y7u2wWcosZTHagBjua7W3ddwsmD4ZGhZYH2keASpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "2dmJmgTCGB7BEecBE6rMsg8hzA2CKEsKdoJANsZMwGKykzd7aAcPt858N6sbfgUmSb1c29CB9aCcCJcfdWDLLiFu",
+        "wallet": "8PZAEriyoFAGrEttXmtCk6akRPEWF74RYshHutSV53z5"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv",
+        "evidence_key": "0d2ddbf062fdfb4f3b1672ebd5e9084b08d5d0b69272973bc6e0bb845742b7af",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "shhJVNYRrzuBzKCBKcu6yuYEMLicmztd5Wiw6zfpump",
+        "selection_status": "SELECTED",
+        "signature": "4UNbrwEVFZG9oBwtazzQArtyiK7xTks8Lg9n5GbXJoYFqRhVYybQEKGL14PpP4Dz2H7FSdbGPbWQcZjnZN8xfBGy",
+        "wallet": "REetZZ7KnkkXYqSZAe9B6BdN91E8McDVeSC4RZJQmGa"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "7LAG8Btoz4MSiqQGmA2r26jrQeHwPPqm39Qgvh5W2SNp",
+        "evidence_key": "0e45eb1eee03029f152a7395ca22f5b6cdf08958a3ae1c0135f6fdd6fc6a601b",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "rRGoXVsKJtZGgPqwShxiSD8pcpyH5qXhthqFT5Hpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "4LQJiCUFKako7ppqYQL1FC7yMcEChHAqmbzeChaRhXwsu3AZPfJXR62enefErUwVwoHu3cXLXpmESzF3E9SMgunF",
+        "wallet": "HvrfDJssAXHLzFccnyQDxnWZpFuvj9SS7DcThUPNG4Tz"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "DPAy3sFUsUWVRCGaMKse2hVYR5kKU7Yr4cE1eM5EwvgA",
+        "evidence_key": "0f19aa8f3447aba596f62842fba210ced1224980f7376394b7b4a7dd2f218bed",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "BT9JV4F3t58yyeELzXo72jL6C1fWp8SQRM3i3B9pump",
+        "selection_status": "SELECTED",
+        "signature": "3aXF7MZhnCCtPq1H5MHS5TsbWKYSHAoy4n4Y9QMRm4wUGpT5HksvugHHUeM6m6UvRctvkFURiKPTjPjtvqVSBf3M",
+        "wallet": "98TuFX8akWLq7Luqbyg6mZKFxQQwZu2LRSs2ybwrT3nS"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "5TR1KXium6nxovUUXbofK2N1uYPh9NA8w9WpvvKZ3Myi",
+        "evidence_key": "1102973210bb9d4c97219b6de89c6d0fabcfee32ef7946fc24f50f21c857f05e",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "GkyDShEPTvXw6CacK76yxSzA9seHbyPfpRK1AuTpump",
+        "selection_status": "SELECTED",
+        "signature": "HfFNGZmxxwwvcHXZqdRYpPE5Kksv1noy9dpDfQG5H1xtaj7ugE1AWPGkD4TbaVKvwjn3nVXT1HX9Kz7o9rT6fao",
+        "wallet": "6t5EWE97oCjx7DKAqwMisjwX85VjRPPM4WPj9fLoP7f4"
+      },
+      {
+        "amount_lamports": 895672000,
+        "candidate_parent": "8mv4EdPCRkMKGvk42N5QKp3YTAXMHsrTKuZqjiDcgiy4",
+        "evidence_key": "116999a16cfe2ae2454d15e990f3698bd49297ff71056226fa194d17d687c36b",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "nMSCXsLXZ3R7NBKNDiaYw7CZh7KYs4CyWMEVWNbpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "4M7SGSTQ18SAbPUsRhRtjtAeWDoAWpPmcmwrU2151ogWB4QxEjygvozD7sLvQtpoqJdD1MjLoyHGcaHVS92CaFvS",
+        "wallet": "8burxqJyYaEtpSX1THFaRSjYWND12BNHUbJtofA9YfWr"
+      },
+      {
+        "amount_lamports": 555103000,
+        "candidate_parent": "GXoZKGE6TnPTdSdFa7AdPrYxRWWWzKCPkvuT4Y4kGG7U",
+        "evidence_key": "12c8e344ca20fc32040afb22bd640e52ab312586732ad46927bfa5888265385d",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "DqErYkksQymp8sVr2HkrJbVWkv1YXrz3keWKBfHpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "4kbWAbouku34yhrEdgiUkPk1VtzTaZZPJniUH9fmTqau64BjhRxh3iyCe1RE6EHSt6V4r7TAvrhVrAgGf84J6pJa",
+        "wallet": "8j9q3Rc4zNwNCTLMketLb92LjQroHziHnYs1MKkYkSgN"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "7DifG8cHrQBAAKjqoLCnfzj8khtnYLPE39GnWgEnLP8d",
+        "evidence_key": "1a63cd7926d8aa80591db062a52050c216707979ef91c06953c6a0104cc3a8cc",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "wQFd44Kh6nsrXn49vcu4bpjDCqe18iTGYzTgcWppump",
+        "selection_status": "SELECTED",
+        "signature": "3R96FWHgUMtueaETJyb9aSoMTfqRwjzbaN1ADisRK3V88yHtFezXq6rLmktvbSWUhRiU2wkeYeGiPBbnq4hUBmSi",
+        "wallet": "6GjoAJjEExghzo5AsiJyTV8Txxp9FGSnWsg3qnwn4oyh"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "evidence_key": "1f3e1f8ac3ef214bb2337413414ebe8ab8410f184c8bad96fa73fdd06005ddce",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "N2JuKvtCqPyqZbduGD2uhuhWFZ9qARxzuuYYkfBpump",
+        "selection_status": "SELECTED",
+        "signature": "3TpFPoGwL6YJrPGy2iBqCBPrg55fF79Sw2rEUPt8gWpbnR8h3rrHz7yhEM8j5VbgNzakkhnJxav2hYNkKT22gjDR",
+        "wallet": "FwC68rFq5r4MmsAS3zxEwUSye5JPtYQoL2piJcpKabQB"
+      },
+      {
+        "amount_lamports": 0,
+        "candidate_parent": "2HRQk4ECczNm6hSwSGkSahuFv1UNRJ8ud8uvawGH9zh7",
+        "evidence_key": "22a21285f48d9e41226c67d63ef37e14d7ae954023d910d48aef34dcbe3ba1a6",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "GhvrrotDtMYKFjWpeuTxgskYRji3N2u5TeYToZwpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "246Jvmiw6EXqXaUdW2gqKhPyzoNNiHpT93HUhYnzW6PmgCKWxqMwzJhaV5NK8nSiQZeFCJNhaD4s8xfncSZhJwoW",
+        "wallet": "7LYzKGRKPCxvfUSuV5pm57MjmUgC6G3sPKeRcTL4CTgD"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV",
+        "evidence_key": "27032adc702805f29dcd67b94bb69e8f425122547bced2d4198d531c24370e8c",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "s26oUz2BVe5gpY3D4qYCXWBPwDDoB9AYfFsHCehpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "4vCwjwD4fnbunshuv729FG2GRm279ugtuuoUHdoseePwX8c2myXXeprxRcAeoGoxcwr8UaYdiHxzjAFtLRm1L4fF",
+        "wallet": "8pJutRGnqvSJuXktHtMwga6Upq5atqZ3Z14ha2N91c8b"
+      },
+      {
+        "amount_lamports": 293594000,
+        "candidate_parent": "5p1iMHKPSQo9Zvv6cS8a3BhSAVDtzL1VBqViqPdqWcXY",
+        "evidence_key": "29856f733ae70020c6a979e671adeacdaec00187783f35e5838fd30cf81b0137",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "ZMA7yJNeXUwcUdGWXzw654ZX6k1tj3zgqL7qrFBpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "5YSTSNNmBdDWxoGHgM2zZ2CMhjTRoXopk78PspmXYSw7QyT2yxE7vSFcoJ4NE58bAZ1JPSD3HzWdXkgdySzHxgTq",
+        "wallet": "GhnaFwBs9oWGrec1xZ18j5xmkS2muLcMWK5DuLtaXz3D"
+      },
+      {
+        "amount_lamports": 0,
+        "candidate_parent": "DByt6AC69uQrdfuG1yZaqNxDfoCLKFAt5ng15HDXmCtF",
+        "evidence_key": "2dc46c920d3a450cbdfc36ea063ad8ab6d7e593b0281ce848607a28efb410065",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "eMD1zv3m9ArePAtXYEVFG9tbXfwDzY8GyFMxbPopump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "3Wp5x8buQubLQvd53acbDPkYPGRCMzZr7pF8R3sypYSmYMF9t8yHwuQwJM5wisKHCc7Y7WeQegJNE4feGy4L8226",
+        "wallet": "CZk5uZdVfPUMzmCCDVbWUnom7gSZSbgFJKb37vGwTAt8"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+        "evidence_key": "2f9d4cab202ed25246875a20fa39a302339fabf0b4ee68c2c1e21a626b6b40f8",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "ZjDVmGGAkmj1aj8Le3uGoaUiz39jEyKH6VP7dzQpump",
+        "selection_status": "SELECTED",
+        "signature": "5U8QvwZPsPUueznWzkj78EuYGsSfmqgxC3RMwnPUQfKPkGyhhTsChzbVKNPVKZBZuxwivyU4zEDyZyvHHVasFaR5",
+        "wallet": "2rKe6oPYrXpRL3CgUVrmsJTGXhNY1Uz17Htf6ZdzXwzJ"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+        "evidence_key": "30ae7524c4f8e46d33d821905c61bc52b174b4e7f359a6ad93345ea471679059",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "oruyBzARjKtPNvRhcT5nR4bzYt5SM8uCv74j84epump",
+        "selection_status": "SELECTED",
+        "signature": "3cFkCLMrsjXcFwKVdxrgmHE4NoJDrYcY8qpLsFxwZoWp6unxQ95viDjPWFZUsvBUS8Rj9FhQvJzuzUPPcK6CzNwb",
+        "wallet": "6pGXCCf44q8XzLVbyfivDV3pLv5rAW6h1xVe8oz2sqzZ"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "G9XSZDgMk8x51uHvFUumZK5AFWJLp3GJCV7VZSkL3uGP",
+        "evidence_key": "31bab6d036ded54a14bafaa3af129b241ac70745b5d108af15b948983f52168b",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "f73NdtHMKwTeTy3KRpRDxZe7yopu9toZ7P5sFmapump",
+        "selection_status": "SELECTED",
+        "signature": "5iBDqaLWN7JLtEh1z3HJu9Sd4kTzWE6k84xtWoxdvHStzZgAnjkcQ6HNcHuz92JBkGUvzaLttsKWStHm3fSenmVB",
+        "wallet": "67VT8Cb6aoH4UeuFW5T1yFP2ToxLpAeh3VRiXp8Rt4nQ"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+        "evidence_key": "3342aff2045fafeb69e55f6d4be2491e06e449cdac69d3dd60433bf8feb64805",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "yfmKCjYvHsD17w2xvKLBRrmzF58nZyXH25reGwLpump",
+        "selection_status": "SELECTED",
+        "signature": "ZynPwdVZjqFoh4wgbBif1woy41dkjRAX6wthQW6YUg1tHp9Vjt7idE4CEJ4nSGmoXffMm4zh9qKBJS3ehFnVuFc",
+        "wallet": "6cQye5DE7C3xCd7H9pANDfpQd8CTf1XpEGzdcHYmqi8f"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV",
+        "evidence_key": "33decbea277f189d32fad0a385c140bd9261610be0fea5749a4a78ba05f6e79e",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "YKA5o87oHTTSAsbq1ZPHq6zF1cCaW8HoyhWcpjkpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "5bXhGrfE2MbfVy6R9JZPhKzYwHUvDywYYQfrA4rF35SA9PLc7AgPgpSqpasiz1j5A3Xi2vS1sRAcakj7C15w2fvm",
+        "wallet": "8RrP6qzsk32765uyzJgYCPT4LTaUxUBFftoGWuUH7SNr"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "NeHjc1yqZXesLZTHtK7jrjyQ3MpFg2TVHpV8QDDAHEm",
+        "evidence_key": "3424946881db327067d279846463a82581ff978a9366515964a06645c28f09e1",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "SrAJUQS6snqHUATSX4Jmvb4vZpgmQevqeWbzUEVpump",
+        "selection_status": "SELECTED",
+        "signature": "2A8UEgddd3PWW8AFF495hBdmqoCwoYWfq7v72Mk6qmM6bah5pJcmmdTiLbahD4yTxJF29qd3vhgWHXj9KdNy4fGz",
+        "wallet": "CZW5TGuGBp8N3K9sJjkaq8yrfae8qKEEptFBJPm2hNeb"
+      },
+      {
+        "amount_lamports": 32489333000,
+        "candidate_parent": "69FLg7ydsh4N74hmjEGL69VvFR7sacqnpjpbe7NkL9zm",
+        "evidence_key": "36b37091e9e2dbcf70e5a6c0575715bb41fd581ccd1c4c7538e4f11c40cbe093",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "S3jLzSX9NKbtdUVGTzoeYFMty5xXRYvzTbFASXUpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "4bUKBTAHdwm3TBzCPtaXJSQX8TBF2Lqg1WVDxKcNN9ahowUgGS9haHFGM2JvEGQMoptkgr5LzkM8AEuK9tj8HXyu",
+        "wallet": "GaCSvrcMmwc8RcbdAnxwBdM2dfzUZN3FkPWCCCCusMbf"
+      },
+      {
+        "amount_lamports": 494469000,
+        "candidate_parent": "SprCzKDt75xKUt5iWEwrUXqD2tjHEu54Ct2VtP3WPxU",
+        "evidence_key": "3865706b688f83bdc418f020f422188b5441389bfe4ce55f6d46daeeca4d3ec8",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "SrAJUQS6snqHUATSX4Jmvb4vZpgmQevqeWbzUEVpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "5udw1RN38SknHyu1sjeEDQ4FTVu1Mfpk3ureu6Yt8Y7iCtF83dCQYvSFitnrfd6WPKoLNGQEd1jH1VxwiQcq49Uy",
+        "wallet": "CZW5TGuGBp8N3K9sJjkaq8yrfae8qKEEptFBJPm2hNeb"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "7LAG8Btoz4MSiqQGmA2r26jrQeHwPPqm39Qgvh5W2SNp",
+        "evidence_key": "38d8a539eea19a3d1c2450171df4aa6f75aa2b950c89061d416da07be3dbed7e",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "keZ4mAQQqREHoZeC3HcZNpVC1qSGX4kiWC7vdtvpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "27SMkhTSaGyGm758JTMRBxstq6ZGLCSjtQVqcqMhgF8i8sch12SA6nmrLfwgw1SKbqsRGMKHVcQvC6kZVbokRv52",
+        "wallet": "9qJM75r8tkUuso35D2RcjoBmLCFy8QDnafbayuwtfUba"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "7LAG8Btoz4MSiqQGmA2r26jrQeHwPPqm39Qgvh5W2SNp",
+        "evidence_key": "39d2217d1cde26a70b8559bd0dc216787deffb07e08321f04314a6389289b8d2",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "JHkAR9egULFbv1PfGLky5NvahfQwWJRDH4zJMsWpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "5d8EPnTsHX6mkE4GchgTLgQBvdRQBzn9kUXQJRGCvqv6jFTuG25A3rUiocHhpHfQmuZaYgLwfSJtSLdS24xhNmin",
+        "wallet": "CvQTfPsBj9BrH7VfkkrTAXcE5sBkeoLU42S918BnkJw1"
+      },
+      {
+        "amount_lamports": 34691715000,
+        "candidate_parent": "HWse5GaeZjEZFoZzYmvG8oe4YZb2BpcgoyXzTa7BKXZC",
+        "evidence_key": "3af4905f22c5605769f8120374ee3938d45d3fb5f76f354dddabe23ad1375fc4",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "HUNHEFrs7pFJpd1R7bYq6vT9GigRk3rV9av63ZVpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "2V2MLur9exTdQu4iKMWeE9Uauj3fVUHx84UsXfomngAGTkeT1JXTNGrJmbBDzop2ei79eXpWke7wiRtcVjAcEypi",
+        "wallet": "Ft5Sn8GN9BrqGXUyiuvw4WgEP9MUER8hdmZ7oBBEQ1rT"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "5sUoQPPvnvS6eXem4TdcjKJ1JZy7uLEhWN3pCA8yNFnc",
+        "evidence_key": "3d02efeb7be915b5ea763b9dbc5437bf6cd9e895dcb4162da80c0008a0e3aca3",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "HUNHEFrs7pFJpd1R7bYq6vT9GigRk3rV9av63ZVpump",
+        "selection_status": "SELECTED",
+        "signature": "2HtE82WMYpvpMW4Rxj9cujNYPeYYn15Q2Qh6iFxi46fmqwfNTuGc7KCGZQgGUqcn1ensRbpw9ECw8LRJNrYU41D8",
+        "wallet": "Ft5Sn8GN9BrqGXUyiuvw4WgEP9MUER8hdmZ7oBBEQ1rT"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "FJrraJVwKYdcLX4we8UttdJGvxErgUKWf6awnVSsxArH",
+        "evidence_key": "3d5f5e6c8d01da8751616b96397f434e9bd0b73cec7510e9834ca9f6c7d183e3",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "UwMkVQDeXLpbCXcHp5P9yVAneejwwbviFfBJFRXpump",
+        "selection_status": "SELECTED",
+        "signature": "4NfVTtRXsfmouCq5bgNBJDPXKiqGCUriibijX5ZYNHCShkhTFzDATBUoDvS3YLTdZfCoj2JxyKoptijgGYhkMivr",
+        "wallet": "38aBEtXLDNScjuAcER11UbCpCyovbtrmzod4YAqkAxMz"
+      },
+      {
+        "amount_lamports": 10287000,
+        "candidate_parent": "7ziJiXadpUPb7Hq3xmMKfjEmu7K8LRLJ4uEHJzyDohb9",
+        "evidence_key": "403616b519bb4d66f68ad8a8a94457822c15e3e6b7f0d79d263897489da40727",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "JzXZKSJZvtS3scMCcmXWUJGxRTBfnociHXVXKRvpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "27cgeyy4dHtoSnmsXBxxqciGUGzgwDNaytxQtT8JqhL1tzzYDZfxqW8onFRABrKbPmKUgsAyhaUWpZYDiqQ3mQJQ",
+        "wallet": "ABn8WgSFDxiSWchwi4NyAJcYHvbmE3vB86aHRbFgvqi2"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "J37JdYS3hpMB3iW8tgUdfFrrBu4X6o9PT3SguxpHXJVW",
+        "evidence_key": "409276ae34a1100ab9677e70553b360dcbf40136e19c2e07e51c84e6a32c02e8",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "kPTzLD8x9n3xLVrtjdk4qbxUr3it6Ea8ZpkHpCBpump",
+        "selection_status": "SELECTED",
+        "signature": "Qi2Jc1NRJJVLbYoAafL7hMCojqiBjLYRtv8WrRVW6FceB3vVHVT18TohbiiLuvFwo7gvmxGVieytVYXcZgbTApG",
+        "wallet": "BWPRQ5AgcF75xho5PesYz24UKaXpgzrhc7kEzRkNpTyn"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "7LAG8Btoz4MSiqQGmA2r26jrQeHwPPqm39Qgvh5W2SNp",
+        "evidence_key": "446471b82c45354f8bacac92953a44ba23625bcd835ed56d6d886b660e341416",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "ZpQmhQvEpasHYF2gDrDJXaYZVDJxJUZRt9vvHbUpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "3gCEp3MaTymzgwXfK8m7xJWG7CfGpu1TuvMupwV6gKXmeZ2PiGp7Ma6WXfoXh5PwTfrQ7F1tdVahZHs4LmFL5G9J",
+        "wallet": "6vJXHimFNCDp1fMY4vuJfNQdbm8cbXrYQGxdzzPz31gt"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "AW7FZRzGUA8HnRWTsGbEDogAh4Y2Utv2KBqALEvfGLqb",
+        "evidence_key": "47d7c56cea90de46d774de57972458f674952d6d63ec032ee3c53730aa9f30df",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "z5vGP66VUGSrT5WyfEs9QGB1VJiKh5Lhx2DeggCpump",
+        "selection_status": "SELECTED",
+        "signature": "5rE4ycyQjjAGEPUNHgKADrD4vjZJHCRbus9URidznc5xr8Z1mMAA3knLvuYyHqbHw8JfVhtmXRFdbdMKc8b9pAFy",
+        "wallet": "UPRCX1GKQxfBzuzenjQ7UkTiBRtPJYDoNH9AsASJoWW"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "AhfDWL1mi2xajF7JWGDzmTiqvtRxD7JDWHkaZVnmUvw7",
+        "evidence_key": "4883fd848505d89f48e1c0b5a0accd31737d0cb7ed5966c2b9c8bd4bfdcf244e",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "jmM56TE7ko4jUzmzJ523W1b3872jMXKoiwsJLUKpump",
+        "selection_status": "SELECTED",
+        "signature": "62X9S27tdEq6MqxncGgYbV7KDxt6tasmZHn5eijeBFk7hZEB1YwtJtQDJwaZNpWma6Gqu7ezn1Ykx2RFrGgqLiH6",
+        "wallet": "FBP2zCEFgcR64bBnoEqKeysYx5d7m5WMmNjRUgp99ddD"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "6jJnz6ZQjDZeFLxoDq2RBp4fvsjPfCJmpr1jhQcy2rBk",
+        "evidence_key": "4d9cd770c0213e814477c197aa6b45cf3185bfb3ecf1cf3207508bb29a8d6af4",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "VByVzKnqKM6QGCJs9JwxGs4RJC8kdtwtn6FnfXMpump",
+        "selection_status": "SELECTED",
+        "signature": "2KUPL3zYNafnqKqnHEzg6HyAbwcSbgotzu3BmcAbWjPwUTgE4C5aiytbPftFA6XgXqJ1NwduvMdKePhJk7vkLzdJ",
+        "wallet": "mMscMXbq3SJM2R6EcL9b8YrgTkDaaPZKiGWHLwcFjzw"
+      },
+      {
+        "amount_lamports": 716429000,
+        "candidate_parent": "6CQBL1gizbjwvXjVLDjwX2az1kQ9WhdWBAYBtDQEperX",
+        "evidence_key": "4dd1a1c561101e9c718d47e61907c1664b0d1e4e40892622147b985e637502e7",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "GhvrrotDtMYKFjWpeuTxgskYRji3N2u5TeYToZwpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "W5vJcBdQLtoVqFewk1KX9vasAqMNiwPykBdxQo8yzJk3iKK9jJeWLSxqgzExQr4ZxNhFsPdWguqyTHEXvR9qQod",
+        "wallet": "7LYzKGRKPCxvfUSuV5pm57MjmUgC6G3sPKeRcTL4CTgD"
+      },
+      {
+        "amount_lamports": 0,
+        "candidate_parent": "jRy7boKS1dcHPkvbVqaYnXb3EQNBkYjqseWvdCpberE",
+        "evidence_key": "5069ca75cd4ad6d5d66044ed97e78774074edfc0c435f218a125e82ef0a49bc5",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "HUNHEFrs7pFJpd1R7bYq6vT9GigRk3rV9av63ZVpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "nzgcpJXsMitXRcKFUTsASYUkPpETU4FJfLNqQrLHVcij7Hqhs6DULCeEsBUiMgKc4VTy2kLrrGWg55FaRGQoi4U",
+        "wallet": "Ft5Sn8GN9BrqGXUyiuvw4WgEP9MUER8hdmZ7oBBEQ1rT"
+      },
+      {
+        "amount_lamports": 0,
+        "candidate_parent": "5CPr5vAkBuYJ6uXsvDnMysHMnWWKaqZiju9yvQ9casQp",
+        "evidence_key": "5187bc3cb49c53920b1e3d9d9031db7a25780f024d25e6753e5a31624170c6c0",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "JzXZKSJZvtS3scMCcmXWUJGxRTBfnociHXVXKRvpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "4ZQMNATQ59xwFDNLcitG1Pzp95mNSUKvJjmanYJToQ4fzXjmBVdk7HT3vi6xvqsGxjjNFaPFz7xkzyaRfumaeuZg",
+        "wallet": "ABn8WgSFDxiSWchwi4NyAJcYHvbmE3vB86aHRbFgvqi2"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "7LAG8Btoz4MSiqQGmA2r26jrQeHwPPqm39Qgvh5W2SNp",
+        "evidence_key": "5252482835c001870a66b8eba585a703c4509e424979d43cd3b7a1091dd25467",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "WLjqiHSEWgHVkX9JWJXgXDhX9XTCtSSj3EdyB4Cpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "kb7Z9NXCzX2rcHKj6PefYCnaNendvUc9NzMrHXxwoGi9odPua1bWtjWL1rXwmyyzmSVfXs9gThrqpiBR2y2gnZC",
+        "wallet": "BHqs7btMbN3iFsndATfadrZogMdtEiqTzFc6qqe6bjQx"
+      },
+      {
+        "amount_lamports": 0,
+        "candidate_parent": "55j4fbLUPE5r6qr4SDo4MHtmPyctcPVrbSwsh32XHnMK",
+        "evidence_key": "52f71c52854e1fb344cbfadb0281fb9c3a2462ad1d27747c6464828b289747d7",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "Q3FHwyr9AFZvFJUyFduoGrnJE5gAgq7UGQWVn2Kpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "4aR9MTu4G6uNWmHL5zohqvty4DSyPHiWLXpfPhpoeqQf6Rdrzzfx4Kbckkr7EVhkWiCQrQAA5xthn9eFqH5k6dEK",
+        "wallet": "xkRXakyCtZyurxF28kUserYZ7ws9NqqTxaEJjSkVaiJ"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH",
+        "evidence_key": "543c70c4e8abfa72b468fc8e424c99895e7016953394f258c9e6ff4fdc2e9aea",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "WV1UndBXx7eGbtA7B6Q7HEnX1mN8DL3XdGDN9Jupump",
+        "selection_status": "SELECTED",
+        "signature": "5Lfp1RwA8YwrZPkDH5SBwwqcTGjEdejPQQCqcRRhtAgtNrp6bBHVLmbwLML7BnAavoAWSJSK4E3W5aTmWEYWLzck",
+        "wallet": "8jLQSAxGfEc1nqX3aPKBHnVXLgbLDwaNdBAFg9XBssyM"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5",
+        "evidence_key": "559801f5bd0c6f9d354a6e026511e0b373f188e8a4d07742a425de70e85f6791",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "mP4AehV2DV4KdNcZkjih6wwLDE8ouUz6ns2FB3tpump",
+        "selection_status": "SELECTED",
+        "signature": "2d8bkCHFAxv1HbxsxeALM5fMyvBKRQ5cVQLrw9NfPwXvfzUmmwMddE8TwcMWyKPrm6SLAQBMzipegkVF4J1pJNHS",
+        "wallet": "2qX18psDn9K5jqB8G295Z3AQwbV6xi5MezuHd3Kbq1yF"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5",
+        "evidence_key": "57b007a04dfe8959ddfbc5a00b19837843d79593e133538d8752d6974ce3785a",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "JzXZKSJZvtS3scMCcmXWUJGxRTBfnociHXVXKRvpump",
+        "selection_status": "SELECTED",
+        "signature": "4orxjwDEAhQHqVu12EejbTyFr2bazWCQR7NBRN3UrA6cxiUzEyrVpzFvzSgWCVQsKxUU571A3R1LvQ5139R9DSEn",
+        "wallet": "ABn8WgSFDxiSWchwi4NyAJcYHvbmE3vB86aHRbFgvqi2"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "DmfxzqZQTifJQhfrikFdDQXy3Ws6X9H3VX5xkRVTf77y",
+        "evidence_key": "593577c43068b3ab90925075388b6f3e1e60b0a9081afd5bea48ae5f1bdafd0f",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "MW7ePAAMjxWyezTKtnvYXewrN5H4CHrv1HYkhabpump",
+        "selection_status": "SELECTED",
+        "signature": "4eAuDBDr9DtKEc5C4soRXkkHGK66x5iet2PmEnwFCRjg2QAmWryMn8FEtwyHavVEHa71bdoQsXhVQt1mX1kL5gSt",
+        "wallet": "9UA4PhjVWhShFgJvpQqyvJoSftQL5757J3buGuATCAi1"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "GUBtBg8i5wn5ME3vYmgqMZFFuBnDp6i1oa8BPFwoURAP",
+        "evidence_key": "5aef2f097e62d69268d2385acb1d783e95e0a2faad4f492d6ebb25c146dc4fc1",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "qcawC8mNoMy2C597kxDUMHbHJaZ5D4nPR2dvDoXpump",
+        "selection_status": "SELECTED",
+        "signature": "e3idJ3Gx1ZW6BLpTVbqGCTGXuLLqpjNyNDWGBero8aA4WGzxrJnE3UPDcpmjmoyeAkPMpK88zJ9oY5maUBZ4UFL",
+        "wallet": "HRhj8yPAqPgJnjJ5JKTFogHZ7Pukugco8rzXwsR2a1va"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "DPAy3sFUsUWVRCGaMKse2hVYR5kKU7Yr4cE1eM5EwvgA",
+        "evidence_key": "5b2b43aa45e25c1d022298182c7ee21f7933af39f936cd12ee428c8999d50ebd",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "YKA5o87oHTTSAsbq1ZPHq6zF1cCaW8HoyhWcpjkpump",
+        "selection_status": "SELECTED",
+        "signature": "4bgJafu4qAdTF9Lfc6zwWT7MtzDDPHLHZpu8iGdUXsFd5TzRGFWWkJXrp2vUqiupwbH9nkgFHsgcysjacX9c5xGP",
+        "wallet": "8RrP6qzsk32765uyzJgYCPT4LTaUxUBFftoGWuUH7SNr"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "7LAG8Btoz4MSiqQGmA2r26jrQeHwPPqm39Qgvh5W2SNp",
+        "evidence_key": "5c432fba90d889fec75624665e7e79d0e023d89296e20e63adf2c19d337c5b49",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "shhJVNYRrzuBzKCBKcu6yuYEMLicmztd5Wiw6zfpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "VoFwjj9mHohwLm5NY4R5sjQpV9H77BPjfEsCWi7zeAhZKyx39pnLkdTqv5HVeDF1vg59eKX31u3qNDfDpP7ZBWs",
+        "wallet": "REetZZ7KnkkXYqSZAe9B6BdN91E8McDVeSC4RZJQmGa"
+      },
+      {
+        "amount_lamports": 169857000,
+        "candidate_parent": "5Vpc7ie1u9a31FaEUjaE7Ew6c6fAecouVjkpCyY8xUyG",
+        "evidence_key": "5d66da335f69c8f2e845d01a68385e86e71c01ec2d11117cfefa8be218bd033c",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "Q3FHwyr9AFZvFJUyFduoGrnJE5gAgq7UGQWVn2Kpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "3HsKZCpZppyTT5qL1tkkbuwdxd5DkxjU54CF4rfNEJThx2PTooUgimqwRiZWP5xRDMcJFqKzec3jNz3uEgW5W5Uo",
+        "wallet": "xkRXakyCtZyurxF28kUserYZ7ws9NqqTxaEJjSkVaiJ"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "j6EVoUMZRafJPrdkuoB9PJGXxBGHEsx4VcJq5W3Ft5d",
+        "evidence_key": "602b2fac7e6cbfecc091a6575e82e67a1e2a0b24ad64b79f5f6306b70edf2595",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "nMSCXsLXZ3R7NBKNDiaYw7CZh7KYs4CyWMEVWNbpump",
+        "selection_status": "SELECTED",
+        "signature": "3XwPMKQo1QeDWHNZ1JsNiLrqva9STsT8Vg2jwMic2UdP7LowXbd1ny1B2HGVzp9HJqY7AjEoL2UmikfSdt4VVuXd",
+        "wallet": "8burxqJyYaEtpSX1THFaRSjYWND12BNHUbJtofA9YfWr"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "7tcRfs8gJuXvPEoUNn7NMzizWU521ATXvnVxyPt6gVxx",
+        "evidence_key": "60664492c0c4cb9358ff491bc05100c6888157c2be9e94cadedd8759df815efc",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "wQFd44Kh6nsrXn49vcu4bpjDCqe18iTGYzTgcWppump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "5obLVEQNv8YG2z5YF97C7H26iCeUJ2C3AZeMtr9RvtQQrxkzUHFziFWFaVeM4FZwc4hqvYYURPJEpZHvb12emk6B",
+        "wallet": "6GjoAJjEExghzo5AsiJyTV8Txxp9FGSnWsg3qnwn4oyh"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp",
+        "evidence_key": "625b35989a1de2b4cb7aac3a4b16b2e71723f7493b39d0a8f4820c8b3c692260",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "puhW9nSz4rczEtWNM6TH1zYikSmapRu2PxdSXwfpump",
+        "selection_status": "SELECTED",
+        "signature": "52p7M4gNX4VvaL491wwHoNPn7aD2vv41ZnZd5dmodySGZVUaAUCg8F4me7ihxLKAB1Bi4yYZUAigSKxgGZSnwqbn",
+        "wallet": "HPocCJSYVR5epcdJ3SNdECj1BW3QbwUZJahEX8tNTMMJ"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "7LAG8Btoz4MSiqQGmA2r26jrQeHwPPqm39Qgvh5W2SNp",
+        "evidence_key": "645673dfff02b84aefd0a3d87dc965c23e9f7001486183dbaad68963bf0e6285",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "LyqncnAuRYisshpv1u12B6pCD7SASdyFj1itCUcpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "5WgfsNU1TVNDqssjiwpeZxyFkfgkVMf8yN5sJJKnf1KyF5ybMFJujBahZsUTScrn889KeSFg2onaWkkUyT7dQEPd",
+        "wallet": "AX93U7LoL2QYWJnuGa1grmqWgtPhG3y6CwqoFanv1ttx"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "7LAG8Btoz4MSiqQGmA2r26jrQeHwPPqm39Qgvh5W2SNp",
+        "evidence_key": "64642ac9ee559670385514d803498de7f1abb0ad92b0dfaddfd1cc4a9edc59bc",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "oruyBzARjKtPNvRhcT5nR4bzYt5SM8uCv74j84epump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "WoieACXMRPQJ54k4TSQYu5yT8jAJFaRBDbuuB9VRyi8aS5wcZJ9q2RsQWECzHbBijHvdJMJXHtXPbSTcGb7HSvU",
+        "wallet": "6pGXCCf44q8XzLVbyfivDV3pLv5rAW6h1xVe8oz2sqzZ"
+      },
+      {
+        "amount_lamports": 0,
+        "candidate_parent": "Bnk1oGKCsdggqSA78tyDadFhcysMMGvJpJm3y1PoytLJ",
+        "evidence_key": "64be491d7bd842d7d8bfe450d19402df7ed504fe7ee7b94d3d771e4c8bedf1c8",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "svVnLbfCPjKAZ4suNYDfebJZ8AfhiTysVQwn3fZpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "4g48gw6ax38MwjqnmmWdD7CqNnzE3NMmgzXphviB3pQoQWS8Vbr5sZMR98kNoWbwJXh2hidhB3AUipt2VFNRTX8J",
+        "wallet": "2BjFyzy337jVzrLzgbfj9vm6j7ZDWyjwDtp8bShkGcnp"
+      },
+      {
+        "amount_lamports": 309231000,
+        "candidate_parent": "BGFqQM2ETzdW8rGe7BZXjaVZ6VmQsWWXKCNvKxhFJYJY",
+        "evidence_key": "6701f7155e667e75bb64e66f3d3eeb0d8cc04e309d65d6321cc18dc17e1b0cc9",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "UwMkVQDeXLpbCXcHp5P9yVAneejwwbviFfBJFRXpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "5R5o3Mrs2kyHevUDGQbtLfR5ZujZHxZjUGKaCxZdCg7kvZZRj1RVbq7tA6TsJhXTBNwWvSFMwnDs5MKJ8Y7FeGz",
+        "wallet": "38aBEtXLDNScjuAcER11UbCpCyovbtrmzod4YAqkAxMz"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "7LAG8Btoz4MSiqQGmA2r26jrQeHwPPqm39Qgvh5W2SNp",
+        "evidence_key": "675002331285644cea9728297b0ab9d928ac1473276077dcb95b8b7741bfbffd",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "aDdwL6dso6ZD6Rag2FZTURzADRiyXxFVeT23ri6pump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "3tv2SAq1qKh9rt1VUyf3uUaEoD9LWmVRzSi5as5QMRvWP6EY1WZ2CSRuib5gvDdBEyPa43K8n2CJ4fSuD2LbbauL",
+        "wallet": "9cZq1PZcQ37YkpbDdLZsbWhzHRQgts7xZq46iFzKx3BH"
+      },
+      {
+        "amount_lamports": 125415000,
+        "candidate_parent": "9WEFq1GEKCcy6M6Ah7Xa6ow4Rhojcxa2a2WgL8qLXS8b",
+        "evidence_key": "67541ec6a0eb7dca19586d40d4baccc208e92af0057edfe0bdca84e47d9a5150",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "wFUJbWiV4wKK6BJJQdojJbgbd4Y51M3i3nA9VKLpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "2e5k2HsKawUSuLhiSgxJfRGJBTrdL42DQfNA4Fe88xCVHUHgc23yYNsEBnJPm4dXQYHdogJNwTVVVBirFaaxtfiV",
+        "wallet": "5vVafVudjZJKUagJuuxRTkFgjLQLqMbrEKVFMwNXcbKq"
+      },
+      {
+        "amount_lamports": 722995000,
+        "candidate_parent": "Bzpk9nkBuPRGQsrd6rHmJJSJYcFbWpVJ82ym7Jk8rBiC",
+        "evidence_key": "681f7c5cd7e5c57d15d3effea41c6f64fe0e9c603f2d21ea980c55fdc7d9db56",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "vKPT1gGoRGsdzaGpQB2K2xAZGtmgjVNm8kNJvSvpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "3JK4ekYw5Gfwj2AZKhZ3UnNoguHV2nVXmTAA4UmApxhMvVj7gi2PqnY38PsHty3p9tjAg4jFd1GzNvW8QMhiygMx",
+        "wallet": "AcGW5iwbnLL6MqnFJckVEunSJsREtUB6twMGXjtSYcjr"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "49Wo4qJS1CWPd4b8LAezyL4ARPj3fw6N6zPhPV4dQd6V",
+        "evidence_key": "68344778b5a999bad53d5bbfd58d0c29de843a4078e255250fe44732c0241a1a",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "UMVSuCPVE5H1SbEZ5X32iu3Jcs67ySZ1iMuiyaWpump",
+        "selection_status": "SELECTED",
+        "signature": "3DPNaFit2pjTZS2HGyj2VAHqb55N61GzGQeFtEW2AMk4xQBURmKPw3NGkjMRKNWidFJjThYMTJcTqRzJGRDTccEE",
+        "wallet": "2QiFAgxAKru3d8oWsL5eEkSAxmQxU6WxHTCoGM6N2VCC"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "7LAG8Btoz4MSiqQGmA2r26jrQeHwPPqm39Qgvh5W2SNp",
+        "evidence_key": "6a2305f874c316c96282cf0341fbae9f87e841988d1ef4df700df9ddb05f19f9",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "MW7ePAAMjxWyezTKtnvYXewrN5H4CHrv1HYkhabpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "4dC6o3cWCP6ziP5grmPZ7k6wwKdGydYVUB1MLqx4cm9iKvit8tW4yY2jjKQJcnNF6HuT3SQ1CkR3vxRWBJYbSwWt",
+        "wallet": "9UA4PhjVWhShFgJvpQqyvJoSftQL5757J3buGuATCAi1"
+      },
+      {
+        "amount_lamports": 5553225000,
+        "candidate_parent": "AW9WfbVoVRojCBhhjEebfBU8bUjhbYzGsm5PtnuBDWuy",
+        "evidence_key": "6d8f88c96e699c25299caf8ea8513bb8e36b2c11b3e96078f7c2859a1fcd46e6",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "awwz1zgwET9MtvRSZ9CUZ5QpLFviT9fFv53CpDApump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "4Yuwu8yVmTge9w3vZvaJ2ck6hqsjT8qowZTdr3t5DJZe6h1GPbkQdfLwek4Rvunp3SLWBViAMqmXNfTeLV8ZDjFo",
+        "wallet": "2uuJ1sr5bqkfSnMHFUAhFjSwksAvHmH3TU3aU7UWBhFK"
+      },
+      {
+        "amount_lamports": 676884000,
+        "candidate_parent": "277w8ivxtpgNS8A9uQvB12ZYn7gKzedfgMhY1NbLogfN",
+        "evidence_key": "6d9fc95db6911b7144ec53b27cbcf61c26f71f9d6a852e0d6e9aaf606f1a2d3f",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "UkCrzRHSB7jDqMzfLEyAA6A68ibzWZpBWvdY2y4pump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "4YmABxtnZP1uktT3oVtLFkL8Mhanw5UDsAN8CWxHaWtxSAXtxt5FQnrVwkfMB64obybWnv9sA7XXfGSLB9hF3SLD",
+        "wallet": "55fXgo7wWvfTd6ZiRNrqoy42Hx7CbfKnSQgMriVStPEB"
+      },
+      {
+        "amount_lamports": 624840000,
+        "candidate_parent": "3iQWgP6WdskYgPMBAWX24niBaBuvn34cujBzw1YyKXyy",
+        "evidence_key": "6f9e2c9647d34271137d4220dd0bac58f37d3f1c5125a5330c31f277f4450f56",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "qcawC8mNoMy2C597kxDUMHbHJaZ5D4nPR2dvDoXpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "5ocsxBzNTSD1gBwxJjqBCD61GzE3B68n24PdK1tQ7kR2kK9RSAq7Zm7Nc6MobxGSTKPPrxuJ7yRKjLwdVNpQ62Jp",
+        "wallet": "HRhj8yPAqPgJnjJ5JKTFogHZ7Pukugco8rzXwsR2a1va"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "7LAG8Btoz4MSiqQGmA2r26jrQeHwPPqm39Qgvh5W2SNp",
+        "evidence_key": "7024377fa26242a237d8437df8eda55a8920293681916cdbae9983ca1518f616",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "TwA2K5KnYpyNeu7dxeNY3yS4uCR5KrRRh9FPLDHpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "5REKicD7x3e26ix89TXqujJHdSkfwkKko1e74SCRtWeLivtmPCdAXKaPuMatwex7FDNvBai2cv22oirWB2vTJWwE",
+        "wallet": "9vxWQxQ7t96c8me6weJaUs4wwvqL2dJnborBhAbmBjvU"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "CYnm5v4MiLLLaUvu5VUfYPxszU8RPBzmH3Qkv7QbfcUi",
+        "evidence_key": "7088294feb9ccb11ce6da86892550a068cfca395831aab945e908cde9ac86358",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "Cj7up2N4yXdzZmLYNaiPt6zye4VWoWHsyeCobEDpump",
+        "selection_status": "SELECTED",
+        "signature": "4no7LpZipBLnD5oVE9NL2BTiji399jehxjdBniqBjkhZmG4xHgybQKK35ktKEoEjUWmXvRiQfhvztEU5eptNsJLM",
+        "wallet": "9qqSas8WY6nmQ3fnisLFDJt89AScjZiqbT1jAA1BUCe8"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5",
+        "evidence_key": "720f8413a45554335b1c1a27235c609afc8ca43fc0bc9fc2aa857cf76389be20",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "Q3FHwyr9AFZvFJUyFduoGrnJE5gAgq7UGQWVn2Kpump",
+        "selection_status": "SELECTED",
+        "signature": "3NeBxDj2bZUFQdKafvsdbtgh68moKDBnao3QEAtvoch4wWE5sfy9wHUghuwnG8QhBc8u4PfbhFHFURnpfQnAgRzu",
+        "wallet": "xkRXakyCtZyurxF28kUserYZ7ws9NqqTxaEJjSkVaiJ"
+      },
+      {
+        "amount_lamports": 0,
+        "candidate_parent": "Gizr67gtSJMfNmdbfLHcWGPdT2ckHk4XQMThGEfuiyhz",
+        "evidence_key": "7564012be1855cfec444285b80a7a2f2e68c78c1bca97a8ecc56af063bb6fd8a",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "wFUJbWiV4wKK6BJJQdojJbgbd4Y51M3i3nA9VKLpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "42DznTdQSXQ4jJxggNyHMuycaj7J6UDjkcMj3vJSK3FPCo11Z5jHbUQv8HV2PicwUtnotbmwXSLgYXQd6Uif5k1R",
+        "wallet": "5vVafVudjZJKUagJuuxRTkFgjLQLqMbrEKVFMwNXcbKq"
+      },
+      {
+        "amount_lamports": 0,
+        "candidate_parent": "7jvofzMJTLDgSHuH2ZCoiNxx53RQVjCARdNCEcrhwy6z",
+        "evidence_key": "7757fb84085cb0bc6cc9094bbd91afdf0d98d049b0a3d998486467234700814f",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "SrAJUQS6snqHUATSX4Jmvb4vZpgmQevqeWbzUEVpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "4NNxTQ3kRDpjrPr518oPU4sxcpawHnmS4V8UqMjngTgGk9cobscscsra3r1Tj251gfE5z5EDBk7mMZb3aHD3Eo2f",
+        "wallet": "CZW5TGuGBp8N3K9sJjkaq8yrfae8qKEEptFBJPm2hNeb"
+      },
+      {
+        "amount_lamports": 23512572000,
+        "candidate_parent": "FQAEZgbimMNs5C2UwSq61pumVVwXxzuzfugM6EFE2h38",
+        "evidence_key": "77f9921d2eb6df79328a0f197aaa5a8c99d96cb93d661fa43144c32bcd049104",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "W7Fnj98a3jY9aoP9kd25taK66eJ1uS6b6VjpKtJpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "3eGPazNZswD8WRG9aghf2fz1CtH4bdUJJbsmVSZP24qUGkMB4mvgqv3LRcxubpKapYfWBmSjXNHH3isDmYGD6QPf",
+        "wallet": "Bo9vgoTpWBsRD1U3jwPRuSh2cZAAZSzSDJgcw1Ah2mCT"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV",
+        "evidence_key": "79d743e1982a9222ce2bef02d1ef48df713fce66db22b0fcddf8e78fd64a6e53",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "x7ofxncQVmMK3PDXVJF76uJ5JkgzX3x3eUGXkjopump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "2sbjJtrFF4KGzt2PDgVmw9863qaJAPBHhPh2s6i83DDUuQrLLeTKi8b5oRqovmhYhmTy6TdtKRugb36vdkqpJgPs",
+        "wallet": "D1WebujJc5CJR5eKjnWWfiKbhhjMdyzKgihbmoDmdsEe"
+      },
+      {
+        "amount_lamports": 0,
+        "candidate_parent": "9aBdPzzepEdzBGMMgebzNRFXXPic6GvCodAZtaRmFruJ",
+        "evidence_key": "7aa0c2657b65b44fb4b23c0bd14fdb0177c1b691a6ebaa84e2487ad6f32ec494",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "mP4AehV2DV4KdNcZkjih6wwLDE8ouUz6ns2FB3tpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "3N7jdSZRt6nZRknus4NqzeVcmXvQ8jAzFeJU7QtU75cCHzyWnANr5dhsruhv9vqPt79zg7dE5d8wA9LDCiu4ByhT",
+        "wallet": "2qX18psDn9K5jqB8G295Z3AQwbV6xi5MezuHd3Kbq1yF"
+      },
+      {
+        "amount_lamports": 19743780000,
+        "candidate_parent": "GNRhHJjS8WMDJ83gssS6Cnj3V2tzLXPNP6Vh447aK4GE",
+        "evidence_key": "7b9eaa41e84eb35eb56520393733c2d9d27d8d02ba3a9058f84e86a4145b9414",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "yfmKCjYvHsD17w2xvKLBRrmzF58nZyXH25reGwLpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "QYAWLD1fBmco97bptHXqKatJ8axogR4KXaiwQmJQvTzbpXCp2P7Xcji576zqTmxgC3hcBcGYi7vE8xubhxkjmPz",
+        "wallet": "6cQye5DE7C3xCd7H9pANDfpQd8CTf1XpEGzdcHYmqi8f"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "7LAG8Btoz4MSiqQGmA2r26jrQeHwPPqm39Qgvh5W2SNp",
+        "evidence_key": "7d3a8cd79e85ba39d16d830c605a7796178bc347cdf629b08d9eb0e3db1b5070",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "RAjnSnVnRmf8Za8MggRPRmjkY2ZQkK7HiXYz4YSpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "5dAqCEzTm2A1mWHyhz9Y5WTTqVnFZ7qzMbx3fiweu3szqN7sp5FfH8hMyhREihNQasjDMo8FLQ9geLordLpt7oQL",
+        "wallet": "E57fshvfneuC7j1m12mXk8GjQcDVTKmKLG24rnbjiQLF"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV",
+        "evidence_key": "7d75b1ad1c4e0bd60bdb71806060969f885d98bf675ac610e1bea85553ff08a0",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "p6Dydex88SswnKT9pRnjPwrCfHpw1c79FAAu81Upump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "5Kao8ok3TcSAGrF66fgUy5yBH5xEJCzYnuqd6ccpYJjFzvERm8k44aZYS5Wa8gLCM5desFq5ifvWve9b6Xc6RJaw",
+        "wallet": "BxiwCPhgCQbLqSf9ystoYh5uRj4EEvQFcAiXGf2ziM1f"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV",
+        "evidence_key": "7e06d84dd91036f86d535ae776c9d583e3c414b83915a3a443d14dc4bf1ab54b",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "N2JuKvtCqPyqZbduGD2uhuhWFZ9qARxzuuYYkfBpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "26VqjAkxtD1uPF6zMc4BbfRPDearTQvcYAG1on67L8eHM9ExHn3tnevKu8yWiFVhPxx51LDnYBbCumYfMrh62KHm",
+        "wallet": "FwC68rFq5r4MmsAS3zxEwUSye5JPtYQoL2piJcpKabQB"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5",
+        "evidence_key": "7f40f4bc80803d197ee92c40969e89a472e4eef8cc3aeb16a66cb26cbe8fef89",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "x7ofxncQVmMK3PDXVJF76uJ5JkgzX3x3eUGXkjopump",
+        "selection_status": "SELECTED",
+        "signature": "3sXLs5ecH7Dzdug7d5viAkbCn41ejiUhFeS98vKDAGKywBL8CFusfYmfkFbx7RJRcj6oNqFkY3tbyPCa3eMbfW62",
+        "wallet": "D1WebujJc5CJR5eKjnWWfiKbhhjMdyzKgihbmoDmdsEe"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "Ao2sUdoFtKW7yix7v6GT8GoWE94LcgHiyjautukHBKAi",
+        "evidence_key": "817ee5cb24c5cc70e106a9fa64a1b623be9a538abdec848ce352c3282990d03e",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "aqu8vj7snoqUJsTuC5UemhvNWeMJzWu6qbpa3jnpump",
+        "selection_status": "SELECTED",
+        "signature": "5HBnSvXszEgEPAJzfqEVKvR4kGHV7oL36mfmo8xxGsj2izUVHj1QPo2kRRgTjnnWhXBKZJs26iNFnWJVj9q4DV1E",
+        "wallet": "DSU8DLqBuaFK4Mtw6uGAWBPP1ZhUt5KQYcNvUNZqZKob"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV",
+        "evidence_key": "81cbbe6b132b25adb15e234f6343ee10e7f939ea82c291755db1cfcc382c3193",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "BT9JV4F3t58yyeELzXo72jL6C1fWp8SQRM3i3B9pump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "G422ttnsXg6g5KxgBL68jCppEHzya89DEMvaj6aw3WjiqkQBPh3AMCU2jfwfBVFNW1a4uESTE26UHtmKCPXWn8o",
+        "wallet": "98TuFX8akWLq7Luqbyg6mZKFxQQwZu2LRSs2ybwrT3nS"
+      },
+      {
+        "amount_lamports": 0,
+        "candidate_parent": "6V6euqN5jHUXvVNX3LKaAs6jqgMDzfsuh8n9d5Szo1ac",
+        "evidence_key": "8316112ff0d86a74654b022700989ad116130098a66be7d2a2c196c0eaf6ac84",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "VByVzKnqKM6QGCJs9JwxGs4RJC8kdtwtn6FnfXMpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "aCuZDtjoPPWeJiP8NtGZN3iwsERvUNTfXTJqn4F4VBQHxunUv5LysTrhis3RgTAtCeWj39zW8QJJfi5KECWdjaS",
+        "wallet": "mMscMXbq3SJM2R6EcL9b8YrgTkDaaPZKiGWHLwcFjzw"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "G1BJvTetp6YSwaDNSajruPPM1JCTZf5NWeyr6dQN94n7",
+        "evidence_key": "852cfc5f71e4513580a673ee2c978abd7d9d1f33b39e1e900288fe1767bbf948",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "wFUJbWiV4wKK6BJJQdojJbgbd4Y51M3i3nA9VKLpump",
+        "selection_status": "SELECTED",
+        "signature": "36Bg7kHAX7nCDSyU99543J7qi6trPXY5WLuZpBjB2NoCX5Mha9asejWjXyuoTCB83GURNRo6cuNpVAxH75PXjNSs",
+        "wallet": "5vVafVudjZJKUagJuuxRTkFgjLQLqMbrEKVFMwNXcbKq"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "397s3pwPhV1A88Fj2EuNoERFYTCLdN5WiUAPvxUxFVST",
+        "evidence_key": "85fe5459e43447ab684dffd7ce0a5b6ea8aeddd7c432147b7edca57c75ae83ce",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "DqErYkksQymp8sVr2HkrJbVWkv1YXrz3keWKBfHpump",
+        "selection_status": "SELECTED",
+        "signature": "2GqtcM9CYkHFKc6B86rXTR2E7iCjMBFbgdBQVGPwAbPrGxwdsZyCxYyxBrVUqixpHLydyu2TCaxHvUfvt9j2T74",
+        "wallet": "8j9q3Rc4zNwNCTLMketLb92LjQroHziHnYs1MKkYkSgN"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "5TR1KXium6nxovUUXbofK2N1uYPh9NA8w9WpvvKZ3Myi",
+        "evidence_key": "868079d64084851804c5665be2fc162b5ee4f833bc204ae6fa9473b036432b23",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "YBemckTiUgK4sL6Xv2yktkgoYydrSqRmWJyWAZJpump",
+        "selection_status": "SELECTED",
+        "signature": "3bKGcV1nKxEqmwmZzZ8tMDdC1EoukEoq1s9vjCdtbR3rgGTUBBMbdxHtfg9bgMCgYfV8beXEBQxpRtBsfvsRuqYW",
+        "wallet": "7WFt3jHDWefbVYKPywF57SzQninUrCrZESATTkP881b1"
+      },
+      {
+        "amount_lamports": 0,
+        "candidate_parent": "4bTw5BfGG3UixqyYsyxJc8M5ewUGi9SkgSB4DXWKGwb1",
+        "evidence_key": "87bc0baf266e685ecef8fe4eec9ce15ab16882620739acc13d23379d67e77de1",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "UMVSuCPVE5H1SbEZ5X32iu3Jcs67ySZ1iMuiyaWpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "3dmHdMF21W86qGTYAU9wsG6TLASRwH3cYQyqeeoMnxpXjrEkgtSZ1eiKri6m9ZxifCHm1mtjgiX6hAXscEWw32QR",
+        "wallet": "2QiFAgxAKru3d8oWsL5eEkSAxmQxU6WxHTCoGM6N2VCC"
+      },
+      {
+        "amount_lamports": 820912000,
+        "candidate_parent": "EvgNjEfbgtfsrA24kE3XbZq2CNrnQeaidFXXG5zkPsv3",
+        "evidence_key": "8ba16eea2b07c3c9c073a33a6bce0096d1a8aad8716a0bf0ac5337bae95c0f0f",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "VByVzKnqKM6QGCJs9JwxGs4RJC8kdtwtn6FnfXMpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "3LWnkmWcYcgEjEyPv9NgA7L8aRTmXJbmuuBnfRtUpeDK3ZPzpHJMRVfxVHeAHDhDo9JuJ42FHjRcLdvvEhi2EWWp",
+        "wallet": "mMscMXbq3SJM2R6EcL9b8YrgTkDaaPZKiGWHLwcFjzw"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv",
+        "evidence_key": "8d3c97e169d00cb408400497496afeb481108bb89a0cab4e2b1e269b8dc5597f",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "UkCrzRHSB7jDqMzfLEyAA6A68ibzWZpBWvdY2y4pump",
+        "selection_status": "SELECTED",
+        "signature": "4rTGnxY2LYSW7bNXshQUEQqY763AERXtufxaeS5shp617xrLeXPvM95JcbJCnCeeetzw5YNRvFZ2qYHL6et2vKoN",
+        "wallet": "55fXgo7wWvfTd6ZiRNrqoy42Hx7CbfKnSQgMriVStPEB"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV",
+        "evidence_key": "8e8317402a6f57ae53065db333ebd2f672ba0d767a431cc46cc613fbe92e757b",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "kZBroKqYaSrHxKV3vLmRGTW7Tw1q2WQ1wte6PNJpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "55Fdqyt1peJV1gXsmRwV83Ndk5iePHM2ToaZWvw6xV2o7Fa5bqG4rUEeHz3ezKipp5b1EhsJ3od1rEYUviUTEhmn",
+        "wallet": "Aur82G2Zkniy6DVzLa55c1u9rqcX9aZFMG8TS4vMQesN"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD",
+        "evidence_key": "8f97f6fbfd22415549bb3c46e18d3cbe14e11b78aeb27048dc9748d4c097850b",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "RAjnSnVnRmf8Za8MggRPRmjkY2ZQkK7HiXYz4YSpump",
+        "selection_status": "SELECTED",
+        "signature": "TmSQpwaBQVnseTDFedYevTSRsKZwqaSrScEMP2EU9AT1MYejmQvmkP5YmdH4eWArNDYjvqzCR4TkKDL376V5CR8",
+        "wallet": "E57fshvfneuC7j1m12mXk8GjQcDVTKmKLG24rnbjiQLF"
+      },
+      {
+        "amount_lamports": 0,
+        "candidate_parent": "5N9VNRVopJbnzCSbmhk9a5fqex2UT65HMFi7JdnovYGp",
+        "evidence_key": "9371113e3738bbb21a0e269e75088074d6303842985d2dc13029ef184266deab",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "x7ofxncQVmMK3PDXVJF76uJ5JkgzX3x3eUGXkjopump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "f2QRs3q4fZVRNpXkXTn5DAYVqH5Gc6jkj6kn9atBHK5rYysBd75QEhf3MTTt6grY76ZkVgUsSRELMv46m1y3VX4",
+        "wallet": "D1WebujJc5CJR5eKjnWWfiKbhhjMdyzKgihbmoDmdsEe"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "C2W3FExk348T4aNHpJjiCZpNrpd9MNLBBVZAdWCogtBx",
+        "evidence_key": "938cd0ea37bb1db3175b9beb7ee7c699af8d9e37ba36006637e99eca4cec0486",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "ZMA7yJNeXUwcUdGWXzw654ZX6k1tj3zgqL7qrFBpump",
+        "selection_status": "SELECTED",
+        "signature": "3chRZSVSX2fS9gVNEtNunWgAd2YpmFwngLNi7b5Ef8WjVnhiCgT3vY1WyUbgoo7u6ZppHv5DWo24iwSYRwaPbXzG",
+        "wallet": "GhnaFwBs9oWGrec1xZ18j5xmkS2muLcMWK5DuLtaXz3D"
+      },
+      {
+        "amount_lamports": 0,
+        "candidate_parent": "GBwhNWSUcexSTR5yJeFztDmb42TssZ9AGPtGAYuB38FM",
+        "evidence_key": "9920dfb08f224142ff4e3cdbb16724bf00b00413f61f7d7a1ee44eb4b50c47f9",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "nMSCXsLXZ3R7NBKNDiaYw7CZh7KYs4CyWMEVWNbpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "2zQVZDGoybN7WEWfjdEmA6RQsUNZ68AKfnQiYmS3dQGpASUdHpSspcQzWy3q9sx8xZHuprW8pv2FHM75KMDBZbcr",
+        "wallet": "8burxqJyYaEtpSX1THFaRSjYWND12BNHUbJtofA9YfWr"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "7LAG8Btoz4MSiqQGmA2r26jrQeHwPPqm39Qgvh5W2SNp",
+        "evidence_key": "9a9c85f32910afe86b12e4fbaf6194cb39052894c132cf226947d1c0934d0285",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "ZzWhbH8LrTjx8uCQgE2SEue3jiYWKAm7RGTCYH8pump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "5rHjmYQgv1A3NnBzABQEzhCgVQ4poecxzjwzq1t18JhER3fHWCpf8pzkmKx9a38cAnskbN3S7yyH3otXF8gTewJC",
+        "wallet": "CRz5Kxv9qHini9xhpA2DitjoKySkZPyTbopXCg3W6Xcf"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "54xTpcBEr48Cuis8m2SdeymdQcwvmDR4aegxCPQzUANG",
+        "evidence_key": "9c03d69cf11251efed0b7f5907977525364dcc0ffc38f87c95d54a0c801c596c",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "eMD1zv3m9ArePAtXYEVFG9tbXfwDzY8GyFMxbPopump",
+        "selection_status": "SELECTED",
+        "signature": "N6eptNSshMgxtoFmE2EeQWZVSogQPgYREFuGdRCD8GFqZdT8sPXComQsNWCfz9Ze6SnnmTLwa2zkaPboRR7MCv1",
+        "wallet": "CZk5uZdVfPUMzmCCDVbWUnom7gSZSbgFJKb37vGwTAt8"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD",
+        "evidence_key": "9ce036e4a3ddfb8482c906b79d522d8dfe2f6147a40cfc088a2f17b4f806268c",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "R39ag2yKJVxJiHUxBy1xUEUc55kADNicLb9idNnpump",
+        "selection_status": "SELECTED",
+        "signature": "4THKNhSQXbtE2Moua51wWdLdoM27DxbvCn8ZUZq5YfHCnQxbpYBiV6ZmRw7kdkvV5mk17fR4tZoGDdmvU48UDHoo",
+        "wallet": "3kamQ5cB2fo46pDyGnUkHYmnuDZQJWFxmntxRKvDBhY1"
+      },
+      {
+        "amount_lamports": 117784000,
+        "candidate_parent": "3xw89j3t8zXrmS5VhuXgLbddrefPtpVbZGXZCCgpHUVL",
+        "evidence_key": "9e2719b6da558f85226835287758e293775f7de6f0b1347769cb21bdab02676e",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "mP4AehV2DV4KdNcZkjih6wwLDE8ouUz6ns2FB3tpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "5gb2cmreHnMUrEsuinr43JzWZ7mX2jYyvkagpQrLWGvwkEaGYA5g96HU92ZpCN3VvqHnVv8pyiZgofCaSWPUb7jp",
+        "wallet": "2qX18psDn9K5jqB8G295Z3AQwbV6xi5MezuHd3Kbq1yF"
+      },
+      {
+        "amount_lamports": 17659940000,
+        "candidate_parent": "C1ndM5L2ACdvM2ZEkd9jHgGHrqMa6Y6upKFXvfMPxD6z",
+        "evidence_key": "a16f0b26170004cd6b7ed93f226d38bc9c1c6a244c34a56dfcef90fd493a4f15",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "WV1UndBXx7eGbtA7B6Q7HEnX1mN8DL3XdGDN9Jupump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "25caw51E2akvq1wqfTh8joCcG9zdkJ98nCdAi5TghVuHEisFFg7kgiccA9bRxYahLqCBJ3Q8kRyanbmmguEmYd4P",
+        "wallet": "8jLQSAxGfEc1nqX3aPKBHnVXLgbLDwaNdBAFg9XBssyM"
+      },
+      {
+        "amount_lamports": 80136733000,
+        "candidate_parent": "tDqLx7JorHEEe4pQ8xNHj74Nyep2byy1spSbJ4KUh3h",
+        "evidence_key": "a2f35ad01eda4a225322cfd7906a62aec9e20bd25afadfb89b80f1a958797a54",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "aqu8vj7snoqUJsTuC5UemhvNWeMJzWu6qbpa3jnpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "5mTKXqir7pcJgrK9u6brFBJ7Y7coJGaP674g5ca2QEn8qXE4AEz1qQeRFJ1yhmk4LhdsAQ5LteZqDJ6HBuGysT8S",
+        "wallet": "DSU8DLqBuaFK4Mtw6uGAWBPP1ZhUt5KQYcNvUNZqZKob"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+        "evidence_key": "a3993d2bcfafd701376c7d9ad8728120035652e39024a1086eb463b64e464efd",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "c9SFiUUHzra78qJinqxSntvpBmJjXdGYDcMMNkXpump",
+        "selection_status": "SELECTED",
+        "signature": "5K2wjygZg7BVLmFyaou3Cid74dfACzToZQgQbLDAjuXPArRbvp5qe3GizTbqVKv4ysh9yDvixtHxs26GJ1gtT5Fd",
+        "wallet": "CCeL96vXcftteC1DJccNipLio4EMrB1ppqoQL9Rz8nnc"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "BsKEb5qhnHMFP4XUjoXMv5nMxkvuaFtBH5ssuWNMjLbw",
+        "evidence_key": "a3d2fb7dd160ebb45c2d4a3a28885eeaa82ec6b781ecbc9a1258a5ad37461307",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "rRGoXVsKJtZGgPqwShxiSD8pcpyH5qXhthqFT5Hpump",
+        "selection_status": "SELECTED",
+        "signature": "39mBGMvrk6XV88Av7jBNFoxm4PoGiXrpcGyyHd26xXrXRkVDGQ1dSGSeqYRLS9fLKnsCwGA7n46Y1GQaETnNTGVN",
+        "wallet": "HvrfDJssAXHLzFccnyQDxnWZpFuvj9SS7DcThUPNG4Tz"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "2fJCPb27tQhbnX4s3sTJvjzK1deawkREkKjCKS7PjF9g",
+        "evidence_key": "a444e89e9dad386a138ad8ec2fe39d82f13888ed9c65cab2c98346b05d05bb94",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "osxeVkLpan3NyZsRDcdWiEuWBFHA6or59UshcaRpump",
+        "selection_status": "SELECTED",
+        "signature": "5LGW81NQA4ps6QXdVsfXS79XVYYgyQmLWzHDFAndnjTvSwKg9SiSsfPWqy3GLPdj7ph7sBU1qWzPkk8DufS6X7Y4",
+        "wallet": "HqUkaFpvG8KHGDhjM6PPLvzbagXrkdYpJhmeaz1hh6ye"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "9As8wexRUtoujuYia5WxpiUCbjut75XTb9LknATiXvRW",
+        "evidence_key": "a50aed1d1b703935f284c5135175fb79fa41e2957d3fc4a1c2d3b0ec10ccd1ec",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "UroXqz24UCoMy1LpQJVQjJEyeKzBh6aYPq4b487pump",
+        "selection_status": "SELECTED",
+        "signature": "38wZUDU5TDhWRRznvJvmE4CgK7B5vjZB2LJAU3BgPzRyCqWE3wTzDwrUW3Ei6AtPxdqFZeMjo8fBT7CUzmXiMdXz",
+        "wallet": "2w3ecjBRZ7ZBim1iaXjqv4YKWeHtRk6n3EpBo1MVZBoS"
+      },
+      {
+        "amount_lamports": 58371978000,
+        "candidate_parent": "7J5g8Wmzru2K6xhcvvFz24SxutKgL75YJFcELWgNvy2Z",
+        "evidence_key": "a577b6c512a6a8aa49e07c25d2bb2d31447742ddb4b7c314b953f83e910b1b47",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "c9SFiUUHzra78qJinqxSntvpBmJjXdGYDcMMNkXpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "5aiHA8rpRH8g1XTK27Ruh44ENJ283uy35wSz2BQaooAsuBVeSxGdzV4qmyaX3iaWekz3ceBCGn6M9JCduMCLZLdf",
+        "wallet": "CCeL96vXcftteC1DJccNipLio4EMrB1ppqoQL9Rz8nnc"
+      },
+      {
+        "amount_lamports": 945040000,
+        "candidate_parent": "8Gtj1CQaX5aANA3BdDYgVakS7TngjhntKzyWS1FERjBF",
+        "evidence_key": "a5d6da388318117b1f501fdb0275015a1a08b156d3e267837a4a7d29a038fa8d",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "svVnLbfCPjKAZ4suNYDfebJZ8AfhiTysVQwn3fZpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "5Fn3d4iPCNENXPnCmwu7diHK9BFobqWwSK2q8N2VqKRMqhbXsquTWYFgnvP1TkBC3G2db525EAALfq6c16pecjtn",
+        "wallet": "2BjFyzy337jVzrLzgbfj9vm6j7ZDWyjwDtp8bShkGcnp"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "2h2xdvznzmcRi4zNE8A3uwe4Er5e5bf8gTxzXREg9ph5",
+        "evidence_key": "a7a2c59d22c7e7d2bfcde450cf1e2f81faa69dd46b5910f6914984b981d46820",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "keZ4mAQQqREHoZeC3HcZNpVC1qSGX4kiWC7vdtvpump",
+        "selection_status": "SELECTED",
+        "signature": "53pfUUqLS2XaysDVwpf2ZZ2RM74Gmp1bEBWwcxN49y72tR8cCPRvEEXexTecBgwu5q53T76x1izDytk8HNvX6TBR",
+        "wallet": "9qJM75r8tkUuso35D2RcjoBmLCFy8QDnafbayuwtfUba"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV",
+        "evidence_key": "a8ca9bee3c7b6d03a5fdb91ed08627aed7a3821d9945af91ee5e47d7e28cb285",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "z5vGP66VUGSrT5WyfEs9QGB1VJiKh5Lhx2DeggCpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "4CuCRx7xv5Yj2p7HXivPdQgXe2gKPyWfXyfMDReE11SnmcGb4dLSJijUugQWj6HouPazS6ytSXDFop83abszykiY",
+        "wallet": "UPRCX1GKQxfBzuzenjQ7UkTiBRtPJYDoNH9AsASJoWW"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5",
+        "evidence_key": "a92542106f463c4061e7828b51d1cda3afd15a608e77e250cfa725cbaae0af8d",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "Y7u2wWcosZTHagBjua7W3ddwsmD4ZGhZYH2keASpump",
+        "selection_status": "SELECTED",
+        "signature": "4PXB3fGAzNnANhCJgsTqNGamtJYpK6GLRsEQwTscN5ZzwS1ysvSzLffkDjDR4ZKoj7rDHL1EHdsM6cyG1eXgEgcZ",
+        "wallet": "8PZAEriyoFAGrEttXmtCk6akRPEWF74RYshHutSV53z5"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "7LAG8Btoz4MSiqQGmA2r26jrQeHwPPqm39Qgvh5W2SNp",
+        "evidence_key": "aaf668aa3d062bd5793bedd4055e8e9bb9a0de400d4a7ed8095c4c6f58687621",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "Cj7up2N4yXdzZmLYNaiPt6zye4VWoWHsyeCobEDpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "N1ybCz7PGpvRcKCfbCJELxPRHUNXrKSTXfhTJXyQ2as9S3BeSnwX3sG6Zfb4YDztrfEBKxiENVEoPDxMwmXnrvt",
+        "wallet": "9qqSas8WY6nmQ3fnisLFDJt89AScjZiqbT1jAA1BUCe8"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp",
+        "evidence_key": "acb4828c62c4ccb3cd073a069eed1a6a48fa24e55100e59b44ab164d1c3c01e0",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "ZpQmhQvEpasHYF2gDrDJXaYZVDJxJUZRt9vvHbUpump",
+        "selection_status": "SELECTED",
+        "signature": "3K9SwogMShXGjoBQ6LTs1PzMzb5dtgwvuHRABH2C3cT7dbnFzJYrqgipJo5nkmSsR2p7iH6411UV9on5hFQeLK71",
+        "wallet": "6vJXHimFNCDp1fMY4vuJfNQdbm8cbXrYQGxdzzPz31gt"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "CbMTzd1sG9vuP9Tw2nUNBHUvtsyzr4Hm5rknri4XxXWL",
+        "evidence_key": "ace1e8283570a1111d76fd8839c694614caa508f1f7e1315ed6520de311a3678",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "EakWrE5ehWTkJkhSPp861abPiDg4BDW72KVMR2Qpump",
+        "selection_status": "SELECTED",
+        "signature": "5UQZoTvRreEZArbw22k5ux3ZB6NuEodQktWiED5JkdgM2MbiwytQs6SnozB96eYxP2gEQHnTowP7h9PMWa4Fjuak",
+        "wallet": "9bFEF5DJagnHfuPdUbCtihwYULdTCzp74RQ288Y4eoxe"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD",
+        "evidence_key": "b2256041e358cb9eb7dd847d52db6ee31fcd85875327c8557afe664f3d141bcc",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "g1CbgSCD1H48Mnx9VSL7cpwJ5auX8Ky1cNUH9BQpump",
+        "selection_status": "SELECTED",
+        "signature": "5H5PypweFjDkHo6FWMnsPdPPTgUvYqP8kxd36QCfpS9hwbJP5vb29mVHv35wqEJwYgsWEtueGzGc9eou7MMbraKF",
+        "wallet": "4HnBbcdrzhmSaFx2YExnoXZFAibX4Uf4NdDUTGqPSDVM"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "7LAG8Btoz4MSiqQGmA2r26jrQeHwPPqm39Qgvh5W2SNp",
+        "evidence_key": "b2ff95aad6f0916d739d5cb11dd9edf586723c1089d250c0f0a857da671cc8b2",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "brj1EEqhenNSLbnjdNyok33yLpxBwvyFheRctCKpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "UQgnHm2b1ZgaBP7NihqbUXsNqaUa1syvnDamsAV5ARCCmm8LiAK69gLupSmKbBebUvJt2bcmAB1LjjUQJkR667A",
+        "wallet": "57PuN1WirX56CxshBz7o8fzEVPjY7zUdprsrpUgLjwKA"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn",
+        "evidence_key": "b32153b6ff516fc468b4a729278664cf3ac302c213da9ae6f0a924664bb919b9",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "S3jLzSX9NKbtdUVGTzoeYFMty5xXRYvzTbFASXUpump",
+        "selection_status": "SELECTED",
+        "signature": "39votXdvKC6jeTKoBKMh7oBZcFmhPaZfs8o4zfUfKM1wVUtf2ygmRLVkKdTSQ8LpvdvmD2Zu5YLf59tmHjqNxXe7",
+        "wallet": "GaCSvrcMmwc8RcbdAnxwBdM2dfzUZN3FkPWCCCCusMbf"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV",
+        "evidence_key": "b60c607c385026ff48cc21469465c764b0a5dc9e4111d6f20c46600acd41e148",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "dFf5c8PKTpFcZN64RdVWHkwbCYkxnj9yzPw8QpJpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "5YsXRWgx25tRyuLPoGJysCKghRUjHzj29jwejSTm2hoV1Ni3Uh6TYSpRXkKTu7sFURmNwGdWDx34zbfU5ctxdnqV",
+        "wallet": "7d6M8ykfQRYuW7fUqEMESZEpWFBEFDoFPCNQ2U2UUEaM"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "7LAG8Btoz4MSiqQGmA2r26jrQeHwPPqm39Qgvh5W2SNp",
+        "evidence_key": "b68ad305334824fdb4d88021d4a24637c3c57e1f448ae5f51fb58dc4b12cc4f4",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "R39ag2yKJVxJiHUxBy1xUEUc55kADNicLb9idNnpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "4CFSZoYvwf3HUL8FN7gCN1C9peu2xqejGHbv6ux8Bh5giqfkZ4sTsVTbBvYUoWuKHnU3UXLyTj8jpt6CgX6mJxfc",
+        "wallet": "3kamQ5cB2fo46pDyGnUkHYmnuDZQJWFxmntxRKvDBhY1"
+      },
+      {
+        "amount_lamports": 589575000,
+        "candidate_parent": "CKC4xhbAJp6ULcrbA2GCQ3Q92msfXtv5AxN1LbsNNo58",
+        "evidence_key": "b746f9aa0b590bb094867c272e5da657d2a675efceca6a3078414ee7c6ed6b06",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "UsCT9cALz6uba94mdUByBLZgP3Dp5sW7Mv7ZgJPpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "5mEcFu7RbDXhTiq7SGFv61Lx8mw2nZuBEtyCWvf7JxKgTbJt1ggox29aDQiHvX5EfDAH6jXsaEKVG5XH2m61mFaQ",
+        "wallet": "BS2tw7Q4vEgPNemCj8cXNv5TvoyPWyikJbccZapuyQqW"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV",
+        "evidence_key": "b8496587dd439f393c37faff3368092b95cd9392a48e706fb842e49feb73c3ef",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "nobzQmhM6x86Y8WdrgH21AKuVrJ5mJmkBmJU9Lqpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "5vD7gXycxRXAEQkxx4WjPsdD1MJvykkMi6ZMm3SUJqAqce1v2aVwc98Um6LHe9tqocdtAmVvrXUAnfRapEj7arew",
+        "wallet": "5no9tT8XE2HQgagWsYGsgcB3ZKt1ZdGkPotYn3P1a47C"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "5iDYsDLugMXh1LTRVDmFH8PfQ6ueG5pE9UcfefrnztB6",
+        "evidence_key": "b86dfbdf8b5837c15c1d848fe10052136d6e89aad248c56a5f1d34246a9a8a27",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "apSur7K2VY3XsRUSSFDgJUYhdgW2zfRHLFvKUHKpump",
+        "selection_status": "SELECTED",
+        "signature": "3mZ14nFmGy7k8aFkmQvwWKjoj7QSgUCMAU1mNcHV3fcd3koVDmQazdgKmCm41H7mA4K3iyzMN5ecDRkApvHkv86x",
+        "wallet": "FK9wLKizAtRtfNH57Y4J1wmQxpwpZ2EMYNZ1kME2V7hM"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "7LAG8Btoz4MSiqQGmA2r26jrQeHwPPqm39Qgvh5W2SNp",
+        "evidence_key": "bca06b372f7664d2430a8a44e78431796c2fd5d867c15eb19cf44e61e037f38e",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "f73NdtHMKwTeTy3KRpRDxZe7yopu9toZ7P5sFmapump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "5JxQ2SWALqCMh4d3shr3ai9aPmcUYMsWDQVcUZeRA91c89NRDkT9kMxfc2N8WbfkQcuLJagBNp3gFa4N8UyKcJSg",
+        "wallet": "67VT8Cb6aoH4UeuFW5T1yFP2ToxLpAeh3VRiXp8Rt4nQ"
+      },
+      {
+        "amount_lamports": 0,
+        "candidate_parent": "2z8jx2r6xZ9DWBrmhFzuLrn6USPn2ddTCnm3eksW93R2",
+        "evidence_key": "c0a1fe10b7683895cb41b55e8ec6a4eb09c7013a1ae383870d424b136e7bab4f",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "vKPT1gGoRGsdzaGpQB2K2xAZGtmgjVNm8kNJvSvpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "5A5bMj1Yb8yZrDi7MjFNrU9r9mqfds6F7EwcsAme5aFzijEAb4SAX13zQvromsQNnpUQmZJRtstf9XfMZxQUbgG3",
+        "wallet": "AcGW5iwbnLL6MqnFJckVEunSJsREtUB6twMGXjtSYcjr"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "HRneLKJHUHXJr9zb297N44L8WCUqCJYKDsSxDaPv49wS",
+        "evidence_key": "c0c6954100f59ff260bbf725a744e047c08a837ac9733b820a1b0497a390517c",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "aDdwL6dso6ZD6Rag2FZTURzADRiyXxFVeT23ri6pump",
+        "selection_status": "SELECTED",
+        "signature": "28ATAVeDzpM68g33niCEYrYuvGkBMspWyDdPRxynyYQyXGE9Jiob1AbNe2kfCQZsvwEbcRuZJDUw1FEZfasK2Msc",
+        "wallet": "9cZq1PZcQ37YkpbDdLZsbWhzHRQgts7xZq46iFzKx3BH"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+        "evidence_key": "c273553d9acedd6da0f5307912bc678c24f01c19e53dbf32b4ff46ef97a0c181",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "W7Fnj98a3jY9aoP9kd25taK66eJ1uS6b6VjpKtJpump",
+        "selection_status": "SELECTED",
+        "signature": "5Li2dxdtdTiVLk7jNTFgAyR6UkvGbsZsJhTpEsVpN53vMVRmQShs17HZv5PSPrurfGYGntTjx6YGXS81DSoZbrSo",
+        "wallet": "Bo9vgoTpWBsRD1U3jwPRuSh2cZAAZSzSDJgcw1Ah2mCT"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "J87ewUdaYKXaMVZEdKh14fMcKXaAmzGamzGtaXDop13X",
+        "evidence_key": "c5450bcd60633363f036c49a506c206a0d20958b782e39e9b1a9f64abb77af6f",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "vKPT1gGoRGsdzaGpQB2K2xAZGtmgjVNm8kNJvSvpump",
+        "selection_status": "SELECTED",
+        "signature": "5TzbWbeoTsYTiM9DJhCuMpf8sHVqm6dBLCfGJg97aoyJFsc6Ca9JWRg8VSk3NYQvEdDcDidbYQebkhpouaxrNcEz",
+        "wallet": "AcGW5iwbnLL6MqnFJckVEunSJsREtUB6twMGXjtSYcjr"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "C55hxeJepPLMKi4xuKjAFLWmxoSfVrqn2LELi67ixQfe",
+        "evidence_key": "c620400748b8293aad5970b8cf7894078ea3ac0daccdbc7c2089c735ce15de56",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "UsCT9cALz6uba94mdUByBLZgP3Dp5sW7Mv7ZgJPpump",
+        "selection_status": "SELECTED",
+        "signature": "4WAdS8z7MRuCnn1sBiMmJnYCnRuntub71qhFdFTHeqDZsnwd7gBtPLvUQjRTPiZptGMWh6fKnfh25BwpuU9jid1o",
+        "wallet": "BS2tw7Q4vEgPNemCj8cXNv5TvoyPWyikJbccZapuyQqW"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV",
+        "evidence_key": "c940165fcb6f6aefb9c023929ad5e8c7e7c5c1b98955f2b550cd30912f21ced4",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "YBemckTiUgK4sL6Xv2yktkgoYydrSqRmWJyWAZJpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "5FbTjXr8yXmg6afFNJFZp1aEQqkF5iCUUT3cWsksVnfSQeuy26mTPkiGG9cTYwih8XWLU6iB9xmAX9m7ewz7W8M1",
+        "wallet": "7WFt3jHDWefbVYKPywF57SzQninUrCrZESATTkP881b1"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV",
+        "evidence_key": "c9c5a0e9075fe873858336ca543a4e3afff8aebcc1f50525f32684dcdc12ddc9",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "jmM56TE7ko4jUzmzJ523W1b3872jMXKoiwsJLUKpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "333UJMVoasdHjmD4imnZB5KztCDFxFYhc7Li5SknNzM3FrPHQRYyWHefkCdrrgaWLVXt5Nbqb74XtkowHB4Kqyd8",
+        "wallet": "FBP2zCEFgcR64bBnoEqKeysYx5d7m5WMmNjRUgp99ddD"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "Am3Un7bph5NNWDLCVVVQT1kY4kN3GFPjj31g4DdrNCd4",
+        "evidence_key": "cbcf7036ef7ff7e1c0d76391f5721e39ca57045f4f10a4292d3b35f84b52171b",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "ZzWhbH8LrTjx8uCQgE2SEue3jiYWKAm7RGTCYH8pump",
+        "selection_status": "SELECTED",
+        "signature": "3afxBdEQD8wwq6haY1xM2K5pcSzGpivhux44vLQhwEAuqzjzBk2tYaprPRbywQpJbRhSfWNn13emUbg1nzMiUX4V",
+        "wallet": "CRz5Kxv9qHini9xhpA2DitjoKySkZPyTbopXCg3W6Xcf"
+      },
+      {
+        "amount_lamports": 671519000,
+        "candidate_parent": "6VDiQjZ9WZ3vw56X8PFRVPcJPLXeJ68dhd2gvSTNQ9DR",
+        "evidence_key": "cc34e7a4b4b4b2c5d0e6b133d74a3103d02dd2cf29c090ee685caf9b369ee906",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "eMD1zv3m9ArePAtXYEVFG9tbXfwDzY8GyFMxbPopump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "T7LBoCihUKQ4DNDCUsQV8B2DTTzfc4RTh2G9nEPy9Te53M7kNY6z2j3iz2S69WGzbXvBYMuxgXV1NSBd5qqhzk8",
+        "wallet": "CZk5uZdVfPUMzmCCDVbWUnom7gSZSbgFJKb37vGwTAt8"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "HRneLKJHUHXJr9zb297N44L8WCUqCJYKDsSxDaPv49wS",
+        "evidence_key": "cdffc1005b4340a0677ebb6940a90c562a3416ec5475b64879dab4b21eea6a04",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "CiKMVEVMCZSTXwQwqrwE3GZLne982oHkAdq7Yz3pump",
+        "selection_status": "SELECTED",
+        "signature": "2KVN12ofn1zB2ZfuyXdSVPHWXvuTb2NpGweP9sY9ApwTdEzUPRfCi3ttpco4tiKdwjpLaJj7S5ZD7xZGw2ucwxgG",
+        "wallet": "GEtVX6H7krvHFCasXsnX2wHzm3iZeqxLUUNzmi4HeER4"
+      },
+      {
+        "amount_lamports": 5406546000,
+        "candidate_parent": "4Yc8Q75zFVcSpvgQKMgBkncQER88PGwLHZT4C9ZUsCdG",
+        "evidence_key": "ceaa64e5ebe6a63bad0008a591fc20c4351b7bfc19e7065e84eeef02af98dc28",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "g1CbgSCD1H48Mnx9VSL7cpwJ5auX8Ky1cNUH9BQpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "5MJCxnYVCfDqmxf3fd9zgjsmKjcD9j7KsG45FXkKkSDBkjA9F9py9BeV641HHXhc696JVisTYz61PYFPiUL387J6",
+        "wallet": "4HnBbcdrzhmSaFx2YExnoXZFAibX4Uf4NdDUTGqPSDVM"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB",
+        "evidence_key": "d46939423567e4a76947faa6fbf323516bd167695069c53ca7ae04495aac5a5a",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "dFf5c8PKTpFcZN64RdVWHkwbCYkxnj9yzPw8QpJpump",
+        "selection_status": "SELECTED",
+        "signature": "33GKUM6HBHNKhabNpAF9hK5vvxuUNsqCJD3LvPRfBQQteu7R4Y2rnVryNGvPjRTQ7VrSKtrCkwYSLX8w2h6q7Eoz",
+        "wallet": "7d6M8ykfQRYuW7fUqEMESZEpWFBEFDoFPCNQ2U2UUEaM"
+      },
+      {
+        "amount_lamports": 964472000,
+        "candidate_parent": "6PKME4uPYvBnT2VQEPDwyfUn5EWY4cXatWEC8BRodpwc",
+        "evidence_key": "d483b89148a69f129ca607d89b58560183c855492968ffd9f952d18c3b91ae4f",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "CPM7DGwsFCyT2kHqzEwf4moWKnCiYh5czdbyr7apump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "59V2gneUjXBwYcHUD8aPSzEqF2RmwQ3Q1cAr5NGCiCpmbtVsiit8pwo14Eyy8uGY5gKaFEccTS3vM66Qtvyb38uL",
+        "wallet": "3NrYxFjqL7NhUPsNmb3Tiiq1m7RHxzqDgGvJXf2RxXMn"
+      },
+      {
+        "amount_lamports": 0,
+        "candidate_parent": "43Qmk3KSyxBp96VUuc3yxvpx1mmbLMqNh82Sa4GYz2xe",
+        "evidence_key": "d57958bbf3d60d5d92730b0ad0fb87b5355ade1a58befecb1d704ea46ea22be9",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "ZMA7yJNeXUwcUdGWXzw654ZX6k1tj3zgqL7qrFBpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "nCVALrvzYBWBpcbog4p1MKUFAPELSUw2susRViPie6NzmrjvmK4r1VkiWPwLJi1vRj3bVndGQkCAKhGNhnr7okj",
+        "wallet": "GhnaFwBs9oWGrec1xZ18j5xmkS2muLcMWK5DuLtaXz3D"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV",
+        "evidence_key": "d861e40d4bad44d03d9aab1c5c59594cd988e913e791d615913704eacc8fc2cd",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "o8uMYvNkndS6rSRPrV16d8LgJ1V732RxmZuzT8xpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "3wiC23iHJTDBvFEKiE7jdsoqypFAUMRE6RD3P8b9XgEnVwhQstSmrM7xbvAhHJiPyvLxvyeZaCLbVwjii1DPt3ib",
+        "wallet": "BBYghgQV5bZxMJVHhdZZnu9csYo4Yyx5RUYpugTtF4iw"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH",
+        "evidence_key": "da49e35b0bb7ee2cea378078e8033df7b329ae5a53ea1cec80a24f0df702a9b5",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "awwz1zgwET9MtvRSZ9CUZ5QpLFviT9fFv53CpDApump",
+        "selection_status": "SELECTED",
+        "signature": "3bhGeYLuXxKcXuxVyy1wVJHPipz2qAvn125qD4uKdXozzU3cnhT6ucePwPpMoCTNP6EPWqrh99G5y31oVbCHv9Z1",
+        "wallet": "2uuJ1sr5bqkfSnMHFUAhFjSwksAvHmH3TU3aU7UWBhFK"
+      },
+      {
+        "amount_lamports": 655758000,
+        "candidate_parent": "46iGk1P9iYkWwM7TTK5JYJXupByo8j4h51nkrPZDoodf",
+        "evidence_key": "dd87f9a10126031b93034eeef61a0146f1028a235f8460b2256da635a02afd7e",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "puhW9nSz4rczEtWNM6TH1zYikSmapRu2PxdSXwfpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "47WgGbFZL3Pg5DLE5vbCrxqwFYq2M4BoPFTpA2AEHDX6EFGuoD2n3j5kNkBhwKP3RkbHMVLuBpexaXXMQea3JtSG",
+        "wallet": "HPocCJSYVR5epcdJ3SNdECj1BW3QbwUZJahEX8tNTMMJ"
+      },
+      {
+        "amount_lamports": 14731329000,
+        "candidate_parent": "3ZR5KvoZf2r1hCeteLfp6jtN8M4Uwf9PbNoy5SdoMo3d",
+        "evidence_key": "ddedc6a6587003345b7089161d11c86e8ce7f4db47d3a55086d0f4b02e9709e4",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "CiKMVEVMCZSTXwQwqrwE3GZLne982oHkAdq7Yz3pump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "i5HF2DkPQpd8SGtfc7DdsvQmLsBA8F3wsHVh1UhoSJbXozScgpkQVuuJpr2ax6dgh4dY9fff7KTh98pVLcEjbKg",
+        "wallet": "GEtVX6H7krvHFCasXsnX2wHzm3iZeqxLUUNzmi4HeER4"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "AW7FZRzGUA8HnRWTsGbEDogAh4Y2Utv2KBqALEvfGLqb",
+        "evidence_key": "decbc393ca57ad482c95b70583b0d2546f93704853dc1947977a2434a65f739a",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "kZBroKqYaSrHxKV3vLmRGTW7Tw1q2WQ1wte6PNJpump",
+        "selection_status": "SELECTED",
+        "signature": "ipZUeUo3bQEUTuZBdpEp9KgcoNomCihz9jWnwL27fMSQ7s7DXzTyyvD7ZLpDHajB6XprJSXwDt2YuvPZs6y7JaM",
+        "wallet": "Aur82G2Zkniy6DVzLa55c1u9rqcX9aZFMG8TS4vMQesN"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "Gy29oqrQGFsP8cSsZ4eJvmMDMvKeYtWgURGCn5jim9Xn",
+        "evidence_key": "e00e773f2b8c15ca0bddf11230bc8efd2bcdb825c379ee04c6925a060389c8da",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "JHkAR9egULFbv1PfGLky5NvahfQwWJRDH4zJMsWpump",
+        "selection_status": "SELECTED",
+        "signature": "r75GRQ939oxV98mYNpgbJpzdKQ5H5YyWXFRofUmuu4iFuh4pUe1E1bRhLhBPqu5SPgBq98YcY8PCuxLPDXMPzaQ",
+        "wallet": "CvQTfPsBj9BrH7VfkkrTAXcE5sBkeoLU42S918BnkJw1"
+      },
+      {
+        "amount_lamports": 99995000,
+        "candidate_parent": "6bqUd1zGYXUq6iebrkQA4oHAi3Rcv2UzC4ApbvhUjaQJ",
+        "evidence_key": "e068abee87cc94f707ffbd6824d431aada26fd982d5fbe4b32494ea243373d20",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "kPTzLD8x9n3xLVrtjdk4qbxUr3it6Ea8ZpkHpCBpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "3YPJQQsUEduuSE4bx2d9qQD4f2LRhncnNrPL11aJP7rRRSrGdQAGxkk29nVrrRxoNYbnrsjat2MVBgiYpyByRc5v",
+        "wallet": "BWPRQ5AgcF75xho5PesYz24UKaXpgzrhc7kEzRkNpTyn"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "3thxdSxsHtFuGJroCYe6JmCojPRizUz1GnvQSq5M5JfY",
+        "evidence_key": "e0dd86c21c562fb870ab859cfd95aa41f5f743691479cb00bc5fda2a9e837ccf",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "TwA2K5KnYpyNeu7dxeNY3yS4uCR5KrRRh9FPLDHpump",
+        "selection_status": "SELECTED",
+        "signature": "E46pnsVJdoSRDVga9WC8bgC9WKnZNzSPuv9GrLuZPSK8XdqWhyHH27M6XvQ92zTAfsTt7Lbmn3fUAZcAQFNokLm",
+        "wallet": "9vxWQxQ7t96c8me6weJaUs4wwvqL2dJnborBhAbmBjvU"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn",
+        "evidence_key": "e0e2a922f686d0e21134b1fc533780f0ff112f988ddc6ddd84cce6c4b37b1994",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "brj1EEqhenNSLbnjdNyok33yLpxBwvyFheRctCKpump",
+        "selection_status": "SELECTED",
+        "signature": "2swAqjxDcV36rh28ayAKUicZrhhA4sB8FYsJKX4fprr8cpT3P9bbgqUj18ZmSDm9J6fWqLSYiuWutS2Nr9ZXBNr5",
+        "wallet": "57PuN1WirX56CxshBz7o8fzEVPjY7zUdprsrpUgLjwKA"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "5PkFFC9FCmm2EUQHMqbF9cwMviSXjgAjeqKEoPoYejuG",
+        "evidence_key": "e11669e3b0d14421902459bda5ab23e97328311782cd122dd7d3c12d9615120a",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "WLjqiHSEWgHVkX9JWJXgXDhX9XTCtSSj3EdyB4Cpump",
+        "selection_status": "SELECTED",
+        "signature": "Yk7kmEqbDNvzPFoJKpC2oJ5FedrbaMBoHcKo5qJ8kfN7NCDXgDg6tuddJCssKWYHfDktYH4iAusoQzQTyz7t1vE",
+        "wallet": "BHqs7btMbN3iFsndATfadrZogMdtEiqTzFc6qqe6bjQx"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "7144mX5peoQoyYq2ncsTmzFciqkLiYzS42XVmvFjGiv4",
+        "evidence_key": "e35f9b2432b1aecef8763a43b43ad265c61531cc30a3949b5c7ebf81601ac9a8",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "CPM7DGwsFCyT2kHqzEwf4moWKnCiYh5czdbyr7apump",
+        "selection_status": "SELECTED",
+        "signature": "4UTrMShnXJRUjS7YhJMWKvyfXLmBDtYExCiJq5k5QUnnKe6AdTQH4pCdohyJFjhaLVMcjoQQXD5fsYM5ha6Wigur",
+        "wallet": "3NrYxFjqL7NhUPsNmb3Tiiq1m7RHxzqDgGvJXf2RxXMn"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "7LAG8Btoz4MSiqQGmA2r26jrQeHwPPqm39Qgvh5W2SNp",
+        "evidence_key": "e52cf3fc91424a39002425c7afc357e9ac16325672bb309b80e941299384c7e4",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "Qqq9SveDjjYJc3jFYwopxEFhuV7SwMtcixr3skdpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "2rgoq5bkqVTWnYFLnBvdqq8e2sQBoZdrY658DqRGftr93NkY2bUixYQtYUCWAHWUyFwCG1zxkvVzPKMmnxtCXqWw",
+        "wallet": "7v7nDPBG7Qa1wr5GzHAtf2fxfiRzBC5otW68qPcTQpyR"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "6hakQXcUcnk1EuuGMHsDPw9iP4GPwjUtHxxPAvGnPj3L",
+        "evidence_key": "e6ae5f49aa845a106740830c558638794274595eabc0bb39aed1325398126b99",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "p6Dydex88SswnKT9pRnjPwrCfHpw1c79FAAu81Upump",
+        "selection_status": "SELECTED",
+        "signature": "5XLmpjaeLQBhM9dmMzxd5ktZS9evasxu9aW9VHQW5vKKA17ATwYeoaDhiUUr5pGWn84H1YwUo5fNBAANr1mDjA7V",
+        "wallet": "BxiwCPhgCQbLqSf9ystoYh5uRj4EEvQFcAiXGf2ziM1f"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "7tcRfs8gJuXvPEoUNn7NMzizWU521ATXvnVxyPt6gVxx",
+        "evidence_key": "ea67eb8a4de9d4b8ba4d66d14daf0ec3a2106770aa936bb9eb966ecf749d427a",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "osxeVkLpan3NyZsRDcdWiEuWBFHA6or59UshcaRpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "3fT2yHtWr2NxHEbzjK5dsC6C5okdb2apgVTaK6NVCcSgQq3GGECEpJP1kkQKtMU22e2Ci12FHZBe4VAkgAdVRAqY",
+        "wallet": "HqUkaFpvG8KHGDhjM6PPLvzbagXrkdYpJhmeaz1hh6ye"
+      },
+      {
+        "amount_lamports": 0,
+        "candidate_parent": "BvB7NYac9jpQfsAs5JkuighiFF5n5KDxjq5RoSUcPgQa",
+        "evidence_key": "ec54dc5e831d83fb3156640d47383d26d6cad97f9fbdcba7d7f9af19685dab50",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "qcawC8mNoMy2C597kxDUMHbHJaZ5D4nPR2dvDoXpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "4V1dGnSPMEStSL72r5MZjbh88dKG7jU1viTLwSeR73dtgvJWE2uneVzXLMPv6y3Yp3AKcykUboZvHXpptktYoGCr",
+        "wallet": "HRhj8yPAqPgJnjJ5JKTFogHZ7Pukugco8rzXwsR2a1va"
+      },
+      {
+        "amount_lamports": 10000000,
+        "candidate_parent": "7LAG8Btoz4MSiqQGmA2r26jrQeHwPPqm39Qgvh5W2SNp",
+        "evidence_key": "ef14332f6ef7ec0210bf323a7977e30f28f021d3cf23e4107a206ad3883d7f89",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "tpx8GumtoKhXeba859s1ka7grY8m5zcQ8yPnZnSpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "e6VUvj6MYgMUhNPQZfReUCBgmaCJmuaCz52jp3QkDgKUpUZfGpMS7Yv52PYY3oWN5VKG5p46CpGqoP4n8hB2yzt",
+        "wallet": "BDwpyKpdrVfxjeyeTQNQDd4cacva1xQzcBmiBNpjsnuR"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "AW7FZRzGUA8HnRWTsGbEDogAh4Y2Utv2KBqALEvfGLqb",
+        "evidence_key": "efcc405f95ecdfc7f72d3b9e4e94dac52e055ac0b7d70e4e49d6db799dffa803",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "o8uMYvNkndS6rSRPrV16d8LgJ1V732RxmZuzT8xpump",
+        "selection_status": "SELECTED",
+        "signature": "pnc8z7hoLn7kg9dGSL3cjFfqWXRrPdmyuC5S5oRZfzL1x41qX2znqVkWcdwRtr2sfYHemfTWfPLW6KyL7e4QC3c",
+        "wallet": "BBYghgQV5bZxMJVHhdZZnu9csYo4Yyx5RUYpugTtF4iw"
+      },
+      {
+        "amount_lamports": 1097045000,
+        "candidate_parent": "wQxys6CPQr536q59mCcP5LFmP7EoaLLkPH7mnN6yGuK",
+        "evidence_key": "f0fa2e096cb121b4b0fd35c01f61d12c43aabf4fc723576071987d039af72755",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "UMVSuCPVE5H1SbEZ5X32iu3Jcs67ySZ1iMuiyaWpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "2btbx9ntmqpnUiMoha5vqmSGWpa4Nm3DntVtUkd49HjiD5FR8wNVvV2WAKxdBMcsURmiZN5x9r5SKoiN7qj8Asq7",
+        "wallet": "2QiFAgxAKru3d8oWsL5eEkSAxmQxU6WxHTCoGM6N2VCC"
+      },
+      {
+        "amount_lamports": 614547000,
+        "candidate_parent": "EkNxVLZv17zEmSiUF2LGBpASzy3q367jhaMSayKHeLxc",
+        "evidence_key": "f2910d1f04d8d87a4d1100f8b63a35524152415a0d1872c5c89b21874753e8fa",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "UroXqz24UCoMy1LpQJVQjJEyeKzBh6aYPq4b487pump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "2NKasJGkAz5dhuTvbMi4ayBh6PXsqxaymfKqsAoe9kZVQYNefiyiBN1u6uq7U5ufp7yqA1YLA2MUhHo9pcHeRWGy",
+        "wallet": "2w3ecjBRZ7ZBim1iaXjqv4YKWeHtRk6n3EpBo1MVZBoS"
+      },
+      {
+        "amount_lamports": 5454354000,
+        "candidate_parent": "HoCoE24cDCP78TRoLa8LxeSMSBJ51FkmVqTjX7yUNkFW",
+        "evidence_key": "f42cfdc42bb34e2c0877ee315fae596dd41f80daf0caab8b8039f9f57101f3df",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "apSur7K2VY3XsRUSSFDgJUYhdgW2zfRHLFvKUHKpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "fYz4P4cbYUZUttA6VcVJpm9dHHTnB3Ed7ccJzv9Z4HHWNoA9x5W3zoMwimffRUvdyGgMH6XUuQuh7UeAY4b8VbE",
+        "wallet": "FK9wLKizAtRtfNH57Y4J1wmQxpwpZ2EMYNZ1kME2V7hM"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "HQ2q5DJuAVf1CrDJpwmeSYsLgvGp9k5cGEPZQsNvcMW9",
+        "evidence_key": "f5715a53c6b64f6cbae38e1ceee8b27fb3e19045677846cd3b11001aa947930d",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "svVnLbfCPjKAZ4suNYDfebJZ8AfhiTysVQwn3fZpump",
+        "selection_status": "SELECTED",
+        "signature": "2CQkzQAU7CVQZQMsVovRmF4GQbJQdwA7SNdBMR3gYEwQSaJLD99A58btcczmXUHMfqVBjxSzvTDTTvmBpEXgs12M",
+        "wallet": "2BjFyzy337jVzrLzgbfj9vm6j7ZDWyjwDtp8bShkGcnp"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn",
+        "evidence_key": "f62002e3b0593fc948d64a1b2d41c74b7936bb8c32df109f8e639142eaef2342",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "tpx8GumtoKhXeba859s1ka7grY8m5zcQ8yPnZnSpump",
+        "selection_status": "SELECTED",
+        "signature": "2T551Aj4Bf9UfwQwWxwraYSEv4oggnqrkV13fEt3kK2hfNUVvgfodLSEo9o8UFTuzSbuArnhztNCmBbZaTybdK8n",
+        "wallet": "BDwpyKpdrVfxjeyeTQNQDd4cacva1xQzcBmiBNpjsnuR"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "HS5GjB4KTJbbBdYHkJV8qDpq8gmU9wck2qsxgz3ifgke",
+        "evidence_key": "f68eb7819933a5dd2c33013d3d9d221b51c22926a3e624a201648aca58db3543",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "s26oUz2BVe5gpY3D4qYCXWBPwDDoB9AYfFsHCehpump",
+        "selection_status": "SELECTED",
+        "signature": "43761uNojjmgQWP1977VJtiE3cF629FmtStJBFYkWe5L185TYq94B7g731jvQdonXApQzEruLEXzq7e4gkxDLSAZ",
+        "wallet": "8pJutRGnqvSJuXktHtMwga6Upq5atqZ3Z14ha2N91c8b"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "FJrraJVwKYdcLX4we8UttdJGvxErgUKWf6awnVSsxArH",
+        "evidence_key": "f767ebf41eb84dfda213c152629eebe47ff6cae2502c5aedfd8f13f1d29b645b",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "GhvrrotDtMYKFjWpeuTxgskYRji3N2u5TeYToZwpump",
+        "selection_status": "SELECTED",
+        "signature": "3HwguxzV3rT91PSD9nUk4g6CZgsvboQ1i7noRDESW9v8fpUoS4X3eLiXwbZui3NFz5Qbtx3GZa6aBD636ZM1JK4f",
+        "wallet": "7LYzKGRKPCxvfUSuV5pm57MjmUgC6G3sPKeRcTL4CTgD"
+      },
+      {
+        "amount_lamports": 413330000,
+        "candidate_parent": "F4FBj1T2yCQVXTJDjhKEc1L8ZzhRXGgaZJ8Kee9kVrqN",
+        "evidence_key": "f7ebd3b8e06f4b8175cf28ae76c0ba21e15a61651209e0e93c02ba1e5ebfbb5a",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "EakWrE5ehWTkJkhSPp861abPiDg4BDW72KVMR2Qpump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "4GUuDDHeQQUK2UcE5sYpTT4so9HxvoRKqGd8BaLSHUmiwTJB7nZWmhk8FaGQTKAwqNTsdcnxNH5bYpecbzUrT7kv",
+        "wallet": "9bFEF5DJagnHfuPdUbCtihwYULdTCzp74RQ288Y4eoxe"
+      },
+      {
+        "amount_lamports": 0,
+        "candidate_parent": "FikdQYmdCBJmcoebQY5enKNHYqvYE4S1265kxmi4aQCs",
+        "evidence_key": "f91305dccad31db7201badd1673af9b27556b070bbc1d76d27326e5730b8d064",
+        "hop_depth": 1,
+        "mechanism": "PLAIN_XFER",
+        "mint": "p6Dydex88SswnKT9pRnjPwrCfHpw1c79FAAu81Upump",
+        "selection_status": "ALTERNATIVE",
+        "signature": "5W8Z66x7KLKUio8Gqfr6zuEg7HDEuYLvruN6oDABsz89M8sEEpJE4q9iKPJLm7sSKJX2oh6pnsyANZfunEEeshZc",
+        "wallet": "BxiwCPhgCQbLqSf9ystoYh5uRj4EEvQFcAiXGf2ziM1f"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+        "evidence_key": "f94b95ed607af8a09bfe9fc9f91a55051a712716cd90d064e0d753c52390492b",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "LyqncnAuRYisshpv1u12B6pCD7SASdyFj1itCUcpump",
+        "selection_status": "SELECTED",
+        "signature": "5KiaT1R4cMerHa7CKmujzNXKt7gtUgDYm9hVkK3MK5o6U3NDda2dWCRCrfNNvB5xuoNFrjEKyzHfMdPik2eafXc6",
+        "wallet": "AX93U7LoL2QYWJnuGa1grmqWgtPhG3y6CwqoFanv1ttx"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "9As8wexRUtoujuYia5WxpiUCbjut75XTb9LknATiXvRW",
+        "evidence_key": "fa2df167507a62ae6f9b3c76a136e2ad56f301204f671759373eccc7af7af28e",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "Qqq9SveDjjYJc3jFYwopxEFhuV7SwMtcixr3skdpump",
+        "selection_status": "SELECTED",
+        "signature": "WUUSvgPRCiFrAWnSfodzt27TauaZqJdUHLmygp5RsKofbVPGjYza2V3Y24EaaBLz8gQcHwcnKoDC9WZbHjTkb8C",
+        "wallet": "7v7nDPBG7Qa1wr5GzHAtf2fxfiRzBC5otW68qPcTQpyR"
+      },
+      {
+        "amount_lamports": 99999985000,
+        "candidate_parent": "59MGbbjnBsNKNbTXsd4cc83doHgpkJBdotigvZ6WxjLX",
+        "evidence_key": "faaf1c95f8fdb355dc429e6716c19dcb5826f506fe34af6a315cabf3de07c9b2",
+        "hop_depth": 1,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "mint": "nobzQmhM6x86Y8WdrgH21AKuVrJ5mJmkBmJU9Lqpump",
+        "selection_status": "SELECTED",
+        "signature": "63zUE3kiPfWpUeREcP3ZgSGU9Prsj6NmLDuZthdg3wQpDxvCY5L6ozRvKQTBVytw2XkUT2MDtBxQfzzLXUbujoHe",
+        "wallet": "5no9tT8XE2HQgagWsYGsgcB3ZKt1ZdGkPotYn3P1a47C"
+      }
+    ],
+    "family_provenance": {
+      "membership_reason": "v2 address-independent selected-edge fingerprint with creator and direct-funder diversity",
+      "source_snapshot": {
+        "database": "database/wt_ops_v2.db",
+        "highwaters": {
+          "wt_walkback_atomic_flows": 7095,
+          "wt_walkback_edge_candidates": 60299,
+          "wt_walkback_queue": 32353
+        },
+        "read_only_source": true,
+        "schema_sha256": "dcc038d07998c3d37d0475a7c0fc1d61eaa141401712b3079ec3e465dff3f4ad"
+      }
+    },
+    "fingerprint": {
+      "contract": "P3R_V2_FINGERPRINT_CONTRACTS.v1",
+      "edges": [
+        {
+          "amount_lamports": 99999985000,
+          "hop_depth": 1,
+          "mechanism": "WSOL_WRAP_CLOSE"
+        }
+      ],
+      "kind": "BASE_SELECTED_EDGE"
+    },
+    "queue_rows": [
+      {
+        "creator": "98TuFX8akWLq7Luqbyg6mZKFxQQwZu2LRSs2ybwrT3nS",
+        "funder_wallet": "DPAy3sFUsUWVRCGaMKse2hVYR5kKU7Yr4cE1eM5EwvgA",
+        "mint": "BT9JV4F3t58yyeELzXo72jL6C1fWp8SQRM3i3B9pump"
+      },
+      {
+        "creator": "3NrYxFjqL7NhUPsNmb3Tiiq1m7RHxzqDgGvJXf2RxXMn",
+        "funder_wallet": "7144mX5peoQoyYq2ncsTmzFciqkLiYzS42XVmvFjGiv4",
+        "mint": "CPM7DGwsFCyT2kHqzEwf4moWKnCiYh5czdbyr7apump"
+      },
+      {
+        "creator": "GEtVX6H7krvHFCasXsnX2wHzm3iZeqxLUUNzmi4HeER4",
+        "funder_wallet": "HRneLKJHUHXJr9zb297N44L8WCUqCJYKDsSxDaPv49wS",
+        "mint": "CiKMVEVMCZSTXwQwqrwE3GZLne982oHkAdq7Yz3pump"
+      },
+      {
+        "creator": "9qqSas8WY6nmQ3fnisLFDJt89AScjZiqbT1jAA1BUCe8",
+        "funder_wallet": "CYnm5v4MiLLLaUvu5VUfYPxszU8RPBzmH3Qkv7QbfcUi",
+        "mint": "Cj7up2N4yXdzZmLYNaiPt6zye4VWoWHsyeCobEDpump"
+      },
+      {
+        "creator": "8j9q3Rc4zNwNCTLMketLb92LjQroHziHnYs1MKkYkSgN",
+        "funder_wallet": "397s3pwPhV1A88Fj2EuNoERFYTCLdN5WiUAPvxUxFVST",
+        "mint": "DqErYkksQymp8sVr2HkrJbVWkv1YXrz3keWKBfHpump"
+      },
+      {
+        "creator": "9bFEF5DJagnHfuPdUbCtihwYULdTCzp74RQ288Y4eoxe",
+        "funder_wallet": "CbMTzd1sG9vuP9Tw2nUNBHUvtsyzr4Hm5rknri4XxXWL",
+        "mint": "EakWrE5ehWTkJkhSPp861abPiDg4BDW72KVMR2Qpump"
+      },
+      {
+        "creator": "7LYzKGRKPCxvfUSuV5pm57MjmUgC6G3sPKeRcTL4CTgD",
+        "funder_wallet": "FJrraJVwKYdcLX4we8UttdJGvxErgUKWf6awnVSsxArH",
+        "mint": "GhvrrotDtMYKFjWpeuTxgskYRji3N2u5TeYToZwpump"
+      },
+      {
+        "creator": "6t5EWE97oCjx7DKAqwMisjwX85VjRPPM4WPj9fLoP7f4",
+        "funder_wallet": "5TR1KXium6nxovUUXbofK2N1uYPh9NA8w9WpvvKZ3Myi",
+        "mint": "GkyDShEPTvXw6CacK76yxSzA9seHbyPfpRK1AuTpump"
+      },
+      {
+        "creator": "Ft5Sn8GN9BrqGXUyiuvw4WgEP9MUER8hdmZ7oBBEQ1rT",
+        "funder_wallet": "5sUoQPPvnvS6eXem4TdcjKJ1JZy7uLEhWN3pCA8yNFnc",
+        "mint": "HUNHEFrs7pFJpd1R7bYq6vT9GigRk3rV9av63ZVpump"
+      },
+      {
+        "creator": "CvQTfPsBj9BrH7VfkkrTAXcE5sBkeoLU42S918BnkJw1",
+        "funder_wallet": "Gy29oqrQGFsP8cSsZ4eJvmMDMvKeYtWgURGCn5jim9Xn",
+        "mint": "JHkAR9egULFbv1PfGLky5NvahfQwWJRDH4zJMsWpump"
+      },
+      {
+        "creator": "ABn8WgSFDxiSWchwi4NyAJcYHvbmE3vB86aHRbFgvqi2",
+        "funder_wallet": "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5",
+        "mint": "JzXZKSJZvtS3scMCcmXWUJGxRTBfnociHXVXKRvpump"
+      },
+      {
+        "creator": "AX93U7LoL2QYWJnuGa1grmqWgtPhG3y6CwqoFanv1ttx",
+        "funder_wallet": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+        "mint": "LyqncnAuRYisshpv1u12B6pCD7SASdyFj1itCUcpump"
+      },
+      {
+        "creator": "9UA4PhjVWhShFgJvpQqyvJoSftQL5757J3buGuATCAi1",
+        "funder_wallet": "DmfxzqZQTifJQhfrikFdDQXy3Ws6X9H3VX5xkRVTf77y",
+        "mint": "MW7ePAAMjxWyezTKtnvYXewrN5H4CHrv1HYkhabpump"
+      },
+      {
+        "creator": "FwC68rFq5r4MmsAS3zxEwUSye5JPtYQoL2piJcpKabQB",
+        "funder_wallet": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+        "mint": "N2JuKvtCqPyqZbduGD2uhuhWFZ9qARxzuuYYkfBpump"
+      },
+      {
+        "creator": "xkRXakyCtZyurxF28kUserYZ7ws9NqqTxaEJjSkVaiJ",
+        "funder_wallet": "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5",
+        "mint": "Q3FHwyr9AFZvFJUyFduoGrnJE5gAgq7UGQWVn2Kpump"
+      },
+      {
+        "creator": "7v7nDPBG7Qa1wr5GzHAtf2fxfiRzBC5otW68qPcTQpyR",
+        "funder_wallet": "9As8wexRUtoujuYia5WxpiUCbjut75XTb9LknATiXvRW",
+        "mint": "Qqq9SveDjjYJc3jFYwopxEFhuV7SwMtcixr3skdpump"
+      },
+      {
+        "creator": "3kamQ5cB2fo46pDyGnUkHYmnuDZQJWFxmntxRKvDBhY1",
+        "funder_wallet": "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD",
+        "mint": "R39ag2yKJVxJiHUxBy1xUEUc55kADNicLb9idNnpump"
+      },
+      {
+        "creator": "E57fshvfneuC7j1m12mXk8GjQcDVTKmKLG24rnbjiQLF",
+        "funder_wallet": "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD",
+        "mint": "RAjnSnVnRmf8Za8MggRPRmjkY2ZQkK7HiXYz4YSpump"
+      },
+      {
+        "creator": "GaCSvrcMmwc8RcbdAnxwBdM2dfzUZN3FkPWCCCCusMbf",
+        "funder_wallet": "5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn",
+        "mint": "S3jLzSX9NKbtdUVGTzoeYFMty5xXRYvzTbFASXUpump"
+      },
+      {
+        "creator": "CZW5TGuGBp8N3K9sJjkaq8yrfae8qKEEptFBJPm2hNeb",
+        "funder_wallet": "NeHjc1yqZXesLZTHtK7jrjyQ3MpFg2TVHpV8QDDAHEm",
+        "mint": "SrAJUQS6snqHUATSX4Jmvb4vZpgmQevqeWbzUEVpump"
+      },
+      {
+        "creator": "9vxWQxQ7t96c8me6weJaUs4wwvqL2dJnborBhAbmBjvU",
+        "funder_wallet": "3thxdSxsHtFuGJroCYe6JmCojPRizUz1GnvQSq5M5JfY",
+        "mint": "TwA2K5KnYpyNeu7dxeNY3yS4uCR5KrRRh9FPLDHpump"
+      },
+      {
+        "creator": "2QiFAgxAKru3d8oWsL5eEkSAxmQxU6WxHTCoGM6N2VCC",
+        "funder_wallet": "49Wo4qJS1CWPd4b8LAezyL4ARPj3fw6N6zPhPV4dQd6V",
+        "mint": "UMVSuCPVE5H1SbEZ5X32iu3Jcs67ySZ1iMuiyaWpump"
+      },
+      {
+        "creator": "55fXgo7wWvfTd6ZiRNrqoy42Hx7CbfKnSQgMriVStPEB",
+        "funder_wallet": "7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv",
+        "mint": "UkCrzRHSB7jDqMzfLEyAA6A68ibzWZpBWvdY2y4pump"
+      },
+      {
+        "creator": "2w3ecjBRZ7ZBim1iaXjqv4YKWeHtRk6n3EpBo1MVZBoS",
+        "funder_wallet": "9As8wexRUtoujuYia5WxpiUCbjut75XTb9LknATiXvRW",
+        "mint": "UroXqz24UCoMy1LpQJVQjJEyeKzBh6aYPq4b487pump"
+      },
+      {
+        "creator": "BS2tw7Q4vEgPNemCj8cXNv5TvoyPWyikJbccZapuyQqW",
+        "funder_wallet": "C55hxeJepPLMKi4xuKjAFLWmxoSfVrqn2LELi67ixQfe",
+        "mint": "UsCT9cALz6uba94mdUByBLZgP3Dp5sW7Mv7ZgJPpump"
+      },
+      {
+        "creator": "38aBEtXLDNScjuAcER11UbCpCyovbtrmzod4YAqkAxMz",
+        "funder_wallet": "FJrraJVwKYdcLX4we8UttdJGvxErgUKWf6awnVSsxArH",
+        "mint": "UwMkVQDeXLpbCXcHp5P9yVAneejwwbviFfBJFRXpump"
+      },
+      {
+        "creator": "mMscMXbq3SJM2R6EcL9b8YrgTkDaaPZKiGWHLwcFjzw",
+        "funder_wallet": "6jJnz6ZQjDZeFLxoDq2RBp4fvsjPfCJmpr1jhQcy2rBk",
+        "mint": "VByVzKnqKM6QGCJs9JwxGs4RJC8kdtwtn6FnfXMpump"
+      },
+      {
+        "creator": "Bo9vgoTpWBsRD1U3jwPRuSh2cZAAZSzSDJgcw1Ah2mCT",
+        "funder_wallet": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+        "mint": "W7Fnj98a3jY9aoP9kd25taK66eJ1uS6b6VjpKtJpump"
+      },
+      {
+        "creator": "BHqs7btMbN3iFsndATfadrZogMdtEiqTzFc6qqe6bjQx",
+        "funder_wallet": "5PkFFC9FCmm2EUQHMqbF9cwMviSXjgAjeqKEoPoYejuG",
+        "mint": "WLjqiHSEWgHVkX9JWJXgXDhX9XTCtSSj3EdyB4Cpump"
+      },
+      {
+        "creator": "8jLQSAxGfEc1nqX3aPKBHnVXLgbLDwaNdBAFg9XBssyM",
+        "funder_wallet": "BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH",
+        "mint": "WV1UndBXx7eGbtA7B6Q7HEnX1mN8DL3XdGDN9Jupump"
+      },
+      {
+        "creator": "8PZAEriyoFAGrEttXmtCk6akRPEWF74RYshHutSV53z5",
+        "funder_wallet": "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5",
+        "mint": "Y7u2wWcosZTHagBjua7W3ddwsmD4ZGhZYH2keASpump"
+      },
+      {
+        "creator": "7WFt3jHDWefbVYKPywF57SzQninUrCrZESATTkP881b1",
+        "funder_wallet": "5TR1KXium6nxovUUXbofK2N1uYPh9NA8w9WpvvKZ3Myi",
+        "mint": "YBemckTiUgK4sL6Xv2yktkgoYydrSqRmWJyWAZJpump"
+      },
+      {
+        "creator": "8RrP6qzsk32765uyzJgYCPT4LTaUxUBFftoGWuUH7SNr",
+        "funder_wallet": "DPAy3sFUsUWVRCGaMKse2hVYR5kKU7Yr4cE1eM5EwvgA",
+        "mint": "YKA5o87oHTTSAsbq1ZPHq6zF1cCaW8HoyhWcpjkpump"
+      },
+      {
+        "creator": "GhnaFwBs9oWGrec1xZ18j5xmkS2muLcMWK5DuLtaXz3D",
+        "funder_wallet": "C2W3FExk348T4aNHpJjiCZpNrpd9MNLBBVZAdWCogtBx",
+        "mint": "ZMA7yJNeXUwcUdGWXzw654ZX6k1tj3zgqL7qrFBpump"
+      },
+      {
+        "creator": "2rKe6oPYrXpRL3CgUVrmsJTGXhNY1Uz17Htf6ZdzXwzJ",
+        "funder_wallet": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+        "mint": "ZjDVmGGAkmj1aj8Le3uGoaUiz39jEyKH6VP7dzQpump"
+      },
+      {
+        "creator": "6vJXHimFNCDp1fMY4vuJfNQdbm8cbXrYQGxdzzPz31gt",
+        "funder_wallet": "9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp",
+        "mint": "ZpQmhQvEpasHYF2gDrDJXaYZVDJxJUZRt9vvHbUpump"
+      },
+      {
+        "creator": "CRz5Kxv9qHini9xhpA2DitjoKySkZPyTbopXCg3W6Xcf",
+        "funder_wallet": "Am3Un7bph5NNWDLCVVVQT1kY4kN3GFPjj31g4DdrNCd4",
+        "mint": "ZzWhbH8LrTjx8uCQgE2SEue3jiYWKAm7RGTCYH8pump"
+      },
+      {
+        "creator": "9cZq1PZcQ37YkpbDdLZsbWhzHRQgts7xZq46iFzKx3BH",
+        "funder_wallet": "HRneLKJHUHXJr9zb297N44L8WCUqCJYKDsSxDaPv49wS",
+        "mint": "aDdwL6dso6ZD6Rag2FZTURzADRiyXxFVeT23ri6pump"
+      },
+      {
+        "creator": "FK9wLKizAtRtfNH57Y4J1wmQxpwpZ2EMYNZ1kME2V7hM",
+        "funder_wallet": "5iDYsDLugMXh1LTRVDmFH8PfQ6ueG5pE9UcfefrnztB6",
+        "mint": "apSur7K2VY3XsRUSSFDgJUYhdgW2zfRHLFvKUHKpump"
+      },
+      {
+        "creator": "DSU8DLqBuaFK4Mtw6uGAWBPP1ZhUt5KQYcNvUNZqZKob",
+        "funder_wallet": "Ao2sUdoFtKW7yix7v6GT8GoWE94LcgHiyjautukHBKAi",
+        "mint": "aqu8vj7snoqUJsTuC5UemhvNWeMJzWu6qbpa3jnpump"
+      },
+      {
+        "creator": "2uuJ1sr5bqkfSnMHFUAhFjSwksAvHmH3TU3aU7UWBhFK",
+        "funder_wallet": "BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH",
+        "mint": "awwz1zgwET9MtvRSZ9CUZ5QpLFviT9fFv53CpDApump"
+      },
+      {
+        "creator": "57PuN1WirX56CxshBz7o8fzEVPjY7zUdprsrpUgLjwKA",
+        "funder_wallet": "5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn",
+        "mint": "brj1EEqhenNSLbnjdNyok33yLpxBwvyFheRctCKpump"
+      },
+      {
+        "creator": "CCeL96vXcftteC1DJccNipLio4EMrB1ppqoQL9Rz8nnc",
+        "funder_wallet": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+        "mint": "c9SFiUUHzra78qJinqxSntvpBmJjXdGYDcMMNkXpump"
+      },
+      {
+        "creator": "7d6M8ykfQRYuW7fUqEMESZEpWFBEFDoFPCNQ2U2UUEaM",
+        "funder_wallet": "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB",
+        "mint": "dFf5c8PKTpFcZN64RdVWHkwbCYkxnj9yzPw8QpJpump"
+      },
+      {
+        "creator": "CZk5uZdVfPUMzmCCDVbWUnom7gSZSbgFJKb37vGwTAt8",
+        "funder_wallet": "54xTpcBEr48Cuis8m2SdeymdQcwvmDR4aegxCPQzUANG",
+        "mint": "eMD1zv3m9ArePAtXYEVFG9tbXfwDzY8GyFMxbPopump"
+      },
+      {
+        "creator": "67VT8Cb6aoH4UeuFW5T1yFP2ToxLpAeh3VRiXp8Rt4nQ",
+        "funder_wallet": "G9XSZDgMk8x51uHvFUumZK5AFWJLp3GJCV7VZSkL3uGP",
+        "mint": "f73NdtHMKwTeTy3KRpRDxZe7yopu9toZ7P5sFmapump"
+      },
+      {
+        "creator": "4HnBbcdrzhmSaFx2YExnoXZFAibX4Uf4NdDUTGqPSDVM",
+        "funder_wallet": "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD",
+        "mint": "g1CbgSCD1H48Mnx9VSL7cpwJ5auX8Ky1cNUH9BQpump"
+      },
+      {
+        "creator": "FBP2zCEFgcR64bBnoEqKeysYx5d7m5WMmNjRUgp99ddD",
+        "funder_wallet": "AhfDWL1mi2xajF7JWGDzmTiqvtRxD7JDWHkaZVnmUvw7",
+        "mint": "jmM56TE7ko4jUzmzJ523W1b3872jMXKoiwsJLUKpump"
+      },
+      {
+        "creator": "BWPRQ5AgcF75xho5PesYz24UKaXpgzrhc7kEzRkNpTyn",
+        "funder_wallet": "J37JdYS3hpMB3iW8tgUdfFrrBu4X6o9PT3SguxpHXJVW",
+        "mint": "kPTzLD8x9n3xLVrtjdk4qbxUr3it6Ea8ZpkHpCBpump"
+      },
+      {
+        "creator": "Aur82G2Zkniy6DVzLa55c1u9rqcX9aZFMG8TS4vMQesN",
+        "funder_wallet": "AW7FZRzGUA8HnRWTsGbEDogAh4Y2Utv2KBqALEvfGLqb",
+        "mint": "kZBroKqYaSrHxKV3vLmRGTW7Tw1q2WQ1wte6PNJpump"
+      },
+      {
+        "creator": "9qJM75r8tkUuso35D2RcjoBmLCFy8QDnafbayuwtfUba",
+        "funder_wallet": "2h2xdvznzmcRi4zNE8A3uwe4Er5e5bf8gTxzXREg9ph5",
+        "mint": "keZ4mAQQqREHoZeC3HcZNpVC1qSGX4kiWC7vdtvpump"
+      },
+      {
+        "creator": "2qX18psDn9K5jqB8G295Z3AQwbV6xi5MezuHd3Kbq1yF",
+        "funder_wallet": "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5",
+        "mint": "mP4AehV2DV4KdNcZkjih6wwLDE8ouUz6ns2FB3tpump"
+      },
+      {
+        "creator": "8burxqJyYaEtpSX1THFaRSjYWND12BNHUbJtofA9YfWr",
+        "funder_wallet": "j6EVoUMZRafJPrdkuoB9PJGXxBGHEsx4VcJq5W3Ft5d",
+        "mint": "nMSCXsLXZ3R7NBKNDiaYw7CZh7KYs4CyWMEVWNbpump"
+      },
+      {
+        "creator": "5no9tT8XE2HQgagWsYGsgcB3ZKt1ZdGkPotYn3P1a47C",
+        "funder_wallet": "59MGbbjnBsNKNbTXsd4cc83doHgpkJBdotigvZ6WxjLX",
+        "mint": "nobzQmhM6x86Y8WdrgH21AKuVrJ5mJmkBmJU9Lqpump"
+      },
+      {
+        "creator": "BBYghgQV5bZxMJVHhdZZnu9csYo4Yyx5RUYpugTtF4iw",
+        "funder_wallet": "AW7FZRzGUA8HnRWTsGbEDogAh4Y2Utv2KBqALEvfGLqb",
+        "mint": "o8uMYvNkndS6rSRPrV16d8LgJ1V732RxmZuzT8xpump"
+      },
+      {
+        "creator": "6pGXCCf44q8XzLVbyfivDV3pLv5rAW6h1xVe8oz2sqzZ",
+        "funder_wallet": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+        "mint": "oruyBzARjKtPNvRhcT5nR4bzYt5SM8uCv74j84epump"
+      },
+      {
+        "creator": "HqUkaFpvG8KHGDhjM6PPLvzbagXrkdYpJhmeaz1hh6ye",
+        "funder_wallet": "2fJCPb27tQhbnX4s3sTJvjzK1deawkREkKjCKS7PjF9g",
+        "mint": "osxeVkLpan3NyZsRDcdWiEuWBFHA6or59UshcaRpump"
+      },
+      {
+        "creator": "BxiwCPhgCQbLqSf9ystoYh5uRj4EEvQFcAiXGf2ziM1f",
+        "funder_wallet": "6hakQXcUcnk1EuuGMHsDPw9iP4GPwjUtHxxPAvGnPj3L",
+        "mint": "p6Dydex88SswnKT9pRnjPwrCfHpw1c79FAAu81Upump"
+      },
+      {
+        "creator": "HPocCJSYVR5epcdJ3SNdECj1BW3QbwUZJahEX8tNTMMJ",
+        "funder_wallet": "9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp",
+        "mint": "puhW9nSz4rczEtWNM6TH1zYikSmapRu2PxdSXwfpump"
+      },
+      {
+        "creator": "HRhj8yPAqPgJnjJ5JKTFogHZ7Pukugco8rzXwsR2a1va",
+        "funder_wallet": "GUBtBg8i5wn5ME3vYmgqMZFFuBnDp6i1oa8BPFwoURAP",
+        "mint": "qcawC8mNoMy2C597kxDUMHbHJaZ5D4nPR2dvDoXpump"
+      },
+      {
+        "creator": "HvrfDJssAXHLzFccnyQDxnWZpFuvj9SS7DcThUPNG4Tz",
+        "funder_wallet": "BsKEb5qhnHMFP4XUjoXMv5nMxkvuaFtBH5ssuWNMjLbw",
+        "mint": "rRGoXVsKJtZGgPqwShxiSD8pcpyH5qXhthqFT5Hpump"
+      },
+      {
+        "creator": "8pJutRGnqvSJuXktHtMwga6Upq5atqZ3Z14ha2N91c8b",
+        "funder_wallet": "HS5GjB4KTJbbBdYHkJV8qDpq8gmU9wck2qsxgz3ifgke",
+        "mint": "s26oUz2BVe5gpY3D4qYCXWBPwDDoB9AYfFsHCehpump"
+      },
+      {
+        "creator": "REetZZ7KnkkXYqSZAe9B6BdN91E8McDVeSC4RZJQmGa",
+        "funder_wallet": "7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv",
+        "mint": "shhJVNYRrzuBzKCBKcu6yuYEMLicmztd5Wiw6zfpump"
+      },
+      {
+        "creator": "2BjFyzy337jVzrLzgbfj9vm6j7ZDWyjwDtp8bShkGcnp",
+        "funder_wallet": "HQ2q5DJuAVf1CrDJpwmeSYsLgvGp9k5cGEPZQsNvcMW9",
+        "mint": "svVnLbfCPjKAZ4suNYDfebJZ8AfhiTysVQwn3fZpump"
+      },
+      {
+        "creator": "BDwpyKpdrVfxjeyeTQNQDd4cacva1xQzcBmiBNpjsnuR",
+        "funder_wallet": "5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn",
+        "mint": "tpx8GumtoKhXeba859s1ka7grY8m5zcQ8yPnZnSpump"
+      },
+      {
+        "creator": "AcGW5iwbnLL6MqnFJckVEunSJsREtUB6twMGXjtSYcjr",
+        "funder_wallet": "J87ewUdaYKXaMVZEdKh14fMcKXaAmzGamzGtaXDop13X",
+        "mint": "vKPT1gGoRGsdzaGpQB2K2xAZGtmgjVNm8kNJvSvpump"
+      },
+      {
+        "creator": "5vVafVudjZJKUagJuuxRTkFgjLQLqMbrEKVFMwNXcbKq",
+        "funder_wallet": "G1BJvTetp6YSwaDNSajruPPM1JCTZf5NWeyr6dQN94n7",
+        "mint": "wFUJbWiV4wKK6BJJQdojJbgbd4Y51M3i3nA9VKLpump"
+      },
+      {
+        "creator": "6GjoAJjEExghzo5AsiJyTV8Txxp9FGSnWsg3qnwn4oyh",
+        "funder_wallet": "7DifG8cHrQBAAKjqoLCnfzj8khtnYLPE39GnWgEnLP8d",
+        "mint": "wQFd44Kh6nsrXn49vcu4bpjDCqe18iTGYzTgcWppump"
+      },
+      {
+        "creator": "D1WebujJc5CJR5eKjnWWfiKbhhjMdyzKgihbmoDmdsEe",
+        "funder_wallet": "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5",
+        "mint": "x7ofxncQVmMK3PDXVJF76uJ5JkgzX3x3eUGXkjopump"
+      },
+      {
+        "creator": "6cQye5DE7C3xCd7H9pANDfpQd8CTf1XpEGzdcHYmqi8f",
+        "funder_wallet": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+        "mint": "yfmKCjYvHsD17w2xvKLBRrmzF58nZyXH25reGwLpump"
+      },
+      {
+        "creator": "UPRCX1GKQxfBzuzenjQ7UkTiBRtPJYDoNH9AsASJoWW",
+        "funder_wallet": "AW7FZRzGUA8HnRWTsGbEDogAh4Y2Utv2KBqALEvfGLqb",
+        "mint": "z5vGP66VUGSrT5WyfEs9QGB1VJiKh5Lhx2DeggCpump"
+      }
+    ]
+  },
+  "source_high_waters": {
+    "wt_walkback_atomic_flows": 8354,
+    "wt_walkback_edge_candidates": 73534,
+    "wt_walkback_queue": 37922
+  }
+}

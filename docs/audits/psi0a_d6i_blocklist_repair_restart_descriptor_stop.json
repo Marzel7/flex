@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D6I",
+  "status": "PARTIAL_STOP",
+  "verdict": "REPAIR_LOADED_STOP_STARTUP_DESCRIPTOR_COUNT_REACHED_9",
+  "stopped_at_utc": "2026-08-14T12:30:12Z",
+  "engineering_revision": "e7544005b69595ae041129892b4c906a63759de6",
+  "restart": {
+    "listener_pid_before": 42483,
+    "listener_restarts": 1,
+    "listener_pid_after": 76939,
+    "new_pid_stable": true,
+    "second_restart_performed": false,
+    "other_services_restarted_or_stopped": 0
+  },
+  "immediate_verification": {
+    "watchdog_snapshots": 2,
+    "primary_fd_count_samples": [4, 9],
+    "primary_fd_threshold": 8,
+    "maximum_primary_fd_count": 9,
+    "threshold_snapshot_registry_count": 4,
+    "threshold_snapshot_registry_fd_delta": 5,
+    "threshold_snapshot_callers": [
+      "pumpfun_curve_listener.py:11241 in _seed_read",
+      "pool_discovery.py:337 in _check_sync (2)",
+      "pumpfun_curve_listener.py:6174 in _do_write"
+    ],
+    "seed_read_age_seconds": 44.7,
+    "critical_listener_db_handle_events": 0,
+    "pumpportal_connected": true,
+    "pumpswap_connected_and_subscribed": true,
+    "live_birth_and_migration_processing_observed": true,
+    "serializer_p99_wait_ms": 19.05,
+    "serializer_p95_wait_ms": 4.83,
+    "serializer_queue_depth": 0,
+    "serializer_lock_errors_24h": 0,
+    "evidence_writer_stopped": true,
+    "blocklist_events_observed_for_new_pid": 0,
+    "blocklist_open_close_pairing_verdict": "NOT_OBSERVED"
+  },
+  "index_provenance": {
+    "index": "idx_psi0a_token_analysis_migration_tx",
+    "deployment_ledger_digest": "6019a723aea87175d0f4c42e86b5a9936a36335d1f8213279d24beb7fba51fef",
+    "prior_metadata_and_query_plan_verification_preserved": true,
+    "new_production_database_query_performed": false
+  },
+  "scope": {
+    "production_database_queries": 0,
+    "ddl_or_production_writes": 0,
+    "provider_calls": 0,
+    "configuration_or_threshold_changes": 0,
+    "lock_or_metric_manipulation": 0,
+    "high_water_or_evidence_extraction": 0,
+    "evidence_mirror_or_cohort_activation": false
+  },
+  "next_action": "Separately authorize bounded safe-local and telemetry diagnosis of startup _seed_read and pool-discovery fan-out; PSI0A-D2 remains blocked."
+}

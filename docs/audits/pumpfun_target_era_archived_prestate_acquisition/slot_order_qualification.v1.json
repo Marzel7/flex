@@ -1,0 +1,18 @@
+{
+  "artifact_type": "PUMPFUN_CREATION_BUY1_SLOT_ORDER_QUALIFICATION_V1",
+  "creation": {
+    "contains": [
+      "create",
+      "extend_account"
+    ],
+    "extend_account_after_create": true,
+    "slot": 443375106,
+    "transaction_index": 927
+  },
+  "first_buy": {
+    "signature": "4Qyht4ZXtt8t11Jc6v3UkDWBTzCUUWfYG1Xywyym5NLRsonyG5nBvoFyztQCNhqd1Ku2jt1VW81N7vzB9or4bcoJ",
+    "slot": 443375107,
+    "transaction_index": 895
+  },
+  "ordering_conclusion": "The retained creation transaction and first buy are in consecutive distinct slots, so an authenticated end-of-slot 443375106 account snapshot would be pre-buy. The retained artifacts do not contain a complete target-curve inventory for creation slot after transaction index 927; archive snapshot provenance must state its exact slot semantics."
+}

@@ -1,0 +1,30 @@
+{
+  "schema_version": "psi0b-e.stop.v1",
+  "milestone": "PSI0B-E",
+  "verdict": "STOPPED_BEFORE_PRESTART_LAUNCHER_IMPORT_FAILURE",
+  "engineering_commit": "3862e7dfcc2fcc6293a433c14566303124683476",
+  "authorization_id": "psi0b-shadow-auth-20260815-03",
+  "authorization_digest": "a2ccc695e591080d75239e576781eef99b6b8efdbab6b497903b12918b4da318",
+  "run_id": "psi0b-shadow-20260814-02",
+  "authorization_record_materialized": true,
+  "authorization_record_consumed": false,
+  "launcher_started": true,
+  "prestart_checkpoint_count": 0,
+  "failure": {
+    "exception": "ModuleNotFoundError",
+    "message": "No module named 'src'",
+    "phase": "PYTHON_IMPORT_BEFORE_AUTHORIZATION_LOAD_OR_HEALTH_GATE",
+    "cause": "The isolated /private/tmp launcher did not bind the repository root onto Python's module search path."
+  },
+  "production_database_connections_opened": 0,
+  "production_selects_executed": 0,
+  "production_rows_read": 0,
+  "production_writes_or_ddl": 0,
+  "provider_calls": 0,
+  "partial_publication": false,
+  "shadow_output_exists": false,
+  "retry_performed": false,
+  "production_impact": false,
+  "output_directory": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0b_runs/psi0b-shadow-20260814-02",
+  "next_action": "Separately authorize a safe-local committed launcher/bootstrap boundary with frozen fixtures, then issue a new production execution authorization ID; do not reuse or retry authorization psi0b-shadow-auth-20260815-03."
+}

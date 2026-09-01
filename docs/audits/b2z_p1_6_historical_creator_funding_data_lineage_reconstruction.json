@@ -1,0 +1,176 @@
+{
+  "schema_version": "b2z.p1_6.historical-creator-funding-data-lineage-reconstruction.v1",
+  "artifact_type": "B2Z_P1_6_HISTORICAL_CREATOR_FUNDING_DATA_LINEAGE_RECONSTRUCTION",
+  "milestone": "B2Z-P1.6",
+  "generated_utc": "2026-08-19T00:20:00Z",
+  "purpose": "Trace the EXISTING production creator-funding feature backwards from application to raw provider acquisition, to determine whether any evidence it produced can safely satisfy or partially satisfy B2Z's specific evidentiary contract -- rather than repeating P1.5's generic table search. No provider/RPC calls made. No production data modified.",
+
+  "part1_2_production_lineage_traced": {
+    "source_documents": ["docs/creator_funding_pipeline.md (authoritative pipeline design doc)", "src/core/pumpfun_curve_listener.py (creator resolution)", "src/extractors/realtime_creator_funding_extractor.py (funding extraction)"],
+    "known_working_example_used": "the SAME 20-member B2N cohort was used directly, since all 20 already have production creator-funding results (creator_funding_queue.status IN complete/failed, all with a resolved creator) -- no separate historical example was needed; every member IS a real historical case",
+    "traced_causal_chain": [
+      "1. accountSubscribe push on bonding curve PDA detects complete=true, OR migration tx detected via logsSubscribe/transactionSubscribe (pumpfun_curve_listener.py, multiple trigger points documented in creator_funding_pipeline.md section 3)",
+      "2. _ensure_pf_ws_creator(mint) called -- reads create_tx_signature from token_analysis, if present calls getTransaction(create_tx_signature) ONCE, validates it is a Pump.fun CREATE instruction, infers creator from the CREATE tx's fee payer/signer (pumpfun_curve_listener.py:6317)",
+      "3. pf_ws_creator written to token_analysis",
+      "4. _enqueue_creator_funding_job() inserts a row into creator_funding_queue (creator_address, mint, create_tx_signature, status='pending')",
+      "5. creator_funding_worker picks up the job, calls extract_funding_for_new_token(creator, migration_timestamp, create_tx_signature, mint)",
+      "6. Cache check: SELECT COUNT(*) FROM creator_funders WHERE creator_address=? -- if >0, SKIP full extraction entirely (repeat-creator fast path)",
+      "7. For new creators: extract_for_creator() calls Helius ENHANCED TRANSACTIONS API (https://api-mainnet.helius-rpc.com/v0/addresses/{creator}/transactions, NOT the standard getTransaction/getSignaturesForAddress JSON-RPC pair) -- paginated, up to MAX_PAGES=8 pages of 100 txs each, 30-day lookback cutoff before migration_timestamp",
+      "8. Each page's transactions are parsed via the Enhanced API's pre-normalized nativeTransfers field (fromUserAccount/toUserAccount/amount), NOT the raw getTransaction jsonParsed instruction structure",
+      "9. Matching inbound SOL transfers (destination=creator, amount>=0.001 SOL dust floor) are: (a) aggregated into creator_funders (creator_address, funder_address, amount_sol -- NO signature column), and (b) individually recorded into transfer_index (signature, source, destination, amount_lamports, block_time, slot -- WITH signature) via _flush_page_batch()",
+      "10. Extraction result written back to creator_funding_queue.status and .funding_extracted_at; on timeout (90s worker limit), status='failed', last_error records the timeout, but any transfer_index rows already flushed from completed pages BEFORE the timeout remain durably persisted"
+    ]
+  },
+
+  "part3_application_consumer": {
+    "ui_api_surface": "templates/creator_funding_queue.html + Flask endpoints reading creator_funding_queue/creator_funders/token_analysis",
+    "minimum_data_historically_required_by_the_application": "creator_address + funder_address + amount_sol (from creator_funders) plus timing fields (curve_completed_at, creator_funding_enqueued_at, creator_funding_extracted_at) for the UI timing display -- the application NEVER required or displayed a transaction signature, slot, or raw transaction content for its own historical operation",
+    "conclusion": "the production application was built to operate on DERIVED INFORMATION only -- funder identity and amount -- and was never designed to expose or verify B2Z-grade signature-bound provenance to end users"
+  },
+
+  "part4_writer_traced": {
+    "creator_resolution_method": "getTransaction(create_tx_signature) -- the Pump.fun CREATE (bonding curve initialization) transaction, NOT the migration transaction",
+    "critical_distinction_from_b2z": "B2Z's resolve_creator() derives creator from the MIGRATION transaction's unique signer. The production pipeline derives pf_ws_creator from the CREATE transaction's fee payer/signer. On Pump.fun these are very likely the same wallet in the overwhelming majority of cases (a token's creator typically also owns/triggers its own migration), but this is a STRUCTURAL, UNPROVEN ASSUMPTION relative to B2Z's specific contract -- not something this reconstruction can treat as equivalent without qualification.",
+    "funding_provider_method": "Helius Enhanced Transactions API (v0/addresses/{address}/transactions), a provider-side pre-parsed/normalized transaction summary -- structurally different from the raw getTransaction jsonParsed response B2Z's proves_inbound_sol_funding() validates against (transaction.message.instructions / meta.innerInstructions with program=='system' and parsed.type in {transfer, transferWithSeed})",
+    "amount_establishment": "nativeTransfers[].amount (lamports) from the Enhanced API response, summed per funder into creator_funders.amount_sol -- a provider-computed derived value, not independently re-derived from raw instruction parsing"
+  },
+
+  "part5_provider_acquisition_traced": {
+    "historical_route": "NOT equivalent to B2Z's migration_tx -> creator_history -> funding_tx chain. The historical route was: create_tx (1 getTransaction call, standard RPC) for creator resolution, THEN a SEPARATE Helius Enhanced API paginated scan (up to 8 requests of 100 txs each) for funding history -- a different provider surface, different request shape, different response format entirely.",
+    "provider": "helius (standard RPC for creator resolution) + helius (Enhanced Transactions API for funding scan) -- same provider, two different API surfaces",
+    "request_count_historical": "1 (creator) + up to 8 (funding pages, often far fewer for low-activity creators) -- NOT the fixed 3-per-member B2Z uses",
+    "no_live_calls_made_to_verify_this": true,
+    "method": "static code inspection (src/core/pumpfun_curve_listener.py, src/extractors/realtime_creator_funding_extractor.py) plus direct database evidence"
+  },
+
+  "part6_persistence_classification": {
+    "creator_resolution_stage": "PERSISTED_DERIVED_RESULT_ONLY -- only the resolved creator address (token_analysis.pf_ws_creator) was kept; the CREATE transaction's raw response, accountKeys, or signature-level detail beyond create_tx_signature itself was not separately archived",
+    "funding_aggregate_stage": "PERSISTED_DERIVED_RESULT_ONLY for creator_funders (creator_address, funder_address, amount_sol -- explicitly NO signature column, confirmed via .schema in P0/P1.5)",
+    "funding_per_transfer_stage": "PERSISTED_TRANSACTION_SIGNATURE -- transfer_index (signature, source, destination, amount_lamports, block_time, slot) was DISCOVERED THIS MILESTONE and was NOT found by P1.5's programmatic sweep because it has no creator_address or mint column (it is keyed generically by source/destination wallet, not by domain entity)",
+    "raw_provider_response_stage": "NOT_PERSISTED -- the raw Helius Enhanced API JSON response body was never written to any table, log, or artifact store; only the derived nativeTransfers fields (already a provider-normalized summary, not the raw getTransaction instruction structure) were extracted and persisted",
+    "explicit_confirmation_of_pattern": "provider response -> extract funder+amount+signature -> persist to creator_funders (no sig) + transfer_index (WITH sig, but from Enhanced-API-normalized data, not raw jsonParsed) -> discard the raw Enhanced API response body -- CONFIRMED from code (no write of the raw response anywhere in realtime_creator_funding_extractor.py) and from the absence of any oversized/raw-JSON blob column in either target table"
+  },
+
+  "part7_historical_retention_systems_checked": {
+    "retained_acquisition_store_legacy_or_v2": "NOT integrated with this pipeline -- confirmed via grep: zero references to RetainedAcquisitionStore/RetainedAcquisitionStoreV2/ArtifactStore anywhere in realtime_creator_funding_extractor.py or pumpfun_curve_listener.py's creator-funding code paths. This pipeline predates and is architecturally separate from the RA4/OIP acquisition-retention system entirely.",
+    "old_acquisition_wrappers": "none found -- this pipeline makes direct aiohttp/requests-style calls to the Helius Enhanced API, not through the src/acquisition/* adapter layer B2N/B2Z use",
+    "creator_history_coverage_store": "EXISTS in code (src/core/creator_history_coverage.py, CreatorHistoryCoverageStore) but its tables (creator_history_coverage_runs, creator_history_coverage_pages, creator_history_coverage_state) DO NOT EXIST in the live database -- confirmed via direct query, 'no such table' for all three. The code comment explicitly states this telemetry is 'intentionally opt-in until it has a production qualification' and 'does not participate in cursor selection or history skipping.' This means NO completeness/coverage proof exists for any historical scan.",
+    "logs": "logs/creator_funding_worker.log and logs/supervisor/creator_funding_worker*.log exist but were not exhaustively scanned per instruction (bounded, not unbounded log scanning) -- the database-level evidence (transfer_index, creator_funding_queue.last_error) was sufficient to answer Parts 6/15 without needing a full log trawl",
+    "archival_dbs": "flex_investigation_archive.db (checked in P1.5) has no relevant tables; no other archival DB found integrated with this specific pipeline"
+  },
+
+  "part8_artifactstore_reverse_lookup": {
+    "applicable": false,
+    "reasoning": "this production pipeline never wrote to ArtifactStore at all (confirmed Part 7) -- there is no acquisition_id/correlation_id mapping to reverse-lookup, because no artifact digest was ever generated for any of these historical creator-funding extractions. This is explicitly stated rather than assumed: a reverse lookup is impossible because the necessary mapping was never created, not because it exists but could not be found."
+  },
+
+  "part9_historical_logs_diagnostics": {
+    "bounded_check_performed": "creator_funding_queue.last_error field (structured, already-persisted diagnostic) checked directly for the 3 failed ordinals -- sufficient to answer Part 15 without an unbounded log scan",
+    "result": "see part15_historical_failure_analysis below"
+  },
+
+  "part10_concrete_causal_chain": "mint -> curve_complete/migration event -> pf_ws_creator resolved via getTransaction(CREATE tx, not migration tx) -> creator_funding_queue job enqueued -> creator_funding_worker -> Helius ENHANCED API scan (not raw getTransaction/getSignaturesForAddress) -> per-transfer rows written to BOTH creator_funders (signature DISCARDED) and transfer_index (signature RETAINED, but derived from Enhanced-API-normalized nativeTransfers, not raw instruction-level parsing) -> raw Enhanced API response body discarded (never persisted) -> no ArtifactStore/RetainedAcquisitionStore integration at any point",
+
+  "part11_12_per_member_mapping_and_classification": {
+    "matrix_source": "docs/audits/b2n_p3j_bounded_migration_lineage_completion.json (mint/migration_signature) joined against token_analysis.pf_ws_creator, pumpfun_migration_verification.migrated_at, and transfer_index (destination=creator, block_time<migrated_at, amount_lamports>0, most recent)",
+    "classification_scheme": {
+      "DERIVED_INFORMATION_ONLY": "creator/funder/amount known, but no transaction signature -- applies to creator_funders alone",
+      "SIGNATURE_BOUND_EVIDENCE": "creator/funder/amount known WITH a transaction signature, source, block_time -- applies to transfer_index",
+      "RAW_ONCHAIN_EVIDENCE": "full transaction content independently recoverable/verifiable -- NOT present for any of the 20 (raw response was never persisted, Part 6/7)",
+      "NO_LOCAL_EVIDENCE": "not applicable here -- all 20 have at least SIGNATURE_BOUND_EVIDENCE via transfer_index"
+    },
+    "result_for_all_20": "SIGNATURE_BOUND_EVIDENCE (via transfer_index) -- a MATERIAL UPGRADE from P1.5's DERIVED_INFORMATION_ONLY-or-nothing finding for creator_funders alone. None reach RAW_ONCHAIN_EVIDENCE.",
+    "per_member_detail": [
+      {"ordinal": 1, "mint": "66ruWUv7KLXkLbHBTnj7PqzEgdue1oZjeA5Z3JMHpump", "creator": "Duv7cX9jphKaPV89FsfsgQyhWkePS5vk2aBEj9LnUTuy", "candidate_signature": "56tgtHZHG3iWNPvmwhnwKj1guUQfsEMd4hY4HB2VyaMuU2Vqq7w9FpAZdn4qAtF6KsFRbZdppCH4S61QHpYgrdto", "candidate_lamports": 49718778, "temporal_gap_seconds": 142, "completeness_confidence": "HIGH", "evidence_tier": "SIGNATURE_BOUND_EVIDENCE"},
+      {"ordinal": 2, "mint": "3hgXvsR8Xh6hnoKyFbPnrMVEkrKGPVbH6EJQkzoNpump", "creator": "5CcDWYv3ctLYmRkZntRnLLuD5KVvnCdGnGdrNxxCUt6L", "candidate_signature": "5NFxWxuRQE4NDfYoWcUNJue3CHQNjPq9m3mhGZLpofBJNbkMi9oibAJkife2ME7U7LjiD62qQTuX5QErmGtBDZno", "candidate_lamports": 363839796559, "temporal_gap_seconds": 246, "completeness_confidence": "HIGH", "evidence_tier": "SIGNATURE_BOUND_EVIDENCE"},
+      {"ordinal": 3, "mint": "5BQpi43RtPxsw7jw3dpeE7duQAXcNYhw9MD6KUxGpump", "creator": "7VJPjQZyH9yYGYMv1BYrxXdEkU749Ra9zebSeiHWpKKy", "candidate_signature": "3eFdGWGJcTkgKsNzXdotnUYaexAxVbNiDxhCQWkNdnpRTBEXXN62eEHugGWP2YJamtLkmKMN8wUFwDmFfZrVMuYr", "candidate_lamports": 3059413000, "temporal_gap_seconds": 11599, "completeness_confidence": "LOW", "evidence_tier": "SIGNATURE_BOUND_EVIDENCE"},
+      {"ordinal": 4, "mint": "59hy2QNgTB6vvXJqayUk4RgtJ4wCCniwbHpg8Q5gpump", "creator": "DoTKDtHMXvUXCjpDFfQWTLxqzoNXiGXJYWBNHfaJyeAr", "candidate_signature": "wiQmiNt869no5Za2PUxFfk8wowA2AJh33PJjHAvipD3gSDjRSrUuBa6vo1GNpR5vjD6k2eAWqt9dgLZbFKfCynQ", "candidate_lamports": 3989000000, "temporal_gap_seconds": 483, "completeness_confidence": "HIGH", "evidence_tier": "SIGNATURE_BOUND_EVIDENCE"},
+      {"ordinal": 5, "mint": "6V4rTJ9M4ZNUjvRMvBPiGia5Ju3TutG2nNatRdq1pump", "creator": "FtgrFX9PMr4YY2B4KC358RLZykNNkC6k7Qs1mRVmCAXo", "candidate_signature": "4k4N1Tsh3s2RvNZS3NGvGwE3x6Ewj5NgfjU7JBM97L7jddTTMZkDCj1yfw8b6nQcCbcwbydha9NV2EEcsZVm7E9p", "candidate_lamports": 10000000, "temporal_gap_seconds": 6496, "completeness_confidence": "LOW", "evidence_tier": "SIGNATURE_BOUND_EVIDENCE"},
+      {"ordinal": 6, "mint": "FzKMeRzbfD1wbVf2ZxfdFgYirLLnVwzspt6gJRVTA8WU", "creator": "yHCxHBEaJW5tbndqC8JciSThr7U1cqLpdcsvHcx6PRe", "candidate_signature": "44f6ibHXs6AiVhDbTep9FuBqMmHzJLhN6DPkS1khofYorXJ3phUxZe5CsiUJPbKgfJoyN1rhNPwWESmDuzBiPeLA", "candidate_lamports": 1, "temporal_gap_seconds": 262591, "completeness_confidence": "LOW", "evidence_tier": "SIGNATURE_BOUND_EVIDENCE", "note": "1-lamport candidate, ~73hr gap -- weak candidate, high-scrutiny case"},
+      {"ordinal": 7, "mint": "AGfrbmkuqf3UYG5UXEkTpCtw5UMn62Bc9NrAo6rdpump", "creator": "9TvQa8S9mgvMKpGmZgxAd4ZdjG6NuDpVGWh5PScdAehw", "candidate_signature": "2zTVy5o9nU6T9AKj8d4d8YmMsyoFKAmK89a1jfmkzmkKD1aWbtz6TNRQUvV4iHe3cC6miarFaBzkEVJUfWtCUx2F", "candidate_lamports": 3999873670, "temporal_gap_seconds": 392, "completeness_confidence": "HIGH", "evidence_tier": "SIGNATURE_BOUND_EVIDENCE"},
+      {"ordinal": 8, "mint": "qgiXEYJD6mXjHqzJJksX1yjYtownjLXFHAtD7KApump", "creator": "FChCzcTZiVxYpwkTALotD16kwDwACdxQTUHJThKqG6Dj", "candidate_signature": "5ZWirv1rbPigofxLTwH5j4WKDEjzbZ8tKRcp8cmjJYUHPV88k6P1zydfoDNejBFX7zsYUw1tHx2AMkXs9Qh3UL6T", "candidate_lamports": 997955720, "temporal_gap_seconds": 351, "completeness_confidence": "LOW", "evidence_tier": "SIGNATURE_BOUND_EVIDENCE", "note": "fan-out review ordinal"},
+      {"ordinal": 9, "mint": "DU8u7EvQsG3GovXDknrcdV8dQfAie7MMY5keqT2Fpump", "creator": "BFNftwFLD6LDt4WCgbFWWPDUsBr5pypJKJxNoJBQqeaD", "candidate_signature": "3uz1T98BqLsTXMFTUHuJouMa761vGsB8xfDtipav93gQ9NbdEr2QuD1GxzsqwKJJHRniPPqsdugx91mQgHquJNxq", "candidate_lamports": 290000000, "temporal_gap_seconds": 6628, "completeness_confidence": "LOW", "evidence_tier": "SIGNATURE_BOUND_EVIDENCE"},
+      {"ordinal": 10, "mint": "Gb71a9p2wfCcuBhHJ2zbG6pchnFGDrocGRAJjZh4pump", "creator": "ErSPUW74BHRRe8vW9VTeNGXqasFiJNzE1nSHxtFVWy3E", "candidate_signature": "3fVbw8vBZkhsRGfoSdzNNeCQmd9RDbkHw3vS3WuBNXRojc2ndgqmKjfURpdR5gBZkX8K55NayF986yXBcjnu5ZVu", "candidate_lamports": 425915674165, "temporal_gap_seconds": 373, "completeness_confidence": "HIGH", "evidence_tier": "SIGNATURE_BOUND_EVIDENCE"},
+      {"ordinal": 11, "mint": "CNCTqxJ2ug2Cg35Z4UwhggmXdfLSTQ4eQgskVdEspump", "creator": "whamNNP9tHoxLg92yHvJPdYhghEoCg1qYTsh5a2oLbx", "candidate_signature": "2mr3SQraPnDvhvpNp85W9CNquZeaWH31jF2v4cDqfRnq2zp6qNRA1jhKUsaibeTv6JouhN9bDx11mY7C4A6zP7da", "candidate_lamports": 1, "temporal_gap_seconds": 193056, "completeness_confidence": "LOW", "evidence_tier": "SIGNATURE_BOUND_EVIDENCE", "note": "fan-out review ordinal; extraction TIMED OUT after 90s (Part 15); 632 transfer_index rows but 1-lamport candidate ~54hr before migration -- almost certainly NOT the real funding transaction, just the most-recent thing this partial scan happened to capture before timeout"},
+      {"ordinal": 12, "mint": "DykmoWpVtaKN9R5vurKk2TWgBX2WvvnbMkJMd7gcpump", "creator": "9hQ7qiNYyh4S2pPN5jhYLLqbweTekgeKJYaLQjMUz5x4", "candidate_signature": "3z9xsxZA2doN2ZpXvrWvKDm6NFWdsG6UBaGX1qJRJKwEVhNoEtEDr565VTAUMs5kR6CpYppu4XUDVU9EQDtGBtm3", "candidate_lamports": 60653104563, "temporal_gap_seconds": 253, "completeness_confidence": "HIGH", "evidence_tier": "SIGNATURE_BOUND_EVIDENCE"},
+      {"ordinal": 13, "mint": "E1TTBe4a7qRbLXJ2ef8zUaHE99CqM98oKhCn7YGUpump", "creator": "4QVZcVzT6VhTHxXb98YwswnX1GQZhQSFsTqomCKYN48G", "candidate_signature": "35yuHPECZCuUfLtnhncpK29sqXgLQW131MmVt5c3ruwBaqdm4ZeGoZ2hbHNKeWRgd6k8keRmXdveweucd2pS5muy", "candidate_lamports": 3681462993, "temporal_gap_seconds": 347, "completeness_confidence": "HIGH", "evidence_tier": "SIGNATURE_BOUND_EVIDENCE"},
+      {"ordinal": 14, "mint": "TmzQHAfT2MeuW5mgMP7HK4nZogfrGVxrzYHQBkqpump", "creator": "EkSVFNgQzAbShi1QAPSZchj7zdRjzaPLTAWpxn8snjUu", "candidate_signature": "5B7YV3byJbvBkxD4qxtWjxPND4hNieZejDy5bjehxrALXhTcJoNdy3bsk6GM8xDLx1k71GPdvbpC6m1Eicym19Ds", "candidate_lamports": 99981000, "temporal_gap_seconds": 238, "completeness_confidence": "HIGH", "evidence_tier": "SIGNATURE_BOUND_EVIDENCE"},
+      {"ordinal": 15, "mint": "2grdcnAX48SivhXjB4WkzKHzsz6b9BMWp1EipZWdpump", "creator": "5SW7p56x22LKj8gYcE8DVVd1S59UJUGR9jKq2PFdKiKg", "candidate_signature": "B5ctmxvKuMxRbVWcsjGpEu1QB3YGLMKnzZs9QWpMBfudvdEqW53YPg4rpbfS7gW32CcQ1jqtJEFvZ6dBXAueCwX", "candidate_lamports": 426454355, "temporal_gap_seconds": 8066, "completeness_confidence": "LOW", "evidence_tier": "SIGNATURE_BOUND_EVIDENCE", "note": "fan-out review ordinal; extraction TIMED OUT after 90s (Part 15)"},
+      {"ordinal": 16, "mint": "D62UbUSyC78Ucdr9jmrCy9veFuuoQEvuL7NYJCNTpump", "creator": "7VJPjQZyH9yYGYMv1BYrxXdEkU749Ra9zebSeiHWpKKy", "candidate_signature": "3eFdGWGJcTkgKsNzXdotnUYaexAxVbNiDxhCQWkNdnpRTBEXXN62eEHugGWP2YJamtLkmKMN8wUFwDmFfZrVMuYr", "candidate_lamports": 3059413000, "temporal_gap_seconds": 12839, "completeness_confidence": "LOW", "evidence_tier": "SIGNATURE_BOUND_EVIDENCE", "note": "same creator+candidate as ordinal 3 -- serial creator, same underlying funding event may be shared/reused across both mints, needs confirmation not assumption"},
+      {"ordinal": 17, "mint": "9S4dmRLq3SmonrBi6ybxV5LW7M2c68NcGfYb6iFepump", "creator": "7D7NEk5kbQtp7jjdknwh7j42Ka5wVoVdwAT4TtuLhnL5", "candidate_signature": "5qzEbBKhWYBoegNgPf5H7DqA4J7DQ1gV8hE3sCAunfigj9hkRAzTYgsu7pQw3P8eNbLJTLHUhNAcrKpitb9nojU9", "candidate_lamports": 8240000000, "temporal_gap_seconds": 2208, "completeness_confidence": "HIGH", "evidence_tier": "SIGNATURE_BOUND_EVIDENCE"},
+      {"ordinal": 18, "mint": "CzQDFKURcQHdRgpBib4kyDtmAcWFg9jRQ7Rw3TzGfRGU", "creator": "C8BdBLW1GdnCR86nSpcfRMbshvHqwKq9qSTTdSn71AeV", "candidate_signature": "3num5vdCwKC4oZ6FgRYTythdY8EhHqy2oAoFeQ4MLB8mBK7b7SisWi3pRmjPYFWpf6CnZnYSupbS5zDh4eMpdzQ1", "candidate_lamports": 10000, "temporal_gap_seconds": 7840, "completeness_confidence": "LOW", "evidence_tier": "SIGNATURE_BOUND_EVIDENCE", "note": "NEW fan-out review ordinal identified this milestone; extraction TIMED OUT after 90s (Part 15)"},
+      {"ordinal": 19, "mint": "p5HJBxcLPm2xR3jzdNkJtFkY8iqNixmYgevGwzkpump", "creator": "HSvt8XpvHwTKhkTapsnkkrp5uUZPzxcCmHYVnAxXb42u", "candidate_signature": "42m2A3Ushjx8xqRMpXK3YUqnJwP4Lsdwp82zoBdXm6dvnbKkSMmQ8HDfTkPQ4BQvMCGSBctTuV8SGuP8oCYWNphi", "candidate_lamports": 997955720, "temporal_gap_seconds": 224, "completeness_confidence": "LOW", "evidence_tier": "SIGNATURE_BOUND_EVIDENCE", "note": "fan-out review ordinal"},
+      {"ordinal": 20, "mint": "w9qiqygRmeiYxFFGR6Lf5zcPautE9NDVDX2RG2Lpump", "creator": "13v2e9TSEjrxh2kAfUevPyBddTWyqCAjCrs41Q2SBgZo", "candidate_signature": "3VmVoEYQWuP6oLPPm5pKkwNLLCTQ8gvzg19PM1bhknwfuYCPcY6AyDz3kWW77BQybeDowWMDjGoTA7T3BNh81vuT", "candidate_lamports": 98999995000, "temporal_gap_seconds": 46, "completeness_confidence": "HIGH", "evidence_tier": "SIGNATURE_BOUND_EVIDENCE"}
+    ]
+  },
+
+  "part13_b2z_stage_reuse": {
+    "stage_1_migration_tx": {
+      "reusable": false,
+      "reasoning": "no local data derives creator from the MIGRATION transaction's signer -- pf_ws_creator is derived from the CREATE transaction, a different tx entirely, via a different (fee-payer-inference) method than resolve_creator()'s (unique-signer-count) method. Even though the two are very likely the same wallet in practice, B2Z's contract exists specifically to independently verify this from the migration tx itself, and no local evidence does that. Stage 1 must remain a live provider call for ALL 20 members.",
+      "count_still_required": 20
+    },
+    "stage_2_creator_history": {
+      "reusable_for": "the 10 HIGH-confidence-completeness members (ordinals 1, 2, 4, 7, 10, 12, 13, 14, 17, 20)",
+      "reasoning_for_reuse": "transfer_index provides a candidate funding signature with high confidence of matching what a live getSignaturesForAddress(creator, {limit:1000}) call would select as candidates[0], because: (a) these creators have low transfer_index row counts (1-8 rows), well within a single 100-tx Enhanced API page, and (b) the temporal gap to migration is small (46-483 seconds), consistent with the scan having captured activity right up to the relevant window rather than stopping early due to pagination/timeout limits.",
+      "reasoning_against_reuse_for_remaining_10": "ordinals 3, 5, 6, 8, 9, 11, 15, 16, 18, 19 are classified LOW confidence because EITHER (a) the creator had a documented 90s extraction TIMEOUT (11, 15, 18 -- directly proven via creator_funding_queue.last_error), making partial/incomplete coverage a certainty, not a risk, OR (b) the temporal gap to the selected candidate exceeds 1 hour (3, 5, 6, 9, 16, 18), which is inconsistent with what a live getSignaturesForAddress call -- which returns ALL recent signatures, not just SOL-transfer-filtered ones -- would very likely find (something more recent almost certainly exists that this bounded, dust-filtered, SOL-only local extraction did not capture or persist).",
+      "count_reusable": 10,
+      "count_still_required": 10
+    },
+    "stage_3_funding_tx": {
+      "reusable": false,
+      "reasoning": "transfer_index's signature+amount+timestamp is SIGNATURE_BOUND_EVIDENCE but NOT RAW_ONCHAIN_EVIDENCE -- it was derived from the Helius Enhanced API's provider-normalized nativeTransfers field, not the raw jsonParsed instruction structure proves_inbound_sol_funding() specifically validates (system-program transfer/transferWithSeed instruction, top-level or nested in meta.innerInstructions). The raw transaction content required to run that exact check was never persisted anywhere (Part 6/7). Stage 3 must remain a live provider call for ALL 20 members, even the 10 where Stage 2 is skippable -- the KNOWN candidate signature is used to make a TARGETED stage-3 call (skipping the need to search for it), but the call itself, and its validation against the raw transaction, still must happen.",
+      "count_still_required": 20,
+      "important_clarification": "for the 10 Stage-2-reusable members, Stage 3's request becomes DETERMINISTIC (we already know exactly which signature to fetch) rather than discovered live -- this does not reduce the request COUNT for stage 3, but it does mean stage 2's request is eliminated for those 10 members specifically"
+    }
+  },
+
+  "part14_revised_provider_budget": {
+    "members_requiring_0_calls": 0,
+    "members_requiring_1_call": 0,
+    "members_requiring_2_calls": 10,
+    "members_requiring_3_calls": 10,
+    "calculation": "10 members x 2 calls (stage1 + stage3, stage2 skipped using transfer_index candidate) + 10 members x 3 calls (all stages required) = 20 + 30 = 50",
+    "revised_total_provider_budget": 50,
+    "original_p0_p1_5_budget": 60,
+    "reduction": 10,
+    "reduction_percent": 16.67,
+    "conservatism_note": "this reduction is deliberately conservative -- only members with BOTH low transfer_index row count AND a small temporal gap AND no documented extraction timeout were classified reusable. The 3 documented-timeout members (11, 15, 18) and all members with >1hr temporal gaps were kept at the full 3-call requirement specifically because their local coverage is independently proven or strongly suspected to be incomplete."
+  },
+
+  "part15_historical_failure_analysis": {
+    "method": "direct query of creator_funding_queue.last_error for ordinals 11, 15, 18 -- a structured, already-persisted diagnostic field, no log scanning needed",
+    "result": {
+      "ordinal_11": {"creator": "whamNNP9tHoxLg92yHvJPdYhghEoCg1qYTsh5a2oLbx", "attempts": 5, "last_error": "creator funding timed out after 90s (execution=90.0s cleanup=0.0s)", "failure_stage": "extraction (Helius Enhanced API pagination), NOT provider/transport error, NOT creator-resolution failure, NOT candidate-selection failure, NOT a no-candidate condition -- pure WORKER TIMEOUT while scanning a high-transaction-volume creator (632 transfer_index rows already captured before timeout, confirming a genuinely high-activity wallet)"},
+      "ordinal_15": {"creator": "5SW7p56x22LKj8gYcE8DVVd1S59UJUGR9jKq2PFdKiKg", "attempts": 5, "last_error": "creator funding timed out after 90s (execution=90.0s cleanup=0.0s)", "failure_stage": "same as ordinal 11 -- worker timeout, 238 transfer_index rows captured before timeout, creator_service_history additionally shows thousands of Jito-tip/bot-pattern rows for this address (unrelated noise, but corroborates high-activity/automated-wallet classification)"},
+      "ordinal_18": {"creator": "C8BdBLW1GdnCR86nSpcfRMbshvHqwKq9qSTTdSn71AeV", "attempts": 5, "last_error": "creator funding timed out after 90s (execution=90.0s cleanup=0.0s)", "failure_stage": "same worker-timeout cause, despite a comparatively modest 37 transfer_index rows -- suggests either slower per-page Helius response latency for this creator or a high proportion of filtered/excluded transactions consuming scan time without producing persisted rows"}
+    },
+    "conclusion": "all 3 failures share the IDENTICAL root cause: the 90-second creator_funding_worker timeout, not a provider error, not a creator-resolution problem, not a no-candidate condition. This is DIRECT, STRONG corroboration -- from the production pipeline's own failure record, not inference -- that local data for these 3 creators is genuinely incomplete, independently justifying their LOW completeness_confidence classification in Part 13/14."
+  },
+
+  "part16_fan_out_context": {
+    "method": "checked creator_funders.is_cex/cex_exchange/source_type and creator_tags for the flagged creators -- context only, per instruction not used to reject or promote anything",
+    "findings": {
+      "whamNNP9tHoxLg92yHvJPdYhghEoCg1qYTsh5a2oLbx (ordinal 11)": "creator_tags shows tag='uses_axiom' (Axiom trading bot signal) plus numerous other tag rows including what appears to be a token-mint-like address pattern -- consistent with an automated/bot-pattern wallet, not classified as CEX",
+      "5SW7p56x22LKj8gYcE8DVVd1S59UJUGR9jKq2PFdKiKg (ordinal 15)": "creator_service_history shows thousands of 'uses_jitotip_other' rows spanning Feb-Aug 2026, all tiny (~0.00011 SOL) Jito tip transactions plus occasional large SPL token transfers to a fixed recipient (WLHv2UAZm6z4KyaaELi5pjdbJh6RESMva1Rnn8pJVVh appears repeatedly) -- strongly resembles a high-frequency trading/service bot, not classified as CEX",
+      "no_creator_classified_as_cex_exchange": "none of the 5 fan-out ordinals (8, 11, 15, 18, 19) have is_cex=1 or a populated cex_exchange field in creator_funders -- their volume/pattern resembles automated trading/bot activity rather than a known exchange"
+    },
+    "explicit_non_action": "this context does NOT reject, exclude, or pre-classify any of these members' eventual B2Z evidence -- it is recorded strictly as review metadata per instruction"
+  },
+
+  "part17_b2z_p1_safety_preserved": {
+    "no_change_to_durable_execution_module": true,
+    "pre_dispatch_reservation_unchanged": true,
+    "terminal_events_unchanged": true,
+    "resume_semantics_unchanged": true,
+    "stage_identity_unchanged": true,
+    "cumulative_accounting_unchanged": true,
+    "60_ceiling_treatment": "the existing B2ZAuthorization.max_total_requests=60 remains the upper SAFETY ceiling in the code -- this reconstruction does NOT propose lowering that structural maximum. Instead, a future live execution would be narrowed at the AUTHORIZATION/PLANNING level to only dispatch the 50 actually-required requests (skip stage 2 for the 10 qualifying members), while the runtime safety ceiling of 60 remains untouched as a hard upper bound that could never be exceeded even in an unexpected scenario.",
+    "no_widening_occurred": true
+  },
+
+  "blockers": [],
+
+  "verdict": "B2Z_PARTIAL_HISTORICAL_EVIDENCE_REUSE_QUALIFIED",
+  "verdict_note": "Tracing the ACTUAL production creator-funding pipeline (not another table search) revealed a previously-overlooked table, transfer_index, populated via a structurally different acquisition path (Helius Enhanced Transactions API, not raw getTransaction/getSignaturesForAddress) than either B2Z or B2N use. This table provides genuine SIGNATURE_BOUND_EVIDENCE (not merely DERIVED_INFORMATION_ONLY) for all 20 B2N-qualified members -- a real, material finding beyond P1.5. However, applying B2Z's exact, deliberately strict evidence contract shows this local evidence can safely eliminate ONLY the CREATOR_HISTORY provider call (Stage 2), and only for 10 of 20 members where local scan completeness is independently well-supported (low creator transaction volume, small temporal gap to migration, no documented extraction failure). The remaining 10 members -- including all 3 members whose production extraction is DIRECTLY DOCUMENTED to have timed out after 90 seconds (ordinals 11, 15, 18) -- require the full 3-stage chain because local coverage for them is proven or strongly suspected incomplete. MIGRATION_TX (Stage 1) and FUNDING_TX (Stage 3) remain required for ALL 20 members in every case: Stage 1 because the historical pipeline derives creator from a DIFFERENT transaction (CREATE, not migration) via a different method than B2Z's contract requires; Stage 3 because the raw on-chain transaction content B2Z's proves_inbound_sol_funding() validates was never persisted anywhere, only a provider-normalized derived summary. Revised total provider budget: 50 requests (down from 60), a genuine, evidence-based, conservative reduction -- not an assumption. The qualified B2Z-P1 durable/resumable execution boundary remains fully intact and unmodified; its 60-request ceiling remains the safety maximum while a future authorization would be narrowed to the proven 50-request actual requirement. No provider calls were made. No production data was modified."
+}

@@ -1,0 +1,25 @@
+{
+  "artifact": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/distinctiveness_reconciliation/p3r-v2-900b-comparator-reconciliation-v1/p3r_v2_900b_comparator_reconciliation.v1.json",
+  "artifact_sha256": "b85d70d95174d0c6ff7b2a83e336cd34194bf9f40a004996426b9bdd6a62a53f",
+  "canonical_run_id": "p3r-v2-2dec1d40604c1f7c08c8",
+  "deterministic_replay": {
+    "reproducible_core_family_ids": [
+      "p3r-v2-900b89587c6987d582df"
+    ],
+    "result": "PASS",
+    "stable_inputs": {
+      "frozen_atomic_rowid": 7095,
+      "frozen_edge_rowid": 60299,
+      "run": "p3r-v2-2dec1d40604c1f7c08c8"
+    }
+  },
+  "schema_version": "P3R_V2_900B_COMPARATOR_RECONCILIATION_MANIFEST.v1",
+  "source_database": "database/wt_ops_v2.db",
+  "source_highwaters": {
+    "current_atomic_rowid": 7150,
+    "current_edge_rowid": 61204,
+    "frozen_atomic_rowid": 7095,
+    "frozen_edge_rowid": 60299
+  },
+  "verdict": "900B_DISTINCT_OPERATION_PROVISIONAL"
+}

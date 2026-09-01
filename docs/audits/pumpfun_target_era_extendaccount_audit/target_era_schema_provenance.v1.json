@@ -1,0 +1,22 @@
+{
+  "creator_fee_doc_url": "https://github.com/pump-fun/pump-public-docs/blob/main/docs/PUMP_CREATOR_FEE_README.md",
+  "extracted_official_facts": {
+    "documented_creator_fee_layout_effect": "BondingCurve gains creator: Pubkey; creator-vault derivation uses that field.",
+    "documented_purpose": "Extend BondingCurve accounts to support future protocol fields, including the creator fee update.",
+    "documented_reserve_rewrite_or_transform": null,
+    "extend_account_accounts": [
+      "account (writable)",
+      "user (signer)",
+      "system_program",
+      "event_authority",
+      "program"
+    ],
+    "extend_account_args": [],
+    "extend_account_discriminator": "ea66c2cb96483ee5",
+    "source_limit": "Official current documentation describes intended behavior but provides no binary hash or target-slot deployment binding."
+  },
+  "idl_url": "https://raw.githubusercontent.com/pump-fun/pump-public-docs/main/idl/pump.json",
+  "official_repository": "pump-fun/pump-public-docs",
+  "prior_retained_idl_sha256": "b90bc471327f671449271d5d1d42354d1fae6f5a06502f5834459a3108138e49",
+  "prior_retained_official_idl_commit": "9c82f61cb711b044a17f770ab8ce9f9bdf78f333"
+}

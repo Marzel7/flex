@@ -1,0 +1,28 @@
+{
+  "artifact": {
+    "path": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/local_gap_closure/p3r-v2-gap-closure-13296e4830c457dbebd7/p3r_v2_local_evidence_gap_closure.v1.json",
+    "sha256": "efe4e1180aed542a22e3037682c85c8e383b3e322f92d628843e1a34df026b96"
+  },
+  "base_run_id": "p3r-v2-2dec1d40604c1f7c08c8",
+  "closure_run_id": "p3r-v2-gap-closure-13296e4830c457dbebd7",
+  "contract_digest": "e2b91b0f4ed56356f9ba1b1ccf16efd97236809a6203d599f399430df2351079",
+  "enrichment_run_id": "p3r-v2-enrichment-c03f0fce0b7e3b9d685b",
+  "input_assessment_run": "p3r-v2-enrichment-c03f0fce0b7e3b9d685b",
+  "input_membership_digests": {
+    "p3r-v2-5a23bde39497a50696cf": "a92d2d27552ff0aeb9756975130c17cd4c116d52dd346cac6c055e1c34f8fd23",
+    "p3r-v2-6437acd385e566e301a7": "5dd595ec50f95710e34fc990a98cabfbe76c7fe7015b4992b24b7dd94e4bf49d",
+    "p3r-v2-6f7738e9702395ba8ad3": "d47a47715b6afd2bdb467d922627631bd080b6b42dcb983823f88c17c539301f",
+    "p3r-v2-e6462dd56f2e695fcb6c": "4ff77c10426a9920448388ad9fedc51adb920c1d61553ccbeb19a90cb3caa240"
+  },
+  "result_digest": "ea320587873f29845b75cbe6954dfb13797932a57e7f5e981ac8d236c684d625",
+  "source_snapshot": {
+    "database": "database/wt_ops_v2.db",
+    "highwaters": {
+      "wt_walkback_atomic_flows": 7095,
+      "wt_walkback_edge_candidates": 60299,
+      "wt_walkback_queue": 32353
+    },
+    "read_only_source": true,
+    "schema_sha256": "dcc038d07998c3d37d0475a7c0fc1d61eaa141401712b3079ec3e465dff3f4ad"
+  }
+}

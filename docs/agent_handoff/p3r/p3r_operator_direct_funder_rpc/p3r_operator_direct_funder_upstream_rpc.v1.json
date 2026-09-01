@@ -1,0 +1,2964 @@
+{
+  "direct_funders": [
+    {
+      "direct_funder": "2fJCPb27tQhbnX4s3sTJvjzK1deawkREkKjCKS7PjF9g",
+      "history_entries": 244,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "67arQDJyzf3wuPNcbGz9zpsvDBYzgpbFKBEtWfzjtAZC": 1
+      }
+    },
+    {
+      "direct_funder": "2h2xdvznzmcRi4zNE8A3uwe4Er5e5bf8gTxzXREg9ph5",
+      "history_entries": 59,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "HggCfpEM2uzcpZwU5u3yYxYuniqR7dGtWhvkdruYLsFU": 1
+      }
+    },
+    {
+      "direct_funder": "397s3pwPhV1A88Fj2EuNoERFYTCLdN5WiUAPvxUxFVST",
+      "history_entries": 49,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "7VjefJrPMfh6wow3BYr4Qj1vAgnFsAnXBNqphSnpPzUY": 1
+      }
+    },
+    {
+      "direct_funder": "3BeSWamt3Lvj4cP9MopXgPb9CxjZ29UkZ6qPAc8kskec",
+      "history_entries": 43,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "4zYHpa2udPhCVJoYT7MtDzMrDeeczyaCuemG4J82ukRe": 1
+      }
+    },
+    {
+      "direct_funder": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+      "history_entries": 74,
+      "inbound_amounts": {
+        "99999995000": 5
+      },
+      "launch_links": 5,
+      "material_inbound_links": 5,
+      "upstream_sources": {
+        "AGT9dkEZUBPrw5HrDGZTNRhYNMEU5HbRp2E1GdYMSB6r": 5
+      }
+    },
+    {
+      "direct_funder": "3ipeLjjgX37rqMNf8DV3N4Dufet4Fs1Ho6WyctQAG8FE",
+      "history_entries": 70,
+      "inbound_amounts": {
+        "99999995000": 2
+      },
+      "launch_links": 2,
+      "material_inbound_links": 2,
+      "upstream_sources": {
+        "9iWRYJpQVssbUZ4QnHrTPcMEeapLPgmKVYP2fvnLpDy6": 2
+      }
+    },
+    {
+      "direct_funder": "3thxdSxsHtFuGJroCYe6JmCojPRizUz1GnvQSq5M5JfY",
+      "history_entries": 53,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "FYuGqRUDnVgzHqvQGJvu1GhMPzfyooQdTTfksi8H45rH": 1
+      }
+    },
+    {
+      "direct_funder": "49Wo4qJS1CWPd4b8LAezyL4ARPj3fw6N6zPhPV4dQd6V",
+      "history_entries": 29,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "6cbGn9vcTvhR1MuAaS8zKi9Ha5ZUpDLoFPShnJ1e3XwA": 1
+      }
+    },
+    {
+      "direct_funder": "54xTpcBEr48Cuis8m2SdeymdQcwvmDR4aegxCPQzUANG",
+      "history_entries": 48,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "3nWUnuGAWdrTA4hmNmKPQsTpwegLN8Pz77VY8cw27pWi": 1
+      }
+    },
+    {
+      "direct_funder": "59MGbbjnBsNKNbTXsd4cc83doHgpkJBdotigvZ6WxjLX",
+      "history_entries": 118,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "63H6mHB4tTGbvBzhz19FgHBMnyAjqRNnqxiRWCKfTftQ": 1
+      }
+    },
+    {
+      "direct_funder": "5PkFFC9FCmm2EUQHMqbF9cwMviSXjgAjeqKEoPoYejuG",
+      "history_entries": 59,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "8XpDKnEPVLRFMa6ErMbAVfo4yoXEfsQ7yhCaT4imFfLW": 1
+      }
+    },
+    {
+      "direct_funder": "5TR1KXium6nxovUUXbofK2N1uYPh9NA8w9WpvvKZ3Myi",
+      "history_entries": 1000,
+      "inbound_amounts": {
+        "99999995000": 2
+      },
+      "launch_links": 2,
+      "material_inbound_links": 2,
+      "upstream_sources": {
+        "51UmDGr3N3s9sfsYs9jN75fy9e33C1E2m21KfdQSBsAZ": 2
+      }
+    },
+    {
+      "direct_funder": "5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn",
+      "history_entries": 64,
+      "inbound_amounts": {
+        "99999995000": 3
+      },
+      "launch_links": 3,
+      "material_inbound_links": 3,
+      "upstream_sources": {
+        "7u2c2ootN4Wpk1u26XAqnwRvnnRNt2N1WrirHBVHgj3r": 3
+      }
+    },
+    {
+      "direct_funder": "5iDYsDLugMXh1LTRVDmFH8PfQ6ueG5pE9UcfefrnztB6",
+      "history_entries": 51,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "DtZuHqiiDzsScMD2dvCr3Jv4n4aZiinLz8Va3Kpv7Cb5": 1
+      }
+    },
+    {
+      "direct_funder": "5sUoQPPvnvS6eXem4TdcjKJ1JZy7uLEhWN3pCA8yNFnc",
+      "history_entries": 51,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "65LF4eMd2NRKgA8SHNFfipUFXbntsxcctp4HHqo7dbSu": 1
+      }
+    },
+    {
+      "direct_funder": "5xfUdLx4edkXEt8d6MjbrDanVkiSGNnpGcKtnjsTybWB",
+      "history_entries": 53,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "EZiaQHzHqDPf3yx6c8qX511aH7NwkMwQMtUrM1ALJuTt": 1
+      }
+    },
+    {
+      "direct_funder": "6jJnz6ZQjDZeFLxoDq2RBp4fvsjPfCJmpr1jhQcy2rBk",
+      "history_entries": 52,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "GvKha8BZH9HUVBMyGwcBnwYs7GyioBhHmrvh2rRVzbv3": 1
+      }
+    },
+    {
+      "direct_funder": "6nVVHkresDde2BHRw6b6Qfg9UqAJStUQoXv94kopSNBC",
+      "history_entries": 39,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "39dd5awEMk622AX7anig5wjKUqG8Xf7mkvGWKgKPQ2HG": 1
+      }
+    },
+    {
+      "direct_funder": "7144mX5peoQoyYq2ncsTmzFciqkLiYzS42XVmvFjGiv4",
+      "history_entries": 40,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "F39J3KAgeBhQxmhqhYzBKw565NWhJTMiSnZiVtcYGxb6": 1
+      }
+    },
+    {
+      "direct_funder": "7DifG8cHrQBAAKjqoLCnfzj8khtnYLPE39GnWgEnLP8d",
+      "history_entries": 242,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "2MMSdrNnC9CKdbHmeaj5dLoW1LFfUC4jBPfKQZKq2MMW": 1
+      }
+    },
+    {
+      "direct_funder": "7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv",
+      "history_entries": 49,
+      "inbound_amounts": {
+        "99999995000": 2
+      },
+      "launch_links": 2,
+      "material_inbound_links": 2,
+      "upstream_sources": {
+        "7onSgr7qN7C9F7yy2WKYr1VRj3jrhtHoBL5tLQ8KbHUf": 2
+      }
+    },
+    {
+      "direct_funder": "9As8wexRUtoujuYia5WxpiUCbjut75XTb9LknATiXvRW",
+      "history_entries": 59,
+      "inbound_amounts": {
+        "99999995000": 2
+      },
+      "launch_links": 2,
+      "material_inbound_links": 2,
+      "upstream_sources": {
+        "AdH8UqLePYQd69Wp7ovZ14k1aumGhyHcmLj6fyvUGhya": 2
+      }
+    },
+    {
+      "direct_funder": "9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp",
+      "history_entries": 63,
+      "inbound_amounts": {
+        "99999995000": 2
+      },
+      "launch_links": 2,
+      "material_inbound_links": 2,
+      "upstream_sources": {
+        "EDGKu44CYEgzjhFrfX2mpZDgHYu2einGfAwbJ79cw2aM": 2
+      }
+    },
+    {
+      "direct_funder": "AFMNXaQDhB1qDZk21P8B8uaLNUCYng4sGpTJNHa4ePSn",
+      "history_entries": 35,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "CaAqc44bNng1RxM26Xk3mSjpsP3ZDdJLduygK3X6BwCy": 1
+      }
+    },
+    {
+      "direct_funder": "AW7FZRzGUA8HnRWTsGbEDogAh4Y2Utv2KBqALEvfGLqb",
+      "history_entries": 284,
+      "inbound_amounts": {
+        "99999995000": 3
+      },
+      "launch_links": 3,
+      "material_inbound_links": 3,
+      "upstream_sources": {
+        "2NhF4V7W6WXPkPvWVFHisveQAKMvcTB4o8AXrxhGLpar": 3
+      }
+    },
+    {
+      "direct_funder": "AhfDWL1mi2xajF7JWGDzmTiqvtRxD7JDWHkaZVnmUvw7",
+      "history_entries": 242,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "DwTQbWYemW6JTSJj97xhvPvbYUdqYDxf4ppaapvoqhig": 1
+      }
+    },
+    {
+      "direct_funder": "Am3Un7bph5NNWDLCVVVQT1kY4kN3GFPjj31g4DdrNCd4",
+      "history_entries": 60,
+      "inbound_amounts": {
+        "99999995000": 2
+      },
+      "launch_links": 2,
+      "material_inbound_links": 2,
+      "upstream_sources": {
+        "8bHas2MxzzAmcZoHMCNN3NQwUfV2bjawNt6ggy6uP9xh": 2
+      }
+    },
+    {
+      "direct_funder": "Ao2sUdoFtKW7yix7v6GT8GoWE94LcgHiyjautukHBKAi",
+      "history_entries": 67,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "FpK8G5iEAydmPF4fNds2rPbCWwMB4YdvDYZ6tCAdKqzM": 1
+      }
+    },
+    {
+      "direct_funder": "BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH",
+      "history_entries": 68,
+      "inbound_amounts": {
+        "99999995000": 2
+      },
+      "launch_links": 2,
+      "material_inbound_links": 2,
+      "upstream_sources": {
+        "J8Vyzh1efuCFiu3NhYkSvNeSWhFvNEE3BN4N9NF8moiR": 2
+      }
+    },
+    {
+      "direct_funder": "BsKEb5qhnHMFP4XUjoXMv5nMxkvuaFtBH5ssuWNMjLbw",
+      "history_entries": 43,
+      "inbound_amounts": {
+        "99999995000": 2
+      },
+      "launch_links": 2,
+      "material_inbound_links": 2,
+      "upstream_sources": {
+        "Ge4XLNws9dQddAeBCq3wCNkcYf1mpxNBVNyg4rXGeJ5g": 2
+      }
+    },
+    {
+      "direct_funder": "C2W3FExk348T4aNHpJjiCZpNrpd9MNLBBVZAdWCogtBx",
+      "history_entries": 43,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "HErGQyVFFtxTQhWZC2FFpRCspvVvZsSHt7dv1ZHuf3KD": 1
+      }
+    },
+    {
+      "direct_funder": "C55hxeJepPLMKi4xuKjAFLWmxoSfVrqn2LELi67ixQfe",
+      "history_entries": 60,
+      "inbound_amounts": {
+        "99999995000": 2
+      },
+      "launch_links": 2,
+      "material_inbound_links": 2,
+      "upstream_sources": {
+        "4gviJWaJP5Mvf1sKhJRZFQU1S4EZkDnJjH4acAZwEsfG": 2
+      }
+    },
+    {
+      "direct_funder": "CYnm5v4MiLLLaUvu5VUfYPxszU8RPBzmH3Qkv7QbfcUi",
+      "history_entries": 62,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "9dmPzAuCDC4wsCfexmFcP9tX48cM1ebfbN5uYtXbo2ZB": 1
+      }
+    },
+    {
+      "direct_funder": "CbMTzd1sG9vuP9Tw2nUNBHUvtsyzr4Hm5rknri4XxXWL",
+      "history_entries": 47,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "2rbZwmvAGY5q1vhpRgXy3PHtztD8kYbtjbYuVUraLYkQ": 1
+      }
+    },
+    {
+      "direct_funder": "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5",
+      "history_entries": 230,
+      "inbound_amounts": {
+        "99999995000": 4
+      },
+      "launch_links": 4,
+      "material_inbound_links": 4,
+      "upstream_sources": {
+        "7nUChWZA5wUMWgUjigfkh3MG2FmoVhk47fvqCcPALe5B": 4
+      }
+    },
+    {
+      "direct_funder": "CwY2ejGDsiDhjpEJRK7DQRUEgoCiUpcXGAwpZ8PGdwmL",
+      "history_entries": 14,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "EDQJjHbotrBr7R3biuXmp7h7HJPNeiJXCNaHSaA7ZbyN": 1
+      }
+    },
+    {
+      "direct_funder": "D4iJYcjWZmzDEgnKMHWmpCPZaCiqHSZYtVpLW8zYRHcZ",
+      "history_entries": 10,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "4vPyGwjFmiZW6NmybzWQKm3KuHjM3Zw8xw4cNkyneEV9": 1
+      }
+    },
+    {
+      "direct_funder": "DPAy3sFUsUWVRCGaMKse2hVYR5kKU7Yr4cE1eM5EwvgA",
+      "history_entries": 258,
+      "inbound_amounts": {
+        "99999995000": 2
+      },
+      "launch_links": 2,
+      "material_inbound_links": 2,
+      "upstream_sources": {
+        "FQewszHHeYSvAQMTKQjFXwDWQDgB8TXqJzsyavNmYCi9": 2
+      }
+    },
+    {
+      "direct_funder": "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB",
+      "history_entries": 1000,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "6kQde5QeXZ4iiAX5dx9mmKERaokLR9D55S14JeUGZTCN": 1
+      }
+    },
+    {
+      "direct_funder": "DmfxzqZQTifJQhfrikFdDQXy3Ws6X9H3VX5xkRVTf77y",
+      "history_entries": 53,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "HBa1PoTnhDtbeC6SAL9vrp6gxCWMBbdS4oN6dMD5snq3": 1
+      }
+    },
+    {
+      "direct_funder": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+      "history_entries": 1000,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "3GL5bXdDriApC4J2gn42L9fH2xFxq9Ziifr3pM79hBoi": 1
+      }
+    },
+    {
+      "direct_funder": "FJrraJVwKYdcLX4we8UttdJGvxErgUKWf6awnVSsxArH",
+      "history_entries": 66,
+      "inbound_amounts": {
+        "99999995000": 2
+      },
+      "launch_links": 2,
+      "material_inbound_links": 2,
+      "upstream_sources": {
+        "8VFreegW9kVfykJJC2ULz82XpRiwGHG3UdETWY4Eowpg": 2
+      }
+    },
+    {
+      "direct_funder": "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD",
+      "history_entries": 76,
+      "inbound_amounts": {
+        "99999995000": 3
+      },
+      "launch_links": 3,
+      "material_inbound_links": 3,
+      "upstream_sources": {
+        "Bn1RAP2D2s4hDUUYzngaBipptN4XfVmXKg7maHjQZ4P1": 3
+      }
+    },
+    {
+      "direct_funder": "G9XSZDgMk8x51uHvFUumZK5AFWJLp3GJCV7VZSkL3uGP",
+      "history_entries": 44,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "6iMNUx2ndPCAopEW48xdAxyCTf7vXRd2FsQ6CHx9MQn5": 1
+      }
+    },
+    {
+      "direct_funder": "Gy29oqrQGFsP8cSsZ4eJvmMDMvKeYtWgURGCn5jim9Xn",
+      "history_entries": 48,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "94VEgcJ31hwXWD9aUBNb2XjGewDkquxGUUkNeTfPqeZN": 1
+      }
+    },
+    {
+      "direct_funder": "HQ2q5DJuAVf1CrDJpwmeSYsLgvGp9k5cGEPZQsNvcMW9",
+      "history_entries": 45,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "4cVm3jxHmCsK5tCuv92JYCqdXfF9t2eZ1wagUBKf6F4c": 1
+      }
+    },
+    {
+      "direct_funder": "HRneLKJHUHXJr9zb297N44L8WCUqCJYKDsSxDaPv49wS",
+      "history_entries": 52,
+      "inbound_amounts": {
+        "99999995000": 2
+      },
+      "launch_links": 2,
+      "material_inbound_links": 2,
+      "upstream_sources": {
+        "326Sd2gfsXQA7c2XWN88jNTh6bY32pgvJEkk9uWSZ9tc": 2
+      }
+    },
+    {
+      "direct_funder": "HS5GjB4KTJbbBdYHkJV8qDpq8gmU9wck2qsxgz3ifgke",
+      "history_entries": 1000,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "8Bk1fBnoc9Yk3HUz1UWihT2ewgbxMm7LTEoemabUVqmk": 1
+      }
+    },
+    {
+      "direct_funder": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+      "history_entries": 52,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "CZTxzma6pA9HPwXASpbhuCKNGrH6zgpQ9ARgUqUQwbTy": 1
+      }
+    },
+    {
+      "direct_funder": "J37JdYS3hpMB3iW8tgUdfFrrBu4X6o9PT3SguxpHXJVW",
+      "history_entries": 58,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "7dbf5E7pfNGHoy9F8DUC7KcNyaapa2tC251A4jgAqJXb": 1
+      }
+    },
+    {
+      "direct_funder": "J87ewUdaYKXaMVZEdKh14fMcKXaAmzGamzGtaXDop13X",
+      "history_entries": 48,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "Et4WkjpTFwiAPmLbsgt519UBVccnFrW14Hu1VVzDnJDK": 1
+      }
+    },
+    {
+      "direct_funder": "NeHjc1yqZXesLZTHtK7jrjyQ3MpFg2TVHpV8QDDAHEm",
+      "history_entries": 35,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "D4g6HvAX7cbjdH1cnVt24y9tC2pTU52eCdNz2wu6H1CN": 1
+      }
+    },
+    {
+      "direct_funder": "j6EVoUMZRafJPrdkuoB9PJGXxBGHEsx4VcJq5W3Ft5d",
+      "history_entries": 35,
+      "inbound_amounts": {
+        "99999995000": 1
+      },
+      "launch_links": 1,
+      "material_inbound_links": 1,
+      "upstream_sources": {
+        "Bdq9PYpY2BViVtthj6WGeqbkixZciunv6dQ6MYXpXet5": 1
+      }
+    }
+  ],
+  "launch_links": [
+    {
+      "creator": "CgNwZQcSyaeU6vuafjXebXhNm4tVCH59iNv3fhosjsQv",
+      "funder_block_time": 1787706998,
+      "funder_sig": "5xtFfih1SzqinzDPVs2a6i9Xt2qdPuBtnMsvdQMtpAvCoQ2rUPWfhKGRN4QQmV51Py3k6TNcxx7W5qqxkkiQWbQj",
+      "funder_wallet": "3BeSWamt3Lvj4cP9MopXgPb9CxjZ29UkZ6qPAc8kskec",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 0,
+      "immediate_prior_block_time": 1787706997,
+      "immediate_prior_signature": "3EwXyW3LwPn3dMhndbx5ofs6P1JBzfmm54RyZoRJC5XxZggwkiVAktRUwv1VZ7byHtu7aLQFFPjbcMmr4BTyznPE",
+      "mint": "AjSXgwtqKmJ7r4e4DsfTu8xS4ytrHigXhxfLtAwpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787706997,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "4zYHpa2udPhCVJoYT7MtDzMrDeeczyaCuemG4J82ukRe"
+    },
+    {
+      "creator": "98TuFX8akWLq7Luqbyg6mZKFxQQwZu2LRSs2ybwrT3nS",
+      "funder_block_time": 1786048190,
+      "funder_sig": "3aXF7MZhnCCtPq1H5MHS5TsbWKYSHAoy4n4Y9QMRm4wUGpT5HksvugHHUeM6m6UvRctvkFURiKPTjPjtvqVSBf3M",
+      "funder_wallet": "DPAy3sFUsUWVRCGaMKse2hVYR5kKU7Yr4cE1eM5EwvgA",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 20,
+      "immediate_prior_block_time": 1786048189,
+      "immediate_prior_signature": "31ZdbApWDCJEzs1ZHZbEzQJmTCZsttw5ajDdKsggcU4gMYrx9NQxWg4oP9WBztUVArBiWkbP2Hspakkq66YAevX",
+      "mint": "BT9JV4F3t58yyeELzXo72jL6C1fWp8SQRM3i3B9pump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1786048189,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "FQewszHHeYSvAQMTKQjFXwDWQDgB8TXqJzsyavNmYCi9"
+    },
+    {
+      "creator": "ArodMf2yaxC1DYFpTJc3kMhMBR6JNvjaqxkpV3ktVgyf",
+      "funder_block_time": 1787792575,
+      "funder_sig": "4W2ezvUKsUX1K5XXPghiqVsDd5vc9URqjyGVeeq9vZyT2DY6MnAVBo5jmiraQipQNhp8GaMsNv9ZdwrNXGbD1PUL",
+      "funder_wallet": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 2,
+      "immediate_prior_block_time": 1787792575,
+      "immediate_prior_signature": "3MrPaCp4PWmBazx3nR6WBMAnNuc8vnV7dJMRhoJEXEF2K3jUvgqGNK47Gd7T6osztT8fd4NYeccVDLi92vtr7h8u",
+      "mint": "BXhcEHHYizRzbB3Bz7NJptoMdXoNquM14WzaxqGpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787792575,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "CZTxzma6pA9HPwXASpbhuCKNGrH6zgpQ9ARgUqUQwbTy"
+    },
+    {
+      "creator": "3NrYxFjqL7NhUPsNmb3Tiiq1m7RHxzqDgGvJXf2RxXMn",
+      "funder_block_time": 1787215581,
+      "funder_sig": "4UTrMShnXJRUjS7YhJMWKvyfXLmBDtYExCiJq5k5QUnnKe6AdTQH4pCdohyJFjhaLVMcjoQQXD5fsYM5ha6Wigur",
+      "funder_wallet": "7144mX5peoQoyYq2ncsTmzFciqkLiYzS42XVmvFjGiv4",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 8,
+      "immediate_prior_block_time": 1787215580,
+      "immediate_prior_signature": "3DZFf5Fkrb13cSVxXV48tRB8kkvJNKi2VDpwMnWtR4GgHNR7Lqkf6sHAWjsf2Mtk9DWZf62L4xzZZMrGhkAWALbG",
+      "mint": "CPM7DGwsFCyT2kHqzEwf4moWKnCiYh5czdbyr7apump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787215580,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "F39J3KAgeBhQxmhqhYzBKw565NWhJTMiSnZiVtcYGxb6"
+    },
+    {
+      "creator": "GEtVX6H7krvHFCasXsnX2wHzm3iZeqxLUUNzmi4HeER4",
+      "funder_block_time": 1787015041,
+      "funder_sig": "2KVN12ofn1zB2ZfuyXdSVPHWXvuTb2NpGweP9sY9ApwTdEzUPRfCi3ttpco4tiKdwjpLaJj7S5ZD7xZGw2ucwxgG",
+      "funder_wallet": "HRneLKJHUHXJr9zb297N44L8WCUqCJYKDsSxDaPv49wS",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 9,
+      "immediate_prior_block_time": 1787015039,
+      "immediate_prior_signature": "5KSkGxKxXpF5gKMd4ngFPLMP8C76Y5GHzzETRpsiW92kYo37nN5qSUVoRYo6nGwgDEXWif8UfysiKuhWokGqYkEL",
+      "mint": "CiKMVEVMCZSTXwQwqrwE3GZLne982oHkAdq7Yz3pump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787015039,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "326Sd2gfsXQA7c2XWN88jNTh6bY32pgvJEkk9uWSZ9tc"
+    },
+    {
+      "creator": "9qqSas8WY6nmQ3fnisLFDJt89AScjZiqbT1jAA1BUCe8",
+      "funder_block_time": 1786531970,
+      "funder_sig": "4no7LpZipBLnD5oVE9NL2BTiji399jehxjdBniqBjkhZmG4xHgybQKK35ktKEoEjUWmXvRiQfhvztEU5eptNsJLM",
+      "funder_wallet": "CYnm5v4MiLLLaUvu5VUfYPxszU8RPBzmH3Qkv7QbfcUi",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 37,
+      "immediate_prior_block_time": 1786531969,
+      "immediate_prior_signature": "4p7YPcBEkGNfo39n9LbjtmGjVyk7NQ18Nf7FaESumom1vVM4mjLgwnJdfc51KK2EWxo81eKjNZsUftdMba7YGABw",
+      "mint": "Cj7up2N4yXdzZmLYNaiPt6zye4VWoWHsyeCobEDpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1786531969,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "9dmPzAuCDC4wsCfexmFcP9tX48cM1ebfbN5uYtXbo2ZB"
+    },
+    {
+      "creator": "8j9q3Rc4zNwNCTLMketLb92LjQroHziHnYs1MKkYkSgN",
+      "funder_block_time": 1787217108,
+      "funder_sig": "2GqtcM9CYkHFKc6B86rXTR2E7iCjMBFbgdBQVGPwAbPrGxwdsZyCxYyxBrVUqixpHLydyu2TCaxHvUfvt9j2T74",
+      "funder_wallet": "397s3pwPhV1A88Fj2EuNoERFYTCLdN5WiUAPvxUxFVST",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 18,
+      "immediate_prior_block_time": 1787217107,
+      "immediate_prior_signature": "3Un3Hhw4f2AE5mVm4YXHSaPcfnNxNT7WHJybFotB7Q2CxMdYNhbsnmfnW14ry5bfBQ5SB72Af6Dn5zHZNAL15rNY",
+      "mint": "DqErYkksQymp8sVr2HkrJbVWkv1YXrz3keWKBfHpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787217107,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "7VjefJrPMfh6wow3BYr4Qj1vAgnFsAnXBNqphSnpPzUY"
+    },
+    {
+      "creator": "9bFEF5DJagnHfuPdUbCtihwYULdTCzp74RQ288Y4eoxe",
+      "funder_block_time": 1787214650,
+      "funder_sig": "5UQZoTvRreEZArbw22k5ux3ZB6NuEodQktWiED5JkdgM2MbiwytQs6SnozB96eYxP2gEQHnTowP7h9PMWa4Fjuak",
+      "funder_wallet": "CbMTzd1sG9vuP9Tw2nUNBHUvtsyzr4Hm5rknri4XxXWL",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 8,
+      "immediate_prior_block_time": 1787214650,
+      "immediate_prior_signature": "3EXitBXgmTbwtnJnWcAM1s6kj4soPafjPMtkKTTVxYxnx2tJDQV6nXvyAi99YH4xLEFpqsvti7fDtVRMr576SNW6",
+      "mint": "EakWrE5ehWTkJkhSPp861abPiDg4BDW72KVMR2Qpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787214650,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "2rbZwmvAGY5q1vhpRgXy3PHtztD8kYbtjbYuVUraLYkQ"
+    },
+    {
+      "creator": "7LYzKGRKPCxvfUSuV5pm57MjmUgC6G3sPKeRcTL4CTgD",
+      "funder_block_time": 1787542605,
+      "funder_sig": "3HwguxzV3rT91PSD9nUk4g6CZgsvboQ1i7noRDESW9v8fpUoS4X3eLiXwbZui3NFz5Qbtx3GZa6aBD636ZM1JK4f",
+      "funder_wallet": "FJrraJVwKYdcLX4we8UttdJGvxErgUKWf6awnVSsxArH",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 2,
+      "immediate_prior_block_time": 1787542604,
+      "immediate_prior_signature": "2AB1WrrvSZfejrDaqqHgEPF8xTBVq1VysCx1fLbTwRtTGcd7n1Da5ropWoxrCfYZ5Fkc1miLLsMJB3WLD1HzhRDR",
+      "mint": "GhvrrotDtMYKFjWpeuTxgskYRji3N2u5TeYToZwpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787542604,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "8VFreegW9kVfykJJC2ULz82XpRiwGHG3UdETWY4Eowpg"
+    },
+    {
+      "creator": "6t5EWE97oCjx7DKAqwMisjwX85VjRPPM4WPj9fLoP7f4",
+      "funder_block_time": 1785802785,
+      "funder_sig": "HfFNGZmxxwwvcHXZqdRYpPE5Kksv1noy9dpDfQG5H1xtaj7ugE1AWPGkD4TbaVKvwjn3nVXT1HX9Kz7o9rT6fao",
+      "funder_wallet": "5TR1KXium6nxovUUXbofK2N1uYPh9NA8w9WpvvKZ3Myi",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 12,
+      "immediate_prior_block_time": 1785802784,
+      "immediate_prior_signature": "542qTnzxG9Us21ch8a4RYBt63jRrDpdS7vNCLFvor978t5fE5dnnXxCQuEW4886y7KccV5bQnRvi9y1NMBfnG4Q3",
+      "mint": "GkyDShEPTvXw6CacK76yxSzA9seHbyPfpRK1AuTpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1785802784,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "51UmDGr3N3s9sfsYs9jN75fy9e33C1E2m21KfdQSBsAZ"
+    },
+    {
+      "creator": "Ft5Sn8GN9BrqGXUyiuvw4WgEP9MUER8hdmZ7oBBEQ1rT",
+      "funder_block_time": 1786873024,
+      "funder_sig": "2HtE82WMYpvpMW4Rxj9cujNYPeYYn15Q2Qh6iFxi46fmqwfNTuGc7KCGZQgGUqcn1ensRbpw9ECw8LRJNrYU41D8",
+      "funder_wallet": "5sUoQPPvnvS6eXem4TdcjKJ1JZy7uLEhWN3pCA8yNFnc",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 21,
+      "immediate_prior_block_time": 1786873023,
+      "immediate_prior_signature": "KiNM37R3qJXbapNGA614MzDPTZ5faP8aiXVtPjjXFuoNrVbpnQZHanEAaceUM9wY8NzxmJZ6wzxfJ76hhYUhPCc",
+      "mint": "HUNHEFrs7pFJpd1R7bYq6vT9GigRk3rV9av63ZVpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1786873023,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "65LF4eMd2NRKgA8SHNFfipUFXbntsxcctp4HHqo7dbSu"
+    },
+    {
+      "creator": "FrxdDECnxzE62ZGjNCN4EHM89t7kb1gA1BvxLhrL9KnX",
+      "funder_block_time": 1787723729,
+      "funder_sig": "2V4cQdQTytaRqVM8Qq6CdUNKCkRAADsafQNywECjzJnD3qiyYCmtpZpHUs4YW9MzYAufy514Ww9NvqwX2Vqbj9Mi",
+      "funder_wallet": "Am3Un7bph5NNWDLCVVVQT1kY4kN3GFPjj31g4DdrNCd4",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 0,
+      "immediate_prior_block_time": 1787723728,
+      "immediate_prior_signature": "oRSxpkpjjDgQLhN57pnmz6G1WBMpafwGJXay9aJnhyMsw7pGbofeMtRFR3H4v2MagYa6cNxyBz6s3RdwXcrbyG2",
+      "mint": "HkkFpHwpERFUkhZhLrFXMbz5J7WA1bZqSKLnP3wpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787723728,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "8bHas2MxzzAmcZoHMCNN3NQwUfV2bjawNt6ggy6uP9xh"
+    },
+    {
+      "creator": "CvQTfPsBj9BrH7VfkkrTAXcE5sBkeoLU42S918BnkJw1",
+      "funder_block_time": 1786448112,
+      "funder_sig": "r75GRQ939oxV98mYNpgbJpzdKQ5H5YyWXFRofUmuu4iFuh4pUe1E1bRhLhBPqu5SPgBq98YcY8PCuxLPDXMPzaQ",
+      "funder_wallet": "Gy29oqrQGFsP8cSsZ4eJvmMDMvKeYtWgURGCn5jim9Xn",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 30,
+      "immediate_prior_block_time": 1786448111,
+      "immediate_prior_signature": "5Y3mckMwLd3aKySFWSS2AE3xPmeXR5dNAPVnUVLmjCNY2kMDCcLUpnDX3DNbeX2PyPT5uxuiQdyRjKf16cTDgQBr",
+      "mint": "JHkAR9egULFbv1PfGLky5NvahfQwWJRDH4zJMsWpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1786448111,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "94VEgcJ31hwXWD9aUBNb2XjGewDkquxGUUkNeTfPqeZN"
+    },
+    {
+      "creator": "ABn8WgSFDxiSWchwi4NyAJcYHvbmE3vB86aHRbFgvqi2",
+      "funder_block_time": 1787459721,
+      "funder_sig": "4orxjwDEAhQHqVu12EejbTyFr2bazWCQR7NBRN3UrA6cxiUzEyrVpzFvzSgWCVQsKxUU571A3R1LvQ5139R9DSEn",
+      "funder_wallet": "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 18,
+      "immediate_prior_block_time": 1787459720,
+      "immediate_prior_signature": "4TREwGaP1gkN7qCx8kZgWrWqLw6ZP9yF1P6ot325SuC1DsdARz5L29knSkN1b3p5WEN1Gmm7rPVtKWZzoJGQkt1N",
+      "mint": "JzXZKSJZvtS3scMCcmXWUJGxRTBfnociHXVXKRvpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787459720,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "7nUChWZA5wUMWgUjigfkh3MG2FmoVhk47fvqCcPALe5B"
+    },
+    {
+      "creator": "AWvsP5noHf3NNgX8drBa6GSSc2nz2TXKpKQ4JauHJAaD",
+      "funder_block_time": 1787793363,
+      "funder_sig": "kbWR5u1HLSeq73Lt4wQwGwmChsZELNnkGjnpc264BoQC4o7jS1hWhgHA75yiqyrs3bKs9KULUdZJvkpz9xG9J82",
+      "funder_wallet": "3ipeLjjgX37rqMNf8DV3N4Dufet4Fs1Ho6WyctQAG8FE",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 8,
+      "immediate_prior_block_time": 1787793362,
+      "immediate_prior_signature": "39tshR2bu79nv2uRZCFryR1D8fs9GmioSy2Xk1Sm9RsSCDLaAcagvMWsqC7AmuZ58ATki7baQLheppeJzvrJrQS9",
+      "mint": "Kc3RWLHYvmfhSk4qW4yYpimyv8794ZQoXBRoBH8pump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787793362,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "9iWRYJpQVssbUZ4QnHrTPcMEeapLPgmKVYP2fvnLpDy6"
+    },
+    {
+      "creator": "AX93U7LoL2QYWJnuGa1grmqWgtPhG3y6CwqoFanv1ttx",
+      "funder_block_time": 1786593176,
+      "funder_sig": "5KiaT1R4cMerHa7CKmujzNXKt7gtUgDYm9hVkK3MK5o6U3NDda2dWCRCrfNNvB5xuoNFrjEKyzHfMdPik2eafXc6",
+      "funder_wallet": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 43,
+      "immediate_prior_block_time": 1786593176,
+      "immediate_prior_signature": "2N8RbABK5ubMHp8mBngBWbkbGoTtyoFwtQqAJx49tQ1vFDPJtCAPtcADSxv4PfTKuyfkVX7GwwafYAEgzNgReZK9",
+      "mint": "LyqncnAuRYisshpv1u12B6pCD7SASdyFj1itCUcpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1786593176,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "AGT9dkEZUBPrw5HrDGZTNRhYNMEU5HbRp2E1GdYMSB6r"
+    },
+    {
+      "creator": "9UA4PhjVWhShFgJvpQqyvJoSftQL5757J3buGuATCAi1",
+      "funder_block_time": 1786623174,
+      "funder_sig": "4eAuDBDr9DtKEc5C4soRXkkHGK66x5iet2PmEnwFCRjg2QAmWryMn8FEtwyHavVEHa71bdoQsXhVQt1mX1kL5gSt",
+      "funder_wallet": "DmfxzqZQTifJQhfrikFdDQXy3Ws6X9H3VX5xkRVTf77y",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 23,
+      "immediate_prior_block_time": 1786623173,
+      "immediate_prior_signature": "P1CFKVrV5buyXMw9YekYuKruwBxfqJQY7umDKhPw1LXSscXgMpygX154gzveXvB1uQytEch2YZHz9UnCWihJrWA",
+      "mint": "MW7ePAAMjxWyezTKtnvYXewrN5H4CHrv1HYkhabpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1786623173,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "HBa1PoTnhDtbeC6SAL9vrp6gxCWMBbdS4oN6dMD5snq3"
+    },
+    {
+      "creator": "FwC68rFq5r4MmsAS3zxEwUSye5JPtYQoL2piJcpKabQB",
+      "funder_block_time": 1785790934,
+      "funder_sig": "3TpFPoGwL6YJrPGy2iBqCBPrg55fF79Sw2rEUPt8gWpbnR8h3rrHz7yhEM8j5VbgNzakkhnJxav2hYNkKT22gjDR",
+      "funder_wallet": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 48,
+      "immediate_prior_block_time": 1785790933,
+      "immediate_prior_signature": "2NWscDwi8iJp8xpXUAwLZyrVoFeDcsyhnHKwokCkpX91AJ8LpZe9qTRcFQhVi6inQYZ5EnEBSiFiHpUu1Xdxhrif",
+      "mint": "N2JuKvtCqPyqZbduGD2uhuhWFZ9qARxzuuYYkfBpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1785790933,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "3GL5bXdDriApC4J2gn42L9fH2xFxq9Ziifr3pM79hBoi"
+    },
+    {
+      "creator": "xkRXakyCtZyurxF28kUserYZ7ws9NqqTxaEJjSkVaiJ",
+      "funder_block_time": 1787456322,
+      "funder_sig": "3NeBxDj2bZUFQdKafvsdbtgh68moKDBnao3QEAtvoch4wWE5sfy9wHUghuwnG8QhBc8u4PfbhFHFURnpfQnAgRzu",
+      "funder_wallet": "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 36,
+      "immediate_prior_block_time": 1787456321,
+      "immediate_prior_signature": "54LioSqhkEk3Awo8uiBTVdvCikut4ybiQa5GoCQao6dgARP4Dt76E8RW9RtWsAHAxpDB8Hf36RJdyL7TNtxpYLE8",
+      "mint": "Q3FHwyr9AFZvFJUyFduoGrnJE5gAgq7UGQWVn2Kpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787456321,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "7nUChWZA5wUMWgUjigfkh3MG2FmoVhk47fvqCcPALe5B"
+    },
+    {
+      "creator": "7v7nDPBG7Qa1wr5GzHAtf2fxfiRzBC5otW68qPcTQpyR",
+      "funder_block_time": 1786582853,
+      "funder_sig": "WUUSvgPRCiFrAWnSfodzt27TauaZqJdUHLmygp5RsKofbVPGjYza2V3Y24EaaBLz8gQcHwcnKoDC9WZbHjTkb8C",
+      "funder_wallet": "9As8wexRUtoujuYia5WxpiUCbjut75XTb9LknATiXvRW",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 29,
+      "immediate_prior_block_time": 1786582853,
+      "immediate_prior_signature": "CmjmeRAp7uNMrmTbmVLp1TbMJn4m7UMEgEC3fUViMBHpHmg6gyZ4GCx8su2tpURFUchcH4UiDBBUudcUM1txDch",
+      "mint": "Qqq9SveDjjYJc3jFYwopxEFhuV7SwMtcixr3skdpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1786582853,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "AdH8UqLePYQd69Wp7ovZ14k1aumGhyHcmLj6fyvUGhya"
+    },
+    {
+      "creator": "3kamQ5cB2fo46pDyGnUkHYmnuDZQJWFxmntxRKvDBhY1",
+      "funder_block_time": 1786532598,
+      "funder_sig": "4THKNhSQXbtE2Moua51wWdLdoM27DxbvCn8ZUZq5YfHCnQxbpYBiV6ZmRw7kdkvV5mk17fR4tZoGDdmvU48UDHoo",
+      "funder_wallet": "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 45,
+      "immediate_prior_block_time": 1786532598,
+      "immediate_prior_signature": "4B37XEumgX3KsKYbMCMuZ8EwwxdwZ5CrbMDGiHzEnAW7cwcpNc4nfrWGK6QRu1Z5jzrQvKuEvBFXMEgcdsn9prje",
+      "mint": "R39ag2yKJVxJiHUxBy1xUEUc55kADNicLb9idNnpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1786532598,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "Bn1RAP2D2s4hDUUYzngaBipptN4XfVmXKg7maHjQZ4P1"
+    },
+    {
+      "creator": "E57fshvfneuC7j1m12mXk8GjQcDVTKmKLG24rnbjiQLF",
+      "funder_block_time": 1786449676,
+      "funder_sig": "TmSQpwaBQVnseTDFedYevTSRsKZwqaSrScEMP2EU9AT1MYejmQvmkP5YmdH4eWArNDYjvqzCR4TkKDL376V5CR8",
+      "funder_wallet": "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 58,
+      "immediate_prior_block_time": 1786449675,
+      "immediate_prior_signature": "65b8xc1WjrpkF2d6zN77DxS6KjvjiR1cb6jZ7VczTkdhtMPmKhtwsE1AgpK3P3AXfMUdt1A479GAz7WnhFEEQ4ex",
+      "mint": "RAjnSnVnRmf8Za8MggRPRmjkY2ZQkK7HiXYz4YSpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1786449675,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "Bn1RAP2D2s4hDUUYzngaBipptN4XfVmXKg7maHjQZ4P1"
+    },
+    {
+      "creator": "GaCSvrcMmwc8RcbdAnxwBdM2dfzUZN3FkPWCCCCusMbf",
+      "funder_block_time": 1787016609,
+      "funder_sig": "39votXdvKC6jeTKoBKMh7oBZcFmhPaZfs8o4zfUfKM1wVUtf2ygmRLVkKdTSQ8LpvdvmD2Zu5YLf59tmHjqNxXe7",
+      "funder_wallet": "5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 21,
+      "immediate_prior_block_time": 1787016608,
+      "immediate_prior_signature": "2vYLfNLTaTafvqP7uwzAK2JQjvWUsMYER9oQWXn4bE45hpmtkjs3pBSjSNdNS3NyGNbCzme84TGPVdrEvge4Gj6F",
+      "mint": "S3jLzSX9NKbtdUVGTzoeYFMty5xXRYvzTbFASXUpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787016608,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "7u2c2ootN4Wpk1u26XAqnwRvnnRNt2N1WrirHBVHgj3r"
+    },
+    {
+      "creator": "CJPxDtdM9E9UWgNQN4VuZ5uD4eKJEns7ecNcToNgYsqS",
+      "funder_block_time": 1787741358,
+      "funder_sig": "2uyrjnJM4aemKuQ6u88XRPGPpeuzcEjpXoNTLV6VBAwfSew4iqEoZpX8FhVxBZABJYgDd29DHECYRT1BPY9NSYb7",
+      "funder_wallet": "AFMNXaQDhB1qDZk21P8B8uaLNUCYng4sGpTJNHa4ePSn",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 0,
+      "immediate_prior_block_time": 1787741357,
+      "immediate_prior_signature": "3T6Ew7qpVykujWmwVkEPA3r1hZ3SM2DVUU6S8WSr26YiCLDRrqeTLuG9NLguKCMT72SBk3fvtnRKUQJMjpAQrsxJ",
+      "mint": "SdVHNEwdV3yJ7v24ByoaBUm23Edtoe9em2JbUH8pump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787741357,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "CaAqc44bNng1RxM26Xk3mSjpsP3ZDdJLduygK3X6BwCy"
+    },
+    {
+      "creator": "CZW5TGuGBp8N3K9sJjkaq8yrfae8qKEEptFBJPm2hNeb",
+      "funder_block_time": 1787368455,
+      "funder_sig": "2A8UEgddd3PWW8AFF495hBdmqoCwoYWfq7v72Mk6qmM6bah5pJcmmdTiLbahD4yTxJF29qd3vhgWHXj9KdNy4fGz",
+      "funder_wallet": "NeHjc1yqZXesLZTHtK7jrjyQ3MpFg2TVHpV8QDDAHEm",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 4,
+      "immediate_prior_block_time": 1787368454,
+      "immediate_prior_signature": "2jpmksJjWrRR1ida3HyvKFFWcCp6oDX8u4kicMogBGmAcsJAivSjQDiZhWiGCDVEZfv4XyrUcdDT5kziS1LY1kHG",
+      "mint": "SrAJUQS6snqHUATSX4Jmvb4vZpgmQevqeWbzUEVpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787368454,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "D4g6HvAX7cbjdH1cnVt24y9tC2pTU52eCdNz2wu6H1CN"
+    },
+    {
+      "creator": "9vxWQxQ7t96c8me6weJaUs4wwvqL2dJnborBhAbmBjvU",
+      "funder_block_time": 1786583337,
+      "funder_sig": "E46pnsVJdoSRDVga9WC8bgC9WKnZNzSPuv9GrLuZPSK8XdqWhyHH27M6XvQ92zTAfsTt7Lbmn3fUAZcAQFNokLm",
+      "funder_wallet": "3thxdSxsHtFuGJroCYe6JmCojPRizUz1GnvQSq5M5JfY",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 23,
+      "immediate_prior_block_time": 1786583336,
+      "immediate_prior_signature": "65M3peGDYvvM5qrzbZHfx4eFmKZMfWtPNcJqhYBcUEYu5GJ8SySPM5s4x9qyqLzeeqbpnAU6iFpkHuHMFQRXfpkc",
+      "mint": "TwA2K5KnYpyNeu7dxeNY3yS4uCR5KrRRh9FPLDHpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1786583336,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "FYuGqRUDnVgzHqvQGJvu1GhMPzfyooQdTTfksi8H45rH"
+    },
+    {
+      "creator": "2QiFAgxAKru3d8oWsL5eEkSAxmQxU6WxHTCoGM6N2VCC",
+      "funder_block_time": 1787370510,
+      "funder_sig": "3DPNaFit2pjTZS2HGyj2VAHqb55N61GzGQeFtEW2AMk4xQBURmKPw3NGkjMRKNWidFJjThYMTJcTqRzJGRDTccEE",
+      "funder_wallet": "49Wo4qJS1CWPd4b8LAezyL4ARPj3fw6N6zPhPV4dQd6V",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 0,
+      "immediate_prior_block_time": 1787370510,
+      "immediate_prior_signature": "2N4uypk8bkiQraS2HT9VRo5fahaGfWFPiM2onbTcAiZQnLtoH2bireJhd5yKWkTN1ZLhfmo5mKYw5oZWcp9krXhm",
+      "mint": "UMVSuCPVE5H1SbEZ5X32iu3Jcs67ySZ1iMuiyaWpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787370510,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "6cbGn9vcTvhR1MuAaS8zKi9Ha5ZUpDLoFPShnJ1e3XwA"
+    },
+    {
+      "creator": "55fXgo7wWvfTd6ZiRNrqoy42Hx7CbfKnSQgMriVStPEB",
+      "funder_block_time": 1787201170,
+      "funder_sig": "4rTGnxY2LYSW7bNXshQUEQqY763AERXtufxaeS5shp617xrLeXPvM95JcbJCnCeeetzw5YNRvFZ2qYHL6et2vKoN",
+      "funder_wallet": "7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 8,
+      "immediate_prior_block_time": 1787201168,
+      "immediate_prior_signature": "3jRbYnqRGC2GZSn4UhznTowi7PQqnR3zZcSTX3k5BUBEfhMP9nHD1ME9fzvwWsjn8BAjixKFmXDzZA6Rhk93pcJ5",
+      "mint": "UkCrzRHSB7jDqMzfLEyAA6A68ibzWZpBWvdY2y4pump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787201168,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "7onSgr7qN7C9F7yy2WKYr1VRj3jrhtHoBL5tLQ8KbHUf"
+    },
+    {
+      "creator": "2w3ecjBRZ7ZBim1iaXjqv4YKWeHtRk6n3EpBo1MVZBoS",
+      "funder_block_time": 1787047604,
+      "funder_sig": "38wZUDU5TDhWRRznvJvmE4CgK7B5vjZB2LJAU3BgPzRyCqWE3wTzDwrUW3Ei6AtPxdqFZeMjo8fBT7CUzmXiMdXz",
+      "funder_wallet": "9As8wexRUtoujuYia5WxpiUCbjut75XTb9LknATiXvRW",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 17,
+      "immediate_prior_block_time": 1787047603,
+      "immediate_prior_signature": "5vt4BJfCJiuhmGN2KgSTeDmYvvwVsoNZcPK1FY9yB9THN15B2VdBvdFaUV4tPFfH9NFK8QapHctiyk1DbecdMyje",
+      "mint": "UroXqz24UCoMy1LpQJVQjJEyeKzBh6aYPq4b487pump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787047603,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "AdH8UqLePYQd69Wp7ovZ14k1aumGhyHcmLj6fyvUGhya"
+    },
+    {
+      "creator": "BS2tw7Q4vEgPNemCj8cXNv5TvoyPWyikJbccZapuyQqW",
+      "funder_block_time": 1787203886,
+      "funder_sig": "4WAdS8z7MRuCnn1sBiMmJnYCnRuntub71qhFdFTHeqDZsnwd7gBtPLvUQjRTPiZptGMWh6fKnfh25BwpuU9jid1o",
+      "funder_wallet": "C55hxeJepPLMKi4xuKjAFLWmxoSfVrqn2LELi67ixQfe",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 24,
+      "immediate_prior_block_time": 1787203885,
+      "immediate_prior_signature": "5ircRgPSGMQ6RYHETUNy7qzKAtYXTMBhb4B5TSgQgQ2PN47iwWUEbeBrTdvjVWUG1eanySBUeNY8vGDuZMGnoZvg",
+      "mint": "UsCT9cALz6uba94mdUByBLZgP3Dp5sW7Mv7ZgJPpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787203885,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "4gviJWaJP5Mvf1sKhJRZFQU1S4EZkDnJjH4acAZwEsfG"
+    },
+    {
+      "creator": "38aBEtXLDNScjuAcER11UbCpCyovbtrmzod4YAqkAxMz",
+      "funder_block_time": 1787051592,
+      "funder_sig": "4NfVTtRXsfmouCq5bgNBJDPXKiqGCUriibijX5ZYNHCShkhTFzDATBUoDvS3YLTdZfCoj2JxyKoptijgGYhkMivr",
+      "funder_wallet": "FJrraJVwKYdcLX4we8UttdJGvxErgUKWf6awnVSsxArH",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 27,
+      "immediate_prior_block_time": 1787051591,
+      "immediate_prior_signature": "2PV8ym5FECwUn5LvW9UcZt7d1iiMSqvUjfX28RwB9EtZiByf7o3TvAsBtc1vg2Z8hLYurSKHL96j8psLq55PETxA",
+      "mint": "UwMkVQDeXLpbCXcHp5P9yVAneejwwbviFfBJFRXpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787051591,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "8VFreegW9kVfykJJC2ULz82XpRiwGHG3UdETWY4Eowpg"
+    },
+    {
+      "creator": "mMscMXbq3SJM2R6EcL9b8YrgTkDaaPZKiGWHLwcFjzw",
+      "funder_block_time": 1787376852,
+      "funder_sig": "2KUPL3zYNafnqKqnHEzg6HyAbwcSbgotzu3BmcAbWjPwUTgE4C5aiytbPftFA6XgXqJ1NwduvMdKePhJk7vkLzdJ",
+      "funder_wallet": "6jJnz6ZQjDZeFLxoDq2RBp4fvsjPfCJmpr1jhQcy2rBk",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 16,
+      "immediate_prior_block_time": 1787376851,
+      "immediate_prior_signature": "56PqtE7ghfis7LiqjhKdvtpu1LvB6SJMfqe2zeh44gkmZTcZt35XMsiP3AzZqwBdhiW8GJ7RYq6HpAawHHS8Jvkc",
+      "mint": "VByVzKnqKM6QGCJs9JwxGs4RJC8kdtwtn6FnfXMpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787376851,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "GvKha8BZH9HUVBMyGwcBnwYs7GyioBhHmrvh2rRVzbv3"
+    },
+    {
+      "creator": "BHqs7btMbN3iFsndATfadrZogMdtEiqTzFc6qqe6bjQx",
+      "funder_block_time": 1786506298,
+      "funder_sig": "Yk7kmEqbDNvzPFoJKpC2oJ5FedrbaMBoHcKo5qJ8kfN7NCDXgDg6tuddJCssKWYHfDktYH4iAusoQzQTyz7t1vE",
+      "funder_wallet": "5PkFFC9FCmm2EUQHMqbF9cwMviSXjgAjeqKEoPoYejuG",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 37,
+      "immediate_prior_block_time": 1786506297,
+      "immediate_prior_signature": "4VbFiJEiX31zfqwBESnuVjPzLUJKw4e8m1GG5VDXbLLF63xKYLQtp3Q4uPg9xJbhnoMvs44QCYtVJTN8A9LTQ8G7",
+      "mint": "WLjqiHSEWgHVkX9JWJXgXDhX9XTCtSSj3EdyB4Cpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1786506297,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "8XpDKnEPVLRFMa6ErMbAVfo4yoXEfsQ7yhCaT4imFfLW"
+    },
+    {
+      "creator": "8jLQSAxGfEc1nqX3aPKBHnVXLgbLDwaNdBAFg9XBssyM",
+      "funder_block_time": 1787029469,
+      "funder_sig": "5Lfp1RwA8YwrZPkDH5SBwwqcTGjEdejPQQCqcRRhtAgtNrp6bBHVLmbwLML7BnAavoAWSJSK4E3W5aTmWEYWLzck",
+      "funder_wallet": "BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 37,
+      "immediate_prior_block_time": 1787029468,
+      "immediate_prior_signature": "34QEvqTqLNWZN4sDbPMh8KNK7bC6cWte7GwoeSv3vZnJs69MRa3aVYCm5rJPkhwj3XqDwpiiYyaUq16pUQbKw3pE",
+      "mint": "WV1UndBXx7eGbtA7B6Q7HEnX1mN8DL3XdGDN9Jupump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787029468,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "J8Vyzh1efuCFiu3NhYkSvNeSWhFvNEE3BN4N9NF8moiR"
+    },
+    {
+      "creator": "6mTrH2GAQhmmiLkkAvPWcZvP7rdvVSAXH4N6zSjeayaj",
+      "funder_block_time": 1787728624,
+      "funder_sig": "3Aqyo23cBbsvtkMBBJFSvxkdiq6jWgsCuZTHGPQ2EyQDwKHU81RggGcdYbhDvN9ZsbMU99YkLmtX79EKKgrpioNF",
+      "funder_wallet": "C55hxeJepPLMKi4xuKjAFLWmxoSfVrqn2LELi67ixQfe",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 0,
+      "immediate_prior_block_time": 1787728623,
+      "immediate_prior_signature": "5xCsiFPXXQykSTxmiQPRdn7phRAoMjoNJ9YJQk63RLVirv1rygpRYJGamYmgq84bnJfi3KNifCDVxCxFKpTXSQJc",
+      "mint": "Y61KbxFLkSU8GGiknx2tg2fyPp5gRj1n6EVzuWbpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787728623,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "4gviJWaJP5Mvf1sKhJRZFQU1S4EZkDnJjH4acAZwEsfG"
+    },
+    {
+      "creator": "8PZAEriyoFAGrEttXmtCk6akRPEWF74RYshHutSV53z5",
+      "funder_block_time": 1787460183,
+      "funder_sig": "4PXB3fGAzNnANhCJgsTqNGamtJYpK6GLRsEQwTscN5ZzwS1ysvSzLffkDjDR4ZKoj7rDHL1EHdsM6cyG1eXgEgcZ",
+      "funder_wallet": "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 14,
+      "immediate_prior_block_time": 1787460182,
+      "immediate_prior_signature": "2bzw24J8N2jEiuzS8UXEnJJxhDLc8ZW6ffCjSznd8auJWn9BWzp6jVF6GxjYq3NvHkURqEnijZVfPx5rDpxmoHpJ",
+      "mint": "Y7u2wWcosZTHagBjua7W3ddwsmD4ZGhZYH2keASpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787460182,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "7nUChWZA5wUMWgUjigfkh3MG2FmoVhk47fvqCcPALe5B"
+    },
+    {
+      "creator": "7WFt3jHDWefbVYKPywF57SzQninUrCrZESATTkP881b1",
+      "funder_block_time": 1785803294,
+      "funder_sig": "3bKGcV1nKxEqmwmZzZ8tMDdC1EoukEoq1s9vjCdtbR3rgGTUBBMbdxHtfg9bgMCgYfV8beXEBQxpRtBsfvsRuqYW",
+      "funder_wallet": "5TR1KXium6nxovUUXbofK2N1uYPh9NA8w9WpvvKZ3Myi",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 4,
+      "immediate_prior_block_time": 1785803294,
+      "immediate_prior_signature": "2rXthrCH25RrRdMmjDdyJNn5Qkch6dDUMYvVJrgqEaNt6gLFkYb6csgumTH1XmR2U9AhCqGuccS7YMZBSgHZM3iL",
+      "mint": "YBemckTiUgK4sL6Xv2yktkgoYydrSqRmWJyWAZJpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1785803294,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "51UmDGr3N3s9sfsYs9jN75fy9e33C1E2m21KfdQSBsAZ"
+    },
+    {
+      "creator": "8RrP6qzsk32765uyzJgYCPT4LTaUxUBFftoGWuUH7SNr",
+      "funder_block_time": 1786031058,
+      "funder_sig": "4bgJafu4qAdTF9Lfc6zwWT7MtzDDPHLHZpu8iGdUXsFd5TzRGFWWkJXrp2vUqiupwbH9nkgFHsgcysjacX9c5xGP",
+      "funder_wallet": "DPAy3sFUsUWVRCGaMKse2hVYR5kKU7Yr4cE1eM5EwvgA",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 36,
+      "immediate_prior_block_time": 1786031057,
+      "immediate_prior_signature": "3GdYDJvNFy8u1YzyqEM5qtY8cFuPFH5ALjjMV9AC5BdFd8dEHA5BYfUvYnFJC3GoWJ7hy4WyaULn66TZfb42ZdM2",
+      "mint": "YKA5o87oHTTSAsbq1ZPHq6zF1cCaW8HoyhWcpjkpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1786031057,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "FQewszHHeYSvAQMTKQjFXwDWQDgB8TXqJzsyavNmYCi9"
+    },
+    {
+      "creator": "5YQfFTVxYcmF3pRwXauihThKeX7CYLPPxSvqhRsvw5uZ",
+      "funder_block_time": 1787706441,
+      "funder_sig": "PxEdBj4HdCSBt2g9EX4Dyffudn4gqGrpiAaodGszKkjnjEqzB9JX4e5ebpK68E5QCQ1udwXahxjcqnuWPhwSbqR",
+      "funder_wallet": "6nVVHkresDde2BHRw6b6Qfg9UqAJStUQoXv94kopSNBC",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 0,
+      "immediate_prior_block_time": 1787706438,
+      "immediate_prior_signature": "5KHtndbSiZJqkP1CwZQpBd94w4T8DNP3nbNFt3uYDQ2GnArMXnrB4BbZwzui5twJkpA4t6biHzoXKoi8Kg4Eabaq",
+      "mint": "Yj3Si5ze23uxsBkjeeuSu6gFEaRKKPL8SqCoq6ipump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787706438,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "39dd5awEMk622AX7anig5wjKUqG8Xf7mkvGWKgKPQ2HG"
+    },
+    {
+      "creator": "GhnaFwBs9oWGrec1xZ18j5xmkS2muLcMWK5DuLtaXz3D",
+      "funder_block_time": 1787373829,
+      "funder_sig": "3chRZSVSX2fS9gVNEtNunWgAd2YpmFwngLNi7b5Ef8WjVnhiCgT3vY1WyUbgoo7u6ZppHv5DWo24iwSYRwaPbXzG",
+      "funder_wallet": "C2W3FExk348T4aNHpJjiCZpNrpd9MNLBBVZAdWCogtBx",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 8,
+      "immediate_prior_block_time": 1787373828,
+      "immediate_prior_signature": "amtx4it3GaDufpgeBiaBakLLBfqpP6YNanPWQxkQax2sYpefrqxdRxNLT5h17vswLj2QqLaCUK4dAh8VS8xjRqc",
+      "mint": "ZMA7yJNeXUwcUdGWXzw654ZX6k1tj3zgqL7qrFBpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787373828,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "HErGQyVFFtxTQhWZC2FFpRCspvVvZsSHt7dv1ZHuf3KD"
+    },
+    {
+      "creator": "2rKe6oPYrXpRL3CgUVrmsJTGXhNY1Uz17Htf6ZdzXwzJ",
+      "funder_block_time": 1787194882,
+      "funder_sig": "5U8QvwZPsPUueznWzkj78EuYGsSfmqgxC3RMwnPUQfKPkGyhhTsChzbVKNPVKZBZuxwivyU4zEDyZyvHHVasFaR5",
+      "funder_wallet": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 22,
+      "immediate_prior_block_time": 1787194881,
+      "immediate_prior_signature": "3TMQ9Thn96wrBV946tXCPTCEzgyEHWzjnRHMAtUs24md77myUaM42xSiqnmXCD8XjS44Tyq67Y5YkrVUe5sDhe1R",
+      "mint": "ZjDVmGGAkmj1aj8Le3uGoaUiz39jEyKH6VP7dzQpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787194881,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "AGT9dkEZUBPrw5HrDGZTNRhYNMEU5HbRp2E1GdYMSB6r"
+    },
+    {
+      "creator": "6vJXHimFNCDp1fMY4vuJfNQdbm8cbXrYQGxdzzPz31gt",
+      "funder_block_time": 1786499927,
+      "funder_sig": "3K9SwogMShXGjoBQ6LTs1PzMzb5dtgwvuHRABH2C3cT7dbnFzJYrqgipJo5nkmSsR2p7iH6411UV9on5hFQeLK71",
+      "funder_wallet": "9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 41,
+      "immediate_prior_block_time": 1786499926,
+      "immediate_prior_signature": "rK6ZCeJu13o3KxjjFSG5Y2MgiQAyTfNcgYik9ZMoHP5TVWrtaYYunZDScdZLwoa2x5HYjeJaHnsqz3mzyEWW4MY",
+      "mint": "ZpQmhQvEpasHYF2gDrDJXaYZVDJxJUZRt9vvHbUpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1786499926,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "EDGKu44CYEgzjhFrfX2mpZDgHYu2einGfAwbJ79cw2aM"
+    },
+    {
+      "creator": "CRz5Kxv9qHini9xhpA2DitjoKySkZPyTbopXCg3W6Xcf",
+      "funder_block_time": 1786441003,
+      "funder_sig": "3afxBdEQD8wwq6haY1xM2K5pcSzGpivhux44vLQhwEAuqzjzBk2tYaprPRbywQpJbRhSfWNn13emUbg1nzMiUX4V",
+      "funder_wallet": "Am3Un7bph5NNWDLCVVVQT1kY4kN3GFPjj31g4DdrNCd4",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 42,
+      "immediate_prior_block_time": 1786441002,
+      "immediate_prior_signature": "3d5uejiPo54AgaYBH1umQjpnp5KEXoTrSTMKTERSLyFCE7rpyTbQi1PfJV54XbrRBJuvGvCuHqtUhNhLsXtL4Umx",
+      "mint": "ZzWhbH8LrTjx8uCQgE2SEue3jiYWKAm7RGTCYH8pump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1786441002,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "8bHas2MxzzAmcZoHMCNN3NQwUfV2bjawNt6ggy6uP9xh"
+    },
+    {
+      "creator": "Gr2TWVUNe5gvcdBJcjPnrGLCTDcCmfii23hXwURjBBhL",
+      "funder_block_time": 1787789476,
+      "funder_sig": "iKBdR3s93bnFQ5ZAVmhwuGEUy79x8Wgx1FGSKKvEj2SsWdx1N5s5t8xQRCeribXiCtfRRocv1A4yzpgtK6Jma6w",
+      "funder_wallet": "D4iJYcjWZmzDEgnKMHWmpCPZaCiqHSZYtVpLW8zYRHcZ",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 0,
+      "immediate_prior_block_time": 1787789475,
+      "immediate_prior_signature": "56tys1k2L3gvUawzmqxUvefK1VVWpTMeezNY3mpg4yRjFMWn334nWLK2ouFuhFXuoZPys9tH5pvz4oHqkMfABFtg",
+      "mint": "a9ybSRCAaaYbxW6dFX2WGRnFGH61yo9gCPZCwtQpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787789475,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "4vPyGwjFmiZW6NmybzWQKm3KuHjM3Zw8xw4cNkyneEV9"
+    },
+    {
+      "creator": "6vnDbqy1cWyGe7ymz2H2AwBhb4ASiqJ6JhiCuMD5K1aM",
+      "funder_block_time": 1787712265,
+      "funder_sig": "27RC7BQ71tH1pCuES9rjFCGa5rXr64eK6GZ9mv3AgRvd1cLqFrxeCh2cuZAKvFrdbCkbFNtpvUXqavdP2UeHu7WQ",
+      "funder_wallet": "BsKEb5qhnHMFP4XUjoXMv5nMxkvuaFtBH5ssuWNMjLbw",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 0,
+      "immediate_prior_block_time": 1787712265,
+      "immediate_prior_signature": "5vnqkiZCxbeDhswbPfJa5PuRAJBAJZ1BiitYuEQbj7YrAEQCuEY5fsgZj44txMRf8BGEbvLv2HYKTnrDjGW7zMTt",
+      "mint": "aAusLt3LivQAmeLBjiMHJ9vJsHEKm2wWAZGtkb5pump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787712265,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "Ge4XLNws9dQddAeBCq3wCNkcYf1mpxNBVNyg4rXGeJ5g"
+    },
+    {
+      "creator": "9cZq1PZcQ37YkpbDdLZsbWhzHRQgts7xZq46iFzKx3BH",
+      "funder_block_time": 1786583773,
+      "funder_sig": "28ATAVeDzpM68g33niCEYrYuvGkBMspWyDdPRxynyYQyXGE9Jiob1AbNe2kfCQZsvwEbcRuZJDUw1FEZfasK2Msc",
+      "funder_wallet": "HRneLKJHUHXJr9zb297N44L8WCUqCJYKDsSxDaPv49wS",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 21,
+      "immediate_prior_block_time": 1786583769,
+      "immediate_prior_signature": "4J91J9ebDRawqndYVLvdWsxRfc1Wqamp9VxZ5HLHKDpwp4pkRF8indZSch36TKd57C7S8xL12KqvF8SEWiBW38TA",
+      "mint": "aDdwL6dso6ZD6Rag2FZTURzADRiyXxFVeT23ri6pump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1786583769,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "326Sd2gfsXQA7c2XWN88jNTh6bY32pgvJEkk9uWSZ9tc"
+    },
+    {
+      "creator": "FK9wLKizAtRtfNH57Y4J1wmQxpwpZ2EMYNZ1kME2V7hM",
+      "funder_block_time": 1787056653,
+      "funder_sig": "3mZ14nFmGy7k8aFkmQvwWKjoj7QSgUCMAU1mNcHV3fcd3koVDmQazdgKmCm41H7mA4K3iyzMN5ecDRkApvHkv86x",
+      "funder_wallet": "5iDYsDLugMXh1LTRVDmFH8PfQ6ueG5pE9UcfefrnztB6",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 17,
+      "immediate_prior_block_time": 1787056650,
+      "immediate_prior_signature": "3u1Qhao32CGehKGmUYAjUoTEvg3R3bCRTWiqYjyXSCVFGQSeDzWbXt5oE3351CqF3bPmP64uJPYUUN2Zy9UggDNs",
+      "mint": "apSur7K2VY3XsRUSSFDgJUYhdgW2zfRHLFvKUHKpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787056650,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "DtZuHqiiDzsScMD2dvCr3Jv4n4aZiinLz8Va3Kpv7Cb5"
+    },
+    {
+      "creator": "DSU8DLqBuaFK4Mtw6uGAWBPP1ZhUt5KQYcNvUNZqZKob",
+      "funder_block_time": 1787029053,
+      "funder_sig": "5HBnSvXszEgEPAJzfqEVKvR4kGHV7oL36mfmo8xxGsj2izUVHj1QPo2kRRgTjnnWhXBKZJs26iNFnWJVj9q4DV1E",
+      "funder_wallet": "Ao2sUdoFtKW7yix7v6GT8GoWE94LcgHiyjautukHBKAi",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 33,
+      "immediate_prior_block_time": 1787029052,
+      "immediate_prior_signature": "5bECBwocnJJmLDjrkrTNTiaTwp7QSpoa5j2gyG3oyUxTMTJWvBcF3LBaoGZfYw8BN8o5CVWZ2bVPbMEZwJeiCnqq",
+      "mint": "aqu8vj7snoqUJsTuC5UemhvNWeMJzWu6qbpa3jnpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787029052,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "FpK8G5iEAydmPF4fNds2rPbCWwMB4YdvDYZ6tCAdKqzM"
+    },
+    {
+      "creator": "2uuJ1sr5bqkfSnMHFUAhFjSwksAvHmH3TU3aU7UWBhFK",
+      "funder_block_time": 1787042543,
+      "funder_sig": "3bhGeYLuXxKcXuxVyy1wVJHPipz2qAvn125qD4uKdXozzU3cnhT6ucePwPpMoCTNP6EPWqrh99G5y31oVbCHv9Z1",
+      "funder_wallet": "BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 33,
+      "immediate_prior_block_time": 1787042542,
+      "immediate_prior_signature": "4yG41dCF4hR8XZiEobC145LEW6bysmPjiPGHPdrM7YymV3irjSUaVi9UAVknn7kKjbxpT8bQZGSaV59YjdpxFbYt",
+      "mint": "awwz1zgwET9MtvRSZ9CUZ5QpLFviT9fFv53CpDApump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787042542,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "J8Vyzh1efuCFiu3NhYkSvNeSWhFvNEE3BN4N9NF8moiR"
+    },
+    {
+      "creator": "57PuN1WirX56CxshBz7o8fzEVPjY7zUdprsrpUgLjwKA",
+      "funder_block_time": 1786535126,
+      "funder_sig": "2swAqjxDcV36rh28ayAKUicZrhhA4sB8FYsJKX4fprr8cpT3P9bbgqUj18ZmSDm9J6fWqLSYiuWutS2Nr9ZXBNr5",
+      "funder_wallet": "5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 33,
+      "immediate_prior_block_time": 1786535125,
+      "immediate_prior_signature": "55wCuH9EHcF9hwE6EQKTW7bPZBU3aNDHEUUP2SkzPvquWy34bdGVw3yvguUREQAfNXgpy3tTsA4qa2JqognSSnLD",
+      "mint": "brj1EEqhenNSLbnjdNyok33yLpxBwvyFheRctCKpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1786535125,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "7u2c2ootN4Wpk1u26XAqnwRvnnRNt2N1WrirHBVHgj3r"
+    },
+    {
+      "creator": "CCeL96vXcftteC1DJccNipLio4EMrB1ppqoQL9Rz8nnc",
+      "funder_block_time": 1787014489,
+      "funder_sig": "5K2wjygZg7BVLmFyaou3Cid74dfACzToZQgQbLDAjuXPArRbvp5qe3GizTbqVKv4ysh9yDvixtHxs26GJ1gtT5Fd",
+      "funder_wallet": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 27,
+      "immediate_prior_block_time": 1787014489,
+      "immediate_prior_signature": "z5fiS1VSiCwTkcS5JucQc26K4zWzkyix4duT6zXyeCXbxqRVJzcES1cHRkuixjC181kCVWyiJUAxN2sKppENQxa",
+      "mint": "c9SFiUUHzra78qJinqxSntvpBmJjXdGYDcMMNkXpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787014489,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "AGT9dkEZUBPrw5HrDGZTNRhYNMEU5HbRp2E1GdYMSB6r"
+    },
+    {
+      "creator": "7d6M8ykfQRYuW7fUqEMESZEpWFBEFDoFPCNQ2U2UUEaM",
+      "funder_block_time": 1785783649,
+      "funder_sig": "33GKUM6HBHNKhabNpAF9hK5vvxuUNsqCJD3LvPRfBQQteu7R4Y2rnVryNGvPjRTQ7VrSKtrCkwYSLX8w2h6q7Eoz",
+      "funder_wallet": "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 44,
+      "immediate_prior_block_time": 1785783648,
+      "immediate_prior_signature": "3YgDviCsiPcHJGmwYMRdmZQVTThmE36r5zxitGPEynskduEheAfoNEWCAoUwjr7157BqvxaN7nA9GbvXLaUdAR71",
+      "mint": "dFf5c8PKTpFcZN64RdVWHkwbCYkxnj9yzPw8QpJpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1785783648,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "6kQde5QeXZ4iiAX5dx9mmKERaokLR9D55S14JeUGZTCN"
+    },
+    {
+      "creator": "CZk5uZdVfPUMzmCCDVbWUnom7gSZSbgFJKb37vGwTAt8",
+      "funder_block_time": 1787539057,
+      "funder_sig": "N6eptNSshMgxtoFmE2EeQWZVSogQPgYREFuGdRCD8GFqZdT8sPXComQsNWCfz9Ze6SnnmTLwa2zkaPboRR7MCv1",
+      "funder_wallet": "54xTpcBEr48Cuis8m2SdeymdQcwvmDR4aegxCPQzUANG",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 0,
+      "immediate_prior_block_time": 1787539056,
+      "immediate_prior_signature": "VnBEbCLo8whsdqQ5jXkvknMMm25i7LXtWhUMpmRcFwoV7pcvBUo1EdRBMusCnhZkVCWxMZB5KtAi7umLtcofKoe",
+      "mint": "eMD1zv3m9ArePAtXYEVFG9tbXfwDzY8GyFMxbPopump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787539056,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "3nWUnuGAWdrTA4hmNmKPQsTpwegLN8Pz77VY8cw27pWi"
+    },
+    {
+      "creator": "67b6TdCNpaDS8FKgh1XSrT9gszbWX7BrDnN2cZcZiM7y",
+      "funder_block_time": 1787729523,
+      "funder_sig": "5duHWGiXvLPG3c8vDUahTMaBGmibB4rEfHYxwMYUdUGaHmkMPRmDzjngsEgf5AjdaZeBPCSmtzKmyX2iNEnYpcbz",
+      "funder_wallet": "5xfUdLx4edkXEt8d6MjbrDanVkiSGNnpGcKtnjsTybWB",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 0,
+      "immediate_prior_block_time": 1787729522,
+      "immediate_prior_signature": "47QgU9A7gYqfcF5caRH1bfBhvvkqvwDB8QkihgJTKdkMYGoqqmQHN5JmBPnZ7WJ6Lt36cuGNebScbCggCMEg2Chu",
+      "mint": "eMkqusB95bp5GNDLfHmxaRAgmD2f9JVp2kVFvfHpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787729522,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "EZiaQHzHqDPf3yx6c8qX511aH7NwkMwQMtUrM1ALJuTt"
+    },
+    {
+      "creator": "67VT8Cb6aoH4UeuFW5T1yFP2ToxLpAeh3VRiXp8Rt4nQ",
+      "funder_block_time": 1786593889,
+      "funder_sig": "5iBDqaLWN7JLtEh1z3HJu9Sd4kTzWE6k84xtWoxdvHStzZgAnjkcQ6HNcHuz92JBkGUvzaLttsKWStHm3fSenmVB",
+      "funder_wallet": "G9XSZDgMk8x51uHvFUumZK5AFWJLp3GJCV7VZSkL3uGP",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 13,
+      "immediate_prior_block_time": 1786593889,
+      "immediate_prior_signature": "3Pr4yCY4w4p44gr68pYVpVrp4agr9goMSKWh34qdFE2j7Kcq55HCyY6ynCBBJfvqa3UTscVBMqs2xtMPLnQNiZb4",
+      "mint": "f73NdtHMKwTeTy3KRpRDxZe7yopu9toZ7P5sFmapump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1786593889,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "6iMNUx2ndPCAopEW48xdAxyCTf7vXRd2FsQ6CHx9MQn5"
+    },
+    {
+      "creator": "4HnBbcdrzhmSaFx2YExnoXZFAibX4Uf4NdDUTGqPSDVM",
+      "funder_block_time": 1786671031,
+      "funder_sig": "5H5PypweFjDkHo6FWMnsPdPPTgUvYqP8kxd36QCfpS9hwbJP5vb29mVHv35wqEJwYgsWEtueGzGc9eou7MMbraKF",
+      "funder_wallet": "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 37,
+      "immediate_prior_block_time": 1786671030,
+      "immediate_prior_signature": "5TE7wvtFWhc1LKVBJkrP8Xr7q7T8C1A3538Mfg5EdDYHZUPDTX3iuycobtm7tqsGZUK6An3N5JSdimw4ChHxwiT7",
+      "mint": "g1CbgSCD1H48Mnx9VSL7cpwJ5auX8Ky1cNUH9BQpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1786671030,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "Bn1RAP2D2s4hDUUYzngaBipptN4XfVmXKg7maHjQZ4P1"
+    },
+    {
+      "creator": "FBP2zCEFgcR64bBnoEqKeysYx5d7m5WMmNjRUgp99ddD",
+      "funder_block_time": 1785871513,
+      "funder_sig": "62X9S27tdEq6MqxncGgYbV7KDxt6tasmZHn5eijeBFk7hZEB1YwtJtQDJwaZNpWma6Gqu7ezn1Ykx2RFrGgqLiH6",
+      "funder_wallet": "AhfDWL1mi2xajF7JWGDzmTiqvtRxD7JDWHkaZVnmUvw7",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 24,
+      "immediate_prior_block_time": 1785871512,
+      "immediate_prior_signature": "4gQU2CD1fGwoFLLogAb7vZgYd35afJpQmwrUPTgJfjZV6kkZ1cSA9V6F58mhUv897XoDBuG4StMhq9rAT3V2b6ud",
+      "mint": "jmM56TE7ko4jUzmzJ523W1b3872jMXKoiwsJLUKpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1785871512,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "DwTQbWYemW6JTSJj97xhvPvbYUdqYDxf4ppaapvoqhig"
+    },
+    {
+      "creator": "BWPRQ5AgcF75xho5PesYz24UKaXpgzrhc7kEzRkNpTyn",
+      "funder_block_time": 1784656853,
+      "funder_sig": "Qi2Jc1NRJJVLbYoAafL7hMCojqiBjLYRtv8WrRVW6FceB3vVHVT18TohbiiLuvFwo7gvmxGVieytVYXcZgbTApG",
+      "funder_wallet": "J37JdYS3hpMB3iW8tgUdfFrrBu4X6o9PT3SguxpHXJVW",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 26,
+      "immediate_prior_block_time": 1784656852,
+      "immediate_prior_signature": "2Dz6hdg5TDVUf5kZCHVCvaJg8ogM8vmpJJ9Jz2Cc3taC1jeiRMsAsTPubTAK9rvu3jVQ9nbaVpc7qSCFr62ugSDT",
+      "mint": "kPTzLD8x9n3xLVrtjdk4qbxUr3it6Ea8ZpkHpCBpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1784656852,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "7dbf5E7pfNGHoy9F8DUC7KcNyaapa2tC251A4jgAqJXb"
+    },
+    {
+      "creator": "Aur82G2Zkniy6DVzLa55c1u9rqcX9aZFMG8TS4vMQesN",
+      "funder_block_time": 1786046973,
+      "funder_sig": "ipZUeUo3bQEUTuZBdpEp9KgcoNomCihz9jWnwL27fMSQ7s7DXzTyyvD7ZLpDHajB6XprJSXwDt2YuvPZs6y7JaM",
+      "funder_wallet": "AW7FZRzGUA8HnRWTsGbEDogAh4Y2Utv2KBqALEvfGLqb",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 40,
+      "immediate_prior_block_time": 1786046972,
+      "immediate_prior_signature": "2SQPBxMmge5s5bsYoWSmcRC1U8DfAfjPgihaagcgqiQi5tnBGCYJMxqNk4Z5GtXok6FYpmZidoBsUe1CK9LQmsHr",
+      "mint": "kZBroKqYaSrHxKV3vLmRGTW7Tw1q2WQ1wte6PNJpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1786046972,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "2NhF4V7W6WXPkPvWVFHisveQAKMvcTB4o8AXrxhGLpar"
+    },
+    {
+      "creator": "9qJM75r8tkUuso35D2RcjoBmLCFy8QDnafbayuwtfUba",
+      "funder_block_time": 1786695152,
+      "funder_sig": "53pfUUqLS2XaysDVwpf2ZZ2RM74Gmp1bEBWwcxN49y72tR8cCPRvEEXexTecBgwu5q53T76x1izDytk8HNvX6TBR",
+      "funder_wallet": "2h2xdvznzmcRi4zNE8A3uwe4Er5e5bf8gTxzXREg9ph5",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 29,
+      "immediate_prior_block_time": 1786695152,
+      "immediate_prior_signature": "4uspE6nuCZeCcQjBH1qppzPCqT3BXL6rXxeyifvYzXjThxagbi2t6HiMDD9ogm13R4p5aw2Tj5PX6MUFEa2dLKbx",
+      "mint": "keZ4mAQQqREHoZeC3HcZNpVC1qSGX4kiWC7vdtvpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1786695152,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "HggCfpEM2uzcpZwU5u3yYxYuniqR7dGtWhvkdruYLsFU"
+    },
+    {
+      "creator": "2qX18psDn9K5jqB8G295Z3AQwbV6xi5MezuHd3Kbq1yF",
+      "funder_block_time": 1787456713,
+      "funder_sig": "2d8bkCHFAxv1HbxsxeALM5fMyvBKRQ5cVQLrw9NfPwXvfzUmmwMddE8TwcMWyKPrm6SLAQBMzipegkVF4J1pJNHS",
+      "funder_wallet": "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 32,
+      "immediate_prior_block_time": 1787456712,
+      "immediate_prior_signature": "2dssFDQTWZikLeCZTxWxPmVHFZ1e3auoTaw9pSB7EajY9pEfASawSaqvwG48pK3kTrWkpC56ccb2x3k1G1QsUos8",
+      "mint": "mP4AehV2DV4KdNcZkjih6wwLDE8ouUz6ns2FB3tpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787456712,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "7nUChWZA5wUMWgUjigfkh3MG2FmoVhk47fvqCcPALe5B"
+    },
+    {
+      "creator": "8burxqJyYaEtpSX1THFaRSjYWND12BNHUbJtofA9YfWr",
+      "funder_block_time": 1787370476,
+      "funder_sig": "3XwPMKQo1QeDWHNZ1JsNiLrqva9STsT8Vg2jwMic2UdP7LowXbd1ny1B2HGVzp9HJqY7AjEoL2UmikfSdt4VVuXd",
+      "funder_wallet": "j6EVoUMZRafJPrdkuoB9PJGXxBGHEsx4VcJq5W3Ft5d",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 0,
+      "immediate_prior_block_time": 1787370475,
+      "immediate_prior_signature": "2CkXJPaU9Bh2ixJYYQiLCikTik1nd8ufPNxcDytRPUZFXPnfyoDq3FQa9UG8NEBjXJLVLNkGkLyvkPMpbHLV4nCU",
+      "mint": "nMSCXsLXZ3R7NBKNDiaYw7CZh7KYs4CyWMEVWNbpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787370475,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "Bdq9PYpY2BViVtthj6WGeqbkixZciunv6dQ6MYXpXet5"
+    },
+    {
+      "creator": "5no9tT8XE2HQgagWsYGsgcB3ZKt1ZdGkPotYn3P1a47C",
+      "funder_block_time": 1786070202,
+      "funder_sig": "63zUE3kiPfWpUeREcP3ZgSGU9Prsj6NmLDuZthdg3wQpDxvCY5L6ozRvKQTBVytw2XkUT2MDtBxQfzzLXUbujoHe",
+      "funder_wallet": "59MGbbjnBsNKNbTXsd4cc83doHgpkJBdotigvZ6WxjLX",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 104,
+      "immediate_prior_block_time": 1786070201,
+      "immediate_prior_signature": "5UcXQdo5vQYkcaQ7GvYFnvEbSCb2CjFbMHojdVLR9LLCqTw5ojU5uG4N5iMhN2yay6YCpGLEWUsj2JEfrCASQTQZ",
+      "mint": "nobzQmhM6x86Y8WdrgH21AKuVrJ5mJmkBmJU9Lqpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1786070201,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "63H6mHB4tTGbvBzhz19FgHBMnyAjqRNnqxiRWCKfTftQ"
+    },
+    {
+      "creator": "14Das7Ry18Ew31Z8Hkbhy6yfyNPJSm5QGDsqtKJXW8TG",
+      "funder_block_time": 1787731551,
+      "funder_sig": "4MG13NuYQvRMdG95h1Mp5G11keHro3cp8MJRhhJGcH23VvKpgTtY2KEXd6rZmqKrJ398tPZMQmEjPTZxuQWRKrcE",
+      "funder_wallet": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 0,
+      "immediate_prior_block_time": 1787731550,
+      "immediate_prior_signature": "2zoBC9cNfkYHQQ63uLfDFvdQtPvrmLfyXpfu5N17NbS4qm5XQMt7WmoryigVSFE2K2gKkzgtYPGKMhAzaUToLGep",
+      "mint": "o4UAUX9WBkWYRVFmccHQah4UytnKn6hDAj7q4Rmpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787731550,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "AGT9dkEZUBPrw5HrDGZTNRhYNMEU5HbRp2E1GdYMSB6r"
+    },
+    {
+      "creator": "BBYghgQV5bZxMJVHhdZZnu9csYo4Yyx5RUYpugTtF4iw",
+      "funder_block_time": 1786048873,
+      "funder_sig": "pnc8z7hoLn7kg9dGSL3cjFfqWXRrPdmyuC5S5oRZfzL1x41qX2znqVkWcdwRtr2sfYHemfTWfPLW6KyL7e4QC3c",
+      "funder_wallet": "AW7FZRzGUA8HnRWTsGbEDogAh4Y2Utv2KBqALEvfGLqb",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 28,
+      "immediate_prior_block_time": 1786048873,
+      "immediate_prior_signature": "2fXvGhVCRHu1moWFRE9cXMAa4LMgHzZMSK3ZPiC3udsqLVKwcrbQa7jDG7zkC93dxdcWfrM1zUXKbZcHmqMqQA3u",
+      "mint": "o8uMYvNkndS6rSRPrV16d8LgJ1V732RxmZuzT8xpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1786048873,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "2NhF4V7W6WXPkPvWVFHisveQAKMvcTB4o8AXrxhGLpar"
+    },
+    {
+      "creator": "6pGXCCf44q8XzLVbyfivDV3pLv5rAW6h1xVe8oz2sqzZ",
+      "funder_block_time": 1786624697,
+      "funder_sig": "3cFkCLMrsjXcFwKVdxrgmHE4NoJDrYcY8qpLsFxwZoWp6unxQ95viDjPWFZUsvBUS8Rj9FhQvJzuzUPPcK6CzNwb",
+      "funder_wallet": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 39,
+      "immediate_prior_block_time": 1786624696,
+      "immediate_prior_signature": "2A2pnVkqTT5SBLqDaNbNFXBDh6ZLfpPJiY1Eh5XiVdTEZvfbbzDMF35BPhcKrKzrRpv6EZo8DuWtgRrnK8DNnCuN",
+      "mint": "oruyBzARjKtPNvRhcT5nR4bzYt5SM8uCv74j84epump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1786624696,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "AGT9dkEZUBPrw5HrDGZTNRhYNMEU5HbRp2E1GdYMSB6r"
+    },
+    {
+      "creator": "HqUkaFpvG8KHGDhjM6PPLvzbagXrkdYpJhmeaz1hh6ye",
+      "funder_block_time": 1785873862,
+      "funder_sig": "5LGW81NQA4ps6QXdVsfXS79XVYYgyQmLWzHDFAndnjTvSwKg9SiSsfPWqy3GLPdj7ph7sBU1qWzPkk8DufS6X7Y4",
+      "funder_wallet": "2fJCPb27tQhbnX4s3sTJvjzK1deawkREkKjCKS7PjF9g",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 22,
+      "immediate_prior_block_time": 1785873861,
+      "immediate_prior_signature": "3D1bE2zg3bY4vpM6KJx99tf8FLaKrwg8Po2yKgx3YR7bhqGtpUr8UQiDARAH4Q4eCBbo4ieJfPuHy4swSxqYCW5g",
+      "mint": "osxeVkLpan3NyZsRDcdWiEuWBFHA6or59UshcaRpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1785873861,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "67arQDJyzf3wuPNcbGz9zpsvDBYzgpbFKBEtWfzjtAZC"
+    },
+    {
+      "creator": "HPocCJSYVR5epcdJ3SNdECj1BW3QbwUZJahEX8tNTMMJ",
+      "funder_block_time": 1787219011,
+      "funder_sig": "52p7M4gNX4VvaL491wwHoNPn7aD2vv41ZnZd5dmodySGZVUaAUCg8F4me7ihxLKAB1Bi4yYZUAigSKxgGZSnwqbn",
+      "funder_wallet": "9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 24,
+      "immediate_prior_block_time": 1787219011,
+      "immediate_prior_signature": "2mCrUtRdLpALGuy14dUTGujtRLFfV4hscCm15JrKotrNNSxQofKRroB8Ryk2tL5NJYZJFDentognhBveDcVffH1z",
+      "mint": "puhW9nSz4rczEtWNM6TH1zYikSmapRu2PxdSXwfpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787219011,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "EDGKu44CYEgzjhFrfX2mpZDgHYu2einGfAwbJ79cw2aM"
+    },
+    {
+      "creator": "B4NKjcjpErEouJyHbBbGT3BwHio2B6RX6W13nv8KMpCv",
+      "funder_block_time": 1787758894,
+      "funder_sig": "48z1fMom4eCoRzdAaJBxYN87cuzvBJKaWup3kcZtH84CJX7HA4Aw5xs9jG4rFhY8TDgAVxiEUDy3tYGmf4EvVWnu",
+      "funder_wallet": "CwY2ejGDsiDhjpEJRK7DQRUEgoCiUpcXGAwpZ8PGdwmL",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 0,
+      "immediate_prior_block_time": 1787758893,
+      "immediate_prior_signature": "5z59NrWSCHAUXdPdkC8WRpHa7dGRmuyuXRSxNGKfXALnGCJrfi52Vj4tHS4CjjTTKaKwfSPoQFa3hWvV6oddcXCY",
+      "mint": "qKh3mY3bpbGxoiLeewwSpwsAeDvszCUhrdsuXYApump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787758893,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "EDQJjHbotrBr7R3biuXmp7h7HJPNeiJXCNaHSaA7ZbyN"
+    },
+    {
+      "creator": "2bdhxVCkdYj52uqSABMgWaUZWEpvRLYn1FCAoVz9rGf3",
+      "funder_block_time": 1787810240,
+      "funder_sig": "3X5nm7EVFFtST84HZZNH8tT5ZvBr9wFmfvmFbeiQ1CTpUe4bcjBhWPYupPmVWHzUnVozNpPRFDDZkqnRfixonwNh",
+      "funder_wallet": "3ipeLjjgX37rqMNf8DV3N4Dufet4Fs1Ho6WyctQAG8FE",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 4,
+      "immediate_prior_block_time": 1787810239,
+      "immediate_prior_signature": "4csVBHijsbm8VqtKpC5VBNT7mgRGb1yijsLAo8eGodhLEw8M2tKp2CYBcEFAoHqvG7ntCGiNcssyeZ9hdRFvWTkH",
+      "mint": "qg4fcJ9sbpWkGjPz4SDm5gzxibaaYs4Cb1pcW3rpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787810239,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "9iWRYJpQVssbUZ4QnHrTPcMEeapLPgmKVYP2fvnLpDy6"
+    },
+    {
+      "creator": "HvrfDJssAXHLzFccnyQDxnWZpFuvj9SS7DcThUPNG4Tz",
+      "funder_block_time": 1786586021,
+      "funder_sig": "39mBGMvrk6XV88Av7jBNFoxm4PoGiXrpcGyyHd26xXrXRkVDGQ1dSGSeqYRLS9fLKnsCwGA7n46Y1GQaETnNTGVN",
+      "funder_wallet": "BsKEb5qhnHMFP4XUjoXMv5nMxkvuaFtBH5ssuWNMjLbw",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 21,
+      "immediate_prior_block_time": 1786586020,
+      "immediate_prior_signature": "9NdpQjT3UapYjCdVKXgcN4PwJkNuaYwZzj4546LEBFmoZDGnmHtJcFEmm1Vs73f4QqG8jf2hYx3FeZqpsBfspqZ",
+      "mint": "rRGoXVsKJtZGgPqwShxiSD8pcpyH5qXhthqFT5Hpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1786586020,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "Ge4XLNws9dQddAeBCq3wCNkcYf1mpxNBVNyg4rXGeJ5g"
+    },
+    {
+      "creator": "8pJutRGnqvSJuXktHtMwga6Upq5atqZ3Z14ha2N91c8b",
+      "funder_block_time": 1785796158,
+      "funder_sig": "43761uNojjmgQWP1977VJtiE3cF629FmtStJBFYkWe5L185TYq94B7g731jvQdonXApQzEruLEXzq7e4gkxDLSAZ",
+      "funder_wallet": "HS5GjB4KTJbbBdYHkJV8qDpq8gmU9wck2qsxgz3ifgke",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 26,
+      "immediate_prior_block_time": 1785796157,
+      "immediate_prior_signature": "HRMVv7PB5eREACafeLEhNhnJwRPzNNpJWWmW469kZ8FZNzuq74S7sqkZcEyNBcoAV33BVQ1aEzYEaTdxbZVxfFo",
+      "mint": "s26oUz2BVe5gpY3D4qYCXWBPwDDoB9AYfFsHCehpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1785796157,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "8Bk1fBnoc9Yk3HUz1UWihT2ewgbxMm7LTEoemabUVqmk"
+    },
+    {
+      "creator": "REetZZ7KnkkXYqSZAe9B6BdN91E8McDVeSC4RZJQmGa",
+      "funder_block_time": 1786670013,
+      "funder_sig": "4UNbrwEVFZG9oBwtazzQArtyiK7xTks8Lg9n5GbXJoYFqRhVYybQEKGL14PpP4Dz2H7FSdbGPbWQcZjnZN8xfBGy",
+      "funder_wallet": "7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 21,
+      "immediate_prior_block_time": 1786670012,
+      "immediate_prior_signature": "489KRMuGZJjrR5tpJNcjNxgEcjkER4MNRTG589Q6V4xLirnqgguj8Y3wpZ1X5wGdtvk5UqLaUZbX5ZbPBSqryDw7",
+      "mint": "shhJVNYRrzuBzKCBKcu6yuYEMLicmztd5Wiw6zfpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1786670012,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "7onSgr7qN7C9F7yy2WKYr1VRj3jrhtHoBL5tLQ8KbHUf"
+    },
+    {
+      "creator": "2BjFyzy337jVzrLzgbfj9vm6j7ZDWyjwDtp8bShkGcnp",
+      "funder_block_time": 1787546235,
+      "funder_sig": "2CQkzQAU7CVQZQMsVovRmF4GQbJQdwA7SNdBMR3gYEwQSaJLD99A58btcczmXUHMfqVBjxSzvTDTTvmBpEXgs12M",
+      "funder_wallet": "HQ2q5DJuAVf1CrDJpwmeSYsLgvGp9k5cGEPZQsNvcMW9",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 0,
+      "immediate_prior_block_time": 1787546234,
+      "immediate_prior_signature": "4tFqyRsTGbFjLUMMxJHF7AHp2TgJhq6muLzZYVysKGW7MuCyCAhSowUFxtxnvy7sdnssWECvCDWB24vZ3AfZ5KkU",
+      "mint": "svVnLbfCPjKAZ4suNYDfebJZ8AfhiTysVQwn3fZpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787546234,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "4cVm3jxHmCsK5tCuv92JYCqdXfF9t2eZ1wagUBKf6F4c"
+    },
+    {
+      "creator": "BDwpyKpdrVfxjeyeTQNQDd4cacva1xQzcBmiBNpjsnuR",
+      "funder_block_time": 1786431223,
+      "funder_sig": "2T551Aj4Bf9UfwQwWxwraYSEv4oggnqrkV13fEt3kK2hfNUVvgfodLSEo9o8UFTuzSbuArnhztNCmBbZaTybdK8n",
+      "funder_wallet": "5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 46,
+      "immediate_prior_block_time": 1786431220,
+      "immediate_prior_signature": "2zEpBJUxAgnLt5nXU7WsDJ9piCAhJViHZqsJ4bhDi2h5hHFR18o8VGFgGDvnnacohRWo25sr2iMLDNrncNcxEsgH",
+      "mint": "tpx8GumtoKhXeba859s1ka7grY8m5zcQ8yPnZnSpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1786431220,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "7u2c2ootN4Wpk1u26XAqnwRvnnRNt2N1WrirHBVHgj3r"
+    },
+    {
+      "creator": "AcGW5iwbnLL6MqnFJckVEunSJsREtUB6twMGXjtSYcjr",
+      "funder_block_time": 1787548938,
+      "funder_sig": "5TzbWbeoTsYTiM9DJhCuMpf8sHVqm6dBLCfGJg97aoyJFsc6Ca9JWRg8VSk3NYQvEdDcDidbYQebkhpouaxrNcEz",
+      "funder_wallet": "J87ewUdaYKXaMVZEdKh14fMcKXaAmzGamzGtaXDop13X",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 0,
+      "immediate_prior_block_time": 1787548937,
+      "immediate_prior_signature": "56RKUBQn64prJvX1jHEhtUhLVNrQbBvgFffRApKCw1EvfmpcQ3f6DPK3eWq6pG6V4EukMoWuP3JhYJDRwFSxYQwe",
+      "mint": "vKPT1gGoRGsdzaGpQB2K2xAZGtmgjVNm8kNJvSvpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1787548937,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "Et4WkjpTFwiAPmLbsgt519UBVccnFrW14Hu1VVzDnJDK"
+    },
+    {
+      "creator": "6GjoAJjEExghzo5AsiJyTV8Txxp9FGSnWsg3qnwn4oyh",
+      "funder_block_time": 1785877775,
+      "funder_sig": "3R96FWHgUMtueaETJyb9aSoMTfqRwjzbaN1ADisRK3V88yHtFezXq6rLmktvbSWUhRiU2wkeYeGiPBbnq4hUBmSi",
+      "funder_wallet": "7DifG8cHrQBAAKjqoLCnfzj8khtnYLPE39GnWgEnLP8d",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 8,
+      "immediate_prior_block_time": 1785877773,
+      "immediate_prior_signature": "4C5rswjo68jPiwC5wNUEQxUj426QSSHxcdc7vAKUZUnDPwV6ubLhFyPCfpfahuKn3YGa99gM9MP1eokYQtviLmTF",
+      "mint": "wQFd44Kh6nsrXn49vcu4bpjDCqe18iTGYzTgcWppump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1785877773,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "2MMSdrNnC9CKdbHmeaj5dLoW1LFfUC4jBPfKQZKq2MMW"
+    },
+    {
+      "creator": "UPRCX1GKQxfBzuzenjQ7UkTiBRtPJYDoNH9AsASJoWW",
+      "funder_block_time": 1786050425,
+      "funder_sig": "5rE4ycyQjjAGEPUNHgKADrD4vjZJHCRbus9URidznc5xr8Z1mMAA3knLvuYyHqbHw8JfVhtmXRFdbdMKc8b9pAFy",
+      "funder_wallet": "AW7FZRzGUA8HnRWTsGbEDogAh4Y2Utv2KBqALEvfGLqb",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "history_position": 12,
+      "immediate_prior_block_time": 1786050424,
+      "immediate_prior_signature": "3NYdmuhJzbodvEF3rP2TrEoLDSgeM8HgkeCrY63GLteDZtUCMJ9trw4pAkmFjHT9YLgUWaEhjHc3cNM47ZJiYihk",
+      "mint": "z5vGP66VUGSrT5WyfEs9QGB1VJiKh5Lhx2DeggCpump",
+      "qualifying_material_inbound": true,
+      "upstream_amount_lamports": 99999995000,
+      "upstream_block_time": 1786050424,
+      "upstream_observable": true,
+      "upstream_programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ],
+      "upstream_source": "2NhF4V7W6WXPkPvWVFHisveQAKMvcTB4o8AXrxhGLpar"
+    }
+  ],
+  "operator_id": "777211c3-211e-551b-9310-ff9301570627",
+  "result_digest": "f3c4730d4fc03c91ac5d7e2d3fdfcd0f3a5aa6c4c746011969104a1a57bef33a",
+  "rpc_manifest": {
+    "calls": [
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "2fJCPb27tQhbnX4s3sTJvjzK1deawkREkKjCKS7PjF9g"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "2h2xdvznzmcRi4zNE8A3uwe4Er5e5bf8gTxzXREg9ph5"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "397s3pwPhV1A88Fj2EuNoERFYTCLdN5WiUAPvxUxFVST"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "3BeSWamt3Lvj4cP9MopXgPb9CxjZ29UkZ6qPAc8kskec"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "3ipeLjjgX37rqMNf8DV3N4Dufet4Fs1Ho6WyctQAG8FE"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "3thxdSxsHtFuGJroCYe6JmCojPRizUz1GnvQSq5M5JfY"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "49Wo4qJS1CWPd4b8LAezyL4ARPj3fw6N6zPhPV4dQd6V"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "54xTpcBEr48Cuis8m2SdeymdQcwvmDR4aegxCPQzUANG"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "59MGbbjnBsNKNbTXsd4cc83doHgpkJBdotigvZ6WxjLX"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "5PkFFC9FCmm2EUQHMqbF9cwMviSXjgAjeqKEoPoYejuG"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "5TR1KXium6nxovUUXbofK2N1uYPh9NA8w9WpvvKZ3Myi"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "5iDYsDLugMXh1LTRVDmFH8PfQ6ueG5pE9UcfefrnztB6"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "5sUoQPPvnvS6eXem4TdcjKJ1JZy7uLEhWN3pCA8yNFnc"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "5xfUdLx4edkXEt8d6MjbrDanVkiSGNnpGcKtnjsTybWB"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "6jJnz6ZQjDZeFLxoDq2RBp4fvsjPfCJmpr1jhQcy2rBk"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "6nVVHkresDde2BHRw6b6Qfg9UqAJStUQoXv94kopSNBC"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "7144mX5peoQoyYq2ncsTmzFciqkLiYzS42XVmvFjGiv4"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "7DifG8cHrQBAAKjqoLCnfzj8khtnYLPE39GnWgEnLP8d"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "9As8wexRUtoujuYia5WxpiUCbjut75XTb9LknATiXvRW"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "AFMNXaQDhB1qDZk21P8B8uaLNUCYng4sGpTJNHa4ePSn"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "AW7FZRzGUA8HnRWTsGbEDogAh4Y2Utv2KBqALEvfGLqb"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "AhfDWL1mi2xajF7JWGDzmTiqvtRxD7JDWHkaZVnmUvw7"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "Am3Un7bph5NNWDLCVVVQT1kY4kN3GFPjj31g4DdrNCd4"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "Ao2sUdoFtKW7yix7v6GT8GoWE94LcgHiyjautukHBKAi"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "BsKEb5qhnHMFP4XUjoXMv5nMxkvuaFtBH5ssuWNMjLbw"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "C2W3FExk348T4aNHpJjiCZpNrpd9MNLBBVZAdWCogtBx"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "C55hxeJepPLMKi4xuKjAFLWmxoSfVrqn2LELi67ixQfe"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "CYnm5v4MiLLLaUvu5VUfYPxszU8RPBzmH3Qkv7QbfcUi"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "CbMTzd1sG9vuP9Tw2nUNBHUvtsyzr4Hm5rknri4XxXWL"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "CwY2ejGDsiDhjpEJRK7DQRUEgoCiUpcXGAwpZ8PGdwmL"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "D4iJYcjWZmzDEgnKMHWmpCPZaCiqHSZYtVpLW8zYRHcZ"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "DPAy3sFUsUWVRCGaMKse2hVYR5kKU7Yr4cE1eM5EwvgA"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "DmfxzqZQTifJQhfrikFdDQXy3Ws6X9H3VX5xkRVTf77y"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "FJrraJVwKYdcLX4we8UttdJGvxErgUKWf6awnVSsxArH"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "G9XSZDgMk8x51uHvFUumZK5AFWJLp3GJCV7VZSkL3uGP"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "Gy29oqrQGFsP8cSsZ4eJvmMDMvKeYtWgURGCn5jim9Xn"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "HQ2q5DJuAVf1CrDJpwmeSYsLgvGp9k5cGEPZQsNvcMW9"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "HRneLKJHUHXJr9zb297N44L8WCUqCJYKDsSxDaPv49wS"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "HS5GjB4KTJbbBdYHkJV8qDpq8gmU9wck2qsxgz3ifgke"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "J37JdYS3hpMB3iW8tgUdfFrrBu4X6o9PT3SguxpHXJVW"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "J87ewUdaYKXaMVZEdKh14fMcKXaAmzGamzGtaXDop13X"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "NeHjc1yqZXesLZTHtK7jrjyQ3MpFg2TVHpV8QDDAHEm"
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "subject": "j6EVoUMZRafJPrdkuoB9PJGXxBGHEsx4VcJq5W3Ft5d"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "3D1bE2zg3bY4vpM6KJx99tf8FLaKrwg8Po2yKgx3YR7bhqGtpUr8UQiDARAH4Q4eCBbo4ieJfPuHy4swSxqYCW5g"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "4uspE6nuCZeCcQjBH1qppzPCqT3BXL6rXxeyifvYzXjThxagbi2t6HiMDD9ogm13R4p5aw2Tj5PX6MUFEa2dLKbx"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "3Un3Hhw4f2AE5mVm4YXHSaPcfnNxNT7WHJybFotB7Q2CxMdYNhbsnmfnW14ry5bfBQ5SB72Af6Dn5zHZNAL15rNY"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "3EwXyW3LwPn3dMhndbx5ofs6P1JBzfmm54RyZoRJC5XxZggwkiVAktRUwv1VZ7byHtu7aLQFFPjbcMmr4BTyznPE"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "2A2pnVkqTT5SBLqDaNbNFXBDh6ZLfpPJiY1Eh5XiVdTEZvfbbzDMF35BPhcKrKzrRpv6EZo8DuWtgRrnK8DNnCuN"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "2N8RbABK5ubMHp8mBngBWbkbGoTtyoFwtQqAJx49tQ1vFDPJtCAPtcADSxv4PfTKuyfkVX7GwwafYAEgzNgReZK9"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "2zoBC9cNfkYHQQ63uLfDFvdQtPvrmLfyXpfu5N17NbS4qm5XQMt7WmoryigVSFE2K2gKkzgtYPGKMhAzaUToLGep"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "3TMQ9Thn96wrBV946tXCPTCEzgyEHWzjnRHMAtUs24md77myUaM42xSiqnmXCD8XjS44Tyq67Y5YkrVUe5sDhe1R"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "z5fiS1VSiCwTkcS5JucQc26K4zWzkyix4duT6zXyeCXbxqRVJzcES1cHRkuixjC181kCVWyiJUAxN2sKppENQxa"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "39tshR2bu79nv2uRZCFryR1D8fs9GmioSy2Xk1Sm9RsSCDLaAcagvMWsqC7AmuZ58ATki7baQLheppeJzvrJrQS9"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "4csVBHijsbm8VqtKpC5VBNT7mgRGb1yijsLAo8eGodhLEw8M2tKp2CYBcEFAoHqvG7ntCGiNcssyeZ9hdRFvWTkH"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "65M3peGDYvvM5qrzbZHfx4eFmKZMfWtPNcJqhYBcUEYu5GJ8SySPM5s4x9qyqLzeeqbpnAU6iFpkHuHMFQRXfpkc"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "2N4uypk8bkiQraS2HT9VRo5fahaGfWFPiM2onbTcAiZQnLtoH2bireJhd5yKWkTN1ZLhfmo5mKYw5oZWcp9krXhm"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "VnBEbCLo8whsdqQ5jXkvknMMm25i7LXtWhUMpmRcFwoV7pcvBUo1EdRBMusCnhZkVCWxMZB5KtAi7umLtcofKoe"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "5UcXQdo5vQYkcaQ7GvYFnvEbSCb2CjFbMHojdVLR9LLCqTw5ojU5uG4N5iMhN2yay6YCpGLEWUsj2JEfrCASQTQZ"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "4VbFiJEiX31zfqwBESnuVjPzLUJKw4e8m1GG5VDXbLLF63xKYLQtp3Q4uPg9xJbhnoMvs44QCYtVJTN8A9LTQ8G7"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "2rXthrCH25RrRdMmjDdyJNn5Qkch6dDUMYvVJrgqEaNt6gLFkYb6csgumTH1XmR2U9AhCqGuccS7YMZBSgHZM3iL"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "542qTnzxG9Us21ch8a4RYBt63jRrDpdS7vNCLFvor978t5fE5dnnXxCQuEW4886y7KccV5bQnRvi9y1NMBfnG4Q3"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "2vYLfNLTaTafvqP7uwzAK2JQjvWUsMYER9oQWXn4bE45hpmtkjs3pBSjSNdNS3NyGNbCzme84TGPVdrEvge4Gj6F"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "2zEpBJUxAgnLt5nXU7WsDJ9piCAhJViHZqsJ4bhDi2h5hHFR18o8VGFgGDvnnacohRWo25sr2iMLDNrncNcxEsgH"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "55wCuH9EHcF9hwE6EQKTW7bPZBU3aNDHEUUP2SkzPvquWy34bdGVw3yvguUREQAfNXgpy3tTsA4qa2JqognSSnLD"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "3u1Qhao32CGehKGmUYAjUoTEvg3R3bCRTWiqYjyXSCVFGQSeDzWbXt5oE3351CqF3bPmP64uJPYUUN2Zy9UggDNs"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "KiNM37R3qJXbapNGA614MzDPTZ5faP8aiXVtPjjXFuoNrVbpnQZHanEAaceUM9wY8NzxmJZ6wzxfJ76hhYUhPCc"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "47QgU9A7gYqfcF5caRH1bfBhvvkqvwDB8QkihgJTKdkMYGoqqmQHN5JmBPnZ7WJ6Lt36cuGNebScbCggCMEg2Chu"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "56PqtE7ghfis7LiqjhKdvtpu1LvB6SJMfqe2zeh44gkmZTcZt35XMsiP3AzZqwBdhiW8GJ7RYq6HpAawHHS8Jvkc"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "5KHtndbSiZJqkP1CwZQpBd94w4T8DNP3nbNFt3uYDQ2GnArMXnrB4BbZwzui5twJkpA4t6biHzoXKoi8Kg4Eabaq"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "3DZFf5Fkrb13cSVxXV48tRB8kkvJNKi2VDpwMnWtR4GgHNR7Lqkf6sHAWjsf2Mtk9DWZf62L4xzZZMrGhkAWALbG"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "4C5rswjo68jPiwC5wNUEQxUj426QSSHxcdc7vAKUZUnDPwV6ubLhFyPCfpfahuKn3YGa99gM9MP1eokYQtviLmTF"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "3jRbYnqRGC2GZSn4UhznTowi7PQqnR3zZcSTX3k5BUBEfhMP9nHD1ME9fzvwWsjn8BAjixKFmXDzZA6Rhk93pcJ5"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "489KRMuGZJjrR5tpJNcjNxgEcjkER4MNRTG589Q6V4xLirnqgguj8Y3wpZ1X5wGdtvk5UqLaUZbX5ZbPBSqryDw7"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "5vt4BJfCJiuhmGN2KgSTeDmYvvwVsoNZcPK1FY9yB9THN15B2VdBvdFaUV4tPFfH9NFK8QapHctiyk1DbecdMyje"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "CmjmeRAp7uNMrmTbmVLp1TbMJn4m7UMEgEC3fUViMBHpHmg6gyZ4GCx8su2tpURFUchcH4UiDBBUudcUM1txDch"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "2mCrUtRdLpALGuy14dUTGujtRLFfV4hscCm15JrKotrNNSxQofKRroB8Ryk2tL5NJYZJFDentognhBveDcVffH1z"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "rK6ZCeJu13o3KxjjFSG5Y2MgiQAyTfNcgYik9ZMoHP5TVWrtaYYunZDScdZLwoa2x5HYjeJaHnsqz3mzyEWW4MY"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "3T6Ew7qpVykujWmwVkEPA3r1hZ3SM2DVUU6S8WSr26YiCLDRrqeTLuG9NLguKCMT72SBk3fvtnRKUQJMjpAQrsxJ"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "2SQPBxMmge5s5bsYoWSmcRC1U8DfAfjPgihaagcgqiQi5tnBGCYJMxqNk4Z5GtXok6FYpmZidoBsUe1CK9LQmsHr"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "2fXvGhVCRHu1moWFRE9cXMAa4LMgHzZMSK3ZPiC3udsqLVKwcrbQa7jDG7zkC93dxdcWfrM1zUXKbZcHmqMqQA3u"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "3NYdmuhJzbodvEF3rP2TrEoLDSgeM8HgkeCrY63GLteDZtUCMJ9trw4pAkmFjHT9YLgUWaEhjHc3cNM47ZJiYihk"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "4gQU2CD1fGwoFLLogAb7vZgYd35afJpQmwrUPTgJfjZV6kkZ1cSA9V6F58mhUv897XoDBuG4StMhq9rAT3V2b6ud"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "3d5uejiPo54AgaYBH1umQjpnp5KEXoTrSTMKTERSLyFCE7rpyTbQi1PfJV54XbrRBJuvGvCuHqtUhNhLsXtL4Umx"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "oRSxpkpjjDgQLhN57pnmz6G1WBMpafwGJXay9aJnhyMsw7pGbofeMtRFR3H4v2MagYa6cNxyBz6s3RdwXcrbyG2"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "5bECBwocnJJmLDjrkrTNTiaTwp7QSpoa5j2gyG3oyUxTMTJWvBcF3LBaoGZfYw8BN8o5CVWZ2bVPbMEZwJeiCnqq"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "34QEvqTqLNWZN4sDbPMh8KNK7bC6cWte7GwoeSv3vZnJs69MRa3aVYCm5rJPkhwj3XqDwpiiYyaUq16pUQbKw3pE"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "4yG41dCF4hR8XZiEobC145LEW6bysmPjiPGHPdrM7YymV3irjSUaVi9UAVknn7kKjbxpT8bQZGSaV59YjdpxFbYt"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "5vnqkiZCxbeDhswbPfJa5PuRAJBAJZ1BiitYuEQbj7YrAEQCuEY5fsgZj44txMRf8BGEbvLv2HYKTnrDjGW7zMTt"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "9NdpQjT3UapYjCdVKXgcN4PwJkNuaYwZzj4546LEBFmoZDGnmHtJcFEmm1Vs73f4QqG8jf2hYx3FeZqpsBfspqZ"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "amtx4it3GaDufpgeBiaBakLLBfqpP6YNanPWQxkQax2sYpefrqxdRxNLT5h17vswLj2QqLaCUK4dAh8VS8xjRqc"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "5ircRgPSGMQ6RYHETUNy7qzKAtYXTMBhb4B5TSgQgQ2PN47iwWUEbeBrTdvjVWUG1eanySBUeNY8vGDuZMGnoZvg"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "5xCsiFPXXQykSTxmiQPRdn7phRAoMjoNJ9YJQk63RLVirv1rygpRYJGamYmgq84bnJfi3KNifCDVxCxFKpTXSQJc"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "4p7YPcBEkGNfo39n9LbjtmGjVyk7NQ18Nf7FaESumom1vVM4mjLgwnJdfc51KK2EWxo81eKjNZsUftdMba7YGABw"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "3EXitBXgmTbwtnJnWcAM1s6kj4soPafjPMtkKTTVxYxnx2tJDQV6nXvyAi99YH4xLEFpqsvti7fDtVRMr576SNW6"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "2bzw24J8N2jEiuzS8UXEnJJxhDLc8ZW6ffCjSznd8auJWn9BWzp6jVF6GxjYq3NvHkURqEnijZVfPx5rDpxmoHpJ"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "2dssFDQTWZikLeCZTxWxPmVHFZ1e3auoTaw9pSB7EajY9pEfASawSaqvwG48pK3kTrWkpC56ccb2x3k1G1QsUos8"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "4TREwGaP1gkN7qCx8kZgWrWqLw6ZP9yF1P6ot325SuC1DsdARz5L29knSkN1b3p5WEN1Gmm7rPVtKWZzoJGQkt1N"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "54LioSqhkEk3Awo8uiBTVdvCikut4ybiQa5GoCQao6dgARP4Dt76E8RW9RtWsAHAxpDB8Hf36RJdyL7TNtxpYLE8"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "5z59NrWSCHAUXdPdkC8WRpHa7dGRmuyuXRSxNGKfXALnGCJrfi52Vj4tHS4CjjTTKaKwfSPoQFa3hWvV6oddcXCY"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "56tys1k2L3gvUawzmqxUvefK1VVWpTMeezNY3mpg4yRjFMWn334nWLK2ouFuhFXuoZPys9tH5pvz4oHqkMfABFtg"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "31ZdbApWDCJEzs1ZHZbEzQJmTCZsttw5ajDdKsggcU4gMYrx9NQxWg4oP9WBztUVArBiWkbP2Hspakkq66YAevX"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "3GdYDJvNFy8u1YzyqEM5qtY8cFuPFH5ALjjMV9AC5BdFd8dEHA5BYfUvYnFJC3GoWJ7hy4WyaULn66TZfb42ZdM2"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "3YgDviCsiPcHJGmwYMRdmZQVTThmE36r5zxitGPEynskduEheAfoNEWCAoUwjr7157BqvxaN7nA9GbvXLaUdAR71"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "P1CFKVrV5buyXMw9YekYuKruwBxfqJQY7umDKhPw1LXSscXgMpygX154gzveXvB1uQytEch2YZHz9UnCWihJrWA"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "2NWscDwi8iJp8xpXUAwLZyrVoFeDcsyhnHKwokCkpX91AJ8LpZe9qTRcFQhVi6inQYZ5EnEBSiFiHpUu1Xdxhrif"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "2AB1WrrvSZfejrDaqqHgEPF8xTBVq1VysCx1fLbTwRtTGcd7n1Da5ropWoxrCfYZ5Fkc1miLLsMJB3WLD1HzhRDR"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "2PV8ym5FECwUn5LvW9UcZt7d1iiMSqvUjfX28RwB9EtZiByf7o3TvAsBtc1vg2Z8hLYurSKHL96j8psLq55PETxA"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "4B37XEumgX3KsKYbMCMuZ8EwwxdwZ5CrbMDGiHzEnAW7cwcpNc4nfrWGK6QRu1Z5jzrQvKuEvBFXMEgcdsn9prje"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "5TE7wvtFWhc1LKVBJkrP8Xr7q7T8C1A3538Mfg5EdDYHZUPDTX3iuycobtm7tqsGZUK6An3N5JSdimw4ChHxwiT7"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "65b8xc1WjrpkF2d6zN77DxS6KjvjiR1cb6jZ7VczTkdhtMPmKhtwsE1AgpK3P3AXfMUdt1A479GAz7WnhFEEQ4ex"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "3Pr4yCY4w4p44gr68pYVpVrp4agr9goMSKWh34qdFE2j7Kcq55HCyY6ynCBBJfvqa3UTscVBMqs2xtMPLnQNiZb4"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "5Y3mckMwLd3aKySFWSS2AE3xPmeXR5dNAPVnUVLmjCNY2kMDCcLUpnDX3DNbeX2PyPT5uxuiQdyRjKf16cTDgQBr"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "4tFqyRsTGbFjLUMMxJHF7AHp2TgJhq6muLzZYVysKGW7MuCyCAhSowUFxtxnvy7sdnssWECvCDWB24vZ3AfZ5KkU"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "4J91J9ebDRawqndYVLvdWsxRfc1Wqamp9VxZ5HLHKDpwp4pkRF8indZSch36TKd57C7S8xL12KqvF8SEWiBW38TA"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "5KSkGxKxXpF5gKMd4ngFPLMP8C76Y5GHzzETRpsiW92kYo37nN5qSUVoRYo6nGwgDEXWif8UfysiKuhWokGqYkEL"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "HRMVv7PB5eREACafeLEhNhnJwRPzNNpJWWmW469kZ8FZNzuq74S7sqkZcEyNBcoAV33BVQ1aEzYEaTdxbZVxfFo"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "3MrPaCp4PWmBazx3nR6WBMAnNuc8vnV7dJMRhoJEXEF2K3jUvgqGNK47Gd7T6osztT8fd4NYeccVDLi92vtr7h8u"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "2Dz6hdg5TDVUf5kZCHVCvaJg8ogM8vmpJJ9Jz2Cc3taC1jeiRMsAsTPubTAK9rvu3jVQ9nbaVpc7qSCFr62ugSDT"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "56RKUBQn64prJvX1jHEhtUhLVNrQbBvgFffRApKCw1EvfmpcQ3f6DPK3eWq6pG6V4EukMoWuP3JhYJDRwFSxYQwe"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "2jpmksJjWrRR1ida3HyvKFFWcCp6oDX8u4kicMogBGmAcsJAivSjQDiZhWiGCDVEZfv4XyrUcdDT5kziS1LY1kHG"
+      },
+      {
+        "method": "getTransaction",
+        "subject": "2CkXJPaU9Bh2ixJYYQiLCikTik1nd8ufPNxcDytRPUZFXPnfyoDq3FQa9UG8NEBjXJLVLNkGkLyvkPMpbHLV4nCU"
+      }
+    ],
+    "getSignaturesForAddress_calls": 53,
+    "getTransaction_calls": 78,
+    "recursive_calls": 0
+  },
+  "safety": {
+    "database_writes": false,
+    "operation_mutation": false,
+    "queue_replay": false,
+    "ui_changes": false
+  },
+  "schema_version": "P3R_OPERATOR_DIRECT_FUNDER_UPSTREAM_RPC.v1",
+  "scope": "78 launch links, deduplicated to 53 direct-funder address histories",
+  "selection_rule": "immediate ledger entry older than the selected creator-funding signature; accept only positive native balance delta into direct funder",
+  "summary": {
+    "distinct_direct_funders": 53,
+    "launch_links": 78,
+    "material_inbound_links": 78,
+    "recurrent_upstream_sources": [
+      {
+        "address": "AGT9dkEZUBPrw5HrDGZTNRhYNMEU5HbRp2E1GdYMSB6r",
+        "links": 5
+      },
+      {
+        "address": "7nUChWZA5wUMWgUjigfkh3MG2FmoVhk47fvqCcPALe5B",
+        "links": 4
+      },
+      {
+        "address": "Bn1RAP2D2s4hDUUYzngaBipptN4XfVmXKg7maHjQZ4P1",
+        "links": 3
+      },
+      {
+        "address": "7u2c2ootN4Wpk1u26XAqnwRvnnRNt2N1WrirHBVHgj3r",
+        "links": 3
+      },
+      {
+        "address": "2NhF4V7W6WXPkPvWVFHisveQAKMvcTB4o8AXrxhGLpar",
+        "links": 3
+      },
+      {
+        "address": "FQewszHHeYSvAQMTKQjFXwDWQDgB8TXqJzsyavNmYCi9",
+        "links": 2
+      },
+      {
+        "address": "326Sd2gfsXQA7c2XWN88jNTh6bY32pgvJEkk9uWSZ9tc",
+        "links": 2
+      },
+      {
+        "address": "8VFreegW9kVfykJJC2ULz82XpRiwGHG3UdETWY4Eowpg",
+        "links": 2
+      },
+      {
+        "address": "51UmDGr3N3s9sfsYs9jN75fy9e33C1E2m21KfdQSBsAZ",
+        "links": 2
+      },
+      {
+        "address": "8bHas2MxzzAmcZoHMCNN3NQwUfV2bjawNt6ggy6uP9xh",
+        "links": 2
+      },
+      {
+        "address": "9iWRYJpQVssbUZ4QnHrTPcMEeapLPgmKVYP2fvnLpDy6",
+        "links": 2
+      },
+      {
+        "address": "AdH8UqLePYQd69Wp7ovZ14k1aumGhyHcmLj6fyvUGhya",
+        "links": 2
+      },
+      {
+        "address": "7onSgr7qN7C9F7yy2WKYr1VRj3jrhtHoBL5tLQ8KbHUf",
+        "links": 2
+      },
+      {
+        "address": "4gviJWaJP5Mvf1sKhJRZFQU1S4EZkDnJjH4acAZwEsfG",
+        "links": 2
+      },
+      {
+        "address": "J8Vyzh1efuCFiu3NhYkSvNeSWhFvNEE3BN4N9NF8moiR",
+        "links": 2
+      },
+      {
+        "address": "EDGKu44CYEgzjhFrfX2mpZDgHYu2einGfAwbJ79cw2aM",
+        "links": 2
+      },
+      {
+        "address": "Ge4XLNws9dQddAeBCq3wCNkcYf1mpxNBVNyg4rXGeJ5g",
+        "links": 2
+      },
+      {
+        "address": "4zYHpa2udPhCVJoYT7MtDzMrDeeczyaCuemG4J82ukRe",
+        "links": 1
+      },
+      {
+        "address": "CZTxzma6pA9HPwXASpbhuCKNGrH6zgpQ9ARgUqUQwbTy",
+        "links": 1
+      },
+      {
+        "address": "F39J3KAgeBhQxmhqhYzBKw565NWhJTMiSnZiVtcYGxb6",
+        "links": 1
+      },
+      {
+        "address": "9dmPzAuCDC4wsCfexmFcP9tX48cM1ebfbN5uYtXbo2ZB",
+        "links": 1
+      },
+      {
+        "address": "7VjefJrPMfh6wow3BYr4Qj1vAgnFsAnXBNqphSnpPzUY",
+        "links": 1
+      },
+      {
+        "address": "2rbZwmvAGY5q1vhpRgXy3PHtztD8kYbtjbYuVUraLYkQ",
+        "links": 1
+      },
+      {
+        "address": "65LF4eMd2NRKgA8SHNFfipUFXbntsxcctp4HHqo7dbSu",
+        "links": 1
+      },
+      {
+        "address": "94VEgcJ31hwXWD9aUBNb2XjGewDkquxGUUkNeTfPqeZN",
+        "links": 1
+      },
+      {
+        "address": "HBa1PoTnhDtbeC6SAL9vrp6gxCWMBbdS4oN6dMD5snq3",
+        "links": 1
+      },
+      {
+        "address": "3GL5bXdDriApC4J2gn42L9fH2xFxq9Ziifr3pM79hBoi",
+        "links": 1
+      },
+      {
+        "address": "CaAqc44bNng1RxM26Xk3mSjpsP3ZDdJLduygK3X6BwCy",
+        "links": 1
+      },
+      {
+        "address": "D4g6HvAX7cbjdH1cnVt24y9tC2pTU52eCdNz2wu6H1CN",
+        "links": 1
+      },
+      {
+        "address": "FYuGqRUDnVgzHqvQGJvu1GhMPzfyooQdTTfksi8H45rH",
+        "links": 1
+      },
+      {
+        "address": "6cbGn9vcTvhR1MuAaS8zKi9Ha5ZUpDLoFPShnJ1e3XwA",
+        "links": 1
+      },
+      {
+        "address": "GvKha8BZH9HUVBMyGwcBnwYs7GyioBhHmrvh2rRVzbv3",
+        "links": 1
+      },
+      {
+        "address": "8XpDKnEPVLRFMa6ErMbAVfo4yoXEfsQ7yhCaT4imFfLW",
+        "links": 1
+      },
+      {
+        "address": "39dd5awEMk622AX7anig5wjKUqG8Xf7mkvGWKgKPQ2HG",
+        "links": 1
+      },
+      {
+        "address": "HErGQyVFFtxTQhWZC2FFpRCspvVvZsSHt7dv1ZHuf3KD",
+        "links": 1
+      },
+      {
+        "address": "4vPyGwjFmiZW6NmybzWQKm3KuHjM3Zw8xw4cNkyneEV9",
+        "links": 1
+      },
+      {
+        "address": "DtZuHqiiDzsScMD2dvCr3Jv4n4aZiinLz8Va3Kpv7Cb5",
+        "links": 1
+      },
+      {
+        "address": "FpK8G5iEAydmPF4fNds2rPbCWwMB4YdvDYZ6tCAdKqzM",
+        "links": 1
+      },
+      {
+        "address": "6kQde5QeXZ4iiAX5dx9mmKERaokLR9D55S14JeUGZTCN",
+        "links": 1
+      },
+      {
+        "address": "3nWUnuGAWdrTA4hmNmKPQsTpwegLN8Pz77VY8cw27pWi",
+        "links": 1
+      },
+      {
+        "address": "EZiaQHzHqDPf3yx6c8qX511aH7NwkMwQMtUrM1ALJuTt",
+        "links": 1
+      },
+      {
+        "address": "6iMNUx2ndPCAopEW48xdAxyCTf7vXRd2FsQ6CHx9MQn5",
+        "links": 1
+      },
+      {
+        "address": "DwTQbWYemW6JTSJj97xhvPvbYUdqYDxf4ppaapvoqhig",
+        "links": 1
+      },
+      {
+        "address": "7dbf5E7pfNGHoy9F8DUC7KcNyaapa2tC251A4jgAqJXb",
+        "links": 1
+      },
+      {
+        "address": "HggCfpEM2uzcpZwU5u3yYxYuniqR7dGtWhvkdruYLsFU",
+        "links": 1
+      },
+      {
+        "address": "Bdq9PYpY2BViVtthj6WGeqbkixZciunv6dQ6MYXpXet5",
+        "links": 1
+      },
+      {
+        "address": "63H6mHB4tTGbvBzhz19FgHBMnyAjqRNnqxiRWCKfTftQ",
+        "links": 1
+      },
+      {
+        "address": "67arQDJyzf3wuPNcbGz9zpsvDBYzgpbFKBEtWfzjtAZC",
+        "links": 1
+      },
+      {
+        "address": "EDQJjHbotrBr7R3biuXmp7h7HJPNeiJXCNaHSaA7ZbyN",
+        "links": 1
+      },
+      {
+        "address": "8Bk1fBnoc9Yk3HUz1UWihT2ewgbxMm7LTEoemabUVqmk",
+        "links": 1
+      },
+      {
+        "address": "4cVm3jxHmCsK5tCuv92JYCqdXfF9t2eZ1wagUBKf6F4c",
+        "links": 1
+      },
+      {
+        "address": "Et4WkjpTFwiAPmLbsgt519UBVccnFrW14Hu1VVzDnJDK",
+        "links": 1
+      },
+      {
+        "address": "2MMSdrNnC9CKdbHmeaj5dLoW1LFfUC4jBPfKQZKq2MMW",
+        "links": 1
+      }
+    ],
+    "unresolved_links": 0
+  }
+}

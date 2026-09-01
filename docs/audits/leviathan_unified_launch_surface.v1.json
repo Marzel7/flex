@@ -1,0 +1,74 @@
+{
+  "activity": {
+    "24h": 19,
+    "30d": 205,
+    "7d": 97,
+    "last_launch": 1788187881
+  },
+  "audit_id": "leviathan_unified_launch_surface.v1",
+  "canonical_membership": {
+    "count": 209,
+    "distinct_mint_count": 209,
+    "duplicate_mint_count": 0
+  },
+  "detector_consistency_census": {
+    "EXACT": 209
+  },
+  "detector_id": "P3R_UNIFIED_WSOL_WRAP_CLOSE_99_999985_SOL.v1",
+  "detector_summary": {
+    "derived_not_hardcoded": true,
+    "text_rendered": "Detector \u00b7 209 exact / 209 verified"
+  },
+  "generated_at": 1788190327,
+  "membership_detector_consistency": "209/209 canonical members replay EXACT against evaluate_mint (src/ops/p3r_profile_candidate_matcher.py) -- zero MEMBER_NOT_CURRENTLY_EXACT discrepancies found. Evidence was checked per-mint via evaluate_mint, never assumed from membership alone.",
+  "nexus_safety": {
+    "nexus_ui_delta": 0,
+    "verified": "Nexus page still renders 'Verified Nexus Tokens' card with live exact/reviewed counts unchanged by this fix."
+  },
+  "operation_id": "777211c3-211e-551b-9310-ff9301570627",
+  "operation_name": "Leviathan",
+  "other_operations_safety": {
+    "other_operations_ui_delta": 0,
+    "verified": "WATCHTOWER operator page shows no Detector summary line, unaffected."
+  },
+  "p3r_13a04_safety": {
+    "membership_count": 0,
+    "rows_in_leviathan_display": 0
+  },
+  "rejected_controls": {
+    "count": 8,
+    "rows_displayed_in_leviathan_surface": 0,
+    "verified_absent": true
+  },
+  "removed_redundant_section": {
+    "note": "operation_behavioural_profiles.member_mints_json and all admission-event provenance are untouched; only the redundant duplicate-population UI card is no longer rendered for this operator.",
+    "removed_for": "Leviathan only (777211c3-211e-551b-9310-ff9301570627)",
+    "section": "Manually Admitted P3R Operation role card (#oi-operational-role)",
+    "underlying_data_preserved": true
+  },
+  "render": {
+    "duplicate_mint_count_in_render": 0,
+    "green_markers_count": 209,
+    "grey_markers_count": 0,
+    "http_status": 200,
+    "redundant_role_card_present_in_dom": false,
+    "route": "/intelligence/operator/777211c3-211e-551b-9310-ff9301570627",
+    "unified_launch_list_present": true
+  },
+  "safety": {
+    "admission_event_deletes": 0,
+    "detector_changes": 0,
+    "dispatch_changes": 0,
+    "membership_deletes": 0,
+    "membership_writes": 0,
+    "provenance_deletes": 0
+  },
+  "split_ui_diagnosis": {
+    "main_launch_source_before": "op['recent_launches'] in src/ops/operator_reader.py:355 -- correctly joins operator_launch_membership (all 209 canonical members), ORDER BY create_time DESC LIMIT 250. This was ALREADY unified and correct.",
+    "recent_admission_source_before": "The visually separate section was NOT literally named 'Recently admitted P3R Operations' in code -- it was the pre-existing 'Manually Admitted P3R Operation' role card (#oi-operational-role in templates/operator_intelligence.html), fed by `mints = detector ? detector.rows : (profile.member_mints || [])`, where `profile.member_mints` reads a FROZEN, STALE JSON snapshot (operation_behavioural_profiles.member_mints_json, only 13 mints) -- completely disconnected from the live 209-row operator_launch_membership table. A prior task's fix kept this card alive for Leviathan (`!OP.nexus_detector && !OP.leviathan_detector`) instead of unifying it, which is exactly the visual split described.",
+    "root_cause": "Two independent data sources rendered on the same page: (1) the correct 209-row canonical query feeding the compact-summary 'Recent Launches' collection, and (2) a stale 13-row behavioural-profile snapshot feeding a separate 'Operational role' card that a prior fix incorrectly kept visible for Leviathan."
+  },
+  "tests": "17/17 passed -- tests/test_leviathan_unified_launch_surface.py; full Leviathan suite (53/53) also re-verified.",
+  "unified_display_count": 209,
+  "unified_display_source": "src/ops/operator_reader.py::_leviathan_detector_projection(conn) -- now builds one per-mint detector-state row for EVERY operator_launch_membership row (no separate collection), consumed inside templates/operator_intelligence.html's single renderCompactSummary/launchRow path (the same path Nexus already uses). The redundant role card is removed for Leviathan by reverting `role.remove()` to Nexus-only."
+}

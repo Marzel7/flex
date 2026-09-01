@@ -1,0 +1,35 @@
+{
+  "run_id": "nexus-current-detector-replay-v1",
+  "purpose": "Nexus current five-launch strict detector replay",
+  "authorized_calls": 5,
+  "calls_preaccounted": 5,
+  "calls_used": 5,
+  "entries": [
+    {
+      "mint": "UwimTmUom9eyBNs3GKTn2tFgP7nh2SbzpwsMbcPpump",
+      "signature": "AcVM4GQBWpsF7RANCfPuqiA29PtHCfBiPpmFUyFLuU4UgXAQqypZizNY4wzRrznQaJznm5q3pqq3rGgxMtSU1Dd",
+      "status": "FETCHED"
+    },
+    {
+      "mint": "AwVrN3kxJw8V1NXUceJxYtBxwuoybG9yocU5n1Tpump",
+      "signature": "4BYmV5inCtMPyHTktkgzjMgc1z7iCuLFBuS5hNtBBd1sawypwHgAiBA3BKvDaT5R5RqPRaGqfZHMJxKUbKVVZJDd",
+      "status": "FETCHED"
+    },
+    {
+      "mint": "srwsE3Kmer7tnaRisEEisZm8rUjrkmcwETuwn65pump",
+      "signature": "Pq8yNmvpUUAjYv9exLn2SJdXjZm5WvxuoCDoFGcMsa2BjGQFn3k8LQ3xqCSPnV32uB1PHoYjBuNbWSzTpanc73M",
+      "status": "FETCHED"
+    },
+    {
+      "mint": "Fu5Dbfq6jP15aVaSnRmxNyA8DqAsDCiJueTPQM1pump",
+      "signature": "aeHGqCyJ6BkT3AyayxCWyZuWRd47t5LrXc1Nb4HnCzDJr2ot3wHFR9Hyv2aBvZVHoi3LeG7cJvBMzAKUDC357h7",
+      "status": "FETCHED"
+    },
+    {
+      "mint": "mbwsHaW6pwvsjpoteQti3FGfbzQ86o2B51iHeoopump",
+      "signature": "51JX4Zd2Kpgx53DUrNn7bC4RJ35zNem1mwtvvNKMMyUAX4pcCH6eo9NreS8sMsGxTy1VNHXKUDAeWKTWxRWBbDbU",
+      "status": "FETCHED"
+    }
+  ],
+  "calls_remaining": 0
+}

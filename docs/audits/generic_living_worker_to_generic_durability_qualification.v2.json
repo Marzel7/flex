@@ -1,0 +1,23 @@
+{
+  "schema_version": "generic_living_worker_to_generic_durability_qualification.v2",
+  "prior_artifact": "docs/audits/generic_living_worker_to_generic_durability_qualification.v1.json",
+  "prior_artifact_sha256": "4bdaf756403f53bd5fedbd7da08431a3c350924fe441d210a7192f6f9ac48fb6",
+  "worker_callback_replay": "PASS",
+  "worker_callback_stale": "PASS",
+  "equal_freshness_runtime_blocked_by_relevance": true,
+  "equal_freshness_runtime_semantics": "Equal source rowid freshness is correctly not relevant and cannot enter publication through the worker callback.",
+  "worker_derived_publisher_equal_freshness_conflict": "PASS: real worker-derived relevant source input was captured before publication; generation N/digest A committed, then same generation/different digest B raised equal freshness conflict and rolled back all attempted rows.",
+  "concurrent_stress": "NOT_YET_QUALIFIED",
+  "held_reader_wal_longevity": "NOT_YET_QUALIFIED",
+  "external_consistency_observations": "NOT_MEASURED",
+  "source_before_living_visibility": "NOT_MEASURED",
+  "failure_isolation_under_concurrency": "NOT_YET_QUALIFIED",
+  "no_dual_publication_under_stress": "NOT_YET_QUALIFIED",
+  "lock_wal_telemetry": "NOT_MEASURED",
+  "transaction_timings": "NOT_MEASURED",
+  "focused_tests": "29 passed: tests/test_generic_living_worker_e2e.py tests/test_x77_1_walkback_transaction_boundary.py tests/test_generic_living_pipeline_v2.py tests/test_living_wsol_walkback_integration.py",
+  "real_feature_flag_state": "OFF",
+  "real_db_writes": 0,
+  "activation_readiness": "HOLD_REAL_BOUNDED_GENERIC_ACTIVATION",
+  "blocker": "No actual concurrent writer/held-reader WAL run has captured required lock counters, timings, WAL size, or independent consistency observations."
+}

@@ -1,0 +1,17 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5F-A -- recurring scheduler activation",
+  "verdict": "RUNNER_REMEDIATED_AWAITING_SEPARATE_SCHEDULER_INSTALLATION_AUTHORIZATION",
+  "automation_active": false,
+  "scheduler_installed": false,
+  "pre_install_gate_failure": {
+    "runner": "src/ops/hot_cold_rollover_runner.py",
+    "durable_evidence": "The P5F-R1 PhaseEvidenceStore is not integrated into the production runner path, so SELECTED/COPIED/PUBLISHED/COMMIT/PARITY/COLD_READ cannot survive a harness/process termination.",
+    "closed_segment_publication": "The runner's copy path does not close/publish its per-invocation destination before proceeding to retirement; P5F requires close/publish and registry/summary/COLD-read proof before HOT deletion.",
+    "consequence": "No cron expression or command can truthfully satisfy the P5F-A safety contract without a narrowly implemented, tested integration."
+  },
+  "capacity_baseline": {"eligible_inflow_per_day": 8421, "proposed_runs_per_day": 20, "max_rows_per_run": 500, "theoretical_capacity_per_day": 10000, "headroom_per_day": 1579},
+  "crontab_mutated": false,
+  "first_scheduled_run": "NOT_STARTED -- no fabricated observation",
+  "rollback_db": "unchanged",
+  "exact_next_action": "Implement and test a production durable single-run wrapper/runner integration that closes immutable deltas and emits all P5F phase records before/after retirement; then re-run pre-install review before adding any cron entry."
+}

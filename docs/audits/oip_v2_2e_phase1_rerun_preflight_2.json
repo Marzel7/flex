@@ -1,0 +1,67 @@
+{
+  "milestone": "OIP v2.2E — Controlled Production Migration Preflight, Phase 1 rerun",
+  "decision": "HOLD",
+  "activation_performed": false,
+  "baseline": {
+    "qualified_commit": "ad3719f59ac9541e3550fad22866efe0cab5466c",
+    "qualified_tag": "oip-v2.2e-phase1-baseline",
+    "activation_revision": "bc28cd069a10a700b7e2e01b62191bf517f5ff74",
+    "cohort_gate_implementation": "ac852ac2",
+    "cohort_gate_documentation": "bc28cd06"
+  },
+  "preflight": {
+    "production_health": "HEALTHY",
+    "database_write_p99_ms": 6.44,
+    "database_wal_mb": 23.2,
+    "database_lock_errors_since_start": 0,
+    "creator_funding": {
+      "status": "RUNNING_AND_COMPLETING",
+      "queue_pending": 0,
+      "extraction_slots": 2,
+      "worker_heartbeat_age_seconds": 5
+    },
+    "listener": "RUNNING/CONNECTED",
+    "creator_resolution": "RUNNING/fresh",
+    "api": "RUNNING",
+    "intelligence_scheduler": "RUNNING"
+  },
+  "new_concrete_blockers": [
+    {
+      "id": "NO_SUPERVISED_PRODUCTION_EVIDENCE_WRITER",
+      "evidence": [
+        "config/supervisor/supervisord.conf contains no [program:evidence_writer] entry",
+        "database/evidence_platform/evidence.db is absent",
+        "src/evidence/writer.py provides an executable writer but it is not deployed or supervised"
+      ],
+      "impact": "Phase 1 requires exactly one writer-only supervised start before mirror admission."
+    },
+    {
+      "id": "NO_APPROVED_EXISTING_FACT_REPLAY_PRODUCER",
+      "evidence": [
+        "src/acquisition/factory.py mirrors only completed future SharedTransactionAcquisition responses",
+        "src/evidence/mirror.py replays only its own durable spool",
+        "No generic production adapter exists to envelope retained completed migration facts without reacquiring provider data"
+      ],
+      "impact": "A frozen cohort of already-completed migrated mints cannot be admitted through the same contract with zero additional RPC."
+    }
+  ],
+  "not_performed": [
+    "No cohort manifest selected or created",
+    "No Evidence DB, artifact store, intake, spool, writer, or Supervisor configuration created",
+    "No Evidence flags enabled",
+    "No Supervisor or producer restart",
+    "No RPC issued",
+    "No production database write",
+    "No production Evidence or operation authority activated"
+  ],
+  "required_remediation": "Implement and separately qualify a generic, production-safe retained-acquisition replay producer plus a reviewed supervised Evidence-writer deployment boundary. Re-run Phase 1 only after both are available; do not substitute new RPC or a bespoke cohort-specific replay path.",
+  "verdict": {
+    "cohort_gate": "PASS (E.1A)",
+    "production_health": "PASS",
+    "writer_supervision": "HOLD",
+    "existing_fact_replay": "HOLD",
+    "evidence_activation": "HOLD",
+    "acquisition": "HOLD_ACQUISITION",
+    "phase_1": "HOLD"
+  }
+}

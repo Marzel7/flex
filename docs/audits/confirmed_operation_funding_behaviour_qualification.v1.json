@@ -1,0 +1,112 @@
+{
+  "BYZANTINE_FUNDING_QUALIFICATION": "STRONGER",
+  "FOUR_STEP_FUNDING_QUALIFICATION": "STRONGER",
+  "LEVIATHAN_ARCHITECTURE_CURRENT": "YES",
+  "LEVIATHAN_FUNDING_QUALIFICATION": "STRONGER",
+  "MULTI_DIMENSION_OPERATION_MODEL": "RECOMMENDED",
+  "WATCHTOWER_FUNDING_MODEL": "COHERENT_ARCHITECTURE_FAMILY",
+  "cross_operation_complete_architecture_collisions": 0,
+  "current_membership_census": {
+    "Byzantine": 36,
+    "Four-step": 9,
+    "Leviathan": 118,
+    "WATCHTOWER": 128
+  },
+  "digest": "23228eb8c942ce0f9d9a179a12dcd783690a549cbe39db269f0f0e53c6f838c3",
+  "frozen_matrix": "docs/audits/confirmed_operation_funding_architecture_matrix.v1.json",
+  "frozen_matrix_digest": "ba5035b06c33494bf04da65f85169834a0441219226455a2f875cc740d8a8510",
+  "funding_architecture_role": "YES_AS_SUPPORTING_FEATURE",
+  "operations": {
+    "Byzantine": {
+      "architecture_dimension": "INDEPENDENT_SUPPORT",
+      "boundary": "STRENGTHENED",
+      "classification": {
+        "ARCHITECTURE_OUTLIER": 0,
+        "DOMINANT_ARCHITECTURE": 36,
+        "INSUFFICIENT_EVIDENCE": 0,
+        "QUALIFIED_VARIANT": 0
+      },
+      "consistency": "36/36",
+      "current": "YES",
+      "description": "Exact stable lifecycle with no separate principal-transfer vector, structurally distinct from Leviathan and WATCHTOWER.",
+      "funding_qualification": "STRONGER",
+      "members": 36,
+      "model": "createAccount \u2192 9,999,985,000 deposit \u2192 initializeAccount \u2192 syncNative \u2192 closeAccount",
+      "registry_name": "Byzantine",
+      "variants": 0
+    },
+    "Four-step": {
+      "architecture_dimension": "INDEPENDENT_SUPPORT",
+      "boundary": "STRENGTHENED",
+      "classification": {
+        "ARCHITECTURE_OUTLIER": 0,
+        "DOMINANT_ARCHITECTURE": 9,
+        "INSUFFICIENT_EVIDENCE": 0,
+        "QUALIFIED_VARIANT": 0
+      },
+      "consistency": "9/9",
+      "current": "YES",
+      "description": "Stable exact plain-transfer architecture; no WSOL close lifecycle.",
+      "funding_qualification": "STRONGER",
+      "members": 9,
+      "model": "PLAIN_XFER \u2192 single 29,999,985,000-lamport transfer",
+      "registry_name": "FOUR_STEP_30_SOL_14_479K_WSOL_LADDER",
+      "variants": 0
+    },
+    "Leviathan": {
+      "architecture_dimension": "INDEPENDENT_SUPPORT",
+      "boundary": "STRENGTHENED",
+      "classification": {
+        "ARCHITECTURE_OUTLIER": 0,
+        "DOMINANT_ARCHITECTURE": 118,
+        "INSUFFICIENT_EVIDENCE": 0,
+        "QUALIFIED_VARIANT": 0
+      },
+      "consistency": "118/118",
+      "current": "YES",
+      "description": "Stable complete ordered lifecycle, value vector, temporary-account continuity, and distinct close destination. C357 remains historical behavioural provenance only.",
+      "funding_qualification": "STRONGER",
+      "members": 118,
+      "model": "createAccountWithSeed \u2192 2,039,280 deposit \u2192 initializeAccount3 \u2192 99,997,955,720 transfer \u2192 syncNative \u2192 closeAccount",
+      "registry_name": "P3R",
+      "variants": 0
+    },
+    "WATCHTOWER": {
+      "architecture_dimension": "COMPLEMENTARY_SUPPORT",
+      "boundary": "STRENGTHENED",
+      "classification": {
+        "ARCHITECTURE_OUTLIER": 0,
+        "DOMINANT_ARCHITECTURE": 90,
+        "INSUFFICIENT_EVIDENCE": 0,
+        "QUALIFIED_VARIANT": 35
+      },
+      "consistency": "125/125",
+      "current": "YES",
+      "description": "Coherent architecture family: deposit-sized variants plus one transfer-bearing variant. Variants preserve a related provision-and-close role pattern; no evidence of incompatible contamination in the frozen 125.",
+      "funding_qualification": "STRONGER",
+      "members": 128,
+      "model": "Funding architecture family: dominant createAccountWithSeed \u2192 2,122,039,280 deposit \u2192 initializeAccount \u2192 closeAccount; no principal transfer or syncNative",
+      "registry_name": "WATCHTOWER",
+      "variants": 8
+    }
+  },
+  "operations_requiring_review": 0,
+  "operations_strengthened": 4,
+  "operations_unchanged": 0,
+  "operations_weakened": 0,
+  "post_baseline_members": {
+    "Byzantine": 0,
+    "Four-step": 0,
+    "Leviathan": 0,
+    "WATCHTOWER": 0
+  },
+  "safety": {
+    "detector_state_changed": false,
+    "fingerprints_changed": false,
+    "membership_changed": false,
+    "production_activation": "NOT_AUTHORIZED",
+    "trading_changed": false
+  },
+  "schema": "CONFIRMED_OPERATION_FUNDING_BEHAVIOUR_QUALIFICATION_V1",
+  "watchtower_census_digest": "f4a2f2f28bf0fa551df6991c8ef24c49770a31393e71737ac88a3ee37ca66b82"
+}

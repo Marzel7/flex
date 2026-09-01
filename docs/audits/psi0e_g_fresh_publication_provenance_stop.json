@@ -1,0 +1,38 @@
+{
+  "schema_version": "psi0e-g.publication-stop.v1",
+  "milestone": "PSI0E-G",
+  "stopped_at_utc": "2026-08-16T11:47:34Z",
+  "engineering_commit": "0b3687fb0b61529034702f6117eb60071c43074f",
+  "status": "HOLD",
+  "verdict": "PSI0E_G_PROVENANCE_SHAPE_ASSERTION_STOP_NO_RETRY",
+  "bound_inputs": {
+    "psi0e_g5_diagnosis_digest": "8cdaaebed0ce0445524445f33fdc6eecbf5f7c9f69fd1d2bd5d19b407671df27",
+    "psi0e_g3_adapter_contract_digest": "668ddda9b18f9034bdbc595f27b7fa70acc1d8b1a5b298f24a6af38a25d26814",
+    "psi0e_e_publication_contract_digest": "b893198fed71329c33083176a7ce93d7c86f119ab66b9488dbf9c42db6435cc3",
+    "psi0d_f_audit_digest": "9e755dcc6fceef6ef27664eb8531cff0478b0b6cc252ded22ee84adfefd1efac",
+    "expected_input_digest": "89c8dee5c976bd587aa6fc7ec3a6194e38caeba5508013c8ddca976489038f35",
+    "expected_envelope_digest": "c8827678b2137f1aec864f86623514a92affb0c6df092d13b24c160f8fb90a9d"
+  },
+  "attempt": {
+    "real_audit_reads": 1,
+    "adapter_invocations": 1,
+    "input_digest_verified": true,
+    "envelope_digest_verified": true,
+    "contract_digest_verified": true,
+    "stop_reason": "PSI0E_G_PROVENANCE_DRIFT",
+    "publisher_invocations": 0,
+    "retries": 0
+  },
+  "cleanup": {
+    "output_created": false,
+    "staging_created": false,
+    "partial_publication": false,
+    "output_parent_empty": true
+  },
+  "authority": {
+    "integration": false,
+    "deployment": false,
+    "activation": false
+  },
+  "next_action": "HUMAN_APPROVAL_REQUIRED: bounded safe-local read-only diagnosis of the canonical envelope provenance representation expected by the committed adapter and publisher; do not retry publication."
+}

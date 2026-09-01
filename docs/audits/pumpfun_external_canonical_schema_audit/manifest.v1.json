@@ -1,0 +1,33 @@
+{
+  "artifacts": {
+    "events": {
+      "path": "docs/audits/pumpfun_external_canonical_schema_audit/event_schema_qualification.v1.json",
+      "sha256": "daeb6457c7a4ac4e04f12695babe07441258c903e049833a09abb288293145a8"
+    },
+    "math": {
+      "path": "docs/audits/pumpfun_external_canonical_schema_audit/buy_math_qualification.v1.json",
+      "sha256": "e2485899fce916931cb24a26024a0c5c60a78329a1c97aa3d2510b542e8abb2e"
+    },
+    "provenance": {
+      "path": "docs/audits/pumpfun_external_canonical_schema_audit/external_schema_provenance.v1.json",
+      "sha256": "4cab70682ab9a797b5ac677bf75bd6cebe1615498c61bfff3c0a2f86c95dd2b8"
+    },
+    "valuation": {
+      "path": "docs/audits/pumpfun_external_canonical_schema_audit/opening_mc_result.v1.json",
+      "sha256": "4507ceb9ab70b181ce4022bec97ccca126a54ec257113304c3be9113fac66eb0"
+    }
+  },
+  "network": {
+    "external_web_lookup_total": 12,
+    "github_lookup_total": 5,
+    "gmgn_api_request_count": 0,
+    "helius_api_request_count": 0,
+    "incremental_gettransaction_count": 0,
+    "incremental_solana_rpc_count": 0,
+    "pumpportal_api_request_count": 0
+  },
+  "replay_idempotent": true,
+  "replay_run_1_digest": "04a305640e467c9a358a22f5b4c924314327db11193ad64d3bc985f7ee584ea9",
+  "replay_run_2_digest": "04a305640e467c9a358a22f5b4c924314327db11193ad64d3bc985f7ee584ea9",
+  "schema_version": "pumpfun-external-schema-audit-manifest.v1"
+}

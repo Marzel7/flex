@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D2C",
+  "observed_at_utc": "2026-08-14T14:44:43Z",
+  "status": "COMPLETE",
+  "verdict": "CALLER_PATH_CORRECTION_ONLY",
+  "authoritative_evidence_source": {
+    "logical_source": "evidence",
+    "expected_file_name": "evidence.db",
+    "absolute_path": "/Users/kevinkeaveney/Dev/claude/flex/database/evidence_platform/production/evidence.db",
+    "path_binding_digest": "26d0e3847ca99f7a2b6216156adca59e14e40b8d7054d3c33709460a6286aeb7",
+    "filesystem_metadata": {
+      "device": 16777234,
+      "inode": 487364257,
+      "size_bytes": 114688,
+      "mtime_epoch": 1786692631,
+      "birth_epoch": 1786442178
+    }
+  },
+  "path_binding_digest_contract": "sha256(canonical_json({absolute_path,expected_file_name,logical_source}))",
+  "provenance": [
+    "config/supervisor/supervisord.conf explicitly binds the evidence_writer EVIDENCE_DATABASE_PATH to database/evidence_platform/production/evidence.db under the repository root.",
+    "src/evidence/config.py consumes EVIDENCE_DATABASE_PATH as the evidence database path; its non-production fallback is database/evidence_platform/evidence.db, never database/evidence.db.",
+    "Committed evidence-platform audit and migration artifacts identify database/evidence_platform/production/evidence.db as the production evidence database.",
+    "The PSI0A capture manifest and C16 boundary preserve the logical source and filename but intentionally do not encode a host path, so their evidence.db filename cannot be interpreted as repository database/evidence.db."
+  ],
+  "absent_assumed_path": {
+    "path": "/Users/kevinkeaveney/Dev/claude/flex/database/evidence.db",
+    "observed": "ABSENT",
+    "explanation": "No committed runtime configuration or reader/writer path contract places the production evidence database directly under database/. The failed D2 preflight incorrectly prepended database/ to a filename-only manifest field and omitted the configured evidence_platform/production directory."
+  },
+  "confirmed_existing_bindings": [
+    {
+      "logical_source": "main",
+      "expected_file_name": "flex_complete_database.db",
+      "absolute_path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+      "path_binding_digest": "47aecc6ad649ba5ec1bbfcba62df30cfc04d0dc97b632df1ce0c153e3612b934",
+      "filesystem_metadata": {
+        "device": 16777234,
+        "inode": 291948390,
+        "size_bytes": 11350073344,
+        "mtime_epoch": 1786718661,
+        "birth_epoch": 1773782768
+      },
+      "verdict": "UNAMBIGUOUS"
+    },
+    {
+      "logical_source": "ops",
+      "expected_file_name": "wt_ops_v2.db",
+      "absolute_path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+      "path_binding_digest": "13dca5ea3bcc50b135dbbbab61042930ac692cce74a3388705a35e924a0a11a6",
+      "filesystem_metadata": {
+        "device": 16777234,
+        "inode": 421043107,
+        "size_bytes": 3412295680,
+        "mtime_epoch": 1786718667,
+        "birth_epoch": 1780932465
+      },
+      "verdict": "UNAMBIGUOUS"
+    }
+  ],
+  "root_cause": "D2 caller treated the capture manifest's filename-only evidence source identity as though it implied database/evidence.db, despite the committed production binding to database/evidence_platform/production/evidence.db.",
+  "smallest_repair": "Correct the caller-supplied evidence source path and bind its path digest in the next D2 authorization/input fingerprint. No capture-input manifest or query-contract amendment is required.",
+  "database_connections_opened": 0,
+  "schema_or_row_queries": 0,
+  "explain_queries": 0,
+  "production_writes": 0,
+  "provider_calls": 0,
+  "service_actions": 0,
+  "d2_retried": false,
+  "production_impact": false
+}

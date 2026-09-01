@@ -1,0 +1,159 @@
+{
+  "run_id": "p3r-v2-803b0e986cb0d28affd0",
+  "shortlist": [
+    {
+      "candidate_id": "p3r-v2-70a238399aebef5b72dd",
+      "classification": "ACTIVE_BASE_ONLY",
+      "next_investigation": "local atomic analysis",
+      "rank": 1,
+      "rationale": {
+        "atomic_coverage": 0.0,
+        "last_7d": 36,
+        "max_rolling_24h": 36,
+        "missing": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN",
+          "ATOMIC_COVERAGE_INSUFFICIENT"
+        ]
+      }
+    },
+    {
+      "candidate_id": "p3r-v2-711c64846cb08429936f",
+      "classification": "ACTIVE_BASE_ONLY",
+      "next_investigation": "local atomic analysis",
+      "rank": 2,
+      "rationale": {
+        "atomic_coverage": 0.0,
+        "last_7d": 10,
+        "max_rolling_24h": 18,
+        "missing": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN",
+          "ATOMIC_COVERAGE_INSUFFICIENT"
+        ]
+      }
+    },
+    {
+      "candidate_id": "p3r-v2-03db4da5752899df4cfe",
+      "classification": "ACTIVE_BASE_ONLY",
+      "next_investigation": "local atomic analysis",
+      "rank": 3,
+      "rationale": {
+        "atomic_coverage": 0.2222222222222222,
+        "last_7d": 4,
+        "max_rolling_24h": 16,
+        "missing": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN",
+          "ATOMIC_RECURRENCE_NOT_PROVEN",
+          "ADDRESS_BLINDNESS_NOT_PROVEN"
+        ]
+      }
+    },
+    {
+      "candidate_id": "p3r-v2-6f7738e9702395ba8ad3",
+      "classification": "ACTIVE_BASE_ONLY",
+      "next_investigation": "local atomic analysis",
+      "rank": 4,
+      "rationale": {
+        "atomic_coverage": 0.024390243902439025,
+        "last_7d": 12,
+        "max_rolling_24h": 13,
+        "missing": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN",
+          "ATOMIC_RECURRENCE_NOT_PROVEN"
+        ]
+      }
+    },
+    {
+      "candidate_id": "p3r-v2-eee8d016af070a17af02",
+      "classification": "ACTIVE_BASE_ONLY",
+      "next_investigation": "local atomic analysis",
+      "rank": 5,
+      "rationale": {
+        "atomic_coverage": 0.018867924528301886,
+        "last_7d": 5,
+        "max_rolling_24h": 13,
+        "missing": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN",
+          "ATOMIC_RECURRENCE_NOT_PROVEN",
+          "ADDRESS_BLINDNESS_NOT_PROVEN"
+        ]
+      }
+    },
+    {
+      "candidate_id": "p3r-v2-32aa0d5125ef777cfd1e",
+      "classification": "ACTIVE_BASE_ONLY",
+      "next_investigation": "local atomic analysis",
+      "rank": 6,
+      "rationale": {
+        "atomic_coverage": 0.0,
+        "last_7d": 32,
+        "max_rolling_24h": 12,
+        "missing": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN",
+          "ATOMIC_COVERAGE_INSUFFICIENT"
+        ]
+      }
+    },
+    {
+      "candidate_id": "p3r-v2-3af3f42197d1681c6933",
+      "classification": "ACTIVE_BASE_ONLY",
+      "next_investigation": "local atomic analysis",
+      "rank": 7,
+      "rationale": {
+        "atomic_coverage": 0.0,
+        "last_7d": 23,
+        "max_rolling_24h": 11,
+        "missing": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN",
+          "ATOMIC_COVERAGE_INSUFFICIENT",
+          "ADDRESS_BLINDNESS_NOT_PROVEN"
+        ]
+      }
+    },
+    {
+      "candidate_id": "p3r-v2-5a23bde39497a50696cf",
+      "classification": "ACTIVE_BASE_ONLY",
+      "next_investigation": "local atomic analysis",
+      "rank": 8,
+      "rationale": {
+        "atomic_coverage": 0.010638297872340425,
+        "last_7d": 34,
+        "max_rolling_24h": 10,
+        "missing": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN",
+          "ATOMIC_RECURRENCE_NOT_PROVEN",
+          "ADDRESS_BLINDNESS_NOT_PROVEN"
+        ]
+      }
+    },
+    {
+      "candidate_id": "p3r-v2-e6462dd56f2e695fcb6c",
+      "classification": "ACTIVE_BASE_ONLY",
+      "next_investigation": "local atomic analysis",
+      "rank": 9,
+      "rationale": {
+        "atomic_coverage": 0.06153846153846154,
+        "last_7d": 29,
+        "max_rolling_24h": 10,
+        "missing": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN",
+          "ATOMIC_RECURRENCE_NOT_PROVEN"
+        ]
+      }
+    },
+    {
+      "candidate_id": "p3r-v2-6437acd385e566e301a7",
+      "classification": "ACTIVE_BASE_ONLY",
+      "next_investigation": "local atomic analysis",
+      "rank": 10,
+      "rationale": {
+        "atomic_coverage": 0.07547169811320754,
+        "last_7d": 21,
+        "max_rolling_24h": 10,
+        "missing": [
+          "ALTERNATIVE_RECURRENCE_NOT_PROVEN",
+          "ATOMIC_RECURRENCE_NOT_PROVEN"
+        ]
+      }
+    }
+  ]
+}

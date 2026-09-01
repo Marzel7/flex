@@ -1,0 +1,57 @@
+{
+  "schema_version": "ra4_c1_hot_store_plateau_readiness.v1",
+  "milestone": "RA4-C1 \u2014 hot-store plateau and archive-before-retire qualification",
+  "status": "PASS",
+  "verdict": "READY_HOT_PLATEAU_QUALIFIED",
+  "source_identity": {
+    "rowid_min": 1,
+    "rowid_max": 300,
+    "high_water": 300
+  },
+  "sample": {
+    "sample_size": 300,
+    "acquisitions_simulated": 50,
+    "sample_method": "deterministic_fixture_rows"
+  },
+  "plateau_qualification": {
+    "hard_ceiling_bytes": 5368709120,
+    "hot_window_days": 0.2076388888888889,
+    "max_hot_bytes": 210068,
+    "final_hot_bytes": 117705,
+    "final_segment_growth_slope": 528.0333333333333,
+    "cold_archived_bytes": 66407,
+    "retired_full_rows": 0,
+    "retired_unverified_rows": 0,
+    "archive_before_replay_failures": 0
+  },
+  "identity_summary": {
+    "acquisitions_simulated": 50,
+    "correlations_simulated": 8,
+    "mints_simulated": 12,
+    "artifacts_simulated": 9
+  },
+  "replay": {
+    "cold_replay_equivalence": "PASS",
+    "failure_matrix": {
+      "mismatches": 0,
+      "missing": 0,
+      "parse_failures": 0
+    },
+    "checks": 300
+  },
+  "failure_matrix": {
+    "record_full_rows": 128,
+    "record_metadata_only_rows": 172,
+    "archive_before_replay_failed_rows": 0
+  },
+  "HOT_STORE_PLATEAUS": false,
+  "resource_gate": {
+    "free_bytes": 26843545600,
+    "policy": {
+      "normal_min_free_bytes": 21474836480,
+      "degraded_min_free_bytes": 16106127360,
+      "critical_min_free_bytes": 10737418240,
+      "hard_floor_bytes": 1073741824
+    }
+  }
+}

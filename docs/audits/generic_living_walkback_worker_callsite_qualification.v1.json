@@ -1,0 +1,37 @@
+{
+  "schema_version": "generic_living_walkback_worker_callsite_qualification.v1",
+  "old_runtime_qualification_sha256": "08cc955ef1680676803a322282da77033e87241fa53474cf4964cfde34853aef",
+  "new_runtime_qualification_sha256": "8f70c4682cc08e40b7b98f3b1b51012bfe48d159fba8ea552fc6dfe0d0b83e48",
+  "qualification_metadata_contract_repaired": true,
+  "metadata_added": {
+    "qualified_for_bounded_active_activation": true,
+    "real_bounded_active_activation_performed": false,
+    "walkback_worker_callsite_connected": false,
+    "real_feature_flag_enabled": false,
+    "global_automatic_walkback_integration_enabled": false
+  },
+  "worker_entry_point": "src/core/walkback_worker.py:run_loop -> drain_batch -> _process_row -> _mark_complete/_mark_failed/_mark_exhausted",
+  "durability_boundary": "_mark_complete/_mark_failed/_mark_exhausted: sync_walkback_result; ops.commit(); _notify_living_after_walkback_commit",
+  "living_handler_callsite": "src/core/walkback_worker.py:_notify_living_after_walkback_commit -> src.ops.living_potential_operations.handle_walkback_evidence_update(OPS_DB_PATH, **event)",
+  "event_contract": ["mint", "creator", "funder", "mechanism", "edge_identity", "source_event_type=WALKBACK_COMMITTED"],
+  "callsite_after_source_commit": true,
+  "source_transaction_open_during_living_publication": false,
+  "generic_candidate_branches_in_worker": 0,
+  "failure_isolation": "Callback catches, logs, and returns FAILED; it cannot roll back committed walkback evidence or trigger worker retry.",
+  "focused_tests": "22 passed: tests/test_x77_1_walkback_transaction_boundary.py tests/test_generic_living_pipeline_v2.py tests/test_living_wsol_walkback_integration.py",
+  "qualified_disposable_coverage": {
+    "commit_before_callback": "PASS",
+    "callback_failure_after_commit": "PASS",
+    "flag_off": "NOT_YET_END_TO_END_QUALIFIED",
+    "wsol_generic": "NOT_YET_END_TO_END_QUALIFIED",
+    "eight_hop_generic": "NOT_YET_END_TO_END_QUALIFIED",
+    "unrelated": "NOT_YET_END_TO_END_QUALIFIED",
+    "global_irrelevant": "NOT_YET_END_TO_END_QUALIFIED"
+  },
+  "lock_wal_telemetry": "No nested source/Living transaction by construction and transaction-boundary tests passed; dedicated WAL timing/retry qualification remains required.",
+  "real_feature_flag_state": "OFF",
+  "real_db_writes_by_this_preflight": 0,
+  "provider_rpc_network_calls": 0,
+  "activation_readiness": "HOLD_REAL_BOUNDED_GENERIC_ACTIVATION",
+  "blocker": "The new call site is transaction-safe, but the required disposable worker-to-generic ON-path, flag-OFF, unrelated/global-irrelevant, and WAL telemetry qualifications have not yet been implemented."
+}

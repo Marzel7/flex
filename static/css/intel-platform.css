@@ -163,6 +163,7 @@
 .ip-badge.green  { background: var(--ip-green-bg);  color: var(--ip-green);  border: 1px solid rgba(63,185,80,.25); }
 .ip-badge.purple { background: var(--ip-purple-bg); color: var(--ip-purple); border: 1px solid rgba(167,139,250,.25); }
 .ip-badge.amber  { background: var(--ip-amber-bg);  color: var(--ip-amber);  border: 1px solid rgba(245,158,11,.25); }
+.ip-badge.orange { background: rgba(249,115,22,.12); color: #fb923c; border: 1px solid rgba(249,115,22,.30); }
 .ip-badge.red    { background: var(--ip-red-bg);    color: var(--ip-red);    border: 1px solid rgba(248,81,73,.25); }
 .ip-badge.blue   { background: var(--ip-blue-bg);   color: var(--ip-blue);   border: 1px solid rgba(96,165,250,.25); }
 .ip-badge.dim    { background: rgba(79,93,110,.12); color: var(--ip-sec);    border: 1px solid rgba(79,93,110,.22); }

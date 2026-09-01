@@ -1,0 +1,63 @@
+{
+  "schema_version": "psi0b-e17.diagnosis.v1",
+  "milestone": "PSI0B-E17",
+  "status": "PASS_DIAGNOSIS",
+  "verdict": "CALLER_PATH_TYPE_ERROR_PARENT_ARTIFACT_DIRECTORY_REPLAY_VERIFIED",
+  "engineering_commit": "9bbc4c077ecb189952c900539c8a8d0031b59269",
+  "bound_inputs": {
+    "attempt_artifact": "docs/audits/psi0b_e_12_production_shadow_attempt.json",
+    "attempt_digest": "b3108e947581118872f353fa20c5671bc6e49440b3c2e1245dcb57ea77d4e9de",
+    "authorization_id": "psi0b-shadow-auth-20260815-12",
+    "authorization_digest": "513a89588bdda8906e5b6cfdd990fea0ac765fe1c3b24bb7c3f3dc71c944ea0b",
+    "expected_preflight_digest": "b2cfd09743c4ba21f7a61a816d8eff8b43e43a1b6e482c4ef9a7f2bd982dcca1",
+    "expected_cohort_digest": "c6069972dddc58fd95cbc3de231e2c4640afbb9dbc0b73475e70964929970722"
+  },
+  "root_cause": {
+    "classification": "CALLER_CORRECTION_REQUIRED",
+    "supplied_path": "docs/audits/psi0b_e3_superseding_preflight/preflight.json",
+    "required_path": "docs/audits/psi0b_e3_superseding_preflight",
+    "explanation": "load_superseding_preflight accepts the superseding artifact directory and resolves cohort.json and preflight.json beneath it. Supplying the preflight.json file caused resolution of preflight.json/cohort.json and failed before canonical replay comparison.",
+    "canonical_field_mismatch": null,
+    "committed_identity_drift": false,
+    "implementation_defect": false
+  },
+  "replay_confirmation": {
+    "parent_directory_replay": "PASS",
+    "preflight_digest": "b2cfd09743c4ba21f7a61a816d8eff8b43e43a1b6e482c4ef9a7f2bd982dcca1",
+    "cohort_digest": "c6069972dddc58fd95cbc3de231e2c4640afbb9dbc0b73475e70964929970722",
+    "run_id": "psi0b-shadow-20260814-02",
+    "output_directory_fingerprint": "55ee7ad8c26322c55b828f21c7ab80085688c46ac5e3129bc0d25b88b9c19ff3",
+    "cohort_file_sha256": "077922e3c887efd24fa237c15036d2b4ca1fc6e819629f734c8d56db52ed481e",
+    "preflight_file_sha256": "4d4969c54227a772822126c41ed0fe04fe36c3a5cc1db96674409de4e31bfb22"
+  },
+  "authorization_12": {
+    "consumed": false,
+    "reusable": false,
+    "reason": "Exactly one invocation was authorized and has completed fail-closed."
+  },
+  "smallest_safe_next_action": {
+    "type": "CALLER_CORRECTION_WITH_FRESH_AUTHORIZATION",
+    "required_new_authorization_id": "psi0b-shadow-auth-20260815-13",
+    "required_preflight_artifact_argument": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/psi0b_e3_superseding_preflight",
+    "implementation_or_contract_amendment_required": false,
+    "success_effect": "MAY_AUTHORIZE_EXACTLY_ONE_FRESH_BOUNDED_PSI0B_E_ATTEMPT"
+  },
+  "accounting": {
+    "production_database_opens": 0,
+    "production_queries": 0,
+    "production_rows_read": 0,
+    "production_writes_or_ddl": 0,
+    "provider_rpc_calls": 0,
+    "service_actions": 0,
+    "authorization_consumed": false,
+    "shadow_output_created": false
+  },
+  "authority": {
+    "grants_extraction_authority": false,
+    "grants_integration_authority": false,
+    "grants_activation_authority": false,
+    "grants_retry_authority": false,
+    "grants_service_action_authority": false,
+    "grants_production_mutation_authority": false
+  }
+}

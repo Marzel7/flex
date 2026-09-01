@@ -1,0 +1,118 @@
+{
+  "candidate_signatures": [
+    "4n89Vx1wHZUcirGdPL4BNfNz8Wtj4i2pTdNhVDk2AFjD6QEGbypkcS3KmxKBqTuzqHj9LdpGvdsXFEi2YwVRhtjX",
+    "44yquUdsQjRqkTYrmVzXrv1CtmDQhc7KXBQr7XxisduSjw1MbXEH1bM4XoNpHFXSUyoBkK3bC7FTxb7CcWzoUw5J",
+    "pbM4xYHLPZbWcwdoe7yKMbdSnadaC1aanvWS71h3n1Swos8swHGg9nBbgHqCtp2dHXVpxZm76cgeV9bBgiPvvC8",
+    "4Z8CBVeXPicKz4jhuXR5JAwDfJHov214SFeSSs2gNSQA9vJiB463dcTxoXpHEifiiyVgU5kWQADQs6k7rob11Dqv",
+    "54MAZKQfDfXVefccQnqbLbXKcs4pP47jJJWKSSN24QeD5vFXEyKTKRTy1SJpU2XY8PnPJJJ82cmLNqxJbzspfs86",
+    "5VfN3QtYbqkZsmL5oAEkhN78UeSeLtuH2cavrKEu1tGqe7FkziemEoq2ztbWXSmMbR3CEqDvdv2tyZKGRgAkHW2g",
+    "2mSFLs4vQ8QN2yQRevBw7g6C11NiJSZBPZ4SatCVzptUsAMYjx4XARjBTmb8GQboWHuXYMcQ8aYDQspgCDRpTf6E",
+    "5Nhs4tNBrJmfNmcR9pwzR4Ri94dZJN3QTtggzfb2CUDJwRDgTjFcoB3CGeM6ak58dFkja84KdXJ8imHLtVpwD8z1",
+    "38UuMU1odXG3tKUwbuFPyFXHEoSdV3VCJW9vtw66iwSEmUQVPgVUQMtkTiPM8UdybZzqw7yYLFUD4qAquaZtT4U4",
+    "2Rh1RDtpNQ8VpUp3am1GxKiJaq3wL3KDnsvxie5uykCx61NHbM5GiTQSzCHmqUQWD3p7FWBikSaULiXStSJ5C9j5",
+    "2euekiBanRVYvJzVi7Lzb7yfVSYFfJw62i9j7cYyoSn5zGxMetRiaJnKWGj26yS1ePE7R8UHuVKXNi6veoJWLg64",
+    "3zMdrxiSrHn9WnvVnR2RRcmuzXBJvDnGLLAbMTRUwhhy1yVTyXMugkxHWtCNPNnMjPrSv7s2ucA7zq8k2WoE3a8k",
+    "2eafRdLjDN4gFjYqGYcGtK99AT1kttKpCgL2YR1mZpdbwZ89qbMbHGUCi6pnawizzGvGJ2D6SSR1oM479uxPpSo2",
+    "33q6gmDs4QjvE5nVBtf3TtRLd574WaEBjYJ7do1p15ADpWNg1JcieoxNmX2w9iTHyMWRvVdyypkPbFhqEkY7dmYj",
+    "2v6m73MLMLFrZHevhvx7nMy98MrvN8wQyt1srxucSjQiX9tyV21A4AkEGfveA7StqjdvYz54p2nAtR6vmuzRJmTp",
+    "QSoaQsNp7miixuKvMQDG9MvP9fWduvW87H5BcDajH91pTpowg1VECNMfHMyyaUW9L4mfdHyiCRMqnouNzCuCVeW",
+    "41MAVWmmUJqmx7GNmLCGXZgkrzfTTzcwDbHaozPxPZmCLkzSSfCHs7GTEMS5ZjFLuDe7yaxt34q8giUib8D9R7jd",
+    "5WhRBjR4iYoJV5ufMhiACM4ZtqhQnzNEyA5nhK5XgKESBfj7ed5aRRPJcA6nEgNZaPL9RCQQDiAfC4Qfm3ruCUmh"
+  ],
+  "decoded": [
+    {
+      "blockTime": 1785859854,
+      "sha256": "fb5c0c773c53b7e4bb435858e3e815c254342cf86cba7cf22c43652bd7017948",
+      "signature": "4n89Vx1wHZUcirGdPL4BNfNz8Wtj4i2pTdNhVDk2AFjD6QEGbypkcS3KmxKBqTuzqHj9LdpGvdsXFEi2YwVRhtjX"
+    },
+    {
+      "blockTime": 1786006861,
+      "sha256": "ef7e6507182ed2bf298945b69694a0c5169fd728d53fc8eb159a4c4959b81093",
+      "signature": "44yquUdsQjRqkTYrmVzXrv1CtmDQhc7KXBQr7XxisduSjw1MbXEH1bM4XoNpHFXSUyoBkK3bC7FTxb7CcWzoUw5J"
+    },
+    {
+      "blockTime": 1786179332,
+      "sha256": "84c7008c9fa2063676245739a13c659d7174d512d2f84a55dbdc9c6be8206cfb",
+      "signature": "pbM4xYHLPZbWcwdoe7yKMbdSnadaC1aanvWS71h3n1Swos8swHGg9nBbgHqCtp2dHXVpxZm76cgeV9bBgiPvvC8"
+    },
+    {
+      "blockTime": 1786186554,
+      "sha256": "48e13074d7dcfb050335c74c0988188b2d6cea59e9c5a55d48924ac2eead089e",
+      "signature": "4Z8CBVeXPicKz4jhuXR5JAwDfJHov214SFeSSs2gNSQA9vJiB463dcTxoXpHEifiiyVgU5kWQADQs6k7rob11Dqv"
+    },
+    {
+      "blockTime": 1786187308,
+      "sha256": "eab7911cfe045867bf7b8868975b57e9929ae2cce29559c47b72fbdd8c9f97f6",
+      "signature": "54MAZKQfDfXVefccQnqbLbXKcs4pP47jJJWKSSN24QeD5vFXEyKTKRTy1SJpU2XY8PnPJJJ82cmLNqxJbzspfs86"
+    },
+    {
+      "blockTime": 1786189008,
+      "sha256": "cd7c61b1f6cbc448d8cba80f26bb4f1478345072b0d20aefd3034cf314cf0053",
+      "signature": "5VfN3QtYbqkZsmL5oAEkhN78UeSeLtuH2cavrKEu1tGqe7FkziemEoq2ztbWXSmMbR3CEqDvdv2tyZKGRgAkHW2g"
+    },
+    {
+      "blockTime": 1786196052,
+      "sha256": "20cb3c0c46e127d34acaf86ab1d6a45d461da470e0e2e02945399ae128c448a1",
+      "signature": "2mSFLs4vQ8QN2yQRevBw7g6C11NiJSZBPZ4SatCVzptUsAMYjx4XARjBTmb8GQboWHuXYMcQ8aYDQspgCDRpTf6E"
+    },
+    {
+      "blockTime": 1786198860,
+      "sha256": "da7465408a87b38359c3f0b9f0c8fc03dd3c5c06fff6d0709cfead44a9b4e184",
+      "signature": "5Nhs4tNBrJmfNmcR9pwzR4Ri94dZJN3QTtggzfb2CUDJwRDgTjFcoB3CGeM6ak58dFkja84KdXJ8imHLtVpwD8z1"
+    },
+    {
+      "blockTime": 1786351136,
+      "sha256": "50186465f74f96ef6d1c88a0cbf5d1db70a4a4a91623bb4da84df96370f2b960",
+      "signature": "38UuMU1odXG3tKUwbuFPyFXHEoSdV3VCJW9vtw66iwSEmUQVPgVUQMtkTiPM8UdybZzqw7yYLFUD4qAquaZtT4U4"
+    },
+    {
+      "blockTime": 1786362886,
+      "sha256": "5adc1efd7860bec7f2e3441b940aeb1efc615c8c4abf07a4a38231d2b74985a5",
+      "signature": "2Rh1RDtpNQ8VpUp3am1GxKiJaq3wL3KDnsvxie5uykCx61NHbM5GiTQSzCHmqUQWD3p7FWBikSaULiXStSJ5C9j5"
+    },
+    {
+      "blockTime": 1786366466,
+      "sha256": "b0867cffec081057c51641e07284ebf850361b112a2b0437e2b47fd9394a7f3f",
+      "signature": "2euekiBanRVYvJzVi7Lzb7yfVSYFfJw62i9j7cYyoSn5zGxMetRiaJnKWGj26yS1ePE7R8UHuVKXNi6veoJWLg64"
+    },
+    {
+      "blockTime": 1786519171,
+      "sha256": "bb51282bae5a1b29a84110527d83fa053e4ceb24bc13568b01af5a74d85a42a5",
+      "signature": "3zMdrxiSrHn9WnvVnR2RRcmuzXBJvDnGLLAbMTRUwhhy1yVTyXMugkxHWtCNPNnMjPrSv7s2ucA7zq8k2WoE3a8k"
+    },
+    {
+      "blockTime": 1786522612,
+      "sha256": "d3a5744703aba1ea839f2c88506cfdd1fa0a147a72c4e4e41fadc2439f8af518",
+      "signature": "2eafRdLjDN4gFjYqGYcGtK99AT1kttKpCgL2YR1mZpdbwZ89qbMbHGUCi6pnawizzGvGJ2D6SSR1oM479uxPpSo2"
+    },
+    {
+      "blockTime": 1786543827,
+      "sha256": "071b54b24ba1140fd82a7363c16df680fcd395f49d5a998826b52ac13ee09d9a",
+      "signature": "33q6gmDs4QjvE5nVBtf3TtRLd574WaEBjYJ7do1p15ADpWNg1JcieoxNmX2w9iTHyMWRvVdyypkPbFhqEkY7dmYj"
+    },
+    {
+      "blockTime": 1786544953,
+      "sha256": "e584d67528f03a80299345607a3d8602dc52c30eca5e2559e9e803a9617d8535",
+      "signature": "2v6m73MLMLFrZHevhvx7nMy98MrvN8wQyt1srxucSjQiX9tyV21A4AkEGfveA7StqjdvYz54p2nAtR6vmuzRJmTp"
+    },
+    {
+      "blockTime": 1786563991,
+      "sha256": "af5fa51d6d41a36692926932de785cb05662f0d59155efe17be75ef4c9fa402e",
+      "signature": "QSoaQsNp7miixuKvMQDG9MvP9fWduvW87H5BcDajH91pTpowg1VECNMfHMyyaUW9L4mfdHyiCRMqnouNzCuCVeW"
+    },
+    {
+      "blockTime": 1786600862,
+      "sha256": "7b6a1e00f95ec1d0fdb622c1457d4f565508481f80ae22a781cebcccfddefab4",
+      "signature": "41MAVWmmUJqmx7GNmLCGXZgkrzfTTzcwDbHaozPxPZmCLkzSSfCHs7GTEMS5ZjFLuDe7yaxt34q8giUib8D9R7jd"
+    },
+    {
+      "blockTime": 1786619856,
+      "sha256": "3682c362b024458e7d09aea04cb8ee38823a6bb955879c7328eb90233f777ece",
+      "signature": "5WhRBjR4iYoJV5ufMhiACM4ZtqhQnzNEyA5nhK5XgKESBfj7ed5aRRPJcA6nEgNZaPL9RCQQDiAfC4Qfm3ruCUmh"
+    }
+  ],
+  "history_records": 3000,
+  "signature_calls": 3,
+  "target": 46,
+  "transaction_calls": 18
+}

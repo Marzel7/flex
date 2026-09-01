@@ -26,13 +26,16 @@ def test_cli_acquire_composes_adapter_and_two_depths(tmp_path,monkeypatch):
  def factory(x):
   def open(req,timeout):return R(pages if b'getSignaturesForAddress' in req.data else tx if b'getTransaction' in req.data else owner)
   return RetainedRpcAdapter(ImmutableJsonRpcTransport(tmp_path,'transport','https://fixture',open))
- out=execute_acquire(a,factory);assert out['state']=='PASS' and out['depth_1_seeds']==100 and (tmp_path/'run'/'lifecycle.jsonl').exists()
+ out=execute_acquire(a,factory);assert out['state']=='PASS' and out['depth_1_seed_count']==100 and len(out['depth_1_seeds'])==100 and out['depth_1_seeds']==[f's{i}' for i in range(100)] and (tmp_path/'run'/'lifecycle.jsonl').exists()
  a.mode='replay';assert execute_replay(a)['state']=='PASS_REPLAY'
 
 def test_main_invokes_acquire_factory(tmp_path,monkeypatch):
  monkeypatch.setenv('FIXTURE_PROVIDER','https://fixture');a=args(tmp_path);seen=[]
  class A:
-  class T: root=tmp_path/'transport'
+  class T:
+   root=tmp_path/'transport'
+   def replay(self,rid): return {'response_sha256':'fixture-response-'+rid}
+   def records(self): return [{'request_sha256':'fixture-request','response_sha256':'fixture-response'}]
   transport=T()
   def extract(self,w): seen.append(w);return type('X',(),{'parent_wallet':None,'signature':None,'slot':None,'block_time':None,'amount_sol':None,'mechanism':None,'state':'NO_QUALIFYING_PARENT'})(),['id-'+w]
  argv=['--manifest',a.manifest,'--manifest-sha',a.manifest_sha,'--run-dir',a.run_dir,'--contract-sha',a.contract_sha,'--track-sha',a.track_sha,'--track-count','21594','--provider-env','FIXTURE_PROVIDER','--mode','acquire']

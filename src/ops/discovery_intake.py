@@ -67,7 +67,11 @@ def fetch_discovery_intake_candidates(corpus_db_path: str, *, known_operator_ent
                 "profile_href": "/intelligence/operations/" + row["family_id"],
             },
             "reconciliation": {"contradictory_evidence_count": 0},
-            "candidate_role": "PROVISIONING_NETWORK_CANDIDATE",
+            # A shared direct-funding relationship establishes a funding
+            # structure, not common operational identity.  Human review may
+            # subsequently establish a more specific entity role or operation
+            # candidate, but this read-only intake must not do that inference.
+            "candidate_role": "FUNDING_STRUCTURE",
             "discovery_classification": row["classification"],
             "discovery_attribution_state": row["attribution_state"],
             "cex_infra_hop_distance": row["cex_infra_hop_distance"],
@@ -144,7 +148,7 @@ def fetch_discovery_family_detail(corpus_db_path: str, family_id: str) -> dict |
         for edge in funding_edges
     ]
     operational_role = {
-        "current_role": "Provisioning Controller",
+        "current_role": "Funding Structure",
         "evidence_backed": bool(observed_relationships),
         "observed_relationships": observed_relationships,
         "edges": [{
@@ -173,7 +177,7 @@ def fetch_discovery_family_detail(corpus_db_path: str, family_id: str) -> dict |
             "contradictory_evidence": [],
             "missing_evidence": [],
         },
-        "candidate_role": "PROVISIONING_NETWORK_CANDIDATE",
+        "candidate_role": "FUNDING_STRUCTURE",
         "operational_role": operational_role,
         "discovery_classification": row["classification"],
         "discovery_attribution_state": row["attribution_state"],

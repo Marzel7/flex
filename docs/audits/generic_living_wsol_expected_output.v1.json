@@ -1,0 +1,1014 @@
+{
+  "assessment_digest": "3165852e42ed5601465962d42b246cc809e02dc66c6329d6a5aefb6bd9849b5a",
+  "assessment_payload": {
+    "attribution": {
+      "common_controller_proven": false,
+      "conclusion": "INDEPENDENT_FUNDER_INFRASTRUCTURE",
+      "direct_transfers_mean": "funding connectivity, not common control"
+    },
+    "candidate_lineage": {
+      "candidate_id": "p3r-v2-c357da9d0d4d560311e4",
+      "canonical_run_id": "p3r-v2-2dec1d40604c1f7c08c8"
+    },
+    "caveats": {
+      "direct_funder_overlap": "Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB",
+      "false_positive_histories_rpc_audited": false,
+      "immediate_predecessor_history": "bounded-window limitation",
+      "retained_false_positive_comparison_cases": 5
+    },
+    "detector_activation": "NO",
+    "evidence_generation": "000000037922:000000073534:000000008354",
+    "potential_operation_id": "potential-wsol-provision-close-100-sol-minus-15k",
+    "promotion": "NO",
+    "registered_membership_change": "NO",
+    "schema_version": "living_potential_operation.wsol.v1",
+    "source_high_waters": {
+      "wt_walkback_atomic_flows": 8354,
+      "wt_walkback_edge_candidates": 73534,
+      "wt_walkback_queue": 37922
+    },
+    "status": "PAUSED",
+    "typed_populations": {
+      "current_alternative_edge_members": {
+        "count": 71,
+        "source": "wt_walkback_edge_candidates",
+        "state": "UNRESOLVED"
+      },
+      "current_atomic_flow_members": {
+        "count": 71,
+        "source": "wt_walkback_atomic_flows"
+      },
+      "current_persisted_p3r_v2_mapped_candidate_population": {
+        "count": 284,
+        "not_proven_membership": true,
+        "source": "all persisted P3R-v2 runs"
+      },
+      "current_selected_edge_members": {
+        "count": 71,
+        "source": "wt_walkback_edge_candidates"
+      },
+      "frozen_canonical_c357_cohort": {
+        "count": 71,
+        "source": "canonical P3R-v2 run"
+      },
+      "frozen_distinct_direct_funders": {
+        "count": 49,
+        "source": "wt_walkback_queue"
+      },
+      "remaining_launch_linked_upstreams_resolved": {
+        "count": 69,
+        "denominator": 69,
+        "source": "retained historical snapshot"
+      },
+      "snapshot_v2_matched_routes": {
+        "count": 99,
+        "source": "retained historical snapshot"
+      },
+      "ui_rendered_upstream_mappings": {
+        "count": 50,
+        "source": "retained historical UI projection"
+      }
+    }
+  },
+  "association_counts": {
+    "CONTRADICTORY": 1,
+    "EXCLUDED": 1,
+    "INCLUDED": 72,
+    "UNRESOLVED": 52
+  },
+  "candidate_id": "p3r-v2-c357da9d0d4d560311e4",
+  "capture_method": "active persisted known-good state; generic v2 not used",
+  "frozen_boundary": "000000037922:000000073534:000000008354",
+  "normalized_associations": [
+    {
+      "evidence_key": "population:alternative-edge",
+      "evidence_type": "ALTERNATIVE_EDGE_SUPPORT",
+      "rationale_json": "{\"count\": 71}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "population:atomic-flow",
+      "evidence_type": "ATOMIC_FLOW_SUPPORT",
+      "rationale_json": "{\"count\": 71}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "population:compatible-unattributed",
+      "evidence_type": "COMPATIBLE_LAUNCH_SET",
+      "rationale_json": "{\"reason\": \"compatible behaviour is not automatic attribution\"}",
+      "state": "EXCLUDED"
+    },
+    {
+      "evidence_key": "funder:2fJCPb27tQhbnX4s3sTJvjzK1deawkREkKjCKS7PjF9g",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:2h2xdvznzmcRi4zNE8A3uwe4Er5e5bf8gTxzXREg9ph5",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:397s3pwPhV1A88Fj2EuNoERFYTCLdN5WiUAPvxUxFVST",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:3thxdSxsHtFuGJroCYe6JmCojPRizUz1GnvQSq5M5JfY",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:49Wo4qJS1CWPd4b8LAezyL4ARPj3fw6N6zPhPV4dQd6V",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:54xTpcBEr48Cuis8m2SdeymdQcwvmDR4aegxCPQzUANG",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:59MGbbjnBsNKNbTXsd4cc83doHgpkJBdotigvZ6WxjLX",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:5PkFFC9FCmm2EUQHMqbF9cwMviSXjgAjeqKEoPoYejuG",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:5TR1KXium6nxovUUXbofK2N1uYPh9NA8w9WpvvKZ3Myi",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:5iDYsDLugMXh1LTRVDmFH8PfQ6ueG5pE9UcfefrnztB6",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:5sUoQPPvnvS6eXem4TdcjKJ1JZy7uLEhWN3pCA8yNFnc",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:6hakQXcUcnk1EuuGMHsDPw9iP4GPwjUtHxxPAvGnPj3L",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:6jJnz6ZQjDZeFLxoDq2RBp4fvsjPfCJmpr1jhQcy2rBk",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:7144mX5peoQoyYq2ncsTmzFciqkLiYzS42XVmvFjGiv4",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:7DifG8cHrQBAAKjqoLCnfzj8khtnYLPE39GnWgEnLP8d",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:9As8wexRUtoujuYia5WxpiUCbjut75XTb9LknATiXvRW",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:AW7FZRzGUA8HnRWTsGbEDogAh4Y2Utv2KBqALEvfGLqb",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:AhfDWL1mi2xajF7JWGDzmTiqvtRxD7JDWHkaZVnmUvw7",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:Am3Un7bph5NNWDLCVVVQT1kY4kN3GFPjj31g4DdrNCd4",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:Ao2sUdoFtKW7yix7v6GT8GoWE94LcgHiyjautukHBKAi",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:BsKEb5qhnHMFP4XUjoXMv5nMxkvuaFtBH5ssuWNMjLbw",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:C2W3FExk348T4aNHpJjiCZpNrpd9MNLBBVZAdWCogtBx",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:C55hxeJepPLMKi4xuKjAFLWmxoSfVrqn2LELi67ixQfe",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:CYnm5v4MiLLLaUvu5VUfYPxszU8RPBzmH3Qkv7QbfcUi",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:CbMTzd1sG9vuP9Tw2nUNBHUvtsyzr4Hm5rknri4XxXWL",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:DPAy3sFUsUWVRCGaMKse2hVYR5kKU7Yr4cE1eM5EwvgA",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:DmfxzqZQTifJQhfrikFdDQXy3Ws6X9H3VX5xkRVTf77y",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:FJrraJVwKYdcLX4we8UttdJGvxErgUKWf6awnVSsxArH",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:G1BJvTetp6YSwaDNSajruPPM1JCTZf5NWeyr6dQN94n7",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:G9XSZDgMk8x51uHvFUumZK5AFWJLp3GJCV7VZSkL3uGP",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:GUBtBg8i5wn5ME3vYmgqMZFFuBnDp6i1oa8BPFwoURAP",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:Gy29oqrQGFsP8cSsZ4eJvmMDMvKeYtWgURGCn5jim9Xn",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:HQ2q5DJuAVf1CrDJpwmeSYsLgvGp9k5cGEPZQsNvcMW9",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:HRneLKJHUHXJr9zb297N44L8WCUqCJYKDsSxDaPv49wS",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:HS5GjB4KTJbbBdYHkJV8qDpq8gmU9wck2qsxgz3ifgke",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:J37JdYS3hpMB3iW8tgUdfFrrBu4X6o9PT3SguxpHXJVW",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:J87ewUdaYKXaMVZEdKh14fMcKXaAmzGamzGtaXDop13X",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:NeHjc1yqZXesLZTHtK7jrjyQ3MpFg2TVHpV8QDDAHEm",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "funder:j6EVoUMZRafJPrdkuoB9PJGXxBGHEsx4VcJq5W3Ft5d",
+      "evidence_type": "DIRECT_FUNDER_CONNECTIVITY",
+      "rationale_json": "{\"common_control_proven\": false, \"meaning\": \"funding connectivity only\"}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "caveat:false-positives",
+      "evidence_type": "FALSE_POSITIVE_COMPARISON",
+      "rationale_json": "{\"count\": 5, \"histories_rpc_audited\": false}",
+      "state": "CONTRADICTORY"
+    },
+    {
+      "evidence_key": "mint:BT9JV4F3t58yyeELzXo72jL6C1fWp8SQRM3i3B9pump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:CPM7DGwsFCyT2kHqzEwf4moWKnCiYh5czdbyr7apump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:CiKMVEVMCZSTXwQwqrwE3GZLne982oHkAdq7Yz3pump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:Cj7up2N4yXdzZmLYNaiPt6zye4VWoWHsyeCobEDpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:DqErYkksQymp8sVr2HkrJbVWkv1YXrz3keWKBfHpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:EakWrE5ehWTkJkhSPp861abPiDg4BDW72KVMR2Qpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:GhvrrotDtMYKFjWpeuTxgskYRji3N2u5TeYToZwpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:GkyDShEPTvXw6CacK76yxSzA9seHbyPfpRK1AuTpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:HUNHEFrs7pFJpd1R7bYq6vT9GigRk3rV9av63ZVpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:JHkAR9egULFbv1PfGLky5NvahfQwWJRDH4zJMsWpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:JzXZKSJZvtS3scMCcmXWUJGxRTBfnociHXVXKRvpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:LyqncnAuRYisshpv1u12B6pCD7SASdyFj1itCUcpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:MW7ePAAMjxWyezTKtnvYXewrN5H4CHrv1HYkhabpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:N2JuKvtCqPyqZbduGD2uhuhWFZ9qARxzuuYYkfBpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:Q3FHwyr9AFZvFJUyFduoGrnJE5gAgq7UGQWVn2Kpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:Qqq9SveDjjYJc3jFYwopxEFhuV7SwMtcixr3skdpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:R39ag2yKJVxJiHUxBy1xUEUc55kADNicLb9idNnpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:RAjnSnVnRmf8Za8MggRPRmjkY2ZQkK7HiXYz4YSpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:S3jLzSX9NKbtdUVGTzoeYFMty5xXRYvzTbFASXUpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:SrAJUQS6snqHUATSX4Jmvb4vZpgmQevqeWbzUEVpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:TwA2K5KnYpyNeu7dxeNY3yS4uCR5KrRRh9FPLDHpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:UMVSuCPVE5H1SbEZ5X32iu3Jcs67ySZ1iMuiyaWpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:UkCrzRHSB7jDqMzfLEyAA6A68ibzWZpBWvdY2y4pump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:UroXqz24UCoMy1LpQJVQjJEyeKzBh6aYPq4b487pump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:UsCT9cALz6uba94mdUByBLZgP3Dp5sW7Mv7ZgJPpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:UwMkVQDeXLpbCXcHp5P9yVAneejwwbviFfBJFRXpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:VByVzKnqKM6QGCJs9JwxGs4RJC8kdtwtn6FnfXMpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:W7Fnj98a3jY9aoP9kd25taK66eJ1uS6b6VjpKtJpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:WLjqiHSEWgHVkX9JWJXgXDhX9XTCtSSj3EdyB4Cpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:WV1UndBXx7eGbtA7B6Q7HEnX1mN8DL3XdGDN9Jupump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:Y7u2wWcosZTHagBjua7W3ddwsmD4ZGhZYH2keASpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:YBemckTiUgK4sL6Xv2yktkgoYydrSqRmWJyWAZJpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:YKA5o87oHTTSAsbq1ZPHq6zF1cCaW8HoyhWcpjkpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:ZMA7yJNeXUwcUdGWXzw654ZX6k1tj3zgqL7qrFBpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:ZjDVmGGAkmj1aj8Le3uGoaUiz39jEyKH6VP7dzQpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:ZpQmhQvEpasHYF2gDrDJXaYZVDJxJUZRt9vvHbUpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:ZzWhbH8LrTjx8uCQgE2SEue3jiYWKAm7RGTCYH8pump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:aDdwL6dso6ZD6Rag2FZTURzADRiyXxFVeT23ri6pump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:apSur7K2VY3XsRUSSFDgJUYhdgW2zfRHLFvKUHKpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:aqu8vj7snoqUJsTuC5UemhvNWeMJzWu6qbpa3jnpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:awwz1zgwET9MtvRSZ9CUZ5QpLFviT9fFv53CpDApump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:brj1EEqhenNSLbnjdNyok33yLpxBwvyFheRctCKpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:c9SFiUUHzra78qJinqxSntvpBmJjXdGYDcMMNkXpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:dFf5c8PKTpFcZN64RdVWHkwbCYkxnj9yzPw8QpJpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:eMD1zv3m9ArePAtXYEVFG9tbXfwDzY8GyFMxbPopump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:f73NdtHMKwTeTy3KRpRDxZe7yopu9toZ7P5sFmapump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:g1CbgSCD1H48Mnx9VSL7cpwJ5auX8Ky1cNUH9BQpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:jmM56TE7ko4jUzmzJ523W1b3872jMXKoiwsJLUKpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:kPTzLD8x9n3xLVrtjdk4qbxUr3it6Ea8ZpkHpCBpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:kZBroKqYaSrHxKV3vLmRGTW7Tw1q2WQ1wte6PNJpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:keZ4mAQQqREHoZeC3HcZNpVC1qSGX4kiWC7vdtvpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:mP4AehV2DV4KdNcZkjih6wwLDE8ouUz6ns2FB3tpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:nMSCXsLXZ3R7NBKNDiaYw7CZh7KYs4CyWMEVWNbpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:nobzQmhM6x86Y8WdrgH21AKuVrJ5mJmkBmJU9Lqpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:o8uMYvNkndS6rSRPrV16d8LgJ1V732RxmZuzT8xpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:oruyBzARjKtPNvRhcT5nR4bzYt5SM8uCv74j84epump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:osxeVkLpan3NyZsRDcdWiEuWBFHA6or59UshcaRpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:p6Dydex88SswnKT9pRnjPwrCfHpw1c79FAAu81Upump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:puhW9nSz4rczEtWNM6TH1zYikSmapRu2PxdSXwfpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:qcawC8mNoMy2C597kxDUMHbHJaZ5D4nPR2dvDoXpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:rRGoXVsKJtZGgPqwShxiSD8pcpyH5qXhthqFT5Hpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:s26oUz2BVe5gpY3D4qYCXWBPwDDoB9AYfFsHCehpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:shhJVNYRrzuBzKCBKcu6yuYEMLicmztd5Wiw6zfpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:svVnLbfCPjKAZ4suNYDfebJZ8AfhiTysVQwn3fZpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:tpx8GumtoKhXeba859s1ka7grY8m5zcQ8yPnZnSpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:vKPT1gGoRGsdzaGpQB2K2xAZGtmgjVNm8kNJvSvpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:wFUJbWiV4wKK6BJJQdojJbgbd4Y51M3i3nA9VKLpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:wQFd44Kh6nsrXn49vcu4bpjDCqe18iTGYzTgcWppump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:x7ofxncQVmMK3PDXVJF76uJ5JkgzX3x3eUGXkjopump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:yfmKCjYvHsD17w2xvKLBRrmzF58nZyXH25reGwLpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "mint:z5vGP66VUGSrT5WyfEs9QGB1VJiKh5Lhx2DeggCpump",
+      "evidence_type": "FROZEN_C357_SELECTED_MEMBER",
+      "rationale_json": "{\"lineage\": \"canonical selected-edge cohort\"}",
+      "state": "INCLUDED"
+    },
+    {
+      "evidence_key": "caveat:predecessor-window",
+      "evidence_type": "HISTORY_SELECTION_LIMITATION",
+      "rationale_json": "{\"bounded_window\": true}",
+      "state": "UNRESOLVED"
+    },
+    {
+      "evidence_key": "population:p3r-v2-mapped",
+      "evidence_type": "MAPPED_CANDIDATE_POPULATION",
+      "rationale_json": "{\"count\": 284, \"not_membership\": true}",
+      "state": "UNRESOLVED"
+    }
+  ],
+  "potential_operation_id": "potential-wsol-provision-close-100-sol-minus-15k",
+  "resolver_keys": [
+    "funder:2fJCPb27tQhbnX4s3sTJvjzK1deawkREkKjCKS7PjF9g",
+    "funder:2h2xdvznzmcRi4zNE8A3uwe4Er5e5bf8gTxzXREg9ph5",
+    "funder:397s3pwPhV1A88Fj2EuNoERFYTCLdN5WiUAPvxUxFVST",
+    "funder:3SGLATySSaPmMy8Y4EMxfwDkPFyfmGVJ6VvwDD9H5DM7",
+    "funder:3thxdSxsHtFuGJroCYe6JmCojPRizUz1GnvQSq5M5JfY",
+    "funder:49Wo4qJS1CWPd4b8LAezyL4ARPj3fw6N6zPhPV4dQd6V",
+    "funder:54xTpcBEr48Cuis8m2SdeymdQcwvmDR4aegxCPQzUANG",
+    "funder:59MGbbjnBsNKNbTXsd4cc83doHgpkJBdotigvZ6WxjLX",
+    "funder:5PkFFC9FCmm2EUQHMqbF9cwMviSXjgAjeqKEoPoYejuG",
+    "funder:5TR1KXium6nxovUUXbofK2N1uYPh9NA8w9WpvvKZ3Myi",
+    "funder:5X5TWBGMCxAsDak4kGrA91EdooQZ6Eo4PXSMxswSDFgn",
+    "funder:5iDYsDLugMXh1LTRVDmFH8PfQ6ueG5pE9UcfefrnztB6",
+    "funder:5sUoQPPvnvS6eXem4TdcjKJ1JZy7uLEhWN3pCA8yNFnc",
+    "funder:6hakQXcUcnk1EuuGMHsDPw9iP4GPwjUtHxxPAvGnPj3L",
+    "funder:6jJnz6ZQjDZeFLxoDq2RBp4fvsjPfCJmpr1jhQcy2rBk",
+    "funder:7144mX5peoQoyYq2ncsTmzFciqkLiYzS42XVmvFjGiv4",
+    "funder:7DifG8cHrQBAAKjqoLCnfzj8khtnYLPE39GnWgEnLP8d",
+    "funder:7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv",
+    "funder:9As8wexRUtoujuYia5WxpiUCbjut75XTb9LknATiXvRW",
+    "funder:9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp",
+    "funder:AW7FZRzGUA8HnRWTsGbEDogAh4Y2Utv2KBqALEvfGLqb",
+    "funder:AhfDWL1mi2xajF7JWGDzmTiqvtRxD7JDWHkaZVnmUvw7",
+    "funder:Am3Un7bph5NNWDLCVVVQT1kY4kN3GFPjj31g4DdrNCd4",
+    "funder:Ao2sUdoFtKW7yix7v6GT8GoWE94LcgHiyjautukHBKAi",
+    "funder:BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH",
+    "funder:BsKEb5qhnHMFP4XUjoXMv5nMxkvuaFtBH5ssuWNMjLbw",
+    "funder:C2W3FExk348T4aNHpJjiCZpNrpd9MNLBBVZAdWCogtBx",
+    "funder:C55hxeJepPLMKi4xuKjAFLWmxoSfVrqn2LELi67ixQfe",
+    "funder:CYnm5v4MiLLLaUvu5VUfYPxszU8RPBzmH3Qkv7QbfcUi",
+    "funder:CbMTzd1sG9vuP9Tw2nUNBHUvtsyzr4Hm5rknri4XxXWL",
+    "funder:CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5",
+    "funder:DPAy3sFUsUWVRCGaMKse2hVYR5kKU7Yr4cE1eM5EwvgA",
+    "funder:Deri1SyKp2GKERY8nu2hddGLmA4Yr1dPWzqweStDyTaB",
+    "funder:DmfxzqZQTifJQhfrikFdDQXy3Ws6X9H3VX5xkRVTf77y",
+    "funder:F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229",
+    "funder:FJrraJVwKYdcLX4we8UttdJGvxErgUKWf6awnVSsxArH",
+    "funder:FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD",
+    "funder:G1BJvTetp6YSwaDNSajruPPM1JCTZf5NWeyr6dQN94n7",
+    "funder:G9XSZDgMk8x51uHvFUumZK5AFWJLp3GJCV7VZSkL3uGP",
+    "funder:GUBtBg8i5wn5ME3vYmgqMZFFuBnDp6i1oa8BPFwoURAP",
+    "funder:Gy29oqrQGFsP8cSsZ4eJvmMDMvKeYtWgURGCn5jim9Xn",
+    "funder:HQ2q5DJuAVf1CrDJpwmeSYsLgvGp9k5cGEPZQsNvcMW9",
+    "funder:HRneLKJHUHXJr9zb297N44L8WCUqCJYKDsSxDaPv49wS",
+    "funder:HS5GjB4KTJbbBdYHkJV8qDpq8gmU9wck2qsxgz3ifgke",
+    "funder:HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+    "funder:J37JdYS3hpMB3iW8tgUdfFrrBu4X6o9PT3SguxpHXJVW",
+    "funder:J87ewUdaYKXaMVZEdKh14fMcKXaAmzGamzGtaXDop13X",
+    "funder:NeHjc1yqZXesLZTHtK7jrjyQ3MpFg2TVHpV8QDDAHEm",
+    "funder:j6EVoUMZRafJPrdkuoB9PJGXxBGHEsx4VcJq5W3Ft5d",
+    "mint:BT9JV4F3t58yyeELzXo72jL6C1fWp8SQRM3i3B9pump",
+    "mint:CPM7DGwsFCyT2kHqzEwf4moWKnCiYh5czdbyr7apump",
+    "mint:CiKMVEVMCZSTXwQwqrwE3GZLne982oHkAdq7Yz3pump",
+    "mint:Cj7up2N4yXdzZmLYNaiPt6zye4VWoWHsyeCobEDpump",
+    "mint:DqErYkksQymp8sVr2HkrJbVWkv1YXrz3keWKBfHpump",
+    "mint:EakWrE5ehWTkJkhSPp861abPiDg4BDW72KVMR2Qpump",
+    "mint:GhvrrotDtMYKFjWpeuTxgskYRji3N2u5TeYToZwpump",
+    "mint:GkyDShEPTvXw6CacK76yxSzA9seHbyPfpRK1AuTpump",
+    "mint:HUNHEFrs7pFJpd1R7bYq6vT9GigRk3rV9av63ZVpump",
+    "mint:JHkAR9egULFbv1PfGLky5NvahfQwWJRDH4zJMsWpump",
+    "mint:JzXZKSJZvtS3scMCcmXWUJGxRTBfnociHXVXKRvpump",
+    "mint:LyqncnAuRYisshpv1u12B6pCD7SASdyFj1itCUcpump",
+    "mint:MW7ePAAMjxWyezTKtnvYXewrN5H4CHrv1HYkhabpump",
+    "mint:N2JuKvtCqPyqZbduGD2uhuhWFZ9qARxzuuYYkfBpump",
+    "mint:Q3FHwyr9AFZvFJUyFduoGrnJE5gAgq7UGQWVn2Kpump",
+    "mint:Qqq9SveDjjYJc3jFYwopxEFhuV7SwMtcixr3skdpump",
+    "mint:R39ag2yKJVxJiHUxBy1xUEUc55kADNicLb9idNnpump",
+    "mint:RAjnSnVnRmf8Za8MggRPRmjkY2ZQkK7HiXYz4YSpump",
+    "mint:S3jLzSX9NKbtdUVGTzoeYFMty5xXRYvzTbFASXUpump",
+    "mint:SrAJUQS6snqHUATSX4Jmvb4vZpgmQevqeWbzUEVpump",
+    "mint:TwA2K5KnYpyNeu7dxeNY3yS4uCR5KrRRh9FPLDHpump",
+    "mint:UMVSuCPVE5H1SbEZ5X32iu3Jcs67ySZ1iMuiyaWpump",
+    "mint:UkCrzRHSB7jDqMzfLEyAA6A68ibzWZpBWvdY2y4pump",
+    "mint:UroXqz24UCoMy1LpQJVQjJEyeKzBh6aYPq4b487pump",
+    "mint:UsCT9cALz6uba94mdUByBLZgP3Dp5sW7Mv7ZgJPpump",
+    "mint:UwMkVQDeXLpbCXcHp5P9yVAneejwwbviFfBJFRXpump",
+    "mint:VByVzKnqKM6QGCJs9JwxGs4RJC8kdtwtn6FnfXMpump",
+    "mint:W7Fnj98a3jY9aoP9kd25taK66eJ1uS6b6VjpKtJpump",
+    "mint:WLjqiHSEWgHVkX9JWJXgXDhX9XTCtSSj3EdyB4Cpump",
+    "mint:WV1UndBXx7eGbtA7B6Q7HEnX1mN8DL3XdGDN9Jupump",
+    "mint:Y7u2wWcosZTHagBjua7W3ddwsmD4ZGhZYH2keASpump",
+    "mint:YBemckTiUgK4sL6Xv2yktkgoYydrSqRmWJyWAZJpump",
+    "mint:YKA5o87oHTTSAsbq1ZPHq6zF1cCaW8HoyhWcpjkpump",
+    "mint:ZMA7yJNeXUwcUdGWXzw654ZX6k1tj3zgqL7qrFBpump",
+    "mint:ZjDVmGGAkmj1aj8Le3uGoaUiz39jEyKH6VP7dzQpump",
+    "mint:ZpQmhQvEpasHYF2gDrDJXaYZVDJxJUZRt9vvHbUpump",
+    "mint:ZzWhbH8LrTjx8uCQgE2SEue3jiYWKAm7RGTCYH8pump",
+    "mint:aDdwL6dso6ZD6Rag2FZTURzADRiyXxFVeT23ri6pump",
+    "mint:apSur7K2VY3XsRUSSFDgJUYhdgW2zfRHLFvKUHKpump",
+    "mint:aqu8vj7snoqUJsTuC5UemhvNWeMJzWu6qbpa3jnpump",
+    "mint:awwz1zgwET9MtvRSZ9CUZ5QpLFviT9fFv53CpDApump",
+    "mint:brj1EEqhenNSLbnjdNyok33yLpxBwvyFheRctCKpump",
+    "mint:c9SFiUUHzra78qJinqxSntvpBmJjXdGYDcMMNkXpump",
+    "mint:dFf5c8PKTpFcZN64RdVWHkwbCYkxnj9yzPw8QpJpump",
+    "mint:eMD1zv3m9ArePAtXYEVFG9tbXfwDzY8GyFMxbPopump",
+    "mint:f73NdtHMKwTeTy3KRpRDxZe7yopu9toZ7P5sFmapump",
+    "mint:g1CbgSCD1H48Mnx9VSL7cpwJ5auX8Ky1cNUH9BQpump",
+    "mint:jmM56TE7ko4jUzmzJ523W1b3872jMXKoiwsJLUKpump",
+    "mint:kPTzLD8x9n3xLVrtjdk4qbxUr3it6Ea8ZpkHpCBpump",
+    "mint:kZBroKqYaSrHxKV3vLmRGTW7Tw1q2WQ1wte6PNJpump",
+    "mint:keZ4mAQQqREHoZeC3HcZNpVC1qSGX4kiWC7vdtvpump",
+    "mint:mP4AehV2DV4KdNcZkjih6wwLDE8ouUz6ns2FB3tpump",
+    "mint:nMSCXsLXZ3R7NBKNDiaYw7CZh7KYs4CyWMEVWNbpump",
+    "mint:nobzQmhM6x86Y8WdrgH21AKuVrJ5mJmkBmJU9Lqpump",
+    "mint:o8uMYvNkndS6rSRPrV16d8LgJ1V732RxmZuzT8xpump",
+    "mint:oruyBzARjKtPNvRhcT5nR4bzYt5SM8uCv74j84epump",
+    "mint:osxeVkLpan3NyZsRDcdWiEuWBFHA6or59UshcaRpump",
+    "mint:p6Dydex88SswnKT9pRnjPwrCfHpw1c79FAAu81Upump",
+    "mint:puhW9nSz4rczEtWNM6TH1zYikSmapRu2PxdSXwfpump",
+    "mint:qcawC8mNoMy2C597kxDUMHbHJaZ5D4nPR2dvDoXpump",
+    "mint:rRGoXVsKJtZGgPqwShxiSD8pcpyH5qXhthqFT5Hpump",
+    "mint:s26oUz2BVe5gpY3D4qYCXWBPwDDoB9AYfFsHCehpump",
+    "mint:shhJVNYRrzuBzKCBKcu6yuYEMLicmztd5Wiw6zfpump",
+    "mint:svVnLbfCPjKAZ4suNYDfebJZ8AfhiTysVQwn3fZpump",
+    "mint:tpx8GumtoKhXeba859s1ka7grY8m5zcQ8yPnZnSpump",
+    "mint:vKPT1gGoRGsdzaGpQB2K2xAZGtmgjVNm8kNJvSvpump",
+    "mint:wFUJbWiV4wKK6BJJQdojJbgbd4Y51M3i3nA9VKLpump",
+    "mint:wQFd44Kh6nsrXn49vcu4bpjDCqe18iTGYzTgcWppump",
+    "mint:x7ofxncQVmMK3PDXVJF76uJ5JkgzX3x3eUGXkjopump",
+    "mint:yfmKCjYvHsD17w2xvKLBRrmzF58nZyXH25reGwLpump",
+    "mint:z5vGP66VUGSrT5WyfEs9QGB1VJiKh5Lhx2DeggCpump"
+  ],
+  "schema_version": "generic_living_expected_output.v1",
+  "source_high_waters": {
+    "wt_walkback_atomic_flows": 8354,
+    "wt_walkback_edge_candidates": 73534,
+    "wt_walkback_queue": 37922
+  },
+  "ui_projection": {
+    "evidence_generation": "000000037922:000000073534:000000008354",
+    "status": "PAUSED",
+    "typed_metrics": {
+      "current_alternative_edge_members": {
+        "count": 71,
+        "source": "wt_walkback_edge_candidates",
+        "state": "UNRESOLVED"
+      },
+      "current_atomic_flow_members": {
+        "count": 71,
+        "source": "wt_walkback_atomic_flows"
+      },
+      "current_persisted_p3r_v2_mapped_candidate_population": {
+        "count": 284,
+        "not_proven_membership": true,
+        "source": "all persisted P3R-v2 runs"
+      },
+      "current_selected_edge_members": {
+        "count": 71,
+        "source": "wt_walkback_edge_candidates"
+      },
+      "frozen_canonical_c357_cohort": {
+        "count": 71,
+        "source": "canonical P3R-v2 run"
+      },
+      "frozen_distinct_direct_funders": {
+        "count": 49,
+        "source": "wt_walkback_queue"
+      },
+      "remaining_launch_linked_upstreams_resolved": {
+        "count": 69,
+        "denominator": 69,
+        "source": "retained historical snapshot"
+      },
+      "snapshot_v2_matched_routes": {
+        "count": 99,
+        "source": "retained historical snapshot"
+      },
+      "ui_rendered_upstream_mappings": {
+        "count": 50,
+        "source": "retained historical UI projection"
+      }
+    }
+  }
+}

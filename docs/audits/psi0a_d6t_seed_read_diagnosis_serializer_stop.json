@@ -1,0 +1,46 @@
+{
+  "artifact": "PSI0A-D6T",
+  "created_at": "2026-08-14T13:34:55Z",
+  "engineering_revision": "c449b221c4e5cf4916b38f41251a7b193ffecd71",
+  "scope": "bounded local and production-telemetry read-only startup seed-read diagnosis",
+  "verdict": "PARTIAL_STOP_SERIALIZER_P99",
+  "preflight": {
+    "listener_pid_expected": 1595,
+    "listener_pid_observed": 1595,
+    "evidence_writer": "STOPPED"
+  },
+  "stop": {
+    "condition": "serializer p99 reached or exceeded 1000 ms",
+    "p99_wait_ms": 1075.63,
+    "p95_wait_ms": 68.36,
+    "queue_depth": 0,
+    "lock_errors_24h": 0,
+    "listener_pid_changed": false
+  },
+  "bounded_findings_before_stop": {
+    "function": "watchtower_listener._seed_trade_subscriptions._seed_read",
+    "execution": "asyncio.to_thread",
+    "connection": "managed_db_connect with read_only=true and timeout=5",
+    "query_shape": "SELECT mint from token_analysis with source_platform/lifecycle_stage predicates, CASE expression plus analyzed_at ordering, LIMIT 200",
+    "explicit_query_deadline": false,
+    "lifecycle_observation_from_D6S": {
+      "age_seconds": 43.2,
+      "state": "OWNER_THREAD_CLEANUP_REQUIRED",
+      "transaction_open": false,
+      "write_lane_owned": false,
+      "primary_fd_count": 10,
+      "registry_fd_delta": 9
+    },
+    "interpretation": "the tracked read connection is managed but its query lifetime is not bounded by an active SQLite progress-handler deadline; completion ordering and nine-descriptor attribution remain unproven because the serializer stop gate fired"
+  },
+  "not_completed": [
+    "owner-thread cleanup completion correlation",
+    "nine untracked descriptor attribution",
+    "startup-only versus recurrent classification",
+    "final repair verdict"
+  ],
+  "production_database_queries": 0,
+  "production_mutations": 0,
+  "service_actions": 0,
+  "provider_calls": 0
+}

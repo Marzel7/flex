@@ -1,0 +1,28 @@
+{
+  "artifact_type": "PUMPFUN_ALCHEMY_ARCHIVED_BONDING_CURVE_RAW_V1",
+  "provider": "Alchemy Solana Account Archive",
+  "retrieved_at_utc": "2026-09-01T16:55:42.652230Z",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": "macrohard-prebuy-retention",
+    "method": "getAccountInfo",
+    "account": "FJPbTzeUy4pzPT3r7c2fNxccNvvhbC7LJkSqXux8xU1g",
+    "config": {"encoding": "base64", "slot": 443375106}
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": "macrohard-prebuy-retention",
+    "context": {"apiVersion": "4.1.0", "slot": 443375106},
+    "value": {
+      "data": ["F7f4N2DYrGCJZswS2psBAJRrBI0QAAAAic65xkidAACUv+CQCQAAAACAxqR+jQMAAP1Zyl9LbWDmyps5BV+gIr3dpF+Qivkth2MG6eQSbD3gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==", "base64"],
+      "executable": false,
+      "lamports": 41087295716,
+      "owner": "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+      "rentEpoch": 18446744073709551615,
+      "space": 151
+    }
+  },
+  "credential_not_recorded": true,
+  "raw_decoded_account_bytes_sha256": "66bbeaff4a1a4e8d3a4ddcb3dd822d00efcc39e6d4677d890ef702de0bccf936",
+  "raw_decoded_account_byte_length": 151
+}

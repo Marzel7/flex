@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D2",
+  "observed_at_utc": "2026-08-14T14:50:31Z",
+  "status": "STOPPED_AFTER_SINGLE_PLAN_INSPECTION_NO_RETRY",
+  "verdict": "HOLD_TERMINAL_DESCRIPTOR_GATE_REACHED",
+  "engineering_commit": "91fddb0cfb55e30e55164b83f67135ef6bda571a",
+  "contract_digest": "8ba0259d356c3fd6300f22dbf08b6ca3ea96fd836f94221d4f2499949de4577c",
+  "canonical_manifest_digest": "d956bc24c1cd160162acaaad5bc466a2dece78ea34fc1f5238bc80728d4283f5",
+  "read_boundary_digest": "fdf11dc5e29c176d3724a4ccd1e3ff56584727512853bfb58a71fb3979c246f8",
+  "input_fingerprint": "57a72a82ccb515a86ef76cc6af18affeecdfb6aef5096a8cb9398393dbfb893d",
+  "source_path_bindings": {
+    "creator": "e0f28444336d5b744dbeedf0474b33a9bee1f0c7877477bc069db8b35c12ee4c",
+    "evidence": "26d0e3847ca99f7a2b6216156adca59e14e40b8d7054d3c33709460a6286aeb7",
+    "main": "47aecc6ad649ba5ec1bbfcba62df30cfc04d0dc97b632df1ce0c153e3612b934",
+    "ops": "13dca5ea3bcc50b135dbbbab61042930ac692cce74a3388705a35e924a0a11a6"
+  },
+  "start_gate": {
+    "listener_pid": 15357,
+    "latest_three_primary_fd_counts": [0, 3, 0],
+    "serializer_p99_wait_ms": 343.49,
+    "serializer_queue_depth": 0,
+    "serializer_lock_errors_24h": 0,
+    "critical_descriptor_events": 0,
+    "feeds_and_ingestion_healthy": true,
+    "passed": true
+  },
+  "plan_qualification": {
+    "qualification_digest": "38d0605e77e1503e9d5e952d13a3e1501aacf6c84db7a3debc334bca8fc484ce",
+    "replay_verified": true,
+    "compatible_query_count": 5,
+    "incompatible_query_count": 0,
+    "select_templates_executed": 0,
+    "production_rows_read": 0,
+    "findings": [
+      {
+        "query_id": "creator_selected_cohort",
+        "index": "idx_creator_tokens_mint",
+        "full_relation_scan": false,
+        "temporary_structures": [],
+        "plan_digest": "1ee7f1c870a02be5fbddf7dfca6874c86fad139124aaea0daff77ea1dc395449"
+      },
+      {
+        "query_id": "evidence_launch_facts",
+        "index": "idx_psi0a_normalized_evidence_fact_family",
+        "full_relation_scan": false,
+        "temporary_structures": [],
+        "plan_digest": "569b393b6220a3d5056f5824220998cc1f0232fe78eba32214b8247bbe863784"
+      },
+      {
+        "query_id": "main_selected_cohort",
+        "index": "sqlite_autoindex_token_analysis_1",
+        "full_relation_scan": false,
+        "temporary_structures": [],
+        "plan_digest": "e7825fcac30001fe711af09dc12dccd2e0e8164de86136dbeb91ff70948bee9f"
+      },
+      {
+        "query_id": "ops_selected_cohort",
+        "index": "ix_launches_mint",
+        "full_relation_scan": false,
+        "temporary_structures": [],
+        "plan_digest": "b32203130595ef11753811e16e1554dec30b672a4abae3c9bbcb54715ccf6180"
+      },
+      {
+        "query_id": "snapshot_selected_cohort",
+        "index": "idx_tps_mint_captured",
+        "full_relation_scan": false,
+        "temporary_structures": ["USE TEMP B-TREE FOR RIGHT PART OF ORDER BY"],
+        "temporary_work_assessment": "BOUNDED_RIGHT_PART_ORDERING_AFTER_INDEXED_MINT_CAPTURED_LOOKUP",
+        "plan_digest": "7ee5f990201f97af8f5cffe7407729c174b8c180d806ac03af1e7d6c414d631a"
+      }
+    ]
+  },
+  "terminal_gate": {
+    "listener_pid": 15357,
+    "latest_three_primary_fd_counts": [0, 8, 0],
+    "failed_condition": "PRIMARY_FD_COUNT_REACHED_WARNING_THRESHOLD_8",
+    "serializer_p99_wait_ms": 418.85,
+    "serializer_queue_depth": 0,
+    "serializer_lock_errors_24h": 0,
+    "critical_descriptor_events": 0,
+    "services_running": true,
+    "evidence_writer_stopped": true
+  },
+  "safety": {
+    "uri_mode": "ro",
+    "query_only_verified": true,
+    "lock_timeout_ms": 250,
+    "maximum_monotonic_deadline_seconds": 2,
+    "production_database_connections_opened": 5,
+    "explain_statements": 5,
+    "select_templates_executed": 0,
+    "production_rows_read": 0,
+    "production_writes": 0,
+    "ddl_statements": 0,
+    "retries": 0,
+    "provider_calls": 0,
+    "service_actions": 0,
+    "grants_extraction_authority": false,
+    "grants_activation_authority": false,
+    "production_impact_observed": "DESCRIPTOR_WARNING_GATE_ONLY"
+  },
+  "next_action": "Separately authorize a telemetry-only diagnosis of the single terminal primary_fd_count=8 episode before deciding whether the replay-verified plan evidence can be accepted or D2 must be re-proposed."
+}

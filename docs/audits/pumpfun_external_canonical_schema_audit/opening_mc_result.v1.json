@@ -1,0 +1,103 @@
+{
+  "post_buy_market_cap_reconstruction_qualified": false,
+  "post_buy_rows": [
+    {
+      "buy_sequence_number": 1,
+      "market_cap_sol": null,
+      "market_cap_usd": null,
+      "post_virtual_sol_reserves": 71265353876,
+      "post_virtual_token_reserves": 451692137273236,
+      "spot_price_sol_per_token": null
+    },
+    {
+      "buy_sequence_number": 2,
+      "market_cap_sol": null,
+      "market_cap_usd": null,
+      "post_virtual_sol_reserves": 71462884739,
+      "post_virtual_token_reserves": 450443613125893,
+      "spot_price_sol_per_token": null
+    },
+    {
+      "buy_sequence_number": 3,
+      "market_cap_sol": null,
+      "market_cap_usd": null,
+      "post_virtual_sol_reserves": 71650539059,
+      "post_virtual_token_reserves": 449263891507193,
+      "spot_price_sol_per_token": null
+    },
+    {
+      "buy_sequence_number": 4,
+      "market_cap_sol": null,
+      "market_cap_usd": null,
+      "post_virtual_sol_reserves": 71848069922,
+      "post_virtual_token_reserves": 448028736772314,
+      "spot_price_sol_per_token": null
+    },
+    {
+      "buy_sequence_number": 5,
+      "market_cap_sol": null,
+      "market_cap_usd": null,
+      "post_virtual_sol_reserves": 72251674860,
+      "post_virtual_token_reserves": 445526004338332,
+      "spot_price_sol_per_token": null
+    },
+    {
+      "buy_sequence_number": 6,
+      "market_cap_sol": null,
+      "market_cap_usd": null,
+      "post_virtual_sol_reserves": 71945863569,
+      "post_virtual_token_reserves": 447419746058333,
+      "spot_price_sol_per_token": null
+    },
+    {
+      "buy_sequence_number": 7,
+      "market_cap_sol": null,
+      "market_cap_usd": null,
+      "post_virtual_sol_reserves": 71991367093,
+      "post_virtual_token_reserves": 447136945828598,
+      "spot_price_sol_per_token": null
+    },
+    {
+      "buy_sequence_number": 8,
+      "market_cap_sol": null,
+      "market_cap_usd": null,
+      "post_virtual_sol_reserves": 72090132524,
+      "post_virtual_token_reserves": 446524356127649,
+      "spot_price_sol_per_token": null
+    },
+    {
+      "buy_sequence_number": 9,
+      "market_cap_sol": null,
+      "market_cap_usd": null,
+      "post_virtual_sol_reserves": 72134695981,
+      "post_virtual_token_reserves": 446248501792696,
+      "spot_price_sol_per_token": null
+    },
+    {
+      "buy_sequence_number": 10,
+      "market_cap_sol": null,
+      "market_cap_usd": null,
+      "post_virtual_sol_reserves": 72282844128,
+      "post_virtual_token_reserves": 445333887972580,
+      "spot_price_sol_per_token": null
+    }
+  ],
+  "schema_version": "pumpfun-opening-mc-result.v1",
+  "source": {
+    "commit": "9c82f61cb711b044a17f770ab8ce9f9bdf78f333",
+    "commit_author_timestamp": "2026-07-15T18:22:27Z",
+    "confidence": "OFFICIAL_PROGRAM_BOUND_IDL; target-slot program binary/deployment upgrade binding is not independently proven.",
+    "idl_sha256": "b90bc471327f671449271d5d1d42354d1fae6f5a06502f5834459a3108138e49",
+    "metadata": {
+      "description": "Created with Anchor",
+      "name": "pump",
+      "spec": "0.1.0",
+      "version": "0.1.0"
+    },
+    "program_id": "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+    "raw_url": "https://raw.githubusercontent.com/pump-fun/pump-public-docs/refs/heads/main/idl/pump.json",
+    "repository": "pump-fun/pump-public-docs",
+    "url": "https://github.com/pump-fun/pump-public-docs/blob/main/idl/pump.json"
+  },
+  "what_is_still_missing": "Target-slot ProgramData/IDL version binding and a complete retained target curve-action stream from creation through the opening observations (or an independently verified event-only valuation convention). No market-cap claim is made."
+}

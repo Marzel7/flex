@@ -1,0 +1,42 @@
+{
+  "schema_version": "pumpportal_macrohard_legacy_byzantine_birth_provenance_diff.v1",
+  "scope": "read-only retained-local differential audit",
+  "comparison": {
+    "good_anchor_mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+    "bad_anchor_mints": [
+      "b6gX6q4MGGpE6eGHdHkrKbasjavzsPThi246hexpump",
+      "6X7EhvCPpQcfwfAeQF4drS2x9UnHD8N8BK5QnTtzpump",
+      "G8fPzYYkpUSoXyaihxP5UUTzQ9CaPzQkLofMoXPNpump",
+      "D1yb7MCFaFq29a2RfGgQ8KNdb3mzpyVJNmBpKfK2pump",
+      "5Qsu2YAzTvWxH8MVPW14Hza9bptJATp6NX9xgkHgpump",
+      "AqgtHrC5TwPcvTf9dmgQhWwUhmVbaGynop1LxvU9pump",
+      "7EPk5q4EN4PL8F1j26SbueqiFekrMva54xbFVms7pump",
+      "4JZv85BNGQtJ9ikrKKJs1ptbXP9ghG8H8avV5ZEKpump",
+      "3zSPF9RDvLhzvPB8BwqdM3EacsA335xS4KY2gs6Ypump"
+    ],
+    "comparison_set_digest": "da11bc3fdc0f666d09a01fcd164cc9195fa59ff6222f78c7e41368cc690e12f0"
+  },
+  "retained_findings": {
+    "pumpportal_normalized_metadata": "All ten have metadata_cache.cached_source=pumpfun_birth. This table retains only cache time/source, not raw PumpPortal create payload or create signature.",
+    "birth_timestamp": "For the control and every bad-anchor row, token_analysis.created_at is a migration-era timestamp: it is equal to the retained migrated_at time to the second, while metadata_cache.cached_at is earlier. Therefore created_at is not canonical birth time for either side of this comparison.",
+    "signature": "The control signature is independently transaction-validated as a Pump.fun creation transaction. Prior audits establish all nine bad values are successful but non-Create/CreateV2 transactions. Current retained rows contain no per-field write history, raw birth payload, historical birth_persist_queue row, or writer attribution capable of proving whether a correct signature was overwritten.",
+    "writer_semantics": "Current PumpPortal create handling calls _insert_bonding_curve_token with the event signature. Its current ON CONFLICT clause uses COALESCE(existing.create_tx_signature, excluded.create_tx_signature), so it can fill a missing value but cannot overwrite a non-null existing value. Current creator/cascade writers likewise use COALESCE guards. This is a current-code property, not proof of historical writer behavior.",
+    "root_cause": "LEGACY_PUMPPORTAL_FIELD_NOT_PERSISTED and FALLBACK_SIGNATURE_MISASSIGNMENT are supported hypotheses; TIMESTAMP_FIELD_SEMANTIC_CONFUSION is proven for created_at. LATER_FIELD_OVERWRITE is not proven and cannot be inferred from current state. No date/version boundary is proven because the bad rows span 2026-08-04 through 2026-08-31 and the control is 2026-09-01, while write history is absent."
+  },
+  "historical_repair": {
+    "local_repairable_total": 0,
+    "chain_recovery_required_total": 9,
+    "unresolved_total": 0,
+    "recommendation": "Use append-only raw PumpPortal create-event retention with signature, mint, creator, curve, receive/chain timestamps, vSOL, marketCap, parser version, and payload digest. Treat migration timestamps separately and do not treat legacy token_analysis.create_tx_signature or created_at as canonical birth provenance."
+  },
+  "safety": {
+    "retained_local_only": true,
+    "solana_rpc": 0,
+    "helius": 0,
+    "alchemy": 0,
+    "gmgn": 0,
+    "pumpportal": 0,
+    "source_or_production_rows_modified": false,
+    "code_ui_schema_or_membership_modified": false
+  }
+}

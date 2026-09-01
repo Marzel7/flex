@@ -81,3 +81,35 @@ def test_surface_authority_drift_is_rejected():
     surface["consumer_enabled"] = True
     with pytest.raises(Psi0hProspectiveReplayError, match="SURFACE_AUTHORITY"):
         replay_prospective_observations(surface, baseline(), [observation()])
+
+
+def test_replay_from_e5_cohort_artifact_structure(tmp_path):
+    import scripts.run_psi0h_a_historical_replay as runner
+
+    artifact = tmp_path / "psi0h_e5_cohort.json"
+    artifact.write_text(json.dumps({
+        "execution_status": "COMPLETED",
+        "run_id": "psi0h-e5-real-prospective",
+        "source_id": "pumpportal-migration-census",
+        "source_kind": "migration-census-live-observation",
+        "execution": {
+            "qualification": {
+                "cutoff": 100,
+                "selected": [{
+                    "primitive_id": "e5-primitive-1",
+                    "primitive_type": "LAUNCH_SIGNER",
+                    "window_start": 150,
+                    "window_end": 150,
+                    "generated_at": 151,
+                    "evidence_ids": ["evidence-e5"],
+                    "missing_inputs": [],
+                }],
+            },
+        },
+        "source_identity": {},
+    }))
+
+    result = runner.run(cohort_artifact=artifact)
+    assert result["status"] in ("PASS", "HOLD")
+    assert result["source"]["source"]["source_mode"] == "e5-real-cohort"
+    assert result["source"]["e5_source"] == {}

@@ -1,0 +1,259 @@
+{
+  "alternates": {
+    "count": 3,
+    "status": "UNRESOLVED_OR_EXCLUDED_FROM_STRICT_CORE"
+  },
+  "alternatives": {
+    "generic_service": "PARTIAL",
+    "generic_sol_transfer": "NOT_SUPPORTED",
+    "matcher_overfit": "NOT_SUPPORTED",
+    "one_prolific_creator": "NOT_SUPPORTED",
+    "one_prolific_funder": "NOT_SUPPORTED",
+    "random_exact_amount": "NOT_SUPPORTED",
+    "unrelated_mixed_cohort": "PARTIAL"
+  },
+  "candidate_id": "p3r-v2-6437acd385e566e301a7",
+  "common_control": "NOT_PROVEN",
+  "creator_diversity": {
+    "distinct": 84,
+    "distribution": {
+      "1": 84,
+      "2-3": 0,
+      "4-5": 0,
+      "6-20": 0,
+      ">=21": 0
+    },
+    "serious_multi_token_creator_count": 0,
+    "serious_multi_token_creator_share": 0
+  },
+  "current_activity": {
+    "24h": 9,
+    "30d": 78,
+    "7d": 40,
+    "last_current_launch": 1788093288
+  },
+  "decision": "QUALIFIED_OPERATION_WITH_VARIANTS_READY_FOR_PROMOTION_REVIEW",
+  "detector_contract": "Post-authorization: strict direct funder, exact 10000, creator destination, launch coupling; QVtW: intermediary cycle, ~10K creator forwarding, residual invariant.",
+  "evidence_hierarchy": {
+    "A": "84 direct decoded funder->10000->associated creator",
+    "B": "84 launches/56 funders/84 creators; repeat funders",
+    "C": "F1 and 20100 subgroup",
+    "D": "common ownership/control"
+  },
+  "frozen_population": {
+    "current_creators": 95,
+    "current_funders": 59,
+    "current_launches": 95
+  },
+  "funder_recurrence": {
+    "distinct": 56,
+    "distribution": {
+      "1": 45,
+      "2": 3,
+      "3": 4,
+      "5": 3,
+      "6": 1
+    },
+    "repeat_funders": 11,
+    "top": [
+      {
+        "distinct_creators": 6,
+        "first_launch": 1787033647,
+        "funder": "2uPFEpvFHq5xwDeftjvEPXq5b1t48UqDDJeSN9TsRE9Y",
+        "last_launch": 1787160627,
+        "launches": 6
+      },
+      {
+        "distinct_creators": 5,
+        "first_launch": 1788016398,
+        "funder": "3nTEKyixfWGcUSjAHsUZwad8QHrDoNQDWdKVHRXqkHkR",
+        "last_launch": 1788045989,
+        "launches": 5
+      },
+      {
+        "distinct_creators": 5,
+        "first_launch": 1787942930,
+        "funder": "3tEiWoYHQzopxnzTGUbmgQVB5RpNe2nTLQpqMzioyQc5",
+        "last_launch": 1787999394,
+        "launches": 5
+      },
+      {
+        "distinct_creators": 5,
+        "first_launch": 1787980799,
+        "funder": "4ae7rX1CekEAvEG4LzHbRpG6HzSWxuSNq2w8qjZHdBaC",
+        "last_launch": 1788087884,
+        "launches": 5
+      },
+      {
+        "distinct_creators": 3,
+        "first_launch": 1787103132,
+        "funder": "7kJcoBav4yDccZw7YQTiYeiHjz23E9BZ4jojnU5VAVHH",
+        "last_launch": 1787859149,
+        "launches": 3
+      },
+      {
+        "distinct_creators": 3,
+        "first_launch": 1787986204,
+        "funder": "C3axbh1LCBvg1KuKYgyEQWm11kAhyDGBoUnP5uVkp1kc",
+        "last_launch": 1788004038,
+        "launches": 3
+      },
+      {
+        "distinct_creators": 3,
+        "first_launch": 1787669231,
+        "funder": "GgrPgh6e7NfwZ7gaGaRepkXi27b3MzbcU2deUA3X3dZT",
+        "last_launch": 1787670923,
+        "launches": 3
+      },
+      {
+        "distinct_creators": 3,
+        "first_launch": 1787325755,
+        "funder": "HkF8M9ZrVYA7bTDUE6NjPsahHdnyqjLpByt5tKsdTtv6",
+        "last_launch": 1788027175,
+        "launches": 3
+      }
+    ]
+  },
+  "generated_at": "2026-08-30T16:23:57.742016+00:00",
+  "genericity": "UNKNOWN_NON_6437_COUNT",
+  "graph": {
+    "components": 56,
+    "creator_to_many_funder": 0,
+    "creators": 84,
+    "edges": 84,
+    "funder_to_many": 11,
+    "funders": 56,
+    "topology": "many funders to unique creators; 28 repeat funders"
+  },
+  "identity_tests": {
+    "creator_diversity": "PASS",
+    "current_activity": "PASS",
+    "direct_proof": "PASS",
+    "exception_handling": "PASS",
+    "funder_reuse": "PASS",
+    "genericity_risk": "PARTIAL",
+    "persistence": "PASS",
+    "recurrence": "PASS",
+    "transaction_consistency": "PASS",
+    "variant_coherence": "PASS"
+  },
+  "labels": {
+    "parent": "Creator Launch Provisioning",
+    "qvtw": "Batched Intermediary Creator Provisioning",
+    "strict": "Direct 10K Creator Provisioning"
+  },
+  "matcher_recommendation": "PARENT_PLUS_SUBTYPE_MATCHERS",
+  "mechanism": {
+    "amount_10000": 84,
+    "combined": 84,
+    "creator_destination": 84,
+    "funder_fee_payer": 84,
+    "funder_signer": 84,
+    "funder_source": 84,
+    "inner_distribution": {
+      "0": 84
+    },
+    "outer_distribution": {
+      "1": 9,
+      "3": 75
+    },
+    "signer_distribution": {
+      "1": 84
+    }
+  },
+  "membership": {
+    "promotion_core": 84,
+    "qualified_variant": 6,
+    "unresolved_or_excluded": 3
+  },
+  "network_calls": 0,
+  "persistence": {
+    "active_days": 122.60123842592593,
+    "first": 1777500541,
+    "last": 1788093288,
+    "launches_per_active_day": 0.6851480546075537,
+    "span_seconds": 10592747
+  },
+  "prerequisite_artifacts": [
+    {
+      "path": "docs/audits/potential_operations_6437_funder_creator_edges.v1.jsonl",
+      "sha256": "38b5b5c18c951d7b67f985f65e9dd92c71e0d21cf0115b1514aa81e8eb3a6a15",
+      "status": "VERIFIED"
+    },
+    {
+      "path": "docs/audits/potential_operations_6437_exception_redecode_raw.v1.jsonl",
+      "sha256": "45b398f96b43313f898e61f44fde02aa70933dce7c6be56fb1d2f17c46b076af",
+      "status": "VERIFIED"
+    },
+    {
+      "path": "docs/audits/potential_operations_6437_defining_transaction_shapes.v1.jsonl",
+      "sha256": "2a3fd2ba714d21199e040ea666439d6a3c30a40663e1abecf3cb61796ccd4c27",
+      "status": "VERIFIED"
+    },
+    {
+      "path": "docs/audits/potential_operations_6437_funder_infrastructure_evidence.v2.jsonl",
+      "sha256": "5097aa248c5b77a605d7f800e8b38b0de133c3df6cf38bd754a897f447275f54",
+      "status": "VERIFIED"
+    },
+    {
+      "path": "docs/audits/potential_operations_6437_deep_funding_architecture.v1.json",
+      "sha256": "0280ab9d06c564c3da3adeb066daec20c1598a0baad041b512d47db751db54bc",
+      "status": "VERIFIED"
+    },
+    {
+      "path": "docs/audits/potential_operations_6437_fixed_decrement_funding_analysis.v1.json",
+      "sha256": "37a6b99acf09ab01b5de74fbf60f320ddd4a22ad2b938c0670bf1d56938e4e09",
+      "status": "VERIFIED"
+    }
+  ],
+  "production_impact": "Proposal only: qualified operation state, stable identity, subtypes, detector/UI/monitoring after explicit promotion.",
+  "qualified_criteria_count": 9,
+  "qvtw": {
+    "conservation": "19/19",
+    "cycles": 19,
+    "launches": 6,
+    "residual_lamports": 890880,
+    "status": "QUALIFIED_COHERENT_VARIANT"
+  },
+  "read_only_verification": {
+    "ASSIGNMENT_WRITES": 0,
+    "DETECTOR_CHANGES": 0,
+    "LIVING_PUBLICATIONS": 0,
+    "MEMBERSHIP_WRITES": 0,
+    "PROMOTIONS": 0,
+    "RANKING_WRITES": 0,
+    "REAL_DB_WRITES": 0,
+    "SOURCE_TABLE_WRITES": 0
+  },
+  "scorecard": {
+    "creator_diversity": "PASS",
+    "current_activity": "PASS",
+    "direct_proof": "PASS",
+    "exception_handling": "PASS",
+    "funder_reuse": "PASS",
+    "genericity_risk": "PARTIAL",
+    "persistence": "PASS",
+    "recurrence": "PASS",
+    "transaction_consistency": "PASS",
+    "variant_coherence": "PASS"
+  },
+  "semantic_contract": {
+    "parent": "CREATOR_LAUNCH_PROVISIONING",
+    "strict": "DIRECT_10K_CREATOR_PROVISIONING",
+    "variant": "BATCHED_INTERMEDIARY_CREATOR_PROVISIONING"
+  },
+  "strict_core": {
+    "contradictions": 0,
+    "creators": 84,
+    "funders": 56,
+    "launches": 84,
+    "proven": 84,
+    "unresolved": 0
+  },
+  "supporting": {
+    "decrement": "MODERATE_CORE_SUBGROUP",
+    "deep_chain": "PARTIAL_NOT_REQUIRED",
+    "f1": "WEAK_IMMEDIATE_CONCENTRATION"
+  },
+  "total_criteria_count": 10
+}

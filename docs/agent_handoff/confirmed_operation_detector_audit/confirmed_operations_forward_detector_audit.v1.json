@@ -1,0 +1,121 @@
+{
+  "collision_matrix": [
+    {
+      "a": "P3R",
+      "b": "P3R_13A04",
+      "classification": "MUTUALLY_DISCRIMINATING",
+      "reason": "non-overlapping exact selected route"
+    },
+    {
+      "a": "P3R_13A04",
+      "b": "FOUR_STEP_30_SOL_14_479K_WSOL_LADDER",
+      "classification": "MUTUALLY_DISCRIMINATING",
+      "reason": "established 0/9 cross-detector result"
+    },
+    {
+      "a": "Byzantine",
+      "b": "FOUR_STEP_30_SOL_14_479K_WSOL_LADDER",
+      "classification": "MUTUALLY_DISCRIMINATING",
+      "reason": "different selected amount/atomic route"
+    }
+  ],
+  "confirmed_operations": [
+    {
+      "detector": "WSOL_10_SOL_FOUR_STEP_PROVISION_CLOSE.v1",
+      "detector_version": "WSOL_10_SOL_FOUR_STEP_PROVISION_CLOSE.v1",
+      "display_name": "Byzantine",
+      "disposition": "ACTIVE_MANUAL",
+      "hook": "project_completed_walkback",
+      "invariant": "PASS",
+      "membership_count": 35,
+      "operator_id": "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334",
+      "projector": "confirmed_operation_matches + membership + activity",
+      "qualification_category": "CONFIRMED",
+      "status": "CONFIRMED",
+      "style": "PURE_BEHAVIOURAL"
+    },
+    {
+      "detector": "D3DE_D0_EXACT_SELECTED_FOUR_STEP_LADDER.v1",
+      "detector_version": "D3DE_D0_EXACT_SELECTED_FOUR_STEP_LADDER.v1",
+      "display_name": "FOUR_STEP_30_SOL_14_479K_WSOL_LADDER",
+      "disposition": "ACTIVE_MANUAL",
+      "hook": "project_d3de_completed_walkback",
+      "invariant": "PASS",
+      "membership_count": 9,
+      "operator_id": "f560f4fa-770b-57aa-83be-954d11d1a3c1",
+      "projector": "confirmed_operation_matches + membership + activity",
+      "qualification_category": "CONFIRMED",
+      "status": "CONFIRMED",
+      "style": "PURE_BEHAVIOURAL"
+    },
+    {
+      "detector": "P3R_UNIFIED_WSOL_WRAP_CLOSE_99_999985_SOL.v1",
+      "detector_version": "P3R_UNIFIED_WSOL_WRAP_CLOSE_99_999985_SOL.v1",
+      "display_name": "P3R",
+      "disposition": "ACTIVE_MANUAL",
+      "fingerprint": "selected WSOL_WRAP_CLOSE 99,999,985,000 + atomic transfer 99,997,955,720",
+      "hook": "admit_unambiguous_p3r_match in completed-walkback hook",
+      "invariant": "PASS",
+      "membership_count": 80,
+      "operator_id": "777211c3-211e-551b-9310-ff9301570627",
+      "projector": "operator_launch_membership + activity snapshot",
+      "qualification_category": "CONFIRMED",
+      "status": "CONFIRMED",
+      "style": "PURE_BEHAVIOURAL"
+    },
+    {
+      "detector": "P3R_13A04_FOUR_STEP_30_SOL_LADDER.v1",
+      "detector_version": "P3R_13A04_FOUR_STEP_30_SOL_LADDER.v1",
+      "display_name": "P3R_13A04",
+      "disposition": "ACTIVE_MANUAL",
+      "fingerprint": "PLAIN 29,999,975,000 \u2192 WSOL 29,999,980,000 \u2192 PLAIN 29,999,985,000 \u2192 WSOL 29,999,990,000",
+      "hook": "same P3R matcher in completed-walkback hook",
+      "invariant": "PASS",
+      "membership_count": 0,
+      "operator_id": "ccb7b1b0-56e1-4543-9e95-3f284bed3943",
+      "projector": "operator_launch_membership + activity snapshot",
+      "qualification_category": "CONFIRMED",
+      "status": "CONFIRMED",
+      "style": "PURE_BEHAVIOURAL"
+    },
+    {
+      "detector": "strict canonical verified-route predicate",
+      "detector_version": null,
+      "display_name": "WATCHTOWER",
+      "disposition": "ACTIVE_MANUAL",
+      "hook": "canonical WATCHTOWER integration",
+      "invariant": "PASS",
+      "membership_count": 92,
+      "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+      "projector": "strict membership + activity",
+      "qualification_category": null,
+      "status": "CONFIRMED",
+      "style": "HYBRID_BEHAVIOUR_INFRASTRUCTURE"
+    },
+    {
+      "detector": "UNVERSIONED_OR_UNCLEAR",
+      "detector_version": "900B_HYBRID_PROVISIONAL.v1",
+      "display_name": "WSOL_PROVISION_CLOSE_1_SOL_MINUS_15K",
+      "disposition": "ACTIVE_MANUAL",
+      "invariant": "FAIL",
+      "membership_count": 0,
+      "operator_id": "70f27e37-83eb-5c97-831c-48189ef98f6c",
+      "qualification_category": "PROVISIONAL",
+      "status": "CONFIRMED",
+      "style": "UNVERSIONED_OR_UNCLEAR"
+    }
+  ],
+  "provisional_900b": {
+    "hook": "project_900b_completed_walkback",
+    "promotion": false,
+    "status": "PROVISIONAL"
+  },
+  "safety": {
+    "historical_catchup": false,
+    "queue_replay": false,
+    "rpc_calls": 0,
+    "trading_signal": false
+  },
+  "schema_version": "CONFIRMED_OPERATIONS_FORWARD_DETECTOR_AUDIT.v1",
+  "verdict": "CONFIRMED_OPERATIONS_FORWARD_DETECTOR_AUDIT_COMPLETE"
+}

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "milestone": "PSI0A-D2",
+  "status": "STOPPED",
+  "verdict": "DO_NOT_START_RECURRENT_DESCRIPTOR_WARNING",
+  "engineering_revision": "7a9c0c2bca9d3936dad482092a9aa2f236cb2303",
+  "contract_digest": "5d35498800f5c3d65ab972fd3fa593ca768eeaf79be2e2813a9c0d7192d718df",
+  "canonical_manifest_digest": "d956bc24c1cd160162acaaad5bc466a2dece78ea34fc1f5238bc80728d4283f5",
+  "read_boundary_digest": "fdf11dc5e29c176d3724a4ccd1e3ff56584727512853bfb58a71fb3979c246f8",
+  "preflight": {
+    "listener_pid": 9069,
+    "latest_three_primary_fd_counts": [0, 5, 9],
+    "terminal_primary_fd_count": 9,
+    "warning_threshold": 8,
+    "serializer_p95_wait_ms": 13.03,
+    "serializer_p99_wait_ms": 360.08,
+    "serializer_queue_depth": 0,
+    "lock_errors_24h": 1,
+    "failed_gate": "LATEST_THREE_PRIMARY_FD_COUNTS_MUST_REMAIN_BELOW_8"
+  },
+  "actions": {
+    "production_database_connections_opened": 0,
+    "production_explain_queries": 0,
+    "select_templates_executed": 0,
+    "production_rows_read": 0,
+    "production_writes_or_ddl": 0,
+    "provider_calls": 0,
+    "service_restarts_or_stops": 0,
+    "configuration_changes": 0
+  },
+  "assessment": "The descriptor warning recurred after PSI0A-D1A's recovery checkpoint. PSI0A-D cannot be treated as safely startable until the recurrent fan-out pattern is separately diagnosed or a clean bounded observation proves stability.",
+  "next_action": "Obtain separate authorization for a telemetry-only diagnosis of the recurrent post-D1A descriptor warning; do not retry PSI0A-D2."
+}

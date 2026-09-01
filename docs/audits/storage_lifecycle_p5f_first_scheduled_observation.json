@@ -1,0 +1,7 @@
+{
+  "milestone": "STORAGE-LIFECYCLE-P5F first scheduled observation",
+  "state": "PENDING_FIRST_SCHEDULED_RUN",
+  "reason": "No scheduler was installed because the P5F 500-row daily capacity gate failed.",
+  "fabricated_result": false,
+  "automation_active": false
+}

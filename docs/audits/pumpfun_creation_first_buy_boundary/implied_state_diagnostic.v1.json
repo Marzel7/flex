@@ -1,0 +1,32 @@
+{
+  "artifact_type": "PUMPFUN_IMPLIED_FIRST_BUY_PRESTATE_DIAGNOSTIC_V1",
+  "createevent_reserves": {
+    "real_token_reserves": 793100000000000,
+    "virtual_sol_reserves": 30000000000,
+    "virtual_token_reserves": 1073000000000000
+  },
+  "createevent_to_implied_difference": {
+    "real_token_reserves": -620164102728055,
+    "virtual_sol_reserves": 41085353876,
+    "virtual_token_reserves": -620164102728055
+  },
+  "diagnostic_not_authoritative_account_state": true,
+  "first_buy_actual_deltas": {
+    "net_curve_sol": 180000000,
+    "token_out": 1143759998709
+  },
+  "first_buy_post_event_reserves": {
+    "real_sol_reserves": 41265353876,
+    "real_token_reserves": 171792137273236,
+    "virtual_sol_reserves": 71265353876,
+    "virtual_token_reserves": 451692137273236
+  },
+  "implied_prebuy_reserves": {
+    "real_sol_reserves": 41085353876,
+    "real_token_reserves": 172935897271945,
+    "virtual_sol_reserves": 71085353876,
+    "virtual_token_reserves": 452835897271945
+  },
+  "implied_state_matches_known_initialization_transform": false,
+  "reason": "The first event\u2019s post-state plus its reserve deltas yields an exact event-implied prestate. No retained official initialization/ExtendAccount semantic proves this transformation."
+}

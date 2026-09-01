@@ -1,0 +1,102 @@
+{
+  "audit_id": "leviathan_detector_match_ui.v1",
+  "authoritative_result_source": "Local replay of src/ops/p3r_profile_candidate_matcher.evaluate_mint against wt_walkback_atomic_flows / wt_walkback_edge_candidates (this script), not membership-as-verification.",
+  "current_live_observations": {
+    "current_ambiguous": 0,
+    "current_live_rows": 0,
+    "current_no_match": 0,
+    "current_pending_replay": 0,
+    "current_verified_exact": 0,
+    "note": "These 49 mints (measured) satisfy the exact unambiguous P3R contract via wt_walkback_atomic_flows/wt_walkback_edge_candidates but were never admitted to operator_launch_membership by the live walkback-completion hook (src/core/walkback_worker.py:_promote_if_canonical_watchtower). This is a detector/admission-pipeline finding, not a UI concern; it is reported here, not silently fixed, per task scope.",
+    "pending_mints_sample": []
+  },
+  "display_population": {
+    "display_pending_total": 0,
+    "display_verified_total": 209,
+    "excludes_rejected_lookalikes": true
+  },
+  "generated_at": 1788189646,
+  "historical_population": {
+    "ambiguous_count": 0,
+    "exact_count": 209,
+    "full_replay_evidence_count": 209,
+    "historical_member_count": 209,
+    "incomplete_count": 0,
+    "no_full_evidence_count": 0,
+    "no_match_count": 0,
+    "partial_evidence_count": 0,
+    "total_leviathan_rows": 209
+  },
+  "identity": {
+    "detector_id": "P3R_UNIFIED_WSOL_WRAP_CLOSE_99_999985_SOL.v1",
+    "detector_implementation_path": "src/ops/p3r_profile_candidate_matcher.py",
+    "operation_status": "CONFIRMED",
+    "operator_id": "777211c3-211e-551b-9310-ff9301570627",
+    "persisted_display_name": "P3R",
+    "qualification_category": "CONFIRMED",
+    "ui_alias": "Leviathan"
+  },
+  "leviathan_only_scope": true,
+  "read_model_builder": "src/ops/operator_reader.py:OperatorStore.fetch_operator",
+  "rejected_lookalikes": {
+    "count": 8,
+    "reasons_sample": [
+      {
+        "mint": "aNeKejAKyfqfqikYKc5cjyTTszq85tiw7Rd5xcmpump",
+        "reason": "Matches a different operator's contract (P3R_13A04), not Leviathan's unified P3R route."
+      },
+      {
+        "mint": "rpiYNtbA8osAiTR9Rpdj1qM6YpKQN6XJGL5rBAdpump",
+        "reason": "Matches a different operator's contract (P3R_13A04), not Leviathan's unified P3R route."
+      },
+      {
+        "mint": "xt7LcG4NxtSSi9u7gWxP5LVZqVLARNLkARQSw8Tpump",
+        "reason": "Matches a different operator's contract (P3R_13A04), not Leviathan's unified P3R route."
+      },
+      {
+        "mint": "NhiZZWbRWihUJLmfQeSegArwtJ4FbUym8nkoj61pump",
+        "reason": "Matches a different operator's contract (P3R_13A04), not Leviathan's unified P3R route."
+      },
+      {
+        "mint": "kWgPWmLeSu4hMxiW9W5ftWkSF4LZ18PnbYCvGucpump",
+        "reason": "Matches a different operator's contract (P3R_13A04), not Leviathan's unified P3R route."
+      },
+      {
+        "mint": "YK8LMUreozV6hra3KCeV8thUHHCp6n5mdvwAZ3Hpump",
+        "reason": "Matches a different operator's contract (P3R_13A04), not Leviathan's unified P3R route."
+      },
+      {
+        "mint": "fCUriWJdjoKLEqNXfNDW3E9SbBPp1pVmrb2BCiVpump",
+        "reason": "Matches a different operator's contract (P3R_13A04), not Leviathan's unified P3R route."
+      },
+      {
+        "mint": "UpwBR3SwqQ3TPggNGRJkrThk1To1DGLYW886sQzpump",
+        "reason": "Matches a different operator's contract (P3R_13A04), not Leviathan's unified P3R route."
+      }
+    ]
+  },
+  "route": "/intelligence/operator/777211c3-211e-551b-9310-ff9301570627",
+  "route_handler": "src/ops/operator_routes.py:operator_page",
+  "rpc_requirement": {
+    "known_signature_rpc_count": 0,
+    "note": "All replay evidence sourced from wt_walkback_atomic_flows/wt_walkback_edge_candidates already retained in wt_ops_v2.db; no raw transaction fetch was needed for detector replay (the detector itself operates on these derived tables, not raw tx bodies).",
+    "rpc_calls_required": 0,
+    "signature_discovery_required_count": 0
+  },
+  "safety": {
+    "detector_changes": 0,
+    "dispatch_changes": 0,
+    "historical_membership_writes": 0,
+    "nexus_ui_delta": 0,
+    "other_operations_ui_delta": 0,
+    "prospective_membership_writes": 0,
+    "source_writes": 0
+  },
+  "ui_semantics": {
+    "pending_marker": "grey \u00b7",
+    "pending_tooltip": "Observed Leviathan candidate \u2014 full replay pending",
+    "rejected_rows_displayed": false,
+    "verified_marker": "green \u25cf",
+    "verified_tooltip": "Verified exact Leviathan detector match"
+  }
+}

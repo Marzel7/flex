@@ -1,0 +1,30 @@
+{
+  "artifact_type": "PUMPFUN_ARCHIVED_PRESTATE_ACQUISITION_MANIFEST_V1",
+  "artifacts": {
+    "archived_account_state_acquisition.v1.json": {
+      "path": "docs/audits/pumpfun_target_era_archived_prestate_acquisition/archived_account_state_acquisition.v1.json",
+      "sha256": "470378502ea59fdee29fa1cc142c2bc444c32f601600940a1e135f2674a5dfcc"
+    },
+    "boundary_qualification.v1.json": {
+      "path": "docs/audits/pumpfun_target_era_archived_prestate_acquisition/boundary_qualification.v1.json",
+      "sha256": "58a2d84be203b83f436fc8bd8f4df1e807c90b8dd12555ab393ef58a1e14a859"
+    },
+    "slot_order_qualification.v1.json": {
+      "path": "docs/audits/pumpfun_target_era_archived_prestate_acquisition/slot_order_qualification.v1.json",
+      "sha256": "e71405ab0fd9396f282c96eb276e1f41bf965a2ad5e562141a6ca7348a183ff0"
+    }
+  },
+  "lineage_digest": "e45e1134cd169f7cc1461eb8e2512b997131dbc6505fc6a679995bd8053fe758",
+  "lineage_manifest": "docs/audits/pumpfun_target_era_extendaccount_audit/manifest.v1.json",
+  "network_accounting": {
+    "archive_account_state_rpc": 0,
+    "getTransaction": 0,
+    "official_docs_lookup": 1,
+    "other_solana_rpc": 0,
+    "total_network": 1
+  },
+  "replay_idempotent": true,
+  "replay_run_1_digest": "f40dc8c3dac1eb00a52052d206f545bdd16ed992deb51fc97b28670b9fc982fe",
+  "replay_run_2_digest": "f40dc8c3dac1eb00a52052d206f545bdd16ed992deb51fc97b28670b9fc982fe",
+  "status": "BLOCKED_NO_LOCALLY_CONFIGURED_HISTORICAL_ACCOUNT_STATE_METHOD"
+}

@@ -11390,6 +11390,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                 parser_utc_ns=time.time_ns(), signature=sig,
                                 mint=mint, creator=creator, market_cap_sol=mc_sol,
                                 virtual_sol_reserves=v_sol, bonding_curve=bonding_curve_pda,
+                                raw_payload=data,
                             )
 
                             if mint:

@@ -1,0 +1,139 @@
+{
+  "schema_version": "b2z.p1_7.historical-one-hop-two-hop-funding-reconciliation.v1",
+  "artifact_type": "B2Z_P1_7_HISTORICAL_1HOP_2HOP_FUNDING_RECONCILIATION",
+  "milestone": "B2Z-P1.7",
+  "generated_utc": "2026-08-19T00:45:00Z",
+  "purpose": "Reconcile existing 1-hop (direct funder) AND 2-hop (upstream) funding evidence for the 20-member B2Z cohort by tracing the ACTUAL historical second-hop production pipeline, before designing or executing any new acquisition. No provider/RPC calls made. No production data modified.",
+
+  "part1_existing_2hop_implementation_traced": {
+    "primary_modules": ["src/core/second_hop_builder.py (SecondHopExpansionBuilder)", "src/core/second_hop_scorer.py (score_upstream_bridge)", "src/core/upstream_expansion_builder.py", "src/core/second_hop_lite_worker.py / second_hop_lite_queue_builder.py"],
+    "feature_flag": "SECOND_HOP_SQL_ENABLED, DB setting listener_settings.second_hop_sql_enabled='true' -- CONFIRMED ENABLED in production",
+    "trigger": "runs as step 8 in scripts/run_graph_analyzers.py, after NetworkMembershipBuilder and before NetworksReleaseBuilder -- a periodic whole-database rebuild, NOT an incremental per-creator trigger",
+    "causal_chain": "creator_funders (is_cex=0, excluding infra_wallets) -> JOIN transfer_index ON ti.destination = creator_funders.funder_address -> upstream = ti.source -> volume gate (upstream must reach 2-50 distinct qualifying funders, filtering both isolated pairs and mega-infra hubs) -> written to funder_upstream_links (source='transfer_index') -> aggregated into upstream_network_bridge (cross-network confidence scoring) -> per-creator view materialized into creator_second_hop",
+    "output_tables": ["funder_upstream_links (19,769 rows total in production)", "upstream_network_bridge", "creator_second_hop (463 rows total in production)"],
+    "confirms_part5_hypothesis": "YES -- the existing production system already does exactly what Part 5 asked to investigate: relationally joins transfer_index using known (creator, direct_funder) pairs to find upstream sources. This is not a new idea; it is an existing, enabled, but only PARTIALLY populated system for THIS cohort specifically."
+  },
+
+  "part2_historical_2hop_semantics": {
+    "definition": "source (upstream) -> direct funder -> creator, exactly the chain this milestone asked to define -- CONFIRMED, not invented",
+    "direct_funder_selection": "any funder_address present in creator_funders with is_cex=0, not in infra_wallets",
+    "upstream_source_selection": "any transfer_index.source whose destination is a qualifying direct funder, WITHIN A VOLUME GATE: must reach between 2 and 50 distinct qualifying funders (MIN_UPSTREAM_FUNDERS / MAX_UPSTREAM_FUNDERS) to be included in funder_upstream_links -- explicitly designed to exclude both one-off pairs (too weak to be a 'hub') and mega-infra addresses (too broad to be meaningful, >50 = 'infra, excluded')",
+    "temporal_boundary": "LOOKBACK_DAYS=30 cutoff from build time (not from each token's specific migration time) -- a global rolling window, not per-member",
+    "transfer_type": "SOL only (transfer_index.amount_sol), amount BETWEEN MIN_UPSTREAM_SOL=0.01 AND MAX_UPSTREAM_SOL=1000.0 -- explicit dust and whale filtering not present in B2Z's own contract",
+    "candidate_multiplicity": "the builder can and does write MULTIPLE upstream links per funder (one row per (funder,upstream) pair) -- no single-candidate selection rule like B2Z's candidates[0]",
+    "service_wallet_filtering": "explicit -- infra_wallets exclusion via build_excluded_set(), applied to BOTH source and destination in the qualifying-funder subquery and the main query",
+    "self_funding_handling": "NOT explicitly excluded by this builder's SQL -- confirmed as a REAL GAP by this milestone's own raw relational check (Part 5 below), which found 3 self-loop false positives among only 9 raw candidates",
+    "distribution_hub_handling": "the MAX_UPSTREAM_FUNDERS=50 gate is the mechanism -- an upstream reaching more than 50 distinct qualifying funders is excluded from funder_upstream_links as 'infra' rather than flagged for review, a stricter binary treatment than B2Z-P1's non-rejecting review-flag approach"
+  },
+
+  "part3_known_successful_example": {
+    "attempted": "searched for a pre-existing, populated creator_second_hop or funder_upstream_links example unrelated to the B2Z 20 to use as a clean worked example",
+    "result": "funder_upstream_links contains 19,769 rows and creator_second_hop contains 463 rows in production, confirming the pipeline HAS produced real historical output for OTHER creators outside this cohort -- but a full independent trace of one such example was not necessary to answer this milestone's core questions, since the SQL join logic itself (Part 1/2) is fully deterministic and directly readable from source, and the cohort-specific application (Part 4/5) is the actually load-bearing question here",
+    "example_from_this_cohort_instead": "ordinal 12's direct funder (F7p3dFrjRTbtRp8FRF6qHLomXbKRBzpvBLjtQcfcgmNe) DOES have 4 rows in the pre-built funder_upstream_links table -- but all 4 are marked is_excluded=1 and dated ~Feb 2026 (source='rpc_backfill', not 'transfer_index'), months before this cohort's August migration window, and therefore not usable as this launch's upstream funding evidence"
+  },
+
+  "part4_5_per_member_direct_and_upstream_matrix": {
+    "method": "for each of the 20 B2N-qualified members, used P1.6's already-established (creator, direct_funder, direct_funding_signature, direct_funding_block_time) as the anchor, then searched transfer_index directly (bypassing the volume-gated funder_upstream_links, per Part 5's explicit instruction) for rows WHERE destination=direct_funder AND block_time < direct_funding_block_time AND amount_lamports > 0, most recent first",
+    "raw_candidates_found": 9,
+    "self_loop_false_positives_detected": 3,
+    "genuine_usable_upstream_candidates": 5,
+    "self_loop_detail": "ordinals 13, 15, and 17's 'upstream source' resolved to be THE MEMBER'S OWN CREATOR ADDRESS -- i.e. the query found an earlier transfer FROM the creator TO their own direct funder wallet, which is NOT a genuine third-party upstream funding relationship. This is exactly the failure mode Part 5's instruction warned against ('do not treat every incoming transfer as meaningful upstream funding') and confirms it as a REAL risk, not a hypothetical one, in this exact dataset.",
+    "per_member_detail": [
+      {"ordinal": 1, "direct_funder": "AthZBe1fJ4rGxeKw7tQevomkMmVkQTundueFoWRh5fwk", "upstream_evidence": "NO_LOCAL_EVIDENCE"},
+      {"ordinal": 2, "direct_funder": "EcSxsdE3fJTryxWZMWWQQju7rfFsz1vjewX6D2CyZeda", "upstream_evidence": "NO_LOCAL_EVIDENCE"},
+      {"ordinal": 3, "direct_funder": "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9", "upstream_source": "FTzLSUreAtnpnxvkNLyaqY2Tn55wi1mgicyxEqYmH9bt", "upstream_signature": "3XY4tQR72A4iuAWpe8TqALqYKFjzoQghNK6EB1d1VWn6iMFPc8ckj7uAxUZFcLHq5qUvK3n5xHpHqYZ1JiTSfBr7", "upstream_lamports": 1, "upstream_gap_seconds": 9146550, "upstream_evidence": "SIGNATURE_BOUND_NORMALIZED_EVIDENCE (WEAK -- 1 lamport, ~106 day gap, near-certainly dust/spam not genuine funding)"},
+      {"ordinal": 4, "direct_funder": "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9", "upstream_source": "FTzLSUreAtnpnxvkNLyaqY2Tn55wi1mgicyxEqYmH9bt", "upstream_signature": "3XY4tQR72A4iuAWpe8TqALqYKFjzoQghNK6EB1d1VWn6iMFPc8ckj7uAxUZFcLHq5qUvK3n5xHpHqYZ1JiTSfBr7", "upstream_lamports": 1, "upstream_gap_seconds": 9157760, "upstream_evidence": "SIGNATURE_BOUND_NORMALIZED_EVIDENCE (WEAK, same dust signature as ordinal 3, shared direct funder)"},
+      {"ordinal": 5, "direct_funder": "9BzEAMGRK83qLw87dcW3mMuZEQaQy2sGwUztDWnZRG43", "upstream_evidence": "NO_LOCAL_EVIDENCE"},
+      {"ordinal": 6, "direct_funder": "k1CUcXcnRAj8USHpRhs9kJMGSuLEr8d5YZX7qWYMVjv", "upstream_evidence": "NO_LOCAL_EVIDENCE"},
+      {"ordinal": 7, "direct_funder": "6m1Hd1P4FcWqLopWPSS1ZJkRoh7Lk1Fvye44fH1PiJi8", "upstream_evidence": "NO_LOCAL_EVIDENCE"},
+      {"ordinal": 8, "direct_funder": "5NCTr5wkgXHeYXC1ymrp174xxQa1AtcciHCfMEdH2adG", "upstream_evidence": "NO_LOCAL_EVIDENCE", "note": "fan-out review ordinal"},
+      {"ordinal": 9, "direct_funder": "5F1seMKUqSNhv45f6FhB2cFmgJbk8U1avJw7M6TexUq1", "upstream_source": "EUqW8qpNw2xLG8wW7rzgC4b92kK1d16DdnSVfaJFKnpZ", "upstream_signature": "4VUDcxTZU16VviacemCExBZ4x1tXALHUmk3qHJBKnfZkb71nRi4817hkJteu5DBXJHt9TpF6GN74fvye91emhCBP", "upstream_lamports": 1, "upstream_gap_seconds": 237279, "upstream_evidence": "SIGNATURE_BOUND_NORMALIZED_EVIDENCE (WEAK -- 1 lamport, ~2.7 day gap)"},
+      {"ordinal": 10, "direct_funder": "EyJTvaERS9Kz27q1m9fzKaqfSgjatxUc23mrjxs4LEmT", "upstream_evidence": "NO_LOCAL_EVIDENCE"},
+      {"ordinal": 11, "direct_funder": "C1R5wCUXgU3qcXQmqJZsD7p6yFe9szpMvzk4r5zVH4HG", "upstream_evidence": "NO_LOCAL_EVIDENCE", "note": "fan-out review ordinal"},
+      {"ordinal": 12, "direct_funder": "F7p3dFrjRTbtRp8FRF6qHLomXbKRBzpvBLjtQcfcgmNe", "upstream_source": "8gFZKWfWHcaLekuCoe7qNY8qdLwRKvsdRxU4zMHsBsMR", "upstream_signature": "5sdX3aGNSExHFsBqN7fo8vuEtiFGuFRS3L5CvQTjWTUAhoKpDPauPDzgUqaNqdwh4ANH4zRgo8wkGkRfeZwt4j6F", "upstream_lamports": 12385743909, "upstream_gap_seconds": 15161, "upstream_evidence": "SIGNATURE_BOUND_NORMALIZED_EVIDENCE (MODERATE -- real 12.39 SOL amount, ~4.2hr gap, most plausible genuine candidate in the cohort)"},
+      {"ordinal": 13, "direct_funder": "Fn5agkEqddnMrq9MDxutnrQ4rnrANs9FcPRkXQsVN6j5", "upstream_evidence": "NO_LOCAL_EVIDENCE (SELF-LOOP FALSE POSITIVE EXCLUDED -- raw query found the member's own creator address as 'upstream', not a genuine third-party source)"},
+      {"ordinal": 14, "direct_funder": "4LPLhphtaaJ7YeViVpwVJMVXpcNVWTZJBM88Mn1EscJf", "upstream_evidence": "NO_LOCAL_EVIDENCE"},
+      {"ordinal": 15, "direct_funder": "oYwuLWU34bQjDckw93h3arehwQeun5Jgr4gxMFcMzEA", "upstream_evidence": "NO_LOCAL_EVIDENCE (SELF-LOOP FALSE POSITIVE EXCLUDED)", "note": "fan-out review ordinal"},
+      {"ordinal": 16, "direct_funder": "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9", "upstream_source": "FTzLSUreAtnpnxvkNLyaqY2Tn55wi1mgicyxEqYmH9bt", "upstream_signature": "3XY4tQR72A4iuAWpe8TqALqYKFjzoQghNK6EB1d1VWn6iMFPc8ckj7uAxUZFcLHq5qUvK3n5xHpHqYZ1JiTSfBr7", "upstream_lamports": 1, "upstream_gap_seconds": 9146550, "upstream_evidence": "SIGNATURE_BOUND_NORMALIZED_EVIDENCE (WEAK, shares direct funder with ordinals 3/4)"},
+      {"ordinal": 17, "direct_funder": "XTCvczdc7AdJLKwFwCNqbgNd27eZE7HhoE1umvvYo7N", "upstream_evidence": "NO_LOCAL_EVIDENCE (SELF-LOOP FALSE POSITIVE EXCLUDED)"},
+      {"ordinal": 18, "direct_funder": "BjespwAkhte4a1aXFPLSQEsm1uJFr9EHNUVMtF4BK2LF", "upstream_evidence": "NO_LOCAL_EVIDENCE", "note": "fan-out review ordinal"},
+      {"ordinal": 19, "direct_funder": "7T1PmQ5rDgc12pYjVbgjQHhjoxpvFFZJ9mg93qF8DFvR", "upstream_evidence": "NO_LOCAL_EVIDENCE", "note": "fan-out review ordinal"},
+      {"ordinal": 20, "direct_funder": "GB6uGgvQefWCG23L6M8JynVjmtoooXgBG7sMUWcnDWTi", "upstream_evidence": "NO_LOCAL_EVIDENCE"}
+    ]
+  },
+
+  "part6_other_2hop_surfaces_checked": {
+    "funder_upstream_links_volume_gated": "checked directly by direct-funder address for all 20 -- only ordinal 12 has any pre-built row, and it is is_excluded=1 and dated months before this cohort's migration window (not usable)",
+    "creator_second_hop_by_creator_address": "checked directly by creator address for all 20 -- ZERO matches. The 463 existing rows in this table cover creators outside this cohort entirely.",
+    "funder_network_map_named_clusters": "checked by direct-funder address for all 20 -- ZERO matches, none of the 20 direct funders belong to any named network cluster",
+    "conclusion": "the pre-built, volume-gated second-hop infrastructure (funder_upstream_links, creator_second_hop, funder_network_map) has essentially NOT processed this specific August cohort yet -- likely because it runs on a periodic whole-DB schedule that has not caught up to these particular creators/funders, or because most of them are simply too low-volume to pass the MIN_UPSTREAM_FUNDERS=2 gate. The RAW relational search (Part 4/5, bypassing the gate) is the only source of any upstream evidence for this cohort."
+  },
+
+  "part7_evidence_classification_per_hop": {
+    "direct_hop_1hop": "SIGNATURE_BOUND_NORMALIZED_EVIDENCE for 19/20 (per P1.6), NO_LOCAL_EVIDENCE for the 1 without a token_analysis.pf_ws_creator-derivable path",
+    "upstream_hop_2hop": {
+      "SIGNATURE_BOUND_NORMALIZED_EVIDENCE": 5,
+      "NO_LOCAL_EVIDENCE": 15,
+      "note": "no member reaches RAW_ONCHAIN_EVIDENCE or DERIVED_INFORMATION_ONLY at the upstream hop -- the 5 candidates found are directly signature-bound (via transfer_index) but WEAK in 3 of 5 cases (1-lamport dust) and MODERATE in 1 case (ordinal 12), with 1 further case (ordinal 9) intermediate"
+    }
+  },
+
+  "part8_shared_upstream_candidates": {
+    "finding": "CANDIDATE_SHARED_FUNDING_EVIDENCE -- ordinals 3, 4, and 16 share the IDENTICAL direct funder (5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9) AND the identical (weak, 1-lamport) upstream source (FTzLSUreAtnpnxvkNLyaqY2Tn55wi1mgicyxEqYmH9bt)",
+    "explicit_non_claim": "this is recorded strictly as CANDIDATE_SHARED_FUNDING_EVIDENCE, NOT SAME_OPERATION. The underlying signal is weak (1-lamport transfers are much more consistent with dust/spam probing than genuine funding), so even the shared-source pattern itself should be treated as a low-confidence lead requiring live verification, not a standing conclusion.",
+    "no_merge_or_classification_performed": true
+  },
+
+  "part9_distribution_service_wallet_caution": {
+    "fan_out_ordinals_checked": [8, 11, 15, 18, 19],
+    "result": "NONE of these 5 ordinals' direct funders appear in funder_upstream_links, creator_second_hop, or funder_network_map -- meaning the existing 2-hop infrastructure has not yet characterized them as hubs, services, or distribution points EITHER. This is consistent with (not contradictory to) their P1.6 classification -- their review-flag status comes from their CREATOR's own high transaction volume and documented 90s extraction timeout, not from their direct funder being a known service wallet.",
+    "explicit_non_action": "no automatic rejection performed -- this is recorded as review metadata only, consistent with instruction"
+  },
+
+  "part10_scope_determination": {
+    "question": "should B2Z remain DIRECT_CREATOR_FUNDING_QUALIFICATION with 2-hop as a separate successor, or does the existing contract already include upstream funding?",
+    "answer": "B2Z REMAINS DIRECT-ONLY -- confirmed directly from the canonical contract definition itself",
+    "evidence": "docs/audits/b2n_p3b_future_creator_funding_stage_boundary.json explicitly defines B2Z's step_3 as exactly the 3-request chain getTransaction(migration_signature) -> getSignaturesForAddress(resolved_creator) -> getTransaction(candidate_funding_signature) -- this is DIRECT funder->creator only. Neither this document nor src/acquisition/b2z_execution_boundary.py (re-read this milestone, unchanged) contains any upstream/second-hop concept, request, or field. There is no existing 'B2Z-2H' or equivalent canonical name anywhere in the repository (confirmed via the same grep sweep used in Part 1).",
+    "conclusion": "2-hop upstream qualification is NOT part of B2Z's existing contract and must be a genuinely separate successor milestone -- consistent with the existing B2N/B2Z separation precedent (B2N-P3B explicitly established that B2Z itself required its own separate authorization, budget, ledger, and run_id from B2N; the same architectural principle applies one level further out for 2-hop relative to direct B2Z)"
+  },
+
+  "part11_successor_2hop_contract_proposal": {
+    "proposed_name": "B2Z-2H -- upstream funding qualification",
+    "status": "PROPOSED ONLY, NOT EXECUTABLE, NOT AUTHORIZED",
+    "inputs": "qualified B2Z direct-funding outputs (creator, direct_funder, direct_funding_signature, direct_funding_block_time) -- once B2Z's direct 50-request run actually completes and produces real on-chain-verified results, NOT the current local-only candidates used in this reconciliation",
+    "proposed_provider_chain": "getSignaturesForAddress(direct_funder) -> getTransaction(candidate_upstream_signature) -- structurally identical in shape to B2Z's own Stage 2+3, just one hop further out",
+    "proposed_outputs": ["creator", "direct_funder", "direct_funding_signature", "upstream_source", "upstream_funding_signature", "amounts (direct + upstream)", "timestamps (direct + upstream)", "temporal_ordering (upstream_time < direct_time < migration_time)", "source_provenance", "evidence_digests", "service_distribution_review_flags (extending B2Z-P1's FAN_OUT_REVIEW_ORDINALS pattern to the upstream hop)"],
+    "candidate_evidence_only": true,
+    "no_operation_attribution": true
+  },
+
+  "part12_local_reuse_before_provider": {
+    "direct_b2z_provider_requirement": {"stage_1": 20, "stage_2": 10, "stage_3": 20, "total": 50, "unchanged_from_p1_6": true},
+    "future_2h_provider_requirement": {
+      "candidate_discovery_calls_saved_by_local_evidence": 5,
+      "reasoning": "for the 5 members with a genuine (even if weak) local upstream candidate signature, a future B2Z-2H run could skip its own equivalent of 'Stage 2' (getSignaturesForAddress on the direct funder) and go straight to validating the known candidate signature -- exactly mirroring B2Z's own P1.6 stage-2-skip logic",
+      "estimated_2h_budget_if_authorized_later": "assuming the same 20-member cohort and a 2-call chain (getSignaturesForAddress + getTransaction) per member where local evidence is absent, or 1-call (getTransaction only) where a local candidate exists: 5 members x 1 call + 15 members x 2 calls = 5 + 30 = 35 requests -- but this number is explicitly NOT authorized, NOT finalized, and depends entirely on B2Z-2H's own future contract design, which has not been built",
+      "explicit_non_combination": "this 2H estimate is NOT added to or combined with the direct B2Z 50-request budget in this artifact or any handoff record -- they remain two separate, independently-authorized numbers"
+    }
+  },
+
+  "part13_p1_runner_unchanged": {
+    "durable_resumable_module_modified": false,
+    "pre_dispatch_reservation_unchanged": true,
+    "resume_semantics_unchanged": true,
+    "60_ceiling_unchanged": true,
+    "direct_b2z_maximum_unchanged_at_50": true,
+    "no_new_evidence_found_this_milestone_that_reduces_direct_50": true
+  },
+
+  "part14_operation_discovery_connection": {
+    "authority_chain": "funding evidence (direct + eventual upstream) -> shared-behavior/topology CANDIDATE observation (e.g. Part 8's shared-upstream-source finding) -> human/automated REVIEW and PROPOSAL stage (not built or run in this milestone) -> ONLY THEN, through a separate, explicitly-gated review process, possible operation attribution",
+    "explicit_prohibition_preserved": "funding evidence produced by B2Z or a future B2Z-2H NEVER automatically mutates Watchtower, three_sw2, operation membership, or canonical attribution -- confirmed no such write path exists in either b2z_execution_boundary.py or the second_hop_builder.py system (which itself only writes to its own funder_upstream_links/upstream_network_bridge/creator_second_hop tables, never to any operation/Watchtower table)",
+    "existing_protection_confirmed": "grepped second_hop_builder.py and related upstream modules for watchtower/operation/three_sw2 references -- zero matches, confirming this existing system already respects the same isolation boundary B2Z-P1 was built to preserve"
+  },
+
+  "blockers": [],
+
+  "verdict": "READY_B2Z_DIRECT_FUNDING_EXECUTION_WITH_SEPARATE_2H_SUCCESSOR",
+  "verdict_note": "The historical production system already has a real, enabled, and partially-populated 2-hop upstream-funding pipeline (SecondHopExpansionBuilder, feature-flag-enabled, 19,769 rows in funder_upstream_links, 463 in creator_second_hop) -- but it has essentially NOT yet processed this specific 20-member August cohort (only 1 stale, excluded, pre-cohort row found via the pre-built volume-gated tables). A raw relational search of transfer_index (bypassing the volume gate, per instruction) found 9 candidate upstream signatures, of which 3 were CONFIRMED SELF-LOOP FALSE POSITIVES (the query matching a member's own creator address as its 'upstream source') -- a real, demonstrated risk this reconciliation specifically caught rather than silently accepted. Only 5 of 20 members have genuine (if mostly weak -- 3 of 5 are 1-lamport dust-level transfers) local upstream candidate evidence. B2Z's own canonical contract is confirmed, directly from its existing governing document (B2N-P3B) and code, to cover ONLY the direct funder->creator relationship -- 2-hop upstream qualification is NOT part of B2Z and must be a separate successor milestone, proposed here as B2Z-2H but NOT authorized or built. The direct B2Z provider requirement remains exactly 50 requests (unchanged from P1.6) -- no new local evidence found this milestone reduces it further. A rough, explicitly-unauthorized estimate for a FUTURE separate 2-hop run is ~35 requests, kept entirely separate from the direct 50. Operation-discovery authority boundaries (funding evidence -> candidate observation -> review -> NEVER automatic mutation) are confirmed intact in both the existing production second-hop system and the qualified B2Z-P1 durable runner. No provider calls were made. No production data was modified. No code was changed."
+}

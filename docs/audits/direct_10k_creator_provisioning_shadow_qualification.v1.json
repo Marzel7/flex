@@ -1,0 +1,565 @@
+{
+  "detector": "DIRECT_10K_CREATOR_PROVISIONING",
+  "digest": "faaa44199b06f9194e83fcaac2f9bf8ad3b84b75900329e638213f93b2a7eef5",
+  "elapsed_ms": 0.11537499085534364,
+  "results": [
+    {
+      "cohort": "STRICT",
+      "mint": "4QoTTjqGmKAURDpVCmpFb8WrkAWJ76crpd67T3KEsXrM",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "W71J5wXB6f6kU7g5Jy9VQB9uhR7Z8kXGmeKT1Uopump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "3xpZ38num2VYWuRxrF6fqoUE9a35QJeEcQggnmNrTTjK",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "FAs4RX3HkHzk1qgTxdEW9vxadnn2FiPP2mC6Tx3hpB67",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "gnuvC7NijR3T6JGLrwZgnN1uxEvSFUNZiZL9pKQM8FY",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "Dn1VHNhgQgvYLgHyAhXmgm3cetKJauHmNwU8jyR4R8yv",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "DTz7bdX9g7NcFh4wGBpN8UHFW46ztbg2TqkYxsDi3cK3",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "3LjjCQbxKDDAXS23ZggfQsNpEQc65JqDVocX1wcVk8t4",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "14i7jbnL5khBcnebWjhQ6bXziW3pAptkeaQV9Utvpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "tqoujijMHVYCoasNuZLfdsK21BN8YA8rGo6mT7ppump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "jqTxh8sCnZL4HFGhbUiDoGmBCtVN8bKUpGsYCL6pump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "CLbs9tM8bCNpE5jdCXFckpmw79TpZSLRSu54Qb7pump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "jH1eyszZ2dApp7Jm5V8GohsEyBhxfucii551TE7pump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "g4hrKKmbKGFhsRzmzyYTS5JX62F7EX3Js1uTXWVpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "J8fqEnjTyhHhj21VrGQS8SPb3A3ectA3EcrPC8Sspump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "TA3S3pBqT1Txxg4NF9Beke6WEhkEP9EcxUv2LeFpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "7vC8HPhWgyR7nJ5eMHQoCBNf1YUBASTDQ6pMd2opump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "8UbwMGX4R5AUa8L1Wn9bzGy3639AxG42yPYCX8vpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "5s4Zp3zbueZdVJtSxtpnhAdsNAdzd7yTy2hRjJQzuhnH",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "CmoB5aWFfaCfEHFmwLA3gbnLxiaEDKgiGmXfUgwD7HNw",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "norm8mXDK6ndyav2cYriwkDtS2Ti3QScYgTPaavn4Ay",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "Bm1Q81FMSL5aTTCuzLMSYNwxicwzxapy41r9x2Wpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "ALTERNATE",
+      "mint": "49t113M4eMYfKHVA55BhnFNbBt33reCNDqtd6fkYFT3B",
+      "reason": "NO_MATCH_DESTINATION_ROLE",
+      "result": "NO_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "HgAuCVvvxorMRA9e3WTk46MFDG2xx7vonVeyyTbx79KK",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "unCSuxWkbxPg3Xgh3R4dMq5eW1wm3pHHxFaJBmapump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "ua8aPfbcYTJhq4K6w5ZSB9JHSpsGdSLiMojLohCpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "vLwSWRCNXiAiXBuc7iPsiV6LEiEnBKyEqxWMdu4pump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "JuNoKbB2itT5utvrNEtwJ2Q3WZhtkrDgEwzDf2Spump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "Azv9RJaBkg33ttcaantqXxSTbTTf6tdNDZJkfRWmpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "km5MDvB5vdrUuZ7CMzTE4nSASvmtuFgVDWtfEiopump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "69Hxdqmu5Q7f6Hkn5FdVWo9JeL2omWPEdZ5wfEZSpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "5CVYqnp1GvFTTW66uQ67RppPBPMnFfuCYGGXxXUUpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "D6aYNcyR3oNiEP63X3SnyCYzEGAKrX7f6951Mrzpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "BQfvAu9gRQ61mBAKmd6L2J6j9fpUCLbXkjHs4fXUpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "ALTERNATE",
+      "mint": "GyMC6ay28dxcfdpbYjwqfP8EfjVvrHE4rP6vwoMupump",
+      "reason": "NO_MATCH_DESTINATION_ROLE",
+      "result": "NO_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "DZkxhWCvKE3iuDGfoQcz4akiuBDisvtJ3G9eEpSmpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "GR3pRwGN34RWwQyE5Xw1exBPzCZ7HhKftMMrzsbspump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "6e5a3xFpZBuv41EJTGwKh9ki2zQ7xAcqg6y1cMRmpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "4SfKq9CDSNrDrswXMamCSwnP58jmPYxJcW2ShM4upump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "EUfkzeNzSQ67zHP2oKNKhRFMDgytCCu8DqDPYfBxpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "BSY3qBRwp1RvcNsFiBUFJTKr7NVDv6PFCejVV6crpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "BaBeW6hdxDSenERN6JcxLY9v27YnZqaAQYWuscUjpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "DNFUP9tDaaHSLGkRfypf4t1u1uNYnFiPKUWFivBWpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "9sppvFeeQ4eWZVGqQ4uxwKA7TzEAYFgKCx2V54qZf3f",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "GUrQf9dzcZSrog7YRyx6uZjJfSDZuZrhu7F3S9Xpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "ALTERNATE",
+      "mint": "22hwGyN552rCB7GW73GdC839Nkbi881jCXNgvoT5pump",
+      "reason": "NO_MATCH_DESTINATION_ROLE",
+      "result": "NO_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "EUccNFoEHwoQ68tHWXytDrbDkDTY5iKGicuFpA7fpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "D7UkWaCWNCukBFP5VUv3ajFQ7PEMjZSSv78y2wHCpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "68Z6fpmPM7R6T4uGWrFqg82v1iryBfSN4vcoyzZ4pump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "EdGY7F3uVW3LD1485o2CU84agMbJkFahbzJEEyMpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "kqcyNfnQuki1JBjMuSC3XYNSuBBezfKeAnYWtNtpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "VBrCaWDTRPyW5BvRoTph5BR8KZNstSNzrTdYEgipump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "gBA6YuiJaMGPbSZ8X6Y7LBz9fd2fmtsAivr5QQnpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "8jWos15xY4nPUuFcSG9QvpTAbpVYg2Pdr38iQfSpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "pD28VHG3vGzT4PWFjyd7HRHRpYaGCYD5B565Bv1pump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "7vRYuepuBdgUFiceqC46s2GfW9E9YRbSCYMBGvTRpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "2HEHbuf85uBdW2yu1gRotXD9rveaYcBnvQpVn2zYpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "6dNmQku2Dnney8LnXUMKBdchqP2hd9xnUJyf8Y9wpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "GxJp64uK69rxBv9xcju3Z2jSTrcfpqi3nT1DLuPpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "SpXcEtVQTbrQhwa5ysrn9oyRDyhJ2kBiUDKWFTXpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "26MGRzYaCX55Nbqc1aNtMRCB6r7E7aLqr8Cwfks2pump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "6kAYhe9CLYVrRDknUdRUaagVyEjMBWPkrCCEFMKipump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "St7XNGmeeDggsGVhM6i75xJ7GDa4vECg7G5hMKdpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "GJSmv1ZieC6T7k88aLpVQDB11X2yy2XwFEeJuqqSpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "EnkmS3jvFqsZb7MSTw9H48cUXfENUd2pBVXLHNmqpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "FvTorpDvrDUEBcc8vqAb88g5aehDK6wkA8hyenwLpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "E4LLHpFnRgDLiYqyqnMEZ1C2CBmR6CWdcWrT5hpipump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "GtaKydPfLerjvf4fdiCJFbeHgmXzbSEwsLv4yjs5pump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "44xU1df8XusRRiZhcucfWMMACpbhqdVvHDbG7zRdpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "64u6ck5Rpn88YpFdALXaoQVY3fF2cneoSWD4sf2epump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "HVXsnbGyNR7cXdj5LhHqLVxNsmGsyH2VwJuD5fHCpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "2eyAxcdczf7cmHLkqerjEokhdy2EMPL7w5AKkDK5pump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "6dPRZRMgd8iS5f5BeqDDisXhkW5CWSRBHq69iGX4pump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "FrayVb4QqRjoBovzjaYbmF75LUMwBGpRzYugU4E1pump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "7yBAq9MHhjDrvAh3UgZFr1kUoCKcQCdHGfnVMXnXpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "79mFmvFew2GzzBmbghw1U2nEoqcEJMaBJ2CNM6gkpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "oxsBtVM2ph6TWDZjKeLxuq77kQLBNBmdTcZDXcGpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "89LQmLpgxM53SMaNCeX1KuNjUQCTqdqvyt1rzmR1pump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "FuWiHaX7DmgF8j3TF5Qg45cua3nvsUnGHtmWkgGkpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "Vpm3yhgro67XZUHRX6dM92b2bXdKZpx6t1Ps31Ppump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "AifhFReXgPPexvqjzxZwbztKZ4xsAaNJbEXdLz1Xpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "jTpDtR77rrSfoTTfVBUfDSt9tNbji2Fj3MwHcWCpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "F5XcqRi6pDQQj8A8WJgSHG83gPue5GK7dbJnCydjpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "QVtW",
+      "mint": "EL4TQEUGPpW8LZnD7PqZX1hWuqCo64tFsgTJfyGKpump",
+      "reason": "INSUFFICIENT_TRANSFER_DESTINATION",
+      "result": "INSUFFICIENT_INPUT"
+    },
+    {
+      "cohort": "QVtW",
+      "mint": "DgFuSYjwjVYBtD17QrJbFYtDXvjn1hJLErz5DoY9pump",
+      "reason": "INSUFFICIENT_TRANSFER_DESTINATION",
+      "result": "INSUFFICIENT_INPUT"
+    },
+    {
+      "cohort": "QVtW",
+      "mint": "CYVCvH1u59vHZv9LiwVgrsuaFDDMCUwWyjjNkT6wpump",
+      "reason": "INSUFFICIENT_TRANSFER_DESTINATION",
+      "result": "INSUFFICIENT_INPUT"
+    },
+    {
+      "cohort": "QVtW",
+      "mint": "3bM3yijpVApAZT5H87hZ4FmjzLiF5Ui6WtSFkG4Npump",
+      "reason": "INSUFFICIENT_TRANSFER_DESTINATION",
+      "result": "INSUFFICIENT_INPUT"
+    },
+    {
+      "cohort": "QVtW",
+      "mint": "9tTm1ByxUi73Cxxjme8EQU953SD7ekHZW25GNibbpump",
+      "reason": "INSUFFICIENT_TRANSFER_DESTINATION",
+      "result": "INSUFFICIENT_INPUT"
+    },
+    {
+      "cohort": "QVtW",
+      "mint": "LWZvn5VWRk23xzzkbrSR1yCaWnKNcU1tFCMAnvppump",
+      "reason": "INSUFFICIENT_TRANSFER_DESTINATION",
+      "result": "INSUFFICIENT_INPUT"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "247aEWkHmrna4JTYftxLyRw7Yt2jQ2M4zsGGecoNpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "6SdvQpA6QyKX54XQxBSYznQ7nCAg2J2XRZ9hNvjnpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "C7narw5LL8LLPgUuosa1nKQwdtxEizumTPzfKYVkpump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    },
+    {
+      "cohort": "STRICT",
+      "mint": "6gN4hKp17ax1bktM3BxYxuwwMAgBFFT4DShg1cc8pump",
+      "reason": "MATCH_DIRECT_10K_TO_ASSOCIATED_CREATOR",
+      "result": "UNIQUE_MATCH"
+    }
+  ]
+}

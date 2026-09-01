@@ -7,6 +7,7 @@ from typing import Any, Callable
 from src.core.database_write_service import database_write_service, execute_script
 from src.ops.operator_model import DDL
 from src.ops.operator_identity_governance import DDL as IDENTITY_LIFECYCLE_DDL
+from src.ops.manual_registry import DDL as MANUAL_REGISTRY_DDL
 
 
 class OperatorWriter:
@@ -25,7 +26,7 @@ class OperatorWriter:
         """Explicit startup/migration operation; never called by readers."""
         self.transaction(
             "operator-schema-upgrade",
-            lambda conn: execute_script(conn, DDL + IDENTITY_LIFECYCLE_DDL),
+            lambda conn: execute_script(conn, DDL + IDENTITY_LIFECYCLE_DDL + MANUAL_REGISTRY_DDL),
         )
 
 

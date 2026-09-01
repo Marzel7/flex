@@ -1,0 +1,1 @@
+{"cold_destinations": ["/private/var/folders/k9/zjkbhj_54cd2h_j_z69jy0hc0000gn/T/pytest-of-kevinkeaveney/pytest-264/test_keyset_batching_no_gaps_n0/cold/transfer_index_cold_2026_02_delta_a1016947d8da.sqlite"], "phase": "PUBLISHED", "publication_complete_before_hot_retire": true, "sequence": 13, "timestamp_utc": "2026-08-21T21:31:14Z"}

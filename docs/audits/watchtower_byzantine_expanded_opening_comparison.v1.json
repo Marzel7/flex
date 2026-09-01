@@ -1,0 +1,9 @@
+{
+  "schema_version":"watchtower-byzantine-expanded-opening-comparison.v1",
+  "status":"PARTIAL_ASYMMETRIC_EVIDENCE",
+  "watchtower":{"creation_signature_valid_total":10,"opening_slot_event_decoded_total":9,"embedded_creation_buy_total":10,"same_slot_curve_completion_observed_total":5,"opening_slot_median_buys":5,"opening_slot_median_buyers":5,"opening_slot_median_sol_in":85.005359057,"opening_slot_median_end_mc_sol":410.880168121},
+  "byzantine":{"selected_rows":10,"valid_pumpfun_creation_anchor_total":1,"invalid_retained_creation_signature_total":9,"fully_qualified_opening_stream_total":1,"reference":{"mint":"3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump","creation_only":true,"next_slot_buys":7,"next_slot_sells":1,"sol_in":1.309602285,"first_slot_end_mc_sol":161.005185916}},
+  "conclusion":"The expanded acquisition strengthens the WATCHTOWER-side observation of embedded creation buys and frequent capital-heavy same-slot completion. It cannot establish a balanced operation-level comparison because nine selected Byzantine retained signatures are not actual Pump.fun creation transactions. The prior N=1 Byzantine reference therefore remains the only qualified Byzantine opening stream.",
+  "safe_hypotheses":{"watchtower_embedded_creation_buy_common_in_selected_sample":true,"watchtower_immediate_completion_observed_in_selected_sample":true,"watchtower_vs_byzantine_creator_seed_rate":"NOT_QUALIFIED","watchtower_vs_byzantine_sol_intensity":"NOT_QUALIFIED","watchtower_vs_byzantine_immediate_completion_rate":"NOT_QUALIFIED","byzantine_opening_sell_rate":"NOT_QUALIFIED","opening_impulse_mc_distribution_difference":"NOT_QUALIFIED"},
+  "next_action":"Repair only Byzantine creation-anchor provenance from retained artifacts before a new balanced reconstruction; do not derive births by broad address-history pagination."
+}

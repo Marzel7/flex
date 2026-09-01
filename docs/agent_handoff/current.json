@@ -2173,6 +2173,38 @@
   "latest_ra4_dual_path_artifact_digest": "c951304432eb62428a97b0f15f92816d707a00348b4840e59bd11238b44d8799",
   "latest_ra4_output_path": "docs/audits/ra4_c1_authoritative_cutover_and_hot_plateau_readiness.json",
   "latest_ra4_preflight_path": "docs/audits/ra4_c1_authoritative_cutover_and_hot_plateau_readiness.json",
+  "storage_incident_2026_09_01": {
+    "status": "CLOSED_CORRECTED_BASELINE_FROZEN",
+    "critical_accounting_warning": "macOS `stat -f %b` is POSIX st_blocks in FIXED 512-byte units. allocated_bytes = %b * 512. NEVER multiply %b by %k (an unrelated filesystem I/O-transfer-size field). An earlier pass in this incident used %b*4096 and overstated every physical-allocation figure by exactly 8x. Do not let that error re-enter future storage analysis.",
+    "retracted_claims": [
+      "flex_complete_database.db-wal reclaiming ~689MB physically while shrinking ~86MB logically -- WAL allocation tracks logical size ~1:1",
+      "ALLOCATED_SIZE_CHANGE_WITHOUT_LOGICAL_GROWTH as a real phenomenon",
+      "treating vm.swapusage deltas as equivalent to physical APFS bytes consumed -- proven false: VM volume Capacity Consumed was exactly static across 6 samples while vm.swapusage swung ~250MB",
+      "~1.96GiB / ~2.1GiB unexplained-allocation estimates from the flawed multiplier"
+    ],
+    "proven_root_causes": {
+      "intelligence_snapshot_scheduler": "attempted large same-dir atomic temp writes under critical low disk; P0/P1 fixed: atomic temp cleanup, 10GiB MIN_FREE_BYTES floor (src/ops/intelligence_snapshots.py), ENOSPC fail-closed circuit, Supervisor autostart=false/autorestart=false/startretries=0. Remains STOPPED. Do not restart below 10GiB df-available.",
+      "codex_tmp_pack_leak": "OpenAI Codex turn-diff capture (`git add -u --sparse --pathspec-from-file`) can be SIGKILLed mid pack-objects write, leaving abandoned .git/objects/pack/tmp_pack_*. scripts/git_tmp_pack_guard.py provides fail-safe classification; only VERIFIED_ABANDONED may be deleted (age+stability+no-open-handle+no-git-process, re-verified immediately before unlink).",
+      "x78_diagnostics": "x78_22_creator_funding_sql.jsonl / x78_19_listener_connections.jsonl were unbounded append-only; now RotatingFileHandler-backed, 10MB current + 2 backups, via src/utils/db_locking.py. X78_CF_SQL_DIAGNOSTICS_ENABLED env gate added for X78.22 (default preserves prior behavior). Verified live in both creator_funding_worker and watchtower_listener after restart.",
+      "creator_funding_worker_wal_pinned_exits": "NOT a crash. Intentional: CRITICAL_WAL_PINNED (WAL>=64MB, busy 3+ cycles) -> os._exit(1) -> Supervisor autorestart -> stale-job reaped and retried -> normal processing resumes in ~6s. New bounded event-triggered instrumentation (local_connection_state + external_open_handles, capped/bounded, fail-open, only fires at the terminal condition) is implemented and loaded live. Do not manufacture an event; wait for the next natural one.",
+      "watchtower_listener_sigterm": "one unexplained external SIGTERM at 2026-09-01T22:31:28Z, classified UNKNOWN_SIGTERM_SOURCE. Not one of the process's own 3 self-kill paths (all use os._exit or uncaught RuntimeError, never SIGTERM). Resumed healthy immediately. Do not reopen unless it recurs."
+    },
+    "large_db_retention_classifications": {
+      "database/_p5a_migration_build/r2_2_summary_store.sqlite": "REGENERABLE_SAFE_TO_REMOVE, correct physical reclaim ~524MiB (NOT the ~4.1GiB earlier miscalculated figure). Deletion NOT yet authorized.",
+      "database/evidence_platform/oip_v2_2c3_indexed_authority/indexed_authority_compact.sqlite": "UNKNOWN_DO_NOT_TOUCH -- unresolved contradiction between prior audit's STILL_RUNTIME_REQUIRED tag and no src/ import found this pass",
+      "database/transaction_first_lineage.db": "MUST_RETAIN_AUDIT_SOURCE -- in storage_lifecycle_runner.py PROTECTED_EXACT_PATHS denylist",
+      "database/flex_investigation_archive.db": "MUST_RETAIN_LIVE_RUNTIME -- ATTACHed read-only by 3 live src/core/main.py routes, fail-loud FunderArchiveUnavailable if missing"
+    },
+    "implementation_committed": false,
+    "implementation_note": "ALL safety fixes from this entire incident exist ONLY as uncommitted working-tree changes as of this entry -- HEAD is still bf1baac7 (unrelated prior work), nothing from this incident has been committed. See git status: config/supervisor/supervisord.conf, src/core/intelligence_snapshot_scheduler.py, src/ops/intelligence_snapshots.py, src/ops/emerging_operators_snapshot.py, src/utils/db_locking.py, src/core/creator_funding_worker.py, .gitignore (all modified); scripts/git_tmp_pack_guard.py, tests/test_git_tmp_pack_guard.py, tests/test_snapshot_storage_safety.py, tests/test_x78_40_diagnostic_jsonl_bounded_retention.py, tests/test_x78_40_wal_pinned_connection_snapshot.py (all new/untracked). A disk-losing event or accidental git clean could destroy this work; commit at the next safe opportunity (separate explicit authorization required).",
+    "future_triggers": {
+      "trigger_a_wal_pinned_event": "on next natural CRITICAL_WAL_PINNED, inspect local_connection_state + external_open_handles before deciding whether to instrument another process (do not assume creator_resolution_worker without evidence)",
+      "trigger_b_listener_sigterm_recurs": "reopen signal-source attribution only if it recurs",
+      "trigger_c_tmp_pack_cleanup": "use scripts/git_tmp_pack_guard.py --check, clean only VERIFIED_ABANDONED",
+      "trigger_d_scheduler_restart": "only when df available >=10GiB AND all snapshot safety conditions still satisfied",
+      "trigger_e_r2_2_reclaim": "r2_2_summary_store.sqlite ~524MiB reclaim candidate remains separately gated, not authorized"
+    }
+  },
   "latest_results": {
     "agent_orchestrator_v1": {
       "capability_discovery": {
@@ -13334,8 +13366,18 @@
     "safety": "Read-only local database/artifact audit plus additive audit artifact only; no production/source/Walkback/schema/UI/code mutation or suppression.",
     "exact_next_action": "If a broader multi-mint historical USD valuation is desired, separately acquire a dedicated timestamped SOL/USD source; do not treat opportunistic token snapshot ratios as full historical coverage."
   },
-  "updated_at": "2026-09-01T16:55:42Z",
-  "updated_at_utc": "2026-09-01T15:55:42Z",
+  "operation_assigned_launch_valuation_stage0": {
+    "status": "COMPLETE",
+    "verdict": "OPERATION_ASSIGNED_LAUNCH_VALUATION_STAGE0_IMPLEMENTATION_COMPLETE",
+    "result": "Implemented an isolated default-OFF Stage 0 valuation module: an explicit post-commit-only compact job adapter, finite durable file queue, one-at-a-time worker, retained-only UI state reader, and append-only content-addressed derived valuation records. No producer is wired or activated while the flags remain false.",
+    "rpc_contract": "operation-launch-valuation-rpc.v1: exact creation lookup <=1; first-second block window <=3; total Alchemy calls <=4; address pagination, historical discovery, and automatic window expansion are false.",
+    "safety": "Both OPERATION_LAUNCH_VALUATION_ENABLED and OPERATION_LAUNCH_VALUATION_RPC_ENABLED default false. Worker never runs in the listener, Walkback, attribution transaction, creator-funding path, or UI; no RPC/provider calls, database/schema/UI/service changes, or attribution/membership mutation occurred.",
+    "tests": "pytest -q tests/test_operation_launch_valuation_stage0.py tests/test_eb0_1_pumpportal_birth_audit.py: 13 passed.",
+    "artifact": "docs/audits/operation_assigned_launch_valuation_stage0_implementation.v1.json",
+    "next_action": "Separate authorization is required for Stage 1 shadow enqueue; retain feature flags off until then."
+  },
+  "updated_at": "2026-09-02T00:00:00Z",
+  "updated_at_utc": "2026-09-01T23:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "PUMPFUN_FIRST_SLOT_REPLAY_PARTIAL_EXACT_BLOCKER_IDENTIFIED"
+  "verdict": "OPERATION_ASSIGNED_LAUNCH_VALUATION_STAGE0_IMPLEMENTATION_COMPLETE"
 }

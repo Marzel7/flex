@@ -32660,6 +32660,21 @@
     "production_flags": "retained_local_only=true; incremental_rpc=0; incremental_getTransaction=0; source_or_production_rows_modified=false; suppression_occurred=false",
     "exact_next_action": "Use the deterministic replayer after a future retained-evidence high-water advance to identify post-freeze A/B deltas; do not poll providers or enable suppression."
   },
+  "byzantine_bounded_second_leg_decode_pairing": {
+    "milestone": "Byzantine bounded second-leg deterministic local decode and pairing",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "artifacts": [
+      "docs/audits/byzantine_second_leg_3Tg6_decoded_roles.v1.json",
+      "docs/audits/byzantine_atomic_funding_flow_3dgGSH.v1.json",
+      "docs/audits/byzantine_second_leg_pairing_manifest.v1.json"
+    ],
+    "result": "The one retained bounded getTransaction response deterministically decodes Byzantine -> creator via temporary WSOL: 14,999,985,000 lamports closed to J3yZ...ThMy. It pairs with the retained selected Df8...kdya -> Byzantine 15,000,000,000-lamport transfer for mint 3dgGSH...pump one second earlier; the 15,000-lamport difference equals the second transaction fee. Two local decode runs had identical digest 185f052f1a85c0d0d0e08e25915b558146a191d07bd74a9ecf7cad3613a77d94.",
+    "production_flags": "No new RPC/provider calls; no normal Walkback, production, membership, UI, schema, or source-row writes; additive audit artifacts only.",
+    "compatibility": "Frozen Byzantine cohort reconciled: 182 current mints, 182 frozen mints, zero missing, zero extra.",
+    "blocker": null,
+    "exact_next_action": "Preserve the 182-mint baseline. Any broader Byzantine relationship reconstruction requires separately scoped authorization."
+  },
   "updated_at": "2026-09-01T00:00:00Z",
   "updated_at_utc": "2026-09-01T00:00:00Z",
   "updated_by": "agent_local",

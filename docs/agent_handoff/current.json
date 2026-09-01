@@ -32428,6 +32428,21 @@
     "safety": "Additive raw/decoded/result audit artifacts only; no production/source/Walkback/schema/UI/code mutation or suppression.",
     "exact_next_action": "If USD opening-market-cap claims are needed, separately authorize use of a retained or externally acquired contemporaneous SOL/USD observation; do not substitute a current price."
   },
+  "macrohard_sol_usd_historical_local_audit": {
+    "milestone": "MACROHARD retained-local historical SOL/USD source audit",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "COMPLETE",
+    "verdict": "SOL_USD_HISTORICAL_LOCAL_AUDIT_COMPLETE",
+    "result": "A retained direct DexScreener token_price_snapshots row at 1788250326 (7 seconds before creation) contains both USD and SOL token prices. Its same-row ratio is exactly 102.70 USD/SOL and is corroborated by four cached local copies in the ±30-second window. It converts qualified first-slot MC from $16,203.41 after buy #1 to a $16,655.03 peak after buy #5 and $16,535.23 at slot end.",
+    "temporal_quality": "WITHIN_30_SECONDS",
+    "caveat": "The SOL/USD value is a derived ratio from a timestamped retained direct DexScreener token snapshot, not a dedicated oracle series. It is qualified for this bounded timestamped conversion, but the existing opportunistic per-token snapshot store is not suitable for broad historical backfill.",
+    "artifact": "docs/audits/macrohard_sol_usd_historical_local_audit.v1.json",
+    "artifact_digest": "8d33c84bff828d3a3b0c0942efe83864e8ebed260d70ede6454a13ec7aa34fe5",
+    "replay_digest": "bd3bb840b1c6040731a8173ecb310299590261fde5cbe3817264b9e4f48f943c",
+    "network": "0 external price, Helius, Alchemy, GMGN, PumpPortal, or Solana RPC calls.",
+    "safety": "Read-only local database/artifact audit plus additive audit artifact only; no production/source/Walkback/schema/UI/code mutation or suppression.",
+    "exact_next_action": "If a broader multi-mint historical USD valuation is desired, separately acquire a dedicated timestamped SOL/USD source; do not treat opportunistic token snapshot ratios as full historical coverage."
+  },
   "updated_at": "2026-09-01T16:55:42Z",
   "updated_at_utc": "2026-09-01T15:55:42Z",
   "updated_by": "agent_local",

@@ -1,4 +1,14 @@
 {
+  "pumpfun_canonical_curve_schema_read_only_audit": {
+    "status": "PARTIAL",
+    "verdict": "EXACT_EXTERNAL_AUTHORITATIVE_SOURCE_IDENTIFIED_BUT_NOT_AVAILABLE_LOCALLY",
+    "mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+    "result": "No canonical Pump.fun IDL, SDK, Borsh layout, or generated client is locally retained. All 10 buys share opaque event discriminator bddb7fd34ee661ee; observed V2/sol-in instruction discriminators are retained, but cannot be safely decoded without the target-era schema.",
+    "network": "0 RPC/provider/GMGN requests.",
+    "artifacts": "docs/audits/pumpfun_canonical_curve_schema_read_only_audit/manifest.v1.json",
+    "artifact_digest": "2e549cc0762f7e08cd43747c29f8a55b523ce56e143d1e23fbfa69b4f162f7c2",
+    "next_action": "Obtain the official versioned Pump.fun program/IDL source that is bound to program 6EF8...F6P at slot 443375107, then decode the retained logs and qualify exact replay before any valuation claim."
+  },
   "pumpfun_virtual_reserve_decoder_qualification_poc": {
     "status": "PARTIAL",
     "verdict": "PRECISE_BLOCKER_IDENTIFIED_NO_QUALIFIED_RESERVE_DECODER_OR_HISTORICAL_STATE",

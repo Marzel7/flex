@@ -32837,6 +32837,18 @@
     "blocker": null,
     "exact_next_action": "Keep the one no-surviving-candidate mint unresolved and do not alter funder_sig or frozen membership."
   },
+  "byzantine_10_second_pairing_user_approved": {
+    "milestone": "Byzantine specific user-approved 10-second serial-pair boundary",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "artifact": "docs/audits/byzantine_10_second_pairing_user_approved.v1.json",
+    "artifact_digest": "a7d4c22bf0c7b3cfa99e00decaa77c1ff507b0a5470826efa8cfafd2bc7640bb",
+    "result": "User explicitly approved the exact-fee-continuity 10-second Df8->Byzantine candidate 2eaf...PSo2 for mint 6X7E...pump. It is recorded as a specific boundary extension and raises the reported serial-chain total to 47; the original strict 6-8 second audit remains unchanged.",
+    "production_flags": "RPC=0; no code/schema/UI/database/source/normal-Walkback/membership/attribution/suppression changes; funder_sig unchanged.",
+    "verdict": "BYZANTINE_10_SECOND_PAIRING_USER_APPROVED",
+    "blocker": null,
+    "exact_next_action": "Do not generalize the 10-second extension without separate validation."
+  },
   "updated_at": "2026-09-01T00:00:00Z",
   "updated_at_utc": "2026-09-01T00:00:00Z",
   "updated_by": "agent_local",

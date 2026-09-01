@@ -1,35 +1,81 @@
 {
-  "wt_farm_launches_evidence_provenance": {
-    "status": "PARTIAL_AWAITING_FIRST_ORGANIC_FARM_ROW",
-    "engineering_revision": "uncommitted local worktree changes",
-    "artifact": "docs/audits/wt_farm_launches_evidence_provenance.v1.json",
-    "tests": "8 passed: farm evidence retention + Unknown classifier/audit suite",
-    "finding": "farm_detector observes the oldest creator transaction signature and raw jsonParsed transaction, then discards its role/timing fields when it projects to compact wt_farm_launches fields.",
-    "baseline": "58 persistent funders / 460 source rows unchanged",
-    "implementation": "Additive prospective wt_farm_launch_evidence link to canonical wt_walkback_transaction_roles deployed by restart of operation_scheduler (PID 21622); no forced scan/RPC, no filter/ranking/UI activation, no historical backfill.",
-    "current_role_overlap": "42/10079 all farm rows (0.42%); exact historical selected-edge-to-role joins 32; current farm rows have no canonical signature key.",
-    "next_action": "After the next normal scheduler farm scan, validate the first prospective wt_farm_launch_evidence linkage and its generic role row; ranking baseline must remain unchanged. A post-deploy observation window saw no organic farm scan; no scan was forced."
+  "pumpfun_virtual_reserve_decoder_qualification_poc": {
+    "status": "PARTIAL",
+    "verdict": "PRECISE_BLOCKER_IDENTIFIED_NO_QUALIFIED_RESERVE_DECODER_OR_HISTORICAL_STATE",
+    "mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+    "result": "All ten retained successful buys have opaque Pump Program data, but no locally retained canonical event/account layout decoder exposes reserve fields. The legacy constant-product simulator exists but mismatches all 10 observed token outputs and is not contract-bound to the target Pump.fun version.",
+    "network": "0 additional calls; no historical account-state method is documented in the repository/provider integration, so no account-state RPC was made.",
+    "artifacts": "docs/audits/pumpfun_virtual_reserve_decoder_qualification_poc/qualification_manifest.v1.json",
+    "artifact_digest": "50340514fda74fce75c30543a1db2615ae1be58a30c18fe16643c6ac8893664a",
+    "next_action": "Acquire a canonical versioned Pump.fun IDL/account-event schema or a provider with exact-slot archived account-state semantics, then validate one historic mint before any 174-mint backfill."
   },
-  "wt_farm_launches_first_link_monitor": {
-    "status": "ACTIVE_HOURLY_SILENT_UNTIL_EVENT",
-    "schedule": "minute 7 hourly via local crontab",
-    "script": "scripts/monitor_first_farm_evidence_link.py",
-    "safety": "read-only; no scan, RPC, service restart, backfill, classifier mutation, or filter activation",
-    "notification": "only first linked row or genuine monitor error; no-row exits silently",
-    "tests": "8 passed including monitor silence fixture"
+  "pumpfun_opening_sequence_poc": {
+    "status": "PARTIAL",
+    "verdict": "OPENING_MULTI_BUY_SEQUENCE_PROVEN_MARKET_CAP_UNSUPPORTED",
+    "mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+    "result": "10 successful Pump.fun buys transaction-ordered across slots 443375107-443375111; 7 successful buys / 1.309602285 SOL in creation-second slot 443375107; 3 failed Buy attempts explicitly excluded.",
+    "causal_conclusion": "Opening movement cannot be attributed to buy #1 alone; it is an immediate multi-buy sequence. Exact market-cap trajectory remains unproven because no local virtual-reserve event/account-state decoder exists.",
+    "rpc": "6 getBlock calls (one duplicated only to repair exact in-block transaction indices); no getTransaction/account-state/GMGN/history pagination.",
+    "artifacts": "docs/audits/pumpfun_opening_sequence_poc/",
+    "next_action": "Separately design and qualify a Pump.fun virtual-reserve event/state decoder before any initial-MC or multi-mint impulse claims."
   },
-  "unknown_repeat_funder_spam_filter": {
-    "status": "HOLD_FALSE_POSITIVE_SAFETY",
-    "engineering_revision": "uncommitted local worktree changes",
-    "tests": "7 passed: tests/test_unknown_funder_edge_quality.py and tests/test_audit_unknown_funder_edge_quality.py",
-    "production_flags": "No RPC, provider, database, ranking, or UI changes; classifier remains shadow-only.",
-    "artifact": "docs/audits/unknown_repeat_funder_edge_quality_qualification.v1.json",
-    "source_of_truth": "wt_ops_v2.db::wt_farm_launches -> _unknown_funder_launches_cte() -> >=3 funder recurrence",
-    "baseline": "58 persistent funders / 460 persistent rows",
-    "safety_result": "406 independently retained genuine farm funding edges qualify; false dust=0; 50 lowest retained controls all qualify.",
-    "blocker": "Known dust evidence and the three reported senders have zero wt_farm_launches rows. Farm rows do not retain the role/timing facts required to distinguish dust safely, so no ranking row can be removed from this source yet.",
-    "next_action": "Extend the farm observation representation with retained transaction-role and launch-timing evidence, map known dust facts onto actual farm rows, then rerun the same audit and activate only with zero genuine false dust and measurable source-population removal."
+  "pumpfun_forward_first_buy_poc": {
+    "status": "PARTIAL",
+    "verdict": "FIRST_BUY_PROVEN_INITIAL_MC_UNSUPPORTED",
+    "mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+    "first_buy": {"signature": "4Qyht4ZXtt8t11Jc6v3UkDWBTzCUUWfYG1Xywyym5NLRsonyG5nBvoFyztQCNhqd1Ku2jt1VW81N7vzB9or4bcoJ", "slot": 443375107, "buyer": "Eqk3ht8ADsrigNrVPqKZ3bST9VosebkMxmwE11cnKhar", "sol_to_curve_lamports": 180000000, "token_out_raw": 1143759998709, "independent_buyer": true},
+    "scan": "1 getBlock; next slot; 1,831 block transactions; 3 target-linked candidates; stopped at first proven buy",
+    "limits": "No getTransaction beyond prior creation anchor, getSignaturesForAddress, getBlockTime, GMGN, or broad discovery.",
+    "limitation": "Pump.fun virtual reserve state was not decoded from the block payload, so post-buy spot price and initial market cap remain unsupported.",
+    "artifacts": "docs/audits/pumpfun_forward_scan_poc/",
+    "next_action": "Design a bounded Pump.fun event/account-state decoder before any multi-mint first-buy/market-cap backfill."
   },
+  "pumpfun_creation_anchor_poc": {
+    "status": "PARTIAL",
+    "verdict": "CREATION_ANCHOR_RECOVERED_FORWARD_COST_UNMEASURED",
+    "test_mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+    "signature": "Zx7653S8uhjSdFPy5915LiswXFo2AFbjoLBrYKQaDAfKvhAz7H3T2eorp3FLAE8rLQzWbVUhB3FLSiJmV3vMtKQ",
+    "slot": 443375106,
+    "block_time": 1788250333,
+    "bonding_curve": "FJPbTzeUy4pzPT3r7c2fNxccNvvhbC7LJkSqXux8xU1g",
+    "associated_bonding_curve": "3LiBmWqde7CaFW9mogdyRemiXoYxprHSjChzCW4gLejm",
+    "classification": "CREATION_ONLY; no embedded Pump.fun buy",
+    "artifacts": "docs/audits/pumpfun_creation_anchor_poc/",
+    "rpc_accounting": "1 Helius getTransaction; no getSignaturesForAddress, getBlock, GMGN, or other discovery",
+    "next_action": "Authorize and pre-budget a separately bounded curve-account forward-search POC; estimate actual slot span before claiming practicality."
+  },
+  "pumpportal_byzantine_birth_data_read_only_audit": {
+    "status": "COMPLETE",
+    "verdict": "PUMPPORTAL_BYZANTINE_BIRTH_DATA_READ_ONLY_AUDIT_COMPLETE",
+    "frozen_cohort": {"mints": 182, "digest": "b9c88cab4b1d7a90deea64b7d03736cce14b1571a5a797eeb807f26867b055e1"},
+    "finding": "180/182 have normalized metadata explicitly sourced as pumpfun_birth and 174/182 retain create_tx_signature, but no raw PumpPortal newToken payload, bonding-curve account, reserves, buy fields, slot, or block time is retained for the frozen cohort.",
+    "first_buy_conclusion": "Cannot prove a creator initial buy or true first market buy; retained normalized records are creation anchors only and lack transaction/event ordering semantics.",
+    "historical_search_conclusion": "Current local birth retention alone cannot anchor a bounded forward Pump.fun search because bonding_curve_pda and creation slot are absent. A separately authorized bounded getTransaction verification of an exact retained creation signature could establish them for the 174 candidates.",
+    "safety": "Read-only local inspection; API/RPC/GMGN/Helius requests 0; no source/production/schema/UI/code/suppression changes.",
+    "next_action": "If desired, authorize a separate bounded creation-signature verification design; do not infer first buys from market metadata."
+  },
+  "intelligence_snapshot_storage_p0_p1": {
+    "status": "PASS",
+    "verdict": "P0_P1_FAILURE_SAFETY_IMPLEMENTED_SCHEDULER_STOPPED",
+    "engineering_revision": "working tree pending engineering review",
+    "changes": [
+      "atomic sibling-temp cleanup on serialization, ENOSPC, rename, and unexpected failure while preserving last completed snapshot",
+      "configurable WT_INTELLIGENCE_SNAPSHOT_MIN_FREE_BYTES operational floor defaults to 10 GiB (temporary safety floor, not snapshot-size model)",
+      "global in-process persistence single-flight and fail-closed scheduler circuit for preflight/ENOSPC",
+      "scheduler Supervisor autostart=false autorestart=false startretries=0"
+    ],
+    "tests": "36 passed: tests/test_snapshot_storage_safety.py tests/test_x65_57_intelligence_snapshots.py tests/test_x67_28_snapshot_scheduler.py; git diff --check passed",
+    "runtime": "intelligence_snapshot_scheduler STOPPED (Supervisor checked 2026-09-01)",
+    "safety": "No production snapshot build, database/artifact mutation, service restart, RPC, provider, or network call.",
+    "blocker": "Disk critically low during validation (139 MiB free); no broader or write-heavy test run performed.",
+    "next_action": "Recover disk capacity before any explicitly-operated scheduler restart; P2/P3 storage redesign remains deferred."
+  },
+  "potential_operations_6437_f1_budget_control": {"status":"HOLD_CORRECTNESS","reason":"The compact-cache RPC counter advanced from 898 to 2500 during resumed signature pagination without completing any of the five remaining histories, exceeding the newly authorized 750-call increment. No further provider acquisition is permitted until the runner has page-level checkpointing and an independently auditable per-run call ledger.","safety":"No production/database/assignment/membership/ranking/Living/generic-dispatch writes.","next_action":"Repair and test only the acquisition accounting/checkpoint mechanism, then obtain explicit authorization for any new provider budget."},
+  "potential_operations_6437_full_funder_infrastructure": {"status":"PARTIAL","cohort_freeze":{"candidate_id":"p3r-v2-6437acd385e566e301a7","qualified_launches":91,"direct_funders":59,"creators":91},"progress":"targeted 24h-first acquisition: 54/59 funder histories, 1262 decoded transactions; F1 evidence for 34 funders.","critical_result":"0.002 SOL appears in 62 launch-linked evidence records but only three direct funders; it is not cohort-wide shared provisioning evidence.","stop_reason":"Five high-activity funder history windows remain; F2 is intentionally not started before complete F1.","checkpoint":"docs/audits/potential_operations_6437_funder_infrastructure_cache.v1.json","artifact":"docs/audits/potential_operations_6437_full_funder_infrastructure.v2.json","artifact_sha256":"2b4e2e9674e2324b933225c11c0893a431ba38dfc45f8692f802f61dd4364d62","evidence":"docs/audits/potential_operations_6437_funder_infrastructure_evidence.v2.jsonl","evidence_sha256":"c16af0cf4593b2f206b86db0185abc39c72d133cd92916c84fee9e8fda20c67a","safety":"read-only; no real DB/source-table/assignment/membership/ranking/Living/generic-dispatch writes","next_action":"Resume only the five remaining F1 histories with page-level checkpointing; complete F1 before any F2/cluster conclusion."},
+  "five_wallet_cohort_resolution": {"status":"COMPLETE","scope":"local retained evidence only; no provider, RPC, or network calls","result":"All five supplied direct funders have one or more current uniquely matched launches for p3r-v2-6437acd385e566e301a7 (14 qualifying launches total); none intersects the authoritative frozen membership. Their common qualified route signature is a one-hop PLAIN_XFER of 10000 lamports. Four additional funded launches are multi-hop NO_MATCH records, not evidence of another candidate.","sources":"wt_walkback_queue; wt_walkback_edge_candidates; authoritative frozen 6437 route-membership artifact","next_action":"A bounded five-wallet RPC provisioning analysis may be scoped to the current 6437 matcher cohort; do not represent it as frozen membership."},
+  "potential_operations_activity_horizon_ui_cleanup": {"status":"COMPLETE","artifact":"docs/audits/potential_operations_activity_horizon_ui_cleanup.v1.json","artifact_sha256":"9b31e295b0be2de5d11cb4595d37222b677fb3cd4304b88fc9d0e1bf2d95604d","focused_tests":"12 passed","living_state":"unchanged","generic_dispatch":"unchanged","ranking_and_matcher_semantics":"unchanged","next_action":"Operator review only."},
+  "potential_operations_detail_recent_launches_live_fix": {"status":"PASS","artifact":"docs/audits/potential_operations_detail_recent_launches_live_fix.v1.json","artifact_sha256":"f50073fe522cb2449620561e5363992c084f4ee7ef881dfb9a6755dbda399ca2","focused_tests":"12 passed","next_action":"Operator review only; do not persist matcher assignments."},
+  "potential_operations_partial_live_activity_ui": {"status":"PASS","artifact":"docs/audits/potential_operations_partial_live_activity_ui.v1.json","artifact_sha256":"6201a20837a507b606d0a10adaf6cf5d4e0d34cd92351701fbdf29099db0b5bc","focused_tests":"14 passed","next_action":"Review the read-only partial live-activity UI; no assignment persistence is authorized."},
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "active_observation": {
@@ -981,27 +1027,6 @@
   "blockers": [
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
-  "confirmed_operation_funding_architecture_baseline": {
-    "artifact": "docs/audits/confirmed_operation_funding_architecture_matrix.v1.json",
-    "artifact_digest": "ba5035b06c33494bf04da65f85169834a0441219226455a2f875cc740d8a8510",
-    "blocker": null,
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "exact_next_action": "NEXT = FUNDING_ARCHITECTURE_POTENTIAL_DISCOVERY; do not activate production matching without separate authorization.",
-    "milestone": "confirmed-operation transaction-level funding architecture baseline",
-    "production_flags": "read-only; 45 getTransaction reads for retained Byzantine/four-step signatures only; no wallet history; no operational database mutation",
-    "result": "Confirmed primary population: Leviathan 119 frozen decoded baseline; WATCHTOWER 125 frozen census; Byzantine 36/36 newly decoded; FOUR_STEP_30_SOL_14_479K_WSOL_LADDER 9/9 newly decoded. Three additional confirmed registry records have zero primary members. Sentinel and Harbinger are not current confirmed top-level registry operations. Exact cross-operation architecture collisions=0; discrimination HIGH; discovery gap interim MAJOR.",
-    "tests": "py_compile census/replay scripts; provider-free replay PASS (matrix, collisions, digest identical)",
-    "verdict": "PASS"
-  },
-  "confirmed_operation_funding_behaviour_qualification": {
-    "artifact": "docs/audits/confirmed_operation_funding_behaviour_qualification.v1.json",
-    "artifact_digest": "23228eb8c942ce0f9d9a179a12dcd783690a549cbe39db269f0f0e53c6f838c3",
-    "exact_next_action": "Review newly admitted current members separately against retained architecture evidence; do not alter membership automatically.",
-    "milestone": "confirmed operation funding behaviour qualification",
-    "production_flags": "read-only qualification; no membership, fingerprint, detector, workflow, or trading mutation",
-    "result": "Four material confirmed operations strengthened; complete cross-operation architecture collisions remain zero; multi-dimensional operation model recommended; replay pass with zero provider calls.",
-    "status": "PASS"
-  },
   "contingent_handoff_note": null,
   "continuation_update": {
     "artifact_digests": {
@@ -1148,15 +1173,6 @@
     },
     "verdict": "B2N_TECHNICAL_PROVENANCE_BOUND_HUMAN_REVIEW_REQUIRED"
   },
-  "creator_launch_provisioning_promotion_execution": {
-    "artifact": "docs/audits/creator_launch_provisioning_operation_promotion.v1.json",
-    "artifact_sha256": "b3872f937227ad01686ccbf593676b219fd62c9bc624a54d88b6d5ca11cbf116",
-    "blocker": "canonical operator_subtypes.candidate_id UNIQUE prevents two subtype records sharing one required source candidate; role-aware detector/replay implementation absent",
-    "next_action": "Authorize a narrowly scoped canonical schema/detector implementation and replay preflight before promotion.",
-    "prerequisite": "PASS exact SHA and 84/6/3 census; zero membership collisions",
-    "status": "HOLD_CORRECTNESS_PRE_MUTATION",
-    "writes": "all zero"
-  },
   "current_milestone": {
     "all_3_writer_services_confirmed_running": true,
     "final_high_water_captured": 6827280,
@@ -1166,13 +1182,6 @@
     "verdict": "SEE docs/audits/storage_lifecycle_p5b_stage3a_pre_switch_reconciliation.json -- Parts 1-11 all PASS, identity reconciliation EXACT_PARITY hard gate PASS, all 3 writer services restored/healthy, no atomic switch performed"
   },
   "current_next_blocker": "B2Z_P2_HELIUS_ENDPOINT was never available during the overnight session. P2 remains frozen at the 19-member manual resume gate, exactly as left. All 12 provider-free workstreams from the overnight prompt were completed: P2 analysis engine, selective-RPC policy (B2Z-P3), historical coverage profile, 2-hop coverage quality, B2Z-2H contract, operation-discovery preparation, candidate funding family analysis (with a real cross-validated finding), raw-transaction cache adapter, RPC savings models, V2 persistent-budget design, edge-case classifier, and roadmap reconciliation. See docs/audits/overnight_human_decision_queue.json for the 5 decisions that actually need you.",
-  "five_wallet_cohort_resolution": {
-    "next_action": "A bounded five-wallet RPC provisioning analysis may be scoped to the current 6437 matcher cohort; do not represent it as frozen membership.",
-    "result": "All five supplied direct funders have one or more current uniquely matched launches for p3r-v2-6437acd385e566e301a7 (14 qualifying launches total); none intersects the authoritative frozen membership. Their common qualified route signature is a one-hop PLAIN_XFER of 10000 lamports. Four additional funded launches are multi-hop NO_MATCH records, not evidence of another candidate.",
-    "scope": "local retained evidence only; no provider, RPC, or network calls",
-    "sources": "wt_walkback_queue; wt_walkback_edge_candidates; authoritative frozen 6437 route-membership artifact",
-    "status": "COMPLETE"
-  },
   "focused_tests": [
     {
       "details": {
@@ -1888,32 +1897,6 @@
         "result": "reprioritized: P2 resume (1) > 56-launch family review (2) > discovery queue next picks (3) > selective-RPC thresholds (4) > B2Z-2H authorization (5) > V2 persistent budget (6)"
       }
     ]
-  },
-  "funding_architecture_audit": {
-    "artifact": "docs/audits/watchtower_funding_transaction_census.v1.json",
-    "artifact_digest": "f4a2f2f28bf0fa551df6991c8ef24c49770a31393e71737ac88a3ee37ca66b82",
-    "blocker": null,
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "exact_next_action": "Do not extend to other operations until explicitly authorized; retain WATCHTOWER census as the completed first-stage denominator.",
-    "milestone": "WATCHTOWER funding-transaction census",
-    "production_flags": "read-only; no wallet-history calls; 125 retained-signature getTransaction reads; no operational database mutation",
-    "result": "125/125 confirmed WATCHTOWER launches had retained paths and signatures and decoded successfully. 90/125 use the supplied 2,122,039,280-lamport createAccountWithSeed -> initializeAccount -> closeAccount architecture. 10 address-blind families; PLAIN_XFER=0 in the strict confirmed WATCHTOWER population; Leviathan exact collisions=0; separation=STRONG.",
-    "tests": "python -m py_compile scripts/audit_watchtower_funding_architecture.py; JSON validation PASS",
-    "verdict": "PASS"
-  },
-  "funding_architecture_potential_discovery": {
-    "artifact": "docs/audits/funding_architecture_potential_discovery.v1.json",
-    "artifact_digest": "8134837a09fd39922929b95abd8d95dd28d13177527e3b0c09d3b17ec84f9af6",
-    "blocker": null,
-    "checkpoint": "docs/audits/funding_architecture_unassigned_facts.v1.jsonl",
-    "checkpoint_rows_observed": 17153,
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "exact_next_action": "No production activation. A separate review should qualify the strongest distinctive clusters using retained evidence before any candidate or membership action.",
-    "frozen_population": "14,245 completed selected-hop-1 unassigned mints with retained signatures; 14,102 distinct signatures",
-    "milestone": "label-blind unassigned funding-architecture discovery",
-    "normalization_result": "14,245/14,245 frozen mints terminally accounted: 14,239 decoded, 6 unresolved provider reads. Blind census: 8,590 exact clusters; 344 >=3-launch, >=3-creator recurrent families; 342 also have >=3 direct funders. Semantic normalization reduces to 8,400 clusters and 321 recurrent families. Recurrent generic suppression: 140 generic, 202 distinctive, 2 ambiguous; 134 distinctive higher-confidence clusters have no existing P3R-v2 overlap.",
-    "replay": "FUNDING_ARCHITECTURE_POTENTIAL_DISCOVERY_REPLAY_PASS; provider_calls=0",
-    "status": "PASS"
   },
   "h1_last_updated": null,
   "h4r1_cex_infra_eligibility_check_and_of_dv34_p0": {
@@ -29879,23 +29862,6 @@
     }
   },
   "latest_updated": "2026-08-18T13:24:28Z",
-  "living_potential_operation_model_investigation": {
-    "artifact": "docs/audits/living_potential_operation_projection_prototype.v1.json",
-    "artifact_digest": "c1674a74dd2b8e2eecf0257202ddd92574e6445aabcb1e528f40a0f7282329d5",
-    "exact_next_action": "Implement a separate candidate identity, candidate-evidence association, immutable assessment-version, and current-projection read model behind an explicit write authorization; do not repurpose snapshot family hash as stable identity.",
-    "milestone": "living potential operation read-model investigation",
-    "result": "Current UI/workflow is snapshot-bound: frozen membership artifacts feed potential details, while current evidence is display-only enrichment. Read-only prototype proves a stable candidate can preserve frozen version 71 while deriving current retained evidence (284 projection members, 71 selected/atomic members) without changing membership or workflow.",
-    "status": "PASS"
-  },
-  "living_wsol_potential_operation_integration": {
-    "artifact": "docs/audits/wsol_living_potential_operation_integration.v1.json",
-    "artifact_sha256": "ebf3ebe91b78d242b196c830a926f5b7a92c6c9b5dbcd86f9d0bdd2248c2fc6b",
-    "exact_next_action": "Read the persisted current projection from the Potential Operations detail path before authorizing any UI expansion or additional candidates.",
-    "milestone": "first bounded real walkback to Potential Operation integration",
-    "result": "One stable PAUSED WSOL Potential Operation was published from retained local evidence. Three immutable versions are retained because locally observed evidence high-waters advanced during the bounded execution. No promotion, detector activation, registered membership change, or global event hook occurred.",
-    "status": "PASS",
-    "tests": "17 passed focused regressions"
-  },
   "local_operation_discovery_execution_qualification": {
     "56_launch_family_result": "independently rediscovered at much larger scale (575 vs. 56 members) and correctly reclassified SERVICE_DISTRIBUTION_CLUSTER given its full 568-creator fan-out -- original curated 56-member OF-P0 packet preserved unmodified, NOT overwritten, since the two findings represent different confidence tiers",
     "artifacts": [
@@ -31091,138 +31057,6 @@
     "workstreams_completed": 12
   },
   "pending_human_decisions": 9,
-  "potential_operations_6437_core_vs_qvtw_migration_timing": {
-    "artifact": "docs/audits/potential_operations_6437_core_vs_qvtw_migration_timing.v1.json",
-    "artifact_sha256": "26ce7f6c2b95edba7a5950e96acb61040529b0e4272184e1d6553a3c9883ed46",
-    "next_action": "Acquire a separately authorized, provenance-qualified common birth/migration timestamp source before testing separation.",
-    "result": "No common authoritative launch/migration timestamp pair is retained for any 84 strict or six QVtW mint; no timing comparison performed.",
-    "safety": "local-only; zero calls and writes",
-    "status": "INSUFFICIENT_MIGRATION_EVIDENCE"
-  },
-  "potential_operations_6437_deep_funding_chain_traversal": {
-    "artifacts": [
-      "docs/audits/potential_operations_6437_deep_funding_chain_edges.v1.jsonl",
-      "docs/audits/potential_operations_6437_deep_funding_chains.v1.jsonl",
-      "docs/audits/potential_operations_6437_deep_funding_run_ledger.v1.json",
-      "docs/audits/potential_operations_6437_deep_funding_architecture.v1.json"
-    ],
-    "authorized_rpc_calls": 600,
-    "blocker": "Bounded recent-window analysis did not establish broad 7-9 hop chains; remaining 284 calls deliberately unused after all F0 branches reached terminal boundaries.",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "exact_next_action": "Review retained edge evidence with the 6437 direct-creator and F1 artifacts; do not infer common control from the three-parent recurrence.",
-    "milestone": "6437 deep funding chain traversal",
-    "previous_authorization_status": "RETIRED_UNRECONCILED_NOT_REUSED",
-    "production_flags": "read-only RPC and audit artifacts only; REAL_DB_WRITES=0; SOURCE_TABLE_WRITES=0; ASSIGNMENT_WRITES=0; MEMBERSHIP_WRITES=0; LIVING_PUBLICATIONS=0; RANKING_WRITES=0; PROMOTIONS=0; DETECTOR_CHANGES=0",
-    "result": "17 parent edges across 12/56 F0 funders; depth distribution 0:44, 1:9, 2:1, 3:2; 11 high-activity boundaries and 45 no-parent-found in bounded recent windows; Fp27Bypi9z4PhkC6ydLkh8TTb53zjPC52eRJPUmPti5N recurs as parent of 3 resolved edges.",
-    "rpc_calls_remaining": 284,
-    "rpc_calls_used": 316,
-    "run_id": "6437-deep-funding-7534ffe978b343df",
-    "status": "PARTIAL",
-    "tests": "py_compile PASS; JSON accounting validation PASS; 56/56 F0 rows; 17/17 edge rows reconciled",
-    "verdict": "PARTIAL_BOUNDED_DEEP_CHAIN_EVIDENCE"
-  },
-  "potential_operations_6437_f1_budget_control": {
-    "next_action": "Repair and offline-qualify collision-safe atomic cache persistence, reconcile the 45 durable attempts/checkpoints, then obtain/confirm continuation authority before more RPC.",
-    "reason": "New 400-call durable completion run 6437-f1-completion-1788093071 began and durable ledger now counts 45 attempts (355 remaining), but concurrent cache writers collided on the fixed cache .tmp filename, producing an atomic checkpoint replace failure. Further RPC is halted until cache persistence uses collision-safe unique temp files and the partial checkpoint is reconciled offline.",
-    "safety": "F2 not started; no production writes. Durable reservation preserved all known attempts, favoring over-counting.",
-    "status": "HOLD_CORRECTNESS"
-  },
-  "potential_operations_6437_fixed_decrement_funding_fingerprint": {
-    "additional_rpc_calls": 228,
-    "artifacts": [
-      "docs/audits/potential_operations_6437_fixed_decrement_edges.v1.jsonl",
-      "docs/audits/potential_operations_6437_fixed_decrement_funding_analysis.v1.json"
-    ],
-    "blocker": "No local non-6437 control and no retained transaction fee metadata for evaluable decrements; common control not established.",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "exact_next_action": "Use the remaining 56 calls only with explicit scope to retrieve non-duplicative fee/setup evidence or a small local-control comparison; do not infer common control.",
-    "milestone": "6437 fixed-decrement funding fingerprint continuation",
-    "production_flags": "read-only RPC and audit artifacts only; all production writes zero",
-    "result": "20,100 lamports occurred in 10 evaluable consecutive-hop events across 8/56 strict-core F0 funders; two F0s had repeated consecutive 20,100 sequences. No 10,100 event was observed. Five 20,100 events had 5,050-lamport fees, leaving 15,050 lamports beyond fee; five pre-existing events lacked retained fee meta. Timing: 4 intervals 1-3 days and 11 intervals 3-7 days.",
-    "rpc_calls_before": 316,
-    "rpc_calls_remaining": 56,
-    "rpc_calls_total": 544,
-    "run_id": "6437-deep-funding-7534ffe978b343df",
-    "status": "PARTIAL",
-    "tests": "py_compile PASS; ledger arithmetic 544+56=600; 56/56 F0 snapshot rows; 17 decrement rows",
-    "verdict": "MODERATE_FIXED_DECREMENT_FINGERPRINT_PARTIAL"
-  },
-  "potential_operations_6437_full_funder_infrastructure": {
-    "artifact": "docs/audits/potential_operations_6437_full_funder_infrastructure.v2.json",
-    "artifact_sha256": "2b4e2e9674e2324b933225c11c0893a431ba38dfc45f8692f802f61dd4364d62",
-    "authorization_safe_consumed": 750,
-    "authorization_safe_remaining": 0,
-    "canonical_checkpoint_state": "COMPLETE=54, PARTIAL=1, NOT_STARTED=4",
-    "canonical_state_after_interruption": "COMPLETE=29, PARTIAL=25, NOT_STARTED=5",
-    "canonical_state_before_live_attempt": "COMPLETE=27, PARTIAL=27, NOT_STARTED=5",
-    "checkpoint": "docs/audits/potential_operations_6437_funder_infrastructure_cache.v1.json",
-    "cohort_freeze": {
-      "candidate_id": "p3r-v2-6437acd385e566e301a7",
-      "creators": 91,
-      "direct_funders": 59,
-      "qualified_launches": 91
-    },
-    "critical_result": "0.002 SOL appears in 62 launch-linked evidence records but only three direct funders; it is not cohort-wide shared provisioning evidence.",
-    "durable_recovery_attempt": "33-call / 717-remaining ledger generated but NOT qualified because current cache no longer matches its prerequisite state",
-    "evidence": "docs/audits/potential_operations_6437_funder_infrastructure_evidence.v2.jsonl",
-    "evidence_sha256": "c16af0cf4593b2f206b86db0185abc39c72d133cd92916c84fee9e8fda20c67a",
-    "focused_tests": "8 passed (actual orchestration fake-provider suite plus ledger primitives)",
-    "live_attempt_breakdown": "getSignaturesForAddress=2, getTransaction=31",
-    "live_attempts_recorded_this_authorization": 33,
-    "new_completion_authorization": 400,
-    "new_completion_durable_attempts": 45,
-    "new_completion_remaining": 355,
-    "new_completion_run_id": "6437-f1-completion-1788093071",
-    "next_action": "No F1 resume/F2 until atomic checkpoint collision repair is qualified.",
-    "observed_cache_state_at_durable_recovery": "calls.total=750 (244 signature pages + 506 transactions); COMPLETE=54, PARTIAL=1, NOT_STARTED=4",
-    "progress": "targeted 24h-first acquisition: 54/59 funder histories, 1262 decoded transactions; F1 evidence for 34 funders.",
-    "provenance_reconciliation_artifact": "docs/audits/potential_operations_6437_rpc_provenance_reconciliation.v1.json",
-    "provenance_reconciliation_sha256": "1d65d010c8313d0a6d1350ee3319b37e3ec3c899c329e83371648c700963c994",
-    "provider_calls_this_milestone": 0,
-    "runner_checkpoint_integration": "QUALIFIED_OFFLINE",
-    "runner_revision": "uncommitted working-tree change: scripts/reconstruct_6437_funder_infrastructure.py",
-    "safety": "read-only; no real DB/source-table/assignment/membership/ranking/Living/generic-dispatch writes",
-    "status": "PARTIAL_HOLD_CHECKPOINT_ATOMICITY",
-    "stop_reason": "CACHE_ATOMIC_TEMP_NAME_COLLISION",
-    "transaction_resume_semantics": "DECODED and FAILED_TERMINAL are skipped; FAILED_RETRYABLE and NOT_DECODED are eligible, with a durable status persisted after every decode result."
-  },
-  "potential_operations_6437_operation_promotion_qualification": {
-    "artifact": "docs/audits/potential_operations_6437_operation_promotion_qualification.v1.json",
-    "artifact_sha256": "6c052e68086fdc1a7e7f3f44c6f1d705653e3b814846fd9915350153c3b45739",
-    "blocker": "Separate explicit promotion authorization remains required; common control not proven.",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "exact_next_action": "Human review then separate explicit authorization for any promotion, subtype registration, or production detector/UI change.",
-    "milestone": "6437 read-only operation promotion qualification",
-    "production_flags": "read-only; zero new RPC; all production writes/promotion/detector changes zero",
-    "result": "84/84 strict direct creator-provisioning proofs; 0 contradictions/unresolved; 56 funders serve 84 distinct creators; QVtW coherent variant qualified; three alternates remain outside strict core; decision QUALIFIED_OPERATION_WITH_VARIANTS_READY_FOR_PROMOTION_REVIEW.",
-    "status": "PASS",
-    "tests": "local deterministic assertions PASS: strict extraction, proof purity, creator diversity, funder topology, mechanism/role coverage, scorecard decision",
-    "verdict": "QUALIFIED_OPERATION_WITH_VARIANTS_READY_FOR_PROMOTION_REVIEW"
-  },
-  "potential_operations_activity_horizon_ui_cleanup": {
-    "artifact": "docs/audits/potential_operations_activity_horizon_ui_cleanup.v1.json",
-    "artifact_sha256": "9b31e295b0be2de5d11cb4595d37222b677fb3cd4304b88fc9d0e1bf2d95604d",
-    "focused_tests": "12 passed",
-    "generic_dispatch": "unchanged",
-    "living_state": "unchanged",
-    "next_action": "Operator review only.",
-    "ranking_and_matcher_semantics": "unchanged",
-    "status": "COMPLETE"
-  },
-  "potential_operations_detail_recent_launches_live_fix": {
-    "artifact": "docs/audits/potential_operations_detail_recent_launches_live_fix.v1.json",
-    "artifact_sha256": "f50073fe522cb2449620561e5363992c084f4ee7ef881dfb9a6755dbda399ca2",
-    "focused_tests": "12 passed",
-    "next_action": "Operator review only; do not persist matcher assignments.",
-    "status": "PASS"
-  },
-  "potential_operations_partial_live_activity_ui": {
-    "artifact": "docs/audits/potential_operations_partial_live_activity_ui.v1.json",
-    "artifact_sha256": "6201a20837a507b606d0a10adaf6cf5d4e0d34cd92351701fbdf29099db0b5bc",
-    "focused_tests": "14 passed",
-    "next_action": "Review the read-only partial live-activity UI; no assignment persistence is authorized.",
-    "status": "PASS"
-  },
   "production_state": {
     "cohort_mode": "OFF",
     "creator_funding_pid_last_verified": 33383,
@@ -32408,517 +32242,72 @@
       "status": "PASS"
     }
   },
-  "walkback_retained_role_rpc_replay_seam": {
-    "milestone": "explicit local RPC injection seam and retained-role worker replay proof",
+  "funding_architecture_audit": {
+    "milestone": "WATCHTOWER funding-transaction census",
     "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "tests": "7 passed (tests/test_walkback_rpc_replay_seam.py)",
-    "result": "Production-default RPC transport preserved; an explicitly supplied local transport reaches getSignaturesForAddress, getTransaction, and getAccountInfo with fail-fast exact fixture matching. The actual worker candidate-selection path persisted a selected edge and decoded role record, committed durably, and was reconstructed retained-only by the strict detector. Route semantics and conflicting-projection rejection were verified.",
-    "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; active_dispatch_changed=false",
-    "activation": "DIRECT_10K_CREATOR_PROVISIONING_ACTIVATION_HOLD_RETAINED_ROLE_EVIDENCE_REQUIRED",
-    "blocker": "No real prospective retained transaction-role evidence exists yet. The unrelated legacy fixture suite has 7 failures because wt_watchtower_launches is not installed in its fixture.",
-    "exact_next_action": "Await a real prospective Walkback observation; retain the activation hold until authoritative transaction-role coverage is present."
-  },
-  "walkback_retained_role_first_prospective_observation": {
-    "milestone": "first genuine prospective retained-role capture observation",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "HOLD",
-    "approved_baseline": "7a107d0a",
-    "baseline_present": true,
-    "inspection": "read-only database inspection; wt_walkback_transaction_roles and ix_wwtr_mint are present; role_rows=0",
-    "real_prospective_role_rows": 0,
-    "capture_gate": "NOT_YET_OBSERVED",
-    "retained_only_reconstruction": "NOT_AVAILABLE",
-    "strict_match": "NOT_EVALUATED",
-    "tests": "7 passed (tests/test_walkback_rpc_replay_seam.py)",
-    "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; active_dispatch_changed=false",
-    "activation": "DIRECT_10K_CREATOR_PROVISIONING_ACTIVATION_HOLD_RETAINED_ROLE_EVIDENCE_REQUIRED",
-    "blocker": "No genuine prospective transaction-role row has yet been observed.",
-    "exact_next_action": "Await the first normal prospective Walkback completion that writes a retained transaction-role row, then validate its retained provenance and reconstruction without reacquisition."
-  },
-  "creator_provisioning_active_ops_surface": {
-    "milestone": "DIRECT_10K_CREATOR_PROVISIONING active-vs-potential UI classification",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "operation_id": "bd7d7479-1454-5d41-9f68-115550348f3e",
-    "candidate_id": "p3r-v2-6437acd385e566e301a7",
-    "result": "Canonical active operation remains the existing 84-member strict registry record. Potential-operation read-side lifecycle canonicalization excludes its candidate in both normalized and frozen fallback views. Active registry exposes live retained-timestamp activity and a separate prospective detector HOLD status.",
-    "activity_windows": "rolling strict greater-than cutoffs (now - 1d/7d/30d); observed current counts 6/42/79; latest timestamp 1788093772",
-    "tests": "3 passed (tests/test_creator_provisioning_active_ops_surface.py)",
-    "preserved": "memberships, QVtW and alternate exclusions, retained-role table, provenance artifacts, and prospective detector hold",
-    "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; active_dispatch_changed=false",
-    "exact_next_action": "Await the first genuine prospective retained transaction-role capture; Active Ops presentation does not alter prospective activation eligibility."
-  },
-  "creator_provisioning_active_activity_source_correction": {
-    "milestone": "Creator Launch Provisioning Active Ops live activity source correction",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "finding": "The initial Active Ops projection used timestamps only from frozen 84-member registry rows and therefore reported its latest at 2026-08-30T12:42:52Z. The former provisional view used the existing qualified live route matcher, which has three newer matching observations.",
-    "correction": "Active Ops now reuses the qualified live route matcher only for current telemetry, while retaining the fixed historical membership unchanged.",
-    "current_activity": "7 / 44 / 84 over rolling 24h / 7d / 30d; latest 2026-08-30T16:53:49Z; source=LIVE_QUALIFIED_ROUTE_MATCHER",
-    "tests": "3 passed (tests/test_creator_provisioning_active_ops_surface.py)",
-    "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; active_dispatch_changed=false",
-    "exact_next_action": "Await genuine prospective retained-role capture; this telemetry-source correction does not alter prospective detector HOLD."
-  },
-  "creator_provisioning_detail_activity_projection": {
-    "milestone": "Creator Launch Provisioning detail-page current activity correction",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "result": "The detail activity panel now uses qualified live route-matcher telemetry (7/44/84, latest 2026-08-30T16:53:49Z) and labels it Latest Qualified Activity. The older 12:34:48 UTC transaction remains visible only as frozen historical member evidence.",
-    "tests": "3 passed (tests/test_creator_provisioning_active_ops_surface.py)",
-    "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; active_dispatch_changed=false",
-    "exact_next_action": "Await genuine prospective retained-role capture; current activity telemetry does not change prospective detector HOLD."
-  },
-  "creator_provisioning_api_reload": {
-    "milestone": "Creator Launch Provisioning stale local UI process reload",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "finding": "Port 5002 was served by the watchtower_api Gunicorn process started before the projection changes, returning stale 6/42/79 telemetry.",
-    "action": "Restarted watchtower_api only.",
-    "verification": "GET /api/ops/operators returns live_launches=7/44/84, last_launch_at=1788108829, activity_state_source=LIVE_QUALIFIED_ROUTE_MATCHER, prospective_detector_status=HOLD.",
-    "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; active_dispatch_changed=false",
-    "exact_next_action": "No UI reload work remains; await genuine prospective retained-role capture before changing detector HOLD."
-  },
-  "creator_provisioning_detail_current_entries": {
-    "milestone": "Creator Launch Provisioning detail current-qualified launch entries",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "result": "Detail launch list now merges retained current qualified route matches for telemetry only, ordered ahead of frozen historical membership evidence. Latest is mint srwsE3…65pump at 2026-08-30T16:53:49Z, funding signature Pq8yNm…anc73M. The old 12:34:48 UTC strict-member signature remains historical evidence, fourth in the current list.",
-    "tests": "3 passed (tests/test_creator_provisioning_active_ops_surface.py)",
-    "service": "watchtower_api restarted and running",
-    "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; active_dispatch_changed=false",
-    "exact_next_action": "Await genuine prospective retained-role capture; current qualified telemetry does not alter frozen membership or detector HOLD."
-  },
-  "creator_provisioning_active_ops_header_coverage": {
-    "milestone": "Creator Launch Provisioning Active Ops aggregate inclusion",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "finding": "The header excluded live current activity through a stale-snapshot guard, and coverage excluded ACTIVE manual registry admissions by requiring operators.status=CONFIRMED.",
-    "correction": "Tokens 24h now sums current live read-model values. Coverage accepts ACTIVE_MANUAL registry disposition, preserving its completed-walkback/member semantics.",
-    "verified_values": "Tokens 24h=41 including Creator Launch Provisioning's 7 qualified current matches; coverage=39/1036 active-admitted assigned completed mints.",
-    "tests": "3 passed (tests/test_creator_provisioning_active_ops_surface.py)",
-    "service": "watchtower_api restarted and running",
-    "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; active_dispatch_changed=false",
-    "exact_next_action": "No remaining aggregate exclusion; await genuine prospective retained-role capture before changing detector HOLD."
-  },
-  "nexus_operation_rename": {
-    "milestone": "Creator Launch Provisioning canonical display-name rename",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "operation_id": "bd7d7479-1454-5d41-9f68-115550348f3e",
-    "previous_display_name": "Creator Launch Provisioning",
-    "display_name": "Nexus",
-    "preserved": "status ACTIVE; 84 historical memberships; source candidate; qualified live telemetry; prospective detector HOLD; active dispatch unchanged",
-    "service": "watchtower_api restarted and running",
-    "exact_next_action": "Await genuine prospective retained-role capture before changing detector HOLD."
-  },
-  "c357_legacy_potential_detail_redirect": {
-    "milestone": "C357 legacy potential-detail duplicate suppression",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "candidate_id": "p3r-v2-c357da9d0d4d560311e4",
-    "result": "The old potential-operation detail URL now redirects to the registered Leviathan subtype projection. That projection excludes the 50 C357 examples already owned by Leviathan and presents the six subtype-exclusive examples.",
-    "verification": "3 focused subtype read-model tests passed; live GET returned HTTP 302 with Location /intelligence/operator/777211c3-211e-551b-9310-ff9301570627/subtypes/p3r-subtype-03f916dfa97fb93a4b9c.",
-    "production_flags": "provider_calls=0; rpc_calls=0; production_db_writes=0; active_dispatch_changed=false; watchtower_api_restarted=true",
-    "exact_next_action": "Review the resolved subtype page; do not reintroduce the frozen C357 discovery cohort as a potential-operation detail view."
-  },
-  "c357_living_potential_listing_removal": {
-    "milestone": "C357 resolved-subtype removal from Living Potential Operations",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "result": "The resolved C357 candidate is excluded from the separately assembled Living Potential Operations table. It remains available only through the Leviathan subtype projection, preventing Leviathan launches from being presented as C357 potential-operation activity.",
-    "verification": "4 focused subtype read-model tests passed; live Potential Operations GET rendered GENERIC LIVE · 1 active and no WSOL Close · 100 SOL minus 15k row; its legacy detail URL remains a 302 to the subtype projection.",
-    "production_flags": "provider_calls=0; rpc_calls=0; production_db_writes=0; active_dispatch_changed=false; watchtower_api_restarted=true",
-    "exact_next_action": "Use the Leviathan subtype page for C357 behaviour evidence; keep C357 absent from potential and living-potential lists."
-  },
-  "byzantine_infrastructure_activity_projection": {
-    "milestone": "Byzantine shared-infrastructure reactivation telemetry",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "result": "Byzantine Active Ops and detail projections now surface completed launches sharing its retained ByZc sub-provider as explicitly labelled LIVE_BYZANTINE_INFRASTRUCTURE telemetry. Strict Byzantine membership and the exact 10-SOL four-step detector remain unchanged.",
-    "verification": "8 focused tests passed. Live API reports VERY_ACTIVE, current infrastructure windows 6/67/158, 164 retained infrastructure observations, and 36 strict members.",
-    "production_flags": "provider_calls=0; rpc_calls=0; production_db_writes=0; membership_writes=0; active_dispatch_changed=false; watchtower_api_restarted=true",
-    "exact_next_action": "Observe the distinct 20-SOL variants shadow-only; do not auto-admit them to strict Byzantine without their own qualified lifecycle contract."
-  },
-  "byzantine_detail_current_infrastructure_launches": {
-    "milestone": "Byzantine detail retained infrastructure launch timeline",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "result": "The Byzantine detail projection merges completed ByZc-funded launches into its retained launch timeline, ordered by funding time and marked CURRENT_BYZANTINE_INFRASTRUCTURE. These are observational and do not alter strict membership.",
-    "verification": "8 focused tests passed. Live API returns 165 timeline observations; newest is EBK2daxNw6rHfirCyemmvzpDcotvp8wH4fYZqwsVpump with retained signature 36pCJP…A872 and CURRENT_BYZANTINE_INFRASTRUCTURE state.",
-    "production_flags": "provider_calls=0; rpc_calls=0; production_db_writes=0; membership_writes=0; active_dispatch_changed=false; watchtower_api_restarted=true",
-    "exact_next_action": "Keep current infrastructure observations separate from strict Byzantine admission until a distinct lifecycle contract is qualified."
-  },
-  "active_ops_confirmed_telemetry_coverage": {
-    "milestone": "Active Ops coverage includes confirmed Byzantine and Nexus telemetry",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "result": "Coverage now uses the deduplicated union of strict active membership and current qualified telemetry from confirmed Byzantine infrastructure and Nexus, constrained to the same completed-mint 24-hour denominator.",
-    "verification": "8 focused tests passed. Live coverage endpoint reports 48/1036 = 4.6%; composition: 37 membership-backed, 6 Byzantine infrastructure-only, 5 Nexus telemetry-only (after deduplication/denominator constraint).",
-    "production_flags": "provider_calls=0; rpc_calls=0; production_db_writes=0; membership_writes=0; active_dispatch_changed=false; watchtower_api_restarted=true",
-    "exact_next_action": "Maintain telemetry provenance in coverage responses; do not turn telemetry inclusion into automatic membership admission."
-  },
-  "c357_detached_subtype_registry_removal": {
-    "milestone": "Detached C357 subtype removal from Leviathan registry UI",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "result": "The C357 subtype presentation link is no longer rendered beneath Leviathan in the Active Operations registry. Retained subtype evidence and shadow-only records were preserved; no registry or membership mutation was made.",
-    "verification": "9 focused tests passed; watchtower_api restarted and running.",
-    "production_flags": "provider_calls=0; rpc_calls=0; production_db_writes=0; membership_writes=0; active_dispatch_changed=false",
-    "exact_next_action": "Keep C357 detached from Leviathan operational presentation unless a separately authorized relationship decision reattaches it."
-  },
-  "nexus_detector_v2_reconciliation": {
-    "milestone": "Nexus retained-evidence detector reconciliation and Match UI",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "operation_id": "bd7d7479-1454-5d41-9f68-115550348f3e",
-    "artifact": "docs/audits/direct_10k_creator_provisioning_detector_results.v2.json",
-    "artifact_digest": "3315107025407d79bc393bc3edf3fff5a39e8ca929771f37299ae3ec17ed6f2d",
-    "result": "93 retained defining transactions replayed twice deterministically: 84 UNIQUE_MATCH, 9 NO_MATCH, 0 INSUFFICIENT_INPUT, 0 AMBIGUOUS. All six QVtW rows resolve to NO_MATCH_INTERMEDIARY_ROUTE.",
-    "ui": "Nexus-only Match labels and compact detector count render from v2; QVtW now shows No rather than Incomplete.",
-    "verification": "5 focused tests passed; JSON validated; local API returned 93 reviewed with 84/9/0/0 and QVtW intermediary-route reasons; watchtower_api restarted and running.",
-    "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; membership_writes=0; source_writes=0; active_dispatch_changed=false",
-    "exact_next_action": "Keep the prospective detector HOLD until a genuine retained transaction-role capture satisfies its separate runtime-evidence gate."
-  },
-  "nexus_detector_ui_visibility_fix": {
-    "milestone": "Nexus detector Match UI visibility correction",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "finding": "The compact summary rendered after the Nexus Match projection and removed the whole operational-role mount, making the new UI indistinguishable from the old page.",
-    "correction": "The compact-summary cleanup now preserves that mount only when nexus_detector is present; all other manual P3R profiles retain their prior compact behavior.",
-    "verification": "watchtower_api restarted and running; served Nexus page contains the detector rows and the Nexus-only preservation guard. Browser visual automation was unavailable in this session.",
-    "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; membership_writes=0; active_dispatch_changed=false",
-    "exact_next_action": "Reload the Nexus detail page; retained Match rows should now appear below its operational role."
-  },
-  "nexus_detector_summary_card": {
-    "milestone": "Nexus visible retained-detector Summary card",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "finding": "The preserved per-mint Match rows sat below the expanded retained-launch list and were not visible in the daily Summary view.",
-    "correction": "Nexus-only Summary now renders Retained Detector Replay immediately after current activity: Exact, No match, Incomplete, Ambiguous, and Reviewed, with the QVtW intermediary-route explanation.",
-    "verification": "6 focused tests passed; watchtower_api restarted; served template contains the visible Summary card contract. Browser visual automation was unavailable.",
-    "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; membership_writes=0; active_dispatch_changed=false",
-    "exact_next_action": "Hard-refresh Nexus and inspect the Summary card directly below the activity metrics."
-  },
-  "nexus_detector_per_token_marks": {
-    "milestone": "Nexus subtle per-token detector markers",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "result": "Each retained Nexus launch with a v2 replay result now carries a small inline mark beside its mint: green filled dot Exact, amber hollow circle No match, grey question mark Incomplete, red exclamation Ambiguous. Hover text exposes the specific detector reason.",
-    "scope": "Nexus-only Summary launch projection; tokens outside the 93 retained replay inputs remain unmarked rather than inferred.",
-    "verification": "7 focused tests passed; watchtower_api restarted; served page contains the marker mapping and accessible hover labels.",
-    "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; membership_writes=0; active_dispatch_changed=false",
-    "exact_next_action": "Hard-refresh Nexus and inspect marks beside token mints; hover a non-green mark for its retained detector reason."
-  },
-  "nexus_detector_current_observation_mark": {
-    "milestone": "Nexus current observation detector-status clarity",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "finding": "The five newest live route observations are outside the frozen 93-transaction retained replay, so no v2 detector result exists for them and their lack of a symbol appeared ambiguous.",
-    "correction": "They now receive a neutral grey dot with hover text 'not replayed — current observation is outside the retained v2 historical input'. This is not represented as a match, no-match, incomplete, or ambiguous result.",
-    "verification": "7 focused tests passed; watchtower_api restarted; served page contains the neutral-marker contract.",
-    "production_flags": "provider_calls=0; rpc_calls=0; network_calls=0; production_db_writes=0; membership_writes=0; active_dispatch_changed=false",
-    "exact_next_action": "Hard-refresh Nexus; hover the grey dot for the explicit retained-evidence boundary."
-  },
-  "retained_local_false_dust_extended_audit": {
-    "status": "PASS",
-    "engineering_revision": "bf1baac7",
-    "rule": "Frozen structural full-rule projection unchanged: selected PLAIN_XFER; one edge/mint and one destination/mint; zero retained amount; shallow hop.",
-    "evidence": "Read-only current wt_farm_launches joined same-mint SELECTED wt_walkback_edge_candidates parent.",
-    "result": "7d: 3520 launches, 2172 funders, 1183 qualified genuine controls, 0 matches; 30d: 8960, 5246, 2893, 0; all retained: 10319, 5909, 2893, 0.",
-    "prior_controls": "Matched 4-6 mint 0/29; adjacent 3-10 mint 0/69 preserved.",
-    "production_flags": "retained_local_only=true; incremental_rpc=0; incremental_getTransaction=0; source_or_production_rows_modified=false; suppression_occurred=false",
-    "verdict": "LAST_7D_LAST_30D_ALL_HISTORY_FALSE_DUST_AUDIT_PASS",
+    "artifact": "docs/audits/watchtower_funding_transaction_census.v1.json",
+    "artifact_digest": "f4a2f2f28bf0fa551df6991c8ef24c49770a31393e71737ac88a3ee37ca66b82",
+    "tests": "python -m py_compile scripts/audit_watchtower_funding_architecture.py; JSON validation PASS",
+    "production_flags": "read-only; no wallet-history calls; 125 retained-signature getTransaction reads; no operational database mutation",
+    "result": "125/125 confirmed WATCHTOWER launches had retained paths and signatures and decoded successfully. 90/125 use the supplied 2,122,039,280-lamport createAccountWithSeed -> initializeAccount -> closeAccount architecture. 10 address-blind families; PLAIN_XFER=0 in the strict confirmed WATCHTOWER population; Leviathan exact collisions=0; separation=STRONG.",
+    "verdict": "PASS",
     "blocker": null,
-    "exact_next_action": "If broader lookalike scanning is authorized, retain this frozen rule and do not suppress without a separately authorized per-lookalike review."
+    "exact_next_action": "Do not extend to other operations until explicitly authorized; retain WATCHTOWER census as the completed first-stage denominator."
   },
-  "retained_local_current_spam_rule_measurement": {
-    "status": "COMPLETE_WITH_SUPPRESSION_HOLD",
-    "engineering_revision": "bf1baac7",
-    "result": "61,896 eligible unique farm-or-Walkback funders; 139 frozen-structural-rule matches; 0 overlap with 2,953 current all-history same-mint SELECTED genuine controls.",
-    "safety_finding": "Eight structural matches have retained generic transaction-role evidence. This does not contradict the prior genuine-cohort zero-overlap result, but it prevents treating the structural result as a safe suppression label without the missing semantic evidence gates.",
-    "production_flags": "retained_local_only=true; incremental_rpc=0; incremental_getTransaction=0; source_or_production_rows_modified=false; suppression_occurred=false",
-    "exact_next_action": "Keep suppression disabled. If authorized, evaluate the eight role-evidence matches and add a separately qualified semantic gate; do not refit this frozen structural measure in place."
-  },
-  "spam_false_negative_6y84_retained_local_analysis": {
-    "status": "SECOND_PATTERN_CANDIDATE_FOUND",
-    "engineering_revision": "bf1baac7",
-    "target": "6y84CxtWjKaPN87yZx234rFx4EBJeYgtj8Tcsn97AUir",
-    "result": "Target has six selected PLAIN_XFER zero-amount, distinct-mint/distinct-destination edges; five are hop depth <=1 and one is hop depth 2. The sole shallow-depth predicate excluded it from the 139 structural matches.",
-    "retention": "The depth-2 edge is retained and selected, so the miss is topology rather than an implementation omission. One of six edge mints is absent from wt_walkback_queue and no generic role rows reference the target; these are non-causal retention gaps.",
-    "second_pattern_candidate": "n>=4; n=m; distinct destinations=m; selected=n; PLAIN_XFER=n; nonzero amount=0; shallow=n-1. Four retained accounts satisfy it; zero same-mint SELECTED genuine-control overlap.",
-    "production_flags": "retained_local_only=true; incremental_rpc=0; incremental_getTransaction=0; source_or_production_rows_modified=false; suppression_occurred=false; rule_unchanged=true",
-    "exact_next_action": "Keep all suppression disabled. Independently verify the three non-target second-pattern accounts before considering any separate classifier qualification."
-  },
-  "spam_classification_layer": {
-    "status": "REPLAYABLE_NON_SUPPRESSING_PASS",
-    "engineering_revision": "bf1baac7",
-    "implementation": "src/ops/spam_classification.py; scripts/replay_spam_classification.py; docs/audits/spam_classification_layer.v1.json",
-    "snapshot": "farm_launches=10499; walkback_edges=81556; max_edge_observed=1788246696",
-    "result": "22 asserted confirmed accounts frozen with confirmation-known-but-proof-not-retained provenance; Pattern A=139, Pattern B=2 at the observed snapshot; no A/B overlap or genuine-control overlap; two identical read-only replays produced classification digest 0593ed46b6ed8c979af983d402a84eb4da02739324c357216aa3fca4258e9a1a.",
-    "discrepancy": "The supplied claim of four current Pattern-B matches does not match the observable retained snapshot: only 6y84...AUir and AShP...Eses meet exact B predicates; By3...duq3 and FpRE...Ay51 do not at this high-water.",
-    "production_flags": "retained_local_only=true; incremental_rpc=0; incremental_getTransaction=0; source_or_production_rows_modified=false; suppression_occurred=false",
-    "exact_next_action": "Use the deterministic replayer after a future retained-evidence high-water advance to identify post-freeze A/B deltas; do not poll providers or enable suppression."
-  },
-  "byzantine_bounded_second_leg_decode_pairing": {
-    "milestone": "Byzantine bounded second-leg deterministic local decode and pairing",
+  "confirmed_operation_funding_architecture_baseline": {
+    "milestone": "confirmed-operation transaction-level funding architecture baseline",
     "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "artifacts": [
-      "docs/audits/byzantine_second_leg_3Tg6_decoded_roles.v1.json",
-      "docs/audits/byzantine_atomic_funding_flow_3dgGSH.v1.json",
-      "docs/audits/byzantine_second_leg_pairing_manifest.v1.json"
-    ],
-    "result": "The one retained bounded getTransaction response deterministically decodes Byzantine -> creator via temporary WSOL: 14,999,985,000 lamports closed to J3yZ...ThMy. It pairs with the retained selected Df8...kdya -> Byzantine 15,000,000,000-lamport transfer for mint 3dgGSH...pump one second earlier; the 15,000-lamport difference equals the second transaction fee. Two local decode runs had identical digest 185f052f1a85c0d0d0e08e25915b558146a191d07bd74a9ecf7cad3613a77d94.",
-    "production_flags": "No new RPC/provider calls; no normal Walkback, production, membership, UI, schema, or source-row writes; additive audit artifacts only.",
-    "compatibility": "Frozen Byzantine cohort reconciled: 182 current mints, 182 frozen mints, zero missing, zero extra.",
+    "artifact": "docs/audits/confirmed_operation_funding_architecture_matrix.v1.json",
+    "artifact_digest": "ba5035b06c33494bf04da65f85169834a0441219226455a2f875cc740d8a8510",
+    "tests": "py_compile census/replay scripts; provider-free replay PASS (matrix, collisions, digest identical)",
+    "production_flags": "read-only; 45 getTransaction reads for retained Byzantine/four-step signatures only; no wallet history; no operational database mutation",
+    "result": "Confirmed primary population: Leviathan 119 frozen decoded baseline; WATCHTOWER 125 frozen census; Byzantine 36/36 newly decoded; FOUR_STEP_30_SOL_14_479K_WSOL_LADDER 9/9 newly decoded. Three additional confirmed registry records have zero primary members. Sentinel and Harbinger are not current confirmed top-level registry operations. Exact cross-operation architecture collisions=0; discrimination HIGH; discovery gap interim MAJOR.",
+    "verdict": "PASS",
     "blocker": null,
-    "exact_next_action": "Preserve the 182-mint baseline. Any broader Byzantine relationship reconstruction requires separately scoped authorization."
+    "exact_next_action": "NEXT = FUNDING_ARCHITECTURE_POTENTIAL_DISCOVERY; do not activate production matching without separate authorization."
   },
-  "byzantine_182_cohort_funding_topology_audit": {
-    "milestone": "Byzantine frozen cohort retained-local funding-topology audit",
+  "confirmed_operation_funding_behaviour_qualification": {
+    "milestone": "confirmed operation funding behaviour qualification",
+    "status": "PASS",
+    "artifact": "docs/audits/confirmed_operation_funding_behaviour_qualification.v1.json",
+    "artifact_digest": "23228eb8c942ce0f9d9a179a12dcd783690a549cbe39db269f0f0e53c6f838c3",
+    "result": "Four material confirmed operations strengthened; complete cross-operation architecture collisions remain zero; multi-dimensional operation model recommended; replay pass with zero provider calls.",
+    "production_flags": "read-only qualification; no membership, fingerprint, detector, workflow, or trading mutation",
+    "exact_next_action": "Review newly admitted current members separately against retained architecture evidence; do not alter membership automatically."
+  },
+  "funding_architecture_potential_discovery": {
+    "milestone": "label-blind unassigned funding-architecture discovery",
     "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
     "status": "PASS",
-    "artifact": "docs/audits/byzantine_182_cohort_funding_topology_read_only_audit.v1.json",
-    "artifact_digest": "1877f79b7c891d7517297de25ebceee2d46d8711b177e54346c4cd38f3c72d5c",
-    "result": "Frozen digest and 182/182 surfacing reconcile. Exactly 1 complete Df8→Byzantine→creator two-transaction chain is proven; 12 retain only the Df8→Byzantine first leg; 71 retain Byzantine-owned WSOL close-to-creator legs without an exact Df8 first leg; 98 have no generic funding path proven. The reference mechanism must not be generalized to the remaining groups.",
-    "retention": "One acquired-but-unprojected reference second leg proves the retention gap exists; no raw second-leg payload is locally available for the 12 first-leg-only mints, so zero-incremental-RPC cohort-wide repair is not supported.",
-    "production_flags": "retained-local only; incremental RPC/getTransaction=0; no code, schema, database, UI, membership, attribution, suppression, or normal Walkback-table changes.",
-    "verdict": "BYZANTINE_182_COHORT_FUNDING_TOPOLOGY_READ_ONLY_AUDIT_COMPLETE",
+    "frozen_population": "14,245 completed selected-hop-1 unassigned mints with retained signatures; 14,102 distinct signatures",
+    "checkpoint": "docs/audits/funding_architecture_unassigned_facts.v1.jsonl",
+    "checkpoint_rows_observed": 17153,
+    "normalization_result": "14,245/14,245 frozen mints terminally accounted: 14,239 decoded, 6 unresolved provider reads. Blind census: 8,590 exact clusters; 344 >=3-launch, >=3-creator recurrent families; 342 also have >=3 direct funders. Semantic normalization reduces to 8,400 clusters and 321 recurrent families. Recurrent generic suppression: 140 generic, 202 distinctive, 2 ambiguous; 134 distinctive higher-confidence clusters have no existing P3R-v2 overlap.",
     "blocker": null,
-    "exact_next_action": "Preserve the frozen cohort; separately authorize any prospective second-leg retention improvement before implementing it."
+    "artifact": "docs/audits/funding_architecture_potential_discovery.v1.json",
+    "artifact_digest": "8134837a09fd39922929b95abd8d95dd28d13177527e3b0c09d3b17ec84f9af6",
+    "replay": "FUNDING_ARCHITECTURE_POTENTIAL_DISCOVERY_REPLAY_PASS; provider_calls=0",
+    "exact_next_action": "No production activation. A separate review should qualify the strongest distinctive clusters using retained evidence before any candidate or membership action."
   },
-  "byzantine_98_legacy_subprov_provenance_audit": {
-    "milestone": "Byzantine unresolved frozen-mint legacy subprov provenance audit",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+  "living_potential_operation_model_investigation": {
+    "milestone": "living potential operation read-model investigation",
     "status": "PASS",
-    "artifact": "docs/audits/byzantine_98_legacy_subprov_provenance_read_only_audit.v1.json",
-    "artifact_digest": "87d52a228d6c1e0ddfec0f01b39f39e2cf6d3cd026504ffaa3391225f6a5dee5",
-    "result": "All 98 predate generic role retention. 90 are Case-2 same-creator wt_wrap_close_candidates associations with exact close signatures; 6 are legacy FULL_WALKBACK direct-Byzantine WSOL hop-1 associations; 2 are watchtower_token_attribution inheritance without recoverable transaction/session provenance. 96 exact signature targets are bounded-RPC candidates; one old provisioning-session projection is locally recoverable; two require broad discovery and are not bounded targets.",
-    "production_flags": "retained-local only; incremental RPC/getTransaction=0; no code, schema, database, UI, membership, attribution, suppression, backfill, or normal Walkback-table changes.",
-    "verdict": "BYZANTINE_98_LEGACY_SUBPROV_PROVENANCE_READ_ONLY_AUDIT_COMPLETE",
-    "blocker": null,
-    "exact_next_action": "Do not alter the protected cohort. Any future verification must separately authorize only explicitly enumerated signature targets; do not use broad discovery to force proof of the two legacy-inheritance rows."
+    "artifact": "docs/audits/living_potential_operation_projection_prototype.v1.json",
+    "artifact_digest": "c1674a74dd2b8e2eecf0257202ddd92574e6445aabcb1e528f40a0f7282329d5",
+    "result": "Current UI/workflow is snapshot-bound: frozen membership artifacts feed potential details, while current evidence is display-only enrichment. Read-only prototype proves a stable candidate can preserve frozen version 71 while deriving current retained evidence (284 projection members, 71 selected/atomic members) without changing membership or workflow.",
+    "exact_next_action": "Implement a separate candidate identity, candidate-evidence association, immutable assessment-version, and current-projection read model behind an explicit write authorization; do not repurpose snapshot family hash as stable identity."
   },
-  "byzantine_96_exact_signature_rpc_gate": {
-    "milestone": "Byzantine legacy exact-signature bounded RPC verification pre-execution gate",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "HOLD_INTEGRITY_MISMATCH",
-    "result": "The provenance artifact has 96 mint cases with signatures but only 54 unique signatures, because creator-level wt_wrap_close_candidates records are shared by multiple frozen mint rows. The requested precondition of 96 unique signatures is false. No signature was substituted or inferred.",
-    "production_flags": "No provider/RPC calls; getTransaction=0; no artifact corpus retained; no code, schema, database, UI, membership, attribution, suppression, or normal Walkback-table changes.",
-    "verdict": "BYZANTINE_96_EXACT_SIGNATURE_BOUNDED_RPC_VERIFICATION_NOT_STARTED",
-    "blocker": "Explicit authorization is required to redefine the bounded unit from 96 mint cases to the proven 54 unique signatures, with each response mapped back to its 96 affected mint cases; current instruction requires exactly 96 unique signatures.",
-    "exact_next_action": "Do not call RPC. Obtain an explicit decision whether to verify the exact 54 unique signatures once each or halt the historical verification."
-  },
-  "byzantine_54_unique_signature_bounded_rpc_verification": {
-    "milestone": "Byzantine historical 54-unique-signature verification mapped to 96 frozen mint cases",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+  "living_wsol_potential_operation_integration": {
+    "milestone": "first bounded real walkback to Potential Operation integration",
     "status": "PASS",
-    "artifact": "docs/audits/byzantine_96_exact_signature_rpc/verification_results.v1.json",
-    "artifact_digest": "eb2444fd7578d5830eb5ea7f8916251e028d24ff81b749d1986baa7aad616265",
-    "result": "54/54 bounded getTransaction calls succeeded and were retained once each. All 96 mapped legacy mint cases decode as Byzantine-funded temporary-WSOL create/sync/close provisioning to the expected creator; zero contradictions, unavailable responses, decode failures, or creator mismatches. Evidence is 54 independent transactions, not 96: 6 cases have direct mint linkage and 90 have creator-level-only linkage.",
-    "replay": "local decoded role/atomic/result replay digests identical: 1dd7e0e74dbb8c9ede8de3f44682fe69558237adad2161edcbf52e4f142bf97e",
-    "compatibility": "182/182 frozen Byzantine mints remain surfaced; zero missing.",
-    "production_flags": "54 getTransaction calls only; non-getTransaction RPC=0; no normal Walkback/source/production/UI/schema/membership/attribution/suppression changes.",
-    "verdict": "BYZANTINE_54_UNIQUE_SIGNATURE_BOUNDED_RPC_VERIFICATION_COMPLETE",
-    "blocker": null,
-    "exact_next_action": "Do not alter the frozen cohort. Any broader historical reconstruction or prospective retention implementation requires separate authorization."
+    "artifact": "docs/audits/wsol_living_potential_operation_integration.v1.json",
+    "artifact_sha256": "ebf3ebe91b78d242b196c830a926f5b7a92c6c9b5dbcd86f9d0bdd2248c2fc6b",
+    "result": "One stable PAUSED WSOL Potential Operation was published from retained local evidence. Three immutable versions are retained because locally observed evidence high-waters advanced during the bounded execution. No promotion, detector activation, registered membership change, or global event hook occurred.",
+    "tests": "17 passed focused regressions",
+    "exact_next_action": "Read the persisted current projection from the Potential Operations detail path before authorizing any UI expansion or additional candidates."
   },
-  "byzantine_182_ui_funding_signature_audit": {
-    "milestone": "Byzantine frozen cohort UI Funding Tx signature semantics and retained-evidence audit",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "artifact": "docs/audits/byzantine_182_ui_funding_signature_read_only_audit.v1.json",
-    "artifact_digest": "509b4468a984949294e275d3e7440dbd851e4613cf55373dcbf70bd46be408a8",
-    "result": "The UI’s Funding Tx is wt_walkback_queue.funder_sig displayed as wrap_close_signature: selected hop-1 evidence, not necessarily a wrap-close. All 182 frozen mints have it (181 distinct signatures; one duplicate group). Exactly 13 UI signatures prove Df8→Byzantine (12×20 SOL, 1×15 SOL), identical to the prior generic count. 54 UI signatures are already decoded Byzantine→creator WSOL transactions; 115 UI signatures remain exact local-missing bounded targets. One full two-transaction chain remains paired.",
-    "production_flags": "retained-local only; RPC/getTransaction=0; no code, schema, database, UI, membership, attribution, suppression, or normal Walkback-table changes.",
-    "verdict": "BYZANTINE_182_UI_FUNDING_SIGNATURE_READ_ONLY_AUDIT_COMPLETE",
-    "blocker": null,
-    "exact_next_action": "Do not change the UI label or protected cohort without separate authorization. Any further signature verification must be separately bounded to the enumerated 114 unique local-missing UI signatures."
-  },
-  "byzantine_dual_funding_leg_ui_design": {
-    "milestone": "Byzantine dual funding-leg UI retained-evidence design audit",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "artifact": "docs/audits/byzantine_dual_funding_leg_ui_read_only_design.v1.json",
-    "artifact_digest": "6df15bed1d479c27458cf8c11e79bd3228e33b99e1d93f6f695ce3d496ed7864",
-    "result": "A role-aware read model can use existing retained evidence with no schema/backfill/RPC: 13 mints have proven upstream→Byzantine, 168 have proven Byzantine→creator, one has both, 12 upstream-only, 167 creator-only, and two neither. Current Funding Tx should become Selected Walkback Tx in advanced/technical detail and must not stand in for either economic leg.",
-    "production_flags": "read-only design; RPC/getTransaction=0; no code, schema, database, UI, membership, attribution, suppression, or normal Walkback-table changes.",
-    "verdict": "BYZANTINE_DUAL_FUNDING_LEG_UI_READ_ONLY_DESIGN_COMPLETE",
-    "blocker": null,
-    "exact_next_action": "Obtain explicit UI implementation authorization before adding the read-only dual-leg adapter/presentation; preserve all 182 mints and missing-evidence states."
-  },
-  "byzantine_dual_funding_leg_ui_implementation": {
-    "milestone": "Byzantine dual funding-leg UI retained-evidence implementation",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "result": "Read-only UI enrichment now independently exposes upstream funding, creator provisioning, and Selected Walkback Tx. The protected current surface is 182/182 mints, digest b9c88cab4b1d7a90deea64b7d03736cce14b1571a5a797eeb807f26867b055e1: 13 upstream proven, 168 creator-provisioning proven, 1 both, 12 upstream-only, 167 creator-only, and 2 neither. Two identical local replays yielded digest 23ce452fdd954a52ce6eacb5461b6f0486de89f0680d39a58efa56489f3de442.",
-    "tests": "tests/test_byzantine_dual_funding_leg_projection.py: 10 passed",
-    "production_flags": "RPC/getTransaction=0; no database/schema/source/normal-Walkback/membership/attribution/suppression changes. Existing funder_sig producer and selected-edge semantics remain unchanged.",
-    "verdict": "BYZANTINE_DUAL_FUNDING_LEG_UI_IMPLEMENTED",
-    "blocker": null,
-    "exact_next_action": "Operator review of the role-aware Byzantine launch rows; any durable evidence projection or new transaction acquisition remains separately authorized."
-  },
-  "byzantine_114_ui_funding_signature_rpc_verification": {
-    "milestone": "Byzantine exact unresolved UI selected-Walkback signature bounded RPC verification",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "artifact": "docs/audits/byzantine_114_ui_funding_signature_rpc/per_mint_ui_funding_role_mapping.v1.json",
-    "artifact_digest": "3d37bcdd612f944050e5e9eee55f4b13a8ee59a2fe767bd865209f6a144929e6",
-    "result": "Integrity gate reproduced 115 mint cases and 114 unique exact UI signatures. Exactly 114 getTransaction calls completed once each: 89 new Df8->Byzantine direct transfers map to 90 mint cases (18 at 1 SOL, 39 at 10 SOL, 32 at 20 SOL); 23 are Byzantine->creator WSOL and 2 are other upstream->Byzantine transfers. Combined direct Df8 coverage is 103/182 (56.593407%), so Df8 is not universal.",
-    "replay": "Two retained-raw local decode runs produced the same digest 79e7aee92cbc7061c1081f80a0a0dfb924c610d1a7fd8a6a980760048d96257b.",
-    "production_flags": "getTransaction=114; non-getTransaction RPC=0; no code/schema/UI/database/source/normal-Walkback/membership/attribution/suppression changes; frozen 182/182 cohort remains surfaced.",
-    "verdict": "BYZANTINE_114_UI_FUNDING_SIGNATURE_BOUNDED_RPC_VERIFICATION_COMPLETE",
-    "blocker": null,
-    "exact_next_action": "Use additive artifacts for any separately authorized UI evidence refresh; do not infer missing legs or alter the frozen cohort."
-  },
-  "byzantine_182_dual_leg_enrichment_replay": {
-    "milestone": "Byzantine retained-local dual-leg enrichment replay",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "artifact": "docs/audits/byzantine_182_dual_leg_enrichment_replay.v1.json",
-    "artifact_digest": "aeafd38b440dd126754c79a9d295901de06977c2d6298fe7347d839a73832890",
-    "result": "182/182 frozen mints remain surfaced. Retained combined coverage: any upstream 105, Df8 upstream 103, other upstream 2, creator provisioning 168, both legs 91, fully session-paired 1, only upstream 14, only creator 77, neither 0. The 114-signature corpus raises upstream by 92 and both by 90; its 23 creator transactions overlap already-proven creator legs, so creator coverage remains 168.",
-    "replay": "identical retained-local replay digest 1fe8ec2cee5a6fae4ea7449448d8fa2d3adce0b2059035c6e7a9e8288c5a8b52",
-    "production_flags": "RPC/getTransaction=0; no code/schema/UI/database/source/normal-Walkback/membership/attribution/suppression changes.",
-    "verdict": "BYZANTINE_182_DUAL_LEG_ENRICHMENT_REPLAY_COMPLETE",
-    "blocker": null,
-    "exact_next_action": "Separately authorize a UI reader enrichment if the retained audit corpus should be rendered live; do not treat same-mint dual proof as a session pairing without explicit retained linkage."
-  },
-  "byzantine_90_session_pairing_audit": {
-    "milestone": "Byzantine 90 independent dual-leg retained-local session-pairing audit",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "artifact": "docs/audits/byzantine_90_session_pairing_read_only_audit.v1.json",
-    "artifact_digest": "ea71ae180c4e32031226044562a8e0bd17d6f539d8ce9ade24e7c4a2b317ab7c",
-    "result": "Exact 90-mint target reproduced. No candidate upgrades: all 90 upstream timestamps occur after their retained creator-provisioning timestamps (offset min -2,068,639 seconds, median -926,899 seconds, max -1,565 seconds). Thus all classify BOTH_LEGS_PRESENT_WRONG_ORDER and total fully serial chains remains the original reference-only 1.",
-    "replay": "identical retained-local digest 88e1bc19eb02624a1ee4a75ade7d011a1031f57b6374b51ef71c503c2a51324d",
-    "production_flags": "RPC/getTransaction=0; no code/schema/UI/database/source/normal-Walkback/membership/attribution/suppression changes; frozen 182/182 remains intact.",
-    "verdict": "BYZANTINE_90_SESSION_PAIRING_READ_ONLY_AUDIT_COMPLETE",
-    "blocker": null,
-    "exact_next_action": "Do not upgrade independent same-mint dual legs to serial sessions. Any topology explanation for reverse ordering requires separately scoped evidence work."
-  },
-  "byzantine_90_upstream_reassociation_audit": {
-    "milestone": "Byzantine wrong-order upstream transaction retained-local reassociation audit",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "artifact": "docs/audits/byzantine_90_upstream_reassociation_read_only_audit.v1.json",
-    "artifact_digest": "80c9c6bd1d8c7cb5a3ee6d186004b8431824a22483e24d1016129d3e1226e989",
-    "result": "No safe serial reassociations. 46/90 have no retained preceding material upstream-to-Byzantine candidate; 39 have multiple cross-launch candidates and 5 have a single timing-weak candidate, but none has retained mint/session linkage sufficient to select it. Current selected funder_sig is wrong-session upstream for all 90 target rows, but was not changed.",
-    "replay": "identical digest 86be1cf78044bc2d41be17686453bc115276d5c36aaf69fec9d76b89a91c0abf",
-    "production_flags": "retained-local only; RPC/getTransaction=0; no code/schema/UI/database/source/normal-Walkback/membership/attribution/suppression changes.",
-    "verdict": "BYZANTINE_90_UPSTREAM_REASSOCIATION_READ_ONLY_AUDIT_COMPLETE",
-    "blocker": "Preceding candidates lack retained launch-specific association; broad discovery is required for the 46 no-candidate cases and is not authorized.",
-    "exact_next_action": "Do not reassociate or replace funder_sig. Any bounded evidence recovery must define exact launch-specific targets separately."
-  },
-  "byzantine_46_missing_upstream_bounded_rpc": {
-    "milestone": "Byzantine 46 missing-upstream bounded RPC discovery",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "artifact": "docs/audits/byzantine_46_missing_upstream_rpc/per_mint_pairing_results.v1.json",
-    "artifact_digest": "87a0c82b76d8e37aad018e8fcf0093be62d319a3d77828677f7481574fdc3d4b",
-    "result": "46 exact anchors processed within budget: 3 getSignaturesForAddress and 18 deduplicated getTransaction calls. All candidate inbound transfers were Df8->Byzantine. 34 anchors have exactly one one-hour candidate with 15k-lamport fee continuity and are proven serial; 12 have multiple plausible candidates and remain ambiguous.",
-    "replay": "identical retained-local pairing digest 42213a83bcbf75d10e2c071d7a20e1683fe7a2e6b62c2c20229d459a6a251041",
-    "production_flags": "RPC=21 (3 signatures, 18 transactions); no code/schema/UI/database/source/normal-Walkback/membership/attribution/suppression changes.",
-    "verdict": "BYZANTINE_46_MISSING_UPSTREAM_BOUNDED_RPC_AUDIT_COMPLETE",
-    "blocker": null,
-    "exact_next_action": "Keep the 12 multiple-candidate cases ambiguous; do not change funder_sig or frozen membership."
-  },
-  "byzantine_12_ambiguous_upstream_disambiguation": {
-    "milestone": "Byzantine ambiguous upstream retained-local disambiguation",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "artifact": "docs/audits/byzantine_12_ambiguous_upstream_disambiguation_read_only_audit.v1.json",
-    "artifact_digest": "96bcf493cfdfe8c433b2a50a83816a8b51e26e6abfa22c1a6064d3f6ef5265d0",
-    "result": "Empirical profile from the 34 serial chains is 6-8 seconds (median 6), combined with exact 15,000-lamport continuity. 11/12 ambiguous cases have exactly one candidate satisfying both gates and are read-only resolved as serial; one has no candidate satisfying both and remains unpromoted. No nearest-only inference was used.",
-    "replay": "identical digest c35ff1762a0118b5f640acb45fa1a0534e87dd393190a64935c6650557e10788",
-    "production_flags": "retained-local only; RPC/getTransaction=0; no code/schema/UI/database/source/normal-Walkback/membership/attribution/suppression changes.",
-    "verdict": "BYZANTINE_12_AMBIGUOUS_UPSTREAM_DISAMBIGUATION_READ_ONLY_AUDIT_COMPLETE",
-    "blocker": null,
-    "exact_next_action": "Keep the one no-surviving-candidate mint unresolved and do not alter funder_sig or frozen membership."
-  },
-  "byzantine_10_second_pairing_user_approved": {
-    "milestone": "Byzantine specific user-approved 10-second serial-pair boundary",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "artifact": "docs/audits/byzantine_10_second_pairing_user_approved.v1.json",
-    "artifact_digest": "a7d4c22bf0c7b3cfa99e00decaa77c1ff507b0a5470826efa8cfafd2bc7640bb",
-    "result": "User explicitly approved the exact-fee-continuity 10-second Df8->Byzantine candidate 2eaf...PSo2 for mint 6X7E...pump. It is recorded as a specific boundary extension and raises the reported serial-chain total to 47; the original strict 6-8 second audit remains unchanged.",
-    "production_flags": "RPC=0; no code/schema/UI/database/source/normal-Walkback/membership/attribution/suppression changes; funder_sig unchanged.",
-    "verdict": "BYZANTINE_10_SECOND_PAIRING_USER_APPROVED",
-    "blocker": null,
-    "exact_next_action": "Do not generalize the 10-second extension without separate validation."
-  },
-  "byzantine_enriched_dual_funding_ui": {
-    "milestone": "Byzantine retained dual-funding UI enrichment",
-    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
-    "status": "PASS",
-    "result": "Reader now consumes retained enrichment, pairing, and ambiguity artifacts to render separate upstream/creator roles, chain status, and the technical Selected Walkback Tx. Current projection is 182 mints: upstream 105 (Df8 103, other 2), creator 168, both 91, serial 46, upstream-only 14, creator-only 77, neither 0.",
-    "tests": "tests/test_byzantine_dual_funding_leg_projection.py: 10 passed",
-    "production_flags": "RPC/getTransaction=0; no schema/database/source/normal-Walkback/membership/attribution/suppression changes.",
-    "verdict": "BYZANTINE_ENRICHED_DUAL_FUNDING_UI_IMPLEMENTED",
-    "blocker": null,
-    "exact_next_action": "Operator UI review only; preserve the unpromoted ambiguous evidence state."
-  },
-  "byzantine_compact_role_layout": {
-    "milestone": "Byzantine compact role layout refinement",
-    "engineering_revision": "uncommitted local worktree changes",
-    "status": "PASS",
-    "result": "The left side now presents only upstream funding and chain state. Creator provisioning is rendered once in the right metadata column. Legacy mechanism/date metadata and Selected Walkback Tx are suppressed whenever retained economic-leg evidence already supplies the same technical trace.",
-    "tests": "tests/test_byzantine_dual_funding_leg_projection.py: 10 passed",
-    "production_flags": "RPC/getTransaction=0; no schema/database/source/normal-Walkback/membership/attribution/suppression changes.",
-    "verdict": "BYZANTINE_COMPACT_ROLE_LAYOUT_IMPLEMENTED",
-    "blocker": null,
-    "exact_next_action": "Reload the operator page and visually review the compact left/right role placement."
-  },
-  "byzantine_live_creator_provisioning_capture": {
-    "milestone": "Live Byzantine dual-leg capture observation",
-    "engineering_revision": "uncommitted local worktree changes",
-    "status": "HOLD",
-    "result": "Fresh mint Az1sJ1jW6ZDhijhn8VEG3X8UT5TvVfLLrgXLjd36pump retains selected Walkback signature 2ttN...1uzP as an explicit Df8CJ...kdya -> ByZc7...HTY 15 SOL DIRECT transaction role. No retained ByZc7 -> EiwpF...Pmr3 creator-provisioning transaction or atomic flow exists. The UI's Neither leg proven state is evidence-correct; the technical Selected Walkback Tx is the upstream transfer, not creator funding.",
-    "production_flags": "RPC/getTransaction=0 during diagnosis; no code/schema/database/source/normal-Walkback/membership/attribution/suppression changes.",
-    "verdict": "BYZANTINE_LIVE_CREATOR_PROVISIONING_CAPTURE_GAP_CONFIRMED",
-    "blocker": "Current generic capture persists the selected Df8->Byzantine parent transaction but does not yet correlate and retain the separate Byzantine outgoing creator-provisioning transaction for this fresh launch.",
-    "exact_next_action": "Separately authorize a bounded design/implementation for prospective Byzantine second-leg acquisition or live-event correlation; do not infer the leg from subprov or display the upstream transaction as creator funding."
-  },
-  "gmgn_byzantine_capability_audit": {
-    "milestone": "GMGN Byzantine capability and local-retention audit",
-    "status": "PARTIAL_RATE_LIMIT_HOLD",
-    "result": "Authenticated GMGN token detail, security, pool, and top-holder endpoints succeeded for frozen Byzantine mint 3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump. Detail exposes point-in-time market/liquidity/volume/holder/migration/ATH/metadata and wallet-tag fields; security exposes mint/freeze/lock/risk fields; pool exposes pool/reserve/liquidity data; holders exposes holder and tag data. The top-traders endpoint returned HTTP 429 and instructed no further requests until 2026-09-01T12:39:54Z.",
-    "production_flags": "GMGN-only exploratory calls; Solana RPC/getTransaction=0; no code/schema/UI/database/source/Walkback/membership/attribution/suppression changes; no API key exposure or persistence.",
-    "verdict": "GMGN_BYZANTINE_CAPABILITY_AUDIT_PARTIAL_RATE_LIMIT_HOLD",
-    "blocker": "Current GMGN rate limiter was exhausted during the single-mint endpoint characterization. Per GMGN guidance, do not retry before the stated reset.",
-    "exact_next_action": "After the reset, finish the trader endpoint characterization, then perform the bounded five-mint sample and additive file-only replay artifact without broad cohort polling."
-  },
-  "gmgn_byzantine_lifecycle_capability_audit": {
-    "milestone": "Focused GMGN Byzantine lifecycle capability audit",
-    "status": "HOLD_FIRST_BUY_NOT_RETRIEVABLE",
-    "result": "GMGN CLI v1.5.6 exposes documented market kline with 30s/1m/5m/15m/1h/4h/1d resolutions and bounded from/to parameters. For frozen mint 3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump, GMGN info reports creation=1788250333 and open=1788250621, while the earliest returned 30s candle is 1788253800: 3,467 seconds after creation. The series contains a candle high matching GMGN direct ath_price (0.00080710573) and then a sharp fall, so it can support covered-window ATH/collapse analysis but cannot establish the earliest actual market buy, its buyer/signature/SOL amount, or initial market cap.",
-    "production_flags": "GMGN-only: one kline request; Solana RPC/getTransaction=0; no code/schema/UI/database/source/Walkback/membership/attribution/suppression changes; no API key exposure or persistence.",
-    "verdict": "GMGN_BYZANTINE_LIFECYCLE_ANALYSIS_NOT_SUPPORTED_FOR_FIRST_BUY_MODEL",
-    "blocker": "The documented GMGN surface provides aggregate candles rather than a paginated trade/transaction chronology, and tested history begins materially after launch for the test mint.",
-    "exact_next_action": "Do not query the five-mint sample for the requested first-buy lifecycle model. A separately authorized source with transaction-level earliest-swap chronology would be needed; GMGN candles may still be used later for clearly labelled post-coverage ATH/collapse market analysis."
-  },
-  "gmgn_recent_byzantine_coverage_audit": {
-    "milestone": "GMGN recent Byzantine launch-coverage audit",
-    "status": "PASS_LIMITED_TO_FIRST_COVERED_MARKET_STATE",
-    "result": "Recent frozen mint 4t1BKf7bPDWCGx8Dmdwfw3oZvM7uPmEqiJaHKRm6pump has GMGN creation=1788247127, market-open=1788247170, and earliest 30s candle=1788247110. The candle bucket begins 60 seconds before open (17 seconds before reported creation), demonstrating near-launch coverage with timestamp-bucket granularity; the prior recent frozen mint 3dgGSH...pump began 3,179 seconds after open. GMGN can therefore prospectively retain first-covered-candle market trajectory for some new launches, but cannot prove first buyer/signature/SOL amount or first-buy market cap.",
-    "production_flags": "GMGN-only: info+kline for one frozen mint; Solana RPC/getTransaction=0; no code/schema/UI/database/source/Walkback/membership/attribution/suppression changes; no API key exposure or persistence.",
-    "verdict": "GMGN_RECENT_BYZANTINE_COVERAGE_AUDIT_COMPLETE",
-    "blocker": "GMGN 30s candle timestamps are aggregate bucket boundaries and not transaction-level trade chronology. Current supply (967,990,428) also differs from GMGN's direct ATH-MC convention (effectively 1B), so first-covered MC must retain the convention/provenance explicitly.",
-    "exact_next_action": "If authorized, implement an additive file-only prospective GMGN snapshot/candle retention pilot using GMGN's stated effective-supply convention, labelled GMGN_FIRST_COVERED_MARKET_CAP and kept separate from first-buy/on-chain attribution claims."
-  },
-  "byzantine_first_buy_hybrid_poc": {
-    "milestone": "Bounded on-chain plus GMGN first-buy proof of concept",
-    "status": "PARTIAL_DISCOVERY_WINDOW_NOT_REACHED",
-    "result": "For recent frozen mint 4t1BKf7bPDWCGx8Dmdwfw3oZvM7uPmEqiJaHKRm6pump, local retained roles cover only Byzantine funding (not buys). GMGN identifies PumpSwap pool DCJnbKWV499znqnQrjFKLR5gfFYg77jhSv667LSCcWn3. Four bounded signature pages against that exact pool and one final exact-mint signature page returned only transactions at or after 1788247583/1788247605, while the target first-minute window ends 1788247230. No transaction payload was fetched because no first-minute candidate signature was discovered.",
-    "production_flags": "getSignaturesForAddress=5; getTransaction=0; total Solana RPC=5; GMGN=0; no code/schema/UI/database/source/Walkback/membership/attribution/suppression changes.",
-    "verdict": "BYZANTINE_FIRST_BUY_HYBRID_POC_BOUNDED_DISCOVERY_INCONCLUSIVE",
-    "blocker": "The PumpSwap pool/mint signature streams are high-volume: the allowed pages did not reach market-open plus 60 seconds. Broad pagination is not authorized under this POC's hard budget.",
-    "exact_next_action": "Do not retry or broaden this run. Any future exact-first-buy design needs a provider endpoint supporting time/slot-bounded signatures or a capture process started at launch, rather than backward pagination through a high-volume pool."
-  },
-  "updated_at": "2026-09-01T12:35:00Z",
-  "updated_at_utc": "2026-09-01T11:35:00Z",
+  "updated_at": "2026-08-29T00:00:00Z",
+  "updated_at_utc": "2026-08-29T00:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "NEXUS_DETECTOR_V2_RECONCILIATION_PASS"
+  "verdict": "WATCHTOWER_FUNDING_ARCHITECTURE_CENSUS_PASS"
 }

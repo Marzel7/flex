@@ -32908,6 +32908,15 @@
     "blocker": "GMGN 30s candle timestamps are aggregate bucket boundaries and not transaction-level trade chronology. Current supply (967,990,428) also differs from GMGN's direct ATH-MC convention (effectively 1B), so first-covered MC must retain the convention/provenance explicitly.",
     "exact_next_action": "If authorized, implement an additive file-only prospective GMGN snapshot/candle retention pilot using GMGN's stated effective-supply convention, labelled GMGN_FIRST_COVERED_MARKET_CAP and kept separate from first-buy/on-chain attribution claims."
   },
+  "byzantine_first_buy_hybrid_poc": {
+    "milestone": "Bounded on-chain plus GMGN first-buy proof of concept",
+    "status": "PARTIAL_DISCOVERY_WINDOW_NOT_REACHED",
+    "result": "For recent frozen mint 4t1BKf7bPDWCGx8Dmdwfw3oZvM7uPmEqiJaHKRm6pump, local retained roles cover only Byzantine funding (not buys). GMGN identifies PumpSwap pool DCJnbKWV499znqnQrjFKLR5gfFYg77jhSv667LSCcWn3. Four bounded signature pages against that exact pool and one final exact-mint signature page returned only transactions at or after 1788247583/1788247605, while the target first-minute window ends 1788247230. No transaction payload was fetched because no first-minute candidate signature was discovered.",
+    "production_flags": "getSignaturesForAddress=5; getTransaction=0; total Solana RPC=5; GMGN=0; no code/schema/UI/database/source/Walkback/membership/attribution/suppression changes.",
+    "verdict": "BYZANTINE_FIRST_BUY_HYBRID_POC_BOUNDED_DISCOVERY_INCONCLUSIVE",
+    "blocker": "The PumpSwap pool/mint signature streams are high-volume: the allowed pages did not reach market-open plus 60 seconds. Broad pagination is not authorized under this POC's hard budget.",
+    "exact_next_action": "Do not retry or broaden this run. Any future exact-first-buy design needs a provider endpoint supporting time/slot-bounded signatures or a capture process started at launch, rather than backward pagination through a high-volume pool."
+  },
   "updated_at": "2026-09-01T12:35:00Z",
   "updated_at_utc": "2026-09-01T11:35:00Z",
   "updated_by": "agent_local",

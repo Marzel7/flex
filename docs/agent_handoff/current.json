@@ -32824,6 +32824,19 @@
     "blocker": null,
     "exact_next_action": "Keep the 12 multiple-candidate cases ambiguous; do not change funder_sig or frozen membership."
   },
+  "byzantine_12_ambiguous_upstream_disambiguation": {
+    "milestone": "Byzantine ambiguous upstream retained-local disambiguation",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "artifact": "docs/audits/byzantine_12_ambiguous_upstream_disambiguation_read_only_audit.v1.json",
+    "artifact_digest": "96bcf493cfdfe8c433b2a50a83816a8b51e26e6abfa22c1a6064d3f6ef5265d0",
+    "result": "Empirical profile from the 34 serial chains is 6-8 seconds (median 6), combined with exact 15,000-lamport continuity. 11/12 ambiguous cases have exactly one candidate satisfying both gates and are read-only resolved as serial; one has no candidate satisfying both and remains unpromoted. No nearest-only inference was used.",
+    "replay": "identical digest c35ff1762a0118b5f640acb45fa1a0534e87dd393190a64935c6650557e10788",
+    "production_flags": "retained-local only; RPC/getTransaction=0; no code/schema/UI/database/source/normal-Walkback/membership/attribution/suppression changes.",
+    "verdict": "BYZANTINE_12_AMBIGUOUS_UPSTREAM_DISAMBIGUATION_READ_ONLY_AUDIT_COMPLETE",
+    "blocker": null,
+    "exact_next_action": "Keep the one no-surviving-candidate mint unresolved and do not alter funder_sig or frozen membership."
+  },
   "updated_at": "2026-09-01T00:00:00Z",
   "updated_at_utc": "2026-09-01T00:00:00Z",
   "updated_by": "agent_local",

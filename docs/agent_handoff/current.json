@@ -32342,8 +32342,21 @@
     "blocker": "The retained creation event's 30 SOL / 1.073e15 virtual-token baseline does not explain the first trade's reported post-trade reserves. The first-slot deployed binary is also still independently unbound. Do not derive MC from execution price or chart pixels.",
     "exact_next_action": "Only a separately authorized provenance/state investigation may resolve the creation-to-first-trade state discontinuity; do not estimate a historical MC trajectory from this replay."
   },
-  "updated_at": "2026-09-01T12:45:00Z",
-  "updated_at_utc": "2026-09-01T11:45:00Z",
+  "pumpfun_creation_first_buy_boundary_audit": {
+    "milestone": "MACROHARD retained creation-to-first-buy boundary audit",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PARTIAL",
+    "verdict": "BOUNDARY_STILL_UNRESOLVED_PRECISE_EXTERNAL_REQUIREMENT_IDENTIFIED",
+    "result": "Creation contains a successful Pump Create followed immediately by successful ExtendAccount. ExtendAccount emits an event showing the Pump-owned bonding curve extending from 115 to 151 bytes. The first TradeEvent yields an exact event-implied pre-buy state of 71.085353876 virtual SOL and 452,835,897,271,945 virtual tokens. That differs from CreateEvent by +41.085353876 virtual SOL and -620,164,102,728,055 virtual tokens. Buy #1 gross-to-net fee difference is fully observable (182,250,000 gross vs 180,000,000 curve SOL) but cannot explain the reserve divergence.",
+    "blocker": "No retained target-era ExtendAccount schema/semantics or final post-creation curve-account data proves whether the post-Create extension rewrote reserves or whether CreateEvent is an initial/default rather than final account-state snapshot. Target deployed-binary binding remains absent.",
+    "artifacts": "docs/audits/pumpfun_creation_first_buy_boundary/manifest.v1.json",
+    "artifact_digest": "207eeb345dae750edbd1bc9f7f43dbba3b15b72a7c453a455d9e7810cbf1652c",
+    "replay": "025459ead48d3a34ac9ba5890646513bd72b566058926e8073bfed3f7f6a601b twice; no network.",
+    "safety": "Retained-local, read-only, additive artifacts only; no RPC, provider, source/production/Walkback/schema/UI/code/classifier/suppression change.",
+    "exact_next_action": "If separately authorized, obtain authoritative target-era CreateEvent/ExtendAccount semantics and authenticated post-creation curve-account state; do not infer an opening MC until then."
+  },
+  "updated_at": "2026-09-01T13:00:00Z",
+  "updated_at_utc": "2026-09-01T12:00:00Z",
   "updated_by": "agent_local",
   "verdict": "PUMPFUN_FIRST_SLOT_REPLAY_PARTIAL_EXACT_BLOCKER_IDENTIFIED"
 }

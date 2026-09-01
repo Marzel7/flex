@@ -32759,6 +32759,19 @@
     "blocker": null,
     "exact_next_action": "Operator review of the role-aware Byzantine launch rows; any durable evidence projection or new transaction acquisition remains separately authorized."
   },
+  "byzantine_114_ui_funding_signature_rpc_verification": {
+    "milestone": "Byzantine exact unresolved UI selected-Walkback signature bounded RPC verification",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "artifact": "docs/audits/byzantine_114_ui_funding_signature_rpc/per_mint_ui_funding_role_mapping.v1.json",
+    "artifact_digest": "3d37bcdd612f944050e5e9eee55f4b13a8ee59a2fe767bd865209f6a144929e6",
+    "result": "Integrity gate reproduced 115 mint cases and 114 unique exact UI signatures. Exactly 114 getTransaction calls completed once each: 89 new Df8->Byzantine direct transfers map to 90 mint cases (18 at 1 SOL, 39 at 10 SOL, 32 at 20 SOL); 23 are Byzantine->creator WSOL and 2 are other upstream->Byzantine transfers. Combined direct Df8 coverage is 103/182 (56.593407%), so Df8 is not universal.",
+    "replay": "Two retained-raw local decode runs produced the same digest 79e7aee92cbc7061c1081f80a0a0dfb924c610d1a7fd8a6a980760048d96257b.",
+    "production_flags": "getTransaction=114; non-getTransaction RPC=0; no code/schema/UI/database/source/normal-Walkback/membership/attribution/suppression changes; frozen 182/182 cohort remains surfaced.",
+    "verdict": "BYZANTINE_114_UI_FUNDING_SIGNATURE_BOUNDED_RPC_VERIFICATION_COMPLETE",
+    "blocker": null,
+    "exact_next_action": "Use additive artifacts for any separately authorized UI evidence refresh; do not infer missing legs or alter the frozen cohort."
+  },
   "updated_at": "2026-09-01T00:00:00Z",
   "updated_at_utc": "2026-09-01T00:00:00Z",
   "updated_by": "agent_local",

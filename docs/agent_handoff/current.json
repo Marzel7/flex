@@ -32396,16 +32396,17 @@
   },
   "pumpfun_target_era_alchemy_archive_probe": {
     "milestone": "MACROHARD Alchemy exact historical account-state probe",
-    "status": "BLOCKED",
-    "verdict": "BLOCKED_ALCHEMY_HISTORICAL_ACCOUNT_ARCHIVE_TIER_ENTITLEMENT",
-    "result": "One documented Alchemy getAccountInfo(account, {encoding: base64, slot: 443375106}) request was issued. The endpoint recognized the historical-slot parameter but returned HTTP 400 / JSON-RPC -32600: historical slot parameters are unavailable on the configured Free tier and require Pay As You Go or Enterprise. No account bytes, owner, lamports, context, or layout evidence was returned.",
-    "safety": "Exactly one Alchemy historical getAccountInfo; 0 transaction/other-provider calls; no fallback current-state read; no production/source/Walkback/schema/UI/code/classifier/suppression mutation; credential not retained.",
-    "artifact": "docs/audits/pumpfun_target_era_alchemy_archive_probe/manifest.v1.json",
-    "artifact_digest": "87f77d25210c90f91d460b455ec8654b9e7b6bea6f9b04f70e3aa26ada3bbaed",
-    "exact_next_action": "Obtain an Alchemy Pay As You Go/Enterprise archive entitlement (or another provider with equivalent exact-slot account-byte semantics), then rerun this one exact request once; do not use current state or derive MC meanwhile."
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PARTIAL",
+    "verdict": "ALCHEMY_EXACT_HISTORICAL_ACCOUNT_STATE_ENTITLEMENT_CONFIRMED",
+    "result": "After the local Alchemy credential upgrade, one exact historical getAccountInfo(account, {encoding: base64, slot: 443375106}) returned HTTP 200 with a non-null account value and context slot exactly 443375106. The account owner is the Pump program and the returned base64 payload length is 204 characters. This proves the configured Alchemy entitlement supports the needed exact-slot account-state method.",
+    "safety": "Exactly one Alchemy historical getAccountInfo; 0 transaction/other-provider calls; no fallback current-state read; response payload and credential were not retained; no production/source/Walkback/schema/UI/code/classifier/suppression mutation.",
+    "artifact": "docs/audits/pumpfun_target_era_alchemy_archive_probe/alchemy_historical_account_probe.v2.json",
+    "artifact_digest": "0166d3e4624b91b2c43cabb419fc9b64f79079e81cea25c83378c6d9d6d7e9d1",
+    "exact_next_action": "With explicit authorization, repeat the same exact request once to retain the raw archived snapshot additively, then bind/decode its 151-byte target-era layout before any buy-#1 arithmetic or market-cap conclusion."
   },
-  "updated_at": "2026-09-01T14:00:00Z",
-  "updated_at_utc": "2026-09-01T13:00:00Z",
+  "updated_at": "2026-09-01T16:45:32Z",
+  "updated_at_utc": "2026-09-01T15:45:32Z",
   "updated_by": "agent_local",
   "verdict": "PUMPFUN_FIRST_SLOT_REPLAY_PARTIAL_EXACT_BLOCKER_IDENTIFIED"
 }

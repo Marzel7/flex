@@ -1,4 +1,15 @@
 {
+  "pumpfun_external_canonical_schema_audit": {
+    "status": "PARTIAL",
+    "verdict": "OFFICIAL_IDL_EVENT_DECODER_QUALIFIED_TARGET_SLOT_BINARY_UNBOUND",
+    "mint": "3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump",
+    "result": "Official pump-fun/pump-public-docs IDL commit 9c82f61 decodes MACROHARD CreateEvent and all 10 TradeEvents exactly: 10/10 mint, user, SOL amount, and token amount matches. It establishes creation reserves (30 SOL virtual, 1.073B virtual tokens, 793.1M real tokens).",
+    "blocker": "The official IDL commit predates the target but cannot independently bind its exact program binary to slot 443375107. The retained selected buy stream also omits predecessor activity before buy #1 and contains an interleaving sell between buy #5 and #6, preventing qualified buy-only replay and MC trajectory.",
+    "network": "External GitHub/docs only; 0 Solana/Helius/GMGN/PumpPortal calls.",
+    "artifacts": "docs/audits/pumpfun_external_canonical_schema_audit/manifest.v1.json",
+    "artifact_digest": "f9a637796bd0ba8f826fa2f0f7de49293b0d3ae026d254b310d6810935b8b183",
+    "next_action": "If authorized, prove the deployed Pump program version at target slot and retain a complete target curve-event stream before applying official arithmetic to a historical MC reconstruction."
+  },
   "pumpfun_canonical_curve_schema_read_only_audit": {
     "status": "PARTIAL",
     "verdict": "EXACT_EXTERNAL_AUTHORITATIVE_SOURCE_IDENTIFIED_BUT_NOT_AVAILABLE_LOCALLY",

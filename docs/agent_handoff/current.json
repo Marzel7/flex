@@ -1,4 +1,13 @@
 {
+  "byzantine_historical_canonical_birth_backfill_design": {
+    "status": "HOLD",
+    "verdict": "BYZANTINE_HISTORICAL_CANONICAL_BIRTH_BACKFILL_PILOT_NOT_STARTED_NO_QUALIFIED_MINT_INDEX_SOURCE",
+    "result": "Retained-local source inventory found no canonical birth cache, raw PumpPortal create payload, or mint-indexed Pump.fun transaction corpus for the nine bad anchors. The only current local control is MACROHARD's independently retained creation transaction. Prior timestamp-to-slot recovery is explicitly disqualified because it resolves migration/PumpSwap lifecycle activity, not birth.",
+    "source_assessment": "Alchemy Account Archive can supply historical account state only after a known slot and is not a mint-to-Create discovery index. Existing Helius pagination and block scans previously failed within bounds. PumpPortal/GMGN retained surfaces are not historical transaction-create indexes. No authoritative indexed mint-to-Pump.fun-Create endpoint has been positively identified and capability-verified locally, so making speculative provider calls would violate the pilot's source-capability gate.",
+    "recommendation": "First qualify a provider/API that demonstrably supports mint-filtered historical Pump.fun Create/CreateV2 discovery and returns a signature plus raw transaction. Then run MACROHARD as control before the nine; do not use legacy timestamps or begin a 182-mint backfill.",
+    "safety": "No network calls or data mutations; no legacy rows, Walkback, schema, UI, membership, attribution, classifier, or suppression changes.",
+    "next_action": "Obtain/identify a documented indexed transaction-search surface with direct mint plus Pump.fun instruction filtering, then perform the bounded 10-mint control pilot."
+  },
   "pumpportal_canonical_birth_retention": {
     "status": "COMPLETE",
     "verdict": "PUMPPORTAL_CANONICAL_BIRTH_RETENTION_IMPLEMENTED",

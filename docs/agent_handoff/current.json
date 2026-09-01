@@ -32640,6 +32640,16 @@
     "production_flags": "retained_local_only=true; incremental_rpc=0; incremental_getTransaction=0; source_or_production_rows_modified=false; suppression_occurred=false",
     "exact_next_action": "Keep suppression disabled. If authorized, evaluate the eight role-evidence matches and add a separately qualified semantic gate; do not refit this frozen structural measure in place."
   },
+  "spam_false_negative_6y84_retained_local_analysis": {
+    "status": "SECOND_PATTERN_CANDIDATE_FOUND",
+    "engineering_revision": "bf1baac7",
+    "target": "6y84CxtWjKaPN87yZx234rFx4EBJeYgtj8Tcsn97AUir",
+    "result": "Target has six selected PLAIN_XFER zero-amount, distinct-mint/distinct-destination edges; five are hop depth <=1 and one is hop depth 2. The sole shallow-depth predicate excluded it from the 139 structural matches.",
+    "retention": "The depth-2 edge is retained and selected, so the miss is topology rather than an implementation omission. One of six edge mints is absent from wt_walkback_queue and no generic role rows reference the target; these are non-causal retention gaps.",
+    "second_pattern_candidate": "n>=4; n=m; distinct destinations=m; selected=n; PLAIN_XFER=n; nonzero amount=0; shallow=n-1. Four retained accounts satisfy it; zero same-mint SELECTED genuine-control overlap.",
+    "production_flags": "retained_local_only=true; incremental_rpc=0; incremental_getTransaction=0; source_or_production_rows_modified=false; suppression_occurred=false; rule_unchanged=true",
+    "exact_next_action": "Keep all suppression disabled. Independently verify the three non-target second-pattern accounts before considering any separate classifier qualification."
+  },
   "updated_at": "2026-09-01T00:00:00Z",
   "updated_at_utc": "2026-09-01T00:00:00Z",
   "updated_by": "agent_local",

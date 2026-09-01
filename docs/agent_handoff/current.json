@@ -32849,6 +32849,17 @@
     "blocker": null,
     "exact_next_action": "Do not generalize the 10-second extension without separate validation."
   },
+  "byzantine_enriched_dual_funding_ui": {
+    "milestone": "Byzantine retained dual-funding UI enrichment",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "result": "Reader now consumes retained enrichment, pairing, and ambiguity artifacts to render separate upstream/creator roles, chain status, and the technical Selected Walkback Tx. Current projection is 182 mints: upstream 105 (Df8 103, other 2), creator 168, both 91, serial 46, upstream-only 14, creator-only 77, neither 0.",
+    "tests": "tests/test_byzantine_dual_funding_leg_projection.py: 10 passed",
+    "production_flags": "RPC/getTransaction=0; no schema/database/source/normal-Walkback/membership/attribution/suppression changes.",
+    "verdict": "BYZANTINE_ENRICHED_DUAL_FUNDING_UI_IMPLEMENTED",
+    "blocker": null,
+    "exact_next_action": "Operator UI review only; preserve the unpromoted ambiguous evidence state."
+  },
   "updated_at": "2026-09-01T00:00:00Z",
   "updated_at_utc": "2026-09-01T00:00:00Z",
   "updated_by": "agent_local",

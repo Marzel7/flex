@@ -118,12 +118,18 @@ def refresh_emerging_operators_snapshot(
             "status": "FAILED", "error": str(exc),
         }
 
-    written = write_snapshot(
-        FUNCTION_NAME, WINDOW_SECONDS, payload,
-        build_duration_ms=payload["build_duration_ms"],
-        completeness_key="family_count",
-        refresh_reason=reason,
-    )
+    try:
+        written = write_snapshot(
+            FUNCTION_NAME, WINDOW_SECONDS, payload,
+            build_duration_ms=payload["build_duration_ms"],
+            completeness_key="family_count",
+            refresh_reason=reason,
+        )
+    except OSError as exc:
+        return {
+            "function": FUNCTION_NAME, "window_seconds": WINDOW_SECONDS,
+            "status": "ENOSPC" if exc.errno == 28 else "WRITE_FAILED", "error": str(exc),
+        }
     return {
         "function": FUNCTION_NAME, "window_seconds": WINDOW_SECONDS,
         "status": "SUCCESS" if written else "REJECTED_SANITY_CHECK",

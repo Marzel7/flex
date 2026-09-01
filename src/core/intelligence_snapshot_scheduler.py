@@ -60,7 +60,9 @@ if _REPO_ROOT not in sys.path:
     sys.path.insert(0, _REPO_ROOT)
 
 from src.ops.discovery_window import WINDOW_ORDER, window_seconds_for  # noqa: E402
-from src.ops.intelligence_snapshots import write_snapshot, read_snapshot  # noqa: E402
+from src.ops.intelligence_snapshots import (  # noqa: E402
+    SnapshotDiskSpaceError, read_snapshot, write_snapshot,
+)
 from src.ops.emerging_operators_snapshot import (  # noqa: E402
     FUNCTION_NAME as EMERGING_OPERATORS_FUNCTION,
     WINDOW_SECONDS as EMERGING_OPERATORS_WINDOW_SECONDS,
@@ -200,6 +202,24 @@ _BUILDERS = {
     "pipeline_health": _build_pipeline_health,
 }
 
+# Global and deliberately fail-closed for this process.  An operator restart
+# after disk recovery is the bounded recheck mechanism; retrying inside a
+# disk-pressure loop would amplify the incident.
+_PERSISTENCE_CIRCUIT: dict | None = None
+
+
+def _open_persistence_circuit(reason: str, exc: BaseException) -> None:
+    global _PERSISTENCE_CIRCUIT
+    _PERSISTENCE_CIRCUIT = {"state": "OPEN", "reason": reason, "error": str(exc), "opened_at": time.time()}
+    _log.error("intelligence snapshot persistence circuit OPEN reason=%s error=%s", reason, exc)
+
+
+def _circuit_result(function: str, window_seconds: int) -> dict | None:
+    if _PERSISTENCE_CIRCUIT is None:
+        return None
+    return {"function": function, "window_seconds": window_seconds,
+            "status": "SKIPPED_CIRCUIT_OPEN", "circuit": dict(_PERSISTENCE_CIRCUIT)}
+
 
 def refresh_one(function: str, window_seconds: int, *, reason: str = "scheduled") -> dict:
     """Runs ONE build to completion in THIS process (never a daemon thread
@@ -210,6 +230,9 @@ def refresh_one(function: str, window_seconds: int, *, reason: str = "scheduled"
     completely untouched (write_snapshot is never called on the failure
     path, exactly mirroring SWRCache._refresh's own success-only
     persistence discipline)."""
+    circuit = _circuit_result(function, window_seconds)
+    if circuit:
+        return circuit
     if not acquire_window_lock(function, window_seconds):
         return {"function": function, "window_seconds": window_seconds,
                 "status": "SKIPPED_ALREADY_RUNNING"}
@@ -228,10 +251,28 @@ def refresh_one(function: str, window_seconds: int, *, reason: str = "scheduled"
                     "status": "FAILED", "error": str(exc)}
         build_ms = (time.perf_counter() - start) * 1000
 
-        written = write_snapshot(
-            function, window_seconds, payload, build_duration_ms=build_ms,
-            completeness_key="total_launches", refresh_reason=reason,
-        )
+        try:
+            written = write_snapshot(
+                function, window_seconds, payload, build_duration_ms=build_ms,
+                completeness_key="total_launches", refresh_reason=reason,
+            )
+        except SnapshotDiskSpaceError as exc:
+            _open_persistence_circuit("INSUFFICIENT_DISK_SPACE", exc)
+            return {"function": function, "window_seconds": window_seconds,
+                    "status": "INSUFFICIENT_DISK_SPACE", "error": str(exc),
+                    "free_bytes": exc.free_bytes, "minimum_bytes": exc.minimum_bytes}
+        except OSError as exc:
+            if exc.errno == 28:
+                _open_persistence_circuit("ENOSPC", exc)
+                return {"function": function, "window_seconds": window_seconds,
+                        "status": "ENOSPC", "error": str(exc)}
+            _log.exception("snapshot persistence write failure function=%s window_seconds=%s", function, window_seconds)
+            return {"function": function, "window_seconds": window_seconds,
+                    "status": "WRITE_FAILED", "error": str(exc)}
+        except Exception as exc:  # serialization and other persistence failures
+            _log.exception("snapshot persistence failure function=%s window_seconds=%s", function, window_seconds)
+            return {"function": function, "window_seconds": window_seconds,
+                    "status": "WRITE_FAILED", "error": str(exc)}
         status = "SUCCESS" if written else "REJECTED_SANITY_CHECK"
         _log.info(
             "snapshot refresh %s function=%s window_seconds=%s build_ms=%.1f",
@@ -247,12 +288,28 @@ def _refresh_emerging_operators(reason: str = "scheduled") -> dict:
     """X72.0 -- same lock-file discipline as refresh_one() (per-key lock,
     stale-PID reclaim), routed through the dedicated emerging_operators
     builder instead of the windowed _BUILDERS table."""
+    circuit = _circuit_result(EMERGING_OPERATORS_FUNCTION, EMERGING_OPERATORS_WINDOW_SECONDS)
+    if circuit:
+        return circuit
     if not acquire_window_lock(EMERGING_OPERATORS_FUNCTION, EMERGING_OPERATORS_WINDOW_SECONDS):
         return {"function": EMERGING_OPERATORS_FUNCTION,
                 "window_seconds": EMERGING_OPERATORS_WINDOW_SECONDS,
                 "status": "SKIPPED_ALREADY_RUNNING"}
     try:
-        result = refresh_emerging_operators_snapshot(OPS_DB_PATH, LIVE_DB_PATH, reason=reason)
+        try:
+            result = refresh_emerging_operators_snapshot(OPS_DB_PATH, LIVE_DB_PATH, reason=reason)
+        except SnapshotDiskSpaceError as exc:
+            _open_persistence_circuit("INSUFFICIENT_DISK_SPACE", exc)
+            return {"function": EMERGING_OPERATORS_FUNCTION, "window_seconds": EMERGING_OPERATORS_WINDOW_SECONDS,
+                    "status": "INSUFFICIENT_DISK_SPACE", "error": str(exc)}
+        except OSError as exc:
+            if exc.errno == 28:
+                _open_persistence_circuit("ENOSPC", exc)
+                return {"function": EMERGING_OPERATORS_FUNCTION, "window_seconds": EMERGING_OPERATORS_WINDOW_SECONDS,
+                        "status": "ENOSPC", "error": str(exc)}
+            raise
+        if result.get("status") in {"ENOSPC", "INSUFFICIENT_DISK_SPACE"}:
+            _open_persistence_circuit(result["status"], OSError(result.get("error", result["status"])))
         _log.info(
             "snapshot refresh %s function=%s build_ms=%s family_count=%s",
             result.get("status"), EMERGING_OPERATORS_FUNCTION,
@@ -364,7 +421,7 @@ def status() -> dict:
     use/manual inspection."""
     from src.core.snapshot_health import classify_snapshot_health
 
-    out = {}
+    out = {"persistence_circuit": _PERSISTENCE_CIRCUIT or {"state": "CLOSED"}}
     for window_param in WINDOW_ORDER:
         window_seconds = window_seconds_for(window_param)
         out[window_param] = {}

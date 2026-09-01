@@ -1,0 +1,12 @@
+{
+  "artifact": "ep5_1_operational_evolution_graph.json.gz",
+  "producer": "scripts/validate_ep5_1_operational_evolution.py",
+  "content_type": "application/gzip",
+  "size_bytes": 39808187,
+  "sha256": "5649fb534074d2910418354ef990e3557544bd57d6be8ce30db12fd3b0741047",
+  "retained_location": "database/evidence_platform/_retained_docs_artifacts/56/49/5649fb534074d2910418354ef990e3557544bd57d6be8ce30db12fd3b0741047__ep5_1_operational_evolution_graph.json.gz",
+  "working_tree_path": "docs/evidence_platform/ep5_1_operational_evolution_graph.json.gz",
+  "regeneration_entry_point": "python3 scripts/validate_ep5_1_operational_evolution.py",
+  "git_tracking": "untracked_by_design_2026-09-01",
+  "note": "Deterministic generated intelligence output. Content is retained content-addressed under database/evidence_platform/_retained_docs_artifacts/ (gitignored). This manifest is the Git-tracked reference to that retained copy. The working-tree file remains present at working_tree_path for existing readers/scripts; it is simply no longer Git-tracked so future edits do not participate in Git object creation (including Codex turn-diff capture)."
+}

@@ -458,6 +458,48 @@ def _identify_wal_holders() -> str:
         return "unknown"
 
 
+_MAX_EXTERNAL_HOLDER_RECORDS = 15
+
+
+def _external_open_handles() -> dict:
+    """lsof-derived open-descriptor snapshot, explicitly NOT a blocker proof.
+
+    Every entry here means only OPEN_CONNECTION -- an open file descriptor on
+    the database file. lsof cannot see whether that process holds a
+    transaction, is mid-checkpoint, or is idle. Never upgrade these records
+    to a stronger classification; only THIS process's own connections (see
+    `_local_connection_snapshot`) can be classified beyond "open".
+    """
+    try:
+        result = subprocess.run(["lsof", DB_PATH], capture_output=True, text=True, timeout=5)
+        pids = {}
+        for l in result.stdout.splitlines():
+            if l.startswith("COMMAND"):
+                continue
+            parts = l.split()
+            if len(parts) >= 2:
+                pids[parts[1]] = parts[0][:40]
+        records = [
+            {"pid": pid, "command": cmd, "state": "EXTERNAL_OPEN_HANDLE"}
+            for pid, cmd in list(pids.items())[:_MAX_EXTERNAL_HOLDER_RECORDS]
+        ]
+        return {"total_count": len(pids), "returned_count": len(records), "handles": records}
+    except Exception as exc:
+        return {"error": str(exc)[:160], "total_count": 0, "returned_count": 0, "handles": []}
+
+
+def _local_connection_snapshot() -> dict:
+    """This process's own open-connection state, classified from data
+    db_locking.py's registry already retains -- bounded, read-only,
+    fail-open. See db_locking.wal_pin_connection_snapshot for the contract.
+    """
+    try:
+        from src.utils.db_locking import wal_pin_connection_snapshot
+        return wal_pin_connection_snapshot(limit=15)
+    except Exception as exc:
+        return {"error": str(exc)[:160], "total_count": 0, "returned_count": 0, "connections": []}
+
+
 def _wal_is_critically_pinned(size_mb: float, busy_cycles: int) -> bool:
     """Require both a large WAL and persistent checkpoint contention."""
     return size_mb >= WAL_ALERT_MB and busy_cycles >= WAL_BUSY_CYCLES
@@ -478,9 +520,18 @@ def _wal_watchdog() -> None:
             else:
                 busy_cycles = 0
             if _wal_is_critically_pinned(mb, busy_cycles):
-                holders = _identify_wal_holders()
+                try:
+                    external_handles = _external_open_handles()
+                except Exception as exc:
+                    external_handles = {"error": str(exc)[:160], "total_count": 0, "returned_count": 0, "handles": []}
+                try:
+                    local_connections = _local_connection_snapshot()
+                except Exception as exc:
+                    local_connections = {"error": str(exc)[:160], "total_count": 0, "returned_count": 0, "connections": []}
                 _log(f"CRITICAL_WAL_PINNED: WAL={mb:.1f}MB busy_cycles={busy_cycles} "
-                     f"holders={holders} — this worker exiting for clean restart")
+                     f"external_open_handles={json.dumps(external_handles, sort_keys=True, default=str)} "
+                     f"local_connection_state={json.dumps(local_connections, sort_keys=True, default=str)} "
+                     "— this worker exiting for clean restart")
                 os._exit(1)
         except Exception as e:
             _log(f"WAL watchdog error: {e}")

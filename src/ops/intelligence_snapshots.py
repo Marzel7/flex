@@ -34,6 +34,8 @@ from __future__ import annotations
 import json
 import logging
 import os
+import shutil
+import threading
 import time
 from dataclasses import dataclass
 from typing import Any, Optional
@@ -63,6 +65,37 @@ SNAPSHOT_DIR = os.environ.get(
 )
 
 _log = logging.getLogger(__name__)
+
+# Temporary operational safety floor, deliberately configurable.  This is
+# not a snapshot-size estimate: it leaves recovery headroom when an atomic
+# sibling write would otherwise worsen a full-volume incident.
+MIN_FREE_BYTES = int(os.environ.get("WT_INTELLIGENCE_SNAPSHOT_MIN_FREE_BYTES", 10 * 1024 ** 3))
+_PERSIST_LOCK = threading.Lock()
+
+
+class SnapshotDiskSpaceError(OSError):
+    """Raised before a snapshot write when the filesystem lacks safe headroom."""
+
+    reason = "INSUFFICIENT_DISK_SPACE"
+
+    def __init__(self, *, path: str, free_bytes: int, minimum_bytes: int) -> None:
+        self.path = path
+        self.free_bytes = free_bytes
+        self.minimum_bytes = minimum_bytes
+        super().__init__(
+            28,
+            f"{self.reason}: free_bytes={free_bytes} minimum_bytes={minimum_bytes} path={path}",
+        )
+
+
+def _ensure_disk_headroom(path: str) -> None:
+    free_bytes = shutil.disk_usage(path).free
+    if free_bytes < MIN_FREE_BYTES:
+        _log.error(
+            "intelligence snapshot persistence refused reason=%s free_bytes=%s minimum_bytes=%s path=%s",
+            SnapshotDiskSpaceError.reason, free_bytes, MIN_FREE_BYTES, path,
+        )
+        raise SnapshotDiskSpaceError(path=path, free_bytes=free_bytes, minimum_bytes=MIN_FREE_BYTES)
 
 
 @dataclass
@@ -176,8 +209,6 @@ def write_snapshot(
 
     os.makedirs(SNAPSHOT_DIR, exist_ok=True)
     path = _snapshot_path(function, window_seconds)
-    tmp_path = path + f".tmp.{os.getpid()}.{time.time_ns()}"
-
     now = time.time()
     # X67.28 -- snapshot_version increments monotonically per (function,
     # window_seconds), independent of computed_at, so a reader/diagnostic
@@ -201,11 +232,24 @@ def write_snapshot(
         "refresh_reason": refresh_reason,
     }
 
-    with open(tmp_path, "w") as f:
-        json.dump(record, f)
-        f.flush()
-        os.fsync(f.fileno())
-    os.replace(tmp_path, path)
+    # Builders remain concurrent; only the disk-mutating publish section is
+    # single-flight, so an emerging-operators write cannot compound pressure.
+    with _PERSIST_LOCK:
+        _ensure_disk_headroom(SNAPSHOT_DIR)
+        tmp_path = path + f".tmp.{os.getpid()}.{time.time_ns()}"
+        try:
+            with open(tmp_path, "w") as f:
+                json.dump(record, f)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(tmp_path, path)
+        except BaseException:
+            try:
+                if os.path.exists(tmp_path):
+                    os.unlink(tmp_path)
+            except OSError:
+                _log.exception("failed to remove incomplete intelligence snapshot temp file: %s", tmp_path)
+            raise
     return True
 
 

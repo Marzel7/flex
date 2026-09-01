@@ -1,0 +1,12 @@
+{
+  "artifact": "ep5_2_cross_motif_relationship_intelligence.json.gz",
+  "producer": "scripts/validate_ep5_2_cross_motif_relationships.py",
+  "content_type": "application/gzip",
+  "size_bytes": 6113227,
+  "sha256": "912cdbaa146ebb2bf52f41121fe78c57661873d36e8eb9f8bdc93c8761c40fff",
+  "retained_location": "database/evidence_platform/_retained_docs_artifacts/91/2c/912cdbaa146ebb2bf52f41121fe78c57661873d36e8eb9f8bdc93c8761c40fff__ep5_2_cross_motif_relationship_intelligence.json.gz",
+  "working_tree_path": "docs/evidence_platform/ep5_2_cross_motif_relationship_intelligence.json.gz",
+  "regeneration_entry_point": "python3 scripts/validate_ep5_2_cross_motif_relationships.py",
+  "git_tracking": "untracked_by_design_2026-09-01",
+  "note": "Deterministic generated intelligence output. Content is retained content-addressed under database/evidence_platform/_retained_docs_artifacts/ (gitignored). This manifest is the Git-tracked reference to that retained copy. The working-tree file remains present at working_tree_path for existing readers/scripts; it is simply no longer Git-tracked so future edits do not participate in Git object creation (including Codex turn-diff capture)."
+}

@@ -12,6 +12,7 @@ import hashlib
 import inspect
 import json
 import logging
+import logging.handlers
 import os
 import sqlite3
 import threading
@@ -82,6 +83,57 @@ def _connection_diagnostics_path() -> Optional[str]:
     return os.environ.get("DB_CONNECTION_LIFECYCLE_DIAGNOSTICS_PATH") or None
 
 
+# ── Bounded diagnostic JSONL appenders (X78.19 / X78.22 / X78.23) ───────────
+# Shared rotation semantics so unbounded diagnostic instrumentation cannot
+# exhaust disk: each path gets its own logging.handlers.RotatingFileHandler
+# (same pattern already used by src/core/launch_price_logger.py). Default cap
+# is conservative (diagnostic evidence, not archival data) and independently
+# overridable per-path via env vars. Emission is strictly fail-open: any
+# error constructing/using a handler is swallowed, matching prior behavior.
+_DIAGNOSTIC_ROTATING_HANDLERS: dict[str, logging.handlers.RotatingFileHandler] = {}
+_DIAGNOSTIC_ROTATING_HANDLERS_LOCK = threading.Lock()
+
+_DIAGNOSTIC_DEFAULT_MAX_BYTES = 10 * 1024 * 1024  # 10 MB
+_DIAGNOSTIC_DEFAULT_BACKUP_COUNT = 2
+
+
+def _diagnostic_rotating_handler(path: str, *, max_bytes_env: str, backup_count_env: str
+                                  ) -> logging.handlers.RotatingFileHandler:
+    with _DIAGNOSTIC_ROTATING_HANDLERS_LOCK:
+        handler = _DIAGNOSTIC_ROTATING_HANDLERS.get(path)
+        if handler is not None:
+            return handler
+        try:
+            max_bytes = int(os.environ.get(max_bytes_env, "") or _DIAGNOSTIC_DEFAULT_MAX_BYTES)
+        except ValueError:
+            max_bytes = _DIAGNOSTIC_DEFAULT_MAX_BYTES
+        try:
+            backup_count = int(os.environ.get(backup_count_env, "") or _DIAGNOSTIC_DEFAULT_BACKUP_COUNT)
+        except ValueError:
+            backup_count = _DIAGNOSTIC_DEFAULT_BACKUP_COUNT
+        os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+        handler = logging.handlers.RotatingFileHandler(
+            path, maxBytes=max_bytes, backupCount=backup_count, encoding="utf-8"
+        )
+        _DIAGNOSTIC_ROTATING_HANDLERS[path] = handler
+        return handler
+
+
+def _append_diagnostic_jsonl(path: str, payload: dict, *, max_bytes_env: str, backup_count_env: str) -> None:
+    """Append one JSON line to `path` through a bounded RotatingFileHandler.
+
+    No DB access, no write-lane interaction; strictly fail-open like the
+    diagnostics it backs. Rotation itself never raises into callers.
+    """
+    try:
+        handler = _diagnostic_rotating_handler(path, max_bytes_env=max_bytes_env, backup_count_env=backup_count_env)
+        line = json.dumps(payload, sort_keys=True, default=str)
+        record = logging.makeLogRecord({"msg": line, "levelno": logging.INFO})
+        handler.emit(record)
+    except Exception:
+        pass
+
+
 def _connection_purpose(caller: str) -> str:
     value = caller.lower()
     for needle, purpose in (
@@ -133,15 +185,12 @@ def _append_connection_lifecycle(event: dict) -> None:
     if not path:
         return
     payload = {"schema": "x78.19.connection_lifecycle.v1", **event}
-    try:
-        os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
-        line = json.dumps(payload, sort_keys=True, default=str) + "\n"
-        with _connection_lifecycle_lock:
-            with open(path, "a", encoding="utf-8") as handle:
-                handle.write(line)
-    except Exception:
-        # Diagnostics are strictly fail-open.
-        pass
+    with _connection_lifecycle_lock:
+        _append_diagnostic_jsonl(
+            path, payload,
+            max_bytes_env="DB_CONNECTION_LIFECYCLE_DIAGNOSTICS_MAX_BYTES",
+            backup_count_env="DB_CONNECTION_LIFECYCLE_DIAGNOSTICS_BACKUP_COUNT",
+        )
 
 # Process-wide write serializer (the single write lane). Plain Lock (not RLock): releasable from
 # any thread, which the async adapter needs; write transactions are short and never nest it.
@@ -316,6 +365,11 @@ _CF_SQL_DIAGNOSTICS_LOCK = threading.Lock()
 
 
 def _cf_sql_diagnostics_enabled(connection) -> bool:
+    # Explicit override: unset/"1"/anything-but-"0" preserves today's default
+    # (enabled for the two qualifying callers below) for production
+    # compatibility; "0" disables X78.22/X78.23 SQL diagnostics entirely.
+    if os.environ.get("X78_CF_SQL_DIAGNOSTICS_ENABLED", "1") == "0":
+        return False
     caller = str(getattr(connection, "_db_caller", "") or "")
     return (
         "realtime_creator_funding_extractor.py" in caller
@@ -337,14 +391,13 @@ def _normalized_sql(sql) -> tuple[str, str, str]:
 
 
 def _append_cf_sql_diagnostic(payload: dict, connection=None) -> None:
-    try:
-        path = _sql_diagnostics_path(connection) if connection is not None else _CF_SQL_DIAGNOSTICS_PATH
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        with _CF_SQL_DIAGNOSTICS_LOCK:
-            with open(path, "a", encoding="utf-8") as handle:
-                handle.write(json.dumps(payload, sort_keys=True, default=str) + "\n")
-    except Exception:
-        pass
+    path = _sql_diagnostics_path(connection) if connection is not None else _CF_SQL_DIAGNOSTICS_PATH
+    with _CF_SQL_DIAGNOSTICS_LOCK:
+        _append_diagnostic_jsonl(
+            path, payload,
+            max_bytes_env="X78_CF_SQL_DIAGNOSTICS_MAX_BYTES",
+            backup_count_env="X78_CF_SQL_DIAGNOSTICS_BACKUP_COUNT",
+        )
 
 
 def record_token_prediction_phase(connection, phase: str, event: str, **fields) -> None:
@@ -366,13 +419,12 @@ def record_token_prediction_phase(connection, phase: str, event: str, **fields) 
         "transaction_open": bool(connection.in_transaction),
         **fields,
     }
-    try:
-        os.makedirs(os.path.dirname(_TOKEN_PREDICTION_SQL_DIAGNOSTICS_PATH), exist_ok=True)
-        with _CF_SQL_DIAGNOSTICS_LOCK:
-            with open(_TOKEN_PREDICTION_SQL_DIAGNOSTICS_PATH, "a", encoding="utf-8") as handle:
-                handle.write(json.dumps(payload, sort_keys=True, default=str) + "\n")
-    except Exception:
-        pass
+    with _CF_SQL_DIAGNOSTICS_LOCK:
+        _append_diagnostic_jsonl(
+            _TOKEN_PREDICTION_SQL_DIAGNOSTICS_PATH, payload,
+            max_bytes_env="X78_CF_SQL_DIAGNOSTICS_MAX_BYTES",
+            backup_count_env="X78_CF_SQL_DIAGNOSTICS_BACKUP_COUNT",
+        )
     lease = getattr(connection, "_cross_process_lease", None)
     if lease is not None:
         try:
@@ -888,6 +940,91 @@ def _register_connection(
         "pid": os.getpid(),
         "timestamp": record["opened_at"],
     })
+
+
+def wal_pin_connection_snapshot(limit: int = 15) -> dict:
+    """Bounded, classified snapshot of THIS process's open connections for
+    WAL-pinned diagnostics (X78.40).
+
+    Built on the existing `_open_connections` registry — no new tracking
+    state. Read-only: reads the registry under its existing lock, classifies
+    each record from data already retained (opened_at, conn_ref.in_transaction),
+    and returns a small, capped, string-bounded structure suitable for
+    embedding directly in a log line.
+
+    Ordering is deterministic: in_transaction=True first, then oldest first —
+    the connections most likely to be a checkpoint blocker come first, so
+    truncation (via `limit`) drops the least-suspicious records, not the
+    most-suspicious ones.
+
+    Never raises: any failure reading a record classifies it UNKNOWN rather
+    than propagating, and a totally failed registry read returns an
+    explicit-error dict rather than raising, so callers on the
+    CRITICAL_WAL_PINNED -> os._exit(1) path can never be blocked by this.
+    """
+    _MAX_FIELD_LEN = 120
+
+    def _bound(value) -> str:
+        text = str(value) if value is not None else ""
+        return text[:_MAX_FIELD_LEN]
+
+    try:
+        now = time.time()
+        with _open_connections_lock:
+            records = list(_open_connections.values())
+    except Exception as exc:
+        return {"error": _bound(exc), "total_count": 0, "returned_count": 0, "truncated": False, "connections": []}
+
+    classified = []
+    for record in records:
+        try:
+            age = round(now - record.get("opened_at", now), 1)
+            conn_ref = record.get("conn_ref")
+            connection = conn_ref() if conn_ref is not None else None
+            if connection is None:
+                in_transaction = None
+                state = "UNKNOWN"
+            else:
+                try:
+                    in_transaction = bool(connection.in_transaction)
+                except Exception:
+                    in_transaction = None
+                if in_transaction is None:
+                    state = "UNKNOWN"
+                elif not in_transaction:
+                    state = "OPEN_IDLE"
+                elif age >= _MAX_TXN_CONNECTION_AGE_SECS:
+                    state = "LONG_LIVED_IN_TRANSACTION"
+                else:
+                    state = "IN_TRANSACTION"
+            classified.append({
+                "state": state,
+                "age_seconds": age,
+                "in_transaction": in_transaction,
+                "pid": os.getpid(),
+                "thread": _bound(record.get("thread")),
+                "caller": _bound(record.get("caller")),
+                "purpose": _bound(record.get("purpose")),
+                "path": _bound(record.get("path")),
+                "mode": _bound(record.get("mode")),
+            })
+        except Exception:
+            classified.append({
+                "state": "UNKNOWN", "age_seconds": None, "in_transaction": None,
+                "pid": os.getpid(), "thread": "", "caller": "", "purpose": "", "path": "", "mode": "",
+            })
+
+    _state_priority = {"LONG_LIVED_IN_TRANSACTION": 0, "IN_TRANSACTION": 1, "UNKNOWN": 2, "OPEN_IDLE": 3}
+    classified.sort(key=lambda c: (_state_priority.get(c["state"], 9), -(c["age_seconds"] or 0)))
+
+    total = len(classified)
+    returned = classified[:limit]
+    return {
+        "total_count": total,
+        "returned_count": len(returned),
+        "truncated": total > len(returned),
+        "connections": returned,
+    }
 
 
 def get_open_connection_summary(limit: int = 25) -> dict:

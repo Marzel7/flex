@@ -32688,6 +32688,18 @@
     "blocker": null,
     "exact_next_action": "Preserve the frozen cohort; separately authorize any prospective second-leg retention improvement before implementing it."
   },
+  "byzantine_98_legacy_subprov_provenance_audit": {
+    "milestone": "Byzantine unresolved frozen-mint legacy subprov provenance audit",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "artifact": "docs/audits/byzantine_98_legacy_subprov_provenance_read_only_audit.v1.json",
+    "artifact_digest": "87d52a228d6c1e0ddfec0f01b39f39e2cf6d3cd026504ffaa3391225f6a5dee5",
+    "result": "All 98 predate generic role retention. 90 are Case-2 same-creator wt_wrap_close_candidates associations with exact close signatures; 6 are legacy FULL_WALKBACK direct-Byzantine WSOL hop-1 associations; 2 are watchtower_token_attribution inheritance without recoverable transaction/session provenance. 96 exact signature targets are bounded-RPC candidates; one old provisioning-session projection is locally recoverable; two require broad discovery and are not bounded targets.",
+    "production_flags": "retained-local only; incremental RPC/getTransaction=0; no code, schema, database, UI, membership, attribution, suppression, backfill, or normal Walkback-table changes.",
+    "verdict": "BYZANTINE_98_LEGACY_SUBPROV_PROVENANCE_READ_ONLY_AUDIT_COMPLETE",
+    "blocker": null,
+    "exact_next_action": "Do not alter the protected cohort. Any future verification must separately authorize only explicitly enumerated signature targets; do not use broad discovery to force proof of the two legacy-inheritance rows."
+  },
   "updated_at": "2026-09-01T00:00:00Z",
   "updated_at_utc": "2026-09-01T00:00:00Z",
   "updated_by": "agent_local",

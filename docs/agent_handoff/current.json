@@ -32811,6 +32811,19 @@
     "blocker": "Preceding candidates lack retained launch-specific association; broad discovery is required for the 46 no-candidate cases and is not authorized.",
     "exact_next_action": "Do not reassociate or replace funder_sig. Any bounded evidence recovery must define exact launch-specific targets separately."
   },
+  "byzantine_46_missing_upstream_bounded_rpc": {
+    "milestone": "Byzantine 46 missing-upstream bounded RPC discovery",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "artifact": "docs/audits/byzantine_46_missing_upstream_rpc/per_mint_pairing_results.v1.json",
+    "artifact_digest": "87a0c82b76d8e37aad018e8fcf0093be62d319a3d77828677f7481574fdc3d4b",
+    "result": "46 exact anchors processed within budget: 3 getSignaturesForAddress and 18 deduplicated getTransaction calls. All candidate inbound transfers were Df8->Byzantine. 34 anchors have exactly one one-hour candidate with 15k-lamport fee continuity and are proven serial; 12 have multiple plausible candidates and remain ambiguous.",
+    "replay": "identical retained-local pairing digest 42213a83bcbf75d10e2c071d7a20e1683fe7a2e6b62c2c20229d459a6a251041",
+    "production_flags": "RPC=21 (3 signatures, 18 transactions); no code/schema/UI/database/source/normal-Walkback/membership/attribution/suppression changes.",
+    "verdict": "BYZANTINE_46_MISSING_UPSTREAM_BOUNDED_RPC_AUDIT_COMPLETE",
+    "blocker": null,
+    "exact_next_action": "Keep the 12 multiple-candidate cases ambiguous; do not change funder_sig or frozen membership."
+  },
   "updated_at": "2026-09-01T00:00:00Z",
   "updated_at_utc": "2026-09-01T00:00:00Z",
   "updated_by": "agent_local",

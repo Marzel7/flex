@@ -1,4 +1,15 @@
 {
+  "byzantine_selected_walkback_tx_ui_fix": {
+    "status": "COMPLETE",
+    "verdict": "BYZANTINE_SELECTED_WALKBACK_TX_UI_FIX_IMPLEMENTED",
+    "result": "Removed only the template condition that hid Selected Walkback Tx when its signature matched an upstream or creator-provisioning leg. The technical trace now renders whenever selected_walkback_tx (or its legacy signature fallback) is present; economic-leg fields and their evidence semantics are unchanged.",
+    "verification": "At the observed retained high-water, all 182 frozen mints remain surfaced with the frozen digest b9c88cab4b1d7a90deea64b7d03736cce14b1571a5a797eeb807f26867b055e1. 182/182 have a selected Walkback signature and therefore 182/182 render the technical link after the template fix. Role totals remain upstream 105, creator provisioning 168, both 91; session statuses are 46 serial, 45 both-unpaired, 14 upstream-only, and 77 creator-only.",
+    "replay": "Projection digest 9eb34cda9934a531e99f1abee7ae6ce16685860654d5715cea9794c73d09a4e5 at the same retained high-water; reader uses retained local evidence only.",
+    "tests": "pytest -q tests/test_byzantine_dual_funding_leg_projection.py: 11 passed. Added an explicit contract covering selected technical-trace visibility for upstream-only, creator-only, shared-leg, and no-leg rows, and confirming the former suppression predicate is absent.",
+    "changes": "templates/operator_intelligence.html; tests/test_byzantine_dual_funding_leg_projection.py",
+    "safety": "0 RPC/getTransaction/provider calls; no database, production/source, normal Walkback, schema, attribution, membership, classifier, suppression, or service changes; no restart.",
+    "next_action": "Observe the normal UI render; no further data or service action is required for this presentation-only correction."
+  },
   "byzantine_canonical_birth_backfill_pilot": {
     "status": "COMPLETE",
     "verdict": "BYZANTINE_CANONICAL_BIRTH_AND_LAUNCH_IMPULSE_BACKFILL_PILOT_COMPLETE_METHOD_UNRELIABLE",

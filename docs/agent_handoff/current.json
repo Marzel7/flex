@@ -32675,6 +32675,19 @@
     "blocker": null,
     "exact_next_action": "Preserve the 182-mint baseline. Any broader Byzantine relationship reconstruction requires separately scoped authorization."
   },
+  "byzantine_182_cohort_funding_topology_audit": {
+    "milestone": "Byzantine frozen cohort retained-local funding-topology audit",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "artifact": "docs/audits/byzantine_182_cohort_funding_topology_read_only_audit.v1.json",
+    "artifact_digest": "1877f79b7c891d7517297de25ebceee2d46d8711b177e54346c4cd38f3c72d5c",
+    "result": "Frozen digest and 182/182 surfacing reconcile. Exactly 1 complete Df8→Byzantine→creator two-transaction chain is proven; 12 retain only the Df8→Byzantine first leg; 71 retain Byzantine-owned WSOL close-to-creator legs without an exact Df8 first leg; 98 have no generic funding path proven. The reference mechanism must not be generalized to the remaining groups.",
+    "retention": "One acquired-but-unprojected reference second leg proves the retention gap exists; no raw second-leg payload is locally available for the 12 first-leg-only mints, so zero-incremental-RPC cohort-wide repair is not supported.",
+    "production_flags": "retained-local only; incremental RPC/getTransaction=0; no code, schema, database, UI, membership, attribution, suppression, or normal Walkback-table changes.",
+    "verdict": "BYZANTINE_182_COHORT_FUNDING_TOPOLOGY_READ_ONLY_AUDIT_COMPLETE",
+    "blocker": null,
+    "exact_next_action": "Preserve the frozen cohort; separately authorize any prospective second-leg retention improvement before implementing it."
+  },
   "updated_at": "2026-09-01T00:00:00Z",
   "updated_at_utc": "2026-09-01T00:00:00Z",
   "updated_by": "agent_local",

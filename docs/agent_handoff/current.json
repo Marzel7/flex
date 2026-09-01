@@ -32736,6 +32736,18 @@
     "blocker": null,
     "exact_next_action": "Do not change the UI label or protected cohort without separate authorization. Any further signature verification must be separately bounded to the enumerated 114 unique local-missing UI signatures."
   },
+  "byzantine_dual_funding_leg_ui_design": {
+    "milestone": "Byzantine dual funding-leg UI retained-evidence design audit",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "artifact": "docs/audits/byzantine_dual_funding_leg_ui_read_only_design.v1.json",
+    "artifact_digest": "6df15bed1d479c27458cf8c11e79bd3228e33b99e1d93f6f695ce3d496ed7864",
+    "result": "A role-aware read model can use existing retained evidence with no schema/backfill/RPC: 13 mints have proven upstream→Byzantine, 168 have proven Byzantine→creator, one has both, 12 upstream-only, 167 creator-only, and two neither. Current Funding Tx should become Selected Walkback Tx in advanced/technical detail and must not stand in for either economic leg.",
+    "production_flags": "read-only design; RPC/getTransaction=0; no code, schema, database, UI, membership, attribution, suppression, or normal Walkback-table changes.",
+    "verdict": "BYZANTINE_DUAL_FUNDING_LEG_UI_READ_ONLY_DESIGN_COMPLETE",
+    "blocker": null,
+    "exact_next_action": "Obtain explicit UI implementation authorization before adding the read-only dual-leg adapter/presentation; preserve all 182 mints and missing-evidence states."
+  },
   "updated_at": "2026-09-01T00:00:00Z",
   "updated_at_utc": "2026-09-01T00:00:00Z",
   "updated_by": "agent_local",

@@ -1,4 +1,13 @@
 {
+  "pumpportal_canonical_birth_retention": {
+    "status": "COMPLETE",
+    "verdict": "PUMPPORTAL_CANONICAL_BIRTH_RETENTION_IMPLEMENTED",
+    "result": "Future PumpPortal txType=create events now retain a content-addressed immutable JSON artifact keyed by raw payload SHA-256. The record includes raw payload, signature, mint, creator, bonding curve, received timing, vSOL, market cap, source, schema/parser version, and deterministic digest. The existing normalized token_analysis writer is unchanged.",
+    "storage": "database/evidence_platform/production/pumpportal_birth_evidence/<raw_payload_sha256>.json; no schema change; duplicate raw payload delivery is idempotent across restarts.",
+    "tests": "pytest -q tests/test_eb0_1_pumpportal_birth_audit.py: 3 passed, including exact raw retention and duplicate content-addressed delivery.",
+    "safety": "0 provider/RPC calls; no legacy token_analysis, Walkback, schema, UI, membership, attribution, classifier, or suppression mutation; no historical backfill. Canonical-store write failure remains asynchronous/bounded and cannot block listener ingestion.",
+    "next_action": "Observe one natural PumpPortal create event to verify the running listener loaded this revision and produced the first canonical artifact; do not manufacture a launch."
+  },
   "pumpportal_macrohard_legacy_byzantine_birth_provenance_diff": {
     "status": "PARTIAL",
     "verdict": "PUMPPORTAL_MACROHARD_VS_LEGACY_BYZANTINE_BIRTH_PROVENANCE_READ_ONLY_AUDIT_PARTIAL",

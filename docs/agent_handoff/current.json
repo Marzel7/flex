@@ -1,4 +1,12 @@
 {
+  "byzantine_infrastructure_evidence_label_audit": {
+    "status": "HOLD",
+    "verdict": "BYZANTINE_INFRASTRUCTURE_COMMON_ROOT_PRESENTATION_AMBIGUITY_IDENTIFIED",
+    "result": "The Byzantine UI's 36/36 is a live retained measurement that all 36 current qualifying members share Byzantine as their immediate selected candidate parent. `common_root = NOT_APPLICABLE` is hard-coded metadata meaning no further upstream/common-owner assertion is being made. These are distinct facts, not conflicting retained evidence, but the label makes the distinction appear contradictory.",
+    "observable_sources": "src/ops/operation_identity_metadata.py::identity_metadata computes the 36/36 selected-parent coverage; IDENTITIES[Byzantine] supplies STRONG_SHARED_ADDRESS_EVIDENCE and NOT_APPLICABLE. templates/operator_intelligence.html renders both values without clarifying their different scopes.",
+    "safety": "Read-only diagnosis; 0 RPC/getTransaction/provider calls; no code, UI, database, schema, attribution, membership, service, or suppression changes.",
+    "next_action": "If authorized, make a presentation-only wording change: replace the ambiguous Common root line with an explicit statement that Byzantine is the shared immediate infrastructure node and no additional upstream common-root claim is made."
+  },
   "byzantine_selected_walkback_tx_ui_fix": {
     "status": "COMPLETE",
     "verdict": "BYZANTINE_SELECTED_WALKBACK_TX_UI_FIX_IMPLEMENTED",

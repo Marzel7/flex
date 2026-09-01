@@ -32394,8 +32394,18 @@
     "safety": "No Solana/provider endpoint calls, no production/source/Walkback/schema/UI/code/classifier/suppression mutation.",
     "exact_next_action": "With explicit credential and provider-test authority, issue one Alchemy getAccountInfo(target curve, {encoding: base64, slot: 443375106}); retain and validate exact historical response before any prestate decode or valuation."
   },
-  "updated_at": "2026-09-01T13:45:00Z",
-  "updated_at_utc": "2026-09-01T12:45:00Z",
+  "pumpfun_target_era_alchemy_archive_probe": {
+    "milestone": "MACROHARD Alchemy exact historical account-state probe",
+    "status": "BLOCKED",
+    "verdict": "BLOCKED_ALCHEMY_HISTORICAL_ACCOUNT_ARCHIVE_TIER_ENTITLEMENT",
+    "result": "One documented Alchemy getAccountInfo(account, {encoding: base64, slot: 443375106}) request was issued. The endpoint recognized the historical-slot parameter but returned HTTP 400 / JSON-RPC -32600: historical slot parameters are unavailable on the configured Free tier and require Pay As You Go or Enterprise. No account bytes, owner, lamports, context, or layout evidence was returned.",
+    "safety": "Exactly one Alchemy historical getAccountInfo; 0 transaction/other-provider calls; no fallback current-state read; no production/source/Walkback/schema/UI/code/classifier/suppression mutation; credential not retained.",
+    "artifact": "docs/audits/pumpfun_target_era_alchemy_archive_probe/manifest.v1.json",
+    "artifact_digest": "87f77d25210c90f91d460b455ec8654b9e7b6bea6f9b04f70e3aa26ada3bbaed",
+    "exact_next_action": "Obtain an Alchemy Pay As You Go/Enterprise archive entitlement (or another provider with equivalent exact-slot account-byte semantics), then rerun this one exact request once; do not use current state or derive MC meanwhile."
+  },
+  "updated_at": "2026-09-01T14:00:00Z",
+  "updated_at_utc": "2026-09-01T13:00:00Z",
   "updated_by": "agent_local",
   "verdict": "PUMPFUN_FIRST_SLOT_REPLAY_PARTIAL_EXACT_BLOCKER_IDENTIFIED"
 }

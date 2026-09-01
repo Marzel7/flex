@@ -1,4 +1,18 @@
 {
+  "watchtower_buy3_opening_mc_convention": {
+    "status": "COMPLETE",
+    "verdict": "WATCHTOWER_OPENING_MC_CONVENTION_READ_ONLY_AUDIT_COMPLETE",
+    "mint": "BuY3MHzaDEd2ipwub6uAhddH8Ah95oHoZfNDVkVVpump",
+    "resolution": "The qualified $41.68k value is the Pump.fun curve-completion MC: event-implied virtual-reserve spot price × the CreateEvent 1B UI supply. GMGN directly reports migration_market_cap=410.84 SOL, matching the retained 410.880168121 SOL curve result within display rounding.",
+    "gmgn": "GMGN's first 30-second candle begins at 1788275130, 25 seconds after migration/curve completion, and is PumpSwap AMM price evidence (~$112.5k-$137.2k on its fixed-1B chart scale). It is not the curve-completion valuation. Its direct ATH MC also equals ath_price × 1B exactly despite a current reported 985,149,050 supply.",
+    "canonical_field": "pumpfun_curve_implied_mc = ((virtual_SOL_lamports/1e9)/(virtual_token_raw/1e6))*CreateEvent.total_supply_UI; retain GMGN post-migration AMM metrics separately.",
+    "artifact": "docs/audits/watchtower_buy3_mc_convention/result.v1.json",
+    "artifact_digest": "777f0d335b9145a3452987be26ee30039dc983dd0dfae54f80372606d60a011c",
+    "replay_digest": "44f4a1ff98a876293220002a4c82804dc68e37c3d78fb0f1b6b07cb29d4bbc49",
+    "network": "2 GMGN API requests (token info + bounded 30s kline); 0 Helius/Alchemy requests; no external web lookup.",
+    "safety": "Read-only plus one additive audit artifact; no production/source/Walkback/schema/UI/code/suppression change.",
+    "next_action": "Use explicit separate curve and post-migration AMM fields in any later lifecycle display; do not mix their timestamps or labels."
+  },
   "watchtower_buy3_historical_first_buy_opening_mc": {
     "status": "COMPLETE",
     "verdict": "WATCHTOWER_HISTORICAL_FIRST_BUY_AND_OPENING_MC_AUDIT_COMPLETE",

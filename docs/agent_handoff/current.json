@@ -32414,8 +32414,22 @@
     "recommended_next_action": "Separately authorize the smallest prevention-only change: relocate or untrack the eight evidenced deterministic outputs first, preserve their digest-bearing manifests and source/replay instructions, and leave historical Git history untouched. Then separately design content-addressed immutable retention for the seven audit-required outputs.",
     "safety": "Read-only repository audit; no git add/rm/commit/push/GC/repack/prune/config or application/database/provider/network action."
   },
-  "updated_at": "2026-09-01T16:45:32Z",
-  "updated_at_utc": "2026-09-01T15:45:32Z",
+  "pumpfun_archived_prebuy_state": {
+    "milestone": "MACROHARD Alchemy archived pre-buy BondingCurve retention and decode",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "COMPLETE",
+    "verdict": "PUMPFUN_ALCHEMY_ARCHIVED_PREBUY_STATE_AND_OPENING_MC_AUDIT_COMPLETE",
+    "result": "One authenticated Alchemy Account Archive getAccountInfo at exact slot 443375106 returned the 151-byte Pump-owned BondingCurve state. Its virtual reserves exactly equal the previously event-implied buy-#1 pre-state: 71,085,353,876 vSOL and 452,835,897,271,945 vToken. Buy #1 formula output is exactly 1,143,759,998,709 tokens and poststate equals the TradeEvent. Together with retained actions 2-8, including the sell, first-slot state continuity and SOL market-cap trajectory are qualified.",
+    "caveat": "The target-era official IDL/layout is program-bound and empirically corroborated here but not byte-for-byte bound to the active ELF. USD valuation remains unsupported because no retained contemporaneous SOL/USD observation exists; no USD/chart inference was made.",
+    "artifacts": "docs/audits/pumpfun_archived_prebuy_state/",
+    "manifest_digest": "9bc0205d1baba0ae0d88dd3347fc0fd79be6b80547e13cca535cef85db288ae7",
+    "replay_digest": "a7caaae1a2a56e5389f64518dbb7479db54d5308e991e6de110a9da9c56ee524",
+    "network": "1 Alchemy getAccountInfo; 0 Helius/GMGN/PumpPortal; no further replay network calls.",
+    "safety": "Additive raw/decoded/result audit artifacts only; no production/source/Walkback/schema/UI/code mutation or suppression.",
+    "exact_next_action": "If USD opening-market-cap claims are needed, separately authorize use of a retained or externally acquired contemporaneous SOL/USD observation; do not substitute a current price."
+  },
+  "updated_at": "2026-09-01T16:55:42Z",
+  "updated_at_utc": "2026-09-01T15:55:42Z",
   "updated_by": "agent_local",
   "verdict": "PUMPFUN_FIRST_SLOT_REPLAY_PARTIAL_EXACT_BLOCKER_IDENTIFIED"
 }

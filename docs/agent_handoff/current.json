@@ -1,4 +1,15 @@
 {
+  "byzantine_selected_walkback_tx_ui_regression": {
+    "status": "COMPLETE",
+    "verdict": "PRESENTATION_REGRESSION_SELECTED_TX_HIDDEN",
+    "result": "The frozen 182-mint cohort is intact and 182/182 rows still retain wt_walkback_queue.funder_sig. The reader projects it unchanged as selected_walkback_tx. The current template then suppresses the technical link when it equals either role-aware transaction signature; that condition holds for all 182 frozen rows, so Selected Walkback Tx visibly renders for 0/182 historical rows and only the six new rows without retained economic legs.",
+    "cause": "Template-only duplicate-field suppression: if (legs && selected && ((x.upstream_funding||{}).signature===selected || (x.creator_provisioning||{}).signature===selected)) tx='';. It conflates visual duplication with semantic duplication: the technical selected-hop trace must remain available even when it is also an economic leg.",
+    "x78": "Unsupported as a cause. The reader/template path is independent of the restarted workers, historical DB fields are unchanged, and 6/6 post-freeze rows retain funder_sig.",
+    "artifact": "docs/audits/byzantine_selected_walkback_tx_ui_regression.v1.json",
+    "artifact_digest": "7a1d823003f11fd97c8205e3b47524e65f5d517197410d26155a96eefc8754a5",
+    "safety": "Read-only plus additive audit artifact; 0 RPC/provider calls; no code/UI/schema/database/Walkback/service/attribution/membership/suppression mutation.",
+    "next_action": "If authorized, remove only the suppression condition so Selected Walkback Tx renders whenever selected_walkback_tx exists; retain compact styling but do not infer or duplicate fields."
+  },
   "byzantine_true_creation_anchor_recovery": {
     "status": "PARTIAL",
     "verdict": "BYZANTINE_TRUE_CREATION_ANCHOR_RECOVERY_PARTIAL_NO_TRUE_CREATION_RECOVERED_WITHIN_BOUNDS",

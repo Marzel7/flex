@@ -32881,6 +32881,15 @@
     "blocker": "Current generic capture persists the selected Df8->Byzantine parent transaction but does not yet correlate and retain the separate Byzantine outgoing creator-provisioning transaction for this fresh launch.",
     "exact_next_action": "Separately authorize a bounded design/implementation for prospective Byzantine second-leg acquisition or live-event correlation; do not infer the leg from subprov or display the upstream transaction as creator funding."
   },
+  "gmgn_byzantine_capability_audit": {
+    "milestone": "GMGN Byzantine capability and local-retention audit",
+    "status": "PARTIAL_RATE_LIMIT_HOLD",
+    "result": "Authenticated GMGN token detail, security, pool, and top-holder endpoints succeeded for frozen Byzantine mint 3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump. Detail exposes point-in-time market/liquidity/volume/holder/migration/ATH/metadata and wallet-tag fields; security exposes mint/freeze/lock/risk fields; pool exposes pool/reserve/liquidity data; holders exposes holder and tag data. The top-traders endpoint returned HTTP 429 and instructed no further requests until 2026-09-01T12:39:54Z.",
+    "production_flags": "GMGN-only exploratory calls; Solana RPC/getTransaction=0; no code/schema/UI/database/source/Walkback/membership/attribution/suppression changes; no API key exposure or persistence.",
+    "verdict": "GMGN_BYZANTINE_CAPABILITY_AUDIT_PARTIAL_RATE_LIMIT_HOLD",
+    "blocker": "Current GMGN rate limiter was exhausted during the single-mint endpoint characterization. Per GMGN guidance, do not retry before the stated reset.",
+    "exact_next_action": "After the reset, finish the trader endpoint characterization, then perform the bounded five-mint sample and additive file-only replay artifact without broad cohort polling."
+  },
   "updated_at": "2026-09-01T12:35:00Z",
   "updated_at_utc": "2026-09-01T11:35:00Z",
   "updated_by": "agent_local",

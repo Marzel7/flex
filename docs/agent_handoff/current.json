@@ -32785,6 +32785,19 @@
     "blocker": null,
     "exact_next_action": "Separately authorize a UI reader enrichment if the retained audit corpus should be rendered live; do not treat same-mint dual proof as a session pairing without explicit retained linkage."
   },
+  "byzantine_90_session_pairing_audit": {
+    "milestone": "Byzantine 90 independent dual-leg retained-local session-pairing audit",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "artifact": "docs/audits/byzantine_90_session_pairing_read_only_audit.v1.json",
+    "artifact_digest": "ea71ae180c4e32031226044562a8e0bd17d6f539d8ce9ade24e7c4a2b317ab7c",
+    "result": "Exact 90-mint target reproduced. No candidate upgrades: all 90 upstream timestamps occur after their retained creator-provisioning timestamps (offset min -2,068,639 seconds, median -926,899 seconds, max -1,565 seconds). Thus all classify BOTH_LEGS_PRESENT_WRONG_ORDER and total fully serial chains remains the original reference-only 1.",
+    "replay": "identical retained-local digest 88e1bc19eb02624a1ee4a75ade7d011a1031f57b6374b51ef71c503c2a51324d",
+    "production_flags": "RPC/getTransaction=0; no code/schema/UI/database/source/normal-Walkback/membership/attribution/suppression changes; frozen 182/182 remains intact.",
+    "verdict": "BYZANTINE_90_SESSION_PAIRING_READ_ONLY_AUDIT_COMPLETE",
+    "blocker": null,
+    "exact_next_action": "Do not upgrade independent same-mint dual legs to serial sessions. Any topology explanation for reverse ordering requires separately scoped evidence work."
+  },
   "updated_at": "2026-09-01T00:00:00Z",
   "updated_at_utc": "2026-09-01T00:00:00Z",
   "updated_by": "agent_local",

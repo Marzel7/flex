@@ -1,4 +1,14 @@
 {
+  "pumpportal_macrohard_legacy_byzantine_birth_provenance_diff": {
+    "status": "PARTIAL",
+    "verdict": "PUMPPORTAL_MACROHARD_VS_LEGACY_BYZANTINE_BIRTH_PROVENANCE_READ_ONLY_AUDIT_PARTIAL",
+    "result": "All ten comparison mints have metadata_cache source pumpfun_birth, but that table retains only cache time/source. token_analysis.created_at equals migrated_at for the MACROHARD control and all nine bad-anchor rows, proving timestamp semantic contamination rather than canonical birth retention. MACROHARD's signature is independently validated as Pump.fun creation; the nine current signatures are independently known non-Create transactions.",
+    "writer_history": "Current PumpPortal create ingestion persists the event signature through _insert_bonding_curve_token and COALESCE guards prohibit replacement of an existing non-null signature. Historical per-field writer/change history, raw create payloads, birth_persist_queue history, and retained fallback provenance are absent, so no retained evidence proves either that the true nine signatures were overwritten or which historical writer populated their current values.",
+    "conclusion": "Proven: TIMESTAMP_FIELD_SEMANTIC_CONFUSION. Supported but unproven: LEGACY_PUMPPORTAL_FIELD_NOT_PERSISTED plus FALLBACK_SIGNATURE_MISASSIGNMENT. Not proven: LATER_FIELD_OVERWRITE or an ingestion-version boundary. The nine span 2026-08-04 through 2026-08-31; control is 2026-09-01.",
+    "artifact": "docs/audits/pumpportal_macrohard_legacy_byzantine_birth_provenance_diff.v1.json",
+    "safety": "Retained/local only; 0 Solana RPC/Helius/Alchemy/GMGN/PumpPortal calls; additive artifact only; no production/source/Walkback/schema/UI/code/membership/attribution/suppression changes.",
+    "next_action": "Do not repair legacy rows from current fields. A separately authorized forward design should retain append-only raw PumpPortal create payloads and canonical signature/time separately from migration fields; historical nine require independently bound chain recovery."
+  },
   "byzantine_infrastructure_evidence_label_audit": {
     "status": "HOLD",
     "verdict": "BYZANTINE_INFRASTRUCTURE_COMMON_ROOT_PRESENTATION_AMBIGUITY_IDENTIFIED",

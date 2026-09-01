@@ -1,4 +1,17 @@
 {
+  "byzantine_true_creation_anchor_recovery": {
+    "status": "PARTIAL",
+    "verdict": "BYZANTINE_TRUE_CREATION_ANCHOR_RECOVERY_PARTIAL_NO_TRUE_CREATION_RECOVERED_WITHIN_BOUNDS",
+    "scope": "Nine frozen expanded-sample Byzantine mints whose token_analysis.create_tx_signature values failed Pump.fun creation validation; read-only local-first then bounded mint-scoped chain recovery.",
+    "result": "0/9 true Create/CreateV2 anchors recovered locally or within bounds. The two 50-signature pages per mint and timestamp-derived slot checks exposed Pump.fun buys and PumpSwap activity, not creation. The old field values remain proven non-creation transactions and were not changed.",
+    "provenance": "No metadata_cache(pumpfun_birth), birth_persist_queue, canonical birth cache, or independent retained local birth candidate matched the nine. Current schema lacks an auditable per-field writer/overwrite history, so the exact legacy assignment source is not recoverable; retained evidence supports legacy backfill ambiguity/later-interaction misassociation, not a precise cause.",
+    "comparison": "Only the existing MACROHARD anchor remains valid: qualified Byzantine sample total stays 1/10, therefore the expanded comparison cannot resume.",
+    "artifact": "docs/audits/byzantine_true_creation_anchor_recovery.v1.json",
+    "artifact_digest": "1f3b469ed642ec6219000e20955eb79ffa38dce4111b15e68ae2f5e0ed49356f",
+    "network": "Helius 18 getSignaturesForAddress (hard cap reached), 9 getTransaction, 27 getBlock; total 54/60. 0 Alchemy/GMGN; no creator history or broad discovery.",
+    "safety": "Additive audit artifact only; no source/production/Walkback/schema/UI/code/attribution/classifier/suppression mutation.",
+    "next_action": "Do not treat these legacy fields as births. A later recovery needs separate authority for a different positive creation anchor (e.g. a known historical bonding curve or targeted archive/provider), not more mint-page pagination."
+  },
   "watchtower_byzantine_expanded_opening_sample": {
     "status": "PARTIAL",
     "verdict": "WATCHTOWER_BYZANTINE_EXPANDED_OPENING_SAMPLE_PARTIAL",

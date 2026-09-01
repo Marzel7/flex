@@ -32871,6 +32871,16 @@
     "blocker": null,
     "exact_next_action": "Reload the operator page and visually review the compact left/right role placement."
   },
+  "byzantine_live_creator_provisioning_capture": {
+    "milestone": "Live Byzantine dual-leg capture observation",
+    "engineering_revision": "uncommitted local worktree changes",
+    "status": "HOLD",
+    "result": "Fresh mint Az1sJ1jW6ZDhijhn8VEG3X8UT5TvVfLLrgXLjd36pump retains selected Walkback signature 2ttN...1uzP as an explicit Df8CJ...kdya -> ByZc7...HTY 15 SOL DIRECT transaction role. No retained ByZc7 -> EiwpF...Pmr3 creator-provisioning transaction or atomic flow exists. The UI's Neither leg proven state is evidence-correct; the technical Selected Walkback Tx is the upstream transfer, not creator funding.",
+    "production_flags": "RPC/getTransaction=0 during diagnosis; no code/schema/database/source/normal-Walkback/membership/attribution/suppression changes.",
+    "verdict": "BYZANTINE_LIVE_CREATOR_PROVISIONING_CAPTURE_GAP_CONFIRMED",
+    "blocker": "Current generic capture persists the selected Df8->Byzantine parent transaction but does not yet correlate and retain the separate Byzantine outgoing creator-provisioning transaction for this fresh launch.",
+    "exact_next_action": "Separately authorize a bounded design/implementation for prospective Byzantine second-leg acquisition or live-event correlation; do not infer the leg from subprov or display the upstream transaction as creator funding."
+  },
   "updated_at": "2026-09-01T12:35:00Z",
   "updated_at_utc": "2026-09-01T11:35:00Z",
   "updated_by": "agent_local",

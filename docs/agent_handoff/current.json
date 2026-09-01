@@ -32890,6 +32890,15 @@
     "blocker": "Current GMGN rate limiter was exhausted during the single-mint endpoint characterization. Per GMGN guidance, do not retry before the stated reset.",
     "exact_next_action": "After the reset, finish the trader endpoint characterization, then perform the bounded five-mint sample and additive file-only replay artifact without broad cohort polling."
   },
+  "gmgn_byzantine_lifecycle_capability_audit": {
+    "milestone": "Focused GMGN Byzantine lifecycle capability audit",
+    "status": "HOLD_FIRST_BUY_NOT_RETRIEVABLE",
+    "result": "GMGN CLI v1.5.6 exposes documented market kline with 30s/1m/5m/15m/1h/4h/1d resolutions and bounded from/to parameters. For frozen mint 3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump, GMGN info reports creation=1788250333 and open=1788250621, while the earliest returned 30s candle is 1788253800: 3,467 seconds after creation. The series contains a candle high matching GMGN direct ath_price (0.00080710573) and then a sharp fall, so it can support covered-window ATH/collapse analysis but cannot establish the earliest actual market buy, its buyer/signature/SOL amount, or initial market cap.",
+    "production_flags": "GMGN-only: one kline request; Solana RPC/getTransaction=0; no code/schema/UI/database/source/Walkback/membership/attribution/suppression changes; no API key exposure or persistence.",
+    "verdict": "GMGN_BYZANTINE_LIFECYCLE_ANALYSIS_NOT_SUPPORTED_FOR_FIRST_BUY_MODEL",
+    "blocker": "The documented GMGN surface provides aggregate candles rather than a paginated trade/transaction chronology, and tested history begins materially after launch for the test mint.",
+    "exact_next_action": "Do not query the five-mint sample for the requested first-buy lifecycle model. A separately authorized source with transaction-level earliest-swap chronology would be needed; GMGN candles may still be used later for clearly labelled post-coverage ATH/collapse market analysis."
+  },
   "updated_at": "2026-09-01T12:35:00Z",
   "updated_at_utc": "2026-09-01T11:35:00Z",
   "updated_by": "agent_local",

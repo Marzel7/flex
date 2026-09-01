@@ -32798,6 +32798,19 @@
     "blocker": null,
     "exact_next_action": "Do not upgrade independent same-mint dual legs to serial sessions. Any topology explanation for reverse ordering requires separately scoped evidence work."
   },
+  "byzantine_90_upstream_reassociation_audit": {
+    "milestone": "Byzantine wrong-order upstream transaction retained-local reassociation audit",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "artifact": "docs/audits/byzantine_90_upstream_reassociation_read_only_audit.v1.json",
+    "artifact_digest": "80c9c6bd1d8c7cb5a3ee6d186004b8431824a22483e24d1016129d3e1226e989",
+    "result": "No safe serial reassociations. 46/90 have no retained preceding material upstream-to-Byzantine candidate; 39 have multiple cross-launch candidates and 5 have a single timing-weak candidate, but none has retained mint/session linkage sufficient to select it. Current selected funder_sig is wrong-session upstream for all 90 target rows, but was not changed.",
+    "replay": "identical digest 86be1cf78044bc2d41be17686453bc115276d5c36aaf69fec9d76b89a91c0abf",
+    "production_flags": "retained-local only; RPC/getTransaction=0; no code/schema/UI/database/source/normal-Walkback/membership/attribution/suppression changes.",
+    "verdict": "BYZANTINE_90_UPSTREAM_REASSOCIATION_READ_ONLY_AUDIT_COMPLETE",
+    "blocker": "Preceding candidates lack retained launch-specific association; broad discovery is required for the 46 no-candidate cases and is not authorized.",
+    "exact_next_action": "Do not reassociate or replace funder_sig. Any bounded evidence recovery must define exact launch-specific targets separately."
+  },
   "updated_at": "2026-09-01T00:00:00Z",
   "updated_at_utc": "2026-09-01T00:00:00Z",
   "updated_by": "agent_local",

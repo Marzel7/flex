@@ -1,4 +1,17 @@
 {
+  "byzantine_canonical_birth_backfill_pilot": {
+    "status": "COMPLETE",
+    "verdict": "BYZANTINE_CANONICAL_BIRTH_AND_LAUNCH_IMPULSE_BACKFILL_PILOT_COMPLETE_METHOD_UNRELIABLE",
+    "result": "The timestamp-to-slot method converged exactly for all nine bad-anchor targets, but every derived slot contains migration/PumpSwap lifecycle activity (including Migrate/MigrateV2/CreatePool), not original Pump.fun Create/CreateV2. Thus 0/9 bad anchors were recovered and no new opening reconstruction or Alchemy archive call was justified. MACROHARD remains the sole valid 1/10 control with its already-qualified creation-only/first-buy/opening-MC workflow.",
+    "qualification": "UNRELIABLE for historical birth recovery; full 182-mint backfill is not justified. The source timestamp is migration-time telemetry for this sample, so scaling would systematically record a wrong lifecycle event.",
+    "compatibility": "Frozen Byzantine cohort remains 182/182 surfaced; current live surface observed 190 distinct mints with eight legitimate post-freeze additions.",
+    "artifact": "docs/audits/byzantine_canonical_birth_backfill_pilot.v1.json",
+    "artifact_digest": "3c93199f00d44d59f637bdbfb079e599b92912b15c3e97f0e5f74702c4b11efa",
+    "replay_digest": "2c132f774e5c54b0eed497c904c991449d8648db76e714a99f67633a7b62fb50",
+    "network": "Helius 36 getBlockTime + 9 getBlock; 0 getTransaction/getSignaturesForAddress/Alchemy/GMGN.",
+    "safety": "Additive audit artifact only; no production/source/Walkback/schema/UI/code/attribution/classifier/suppression mutation.",
+    "next_action": "Keep legacy create_tx_signature nonauthoritative. The prospective fix is immutable PumpPortal raw-create retention plus transaction-level Create/CreateV2 validation; historical recovery requires a different positively birth-bound source, not timestamp-to-slot scaling."
+  },
   "byzantine_selected_walkback_tx_ui_regression": {
     "status": "COMPLETE",
     "verdict": "PRESENTATION_REGRESSION_SELECTED_TX_HIDDEN",

@@ -32772,6 +32772,19 @@
     "blocker": null,
     "exact_next_action": "Use additive artifacts for any separately authorized UI evidence refresh; do not infer missing legs or alter the frozen cohort."
   },
+  "byzantine_182_dual_leg_enrichment_replay": {
+    "milestone": "Byzantine retained-local dual-leg enrichment replay",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "artifact": "docs/audits/byzantine_182_dual_leg_enrichment_replay.v1.json",
+    "artifact_digest": "aeafd38b440dd126754c79a9d295901de06977c2d6298fe7347d839a73832890",
+    "result": "182/182 frozen mints remain surfaced. Retained combined coverage: any upstream 105, Df8 upstream 103, other upstream 2, creator provisioning 168, both legs 91, fully session-paired 1, only upstream 14, only creator 77, neither 0. The 114-signature corpus raises upstream by 92 and both by 90; its 23 creator transactions overlap already-proven creator legs, so creator coverage remains 168.",
+    "replay": "identical retained-local replay digest 1fe8ec2cee5a6fae4ea7449448d8fa2d3adce0b2059035c6e7a9e8288c5a8b52",
+    "production_flags": "RPC/getTransaction=0; no code/schema/UI/database/source/normal-Walkback/membership/attribution/suppression changes.",
+    "verdict": "BYZANTINE_182_DUAL_LEG_ENRICHMENT_REPLAY_COMPLETE",
+    "blocker": null,
+    "exact_next_action": "Separately authorize a UI reader enrichment if the retained audit corpus should be rendered live; do not treat same-mint dual proof as a session pairing without explicit retained linkage."
+  },
   "updated_at": "2026-09-01T00:00:00Z",
   "updated_at_utc": "2026-09-01T00:00:00Z",
   "updated_by": "agent_local",

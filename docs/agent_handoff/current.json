@@ -32748,6 +32748,17 @@
     "blocker": null,
     "exact_next_action": "Obtain explicit UI implementation authorization before adding the read-only dual-leg adapter/presentation; preserve all 182 mints and missing-evidence states."
   },
+  "byzantine_dual_funding_leg_ui_implementation": {
+    "milestone": "Byzantine dual funding-leg UI retained-evidence implementation",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "result": "Read-only UI enrichment now independently exposes upstream funding, creator provisioning, and Selected Walkback Tx. The protected current surface is 182/182 mints, digest b9c88cab4b1d7a90deea64b7d03736cce14b1571a5a797eeb807f26867b055e1: 13 upstream proven, 168 creator-provisioning proven, 1 both, 12 upstream-only, 167 creator-only, and 2 neither. Two identical local replays yielded digest 23ce452fdd954a52ce6eacb5461b6f0486de89f0680d39a58efa56489f3de442.",
+    "tests": "tests/test_byzantine_dual_funding_leg_projection.py: 4 passed",
+    "production_flags": "RPC/getTransaction=0; no database/schema/source/normal-Walkback/membership/attribution/suppression changes. Existing funder_sig producer and selected-edge semantics remain unchanged.",
+    "verdict": "BYZANTINE_DUAL_FUNDING_LEG_UI_IMPLEMENTED",
+    "blocker": null,
+    "exact_next_action": "Operator review of the role-aware Byzantine launch rows; any durable evidence projection or new transaction acquisition remains separately authorized."
+  },
   "updated_at": "2026-09-01T00:00:00Z",
   "updated_at_utc": "2026-09-01T00:00:00Z",
   "updated_by": "agent_local",

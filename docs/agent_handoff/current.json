@@ -32700,6 +32700,16 @@
     "blocker": null,
     "exact_next_action": "Do not alter the protected cohort. Any future verification must separately authorize only explicitly enumerated signature targets; do not use broad discovery to force proof of the two legacy-inheritance rows."
   },
+  "byzantine_96_exact_signature_rpc_gate": {
+    "milestone": "Byzantine legacy exact-signature bounded RPC verification pre-execution gate",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "HOLD_INTEGRITY_MISMATCH",
+    "result": "The provenance artifact has 96 mint cases with signatures but only 54 unique signatures, because creator-level wt_wrap_close_candidates records are shared by multiple frozen mint rows. The requested precondition of 96 unique signatures is false. No signature was substituted or inferred.",
+    "production_flags": "No provider/RPC calls; getTransaction=0; no artifact corpus retained; no code, schema, database, UI, membership, attribution, suppression, or normal Walkback-table changes.",
+    "verdict": "BYZANTINE_96_EXACT_SIGNATURE_BOUNDED_RPC_VERIFICATION_NOT_STARTED",
+    "blocker": "Explicit authorization is required to redefine the bounded unit from 96 mint cases to the proven 54 unique signatures, with each response mapped back to its 96 affected mint cases; current instruction requires exactly 96 unique signatures.",
+    "exact_next_action": "Do not call RPC. Obtain an explicit decision whether to verify the exact 54 unique signatures once each or halt the historical verification."
+  },
   "updated_at": "2026-09-01T00:00:00Z",
   "updated_at_utc": "2026-09-01T00:00:00Z",
   "updated_by": "agent_local",

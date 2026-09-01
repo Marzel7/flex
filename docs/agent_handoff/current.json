@@ -32724,6 +32724,18 @@
     "blocker": null,
     "exact_next_action": "Do not alter the frozen cohort. Any broader historical reconstruction or prospective retention implementation requires separate authorization."
   },
+  "byzantine_182_ui_funding_signature_audit": {
+    "milestone": "Byzantine frozen cohort UI Funding Tx signature semantics and retained-evidence audit",
+    "engineering_revision": "bf1baac7abf6f6d739b32d945c20fbe8ecf363bc",
+    "status": "PASS",
+    "artifact": "docs/audits/byzantine_182_ui_funding_signature_read_only_audit.v1.json",
+    "artifact_digest": "509b4468a984949294e275d3e7440dbd851e4613cf55373dcbf70bd46be408a8",
+    "result": "The UI’s Funding Tx is wt_walkback_queue.funder_sig displayed as wrap_close_signature: selected hop-1 evidence, not necessarily a wrap-close. All 182 frozen mints have it (181 distinct signatures; one duplicate group). Exactly 13 UI signatures prove Df8→Byzantine (12×20 SOL, 1×15 SOL), identical to the prior generic count. 54 UI signatures are already decoded Byzantine→creator WSOL transactions; 115 UI signatures remain exact local-missing bounded targets. One full two-transaction chain remains paired.",
+    "production_flags": "retained-local only; RPC/getTransaction=0; no code, schema, database, UI, membership, attribution, suppression, or normal Walkback-table changes.",
+    "verdict": "BYZANTINE_182_UI_FUNDING_SIGNATURE_READ_ONLY_AUDIT_COMPLETE",
+    "blocker": null,
+    "exact_next_action": "Do not change the UI label or protected cohort without separate authorization. Any further signature verification must be separately bounded to the enumerated 114 unique local-missing UI signatures."
+  },
   "updated_at": "2026-09-01T00:00:00Z",
   "updated_at_utc": "2026-09-01T00:00:00Z",
   "updated_by": "agent_local",

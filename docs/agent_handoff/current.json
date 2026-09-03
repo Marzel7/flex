@@ -13472,8 +13472,19 @@
     "protected_baseline": "Read-only high-waters: token_analysis 2,408,296; pumpfun_migration_verification 58,094; creator_funding_queue 51,066; creator_funders 362,246; wt_walkback_queue 43,872; selected-edge table 86,476; atomic-flow table 9,930; transaction-role table 8,799; provisioning-edges 22,338; provisioning-sessions 12,838; candidate websocket watches 30,295,918; subprov signature retries 3,736,655. Runtime observed listener, creator_funding_worker, walkback_worker and operation_scheduler RUNNING; intelligence_snapshot_scheduler STOPPED.",
     "next_action": "MIGRATE_LEGACY_CONSUMERS_FIRST: first qualify the generic network UI/API consumers and the network rebuild writers against a new explicit canonical read model; keep Phase2C and legacy fallbacks until those consumers have migrated and compatibility tests prove preserved behaviour."
   },
-  "updated_at": "2026-09-03T16:30:00Z",
-  "updated_at_utc": "2026-09-03T16:30:00Z",
+  "generic_funding_read_model_migration": {
+    "status": "PARTIAL",
+    "verdict": "GENERIC_FUNDING_READ_MODEL_PARTIAL",
+    "implementation": "Added src/ops/generic_funding_network_read_model.py: an explicit downstream generic presentation projection over networks_release, network_membership, network_evidence, network_scores, creator_funders and token_analysis. It never reads creator_networks, funding_networks, funding_network_members or funding_chains and documents that Walkback remains operation-grade authority. /api/funding-network-details now uses that projection. /networks and /creator-network now call their existing networks_release/network_membership paths directly, rather than route_phase2c. build_networks_release no longer reads creator_networks for its current projection build; it uses the explicit neutral current projection risk value pending a separate risk-model qualification.",
+    "phase2c": "No production caller of route_phase2c remains. The helper and PHASE2C_FORCE_MODE remain unused compatibility residue pending a separate Wave 4C removal authorization; legacy nested implementations remain in main.py but are unreachable from the three migrated surfaces.",
+    "tests": "54 focused tests passed: generic read-model contract/bypass tests, creator-funding fast paths, Walkback startup resilience, P3R profile matcher, Potential Operation visual structure, and operational topology intelligence. An additional unrelated legacy Walkback integration fixture suite failed 5/5 because its fixture omits wt_watchtower_launches and mocks a superseded rpc_transport signature; the unchanged worker fails before its intended assertions.",
+    "activation": "Restarted only watchtower_api (PID 58451). watchtower_listener, creator_funding_worker, walkback_worker and operation_scheduler remained RUNNING; intelligence_snapshot_scheduler remains STOPPED.",
+    "smoke": "The restarted API served a root 302 in the local access log. Bounded 10-second host-local requests to /, /networks and the migrated endpoints timed out before response; API remained RUNNING and logs show general long-running request pressure, so endpoint HTTP parity is not yet qualified. No provider/RPC call was made.",
+    "safety": "No funding tables/data were dropped or modified deliberately, no Walkback/topology fallback/P3R/Operation/Potential Operation authority changed, no schema change, no provider/RPC, and no scheduler restart.",
+    "next_action": "Complete a bounded local HTTP parity observation when the API request lane is responsive, then separately authorize Wave 4C deletion of unreachable Phase2C helper/flag and legacy nested route bodies. Do not retire generic legacy tables until the broader consumer map is migrated."
+  },
+  "updated_at": "2026-09-03T19:32:00Z",
+  "updated_at_utc": "2026-09-03T19:32:00Z",
   "updated_by": "agent_local",
   "verdict": "RETAINED_ACQUISITION_REPLACEMENT_REQUIRED"
 }

@@ -1,4 +1,12 @@
 {
+  "no_selected_funder_24h_audit": {
+    "status": "COMPLETE",
+    "verdict": "NO_SELECTED_FUNDER_POPULATION_PARTIALLY_EXPLAINED",
+    "scope": "Strictly read-only retained-local audit. Current 24h completed Walkback denominator=626; confirmed-operation coverage=34, CEX/infra=60, Unknown=532, and Unknown rows with no retained immediate selected funder=236.",
+    "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
+    "safety": "No RPC/provider calls, writes, schema/UI/code/service changes, reruns, mutations, or suppression.",
+    "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge."
+  },
   "generic_funding_projection_retirement": {
     "status": "COMPLETE",
     "verdict": "GENERIC_FUNDING_PROJECTIONS_RETIRED_CANONICAL_ANALYTICS_PRESERVED",

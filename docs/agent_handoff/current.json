@@ -13462,8 +13462,18 @@
     "safety": "Read-only source/SQLite/filesystem metadata inspection; 0 provider/RPC calls; no DB write/checkpoint/VACUUM, artifact mutation, service restart/stop, configuration/code change, or operation/Walkback/Potential Operation change.",
     "next_action": "A separate implementation authorization is required for the writer-side growth-arrest seam; do not change retention under current low-disk conditions without controlled semantic regression proof."
   },
-  "updated_at": "2026-09-03T16:01:06Z",
-  "updated_at_utc": "2026-09-03T16:01:06Z",
+  "funding_network_canonicalization_audit": {
+    "status": "PARTIAL",
+    "verdict": "FUNDING_NETWORK_CANONICALIZATION_PARTIAL",
+    "scope": "Strictly read-only Stage 4 static/source/schema/runtime audit. No service, configuration, code, database, RPC, provider, or UI action occurred.",
+    "current_authority": "Current operational creator-funder and provisioning evidence is split by role: creator_funding_queue/creator_funders in flex_complete_database.db acquire bounded direct funding facts; wt_walkback_queue plus selected edge, transaction-role, atomic-flow, provisioning-edge/session, treasury, and subprov tables in wt_ops_v2.db retain the operation-grade funding lineage. P3R and living Potential Operation readers consume the Walkback evidence tables directly.",
+    "phase2c": "Phase2C is a capability-gated generic network presentation compatibility router in src/core/main.py. It selects networks_release/network_membership versus legacy creator_networks/funding_networks routes for /networks, /creator-network, and /api/funding-network-details. It is not referenced by Walkback, P3R, operation attribution, established operation detection, or Potential Operation runtime modules.",
+    "risk": "Multiple authority risk remains for generic creator/funder-network representation: creator_funders/creator_funding_graph, networks_release/network_membership, creator_networks, funding_networks/funding_network_members/funding_chains, the archive funder_networks table, and local_operation_discovery_corpus can represent overlapping funding relationships at distinct evidence quality and refresh cadence. Existing fallbacks and active UI readers mean no deletion is qualified yet.",
+    "protected_baseline": "Read-only high-waters: token_analysis 2,408,296; pumpfun_migration_verification 58,094; creator_funding_queue 51,066; creator_funders 362,246; wt_walkback_queue 43,872; selected-edge table 86,476; atomic-flow table 9,930; transaction-role table 8,799; provisioning-edges 22,338; provisioning-sessions 12,838; candidate websocket watches 30,295,918; subprov signature retries 3,736,655. Runtime observed listener, creator_funding_worker, walkback_worker and operation_scheduler RUNNING; intelligence_snapshot_scheduler STOPPED.",
+    "next_action": "MIGRATE_LEGACY_CONSUMERS_FIRST: first qualify the generic network UI/API consumers and the network rebuild writers against a new explicit canonical read model; keep Phase2C and legacy fallbacks until those consumers have migrated and compatibility tests prove preserved behaviour."
+  },
+  "updated_at": "2026-09-03T16:30:00Z",
+  "updated_at_utc": "2026-09-03T16:30:00Z",
   "updated_by": "agent_local",
   "verdict": "RETAINED_ACQUISITION_REPLACEMENT_REQUIRED"
 }

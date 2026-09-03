@@ -1,4 +1,16 @@
 {
+  "simulation_subsystem_retirement": {
+    "status": "PARTIAL",
+    "verdict": "SIMULATION_SUBSYSTEM_RETIREMENT_PARTIAL",
+    "implementation": "Retired the dedicated paper-trading engine, paper buy/retry paths, migration/prediction auto-buy hooks, simulation routes/templates/navigation, paper P&L price-worker path, paper backfill, and dedicated profitability analyzers. Removed the simulation dry-run environment residue. The future OWNED-position and bounded liquidity interfaces remain fail-closed and distinct.",
+    "data": "Dropped only simulation-specific tables trade_simulations, trade_simulation_events, trade_simulation_sells, trade_simulation_claims, and liq_caught in one immediate SQLite transaction. Before: 4,234 simulations, 4,185 events, 47,880 sells, 4,306 claims; dedicated objects occupied 40,689,664 bytes by dbstat. After: zero matching tables; page_count=6,120,196 and freelist_count=22,713. No VACUUM was run, so physical reclaim is deferred/safe.",
+    "protected_proof": "Static dependency mapping found no simulation writer/reader in births, migration authority, Walkback, creator funding, attribution, topology, behavioural profiles, P3R, operation membership, or canonical Evidence. Listener price-interest no longer promotes simulation rows to OWNED. Liquidity real-position eligibility still returns [] pending a future real-position authority.",
+    "tests": "63 focused protected-path tests passed: creator funding fast paths/lifecycle, Walkback startup, P3R, canonical evidence foundation, bounded liquidity-owned gate, Potential Operation visual structure, and P3R tiering. compileall and git diff --check passed before activation.",
+    "runtime": "Restarted only watchtower_listener and watchtower_api. Both are RUNNING, as are creator_funding_worker, walkback_worker, and operation_scheduler. intelligence_snapshot_scheduler remains STOPPED.",
+    "blocker": "Final direct HTTP route smoke was not obtained because localhost:5002 did not accept a sandbox-local connection despite Supervisor API RUNNING. A second focused regression invocation was still active at final capture. No provider/RPC calls were made.",
+    "safety": "No protected tables, births/migrations, Walkback, operation membership, attribution, topology, P3R, canonical evidence, UI operation surfaces, or future real-position architecture were intentionally removed. No VACUUM, Git maintenance, or scheduler restart.",
+    "next_action": "Wait for the already-running focused test invocation to complete; run route smoke against the actual configured API listener; then take a stable pre/post continuity observation before upgrading to COMPLETE."
+  },
   "platform_status_banner_diagnosis": {
     "status": "COMPLETE",
     "verdict": "PLATFORM_BANNER_STALE_STATUS_DIAGNOSIS",

@@ -10896,10 +10896,8 @@
     "verdict": "SOL_USD_HISTORICAL_LOCAL_AUDIT_COMPLETE"
   },
   "next_action": {
-    "b2n_execution_authorized": false,
-    "decision": "RA4_BOUNDED_WRITER_PRODUCTION_CUTOVER_QUALIFIED",
-    "instruction": "The bounded writer cutover succeeded: legacy retained-acquisition growth is arrested, the bounded V2 writer is confirmed receiving new retention with full evidence parity, and no rollback condition triggered. The legacy 61.3+ GB DB was NOT touched, deleted, or reclaimed -- it is now historical/read-only. Next: qualify RA4-C5 (legacy retained-acquisition archival/retirement) as a SEPARATE future milestone. B2N remains frozen at exactly 1/20 and was NOT resumed automatically -- a separate explicit authorization is required before continuing to ordinal 2.",
-    "next_action_code": "QUALIFY_RA4_C5_LEGACY_RETAINED_DB_RETIREMENT"
+    "instruction": "Await explicit destructive authorization for only the three qualified independent targets. Canonical rollback corpus and OIP supporting/recovery corpora remain protected.",
+    "next_action_code": "DELETE_QUALIFIED_EVIDENCE_STORES"
   },
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
@@ -12136,7 +12134,7 @@
   },
   "project": {
     "branch": "classification-attribution-axis",
-    "git_head": "1e292f254d71163d1935807cf9dc6217b97230d5",
+    "git_head": "f661ae4593e5aaf434c4d0c91e9fb8dc2afd4f08",
     "name": "flex",
     "updated_at_utc": "2026-08-17T18:50:18Z",
     "working_tree": "dirty: H8-to-H4 compatibility adapter added; projection runtime and H4 rerun materialized 150 operations"
@@ -12828,7 +12826,63 @@
     "wal": "Indexed-authority SQLite WAL is 235,515,712 bytes; no checkpoint/deletion performed. It remains UNKNOWN whether it is required for consistent historical opening until a dedicated immutable-open audit.",
     "watchtower_shadow_status": "Historical contract/replay store with a current test/manual measurement reader, not live Watchtower state. Its full DB cannot enter deletion until the OIP foundation test and measurement script are migrated to an approved bounded fixture/manifest contract."
   },
-  "status": "AWAIT_HUMAN_MORNING_REVIEW_SEE_DECISION_QUEUE",
+  "stage_6_independent_evidence_qualification": {
+    "accounting": {
+      "canonical_shadow_changed": false,
+      "other_retained_independent_bytes": 3867188898,
+      "production_writes": 0,
+      "qualified_now_bytes": 1955022144,
+      "retain_rollback_bytes": 5725310976,
+      "rpc_calls": 0
+    },
+    "canonical_shadow": "RETAIN_ROLLBACK_UNTIL_OIP_V2_2D_CUTOVER_COMPLETE; unchanged and excluded from reclaim.",
+    "fixtures": [
+      {
+        "bytes": 1636,
+        "path": "docs/evidence_platform/ra0_probe_retirement_fixture.v1.json",
+        "self_digest": "cb8735997c7c6819d37ea24b3362fb88b11cf878361f820c917aa3eaf2f26afb"
+      },
+      {
+        "bytes": 1925,
+        "path": "docs/evidence_platform/oip_v2_2c3_rejected_intermediate_fixture.v1.json",
+        "self_digest": "1030a135b9acaf17b07ca04ba22c62d1a01397bb02167de1fb946f69dec41aeb"
+      }
+    ],
+    "next_action": "DELETE_QUALIFIED_EVIDENCE_STORES only after separate explicit destructive approval, one-by-one: RA0 probe + journal, rejected indexed intermediate + WAL/SHM, then already-qualified Watchtower shadow. Do not include canonical_shadow or OIP supporting stores.",
+    "parity": {
+      "ra0_probe": "PASS",
+      "ra_compact": "existing RA4-C5B exact accounting/replay contract retained; no full DB substitution allowed",
+      "rejected_indexed_intermediate": "PASS",
+      "watchtower": "previous fixture qualification remains valid"
+    },
+    "qualified_now": [
+      "database/evidence_platform/watchtower_shadow_ep3_0d/evidence.db (previously qualified; current source/config reader search remains zero)",
+      "database/evidence_platform/production/retained_acquisition_ra0_probe.db plus -journal (empty historical diagnostic probe; fixture parity PASS)",
+      "database/evidence_platform/oip_v2_2c3_indexed_authority/indexed_authority.sqlite plus -wal/-shm (rejected intermediate checkpoint; stale WAL; fixture parity PASS)"
+    ],
+    "retain": {
+      "compact_provenance": "RETAIN_CURRENT_SUPPORTING: source/identity corpus for indexed authority and OIP v2.2D compact sidecar; 12,398,192 relation rows.",
+      "compact_sidecar": "RETAIN_CURRENT_SUPPORTING/QUALIFICATION_PENDING: OIP v2.2D cutover control state and 12,398,347 current compact relation rows; must not be retired before migration closure.",
+      "indexed_authority_compact": "RETAIN_CURRENT_SUPPORTING while OIP v2.2D cutover remains unfinished; final authority compact database has 401,050 authority events and 671,092 subject memberships.",
+      "retained_acquisition_legacy_compact": "FULL_DB_REQUIRED as the current historical semantic-recovery index for the already-retired 61.6GiB legacy retained-acquisition corpus; 1,938,017 compact observations, 6,311 mints, 1,937,940 RETAINED outcomes, 0 gaps."
+    },
+    "runtime": {
+      "actions": "status read only; no restarts",
+      "creator_funding_worker": "RUNNING",
+      "evidence_writer": "STOPPED",
+      "intelligence_snapshot_scheduler": "STOPPED",
+      "walkback_worker": "RUNNING",
+      "watchtower_api": "RUNNING",
+      "watchtower_listener": "RUNNING"
+    },
+    "status": "PARTIAL",
+    "tests": {
+      "historical": "18 passed: retirement fixtures, RA0, OIP v2.2B/C3, OIP foundation",
+      "protected": "25 passed, 1 unrelated existing failure in tests/test_potential_operations_current_census.py due live-census fixture expectation vs current no-safe-live-matcher projection"
+    },
+    "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
+  },
+  "status": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL",
   "storage_incident_2026_09_01": {
     "critical_accounting_warning": "macOS `stat -f %b` is POSIX st_blocks in FIXED 512-byte units. allocated_bytes = %b * 512. NEVER multiply %b by %k (an unrelated filesystem I/O-transfer-size field). An earlier pass in this incident used %b*4096 and overstated every physical-allocation figure by exactly 8x. Do not let that error re-enter future storage analysis.",
     "future_triggers": {
@@ -13638,7 +13692,7 @@
   "updated_at": "2026-09-03T19:38:00Z",
   "updated_at_utc": "2026-09-03T19:38:00Z",
   "updated_by": "agent_local",
-  "verdict": "RETAINED_ACQUISITION_REPLACEMENT_REQUIRED",
+  "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL",
   "watchtower_buy3_historical_first_buy_opening_mc": {
     "archive": "Alchemy archive exact-slot response for actual curve 776Pqg...wUX succeeded (151 bytes, SHA-256 49812911...f48f1c), but is necessarily post-buy/post-completion because the creation slot contains all five buys.",
     "artifact_digest": "1aad06cc04167484a05c4f7545dcebaffef534d0797bb30ba1c5b2116826e70c",

@@ -12793,6 +12793,19 @@
     "status": "PARTIAL",
     "verdict": "EVIDENCE_REDUNDANCY_CENSUS_PARTIAL"
   },
+  "stage6a_watchtower_coverage_and_minimum_preservation": {
+    "coverage_semantics": "The function reads shadow normalized_evidence_records, primitive_observations (including quality_state=PROVEN), and artifact_references without filters/joins/time window, then combines those historical corpus totals with current token_analysis migrated-launch counts and a frozen EP4.3 JSON report. It is a deterministic historical OIP baseline, not current operational coverage.",
+    "next_action": "Dedicated read-only minimum-fixture specification for the OIP foundation coverage corpus, including exact aggregate counts and a bounded representative semantic fixture.",
+    "parity": "production/evidence.db has 0 artifacts, normalized records and primitive observations; watchtower_shadow_ep3_0d has 4,784 artifacts, 148,223 normalized records, 85,989 primitives and 43,776 PROVEN. Thus no exact current retained replacement exists and Phase A implementation is blocked: no shadow fallback or semantic substitution was introduced.",
+    "phase_a": "Read-only audit disproved the prior live-dependency assumption. src/intelligence.coverage.measure is consumed only by tests/test_oip_v2_foundation.py and scripts/measure_oip_v2_coverage.py; it is not imported by live UI/API, P3R, operation detection/assignment, Potential Operations, or system health.",
+    "phase_b": "Canonical shadow, RA compact, indexed authority, compact sidecar/provenance and RA0 probe have no current production source/config readers found in the bounded scan. They are nevertheless used by historical rehearsal/audit/validation tools or referenced by frozen contract artifacts. Existing material is insufficient to prove minimum compact fixture/manifest substitution for each store.",
+    "recommendation": "CREATE_COMPACT_FIXTURES_FIRST. First qualify a bounded immutable OIP foundation fixture and manifest for coverage.py; then map each large OIP/RA store to a minimal schema/fixture/digest replacement before any destructive Wave 6A.",
+    "safety": "Read-only. No code/test/config/DB/schema/contract/digest/service changes; no restart, replay, migration, provider/RPC or deletion.",
+    "status": "PARTIAL",
+    "verdict": "EVIDENCE_SHADOW_DECOUPLING_PARTIAL",
+    "wal": "Indexed-authority SQLite WAL is 235,515,712 bytes; no checkpoint/deletion performed. It remains UNKNOWN whether it is required for consistent historical opening until a dedicated immutable-open audit.",
+    "watchtower_shadow_status": "Historical contract/replay store with a current test/manual measurement reader, not live Watchtower state. Its full DB cannot enter deletion until the OIP foundation test and measurement script are migrated to an approved bounded fixture/manifest contract."
+  },
   "status": "AWAIT_HUMAN_MORNING_REVIEW_SEE_DECISION_QUEUE",
   "storage_incident_2026_09_01": {
     "critical_accounting_warning": "macOS `stat -f %b` is POSIX st_blocks in FIXED 512-byte units. allocated_bytes = %b * 512. NEVER multiply %b by %k (an unrelated filesystem I/O-transfer-size field). An earlier pass in this incident used %b*4096 and overstated every physical-allocation figure by exactly 8x. Do not let that error re-enter future storage analysis.",

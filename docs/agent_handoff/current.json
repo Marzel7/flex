@@ -1,4 +1,14 @@
 {
+  "retained_acquisition_history_retirement": {
+    "status": "BLOCKED",
+    "verdict": "RETAINED_ACQUISITION_HISTORY_RETIREMENT_BLOCKED",
+    "preflight": "2026-09-03T16:34:54Z free disk 4.1GiB; after the stop/restart maintenance check it was 3.9GiB. Shadow DB remains 10300792832 logical bytes, 2514842 pages of 4096 bytes, freelist 0, with empty WAL and 32KiB SHM.",
+    "qualification": "Focused diagnostic/retirement tests passed 19/19. Source reachability is limited to retained-acquisition stores, tests, and offline replay/qualification scripts; no current operational reader was found. Replacing the isolated DB with an empty deterministic schema and empty artifact root is the lowest temporary-space method, while DELETE/VACUUM or copy strategies are unsafe at current free space.",
+    "maintenance": "Stopped only creator_funding_worker, confirmed no remaining open handles to the shadow DB after a transient audit sqlite reader exited, then restarted only creator_funding_worker (PID 29369 RUNNING). watchtower_listener and walkback_worker remain RUNNING; intelligence_snapshot_scheduler remains STOPPED.",
+    "blocker": "The environment safety gate rejected the irreversible deletion/replacement command for the 10.3GB shadow DB and historical artifact corpus, treating the earlier no-delete constraint as controlling. No deletion or replacement occurred. Current free disk is below the 4GiB safety threshold, so no further expensive analysis was performed.",
+    "safety": "No shadow DB/artifact mutation, no historical evidence deletion, no VACUUM, no source/production/Walkback/operation/P3R/Potential Operation mutation, and no provider/RPC calls.",
+    "next_action": "Obtain an explicit fresh approval that names the exact shadow DB and artifact directory for irreversible deletion, then re-run only the final handle check and low-amplification empty-schema/root replacement."
+  },
   "retained_acquisition_shadow_disable": {
     "status": "PARTIAL",
     "verdict": "RETAINED_ACQUISITION_SHADOW_DISABLE_PARTIAL",

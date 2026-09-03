@@ -13376,8 +13376,18 @@
     "artifact": "docs/audits/operation_assigned_launch_valuation_stage0_implementation.v1.json",
     "next_action": "Separate authorization is required for Stage 1 shadow enqueue; retain feature flags off until then."
   },
-  "updated_at": "2026-09-02T00:00:00Z",
-  "updated_at_utc": "2026-09-01T23:00:00Z",
+  "retained_acquisition_lifecycle_audit_2026_09_03": {
+    "status": "COMPLETE",
+    "verdict": "RETAINED_ACQUISITION_REPLACEMENT_REQUIRED",
+    "result": "Read-only audit identifies creator_funding_worker as the sole active V2 shadow writer. RetainedAcquisitionStoreV2 writes a content-addressed full raw ArtifactStore blob before its disk/budget check, then appends an observation row even when the 10 GiB reserve gate forces compact/hot JSON. The reserve gate therefore does not stop raw-artifact growth or compact-row growth.",
+    "live_measurement": "At audit: shadow DB 10,300,432,384 bytes, 4,096-byte pages, 2,514,754 pages, freelist 0, WAL 0, SHM 32,768. High-water advanced 53 observation/outcome rows in 69 seconds (5,692,386 to 5,692,439). Recent 100-row sample: 1,071.97-byte SQLite payload, 4,223.49-byte compressed raw artifact mean, plus 311-byte metadata sidecar. Free APFS Data space remained above the 4 GiB safety threshold but around 5.0-5.1 GiB.",
+    "semantics": "The shadow DB/artifact root is not a runtime authority for operations, Walkback, attribution, P3R, Potential Operations, or UI. It is the sole current raw acquisition replay evidence for creator-funding provider calls; canonical operational facts are already materialized in Flex/WT databases. There is no canonical ArtifactStore mirror and no active runtime reader other than the store's own mint/observation replay helper; direct readers are tests/offline audits.",
+    "recommendation": "STOP_SHADOW_GROWTH_FIRST. Do not delete or mutate historical evidence in the emergency milestone. Separately authorize a writer-side order/gate correction that decides retention before ArtifactStore.put(), preserves canonical operational processing and bounded replay evidence, and then qualify a protected historical retirement/compaction plan.",
+    "safety": "Read-only source/SQLite/filesystem metadata inspection; 0 provider/RPC calls; no DB write/checkpoint/VACUUM, artifact mutation, service restart/stop, configuration/code change, or operation/Walkback/Potential Operation change.",
+    "next_action": "A separate implementation authorization is required for the writer-side growth-arrest seam; do not change retention under current low-disk conditions without controlled semantic regression proof."
+  },
+  "updated_at": "2026-09-03T16:01:06Z",
+  "updated_at_utc": "2026-09-03T16:01:06Z",
   "updated_by": "agent_local",
-  "verdict": "OPERATION_ASSIGNED_LAUNCH_VALUATION_STAGE0_IMPLEMENTATION_COMPLETE"
+  "verdict": "RETAINED_ACQUISITION_REPLACEMENT_REQUIRED"
 }

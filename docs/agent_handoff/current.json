@@ -1,4 +1,16 @@
 {
+  "retained_acquisition_shadow_disable": {
+    "status": "PARTIAL",
+    "verdict": "RETAINED_ACQUISITION_SHADOW_DISABLE_PARTIAL",
+    "engineering_revision": "working tree pending engineering review",
+    "implementation": "creator_funding_worker production configuration now sets RETAINED_ACQUISITION_V2_SHADOW_ENABLED=0. RetainedAcquisitionStoreV2 has an explicit shadow_enabled seam and makes every admission decision before ArtifactStore.put(raw); disabled, disk-guard, and budget-guard paths return no retained observation and create no artifact, sidecar, observation, or outcome. The underlying provider response remains fail-open to normal creator-funding extraction.",
+    "tests": "36/36 retained-acquisition focused tests passed. Additional focused protection suite: 37 passed, 1 failed in tests/test_potential_operations_current_census.py because its current projection fixture expected an activity snapshot but received UNKNOWN/no-live-matcher; this is unrelated to shadow acquisition and no production semantics were changed.",
+    "activation": "Only creator_funding_worker was reloaded by Supervisor; current observed PID 26284 RUNNING. watchtower_listener and walkback_worker remained RUNNING; intelligence_snapshot_scheduler remained STOPPED.",
+    "shadow_stop_proof": "At passive T0 and after more than five minutes, shadow observations remained 5692575 (latest 1788452140), outcomes 5677036 (latest 1788452140), and database size 10300792832 bytes; no new production shadow persistence was observed. No historical corpus cleanup, VACUUM, checkpoint, or artifact traversal was performed.",
+    "continuity": "Walkback continued (queue high-water advanced from 43671 to 43672) and protected operational authorities were read-only preserved. Full post-activation natural creator-funding completion is not yet proven because the newly running worker logged independent CrossProcessDatabaseWriteTimeout contention on flex_complete_database.db.write.lock owned by watchtower_listener. This blocks a full PASS, but is not evidence that shadow disable affected acquisition semantics.",
+    "safety": "0 artificial provider/RPC calls; no source/production rows, normal Walkback rows, schemas, UI, membership, attribution, topology, or classifier mutations; existing approximately 10.3GB shadow DB/artifacts untouched.",
+    "next_action": "Diagnose and clear the independent creator-funding SQLite write-lane contention without re-enabling shadow capture, then wait for one natural post-activation creator-funding completion and recheck shadow high-waters remain fixed. Separately triage the potential-current-census fixture/environment mismatch before treating that test as a protection-suite PASS."
+  },
   "byzantine_historical_canonical_birth_backfill_design": {
     "status": "HOLD",
     "verdict": "BYZANTINE_HISTORICAL_CANONICAL_BIRTH_BACKFILL_PILOT_NOT_STARTED_NO_QUALIFIED_MINT_INDEX_SOURCE",

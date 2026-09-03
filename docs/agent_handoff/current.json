@@ -1,4 +1,11 @@
 {
+  "platform_status_banner_diagnosis": {
+    "status": "COMPLETE",
+    "verdict": "PLATFORM_BANNER_STALE_STATUS_DIAGNOSIS",
+    "observed": "Supervisor reports watchtower_listener, ws_cascade, watchtower_api, creator_resolution_worker, creator_funding_worker, walkback_worker, operation_scheduler, and alert_evaluator RUNNING. Listener logs show current PumpPortal births. ws_cascade logs show state LIVE and successful RPC retry bursts.",
+    "interpretation": "The screenshot's listener DEGRADED and cascade OFFLINE values are stale status data, not current process state. Its Intelligence DEGRADED card is consistent with intentionally old operational-intelligence snapshots while intelligence_snapshot_scheduler remains STOPPED; it is not permission to restart that scheduler.",
+    "safety": "Read-only diagnosis; no service, code, configuration, database, UI, scheduler, RPC, or provider action."
+  },
   "legacy_wave_1_retirement": {
     "status": "COMPLETE",
     "verdict": "LEGACY_WAVE_1_RETIRED_PROTECTED_ARCHITECTURE_PRESERVED",

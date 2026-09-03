@@ -1,4 +1,17 @@
 {
+  "funding_chains_reconstruction_and_retirement": {
+    "status": "COMPLETE",
+    "verdict": "FUNDING_CHAINS_RETIRED_CANONICAL_FUNDING_ANALYTICS_PRESERVED",
+    "engineering_revision": "f661ae4593e5aaf434c4d0c91e9fb8dc2afd4f08",
+    "creator_contract": "PASS: birth writes its creator to the durable create ledger and token record; downstream funding reads stored pf_ws_creator/earliest_tx_creator. The resolver is enqueued only when creator is missing and its UPDATE uses COALESCE, so it cannot overwrite a non-empty stored birth creator.",
+    "retirement": "Removed active legacy webhook scoring reads and unreachable legacy API projection reads, removed the one-shot first-leg migration writer after its completed idempotent migration, and removed the historical source-mapping table count. No executable reader/writer/builder/schema-recreation path remains. Dropped only flex_complete_database.db::funding_chains and its four dedicated named indexes plus SQLite PK index; no VACUUM, REINDEX, or manual checkpoint.",
+    "information_gate": "Preserved 16 immutable labelled legacy source-to-bridge facts and 91 target associations. All 91 remain reconstructable with retained creator_funders second legs: 89 exact amounts and 2 explicitly retained legacy-versus-current amount discrepancies. FundingAnalytics reads canonical direct/Walkback/provisioning evidence and bounded exception facts, never funding_chains.",
+    "tests": "py_compile passed. Focused protected regression suite: 53 passed (funding analytics, creator funding, Walkback resilience, P3R, Potential Operations, operational topology). Earlier UI-contraction suite addition remains 56 passed. No provider/RPC calls.",
+    "runtime": "Restarted only watchtower_api (old PID 65355, new PID 75631) to load API/webhook changes. watchtower_listener, creator_funding_worker, creator_resolution_worker, walkback_worker, and operation_scheduler remain RUNNING; intelligence_snapshot_scheduler remains STOPPED. Post-activation sqlite_master checks show funding_chains absent.",
+    "after": "Protected retained state stayed present and naturally advanced: token_analysis=2410355, creator_funders=222907, creator_funding_queue=51132, migration verification=58164, Walkback queue=41926/edges=86644/roles=9033/atomic=9952, provisioning edges=22386/sessions=12868, operations=9/memberships=582. Exception facts=16 and associations=91. No protected table was dropped or altered.",
+    "storage": "Before DROP: 1123 rows, page_count=6148815, freelist=0. Immediately after DROP: table/indexes absent and freelist=132; natural runtime writes subsequently reused free pages (freelist=0), so no physical df reduction is expected without the explicitly prohibited VACUUM.",
+    "next_action": "Do not touch creator_funding_graph. Re-rank creator_networks, funding_networks, and funding_network_members independently; each still needs its own semantic/consumer qualification."
+  },
   "legacy_funding_analytics_migration": {
     "status": "PARTIAL",
     "verdict": "LEGACY_FUNDING_ANALYTICS_MIGRATION_PARTIAL",

@@ -1,4 +1,14 @@
 {
+  "legacy_wave_1_retirement": {
+    "status": "COMPLETE",
+    "verdict": "LEGACY_WAVE_1_RETIRED_PROTECTED_ARCHITECTURE_PRESERVED",
+    "removed": "scripts/run_creator_funding_queue_once.py; the disabled in-listener creator-funding consumer entrypoint, wakeup state, and implementation in src/core/pumpfun_curve_listener.py; obsolete listener/manual-runner references in src/core/creator_funding_worker.py and config/supervisor/supervisord.conf; six zero-byte unreferenced placeholders: database/token_analysis.db, watchtower.db, watchtower_ops.db, operations.db, flex_operations.db, flex_production.db.",
+    "dependency_proof": "Executable source/config/script search found the one-shot runner had no caller, Supervisor, cron, API, or UI dependency. The listener loop's only invocation was the permanently-disabled LISTENER_CREATOR_FUNDING_QUEUE_ENABLED branch; all direct references were removed. The six deleted placeholder paths were zero byte and had no executable source/config/script reference. Protected authorities were excluded from scope.",
+    "tests": "45 passed: creator funding fast paths/lifecycle schema, Walkback startup, P3R profile, canonical evidence foundation. 10 passed: Potential Operation visual structure and P3R tiering. compileall and git diff --check passed.",
+    "runtime": "watchtower_listener, creator_funding_worker, walkback_worker, and operation_scheduler remained RUNNING. intelligence_snapshot_scheduler remained STOPPED. No listener restart was required because the removed path was already disabled and had no effect on the live listener's current behavior.",
+    "safety": "No protected DB/table, canonical evidence, births/migrations, Walkback, attribution/topology, behavioural profiles, P3R, operation, Potential Operation, or stopped-service configuration mutation. No RPC/provider calls. The separate approved shadow artifact retirement remains in progress and was not altered.",
+    "next_action": "Wave 2 qualification: simulation/paper-trading subsystem and its routes/tables, only after explicit product-intent confirmation and a consumer/data retention audit."
+  },
   "legacy_code_and_data_census": {
     "status": "PARTIAL",
     "verdict": "LEGACY_CODE_AND_DATA_CENSUS_PARTIAL",

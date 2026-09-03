@@ -1,4 +1,13 @@
 {
+  "stage5_archive_build_redundancy_census": {
+    "status": "PARTIAL",
+    "verdict": "STAGE5_READ_ONLY_CENSUS_PARTIAL",
+    "inventory": "flex_investigation_archive.db=2.87GB, 2 tables, primarily archived funder_networks (42,314 rows); transaction_first_lineage.db=1.43GB with 1.60m tf_launches/1.53m queue and a default-off read-only cache adapter; local_operation_discovery_corpus.db=23MB with candidate families/direct funding/upstream evidence. _p5a_migration_build is referenced by active hot/cold rollover code, so is not assumed dead.",
+    "ownership": "local_operation_discovery_corpus is CURRENT_SUPPORTING: current operator reader/routes use it for discovery-intake evidence. transaction_first_lineage is CURRENT_RECOVERY_STORE/REBUILDABLE_OPTIONAL_CACHE pending a bounded live-call reachability audit; source documents it as unimported default-off cache-first recovery support. The archive has remaining main.py attach-reader references and is not qualified for retirement until route reachability is classified.",
+    "stopped_services": "intelligence_snapshot_scheduler, evidence_writer, infra_sync_scheduler, dust_observatory_enricher, webhook_worker, and watchtower_helius_monitor are STOPPED; no restart or mutation occurred.",
+    "safety": "Read-only: no provider/RPC, writes, service restart, schema/table changes, or recursive artifact scan.",
+    "next_action": "Finish source/route reachability classification for flex_investigation_archive main.py readers, then audit _p5a and Evidence Platform shallow stores separately before any retirement proposal."
+  },
   "no_selected_funder_24h_audit": {
     "status": "COMPLETE",
     "verdict": "NO_SELECTED_FUNDER_POPULATION_PARTIALLY_EXPLAINED",

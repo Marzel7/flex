@@ -1028,6 +1028,16 @@
     "status": "PARTIAL",
     "verdict": "BYZANTINE_TRUE_CREATION_ANCHOR_RECOVERY_PARTIAL_NO_TRUE_CREATION_RECOVERED_WITHIN_BOUNDS"
   },
+  "canonical_shadow_retirement_qualification": {
+    "blocking_contract": "docs/evidence_platform/oip_v2_2d_shadow_migration.json records canonical_retirement=KEEP_CANONICAL_FOR_ROLLBACK, production_migration=NEEDS_ADDITIONAL_SHADOW_WORK, and an operational pause-limit failure. The v2.2D1 bounded cutover artifact is a rehearsal control, not an approved completed production migration.",
+    "decision": "FULL_DB_REQUIRED at current programme state. No fixture generated, no historical consumer migrated, no deletion qualification.",
+    "dependency": "No current production/UI/P3R/Potential/FundingAnalytics reader was found; however historical migration rehearsal and rollback recovery tooling use it as a full-corpus canonical control. Existing manifests prove counts/digests but do not replace the full rollback/recovery corpus.",
+    "historical_purpose": "OIP v2.2D full shadow migration/cutover canonical control. It proves compact-sidecar equivalence against 807,545 evidence records, 401,050 primitives and 12,398,217 relation pairs, with ordered digest e076e5... for the full rehearsal and cutover/rollback controls.",
+    "identity": "database/evidence_platform/oip_v2_2d_shadow_migration/canonical_shadow.db: 5,725,278,208 logical bytes, 11,182,184 allocated 512-byte blocks, 1,397,773 pages, 0 freelist; empty WAL and 32KiB SHM. No open handle observed.",
+    "next_action": "Do not audit for deletion again until a separately authorized OIP v2.2D production migration closure explicitly retires rollback semantics or provides a qualified bounded rollback replacement.",
+    "status": "BLOCKED",
+    "verdict": "CANONICAL_SHADOW_RETAIN_FULL_DB_FOR_ROLLBACK"
+  },
   "codex_turn_diff_tracked_artifact_classification": {
     "policy": "Existing .gitignore already designates generated exports and database/evidence_platform runtime data as regenerable/ignored. Tracked legacy generated outputs under docs/evidence_platform and docs/audits diverge from that direction; no tracking/ignore/history changes were made.",
     "recommended_next_action": "Separately authorize the smallest prevention-only change: relocate or untrack the eight evidenced deterministic outputs first, preserve their digest-bearing manifests and source/replay instructions, and leave historical Git history untouched. Then separately design content-addressed immutable retention for the seven audit-required outputs.",

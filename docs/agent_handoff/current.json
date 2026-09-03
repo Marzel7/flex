@@ -1,4 +1,14 @@
 {
+  "legacy_code_and_data_census": {
+    "status": "PARTIAL",
+    "verdict": "LEGACY_CODE_AND_DATA_CENSUS_PARTIAL",
+    "scope": "Strict read-only static/runtime/shallow-database census while the approved retained-acquisition artifact deletion remains active; no deep table scans or artifact traversal were run.",
+    "current_core": "RUNNING: watchtower_listener, watchtower_api, ws_cascade, creator_resolution_worker, creator_funding_worker, walkback_worker, operation_scheduler, alert_evaluator, and watchtower_ngrok. Protected operational authority remains flex_complete_database.db plus wt_ops_v2.db, with creator/funder queues, Walkback, operation/P3R/Potential Operation projections, topology, and behavioural profiles.",
+    "high_confidence_findings": "The production configuration explicitly parks both retained-acquisition shadow paths and Evidence mirrors. Creator-funding worker is the sole canonical funding-queue consumer; its previous listener loop and one-shot script are explicitly documented legacy. High-confidence review candidates include zero-byte top-level obsolete DB placeholders, the 2.87GB flex_investigation_archive.db (current code/audit tooling reader references require separate qualification), transaction_first_lineage.db (current reconstruction/discovery readers), local_operation_discovery_corpus.db (read-only discovery projection), disabled stopped monitor/scheduler/worker services, simulation/paper-trading routes/tables, and a broad old dashboard/API surface in src/core/main.py.",
+    "stopped_services": "watchtower_helius_monitor is explicitly disabled because it leaked a WAL reader; intelligence_snapshot_scheduler is intentionally stopped; evidence_writer, infra_sync_scheduler, dust_observatory_enricher, and webhook_worker are manual/conditional and cannot yet be called dead without usage/replacement qualification.",
+    "complexity": "Primary simplification risks are the giant main.py route surface, simulation/paper-trading subsystem, legacy Phase2C dual paths, v1 shadow-only operation contracts, manual-only workers, legacy archive/build databases, and feature-flag forks. Do not remove from this finding alone.",
+    "next_action": "After the shadow artifact deletion completes, perform a bounded DB/table/consumer census for the named candidate families, then prepare a coherent Wave 1 proposal limited to high-confidence LEGACY_DEAD zero-byte placeholders and permanently-disabled duplicate entrypoints."
+  },
   "retained_acquisition_history_retirement": {
     "status": "PARTIAL",
     "verdict": "RETAINED_ACQUISITION_HISTORY_RETIREMENT_PARTIAL",

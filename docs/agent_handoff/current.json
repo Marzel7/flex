@@ -1,4 +1,14 @@
 {
+  "generic_funding_projection_retirement": {
+    "status": "COMPLETE",
+    "verdict": "GENERIC_FUNDING_PROJECTIONS_RETIRED_CANONICAL_ANALYTICS_PRESERVED",
+    "scope": "Dropped only creator_networks (17 rows), funding_networks (108 rows), and funding_network_members (15,589 rows). Their IDs/names were stale February arbitrary materialization/presentation identifiers, not current operation/P3R/Potential identity. Canonical relationships and analytics remain creator_funders, Walkback/provisioning/topology, operation membership, and FundingAnalytics.",
+    "implementation": "Removed the listener's creator_networks bootstrap and live legacy webhook network-membership scoring/presentation reads. No creator_funding_graph code, schema, writer, or cache behavior changed. Historical/manual legacy scripts and test fixtures remain outside production execution.",
+    "validation": "All three table names are absent from sqlite_master after activation. 53 focused protected tests passed: funding analytics, creator funding, Walkback, P3R, Potential Operations, and operational topology. No provider/RPC calls, VACUUM, REINDEX, checkpoint, source/operation/membership mutation, or suppression.",
+    "runtime": "Restarted only watchtower_listener (52984->77675) and watchtower_api (75631->77770). creator_funding_worker, creator_resolution_worker, walkback_worker, and operation_scheduler remain RUNNING; intelligence_snapshot_scheduler remains STOPPED.",
+    "storage": "No physical compaction requested. DROP released 715 pages to SQLite freelist immediately after the transaction.",
+    "next_action": "Funding legacy projection cleanup is complete. Keep creator_funding_graph as protected current/rebuildable cache; a separate lifecycle/retention audit is required before any action on it."
+  },
   "funding_chains_reconstruction_and_retirement": {
     "status": "COMPLETE",
     "verdict": "FUNDING_CHAINS_RETIRED_CANONICAL_FUNDING_ANALYTICS_PRESERVED",

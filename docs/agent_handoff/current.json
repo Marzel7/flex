@@ -13483,8 +13483,18 @@
     "safety": "No funding tables/data were dropped or modified deliberately, no Walkback/topology fallback/P3R/Operation/Potential Operation authority changed, no schema change, no provider/RPC, and no scheduler restart.",
     "next_action": "Complete a bounded local HTTP parity observation when the API request lane is responsive, then separately authorize Wave 4C deletion of unreachable Phase2C helper/flag and legacy nested route bodies. Do not retire generic legacy tables until the broader consumer map is migrated."
   },
-  "updated_at": "2026-09-03T19:32:00Z",
-  "updated_at_utc": "2026-09-03T19:32:00Z",
+  "phase2c_retirement": {
+    "status": "PARTIAL",
+    "verdict": "PHASE2C_RETIREMENT_PARTIAL",
+    "implementation": "Removed the unused route_phase2c compatibility router, PHASE2C_FORCE_MODE handling, and the unused get_network_name_from_id legacy fallback helper from src/core/main.py. Production source/config now has zero Phase2C or force-mode references. The three supported generic surfaces retain their direct canonical paths; their existing dead nested legacy implementations were not removed in this bounded wave.",
+    "validation": "54 focused tests passed: canonical generic read-model/Phase2C-absence tests, creator funding fast paths, Walkback startup resilience, P3R profile matcher, Potential Operation visual structure, and operational topology intelligence. Application import/test-client startup remained slow under existing local pressure and did not complete the full request loop within the bounded observation; this is not a route semantic failure. The API was restarted only to load the change.",
+    "tables": "No legacy table was eligible for DROP. creator_networks has automatic/current writer and multiple runtime readers; funding_networks and funding_network_members retain API/webhook and manual builder readers/writers; funding_chains retains webhook/main and historical-tool readers; creator_funding_graph remains an active extractor-owned cache/projection. None is part of the new generic read model, but each has nonzero current consumers or writers requiring a separate migration.",
+    "runtime": "watchtower_api restarted 58451->60206. listener, creator_funding_worker, walkback_worker, operation_scheduler, and ws_cascade were running afterwards; intelligence_snapshot_scheduler remains STOPPED.",
+    "safety": "No table drop, data deletion, schema change, provider/RPC call, Walkback/topology/P3R/Operation/Potential Operation change, or scheduler restart. Protected table high-waters advanced naturally only.",
+    "next_action": "MIGRATE_REMAINING_NETWORK_CONSUMERS: remove the dead nested legacy route bodies and migrate/retire generic webhook/API and automatic builder consumers one table family at a time before any legacy table DROP."
+  },
+  "updated_at": "2026-09-03T19:38:00Z",
+  "updated_at_utc": "2026-09-03T19:38:00Z",
   "updated_by": "agent_local",
   "verdict": "RETAINED_ACQUISITION_REPLACEMENT_REQUIRED"
 }

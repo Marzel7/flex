@@ -12795,13 +12795,14 @@
   },
   "stage6a_compact_fixture_creation": {
     "implemented": "Added scripts/generate_oip_v2_foundation_coverage_fixture.py and docs/evidence_platform/oip_v2_foundation_coverage_fixture.v1.json. The deterministic 1.1KB fixture records the exact four historical assertion queries, source path/SHA-256, historical_only=true/current_authority=false, counts 148223/85989/43776/4784 and a self-digest.",
-    "migration": "coverage.py now reads the compact fixture for historical Evidence totals and contains no Watchtower shadow path/fallback. It still reads current token_analysis for the pre-existing migrated-launch population metric; this remains separate from the frozen OIP evidence assertions.",
-    "next_action": "Complete the historical coverage test/script migration with a fixture-only default and explicit forensic DB option, then run bounded parity and test suite.",
+    "migration": "Added measure_historical() with no live DB access. measure() retains the separately-current token_analysis census. The historical test now verifies only frozen OIP assertions; the default measurement script verifies the fixture, while --live explicitly adds the current census.",
+    "next_action": "Continue candidate-by-candidate minimum-preservation qualification for canonical_shadow.db before any deletion; do not treat qualification as deletion authority.",
     "parity": "Fixture was generated read-only from the source database and preserves the exact required counts. No full corpus copy/compression or new authority was created.",
     "remaining": "Measurement script has not yet gained explicit --source forensic mode; Phase-B large stores remain unqualified. Do not retire watchtower_shadow DB until historical test/script migration is completed and focused tests pass.",
+    "retirement_gate": "watchtower_shadow_ep3_0d/evidence.db has zero production runtime readers/writers and zero mandatory test/script readers. Its only retained source reference is the explicit read-only fixture generator. The 777,375,744-byte DB is QUALIFIED_FOR_FUTURE_RETIREMENT, but remains present pending explicit destructive authorization.",
     "safety": "Only the authorized tiny fixture, generator, and historical reader code were added/changed. No DB source mutation, deletion, schema/contract/digest rewrite, service restart, or provider/RPC call.",
-    "status": "PARTIAL",
-    "validation": "py_compile passed. The isolated/broader pytest command exceeded the 30s execution window while opening the current token_analysis-dependent historical coverage test, so full test completion is pending; no expected values were changed.",
+    "status": "COMPLETE",
+    "validation": "Fixture-only historical test passed; full tests/test_oip_v2_foundation.py passed 3/3 in 0.72s. Default measurement script runs fixture-only and prints the preserved values. py_compile/diff check passed.",
     "verdict": "EVIDENCE_COMPACT_PRESERVATION_PARTIAL"
   },
   "stage6a_watchtower_coverage_and_minimum_preservation": {

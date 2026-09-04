@@ -68,3 +68,22 @@ def test_walkback_keeps_current_recovery_summary_not_history_table() -> None:
     assert "Recovery History (last 5)" not in block
     assert "Discovery Diagnostics" not in block
     assert "walkback-candidate-health" in source
+
+
+def test_system_health_omits_legacy_watchtower_telemetry_tiers() -> None:
+    source = (ROOT / "templates/system_health_dashboard.html").read_text()
+    start = source.index("async function renderIntelligenceGroup")
+    end = source.index("function renderWalkbackCandidateHealth", start)
+    group = source[start:end]
+    for retired_ui in (
+        "Tier 1 — Creator Prediction", "Tier 2 — Infrastructure Telemetry",
+        "tier1Monitor", "tier2Monitor", "WATCHTOWER intelligence tiers",
+        "Treasury Review →", "Discovery Diagnostics →",
+    ):
+        assert retired_ui not in group
+    for health_only_fetch in (
+        "/api/watchtower/webhook-status", "/api/watchtower/hit-activity",
+        "/api/watchtower/relay-telemetry", "/api/watchtower/relay-counterparties",
+    ):
+        assert health_only_fetch not in group
+    assert "renderWalkbackCandidateHealth(wb)" in group

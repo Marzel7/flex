@@ -1587,22 +1587,7 @@
                     ${renderWalkbackCandidateHealth(wb)}
                 </div>
 
-                <button class="l3-toggle" id="intel-l3-btn" onclick="mcL3Toggle('intel-l3-btn','intel-l3-body','WATCHTOWER intelligence tiers')">
-                    <i class="fas fa-chevron-right"></i> Show WATCHTOWER intelligence tiers
-                </button>
-                <div class="l3-body" id="intel-l3-body">
-                    <div class="mc-subpanel">
-                        <div class="mc-subpanel-title" style="color:#22d3ee;">Tier 1 — Creator Prediction</div>
-                        <div id="tier1Monitor" class="loading"><span class="spinner"></span> Loading...</div>
-                    </div>
-                    <div class="mc-subpanel">
-                        <div class="mc-subpanel-title" style="color:#a78bfa;">Tier 2 — Infrastructure Telemetry</div>
-                        <div id="tier2Monitor" class="loading"><span class="spinner"></span> Loading...</div>
-                    </div>
-                </div>
             `;
-            renderTier1Monitor();
-            renderTier2Monitor();
             return { color, warningMsgs, criticalMsgs };
         }
 

@@ -1252,9 +1252,10 @@
             const lockTotal = lke.listener_tail_count;
             if (lockTotal >= 10) warningMsgs.push(`${lockTotal} DB lock errors (log tail)`);
 
+            const fundingPending = !fundingStats;
             const fq = fundingStats || {};
-            const fqPending = (fq.pending || 0) + (fq.retry || 0);
-            const fqFailed = fq.failed || 0;
+            const fqPending = fundingPending ? null : (fq.pending || 0) + (fq.retry || 0);
+            const fqFailed = fundingPending ? null : (fq.failed || 0);
             if (fqFailed > 0) warningMsgs.push(`${fqFailed} funding-queue failures`);
 
             let color = 'healthy';
@@ -1264,7 +1265,7 @@
 
             const wireOk = !ppDown && !psDown;
             mcSetGroupStatus('grp-ingestion', color,
-                `Listener ${wireOk ? '✓' : '⚠'} · ${fqPending} queued · births ${_fmtAge(birthAge)}`);
+                `Listener ${wireOk ? '✓' : '⚠'} · ${fqPending == null ? 'Funding queue loading' : fqPending + ' queued'} · births ${_fmtAge(birthAge)}`);
 
             // ── Body: one consolidated card (Phase 4 target layout) ──
             const migBuckets = ing.migration_hourly || [];
@@ -1281,11 +1282,11 @@
                     </div>
                     <div class="mc-kpi">
                         <div class="mc-kpi-label">Queue</div>
-                        <div class="mc-kpi-value ${fqPending>0?'warn':'ok'}" style="font-size:1.1rem;">${fqPending.toLocaleString()} pending</div>
+                        <div class="mc-kpi-value ${fqPending>0?'warn':'ok'}" style="font-size:1.1rem;">${fqPending == null ? 'Loading…' : fqPending.toLocaleString() + ' pending'}</div>
                     </div>
                     <div class="mc-kpi">
                         <div class="mc-kpi-label">Processing (24h)</div>
-                        <div class="mc-kpi-value ok" style="font-size:1.1rem;">${(fq.complete_24h||0).toLocaleString()}</div>
+                        <div class="mc-kpi-value ok" style="font-size:1.1rem;">${fundingPending ? 'Loading…' : (fq.complete_24h||0).toLocaleString()}</div>
                     </div>
                     <div class="mc-kpi">
                         <div class="mc-kpi-label">Oldest Signal</div>
@@ -1311,8 +1312,8 @@
                     <div style="display:flex;flex-wrap:wrap;gap:1.25rem;font-size:0.85rem;">
                         <span>Birth Queue <b>${ing.birth_queue_pending ?? '—'}</b> pending</span>
                         <span>Migration Queue <b>${ing.migration_queue_pending ?? '—'}</b> pending, <b>${ing.migration_queue_retry ?? 0}</b> retry</span>
-                        <span>Funding Queue <b>${fqPending}</b> pending${(fq.running||0) ? `, ${fq.running} running` : ''}</span>
-                        <span>Funding Failed <b style="color:${fqFailed>0?'#f87171':'#4ade80'}">${fqFailed}</b></span>
+                        <span>Funding Queue <b>${fundingPending ? 'Loading…' : fqPending}</b>${fundingPending ? '' : ' pending'}${(fq.running||0) ? `, ${fq.running} running` : ''}</span>
+                        <span>Funding Failed <b style="color:${fqFailed>0?'#f87171':'#4ade80'}">${fundingPending ? '—' : fqFailed}</b></span>
                     </div>
                     <div style="margin-top:0.6rem;font-size:0.78rem;color:var(--text-secondary);">
                         Migrations/hr: ${migBars} ${migBuckets.length ? `<span style="margin-left:6px">${migBuckets[migBuckets.length-1].count} this hour</span>` : ''}
@@ -1481,7 +1482,7 @@
         // ══════════════════════════════════════════════════════════════════
         // GROUP 3 — INTELLIGENCE (creator resolution/funding and Walkback)
         // ══════════════════════════════════════════════════════════════════
-        async function renderIntelligenceGroup(fullHealth) {
+        async function renderIntelligenceGroup(fullHealth, walkbackHealth = null, walkbackPending = false) {
             const ss = fullHealth?.subsystems || {};
             const intel = ss.intelligence || {};
 
@@ -1491,8 +1492,6 @@
             // group's warningMsgs/criticalMsgs below so Mission Control can
             // never report overall Healthy while candidate generation is
             // stalled (the milestone's own explicit acceptance criterion).
-            let walkbackHealth = null;
-            try { walkbackHealth = await fetch('/api/ops-v2/walkback-candidate-health').then(r => r.json()); } catch(e) {}
 
             const crqFailed = intel.creator_queue_failed ?? 0;
             const fqPending = intel.funding_queue_pending ?? 0;
@@ -1529,21 +1528,22 @@
             // "database" message, per the spec's own instruction.
             const wb = walkbackHealth || {};
             const wbStatus = wb.status || 'UNKNOWN';
-            if (wbStatus === 'STOPPED' || wbStatus === 'STALLED') {
+            if (!walkbackPending && (wbStatus === 'STOPPED' || wbStatus === 'STALLED')) {
                 criticalMsgs.push(wb.summary || `Walkback candidate generation ${wbStatus}`);
-            } else if (wbStatus === 'DEGRADED' || wbStatus === 'RECOVERING') {
+            } else if (!walkbackPending && (wbStatus === 'DEGRADED' || wbStatus === 'RECOVERING')) {
                 warningMsgs.push(wb.summary || `Walkback candidate generation ${wbStatus}`);
             }
-            (wb.warnings || []).forEach(w => {
+            (!walkbackPending ? (wb.warnings || []) : []).forEach(w => {
                 if (!criticalMsgs.includes(w) && !warningMsgs.includes(w)) warningMsgs.push(w);
             });
 
             let color = 'healthy';
             if (criticalMsgs.length) color = 'critical';
             else if (warningMsgs.length) color = 'warning';
+            else if (walkbackPending) color = 'neutral';
 
             mcSetGroupStatus('grp-intelligence', color,
-                `Creator Queue ${intel.creator_queue_pending ?? '—'} pending · Funding Worker ${fqWorkerStatus} · Walkback ${wbStatus}`);
+                `Creator Queue ${intel.creator_queue_pending ?? '—'} pending · Funding Worker ${fqWorkerStatus} · Walkback ${walkbackPending ? 'pending' : wbStatus}`);
 
             const fqWorkerColor = fqWorkerStatus === 'RUNNING' ? 'healthy' : fqWorkerStatus === 'STALLED' ? 'warning' : fqWorkerStatus === 'STOPPED' ? 'critical' : 'neutral';
             const fqMeta = intel.funding_worker_meta || {};
@@ -1584,7 +1584,7 @@
 
                 <div class="mc-subpanel">
                     <div class="mc-subpanel-title"><i class="fas fa-route"></i> Walkback Candidate Generation</div>
-                    ${renderWalkbackCandidateHealth(wb)}
+                    ${walkbackPending ? renderWalkbackCandidatePending() : renderWalkbackCandidateHealth(wb)}
                 </div>
 
             `;
@@ -1601,6 +1601,12 @@
                 HEALTHY: 'healthy', IDLE: 'neutral', DEGRADED: 'warning',
                 STALLED: 'critical', RECOVERING: 'warning', STOPPED: 'critical',
             }[status] || 'neutral';
+        }
+        function renderWalkbackCandidatePending() {
+            return `<div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.4rem;">
+                ${pillHtml('neutral', 'Loading')}
+                <span style="font-size:0.85rem;color:var(--text-secondary);">Loading current Walkback health…</span>
+            </div>`;
         }
         function renderWalkbackCandidateHealth(wb) {
             if (!wb || !wb.ok) return `<div style="font-size:0.82rem;color:var(--text-secondary);">Walkback candidate health unavailable.</div>`;
@@ -2098,13 +2104,45 @@
         // ══════════════════════════════════════════════════════════════════
         // MAIN ORCHESTRATION
         // ══════════════════════════════════════════════════════════════════
-        async function updateDashboard() {
-            const [dbHealth, recovery, fundingStats, fullHealth] = await Promise.all([
-                fetch('/api/db-health').then(r => r.json()).catch(() => ({})),
-                fetch('/api/listener-recovery-status').then(r => r.json()).catch(() => null),
-                fetch('/api/internal/funding-queue-stats').then(r => r.json()).catch(() => ({})),
-                fetch('/api/health/full').then(r => r.json()).catch(() => null),
-            ]);
+        let systemHealthRefreshGeneration = 0;
+        let runtimeBudgetPollingStarted = false;
+        let runtimeBudgetRefreshGeneration = 0;
+
+        function renderCoreHealthFailure() {
+            const banner = document.getElementById('mc-banner');
+            banner.className = 'mc-banner warning';
+            banner.innerHTML = '<i class="fas fa-triangle-exclamation"></i><span>System health unavailable</span><span class="sub">Core health request failed.</span>';
+            mcSetGroupStatus('grp-platform', 'neutral', 'Core health unavailable');
+            document.getElementById('grp-platform-body').innerHTML = '<div style="color:var(--text-secondary);font-size:0.85rem;">Core health request failed. Retrying on the next refresh.</div>';
+        }
+
+        function renderDiagnosticPending(groupId, bodyId, label) {
+            mcSetGroupStatus(groupId, 'neutral', `${label} loading`);
+            const body = document.getElementById(bodyId);
+            if (body) body.innerHTML = `<div style="color:var(--text-secondary);font-size:0.85rem;">Loading ${label.toLowerCase()}…</div>`;
+        }
+
+        function updateDashboard() {
+            const generation = ++systemHealthRefreshGeneration;
+            let fullHealth = null;
+            let recovery = null;
+            let fundingStats = null;
+            let dbHealth = null;
+            let dbHealthSettled = false;
+            let walkbackHealth = null;
+            let walkbackSettled = false;
+
+            renderDiagnosticPending('grp-ingestion', 'grp-ingestion-body', 'Listener and funding diagnostics');
+            renderDiagnosticPending('grp-infra', 'grp-infra-body', 'Database diagnostics');
+
+            const current = () => generation === systemHealthRefreshGeneration;
+            const renderCritical = health => {
+                if (!current()) return;
+                fullHealth = health;
+                if (!fullHealth) {
+                    renderCoreHealthFailure();
+                    return;
+                }
             // MC1.1B — capability-first incident layer is now the SOLE
             // source of truth for the top banner, incident cards, and
             // capability strip/grid below it. Previously the banner
@@ -2127,19 +2165,52 @@
             // or change their content, only stops them from ALSO driving
             // the top banner.
             renderPlatformGroup(fullHealth, recovery);
-            renderIngestionGroup(recovery, fundingStats, dbHealth);
-            await renderIntelligenceGroup(fullHealth);
-            renderInfraGroup(dbHealth, fullHealth);
+            renderIntelligenceGroup(fullHealth, walkbackHealth, !walkbackSettled);
+            if (dbHealth) renderInfraGroup(dbHealth, fullHealth);
+            else if (dbHealthSettled) renderDiagnosticPending('grp-infra', 'grp-infra-body', 'Database diagnostics unavailable');
+
+            if (!runtimeBudgetPollingStarted) {
+                runtimeBudgetPollingStarted = true;
+                loadSHRuntimeBudget();
+                setInterval(loadSHRuntimeBudget, 30000);
+            }
 
             const now = new Date();
             document.getElementById('lastUpdate').textContent = `Last updated: ${now.toLocaleTimeString()}`;
+            };
+
+            fetch('/api/health/full').then(r => r.json()).catch(() => null).then(renderCritical);
+            fetch('/api/ops-v2/walkback-candidate-health').then(r => r.json()).catch(() => null).then(value => {
+                if (!current()) return;
+                walkbackSettled = true;
+                walkbackHealth = value;
+                if (fullHealth) renderIntelligenceGroup(fullHealth, walkbackHealth, false);
+            });
+            fetch('/api/listener-recovery-status').then(r => r.json()).catch(() => null).then(value => {
+                if (!current()) return;
+                recovery = value;
+                if (recovery) renderIngestionGroup(recovery, fundingStats, dbHealth);
+                else renderDiagnosticPending('grp-ingestion', 'grp-ingestion-body', 'Listener recovery status unavailable');
+            });
+            fetch('/api/internal/funding-queue-stats').then(r => r.json()).catch(() => null).then(value => {
+                if (!current()) return;
+                fundingStats = value;
+                if (recovery) renderIngestionGroup(recovery, fundingStats, dbHealth);
+            });
+            fetch('/api/db-health').then(r => r.json()).catch(() => null).then(value => {
+                if (!current()) return;
+                dbHealth = value;
+                dbHealthSettled = true;
+                if (fullHealth && dbHealth) renderInfraGroup(dbHealth, fullHealth);
+                else if (fullHealth) renderDiagnosticPending('grp-infra', 'grp-infra-body', 'Database diagnostics unavailable');
+            });
         }
 
-        document.getElementById('refreshBtn').addEventListener('click', async () => {
+        document.getElementById('refreshBtn').addEventListener('click', () => {
             const btn = document.getElementById('refreshBtn');
             btn.classList.add('refreshing');
-            await updateDashboard();
-            btn.classList.remove('refreshing');
+            updateDashboard();
+            window.setTimeout(() => btn.classList.remove('refreshing'), 250);
         });
 
         updateDashboard();
@@ -2147,7 +2218,9 @@
 
         // ── Runtime Budget Health (Level-3 detail inside Infrastructure) ────
         async function loadSHRuntimeBudget(){
+            const generation = ++runtimeBudgetRefreshGeneration;
             let d; try{ d = await(await fetch('/api/ops-v2/intel/runtime-budget')).json(); }catch(e){ return; }
+            if (generation !== runtimeBudgetRefreshGeneration) return;
             const r = d.runtime||{};
             const pill = document.getElementById('sh-rb-pill');
             const note = document.getElementById('sh-rb-note');
@@ -2196,7 +2269,5 @@
                 s('Lock errors 1h', r.db_lock_errors_1h||0, (r.db_lock_errors_1h||0)>0?'#f59e0b':'#22c55e') +
                 s('Lock errors 5m', r.db_lock_errors_5m||0, (r.db_lock_errors_5m||0)>5?'#ef4444':(r.db_lock_errors_5m||0)>0?'#f59e0b':'#22c55e');
         }
-        loadSHRuntimeBudget();
-        setInterval(loadSHRuntimeBudget, 30000);
     </script>
 {% endblock %}

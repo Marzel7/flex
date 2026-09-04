@@ -87,3 +87,11 @@ def test_system_health_omits_legacy_watchtower_telemetry_tiers() -> None:
     ):
         assert health_only_fetch not in group
     assert "renderWalkbackCandidateHealth(wb)" in group
+
+
+def test_operator_registry_polling_is_visible_tab_only_and_minute_cadence() -> None:
+    source = (ROOT / "templates/operators_index.html").read_text()
+    assert "window.setInterval(refreshAll, 60000)" in source
+    assert "if (!document.hidden)" in source
+    assert "visibilitychange" in source
+    assert "},15000)" not in source

@@ -14259,10 +14259,34 @@
     "tests": "53 focused tests passed: UI-contraction route guards plus creator-funding fast paths, Walkback startup resilience, P3R, Potential Operation visual structure, and operational topology. compileall and git diff --check passed.",
     "verdict": "UI_SURFACE_CONTRACTION_AND_BACKEND_REACHABILITY_PARTIAL_GENERIC_FUNDING_SLICE_RETIRED"
   },
-  "updated_at": "2026-09-04T08:17:26Z",
-  "updated_at_utc": "2026-09-04T08:17:26Z",
+  "dust_observatory_producer_consumer_ownership_audit": {
+    "status": "COMPLETE",
+    "verdict": "DUST_OWNERSHIP_MODEL_QUALIFIED",
+    "scope": "Strict read-only producer/consumer ownership audit; no provider calls, runtime changes, Supervisor changes, queue/database/schema changes, or Dust execution.",
+    "queue": "PROCESS_LOCAL_MEMORY_QUEUE: Python stdlib queue.Queue(maxsize=500), module-global at src/core/dust_observatory.py:209. It is thread-shared only inside the importing process; put_nowait drops silently when full. The wt_dust_pending_sigs table exists but has no writer or reader in the current source, so it is not a functioning durable queue.",
+    "current_ownership": "ws_cascade imports Dust at startup and calls init(start_enricher=True), starting its daemon writer and enricher threads. The dust notification handler calls enqueue_sig(wallet, sig); the same-process writer performs getTransaction and writes observations/lifecycle, while the same-process enricher classifies lifecycle rows every configured 120 seconds.",
+    "cross_process": "NO: a separate python -m src.core.dust_observatory process creates a different module-global queue and its CLI runs only enricher_loop; it neither starts writer nor polls a durable signature source. It cannot consume ws_cascade queue entries.",
+    "sep4_activity": "Explained by ws_cascade's in-process dust-obs-enricher thread. All 22 lifecycle rows show last_enriched_at between 2026-09-04T08:20:58Z and 08:22:58Z UTC; ws_cascade error logs identify the same dust-obs-enricher thread at dust_observatory.py:515. The stopped Supervisor log ended 2026-08-09.",
+    "state": "wt_dust_markers=11 rows (10 active); wt_dust_observations=27 signatures/22 recipients; wt_dust_recipient_lifecycle=22; wt_dust_pending_sigs=0. Observations are July 9; lifecycle state is historical/useful observational telemetry.",
+    "consumers": "Runtime reader surface is retained UI/API only: /api/ops-v2/dust-observatory, recipient detail, Dust page, and the operational-intelligence summary card. Static source found no Watchtower detection, Byzantium, other Operations, Potential Operations, P3R, FundingTopology, FundingAnalytics, or operation-membership/confidence/alert consumer of observation/lifecycle outputs. The unknown-funder audit script is historical/analytical only.",
+    "authority_boundary": "Dust is explicitly observational and must remain non-authoritative. It observes 500-20,000-lamport recipient gains from active dust-marker wallet transactions, then classifies recipients only by existing WATCHTOWER tables. It must not open sessions, promote wallets, subscribe recipients, change classification, assign operations, or replace Walkback/creator-funding evidence.",
+    "risk": "TELEMETRY_LOSS_RISK. On ws_cascade restart, queued but unprocessed signatures are lost; full queues also silently drop and RPC/decode failures are not retried. This cannot affect protected attribution or operation decisions because Dust has no such consumers, but observations may be unrecoverable without separate historical discovery.",
+    "supervisor_service": "OBSOLETE_DUPLICATE_WORKER. Its only runtime action is a second no-RPC lifecycle enrich loop against shared DB state; it has no unique consumer role, cannot consume the producer queue, and historically caused competing DB writes/lock pressure.",
+    "preferred_architecture": "IN_PROCESS_DUST_OWNERSHIP. Preserve the current single-owner ws_cascade producer+writer+enricher topology, then separately qualify explicit in-process observability and bounded loss semantics. Do not retain the duplicate Supervisor process. A durable separate worker would require a real DB queue with producer persistence-before-return and a consumer; it is not required for current non-authoritative telemetry.",
+    "supervisor_retirement_gate": {
+      "CURRENT_REQUIRED_SEPARATE_PROCESS_USE": 0,
+      "CURRENT_UNIQUE_CONSUMER_ROLE": 0,
+      "PROTECTED_DEPENDENCY_ON_SEPARATE_PROCESS": 0,
+      "DATA_LOSS_FROM_REMOVING_SUPERVISOR_ENTRY": 0,
+      "QUALIFIED_TO_REMOVE_SUPERVISOR_ENTRY": "YES"
+    },
+    "next_action": "RETIRE_DUST_SERVICE — separately authorized narrow Supervisor/config/documentation removal only; retain Dust module, in-process ws_cascade ownership, tables, retained UI, and strict non-authority boundary. Subsequent optimization ranking: creator_funding_graph lifecycle; Evidence compact-fixture work; main.py dead-code/decomposition; P5A stage/delta micro-audit.",
+    "safety": "No service start/stop/restart, Supervisor/config/code/UI/schema/DB/queue changes, provider/RPC calls, Git maintenance, or protected architecture change."
+  },
+  "updated_at": "2026-09-04T09:35:00Z",
+  "updated_at_utc": "2026-09-04T09:35:00Z",
   "updated_by": "agent_local",
-  "verdict": "OPERATION_SCHEDULER_RUNTIME_RESTORED",
+  "verdict": "DUST_OWNERSHIP_MODEL_QUALIFIED",
   "watchtower_buy3_historical_first_buy_opening_mc": {
     "archive": "Alchemy archive exact-slot response for actual curve 776Pqg...wUX succeeded (151 bytes, SHA-256 49812911...f48f1c), but is necessarily post-buy/post-completion because the creation slot contains all five buys.",
     "artifact_digest": "1aad06cc04167484a05c4f7545dcebaffef534d0797bb30ba1c5b2116826e70c",

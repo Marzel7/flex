@@ -14355,10 +14355,23 @@
     "next_action": "MORE_GRAPH_RECONCILIATION_REQUIRED: classify the twelve residual graph-only pairs against the historical extractor/raw acquisition corpus or explicitly define a safe bounded migration/disposition policy; then evaluate MIGRATE_GRAPH_FACTS_THEN_RETIRE or BUILD_SMALL_FUNDING_COMPLETENESS_CACHE.",
     "safety": "Provider/RPC=0; source/production rows modified=false; graph/canonical/Walkback/topology/P3R/Operations/Potential/Evidence/services/UI/schema unchanged."
   },
-  "updated_at": "2026-09-04T11:10:00Z",
-  "updated_at_utc": "2026-09-04T11:10:00Z",
+  "creator_funding_graph_final_graph_only_fact_reconciliation": {
+    "status": "COMPLETE",
+    "verdict": "CREATOR_FUNDING_GRAPH_FINAL_RECONCILIATION_QUALIFIED",
+    "scope": "Strictly read-only retained-local final reconciliation of the frozen twelve unresolved non-test graph-only pairs, with GMH/Erx retained as control. No provider/RPC, data/schema/code/service/UI/Evidence mutation.",
+    "frozen_pairs": "The twelve exact creator/funder/amount/first_seen/last_seen facts are the persisted frozen cohort from the prior audit. All twelve have DIRECT_SIGNATURE=NONE in creator_funders, transfer_index, selected/alternative Walkback candidate edges, retained roles, atomic flows, provisioning edges/sessions, retained compact transaction-first recovery store, and targeted extractor logs/artifacts. None can be positively promoted or invalidated from local evidence.",
+    "control": "GMHne4HsGhmDqghtgC8WpRSLJSuA66jMJiLvZco9qm5A -> ErxGxYbhiMzGu5AtyED9semwZGnw3mRfw8KfWjb9c1VY remains VALID_CURRENT_DIRECT_FUNDING_PRESERVED exactly by selected Walkback PLAIN_XFER 93.5 SOL, signature 5yX2Wbm7PUDHgpMq93PojaToC3wSxrngZLKMLnaPV67247k7peA18krCb9wv77swXB5gw2nqUXFMakpDHxNWWuC7 and direct transaction-role projection.",
+    "twelve_disposition": "Each of the twelve is classified INSUFFICIENT_EVIDENCE, canonical absence=UNKNOWN, preservation=NONE. The two labelled Robinhood and Axiom cases are CEX/infra-labelled but have no retained direct route proof; label is not treated as funding proof. The 492.999994999, 199.905484904, and 1300 SOL rows likewise have no retained direct signature/role/transfer; magnitude does not upgrade them. The four 4pNX rows share exactly one cache timestamp, proving a common cache-observation run but not four direct legs.",
+    "abstention_strategy": "A future graph-retirement implementation may preserve only the twelve frozen facts as LEGACY_GRAPH_UNQUALIFIED_EXCEPTION records (creator, funder, graph inbound_sol, first_seen, last_seen, provenance=creator_funding_graph, status=INSUFFICIENT_EVIDENCE). This is explicit abstention, not canonical funding evidence, operation attribution, recurrence eligibility, or a replacement authority. It prevents silent data loss without retaining the full graph. Do not create these records until separately write-authorized.",
+    "removal_and_cache": "Removing graph causes no immediate provider call. Its 24h cache entries for the frozen cohort are expired. On a future launch, only five residual creators with no canonical creator_funders rows (HfdAzmhs..., VJNXG7n4..., B8dc6dVc..., 2EAKVS4Z..., GMHne4Hs...) could otherwise reach provider extraction; a small completeness cache keyed by creator/funding_complete/valid_until/last_completed_extraction could provide the only useful skip behavior. Retained rolling logs show 53 graph hits versus 4120 canonical fast-path events; exact 24h metrics are not instrumented.",
+    "decision": "MIGRATE_SMALL_GRAPH_EXCEPTION_SET_THEN_RETIRE. All 13 non-test pairs have an explicit disposition: one valid fact already preserved exactly; twelve safely abstained/preserved as bounded exceptions. Amount divergences/timestamps/count semantics were previously explained; graph has zero current protected dependencies. This qualifies a future provider-free, separately authorized implementation, not a current change.",
+    "future_wave": "Create the bounded labelled exception set; if justified create a tiny completeness cache; remove graph lookup/write and unused views; remove stale listener CREATE IF NOT EXISTS residue; prove zero readers/writers; drop graph/indexes; run creator-funding/canonical/cache/Walkback/FundingAnalytics/P3R/Operations/Potential/spam-dust/CEX-infra regressions and measure provider/write-lane effect.",
+    "safety": "Graph, creator_funders, creator funding, Walkback, topology, FundingAnalytics, P3R, Operations, Potential Operations, Evidence, services, UI and schema unchanged; provider/RPC=0."
+  },
+  "updated_at": "2026-09-04T11:31:00Z",
+  "updated_at_utc": "2026-09-04T11:31:00Z",
   "updated_by": "agent_local",
-  "verdict": "CREATOR_FUNDING_GRAPH_RECONCILIATION_PARTIAL",
+  "verdict": "CREATOR_FUNDING_GRAPH_FINAL_RECONCILIATION_QUALIFIED",
   "watchtower_buy3_historical_first_buy_opening_mc": {
     "archive": "Alchemy archive exact-slot response for actual curve 776Pqg...wUX succeeded (151 bytes, SHA-256 49812911...f48f1c), but is necessarily post-buy/post-completion because the creation slot contains all five buys.",
     "artifact_digest": "1aad06cc04167484a05c4f7545dcebaffef534d0797bb30ba1c5b2116826e70c",

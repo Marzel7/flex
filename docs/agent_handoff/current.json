@@ -14066,6 +14066,45 @@
     "next_action": "IMPLEMENT_STOPPED_SERVICE_RETIREMENT_WAVE",
     "safety": {"provider_rpc_calls": 0, "services_started_stopped_or_restarted": false, "code_config_database_schema_cron_modified": false, "queues_or_logs_mutated": false}
   },
+  "helius_monitor_supervisor_entry_retirement": {
+    "status": "PARTIAL",
+    "verdict": "HELIUS_MONITOR_SUPERVISOR_RETIREMENT_PARTIAL",
+    "scope": "Removed only the stale watchtower_helius_monitor Supervisor program and its current daemon-start/runbook surfaces; retained the shared Helius helper module and helius_usage_snapshots data.",
+    "retirement": {
+      "live_supervisor_definition_removed": "config/supervisor/supervisord.conf [program:watchtower_helius_monitor]",
+      "supervisor_result": "watchtower_helius_monitor: disappeared; post-refresh status returns ERROR (no such process)",
+      "legacy_backup_untouched": "config/supervisor/supervisord.conf.bak retains only historical, non-included configuration",
+      "stale_start_surfaces_retired": ["scripts/restart.sh direct nohup start", "scripts/run_helius_monitor.sh cron wrapper now fails closed", "scripts/start_supervised.sh stale managed-process display", "scripts/reclaim_funder_networks_space.py stale service list", "docs/HELIUS_CLI_SETUP.md cron/systemd/Supervisor guidance"]
+    },
+    "preservation": {
+      "helius_usage_snapshots": "database/flex_complete_database.db, 12,774 rows, latest retained timestamp 2026-08-09T19:35:54.940257",
+      "shared_module": "src/monitoring/helius_cli_monitor.py retained; get_latest_snapshot/get_snapshot_history work against the explicit DB_PATH",
+      "manual_api": "src/apis/rpc_metrics_api.py retains explicit capture and snapshot reader imports/routes; no capture was invoked"
+    },
+    "validation": {
+      "focused_tests": "61 passed: Watchtower contract, P3R, Potential candidate matcher, canonical Evidence foundation, supervisor telemetry observer",
+      "ui_smoke": "localhost /system-health, /intelligence/operators, Byzantine operator detail, /intelligence/potential-operations, and /ops-os each returned HTTP 200 after the API recovered",
+      "automatic_start_paths": "0 in live Supervisor/current startup scripts/cron; no user-crontab Helius entry found",
+      "system_health": "no hard-coded watchtower_helius_monitor expectation found in current system-health route"
+    },
+    "continuity_breach": {
+      "cause": "Supervisor update applied unrelated pending live config changes and restarted several protected programs despite the target program being the only intended retirement.",
+      "observed": "watchtower_api, watchtower_listener, watchtower_ngrok, ws_cascade and multiple workers received new PIDs; operation_scheduler, previously RUNNING, was left STOPPED because it is autostart=false.",
+      "recovery_authority": "A request to start only operation_scheduler was rejected by the safety reviewer because the milestone prohibits restarts. No workaround was attempted.",
+      "blocker": "Explicit authorization is required to restore operation_scheduler before this milestone can be called core-preserving."
+    },
+    "safety": {
+      "provider_rpc_calls": 0,
+      "getTransaction_calls": 0,
+      "source_or_production_database_rows_modified": false,
+      "schema_modified": false,
+      "normal_walkback_modified": false,
+      "supervisor_refresh_performed": true,
+      "unintended_service_restarts_observed": true,
+      "operation_scheduler_restored": false
+    },
+    "next_action": "With explicit runtime authority, start only operation_scheduler, prove its health/queue continuity, then reissue the final retirement verification. After closure, perform DUST_OBSERVATORY_PRODUCER_CONSUMER_OWNERSHIP_AUDIT."
+  },
   "transaction_first_lineage_recovery_cache_audit": {
     "access": {
       "current_automatic_writers": 0,
@@ -14153,10 +14192,10 @@
     "tests": "53 focused tests passed: UI-contraction route guards plus creator-funding fast paths, Walkback startup resilience, P3R, Potential Operation visual structure, and operational topology. compileall and git diff --check passed.",
     "verdict": "UI_SURFACE_CONTRACTION_AND_BACKEND_REACHABILITY_PARTIAL_GENERIC_FUNDING_SLICE_RETIRED"
   },
-  "updated_at": "2026-09-04T07:44:04Z",
-  "updated_at_utc": "2026-09-04T07:44:04Z",
+  "updated_at": "2026-09-04T07:59:00Z",
+  "updated_at_utc": "2026-09-04T07:59:00Z",
   "updated_by": "agent_local",
-  "verdict": "STOPPED_SERVICE_RETIREMENT_QUALIFIED",
+  "verdict": "HELIUS_MONITOR_SUPERVISOR_RETIREMENT_PARTIAL",
   "watchtower_buy3_historical_first_buy_opening_mc": {
     "archive": "Alchemy archive exact-slot response for actual curve 776Pqg...wUX succeeded (151 bytes, SHA-256 49812911...f48f1c), but is necessarily post-buy/post-completion because the creation slot contains all five buys.",
     "artifact_digest": "1aad06cc04167484a05c4f7545dcebaffef534d0797bb30ba1c5b2116826e70c",

@@ -1,5 +1,6 @@
 import json
 import sqlite3
+import time
 
 from src.ops import live_potential_activity as activity
 
@@ -85,6 +86,28 @@ def test_hybrid_index_uses_signature_as_same_hop_tiebreaker(tmp_path, monkeypatc
     cursor = conn.cursor()
     assert activity._signatures_by_mint(cursor, {"same-hop"})["same-hop"] == ((1, "EARLY", 3), (1, "LATE", 2))
     conn.close()
+
+
+def test_default_aggregate_cache_reuses_result_and_prevents_mutation(tmp_path, monkeypatch):
+    db = _fixture(tmp_path, monkeypatch)
+    monkeypatch.setattr(activity, "_CACHE_VALUE", None)
+    monkeypatch.setattr(activity, "_CACHE_EXPIRES_AT", 0.0)
+    calls = 0
+    original = activity._build_aggregate
+    def counted(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        return original(*args, **kwargs)
+    monkeypatch.setattr(activity, "_build_aggregate", counted)
+    first, _ = activity.aggregate(str(db))
+    expected = first["live"]["live_launches_24h"]
+    first["live"]["live_launches_24h"] = 999
+    second, _ = activity.aggregate(str(db))
+    assert calls == 1
+    assert second["live"]["live_launches_24h"] == expected
+    monkeypatch.setattr(activity, "_CACHE_EXPIRES_AT", time.monotonic() - 1)
+    activity.aggregate(str(db))
+    assert calls == 2
 
 
 def test_signature_batching_is_bounded_and_aggregate_output_is_unchanged(tmp_path, monkeypatch):

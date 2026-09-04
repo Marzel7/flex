@@ -4,6 +4,8 @@ from __future__ import annotations
 import json
 import sqlite3
 import time
+import copy
+import threading
 from collections import Counter
 from pathlib import Path
 
@@ -12,6 +14,12 @@ from src.ops.potential_candidate_matcher import PotentialCandidateMatchSpec, mat
 ROOT = Path(__file__).resolve().parents[2]
 MEMBERSHIP = ROOT / "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/p3r_v2_candidate_membership.v1.json"
 SNAPSHOT = ROOT / "docs/audits/potential_route_activity_snapshot_v2/candidate_census.json"
+
+CACHE_TTL_SECONDS = 30
+_CACHE_LOCK = threading.Lock()
+_CACHE_VALUE: tuple[dict[str, dict], dict] | None = None
+_CACHE_EXPIRES_AT = 0.0
+_CACHE_DB_PATH: str | None = None
 
 
 def _signature(cursor: sqlite3.Cursor, mint: str) -> tuple | None:
@@ -65,7 +73,7 @@ def _state(metrics: dict[str, int]) -> str:
     return "DORMANT"
 
 
-def aggregate(db_path: str, now: int | None = None) -> tuple[dict[str, dict], dict]:
+def _build_aggregate(db_path: str, now: int | None = None) -> tuple[dict[str, dict], dict]:
     """Aggregate only unique, qualified current signatures without writes."""
     now = int(time.time() if now is None else now)
     connection = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
@@ -131,3 +139,19 @@ def aggregate(db_path: str, now: int | None = None) -> tuple[dict[str, dict], di
         return result, {"now": now, "matcher_qualified": len(qualified), "matcher_ambiguous": 2, "matcher_unavailable": 1, "windows": {label: dict(counts) for label, counts in windows.items()}}
     finally:
         connection.close()
+
+
+def aggregate(db_path: str, now: int | None = None) -> tuple[dict[str, dict], dict]:
+    """Read-only live projection; default-current reads share a short local cache."""
+    if now is not None:
+        return _build_aggregate(db_path, now=now)
+    global _CACHE_VALUE, _CACHE_EXPIRES_AT, _CACHE_DB_PATH
+    current = time.monotonic()
+    with _CACHE_LOCK:
+        if _CACHE_VALUE is not None and _CACHE_DB_PATH == db_path and current < _CACHE_EXPIRES_AT:
+            return copy.deepcopy(_CACHE_VALUE)
+        value = _build_aggregate(db_path)
+        _CACHE_VALUE = value
+        _CACHE_DB_PATH = db_path
+        _CACHE_EXPIRES_AT = time.monotonic() + CACHE_TTL_SECONDS
+        return copy.deepcopy(value)

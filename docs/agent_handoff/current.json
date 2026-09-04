@@ -14377,6 +14377,18 @@
     "verification": "Current src runtime tree has zero creator_funding_graph/CreatorFundingGraphCache/CREATOR_CACHE references. Retirement and fast-path tests passed 5/5; 42 focused tests passed across creator-funding, wallet quality, unknown-edge safety, P3R, Potential Operations, and Watchtower contracts. No graph object was recreated after 15 seconds of live worker operation.",
     "safety": "No provider/RPC calls, no normal Walkback table mutation, no UI change, no membership/attribution/topology/P3R/suppression change, and no tiny completeness cache introduced. The existing GMH/Erx direct relationship remains preserved by selected Walkback/role evidence."
   },
+  "creator_funding_graph_retirement_commit": {
+    "status": "COMPLETE",
+    "verdict": "GRAPH_RETIREMENT_COMMIT_COMPLETE",
+    "engineering_commit": "70b706f281fd14d8179948d639ccb376b7233ea5",
+    "branch": "classification-attribution-axis",
+    "contents": "Selective graph-retirement batch only: added provider-free retirement script and focused regression; deleted the graph-cache implementation; removed graph lookup/write paths, stale listener schema/index residue, and graph-specific fast-path test coverage. No mixed-file non-graph hunks were staged.",
+    "proof": "Live state retains exactly 12 NON_AUTHORITATIVE INSUFFICIENT_EVIDENCE legacy exceptions (canonical_authority=0); creator_funding_graph schema objects are absent; source tree has no graph runtime reader/writer or stale schema recreation; GMH/Erx remains preserved through selected Walkback/role evidence (93.5 SOL PLAIN_XFER).",
+    "tests": "42 focused tests passed across graph retirement, creator-funding fast paths, wallet quality, unknown-edge safety, P3R, Potential Operations, and Watchtower contracts. compileall and git diff --cached --check passed before commit.",
+    "remote": "origin/classification-attribution-axis verified at 70b706f281fd14d8179948d639ccb376b7233ea5 without force push.",
+    "worktree": "Expected dirty worktree remains. No post-commit index entries; all unrelated source, runtime, lock, audit, database, and handoff changes remain unstaged/uncommitted.",
+    "safety": "No provider/RPC calls, production/source-row mutation, normal Walkback mutation, UI/schema changes, suppression, discard, reset, rebase, stash, or Git maintenance."
+  },
   "remaining_evidence_compact_fixture_audit": {
     "status": "PARTIAL",
     "verdict": "REMAINING_EVIDENCE_AUDIT_PARTIAL",
@@ -14388,10 +14400,10 @@
     "next_action": "MORE_EVIDENCE_QUALIFICATION_REQUIRED: if desired, separately authorize a bounded semantic fixture review of primitive_replay.sqlite, authority_projection.sqlite, and the 1D/2A/2C1 audit DBs, with a no-artifact-recursion measurement plan. Otherwise retain the current Evidence set and move to main.py cleanup.",
     "safety": "No Evidence, database, service, Supervisor, creator-funding, Walkback, topology, P3R, Operations, Potential Operations, UI, cron, RPC/provider, VACUUM, REINDEX, checkpoint, or Git maintenance change. Temporary diagnostic du processes started by this audit were terminated."
   },
-  "updated_at": "2026-09-04T11:31:00Z",
-  "updated_at_utc": "2026-09-04T11:31:00Z",
+  "updated_at": "2026-09-04T12:00:00Z",
+  "updated_at_utc": "2026-09-04T12:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "CREATOR_FUNDING_GRAPH_FINAL_RECONCILIATION_QUALIFIED",
+  "verdict": "GRAPH_RETIREMENT_COMMIT_COMPLETE",
   "watchtower_buy3_historical_first_buy_opening_mc": {
     "archive": "Alchemy archive exact-slot response for actual curve 776Pqg...wUX succeeded (151 bytes, SHA-256 49812911...f48f1c), but is necessarily post-buy/post-completion because the creation slot contains all five buys.",
     "artifact_digest": "1aad06cc04167484a05c4f7545dcebaffef534d0797bb30ba1c5b2116826e70c",

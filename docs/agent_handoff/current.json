@@ -14522,10 +14522,20 @@
     "remote": "HANDOFF_TRANSPORT_DEGRADED: local engineering and handoff commits await explicit remote-export approval; no push attempted.",
     "next_action": "TOKEN_PRICE_HISTORICAL_TABLE_RETIREMENT_AUDIT"
   },
-  "updated_at": "2026-09-04T17:30:00Z",
-  "updated_at_utc": "2026-09-04T17:30:00Z",
+  "token_price_historical_table_retirement_audit": {
+    "status": "BLOCKED",
+    "verdict": "TOKEN_PRICE_HISTORICAL_TABLE_RETIREMENT_AUDIT_BLOCKED",
+    "engineering_revision": "454b37bc",
+    "scope": "Strictly read-only SQLite/schema/dependency audit; no provider call, service action, checkpoint, VACUUM, or database mutation.",
+    "observed": "WAL-visible live schema currently contains token_behavior (8,364 rows; about 1,814,528 table bytes plus 704,512 index bytes) and token_behavior_history (123,097 rows; about 13,787,136 table bytes plus 9,465,856 index bytes). No views/triggers reference them. token_price_snapshots and token_snapshot_counts were absent from the same read-only catalog, conflicting with an immediately preceding table probe and prior inventory.",
+    "blocker": "The historical object set is changing or being observed inconsistently through an active WAL-backed database with open writer handles. A destructive-retirement qualification cannot safely infer table/index counts, chronology, preservation requirements, or drop targets from this inconsistent state.",
+    "runtime_dependency": "Committed runtime readers/writers/recreators remain zero. Historical Evidence contracts and fixtures still retain snapshot-era schema/replay references; they are not current runtime dependencies.",
+    "next_action": "KEEP_PRICE_HISTORY_READ_ONLY until a separately authorized stable read-only snapshot/maintenance window can establish a consistent catalog and preservation boundary."
+  },
+  "updated_at": "2026-09-04T17:45:00Z",
+  "updated_at_utc": "2026-09-04T17:45:00Z",
   "updated_by": "agent_local",
-  "verdict": "FINAL_LEGACY_PRICE_RUNTIME_RETIREMENT_COMPLETE",
+  "verdict": "TOKEN_PRICE_HISTORICAL_TABLE_RETIREMENT_AUDIT_BLOCKED",
   "watchtower_buy3_historical_first_buy_opening_mc": {
     "archive": "Alchemy archive exact-slot response for actual curve 776Pqg...wUX succeeded (151 bytes, SHA-256 49812911...f48f1c), but is necessarily post-buy/post-completion because the creation slot contains all five buys.",
     "artifact_digest": "1aad06cc04167484a05c4f7545dcebaffef534d0797bb30ba1c5b2116826e70c",

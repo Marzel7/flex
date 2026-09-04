@@ -43,3 +43,28 @@ def test_current_health_block_has_no_retired_watch_pipeline_probe() -> None:
     end = source.index("@app.route('/api/db-health')", start)
     block = source[start:end]
     assert "worker_name='watch-pipeline'" not in block
+
+
+def test_system_health_omits_retired_price_diagnostics_and_fetch() -> None:
+    source = (ROOT / "templates/system_health_dashboard.html").read_text()
+    live_markup = source[:source.index("{% endblock %}")]
+    for retired_label in (
+        "grp-diag", "Pool Pricing", "Price Source Health", "Circuit Breaker",
+        "Rolling Window (5-min)", "Snapshot Cleanup (24h)",
+        "Local Flask Process Diagnostics", "First Snapshot Health",
+    ):
+        assert retired_label not in live_markup
+    assert "${API_BASE}/price/health" not in source
+
+
+def test_walkback_keeps_current_recovery_summary_not_history_table() -> None:
+    source = (ROOT / "templates/system_health_dashboard.html").read_text()
+    start = source.index("function renderWalkbackCandidateHealth")
+    end = source.index("function _fmtDuration", start)
+    block = source[start:end]
+    assert "Latest recovery:" in block
+    assert "self_kill_last_hour" in block
+    assert "self_kill_last_day" in block
+    assert "Recovery History (last 5)" not in block
+    assert "Discovery Diagnostics" not in block
+    assert "walkback-candidate-health" in source

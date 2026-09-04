@@ -436,17 +436,6 @@
                 <div class="mc-group-body" id="grp-infra-body"></div>
             </div>
 
-            <!-- 5. Diagnostics (Level 3 — collapsed by default, engineering-only) -->
-            <div class="mc-group" id="grp-diag">
-                <div class="mc-group-head" onclick="mcToggleGroup('grp-diag')">
-                    <span class="mc-group-title"><i class="fas fa-flask"></i> Diagnostics</span>
-                    <span class="mc-group-status pill neutral"><span class="dot"></span>Engineering</span>
-                    <span class="mc-group-summary">Price worker internals · Flask-process counters · profiling</span>
-                    <i class="fas fa-chevron-right mc-group-chevron"></i>
-                </div>
-                <div class="mc-group-body" id="grp-diag-body"></div>
-            </div>
-
         </div>
 {% endblock %}
 
@@ -455,13 +444,6 @@
         const API_BASE = '/api';
 
         // ── generic helpers ──────────────────────────────────────────────
-        async function fetchHealth() {
-            try {
-                const response = await fetch(`${API_BASE}/price/health`);
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                return await response.json();
-            } catch (error) { console.error('Health fetch failed:', error); return null; }
-        }
         function formatTime(timestamp) {
             if (!timestamp) return 'Never';
             return new Date(timestamp * 1000).toLocaleTimeString();
@@ -1639,7 +1621,7 @@
             if (!wb || !wb.ok) return `<div style="font-size:0.82rem;color:var(--text-secondary);">Walkback candidate health unavailable.</div>`;
             const status = wb.status || 'UNKNOWN';
             const color = _wbStatusColor(status);
-            const w = wb.walkback || {}, cg = wb.candidate_generation || {}, lease = wb.lease || {}, rec = wb.recovery || {}, links = wb.links || {};
+            const w = wb.walkback || {}, cg = wb.candidate_generation || {}, lease = wb.lease || {}, rec = wb.recovery || {};
 
             const warningsHtml = (wb.warnings || []).length
                 ? `<div style="font-size:0.8rem;color:${color==='critical'?'#f87171':'#facc15'};margin:0.5rem 0;">${wb.warnings.map(m => `<div style="margin-bottom:0.2rem;">⚠ ${m}</div>`).join('')}</div>`
@@ -1673,24 +1655,10 @@
                     </div>
                 </div>`;
 
-            const eventKindLabel = (kind) => kind === 'manual_external_termination' ? 'Manual / external process termination' : 'Stale lease self-kill';
-            const historyRows = (rec.events || []).map(e => {
-                const when = e.detected_at ? new Date(e.detected_at*1000) : null;
-                const whenStr = when ? `${when.toLocaleDateString(undefined,{day:'numeric',month:'short'})} · ${when.toISOString().slice(11,19)}Z` : '—';
-                const ttHealthy = (e.healthy_at && e.detected_at) ? _fmtDuration(e.healthy_at - e.detected_at) : null;
-                const outcome = e.restart_outcome ? `${e.restart_outcome}${ttHealthy ? ' in ' + ttHealthy : ''}` : (e.restarted_at ? 'restarted' : 'not yet restarted');
-                return `<tr>
-                    <td style="white-space:nowrap;">${whenStr}</td>
-                    <td>${e.worker || '—'}</td>
-                    <td>${eventKindLabel(e.event_kind)}</td>
-                    <td>${e.reason || '—'}</td>
-                    <td>${e.lease_age_seconds != null ? _fmtDuration(e.lease_age_seconds) : '—'}</td>
-                    <td>${outcome}</td>
-                </tr>`;
-            }).join('');
-            const historyHtml = historyRows
-                ? `<table class="pool-health-table" style="margin-top:0.5rem;"><thead><tr><th>Time</th><th>Worker</th><th>Kind</th><th>Reason</th><th>Lease Age</th><th>Outcome</th></tr></thead><tbody>${historyRows}</tbody></table>`
-                : `<div style="font-size:0.8rem;color:var(--text-secondary);margin-top:0.4rem;">No recovery events recorded.</div>`;
+            const latest = (rec.events || [])[0] || {};
+            const latestWhen = latest.detected_at ? new Date(latest.detected_at * 1000).toISOString() : 'No recovery recorded';
+            const latestOutcome = latest.restart_outcome || (latest.healthy_at ? 'healthy' : latest.restarted_at ? 'restarted' : latest.detected_at ? 'recovery pending' : '—');
+            const recoverySummary = `<div style="font-size:0.8rem;color:var(--text-secondary);margin-top:0.6rem;">Latest recovery: <b>${latestWhen}</b> · ${latestOutcome}</div>`;
 
             return `
                 <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.4rem;">
@@ -1700,14 +1668,7 @@
                 ${warningsHtml}
                 ${metricsHtml}
                 ${leaseHtml}
-                <div style="margin-top:0.9rem;">
-                    <div class="mc-subpanel-title" style="margin-bottom:0.3rem;"><i class="fas fa-history"></i> Recovery History (last 5)</div>
-                    ${historyHtml}
-                </div>
-                <div style="margin-top:0.6rem;display:flex;gap:1rem;font-size:0.78rem;">
-                    <a href="${links.treasury_review || '/intelligence/treasury-review'}" style="color:#22d3ee;">Treasury Review →</a>
-                    <a href="${links.discovery || '/discovery'}" style="color:#22d3ee;">Discovery Diagnostics →</a>
-                </div>`;
+                ${recoverySummary}`;
         }
         function _fmtDuration(secs) {
             if (secs == null) return '—';
@@ -2153,16 +2114,12 @@
         // MAIN ORCHESTRATION
         // ══════════════════════════════════════════════════════════════════
         async function updateDashboard() {
-            const firstSnapshotHealth = {}; // disabled — see original STABILITY note (WAL pinning)
-            const [data, dbHealth, recovery, fundingStats, fullHealth] = await Promise.all([
-                fetchHealth(),
+            const [dbHealth, recovery, fundingStats, fullHealth] = await Promise.all([
                 fetch('/api/db-health').then(r => r.json()).catch(() => ({})),
                 fetch('/api/listener-recovery-status').then(r => r.json()).catch(() => null),
                 fetch('/api/internal/funding-queue-stats').then(r => r.json()).catch(() => ({})),
                 fetch('/api/health/full').then(r => r.json()).catch(() => null),
             ]);
-            data && (data.queue_depths = dbHealth.queue_depths || {});
-
             // MC1.1B — capability-first incident layer is now the SOLE
             // source of truth for the top banner, incident cards, and
             // capability strip/grid below it. Previously the banner
@@ -2188,9 +2145,6 @@
             renderIngestionGroup(recovery, fundingStats, dbHealth);
             await renderIntelligenceGroup(fullHealth);
             renderInfraGroup(dbHealth, fullHealth);
-            renderDiagnosticsGroup(data || {}, recovery);
-            renderSnapshotCleanup(data || {});
-            renderFirstSnapshotHealth(firstSnapshotHealth);
 
             const now = new Date();
             document.getElementById('lastUpdate').textContent = `Last updated: ${now.toLocaleTimeString()}`;
